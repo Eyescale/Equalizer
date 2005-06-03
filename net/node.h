@@ -5,93 +5,87 @@
 namespace eqNet
 {
     /**
-     * Manages a session.
+     * Manages a node.
      *
-     * A session represents a group of nodes managed by a central server. The
-     * server ensures that all identifiers used during communication are
-     * unique. 
+     * A node represents a separate entity within a session, typically a PC in a
+     * cluster or a process on a shared-memory system.
      */
-    class Session
+    class Node
     {
     public:
-        /**
-         * Initializes the network by connecting to an Equalizer server.
-         *
-         * @param server the server location.
-         * @return the session.
-         * @throws ??? if the server could not be contacted.
-         */
-        static Session* init( const char *server );
-        
-        /**
-         * Joins an existing session on a server.
-         *
-         * @param server the server location.
-         * @param session the session id.
-         * @return the session.
-         * @throws ??? if the server could not be contacted.
-         */
-        static Session* join( const char *server, const uint sessionID );
-
-        /** @return the session id. */
-        uint getID();
+        /** The supported network protocols. */
+        enum Protocol 
+        {
+            PROTO_TCPIP, //!< TCP/IP networking.
+            PROTO_MPI    //!< MPI networking.
+        };
 
         /**
-         * Gets the pointer to an existing session object.
-         *
-         * The session has to be created using Session::init() or Session::join
-         * before using this function. It is a convenience function to enable
-         * the usage of identifiers instead of pointers throughout the
-         * application.
-         *
-         * @return the session.
-         * @throws invalid_argument if the id is not known.
+         * Describes a connection for a node within a session.
          */
-        static Session* getSession( const uint id );
+        struct Connection 
+        {
+            Protocol protocol; //!< The network protocol.
+            /**
+             * The network identifier, all nodes within the same protocol and
+             * network are directly connected. 
+             */
+            uint networkID = 0;
 
-        /**
-         * 
-         */
-        uint addNode( ProtocolDescription *desc );
-// get, remove node
-// add, get, remove protocol per node
-void               enableForwarding( uint nid, Protocol p1, uint n1,
-                                     Protocol p2, uint n2 );
-void               disableForwarding( uint nid, Protocol p1, uint n1,
-                                      Protocol p2, uint n2 );
-
-bool   /*success*/ init();
-void               exit();
-
-bool   /*success*/ initNode( uint nid ); // late init may not be possible
-void   /*success*/ exitNode( uint nid ); // early exit may not be possible
-
-bool   /*success*/ startNode( uint nid );
-void               stopNode( uint nid );
-
-enum Protocol 
-{
-     PROTO_TCPIP,
-     PROTO_MPI
-};
-
-ProtocolDescription 
-{
-    Protocol protocol;
-
-    uint networkID = 0; // same protocol and network = direct connectivity
-    uint64 bandwidthKBS;
+            /** The bandwidth in kilobyte per second for this connection. */
+            uint64 bandwidthKBS;
     
-    union 
-    {
-        struct TCPIP
-        {
-            const char *rshCommand; // e.g., "ssh eile@node1"
-            const char *address;    // (<IP>|<name>)(:<port>)
+            /** 
+             * The command to spawn a new process on the node, e.g., "ssh
+             * eile@node1".
+             */
+            const char *rshCommand; 
+
+            union //!< The individual parameters for the connection.
+            {
+                struct TCPIP //!< TCP/IP parameters.
+                {
+                    /** 
+                     * The address of the node in the form
+                     * '<code>(&lt;IP&gt;|&lt;name&gt;)(:&lt;port&gt;)</code>'.
+                     */
+                    const char *address;
+                };
+                struct MPI //!< MPI parameters
+                {
+                };
+            };
         };
-        struct MPI
-        {
-            const char *rshCommand; // e.g., "ssh eile@node1"
-        };
+
+        // add, get, remove protocol per node
+        static void addConnection( const uint nodeID, 
+            const Connection *connection );
+
+        
+        static uint nConnections( const uint nodeID );
+
+        static const Connection& getConnection( const uint index );
+        
+        //static bool removeConnection( const uint index );
+        //static uint removeConnections( const Protocol protocol );
+
+        /**
+         * Enables forwarding between two protocols on this node. 
+         */
+        static void enableForwarding( const uint nid, const uint connIndex1, 
+            const uint connIndex2 );
+        void disableForwarding( const uint nid, const uint connIndex1, 
+            const uint connIndex2 );
+
+        bool   /*success*/ init();
+        void               exit();
+
+        bool   /*success*/ initNode( uint nid ); // late init may not be possible
+        void   /*success*/ exitNode( uint nid ); // early exit may not be possible
+
+        bool   /*success*/ startNode( uint nid );
+        void               stopNode( uint nid );
     };
 };
+
+
