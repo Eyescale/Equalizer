@@ -6,6 +6,12 @@
 /** 
  * @namespace eqNet
  * @brief The equalizer networking abstraction layer.
+ *
+ * The Equalizer network abstraction layer provides the basic functionality to
+ * enable execution on distributed and shared memory machines. The access to the
+ * actual C++ objects is deliberately hidden to encourage the use of identifiers
+ * for portability to clusters. If this proves to be too restrictive, public
+ * non-static member functions can be created later.
  */
 namespace eqNet
 {
@@ -16,9 +22,9 @@ namespace eqNet
      * server ensures that all identifiers used during communication are
      * unique. 
      *
-     * Nodes are added to a Group in order to describe how they are
+     * Nodes are added to a Network in order to describe how they are
      * connected to a session. Nodes can be participants in several
-     * groups.
+     * networks.
      *
      * Server addresses are specified in the form
      * '<code>(&lt;IP&gt;|&lt;name&gt;)(:&lt;port&gt;)</code>'. If the
@@ -32,10 +38,15 @@ namespace eqNet
     {
     public:
         /**
-         * Initializes the network by connecting to an Equalizer server.
+         * @name Getting a Session
+         */
+        //*{
+        
+        /**
+         * Create a new session by connecting to an Equalizer server.
          *
          * @param server the server location.
-         * @return the session id.
+         * @return the session identifier.
          * @throws ??? if the server could not be contacted.
          */
         static uint init( const char *server );
@@ -44,62 +55,29 @@ namespace eqNet
          * Joins an existing session on a server.
          *
          * @param server the server location.
-         * @param sessionID the session id.
+         * @param sessionID the session identifier.
          * @return <code>true</code> if the session could be joined,
          *         <code>false</code> if not.
          * @throws ??? if the server could not be contacted.
          */
         static bool join( const char *server, const uint sessionID );
+        //*}
 
         /**
-         * Adds a new group to this session.
-         * 
-         * Groups 
-         * @param sessionID the session identifier.
-         * @param protocol the groups network protocol.
-         * @sa addNode
+         * @name Managing nodes
          */
-        static uint addGroup( const uint sessionID, 
-            const Group::Protocol protocol );
-
-        /**
-         * Returns the number of groups in this session.
-         *
-         * @param sessionID the session identifier.
-         * @returns the number of groups in this Session. 
-         */
-        static uint nGroups( const uint sessionID );
-
-        /**
-         * Get the group id of the numbered group in this session.
-         *
-         * @param sessionID the session identifier.
-         * @param index the index of the group.
-         * @return the group id.
-         */
-        static uint getGroupID( const uint sessionID, const uint index );
-
-        /**
-         * Removes a group from this session.
-         *
-         * @param sessionID the session identifier.
-         * @param groupID the identifier of the group to remove
-         * @return <code>true</code> if the group was removed,
-         *         <code>false</code> if not.
-         * @throws invalid_argument if the group identifier is not known.
-         */
-        static bool removeGroup( const uint sessionID, const uint groupID );
-
+        //*{
         /**
          * Adds a new node to this session.
          *
-         * This method adds additional nodes to this session, the local node and
-         * server are automatically part of this session. Nodes have
-         * to be added to at least one Group in order to communicate
+         * This method adds an additional node to this session, the local node
+         * and server are automatically part of this session. Nodes have
+         * to be added to at least one Network in order to communicate
          * with the session.
          * 
          * @param sessionID the session identifier.
-         * @sa Group::addNode
+         * @return the node identifier of the added node.
+         * @sa Network::addNode
          */
         static uint addNode( const uint sessionID );
 
@@ -116,7 +94,7 @@ namespace eqNet
          *
          * @param sessionID the session identifier.
          * @param index the index of the node.
-         * @return the node id.
+         * @return the node identifier.
          */
         static uint getNodeID( const uint sessionID, const uint index );
 
@@ -130,48 +108,148 @@ namespace eqNet
          * @throws invalid_argument if the node identifier is not known.
          */
         static bool removeNode( const uint sessionID, const uint nodeID );
+        //*}
 
+        /**
+         * @name Managing Networks
+         * 
+         * Networks are used to create connectivity between nodes.
+         * @sa Network, Node
+         */
+        //*{
+        /**
+         * Adds a new network to this session.
+         * 
+         * @param sessionID the session identifier.
+         * @param protocol the network protocol.
+         * @return the network identifier of the added network.
+         * @sa addNode
+         */
+        static uint addNetwork( const uint sessionID, 
+            const Network::Protocol protocol );
+
+        /**
+         * Returns the number of networks in this session.
+         *
+         * @param sessionID the session identifier.
+         * @returns the number of networks in this Session. 
+         */
+        static uint nNetworks( const uint sessionID );
+
+        /**
+         * Get the network id of the numbered network in this session.
+         *
+         * @param sessionID the session identifier.
+         * @param index the index of the network.
+         * @return the network identifier.
+         */
+        static uint getNetworkID( const uint sessionID, const uint index );
+
+        /**
+         * Removes a network from this session.
+         *
+         * @param sessionID the session identifier.
+         * @param networkID the identifier of the network to remove
+         * @return <code>true</code> if the network was removed,
+         *         <code>false</code> if not.
+         * @throws invalid_argument if the network identifier is not known.
+         */
+        static bool removeNetwork( const uint sessionID, const uint networkID );
+        //*}
+
+        /**
+         * @name Managing groups
+         * 
+         * A Group is a collection of nodes used for broadcast communications.
+         * @sa Group, Node
+         */
+        //*{
+        /**
+         * Adds a new group to this session.
+         *
+         * @param sessionID the session identifier.
+         * @param nodeIDs the identifiers of the nodes belonging to the group.
+         * @param nNodes the number of nodes in the group.
+         * @return the group identifier of the added group.
+         */
+        static uint addGroup( const uint sessionID, const uint nodeIDs[], 
+            const uint nNodes );
+
+        /**
+         * Returns the number of groups in this session.
+         *
+         * @param sessionID the session identifier.
+         * @return the number of groups in this Session. 
+         */
+        static uint nGroups( const uint sessionID );
+
+        /**
+         * Get the group id of the numbered group in this session.
+         *
+         * @param sessionID the session identifier.
+         * @param index the index of the group.
+         * @return the group identifier.
+         */
+        static uint getGroupID( const uint sessionID, const uint index );
+
+        /**
+         * Removes a group from this session.
+         *
+         * @param sessionID the session identifier.
+         * @param groupID the identifier of the group to remove
+         * @return <code>true</code> if the group was removed,
+         *         <code>false</code> if not.
+         * @throws invalid_argument if the group identifier is not known.
+         */
+        static bool removeGroup( const uint sessionID, const uint groupID );
+        //*}
+
+        /**
+         * @name Session State Management
+         */
+        //*{
         /**
          * Initialise this session.
          *
-         * Initialising this session initialises all groups in this
+         * Initialising this session initialises all networks in this
          * session. Afterwards, the nodes have to be started before
          * they can communicate with other nodes in this session.
          *
          * @param sessionID the session identifier.
-         * @return <code>true</code> if all groups in this session
+         * @return <code>true</code> if all networks in this session
          *         were successfully initialised, <code>false</code>
          *         if not.
-         * @sa Group::init, start
+         * @sa Network::init, start
          */
         static bool init(const uint sessionID);
 
         /**
          * Exits this session.
          *
-         * Exiting this session de-initializes all groups in this session.
+         * Exiting this session de-initializes all networks in this session.
          *
          * @param sessionID the session identifier.
-         * @sa Group::exit, stop
+         * @sa Network::exit, stop
          */
         static void exit(const uint sessionID);
 
         /**
-         * Start all nodes of all initialized groups in this session.
+         * Start all nodes of all initialized networks in this session.
          *
          * @param sessionID the session identifier.
          * @return <code>true</code> if all node in this session were
          *         successfully started , <code>false</code> if not.
-         * @sa Group::start, init
+         * @sa Network::start, init
          */
         static bool start(const uint sessionID);
 
         /**
-         * Stops all nodes of all initialized groups in this session.
+         * Stops all nodes of all initialized networks in this session.
          *
          * @param sessionID the session identifier.
-         * @sa Group::stop, exit
+         * @sa Network::stop, exit
          */
         static void stop(const uint sessionID);
+        //*}
     };
 };
