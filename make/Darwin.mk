@@ -1,4 +1,7 @@
 
-DSO_SUFFIX = dylib
+ARCH       = Darwin
+VARIANT    = 32
 
-LIBFLAGS = -dynamiclib 
+DSO_SUFFIX = dylib
+LIBFLAGS   = -dynamiclib 
+

@@ -163,8 +163,11 @@ size_t Connection::read( const void* buffer, const size_t bytes )
     {
         ssize_t bytesRead = ::read( _fd, ptr, bytesLeft );
         
-        if( bytesRead == 0 ) // EOF XXX close socket?
+        if( bytesRead == 0 ) // EOF
+        {
+            _deleteSocket();
             return bytes - bytesLeft;
+        }
 
         if( bytesRead == -1 ) // error
         {

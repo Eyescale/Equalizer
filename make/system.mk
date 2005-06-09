@@ -1,12 +1,17 @@
 
 include $(TOP)/make/Darwin.mk
 
-CXXFLAGS += -I$(TOP)/include
+CXXFLAGS += -I$(BUILD_DIR)/include
+
+BUILD_DIR  = $(TOP)/build/$(ARCH)/$(VARIANT)
 
 HEADER_SRC = $(wildcard *.h)
-HEADER_DIR = $(TOP)/include/eq/$(MODULE_NAME)
+HEADER_DIR = $(BUILD_DIR)/include/eq/$(MODULE_NAME)
 HEADERS    = $(HEADER_SRC:%=$(HEADER_DIR)/%)
 
-LIBRARY_DIR = $(TOP)/lib
+OBJECT_DIR   = obj/$(ARCH)/$(VARIANT)
+OBJECTS      = $(SOURCES:%.cpp=$(OBJECT_DIR)/%.o)
+
+LIBRARY_DIR = $(BUILD_DIR)/lib
 LIBRARY     = $(MODULE_NAME:%=$(LIBRARY_DIR)/libeq%.$(DSO_SUFFIX))
 
