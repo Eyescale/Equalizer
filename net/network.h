@@ -2,6 +2,9 @@
 /* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
+#ifndef EQNET_NETWORK_H
+#define EQNET_NETWORK_H
+
 namespace eqNet
 {
     /**
@@ -41,19 +44,23 @@ namespace eqNet
              */
             const char *rshCommand; 
 
-            union //!< The individual parameters for the connection.
+            /** The individual parameters for the connection. */
+            union
             {
-                struct TCPIP //!< TCP/IP parameters.
+                /** TCP/IP parameters */
+                struct
                 {
                     /** 
                      * The address of the node in the form
                      * '<code>(&lt;IP&gt;|&lt;name&gt;)(:&lt;port&gt;)</code>'.
                      */
                     const char *address;
-                };
-                struct MPI //!< MPI parameters
+                } TCPIP;
+
+                /** MPI parameters */
+                struct
                 {
-                };
+                } MPI;
             };
         };
 
@@ -164,4 +171,4 @@ namespace eqNet
     };
 };
 
-
+#endif // EQNET_NETWORK_H

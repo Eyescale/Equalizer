@@ -2,6 +2,9 @@
 /* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
+#ifndef EQNET_GROUP_H
+#define EQNET_GROUP_H
+
 namespace eqNet
 {
     /**
@@ -27,4 +30,4 @@ namespace eqNet
     };
 };
 
-
+#endif //EQNET_GROUP_H

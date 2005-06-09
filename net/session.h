@@ -2,6 +2,11 @@
 /* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
+#ifndef EQNET_SESSION_H
+#define EQNET_SESSION_H
+
+#include "eq/base/base.h"
+#include "eq/net/network.h"
 
 /** 
  * @namespace eqNet
@@ -253,3 +258,6 @@ namespace eqNet
         //*}
     };
 };
+
+#endif // EQNET_SESSION_H
+
