@@ -3,18 +3,36 @@
    All rights reserved. */
 
 #include "session.h"
+#include "connection.h"
+
+#include <eq/net/connectionDescription.h>
 
 using namespace eqNet;
 
-/*
- * Create a new session by connecting to an Equalizer server.
- *
- * @param server the server location.
- * @return the session identifier.
- * @throws ??? if the server could not be contacted.
- */
 uint Session::init( const char *server )
 {
+    ConnectionDescription connDesc;
+    connDesc.protocol = Network::PROTO_TCPIP;
+    connDesc.TCPIP.address = server;
+    
+    Connection* connection = Connection::create( connDesc );
+
+    if( !connection->connect())
+    {
+        char *address = (char *)alloca( 16 );
+        sprintf( address, "localhost:%5d", DEFAULT_PORT );
+
+        connDesc.TCPIP.address = address;
+
+        delete connection;
+        connection = Connection::create( connDesc );
+
+        if( !connection->connect())
+        {
+            connDesc.protocol = Network::PROTO_PIPE;
+            connDesc.launchCommand = "Server::run";
+        }
+    }
 }
         
 /*
@@ -24,7 +42,6 @@ uint Session::init( const char *server )
  * @param sessionID the session identifier.
  * @return <code>true</code> if the session could be joined,
  *         <code>false</code> if not.
- * @throws ??? if the server could not be contacted.
  */
 bool Session::join( const char *server, const uint sessionID )
 {

@@ -34,26 +34,6 @@ namespace eqNet
          * @return the node identifier of the local node.
          */
         static uint getNodeID();
-
-        /**
-         * Enables forwarding between two networks on this node.
-         *
-         * @param nodeID the node identifier.
-         * @param networkID1 the first networks identifier.
-         * @param networkID2 the second networks identifier.
-         */
-        static void enableForwarding( const uint nodeID, const uint networkID1, 
-            const uint networkID2 );
-
-        /**
-         * Disables forwarding between two networks on this node.
-         *
-         * @param nodeID the node identifier.
-         * @param networkID1 the first networks identifier.
-         * @param networkID2 the second networks identifier.
-         */
-        static void disableForwarding( const uint nodeID, 
-            const uint networkID1, const uint networkID2 );
         //@}
 
         /**

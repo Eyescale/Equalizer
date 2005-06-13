@@ -12,11 +12,13 @@ $(SUBDIRS):
 
 # library generation rules
 
+$(HEADERS):
+
 $(HEADER_DIR)/%.h : %.h
 	@mkdir -p $(HEADER_DIR)
 	@cp $< $@
 
-$(LIBRARY): $(OBJECT_DIR) $(OBJECTS)
+$(LIBRARY): $(OBJECT_DIR) $(DEPENDENCIES) $(OBJECTS)
 	@mkdir -p $(LIBRARY_DIR)
 	$(CXX) $(LDFLAGS) $(LIBFLAGS) $(OBJECTS) -o $@
 
@@ -26,8 +28,17 @@ $(OBJECT_DIR)/%.o : %.cpp
 $(OBJECT_DIR):
 	@mkdir -p $(OBJECT_DIR)
 
+# cleaning targets
 clean:
-	rm -f *~ .*~ $(OBJECTS) $(HEADERS) $(LIBRARY) $(CLEAN)
+	rm -f *~ .*~ $(OBJECTS) $(DEPENDENCIES) $(HEADERS) $(LIBRARY) $(CLEAN)
 	@for d in $(SUBDIRS); do \
 		$(MAKE) TOP=$(SUBTOP) -C $$d $@; \
 	done
+
+# dependencies
+$(OBJECT_DIR)/%.d : %.cpp
+	@$(CXX) $(CXXFLAGS) -MD -E $< -o $@
+
+ifdef $(DEPENDENCIES)
+  include $(DEPENDENCIES)
+endif

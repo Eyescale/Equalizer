@@ -1,10 +1,20 @@
 
 include $(TOP)/make/system.mk
 
-HEADER_SRC = group.h network.h node.h session.h
-SOURCES    = connection.cpp session.cpp
+HEADER_SRC = \
+	connectionDescription.h \
+	group.h \
+	network.h \
+	node.h \
+	session.h
 
-MODULE_NAME = net
+SOURCES = \
+	connection.cpp \
+	fdConnection.cpp \
+	session.cpp \
+	socketConnection.cpp
+
+MODULE  = net
 
 all: $(HEADERS) $(LIBRARY)
 

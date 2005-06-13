@@ -7,9 +7,7 @@ SUBDIRS = base net tests
 
 all: subdirs docs
 
-docs: ../doc
-
-../doc:
+docs:
 	doxygen Doxyfile
 
 net: base

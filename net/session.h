@@ -5,8 +5,8 @@
 #ifndef EQNET_SESSION_H
 #define EQNET_SESSION_H
 
-#include "eq/base/base.h"
-#include "eq/net/network.h"
+#include <eq/base/base.h>
+#include <eq/net/network.h>
 
 /** 
  * @namespace eqNet
@@ -52,7 +52,6 @@ namespace eqNet
          *
          * @param server the server location.
          * @return the session identifier.
-         * @throws ??? if the server could not be contacted.
          */
         static uint init( const char *server );
         
@@ -82,7 +81,7 @@ namespace eqNet
          * 
          * @param sessionID the session identifier.
          * @return the node identifier of the added node.
-         * @sa Network::addNode
+         * @sa Node, Network::addNode
          */
         static uint addNode( const uint sessionID );
 
@@ -124,6 +123,9 @@ namespace eqNet
         //*{
         /**
          * Adds a new network to this session.
+         *
+         * The network between the server and the local node is
+         * automatically added to the session.
          * 
          * @param sessionID the session identifier.
          * @param protocol the network protocol.
@@ -165,7 +167,9 @@ namespace eqNet
         /**
          * @name Managing groups
          * 
-         * A Group is a collection of nodes used for broadcast communications.
+         * A Group is a collection of nodes used for broadcast
+         * communications. Broadcast primitives are typically not efficient
+         * across Network boundaries. 
          * @sa Group, Node
          */
         //*{

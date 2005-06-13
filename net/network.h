@@ -7,6 +7,8 @@
 
 namespace eqNet
 {
+    struct ConnectionDescription;
+
     /**
      * Manages a network within a session.
      *
@@ -26,42 +28,9 @@ namespace eqNet
         /** The supported network protocols. */
         enum Protocol 
         {
-            PROTO_TCPIP, //!< TCP/IP networking.
-            PROTO_MPI    //!< MPI networking.
-        };
-
-        /**
-         * Describes a connection of a node to a network.
-         */
-        struct Connection 
-        {
-            /** The bandwidth in kilobyte per second for this connection. */
-            uint64 bandwidthKBS;
-    
-            /** 
-             * The command to spawn a new process on the node, e.g., "ssh
-             * eile@network1".
-             */
-            const char *rshCommand; 
-
-            /** The individual parameters for the connection. */
-            union
-            {
-                /** TCP/IP parameters */
-                struct
-                {
-                    /** 
-                     * The address of the node in the form
-                     * '<code>(&lt;IP&gt;|&lt;name&gt;)(:&lt;port&gt;)</code>'.
-                     */
-                    const char *address;
-                } TCPIP;
-
-                /** MPI parameters */
-                struct
-                {
-                } MPI;
-            };
+            PROTO_TCPIP,  //!< TCP/IP networking.
+            PROTO_MPI,    //!< MPI networking.
+            PROTO_PIPE    //!< anonymous pipe to forked process
         };
 
         /**
@@ -73,7 +42,7 @@ namespace eqNet
          * @sa Node::enableForwarding(), Node::disableForwarding()
          */
         static void addNode( const uint networkID, const uint nodeID, 
-            const Connection *connection );
+            const ConnectionDescription* connection );
 
         /**
          * Returns the number of nodes for this network.
@@ -101,9 +70,20 @@ namespace eqNet
          * @param nodeID the node identifier.
          * @return the connection information.
          */
-        static const Connection& getConnection( const uint networkID, 
-            const uint nodeID );
+        static const ConnectionDescription& getConnection( 
+            const uint networkID, const uint nodeID );
+
         
+        /** 
+         * Set the gateway node to another network.
+         * 
+         * @param networkID the network identifier.
+         * @param toNetworkID the identifier of the foreign network.
+         * @param nodeID the identifier of the gateway node.
+         */
+        static void setGateway( const uint networkID, const uint toNetworkID,
+            const uint nodeID );
+
         /**
          * Initialise this network.
          *

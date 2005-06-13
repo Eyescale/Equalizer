@@ -1,21 +1,27 @@
 
 #include <connection.h>
 
+#include <eq/net/connectionDescription.h>
+
 using namespace eqNet;
 
 int main( int argc, char **argv )
 {
-    Connection *conn = new Connection();
-    conn->connect( "localhost:4242" );
+    ConnectionDescription connDesc;
+    connDesc.protocol      = Network::PROTO_TCPIP;
+    connDesc.TCPIP.address = "localhost:4242";
+
+    Connection *connection = Connection::create( connDesc );
+    connection->connect();
 
     const char message[] = "buh!";
     int nChars = strlen( message ) + 1;
     const char *response = (const char*)alloca( nChars );
 
-    conn->write( message, nChars );
-    conn->read( response, nChars );
+    connection->write( message, nChars );
+    connection->read( response, nChars );
     fprintf( stderr, "%s\n", response );
-    conn->close();
+    connection->close();
 
-    return 0;
+    return EXIT_SUCCESS;
 }

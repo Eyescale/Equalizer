@@ -5,12 +5,15 @@ using namespace eqNet;
 
 int main( int argc, char **argv )
 {
-    Connection *conn = new Connection();
-    conn->listen( ":4242" );
+    ConnectionDescription connDesc;
+    connDesc.protocol      = Network::PROTO_TCPIP;
+    connDesc.TCPIP.address = "localhost:4242";
 
-    Connection *client = conn->accept();
+    Connection *connection = Connection::create(connDesc);
+
+    Connection *client = connection->accept();
     fprintf( stderr, "Server accepted connection\n" );
-    conn->close();
+    connection->close();
 
     char c;
     while( client->read( &c, 1 ))
@@ -19,5 +22,5 @@ int main( int argc, char **argv )
         client->write( &c, 1 );
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }

@@ -5,13 +5,16 @@
 #ifndef EQNET_CONNECTION_H
 #define EQNET_CONNECTION_H
 
-#include "eq/base/base.h"
+#include <eq/base/base.h>
+#include <eq/net/connectionDescription.h>
 
 #include <stdexcept>
 #include <netinet/in.h>
 
 namespace eqNet
 {
+    class ConnectionDescription;
+
     enum State {
         STATE_CLOSED,
         STATE_CONNECTING,
@@ -35,25 +38,24 @@ namespace eqNet
     class Connection
     {
     public:
+        virtual ~Connection(){}
+
+        static Connection* create( ConnectionDescription &description );
+
+        virtual bool connect(){ return false; }
+        virtual bool listen(){ return false; }
+        virtual Connection* accept(){ return NULL; }
+
+        virtual size_t read( const void* buffer, const size_t bytes ){return 0;}
+        virtual size_t write( const void* buffer, const size_t bytes){return 0;}
+
+        virtual void close(){};
+
+    protected:
         Connection();
-        virtual ~Connection();
 
-        bool connect( const char* address );
-        bool listen( const char* address );
-        Connection* accept();
-
-        size_t read( const void* buffer, const size_t bytes );
-        size_t write( const void* buffer, const size_t bytes );
-
-        void close();
-
-    private:
-        int   _fd;     //!< The socket file descriptor.
-        State _state;  //!< The connections state
-
-        int  _createSocket();
-        void _parseAddress( sockaddr_in& socketAddress, 
-            const char* address );
+        ConnectionDescription _description; //!< The connection parameters
+        State                 _state;       //!< The connections state
     };
 };
 
