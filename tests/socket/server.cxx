@@ -13,9 +13,9 @@ int main( int argc, char **argv )
     conn->close();
 
     char c;
-    while( client->read( &c, 1))
+    while( client->read( &c, 1 ))
     {
-        fprintf( stderr, "Server recv: %c\n", c );
+        fprintf( stderr, "Server recv: '%c'\n", c );
         client->write( &c, 1 );
     }
 

@@ -161,7 +161,7 @@ Connection* Connection::accept()
     int fd;
 
     do
-        ::accept( fd, (sockaddr*)&newAddress, &newAddressLen );
+        fd = ::accept( _fd, (sockaddr*)&newAddress, &newAddressLen );
     while( fd == -1 && errno == EINTR );
 
     if( fd == -1 )
@@ -190,9 +190,7 @@ size_t Connection::read( const void* buffer, const size_t bytes )
 
     while( bytesLeft )
     {
-        fprintf( stderr, "reading %d bytes....\n", bytesLeft );
         ssize_t bytesRead = ::read( _fd, ptr, bytesLeft );
-        fprintf( stderr, "got %d bytes....\n", bytesRead );
         
         if( bytesRead == 0 ) // EOF
         {

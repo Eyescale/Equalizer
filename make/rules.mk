@@ -6,7 +6,7 @@
 subdirs: $(SUBDIRS) 
 
 $(SUBDIRS):
-	@echo "----- $@"
+	@echo "$(DEPTH) $@"
 	@$(MAKE) TOP=$(SUBTOP) -C $@
 
 

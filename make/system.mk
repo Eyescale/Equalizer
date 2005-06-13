@@ -1,9 +1,11 @@
 
 ifndef TOP
-  TOP := .
+  TOP := ./
 endif
 
 SUBTOP := ../$(TOP)
+DEPTH := $(subst ../,--,$(TOP))
+DEPTH := $(subst ./,->,$(DEPTH))
 
 include $(TOP)/make/Darwin.mk
 
