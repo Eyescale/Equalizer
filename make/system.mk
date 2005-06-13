@@ -1,4 +1,10 @@
 
+ifndef TOP
+  TOP := .
+endif
+
+SUBTOP := ../$(TOP)
+
 include $(TOP)/make/Darwin.mk
 
 CXXFLAGS += -I$(BUILD_DIR)/include
@@ -14,4 +20,5 @@ OBJECTS      = $(SOURCES:%.cpp=$(OBJECT_DIR)/%.o)
 
 LIBRARY_DIR = $(BUILD_DIR)/lib
 LIBRARY     = $(MODULE_NAME:%=$(LIBRARY_DIR)/libeq%.$(DSO_SUFFIX))
+
 

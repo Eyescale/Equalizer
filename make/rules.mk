@@ -1,10 +1,13 @@
 
+.PHONY: subdirs $(SUBDIRS)
+
 # recursive subdir rules
 
 subdirs: $(SUBDIRS) 
 
 $(SUBDIRS):
-	$(MAKE) -C $@
+	@echo "----- $@"
+	@$(MAKE) TOP=$(SUBTOP) -C $@
 
 
 # library generation rules
@@ -22,3 +25,9 @@ $(OBJECT_DIR)/%.o : %.cpp
 
 $(OBJECT_DIR):
 	@mkdir -p $(OBJECT_DIR)
+
+clean:
+	rm -f *~ .*~ $(OBJECTS) $(HEADERS) $(LIBRARY) $(CLEAN)
+	@for d in $(SUBDIRS); do \
+		$(MAKE) TOP=$(SUBTOP) -C $$d $@; \
+	done

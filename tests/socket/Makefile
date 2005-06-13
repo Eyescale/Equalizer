@@ -1,10 +1,11 @@
 
-TOP = ../..
 include $(TOP)/make/system.mk
 
-CXXFLAGS += -I$(TOP)/net -L$(TOP)/lib -leqnet
+CXXFLAGS += -I$(TOP)/net -L$(BUILD_DIR)/lib -leqnet
 
-all: client
+CLEAN = $(wildcard *.o) client server
+
+all: client server
 
 client: client.cxx
 	$(CXX) $(CXXFLAGS) -o $@ client.cxx

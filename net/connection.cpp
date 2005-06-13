@@ -21,7 +21,7 @@ Connection::Connection()
 
 Connection::~Connection()
 {
-    _deleteSocket();
+    close();
 }
 
 //----------------------------------------------------------------------
@@ -39,7 +39,7 @@ bool Connection::connect( const char *address )
     sockaddr_in socketAddress;
     _parseAddress( socketAddress, address );
 
-    const bool connected = (::connect( _fd, (struct sockaddr*)&socketAddress, 
+    const bool connected = (::connect( _fd, (sockaddr*)&socketAddress, 
             sizeof(socketAddress)) == 0);
 
     if( connected )
@@ -47,7 +47,7 @@ bool Connection::connect( const char *address )
     else
     {
         WARN( "Could not connect socket: %s\n", strerror( errno ));
-        _deleteSocket();
+        close();
     }
     
     return connected;
@@ -69,12 +69,12 @@ int Connection::_createSocket()
     return fd;
 }
 
-void Connection::_deleteSocket()
+void Connection::close()
 {
     if( _fd == -1 )
         return;
 
-    const bool closed = ( close(_fd) == 0 );
+    const bool closed = ( ::close(_fd) == 0 );
     if( !closed )
         WARN( "Could not close socket: %s\n", strerror( errno ));
 
@@ -125,13 +125,13 @@ bool Connection::listen( const char *address )
     sockaddr_in socketAddress;
     _parseAddress( socketAddress, address );
 
-    const bool bound = (::bind( _fd, (const struct sockaddr *)&socketAddress,
+    const bool bound = (::bind( _fd, (sockaddr *)&socketAddress,
             sizeof(socketAddress) ) == 0);
 
     if( !bound )
     {
         WARN( "Could not bind socket: %s\n", strerror( errno ));
-        _deleteSocket();
+        close();
         return false;
     }
 
@@ -142,10 +142,39 @@ bool Connection::listen( const char *address )
     else
     {
         WARN( "Could not listen on socket: %s\n", strerror( errno ));
-        _deleteSocket();
+        close();
     }
 
     return listening;
+}
+
+//----------------------------------------------------------------------
+// accept
+//----------------------------------------------------------------------
+Connection* Connection::accept()
+{
+    if( _state != STATE_LISTENING )
+        return NULL;
+
+    sockaddr_in newAddress;
+    socklen_t   newAddressLen = sizeof( newAddress );
+    int fd;
+
+    do
+        ::accept( fd, (sockaddr*)&newAddress, &newAddressLen );
+    while( fd == -1 && errno == EINTR );
+
+    if( fd == -1 )
+    {
+        WARN( "accept failed: %s\n", strerror( errno ));
+        return NULL;
+    }
+
+    Connection* newConnection = new Connection();
+    newConnection->_fd    = fd;
+    newConnection->_state = STATE_CONNECTED;
+
+    return newConnection;
 }
 
 //----------------------------------------------------------------------
@@ -161,11 +190,13 @@ size_t Connection::read( const void* buffer, const size_t bytes )
 
     while( bytesLeft )
     {
+        fprintf( stderr, "reading %d bytes....\n", bytesLeft );
         ssize_t bytesRead = ::read( _fd, ptr, bytesLeft );
+        fprintf( stderr, "got %d bytes....\n", bytesRead );
         
         if( bytesRead == 0 ) // EOF
         {
-            _deleteSocket();
+            close();
             return bytes - bytesLeft;
         }
 
@@ -187,6 +218,35 @@ size_t Connection::read( const void* buffer, const size_t bytes )
     return bytes;
 }
 
+//----------------------------------------------------------------------
+// write
+//----------------------------------------------------------------------
 size_t Connection::write( const void* buffer, const size_t bytes )
 {
+    if( _state != STATE_CONNECTED )
+        return 0;
+
+    char* ptr = (char*)buffer;
+    size_t bytesLeft = bytes;
+
+    while( bytesLeft )
+    {
+        ssize_t bytesWritten = ::write( _fd, ptr, bytesLeft );
+        
+        if( bytesWritten == -1 ) // error
+        {
+            if( errno == EINTR ) // if interrupted, try again
+                bytesWritten = 0;
+            else
+            {
+                WARN( "Error during socket write: %s\n", strerror( errno ));
+                return bytes - bytesLeft;
+            }
+        }
+        
+        bytesLeft -= bytesWritten;
+        ptr += bytesWritten;
+    }
+
+    return bytes;
 }

@@ -1,6 +1,4 @@
 
-TOP = ..
-
 include $(TOP)/make/system.mk
 
 MODULE_NAME = base

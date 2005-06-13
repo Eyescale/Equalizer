@@ -40,16 +40,18 @@ namespace eqNet
 
         bool connect( const char* address );
         bool listen( const char* address );
+        Connection* accept();
 
         size_t read( const void* buffer, const size_t bytes );
         size_t write( const void* buffer, const size_t bytes );
+
+        void close();
 
     private:
         int   _fd;     //!< The socket file descriptor.
         State _state;  //!< The connections state
 
         int  _createSocket();
-        void _deleteSocket();
         void _parseAddress( sockaddr_in& socketAddress, 
             const char* address );
     };

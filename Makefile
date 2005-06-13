@@ -1,16 +1,18 @@
 
-TOP = .
-include $(TOP)/make/system.mk
+include make/system.mk
 
 SUBDIRS = base net tests
 
-.PHONY: docs subdirs $(SUBDIRS)
+.PHONY: docs
 
 all: subdirs docs
 
-docs:
+docs: ../doc
+
+../doc:
 	doxygen Doxyfile
 
 net: base
+tests: net
 
-include $(TOP)/make/rules.mk
+include make/rules.mk
