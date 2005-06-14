@@ -11,6 +11,7 @@ int main( int argc, char **argv )
 
     Connection *connection = Connection::create(connDesc);
 
+    connection->listen();
     Connection *client = connection->accept();
     fprintf( stderr, "Server accepted connection\n" );
     connection->close();
