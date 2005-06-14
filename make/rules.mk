@@ -48,10 +48,8 @@ OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
 
 $(OBJECT_DIR)/%.d : %.cpp
 	@echo "Updating dependencies for $<"
-	($(CXX_DEPS) $(CXXFLAGS) -MM -E $<  | \
+	@($(CXX_DEPS) $(CXXFLAGS) -MM -E $<  | \
 		sed 's/\(.*:\)/$(OBJECT_DIR_ESCAPED)\/\1/' > $@) || rm $@
 
 
-ifdef $(DEPENDENCIES)
-  include $(DEPENDENCIES)
-endif
+-include $(DEPENDENCIES)
