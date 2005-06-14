@@ -167,7 +167,7 @@ Connection* SocketConnection::accept()
         return NULL;
 
     sockaddr_in newAddress;
-    int         newAddressLen = sizeof( newAddress );
+    socklen_t   newAddressLen = sizeof( newAddress );
     int fd;
 
     do

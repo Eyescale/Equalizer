@@ -14,8 +14,11 @@
 typedef uint64_t uint64;
 #endif // uint64
 
-// TODO: make debug printing more flexible
+#ifdef sgi
+typedef int socklen_t;
+#endif
 
+// TODO: make debug printing more flexible
 #define WARN printf
 
 #endif //EQBASE_BASE_H
