@@ -6,6 +6,8 @@
 
 #include "socketConnection.h"
 
+#include <eq/base/log.h>
+
 using namespace eqNet;
 using namespace std;
 
@@ -28,7 +30,7 @@ Connection* Connection::create( ConnectionDescription &description )
             break;
 
         default:
-            WARN( "Protocol not implemented\n" );
+            WARN << "Protocol not implemented" << endl;
             return NULL;
     }
 

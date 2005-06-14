@@ -1,6 +1,8 @@
 
-VARIANT    = 32
+VARIANT     = 32
 
-DSO_SUFFIX = dylib
-LIBFLAGS   = -dynamiclib 
+DSO_SUFFIX  = dylib
+DSO_LDFLAGS = -dynamiclib 
 
+AR          = libtool
+ARFLAGS     = -static

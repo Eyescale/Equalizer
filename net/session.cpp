@@ -11,7 +11,7 @@
 
 using namespace eqNet;
 
-uint Session::init( const char *server )
+uint Session::create( const char *server )
 {
     ConnectionDescription connDesc;
     connDesc.protocol = Network::PROTO_TCPIP;
@@ -22,7 +22,7 @@ uint Session::init( const char *server )
     if( !connection->connect())
     {
         char *address = (char *)alloca( 16 );
-        sprintf( address, "localhost:%5d", DEFAULT_PORT );
+        sprintf( address, "localhost:%d", DEFAULT_PORT );
 
         connDesc.TCPIP.address = address;
 

@@ -53,7 +53,7 @@ namespace eqNet
          * @param server the server location.
          * @return the session identifier.
          */
-        static uint init( const char *server );
+        static uint create( const char *server );
         
         /**
          * Joins an existing session on a server.

@@ -3,6 +3,9 @@ include $(TOP)/make/system.mk
 
 MODULE = base
 
-all: $(HEADERS)
+SOURCES = \
+	log.cpp
+
+all: $(HEADERS) $(STATIC_LIB)
 
 include $(TOP)/make/rules.mk

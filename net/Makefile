@@ -11,10 +11,14 @@ HEADER_SRC = \
 SOURCES = \
 	connection.cpp \
 	fdConnection.cpp \
+	pipeConnection.cpp \
 	session.cpp \
+	server.cpp \
 	socketConnection.cpp
 
 MODULE  = net
+
+LDFLAGS += -leqbase
 
 all: $(HEADERS) $(LIBRARY)
 

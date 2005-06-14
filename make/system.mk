@@ -14,6 +14,7 @@ include $(TOP)/make/$(ARCH).mk
 
 # general variables, targets, etc.
 CXXFLAGS += -I$(BUILD_DIR)/include
+LDFLAGS  += -L$(BUILD_DIR)/lib
 CXX_DEPS ?= $(CXX)
 
 BUILD_DIR  = $(TOP)/build/$(ARCH)/$(VARIANT)
@@ -26,7 +27,9 @@ OBJECT_DIR   = obj/$(ARCH)/$(VARIANT)
 OBJECTS      = $(SOURCES:%.cpp=$(OBJECT_DIR)/%.o)
 
 LIBRARY_DIR = $(BUILD_DIR)/lib
-LIBRARY     = $(MODULE:%=$(LIBRARY_DIR)/libeq%.$(DSO_SUFFIX))
+LIBRARY     = $(DYNAMIC_LIB)
+STATIC_LIB  = $(MODULE:%=$(LIBRARY_DIR)/libeq%.a)
+DYNAMIC_LIB = $(MODULE:%=$(LIBRARY_DIR)/libeq%.$(DSO_SUFFIX))
 
 DEPENDENCIES = $(OBJECTS:%.o=%.d)
 

@@ -4,6 +4,8 @@
 
 #include "socketConnection.h"
 
+#include <eq/base/log.h>
+
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
@@ -43,7 +45,11 @@ bool SocketConnection::connect()
         _state = STATE_CONNECTED;
     else
     {
-        WARN( "Could not connect socket: %s\n", strerror( errno ));
+        const char *address = _description.TCPIP.address ? 
+            _description.TCPIP.address : "null";
+        WARN << "Could not connect to '" << address << "': "
+             << strerror( errno ) << endl;
+
         close();
     }
     
@@ -65,7 +71,6 @@ void SocketConnection::_createSocket()
 
     _readFD  = fd;
     _writeFD = fd; // TCP/IP sockets are bidirectional
-    return;
 }
 
 void SocketConnection::close()
@@ -75,7 +80,7 @@ void SocketConnection::close()
 
     const bool closed = ( ::close(_readFD) == 0 );
     if( !closed )
-        WARN( "Could not close socket: %s\n", strerror( errno ));
+        WARN << "Could not close socket: " << strerror( errno ) << endl;
 
     _readFD  = -1;
     _writeFD = -1;
@@ -140,7 +145,7 @@ bool SocketConnection::listen()
 
     if( !bound )
     {
-        WARN( "Could not bind socket: %s\n", strerror( errno ));
+        WARN << "Could not bind socket: " << strerror( errno ) << endl;
         close();
         return false;
     }
@@ -151,7 +156,7 @@ bool SocketConnection::listen()
         _state = STATE_LISTENING;
     else
     {
-        WARN( "Could not listen on socket: %s\n", strerror( errno ));
+        WARN << "Could not listen on socket: " << strerror( errno ) << endl;
         close();
     }
 
@@ -176,7 +181,7 @@ Connection* SocketConnection::accept()
 
     if( fd == -1 )
     {
-        WARN( "accept failed: %s\n", strerror( errno ));
+        WARN << "accept failed: " << strerror( errno ) << endl;
         return NULL;
     }
 

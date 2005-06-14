@@ -4,6 +4,8 @@
 
 #include "fdConnection.h"
 
+#include <eq/base/log.h>
+
 #include <errno.h>
 #include <unistd.h>
 
@@ -43,7 +45,8 @@ size_t FDConnection::read( const void* buffer, const size_t bytes )
                 bytesRead = 0;
             else
             {
-                WARN( "Error during socket read: %s\n", strerror( errno ));
+                WARN << "Error during socket read: " << strerror( errno ) 
+                     << endl;
                 return bytes - bytesLeft;
             }
         }
@@ -76,7 +79,8 @@ size_t FDConnection::write( const void* buffer, const size_t bytes )
                 bytesWritten = 0;
             else
             {
-                WARN( "Error during socket write: %s\n", strerror( errno ));
+                WARN << "Error during socket write: " << strerror( errno )
+                     << endl;
                 return bytes - bytesLeft;
             }
         }
