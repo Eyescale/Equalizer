@@ -1,4 +1,5 @@
 
+# location for top-level directory
 ifndef TOP
   TOP := .
 endif
@@ -7,9 +8,13 @@ SUBTOP := ../$(TOP)
 DEPTH := $(subst ../,-,$(TOP))
 DEPTH := $(subst .,->,$(DEPTH))
 
-include $(TOP)/make/Darwin.mk
+# os-specific settings
+ARCH = $(shell uname)
+include $(TOP)/make/$(ARCH).mk
 
+# general variables, targets, etc.
 CXXFLAGS += -I$(BUILD_DIR)/include
+CXX_DEPS ?= $(CXX)
 
 BUILD_DIR  = $(TOP)/build/$(ARCH)/$(VARIANT)
 

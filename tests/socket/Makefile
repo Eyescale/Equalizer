@@ -3,14 +3,14 @@ include $(TOP)/make/system.mk
 
 CXXFLAGS += -I$(TOP)/net -L$(BUILD_DIR)/lib -leqnet
 
-CLEAN = $(wildcard *.o) client server
+CLEAN = client server
 
 all: client server
 
 client: client.cxx
-	$(CXX) $(CXXFLAGS) -o $@ client.cxx
+	$(CXX) client.cxx $(CXXFLAGS) -o $@ 
 
 server: server.cxx
-	$(CXX) $(CXXFLAGS) -o $@ server.cxx
+	$(CXX) server.cxx $(CXXFLAGS) -o $@
 
 include $(TOP)/make/rules.mk

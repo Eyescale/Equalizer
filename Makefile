@@ -1,3 +1,4 @@
+#!gmake
 
 include make/system.mk
 

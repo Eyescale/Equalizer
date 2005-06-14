@@ -11,10 +11,10 @@
 #include <sys/types.h>
 
 #ifndef uint64
-typedef u_int64_t uint64;
+typedef uint64_t uint64;
 #endif // uint64
 
-// XXX: make debug printing more flexible
+// TODO: make debug printing more flexible
 
 #define WARN printf
 

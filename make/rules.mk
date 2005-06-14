@@ -31,13 +31,17 @@ $(OBJECT_DIR):
 # cleaning targets
 clean:
 	rm -f *~ .*~ $(OBJECTS) $(DEPENDENCIES) $(HEADERS) $(LIBRARY) $(CLEAN)
+ifdef SUBDIRS
 	@for d in $(SUBDIRS); do \
-		$(MAKE) TOP=$(SUBTOP) -C $$d $@; \
+		$(MAKE) TOP=$(SUBTOP) -C $$d $@ ;\
 	done
+endif
 
 # dependencies
 $(OBJECT_DIR)/%.d : %.cpp
-	@$(CXX) $(CXXFLAGS) -MD -E $< -o $@
+	@echo -n "Updating dependencies for $<..."
+	@$(CXX_DEPS) $(CXXFLAGS) -MD -E $< -o $@ > /dev/null
+	@echo " done"
 
 ifdef $(DEPENDENCIES)
   include $(DEPENDENCIES)

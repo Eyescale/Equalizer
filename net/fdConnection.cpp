@@ -4,7 +4,8 @@
 
 #include "fdConnection.h"
 
-#include <sys/errno.h>
+#include <errno.h>
+#include <unistd.h>
 
 using namespace eqNet;
 using namespace std;

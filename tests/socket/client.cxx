@@ -3,6 +3,8 @@
 
 #include <eq/net/connectionDescription.h>
 
+#include <alloca.h>
+
 using namespace eqNet;
 
 int main( int argc, char **argv )

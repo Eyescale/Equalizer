@@ -7,6 +7,8 @@
 
 #include <eq/net/connectionDescription.h>
 
+#include <alloca.h>
+
 using namespace eqNet;
 
 uint Session::init( const char *server )
@@ -33,6 +35,8 @@ uint Session::init( const char *server )
             connDesc.launchCommand = "Server::run";
         }
     }
+
+    return 0;
 }
         
 /*
@@ -45,6 +49,7 @@ uint Session::init( const char *server )
  */
 bool Session::join( const char *server, const uint sessionID )
 {
+    return false;
 }
 //*}
 
@@ -66,6 +71,7 @@ bool Session::join( const char *server, const uint sessionID )
  */
 uint Session::addNode( const uint sessionID )
 {
+    return 0;
 }
 
 /*
@@ -76,6 +82,7 @@ uint Session::addNode( const uint sessionID )
  */
 uint Session::nNodes( const uint sessionID )
 {
+    return 0;
 }
 
 /*
@@ -87,6 +94,7 @@ uint Session::nNodes( const uint sessionID )
  */
 uint Session::getNodeID( const uint sessionID, const uint index )
 {
+    return 0;
 }
 
 /*
@@ -100,6 +108,7 @@ uint Session::getNodeID( const uint sessionID, const uint index )
  */
 bool Session::removeNode( const uint sessionID, const uint nodeID )
 {
+    return false;
 }
 //*}
 
@@ -121,6 +130,7 @@ bool Session::removeNode( const uint sessionID, const uint nodeID )
 uint Session::addNetwork( const uint sessionID, 
     const Network::Protocol protocol )
 {
+    return 0;
 }
 
 /*
@@ -131,6 +141,7 @@ uint Session::addNetwork( const uint sessionID,
  */
 uint Session::nNetworks( const uint sessionID )
 {
+    return 0;
 }
 
 /*
@@ -142,6 +153,7 @@ uint Session::nNetworks( const uint sessionID )
  */
 uint Session::getNetworkID( const uint sessionID, const uint index )
 {
+    return 0;
 }
 
 /*
@@ -155,6 +167,7 @@ uint Session::getNetworkID( const uint sessionID, const uint index )
  */
 bool Session::removeNetwork( const uint sessionID, const uint networkID )
 {
+    return false;
 }
 //*}
 
@@ -176,6 +189,7 @@ bool Session::removeNetwork( const uint sessionID, const uint networkID )
 uint Session::addGroup( const uint sessionID, const uint nodeIDs[], 
     const uint nNodes )
 {
+    return 0;
 }
 
 /*
@@ -186,6 +200,7 @@ uint Session::addGroup( const uint sessionID, const uint nodeIDs[],
  */
 uint Session::nGroups( const uint sessionID )
 {
+    return 0;
 }
 
 /*
@@ -197,6 +212,7 @@ uint Session::nGroups( const uint sessionID )
  */
 uint Session::getGroupID( const uint sessionID, const uint index )
 {
+    return 0;
 }
 
 /*
@@ -210,6 +226,7 @@ uint Session::getGroupID( const uint sessionID, const uint index )
  */
 bool Session::removeGroup( const uint sessionID, const uint groupID )
 {
+    return false;
 }
 //*}
 
@@ -232,6 +249,7 @@ bool Session::removeGroup( const uint sessionID, const uint groupID )
  */
 bool Session::init(const uint sessionID)
 {
+    return false;
 }
 
 /*
@@ -256,6 +274,7 @@ void Session::exit(const uint sessionID)
  */
 bool Session::start(const uint sessionID)
 {
+    return false;
 }
 
 /*

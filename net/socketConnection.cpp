@@ -4,8 +4,12 @@
 
 #include "socketConnection.h"
 
+#include <errno.h>
+#include <string.h>
+#include <unistd.h>
 #include <netinet/tcp.h>
-#include <sys/errno.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 
 using namespace eqNet;
 using namespace std;
@@ -85,17 +89,28 @@ void SocketConnection::_parseAddress( sockaddr_in& socketAddress )
 
     if( _description.TCPIP.address != NULL )
     {
-        char *portName = strdup( _description.TCPIP.address );
-        char *ipName = strsep( &portName, ":" );
+        char *ipName = strdup( _description.TCPIP.address );
+	const size_t len = strlen( ipName );
+	
+	for( size_t i=0; i<len; i++ )
+	{
+            if( ipName[i] == ':' )
+            {
+                ipName[i] = '\0';
+                const char *portName = &ipName[i+1];
+
+                if( portName != NULL )
+                {
+                    port = (short)atoi( portName );
+                    if( port == 0 ) port = DEFAULT_PORT;
+                }
+
+                break;
+            }
+        }
 
         if( strlen( ipName ) > 0 )
             ip = atoi( ipName );
-
-        if( portName != NULL )
-        {
-            port = (short)atoi( portName );
-            if( port == 0 ) port = DEFAULT_PORT;
-        }
 
         free( ipName );
     }
@@ -152,7 +167,7 @@ Connection* SocketConnection::accept()
         return NULL;
 
     sockaddr_in newAddress;
-    socklen_t   newAddressLen = sizeof( newAddress );
+    int         newAddressLen = sizeof( newAddress );
     int fd;
 
     do

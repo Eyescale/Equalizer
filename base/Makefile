@@ -1,7 +1,7 @@
 
 include $(TOP)/make/system.mk
 
-MODULE_NAME = base
+MODULE = base
 
 all: $(HEADERS)
 
