@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
+// type definitions
 #ifndef uint64
 typedef uint64_t uint64;
 #endif // uint64

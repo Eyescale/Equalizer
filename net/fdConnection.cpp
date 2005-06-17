@@ -45,8 +45,7 @@ size_t FDConnection::read( const void* buffer, const size_t bytes )
                 bytesRead = 0;
             else
             {
-                WARN << "Error during socket read: " << strerror( errno ) 
-                     << endl;
+                WARN << "Error during read: " << strerror( errno ) << endl;
                 return bytes - bytesLeft;
             }
         }
@@ -79,8 +78,7 @@ size_t FDConnection::write( const void* buffer, const size_t bytes )
                 bytesWritten = 0;
             else
             {
-                WARN << "Error during socket write: " << strerror( errno )
-                     << endl;
+                WARN << "Error during write: " << strerror( errno ) << endl;
                 return bytes - bytesLeft;
             }
         }

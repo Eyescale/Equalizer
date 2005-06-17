@@ -2,7 +2,7 @@
 include $(TOP)/make/system.mk
 
 CXXFLAGS += -I$(TOP)/net -L$(BUILD_DIR)/lib -leqnet
-PROGRAMS = client server
+PROGRAMS = client server pipe
 
 CLEAN = $(PROGRAMS)
 
@@ -13,5 +13,8 @@ client: client.cpp
 
 server: server.cpp
 	$(CXX) server.cpp $(CXXFLAGS) -o $@
+
+pipe: pipe.cpp
+	$(CXX) pipe.cpp $(CXXFLAGS) -o $@
 
 include $(TOP)/make/rules.mk

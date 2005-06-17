@@ -7,6 +7,8 @@
 
 #include "fdConnection.h"
 
+#include <netinet/in.h>
+
 namespace eqNet
 {
     /**

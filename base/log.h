@@ -21,15 +21,21 @@ namespace eqBase
         LOG_INFO
     };
 
-    /** The current log level. */
-    extern int logLevel;
+    /** The logging class */
+    class Log {
+    public:
+        /** The current log level. */
+        static int level;
+    };
 }
 
-#define ERROR \
-    (eqBase::logLevel >= eqBase::LOG_ERROR) && std::cout << "   Error: " 
-#define WARN \
-    (eqBase::logLevel >= eqBase::LOG_WARN)   && std::cout << "Warning: " 
-#define INFO \
-    (eqBase::logLevel >= eqBase::LOG_INFO)   && std::cout << "   Info: " 
+#define LOG_EXTRA << __FILE__ << " line " << __LINE__ << " pid " << getpid() \
+        << ": "
+#define ERROR (eqBase::Log::level >= eqBase::LOG_ERROR) && \
+    std::cout << "[E]" LOG_EXTRA
+#define WARN  (eqBase::Log::level >= eqBase::LOG_WARN)  && \
+    std::cout << "[W]"  LOG_EXTRA
+#define INFO  (eqBase::Log::level >= eqBase::LOG_INFO)  && \
+    std::cout << "[I]"  LOG_EXTRA
 
 #endif //EQBASE_LOG_H

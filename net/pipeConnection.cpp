@@ -8,6 +8,7 @@
 
 #include <eq/base/log.h>
 
+#include <dlfcn.h>
 #include <sys/errno.h>
 
 using namespace eqNet;
@@ -41,6 +42,7 @@ bool PipeConnection::connect()
     switch( pid )
     {
         case 0: // child
+            INFO << "Child running" << endl;
             _runChild(); // never returns
             return true;
             
@@ -50,6 +52,7 @@ bool PipeConnection::connect()
             return false;
 
         default: // parent
+            INFO << "Parent running" << endl;
             _setupParent();
             break;
     }
@@ -100,6 +103,7 @@ void PipeConnection::_setupParent()
     // assign file descriptors
     _readFD  = _pipes[0];
     _writeFD = _pipes[3];
+    INFO << "parent readFD " << _readFD << " writeFD " << _writeFD << endl;
 
     // cleanup
     delete [] _pipes;
@@ -116,8 +120,9 @@ void PipeConnection::_runChild()
     ::close( _pipes[3] );
 
     // assign file descriptors
-    _readFD  = _pipes[1];
-    _writeFD = _pipes[2];
+    _readFD  = _pipes[2];
+    _writeFD = _pipes[1];
+    INFO << "child  readFD " << _readFD << " writeFD " << _writeFD << endl;
 
     // cleanup
     delete [] _pipes;
@@ -126,12 +131,19 @@ void PipeConnection::_runChild()
     // done... execute entry function
     _state = STATE_CONNECTED;
 
-    // Note: right now hardcode the possible entry functions due to security
-    // considerations.
+    // Note: right now all possible entry functions are hardcoded due to
+    // security considerations.
     if( strcmp( _description.launchCommand, "Server::run" ) == 0 )
     {
-        const int retVal = Server::run(this);
-        exit( retVal );
+        const int result = Server::run( this );
+        exit( result );
+    }
+    else if( strcmp( _description.launchCommand, "testPipeServer" ) == 0 )
+    {
+        void *func = dlsym( RTLD_DEFAULT, _description.launchCommand );
+        typedef int (*entryFunc)( Connection* connection );
+        const int result = ((entryFunc)func)( this );
+        exit( result );
     }
     // else if ....
 

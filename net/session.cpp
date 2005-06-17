@@ -5,38 +5,71 @@
 #include "session.h"
 #include "connection.h"
 
+#include <eq/base/log.h>
 #include <eq/net/connectionDescription.h>
 
 #include <alloca.h>
 
 using namespace eqNet;
+using namespace std;
 
-uint Session::create( const char *server )
+uint Session::create( const char* server )
+{
+    Connection* connection = _openServer( server );
+    
+    if( connection == NULL )
+    {
+        WARN << "Could not contact server" << endl;
+        return INVALID_ID;
+    }
+
+    
+}
+
+Connection* Session::_openServer( const char* server )
 {
     ConnectionDescription connDesc;
     connDesc.protocol = Network::PROTO_TCPIP;
-    connDesc.TCPIP.address = server;
+
+    if( server )
+        connDesc.TCPIP.address = server;
+    else
+    {
+        const char* env = getenv( "EQSERVER" );
+        if( env )
+            // If the server address is <code>NULL</code>, the environment
+            // variable EQSERVER is used to determine the server address.
+            connDesc.TCPIP.address = env;
+        else
+        {
+            // If the environment variable is not set, the local server on the
+            // default port is contacted.
+            char *address = (char *)alloca( 16 );
+            sprintf( address, "localhost:%d", DEFAULT_PORT );
+            connDesc.TCPIP.address = address;
+        }
+    }
     
     Connection* connection = Connection::create( connDesc );
 
     if( !connection->connect())
     {
-        char *address = (char *)alloca( 16 );
-        sprintf( address, "localhost:%d", DEFAULT_PORT );
-
-        connDesc.TCPIP.address = address;
-
+        // If the server can not be contacted, a new server is created, serving
+        // only this application.
         delete connection;
-        connection = Connection::create( connDesc );
 
+        connDesc.protocol = Network::PROTO_PIPE;
+        connDesc.launchCommand = "Server::run";
+        connection = Connection::create( connDesc );
+        
         if( !connection->connect())
         {
-            connDesc.protocol = Network::PROTO_PIPE;
-            connDesc.launchCommand = "Server::run";
+            delete connection;
+            return NULL;
         }
     }
 
-    return 0;
+    return connection;
 }
         
 /*

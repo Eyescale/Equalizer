@@ -3,6 +3,7 @@ include $(TOP)/make/system.mk
 
 HEADER_SRC = \
 	connectionDescription.h \
+	global.h \
 	group.h \
 	network.h \
 	node.h \

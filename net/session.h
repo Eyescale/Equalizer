@@ -6,20 +6,13 @@
 #define EQNET_SESSION_H
 
 #include <eq/base/base.h>
+#include <eq/net/global.h>
 #include <eq/net/network.h>
 
-/** 
- * @namespace eqNet
- * @brief The equalizer networking abstraction layer.
- *
- * The Equalizer network abstraction layer provides the basic functionality to
- * enable execution on distributed and shared memory machines. The access to the
- * actual C++ objects is deliberately hidden to encourage the use of identifiers
- * for portability to clusters. If this proves to be too restrictive, public
- * non-static member functions can be created later.
- */
 namespace eqNet
 {
+    class Connection;
+
     /**
      * Manages a session.
      *
@@ -36,7 +29,7 @@ namespace eqNet
      * server address is <code>NULL</code>, the environment variable
      * <code>EQSERVER</code> is used to determine the server address. If this
      * variable is not set, the local server on the default port is
-     * contacted. If no server is running on the local machine, a new server is
+     * contacted. If the server can not be contacted, a new server is
      * created, serving only this application.
      */
     class Session
@@ -260,6 +253,18 @@ namespace eqNet
          */
         static void stop(const uint sessionID);
         //*}
+
+    private:
+        /** 
+         * Opens and returns a session to the specified server, the algorithm is
+         * described in the class documentation.
+         * 
+         * @param server the server address.
+         * @return the Connection to the server, or <code>NULL</code> if no
+         *         server could be contacted.
+         */
+        static Connection* _openServer( const char* server );
+
     };
 };
 

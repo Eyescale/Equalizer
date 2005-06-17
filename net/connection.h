@@ -6,23 +6,15 @@
 #define EQNET_CONNECTION_H
 
 #include <eq/base/base.h>
-#include <eq/net/connectionDescription.h>
+#include "connectionDescription.h"
 
+#include <poll.h>
 #include <stdexcept>
-#include <netinet/in.h>
+#include <vector>
 
 namespace eqNet
 {
-    class ConnectionDescription;
-
-    enum State {
-        STATE_CLOSED,
-        STATE_CONNECTING,
-        STATE_CONNECTED,
-        STATE_LISTENING
-    };
-
-    #define DEFAULT_PORT 4242
+#   define DEFAULT_PORT 4242
 
     /**
      * The connection error exception, thrown by the Connection methods.
@@ -38,6 +30,14 @@ namespace eqNet
     class Connection
     {
     public:
+
+        enum State {
+            STATE_CLOSED,
+            STATE_CONNECTING,
+            STATE_CONNECTED,
+            STATE_LISTENING
+        };
+
         virtual ~Connection(){}
 
         static Connection* create( ConnectionDescription &description );
@@ -51,8 +51,27 @@ namespace eqNet
 
         virtual void close(){};
 
+        State getState(){ return _state; }
+
+        /** 
+         * Polls a set of connections for an incoming event
+         * 
+         * @param connections the array of pointers to the connections.
+         * @param nConnections the size of the Connection array.
+         * @param timeout the amount of time to wait in milliseconds, if set to
+         *                <code>-1</code> the method blocks indefinitely. 
+         * @param event used to return the type of event which occured, see man
+         *              poll.
+         * @return the Connection which produced the event, or <code>NULL</code>
+         *         if the functioned timed out or could not select a connection.
+         */
+        static Connection* select( const std::vector<Connection*> &connections,
+            const int timeout, short &event );
+
     protected:
         Connection();
+
+        virtual int getReadFD() const { return -1; }
 
         ConnectionDescription _description; //!< The connection parameters
         State                 _state;       //!< The connections state
