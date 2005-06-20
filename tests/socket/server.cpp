@@ -17,10 +17,10 @@ int main( int argc, char **argv )
     connection->close();
 
     char c;
-    while( client->read( &c, 1 ))
+    while( client->recv( &c, 1 ))
     {
         fprintf( stderr, "Server recv: '%c'\n", c );
-        client->write( &c, 1 );
+        client->send( &c, 1 );
     }
 
     return EXIT_SUCCESS;

@@ -20,14 +20,15 @@ uint Session::create( const char* server )
     return session->_getID();
 }
 
-uint Session::_create( const char* server )
+void Session::_create( const char* server )
 {
     Connection* connection = _openServer( server );
     
     if( connection == NULL )
     {
         WARN << "Could not contact server" << endl;
-        return INVALID_ID;
+        //_id = INVALID_ID;
+        return;
     }
 
     
@@ -38,8 +39,6 @@ uint Session::_create( const char* server )
 //     _nodes.push_back( node );
 
 //     Network* network = new Network(Network::PROTO_TCPIP);
-    
-
     
 }
 

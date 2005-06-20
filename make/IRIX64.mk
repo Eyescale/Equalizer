@@ -5,4 +5,6 @@ DSO_LDFLAGS = -shared
 CC       = cc
 CXX      = CC
 CXX_DEPS = g++
+AR       = CC -ar -o
 
+CXXFLAGS += -LANG:std

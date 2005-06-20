@@ -203,9 +203,8 @@ Connection* SocketConnection::accept()
     description.bandwidthKBS  = _description.bandwidthKBS;
     description.TCPIP.address = address;
 
-    addr2ascii( newAddress.sin_family, &newAddress.sin_addr,
-        sizeof(newAddress.sin_addr), address);
-    sprintf( address, "%s:%d", address, newAddress.sin_port );
+    sprintf( address, "%s:%d", inet_ntoa(newAddress.sin_addr),
+        newAddress.sin_port );
 
     SocketConnection* newConnection = new SocketConnection(description);
     newConnection->_readFD  = fd;

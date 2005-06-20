@@ -270,7 +270,7 @@ namespace eqNet
 
         uint _getID(){ return INVALID_ID; }
 
-        uint _create( const char *server );
+        void _create( const char *server );
 
         /** 
          * Opens and returns a session to the specified server, the algorithm is

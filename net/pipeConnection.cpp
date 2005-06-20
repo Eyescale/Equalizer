@@ -9,7 +9,7 @@
 #include <eq/base/log.h>
 
 #include <dlfcn.h>
-#include <sys/errno.h>
+#include <errno.h>
 
 using namespace eqNet;
 using namespace std;
@@ -153,7 +153,11 @@ void PipeConnection::_runChild()
     }
     else if( strcmp( entryFunc, "testPipeServer" ) == 0 )
     {
+#ifdef sgi
+        void *func = dlsym( NULL, entryFunc );
+#else
         void *func = dlsym( RTLD_DEFAULT, entryFunc );
+#endif
         typedef int (*entryFunc)( Connection* connection );
         const int result = ((entryFunc)func)( this );
         exit( result );

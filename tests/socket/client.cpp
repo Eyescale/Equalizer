@@ -20,8 +20,8 @@ int main( int argc, char **argv )
     int nChars = strlen( message ) + 1;
     const char *response = (const char*)alloca( nChars );
 
-    connection->write( message, nChars );
-    connection->read( response, nChars );
+    connection->send( message, nChars );
+    connection->recv( response, nChars );
     fprintf( stderr, "%s\n", response );
     connection->close();
 

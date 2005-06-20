@@ -6,6 +6,7 @@
 #define EQBASE_LOG_H
 
 #include <iostream>
+#include <unistd.h>
 
 /**
  * @namespace eqBase

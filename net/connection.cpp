@@ -9,6 +9,7 @@
 
 #include <eq/base/log.h>
 
+#include <alloca.h>
 #include <errno.h>
 
 using namespace eqNet;
@@ -63,8 +64,6 @@ Connection* Connection::select( const std::vector<Connection*> &connections,
 
         pollFDs[i].events  = events;
         pollFDs[i].revents = 0;
-
-        char b;
     }
 
     // poll for a result

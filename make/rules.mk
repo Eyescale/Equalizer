@@ -30,6 +30,8 @@ $(STATIC_LIB): $(OBJECT_DIR) $(DEPENDENCIES) $(OBJECTS)
 $(OBJECT_DIR)/%.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+$(DEPENDENCIES): $(OBJECT_DIR)
+
 $(OBJECT_DIR):
 	@mkdir -p $(OBJECT_DIR)
 
