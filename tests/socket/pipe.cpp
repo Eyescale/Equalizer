@@ -21,8 +21,8 @@ extern "C" int testPipeServer( Connection* connection )
 int main( int argc, char **argv )
 {
     ConnectionDescription connDesc;
-    connDesc.protocol      = Network::PROTO_PIPE;
-    connDesc.launchCommand = "testPipeServer";
+    connDesc.protocol       = Network::PROTO_PIPE;
+    connDesc.PIPE.entryFunc = "testPipeServer";
 
     Connection *connection = Connection::create(connDesc);
 
