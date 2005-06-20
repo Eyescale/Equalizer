@@ -9,9 +9,12 @@
 #include <eq/net/global.h>
 #include <eq/net/network.h>
 
+#include <vector>
+
 namespace eqNet
 {
     class Connection;
+    class Node;
 
     /**
      * Manages a session.
@@ -255,6 +258,20 @@ namespace eqNet
         //*}
 
     private:
+        /** 
+         * The list of nodes in this session, the first node is always the
+         * server node.
+         */
+        std::vector<Node*>       _nodes;
+
+        /** The list of networks in this session. */
+        std::vector<Network*>       _networks;
+
+
+        uint _getID(){ return INVALID_ID; }
+
+        uint _create( const char *server );
+
         /** 
          * Opens and returns a session to the specified server, the algorithm is
          * described in the class documentation.

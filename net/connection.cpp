@@ -14,8 +14,9 @@
 using namespace eqNet;
 using namespace std;
 
-Connection::Connection()
-        : _state( STATE_CLOSED )
+Connection::Connection(ConnectionDescription &description)
+        : _description(description),
+          _state( STATE_CLOSED )
 {
 }
 
@@ -26,11 +27,11 @@ Connection* Connection::create( ConnectionDescription &description )
     switch( description.protocol )
     {
         case Network::PROTO_TCPIP:
-            connection = new SocketConnection();
+            connection = new SocketConnection(description);
             break;
 
         case Network::PROTO_PIPE:
-            connection = new PipeConnection();
+            connection = new PipeConnection(description);
             break;
 
         default:
@@ -38,7 +39,6 @@ Connection* Connection::create( ConnectionDescription &description )
             return NULL;
     }
 
-    connection->_description = description;
     return connection;
 }
 
@@ -65,9 +65,6 @@ Connection* Connection::select( const std::vector<Connection*> &connections,
         pollFDs[i].revents = 0;
 
         char b;
-        INFO <<  connections[i]->read( &b, 1) << endl;
-        INFO << "Connection " << i << " fd " << pollFDs[i].fd << " ev "
-             << pollFDs[i].events << endl;
     }
 
     // poll for a result

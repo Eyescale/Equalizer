@@ -17,7 +17,8 @@ namespace eqNet
     class SocketConnection : public FDConnection
     {
     public:
-        SocketConnection(){}
+        SocketConnection(ConnectionDescription &description);
+
         virtual ~SocketConnection();
 
         virtual bool connect();

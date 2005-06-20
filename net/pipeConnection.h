@@ -15,7 +15,7 @@ namespace eqNet
     class PipeConnection : public FDConnection
     {
     public:
-        PipeConnection() : _pipes(NULL) {}
+        PipeConnection(ConnectionDescription &description);
         virtual ~PipeConnection();
 
         virtual bool connect();

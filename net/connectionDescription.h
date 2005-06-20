@@ -17,7 +17,10 @@ namespace eqNet
     struct ConnectionDescription
     {
         ConnectionDescription() : protocol(Network::PROTO_TCPIP), 
-                                  bandwidthKBS(0), launchCommand(NULL) {}
+                                  bandwidthKBS(0), launchCommand(NULL)
+            {
+                TCPIP.address = NULL;
+            }
 
         /** The network protocol for this connection. */
         Network::Protocol protocol;
@@ -52,6 +55,8 @@ namespace eqNet
             /** pipe parameters */
             struct
             {
+                /** The name of the entry function for the forked process. */
+                const char *entryFunc;
             } PIPE;
         };
     };

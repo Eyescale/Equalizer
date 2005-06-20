@@ -12,8 +12,9 @@
 using namespace eqNet;
 using namespace std;
 
-FDConnection::FDConnection()
-        : _readFD( -1 ),
+FDConnection::FDConnection(ConnectionDescription &description)
+        : Connection(description),
+          _readFD( -1 ),
           _writeFD( -1 )
 {
 }
@@ -21,7 +22,7 @@ FDConnection::FDConnection()
 //----------------------------------------------------------------------
 // read
 //----------------------------------------------------------------------
-size_t FDConnection::read( const void* buffer, const size_t bytes )
+size_t FDConnection::recv( const void* buffer, const size_t bytes )
 {
     if( _state != STATE_CONNECTED || _readFD == -1 )
         return 0;
@@ -60,7 +61,7 @@ size_t FDConnection::read( const void* buffer, const size_t bytes )
 //----------------------------------------------------------------------
 // write
 //----------------------------------------------------------------------
-size_t FDConnection::write( const void* buffer, const size_t bytes )
+size_t FDConnection::send( const void* buffer, const size_t bytes )
 {
     if( _state != STATE_CONNECTED || _writeFD == -1 )
         return 0;

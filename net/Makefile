@@ -5,6 +5,7 @@ HEADER_SRC = \
 	connectionDescription.h \
 	global.h \
 	group.h \
+	message.h \
 	network.h \
 	node.h \
 	session.h

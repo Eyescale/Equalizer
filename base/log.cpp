@@ -10,14 +10,6 @@ int eqBase::Log::level = getLogLevel();
 
 int getLogLevel()
 {
-    static bool first = true;
-
-    if( first )
-    {
-        first = false;
-        std::cout << "getLogLevel: " << getLogLevel() << std::endl;
-    }
-
     const char *env = getenv("EQLOGLEVEL");
     if( env != NULL )
     {

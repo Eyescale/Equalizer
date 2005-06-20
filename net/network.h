@@ -5,6 +5,8 @@
 #ifndef EQNET_NETWORK_H
 #define EQNET_NETWORK_H
 
+#include <eq/net/message.h>
+
 namespace eqNet
 {
     struct ConnectionDescription;
@@ -25,14 +27,19 @@ namespace eqNet
     class Network
     {
     public:
+
         /** The supported network protocols. */
         enum Protocol 
         {
             PROTO_TCPIP,  //!< TCP/IP networking.
             PROTO_MPI,    //!< MPI networking.
-            PROTO_PIPE    //!< anonymous pipe to forked process
+            PROTO_PIPE    //!< anonymous pipe to a forked process
         };
 
+        /**
+         * @name Managing nodes
+         */
+        //*{
         /**
          * Adds a node to this network.
          *
@@ -83,7 +90,12 @@ namespace eqNet
          */
         static void setGateway( const uint networkID, const uint toNetworkID,
             const uint nodeID );
+        //*}
 
+        /**
+         * @name State Management
+         */
+        //*{
         /**
          * Initialise this network.
          *
@@ -147,6 +159,50 @@ namespace eqNet
          * @sa stop(), exit()
          */
         static void stopNode(const uint networkID, const uint nodeID);
+        //*}
+
+        /**
+         * @name Messaging API
+         *
+         * The messaging API provides basic point-to-point communications
+         * between nodes. Broadcast communications are handled by the Group
+         * class.
+         */
+        //@{
+
+        /**
+         * Sends a message to a node using this network.
+         *
+         * @param toNodeID the identifier of the node to send the
+         *                 message to, it has to be running in this network.
+         * @param type the type of the message elements.
+         * @param ptr the memory address of the message elements.
+         * @param count the number of message elements.
+         * @param flags the transmission flags.
+         */
+        static void send( const uint toNodeID, const Message::Type type,
+            const void *ptr, const uint64 count, const uint flags );
+
+        /** 
+         * Receives a message from a node using this network.
+         * 
+         * @param fromNodeID the identifier of the node sending the message, or
+         *                   <code>NODE_ANY</code>.
+         * @param type the type of the message to receive, or
+         *                   <code>TYPE_ANY</code>.
+         * @param ptr the memory address where the received message will be
+         *                   stored, or <code>NULL</code> if the memory should
+         *                   be allocated automatically.
+         * @param count the address where to store the number of received
+         *                   elements.
+         * @param timeout the timeout in milliseconds before a receive is
+         *                   cancelled.
+         * @return the address where the received message was stored, or
+         *                   <code>NULL</code> if the message was not received.
+         */
+        static void* recv( const uint fromNodeID, const Message::Type type, 
+            const void *ptr, const uint64 *count, const float timeout );
+        //@}
 
     };
 };

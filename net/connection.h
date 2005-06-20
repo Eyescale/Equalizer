@@ -40,16 +40,60 @@ namespace eqNet
 
         virtual ~Connection(){}
 
+        /** 
+         * Creates a new connection.
+         *
+         * This factory method creates a new concrete connection as described by
+         * the connection description. The concrete connection may not support
+         * all functionality of the Connection interface.
+         * 
+         * @param description The description of the connection.
+         * @return the connection.
+         */
         static Connection* create( ConnectionDescription &description );
 
+        /** @name Connection Management */
+        //@{
+        /** 
+         * Connect the connection, as described in the ConnectionDescription.
+         *
+         * @return <code>true</code> if the connection was successfully
+         *         connected, <code>false</code> if not.
+         */
         virtual bool connect(){ return false; }
+
+        /** 
+         * Put the connection into the listening state for a new incoming
+         * connection.
+         *
+         * @return <code>true</code> if the connection is listening for new
+         *         incoming connections, <code>false</code> if not.
+         */
         virtual bool listen(){ return false; }
+
+        /** 
+         * Accepts the next incoming connection.
+         * 
+         * @return the accepted connection, or <code>NULL</code> if no
+         *         connection was accepted.
+         */
         virtual Connection* accept(){ return NULL; }
 
-        virtual size_t read( const void* buffer, const size_t bytes ){return 0;}
-        virtual size_t write( const void* buffer, const size_t bytes){return 0;}
-
         virtual void close(){};
+        //@}
+
+        /** @name Messaging API */
+        //@{
+        /** 
+         * Reads a message from the connection.
+         * 
+         * @param buffer the buffer containing the message.
+         * @param bytes the number of bytes to read.
+         * @return the number of bytes received.
+         */
+        virtual size_t recv( const void* buffer, const size_t bytes ){return 0;}
+        virtual size_t send( const void* buffer, const size_t bytes){return 0;}
+        //@}
 
         State getState(){ return _state; }
 
@@ -69,7 +113,7 @@ namespace eqNet
             const int timeout, short &event );
 
     protected:
-        Connection();
+        Connection(ConnectionDescription &description);
 
         virtual int getReadFD() const { return -1; }
 

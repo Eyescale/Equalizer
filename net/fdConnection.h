@@ -15,11 +15,11 @@ namespace eqNet
     class FDConnection : public Connection
     {
     public:
-        virtual size_t read( const void* buffer, const size_t bytes );
-        virtual size_t write( const void* buffer, const size_t bytes );
+        virtual size_t recv( const void* buffer, const size_t bytes );
+        virtual size_t send( const void* buffer, const size_t bytes );
 
     protected:
-        FDConnection();
+        FDConnection(ConnectionDescription &description);
 
         virtual int getReadFD() const { return _readFD; }
 

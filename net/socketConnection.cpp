@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 #include <netinet/tcp.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -16,9 +17,19 @@
 using namespace eqNet;
 using namespace std;
 
+
+SocketConnection::SocketConnection(ConnectionDescription &description)
+        : FDConnection(description)
+{
+    if( _description.TCPIP.address )
+        _description.TCPIP.address = strdup( _description.TCPIP.address );
+}
+
 SocketConnection::~SocketConnection()
 {
     close();
+    if( _description.TCPIP.address )
+        free( (void*)_description.TCPIP.address );
 }
 
 //----------------------------------------------------------------------
@@ -173,7 +184,7 @@ Connection* SocketConnection::accept()
 
     sockaddr_in newAddress;
     socklen_t   newAddressLen = sizeof( newAddress );
-    int fd;
+    int         fd;
 
     do
         fd = ::accept( _readFD, (sockaddr*)&newAddress, &newAddressLen );
@@ -185,10 +196,25 @@ Connection* SocketConnection::accept()
         return NULL;
     }
 
-    SocketConnection* newConnection = new SocketConnection();
+    ConnectionDescription description;
+    char                  address[15+1+5+1];
+
+    description.protocol      = Network::PROTO_TCPIP;
+    description.bandwidthKBS  = _description.bandwidthKBS;
+    description.TCPIP.address = address;
+
+    addr2ascii( newAddress.sin_family, &newAddress.sin_addr,
+        sizeof(newAddress.sin_addr), address);
+    sprintf( address, "%s:%d", address, newAddress.sin_port );
+
+    SocketConnection* newConnection = new SocketConnection(description);
     newConnection->_readFD  = fd;
     newConnection->_writeFD = fd;
     newConnection->_state   = STATE_CONNECTED;
+    //TODO: newConnection->launchCommand
+
+    INFO << "accepted connection from "
+         << newConnection->_description.TCPIP.address << endl;
 
     return newConnection;
 }

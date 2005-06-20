@@ -52,23 +52,30 @@ namespace eqNet
         /**
          * Sends a message to a node.
          *
+         * The Node will automatically choose the best Network to transmit the
+         * message.
+         *
          * @param toNodeID the identifier of the node to send the
          *                 message to.
          * @param type the type of the message elements.
          * @param ptr the memory address of the message elements.
          * @param count the number of message elements.
          * @param flags the transmission flags.
+         * @sa Network::send
          */
-        static void send( const uint toNodeID, const Type type, const void *ptr,
-            const uint64 count, const uint flags );
+        static void send( const uint toNodeID, const Message::Type type, 
+            const void *ptr, const uint64 count, const uint flags );
 
         /** 
          * Receives a message from a node.
-         * 
+         *
+         * The Node will automatically choose the appropriate Network to
+         * transmit the message.
+         *
          * @param fromNodeID the identifier of the node sending the message, or
-         *                   <code>NODE_ANY</code>.
+         *                   <code>NODE_ID_ANY</code>.
          * @param type the type of the message to receive, or
-         *                   <code>TYPE_ANY</code>.
+         *                   <code>TYPE_ID_ANY</code>.
          * @param ptr the memory address where the received message will be
          *                   stored, or <code>NULL</code> if the memory should
          *                   be allocated automatically.
@@ -78,8 +85,9 @@ namespace eqNet
          *                   cancelled.
          * @return the address where the received message was stored, or
          *                   <code>NULL</code> if the message was not received.
+         * @sa Network::recv
          */
-        static void* recv( const uint fromNodeID, const Type type, 
+        static void* recv( const uint fromNodeID, const Message::Type type, 
             const void *ptr, const uint64 *count, const float timeout );
         //@}
     };

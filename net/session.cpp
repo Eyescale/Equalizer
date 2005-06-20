@@ -15,6 +15,13 @@ using namespace std;
 
 uint Session::create( const char* server )
 {
+    Session *session = new Session();
+    session->_create( server );
+    return session->_getID();
+}
+
+uint Session::_create( const char* server )
+{
     Connection* connection = _openServer( server );
     
     if( connection == NULL )
@@ -22,6 +29,16 @@ uint Session::create( const char* server )
         WARN << "Could not contact server" << endl;
         return INVALID_ID;
     }
+
+    
+//     Node* server = new Node();
+//     _nodes.push_back( server );
+
+//     Node* node = new Node();
+//     _nodes.push_back( node );
+
+//     Network* network = new Network(Network::PROTO_TCPIP);
+    
 
     
 }
@@ -35,10 +52,10 @@ Connection* Session::_openServer( const char* server )
         connDesc.TCPIP.address = server;
     else
     {
+        // If the server address is <code>NULL</code>, the environment
+        // variable EQSERVER is used to determine the server address.
         const char* env = getenv( "EQSERVER" );
         if( env )
-            // If the server address is <code>NULL</code>, the environment
-            // variable EQSERVER is used to determine the server address.
             connDesc.TCPIP.address = env;
         else
         {

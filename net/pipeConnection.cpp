@@ -14,9 +14,20 @@
 using namespace eqNet;
 using namespace std;
 
+PipeConnection::PipeConnection(ConnectionDescription &description)
+        : FDConnection(description),
+          _pipes(NULL)
+{
+    _description = description;
+    if( _description.PIPE.entryFunc )
+        _description.PIPE.entryFunc = strdup( _description.PIPE.entryFunc );
+}
+
 PipeConnection::~PipeConnection()
 {
     close();
+    if( _description.PIPE.entryFunc )
+        free( (void*)_description.PIPE.entryFunc );
 }
 
 //----------------------------------------------------------------------
@@ -27,9 +38,9 @@ bool PipeConnection::connect()
     if( _state != STATE_CLOSED )
         return false;
 
-    if( _description.launchCommand == NULL )
+    if( _description.PIPE.entryFunc == NULL )
     {
-        WARN << "No launch command function defined for pipe connection" <<endl;
+        WARN << "No entry function defined for pipe connection" <<endl;
         return false;
     }
 
@@ -133,14 +144,16 @@ void PipeConnection::_runChild()
 
     // Note: right now all possible entry functions are hardcoded due to
     // security considerations.
-    if( strcmp( _description.launchCommand, "Server::run" ) == 0 )
+    const char *entryFunc = _description.PIPE.entryFunc;
+
+    if( strcmp( entryFunc, "Server::run" ) == 0 )
     {
         const int result = Server::run( this );
         exit( result );
     }
-    else if( strcmp( _description.launchCommand, "testPipeServer" ) == 0 )
+    else if( strcmp( entryFunc, "testPipeServer" ) == 0 )
     {
-        void *func = dlsym( RTLD_DEFAULT, _description.launchCommand );
+        void *func = dlsym( RTLD_DEFAULT, entryFunc );
         typedef int (*entryFunc)( Connection* connection );
         const int result = ((entryFunc)func)( this );
         exit( result );
