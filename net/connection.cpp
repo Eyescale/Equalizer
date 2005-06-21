@@ -13,34 +13,28 @@
 #include <errno.h>
 
 using namespace eqNet;
+using namespace eqNet::internal;
 using namespace std;
 
-Connection::Connection(ConnectionDescription &description)
-        : _description(description),
-          _state( STATE_CLOSED )
+Connection::Connection()
+        : _state( STATE_CLOSED )
 {
 }
 
-Connection* Connection::create( ConnectionDescription &description )
+Connection* Connection::create( const NetworkProtocol protocol )
 {
-    Connection* connection;
-
-    switch( description.protocol )
+    switch( protocol )
     {
-        case Network::PROTO_TCPIP:
-            connection = new SocketConnection(description);
-            break;
+        case PROTO_TCPIP:
+            return new SocketConnection();
 
-        case Network::PROTO_PIPE:
-            connection = new PipeConnection(description);
-            break;
+        case PROTO_PIPE:
+            return new PipeConnection();
 
         default:
             WARN << "Protocol not implemented" << endl;
             return NULL;
     }
-
-    return connection;
 }
 
 Connection* Connection::select( const std::vector<Connection*> &connections, 

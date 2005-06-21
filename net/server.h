@@ -5,43 +5,55 @@
 #ifndef EQNET_SERVER_H
 #define EQNET_SERVER_H
 
+#include <eq/net/node.h>
+
 #include <vector>
 
 namespace eqNet
 {
-    class Connection;
     class Node;
 
-    /**
-     * A Server is the central instance running multiple sessions.
-     *
-     * @sa Session
-     */
-    class Server
+    namespace internal
     {
-    public:
-        /** 
-         * Runs the server using a single, pre-connected Connection.
-         * 
-         * @param connection the connection.
-         * @return the success value of the run.
+        class Connection;
+
+        /**
+         * A Server is the central instance running multiple sessions.
+         *
+         * @sa Session
          */
-        static int run( Connection* connection );
+        class Server : public Node
+        {
+        public:
+            /** 
+             * Runs the server using a single, pre-connected Connection.
+             * 
+             * @param connection the connection.
+             * @return the success value of the run.
+             */
+            static int run( Connection* connection );
+
+            /** 
+             * Connects with an existing server and returns the local proxy.
+             * 
+             * @param connection the connection.
+             * @return the server.
+             */
+            static Server* connect( Connection* connection );
+
+        protected:
+            Server( Connection* connection );
+            ~Server(){}
 
 
-    protected:
-        Server(){}
-        Server( Connection* connection );
-        ~Server(){}
+            std::vector<Connection*> _connections;
 
-        std::vector<Connection*> _connections;
-        std::vector<Node*>       _nodes;
+            void _init();
+            int  _run();
 
-        void _init();
-        int  _run();
-
-        void _handleRequest( Connection *connection );
-    };
-};
+            void _handleRequest( Connection *connection );
+        };
+    }
+}
 
 #endif //EQNET_SERVER_H

@@ -20,6 +20,11 @@ namespace eqNet
     public:
         /** The type of the message. */
         enum Type {
+            EQ_BYTE,
+            EQ_SHORT,
+            EQ_INTEGER,
+            EQ_FLOAT,
+            EQ_STRING
         };
     };
 };

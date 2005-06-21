@@ -3,6 +3,7 @@
    All rights reserved. */
 
 #include "socketConnection.h"
+#include "connectionDescription.h"
 
 #include <eq/base/log.h>
 
@@ -15,27 +16,23 @@
 #include <sys/types.h>
 
 using namespace eqNet;
+using namespace eqNet::internal;
 using namespace std;
 
 
-SocketConnection::SocketConnection(ConnectionDescription &description)
-        : FDConnection(description)
+SocketConnection::SocketConnection()
 {
-    if( _description.TCPIP.address )
-        _description.TCPIP.address = strdup( _description.TCPIP.address );
 }
 
 SocketConnection::~SocketConnection()
 {
     close();
-    if( _description.TCPIP.address )
-        free( (void*)_description.TCPIP.address );
 }
 
 //----------------------------------------------------------------------
 // connect
 //----------------------------------------------------------------------
-bool SocketConnection::connect()
+bool SocketConnection::connect(ConnectionDescription &description)
 {
     if( _state != STATE_CLOSED )
         return false;
@@ -47,7 +44,7 @@ bool SocketConnection::connect()
     // TODO: execute launch command
 
     sockaddr_in socketAddress;
-    _parseAddress( socketAddress );
+    _parseAddress( description, socketAddress );
 
     const bool connected = (::connect( _readFD, (sockaddr*)&socketAddress, 
             sizeof(socketAddress)) == 0);
@@ -56,8 +53,8 @@ bool SocketConnection::connect()
         _state = STATE_CONNECTED;
     else
     {
-        const char *address = _description.TCPIP.address ? 
-            _description.TCPIP.address : "null";
+        const char *address = description.TCPIP.address ? 
+            description.TCPIP.address : "null";
         WARN << "Could not connect to '" << address << "': "
              << strerror( errno ) << endl;
 
@@ -98,14 +95,15 @@ void SocketConnection::close()
     _state   = STATE_CLOSED;
 }
 
-void SocketConnection::_parseAddress( sockaddr_in& socketAddress )
+void SocketConnection::_parseAddress( ConnectionDescription &description, 
+    sockaddr_in& socketAddress )
 {
     uint32_t ip = INADDR_ANY;
     short port = DEFAULT_PORT;
 
-    if( _description.TCPIP.address != NULL )
+    if( description.TCPIP.address != NULL )
     {
-        char *ipName = strdup( _description.TCPIP.address );
+        char *ipName = strdup( description.TCPIP.address );
 	const size_t len = strlen( ipName );
 	
 	for( size_t i=0; i<len; i++ )
@@ -139,7 +137,7 @@ void SocketConnection::_parseAddress( sockaddr_in& socketAddress )
 //----------------------------------------------------------------------
 // listen
 //----------------------------------------------------------------------
-bool SocketConnection::listen()
+bool SocketConnection::listen(ConnectionDescription &description)
 {
     if( _state != STATE_CLOSED )
         return false;
@@ -149,7 +147,7 @@ bool SocketConnection::listen()
     _createSocket();
 
     sockaddr_in socketAddress;
-    _parseAddress( socketAddress ); //XXX restrict IP unimplemented
+    _parseAddress( description, socketAddress ); //XXX restrict IP unimplemented
 
     const bool bound = (::bind( _readFD, (sockaddr *)&socketAddress,
             sizeof(socketAddress) ) == 0);
@@ -196,24 +194,24 @@ Connection* SocketConnection::accept()
         return NULL;
     }
 
-    ConnectionDescription description;
-    char                  address[15+1+5+1];
+//     ConnectionDescription description;
+//     char                  address[15+1+5+1];
 
-    description.protocol      = Network::PROTO_TCPIP;
-    description.bandwidthKBS  = _description.bandwidthKBS;
-    description.TCPIP.address = address;
+//     description.protocol      = Network::PROTO_TCPIP;
+//     description.bandwidthKBS  = _description.bandwidthKBS;
+//     description.TCPIP.address = address;
 
-    sprintf( address, "%s:%d", inet_ntoa(newAddress.sin_addr),
-        newAddress.sin_port );
+//     sprintf( address, "%s:%d", inet_ntoa(newAddress.sin_addr),
+//         newAddress.sin_port );
 
-    SocketConnection* newConnection = new SocketConnection(description);
+    SocketConnection* newConnection = new SocketConnection();
     newConnection->_readFD  = fd;
     newConnection->_writeFD = fd;
     newConnection->_state   = STATE_CONNECTED;
     //TODO: newConnection->launchCommand
 
-    INFO << "accepted connection from "
-         << newConnection->_description.TCPIP.address << endl;
+//     INFO << "accepted connection from "
+//          << newConnection->_description.TCPIP.address << endl;
 
     return newConnection;
 }

@@ -16,15 +16,11 @@ namespace eqNet
      */
     struct ConnectionDescription
     {
-        ConnectionDescription() : protocol(Network::PROTO_TCPIP), 
-                                  bandwidthKBS(0), launchCommand(NULL)
+        ConnectionDescription() : bandwidthKBS(0), launchCommand(NULL)
             {
                 TCPIP.address = NULL;
             }
 
-        /** The network protocol for this connection. */
-        Network::Protocol protocol;
-        
         /** The bandwidth in kilobyte per second for this connection. */
         uint64 bandwidthKBS;
     

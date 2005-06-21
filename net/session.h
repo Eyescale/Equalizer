@@ -9,12 +9,19 @@
 #include <eq/net/global.h>
 #include <eq/net/network.h>
 
-#include <vector>
+#ifdef __GNUC__              // GCC 3.1 and later
+#  include <ext/hash_map>
+namespace Sgi = ::__gnu_cxx; 
+#else                        //  other compilers
+#  include <hash_map>
+namespace Sgi = std;
+#endif
 
 namespace eqNet
 {
     class Connection;
     class Node;
+    class Server;
 
     /**
      * Manages a session.
@@ -76,7 +83,7 @@ namespace eqNet
          * with the session.
          * 
          * @param sessionID the session identifier.
-         * @return the node identifier of the added node.
+         * @return the node identifier.
          * @sa Node, Network::addNode
          */
         static uint addNode( const uint sessionID );
@@ -97,6 +104,13 @@ namespace eqNet
          * @return the node identifier.
          */
         static uint getNodeID( const uint sessionID, const uint index );
+
+        /**
+         * Returns the node identifier of the local node.
+         *
+         * @return the node identifier of the local node.
+         */
+        static uint getLocalNodeID();
 
         /**
          * Removes a node from this session.
@@ -124,12 +138,10 @@ namespace eqNet
          * automatically added to the session.
          * 
          * @param sessionID the session identifier.
-         * @param protocol the network protocol.
-         * @return the network identifier of the added network.
+         * @param networkID the network identifier.
          * @sa addNode
          */
-        static uint addNetwork( const uint sessionID, 
-            const Network::Protocol protocol );
+        static void addNetwork( const uint sessionID, const uint networkID );
 
         /**
          * Returns the number of networks in this session.
@@ -257,15 +269,21 @@ namespace eqNet
         static void stop(const uint sessionID);
         //*}
 
+    protected:
+        Session();
+
     private:
+        /** The session identifier. */
+        uint _id;
+
         /** 
          * The list of nodes in this session, the first node is always the
          * server node.
          */
-        std::vector<Node*>       _nodes;
+        Sgi::hash_map<int, Node*> _nodes;
 
         /** The list of networks in this session. */
-        std::vector<Network*>       _networks;
+        //std::vector<Network*>       _networks;
 
 
         uint _getID(){ return INVALID_ID; }
@@ -280,8 +298,9 @@ namespace eqNet
          * @return the Connection to the server, or <code>NULL</code> if no
          *         server could be contacted.
          */
-        static Connection* _openServer( const char* server );
+        Server* _openServer( const char* server );
 
+        static uint _nextSessionID;
     };
 };
 

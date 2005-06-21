@@ -9,28 +9,31 @@
 
 namespace eqNet
 {
-    /**
-     * A fork-based pipe connection.
-     */
-    class PipeConnection : public FDConnection
+    namespace internal
     {
-    public:
-        PipeConnection(ConnectionDescription &description);
-        virtual ~PipeConnection();
+        /**
+         * A fork-based pipe connection.
+         */
+        class PipeConnection : public FDConnection
+        {
+        public:
+            PipeConnection();
+            virtual ~PipeConnection();
 
-        virtual bool connect();
-        virtual void close();
+            virtual bool connect( ConnectionDescription &description );
+            virtual void close();
 
-    protected:
+        protected:
 
-    private:
-        void _createPipes();
+        private:
+            void _createPipes();
 
-        void _setupParent();
-        void _runChild();
+            void _setupParent();
+            void _runChild( const char *entryFunc );
 
-        int *_pipes;
-    };
-};
+            int *_pipes;
+        };
+    }
+}
 
 #endif //EQNET_PIPE_CONNECTION_H

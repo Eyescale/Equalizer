@@ -11,9 +11,10 @@
  *
  * The Equalizer network abstraction layer provides the basic functionality to
  * enable execution on distributed and shared memory machines. The access to the
- * actual C++ objects is deliberately hidden to encourage the use of identifiers
- * for portability to clusters. If this proves to be too restrictive, public
- * non-static member functions can be created later.
+ * actual C++ objects is deliberately hidden to encourage the use of
+ * identifiers. Concrete objects of the network may be deleted at any time by
+ * another node, therefore pointers can become invalid. If this proves to be too
+ * restrictive, public non-static member functions can be created later.
  */
 namespace eqNet
 {
@@ -21,6 +22,9 @@ namespace eqNet
 
     /** An invalid identifier. */
 #   define INVALID_ID 0
+
+    /** The starting range for local, unconnected objects. */
+#   define LOCAL_ID 0xffff0000
 
     /** The any node identifier. */
 #   define NODE_ID_ANY 0xffffffff

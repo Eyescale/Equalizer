@@ -13,6 +13,7 @@ HEADER_SRC = \
 SOURCES = \
 	connection.cpp \
 	fdConnection.cpp \
+	node.cpp \
 	pipeConnection.cpp \
 	session.cpp \
 	server.cpp \

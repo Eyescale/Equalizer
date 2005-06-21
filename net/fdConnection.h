@@ -9,23 +9,28 @@
 
 namespace eqNet
 {
-    /**
-     * A generic file descriptor-based connection, to be subclassed.
-     */
-    class FDConnection : public Connection
+    struct ConnectionDescription;
+
+    namespace internal
     {
-    public:
-        virtual size_t recv( const void* buffer, const size_t bytes );
-        virtual size_t send( const void* buffer, const size_t bytes );
+        /**
+         * A generic file descriptor-based connection, to be subclassed.
+         */
+        class FDConnection : public Connection
+        {
+        public:
+            virtual size_t recv( const void* buffer, const size_t bytes );
+            virtual size_t send( const void* buffer, const size_t bytes );
 
-    protected:
-        FDConnection(ConnectionDescription &description);
+        protected:
+            FDConnection();
 
-        virtual int getReadFD() const { return _readFD; }
+            virtual int getReadFD() const { return _readFD; }
 
-        int   _readFD;     //!< The read file descriptor.
-        int   _writeFD;    //!< The write file descriptor.
-    };
-};
+            int   _readFD;     //!< The read file descriptor.
+            int   _writeFD;    //!< The write file descriptor.
+        };
+    }
+}
 
 #endif //EQNET_FD_CONNECTION_H

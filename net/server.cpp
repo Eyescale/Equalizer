@@ -5,10 +5,12 @@
 #include "server.h"
 
 #include "connection.h"
+#include "global.h"
 
 #include <eq/base/log.h>
 
 using namespace eqNet;
+using namespace eqNet::internal;
 using namespace std;
 
 int Server::run( Connection* connection )
@@ -18,6 +20,7 @@ int Server::run( Connection* connection )
 }
 
 Server::Server( Connection* connection )
+        : Node( INVALID_ID )
 {
     _connections.push_back(connection);
 }
@@ -83,3 +86,10 @@ void Server::_handleRequest( Connection *connection )
     }
 }
 
+
+//----------------------------------------------------------------------
+// proxy initialisation
+//----------------------------------------------------------------------
+Server* Server::connect( Connection* connection )
+{
+}

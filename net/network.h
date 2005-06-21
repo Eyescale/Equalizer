@@ -11,6 +11,15 @@ namespace eqNet
 {
     struct ConnectionDescription;
 
+    /** The supported network protocols. */
+    enum NetworkProtocol 
+    {
+        PROTO_TCPIP,  //!< TCP/IP networking.
+        PROTO_MPI,    //!< MPI networking.
+        PROTO_PIPE    //!< anonymous pipe to a forked process
+    };
+
+
     /**
      * Manages a network within a session.
      *
@@ -28,18 +37,8 @@ namespace eqNet
     {
     public:
 
-        /** The supported network protocols. */
-        enum Protocol 
-        {
-            PROTO_TCPIP,  //!< TCP/IP networking.
-            PROTO_MPI,    //!< MPI networking.
-            PROTO_PIPE    //!< anonymous pipe to a forked process
-        };
-
-        /**
-         * @name Managing nodes
-         */
-        //*{
+        /** @name Managing nodes */
+        //@{
         /**
          * Adds a node to this network.
          *
@@ -49,7 +48,7 @@ namespace eqNet
          * @sa Node::enableForwarding(), Node::disableForwarding()
          */
         static void addNode( const uint networkID, const uint nodeID, 
-            const ConnectionDescription* connection );
+            const ConnectionDescription& connection );
 
         /**
          * Returns the number of nodes for this network.
@@ -90,12 +89,12 @@ namespace eqNet
          */
         static void setGateway( const uint networkID, const uint toNetworkID,
             const uint nodeID );
-        //*}
+        //@}
 
         /**
          * @name State Management
          */
-        //*{
+        //@{
         /**
          * Initialise this network.
          *
@@ -159,7 +158,7 @@ namespace eqNet
          * @sa stop(), exit()
          */
         static void stopNode(const uint networkID, const uint nodeID);
-        //*}
+        //@}
 
         /**
          * @name Messaging API
@@ -203,8 +202,7 @@ namespace eqNet
         static void* recv( const uint fromNodeID, const Message::Type type, 
             const void *ptr, const uint64 *count, const float timeout );
         //@}
-
     };
-};
+}
 
 #endif // EQNET_NETWORK_H

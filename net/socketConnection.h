@@ -11,29 +11,33 @@
 
 namespace eqNet
 {
-    /**
-     * A TCP/IP-based socket connection.
-     */
-    class SocketConnection : public FDConnection
+    namespace internal
     {
-    public:
-        SocketConnection(ConnectionDescription &description);
+        /**
+         * A TCP/IP-based socket connection.
+         */
+        class SocketConnection : public FDConnection
+        {
+        public:
+            SocketConnection();
 
-        virtual ~SocketConnection();
+            virtual ~SocketConnection();
 
-        virtual bool connect();
+            virtual bool connect( ConnectionDescription &description );
 
-        virtual bool listen();
-        virtual Connection* accept();
+            virtual bool listen( ConnectionDescription &description );
+            virtual Connection* accept();
 
-        virtual void close();
+            virtual void close();
 
-    protected:
+        protected:
 
-    private:
-        void _createSocket();
-        void _parseAddress( sockaddr_in& socketAddress );
-    };
-};
+        private:
+            void _createSocket();
+            void _parseAddress( ConnectionDescription &description, 
+                sockaddr_in& socketAddress );
+        };
+    }
+}
 
 #endif //EQNET_SOCKET_CONNECTION_H

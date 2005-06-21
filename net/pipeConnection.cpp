@@ -3,7 +3,7 @@
    All rights reserved. */
 
 #include "pipeConnection.h"
-
+#include "connectionDescription.h"
 #include "server.h"
 
 #include <eq/base/log.h>
@@ -12,33 +12,28 @@
 #include <errno.h>
 
 using namespace eqNet;
+using namespace eqNet::internal;
 using namespace std;
 
-PipeConnection::PipeConnection(ConnectionDescription &description)
-        : FDConnection(description),
-          _pipes(NULL)
+PipeConnection::PipeConnection()
+        : _pipes(NULL)
 {
-    _description = description;
-    if( _description.PIPE.entryFunc )
-        _description.PIPE.entryFunc = strdup( _description.PIPE.entryFunc );
 }
 
 PipeConnection::~PipeConnection()
 {
     close();
-    if( _description.PIPE.entryFunc )
-        free( (void*)_description.PIPE.entryFunc );
 }
 
 //----------------------------------------------------------------------
 // connect
 //----------------------------------------------------------------------
-bool PipeConnection::connect()
+bool PipeConnection::connect(ConnectionDescription &description)
 {
     if( _state != STATE_CLOSED )
         return false;
 
-    if( _description.PIPE.entryFunc == NULL )
+    if( description.PIPE.entryFunc == NULL )
     {
         WARN << "No entry function defined for pipe connection" <<endl;
         return false;
@@ -54,7 +49,7 @@ bool PipeConnection::connect()
     {
         case 0: // child
             INFO << "Child running" << endl;
-            _runChild(); // never returns
+            _runChild(description.PIPE.entryFunc); // never returns
             return true;
             
         case -1: // error
@@ -124,7 +119,7 @@ void PipeConnection::_setupParent()
     _state = STATE_CONNECTED;
 }
 
-void PipeConnection::_runChild()
+void PipeConnection::_runChild(const char *entryFunc)
 {
     // close unneeded pipe ends
     ::close( _pipes[0] );
@@ -144,12 +139,11 @@ void PipeConnection::_runChild()
 
     // Note: right now all possible entry functions are hardcoded due to
     // security considerations.
-    const char *entryFunc = _description.PIPE.entryFunc;
+    int result = EXIT_FAILURE;
 
     if( strcmp( entryFunc, "Server::run" ) == 0 )
     {
-        const int result = Server::run( this );
-        exit( result );
+        result = Server::run( this );
     }
     else if( strcmp( entryFunc, "testPipeServer" ) == 0 )
     {
@@ -159,10 +153,11 @@ void PipeConnection::_runChild()
         void *func = dlsym( RTLD_DEFAULT, entryFunc );
 #endif
         typedef int (*entryFunc)( Connection* connection );
-        const int result = ((entryFunc)func)( this );
-        exit( result );
+        result = ((entryFunc)func)( this );
     }
     // else if ....
 
-    exit( EXIT_SUCCESS );
+    close();
+    delete this;
+    exit( result );
 }

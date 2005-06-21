@@ -10,11 +10,11 @@
 #include <unistd.h>
 
 using namespace eqNet;
+using namespace eqNet::internal;
 using namespace std;
 
-FDConnection::FDConnection(ConnectionDescription &description)
-        : Connection(description),
-          _readFD( -1 ),
+FDConnection::FDConnection()
+        : _readFD( -1 ),
           _writeFD( -1 )
 {
 }

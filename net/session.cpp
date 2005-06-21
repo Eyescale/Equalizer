@@ -3,7 +3,10 @@
    All rights reserved. */
 
 #include "session.h"
+
 #include "connection.h"
+#include "networkInt.h"
+#include "server.h"
 
 #include <eq/base/log.h>
 #include <eq/net/connectionDescription.h>
@@ -13,6 +16,14 @@
 using namespace eqNet;
 using namespace std;
 
+uint Session::_nextSessionID = 0;
+
+Session::Session()
+{
+    _id = _nextSessionID + LOCAL_ID;
+    _nextSessionID++;
+}
+
 uint Session::create( const char* server )
 {
     Session *session = new Session();
@@ -20,11 +31,11 @@ uint Session::create( const char* server )
     return session->_getID();
 }
 
-void Session::_create( const char* server )
+void Session::_create( const char* serverAddress )
 {
-    Connection* connection = _openServer( server );
+    Server* server = _openServer( serverAddress );
     
-    if( connection == NULL )
+    if( server == NULL )
     {
         WARN << "Could not contact server" << endl;
         //_id = INVALID_ID;
@@ -42,50 +53,61 @@ void Session::_create( const char* server )
     
 }
 
-Connection* Session::_openServer( const char* server )
+Server* Session::_openServer( const char* serverAddress )
 {
-    ConnectionDescription connDesc;
-    connDesc.protocol = Network::PROTO_TCPIP;
-
-    if( server )
-        connDesc.TCPIP.address = server;
+    internal::Network*    network = internal::Network::create( INVALID_ID,
+        PROTO_TCPIP );
+    internal::Node*       server  = new internal::Node( INVALID_ID );
+    internal::Node*       local   = new internal::Node( INVALID_ID-1 );
+    ConnectionDescription serverConnection;
+    ConnectionDescription localConnection;
+    
+    if( serverAddress )
+        serverConnection.TCPIP.address = serverAddress;
     else
     {
         // If the server address is <code>NULL</code>, the environment
         // variable EQSERVER is used to determine the server address.
         const char* env = getenv( "EQSERVER" );
         if( env )
-            connDesc.TCPIP.address = env;
+            serverConnection.TCPIP.address = env;
         else
         {
             // If the environment variable is not set, the local server on the
             // default port is contacted.
             char *address = (char *)alloca( 16 );
             sprintf( address, "localhost:%d", DEFAULT_PORT );
-            connDesc.TCPIP.address = address;
+            serverConnection.TCPIP.address = address;
         }
     }
+
+//     Network::addNode( network, server, serverConnection );
+//     Network::addNode( network, local, localConnection );
     
-    Connection* connection = Connection::create( connDesc );
-
-    if( !connection->connect())
-    {
-        // If the server can not be contacted, a new server is created, serving
-        // only this application.
-        delete connection;
-
-        connDesc.protocol = Network::PROTO_PIPE;
-        connDesc.launchCommand = "Server::run";
-        connection = Connection::create( connDesc );
+//     if( !Network::init(network) || !Network::start(network) )
+//     {
+//         // TODO delete network;
+//     }
         
-        if( !connection->connect())
-        {
-            delete connection;
-            return NULL;
-        }
-    }
+//     Connection* connection = Connection::create( Network::PROTO_TCPIP );
 
-    return connection;
+//     if( !connection->connect(serverConnection))
+//     {
+//         // If the server can not be contacted, a new server is created, serving
+//         // only this application.
+//         delete connection;
+
+//         connection = Connection::create( Network::PROTO_PIPE );
+        
+//         serverConnection.launchCommand = "Server::run";
+//         if( !connection->connect(serverConnection))
+//         {
+//             delete connection;
+//             return NULL;
+//         }
+//     }
+
+    return NULL;
 }
         
 /*
@@ -120,7 +142,6 @@ bool Session::join( const char *server, const uint sessionID )
  */
 uint Session::addNode( const uint sessionID )
 {
-    return 0;
 }
 
 /*
@@ -176,10 +197,8 @@ bool Session::removeNode( const uint sessionID, const uint nodeID )
  * @return the network identifier of the added network.
  * @sa addNode
  */
-uint Session::addNetwork( const uint sessionID, 
-    const Network::Protocol protocol )
+void Session::addNetwork( const uint sessionID, const uint networkID )
 {
-    return 0;
 }
 
 /*

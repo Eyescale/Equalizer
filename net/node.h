@@ -5,6 +5,10 @@
 #ifndef EQNET_NODE_H
 #define EQNET_NODE_H
 
+#include <eq/base/base.h>
+
+#include <eq/net/message.h>
+
 namespace eqNet
 {
     /**
@@ -21,21 +25,6 @@ namespace eqNet
     class Node
     {
     public:
-        /**
-         * @name Administrative API
-         *
-         * The administrative API is used to configure the behaviour
-         * of this node within the session and its networks.
-         */
-        //@{
-        /**
-         * Returns the node identifier of the local node.
-         *
-         * @return the node identifier of the local node.
-         */
-        static uint getNodeID();
-        //@}
-
         /**
          * @name Messaging API
          *
@@ -90,6 +79,24 @@ namespace eqNet
         static void* recv( const uint fromNodeID, const Message::Type type, 
             const void *ptr, const uint64 *count, const float timeout );
         //@}
+
+        /** @name Internal API */
+        //@{
+        /** 
+         * Constructs a new Node.
+         * 
+         * @param id the identifier of the node.
+         */
+        Node(const uint id);
+        //@}
+
+    protected:
+
+        /** The identifier of this Node. */
+        uint _id;
+
+    private:
+        static uint _nextNodeID;
     };
 };
 

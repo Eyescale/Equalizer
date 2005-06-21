@@ -5,6 +5,7 @@
 #include <iostream>
 
 using namespace eqNet;
+using namespace eqNetInternal;
 using namespace std;
 
 extern "C" int testPipeServer( Connection* connection )
@@ -15,18 +16,18 @@ extern "C" int testPipeServer( Connection* connection )
         fprintf( stderr, "Server recv: '%c'\n", c );
         connection->send( &c, 1 );
     }
+
     return EXIT_SUCCESS;
 }
 
 int main( int argc, char **argv )
 {
+    Connection *connection = Connection::create(Network::PROTO_PIPE);
+
     ConnectionDescription connDesc;
-    connDesc.protocol       = Network::PROTO_PIPE;
     connDesc.PIPE.entryFunc = "testPipeServer";
 
-    Connection *connection = Connection::create(connDesc);
-
-    connection->connect();
+    connection->connect(connDesc);
 
     const char message[] = "buh!";
     int nChars = strlen( message ) + 1;

@@ -6,15 +6,15 @@
 #include <alloca.h>
 
 using namespace eqNet;
+using namespace eqNetInternal;
 
 int main( int argc, char **argv )
 {
-    ConnectionDescription connDesc;
-    connDesc.protocol      = Network::PROTO_TCPIP;
-    connDesc.TCPIP.address = "localhost:4242";
+    Connection *connection = Connection::create( Network::PROTO_TCPIP );
 
-    Connection *connection = Connection::create( connDesc );
-    connection->connect();
+    ConnectionDescription connDesc;
+    connDesc.TCPIP.address = "localhost:4242";
+    connection->connect(connDesc);
 
     const char message[] = "buh!";
     int nChars = strlen( message ) + 1;
