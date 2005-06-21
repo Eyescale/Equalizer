@@ -9,7 +9,7 @@ SUBDIRS = base net tests
 all: subdirs docs
 
 docs: net
-	doxygen Doxyfile
+	@$(DOXYGEN) Doxyfile
 
 net: base
 tests: net

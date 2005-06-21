@@ -18,6 +18,7 @@ BUILD_DIR    = $(TOP)/build/$(ARCH)/$(VARIANT)
 CXXFLAGS    += -I$(BUILD_DIR)/include
 LDFLAGS     += -L$(BUILD_DIR)/lib
 CXX_DEPS    ?= $(CXX)
+DOXYGEN     ?= Doxygen
 
 HEADER_SRC   = $(wildcard *.h)
 HEADER_DIR   = $(BUILD_DIR)/include/eq/$(MODULE)

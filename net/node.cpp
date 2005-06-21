@@ -6,5 +6,4 @@
 #include "global.h"
 
 using namespace eqNet;
-using namespace std;
 

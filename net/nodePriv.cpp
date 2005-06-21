@@ -5,7 +5,6 @@
 #include "nodePriv.h"
 
 using namespace eqNet::priv;
-using namespace std;
 
 Node::Node( const uint id )
         : Base(id), 

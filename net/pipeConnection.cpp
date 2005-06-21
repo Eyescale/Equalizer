@@ -109,7 +109,7 @@ void PipeConnection::_setupParent()
     // assign file descriptors
     _readFD  = _pipes[0];
     _writeFD = _pipes[3];
-    INFO << "parent readFD " << _readFD << " writeFD " << _writeFD << endl;
+    INFO << "Parent readFD " << _readFD << " writeFD " << _writeFD << endl;
 
     // cleanup
     delete [] _pipes;
@@ -128,7 +128,7 @@ void PipeConnection::_runChild(const char *entryFunc)
     // assign file descriptors
     _readFD  = _pipes[2];
     _writeFD = _pipes[1];
-    INFO << "child  readFD " << _readFD << " writeFD " << _writeFD << endl;
+    INFO << "Child  readFD " << _readFD << " writeFD " << _writeFD << endl;
 
     // cleanup
     delete [] _pipes;
@@ -148,10 +148,12 @@ void PipeConnection::_runChild(const char *entryFunc)
     else if( strcmp( entryFunc, "testPipeServer" ) == 0 )
     {
 #ifdef sgi
-        void *func = dlsym( NULL, entryFunc );
+        void* dlHandle = dlopen( 0, RTLD_LAZY );
+        void* func = dlsym( dlHandle, entryFunc );
 #else
-        void *func = dlsym( RTLD_DEFAULT, entryFunc );
+        void* func = dlsym( RTLD_DEFAULT, entryFunc );
 #endif
+        INFO << "Entry function '" << entryFunc << "', addr: " << func << endl;
         typedef int (*entryFunc)( Connection* connection );
         result = ((entryFunc)func)( this );
     }

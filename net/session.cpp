@@ -140,6 +140,7 @@ bool Session::join( const char *server, const uint sessionID )
  */
 uint Session::addNode( const uint sessionID )
 {
+    return INVALID_ID;
 }
 
 /*

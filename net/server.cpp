@@ -85,11 +85,3 @@ void Server::_handleRequest( Connection *connection )
             break;
     }
 }
-
-
-//----------------------------------------------------------------------
-// proxy initialisation
-//----------------------------------------------------------------------
-Server* Server::connect( Connection* connection )
-{
-}

@@ -11,6 +11,7 @@ using namespace std;
 
 extern "C" int testPipeServer( Connection* connection )
 {
+    cerr << "Server up" << endl;
     char c;
     while( connection->recv( &c, 1 ))
     {
