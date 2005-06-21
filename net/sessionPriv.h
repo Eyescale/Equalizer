@@ -2,14 +2,15 @@
 /* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQNET_SESSION_H
-#define EQNET_SESSION_H
+#ifndef EQNET_SESSION_PRIV_H
+#define EQNET_SESSION_PRIV_H
 
 #include <eq/base/base.h>
 #include <eq/net/global.h>
 #include <eq/net/network.h>
 
 #include "base.h"
+#include "session.h"
 
 #ifdef __GNUC__              // GCC 3.1 and later
 #  include <ext/hash_map>
@@ -27,7 +28,7 @@ namespace eqNet
     {
         class Server;
 
-        class Session : public Base
+        class Session : public Base, public eqNet::Session
         {
         public:
             /** 
@@ -35,33 +36,34 @@ namespace eqNet
              * 
              * @param server the server address.
              */
-            void _create( const char *server );
+            static Session* create( const char *server );
 
 
         protected:
-            Session();
+            Session(const uint id);
 
         private:
             /** 
              * The list of nodes in this session, the first node is always the
              * server node.
              */
-            Sgi::hash_map<int, Node*> _nodes;
+            Sgi::hash_map<uint, Node*> _nodes;
 
             /** The list of networks in this session. */
             //std::vector<Network*>       _networks;
 
+            bool _create( const char* serverAddress );
+
             /** 
-             * Opens and returns a session to the specified server, the algorithm is
-             * described in the class documentation.
+             * Opens and returns a session to the specified server.
              * 
              * @param server the server address.
-             * @return the Connection to the server, or <code>NULL</code> if no
+             * @return the Server object, or <code>NULL</code> if no
              *         server could be contacted.
              */
             Server* _openServer( const char* server );
         };
     }
 }
-#endif // EQNET_SESSION_H
+#endif // EQNET_SESSION_PRIV_H
 

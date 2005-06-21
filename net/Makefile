@@ -17,9 +17,12 @@ SOURCES = \
 	node.cpp \
 	nodePriv.cpp \
 	pipeConnection.cpp \
+	pipeNetwork.cpp \
 	session.cpp \
+	sessionPriv.cpp \
 	server.cpp \
-	socketConnection.cpp
+	socketConnection.cpp \
+	socketNetwork.cpp
 
 MODULE  = net
 

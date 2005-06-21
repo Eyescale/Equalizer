@@ -103,7 +103,7 @@ namespace eqNet
          * started. Some protocols may contact the nodes to start a
          * process.
          *
-         * This nodes in this network will not run, that is, start to
+         * The nodes in this network will not run, that is, start to
          * execute the entry function, until they have been started. 
          *
          * @param networkID the network identifier.

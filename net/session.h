@@ -9,14 +9,6 @@
 #include <eq/net/global.h>
 #include <eq/net/network.h>
 
-#ifdef __GNUC__              // GCC 3.1 and later
-#  include <ext/hash_map>
-namespace Sgi = ::__gnu_cxx; 
-#else                        //  other compilers
-#  include <hash_map>
-namespace Sgi = std;
-#endif
-
 namespace eqNet
 {
     class Connection;
@@ -268,39 +260,8 @@ namespace eqNet
          */
         static void stop(const uint sessionID);
         //*}
-
-    protected:
-        Session();
-
-    private:
-        /** The session identifier. */
-        uint _id;
-
-        /** 
-         * The list of nodes in this session, the first node is always the
-         * server node.
-         */
-        Sgi::hash_map<int, Node*> _nodes;
-
-        /** The list of networks in this session. */
-        //std::vector<Network*>       _networks;
-
-
-        uint _getID(){ return _id; }
-
-        void _create( const char *server );
-
-        /** 
-         * Opens and returns a session to the specified server, the algorithm is
-         * described in the class documentation.
-         * 
-         * @param server the server address.
-         * @return the Connection to the server, or <code>NULL</code> if no
-         *         server could be contacted.
-         */
-        Server* _openServer( const char* server );
     };
-};
+}
 
 #endif // EQNET_SESSION_H
 

@@ -7,8 +7,6 @@
 
 #include <eq/base/base.h>
 
-#include <eq/net/message.h>
-
 namespace eqNet
 {
     /** The namespace for the private implementation of the eqNet classes. */

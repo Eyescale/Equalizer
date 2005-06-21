@@ -8,6 +8,8 @@ using namespace std;
 
 int main( int argc, char **argv )
 {
-    cout << "Created session " << Session::create(NULL);
+    cout << "Create session... " << endl;
+    const uint sessionID = Session::create(NULL);
+    cout << "Got session " << sessionID << endl;
 }
 

@@ -15,6 +15,11 @@ namespace eqNet
         {
         public:
             PipeNetwork(const uint id) : Network(id){}
+
+            virtual bool init();
+            virtual bool start() ;
+            virtual void stop();
+            virtual bool startNode(const uint nodeID);
         };
     }
 }

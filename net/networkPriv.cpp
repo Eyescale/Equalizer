@@ -4,6 +4,7 @@
 
 #include "networkPriv.h"
 
+#include "connectionDescription.h"
 #include "network.h"
 #include "pipeNetwork.h"
 #include "socketNetwork.h"
@@ -17,6 +18,11 @@ Network::Network(const uint id)
         : eqNet::Network(),
           Base(id)
 {}
+
+Network::~Network()
+{
+    // TODO: ConnectionDescription cleanup
+}
 
 Network* Network::create( const uint id, const eqNet::NetworkProtocol protocol )
 {
@@ -32,4 +38,28 @@ Network* Network::create( const uint id, const eqNet::NetworkProtocol protocol )
             WARN << "Protocol not implemented" << endl;
             return NULL;
     }
+}
+
+void Network::addNode( const uint nodeID,
+    const eqNet::ConnectionDescription& description )
+{
+    ConnectionDescription *desc = new ConnectionDescription();
+    *desc = description;
+
+    INFO << typeid(this).name() << endl;
+    INFO << typeid(SocketNetwork).name() << endl;
+    INFO << typeid(PipeNetwork).name() << endl;
+
+    if( typeid(this) == typeid( SocketNetwork ))
+    {
+        if( description.TCPIP.address != NULL)
+            desc->TCPIP.address = strdup( description.TCPIP.address );
+    }
+    else if( typeid(this) == typeid( PipeNetwork ))
+    {
+        if( description.PIPE.entryFunc != NULL)
+            desc->PIPE.entryFunc = strdup( description.PIPE.entryFunc );
+    }
+   
+    _descriptions[nodeID] = desc;
 }

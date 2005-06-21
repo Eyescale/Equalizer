@@ -8,6 +8,7 @@
 #include "networkPriv.h"
 #include "nodePriv.h"
 #include "server.h"
+#include "sessionPriv.h"
 
 #include <eq/base/log.h>
 #include <eq/net/connectionDescription.h>
@@ -17,97 +18,14 @@
 using namespace eqNet;
 using namespace std;
 
-Session::Session()
-        : _id( INVALID_ID )
-{
-}
-
 uint Session::create( const char* server )
 {
-    Session *session = new Session();
-    session->_create( server );
-    return session->_getID();
+    priv::Session *session = priv::Session::create(server);
+    if( session )
+        return session->getID();
+    return INVALID_ID;
 }
 
-void Session::_create( const char* serverAddress )
-{
-    Server* server = _openServer( serverAddress );
-    
-    if( server == NULL )
-    {
-        WARN << "Could not contact server" << endl;
-        //_id = INVALID_ID;
-        return;
-    }
-
-    
-//     Node* server = new Node();
-//     _nodes.push_back( server );
-
-//     Node* node = new Node();
-//     _nodes.push_back( node );
-
-//     Network* network = new Network(Network::PROTO_TCPIP);
-    
-}
-
-Server* Session::_openServer( const char* serverAddress )
-{
-    priv::Network*    network = priv::Network::create( INVALID_ID,
-        PROTO_TCPIP );
-    priv::Node*       server  = new priv::Node( INVALID_ID );
-    priv::Node*       local   = new priv::Node( INVALID_ID-1 );
-    ConnectionDescription serverConnection;
-    ConnectionDescription localConnection;
-    
-    if( serverAddress )
-        serverConnection.TCPIP.address = serverAddress;
-    else
-    {
-        // If the server address is <code>NULL</code>, the environment
-        // variable EQSERVER is used to determine the server address.
-        const char* env = getenv( "EQSERVER" );
-        if( env )
-            serverConnection.TCPIP.address = env;
-        else
-        {
-            // If the environment variable is not set, the local server on the
-            // default port is contacted.
-            char *address = (char *)alloca( 16 );
-            sprintf( address, "localhost:%d", DEFAULT_PORT );
-            serverConnection.TCPIP.address = address;
-        }
-    }
-
-//     Network::addNode( network, server, serverConnection );
-//     Network::addNode( network, local, localConnection );
-    
-//     if( !Network::init(network) || !Network::start(network) )
-//     {
-//         // TODO delete network;
-//     }
-        
-//     Connection* connection = Connection::create( Network::PROTO_TCPIP );
-
-//     if( !connection->connect(serverConnection))
-//     {
-//         // If the server can not be contacted, a new server is created, serving
-//         // only this application.
-//         delete connection;
-
-//         connection = Connection::create( Network::PROTO_PIPE );
-        
-//         serverConnection.launchCommand = "Server::run";
-//         if( !connection->connect(serverConnection))
-//         {
-//             delete connection;
-//             return NULL;
-//         }
-//     }
-
-    return NULL;
-}
-        
 /*
  * Joins an existing session on a server.
  *
