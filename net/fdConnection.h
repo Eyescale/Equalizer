@@ -11,7 +11,7 @@ namespace eqNet
 {
     struct ConnectionDescription;
 
-    namespace internal
+    namespace priv
     {
         /**
          * A generic file descriptor-based connection, to be subclassed.

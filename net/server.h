@@ -5,15 +5,13 @@
 #ifndef EQNET_SERVER_H
 #define EQNET_SERVER_H
 
-#include <eq/net/node.h>
+#include "nodePriv.h"
 
 #include <vector>
 
 namespace eqNet
 {
-    class Node;
-
-    namespace internal
+    namespace priv
     {
         class Connection;
 

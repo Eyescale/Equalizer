@@ -79,24 +79,6 @@ namespace eqNet
         static void* recv( const uint fromNodeID, const Message::Type type, 
             const void *ptr, const uint64 *count, const float timeout );
         //@}
-
-        /** @name Internal API */
-        //@{
-        /** 
-         * Constructs a new Node.
-         * 
-         * @param id the identifier of the node.
-         */
-        Node(const uint id);
-        //@}
-
-    protected:
-
-        /** The identifier of this Node. */
-        uint _id;
-
-    private:
-        static uint _nextNodeID;
     };
 };
 

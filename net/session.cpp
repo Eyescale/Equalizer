@@ -5,7 +5,8 @@
 #include "session.h"
 
 #include "connection.h"
-#include "networkInt.h"
+#include "networkPriv.h"
+#include "nodePriv.h"
 #include "server.h"
 
 #include <eq/base/log.h>
@@ -16,12 +17,9 @@
 using namespace eqNet;
 using namespace std;
 
-uint Session::_nextSessionID = 0;
-
 Session::Session()
+        : _id( INVALID_ID )
 {
-    _id = _nextSessionID + LOCAL_ID;
-    _nextSessionID++;
 }
 
 uint Session::create( const char* server )
@@ -55,10 +53,10 @@ void Session::_create( const char* serverAddress )
 
 Server* Session::_openServer( const char* serverAddress )
 {
-    internal::Network*    network = internal::Network::create( INVALID_ID,
+    priv::Network*    network = priv::Network::create( INVALID_ID,
         PROTO_TCPIP );
-    internal::Node*       server  = new internal::Node( INVALID_ID );
-    internal::Node*       local   = new internal::Node( INVALID_ID-1 );
+    priv::Node*       server  = new priv::Node( INVALID_ID );
+    priv::Node*       local   = new priv::Node( INVALID_ID-1 );
     ConnectionDescription serverConnection;
     ConnectionDescription localConnection;
     

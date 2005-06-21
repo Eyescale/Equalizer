@@ -16,7 +16,7 @@
 #include <sys/types.h>
 
 using namespace eqNet;
-using namespace eqNet::internal;
+using namespace eqNet::priv;
 using namespace std;
 
 

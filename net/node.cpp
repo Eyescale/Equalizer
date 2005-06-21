@@ -8,6 +8,3 @@
 using namespace eqNet;
 using namespace std;
 
-Node::Node(const uint id)
-{
-}

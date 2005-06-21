@@ -5,11 +5,11 @@
 #ifndef EQNET_SOCKET_NETWORK_H
 #define EQNET_SOCKET_NETWORK_H
 
-#include "networkInt.h"
+#include "networkPriv.h"
 
 namespace eqNet
 {
-    namespace internal
+    namespace priv
     {
         class SocketNetwork : public Network
         {

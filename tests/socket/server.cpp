@@ -1,25 +1,29 @@
 
 #include <connection.h>
+#include <connectionDescription.h>
+
+#include <iostream>
 
 using namespace eqNet;
-using namespace eqNetInternal;
+using namespace eqNet::priv;
+using namespace std;
 
 int main( int argc, char **argv )
 {
-    Connection *connection = Connection::create(Network::PROTO_TCPIP);
+    Connection *connection = Connection::create(PROTO_TCPIP);
 
     ConnectionDescription connDesc;
     connDesc.TCPIP.address = "localhost:4242";
     connection->listen(connDesc);
 
     Connection *client = connection->accept();
-    fprintf( stderr, "Server accepted connection\n" );
+    cerr << "Server accepted connection" << endl;
     connection->close();
 
     char c;
     while( client->recv( &c, 1 ))
     {
-        fprintf( stderr, "Server recv: '%c'\n", c );
+        cerr << "Server recv: " << c << endl;
         client->send( &c, 1 );
     }
 

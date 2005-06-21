@@ -21,10 +21,10 @@ namespace eqNet
     // global defines
 
     /** An invalid identifier. */
-#   define INVALID_ID 0
+#   define INVALID_ID 0xfffffffe
 
-    /** The starting range for local, unconnected objects. */
-#   define LOCAL_ID 0xffff0000
+    /** The node identifier of the server. */
+#   define NODE_ID_SERVER 1
 
     /** The any node identifier. */
 #   define NODE_ID_ANY 0xffffffff

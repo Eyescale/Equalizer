@@ -1,11 +1,12 @@
 
 #include <connection.h>
+#include <connectionDescription.h>
 
 #include <alloca.h>
 #include <iostream>
 
 using namespace eqNet;
-using namespace eqNetInternal;
+using namespace eqNet::priv;
 using namespace std;
 
 extern "C" int testPipeServer( Connection* connection )
@@ -13,7 +14,7 @@ extern "C" int testPipeServer( Connection* connection )
     char c;
     while( connection->recv( &c, 1 ))
     {
-        fprintf( stderr, "Server recv: '%c'\n", c );
+        cerr << "Server recv: " << c << endl;
         connection->send( &c, 1 );
     }
 
@@ -22,7 +23,7 @@ extern "C" int testPipeServer( Connection* connection )
 
 int main( int argc, char **argv )
 {
-    Connection *connection = Connection::create(Network::PROTO_PIPE);
+    Connection *connection = Connection::create(PROTO_PIPE);
 
     ConnectionDescription connDesc;
     connDesc.PIPE.entryFunc = "testPipeServer";
@@ -35,7 +36,7 @@ int main( int argc, char **argv )
 
     connection->send( message, nChars );
     connection->recv( response, nChars );
-    fprintf( stderr, "%s\n", response );
+    cerr << "Client recv: " << response << endl;
 
     connection->close();
 

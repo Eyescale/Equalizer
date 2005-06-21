@@ -9,7 +9,7 @@
 
 namespace eqNet
 {
-    namespace internal
+    namespace priv
     {
         /**
          * A fork-based pipe connection.

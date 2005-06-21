@@ -2,27 +2,30 @@
 /* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#include "network.h"
+#include "networkPriv.h"
 
+#include "network.h"
 #include "pipeNetwork.h"
 #include "socketNetwork.h"
 
-using namespace eqNet;
+#include <eq/base/log.h>
+
 using namespace eqNet::priv;
 using namespace std;
 
 Network::Network(const uint id)
-        : _id(id)
+        : eqNet::Network(),
+          Base(id)
 {}
 
-static Network* create(const uint id, const NetworkProtocol protocol)
+Network* Network::create( const uint id, const eqNet::NetworkProtocol protocol )
 {
     switch( protocol )
     {
-        case PROTO_TCPIP:
+        case eqNet::PROTO_TCPIP:
             return new SocketNetwork(id);
 
-        case PROTO_PIPE:
+        case eqNet::PROTO_PIPE:
             return new PipeNetwork(id);
 
         default:

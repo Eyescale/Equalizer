@@ -4,13 +4,15 @@
 #include <eq/net/connectionDescription.h>
 
 #include <alloca.h>
+#include <iostream>
 
 using namespace eqNet;
-using namespace eqNetInternal;
+using namespace eqNet::priv;
+using namespace std;
 
 int main( int argc, char **argv )
 {
-    Connection *connection = Connection::create( Network::PROTO_TCPIP );
+    Connection *connection = Connection::create( PROTO_TCPIP );
 
     ConnectionDescription connDesc;
     connDesc.TCPIP.address = "localhost:4242";
@@ -22,7 +24,7 @@ int main( int argc, char **argv )
 
     connection->send( message, nChars );
     connection->recv( response, nChars );
-    fprintf( stderr, "%s\n", response );
+    cerr << "Client recv: " << response << endl;
     connection->close();
 
     return EXIT_SUCCESS;

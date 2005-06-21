@@ -7,11 +7,13 @@
 
 #include <eq/net/network.h>
 
+#include "base.h"
+
 namespace eqNet
 {
     namespace priv
     {
-        class Network : public eqNet::Network
+        class Network : public eqNet::Network, public Base
         {
         public:
             /** 
@@ -22,7 +24,7 @@ namespace eqNet
              * @return the network.
              */
             static Network* create( const uint id,
-                const NetworkProtocol protocol );
+                const eqNet::NetworkProtocol protocol );
 
         protected:
             Network(const uint id);

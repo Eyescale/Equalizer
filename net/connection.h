@@ -17,7 +17,7 @@ namespace eqNet
 {
     struct ConnectionDescription;
 
-    namespace internal
+    namespace priv
     {
 #   define DEFAULT_PORT 4242
 

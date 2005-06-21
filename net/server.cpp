@@ -10,7 +10,7 @@
 #include <eq/base/log.h>
 
 using namespace eqNet;
-using namespace eqNet::internal;
+using namespace eqNet::priv;
 using namespace std;
 
 int Server::run( Connection* connection )
@@ -20,7 +20,7 @@ int Server::run( Connection* connection )
 }
 
 Server::Server( Connection* connection )
-        : Node( INVALID_ID )
+        : Node(NODE_ID_SERVER)
 {
     _connections.push_back(connection);
 }

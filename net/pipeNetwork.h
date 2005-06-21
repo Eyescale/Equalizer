@@ -5,11 +5,11 @@
 #ifndef EQNET_PIPE_NETWORK_H
 #define EQNET_PIPE_NETWORK_H
 
-#include "networkInt.h"
+#include "networkPriv.h"
 
 namespace eqNet
 {
-    namespace internal
+    namespace priv
     {
         class PipeNetwork : public Network
         {

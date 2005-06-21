@@ -11,7 +11,7 @@
 
 namespace eqNet
 {
-    namespace internal
+    namespace priv
     {
         /**
          * A TCP/IP-based socket connection.

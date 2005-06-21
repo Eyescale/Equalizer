@@ -7,13 +7,14 @@
 
 #include <eq/base/base.h>
 
-#include <eq/net/message.h>
+#include "node.h"
+#include "base.h"
 
 namespace eqNet
 {
     namespace priv
     {
-        class Node
+        class Node : public Base, public eqNet::Node
         {
         public:
             /** 
@@ -24,12 +25,6 @@ namespace eqNet
             Node(const uint id);
 
         protected:
-            
-            /** The identifier of this Node. */
-            uint _id;
-            
-        private:
-            static uint _nextNodeID;
         };
     }
 }

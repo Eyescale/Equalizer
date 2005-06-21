@@ -5,6 +5,7 @@
 #ifndef EQNET_NETWORK_H
 #define EQNET_NETWORK_H
 
+#include <eq/base/base.h>
 #include <eq/net/message.h>
 
 namespace eqNet

@@ -286,7 +286,7 @@ namespace eqNet
         //std::vector<Network*>       _networks;
 
 
-        uint _getID(){ return INVALID_ID; }
+        uint _getID(){ return _id; }
 
         void _create( const char *server );
 
@@ -299,8 +299,6 @@ namespace eqNet
          *         server could be contacted.
          */
         Server* _openServer( const char* server );
-
-        static uint _nextSessionID;
     };
 };
 
