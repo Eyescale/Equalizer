@@ -1,4 +1,3 @@
-
 /* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
@@ -116,6 +115,7 @@ bool Session::removeNode( const uint sessionID, const uint nodeID )
  */
 uint Session::addNetwork( const uint sessionID, const NetworkProtocol protocol )
 {
+    return INVALID_ID;
 }
 
 /*

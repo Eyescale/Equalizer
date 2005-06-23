@@ -27,7 +27,7 @@ int main( int argc, char **argv )
     Connection *connection = Connection::create(PROTO_PIPE);
 
     ConnectionDescription connDesc;
-    connDesc.PIPE.entryFunc = "testPipeServer";
+    connDesc.parameters.PIPE.entryFunc = "testPipeServer";
 
     connection->connect(connDesc);
 

@@ -24,6 +24,7 @@ bool SocketNetwork::start()
 
 bool SocketNetwork::startNode(const uint nodeID)
 {
+    return false;
 }
 
 void SocketNetwork::stop()

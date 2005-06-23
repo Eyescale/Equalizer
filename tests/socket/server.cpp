@@ -13,7 +13,7 @@ int main( int argc, char **argv )
     Connection *connection = Connection::create(PROTO_TCPIP);
 
     ConnectionDescription connDesc;
-    connDesc.TCPIP.address = "localhost:4242";
+    connDesc.parameters.TCPIP.address = "localhost:4242";
     connection->listen(connDesc);
 
     Connection *client = connection->accept();
