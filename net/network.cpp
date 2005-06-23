@@ -10,3 +10,6 @@
 using namespace eqNet;
 using namespace std;
 
+void Network::exit(const uint networkID)
+{
+}

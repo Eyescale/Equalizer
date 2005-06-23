@@ -1,6 +1,8 @@
 
 #include "pipeNetwork.h"
 #include "connection.h"
+#include "connectionDescription.h"
+#include "pipeConnection.h"
 
 #include <eq/base/log.h>
 
@@ -29,7 +31,7 @@ bool PipeNetwork::start()
     {
         const uint                   nodeID      = (*iter).first;
         const ConnectionDescription* description = (*iter).second;
-        const char*                  entryFunc   = description.PIPE.entryFunc;
+        const char*         entryFunc = description->parameters.PIPE.entryFunc;
 
         if( entryFunc == NULL ) // local node
             continue;
@@ -37,7 +39,7 @@ bool PipeNetwork::start()
         INFO << "Starting node " << nodeID << endl;
         Connection *connection = Connection::create( eqNet::PROTO_PIPE );
     
-        if( !connection->connect( description ))
+        if( !connection->connect( *description ))
         {
             delete connection;
             return false;
@@ -57,4 +59,12 @@ bool PipeNetwork::startNode(const uint nodeID)
 
 void PipeNetwork::stop()
 {
+}
+
+void PipeNetwork::setStarted( const uint nodeID, PipeConnection* connection )
+{
+    ASSERT( _descriptions.count(nodeID)!=0 );
+    ASSERT( connection->getState() == Connection::STATE_CONNECTED );
+
+    _connections[nodeID] = connection;
 }

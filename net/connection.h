@@ -66,11 +66,11 @@ namespace eqNet
              * Connect the connection, as described in the
              * ConnectionDescription.
              *
-             * @param description The description of the connection.
+             * @param desc The description of the connection.
              * @return <code>true</code> if the connection was successfully
              *         connected, <code>false</code> if not.
              */
-            virtual bool connect( eqNet::ConnectionDescription& description )
+            virtual bool connect( const eqNet::ConnectionDescription& desc )
                 { return false; }
 
             /** 
@@ -116,7 +116,7 @@ namespace eqNet
             virtual size_t send( const void* buffer, const size_t bytes){return 0;}
             //@}
 
-            State getState(){ return _state; }
+            State getState() const { return _state; }
 
             /** 
              * Polls a set of connections for an incoming event

@@ -46,15 +46,17 @@ void Network::addNode( const uint nodeID,
     ConnectionDescription *desc = new ConnectionDescription();
     *desc = description;
 
-    if( typeid(*this) == typeid( SocketNetwork ))
+    if( typeid(this) == typeid( SocketNetwork* ))
     {
-        if( description.TCPIP.address != NULL)
-            desc->TCPIP.address = strdup( description.TCPIP.address );
+        if( description.parameters.TCPIP.address != NULL)
+            desc->parameters.TCPIP.address = 
+                strdup( description.parameters.TCPIP.address );
     }
-    else if( typeid(*this) == typeid( PipeNetwork ))
+    else if( typeid(this) == typeid( PipeNetwork* ))
     {
-        if( description.PIPE.entryFunc != NULL)
-            desc->PIPE.entryFunc = strdup( description.PIPE.entryFunc );
+        if( description.parameters.PIPE.entryFunc != NULL)
+            desc->parameters.PIPE.entryFunc =
+                strdup( description.parameters.PIPE.entryFunc );
     }
    
     _descriptions[nodeID] = desc;

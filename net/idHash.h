@@ -21,10 +21,7 @@ namespace eqNet
     namespace priv
     {
         template<class T> class IDHash : public Sgi::hash_map<uint, T>
-        {
-        public:
-            //IDHash() : Sgi::hash_map<uint, T>() {}
-        };
+        {};
     }
 }
 

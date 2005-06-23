@@ -53,8 +53,8 @@ bool SocketConnection::connect(ConnectionDescription &description)
         _state = STATE_CONNECTED;
     else
     {
-        const char *address = description.TCPIP.address ? 
-            description.TCPIP.address : "null";
+        const char *address = description.parameters.TCPIP.address ? 
+            description.parameters.TCPIP.address : "null";
         WARN << "Could not connect to '" << address << "': "
              << strerror( errno ) << endl;
 
@@ -101,9 +101,9 @@ void SocketConnection::_parseAddress( ConnectionDescription &description,
     uint32_t ip = INADDR_ANY;
     short port = DEFAULT_PORT;
 
-    if( description.TCPIP.address != NULL )
+    if( description.parameters.TCPIP.address != NULL )
     {
-        char *ipName = strdup( description.TCPIP.address );
+        char *ipName = strdup( description.parameters.TCPIP.address );
 	const size_t len = strlen( ipName );
 	
 	for( size_t i=0; i<len; i++ )
@@ -199,7 +199,7 @@ Connection* SocketConnection::accept()
 
 //     description.protocol      = Network::PROTO_TCPIP;
 //     description.bandwidthKBS  = _description.bandwidthKBS;
-//     description.TCPIP.address = address;
+//     description.parameters.TCPIP.address = address;
 
 //     sprintf( address, "%s:%d", inet_ntoa(newAddress.sin_addr),
 //         newAddress.sin_port );
@@ -211,7 +211,7 @@ Connection* SocketConnection::accept()
     //TODO: newConnection->launchCommand
 
 //     INFO << "accepted connection from "
-//          << newConnection->_description.TCPIP.address << endl;
+//          << newConnection->_description.parameters.TCPIP.address << endl;
 
     return newConnection;
 }

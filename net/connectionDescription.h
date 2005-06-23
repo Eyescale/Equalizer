@@ -7,6 +7,8 @@
 
 #include <eq/net/network.h>
 
+#include <strings.h>
+
 namespace eqNet
 {
     /**
@@ -18,7 +20,8 @@ namespace eqNet
     {
         ConnectionDescription() : bandwidthKBS(0), launchCommand(NULL)
             {
-                TCPIP.address = NULL;
+                bzero( &parameters, sizeof(parameters));
+                INFO << "====" << this << std::endl;
             }
 
         /** The bandwidth in kilobyte per second for this connection. */
@@ -54,8 +57,25 @@ namespace eqNet
                 /** The name of the entry function for the forked process. */
                 const char *entryFunc;
             } PIPE;
-        };
+        } parameters;
     };
+
+    /** 
+     * Prints the connection description to a std::ostream.
+     * 
+     * @param os the output stream.
+     * @param description the connection description.
+     * @return the output stream.
+     */
+    inline std::ostream& operator << ( std::ostream& os, 
+        ConnectionDescription* description)
+    {
+        os << "    ConnectionDescription " << (void*)description <<  ": "
+           << "bw " << description->bandwidthKBS << "KB/s, launchCommand '"
+           << ( description->launchCommand==NULL ? "none" : 
+               description->launchCommand ) << "'" << std::endl;
+        return os;
+    }
 };
 
 #endif // EQNET_CONNECTION_DESCRIPTION_H

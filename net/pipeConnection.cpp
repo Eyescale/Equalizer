@@ -28,12 +28,12 @@ PipeConnection::~PipeConnection()
 //----------------------------------------------------------------------
 // connect
 //----------------------------------------------------------------------
-bool PipeConnection::connect(ConnectionDescription &description)
+bool PipeConnection::connect( const ConnectionDescription &description )
 {
     if( _state != STATE_CLOSED )
         return false;
 
-    if( description.PIPE.entryFunc == NULL )
+    if( description.parameters.PIPE.entryFunc == NULL )
     {
         WARN << "No entry function defined for pipe connection" <<endl;
         return false;
@@ -49,7 +49,7 @@ bool PipeConnection::connect(ConnectionDescription &description)
     {
         case 0: // child
             INFO << "Child running" << endl;
-            _runChild(description.PIPE.entryFunc); // never returns
+            _runChild(description.parameters.PIPE.entryFunc); // never returns
             return true;
             
         case -1: // error

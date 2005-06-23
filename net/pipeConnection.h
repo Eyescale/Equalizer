@@ -20,7 +20,7 @@ namespace eqNet
             PipeConnection();
             virtual ~PipeConnection();
 
-            virtual bool connect( ConnectionDescription &description );
+            virtual bool connect( const ConnectionDescription &description );
             virtual void close();
 
         protected:

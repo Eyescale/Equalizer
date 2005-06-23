@@ -12,6 +12,9 @@
 
 namespace eqNet
 {
+    inline std::ostream& operator << ( std::ostream& os,
+        ConnectionDescription* description);
+
     namespace priv
     {
         class Node;
@@ -92,7 +95,28 @@ namespace eqNet
 
             /** The list of connection descriptions, indexed per node. */
             IDHash<ConnectionDescription*> _descriptions;
+
+            friend inline std::ostream& operator << 
+                (std::ostream& os, Network* network);
         };
+
+        inline std::ostream& operator << ( std::ostream& os, Network* network )
+        {
+            os << "    Network " << network->getID() << "(" 
+               << (void*)network <<  "): " << network->_descriptions.size()
+               << " node[s] connected" << std::endl;
+            
+            for( IDHash<ConnectionDescription*>::iterator iter = 
+                     network->_descriptions.begin();
+                 iter != network->_descriptions.end(); iter++ )
+            {
+                const uint             nodeID      = (*iter).first;
+                ConnectionDescription* description = (*iter).second;
+                os << "    Node " << nodeID << ": " << description;
+            }
+
+            return os;
+        }
     }
 }
 

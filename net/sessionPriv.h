@@ -6,10 +6,13 @@
 #define EQNET_SESSION_PRIV_H
 
 #include <eq/base/base.h>
-#include <eq/net/network.h>
 
 #include "base.h"
+#include "idHash.h"
+#include "network.h"
 #include "session.h"
+
+#include <iostream>
 
 namespace eqNet
 {
@@ -18,7 +21,10 @@ namespace eqNet
     namespace priv
     {
         class Network;
+        class Node;
         class Server;
+
+        inline std::ostream& operator << (std::ostream& os, Network* network);
 
         class Session : public Base, public eqNet::Session
         {
@@ -29,6 +35,23 @@ namespace eqNet
              * @param server the server address.
              */
             static Session* create( const char *server );
+
+            /** @name Managing nodes */
+            //*{
+            /**
+             * Adds a new node to this session.
+             * 
+             * @return the node.
+             */
+            Node* addNode();
+
+            /**
+             * Adds an existing node to this session, used during startup.
+             * 
+             * @param node the node.
+             */
+            void addNode(Node* node);
+            //*}
 
             /**
              * Adds a new network to this session.
@@ -45,8 +68,12 @@ namespace eqNet
 
             /** The list of networks in this session. */
             IDHash<Network*> _networks;
-            /** The identifier of the next network. */
+
+            /** The next unique network identifier. */
             uint _networkID;
+
+            /** The next unique node identifier. */
+            uint _nodeID;
 
             bool _create( const char* serverAddress );
 
@@ -58,7 +85,33 @@ namespace eqNet
              *         server could be contacted.
              */
             Server* _openServer( const char* server );
+
+            friend inline std::ostream& operator << 
+                (std::ostream& os, Session* session);
         };
+
+        inline std::ostream& operator << ( std::ostream& os, Session* session )
+        {
+            os << "    Session " << session->getID() << "(" << (void*)session
+               << "): " << session->_nodes.size() << " node[s], " 
+               << session->_networks.size() << " network[s]" << std::endl;
+            
+            for( IDHash<Node*>::iterator iter = session->_nodes.begin();
+                 iter != session->_nodes.end(); iter++ )
+            {
+                Node* node = (*iter).second;
+                os << node;
+            }
+
+            for( IDHash<Network*>::iterator iter = session->_networks.begin();
+                 iter != session->_networks.end(); iter++ )
+            {
+                Network* network = (*iter).second;
+                os << network;
+            }
+
+            return os;
+        }
     }
 }
 #endif // EQNET_SESSION_PRIV_H

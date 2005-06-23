@@ -20,7 +20,8 @@ using namespace std;
 Session::Session(const uint id)
         : Base( id ),
           eqNet::Session(),
-          _networkID(1)
+          _networkID(1),
+          _nodeID(NODE_ID_SERVER+1)
 {
 }
 
@@ -73,14 +74,14 @@ Server* Session::_openServer( const char* serverAddress )
         // variable EQSERVER is used to determine the server address.
         const char* env = getenv( "EQSERVER" );
         if( env )
-            serverConnection.TCPIP.address = env;
+            serverConnection.parameters.TCPIP.address = env;
         else
         {
             // If the environment variable is not set, the local server on the
             // default port is contacted.
             char *address = (char *)alloca( 16 );
             sprintf( address, "localhost:%d", DEFAULT_PORT );
-            serverConnection.TCPIP.address = address;
+            serverConnection.parameters.TCPIP.address = address;
         }
     }
 
@@ -93,11 +94,12 @@ Server* Session::_openServer( const char* serverAddress )
     ConnectionDescription serverConnection;
     ConnectionDescription localConnection;
     
-    serverConnection.PIPE.entryFunc = "Server::run";
+    serverConnection.parameters.PIPE.entryFunc = "Server::run";
 
     network->addNode( server->getID(), serverConnection );
     network->addNode( local->getID(), localConnection );
-    
+
+    INFO << server;
 #endif
     
     if( !network->init() || !network->start() )
@@ -115,4 +117,17 @@ Network* Session::addNetwork( const NetworkProtocol protocol )
     Network* network = Network::create( _networkID++, PROTO_TCPIP );
     _networks[network->getID()] = network;
     return network;
+}
+
+Node* Session::addNode()
+{
+    Node* node = new Node(_nodeID++);
+    _nodes[node->getID()] = node;
+    return node;
+}
+
+void Session::addNode(Node* node)
+{
+    ASSERT( node->getID() != INVALID_ID );
+    _nodes[node->getID()] = node;
 }

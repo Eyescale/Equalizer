@@ -114,7 +114,7 @@ bool Session::removeNode( const uint sessionID, const uint nodeID )
  * @return the network identifier of the added network.
  * @sa addNode
  */
-void Session::addNetwork( const uint sessionID, const uint networkID )
+uint Session::addNetwork( const uint sessionID, const NetworkProtocol protocol )
 {
 }
 

@@ -25,7 +25,17 @@ namespace eqNet
             Node(const uint id);
 
         protected:
+            friend inline std::ostream& operator << 
+                (std::ostream& os, Node* node);
         };
+
+        inline std::ostream& operator << ( std::ostream& os, Node* node )
+        {
+            os << "    Node " << node->getID() << "(" << (void*)node << ")" 
+               << std::endl;
+            
+            return os;
+        }
     }
 }
 

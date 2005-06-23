@@ -5,6 +5,8 @@
 #ifndef EQBASE_BASE_H
 #define EQBASE_BASE_H
 
+#include <eq/base/log.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -16,6 +18,13 @@ typedef uint64_t uint64;
 
 #ifdef sgi
 typedef int socklen_t;
+#endif
+
+#ifdef NDEBUG
+#  define ASSERT(x) if( !(x) ) ERROR << "Assert: " << #x << endl;
+#else
+#  define ASSERT(x) if( !(x) ) \
+    { ERROR << "Assert: " << #x << endl; exit(EXIT_FAILURE); }
 #endif
 
 #endif //EQBASE_BASE_H

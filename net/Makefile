@@ -13,6 +13,7 @@ HEADER_SRC = \
 SOURCES = \
 	connection.cpp \
 	fdConnection.cpp \
+	network.cpp \
 	networkPriv.cpp \
 	node.cpp \
 	nodePriv.cpp \
