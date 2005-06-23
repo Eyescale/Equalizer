@@ -6,23 +6,38 @@
 
 #include "connection.h"
 #include "global.h"
+#include "sessionPriv.h"
 
 #include <eq/base/log.h>
 
-using namespace eqNet;
 using namespace eqNet::priv;
 using namespace std;
 
-int Server::run( Connection* connection )
+int Server::run( PipeConnection* connection )
 {
     Server* server = new Server( connection );
     return server->_run();
 }
 
-Server::Server( Connection* connection )
-        : Node(NODE_ID_SERVER)
+Server::Server( PipeConnection* connection )
+        : Node(NODE_ID_SERVER),
+          _sessionID(1);
 {
-    _connections.push_back(connection);
+    Session* session = new Session( _sessionID++ );
+    Network* network = session->addNetwork( eqNet::PROTO_PIPE );
+    Node*    client  = session->addNode();
+
+    ConnectionDescripition serverDescription;
+    ConnectionDescripition clientDescription;
+
+    session->addNode( this );
+    network->addNode( this, serverDescription );
+    network->addNode( client, clientDescription );
+    
+    PipeNetwork *pipeNetwork = static_cast<PipeNetwork*>(network);
+    pipeNetwork->setStarted( client, connection );
+    
+    _sessions[session->getID()]=session;
 }
 
 //----------------------------------------------------------------------

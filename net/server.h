@@ -29,7 +29,7 @@ namespace eqNet
              * @param connection the connection.
              * @return the success value of the run.
              */
-            static int run( Connection* connection );
+            static int run( PipeConnection* connection );
 
             /** 
              * Connects with an existing server and returns the local proxy.
@@ -40,11 +40,13 @@ namespace eqNet
             static Server* connect( Connection* connection );
 
         protected:
-            Server( Connection* connection );
+            Server( PipeConnection* connection );
             ~Server(){}
-
-
-            std::vector<Connection*> _connections;
+            
+            /** The next unique session identifier. */
+            uint _sessionID;
+            /** The sessions on this server. */
+            IDHash<Session*> _sessions;
 
             void _init();
             int  _run();

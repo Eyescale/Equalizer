@@ -6,19 +6,10 @@
 #define EQNET_SESSION_PRIV_H
 
 #include <eq/base/base.h>
-#include <eq/net/global.h>
 #include <eq/net/network.h>
 
 #include "base.h"
 #include "session.h"
-
-#ifdef __GNUC__              // GCC 3.1 and later
-#  include <ext/hash_map>
-namespace Sgi = ::__gnu_cxx; 
-#else                        //  other compilers
-#  include <hash_map>
-namespace Sgi = std;
-#endif
 
 namespace eqNet
 {
@@ -26,6 +17,7 @@ namespace eqNet
 
     namespace priv
     {
+        class Network;
         class Server;
 
         class Session : public Base, public eqNet::Session
@@ -38,19 +30,23 @@ namespace eqNet
              */
             static Session* create( const char *server );
 
+            /**
+             * Adds a new network to this session.
+             *
+             * @param protocol the network protocol.
+             */
+            Network* addNetwork( const NetworkProtocol protocol );
 
-        protected:
             Session(const uint id);
 
         private:
-            /** 
-             * The list of nodes in this session, the first node is always the
-             * server node.
-             */
-            Sgi::hash_map<uint, Node*> _nodes;
+            /** The list of nodes in this session. */
+            IDHash<Node*> _nodes;
 
             /** The list of networks in this session. */
-            //std::vector<Network*>       _networks;
+            IDHash<Network*> _networks;
+            /** The identifier of the next network. */
+            uint _networkID;
 
             bool _create( const char* serverAddress );
 

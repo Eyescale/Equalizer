@@ -130,10 +130,11 @@ namespace eqNet
          * automatically added to the session.
          * 
          * @param sessionID the session identifier.
-         * @param networkID the network identifier.
+         * @param protocol the network protocol.
          * @sa addNode
          */
-        static void addNetwork( const uint sessionID, const uint networkID );
+        static uint addNetwork( const uint sessionID, 
+            const NetworkProtocol protocol );
 
         /**
          * Returns the number of networks in this session.

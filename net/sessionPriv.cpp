@@ -19,7 +19,8 @@ using namespace std;
 
 Session::Session(const uint id)
         : Base( id ),
-          eqNet::Session()
+          eqNet::Session(),
+          _networkID(1)
 {
 }
 
@@ -58,9 +59,9 @@ bool Session::_create( const char* serverAddress )
 Server* Session::_openServer( const char* serverAddress )
 {
 #if 0
-    priv::Network* network = priv::Network::create( INVALID_ID, PROTO_TCPIP );
-    priv::Node*    server  = new priv::Node( INVALID_ID );
-    priv::Node*    local   = new priv::Node( INVALID_ID-1 );
+    Network* network = Network::create( INVALID_ID, PROTO_TCPIP );
+    Node*    server  = new Node( INVALID_ID );
+    Node*    local   = new Node( INVALID_ID-1 );
     ConnectionDescription serverConnection;
     ConnectionDescription localConnection;
     
@@ -86,9 +87,9 @@ Server* Session::_openServer( const char* serverAddress )
     network->addNode( server->getID(), serverConnection );
     network->addNode( local->getID(), localConnection );
 #else
-    priv::Network* network = priv::Network::create( INVALID_ID, PROTO_PIPE );
-    priv::Node*    server  = new priv::Node( INVALID_ID );
-    priv::Node*    local   = new priv::Node( INVALID_ID-1 );
+    Network* network = Network::create( INVALID_ID, PROTO_PIPE );
+    Node*    server  = new Node( INVALID_ID );
+    Node*    local   = new Node( INVALID_ID-1 );
     ConnectionDescription serverConnection;
     ConnectionDescription localConnection;
     
@@ -108,3 +109,10 @@ Server* Session::_openServer( const char* serverAddress )
     return NULL;
 }
         
+
+Network* Session::addNetwork( const NetworkProtocol protocol )
+{
+    Network* network = Network::create( _networkID++, PROTO_TCPIP );
+    _networks[network->getID()] = network;
+    return network;
+}

@@ -20,6 +20,10 @@ namespace eqNet
             virtual bool start() ;
             virtual void stop();
             virtual bool startNode(const uint nodeID);
+
+        private:
+            /** The list of active connections, indexed per node. */
+            IDHash<Connection*> _connections;
         };
     }
 }
