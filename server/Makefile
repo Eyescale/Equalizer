@@ -8,7 +8,7 @@ CLEAN = $(PROGRAMS)
 
 all: $(PROGRAMS)
 
-init: eqs.cpp
+eqs: eqs.cpp
 	$(CXX) eqs.cpp $(CXXFLAGS) -o $@ 
 
 include $(TOP)/make/rules.mk
