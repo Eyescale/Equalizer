@@ -18,7 +18,7 @@ $(HEADER_DIR)/%.h : %.h
 	@cp $< $@
 
 # libraries
-$(DYNAMIC_LIB): $(OBJECT_DIR) $(DEPENDENCIES) $(OBJECTS)
+$(DYNAMIC_LIB): $(DEPENDENCIES) $(OBJECTS)
 	@mkdir -p $(LIBRARY_DIR)
 	$(CXX) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 
@@ -31,8 +31,6 @@ $(OBJECT_DIR)/%.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(DEPENDENCIES): $(SOURCES) $(HEADERS)
-
-$(OBJECT_DIR):
 	@mkdir -p $(OBJECT_DIR)
 
 # cleaning targets
