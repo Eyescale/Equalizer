@@ -21,7 +21,6 @@ namespace eqNet
         ConnectionDescription() : bandwidthKBS(0), launchCommand(NULL)
             {
                 bzero( &parameters, sizeof(parameters));
-                INFO << "====" << this << std::endl;
             }
 
         /** The bandwidth in kilobyte per second for this connection. */

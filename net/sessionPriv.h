@@ -30,6 +30,14 @@ namespace eqNet
         {
         public:
             /** 
+             * Returns the session instance.
+             * 
+             * @param sessionID the identifier of the session.
+             * @return the session.
+             */
+            static Session* get(const uint sessionID );
+
+            /** 
              * Creates a new session on the specified server.
              * 
              * @param server the server address.
@@ -51,6 +59,13 @@ namespace eqNet
              * @param node the node.
              */
             void addNode(Node* node);
+
+            /**
+             * Returns the local node.
+             *
+             * @return the local node.
+             */
+            Node* getLocalNode(){ return _localNode; }
             //*}
 
             /**
@@ -74,6 +89,9 @@ namespace eqNet
 
             /** The next unique node identifier. */
             uint _nodeID;
+
+            /** The local node. */
+            Node* _localNode;
 
             bool _create( const char* serverAddress );
 

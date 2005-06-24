@@ -2,7 +2,7 @@
 
 include make/system.mk
 
-SUBDIRS = base net tests
+SUBDIRS = base net server tests
 
 .PHONY: docs
 
@@ -13,5 +13,6 @@ docs: net
 
 net: base
 tests: net
+server: net
 
 include make/rules.mk

@@ -25,12 +25,12 @@ $(DYNAMIC_LIB): $(OBJECT_DIR) $(DEPENDENCIES) $(OBJECTS)
 $(STATIC_LIB): $(OBJECT_DIR) $(DEPENDENCIES) $(OBJECTS)
 	@mkdir -p $(LIBRARY_DIR)
 	@rm -f $@
-	$(AR) $(ARFLAGS) $(OBJECTS) -o $@
+	$(AR) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 
 $(OBJECT_DIR)/%.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(DEPENDENCIES): $(OBJECT_DIR)
+$(DEPENDENCIES): $(SOURCES) $(HEADERS)
 
 $(OBJECT_DIR):
 	@mkdir -p $(OBJECT_DIR)

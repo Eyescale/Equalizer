@@ -21,7 +21,8 @@ Session::Session(const uint id)
         : Base( id ),
           eqNet::Session(),
           _networkID(1),
-          _nodeID(NODE_ID_SERVER+1)
+          _nodeID(NODE_ID_SERVER+1),
+          _localNode(NULL)
 {
 }
 
@@ -62,7 +63,7 @@ Server* Session::_openServer( const char* serverAddress )
 #if 0
     Network* network = Network::create( INVALID_ID, PROTO_TCPIP );
     Node*    server  = new Node( INVALID_ID );
-    Node*    local   = new Node( INVALID_ID-1 );
+    _localNode       = new Node( INVALID_ID-1 );
     ConnectionDescription serverConnection;
     ConnectionDescription localConnection;
     
@@ -86,18 +87,18 @@ Server* Session::_openServer( const char* serverAddress )
     }
 
     network->addNode( server->getID(), serverConnection );
-    network->addNode( local->getID(), localConnection );
+    network->addNode( _localNode->getID(), localConnection );
 #else
     Network* network = Network::create( INVALID_ID, PROTO_PIPE );
     Node*    server  = new Node( INVALID_ID );
-    Node*    local   = new Node( INVALID_ID-1 );
+    _localNode       = new Node( INVALID_ID-1 );
     ConnectionDescription serverConnection;
     ConnectionDescription localConnection;
     
     serverConnection.parameters.PIPE.entryFunc = "Server::run";
 
     network->addNode( server->getID(), serverConnection );
-    network->addNode( local->getID(), localConnection );
+    network->addNode( _localNode->getID(), localConnection );
 
     INFO << server;
 #endif

@@ -4,7 +4,7 @@
 
 #include "pipeConnection.h"
 #include "connectionDescription.h"
-#include "server.h"
+#include "serverPriv.h"
 
 #include <eq/base/log.h>
 
@@ -143,7 +143,7 @@ void PipeConnection::_runChild(const char *entryFunc)
 
     if( strcmp( entryFunc, "Server::run" ) == 0 )
     {
-        result = Server::run( this );
+        result = priv::Server::run( this );
     }
     else if( strcmp( entryFunc, "testPipeServer" ) == 0 )
     {

@@ -11,10 +11,14 @@
 
 namespace eqNet
 {
+    namespace priv
+    {
+        class Session;
+    }
     class Connection;
     class Node;
     class Server;
-
+    
     /**
      * Manages a session.
      *
@@ -23,7 +27,7 @@ namespace eqNet
      * unique. 
      *
      * Nodes are added to a Network in order to describe how they are
-     * connected to a session. Nodes can be participants in several
+     * connected to a session. A Node can be a participant in several
      * networks.
      *
      * Server addresses are specified in the form
@@ -46,9 +50,10 @@ namespace eqNet
          * Create a new session by connecting to an Equalizer server.
          *
          * @param server the server location.
-         * @return the session identifier.
+         * @return the session, or <code>NULL</code> if the session could not be
+         *         created.
          */
-        static uint create( const char *server );
+        static Session* create( const char* server );
         
         /**
          * Joins an existing session on a server.
@@ -59,7 +64,7 @@ namespace eqNet
          *         <code>false</code> if not.
          * @throws ??? if the server could not be contacted.
          */
-        static bool join( const char *server, const uint sessionID );
+        static bool join( const char* server, const uint sessionID );
         //*}
 
         /**
@@ -74,46 +79,42 @@ namespace eqNet
          * to be added to at least one Network in order to communicate
          * with the session.
          * 
-         * @param sessionID the session identifier.
          * @return the node identifier.
          * @sa Node, Network::addNode
          */
-        static uint addNode( const uint sessionID );
+        uint addNode();
 
         /**
          * Returns the number of nodes in this session.
          *
-         * @param sessionID the session identifier.
          * @returns the number of nodes in this Session. 
          */
-        static uint nNodes( const uint sessionID );
+        uint nNodes();
 
         /**
          * Get the node id of the numbered node in this session.
          *
-         * @param sessionID the session identifier.
          * @param index the index of the node.
          * @return the node identifier.
          */
-        static uint getNodeID( const uint sessionID, const uint index );
+        uint getNodeID( const uint index );
 
         /**
          * Returns the node identifier of the local node.
          *
          * @return the node identifier of the local node.
          */
-        static uint getLocalNodeID();
+        uint getLocalNodeID();
 
         /**
          * Removes a node from this session.
          *
-         * @param sessionID the session identifier.
          * @param nodeID the identifier of the node to remove
          * @return <code>true</code> if the node was removed, <code>false</code>
          *         if not.
          * @throws invalid_argument if the node identifier is not known.
          */
-        static bool removeNode( const uint sessionID, const uint nodeID );
+        bool removeNode( const uint nodeID );
         //*}
 
         /**
@@ -129,40 +130,36 @@ namespace eqNet
          * The network between the server and the local node is
          * automatically added to the session.
          * 
-         * @param sessionID the session identifier.
          * @param protocol the network protocol.
          * @sa addNode
          */
-        static uint addNetwork( const uint sessionID, 
+        uint addNetwork( 
             const NetworkProtocol protocol );
 
         /**
          * Returns the number of networks in this session.
          *
-         * @param sessionID the session identifier.
          * @returns the number of networks in this Session. 
          */
-        static uint nNetworks( const uint sessionID );
+        uint nNetworks();
 
         /**
          * Get the network id of the numbered network in this session.
          *
-         * @param sessionID the session identifier.
          * @param index the index of the network.
          * @return the network identifier.
          */
-        static uint getNetworkID( const uint sessionID, const uint index );
+        uint getNetworkID( const uint index );
 
         /**
          * Removes a network from this session.
          *
-         * @param sessionID the session identifier.
          * @param networkID the identifier of the network to remove
          * @return <code>true</code> if the network was removed,
          *         <code>false</code> if not.
          * @throws invalid_argument if the network identifier is not known.
          */
-        static bool removeNetwork( const uint sessionID, const uint networkID );
+        bool removeNetwork( const uint networkID );
         //*}
 
         /**
@@ -177,41 +174,37 @@ namespace eqNet
         /**
          * Adds a new group to this session.
          *
-         * @param sessionID the session identifier.
          * @param nodeIDs the identifiers of the nodes belonging to the group.
          * @param nNodes the number of nodes in the group.
          * @return the group identifier of the added group.
          */
-        static uint addGroup( const uint sessionID, const uint nodeIDs[], 
+        uint addGroup( const uint nodeIDs[], 
             const uint nNodes );
 
         /**
          * Returns the number of groups in this session.
          *
-         * @param sessionID the session identifier.
          * @return the number of groups in this Session. 
          */
-        static uint nGroups( const uint sessionID );
+        uint nGroups();
 
         /**
          * Get the group id of the numbered group in this session.
          *
-         * @param sessionID the session identifier.
          * @param index the index of the group.
          * @return the group identifier.
          */
-        static uint getGroupID( const uint sessionID, const uint index );
+        uint getGroupID( const uint index );
 
         /**
          * Removes a group from this session.
          *
-         * @param sessionID the session identifier.
          * @param groupID the identifier of the group to remove
          * @return <code>true</code> if the group was removed,
          *         <code>false</code> if not.
          * @throws invalid_argument if the group identifier is not known.
          */
-        static bool removeGroup( const uint sessionID, const uint groupID );
+        bool removeGroup( const uint groupID );
         //*}
 
         /**
@@ -225,42 +218,41 @@ namespace eqNet
          * session. Afterwards, the nodes have to be started before
          * they can communicate with other nodes in this session.
          *
-         * @param sessionID the session identifier.
          * @return <code>true</code> if all networks in this session
          *         were successfully initialised, <code>false</code>
          *         if not.
          * @sa Network::init, start
          */
-        static bool init(const uint sessionID);
+        bool init(const uint sessionID);
 
         /**
          * Exits this session.
          *
          * Exiting this session de-initializes all networks in this session.
          *
-         * @param sessionID the session identifier.
          * @sa Network::exit, stop
          */
-        static void exit(const uint sessionID);
+        void exit(const uint sessionID);
 
         /**
          * Start all nodes of all initialized networks in this session.
          *
-         * @param sessionID the session identifier.
          * @return <code>true</code> if all node in this session were
          *         successfully started , <code>false</code> if not.
          * @sa Network::start, init
          */
-        static bool start(const uint sessionID);
+        bool start(const uint sessionID);
 
         /**
          * Stops all nodes of all initialized networks in this session.
          *
-         * @param sessionID the session identifier.
          * @sa Network::stop, exit
          */
-        static void stop(const uint sessionID);
+        void stop(const uint sessionID);
         //*}
+
+    protected:
+        Session(){}
     };
 }
 

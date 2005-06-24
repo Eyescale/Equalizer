@@ -8,6 +8,7 @@ HEADER_SRC = \
 	message.h \
 	network.h \
 	node.h \
+	server.h \
 	session.h
 
 SOURCES = \
@@ -22,6 +23,7 @@ SOURCES = \
 	session.cpp \
 	sessionPriv.cpp \
 	server.cpp \
+	serverPriv.cpp \
 	socketConnection.cpp \
 	socketNetwork.cpp
 

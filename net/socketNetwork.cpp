@@ -13,12 +13,16 @@ bool SocketNetwork::init()
 
 bool SocketNetwork::start()
 {
-    // create and connect socket connections, will fork().
     INFO << "SocketNetwork starting " << _descriptions.size() << " nodes" 
          << endl;
 
-//    Sgi::hash_map<uint, ConnectionDescription*>::iterator iter =
-//        _descriptions.begin();
+    for( IDHash<ConnectionDescription*>::iterator iter = _descriptions.begin();
+         iter != _descriptions.end(); iter++ )
+    {
+        const uint                   nodeID      = (*iter).first;
+        const ConnectionDescription* description = (*iter).second;
+    }
+
     return false;
 }
 

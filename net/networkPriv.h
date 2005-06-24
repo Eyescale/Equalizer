@@ -12,7 +12,7 @@
 
 namespace eqNet
 {
-    inline std::ostream& operator << ( std::ostream& os,
+    std::ostream& operator << ( std::ostream& os,
         ConnectionDescription* description);
 
     namespace priv
