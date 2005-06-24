@@ -5,8 +5,6 @@
 #ifndef EQNET_SESSION_PRIV_H
 #define EQNET_SESSION_PRIV_H
 
-#include <eq/base/base.h>
-
 #include "base.h"
 #include "idHash.h"
 #include "network.h"
@@ -26,7 +24,7 @@ namespace eqNet
 
         inline std::ostream& operator << (std::ostream& os, Network* network);
 
-        class Session : public Base, public eqNet::Session
+        class Session : public eqNet::Session
         {
         public:
             /** 

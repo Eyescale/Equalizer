@@ -27,3 +27,6 @@ uint Session::getLocalNodeID()
     return (static_cast<priv::Session*>(this))->getLocalNode()->getID();
 }
 
+void Session::exit()
+{
+}

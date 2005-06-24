@@ -2,6 +2,7 @@
 include $(TOP)/make/system.mk
 
 HEADER_SRC = \
+	base.h \
 	connectionDescription.h \
 	global.h \
 	group.h \

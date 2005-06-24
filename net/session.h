@@ -6,6 +6,7 @@
 #define EQNET_SESSION_H
 
 #include <eq/base/base.h>
+#include <eq/net/base.h>
 #include <eq/net/global.h>
 #include <eq/net/network.h>
 
@@ -38,7 +39,7 @@ namespace eqNet
      * contacted. If the server can not be contacted, a new server is
      * created, serving only this application.
      */
-    class Session
+    class Session : public Base
     {
     public:
         /**
@@ -223,7 +224,7 @@ namespace eqNet
          *         if not.
          * @sa Network::init, start
          */
-        bool init(const uint sessionID);
+        bool init();
 
         /**
          * Exits this session.
@@ -232,7 +233,7 @@ namespace eqNet
          *
          * @sa Network::exit, stop
          */
-        void exit(const uint sessionID);
+        void exit();
 
         /**
          * Start all nodes of all initialized networks in this session.
@@ -241,18 +242,18 @@ namespace eqNet
          *         successfully started , <code>false</code> if not.
          * @sa Network::start, init
          */
-        bool start(const uint sessionID);
+        bool start();
 
         /**
          * Stops all nodes of all initialized networks in this session.
          *
          * @sa Network::stop, exit
          */
-        void stop(const uint sessionID);
+        void stop();
         //*}
 
     protected:
-        Session(){}
+        Session(const uint id) : Base(id) {}
     };
 }
 

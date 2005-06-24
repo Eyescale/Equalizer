@@ -18,8 +18,7 @@ using namespace eqNet::priv;
 using namespace std;
 
 Session::Session(const uint id)
-        : Base( id ),
-          eqNet::Session(),
+        : eqNet::Session(id),
           _networkID(1),
           _nodeID(NODE_ID_SERVER+1),
           _localNode(NULL)

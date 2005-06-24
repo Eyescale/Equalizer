@@ -9,27 +9,29 @@
 
 namespace eqNet
 {
-    /** The namespace for the private implementation of the eqNet classes. */
-    namespace priv
+    /** The base class for all networked objects. */
+    class Base
     {
-        /** The base class for all networked objects. */
-        class Base
-        {
-        public:
-            /** 
-             * Constructs a new object.
-             * 
-             * @param id the object identifier.
-             */
-            Base( const uint id ) : _id(id) {}
+    public:
+        /** 
+         * Returns the identifier of the object.
+         * 
+         * @return the object identifier
+         */
+        uint getID(){ return _id; }
+ 
+    protected:
+        /** 
+         * Constructs a new object.
+         * 
+         * @param id the object identifier.
+         */
+        Base( const uint id ) : _id(id) {}
 
-            uint getID(){ return _id; }
-
-        private:
-             /** The identifier. */
-            uint _id;
-       };
-    }
+    private:
+        /** The identifier. */
+        uint _id;
+    };
 }
 
 #endif // EQNET_BASE_H
