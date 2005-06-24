@@ -32,7 +32,7 @@ SocketConnection::~SocketConnection()
 //----------------------------------------------------------------------
 // connect
 //----------------------------------------------------------------------
-bool SocketConnection::connect(ConnectionDescription &description)
+bool SocketConnection::connect( const ConnectionDescription &description )
 {
     if( _state != STATE_CLOSED )
         return false;
@@ -95,7 +95,7 @@ void SocketConnection::close()
     _state   = STATE_CLOSED;
 }
 
-void SocketConnection::_parseAddress( ConnectionDescription &description, 
+void SocketConnection::_parseAddress( const ConnectionDescription &description, 
     sockaddr_in& socketAddress )
 {
     uint32_t ip = INADDR_ANY;

@@ -13,6 +13,7 @@
 
 #include <eq/base/log.h>
 
+#include <alloca.h>
 #include <unistd.h>
 #include <sys/param.h>
 
@@ -114,6 +115,7 @@ bool Server::start( const char* address )
     _state = STATE_STARTED;
     
     INFO << endl << this;
+    return false;
 }
 
 //----------------------------------------------------------------------
@@ -196,6 +198,7 @@ bool Server::_connect( const char* serverAddress )
     _state = STATE_STARTED;
     
     INFO << endl << this;
+    return true;
 }
 
 //----------------------------------------------------------------------
@@ -237,7 +240,7 @@ int Server::_run()
 //         break;
 //     }
 
-//     return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
 
 void Server::_handleRequest( Connection *connection )

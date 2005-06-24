@@ -23,9 +23,9 @@ namespace eqNet
 
             virtual ~SocketConnection();
 
-            virtual bool connect( ConnectionDescription &description );
+            virtual bool connect( const eqNet::ConnectionDescription& desc );
 
-            virtual bool listen( ConnectionDescription &description );
+            virtual bool listen( eqNet::ConnectionDescription &description );
             virtual Connection* accept();
 
             virtual void close();
@@ -34,7 +34,7 @@ namespace eqNet
 
         private:
             void _createSocket();
-            void _parseAddress( ConnectionDescription &description, 
+            void _parseAddress( const ConnectionDescription &description, 
                 sockaddr_in& socketAddress );
         };
     }
