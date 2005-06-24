@@ -49,14 +49,7 @@ namespace eqNet
              * 
              * @return the node.
              */
-            Node* addNode();
-
-            /**
-             * Adds an existing node to this session, used during startup.
-             * 
-             * @param node the node.
-             */
-            void addNode(Node* node);
+            Node* newNode();
 
             /**
              * Returns the local node.
@@ -67,13 +60,30 @@ namespace eqNet
             //*}
 
             /**
+             * @name Managing Networks
+             * 
+             * Networks are used to create connectivity between nodes.
+             * @sa Network, Node
+             */
+            //*{
+            /**
              * Adds a new network to this session.
              *
              * @param protocol the network protocol.
              */
-            Network* addNetwork( const NetworkProtocol protocol );
+            Network* newNetwork( const NetworkProtocol protocol );
 
-            Session(const uint id);
+            /**
+             * Deletes a network of this session.
+             *
+             * @param network the network to remove
+             * @return <code>true</code> if the network was removed,
+             *         <code>false</code> if not.
+             */
+            bool deleteNetwork( Network* network );
+            //*}
+
+            Session( const uint id, Server* server, const bool onServer=false );
 
         private:
             /** The list of nodes in this session. */
@@ -90,17 +100,6 @@ namespace eqNet
 
             /** The local node. */
             Node* _localNode;
-
-            bool _create( const char* serverAddress );
-
-            /** 
-             * Opens and returns a session to the specified server.
-             * 
-             * @param server the server address.
-             * @return the Server object, or <code>NULL</code> if no
-             *         server could be contacted.
-             */
-            Server* _openServer( const char* server );
 
             friend inline std::ostream& operator << 
                 (std::ostream& os, Session* session);

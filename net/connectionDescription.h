@@ -27,8 +27,8 @@ namespace eqNet
         uint64 bandwidthKBS;
     
         /** 
-         * The command to spawn a new process on the node, e.g., "ssh
-         * eile@node1", can be <code>NULL</code>.
+         * The command to spawn a new process on the node, e.g., 
+         * "ssh eile@node1", can be <code>NULL</code>.
          */
         const char *launchCommand; 
 

@@ -58,6 +58,9 @@ namespace eqNet
              */
             virtual bool init() = 0;
 
+            /** Exits this network. */
+            virtual void exit() = 0;
+
             /**
              * Start all nodes in this initialized network.
              *
@@ -86,9 +89,10 @@ namespace eqNet
             virtual bool startNode(const uint nodeID) = 0;
             //@}
 
+            virtual ~Network();
+
         protected:
             Network(const uint id);
-            virtual ~Network();
 
             /** The identifier of this Network. */
             uint _id;

@@ -5,7 +5,7 @@
 #ifndef EQNET_PIPE_NETWORK_H
 #define EQNET_PIPE_NETWORK_H
 
-#include "networkPriv.h"
+#include "connectionNetwork.h"
 
 #include <iostream> 
 
@@ -14,30 +14,19 @@ namespace eqNet
     namespace priv
     {
         class Connection;
-        class PipeConnection;
 
         /** A 'network' of two nodes connected using a pipe. */
-        class PipeNetwork : public Network
+        class PipeNetwork : public ConnectionNetwork
         {
         public:
-            PipeNetwork(const uint id) : Network(id){}
+            PipeNetwork(const uint id) : ConnectionNetwork(id){}
 
-            virtual bool init();
-            virtual bool start() ;
+            virtual bool start();
             virtual void stop();
             virtual bool startNode(const uint nodeID);
 
-            /** 
-             * Forces a node into started mode, used during server launch
-             * 
-             * @param nodeID the node identifier.
-             * @param connection the open connection to the node.
-             */
-            void setStarted( const uint nodeID, PipeConnection* connection );
-
         private:
-            /** The list of active connections, indexed per node. */
-            IDHash<Connection*> _connections;
+
             friend inline std::ostream& operator << 
                 (std::ostream& os, PipeNetwork* network);
         };

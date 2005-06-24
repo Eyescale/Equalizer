@@ -24,7 +24,7 @@ typedef int socklen_t;
 #  define ASSERT(x) if( !(x) ) ERROR << "Assert: " << #x << endl;
 #else
 #  define ASSERT(x) if( !(x) ) \
-    { ERROR << "Assert: " << #x << endl; ::exit(EXIT_FAILURE); }
+    { ERROR << "Assert: " << #x << std::endl; ::exit(EXIT_FAILURE); }
 #endif
 
 #endif //EQBASE_BASE_H

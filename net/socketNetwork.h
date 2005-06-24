@@ -5,18 +5,17 @@
 #ifndef EQNET_SOCKET_NETWORK_H
 #define EQNET_SOCKET_NETWORK_H
 
-#include "networkPriv.h"
+#include "connectionNetwork.h"
 
 namespace eqNet
 {
     namespace priv
     {
-        class SocketNetwork : public Network
+        class SocketNetwork : public ConnectionNetwork
         {
         public:
-            SocketNetwork(const uint id) : Network(id){}
+            SocketNetwork(const uint id) : ConnectionNetwork(id){}
 
-            virtual bool init();
             virtual bool start();
             virtual void stop();
             virtual bool startNode(const uint nodeID);

@@ -6,11 +6,6 @@
 using namespace eqNet::priv;
 using namespace std;
 
-bool SocketNetwork::init()
-{
-    return true; // do nothing, connections can and will be created dynamically
-}
-
 bool SocketNetwork::start()
 {
     INFO << "SocketNetwork starting " << _descriptions.size() << " nodes" 

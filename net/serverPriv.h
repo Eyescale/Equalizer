@@ -56,10 +56,19 @@ namespace eqNet
             /** 
              * Connects with an existing server and returns the local proxy.
              * 
-             * @param connection the connection.
+             * @param address the server address.
              * @return the server.
              */
-            static Server* connect( Connection* connection );
+            static Server* connect( const char* address );
+
+            /** 
+             * Get a numbered session.
+             * 
+             * @param index the index of the session.
+             * @return the session, or <code>NULL</code> if the index is out of
+             *         range.
+             */
+            Session* getSession( const uint index );
 
             /** 
              * Returns the state of the server.
@@ -79,6 +88,8 @@ namespace eqNet
 
             bool start( PipeConnection* connection );
             bool start( const char* address );
+
+            bool _connect( const char* address );
 
             int  _run();
 

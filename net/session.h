@@ -83,7 +83,7 @@ namespace eqNet
          * @return the node identifier.
          * @sa Node, Network::addNode
          */
-        uint addNode();
+        uint newNode();
 
         /**
          * Returns the number of nodes in this session.
@@ -115,7 +115,7 @@ namespace eqNet
          *         if not.
          * @throws invalid_argument if the node identifier is not known.
          */
-        bool removeNode( const uint nodeID );
+        bool deleteNode( const uint nodeID );
         //*}
 
         /**
@@ -134,7 +134,7 @@ namespace eqNet
          * @param protocol the network protocol.
          * @sa addNode
          */
-        uint addNetwork( 
+        uint newNetwork( 
             const NetworkProtocol protocol );
 
         /**
@@ -153,14 +153,14 @@ namespace eqNet
         uint getNetworkID( const uint index );
 
         /**
-         * Removes a network from this session.
+         * Deletes a network of this session.
          *
          * @param networkID the identifier of the network to remove
          * @return <code>true</code> if the network was removed,
          *         <code>false</code> if not.
          * @throws invalid_argument if the network identifier is not known.
          */
-        bool removeNetwork( const uint networkID );
+        bool deleteNetwork( const uint networkID );
         //*}
 
         /**
@@ -253,6 +253,11 @@ namespace eqNet
         //*}
 
     protected:
+        /** 
+         * Constructs a new session.
+         * 
+         * @param id the identifier of the session.
+         */
         Session(const uint id) : Base(id) {}
     };
 }

@@ -9,16 +9,11 @@
 using namespace eqNet::priv;
 using namespace std;
 
-bool PipeNetwork::init()
-{
-    return true; // do nothing, connections can and will be created dynamically
-}
-
 bool PipeNetwork::start()
 {
     if( _descriptions.size() != 2 )
     {
-        WARN << "A pipe network has exactly two nodes, but this one has " 
+        WARN << "A pipe network has to have two nodes, but this one has " 
              << _descriptions.size() << " nodes" << endl;
         return false;
     }
@@ -59,12 +54,4 @@ bool PipeNetwork::startNode(const uint nodeID)
 
 void PipeNetwork::stop()
 {
-}
-
-void PipeNetwork::setStarted( const uint nodeID, PipeConnection* connection )
-{
-    ASSERT( _descriptions.count(nodeID)!=0 );
-    ASSERT( connection->getState() == Connection::STATE_CONNECTED );
-
-    _connections[nodeID] = connection;
 }

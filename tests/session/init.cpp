@@ -14,5 +14,6 @@ int main( int argc, char **argv )
         cout << "Got session " << session->getID() << endl;
     else
         cout << "Got no session" << endl;
+    sleep(1);
 }
 
