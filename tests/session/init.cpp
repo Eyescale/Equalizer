@@ -8,11 +8,11 @@ using namespace std;
 
 int main( int argc, char **argv )
 {
-    char dummy;
-    //cin >> dummy;
     cout << "Create session... " << endl;
     Session* session = Session::create(NULL);
-    cout << "Got session " << session->getID() << endl;
-    //cin >> dummy;
+    if( session )
+        cout << "Got session " << session->getID() << endl;
+    else
+        cout << "Got no session" << endl;
 }
 
