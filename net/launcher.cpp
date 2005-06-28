@@ -24,4 +24,5 @@ int Launcher::run()
     WARN << "Error executing '" << _command << "': " << strerror(errno) << endl;
     delete this;
     ::exit( EXIT_FAILURE );
+    return EXIT_FAILURE;
 }

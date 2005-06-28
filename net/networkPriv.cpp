@@ -11,6 +11,7 @@
 #include "socketNetwork.h"
 
 #include <eq/base/log.h>
+#include <alloca.h>
 
 using namespace eqNet::priv;
 using namespace std;
@@ -101,7 +102,7 @@ const char* Network::_createLaunchCommand( const uint nodeID )
                 size_t newSize = resultSize;
                 
                 while( newSize < i + replacementLen )
-                    newSize << 1;
+                    newSize = newSize << 1;
                 if( newSize > resultSize )
                 {
                     char* newResult = (char*)alloca(newSize);

@@ -154,5 +154,6 @@ int PipeConnection::run()
 
     close();
     delete this;
-    exit( result );
+    ::exit( result );
+    return result;
 }

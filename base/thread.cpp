@@ -6,6 +6,9 @@
 #include "base.h"
 
 #include <errno.h>
+#include <pthread.h>
+#include <strings.h>
+#include <sys/wait.h>
 
 using namespace eqBase;
 using namespace std;
@@ -113,6 +116,7 @@ bool Thread::join( int* retVal )
     switch( _type )
     {
         case PTHREAD:
+        {
             const int error = pthread_join( _threadID.pthread, (void**)retVal);
             if( error != 0 )
             {
@@ -120,7 +124,7 @@ bool Thread::join( int* retVal )
                 return false;
             }
             _threadState = STATE_STOPPED;
-            return true;
+        } return true;
 
         case FORK:
             while( true )
