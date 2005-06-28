@@ -7,7 +7,7 @@
 
 /** 
  * @namespace eqNet
- * @brief The equalizer networking abstraction layer.
+ * @brief The Equalizer networking abstraction layer.
  *
  * The Equalizer network abstraction layer provides the basic functionality to
  * enable execution on distributed and shared memory machines. The access to the
@@ -31,7 +31,25 @@ namespace eqNet
 
     /** The any type identifier. */
 #   define TYPE_ID_ANY 0xffffffff
-};
+
+    /** 
+     * Initialises the Equalizer networking layer.
+     * 
+     * @param argc the command line argument count.
+     * @param argv the command line argument values.
+     */
+    void init( int argc, char** argv );
+
+    class Global
+    {
+    public:
+        static void        setProgramName( const char* programName );
+        static const char* getProgramName();
+
+    private:
+        static char* _programName;
+    };
+}
 
 #endif // EQNET_GLOBAL_H
 

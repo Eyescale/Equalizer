@@ -6,8 +6,9 @@
 #define EQNET_NETWORK_H
 
 #include <eq/base/base.h>
-#include <eq/net/base.h>
-#include <eq/net/message.h>
+
+#include "base.h"
+#include "message.h"
 
 namespace eqNet
 {

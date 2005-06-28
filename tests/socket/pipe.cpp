@@ -2,6 +2,7 @@
 #include <connection.h>
 #include <connectionDescription.h>
 
+#include <eq/net/global.h>
 #include <alloca.h>
 #include <iostream>
 
@@ -24,6 +25,8 @@ extern "C" int testPipeServer( Connection* connection )
 
 int main( int argc, char **argv )
 {
+    eqNet::init( argc, argv );
+
     Connection *connection = Connection::create(PROTO_PIPE);
 
     ConnectionDescription connDesc;

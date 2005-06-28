@@ -2,6 +2,7 @@
 #include <connection.h>
 #include <connectionDescription.h>
 
+#include <eq/net/global.h>
 #include <iostream>
 
 using namespace eqNet;
@@ -10,6 +11,8 @@ using namespace std;
 
 int main( int argc, char **argv )
 {
+    eqNet::init( argc, argv );
+
     Connection *connection = Connection::create(PROTO_TCPIP);
 
     ConnectionDescription connDesc;

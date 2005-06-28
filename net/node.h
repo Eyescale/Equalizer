@@ -7,7 +7,7 @@
 
 #include <eq/base/base.h>
 
-#include <eq/net/message.h>
+#include "message.h"
 
 namespace eqNet
 {

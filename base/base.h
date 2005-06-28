@@ -5,7 +5,7 @@
 #ifndef EQBASE_BASE_H
 #define EQBASE_BASE_H
 
-#include <eq/base/log.h>
+#include "log.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -5,8 +5,7 @@
 #ifndef EQNET_NETWORK_PRIV_H
 #define EQNET_NETWORK_PRIV_H
 
-#include <eq/net/network.h>
-
+#include "network.h"
 #include "base.h"
 #include "idHash.h"
 
@@ -100,6 +99,17 @@ namespace eqNet
 
             /** The list of connection descriptions, indexed per node. */
             IDHash<ConnectionDescription*> _descriptions;
+
+
+            /** 
+             * Creates the launch command for a node.
+             * 
+             * The returned string has to be freed by the caller.
+             *
+             * @param nodeID the identifier of the node.
+             * @return the launch command.
+             */
+            const char* _createLaunchCommand( const uint nodeID );
 
             friend inline std::ostream& operator << 
                 (std::ostream& os, Network* network);

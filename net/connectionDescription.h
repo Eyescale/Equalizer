@@ -5,7 +5,7 @@
 #ifndef EQNET_CONNECTION_DESCRIPTION_H
 #define EQNET_CONNECTION_DESCRIPTION_H
 
-#include <eq/net/network.h>
+#include "network.h"
 
 #include <strings.h>
 
@@ -29,6 +29,9 @@ namespace eqNet
         /** 
          * The command to spawn a new process on the node, e.g., 
          * "ssh eile@node1", can be <code>NULL</code>.
+         * 
+         * %a - TCP/IP address
+         * %c - command
          */
         const char *launchCommand; 
 

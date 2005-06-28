@@ -5,7 +5,7 @@
 #ifndef EQBASE_THREAD_H
 #define EQBASE_THREAD_H
 
-#include <eq/base/base.h>
+#include "base.h"
 
 namespace eqBase
 {

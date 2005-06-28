@@ -16,6 +16,8 @@ SOURCES = \
 	connection.cpp \
 	connectionNetwork.cpp \
 	fdConnection.cpp \
+	global.cpp \
+	launcher.cpp \
 	network.cpp \
 	networkPriv.cpp \
 	node.cpp \

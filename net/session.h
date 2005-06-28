@@ -6,9 +6,9 @@
 #define EQNET_SESSION_H
 
 #include <eq/base/base.h>
-#include <eq/net/base.h>
-#include <eq/net/global.h>
-#include <eq/net/network.h>
+#include "base.h"
+#include "global.h"
+#include "network.h"
 
 namespace eqNet
 {

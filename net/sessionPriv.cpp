@@ -3,15 +3,14 @@
    All rights reserved. */
 
 #include "sessionPriv.h"
-
 #include "connection.h"
+#include "connectionDescription.h"
 #include "networkPriv.h"
 #include "nodePriv.h"
 #include "server.h"
 #include "serverPriv.h"
 
 #include <eq/base/log.h>
-#include <eq/net/connectionDescription.h>
 
 #include <alloca.h>
 

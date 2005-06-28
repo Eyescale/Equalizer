@@ -1,5 +1,6 @@
 
 .PHONY: subdirs $(SUBDIRS) dummy
+.SUFFIXES: .d
 
 # recursive subdir rules
 
@@ -11,27 +12,28 @@ $(SUBDIRS):
 
 
 # headers
-$(HEADERS):
-
 $(HEADER_DIR)/%.h : %.h
 	@mkdir -p $(HEADER_DIR)
+	@echo 'Header file $@'
 	@cp $< $@
 
 # libraries
-$(DYNAMIC_LIB): $(DEPENDENCIES) $(OBJECTS)
+$(DYNAMIC_LIB): $(OBJECT_DIR) $(OBJECTS)
 	@mkdir -p $(LIBRARY_DIR)
 	$(CXX) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 
-$(STATIC_LIB): $(OBJECT_DIR) $(DEPENDENCIES) $(OBJECTS)
+$(STATIC_LIB): $(OBJECT_DIR) $(OBJECTS)
 	@mkdir -p $(LIBRARY_DIR)
 	@rm -f $@
 	$(AR) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 
+$(OBJECT_DIR):
+	@mkdir -p $(OBJECT_DIR)
+
 $(OBJECT_DIR)/%.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(DEPENDENCIES): $(SOURCES) $(HEADERS)
-	@mkdir -p $(OBJECT_DIR)
+$(OBJECTS): $(DEPENDENCIES)
 
 # cleaning targets
 clean:
@@ -39,19 +41,19 @@ clean:
 ifdef SUBDIRS
 	@for d in $(SUBDIRS); do \
 		echo "$(DEPTH) $$d clean"; \
-		$(MAKE) TOP=$(SUBTOP) -C $$d $@ ;\
+		$(MAKE) TOP=$(SUBTOP) DEPENDENCIES=dummy -C $$d $@ ;\
 	done
 endif
 
 # dependencies
 OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
 
-$(DEPENDENCIES): $(HEADERS)
+$(DEPENDENCIES): $(HEADER_SRC) $(OBJECT_DIR)
 
 $(OBJECT_DIR)/%.d : %.cpp
-	@echo "Updating dependencies for $<"
-	@($(CXX_DEPS) $(CXXFLAGS) -M -E $<  | \
-		sed 's/\(.*:\)/$(OBJECT_DIR_ESCAPED)\/\1/' > $@) || rm $@
+	@echo "Dependencies for $<"
+	@($(CXX_DEPS) $(CXXFLAGS) -M -E $< | \
+		sed 's/\(.*:\)/$(OBJECT_DIR_ESCAPED)\/\1/' > $@) || rm $@ dummy
 
 
 -include dummy $(DEPENDENCIES)

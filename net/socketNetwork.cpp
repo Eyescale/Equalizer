@@ -2,6 +2,7 @@
 #include "socketNetwork.h"
 #include "connection.h"
 #include "connectionDescription.h"
+#include "launcher.h"
 #include "sessionPriv.h"
 
 #include <eq/base/log.h>
@@ -29,7 +30,7 @@ bool SocketNetwork::start()
     for( IDHash<ConnectionDescription*>::iterator iter = _descriptions.begin();
          iter != _descriptions.end(); iter++ )
     {
-        const uint                   nodeID      = (*iter).first;
+        const uint nodeID = (*iter).first;
 
         if( !startNode( nodeID ))
         {
@@ -91,10 +92,12 @@ bool SocketNetwork::startNode(const uint nodeID)
     }
 
     ConnectionDescription* description = (*iter).second;
-    const char*            address     = description->parameters.TCPIP.address;
+    const char*                address = description->parameters.TCPIP.address;
+    const char*          launchCommand = _createLaunchCommand( nodeID );
+    
+    if( launchCommand )
+        Launcher::run( launchCommand );
 
-    
-    
     return false;
 }
 
