@@ -100,6 +100,17 @@ namespace eqNet
             /** The list of connection descriptions, indexed per node. */
             IDHash<ConnectionDescription*> _descriptions;
 
+            /** The state of the individual nodes. */
+            enum NodeState
+            {
+                NODE_STOPPED,
+                NODE_INITIALIZED,
+                NODE_RUNNING
+            };
+
+            /** The list of node states. */
+            IDHash<NodeState> _nodeStates;
+
 
             /** 
              * Creates the launch command for a node.
@@ -125,9 +136,15 @@ namespace eqNet
                      network->_descriptions.begin();
                  iter != network->_descriptions.end(); iter++ )
             {
-                const uint             nodeID      = (*iter).first;
+                const uint                  nodeID = (*iter).first;
                 ConnectionDescription* description = (*iter).second;
-                os << "    Node " << nodeID << ": " << description;
+                const Network::NodeState   state = network->_nodeStates[nodeID];
+
+                os << "    Node " << nodeID << ": " << description << ", "
+                   << (state==Network::NODE_STOPPED     ? "stopped" : 
+                       state==Network::NODE_INITIALIZED ? "initialized" :
+                       state==Network::NODE_RUNNING     ? "running" : 
+                       "unknown state") << std::endl;
             }
 
             return os;

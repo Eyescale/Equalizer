@@ -63,6 +63,7 @@ void Network::addNode( const uint nodeID,
     }
    
     _descriptions[nodeID] = desc;
+    _nodeStates[nodeID]   = NODE_STOPPED;
 }
 
 
@@ -82,6 +83,7 @@ const char* Network::_createLaunchCommand( const uint nodeID )
     size_t                  resultSize = 256;
     char*                       result = (char*)alloca(resultSize);
     size_t                 resultIndex = 0;
+    bool                  commandFound = false;
 
     for( size_t i=0; i<launchCommandLen-1; i++ )
     {
@@ -91,7 +93,8 @@ const char* Network::_createLaunchCommand( const uint nodeID )
             switch( launchCommand[i+1] )
             {
                 case 'c':
-                    replacement = Global::getProgramName();
+                    replacement  = Global::getProgramName();
+                    commandFound = true;
                     break;
             }
 
@@ -99,9 +102,9 @@ const char* Network::_createLaunchCommand( const uint nodeID )
             {
                 // check string length
                 const size_t replacementLen = strlen( replacement );
-                size_t newSize = resultSize;
+                size_t       newSize        = resultSize;
                 
-                while( newSize < i + replacementLen )
+                while( newSize <= resultIndex + replacementLen )
                     newSize = newSize << 1;
                 if( newSize > resultSize )
                 {
@@ -129,6 +132,28 @@ const char* Network::_createLaunchCommand( const uint nodeID )
             }
         }
     }
+
+    if( !commandFound )
+    { 
+        // check string length
+        const char*  command    = Global::getProgramName();
+        const size_t commandLen = strlen( command );
+        size_t       newSize    = resultSize;
+                
+        while( newSize <= resultIndex + commandLen )
+            newSize = newSize << 1;
+        if( newSize > resultSize )
+        {
+            char* newResult = (char*)alloca(newSize);
+            memcpy( newResult, result, resultSize );
+            result     = newResult;
+            resultSize = newSize;
+        }
+
+        // append command
+        memcpy( &result[resultIndex], command, commandLen );
+        resultIndex += commandLen;
+   }
 
     result[resultIndex] = '\0';
     return strdup(result);

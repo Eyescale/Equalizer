@@ -27,12 +27,14 @@ bool SocketNetwork::start()
         return false;
     }
     
+    const uint localNodeID = _session->getLocalNodeID();
+
     for( IDHash<ConnectionDescription*>::iterator iter = _descriptions.begin();
          iter != _descriptions.end(); iter++ )
     {
         const uint nodeID = (*iter).first;
 
-        if( !startNode( nodeID ))
+        if( _nodeStates[nodeID] == NODE_INITIALIZED && !startNode( nodeID ))
         {
             WARN << "Could not start node " << nodeID << endl;
             stop();
@@ -76,6 +78,7 @@ bool SocketNetwork::_startListening()
         delete _listener;
 
     _listener = listener;
+    _nodeStates[localNodeID] = NODE_RUNNING;
     return true;
 }
 
@@ -98,6 +101,7 @@ bool SocketNetwork::startNode(const uint nodeID)
     if( launchCommand )
         Launcher::run( launchCommand );
 
+    //_nodeStates[nodeID] = NODE_RUNNING;
     return false;
 }
 

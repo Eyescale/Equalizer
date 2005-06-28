@@ -81,7 +81,7 @@ namespace eqNet
         os << "    ConnectionDescription " << (void*)description <<  ": "
            << "bw " << description->bandwidthKBS << "KB/s, launchCommand '"
            << ( description->launchCommand==NULL ? "none" : 
-               description->launchCommand ) << "'" << std::endl;
+               description->launchCommand ) << "'";
         return os;
     }
 };

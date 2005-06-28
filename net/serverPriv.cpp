@@ -115,7 +115,7 @@ bool Server::start( const char* address )
     _state = STATE_STARTED;
     
     INFO << endl << this;
-    return false;
+    return true;
 }
 
 //----------------------------------------------------------------------
@@ -209,8 +209,8 @@ int Server::_run()
     if( _state != STATE_STARTED )
         return EXIT_FAILURE;
 
-//     while( true )
-//     {
+    while( true )
+    {
 //         short event;
 //         Connection *connection = Connection::select( _connections, -1, event );
 
@@ -238,7 +238,7 @@ int Server::_run()
 //                 break;
 //         }
 //         break;
-//     }
+    }
 
     return EXIT_SUCCESS;
 }
