@@ -50,7 +50,7 @@ $(DEPENDENCIES): $(HEADERS)
 
 $(OBJECT_DIR)/%.d : %.cpp
 	@echo "Updating dependencies for $<"
-	@($(CXX_DEPS) $(CXXFLAGS) -MM -E $<  | \
+	@($(CXX_DEPS) $(CXXFLAGS) -M -E $<  | \
 		sed 's/\(.*:\)/$(OBJECT_DIR_ESCAPED)\/\1/' > $@) || rm $@
 
 

@@ -7,6 +7,7 @@
 #include "serverPriv.h"
 
 #include <eq/base/log.h>
+#include <eq/base/thread.h>
 
 #include <dlfcn.h>
 #include <errno.h>
@@ -16,7 +17,8 @@ using namespace eqNet::priv;
 using namespace std;
 
 PipeConnection::PipeConnection()
-        : _pipes(NULL)
+        : eqBase::Thread( eqBase::Thread::FORK ),
+          _pipes(NULL)
 {
 }
 
@@ -44,24 +46,15 @@ bool PipeConnection::connect( const ConnectionDescription &description )
     _createPipes();
 
     // fork child process
-    pid_t pid = fork();
-    switch( pid )
+    _entryFunc = description.parameters.PIPE.entryFunc;
+    if( !start( ))
     {
-        case 0: // child
-            INFO << "Child running" << endl;
-            _runChild(description.parameters.PIPE.entryFunc); // never returns
-            return true;
-            
-        case -1: // error
-            WARN << "Could not fork child process:" << strerror( errno ) <<endl;
-            close();
-            return false;
-
-        default: // parent
-            INFO << "Parent running" << endl;
-            _setupParent();
-            break;
+        WARN << "Could not fork child process" <<endl;
+        close();
+        return false;
     }
+
+    _setupParent();
     return true;
 }
 
@@ -119,7 +112,7 @@ void PipeConnection::_setupParent()
     _state = STATE_CONNECTED;
 }
 
-void PipeConnection::_runChild(const char *entryFunc)
+int PipeConnection::run()
 {
     // close unneeded pipe ends
     ::close( _pipes[0] );
@@ -141,21 +134,21 @@ void PipeConnection::_runChild(const char *entryFunc)
     // security considerations.
     int result = EXIT_FAILURE;
 
-    if( strcmp( entryFunc, "Server::run" ) == 0 )
+    if( strcmp( _entryFunc, "Server::run" ) == 0 )
     {
         result = priv::Server::run( this );
     }
-    else if( strcmp( entryFunc, "testPipeServer" ) == 0 )
+    else if( strcmp( _entryFunc, "testPipeServer" ) == 0 )
     {
 #ifdef sgi
         void* dlHandle = dlopen( 0, RTLD_LAZY );
-        void* func = dlsym( dlHandle, entryFunc );
+        void* func = dlsym( dlHandle, _entryFunc );
 #else
-        void* func = dlsym( RTLD_DEFAULT, entryFunc );
+        void* func = dlsym( RTLD_DEFAULT, _entryFunc );
 #endif
-        INFO << "Entry function '" << entryFunc << "', addr: " << func << endl;
-        typedef int (*entryFunc)( Connection* connection );
-        result = ((entryFunc)func)( this );
+        INFO << "Entry function '" << _entryFunc << "', addr: " << func << endl;
+        typedef int (*EntryFunc)( Connection* connection );
+        result = ((EntryFunc)func)( this );
     }
     // else if ....
 

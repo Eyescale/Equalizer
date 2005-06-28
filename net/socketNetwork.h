@@ -14,11 +14,16 @@ namespace eqNet
         class SocketNetwork : public ConnectionNetwork
         {
         public:
-            SocketNetwork(const uint id) : ConnectionNetwork(id){}
+            SocketNetwork( const uint id, Session* session );
 
             virtual bool start();
             virtual void stop();
             virtual bool startNode(const uint nodeID);
+            
+        private:
+            Connection* _listener;
+
+            bool _startListening();
         };
     }
 }

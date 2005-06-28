@@ -19,7 +19,8 @@ namespace eqNet
         class PipeNetwork : public ConnectionNetwork
         {
         public:
-            PipeNetwork(const uint id) : ConnectionNetwork(id){}
+            PipeNetwork( const uint id, Session* session ) :
+                    ConnectionNetwork( id, session ) {}
 
             virtual bool start();
             virtual void stop();

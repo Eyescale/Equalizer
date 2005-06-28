@@ -43,6 +43,12 @@ namespace eqNet
                  * '<code>(&lt;IP&gt;|&lt;name&gt;)(:&lt;port&gt;)</code>'.
                  */
                 const char *address;
+
+                /** 
+                 * The amount of time in milliseconds to wait before a node is
+                 * considered unreachable during start.
+                 */
+                int launchTimeout;
             } TCPIP;
             
             /** MPI parameters */

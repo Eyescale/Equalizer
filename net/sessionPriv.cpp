@@ -43,7 +43,7 @@ Session* Session::create( const char* serverAddress )
 
 Network* Session::newNetwork( const NetworkProtocol protocol )
 {
-    Network* network = Network::create( _networkID++, PROTO_TCPIP );
+    Network* network = Network::create( _networkID++, this, PROTO_TCPIP );
     _networks[network->getID()] = network;
     return network;
 }

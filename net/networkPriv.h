@@ -18,8 +18,9 @@ namespace eqNet
     namespace priv
     {
         class Node;
+        class Session;
 
-        class Network : public eqNet::Network, public Base
+        class Network : public eqNet::Network
         {
         public:
             /** 
@@ -29,7 +30,7 @@ namespace eqNet
              * @param protocol the network protocol.
              * @return the network.
              */
-            static Network* create( const uint id,
+            static Network* create( const uint id, Session* session,
                 const eqNet::NetworkProtocol protocol );
 
             /**
@@ -92,10 +93,10 @@ namespace eqNet
             virtual ~Network();
 
         protected:
-            Network(const uint id);
+            Network( const uint id, Session* session );
 
-            /** The identifier of this Network. */
-            uint _id;
+            /** The session for this network. */
+            Session* _session;
 
             /** The list of connection descriptions, indexed per node. */
             IDHash<ConnectionDescription*> _descriptions;

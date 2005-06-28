@@ -6,6 +6,7 @@
 #define EQNET_NETWORK_H
 
 #include <eq/base/base.h>
+#include <eq/net/base.h>
 #include <eq/net/message.h>
 
 namespace eqNet
@@ -34,7 +35,7 @@ namespace eqNet
      *
      * @sa Session, Node
      */
-    class Network
+    class Network : public Base
     {
     public:
 
@@ -203,6 +204,14 @@ namespace eqNet
         static void* recv( const uint fromNodeID, const Message::Type type, 
             const void *ptr, const uint64 *count, const float timeout );
         //@}
+
+    protected:
+        /** 
+         * Constructs a new network.
+         * 
+         * @param id the network identifier.
+         */
+        Network( const uint id ) : Base(id) {}
     };
 }
 

@@ -19,7 +19,8 @@ namespace eqNet
         class ConnectionNetwork : public Network
         {
         public:
-            ConnectionNetwork(const uint id) : Network(id){}
+            ConnectionNetwork( const uint id, Session* session ) 
+                    : Network( id, session ) {}
             ~ConnectionNetwork(){ exit(); }
 
             virtual bool init();

@@ -6,6 +6,7 @@
 #define EQNET_PIPE_CONNECTION_H
 
 #include "fdConnection.h"
+#include <eq/base/thread.h>
 
 namespace eqNet
 {
@@ -14,7 +15,7 @@ namespace eqNet
         /**
          * A fork-based pipe connection.
          */
-        class PipeConnection : public FDConnection
+        class PipeConnection : public FDConnection, public eqBase::Thread
         {
         public:
             PipeConnection();
@@ -24,14 +25,15 @@ namespace eqNet
             virtual void close();
 
         protected:
+            virtual int run();
 
         private:
             void _createPipes();
 
             void _setupParent();
-            void _runChild( const char *entryFunc );
 
-            int *_pipes;
+            int*            _pipes;
+            const char*     _entryFunc;
         };
     }
 }

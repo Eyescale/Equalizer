@@ -14,9 +14,9 @@
 using namespace eqNet::priv;
 using namespace std;
 
-Network::Network(const uint id)
-        : eqNet::Network(),
-          Base(id)
+Network::Network( const uint id, Session* session )
+        : eqNet::Network(id),
+          _session(session)
 {}
 
 Network::~Network()
@@ -24,15 +24,16 @@ Network::~Network()
     // TODO: ConnectionDescription cleanup
 }
 
-Network* Network::create( const uint id, const eqNet::NetworkProtocol protocol )
+Network* Network::create( const uint id, Session* session, 
+    const eqNet::NetworkProtocol protocol )
 {
     switch( protocol )
     {
         case eqNet::PROTO_TCPIP:
-            return new SocketNetwork(id);
+            return new SocketNetwork( id, session );
 
         case eqNet::PROTO_PIPE:
-            return new PipeNetwork(id);
+            return new PipeNetwork( id, session );
 
         default:
             WARN << "Protocol not implemented" << endl;

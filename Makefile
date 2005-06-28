@@ -6,7 +6,7 @@ SUBDIRS = base net server tests
 
 .PHONY: docs
 
-all: subdirs docs
+all: subdirs # docs
 
 docs: net
 	@$(DOXYGEN) Doxyfile
