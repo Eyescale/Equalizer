@@ -27,9 +27,6 @@ $(STATIC_LIB): $(OBJECT_DIR) $(OBJECTS)
 	@rm -f $@
 	$(AR) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 
-$(OBJECT_DIR):
-	@mkdir -p $(OBJECT_DIR)
-
 $(OBJECT_DIR)/%.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
@@ -48,9 +45,10 @@ endif
 # dependencies
 OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
 
-$(DEPENDENCIES): $(HEADER_SRC) $(OBJECT_DIR)
+$(DEPENDENCIES): $(HEADER_SRC)
 
 $(OBJECT_DIR)/%.d : %.cpp
+	@mkdir -p $(OBJECT_DIR)
 	@echo "Dependencies for $<"
 	@($(CXX_DEPS) $(CXXFLAGS) -M -E $< | \
 		sed 's/\(.*:\)/$(OBJECT_DIR_ESCAPED)\/\1/' > $@) || rm $@ dummy
