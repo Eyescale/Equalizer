@@ -39,7 +39,7 @@ namespace eqNet
             ConnectionSet();
             ~ConnectionSet();
 
-            void addConnection( Network* network, Connection* connection );
+            void addConnection( Connection* connection, Network* network );
             void removeConnection( Connection* connection );
             void clear();
         
@@ -62,7 +62,7 @@ namespace eqNet
             Message* _message;
             int      _errno;
 
-            Sgi::hash_map<Connection*, Network*> _connections;
+            eqBase::PtrHash<Connection*, Network*> _connections;
 
             void _setupFDSet();
             void _buildFDSet();

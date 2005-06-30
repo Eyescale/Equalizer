@@ -69,7 +69,7 @@ void Network::addNode( const uint nodeID,
 
 const char* Network::_createLaunchCommand( const uint nodeID )
 {
-    IDHash<ConnectionDescription*>::iterator iter = _descriptions.find( nodeID);
+    IDHash<ConnectionDescription*>::iterator iter = _descriptions.find(nodeID);
 
     if( iter == _descriptions.end() )
         return NULL;

@@ -13,6 +13,19 @@ namespace Sgi = ::__gnu_cxx;
 namespace Sgi = std;
 #endif
 
-// Sgi::hash_map<KeyType, PtrType>
+namespace eqBase
+{
+    template< class T > struct hashFuncPtr
+    {
+        size_t operator()(const T & N) const
+            {  
+                return ((size_t)N);
+            }
+    };
+
+    template<class K, class T> class PtrHash 
+        : public Sgi::hash_map<K, T, hashFuncPtr<K> >
+    {};
+}
 
 #endif // EQBASE_HASH_H

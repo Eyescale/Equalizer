@@ -19,8 +19,7 @@ namespace eqNet
 
     namespace priv
     {
-#   define DEFAULT_PORT 4242
-
+#       define DEFAULT_PORT 4242
 
         /**
          * The connection error exception, thrown by the Connection methods.

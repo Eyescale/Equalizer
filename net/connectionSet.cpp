@@ -8,6 +8,7 @@
 #include <eq/base/base.h>
 #include <errno.h>
 
+using namespace eqBase;
 using namespace eqNet::priv;
 using namespace std;
 
@@ -22,7 +23,7 @@ ConnectionSet::ConnectionSet()
 ConnectionSet::~ConnectionSet()
 {}
 
-void ConnectionSet::addConnection( Network* network, Connection* connection )
+void ConnectionSet::addConnection( Connection* connection, Network* network )
 {
     _connections[connection] = network;
     _fdSetDirty = true;
@@ -30,14 +31,17 @@ void ConnectionSet::addConnection( Network* network, Connection* connection )
 
 void ConnectionSet::removeConnection( Connection* connection )
 {
+#if 1 // Don't know what the problem is atm...
     const size_t nDeleted = _connections.erase( connection );
     _fdSetDirty = true;
     ASSERT( nDeleted==1 );
+#endif
 }
 
 void ConnectionSet::clear()
 {
     _connections.clear();
+    _fdSetDirty = true;
 }
         
 ConnectionSet::Event ConnectionSet::select( const int timeout )
@@ -126,8 +130,8 @@ void ConnectionSet::_buildFDSet()
     static const int events = POLLIN; // | POLLPRI;
     _fdSetConnections.clear();
 
-    for( Sgi::hash_map<Connection*, Network*>::iterator iter =
-             _connections.begin(); iter != _connections.end(); iter++ )
+    for( PtrHash<Connection*, Network*>::iterator iter = _connections.begin();
+         iter != _connections.end(); iter++ )
     {
         Connection* connection = (*iter).first;
         const int   fd         = connection->getReadFD();
