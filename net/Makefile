@@ -15,6 +15,7 @@ HEADER_SRC = \
 SOURCES = \
 	connection.cpp \
 	connectionNetwork.cpp \
+	connectionSet.cpp \
 	fdConnection.cpp \
 	global.cpp \
 	launcher.cpp \

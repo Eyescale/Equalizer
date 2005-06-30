@@ -3,6 +3,13 @@
    All rights reserved. */
 
 #include "connectionSet.h"
+#include "connection.h"
+
+#include <eq/base/base.h>
+#include <errno.h>
+
+using namespace eqNet::priv;
+using namespace std;
 
 ConnectionSet::ConnectionSet()
         : _fdSetSize(0),
@@ -21,9 +28,10 @@ void ConnectionSet::addConnection( Network* network, Connection* connection )
     _fdSetDirty = true;
 }
 
-void ConnectionSet::removeConnection( Connection* connection )
+void ConnectionSet::removeConnection( const Connection* connection )
 {
     const size_t nDeleted = _connections.erase( connection );
+    _fdSetDirty = true;
     ASSERT( nDeleted==1 );
 }
 
@@ -32,9 +40,9 @@ void ConnectionSet::clear()
     _connections.clear();
 }
         
-Event ConnectionSet::select( const int timeout )
+ConnectionSet::Event ConnectionSet::select( const int timeout )
 {
-    _setupFDSet()
+    _setupFDSet();
 
     // poll for a result
     const int ret = poll( _fdSet, _fdSetSize, timeout );
@@ -54,22 +62,22 @@ Event ConnectionSet::select( const int timeout )
                 if( _fdSet[i].revents == 0 )
                     continue;
 
-                _connection     = _fdSetConnections[_fdSet[i].fd];
-                _network        = _connections[_connection];
-                const int event = _fdSet[i].revents;
+                Connection* connection = _fdSetConnections[_fdSet[i].fd];
+                _network               = _connections[connection];
+                const int   event      = _fdSet[i].revents;
 
-                INFO << "selected connection #" << i << " of " << nConnections
+                INFO << "selected connection #" << i << " of " << _fdSetSize
                      << ", event " << event << endl;
                 switch( event )
                 {
                     case POLLERR:
                         _errno = 0;
-                        info << "Error during poll()" << endl;
+                        INFO << "Error during poll()" << endl;
                         return EVENT_ERROR;
 
                     case POLLIN:
                     case POLLPRI: // data is ready for reading
-                        _handleRequest();
+                        //_handleRequest();
                         break;
 
                     case POLLHUP: // disconnect happened
@@ -122,7 +130,7 @@ void ConnectionSet::_buildFDSet()
              _connections.begin(); iter != _connections.end(); iter++ )
     {
         Connection* connection = (*iter).first;
-        const int   fd         = connections->getReadFD();
+        const int   fd         = connection->getReadFD();
 
         if( fd == -1 )
         {

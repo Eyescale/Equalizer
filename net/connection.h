@@ -135,10 +135,10 @@ namespace eqNet
                 const std::vector<Connection*> &connections,
                 const int timeout, short &event );
 
+            virtual int getReadFD() const { return -1; }
+
         protected:
             Connection();
-
-            virtual int getReadFD() const { return -1; }
 
             State                 _state;       //!< The connection state
         };

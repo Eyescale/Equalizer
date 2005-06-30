@@ -22,10 +22,10 @@ namespace eqNet
             virtual size_t recv( const void* buffer, const size_t bytes );
             virtual size_t send( const void* buffer, const size_t bytes );
 
+            virtual int getReadFD() const { return _readFD; }
+
         protected:
             FDConnection();
-
-            virtual int getReadFD() const { return _readFD; }
 
             int   _readFD;     //!< The read file descriptor.
             int   _writeFD;    //!< The write file descriptor.
