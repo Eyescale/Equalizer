@@ -5,9 +5,7 @@
 #ifndef EQNET_CONNECTION_SET_H
 #define EQNET_CONNECTION_SET_H
 
-#include "network.h"
-
-#include <strings.h>
+#include <eq/base/hash.h>
 
 namespace eqNet
 {
@@ -19,32 +17,43 @@ namespace eqNet
     class ConnectionSet
     {
     public:
+        enum Event
+        {
+            EVENT_NODE_CONNECT,    //!< A known node connected
+            EVENT_NEW_CONNECTION,  //!< A connection from an unknow source
+            EVENT_NODE_DISCONNECT, //!< A node disconnected
+            EVENT_MESSAGE,         //!< A new message is waiting
+            EVENT_TIMEOUT,         //!< The selection request timed out
+            EVENT_ERROR            //!< An error occured during the selection
+        };
+
         ConnectionSet();
         ~ConnectionSet();
 
-        void addConnection( const Network* network, Connection* connection );
+        void addConnection( Network* network, Connection* connection );
         void removeConnection( Connection* connection );
         void clear();
         
         Event select( const int timeout );
         
-        enum Event
-        {
-            EVENT_NODE_CONNECT,
-            EVENT_NEW_CONNECTION,
-            EVENT_NODE_DISCONNECT,
-            EVENT_MESSAGE
-        };
-
-        Node*    getNode();
-        Network* getNetwork();
-        Message* getMessage();
+        Node*    getNode(){    return _node; }
+        Network* getNetwork(){ return _network; }
+        Message* getMessage(){ return _message; }
+        int      getErrno(){   return _errno; }
 
     private:
         pollfd* _fdSet;
         size_t  _fdSetSize;
+        size_t  _fdSetCapacity;
+        bool    _fdSetDirty;
+        Sgi::hash_map<int, Connection*> _fdSetConnections;
         
-        
+        Node*    _node;
+        Network* _network;
+        Message* _message;
+        int      _errno;
+
+        Sgi::hash_map<Connection*, Network*> _connections;
     };
 
     /** 
