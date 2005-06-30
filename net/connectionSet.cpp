@@ -28,7 +28,7 @@ void ConnectionSet::addConnection( Network* network, Connection* connection )
     _fdSetDirty = true;
 }
 
-void ConnectionSet::removeConnection( const Connection* connection )
+void ConnectionSet::removeConnection( Connection* connection )
 {
     const size_t nDeleted = _connections.erase( connection );
     _fdSetDirty = true;

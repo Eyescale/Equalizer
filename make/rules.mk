@@ -35,6 +35,7 @@ $(OBJECTS): $(DEPENDENCIES)
 # cleaning targets
 clean:
 	rm -f *~ .*~ $(OBJECTS) $(HEADERS) $(STATIC_LIB) $(DYNAMIC_LIB) $(CLEAN)
+	rm -rf $(OBJECT_DIR)/ii_files
 ifdef SUBDIRS
 	@for d in $(SUBDIRS); do \
 		echo "$(DEPTH) $$d clean"; \

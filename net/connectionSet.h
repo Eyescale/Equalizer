@@ -40,7 +40,7 @@ namespace eqNet
             ~ConnectionSet();
 
             void addConnection( Network* network, Connection* connection );
-            void removeConnection( const Connection* connection );
+            void removeConnection( Connection* connection );
             void clear();
         
             Event select( const int timeout );
