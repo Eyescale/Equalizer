@@ -2,7 +2,12 @@
 
 include make/system.mk
 
-SUBDIRS = base net server tests
+SUBDIRS = \
+	base \
+	net \
+	proto \
+	server \
+	tests
 
 .PHONY: docs
 
@@ -12,7 +17,8 @@ docs: net
 	@$(DOXYGEN) Doxyfile
 
 net: base
-tests: net
+proto: base
 server: net
+tests: net
 
 include make/rules.mk

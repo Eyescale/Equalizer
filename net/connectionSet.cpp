@@ -15,7 +15,11 @@ using namespace std;
 ConnectionSet::ConnectionSet()
         : _fdSetSize(0),
           _fdSetCapacity(64),
-          _fdSetDirty(false)
+          _fdSetDirty(false),
+          _node(NULL),
+          _network(NULL),
+          _message(NULL),
+          _errno(0)
 {
     _fdSet = new pollfd[_fdSetCapacity];
 }
@@ -23,7 +27,8 @@ ConnectionSet::ConnectionSet()
 ConnectionSet::~ConnectionSet()
 {}
 
-void ConnectionSet::addConnection( Connection* connection, Network* network )
+void ConnectionSet::addConnection( Connection* connection, 
+    Network* network )
 {
     _connections[connection] = network;
     _fdSetDirty = true;
@@ -31,11 +36,9 @@ void ConnectionSet::addConnection( Connection* connection, Network* network )
 
 void ConnectionSet::removeConnection( Connection* connection )
 {
-#if 1 // Don't know what the problem is atm...
     const size_t nDeleted = _connections.erase( connection );
     _fdSetDirty = true;
     ASSERT( nDeleted==1 );
-#endif
 }
 
 void ConnectionSet::clear()
@@ -81,8 +84,16 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 
                     case POLLIN:
                     case POLLPRI: // data is ready for reading
-                        //_handleRequest();
-                        break;
+//                         if( _message )
+//                             delete _message;
+//                         if( !_network->readMessage( connection, _message, 
+//                                 _node ))
+//                         {
+//                             WARN << "Error during message read" << endl;
+//                             _errno = 0; // ???
+//                             return EVENT_ERROR;
+//                         }
+                        return EVENT_MESSAGE;
 
                     case POLLHUP: // disconnect happened
                         WARN << "Unhandled: Connection disconnect" << endl;

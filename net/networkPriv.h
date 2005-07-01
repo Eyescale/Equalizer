@@ -89,6 +89,7 @@ namespace eqNet
             virtual bool startNode(const uint nodeID) = 0;
             //@}
 
+            //bool readMessage( 
             virtual ~Network();
 
         protected:

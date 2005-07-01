@@ -9,10 +9,8 @@
 
 namespace eqBase
 {
-    typedef int ThreadEntryFunc(const void*);
-
     /**
-     * A abstraction to create a new execution thread.
+     * An abstraction to create a new execution thread.
      * 
      * Depending on the type, a different implementation is used to create the
      * thread. Please note that certain implementations, e.g., fork, create the

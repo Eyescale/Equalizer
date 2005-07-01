@@ -4,6 +4,8 @@ include $(TOP)/make/system.mk
 MODULE = base
 
 SOURCES = \
+	barrier.cpp \
+	lock.cpp \
 	log.cpp \
 	thread.cpp
 
