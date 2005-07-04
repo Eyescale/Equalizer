@@ -9,6 +9,8 @@
 
 namespace eqBase
 {
+    class Lock;
+
     /**
      * An abstraction to create a new execution thread.
      * 
@@ -27,7 +29,7 @@ namespace eqBase
         };
 
         Thread( const Type type );
-        virtual ~Thread(){}
+        virtual ~Thread();
 
         /** 
          * Starts the thread using the specified entry function.
@@ -69,7 +71,8 @@ namespace eqBase
 
         Type  _type;
         State _threadState;
-        
+        Lock* _lock;
+
         union ThreadID
         {
             pthread_t pthread;

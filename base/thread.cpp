@@ -4,6 +4,7 @@
 
 #include "thread.h"
 #include "base.h"
+#include "lock.h"
 
 #include <errno.h>
 #include <pthread.h>
@@ -18,6 +19,13 @@ Thread::Thread( const Type type )
           _threadState(STATE_STOPPED)
 {
     bzero( &_threadID, sizeof( ThreadID ));
+    _lock = new Lock( type );
+    _lock->set();
+}
+
+Thread::~Thread()
+{
+    delete _lock;
 }
 
 void* Thread::runChild( void* arg )
@@ -32,6 +40,7 @@ void Thread::_runChild()
 {
     _threadID    = _getLocalThreadID();
     _threadState = STATE_RUNNING;
+    _lock->unset(); // unlock parent
 
     // TODO: sync with parent
     const int result = run();
@@ -104,7 +113,7 @@ bool Thread::start()
         } break;
     }
 
-    // TODO: sync with child's entry func
+    _lock->set(); // sync with child's entry func
     _threadState = STATE_RUNNING;
     return true;
 }

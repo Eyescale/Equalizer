@@ -7,7 +7,7 @@
 using namespace eqBase;
 using namespace std;
 
-#define MAXTHREADS 32 
+#define MAXTHREADS 256
 
 volatile size_t nThreads;
 Barrier*        barrier;
@@ -19,7 +19,7 @@ public:
     Test() : Thread( Thread::PTHREAD ) {}
     virtual int run()
         {
-            int nLoops = 10000000 / nThreads;
+            int nLoops = 100000000 / nThreads;
             const bool master = ( barrier->enter( nThreads ) == 0 );
             if( master )
                 timer.reset();
