@@ -170,11 +170,12 @@ bool Server::_connect( const char* serverAddress )
     clientDesc.parameters.TCPIP.address = address;
     INFO << "local node TCP/IP address is " << address << endl;
 
-    network->addNode( this->getID(), serverDesc );
+    network->addNode( getID(), serverDesc );
     network->addNode( session->getLocalNodeID(), clientDesc );
+    network->setStarted( getID( ));
 
-    if( !network->init() || !network->start() ) // use locally forked server
-    {
+    if( !network->init() || !network->start() )
+    {  // remote server init failed, use locally forked server
         network->exit();
         session->deleteNetwork( network );
         network = session->newNetwork( PROTO_PIPE );

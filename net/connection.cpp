@@ -89,3 +89,38 @@ Connection* Connection::select( const std::vector<Connection*> &connections,
             return NULL;
     }
 }
+
+Connection* Connection::accept( const int timeout )
+{
+    if( _state != STATE_LISTENING )
+        return NULL;
+
+    // prepare pollfd 'set'
+    pollfd pollFD;
+    pollFD.fd      = getReadFD();
+    pollFD.events  = POLLIN;
+    pollFD.revents = 0;
+
+    if( pollFD.fd == -1 )
+    {
+        // Could implement the same using a setjmp() + alarm().
+        WARN << "Cannot accept on connection, it does not use a file descriptor"
+             << endl;
+        return NULL;
+    }
+
+    // poll for a connection
+    const int ret = poll( &pollFD, 1, timeout );
+    switch( ret )
+    {
+        case 0: // TIMEOUT
+            return NULL;
+
+        case -1: // ERROR
+            WARN << "Error during poll(): " << strerror( errno ) << endl;
+            return NULL;
+
+        default: // SUCCESS
+            return accept();
+    }
+}

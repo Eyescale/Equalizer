@@ -17,8 +17,8 @@ namespace eqBase
      * Depending on the thread type, a different implementation is used to
      * create the barrier.
      */
-    class Barrier {
-
+    class Barrier 
+    {
     public:
         Barrier( const Thread::Type type );
         ~Barrier();

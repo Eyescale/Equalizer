@@ -40,11 +40,23 @@ namespace eqBase
         bool start();
 
         /** 
+         * The init function for the child thread.
+         *
+         * The parent thread will not be unlocked before this function has been
+         * executed. If the thread initialisation fails, that is, this method
+         * did return false, the thread will be stopped and the start() method
+         * will return false.
+         * 
+         * @return the success value of the thread initialisation.
+         */
+        virtual bool init(){ return true; }
+
+        /** 
          * The entry function for the child thread.
          * 
          * @return the return value of the child thread.
          */
-        virtual int run() = 0;
+        virtual ssize_t run() = 0;
 
         /** 
          * Waits for the exit of the child thread.
@@ -57,7 +69,7 @@ namespace eqBase
          * @return <code>true</code> if the thread was joined,
          *         <code>false</code> otherwise.
          */
-        bool join( size_t* retVal=NULL );
+        bool join( ssize_t* retVal=NULL );
 
     private:
         /** The current state of this thread. */

@@ -15,7 +15,7 @@ class Test : public Thread
 {
 public:
     Test() : Thread( Thread::PTHREAD ) {}
-    virtual int run()
+    virtual ssize_t run()
         {
             lock->set();
             lock->unset();

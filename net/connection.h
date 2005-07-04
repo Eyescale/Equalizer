@@ -90,6 +90,16 @@ namespace eqNet
              */
             virtual Connection* accept(){ return NULL; }
 
+            /** 
+             * Accepts the next incoming connection with a timeout.
+             * 
+             * @param timeout the amount of time to wait in milliseconds, if set
+             *                to <code>-1</code> the method blocks indefinitely.
+             * @return the accepted connection, or <code>NULL</code> if no
+             *         connection was accepted.
+             */
+            virtual Connection* accept( const int timeout );
+
             virtual void close(){};
             //@}
 

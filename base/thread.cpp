@@ -38,14 +38,21 @@ void* Thread::runChild( void* arg )
 
 void Thread::_runChild()
 {
-    _threadID    = _getLocalThreadID();
-    _threadState = STATE_RUNNING;
-    _lock->unset(); // unlock parent
+    _threadID      = _getLocalThreadID();
+    _threadState   = STATE_RUNNING;
+    ssize_t result = 0;
 
-    // TODO: sync with parent
-    const int result = run();
-
-    _threadState = STATE_STOPPING;
+    if( init( ))
+    {
+        _lock->unset(); // sync w/ parent
+        result = run();
+        _threadState = STATE_STOPPING;
+    }
+    else
+    {
+        _threadState = STATE_STOPPED;
+        _lock->unset();
+    }
 
     switch( _type )
     {
@@ -114,11 +121,12 @@ bool Thread::start()
     }
 
     _lock->set(); // sync with child's entry func
+    // TODO: check if thread's initialised correctly. needs shmem for FORK.
     _threadState = STATE_RUNNING;
     return true;
 }
 
-bool Thread::join( size_t* retVal )
+bool Thread::join( ssize_t* retVal )
 {
     if( _threadState == STATE_STOPPED )
         return false;
@@ -129,7 +137,7 @@ bool Thread::join( size_t* retVal )
         {
             // WAR: according to the man page, passing NULL as value_ptr should
             // be ok, but apparently it crashes on Darwin.
-            size_t dummy;
+            ssize_t dummy;
             if( !retVal )
                 retVal = &dummy;
 

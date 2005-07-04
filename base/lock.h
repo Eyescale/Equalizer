@@ -17,7 +17,8 @@ namespace eqBase
      * Depending on the thread type, a different implementation is used to
      * create the lock.
      */
-    class Lock {
+    class Lock 
+    {
 
     public:
         Lock( const Thread::Type type );

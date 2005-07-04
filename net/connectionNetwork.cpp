@@ -37,7 +37,6 @@ void ConnectionNetwork::exit()
     }
 }
 
-
 void ConnectionNetwork::setStarted( const uint nodeID, Connection* connection )
 {
     ASSERT( _descriptions.count(nodeID)!=0 );

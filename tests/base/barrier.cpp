@@ -15,7 +15,7 @@ class Test : public Thread
 {
 public:
     Test() : Thread( Thread::PTHREAD ) {}
-    virtual int run()
+    virtual ssize_t run()
         {
             const size_t num = barrier->enter( nThreads );
             cerr << " " << num;

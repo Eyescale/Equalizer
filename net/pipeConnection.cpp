@@ -112,7 +112,7 @@ void PipeConnection::_setupParent()
     _state = STATE_CONNECTED;
 }
 
-int PipeConnection::run()
+ssize_t PipeConnection::run()
 {
     // close unneeded pipe ends
     ::close( _pipes[0] );

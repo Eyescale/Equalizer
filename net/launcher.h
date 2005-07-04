@@ -17,7 +17,7 @@ namespace eqNet
 
     private:
         Launcher() : eqBase::Thread( eqBase::Thread::FORK ) {}
-        virtual int run();
+        virtual ssize_t run();
         
         const char* _command;
     };

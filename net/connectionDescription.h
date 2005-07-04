@@ -18,7 +18,10 @@ namespace eqNet
      */
     struct ConnectionDescription
     {
-        ConnectionDescription() : bandwidthKBS(0), launchCommand(NULL)
+        ConnectionDescription() 
+                : bandwidthKBS(0),
+                  launchCommand(NULL), 
+                  running(false)
             {
                 bzero( &parameters, sizeof(parameters));
             }

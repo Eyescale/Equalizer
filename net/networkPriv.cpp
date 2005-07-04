@@ -18,7 +18,8 @@ using namespace std;
 
 Network::Network( const uint id, Session* session )
         : eqNet::Network(id),
-          _session(session)
+          _session(session),
+          _state(STATE_STOPPED)
 {}
 
 Network::~Network()
@@ -66,8 +67,15 @@ void Network::addNode( const uint nodeID,
     _nodeStates[nodeID]   = NODE_STOPPED;
 }
 
+void Network::setStarted( const uint nodeID )
+{
+    ASSERT( _descriptions.count(nodeID)!=0 );
 
-const char* Network::_createLaunchCommand( const uint nodeID )
+    _nodeStates[nodeID]  = NODE_RUNNING;
+}
+
+const char* Network::_createLaunchCommand( const uint nodeID, 
+                                           const char* args )
 {
     IDHash<ConnectionDescription*>::iterator iter = _descriptions.find(nodeID);
 
@@ -76,6 +84,7 @@ const char* Network::_createLaunchCommand( const uint nodeID )
 
     ConnectionDescription* description = (*iter).second;
     const char*          launchCommand = description->launchCommand;
+
     if( !launchCommand )
         return NULL;
 
@@ -89,13 +98,17 @@ const char* Network::_createLaunchCommand( const uint nodeID )
     {
         if( launchCommand[i] == '%' )
         {
-            const char* replacement = NULL;
+             char* replacement = NULL;
             switch( launchCommand[i+1] )
             {
                 case 'c':
-                    replacement  = Global::getProgramName();
+                {
+                    const char* programName = Global::getProgramName();
+                    replacement  = (char*)alloca( strlen(programName) +
+                                                  strlen( args ) + 2 );
+                    sprintf( replacement, "%s %s", programName, args );
                     commandFound = true;
-                    break;
+                } break;
             }
 
             if( replacement )
@@ -136,12 +149,16 @@ const char* Network::_createLaunchCommand( const uint nodeID )
     if( !commandFound )
     { 
         // check string length
-        const char*  command    = Global::getProgramName();
+        const char* programName = Global::getProgramName();
+        char*       command     = (char*)alloca( strlen(programName) +
+                                                 strlen( args ) + 2 );
+        sprintf( command, "%s %s", programName, args );
         const size_t commandLen = strlen( command );
         size_t       newSize    = resultSize;
                 
         while( newSize <= resultIndex + commandLen )
             newSize = newSize << 1;
+
         if( newSize > resultSize )
         {
             char* newResult = (char*)alloca(newSize);
@@ -156,5 +173,6 @@ const char* Network::_createLaunchCommand( const uint nodeID )
    }
 
     result[resultIndex] = '\0';
+    INFO << "Launch command: " << result << endl;
     return strdup(result);
 }

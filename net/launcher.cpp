@@ -17,7 +17,7 @@ void Launcher::run( const char* command )
     launcher.start();
 }
 
-int Launcher::run()
+ssize_t Launcher::run()
 {
     INFO << "Executing: " << _command << endl;
     execl( _command, NULL );

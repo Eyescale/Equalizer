@@ -15,7 +15,7 @@ namespace eqNet
     {
         class Connection;
 
-        /** A 'network' base class for connection-based networks. */
+        /** A Network base class for connection-based networks. */
         class ConnectionNetwork : public Network
         {
         public:

@@ -89,25 +89,46 @@ namespace eqNet
             virtual bool startNode(const uint nodeID) = 0;
             //@}
 
+            /** 
+             * Puts a node into started mode.
+             *
+             * Used for nodes already running, i.e., the server.
+             * 
+             * @param nodeID the node identifier.
+             */
+            void setStarted( const uint nodeID );
+
             //bool readMessage( 
             virtual ~Network();
 
         protected:
             Network( const uint id, Session* session );
 
-            /** The session for this network. */
-            Session* _session;
-
-            /** The list of connection descriptions, indexed per node. */
-            IDHash<ConnectionDescription*> _descriptions;
+            /** The session state. */
+            enum State
+            {
+                STATE_STOPPED,
+                STATE_STARTING,
+                STATE_RUNNING
+            };
 
             /** The state of the individual nodes. */
             enum NodeState
             {
                 NODE_STOPPED,
                 NODE_INITIALIZED,
+                NODE_LAUNCHED,
                 NODE_RUNNING
             };
+
+            /** The session for this network. */
+            Session* _session;
+
+            /** The current state of the session. */
+            State    _state;
+
+            /** The list of connection descriptions, indexed per node. */
+            IDHash<ConnectionDescription*> _descriptions;
 
             /** The list of node states. */
             IDHash<NodeState> _nodeStates;
@@ -119,9 +140,12 @@ namespace eqNet
              * The returned string has to be freed by the caller.
              *
              * @param nodeID the identifier of the node.
+             * @param args command line arguments for the launch command, may
+             *             not be <code>NULL</code>
              * @return the launch command.
              */
-            const char* _createLaunchCommand( const uint nodeID );
+            const char* _createLaunchCommand( const uint nodeID, 
+                                              const char* args );
 
             friend inline std::ostream& operator << 
                 (std::ostream& os, Network* network);

@@ -7,23 +7,43 @@
 
 #include "connectionNetwork.h"
 
+#include <vector>
+
+namespace eqBase
+{
+    class Thread;
+}
+
 namespace eqNet
 {
     namespace priv
     {
+#       define STARTUP_TIMEOUT 2000 // ms
         class SocketNetwork : public ConnectionNetwork
         {
         public:
             SocketNetwork( const uint id, Session* session );
+            virtual ~SocketNetwork();
 
             virtual bool start();
             virtual void stop();
             virtual bool startNode(const uint nodeID);
-            
-        private:
-            Connection* _listener;
 
-            bool _startListening();
+            ssize_t runReceiver();
+
+        private:
+            std::vector<Connection*> _connections;
+
+            Connection*     _listener;
+            eqBase::Thread* _receiver;
+
+            bool _startReceiver();
+            bool _launchNodes();
+            bool _launchNode( const uint nodeID, 
+                              const ConnectionDescription* description );
+            bool _connectNodes();
+            bool _connectNode( const uint nodeID, 
+                               const ConnectionDescription* description );
         };
     }
 }

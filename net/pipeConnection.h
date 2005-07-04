@@ -25,7 +25,7 @@ namespace eqNet
             virtual void close();
 
         protected:
-            virtual int run();
+            virtual ssize_t run();
 
         private:
             void _createPipes();
