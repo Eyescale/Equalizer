@@ -2,6 +2,7 @@
 include $(TOP)/make/system.mk
 
 SUBDIRS = \
+	base \
 	session \
 	socket
 

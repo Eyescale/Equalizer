@@ -12,58 +12,27 @@ using namespace std;
 Barrier::Barrier( const Thread::Type type )
         : _type( type )
 {
-    switch( _type )
+    switch( type )
     {
         case Thread::PTHREAD:
         {
             _barrier.pthread.count = 0;
             // mutex init
-            int nTries = 10;
-            while( nTries-- )
+            int error = pthread_mutex_init( &_barrier.pthread.mutex, NULL );
+            if( error != 0 )
             {
-                const int error = pthread_mutex_init( &_barrier.pthread.mutex,
-                    NULL );
-                switch( error )
-                {
-                    case 0: // ok
-                        return;
-                    case EAGAIN:
-                        break;
-                    default:
-                        ERROR << "Error creating pthread mutex: " 
-                              << strerror( error ) << endl;
-                        return;
-                }
-            } 
-            if( nTries == 0 )
-            {
-                ERROR << "Error creating pthread mutex"  << endl;
+                ERROR << "Error creating pthread mutex: " << strerror( error )
+                      << endl;
                 return;
             }
             // condition init
-            nTries = 10;
-            while( nTries-- )
+            error = pthread_cond_init( &_barrier.pthread.cond, NULL );
+            if( error != 0 )
             {
-                const int error = pthread_cond_init( &_barrier.pthread.cond,
-                    NULL );
-                switch( error )
-                {
-                    case 0: // ok
-                        return;
-                    case EAGAIN:
-                        break;
-                    default:
-                        ERROR << "Error creating pthread condition: " 
-                              << strerror( error ) << endl;
-                        return;
-                }
-            } 
-            if( nTries == 0 )
-            {
-                ERROR << "Error creating pthread condition"  << endl;
+                ERROR << "Error creating pthread condition: " 
+                      << strerror( error ) << endl;
                 return;
             }
-
         } return;
 
         default:
@@ -91,7 +60,8 @@ size_t Barrier::enter( const size_t size )
     {
         case Thread::PTHREAD:
             pthread_mutex_lock( &_barrier.pthread.mutex );
-            size_t pos = _barrier.pthread.count++;
+            const size_t pos = _barrier.pthread.count++;
+            //INFO << "barrier enter, pos " << pos << " of " << size << endl;
 
             if( _barrier.pthread.count >= size ) // barrier reached, release
             {
@@ -102,7 +72,8 @@ size_t Barrier::enter( const size_t size )
             else // wait
             {
                 pthread_cond_wait( &_barrier.pthread.cond,
-                    &_barrier.pthread.mutex );
+                                   &_barrier.pthread.mutex );
+                pthread_mutex_unlock( &_barrier.pthread.mutex );
             }
             return pos;
 

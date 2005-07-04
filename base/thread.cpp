@@ -30,8 +30,8 @@ void* Thread::runChild( void* arg )
 
 void Thread::_runChild()
 {
-    _threadID = _getLocalThreadID();
-    _threadState    = STATE_RUNNING;
+    _threadID    = _getLocalThreadID();
+    _threadState = STATE_RUNNING;
 
     // TODO: sync with parent
     const int result = run();
@@ -63,6 +63,7 @@ bool Thread::start()
             pthread_t      pthread;
             pthread_attr_t attributes;
             pthread_attr_init( &attributes );
+            pthread_attr_setscope( &attributes, PTHREAD_SCOPE_SYSTEM );
 
             int nTries = 10;
             while( nTries-- )
@@ -108,7 +109,7 @@ bool Thread::start()
     return true;
 }
 
-bool Thread::join( int* retVal )
+bool Thread::join( size_t* retVal )
 {
     if( _threadState == STATE_STOPPED )
         return false;
@@ -117,6 +118,12 @@ bool Thread::join( int* retVal )
     {
         case PTHREAD:
         {
+            // WAR: according to the man page, passing NULL as value_ptr should
+            // be ok, but apparently it crashes on Darwin.
+            size_t dummy;
+            if( !retVal )
+                retVal = &dummy;
+
             const int error = pthread_join( _threadID.pthread, (void**)retVal);
             if( error != 0 )
             {
@@ -135,7 +142,8 @@ bool Thread::join( int* retVal )
                 {
                     if( WIFEXITED( status ))
                     {
-                        *retVal = WEXITSTATUS( status );
+                        if( retVal )
+                            *retVal = WEXITSTATUS( status );
                         _threadState = STATE_STOPPED;
                         return true;
                     }

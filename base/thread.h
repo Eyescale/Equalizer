@@ -47,11 +47,15 @@ namespace eqBase
         /** 
          * Waits for the exit of the child thread.
          * 
-         * @param retVal the return value of the child.
+         * The actual size of the return value is thread-type dependent and may
+         * be as low as 8 bits.
+         *
+         * @param retVal output value for the return value of the child, can be
+         *               <code>NULL</code>.
          * @return <code>true</code> if the thread was joined,
          *         <code>false</code> otherwise.
          */
-        bool join( int* retVal );
+        bool join( size_t* retVal=NULL );
 
     private:
         /** The current state of this thread. */

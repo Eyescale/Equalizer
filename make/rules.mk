@@ -32,6 +32,10 @@ $(OBJECT_DIR)/%.o : %.cpp
 
 $(OBJECTS): $(DEPENDENCIES)
 
+# executables
+% : %.cpp
+	$(CXX) $< $(CXXFLAGS) -o $@ 
+
 # cleaning targets
 clean:
 	rm -f *~ .*~ $(OBJECTS) $(HEADERS) $(STATIC_LIB) $(DYNAMIC_LIB) $(CLEAN)
@@ -53,6 +57,5 @@ $(OBJECT_DIR)/%.d : %.cpp
 	@echo "Dependencies for $<"
 	@($(CXX_DEPS) $(CXXFLAGS) -M -E $< | \
 		sed 's/\(.*:\)/$(OBJECT_DIR_ESCAPED)\/\1/' > $@) || rm $@ dummy
-
 
 -include dummy $(DEPENDENCIES)

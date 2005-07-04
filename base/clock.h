@@ -12,7 +12,7 @@
 
 #include <sys/time.h>
 
-#ifdef sgi
+#ifdef CLOCK_SGI_CYCLE
 #  define WHICH_CLOCK CLOCK_SGI_CYCLE
 #else
 #  define WHICH_CLOCK CLOCK_REALTIME
@@ -29,7 +29,9 @@ public :
      */
     Clock()
         {
-#if (WHICH_CLOCK==CLOCK_SGI_CYCLE)
+#ifdef Darwin
+#else // Darwin
+#ifdef CLOCK_SGI_CYCLE
             // The cycle clock on SGI machines may cycle (surprise!), which
             // happens every couple of minutes on 32 bit machines. We will
             // dedect the overflow and correct the result assuming it happened
@@ -53,7 +55,8 @@ public :
                 _resolution.tv_sec = 0.;
                 _resolution.tv_nsec = 0.;
             }
-#endif
+#endif // CLOCK_SGI_CYCLE
+#endif // Darwin
             reset();
         }
 
@@ -67,7 +70,11 @@ public :
      */
     void reset( void )   
         { 
+#ifdef Darwin
+            gettimeofday( &_start , 0 );
+#else // Darwin
             clock_gettime( WHICH_CLOCK, &_start );
+#endif // Darwin
         }
 
     /** 
@@ -77,10 +84,16 @@ public :
      */
     double getTime( void )
         {
+#ifdef Darwin
+            struct timeval now;
+            gettimeofday( &now , 0 );
+            return (((double)now.tv_sec - (double)_start.tv_sec)  * 1000. +
+                    ((double)now.tv_usec - (double)_start.tv_usec) / 1000. );
+#else // Darwin
             struct timespec now;
             clock_gettime( WHICH_CLOCK, &now );
 
-#if (WHICH_CLOCK==CLOCK_SGI_CYCLE)
+#if CLOCK_SGI_CYCLE
             if( now.tv_sec < start.tv_sec ) // seconds did overflow
             {
                 now.tv_sec += _resolution.tv_sec; // add the time of one cycle
@@ -91,15 +104,20 @@ public :
                     now.tv_nsec -= 1000000000;
                     now.tv_sec  += 1;
                 }
-            }
-#endif            
+y            }
+#endif // CLOCK_SGI_CYCLE 
             return (((double)now.tv_sec - (double)start.tv_sec) * 1000. +
                 ((double)now.tv_nsec - (double)start.tv_nsec) / 1000000.);
+#endif // Darwin
         }
 
 private:
+#  ifdef Darwin
+    struct timeval _start;
+#  else // Darwin
     struct timespec _resolution;
     struct timespec _start;
+#endif // Darwin
 };
 
 #endif	// EQBASE_CLOCK_H
