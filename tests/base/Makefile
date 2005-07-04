@@ -1,7 +1,7 @@
 
 include $(TOP)/make/system.mk
 
-CXXFLAGS += -L$(BUILD_DIR)/lib -leqbase
+CXXFLAGS += -L$(BUILD_DIR)/lib -leqbase -lpthread
 
 CLEAN = $(SIMPLE_PROGRAMS)
 

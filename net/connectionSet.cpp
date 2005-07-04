@@ -104,9 +104,9 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                         return EVENT_NODE_DISCONNECT;
                 }
             }
-            break;
+            WARN << "Did not find reason for selection" << endl;
+            return EVENT_ERROR;
     }
-
 }
      
 void ConnectionSet::_setupFDSet()

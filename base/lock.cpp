@@ -90,6 +90,7 @@ bool Lock::trySet()
 
         default:
             ERROR << "not implemented" << endl;
+            return false;
     }
 }
 
@@ -108,6 +109,7 @@ bool Lock::test()
 
         default:
             ERROR << "not implemented" << endl;
+            return false;
     }
 }
 

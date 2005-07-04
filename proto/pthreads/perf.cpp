@@ -31,6 +31,7 @@ public:
             if( master )
                 cerr << nThreads << " threads, " << timer.getTime() << "ms"
                      << endl;
+            return EXIT_SUCCESS;
         }
 };
 

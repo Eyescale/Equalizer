@@ -94,7 +94,7 @@ public :
             clock_gettime( WHICH_CLOCK, &now );
 
 #if CLOCK_SGI_CYCLE
-            if( now.tv_sec < start.tv_sec ) // seconds did overflow
+            if( now.tv_sec < _start.tv_sec ) // seconds did overflow
             {
                 now.tv_sec += _resolution.tv_sec; // add the time of one cycle
                 now.tv_nsec += _resolution.tv_nsec;
@@ -104,10 +104,10 @@ public :
                     now.tv_nsec -= 1000000000;
                     now.tv_sec  += 1;
                 }
-y            }
+            }
 #endif // CLOCK_SGI_CYCLE 
-            return (((double)now.tv_sec - (double)start.tv_sec) * 1000. +
-                ((double)now.tv_nsec - (double)start.tv_nsec) / 1000000.);
+            return (((double)now.tv_sec - (double)_start.tv_sec) * 1000. +
+                ((double)now.tv_nsec - (double)_start.tv_nsec) / 1000000.);
 #endif // Darwin
         }
 

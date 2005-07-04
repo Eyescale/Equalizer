@@ -59,6 +59,7 @@ size_t Barrier::enter( const size_t size )
     switch( _type )
     {
         case Thread::PTHREAD:
+        {
             pthread_mutex_lock( &_barrier.pthread.mutex );
             const size_t pos = _barrier.pthread.count++;
             //INFO << "barrier enter, pos " << pos << " of " << size << endl;
@@ -76,9 +77,10 @@ size_t Barrier::enter( const size_t size )
                 pthread_mutex_unlock( &_barrier.pthread.mutex );
             }
             return pos;
+        }
 
         default:
             ERROR << "not implemented" << endl;
+            return 0;
     }
-    return 0;
 }

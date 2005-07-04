@@ -6,6 +6,7 @@
 #define EQBASE_LOG_H
 
 #include <iostream>
+#include <pthread.h>
 #include <unistd.h>
 
 /**
