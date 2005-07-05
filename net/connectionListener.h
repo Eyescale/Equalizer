@@ -5,10 +5,13 @@
 #ifndef EQNET_CONNECTION_LISTENER_H
 #define EQNET_CONNECTION_LISTENER_H
 
+#include <eq/base/base.h>
+
 namespace eqNet
 {
     namespace priv
     {
+        class Connection;
         class ConnectionNetwork;
         
         /**
@@ -22,7 +25,8 @@ namespace eqNet
                     : _network(network), _nodeID(nodeID) {}
 
             void notifyData(Connection* connection);
-            
+
+            uint getNodeID(){ return _nodeID; }
         private:
             ConnectionNetwork* _network;
             uint               _nodeID;

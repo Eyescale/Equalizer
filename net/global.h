@@ -40,10 +40,24 @@ namespace eqNet
      */
     void init( int argc, char** argv );
 
+    /** 
+     * Global parameter handling for the Equalizer network implementation. 
+     */
     class Global
     {
     public:
+        /** 
+         * Sets the name of the program.
+         * 
+         * @param programName the program name.
+         */
         static void        setProgramName( const char* programName );
+
+        /** 
+         * Gets the name of the program.
+         * 
+         * @return the program name.
+         */
         static const char* getProgramName();
 
     private:

@@ -147,7 +147,7 @@ bool SocketConnection::listen(ConnectionDescription &description)
     _createSocket();
 
     sockaddr_in socketAddress;
-    _parseAddress( description, socketAddress ); //XXX restrict IP unimplemented
+    _parseAddress( description, socketAddress ); //TODO restrict IP
 
     const bool bound = (::bind( _readFD, (sockaddr *)&socketAddress,
             sizeof(socketAddress) ) == 0);
@@ -158,6 +158,16 @@ bool SocketConnection::listen(ConnectionDescription &description)
         close();
         return false;
     }
+
+    //if(atoi(qname.port) == 0) 
+    //{ 
+    //    SOCKADDR_IN test_addr; 
+    //    int len = sizeof(test_addr); 
+    //    memset(&test_addr,0,len); 
+    //    getsockname(queue_fd,(SOCKADDRPTR) &test_addr,&len); 
+    //    ushort portnum = ntohs(test_addr.sin_port); 
+    //    sprintf(qname.port,"%d",portnum); 
+    //} 
 
     const bool listening = (::listen( _readFD, 10 ) == 0);
         

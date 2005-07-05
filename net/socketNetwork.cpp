@@ -5,6 +5,7 @@
 #include "socketNetwork.h"
 #include "connection.h"
 #include "connectionDescription.h"
+#include "connectionListener.h"
 #include "launcher.h"
 #include "sessionPriv.h"
 
@@ -38,18 +39,67 @@ bool SocketNetwork::start()
     INFO << "SocketNetwork starting " << _descriptions.size() << " nodes" 
          << endl;
 
+    if( !_startListener( ))
+        return false;
+
+    if( !_startNodes( ))
+    {
+        _stopListener();
+        return false;
+    }
+
     if( !_startReceiver())
     {
-        WARN << "Failed to start receiver" << endl;
+        _stopNodes();
+        _stopListener();
         return false;
     }
-    
-    if( !_launchNodes( ))
+}
+
+bool SocketNetwork::_startListener()
+{
+    const uint           localNodeID = _session->getLocalNodeID();
+    ConnectionDescription* localDesc = _getConnectionDescription( localNodeID );
+
+    if( !localDesc )
     {
-        stop();
+        WARN << "Local node is not part of this network" << endl;
         return false;
     }
-    
+
+    const char* address  = localDesc->parameters.TCPIP.address;
+    _listener = Connection::create( PROTO_TCPIP );
+
+    if( !_listener->listen( *localDesc ))
+    {
+        WARN << "Could not open listener on " << (address ? address : "'null'")
+             << endl;
+        delete _listener;
+        _listener = NULL;
+        return false;
+    }
+
+    ConnectionListener* connListener = new ConnectionListener(this,localNodeID);
+    _connectionSet.addConnection( listener, connListener );
+    _nodeStates[localNodeID] = NODE_RUNNING;
+
+    INFO << "Listening on: " << (address ? address : "'null'") << endl;
+    return true;
+}
+
+void SocketNetwork::_stopListener()
+{
+    if( !_listener )
+        return;
+
+    ConnectionListener* connListener =_connectionSet.getListener(_listener);
+    _connectionSet.removeConnection( _listener );
+    delete _listener;
+    delete connListener;
+    _listener = NULL;
+
+    const uint localNodeID   = _session->getLocalNodeID();
+    _nodeStates[localNodeID] = NODE_RUNNING;
 }
 
 //----------------------------------------------------------------------
@@ -72,37 +122,6 @@ private:
 
 bool SocketNetwork::_startReceiver()
 {
-    const uint           localNodeID = _session->getLocalNodeID();
-    ConnectionDescription* localDesc = _getConnectionDescription( localNodeID );
-    if( !localDesc )
-    {
-        WARN << "Local node not part of this network" << endl;
-        return false;
-    }
-
-    const char* address  = localDesc->parameters.TCPIP.address;
-    Connection* listener = Connection::create( PROTO_TCPIP );
-
-    INFO << "Found local node (" << localNodeID << ") in network, address "
-         << (address ? address : "'null'") << endl;
-
-    if( !listener->listen( *localDesc ))
-    {
-        WARN << "Could not open listener on " << (address ? address : "'null'")
-             << endl;
-        delete listener;
-        return false;
-    }
-
-    if( _listener )
-    {
-        //TODO: _connections.erase( _listener );
-        delete _listener;
-    }
-
-    _listener = listener;
-    _connections.addConnection( listener, this );
-
     _receiver = new ReceiverThread( this );
     _state    = STATE_STARTING;
 
@@ -111,7 +130,8 @@ bool SocketNetwork::_startReceiver()
         WARN << "Could not start receiver thread" << endl;
         return false;
     }
-
+    
+    const uint   localNodeID = _session->getLocalNodeID();
     _nodeStates[localNodeID] = NODE_RUNNING;
     return true;
 }
@@ -121,20 +141,16 @@ bool SocketNetwork::_startReceiver()
 //----------------------------------------------------------------------
 ssize_t SocketNetwork::runReceiver()
 {
+    INFO << "Receiver running" << endl;
     if( _state != STATE_STARTING )
         return EXIT_FAILURE;
 
-    if( !_connectNodes( ))
-        return EXIT_FAILURE;
-
     _state = STATE_RUNNING;
-    // TODO: unlock parent
+    // TODO: unlock parent ?
 
-    while( true )
+    while( _state == STATE_RUNNING )
     {
-        
-         short event;
-         Connection *connection = Connection::select( _connections, -1, event );
+         short event = _connectionSet.select( -1 );
 
          switch( event )
          {
@@ -166,47 +182,21 @@ ssize_t SocketNetwork::runReceiver()
 }
 
 
-bool SocketNetwork::_connectNodes()
-{
-    IDHash<ConnectionDescription*> launchedNodes;
-
-    for( IDHash<ConnectionDescription*>::iterator iter = _descriptions.begin();
-         iter != _descriptions.end(); iter++ )
-    {
-        const uint nodeID = (*iter).first;
-        
-        if( _nodeStates[nodeID] == NODE_LAUNCHED )
-        {
-            ConnectionDescription* description = (*iter).second;
-            launchedNodes[nodeID] = description;
-        }
-    }
-
-    while( launchedNodes.size() > 0 )
-    {
-        Connection* connection = _listener->accept( STARTUP_TIMEOUT );
-        if( connection == NULL )
-        {
-            WARN << "Could not connect all nodes" << endl;
-            return false;
-        }
-
-        uint nodeID;
-        const size_t received = connection->recv( &nodeID, sizeof( nodeID ));
-        ASSERT( received == sizeof( nodeID ));
-        ASSERT( nodeID );
-
-        setStarted( nodeID, connection );
-        launchedNodes.erase( nodeID );
-    }
-
-    return true;
-}
-
 //----------------------------------------------------------------------
 // node startup
 //----------------------------------------------------------------------
 
+bool SocketNetwork::_startNodes()
+{
+    if( !_launchNodes( ))
+        return false;
+    if( !_connectNodes( ))
+        return false;
+
+    INFO << "All nodes started" << endl;
+    return true;
+}
+    
 bool SocketNetwork::_launchNodes()
 {
     for( IDHash<ConnectionDescription*>::iterator iter = _descriptions.begin();
@@ -246,8 +236,51 @@ bool SocketNetwork::_launchNode( const uint nodeID,
         Launcher::run( launchCommand );
 
     _nodeStates[nodeID] = NODE_LAUNCHED;
+
+    INFO << "All nodes launched" << endl;
     return true;
 }
+
+bool SocketNetwork::_connectNodes()
+{
+    IDHash<ConnectionDescription*> launchedNodes;
+
+    for( IDHash<ConnectionDescription*>::iterator iter = _descriptions.begin();
+         iter != _descriptions.end(); iter++ )
+    {
+        const uint nodeID = (*iter).first;
+        
+        if( _nodeStates[nodeID] == NODE_LAUNCHED )
+        {
+            ConnectionDescription* description = (*iter).second;
+            launchedNodes[nodeID] = description;
+        }
+    }
+
+    while( launchedNodes.size() > 0 )
+    {
+        Connection* connection = _listener->accept( STARTUP_TIMEOUT );
+        if( connection == NULL )
+        {
+            WARN << "Could not connect all nodes" << endl;
+            return false;
+        }
+
+        uint nodeID;
+        const size_t received = connection->recv( &nodeID, sizeof( nodeID ));
+        ASSERT( received == sizeof( nodeID ));
+        ASSERT( nodeID );
+        ASSERT( launchedNodes.find( nodeID ) != launchedNodes.end() );
+
+        setStarted( nodeID, connection );
+        launchedNodes.erase( nodeID );
+    }
+
+    INFO << "All nodes connected" << endl;
+    return true;
+}
+
+
 
 bool SocketNetwork::startNode(const uint nodeID)
 {
@@ -265,12 +298,17 @@ bool SocketNetwork::connect( const uint nodeID )
         return false;
 
     Connection* connection = Connection::create( PROTO_TCPIP );
-    if( !connection->connect( description ))
+    if( !connection->connect( *description ))
         return false;
 
 }
 
 void SocketNetwork::stop()
 {
+    INFO << "SocketNetwork stopping" << endl;
+
+    _stopReceiver();
+    _stopNodes();
+    _stopListener();
 }
 

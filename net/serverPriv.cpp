@@ -8,6 +8,7 @@
 #include "connectionDescription.h"
 #include "global.h"
 #include "networkPriv.h"
+#include "packet.h"
 #include "pipeNetwork.h"
 #include "sessionPriv.h"
 
@@ -15,7 +16,6 @@
 
 #include <alloca.h>
 #include <unistd.h>
-#include <sys/param.h>
 
 using namespace eqNet::priv;
 using namespace std;
@@ -23,8 +23,11 @@ using namespace std;
 Server::Server()
         : Node(NODE_ID_SERVER),
           _sessionID(1),
-          _state(STATE_STOPPED)
-{}
+          _state(STATE_STOPPED),
+          _listener(NULL)
+{
+    _cmdHandler[CMD_SESSION_CREATE] = &Server::_handleSessionCreate;
+}
 
 Session* Server::getSession( const uint index )
 {
@@ -96,24 +99,18 @@ bool Server::start( const char* address )
     if( _state != STATE_STOPPED )
         return false;
 
-    Session* session = new Session( _sessionID++, this, true );
-    Network* network = session->newNetwork( eqNet::PROTO_TCPIP );
-
-    Connection*           connection = Connection::create(PROTO_TCPIP);
+    _listener = Connection::create(PROTO_TCPIP);
     ConnectionDescription connDesc;
     connDesc.parameters.TCPIP.address = "localhost:4242";
 
-    network->addNode( this->getID(), connDesc );
-
-    if( !network->init() || !network->start())
+    if( !_listener->listen( connDesc ))
     {
-        delete session;
+        delete _listener;
+        _listener = NULL;
         return false;
     }
 
-    _sessions[session->getID()]=session;
     _state = STATE_STARTED;
-    
     INFO << endl << this;
     return true;
 }
@@ -155,9 +152,9 @@ bool Server::_connect( const char* serverAddress )
 
 bool Server::_connectRemote( Session* session, const char* serverAddress )
 {
-    Network*                 network = session->newNetwork( eqNet::PROTO_TCPIP);
+    Network*              network = session->newNetwork( eqNet::PROTO_TCPIP);
     ConnectionDescription serverDesc;
-    ConnectionDescription clientDesc;
+    ConnectionDescription localDesc;
 
     if( serverAddress )
         serverDesc.parameters.TCPIP.address = serverAddress;
@@ -178,45 +175,54 @@ bool Server::_connectRemote( Session* session, const char* serverAddress )
         }
     }
 
-    char address[MAXHOSTNAMELEN+8];
+    const uint localNodeID = session->getLocalNodeID();
+    char       address[MAXHOSTNAMELEN+8];
     gethostname( address, MAXHOSTNAMELEN+1 );
     sprintf( address, "%s:%d", address, DEFAULT_PORT );
-    clientDesc.parameters.TCPIP.address = address;
-    INFO << "local node TCP/IP address is " << address << endl;
+    localDesc.parameters.TCPIP.address = address;
+
+    INFO << "Server node, id: " << getID() << ", TCP/IP address: " 
+         << serverDesc.parameters.TCPIP.address << endl;
+    INFO << "Local node,  id: " << localNodeID << ", TCP/IP address: " 
+         << localDesc.parameters.TCPIP.address << endl;
 
     network->addNode( getID(), serverDesc );
-    network->addNode( session->getLocalNodeID(), clientDesc );
+    network->addNode( localNodeID, localDesc );
     network->setStarted( getID( ));
 
     if( !network->init() || !network->start() || !network->connect( getID( )))
     {
+        WARN << "Remote server init failed" << endl;
         network->exit();
         session->deleteNetwork( network );
         return false;
     }
 
+    INFO << "Remote server initialised" << endl;
     return true;
 }
 
 bool Server::_connectLocal( Session* session )
 {
-    Network*                 network = session->newNetwork( eqNet::PROTO_PIPE );
+    Network*              network = session->newNetwork( eqNet::PROTO_PIPE );
     ConnectionDescription serverDesc;
-    ConnectionDescription clientDesc;
+    ConnectionDescription localDesc;
 
     serverDesc.parameters.PIPE.entryFunc = "Server::run";
-    clientDesc.parameters.PIPE.entryFunc = NULL;
+    localDesc.parameters.PIPE.entryFunc = NULL;
 
     network->addNode( this->getID(), serverDesc );
-    network->addNode( session->getLocalNodeID(), clientDesc );
+    network->addNode( session->getLocalNodeID(), localDesc );
 
     if( !network->init() || !network->start() || !network->connect( getID( )))
     {
+        WARN << "Local server init failed" << endl;
         network->exit();
         session->deleteNetwork( network );
         return false;
     }
 
+    INFO << "Local server initialised" << endl;
     return true;
 }
 
@@ -231,49 +237,83 @@ int Server::_run()
 
     while( true )
     {
-        
-//         short event;
-//         Connection *connection = Connection::select( _connections, -1, event );
-
-//         switch( event )
-//         {
-//             case 0:
-//                 WARN << "Got timeout during connection selection?" << endl;
-//                 break;
-
-//             case POLLERR:
-//                 WARN << "Got error during connection selection" << endl;
-//                 break;
-
-//             case POLLIN:
-//             case POLLPRI: // data is ready for reading
-//                 _handleRequest( connection );
-//                 break;
-
-//             case POLLHUP: // disconnect happened
-//                 WARN << "Unhandled: Connection disconnect" << endl;
-//                 break;
-
-//             case POLLNVAL: // disconnected connection
-//                 WARN << "Unhandled: Disconnected connection" << endl;
-//                 break;
-//         }
-//         break;
+        Connection *connection = _listener->accept();
+        if( connection == NULL )
+        {
+            WARN << "Error during accept()" << endl;
+            continue;
+        }
+        _handleRequest( connection );
     }
 
     return EXIT_SUCCESS;
 }
 
-void Server::_handleRequest( Connection *connection )
+bool Server::_handleRequest( Connection *connection )
 {
-//     switch( connection->getState() )
-//     {
-//         case Connection::STATE_CONNECTED:
-//             break;
-            
-//         case Connection::STATE_LISTENING:
-//             Connection *newConn = connection->accept();
-//             _connections.push_back( newConn );
-//             break;
-//     }
+    ASSERT( connection->getState() == Connection::STATE_CONNECTED );
+
+    uint   size;
+    size_t received = connection->recv( &size, sizeof( size ));
+    ASSERT( received == sizeof( size ));
+    ASSERT( size );
+
+    Packet* packet = (Packet*)malloc( size );
+    packet->size   = size;
+
+    received      = connection->recv( &(packet->command), size );
+    ASSERT( received == size );
+    ASSERT( packet->command < CMD_ALL );
+
+    bool success = (*_cmdHandler[packet->command])( connection, packet );
+    free( packet );
+    return success;
+}
+
+bool Server::_handleSessionCreate( Connection* connection, Packet* pkg )
+{
+    ReqSessionCreatePacket* packet = (ReqSessionCreatePacket*)pkg;
+    Session*               session = new Session( _sessionID++, this );
+    Network*               network = session->newNetwork( eqNet::PROTO_TCPIP);
+    Node*               remoteNode = session->newNode();
+    const uint        remoteNodeID = remoteNode->getID();
+
+    ConnectionDescription serverDesc;
+    ConnectionDescription remoteDesc;
+
+    serverDesc.parameters.TCPIP.address = ":0"; // bind random port
+    remoteDesc.parameters.TCPIP.address = packet->localAddress;
+
+    INFO << "Server node, id: " << getID() << ", TCP/IP address: " 
+         << serverDesc.parameters.TCPIP.address << endl;
+    INFO << "Remote node,  id: " << remoteNodeID << ", TCP/IP address: " 
+         << remoteDesc.parameters.TCPIP.address << endl;
+
+    network->addNode( getID(), serverDesc );
+    network->addNode( remoteNodeID, remoteDesc );
+    network->setStarted( remoteNodeID, connection );
+
+    if( !network->init() || !network->start() )
+    {
+        WARN << "session create failed" << endl;
+        network->exit();
+        session->deleteNetwork( network );
+        return false;
+    }
+
+    _sessions[session->getID()] = session;
+    INFO << "session created" << endl;
+
+    SessionCreatePacket response;
+    response.sessionID = session->getID();
+    response.networkID = network->getID();
+    response.serverID  = getID();
+    response.localID   = remoteNodeID;
+
+    gethostname( response.serverAddress, MAXHOSTNAMELEN+1 );
+    sprintf( response.serverAddress, "%s:%d", response.serverAddress, port );
+
+    connection->send( &response, response.size() );
+    return true;
+    
 }

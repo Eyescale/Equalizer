@@ -40,7 +40,7 @@ bool PipeNetwork::start()
             return false;
         }
 
-        _connections[nodeID] = connection;
+        setStarted( nodeID, connection );
     }
  
     return true;

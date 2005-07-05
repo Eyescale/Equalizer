@@ -28,7 +28,14 @@ namespace eqBase
             FORK
         };
 
+        /** 
+         * Constructs a new thread.
+         * 
+         * @param type the execution model to use for the thread.
+         */
         Thread( const Type type );
+
+        /** Destructs the thread. */
         virtual ~Thread();
 
         /** 

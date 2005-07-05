@@ -21,7 +21,15 @@ namespace eqBase
     {
 
     public:
+        /** 
+         * Constructs a new lock of the given type.
+         * 
+         * @param type the type of threads accessing the lock.
+         */
         Lock( const Thread::Type type );
+
+
+        /** Destructs the lock. */
         ~Lock();
 
         /** 

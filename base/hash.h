@@ -15,14 +15,24 @@ namespace Sgi = std;
 
 namespace eqBase
 {
+    /** 
+     * Provides a hashing function for pointers.
+     */
     template< class T > struct hashFuncPtr
     {
+
+        /** 
+         * A hashing function for pointers.
+         * 
+         * @return the hash value of the pointer.
+         */
         size_t operator()(const T & N) const
             {  
                 return ((size_t)N);
             }
     };
 
+    /** A hash for pointer keys. */
     template<class K, class T> class PtrHash 
         : public Sgi::hash_map<K, T, hashFuncPtr<K> >
     {};

@@ -36,10 +36,8 @@ namespace eqNet
             void setStarted( const uint nodeID, Connection* connection );
 
         protected:
-            /** The list of active connections, indexed per node. */
-            IDHash<Connection*> _connections;
-
-
+            /** The set of active connections. */
+            ConnectionSet _connectionSet;
         };
     }
 }

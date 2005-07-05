@@ -98,6 +98,9 @@ namespace eqNet
             /** The next unique node identifier. */
             uint _nodeID;
 
+            /** The server node. */
+            Server* _server;
+
             /** The local node. */
             Node* _localNode;
 

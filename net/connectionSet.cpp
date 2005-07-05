@@ -48,6 +48,17 @@ void ConnectionSet::clear()
     _fdSetDirty = true;
 }
         
+ConnectionListener* ConnectionSet::getListener( Connection* connection )
+{
+    eqBase::PtrHash<Connection*, ConnectionListener*>::iterator iter = 
+        _connections.find( connection );
+
+    if( iter == _connections.end() )
+        return NULL;
+
+    return (*iter).second;
+}
+
 ConnectionSet::Event ConnectionSet::select( const int timeout )
 {
     _setupFDSet();

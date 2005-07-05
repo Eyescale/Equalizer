@@ -3,12 +3,14 @@
    All rights reserved. */
 
 #include "connectionListener.h"
+#include "connection.h"
+#include "connectionNetwork.h"
 
 using namespace eqNet::priv;
 
 void ConnectionListener::notifyData(Connection* connection)
 {
-    if( connection->getState() == STATE_LISTENING )
+    if( connection->getState() == Connection::STATE_LISTENING )
     {
         Connection* newConnection = connection->accept();
         uint nodeID;
@@ -19,6 +21,6 @@ void ConnectionListener::notifyData(Connection* connection)
         _network->setStarted( nodeID, newConnection );
     }
     else
-        // TODO: read message
+        ; // TODO: read message
 }
 

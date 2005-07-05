@@ -20,7 +20,14 @@ namespace eqBase
     class Barrier 
     {
     public:
+        /** 
+         * Constructs a new barrier of the given type.
+         * 
+         * @param type the type of threads accessing the barrier.
+         */
         Barrier( const Thread::Type type );
+
+        /** Destructs the barrier. */
         ~Barrier();
 
         /** 

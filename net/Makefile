@@ -14,6 +14,7 @@ HEADER_SRC = \
 
 SOURCES = \
 	connection.cpp \
+	connectionListener.cpp \
 	connectionNetwork.cpp \
 	connectionSet.cpp \
 	fdConnection.cpp \

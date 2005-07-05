@@ -1,6 +1,7 @@
 
 #include "connectionNetwork.h"
 #include "connection.h"
+#include "connectionListener.h"
 
 using namespace eqNet::priv;
 
@@ -19,15 +20,16 @@ bool ConnectionNetwork::init()
 
 void ConnectionNetwork::exit()
 {
-    for( IDHash<Connection*>::iterator iter = _connections.begin();
-         iter != _connections.end(); iter++ )
+    for( eqBase::PtrHash<Connection*, ConnectionListener*>::iterator iter = 
+             _connectionSet.begin(); iter != _connectionSet.end(); iter++ )
     {
-        const uint  nodeID     = (*iter).first;
-        Connection* connection = (*iter).second;
+        Connection*         connection         = (*iter).first;
+        ConnectionListener* connectionListener = (*iter).second;
         connection->close();
         delete connection;
+        delete connectionListener;
     }
-    _connections.clear();
+    _connectionSet.clear();
 
     for( IDHash<ConnectionDescription*>::iterator iter = _descriptions.begin();
          iter != _descriptions.end(); iter++ )
@@ -42,6 +44,7 @@ void ConnectionNetwork::setStarted( const uint nodeID, Connection* connection )
     ASSERT( _descriptions.count(nodeID)!=0 );
     ASSERT( connection->getState() == Connection::STATE_CONNECTED );
 
-    _connections[nodeID] = connection;
+    ConnectionListener* listener = new ConnectionListener( this, nodeID );
+    _connectionSet.addConnection( connection, listener );
     _nodeStates[nodeID]  = NODE_RUNNING;
 }

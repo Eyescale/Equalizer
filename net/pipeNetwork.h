@@ -6,6 +6,7 @@
 #define EQNET_PIPE_NETWORK_H
 
 #include "connectionNetwork.h"
+#include "connectionListener.h"
 
 #include <iostream> 
 
@@ -26,7 +27,7 @@ namespace eqNet
             virtual void stop();
             virtual bool startNode(const uint nodeID);
             virtual bool connect( const uint nodeID )
-                { return ( _connections.find(nodeID) != _connections.end( )); }
+                { return ( _nodeStates.find(nodeID) != _nodeStates.end( )); }
 
         private:
 
@@ -38,7 +39,7 @@ namespace eqNet
         {
             os << "    PipeNetwork " << network->getID() << "(" 
                << (void*)network << "): " << network->_descriptions.size() 
-               << " node[s] connected, " << network->_connections.size() 
+               << " node[s] connected, " << network->_connectionSet.size() 
                << " connection[s] active" << std::endl;
             
             for( IDHash<ConnectionDescription*>::iterator iter =
@@ -50,13 +51,15 @@ namespace eqNet
                 os << "Node " << nodeID << ": " << description;
             }
 
-            for( IDHash<Connection*>::iterator iter =
-                     network->_connections.begin();
-                 iter != network->_connections.end(); iter++ )
+            for( eqBase::PtrHash<Connection*, ConnectionListener*>::iterator
+                     iter = network->_connectionSet.begin(); 
+                 iter != network->_connectionSet.end(); iter++ )
             {
-                const uint  nodeID     = (*iter).first;
-                Connection* connection = (*iter).second;
-                os << "Node " << nodeID << ": " << connection;
+                Connection*         connection         = (*iter).first;
+                ConnectionListener* connectionListener = (*iter).second;
+
+                os << "Node " << connectionListener->getNodeID() << ": " 
+                   << connection;
             }
 
             return os;

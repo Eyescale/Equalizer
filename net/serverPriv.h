@@ -5,6 +5,7 @@
 #ifndef EQNET_SERVER_PRIV_H
 #define EQNET_SERVER_PRIV_H
 
+#include "commands.h"
 #include "idHash.h"
 #include "nodePriv.h"
 
@@ -15,6 +16,7 @@ namespace eqNet
     namespace priv
     {
         class Connection;
+        class Packet;
         class PipeConnection;
         class Session;
 
@@ -95,10 +97,16 @@ namespace eqNet
 
             int  _run();
 
-            void _handleRequest( Connection *connection );
+            bool _handleRequest( Connection *connection );
 
         private:
-            State _state;
+            State       _state;
+            Connection* _listener;
+
+            bool (*Server::_cmdHandler[CMD_ALL])(Connection* connection,Packet* packet);
+
+            bool _handleSessionCreate( Connection* connection, Packet* packet );
+            bool _handleSessionNew( Connection* connection, Packet* packet );
 
             friend inline std::ostream& operator << 
                 (std::ostream& os, Server* server);

@@ -33,18 +33,16 @@ namespace eqNet
             ssize_t runReceiver();
 
         private:
-            std::vector<Connection*> _connections;
-
             Connection*     _listener;
             eqBase::Thread* _receiver;
 
+            bool _startListener();
             bool _startReceiver();
-            bool _launchNodes();
-            bool _launchNode( const uint nodeID, 
-                              const ConnectionDescription* description );
-            bool _connectNodes();
-            bool _connectNode( const uint nodeID, 
-                               const ConnectionDescription* description );
+            bool _startNodes();
+            bool   _launchNodes();
+            bool     _launchNode( const uint nodeID, 
+                                  const ConnectionDescription* description );
+            bool   _connectNodes();
 
 
             ConnectionDescription* _getConnectionDescription( const uint nodeID)

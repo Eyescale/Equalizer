@@ -30,7 +30,7 @@ $(STATIC_LIB): $(OBJECT_DIR) $(OBJECTS)
 $(OBJECT_DIR)/%.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(OBJECTS): $(DEPENDENCIES)
+%.cpp: $(OBJECT_DIR)/%d
 
 # executables
 % : %.cpp

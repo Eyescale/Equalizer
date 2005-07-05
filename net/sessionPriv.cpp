@@ -21,14 +21,14 @@ Session::Session(const uint id, Server* server, const bool onServer )
         : eqNet::Session(id),
           _networkID(1),
           _nodeID(NODE_ID_SERVER+1),
-          _localNode(NULL)
+          _server(server)
 {
-    _nodes[server->getID()] = server;
-
     if( onServer )
         _localNode = server;
     else
         _localNode = newNode();
+
+    _nodes[server->getID()] = server;
 }
 
 Session* Session::create( const char* serverAddress )

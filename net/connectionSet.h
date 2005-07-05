@@ -44,6 +44,14 @@ namespace eqNet
                                 ConnectionListener* listener );
             void removeConnection( Connection* connection );
             void clear();
+
+            eqBase::PtrHash<Connection*, ConnectionListener*>::iterator begin()
+                { return _connections.begin(); }
+            eqBase::PtrHash<Connection*, ConnectionListener*>::iterator end()
+                { return _connections.end(); }
+
+            size_t              size() { return _connections.size(); }
+            ConnectionListener* getListener( Connection* connection );
         
             Event select( const int timeout );
         
