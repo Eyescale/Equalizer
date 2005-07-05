@@ -20,8 +20,7 @@ namespace eqNet
     {
         ConnectionDescription() 
                 : bandwidthKBS(0),
-                  launchCommand(NULL), 
-                  running(false)
+                  launchCommand(NULL)
             {
                 bzero( &parameters, sizeof(parameters));
             }

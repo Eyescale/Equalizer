@@ -90,6 +90,8 @@ namespace eqNet
             bool start( const char* address );
 
             bool _connect( const char* address );
+            bool _connectRemote( Session* session, const char* serverAddress );
+            bool _connectLocal( Session* session );
 
             int  _run();
 

@@ -6,6 +6,7 @@
 #define EQNET_CONNECTION_NETWORK_H
 
 #include "networkPriv.h"
+#include "connectionSet.h"
 
 #include <iostream> 
 
@@ -37,6 +38,8 @@ namespace eqNet
         protected:
             /** The list of active connections, indexed per node. */
             IDHash<Connection*> _connections;
+
+
         };
     }
 }

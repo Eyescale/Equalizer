@@ -14,6 +14,7 @@ namespace eqNet
     namespace priv
     {
         class Connection;
+        class ConnectionListener;
         class Message;
         class Network;
         class Node;
@@ -39,7 +40,8 @@ namespace eqNet
             ConnectionSet();
             ~ConnectionSet();
 
-            void addConnection( Connection* connection, Network* network );
+            void addConnection( Connection* connection, 
+                                ConnectionListener* listener );
             void removeConnection( Connection* connection );
             void clear();
         
@@ -62,7 +64,7 @@ namespace eqNet
             Message* _message;
             int      _errno;
 
-            eqBase::PtrHash<Connection*, Network*> _connections;
+            eqBase::PtrHash<Connection*, ConnectionListener*> _connections;
 
             void _setupFDSet();
             void _buildFDSet();

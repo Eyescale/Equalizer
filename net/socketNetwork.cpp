@@ -1,4 +1,7 @@
 
+/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+   All rights reserved. */
+
 #include "socketNetwork.h"
 #include "connection.h"
 #include "connectionDescription.h"
@@ -69,26 +72,20 @@ private:
 
 bool SocketNetwork::_startReceiver()
 {
-    const uint localNodeID = _session->getLocalNodeID();
-
-    IDHash<ConnectionDescription*>::iterator iter = 
-        _descriptions.find( localNodeID );
-
-    if( iter == _descriptions.end() )
+    const uint           localNodeID = _session->getLocalNodeID();
+    ConnectionDescription* localDesc = _getConnectionDescription( localNodeID );
+    if( !localDesc )
     {
-        WARN << "Could not find local node " << localNodeID
-             << " in this network" << endl;
+        WARN << "Local node not part of this network" << endl;
         return false;
     }
 
-    ConnectionDescription* localDesc = (*iter).second;
-    const char*            address   = localDesc->parameters.TCPIP.address;
+    const char* address  = localDesc->parameters.TCPIP.address;
+    Connection* listener = Connection::create( PROTO_TCPIP );
 
     INFO << "Found local node (" << localNodeID << ") in network, address "
          << (address ? address : "'null'") << endl;
 
-    Connection* listener = Connection::create( eqNet::PROTO_TCPIP );
-    
     if( !listener->listen( *localDesc ))
     {
         WARN << "Could not open listener on " << (address ? address : "'null'")
@@ -104,7 +101,7 @@ bool SocketNetwork::_startReceiver()
     }
 
     _listener = listener;
-    _connections.push_back( listener );
+    _connections.addConnection( listener, this );
 
     _receiver = new ReceiverThread( this );
     _state    = STATE_STARTING;
@@ -194,8 +191,13 @@ bool SocketNetwork::_connectNodes()
             return false;
         }
 
-        
-        // TODO: find node in launchedNodes, remove and start it.
+        uint nodeID;
+        const size_t received = connection->recv( &nodeID, sizeof( nodeID ));
+        ASSERT( received == sizeof( nodeID ));
+        ASSERT( nodeID );
+
+        setStarted( nodeID, connection );
+        launchedNodes.erase( nodeID );
     }
 
     return true;
@@ -252,6 +254,22 @@ bool SocketNetwork::startNode(const uint nodeID)
     // TODO
     return false;
 }
+
+bool SocketNetwork::connect( const uint nodeID )
+{
+    if( _nodeStates[nodeID] != NODE_RUNNING )
+        return false;
+
+    ConnectionDescription* description = _getConnectionDescription( nodeID );
+    if( !description )
+        return false;
+
+    Connection* connection = Connection::create( PROTO_TCPIP );
+    if( !connection->connect( description ))
+        return false;
+
+}
+
 void SocketNetwork::stop()
 {
 }

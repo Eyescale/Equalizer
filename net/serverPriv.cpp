@@ -139,9 +139,23 @@ bool Server::_connect( const char* serverAddress )
         return false;
 
     Session* session = new Session( _sessionID++, this );
-    Network* network = session->newNetwork( eqNet::PROTO_TCPIP );
 
-    Connection*           connection = Connection::create(PROTO_TCPIP);
+    if( !_connectRemote( session, serverAddress ) && !_connectLocal( session ))
+    {
+        delete session;
+        return false;
+    }
+
+    _sessions[session->getID()]=session;
+    _state = STATE_STARTED;
+    
+    INFO << endl << this;
+    return true;
+}
+
+bool Server::_connectRemote( Session* session, const char* serverAddress )
+{
+    Network*                 network = session->newNetwork( eqNet::PROTO_TCPIP);
     ConnectionDescription serverDesc;
     ConnectionDescription clientDesc;
 
@@ -174,33 +188,38 @@ bool Server::_connect( const char* serverAddress )
     network->addNode( session->getLocalNodeID(), clientDesc );
     network->setStarted( getID( ));
 
-    if( !network->init() || !network->start() )
-    {  // remote server init failed, use locally forked server
+    if( !network->init() || !network->start() || !network->connect( getID( )))
+    {
         network->exit();
         session->deleteNetwork( network );
-        network = session->newNetwork( PROTO_PIPE );
-
-        serverDesc.parameters.PIPE.entryFunc = "Server::run";
-        clientDesc.parameters.PIPE.entryFunc = NULL;
-
-        network->addNode( this->getID(), serverDesc );
-        network->addNode( session->getLocalNodeID(), clientDesc );
-
-        if( !network->init() || !network->start() ) 
-        {
-            network->exit();
-            session->deleteNetwork( network );
-            delete session;
-            return false;
-        }
+        return false;
     }
 
-    _sessions[session->getID()]=session;
-    _state = STATE_STARTED;
-    
-    INFO << endl << this;
     return true;
 }
+
+bool Server::_connectLocal( Session* session )
+{
+    Network*                 network = session->newNetwork( eqNet::PROTO_PIPE );
+    ConnectionDescription serverDesc;
+    ConnectionDescription clientDesc;
+
+    serverDesc.parameters.PIPE.entryFunc = "Server::run";
+    clientDesc.parameters.PIPE.entryFunc = NULL;
+
+    network->addNode( this->getID(), serverDesc );
+    network->addNode( session->getLocalNodeID(), clientDesc );
+
+    if( !network->init() || !network->start() || !network->connect( getID( )))
+    {
+        network->exit();
+        session->deleteNetwork( network );
+        return false;
+    }
+
+    return true;
+}
+
 
 //----------------------------------------------------------------------
 // main loop

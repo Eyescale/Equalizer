@@ -4,6 +4,7 @@
 
 #include "connectionSet.h"
 #include "connection.h"
+#include "connectionListener.h"
 
 #include <eq/base/base.h>
 #include <errno.h>
@@ -28,9 +29,9 @@ ConnectionSet::~ConnectionSet()
 {}
 
 void ConnectionSet::addConnection( Connection* connection, 
-    Network* network )
+    ConnectionListener* listener )
 {
-    _connections[connection] = network;
+    _connections[connection] = listener;
     _fdSetDirty = true;
 }
 
@@ -69,9 +70,9 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                 if( _fdSet[i].revents == 0 )
                     continue;
 
-                Connection* connection = _fdSetConnections[_fdSet[i].fd];
-                _network               = _connections[connection];
-                const int   event      = _fdSet[i].revents;
+                Connection*       connection = _fdSetConnections[_fdSet[i].fd];
+                ConnectionListener* listener = _connections[connection];
+                const int              event = _fdSet[i].revents;
 
                 INFO << "selected connection #" << i << " of " << _fdSetSize
                      << ", event " << event << endl;
@@ -84,6 +85,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 
                     case POLLIN:
                     case POLLPRI: // data is ready for reading
+                        listener->notifyData( connection );
 //                         if( _message )
 //                             delete _message;
 //                         if( !_network->readMessage( connection, _message, 
@@ -141,8 +143,8 @@ void ConnectionSet::_buildFDSet()
     static const int events = POLLIN; // | POLLPRI;
     _fdSetConnections.clear();
 
-    for( PtrHash<Connection*, Network*>::iterator iter = _connections.begin();
-         iter != _connections.end(); iter++ )
+    for( PtrHash<Connection*, ConnectionListener*>::iterator iter =
+             _connections.begin(); iter != _connections.end(); iter++ )
     {
         Connection* connection = (*iter).first;
         const int   fd         = connection->getReadFD();

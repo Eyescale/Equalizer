@@ -25,6 +25,8 @@ namespace eqNet
             virtual bool start();
             virtual void stop();
             virtual bool startNode(const uint nodeID);
+            virtual bool connect( const uint nodeID )
+                { return ( _connections.find(nodeID) != _connections.end( )); }
 
         private:
 

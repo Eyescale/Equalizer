@@ -27,7 +27,8 @@ namespace eqNet
 
             virtual bool start();
             virtual void stop();
-            virtual bool startNode(const uint nodeID);
+            virtual bool startNode( const uint nodeID );
+            virtual bool connect( const uint nodeID );
 
             ssize_t runReceiver();
 
@@ -44,6 +45,18 @@ namespace eqNet
             bool _connectNodes();
             bool _connectNode( const uint nodeID, 
                                const ConnectionDescription* description );
+
+
+            ConnectionDescription* _getConnectionDescription( const uint nodeID)
+                {
+                    IDHash<ConnectionDescription*>::iterator iter =
+                        _descriptions.find( nodeID);
+
+                    if( iter == _descriptions.end() )
+                        return NULL;
+                    return (*iter).second;
+                }
+
         };
     }
 }

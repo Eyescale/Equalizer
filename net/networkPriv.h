@@ -86,7 +86,7 @@ namespace eqNet
              *         started, <code>false</code> if not.
              * @sa start(), init()
              */
-            virtual bool startNode(const uint nodeID) = 0;
+            virtual bool startNode( const uint nodeID ) = 0;
             //@}
 
             /** 
@@ -96,7 +96,17 @@ namespace eqNet
              * 
              * @param nodeID the node identifier.
              */
-            void setStarted( const uint nodeID );
+            virtual void setStarted( const uint nodeID );
+
+            /** 
+             * Forces a communication channel to be opened to the specified
+             * node.
+             * 
+             * @param nodeID the node identifier.
+             * @return <code>true</code> if a communication channel to this node
+             *         is opened, <code>false</code> if not.
+             */
+            virtual bool connect( const uint nodeID ){ return false; }
 
             //bool readMessage( 
             virtual ~Network();
