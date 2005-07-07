@@ -84,7 +84,7 @@ namespace eqNet
             ~Server(){}
             
             /** The next unique session identifier. */
-            uint _sessionID;
+            uint64 _sessionID;
             /** The sessions on this server. */
             IDHash<Session*> _sessions;
 

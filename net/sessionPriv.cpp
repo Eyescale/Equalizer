@@ -23,11 +23,6 @@ Session::Session(const uint id, Server* server, const bool onServer )
           _nodeID(NODE_ID_SERVER+1),
           _server(server)
 {
-    if( onServer )
-        _localNode = server;
-    else
-        _localNode = newNode();
-
     _nodes[server->getID()] = server;
 }
 
@@ -68,3 +63,52 @@ Node* Session::newNode()
     return node;
 }
 
+void Session::setLocalNode( const uint nodeID )
+{
+    IDHash<Node*>::iterator iter = _nodes.find( nodeID );
+    ASSERT( iter != _nodes.end( ));
+    _localNode = (*iter).second;
+}
+
+
+bool initNode( const uint nodeID )
+{
+    IDHash<Node*>::iterator iter = _nodes.find( nodeID );
+    ASSERT( iter != _nodes.end( ));
+
+    Node* node = (*iter).second; 
+
+    SessionNewPacket sessionNewPacket;
+    sessionNewPacket.id;
+    sessionNewPacket.state;
+
+    for( IDHash<Node*>::iterator iter = _nodes.begin(); iter != _nodes.end();
+         iter++ )
+    {
+        NodeNewPacket nodeNewPacket;
+        nodeNewPacket.id;
+        nodeNewPacket.sessionID;
+        nodeNewPacket.state;
+    };
+
+    for( IDHash<Network*>::iterator iter = _networks.begin();
+         iter != _networks.end(); iter++ )
+    {
+        NetworkNewPacket networkNewPacket;
+        networkNewPacket.id;
+        networkNewPacket.sessionID;
+        networkNewPacket.state;
+        networkNewPacket.protocol;
+
+        struct NetworkAddNodePacket : public Packet
+        {
+            NetworkAddNodePacket() : command( CMD_NETWORK_ADD_NODE )
+                { size = sizeof( NetworkAddNodePacket ); }
+
+            uint id;
+            uint nodeID;
+            ConnectionDescription connectionDescription;
+        };
+    }
+    connection->send( &response, response.size );
+}

@@ -31,14 +31,11 @@ namespace eqNet
             virtual bool startNode( const uint nodeID );
             virtual bool connect( const uint nodeID );
 
-            const char* getListenerAddress(){ return _listenerAddress; }
-
             ssize_t runReceiver();
             
         private:
             Connection*     _listener;
             eqBase::Thread* _receiver;
-            char            _listenerAddress[MAXHOSTNAMELEN+8];
 
             bool _startListener();
             bool _startReceiver();

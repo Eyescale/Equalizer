@@ -83,7 +83,16 @@ namespace eqNet
             bool deleteNetwork( Network* network );
             //*}
 
-            Session( const uint id, Server* server, const bool onServer=false );
+            /** 
+             * Creates a new session.
+             * 
+             * @param id the session id.
+             * @param server the server for this session.
+             */
+            Session( const uint id, Server* server );
+
+            bool initNode( const uint nodeID );
+            void setLocalNode( const uint nodeID );
 
         private:
             /** The list of nodes in this session. */
@@ -103,6 +112,10 @@ namespace eqNet
 
             /** The local node. */
             Node* _localNode;
+
+            virtual void pack( const Connection* connection, 
+                               const bool fullUpdate );
+            void         send( Packet packet );
 
             friend inline std::ostream& operator << 
                 (std::ostream& os, Session* session);

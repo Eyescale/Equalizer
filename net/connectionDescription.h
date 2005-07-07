@@ -43,11 +43,11 @@ namespace eqNet
             /** TCP/IP parameters */
             struct
             {
-                /** 
-                 * The address of the node in the form
-                 * '<code>(&lt;IP&gt;|&lt;name&gt;)(:&lt;port&gt;)</code>'.
-                 */
-                const char *address;
+                /** The host name. */
+                char hostname[MAXHOSTNAMELEN];
+
+                /** The port. */
+                ushort port;
 
                 /** 
                  * The amount of time in milliseconds to wait before a node is

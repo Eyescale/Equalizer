@@ -24,7 +24,7 @@ using namespace std;
 
 Server::Server()
         : Node(NODE_ID_SERVER),
-          _sessionID(1),
+          _sessionID(NODE_ID_SERVER<<32),
           _state(STATE_STOPPED),
           _listener(NULL)
 {
@@ -275,17 +275,49 @@ bool Server::_handleRequest( Connection *connection )
 bool Server::_handleSessionCreate( Connection* connection, Packet* pkg )
 {
     ReqSessionCreatePacket* packet = (ReqSessionCreatePacket*)pkg;
-    Session*               session = new Session( _sessionID++, this );
-    SocketNetwork*         network = static_cast<SocketNetwork*>
-        (session->newNetwork( eqNet::PROTO_TCPIP ));
-    Node*               remoteNode = session->newNode();
-    const uint        remoteNodeID = remoteNode->getID();
 
+    Session* session = _createSession( packet->localAddress, connection );
+    if( !session )
+        return false;
+
+    _sessions[session->getID()] = session;
+    INFO << "session created" << endl;
+
+    // TODO: session->initRemote()
+    SessionCreatePacket response;
+    response.sessionID = session->getID();
+    response.networkID = network->getID();
+    response.serverID  = getID();
+    response.localID   = remoteNodeID;
+
+    // getLocalNode, getNetwork(0), getConnectionDescription(ln, nw)
+    strncpy( response.serverAddress, session->getListenerAddress(), 
+             MAXHOSTNAMELEN+8 );
+
+    // TODO: create session thread
+
+    connection->send( &response, response.size );
+
+    return true;
+}
+
+Session* Server::_createSession( const char* remoteAddress, 
+                                 Connection* connection )
+{
+    Session*       session      = new Session( _sessionID++, this, true );
+    SocketNetwork* network      = static_cast<SocketNetwork*>
+        (session->newNetwork( eqNet::PROTO_TCPIP ));
+    Node*          remoteNode   = session->newNode();
+    const uint     remoteNodeID = remoteNode->getID();
+
+    session->setLocalNode( this );
+
+    // create and init one TCP/IP network
     ConnectionDescription serverDesc;
     ConnectionDescription remoteDesc;
 
     serverDesc.parameters.TCPIP.address = ":0"; // bind random port
-    remoteDesc.parameters.TCPIP.address = packet->localAddress;
+    remoteDesc.parameters.TCPIP.address = remoteAddress;
 
     INFO << "Server node, id: " << getID() << ", TCP/IP address: " 
          << serverDesc.parameters.TCPIP.address << endl;
@@ -301,21 +333,36 @@ bool Server::_handleSessionCreate( Connection* connection, Packet* pkg )
         WARN << "session create failed" << endl;
         network->exit();
         session->deleteNetwork( network );
-        return false;
+        delete session;
+        return NULL;
     }
 
-    _sessions[session->getID()] = session;
-    INFO << "session created" << endl;
+    session->initNode( remoteNodeID );
+    return session;
+}
 
-    SessionCreatePacket response;
-    response.sessionID = session->getID();
-    response.networkID = network->getID();
-    response.serverID  = getID();
-    response.localID   = remoteNodeID;
-    strncpy( response.serverAddress, network->getListenerAddress(), 
-             MAXHOSTNAMELEN+8 );
+//----------------------------------------------------------------------
+// session thread initialisation
+//----------------------------------------------------------------------
 
-    connection->send( &response, response.size );
-    return true;
-    
+class SessionThread : public eqBase::Thread
+{
+public:
+    SessionThread( Server* parent, Session* session )
+            : eqBase::Thread( Thread::PTHREAD ),
+              _parent( parent ),
+              _session( session )
+        {}
+
+    virtual ssize_t run() { return _parent->runSession( session ); }
+
+private:
+    SocketNetwork* _parent;
+    Session*       _session;
+};
+
+bool Server::_startSessionThread( Session* session )
+{
+    SessionThread* thread = new SessionThread( this, session );
+    return thread->start()
 }

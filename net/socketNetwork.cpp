@@ -22,7 +22,6 @@ SocketNetwork::SocketNetwork( const uint id, Session* session )
           _listener(NULL),
           _receiver(NULL)
 {
-    _listenerAddress[0] = '\0';
 }
 
 SocketNetwork::~SocketNetwork()
@@ -70,11 +69,11 @@ bool SocketNetwork::_startListener()
         return false;
     }
 
-    const char* address  = localDesc->parameters.TCPIP.address;
     _listener = Connection::create( PROTO_TCPIP );
 
     if( !_listener->listen( *localDesc ))
     {
+        const char* address  = localDesc->parameters.TCPIP.address;
         WARN << "Could not open listener on " << (address ? address : "'null'")
              << endl;
         delete _listener;
@@ -86,12 +85,17 @@ bool SocketNetwork::_startListener()
     _connectionSet.addConnection( _listener, connListener );
     _nodeStates[localNodeID] = NODE_RUNNING;
 
-    // TODO: Use 'address' if specified?
-    gethostname( _listenerAddress, MAXHOSTNAMELEN+1 );
+    // TODO: Use 'address' if specified in localDesc?
+    char address[MAXHOSTNAMELEN+8];
+    gethostname( address, MAXHOSTNAMELEN+1 );
     const ushort port = static_cast<SocketConnection*>(_listener)->getPort();
-    sprintf( _listenerAddress, "%s:%d", _listenerAddress, port );
+    sprintf( address, "%s:%d", address, port );
 
-    INFO << "Listening on: " << _listenerAddress << endl;
+    if( localDesc->parameters.TCPIP.address )
+        free( localDesc->parameters.TCPIP.address );
+    localDesc->parameters.TCPIP.address = strdup( address );
+
+    INFO << "Listening on: " << address << endl;
     return true;
 }
 

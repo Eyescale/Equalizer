@@ -12,6 +12,10 @@ namespace eqNet
         enum Command
         {
             CMD_SESSION_CREATE,
+            CMD_SESSION_NEW,
+            CMD_NODE_NEW,
+            CMD_NETWORK_NEW,
+            CMD_NETWORK_ADD_NODE,
             CMD_ALL // must be last
         };
     }

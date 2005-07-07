@@ -9,6 +9,8 @@
 
 namespace eqNet
 {
+    enum NetworkProtocol;
+
     namespace priv
     {
         enum Command;
@@ -18,13 +20,15 @@ namespace eqNet
          */
         struct Packet
         {
-            uint    size;
-            Command command;
+            uint64  size;
+            uint64  id;
+            const Command command;
         };
 
         struct ReqSessionCreatePacket : public Packet
         {
-            ReqSessionCreatePacket() 
+            ReqSessionCreatePacket() : command( CMD_SESSION_CREATE ),
+                                       id(INVALID_ID )
                 { size = sizeof( ReqSessionCreatePacket ); }
 
             char localAddress[MAXHOSTNAMELEN+8];
@@ -32,13 +36,48 @@ namespace eqNet
 
         struct SessionCreatePacket : public Packet
         {
-            SessionCreatePacket() { size = sizeof( SessionCreatePacket ); }
+            SessionCreatePacket() : command( CMD_SESSION_CREATE )
+                { size = sizeof( SessionCreatePacket ); }
             
-            uint sessionID;
-            uint networkID;
+            uint localNodeID;
             uint serverID;
-            uint localID;
-            char serverAddress[MAXHOSTNAMELEN+8];
+            uint networkID;
+        };
+
+        struct SessionNewPacket : public Packet
+        {
+            SessionNewPacket() : command( CMD_SESSION_NEW )
+                { size = sizeof( SessionNewPacket ); }
+
+            Session::State state;
+        };
+
+        struct NodeNewPacket : public Packet
+        {
+            NodeNewPacket() : command( CMD_NODE_NEW )
+                { size = sizeof( NodeNewPacket ); }
+
+            uint sessionID;
+            Node::State state;
+        };
+
+        struct NetworkNewPacket : public Packet
+        {
+            NetworkNewPacket() : command( CMD_NETWORK_NEW )
+                { size = sizeof( NetworkNewPacket ); }
+
+            uint sessionID;
+            Network::State state;
+            NetworkProtocol protocol;
+        };
+
+        struct NetworkAddNodePacket : public Packet
+        {
+            NetworkAddNodePacket() : command( CMD_NETWORK_ADD_NODE )
+                { size = sizeof( NetworkAddNodePacket ); }
+
+            uint nodeID;
+            ConnectionDescription connectionDescription;
         };
     }
 }
