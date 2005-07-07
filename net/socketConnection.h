@@ -30,6 +30,8 @@ namespace eqNet
 
             virtual void close();
 
+            ushort getPort() const;
+
         protected:
 
         private:

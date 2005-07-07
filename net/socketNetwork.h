@@ -7,6 +7,7 @@
 
 #include "connectionNetwork.h"
 
+#include <sys/param.h>
 #include <vector>
 
 namespace eqBase
@@ -30,11 +31,14 @@ namespace eqNet
             virtual bool startNode( const uint nodeID );
             virtual bool connect( const uint nodeID );
 
-            ssize_t runReceiver();
+            const char* getListenerAddress(){ return _listenerAddress; }
 
+            ssize_t runReceiver();
+            
         private:
             Connection*     _listener;
             eqBase::Thread* _receiver;
+            char            _listenerAddress[MAXHOSTNAMELEN+8];
 
             bool _startListener();
             bool _startReceiver();
@@ -43,7 +47,10 @@ namespace eqNet
             bool     _launchNode( const uint nodeID, 
                                   const ConnectionDescription* description );
             bool   _connectNodes();
-
+            
+            void  _stopNodes();
+            void  _stopReceiver();
+            void  _stopListener();
 
             ConnectionDescription* _getConnectionDescription( const uint nodeID)
                 {

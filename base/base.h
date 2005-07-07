@@ -12,6 +12,10 @@
 #include <sys/types.h>
 
 // type definitions
+#ifndef ushort
+typedef unsigned short ushort;
+#endif // uint64
+
 #ifndef uint64
 typedef uint64_t uint64;
 #endif // uint64

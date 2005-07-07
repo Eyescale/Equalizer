@@ -8,7 +8,9 @@
 #include "connectionListener.h"
 #include "launcher.h"
 #include "sessionPriv.h"
+#include "socketConnection.h"
 
+#include <eq/base/base.h>
 #include <eq/base/log.h>
 #include <eq/base/thread.h>
 
@@ -20,6 +22,7 @@ SocketNetwork::SocketNetwork( const uint id, Session* session )
           _listener(NULL),
           _receiver(NULL)
 {
+    _listenerAddress[0] = '\0';
 }
 
 SocketNetwork::~SocketNetwork()
@@ -80,10 +83,15 @@ bool SocketNetwork::_startListener()
     }
 
     ConnectionListener* connListener = new ConnectionListener(this,localNodeID);
-    _connectionSet.addConnection( listener, connListener );
+    _connectionSet.addConnection( _listener, connListener );
     _nodeStates[localNodeID] = NODE_RUNNING;
 
-    INFO << "Listening on: " << (address ? address : "'null'") << endl;
+    // TODO: Use 'address' if specified?
+    gethostname( _listenerAddress, MAXHOSTNAMELEN+1 );
+    const ushort port = static_cast<SocketConnection*>(_listener)->getPort();
+    sprintf( _listenerAddress, "%s:%d", _listenerAddress, port );
+
+    INFO << "Listening on: " << _listenerAddress << endl;
     return true;
 }
 
@@ -94,12 +102,14 @@ void SocketNetwork::_stopListener()
 
     ConnectionListener* connListener =_connectionSet.getListener(_listener);
     _connectionSet.removeConnection( _listener );
+    _listener->close();
     delete _listener;
     delete connListener;
     _listener = NULL;
 
     const uint localNodeID   = _session->getLocalNodeID();
-    _nodeStates[localNodeID] = NODE_RUNNING;
+    _nodeStates[localNodeID] = NODE_STOPPED;
+    _listenerAddress[0] = '\0';
 }
 
 //----------------------------------------------------------------------
@@ -134,6 +144,11 @@ bool SocketNetwork::_startReceiver()
     const uint   localNodeID = _session->getLocalNodeID();
     _nodeStates[localNodeID] = NODE_RUNNING;
     return true;
+}
+
+void  SocketNetwork::_stopReceiver()
+{
+    // TODO
 }
 
 //----------------------------------------------------------------------
@@ -279,6 +294,12 @@ bool SocketNetwork::_connectNodes()
     INFO << "All nodes connected" << endl;
     return true;
 }
+
+void SocketNetwork::_stopNodes()
+{
+    // TODO
+}
+
 
 
 

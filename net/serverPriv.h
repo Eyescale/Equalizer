@@ -103,7 +103,7 @@ namespace eqNet
             State       _state;
             Connection* _listener;
 
-            bool (*Server::_cmdHandler[CMD_ALL])(Connection* connection,Packet* packet);
+            bool (eqNet::priv::Server::*_cmdHandler[CMD_ALL])(Connection* connection,Packet* packet);
 
             bool _handleSessionCreate( Connection* connection, Packet* packet );
             bool _handleSessionNew( Connection* connection, Packet* packet );

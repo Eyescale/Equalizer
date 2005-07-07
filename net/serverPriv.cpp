@@ -11,6 +11,8 @@
 #include "packet.h"
 #include "pipeNetwork.h"
 #include "sessionPriv.h"
+#include "socketConnection.h"
+#include "socketNetwork.h"
 
 #include <eq/base/log.h>
 
@@ -26,7 +28,7 @@ Server::Server()
           _state(STATE_STOPPED),
           _listener(NULL)
 {
-    _cmdHandler[CMD_SESSION_CREATE] = &Server::_handleSessionCreate;
+    _cmdHandler[CMD_SESSION_CREATE] = &eqNet::priv::Server::_handleSessionCreate;
 }
 
 Session* Server::getSession( const uint index )
@@ -101,7 +103,7 @@ bool Server::start( const char* address )
 
     _listener = Connection::create(PROTO_TCPIP);
     ConnectionDescription connDesc;
-    connDesc.parameters.TCPIP.address = "localhost:4242";
+    connDesc.parameters.TCPIP.address = address;
 
     if( !_listener->listen( connDesc ))
     {
@@ -265,7 +267,7 @@ bool Server::_handleRequest( Connection *connection )
     ASSERT( received == size );
     ASSERT( packet->command < CMD_ALL );
 
-    bool success = (*_cmdHandler[packet->command])( connection, packet );
+    bool success = (this->*_cmdHandler[packet->command])( connection, packet );
     free( packet );
     return success;
 }
@@ -274,7 +276,8 @@ bool Server::_handleSessionCreate( Connection* connection, Packet* pkg )
 {
     ReqSessionCreatePacket* packet = (ReqSessionCreatePacket*)pkg;
     Session*               session = new Session( _sessionID++, this );
-    Network*               network = session->newNetwork( eqNet::PROTO_TCPIP);
+    SocketNetwork*         network = static_cast<SocketNetwork*>
+        (session->newNetwork( eqNet::PROTO_TCPIP ));
     Node*               remoteNode = session->newNode();
     const uint        remoteNodeID = remoteNode->getID();
 
@@ -309,11 +312,10 @@ bool Server::_handleSessionCreate( Connection* connection, Packet* pkg )
     response.networkID = network->getID();
     response.serverID  = getID();
     response.localID   = remoteNodeID;
+    strncpy( response.serverAddress, network->getListenerAddress(), 
+             MAXHOSTNAMELEN+8 );
 
-    gethostname( response.serverAddress, MAXHOSTNAMELEN+1 );
-    sprintf( response.serverAddress, "%s:%d", response.serverAddress, port );
-
-    connection->send( &response, response.size() );
+    connection->send( &response, response.size );
     return true;
     
 }

@@ -112,12 +112,7 @@ void SocketConnection::_parseAddress( const ConnectionDescription &description,
             {
                 ipName[i] = '\0';
                 const char *portName = &ipName[i+1];
-
-                if( portName != NULL )
-                {
-                    port = (short)atoi( portName );
-                    if( port == 0 ) port = DEFAULT_PORT;
-                }
+                port = (short)atoi( portName );
 
                 break;
             }
@@ -147,10 +142,13 @@ bool SocketConnection::listen(ConnectionDescription &description)
     _createSocket();
 
     sockaddr_in socketAddress;
-    _parseAddress( description, socketAddress ); //TODO restrict IP
+    const size_t size = sizeof( sockaddr_in ); 
 
-    const bool bound = (::bind( _readFD, (sockaddr *)&socketAddress,
-            sizeof(socketAddress) ) == 0);
+    _parseAddress( description, socketAddress ); //TODO restrict IP
+    //const bool anyAddr = ( socketAddress.sin_addr.s_addr == INADDR_ANY ); 
+    const bool anyPort = ( socketAddress.sin_port == 0 );
+
+    const bool bound = (::bind(_readFD, (sockaddr *)&socketAddress, size) == 0);
 
     if( !bound )
     {
@@ -158,16 +156,6 @@ bool SocketConnection::listen(ConnectionDescription &description)
         close();
         return false;
     }
-
-    //if(atoi(qname.port) == 0) 
-    //{ 
-    //    SOCKADDR_IN test_addr; 
-    //    int len = sizeof(test_addr); 
-    //    memset(&test_addr,0,len); 
-    //    getsockname(queue_fd,(SOCKADDRPTR) &test_addr,&len); 
-    //    ushort portnum = ntohs(test_addr.sin_port); 
-    //    sprintf(qname.port,"%d",portnum); 
-    //} 
 
     const bool listening = (::listen( _readFD, 10 ) == 0);
         
@@ -224,4 +212,12 @@ Connection* SocketConnection::accept()
 //          << newConnection->_description.parameters.TCPIP.address << endl;
 
     return newConnection;
+}
+
+ushort SocketConnection::getPort() const
+{
+    sockaddr_in address;
+    socklen_t used = sizeof(address);
+    getsockname( _readFD, (struct sockaddr *) &address, &used ); 
+    return ntohs(address.sin_port);
 }
