@@ -13,8 +13,10 @@
 #include "sessionPriv.h"
 #include "socketConnection.h"
 #include "socketNetwork.h"
+#include "util.h"
 
 #include <eq/base/log.h>
+#include <eq/base/thread.h>
 
 #include <alloca.h>
 #include <unistd.h>
@@ -24,7 +26,7 @@ using namespace std;
 
 Server::Server()
         : Node(NODE_ID_SERVER),
-          _sessionID(NODE_ID_SERVER<<32),
+          _sessionID(1),
           _state(STATE_STOPPED),
           _listener(NULL)
 {
@@ -62,9 +64,11 @@ bool Server::start( PipeConnection* connection )
     if( _state != STATE_STOPPED )
         return false;
 
-    Session* session = new Session( _sessionID++, this, true );
+    Session* session = new Session( _sessionID++, this );
     Network* network = session->newNetwork( eqNet::PROTO_PIPE );
     Node*    client  = session->newNode();
+
+    session->setLocalNode( getID( ));
 
     ConnectionDescription serverDescription;
     ConnectionDescription clientDescription;
@@ -85,10 +89,10 @@ bool Server::start( PipeConnection* connection )
 //----------------------------------------------------------------------
 // standalone server init
 //----------------------------------------------------------------------
-int Server::run( const char* address )
+int Server::run( const char* hostname, const ushort port )
 {
     Server* server = new Server();
-    if( !server->start( address ))
+    if( !server->start( hostname, port ))
     {
         ERROR << "Server startup failed" << endl;
         return EXIT_FAILURE;
@@ -96,14 +100,15 @@ int Server::run( const char* address )
     return server->_run();
 }
 
-bool Server::start( const char* address )
+bool Server::start( const char* hostname, const ushort port )
 {
     if( _state != STATE_STOPPED )
         return false;
 
     _listener = Connection::create(PROTO_TCPIP);
     ConnectionDescription connDesc;
-    connDesc.parameters.TCPIP.address = address;
+    strncpy( connDesc.parameters.TCPIP.hostname, hostname, MAXHOSTNAMELEN );
+    connDesc.parameters.TCPIP.port = port;
 
     if( !_listener->listen( connDesc ))
     {
@@ -120,10 +125,10 @@ bool Server::start( const char* address )
 //----------------------------------------------------------------------
 // connect to a server
 //----------------------------------------------------------------------
-Server* Server::connect( const char* address )
+Server* Server::connect( const char* hostname, const ushort port )
 {
     Server* server = new Server();
-    if( !server->_connect( address ))
+    if( !server->_connect( hostname, port ))
     {
         delete server;
         return NULL;
@@ -132,14 +137,14 @@ Server* Server::connect( const char* address )
 }
 
 
-bool Server::_connect( const char* serverAddress )
+bool Server::_connect( const char* hostname, const ushort port )
 {
     if( _state != STATE_STOPPED )
         return false;
 
     Session* session = new Session( _sessionID++, this );
 
-    if( !_connectRemote( session, serverAddress ) && !_connectLocal( session ))
+    if( !_connectRemote( session, hostname, port ) && !_connectLocal( session ))
     {
         delete session;
         return false;
@@ -152,41 +157,24 @@ bool Server::_connect( const char* serverAddress )
     return true;
 }
 
-bool Server::_connectRemote( Session* session, const char* serverAddress )
+bool Server::_connectRemote( Session* session, const char* hostname, 
+                             const ushort port )
 {
     Network*              network = session->newNetwork( eqNet::PROTO_TCPIP);
     ConnectionDescription serverDesc;
     ConnectionDescription localDesc;
 
-    if( serverAddress )
-        serverDesc.parameters.TCPIP.address = serverAddress;
-    else
-    {
-        // If the server address is <code>NULL</code>, the environment
-        // variable EQSERVER is used to determine the server address.
-        const char* env = getenv( "EQSERVER" );
-        if( env )
-            serverDesc.parameters.TCPIP.address = env;
-        else
-        {
-            // If the environment variable is not set, the local server on the
-            // default port is contacted.
-            char *address = (char *)alloca( 16 );
-            sprintf( address, "localhost:%d", DEFAULT_PORT );
-            serverDesc.parameters.TCPIP.address = address;
-        }
-    }
-
     const uint localNodeID = session->getLocalNodeID();
-    char       address[MAXHOSTNAMELEN+8];
-    gethostname( address, MAXHOSTNAMELEN+1 );
-    sprintf( address, "%s:%d", address, DEFAULT_PORT );
-    localDesc.parameters.TCPIP.address = address;
+
+    gethostname( localDesc.parameters.TCPIP.hostname, MAXHOSTNAMELEN+1 );
+    localDesc.parameters.TCPIP.port = DEFAULT_PORT; // XXX use listening port
 
     INFO << "Server node, id: " << getID() << ", TCP/IP address: " 
-         << serverDesc.parameters.TCPIP.address << endl;
+         << serverDesc.parameters.TCPIP.hostname << ":" 
+         << serverDesc.parameters.TCPIP.port << endl;
     INFO << "Local node,  id: " << localNodeID << ", TCP/IP address: " 
-         << localDesc.parameters.TCPIP.address << endl;
+         << localDesc.parameters.TCPIP.hostname << ":"
+         << localDesc.parameters.TCPIP.port << endl;
 
     network->addNode( getID(), serverDesc );
     network->addNode( localNodeID, localDesc );
@@ -284,19 +272,8 @@ bool Server::_handleSessionCreate( Connection* connection, Packet* pkg )
     INFO << "session created" << endl;
 
     // TODO: session->initRemote()
-    SessionCreatePacket response;
-    response.sessionID = session->getID();
-    response.networkID = network->getID();
-    response.serverID  = getID();
-    response.localID   = remoteNodeID;
-
-    // getLocalNode, getNetwork(0), getConnectionDescription(ln, nw)
-    strncpy( response.serverAddress, session->getListenerAddress(), 
-             MAXHOSTNAMELEN+8 );
 
     // TODO: create session thread
-
-    connection->send( &response, response.size );
 
     return true;
 }
@@ -304,25 +281,27 @@ bool Server::_handleSessionCreate( Connection* connection, Packet* pkg )
 Session* Server::_createSession( const char* remoteAddress, 
                                  Connection* connection )
 {
-    Session*       session      = new Session( _sessionID++, this, true );
+    Session*       session      = new Session( _sessionID++, this );
     SocketNetwork* network      = static_cast<SocketNetwork*>
         (session->newNetwork( eqNet::PROTO_TCPIP ));
     Node*          remoteNode   = session->newNode();
     const uint     remoteNodeID = remoteNode->getID();
 
-    session->setLocalNode( this );
+    session->setLocalNode( getID( ));
 
     // create and init one TCP/IP network
     ConnectionDescription serverDesc;
     ConnectionDescription remoteDesc;
 
-    serverDesc.parameters.TCPIP.address = ":0"; // bind random port
-    remoteDesc.parameters.TCPIP.address = remoteAddress;
+    Util::parseAddress( remoteAddress, remoteDesc.parameters.TCPIP.hostname, 
+                        remoteDesc.parameters.TCPIP.port );
 
     INFO << "Server node, id: " << getID() << ", TCP/IP address: " 
-         << serverDesc.parameters.TCPIP.address << endl;
-    INFO << "Remote node,  id: " << remoteNodeID << ", TCP/IP address: " 
-         << remoteDesc.parameters.TCPIP.address << endl;
+         << serverDesc.parameters.TCPIP.hostname << ":" 
+         << serverDesc.parameters.TCPIP.port << endl;
+    INFO << "Local node,  id: " << remoteNodeID << ", TCP/IP address: " 
+         << remoteDesc.parameters.TCPIP.hostname << ":" 
+         << remoteDesc.parameters.TCPIP.port << endl;
 
     network->addNode( getID(), serverDesc );
     network->addNode( remoteNodeID, remoteDesc );
@@ -354,15 +333,15 @@ public:
               _session( session )
         {}
 
-    virtual ssize_t run() { return _parent->runSession( session ); }
+    virtual ssize_t run() { return _parent->runSession( _session ); }
 
 private:
-    SocketNetwork* _parent;
-    Session*       _session;
+    Server*  _parent;
+    Session* _session;
 };
 
 bool Server::_startSessionThread( Session* session )
 {
     SessionThread* thread = new SessionThread( this, session );
-    return thread->start()
+    return thread->start();
 }

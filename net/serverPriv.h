@@ -53,7 +53,7 @@ namespace eqNet
              *                default port.
              * @return the success value of the run.
              */
-            static int run( const char* address );
+            static int run( const char* hostname, const ushort port );
 
             /** 
              * Connects with an existing server and returns the local proxy.
@@ -61,7 +61,7 @@ namespace eqNet
              * @param address the server address.
              * @return the server.
              */
-            static Server* connect( const char* address );
+            static Server* connect( const char* hostname, const ushort port );
 
             /** 
              * Get a numbered session.
@@ -79,6 +79,7 @@ namespace eqNet
              */
             State getState(){ return _state; }
 
+            ssize_t runSession( Session* session );
         protected:
             Server();
             ~Server(){}
@@ -89,10 +90,11 @@ namespace eqNet
             IDHash<Session*> _sessions;
 
             bool start( PipeConnection* connection );
-            bool start( const char* address );
+            bool start( const char* hostname, const ushort port );
 
-            bool _connect( const char* address );
-            bool _connectRemote( Session* session, const char* serverAddress );
+            bool _connect( const char* hostname, const ushort port );
+            bool _connectRemote( Session* session, const char* hostname, 
+                                 const ushort port );
             bool _connectLocal( Session* session );
 
             int  _run();
@@ -106,6 +108,10 @@ namespace eqNet
             bool (eqNet::priv::Server::*_cmdHandler[CMD_ALL])(Connection* connection,Packet* packet);
 
             bool _handleSessionCreate( Connection* connection, Packet* packet );
+            Session* _createSession( const char* remoteAddress, 
+                                     Connection* connection );
+            bool     _startSessionThread( Session* session );
+
             bool _handleSessionNew( Connection* connection, Packet* packet );
 
             friend inline std::ostream& operator << 

@@ -45,7 +45,7 @@ namespace eqNet
             struct
             {
                 /** The host name. */
-                char hostname[MAXHOSTNAMELEN];
+                char hostname[MAXHOSTNAMELEN+1];
 
                 /** The port. */
                 ushort port;

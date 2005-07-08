@@ -10,6 +10,7 @@
 #include "packet.h"
 #include "server.h"
 #include "serverPriv.h"
+#include "util.h"
 
 #include <eq/base/log.h>
 
@@ -29,7 +30,30 @@ Session::Session(const uint id, Server* server )
 
 Session* Session::create( const char* serverAddress )
 {
-    Server* server = Server::connect( serverAddress );
+    char *usedAddress;
+
+    if( serverAddress )
+        usedAddress = (char*)serverAddress;
+    else
+    {
+        // If the server address is <code>NULL</code>, the environment
+        // variable EQSERVER is used to determine the server address.
+        usedAddress = getenv( "EQSERVER" );
+
+        if( !usedAddress )
+        {
+            // If the environment variable is not set, the local server on the
+            // default port is contacted.
+            usedAddress = (char *)alloca( 16 );
+            sprintf( usedAddress, "localhost:%d", DEFAULT_PORT );
+        }
+    }
+
+    char   hostname[MAXHOSTNAMELEN];
+    ushort port;
+
+    Util::parseAddress( usedAddress, hostname, port );
+    Server* server = Server::connect( hostname, port );
     if( !server )
         return NULL;
 
@@ -81,7 +105,7 @@ bool Session::initNode( const uint nodeID )
 
     SessionNewPacket sessionNewPacket;
     sessionNewPacket.id;
-    sessionNewPacket.state;
+    sessionNewPacket.serverID;
 
     for( IDHash<Node*>::iterator iter = _nodes.begin(); iter != _nodes.end();
          iter++ )
@@ -89,7 +113,6 @@ bool Session::initNode( const uint nodeID )
         NodeNewPacket nodeNewPacket;
         nodeNewPacket.id;
         nodeNewPacket.sessionID;
-        nodeNewPacket.state;
     };
 
     for( IDHash<Network*>::iterator iter = _networks.begin();
@@ -101,15 +124,10 @@ bool Session::initNode( const uint nodeID )
         networkNewPacket.state;
         networkNewPacket.protocol;
 
-        struct NetworkAddNodePacket : public Packet
-        {
-            NetworkAddNodePacket() : command( CMD_NETWORK_ADD_NODE )
-                { size = sizeof( NetworkAddNodePacket ); }
-
-            uint id;
-            uint nodeID;
-            ConnectionDescription connectionDescription;
-        };
+        NetworkAddNodePacket networkAddNodePacket;
+        networkAddNodePacket.id;
+        networkAddNodePacket.nodeID;
+        networkAddNodePacket.connectionDescription;
     }
-    connection->send( &response, response.size );
+    //connection->send( &response, response.size );
 }

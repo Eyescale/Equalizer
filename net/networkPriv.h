@@ -22,6 +22,14 @@ namespace eqNet
         class Network : public eqNet::Network
         {
         public:
+            /** The network state. */
+            enum State
+            {
+                STATE_STOPPED,
+                STATE_STARTING,
+                STATE_RUNNING
+            };
+
             /** 
              * Constructs a new Network.
              * 
@@ -113,14 +121,6 @@ namespace eqNet
 
         protected:
             Network( const uint id, Session* session );
-
-            /** The session state. */
-            enum State
-            {
-                STATE_STOPPED,
-                STATE_STARTING,
-                STATE_RUNNING
-            };
 
             /** The state of the individual nodes. */
             enum NodeState

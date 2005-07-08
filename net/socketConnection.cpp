@@ -8,6 +8,7 @@
 #include <eq/base/log.h>
 
 #include <errno.h>
+#include <netdb.h>
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
@@ -53,10 +54,11 @@ bool SocketConnection::connect( const ConnectionDescription &description )
         _state = STATE_CONNECTED;
     else
     {
-        const char *address = description.parameters.TCPIP.address ? 
-            description.parameters.TCPIP.address : "null";
-        WARN << "Could not connect to '" << address << "': "
-             << strerror( errno ) << endl;
+        const char *hostname = description.parameters.TCPIP.hostname ? 
+            description.parameters.TCPIP.hostname : "null";
+        WARN << "Could not connect to '" << hostname << ":" 
+             << description.parameters.TCPIP.port << "': " << strerror( errno ) 
+             << endl;
 
         close();
     }
@@ -98,35 +100,16 @@ void SocketConnection::close()
 void SocketConnection::_parseAddress( const ConnectionDescription &description, 
     sockaddr_in& socketAddress )
 {
-    uint32_t ip = INADDR_ANY;
-    short port = DEFAULT_PORT;
-
-    if( description.parameters.TCPIP.address != NULL )
-    {
-        char *ipName = strdup( description.parameters.TCPIP.address );
-	const size_t len = strlen( ipName );
-	
-	for( size_t i=0; i<len; i++ )
-	{
-            if( ipName[i] == ':' )
-            {
-                ipName[i] = '\0';
-                const char *portName = &ipName[i+1];
-                port = (short)atoi( portName );
-
-                break;
-            }
-        }
-
-        if( strlen( ipName ) > 0 )
-            ip = atoi( ipName );
-
-        free( ipName );
-    }
-
     socketAddress.sin_family = AF_INET;
-    socketAddress.sin_addr.s_addr = htonl( ip );
-    socketAddress.sin_port = htons( port );
+    socketAddress.sin_addr.s_addr = htonl( INADDR_ANY );
+    socketAddress.sin_port = htons( description.parameters.TCPIP.port );
+
+    if( description.parameters.TCPIP.hostname != NULL )
+    {
+        hostent *hptr = gethostbyname( description.parameters.TCPIP.hostname );
+        if( hptr )
+            memcpy(&socketAddress.sin_addr.s_addr, hptr->h_addr,hptr->h_length);
+    }
 }
 
 //----------------------------------------------------------------------

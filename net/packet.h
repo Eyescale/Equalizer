@@ -6,6 +6,9 @@
 #define EQNET_PACKET_PRIV_H
 
 #include "commands.h"
+
+#include "networkPriv.h"
+
 #include <sys/param.h>
 
 namespace eqNet
@@ -57,7 +60,7 @@ namespace eqNet
                     size = sizeof( SessionNewPacket ); 
                 }
 
-            Session::State state;
+            uint serverID;
         };
 
         struct NodeNewPacket : public Packet
@@ -69,7 +72,6 @@ namespace eqNet
                 }
 
             uint sessionID;
-            Node::State state;
         };
 
         struct NetworkNewPacket : public Packet

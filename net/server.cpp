@@ -4,11 +4,16 @@
 
 #include "server.h"
 #include "serverPriv.h"
+#include "util.h"
 
 using namespace eqNet;
 using namespace std;
 
 int Server::run( const char* address )
 {
-    return priv::Server::run(address);
+    char   hostname[MAXHOSTNAMELEN];
+    ushort port;
+
+    priv::Util::parseAddress( address, hostname, port );
+    return priv::Server::run( hostname, port );
 }

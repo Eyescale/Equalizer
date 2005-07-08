@@ -31,7 +31,8 @@ SOURCES = \
 	server.cpp \
 	serverPriv.cpp \
 	socketConnection.cpp \
-	socketNetwork.cpp
+	socketNetwork.cpp \
+	util.cpp
 
 MODULE  = net
 
