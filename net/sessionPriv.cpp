@@ -7,6 +7,7 @@
 #include "connectionDescription.h"
 #include "networkPriv.h"
 #include "nodePriv.h"
+#include "packet.h"
 #include "server.h"
 #include "serverPriv.h"
 
@@ -17,7 +18,7 @@
 using namespace eqNet::priv;
 using namespace std;
 
-Session::Session(const uint id, Server* server, const bool onServer )
+Session::Session(const uint id, Server* server )
         : eqNet::Session(id),
           _networkID(1),
           _nodeID(NODE_ID_SERVER+1),
@@ -71,7 +72,7 @@ void Session::setLocalNode( const uint nodeID )
 }
 
 
-bool initNode( const uint nodeID )
+bool Session::initNode( const uint nodeID )
 {
     IDHash<Node*>::iterator iter = _nodes.find( nodeID );
     ASSERT( iter != _nodes.end( ));

@@ -21,6 +21,7 @@ namespace eqNet
         class Network;
         class Node;
         class Server;
+        struct Packet;
 
         inline std::ostream& operator << (std::ostream& os, Network* network);
 
@@ -115,7 +116,7 @@ namespace eqNet
 
             virtual void pack( const Connection* connection, 
                                const bool fullUpdate );
-            void         send( Packet packet );
+            void         send( Packet* packet );
 
             friend inline std::ostream& operator << 
                 (std::ostream& os, Session* session);

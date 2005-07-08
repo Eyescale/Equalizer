@@ -5,6 +5,7 @@
 #ifndef EQNET_PACKET_PRIV_H
 #define EQNET_PACKET_PRIV_H
 
+#include "commands.h"
 #include <sys/param.h>
 
 namespace eqNet
@@ -13,8 +14,6 @@ namespace eqNet
 
     namespace priv
     {
-        enum Command;
-
         /**
          * Represents a packet.
          */
@@ -22,22 +21,28 @@ namespace eqNet
         {
             uint64  size;
             uint64  id;
-            const Command command;
+            Command command;
         };
 
         struct ReqSessionCreatePacket : public Packet
         {
-            ReqSessionCreatePacket() : command( CMD_SESSION_CREATE ),
-                                       id(INVALID_ID )
-                { size = sizeof( ReqSessionCreatePacket ); }
+            ReqSessionCreatePacket()
+                { 
+                    command = CMD_SESSION_CREATE;
+                    id = INVALID_ID;
+                    size = sizeof( ReqSessionCreatePacket ); 
+                }
 
             char localAddress[MAXHOSTNAMELEN+8];
         };            
 
         struct SessionCreatePacket : public Packet
         {
-            SessionCreatePacket() : command( CMD_SESSION_CREATE )
-                { size = sizeof( SessionCreatePacket ); }
+            SessionCreatePacket() 
+                {
+                    command = CMD_SESSION_CREATE;
+                    size = sizeof( SessionCreatePacket ); 
+                }
             
             uint localNodeID;
             uint serverID;
@@ -46,16 +51,22 @@ namespace eqNet
 
         struct SessionNewPacket : public Packet
         {
-            SessionNewPacket() : command( CMD_SESSION_NEW )
-                { size = sizeof( SessionNewPacket ); }
+            SessionNewPacket() 
+                {
+                    command = CMD_SESSION_NEW;
+                    size = sizeof( SessionNewPacket ); 
+                }
 
             Session::State state;
         };
 
         struct NodeNewPacket : public Packet
         {
-            NodeNewPacket() : command( CMD_NODE_NEW )
-                { size = sizeof( NodeNewPacket ); }
+            NodeNewPacket() 
+                {
+                    command = CMD_NODE_NEW;
+                    size = sizeof( NodeNewPacket ); 
+                }
 
             uint sessionID;
             Node::State state;
@@ -63,8 +74,11 @@ namespace eqNet
 
         struct NetworkNewPacket : public Packet
         {
-            NetworkNewPacket() : command( CMD_NETWORK_NEW )
-                { size = sizeof( NetworkNewPacket ); }
+            NetworkNewPacket() 
+                {
+                    command = CMD_NETWORK_NEW;
+                    size = sizeof( NetworkNewPacket ); 
+                }
 
             uint sessionID;
             Network::State state;
@@ -73,8 +87,11 @@ namespace eqNet
 
         struct NetworkAddNodePacket : public Packet
         {
-            NetworkAddNodePacket() : command( CMD_NETWORK_ADD_NODE )
-                { size = sizeof( NetworkAddNodePacket ); }
+            NetworkAddNodePacket() 
+                {
+                    command = CMD_NETWORK_ADD_NODE;
+                    size = sizeof( NetworkAddNodePacket ); 
+                }
 
             uint nodeID;
             ConnectionDescription connectionDescription;

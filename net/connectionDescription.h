@@ -8,6 +8,7 @@
 #include "network.h"
 
 #include <strings.h>
+#include <sys/param.h>
 
 namespace eqNet
 {
