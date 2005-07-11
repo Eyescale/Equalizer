@@ -345,3 +345,7 @@ bool Server::_startSessionThread( Session* session )
     SessionThread* thread = new SessionThread( this, session );
     return thread->start();
 }
+ssize_t Server::runSession( Session* session )
+{
+    return EXIT_SUCCESS;
+}

@@ -18,7 +18,8 @@ int main( int argc, char **argv )
     Connection *connection = Connection::create( PROTO_TCPIP );
 
     ConnectionDescription connDesc;
-    connDesc.parameters.TCPIP.address = "localhost:4242";
+    sprintf( connDesc.parameters.TCPIP.hostname, "localhost" );
+    connDesc.parameters.TCPIP.port = 4242;
     connection->connect(connDesc);
 
     const char message[] = "buh!";

@@ -3,6 +3,10 @@
    All rights reserved. */
 
 #include "util.h"
+#include "connection.h"
+
+#include <eq/base/base.h>
+#include <string.h>
 
 using namespace eqNet::priv;
 

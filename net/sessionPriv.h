@@ -92,7 +92,22 @@ namespace eqNet
              */
             Session( const uint id, Server* server );
 
+            /** 
+             * Initialises a remote node.
+             * 
+             * This is uesd to copy the session information to a newly connected
+             * node.
+             *
+             * @param nodeID the node identifier.
+             * @return the success value.
+             */
             bool initNode( const uint nodeID );
+
+            /** 
+             * Sets the node identifier of the local node.
+             * 
+             * @param nodeID the local node identifier.
+             */
             void setLocalNode( const uint nodeID );
 
         private:
@@ -114,9 +129,9 @@ namespace eqNet
             /** The local node. */
             Node* _localNode;
 
-            virtual void pack( const Connection* connection, 
+            /*virtual void pack( const Connection* connection, 
                                const bool fullUpdate );
-            void         send( Packet* packet );
+                               void         send( Packet* packet );*/
 
             friend inline std::ostream& operator << 
                 (std::ostream& os, Session* session);

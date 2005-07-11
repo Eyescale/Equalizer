@@ -73,9 +73,9 @@ bool SocketNetwork::_startListener()
 
     if( !_listener->listen( *localDesc ))
     {
-        const char* address  = localDesc->parameters.TCPIP.address;
-        WARN << "Could not open listener on " << (address ? address : "'null'")
-             << endl;
+        WARN << "Could not open listener on " \
+             << localDesc->parameters.TCPIP.hostname << ":" 
+             << localDesc->parameters.TCPIP.port << endl;
         delete _listener;
         _listener = NULL;
         return false;
@@ -86,16 +86,12 @@ bool SocketNetwork::_startListener()
     _nodeStates[localNodeID] = NODE_RUNNING;
 
     // TODO: Use 'address' if specified in localDesc?
-    char address[MAXHOSTNAMELEN+8];
-    gethostname( address, MAXHOSTNAMELEN+1 );
-    const ushort port = static_cast<SocketConnection*>(_listener)->getPort();
-    sprintf( address, "%s:%d", address, port );
+    gethostname( localDesc->parameters.TCPIP.hostname, MAXHOSTNAMELEN+1 );
+    localDesc->parameters.TCPIP.port =
+        static_cast<SocketConnection*>(_listener)->getPort();
 
-    if( localDesc->parameters.TCPIP.address )
-        free( localDesc->parameters.TCPIP.address );
-    localDesc->parameters.TCPIP.address = strdup( address );
-
-    INFO << "Listening on: " << address << endl;
+    INFO << "Listening on: " << localDesc->parameters.TCPIP.hostname << ":"
+         << localDesc->parameters.TCPIP.port << endl;
     return true;
 }
 
@@ -113,7 +109,6 @@ void SocketNetwork::_stopListener()
 
     const uint localNodeID   = _session->getLocalNodeID();
     _nodeStates[localNodeID] = NODE_STOPPED;
-    _listenerAddress[0] = '\0';
 }
 
 //----------------------------------------------------------------------
@@ -241,13 +236,14 @@ bool SocketNetwork::_launchNodes()
 bool SocketNetwork::_launchNode( const uint nodeID,
     const ConnectionDescription* description )
 {
-    const char*                address = description->parameters.TCPIP.address;
-    const uint             localNodeID = _session->getLocalNodeID();
+    const uint                 localNodeID = _session->getLocalNodeID();
     const ConnectionDescription* localDesc = _descriptions[localNodeID];
-    const char*           localAddress = localDesc->parameters.TCPIP.address;
+    const char*              hostname = localDesc->parameters.TCPIP.hostname;
+    const ushort             port     = localDesc->parameters.TCPIP.port;
 
-    char*       options       = (char*)alloca( strlen(localAddress) + 128 );
-    sprintf( options, "--eq-server %s --eq-nodeID %d", localAddress, nodeID );
+    char* options = (char*)alloca( strlen(hostname) + 128 );
+    sprintf( options, "--eq-server %s --eq-port %d --eq-nodeID %d", 
+             hostname, port, nodeID );
 
     const char* launchCommand = _createLaunchCommand( nodeID, options );
     
