@@ -22,11 +22,13 @@ int getLogLevel()
             return LOG_WARN;
         if( strcmp( env, "INFO" ) == 0 )
             return LOG_INFO;
+        if( strcmp( env, "VERBATIM" ) == 0 )
+            return LOG_VERBATIM;
     }
 
 #ifdef NDEBUG
     return LOG_WARN;
 #else
-    return LOG_INFO;
+    return LOG_VERBATIM;
 #endif
 }

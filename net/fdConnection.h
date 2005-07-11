@@ -19,8 +19,8 @@ namespace eqNet
         class FDConnection : public Connection
         {
         public:
-            virtual size_t recv( const void* buffer, const size_t bytes );
-            virtual size_t send( const void* buffer, const size_t bytes );
+            virtual uint64 recv( const void* buffer, const uint64 bytes );
+            virtual uint64 send( const void* buffer, const uint64 bytes );
 
             virtual int getReadFD() const { return _readFD; }
 

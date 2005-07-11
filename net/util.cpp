@@ -20,7 +20,7 @@ void Util::parseAddress( const char* address, char hostname[MAXHOSTNAMELEN],
     {
         if( address[i] == ':' )
         {
-            memcpy( hostname, address, i-1 );
+            memcpy( hostname, address, i );
             hostname[i] = '\0';
 
             const char *portName = &address[i+1];

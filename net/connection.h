@@ -112,7 +112,7 @@ namespace eqNet
              * @param bytes the number of bytes to read.
              * @return the number of bytes received.
              */
-            virtual size_t recv( const void* buffer, const size_t bytes )
+            virtual uint64 recv( const void* buffer, const uint64 bytes )
                 {return 0;}
 
             /** 
@@ -122,27 +122,10 @@ namespace eqNet
              * @param bytes the number of bytes to send.
              * @return the number of bytes send.
              */
-            virtual size_t send( const void* buffer, const size_t bytes){return 0;}
+            virtual uint64 send( const void* buffer, const uint64 bytes){return 0;}
             //@}
 
             State getState() const { return _state; }
-
-            /** 
-             * Polls a set of connections for an incoming event
-             * 
-             * @param connections the array of pointers to the connections.
-             * @param nConnections the size of the Connection array.
-             * @param timeout the amount of time to wait in milliseconds, if set
-             *                to <code>-1</code> the method blocks indefinitely.
-             * @param event used to return the type of event which occured, see
-             *              man poll.
-             * @return the Connection which produced the event, or
-             *         <code>NULL</code> if the functioned timed out or could
-             *         not select a connection.
-             */
-            static Connection* select( 
-                const std::vector<Connection*> &connections,
-                const int timeout, short &event );
 
             virtual int getReadFD() const { return -1; }
 

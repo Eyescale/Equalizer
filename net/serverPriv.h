@@ -5,9 +5,11 @@
 #ifndef EQNET_SERVER_PRIV_H
 #define EQNET_SERVER_PRIV_H
 
+#include "nodePriv.h"
+#include "server.h"
+
 #include "commands.h"
 #include "idHash.h"
-#include "nodePriv.h"
 
 #include <iostream>
 
@@ -27,7 +29,7 @@ namespace eqNet
          *
          * @sa Session
          */
-        class Server : public Node
+        class Server : public Node, public eqNet::Server
         {
         public:
 
@@ -56,12 +58,12 @@ namespace eqNet
             static int run( const char* hostname, const ushort port );
 
             /** 
-             * Connects with an existing server and returns the local proxy.
+             * Connects to a server and creates a new session.
              * 
              * @param address the server address.
              * @return the server.
              */
-            static Server* connect( const char* hostname, const ushort port );
+            static Session* createSession( const char* address );
 
             /** 
              * Get a numbered session.
@@ -79,6 +81,13 @@ namespace eqNet
              */
             State getState(){ return _state; }
 
+
+            /** 
+             * Entry function for the server-side session thread.
+             * 
+             * @param session the session.
+             * @return the success value.
+             */
             ssize_t runSession( Session* session );
         protected:
             Server();
@@ -92,27 +101,34 @@ namespace eqNet
             bool start( PipeConnection* connection );
             bool start( const char* hostname, const ushort port );
 
-            bool _connect( const char* hostname, const ushort port );
-            bool _connectRemote( Session* session, const char* hostname, 
-                                 const ushort port );
-            bool _connectLocal( Session* session );
+            bool _connect( const char* address );
+            bool _connectRemote( const char* hostname, const ushort port );
+            bool _connectLocal();
 
             int  _run();
 
-            bool _handleRequest( Connection *connection );
+            void _handleRequest( Connection *connection );
 
         private:
             State       _state;
-            Connection* _listener;
+            Connection* _connection;
 
-            bool (eqNet::priv::Server::*_cmdHandler[CMD_ALL])(Connection* connection,Packet* packet);
+            /** The command handler function table. */
+            void (eqNet::priv::Server::*_cmdHandler[CMD_ALL])(Connection* connection,Packet* packet);
 
-            bool _handleSessionCreate( Connection* connection, Packet* packet );
+            // the command handler functions and helper functions
+            void _handleUnknown( Connection* connection, Packet* packet );
+            void _handleSessionCreate( Connection* connection, Packet* packet );
             Session* _createSession( const char* remoteAddress, 
-                                     Connection* connection );
+                                     Connection* connection, 
+                                     uint& remoteNodeID );
             bool     _startSessionThread( Session* session );
 
-            bool _handleSessionNew( Connection* connection, Packet* packet );
+            void _handleSessionNew( Connection* connection, Packet* packet );
+
+            // node-side functions
+            Session* _createSession( const char* address );
+            void _sendSessionCreate();
 
             friend inline std::ostream& operator << 
                 (std::ostream& os, Server* server);

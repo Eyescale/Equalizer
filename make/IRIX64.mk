@@ -8,4 +8,4 @@ CXX_DEPS = g++
 AR       = CC -ar -o
 DOXYGEN  = ls
 
-CXXFLAGS += -LANG:std
+CXXFLAGS += -LANG:std -64

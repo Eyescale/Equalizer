@@ -7,6 +7,8 @@
 
 namespace eqNet
 {
+    class Session;
+
     /**
      * A Server is the central instance running multiple sessions.
      *
@@ -15,6 +17,10 @@ namespace eqNet
     class Server
     {
     public:
+        /**
+         * @name Creating a server
+         */
+        //*{
         /** 
          * Runs the standalone server on the specified address.
          * 
@@ -24,6 +30,7 @@ namespace eqNet
          * @return the success value of the run.
          */
         static int run( const char* address );
+        //*}
     };
 }
 

@@ -3,12 +3,17 @@
    All rights reserved. */
 
 #include "server.h"
+
+#include "connection.h"
 #include "serverPriv.h"
 #include "util.h"
 
 using namespace eqNet;
 using namespace std;
 
+//----------------------------------------------------------------------
+// server instantion
+//----------------------------------------------------------------------
 int Server::run( const char* address )
 {
     char   hostname[MAXHOSTNAMELEN];
@@ -17,3 +22,4 @@ int Server::run( const char* address )
     priv::Util::parseAddress( address, hostname, port );
     return priv::Server::run( hostname, port );
 }
+

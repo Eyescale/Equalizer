@@ -1,4 +1,5 @@
 
+#include <eq/net/server.h>
 #include <eq/net/session.h>
 
 #include <eq/net/global.h>
@@ -11,12 +12,8 @@ int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    cout << "Create session... " << endl;
+    cout << "Create new session... " << endl;
     Session* session = Session::create(NULL);
-    if( session )
-        cout << "Got session " << session->getID() << endl;
-    else
-        cout << "Got no session" << endl;
     sleep(1);
 }
 

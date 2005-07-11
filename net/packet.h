@@ -36,7 +36,7 @@ namespace eqNet
                     size = sizeof( ReqSessionCreatePacket ); 
                 }
 
-            char localAddress[MAXHOSTNAMELEN+8];
+            char requestorAddress[MAXHOSTNAMELEN+1];
         };            
 
         struct SessionCreatePacket : public Packet
@@ -98,6 +98,14 @@ namespace eqNet
             uint nodeID;
             ConnectionDescription connectionDescription;
         };
+
+        
+        inline std::ostream& operator << ( std::ostream& os, Packet* packet )
+        {
+            os << "Packet cmd " << packet->command << " id " << packet->id
+               << std::endl;
+            return os;
+        }
     }
 }
 

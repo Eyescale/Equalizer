@@ -56,6 +56,7 @@ bool SocketNetwork::start()
         _stopListener();
         return false;
     }
+    return true;
 }
 
 bool SocketNetwork::_startListener()

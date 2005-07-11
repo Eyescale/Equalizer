@@ -22,13 +22,13 @@ FDConnection::FDConnection()
 //----------------------------------------------------------------------
 // read
 //----------------------------------------------------------------------
-size_t FDConnection::recv( const void* buffer, const size_t bytes )
+uint64 FDConnection::recv( const void* buffer, const uint64 bytes )
 {
     if( _state != STATE_CONNECTED || _readFD == -1 )
         return 0;
 
     char* ptr = (char*)buffer;
-    size_t bytesLeft = bytes;
+    uint64 bytesLeft = bytes;
 
     while( bytesLeft )
     {
@@ -55,19 +55,52 @@ size_t FDConnection::recv( const void* buffer, const size_t bytes )
         ptr += bytesRead;
     }
 
+    if( eqBase::Log::level >= eqBase::LOG_VERBATIM )
+    {
+        VERB << "Received " << bytes << " bytes:";
+        const char* data = (char*)buffer;
+
+        for(uint64 i=0; i<bytes; i++ )
+        {
+            if( i%4 )
+                cout << " ";
+            else
+                cout << "|";
+
+            cout << (int)data[i];
+        }
+        cout << endl;
+    }
+            
     return bytes;
 }
 
 //----------------------------------------------------------------------
 // write
 //----------------------------------------------------------------------
-size_t FDConnection::send( const void* buffer, const size_t bytes )
+uint64 FDConnection::send( const void* buffer, const uint64 bytes )
 {
     if( _state != STATE_CONNECTED || _writeFD == -1 )
         return 0;
 
     char* ptr = (char*)buffer;
-    size_t bytesLeft = bytes;
+    uint64 bytesLeft = bytes;
+
+    if( eqBase::Log::level >= eqBase::LOG_VERBATIM )
+    {
+        VERB << "Sending " << bytes << " bytes:";
+
+        for(uint64 i=0; i<bytes; i++ )
+        {
+            if( i%4 )
+                cout << " ";
+            else
+                cout << "|";
+
+            cout << (int)ptr[i];
+        }
+        cout << endl;
+    }
 
     while( bytesLeft )
     {

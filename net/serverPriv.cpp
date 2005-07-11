@@ -28,9 +28,16 @@ Server::Server()
         : Node(NODE_ID_SERVER),
           _sessionID(1),
           _state(STATE_STOPPED),
-          _listener(NULL)
+          _connection(NULL)
 {
+    for( int i=0; i<CMD_ALL; i++ )
+        _cmdHandler[i] =  &eqNet::priv::Server::_handleUnknown;
+
     _cmdHandler[CMD_SESSION_CREATE] = &eqNet::priv::Server::_handleSessionCreate;
+    //_cmdHandler[CMD_SESSION_NEW] = &eqNet::priv::Server::_handle;
+    //_cmdHandler[CMD_NODE_NEW] = &eqNet::priv::Server::_handle;
+    //_cmdHandler[CMD_NETWORK_NEW] = &eqNet::priv::Server::_handle;
+    //_cmdHandler[CMD_NETWORK_ADD_NODE] = &eqNet::priv::Server::_handle;
 }
 
 Session* Server::getSession( const uint index )
@@ -56,7 +63,8 @@ int Server::run( PipeConnection* connection )
         ERROR << "Server startup failed" << endl;
         return EXIT_FAILURE;
     }
-    return server->_run();
+    server->_handleRequest( (Connection*)(connection) );
+    return EXIT_SUCCESS;
 }
 
 bool Server::start( PipeConnection* connection )
@@ -64,25 +72,7 @@ bool Server::start( PipeConnection* connection )
     if( _state != STATE_STOPPED )
         return false;
 
-    Session* session = new Session( _sessionID++, this );
-    Network* network = session->newNetwork( eqNet::PROTO_PIPE );
-    Node*    client  = session->newNode();
-
-    session->setLocalNode( getID( ));
-
-    ConnectionDescription serverDescription;
-    ConnectionDescription clientDescription;
-
-    network->addNode( this->getID(), serverDescription );
-    network->addNode( client->getID(), clientDescription );
-    
-    ConnectionNetwork *connectionNet = static_cast<ConnectionNetwork*>(network);
-    connectionNet->setStarted( client->getID(), (Connection*)connection );
-    
-    _sessions[session->getID()] = session;
     _state = STATE_STARTED;
-    
-    INFO << endl << this;
     return true;
 }
 
@@ -105,15 +95,15 @@ bool Server::start( const char* hostname, const ushort port )
     if( _state != STATE_STOPPED )
         return false;
 
-    _listener = Connection::create(PROTO_TCPIP);
+    _connection = Connection::create(PROTO_TCPIP);
     ConnectionDescription connDesc;
     strncpy( connDesc.parameters.TCPIP.hostname, hostname, MAXHOSTNAMELEN );
     connDesc.parameters.TCPIP.port = port;
 
-    if( !_listener->listen( connDesc ))
+    if( !_connection->listen( connDesc ))
     {
-        delete _listener;
-        _listener = NULL;
+        delete _connection;
+        _connection = NULL;
         return false;
     }
 
@@ -125,97 +115,115 @@ bool Server::start( const char* hostname, const ushort port )
 //----------------------------------------------------------------------
 // connect to a server
 //----------------------------------------------------------------------
-Server* Server::connect( const char* hostname, const ushort port )
+Session* Server::createSession( const char* address )
 {
-    Server* server = new Server();
-    if( !server->_connect( hostname, port ))
+    Server*  server  = new Server();
+    Session* session = server->_createSession( address );
+
+    if( !session );
     {
         delete server;
         return NULL;
     }
-    return server;
+    return session;
 }
 
-
-bool Server::_connect( const char* hostname, const ushort port )
+Session* Server::_createSession( const char* address )
 {
     if( _state != STATE_STOPPED )
         return false;
 
-    Session* session = new Session( _sessionID++, this );
-
-    if( !_connectRemote( session, hostname, port ) && !_connectLocal( session ))
-    {
-        delete session;
+    if( !_connect( address ))
         return false;
-    }
 
-    _sessions[session->getID()]=session;
-    _state = STATE_STARTED;
-    
+    _sendSessionCreate();
+
+    while( _state != STATE_STARTED )
+        _handleRequest( _connection );
+
     INFO << endl << this;
+    return getSession(0); // XXX 
+}
+
+bool Server::_connect( const char* address )
+{
+    char *usedAddress;
+
+    if( address )
+        usedAddress = (char*)address;
+    else
+    {
+        // If the server address is <code>NULL</code>, the environment
+        // variable EQSERVER is used to determine the server address.
+        usedAddress = getenv( "EQSERVER" );
+
+        if( !usedAddress )
+        {
+            // If the environment variable is not set, the local server on the
+            // default port is contacted.
+            usedAddress = (char *)alloca( 16 );
+            sprintf( usedAddress, "localhost:%d", DEFAULT_PORT );
+        }
+    }
+
+    char   hostname[MAXHOSTNAMELEN];
+    ushort port;
+    Util::parseAddress( usedAddress, hostname, port );
+
+    if( !_connectRemote( hostname, port ) && !_connectLocal( ))
+        return false;
+
     return true;
 }
 
-bool Server::_connectRemote( Session* session, const char* hostname, 
-                             const ushort port )
+bool Server::_connectRemote( const char* hostname, const ushort port )
 {
-    Network*              network = session->newNetwork( eqNet::PROTO_TCPIP);
-    ConnectionDescription serverDesc;
-    ConnectionDescription localDesc;
+    _connection = Connection::create( PROTO_TCPIP );
 
-    const uint localNodeID = session->getLocalNodeID();
+    ConnectionDescription connDesc;
+    strncpy( connDesc.parameters.TCPIP.hostname, hostname, MAXHOSTNAMELEN+1);
+    connDesc.parameters.TCPIP.port = port;
 
-    gethostname( localDesc.parameters.TCPIP.hostname, MAXHOSTNAMELEN+1 );
-    localDesc.parameters.TCPIP.port = DEFAULT_PORT; // XXX use listening port
-
-    INFO << "Server node, id: " << getID() << ", TCP/IP address: " 
-         << serverDesc.parameters.TCPIP.hostname << ":" 
-         << serverDesc.parameters.TCPIP.port << endl;
-    INFO << "Local node,  id: " << localNodeID << ", TCP/IP address: " 
-         << localDesc.parameters.TCPIP.hostname << ":"
-         << localDesc.parameters.TCPIP.port << endl;
-
-    network->addNode( getID(), serverDesc );
-    network->addNode( localNodeID, localDesc );
-    network->setStarted( getID( ));
-
-    if( !network->init() || !network->start() || !network->connect( getID( )))
+    if( !_connection->connect( connDesc ))
     {
-        WARN << "Remote server init failed" << endl;
-        network->exit();
-        session->deleteNetwork( network );
+        WARN << "Remote server connect failed" << endl;
+        delete _connection;
+        _connection = NULL;
         return false;
     }
 
-    INFO << "Remote server initialised" << endl;
+    INFO << "Remote server connected" << endl;
     return true;
 }
 
-bool Server::_connectLocal( Session* session )
+bool Server::_connectLocal()
 {
-    Network*              network = session->newNetwork( eqNet::PROTO_PIPE );
-    ConnectionDescription serverDesc;
-    ConnectionDescription localDesc;
+    _connection = Connection::create( PROTO_PIPE );
 
-    serverDesc.parameters.PIPE.entryFunc = "Server::run";
-    localDesc.parameters.PIPE.entryFunc = NULL;
+    ConnectionDescription connDesc;
+    connDesc.parameters.PIPE.entryFunc = "Server::run";
 
-    network->addNode( this->getID(), serverDesc );
-    network->addNode( session->getLocalNodeID(), localDesc );
-
-    if( !network->init() || !network->start() || !network->connect( getID( )))
+    if( !_connection->connect( connDesc ))
     {
-        WARN << "Local server init failed" << endl;
-        network->exit();
-        session->deleteNetwork( network );
+        WARN << "Local server connect failed" << endl;
+        delete _connection;
+        _connection = NULL;
         return false;
     }
 
-    INFO << "Local server initialised" << endl;
+    INFO << "Local server connected" << endl;
     return true;
 }
 
+void Server::_sendSessionCreate()
+{
+    ASSERT( _connection );
+    ASSERT( _connection->getState() == Connection::STATE_CONNECTED );
+
+    ReqSessionCreatePacket packet;
+    gethostname( packet.requestorAddress, MAXHOSTNAMELEN+1);
+    _connection->send( &packet, packet.size );
+}
 
 //----------------------------------------------------------------------
 // main loop
@@ -225,9 +233,11 @@ int Server::_run()
     if( _state != STATE_STARTED )
         return EXIT_FAILURE;
 
+    ASSERT( _connection->getState() == Connection::STATE_LISTENING );
+
     while( true )
     {
-        Connection *connection = _listener->accept();
+        Connection *connection = _connection->accept();
         if( connection == NULL )
         {
             WARN << "Error during accept()" << endl;
@@ -239,54 +249,62 @@ int Server::_run()
     return EXIT_SUCCESS;
 }
 
-bool Server::_handleRequest( Connection *connection )
+void Server::_handleRequest( Connection *connection )
 {
+    INFO << "Handle request on " << connection << endl;
     ASSERT( connection->getState() == Connection::STATE_CONNECTED );
 
-    uint   size;
-    size_t received = connection->recv( &size, sizeof( size ));
+    uint64 size;
+    uint64 received = connection->recv( &size, sizeof( size ));
     ASSERT( received == sizeof( size ));
     ASSERT( size );
 
-    Packet* packet = (Packet*)malloc( size );
+    Packet* packet = (Packet*)alloca( size );
     packet->size   = size;
+    size -= sizeof( size );
 
     received      = connection->recv( &(packet->command), size );
     ASSERT( received == size );
     ASSERT( packet->command < CMD_ALL );
 
-    bool success = (this->*_cmdHandler[packet->command])( connection, packet );
-    free( packet );
-    return success;
+    INFO << "Received " << packet << endl;
+
+    (this->*_cmdHandler[packet->command])( connection, packet );
 }
 
-bool Server::_handleSessionCreate( Connection* connection, Packet* pkg )
+void Server::_handleUnknown( Connection* connection, Packet* pkg )
 {
-    ReqSessionCreatePacket* packet = (ReqSessionCreatePacket*)pkg;
+    ERROR << "Unknown packet " << pkg << endl;
+}
 
-    Session* session = _createSession( packet->localAddress, connection );
+void Server::_handleSessionCreate( Connection* connection, Packet* pkg )
+{
+    INFO << "Handle session create" << endl;
+
+    ReqSessionCreatePacket* packet = (ReqSessionCreatePacket*)pkg;
+    uint remoteNodeID;
+
+    Session* session = _createSession( packet->requestorAddress, connection,
+                                       remoteNodeID );
     if( !session )
-        return false;
+        return;
 
     _sessions[session->getID()] = session;
     INFO << "session created" << endl;
 
-    // TODO: session->initRemote()
-
-    // TODO: create session thread
-
-    return true;
+    session->initNode( remoteNodeID );
+    _startSessionThread( session );
 }
 
 Session* Server::_createSession( const char* remoteAddress, 
-                                 Connection* connection )
+                                 Connection* connection, uint& remoteNodeID )
 {
     Session*       session      = new Session( _sessionID++, this );
     SocketNetwork* network      = static_cast<SocketNetwork*>
         (session->newNetwork( eqNet::PROTO_TCPIP ));
     Node*          remoteNode   = session->newNode();
-    const uint     remoteNodeID = remoteNode->getID();
 
+    remoteNodeID = remoteNode->getID();
     session->setLocalNode( getID( ));
 
     // create and init one TCP/IP network
@@ -321,7 +339,7 @@ Session* Server::_createSession( const char* remoteAddress,
 }
 
 //----------------------------------------------------------------------
-// session thread initialisation
+// session thread (server-side)
 //----------------------------------------------------------------------
 
 class SessionThread : public eqBase::Thread
@@ -349,3 +367,4 @@ ssize_t Server::runSession( Session* session )
 {
     return EXIT_SUCCESS;
 }
+

@@ -30,34 +30,7 @@ Session::Session(const uint id, Server* server )
 
 Session* Session::create( const char* serverAddress )
 {
-    char *usedAddress;
-
-    if( serverAddress )
-        usedAddress = (char*)serverAddress;
-    else
-    {
-        // If the server address is <code>NULL</code>, the environment
-        // variable EQSERVER is used to determine the server address.
-        usedAddress = getenv( "EQSERVER" );
-
-        if( !usedAddress )
-        {
-            // If the environment variable is not set, the local server on the
-            // default port is contacted.
-            usedAddress = (char *)alloca( 16 );
-            sprintf( usedAddress, "localhost:%d", DEFAULT_PORT );
-        }
-    }
-
-    char   hostname[MAXHOSTNAMELEN];
-    ushort port;
-
-    Util::parseAddress( usedAddress, hostname, port );
-    Server* server = Server::connect( hostname, port );
-    if( !server )
-        return NULL;
-
-    return server->getSession(0);
+    return Server::createSession( serverAddress );
 }
 
 Network* Session::newNetwork( const NetworkProtocol protocol )

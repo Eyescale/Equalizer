@@ -20,7 +20,8 @@ namespace eqBase
     {
         LOG_ERROR,
         LOG_WARN,
-        LOG_INFO
+        LOG_INFO,
+        LOG_VERBATIM
     };
 
     /** The logging class */
@@ -40,5 +41,7 @@ namespace eqBase
     std::cout << "[W]"  LOG_EXTRA
 #define INFO  (eqBase::Log::level >= eqBase::LOG_INFO)  && \
     std::cout << "[I]"  LOG_EXTRA
+#define VERB  (eqBase::Log::level >= eqBase::LOG_VERBATIM)  && \
+    std::cout << "[V]"  LOG_EXTRA
 
 #endif //EQBASE_LOG_H
