@@ -346,7 +346,7 @@ class SessionThread : public eqBase::Thread
 {
 public:
     SessionThread( Server* parent, Session* session )
-            : eqBase::Thread( Thread::PTHREAD ),
+            : eqBase::Thread( eqBase::Thread::PTHREAD ),
               _parent( parent ),
               _session( session )
         {}

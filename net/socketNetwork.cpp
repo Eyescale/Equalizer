@@ -13,6 +13,7 @@
 #include <eq/base/base.h>
 #include <eq/base/log.h>
 #include <eq/base/thread.h>
+#include <alloca.h>
 
 using namespace eqNet::priv;
 using namespace std;
@@ -120,7 +121,7 @@ class ReceiverThread : public eqBase::Thread
 {
 public:
     ReceiverThread( SocketNetwork* parent )
-            : eqBase::Thread( Thread::PTHREAD ),
+            : eqBase::Thread( eqBase::Thread::PTHREAD ),
               _parent( parent )
         {}
 

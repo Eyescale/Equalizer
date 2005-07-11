@@ -34,7 +34,7 @@ $(OBJECT_DIR)/%.o : %.cpp
 
 # executables
 % : %.cpp
-	$(CXX) $< $(CXXFLAGS) -o $@ 
+	$(CXX) $< $(CXXFLAGS) $(SA_CXXFLAGS) -o $@ 
 
 # cleaning targets
 clean:
@@ -55,7 +55,7 @@ $(DEPENDENCIES): $(HEADER_SRC)
 $(OBJECT_DIR)/%.d : %.cpp
 	@mkdir -p $(OBJECT_DIR)
 	@echo "Dependencies for $<"
-	@($(CXX_DEPS) $(CXXFLAGS) -M -E $< | \
+	@($(CXX_DEPS) $(CXX_DEPS_FLAGS) -M -E $< | \
 		sed 's/\(.*:\)/$(OBJECT_DIR_ESCAPED)\/\1/' > $@) || rm $@ dummy
 
 -include dummy $(DEPENDENCIES)
