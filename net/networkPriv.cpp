@@ -4,10 +4,14 @@
 
 #include "networkPriv.h"
 
+#include "connection.h"
 #include "connectionDescription.h"
 #include "global.h"
 #include "network.h"
+#include "nodePriv.h"
+#include "packet.h"
 #include "pipeNetwork.h"
+#include "sessionPriv.h"
 #include "socketNetwork.h"
 
 #include <eq/base/log.h>
@@ -30,18 +34,21 @@ Network::~Network()
 Network* Network::create( const uint id, Session* session, 
     const eqNet::NetworkProtocol protocol )
 {
+    Network* network;
     switch( protocol )
     {
         case eqNet::PROTO_TCPIP:
-            return new SocketNetwork( id, session );
+            network = new SocketNetwork( id, session );
 
         case eqNet::PROTO_PIPE:
-            return new PipeNetwork( id, session );
+            network = new PipeNetwork( id, session );
 
         default:
             WARN << "Protocol not implemented" << endl;
             return NULL;
     }
+    network->_protocol = protocol;
+    return network;
 }
 
 void Network::addNode( const uint nodeID,
@@ -65,6 +72,21 @@ void Network::setStarted( const uint nodeID )
 {
     ASSERT( _descriptions.count(nodeID)!=0 );
 
+    _nodeStates[nodeID]  = NODE_RUNNING;
+}
+
+void Network::setStarted( const uint nodeID, Connection* connection )
+{
+    setStarted( _session->getNodeByID( nodeID ), connection );
+}
+
+void Network::setStarted( Node* node, Connection* connection )
+{
+    const uint nodeID = node->getID();
+    ASSERT( _descriptions.count(nodeID)!=0 );
+    ASSERT( connection->getState() == Connection::STATE_CONNECTED );
+
+    _connectionSet.addConnection( connection, this, node );
     _nodeStates[nodeID]  = NODE_RUNNING;
 }
 
@@ -169,4 +191,29 @@ const char* Network::_createLaunchCommand( const uint nodeID,
     result[resultIndex] = '\0';
     INFO << "Launch command: " << result << endl;
     return strdup(result);
+}
+
+void Network::send( Node* toNode, const Packet& packet )
+{
+    ASSERT( _nodeStates[toNode->getID()] == NODE_RUNNING );
+    
+    Connection* connection = _connectionSet.getConnection( toNode );
+    
+    if( !connection )
+    {
+        connection = Connection::create( _protocol );
+        ConnectionDescription* desc = _descriptions[toNode->getID()];
+        ASSERT( desc );
+
+        const bool connected = connection->connect( *desc );
+        if( !connected )
+        {
+            ERROR << "Can't connect to node " << toNode << endl;
+            delete connection;
+            return;
+        }
+        _connectionSet.addConnection( connection, this, toNode );
+    }
+
+    connection->send( &packet, packet.size );
 }

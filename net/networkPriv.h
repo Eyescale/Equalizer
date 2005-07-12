@@ -7,6 +7,7 @@
 
 #include "network.h"
 #include "base.h"
+#include "connectionSet.h"
 #include "idHash.h"
 
 namespace eqNet
@@ -16,6 +17,7 @@ namespace eqNet
 
     namespace priv
     {
+        class  Connection;
         class  Node;
         struct Packet;
         class  Session;
@@ -108,6 +110,24 @@ namespace eqNet
             virtual void setStarted( const uint nodeID );
 
             /** 
+             * Puts a node into started mode and specifies an existing
+             * connection to the node.
+             * 
+             * @param node the node.
+             * @param connection the open connection to the node.
+             */
+            virtual void setStarted( Node* node, Connection* connection );
+
+            /** 
+             * Puts a node into started mode and specifies an existing
+             * connection to the node.
+             * 
+             * @param node the nodes identifier.
+             * @param connection the open connection to the node.
+             */
+            virtual void setStarted( const uint nodeID, Connection* connection );
+
+            /** 
              * Forces a communication channel to be opened to the specified
              * node.
              * 
@@ -123,7 +143,7 @@ namespace eqNet
              * @param toNode the receiver node.
              * @param packet the packet.
              */
-            void send( const Node* toNode, const Packet& packet );
+            void send( Node* toNode, const Packet& packet );
 
             virtual ~Network();
 
@@ -142,8 +162,11 @@ namespace eqNet
             /** The session for this network. */
             Session* _session;
 
-            /** The current state of the session. */
+            /** The current state of the network. */
             State    _state;
+
+            /** The protocol of the network. */
+            eqNet::NetworkProtocol _protocol;
 
             /** The list of connection descriptions, indexed per node. */
             IDHash<ConnectionDescription*> _descriptions;
@@ -151,6 +174,8 @@ namespace eqNet
             /** The list of node states. */
             IDHash<NodeState> _nodeStates;
 
+            /** The set of active connections. */
+            ConnectionSet _connectionSet;
 
             /** 
              * Creates the launch command for a node.

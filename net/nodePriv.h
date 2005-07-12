@@ -41,7 +41,7 @@ namespace eqNet
             void send( Node* toNode, const Packet& packet )
                 {
                     const uint toNodeID = toNode->getID();
-                    if( !_nodeNetwork.containsKey( toNodeID ))
+                    if( !_nodeNetwork[toNodeID])
                         _nodeNetwork[toNodeID] = _findBestNetwork( toNode );
                     _nodeNetwork[toNodeID]->send( toNode, packet );
                 }

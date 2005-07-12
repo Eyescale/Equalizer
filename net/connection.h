@@ -122,7 +122,8 @@ namespace eqNet
              * @param bytes the number of bytes to send.
              * @return the number of bytes send.
              */
-            virtual uint64 send( const void* buffer, const uint64 bytes){return 0;}
+            virtual uint64 send( const void* buffer, const uint64 bytes)
+                {return 0;}
             //@}
 
             State getState() const { return _state; }

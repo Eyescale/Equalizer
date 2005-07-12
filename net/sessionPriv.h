@@ -56,6 +56,14 @@ namespace eqNet
              * @return the local node.
              */
             Node* getLocalNode(){ return _localNode; }
+
+            /** 
+             * Gets a node using its identifier.
+             * 
+             * @param nodeID the node identifier.
+             * @return the node.
+             */
+            Node* getNodeByID( const uint nodeID ){ return _nodes[nodeID]; }
             //*}
 
             /**

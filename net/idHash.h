@@ -12,17 +12,8 @@ namespace eqNet
     /** The namespace for the private implementation of the eqNet classes. */
     namespace priv
     {
-        template<class T> class IDHash : public eqBase::Hash<uint, T>
-        {
-        public:
-            bool containsKey( const uint key ) const;
-
-            T getValue( const uint key )
-                {
-                    if( !containsKey( key )) return (T)0;
-                    return (*this)[key];
-                }
-        };
+        template<class T> class IDHash : public Sgi::hash_map<uint, T>
+        {};
     }
 }
 

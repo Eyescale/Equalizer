@@ -4,7 +4,6 @@
 
 #include "connectionSet.h"
 #include "connection.h"
-#include "connectionListener.h"
 
 #include <eq/base/base.h>
 #include <errno.h>
@@ -28,37 +27,41 @@ ConnectionSet::ConnectionSet()
 ConnectionSet::~ConnectionSet()
 {}
 
-void ConnectionSet::addConnection( Connection* connection, 
-    ConnectionListener* listener )
+void ConnectionSet::addConnection( Connection* connection, Network* network, 
+                                   Node* node )
 {
-    _connections[connection] = listener;
+    ASSERT( connection->getState() == Connection::STATE_CONNECTED ||
+            connection->getState() == Connection::STATE_LISTENING );
+
+    _connections[node]    = connection;
+    _nodes[connection]    = node;
+    _networks[connection] = network;
     _fdSetDirty = true;
 }
 
 void ConnectionSet::removeConnection( Connection* connection )
 {
-    const size_t nDeleted = _connections.erase( connection );
+    eqBase::PtrHash<Connection*, Node*>::iterator iter =_nodes.find(connection);
+    if ( iter != _nodes.end( ))
+        return;
+
+    Node* node = (*iter).second;
+    ASSERT( node );
+
+    _connections.erase( node );
+    _nodes.erase( connection );
+    _networks.erase( connection );
     _fdSetDirty = true;
-    ASSERT( nDeleted==1 );
 }
 
 void ConnectionSet::clear()
 {
     _connections.clear();
+    _nodes.clear();
+    _networks.clear();
     _fdSetDirty = true;
 }
         
-ConnectionListener* ConnectionSet::getListener( Connection* connection )
-{
-    eqBase::PtrHash<Connection*, ConnectionListener*>::iterator iter = 
-        _connections.find( connection );
-
-    if( iter == _connections.end() )
-        return NULL;
-
-    return (*iter).second;
-}
-
 ConnectionSet::Event ConnectionSet::select( const int timeout )
 {
     _setupFDSet();
@@ -81,9 +84,10 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                 if( _fdSet[i].revents == 0 )
                     continue;
 
-                Connection*       connection = _fdSetConnections[_fdSet[i].fd];
-                ConnectionListener* listener = _connections[connection];
-                const int              event = _fdSet[i].revents;
+                Connection* connection = _fdSetConnections[_fdSet[i].fd];
+                const int   event      = _fdSet[i].revents;
+                _node    = _nodes[connection];
+                _network = _networks[connection];
 
                 INFO << "selected connection #" << i << " of " << _fdSetSize
                      << ", event " << event << endl;
@@ -96,7 +100,6 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 
                     case POLLIN:
                     case POLLPRI: // data is ready for reading
-                        listener->notifyData( connection );
 //                         if( _message )
 //                             delete _message;
 //                         if( !_network->readMessage( connection, _message, 
@@ -150,14 +153,14 @@ void ConnectionSet::_buildFDSet()
         _fdSet = new pollfd[_fdSetCapacity];
     }
 
-    size_t           i      = 0;
-    static const int events = POLLIN; // | POLLPRI;
+    size_t    i      = 0;
+    const int events = POLLIN; // | POLLPRI;
     _fdSetConnections.clear();
 
-    for( PtrHash<Connection*, ConnectionListener*>::iterator iter =
-             _connections.begin(); iter != _connections.end(); iter++ )
+    for( PtrHash<Node*, Connection*>::iterator iter = _connections.begin();
+         iter != _connections.end(); iter++ )
     {
-        Connection* connection = (*iter).first;
+        Connection* connection = (*iter).second;
         const int   fd         = connection->getReadFD();
 
         if( fd == -1 )

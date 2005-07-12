@@ -14,7 +14,6 @@ namespace eqNet
     namespace priv
     {
         class Connection;
-        class ConnectionListener;
         class Message;
         class Network;
         class Node;
@@ -40,18 +39,19 @@ namespace eqNet
             ConnectionSet();
             ~ConnectionSet();
 
-            void addConnection( Connection* connection, 
-                                ConnectionListener* listener );
-            void removeConnection( Connection* connection );
+            void        addConnection( Connection* connection, 
+                                       Network* network, Node* node );
+            void        removeConnection( Connection* connection );
+            Connection* getConnection( Node* node )
+                { return _connections[node]; }
             void clear();
 
-            eqBase::PtrHash<Connection*, ConnectionListener*>::iterator begin()
+            eqBase::PtrHash<Node*, Connection*>::iterator begin()
                 { return _connections.begin(); }
-            eqBase::PtrHash<Connection*, ConnectionListener*>::iterator end()
+            eqBase::PtrHash<Node*, Connection*>::iterator end()
                 { return _connections.end(); }
 
-            size_t              size() { return _connections.size(); }
-            ConnectionListener* getListener( Connection* connection );
+            size_t size() const { return _connections.size(); }
         
             Event select( const int timeout );
         
@@ -72,7 +72,9 @@ namespace eqNet
             Message* _message;
             int      _errno;
 
-            eqBase::PtrHash<Connection*, ConnectionListener*> _connections;
+            eqBase::PtrHash<Node*, Connection*>    _connections;
+            eqBase::PtrHash<Connection*, Node*>    _nodes;
+            eqBase::PtrHash<Connection*, Network*> _networks;
 
             void _setupFDSet();
             void _buildFDSet();

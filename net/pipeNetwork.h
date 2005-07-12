@@ -5,8 +5,7 @@
 #ifndef EQNET_PIPE_NETWORK_H
 #define EQNET_PIPE_NETWORK_H
 
-#include "connectionNetwork.h"
-#include "connectionListener.h"
+#include "dynamicNetwork.h"
 
 #include <iostream> 
 
@@ -17,11 +16,11 @@ namespace eqNet
         class Connection;
 
         /** A 'network' of two nodes connected using a pipe. */
-        class PipeNetwork : public ConnectionNetwork
+        class PipeNetwork : public DynamicNetwork
         {
         public:
             PipeNetwork( const uint id, Session* session ) :
-                    ConnectionNetwork( id, session ) {}
+                    DynamicNetwork( id, session ) {}
 
             virtual bool start();
             virtual void stop();
@@ -51,15 +50,14 @@ namespace eqNet
                 os << "Node " << nodeID << ": " << description;
             }
 
-            for( eqBase::PtrHash<Connection*, ConnectionListener*>::iterator
+            for( eqBase::PtrHash<Node*, Connection*>::iterator
                      iter = network->_connectionSet.begin(); 
                  iter != network->_connectionSet.end(); iter++ )
             {
-                Connection*         connection         = (*iter).first;
-                ConnectionListener* connectionListener = (*iter).second;
+                Node*       node       = (*iter).first;
+                Connection* connection = (*iter).second;
 
-                os << "Node " << connectionListener->getNodeID() << ": " 
-                   << connection;
+                os << "Node " << node << ": " << connection;
             }
 
             return os;

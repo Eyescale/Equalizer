@@ -96,7 +96,9 @@ namespace eqBase
         {
             pthread_t pthread;
             pid_t     fork;
-        } _threadID;
+        };
+ 
+        ThreadID _threadID;
 
         static void* runChild( void* arg );
         void        _runChild();

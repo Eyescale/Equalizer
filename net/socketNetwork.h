@@ -5,7 +5,7 @@
 #ifndef EQNET_SOCKET_NETWORK_H
 #define EQNET_SOCKET_NETWORK_H
 
-#include "connectionNetwork.h"
+#include "dynamicNetwork.h"
 
 #include <sys/param.h>
 #include <vector>
@@ -20,7 +20,7 @@ namespace eqNet
     namespace priv
     {
 #       define STARTUP_TIMEOUT 2000 // ms
-        class SocketNetwork : public ConnectionNetwork
+        class SocketNetwork : public DynamicNetwork
         {
         public:
             SocketNetwork( const uint id, Session* session );

@@ -5,7 +5,6 @@
 #include "socketNetwork.h"
 #include "connection.h"
 #include "connectionDescription.h"
-#include "connectionListener.h"
 #include "launcher.h"
 #include "sessionPriv.h"
 #include "socketConnection.h"
@@ -19,7 +18,7 @@ using namespace eqNet::priv;
 using namespace std;
 
 SocketNetwork::SocketNetwork( const uint id, Session* session )
-        : ConnectionNetwork( id, session ),
+        : DynamicNetwork( id, session ),
           _listener(NULL),
           _receiver(NULL)
 {
@@ -62,8 +61,9 @@ bool SocketNetwork::start()
 
 bool SocketNetwork::_startListener()
 {
-    const uint           localNodeID = _session->getLocalNodeID();
-    ConnectionDescription* localDesc = _getConnectionDescription( localNodeID );
+    Node*                  localNode   = _session->getLocalNode();
+    const uint             localNodeID = localNode->getID();
+    ConnectionDescription* localDesc   = _getConnectionDescription( localNodeID );
 
     if( !localDesc )
     {
@@ -83,8 +83,7 @@ bool SocketNetwork::_startListener()
         return false;
     }
 
-    ConnectionListener* connListener = new ConnectionListener(this,localNodeID);
-    _connectionSet.addConnection( _listener, connListener );
+    _connectionSet.addConnection( _listener, this, localNode );
     _nodeStates[localNodeID] = NODE_RUNNING;
 
     // TODO: Use 'address' if specified in localDesc?
@@ -102,11 +101,9 @@ void SocketNetwork::_stopListener()
     if( !_listener )
         return;
 
-    ConnectionListener* connListener =_connectionSet.getListener(_listener);
     _connectionSet.removeConnection( _listener );
     _listener->close();
     delete _listener;
-    delete connListener;
     _listener = NULL;
 
     const uint localNodeID   = _session->getLocalNodeID();
