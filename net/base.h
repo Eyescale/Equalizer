@@ -18,7 +18,7 @@ namespace eqNet
          * 
          * @return the object identifier
          */
-        uint getID(){ return _id; }
+        uint getID() const { return _id; }
  
     protected:
         /** 

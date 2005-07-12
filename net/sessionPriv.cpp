@@ -56,7 +56,7 @@ bool Session::deleteNetwork( Network* network )
 
 Node* Session::newNode()
 {
-    Node* node = new Node(_nodeID++);
+    Node* node = new Node( _nodeID++ );
     _nodes[node->getID()] = node;
     return node;
 }
@@ -77,8 +77,9 @@ bool Session::initNode( const uint nodeID )
     Node* node = (*iter).second; 
 
     SessionNewPacket sessionNewPacket;
-    sessionNewPacket.id;
-    sessionNewPacket.serverID;
+    sessionNewPacket.id = getID();
+    sessionNewPacket.serverID = _server->getID();
+    send( node, sessionNewPacket );
 
     for( IDHash<Node*>::iterator iter = _nodes.begin(); iter != _nodes.end();
          iter++ )
@@ -104,3 +105,4 @@ bool Session::initNode( const uint nodeID )
     }
     //connection->send( &response, response.size );
 }
+

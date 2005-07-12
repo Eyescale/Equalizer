@@ -15,6 +15,14 @@ namespace Sgi = std;
 
 namespace eqBase
 {
+    /** A derived std::hash_map with some added convenience methods. */
+    template<class K, class V> class Hash : public Sgi::hash_map<K, V>
+        {
+        public:
+            bool containsKey( K key ) const
+                { return ( find(key) != end() ); }
+        };
+
     /** 
      * Provides a hashing function for pointers.
      */

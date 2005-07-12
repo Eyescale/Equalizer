@@ -16,8 +16,9 @@ namespace eqNet
 
     namespace priv
     {
-        class Node;
-        class Session;
+        class  Node;
+        struct Packet;
+        class  Session;
 
         class Network : public eqNet::Network
         {
@@ -116,7 +117,14 @@ namespace eqNet
              */
             virtual bool connect( const uint nodeID ){ return false; }
 
-            //bool readMessage( 
+            /** 
+             * Sends a packet to a node using this network.
+             * 
+             * @param toNode the receiver node.
+             * @param packet the packet.
+             */
+            void send( const Node* toNode, const Packet& packet );
+
             virtual ~Network();
 
         protected:

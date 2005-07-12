@@ -7,7 +7,7 @@
 
 #include "base.h"
 #include "idHash.h"
-#include "network.h"
+#include "nodePriv.h"
 #include "session.h"
 
 #include <iostream>
@@ -18,8 +18,6 @@ namespace eqNet
 
     namespace priv
     {
-        class Network;
-        class Node;
         class Server;
         struct Packet;
 
@@ -109,6 +107,15 @@ namespace eqNet
              * @param nodeID the local node identifier.
              */
             void setLocalNode( const uint nodeID );
+
+            /** 
+             * Sends a packet to a node using the best network.
+             * 
+             * @param toNode the receiver node.
+             * @param packet the packet.
+             */
+            void send( Node* toNode, const Packet& packet )
+                { _localNode->send( toNode, packet ); }
 
         private:
             /** The list of nodes in this session. */
