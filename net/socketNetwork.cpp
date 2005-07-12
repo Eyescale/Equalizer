@@ -308,21 +308,6 @@ bool SocketNetwork::startNode(const uint nodeID)
     return false;
 }
 
-bool SocketNetwork::connect( const uint nodeID )
-{
-    if( _nodeStates[nodeID] != NODE_RUNNING )
-        return false;
-
-    ConnectionDescription* description = _getConnectionDescription( nodeID );
-    if( !description )
-        return false;
-
-    Connection* connection = Connection::create( PROTO_TCPIP );
-    if( !connection->connect( *description ))
-        return false;
-
-}
-
 void SocketNetwork::stop()
 {
     INFO << "SocketNetwork stopping" << endl;

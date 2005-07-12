@@ -29,7 +29,6 @@ namespace eqNet
             virtual bool start();
             virtual void stop();
             virtual bool startNode( const uint nodeID );
-            virtual bool connect( const uint nodeID );
 
             ssize_t runReceiver();
             

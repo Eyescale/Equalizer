@@ -128,8 +128,6 @@ bool SocketConnection::listen(ConnectionDescription &description)
     const size_t size = sizeof( sockaddr_in ); 
 
     _parseAddress( description, socketAddress ); //TODO restrict IP
-    //const bool anyAddr = ( socketAddress.sin_addr.s_addr == INADDR_ANY ); 
-    const bool anyPort = ( socketAddress.sin_port == 0 );
 
     const bool bound = (::bind(_readFD, (sockaddr *)&socketAddress, size) == 0);
 
