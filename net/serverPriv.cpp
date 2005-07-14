@@ -34,7 +34,7 @@ Server::Server()
         _cmdHandler[i] =  &eqNet::priv::Server::_handleUnknown;
 
     _cmdHandler[CMD_SESSION_CREATE] = &eqNet::priv::Server::_handleSessionCreate;
-    //_cmdHandler[CMD_SESSION_NEW] = &eqNet::priv::Server::_handle;
+    _cmdHandler[CMD_SESSION_NEW] = &eqNet::priv::Server::_handleSessionNew;
     //_cmdHandler[CMD_NODE_NEW] = &eqNet::priv::Server::_handle;
     //_cmdHandler[CMD_NETWORK_NEW] = &eqNet::priv::Server::_handle;
     //_cmdHandler[CMD_NETWORK_ADD_NODE] = &eqNet::priv::Server::_handle;
@@ -263,7 +263,8 @@ void Server::_handleRequest( Connection *connection )
     packet->size   = size;
     size -= sizeof( size );
 
-    received      = connection->recv( &(packet->command), size );
+    char* ptr = (char*)packet + sizeof(size);
+    received      = connection->recv( ptr, size );
     ASSERT( received == size );
     ASSERT( packet->command < CMD_ALL );
 
@@ -321,9 +322,9 @@ Session* Server::_createSession( const char* remoteAddress,
          << remoteDesc.parameters.TCPIP.hostname << ":" 
          << remoteDesc.parameters.TCPIP.port << endl;
 
-    network->addNode( getID(), serverDesc );
-    network->addNode( remoteNodeID, remoteDesc );
-    network->setStarted( remoteNodeID, connection );
+    network->addNode( this, serverDesc );
+    network->addNode( remoteNode, remoteDesc );
+    network->setStarted( remoteNode, connection );
 
     if( !network->init() || !network->start() )
     {
@@ -336,6 +337,18 @@ Session* Server::_createSession( const char* remoteAddress,
 
     session->initNode( remoteNodeID );
     return session;
+}
+
+void Server::_handleSessionNew( Connection* connection, Packet* pkg )
+{
+    INFO << "Handle session new" << endl;
+
+    SessionNewPacket* packet  = (SessionNewPacket*)pkg;
+    
+    ASSERT( getID() == packet->serverID );
+
+    Session*      session = new Session( packet->id, this );
+    _sessions[packet->id] = session;
 }
 
 //----------------------------------------------------------------------

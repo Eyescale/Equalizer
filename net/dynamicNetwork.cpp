@@ -3,15 +3,16 @@
 #include "connection.h"
 
 using namespace eqNet::priv;
+using namespace eqBase;
 
 bool DynamicNetwork::init()
 {
-    for( IDHash<ConnectionDescription*>::iterator iter = _descriptions.begin();
-         iter != _descriptions.end(); iter++ )
+    for( PtrHash<Node*, ConnectionDescription*>::iterator iter =
+             _descriptions.begin(); iter != _descriptions.end(); iter++ )
     {
-        const uint nodeID = (*iter).first;
-        if( _nodeStates[nodeID] == NODE_STOPPED )
-            _nodeStates[nodeID] = NODE_INITIALIZED;
+        Node* node = (*iter).first;
+        if( _nodeStates[node] == NODE_STOPPED )
+            _nodeStates[node] = NODE_INITIALIZED;
     }
 
     return true; // do nothing, connections can and will be created dynamically
@@ -28,10 +29,10 @@ void DynamicNetwork::exit()
     }
     _connectionSet.clear();
 
-    for( IDHash<ConnectionDescription*>::iterator iter = _descriptions.begin();
-         iter != _descriptions.end(); iter++ )
+    for( PtrHash<Node*, ConnectionDescription*>::iterator iter =
+             _descriptions.begin(); iter != _descriptions.end(); iter++ )
     {
-        const uint nodeID = (*iter).first;
-        _nodeStates[nodeID] = NODE_STOPPED;
+        Node* node = (*iter).first;
+        _nodeStates[node] = NODE_STOPPED;
     }
 }

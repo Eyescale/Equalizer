@@ -15,6 +15,7 @@
 #include <alloca.h>
 
 using namespace eqNet::priv;
+using namespace eqBase;
 using namespace std;
 
 SocketNetwork::SocketNetwork( const uint id, Session* session )
@@ -62,8 +63,7 @@ bool SocketNetwork::start()
 bool SocketNetwork::_startListener()
 {
     Node*                  localNode   = _session->getLocalNode();
-    const uint             localNodeID = localNode->getID();
-    ConnectionDescription* localDesc   = _getConnectionDescription( localNodeID );
+    ConnectionDescription* localDesc   = _descriptions[localNode];
 
     if( !localDesc )
     {
@@ -84,7 +84,7 @@ bool SocketNetwork::_startListener()
     }
 
     _connectionSet.addConnection( _listener, this, localNode );
-    _nodeStates[localNodeID] = NODE_RUNNING;
+    _nodeStates[localNode] = NODE_RUNNING;
 
     // TODO: Use 'address' if specified in localDesc?
     gethostname( localDesc->parameters.TCPIP.hostname, MAXHOSTNAMELEN+1 );
@@ -106,8 +106,8 @@ void SocketNetwork::_stopListener()
     delete _listener;
     _listener = NULL;
 
-    const uint localNodeID   = _session->getLocalNodeID();
-    _nodeStates[localNodeID] = NODE_STOPPED;
+    Node* localNode   = _session->getLocalNode();
+    _nodeStates[localNode] = NODE_STOPPED;
 }
 
 //----------------------------------------------------------------------
@@ -139,8 +139,8 @@ bool SocketNetwork::_startReceiver()
         return false;
     }
     
-    const uint   localNodeID = _session->getLocalNodeID();
-    _nodeStates[localNodeID] = NODE_RUNNING;
+    Node*        localNode = _session->getLocalNode();
+    _nodeStates[localNode] = NODE_RUNNING;
     return true;
 }
 
@@ -212,19 +212,19 @@ bool SocketNetwork::_startNodes()
     
 bool SocketNetwork::_launchNodes()
 {
-    for( IDHash<ConnectionDescription*>::iterator iter = _descriptions.begin();
-         iter != _descriptions.end(); iter++ )
+    for( PtrHash<Node*, ConnectionDescription*>::iterator iter =
+             _descriptions.begin(); iter != _descriptions.end(); iter++ )
     {
-        const uint nodeID = (*iter).first;
+        Node* node = (*iter).first;
         
-        if( _nodeStates[nodeID] == NODE_INITIALIZED )
+        if( _nodeStates[node] == NODE_INITIALIZED )
         {
             const ConnectionDescription* description = (*iter).second;
-            INFO << "Launching node " << nodeID << endl;
+            INFO << "Launching node " << node->getID() << endl;
     
-            if( !_launchNode( nodeID, description ))
+            if( !_launchNode( node, description ))
             {
-                WARN << "Could not launch node " << nodeID << endl;
+                WARN << "Could not launch node " << node->getID() << endl;
                 return false;
             }
         }
@@ -232,24 +232,24 @@ bool SocketNetwork::_launchNodes()
     return true;
 }
 
-bool SocketNetwork::_launchNode( const uint nodeID,
-    const ConnectionDescription* description )
+bool SocketNetwork::_launchNode( Node* node, 
+                                 const ConnectionDescription* description)
 {
-    const uint                 localNodeID = _session->getLocalNodeID();
-    const ConnectionDescription* localDesc = _descriptions[localNodeID];
+    Node*                        localNode = _session->getLocalNode();
+    const ConnectionDescription* localDesc = _descriptions[localNode];
     const char*              hostname = localDesc->parameters.TCPIP.hostname;
     const ushort             port     = localDesc->parameters.TCPIP.port;
 
     char* options = (char*)alloca( strlen(hostname) + 128 );
     sprintf( options, "--eq-server %s --eq-port %d --eq-nodeID %d", 
-             hostname, port, nodeID );
+             hostname, port, node->getID( ));
 
-    const char* launchCommand = _createLaunchCommand( nodeID, options );
+    const char* launchCommand = _createLaunchCommand( node, options );
     
     if( launchCommand )
         Launcher::run( launchCommand );
 
-    _nodeStates[nodeID] = NODE_LAUNCHED;
+    _nodeStates[node] = NODE_LAUNCHED;
 
     INFO << "All nodes launched" << endl;
     return true;
@@ -259,15 +259,15 @@ bool SocketNetwork::_connectNodes()
 {
     IDHash<ConnectionDescription*> launchedNodes;
 
-    for( IDHash<ConnectionDescription*>::iterator iter = _descriptions.begin();
-         iter != _descriptions.end(); iter++ )
+    for( PtrHash<Node*, ConnectionDescription*>::iterator iter =
+             _descriptions.begin(); iter != _descriptions.end(); iter++ )
     {
-        const uint nodeID = (*iter).first;
+        Node* node = (*iter).first;
         
-        if( _nodeStates[nodeID] == NODE_LAUNCHED )
+        if( _nodeStates[node] == NODE_LAUNCHED )
         {
             ConnectionDescription* description = (*iter).second;
-            launchedNodes[nodeID] = description;
+            launchedNodes[node->getID()] = description;
         }
     }
 
@@ -286,7 +286,10 @@ bool SocketNetwork::_connectNodes()
         ASSERT( nodeID );
         ASSERT( launchedNodes.find( nodeID ) != launchedNodes.end() );
 
-        setStarted( nodeID, connection );
+        Node* node = _session->getNodeByID( nodeID );
+        ASSERT( node );
+
+        setStarted( node, connection );
         launchedNodes.erase( nodeID );
     }
 
@@ -302,7 +305,7 @@ void SocketNetwork::_stopNodes()
 
 
 
-bool SocketNetwork::startNode(const uint nodeID)
+bool SocketNetwork::startNode(Node* node)
 {
     // TODO
     return false;

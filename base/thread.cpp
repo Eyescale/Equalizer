@@ -65,6 +65,15 @@ void Thread::_runChild()
     }
 }
 
+// the signal handler for SIGCHILD
+static void sigChildHandler( int /*signal*/ )
+{
+    //int status;
+    //int pid = wait( &status );
+    INFO << "Received SIGCHILD" << endl;
+    signal( SIGCHLD, sigChildHandler );
+}
+
 bool Thread::start()
 {
     if( _threadState != STATE_STOPPED )
@@ -99,6 +108,7 @@ bool Thread::start()
 
         case FORK:
         {
+            signal( SIGCHLD, sigChildHandler );
             const int result = fork();
             switch( result )
             {

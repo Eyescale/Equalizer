@@ -12,6 +12,7 @@
 #include "node.h"
 #include "base.h"
 
+#include <algorithm>
 #include <vector>
 
 namespace eqNet
@@ -40,19 +41,24 @@ namespace eqNet
              */
             void send( Node* toNode, const Packet& packet )
                 {
-                    const uint toNodeID = toNode->getID();
-                    if( !_nodeNetwork[toNodeID])
-                        _nodeNetwork[toNodeID] = _findBestNetwork( toNode );
-                    _nodeNetwork[toNodeID]->send( toNode, packet );
+                    if( !_nodeNetwork[toNode])
+                        _nodeNetwork[toNode] = _findBestNetwork( toNode );
+                    _nodeNetwork[toNode]->send( toNode, packet );
                 }
-                     
-            bool isInNetwork( Network* network ){ return true; } // XXX
+
+            void addNetwork( Network* network ) { _networks.push_back(network);}
+            bool isInNetwork( Network* network )
+                { 
+                    return (std::find( _networks.begin(), _networks.end(), 
+                                       network) != _networks.end() );
+                }
+
         protected:
             /** The list of networks in which this node is running. */
             std::vector<Network*> _networks;
 
             /** Maps a remote node the best network to reach it. */
-            IDHash<Network*> _nodeNetwork;
+            eqBase::PtrHash<Node*, Network*> _nodeNetwork;
 
             Network* _findBestNetwork( Node* toNode );
 
@@ -62,8 +68,7 @@ namespace eqNet
 
         inline std::ostream& operator << ( std::ostream& os, Node* node )
         {
-            os << "    Node " << node->getID() << "(" << (void*)node << ")" 
-               << std::endl;
+            os << "    Node " << node->getID() << "(" << (void*)node << ")";
             
             return os;
         }

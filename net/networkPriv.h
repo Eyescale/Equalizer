@@ -8,7 +8,8 @@
 #include "network.h"
 #include "base.h"
 #include "connectionSet.h"
-#include "idHash.h"
+
+#include <eq/base/hash.h>
 
 namespace eqNet
 {
@@ -46,11 +47,11 @@ namespace eqNet
             /**
              * Adds a node to this network.
              *
-             * @param nodeID the node identifier.
+             * @param node the node.
              * @param connection the connection parameters.
              * @sa Node::enableForwarding(), Node::disableForwarding()
              */
-            virtual void addNode( const uint nodeID, 
+            virtual void addNode( Node* nodeID,
                 const eqNet::ConnectionDescription& connection );
 
             /**
@@ -92,12 +93,12 @@ namespace eqNet
             /**
              * Starts a node in this initialized network.
              *
-             * @param nodeID the node identifier.
+             * @param node the node.
              * @return <code>true</code> if the node was successfully
              *         started, <code>false</code> if not.
              * @sa start(), init()
              */
-            virtual bool startNode( const uint nodeID ) = 0;
+            virtual bool startNode( Node* node ) = 0;
             //@}
 
             /** 
@@ -105,9 +106,9 @@ namespace eqNet
              *
              * Used for nodes already running, i.e., the server.
              * 
-             * @param nodeID the node identifier.
+             * @param nodeID the node.
              */
-            virtual void setStarted( const uint nodeID );
+            virtual void setStarted( Node* node );
 
             /** 
              * Puts a node into started mode and specifies an existing
@@ -117,25 +118,6 @@ namespace eqNet
              * @param connection the open connection to the node.
              */
             virtual void setStarted( Node* node, Connection* connection );
-
-            /** 
-             * Puts a node into started mode and specifies an existing
-             * connection to the node.
-             * 
-             * @param node the nodes identifier.
-             * @param connection the open connection to the node.
-             */
-            virtual void setStarted( const uint nodeID, Connection* connection );
-
-            /** 
-             * Forces a communication channel to be opened to the specified
-             * node.
-             * 
-             * @param nodeID the node identifier.
-             * @return <code>true</code> if a communication channel to this node
-             *         is opened, <code>false</code> if not.
-             */
-            virtual bool connect( const uint nodeID ){ return false; }
 
             /** 
              * Sends a packet to a node using this network.
@@ -169,10 +151,10 @@ namespace eqNet
             eqNet::NetworkProtocol _protocol;
 
             /** The list of connection descriptions, indexed per node. */
-            IDHash<ConnectionDescription*> _descriptions;
+            eqBase::PtrHash<Node*, ConnectionDescription*> _descriptions;
 
             /** The list of node states. */
-            IDHash<NodeState> _nodeStates;
+            eqBase::PtrHash<Node*, NodeState> _nodeStates;
 
             /** The set of active connections. */
             ConnectionSet _connectionSet;
@@ -182,13 +164,12 @@ namespace eqNet
              * 
              * The returned string has to be freed by the caller.
              *
-             * @param nodeID the identifier of the node.
+             * @param node the node.
              * @param args command line arguments for the launch command, may
              *             not be <code>NULL</code>
              * @return the launch command.
              */
-            const char* _createLaunchCommand( const uint nodeID, 
-                                              const char* args );
+            const char* _createLaunchCommand( Node* node, const char* args );
 
             friend inline std::ostream& operator << 
                 (std::ostream& os, Network* network);
@@ -197,18 +178,21 @@ namespace eqNet
         inline std::ostream& operator << ( std::ostream& os, Network* network )
         {
             os << "    Network " << network->getID() << "(" 
-               << (void*)network <<  "): " << network->_descriptions.size()
-               << " node[s] connected" << std::endl;
+               << (void*)network <<  "): proto " << 
+                ( network->_protocol == PROTO_TCPIP ? "TCP/IP" : 
+                  network->_protocol == PROTO_PIPE  ? "pipe()" :
+                  network->_protocol == PROTO_MPI   ? "MPI " : "unknown" )
+               << network->_descriptions.size() << " node[s]" << std::endl;
             
-            for( IDHash<ConnectionDescription*>::iterator iter = 
+            for( eqBase::PtrHash<Node*, ConnectionDescription*>::iterator iter= 
                      network->_descriptions.begin();
                  iter != network->_descriptions.end(); iter++ )
             {
-                const uint                  nodeID = (*iter).first;
+                Node*                         node = (*iter).first;
                 ConnectionDescription* description = (*iter).second;
-                const Network::NodeState   state = network->_nodeStates[nodeID];
+                const Network::NodeState     state = network->_nodeStates[node];
 
-                os << "    Node " << nodeID << ": " << description << ", "
+                os << "    Node " << (void*)node << ": " << description << ", " 
                    << (state==Network::NODE_STOPPED     ? "stopped" : 
                        state==Network::NODE_INITIALIZED ? "initialized" :
                        state==Network::NODE_RUNNING     ? "running" : 

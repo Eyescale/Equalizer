@@ -24,9 +24,7 @@ namespace eqNet
 
             virtual bool start();
             virtual void stop();
-            virtual bool startNode(const uint nodeID);
-            virtual bool connect( const uint nodeID )
-                { return ( _nodeStates.find(nodeID) != _nodeStates.end( )); }
+            virtual bool startNode( Node* node );
 
         private:
 
@@ -41,17 +39,17 @@ namespace eqNet
                << " node[s] connected, " << network->_connectionSet.size() 
                << " connection[s] active" << std::endl;
             
-            for( IDHash<ConnectionDescription*>::iterator iter =
+            for( eqBase::PtrHash<Node*, ConnectionDescription*>::iterator iter =
                      network->_descriptions.begin();
                  iter != network->_descriptions.end(); iter++ )
             {
-                const uint             nodeID      = (*iter).first;
+                Node*                  node        = (*iter).first;
                 ConnectionDescription* description = (*iter).second;
-                os << "Node " << nodeID << ": " << description;
+                os << "Node " << node << ": " << description;
             }
 
-            for( eqBase::PtrHash<Node*, Connection*>::iterator
-                     iter = network->_connectionSet.begin(); 
+            for( eqBase::PtrHash<Node*, Connection*>::iterator iter =
+                     network->_connectionSet.begin(); 
                  iter != network->_connectionSet.end(); iter++ )
             {
                 Node*       node       = (*iter).first;

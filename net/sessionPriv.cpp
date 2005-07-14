@@ -22,10 +22,14 @@ using namespace std;
 Session::Session(const uint id, Server* server )
         : eqNet::Session(id),
           _networkID(1),
-          _nodeID(NODE_ID_SERVER+1),
-          _server(server)
+          _server(server),
+          _serverID(server->getID()),
+          _localNode(NULL),
+          _localNodeID(INVALID_ID),
+          _nodeID(server->getID()+1)
 {
     _nodes[server->getID()] = server;
+    INFO << "New session" << this << endl;
 }
 
 Session* Session::create( const char* serverAddress )

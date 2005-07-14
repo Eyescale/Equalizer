@@ -99,7 +99,6 @@ namespace eqNet
             ConnectionDescription connectionDescription;
         };
 
-        
         inline std::ostream& operator << ( std::ostream& os, Packet* packet )
         {
             os << "Packet cmd " << packet->command << " id " << packet->id

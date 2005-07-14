@@ -18,6 +18,7 @@
 #include <alloca.h>
 
 using namespace eqNet::priv;
+using namespace eqBase;
 using namespace std;
 
 Network::Network( const uint id, Session* session )
@@ -39,20 +40,22 @@ Network* Network::create( const uint id, Session* session,
     {
         case eqNet::PROTO_TCPIP:
             network = new SocketNetwork( id, session );
+            break;
 
         case eqNet::PROTO_PIPE:
             network = new PipeNetwork( id, session );
+            break;
 
         default:
-            WARN << "Protocol not implemented" << endl;
+            WARN << "Protocol " << protocol << " not implemented" << endl;
             return NULL;
     }
     network->_protocol = protocol;
     return network;
 }
 
-void Network::addNode( const uint nodeID,
-    const eqNet::ConnectionDescription& description )
+void Network::addNode( Node* node,
+                       const eqNet::ConnectionDescription& description )
 {
     ConnectionDescription *desc = new ConnectionDescription();
     *desc = description;
@@ -64,36 +67,31 @@ void Network::addNode( const uint nodeID,
                 strdup( description.parameters.PIPE.entryFunc );
     }
    
-    _descriptions[nodeID] = desc;
-    _nodeStates[nodeID]   = NODE_STOPPED;
+    _descriptions[node] = desc;
+    _nodeStates[node]   = NODE_STOPPED;
+    node->addNetwork( this );
 }
 
-void Network::setStarted( const uint nodeID )
+void Network::setStarted( Node* node )
 {
-    ASSERT( _descriptions.count(nodeID)!=0 );
+    ASSERT( _descriptions.count(node)==1 );
 
-    _nodeStates[nodeID]  = NODE_RUNNING;
-}
-
-void Network::setStarted( const uint nodeID, Connection* connection )
-{
-    setStarted( _session->getNodeByID( nodeID ), connection );
+    _nodeStates[node]  = NODE_RUNNING;
 }
 
 void Network::setStarted( Node* node, Connection* connection )
 {
-    const uint nodeID = node->getID();
-    ASSERT( _descriptions.count(nodeID)!=0 );
+    ASSERT( _descriptions.count(node)==1 );
     ASSERT( connection->getState() == Connection::STATE_CONNECTED );
 
     _connectionSet.addConnection( connection, this, node );
-    _nodeStates[nodeID]  = NODE_RUNNING;
+    _nodeStates[node]  = NODE_RUNNING;
 }
 
-const char* Network::_createLaunchCommand( const uint nodeID, 
-                                           const char* args )
+const char* Network::_createLaunchCommand( Node* node, const char* args )
 {
-    IDHash<ConnectionDescription*>::iterator iter = _descriptions.find(nodeID);
+    PtrHash<Node*, ConnectionDescription*>::iterator iter = 
+        _descriptions.find(node);
 
     if( iter == _descriptions.end() )
         return NULL;
@@ -195,14 +193,14 @@ const char* Network::_createLaunchCommand( const uint nodeID,
 
 void Network::send( Node* toNode, const Packet& packet )
 {
-    ASSERT( _nodeStates[toNode->getID()] == NODE_RUNNING );
+    ASSERT( _nodeStates[toNode] == NODE_RUNNING );
     
     Connection* connection = _connectionSet.getConnection( toNode );
     
     if( !connection )
     {
         connection = Connection::create( _protocol );
-        ConnectionDescription* desc = _descriptions[toNode->getID()];
+        ConnectionDescription* desc = _descriptions[toNode];
         ASSERT( desc );
 
         const bool connected = connection->connect( *desc );
@@ -215,5 +213,7 @@ void Network::send( Node* toNode, const Packet& packet )
         _connectionSet.addConnection( connection, this, toNode );
     }
 
+    INFO << "Sending packet " << &packet << "using connection " << connection
+         << endl;
     connection->send( &packet, packet.size );
 }

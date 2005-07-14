@@ -101,7 +101,7 @@ namespace eqNet
             /** 
              * Initialises a remote node.
              * 
-             * This is uesd to copy the session information to a newly connected
+             * This is used to copy the session information to a newly connected
              * node.
              *
              * @param nodeID the node identifier.
@@ -140,13 +140,15 @@ namespace eqNet
 
             /** The server node. */
             Server* _server;
+            uint    _serverID;
 
             /** The local node. */
             Node* _localNode;
+            uint  _localNodeID;
 
             /*virtual void pack( const Connection* connection, 
                                const bool fullUpdate );
-                               void         send( Packet* packet );*/
+            */
 
             friend inline std::ostream& operator << 
                 (std::ostream& os, Session* session);
@@ -162,7 +164,7 @@ namespace eqNet
                  iter != session->_nodes.end(); iter++ )
             {
                 Node* node = (*iter).second;
-                os << node;
+                os << node << std::endl;
             }
 
             for( IDHash<Network*>::iterator iter = session->_networks.begin();

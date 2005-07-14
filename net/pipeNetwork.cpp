@@ -7,6 +7,7 @@
 #include <eq/base/log.h>
 
 using namespace eqNet::priv;
+using namespace eqBase;
 using namespace std;
 
 bool PipeNetwork::start()
@@ -21,17 +22,17 @@ bool PipeNetwork::start()
     // create and connect pipe connections, will fork().
     INFO << "PipeNetwork starting " << _descriptions.size() << " nodes" << endl;
 
-    for( IDHash<ConnectionDescription*>::iterator iter = _descriptions.begin();
-         iter != _descriptions.end(); iter++ )
+    for( PtrHash<Node*, ConnectionDescription*>::iterator iter =
+             _descriptions.begin(); iter != _descriptions.end(); iter++ )
     {
-        const uint                   nodeID      = (*iter).first;
+        Node*                        node        = (*iter).first;
         const ConnectionDescription* description = (*iter).second;
         const char*         entryFunc = description->parameters.PIPE.entryFunc;
 
         if( entryFunc == NULL ) // local node
             continue;
 
-        INFO << "Starting node " << nodeID << endl;
+        INFO << "Starting node " << node << endl;
         Connection *connection = Connection::create( eqNet::PROTO_PIPE );
     
         if( !connection->connect( *description ))
@@ -40,13 +41,13 @@ bool PipeNetwork::start()
             return false;
         }
 
-        setStarted( nodeID, connection );
+        setStarted( node, connection );
     }
  
     return true;
 }
 
-bool PipeNetwork::startNode(const uint nodeID)
+bool PipeNetwork::startNode( Node* node )
 {
     WARN << "PipeNetwork does not support dynamic node starting" << endl;
     return false;
