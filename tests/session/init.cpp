@@ -14,6 +14,12 @@ int main( int argc, char **argv )
 
     cout << "Create new session... " << endl;
     Session* session = Session::create(NULL);
+
+    if( !session )
+        cout << " Got no session" << endl;
+    else
+        cout << " Got session #" << session->getID() << endl;
+
     sleep(1);
 }
 

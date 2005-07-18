@@ -6,6 +6,7 @@
 #include "connection.h"
 #include "connectionDescription.h"
 #include "launcher.h"
+#include "nodePriv.h"
 #include "sessionPriv.h"
 #include "socketConnection.h"
 

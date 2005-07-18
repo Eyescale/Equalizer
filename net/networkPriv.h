@@ -6,7 +6,9 @@
 #define EQNET_NETWORK_PRIV_H
 
 #include "network.h"
-#include "base.h"
+#include "basePriv.h"
+
+#include "commands.h"
 #include "connectionSet.h"
 
 #include <eq/base/hash.h>
@@ -20,10 +22,11 @@ namespace eqNet
     {
         class  Connection;
         class  Node;
-        struct Packet;
         class  Session;
+        struct NetworkPacket;
+        struct Packet;
 
-        class Network : public eqNet::Network
+        class Network : public Base, public eqNet::Network
         {
         public:
             /** The network state. */
@@ -32,6 +35,15 @@ namespace eqNet
                 STATE_STOPPED,
                 STATE_STARTING,
                 STATE_RUNNING
+            };
+
+            /** The state of the individual nodes. */
+            enum NodeState
+            {
+                NODE_STOPPED,
+                NODE_INITIALIZED,
+                NODE_LAUNCHED,
+                NODE_RUNNING
             };
 
             /** 
@@ -127,19 +139,20 @@ namespace eqNet
              */
             void send( Node* toNode, const Packet& packet );
 
+            /** 
+             * Handles a command packet.
+             * 
+             * @param connection the connection which received the packet. 
+             * @param packet the packet.
+             */
+            void handlePacket( Connection* connection, 
+                               const NetworkPacket* packet );
+
+
             virtual ~Network();
 
         protected:
             Network( const uint id, Session* session );
-
-            /** The state of the individual nodes. */
-            enum NodeState
-            {
-                NODE_STOPPED,
-                NODE_INITIALIZED,
-                NODE_LAUNCHED,
-                NODE_RUNNING
-            };
 
             /** The session for this network. */
             Session* _session;
@@ -171,28 +184,34 @@ namespace eqNet
              */
             const char* _createLaunchCommand( Node* node, const char* args );
 
+            /** The command handler function table. */
+            void (eqNet::priv::Network::*_cmdHandler[CMD_NETWORK_ALL])(Connection* connection, const Packet* packet );
+
+            // the command handler functions and helper functions
+            void _handleNetworkAddNode( Connection* connection, const Packet* packet );
+
             friend inline std::ostream& operator << 
                 (std::ostream& os, Network* network);
         };
 
         inline std::ostream& operator << ( std::ostream& os, Network* network )
         {
-            os << "    Network " << network->getID() << "(" 
+            os << "Network " << network->getID() << "(" 
                << (void*)network <<  "): proto " << 
                 ( network->_protocol == PROTO_TCPIP ? "TCP/IP" : 
                   network->_protocol == PROTO_PIPE  ? "pipe()" :
                   network->_protocol == PROTO_MPI   ? "MPI " : "unknown" )
-               << network->_descriptions.size() << " node[s]" << std::endl;
+               << network->_descriptions.size() << " node[s]";
             
-            for( eqBase::PtrHash<Node*, ConnectionDescription*>::iterator iter= 
-                     network->_descriptions.begin();
+            for( eqBase::PtrHash<Node*, ConnectionDescription*>::const_iterator
+                     iter = network->_descriptions.begin();
                  iter != network->_descriptions.end(); iter++ )
             {
                 Node*                         node = (*iter).first;
                 ConnectionDescription* description = (*iter).second;
                 const Network::NodeState     state = network->_nodeStates[node];
 
-                os << "    Node " << (void*)node << ": " << description << ", " 
+                os << std::endl << "    " << node << ": " << description << " " 
                    << (state==Network::NODE_STOPPED     ? "stopped" : 
                        state==Network::NODE_INITIALIZED ? "initialized" :
                        state==Network::NODE_RUNNING     ? "running" : 

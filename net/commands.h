@@ -12,6 +12,7 @@ namespace eqNet
         enum ServerCommand
         {
             CMD_SESSION_CREATE,
+            CMD_SESSION_CREATED,
             CMD_SESSION_NEW,
             CMD_SERVER_ALL // must be last
         };
@@ -27,6 +28,11 @@ namespace eqNet
         {
             CMD_NETWORK_ADD_NODE,
             CMD_NETWORK_ALL // must be last
+        };
+
+        enum NodeCommand
+        {
+            CMD_NODE_ALL // must be last
         };
     }
 };

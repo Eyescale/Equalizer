@@ -145,6 +145,20 @@ namespace eqNet
 
             State                 _state;       //!< The connection state
         };
+
+        inline std::ostream& operator << ( std::ostream& os, 
+                                           const Connection* connection )
+        {
+            Connection::State state = connection->getState();
+
+            os << "Connection " << (void*)connection << " "
+               << ( state == Connection::STATE_CLOSED     ? "closed" :
+                    state == Connection::STATE_CONNECTING ? "connecting" :
+                    state == Connection::STATE_CONNECTED  ? "connected" :
+                    state == Connection::STATE_LISTENING  ? "listening" :
+                    "unknown state" );
+            return os;
+        }
     }
 }
 #endif //EQNET_CONNECTION_H

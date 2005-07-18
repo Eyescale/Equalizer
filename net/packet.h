@@ -5,7 +5,6 @@
 #ifndef EQNET_PACKET_PRIV_H
 #define EQNET_PACKET_PRIV_H
 
-#include "commands.h"
 #include "connectionDescription.h"
 #include "global.h"
 
@@ -34,94 +33,147 @@ namespace eqNet
         struct Packet
         {
             uint64  size;
-            uint64  id;
             uint    datatype;
             uint    command;
         };
 
-        struct ReqSessionCreatePacket : public Packet
+        //------------------------------------------------------------
+        // server
+        //------------------------------------------------------------
+        struct ServerPacket: public Packet
         {
-            ReqSessionCreatePacket()
+            ServerPacket(){ datatype = DATATYPE_SERVER; }
+            uint64  serverID;
+        };
+
+        struct SessionCreatePacket : public ServerPacket
+        {
+            SessionCreatePacket()
                 { 
                     command  = CMD_SESSION_CREATE;
-                    id       = INVALID_ID;
-                    datatype = DATATYPE_SERVER;
-                    size     = sizeof( ReqSessionCreatePacket ); 
+                    serverID = INVALID_ID;
+                    size     = sizeof( SessionCreatePacket ); 
                 }
 
             char requestorAddress[MAXHOSTNAMELEN+1];
         };            
 
-        struct SessionCreatePacket : public Packet
+        struct SessionCreatedPacket : public ServerPacket
         {
-            SessionCreatePacket() 
+            SessionCreatedPacket() 
                 {
-                    command  = CMD_SESSION_CREATE;
-                    datatype = DATATYPE_SERVER;
-                    size     = sizeof( SessionCreatePacket ); 
+                    command  = CMD_SESSION_CREATED;
+                    size     = sizeof( SessionCreatedPacket ); 
                 }
             
+            uint sessionID;
             uint localNodeID;
-            uint serverID;
-            uint networkID;
         };
 
-        struct SessionNewPacket : public Packet
+        struct SessionNewPacket : public ServerPacket
         {
             SessionNewPacket() 
                 {
                     command  = CMD_SESSION_NEW;
-                    datatype = DATATYPE_SERVER;
                     size     = sizeof( SessionNewPacket ); 
                 }
 
-            uint serverID;
+            uint sessionID;
         };
 
-        struct NodeNewPacket : public Packet
+        //------------------------------------------------------------
+        // Session
+        //------------------------------------------------------------
+        struct SessionPacket : public ServerPacket
+        {
+            SessionPacket(){ datatype = DATATYPE_SESSION; }
+            uint sessionID;
+        };
+
+        struct NodeNewPacket : public SessionPacket
         {
             NodeNewPacket() 
                 {
                     command  = CMD_NODE_NEW;
-                    datatype = DATATYPE_SESSION;
                     size     = sizeof( NodeNewPacket ); 
                 }
 
-            uint sessionID;
+            uint nodeID;
         };
 
-        struct NetworkNewPacket : public Packet
+        struct NetworkNewPacket : public SessionPacket
         {
             NetworkNewPacket() 
                 {
                     command  = CMD_NETWORK_NEW;
-                    datatype = DATATYPE_SESSION;
                     size     = sizeof( NetworkNewPacket ); 
                 }
 
-            uint sessionID;
-            Network::State state;
+            uint            networkID;
+            Network::State  state;
             NetworkProtocol protocol;
         };
 
-        struct NetworkAddNodePacket : public Packet
+        //------------------------------------------------------------
+        // Network
+        //------------------------------------------------------------
+        struct NetworkPacket : public SessionPacket
+        {
+            NetworkPacket(){ datatype = DATATYPE_NETWORK; }
+            uint networkID;
+        };
+
+        struct NetworkAddNodePacket : public NetworkPacket
         {
             NetworkAddNodePacket() 
                 {
                     command  = CMD_NETWORK_ADD_NODE;
-                    datatype = DATATYPE_NETWORK;
                     size     = sizeof( NetworkAddNodePacket ); 
                 }
 
-            uint nodeID;
+            uint                  nodeID;
             ConnectionDescription connectionDescription;
-            uint nodeState;
+            Network::NodeState    nodeState;
         };
 
-        inline std::ostream& operator << ( std::ostream& os, Packet* packet )
+        //------------------------------------------------------------
+        // Node
+        //------------------------------------------------------------
+        struct NodePacket : public SessionPacket
         {
-            os << "Packet cmd " << packet->command << " id " << packet->id
-               << std::endl;
+            NodePacket(){ datatype = DATATYPE_NODE; }
+            uint nodeID;
+        };
+
+
+        inline std::ostream& operator << ( std::ostream& os, 
+                                           const Packet* packet )
+        {
+            os << "Packet dt " << packet->datatype << " cmd "<< packet->command;
+            return os;
+        }
+        inline std::ostream& operator << ( std::ostream& os, 
+                                           const ServerPacket* packet )
+        {
+            os << (Packet*)packet << " srv " << packet->serverID;
+            return os;
+        }
+        inline std::ostream& operator << ( std::ostream& os, 
+                                           const SessionPacket* packet )
+        {
+            os << (ServerPacket*)packet << " ssn " << packet->sessionID;
+            return os;
+        }
+        inline std::ostream& operator << ( std::ostream& os, 
+                                           const NetworkPacket* packet )
+        {
+            os << (SessionPacket*)packet << " nwk " << packet->networkID;
+            return os;
+        }
+        inline std::ostream& operator << ( std::ostream& os, 
+                                           const NodePacket* packet )
+        {
+            os << (SessionPacket*)packet << " nod " << packet->nodeID;
             return os;
         }
     }

@@ -5,10 +5,11 @@
 #ifndef EQNET_SESSION_PRIV_H
 #define EQNET_SESSION_PRIV_H
 
-#include "base.h"
-#include "idHash.h"
-#include "nodePriv.h"
 #include "session.h"
+#include "basePriv.h"
+
+#include "commands.h"
+#include "idHash.h"
 
 #include <iostream>
 
@@ -18,13 +19,18 @@ namespace eqNet
 
     namespace priv
     {
+        class Node;
         class NodeList;
+        class Network;
         class Server;
+
         struct Packet;
+        struct SessionPacket;
 
-        inline std::ostream& operator << (std::ostream& os, Network* network);
+        inline std::ostream& operator << ( std::ostream& os, Network* network );
+        inline std::ostream& operator << ( std::ostream& os, const Node* node );
 
-        class Session : public eqNet::Session
+        class Session : public Base, public eqNet::Session
         {
         public:
             /** 
@@ -106,6 +112,15 @@ namespace eqNet
              */
             void setLocalNode( const uint nodeID );
 
+            /** 
+             * Handles a command packet.
+             * 
+             * @param connection the connection which received the packet. 
+             * @param packet the packet.
+             */
+            void handlePacket( Connection* connection, 
+                               const SessionPacket* packet );
+
             void pack( const NodeList& nodes, const bool initial );
             
         private:
@@ -129,6 +144,14 @@ namespace eqNet
             Node* _localNode;
             uint  _localNodeID;
 
+            /** The command handler function table. */
+            void (eqNet::priv::Session::*_cmdHandler[CMD_SESSION_ALL])(Connection* connection, const Packet* packet );
+
+            // the command handler functions and helper functions
+            void _handleNodeNew( Connection* connection, const Packet* packet );
+            void _handleNetworkNew(Connection* connection,const Packet* packet);
+
+
             friend inline std::ostream& operator << 
                 (std::ostream& os, Session* session);
         };
@@ -143,14 +166,14 @@ namespace eqNet
                  iter != session->_nodes.end(); iter++ )
             {
                 Node* node = (*iter).second;
-                os << node << std::endl;
+                os << "    " << node << std::endl;
             }
 
             for( IDHash<Network*>::iterator iter = session->_networks.begin();
                  iter != session->_networks.end(); iter++ )
             {
                 Network* network = (*iter).second;
-                os << network;
+                os << "    " << network << std::endl;
             }
 
             return os;

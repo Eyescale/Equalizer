@@ -29,6 +29,6 @@ int getLogLevel()
 #ifdef NDEBUG
     return LOG_WARN;
 #else
-    return LOG_VERBATIM;
+    return LOG_INFO;
 #endif
 }

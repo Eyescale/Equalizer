@@ -34,11 +34,9 @@ Server::Server()
     for( int i=0; i<CMD_SERVER_ALL; i++ )
         _cmdHandler[i] =  &eqNet::priv::Server::_handleUnknown;
 
-    _cmdHandler[CMD_SESSION_CREATE] = &eqNet::priv::Server::_handleSessionCreate;
+    _cmdHandler[CMD_SESSION_CREATE] =&eqNet::priv::Server::_handleSessionCreate;
+    _cmdHandler[CMD_SESSION_CREATED] = &eqNet::priv::Server::_handleSessionCreated;
     _cmdHandler[CMD_SESSION_NEW] = &eqNet::priv::Server::_handleSessionNew;
-//     _cmdHandler[CMD_NODE_NEW] = &eqNet::priv::Server::_handleNodeNew;
-//     _cmdHandler[CMD_NETWORK_NEW] = &eqNet::priv::Server::_handleNetworkNew;
-//     _cmdHandler[CMD_NETWORK_ADD_NODE] = &eqNet::priv::Server::_handleNetworkAddNode;
 }
 
 Session* Server::getSession( const uint index )
@@ -221,7 +219,7 @@ void Server::_sendSessionCreate()
     ASSERT( _connection );
     ASSERT( _connection->getState() == Connection::STATE_CONNECTED );
 
-    ReqSessionCreatePacket packet;
+    SessionCreatePacket packet;
     gethostname( packet.requestorAddress, MAXHOSTNAMELEN+1);
     _connection->send( &packet, packet.size );
 }
@@ -267,8 +265,13 @@ void Server::_handleRequest( Connection *connection )
     char* ptr = (char*)packet + sizeof(size);
     received      = connection->recv( ptr, size );
     ASSERT( received == size );
-    INFO << "Received " << packet << endl;
 
+    _handlePacket( connection, packet );
+}
+
+void Server::_handlePacket( Connection* connection, const Packet* packet )
+{
+    INFO << "handle " << packet << endl;
     switch( packet->datatype )
     {
         case DATATYPE_SERVER:
@@ -279,37 +282,42 @@ void Server::_handleRequest( Connection *connection )
         case DATATYPE_SESSION:
         case DATATYPE_NETWORK:
         case DATATYPE_NODE:
+        {
+            const SessionPacket* sessionPacket = (SessionPacket*)(packet);
+            Session* session = _sessions[sessionPacket->sessionID];
+            ASSERT( session );
+
+            session->handlePacket( connection, sessionPacket );
+        } break;
+
         default:
             WARN << "Unhandled packet " << packet << endl;
     }
 }
 
-void Server::_handleUnknown( Connection* connection, Packet* pkg )
+void Server::_handleSessionCreate( Connection* connection, const Packet* pkg )
 {
-    ERROR << "Unknown packet " << pkg << endl;
-    exit( EXIT_FAILURE );
-}
-
-void Server::_handleSessionCreate( Connection* connection, Packet* pkg )
-{
-    INFO << "Handle session create" << endl;
-
-    ReqSessionCreatePacket* packet = (ReqSessionCreatePacket*)pkg;
+    const SessionCreatePacket* packet = (SessionCreatePacket*)pkg;
+    INFO << "Handle session create: " << packet << endl;
 
     Node*    remoteNode;
     Session* session    = _createSession( packet->requestorAddress, connection,
                                           &remoteNode );
-    if( !session )
-        return;
+    ASSERT( session );
+    NodeList nodes;
+    nodes.push_back( remoteNode );
 
     _sessions[session->getID()] = session;
     INFO << "session created" << endl;
 
-    NodeList nodes;
-    nodes.push_back( remoteNode );
-
     session->pack( nodes, true );
-    //connection->send( &response, response.size );
+
+    SessionCreatedPacket reply;
+    reply.serverID    = getID();
+    reply.sessionID   = session->getID();
+    reply.localNodeID = remoteNode->getID();
+    nodes.send( this, reply );
+
     _startSessionThread( session );
 }
 
@@ -353,35 +361,30 @@ Session* Server::_createSession( const char* remoteAddress,
     return session;
 }
 
-void Server::_handleSessionNew( Connection* connection, Packet* pkg )
+void Server::_handleSessionCreated( Connection* connection, const Packet* pkg )
 {
-    INFO << "Handle session new" << endl;
-    SessionNewPacket* packet  = (SessionNewPacket*)pkg;
+    const SessionCreatedPacket* packet = (SessionCreatedPacket*)pkg;
+    INFO << "Handle session created: " << packet << endl;
+
+    ASSERT( packet->serverID == getID());
+
+    Session* session = _sessions[packet->sessionID];
+    ASSERT( session );
+
+    session->setLocalNode( packet->localNodeID );
+    _state = STATE_STARTED;
+}
+
+void Server::_handleSessionNew( Connection* connection, const Packet* pkg )
+{
+    const SessionNewPacket* packet  = (SessionNewPacket*)pkg;
+    INFO << "Handle session new: " << packet << endl;
     
     ASSERT( getID() == packet->serverID );
 
-    Session*      session = new Session( packet->id, this );
-    _sessions[packet->id] = session;
+    Session* session = new Session( packet->sessionID, this );
+    _sessions[packet->sessionID] = session;
 }
-
-// void Server::_handleNodeNew( Connection* connection, Packet* pkg )
-// {
-//     INFO << "Handle node new" << endl;
-//     NodeNewPacket* packet  = (NodeNewPacket*)pkg;
-// }
-
-// void Server::_handleNetworkNew( Connection* connection, Packet* pkg )
-// {
-//     INFO << "Handle network new" << endl;
-//     NetworkNewPacket* packet  = (NetworkNewPacket*)pkg;
-// }
-
-// void Server::_handleNetworkAddNode( Connection* connection, Packet* pkg )
-// {
-//     INFO << "Handle network add node" << endl;
-//     SessionNewPacket* packet  = (SessionNewPacket*)pkg;
-// }
-
 
 //----------------------------------------------------------------------
 // session thread (server-side)

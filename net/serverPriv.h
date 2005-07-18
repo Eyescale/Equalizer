@@ -114,21 +114,21 @@ namespace eqNet
             Connection* _connection;
 
             /** The command handler function table. */
-            void (eqNet::priv::Server::*_cmdHandler[CMD_SERVER_ALL])(Connection* connection,Packet* packet);
+            void (eqNet::priv::Server::*_cmdHandler[CMD_SERVER_ALL])(Connection* connection, const Packet* packet );
 
             // the command handler functions and helper functions
-            void _handleUnknown( Connection* connection, Packet* packet );
-            void _handleSessionCreate( Connection* connection, Packet* packet );
+            void _handlePacket( Connection* connection, const Packet* packet );
+            void _handleSessionCreate( Connection* connection, 
+                                       const Packet* packet );
             Session* _createSession( const char* remoteAddress, 
                                      Connection* connection, Node** remoteNode);
             bool     _startSessionThread( Session* session );
 
-            void _handleSessionNew( Connection* connection, Packet* packet );
-//             void _handleNodeNew( Connection* connection, Packet* packet );
-//             void _handleNetworkNew( Connection* connection, Packet* packet );
-//             void _handleNetworkAddNode( Connection* connection, Packet* packet);
+            void _handleSessionCreated( Connection* connection, 
+                                        const Packet* packet );
+            void _handleSessionNew( Connection* connection, 
+                                    const Packet* packet );
 
-            // node-side functions
             Session* _createSession( const char* address );
             void _sendSessionCreate();
 

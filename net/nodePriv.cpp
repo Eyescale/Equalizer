@@ -6,11 +6,12 @@
 #include "sessionPriv.h"
 
 using namespace eqNet::priv;
+using namespace std;
 
 Node::Node( const uint id )
-        : Base(id),
-          eqNet::Node()
+        : eqNet::Node( id )
 {
+    INFO << "New node " << this << endl;
 }
 
 Network* Node::_findBestNetwork( Node* toNode )

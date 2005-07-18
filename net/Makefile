@@ -13,6 +13,7 @@ HEADER_SRC = \
 	session.h
 
 SOURCES = \
+	basePriv.cpp \
 	connection.cpp \
 	connectionSet.cpp \
 	dynamicNetwork.cpp \

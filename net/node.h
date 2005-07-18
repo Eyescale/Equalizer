@@ -7,6 +7,7 @@
 
 #include <eq/base/base.h>
 
+#include "base.h"
 #include "message.h"
 
 namespace eqNet
@@ -22,7 +23,7 @@ namespace eqNet
      *
      * Thread-safety: ?
      */
-    class Node
+    class Node : public Base
     {
     public:
         /**
@@ -79,6 +80,9 @@ namespace eqNet
         static void* recv( const uint fromNodeID, const Message::Type type, 
             const void *ptr, const uint64 *count, const float timeout );
         //@}
+
+    protected:
+        Node( const uint id ) : Base(id) {}
     };
 };
 

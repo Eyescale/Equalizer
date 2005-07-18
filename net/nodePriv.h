@@ -7,10 +7,10 @@
 
 #include <eq/base/base.h>
 
+#include "basePriv.h"
 #include "idHash.h"
 #include "networkPriv.h"
 #include "node.h"
-#include "base.h"
 
 #include <algorithm>
 #include <vector>
@@ -61,15 +61,11 @@ namespace eqNet
             eqBase::PtrHash<Node*, Network*> _nodeNetwork;
 
             Network* _findBestNetwork( Node* toNode );
-
-            friend inline std::ostream& operator << 
-                (std::ostream& os, Node* node);
         };
 
-        inline std::ostream& operator << ( std::ostream& os, Node* node )
+        inline std::ostream& operator << ( std::ostream& os, const Node* node )
         {
-            os << "    Node " << node->getID() << "(" << (void*)node << ")";
-            
+            os << "Node " << node->getID() << "(" << (void*)node << ")";
             return os;
         }
     }
