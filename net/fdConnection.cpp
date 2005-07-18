@@ -78,7 +78,7 @@ uint64 FDConnection::recv( const void* buffer, const uint64 bytes )
 //----------------------------------------------------------------------
 // write
 //----------------------------------------------------------------------
-uint64 FDConnection::send( const void* buffer, const uint64 bytes )
+uint64 FDConnection::send( const void* buffer, const uint64 bytes ) const
 {
     if( _state != STATE_CONNECTED || _writeFD == -1 )
         return 0;

@@ -9,14 +9,24 @@ namespace eqNet
 {
     namespace priv
     {
-        enum Command
+        enum ServerCommand
         {
             CMD_SESSION_CREATE,
             CMD_SESSION_NEW,
+            CMD_SERVER_ALL // must be last
+        };
+
+        enum SessionCommand
+        {
             CMD_NODE_NEW,
             CMD_NETWORK_NEW,
+            CMD_SESSION_ALL // must be last
+        };
+
+        enum NetworkCommand
+        {
             CMD_NETWORK_ADD_NODE,
-            CMD_ALL // must be last
+            CMD_NETWORK_ALL // must be last
         };
     }
 };

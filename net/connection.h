@@ -8,6 +8,7 @@
 #include <eq/base/base.h>
 
 #include "network.h"
+#include "packet.h"
 
 #include <poll.h>
 #include <stdexcept>
@@ -122,8 +123,17 @@ namespace eqNet
              * @param bytes the number of bytes to send.
              * @return the number of bytes send.
              */
-            virtual uint64 send( const void* buffer, const uint64 bytes)
+            virtual uint64 send( const void* buffer, const uint64 bytes) const
                 {return 0;}
+
+            /** 
+             * Sends a packaged message using the connection.
+             * 
+             * @param packet the message packet.
+             * @return the number of bytes send.
+             */
+            uint64 send( const Packet &packet ) const
+                {return send( &packet, packet.size); }
             //@}
 
             State getState() const { return _state; }

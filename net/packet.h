@@ -6,6 +6,8 @@
 #define EQNET_PACKET_PRIV_H
 
 #include "commands.h"
+#include "connectionDescription.h"
+#include "global.h"
 
 #include "networkPriv.h"
 
@@ -17,6 +19,15 @@ namespace eqNet
 
     namespace priv
     {
+        enum 
+        {
+            DATATYPE_SERVER,
+            DATATYPE_SESSION,
+            DATATYPE_NETWORK,
+            DATATYPE_NODE,
+            DATATYPE_USER = 1<<16
+        };
+
         /**
          * Represents a packet.
          */
@@ -24,16 +35,18 @@ namespace eqNet
         {
             uint64  size;
             uint64  id;
-            Command command;
+            uint    datatype;
+            uint    command;
         };
 
         struct ReqSessionCreatePacket : public Packet
         {
             ReqSessionCreatePacket()
                 { 
-                    command = CMD_SESSION_CREATE;
-                    id = INVALID_ID;
-                    size = sizeof( ReqSessionCreatePacket ); 
+                    command  = CMD_SESSION_CREATE;
+                    id       = INVALID_ID;
+                    datatype = DATATYPE_SERVER;
+                    size     = sizeof( ReqSessionCreatePacket ); 
                 }
 
             char requestorAddress[MAXHOSTNAMELEN+1];
@@ -43,8 +56,9 @@ namespace eqNet
         {
             SessionCreatePacket() 
                 {
-                    command = CMD_SESSION_CREATE;
-                    size = sizeof( SessionCreatePacket ); 
+                    command  = CMD_SESSION_CREATE;
+                    datatype = DATATYPE_SERVER;
+                    size     = sizeof( SessionCreatePacket ); 
                 }
             
             uint localNodeID;
@@ -56,8 +70,9 @@ namespace eqNet
         {
             SessionNewPacket() 
                 {
-                    command = CMD_SESSION_NEW;
-                    size = sizeof( SessionNewPacket ); 
+                    command  = CMD_SESSION_NEW;
+                    datatype = DATATYPE_SERVER;
+                    size     = sizeof( SessionNewPacket ); 
                 }
 
             uint serverID;
@@ -67,8 +82,9 @@ namespace eqNet
         {
             NodeNewPacket() 
                 {
-                    command = CMD_NODE_NEW;
-                    size = sizeof( NodeNewPacket ); 
+                    command  = CMD_NODE_NEW;
+                    datatype = DATATYPE_SESSION;
+                    size     = sizeof( NodeNewPacket ); 
                 }
 
             uint sessionID;
@@ -78,8 +94,9 @@ namespace eqNet
         {
             NetworkNewPacket() 
                 {
-                    command = CMD_NETWORK_NEW;
-                    size = sizeof( NetworkNewPacket ); 
+                    command  = CMD_NETWORK_NEW;
+                    datatype = DATATYPE_SESSION;
+                    size     = sizeof( NetworkNewPacket ); 
                 }
 
             uint sessionID;
@@ -91,12 +108,14 @@ namespace eqNet
         {
             NetworkAddNodePacket() 
                 {
-                    command = CMD_NETWORK_ADD_NODE;
-                    size = sizeof( NetworkAddNodePacket ); 
+                    command  = CMD_NETWORK_ADD_NODE;
+                    datatype = DATATYPE_NETWORK;
+                    size     = sizeof( NetworkAddNodePacket ); 
                 }
 
             uint nodeID;
             ConnectionDescription connectionDescription;
+            uint nodeState;
         };
 
         inline std::ostream& operator << ( std::ostream& os, Packet* packet )

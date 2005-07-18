@@ -1,5 +1,5 @@
 
-.PHONY: subdirs $(SUBDIRS) dummy
+.PHONY: subdirs $(SUBDIRS) $(DEPENDENCIES)
 .SUFFIXES: .d
 
 # recursive subdir rules
@@ -27,7 +27,12 @@ $(STATIC_LIB): $(OBJECT_DIR) $(OBJECTS)
 	@rm -f $@
 	$(AR) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 
+OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
+
 $(OBJECT_DIR)/%.o : %.cpp
+	@($(CXX_DEPS) $(CXX_DEPS_FLAGS) -M -E $< | \
+		sed 's/\(.*:\)/$(OBJECT_DIR_ESCAPED)\/\1/' > \
+		$(@D)/$*.d ) || rm $(@D)/$*.d
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 %.cpp: $(OBJECT_DIR)/%d
@@ -38,24 +43,14 @@ $(OBJECT_DIR)/%.o : %.cpp
 
 # cleaning targets
 clean:
-	rm -f *~ .*~ $(OBJECTS) $(HEADERS) $(STATIC_LIB) $(DYNAMIC_LIB) $(CLEAN)
+	rm -f *~ .*~ $(OBJECTS) $(HEADERS) $(STATIC_LIB) $(DYNAMIC_LIB) $(CLEAN) $(DEPENDENCIES)
 	rm -rf $(OBJECT_DIR)/ii_files
 ifdef SUBDIRS
 	@for d in $(SUBDIRS); do \
 		echo "$(DEPTH) $$d clean"; \
-		$(MAKE) TOP=$(SUBTOP) DEPENDENCIES=dummy -C $$d $@ ;\
+		$(MAKE) TOP=$(SUBTOP) -C $$d $@ ;\
 	done
 endif
 
 # dependencies
-OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
-
-$(DEPENDENCIES): $(HEADER_SRC)
-
-$(OBJECT_DIR)/%.d : %.cpp
-	@mkdir -p $(OBJECT_DIR)
-	@echo "Dependencies for $<"
-	@($(CXX_DEPS) $(CXX_DEPS_FLAGS) -M -E $< | \
-		sed 's/\(.*:\)/$(OBJECT_DIR_ESCAPED)\/\1/' > $@) || rm $@ dummy
-
 -include dummy $(DEPENDENCIES)

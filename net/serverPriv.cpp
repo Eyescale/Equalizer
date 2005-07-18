@@ -8,6 +8,7 @@
 #include "connectionDescription.h"
 #include "global.h"
 #include "networkPriv.h"
+#include "nodeList.h"
 #include "packet.h"
 #include "pipeNetwork.h"
 #include "sessionPriv.h"
@@ -30,14 +31,14 @@ Server::Server()
           _state(STATE_STOPPED),
           _connection(NULL)
 {
-    for( int i=0; i<CMD_ALL; i++ )
+    for( int i=0; i<CMD_SERVER_ALL; i++ )
         _cmdHandler[i] =  &eqNet::priv::Server::_handleUnknown;
 
     _cmdHandler[CMD_SESSION_CREATE] = &eqNet::priv::Server::_handleSessionCreate;
     _cmdHandler[CMD_SESSION_NEW] = &eqNet::priv::Server::_handleSessionNew;
-    //_cmdHandler[CMD_NODE_NEW] = &eqNet::priv::Server::_handle;
-    //_cmdHandler[CMD_NETWORK_NEW] = &eqNet::priv::Server::_handle;
-    //_cmdHandler[CMD_NETWORK_ADD_NODE] = &eqNet::priv::Server::_handle;
+//     _cmdHandler[CMD_NODE_NEW] = &eqNet::priv::Server::_handleNodeNew;
+//     _cmdHandler[CMD_NETWORK_NEW] = &eqNet::priv::Server::_handleNetworkNew;
+//     _cmdHandler[CMD_NETWORK_ADD_NODE] = &eqNet::priv::Server::_handleNetworkAddNode;
 }
 
 Session* Server::getSession( const uint index )
@@ -266,16 +267,27 @@ void Server::_handleRequest( Connection *connection )
     char* ptr = (char*)packet + sizeof(size);
     received      = connection->recv( ptr, size );
     ASSERT( received == size );
-    ASSERT( packet->command < CMD_ALL );
-
     INFO << "Received " << packet << endl;
 
-    (this->*_cmdHandler[packet->command])( connection, packet );
+    switch( packet->datatype )
+    {
+        case DATATYPE_SERVER:
+            ASSERT( packet->command < CMD_SERVER_ALL );
+            (this->*_cmdHandler[packet->command])( connection, packet );
+            break;
+
+        case DATATYPE_SESSION:
+        case DATATYPE_NETWORK:
+        case DATATYPE_NODE:
+        default:
+            WARN << "Unhandled packet " << packet << endl;
+    }
 }
 
 void Server::_handleUnknown( Connection* connection, Packet* pkg )
 {
     ERROR << "Unknown packet " << pkg << endl;
+    exit( EXIT_FAILURE );
 }
 
 void Server::_handleSessionCreate( Connection* connection, Packet* pkg )
@@ -283,29 +295,32 @@ void Server::_handleSessionCreate( Connection* connection, Packet* pkg )
     INFO << "Handle session create" << endl;
 
     ReqSessionCreatePacket* packet = (ReqSessionCreatePacket*)pkg;
-    uint remoteNodeID;
 
-    Session* session = _createSession( packet->requestorAddress, connection,
-                                       remoteNodeID );
+    Node*    remoteNode;
+    Session* session    = _createSession( packet->requestorAddress, connection,
+                                          &remoteNode );
     if( !session )
         return;
 
     _sessions[session->getID()] = session;
     INFO << "session created" << endl;
 
-    session->initNode( remoteNodeID );
+    NodeList nodes;
+    nodes.push_back( remoteNode );
+
+    session->pack( nodes, true );
+    //connection->send( &response, response.size );
     _startSessionThread( session );
 }
 
 Session* Server::_createSession( const char* remoteAddress, 
-                                 Connection* connection, uint& remoteNodeID )
+                                 Connection* connection, Node** remoteNode )
 {
     Session*       session      = new Session( _sessionID++, this );
     SocketNetwork* network      = static_cast<SocketNetwork*>
         (session->newNetwork( eqNet::PROTO_TCPIP ));
-    Node*          remoteNode   = session->newNode();
 
-    remoteNodeID = remoteNode->getID();
+    *remoteNode = session->newNode();
     session->setLocalNode( getID( ));
 
     // create and init one TCP/IP network
@@ -318,13 +333,14 @@ Session* Server::_createSession( const char* remoteAddress,
     INFO << "Server node, id: " << getID() << ", TCP/IP address: " 
          << serverDesc.parameters.TCPIP.hostname << ":" 
          << serverDesc.parameters.TCPIP.port << endl;
-    INFO << "Local node,  id: " << remoteNodeID << ", TCP/IP address: " 
-         << remoteDesc.parameters.TCPIP.hostname << ":" 
+    INFO << "Local node,  id: " << (*remoteNode)->getID()
+         << ", TCP/IP address: " << remoteDesc.parameters.TCPIP.hostname << ":" 
          << remoteDesc.parameters.TCPIP.port << endl;
 
     network->addNode( this, serverDesc );
-    network->addNode( remoteNode, remoteDesc );
-    network->setStarted( remoteNode, connection );
+    network->addNode( *remoteNode, remoteDesc );
+    network->setStarted( *remoteNode, connection );
+    network->setStarted( this );
 
     if( !network->init() || !network->start() )
     {
@@ -334,15 +350,12 @@ Session* Server::_createSession( const char* remoteAddress,
         delete session;
         return NULL;
     }
-
-    session->initNode( remoteNodeID );
     return session;
 }
 
 void Server::_handleSessionNew( Connection* connection, Packet* pkg )
 {
     INFO << "Handle session new" << endl;
-
     SessionNewPacket* packet  = (SessionNewPacket*)pkg;
     
     ASSERT( getID() == packet->serverID );
@@ -350,6 +363,25 @@ void Server::_handleSessionNew( Connection* connection, Packet* pkg )
     Session*      session = new Session( packet->id, this );
     _sessions[packet->id] = session;
 }
+
+// void Server::_handleNodeNew( Connection* connection, Packet* pkg )
+// {
+//     INFO << "Handle node new" << endl;
+//     NodeNewPacket* packet  = (NodeNewPacket*)pkg;
+// }
+
+// void Server::_handleNetworkNew( Connection* connection, Packet* pkg )
+// {
+//     INFO << "Handle network new" << endl;
+//     NetworkNewPacket* packet  = (NetworkNewPacket*)pkg;
+// }
+
+// void Server::_handleNetworkAddNode( Connection* connection, Packet* pkg )
+// {
+//     INFO << "Handle network add node" << endl;
+//     SessionNewPacket* packet  = (SessionNewPacket*)pkg;
+// }
+
 
 //----------------------------------------------------------------------
 // session thread (server-side)

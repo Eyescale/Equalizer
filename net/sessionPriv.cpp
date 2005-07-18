@@ -7,6 +7,7 @@
 #include "connectionDescription.h"
 #include "networkPriv.h"
 #include "nodePriv.h"
+#include "nodeList.h"
 #include "packet.h"
 #include "server.h"
 #include "serverPriv.h"
@@ -24,12 +25,12 @@ Session::Session(const uint id, Server* server )
           _networkID(1),
           _server(server),
           _serverID(server->getID()),
+          _nodeID(server->getID()+1),
           _localNode(NULL),
-          _localNodeID(INVALID_ID),
-          _nodeID(server->getID()+1)
+          _localNodeID(INVALID_ID)
 {
     _nodes[server->getID()] = server;
-    INFO << "New session" << this << endl;
+    INFO << "New session" << this;
 }
 
 Session* Session::create( const char* serverAddress )
@@ -73,40 +74,30 @@ void Session::setLocalNode( const uint nodeID )
 }
 
 
-bool Session::initNode( const uint nodeID )
+void Session::pack( const NodeList& nodes, const bool initial )
 {
-    IDHash<Node*>::iterator iter = _nodes.find( nodeID );
-    ASSERT( iter != _nodes.end( ));
-
-    Node* node = (*iter).second; 
+    //if( initial )
 
     SessionNewPacket sessionNewPacket;
-    sessionNewPacket.id = getID();
+    const uint       sessionID = getID();
+    sessionNewPacket.id = sessionID;
     sessionNewPacket.serverID = _server->getID();
-    send( node, sessionNewPacket );
-
+    nodes.send( _localNode, sessionNewPacket );
+    
     for( IDHash<Node*>::iterator iter = _nodes.begin(); iter != _nodes.end();
          iter++ )
     {
         NodeNewPacket nodeNewPacket;
-        nodeNewPacket.id;
-        nodeNewPacket.sessionID;
+        nodeNewPacket.id        = (*iter).first;
+        nodeNewPacket.sessionID = sessionID;
+        nodes.send( _localNode, nodeNewPacket );
     };
 
     for( IDHash<Network*>::iterator iter = _networks.begin();
          iter != _networks.end(); iter++ )
     {
-        NetworkNewPacket networkNewPacket;
-        networkNewPacket.id;
-        networkNewPacket.sessionID;
-        networkNewPacket.state;
-        networkNewPacket.protocol;
-
-        NetworkAddNodePacket networkAddNodePacket;
-        networkAddNodePacket.id;
-        networkAddNodePacket.nodeID;
-        networkAddNodePacket.connectionDescription;
+        const Network* network   = (*iter).second;
+        //network->pack( connections, fullUpdate );
     }
-    //connection->send( &response, response.size );
 }
 

@@ -217,3 +217,17 @@ void Network::send( Node* toNode, const Packet& packet )
          << endl;
     connection->send( &packet, packet.size );
 }
+// {
+//         NetworkNewPacket networkNewPacket;
+//         networkNewPacket.id = networkID;
+//         networkNewPacket.sessionID = sessionID;
+//         networkNewPacket.state = network->getState();
+//         networkNewPacket.protocol = network->getProtocol();
+//         send( node, networkNewPacket );
+
+//         NetworkAddNodePacket networkAddNodePacket;
+//         networkAddNodePacket.id = networkID;
+//         networkAddNodePacket.nodeID = ;
+//         networkAddNodePacket.connectionDescription;
+//         networkAddNodePacket.nodeState;
+//     }

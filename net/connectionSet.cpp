@@ -16,9 +16,6 @@ ConnectionSet::ConnectionSet()
         : _fdSetSize(0),
           _fdSetCapacity(64),
           _fdSetDirty(false),
-          _node(NULL),
-          _network(NULL),
-          _message(NULL),
           _errno(0)
 {
     _fdSet = new pollfd[_fdSetCapacity];
@@ -86,8 +83,8 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 
                 Connection* connection = _fdSetConnections[_fdSet[i].fd];
                 const int   event      = _fdSet[i].revents;
-                _node    = _nodes[connection];
-                _network = _networks[connection];
+                Node*       node       = _nodes[connection];
+                Network*    network    = _networks[connection];
 
                 INFO << "selected connection #" << i << " of " << _fdSetSize
                      << ", event " << event << endl;

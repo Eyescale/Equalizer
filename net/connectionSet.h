@@ -19,9 +19,10 @@ namespace eqNet
         class Node;
         
         /**
-         * A set of connections.
+         * A set of connections. 
          *
-         * @sa Network::select
+         * The set associates a Network and a Node with each Connection. From
+         * this set, a connection with pending events can be selected.
          */
         class ConnectionSet
         {
@@ -55,9 +56,6 @@ namespace eqNet
         
             Event select( const int timeout );
         
-            Node*    getNode(){    return _node; }
-            Network* getNetwork(){ return _network; }
-            Message* getMessage(){ return _message; }
             int      getErrno(){   return _errno; }
 
         private:
@@ -67,9 +65,6 @@ namespace eqNet
             bool    _fdSetDirty;
             Sgi::hash_map<int, Connection*> _fdSetConnections;
         
-            Node*    _node;
-            Network* _network;
-            Message* _message;
             int      _errno;
 
             eqBase::PtrHash<Node*, Connection*>    _connections;

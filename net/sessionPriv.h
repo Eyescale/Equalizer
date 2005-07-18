@@ -18,6 +18,7 @@ namespace eqNet
 
     namespace priv
     {
+        class NodeList;
         class Server;
         struct Packet;
 
@@ -99,32 +100,14 @@ namespace eqNet
             Session( const uint id, Server* server );
 
             /** 
-             * Initialises a remote node.
-             * 
-             * This is used to copy the session information to a newly connected
-             * node.
-             *
-             * @param nodeID the node identifier.
-             * @return the success value.
-             */
-            bool initNode( const uint nodeID );
-
-            /** 
              * Sets the node identifier of the local node.
              * 
              * @param nodeID the local node identifier.
              */
             void setLocalNode( const uint nodeID );
 
-            /** 
-             * Sends a packet to a node using the best network.
-             * 
-             * @param toNode the receiver node.
-             * @param packet the packet.
-             */
-            void send( Node* toNode, const Packet& packet )
-                { _localNode->send( toNode, packet ); }
-
+            void pack( const NodeList& nodes, const bool initial );
+            
         private:
             /** The list of nodes in this session. */
             IDHash<Node*> _nodes;
@@ -145,10 +128,6 @@ namespace eqNet
             /** The local node. */
             Node* _localNode;
             uint  _localNodeID;
-
-            /*virtual void pack( const Connection* connection, 
-                               const bool fullUpdate );
-            */
 
             friend inline std::ostream& operator << 
                 (std::ostream& os, Session* session);

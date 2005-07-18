@@ -20,7 +20,7 @@ namespace eqNet
         {
         public:
             virtual uint64 recv( const void* buffer, const uint64 bytes );
-            virtual uint64 send( const void* buffer, const uint64 bytes );
+            virtual uint64 send( const void* buffer, const uint64 bytes ) const;
 
             virtual int getReadFD() const { return _readFD; }
 
