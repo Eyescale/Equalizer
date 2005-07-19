@@ -115,11 +115,9 @@ namespace eqNet
             /** 
              * Handles a command packet.
              * 
-             * @param connection the connection which received the packet. 
              * @param packet the packet.
              */
-            void handlePacket( Connection* connection, 
-                               const SessionPacket* packet );
+            void handlePacket( const SessionPacket* packet );
 
             void pack( const NodeList& nodes, const bool initial );
             
@@ -138,18 +136,16 @@ namespace eqNet
 
             /** The server node. */
             Server* _server;
-            uint    _serverID;
 
             /** The local node. */
             Node* _localNode;
-            uint  _localNodeID;
 
             /** The command handler function table. */
-            void (eqNet::priv::Session::*_cmdHandler[CMD_SESSION_ALL])(Connection* connection, const Packet* packet );
+            void (eqNet::priv::Session::*_cmdHandler[CMD_SESSION_ALL])( const Packet* packet );
 
             // the command handler functions and helper functions
-            void _handleNodeNew( Connection* connection, const Packet* packet );
-            void _handleNetworkNew(Connection* connection,const Packet* packet);
+            void _cmdNodeNew( const Packet* packet );
+            void _cmdNetworkNew( const Packet* packet );
 
 
             friend inline std::ostream& operator << 

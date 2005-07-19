@@ -5,8 +5,8 @@
 #ifndef EQNET_SERVER_PRIV_H
 #define EQNET_SERVER_PRIV_H
 
-#include "nodePriv.h"
 #include "server.h"
+#include "basePriv.h"
 
 #include "commands.h"
 #include "idHash.h"
@@ -18,6 +18,7 @@ namespace eqNet
     namespace priv
     {
         class Connection;
+        class Node;
         class Packet;
         class PipeConnection;
         class Session;
@@ -29,7 +30,7 @@ namespace eqNet
          *
          * @sa Session
          */
-        class Server : public Node, public eqNet::Server
+        class Server : public eqNet::Server, public Base
         {
         public:
 
@@ -118,6 +119,7 @@ namespace eqNet
 
             // the command handler functions and helper functions
             void _handlePacket( Connection* connection, const Packet* packet );
+            void _handleUnknown( Connection* connection, const Packet* packet );
             void _handleSessionCreate( Connection* connection, 
                                        const Packet* packet );
             Session* _createSession( const char* remoteAddress, 

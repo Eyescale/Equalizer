@@ -17,13 +17,11 @@ namespace eqNet
         {
         protected:
             /** 
-             * The default handler for handling packets.
+             * The default handler for handling commands.
              * 
-             * @param connection the connection which received the packet.
              * @param packet the packet.
              */
-            void _handleUnknown( Connection* connection,
-                                 const Packet* packet );
+            void _cmdUnknown( const Packet* packet );
         };
     }
 }

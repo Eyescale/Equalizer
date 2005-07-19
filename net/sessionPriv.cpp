@@ -23,19 +23,15 @@ using namespace std;
 Session::Session(const uint id, Server* server )
         : eqNet::Session(id),
           _networkID(1),
-          _nodeID(server->getID()+1),
+          _nodeID(1),
           _server(server),
-          _serverID(server->getID()),
-          _localNode(NULL),
-          _localNodeID(INVALID_ID)
+          _localNode(NULL)
 {
-    _nodes[server->getID()] = server;
-
     for( int i=0; i<CMD_SESSION_ALL; i++ )
-        _cmdHandler[i] = &eqNet::priv::Session::_handleUnknown;
+        _cmdHandler[i] = &eqNet::priv::Session::_cmdUnknown;
 
-    _cmdHandler[CMD_NODE_NEW]    = &eqNet::priv::Session::_handleNodeNew;
-    _cmdHandler[CMD_NETWORK_NEW] = &eqNet::priv::Session::_handleNetworkNew;
+    _cmdHandler[CMD_NODE_NEW]    = &eqNet::priv::Session::_cmdNodeNew;
+    _cmdHandler[CMD_NETWORK_NEW] = &eqNet::priv::Session::_cmdNetworkNew;
 
     INFO << "New session" << this;
 }
@@ -80,7 +76,7 @@ void Session::setLocalNode( const uint nodeID )
     _localNode = (*iter).second;
 }
 
-void Session::handlePacket( Connection* connection, const SessionPacket* packet)
+void Session::handlePacket( const SessionPacket* packet)
 {
     INFO << "handle " << packet << endl;
 
@@ -88,7 +84,7 @@ void Session::handlePacket( Connection* connection, const SessionPacket* packet)
     {
         case DATATYPE_SESSION:
             ASSERT( packet->command < CMD_SESSION_ALL );
-            (this->*_cmdHandler[packet->command])( connection, packet );
+            (this->*_cmdHandler[packet->command])( packet );
             break;
 
         case DATATYPE_NETWORK:
@@ -97,7 +93,7 @@ void Session::handlePacket( Connection* connection, const SessionPacket* packet)
             Network* network = _networks[networkPacket->networkID];
             ASSERT( network );
 
-            network->handlePacket( connection, networkPacket );
+            network->handlePacket( networkPacket );
         } break;
 
         case DATATYPE_NODE:
@@ -106,7 +102,7 @@ void Session::handlePacket( Connection* connection, const SessionPacket* packet)
             Node* node = _nodes[nodePacket->nodeID];
             ASSERT( node );
 
-            //node->handlePacket( connection, nodePacket );
+            //node->handlePacket( nodePacket );
         } break;
 
         default:
@@ -114,19 +110,19 @@ void Session::handlePacket( Connection* connection, const SessionPacket* packet)
     }
 }
 
-void Session::_handleNodeNew( Connection* connection, const Packet* pkg )
+void Session::_cmdNodeNew( const Packet* pkg )
 {
-    INFO << "Handle node new" << endl;
     const NodeNewPacket* packet  = (NodeNewPacket*)pkg;
+    INFO << "Cmd node new: " << packet << endl;
     
     Node* node = new Node( packet->nodeID );
     _nodes[packet->nodeID] = node;
 }
 
-void Session::_handleNetworkNew( Connection* connection, const Packet* pkg )
+void Session::_cmdNetworkNew( const Packet* pkg )
 {
-    INFO << "Handle network new" << endl;
     const NetworkNewPacket* packet  = (NetworkNewPacket*)pkg;
+    INFO << "Cmd network new: " << packet << endl;
     
     Network* network = Network::create( packet->networkID, this,
                                         packet->protocol );
@@ -160,7 +156,7 @@ void Session::pack( const NodeList& nodes, const bool initial )
          iter != _networks.end(); iter++ )
     {
         const Network* network = (*iter).second;
-        //network->pack( connections, fullUpdate );
+        //network->pack( nodes, fullUpdate );
     }
 }
 

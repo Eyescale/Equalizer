@@ -26,7 +26,7 @@ using namespace eqNet::priv;
 using namespace std;
 
 Server::Server()
-        : Node(NODE_ID_SERVER),
+        : eqNet::Server( INVALID_ID ),
           _sessionID(1),
           _state(STATE_STOPPED),
           _connection(NULL)
@@ -287,12 +287,18 @@ void Server::_handlePacket( Connection* connection, const Packet* packet )
             Session* session = _sessions[sessionPacket->sessionID];
             ASSERT( session );
 
-            session->handlePacket( connection, sessionPacket );
+            session->handlePacket( sessionPacket );
         } break;
 
         default:
             WARN << "Unhandled packet " << packet << endl;
     }
+}
+
+void Server::_handleUnknown( Connection* connection, const Packet* packet )
+{
+    ERROR << "Unknown packet " << packet << endl;
+    exit( EXIT_FAILURE );
 }
 
 void Server::_handleSessionCreate( Connection* connection, const Packet* pkg )
@@ -316,7 +322,7 @@ void Server::_handleSessionCreate( Connection* connection, const Packet* pkg )
     reply.serverID    = getID();
     reply.sessionID   = session->getID();
     reply.localNodeID = remoteNode->getID();
-    nodes.send( this, reply );
+    nodes.send( session->getLocalNode(), reply );
 
     _startSessionThread( session );
 }
@@ -327,9 +333,9 @@ Session* Server::_createSession( const char* remoteAddress,
     Session*       session      = new Session( _sessionID++, this );
     SocketNetwork* network      = static_cast<SocketNetwork*>
         (session->newNetwork( eqNet::PROTO_TCPIP ));
-
-    *remoteNode = session->newNode();
-    session->setLocalNode( getID( ));
+    Node*          localNode    = session->newNode();
+    *remoteNode                 = session->newNode();
+    session->setLocalNode( localNode->getID( ));
 
     // create and init one TCP/IP network
     ConnectionDescription serverDesc;
@@ -345,10 +351,10 @@ Session* Server::_createSession( const char* remoteAddress,
          << ", TCP/IP address: " << remoteDesc.parameters.TCPIP.hostname << ":" 
          << remoteDesc.parameters.TCPIP.port << endl;
 
-    network->addNode( this, serverDesc );
+    network->addNode( localNode, serverDesc );
     network->addNode( *remoteNode, remoteDesc );
+    network->setStarted( localNode );
     network->setStarted( *remoteNode, connection );
-    network->setStarted( this );
 
     if( !network->init() || !network->start() )
     {

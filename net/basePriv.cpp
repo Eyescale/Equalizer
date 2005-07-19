@@ -10,8 +10,8 @@
 using namespace eqNet::priv;
 using namespace std;
 
-void Base::_handleUnknown( Connection* connection, const Packet* pkg )
+void Base::_cmdUnknown( const Packet* packet )
 {
-    ERROR << "Unknown packet " << pkg << endl;
+    ERROR << "Unknown command " << packet << endl;
     exit( EXIT_FAILURE );
 }

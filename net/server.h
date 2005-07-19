@@ -5,6 +5,8 @@
 #ifndef EQNET_SERVER_H
 #define EQNET_SERVER_H
 
+#include "base.h"
+
 namespace eqNet
 {
     class Session;
@@ -14,7 +16,7 @@ namespace eqNet
      *
      * @sa Session
      */
-    class Server
+    class Server : public Base
     {
     public:
         /**
@@ -31,6 +33,9 @@ namespace eqNet
          */
         static int run( const char* address );
         //*}
+
+    protected:
+        Server( const uint id ) : Base(id) {}
     };
 }
 

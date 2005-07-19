@@ -142,11 +142,9 @@ namespace eqNet
             /** 
              * Handles a command packet.
              * 
-             * @param connection the connection which received the packet. 
              * @param packet the packet.
              */
-            void handlePacket( Connection* connection, 
-                               const NetworkPacket* packet );
+            void handlePacket( const NetworkPacket* packet );
 
 
             virtual ~Network();
@@ -185,10 +183,10 @@ namespace eqNet
             const char* _createLaunchCommand( Node* node, const char* args );
 
             /** The command handler function table. */
-            void (eqNet::priv::Network::*_cmdHandler[CMD_NETWORK_ALL])(Connection* connection, const Packet* packet );
+            void (eqNet::priv::Network::*_cmdHandler[CMD_NETWORK_ALL])( const Packet* packet );
 
             // the command handler functions and helper functions
-            void _handleNetworkAddNode( Connection* connection, const Packet* packet );
+            void _cmdNetworkAddNode( const Packet* packet );
 
             friend inline std::ostream& operator << 
                 (std::ostream& os, Network* network);

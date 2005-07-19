@@ -27,9 +27,9 @@ Network::Network( const uint id, Session* session )
           _state(STATE_STOPPED)
 {
     for( int i=0; i<CMD_NETWORK_ALL; i++ )
-        _cmdHandler[i] = &eqNet::priv::Network::_handleUnknown;
+        _cmdHandler[i] = &eqNet::priv::Network::_cmdUnknown;
 
-    _cmdHandler[CMD_NETWORK_ADD_NODE] = &eqNet::priv::Network::_handleNetworkAddNode;
+    _cmdHandler[CMD_NETWORK_ADD_NODE] = &eqNet::priv::Network::_cmdNetworkAddNode;
 
     INFO << "New network" << this;
 }
@@ -198,8 +198,7 @@ const char* Network::_createLaunchCommand( Node* node, const char* args )
     return strdup(result);
 }
 
-void Network::handlePacket( Connection* connection, 
-                            const NetworkPacket* packet )
+void Network::handlePacket( const NetworkPacket* packet )
 {
     INFO << "handle " << packet << endl;
 
@@ -207,7 +206,7 @@ void Network::handlePacket( Connection* connection,
     {
         case DATATYPE_NETWORK:
             ASSERT( packet->command < CMD_NETWORK_ALL );
-            (this->*_cmdHandler[packet->command])( connection, packet );
+            (this->*_cmdHandler[packet->command])( packet );
             break;
 
         default:
@@ -215,10 +214,10 @@ void Network::handlePacket( Connection* connection,
     }
 }
 
-void Network::_handleNetworkAddNode( Connection* connection, const Packet* pkg )
+void Network::_cmdNetworkAddNode( const Packet* pkg )
 {
-    INFO << "Handle network add node" << endl;
     const NetworkAddNodePacket* packet  = (NetworkAddNodePacket*)pkg;
+    INFO << "Cmd network add node: " << packet << endl;
     
     Node* node = _session->getNodeByID( packet->nodeID );
     ASSERT( node );
