@@ -22,14 +22,17 @@ namespace eqNet
     {
         class  Connection;
         class  Node;
+        class  NodeList;
         class  Session;
         struct NetworkPacket;
         struct Packet;
 
+        inline std::ostream& operator << ( std::ostream& os, const Node* node );
+
         class Network : public Base, public eqNet::Network
         {
         public:
-            /** The network state. */
+            /** The network's state. */
             enum State
             {
                 STATE_STOPPED,
@@ -37,7 +40,7 @@ namespace eqNet
                 STATE_RUNNING
             };
 
-            /** The state of the individual nodes. */
+            /** The state of the individual nodes in this network. */
             enum NodeState
             {
                 NODE_STOPPED,
@@ -63,7 +66,8 @@ namespace eqNet
              * @param connection the connection parameters.
              * @sa Node::enableForwarding(), Node::disableForwarding()
              */
-            virtual void addNode( Node* nodeID,
+            // __eq_generate_distributed__
+            virtual void addNode( Node* node,
                 const eqNet::ConnectionDescription& connection );
 
             /**
@@ -132,6 +136,13 @@ namespace eqNet
             virtual void setStarted( Node* node, Connection* connection );
 
             /** 
+             * Returns the protocol of this network.
+             * 
+             * @return the protocol of this network.
+             */
+            NetworkProtocol getProtocol() const { return _protocol; }
+
+            /** 
              * Sends a packet to a node using this network.
              * 
              * @param toNode the receiver node.
@@ -139,13 +150,22 @@ namespace eqNet
              */
             void send( Node* toNode, const Packet& packet );
 
+            State getState() const { return _state; }
+
             /** 
              * Handles a command packet.
              * 
              * @param packet the packet.
              */
-            void handlePacket( const NetworkPacket* packet );
+            void handlePacket( NetworkPacket* packet );
 
+            /** 
+             * Serializes this network and sends the result to the specified
+             * nodes.
+             * 
+             * @param nodes the node list of the receivers.
+             */
+            virtual void pack( const NodeList& nodes );
 
             virtual ~Network();
 
@@ -183,10 +203,10 @@ namespace eqNet
             const char* _createLaunchCommand( Node* node, const char* args );
 
             /** The command handler function table. */
-            void (eqNet::priv::Network::*_cmdHandler[CMD_NETWORK_ALL])( const Packet* packet );
+            void (eqNet::priv::Network::*_cmdHandler[CMD_NETWORK_ALL])( Packet* packet );
 
             // the command handler functions and helper functions
-            void _cmdNetworkAddNode( const Packet* packet );
+            void _cmdNetworkAddNode( Packet* packet );
 
             friend inline std::ostream& operator << 
                 (std::ostream& os, Network* network);
@@ -194,11 +214,23 @@ namespace eqNet
 
         inline std::ostream& operator << ( std::ostream& os, Network* network )
         {
+            if( network == NULL )
+            {
+                os << "NULL network";
+                return os;
+            }
+
+            const Network::State state = network->getState();
+
             os << "Network " << network->getID() << "(" 
-               << (void*)network <<  "): proto " << 
-                ( network->_protocol == PROTO_TCPIP ? "TCP/IP" : 
-                  network->_protocol == PROTO_PIPE  ? "pipe()" :
-                  network->_protocol == PROTO_MPI   ? "MPI " : "unknown" )
+               << (void*)network <<  "): proto "
+               << ( network->_protocol == PROTO_TCPIP ? "TCP/IP " : 
+                    network->_protocol == PROTO_PIPE  ? "pipe() " :
+                    network->_protocol == PROTO_MPI   ? "MPI " : "unknown " )
+               << ( state == Network::STATE_STOPPED  ? "stopped " :
+                    state == Network::STATE_STARTING ? "starting " :
+                    state == Network::STATE_RUNNING  ? "running " :
+                    "unknown state " )
                << network->_descriptions.size() << " node[s]";
             
             for( eqBase::PtrHash<Node*, ConnectionDescription*>::const_iterator
@@ -207,13 +239,13 @@ namespace eqNet
             {
                 Node*                         node = (*iter).first;
                 ConnectionDescription* description = (*iter).second;
-                const Network::NodeState     state = network->_nodeStates[node];
+                const Network::NodeState nodeState = network->_nodeStates[node];
 
                 os << std::endl << "    " << node << ": " << description << " " 
-                   << (state==Network::NODE_STOPPED     ? "stopped" : 
-                       state==Network::NODE_INITIALIZED ? "initialized" :
-                       state==Network::NODE_RUNNING     ? "running" : 
-                       "unknown state") << std::endl;
+                   << (nodeState==Network::NODE_STOPPED     ? "stopped" : 
+                       nodeState==Network::NODE_INITIALIZED ? "initialized" :
+                       nodeState==Network::NODE_RUNNING     ? "running" : 
+                       "unknown state");
             }
 
             return os;

@@ -81,7 +81,7 @@ namespace eqNet
     inline std::ostream& operator << ( std::ostream& os, 
         ConnectionDescription* description)
     {
-        os << "    ConnectionDescription " << (void*)description <<  ": "
+        os << "connection description " << (void*)description <<  ": "
            << "bw " << description->bandwidthKBS << "KB/s, launchCommand '"
            << ( description->launchCommand==NULL ? "none" : 
                description->launchCommand ) << "'";

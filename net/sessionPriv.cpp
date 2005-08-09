@@ -8,9 +8,9 @@
 #include "networkPriv.h"
 #include "nodePriv.h"
 #include "nodeList.h"
-#include "packet.h"
 #include "server.h"
 #include "serverPriv.h"
+#include "sessionPrivPackets.h"
 #include "util.h"
 
 #include <eq/base/log.h>
@@ -30,8 +30,8 @@ Session::Session(const uint id, Server* server )
     for( int i=0; i<CMD_SESSION_ALL; i++ )
         _cmdHandler[i] = &eqNet::priv::Session::_cmdUnknown;
 
-    _cmdHandler[CMD_NODE_NEW]    = &eqNet::priv::Session::_cmdNodeNew;
-    _cmdHandler[CMD_NETWORK_NEW] = &eqNet::priv::Session::_cmdNetworkNew;
+    _cmdHandler[CMD_SESSION_NEW_NODE]    = &eqNet::priv::Session::_cmdNewNode;
+    _cmdHandler[CMD_SESSION_NEW_NETWORK] = &eqNet::priv::Session::_cmdNewNetwork;
 
     INFO << "New session" << this;
 }
@@ -39,13 +39,6 @@ Session::Session(const uint id, Server* server )
 Session* Session::create( const char* serverAddress )
 {
     return Server::createSession( serverAddress );
-}
-
-Network* Session::newNetwork( const NetworkProtocol protocol )
-{
-    Network* network = Network::create( _networkID++, this, PROTO_TCPIP );
-    _networks[network->getID()] = network;
-    return network;
 }
 
 bool Session::deleteNetwork( Network* network )
@@ -62,21 +55,13 @@ bool Session::deleteNetwork( Network* network )
     return true;
 }
 
-Node* Session::newNode()
-{
-    Node* node = new Node( _nodeID++ );
-    _nodes[node->getID()] = node;
-    return node;
-}
-
 void Session::setLocalNode( const uint nodeID )
 {
-    IDHash<Node*>::iterator iter = _nodes.find( nodeID );
-    ASSERT( iter != _nodes.end( ));
-    _localNode = (*iter).second;
+    _localNode = _nodes[nodeID];
+    ASSERT( _localNode );
 }
 
-void Session::handlePacket( const SessionPacket* packet)
+void Session::handlePacket( SessionPacket* packet)
 {
     INFO << "handle " << packet << endl;
 
@@ -89,7 +74,7 @@ void Session::handlePacket( const SessionPacket* packet)
 
         case DATATYPE_NETWORK:
         {
-            const NetworkPacket* networkPacket = (NetworkPacket*)(packet);
+            NetworkPacket* networkPacket = (NetworkPacket*)(packet);
             Network* network = _networks[networkPacket->networkID];
             ASSERT( network );
 
@@ -98,7 +83,7 @@ void Session::handlePacket( const SessionPacket* packet)
 
         case DATATYPE_NODE:
         {
-            const NodePacket* nodePacket = (NodePacket*)(packet);
+            NodePacket* nodePacket = (NodePacket*)(packet);
             Node* node = _nodes[nodePacket->nodeID];
             ASSERT( node );
 
@@ -110,53 +95,59 @@ void Session::handlePacket( const SessionPacket* packet)
     }
 }
 
-void Session::_cmdNodeNew( const Packet* pkg )
+void Session::_cmdNewNode( Packet* pkg )
 {
-    const NodeNewPacket* packet  = (NodeNewPacket*)pkg;
-    INFO << "Cmd node new: " << packet << endl;
+    SessionNewNodePacket* packet  = (SessionNewNodePacket*)pkg;
+    INFO << "Cmd new node: " << packet << endl;
     
+   if( packet->nodeID == INVALID_ID )
+        packet->nodeID = _nodeID++;
+
     Node* node = new Node( packet->nodeID );
     _nodes[packet->nodeID] = node;
+    packet->result = packet->nodeID;
 }
 
-void Session::_cmdNetworkNew( const Packet* pkg )
+void Session::_cmdNewNetwork( Packet* pkg )
 {
-    const NetworkNewPacket* packet  = (NetworkNewPacket*)pkg;
-    INFO << "Cmd network new: " << packet << endl;
+    SessionNewNetworkPacket* packet  = (SessionNewNetworkPacket*)pkg;
+    INFO << "Cmd new network: " << packet << endl;
     
+    if( packet->networkID == INVALID_ID )
+        packet->networkID = _networkID++;
+
     Network* network = Network::create( packet->networkID, this,
                                         packet->protocol );
     _networks[packet->networkID] = network;
+    packet->result = packet->networkID;
 }
 
 
-void Session::pack( const NodeList& nodes, const bool initial )
+void Session::pack( const NodeList& nodes )
 {
-    //if( initial )
     ASSERT( _server );
 
-    SessionNewPacket sessionNewPacket;
-    const uint       serverID  = _server->getID();
-    const uint       sessionID = getID();
-    sessionNewPacket.serverID  = serverID;
-    sessionNewPacket.sessionID = sessionID;
-    nodes.send( _localNode, sessionNewPacket );
-    
     for( IDHash<Node*>::iterator iter = _nodes.begin(); iter != _nodes.end();
          iter++ )
     {
-        NodeNewPacket nodeNewPacket;
-        nodeNewPacket.serverID  = serverID;
-        nodeNewPacket.sessionID = sessionID;
-        nodeNewPacket.nodeID    = (*iter).first;
-        nodes.send( _localNode, nodeNewPacket );
+        SessionNewNodePacket newNodePacket;
+        newNodePacket.sessionID = getID();
+        newNodePacket.nodeID    = (*iter).first;
+        nodes.send( newNodePacket );
     };
 
     for( IDHash<Network*>::iterator iter = _networks.begin();
          iter != _networks.end(); iter++ )
     {
-        const Network* network = (*iter).second;
-        //network->pack( nodes, fullUpdate );
+        Network* network = (*iter).second;
+
+        SessionNewNetworkPacket newNetworkPacket;
+        newNetworkPacket.sessionID = getID();
+        newNetworkPacket.networkID = network->getID();
+        newNetworkPacket.protocol  = network->getProtocol();
+        nodes.send( newNetworkPacket );
+
+        network->pack( nodes );
     }
 }
 

@@ -23,7 +23,7 @@ Network* Node::_findBestNetwork( Node* toNode )
             return network;
     }
     return NULL;
-    // TODO: find union of our, to networks
+    // TODO: find union of our, remote networks
     // find fastest network in union
-    // find gateway if union is empty.
+    // find gateway if union is empty
 }

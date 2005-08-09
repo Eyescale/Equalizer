@@ -21,7 +21,7 @@ namespace eqNet
              * 
              * @param packet the packet.
              */
-            void _cmdUnknown( const Packet* packet );
+            void _cmdUnknown( Packet* packet );
         };
     }
 }

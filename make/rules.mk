@@ -8,7 +8,7 @@ subdirs: $(SUBDIRS)
 
 $(SUBDIRS):
 	@echo "$(DEPTH) $@"
-	@$(MAKE) TOP=$(SUBTOP) -C $@
+	@$(MAKE) TOP=$(SUBDIRTOP) -C $@
 
 
 # headers
@@ -16,6 +16,15 @@ $(HEADER_DIR)/%.h : %.h
 	@mkdir -p $(HEADER_DIR)
 	@echo 'Header file $@'
 	@cp $< $@
+
+# generated source code
+%Dist.cpp %Packets.h : %.h $(TOP)/make/codegen.pl
+	$(TOP)/make/codegen.pl $<
+
+ifdef HEADER_GEN
+  SOURCES_GEN  = $(HEADER_GEN:%.h=%Dist.cpp)
+  SOURCES     += $(SOURCES_GEN)
+endif
 
 # libraries
 $(DYNAMIC_LIB): $(OBJECT_DIR) $(OBJECTS)
@@ -48,7 +57,7 @@ clean:
 ifdef SUBDIRS
 	@for d in $(SUBDIRS); do \
 		echo "$(DEPTH) $$d clean"; \
-		$(MAKE) TOP=$(SUBTOP) -C $$d $@ ;\
+		$(MAKE) TOP=$(SUBDIRTOP) -C $$d $@ ;\
 	done
 endif
 

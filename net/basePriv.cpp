@@ -10,7 +10,7 @@
 using namespace eqNet::priv;
 using namespace std;
 
-void Base::_cmdUnknown( const Packet* packet )
+void Base::_cmdUnknown( Packet* packet )
 {
     ERROR << "Unknown command " << packet << endl;
     exit( EXIT_FAILURE );

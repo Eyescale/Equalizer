@@ -65,7 +65,11 @@ namespace eqNet
 
         inline std::ostream& operator << ( std::ostream& os, const Node* node )
         {
-            os << "Node " << node->getID() << "(" << (void*)node << ")";
+            if( node )
+                os << "node " << node->getID() << "(" << (void*)node << ")";
+            else
+                os << "NULL node";
+
             return os;
         }
     }

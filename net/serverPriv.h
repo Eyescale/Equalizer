@@ -115,21 +115,18 @@ namespace eqNet
             Connection* _connection;
 
             /** The command handler function table. */
-            void (eqNet::priv::Server::*_cmdHandler[CMD_SERVER_ALL])(Connection* connection, const Packet* packet );
+            void (eqNet::priv::Server::*_cmdHandler[CMD_SERVER_ALL])(Connection* connection, Packet* packet );
 
             // the command handler functions and helper functions
-            void _handlePacket( Connection* connection, const Packet* packet );
-            void _handleUnknown( Connection* connection, const Packet* packet );
-            void _handleSessionCreate( Connection* connection, 
-                                       const Packet* packet );
+            void _handlePacket( Connection* connection, Packet* packet );
+            void _handleUnknown( Connection* connection, Packet* packet );
+            void _handleSessionCreate( Connection* connection, Packet* packet );
             Session* _createSession( const char* remoteAddress, 
-                                     Connection* connection, Node** remoteNode);
+                                     Connection* connection,uint &remoteNodeID);
             bool     _startSessionThread( Session* session );
 
-            void _handleSessionCreated( Connection* connection, 
-                                        const Packet* packet );
-            void _handleSessionNew( Connection* connection, 
-                                    const Packet* packet );
+            void _handleSessionCreated( Connection* connection, Packet* packet);
+            void _handleSessionNew( Connection* connection, Packet* packet );
 
             Session* _createSession( const char* address );
             void _sendSessionCreate();
@@ -140,15 +137,14 @@ namespace eqNet
 
         inline std::ostream& operator << ( std::ostream& os, Server* server )
         {
-            os << "    Server " << server->getID() << "(" << (void*)server
-               << "): " << server->_sessions.size() << " session[s]" 
-               << std::endl;
+            os << "server " << server->getID() << "(" << (void*)server
+               << "): " << server->_sessions.size() << " session[s]" ;
             
             for( IDHash<Session*>::iterator iter = server->_sessions.begin();
                  iter != server->_sessions.end(); iter++ )
             {
                 Session* session = (*iter).second;
-                os << session;
+                os << std::endl << session;
             }
 
             return os;

@@ -82,6 +82,11 @@ namespace eqNet
         //@}
 
     protected:
+        /** 
+         * Constructs a new node.
+         * 
+         * @param id the identifier.
+         */
         Node( const uint id ) : Base(id) {}
     };
 };

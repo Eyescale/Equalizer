@@ -12,6 +12,9 @@ HEADER_SRC = \
 	server.h \
 	session.h
 
+HEADER_GEN = \
+	sessionPriv.h
+
 SOURCES = \
 	basePriv.cpp \
 	connection.cpp \

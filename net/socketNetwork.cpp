@@ -63,8 +63,14 @@ bool SocketNetwork::start()
 
 bool SocketNetwork::_startListener()
 {
-    Node*                  localNode   = _session->getLocalNode();
-    ConnectionDescription* localDesc   = _descriptions[localNode];
+    if( _listener )
+    {
+        WARN << "A listener is already activeb" << endl;
+        return false;
+    }
+
+    Node*                  localNode = _session->getLocalNode();
+    ConnectionDescription* localDesc = _descriptions[localNode];
 
     if( !localDesc )
     {

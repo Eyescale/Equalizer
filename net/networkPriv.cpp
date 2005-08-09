@@ -8,6 +8,7 @@
 #include "connectionDescription.h"
 #include "global.h"
 #include "network.h"
+#include "nodeList.h"
 #include "nodePriv.h"
 #include "packet.h"
 #include "pipeNetwork.h"
@@ -198,7 +199,7 @@ const char* Network::_createLaunchCommand( Node* node, const char* args )
     return strdup(result);
 }
 
-void Network::handlePacket( const NetworkPacket* packet )
+void Network::handlePacket( NetworkPacket* packet )
 {
     INFO << "handle " << packet << endl;
 
@@ -214,7 +215,7 @@ void Network::handlePacket( const NetworkPacket* packet )
     }
 }
 
-void Network::_cmdNetworkAddNode( const Packet* pkg )
+void Network::_cmdNetworkAddNode( Packet* pkg )
 {
     const NetworkAddNodePacket* packet  = (NetworkAddNodePacket*)pkg;
     INFO << "Cmd network add node: " << packet << endl;
@@ -252,17 +253,27 @@ void Network::send( Node* toNode, const Packet& packet )
          << endl;
     connection->send( &packet, packet.size );
 }
-// {
-//         NetworkNewPacket networkNewPacket;
-//         networkNewPacket.id = networkID;
-//         networkNewPacket.sessionID = sessionID;
-//         networkNewPacket.state = network->getState();
-//         networkNewPacket.protocol = network->getProtocol();
-//         send( node, networkNewPacket );
 
-//         NetworkAddNodePacket networkAddNodePacket;
-//         networkAddNodePacket.id = networkID;
-//         networkAddNodePacket.nodeID = ;
-//         networkAddNodePacket.connectionDescription;
-//         networkAddNodePacket.nodeState;
-//     }
+void Network::pack( const NodeList& nodes )
+{
+    ASSERT( _session );
+    const uint sessionID = _session->getID();
+
+    for( PtrHash<Node*, ConnectionDescription*>::iterator iter =
+             _descriptions.begin(); iter != _descriptions.end(); iter++ )
+    {
+        Node*                        node = (*iter).first;
+        const ConnectionDescription* desc = (*iter).second;
+
+        NetworkAddNodePacket networkAddNodePacket;
+        networkAddNodePacket.sessionID             = sessionID;
+        networkAddNodePacket.networkID             = getID();
+        networkAddNodePacket.nodeID                = node->getID();
+        networkAddNodePacket.connectionDescription = *desc ;
+        networkAddNodePacket.nodeState             = _nodeStates[node];
+        nodes.send( networkAddNodePacket );
+    }
+
+    NetworkStartPacket networkStartPacket;
+    // TODO...
+}

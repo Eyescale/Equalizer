@@ -21,11 +21,17 @@ namespace eqNet
         class NodeList : public std::vector<Node*>
         {
         public:
-            void send( Node* fromNode, Packet& packet ) const
+            NodeList( Node* localNode ) : _localNode(localNode) 
+                { ASSERT(localNode); }
+
+            void send( Packet& packet ) const
                 {
                     for( size_t i=0; i<size(); i++ )
-                        fromNode->send( (*this)[i], packet );
+                        _localNode->send( (*this)[i], packet );
                 }
+
+        private:
+            Node* _localNode;
         };
     }
 }

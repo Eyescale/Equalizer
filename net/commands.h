@@ -19,14 +19,16 @@ namespace eqNet
 
         enum SessionCommand
         {
-            CMD_NODE_NEW,
-            CMD_NETWORK_NEW,
+            CMD_SESSION_NEW_NODE,
+            CMD_SESSION_NEW_NETWORK,
             CMD_SESSION_ALL // must be last
         };
 
         enum NetworkCommand
         {
             CMD_NETWORK_ADD_NODE,
+            CMD_NETWORK_INIT,
+            CMD_NETWORK_START,
             CMD_NETWORK_ALL // must be last
         };
 

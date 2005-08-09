@@ -43,7 +43,6 @@ namespace eqNet
         struct ServerPacket: public Packet
         {
             ServerPacket(){ datatype = DATATYPE_SERVER; }
-            uint64  serverID;
         };
 
         struct SessionCreatePacket : public ServerPacket
@@ -51,7 +50,6 @@ namespace eqNet
             SessionCreatePacket()
                 { 
                     command  = CMD_SESSION_CREATE;
-                    serverID = INVALID_ID;
                     size     = sizeof( SessionCreatePacket ); 
                 }
 
@@ -90,30 +88,6 @@ namespace eqNet
             uint sessionID;
         };
 
-        struct NodeNewPacket : public SessionPacket
-        {
-            NodeNewPacket() 
-                {
-                    command  = CMD_NODE_NEW;
-                    size     = sizeof( NodeNewPacket ); 
-                }
-
-            uint nodeID;
-        };
-
-        struct NetworkNewPacket : public SessionPacket
-        {
-            NetworkNewPacket() 
-                {
-                    command  = CMD_NETWORK_NEW;
-                    size     = sizeof( NetworkNewPacket ); 
-                }
-
-            uint            networkID;
-            Network::State  state;
-            NetworkProtocol protocol;
-        };
-
         //------------------------------------------------------------
         // Network
         //------------------------------------------------------------
@@ -121,6 +95,24 @@ namespace eqNet
         {
             NetworkPacket(){ datatype = DATATYPE_NETWORK; }
             uint networkID;
+        };
+
+        struct NetworkInitPacket : public NetworkPacket
+        {
+            NetworkInitPacket()
+                { 
+                    command = CMD_NETWORK_INIT;
+                    size    = sizeof( NetworkInitPacket );
+                }
+        };
+
+        struct NetworkStartPacket : public NetworkPacket
+        {
+            NetworkStartPacket()
+                { 
+                    command = CMD_NETWORK_START;
+                    size    = sizeof( NetworkStartPacket );
+                }
         };
 
         struct NetworkAddNodePacket : public NetworkPacket
@@ -155,7 +147,7 @@ namespace eqNet
         inline std::ostream& operator << ( std::ostream& os, 
                                            const ServerPacket* packet )
         {
-            os << (Packet*)packet << " srv " << packet->serverID;
+            os << (Packet*)packet;
             return os;
         }
         inline std::ostream& operator << ( std::ostream& os, 

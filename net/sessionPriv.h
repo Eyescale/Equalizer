@@ -55,6 +55,7 @@ namespace eqNet
              * 
              * @return the node.
              */
+            // __eq_generate_distributed__
             Node* newNode();
 
             /**
@@ -85,6 +86,7 @@ namespace eqNet
              *
              * @param protocol the network protocol.
              */
+            // __eq_generate_distributed__
             Network* newNetwork( const NetworkProtocol protocol );
 
             /**
@@ -95,6 +97,15 @@ namespace eqNet
              *         <code>false</code> if not.
              */
             bool deleteNetwork( Network* network );
+
+            /** 
+             * Gets a network using its identifier.
+             * 
+             * @param networkID the network identifier.
+             * @return the network.
+             */
+            Network* getNetworkByID( const uint networkID )
+                { return _networks[networkID]; }
             //*}
 
             /** 
@@ -117,9 +128,15 @@ namespace eqNet
              * 
              * @param packet the packet.
              */
-            void handlePacket( const SessionPacket* packet );
+            void handlePacket( SessionPacket* packet );
 
-            void pack( const NodeList& nodes, const bool initial );
+            /** 
+             * Serializes this session and sends the result to the specified
+             * nodes.
+             * 
+             * @param nodes the node list of the receivers.
+             */
+            void pack( const NodeList& nodes );
             
         private:
             /** The list of nodes in this session. */
@@ -141,11 +158,11 @@ namespace eqNet
             Node* _localNode;
 
             /** The command handler function table. */
-            void (eqNet::priv::Session::*_cmdHandler[CMD_SESSION_ALL])( const Packet* packet );
+            void (eqNet::priv::Session::*_cmdHandler[CMD_SESSION_ALL])( Packet* packet );
 
             // the command handler functions and helper functions
-            void _cmdNodeNew( const Packet* packet );
-            void _cmdNetworkNew( const Packet* packet );
+            void _cmdNewNode( Packet* packet );
+            void _cmdNewNetwork( Packet* packet );
 
 
             friend inline std::ostream& operator << 
@@ -154,22 +171,29 @@ namespace eqNet
 
         inline std::ostream& operator << ( std::ostream& os, Session* session )
         {
-            os << "    Session " << session->getID() << "(" << (void*)session
+            if( !session )
+            {
+                os << "NULL session";
+                return os;
+            }
+
+            os << "    session " << session->getID() << "(" << (void*)session
                << "): " << session->_nodes.size() << " node[s], " 
-               << session->_networks.size() << " network[s]" << std::endl;
+               << session->_networks.size() << " network[s]" << " local "
+               << session->_localNode;
             
             for( IDHash<Node*>::iterator iter = session->_nodes.begin();
                  iter != session->_nodes.end(); iter++ )
             {
                 Node* node = (*iter).second;
-                os << "    " << node << std::endl;
+                os << std::endl << "    " << node;
             }
 
             for( IDHash<Network*>::iterator iter = session->_networks.begin();
                  iter != session->_networks.end(); iter++ )
             {
                 Network* network = (*iter).second;
-                os << "    " << network << std::endl;
+                os << std::endl << "    " << network;
             }
 
             return os;

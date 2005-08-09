@@ -35,6 +35,11 @@ namespace eqNet
         //*}
 
     protected:
+        /** 
+         * Constructs a new server.
+         * 
+         * @param id the identifier.
+         */
         Server( const uint id ) : Base(id) {}
     };
 }
