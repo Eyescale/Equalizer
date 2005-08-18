@@ -7,7 +7,6 @@
 #include <iostream>
 
 using namespace eqNet;
-using namespace eqNet::priv;
 using namespace std;
 
 extern "C" int testPipeServer( Connection* connection )
@@ -27,7 +26,7 @@ int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    Connection *connection = Connection::create(PROTO_PIPE);
+    Connection *connection = Connection::create(TYPE_PIPE);
 
     ConnectionDescription connDesc;
     connDesc.parameters.PIPE.entryFunc = "testPipeServer";

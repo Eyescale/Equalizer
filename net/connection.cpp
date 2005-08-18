@@ -13,7 +13,6 @@
 #include <errno.h>
 
 using namespace eqNet;
-using namespace eqNet::priv;
 using namespace std;
 
 Connection::Connection()
@@ -21,18 +20,18 @@ Connection::Connection()
 {
 }
 
-Connection* Connection::create( const NetworkProtocol protocol )
+Connection* Connection::create( const ConnectionType type )
 {
-    switch( protocol )
+    switch( type )
     {
-        case PROTO_TCPIP:
+        case TYPE_TCPIP:
             return new SocketConnection();
 
-        case PROTO_PIPE:
+        case TYPE_PIPE:
             return new PipeConnection();
 
         default:
-            WARN << "Protocol not implemented" << endl;
+            WARN << "Connection type not implemented" << endl;
             return NULL;
     }
 }

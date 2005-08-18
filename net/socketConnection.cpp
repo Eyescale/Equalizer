@@ -17,7 +17,6 @@
 #include <sys/types.h>
 
 using namespace eqNet;
-using namespace eqNet::priv;
 using namespace std;
 
 
@@ -40,7 +39,8 @@ bool SocketConnection::connect( const ConnectionDescription &description )
 
     _state = STATE_CONNECTING;
 
-    _createSocket();
+    if( !_createSocket( ))
+        return false;
 
     // TODO: execute launch command
 
@@ -54,8 +54,8 @@ bool SocketConnection::connect( const ConnectionDescription &description )
         _state = STATE_CONNECTED;
     else
     {
-        const char *hostname = description.parameters.TCPIP.hostname ? 
-            description.parameters.TCPIP.hostname : "null";
+        const char *hostname = description.hostname ? 
+            description.hostname : "null";
         WARN << "Could not connect to '" << hostname << ":" 
              << description.parameters.TCPIP.port << "': " << strerror( errno ) 
              << endl;
@@ -66,14 +66,14 @@ bool SocketConnection::connect( const ConnectionDescription &description )
     return connected;
 }
 
-void SocketConnection::_createSocket()
+bool SocketConnection::_createSocket()
 {
     const int fd = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
 
     if( fd == -1 )
     {
-        string error = strerror( errno );
-        throw connection_error("Could not create socket: " + error);
+        ERROR << "Could not create socket: " << strerror( errno ) << endl;
+        return false;
     }
 
     const int on = 1;
@@ -81,6 +81,7 @@ void SocketConnection::_createSocket()
 
     _readFD  = fd;
     _writeFD = fd; // TCP/IP sockets are bidirectional
+    return true;
 }
 
 void SocketConnection::close()
@@ -104,12 +105,18 @@ void SocketConnection::_parseAddress( const ConnectionDescription &description,
     socketAddress.sin_addr.s_addr = htonl( INADDR_ANY );
     socketAddress.sin_port = htons( description.parameters.TCPIP.port );
 
-    if( description.parameters.TCPIP.hostname != NULL )
+    if( description.hostname != NULL )
     {
-        hostent *hptr = gethostbyname( description.parameters.TCPIP.hostname );
+        hostent *hptr = gethostbyname( description.hostname );
         if( hptr )
             memcpy(&socketAddress.sin_addr.s_addr, hptr->h_addr,hptr->h_length);
     }
+
+    INFO << "Address " << ((socketAddress.sin_addr.s_addr >> 24 ) & 0xff)
+         << "."  << ((socketAddress.sin_addr.s_addr >> 16 ) & 0xff)
+         << "."  << ((socketAddress.sin_addr.s_addr >> 8 ) & 0xff)
+         << "."  << (socketAddress.sin_addr.s_addr & 0xff)
+         << ", port " << socketAddress.sin_port << endl;
 }
 
 //----------------------------------------------------------------------
@@ -122,7 +129,8 @@ bool SocketConnection::listen(ConnectionDescription &description)
 
     _state = STATE_CONNECTING;
 
-    _createSocket();
+    if( !_createSocket())
+        return false;
 
     sockaddr_in socketAddress;
     const size_t size = sizeof( sockaddr_in ); 
@@ -133,7 +141,8 @@ bool SocketConnection::listen(ConnectionDescription &description)
 
     if( !bound )
     {
-        WARN << "Could not bind socket: " << strerror( errno ) << endl;
+        WARN << "Could not bind socket: " << strerror( errno ) << " (" << errno 
+             << ")" << endl;
         close();
         return false;
     }

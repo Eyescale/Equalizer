@@ -6,17 +6,16 @@
 #include <iostream>
 
 using namespace eqNet;
-using namespace eqNet::priv;
 using namespace std;
 
 int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    Connection *connection = Connection::create(PROTO_TCPIP);
+    Connection *connection = Connection::create(TYPE_TCPIP);
 
     ConnectionDescription connDesc;
-    sprintf( connDesc.parameters.TCPIP.hostname, "localhost" );
+    sprintf( connDesc.hostname, "localhost" );
     connDesc.parameters.TCPIP.port = 4242;
     connection->listen(connDesc);
 

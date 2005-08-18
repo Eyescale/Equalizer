@@ -24,12 +24,10 @@ foreach my $file (@ARGV)
     print HEADER "#include \"packet.h\"\n";
     print HEADER "namespace eqNet\n";
     print HEADER "{\n";
-    print HEADER "    namespace priv\n";
-    print HEADER "    {\n";
 
     print CODE   "#include \"$basename.h\"\n";
     print CODE   "#include \"$basename" . "Packets.h\"\n";
-    print CODE   "using namespace eqNet::priv;\n";
+    print CODE   "using namespace eqNet;\n";
 
     my $parseFunction = 0;
     my $function;
@@ -63,7 +61,6 @@ foreach my $file (@ARGV)
         }
     }
 
-    print HEADER "    }\n";
     print HEADER "}\n";
 
     close CODE;
@@ -97,13 +94,13 @@ sub generate( $; $ )
     $command = uc($command);
 
     print HEADER "\n";
-    print HEADER "        struct  $packetType : public $class" . "Packet\n";
+    print HEADER "    struct  $packetType : public $class" . "Packet\n";
+    print HEADER "    {\n";
+    print HEADER "        $packetType()\n";
     print HEADER "        {\n";
-    print HEADER "            $packetType()\n";
-    print HEADER "            {\n";
-    print HEADER "                command = $command;\n";
-    print HEADER "                size    = sizeof($packetType);\n";
-    print HEADER "            }\n";
+    print HEADER "            command = $command;\n";
+    print HEADER "            size    = sizeof($packetType);\n";
+    print HEADER "        }\n";
 
     print CODE "\n";
     print CODE "$functionRet $class" . "::$functionName(@functionArgs)\n";
@@ -151,12 +148,12 @@ sub generate( $; $ )
 
         if( $type =~ /\*$/ ) # pointer to object -> use ID
         {
-            print HEADER "            uint $name" . "ID;\n";
+            print HEADER "        uint $name" . "ID;\n";
             print CODE   "    packet.$name" . "ID = $name->getID();\n";
         }
         else
         {
-            print HEADER "            $type $name;\n";
+            print HEADER "        $type $name;\n";
             print CODE   "    packet.$name = $name;\n";
         }
     }
@@ -166,11 +163,12 @@ sub generate( $; $ )
     {
         my $name = $1 . "ID";
         $name =~ s/^(\w)/lc($1)/e;
-        print HEADER "            uint $name;\n";
+        print HEADER "       uint $name;\n";
+        # TODO: create identifier here
         print CODE   "    packet.$name = INVALID_ID;\n";
     }
 
-    print CODE "    _cmd$capFunctionName(&packet);\n";
+    print CODE "    _cmd$capFunctionName( NULL, NULL, &packet);\n";
     #print CODE "    _sendPacket(&packet);\n";
 
     # handle return value
@@ -179,12 +177,12 @@ sub generate( $; $ )
         if( $functionRet =~ /\*$/ ) # pointer to object
         {
             $functionRet =~ s/\*$//;
-            print HEADER "            uint result;\n";
+            print HEADER "       uint result;\n";
             print CODE "    return get$functionRet" . "ByID( packet.result );\n";
         }
         else
         {
-            print HEADER "            $functionRet result;\n";
+            print HEADER "        $functionRet result;\n";
             print CODE "    return packet.result;\n";
         }
     }

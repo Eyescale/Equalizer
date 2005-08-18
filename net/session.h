@@ -8,7 +8,6 @@
 #include <eq/base/base.h>
 #include "base.h"
 #include "global.h"
-#include "network.h"
 
 namespace eqNet
 {
@@ -16,196 +15,63 @@ namespace eqNet
     {
         class Session;
     }
-    class Connection;
+
     class Node;
-    class Server;
-    
+    class User;
+
     /**
      * Manages a session.
      *
-     * A session represents a group of nodes managed by a central server. The
-     * server ensures that all identifiers used during communication are
-     * unique. 
-     *
-     * Nodes are added to a Network in order to describe how they are
-     * connected to a session. A Node can be a participant in several
-     * networks.
-     *
-     * Server addresses are specified in the form
-     * '<code>(&lt;IP&gt;|&lt;name&gt;)(:&lt;port&gt;)</code>'. If the
-     * server address is <code>NULL</code>, the environment variable
-     * <code>EQSERVER</code> is used to determine the server address. If this
-     * variable is not set, the local server on the default port is
-     * contacted. If the server can not be contacted, a new server is
-     * created, serving only this application.
+     * A session provides unique identifiers for a number of nodes.
      */
     class Session : public Base
     {
     public:
-        /**
-         * @name Getting a Session
-         */
-        //*{
-        
-        /**
-         * Create a new session by connecting to an Equalizer server.
-         *
-         * @param server the server location.
-         * @return the session, or <code>NULL</code> if the session could not be
-         *         created.
-         */
-        static Session* create( const char* server );
-        
-        /**
-         * Joins an existing session on a server.
-         *
-         * @param server the server location.
-         * @param sessionID the session identifier.
-         * @return <code>true</code> if the session could be joined,
-         *         <code>false</code> if not.
-         * @throws ??? if the server could not be contacted.
-         */
-        static bool join( const char* server, const uint sessionID );
-        //*}
-
-        /**
-         * @name Managing nodes
-         */
-        //*{
-        /**
-         * Adds a new node to this session.
-         *
-         * This method adds an additional node to this session, the local node
-         * and server are automatically part of this session. Nodes have
-         * to be added to at least one Network in order to communicate
-         * with the session.
+        /** 
+         * Constructs a new session.
          * 
-         * @return the node identifier.
-         * @sa Node, Network::addNode
+         * @param id the identifier of the session.
+         * @param node the node hosting the session.
          */
-        uint newNode();
+        Session(const uint id, Node* node );
 
         /**
-         * Returns the number of nodes in this session.
-         *
-         * @returns the number of nodes in this Session. 
+         * @name Managing users
          */
-        uint nNodes();
+        //*{
+        /**
+         * Adds a new user to this session.
+         *
+         * @param node the node on which the user will reside.
+         * @return the user.
+         * @sa User, Network::addUser
+         */
+        User* newUser( Node* node );
 
         /**
-         * Get the node id of the numbered node in this session.
+         * Returns the number of users in this session.
          *
-         * @param index the index of the node.
-         * @return the node identifier.
+         * @returns the number of users in this Session. 
          */
-        uint getNodeID( const uint index );
+        uint nUsers();
 
         /**
-         * Returns the node identifier of the local node.
+         * Get the user id of the numbered user in this session.
          *
-         * @return the node identifier of the local node.
+         * @param index the index of the user.
+         * @return the user identifier.
          */
-        uint getLocalNodeID();
+        User* getUser( const uint index );
 
         /**
-         * Removes a node from this session.
+         * Removes a user from this session.
          *
-         * @param nodeID the identifier of the node to remove
-         * @return <code>true</code> if the node was removed, <code>false</code>
+         * @param user the user to remove
+         * @return <code>true</code> if the user was removed, <code>false</code>
          *         if not.
-         * @throws invalid_argument if the node identifier is not known.
+         * @throws invalid_argument if the user identifier is not known.
          */
-        bool deleteNode( const uint nodeID );
-        //*}
-
-        /**
-         * @name Managing Networks
-         * 
-         * Networks are used to create connectivity between nodes.
-         * @sa Network, Node
-         */
-        //*{
-        /**
-         * Adds a new network to this session.
-         *
-         * The network between the server and the local node is
-         * automatically added to the session.
-         * 
-         * @param protocol the network protocol.
-         * @sa addNode
-         */
-        uint newNetwork( 
-            const NetworkProtocol protocol );
-
-        /**
-         * Returns the number of networks in this session.
-         *
-         * @returns the number of networks in this Session. 
-         */
-        uint nNetworks();
-
-        /**
-         * Get the network id of the numbered network in this session.
-         *
-         * @param index the index of the network.
-         * @return the network identifier.
-         */
-        uint getNetworkID( const uint index );
-
-        /**
-         * Deletes a network of this session.
-         *
-         * @param networkID the identifier of the network to remove
-         * @return <code>true</code> if the network was removed,
-         *         <code>false</code> if not.
-         * @throws invalid_argument if the network identifier is not known.
-         */
-        bool deleteNetwork( const uint networkID );
-        //*}
-
-        /**
-         * @name Managing groups
-         * 
-         * A Group is a collection of nodes used for broadcast
-         * communications. Broadcast primitives are typically not efficient
-         * across Network boundaries. 
-         * @sa Group, Node
-         */
-        //*{
-        /**
-         * Adds a new group to this session.
-         *
-         * @param nodeIDs the identifiers of the nodes belonging to the group.
-         * @param nNodes the number of nodes in the group.
-         * @return the group identifier of the added group.
-         */
-        uint addGroup( const uint nodeIDs[], 
-            const uint nNodes );
-
-        /**
-         * Returns the number of groups in this session.
-         *
-         * @return the number of groups in this Session. 
-         */
-        uint nGroups();
-
-        /**
-         * Get the group id of the numbered group in this session.
-         *
-         * @param index the index of the group.
-         * @return the group identifier.
-         */
-        uint getGroupID( const uint index );
-
-        /**
-         * Removes a group from this session.
-         *
-         * @param groupID the identifier of the group to remove
-         * @return <code>true</code> if the group was removed,
-         *         <code>false</code> if not.
-         * @throws invalid_argument if the group identifier is not known.
-         */
-        bool removeGroup( const uint groupID );
+        bool deleteUser( User* user );
         //*}
 
         /**
@@ -251,16 +117,37 @@ namespace eqNet
          */
         void stop();
         //*}
-
-    protected:
+        
         /** 
-         * Constructs a new session.
+         * Returns the identifier of this session.
          * 
-         * @param id the identifier of the session.
+         * @return the identifier.
          */
-        Session(const uint id) : Base(id) {}
-    };
-}
+        uint getID() { return _id; }
+        
+        /** 
+         * Handles a command packet.
+         * 
+         * @param node the node which sent the packet.
+         * @param packet the packet.
+         */
+        void handlePacket( Node* node, const SessionPacket* packet );
 
-#endif // EQNET_SESSION_H
+    private:
+
+        /** The session identifier. */
+        uint _id;
+
+        /** The command handler function table. */
+        void (eqNet::priv::Session::*_cmdHandler[CMD_SESSION_ALL])( Node* node, const SessionPacket* packet );
+
+        // the command handler functions and helper functions
+        void _cmdNewUser( Node* node, const Packet* packet );
+
+        friend inline std::ostream& operator << (std::ostream& os,
+                                                 Session* session);
+    };
+    std::ostream& operator << ( std::ostream& os, Session* session );
+}
+#endif // EQNET_SESSION_PRIV_H
 

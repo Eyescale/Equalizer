@@ -33,7 +33,7 @@ namespace eqBase
          * 
          * @param type the execution model to use for the thread.
          */
-        Thread( const Type type );
+        Thread( const Type type = PTHREAD );
 
         /** Destructs the thread. */
         virtual ~Thread();

@@ -26,7 +26,7 @@ namespace eqBase
          * 
          * @param type the type of threads accessing the lock.
          */
-        Lock( const Thread::Type type );
+        Lock( const Thread::Type type = Thread::PTHREAD );
 
 
         /** Destructs the lock. */

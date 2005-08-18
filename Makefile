@@ -6,7 +6,6 @@ SUBDIRS = \
 	base \
 	net \
 	proto \
-	server \
 	tests
 
 .PHONY: docs

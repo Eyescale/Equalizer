@@ -9,7 +9,8 @@ namespace eqNet
 {
     namespace priv
     {
-        class  Connection;
+        class Connection;
+        class Node;
         struct Packet;
 
         /** The internal base class for all networked objects. */
@@ -21,7 +22,8 @@ namespace eqNet
              * 
              * @param packet the packet.
              */
-            void _cmdUnknown( Packet* packet );
+            void _cmdUnknown( Connection* connection, Node* node, 
+                              Packet* packet );
         };
     }
 }

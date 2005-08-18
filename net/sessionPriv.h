@@ -21,14 +21,11 @@ namespace eqNet
     {
         class Node;
         class NodeList;
-        class Network;
-        class Server;
-
+        class User;
         struct Packet;
         struct SessionPacket;
 
-        inline std::ostream& operator << ( std::ostream& os, Network* network );
-        inline std::ostream& operator << ( std::ostream& os, const Node* node );
+        inline std::ostream& operator << ( std::ostream& os, const User* user );
 
         class Session : public Base, public eqNet::Session
         {
@@ -41,22 +38,15 @@ namespace eqNet
              */
             static Session* get(const uint sessionID );
 
-            /** 
-             * Creates a new session on the specified server.
-             * 
-             * @param server the server address.
-             */
-            static Session* create( const char *server );
-
-            /** @name Managing nodes */
+            /** @name Managing users */
             //*{
             /**
-             * Adds a new node to this session.
+             * Adds a new user to this session.
              * 
-             * @return the node.
+             * @return the user.
              */
             // __eq_generate_distributed__
-            Node* newNode();
+            User* newUser();
 
             /**
              * Returns the local node.
@@ -66,55 +56,21 @@ namespace eqNet
             Node* getLocalNode(){ return _localNode; }
 
             /** 
-             * Gets a node using its identifier.
+             * Gets a user using its identifier.
              * 
-             * @param nodeID the node identifier.
-             * @return the node.
+             * @param userID the user identifier.
+             * @return the user.
              */
-            Node* getNodeByID( const uint nodeID ){ return _nodes[nodeID]; }
-            //*}
-
-            /**
-             * @name Managing Networks
-             * 
-             * Networks are used to create connectivity between nodes.
-             * @sa Network, Node
-             */
-            //*{
-            /**
-             * Adds a new network to this session.
-             *
-             * @param protocol the network protocol.
-             */
-            // __eq_generate_distributed__
-            Network* newNetwork( const NetworkProtocol protocol );
-
-            /**
-             * Deletes a network of this session.
-             *
-             * @param network the network to remove
-             * @return <code>true</code> if the network was removed,
-             *         <code>false</code> if not.
-             */
-            bool deleteNetwork( Network* network );
-
-            /** 
-             * Gets a network using its identifier.
-             * 
-             * @param networkID the network identifier.
-             * @return the network.
-             */
-            Network* getNetworkByID( const uint networkID )
-                { return _networks[networkID]; }
+            User* getUserByID( const uint userID ){ return _users[userID]; }
             //*}
 
             /** 
              * Creates a new session.
              * 
              * @param id the session id.
-             * @param server the server for this session.
+             * @param node the node for this session.
              */
-            Session( const uint id, Server* server );
+            Session( const uint id, Node* node );
 
             /** 
              * Sets the node identifier of the local node.
@@ -122,13 +78,6 @@ namespace eqNet
              * @param nodeID the local node identifier.
              */
             void setLocalNode( const uint nodeID );
-
-            /** 
-             * Handles a command packet.
-             * 
-             * @param packet the packet.
-             */
-            void handlePacket( SessionPacket* packet );
 
             /** 
              * Serializes this session and sends the result to the specified
@@ -139,31 +88,24 @@ namespace eqNet
             void pack( const NodeList& nodes );
             
         private:
-            /** The list of nodes in this session. */
-            IDHash<Node*> _nodes;
+            /** The list of users in this session. */
+            IDHash<User*> _users;
 
-            /** The list of networks in this session. */
-            IDHash<Network*> _networks;
+            /** The next unique user identifier. */
+            uint _userID;
 
-            /** The next unique network identifier. */
-            uint _networkID;
-
-            /** The next unique node identifier. */
-            uint _nodeID;
-
-            /** The server node. */
-            Server* _server;
+            /** The node serving this session. */
+            Node* _node;
 
             /** The local node. */
             Node* _localNode;
 
             /** The command handler function table. */
-            void (eqNet::priv::Session::*_cmdHandler[CMD_SESSION_ALL])( Packet* packet );
+            void (eqNet::priv::Session::*_cmdHandler[CMD_SESSION_ALL])( Connection* connection, Node* node, Packet* packet );
 
             // the command handler functions and helper functions
-            void _cmdNewNode( Packet* packet );
-            void _cmdNewNetwork( Packet* packet );
-
+            void _cmdNewUser( Connection* connection, Node* node, 
+                              Packet* packet );
 
             friend inline std::ostream& operator << 
                 (std::ostream& os, Session* session);
@@ -178,22 +120,14 @@ namespace eqNet
             }
 
             os << "    session " << session->getID() << "(" << (void*)session
-               << "): " << session->_nodes.size() << " node[s], " 
-               << session->_networks.size() << " network[s]" << " local "
-               << session->_localNode;
+               << "): " << session->_users.size() << " user[s], " 
+               << " local " << session->_localNode;
             
-            for( IDHash<Node*>::iterator iter = session->_nodes.begin();
-                 iter != session->_nodes.end(); iter++ )
+            for( IDHash<User*>::iterator iter = session->_users.begin();
+                 iter != session->_users.end(); iter++ )
             {
-                Node* node = (*iter).second;
-                os << std::endl << "    " << node;
-            }
-
-            for( IDHash<Network*>::iterator iter = session->_networks.begin();
-                 iter != session->_networks.end(); iter++ )
-            {
-                Network* network = (*iter).second;
-                os << std::endl << "    " << network;
+                User* user = (*iter).second;
+                os << std::endl << "    " << user;
             }
 
             return os;

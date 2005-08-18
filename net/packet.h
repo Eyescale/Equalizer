@@ -5,169 +5,128 @@
 #ifndef EQNET_PACKET_PRIV_H
 #define EQNET_PACKET_PRIV_H
 
+#include "commands.h"
 #include "connectionDescription.h"
 #include "global.h"
-
-#include "networkPriv.h"
+#include "message.h"
 
 #include <sys/param.h>
 
 namespace eqNet
 {
-    enum NetworkProtocol;
-
-    namespace priv
+    enum 
     {
-        enum 
-        {
-            DATATYPE_SERVER,
-            DATATYPE_SESSION,
-            DATATYPE_NETWORK,
-            DATATYPE_NODE,
-            DATATYPE_USER = 1<<16
-        };
+        DATATYPE_EQ_NODE,
+        DATATYPE_EQ_SESSION,
+        DATATYPE_EQ_USER,
+        DATATYPE_CUSTOM = 1<<16
+    };
 
-        /**
-         * Represents a packet.
-         */
-        struct Packet
-        {
-            uint64  size;
-            uint    datatype;
-            uint    command;
-        };
+    /**
+     * Represents a packet.
+     */
+    struct Packet
+    {
+        uint64  size;
+        uint    datatype;
+        uint    command;
+    };
 
-        //------------------------------------------------------------
-        // server
-        //------------------------------------------------------------
-        struct ServerPacket: public Packet
-        {
-            ServerPacket(){ datatype = DATATYPE_SERVER; }
-        };
+    //------------------------------------------------------------
+    // Node
+    //------------------------------------------------------------
+    struct NodePacket: public Packet
+    {
+        NodePacket(){ datatype = DATATYPE_EQ_NODE; }
+    };
 
-        struct SessionCreatePacket : public ServerPacket
-        {
-            SessionCreatePacket()
-                { 
-                    command  = CMD_SESSION_CREATE;
-                    size     = sizeof( SessionCreatePacket ); 
-                }
+    struct NodeMessagePacket : public NodePacket
+    {
+        NodeMessagePacket()
+            { 
+                command  = CMD_NODE_MESSAGE;
+                size     = sizeof( NodeMessagePacket ); 
+            }
+        MessageType type;
+        uint64      nElements;
+    };
 
-            char requestorAddress[MAXHOSTNAMELEN+1];
-        };            
+    struct SessionCreatePacket : public NodePacket
+    {
+        SessionCreatePacket()
+            { 
+                command  = CMD_SESSION_CREATE;
+                size     = sizeof( SessionCreatePacket ); 
+            }
 
-        struct SessionCreatedPacket : public ServerPacket
-        {
-            SessionCreatedPacket() 
-                {
-                    command  = CMD_SESSION_CREATED;
-                    size     = sizeof( SessionCreatedPacket ); 
-                }
+        uint requestID;
+    };            
+
+    struct SessionCreatedPacket : public NodePacket
+    {
+        SessionCreatedPacket() 
+            {
+                command  = CMD_SESSION_CREATED;
+                size     = sizeof( SessionCreatedPacket ); 
+            }
             
-            uint sessionID;
-            uint localNodeID;
-        };
+        uint requestID;
+        uint sessionID;
+    };
 
-        struct SessionNewPacket : public ServerPacket
-        {
-            SessionNewPacket() 
-                {
-                    command  = CMD_SESSION_NEW;
-                    size     = sizeof( SessionNewPacket ); 
-                }
+    struct SessionNewPacket : public NodePacket
+    {
+        SessionNewPacket() 
+            {
+                command  = CMD_SESSION_NEW;
+                size     = sizeof( SessionNewPacket ); 
+            }
 
-            uint sessionID;
-        };
+        uint sessionID;
+    };
 
-        //------------------------------------------------------------
-        // Session
-        //------------------------------------------------------------
-        struct SessionPacket : public ServerPacket
-        {
-            SessionPacket(){ datatype = DATATYPE_SESSION; }
-            uint sessionID;
-        };
+    //------------------------------------------------------------
+    // Session
+    //------------------------------------------------------------
+    struct SessionPacket : public NodePacket
+    {
+        SessionPacket(){ datatype = DATATYPE_EQ_SESSION; }
+        uint sessionID;
+    };
 
-        //------------------------------------------------------------
-        // Network
-        //------------------------------------------------------------
-        struct NetworkPacket : public SessionPacket
-        {
-            NetworkPacket(){ datatype = DATATYPE_NETWORK; }
-            uint networkID;
-        };
-
-        struct NetworkInitPacket : public NetworkPacket
-        {
-            NetworkInitPacket()
-                { 
-                    command = CMD_NETWORK_INIT;
-                    size    = sizeof( NetworkInitPacket );
-                }
-        };
-
-        struct NetworkStartPacket : public NetworkPacket
-        {
-            NetworkStartPacket()
-                { 
-                    command = CMD_NETWORK_START;
-                    size    = sizeof( NetworkStartPacket );
-                }
-        };
-
-        struct NetworkAddNodePacket : public NetworkPacket
-        {
-            NetworkAddNodePacket() 
-                {
-                    command  = CMD_NETWORK_ADD_NODE;
-                    size     = sizeof( NetworkAddNodePacket ); 
-                }
-
-            uint                  nodeID;
-            ConnectionDescription connectionDescription;
-            Network::NodeState    nodeState;
-        };
-
-        //------------------------------------------------------------
-        // Node
-        //------------------------------------------------------------
-        struct NodePacket : public SessionPacket
-        {
-            NodePacket(){ datatype = DATATYPE_NODE; }
-            uint nodeID;
-        };
+    //------------------------------------------------------------
+    // User
+    //------------------------------------------------------------
+    struct UserPacket : public SessionPacket
+    {
+        UserPacket(){ datatype = DATATYPE_EQ_USER; }
+        uint userID;
+    };
 
 
-        inline std::ostream& operator << ( std::ostream& os, 
-                                           const Packet* packet )
-        {
-            os << "Packet dt " << packet->datatype << " cmd "<< packet->command;
-            return os;
-        }
-        inline std::ostream& operator << ( std::ostream& os, 
-                                           const ServerPacket* packet )
-        {
-            os << (Packet*)packet;
-            return os;
-        }
-        inline std::ostream& operator << ( std::ostream& os, 
-                                           const SessionPacket* packet )
-        {
-            os << (ServerPacket*)packet << " ssn " << packet->sessionID;
-            return os;
-        }
-        inline std::ostream& operator << ( std::ostream& os, 
-                                           const NetworkPacket* packet )
-        {
-            os << (SessionPacket*)packet << " nwk " << packet->networkID;
-            return os;
-        }
-        inline std::ostream& operator << ( std::ostream& os, 
-                                           const NodePacket* packet )
-        {
-            os << (SessionPacket*)packet << " nod " << packet->nodeID;
-            return os;
-        }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const Packet* packet )
+    {
+        os << "Packet dt " << packet->datatype << " cmd "<< packet->command;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const NodePacket* packet )
+    {
+        os << (Packet*)packet;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const SessionPacket* packet )
+    {
+        os << (NodePacket*)packet << " ssn " << packet->sessionID;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const UserPacket* packet )
+    {
+        os << (SessionPacket*)packet << " nod " << packet->userID;
+        return os;
     }
 }
 

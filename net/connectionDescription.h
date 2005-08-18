@@ -5,26 +5,37 @@
 #ifndef EQNET_CONNECTION_DESCRIPTION_H
 #define EQNET_CONNECTION_DESCRIPTION_H
 
-#include "network.h"
-
+#include <eq/base/base.h>
 #include <strings.h>
 #include <sys/param.h>
 
 namespace eqNet
 {
+    /** The supported network protocols. */
+    enum ConnectionType
+    {
+        TYPE_TCPIP,  //!< TCP/IP networking.
+        TYPE_MPI,    //!< MPI networking.
+        TYPE_PIPE    //!< anonymous pipe to a forked process
+    };
+
     /**
-     * Describes the connection of a Node to a Network.
+     * Describes the connection to a Node.
      *
-     * @sa Network, Node
+     * @sa Node
      */
     struct ConnectionDescription
     {
         ConnectionDescription() 
-                : bandwidthKBS(0),
-                  launchCommand(NULL)
+                : type( TYPE_TCPIP ),
+                  bandwidthKBS( 0 ),
+                  launchCommand( NULL )
             {
                 bzero( &parameters, sizeof(parameters));
             }
+
+        /** The network protocol for the connection. */
+        ConnectionType type;
 
         /** The bandwidth in kilobyte per second for this connection. */
         uint64 bandwidthKBS;
@@ -33,10 +44,13 @@ namespace eqNet
          * The command to spawn a new process on the node, e.g., 
          * "ssh eile@node1", can be <code>NULL</code>.
          * 
-         * %a - TCP/IP address
+         * %h - hostname
          * %c - command
          */
         const char *launchCommand; 
+
+        /** The host name. */
+        char hostname[MAXHOSTNAMELEN+1];
 
         /** The individual parameters for the connection. */
         union
@@ -44,10 +58,7 @@ namespace eqNet
             /** TCP/IP parameters */
             struct
             {
-                /** The host name. */
-                char hostname[MAXHOSTNAMELEN+1];
-
-                /** The port. */
+                /** The listening port. */
                 ushort port;
 
                 /** 
@@ -82,7 +93,10 @@ namespace eqNet
         ConnectionDescription* description)
     {
         os << "connection description " << (void*)description <<  ": "
-           << "bw " << description->bandwidthKBS << "KB/s, launchCommand '"
+           << "type " << ( description->type==TYPE_TCPIP ? "TCP/IP" :
+                           description->type==TYPE_MPI   ? "MPI" :
+                           description->type==TYPE_PIPE  ? "PIPE" : "UNKNOWN" )
+           << " bw " << description->bandwidthKBS << "KB/s, launchCommand '"
            << ( description->launchCommand==NULL ? "none" : 
                description->launchCommand ) << "'";
         return os;

@@ -7,6 +7,7 @@ SOURCES = \
 	barrier.cpp \
 	lock.cpp \
 	log.cpp \
+	requestHandler.cpp \
 	thread.cpp
 
 all: $(HEADERS) $(STATIC_LIB)

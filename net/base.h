@@ -9,28 +9,24 @@
 
 namespace eqNet
 {
+    class Connection;
+    class Node;
+    struct Packet;
+
     /** The base class for all networked objects. */
     class Base
     {
     public:
-        /** 
-         * Returns the identifier of the object.
-         * 
-         * @return the object identifier
-         */
-        uint getID() const { return _id; }
  
     protected:
         /** 
-         * Constructs a new object.
+         * The default handler for handling commands.
          * 
-         * @param id the object identifier.
+         * @param packet the packet.
          */
-        Base( const uint id ) : _id(id) {}
+        void _cmdUnknown( Node* node, const Packet* packet );
 
     private:
-        /** The identifier. */
-        uint _id;
     };
 }
 

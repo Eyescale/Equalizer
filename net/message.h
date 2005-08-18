@@ -7,27 +7,14 @@
 
 namespace eqNet
 {
-    /**
-     * Represents a message.
-     *
-     * For performance reasons, this class currently contains only the Type
-     * enum. All message parameters are passed directly to the responding send
-     * and recv methods to avoid the necessity to create a Message object.
-     *
-     * @sa Node::send, Node::recv, Network::send, Network::recv
-     */
-    class Message {
-    public:
-        /** The type of the message. */
-        enum Type {
-            EQ_BYTE,
-            EQ_SHORT,
-            EQ_INTEGER,
-            EQ_FLOAT,
-            EQ_STRING
-        };
+    /** The type of the message. */
+    enum MessageType {
+        TYPE_BYTE,
+        TYPE_SHORT,
+        TYPE_INTEGER,
+        TYPE_FLOAT
     };
-};
+}
 
 #endif // EQNET_MESSAGE_H
 

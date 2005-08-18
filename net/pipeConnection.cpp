@@ -4,7 +4,6 @@
 
 #include "pipeConnection.h"
 #include "connectionDescription.h"
-#include "serverPriv.h"
 
 #include <eq/base/log.h>
 #include <eq/base/thread.h>
@@ -13,7 +12,6 @@
 #include <errno.h>
 
 using namespace eqNet;
-using namespace eqNet::priv;
 using namespace std;
 
 PipeConnection::PipeConnection()
@@ -43,7 +41,8 @@ bool PipeConnection::connect( const ConnectionDescription &description )
 
     _state = STATE_CONNECTING;
 
-    _createPipes();
+    if( !_createPipes( ))
+        return false;
 
     // fork child process
     _entryFunc = description.parameters.PIPE.entryFunc;
@@ -59,15 +58,17 @@ bool PipeConnection::connect( const ConnectionDescription &description )
 }
 
 // Create two pairs of pipes, since they are unidirectional
-void PipeConnection::_createPipes()
+bool PipeConnection::_createPipes()
 {
     _pipes = new int[4];
 
     if( pipe( &_pipes[0] ) == -1 || pipe( &_pipes[2] ) == -1 )
     {
-        string error = strerror( errno );
-        throw connection_error("Could not create pipe: " + error);
+        ERROR << "Could not create pipe: " << strerror( errno );
+        close();
+        return false;
     }
+    return true;
 }
 
 void PipeConnection::close()
@@ -90,7 +91,7 @@ void PipeConnection::close()
         _pipes = NULL;
     }
    
-    _state   = STATE_CLOSED;
+    _state = STATE_CLOSED;
 }
 
 void PipeConnection::_setupParent()
@@ -136,7 +137,7 @@ ssize_t PipeConnection::run()
 
     if( strcmp( _entryFunc, "Server::run" ) == 0 )
     {
-        result = priv::Server::run( this );
+        //XXX result = Server::run( this );
     }
     else if( strcmp( _entryFunc, "testPipeServer" ) == 0 )
     {
