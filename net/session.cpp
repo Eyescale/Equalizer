@@ -15,16 +15,18 @@
 using namespace eqNet;
 using namespace std;
 
-Session::Session(const uint id, Node* node )
+Session::Session( Node* node, const char* name )
         : _node(node),
-          _id(id),
           _userID(1)
 {
+    ASSERT( node );
+
     for( int i=0; i<CMD_SESSION_ALL; i++ )
         _cmdHandler[i] = &eqNet::Session::_cmdUnknown;
 
     _cmdHandler[CMD_SESSION_CREATE_USER] = &eqNet::Session::_cmdCreateUser;
 
+    _id = node->createSession( this, name );
     INFO << "New session" << this << endl;
 }
 

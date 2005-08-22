@@ -14,7 +14,7 @@
 
 namespace eqNet
 {
-    enum 
+    enum
     {
         DATATYPE_EQ_NODE,
         DATATYPE_EQ_SESSION,

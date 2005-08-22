@@ -61,11 +61,12 @@ namespace eqNet
         /** 
          * Connects a node to this listening node.
          *
-         * @param connection the connection for the remote node.
+         * @param node the remote node.
+         * @param connection the connection to the remote node.
          * @return The connected remote node, or <code>NULL</code> if the node
          *         could not be connected.
          */
-        Node* connect( Connection* connection );
+        bool connect( Node* node, Connection* connection );
 
         /** 
          * Returns the state of this node.
@@ -155,7 +156,7 @@ namespace eqNet
          *
          * This method receives raw data from this node and should only be
          * called upon receiption of a packet describing the data to be
-         * received.
+         * received. It is potentially blocking.
          * 
          * @param buffer the buffer to store the data.
          * @param size the size of the data in bytes.
@@ -174,22 +175,14 @@ namespace eqNet
          */
         //*{
         /**
-         * Creates a new session on this node.
+         * Maps a local session object to a named session on this node.
          *
-         * @return the session, or <code>NULL</code> if the session could not be
-         *         created.
-         */
-        // __eq_generate_distributed__
-        Session* createSession();
-        
-        /**
-         * Joins an existing session on this node.
-         *
-         * @param sessionID the session identifier.
-         * @return <code>true</code> if the session could be joined,
+         * @param session the session.
+         * @param name the name of the session.
+         * @return <code>true</code> if the session was mapped,
          *         <code>false</code> if not.
          */
-        static bool joinSession( Node* node, const uint sessionID );
+        bool Node::mapSession( Session* session, const char* name );
         //*}
         
     protected:
@@ -229,6 +222,15 @@ namespace eqNet
          * @param packet the packet.
          */
         virtual void handleCommand( Node* node, const NodePacket* packet ){}
+
+        /** 
+         * Handles the connection of a new node by connection it to this node.
+         * 
+         * @param connection the incoming connection for the new node.
+         * @return the newly connected node, or <code>NULL</code> if the
+         *         connection was refused.
+         */
+        virtual Node* handleNewNode( Connection* connection );
 
     private:
         /** The unique session identifier counter. */

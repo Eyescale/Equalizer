@@ -52,18 +52,16 @@ bool Node::_listen( Connection* connection, const bool threaded )
     return true;
 }
 
-Node* Node::connect( Connection* connection )
+bool Node::connect( Node* node, Connection* connection )
 {
-    if( _state != STATE_LISTENING || 
+    if( !node || _state != STATE_LISTENING ||
         connection->getState() != Connection::STATE_CONNECTED )
-        return NULL;
-
-    Node* node = new Node();
+        return false;
 
     node->_connection = connection;
     node->_state = STATE_CONNECTED;
     _connectionSet.addConnection( connection, node );
-    return node;
+    return true;
 }
 
 ssize_t Node::run()
@@ -106,12 +104,27 @@ ssize_t Node::run()
 
 void Node::_handleConnect( ConnectionSet& connectionSet )
 {
-    Connection* connection = connectionSet.getConnection();
-    Connection* newConn    = connection->accept();
-    Node*       newNode    = connect( newConn );
+    Connection* connection   = connectionSet.getConnection();
+    Connection* newConn      = connection->accept();
+    Node*       newNode      = handleNewNode( newConn );
+    
+    if( !newNode )
+    {
+        newConn->close();
+        delete newConn;
+    }
+    else
+        INFO << "New " << newNode << endl;
+}
 
-    ASSERT( newNode );
-    INFO << "New " << newNode << endl;
+Node* Node::handleNewNode( Connection* connection )
+{
+    Node* node = new Node();
+    if( connect( node, connection ))
+        return node;
+
+    delete node;
+    return NULL;
 }
 
 void Node::_handleRequest( Connection* connection, Node* node )

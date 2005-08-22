@@ -30,10 +30,27 @@ namespace eqNet
         /** 
          * Constructs a new session.
          * 
-         * @param id the identifier of the session.
          * @param node the node hosting the session.
          */
-        Session(const uint id, Node* node );
+        Session( Node* node, const char* name );
+
+        /** 
+         * Returns the realization state of the session.
+         * 
+         * @return the realization state of the session.
+         */
+        bool isRealized();
+
+        /**
+         * Realizes the session.
+         *
+         * The constructor for an existing, but unrealized session will block
+         * until the session has been realized.
+         *
+         * @return <code>true</code> if the session was realized,
+         *         <code>false</code> if the session was already realized.
+         */
+        bool realize();
 
         /**
          * @name Managing users
