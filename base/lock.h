@@ -12,14 +12,13 @@
 namespace eqBase
 {
     /**
-     * A generalized lock.
+     * A generalized lock for different thread types.
      * 
      * Depending on the thread type, a different implementation is used to
      * create the lock.
      */
     class Lock 
     {
-
     public:
         /** 
          * Constructs a new lock of the given type.

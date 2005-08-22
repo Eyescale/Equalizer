@@ -27,6 +27,11 @@ foreach my $file (@ARGV)
 
     print CODE   "#include \"$basename.h\"\n";
     print CODE   "#include \"$basename" . "Packets.h\"\n";
+
+    # Can't think of an easy way to determine necessary dependencies, so
+    # just hardcode them here.
+    print CODE   "#include \"user.h\"\n";
+
     print CODE   "using namespace eqNet;\n";
 
     my $parseFunction = 0;
@@ -109,6 +114,7 @@ sub generate( $; $ )
 
     my $idClass = $class;
     $idClass =~ s/^(\w)/lc($1)/e; # lowercase first letter
+    $idClass = 0 if $idClass =~ /node/;
 
     # fill up entity identifiers
     while( $idClass )
@@ -122,7 +128,7 @@ sub generate( $; $ )
             print CODE "    packet.$idClass" . "ID = _$idClass->getID();\n";
         }
 
-        if( $idClass eq "network" || $idClass eq "node" )
+        if( $idClass eq "user" )
         {
             $idClass = "session";
         }
@@ -158,39 +164,22 @@ sub generate( $; $ )
         }
     }
 
-    # special case: new entity creation
-    if( $functionName =~ /^new([A-Z][a-z]+)/ )
+    # has return value - allocate request ID
+    if( !($functionRet =~ /void/) )
     {
-        my $name = $1 . "ID";
-        $name =~ s/^(\w)/lc($1)/e;
-        print HEADER "       uint $name;\n";
-        # TODO: create identifier here
-        print CODE   "    packet.$name = INVALID_ID;\n";
+        print HEADER "        uint requestID;\n";
+        print CODE 
+            "    packet.requestID = _requestHandler.registerRequest();\n";
     }
 
-    print CODE "    _cmd$capFunctionName( NULL, NULL, &packet);\n";
-    #print CODE "    _sendPacket(&packet);\n";
+    print CODE "    send( packet );\n";
 
     # handle return value
     if( !($functionRet =~ /void/) )
     {
-        if( $functionRet =~ /\*$/ ) # pointer to object
-        {
-            $functionRet =~ s/\*$//;
-            print HEADER "       uint result;\n";
-            print CODE "    return get$functionRet" . "ByID( packet.result );\n";
-        }
-        else
-        {
-            print HEADER "        $functionRet result;\n";
-            print CODE "    return packet.result;\n";
-        }
+        print CODE "    return ($functionRet)_requestHandler.waitRequest( packet.requestID );\n";
     }
 
     print CODE "}\n";
-    print HEADER "        };\n";
+    print HEADER "    };\n";
 }
-
-
-
-

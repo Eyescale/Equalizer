@@ -9,12 +9,8 @@
 
 namespace eqNet
 {
-    /** The namespace for the private implementation of the eqNet classes. */
-    namespace priv
-    {
-        template<class T> class IDHash : public Sgi::hash_map<uint, T>
-        {};
-    }
+    template<class T> class IDHash : public Sgi::hash_map<uint, T>
+    {};
 }
 
 #endif // EQNET_IDHASH_H

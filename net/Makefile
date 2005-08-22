@@ -9,13 +9,15 @@ HEADER_SRC = \
 	connectionDescription.h \
 	global.h \
 	group.h \
+	idHash.h \
 	message.h \
 	node.h \
 	packet.h \
 	session.h
 
 HEADER_GEN = \
-#	sessionPriv.h
+	node.h \
+	session.h
 
 SOURCES = \
 	base.cpp \

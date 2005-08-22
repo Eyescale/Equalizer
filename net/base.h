@@ -22,6 +22,7 @@ namespace eqNet
         /** 
          * The default handler for handling commands.
          * 
+         * @param node the originating node.
          * @param packet the packet.
          */
         void _cmdUnknown( Node* node, const Packet* packet );
@@ -29,5 +30,13 @@ namespace eqNet
     private:
     };
 }
+
+/** 
+ * Entry function to run the node on the 'remote' side of a PipeConnection.
+ * 
+ * @param connection the connection.
+ */
+extern "C" void eqNet_Node_runServer( eqNet::Connection* connection );
+
 
 #endif // EQNET_BASE_H

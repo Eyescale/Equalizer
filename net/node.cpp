@@ -6,7 +6,9 @@
 
 #include "connectionSet.h"
 #include "global.h"
-//#include "sessionPriv.h"
+#include "nodePackets.h"
+#include "packet.h"
+#include "session.h"
 
 using namespace eqNet;
 using namespace std;
@@ -19,12 +21,18 @@ Node::Node()
     for( int i=0; i<CMD_NODE_CUSTOM; i++ )
         _cmdHandler[i] =  &eqNet::Node::_cmdUnknown;
 
-    _cmdHandler[CMD_SESSION_CREATE]  = &eqNet::Node::_cmdSessionCreate;
-    _cmdHandler[CMD_SESSION_CREATED] = &eqNet::Node::_cmdSessionCreated;
-    _cmdHandler[CMD_SESSION_NEW]     = &eqNet::Node::_cmdSessionNew;
+    _cmdHandler[CMD_NODE_CREATE_SESSION] = &eqNet::Node::_cmdCreateSession;
+    _cmdHandler[CMD_NODE_CREATE_SESSION_REPLY] = &eqNet::Node::_cmdCreateSessionReply;
+    _cmdHandler[CMD_NODE_NEW_SESSION]     = &eqNet::Node::_cmdNewSession;
 }
 
-bool Node::listen( Connection* connection )
+void eqNet_Node_runServer( eqNet::Connection* connection )
+{
+    Node node;
+    node._listen( connection, false );
+}
+
+bool Node::_listen( Connection* connection, const bool threaded )
 {
     if( _state != STATE_STOPPED )
         return false;
@@ -35,7 +43,12 @@ bool Node::listen( Connection* connection )
 
     _connectionSet.addConnection( connection, this );
     _state = STATE_LISTENING;
-    start();
+
+    if( threaded )
+        start();
+    else
+        run();
+
     return true;
 }
 
@@ -55,7 +68,7 @@ Node* Node::connect( Connection* connection )
 
 ssize_t Node::run()
 {
-    INFO << "Receiver thread started" << endl;
+    INFO << "Receiver started" << endl;
 
     while( _state == STATE_LISTENING )
     {
@@ -71,6 +84,16 @@ ssize_t Node::run()
                 break;
 
             case ConnectionSet::EVENT_DISCONNECT:
+            {
+                Node* node        = _connectionSet.getNode();
+                node->_state      = STATE_STOPPED;
+                node->_connection = NULL; // XXX mem leak: use ref ptr?
+
+                Connection* connection = _connectionSet.getConnection();
+                connection->close();
+                break;
+            } 
+
             case ConnectionSet::EVENT_TIMEOUT:   
             case ConnectionSet::EVENT_ERROR:      
             default:
@@ -129,17 +152,44 @@ void Node::_handlePacket( Node* node, const Packet* packet )
     }
 }
 
-void Node::_cmdSessionCreate( Node* node, const Packet* packet )
+void Node::_cmdCreateSession( Node* node, const Packet* pkg )
 {
-    //Session* session = new Session();
+    ASSERT( getState() == STATE_LISTENING );
+
+    NodeCreateSessionPacket* packet  = (NodeCreateSessionPacket*)pkg;
+    INFO << "Cmd create session: " << packet << endl;
+
+    const uint sessionID = _sessionID++;
+    Session* session = new Session( sessionID, this );
+    _sessions[sessionID] = session;
+
+    _packSession( node, session );
+
+    NodeCreateSessionReplyPacket replyPacket;
+    replyPacket.requestID = packet->requestID;
+    replyPacket.reply = sessionID;
+    node->send(replyPacket);
 }
 
-void Node::_cmdSessionCreated( Node* node, const Packet* packet)
+void Node::_cmdCreateSessionReply( Node* node, const Packet* pkg)
+{
+    NodeCreateSessionReplyPacket* packet  = (NodeCreateSessionReplyPacket*)pkg;
+    INFO << "Cmd create session reply: " << packet << endl;
+    Session* session = _sessions[packet->reply];
+    _requestHandler.serveRequest( packet->requestID, session );
+}
+
+void Node::_cmdNewSession( Node* node, const Packet* packet )
 {
 }
 
-void Node::_cmdSessionNew( Node* node, const Packet* packet )
+void Node::_packSession( Node* node, const Session* session )
 {
+    NodeNewSessionPacket packet;
+    packet.sessionID = session->getID();
+
+    node->send( packet );
+    session->pack( node );
 }
 
 // void Node::launch( const char* options )
@@ -151,18 +201,6 @@ void Node::_cmdSessionNew( Node* node, const Packet* packet )
 //     Launcher::run( launchCommand );
 //     _state = NODE_LAUNCHED;
 // }
-
-//----------------------------------------------------------------------
-// Session API
-//----------------------------------------------------------------------
-Session* Node::createSession()
-{
-    SessionCreatePacket packet;
-    packet.requestID = _requestHandler.registerRequest();
-
-    send( packet );
-    return (Session*)_requestHandler.waitRequest(packet.requestID);
-}
 
 //----------------------------------------------------------------------
 // Messaging API

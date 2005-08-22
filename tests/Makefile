@@ -3,7 +3,7 @@ include $(TOP)/make/system.mk
 
 SUBDIRS = \
 	base \
-	node \
+	session \
 	socket
 
 all: subdirs

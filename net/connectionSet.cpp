@@ -150,12 +150,10 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                             break;
 
                     case POLLHUP: // disconnect happened
-                        WARN << "Unhandled: Connection disconnect" << endl;
                         event = EVENT_DISCONNECT;
                         break;
 
                     case POLLNVAL: // disconnected connection
-                        WARN << "Unhandled: Disconnected connection" << endl;
                         event = EVENT_DISCONNECT;
                         break;
                 }

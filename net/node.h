@@ -13,6 +13,7 @@
 #include "commands.h"
 #include "connection.h"
 #include "connectionSet.h"
+#include "idHash.h"
 #include "message.h"
 
 namespace eqNet
@@ -55,7 +56,7 @@ namespace eqNet
          *         <code>false</code> if not.
          * @sa connect
          */
-        bool listen( Connection* connection );
+        bool listen( Connection* connection ){ return _listen(connection,true);}
 
         /** 
          * Connects a node to this listening node.
@@ -178,6 +179,7 @@ namespace eqNet
          * @return the session, or <code>NULL</code> if the session could not be
          *         created.
          */
+        // __eq_generate_distributed__
         Session* createSession();
         
         /**
@@ -229,8 +231,26 @@ namespace eqNet
         virtual void handleCommand( Node* node, const NodePacket* packet ){}
 
     private:
-        /** The session ID counter. */
+        /** The unique session identifier counter. */
         uint _sessionID;
+
+        /** The current sessions of this node. */
+        IDHash<Session*> _sessions;
+        
+        /** 
+         * Initializes this node.
+         * 
+         * @param connection the connection to listen to.
+         * @param threaded <code>true</code> if the listening should happen
+         *                 in a separate thread (non-blocking) or from within
+         *                 this method (blocking).
+         * @return <code>true</code> if the node could be initialized,
+         *         <code>false</code> if not.
+         * @sa connect
+         */
+        bool _listen( Connection* connection, const bool threaded );
+
+        void _packSession( Node* node, const Session* session );
 
         /** The receiver thread entry function for this node. */
         virtual ssize_t run();
@@ -242,12 +262,13 @@ namespace eqNet
         /** The command handler function table. */
         void (eqNet::Node::*_cmdHandler[CMD_NODE_CUSTOM])( Node* node, const Packet* packet );
 
-        void _cmdSessionCreate( Node* node, const Packet* packet );
-        void _cmdSessionCreated( Node* node, const Packet* packet);
-        void _cmdSessionNew( Node* node, const Packet* packet );
+        void _cmdCreateSession( Node* node, const Packet* packet );
+        void _cmdCreateSessionReply( Node* node, const Packet* packet);
+        void _cmdNewSession( Node* node, const Packet* packet );
 
         uint64 _getMessageSize( const MessageType type, const uint64 count );
 
+        friend void ::eqNet_Node_runServer( eqNet::Connection* connection );
         friend inline std::ostream& operator << ( std::ostream& os,
                                                   const Node* node );
 

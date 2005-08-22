@@ -135,11 +135,8 @@ ssize_t PipeConnection::run()
     // security considerations.
     int result = EXIT_FAILURE;
 
-    if( strcmp( _entryFunc, "Server::run" ) == 0 )
-    {
-        //XXX result = Server::run( this );
-    }
-    else if( strcmp( _entryFunc, "testPipeServer" ) == 0 )
+    if( strcmp( _entryFunc, "eqNet_Node_runServer" ) == 0 ||
+        strcmp( _entryFunc, "testPipeServer" ) == 0 )
     {
 #ifdef sgi
         void* dlHandle = dlopen( 0, RTLD_LAZY );

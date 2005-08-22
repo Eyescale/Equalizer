@@ -10,14 +10,15 @@ namespace eqNet
     enum NodeCommand
     {
         CMD_NODE_MESSAGE,
-        CMD_SESSION_CREATE,
-        CMD_SESSION_CREATED,
-        CMD_SESSION_NEW,
+        CMD_NODE_CREATE_SESSION,
+        CMD_NODE_CREATE_SESSION_REPLY,
+        CMD_NODE_NEW_SESSION,
         CMD_NODE_CUSTOM // must be last
     };
 
     enum SessionCommand
     {
+        CMD_SESSION_CREATE_USER,
         CMD_SESSION_NEW_USER,
         CMD_SESSION_ALL // must be last
     };

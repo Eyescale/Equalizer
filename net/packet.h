@@ -51,35 +51,24 @@ namespace eqNet
         uint64      nElements;
     };
 
-    struct SessionCreatePacket : public NodePacket
+    struct NodeCreateSessionReplyPacket : public NodePacket
     {
-        SessionCreatePacket()
-            { 
-                command  = CMD_SESSION_CREATE;
-                size     = sizeof( SessionCreatePacket ); 
-            }
-
-        uint requestID;
-    };            
-
-    struct SessionCreatedPacket : public NodePacket
-    {
-        SessionCreatedPacket() 
+        NodeCreateSessionReplyPacket() 
             {
-                command  = CMD_SESSION_CREATED;
-                size     = sizeof( SessionCreatedPacket ); 
+                command  = CMD_NODE_CREATE_SESSION_REPLY;
+                size     = sizeof( NodeCreateSessionReplyPacket ); 
             }
             
         uint requestID;
-        uint sessionID;
+        uint reply;
     };
 
-    struct SessionNewPacket : public NodePacket
+    struct NodeNewSessionPacket : public NodePacket
     {
-        SessionNewPacket() 
+        NodeNewSessionPacket() 
             {
-                command  = CMD_SESSION_NEW;
-                size     = sizeof( SessionNewPacket ); 
+                command  = CMD_NODE_NEW_SESSION;
+                size     = sizeof( NodeNewSessionPacket ); 
             }
 
         uint sessionID;
@@ -92,6 +81,16 @@ namespace eqNet
     {
         SessionPacket(){ datatype = DATATYPE_EQ_SESSION; }
         uint sessionID;
+    };
+
+    struct SessionNewUserPacket : public SessionPacket
+    {
+        SessionNewUserPacket()
+            {
+                command  = CMD_SESSION_NEW_USER;
+                size     = sizeof( SessionNewUserPacket ); 
+            }
+        uint userID;
     };
 
     //------------------------------------------------------------

@@ -6,17 +6,17 @@
 #define EQNET_SESSION_H
 
 #include <eq/base/base.h>
+#include <eq/base/requestHandler.h>
+
 #include "base.h"
+#include "commands.h"
 #include "global.h"
+#include "idHash.h"
+#include "node.h"
+#include "packet.h"
 
 namespace eqNet
 {
-    namespace priv
-    {
-        class Session;
-    }
-
-    class Node;
     class User;
 
     /**
@@ -40,13 +40,13 @@ namespace eqNet
          */
         //*{
         /**
-         * Adds a new user to this session.
+         * Creates a new user in this session.
          *
-         * @param node the node on which the user will reside.
          * @return the user.
-         * @sa User, Network::addUser
+         * @sa User
          */
-        User* newUser( Node* node );
+        // __eq_generate_distributed__
+        User* createUser();
 
         /**
          * Returns the number of users in this session.
@@ -123,7 +123,7 @@ namespace eqNet
          * 
          * @return the identifier.
          */
-        uint getID() { return _id; }
+        uint getID() const { return _id; }
         
         /** 
          * Handles a command packet.
@@ -133,19 +133,46 @@ namespace eqNet
          */
         void handlePacket( Node* node, const SessionPacket* packet );
 
+        /** 
+         * Serializes this session and sends it to a node.
+         * 
+         * @param node the receiving node.
+         */
+        void pack( Node* node ) const;
+
+    protected:
+        /** Registers requests waiting for a return value. */
+        eqBase::RequestHandler _requestHandler;
+
+        /** 
+         * Sends a packet to the session's node.
+         * 
+         * @param packet the packet.
+         * @return the success status of the transaction.
+         */
+        bool send( const Packet& packet ) { return _node->send( packet ); }
+
     private:
 
-        /** The session identifier. */
+        /** The node hosting the session. */
+        Node* _node;
+
+        /** The session's identifier. */
         uint _id;
 
+        /** The unique user identifier counter. */
+        uint _userID;
+
+        /** The current users of this session. */
+        IDHash<User*> _users;
+
         /** The command handler function table. */
-        void (eqNet::priv::Session::*_cmdHandler[CMD_SESSION_ALL])( Node* node, const SessionPacket* packet );
+        void (eqNet::Session::*_cmdHandler[CMD_SESSION_ALL])( Node* node, const Packet* packet );
 
         // the command handler functions and helper functions
-        void _cmdNewUser( Node* node, const Packet* packet );
+        void _cmdCreateUser( Node* node, const Packet* packet );
 
-        friend inline std::ostream& operator << (std::ostream& os,
-                                                 Session* session);
+        friend std::ostream& operator << ( std::ostream& os, Session* session );
     };
     std::ostream& operator << ( std::ostream& os, Session* session );
 }

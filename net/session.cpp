@@ -4,7 +4,9 @@
 #include "session.h"
 #include "connection.h"
 #include "connectionDescription.h"
-#include "sessionPriv.h"
+#include "session.h"
+#include "sessionPackets.h"
+#include "user.h"
 
 #include <eq/base/log.h>
 
@@ -14,15 +16,14 @@ using namespace eqNet;
 using namespace std;
 
 Session::Session(const uint id, Node* node )
-        : eqNet::Session(id),
-          _userID(1),
-          _node(node),
-          _localNode(NULL)
+        : _node(node),
+          _id(id),
+          _userID(1)
 {
     for( int i=0; i<CMD_SESSION_ALL; i++ )
-        _cmdHandler[i] = &eqNet::priv::Session::_cmdUnknown;
+        _cmdHandler[i] = &eqNet::Session::_cmdUnknown;
 
-    _cmdHandler[CMD_SESSION_NEW_USER] = &eqNet::priv::Session::_cmdNewUser;
+    _cmdHandler[CMD_SESSION_CREATE_USER] = &eqNet::Session::_cmdCreateUser;
 
     INFO << "New session" << this << endl;
 }
@@ -33,12 +34,12 @@ void Session::handlePacket( Node* node, const SessionPacket* packet)
 
     switch( packet->datatype )
     {
-        case DATATYPE_SESSION:
+        case DATATYPE_EQ_SESSION:
             ASSERT( packet->command < CMD_SESSION_ALL );
-            (this->*_cmdHandler[packet->command])( connection, node, packet );
+            (this->*_cmdHandler[packet->command])( node, packet );
             break;
 
-        case DATATYPE_USER:
+        case DATATYPE_EQ_USER:
         {
             UserPacket* userPacket = (UserPacket*)(packet);
             User* user = _users[userPacket->userID];
@@ -52,35 +53,29 @@ void Session::handlePacket( Node* node, const SessionPacket* packet)
     }
 }
 
-void Session::_cmdNewUser( Connection* connection, Node* node, Packet* pkg )
+void Session::_cmdCreateUser( Node* node, const Packet* pkg )
 {
-    SessionNewUserPacket* packet  = (SessionNewUserPacket*)pkg;
-    INFO << "Cmd new user: " << packet << endl;
-    
-   if( packet->userID == INVALID_ID )
-        packet->userID = _userID++;
+    ASSERT( _node->getState() == Node::STATE_LISTENING );
 
-    User* user = new User( packet->userID );
-    _users[packet->userID] = user;
-    packet->result = packet->userID;
+    SessionCreateUserPacket* packet  = (SessionCreateUserPacket*)pkg;
+    INFO << "Cmd create user: " << packet << endl;
+ 
 }
 
-void Session::pack( const NodeList& nodes )
+void Session::pack( Node* node ) const
 {
-    ASSERT( _node );
-
-    for( IDHash<User*>::iterator iter = _users.begin(); iter != _users.end();
-         iter++ )
+    for( IDHash<User*>::const_iterator iter = _users.begin();
+         iter != _users.end(); iter++ )
     {
         SessionNewUserPacket newUserPacket;
         newUserPacket.sessionID = getID();
         newUserPacket.userID    = (*iter).first;
-        nodes.send( newUserPacket );
+        node->send( newUserPacket );
     };
 }
 
 
-std::ostream& operator << ( std::ostream& os, Session* session )
+std::ostream& eqNet::operator << ( std::ostream& os, Session* session )
 {
     if( !session )
     {
@@ -89,14 +84,13 @@ std::ostream& operator << ( std::ostream& os, Session* session )
         }
     
     os << "    session " << session->getID() << "(" << (void*)session
-       << "): " << session->_users.size() << " user[s], " 
-       << " local " << session->_localNode;
+       << "): " << session->_users.size() << " user[s], ";
     
     for( IDHash<User*>::iterator iter = session->_users.begin();
          iter != session->_users.end(); iter++ )
     {
-                User* user = (*iter).second;
-                os << std::endl << "    " << user;
+        User* user = (*iter).second;
+        os << std::endl << "    " << user;
     }
     
     return os;

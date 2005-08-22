@@ -6,7 +6,6 @@
 #define EQNET_USER_PRIV_H
 
 #include "base.h"
-#include "basePriv.h"
 
 #include <iostream>
 
