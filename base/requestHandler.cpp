@@ -22,7 +22,7 @@ RequestHandler::~RequestHandler()
     }
 }
 
-uint RequestHandler::registerRequest()
+uint RequestHandler::registerRequest( void* data )
 {
     Request* request = _freeRequests.front();
     _freeRequests.pop_front();
@@ -30,6 +30,7 @@ uint RequestHandler::registerRequest()
     if( !request )
         request = new Request( _type );
 
+    request->data = data;
     const uint requestID = _requestID++;
     _requests[requestID] = request;
     return requestID;
@@ -48,6 +49,15 @@ void* RequestHandler::waitRequest( const uint requestID )
     _freeRequests.push_front( request );
 
     return result;
+}
+
+void* RequestHandler::getRequestData( const uint requestID )
+{
+    const Request* request = _requests[requestID];
+    if( !request )
+        return;
+
+    return request->data;
 }
 
 void RequestHandler::serveRequest( const uint requestID, void* result )

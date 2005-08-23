@@ -47,9 +47,10 @@ namespace eqBase
         /** 
          * Registers a new request.
          * 
+         * @param data a pointer to user-specific data for the request.
          * @return the request identifier.
          */
-        uint registerRequest();
+        uint registerRequest( void* data );
 
         /** 
          * Waits for the completion of a request and retrieves the result.
@@ -57,7 +58,15 @@ namespace eqBase
          * @param requestID the request identifier.
          * @return the result of the request.
          */
-        void* waitRequest(const uint requestID);
+        void* waitRequest( const uint requestID );
+
+        /** 
+         * Retrieves the user-specific data for a request.
+         * 
+         * @param requestID the request identifier.
+         * @return the user-specific data for the request.
+         */
+        void* getRequestData( const uint requestID );
 
         /** 
          * Server a request.
@@ -80,6 +89,7 @@ namespace eqBase
             ~Request(){ delete lock; }
 
             Lock* lock;
+            void* data;
             void* result;
         };
         

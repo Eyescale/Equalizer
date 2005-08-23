@@ -13,6 +13,9 @@
 using namespace eqNet;
 using namespace std;
 
+//----------------------------------------------------------------------
+// State management
+//----------------------------------------------------------------------
 Node::Node()
         : _state(STATE_STOPPED),
           _connection(NULL),
@@ -64,6 +67,54 @@ bool Node::connect( Node* node, Connection* connection )
     return true;
 }
 
+//----------------------------------------------------------------------
+// Node functionality
+//----------------------------------------------------------------------
+uint64 Node::_getMessageSize( const MessageType type, const uint64 count )
+{
+    switch( type )
+    {
+        default:
+        case TYPE_BYTE:
+            return count;
+        case TYPE_SHORT:
+            return 2 * count;
+        case TYPE_INTEGER:
+        case TYPE_FLOAT:
+            return 4 * count;
+    }
+}
+
+bool Node::send( const MessageType type, const void *ptr, const uint64 count )
+{
+    ASSERT( _state == STATE_CONNECTED ); // TODO: local send
+    NodeMessagePacket packet;
+    packet.type = type;
+    packet.nElements = count;
+    if( !send( packet ))
+        return false;
+
+    const uint64 size = _getMessageSize( type, count );
+    if( !send( ptr, size ))
+        return false;
+
+    return true;
+}
+
+bool Node::mapSession( Session* session, const char* name )
+{
+    NodeMapSessionPacket packet;
+    packet.requestID  = _requestHandler.registerRequest( session );
+    packet.nameLength = strlen( name ) + 1;
+    send( packet );
+    send( name, packet.nameLength );
+    return (bool)_requestHandler.waitRequest( packet.requestID );
+}
+
+
+//----------------------------------------------------------------------
+// receiver thread functions
+//----------------------------------------------------------------------
 ssize_t Node::run()
 {
     INFO << "Receiver started" << endl;
@@ -214,37 +265,3 @@ void Node::_packSession( Node* node, const Session* session )
 //     Launcher::run( launchCommand );
 //     _state = NODE_LAUNCHED;
 // }
-
-//----------------------------------------------------------------------
-// Messaging API
-//----------------------------------------------------------------------
-uint64 Node::_getMessageSize( const MessageType type, const uint64 count )
-{
-    switch( type )
-    {
-        default:
-        case TYPE_BYTE:
-            return count;
-        case TYPE_SHORT:
-            return 2 * count;
-        case TYPE_INTEGER:
-        case TYPE_FLOAT:
-            return 4 * count;
-    }
-}
-
-bool Node::send( const MessageType type, const void *ptr, const uint64 count )
-{
-    ASSERT( _state == STATE_CONNECTED ); // TODO: local send
-    NodeMessagePacket packet;
-    packet.type = type;
-    packet.nElements = count;
-    if( !send( packet ))
-        return false;
-
-    const uint64 size = _getMessageSize( type, count );
-    if( !send( ptr, size ))
-        return false;
-
-    return true;
-}

@@ -182,7 +182,7 @@ namespace eqNet
          * @return <code>true</code> if the session was mapped,
          *         <code>false</code> if not.
          */
-        bool Node::mapSession( Session* session, const char* name );
+        bool mapSession( Session* session, const char* name );
         //*}
         
     protected:
@@ -268,7 +268,8 @@ namespace eqNet
         void _cmdCreateSessionReply( Node* node, const Packet* packet);
         void _cmdNewSession( Node* node, const Packet* packet );
 
-        uint64 _getMessageSize( const MessageType type, const uint64 count );
+        static uint64 _getMessageSize( const MessageType type, 
+                                       const uint64 count );
 
         friend void ::eqNet_Node_runServer( eqNet::Connection* connection );
         friend inline std::ostream& operator << ( std::ostream& os,

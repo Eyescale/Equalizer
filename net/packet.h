@@ -51,6 +51,17 @@ namespace eqNet
         uint64      nElements;
     };
 
+    struct NodeMapSessionPacket : public NodePacket
+    {
+        NodeMapSessionPacket()
+            {
+                command = CMD_NODE_MAP_SESSION;
+                size = sizeof(NodeMapSessionPacket);
+            }
+        uint requestID;
+        uint nameLength;
+    };
+
     struct NodeCreateSessionReplyPacket : public NodePacket
     {
         NodeCreateSessionReplyPacket() 
