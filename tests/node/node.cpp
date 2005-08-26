@@ -85,10 +85,12 @@ int main( int argc, char **argv )
     if( !client.listen( connection ))
         exit( EXIT_FAILURE );
 
-    Node* serverProxy = client.connect( connection );
+    Node serverProxy;
+    if( !client.connect( &serverProxy, connection ))
+        exit( EXIT_FAILURE );
 
     const char message[] = "Don't Panic!";
-    client.send( serverProxy, message );
+    client.send( &serverProxy, message );
 
     lock.set();
 }

@@ -15,18 +15,15 @@
 using namespace eqNet;
 using namespace std;
 
-Session::Session( Node* node, const char* name )
-        : _node(node),
+Session::Session()
+        : _node(NULL),
           _userID(1)
 {
-    ASSERT( node );
-
     for( int i=0; i<CMD_SESSION_ALL; i++ )
         _cmdHandler[i] = &eqNet::Session::_cmdUnknown;
 
     _cmdHandler[CMD_SESSION_CREATE_USER] = &eqNet::Session::_cmdCreateUser;
 
-    _id = node->createSession( this, name );
     INFO << "New session" << this << endl;
 }
 
@@ -86,7 +83,7 @@ std::ostream& eqNet::operator << ( std::ostream& os, Session* session )
         }
     
     os << "    session " << session->getID() << "(" << (void*)session
-       << "): " << session->_users.size() << " user[s], ";
+       << "): " << session->_users.size() << " user[s]";
     
     for( IDHash<User*>::iterator iter = session->_users.begin();
          iter != session->_users.end(); iter++ )

@@ -14,7 +14,7 @@ RequestHandler::RequestHandler( const Thread::Type type )
 
 RequestHandler::~RequestHandler()
 {
-    while( _freeRequests.size() > 0 )
+    while( !_freeRequests.empty( ))
     {
         Request* request = _freeRequests.front();
         _freeRequests.pop_front();
@@ -24,11 +24,14 @@ RequestHandler::~RequestHandler()
 
 uint RequestHandler::registerRequest( void* data )
 {
-    Request* request = _freeRequests.front();
-    _freeRequests.pop_front();
-
-    if( !request )
+    Request* request;
+    if( _freeRequests.empty( ))
         request = new Request( _type );
+    else
+    {
+        request = _freeRequests.front();
+        _freeRequests.pop_front();
+    }
 
     request->data = data;
     const uint requestID = _requestID++;
@@ -55,7 +58,7 @@ void* RequestHandler::getRequestData( const uint requestID )
 {
     const Request* request = _requests[requestID];
     if( !request )
-        return;
+        return NULL;
 
     return request->data;
 }

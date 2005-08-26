@@ -7,12 +7,14 @@ HEADER_SRC = \
 	connection.h \
 	connectionSet.h \
 	connectionDescription.h \
+	fdConnection.h \
 	global.h \
 	group.h \
 	idHash.h \
 	message.h \
 	node.h \
 	packet.h \
+	pipeConnection.h \
 	session.h
 
 HEADER_GEN = \

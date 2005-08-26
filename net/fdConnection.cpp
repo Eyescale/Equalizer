@@ -15,8 +15,13 @@ using namespace std;
 FDConnection::FDConnection()
         : _readFD( -1 ),
           _writeFD( -1 )
-{
-}
+{}
+
+FDConnection::FDConnection( const FDConnection& conn )
+        : Connection( conn ),
+          _readFD( conn._readFD ),
+          _writeFD( conn._writeFD )
+{}
 
 //----------------------------------------------------------------------
 // read

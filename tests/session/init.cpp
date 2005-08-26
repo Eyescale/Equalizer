@@ -1,8 +1,9 @@
 
+//#include <eq/net/global.h>
 #include <eq/net/node.h>
+#include <eq/net/pipeConnection.h>
 #include <eq/net/session.h>
 
-#include <eq/net/global.h>
 #include <iostream>
 
 using namespace eqNet;
@@ -13,13 +14,24 @@ int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    Node server;
-    Connection* connection = Connection::create( TYPE_PIPE );
+    PipeConnection* connection = (PipeConnection*)Connection::create(TYPE_PIPE);
     ConnectionDescription connDesc;
-    connDesc.parameters.PIPE.entryFunc = "eqNet_Node_runServer";
+    if( !connection->connect( connDesc ))
+        exit( EXIT_FAILURE );
 
-    connection->connect(connDesc);
+    Node node;
+    Node server;
+    Node serverProxy;
 
+    node.listen( connection );
+    server.listen( connection->getChildEnd( ));
+    node.connect( &serverProxy, connection );
+
+    Session session;
+    node.mapSession( &serverProxy, &session, "foo" );
+    
     sleep(1);
+    
+    server.join();
 }
 

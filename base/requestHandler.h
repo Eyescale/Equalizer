@@ -10,13 +10,7 @@
 #include "lock.h"
 #include "thread.h"
 
-#ifdef __GNUC__              // GCC 3.1 and later
-#  include <ext/slist>
-namespace Sgi = ::__gnu_cxx; 
-#else                        //  other compilers
-#  include <slist>
-namespace Sgi = std;
-#endif
+#include <list>
 
 namespace eqBase
 {
@@ -95,7 +89,7 @@ namespace eqBase
         
         uint                          _requestID;
         Sgi::hash_map<uint, Request*> _requests;
-        Sgi::slist<Request*>          _freeRequests;
+        std::list<Request*>           _freeRequests;
     };
 }
 

@@ -78,6 +78,13 @@ namespace eqBase
          */
         bool join( ssize_t* retVal=NULL );
 
+        /** 
+         * Returns the execution type for this thread.
+         * 
+         * @return the execution type for this thread.
+         */
+        Type getType() { return _type; }
+
     private:
         /** The current state of this thread. */
         enum State

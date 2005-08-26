@@ -13,5 +13,5 @@ using namespace std;
 void Base::_cmdUnknown( Node* node, const Packet* packet )
 {
     ERROR << "Unknown command " << packet << " from " << node << endl;
-    exit( EXIT_FAILURE );
+    abort();
 }

@@ -10,6 +10,7 @@ namespace eqNet
     enum NodeCommand
     {
         CMD_NODE_MESSAGE,
+        CMD_NODE_MAP_SESSION,
         CMD_NODE_CREATE_SESSION,
         CMD_NODE_CREATE_SESSION_REPLY,
         CMD_NODE_NEW_SESSION,

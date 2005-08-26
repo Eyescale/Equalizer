@@ -13,7 +13,7 @@ namespace eqNet
     /**
      * A fork-based pipe connection.
      */
-    class PipeConnection : public FDConnection, public eqBase::Thread
+    class PipeConnection : public FDConnection
     {
     public:
         PipeConnection();
@@ -22,15 +22,21 @@ namespace eqNet
         virtual bool connect( const ConnectionDescription &description );
         virtual void close();
 
+        /** 
+         * @return the 'other' end of the pipe connection.
+         */
+        PipeConnection* getChildEnd(){ return _childConnection; }
+
     protected:
-        virtual ssize_t run();
+        PipeConnection( const PipeConnection& conn );
 
     private:
         bool _createPipes();
         void _setupParent();
+        void _setupChild();
 
         int*            _pipes;
-        const char*     _entryFunc;
+        PipeConnection* _childConnection;
     };
 }
 

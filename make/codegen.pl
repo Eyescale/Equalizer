@@ -169,7 +169,7 @@ sub generate( $; $ )
     {
         print HEADER "        uint requestID;\n";
         print CODE 
-            "    packet.requestID = _requestHandler.registerRequest();\n";
+            "    packet.requestID = _requestHandler.registerRequest(NULL);\n";
     }
 
     print CODE "    send( packet );\n";

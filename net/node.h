@@ -56,7 +56,7 @@ namespace eqNet
          *         <code>false</code> if not.
          * @sa connect
          */
-        bool listen( Connection* connection ){ return _listen(connection,true);}
+        bool listen( Connection* connection );
 
         /** 
          * Connects a node to this listening node.
@@ -101,14 +101,10 @@ namespace eqNet
          */
         bool send( const Packet& packet )
             {
-                if( _state == STATE_CONNECTED ) // remote
-                {
-                    const uint64 sent = _connection->send( packet );
-                    return ( sent==packet.size );
-                }
-                // local, TODO: send to receiver thread to avoid deadlocks
-                _handlePacket( this, &packet );
-                return true;
+                ASSERT( _state == STATE_CONNECTED ); // TODO: local send
+                ASSERT( _connection );
+                const uint64 sent = _connection->send( packet );
+                return ( sent==packet.size );
             }
 
         /** 
@@ -123,7 +119,7 @@ namespace eqNet
          */
         bool send( const void* data, const uint64 size )
             {
-                ASSERT( _state == STATE_CONNECTED ); // TODO: local send
+                ASSERT( _state == STATE_CONNECTED );
                 const uint64 sent = _connection->send( data, size );
                 return ( sent==size );
             }
@@ -164,7 +160,7 @@ namespace eqNet
          */
         bool recv( const void* buffer, const uint64 size )
             {
-                ASSERT( _state == STATE_CONNECTED ); // TODO: local receive
+                ASSERT( _state == STATE_CONNECTED );
                 const uint64 received = _connection->recv( buffer, size );
                 return ( received==size );
             }
@@ -175,14 +171,15 @@ namespace eqNet
          */
         //*{
         /**
-         * Maps a local session object to a named session on this node.
+         * Maps a local session object to a named session.
          *
+         * @param server the node serving the session.
          * @param session the session.
          * @param name the name of the session.
          * @return <code>true</code> if the session was mapped,
          *         <code>false</code> if not.
          */
-        bool mapSession( Session* session, const char* name );
+        bool mapSession( Node* server, Session* session, const char* name );
         //*}
         
     protected:
@@ -238,19 +235,6 @@ namespace eqNet
 
         /** The current sessions of this node. */
         IDHash<Session*> _sessions;
-        
-        /** 
-         * Initializes this node.
-         * 
-         * @param connection the connection to listen to.
-         * @param threaded <code>true</code> if the listening should happen
-         *                 in a separate thread (non-blocking) or from within
-         *                 this method (blocking).
-         * @return <code>true</code> if the node could be initialized,
-         *         <code>false</code> if not.
-         * @sa connect
-         */
-        bool _listen( Connection* connection, const bool threaded );
 
         void _packSession( Node* node, const Session* session );
 

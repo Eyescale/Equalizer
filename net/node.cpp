@@ -8,6 +8,7 @@
 #include "global.h"
 #include "nodePackets.h"
 #include "packet.h"
+#include "pipeConnection.h"
 #include "session.h"
 
 using namespace eqNet;
@@ -29,13 +30,7 @@ Node::Node()
     _cmdHandler[CMD_NODE_NEW_SESSION]     = &eqNet::Node::_cmdNewSession;
 }
 
-void eqNet_Node_runServer( eqNet::Connection* connection )
-{
-    Node node;
-    node._listen( connection, false );
-}
-
-bool Node::_listen( Connection* connection, const bool threaded )
+bool Node::listen( Connection* connection )
 {
     if( _state != STATE_STOPPED )
         return false;
@@ -44,13 +39,25 @@ bool Node::_listen( Connection* connection, const bool threaded )
         connection->getState() != Connection::STATE_LISTENING )
         return false;
 
+    // setup local connection to myself
+    _connection = Connection::create(TYPE_PIPE);
+    ConnectionDescription connDesc;
+    if( !_connection->connect( connDesc ))
+    {
+        _connection = NULL;
+        return false;
+    }
+
+    // setup connection set
+    Connection* childConnection = 
+        (static_cast<PipeConnection*>(_connection))->getChildEnd();
+
+    _connectionSet.addConnection( childConnection, this );
     _connectionSet.addConnection( connection, this );
     _state = STATE_LISTENING;
 
-    if( threaded )
-        start();
-    else
-        run();
+    // run the receiver thread
+    start();
 
     return true;
 }
@@ -101,13 +108,13 @@ bool Node::send( const MessageType type, const void *ptr, const uint64 count )
     return true;
 }
 
-bool Node::mapSession( Session* session, const char* name )
+bool Node::mapSession( Node* server, Session* session, const char* name )
 {
     NodeMapSessionPacket packet;
     packet.requestID  = _requestHandler.registerRequest( session );
     packet.nameLength = strlen( name ) + 1;
-    send( packet );
-    send( name, packet.nameLength );
+    server->send( packet );
+    server->send( name, packet.nameLength );
     return (bool)_requestHandler.waitRequest( packet.requestID );
 }
 
@@ -220,19 +227,19 @@ void Node::_cmdCreateSession( Node* node, const Packet* pkg )
 {
     ASSERT( getState() == STATE_LISTENING );
 
-    NodeCreateSessionPacket* packet  = (NodeCreateSessionPacket*)pkg;
-    INFO << "Cmd create session: " << packet << endl;
+//     NodeCreateSessionPacket* packet  = (NodeCreateSessionPacket*)pkg;
+//     INFO << "Cmd create session: " << packet << endl;
 
-    const uint sessionID = _sessionID++;
-    Session* session = new Session( sessionID, this );
-    _sessions[sessionID] = session;
+//     const uint sessionID = _sessionID++;
+//     Session* session = new Session( sessionID, this );
+//     _sessions[sessionID] = session;
 
-    _packSession( node, session );
+//     _packSession( node, session );
 
-    NodeCreateSessionReplyPacket replyPacket;
-    replyPacket.requestID = packet->requestID;
-    replyPacket.reply = sessionID;
-    node->send(replyPacket);
+//     NodeCreateSessionReplyPacket replyPacket;
+//     replyPacket.requestID = packet->requestID;
+//     replyPacket.reply = sessionID;
+//     node->send(replyPacket);
 }
 
 void Node::_cmdCreateSessionReply( Node* node, const Packet* pkg)

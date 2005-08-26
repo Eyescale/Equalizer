@@ -135,6 +135,7 @@ namespace eqNet
 
     protected:
         Connection();
+        Connection(const Connection& conn);
 
         State                 _state;       //!< The connection state
     };

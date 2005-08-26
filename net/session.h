@@ -29,10 +29,8 @@ namespace eqNet
     public:
         /** 
          * Constructs a new session.
-         * 
-         * @param node the node hosting the session.
          */
-        Session( Node* node, const char* name );
+        Session();
 
         /** 
          * Returns the realization state of the session.

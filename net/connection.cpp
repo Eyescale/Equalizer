@@ -17,8 +17,11 @@ using namespace std;
 
 Connection::Connection()
         : _state( STATE_CLOSED )
-{
-}
+{}
+
+Connection::Connection(const Connection& conn)
+        : _state( conn._state )
+{}
 
 Connection* Connection::create( const ConnectionType type )
 {

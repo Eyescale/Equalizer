@@ -76,8 +76,6 @@ namespace eqNet
             /** pipe parameters */
             struct
             {
-                /** The name of the entry function for the forked process. */
-                const char *entryFunc;
             } PIPE;
         } parameters;
     };

@@ -15,9 +15,20 @@ using namespace eqNet;
 using namespace std;
 
 PipeConnection::PipeConnection()
-        : eqBase::Thread( eqBase::Thread::FORK ),
-          _pipes(NULL)
+        : _pipes(NULL),
+          _childConnection(NULL)
 {
+}
+
+PipeConnection::PipeConnection(const PipeConnection& conn)
+        : FDConnection(conn),
+          _childConnection( conn._childConnection )
+{
+    if( conn._pipes )
+    {
+        _pipes = new int[4];
+        memcpy( _pipes, conn._pipes, 4*sizeof(int));
+    }
 }
 
 PipeConnection::~PipeConnection()
@@ -33,26 +44,16 @@ bool PipeConnection::connect( const ConnectionDescription &description )
     if( _state != STATE_CLOSED )
         return false;
 
-    if( description.parameters.PIPE.entryFunc == NULL )
-    {
-        WARN << "No entry function defined for pipe connection" <<endl;
-        return false;
-    }
-
     _state = STATE_CONNECTING;
 
     if( !_createPipes( ))
-        return false;
-
-    // fork child process
-    _entryFunc = description.parameters.PIPE.entryFunc;
-    if( !start( ))
     {
-        WARN << "Could not fork child process" <<endl;
         close();
         return false;
     }
 
+    _childConnection = new PipeConnection( *this );
+    _childConnection->_setupChild();
     _setupParent();
     return true;
 }
@@ -90,22 +91,21 @@ void PipeConnection::close()
         delete [] _pipes;
         _pipes = NULL;
     }
-   
+
+    _childConnection = NULL;
     _state = STATE_CLOSED;
 }
 
 void PipeConnection::_setupParent()
 {
-    // close unneeded pipe ends
-    ::close( _pipes[1] );
-    ::close( _pipes[2] );
-
+    ASSERT( _state = STATE_CONNECTING );
     // assign file descriptors
     _readFD  = _pipes[0];
     _writeFD = _pipes[3];
     INFO << "Parent readFD " << _readFD << " writeFD " << _writeFD << endl;
 
     // cleanup
+    ASSERT(_pipes);
     delete [] _pipes;
     _pipes = NULL;
 
@@ -113,45 +113,48 @@ void PipeConnection::_setupParent()
     _state = STATE_CONNECTED;
 }
 
-ssize_t PipeConnection::run()
+void PipeConnection::_setupChild()
 {
-    // close unneeded pipe ends
-    ::close( _pipes[0] );
-    ::close( _pipes[3] );
-
+    ASSERT( _state = STATE_CONNECTING );
     // assign file descriptors
     _readFD  = _pipes[2];
     _writeFD = _pipes[1];
     INFO << "Child  readFD " << _readFD << " writeFD " << _writeFD << endl;
 
     // cleanup
+    ASSERT(_pipes);
     delete [] _pipes;
     _pipes = NULL;
 
     // done... execute entry function
     _state = STATE_CONNECTED;
-
-    // Note: right now all possible entry functions are hardcoded due to
-    // security considerations.
-    int result = EXIT_FAILURE;
-
-    if( strcmp( _entryFunc, "eqNet_Node_runServer" ) == 0 ||
-        strcmp( _entryFunc, "testPipeServer" ) == 0 )
-    {
-#ifdef sgi
-        void* dlHandle = dlopen( 0, RTLD_LAZY );
-        void* func = dlsym( dlHandle, _entryFunc );
-#else
-        void* func = dlsym( RTLD_DEFAULT, _entryFunc );
-#endif
-        INFO << "Entry function '" << _entryFunc << "', addr: " << func << endl;
-        typedef int (*EntryFunc)( Connection* connection );
-        result = ((EntryFunc)func)( this );
-    }
-    // else if ....
-
-    close();
-    delete this;
-    ::exit( result );
-    return result;
 }
+
+// ssize_t PipeConnection::run()
+// {
+//     _setupChild();
+ 
+//     // Note: right now all possible entry functions are hardcoded due to
+//     // security considerations.
+//     int result = EXIT_FAILURE;
+
+//     if( strcmp( _entryFunc, "eqNet_Node_runServer" ) == 0 ||
+//         strcmp( _entryFunc, "testPipeServer" ) == 0 )
+//     {
+// #ifdef sgi
+//         void* dlHandle = dlopen( 0, RTLD_LAZY );
+//         void* func = dlsym( dlHandle, _entryFunc );
+// #else
+//         void* func = dlsym( RTLD_DEFAULT, _entryFunc );
+// #endif
+//         INFO << "Entry function '" << _entryFunc << "', addr: " << func << endl;
+//         typedef int (*EntryFunc)( Connection* connection );
+//         result = ((EntryFunc)func)( this );
+//     }
+//     // else if ....
+
+//     close();
+//     delete this;
+//     ::exit( result );
+//     return result;
+// }

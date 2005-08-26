@@ -24,6 +24,7 @@ namespace eqNet
 
     protected:
         FDConnection();
+        FDConnection( const FDConnection& conn );
 
         int   _readFD;     //!< The read file descriptor.
         int   _writeFD;    //!< The write file descriptor.
