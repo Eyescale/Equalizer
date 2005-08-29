@@ -33,6 +33,7 @@ int main( int argc, char **argv )
     TEST( node.mapSession( &serverProxy, &session, "foo" ));
     
     TEST( server.stop( ));
+    TEST( node.stop( ));
     sleep(1);
 }
 

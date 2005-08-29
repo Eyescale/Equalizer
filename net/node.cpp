@@ -11,6 +11,8 @@
 #include "pipeConnection.h"
 #include "session.h"
 
+#include <alloca.h>
+
 using namespace eqNet;
 using namespace std;
 
@@ -133,7 +135,9 @@ bool Node::mapSession( Node* server, Session* session, const char* name )
     server->send( packet );
     server->send( name, packet.nameLength );
 
-    const uint sessionID = (uint)_requestHandler.waitRequest( packet.requestID);
+    const void* result = _requestHandler.waitRequest( packet.requestID );
+    const uint sessionID = (int)((long long)result); // casts needed for MipsPro
+
     if( sessionID == INVALID_ID )
         return false;
 

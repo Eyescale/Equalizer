@@ -98,7 +98,7 @@ void PipeConnection::close()
 
 void PipeConnection::_setupParent()
 {
-    ASSERT( _state = STATE_CONNECTING );
+    ASSERT( _state == STATE_CONNECTING );
     // assign file descriptors
     _readFD  = _pipes[0];
     _writeFD = _pipes[3];
@@ -115,7 +115,7 @@ void PipeConnection::_setupParent()
 
 void PipeConnection::_setupChild()
 {
-    ASSERT( _state = STATE_CONNECTING );
+    ASSERT( _state == STATE_CONNECTING );
     // assign file descriptors
     _readFD  = _pipes[2];
     _writeFD = _pipes[1];

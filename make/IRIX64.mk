@@ -10,4 +10,4 @@ AR          = CC -ar -o
 DOXYGEN     = ls
 
 CXXFLAGS   += -LANG:std -64
-LDFLAGS    += -64
+LDFLAGS    += -64 -hidden_symbol dummy

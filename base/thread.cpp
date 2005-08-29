@@ -141,6 +141,7 @@ void Thread::exit( ssize_t retVal )
     if( _threadState == STATE_STOPPED )
         return;
 
+    INFO << "Exiting this thread" << endl;
     switch( _type )
     {
         case PTHREAD:
@@ -151,6 +152,8 @@ void Thread::exit( ssize_t retVal )
             ::exit( retVal );
             break;
     }
+    ERROR << "Unreachable code" <<endl;
+    ::abort();
 }
 
 bool Thread::join( ssize_t* retVal )

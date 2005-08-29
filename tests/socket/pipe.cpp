@@ -2,7 +2,6 @@
 #include <eq/base/thread.h>
 #include <eq/net/connection.h>
 #include <eq/net/pipeConnection.h>
-//#include <eq/net/global.h>
 
 #include <alloca.h>
 #include <iostream>
@@ -16,7 +15,7 @@ public:
     void start( Connection* connection )
         {
             _connection = connection;
-            Thread::start();
+            eqBase::Thread::start();
         }
 
 protected:
