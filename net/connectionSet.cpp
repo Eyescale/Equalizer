@@ -4,6 +4,7 @@
 
 #include "connectionSet.h"
 #include "connection.h"
+#include "node.h"
 
 #include <eq/base/base.h>
 #include <algorithm>
@@ -55,6 +56,7 @@ void ConnectionSet::addConnection( Connection* connection, Node* node )
 {
     ASSERT( connection->getState() == Connection::STATE_CONNECTED ||
             connection->getState() == Connection::STATE_LISTENING );
+    ASSERT( connection == node->getConnection( ));
 
     _connections.push_back( connection );
     _nodes[connection] = node;
@@ -129,8 +131,8 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                     _node       = _nodes[_connection];
                     
                     INFO << "selected connection #" << i << " of " << _fdSetSize
-                         << ", poll event " << pollEvent << ", node" << _node
-                         << endl;
+                         << ", poll event " << pollEvent << ", " << _node
+                         << ", " << _connection << endl;
 
                     switch( pollEvent )
                     {

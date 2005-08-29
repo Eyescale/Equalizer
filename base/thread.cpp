@@ -136,6 +136,23 @@ bool Thread::start()
     return true;
 }
 
+void Thread::exit( ssize_t retVal )
+{
+    if( _threadState == STATE_STOPPED )
+        return;
+
+    switch( _type )
+    {
+        case PTHREAD:
+            pthread_exit( (void*)retVal );
+            break;
+
+        case FORK:
+            ::exit( retVal );
+            break;
+    }
+}
+
 bool Thread::join( ssize_t* retVal )
 {
     if( _threadState == STATE_STOPPED )

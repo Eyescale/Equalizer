@@ -14,9 +14,10 @@ namespace eqNet
     /** The supported network protocols. */
     enum ConnectionType
     {
-        TYPE_TCPIP,  //!< TCP/IP networking.
-        TYPE_MPI,    //!< MPI networking.
-        TYPE_PIPE    //!< anonymous pipe to a forked process
+        TYPE_TCPIP,   //!< TCP/IP networking.
+        TYPE_MPI,     //!< MPI networking.
+        TYPE_PIPE,    //!< pipe() based bi-directional connection
+        TYPE_UNI_PIPE //!< pipe() based uni-directional connection
     };
 
     /**

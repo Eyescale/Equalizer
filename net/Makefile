@@ -15,7 +15,8 @@ HEADER_SRC = \
 	node.h \
 	packet.h \
 	pipeConnection.h \
-	session.h
+	session.h \
+	uniPipeConnection.h
 
 HEADER_GEN = \
 	node.h \
@@ -32,6 +33,7 @@ SOURCES = \
 	pipeConnection.cpp \
 	session.cpp \
 	socketConnection.cpp \
+	uniPipeConnection.cpp \
 	user.cpp \
 	util.cpp
 

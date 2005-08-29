@@ -25,6 +25,7 @@ Node::Node()
     for( int i=0; i<CMD_NODE_CUSTOM; i++ )
         _cmdHandler[i] =  &eqNet::Node::_cmdUnknown;
 
+    _cmdHandler[CMD_NODE_STOP]              = &eqNet::Node::_cmdStop;
     _cmdHandler[CMD_NODE_MAP_SESSION]       = &eqNet::Node::_cmdMapSession;
     _cmdHandler[CMD_NODE_MAP_SESSION_REPLY] = &eqNet::Node::_cmdMapSessionReply;
     _cmdHandler[CMD_NODE_SESSION]           = &eqNet::Node::_cmdSession;
@@ -45,7 +46,7 @@ bool Node::listen( Connection* connection )
 
     // run the receiver thread
     start();
-
+    INFO << this << " listening" << endl;
     return true;
 }
 
@@ -58,17 +59,14 @@ bool Node::stop()
     send( packet );
     join();
 
-    delete _connection;
-    _connection = NULL;
-
-    _state = STATE_STOPPED;
+    ASSERT( _state == STATE_STOPPED );
     return true;    
 }
 
 void Node::_listenToSelf()
 {
     // setup local connection to myself
-    _connection = Connection::create(TYPE_PIPE);
+    _connection = Connection::create(TYPE_UNI_PIPE);
     ConnectionDescription connDesc;
     if( !_connection->connect( connDesc ))
     {
@@ -76,11 +74,8 @@ void Node::_listenToSelf()
         return;
     }
 
-    // setup connection set
-    Connection* childConnection = 
-        (static_cast<PipeConnection*>(_connection))->getChildEnd();
-
-    _connectionSet.addConnection( childConnection, this );
+    // add to connection set
+    _connectionSet.addConnection( _connection, this );
 }
 
 bool Node::connect( Node* node, Connection* connection )
@@ -92,6 +87,7 @@ bool Node::connect( Node* node, Connection* connection )
     node->_connection = connection;
     node->_state = STATE_CONNECTED;
     _connectionSet.addConnection( connection, node );
+    INFO << node << " connected to " << this << endl;
     return true;
 }
 
@@ -164,7 +160,7 @@ ssize_t Node::run()
             case ConnectionSet::EVENT_DATA:      
             {
                 Node* node = _connectionSet.getNode();
-                INFO << node << endl;
+                INFO << "Data from " << node << endl;
                 ASSERT( node->_connection == _connectionSet.getConnection() );
                 _handleRequest( node );
                 break;
@@ -251,6 +247,19 @@ void Node::_handlePacket( Node* node, const Packet* packet )
         default:
             handlePacket( node, packet );
     }
+}
+
+void Node::_cmdStop( Node* node, const Packet* pkg )
+{
+    INFO << "Cmd stop" << endl;
+    ASSERT( _state == STATE_LISTENING );
+
+    _connectionSet.clear();
+    if( _connection )
+        delete _connection;
+    _connection = NULL;
+    _state = STATE_STOPPED;
+    exit( EXIT_SUCCESS );
 }
 
 void Node::_cmdMapSession( Node* node, const Packet* pkg )

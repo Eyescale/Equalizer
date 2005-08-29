@@ -66,6 +66,15 @@ namespace eqBase
         virtual ssize_t run() = 0;
 
         /** 
+         * Exits the child thread immediately.
+         * 
+         * If successful, this function does not return.
+         *
+         * @param retVal the return value of the thread.
+         */
+        void exit( ssize_t retVal = NULL );
+
+        /** 
          * Waits for the exit of the child thread.
          * 
          * The actual size of the return value is thread-type dependent and may

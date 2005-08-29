@@ -126,7 +126,7 @@ void PipeConnection::_setupChild()
     delete [] _pipes;
     _pipes = NULL;
 
-    // done... execute entry function
+    // done...
     _state = STATE_CONNECTED;
 }
 

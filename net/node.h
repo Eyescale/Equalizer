@@ -87,6 +87,8 @@ namespace eqNet
          */
         State getState(){ return _state; }
 
+        Connection* getConnection(){ return _connection; }
+
         /**
          * @name Messaging API
          *
@@ -113,7 +115,7 @@ namespace eqNet
          */
         bool send( const Packet& packet )
             {
-                ASSERT( _state == STATE_CONNECTED ); // TODO: local send
+                ASSERT( _state==STATE_CONNECTED || _state==STATE_LISTENING );
                 ASSERT( _connection );
                 const uint64 sent = _connection->send( packet );
                 return ( sent==packet.size );
@@ -131,7 +133,7 @@ namespace eqNet
          */
         bool send( const void* data, const uint64 size )
             {
-                ASSERT( _state == STATE_CONNECTED );
+                ASSERT( _state==STATE_CONNECTED || _state==STATE_LISTENING );
                 const uint64 sent = _connection->send( data, size );
                 return ( sent==size );
             }
@@ -262,6 +264,7 @@ namespace eqNet
         /** The command handler function table. */
         void (eqNet::Node::*_cmdHandler[CMD_NODE_CUSTOM])( Node* node, const Packet* packet );
 
+        void _cmdStop( Node* node, const Packet* packet );
         void _cmdMapSession( Node* node, const Packet* packet );
         void _cmdMapSessionReply( Node* node, const Packet* packet);
         void _cmdSession( Node* node, const Packet* packet );

@@ -11,7 +11,7 @@
 namespace eqNet
 {
     /**
-     * A fork-based pipe connection.
+     * A bi-directional pipe connection (pair).
      */
     class PipeConnection : public FDConnection
     {

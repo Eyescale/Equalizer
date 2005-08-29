@@ -6,6 +6,7 @@
 
 #include "pipeConnection.h"
 #include "socketConnection.h"
+#include "uniPipeConnection.h"
 
 #include <eq/base/log.h>
 
@@ -32,6 +33,9 @@ Connection* Connection::create( const ConnectionType type )
 
         case TYPE_PIPE:
             return new PipeConnection();
+
+        case TYPE_UNI_PIPE:
+            return new UniPipeConnection();
 
         default:
             WARN << "Connection type not implemented" << endl;
