@@ -25,9 +25,9 @@ Node::Node()
     for( int i=0; i<CMD_NODE_CUSTOM; i++ )
         _cmdHandler[i] =  &eqNet::Node::_cmdUnknown;
 
-    _cmdHandler[CMD_NODE_CREATE_SESSION] = &eqNet::Node::_cmdCreateSession;
-    _cmdHandler[CMD_NODE_CREATE_SESSION_REPLY] = &eqNet::Node::_cmdCreateSessionReply;
-    _cmdHandler[CMD_NODE_NEW_SESSION]     = &eqNet::Node::_cmdNewSession;
+    _cmdHandler[CMD_NODE_MAP_SESSION]       = &eqNet::Node::_cmdMapSession;
+    _cmdHandler[CMD_NODE_MAP_SESSION_REPLY] = &eqNet::Node::_cmdMapSessionReply;
+    _cmdHandler[CMD_NODE_SESSION]           = &eqNet::Node::_cmdSession;
 }
 
 bool Node::listen( Connection* connection )
@@ -35,17 +35,45 @@ bool Node::listen( Connection* connection )
     if( _state != STATE_STOPPED )
         return false;
 
-    if( connection->getState() != Connection::STATE_CONNECTED && 
-        connection->getState() != Connection::STATE_LISTENING )
+    if( connection && connection->getState() != Connection::STATE_LISTENING )
         return false;
 
+    _listenToSelf();
+    if( connection )
+        _connectionSet.addConnection( connection, this );
+    _state = STATE_LISTENING;
+
+    // run the receiver thread
+    start();
+
+    return true;
+}
+
+bool Node::stop()
+{
+    if( _state != STATE_LISTENING )
+        return false;
+
+    NodeStopPacket packet;
+    send( packet );
+    join();
+
+    delete _connection;
+    _connection = NULL;
+
+    _state = STATE_STOPPED;
+    return true;    
+}
+
+void Node::_listenToSelf()
+{
     // setup local connection to myself
     _connection = Connection::create(TYPE_PIPE);
     ConnectionDescription connDesc;
     if( !_connection->connect( connDesc ))
     {
         _connection = NULL;
-        return false;
+        return;
     }
 
     // setup connection set
@@ -53,13 +81,6 @@ bool Node::listen( Connection* connection )
         (static_cast<PipeConnection*>(_connection))->getChildEnd();
 
     _connectionSet.addConnection( childConnection, this );
-    _connectionSet.addConnection( connection, this );
-    _state = STATE_LISTENING;
-
-    // run the receiver thread
-    start();
-
-    return true;
 }
 
 bool Node::connect( Node* node, Connection* connection )
@@ -115,7 +136,13 @@ bool Node::mapSession( Node* server, Session* session, const char* name )
     packet.nameLength = strlen( name ) + 1;
     server->send( packet );
     server->send( name, packet.nameLength );
-    return (bool)_requestHandler.waitRequest( packet.requestID );
+
+    const uint sessionID = (uint)_requestHandler.waitRequest( packet.requestID);
+    if( sessionID == INVALID_ID )
+        return false;
+
+    session->map( server, sessionID, name );
+    return true;
 }
 
 
@@ -135,15 +162,19 @@ ssize_t Node::run()
                 break;
 
             case ConnectionSet::EVENT_DATA:      
-                _handleRequest( _connectionSet.getConnection( ),
-                                _connectionSet.getNode( ));
+            {
+                Node* node = _connectionSet.getNode();
+                INFO << node << endl;
+                ASSERT( node->_connection == _connectionSet.getConnection() );
+                _handleRequest( node );
                 break;
+            }
 
             case ConnectionSet::EVENT_DISCONNECT:
             {
                 Node* node        = _connectionSet.getNode();
                 node->_state      = STATE_STOPPED;
-                node->_connection = NULL; // XXX mem leak: use ref ptr?
+                node->_connection = NULL; // XXX mem leak: use ref ptr?!
 
                 Connection* connection = _connectionSet.getConnection();
                 connection->close();
@@ -185,14 +216,13 @@ Node* Node::handleNewNode( Connection* connection )
     return NULL;
 }
 
-void Node::_handleRequest( Connection* connection, Node* node )
+void Node::_handleRequest( Node* node )
 {
-    INFO << "Handle request on " << connection << endl;
-    ASSERT( connection->getState() == Connection::STATE_CONNECTED );
+    INFO << "Handle request from " << node << endl;
 
     uint64 size;
-    uint64 received = connection->recv( &size, sizeof( size ));
-    ASSERT( received == sizeof( size ));
+    bool gotData = node->recv( &size, sizeof( size ));
+    ASSERT( gotData );
     ASSERT( size );
 
     Packet* packet = (Packet*)alloca( size );
@@ -200,8 +230,8 @@ void Node::_handleRequest( Connection* connection, Node* node )
     size -= sizeof( size );
 
     char* ptr = (char*)packet + sizeof(size);
-    received      = connection->recv( ptr, size );
-    ASSERT( received == size );
+    gotData   = node->recv( ptr, size );
+    ASSERT( gotData );
 
     _handlePacket( node, packet );
 }
@@ -223,44 +253,71 @@ void Node::_handlePacket( Node* node, const Packet* packet )
     }
 }
 
-void Node::_cmdCreateSession( Node* node, const Packet* pkg )
+void Node::_cmdMapSession( Node* node, const Packet* pkg )
 {
     ASSERT( getState() == STATE_LISTENING );
 
-//     NodeCreateSessionPacket* packet  = (NodeCreateSessionPacket*)pkg;
-//     INFO << "Cmd create session: " << packet << endl;
+    NodeMapSessionPacket* packet  = (NodeMapSessionPacket*)pkg;
+    char*                 name    = (char*)alloca( packet->nameLength );
+    const bool            gotData = node->recv( name, packet->nameLength );
+    
+    ASSERT( gotData );
+    INFO << "Cmd map session: " << packet << ", " << name << endl;
 
-//     const uint sessionID = _sessionID++;
-//     Session* session = new Session( sessionID, this );
-//     _sessions[sessionID] = session;
+    Session* session   = _findSession(name);
+    uint     sessionID;
+    if( !session )
+    {
+        sessionID = _sessionID++;
+        session   = new Session();
+        session->map( this, sessionID, name );
+        _sessions[sessionID] = session;
+    }
+    else
+        sessionID = session->getID();
+    
+    NodeSessionPacket sessionPacket;
+    sessionPacket.requestID = packet->requestID;
+    sessionPacket.sessionID = sessionID;
 
-//     _packSession( node, session );
-
-//     NodeCreateSessionReplyPacket replyPacket;
-//     replyPacket.requestID = packet->requestID;
-//     replyPacket.reply = sessionID;
-//     node->send(replyPacket);
-}
-
-void Node::_cmdCreateSessionReply( Node* node, const Packet* pkg)
-{
-    NodeCreateSessionReplyPacket* packet  = (NodeCreateSessionReplyPacket*)pkg;
-    INFO << "Cmd create session reply: " << packet << endl;
-    Session* session = _sessions[packet->reply];
-    _requestHandler.serveRequest( packet->requestID, session );
-}
-
-void Node::_cmdNewSession( Node* node, const Packet* packet )
-{
-}
-
-void Node::_packSession( Node* node, const Session* session )
-{
-    NodeNewSessionPacket packet;
-    packet.sessionID = session->getID();
-
-    node->send( packet );
+    node->send( sessionPacket );
     session->pack( node );
+
+    NodeMapSessionReplyPacket replyPacket;
+    replyPacket.requestID = packet->requestID;
+    replyPacket.reply     = sessionID;
+    node->send(replyPacket);
+}
+
+void Node::_cmdMapSessionReply( Node* node, const Packet* pkg)
+{
+    NodeMapSessionReplyPacket* packet  = (NodeMapSessionReplyPacket*)pkg;
+    INFO << "Cmd map session reply: " << packet << endl;
+
+    _requestHandler.serveRequest( packet->requestID, (void*)packet->reply );
+}
+
+void Node::_cmdSession( Node* node, const Packet* pkg )
+{
+    NodeSessionPacket* packet  = (NodeSessionPacket*)pkg;
+    INFO << "cmd session: " << packet << endl;
+    Session* session = static_cast<Session*>(
+        _requestHandler.getRequestData( packet->requestID ));
+    ASSERT( session );
+    
+    _sessions[packet->sessionID] = session;
+}
+
+Session* Node::_findSession( const char* name ) const
+{
+    for( IDHash<Session*>::const_iterator iter = _sessions.begin();
+         iter != _sessions.end(); iter++ )
+    {
+        Session* session = (*iter).second;
+        if( strcmp( session->getName(), name) == 0 )
+            return session;
+    }
+    return NULL;
 }
 
 // void Node::launch( const char* options )

@@ -32,9 +32,34 @@ namespace eqBase
             }
     };
 
+    struct hashString
+    {
+        size_t operator()(const char *string) const
+            {
+                unsigned long hash = 5381;
+                const unsigned char* ptr = (const unsigned char*)string;
+                int c;
+
+                while ( (c = *ptr++) != '\0' )
+                    hash = ((hash << 5) + hash) + c; // hash * 33 + c
+
+                return hash;
+            }
+
+        bool operator()(const char* s1, const char* s2) const
+            {
+                return strcmp(s1, s2) == 0;
+            }
+    };
+
     /** A hash for pointer keys. */
     template<class K, class T> class PtrHash 
         : public Sgi::hash_map<K, T, hashFuncPtr<K> >
+    {};
+
+    /** A hash for const char* keys. */
+    template<class T> class StringHash
+        : public Sgi::hash_map<const char *, T, hashString, hashString >
     {};
 }
 

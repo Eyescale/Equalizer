@@ -33,6 +33,13 @@ namespace eqNet
         Session();
 
         /** 
+         * Returns the name of the session.
+         * 
+         * @return the name of the session.
+         */
+        const char* getName() const{ return _name.c_str(); }
+
+        /** 
          * Returns the realization state of the session.
          * 
          * @return the realization state of the session.
@@ -155,6 +162,16 @@ namespace eqNet
          */
         void pack( Node* node ) const;
 
+        /** 
+         * Sets the mapping information of this session, used internally by
+         * Node::mapSession().
+         * 
+         * @param server the node hosting the session.
+         * @param id the session's identifier.
+         * @param name the name of the session.
+         */
+        void map( Node* server, const uint id, const char* name );
+
     protected:
         /** Registers requests waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
@@ -174,6 +191,9 @@ namespace eqNet
 
         /** The session's identifier. */
         uint _id;
+        
+        /** The session's name. */
+        std::string _name;
 
         /** The unique user identifier counter. */
         uint _userID;

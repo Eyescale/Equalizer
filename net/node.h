@@ -51,12 +51,24 @@ namespace eqNet
          * method completed successfully. A listening node can connect to other
          * nodes.
          * 
-         * @param connection the connection to listen to.
+         * @param connection a listening connection for incoming request, can be
+         *                   <CODE>NULL</CODE>.
          * @return <code>true</code> if the node could be initialized,
          *         <code>false</code> if not.
          * @sa connect
          */
-        bool listen( Connection* connection );
+        bool listen( Connection* connection = NULL );
+
+        /** 
+         * Stops this node.
+         * 
+         * If this node is listening, the node will stop listening and terminate
+         * its receiver thread.
+         * 
+         * @return <code>true</code> if the node was stopped, <code>false</code>
+         *         if it was not stopped.
+         */
+        bool stop();
 
         /** 
          * Connects a node to this listening node.
@@ -160,7 +172,7 @@ namespace eqNet
          */
         bool recv( const void* buffer, const uint64 size )
             {
-                ASSERT( _state == STATE_CONNECTED );
+                ASSERT( _state == STATE_CONNECTED || _state == STATE_LISTENING);
                 const uint64 received = _connection->recv( buffer, size );
                 return ( received==size );
             }
@@ -236,21 +248,23 @@ namespace eqNet
         /** The current sessions of this node. */
         IDHash<Session*> _sessions;
 
-        void _packSession( Node* node, const Session* session );
+        Session* _findSession( const char* name ) const;
+
+        void _listenToSelf();
 
         /** The receiver thread entry function for this node. */
         virtual ssize_t run();
             
         void _handleConnect( ConnectionSet& connectionSet );
-        void _handleRequest( Connection* connection, Node* node );
+        void _handleRequest( Node* node );
         void _handlePacket( Node* node, const Packet* packet);
 
         /** The command handler function table. */
         void (eqNet::Node::*_cmdHandler[CMD_NODE_CUSTOM])( Node* node, const Packet* packet );
 
-        void _cmdCreateSession( Node* node, const Packet* packet );
-        void _cmdCreateSessionReply( Node* node, const Packet* packet);
-        void _cmdNewSession( Node* node, const Packet* packet );
+        void _cmdMapSession( Node* node, const Packet* packet );
+        void _cmdMapSessionReply( Node* node, const Packet* packet);
+        void _cmdSession( Node* node, const Packet* packet );
 
         static uint64 _getMessageSize( const MessageType type, 
                                        const uint64 count );

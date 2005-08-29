@@ -40,6 +40,15 @@ namespace eqNet
         NodePacket(){ datatype = DATATYPE_EQ_NODE; }
     };
 
+    struct NodeStopPacket : public NodePacket
+    {
+        NodeStopPacket()
+            {
+                command = CMD_NODE_STOP;
+                size    = sizeof( NodeStopPacket );
+            }
+    };
+
     struct NodeMessagePacket : public NodePacket
     {
         NodeMessagePacket()
@@ -62,26 +71,27 @@ namespace eqNet
         uint nameLength;
     };
 
-    struct NodeCreateSessionReplyPacket : public NodePacket
+    struct NodeMapSessionReplyPacket : public NodePacket
     {
-        NodeCreateSessionReplyPacket() 
+        NodeMapSessionReplyPacket() 
             {
-                command  = CMD_NODE_CREATE_SESSION_REPLY;
-                size     = sizeof( NodeCreateSessionReplyPacket ); 
+                command  = CMD_NODE_MAP_SESSION_REPLY;
+                size     = sizeof( NodeMapSessionReplyPacket ); 
             }
             
         uint requestID;
         uint reply;
     };
 
-    struct NodeNewSessionPacket : public NodePacket
+    struct NodeSessionPacket : public NodePacket
     {
-        NodeNewSessionPacket() 
+        NodeSessionPacket() 
             {
-                command  = CMD_NODE_NEW_SESSION;
-                size     = sizeof( NodeNewSessionPacket ); 
+                command  = CMD_NODE_SESSION;
+                size     = sizeof( NodeSessionPacket ); 
             }
 
+        uint requestID;
         uint sessionID;
     };
 
@@ -124,6 +134,13 @@ namespace eqNet
                                        const NodePacket* packet )
     {
         os << (Packet*)packet;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const NodeMapSessionPacket* packet )
+    {
+        os << (NodePacket*)packet << " req " << packet->requestID << " l " 
+           << packet->nameLength;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

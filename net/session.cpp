@@ -17,6 +17,7 @@ using namespace std;
 
 Session::Session()
         : _node(NULL),
+          _id(INVALID_ID),
           _userID(1)
 {
     for( int i=0; i<CMD_SESSION_ALL; i++ )
@@ -25,6 +26,14 @@ Session::Session()
     _cmdHandler[CMD_SESSION_CREATE_USER] = &eqNet::Session::_cmdCreateUser;
 
     INFO << "New session" << this << endl;
+}
+
+void Session::map( Node* server, const uint id, const char* name )
+{
+    _node = server;
+    _id   = id;
+    _name = name;
+    // _state = mapped;
 }
 
 void Session::handlePacket( Node* node, const SessionPacket* packet)

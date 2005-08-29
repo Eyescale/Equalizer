@@ -28,7 +28,18 @@ namespace eqNet
 
         int   _readFD;     //!< The read file descriptor.
         int   _writeFD;    //!< The write file descriptor.
+
+        friend inline std::ostream& operator << ( std::ostream& os, 
+                                               const FDConnection* connection );
     };
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const FDConnection* connection )
+    {
+        os << (Connection*)connection << " readFD " << connection->_readFD
+           << " writeFD " << connection->_writeFD;
+        return os;
+    }
 }
 
 #endif //EQNET_FD_CONNECTION_H

@@ -150,7 +150,7 @@ namespace eqNet
                 state == Connection::STATE_CONNECTING ? "connecting" :
                 state == Connection::STATE_CONNECTED  ? "connected" :
                 state == Connection::STATE_LISTENING  ? "listening" :
-                "unknown state" );
+                "unknown state");
         return os;
     }
 }
