@@ -5,6 +5,8 @@
 #ifndef EQNET_CONNECTION_SET_H
 #define EQNET_CONNECTION_SET_H
 
+#include "connection.h"
+
 #include <eq/base/hash.h>
 #include <eq/base/refPtr.h>
 
