@@ -22,7 +22,7 @@ int getLogLevel()
             return LOG_WARN;
         if( strcmp( env, "INFO" ) == 0 )
             return LOG_INFO;
-        if( strcmp( env, "VERBATIM" ) == 0 )
+        if( strcmp( env, "VERB" ) == 0 )
             return LOG_VERBATIM;
     }
 

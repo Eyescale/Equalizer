@@ -18,9 +18,7 @@ ConnectionSet::ConnectionSet()
         : _fdSetSize(0),
           _fdSetCapacity(64),
           _fdSetDirty(true),
-          _errno(0),
-          _connection(NULL),
-          _node(NULL)
+          _errno(0)
 {
     _fdSet = new pollfd[_fdSetCapacity];
 
@@ -37,6 +35,7 @@ ConnectionSet::ConnectionSet()
 
 ConnectionSet::~ConnectionSet()
 {
+    _connection = NULL;
     close( _selfFD[0] );
     close( _selfFD[1] );
 }
@@ -52,33 +51,36 @@ void ConnectionSet::_dirtyFDSet()
     write( _selfFD[1], &c, 1 );
 }
 
-void ConnectionSet::addConnection( Connection* connection, Node* node )
+void ConnectionSet::addConnection( eqBase::RefPtr<Connection> connection, Node* node )
 {
     ASSERT( connection->getState() == Connection::STATE_CONNECTED ||
             connection->getState() == Connection::STATE_LISTENING );
     ASSERT( connection == node->getConnection( ));
 
     _connections.push_back( connection );
-    _nodes[connection] = node;
+    _nodes[connection.get()] = node;
     _dirtyFDSet();
 }
 
-void ConnectionSet::removeConnection( Connection* connection )
+void ConnectionSet::removeConnection( eqBase::RefPtr<Connection> connection )
 {
-    vector<Connection*>::iterator eraseIter = find( _connections.begin(),
-                                                    _connections.end(),
-                                                    connection );
+    vector< eqBase::RefPtr<Connection> >::iterator eraseIter =
+        find( _connections.begin(), _connections.end(), connection );
     ASSERT( eraseIter != _connections.end( ));
 
+    _nodes.erase( connection.get( ));
     _connections.erase( eraseIter );
-    _nodes.erase( connection );
+    if( _connection == connection )
+        _connection = NULL;
+
     _dirtyFDSet();
 }
 
 void ConnectionSet::clear()
 {
-    _connections.clear();
+    _connection = NULL;
     _nodes.clear();
+    _connections.clear();
     _dirtyFDSet();
 }
         
@@ -89,6 +91,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 
     while( event == EVENT_NONE )
     {
+        _connection = NULL;
         _setupFDSet();
 
         // poll for a result
@@ -128,11 +131,11 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                     }
 
                     _connection = _fdSetConnections[fd];
-                    _node       = _nodes[_connection];
                     
                     INFO << "selected connection #" << i << " of " << _fdSetSize
-                         << ", poll event " << pollEvent << ", " << _node
-                         << ", " << _connection << endl;
+                         << ", poll event " << pollEvent << ", " 
+                         << _nodes[_connection.get()] << ", " 
+                         << _connection.get() << endl;
 
                     switch( pollEvent )
                     {
@@ -208,8 +211,8 @@ void ConnectionSet::_buildFDSet()
     // add regular connections
     for( size_t i=0; i<nConnections; i++ )
     {
-        Connection* connection = _connections[i];
-        const int   fd         = connection->getReadFD();
+        eqBase::RefPtr<Connection> connection = _connections[i];
+        const int   fd                        = connection->getReadFD();
 
         if( fd == -1 )
         {
@@ -218,7 +221,7 @@ void ConnectionSet::_buildFDSet()
             continue;
         }
 
-        _fdSetConnections[fd] = connection;
+        _fdSetConnections[fd] = connection.get();
         _fdSet[size].fd       = fd;
         _fdSet[size].events   = events;
         _fdSet[size].revents  = 0;
@@ -226,3 +229,20 @@ void ConnectionSet::_buildFDSet()
     }
     _fdSetSize = size;
 }   
+
+std::ostream& eqNet::operator << ( std::ostream& os, ConnectionSet* set)
+{
+    const size_t nConnections = set->nConnections();
+    
+    os << "connection set " << (void*)set << ", " << nConnections
+       << " connections";
+    
+    for( size_t i=0; i<nConnections; i++ )
+    {
+        eqBase::RefPtr<Connection> connection = set->getConnection(i);
+        os << endl << "    " << connection.get() << ", " 
+           << set->getNode( connection );
+    }
+    
+    return os;
+}

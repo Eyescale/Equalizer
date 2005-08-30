@@ -13,6 +13,7 @@
 
 #include <alloca.h>
 
+using namespace eqBase;
 using namespace eqNet;
 using namespace std;
 
@@ -21,7 +22,6 @@ using namespace std;
 //----------------------------------------------------------------------
 Node::Node()
         : _state(STATE_STOPPED),
-          _connection(NULL),
           _sessionID(0)
 {
     for( int i=0; i<CMD_NODE_CUSTOM; i++ )
@@ -33,16 +33,17 @@ Node::Node()
     _cmdHandler[CMD_NODE_SESSION]           = &eqNet::Node::_cmdSession;
 }
 
-bool Node::listen( Connection* connection )
+bool Node::listen( RefPtr<Connection> connection )
 {
     if( _state != STATE_STOPPED )
         return false;
 
-    if( connection && connection->getState() != Connection::STATE_LISTENING )
+    if( connection.isValid() &&
+        connection->getState() != Connection::STATE_LISTENING )
         return false;
 
     _listenToSelf();
-    if( connection )
+    if( connection.isValid() )
         _connectionSet.addConnection( connection, this );
     _state = STATE_LISTENING;
 
@@ -62,6 +63,18 @@ bool Node::stop()
     join();
 
     ASSERT( _state == STATE_STOPPED );
+
+    const size_t nConnections = _connectionSet.nConnections();
+    for( size_t i = 0; i<nConnections; i++ )
+    {
+        RefPtr<Connection> connection = _connectionSet.getConnection(i);
+        Node*              node       = _connectionSet.getNode( connection );
+
+        node->_state      = STATE_STOPPED;
+        node->_connection = NULL;
+    }
+
+    _connectionSet.clear();    
     return true;    
 }
 
@@ -80,7 +93,7 @@ void Node::_listenToSelf()
     _connectionSet.addConnection( _connection, this );
 }
 
-bool Node::connect( Node* node, Connection* connection )
+bool Node::connect( Node* node, RefPtr<Connection> connection )
 {
     if( !node || _state != STATE_LISTENING ||
         connection->getState() != Connection::STATE_CONNECTED )
@@ -163,21 +176,26 @@ ssize_t Node::run()
 
             case ConnectionSet::EVENT_DATA:      
             {
-                Node* node = _connectionSet.getNode();
+                RefPtr<Connection> connection = _connectionSet.getConnection();
+                Node*              node = _connectionSet.getNode( connection );
                 INFO << "Data from " << node << endl;
-                ASSERT( node->_connection == _connectionSet.getConnection() );
+
+                ASSERT( node->_connection == connection );
                 _handleRequest( node );
                 break;
             }
 
             case ConnectionSet::EVENT_DISCONNECT:
             {
-                Node* node        = _connectionSet.getNode();
-                node->_state      = STATE_STOPPED;
-                node->_connection = NULL; // XXX mem leak: use ref ptr?!
+                RefPtr<Connection> connection = _connectionSet.getConnection();
+                Node*              node = _connectionSet.getNode( connection );
 
-                Connection* connection = _connectionSet.getConnection();
+                _connectionSet.removeConnection( connection );
+
+                node->_state      = STATE_STOPPED;
+                node->_connection = NULL;
                 connection->close();
+                
                 break;
             } 
 
@@ -193,20 +211,17 @@ ssize_t Node::run()
 
 void Node::_handleConnect( ConnectionSet& connectionSet )
 {
-    Connection* connection   = connectionSet.getConnection();
-    Connection* newConn      = connection->accept();
-    Node*       newNode      = handleNewNode( newConn );
+    RefPtr<Connection> connection = connectionSet.getConnection();
+    RefPtr<Connection> newConn    = connection->accept();
+    Node*              newNode    = handleNewNode( newConn );
     
     if( !newNode )
-    {
         newConn->close();
-        delete newConn;
-    }
     else
         INFO << "New " << newNode << endl;
 }
 
-Node* Node::handleNewNode( Connection* connection )
+Node* Node::handleNewNode( RefPtr<Connection> connection )
 {
     Node* node = new Node();
     if( connect( node, connection ))
@@ -259,8 +274,6 @@ void Node::_cmdStop( Node* node, const Packet* pkg )
     ASSERT( _state == STATE_LISTENING );
 
     _connectionSet.clear();
-    if( _connection )
-        delete _connection;
     _connection = NULL;
     _state = STATE_STOPPED;
     exit( EXIT_SUCCESS );

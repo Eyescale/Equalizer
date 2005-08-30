@@ -15,8 +15,7 @@ using namespace eqNet;
 using namespace std;
 
 PipeConnection::PipeConnection()
-        : _pipes(NULL),
-          _childConnection(NULL)
+        : _pipes(NULL)
 {
 }
 
@@ -52,8 +51,9 @@ bool PipeConnection::connect( const ConnectionDescription &description )
         return false;
     }
 
-    _childConnection = new PipeConnection( *this );
-    _childConnection->_setupChild();
+    PipeConnection* childConnection = new PipeConnection( *this );
+    childConnection->_setupChild();
+    _childConnection = childConnection;
     _setupParent();
     return true;
 }

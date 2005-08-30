@@ -5,10 +5,6 @@
 #ifndef EQBASE_REFPTR_H
 #define EQBASE_REFPTR_H
 
-#include "thread.h"
-
-#include <pthread.h>
-
 namespace eqBase
 {
     /**
@@ -17,7 +13,60 @@ namespace eqBase
     template<class T> class RefPtr 
     {
     public:
+        RefPtr()                   : _ptr(NULL)      {}
+        RefPtr(T* ptr)             : _ptr(ptr)       { ref(); }
+        RefPtr(const RefPtr& from) : _ptr(from._ptr) { ref(); }
+
+        ~RefPtr() { unref(); }
+
+        void ref()   { if(_ptr) _ptr->ref(); }
+        void unref() { if(_ptr) _ptr->unref(); }
+
+        RefPtr& operator = ( const RefPtr& rhs )
+            {
+                if( _ptr == rhs._ptr )
+                    return *this;
+
+                T* tmp = _ptr;
+                _ptr = rhs._ptr;
+                ref();
+                if( tmp ) tmp->unref();
+                return *this;
+            }
+        RefPtr& operator = ( T* ptr )
+            {
+                if( _ptr == ptr )
+                    return *this;
+
+                T* tmp = _ptr;
+                _ptr = ptr;
+                ref();
+                if( tmp ) tmp->unref();
+                return *this;
+            }
+
+        bool operator == ( const RefPtr& rhs ) { return ( _ptr==rhs._ptr ); }
+        bool operator != ( const RefPtr& rhs ) { return ( _ptr!=rhs._ptr ); }
+        bool operator <  ( const RefPtr& rhs ) { return ( _ptr < rhs._ptr ); }
+        bool operator >  ( const RefPtr& rhs ) { return ( _ptr > rhs._ptr ); }
+        bool operator ! () const               { return ( _ptr==NULL ); }
+
+        bool operator == ( const T* ptr ) { return ( _ptr==ptr ); }
+        bool operator != ( const T* ptr ) { return ( _ptr!=ptr ); }
+        bool operator <  ( const T* ptr ) { return ( _ptr < ptr ); }
+        bool operator >  ( const T* ptr ) { return ( _ptr > ptr ); }
+
+        T*       operator->()       { return _ptr; }
+        const T* operator->() const { return _ptr; }
+        T&       operator*()        { return *_ptr; }
+        const T& operator*() const  { return *_ptr; }
+        T*       get()              { return _ptr; }
+        const T* get() const        { return _ptr; }
+
+        bool isValid() { return ( _ptr!=NULL ); }
         
+    private:
+        T* _ptr;
     };
 }
 

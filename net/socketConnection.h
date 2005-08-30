@@ -19,8 +19,6 @@ namespace eqNet
     public:
         SocketConnection();
 
-        virtual ~SocketConnection();
-
         virtual bool connect( const eqNet::ConnectionDescription& desc );
 
         virtual bool listen( eqNet::ConnectionDescription &description );
@@ -31,6 +29,7 @@ namespace eqNet
         ushort getPort() const;
 
     protected:
+        virtual ~SocketConnection();
 
     private:
         bool _createSocket();

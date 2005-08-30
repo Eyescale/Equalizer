@@ -14,7 +14,9 @@ int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    PipeConnection* connection = (PipeConnection*)Connection::create(TYPE_PIPE);
+    eqBase::RefPtr<Connection> connection =
+        (PipeConnection*)Connection::create(TYPE_PIPE);
+
     ConnectionDescription connDesc;
     if( !connection->connect( connDesc ))
         exit( EXIT_FAILURE );
@@ -27,13 +29,19 @@ int main( int argc, char **argv )
     TEST( node.listen( ));
     TEST( server.listen( ));
     TEST( node.connect( &serverProxy, connection ));
-    TEST( server.connect( &nodeProxy, connection->getChildEnd( )));
+
+    PipeConnection* pipeConnection = (PipeConnection*)connection.get();
+    TEST( server.connect( &nodeProxy, pipeConnection->getChildEnd( )));
 
     Session session;
     TEST( node.mapSession( &serverProxy, &session, "foo" ));
     
     TEST( server.stop( ));
     TEST( node.stop( ));
+
+    cerr << connection->getRefCount() << endl;
+    TEST( connection->getRefCount() == 1 );
+
     sleep(1);
 }
 

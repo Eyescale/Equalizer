@@ -30,6 +30,24 @@ namespace eqBase
         /** The current log level. */
         static int level;
     };
+
+    inline void dumpStack( std::ostream& os )
+    {
+#ifdef backtrace
+        void* trace[256];
+        const int n = backtrace(trace, 256);
+        if (!n)
+            return;
+
+        const char** strings = backtrace_symbols (trace, n);
+ 
+        for (int i = 0; i < n; ++i)
+            os << i << ": " << strings[i] << std::endl;
+        if (strings)
+            free (strings);
+#else // backtrace
+#endif // backtrace
+    }
 }
 
 #define LOG_EXTRA  << getpid()  << "." << pthread_self() << " " << __FILE__ \

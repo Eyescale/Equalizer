@@ -6,6 +6,7 @@
 #define EQNET_NODE_H
 
 #include <eq/base/base.h>
+#include <eq/base/refPtr.h>
 #include <eq/base/requestHandler.h>
 #include <eq/base/thread.h>
 
@@ -57,7 +58,7 @@ namespace eqNet
          *         <code>false</code> if not.
          * @sa connect
          */
-        bool listen( Connection* connection = NULL );
+        bool listen( eqBase::RefPtr<Connection> connection = NULL );
 
         /** 
          * Stops this node.
@@ -78,7 +79,7 @@ namespace eqNet
          * @return The connected remote node, or <code>NULL</code> if the node
          *         could not be connected.
          */
-        bool connect( Node* node, Connection* connection );
+        bool connect( Node* node, eqBase::RefPtr<Connection> connection );
 
         /** 
          * Returns the state of this node.
@@ -87,7 +88,7 @@ namespace eqNet
          */
         State getState(){ return _state; }
 
-        Connection* getConnection(){ return _connection; }
+        eqBase::RefPtr<Connection> getConnection(){ return _connection; }
 
         /**
          * @name Messaging API
@@ -116,7 +117,7 @@ namespace eqNet
         bool send( const Packet& packet )
             {
                 ASSERT( _state==STATE_CONNECTED || _state==STATE_LISTENING );
-                ASSERT( _connection );
+                ASSERT( _connection.isValid() );
                 const uint64 sent = _connection->send( packet );
                 return ( sent==packet.size );
             }
@@ -201,7 +202,7 @@ namespace eqNet
         State _state;
         
         /** The connection to this node, for remote nodes. */
-        Connection* _connection; // later: array of connections
+        eqBase::RefPtr<Connection> _connection; // later: array of connections
 
         /** The connection set of all connection from/to this node, for local
             nodes. */
@@ -241,7 +242,7 @@ namespace eqNet
          * @return the newly connected node, or <code>NULL</code> if the
          *         connection was refused.
          */
-        virtual Node* handleNewNode( Connection* connection );
+        virtual Node* handleNewNode( eqBase::RefPtr<Connection> connection );
 
     private:
         /** The unique session identifier counter. */
@@ -272,7 +273,6 @@ namespace eqNet
         static uint64 _getMessageSize( const MessageType type, 
                                        const uint64 count );
 
-        friend void ::eqNet_Node_runServer( eqNet::Connection* connection );
         friend inline std::ostream& operator << ( std::ostream& os,
                                                   const Node* node );
 
@@ -281,7 +281,7 @@ namespace eqNet
     inline std::ostream& operator << ( std::ostream& os, const Node* node )
     {
         if( node )
-            os << "node " << (void*)node << ", " << node->_connection;
+            os << "node " << (void*)node << ", " << node->_connection.get();
         else
             os << "NULL node";
         

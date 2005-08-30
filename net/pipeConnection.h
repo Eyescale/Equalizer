@@ -6,6 +6,8 @@
 #define EQNET_PIPE_CONNECTION_H
 
 #include "fdConnection.h"
+
+#include <eq/base/refPtr.h>
 #include <eq/base/thread.h>
 
 namespace eqNet
@@ -17,7 +19,6 @@ namespace eqNet
     {
     public:
         PipeConnection();
-        virtual ~PipeConnection();
 
         virtual bool connect( const ConnectionDescription &description );
         virtual void close();
@@ -25,18 +26,19 @@ namespace eqNet
         /** 
          * @return the 'other' end of the pipe connection.
          */
-        PipeConnection* getChildEnd(){ return _childConnection; }
+        eqBase::RefPtr<Connection> getChildEnd(){ return _childConnection; }
 
     protected:
         PipeConnection( const PipeConnection& conn );
+        virtual ~PipeConnection();
 
     private:
         bool _createPipes();
         void _setupParent();
         void _setupChild();
 
-        int*            _pipes;
-        PipeConnection* _childConnection;
+        int*                       _pipes;
+        eqBase::RefPtr<Connection> _childConnection;
     };
 }
 

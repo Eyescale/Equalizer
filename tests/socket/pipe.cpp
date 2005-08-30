@@ -6,13 +6,14 @@
 #include <alloca.h>
 #include <iostream>
 
+using namespace eqBase;
 using namespace eqNet;
 using namespace std;
 
 class Server : public eqBase::Thread
 {
 public:
-    void start( Connection* connection )
+    void start( RefPtr<Connection> connection )
         {
             _connection = connection;
             eqBase::Thread::start();
@@ -36,21 +37,22 @@ protected:
             return EXIT_SUCCESS;
         }
 private:
-    Connection* _connection;
+    RefPtr<Connection> _connection;
 };
 
 int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    PipeConnection *connection = (PipeConnection*)Connection::create(TYPE_PIPE);
+    RefPtr<Connection> connection = Connection::create(TYPE_PIPE);
 
     ConnectionDescription connDesc;
     if( !connection->connect( connDesc ))
         exit( EXIT_FAILURE );
 
     Server server;
-    server.start( connection->getChildEnd( ));
+    PipeConnection* pipeConnection = (PipeConnection*)connection.get();
+    server.start( pipeConnection->getChildEnd( ));
 
     const char message[] = "buh!";
     int nChars = strlen( message ) + 1;

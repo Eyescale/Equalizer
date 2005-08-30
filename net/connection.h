@@ -6,6 +6,7 @@
 #define EQNET_CONNECTION_H
 
 #include <eq/base/base.h>
+#include <eq/base/referenced.h>
 
 #include "packet.h"
 
@@ -23,7 +24,7 @@ namespace eqNet
     /**
      * A base class to provide communication to other hosts.
      */
-    class Connection
+    class Connection : public eqBase::Referenced
     {
     public:
 
@@ -34,16 +35,14 @@ namespace eqNet
             STATE_LISTENING
         };
 
-        virtual ~Connection(){}
-        
         /** 
          * Creates a new connection.
          *
-         * This factory method creates a new concrete connection as
-         * described by the connection description. The concrete connection
-         * may not support all functionality of the Connection interface.
+         * This factory method creates a new concrete connection for the
+         * requested type. The concrete connection may not support all
+         * functionality of the Connection interface.
          * 
-         * @param protocol the network protocol of the connection.
+         * @param type the connection type.
          * @return the connection.
          */
         static Connection* create( const ConnectionType type );
@@ -136,6 +135,7 @@ namespace eqNet
     protected:
         Connection();
         Connection(const Connection& conn);
+        virtual ~Connection(){}
 
         State                 _state;       //!< The connection state
     };

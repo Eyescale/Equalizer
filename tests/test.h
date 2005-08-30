@@ -11,7 +11,8 @@
     if( !(x) ) \
     { \
         ERROR << #x << " failed!" << std::endl; \
-        abort();                                \
+        eqBase::dumpStack( std::cerr );         \
+        ::abort();                              \
     }
 
 #endif // EQTEST_TEST_H

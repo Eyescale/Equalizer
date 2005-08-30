@@ -6,6 +6,7 @@
 #define EQNET_CONNECTION_SET_H
 
 #include <eq/base/hash.h>
+#include <eq/base/refPtr.h>
 
 #include <poll.h>
 
@@ -38,9 +39,15 @@ namespace eqNet
         ConnectionSet();
         ~ConnectionSet();
 
-        void addConnection( Connection* connection, Node* node );
-        void removeConnection( Connection* connection );
+        void addConnection( eqBase::RefPtr<Connection> connection, Node* node );
+        void removeConnection( eqBase::RefPtr<Connection> connection );
         void clear();
+        size_t nConnections() const { return _connections.size(); }
+        eqBase::RefPtr<Connection> getConnection( const size_t i )
+            { return _connections[i]; }
+
+        Node* getNode( eqBase::RefPtr<Connection> connection )
+            { return _nodes[connection.get()]; }
 
         /** 
          * Selects a Connection which is ready for I/O.
@@ -55,9 +62,8 @@ namespace eqNet
          */
         Event select( const int timeout = -1 );
 
-        int         getErrno()     { return _errno; }
-        Connection* getConnection(){ return _connection; }
-        Node*       getNode()      { return _node; }
+        int                        getErrno()     { return _errno; }
+        eqBase::RefPtr<Connection> getConnection(){ return _connection; }
 
     private:
         pollfd* _fdSet;
@@ -73,12 +79,11 @@ namespace eqNet
 
         int      _errno;
 
-        std::vector<Connection*>            _connections;
-        eqBase::PtrHash<Connection*, Node*> _nodes;
+        std::vector< eqBase::RefPtr<Connection> > _connections;
+        eqBase::PtrHash< Connection*, Node* >     _nodes;
 
         // result values
-        Connection* _connection;
-        Node*       _node;
+        eqBase::RefPtr<Connection> _connection;
 
         void _dirtyFDSet();
         void _setupFDSet();
@@ -92,12 +97,7 @@ namespace eqNet
      * @param set the connection set.
      * @return the output stream.
      */
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       ConnectionSet* set)
-    {
-        // TODO
-        return os;
-    }
+    std::ostream& operator << ( std::ostream& os, ConnectionSet* set );
 }
 
 #endif // EQNET_CONNECTION_SET_H
