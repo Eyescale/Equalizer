@@ -37,7 +37,7 @@ namespace eqNet
          * 
          * @return the name of the session.
          */
-        const char* getName() const{ return _name.c_str(); }
+        const std::string& getName() const{ return _name; }
 
         /** 
          * Returns the realization state of the session.
@@ -170,7 +170,7 @@ namespace eqNet
          * @param id the session's identifier.
          * @param name the name of the session.
          */
-        void map( Node* server, const uint id, const char* name );
+        void map( Node* server, const uint id, const std::string& name );
 
     protected:
         /** Registers requests waiting for a return value. */

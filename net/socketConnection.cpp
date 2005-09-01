@@ -54,9 +54,7 @@ bool SocketConnection::connect( const ConnectionDescription &description )
         _state = STATE_CONNECTED;
     else
     {
-        const char *hostname = description.hostname ? 
-            description.hostname : "null";
-        WARN << "Could not connect to '" << hostname << ":" 
+        WARN << "Could not connect to '" << description.hostname << ":" 
              << description.parameters.TCPIP.port << "': " << strerror( errno ) 
              << endl;
 
@@ -105,9 +103,9 @@ void SocketConnection::_parseAddress( const ConnectionDescription &description,
     socketAddress.sin_addr.s_addr = htonl( INADDR_ANY );
     socketAddress.sin_port = htons( description.parameters.TCPIP.port );
 
-    if( description.hostname != NULL )
+    if( !description.hostname.empty( ))
     {
-        hostent *hptr = gethostbyname( description.hostname );
+        hostent *hptr = gethostbyname( description.hostname.c_str() );
         if( hptr )
             memcpy(&socketAddress.sin_addr.s_addr, hptr->h_addr,hptr->h_length);
     }

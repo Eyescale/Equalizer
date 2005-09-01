@@ -29,8 +29,7 @@ namespace eqNet
     {
         ConnectionDescription() 
                 : type( TYPE_TCPIP ),
-                  bandwidthKBS( 0 ),
-                  launchCommand( NULL )
+                  bandwidthKBS( 0 )
             {
                 bzero( &parameters, sizeof(parameters));
             }
@@ -48,10 +47,10 @@ namespace eqNet
          * %h - hostname
          * %c - command
          */
-        const char *launchCommand; 
+        std::string launchCommand; 
 
         /** The host name. */
-        char hostname[MAXHOSTNAMELEN+1];
+        std::string hostname;
 
         /** The individual parameters for the connection. */
         union
@@ -96,8 +95,7 @@ namespace eqNet
                            description->type==TYPE_MPI   ? "MPI" :
                            description->type==TYPE_PIPE  ? "PIPE" : "UNKNOWN" )
            << " bw " << description->bandwidthKBS << "KB/s, launchCommand '"
-           << ( description->launchCommand==NULL ? "none" : 
-               description->launchCommand ) << "'";
+           << description->launchCommand << "'";
         return os;
     }
 };

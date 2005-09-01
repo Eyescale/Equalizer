@@ -11,7 +11,7 @@
 using namespace eqNet;
 using namespace std;
 
-char* Global::_programName = NULL;
+string Global::_programName;
 
 void eqNet::init( int argc, char** argv )
 {
@@ -21,16 +21,13 @@ void eqNet::init( int argc, char** argv )
 }
 
 
-void Global::setProgramName( const char* programName )
+void Global::setProgramName( const std::string& programName )
 {
-    if( _programName )
-        free( _programName );
-
-    _programName = strdup( programName );
+    _programName = programName;
     INFO << "Program name set to: " << _programName << endl;
 }
 
-const char* Global::getProgramName()
+const string& Global::getProgramName()
 {
     return _programName;
 }

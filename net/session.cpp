@@ -28,7 +28,7 @@ Session::Session()
     INFO << "New session" << this << endl;
 }
 
-void Session::map( Node* server, const uint id, const char* name )
+void Session::map( Node* server, const uint id, const std::string& name )
 {
     _node = server;
     _id   = id;

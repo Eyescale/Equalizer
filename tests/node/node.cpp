@@ -77,7 +77,7 @@ int main( int argc, char **argv )
         exit( EXIT_FAILURE );
     
     connection = Connection::create(TYPE_TCPIP);
-    sprintf( connDesc.hostname, "localhost" );
+    connDesc.hostname = "localhost";
     if( !connection->connect( connDesc ))
         exit( EXIT_FAILURE );
 

@@ -15,7 +15,7 @@ int main( int argc, char **argv )
     Connection *connection = Connection::create(TYPE_TCPIP);
 
     ConnectionDescription connDesc;
-    sprintf( connDesc.hostname, "localhost" );
+    connDesc.hostname = "localhost";
     connDesc.parameters.TCPIP.port = 4242;
     connection->listen(connDesc);
 

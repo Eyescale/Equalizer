@@ -10,7 +10,7 @@
 using namespace eqNet;
 using namespace std;
 
-void Launcher::run( const char* command )
+void Launcher::run( const std::string& command )
 {
     Launcher launcher;
     launcher._command = command;
@@ -20,7 +20,7 @@ void Launcher::run( const char* command )
 ssize_t Launcher::run()
 {
     INFO << "Executing: " << _command << endl;
-    execl( _command, NULL );
+    execl( _command.c_str(), NULL );
     WARN << "Error executing '" << _command << "': " << strerror(errno) << endl;
     delete this;
     ::exit( EXIT_FAILURE );

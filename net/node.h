@@ -194,7 +194,8 @@ namespace eqNet
          * @return <code>true</code> if the session was mapped,
          *         <code>false</code> if not.
          */
-        bool mapSession( Node* server, Session* session, const char* name );
+        bool mapSession( Node* server, Session* session, 
+                         const std::string& name );
         //*}
         
     protected:
@@ -251,7 +252,7 @@ namespace eqNet
         /** The current sessions of this node. */
         IDHash<Session*> _sessions;
 
-        Session* _findSession( const char* name ) const;
+        Session* _findSession( const std::string& name ) const;
 
         void _listenToSelf();
 

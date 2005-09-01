@@ -5,6 +5,8 @@
 #ifndef EQNET_GLOBAL_H
 #define EQNET_GLOBAL_H
 
+#include <string>
+
 /** 
  * @namespace eqNet
  * @brief The Equalizer networking abstraction layer.
@@ -51,17 +53,17 @@ namespace eqNet
          * 
          * @param programName the program name.
          */
-        static void        setProgramName( const char* programName );
+        static void setProgramName( const std::string& programName );
 
         /** 
          * Gets the name of the program.
          * 
          * @return the program name.
          */
-        static const char* getProgramName();
+        static const std::string& getProgramName();
 
     private:
-        static char* _programName;
+        static std::string _programName;
     };
 }
 

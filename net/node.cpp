@@ -140,13 +140,13 @@ bool Node::send( const MessageType type, const void *ptr, const uint64 count )
     return true;
 }
 
-bool Node::mapSession( Node* server, Session* session, const char* name )
+bool Node::mapSession( Node* server, Session* session, const std::string& name )
 {
     NodeMapSessionPacket packet;
     packet.requestID  = _requestHandler.registerRequest( session );
-    packet.nameLength = strlen( name ) + 1;
+    packet.nameLength =  name.size() + 1;
     server->send( packet );
-    server->send( name, packet.nameLength );
+    server->send( name.c_str(), packet.nameLength );
 
     const void* result = _requestHandler.waitRequest( packet.requestID );
     const uint sessionID = (int)((long long)result); // casts needed for MipsPro
@@ -334,22 +334,22 @@ void Node::_cmdSession( Node* node, const Packet* pkg )
     _sessions[packet->sessionID] = session;
 }
 
-Session* Node::_findSession( const char* name ) const
+Session* Node::_findSession( const std::string& name ) const
 {
     for( IDHash<Session*>::const_iterator iter = _sessions.begin();
          iter != _sessions.end(); iter++ )
     {
         Session* session = (*iter).second;
-        if( strcmp( session->getName(), name) == 0 )
+        if( session->getName() == name )
             return session;
     }
     return NULL;
 }
 
-// void Node::launch( const char* options )
+// void Node::launch( const std::string& options )
 // {
 //     ASSERT( _state == STATE_STOPPED );
-//     const char* launchCommand = _createLaunchCommand( node, options );
+//     const std::string& launchCommand = _createLaunchCommand( node, options );
 //     ASSERT( launchCommand );
 
 //     Launcher::run( launchCommand );
