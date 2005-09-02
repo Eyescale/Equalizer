@@ -41,6 +41,6 @@ MODULE  = net
 
 LDFLAGS += -leqbase
 
-all: $(HEADERS) $(LIBRARY)
+all: $(HEADERS) $(STATIC_LIB)
 
 include $(TOP)/make/rules.mk

@@ -1,14 +1,20 @@
 
 include $(TOP)/make/system.mk
 
-CXXFLAGS += -L$(BUILD_DIR)/lib -leqnet
-PROGRAMS = eqs
+PROGRAMS   = eqs
+HEADER_SRC = \
+	server.h
 
+SOURCES = \
+	server.cpp
+
+MODULE  = server
+
+LDFLAGS  += -L$(BUILD_DIR)/lib -leqnet
 CLEAN = $(PROGRAMS)
 
-all: $(PROGRAMS)
+all:  $(HEADERS) $(STATIC_LIB) $(PROGRAMS)
 
-eqs: eqs.cpp
-	$(CXX) eqs.cpp $(CXXFLAGS) -o $@ 
+eqs: $(HEADERS) $(STATIC_LIB)
 
 include $(TOP)/make/rules.mk

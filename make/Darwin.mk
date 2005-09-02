@@ -1,7 +1,5 @@
 
-VARIANT     = 32
-
-CXXFLAGD   += -g
+VARIANTS    = ppc ppc64
 
 DSO_SUFFIX  = dylib
 DSO_LDFLAGS = -dynamiclib 

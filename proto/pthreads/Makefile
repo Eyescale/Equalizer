@@ -1,7 +1,7 @@
 
 include $(TOP)/make/system.mk
 
-CXXFLAGS     += -L$(BUILD_DIR)/lib -leqbase
+CXXFLAGS     += -L$(LIBRARY_DIR) -leqbase
 PROGRAMS      = perf
 SA_CXXFLAGS  += -lpthread
 

@@ -1,5 +1,5 @@
 
-#include <eq/net/server.h>
+#include <eq/net/node.h>
 
 #include <iostream>
 
@@ -8,9 +8,9 @@ using namespace std;
 
 int main( int argc, char **argv )
 {
-    cout << "Create session... " << endl;
-    const int ret = Server::run( ":4242" );
-    cout << "Server exit value " << ret << endl;
-    return ret;
+//     cout << "Create session... " << endl;
+//     const int ret = Server::run( ":4242" );
+//     cout << "Server exit value " << ret << endl;
+//     return ret;
 }
 
