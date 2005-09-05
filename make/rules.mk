@@ -1,5 +1,5 @@
 
-.PHONY: subdirs $(SUBDIRS) $(DEPENDENCIES) $(VARIANTS) slib
+.PHONY: subdirs $(SUBDIRS) $(DEPENDENCIES) slib
 .SUFFIXES: .d
 
 # recursive subdir rules
@@ -27,17 +27,29 @@ ifdef HEADER_GEN
 endif
 
 # libraries
-$(DYNAMIC_LIB): $(VARIANTS) $(OBJECTS)
+dlib: $(DYNAMIC_LIB)
+$(DYNAMIC_LIB): $(OBJECTS)
+ifdef VARIANT
 	@mkdir -p $(LIBRARY_DIR)
 	$(CXX) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
+else
+	@for variant in $(VARIANTS); do \
+		echo "$(MAKE) VARIANT=$$variant dlib";  \
+		$(MAKE) VARIANT=$$variant dlib;  \
+	done
+endif
 
 slib: $(STATIC_LIB)
-
-$(STATIC_LIB): $(VARIANTS) $(OBJECTS)
-ifneq ($(OBJECTS), none)
+$(STATIC_LIB): $(OBJECTS)
+ifdef VARIANT
 	@mkdir -p $(LIBRARY_DIR)
 	@rm -f $@
 	$(AR) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
+else
+	@for variant in $(VARIANTS); do \
+		echo "$(MAKE) VARIANT=$$variant slib";  \
+		$(MAKE) VARIANT=$$variant slib;  \
+	done
 endif
 
 OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
@@ -52,25 +64,13 @@ $(OBJECT_DIR)/%.o : %.cpp
 %.cpp: $(OBJECT_DIR)/%d
 
 
-$(VARIANTS):
-ifndef VARIANT
-	@for variant in $(VARIANTS); do \
-		echo; echo "===== $(MAKE) VARIANT=$$variant slib =====";  \
-		$(MAKE) VARIANT=$$variant slib;  \
-	done
-endif
-
 # executables
 % : %.cpp
 	$(CXX) $< $(CXXFLAGS) $(SA_CXXFLAGS) -o $@ 
 
 # cleaning targets
 clean:
-ifndef VARIANT
-	for variant in $(VARIANTS); do \
-		$(MAKE) VARIANT=$$variant clean; \
-	done
-else
+ifdef VARIANT
 	rm -f *~ .*~ $(OBJECTS) $(HEADERS) $(STATIC_LIB) $(DYNAMIC_LIB)\
 	    $(CLEAN) $(DEPENDENCIES)
 	rm -rf $(OBJECT_DIR)/ii_files
@@ -80,6 +80,10 @@ ifdef SUBDIRS
 		$(MAKE) TOP=$(SUBDIRTOP) VARIANT=$(VARIANT) -C $$dir $@ ;\
 	done
 endif
+else # VARIANT
+	for variant in $(VARIANTS); do \
+		$(MAKE) VARIANT=$$variant clean; \
+	done
 endif
 
 # dependencies

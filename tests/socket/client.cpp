@@ -1,6 +1,5 @@
 
-#include <connection.h>
-
+#include <eq/net/connection.h>
 #include <eq/net/connectionDescription.h>
 #include <eq/net/global.h>
 

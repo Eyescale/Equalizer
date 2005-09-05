@@ -1,7 +1,7 @@
 
 include $(TOP)/make/system.mk
 
-CXXFLAGS += -I$(TOP)/net -L$(BUILD_DIR)/lib -leqnet
+CXXFLAGS += -L$(SAMPLE_LIB_DIR) -leqnet
 PROGRAMS = client server pipe
 
 CLEAN = $(PROGRAMS)

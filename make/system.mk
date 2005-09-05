@@ -15,6 +15,7 @@ include $(TOP)/make/$(ARCH).mk
 # general variables, targets, etc.
 BUILD_DIR       = $(TOP)/build/$(ARCH)
 LIBRARY_DIR     = $(BUILD_DIR)/$(VARIANT)/lib
+SAMPLE_LIB_DIR  = $(BUILD_DIR)/$(VARIANT1)/lib
 
 CXXFLAGS       += -I$(BUILD_DIR)/include -D$(ARCH)
 LDFLAGS        += -L$(LIBRARY_DIR)
@@ -32,9 +33,11 @@ CXXFILES        = $(wildcard *.cpp)
 OBJECT_DIR      = obj/$(ARCH)/$(VARIANT)
 
 ifndef VARIANT
-  OBJECTS       = none
+  OBJECTS       =
+  VARIANT1      = $(word 1, $(VARIANTS))
 else
   OBJECTS       = $(SOURCES:%.cpp=$(OBJECT_DIR)/%.o)
+  VARIANT1      = $(VARIANT)
 endif
 
 # library variables
@@ -44,5 +47,5 @@ DYNAMIC_LIB     = $(MODULE:%=$(LIBRARY_DIR)/libeq%.$(DSO_SUFFIX))
 
 SIMPLE_PROGRAMS = $(CXXFILES:%.cpp=%)
 
-DEPENDENCIES ?= $(OBJECTS:%.o=%.d)
+DEPENDENCIES   ?= $(OBJECTS:%.o=%.d)
 

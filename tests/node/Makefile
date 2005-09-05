@@ -1,7 +1,7 @@
 
 include $(TOP)/make/system.mk
 
-CXXFLAGS    += -L$(BUILD_DIR)/lib -leqnet
+CXXFLAGS    += -L$(SAMPLE_LIB_DIR) -leqnet
 PROGRAMS     = node
 SA_CXXFLAGS += -lpthread
 
