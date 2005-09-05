@@ -55,7 +55,7 @@ void ConnectionSet::addConnection( eqBase::RefPtr<Connection> connection, Node* 
 {
     ASSERT( connection->getState() == Connection::STATE_CONNECTED ||
             connection->getState() == Connection::STATE_LISTENING );
-    ASSERT( connection == node->getConnection( ));
+    //ASSERT( connection == node->getConnection( ));
 
     _connections.push_back( connection );
     _nodes[connection.get()] = node;

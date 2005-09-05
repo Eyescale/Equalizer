@@ -4,6 +4,8 @@ include make/system.mk
 
 SUBDIRS = \
 	base \
+	client \
+	examples \
 	net \
 	proto \
 	server \
@@ -20,5 +22,7 @@ net: base
 proto: base
 server: net
 tests: net
+client: net
+examples: client
 
 include make/rules.mk

@@ -7,6 +7,13 @@
 
 #include <eq/net/node.h>
 
+/** 
+ * @namespace eqs
+ * @brief The Equalizer server library.
+ *
+ * This namespace implements the server-side functionality for the Equalizer
+ * framework.
+ */
 namespace eqs
 {
     /**
@@ -19,6 +26,16 @@ namespace eqs
          * Constructs a new Server.
          */
         Server();
+
+        /** 
+         * Runs the server.
+         * 
+         * @param argc the number of command line arguments.
+         * @param argv the command line arguments.
+         * @return <code>true</code> if the server did run successfully,
+         *         <code>false</code> if not.
+         */
+        virtual bool run( int argc, char **argv );
 
     protected:
         /** 

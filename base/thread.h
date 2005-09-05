@@ -115,6 +115,7 @@ namespace eqBase
         };
  
         ThreadID _threadID;
+        ssize_t  _retVal;
 
         static void* runChild( void* arg );
         void        _runChild();

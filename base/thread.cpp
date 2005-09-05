@@ -142,6 +142,8 @@ void Thread::exit( ssize_t retVal )
         return;
 
     INFO << "Exiting this thread" << endl;
+    _lock->unset();
+
     switch( _type )
     {
         case PTHREAD:
@@ -165,19 +167,16 @@ bool Thread::join( ssize_t* retVal )
     {
         case PTHREAD:
         {
-            // WAR: according to the man page, passing NULL as value_ptr should
-            // be ok, but apparently it crashes on Darwin.
-            ssize_t dummy;
-            if( !retVal )
-                retVal = &dummy;
-
-            const int error = pthread_join( _threadID.pthread, (void**)retVal);
+            const int error = pthread_join( _threadID.pthread, (void**)_retVal);
             if( error != 0 )
             {
                 WARN << "Error joining the thread: " << strerror(error) << endl;
                 return false;
             }
+
             _threadState = STATE_STOPPED;
+            if( retVal )
+                *retVal = _retVal;
         } return true;
 
         case FORK:
@@ -189,9 +188,11 @@ bool Thread::join( ssize_t* retVal )
                 {
                     if( WIFEXITED( status ))
                     {
-                        if( retVal )
-                            *retVal = WEXITSTATUS( status );
+                        _retVal = WEXITSTATUS( status );
                         _threadState = STATE_STOPPED;
+
+                        if( retVal )
+                            *retVal = _retVal;
                         return true;
                     }
                     return false;

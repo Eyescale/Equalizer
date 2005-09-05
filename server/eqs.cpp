@@ -1,16 +1,15 @@
 
-#include <eq/net/node.h>
+#include <eq/server/server.h>
 
 #include <iostream>
 
-using namespace eqNet;
+using namespace eqs;
 using namespace std;
 
 int main( int argc, char **argv )
 {
-//     cout << "Create session... " << endl;
-//     const int ret = Server::run( ":4242" );
-//     cout << "Server exit value " << ret << endl;
-//     return ret;
+    Server server;
+
+    server.run( argc, argv );
 }
 

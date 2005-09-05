@@ -10,7 +10,9 @@ SOURCES = \
 
 MODULE  = server
 
-LDFLAGS  += -L$(BUILD_DIR)/lib -leqnet
+LDFLAGS     += -L$(BUILD_DIR)/lib -leqnet 
+SA_CXXFLAGS += -L$(SAMPLE_LIB_DIR) -leqserver
+
 CLEAN = $(PROGRAMS)
 
 all:  $(HEADERS) $(STATIC_LIB) $(PROGRAMS)
