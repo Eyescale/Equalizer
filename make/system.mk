@@ -42,13 +42,8 @@ endif
 
 # library variables
 LIBRARY         = $(DYNAMIC_LIB)
-ifdef MODULE
-  STATIC_LIB    = $(MODULE:%=$(LIBRARY_DIR)/libeq%.a)
-  DYNAMIC_LIB   = $(MODULE:%=$(LIBRARY_DIR)/libeq%.$(DSO_SUFFIX))
-else # special case for libeq
-  STATIC_LIB    = $(LIBRARY_DIR)/libeq.a
-  DYNAMIC_LIB   = $(LIBRARY_DIR)/libeq.$(DSO_SUFFIX)
-endif
+STATIC_LIB      = $(LIBRARY_DIR)/libeq$(MODULE).a
+DYNAMIC_LIB     = $(LIBRARY_DIR)/libeq$(MODULE).$(DSO_SUFFIX)
 
 SIMPLE_PROGRAMS = $(CXXFILES:%.cpp=%)
 
