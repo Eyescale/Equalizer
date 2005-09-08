@@ -62,11 +62,12 @@ void ConnectionSet::addConnection( eqBase::RefPtr<Connection> connection, Node* 
     _dirtyFDSet();
 }
 
-void ConnectionSet::removeConnection( eqBase::RefPtr<Connection> connection )
+bool ConnectionSet::removeConnection( eqBase::RefPtr<Connection> connection )
 {
     vector< eqBase::RefPtr<Connection> >::iterator eraseIter =
         find( _connections.begin(), _connections.end(), connection );
-    ASSERT( eraseIter != _connections.end( ));
+    if( eraseIter == _connections.end( ))
+        return false;
 
     _nodes.erase( connection.get( ));
     _connections.erase( eraseIter );
@@ -74,6 +75,7 @@ void ConnectionSet::removeConnection( eqBase::RefPtr<Connection> connection )
         _connection = NULL;
 
     _dirtyFDSet();
+    return true;
 }
 
 void ConnectionSet::clear()

@@ -42,7 +42,9 @@ bool Node::listen( RefPtr<Connection> connection )
         connection->getState() != Connection::STATE_LISTENING )
         return false;
 
-    _listenToSelf();
+    if( !_listenToSelf( ))
+        return false;
+
     if( connection.isValid() )
         _connectionSet.addConnection( connection, this );
     _state = STATE_LISTENING;
@@ -53,7 +55,7 @@ bool Node::listen( RefPtr<Connection> connection )
     return true;
 }
 
-bool Node::stop()
+bool Node::stopListening()
 {
     if( _state != STATE_LISTENING )
         return false;
@@ -63,6 +65,11 @@ bool Node::stop()
     join();
 
     ASSERT( _state == STATE_STOPPED );
+    ASSERT( _connection );
+
+    _connectionSet.removeConnection( _connection );
+    _connection->close();
+    _connection = NULL;
 
     const size_t nConnections = _connectionSet.nConnections();
     for( size_t i = 0; i<nConnections; i++ )
@@ -75,22 +82,26 @@ bool Node::stop()
     }
 
     _connectionSet.clear();    
+    _state = STATE_STOPPED;
     return true;    
 }
 
-void Node::_listenToSelf()
+bool Node::_listenToSelf()
 {
     // setup local connection to myself
     _connection = Connection::create(TYPE_UNI_PIPE);
     ConnectionDescription connDesc;
     if( !_connection->connect( connDesc ))
     {
+        ERROR << "Could not create pipe() connection to receiver thread."
+              << endl;
         _connection = NULL;
-        return;
+        return false;
     }
 
     // add to connection set
     _connectionSet.addConnection( _connection, this );
+    return true;
 }
 
 bool Node::connect( Node* node, RefPtr<Connection> connection )
@@ -100,9 +111,24 @@ bool Node::connect( Node* node, RefPtr<Connection> connection )
         return false;
 
     node->_connection = connection;
-    node->_state = STATE_CONNECTED;
+    node->_state      = STATE_CONNECTED;
     _connectionSet.addConnection( connection, node );
     INFO << node << " connected to " << this << endl;
+    return true;
+}
+
+bool Node::disconnect( Node* node )
+{
+    if( !node || _state != STATE_LISTENING || 
+        !node->_state == STATE_CONNECTED || !node->_connection )
+        return false;
+
+    if( !_connectionSet.removeConnection( node->_connection ))
+        return false;
+
+    node->_state      = STATE_STOPPED;
+    node->_connection = NULL;
+    INFO << node << " disconnected from " << this << endl;
     return true;
 }
 
@@ -254,17 +280,30 @@ void Node::_handleRequest( Node* node )
 void Node::_handlePacket( Node* node, const Packet* packet )
 {
     INFO << "handle " << packet << endl;
-    switch( packet->datatype )
+    const uint datatype = packet->datatype;
+
+    switch( datatype )
     {
-        case DATATYPE_EQ_NODE:
+        case DATATYPE_EQNET_NODE:
             if( packet->command < CMD_NODE_CUSTOM )
                 (this->*_cmdHandler[packet->command])(node, packet);
             else
                 handleCommand( node, (const NodePacket*)packet );
             break;
 
+        case DATATYPE_EQNET_SESSION:
+        case DATATYPE_EQNET_USER:
+            ERROR << "unimplemented" << endl;
+            abort();
+            break;
+
         default:
-            handlePacket( node, packet );
+            if( datatype < DATATYPE_CUSTOM )
+                ERROR << "Unknown datatype " << datatype << ", dropping packet."
+                      << endl;
+            else
+                handlePacket( node, packet );
+            break;
     }
 }
 
@@ -273,10 +312,10 @@ void Node::_cmdStop( Node* node, const Packet* pkg )
     INFO << "Cmd stop" << endl;
     ASSERT( _state == STATE_LISTENING );
 
-    _connectionSet.clear();
-    _connection = NULL;
+//     _connectionSet.clear();
+//     _connection = NULL;
     _state = STATE_STOPPED;
-    exit( EXIT_SUCCESS );
+    Thread::exit( EXIT_SUCCESS );
 }
 
 void Node::_cmdMapSession( Node* node, const Packet* pkg )

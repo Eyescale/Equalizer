@@ -7,7 +7,7 @@ ifdef VARIANT
 endif
 
 
-DSO_LDFLAGS += -dynamiclib
+DSO_LDFLAGS += -dynamiclib -flat_namespace
 DSO_SUFFIX   = dylib
 
 AR           = libtool

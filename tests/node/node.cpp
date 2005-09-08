@@ -68,7 +68,7 @@ int main( int argc, char **argv )
 
     Connection *connection = Connection::create(TYPE_TCPIP);
     ConnectionDescription connDesc;
-    //sprintf( connDesc.hostname, "benjy" );
+    //connDesc.hostname = "benjy";
     connDesc.parameters.TCPIP.port = 4242;
 
     if( !connection->listen( connDesc ))

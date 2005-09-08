@@ -3,6 +3,8 @@ include $(TOP)/make/system.mk
 
 PROGRAMS   = eqs
 HEADER_SRC = \
+	commands.h \
+	packets.h \
 	server.h
 
 SOURCES = \
@@ -10,13 +12,13 @@ SOURCES = \
 
 MODULE  = server
 
-LDFLAGS     += -L$(BUILD_DIR)/lib -leqnet 
+LDFLAGS     += -L$(LIBRARY_DIR) -leqnet 
 SA_CXXFLAGS += -L$(SAMPLE_LIB_DIR) -leqserver
 
 CLEAN = $(PROGRAMS)
 
-all:  $(HEADERS) $(STATIC_LIB) $(PROGRAMS)
+all:  $(HEADERS) $(DYNAMIC_LIB) $(STATIC_LIB) $(PROGRAMS)
 
-eqs: $(HEADERS) $(STATIC_LIB)
+eqs: $(HEADERS) $(DYNAMIC_LIB) $(STATIC_LIB)
 
 include $(TOP)/make/rules.mk

@@ -31,11 +31,11 @@ dlib: $(DYNAMIC_LIB)
 $(DYNAMIC_LIB): $(OBJECTS)
 ifdef VARIANT
 	@mkdir -p $(LIBRARY_DIR)
-	$(CXX) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
+	$(CXX) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) $(INT_LDFLAGS) -o $@
 else
 	@for variant in $(VARIANTS); do \
-		echo "$(MAKE) VARIANT=$$variant dlib";  \
-		$(MAKE) VARIANT=$$variant dlib;  \
+		echo "$(MAKE) VARIANT=$$variant TOP=$(TOP) dlib";  \
+		$(MAKE) VARIANT=$$variant TOP=$(TOP) dlib;  \
 	done
 endif
 
@@ -44,11 +44,11 @@ $(STATIC_LIB): $(OBJECTS)
 ifdef VARIANT
 	@mkdir -p $(LIBRARY_DIR)
 	@rm -f $@
-	$(AR) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
+	$(AR) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) $(INT_LDFLAGS) -o $@
 else
 	@for variant in $(VARIANTS); do \
-		echo "$(MAKE) VARIANT=$$variant slib";  \
-		$(MAKE) VARIANT=$$variant slib;  \
+		echo "$(MAKE) VARIANT=$$variant TOP=$(TOP) slib";  \
+		$(MAKE) VARIANT=$$variant TOP=$(TOP) slib;  \
 	done
 endif
 
@@ -59,14 +59,14 @@ $(OBJECT_DIR)/%.o : %.cpp
 	@($(CXX_DEPS) $(CXX_DEPS_FLAGS) -M -E $< | \
 		sed 's/\(.*:\)/$(OBJECT_DIR_ESCAPED)\/\1/' > \
 		$(@D)/$*.d ) || rm $(@D)/$*.d
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INT_CXXFLAGS) -c $< -o $@
 
 %.cpp: $(OBJECT_DIR)/%d
 
 
 # executables
 % : %.cpp
-	$(CXX) $< $(CXXFLAGS) $(SA_CXXFLAGS) -o $@ 
+	$(CXX) $< $(CXXFLAGS) $(INT_CXXFLAGS) $(SA_CXXFLAGS) -o $@ 
 
 # cleaning targets
 clean:

@@ -143,6 +143,12 @@ namespace eqNet
     inline std::ostream& operator << ( std::ostream& os, 
                                        const Connection* connection )
     {
+        if( !connection )
+        {
+            os << "NULL connection" << std::endl;
+            return os;
+        }
+
         Connection::State state = connection->getState();
         
         os << "Connection " << (void*)connection << " state "

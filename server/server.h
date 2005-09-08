@@ -7,6 +7,8 @@
 
 #include <eq/net/node.h>
 
+#include "packets.h"
+
 /** 
  * @namespace eqs
  * @brief The Equalizer server library.
@@ -52,6 +54,13 @@ namespace eqs
 
 
     private:
+
+        /** The command handler function table. */
+        void (eqs::Server::*_cmdHandler[CMD_SERVER_ALL -eqNet::CMD_NODE_CUSTOM])
+            ( eqNet::Node* node, const eqNet::Packet* packet );
+
+        void _cmdChooseConfig( eqNet::Node* node,
+                               const eqNet::Packet* packet );
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Server* server )

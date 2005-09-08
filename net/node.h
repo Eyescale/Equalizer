@@ -69,17 +69,26 @@ namespace eqNet
          * @return <code>true</code> if the node was stopped, <code>false</code>
          *         if it was not stopped.
          */
-        bool stop();
+        bool stopListening();
 
         /** 
          * Connects a node to this listening node.
          *
          * @param node the remote node.
          * @param connection the connection to the remote node.
-         * @return The connected remote node, or <code>NULL</code> if the node
-         *         could not be connected.
+         * @return <code>true</code> if the node was connected correctly,
+         *         <code>false</code> otherwise.
          */
         bool connect( Node* node, eqBase::RefPtr<Connection> connection );
+
+        /** 
+         * Disconnects a connected node.
+         *
+         * @param node the remote node.
+         * @return <code>true</code> if the node was disconnected correctly,
+         *         <code>false</code> otherwise.
+         */
+        bool disconnect( Node* node );
 
         /** 
          * Returns the state of this node.
@@ -254,7 +263,7 @@ namespace eqNet
 
         Session* _findSession( const std::string& name ) const;
 
-        void _listenToSelf();
+        bool _listenToSelf();
 
         /** The receiver thread entry function for this node. */
         virtual ssize_t run();

@@ -36,8 +36,8 @@ int main( int argc, char **argv )
     Session session;
     TEST( node.mapSession( &serverProxy, &session, "foo" ));
     
-    TEST( server.stop( ));
-    TEST( node.stop( ));
+    TEST( server.stopListening( ));
+    TEST( node.stopListening( ));
 
     cerr << connection->getRefCount() << endl;
     TEST( connection->getRefCount() == 1 );

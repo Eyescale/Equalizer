@@ -20,7 +20,7 @@ Session::Session()
           _id(INVALID_ID),
           _userID(1)
 {
-    for( int i=0; i<CMD_SESSION_ALL; i++ )
+    for( int i=0; i<CMD_SESSION_CUSTOM; i++ )
         _cmdHandler[i] = &eqNet::Session::_cmdUnknown;
 
     _cmdHandler[CMD_SESSION_CREATE_USER] = &eqNet::Session::_cmdCreateUser;
@@ -42,12 +42,14 @@ void Session::handlePacket( Node* node, const SessionPacket* packet)
 
     switch( packet->datatype )
     {
-        case DATATYPE_EQ_SESSION:
-            ASSERT( packet->command < CMD_SESSION_ALL );
-            (this->*_cmdHandler[packet->command])( node, packet );
+        case DATATYPE_EQNET_SESSION:
+            if( packet->command < CMD_SESSION_CUSTOM )
+                (this->*_cmdHandler[packet->command])( node, packet );
+            else 
+                ; // TODO handlePacket?
             break;
 
-        case DATATYPE_EQ_USER:
+        case DATATYPE_EQNET_USER:
         {
             UserPacket* userPacket = (UserPacket*)(packet);
             User* user = _users[userPacket->userID];
@@ -88,10 +90,10 @@ std::ostream& eqNet::operator << ( std::ostream& os, Session* session )
     if( !session )
     {
         os << "NULL session";
-            return os;
-        }
+        return os;
+    }
     
-    os << "    session " << session->getID() << "(" << (void*)session
+    os << "session " << session->getID() << "(" << (void*)session
        << "): " << session->_users.size() << " user[s]";
     
     for( IDHash<User*>::iterator iter = session->_users.begin();

@@ -9,7 +9,13 @@ using namespace eqNet;
 using namespace std;
 
 Server::Server()
-{}
+{
+    for( int i=CMD_NODE_CUSTOM; i<CMD_SERVER_ALL; i++ )
+        _cmdHandler[i - CMD_NODE_CUSTOM] =  &eqs::Server::_cmdUnknown;
+
+    _cmdHandler[CMD_SERVER_CHOOSE_CONFIG - CMD_NODE_CUSTOM] =
+        &eqs::Server::_cmdChooseConfig;
+}
 
 bool Server::run( int argc, char **argv )
 {
@@ -34,4 +40,13 @@ void Server::handlePacket( Node* node, const Packet* packet )
 
 void Server::handleCommand( Node* node, const NodePacket* packet )
 {
+    if( packet->command < CMD_SERVER_ALL )
+        (this->*_cmdHandler[packet->command - CMD_NODE_CUSTOM])(node, packet);
+    else
+        ERROR << "Unknown command " << packet->command << endl;
+}
+
+void Server::_cmdChooseConfig( Node* node, const Packet* packet )
+{
+    
 }

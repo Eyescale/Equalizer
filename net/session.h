@@ -202,7 +202,7 @@ namespace eqNet
         IDHash<User*> _users;
 
         /** The command handler function table. */
-        void (eqNet::Session::*_cmdHandler[CMD_SESSION_ALL])( Node* node, const Packet* packet );
+        void (eqNet::Session::*_cmdHandler[CMD_SESSION_CUSTOM])( Node* node, const Packet* packet );
 
         // the command handler functions and helper functions
         void _cmdCreateUser( Node* node, const Packet* packet );

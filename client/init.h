@@ -19,8 +19,18 @@ namespace eq
      * 
      * @param argc the command line argument count.
      * @param argv the command line argument values.
+     * @return <code>true</code> if the library was successfully initialised,
+     *         <code>false</code> otherwise.
      */
-    void init( int argc, char** argv );
+    bool init( int argc, char** argv );
+    
+    /**
+     * De-initialises the Equalizer client library.
+     *
+     * @return <code>true</code> if the library was successfully de-initialised,
+     *         <code>false</code> otherwise.
+     */
+    bool exit();
 }
 
 #endif // EQNET_INIT_H

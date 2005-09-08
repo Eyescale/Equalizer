@@ -2,8 +2,8 @@
 /* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQNET_PACKET_PRIV_H
-#define EQNET_PACKET_PRIV_H
+#ifndef EQ_PACKETS_PRIV_H
+#define EQ_PACKETS_PRIV_H
 
 #include "commands.h"
 #include "connectionDescription.h"
@@ -16,9 +16,9 @@ namespace eqNet
 {
     enum
     {
-        DATATYPE_EQ_NODE,
-        DATATYPE_EQ_SESSION,
-        DATATYPE_EQ_USER,
+        DATATYPE_EQNET_NODE,
+        DATATYPE_EQNET_SESSION,
+        DATATYPE_EQNET_USER,
         DATATYPE_CUSTOM = 1<<16
     };
 
@@ -37,7 +37,7 @@ namespace eqNet
     //------------------------------------------------------------
     struct NodePacket: public Packet
     {
-        NodePacket(){ datatype = DATATYPE_EQ_NODE; }
+        NodePacket(){ datatype = DATATYPE_EQNET_NODE; }
     };
 
     struct NodeStopPacket : public NodePacket
@@ -100,7 +100,7 @@ namespace eqNet
     //------------------------------------------------------------
     struct SessionPacket : public NodePacket
     {
-        SessionPacket(){ datatype = DATATYPE_EQ_SESSION; }
+        SessionPacket(){ datatype = DATATYPE_EQNET_SESSION; }
         uint sessionID;
     };
 
@@ -119,7 +119,7 @@ namespace eqNet
     //------------------------------------------------------------
     struct UserPacket : public SessionPacket
     {
-        UserPacket(){ datatype = DATATYPE_EQ_USER; }
+        UserPacket(){ datatype = DATATYPE_EQNET_USER; }
         uint userID;
     };
 
@@ -157,5 +157,5 @@ namespace eqNet
     }
 }
 
-#endif // EQNET_PACKET_PRIV_H
+#endif // EQNET_PACKETS_PRIV_H
 

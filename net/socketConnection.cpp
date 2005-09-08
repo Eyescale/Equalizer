@@ -144,6 +144,8 @@ bool SocketConnection::listen(ConnectionDescription &description)
         close();
         return false;
     }
+    else if( socketAddress.sin_port == 0 )
+        INFO << "Bound to port " << getPort() << endl;
 
     const bool listening = (::listen( _readFD, 10 ) == 0);
         

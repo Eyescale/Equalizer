@@ -42,7 +42,7 @@ namespace eqNet
         ~ConnectionSet();
 
         void addConnection( eqBase::RefPtr<Connection> connection, Node* node );
-        void removeConnection( eqBase::RefPtr<Connection> connection );
+        bool removeConnection( eqBase::RefPtr<Connection> connection );
         void clear();
         size_t nConnections() const { return _connections.size(); }
         eqBase::RefPtr<Connection> getConnection( const size_t i )

@@ -17,8 +17,8 @@ BUILD_DIR       = $(TOP)/build/$(ARCH)
 LIBRARY_DIR     = $(BUILD_DIR)/$(VARIANT)/lib
 SAMPLE_LIB_DIR  = $(BUILD_DIR)/$(VARIANT1)/lib
 
-CXXFLAGS       += -I$(BUILD_DIR)/include -D$(ARCH)
-LDFLAGS        += -L$(LIBRARY_DIR)
+INT_CXXFLAGS   += -I$(BUILD_DIR)/include -D$(ARCH)
+INT_LDFLAGS    += -L$(LIBRARY_DIR)
 CXX_DEPS       ?= $(CXX)
 CXX_DEPS_FLAGS  = -I$(BUILD_DIR)/include -D$(ARCH)
 DOXYGEN        ?= Doxygen

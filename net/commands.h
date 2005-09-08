@@ -2,8 +2,8 @@
 /* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQNET_COMMAND_PRIV_H
-#define EQNET_COMMAND_PRIV_H
+#ifndef EQNET_COMMANDS_H
+#define EQNET_COMMANDS_H
 
 namespace eqNet
 {
@@ -21,14 +21,14 @@ namespace eqNet
     {
         CMD_SESSION_CREATE_USER,
         CMD_SESSION_NEW_USER,
-        CMD_SESSION_ALL // must be last
+        CMD_SESSION_CUSTOM // must be last
     };
 
     enum UserCommand
     {
-        CMD_USER_ALL // must be last
+        CMD_USER_CUSTOM // must be last
     };
 };
 
-#endif // EQNET_COMMAND_PRIV_H
+#endif // EQNET_COMMANDS_H
 
