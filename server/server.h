@@ -18,6 +18,9 @@
  */
 namespace eqs
 {
+    class Config;
+    class Node;
+
     /**
      * The Equalizer server.
      */
@@ -38,6 +41,68 @@ namespace eqs
          *         <code>false</code> if not.
          */
         virtual bool run( int argc, char **argv );
+
+        /** 
+         * Adds a new node to this node.
+         * 
+         * @param node the node.
+         */
+        void addNode( Node* node ){ _nodes.push_back( node ); }
+
+        /** 
+         * Removes a node from this node.
+         * 
+         * @param node the node
+         * @return <code>true</code> if the node was removed, <code>false</code>
+         *         otherwise.
+         */
+        bool removeNode( Node* node );
+
+        /** 
+         * Returns the number of nodes on this node.
+         * 
+         * @return the number of nodes on this node. 
+         */
+        uint nNodes() const { return _nodes.size(); }
+
+        /** 
+         * Gets a node.
+         * 
+         * @param index the node's index. 
+         * @return the node.
+         */
+        Node* getNode( const uint index ){ return _nodes[index]; }
+
+        /** 
+         * Adds a new config to this config.
+         * 
+         * @param config the config.
+         */
+        void addConfig( Config* config ){ _configs.push_back( config ); }
+
+        /** 
+         * Removes a config from this config.
+         * 
+         * @param config the config
+         * @return <code>true</code> if the config was removed, <code>false</code>
+         *         otherwise.
+         */
+        bool removeConfig( Config* config );
+
+        /** 
+         * Returns the number of configs on this config.
+         * 
+         * @return the number of configs on this config. 
+         */
+        uint nConfigs() const { return _configs.size(); }
+
+        /** 
+         * Gets a config.
+         * 
+         * @param index the config's index. 
+         * @return the config.
+         */
+        Config* getConfig( const uint index ){ return _configs[index]; }
 
     protected:
         /** 
@@ -61,15 +126,30 @@ namespace eqs
 
         void _cmdChooseConfig( eqNet::Node* node,
                                const eqNet::Packet* packet );
+
+        std::vector<Node*> _nodes;
+        std::vector<Config*> _configs;
     };
 
-    inline std::ostream& operator << ( std::ostream& os, const Server* server )
+    inline std::ostream& operator << ( std::ostream& os, Server* server )
     {
-        if( server )
-            os << "server " << (eqNet::Node*)server;
-        else
+        if( !server )
+        {
             os << "NULL server";
-        
+            return os;
+        }
+
+        const uint nNodes   = server->nNodes();
+        const uint nConfigs = server->nConfigs();
+
+        os << "server " << (void*)server << " " << nNodes << " nodes " 
+           << nConfigs << " configs";
+
+        for( uint i=0; i<nNodes; i++ )
+            os << std::endl << "    " << server->getNode(i);
+        for( uint i=0; i<nConfigs; i++ )
+            os << std::endl << "    " << server->getConfig(i);
+
         return os;
     }
 };

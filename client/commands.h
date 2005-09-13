@@ -7,6 +7,11 @@
 
 namespace eqNet
 {
+    enum ServerCommand
+    {
+        CMD_SERVER_CHOOSE_CONFIG_REPLY = eqNet::CMD_NODE_CUSTOM,
+        CMD_SERVER_ALL
+    };
 };
 
 #endif // EQ_COMMANDS_H

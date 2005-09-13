@@ -20,9 +20,9 @@ docs: net
 
 net: base
 proto: base
-server: net
 tests: net
 client: net
+server: client
 examples: client
 
 include make/rules.mk

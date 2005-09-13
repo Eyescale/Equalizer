@@ -41,10 +41,11 @@ namespace eqBase
         /** 
          * Registers a new request.
          * 
-         * @param data a pointer to user-specific data for the request.
+         * @param data a pointer to user-specific data for the request, can be
+         *             <code>NULL</code>.
          * @return the request identifier.
          */
-        uint registerRequest( void* data );
+        uint registerRequest( void* data=NULL );
 
         /** 
          * Waits for the completion of a request and retrieves the result.

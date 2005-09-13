@@ -4,9 +4,11 @@
 
 #include "server.h"
 
+#include "configParams.h"
 #include "node.h"
 
 #include <eq/net/connection.h>
+#include <eq/server/packets.h>
 
 using namespace eq;
 using namespace eqBase;
@@ -31,8 +33,8 @@ bool Server::open( const string& address )
         connDesc.hostname = address;
     else
     {
-        connDesc.hostname = address.substr( 0, colonPos-1 );
-        string port = address.substr( colonPos );
+        connDesc.hostname = address.substr( 0, colonPos );
+        string port = address.substr( colonPos+1 );
         connDesc.parameters.TCPIP.port = atoi( port.c_str( ));
     }
 
@@ -65,6 +67,16 @@ bool Server::close()
 
 Config* Server::chooseConfig( const ConfigParams* parameters )
 {
+    eqs::ServerChooseConfigPacket packet;
+    packet.requestID     = _requestHandler.registerRequest();
+    packet.appNameLength = parameters->appName.size() + 1;
+    packet.compoundModes = parameters->compoundModes;
+
+    send( packet );
+    send( parameters->appName.c_str(), packet.appNameLength );
+
+    const void* result = _requestHandler.waitRequest( packet.requestID );
+    
 }
 
 void Server::releaseConfig( Config* config )

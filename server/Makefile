@@ -3,12 +3,21 @@ include $(TOP)/make/system.mk
 
 PROGRAMS   = eqs
 HEADER_SRC = \
+	channel.h \
 	commands.h \
+	config.h \
+	node.h \
 	packets.h \
-	server.h
+	pipe.h \
+	server.h \
+	window.h
 
 SOURCES = \
-	server.cpp
+	channel.cpp \
+	config.cpp \
+	compound.cpp \
+	server.cpp \
+	window.cpp
 
 MODULE  = server
 

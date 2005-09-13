@@ -43,4 +43,7 @@ LDFLAGS += -leqbase
 
 all: $(HEADERS) $(STATIC_LIB)
 
+#$(STATIC_LIB): $(LIBRARY_DIR)/libeqbase.a
+#$(DYNAMIC_LIB): $(LIBRARY_DIR)/libeqbase.a
+
 include $(TOP)/make/rules.mk

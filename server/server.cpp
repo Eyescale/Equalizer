@@ -4,6 +4,8 @@
 
 #include "server.h"
 
+#include <eq/packets.h>
+
 using namespace eqs;
 using namespace eqNet;
 using namespace std;
@@ -40,13 +42,30 @@ void Server::handlePacket( Node* node, const Packet* packet )
 
 void Server::handleCommand( Node* node, const NodePacket* packet )
 {
+    INFO << "handle " << packet << " " << (packet->command - CMD_NODE_CUSTOM)<< endl;
+    ASSERT( packet->command >= CMD_NODE_CUSTOM );
+
     if( packet->command < CMD_SERVER_ALL )
         (this->*_cmdHandler[packet->command - CMD_NODE_CUSTOM])(node, packet);
     else
         ERROR << "Unknown command " << packet->command << endl;
 }
 
-void Server::_cmdChooseConfig( Node* node, const Packet* packet )
+void Server::_cmdChooseConfig( Node* node, const Packet* pkg )
 {
+    ServerChooseConfigPacket* packet = (ServerChooseConfigPacket*)pkg;
+    ASSERT( packet->appNameLength );
+
+    char* appName = (char*)alloca(packet->appNameLength);
+    node->recv( appName, packet->appNameLength );
+    INFO << "Handle choose config " << packet << " appName " << appName << endl;
+
+    // TODO
+    Config* config = nConfigs()>0 ? getConfig(0) : NULL;
     
+    if( config==NULL )
+    {
+        eq::ServerChooseConfigPacketReply reply;
+
+    }
 }

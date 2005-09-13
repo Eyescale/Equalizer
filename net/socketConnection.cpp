@@ -57,7 +57,6 @@ bool SocketConnection::connect( const ConnectionDescription &description )
         WARN << "Could not connect to '" << description.hostname << ":" 
              << description.parameters.TCPIP.port << "': " << strerror( errno ) 
              << endl;
-
         close();
     }
     

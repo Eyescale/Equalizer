@@ -93,7 +93,7 @@ uint64 FDConnection::send( const void* buffer, const uint64 bytes ) const
 
     if( eqBase::Log::level >= eqBase::LOG_VERBATIM )
     {
-        VERB << "Sending " << bytes << " bytes:";
+        VERB << "Sending " << bytes << " bytes on " << (void*)this << ":";
 
         for(uint64 i=0; i<bytes; i++ )
         {

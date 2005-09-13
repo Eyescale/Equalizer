@@ -218,7 +218,7 @@ namespace eqNet
             nodes. */
         ConnectionSet _connectionSet;
 
-        /** Registers requests waiting for a return value. */
+        /** Registers request packets waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
 
 
