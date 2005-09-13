@@ -19,6 +19,10 @@ namespace eq
          */
         static Node* getLocalNode() { return _localNode; }
 
+    protected:
+        virtual void handleCommand( eqNet::Node* node, 
+                                    const eqNet::NodePacket* packet );
+
     private:
         static Node* _localNode;
 

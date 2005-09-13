@@ -7,10 +7,13 @@
 
 #include <eq/net/node.h>
 
+#include "commands.h"
+
 namespace eq
 {
     class Config;
     class ConfigParams;
+    class Node;
 
     class Server : protected eqNet::Node
     {
@@ -54,6 +57,9 @@ namespace eq
          */
         void    releaseConfig( Config* config );
 
+    protected:
+        void handleCommand( const eqNet::NodePacket* packet );
+
     private:
         enum State {
             STATE_STOPPED,
@@ -63,10 +69,13 @@ namespace eq
 
 
         /** The command handler function table. */
-//         void (eq::Server::*_cmdHandler[CMD_SERVER_ALL-CMD_NODE_CUSTOM])
-//             ( Node* node, const Packet* packet );
+        void (eq::Server::*_cmdHandler[CMD_SERVER_ALL-eqNet::CMD_NODE_CUSTOM])
+            ( const eqNet::Packet* packet );
 
-//         void _cmdChooseConfig( Node* node, const Packet* packet );
+        void _cmdUnknown( const eqNet::Packet* packet );
+        void _cmdChooseConfigReply( const eqNet::Packet* packet );
+        
+        friend class eq::Node;
     };
 }
 

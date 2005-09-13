@@ -5,9 +5,8 @@
 #ifndef EQS_SERVER_H
 #define EQS_SERVER_H
 
+#include <eq/packets.h>
 #include <eq/net/node.h>
-
-#include "packets.h"
 
 /** 
  * @namespace eqs
@@ -121,7 +120,7 @@ namespace eqs
     private:
 
         /** The command handler function table. */
-        void (eqs::Server::*_cmdHandler[CMD_SERVER_ALL -eqNet::CMD_NODE_CUSTOM])
+        void (eqs::Server::*_cmdHandler[eq::CMD_SERVER_ALL - eqNet::CMD_NODE_CUSTOM])
             ( eqNet::Node* node, const eqNet::Packet* packet );
 
         void _cmdChooseConfig( eqNet::Node* node,

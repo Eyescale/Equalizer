@@ -4,10 +4,8 @@ include $(TOP)/make/system.mk
 PROGRAMS   = eqs
 HEADER_SRC = \
 	channel.h \
-	commands.h \
 	config.h \
 	node.h \
-	packets.h \
 	pipe.h \
 	server.h \
 	window.h

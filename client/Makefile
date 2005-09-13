@@ -2,11 +2,13 @@
 include $(TOP)/make/system.mk
 
 HEADER_SRC = \
+	commands.h \
 	config.h \
 	configParams.h \
 	eq.h \
 	init.h \
 	node.h \
+	packets.h \
 	server.h
 
 SOURCES = \

@@ -5,11 +5,12 @@
 #ifndef EQ_COMMANDS_H
 #define EQ_COMMANDS_H
 
-namespace eqNet
+namespace eq
 {
     enum ServerCommand
     {
-        CMD_SERVER_CHOOSE_CONFIG_REPLY = eqNet::CMD_NODE_CUSTOM,
+        CMD_SERVER_CHOOSE_CONFIG       = eqNet::CMD_NODE_CUSTOM,
+        CMD_SERVER_CHOOSE_CONFIG_REPLY,
         CMD_SERVER_ALL
     };
 };

@@ -50,8 +50,8 @@ namespace eqBase
     }
 }
 
-#define LOG_EXTRA  << "P" << getpid()  << "." << pthread_self() \
-                   << " " << __FILE__ << " " << (int)__LINE__ << ": "
+#define LOG_EXTRA  << getpid()  << "." << pthread_self() \
+                   << " " << __FILE__ << ":" << (int)__LINE__ << " "
 
 #define ERROR (eqBase::Log::level >= eqBase::LOG_ERROR) && \
     std::cout << "[E]" LOG_EXTRA

@@ -12,10 +12,10 @@ using namespace std;
 
 Server::Server()
 {
-    for( int i=CMD_NODE_CUSTOM; i<CMD_SERVER_ALL; i++ )
+    for( int i=CMD_NODE_CUSTOM; i<eq::CMD_SERVER_ALL; i++ )
         _cmdHandler[i - CMD_NODE_CUSTOM] =  &eqs::Server::_cmdUnknown;
 
-    _cmdHandler[CMD_SERVER_CHOOSE_CONFIG - CMD_NODE_CUSTOM] =
+    _cmdHandler[eq::CMD_SERVER_CHOOSE_CONFIG - CMD_NODE_CUSTOM] =
         &eqs::Server::_cmdChooseConfig;
 }
 
@@ -45,7 +45,7 @@ void Server::handleCommand( Node* node, const NodePacket* packet )
     INFO << "handle " << packet << " " << (packet->command - CMD_NODE_CUSTOM)<< endl;
     ASSERT( packet->command >= CMD_NODE_CUSTOM );
 
-    if( packet->command < CMD_SERVER_ALL )
+    if( packet->command < eq::CMD_SERVER_ALL )
         (this->*_cmdHandler[packet->command - CMD_NODE_CUSTOM])(node, packet);
     else
         ERROR << "Unknown command " << packet->command << endl;
@@ -53,7 +53,7 @@ void Server::handleCommand( Node* node, const NodePacket* packet )
 
 void Server::_cmdChooseConfig( Node* node, const Packet* pkg )
 {
-    ServerChooseConfigPacket* packet = (ServerChooseConfigPacket*)pkg;
+    eq::ServerChooseConfigPacket* packet = (eq::ServerChooseConfigPacket*)pkg;
     ASSERT( packet->appNameLength );
 
     char* appName = (char*)alloca(packet->appNameLength);
@@ -63,9 +63,15 @@ void Server::_cmdChooseConfig( Node* node, const Packet* pkg )
     // TODO
     Config* config = nConfigs()>0 ? getConfig(0) : NULL;
     
+    eq::ServerChooseConfigReplyPacket reply;
+    reply.requestID = packet->requestID;
+
     if( config==NULL )
     {
-        eq::ServerChooseConfigPacketReply reply;
-
+        reply.configID = INVALID_ID;
+        node->send( reply );
+        return;
     }
+
+    
 }
