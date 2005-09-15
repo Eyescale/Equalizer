@@ -15,13 +15,18 @@ namespace eq
     class ConfigParams;
     class Node;
 
-    class Server : protected eqNet::Node
+    class Server : public eqNet::Node
     {
     public:
         /** 
          * Constructs a new server.
          */
         Server();
+
+        /**
+         * Destructs this server.
+         */
+        virtual ~Server(){}
 
         /** 
          * Opens the connection to an Equalizer server.
@@ -66,7 +71,6 @@ namespace eq
             STATE_OPENED
         };
         State _state;
-
 
         /** The command handler function table. */
         void (eq::Server::*_cmdHandler[CMD_SERVER_ALL-eqNet::CMD_NODE_CUSTOM])

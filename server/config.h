@@ -96,9 +96,19 @@ namespace eqs
         Compound* getCompound( const uint index ) const
             { return _compounds[index]; }
 
+        /** 
+         * Sets the identifier of this config.
+         * 
+         * @param id the identifier.
+         */
+        void setID( const uint id ) { _id = id; }
+
     private:
+        /** The identifier of this config. */
+        uint _id;
+
         std::vector<Compound*> _compounds;
-        std::vector<Window*> _windows;
+        std::vector<Window*>   _windows;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Config* config )

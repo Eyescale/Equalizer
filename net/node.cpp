@@ -113,6 +113,7 @@ bool Node::connect( Node* node, RefPtr<Connection> connection )
     node->_connection = connection;
     node->_state      = STATE_CONNECTED;
     _connectionSet.addConnection( connection, node );
+
     INFO << node << " connected to " << this << endl;
     return true;
 }
@@ -213,15 +214,7 @@ ssize_t Node::run()
 
             case ConnectionSet::EVENT_DISCONNECT:
             {
-                RefPtr<Connection> connection = _connectionSet.getConnection();
-                Node*              node = _connectionSet.getNode( connection );
-
-                _connectionSet.removeConnection( connection );
-
-                node->_state      = STATE_STOPPED;
-                node->_connection = NULL;
-                connection->close();
-                
+                _handleDisconnect( _connectionSet );
                 break;
             } 
 
@@ -239,7 +232,7 @@ void Node::_handleConnect( ConnectionSet& connectionSet )
 {
     RefPtr<Connection> connection = connectionSet.getConnection();
     RefPtr<Connection> newConn    = connection->accept();
-    Node*              newNode    = handleNewNode( newConn );
+    Node*              newNode    = handleConnect( newConn );
     
     if( !newNode )
         newConn->close();
@@ -247,7 +240,7 @@ void Node::_handleConnect( ConnectionSet& connectionSet )
         INFO << "New " << newNode << endl;
 }
 
-Node* Node::handleNewNode( RefPtr<Connection> connection )
+Node* Node::handleConnect( RefPtr<Connection> connection )
 {
     Node* node = new Node();
     if( connect( node, connection ))
@@ -255,6 +248,21 @@ Node* Node::handleNewNode( RefPtr<Connection> connection )
 
     delete node;
     return NULL;
+}
+
+void Node::_handleDisconnect( ConnectionSet& connectionSet )
+{
+    RefPtr<Connection> connection = connectionSet.getConnection();
+    Node*              node       = connectionSet.getNode( connection );
+
+    handleDisconnect( node );
+    connection->close();
+}
+
+void Node::handleDisconnect( Node* node )
+{
+    const bool disconnected = disconnect( node );
+    ASSERT( disconnected );
 }
 
 void Node::_handleRequest( Node* node )

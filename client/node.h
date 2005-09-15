@@ -9,7 +9,7 @@
 
 namespace eq
 {
-    class Node : protected eqNet::Node
+    class Node : public eqNet::Node
     {
     public:
         /** 
@@ -25,13 +25,6 @@ namespace eq
 
     private:
         static Node* _localNode;
-
-        bool listen( eqBase::RefPtr<eqNet::Connection> connection )
-            { return eqNet::Node::listen( connection ); }
-        bool stopListening(){ return eqNet::Node::stopListening(); }
-
-        friend bool eq::initLocalNode( int argc, char** argv );
-        friend bool eq::exitLocalNode();
     };
 }
 

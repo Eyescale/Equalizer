@@ -4,6 +4,7 @@
 
 #include "server.h"
 
+#include "config.h"
 #include "configParams.h"
 #include "node.h"
 #include "packets.h"
@@ -52,7 +53,7 @@ bool Server::open( const string& address )
     if( !connection->connect( connDesc ))
         return false;
 
-    Node* localNode = eq::Node::getLocalNode();
+    eq::Node* localNode = eq::Node::getLocalNode();
     if( !localNode->connect( this, connection ))
         return false;
 
@@ -122,6 +123,7 @@ void Server::_cmdChooseConfigReply( const eqNet::Packet* pkg )
         _requestHandler.serveRequest( packet->requestID, NULL );
         return;
     }
-
-    // TODO
+    
+    Config* config = new Config( packet->configID );
+    _requestHandler.serveRequest( packet->requestID, config );
 }

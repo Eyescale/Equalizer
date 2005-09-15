@@ -103,6 +103,10 @@ namespace eqs
          */
         Config* getConfig( const uint index ){ return _configs[index]; }
 
+        virtual eqNet::Node* handleConnect(
+            eqBase::RefPtr<eqNet::Connection> connection );
+        virtual void handleDisconnect( eqNet::Node* node );
+
     protected:
         /** 
          * @sa eqNet::Node::handlePacket
@@ -118,6 +122,12 @@ namespace eqs
 
 
     private:
+        
+        /** The unique config identifier. */
+        uint _configID;
+
+        /** Loads the server's configuration. */
+        bool _loadConfig( int argc, char **argv );
 
         /** The command handler function table. */
         void (eqs::Server::*_cmdHandler[eq::CMD_SERVER_ALL - eqNet::CMD_NODE_CUSTOM])
@@ -126,7 +136,7 @@ namespace eqs
         void _cmdChooseConfig( eqNet::Node* node,
                                const eqNet::Packet* packet );
 
-        std::vector<Node*> _nodes;
+        std::vector<Node*>   _nodes;
         std::vector<Config*> _configs;
     };
 

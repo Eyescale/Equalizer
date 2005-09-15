@@ -12,6 +12,7 @@ HEADER_SRC = \
 	server.h
 
 SOURCES = \
+	config.cpp \
 	configParams.cpp \
 	init.cpp \
 	node.cpp \

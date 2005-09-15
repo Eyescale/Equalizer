@@ -5,7 +5,9 @@
 #ifndef EQS_NODE_H
 #define EQS_NODE_H
 
-#include <vector.h>
+#include <eq/net/node.h>
+
+#include <vector>
 
 namespace eqs
 {
@@ -14,7 +16,7 @@ namespace eqs
     /**
      * The node.
      */
-    class Node
+    class Node : public eqNet::Node
     {
     public:
         /** 
@@ -51,13 +53,13 @@ namespace eqs
          * @param index the pipe's index. 
          * @return the pipe.
          */
-        Pipe* getPipe( const uint index ){ return _pipes[index]; }
+        Pipe* getPipe( const uint index ) const { return _pipes[index]; }
 
     private:
         std::vector<Pipe*> _pipes;
     };
 
-    inline std::ostream& operator << ( std::ostream& os, Node* node )
+    inline std::ostream& operator << ( std::ostream& os, const Node* node )
     {
         if( !node )
         {

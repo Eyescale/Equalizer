@@ -97,8 +97,6 @@ namespace eqNet
          */
         State getState(){ return _state; }
 
-        eqBase::RefPtr<Connection> getConnection(){ return _connection; }
-
         /**
          * @name Messaging API
          *
@@ -246,13 +244,21 @@ namespace eqNet
         virtual void handleCommand( Node* node, const NodePacket* packet ){}
 
         /** 
-         * Handles the connection of a new node by connection it to this node.
+         * Handles the connection of a new node by connecting it to this node.
          * 
          * @param connection the incoming connection for the new node.
          * @return the newly connected node, or <code>NULL</code> if the
          *         connection was refused.
          */
-        virtual Node* handleNewNode( eqBase::RefPtr<Connection> connection );
+        virtual Node* handleConnect( eqBase::RefPtr<Connection> connection );
+
+        /** 
+         * Handles the disconnection of a new node by disconnecting it from this
+         * node.
+         * 
+         * @param node the disconnected node.
+         */
+        virtual void handleDisconnect( Node* node );
 
     private:
         /** The unique session identifier counter. */
@@ -269,6 +275,7 @@ namespace eqNet
         virtual ssize_t run();
             
         void _handleConnect( ConnectionSet& connectionSet );
+        void _handleDisconnect( ConnectionSet& connectionSet );
         void _handleRequest( Node* node );
         void _handlePacket( Node* node, const Packet* packet);
 
