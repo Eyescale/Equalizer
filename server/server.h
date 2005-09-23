@@ -6,6 +6,7 @@
 #define EQS_SERVER_H
 
 #include <eq/packets.h>
+#include <eq/net/idHash.h>
 #include <eq/net/node.h>
 
 /** 
@@ -136,8 +137,9 @@ namespace eqs
         void _cmdChooseConfig( eqNet::Node* node,
                                const eqNet::Packet* packet );
 
-        std::vector<Node*>   _nodes;
-        std::vector<Config*> _configs;
+        std::vector<Node*>     _nodes;
+        std::vector<Config*>   _configs;
+        eqNet::IDHash<Config*> _appConfigs;
     };
 
     inline std::ostream& operator << ( std::ostream& os, Server* server )

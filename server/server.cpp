@@ -111,11 +111,11 @@ void Server::_cmdChooseConfig( eqNet::Node* n, const eqNet::Packet* pkg )
         return;
     }
 
-    Config* nodeConfig = new Config( *config );
+    Config* appConfig = new Config( *config );
 
     reply.configID = _configID++;
 
-    nodeConfig->setID( reply.configID );
-    node->addConfig( nodeConfig );
+    appConfig->setID( reply.configID );
+    _appConfigs[reply.configID] = appConfig;
     node->send( reply );
 }

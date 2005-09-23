@@ -7,6 +7,8 @@
 #include "compound.h"
 #include "window.h"
 
+#include <eq/net/global.h>
+
 using namespace eqs;
 
 Config::Config()
