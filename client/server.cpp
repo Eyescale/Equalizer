@@ -96,7 +96,10 @@ void Server::releaseConfig( Config* config )
     if( _state != STATE_OPENED )
         return;
 
-    // TODO
+    ServerReleaseConfigPacket packet;
+    packet.configID = config->getID();
+    send( packet );
+    delete config;
 }
 
 void Server::handleCommand( const eqNet::NodePacket* packet )

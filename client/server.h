@@ -58,6 +58,9 @@ namespace eq
         /** 
          * Releases the configuration.
          * 
+         * The passed configuration will be destroyed by this function and is no
+         * longer valid after the call.
+         *
          * @param config the configuration.
          */
         void    releaseConfig( Config* config );

@@ -134,7 +134,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 
                     _connection = _fdSetConnections[fd];
                     
-                    INFO << "selected connection #" << i << " of " << _fdSetSize
+                    VERB << "selected connection #" << i << " of " << _fdSetSize
                          << ", poll event " << pollEvent << ", " 
                          << _connection.get() << endl;
 

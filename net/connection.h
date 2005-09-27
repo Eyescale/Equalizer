@@ -145,7 +145,7 @@ namespace eqNet
     {
         if( !connection )
         {
-            os << "NULL connection" << std::endl;
+            os << "NULL connection";
             return os;
         }
 

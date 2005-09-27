@@ -17,11 +17,12 @@ void eqNet::init( int argc, char** argv )
 {
     ASSERT( argc > 0 );
     
-    Global::setProgramName( argv[0] );
+    const string pwd = getenv("PWD");
+    Global::setProgramName( pwd + "/" + argv[0] );
 }
 
 
-void Global::setProgramName( const std::string& programName )
+void Global::setProgramName( const string& programName )
 {
     _programName = programName;
     INFO << "Program name set to: " << _programName << endl;

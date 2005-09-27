@@ -19,6 +19,13 @@ namespace eq
          */
         Config( const uint id );
 
+        /** 
+         * Returns the identifier of this config.
+         * 
+         * @return the identifier of this config.
+         */
+        uint getID() const { return _id; }
+
     private:
         const uint _id;
     };

@@ -38,12 +38,30 @@ namespace eq
         uint configID;
     };
 
+    struct ServerReleaseConfigPacket : public eqNet::NodePacket
+    {
+        ServerReleaseConfigPacket()
+            {
+                command = CMD_SERVER_RELEASE_CONFIG;
+                size    = sizeof( ServerReleaseConfigPacket );
+            }
+
+        uint configID;
+    };
+
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ServerChooseConfigPacket* packet )
     {
         os << (eqNet::NodePacket*)packet << " req " << packet->requestID
            << " cmp modes " << packet->compoundModes << " appNameLength " 
            << packet->appNameLength;
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const ServerReleaseConfigPacket* packet )
+    {
+        os << (eqNet::NodePacket*)packet << " config " << packet->configID;
         return os;
     }
 }

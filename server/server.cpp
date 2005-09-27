@@ -22,6 +22,8 @@ Server::Server()
 
     _cmdHandler[eq::CMD_SERVER_CHOOSE_CONFIG - eqNet::CMD_NODE_CUSTOM] =
         &eqs::Server::_cmdChooseConfig;
+    _cmdHandler[eq::CMD_SERVER_RELEASE_CONFIG - eqNet::CMD_NODE_CUSTOM] =
+        &eqs::Server::_cmdReleaseConfig;
 }
 
 bool Server::run( int argc, char **argv )
@@ -76,7 +78,7 @@ void Server::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
 
 void Server::handleCommand( eqNet::Node* node, const eqNet::NodePacket* packet )
 {
-    INFO << "handle " << packet << endl;
+    VERB << "handle " << packet << endl;
     ASSERT( packet->command >= eqNet::CMD_NODE_CUSTOM );
 
     if( packet->command < eq::CMD_SERVER_ALL )
@@ -86,11 +88,8 @@ void Server::handleCommand( eqNet::Node* node, const eqNet::NodePacket* packet )
         ERROR << "Unknown command " << packet->command << endl;
 }
 
-void Server::_cmdChooseConfig( eqNet::Node* n, const eqNet::Packet* pkg )
+void Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
 {
-    ASSERT( dynamic_cast<Node*>(n) );
-
-    Node* node = static_cast<Node*>(n);
     eq::ServerChooseConfigPacket* packet = (eq::ServerChooseConfigPacket*)pkg;
     ASSERT( packet->appNameLength );
 
@@ -118,4 +117,20 @@ void Server::_cmdChooseConfig( eqNet::Node* n, const eqNet::Packet* pkg )
     appConfig->setID( reply.configID );
     _appConfigs[reply.configID] = appConfig;
     node->send( reply );
+}
+
+void Server::_cmdReleaseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
+{
+    eq::ServerReleaseConfigPacket* packet = (eq::ServerReleaseConfigPacket*)pkg;
+    INFO << "Handle release config " << packet << endl;
+
+    Config* appConfig = _appConfigs[packet->configID];
+    if( !appConfig )
+    {
+        WARN << "Release request for unknown config" << endl;
+        return;
+    }
+
+    _appConfigs.erase( packet->configID );
+    delete appConfig;
 }

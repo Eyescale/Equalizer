@@ -11,6 +11,7 @@ namespace eq
     {
         CMD_SERVER_CHOOSE_CONFIG       = eqNet::CMD_NODE_CUSTOM,
         CMD_SERVER_CHOOSE_CONFIG_REPLY,
+        CMD_SERVER_RELEASE_CONFIG,
         CMD_SERVER_ALL
     };
 };

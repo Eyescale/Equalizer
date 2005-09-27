@@ -205,8 +205,6 @@ ssize_t Node::run()
             {
                 RefPtr<Connection> connection = _connectionSet.getConnection();
                 Node*              node = _connectionSet.getNode( connection );
-                INFO << "Data from " << node << endl;
-
                 ASSERT( node->_connection == connection );
                 _handleRequest( node );
                 break;
@@ -267,7 +265,7 @@ void Node::handleDisconnect( Node* node )
 
 void Node::_handleRequest( Node* node )
 {
-    INFO << "Handle request from " << node << endl;
+    VERB << "Handle request from " << node << endl;
 
     uint64 size;
     bool gotData = node->recv( &size, sizeof( size ));
@@ -287,7 +285,7 @@ void Node::_handleRequest( Node* node )
 
 void Node::_handlePacket( Node* node, const Packet* packet )
 {
-    INFO << "handle " << packet << endl;
+    VERB << "handle " << packet << endl;
     const uint datatype = packet->datatype;
 
     switch( datatype )

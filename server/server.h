@@ -136,6 +136,8 @@ namespace eqs
 
         void _cmdChooseConfig( eqNet::Node* node,
                                const eqNet::Packet* packet );
+        void _cmdReleaseConfig( eqNet::Node* node,
+                                const eqNet::Packet* packet );
 
         std::vector<Node*>     _nodes;
         std::vector<Config*>   _configs;
