@@ -33,7 +33,7 @@ CXXFILES        = $(wildcard *.cpp)
 OBJECT_DIR      = obj/$(ARCH)/$(VARIANT)
 
 ifndef VARIANT
-  OBJECTS       =
+  OBJECTS       = foo
   VARIANT1      = $(word 1, $(VARIANTS))
 else
   OBJECTS       = $(SOURCES:%.cpp=$(OBJECT_DIR)/%.o)

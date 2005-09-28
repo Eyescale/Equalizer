@@ -21,7 +21,7 @@ foreach my $file (@ARGV)
     open( CODE, ">$basename" . "Dist.cpp" ) 
         or die "Can't open $basename" . "Dist.cpp for writing";
     
-    print HEADER "#include \"packet.h\"\n";
+    print HEADER "#include \"packets.h\"\n";
     print HEADER "namespace eqNet\n";
     print HEADER "{\n";
 

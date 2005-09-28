@@ -1,5 +1,5 @@
 
-.PHONY: subdirs $(SUBDIRS) $(DEPENDENCIES) slib
+.PHONY: subdirs $(SUBDIRS) $(DEPENDENCIES)
 .SUFFIXES: .d
 
 # recursive subdir rules
@@ -27,24 +27,21 @@ ifdef HEADER_GEN
 endif
 
 # libraries
-dlib: $(DYNAMIC_LIB)
 $(DYNAMIC_LIB): $(OBJECTS)
 ifdef VARIANT
 	@mkdir -p $(LIBRARY_DIR)
 	$(CXX) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) $(INT_LDFLAGS) -o $@
 else
-	$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).$(DSO_SUFFIX)=%) \
-		TOP=$(TOP) $@
+	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).$(DSO_SUFFIX)=%) TOP=$(TOP) $@
 endif
 
-slib: $(STATIC_LIB)
 $(STATIC_LIB): $(OBJECTS)
 ifdef VARIANT
 	@mkdir -p $(LIBRARY_DIR)
 	@rm -f $@
 	$(AR) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) $(INT_LDFLAGS) -o $@
 else
-	$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).a=%) TOP=$(TOP) $@
+	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).a=%) TOP=$(TOP) $@
 endif
 
 OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
