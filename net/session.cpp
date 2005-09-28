@@ -77,8 +77,7 @@ void Session::pack( Node* node ) const
     for( IDHash<User*>::const_iterator iter = _users.begin();
          iter != _users.end(); iter++ )
     {
-        SessionNewUserPacket newUserPacket;
-        newUserPacket.sessionID = getID();
+        SessionNewUserPacket newUserPacket( _id );
         newUserPacket.userID    = (*iter).first;
         node->send( newUserPacket );
     };

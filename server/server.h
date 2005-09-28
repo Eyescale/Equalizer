@@ -105,10 +105,6 @@ namespace eqs
          */
         Config* getConfig( const uint index ){ return _configs[index]; }
 
-        virtual eqNet::Node* handleConnect(
-            eqBase::RefPtr<eqNet::Connection> connection );
-        virtual void handleDisconnect( eqNet::Node* node );
-
     protected:
         /** 
          * @sa eqNet::Node::handlePacket
@@ -122,6 +118,9 @@ namespace eqs
         virtual void handleCommand( eqNet::Node* node,
                                     const eqNet::NodePacket* packet );
 
+        virtual eqNet::Node* handleConnect(
+            eqBase::RefPtr<eqNet::Connection> connection );
+        virtual void handleDisconnect( eqNet::Node* node );
 
     private:
         

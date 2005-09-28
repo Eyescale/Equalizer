@@ -66,6 +66,13 @@ namespace eq
         void    releaseConfig( Config* config );
 
         /** 
+         * Handles a packet received for this server.
+         * 
+         * @param packet the packet.
+         */
+        void handlePacket( const eqNet::Packet* packet );
+
+        /** 
          * Handles a command for this server.
          * 
          * @param packet the command packet.
@@ -79,6 +86,9 @@ namespace eq
             STATE_OPENED
         };
         State _state;
+
+        /** The allocated configurations, mapped by identifier. */
+        eqNet::IDHash<Config*> _configs;
 
         /** The command handler function table. */
         void (eq::Server::*_cmdHandler[CMD_SERVER_ALL-eqNet::CMD_NODE_CUSTOM])

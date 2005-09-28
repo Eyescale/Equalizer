@@ -8,7 +8,6 @@
 #include <eq/net/packets.h>
 
 #include "commands.h"
-#include "config.h"
 
 namespace eq
 {
@@ -36,10 +35,12 @@ namespace eq
 
     struct ServerChooseConfigReplyPacket : public eqNet::NodePacket
     {
-        ServerChooseConfigReplyPacket()
+        ServerChooseConfigReplyPacket( const ServerChooseConfigPacket*
+                                       requestPacket )
             {
-                command = CMD_SERVER_CHOOSE_CONFIG_REPLY;
-                size    = sizeof( ServerChooseConfigReplyPacket );
+                command   = CMD_SERVER_CHOOSE_CONFIG_REPLY;
+                size      = sizeof( ServerChooseConfigReplyPacket );
+                requestID = requestPacket->requestID;
             }
         uint requestID;
         uint configID;
@@ -61,10 +62,10 @@ namespace eq
     //------------------------------------------------------------
     struct ConfigPacket : public eqNet::Packet
     {
-        ConfigPacket( Config* config )
+        ConfigPacket( const uint configID )
             {
                 datatype = DATATYPE_EQ_CONFIG; 
-                configID = config->getID();
+                this->configID = configID;
             }
         
         uint configID;
@@ -72,7 +73,7 @@ namespace eq
 
     struct ConfigInitPacket : public ConfigPacket
     {
-        ConfigInitPacket( Config* config ) : ConfigPacket( config )
+        ConfigInitPacket( const uint configID ) : ConfigPacket( configID )
             {
                 command   = CMD_CONFIG_INIT;
                 size      = sizeof( ConfigInitPacket );
@@ -82,10 +83,12 @@ namespace eq
 
     struct ConfigInitReplyPacket : public ConfigPacket
     {
-        ConfigInitReplyPacket( Config* config ) : ConfigPacket( config )
+        ConfigInitReplyPacket( const ConfigInitPacket* requestPacket )
+                : ConfigPacket( requestPacket->configID )
             {
                 command   = CMD_CONFIG_INIT_REPLY;
                 size      = sizeof( ConfigInitReplyPacket );
+                requestID = requestPacket->requestID;
             }
         uint requestID;
         bool result;
@@ -97,7 +100,8 @@ namespace eq
     {
         os << (eqNet::NodePacket*)packet << " req " << packet->requestID
            << " cmp modes " << packet->compoundModes << " appNameLength " 
-           << packet->appNameLength;
+           << packet->appNameLength << " renderClientLength "
+           << packet->renderClientLength;
         return os;
     }
 

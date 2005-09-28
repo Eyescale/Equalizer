@@ -353,9 +353,8 @@ void Node::_cmdMapSession( Node* node, const Packet* pkg )
     node->send( sessionPacket );
     session->pack( node );
 
-    NodeMapSessionReplyPacket replyPacket;
-    replyPacket.requestID = packet->requestID;
-    replyPacket.reply     = sessionID;
+    NodeMapSessionReplyPacket replyPacket( packet );
+    replyPacket.reply = sessionID;
     node->send(replyPacket);
 }
 

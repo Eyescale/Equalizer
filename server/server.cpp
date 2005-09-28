@@ -75,6 +75,7 @@ bool Server::_loadConfig( int argc, char **argv )
 
 void Server::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
 {
+    VERB << "handlePacket " << packet << endl;
     const uint datatype = packet->datatype;
 
     switch( datatype )
@@ -98,7 +99,7 @@ void Server::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
 
 void Server::handleCommand( eqNet::Node* node, const eqNet::NodePacket* packet )
 {
-    VERB << "handle " << packet << endl;
+    VERB << "handleCommand " << packet << endl;
     ASSERT( packet->command >= eqNet::CMD_NODE_CUSTOM );
 
     if( packet->command < eq::CMD_SERVER_ALL )
@@ -121,13 +122,12 @@ void Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
     node->recv( renderClient, packet->renderClientLength );
 
     INFO << "Handle choose config " << packet << " appName " << appName 
-         << " render client " << renderClient << endl;
+         << " renderClient " << renderClient << endl;
 
     // TODO
     Config* config = nConfigs()>0 ? getConfig(0) : NULL;
     
-    eq::ServerChooseConfigReplyPacket reply;
-    reply.requestID = packet->requestID;
+    eq::ServerChooseConfigReplyPacket reply( packet );
 
     if( config==NULL )
     {

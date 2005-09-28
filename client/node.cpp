@@ -5,6 +5,7 @@
 #include "node.h"
 
 #include "commands.h"
+#include "packets.h"
 #include "server.h"
 
 #include <eq/net/connection.h>
@@ -16,7 +17,7 @@ Node* Node::_localNode = new Node();
 
 void Node::handleCommand( eqNet::Node* node, const eqNet::NodePacket* packet )
 {
-    INFO << "handle " << packet << endl;
+    VERB << "handleCommand " << packet << endl;
 
     if( packet->command >= CMD_SERVER_ALL )
     {
@@ -24,13 +25,29 @@ void Node::handleCommand( eqNet::Node* node, const eqNet::NodePacket* packet )
         return;
     }
 
-    Server* server = dynamic_cast<Server*>(node);
-    if( !server )
-    {
-        ERROR << "Received server message from non-server node." << endl;
-        return;
-    }
+    ASSERT( dynamic_cast<Server*>(node) );
 
+    Server* server = static_cast<Server*>(node);
     server->handleCommand( packet );
+}
+
+void Node::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
+{
+    VERB << "handlePacket " << packet << endl;
+    const uint datatype = packet->datatype;
+
+    switch( datatype )
+    {
+        case DATATYPE_EQ_CONFIG:
+            ASSERT( dynamic_cast<Server*>(node) );
+
+            Server* server = static_cast<Server*>(node);
+            server->handlePacket( packet );
+            break;
+
+        default:
+            ERROR << "unimplemented" << endl;
+            abort();
+    }
 }
 

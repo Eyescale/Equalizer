@@ -18,10 +18,6 @@ HEADER_SRC = \
 	session.h \
 	uniPipeConnection.h
 
-HEADER_GEN = \
-	node.h \
-	session.h
-
 SOURCES = \
 	base.cpp \
 	connection.cpp \

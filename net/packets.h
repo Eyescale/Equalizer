@@ -73,10 +73,11 @@ namespace eqNet
 
     struct NodeMapSessionReplyPacket : public NodePacket
     {
-        NodeMapSessionReplyPacket() 
+        NodeMapSessionReplyPacket( const NodeMapSessionPacket* requestPacket ) 
             {
-                command  = CMD_NODE_MAP_SESSION_REPLY;
-                size     = sizeof( NodeMapSessionReplyPacket ); 
+                command   = CMD_NODE_MAP_SESSION_REPLY;
+                size      = sizeof( NodeMapSessionReplyPacket );
+                requestID = requestPacket->requestID;
             }
             
         uint requestID;
@@ -100,13 +101,17 @@ namespace eqNet
     //------------------------------------------------------------
     struct SessionPacket : public NodePacket
     {
-        SessionPacket(){ datatype = DATATYPE_EQNET_SESSION; }
+        SessionPacket( const uint sessionID )
+            {
+                datatype        = DATATYPE_EQNET_SESSION;
+                this->sessionID = sessionID;
+            }
         uint sessionID;
     };
 
     struct SessionNewUserPacket : public SessionPacket
     {
-        SessionNewUserPacket()
+        SessionNewUserPacket( const uint sessionID ) : SessionPacket(sessionID)
             {
                 command  = CMD_SESSION_NEW_USER;
                 size     = sizeof( SessionNewUserPacket ); 
@@ -119,7 +124,12 @@ namespace eqNet
     //------------------------------------------------------------
     struct UserPacket : public SessionPacket
     {
-        UserPacket(){ datatype = DATATYPE_EQNET_USER; }
+        UserPacket( const uint sessionID, const uint userID )
+                : SessionPacket( sessionID )
+            {
+                datatype     = DATATYPE_EQNET_USER; 
+                this->userID = userID;
+            }
         uint userID;
     };
 

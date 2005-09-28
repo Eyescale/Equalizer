@@ -8,17 +8,14 @@
 #include "config.h"
 
 #include <eq/packets.h>
-#include <eq/net/node.h>
-
-#include <iostream>
-#include <vector>
+#include <eq/net/base.h>
 
 namespace eqs
 {
     /**
      * The configuration when allocated by an application.
      */
-    class AppConfig : public Config
+    class AppConfig : public Config, public eqNet::Base
     {
     public:
         /** 
@@ -67,6 +64,12 @@ namespace eqs
 
         /** The name of the render client executable. */
         std::string _renderClient;
+
+        /** The command handler function table. */
+        void (eqs::AppConfig::*_cmdHandler[eq::CMD_CONFIG_ALL])
+            ( eqNet::Node* node, const eqNet::Packet* packet );
+
+        void _cmdInit( eqNet::Node* node, const eqNet::Packet* packet );
     };
 
     inline std::ostream& operator << ( std::ostream& os,const AppConfig* config)

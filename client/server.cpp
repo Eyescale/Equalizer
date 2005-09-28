@@ -104,11 +104,35 @@ void Server::releaseConfig( Config* config )
     delete config;
 }
 
+void Server::handlePacket( const eqNet::Packet* packet )
+{
+    VERB << "handlePacket " << packet << endl;
+    const uint datatype = packet->datatype;
+
+    switch( datatype )
+    {
+        case eq::DATATYPE_EQ_CONFIG:
+        {
+            const ConfigPacket* configPacket = (ConfigPacket*)packet;
+            const uint          configID     = configPacket->configID;
+            Config*             config       = _configs[configID];
+            ASSERT( config );
+
+            config->handleCommand( configPacket );
+        }
+        break;
+
+        default:
+            ERROR << "unimplemented" << endl;
+            abort();
+    }
+}
+
 void Server::handleCommand( const eqNet::NodePacket* packet )
 {
     INFO << "handle " << packet << endl;
     ASSERT( packet->command >= eqNet::CMD_NODE_CUSTOM );
-    ASSERT( packet->command < CMD_SERVER_ALL );
+    ASSERT( packet->command <  CMD_SERVER_ALL );
 
     (this->*_cmdHandler[packet->command - eqNet::CMD_NODE_CUSTOM])(packet);
 }
@@ -130,5 +154,7 @@ void Server::_cmdChooseConfigReply( const eqNet::Packet* pkg )
     }
     
     Config* config = new Config( packet->configID, this );
+
+    _configs[packet->configID] = config;
     _requestHandler.serveRequest( packet->requestID, config );
 }

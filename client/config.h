@@ -13,6 +13,7 @@
 
 namespace eq
 {
+    struct ConfigPacket;
     class Server;
 
     class Config
@@ -52,6 +53,13 @@ namespace eq
          */
         bool exit();
 
+        /** 
+         * Handles a command for this config.
+         * 
+         * @param packet the command packet.
+         */
+        void handleCommand( const ConfigPacket* packet );
+
     private:
         /** The identifier of this config. */
         const uint _id;
@@ -63,11 +71,11 @@ namespace eq
         eqBase::RequestHandler _requestHandler;
 
         /** The command handler function table. */
-        void (eq::Server::*_cmdHandler[CMD_CONFIG_ALL])
-            ( const eqNet::Packet* packet );
+        void (eq::Config::*_cmdHandler[CMD_CONFIG_ALL])
+            ( const ConfigPacket* packet );
 
-        void _cmdUnknown( const eqNet::Packet* packet );
-        //void _cmd( const eqNet::Packet* packet );
+        void _cmdUnknown( const ConfigPacket* packet );
+        void _cmdInitReply( const ConfigPacket* packet );
     };
 }
 
