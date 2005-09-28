@@ -4,8 +4,8 @@
 #include "session.h"
 #include "connection.h"
 #include "connectionDescription.h"
+#include "packets.h"
 #include "session.h"
-#include "sessionPackets.h"
 #include "user.h"
 
 #include <eq/base/log.h>
@@ -67,8 +67,8 @@ void Session::_cmdCreateUser( Node* node, const Packet* pkg )
 {
     ASSERT( _node->getState() == Node::STATE_LISTENING );
 
-    SessionCreateUserPacket* packet  = (SessionCreateUserPacket*)pkg;
-    INFO << "Cmd create user: " << packet << endl;
+    //SessionCreateUserPacket* packet  = (SessionCreateUserPacket*)pkg;
+    //INFO << "Cmd create user: " << packet << endl;
  
 }
 
