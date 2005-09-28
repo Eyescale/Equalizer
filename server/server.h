@@ -18,6 +18,7 @@
  */
 namespace eqs
 {
+    class AppConfig;
     class Config;
     class Node;
 
@@ -139,9 +140,14 @@ namespace eqs
         void _cmdReleaseConfig( eqNet::Node* node,
                                 const eqNet::Packet* packet );
 
+        /** The list of nodes. */
         std::vector<Node*>     _nodes;
+
+        /** The list of configurations. */
         std::vector<Config*>   _configs;
-        eqNet::IDHash<Config*> _appConfigs;
+
+        /** The application-allocated configurations, mapped by identifier. */
+        eqNet::IDHash<AppConfig*> _appConfigs;
     };
 
     inline std::ostream& operator << ( std::ostream& os, Server* server )

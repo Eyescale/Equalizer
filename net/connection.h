@@ -8,7 +8,7 @@
 #include <eq/base/base.h>
 #include <eq/base/referenced.h>
 
-#include "packet.h"
+#include "packets.h"
 
 #include <poll.h>
 #include <stdexcept>

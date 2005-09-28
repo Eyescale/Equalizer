@@ -25,13 +25,6 @@ namespace eqs
         Config();
 
         /** 
-         * Constructs a new deep copy of another config.
-         * 
-         * @param from the original config.
-         */
-        Config(const Config& from);
-
-        /** 
          * Adds a new window to this config.
          * 
          * @param window the window.
@@ -96,18 +89,19 @@ namespace eqs
         Compound* getCompound( const uint index ) const
             { return _compounds[index]; }
 
+    protected:
         /** 
-         * Sets the identifier of this config.
+         * Constructs a new deep copy of another config.
          * 
-         * @param id the identifier.
+         * @param from the original config.
          */
-        void setID( const uint id ) { _id = id; }
+        Config(const Config& from);
 
     private:
-        /** The identifier of this config. */
-        uint _id;
-
+        /** The list of compounds. */
         std::vector<Compound*> _compounds;
+
+        /** The list of windows. */
         std::vector<Window*>   _windows;
     };
 

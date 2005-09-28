@@ -7,17 +7,13 @@
 #include "compound.h"
 #include "window.h"
 
-#include <eq/net/global.h>
-
 using namespace eqs;
 
 Config::Config()
-        : _id(INVALID_ID)
 {
 }
 
 Config::Config(const Config& from)
-        : _id(INVALID_ID)
 {
     const uint nCompounds = from.nCompounds();
     for( uint i=0; i<nCompounds; i++ )

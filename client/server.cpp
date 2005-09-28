@@ -80,12 +80,14 @@ Config* Server::chooseConfig( const ConfigParams* parameters )
         return NULL;
 
     ServerChooseConfigPacket packet;
-    packet.requestID     = _requestHandler.registerRequest();
-    packet.appNameLength = parameters->appName.size() + 1;
-    packet.compoundModes = parameters->compoundModes;
+    packet.requestID          = _requestHandler.registerRequest();
+    packet.appNameLength      = parameters->appName.size() + 1;
+    packet.renderClientLength = parameters->renderClient.size() + 1;
+    packet.compoundModes      = parameters->compoundModes;
 
     send( packet );
-    send( parameters->appName.c_str(), packet.appNameLength );
+    send( parameters->appName.c_str(),      packet.appNameLength );
+    send( parameters->renderClient.c_str(), packet.renderClientLength );
 
     const void* result = _requestHandler.waitRequest( packet.requestID );
     return (Config*)result;
@@ -127,6 +129,6 @@ void Server::_cmdChooseConfigReply( const eqNet::Packet* pkg )
         return;
     }
     
-    Config* config = new Config( packet->configID );
+    Config* config = new Config( packet->configID, this );
     _requestHandler.serveRequest( packet->requestID, config );
 }

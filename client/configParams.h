@@ -26,6 +26,7 @@ namespace eq
         ConfigParams& operator = ( const ConfigParams& rhs );
 
         std::string appName;
+        std::string renderClient;
         uint        compoundModes;
     private:
     };

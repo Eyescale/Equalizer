@@ -29,8 +29,8 @@ int main( int argc, char** argv )
 
     //config->setWindowInitCB(...);
 
-//     if( !config->init( ))
-//         DIE("Config initialisation failed.");
+    if( !config->init( ))
+        DIE("Config initialisation failed.");
     
 //     while( running )
 //     {
@@ -44,7 +44,7 @@ int main( int argc, char** argv )
 //         // process events
 //     }
 
-//     server.exitConfig( config );
+    config->exit();
     server.releaseConfig( config );
     server.close();
     eq::exit();

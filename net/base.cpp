@@ -5,7 +5,7 @@
 #include "base.h"
 
 #include "node.h"
-#include "packet.h"
+#include "packets.h"
 
 #include <eq/base/log.h>
 

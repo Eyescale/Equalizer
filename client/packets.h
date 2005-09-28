@@ -5,12 +5,18 @@
 #ifndef EQ_PACKETS_H
 #define EQ_PACKETS_H
 
-#include <eq/net/packet.h>
+#include <eq/net/packets.h>
 
 #include "commands.h"
+#include "config.h"
 
 namespace eq
 {
+    enum 
+    {
+        DATATYPE_EQ_CONFIG = eqNet::DATATYPE_CUSTOM
+    };
+
     //------------------------------------------------------------
     // Server
     //------------------------------------------------------------
@@ -24,6 +30,7 @@ namespace eq
 
         uint requestID;
         uint appNameLength;
+        uint renderClientLength;
         uint compoundModes;
     };
 
@@ -48,6 +55,42 @@ namespace eq
 
         uint configID;
     };
+
+    //------------------------------------------------------------
+    // Config
+    //------------------------------------------------------------
+    struct ConfigPacket : public eqNet::Packet
+    {
+        ConfigPacket( Config* config )
+            {
+                datatype = DATATYPE_EQ_CONFIG; 
+                configID = config->getID();
+            }
+        
+        uint configID;
+    };
+
+    struct ConfigInitPacket : public ConfigPacket
+    {
+        ConfigInitPacket( Config* config ) : ConfigPacket( config )
+            {
+                command   = CMD_CONFIG_INIT;
+                size      = sizeof( ConfigInitPacket );
+            }
+        uint requestID;
+    };
+
+    struct ConfigInitReplyPacket : public ConfigPacket
+    {
+        ConfigInitReplyPacket( Config* config ) : ConfigPacket( config )
+            {
+                command   = CMD_CONFIG_INIT_REPLY;
+                size      = sizeof( ConfigInitReplyPacket );
+            }
+        uint requestID;
+        bool result;
+    };
+
 
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ServerChooseConfigPacket* packet )

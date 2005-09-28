@@ -11,7 +11,8 @@ using namespace std;
 
 ConfigParams::ConfigParams()
 {
-    appName = eqNet::Global::getProgramName();
+    appName      = eqNet::Global::getProgramName();
+    renderClient = appName;
     compoundModes = 
         COMPOUND_MODE_2D    | 
         COMPOUND_MODE_DPLEX |
@@ -25,6 +26,7 @@ ConfigParams& ConfigParams::operator = ( const ConfigParams& rhs )
         return *this;
  
     appName       = rhs.appName;
+    renderClient  = rhs.renderClient;
     compoundModes = rhs.compoundModes;
     return *this;
 }

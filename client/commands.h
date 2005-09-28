@@ -5,6 +5,8 @@
 #ifndef EQ_COMMANDS_H
 #define EQ_COMMANDS_H
 
+#include <eq/net/commands.h>
+
 namespace eq
 {
     enum ServerCommand
@@ -13,6 +15,13 @@ namespace eq
         CMD_SERVER_CHOOSE_CONFIG_REPLY,
         CMD_SERVER_RELEASE_CONFIG,
         CMD_SERVER_ALL
+    };
+
+    enum ConfigCommand
+    {
+        CMD_CONFIG_INIT,
+        CMD_CONFIG_INIT_REPLY,
+        CMD_CONFIG_ALL
     };
 };
 

@@ -13,7 +13,6 @@
 #include "global.h"
 #include "idHash.h"
 #include "node.h"
-#include "packet.h"
 
 namespace eqNet
 {

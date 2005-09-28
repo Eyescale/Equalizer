@@ -13,7 +13,7 @@ HEADER_SRC = \
 	idHash.h \
 	message.h \
 	node.h \
-	packet.h \
+	packets.h \
 	pipeConnection.h \
 	session.h \
 	uniPipeConnection.h

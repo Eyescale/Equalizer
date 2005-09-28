@@ -6,8 +6,7 @@
 
 #include "connectionSet.h"
 #include "global.h"
-#include "nodePackets.h"
-#include "packet.h"
+#include "packets.h"
 #include "pipeConnection.h"
 #include "session.h"
 

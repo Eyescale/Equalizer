@@ -4,6 +4,7 @@
 
 #include "server.h"
 
+#include "appConfig.h"
 #include "config.h"
 #include "node.h"
 
@@ -74,6 +75,25 @@ bool Server::_loadConfig( int argc, char **argv )
 
 void Server::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
 {
+    const uint datatype = packet->datatype;
+
+    switch( datatype )
+    {
+        case eq::DATATYPE_EQ_CONFIG:
+        {
+            const eq::ConfigPacket* configPacket = (eq::ConfigPacket*)packet;
+            const uint              configID     = configPacket->configID;
+            AppConfig*              config       = _appConfigs[configID];
+            ASSERT( config );
+
+            config->handleCommand( node, configPacket );
+        }
+        break;
+
+        default:
+            ERROR << "unimplemented" << endl;
+            abort();
+    }
 }
 
 void Server::handleCommand( eqNet::Node* node, const eqNet::NodePacket* packet )
@@ -92,10 +112,16 @@ void Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     eq::ServerChooseConfigPacket* packet = (eq::ServerChooseConfigPacket*)pkg;
     ASSERT( packet->appNameLength );
+    ASSERT( packet->renderClientLength );
 
     char* appName = (char*)alloca(packet->appNameLength);
     node->recv( appName, packet->appNameLength );
-    INFO << "Handle choose config " << packet << " appName " << appName << endl;
+
+    char* renderClient = (char*)alloca(packet->renderClientLength);
+    node->recv( renderClient, packet->renderClientLength );
+
+    INFO << "Handle choose config " << packet << " appName " << appName 
+         << " render client " << renderClient << endl;
 
     // TODO
     Config* config = nConfigs()>0 ? getConfig(0) : NULL;
@@ -110,11 +136,14 @@ void Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
         return;
     }
 
-    Config* appConfig = new Config( *config );
-
     reply.configID = _configID++;
 
+    AppConfig* appConfig = new AppConfig( *config );
+
     appConfig->setID( reply.configID );
+    appConfig->setAppName( appName );
+    appConfig->setRenderClient( renderClient );
+
     _appConfigs[reply.configID] = appConfig;
     node->send( reply );
 }
@@ -124,7 +153,7 @@ void Server::_cmdReleaseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
     eq::ServerReleaseConfigPacket* packet = (eq::ServerReleaseConfigPacket*)pkg;
     INFO << "Handle release config " << packet << endl;
 
-    Config* appConfig = _appConfigs[packet->configID];
+    AppConfig* appConfig = _appConfigs[packet->configID];
     if( !appConfig )
     {
         WARN << "Release request for unknown config" << endl;

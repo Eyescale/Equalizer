@@ -65,11 +65,16 @@ namespace eq
          */
         void    releaseConfig( Config* config );
 
-    protected:
+        /** 
+         * Handles a command for this server.
+         * 
+         * @param packet the command packet.
+         */
         void handleCommand( const eqNet::NodePacket* packet );
 
     private:
-        enum State {
+        enum State 
+        {
             STATE_STOPPED,
             STATE_OPENED
         };
@@ -82,7 +87,7 @@ namespace eq
         void _cmdUnknown( const eqNet::Packet* packet );
         void _cmdChooseConfigReply( const eqNet::Packet* packet );
         
-        friend class eq::Node;
+        //friend class eq::Node;
     };
 }
 
