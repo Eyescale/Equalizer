@@ -24,8 +24,10 @@ SA_CXXFLAGS += -L$(SAMPLE_LIB_DIR) -leqserver
 
 CLEAN = $(PROGRAMS)
 
-all:  $(HEADERS) $(DYNAMIC_LIB) $(STATIC_LIB) $(PROGRAMS)
+all: $(PROGRAMS)
 
-eqs: $(HEADERS) $(DYNAMIC_LIB) $(STATIC_LIB)
+$(PROGRAMS): $(HEADERS) $(DYNAMIC_LIB) $(STATIC_LIB)
+$(STATIC_LIB): $(SAMPLE_LIB_DIR)/libeqnet.a
+$(DYNAMIC_LIB): $(SAMPLE_LIB_DIR)/libeqnet.a
 
 include $(TOP)/make/rules.mk

@@ -33,10 +33,8 @@ ifdef VARIANT
 	@mkdir -p $(LIBRARY_DIR)
 	$(CXX) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) $(INT_LDFLAGS) -o $@
 else
-	@for variant in $(VARIANTS); do \
-		echo "$(MAKE) VARIANT=$$variant TOP=$(TOP) dlib";  \
-		$(MAKE) VARIANT=$$variant TOP=$(TOP) dlib;  \
-	done
+	$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).$(DSO_SUFFIX)=%) \
+		TOP=$(TOP) $@
 endif
 
 slib: $(STATIC_LIB)
@@ -46,10 +44,7 @@ ifdef VARIANT
 	@rm -f $@
 	$(AR) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) $(INT_LDFLAGS) -o $@
 else
-	@for variant in $(VARIANTS); do \
-		echo "$(MAKE) VARIANT=$$variant TOP=$(TOP) slib";  \
-		$(MAKE) VARIANT=$$variant TOP=$(TOP) slib;  \
-	done
+	$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).a=%) TOP=$(TOP) $@
 endif
 
 OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))

@@ -22,7 +22,7 @@ LDFLAGS += -leqnet
 
 all: $(HEADERS) $(STATIC_LIB) $(DYNAMIC_LIB)
 
-#$(STATIC_LIB): $(LIBRARY_DIR)/libeqnet.a
-#gd$(DYNAMIC_LIB): $(LIBRARY_DIR)/libeqnet.a
+$(STATIC_LIB): $(SAMPLE_LIB_DIR)/libeqnet.a
+$(DYNAMIC_LIB): $(SAMPLE_LIB_DIR)/libeqnet.a
 
 include $(TOP)/make/rules.mk
