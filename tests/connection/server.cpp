@@ -1,4 +1,5 @@
 
+#include <test.h>
 #include <eq/net/connection.h>
 #include <eq/net/connectionDescription.h>
 
@@ -15,9 +16,9 @@ int main( int argc, char **argv )
     Connection *connection = Connection::create(TYPE_TCPIP);
 
     ConnectionDescription connDesc;
-    connDesc.hostname = "localhost";
+    //connDesc.hostname = "localhost";
     connDesc.parameters.TCPIP.port = 4242;
-    connection->listen(connDesc);
+    TEST( connection->listen( connDesc ));
 
     Connection *client = connection->accept();
     cerr << "Server accepted connection" << endl;
@@ -27,7 +28,7 @@ int main( int argc, char **argv )
     while( client->recv( &c, 1 ))
     {
         cerr << "Server recv: " << c << endl;
-        client->send( &c, 1 );
+        TEST( client->send( &c, 1 ) == 1 );
     }
 
     return EXIT_SUCCESS;

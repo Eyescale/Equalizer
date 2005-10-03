@@ -94,6 +94,21 @@ namespace eqBase
          */
         Type getType() { return _type; }
 
+        /** 
+         * Sets a thread-specific data for the current thread.
+         * 
+         * @param data the thread-specific data.
+         */
+        static void setSpecific( void* data );
+
+        /** 
+         * Gets the thread-specific data for the current thread.
+         * 
+         * 
+         * @return the thread-specific data.
+         */
+        static void* getSpecific();
+
     private:
         /** The current state of this thread. */
         enum State
@@ -113,14 +128,17 @@ namespace eqBase
             pthread_t pthread;
             pid_t     fork;
         };
- 
-        ThreadID _threadID;
-        ssize_t  _retVal;
+
+        ThreadID             _threadID;
+        ssize_t              _retVal;
+        static pthread_key_t _dataKey;
+        static bool          _dataKeyCreated;
 
         static void* runChild( void* arg );
         void        _runChild();
 
-        ThreadID _getLocalThreadID();
+        ThreadID    _getLocalThreadID();
+        static bool _createDataKey();
     };
 }
 

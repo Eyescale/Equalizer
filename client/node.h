@@ -12,13 +12,6 @@ namespace eq
     class Node : public eqNet::Node
     {
     public:
-        /** 
-         * Returns the local node instance.
-
-         * @return the local node instance.
-         */
-        static Node* getLocalNode() { return _localNode; }
-
     protected:
         /** 
          * @sa eqNet::Node::handlePacket
@@ -31,9 +24,7 @@ namespace eq
          */
         virtual void handleCommand( eqNet::Node* node, 
                                     const eqNet::NodePacket* packet );
-
     private:
-        static Node* _localNode;
     };
 }
 

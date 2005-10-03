@@ -53,7 +53,7 @@ bool Server::open( const string& address )
     if( !connection->connect( connDesc ))
         return false;
 
-    eq::Node* localNode = eq::Node::getLocalNode();
+    eqNet::Node* localNode = Node::getLocalNode();
     if( !localNode->connect( this, connection ))
         return false;
 

@@ -32,7 +32,7 @@ bool eq::initLocalNode( int argc, char** argv )
     if( !connection->listen( connDesc ))
         return false;
 
-    Node* localNode = Node::getLocalNode();
+    eqNet::Node* localNode = Node::getLocalNode();
     return localNode->listen( connection );
 }
 
@@ -47,7 +47,7 @@ bool eq::exit()
 
 bool eq::exitLocalNode()
 {
-    Node* localNode = Node::getLocalNode();
+    eqNet::Node* localNode = Node::getLocalNode();
     if( !localNode->stopListening( ))
         return false;
 

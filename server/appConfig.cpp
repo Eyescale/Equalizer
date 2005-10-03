@@ -33,7 +33,7 @@ void AppConfig::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     const eq::ConfigInitPacket* packet = (eq::ConfigInitPacket*)pkg;
     eq::ConfigInitReplyPacket   reply( packet );
-    VERB << "handle config init " << packet << endl;
+    INFO << "handle config init " << packet << endl;
 
     // TODO
     reply.result = false;

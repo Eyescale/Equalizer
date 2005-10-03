@@ -62,13 +62,17 @@ void Server::handleDisconnect( Node* node )
     const bool disconnected = disconnect( node );
     ASSERT( disconnected );
 
-    // TODO: free up resources requested by this node
+    // TODO: free up resources requested by disconnected node
 }
 
 bool Server::_loadConfig( int argc, char **argv )
 {
     // TODO
     Config* config = new Config();
+
+    Node* node = new Node();
+    
+    //config->addNode( node );
     addConfig( config );
     return true;
 }

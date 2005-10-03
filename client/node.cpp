@@ -13,8 +13,6 @@
 using namespace eq;
 using namespace std;
 
-Node* Node::_localNode = new Node();
-
 void Node::handleCommand( eqNet::Node* node, const eqNet::NodePacket* packet )
 {
     VERB << "handleCommand " << packet << endl;

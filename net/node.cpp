@@ -50,6 +50,10 @@ bool Node::listen( RefPtr<Connection> connection )
 
     // run the receiver thread
     start();
+
+    if( !getLocalNode( ))
+        setLocalNode( this );
+
     INFO << this << " listening" << endl;
     return true;
 }
@@ -106,7 +110,8 @@ bool Node::_listenToSelf()
 bool Node::connect( Node* node, RefPtr<Connection> connection )
 {
     if( !node || _state != STATE_LISTENING ||
-        connection->getState() != Connection::STATE_CONNECTED )
+        connection->getState() != Connection::STATE_CONNECTED ||
+        node->_state != STATE_STOPPED )
         return false;
 
     node->_connection = connection;
@@ -191,6 +196,9 @@ bool Node::mapSession( Node* server, Session* session, const std::string& name )
 ssize_t Node::run()
 {
     INFO << "Receiver started" << endl;
+
+    if( !getLocalNode( ))
+        setLocalNode( this );
 
     while( _state == STATE_LISTENING )
     {

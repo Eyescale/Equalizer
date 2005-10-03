@@ -1,4 +1,5 @@
 
+#include <test.h>
 #include <eq/net/connection.h>
 #include <eq/net/connectionDescription.h>
 #include <eq/net/global.h>
@@ -18,14 +19,14 @@ int main( int argc, char **argv )
     ConnectionDescription connDesc;
     connDesc.hostname = "localhost";
     connDesc.parameters.TCPIP.port = 4242;
-    connection->connect(connDesc);
+    TEST( connection->connect( connDesc ));
 
-    const char message[] = "buh!";
-    int nChars = strlen( message ) + 1;
-    const char *response = (const char*)alloca( nChars );
+    const char   message[] = "buh!";
+    const uint64 nChars    = strlen( message ) + 1;
+    const char  *response  = (const char*)alloca( nChars );
 
-    connection->send( message, nChars );
-    connection->recv( response, nChars );
+    TEST( connection->send( message, nChars ) == nChars );
+    TEST( connection->recv( response, nChars ) == nChars );
     cerr << "Client recv: " << response << endl;
     connection->close();
 

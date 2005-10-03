@@ -14,6 +14,9 @@
 using namespace eqBase;
 using namespace std;
 
+pthread_key_t Thread::_dataKey;
+bool          Thread::_dataKeyCreated;
+
 Thread::Thread( const Type type )
         : _type(type),
           _threadState(STATE_STOPPED)
@@ -85,7 +88,6 @@ bool Thread::start()
     {
         case PTHREAD:
         {
-            pthread_t      pthread;
             pthread_attr_t attributes;
             pthread_attr_init( &attributes );
             pthread_attr_setscope( &attributes, PTHREAD_SCOPE_SYSTEM );
@@ -93,10 +95,14 @@ bool Thread::start()
             int nTries = 10;
             while( nTries-- )
             {
-                const int error = pthread_create( &pthread, &attributes,
-                                                  runChild, this );
+                const int error = pthread_create( &_threadID.pthread,
+                                                  &attributes, runChild, this );
+
                 if( error == 0 ) // succeeded
+                {
+                    VERB << "Created pthread " << _threadID.pthread << endl;
                     break;
+                }
                 if( error != EAGAIN || nTries==0 )
                 {
                     WARN << "Could not create thread: " << strerror( error )
@@ -113,7 +119,7 @@ bool Thread::start()
             switch( result )
             {
                 case 0: // child
-                    INFO << "Child running" << endl;
+                    VERB << "Child running" << endl;
                     _runChild(); 
                     return true; // not reached
             
@@ -123,7 +129,7 @@ bool Thread::start()
                     return false;
 
                 default: // parent
-                    INFO << "Parent running" << endl;
+                    VERB << "Parent running" << endl;
                     _threadID.fork = result;
                     break;
             }
@@ -141,7 +147,7 @@ void Thread::exit( ssize_t retVal )
     if( _threadState == STATE_STOPPED )
         return;
 
-    INFO << "Exiting this thread" << endl;
+    INFO << "Exiting thread" << endl;
     _lock->unset();
 
     switch( _type )
@@ -167,7 +173,8 @@ bool Thread::join( ssize_t* retVal )
     {
         case PTHREAD:
         {
-            const int error = pthread_join( _threadID.pthread, (void**)_retVal);
+            VERB << "Joining pthread " << _threadID.pthread << endl;
+            const int error = pthread_join( _threadID.pthread, 0 );//(void**)_retVal);
             if( error != 0 )
             {
                 WARN << "Error joining the thread: " << strerror(error) << endl;
@@ -230,4 +237,49 @@ Thread::ThreadID Thread::_getLocalThreadID()
     }
 
     return threadID;
+}
+
+bool Thread::_createDataKey()
+{
+    int nTries = 10;
+
+    while( !_dataKeyCreated && nTries-- )
+    {
+        int result = pthread_key_create( &_dataKey, NULL );
+        if( result == 0 ) // success
+        {
+            _dataKeyCreated = true;
+            return true;
+        }
+
+        switch( result )
+        {            
+            case EAGAIN: // try again
+                break;
+
+            default:
+                ERROR << "Can't create thread-specific data key: "
+                      << strerror( result ) << endl;
+                return false;
+        }
+    }
+
+    ERROR << "Can't create thread-specific data key." << endl;
+    return false;
+}
+
+void Thread::setSpecific( void* data )
+{
+    if( !_dataKeyCreated && !_createDataKey( ))
+        return;
+
+    pthread_setspecific( _dataKey, data );
+}
+
+void* Thread::getSpecific()
+{
+    if( !_dataKeyCreated && !_createDataKey( ))
+        return NULL;
+
+    return pthread_getspecific( _dataKey );
 }

@@ -61,6 +61,26 @@ namespace eqNet
         bool listen( eqBase::RefPtr<Connection> connection = NULL );
 
         /** 
+         * Sets the local node for this thread.
+         * 
+         * The local node is the listening node to which newly opened nodes
+         * will be connected. It is thread-specific and will be set by default
+         * the first listening node of this thread.
+         *
+         * @param node the local node for this thread.
+         * @sa addConnectionDescription, send
+         */
+        void setLocalNode( Node* node ){ Thread::setSpecific( node ); }
+
+        /** 
+         * Returns the local node for this thread.
+         *
+         * @return the local node for this thread.
+         * @sa setLocalNode
+         */
+        static Node* getLocalNode() { return (Node*)Thread::getSpecific(); }
+
+        /** 
          * Stops this node.
          * 
          * If this node is listening, the node will stop listening and terminate
@@ -218,7 +238,6 @@ namespace eqNet
 
         /** Registers request packets waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
-
 
         /** 
          * Handles a custom packet which has been received by this node.
