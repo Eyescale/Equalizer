@@ -19,9 +19,9 @@ namespace eqNet
     public:
         SocketConnection();
 
-        virtual bool connect( const eqNet::ConnectionDescription& desc );
+        virtual bool connect(eqBase::RefPtr<ConnectionDescription> description);
 
-        virtual bool listen( eqNet::ConnectionDescription &description );
+        virtual bool listen( eqBase::RefPtr<ConnectionDescription> description);
         virtual Connection* accept();
 
         virtual void close();
@@ -33,7 +33,7 @@ namespace eqNet
 
     private:
         bool _createSocket();
-        void _parseAddress( const ConnectionDescription &description, 
+        void _parseAddress( eqBase::RefPtr<ConnectionDescription> description, 
                             sockaddr_in& socketAddress );
     };
 }

@@ -14,7 +14,11 @@
 // type definitions
 #ifndef ushort
 typedef unsigned short ushort;
-#endif // uint64
+#endif // ushort
+
+#ifndef uint32
+typedef uint32_t uint32;
+#endif // uint32
 
 #ifndef uint64
 typedef uint64_t uint64;

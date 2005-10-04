@@ -9,7 +9,6 @@
 
 namespace eqNet
 {
-    struct ConnectionDescription;
 
     /**
      * A generic file descriptor-based connection, to be subclassed.

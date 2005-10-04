@@ -19,8 +19,9 @@
 
 namespace eqNet
 {
-    class Session;
+    class ConnectionDescription;
     class Packet;
+    class Session;
 
     /**
      * Manages a node.
@@ -45,6 +46,21 @@ namespace eqNet
         Node();
 
         /** 
+         * Returns the state of this node.
+         * 
+         * @return the state of this node.
+         */
+        State getState(){ return _state; }
+
+
+        /**
+         * @name State Changes
+         *
+         * The following methods affect the state of the node by changing it's
+         * connectivity to the network.
+         */
+        //*{
+        /** 
          * Initializes this node.
          *
          * The node will spawn a thread locally and listen on the connection for
@@ -59,26 +75,6 @@ namespace eqNet
          * @sa connect
          */
         bool listen( eqBase::RefPtr<Connection> connection = NULL );
-
-        /** 
-         * Sets the local node for this thread.
-         * 
-         * The local node is the listening node to which newly opened nodes
-         * will be connected. It is thread-specific and will be set by default
-         * the first listening node of this thread.
-         *
-         * @param node the local node for this thread.
-         * @sa addConnectionDescription, send
-         */
-        void setLocalNode( Node* node ){ Thread::setSpecific( node ); }
-
-        /** 
-         * Returns the local node for this thread.
-         *
-         * @return the local node for this thread.
-         * @sa setLocalNode
-         */
-        static Node* getLocalNode() { return (Node*)Thread::getSpecific(); }
 
         /** 
          * Stops this node.
@@ -109,13 +105,64 @@ namespace eqNet
          *         <code>false</code> otherwise.
          */
         bool disconnect( Node* node );
+        //*}
+
+
+        /**
+         * @name Connectivity information. 
+         */
+        //*{
+        /** 
+         * Sets the local node for this thread.
+         * 
+         * The local node is the listening node to which newly opened nodes
+         * will be connected. It is thread-specific and will be set by default
+         * the first listening node of this thread.
+         *
+         * @param node the local node for this thread.
+         * @sa addConnectionDescription, send
+         */
+        void setLocalNode( Node* node ){ Thread::setSpecific( node ); }
 
         /** 
-         * Returns the state of this node.
-         * 
-         * @return the state of this node.
+         * Returns the local node for this thread.
+         *
+         * @return the local node for this thread.
+         * @sa setLocalNode
          */
-        State getState(){ return _state; }
+        static Node* getLocalNode() { return (Node*)Thread::getSpecific(); }
+
+        /** 
+         * Adds a new description how this node can be reached.
+         * 
+         * @param cd the connection description.
+         */
+        void addConnectionDescription(eqBase::RefPtr<ConnectionDescription> cd);
+        
+        /** 
+         * Removes a connection description.
+         * 
+         * @param index the index of the connection description.
+         */
+        void removeConnectionDescription( const uint32 index );
+
+        /** 
+         * Returns the number of stored connection descriptions. 
+         * 
+         * @return the number of stored connection descriptions. 
+         */
+        uint32 nConnectionDescriptions() const;
+
+        /** 
+         * Returns a connection description.
+         * 
+         * @param index the index of the connection description.
+         * @return the connection description.
+         */
+        eqBase::RefPtr<ConnectionDescription> getConnectionDescription(
+            const uint32 index );
+        //*}
+
 
         /**
          * @name Messaging API
@@ -238,6 +285,9 @@ namespace eqNet
 
         /** Registers request packets waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
+
+        /** Determines if the node should be launched automatically. */
+        bool _autoLaunch;
 
         /** 
          * Handles a custom packet which has been received by this node.

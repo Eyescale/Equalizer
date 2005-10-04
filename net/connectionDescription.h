@@ -6,6 +6,7 @@
 #define EQNET_CONNECTION_DESCRIPTION_H
 
 #include <eq/base/base.h>
+#include <eq/base/referenced.h>
 #include <strings.h>
 #include <sys/param.h>
 
@@ -25,8 +26,9 @@ namespace eqNet
      *
      * @sa Node
      */
-    struct ConnectionDescription
+    class ConnectionDescription : public eqBase::Referenced
     {
+    public:
         ConnectionDescription() 
                 : type( TYPE_TCPIP ),
                   bandwidthKBS( 0 )
@@ -39,7 +41,7 @@ namespace eqNet
 
         /** The bandwidth in kilobyte per second for this connection. */
         uint64 bandwidthKBS;
-    
+
         /** 
          * The command to spawn a new process on the node, e.g., 
          * "ssh eile@node1", can be <code>NULL</code>.
@@ -78,6 +80,9 @@ namespace eqNet
             {
             } PIPE;
         } parameters;
+
+    protected:
+        ~ConnectionDescription() {}
     };
 
     /** 

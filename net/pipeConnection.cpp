@@ -38,7 +38,7 @@ PipeConnection::~PipeConnection()
 //----------------------------------------------------------------------
 // connect
 //----------------------------------------------------------------------
-bool PipeConnection::connect( const ConnectionDescription &description )
+bool PipeConnection::connect( eqBase::RefPtr<ConnectionDescription> description)
 {
     if( _state != STATE_CLOSED )
         return false;

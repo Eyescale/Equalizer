@@ -7,6 +7,7 @@
 
 #include <eq/base/base.h>
 #include <eq/base/referenced.h>
+#include <eq/base/refPtr.h>
 
 #include "packets.h"
 
@@ -16,8 +17,8 @@
 
 namespace eqNet
 {
-    struct ConnectionDescription;
-    enum   ConnectionType;
+    class ConnectionDescription;
+    enum  ConnectionType;
 
 #   define DEFAULT_PORT 4242
 
@@ -57,7 +58,7 @@ namespace eqNet
          * @return <code>true</code> if the connection was successfully
          *         connected, <code>false</code> if not.
          */
-        virtual bool connect( const eqNet::ConnectionDescription& desc )
+        virtual bool connect( eqBase::RefPtr<ConnectionDescription> desc )
             { return false; }
         
         /** 
@@ -67,7 +68,7 @@ namespace eqNet
          * @return <code>true</code> if the connection is listening for new
          *         incoming connections, <code>false</code> if not.
          */
-        virtual bool listen( eqNet::ConnectionDescription& description)
+        virtual bool listen( eqBase::RefPtr<ConnectionDescription> description)
             { return false; }
 
         /** 

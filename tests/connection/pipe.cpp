@@ -46,7 +46,7 @@ int main( int argc, char **argv )
 
     RefPtr<Connection> connection = Connection::create(TYPE_PIPE);
 
-    ConnectionDescription connDesc;
+    eqBase::RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
     if( !connection->connect( connDesc ))
         exit( EXIT_FAILURE );
 

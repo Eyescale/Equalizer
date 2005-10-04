@@ -32,7 +32,8 @@ SocketConnection::~SocketConnection()
 //----------------------------------------------------------------------
 // connect
 //----------------------------------------------------------------------
-bool SocketConnection::connect( const ConnectionDescription &description )
+bool SocketConnection::connect( 
+    eqBase::RefPtr<ConnectionDescription> description )
 {
     if( _state != STATE_CLOSED )
         return false;
@@ -54,8 +55,8 @@ bool SocketConnection::connect( const ConnectionDescription &description )
         _state = STATE_CONNECTED;
     else
     {
-        WARN << "Could not connect to '" << description.hostname << ":" 
-             << description.parameters.TCPIP.port << "': " << strerror( errno ) 
+        WARN << "Could not connect to '" << description->hostname << ":" 
+             << description->parameters.TCPIP.port << "': " << strerror( errno ) 
              << endl;
         close();
     }
@@ -95,16 +96,17 @@ void SocketConnection::close()
     _state   = STATE_CLOSED;
 }
 
-void SocketConnection::_parseAddress( const ConnectionDescription &description, 
+void SocketConnection::_parseAddress( 
+    eqBase::RefPtr<ConnectionDescription> description,
     sockaddr_in& socketAddress )
 {
     socketAddress.sin_family = AF_INET;
     socketAddress.sin_addr.s_addr = htonl( INADDR_ANY );
-    socketAddress.sin_port = htons( description.parameters.TCPIP.port );
+    socketAddress.sin_port = htons( description->parameters.TCPIP.port );
 
-    if( !description.hostname.empty( ))
+    if( !description->hostname.empty( ))
     {
-        hostent *hptr = gethostbyname( description.hostname.c_str() );
+        hostent *hptr = gethostbyname( description->hostname.c_str() );
         if( hptr )
             memcpy(&socketAddress.sin_addr.s_addr, hptr->h_addr,hptr->h_length);
     }
@@ -119,7 +121,7 @@ void SocketConnection::_parseAddress( const ConnectionDescription &description,
 //----------------------------------------------------------------------
 // listen
 //----------------------------------------------------------------------
-bool SocketConnection::listen(ConnectionDescription &description)
+bool SocketConnection::listen(eqBase::RefPtr<ConnectionDescription> description)
 {
     if( _state != STATE_CLOSED )
         return false;
@@ -184,9 +186,9 @@ Connection* SocketConnection::accept()
 //     ConnectionDescription description;
 //     char                  address[15+1+5+1];
 
-//     description.protocol      = Network::PROTO_TCPIP;
-//     description.bandwidthKBS  = _description.bandwidthKBS;
-//     description.parameters.TCPIP.address = address;
+//     description->protocol      = Network::PROTO_TCPIP;
+//     description->bandwidthKBS  = _description->bandwidthKBS;
+//     description->parameters.TCPIP.address = address;
 
 //     sprintf( address, "%s:%d", inet_ntoa(newAddress.sin_addr),
 //         newAddress.sin_port );
@@ -198,7 +200,7 @@ Connection* SocketConnection::accept()
     //TODO: newConnection->launchCommand
 
 //     INFO << "accepted connection from "
-//          << newConnection->_description.parameters.TCPIP.address << endl;
+//          << newConnection->_description->parameters.TCPIP.address << endl;
 
     return newConnection;
 }

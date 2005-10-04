@@ -16,9 +16,9 @@ int main( int argc, char **argv )
 
     Connection *connection = Connection::create( TYPE_TCPIP );
 
-    ConnectionDescription connDesc;
-    connDesc.hostname = "localhost";
-    connDesc.parameters.TCPIP.port = 4242;
+    eqBase::RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
+    connDesc->hostname = "localhost";
+    connDesc->parameters.TCPIP.port = 4242;
     TEST( connection->connect( connDesc ));
 
     const char   message[] = "buh!";

@@ -28,7 +28,8 @@ UniPipeConnection::~UniPipeConnection()
 //----------------------------------------------------------------------
 // connect
 //----------------------------------------------------------------------
-bool UniPipeConnection::connect( const ConnectionDescription &description )
+bool UniPipeConnection::connect( 
+    eqBase::RefPtr<ConnectionDescription> description )
 {
     if( _state != STATE_CLOSED )
         return false;

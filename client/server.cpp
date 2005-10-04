@@ -35,20 +35,22 @@ bool Server::open( const string& address )
     RefPtr<eqNet::Connection> connection =
         eqNet::Connection::create(eqNet::TYPE_TCPIP);
 
-    eqNet::ConnectionDescription connDesc;
+    RefPtr<eqNet::ConnectionDescription> connDesc = 
+        new eqNet::ConnectionDescription;
+
     const size_t colonPos = address.rfind( ':' );
 
     if( colonPos == string::npos )
-        connDesc.hostname = address;
+        connDesc->hostname = address;
     else
     {
-        connDesc.hostname = address.substr( 0, colonPos );
+        connDesc->hostname = address.substr( 0, colonPos );
         string port = address.substr( colonPos+1 );
-        connDesc.parameters.TCPIP.port = atoi( port.c_str( ));
+        connDesc->parameters.TCPIP.port = atoi( port.c_str( ));
     }
 
-    if( !connDesc.parameters.TCPIP.port )
-        connDesc.parameters.TCPIP.port = 4242;
+    if( !connDesc->parameters.TCPIP.port )
+        connDesc->parameters.TCPIP.port = 4242;
 
     if( !connection->connect( connDesc ))
         return false;

@@ -93,7 +93,7 @@ bool Node::_listenToSelf()
 {
     // setup local connection to myself
     _connection = Connection::create(TYPE_UNI_PIPE);
-    ConnectionDescription connDesc;
+    eqBase::RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
     if( !_connection->connect( connDesc ))
     {
         ERROR << "Could not create pipe() connection to receiver thread."

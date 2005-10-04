@@ -15,9 +15,9 @@ int main( int argc, char **argv )
 
     Connection *connection = Connection::create(TYPE_TCPIP);
 
-    ConnectionDescription connDesc;
+    eqBase::RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
     //connDesc.hostname = "localhost";
-    connDesc.parameters.TCPIP.port = 4242;
+    connDesc->parameters.TCPIP.port = 4242;
     TEST( connection->listen( connDesc ));
 
     Connection *client = connection->accept();

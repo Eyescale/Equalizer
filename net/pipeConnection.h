@@ -20,7 +20,7 @@ namespace eqNet
     public:
         PipeConnection();
 
-        virtual bool connect( const ConnectionDescription &description );
+        virtual bool connect(eqBase::RefPtr<ConnectionDescription> description);
         virtual void close();
 
         /** 

@@ -35,14 +35,16 @@ bool Server::run( int argc, char **argv )
 
     RefPtr<eqNet::Connection> connection =
         eqNet::Connection::create(eqNet::TYPE_TCPIP);
-    eqNet::ConnectionDescription connDesc;
+    RefPtr<eqNet::ConnectionDescription> connDesc = 
+        new eqNet::ConnectionDescription;
 
-    connDesc.parameters.TCPIP.port = 4242;
+    connDesc->parameters.TCPIP.port = 4242;
     if( !connection->listen( connDesc ))
         return false;
 
     if( !listen( connection ))
         return false;
+
     join();
     return true;
 }

@@ -9,6 +9,7 @@
 #include <eq/net/global.h>
 
 using namespace eq;
+using namespace eqBase;
 using namespace std;
 
 namespace eq
@@ -25,9 +26,10 @@ bool eq::init( int argc, char** argv )
 
 bool eq::initLocalNode( int argc, char** argv )
 {
-    eqBase::RefPtr<eqNet::Connection> connection =
+    RefPtr<eqNet::Connection> connection =
         eqNet::Connection::create(eqNet::TYPE_TCPIP);
-    eqNet::ConnectionDescription connDesc;
+    RefPtr<eqNet::ConnectionDescription> connDesc = 
+        new eqNet::ConnectionDescription;
 
     if( !connection->listen( connDesc ))
         return false;
