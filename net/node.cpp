@@ -6,6 +6,7 @@
 
 #include "connectionSet.h"
 #include "global.h"
+#include "launcher.h"
 #include "packets.h"
 #include "pipeConnection.h"
 #include "session.h"
@@ -157,10 +158,10 @@ uint64 Node::_getMessageSize( const MessageType type, const uint64 count )
 
 bool Node::send( const MessageType type, const void *ptr, const uint64 count )
 {
-    ASSERT( _state == STATE_CONNECTED ); // TODO: local send
     NodeMessagePacket packet;
     packet.type = type;
     packet.nElements = count;
+
     if( !send( packet ))
         return false;
 
@@ -397,12 +398,88 @@ Session* Node::_findSession( const std::string& name ) const
     return NULL;
 }
 
-// void Node::launch( const std::string& options )
-// {
-//     ASSERT( _state == STATE_STOPPED );
-//     const std::string& launchCommand = _createLaunchCommand( node, options );
-//     ASSERT( launchCommand );
+bool Node::_connect()
+{
+    if( _state==STATE_CONNECTED || _state==STATE_LISTENING )
+        return true;
 
-//     Launcher::run( launchCommand );
-//     _state = NODE_LAUNCHED;
-// }
+    Node* localNode = Node::getLocalNode();
+    if( !localNode )
+        return false;
+
+    const size_t nDescriptions = nConnectionDescriptions();
+    for( size_t i=0; i<nDescriptions; i++ )
+    {
+        RefPtr<ConnectionDescription> description = getConnectionDescription(i);
+        RefPtr<Connection> connection = Connection::create( description->type );
+        
+        if( connection->connect( description ))
+            return localNode->connect( this, connection );
+    }
+
+    if( !_autoLaunch )
+        return false;
+
+    for( size_t i=0; i<nDescriptions; i++ )
+    {
+        RefPtr<ConnectionDescription> description = getConnectionDescription(i);
+        RefPtr<Connection> connection = Connection::create( description->type );
+        
+        _launch( description );
+
+        // while( !timeout )
+        if( connection->connect( description ))
+            return localNode->connect( this, connection );
+    }
+
+    return false;
+}
+
+void Node::_launch( RefPtr<ConnectionDescription> description )
+{
+    ASSERT( _state == STATE_STOPPED );
+    const std::string launchCommand = _createLaunchCommand( description );
+
+    Launcher::run( launchCommand );
+}
+
+string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description )
+{
+    const string& launchCommand    = description->launchCommand;
+    const size_t  launchCommandLen = launchCommand.size();
+    bool          commandFound     = false;
+    size_t        lastPos          = 0;
+    string        result;
+
+    for( size_t percentPos = launchCommand.find( '%' );
+         percentPos != string::npos; 
+         percentPos = launchCommand.find( '%', percentPos+1 ))
+    {
+        string replacement;
+        switch( launchCommand[percentPos+1] )
+        {
+            case 'c':
+                replacement = Global::getProgramName();
+                commandFound = true;
+                break;
+            default:
+                WARN << "Unknown token " << launchCommand[percentPos+1] << endl;
+        }
+
+        if( replacement.size() > 0 )
+        {
+            result += launchCommand.substr( lastPos, percentPos-lastPos-1 );
+            result += replacement;
+        }
+        else
+            result += launchCommand.substr( lastPos, percentPos-lastPos );
+    }
+
+    result += launchCommand.substr( lastPos, launchCommandLen-lastPos );
+
+    if( !commandFound )
+        result += " " + Global::getProgramName();
+
+    INFO << "Launch command: " << result << endl;
+    return result;
+}

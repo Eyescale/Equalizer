@@ -35,6 +35,7 @@ SocketConnection::~SocketConnection()
 bool SocketConnection::connect( 
     eqBase::RefPtr<ConnectionDescription> description )
 {
+    ASSERT( description->type == TYPE_TCPIP );
     if( _state != STATE_CLOSED )
         return false;
 

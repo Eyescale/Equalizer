@@ -137,7 +137,8 @@ namespace eqNet
          * 
          * @param cd the connection description.
          */
-        void addConnectionDescription(eqBase::RefPtr<ConnectionDescription> cd);
+        void addConnectionDescription(eqBase::RefPtr<ConnectionDescription> cd)
+            { _connectionDescriptions.push_back( cd ); }
         
         /** 
          * Removes a connection description.
@@ -151,7 +152,8 @@ namespace eqNet
          * 
          * @return the number of stored connection descriptions. 
          */
-        uint32 nConnectionDescriptions() const;
+        uint32 nConnectionDescriptions() const 
+            { return _connectionDescriptions.size(); }
 
         /** 
          * Returns a connection description.
@@ -160,7 +162,8 @@ namespace eqNet
          * @return the connection description.
          */
         eqBase::RefPtr<ConnectionDescription> getConnectionDescription(
-            const uint32 index );
+            const uint32 index )
+            { return _connectionDescriptions[index]; }
         //*}
 
 
@@ -190,8 +193,11 @@ namespace eqNet
          */
         bool send( const Packet& packet )
             {
-                ASSERT( _state==STATE_CONNECTED || _state==STATE_LISTENING );
-                ASSERT( _connection.isValid() );
+                if( _state==STATE_STOPPED )
+                    _connect();
+                if( _state!=STATE_CONNECTED && _state!=STATE_LISTENING )
+                    return false;
+
                 const uint64 sent = _connection->send( packet );
                 return ( sent==packet.size );
             }
@@ -208,7 +214,9 @@ namespace eqNet
          */
         bool send( const void* data, const uint64 size )
             {
-                ASSERT( _state==STATE_CONNECTED || _state==STATE_LISTENING );
+                if( !_checkConnection() )
+                    return false;
+
                 const uint64 sent = _connection->send( data, size );
                 return ( sent==size );
             }
@@ -289,6 +297,10 @@ namespace eqNet
         /** Determines if the node should be launched automatically. */
         bool _autoLaunch;
 
+        /** The list of descriptions on how this node is reachable. */
+        std::vector< eqBase::RefPtr<ConnectionDescription> >
+            _connectionDescriptions;
+
         /** 
          * Handles a custom packet which has been received by this node.
          * 
@@ -339,6 +351,51 @@ namespace eqNet
         Session* _findSession( const std::string& name ) const;
 
         bool _listenToSelf();
+
+        /** 
+         * Ensures the connectivity of this node.
+         * 
+         * If the node is not connected, the available connection descriptions
+         * are used to connect the node. 
+         *
+         * @return <code>true</code> if this node is connected,
+         *         <code>false</code> otherwise.
+         */
+        bool _checkConnection()
+            {
+                if( _state==STATE_CONNECTED || _state==STATE_LISTENING )
+                    return true;
+                if( _state==STATE_STOPPED )
+                    return _connect();
+                return false;
+            }
+
+        /** 
+         * Connects this node according to the available connection
+         * descriptions.
+         *
+         * @return <code>true</code> if this node is connected,
+         *         <code>false</code> otherwise.
+         */
+        bool _connect();
+
+        /** 
+         * Launches the node using the parameters from the connection
+         * description.
+         * 
+         * @param description the connection description.
+         */
+        void _launch( eqBase::RefPtr<ConnectionDescription> description );
+
+        /** 
+         * Composes the launch command by expanding the variables in the
+         * description's launch command string.
+         * 
+         * @param description the connection description.
+         * @return the expanded launch command.
+         */
+        std::string _createLaunchCommand( eqBase::RefPtr<ConnectionDescription> 
+                                          description );
 
         /** The receiver thread entry function for this node. */
         virtual ssize_t run();

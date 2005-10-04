@@ -1,4 +1,6 @@
 
+#include <test.h>
+
 #include <eq/base/lock.h>
 #include <eq/net/connection.h>
 #include <eq/net/node.h>
@@ -30,8 +32,7 @@ class Server : public Node
 protected:
     virtual void handleCommand( Node* node, const NodePacket* pkg )
         {
-            if( pkg->command != CMD_NODE_CUSTOM )
-                return;
+            TEST( pkg->command == CMD_NODE_CUSTOM );
 
             DataPacket* packet = (DataPacket*)pkg;
 
@@ -54,8 +55,8 @@ public:
         {
             DataPacket packet;
             packet.nBytes = strlen(string)+1;
-            toNode->send( packet );
-            toNode->send( string, packet.nBytes );
+            TEST( toNode->send( packet ));
+            TEST( toNode->send( string, packet.nBytes ));
         }
 };
 
@@ -66,28 +67,22 @@ int main( int argc, char **argv )
     lock.set();
     Server server;
 
-    Connection *connection = Connection::create(TYPE_TCPIP);
-    ConnectionDescription connDesc;
-    //connDesc.hostname = "benjy";
-    connDesc.parameters.TCPIP.port = 4242;
+    RefPtr<Connection> connection = Connection::create(TYPE_TCPIP);
+    RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
+    connDesc->type = eqNet::TYPE_TCPIP;
+    //connDesc->hostname = "benjy";
+    connDesc->parameters.TCPIP.port = 4242;
 
-    if( !connection->listen( connDesc ))
-        exit( EXIT_FAILURE );
-    if( !server.listen( connection ))
-        exit( EXIT_FAILURE );
-    
-    connection = Connection::create(TYPE_TCPIP);
-    connDesc.hostname = "localhost";
-    if( !connection->connect( connDesc ))
-        exit( EXIT_FAILURE );
+    TEST( connection->listen( connDesc ));
+    TEST( server.listen( connection ));
 
     Client client;
-    if( !client.listen( connection ))
-        exit( EXIT_FAILURE );
+    TEST( client.listen( ));
 
     Node serverProxy;
-    if( !client.connect( &serverProxy, connection ))
-        exit( EXIT_FAILURE );
+
+    connDesc->hostname = "localhost";
+    serverProxy.addConnectionDescription( connDesc );
 
     const char message[] = "Don't Panic!";
     client.send( &serverProxy, message );

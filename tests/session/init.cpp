@@ -6,6 +6,7 @@
 
 #include <iostream>
 
+using namespace eqBase;
 using namespace eqNet;
 using namespace std;
 
@@ -17,7 +18,7 @@ int main( int argc, char **argv )
     eqBase::RefPtr<Connection> connection =
         (PipeConnection*)Connection::create(TYPE_PIPE);
 
-    ConnectionDescription connDesc;
+    RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
     if( !connection->connect( connDesc ))
         exit( EXIT_FAILURE );
 
