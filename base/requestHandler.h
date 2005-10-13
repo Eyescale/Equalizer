@@ -7,8 +7,8 @@
 
 #include "base.h"
 #include "hash.h"
-#include "lock.h"
 #include "thread.h"
+#include "timedLock.h"
 
 #include <list>
 
@@ -48,12 +48,18 @@ namespace eqBase
         uint registerRequest( void* data=NULL );
 
         /** 
-         * Waits for the completion of a request and retrieves the result.
+         * Waits a given time for the completion of a request and retrieves the
+         * result. 
          * 
          * @param requestID the request identifier.
-         * @return the result of the request.
+         * @param timeout the timeout in milliseconds to wait for the request,
+         *                or <code>EQ_TIMEOUT_INDEFINITE</code> to wait
+         *                indefinitely.
+         * @return the result of the request, or <code>NULL</code> if the
+         *         request timed out or the requestID is invalid.
          */
-        void* waitRequest( const uint requestID );
+        void* waitRequest( const uint requestID, 
+                           const uint timeout = EQ_TIMEOUT_INDEFINITE );
 
         /** 
          * Retrieves the user-specific data for a request.
@@ -78,14 +84,14 @@ namespace eqBase
         {
             Request( Thread::Type type )
                 {
-                    lock = new Lock( type );
+                    lock = new TimedLock( type );
                     lock->set();
                 }
             ~Request(){ delete lock; }
-
-            Lock* lock;
-            void* data;
-            void* result;
+            
+            TimedLock* lock;
+            void*      data;
+            void*      result;
         };
         
         uint                          _requestID;

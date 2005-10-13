@@ -8,7 +8,8 @@ SOURCES = \
 	lock.cpp \
 	log.cpp \
 	requestHandler.cpp \
-	thread.cpp
+	thread.cpp \
+	timedLock.cpp
 
 all: $(HEADERS) $(STATIC_LIB)
 

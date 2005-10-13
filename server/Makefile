@@ -3,7 +3,6 @@ include $(TOP)/make/system.mk
 
 PROGRAMS   = eqs
 HEADER_SRC = \
-	appConfig.h \
 	channel.h \
 	config.h \
 	node.h \
@@ -12,10 +11,10 @@ HEADER_SRC = \
 	window.h
 
 SOURCES = \
-	appConfig.cpp \
 	channel.cpp \
 	config.cpp \
 	compound.cpp \
+	pipe.cpp \
 	server.cpp \
 	window.cpp
 

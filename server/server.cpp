@@ -4,7 +4,6 @@
 
 #include "server.h"
 
-#include "appConfig.h"
 #include "config.h"
 #include "node.h"
 
@@ -72,9 +71,9 @@ bool Server::_loadConfig( int argc, char **argv )
     // TODO
     Config* config = new Config();
 
-    Node* node = new Node();
-    
+    //Node* node = new Node();
     //config->addNode( node );
+
     addConfig( config );
     return true;
 }
@@ -90,7 +89,7 @@ void Server::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
         {
             const eq::ConfigPacket* configPacket = (eq::ConfigPacket*)packet;
             const uint              configID     = configPacket->configID;
-            AppConfig*              config       = _appConfigs[configID];
+            Config*                 config       = _appConfigs[configID];
             ASSERT( config );
 
             config->handleCommand( node, configPacket );
@@ -144,7 +143,7 @@ void Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
 
     reply.configID = _configID++;
 
-    AppConfig* appConfig = new AppConfig( *config );
+    Config* appConfig = config->clone();
 
     appConfig->setID( reply.configID );
     appConfig->setAppName( appName );
@@ -159,13 +158,13 @@ void Server::_cmdReleaseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
     eq::ServerReleaseConfigPacket* packet = (eq::ServerReleaseConfigPacket*)pkg;
     INFO << "Handle release config " << packet << endl;
 
-    AppConfig* appConfig = _appConfigs[packet->configID];
-    if( !appConfig )
+    Config* config = _appConfigs[packet->configID];
+    if( !config )
     {
         WARN << "Release request for unknown config" << endl;
         return;
     }
 
     _appConfigs.erase( packet->configID );
-    delete appConfig;
+    delete config;
 }

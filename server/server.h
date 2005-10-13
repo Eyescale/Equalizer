@@ -18,7 +18,6 @@
  */
 namespace eqs
 {
-    class AppConfig;
     class Config;
     class Node;
 
@@ -146,7 +145,7 @@ namespace eqs
         std::vector<Config*>   _configs;
 
         /** The application-allocated configurations, mapped by identifier. */
-        eqNet::IDHash<AppConfig*> _appConfigs;
+        eqNet::IDHash<Config*> _appConfigs;
     };
 
     inline std::ostream& operator << ( std::ostream& os, Server* server )

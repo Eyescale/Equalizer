@@ -51,6 +51,12 @@ namespace eqNet
          */
         std::string launchCommand; 
 
+        /** 
+         * The amount of time in milliseconds to wait before a node is
+         * considered unreachable during start.
+         */
+        uint launchTimeout;
+
         /** The host name. */
         std::string hostname;
 
@@ -63,11 +69,6 @@ namespace eqNet
                 /** The listening port. */
                 ushort port;
 
-                /** 
-                 * The amount of time in milliseconds to wait before a node is
-                 * considered unreachable during start.
-                 */
-                int launchTimeout;
             } TCPIP;
             
             /** MPI parameters */

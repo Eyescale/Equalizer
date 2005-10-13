@@ -5,16 +5,42 @@
 #include "window.h"
 
 #include "channel.h"
+#include "pipe.h"
 
 using namespace eqs;
 
 
-Window::Window(const Window& from)
+Window::Window()
+        : _used(0),
+          _pipe(NULL)
 {
-    const uint nChannels = from.nChannels();
+}
+
+Window* Window::clone() const
+{
+    Window* clone = new Window();
+
+    const uint nChannels = this->nChannels();
     for( uint i=0; i<nChannels; i++ )
     {
-        Channel* channel = from.getChannel(i);
-        _channels.push_back( new Channel( *channel ));
+        Channel* channel      = getChannel(i);
+        Channel* channelClone = channel->clone();
+
+        channelClone->_window = clone;
+        clone->_channels.push_back( channelClone );
     }
+    return clone;
+}
+
+void Window::refUsed()
+{
+    _used++;
+    if( _pipe ) 
+        _pipe->refUsed(); 
+}
+void Window::unrefUsed()
+{
+    _used--;
+    if( _pipe ) 
+        _pipe->unrefUsed(); 
 }

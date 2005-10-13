@@ -384,18 +384,22 @@ namespace eqNet
          * description.
          * 
          * @param description the connection description.
+         * @return the request identifier used by the launched node when
+         *         connecting to this node.
          */
-        void _launch( eqBase::RefPtr<ConnectionDescription> description );
+        uint _launch( eqBase::RefPtr<ConnectionDescription> description );
 
         /** 
          * Composes the launch command by expanding the variables in the
          * description's launch command string.
          * 
          * @param description the connection description.
+         * @param requestID the request identifier to be used by the launched
+         *                  node when connecting to this node.
          * @return the expanded launch command.
          */
         std::string _createLaunchCommand( eqBase::RefPtr<ConnectionDescription> 
-                                          description );
+                                          description, const uint requestID );
 
         /** The receiver thread entry function for this node. */
         virtual ssize_t run();

@@ -10,6 +10,8 @@
 
 namespace eqs
 {
+    class Window;
+
     /**
      * The channel.
      */
@@ -19,14 +21,40 @@ namespace eqs
         /** 
          * Constructs a new Channel.
          */
-        Channel(); 
+        Channel();
 
         /** 
-         * Constructs a new deep copy of another channel.
+         * Clones this channel
          * 
-         * @param from the original channel.
+         * @return the cloned channel.
          */
-        Channel(const Channel& from);
+        Channel* clone();
+
+        /** 
+         * References this window as being actively used.
+         */
+        void refUsed();
+
+        /** 
+         * Unreferences this window as being actively used.
+         */
+        void unrefUsed();
+
+        /** 
+         * Returns if this window is actively used.
+         *
+         * @return <code>true</code> if this window is actively used,
+         *         <code>false</code> if not.
+         */
+        bool isUsed() const { return (_used!=0); }
+
+    private:
+        /** Number of entitities actively using this channel. */
+        uint _used;
+
+        /** The parent window. */
+        Window* _window;
+        friend class Window;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Channel* channel)

@@ -22,7 +22,7 @@ namespace eqs
         /** 
          * Constructs a new Node.
          */
-        Node();
+        Node() : _used(0) {}
 
         /** 
          * Adds a new pipe to this node.
@@ -55,8 +55,30 @@ namespace eqs
          */
         Pipe* getPipe( const uint index ) const { return _pipes[index]; }
 
+        /** 
+         * References this node as being actively used.
+         */
+        void refUsed(){ _used++; }
+
+        /** 
+         * Unreferences this node as being actively used.
+         */
+        void unrefUsed(){ _used--; }
+
+        /** 
+         * Returns if this node is actively used.
+         *
+         * @return <code>true</code> if this node is actively used,
+         *         <code>false</code> if not.
+         */
+        bool isUsed() const { return (_used!=0); }
+
     private:
+        /** The vector of pipes belonging to this node. */
         std::vector<Pipe*> _pipes;
+
+        /** Number of entitities actively using this channel. */
+        uint _used;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Node* node )

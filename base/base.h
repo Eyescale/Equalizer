@@ -28,6 +28,10 @@ typedef uint64_t uint64;
 typedef int socklen_t;
 #endif
 
+// defines
+#define EQ_TIMEOUT_INDEFINITE 0
+
+// assertions
 #ifdef NDEBUG
 #  define ASSERT(x) if( !(x) ) ERROR << "Assert: " << #x << endl;
 #else

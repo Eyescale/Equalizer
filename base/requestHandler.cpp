@@ -39,13 +39,15 @@ uint RequestHandler::registerRequest( void* data )
     return requestID;
 }
 
-void* RequestHandler::waitRequest( const uint requestID )
+void* RequestHandler::waitRequest( const uint requestID, const uint timeout )
 {
     Request* request = _requests[requestID];
     if( !request )
         return NULL;
 
-    request->lock->set();
+    if( !request->lock->set( timeout ))
+        return false;
+
     void* result = request->result;
 
     _requests.erase( requestID );

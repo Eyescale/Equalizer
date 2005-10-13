@@ -398,6 +398,9 @@ Session* Node::_findSession( const std::string& name ) const
     return NULL;
 }
 
+//----------------------------------------------------------------------
+// Connecting and launching a node
+//----------------------------------------------------------------------
 bool Node::_connect()
 {
     if( _state==STATE_CONNECTED || _state==STATE_LISTENING )
@@ -407,6 +410,7 @@ bool Node::_connect()
     if( !localNode )
         return false;
 
+    // try connection first
     const size_t nDescriptions = nConnectionDescriptions();
     for( size_t i=0; i<nDescriptions; i++ )
     {
@@ -419,31 +423,33 @@ bool Node::_connect()
 
     if( !_autoLaunch )
         return false;
-
+    
+    // try to launch and connect node
     for( size_t i=0; i<nDescriptions; i++ )
     {
         RefPtr<ConnectionDescription> description = getConnectionDescription(i);
-        RefPtr<Connection> connection = Connection::create( description->type );
-        
-        _launch( description );
-
-        // while( !timeout )
-        if( connection->connect( description ))
-            return localNode->connect( this, connection );
+        const uint requestID = _launch( description );
+        return (bool)_requestHandler.waitRequest( requestID, 
+                                                  description->launchTimeout );
     }
 
     return false;
 }
 
-void Node::_launch( RefPtr<ConnectionDescription> description )
+uint Node::_launch( RefPtr<ConnectionDescription> description )
 {
     ASSERT( _state == STATE_STOPPED );
-    const std::string launchCommand = _createLaunchCommand( description );
+
+    const uint        requestID     = _requestHandler.registerRequest();
+    const std::string launchCommand = _createLaunchCommand( description, 
+                                                            requestID );
 
     Launcher::run( launchCommand );
+    return requestID;
 }
 
-string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description )
+string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description,
+                                   const uint requestID )
 {
     const string& launchCommand    = description->launchCommand;
     const size_t  launchCommandLen = launchCommand.size();
@@ -459,7 +465,8 @@ string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description )
         switch( launchCommand[percentPos+1] )
         {
             case 'c':
-                replacement = Global::getProgramName();
+                replacement  = Global::getProgramName();
+                //replacement += " --eq-contact " + _connection->requestID;
                 commandFound = true;
                 break;
             default:

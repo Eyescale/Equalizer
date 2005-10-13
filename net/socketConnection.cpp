@@ -191,17 +191,13 @@ Connection* SocketConnection::accept()
 //     description->bandwidthKBS  = _description->bandwidthKBS;
 //     description->parameters.TCPIP.address = address;
 
-//     sprintf( address, "%s:%d", inet_ntoa(newAddress.sin_addr),
-//         newAddress.sin_port );
-
     SocketConnection* newConnection = new SocketConnection();
     newConnection->_readFD  = fd;
     newConnection->_writeFD = fd;
     newConnection->_state   = STATE_CONNECTED;
-    //TODO: newConnection->launchCommand
 
-//     INFO << "accepted connection from "
-//          << newConnection->_description->parameters.TCPIP.address << endl;
+    INFO << "accepted connection from "
+         << inet_ntoa(newAddress.sin_addr) << ":" << newAddress.sin_port <<endl;
 
     return newConnection;
 }

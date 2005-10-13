@@ -34,7 +34,7 @@ bool eq::initLocalNode( int argc, char** argv )
     if( !connection->listen( connDesc ))
         return false;
 
-    eqNet::Node* localNode = Node::getLocalNode();
+    Node* localNode = new Node();
     return localNode->listen( connection );
 }
 

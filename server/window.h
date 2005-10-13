@@ -11,6 +11,7 @@
 namespace eqs
 {
     class Channel;
+    class Pipe;
 
     /**
      * The window.
@@ -24,11 +25,11 @@ namespace eqs
         Window();
 
         /** 
-         * Constructs a new deep copy of another window.
+         * Clones this window.
          * 
-         * @param from the original window.
+         * @return the cloned window.
          */
-        Window(const Window& from);
+        Window* clone() const;
 
         /** 
          * Adds a new channel to this window.
@@ -62,8 +63,33 @@ namespace eqs
         Channel* getChannel( const uint index ) const
             { return _channels[index]; }
 
+        /** 
+         * References this window as being actively used.
+         */
+        void refUsed();
+
+        /** 
+         * Unreferences this window as being actively used.
+         */
+        void unrefUsed();
+
+        /** 
+         * Returns if this window is actively used.
+         *
+         * @return <code>true</code> if this window is actively used,
+         *         <code>false</code> if not.
+         */
+        bool isUsed() const { return (_used!=0); }
+
     private:
         std::vector<Channel*> _channels;
+
+        /** Number of entitities actively using this window. */
+        uint _used;
+
+        /** The parent pipe. */
+        Pipe* _pipe;
+        friend class Pipe;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Window* window )

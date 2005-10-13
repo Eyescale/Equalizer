@@ -5,18 +5,22 @@
 #ifndef EQS_CONFIG_H
 #define EQS_CONFIG_H
 
+#include <eq/packets.h>
+#include <eq/net/base.h>
+#include <eq/net/node.h>
+
 #include <iostream>
 #include <vector>
 
 namespace eqs
 {
     class Compound;
-    class Window;
+    class Node;
 
     /**
      * The config.
      */
-    class Config
+    class Config : public eqNet::Base
     {
     public:
         /** 
@@ -25,36 +29,43 @@ namespace eqs
         Config();
 
         /** 
-         * Adds a new window to this config.
+         * Clones this config.
          * 
-         * @param window the window.
+         * @return A clone of this config.
          */
-        void addWindow( Window* window ){ _windows.push_back( window ); }
+        Config *clone();
 
         /** 
-         * Removes a window from this config.
+         * Adds a new node to this config.
          * 
-         * @param window the window
-         * @return <code>true</code> if the window was removed, 
+         * @param node the node.
+         */
+        void addNode( Node* node ){ _nodes.push_back( node ); }
+
+        /** 
+         * Removes a node from this config.
+         * 
+         * @param node the node
+         * @return <code>true</code> if the node was removed, 
          *         <code>false</code> otherwise.
          */
-        bool removeWindow( Window* window );
+        bool removeNode( Node* node );
 
         /** 
-         * Returns the number of windows on this config.
+         * Returns the number of nodes on this config.
          * 
-         * @return the number of windows on this config. 
+         * @return the number of nodes on this config. 
          */
-        uint nWindows() const { return _windows.size(); }
+        uint nNodes() const { return _nodes.size(); }
 
         /** 
-         * Gets a window.
+         * Gets a node.
          * 
-         * @param index the window's index. 
-         * @return the window.
+         * @param index the node's index. 
+         * @return the node.
          */
-        Window* getWindow( const uint index ) const
-            { return _windows[index]; }
+        Node* getNode( const uint index ) const
+            { return _nodes[index]; }
 
         /** 
          * Adds a new compound to this config.
@@ -89,20 +100,60 @@ namespace eqs
         Compound* getCompound( const uint index ) const
             { return _compounds[index]; }
 
-    protected:
         /** 
-         * Constructs a new deep copy of another config.
+         * Sets the identifier of this configuration.
          * 
-         * @param from the original config.
+         * @param id the identifier.
          */
-        Config(const Config& from);
+        void setID( const uint id ) { _id = id; }
+
+        /** 
+         * Sets the name of the application.
+         * 
+         * @param name the name of the application.
+         */
+        void setAppName( const std::string& name )  { _appName = name; }
+        
+        /** 
+         * Sets the name of the render client executable.
+         * 
+         * @param rc the name of the render client executable.
+         */
+        void setRenderClient( const std::string rc ){ _renderClient = rc; }
+
+        /** 
+         * Handles the received command packet.
+         * 
+         * @param node the sending node.
+         * @param packet the config command packet.
+         */
+        void handleCommand( eqNet::Node* node,
+                            const eq::ConfigPacket* packet );
 
     private:
         /** The list of compounds. */
         std::vector<Compound*> _compounds;
 
-        /** The list of windows. */
-        std::vector<Window*>   _windows;
+        /** The list of nodes. */
+        std::vector<Node*>   _nodes;
+
+        /** The identifier of this configuration. */
+        uint _id;
+
+        /** The name of the application. */
+        std::string _appName;
+
+        /** The name of the render client executable. */
+        std::string _renderClient;
+
+        /** The command handler function table. */
+        void (eqs::Config::*_cmdHandler[eq::CMD_CONFIG_ALL])
+            ( eqNet::Node* node, const eqNet::Packet* packet );
+
+        void _cmdInit( eqNet::Node* node, const eqNet::Packet* packet );
+
+        //--------------------------------------------------
+        bool _init();
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Config* config )
@@ -113,13 +164,13 @@ namespace eqs
             return os;
         }
 
-        const uint nWindows = config->nWindows();
+        const uint nNodes     = config->nNodes();
         const uint nCompounds = config->nCompounds();
-        os << "config " << (void*)config << " " << nWindows << " windows "
+        os << "config " << (void*)config << " " << nNodes << " nodes "
            << nCompounds << " compounds";
 
-        for( uint i=0; i<nWindows; i++ )
-            os << std::endl << "    " << config->getWindow(i);
+        for( uint i=0; i<nNodes; i++ )
+            os << std::endl << "    " << config->getNode(i);
 
         for( uint i=0; i<nCompounds; i++ )
             os << std::endl << "    " << config->getCompound(i);
