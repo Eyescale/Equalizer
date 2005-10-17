@@ -25,18 +25,11 @@ namespace eqs
         Window();
 
         /** 
-         * Clones this window.
-         * 
-         * @return the cloned window.
-         */
-        Window* clone() const;
-
-        /** 
          * Adds a new channel to this window.
          * 
          * @param channel the channel.
          */
-        void addChannel( Channel* channel ){ _channels.push_back( channel ); }
+        void addChannel( Channel* channel );
 
         /** 
          * Removes a channel from this window.
@@ -92,20 +85,6 @@ namespace eqs
         friend class Pipe;
     };
 
-    inline std::ostream& operator << ( std::ostream& os, const Window* window )
-    {
-        if( !window )
-        {
-            os << "NULL window";
-            return os;
-        }
-
-        const uint nChannels = window->nChannels();
-        os << "window " << (void*)window << " " << nChannels << " channels";
-        for( uint i=0; i<nChannels; i++ )
-            os << std::endl << "    " << window->getChannel(i);
-
-        return os;
-    }
+    std::ostream& operator << ( std::ostream& os, const Window* window );
 };
 #endif // EQS_WINDOW_H

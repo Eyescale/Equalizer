@@ -16,20 +16,10 @@ Window::Window()
 {
 }
 
-Window* Window::clone() const
+void Window::addChannel( Channel* channel )
 {
-    Window* clone = new Window();
-
-    const uint nChannels = this->nChannels();
-    for( uint i=0; i<nChannels; i++ )
-    {
-        Channel* channel      = getChannel(i);
-        Channel* channelClone = channel->clone();
-
-        channelClone->_window = clone;
-        clone->_channels.push_back( channelClone );
-    }
-    return clone;
+    _channels.push_back( channel ); 
+    channel->_window = this; 
 }
 
 void Window::refUsed()
@@ -43,4 +33,23 @@ void Window::unrefUsed()
     _used--;
     if( _pipe ) 
         _pipe->unrefUsed(); 
+}
+
+std::ostream& eqs::operator << ( std::ostream& os, const Window* window )
+{
+    if( !window )
+    {
+        os << "NULL window";
+        return os;
+    }
+    
+    const uint nChannels = window->nChannels();
+    os << "window " << (void*)window
+       << ( window->isUsed() ? " used " : " unused " ) << nChannels
+       << " channels";
+    
+    for( uint i=0; i<nChannels; i++ )
+        os << std::endl << "    " << window->getChannel(i);
+    
+    return os;
 }

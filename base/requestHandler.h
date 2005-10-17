@@ -48,8 +48,18 @@ namespace eqBase
         uint registerRequest( void* data=NULL );
 
         /** 
-         * Waits a given time for the completion of a request and retrieves the
-         * result. 
+         * Unregisters a request.
+         *
+         * Note that waitRequest() automatically unregisters the request when it
+         * was successful.
+         * 
+         * @param requestID the request identifier.
+         */
+        void unregisterRequest( const uint requestID );
+
+        /** 
+         * Waits a given time for the completion of a request, unregister it and
+         * retrieve the result if successful. 
          * 
          * @param requestID the request identifier.
          * @param timeout the timeout in milliseconds to wait for the request,

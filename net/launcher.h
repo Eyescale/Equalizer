@@ -13,7 +13,7 @@ namespace eqNet
     class Launcher : public eqBase::Thread
     {
     public:
-        static void run( const std::string& command );
+        static bool run( const std::string& command );
 
     private:
         Launcher() : eqBase::Thread( eqBase::Thread::FORK ) {}

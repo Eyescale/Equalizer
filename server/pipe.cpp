@@ -16,20 +16,10 @@ Pipe::Pipe()
           _node( NULL )
 {}
 
-Pipe* Pipe::clone() const
+void Pipe::addWindow( Window* window )
 {
-    Pipe* clone = new Pipe();
-
-    const uint nWindows = this->nWindows();
-    for( uint i=0; i<nWindows; i++ )
-    {
-        Window* window      = getWindow(i);
-        Window* windowClone = window->clone();
-
-        windowClone->_pipe = clone;
-        clone->_windows.push_back( windowClone );
-    }
-    return clone;
+    _windows.push_back( window ); 
+    window->_pipe = this; 
 }
 
 void Pipe::refUsed()
@@ -43,4 +33,22 @@ void Pipe::unrefUsed()
     _used--;
     if( _node ) 
         _node->unrefUsed(); 
+}
+
+std::ostream& eqs::operator << ( std::ostream& os, const Pipe* pipe )
+{
+    if( !pipe )
+    {
+        os << "NULL pipe";
+        return os;
+    }
+    
+    const uint nWindows = pipe->nWindows();
+    os << "pipe " << (void*)pipe << ( pipe->isUsed() ? " used " : " unused " )
+       << nWindows << " windows";
+    
+    for( uint i=0; i<nWindows; i++ )
+        os << std::endl << "    " << pipe->getWindow(i);
+    
+    return os;
 }

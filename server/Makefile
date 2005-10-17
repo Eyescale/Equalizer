@@ -14,6 +14,7 @@ SOURCES = \
 	channel.cpp \
 	config.cpp \
 	compound.cpp \
+	node.cpp \
 	pipe.cpp \
 	server.cpp \
 	window.cpp

@@ -24,13 +24,6 @@ namespace eqs
         Channel();
 
         /** 
-         * Clones this channel
-         * 
-         * @return the cloned channel.
-         */
-        Channel* clone();
-
-        /** 
          * References this window as being actively used.
          */
         void refUsed();
@@ -57,16 +50,6 @@ namespace eqs
         friend class Window;
     };
 
-    inline std::ostream& operator << ( std::ostream& os, const Channel* channel)
-    {
-        if( !channel )
-        {
-            os << "NULL channel";
-            return os;
-        }
-
-        os << "channel " << (void*)channel;
-        return os;
-    }
+    std::ostream& operator << ( std::ostream& os, const Channel* channel);
 };
 #endif // EQS_CHANNEL_H

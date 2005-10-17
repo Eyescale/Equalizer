@@ -39,6 +39,16 @@ uint RequestHandler::registerRequest( void* data )
     return requestID;
 }
 
+void RequestHandler::unregisterRequest( const uint requestID )
+{
+    Request* request = _requests[requestID];
+    if( !request )
+        return;
+
+    _requests.erase( requestID );
+    _freeRequests.push_front( request );
+}
+
 void* RequestHandler::waitRequest( const uint requestID, const uint timeout )
 {
     Request* request = _requests[requestID];

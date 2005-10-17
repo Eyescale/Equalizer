@@ -4,11 +4,16 @@
 
 #include "server.h"
 
+#include "channel.h"
+#include "compound.h"
 #include "config.h"
 #include "node.h"
+#include "pipe.h"
+#include "window.h"
 
 #include <eq/packets.h>
 #include <eq/base/refPtr.h>
+#include <eq/net/connectionDescription.h>
 
 using namespace eqs;
 using namespace eqBase;
@@ -71,12 +76,125 @@ bool Server::_loadConfig( int argc, char **argv )
     // TODO
     Config* config = new Config();
 
-    //Node* node = new Node();
-    //config->addNode( node );
+    eqs::Node* node = new eqs::Node();
+    config->addNode( node );
+
+    RefPtr<eqNet::ConnectionDescription> description =
+        new eqNet::ConnectionDescription;
+    description->launchCommand = "ssh %h %c";
+    description->hostname      = "localhost";
+    node->addConnectionDescription( description );
+
+    Pipe* pipe = new Pipe();
+    node->addPipe( pipe );
+    
+    Window* window = new Window();
+    pipe->addWindow( window );
+
+    Channel* channel = new Channel();
+    window->addChannel( channel );
+
+    Compound* compound = new Compound();
+    compound->setChannel( channel );
+    config->addCompound( compound );
 
     addConfig( config );
     return true;
 }
+
+//---------------------------------------------------------------------------
+// clones a config, used to create a per-application copy of the server config
+//---------------------------------------------------------------------------
+struct ReplaceChannelData
+{
+    Channel* oldChannel;
+    Channel* newChannel;
+};
+
+static TraverseResult replaceChannelCB( Compound* compound, void* userData )
+{
+    ReplaceChannelData* data = (ReplaceChannelData*)userData;
+
+    if( compound->getChannel() == data->oldChannel )
+        compound->setChannel( data->newChannel );
+
+    return TRAVERSE_CONTINUE;
+}
+
+Config* Server::cloneConfig( Config* config )
+{
+    Config *clone = new Config();
+
+    const uint nCompounds = config->nCompounds();
+    for( uint i=0; i<nCompounds; i++ )
+    {
+        Compound* compound      = config->getCompound(i);
+        Compound* compoundClone = new Compound();
+        
+        compoundClone->setChannel( compound->getChannel() ); // replaced below
+        clone->addCompound( compoundClone );
+    }
+
+    const uint nNodes = config->nNodes();
+    for( uint i=0; i<nNodes; i++ )
+    {
+        eqs::Node* node      = config->getNode(i);
+        eqs::Node* nodeClone = new eqs::Node();
+
+        const uint nConnectionDescriptions = node->nConnectionDescriptions();
+        for( uint j=0; j<nConnectionDescriptions; j++ )
+        {
+            RefPtr<eqNet::ConnectionDescription> desc = 
+                node->getConnectionDescription(j);
+
+            nodeClone->addConnectionDescription( desc );
+        }
+
+        const uint nPipes = node->nPipes();
+        for( uint j=0; j<nPipes; j++ )
+        {
+            Pipe* pipe      = node->getPipe(j);
+            Pipe* pipeClone = new Pipe();
+            
+            const uint nWindows = pipe->nWindows();
+            for( uint k=0; k<nWindows; k++ )
+            {
+                Window* window      = pipe->getWindow(k);
+                Window* windowClone = new Window();
+            
+                const uint nChannels = window->nChannels();
+                for( uint l=0; l<nChannels; l++ )
+                {
+                    Channel* channel      = window->getChannel(l);
+                    Channel* channelClone = new Channel();
+                    
+                    ReplaceChannelData data;
+                    data.oldChannel = channel;
+                    data.newChannel = channelClone;
+
+                    for( uint m=0; m<nCompounds; m++ )
+                    {
+                        Compound* compound      = clone->getCompound(m);
+                        Compound::traverse( compound, replaceChannelCB, 
+                                            replaceChannelCB, NULL, &data );
+                    }
+
+                    windowClone->addChannel( channelClone );
+                }
+            
+                pipeClone->addWindow( windowClone );
+            }
+            
+            nodeClone->addPipe( pipeClone );
+        }
+        
+        clone->addNode( nodeClone );
+    }
+
+    // utilisation data will be shared between copies
+    return clone;
+}
+
 
 void Server::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
 {
@@ -143,7 +261,7 @@ void Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
 
     reply.configID = _configID++;
 
-    Config* appConfig = config->clone();
+    Config* appConfig = cloneConfig( config );
 
     appConfig->setID( reply.configID );
     appConfig->setAppName( appName );

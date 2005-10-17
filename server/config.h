@@ -29,18 +29,11 @@ namespace eqs
         Config();
 
         /** 
-         * Clones this config.
-         * 
-         * @return A clone of this config.
-         */
-        Config *clone();
-
-        /** 
          * Adds a new node to this config.
          * 
          * @param node the node.
          */
-        void addNode( Node* node ){ _nodes.push_back( node ); }
+        void addNode( Node* node );
 
         /** 
          * Removes a node from this config.
@@ -152,30 +145,15 @@ namespace eqs
 
         void _cmdInit( eqNet::Node* node, const eqNet::Packet* packet );
 
-        //--------------------------------------------------
+        /**
+         * @name Operations
+         */
+        //*{
         bool _init();
+        bool _exit();
+        //*/
     };
 
-    inline std::ostream& operator << ( std::ostream& os, const Config* config )
-    {
-        if( !config )
-        {
-            os << "NULL config";
-            return os;
-        }
-
-        const uint nNodes     = config->nNodes();
-        const uint nCompounds = config->nCompounds();
-        os << "config " << (void*)config << " " << nNodes << " nodes "
-           << nCompounds << " compounds";
-
-        for( uint i=0; i<nNodes; i++ )
-            os << std::endl << "    " << config->getNode(i);
-
-        for( uint i=0; i<nCompounds; i++ )
-            os << std::endl << "    " << config->getCompound(i);
-
-        return os;
-    }
+    std::ostream& operator << ( std::ostream& os, const Config* config );
 };
 #endif // EQS_CONFIG_H

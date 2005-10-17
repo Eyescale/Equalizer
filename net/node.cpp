@@ -22,7 +22,8 @@ using namespace std;
 //----------------------------------------------------------------------
 Node::Node()
         : _state(STATE_STOPPED),
-          _sessionID(0)
+          _sessionID(0),
+          _pendingRequestID(INVALID_ID)
 {
     for( int i=0; i<CMD_NODE_CUSTOM; i++ )
         _cmdHandler[i] =  &eqNet::Node::_cmdUnknown;
@@ -401,10 +402,23 @@ Session* Node::_findSession( const std::string& name ) const
 //----------------------------------------------------------------------
 // Connecting and launching a node
 //----------------------------------------------------------------------
-bool Node::_connect()
+bool Node::connect()
+{
+    if( !initConnect( ))
+    {
+        ERROR << "Connection initialisation failed." << endl;
+        return false;
+    }
+
+    return syncConnect();
+}
+
+bool Node::initConnect()
 {
     if( _state==STATE_CONNECTED || _state==STATE_LISTENING )
         return true;
+
+    ASSERT( _state == STATE_STOPPED );
 
     Node* localNode = Node::getLocalNode();
     if( !localNode )
@@ -421,36 +435,84 @@ bool Node::_connect()
             return localNode->connect( this, connection );
     }
 
+    INFO << "Node cannot be connected." << endl;
     if( !_autoLaunch )
         return false;
     
+    INFO << "Attempting to launch node." << endl;
     // try to launch and connect node
     for( size_t i=0; i<nDescriptions; i++ )
     {
         RefPtr<ConnectionDescription> description = getConnectionDescription(i);
-        const uint requestID = _launch( description );
-        return (bool)_requestHandler.waitRequest( requestID, 
-                                                  description->launchTimeout );
+        INFO << i << " " << description.get() << endl;
+
+        ASSERT( _pendingRequestID == INVALID_ID );
+        _pendingRequestID = _launch( description );
+
+        if( _pendingRequestID != INVALID_ID ) // launch successful
+            return true;
     }
 
     return false;
+}
+
+bool Node::syncConnect()
+{
+    if( _state == STATE_CONNECTED )
+    {
+        _requestHandler.unregisterRequest( _pendingRequestID );
+        _pendingRequestID = INVALID_ID;
+        return true;
+    }
+
+    ASSERT( _state == STATE_LAUNCHED );
+    ASSERT( _pendingRequestID != INVALID_ID );
+
+    ConnectionDescription *description = (ConnectionDescription*)
+        _requestHandler.getRequestData( _pendingRequestID );
+
+    const bool result = (bool)(
+        _requestHandler.waitRequest( _pendingRequestID, 
+                                     description->launchTimeout ));
+    
+    if( result )
+    {
+        ASSERT( _state == STATE_CONNECTED );
+    }
+    else
+    {
+        _state = STATE_STOPPED;
+        _requestHandler.unregisterRequest( _pendingRequestID );
+    }
+
+    _pendingRequestID = INVALID_ID;
+    return result;
 }
 
 uint Node::_launch( RefPtr<ConnectionDescription> description )
 {
     ASSERT( _state == STATE_STOPPED );
 
-    const uint        requestID     = _requestHandler.registerRequest();
-    const std::string launchCommand = _createLaunchCommand( description, 
-                                                            requestID );
+    const uint requestID = _requestHandler.registerRequest( description.get( ));
+    string launchCommand = _createLaunchCommand( description, requestID );
 
-    Launcher::run( launchCommand );
+    if( !Launcher::run( launchCommand ))
+    {
+        WARN << "Could not launch node using '" << launchCommand << "'" << endl;
+        _requestHandler.unregisterRequest( requestID );
+        return INVALID_ID;
+    }
+    
+    _state = STATE_LAUNCHED;
     return requestID;
 }
 
 string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description,
                                    const uint requestID )
 {
+    if( description->launchCommand.size() == 0 )
+        return description->launchCommand;
+
     const string& launchCommand    = description->launchCommand;
     const size_t  launchCommandLen = launchCommand.size();
     bool          commandFound     = false;
@@ -469,17 +531,24 @@ string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description,
                 //replacement += " --eq-contact " + _connection->requestID;
                 commandFound = true;
                 break;
+
+            case 'h':
+                replacement  = description->hostname;
+                break;
+
             default:
                 WARN << "Unknown token " << launchCommand[percentPos+1] << endl;
         }
 
         if( replacement.size() > 0 )
         {
-            result += launchCommand.substr( lastPos, percentPos-lastPos-1 );
-            result += replacement;
+            result  += launchCommand.substr( lastPos, percentPos-lastPos );
+            result  += replacement;
         }
         else
             result += launchCommand.substr( lastPos, percentPos-lastPos );
+
+        lastPos  = percentPos+2;
     }
 
     result += launchCommand.substr( lastPos, launchCommandLen-lastPos );

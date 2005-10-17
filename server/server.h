@@ -126,8 +126,20 @@ namespace eqs
         /** The unique config identifier. */
         uint _configID;
 
+        /** The list of nodes. */
+        std::vector<Node*>     _nodes;
+
+        /** The list of configurations. */
+        std::vector<Config*>   _configs;
+
+        /** The application-allocated configurations, mapped by identifier. */
+        eqNet::IDHash<Config*> _appConfigs;
+
         /** Loads the server's configuration. */
         bool _loadConfig( int argc, char **argv );
+
+        /** Clones a configuration. */
+        static Config* cloneConfig( Config* config );
 
         /** The command handler function table. */
         void (eqs::Server::*_cmdHandler[eq::CMD_SERVER_ALL - eqNet::CMD_NODE_CUSTOM])
@@ -137,15 +149,6 @@ namespace eqs
                                const eqNet::Packet* packet );
         void _cmdReleaseConfig( eqNet::Node* node,
                                 const eqNet::Packet* packet );
-
-        /** The list of nodes. */
-        std::vector<Node*>     _nodes;
-
-        /** The list of configurations. */
-        std::vector<Config*>   _configs;
-
-        /** The application-allocated configurations, mapped by identifier. */
-        eqNet::IDHash<Config*> _appConfigs;
     };
 
     inline std::ostream& operator << ( std::ostream& os, Server* server )

@@ -101,7 +101,8 @@ namespace eqNet
                            description->type==TYPE_MPI   ? "MPI" :
                            description->type==TYPE_PIPE  ? "PIPE" : "UNKNOWN" )
            << " bw " << description->bandwidthKBS << "KB/s, launchCommand '"
-           << description->launchCommand << "'";
+           << description->launchCommand << "', hostname '" 
+           << description->hostname << "'";
         return os;
     }
 };

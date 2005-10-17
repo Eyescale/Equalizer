@@ -25,18 +25,11 @@ namespace eqs
         Pipe();
 
         /** 
-         * Clones this pipe.
-         * 
-         * @return the cloned pipe.
-         */
-        Pipe* clone() const;
-
-        /** 
          * Adds a new window to this config.
          * 
          * @param window the window.
          */
-        void addWindow( Window* window ){ _windows.push_back( window ); }
+        void addWindow( Window* window );
 
         /** 
          * Removes a window from this config.
@@ -93,21 +86,6 @@ namespace eqs
         friend class Node;
     };
 
-    inline std::ostream& operator << ( std::ostream& os, const Pipe* pipe)
-    {
-        if( !pipe )
-        {
-            os << "NULL pipe";
-            return os;
-        }
-
-        const uint nWindows = pipe->nWindows();
-        os << "pipe " << (void*)pipe << " " << nWindows << " windows";
-
-        for( uint i=0; i<nWindows; i++ )
-            os << std::endl << "    " << pipe->getWindow(i);
-
-        return os;
-    }
+    std::ostream& operator << ( std::ostream& os, const Pipe* pipe );
 };
 #endif // EQS_PIPE_H

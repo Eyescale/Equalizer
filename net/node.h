@@ -36,6 +36,7 @@ namespace eqNet
     public:
         enum State {
             STATE_STOPPED,   // initial
+            STATE_LAUNCHED,  // remote node, launched but not yet connected
             STATE_CONNECTED, // remote node, connected
             STATE_LISTENING  // local node, listening
         };
@@ -164,6 +165,43 @@ namespace eqNet
         eqBase::RefPtr<ConnectionDescription> getConnectionDescription(
             const uint32 index )
             { return _connectionDescriptions[index]; }
+
+        /** 
+         * Connects this node using to the available connection descriptions.
+         *
+         * On success, the node is in the connected state, otherwise it's state
+         * is unchanged.
+         *
+         * @return <code>true</code> if this node is connected,
+         *         <code>false</code> otherwise.
+         * @sa initConnect, syncConnect
+         */
+        bool connect();
+
+        /** 
+         * Starts connecting this node using to the available connection
+         * descriptions.
+         *
+         * On success, the node is the launched or connected state, otherwise
+         * it's state is unchanged.
+         *
+         * @return <code>true</code> if this node is connecting,
+         *         <code>false</code> otherwise.
+         * @sa syncConnect
+         */
+        bool initConnect();
+
+        /** 
+         * Synchronizes the connection initiated by initConnect().
+         *
+         * On success, the node is in the connected state, otherwise it's state
+         * is unchanged.
+         *
+         * @return <code>true</code> if this node is connected,
+         *         <code>false</code> otherwise.
+         * @sa initConnect
+         */
+        bool syncConnect();
         //*}
 
 
@@ -194,7 +232,7 @@ namespace eqNet
         bool send( const Packet& packet )
             {
                 if( _state==STATE_STOPPED )
-                    _connect();
+                    connect();
                 if( _state!=STATE_CONNECTED && _state!=STATE_LISTENING )
                     return false;
 
@@ -348,6 +386,9 @@ namespace eqNet
         /** The current sessions of this node. */
         IDHash<Session*> _sessions;
 
+        /** The request id for pending asynchronous operations (connect, etc) */
+        uint _pendingRequestID;
+
         Session* _findSession( const std::string& name ) const;
 
         bool _listenToSelf();
@@ -366,18 +407,9 @@ namespace eqNet
                 if( _state==STATE_CONNECTED || _state==STATE_LISTENING )
                     return true;
                 if( _state==STATE_STOPPED )
-                    return _connect();
+                    return connect();
                 return false;
             }
-
-        /** 
-         * Connects this node according to the available connection
-         * descriptions.
-         *
-         * @return <code>true</code> if this node is connected,
-         *         <code>false</code> otherwise.
-         */
-        bool _connect();
 
         /** 
          * Launches the node using the parameters from the connection

@@ -21,28 +21,15 @@ Config::Config()
     _cmdHandler[eq::CMD_CONFIG_INIT] = &eqs::Config::_cmdInit;
 }
 
-Config* Config::clone()
+void Config::addNode( Node* node )
 {
-    Config *clone = new Config();
-
-    const uint nCompounds = this->nCompounds();
-    for( uint i=0; i<nCompounds; i++ )
-    {
-        Compound* compound = getCompound(i);
-        clone->_compounds.push_back( new Compound( *compound ));
-    }
-
-    const uint nNodes = this->nNodes();
-    for( uint i=0; i<nNodes; i++ )
-    {
-        Node* node = getNode(i);
-        clone->_nodes.push_back( new Node( *node ));
-    }
-
-    // utilisation data will be shared between copies
-    return clone;
+    _nodes.push_back( node ); 
+    node->_config = this; 
 }
 
+//===========================================================================
+// command handling
+//===========================================================================
 void Config::handleCommand( eqNet::Node* node,
                                const eq::ConfigPacket* packet )
 {
@@ -62,6 +49,10 @@ void Config::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
     node->send( reply );
 }
 
+//===========================================================================
+// operations
+//===========================================================================
+
 bool Config::_init()
 {
     const uint nCompounds = this->nCompounds();
@@ -71,15 +62,83 @@ bool Config::_init()
         compound->init();
     }
 
-//     foreach ref'd node
-//         launch node
-//     foreach ref'd node
-//         sync launch, init node
-//     foreach ref'd node
-//         sync init
+    // connect (and launch) nodes
+    const uint nNodes = this->nNodes();
+    for( uint i=0; i<nNodes; i++ )
+    {
+        Node* node = getNode( i );
+        if( !node->isUsed( ))
+            continue;
+
+        if( !node->connect( ))
+        {
+            ERROR << "Connection of " << node << " failed." << endl;
+            _exit();
+            return false;
+        }
+    }
+
+    for( uint i=0; i<nNodes; i++ )
+    {
+        Node* node = getNode( i );
+        if( !node->isUsed( ))
+            continue;
+
+        if( !node->syncConnect( ))
+        {
+            ERROR << "Connection of " << node << "failed." << endl;
+            _exit();
+            return false;
+        }
+
+        node->sendInit();
+    }
+
+    for( uint i=0; i<nNodes; i++ )
+    {
+        Node* node = getNode( i );
+        if( !node->isUsed( ))
+            continue;
+
+        if( !node->syncInit( ))
+        {
+            ERROR << "Init of " << node << "failed." << endl;
+            _exit();
+            return false;
+        }
+    }
 
 //     foreach compound
 //         init compound
 //     foreach compound
 //         sync init
+
+    return true;
+}
+
+bool Config::_exit()
+{
+    return false;
+}
+
+std::ostream& eqs::operator << ( std::ostream& os, const Config* config )
+{
+    if( !config )
+    {
+        os << "NULL config";
+        return os;
+    }
+    
+    const uint nNodes     = config->nNodes();
+    const uint nCompounds = config->nCompounds();
+    os << "config " << (void*)config << " " << nNodes << " nodes "
+           << nCompounds << " compounds";
+    
+    for( uint i=0; i<nNodes; i++ )
+            os << std::endl << "    " << config->getNode(i);
+    
+    for( uint i=0; i<nCompounds; i++ )
+        os << std::endl << "    " << config->getCompound(i);
+    
+    return os;
 }

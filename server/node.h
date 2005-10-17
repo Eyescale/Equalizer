@@ -11,6 +11,7 @@
 
 namespace eqs
 {
+    class Config;
     class Pipe;
 
     /**
@@ -22,14 +23,14 @@ namespace eqs
         /** 
          * Constructs a new Node.
          */
-        Node() : _used(0) {}
+        Node();
 
         /** 
          * Adds a new pipe to this node.
          * 
          * @param pipe the pipe.
          */
-        void addPipe( Pipe* pipe ){ _pipes.push_back( pipe ); }
+        void addPipe( Pipe* pipe );
 
         /** 
          * Removes a pipe from this node.
@@ -72,6 +73,24 @@ namespace eqs
          *         <code>false</code> if not.
          */
         bool isUsed() const { return (_used!=0); }
+        
+        /**
+         * @name Operations
+         */
+        //*{
+        /** 
+         * Send the node initialisation command.
+         */
+        void sendInit();
+
+        /** 
+         * Synchronize the initialisation of the node.
+         * 
+         * @return <code>true</code> if the node was initialised successfully,
+         *         <code>false</code> if not.
+         */
+        bool syncInit();
+        //*}
 
     private:
         /** The vector of pipes belonging to this node. */
@@ -79,22 +98,23 @@ namespace eqs
 
         /** Number of entitities actively using this channel. */
         uint _used;
+
+        /** The parent config. */
+        Config* _config;
+        friend class Config;
+
+        enum State
+        {
+            STATE_STOPPED   = eqNet::Node::STATE_STOPPED,
+            STATE_LAUNCHED  = eqNet::Node::STATE_LAUNCHED,
+            STATE_CONNECTED = eqNet::Node::STATE_CONNECTED,
+            STATE_LISTENING = eqNet::Node::STATE_LISTENING,
+            STATE_INITIALISING,
+            STATE_INITIALISED
+        };
+
     };
 
-    inline std::ostream& operator << ( std::ostream& os, const Node* node )
-    {
-        if( !node )
-        {
-            os << "NULL node";
-            return os;
-        }
-
-        const uint nPipes = node->nPipes();
-        os << "node " << (void*)node << " " << nPipes << " pipes";
-        for( uint i=0; i<nPipes; i++ )
-            os << std::endl << "    " << node->getPipe(i);
-
-        return os;
-    }
+    std::ostream& operator << ( std::ostream& os, const Node* node );
 };
 #endif // EQS_NODE_H

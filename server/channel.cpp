@@ -18,11 +18,6 @@ Channel::Channel()
 {
 }
 
-Channel* Channel::clone()
-{
-    return new Channel();
-}
-
 void Channel::refUsed()
 {
     _used++;
@@ -36,4 +31,17 @@ void Channel::unrefUsed()
     _used--;
     if( _window ) 
         _window->unrefUsed(); 
+}
+
+std::ostream& eqs::operator << ( std::ostream& os, const Channel* channel)
+{
+    if( !channel )
+    {
+        os << "NULL channel";
+            return os;
+    }
+    
+    os << "channel " << (void*)channel
+       << ( channel->isUsed() ? " used" : " unused" );
+    return os;
 }

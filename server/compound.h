@@ -12,6 +12,12 @@ namespace eqs
 {
     class Channel;
 
+    enum TraverseResult
+    {
+        TRAVERSE_CONTINUE,
+        TRAVERSE_TERMINATE
+    };
+
     /**
      * The compound.
      */
@@ -21,46 +27,47 @@ namespace eqs
         /** 
          * Constructs a new Compound.
          */
-        Compound() : _channel( NULL ) {}
+        Compound();
 
         /** 
-         * Constructs a new deep copy of another compound.
+         * Adds a new child to this compound.
          * 
-         * @param from the original compound.
+         * @param child the child.
          */
-        Compound(const Compound& from);
+        void addChild( Compound* child );
 
         /** 
-         * Adds a new compound to this compound.
+         * Removes a child from this compound.
          * 
-         * @param compound the compound.
-         */
-        void addCompound( Compound* compound ){ _compounds.push_back(compound);}
-
-        /** 
-         * Removes a compound from this compound.
-         * 
-         * @param compound the compound
-         * @return <code>true</code> if the compound was removed, 
+         * @param child the child
+         * @return <code>true</code> if the child was removed, 
          *         <code>false</code> otherwise.
          */
-        bool removeCompound( Compound* compound );
+        bool removeChild( Compound* child );
 
         /** 
-         * Returns the number of compounds on this compound.
+         * Returns the number of children on this compound.
          * 
-         * @return the number of compounds on this compound. 
+         * @return the number of children on this compound. 
          */
-        uint nCompounds() const { return _compounds.size(); }
+        uint nChildren() const { return _children.size(); }
 
         /** 
-         * Gets a compound.
+         * Gets a child.
          * 
-         * @param index the compound's index. 
-         * @return the compound.
+         * @param index the child's index. 
+         * @return the child.
          */
-        Compound* getCompound( const uint index ) const
-            { return _compounds[index]; }
+        Compound* getChild( const uint index ) const
+            { return _children[index]; }
+
+        /** 
+         * Gets the parent compound.
+         * 
+         * @return the parent compound.
+         */
+        Compound* getParent() const
+            { return _parent; }
 
         /** 
          * Set the channel of this compound.
@@ -79,6 +86,12 @@ namespace eqs
          */
         Channel* getChannel() const { return _channel; }
 
+        typedef TraverseResult (*TraverseCB)(Compound* compound,void* userData);
+
+        static TraverseResult traverse( Compound* compound, TraverseCB preCB,
+                                        TraverseCB leafCB, TraverseCB postCB,
+                                        void* userData );
+
         /**
          * @name Compound Operations
          */
@@ -92,27 +105,14 @@ namespace eqs
         //*}
 
     private:
-        std::vector<Compound*> _compounds;
-
+        Compound               *_parent;
+        std::vector<Compound*>  _children;
+        
         Channel* _channel;
+        
+        Compound* _getNext() const;
     };
 
-    inline std::ostream& operator << (std::ostream& os,const Compound* compound)
-    {
-        if( !compound )
-        {
-            os << "NULL compound";
-            return os;
-        }
-
-        const uint nCompounds = compound->nCompounds();
-        os << "compound " << (void*)compound << " channel " 
-           << compound->getChannel() << " " << nCompounds << " children";
-
-        for( uint i=0; i<nCompounds; i++ )
-            os << std::endl << "    " << compound->getCompound(i);
-
-        return os;
-    }
+    std::ostream& operator << (std::ostream& os,const Compound* compound);
 };
 #endif // EQS_COMPOUND_H
