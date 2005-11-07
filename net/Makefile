@@ -11,6 +11,7 @@ HEADER_SRC = \
 	global.h \
 	group.h \
 	idHash.h \
+	init.h \
 	message.h \
 	node.h \
 	packets.h \
@@ -21,9 +22,11 @@ HEADER_SRC = \
 SOURCES = \
 	base.cpp \
 	connection.cpp \
+	connectionDescription.cpp \
 	connectionSet.cpp \
 	fdConnection.cpp \
 	global.cpp \
+	init.cpp \
 	launcher.cpp \
 	node.cpp \
 	pipeConnection.cpp \

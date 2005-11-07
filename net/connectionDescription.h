@@ -16,7 +16,6 @@ namespace eqNet
     enum ConnectionType
     {
         TYPE_TCPIP,   //!< TCP/IP networking.
-        TYPE_MPI,     //!< MPI networking.
         TYPE_PIPE,    //!< pipe() based bi-directional connection
         TYPE_UNI_PIPE //!< pipe() based uni-directional connection
     };
@@ -31,7 +30,7 @@ namespace eqNet
     public:
         ConnectionDescription() 
                 : type( TYPE_TCPIP ),
-                  bandwidthKBS( 0 )
+                  bandwidthKBS( 42 )
             {
                 bzero( &parameters, sizeof(parameters));
             }
@@ -82,6 +81,18 @@ namespace eqNet
             } PIPE;
         } parameters;
 
+        /** @return this description as a string. */
+        std::string toString();
+
+        /** 
+         * Reads the connection description from a string.
+         * 
+         * @param data the string containing the connection description.
+         * @return <code>true</code> if the information was read correctly, 
+         *         <code>false</code> if not.
+         */
+        bool fromString( const std::string& data );
+
     protected:
         ~ConnectionDescription() {}
     };
@@ -97,12 +108,7 @@ namespace eqNet
         ConnectionDescription* description)
     {
         os << "connection description " << (void*)description <<  ": "
-           << "type " << ( description->type==TYPE_TCPIP ? "TCP/IP" :
-                           description->type==TYPE_MPI   ? "MPI" :
-                           description->type==TYPE_PIPE  ? "PIPE" : "UNKNOWN" )
-           << " bw " << description->bandwidthKBS << "KB/s, launchCommand '"
-           << description->launchCommand << "', hostname '" 
-           << description->hostname << "'";
+           << description->toString();
         return os;
     }
 };

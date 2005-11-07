@@ -46,7 +46,7 @@ namespace eqNet
          * @param type the connection type.
          * @return the connection.
          */
-        static Connection* create( const ConnectionType type );
+        static eqBase::RefPtr<Connection> create( const ConnectionType type );
         
         /** @name Connection Management */
         //@{
@@ -77,7 +77,7 @@ namespace eqNet
          * @return the accepted connection, or <code>NULL</code> if no
          *         connection was accepted.
          */
-        virtual Connection* accept(){ return NULL; }
+        virtual eqBase::RefPtr<Connection> accept(){ return NULL; }
 
         /** 
          * Accepts the next incoming connection with a timeout.
@@ -87,7 +87,7 @@ namespace eqNet
          * @return the accepted connection, or <code>NULL</code> if no
          *         connection was accepted.
          */
-        virtual Connection* accept( const int timeout );
+        virtual eqBase::RefPtr<Connection> accept( const int timeout );
         
         virtual void close(){};
         //@}
@@ -130,7 +130,15 @@ namespace eqNet
          * @return the state of this connection.
          */
         State getState() const { return _state; }
-        
+
+        /** 
+         * Returns the description for this connection.
+         * 
+         * @return the description for this connection. 
+         */
+        eqBase::RefPtr<ConnectionDescription> getConnectionDescription()
+            { return _description; }
+
         virtual int getReadFD() const { return -1; }
 
     protected:
@@ -138,7 +146,8 @@ namespace eqNet
         Connection(const Connection& conn);
         virtual ~Connection(){}
 
-        State                 _state;       //!< The connection state
+        State                                 _state; //!< The connection state
+        eqBase::RefPtr<ConnectionDescription> _description;
     };
 
     inline std::ostream& operator << ( std::ostream& os, 

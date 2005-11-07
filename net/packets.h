@@ -96,6 +96,19 @@ namespace eqNet
         uint sessionID;
     };
 
+    struct NodeConnectPacket : public NodePacket
+    {
+        NodeConnectPacket() 
+            {
+                command     = CMD_NODE_CONNECT;
+                size        = sizeof( NodeConnectPacket ); 
+                wasLaunched = false;
+            }
+
+        bool   wasLaunched;
+        uint64 launchID;
+    };
+
     //------------------------------------------------------------
     // Session
     //------------------------------------------------------------

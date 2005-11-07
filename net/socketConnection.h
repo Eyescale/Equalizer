@@ -22,7 +22,7 @@ namespace eqNet
         virtual bool connect(eqBase::RefPtr<ConnectionDescription> description);
 
         virtual bool listen( eqBase::RefPtr<ConnectionDescription> description);
-        virtual Connection* accept();
+        virtual eqBase::RefPtr<Connection> accept();
 
         virtual void close();
 

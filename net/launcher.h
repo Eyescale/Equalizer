@@ -6,6 +6,8 @@
 #define EQNET_LAUNCHER_H
 
 #include <eq/base/thread.h>
+#include <string>
+#include <vector>
 
 namespace eqNet
 {
@@ -17,9 +19,12 @@ namespace eqNet
 
     private:
         Launcher() : eqBase::Thread( eqBase::Thread::FORK ) {}
+
+        std::vector<std::string> _commandLine;
+
+        void _buildCommandLine( const std::string& command );
         virtual ssize_t run();
         
-        std::string _command;
     };
 }
 

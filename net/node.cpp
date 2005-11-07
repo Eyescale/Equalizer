@@ -12,10 +12,13 @@
 #include "session.h"
 
 #include <alloca.h>
+#include <sstream>
 
 using namespace eqBase;
 using namespace eqNet;
 using namespace std;
+
+extern char **environ;
 
 //----------------------------------------------------------------------
 // State management
@@ -32,6 +35,7 @@ Node::Node()
     _cmdHandler[CMD_NODE_MAP_SESSION]       = &eqNet::Node::_cmdMapSession;
     _cmdHandler[CMD_NODE_MAP_SESSION_REPLY] = &eqNet::Node::_cmdMapSessionReply;
     _cmdHandler[CMD_NODE_SESSION]           = &eqNet::Node::_cmdSession;
+    _cmdHandler[CMD_NODE_LAUNCHED]          = &eqNet::Node::_cmdLaunched;
 }
 
 bool Node::listen( RefPtr<Connection> connection )
@@ -47,16 +51,18 @@ bool Node::listen( RefPtr<Connection> connection )
         return false;
 
     if( connection.isValid() )
+    {
         _connectionSet.addConnection( connection, this );
-    _state = STATE_LISTENING;
+        _listener = connection;
+    }
 
-    // run the receiver thread
-    start();
+    _state = STATE_LISTENING;
+    start(); // run the receiver thread
 
     if( !getLocalNode( ))
         setLocalNode( this );
 
-    INFO << this << " listening" << endl;
+    INFO << this << " listening." << endl;
     return true;
 }
 
@@ -75,6 +81,7 @@ bool Node::stopListening()
     _connectionSet.removeConnection( _connection );
     _connection->close();
     _connection = NULL;
+    _listener   = NULL;
 
     const size_t nConnections = _connectionSet.nConnections();
     for( size_t i = 0; i<nConnections; i++ )
@@ -249,11 +256,30 @@ void Node::_handleConnect( ConnectionSet& connectionSet )
 
 Node* Node::handleConnect( RefPtr<Connection> connection )
 {
-    Node* node = new Node();
-    if( connect( node, connection ))
-        return node;
+    NodeConnectPacket packet;
+    bool gotData = connection->recv( &packet, sizeof( NodeConnectPacket ));
+    ASSERT( gotData );
+    
+    if( packet.wasLaunched )
+    {
+        ASSERT( dynamic_cast<Node*>( (Node*)packet->nodeID ));
 
-    delete node;
+        Node* node = static_cast<Node*>( packet->nodeID );
+        const uint requestID = node->_pendingRequestID;
+        ASSERT( requestID != INVALID_ID );
+
+        _requestHandler->serveRequest( requestID );
+        return node;
+    }
+    else
+    {
+        Node* node = new Node();
+        if( connect( node, connection ))
+            return node;
+
+        delete node;
+    }
+
     return NULL;
 }
 
@@ -387,6 +413,9 @@ void Node::_cmdSession( Node* node, const Packet* pkg )
     _sessions[packet->sessionID] = session;
 }
 
+//----------------------------------------------------------------------
+// utility functions
+//----------------------------------------------------------------------
 Session* Node::_findSession( const std::string& name ) const
 {
     for( IDHash<Session*>::const_iterator iter = _sessions.begin();
@@ -444,7 +473,6 @@ bool Node::initConnect()
     for( size_t i=0; i<nDescriptions; i++ )
     {
         RefPtr<ConnectionDescription> description = getConnectionDescription(i);
-        INFO << i << " " << description.get() << endl;
 
         ASSERT( _pendingRequestID == INVALID_ID );
         _pendingRequestID = _launch( description );
@@ -458,9 +486,12 @@ bool Node::initConnect()
 
 bool Node::syncConnect()
 {
+    Node* localNode = Node::getLocalNode();
+    ASSERT( localNode )
+
     if( _state == STATE_CONNECTED )
     {
-        _requestHandler.unregisterRequest( _pendingRequestID );
+        localNode->_requestHandler.unregisterRequest( _pendingRequestID );
         _pendingRequestID = INVALID_ID;
         return true;
     }
@@ -469,20 +500,18 @@ bool Node::syncConnect()
     ASSERT( _pendingRequestID != INVALID_ID );
 
     ConnectionDescription *description = (ConnectionDescription*)
-        _requestHandler.getRequestData( _pendingRequestID );
+        localNode->_requestHandler.getRequestData( _pendingRequestID );
 
-    const bool result = (bool)(
-        _requestHandler.waitRequest( _pendingRequestID, 
-                                     description->launchTimeout ));
+    bool success;
+    localNode->_requestHandler.waitRequest( _pendingRequestID, &success,
+                                            description->launchTimeout ));
     
-    if( result )
-    {
+    if( success )
         ASSERT( _state == STATE_CONNECTED );
-    }
     else
     {
         _state = STATE_STOPPED;
-        _requestHandler.unregisterRequest( _pendingRequestID );
+        localNode->_requestHandler.unregisterRequest( _pendingRequestID );
     }
 
     _pendingRequestID = INVALID_ID;
@@ -493,13 +522,17 @@ uint Node::_launch( RefPtr<ConnectionDescription> description )
 {
     ASSERT( _state == STATE_STOPPED );
 
-    const uint requestID = _requestHandler.registerRequest( description.get( ));
-    string launchCommand = _createLaunchCommand( description, requestID );
+    Node* localNode = Node::getLocalNode();
+    ASSERT( localNode );
+
+    const uint requestID = 
+        localNode->_requestHandler.registerRequest( description.get( ));
+    string launchCommand = _createLaunchCommand( description );
 
     if( !Launcher::run( launchCommand ))
     {
         WARN << "Could not launch node using '" << launchCommand << "'" << endl;
-        _requestHandler.unregisterRequest( requestID );
+        localNode->_requestHandler.unregisterRequest( requestID );
         return INVALID_ID;
     }
     
@@ -507,8 +540,7 @@ uint Node::_launch( RefPtr<ConnectionDescription> description )
     return requestID;
 }
 
-string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description,
-                                   const uint requestID )
+string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description )
 {
     if( description->launchCommand.size() == 0 )
         return description->launchCommand;
@@ -527,11 +559,11 @@ string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description,
         switch( launchCommand[percentPos+1] )
         {
             case 'c':
-                replacement  = Global::getProgramName();
-                //replacement += " --eq-contact " + _connection->requestID;
+            {
+                replacement = _createRemoteCommand();
                 commandFound = true;
                 break;
-
+            }
             case 'h':
                 replacement  = description->hostname;
                 break;
@@ -554,8 +586,94 @@ string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description,
     result += launchCommand.substr( lastPos, launchCommandLen-lastPos );
 
     if( !commandFound )
-        result += " " + Global::getProgramName();
+        result += " " + _createRemoteCommand();
 
     INFO << "Launch command: " << result << endl;
     return result;
+}
+
+string Node::_createRemoteCommand()
+{
+    Node* localNode = Node::getLocalNode();
+    if( !localNode )
+    {
+        ERROR << "No local node, can't launch " << this << endl;
+        return "";
+    }
+
+    RefPtr<Connection> listener = localNode->getListenerConnection();
+    if( !listener.isValid() || 
+        listener->getState() != Connection::STATE_LISTENING )
+    {
+        ERROR << "local node is not listening, can't launch " << this << endl;
+        return "";
+    }
+
+    RefPtr<ConnectionDescription> listenerDesc =
+        listener->getConnectionDescription();
+    ASSERT( listenerDesc.isValid( ));
+
+    ostringstream stringStream;
+
+    stringStream << "env "; // XXX
+    const char* env = getenv( "DYLD_LIBRARY_PATH" );
+    if( env )
+        stringStream << "DYLD_LIBRARY_PATH=" << env << " ";
+    // for( int i=0; environ[i] != NULL; i++ )
+    // {
+    //     replacement += environ[i];
+    //     replacement += " ";
+    // }
+
+    stringStream << "'" << getProgramName() << " --eq-listen --eq-client "
+                 << (void*)this << ":" << listenerDesc->toString() << "'";
+
+    return stringStream.str();
+}
+
+bool Node::runClient( const string& clientArgs )
+{
+    ASSERT( _state == STATE_LISTENING );
+    INFO << "runClient, args: " << clientArgs << endl;
+
+    const size_t colonPos = clientArgs.find( ':' );
+    if( colonPos == string::npos )
+    {
+        ERROR << "Could not parse request identifier" << endl;
+        return false;
+    }
+
+    const string request    = clientArgs.substr( 0, colonPos );
+    const uint64 requestID  = atoll( request.c_str( ));
+    const string serverDesc = clientArgs.substr( colonPos + 1 );
+
+    RefPtr<ConnectionDescription> connectionDesc = new ConnectionDescription;
+    if( !connectionDesc->fromString( serverDesc ))
+    {
+        ERROR << "Could not parse connection description" << endl;
+        return false;
+    }
+
+    RefPtr<Connection> connection = Connection::create( connectionDesc->type );
+    if( !connection->connect( connectionDesc ))
+    {
+        ERROR << "Can't contact node" << endl;
+        return false;
+    }
+
+    Node* node = handleConnect( connection );
+    if( !node )
+    {
+        connection->close();
+        ERROR << "Can't connect to node" << endl;
+        return false;
+    }
+
+    NodeConnectPacket packet;
+    packet.wasLaunched = true;
+    packet.launchID    = requestID;
+    node->send( packet );
+
+    join();
+    return true;
 }

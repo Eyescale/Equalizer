@@ -46,6 +46,7 @@ void Config::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
     INFO << "handle config init " << packet << endl;
 
     reply.result = _init();
+    INFO << "config init result: " << reply.result << endl;
     node->send( reply );
 }
 
@@ -70,7 +71,7 @@ bool Config::_init()
         if( !node->isUsed( ))
             continue;
 
-        if( !node->connect( ))
+        if( !node->initConnect( ))
         {
             ERROR << "Connection of " << node << " failed." << endl;
             _exit();
@@ -86,7 +87,7 @@ bool Config::_init()
 
         if( !node->syncConnect( ))
         {
-            ERROR << "Connection of " << node << "failed." << endl;
+            ERROR << "Connection of " << node << " failed." << endl;
             _exit();
             return false;
         }
@@ -102,7 +103,7 @@ bool Config::_init()
 
         if( !node->syncInit( ))
         {
-            ERROR << "Init of " << node << "failed." << endl;
+            ERROR << "Init of " << node << " failed." << endl;
             _exit();
             return false;
         }

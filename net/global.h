@@ -7,13 +7,6 @@
 
 #include <string>
 
-/** 
- * @namespace eqNet
- * @brief The Equalizer networking abstraction layer.
- *
- * The Equalizer network abstraction layer provides the basic functionality to
- * enable execution on distributed and shared memory machines.
- */
 namespace eqNet
 {
     // global defines
@@ -23,14 +16,6 @@ namespace eqNet
 
     /** The any node identifier. */
 #   define NODE_ID_ANY 0xffffffff
-
-    /** 
-     * Initialises the Equalizer networking layer.
-     * 
-     * @param argc the command line argument count.
-     * @param argv the command line argument values.
-     */
-    void init( int argc, char** argv );
 
     /** 
      * Global parameter handling for the Equalizer network implementation. 

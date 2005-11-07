@@ -1,5 +1,6 @@
 
 #include <test.h>
+#include <eq/net/init.h>
 #include <eq/net/node.h>
 #include <eq/net/pipeConnection.h>
 #include <eq/net/session.h>
@@ -15,10 +16,9 @@ int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    eqBase::RefPtr<Connection> connection =
-        (PipeConnection*)Connection::create(TYPE_PIPE);
+    RefPtr<Connection>            connection = Connection::create(TYPE_PIPE);
+    RefPtr<ConnectionDescription> connDesc   = new ConnectionDescription;
 
-    RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
     if( !connection->connect( connDesc ))
         exit( EXIT_FAILURE );
 

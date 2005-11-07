@@ -98,6 +98,44 @@ namespace eqNet
          */
         bool connect( Node* node, eqBase::RefPtr<Connection> connection );
 
+
+        /** 
+         * Connects and potentially launches this node using to the available
+         * connection descriptions.
+         *
+         * On success, the node is in the connected state, otherwise it's state
+         * is unchanged.
+         *
+         * @return <code>true</code> if this node is connected,
+         *         <code>false</code> otherwise.
+         * @sa initConnect, syncConnect
+         */
+        bool connect();
+
+        /** 
+         * Starts connecting and potentially launching this node using to the
+         * available connection descriptions.
+         *
+         * On success, the node is in the launched or connected state, otherwise
+         * it's state is unchanged.
+         *
+         * @return <code>true</code> if this node is connecting,
+         *         <code>false</code> otherwise.
+         * @sa syncConnect
+         */
+        bool initConnect();
+
+        /** 
+         * Synchronizes the connection initiated by initConnect().
+         *
+         * On success, the node is in the connected state, otherwise it's state
+         * is unchanged.
+         *
+         * @return <code>true</code> if this node is connected,
+         *         <code>false</code> otherwise.
+         * @sa initConnect
+         */
+        bool syncConnect();
         /** 
          * Disconnects a connected node.
          *
@@ -123,7 +161,7 @@ namespace eqNet
          * @param node the local node for this thread.
          * @sa addConnectionDescription, send
          */
-        void setLocalNode( Node* node ){ Thread::setSpecific( node ); }
+        static void setLocalNode( Node* node ){ Thread::setSpecific( node ); }
 
         /** 
          * Returns the local node for this thread.
@@ -167,41 +205,11 @@ namespace eqNet
             { return _connectionDescriptions[index]; }
 
         /** 
-         * Connects this node using to the available connection descriptions.
-         *
-         * On success, the node is in the connected state, otherwise it's state
-         * is unchanged.
-         *
-         * @return <code>true</code> if this node is connected,
-         *         <code>false</code> otherwise.
-         * @sa initConnect, syncConnect
+         * Returns the listening connection of this node.
+         * 
+         * @return the listening connection of this node. 
          */
-        bool connect();
-
-        /** 
-         * Starts connecting this node using to the available connection
-         * descriptions.
-         *
-         * On success, the node is the launched or connected state, otherwise
-         * it's state is unchanged.
-         *
-         * @return <code>true</code> if this node is connecting,
-         *         <code>false</code> otherwise.
-         * @sa syncConnect
-         */
-        bool initConnect();
-
-        /** 
-         * Synchronizes the connection initiated by initConnect().
-         *
-         * On success, the node is in the connected state, otherwise it's state
-         * is unchanged.
-         *
-         * @return <code>true</code> if this node is connected,
-         *         <code>false</code> otherwise.
-         * @sa initConnect
-         */
-        bool syncConnect();
+        eqBase::RefPtr<Connection> getListenerConnection(){ return _listener; }
         //*}
 
 
@@ -317,16 +325,26 @@ namespace eqNet
         bool mapSession( Node* server, Session* session, 
                          const std::string& name );
         //*}
-        
+
+        /** 
+         * Runs this node as a client to a server.
+         * 
+         * @param clientArgs the client arguments as specified by the server.
+         * @return the success value of the run.
+         */
+        bool runClient( const std::string& clientArgs );
+
     protected:
         /** The current state of this node. */
         State _state;
         
         /** The connection to this node, for remote nodes. */
-        eqBase::RefPtr<Connection> _connection; // later: array of connections
+        eqBase::RefPtr<Connection> _connection;
 
-        /** The connection set of all connection from/to this node, for local
-            nodes. */
+        /** The listening connection. */
+        eqBase::RefPtr<Connection> _listener;
+
+        /** The connection set of all connections from/to this node. */
         ConnectionSet _connectionSet;
 
         /** Registers request packets waiting for a return value. */
@@ -378,6 +396,14 @@ namespace eqNet
          * @param node the disconnected node.
          */
         virtual void handleDisconnect( Node* node );
+
+        /** 
+         * Returns the program name to start this node.
+         * 
+         * @return the program name to start this node.
+         */
+        virtual const std::string& getProgramName() 
+            { return Global::getProgramName(); }
 
     private:
         /** The unique session identifier counter. */
@@ -432,6 +458,7 @@ namespace eqNet
          */
         std::string _createLaunchCommand( eqBase::RefPtr<ConnectionDescription> 
                                           description, const uint requestID );
+        std::string   _createRemoteCommand( const uint requestID );
 
         /** The receiver thread entry function for this node. */
         virtual ssize_t run();
@@ -448,6 +475,7 @@ namespace eqNet
         void _cmdMapSession( Node* node, const Packet* packet );
         void _cmdMapSessionReply( Node* node, const Packet* packet);
         void _cmdSession( Node* node, const Packet* packet );
+        void _cmdLaunched( Node* node, const Packet* packet );
 
         static uint64 _getMessageSize( const MessageType type, 
                                        const uint64 count );

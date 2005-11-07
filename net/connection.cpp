@@ -14,6 +14,7 @@
 #include <errno.h>
 
 using namespace eqNet;
+using namespace eqBase;
 using namespace std;
 
 Connection::Connection()
@@ -24,7 +25,7 @@ Connection::Connection(const Connection& conn)
         : _state( conn._state )
 {}
 
-Connection* Connection::create( const ConnectionType type )
+RefPtr<Connection> Connection::create( const ConnectionType type )
 {
     switch( type )
     {
@@ -43,7 +44,7 @@ Connection* Connection::create( const ConnectionType type )
     }
 }
 
-Connection* Connection::accept( const int timeout )
+RefPtr<Connection> Connection::accept( const int timeout )
 {
     if( _state != STATE_LISTENING )
         return NULL;

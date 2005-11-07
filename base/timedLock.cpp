@@ -16,7 +16,7 @@ TimedLock::TimedLock( const Thread::Type type )
     {
         case Thread::PTHREAD:
         {
-            int error = pthread_mutex_init(&_lock.pthread.mutex,NULL);
+            int error = pthread_mutex_init( &_lock.pthread.mutex, NULL );
             if( error )
             {
                 ERROR << "Error creating pthread mutex: " 
@@ -69,6 +69,11 @@ bool TimedLock::set( const uint timeout )
                     ts.tv_sec  = (int)(timeout/1000);
                     ts.tv_nsec = (timeout - ts.tv_sec*1000) * 1000000;
 
+                    timeval tv;
+                    gettimeofday( &tv, 0 );
+                    ts.tv_sec  += tv.tv_sec;
+                    ts.tv_nsec += tv.tv_usec * 1000;
+
                     int error = pthread_cond_timedwait( &_lock.pthread.cond,
                                                         &_lock.pthread.mutex,
                                                         &ts );
@@ -84,8 +89,11 @@ bool TimedLock::set( const uint timeout )
             }
 
             if( acquired )
+            {
+                ASSERT( !_lock.pthread.locked );
                 _lock.pthread.locked = true;
-            
+            }
+
             pthread_mutex_unlock( &_lock.pthread.mutex );
             return acquired;
         }

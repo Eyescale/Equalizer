@@ -3,9 +3,9 @@
 
 #include <eq/base/lock.h>
 #include <eq/net/connection.h>
+#include <eq/net/init.h>
 #include <eq/net/node.h>
 #include <eq/net/packet.h>
-#include <eq/net/global.h>
 
 #include <alloca.h>
 #include <iostream>

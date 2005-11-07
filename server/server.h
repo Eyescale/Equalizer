@@ -105,20 +105,19 @@ namespace eqs
         Config* getConfig( const uint index ){ return _configs[index]; }
 
     protected:
-        /** 
-         * @sa eqNet::Node::handlePacket
-         */
+        /** @sa eqNet::Node::handlePacket */
         virtual void handlePacket( eqNet::Node* node, 
                                    const eqNet::Packet* packet );
 
-        /** 
-         * @sa eqNet::Node::handleCommand
-         */
+        /** @sa eqNet::Node::handleCommand */
         virtual void handleCommand( eqNet::Node* node,
                                     const eqNet::NodePacket* packet );
 
+        /** @sa eqNet::Node::handleConnect */
         virtual eqNet::Node* handleConnect(
             eqBase::RefPtr<eqNet::Connection> connection );
+
+        /** @sa eqNet::Node::handleDisconnect */
         virtual void handleDisconnect( eqNet::Node* node );
 
     private:

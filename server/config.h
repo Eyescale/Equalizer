@@ -112,7 +112,14 @@ namespace eqs
          * 
          * @param rc the name of the render client executable.
          */
-        void setRenderClient( const std::string rc ){ _renderClient = rc; }
+        void setRenderClient( const std::string& rc ){ _renderClient = rc; }
+
+        /** 
+         * Returns the name of the render client executable.
+         * 
+         * @return the name of the render client executable.
+         */
+        const std::string& getRenderClient() const { return _renderClient; }
 
         /** 
          * Handles the received command packet.

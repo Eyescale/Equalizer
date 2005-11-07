@@ -13,15 +13,6 @@ using namespace std;
 
 string Global::_programName;
 
-void eqNet::init( int argc, char** argv )
-{
-    ASSERT( argc > 0 );
-    
-    const string pwd = getenv("PWD");
-    Global::setProgramName( pwd + "/" + argv[0] );
-}
-
-
 void Global::setProgramName( const string& programName )
 {
     _programName = programName;

@@ -17,6 +17,7 @@
 #include <sys/types.h>
 
 using namespace eqNet;
+using namespace eqBase;
 using namespace std;
 
 
@@ -32,8 +33,7 @@ SocketConnection::~SocketConnection()
 //----------------------------------------------------------------------
 // connect
 //----------------------------------------------------------------------
-bool SocketConnection::connect( 
-    eqBase::RefPtr<ConnectionDescription> description )
+bool SocketConnection::connect( RefPtr<ConnectionDescription> description )
 {
     ASSERT( description->type == TYPE_TCPIP );
     if( _state != STATE_CLOSED )
@@ -52,17 +52,18 @@ bool SocketConnection::connect(
     const bool connected = (::connect( _readFD, (sockaddr*)&socketAddress, 
             sizeof(socketAddress)) == 0);
 
-    if( connected )
-        _state = STATE_CONNECTED;
-    else
+    if( !connected )
     {
-        WARN << "Could not connect to '" << description->hostname << ":" 
-             << description->parameters.TCPIP.port << "': " << strerror( errno ) 
-             << endl;
+        WARN << "Could not connect to '" << description->hostname << ":"
+             << description->parameters.TCPIP.port << "': "
+             << strerror( errno ) << endl;
         close();
+        return false;
     }
     
-    return connected;
+    _description = description;
+    _state = STATE_CONNECTED;
+    return true;
 }
 
 bool SocketConnection::_createSocket()
@@ -97,9 +98,8 @@ void SocketConnection::close()
     _state   = STATE_CLOSED;
 }
 
-void SocketConnection::_parseAddress( 
-    eqBase::RefPtr<ConnectionDescription> description,
-    sockaddr_in& socketAddress )
+void SocketConnection::_parseAddress( RefPtr<ConnectionDescription> description,
+                                      sockaddr_in& socketAddress )
 {
     socketAddress.sin_family = AF_INET;
     socketAddress.sin_addr.s_addr = htonl( INADDR_ANY );
@@ -122,7 +122,7 @@ void SocketConnection::_parseAddress(
 //----------------------------------------------------------------------
 // listen
 //----------------------------------------------------------------------
-bool SocketConnection::listen(eqBase::RefPtr<ConnectionDescription> description)
+bool SocketConnection::listen( RefPtr<ConnectionDescription> description )
 {
     if( _state != STATE_CLOSED )
         return false;
@@ -151,21 +151,27 @@ bool SocketConnection::listen(eqBase::RefPtr<ConnectionDescription> description)
 
     const bool listening = (::listen( _readFD, 10 ) == 0);
         
-    if( listening )
-        _state = STATE_LISTENING;
-    else
+    if( !listening )
     {
         WARN << "Could not listen on socket: " << strerror( errno ) << endl;
         close();
+        return false;
     }
 
+    char hostname[256];
+    gethostname( hostname, 256 );
+    description->hostname              = hostname;
+    description->parameters.TCPIP.port = getPort();
+
+    _description = description;
+    _state       = STATE_LISTENING;
     return listening;
 }
 
 //----------------------------------------------------------------------
 // accept
 //----------------------------------------------------------------------
-Connection* SocketConnection::accept()
+RefPtr<Connection> SocketConnection::accept()
 {
     if( _state != STATE_LISTENING )
         return NULL;
@@ -184,17 +190,19 @@ Connection* SocketConnection::accept()
         return NULL;
     }
 
-//     ConnectionDescription description;
-//     char                  address[15+1+5+1];
+    RefPtr<ConnectionDescription> description = new ConnectionDescription;
 
-//     description->protocol      = Network::PROTO_TCPIP;
-//     description->bandwidthKBS  = _description->bandwidthKBS;
-//     description->parameters.TCPIP.address = address;
+    description->type                  = TYPE_TCPIP;
+    description->bandwidthKBS          = _description->bandwidthKBS;
+    description->hostname              = inet_ntoa( newAddress.sin_addr );
+    description->parameters.TCPIP.port = newAddress.sin_port;
 
-    SocketConnection* newConnection = new SocketConnection();
-    newConnection->_readFD  = fd;
-    newConnection->_writeFD = fd;
-    newConnection->_state   = STATE_CONNECTED;
+    SocketConnection* newConnection = new SocketConnection;
+
+    newConnection->_readFD      = fd;
+    newConnection->_writeFD     = fd;
+    newConnection->_description = description;
+    newConnection->_state       = STATE_CONNECTED;
 
     INFO << "accepted connection from "
          << inet_ntoa(newAddress.sin_addr) << ":" << newAddress.sin_port <<endl;

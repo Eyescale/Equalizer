@@ -6,52 +6,36 @@
 
 #include "node.h"
 
-#include <eq/net/global.h>
+#include <eq/net/init.h>
 
 using namespace eq;
 using namespace eqBase;
 using namespace std;
 
-namespace eq
-{
-    bool initLocalNode( int argc, char** argv );
-    bool exitLocalNode();
-}
-
 bool eq::init( int argc, char** argv )
 {
-    eqNet::init( argc, argv );
-    return initLocalNode( argc, argv );
-}
+    char* argvListen[argc+1];
+    
+    for( int i=0; i<argc; i++ )
+        argvListen[i] = argv[i];
 
-bool eq::initLocalNode( int argc, char** argv )
-{
-    RefPtr<eqNet::Connection> connection =
-        eqNet::Connection::create(eqNet::TYPE_TCPIP);
-    RefPtr<eqNet::ConnectionDescription> connDesc = 
-        new eqNet::ConnectionDescription;
+    argvListen[argc] = "--eq-listen";
 
-    if( !connection->listen( connDesc ))
+    Node* node = new Node();
+    Node::setLocalNode( node );
+
+    if( !eqNet::init( argc+1, argvListen ))
+    {
+        ERROR << "Failed to initialise Equalizer network layer" << endl;
+        Node::setLocalNode( NULL );
+        delete node;
         return false;
+    }
 
-    Node* localNode = new Node();
-    return localNode->listen( connection );
+    return true;
 }
 
 bool eq::exit()
 {
-    if( !exitLocalNode( ))
-        return false;
-
-    //eqNet::exit();
-    return true;
-}
-
-bool eq::exitLocalNode()
-{
-    eqNet::Node* localNode = Node::getLocalNode();
-    if( !localNode->stopListening( ))
-        return false;
-
-    return true;
+    return eqNet::exit();
 }

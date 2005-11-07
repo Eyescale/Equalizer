@@ -2,23 +2,22 @@
 /* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_INIT_H
-#define EQ_INIT_H
+#ifndef EQNET_INIT_H
+#define EQNET_INIT_H
 
 /** 
- * @namespace eq
- * @brief The Equalizer client library.
+ * @namespace eqNet
+ * @brief The Equalizer networking abstraction layer.
  *
- * This namespace implements the application-visible API to access the Equalizer
- * server.
+ * The Equalizer network abstraction layer provides the basic functionality to
+ * enable execution on distributed and shared memory machines.
  */
-namespace eq
+namespace eqNet
 {
+    class Node;
+
     /** 
      * Initialises the Equalizer client library.
-     *
-     * This function may not return. This is used for remote render client nodes
-     * which execute incoming commands from the server.
      * 
      * @param argc the command line argument count.
      * @param argv the command line argument values.
@@ -26,7 +25,7 @@ namespace eq
      *         <code>false</code> otherwise.
      */
     bool init( int argc, char** argv );
-    
+
     /**
      * De-initialises the Equalizer client library.
      *

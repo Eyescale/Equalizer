@@ -45,7 +45,7 @@ namespace eqBase
          *             <code>NULL</code>.
          * @return the request identifier.
          */
-        uint registerRequest( void* data=NULL );
+        uint registerRequest( void* data = NULL );
 
         /** 
          * Unregisters a request.
@@ -62,13 +62,15 @@ namespace eqBase
          * retrieve the result if successful. 
          * 
          * @param requestID the request identifier.
+         * @param success return value to indicate if the request was served
+         *                sucessfully.
          * @param timeout the timeout in milliseconds to wait for the request,
          *                or <code>EQ_TIMEOUT_INDEFINITE</code> to wait
          *                indefinitely.
          * @return the result of the request, or <code>NULL</code> if the
          *         request timed out or the requestID is invalid.
          */
-        void* waitRequest( const uint requestID, 
+        void* waitRequest( const uint requestID, bool* success = NULL,
                            const uint timeout = EQ_TIMEOUT_INDEFINITE );
 
         /** 

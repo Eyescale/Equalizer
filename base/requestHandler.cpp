@@ -9,7 +9,7 @@ using namespace std;
 
 RequestHandler::RequestHandler( const Thread::Type type )
         : _type(type),
-          _requestID(0)
+          _requestID(1)
 {}
 
 RequestHandler::~RequestHandler()
@@ -49,20 +49,23 @@ void RequestHandler::unregisterRequest( const uint requestID )
     _freeRequests.push_front( request );
 }
 
-void* RequestHandler::waitRequest( const uint requestID, const uint timeout )
+void* RequestHandler::waitRequest( const uint requestID, bool* success,
+                                   const uint timeout )
 {
     Request* request = _requests[requestID];
-    if( !request )
-        return NULL;
 
-    if( !request->lock->set( timeout ))
-        return false;
+    if( !request || !request->lock->set( timeout ))
+    {
+        if( success ) *success = false;
+        return NULL;
+    }
 
     void* result = request->result;
-
+    
     _requests.erase( requestID );
     _freeRequests.push_front( request );
 
+    if( success ) *success = true;
     return result;
 }
 

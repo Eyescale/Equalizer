@@ -14,6 +14,7 @@
 #include <eq/packets.h>
 #include <eq/base/refPtr.h>
 #include <eq/net/connectionDescription.h>
+#include <eq/net/init.h>
 
 using namespace eqs;
 using namespace eqBase;
@@ -83,6 +84,7 @@ bool Server::_loadConfig( int argc, char **argv )
         new eqNet::ConnectionDescription;
     description->launchCommand = "ssh %h %c";
     description->hostname      = "localhost";
+    description->launchTimeout = 5000;
     node->addConnectionDescription( description );
 
     Pipe* pipe = new Pipe();
@@ -195,7 +197,9 @@ Config* Server::cloneConfig( Config* config )
     return clone;
 }
 
-
+//===========================================================================
+// packet handling methods
+//===========================================================================
 void Server::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
 {
     VERB << "handlePacket " << packet << endl;

@@ -4,10 +4,11 @@
 
 #include "node.h"
 
+#include "config.h"
 #include "pipe.h"
 
 using namespace eqs;
-
+using namespace std;
 
 Node::Node()
         : eqNet::Node(),
@@ -23,6 +24,14 @@ void Node::addPipe( Pipe* pipe )
     pipe->_node = this; 
 }
 
+const string& Node::getProgramName()
+{
+    const Config* config = getConfig();
+    ASSERT( config );
+
+    return config->getRenderClient();
+}
+
 //===========================================================================
 // Operations
 //===========================================================================
@@ -33,6 +42,7 @@ void Node::sendInit()
 
 bool Node::syncInit()
 {
+    return false;
 }
 
 std::ostream& eqs::operator << ( std::ostream& os, const Node* node )

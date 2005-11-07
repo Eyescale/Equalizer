@@ -26,6 +26,13 @@ namespace eqs
         Node();
 
         /** 
+         * Returns the parent config of this node.
+         * 
+         * @return the parent config of this node.
+         */
+        Config* getConfig() const { return _config; }
+
+        /** 
          * Adds a new pipe to this node.
          * 
          * @param pipe the pipe.
@@ -91,6 +98,10 @@ namespace eqs
          */
         bool syncInit();
         //*}
+
+    protected:
+        /** @sa eqNet::Node::getProgramName */
+        virtual const std::string& getProgramName();
 
     private:
         /** The vector of pipes belonging to this node. */

@@ -55,6 +55,7 @@ bool PipeConnection::connect( eqBase::RefPtr<ConnectionDescription> description)
     childConnection->_setupChild();
     _childConnection = childConnection;
     _setupParent();
+    _description = description;
     return true;
 }
 
@@ -93,6 +94,7 @@ void PipeConnection::close()
     }
 
     _childConnection = NULL;
+    _description     = NULL;
     _state = STATE_CLOSED;
 }
 
