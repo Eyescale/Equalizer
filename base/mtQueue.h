@@ -30,10 +30,51 @@ namespace eqBase
          * 
          * @param type the type of threads accessing the Queue.
          */
-        MTQueue( const Thread::Type type );
+        MTQueue( const Thread::Type type = Thread::PTHREAD )
+            {
+                switch( type )
+                {
+                    case Thread::PTHREAD:
+                    {
+                        // mutex init
+                        int error = pthread_mutex_init( &_sync.pthread.mutex,
+                                                        NULL );
+                        if( error )
+                        {
+                            ERROR << "Error creating pthread mutex: " 
+                                  << strerror( error ) << std::endl;
+                            return;
+                        }
+                        // condvar init
+                        error = pthread_cond_init( &_sync.pthread.cond, NULL );
+                        if( error )
+                        {
+                            ERROR << "Error creating pthread condition: " 
+                                  << strerror( error ) << std::endl;
+                            return;
+                        }
+                        break;
+                    }
+                    default:
+                        ASSERT( "not implemented" == NULL );
+                }
+            }
 
         /** Destructs the Queue. */
-        ~MTQueue(){}
+        ~MTQueue()
+            {
+                switch( _type )
+                {
+                    case Thread::PTHREAD:
+                        pthread_mutex_destroy( &_sync.pthread.mutex );
+                        pthread_cond_destroy( &_sync.pthread.cond );
+                        return;
+                        
+                    default:
+                        ERROR << "not implemented" << std::endl;
+                }
+            }
+
 
         const T& pop()
             {

@@ -18,10 +18,10 @@ using namespace std;
 Server::Server()
         : _state( STATE_STOPPED )
 {
-    for( int i=eqNet::CMD_NODE_CUSTOM; i<CMD_SERVER_ALL; i++ )
-        _cmdHandler[i - eqNet::CMD_NODE_CUSTOM] =  &eq::Server::_cmdUnknown;
+    for( int i=0; i<CMD_SERVER_ALL; i++ )
+        _cmdHandler[i] =  &eq::Server::_cmdUnknown;
 
-    _cmdHandler[CMD_SERVER_CHOOSE_CONFIG_REPLY - eqNet::CMD_NODE_CUSTOM] =
+    _cmdHandler[CMD_SERVER_CHOOSE_CONFIG_REPLY] =
         &eq::Server::_cmdChooseConfigReply;
 
     INFO << "New server at " << (void*)this << endl;
@@ -83,13 +83,13 @@ Config* Server::chooseConfig( const ConfigParams* parameters )
 
     ServerChooseConfigPacket packet;
     packet.requestID          = _requestHandler.registerRequest();
-    packet.appNameLength      = parameters->appName.size() + 1;
-    packet.renderClientLength = parameters->renderClient.size() + 1;
+    packet.appNameString      = parameters->appName.size() + 1;
+    packet.renderClientString = parameters->renderClient.size() + 1;
     packet.compoundModes      = parameters->compoundModes;
 
     send( packet );
-    send( parameters->appName.c_str(),      packet.appNameLength );
-    send( parameters->renderClient.c_str(), packet.renderClientLength );
+    send( parameters->appName.c_str(),      packet.appNameString );
+    send( parameters->renderClient.c_str(), packet.renderClientString );
 
     const void* result = _requestHandler.waitRequest( packet.requestID );
     return (Config*)result;
@@ -113,6 +113,10 @@ void Server::handlePacket( const eqNet::Packet* packet )
 
     switch( datatype )
     {
+        case eqNet::DATATYPE_EQNET_NODE:
+            _handleCommand( (eqNet::NodePacket*)packet );
+            break;
+
         case eq::DATATYPE_EQ_CONFIG:
         {
             const ConfigPacket* configPacket = (ConfigPacket*)packet;
@@ -130,13 +134,12 @@ void Server::handlePacket( const eqNet::Packet* packet )
     }
 }
 
-void Server::handleCommand( const eqNet::NodePacket* packet )
+void Server::_handleCommand( const eqNet::NodePacket* packet )
 {
     INFO << "handle " << packet << endl;
-    ASSERT( packet->command >= eqNet::CMD_NODE_CUSTOM );
     ASSERT( packet->command <  CMD_SERVER_ALL );
 
-    (this->*_cmdHandler[packet->command - eqNet::CMD_NODE_CUSTOM])(packet);
+    (this->*_cmdHandler[packet->command])(packet);
 }
 
 void Server::_cmdUnknown( const eqNet::Packet* pkg )

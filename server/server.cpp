@@ -25,13 +25,11 @@ using namespace std;
 Server::Server()
         : _configID(1)
 {
-    for( int i=eqNet::CMD_NODE_CUSTOM; i<eq::CMD_SERVER_ALL; i++ )
-        _cmdHandler[i - eqNet::CMD_NODE_CUSTOM] =  &eqs::Server::_cmdUnknown;
+    for( int i=0; i<eq::CMD_SERVER_ALL; i++ )
+        _cmdHandler[i] =  &eqs::Server::_cmdUnknown;
 
-    _cmdHandler[eq::CMD_SERVER_CHOOSE_CONFIG - eqNet::CMD_NODE_CUSTOM] =
-        &eqs::Server::_cmdChooseConfig;
-    _cmdHandler[eq::CMD_SERVER_RELEASE_CONFIG - eqNet::CMD_NODE_CUSTOM] =
-        &eqs::Server::_cmdReleaseConfig;
+    _cmdHandler[eq::CMD_SERVER_CHOOSE_CONFIG] = &eqs::Server::_cmdChooseConfig;
+    _cmdHandler[eq::CMD_SERVER_RELEASE_CONFIG] =&eqs::Server::_cmdReleaseConfig;
 }
 
 bool Server::run( int argc, char **argv )
@@ -78,9 +76,9 @@ bool Server::_loadConfig( int argc, char **argv )
 
     RefPtr<eqNet::ConnectionDescription> description =
         new eqNet::ConnectionDescription;
-    description->launchCommand = "ssh %h %c";
+    description->launchCommand = "ssh -n %h %c";
     description->hostname      = "localhost";
-    description->launchTimeout = 5000;
+    description->launchTimeout = 10000;
     node->addConnectionDescription( description );
 
     Pipe* pipe = new Pipe();
@@ -204,17 +202,45 @@ void Server::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
     // receiver thread when handling certain packets.
     VERB << "handlePacket " << packet << endl;
 
+    _completePacket( node, packet );
+    
     Request* request = _createRequest( node, packet );
     _requests.push( request );
 }
 
-Request* Server::_createRequest( eqNet::Node* node, const eqNet::Packet* packet)
+void Server::_completePacket( eqNet::Node* node, const eqNet::Packet* packet )
+{
+    switch( packet->datatype )
+    {
+        case eqNet::DATATYPE_EQNET_NODE:
+            if( packet->command == eq::CMD_SERVER_CHOOSE_CONFIG )
+            {
+                eq::ServerChooseConfigPacket* pkg =
+                    (eq::ServerChooseConfigPacket*)packet;
+                ASSERT( pkg->appNameString );
+                ASSERT( pkg->renderClientString );
+
+                char* appName = (char*)malloc( pkg->appNameString );
+                node->recv( appName, pkg->appNameString );
+
+                char* renderClient = (char*)malloc( pkg->renderClientString );
+                node->recv( renderClient, pkg->renderClientString );
+
+                pkg->appNameString      = (uint64)appName;
+                pkg->renderClientString = (uint64)renderClient;
+            }
+            break;
+    }
+}
+
+Server::Request* Server::_createRequest( eqNet::Node* node,
+                                         const eqNet::Packet* packet )
 {
     Request* request;
 
     _freeRequestsLock.set();
     if( _freeRequests.empty( ))
-        request = new Request( _type );
+        request = new Request;
     else
     {
         request = _freeRequests.front();
@@ -225,31 +251,50 @@ Request* Server::_createRequest( eqNet::Node* node, const eqNet::Packet* packet)
     request->node = node;
 
     const size_t packetSize = packet->size;
-    if( packetSize < SMALL_PACKET_SIZE )
+    if( packetSize <= SMALL_PACKET_SIZE )
     {
         if( !request->packet )
-            request->packet = (Packet*)malloc( SMALL_PACKET_SIZE );
+            request->packet = (eqNet::Packet*)malloc( SMALL_PACKET_SIZE );
     }
     else
     {
         if( request->packet )
             free( request->packet );
-        request->packet = (Packet*)malloc( packetSize );
+
+        request->packet = (eqNet::Packet*)malloc( packetSize );
     }
         
     memcpy( request->packet, packet, packetSize );
     return request;
 }
 
+void Server::_freeRequest( Request* request )
+{
+    if( request->packet->size > SMALL_PACKET_SIZE )
+    {
+        free( request->packet );
+        request->packet = NULL;
+    }
+    
+    _freeRequestsLock.set();
+    _freeRequests.push_back( request );
+    _freeRequestsLock.unset();
+}
+
 void Server::_handleRequests()
 {
     while( true )
     {
-        Request* request = _requests.pop();
+        Request*   request  = _requests.pop();
         const uint datatype = request->packet->datatype;
         
         switch( datatype )
         {
+            case eqNet::DATATYPE_EQNET_NODE:
+                _handleCommand( request->node, 
+                                (eqNet::NodePacket*)request->packet );
+                break;
+
             case eq::DATATYPE_EQ_CONFIG:
             {
                 const eq::ConfigPacket* configPacket = (eq::ConfigPacket*)
@@ -258,25 +303,24 @@ void Server::_handleRequests()
                 Config*                 config       = _appConfigs[configID];
                 ASSERT( config );
 
-                config->handleCommand( node, configPacket );
-            }
+                config->handleCommand( request->node, configPacket );
             break;
-
+            }
             default:
                 ERROR << "unimplemented" << endl;
                 abort();
         }
+
+        _freeRequest( request );
     }
 }
 
-void Server::handleCommand( eqNet::Node* node, const eqNet::NodePacket* packet )
+void Server::_handleCommand( eqNet::Node* node, const eqNet::NodePacket* packet)
 {
     VERB << "handleCommand " << packet << endl;
-    ASSERT( packet->command >= eqNet::CMD_NODE_CUSTOM );
 
     if( packet->command < eq::CMD_SERVER_ALL )
-        (this->*_cmdHandler[packet->command - eqNet::CMD_NODE_CUSTOM])
-            (node, packet);
+        (this->*_cmdHandler[packet->command])(node, packet);
     else
         ERROR << "Unknown command " << packet->command << endl;
 }
@@ -284,17 +328,7 @@ void Server::handleCommand( eqNet::Node* node, const eqNet::NodePacket* packet )
 void Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     eq::ServerChooseConfigPacket* packet = (eq::ServerChooseConfigPacket*)pkg;
-    ASSERT( packet->appNameLength );
-    ASSERT( packet->renderClientLength );
-
-    char* appName = (char*)alloca(packet->appNameLength);
-    node->recv( appName, packet->appNameLength );
-
-    char* renderClient = (char*)alloca(packet->renderClientLength);
-    node->recv( renderClient, packet->renderClientLength );
-
-    INFO << "Handle choose config " << packet << " appName " << appName 
-         << " renderClient " << renderClient << endl;
+    INFO << "Handle choose config " << packet << endl;
 
     // TODO
     Config* config = nConfigs()>0 ? getConfig(0) : NULL;
@@ -313,11 +347,14 @@ void Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
     Config* appConfig = cloneConfig( config );
 
     appConfig->setID( reply.configID );
-    appConfig->setAppName( appName );
-    appConfig->setRenderClient( renderClient );
+    appConfig->setAppName( (char*)packet->appNameString );
+    appConfig->setRenderClient( (char*)packet->renderClientString );
 
     _appConfigs[reply.configID] = appConfig;
     node->send( reply );
+
+    free( (void*)packet->appNameString );
+    free( (void*)packet->renderClientString );
 }
 
 void Server::_cmdReleaseConfig( eqNet::Node* node, const eqNet::Packet* pkg )

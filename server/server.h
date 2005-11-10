@@ -6,6 +6,7 @@
 #define EQS_SERVER_H
 
 #include <eq/packets.h>
+#include <eq/base/lock.h>
 #include <eq/base/mtQueue.h>
 #include <eq/net/idHash.h>
 #include <eq/net/node.h>
@@ -109,11 +110,7 @@ namespace eqs
         /** @sa eqNet::Node::handlePacket */
         virtual void handlePacket( eqNet::Node* node, 
                                    const eqNet::Packet* packet );
-
-        /** @sa eqNet::Node::handleCommand */
-        virtual void handleCommand( eqNet::Node* node,
-                                    const eqNet::NodePacket* packet );
-
+        
         /** @sa eqNet::Node::createNode */
         virtual eqBase::RefPtr<eqNet::Node> createNode();
 
@@ -137,16 +134,17 @@ namespace eqs
 
         struct Request
         {
-            Node*   node;
-            Packet* packet;
+            Request() : packet( NULL ) {}
+            Node*          node;
+            eqNet::Packet* packet;
         };
 
         /** The receiver->main thread request queue. */
-        eqBase::MTQueue<Request*> _requests( eqBase::Thread::PTHREAD );
+        eqBase::MTQueue<Request*> _requests;
         
         /** The free packet store. */
-        std::vector<Request*> _freePackets;
-        eqBase::Lock         _freePacketsLock( eqBase::Thread::PTHREAD );
+        std::list<Request*>       _freeRequests;
+        eqBase::Lock              _freeRequestsLock;
 
         /** Loads the server's configuration. */
         bool _loadConfig( int argc, char **argv );
@@ -154,8 +152,17 @@ namespace eqs
         /** Clones a configuration. */
         static Config* cloneConfig( Config* config );
 
+        void     _handleRequests(); 
+        void       _handleCommand( eqNet::Node* node,
+                                   const eqNet::NodePacket* packet);
+        void       _completePacket( eqNet::Node* node,
+                                    const eqNet::Packet* packet );
+        Request*   _createRequest( eqNet::Node* node, 
+                                   const eqNet::Packet* packet );
+        void       _freeRequest( Request* request );
+
         /** The command handler function table. */
-        void (eqs::Server::*_cmdHandler[eq::CMD_SERVER_ALL - eqNet::CMD_NODE_CUSTOM])
+        void (eqs::Server::*_cmdHandler[eq::CMD_SERVER_ALL])
             ( eqNet::Node* node, const eqNet::Packet* packet );
 
         void _cmdChooseConfig( eqNet::Node* node,

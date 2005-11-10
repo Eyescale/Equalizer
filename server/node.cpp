@@ -42,7 +42,7 @@ void Node::sendInit()
 
 bool Node::syncInit()
 {
-    return false;
+    return true;
 }
 
 std::ostream& eqs::operator << ( std::ostream& os, const Node* node )

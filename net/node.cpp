@@ -92,7 +92,8 @@ bool Node::stopListening()
         node->_connection = NULL;
     }
 
-    _connectionSet.clear();    
+    _connectionSet.clear();   
+
     _state = STATE_STOPPED;
     return true;    
 }
@@ -120,13 +121,12 @@ void Node::_addConnectedNode( RefPtr<Node> node, RefPtr<Connection> connection )
     ASSERT( node.isValid( ));
     ASSERT( _state == STATE_LISTENING );
     ASSERT( connection->getState() == Connection::STATE_CONNECTED );
-    ASSERT( node->_state == STATE_STOPPED );
+    ASSERT( node->_state == STATE_STOPPED || node->_state == STATE_LAUNCHED );
 
     node->_connection = connection;
     node->_state      = STATE_CONNECTED;
     
     _connectionSet.addConnection( connection, node );
-
     INFO << node.get() << " connected to " << this << endl;
 }
 
@@ -144,7 +144,6 @@ bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
     node->send( packet );
 
     _connectionSet.addConnection( connection, node );
-
     INFO << node.get() << " connected to " << this << endl;
     return true;
 }
@@ -157,7 +156,7 @@ bool Node::disconnect( Node* node )
 
     if( !_connectionSet.removeConnection( node->_connection ))
         return false;
-
+    
     node->_state      = STATE_STOPPED;
     node->_connection = NULL;
     INFO << node << " disconnected from " << this << endl;
@@ -273,11 +272,13 @@ void Node::handleConnect( RefPtr<Connection> connection )
     bool gotData = connection->recv( &packet, sizeof( NodeConnectPacket ));
     ASSERT( gotData );
     
+    RefPtr<Node> node;
+
     if( packet.wasLaunched )
     {
-        ASSERT( dynamic_cast<Node*>( (Thread*)packet.launchID ));
+        //ASSERT( dynamic_cast<Node*>( (Thread*)packet.launchID ));
 
-        Node* node = (Node*)packet.launchID;
+        node = (Node*)packet.launchID;
         const uint requestID = node->_pendingRequestID;
         ASSERT( requestID != INVALID_ID );
 
@@ -285,9 +286,10 @@ void Node::handleConnect( RefPtr<Connection> connection )
     }
     else
     {
-        RefPtr<Node> node = createNode();
-        _addConnectedNode( node, connection );
+        node = createNode();
     }
+
+    _addConnectedNode( node, connection );
 }
 
 void Node::_handleDisconnect( ConnectionSet& connectionSet )
@@ -336,7 +338,7 @@ void Node::_handlePacket( Node* node, const Packet* packet )
             if( packet->command < CMD_NODE_CUSTOM )
                 (this->*_cmdHandler[packet->command])(node, packet);
             else
-                handleCommand( node, (const NodePacket*)packet );
+                handlePacket( node, packet );
             break;
 
         case DATATYPE_EQNET_SESSION:

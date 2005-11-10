@@ -13,22 +13,6 @@
 using namespace eq;
 using namespace std;
 
-void Node::handleCommand( eqNet::Node* node, const eqNet::NodePacket* packet )
-{
-    VERB << "handleCommand " << packet << endl;
-
-    if( packet->command >= CMD_SERVER_ALL )
-    {
-        ERROR << "Unknown command " << packet->command << endl;
-        return;
-    }
-
-    ASSERT( dynamic_cast<Server*>(node) );
-
-    Server* server = static_cast<Server*>(node);
-    server->handleCommand( packet );
-}
-
 void Node::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
 {
     VERB << "handlePacket " << packet << endl;
@@ -36,6 +20,7 @@ void Node::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
 
     switch( datatype )
     {
+        case eqNet::DATATYPE_EQNET_NODE:
         case DATATYPE_EQ_CONFIG:
             ASSERT( dynamic_cast<Server*>(node) );
 

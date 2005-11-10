@@ -72,13 +72,6 @@ namespace eq
          */
         void handlePacket( const eqNet::Packet* packet );
 
-        /** 
-         * Handles a command for this server.
-         * 
-         * @param packet the command packet.
-         */
-        void handleCommand( const eqNet::NodePacket* packet );
-
     private:
         enum State 
         {
@@ -90,8 +83,15 @@ namespace eq
         /** The allocated configurations, mapped by identifier. */
         eqNet::IDHash<Config*> _configs;
 
+        /** 
+         * Handles a command for this server.
+         * 
+         * @param packet the command packet.
+         */
+        void _handleCommand( const eqNet::NodePacket* packet );
+
         /** The command handler function table. */
-        void (eq::Server::*_cmdHandler[CMD_SERVER_ALL-eqNet::CMD_NODE_CUSTOM])
+        void (eq::Server::*_cmdHandler[CMD_SERVER_ALL])
             ( const eqNet::Packet* packet );
 
         void _cmdUnknown( const eqNet::Packet* packet );

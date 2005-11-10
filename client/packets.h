@@ -27,10 +27,10 @@ namespace eq
                 size    = sizeof( ServerChooseConfigPacket );
             }
 
-        uint requestID;
-        uint appNameLength;
-        uint renderClientLength;
-        uint compoundModes;
+        uint   requestID;
+        uint64 appNameString;
+        uint64 renderClientString;
+        uint   compoundModes;
     };
 
     struct ServerChooseConfigReplyPacket : public eqNet::NodePacket
@@ -99,9 +99,9 @@ namespace eq
                                        const ServerChooseConfigPacket* packet )
     {
         os << (eqNet::NodePacket*)packet << " req " << packet->requestID
-           << " cmp modes " << packet->compoundModes << " appNameLength " 
-           << packet->appNameLength << " renderClientLength "
-           << packet->renderClientLength;
+           << " cmp modes " << packet->compoundModes << " appName " 
+           << (void*)packet->appNameString << " renderClient "
+           << (void*)packet->renderClientString;
         return os;
     }
 

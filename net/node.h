@@ -340,15 +340,6 @@ namespace eqNet
     protected:
         /** The current state of this node. */
         State _state;
-        
-        /** The connection to this node, for remote nodes. */
-        eqBase::RefPtr<Connection> _connection;
-
-        /** The listening connection. */
-        eqBase::RefPtr<Connection> _listener;
-
-        /** The connection set of all connections from/to this node. */
-        ConnectionSet _connectionSet;
 
         /** Registers request packets waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
@@ -356,32 +347,13 @@ namespace eqNet
         /** Determines if the node should be launched automatically. */
         bool _autoLaunch;
 
-        /** The list of descriptions on how this node is reachable. */
-        std::vector< eqBase::RefPtr<ConnectionDescription> >
-            _connectionDescriptions;
-
         /** 
-         * Handles a custom packet which has been received by this node.
-         * 
-         * This method is called for all packets which have a datatype unknown
-         * to the node.
+         * Handles a packet which has been received by this node.
          * 
          * @param node the node which send the packet.
          * @param packet the packet.
          */
         virtual void handlePacket( Node* node, const Packet* packet ){}
-
-        /** 
-         * Handles a packet with a custom command which has been received by
-         * this node.
-         * 
-         * This method is called for all node packets which have a command
-         * unknown to the node.
-         * 
-         * @param node the node which sent the packet.
-         * @param packet the packet.
-         */
-        virtual void handleCommand( Node* node, const NodePacket* packet ){}
 
         /** 
          * Handles the connection of a new node by connecting it to this node.
@@ -420,8 +392,21 @@ namespace eqNet
         /** The current sessions of this node. */
         IDHash<Session*> _sessions;
 
+        /** The connection to this node, for remote nodes. */
+        eqBase::RefPtr<Connection> _connection;
+
+        /** The listening connection. */
+        eqBase::RefPtr<Connection> _listener;
+
+        /** The connection set of all connections from/to this node. */
+        ConnectionSet _connectionSet;
+
         /** The request id for pending asynchronous operations (connect, etc) */
         uint _pendingRequestID;
+
+        /** The list of descriptions on how this node is reachable. */
+        std::vector< eqBase::RefPtr<ConnectionDescription> >
+            _connectionDescriptions;
 
         Session* _findSession( const std::string& name ) const;
 

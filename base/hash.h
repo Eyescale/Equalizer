@@ -7,9 +7,11 @@
 
 #ifdef __GNUC__              // GCC 3.1 and later
 #  include <ext/hash_map>
+#  include <ext/hash_set>
 namespace Sgi = ::__gnu_cxx; 
 #else                        //  other compilers
 #  include <hash_map>
+#  include <hash_set>
 namespace Sgi = std;
 #endif
 
@@ -18,7 +20,7 @@ namespace eqBase
     /** 
      * Provides a hashing function for pointers.
      */
-    template< class T > struct hashFuncPtr
+    template< class T > struct hashPtr
     {
 
         /** 
@@ -32,29 +34,17 @@ namespace eqBase
             }
     };
 
-    struct hashString
+    struct hashString : public Sgi::hash<const char*>
     {
-        size_t operator()(const char *string) const
-            {
-                unsigned long hash = 5381;
-                const unsigned char* ptr = (const unsigned char*)string;
-                int c;
-
-                while ( (c = *ptr++) != '\0' )
-                    hash = ((hash << 5) + hash) + c; // hash * 33 + c
-
-                return hash;
-            }
-
         bool operator()(const char* s1, const char* s2) const
             {
                 return strcmp(s1, s2) == 0;
             }
     };
-
+    
     /** A hash for pointer keys. */
     template<class K, class T> class PtrHash 
-        : public Sgi::hash_map<K, T, hashFuncPtr<K> >
+        : public Sgi::hash_map<K, T, hashPtr<K> >
     {};
 
     /** A hash for const char* keys. */

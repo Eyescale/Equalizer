@@ -20,10 +20,16 @@ bool eqNet::init( int argc, char** argv )
 {
     ASSERT( argc > 0 );
 
-    if( Global::getProgramName().size() == 0 )
+    const string programName = Global::getProgramName();
+    if( programName.size() == 0  )
     {
-        const string pwd = getenv("PWD");
-        Global::setProgramName( pwd + "/" + argv[0] );
+        if( argv[0][0] == '/' )
+            Global::setProgramName( argv[0] );
+        else
+        {
+            const string pwd = getenv("PWD");
+            Global::setProgramName( pwd + "/" + argv[0] );
+        }
     }
 
     if( !initLocalNode( argc, argv ))

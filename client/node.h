@@ -19,11 +19,6 @@ namespace eq
         virtual void handlePacket( eqNet::Node* node, 
                                    const eqNet::Packet* packet );
 
-        /** 
-         * @sa eqNet::Node::handleCommand
-         */
-        virtual void handleCommand( eqNet::Node* node, 
-                                    const eqNet::NodePacket* packet );
     private:
     };
 }
