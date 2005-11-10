@@ -14,7 +14,7 @@ namespace eqNet
         CMD_NODE_MAP_SESSION,
         CMD_NODE_MAP_SESSION_REPLY,
         CMD_NODE_SESSION,
-        CMD_NODE_LAUNCHED,
+        CMD_NODE_CONNECT,
         CMD_NODE_CUSTOM // must be last
     };
 

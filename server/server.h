@@ -6,6 +6,7 @@
 #define EQS_SERVER_H
 
 #include <eq/packets.h>
+#include <eq/base/mtQueue.h>
 #include <eq/net/idHash.h>
 #include <eq/net/node.h>
 
@@ -113,9 +114,8 @@ namespace eqs
         virtual void handleCommand( eqNet::Node* node,
                                     const eqNet::NodePacket* packet );
 
-        /** @sa eqNet::Node::handleConnect */
-        virtual eqNet::Node* handleConnect(
-            eqBase::RefPtr<eqNet::Connection> connection );
+        /** @sa eqNet::Node::createNode */
+        virtual eqBase::RefPtr<eqNet::Node> createNode();
 
         /** @sa eqNet::Node::handleDisconnect */
         virtual void handleDisconnect( eqNet::Node* node );
@@ -133,6 +133,20 @@ namespace eqs
 
         /** The application-allocated configurations, mapped by identifier. */
         eqNet::IDHash<Config*> _appConfigs;
+
+
+        struct Request
+        {
+            Node*   node;
+            Packet* packet;
+        };
+
+        /** The receiver->main thread request queue. */
+        eqBase::MTQueue<Request*> _requests( eqBase::Thread::PTHREAD );
+        
+        /** The free packet store. */
+        std::vector<Request*> _freePackets;
+        eqBase::Lock         _freePacketsLock( eqBase::Thread::PTHREAD );
 
         /** Loads the server's configuration. */
         bool _loadConfig( int argc, char **argv );

@@ -51,7 +51,8 @@ void ConnectionSet::_dirtyFDSet()
     write( _selfFD[1], &c, 1 );
 }
 
-void ConnectionSet::addConnection( eqBase::RefPtr<Connection> connection, Node* node )
+void ConnectionSet::addConnection( RefPtr<Connection> connection, 
+                                   RefPtr<Node> node )
 {
     ASSERT( connection->getState() == Connection::STATE_CONNECTED ||
             connection->getState() == Connection::STATE_LISTENING );
@@ -242,7 +243,7 @@ std::ostream& eqNet::operator << ( std::ostream& os, ConnectionSet* set)
     {
         eqBase::RefPtr<Connection> connection = set->getConnection(i);
         os << endl << "    " << connection.get() << ", " 
-           << set->getNode( connection );
+           << set->getNode( connection ).get();
     }
     
     return os;

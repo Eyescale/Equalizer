@@ -30,7 +30,7 @@ namespace eqNet
     public:
         ConnectionDescription() 
                 : type( TYPE_TCPIP ),
-                  bandwidthKBS( 42 )
+                  bandwidthKBS( 0 )
             {
                 bzero( &parameters, sizeof(parameters));
             }

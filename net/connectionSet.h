@@ -41,14 +41,15 @@ namespace eqNet
         ConnectionSet();
         ~ConnectionSet();
 
-        void addConnection( eqBase::RefPtr<Connection> connection, Node* node );
+        void addConnection( eqBase::RefPtr<Connection> connection, 
+                            eqBase::RefPtr<Node> node );
         bool removeConnection( eqBase::RefPtr<Connection> connection );
         void clear();
         size_t nConnections() const { return _connections.size(); }
         eqBase::RefPtr<Connection> getConnection( const size_t i )
             { return _connections[i]; }
 
-        Node* getNode( eqBase::RefPtr<Connection> connection )
+        eqBase::RefPtr<Node> getNode( eqBase::RefPtr<Connection> connection )
             { return _nodes[connection.get()]; }
 
         /** 
@@ -81,8 +82,8 @@ namespace eqNet
 
         int      _errno;
 
-        std::vector< eqBase::RefPtr<Connection> > _connections;
-        eqBase::PtrHash< Connection*, Node* >     _nodes;
+        std::vector< eqBase::RefPtr<Connection> >            _connections;
+        eqBase::PtrHash< Connection*, eqBase::RefPtr<Node> > _nodes;
 
         // result values
         eqBase::RefPtr<Connection> _connection;

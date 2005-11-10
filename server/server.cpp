@@ -20,6 +20,8 @@ using namespace eqs;
 using namespace eqBase;
 using namespace std;
 
+#define SMALL_PACKET_SIZE 1024
+
 Server::Server()
         : _configID(1)
 {
@@ -50,25 +52,19 @@ bool Server::run( int argc, char **argv )
     if( !listen( connection ))
         return false;
 
+    _handleRequests();
     join();
     return true;
 }
 
-eqNet::Node* Server::handleConnect( RefPtr<eqNet::Connection> connection )
+RefPtr<eqNet::Node> Server::createNode()
 {
-    Node* node = new Node();
-    if( connect( node, connection ))
-        return node;
-
-    delete node;
-    return NULL;
+    return new Node();
 }
 
 void Server::handleDisconnect( Node* node )
 {
-    const bool disconnected = disconnect( node );
-    ASSERT( disconnected );
-
+    Node::handleDisconnect( node );
     // TODO: free up resources requested by disconnected node
 }
 
@@ -202,25 +198,74 @@ Config* Server::cloneConfig( Config* config )
 //===========================================================================
 void Server::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
 {
+    // We'll dispatch the packets to the main thread to handle them
+    // asynchronously. This is needed since the server will react on packets by
+    // exchanging information with other nodes. Therefore we cannot block the
+    // receiver thread when handling certain packets.
     VERB << "handlePacket " << packet << endl;
-    const uint datatype = packet->datatype;
 
-    switch( datatype )
+    Request* request = _createRequest( node, packet );
+    _requests.push( request );
+}
+
+Request* Server::_createRequest( eqNet::Node* node, const eqNet::Packet* packet)
+{
+    Request* request;
+
+    _freeRequestsLock.set();
+    if( _freeRequests.empty( ))
+        request = new Request( _type );
+    else
     {
-        case eq::DATATYPE_EQ_CONFIG:
+        request = _freeRequests.front();
+        _freeRequests.pop_front();
+    }
+    _freeRequestsLock.unset();
+
+    request->node = node;
+
+    const size_t packetSize = packet->size;
+    if( packetSize < SMALL_PACKET_SIZE )
+    {
+        if( !request->packet )
+            request->packet = (Packet*)malloc( SMALL_PACKET_SIZE );
+    }
+    else
+    {
+        if( request->packet )
+            free( request->packet );
+        request->packet = (Packet*)malloc( packetSize );
+    }
+        
+    memcpy( request->packet, packet, packetSize );
+    return request;
+}
+
+void Server::_handleRequests()
+{
+    while( true )
+    {
+        Request* request = _requests.pop();
+        const uint datatype = request->packet->datatype;
+        
+        switch( datatype )
         {
-            const eq::ConfigPacket* configPacket = (eq::ConfigPacket*)packet;
-            const uint              configID     = configPacket->configID;
-            Config*                 config       = _appConfigs[configID];
-            ASSERT( config );
+            case eq::DATATYPE_EQ_CONFIG:
+            {
+                const eq::ConfigPacket* configPacket = (eq::ConfigPacket*)
+                    request->packet;
+                const uint              configID     = configPacket->configID;
+                Config*                 config       = _appConfigs[configID];
+                ASSERT( config );
 
-            config->handleCommand( node, configPacket );
+                config->handleCommand( node, configPacket );
+            }
+            break;
+
+            default:
+                ERROR << "unimplemented" << endl;
+                abort();
         }
-        break;
-
-        default:
-            ERROR << "unimplemented" << endl;
-            abort();
     }
 }
 

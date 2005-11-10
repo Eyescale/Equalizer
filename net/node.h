@@ -31,7 +31,8 @@ namespace eqNet
      * has at least one Connection through which is reachable. A Node provides
      * the basic communication facilities through message passing.
      */
-    class Node : public eqBase::Thread, public eqNet::Base
+    class Node : public eqBase::Referenced, public eqBase::Thread, 
+                 public eqNet::Base
     {
     public:
         enum State {
@@ -96,7 +97,8 @@ namespace eqNet
          * @return <code>true</code> if the node was connected correctly,
          *         <code>false</code> otherwise.
          */
-        bool connect( Node* node, eqBase::RefPtr<Connection> connection );
+        bool connect( eqBase::RefPtr<Node> node, 
+                      eqBase::RefPtr<Connection> connection );
 
 
         /** 
@@ -239,6 +241,7 @@ namespace eqNet
          */
         bool send( const Packet& packet )
             {
+                ASSERT( getLocalNode( ));
                 if( _state==STATE_STOPPED )
                     connect();
                 if( _state!=STATE_CONNECTED && _state!=STATE_LISTENING )
@@ -384,10 +387,8 @@ namespace eqNet
          * Handles the connection of a new node by connecting it to this node.
          * 
          * @param connection the incoming connection for the new node.
-         * @return the newly connected node, or <code>NULL</code> if the
-         *         connection was refused.
          */
-        virtual Node* handleConnect( eqBase::RefPtr<Connection> connection );
+        virtual void handleConnect( eqBase::RefPtr<Connection> connection );
 
         /** 
          * Handles the disconnection of a new node by disconnecting it from this
@@ -396,6 +397,13 @@ namespace eqNet
          * @param node the disconnected node.
          */
         virtual void handleDisconnect( Node* node );
+
+        /** 
+         * Factory method to create a new node.
+         * 
+         * @return the node.
+         */
+        virtual eqBase::RefPtr<Node> createNode() { return new Node; }
 
         /** 
          * Returns the program name to start this node.
@@ -457,14 +465,17 @@ namespace eqNet
          * @return the expanded launch command.
          */
         std::string _createLaunchCommand( eqBase::RefPtr<ConnectionDescription> 
-                                          description, const uint requestID );
-        std::string   _createRemoteCommand( const uint requestID );
+                                          description );
+        std::string   _createRemoteCommand();
 
         /** The receiver thread entry function for this node. */
         virtual ssize_t run();
             
         void _handleConnect( ConnectionSet& connectionSet );
         void _handleDisconnect( ConnectionSet& connectionSet );
+        void   _addConnectedNode( eqBase::RefPtr<Node> node, 
+                                  eqBase::RefPtr<Connection> connection );
+
         void _handleRequest( Node* node );
         void _handlePacket( Node* node, const Packet* packet);
 
@@ -475,7 +486,6 @@ namespace eqNet
         void _cmdMapSession( Node* node, const Packet* packet );
         void _cmdMapSessionReply( Node* node, const Packet* packet);
         void _cmdSession( Node* node, const Packet* packet );
-        void _cmdLaunched( Node* node, const Packet* packet );
 
         static uint64 _getMessageSize( const MessageType type, 
                                        const uint64 count );

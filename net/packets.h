@@ -167,6 +167,13 @@ namespace eqNet
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
+                                       const NodeConnectPacket* packet )
+    {
+        os << (NodePacket*)packet << " wasLaunched " << packet->wasLaunched 
+           << " id " << packet->launchID;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
                                        const SessionPacket* packet )
     {
         os << (NodePacket*)packet << " ssn " << packet->sessionID;

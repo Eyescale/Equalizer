@@ -35,7 +35,6 @@ Node::Node()
     _cmdHandler[CMD_NODE_MAP_SESSION]       = &eqNet::Node::_cmdMapSession;
     _cmdHandler[CMD_NODE_MAP_SESSION_REPLY] = &eqNet::Node::_cmdMapSessionReply;
     _cmdHandler[CMD_NODE_SESSION]           = &eqNet::Node::_cmdSession;
-    _cmdHandler[CMD_NODE_LAUNCHED]          = &eqNet::Node::_cmdLaunched;
 }
 
 bool Node::listen( RefPtr<Connection> connection )
@@ -87,7 +86,7 @@ bool Node::stopListening()
     for( size_t i = 0; i<nConnections; i++ )
     {
         RefPtr<Connection> connection = _connectionSet.getConnection(i);
-        Node*              node       = _connectionSet.getNode( connection );
+        RefPtr<Node>       node       = _connectionSet.getNode( connection );
 
         node->_state      = STATE_STOPPED;
         node->_connection = NULL;
@@ -116,18 +115,37 @@ bool Node::_listenToSelf()
     return true;
 }
 
-bool Node::connect( Node* node, RefPtr<Connection> connection )
+void Node::_addConnectedNode( RefPtr<Node> node, RefPtr<Connection> connection )
 {
-    if( !node || _state != STATE_LISTENING ||
+    ASSERT( node.isValid( ));
+    ASSERT( _state == STATE_LISTENING );
+    ASSERT( connection->getState() == Connection::STATE_CONNECTED );
+    ASSERT( node->_state == STATE_STOPPED );
+
+    node->_connection = connection;
+    node->_state      = STATE_CONNECTED;
+    
+    _connectionSet.addConnection( connection, node );
+
+    INFO << node.get() << " connected to " << this << endl;
+}
+
+bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
+{
+    if( !node.isValid() || _state != STATE_LISTENING ||
         connection->getState() != Connection::STATE_CONNECTED ||
         node->_state != STATE_STOPPED )
         return false;
 
     node->_connection = connection;
     node->_state      = STATE_CONNECTED;
+    
+    NodeConnectPacket packet;
+    node->send( packet );
+
     _connectionSet.addConnection( connection, node );
 
-    INFO << node << " connected to " << this << endl;
+    INFO << node.get() << " connected to " << this << endl;
     return true;
 }
 
@@ -220,9 +238,9 @@ ssize_t Node::run()
             case ConnectionSet::EVENT_DATA:      
             {
                 RefPtr<Connection> connection = _connectionSet.getConnection();
-                Node*              node = _connectionSet.getNode( connection );
+                RefPtr<Node>       node = _connectionSet.getNode( connection );
                 ASSERT( node->_connection == connection );
-                _handleRequest( node );
+                _handleRequest( node.get() ); // do not pass down RefPtr for now
                 break;
             }
 
@@ -246,15 +264,10 @@ void Node::_handleConnect( ConnectionSet& connectionSet )
 {
     RefPtr<Connection> connection = connectionSet.getConnection();
     RefPtr<Connection> newConn    = connection->accept();
-    Node*              newNode    = handleConnect( newConn );
-    
-    if( !newNode )
-        newConn->close();
-    else
-        INFO << "New " << newNode << endl;
+    handleConnect( newConn );
 }
 
-Node* Node::handleConnect( RefPtr<Connection> connection )
+void Node::handleConnect( RefPtr<Connection> connection )
 {
     NodeConnectPacket packet;
     bool gotData = connection->recv( &packet, sizeof( NodeConnectPacket ));
@@ -262,33 +275,27 @@ Node* Node::handleConnect( RefPtr<Connection> connection )
     
     if( packet.wasLaunched )
     {
-        ASSERT( dynamic_cast<Node*>( (Node*)packet->nodeID ));
+        ASSERT( dynamic_cast<Node*>( (Thread*)packet.launchID ));
 
-        Node* node = static_cast<Node*>( packet->nodeID );
+        Node* node = (Node*)packet.launchID;
         const uint requestID = node->_pendingRequestID;
         ASSERT( requestID != INVALID_ID );
 
-        _requestHandler->serveRequest( requestID );
-        return node;
+        _requestHandler.serveRequest( requestID, NULL );
     }
     else
     {
-        Node* node = new Node();
-        if( connect( node, connection ))
-            return node;
-
-        delete node;
+        RefPtr<Node> node = createNode();
+        _addConnectedNode( node, connection );
     }
-
-    return NULL;
 }
 
 void Node::_handleDisconnect( ConnectionSet& connectionSet )
 {
     RefPtr<Connection> connection = connectionSet.getConnection();
-    Node*              node       = connectionSet.getNode( connection );
+    RefPtr<Node>       node       = connectionSet.getNode( connection );
 
-    handleDisconnect( node );
+    handleDisconnect( node.get() ); // XXX
     connection->close();
 }
 
@@ -433,6 +440,9 @@ Session* Node::_findSession( const std::string& name ) const
 //----------------------------------------------------------------------
 bool Node::connect()
 {
+    if( _state==STATE_CONNECTED || _state==STATE_LISTENING )
+        return true;
+
     if( !initConnect( ))
     {
         ERROR << "Connection initialisation failed." << endl;
@@ -504,10 +514,12 @@ bool Node::syncConnect()
 
     bool success;
     localNode->_requestHandler.waitRequest( _pendingRequestID, &success,
-                                            description->launchTimeout ));
+                                            description->launchTimeout );
     
     if( success )
+    {
         ASSERT( _state == STATE_CONNECTED );
+    }
     else
     {
         _state = STATE_STOPPED;
@@ -515,7 +527,7 @@ bool Node::syncConnect()
     }
 
     _pendingRequestID = INVALID_ID;
-    return result;
+    return success;
 }
 
 uint Node::_launch( RefPtr<ConnectionDescription> description )
@@ -626,7 +638,7 @@ string Node::_createRemoteCommand()
     // }
 
     stringStream << "'" << getProgramName() << " --eq-listen --eq-client "
-                 << (void*)this << ":" << listenerDesc->toString() << "'";
+                 << (long long)this << ":" << listenerDesc->toString() << "'";
 
     return stringStream.str();
 }
@@ -661,13 +673,14 @@ bool Node::runClient( const string& clientArgs )
         return false;
     }
 
-    Node* node = handleConnect( connection );
-    if( !node )
+    RefPtr<Node> node = createNode();
+    if( !node.isValid() )
     {
-        connection->close();
-        ERROR << "Can't connect to node" << endl;
+        ERROR << "Can't create node" << endl;
         return false;
     }
+
+    _addConnectedNode( node, connection );
 
     NodeConnectPacket packet;
     packet.wasLaunched = true;

@@ -7,6 +7,7 @@ SOURCES = \
 	barrier.cpp \
 	lock.cpp \
 	log.cpp \
+	mtQueue.cpp \
 	requestHandler.cpp \
 	thread.cpp \
 	timedLock.cpp
