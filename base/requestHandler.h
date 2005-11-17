@@ -7,6 +7,7 @@
 
 #include "base.h"
 #include "hash.h"
+#include "referenced.h"
 #include "thread.h"
 #include "timedLock.h"
 
@@ -24,7 +25,7 @@ namespace eqBase
      * original thread can wait for the request to be served and retrieve the
      * result.
      */
-    class RequestHandler 
+    class RequestHandler : public Referenced
     {
 
     public:
@@ -58,17 +59,18 @@ namespace eqBase
         void unregisterRequest( const uint requestID );
 
         /** 
-         * Waits a given time for the completion of a request, unregister it and
-         * retrieve the result if successful. 
+         * Waits a given time for the completion of a request.
+         *
+         * If the request was served, it is unregistered and the request result
+         * is returned.
          * 
          * @param requestID the request identifier.
-         * @param success return value to indicate if the request was served
-         *                sucessfully.
+         * @param success return value to indicate if the request was served.
          * @param timeout the timeout in milliseconds to wait for the request,
          *                or <code>EQ_TIMEOUT_INDEFINITE</code> to wait
          *                indefinitely.
          * @return the result of the request, or <code>NULL</code> if the
-         *         request timed out or the requestID is invalid.
+         *         request was not served.
          */
         void* waitRequest( const uint requestID, bool* success = NULL,
                            const uint timeout = EQ_TIMEOUT_INDEFINITE );

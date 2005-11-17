@@ -31,6 +31,8 @@ TimedLock::TimedLock( const Thread::Type type )
                 pthread_mutex_destroy( &_lock.pthread.mutex );
                 return;
             }
+
+            _lock.pthread.locked = false;
         } break;
 
         default:

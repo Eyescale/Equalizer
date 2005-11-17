@@ -51,8 +51,7 @@ bool Server::run( int argc, char **argv )
         return false;
 
     _handleRequests();
-    join();
-    return true;
+    return stopListening();
 }
 
 RefPtr<eqNet::Node> Server::createNode()
@@ -212,7 +211,7 @@ void Server::_completePacket( eqNet::Node* node, const eqNet::Packet* packet )
 {
     switch( packet->datatype )
     {
-        case eqNet::DATATYPE_EQNET_NODE:
+        case eq::DATATYPE_EQ_SERVER:
             if( packet->command == eq::CMD_SERVER_CHOOSE_CONFIG )
             {
                 eq::ServerChooseConfigPacket* pkg =
@@ -290,7 +289,7 @@ void Server::_handleRequests()
         
         switch( datatype )
         {
-            case eqNet::DATATYPE_EQNET_NODE:
+            case eq::DATATYPE_EQ_SERVER:
                 _handleCommand( request->node, 
                                 (eqNet::NodePacket*)request->packet );
                 break;

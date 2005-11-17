@@ -13,13 +13,20 @@ namespace eq
 {
     enum 
     {
-        DATATYPE_EQ_CONFIG = eqNet::DATATYPE_CUSTOM
+        DATATYPE_EQ_NODE   = eqNet::DATATYPE_EQNET_NODE,
+        DATATYPE_EQ_SERVER = eqNet::DATATYPE_CUSTOM,
+        DATATYPE_EQ_CONFIG
     };
 
     //------------------------------------------------------------
     // Server
     //------------------------------------------------------------
-    struct ServerChooseConfigPacket : public eqNet::NodePacket
+    struct ServerPacket : public eqNet::Packet
+    {
+        ServerPacket(){ datatype = DATATYPE_EQ_SERVER; }
+    };
+
+    struct ServerChooseConfigPacket : public ServerPacket
     {
         ServerChooseConfigPacket()
             {
@@ -33,7 +40,7 @@ namespace eq
         uint   compoundModes;
     };
 
-    struct ServerChooseConfigReplyPacket : public eqNet::NodePacket
+    struct ServerChooseConfigReplyPacket : public ServerPacket
     {
         ServerChooseConfigReplyPacket( const ServerChooseConfigPacket*
                                        requestPacket )
@@ -46,7 +53,7 @@ namespace eq
         uint configID;
     };
 
-    struct ServerReleaseConfigPacket : public eqNet::NodePacket
+    struct ServerReleaseConfigPacket : public ServerPacket
     {
         ServerReleaseConfigPacket()
             {
@@ -55,6 +62,18 @@ namespace eq
             }
 
         uint configID;
+    };
+
+    struct NodeInitPacket : public eqNet::NodePacket
+    {
+        NodeInitPacket()
+            {
+                command = CMD_NODE_INIT;
+                size    = sizeof( NodeInitPacket );
+            }
+
+        uint64 callbackName;
+        uint   requestID;
     };
 
     //------------------------------------------------------------
@@ -98,7 +117,7 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ServerChooseConfigPacket* packet )
     {
-        os << (eqNet::NodePacket*)packet << " req " << packet->requestID
+        os << (ServerPacket*)packet << " req " << packet->requestID
            << " cmp modes " << packet->compoundModes << " appName " 
            << (void*)packet->appNameString << " renderClient "
            << (void*)packet->renderClientString;
@@ -108,7 +127,7 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ServerReleaseConfigPacket* packet )
     {
-        os << (eqNet::NodePacket*)packet << " config " << packet->configID;
+        os << (ServerPacket*)packet << " config " << packet->configID;
         return os;
     }
 }

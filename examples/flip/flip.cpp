@@ -10,6 +10,31 @@ using namespace std;
 
 #define DIE(reason)    { cout << (reason) << endl; abort(); }
 
+class Node : public eq::Node
+{
+public:
+    virtual void init()
+        {
+            cout << "Init " << this << endl;
+        }
+
+    virtual void exit()
+        {
+            cout << "Exit " << this << endl;
+        }
+};
+
+class NodeFactory : public eq::NodeFactory
+{
+public:
+    virtual Node* createNode() { return new Node; }
+};
+
+eq::NodeFactory* eq::createNodeFactory()
+{
+    return new NodeFactory;
+}
+
 int main( int argc, char** argv )
 {
     if( !eq::init( argc, argv ))
@@ -26,8 +51,6 @@ int main( int argc, char** argv )
     eq::Config* config = server.chooseConfig( &params );
     if( !config )
         DIE("No matching config on server.");
-
-    //config->setWindowInitCB(...);
 
     if( !config->init( ))
         DIE("Config initialisation failed.");

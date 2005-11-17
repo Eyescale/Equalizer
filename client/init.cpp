@@ -4,7 +4,9 @@
 
 #include "init.h"
 
+#include "global.h"
 #include "node.h"
+#include "nodeFactory.h"
 
 #include <eq/net/init.h>
 
@@ -21,7 +23,7 @@ bool eq::init( int argc, char** argv )
 
     argvListen[argc] = "--eq-listen";
 
-    Node* node = new Node();
+    Node* node = Global::getNodeFactory()->createNode();
     Node::setLocalNode( node );
 
     if( !eqNet::init( argc+1, argvListen ))

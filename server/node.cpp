@@ -38,6 +38,10 @@ const string& Node::getProgramName()
 
 void Node::sendInit()
 {
+//    eq::NodeInitPacket packet;
+//    packet.requestID = registerRequest();
+//    ASSERT( packet.requestID != INVALID_ID );
+//    send( packet );
 }
 
 bool Node::syncInit()
@@ -45,7 +49,7 @@ bool Node::syncInit()
     return true;
 }
 
-std::ostream& eqs::operator << ( std::ostream& os, const Node* node )
+ostream& eqs::operator << ( ostream& os, const Node* node )
 {
     if( !node )
     {
@@ -57,7 +61,7 @@ std::ostream& eqs::operator << ( std::ostream& os, const Node* node )
     os << "node " << (void*)node << ( node->isUsed() ? " used " : " unused " )
        << nPipes << " pipes";
     for( uint i=0; i<nPipes; i++ )
-        os << std::endl << "    " << node->getPipe(i);
+        os << endl << "    " << node->getPipe(i);
 
     return os;
 }

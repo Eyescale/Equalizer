@@ -6,7 +6,9 @@
 
 #include "config.h"
 #include "configParams.h"
+#include "global.h"
 #include "node.h"
+#include "nodeFactory.h"
 #include "packets.h"
 
 #include <eq/net/connection.h>
@@ -92,6 +94,9 @@ Config* Server::chooseConfig( const ConfigParams* parameters )
     send( parameters->renderClient.c_str(), packet.renderClientString );
 
     const void* result = _requestHandler.waitRequest( packet.requestID );
+    
+    // create & map session
+
     return (Config*)result;
 }
 
@@ -113,11 +118,11 @@ void Server::handlePacket( const eqNet::Packet* packet )
 
     switch( datatype )
     {
-        case eqNet::DATATYPE_EQNET_NODE:
-            _handleCommand( (eqNet::NodePacket*)packet );
+        case DATATYPE_EQ_SERVER:
+            _handleCommand( (ServerPacket*)packet );
             break;
 
-        case eq::DATATYPE_EQ_CONFIG:
+        case DATATYPE_EQ_CONFIG:
         {
             const ConfigPacket* configPacket = (ConfigPacket*)packet;
             const uint          configID     = configPacket->configID;
@@ -134,7 +139,7 @@ void Server::handlePacket( const eqNet::Packet* packet )
     }
 }
 
-void Server::_handleCommand( const eqNet::NodePacket* packet )
+void Server::_handleCommand( const ServerPacket* packet )
 {
     INFO << "handle " << packet << endl;
     ASSERT( packet->command <  CMD_SERVER_ALL );
@@ -158,8 +163,8 @@ void Server::_cmdChooseConfigReply( const eqNet::Packet* pkg )
         return;
     }
     
-    Config* config = new Config( packet->configID, this );
-
+    Config* config = Global::getNodeFactory()->createConfig( packet->configID, 
+                                                             this );
     _configs[packet->configID] = config;
     _requestHandler.serveRequest( packet->requestID, config );
 }

@@ -17,6 +17,12 @@ namespace eq
         CMD_SERVER_ALL
     };
 
+    enum NodeCommand
+    {
+        CMD_NODE_INIT       = CMD_SERVER_ALL,
+        CMD_NODE_ALL
+    };
+
     enum ConfigCommand
     {
         CMD_CONFIG_INIT,

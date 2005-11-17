@@ -68,8 +68,7 @@ void Session::_cmdCreateUser( Node* node, const Packet* pkg )
     ASSERT( _node->getState() == Node::STATE_LISTENING );
 
     //SessionCreateUserPacket* packet  = (SessionCreateUserPacket*)pkg;
-    //INFO << "Cmd create user: " << packet << endl;
- 
+    //INFO << "Cmd create user: " << packet << endl; 
 }
 
 void Session::pack( Node* node ) const

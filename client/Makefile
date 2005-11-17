@@ -6,14 +6,17 @@ HEADER_SRC = \
 	config.h \
 	configParams.h \
 	eq.h \
+	global.h \
 	init.h \
 	node.h \
+	nodeFactory.h \
 	packets.h \
 	server.h
 
 SOURCES = \
 	config.cpp \
 	configParams.cpp \
+	global.cpp \
 	init.cpp \
 	node.cpp \
 	server.cpp

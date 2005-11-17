@@ -31,8 +31,7 @@ namespace eqNet
      * has at least one Connection through which is reachable. A Node provides
      * the basic communication facilities through message passing.
      */
-    class Node : public eqBase::Referenced, public eqBase::Thread, 
-                 public eqNet::Base
+    class Node : public eqBase::Referenced, public eqNet::Base
     {
     public:
         enum State {
@@ -46,6 +45,11 @@ namespace eqNet
          * Constructs a new Node.
          */
         Node();
+
+        /**
+         * Destructs this node.
+         */
+        virtual ~Node();
 
         /** 
          * Returns the state of this node.
@@ -138,6 +142,7 @@ namespace eqNet
          * @sa initConnect
          */
         bool syncConnect();
+
         /** 
          * Disconnects a connected node.
          *
@@ -163,7 +168,8 @@ namespace eqNet
          * @param node the local node for this thread.
          * @sa addConnectionDescription, send
          */
-        static void setLocalNode( Node* node ){ Thread::setSpecific( node ); }
+        static void setLocalNode( Node* node )
+            { eqBase::Thread::setSpecific( node ); }
 
         /** 
          * Returns the local node for this thread.
@@ -171,7 +177,8 @@ namespace eqNet
          * @return the local node for this thread.
          * @sa setLocalNode
          */
-        static Node* getLocalNode() { return (Node*)Thread::getSpecific(); }
+        static Node* getLocalNode() 
+            { return (Node*)eqBase::Thread::getSpecific(); }
 
         /** 
          * Adds a new description how this node can be reached.
@@ -435,10 +442,10 @@ namespace eqNet
          * description.
          * 
          * @param description the connection description.
-         * @return the request identifier used by the launched node when
-         *         connecting to this node.
+         * @return <code>true</code> if the node was launched,
+         *         <code>false</code> otherwise.
          */
-        uint _launch( eqBase::RefPtr<ConnectionDescription> description );
+        bool _launch( eqBase::RefPtr<ConnectionDescription> description );
 
         /** 
          * Composes the launch command by expanding the variables in the
@@ -453,16 +460,29 @@ namespace eqNet
                                           description );
         std::string   _createRemoteCommand();
 
-        /** The receiver thread entry function for this node. */
-        virtual ssize_t run();
+        /** The receiver thread. */
+        class ReceiverThread : public eqBase::Thread
+        {
+        public:
+            ReceiverThread( Node* node ) 
+                    : eqBase::Thread( Thread::PTHREAD ),
+                      _node( node )
+                {}
             
-        void _handleConnect( ConnectionSet& connectionSet );
-        void _handleDisconnect( ConnectionSet& connectionSet );
-        void   _addConnectedNode( eqBase::RefPtr<Node> node, 
-                                  eqBase::RefPtr<Connection> connection );
+            virtual ssize_t run(){ return _node->_runReceiver(); }
 
-        void _handleRequest( Node* node );
-        void _handlePacket( Node* node, const Packet* packet);
+        private:
+            Node* _node;
+        };
+        ReceiverThread* _receiverThread;
+
+        ssize_t _runReceiver();
+        void      _handleConnect( ConnectionSet& connectionSet );
+        void      _handleDisconnect( ConnectionSet& connectionSet );
+        void        _addConnectedNode( eqBase::RefPtr<Node> node, 
+                                       eqBase::RefPtr<Connection> connection );
+        void      _handleRequest( Node* node );
+        void      _handlePacket( Node* node, const Packet* packet);
 
         /** The command handler function table. */
         void (eqNet::Node::*_cmdHandler[CMD_NODE_CUSTOM])( Node* node, const Packet* packet );

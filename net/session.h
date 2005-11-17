@@ -36,7 +36,7 @@ namespace eqNet
          * 
          * @return the name of the session.
          */
-        const std::string& getName() const{ return _name; }
+        const std::string& getName() const { return _name; }
 
         /** 
          * Returns the realization state of the session.

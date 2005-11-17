@@ -73,7 +73,7 @@ bool Config::_init()
 
         if( !node->initConnect( ))
         {
-            ERROR << "Connection of " << node << " failed." << endl;
+            ERROR << "Connection to " << node << " failed." << endl;
             _exit();
             return false;
         }

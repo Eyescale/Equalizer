@@ -6,8 +6,7 @@
 #define EQS_CONFIG_H
 
 #include <eq/packets.h>
-#include <eq/net/base.h>
-#include <eq/net/node.h>
+#include <eq/net/session.h>
 
 #include <iostream>
 #include <vector>
@@ -20,7 +19,7 @@ namespace eqs
     /**
      * The config.
      */
-    class Config : public eqNet::Base
+    class Config : public eqNet::Session
     {
     public:
         /** 

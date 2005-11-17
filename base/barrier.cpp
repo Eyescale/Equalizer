@@ -19,15 +19,15 @@ Barrier::Barrier( const Thread::Type type )
             _barrier.pthread.count = 0;
             // mutex init
             int error = pthread_mutex_init( &_barrier.pthread.mutex, NULL );
-            if( error != 0 )
+            if( error )
             {
                 ERROR << "Error creating pthread mutex: " << strerror( error )
                       << endl;
                 return;
             }
-            // condition init
+            // condvar init
             error = pthread_cond_init( &_barrier.pthread.cond, NULL );
-            if( error != 0 )
+            if( error )
             {
                 ERROR << "Error creating pthread condition: " 
                       << strerror( error ) << endl;

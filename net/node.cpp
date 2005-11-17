@@ -25,7 +25,7 @@ extern char **environ;
 //----------------------------------------------------------------------
 Node::Node()
         : _state(STATE_STOPPED),
-          _sessionID(0),
+          _autoLaunch(false),
           _pendingRequestID(INVALID_ID)
 {
     for( int i=0; i<CMD_NODE_CUSTOM; i++ )
@@ -35,6 +35,13 @@ Node::Node()
     _cmdHandler[CMD_NODE_MAP_SESSION]       = &eqNet::Node::_cmdMapSession;
     _cmdHandler[CMD_NODE_MAP_SESSION_REPLY] = &eqNet::Node::_cmdMapSessionReply;
     _cmdHandler[CMD_NODE_SESSION]           = &eqNet::Node::_cmdSession;
+
+    _receiverThread    = new ReceiverThread( this );
+}
+
+Node::~Node()
+{
+    delete _receiverThread;
 }
 
 bool Node::listen( RefPtr<Connection> connection )
@@ -56,7 +63,7 @@ bool Node::listen( RefPtr<Connection> connection )
     }
 
     _state = STATE_LISTENING;
-    start(); // run the receiver thread
+    _receiverThread->start();
 
     if( !getLocalNode( ))
         setLocalNode( this );
@@ -72,7 +79,7 @@ bool Node::stopListening()
 
     NodeStopPacket packet;
     send( packet );
-    join();
+    _receiverThread->join();
 
     ASSERT( _state == STATE_STOPPED );
     ASSERT( _connection );
@@ -94,7 +101,7 @@ bool Node::stopListening()
 
     _connectionSet.clear();   
 
-    _state = STATE_STOPPED;
+    _state          = STATE_STOPPED;
     return true;    
 }
 
@@ -205,8 +212,8 @@ bool Node::mapSession( Node* server, Session* session, const std::string& name )
     server->send( packet );
     server->send( name.c_str(), packet.nameLength );
 
-    const void* result = _requestHandler.waitRequest( packet.requestID );
-    const uint sessionID = (int)((long long)result); // casts needed for MipsPro
+    const void* result    = _requestHandler.waitRequest( packet.requestID );
+    const uint  sessionID = (uint)((long long)result); // needed for MipsPro
 
     if( sessionID == INVALID_ID )
         return false;
@@ -219,7 +226,7 @@ bool Node::mapSession( Node* server, Session* session, const std::string& name )
 //----------------------------------------------------------------------
 // receiver thread functions
 //----------------------------------------------------------------------
-ssize_t Node::run()
+ssize_t Node::_runReceiver()
 {
     INFO << "Receiver started" << endl;
 
@@ -365,7 +372,7 @@ void Node::_cmdStop( Node* node, const Packet* pkg )
 //     _connectionSet.clear();
 //     _connection = NULL;
     _state = STATE_STOPPED;
-    Thread::exit( EXIT_SUCCESS );
+    _receiverThread->exit( EXIT_SUCCESS );
 }
 
 void Node::_cmdMapSession( Node* node, const Packet* pkg )
@@ -380,16 +387,25 @@ void Node::_cmdMapSession( Node* node, const Packet* pkg )
     INFO << "Cmd map session: " << packet << ", " << name << endl;
 
     Session* session   = _findSession(name);
-    uint     sessionID;
-    if( !session )
+    uint     sessionID = INVALID_ID;
+
+    if( session )
+        sessionID = session->getID();
+    else
     {
-        sessionID = _sessionID++;
-        session   = new Session();
+        session = new Session();
+
+        while( sessionID == INVALID_ID ||
+               _sessions.find( sessionID ) != _sessions.end( ))
+        {
+            srandomdev();
+            sessionID = random();
+        }
+
         session->map( this, sessionID, name );
         _sessions[sessionID] = session;
     }
-    else
-        sessionID = session->getID();
+
     
     NodeSessionPacket sessionPacket;
     sessionPacket.requestID = packet->requestID;
@@ -476,20 +492,16 @@ bool Node::initConnect()
             return localNode->connect( this, connection );
     }
 
-    INFO << "Node cannot be connected." << endl;
+    INFO << "Node could not be connected." << endl;
     if( !_autoLaunch )
         return false;
     
     INFO << "Attempting to launch node." << endl;
-    // try to launch and connect node
     for( size_t i=0; i<nDescriptions; i++ )
     {
         RefPtr<ConnectionDescription> description = getConnectionDescription(i);
 
-        ASSERT( _pendingRequestID == INVALID_ID );
-        _pendingRequestID = _launch( description );
-
-        if( _pendingRequestID != INVALID_ID ) // launch successful
+        if( _launch( description ))
             return true;
     }
 
@@ -532,7 +544,7 @@ bool Node::syncConnect()
     return success;
 }
 
-uint Node::_launch( RefPtr<ConnectionDescription> description )
+bool Node::_launch( RefPtr<ConnectionDescription> description )
 {
     ASSERT( _state == STATE_STOPPED );
 
@@ -547,11 +559,11 @@ uint Node::_launch( RefPtr<ConnectionDescription> description )
     {
         WARN << "Could not launch node using '" << launchCommand << "'" << endl;
         localNode->_requestHandler.unregisterRequest( requestID );
-        return INVALID_ID;
+        return false;
     }
     
     _state = STATE_LAUNCHED;
-    return requestID;
+    return true;
 }
 
 string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description )
@@ -689,6 +701,6 @@ bool Node::runClient( const string& clientArgs )
     packet.launchID    = requestID;
     node->send( packet );
 
-    join();
+    _receiverThread->join();
     return true;
 }

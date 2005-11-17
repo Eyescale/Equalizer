@@ -68,7 +68,7 @@ namespace eqBase
         /** 
          * Exits the child thread immediately.
          * 
-         * If successful, this function does not return.
+         * This function does not return.
          *
          * @param retVal the return value of the thread.
          */

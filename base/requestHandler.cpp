@@ -7,6 +7,12 @@
 using namespace eqBase;
 using namespace std;
 
+#define CHECK_THREADSAFETY
+
+#ifdef CHECK_THREADSAFETY
+static pthread_t registerThread = 0;
+#endif
+
 RequestHandler::RequestHandler( const Thread::Type type )
         : _type(type),
           _requestID(1)
@@ -24,6 +30,13 @@ RequestHandler::~RequestHandler()
 
 uint RequestHandler::registerRequest( void* data )
 {
+#ifdef CHECK_THREADSAFETY
+    if( !registerThread )
+        registerThread = pthread_self();
+
+    ASSERT( registerThread == pthread_self( ));
+#endif
+
     Request* request;
     if( _freeRequests.empty( ))
         request = new Request( _type );
@@ -41,6 +54,10 @@ uint RequestHandler::registerRequest( void* data )
 
 void RequestHandler::unregisterRequest( const uint requestID )
 {
+#ifdef CHECK_THREADSAFETY
+    ASSERT( registerThread == pthread_self( ));
+#endif
+
     Request* request = _requests[requestID];
     if( !request )
         return;
@@ -52,6 +69,10 @@ void RequestHandler::unregisterRequest( const uint requestID )
 void* RequestHandler::waitRequest( const uint requestID, bool* success,
                                    const uint timeout )
 {
+#ifdef CHECK_THREADSAFETY
+    ASSERT( registerThread == pthread_self( ));
+#endif
+
     Request* request = _requests[requestID];
 
     if( !request || !request->lock->set( timeout ))

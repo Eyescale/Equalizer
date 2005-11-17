@@ -14,6 +14,7 @@ namespace eq
     class Config;
     class ConfigParams;
     class Node;
+    struct ServerPacket;
 
     class Server : public eqNet::Node
     {
@@ -88,7 +89,7 @@ namespace eq
          * 
          * @param packet the command packet.
          */
-        void _handleCommand( const eqNet::NodePacket* packet );
+        void _handleCommand( const ServerPacket* packet );
 
         /** The command handler function table. */
         void (eq::Server::*_cmdHandler[CMD_SERVER_ALL])
