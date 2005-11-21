@@ -13,7 +13,6 @@ using namespace eqs;
 using namespace std;
 
 Config::Config()
-        : _id( INVALID_ID )
 {
     for( int i=0; i<eq::CMD_CONFIG_ALL; i++ )
         _cmdHandler[i] = &eqs::Config::_cmdUnknown;

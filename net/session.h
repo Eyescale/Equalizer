@@ -183,14 +183,13 @@ namespace eqNet
          */
         bool send( const Packet& packet ) { return _node->send( packet ); }
 
-    private:
-
-        /** The node hosting the session. */
-        Node* _node;
-
         /** The session's identifier. */
         uint _id;
         
+    private:
+        /** The node hosting the session. */
+        Node* _node;
+
         /** The session's name. */
         std::string _name;
 

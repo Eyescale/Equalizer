@@ -93,11 +93,14 @@ Config* Server::chooseConfig( const ConfigParams* parameters )
     send( parameters->appName.c_str(),      packet.appNameString );
     send( parameters->renderClient.c_str(), packet.renderClientString );
 
-    const void* result = _requestHandler.waitRequest( packet.requestID );
-    
-    // create & map session
+    Config* config = (Config*)_requestHandler.waitRequest( packet.requestID );
+    if( !config )
+        return NULL;
 
-    return (Config*)result;
+    const bool mapped = config->map();
+    ASSERT( mapped );
+
+    return config;
 }
 
 void Server::releaseConfig( Config* config )
@@ -165,6 +168,7 @@ void Server::_cmdChooseConfigReply( const eqNet::Packet* pkg )
     
     Config* config = Global::getNodeFactory()->createConfig( packet->configID, 
                                                              this );
+
     _configs[packet->configID] = config;
     _requestHandler.serveRequest( packet->requestID, config );
 }

@@ -181,6 +181,14 @@ namespace eqNet
             { return (Node*)eqBase::Thread::getSpecific(); }
 
         /** 
+         * Returns if the node is local.
+         * 
+         * @return <code>true</code> if the node is local, <code>false</false>
+         *         otherwise.
+         */
+        bool isLocal() const { return (_state==STATE_LISTENING); }
+
+        /** 
          * Adds a new description how this node can be reached.
          * 
          * @param cd the connection description.
@@ -334,6 +342,17 @@ namespace eqNet
          */
         bool mapSession( Node* server, Session* session, 
                          const std::string& name );
+
+        /**
+         * Maps a local session object to an existing session.
+         *
+         * @param server the node serving the session.
+         * @param session the session.
+         * @param id the identifier of the session.
+         * @return <code>true</code> if the session was mapped,
+         *         <code>false</code> if not.
+         */
+        bool mapSession( Node* server, Session* session, const uint id );
         //*}
 
         /** 

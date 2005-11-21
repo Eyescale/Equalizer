@@ -8,6 +8,7 @@
 #include <eq/base/base.h>
 #include <eq/base/requestHandler.h>
 #include <eq/net/packet.h>
+#include <eq/net/session.h>
 
 #include "commands.h"
 
@@ -16,7 +17,7 @@ namespace eq
     struct ConfigPacket;
     class Server;
 
-    class Config
+    class Config : public eqNet::Session
     {
     public:
         /** 
@@ -28,11 +29,12 @@ namespace eq
         Config( const uint id, Server* server );
 
         /** 
-         * Returns the identifier of this config.
+         * Maps the configs' session.
          * 
-         * @return the identifier of this config.
+         * @return <code>true</code> if the config was mapped,
+         *         <code>false</code> otherwise.
          */
-        uint getID() const { return _id; }
+        bool map();
 
         /** 
          * Initialises this configuration.
@@ -61,9 +63,6 @@ namespace eq
         void handleCommand( const ConfigPacket* packet );
 
     private:
-        /** The identifier of this config. */
-        const uint _id;
-
         /** The local proxy of the server hosting the session. */
         Server* _server;
 

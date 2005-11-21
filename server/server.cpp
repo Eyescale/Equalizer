@@ -341,15 +341,18 @@ void Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
         return;
     }
 
-    reply.configID = _configID++;
-
     Config* appConfig = cloneConfig( config );
 
-    appConfig->setID( reply.configID );
     appConfig->setAppName( (char*)packet->appNameString );
     appConfig->setRenderClient( (char*)packet->renderClientString );
 
+    const bool mapped = mapSession( this, appConfig,
+                                    "EQ_CONFIG_" + _configID++ );
+    ASSERT( mapped );
+
+    reply.configID = appConfig->getID();
     _appConfigs[reply.configID] = appConfig;
+
     node->send( reply );
 
     free( (void*)packet->appNameString );

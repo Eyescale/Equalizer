@@ -49,6 +49,7 @@ namespace eq
                 size      = sizeof( ServerChooseConfigReplyPacket );
                 requestID = requestPacket->requestID;
             }
+
         uint requestID;
         uint configID;
     };

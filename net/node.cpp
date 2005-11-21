@@ -206,20 +206,40 @@ bool Node::send( const MessageType type, const void *ptr, const uint64 count )
 
 bool Node::mapSession( Node* server, Session* session, const std::string& name )
 {
+    if( server == this && isLocal( ))
+    {            
+        uint sessionID = INVALID_ID;
+        while( sessionID == INVALID_ID ||
+               _sessions.find( sessionID ) != _sessions.end( ))
+        {
+            srandomdev();
+            sessionID = random();
+        }
+            
+        session->map( this, sessionID, name );
+        _sessions[sessionID] = session;
+        return true;
+    }
+
     NodeMapSessionPacket packet;
     packet.requestID  = _requestHandler.registerRequest( session );
     packet.nameLength =  name.size() + 1;
     server->send( packet );
     server->send( name.c_str(), packet.nameLength );
 
-    const void* result    = _requestHandler.waitRequest( packet.requestID );
-    const uint  sessionID = (uint)((long long)result); // needed for MipsPro
+    return (bool)_requestHandler.waitRequest( packet.requestID );
+}
 
-    if( sessionID == INVALID_ID )
-        return false;
+bool Node::mapSession( Node* server, Session* session, const uint id )
+{
+    ASSERT( id != INVALID_ID );
 
-    session->map( server, sessionID, name );
-    return true;
+    NodeMapSessionPacket packet;
+    packet.requestID = _requestHandler.registerRequest( session );
+    packet.sessionID =  id;
+    server->send( packet );
+
+    return (bool)_requestHandler.waitRequest( packet.requestID );
 }
 
 
@@ -380,43 +400,64 @@ void Node::_cmdMapSession( Node* node, const Packet* pkg )
     ASSERT( getState() == STATE_LISTENING );
 
     NodeMapSessionPacket* packet  = (NodeMapSessionPacket*)pkg;
-    char*                 name    = (char*)alloca( packet->nameLength );
-    const bool            gotData = node->recv( name, packet->nameLength );
+    INFO << "Cmd map session: " << packet << endl;
     
-    ASSERT( gotData );
-    INFO << "Cmd map session: " << packet << ", " << name << endl;
+    Session* session;
+    uint     sessionID   = packet->sessionID;
+    char*    sessionName = NULL;
 
-    Session* session   = _findSession(name);
-    uint     sessionID = INVALID_ID;
-
-    if( session )
-        sessionID = session->getID();
-    else
+    if( sessionID == INVALID_ID ) // mapped by name
     {
-        session = new Session();
+        sessionName        = (char*)alloca( packet->nameLength );
+        const bool gotData = node->recv( sessionName, packet->nameLength );
+        ASSERT( gotData );
 
-        while( sessionID == INVALID_ID ||
-               _sessions.find( sessionID ) != _sessions.end( ))
+        session = _findSession( sessionName );
+
+        if( session )
+            sessionID = session->getID();
+        else
         {
-            srandomdev();
-            sessionID = random();
+            session = new Session();
+            
+            while( sessionID == INVALID_ID ||
+                   _sessions.find( sessionID ) != _sessions.end( ))
+            {
+                srandomdev();
+                sessionID = random();
+            }
+            
+            session->map( this, sessionID, sessionName );
+            _sessions[sessionID] = session;
         }
-
-        session->map( this, sessionID, name );
-        _sessions[sessionID] = session;
+    }
+    else // mapped by identifier, session has to exist already
+    {
+        session = _sessions[sessionID];
+        if( !session )
+            sessionID = INVALID_ID;
+        else
+            sessionName = (char*)session->getName().c_str();
     }
 
-    
-    NodeSessionPacket sessionPacket;
-    sessionPacket.requestID = packet->requestID;
-    sessionPacket.sessionID = sessionID;
+    if( sessionID != INVALID_ID )
+    {
+        NodeSessionPacket sessionPacket;
+        sessionPacket.requestID = packet->requestID;
+        sessionPacket.sessionID = sessionID;
 
-    node->send( sessionPacket );
-    session->pack( node );
+        node->send( sessionPacket );
+    
+        session->pack( node );
+    }
 
     NodeMapSessionReplyPacket replyPacket( packet );
-    replyPacket.reply = sessionID;
+    replyPacket.sessionID  = sessionID;
+    replyPacket.nameLength = sessionName ? strlen(sessionName) + 1 : 0;
+
     node->send(replyPacket);
+    if( replyPacket.nameLength )
+        node->send( sessionName, replyPacket.nameLength );
 }
 
 void Node::_cmdMapSessionReply( Node* node, const Packet* pkg)
@@ -424,7 +465,23 @@ void Node::_cmdMapSessionReply( Node* node, const Packet* pkg)
     NodeMapSessionReplyPacket* packet  = (NodeMapSessionReplyPacket*)pkg;
     INFO << "Cmd map session reply: " << packet << endl;
 
-    _requestHandler.serveRequest( packet->requestID, (void*)packet->reply );
+    const uint requestID = packet->requestID;
+    Session*   session   = (Session*)_requestHandler.getRequestData( requestID);
+    ASSERT( session );
+
+    if( packet->sessionID == INVALID_ID )
+    {
+        _requestHandler.serveRequest( requestID, (void*)false );
+        return;
+    }        
+    
+    ASSERT( packet->nameLength );
+    char*      sessionName = (char*)alloca( packet->nameLength );
+    const bool gotData     = node->recv( sessionName, packet->nameLength );
+    ASSERT( gotData );
+        
+    session->map( node, packet->sessionID, sessionName );
+    _requestHandler.serveRequest( requestID, (void*)true );
 }
 
 void Node::_cmdSession( Node* node, const Packet* pkg )

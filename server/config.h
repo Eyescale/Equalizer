@@ -56,8 +56,7 @@ namespace eqs
          * @param index the node's index. 
          * @return the node.
          */
-        Node* getNode( const uint index ) const
-            { return _nodes[index]; }
+        Node* getNode( const uint index ) const { return _nodes[index]; }
 
         /** 
          * Adds a new compound to this config.
@@ -91,13 +90,6 @@ namespace eqs
          */
         Compound* getCompound( const uint index ) const
             { return _compounds[index]; }
-
-        /** 
-         * Sets the identifier of this configuration.
-         * 
-         * @param id the identifier.
-         */
-        void setID( const uint id ) { _id = id; }
 
         /** 
          * Sets the name of the application.
@@ -135,9 +127,6 @@ namespace eqs
 
         /** The list of nodes. */
         std::vector<Node*>   _nodes;
-
-        /** The identifier of this configuration. */
-        uint _id;
 
         /** The name of the application. */
         std::string _appName;

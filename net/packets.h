@@ -64,10 +64,13 @@ namespace eqNet
     {
         NodeMapSessionPacket()
             {
-                command = CMD_NODE_MAP_SESSION;
-                size = sizeof(NodeMapSessionPacket);
+                command   = CMD_NODE_MAP_SESSION;
+                size      = sizeof(NodeMapSessionPacket);
+                sessionID = INVALID_ID;
             }
+
         uint requestID;
+        uint sessionID;
         uint nameLength;
     };
 
@@ -81,7 +84,8 @@ namespace eqNet
             }
             
         uint requestID;
-        uint reply;
+        uint sessionID;
+        uint nameLength;
     };
 
     struct NodeSessionPacket : public NodePacket
@@ -162,8 +166,15 @@ namespace eqNet
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeMapSessionPacket* packet )
     {
-        os << (NodePacket*)packet << " req " << packet->requestID << " l " 
-           << packet->nameLength;
+        os << (NodePacket*)packet << " req " << packet->requestID
+           << " sessionID " << packet->sessionID << " l " << packet->nameLength;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const NodeMapSessionReplyPacket* packet )
+    {
+        os << (NodePacket*)packet << " req " << packet->requestID
+           << " sessionID " << packet->sessionID << " l " << packet->nameLength;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

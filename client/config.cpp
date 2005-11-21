@@ -13,11 +13,12 @@ using namespace eq;
 using namespace std;
 
 Config::Config( const uint id, Server* server )
-        : _id(id),
-          _server(server)
+        : _server(server)
 {
     ASSERT( id != INVALID_ID );
     ASSERT( server );
+
+    _id = id;
 
     for( int i=0; i<CMD_CONFIG_ALL; i++ )
         _cmdHandler[i] = &eq::Config::_cmdUnknown;
@@ -25,6 +26,14 @@ Config::Config( const uint id, Server* server )
     _cmdHandler[CMD_CONFIG_INIT_REPLY] = &eq::Config::_cmdInitReply;
 }
 
+bool Config::map()
+{ 
+    eqNet::Node* localNode = eqNet::Node::getLocalNode();
+    if( !localNode )
+        return false;
+
+    return localNode->mapSession( _server, this, _id ); 
+}
 
 bool Config::init()
 {
