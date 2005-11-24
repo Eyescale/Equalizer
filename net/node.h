@@ -509,7 +509,6 @@ namespace eqNet
         void _cmdStop( Node* node, const Packet* packet );
         void _cmdMapSession( Node* node, const Packet* packet );
         void _cmdMapSessionReply( Node* node, const Packet* packet);
-        void _cmdSession( Node* node, const Packet* packet );
 
         static uint64 _getMessageSize( const MessageType type, 
                                        const uint64 count );

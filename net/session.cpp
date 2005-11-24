@@ -6,7 +6,6 @@
 #include "connectionDescription.h"
 #include "packets.h"
 #include "session.h"
-#include "user.h"
 
 #include <eq/base/log.h>
 
@@ -15,25 +14,63 @@
 using namespace eqNet;
 using namespace std;
 
+#define MIN_ID_RANGE 1024
+
 Session::Session()
         : _id(INVALID_ID),
-          _node(NULL),
-          _userID(1)
+          _server(NULL),
+          _isMaster(false)
 {
+    INFO << "New " << this << endl;
+
     for( int i=0; i<CMD_SESSION_CUSTOM; i++ )
         _cmdHandler[i] = &eqNet::Session::_cmdUnknown;
 
-    _cmdHandler[CMD_SESSION_CREATE_USER] = &eqNet::Session::_cmdCreateUser;
+    _cmdHandler[CMD_SESSION_GEN_IDS]       = &eqNet::Session::_cmdGenIDs;
+    _cmdHandler[CMD_SESSION_GEN_IDS_REPLY] = &eqNet::Session::_cmdGenIDsReply;
 
-    INFO << "New " << this << endl;
+    _idPool.genIDs( _idPool.getCapacity( )); // reserve all IDs
 }
 
-void Session::map( Node* server, const uint id, const std::string& name )
+void Session::map( Node* server, const uint id, const std::string& name, 
+                   const bool isMaster )
 {
-    _node = server;
-    _id   = id;
-    _name = name;
+    _server   = server;
+    _id       = id;
+    _name     = name;
+    _isMaster = isMaster;
+
+    if( isMaster )
+        _idPool.freeIDs( 1, _idPool.getCapacity( )); // free IDs for further use
     // _state = mapped;
+}
+
+uint Session::genIDs( const uint range )
+{
+    // try local pool
+    uint id = _idPool.genIDs( range );
+    if( id || _isMaster ) // got an id or master pool is depleted
+        return id;
+
+    SessionGenIDsPacket packet( id );
+    packet.requestID = _requestHandler.registerRequest();
+    packet.range     = (range > MIN_ID_RANGE) ? range : MIN_ID_RANGE;
+
+    _server->send( packet );
+    id = (uint)(long long)_requestHandler.waitRequest( packet.requestID );
+
+    if( !id || range >= MIN_ID_RANGE )
+        return id;
+
+    // We allocated more IDs than requested - let the pool handle the details
+    _idPool.freeIDs( id, MIN_ID_RANGE );
+    return _idPool.genIDs( range );
+}
+
+void Session::freeIDs( const uint start, const uint range )
+{
+    _idPool.freeIDs( start, range );
+    // could return IDs to master sometimes ?
 }
 
 void Session::handlePacket( Node* node, const SessionPacket* packet)
@@ -49,39 +86,25 @@ void Session::handlePacket( Node* node, const SessionPacket* packet)
                 ; // TODO handlePacket?
             break;
 
-        case DATATYPE_EQNET_USER:
-        {
-            UserPacket* userPacket = (UserPacket*)(packet);
-            User* user = _users[userPacket->userID];
-            ASSERT( user );
-
-            //user->handlePacket( connection, node, userPacket );
-        } break;
-
         default:
             WARN << "Unhandled packet " << packet << endl;
     }
 }
 
-void Session::_cmdCreateUser( Node* node, const Packet* pkg )
+void Session::_cmdGenIDs( Node* node, const Packet* pkg )
 {
-    ASSERT( _node->getState() == Node::STATE_LISTENING );
+    SessionGenIDsPacket*     packet = (SessionGenIDsPacket*)pkg;
+    SessionGenIDsReplyPacket reply( packet );
 
-    //SessionCreateUserPacket* packet  = (SessionCreateUserPacket*)pkg;
-    //INFO << "Cmd create user: " << packet << endl; 
+    reply.id = _idPool.genIDs( packet->range );
+    node->send( reply );
 }
 
-void Session::pack( Node* node ) const
+void Session::_cmdGenIDsReply( Node* node, const Packet* pkg )
 {
-    for( IDHash<User*>::const_iterator iter = _users.begin();
-         iter != _users.end(); iter++ )
-    {
-        SessionNewUserPacket newUserPacket( _id );
-        newUserPacket.userID    = (*iter).first;
-        node->send( newUserPacket );
-    };
+    SessionGenIDsReplyPacket* packet = (SessionGenIDsReplyPacket*)pkg;
+    _requestHandler.serveRequest( packet->requestID, (void*)packet->id );
 }
-
 
 std::ostream& eqNet::operator << ( std::ostream& os, Session* session )
 {
@@ -92,14 +115,7 @@ std::ostream& eqNet::operator << ( std::ostream& os, Session* session )
     }
     
     os << "session " << session->getID() << "(" << (void*)session
-       << "): " << session->_users.size() << " user[s]";
-    
-    for( IDHash<User*>::iterator iter = session->_users.begin();
-         iter != session->_users.end(); iter++ )
-    {
-        User* user = (*iter).second;
-        os << std::endl << "    " << user;
-    }
-    
+       << ")";
+
     return os;
 }

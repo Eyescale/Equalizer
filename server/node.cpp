@@ -13,9 +13,15 @@ using namespace std;
 Node::Node()
         : eqNet::Node(),
           _used(0),
-          _config(NULL)
+          _config(NULL),
+          _pendingRequestID(INVALID_ID)
 {
     _autoLaunch = true;
+
+    for( int i=0; i<eq::CMD_NODE_ALL; i++ )
+        _cmdHandler[i] = &eqs::Node::_cmdUnknown;
+
+    _cmdHandler[eq::CMD_NODE_INIT_REPLY] = &eqs::Node::_cmdInitReply;
 }
 
 void Node::addPipe( Pipe* pipe )
@@ -38,16 +44,50 @@ const string& Node::getProgramName()
 
 void Node::sendInit()
 {
-//    eq::NodeInitPacket packet;
-//    packet.requestID = registerRequest();
-//    ASSERT( packet.requestID != INVALID_ID );
-//    send( packet );
+    ASSERT( _pendingRequestID == INVALID_ID );
+
+    eq::NodeInitPacket packet( _config->getID(), _id );
+    _pendingRequestID = _requestHandler.registerRequest(); 
+    packet.requestID  = _pendingRequestID;
+    send( packet );
 }
 
 bool Node::syncInit()
 {
-    return true;
+    ASSERT( _pendingRequestID != INVALID_ID );
+
+    const bool result = (bool)_requestHandler.waitRequest( _pendingRequestID );
+    _pendingRequestID = INVALID_ID;
+    return result;
 }
+
+//===========================================================================
+// command handling
+//===========================================================================
+void Node::handlePacket( eqNet::Node* node, const eq::NodePacket* packet )
+{
+    switch( packet->datatype )
+    {
+        case eq::DATATYPE_EQ_NODE:
+            ASSERT( packet->command < eq::CMD_NODE_ALL );
+
+            (this->*_cmdHandler[packet->command])(node, packet);
+            break;
+
+        default:
+            ERROR << "unimplemented" << endl;
+            break;
+    }
+}
+
+void Node::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
+{
+    eq::NodeInitReplyPacket* packet = (eq::NodeInitReplyPacket*)pkg;
+    INFO << "handle node init reply " << packet << endl;
+
+    _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
+}
+
 
 ostream& eqs::operator << ( ostream& os, const Node* node )
 {
@@ -58,8 +98,9 @@ ostream& eqs::operator << ( ostream& os, const Node* node )
     }
     
     const uint nPipes = node->nPipes();
-    os << "node " << (void*)node << ( node->isUsed() ? " used " : " unused " )
-       << nPipes << " pipes";
+    os << "node " << node->getID() << "(" << (void*)node << ")"
+       << ( node->isUsed() ? " used " : " unused " ) << nPipes << " pipes";
+
     for( uint i=0; i<nPipes; i++ )
         os << endl << "    " << node->getPipe(i);
 

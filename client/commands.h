@@ -19,13 +19,21 @@ namespace eq
 
     enum NodeCommand
     {
-        CMD_NODE_INIT       = CMD_SERVER_ALL,
+        CMD_NODE_INIT = CMD_SERVER_ALL,
+        CMD_NODE_INIT_REPLY,
         CMD_NODE_ALL
+    };
+
+    enum ClientCommand
+    {
+        CMD_CLIENT_UNUSED = CMD_SERVER_ALL,
+        CMD_CLIENT_ALL
     };
 
     enum ConfigCommand
     {
         CMD_CONFIG_INIT,
+        REQ_CONFIG_INIT, // REQ must always follow CMD!
         CMD_CONFIG_INIT_REPLY,
         CMD_CONFIG_ALL
     };

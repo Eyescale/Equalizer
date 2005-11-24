@@ -28,7 +28,7 @@ FDConnection::FDConnection( const FDConnection& conn )
 //----------------------------------------------------------------------
 uint64 FDConnection::recv( const void* buffer, const uint64 bytes )
 {
-    VERB << "Receiving " << bytes << "b on " << this << endl;
+    VERB << "Receiving " << bytes << " bytes on " << this << endl;
     if( _state != STATE_CONNECTED || _readFD == -1 )
         return 0;
 

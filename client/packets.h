@@ -8,14 +8,16 @@
 #include <eq/net/packets.h>
 
 #include "commands.h"
+#include "config.h"
 
 namespace eq
 {
-    enum 
+    enum DataType
     {
-        DATATYPE_EQ_NODE   = eqNet::DATATYPE_EQNET_NODE,
-        DATATYPE_EQ_SERVER = eqNet::DATATYPE_CUSTOM,
-        DATATYPE_EQ_CONFIG
+        DATATYPE_EQ_CLIENT = eqNet::DATATYPE_CUSTOM,
+        DATATYPE_EQ_SERVER,
+        DATATYPE_EQ_CONFIG,
+        DATATYPE_EQ_NODE
     };
 
     //------------------------------------------------------------
@@ -34,10 +36,10 @@ namespace eq
                 size    = sizeof( ServerChooseConfigPacket );
             }
 
-        uint   requestID;
-        uint64 appNameString;
-        uint64 renderClientString;
-        uint   compoundModes;
+        uint requestID;
+        uint appNameLength;
+        uint renderClientLength;
+        uint compoundModes;
     };
 
     struct ServerChooseConfigReplyPacket : public ServerPacket
@@ -63,18 +65,6 @@ namespace eq
             }
 
         uint configID;
-    };
-
-    struct NodeInitPacket : public eqNet::NodePacket
-    {
-        NodeInitPacket()
-            {
-                command = CMD_NODE_INIT;
-                size    = sizeof( NodeInitPacket );
-            }
-
-        uint64 callbackName;
-        uint   requestID;
     };
 
     //------------------------------------------------------------
@@ -114,14 +104,56 @@ namespace eq
         bool result;
     };
 
+    //------------------------------------------------------------
+    // Node
+    //------------------------------------------------------------
+    struct NodePacket : public ConfigPacket
+    {
+        NodePacket( const uint configID, const uint nodeID ) 
+                : ConfigPacket( configID )
+            {
+                datatype     = DATATYPE_EQ_NODE; 
+                this->nodeID = nodeID;
+            }
+        
+        uint nodeID;
+    };
+
+
+    struct NodeInitPacket : public NodePacket
+    {
+        NodeInitPacket( const uint configID, const uint nodeID )
+                : NodePacket( configID, nodeID )
+            {
+                command = CMD_NODE_INIT;
+                size    = sizeof( NodeInitPacket );
+            }
+
+        uint   requestID;
+    };
+
+    struct NodeInitReplyPacket : public NodePacket
+    {
+        NodeInitReplyPacket( NodeInitPacket* requestPacket )
+                : NodePacket( requestPacket->configID, requestPacket->nodeID )
+            {
+                command   = CMD_NODE_INIT_REPLY;
+                requestID = requestPacket->requestID;
+                size      = sizeof( NodeInitReplyPacket );
+            }
+
+        uint   requestID;
+        bool   result;
+    };
+
 
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ServerChooseConfigPacket* packet )
     {
         os << (ServerPacket*)packet << " req " << packet->requestID
            << " cmp modes " << packet->compoundModes << " appName " 
-           << (void*)packet->appNameString << " renderClient "
-           << (void*)packet->renderClientString;
+           << packet->appNameLength << " renderClient "
+           << packet->renderClientLength;
         return os;
     }
 

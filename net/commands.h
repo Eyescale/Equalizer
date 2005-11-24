@@ -20,8 +20,8 @@ namespace eqNet
 
     enum SessionCommand
     {
-        CMD_SESSION_CREATE_USER,
-        CMD_SESSION_NEW_USER,
+        CMD_SESSION_GEN_IDS,
+        CMD_SESSION_GEN_IDS_REPLY,
         CMD_SESSION_CUSTOM // must be last
     };
 

@@ -14,6 +14,7 @@ HEADER_SRC = \
 	server.h
 
 SOURCES = \
+	client.cpp \
 	config.cpp \
 	configParams.cpp \
 	global.cpp \

@@ -6,6 +6,7 @@
 
 #include "compound.h"
 #include "node.h"
+#include "server.h"
 
 #include <eq/net/global.h>
 
@@ -17,25 +18,77 @@ Config::Config()
     for( int i=0; i<eq::CMD_CONFIG_ALL; i++ )
         _cmdHandler[i] = &eqs::Config::_cmdUnknown;
 
-    _cmdHandler[eq::CMD_CONFIG_INIT] = &eqs::Config::_cmdInit;
+    _cmdHandler[eq::CMD_CONFIG_INIT] = &eqs::Config::_cmdRequest;
+    _cmdHandler[eq::REQ_CONFIG_INIT] = &eqs::Config::_cmdInit;
+}
+
+void Config::map( Server* server, const uint id, const std::string& name,
+                  const bool isMaster )
+{
+    _server = server;
+    eqNet::Session::map( server, id, name, isMaster);
 }
 
 void Config::addNode( Node* node )
 {
     _nodes.push_back( node ); 
     node->_config = this; 
+    node->_id     = genIDs( 1 );
+}
+
+bool Config::removeNode( Node* node )
+{
+    for( vector<Node*>::iterator iter = _nodes.begin(); iter != _nodes.end( );
+         ++iter )
+    {
+        if( *iter == node )
+        {
+            _nodes.erase( iter );
+
+            node->_config = NULL; 
+            freeIDs( node->_id, 1 );
+            node->_id = 0;
+
+            return true;
+        }
+    }
+    return false;
 }
 
 //===========================================================================
 // command handling
 //===========================================================================
-void Config::handleCommand( eqNet::Node* node,
-                               const eq::ConfigPacket* packet )
+void Config::handlePacket( eqNet::Node* node, const eq::ConfigPacket* packet )
 {
-    VERB << "handleCommand " << packet << endl;
-    ASSERT( packet->command < eq::CMD_CONFIG_ALL );
+    switch( packet->datatype )
+    {
+        case eq::DATATYPE_EQ_CONFIG:
+            ASSERT( packet->command < eq::CMD_CONFIG_ALL );
 
-    (this->*_cmdHandler[packet->command])(node, packet);
+            (this->*_cmdHandler[packet->command])(node, packet);
+            break;
+
+        case eq::DATATYPE_EQ_NODE:
+        {
+            const eq::NodePacket* nodePacket = (eq::NodePacket*)packet;
+            const uint            nodeID     = nodePacket->nodeID;
+            Node*                 node       = _nodes[nodeID];
+            ASSERT( node );
+            
+            node->handlePacket( node, nodePacket );
+            break;
+        }
+
+        default:
+            ERROR << "unimplemented" << endl;
+            break;
+    }
+}
+
+// pushes the request to the main thread to be handled asynchronously
+void Config::_cmdRequest( eqNet::Node* node, const eqNet::Packet* packet )
+{
+    _server->pushRequest( node, packet );
 }
 
 void Config::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )

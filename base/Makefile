@@ -5,6 +5,7 @@ MODULE = base
 
 SOURCES = \
 	barrier.cpp \
+	idPool.cpp \
 	lock.cpp \
 	log.cpp \
 	requestHandler.cpp \

@@ -13,9 +13,10 @@ using namespace std;
 class Node : public eq::Node
 {
 public:
-    virtual void init()
+    virtual bool init()
         {
             cout << "Init " << this << endl;
+            return true;
         }
 
     virtual void exit()

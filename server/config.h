@@ -15,6 +15,7 @@ namespace eqs
 {
     class Compound;
     class Node;
+    class Server;
 
     /**
      * The config.
@@ -112,16 +113,24 @@ namespace eqs
          */
         const std::string& getRenderClient() const { return _renderClient; }
 
+        /**
+         * @sa eqNet::Session::map
+         */
+        void map( Server* server, const uint id, const std::string& name,
+                  const bool isMaster );
+
         /** 
          * Handles the received command packet.
          * 
          * @param node the sending node.
          * @param packet the config command packet.
          */
-        void handleCommand( eqNet::Node* node,
-                            const eq::ConfigPacket* packet );
+        void handlePacket( eqNet::Node* node, const eq::ConfigPacket* packet );
 
     private:
+        /** The eq server hosting the session. */
+        eqBase::RefPtr<Server> _server;
+
         /** The list of compounds. */
         std::vector<Compound*> _compounds;
 
@@ -138,6 +147,7 @@ namespace eqs
         void (eqs::Config::*_cmdHandler[eq::CMD_CONFIG_ALL])
             ( eqNet::Node* node, const eqNet::Packet* packet );
 
+        void _cmdRequest( eqNet::Node* node, const eqNet::Packet* packet );
         void _cmdInit( eqNet::Node* node, const eqNet::Packet* packet );
 
         /**

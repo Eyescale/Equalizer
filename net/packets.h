@@ -88,18 +88,6 @@ namespace eqNet
         uint nameLength;
     };
 
-    struct NodeSessionPacket : public NodePacket
-    {
-        NodeSessionPacket() 
-            {
-                command  = CMD_NODE_SESSION;
-                size     = sizeof( NodeSessionPacket ); 
-            }
-
-        uint requestID;
-        uint sessionID;
-    };
-
     struct NodeConnectPacket : public NodePacket
     {
         NodeConnectPacket() 
@@ -126,14 +114,30 @@ namespace eqNet
         uint sessionID;
     };
 
-    struct SessionNewUserPacket : public SessionPacket
+    struct SessionGenIDsPacket : public SessionPacket
     {
-        SessionNewUserPacket( const uint sessionID ) : SessionPacket(sessionID)
+        SessionGenIDsPacket( const uint sessionID ) : SessionPacket(sessionID)
             {
-                command  = CMD_SESSION_NEW_USER;
-                size     = sizeof( SessionNewUserPacket ); 
+                command = CMD_SESSION_GEN_IDS;
+                size    = sizeof( SessionGenIDsPacket ); 
             }
-        uint userID;
+
+        uint requestID;
+        uint range;
+    };
+
+    struct SessionGenIDsReplyPacket : public SessionPacket
+    {
+        SessionGenIDsReplyPacket( SessionGenIDsPacket* request )
+                : SessionPacket(request->sessionID)
+            {
+                command   = CMD_SESSION_GEN_IDS_REPLY;
+                size      = sizeof( SessionGenIDsReplyPacket ); 
+                requestID = request->requestID;
+            }
+
+        uint requestID;
+        uint id;
     };
 
     //------------------------------------------------------------

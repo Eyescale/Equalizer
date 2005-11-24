@@ -7,7 +7,7 @@
 
 #include <eq/base/base.h>
 #include <eq/base/requestHandler.h>
-#include <eq/net/packet.h>
+#include <eq/net/packets.h>
 #include <eq/net/session.h>
 
 #include "commands.h"

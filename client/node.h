@@ -11,6 +11,9 @@
 
 namespace eq
 {
+    class Config;
+    class Server;
+
     class Node : public eqNet::Node
     {
     public:
@@ -35,14 +38,16 @@ namespace eq
         /** 
          * Initialises this node.
          */
-        virtual void init(){};
+        virtual bool init(){ return true; }
 
         /** 
          * Exit this node.
          */
-        virtual void exit(){};
-
+        virtual void exit(){}
         //@}
+
+        uint getID() const { return _id; }
+        Config* getConfig() const { return _config; }
 
     protected:
         /** 
@@ -51,15 +56,21 @@ namespace eq
         virtual void handlePacket( eqNet::Node* node, 
                                    const eqNet::Packet* packet );
 
+        /** 
+         * @sa eqNet::Node::createNode
+         */
+        virtual eqBase::RefPtr<eqNet::Node> createNode();
+
     private:
-        void _handleCommand( const eqNet::Packet* packet );
+        uint                   _id;
+        eqBase::RefPtr<Server> _server;
+        Config*                _config;
 
         /** The command handler function table. */
         void (eq::Node::*_cmdHandler[CMD_NODE_ALL])
-            ( const eqNet::Packet* packet );
+            ( eqNet::Node* node, const eqNet::Packet* packet );
 
-        void _cmdUnknown( const eqNet::Packet* packet );
-        void _cmdInit( const eqNet::Packet* packet ) { init(); }
+        void _cmdInit( eqNet::Node* node, const eqNet::Packet* packet );
         //void _cmdChooseConfigReply( const eqNet::Packet* packet );
     };
 }

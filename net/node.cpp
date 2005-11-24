@@ -34,7 +34,6 @@ Node::Node()
     _cmdHandler[CMD_NODE_STOP]              = &eqNet::Node::_cmdStop;
     _cmdHandler[CMD_NODE_MAP_SESSION]       = &eqNet::Node::_cmdMapSession;
     _cmdHandler[CMD_NODE_MAP_SESSION_REPLY] = &eqNet::Node::_cmdMapSessionReply;
-    _cmdHandler[CMD_NODE_SESSION]           = &eqNet::Node::_cmdSession;
 
     _receiverThread    = new ReceiverThread( this );
 }
@@ -216,7 +215,7 @@ bool Node::mapSession( Node* server, Session* session, const std::string& name )
             sessionID = random();
         }
             
-        session->map( this, sessionID, name );
+        session->map( this, sessionID, name, true );
         _sessions[sessionID] = session;
         return true;
     }
@@ -306,6 +305,8 @@ void Node::handleConnect( RefPtr<Connection> connection )
         //ASSERT( dynamic_cast<Node*>( (Thread*)packet.launchID ));
 
         node = (Node*)packet.launchID;
+        INFO << "Launched " << node.get() << " connecting" << endl;
+ 
         const uint requestID = node->_pendingRequestID;
         ASSERT( requestID != INVALID_ID );
 
@@ -427,7 +428,7 @@ void Node::_cmdMapSession( Node* node, const Packet* pkg )
                 sessionID = random();
             }
             
-            session->map( this, sessionID, sessionName );
+            session->map( this, sessionID, sessionName, true );
             _sessions[sessionID] = session;
         }
     }
@@ -440,24 +441,13 @@ void Node::_cmdMapSession( Node* node, const Packet* pkg )
             sessionName = (char*)session->getName().c_str();
     }
 
-    if( sessionID != INVALID_ID )
-    {
-        NodeSessionPacket sessionPacket;
-        sessionPacket.requestID = packet->requestID;
-        sessionPacket.sessionID = sessionID;
+    NodeMapSessionReplyPacket reply( packet );
+    reply.sessionID  = sessionID;
+    reply.nameLength = sessionName ? strlen(sessionName) + 1 : 0;
 
-        node->send( sessionPacket );
-    
-        session->pack( node );
-    }
-
-    NodeMapSessionReplyPacket replyPacket( packet );
-    replyPacket.sessionID  = sessionID;
-    replyPacket.nameLength = sessionName ? strlen(sessionName) + 1 : 0;
-
-    node->send(replyPacket);
-    if( replyPacket.nameLength )
-        node->send( sessionName, replyPacket.nameLength );
+    node->send( reply );
+    if( reply.nameLength )
+        node->send( sessionName, reply.nameLength );
 }
 
 void Node::_cmdMapSessionReply( Node* node, const Packet* pkg)
@@ -480,19 +470,9 @@ void Node::_cmdMapSessionReply( Node* node, const Packet* pkg)
     const bool gotData     = node->recv( sessionName, packet->nameLength );
     ASSERT( gotData );
         
-    session->map( node, packet->sessionID, sessionName );
-    _requestHandler.serveRequest( requestID, (void*)true );
-}
-
-void Node::_cmdSession( Node* node, const Packet* pkg )
-{
-    NodeSessionPacket* packet  = (NodeSessionPacket*)pkg;
-    INFO << "cmd session: " << packet << endl;
-    Session* session = static_cast<Session*>(
-        _requestHandler.getRequestData( packet->requestID ));
-    ASSERT( session );
-    
+    session->map( node, packet->sessionID, sessionName, false );
     _sessions[packet->sessionID] = session;
+    _requestHandler.serveRequest( requestID, (void*)true );
 }
 
 //----------------------------------------------------------------------
@@ -619,7 +599,8 @@ bool Node::_launch( RefPtr<ConnectionDescription> description )
         return false;
     }
     
-    _state = STATE_LAUNCHED;
+    _state            = STATE_LAUNCHED;
+    _pendingRequestID = requestID;
     return true;
 }
 
@@ -699,9 +680,13 @@ string Node::_createRemoteCommand()
     ostringstream stringStream;
 
     stringStream << "env "; // XXX
-    const char* env = getenv( "DYLD_LIBRARY_PATH" );
+    char* env = getenv( "DYLD_LIBRARY_PATH" );
     if( env )
         stringStream << "DYLD_LIBRARY_PATH=" << env << " ";
+
+    env = getenv( "EQLOGLEVEL" );
+    if( env )
+        stringStream << "EQLOGLEVEL=" << env << " ";
     // for( int i=0; environ[i] != NULL; i++ )
     // {
     //     replacement += environ[i];

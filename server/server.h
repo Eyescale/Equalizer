@@ -106,6 +106,15 @@ namespace eqs
          */
         Config* getConfig( const uint index ){ return _configs[index]; }
 
+        /** 
+         * Push a request to the servers' main thread to be handled
+         * asynchronously.
+         * 
+         * @param node the node sending the packet.
+         * @param packet the command packet.
+         */
+        void pushRequest( eqNet::Node* node, const eqNet::Packet* packet );
+
     protected:
         /** @sa eqNet::Node::handlePacket */
         virtual void handlePacket( eqNet::Node* node, 
@@ -150,15 +159,11 @@ namespace eqs
         bool _loadConfig( int argc, char **argv );
 
         /** Clones a configuration. */
-        static Config* cloneConfig( Config* config );
+        Config* _cloneConfig( Config* config );
 
         void     _handleRequests(); 
-        void       _handleCommand( eqNet::Node* node,
-                                   const eqNet::NodePacket* packet);
         void       _completePacket( eqNet::Node* node,
                                     const eqNet::Packet* packet );
-        Request*   _createRequest( eqNet::Node* node, 
-                                   const eqNet::Packet* packet );
         void       _freeRequest( Request* request );
 
         /** The command handler function table. */

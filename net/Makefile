@@ -33,7 +33,6 @@ SOURCES = \
 	session.cpp \
 	socketConnection.cpp \
 	uniPipeConnection.cpp \
-	user.cpp \
 	util.cpp
 
 MODULE  = net

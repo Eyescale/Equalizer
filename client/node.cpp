@@ -13,7 +13,11 @@
 using namespace eq;
 using namespace std;
 
+static bool _firstNode = true;
+
 Node::Node()
+        : _id(INVALID_ID),
+          _config(NULL)
 {
     for( int i=0; i<CMD_NODE_ALL; i++ )
         _cmdHandler[i] =  &eq::Node::_cmdUnknown;
@@ -25,6 +29,20 @@ Node::~Node()
 {
 }
 
+eqBase::RefPtr<eqNet::Node> Node::createNode()
+{ 
+    // The first node in a render node's life cycle is the server. There must be
+    // a cleaner way to instantiate it...
+    if( _firstNode ) 
+    {
+        _firstNode = false;
+        _server    = new Server;
+        return _server.get();
+    }
+
+    return new Node; 
+}
+
 void Node::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
 {
     VERB << "handlePacket " << packet << endl;
@@ -33,7 +51,9 @@ void Node::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
     switch( datatype )
     {
         case DATATYPE_EQ_NODE:
-            _handleCommand( packet );
+            ASSERT( packet->command <  CMD_NODE_ALL );
+
+            (this->*_cmdHandler[packet->command])( node, packet );
             break;
 
         case DATATYPE_EQ_SERVER:
@@ -50,17 +70,15 @@ void Node::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
     }
 }
 
-void Node::_handleCommand( const eqNet::Packet* packet )
+void Node::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
-    VERB << "handleCommand " << packet << endl;
-    ASSERT( packet->datatype == DATATYPE_EQ_NODE );
-    ASSERT( packet->command <  CMD_NODE_ALL );
+    NodeInitPacket* packet = (NodeInitPacket*)pkg;
+    ERROR << "handle node init " << packet << endl;
 
-    (this->*_cmdHandler[packet->command])(packet);
+    _id     = packet->nodeID;
+    _config = new Config( packet->configID, _server.get() );
+    
+    NodeInitReplyPacket reply( packet );
+    reply.result = init();
+    node->send( reply );
 }
-
-void Node::_cmdUnknown( const eqNet::Packet* pkg )
-{
-    ERROR << "Unknown packet " << pkg << endl;
-}
-

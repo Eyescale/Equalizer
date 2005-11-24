@@ -4,6 +4,7 @@
 
 #include "init.h"
 
+#include "client.h"
 #include "global.h"
 #include "node.h"
 #include "nodeFactory.h"
@@ -14,17 +15,31 @@ using namespace eq;
 using namespace eqBase;
 using namespace std;
 
+static bool isRenderNode( int argc, char** argv )
+{
+    for( int i=1; i<argc; i++ )
+        if( strcmp( argv[i], "--eq-client" ) == 0 )
+            return true;
+    return false;
+}
+
 bool eq::init( int argc, char** argv )
 {
+    eqNet::Node* node;
+
+    if( isRenderNode( argc, argv ))
+        node = Global::getNodeFactory()->createNode();
+    else
+        node = new Client;
+
+    Node::setLocalNode( node );
+
     char* argvListen[argc+1];
     
     for( int i=0; i<argc; i++ )
         argvListen[i] = argv[i];
 
     argvListen[argc] = "--eq-listen";
-
-    Node* node = Global::getNodeFactory()->createNode();
-    Node::setLocalNode( node );
 
     if( !eqNet::init( argc+1, argvListen ))
     {
