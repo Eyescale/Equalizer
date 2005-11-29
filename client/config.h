@@ -75,6 +75,7 @@ namespace eq
 
         void _cmdUnknown( const ConfigPacket* packet );
         void _cmdInitReply( const ConfigPacket* packet );
+        void _cmdExitReply( const ConfigPacket* packet );
     };
 }
 

@@ -17,6 +17,8 @@ namespace eqs
     class Node;
     class Server;
 
+    typedef eqNet::IDHash<Node*> NodeHash;
+
     /**
      * The config.
      */
@@ -26,7 +28,7 @@ namespace eqs
         /** 
          * Constructs a new Config.
          */
-        Config();
+        Config( Server* server );
 
         /** 
          * Adds a new node to this config.
@@ -44,20 +46,7 @@ namespace eqs
          */
         bool removeNode( Node* node );
 
-        /** 
-         * Returns the number of nodes on this config.
-         * 
-         * @return the number of nodes on this config. 
-         */
-        uint nNodes() const { return _nodes.size(); }
-
-        /** 
-         * Gets a node.
-         * 
-         * @param index the node's index. 
-         * @return the node.
-         */
-        Node* getNode( const uint index ) const { return _nodes[index]; }
+        const NodeHash& getNodes() const { return _nodes; }
 
         /** 
          * Adds a new compound to this config.
@@ -113,12 +102,6 @@ namespace eqs
          */
         const std::string& getRenderClient() const { return _renderClient; }
 
-        /**
-         * @sa eqNet::Session::map
-         */
-        void map( Server* server, const uint id, const std::string& name,
-                  const bool isMaster );
-
         /** 
          * Handles the received command packet.
          * 
@@ -134,8 +117,8 @@ namespace eqs
         /** The list of compounds. */
         std::vector<Compound*> _compounds;
 
-        /** The list of nodes. */
-        std::vector<Node*>   _nodes;
+        /** The nodes indexed by identifier. */
+        NodeHash    _nodes;
 
         /** The name of the application. */
         std::string _appName;
@@ -149,6 +132,7 @@ namespace eqs
 
         void _cmdRequest( eqNet::Node* node, const eqNet::Packet* packet );
         void _cmdInit( eqNet::Node* node, const eqNet::Packet* packet );
+        void _cmdExit( eqNet::Node* node, const eqNet::Packet* packet );
 
         /**
          * @name Operations

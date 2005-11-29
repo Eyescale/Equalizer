@@ -28,9 +28,15 @@ bool eq::init( int argc, char** argv )
     eqNet::Node* node;
 
     if( isRenderNode( argc, argv ))
+    {
         node = Global::getNodeFactory()->createNode();
+        INFO << "Init libeq for render node" << endl;
+    }
     else
+    {
         node = new Client;
+        INFO << "Init libeq for client" << endl;
+    }
 
     Node::setLocalNode( node );
 

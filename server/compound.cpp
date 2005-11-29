@@ -126,6 +126,20 @@ void Compound::init()
         channel->refUsed();
 }
 
+void Compound::exit()
+{
+    const uint nChildren = this->nChildren();
+    for( uint i=0; i<nChildren; i++ )
+    {
+        Compound* child = getChild(i);
+        child->exit();
+    }
+
+    Channel* channel = getChannel();
+    if( channel )
+        channel->unrefUsed();
+}
+
 std::ostream& eqs::operator << (std::ostream& os,const Compound* compound)
 {
     if( !compound )

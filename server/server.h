@@ -42,7 +42,7 @@ namespace eqs
          * @return <code>true</code> if the server did run successfully,
          *         <code>false</code> if not.
          */
-        virtual bool run( int argc, char **argv );
+        bool run( int argc, char **argv );
 
         /** 
          * Adds a new node to this node.

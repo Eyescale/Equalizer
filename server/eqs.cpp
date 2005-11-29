@@ -10,6 +10,8 @@ int main( int argc, char **argv )
 {
     Server server;
 
-    server.run( argc, argv );
+    const bool result = server.run( argc, argv );
+    if( !result )
+        ERROR << "Server did not run correctly. Please consult log." << endl;
 }
 

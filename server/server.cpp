@@ -15,6 +15,7 @@
 #include <eq/base/refPtr.h>
 #include <eq/net/connectionDescription.h>
 #include <eq/net/init.h>
+#include <eq/net/node.h>
 
 using namespace eqs;
 using namespace eqBase;
@@ -43,14 +44,18 @@ bool Server::run( int argc, char **argv )
 
     connDesc->parameters.TCPIP.port = 4242;
     if( !connection->listen( connDesc ))
+    {
+        ERROR << "Could not create listening socket" << endl;
         return false;
-
+    }
     if( !listen( connection ))
         return false;
 
     if( !_loadConfig( argc, argv ))
+    {
+        ERROR << "Could not load configuration" << endl;
         return false;
-
+    }
     _handleRequests();
     return stopListening();
 }
@@ -69,7 +74,7 @@ void Server::handleDisconnect( Node* node )
 bool Server::_loadConfig( int argc, char **argv )
 {
     // TODO
-    Config*    config = new Config();
+    Config*    config = new Config( this );
     const bool mapped = mapSession( this, config, "EQ_CONFIG_" + _configID++ );
     ASSERT( mapped );
 
@@ -121,8 +126,8 @@ static TraverseResult replaceChannelCB( Compound* compound, void* userData )
 
 Config* Server::_cloneConfig( Config* config )
 {
-    Config     *clone  = new Config();
-    const bool  mapped = mapSession( this, clone, "EQ_CONFIG_" + _configID++ );
+    Config*    clone  = new Config( this );
+    const bool mapped = mapSession( this, clone, "EQ_CONFIG_" + _configID++ );
     ASSERT( mapped );
 
     const uint nCompounds = config->nCompounds();
@@ -135,10 +140,11 @@ Config* Server::_cloneConfig( Config* config )
         clone->addCompound( compoundClone );
     }
 
-    const uint nNodes = config->nNodes();
-    for( uint i=0; i<nNodes; i++ )
+    const NodeHash& nodes = config->getNodes();
+    for( NodeHash::const_iterator iter = nodes.begin();
+         iter != nodes.end(); ++iter )
     {
-        eqs::Node* node      = config->getNode(i);
+        eqs::Node* node      = (*iter).second;
         eqs::Node* nodeClone = new eqs::Node();
 
         const uint nConnectionDescriptions = node->nConnectionDescriptions();
@@ -200,13 +206,12 @@ Config* Server::_cloneConfig( Config* config )
 //===========================================================================
 void Server::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
 {
+    ASSERT( node );
     switch( packet->datatype )
     {
         case eq::DATATYPE_EQ_SERVER:
             if( packet->command < eq::CMD_SERVER_ALL )
-            {
                 (this->*_cmdHandler[packet->command])( node, packet );
-            }
             else
                 ERROR << "Unknown command " << packet->command << endl;
             break;

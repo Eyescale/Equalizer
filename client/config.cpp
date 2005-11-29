@@ -24,6 +24,7 @@ Config::Config( const uint id, Server* server )
         _cmdHandler[i] = &eq::Config::_cmdUnknown;
 
     _cmdHandler[CMD_CONFIG_INIT_REPLY] = &eq::Config::_cmdInitReply;
+    _cmdHandler[CMD_CONFIG_EXIT_REPLY] = &eq::Config::_cmdExitReply;
 }
 
 bool Config::map()
@@ -45,6 +46,10 @@ bool Config::init()
 
 bool Config::exit()
 {
+    ConfigExitPacket packet( _id );
+    packet.requestID = _requestHandler.registerRequest();
+    _server->send( packet );
+    return ( _requestHandler.waitRequest( packet.requestID ) != 0 );
 }
 
 void Config::handleCommand( const ConfigPacket* packet )
@@ -65,6 +70,13 @@ void Config::_cmdInitReply( const ConfigPacket* pkg )
 {
     ConfigInitReplyPacket* packet = (ConfigInitReplyPacket*)pkg;
     INFO << "handle init reply " << packet << endl;
+
+    _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
+}
+void Config::_cmdExitReply( const ConfigPacket* pkg )
+{
+    ConfigExitReplyPacket* packet = (ConfigExitReplyPacket*)pkg;
+    INFO << "handle exit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
 }

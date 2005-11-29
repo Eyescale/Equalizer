@@ -71,7 +71,8 @@ namespace eq
             ( eqNet::Node* node, const eqNet::Packet* packet );
 
         void _cmdInit( eqNet::Node* node, const eqNet::Packet* packet );
-        //void _cmdChooseConfigReply( const eqNet::Packet* packet );
+        void _cmdExit( eqNet::Node* node, const eqNet::Packet* packet );
+        void _cmdStop( eqNet::Node* node, const eqNet::Packet* packet );
     };
 }
 

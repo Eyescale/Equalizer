@@ -43,13 +43,17 @@ bool eqNet::init( int argc, char** argv )
 
 bool initLocalNode( int argc, char** argv )
 {
+    for( int i=0; i<argc; i++ )
+        INFO << "arg " << argv[i] << endl;
+
     struct option options[] = {
         { "eq-listen",      no_argument,       NULL, 'l' },
         { "eq-client",      required_argument, NULL, 'c' },
         { NULL,             0,                 NULL,  0 }
     };
 
-    bool   listen  = false;
+    bool   listen   = false;
+    bool   isClient = false;
     string clientOpts;
     int    result;
     int    index;
@@ -63,6 +67,7 @@ bool initLocalNode( int argc, char** argv )
                 break;
 
             case 'c':
+                isClient   = true;
                 clientOpts = optarg;
                 break;
 
@@ -74,13 +79,19 @@ bool initLocalNode( int argc, char** argv )
     
     if( listen )
     {
+        INFO << "Listener port requested on command line" << endl;
         // TODO: connection description parameters from argv
         RefPtr<Connection> connection = Connection::create( eqNet::TYPE_TCPIP );
         RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
 
         if( !connection->listen( connDesc ))
+        {
+            WARN << "Can't create listening connection" << endl; 
+            if( isClient )
+                exit( EXIT_FAILURE );
             return false;
-        
+        }
+
         Node* localNode = Node::getLocalNode();
         if( localNode == NULL )
         {
@@ -89,11 +100,19 @@ bool initLocalNode( int argc, char** argv )
         }
 
         if( !localNode->listen( connection ))
+        {
+            WARN << "Can't create listener node" << endl; 
+            if( isClient )
+                exit( EXIT_FAILURE );
             return false;
+        }
     }
 
-    if( clientOpts.size() > 0 )
+    INFO << "clientOpts: " << clientOpts << endl;
+    if( isClient )
     {
+        INFO << "Client node started from command line with option " 
+             << clientOpts << endl;
         Node* localNode = Node::getLocalNode();
         ASSERT( localNode );
 

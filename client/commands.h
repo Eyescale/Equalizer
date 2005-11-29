@@ -21,6 +21,9 @@ namespace eq
     {
         CMD_NODE_INIT = CMD_SERVER_ALL,
         CMD_NODE_INIT_REPLY,
+        CMD_NODE_EXIT,
+        CMD_NODE_EXIT_REPLY,
+        CMD_NODE_STOP,
         CMD_NODE_ALL
     };
 
@@ -35,6 +38,9 @@ namespace eq
         CMD_CONFIG_INIT,
         REQ_CONFIG_INIT, // REQ must always follow CMD!
         CMD_CONFIG_INIT_REPLY,
+        CMD_CONFIG_EXIT,
+        REQ_CONFIG_EXIT, // REQ must always follow CMD!
+        CMD_CONFIG_EXIT_REPLY,
         CMD_CONFIG_ALL
     };
 };

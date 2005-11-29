@@ -56,8 +56,8 @@ namespace eqNet
          * 
          * @return the state of this node.
          */
-        State getState(){ return _state; }
-
+        State getState()    const { return _state; }
+        bool  isConnected() const { return (_state == STATE_CONNECTED); }
 
         /**
          * @name State Changes
@@ -437,6 +437,7 @@ namespace eqNet
         Session* _findSession( const std::string& name ) const;
 
         bool _listenToSelf();
+        void _cleanup();
 
         /** 
          * Ensures the connectivity of this node.

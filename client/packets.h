@@ -104,6 +104,29 @@ namespace eq
         bool result;
     };
 
+    struct ConfigExitPacket : public ConfigPacket
+    {
+        ConfigExitPacket( const uint configID ) : ConfigPacket( configID )
+            {
+                command   = CMD_CONFIG_EXIT;
+                size      = sizeof( ConfigExitPacket );
+            }
+        uint requestID;
+    };
+
+    struct ConfigExitReplyPacket : public ConfigPacket
+    {
+        ConfigExitReplyPacket( const ConfigExitPacket* requestPacket )
+                : ConfigPacket( requestPacket->configID )
+            {
+                command   = CMD_CONFIG_EXIT_REPLY;
+                size      = sizeof( ConfigExitReplyPacket );
+                requestID = requestPacket->requestID;
+            }
+        uint requestID;
+        bool result;
+    };
+
     //------------------------------------------------------------
     // Node
     //------------------------------------------------------------
@@ -118,7 +141,6 @@ namespace eq
         
         uint nodeID;
     };
-
 
     struct NodeInitPacket : public NodePacket
     {
@@ -146,6 +168,40 @@ namespace eq
         bool   result;
     };
 
+    struct NodeExitPacket : public NodePacket
+    {
+        NodeExitPacket( const uint configID, const uint nodeID )
+                : NodePacket( configID, nodeID )
+            {
+                command = CMD_NODE_EXIT;
+                size    = sizeof( NodeExitPacket );
+            }
+
+        uint   requestID;
+    };
+
+    struct NodeExitReplyPacket : public NodePacket
+    {
+        NodeExitReplyPacket( NodeExitPacket* requestPacket )
+                : NodePacket( requestPacket->configID, requestPacket->nodeID )
+            {
+                command   = CMD_NODE_EXIT_REPLY;
+                requestID = requestPacket->requestID;
+                size      = sizeof( NodeExitReplyPacket );
+            }
+
+        uint   requestID;
+    };
+
+    struct NodeStopPacket : public NodePacket
+    {
+        NodeStopPacket( const uint configID, const uint nodeID )
+                : NodePacket( configID, nodeID )
+            {
+                command = CMD_NODE_STOP;
+                size    = sizeof( NodeStopPacket );
+            }
+    };
 
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ServerChooseConfigPacket* packet )

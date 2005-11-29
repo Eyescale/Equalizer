@@ -13,46 +13,38 @@
 using namespace eqs;
 using namespace std;
 
-Config::Config()
+Config::Config( Server* server )
+        : _server( server )
 {
     for( int i=0; i<eq::CMD_CONFIG_ALL; i++ )
         _cmdHandler[i] = &eqs::Config::_cmdUnknown;
 
     _cmdHandler[eq::CMD_CONFIG_INIT] = &eqs::Config::_cmdRequest;
     _cmdHandler[eq::REQ_CONFIG_INIT] = &eqs::Config::_cmdInit;
-}
-
-void Config::map( Server* server, const uint id, const std::string& name,
-                  const bool isMaster )
-{
-    _server = server;
-    eqNet::Session::map( server, id, name, isMaster);
+    _cmdHandler[eq::CMD_CONFIG_EXIT] = &eqs::Config::_cmdRequest;
+    _cmdHandler[eq::REQ_CONFIG_EXIT] = &eqs::Config::_cmdExit;
 }
 
 void Config::addNode( Node* node )
 {
-    _nodes.push_back( node ); 
     node->_config = this; 
     node->_id     = genIDs( 1 );
+    _nodes[node->_id] = node; 
 }
 
 bool Config::removeNode( Node* node )
 {
-    for( vector<Node*>::iterator iter = _nodes.begin(); iter != _nodes.end( );
-         ++iter )
-    {
-        if( *iter == node )
-        {
-            _nodes.erase( iter );
+    NodeHash::iterator iter = _nodes.find( node->_id );
+    if( iter == _nodes.end( ))
+        return false;
 
-            node->_config = NULL; 
-            freeIDs( node->_id, 1 );
-            node->_id = 0;
+    _nodes.erase( iter );
 
-            return true;
-        }
-    }
-    return false;
+    node->_config = NULL; 
+    freeIDs( node->_id, 1 );
+    node->_id = 0;
+
+    return true;
 }
 
 //===========================================================================
@@ -60,6 +52,7 @@ bool Config::removeNode( Node* node )
 //===========================================================================
 void Config::handlePacket( eqNet::Node* node, const eq::ConfigPacket* packet )
 {
+    ASSERT( node );
     switch( packet->datatype )
     {
         case eq::DATATYPE_EQ_CONFIG:
@@ -102,6 +95,17 @@ void Config::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
     node->send( reply );
 }
 
+void Config::_cmdExit( eqNet::Node* node, const eqNet::Packet* pkg )
+{
+    const eq::ConfigExitPacket* packet = (eq::ConfigExitPacket*)pkg;
+    eq::ConfigExitReplyPacket   reply( packet );
+    INFO << "handle config exit " << packet << endl;
+
+    reply.result = _exit();
+    INFO << "config exit result: " << reply.result << endl;
+    node->send( reply );
+}
+
 //===========================================================================
 // operations
 //===========================================================================
@@ -116,16 +120,21 @@ bool Config::_init()
     }
 
     // connect (and launch) nodes
-    const uint nNodes = this->nNodes();
+    vector<Node*> usedNodes;
+    for( NodeHash::const_iterator iter = _nodes.begin(); 
+         iter != _nodes.end(); ++iter )
+    {
+        Node* node = (*iter).second;
+        if( node->isUsed( ))
+            usedNodes.push_back( node );
+    }
+
+    const uint nNodes = usedNodes.size();
     for( uint i=0; i<nNodes; i++ )
     {
-        Node* node = getNode( i );
-        if( !node->isUsed( ))
-            continue;
-
-        if( !node->initConnect( ))
+        if( !usedNodes[i]->initConnect( ))
         {
-            ERROR << "Connection to " << node << " failed." << endl;
+            ERROR << "Connection to " << usedNodes[i] << " failed." << endl;
             _exit();
             return false;
         }
@@ -133,9 +142,7 @@ bool Config::_init()
 
     for( uint i=0; i<nNodes; i++ )
     {
-        Node* node = getNode( i );
-        if( !node->isUsed( ))
-            continue;
+        Node* node = usedNodes[i];
 
         if( !node->syncConnect( ))
         {
@@ -143,35 +150,69 @@ bool Config::_init()
             _exit();
             return false;
         }
-
+        
+        // initialize nodes
         node->sendInit();
     }
 
     for( uint i=0; i<nNodes; i++ )
     {
-        Node* node = getNode( i );
-        if( !node->isUsed( ))
-            continue;
-
-        if( !node->syncInit( ))
+        if( !usedNodes[i]->syncInit( ))
         {
-            ERROR << "Init of " << node << " failed." << endl;
+            ERROR << "Init of " << usedNodes[i] << " failed." << endl;
             _exit();
             return false;
         }
     }
-
-//     foreach compound
-//         init compound
-//     foreach compound
-//         sync init
 
     return true;
 }
 
 bool Config::_exit()
 {
-    return false;
+//     foreach compound
+//         call exit compound cb's
+//     foreach compound
+//         sync exit
+
+    bool          cleanExit = true;
+    vector<Node*> connectedNodes;
+
+    for( NodeHash::const_iterator iter = _nodes.begin(); 
+         iter != _nodes.end(); ++iter )
+    {
+        Node* node = (*iter).second;
+        if( !node->isUsed( ) || !node->isConnected( ))
+            continue;
+        
+        connectedNodes.push_back( node );
+    }
+    
+    const uint nNodes = connectedNodes.size();
+    for( uint i=0; i<nNodes; i++ )
+        connectedNodes[i]->sendExit();
+
+    for( uint i=0; i<nNodes; i++ )
+    {
+        Node* node = connectedNodes[i];
+
+        if( !node->syncExit( ))
+        {
+            ERROR << "Exit of " << node << " failed." << endl;
+            cleanExit = false;
+        }
+
+        node->stop();
+    }
+
+    const uint nCompounds = this->nCompounds();
+    for( uint i=0; i<nCompounds; i++ )
+    {
+        Compound* compound = getCompound( i );
+        compound->exit();
+    }
+
+    return cleanExit;
 }
 
 std::ostream& eqs::operator << ( std::ostream& os, const Config* config )
@@ -182,14 +223,15 @@ std::ostream& eqs::operator << ( std::ostream& os, const Config* config )
         return os;
     }
     
-    const uint nNodes     = config->nNodes();
+    const NodeHash& nodes = config->getNodes();
     const uint nCompounds = config->nCompounds();
-    os << "config " << (void*)config << " " << nNodes << " nodes "
+    os << "config " << (void*)config << " " << nodes.size() << " nodes "
            << nCompounds << " compounds";
     
-    for( uint i=0; i<nNodes; i++ )
-            os << std::endl << "    " << config->getNode(i);
-    
+    for( NodeHash::const_iterator iter = nodes.begin(); 
+         iter != nodes.end(); ++iter )
+        os << std::endl << "    " << (*iter).second;
+
     for( uint i=0; i<nCompounds; i++ )
         os << std::endl << "    " << config->getCompound(i);
     

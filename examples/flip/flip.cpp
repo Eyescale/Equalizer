@@ -28,12 +28,12 @@ public:
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual Node* createNode() { return new Node; }
+    virtual Node* createNode() { return new ::Node; }
 };
 
 eq::NodeFactory* eq::createNodeFactory()
 {
-    return new NodeFactory;
+    return new ::NodeFactory;
 }
 
 int main( int argc, char** argv )

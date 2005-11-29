@@ -79,7 +79,12 @@ bool Node::stopListening()
     NodeStopPacket packet;
     send( packet );
     _receiverThread->join();
+    _cleanup();
+    return true;
+}
 
+void Node::_cleanup()
+{
     ASSERT( _state == STATE_STOPPED );
     ASSERT( _connection );
 
@@ -99,9 +104,6 @@ bool Node::stopListening()
     }
 
     _connectionSet.clear();   
-
-    _state          = STATE_STOPPED;
-    return true;    
 }
 
 bool Node::_listenToSelf()
@@ -215,7 +217,7 @@ bool Node::mapSession( Node* server, Session* session, const std::string& name )
             sessionID = random();
         }
             
-        session->map( this, sessionID, name, true );
+        session->map( server, sessionID, name, true );
         _sessions[sessionID] = session;
         return true;
     }
@@ -744,5 +746,6 @@ bool Node::runClient( const string& clientArgs )
     node->send( packet );
 
     _receiverThread->join();
+    node->_cleanup();
     return true;
 }

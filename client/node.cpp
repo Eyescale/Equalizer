@@ -23,6 +23,7 @@ Node::Node()
         _cmdHandler[i] =  &eq::Node::_cmdUnknown;
 
      _cmdHandler[CMD_NODE_INIT] = &eq::Node::_cmdInit;
+     _cmdHandler[CMD_NODE_EXIT] = &eq::Node::_cmdExit;
 }
 
 Node::~Node()
@@ -73,7 +74,7 @@ void Node::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
 void Node::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     NodeInitPacket* packet = (NodeInitPacket*)pkg;
-    ERROR << "handle node init " << packet << endl;
+    INFO << "handle node init " << packet << endl;
 
     _id     = packet->nodeID;
     _config = new Config( packet->configID, _server.get() );
@@ -81,4 +82,25 @@ void Node::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
     NodeInitReplyPacket reply( packet );
     reply.result = init();
     node->send( reply );
+}
+
+void Node::_cmdExit( eqNet::Node* node, const eqNet::Packet* pkg )
+{
+    NodeExitPacket* packet = (NodeExitPacket*)pkg;
+    INFO << "handle node exit " << packet << endl;
+
+    exit();
+
+    NodeExitReplyPacket reply( packet );
+    node->send( reply );
+}
+
+void Node::_cmdStop( eqNet::Node* node, const eqNet::Packet* pkg )
+{
+    NodeStopPacket* packet = (NodeStopPacket*)pkg;
+    INFO << "handle node stop " << packet << endl;
+
+    // stop ourselves
+    eqNet::NodeStopPacket stopPacket;
+    send( stopPacket );
 }

@@ -105,6 +105,24 @@ namespace eqs
          *         <code>false</code> if not.
          */
         bool syncInit();
+        
+        /** 
+         * Send the node exit command.
+         */
+        void sendExit();
+
+        /** 
+         * Synchronize the exit of the node.
+         * 
+         * @return <code>true</code> if the node exited cleanly,
+         *         <code>false</code> if not.
+         */
+        bool syncExit();
+        
+        /** 
+         * Send the node the command to stop its execution.
+         */
+        void stop();
         //*}
 
         /** 
@@ -152,6 +170,7 @@ namespace eqs
             ( eqNet::Node* node, const eqNet::Packet* packet );
 
         void _cmdInitReply( eqNet::Node* node, const eqNet::Packet* packet );
+        void _cmdExitReply( eqNet::Node* node, const eqNet::Packet* packet );
     };
 
     std::ostream& operator << ( std::ostream& os, const Node* node );

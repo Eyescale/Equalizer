@@ -6,7 +6,7 @@
 use strict;
 use File::Basename;
 
-sub generate( $; $ );
+sub generateAsync( $; $; $ );
 
 my $HEADER;
 my $CODE;
@@ -21,22 +21,15 @@ foreach my $file (@ARGV)
     open( CODE, ">$basename" . "Dist.cpp" ) 
         or die "Can't open $basename" . "Dist.cpp for writing";
     
-    print HEADER "#include \"packets.h\"\n";
-    print HEADER "namespace eqNet\n";
-    print HEADER "{\n";
+    print "HEADER #include \"packets.h\"\n";
 
-    print CODE   "#include \"$basename.h\"\n";
-    print CODE   "#include \"$basename" . "Packets.h\"\n";
-
-    # Can't think of an easy way to determine necessary dependencies, so
-    # just hardcode them here.
-    print CODE   "#include \"user.h\"\n";
-
-    print CODE   "using namespace eqNet;\n";
+    print "CODE   #include \"$basename.h\"\n";
+    print "CODE   #include \"$basename" . "Packets.h\"\n";
 
     my $parseFunction = 0;
-    my $function;
+    my $namespace;
     my $class;
+    my $function;
 
     foreach my $line (<FILE>)
     {
@@ -48,35 +41,40 @@ foreach my $file (@ARGV)
             if( $line =~ /;/ )
             {
                 $function =~ s/;//;
-                generate( $class, $function );
+                generateAsync( $namespace, $class, $function );
                 $function = "";
                 $parseFunction = 0;
             }
         }
         
-        if( $line =~ /^\s*\/\/\s*__eq_generate_distributed__/ )
+        if( $line =~ /^\s*\/\/\s*__eq_generate_async__/ )
         {
             $parseFunction = 1;
         }
-        
-        if( $line =~ /^\s*class\s*(\w+)\s+/ )
+        elsif( $line =~ /^\s*namespace\s+(\w+)\s*/ )
+        {
+            $namespace = $1;
+            chomp( $namespace );
+        }
+        elsif( $line =~ /^\s*class\s+(\w+)\s*/ )
         {
             $class = $1;
-            $class =~ s/\s*$//;
+            chomp( $class );
         }
     }
-
-    print HEADER "}\n";
 
     close CODE;
     close HEADER;
     close FILE;
 }
 
-sub generate( $; $ )
+# generates code for an asynchronous function, with two sub-methods
+# send<Func> and sync<Func>.
+sub generateAsync( $; $; $ )
 {
-    my $class = shift;
-    my $function = shift;
+    my $namespace = shift;
+    my $class     = shift;
+    my $function  = shift;
 
     if( !($function =~ /([\w\*\&]+)\s+(\w+)\s*\((.*)\)/ ))
     {
@@ -97,42 +95,50 @@ sub generate( $; $ )
     $command =~ s/([A-Z])/_$1/g;
     $command = "CMD_$class$command";
     $command = uc($command);
+   
+    my $packetNamespace = $namespace;
+    $packetNamespace =~ s/^eqs$/eq/; # eqs packages are defined in client ns
 
-    print HEADER "\n";
-    print HEADER "    struct  $packetType : public $class" . "Packet\n";
-    print HEADER "    {\n";
-    print HEADER "        $packetType()\n";
-    print HEADER "        {\n";
-    print HEADER "            command = $command;\n";
-    print HEADER "            size    = sizeof($packetType);\n";
-    print HEADER "        }\n";
-
-    print CODE "\n";
-    print CODE "$functionRet $class" . "::$functionName(@functionArgs)\n";
-    print CODE "{\n";
-    print CODE "    $packetType packet;\n";
+    print "HEADER \n";
+    print "HEADER namespace $packetNamespace\n";
+    print "HEADER {\n";
+    print "HEADER     struct  $packetType : public $class" . "Packet\n";
+    print "HEADER     {\n";
+    print "HEADER         $packetType()\n";
+    print "HEADER         {\n";
+    print "HEADER             command = $command;\n";
+    print "HEADER             size    = sizeof( $packetType );\n";
+    print "HEADER         }\n";
+    print "HEADER         uint requestID;\n";
+    
+    # asynchronous send function
+    print "CODE   \n";
+    print "CODE   void $namespace" . "::$class" . 
+        "::send$capFunctionName( @functionArgs )\n";
+    print "CODE   {\n";
+    print "CODE       ASSERT( _pendingRequestID == INVALID_ID );\n";
+    print "CODE       $packetType packet;\n";
 
     my $idClass = $class;
     $idClass =~ s/^(\w)/lc($1)/e; # lowercase first letter
-    $idClass = 0 if $idClass =~ /node/;
 
     # fill up entity identifiers
     while( $idClass )
     {
         if( $idClass =~ /$class/i )
         {
-            print CODE "    packet.$idClass" . "ID = getID();\n";
+            print "CODE       packet.$idClass" . "ID = getID();\n";
         }
         else
         {
-            print CODE "    packet.$idClass" . "ID = _$idClass->getID();\n";
+            print "CODE       packet.$idClass" . "ID = _$idClass->getID();\n";
         }
 
-        if( $idClass eq "user" )
+        if( $idClass eq "node" )
         {
-            $idClass = "session";
+            $idClass = "config";
         }
-        elsif( $idClass eq "session" )
+        elsif( $idClass eq "config" )
         {
             $idClass = 0;
         }
@@ -154,32 +160,72 @@ sub generate( $; $ )
 
         if( $type =~ /\*$/ ) # pointer to object -> use ID
         {
-            print HEADER "        uint $name" . "ID;\n";
-            print CODE   "    packet.$name" . "ID = $name->getID();\n";
+            print "HEADER         uint $name" . "ID;\n";
+            print "CODE       packet.$name" . "ID = $name->getID();\n";
         }
         else
         {
-            print HEADER "        $type $name;\n";
-            print CODE   "    packet.$name = $name;\n";
+            print "HEADER         $type $name;\n";
+            print "CODE       packet.$name = $name;\n";
         }
     }
+    print "HEADER     };\n";
+    print "HEADER }\n";
 
-    # has return value - allocate request ID
-    if( !($functionRet =~ /void/) )
+
+    # allocate request ID
+    print "CODE       _pendingRequestID = _requestHandler.registerRequest();\n";
+    print "CODE       packet.requestID  = _pendingRequestID;\n";
+    print "CODE       send( packet );\n";
+    print "CODE   }\n";
+
+    # synchronization function w/ return value
+    print "CODE   $functionRet $namespace" . "::$class" . 
+        "::sync$capFunctionName()\n";
+    print "CODE   {\n";
+    print "CODE       ASSERT( _pendingRequestID != INVALID_ID );\n";
+    if( $functionRet =~ /void/ )
     {
-        print HEADER "        uint requestID;\n";
-        print CODE 
-            "    packet.requestID = _requestHandler.registerRequest(NULL);\n";
+        print "CODE       _requestHandler.waitRequest( _pendingRequestID );\n";
+        print "CODE       _pendingRequestID = INVALID_ID;\n";
+    }
+    else
+    {
+        print "CODE       const uint requestID = _pendingRequestID;\n";
+        print "CODE       _pendingRequestID    = INVALID_ID;\n";
+        print "CODE       return ($functionRet)_requestHandler.waitRequest( requestID );\n";
+    }
+    print "CODE   }\n";
+
+    # synchronous function
+    print "CODE   $functionRet $namespace" . "::$class" . 
+        "::$functionName(  @functionArgs )\n";
+    print "CODE   {\n";
+    print "CODE       send$capFunctionName( ";
+    
+    my $needKomma = 0;
+    foreach my $arg (@functionArgs)
+    {
+        $arg =~ /[\w\*\&]+\s+(\w+)\s*$/;
+        if( $needKomma )
+        {
+            print "CODE   , $1";
+        }
+        else
+        {
+            print "CODE    $1";
+            $needKomma = 1;
+        }
+    }
+    print "CODE   )\n";
+    if( $functionRet =~ /void/ )
+    {
+        print "CODE       sync$capFunctionName();\n";
+    } 
+    else
+    {
+        print "CODE       return sync$capFunctionName();\n";
     }
 
-    print CODE "    send( packet );\n";
-
-    # handle return value
-    if( !($functionRet =~ /void/) )
-    {
-        print CODE "    return ($functionRet)_requestHandler.waitRequest( packet.requestID );\n";
-    }
-
-    print CODE "}\n";
-    print HEADER "    };\n";
+    print "CODE   }\n";
 }

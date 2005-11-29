@@ -102,6 +102,11 @@ namespace eqs
          */
         void init();
 
+        /** 
+         * Exits this compound.
+         */
+        void exit();
+
         //*}
 
     private:

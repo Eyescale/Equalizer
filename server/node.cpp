@@ -22,6 +22,7 @@ Node::Node()
         _cmdHandler[i] = &eqs::Node::_cmdUnknown;
 
     _cmdHandler[eq::CMD_NODE_INIT_REPLY] = &eqs::Node::_cmdInitReply;
+    _cmdHandler[eq::CMD_NODE_EXIT_REPLY] = &eqs::Node::_cmdExitReply;
 }
 
 void Node::addPipe( Pipe* pipe )
@@ -61,6 +62,31 @@ bool Node::syncInit()
     return result;
 }
 
+void Node::sendExit()
+{
+    ASSERT( _pendingRequestID == INVALID_ID );
+
+    eq::NodeExitPacket packet( _config->getID(), _id );
+    _pendingRequestID = _requestHandler.registerRequest(); 
+    packet.requestID  = _pendingRequestID;
+    send( packet );
+}
+
+bool Node::syncExit()
+{
+    ASSERT( _pendingRequestID != INVALID_ID );
+
+    const bool result = (bool)_requestHandler.waitRequest( _pendingRequestID );
+    _pendingRequestID = INVALID_ID;
+    return result;
+}
+
+void Node::stop()
+{
+    eq::NodeStopPacket packet( _config->getID(), _id );
+    send( packet );
+}
+
 //===========================================================================
 // command handling
 //===========================================================================
@@ -86,6 +112,14 @@ void Node::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
     INFO << "handle node init reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
+}
+
+void Node::_cmdExitReply( eqNet::Node* node, const eqNet::Packet* pkg )
+{
+    eq::NodeExitReplyPacket* packet = (eq::NodeExitReplyPacket*)pkg;
+    INFO << "handle node exit reply " << packet << endl;
+
+    _requestHandler.serveRequest( packet->requestID, (void*)true );
 }
 
 
