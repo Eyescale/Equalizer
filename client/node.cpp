@@ -32,6 +32,8 @@ Node::Node()
                          &eq::Node::_cmdInit ));
     registerCommand( CMD_NODE_EXIT, this, reinterpret_cast<CommandFcn>( 
                          &eq::Node::_cmdExit ));
+    registerCommand( CMD_NODE_STOP, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Node::_cmdStop ));
 }
 
 Node::~Node()

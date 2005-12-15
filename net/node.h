@@ -261,9 +261,9 @@ namespace eqNet
         bool send( const Packet& packet )
             {
                 ASSERT( getLocalNode( ));
-                if( _state==STATE_STOPPED )
+                if( _state == STATE_STOPPED )
                     connect();
-                if( _state!=STATE_CONNECTED && _state!=STATE_LISTENING )
+                if( _state != STATE_CONNECTED && _state != STATE_LISTENING )
                     return false;
 
                 const uint64 sent = _connection->send( packet );
@@ -380,7 +380,7 @@ namespace eqNet
 
     protected:
         /** The current state of this node. */
-        State _state;
+        volatile State _state;
 
         /** Determines if the node should be launched automatically. */
         bool _autoLaunch;
@@ -472,9 +472,9 @@ namespace eqNet
          */
         bool _checkConnection()
             {
-                if( _state==STATE_CONNECTED || _state==STATE_LISTENING )
+                if( _state == STATE_CONNECTED || _state == STATE_LISTENING )
                     return true;
-                if( _state==STATE_STOPPED )
+                if( _state == STATE_STOPPED )
                     return connect();
                 return false;
             }

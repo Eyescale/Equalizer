@@ -81,14 +81,15 @@ bool Node::stopListening()
 
     NodeStopPacket packet;
     send( packet );
-    _receiverThread->join();
+    const bool joined = _receiverThread->join();
+    ASSERT( joined );
     _cleanup();
     return true;
 }
 
 void Node::_cleanup()
 {
-    ASSERT( _state == STATE_STOPPED );
+    ASSERTINFO( _state == STATE_STOPPED, _state );
     ASSERT( _connection );
 
     _connectionSet.removeConnection( _connection );
@@ -370,7 +371,7 @@ void Node::_handleRequest( Node* node )
 
 void Node::dispatchPacket( Node* node, const Packet* packet )
 {
-    INFO << "dispatch " << packet << " from " << (void*)node << " by " 
+    VERB << "dispatch " << packet << " from " << (void*)node << " by " 
          << (void*)this << endl;
     const uint datatype = packet->datatype;
 
@@ -405,7 +406,7 @@ void Node::dispatchPacket( Node* node, const Packet* packet )
 
 void Node::_cmdStop( Node* node, const Packet* pkg )
 {
-    INFO << "Cmd stop" << endl;
+    INFO << "Cmd stop " << this << endl;
     ASSERT( _state == STATE_LISTENING );
 
 //     _connectionSet.clear();
@@ -503,7 +504,7 @@ Session* Node::_findSession( const std::string& name ) const
 //----------------------------------------------------------------------
 bool Node::connect()
 {
-    if( _state==STATE_CONNECTED || _state==STATE_LISTENING )
+    if( _state == STATE_CONNECTED || _state == STATE_LISTENING )
         return true;
 
     if( !initConnect( ))
@@ -517,7 +518,7 @@ bool Node::connect()
 
 bool Node::initConnect()
 {
-    if( _state==STATE_CONNECTED || _state==STATE_LISTENING )
+    if( _state == STATE_CONNECTED || _state == STATE_LISTENING )
         return true;
 
     ASSERT( _state == STATE_STOPPED );
@@ -751,7 +752,8 @@ bool Node::runClient( const string& clientArgs )
     packet.launchID    = requestID;
     node->send( packet );
 
-    _receiverThread->join();
-    node->_cleanup();
+    const bool joined = _receiverThread->join();
+    ASSERT( joined );
+    _cleanup();
     return true;
 }

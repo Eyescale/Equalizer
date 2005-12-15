@@ -8,7 +8,7 @@ subdirs: $(SUBDIRS)
 
 $(SUBDIRS):
 	@echo "$(DEPTH) $@"
-	@$(MAKE) TOP=$(SUBDIRTOP) VARIANT=$(VARIANT) -C $@
+	@$(MAKE) TOP=$(SUBDIRTOP) VARIANT=$(VARIANT) SUBDIR=$(SUBDIR)/$@ -C $@
 
 
 # headers

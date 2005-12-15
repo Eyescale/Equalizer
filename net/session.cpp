@@ -110,7 +110,7 @@ void Session::deregisterObject( Object* object )
 
 void Session::dispatchPacket( Node* node, const SessionPacket* packet)
 {
-    INFO << "dispatch " << packet << endl;
+    VERB << "dispatch " << packet << endl;
 
     switch( packet->datatype )
     {

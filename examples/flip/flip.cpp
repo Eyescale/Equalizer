@@ -25,10 +25,26 @@ public:
         }
 };
 
+class Channel : public eq::Channel
+{
+public:
+    virtual bool init()
+        {
+            cout << "Init " << this << endl;
+            return true;
+        }
+
+    virtual void exit()
+        {
+            cout << "Exit " << this << endl;
+        }
+};
+
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual Node* createNode() { return new ::Node; }
+    virtual Node*    createNode()    { return new ::Node; }
+    virtual Channel* createChannel() { return new ::Channel; }
 };
 
 eq::NodeFactory* eq::createNodeFactory()
