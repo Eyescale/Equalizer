@@ -14,68 +14,42 @@ using namespace eqs;
 using namespace std;
 
 Config::Config( Server* server )
-        : _server( server )
+        : eqNet::Session( eq::CMD_CONFIG_ALL ),
+          _server( server )
 {
-    for( int i=0; i<eq::CMD_CONFIG_ALL; i++ )
-        _cmdHandler[i] = &eqs::Config::_cmdUnknown;
-
-    _cmdHandler[eq::CMD_CONFIG_INIT] = &eqs::Config::_cmdRequest;
-    _cmdHandler[eq::REQ_CONFIG_INIT] = &eqs::Config::_cmdInit;
-    _cmdHandler[eq::CMD_CONFIG_EXIT] = &eqs::Config::_cmdRequest;
-    _cmdHandler[eq::REQ_CONFIG_EXIT] = &eqs::Config::_cmdExit;
+    registerCommand( eq::CMD_CONFIG_INIT, this, reinterpret_cast<CommandFcn>(
+                         &eqs::Config::_cmdRequest ));
+    registerCommand( eq::REQ_CONFIG_INIT, this, reinterpret_cast<CommandFcn>(
+                         &eqs::Config::_cmdInit ));
+    registerCommand( eq::CMD_CONFIG_EXIT, this, reinterpret_cast<CommandFcn>( 
+                         &eqs::Config::_cmdRequest ));
+    registerCommand( eq::REQ_CONFIG_EXIT, this, reinterpret_cast<CommandFcn>( 
+                         &eqs::Config::_cmdExit ));
 }
 
 void Config::addNode( Node* node )
 {
     node->_config = this; 
-    node->_id     = genIDs( 1 );
-    _nodes[node->_id] = node; 
+    registerObject( node );
+    _nodes.push_back( node ); 
 }
 
 bool Config::removeNode( Node* node )
 {
-    NodeHash::iterator iter = _nodes.find( node->_id );
+    vector<Node*>::iterator iter = _nodes.begin();
+    for( ; iter != _nodes.end(); ++iter )
+        if( (*iter) == node )
+            break;
+
     if( iter == _nodes.end( ))
         return false;
 
     _nodes.erase( iter );
 
+    deregisterObject( node );
     node->_config = NULL; 
-    freeIDs( node->_id, 1 );
-    node->_id = 0;
 
     return true;
-}
-
-//===========================================================================
-// command handling
-//===========================================================================
-void Config::handlePacket( eqNet::Node* node, const eq::ConfigPacket* packet )
-{
-    ASSERT( node );
-    switch( packet->datatype )
-    {
-        case eq::DATATYPE_EQ_CONFIG:
-            ASSERT( packet->command < eq::CMD_CONFIG_ALL );
-
-            (this->*_cmdHandler[packet->command])(node, packet);
-            break;
-
-        case eq::DATATYPE_EQ_NODE:
-        {
-            const eq::NodePacket* nodePacket = (eq::NodePacket*)packet;
-            const uint            nodeID     = nodePacket->nodeID;
-            Node*                 node       = _nodes[nodeID];
-            ASSERT( node );
-            
-            node->handlePacket( node, nodePacket );
-            break;
-        }
-
-        default:
-            ERROR << "unimplemented" << endl;
-            break;
-    }
 }
 
 // pushes the request to the main thread to be handled asynchronously
@@ -120,16 +94,18 @@ bool Config::_init()
     }
 
     // connect (and launch) nodes
-    vector<Node*> usedNodes;
-    for( NodeHash::const_iterator iter = _nodes.begin(); 
-         iter != _nodes.end(); ++iter )
+    vector<Node*>                 usedNodes;
+    uint nNodes = _nodes.size();
+    for( uint i=0; i<nNodes; i++ )
     {
-        Node* node = (*iter).second;
-        if( node->isUsed( ))
-            usedNodes.push_back( node );
+        if( _nodes[i]->isUsed( ))
+            usedNodes.push_back( _nodes[i] );
     }
 
-    const uint nNodes = usedNodes.size();
+    nNodes = usedNodes.size();
+    if( nNodes == 0 )
+        return true;
+
     for( uint i=0; i<nNodes; i++ )
     {
         if( !usedNodes[i]->initConnect( ))
@@ -140,10 +116,15 @@ bool Config::_init()
         }
     }
 
+    const string&              name = getName();
+    eq::NodeCreateConfigPacket createConfigPacket;
+    createConfigPacket.configID     = _id;
+    createConfigPacket.nameLength   = name.size()+1;
+
     for( uint i=0; i<nNodes; i++ )
     {
         Node* node = usedNodes[i];
-
+        
         if( !node->syncConnect( ))
         {
             ERROR << "Connection of " << node << " failed." << endl;
@@ -152,7 +133,9 @@ bool Config::_init()
         }
         
         // initialize nodes
-        node->sendInit();
+        node->send( createConfigPacket );
+        node->send( name.c_str(), createConfigPacket.nameLength );
+        node->startInit();
     }
 
     for( uint i=0; i<nNodes; i++ )
@@ -178,19 +161,19 @@ bool Config::_exit()
     bool          cleanExit = true;
     vector<Node*> connectedNodes;
 
-    for( NodeHash::const_iterator iter = _nodes.begin(); 
-         iter != _nodes.end(); ++iter )
+    uint nNodes = _nodes.size();
+    for( uint i=0; i<nNodes; i++ )
     {
-        Node* node = (*iter).second;
+        Node* node = _nodes[i];
         if( !node->isUsed( ) || !node->isConnected( ))
             continue;
         
         connectedNodes.push_back( node );
     }
     
-    const uint nNodes = connectedNodes.size();
+    nNodes = connectedNodes.size();
     for( uint i=0; i<nNodes; i++ )
-        connectedNodes[i]->sendExit();
+        connectedNodes[i]->startExit();
 
     for( uint i=0; i<nNodes; i++ )
     {
@@ -223,15 +206,13 @@ std::ostream& eqs::operator << ( std::ostream& os, const Config* config )
         return os;
     }
     
-    const NodeHash& nodes = config->getNodes();
+    const uint nNodes = config->nNodes();
     const uint nCompounds = config->nCompounds();
-    os << "config " << (void*)config << " " << nodes.size() << " nodes "
+    os << "config " << (void*)config << " " << nNodes << " nodes "
            << nCompounds << " compounds";
     
-    for( NodeHash::const_iterator iter = nodes.begin(); 
-         iter != nodes.end(); ++iter )
-        os << std::endl << "    " << (*iter).second;
-
+    for( uint i=0; i<nNodes; i++ )
+        os << std::endl << "    " << config->getNode(i);
     for( uint i=0; i<nCompounds; i++ )
         os << std::endl << "    " << config->getCompound(i);
     

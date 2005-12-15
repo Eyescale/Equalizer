@@ -8,13 +8,15 @@
 #include "commands.h"
 
 #include <eq/net/node.h>
+#include <eq/net/object.h>
 
 namespace eq
 {
     class Config;
+    class Pipe;
     class Server;
 
-    class Node : public eqNet::Node
+    class Node : public eqNet::Node, public eqNet::Object
     {
     public:
         /** 
@@ -26,6 +28,13 @@ namespace eq
          * Destructs the node.
          */
         virtual ~Node();
+
+        /** 
+         * Returns the config of this node.
+         * 
+         * @return the config of this node. 
+         */
+        Config* getConfig() const { return _config; }
 
         /**
          * @name Callbacks
@@ -46,9 +55,6 @@ namespace eq
         virtual void exit(){}
         //@}
 
-        uint getID() const { return _id; }
-        Config* getConfig() const { return _config; }
-
     protected:
         /** 
          * @sa eqNet::Node::handlePacket
@@ -62,14 +68,20 @@ namespace eq
         virtual eqBase::RefPtr<eqNet::Node> createNode();
 
     private:
-        uint                   _id;
         eqBase::RefPtr<Server> _server;
         Config*                _config;
+        std::vector<Pipe*>     _pipes;
+
+        void _addPipe( Pipe* pipe );
+        void _removePipe( Pipe* pipe );
 
         /** The command handler function table. */
         void (eq::Node::*_cmdHandler[CMD_NODE_ALL])
             ( eqNet::Node* node, const eqNet::Packet* packet );
 
+        void _cmdCreateConfig( eqNet::Node* node, const eqNet::Packet* packet );
+        void _cmdCreatePipe( eqNet::Node* node, const eqNet::Packet* packet );
+        void _cmdDestroyPipe( eqNet::Node* node, const eqNet::Packet* packet );
         void _cmdInit( eqNet::Node* node, const eqNet::Packet* packet );
         void _cmdExit( eqNet::Node* node, const eqNet::Packet* packet );
         void _cmdStop( eqNet::Node* node, const eqNet::Packet* packet );

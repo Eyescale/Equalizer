@@ -5,21 +5,29 @@
 #include "window.h"
 
 #include "channel.h"
+#include "config.h"
 #include "pipe.h"
 
 using namespace eqs;
-
+using namespace std;
 
 Window::Window()
-        : _used(0),
-          _pipe(NULL)
+        : eqNet::Base( eq::CMD_WINDOW_ALL ),
+          _used(0),
+          _pipe(NULL),
+          _pendingRequestID(INVALID_ID)
 {
+    registerCommand( eq::CMD_WINDOW_INIT_REPLY, this,
+                     reinterpret_cast<CommandFcn>(&eqs::Window::_cmdInitReply));
+    registerCommand( eq::CMD_WINDOW_EXIT_REPLY, this, 
+                     reinterpret_cast<CommandFcn>(&eqs::Window::_cmdExitReply));
 }
 
 void Window::addChannel( Channel* channel )
 {
     _channels.push_back( channel ); 
     channel->_window = this; 
+    getConfig()->registerObject( channel );
 }
 
 void Window::refUsed()
@@ -34,6 +42,135 @@ void Window::unrefUsed()
     if( _pipe ) 
         _pipe->unrefUsed(); 
 }
+
+//===========================================================================
+// Operations
+//===========================================================================
+
+//---------------------------------------------------------------------------
+// init
+//---------------------------------------------------------------------------
+void Window::startInit()
+{
+    _sendInit();
+    eq::WindowCreateChannelPacket createChannelPacket( _sessionID, _id );
+    
+    const int nChannels = _channels.size();
+    for( int i=0; i<nChannels; ++i )
+    {
+        Channel* channel = _channels[i];
+        if( channel->isUsed( ))
+        {
+            createChannelPacket.channelID = channel->getID();
+            _send( createChannelPacket );
+            channel->startInit();
+        }
+    }
+}
+
+void Window::_sendInit()
+{
+    ASSERT( _pendingRequestID == INVALID_ID );
+
+    eq::WindowInitPacket packet( _sessionID, _id );
+    _pendingRequestID = _requestHandler.registerRequest(); 
+    packet.requestID  = _pendingRequestID;
+    _send( packet );
+}
+
+bool Window::syncInit()
+{
+    bool success = true;
+    const int nChannels = _channels.size();
+    for( int i=0; i<nChannels; ++i )
+    {
+        Channel* channel = _channels[i];
+        if( channel->isUsed( ))
+            if( !channel->syncInit( ))
+                success = false;
+    }
+
+    ASSERT( _pendingRequestID != INVALID_ID );
+
+    if( !(bool)_requestHandler.waitRequest( _pendingRequestID ))
+        success = false;
+    _pendingRequestID = INVALID_ID;
+
+    return success;
+}
+
+//---------------------------------------------------------------------------
+// exit
+//---------------------------------------------------------------------------
+void Window::startExit()
+{
+    const int nChannels = _channels.size();
+    for( int i=0; i<nChannels; ++i )
+    {
+        Channel* channel = _channels[i];
+        if( channel->isUsed( ))
+            channel->startExit();
+    }
+
+    _sendExit();
+}
+
+void Window::_sendExit()
+{
+    ASSERT( _pendingRequestID == INVALID_ID );
+
+    eq::WindowExitPacket packet( _sessionID, _id );
+    _pendingRequestID = _requestHandler.registerRequest(); 
+    packet.requestID  = _pendingRequestID;
+    _send( packet );
+}
+
+bool Window::syncExit()
+{
+    ASSERT( _pendingRequestID != INVALID_ID );
+
+    bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
+    _pendingRequestID = INVALID_ID;
+    
+    eq::WindowDestroyChannelPacket destroyChannelPacket( _sessionID, _id );
+
+    const int nChannels = _channels.size();
+    for( int i=0; i<nChannels; ++i )
+    {
+        Channel* channel = _channels[i];
+        if( channel->isUsed( ))
+        {
+            if( !channel->syncExit( ))
+                success = false;
+
+            destroyChannelPacket.channelID = channel->getID();
+            _send( destroyChannelPacket );
+        }
+    }
+
+    return success;
+}
+
+//===========================================================================
+// command handling
+//===========================================================================
+void Window::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
+{
+    eq::WindowInitReplyPacket* packet = (eq::WindowInitReplyPacket*)pkg;
+    INFO << "handle window init reply " << packet << endl;
+
+    _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
+}
+
+void Window::_cmdExitReply( eqNet::Node* node, const eqNet::Packet* pkg )
+{
+    eq::WindowExitReplyPacket* packet = (eq::WindowExitReplyPacket*)pkg;
+    INFO << "handle window exit reply " << packet << endl;
+
+    _requestHandler.serveRequest( packet->requestID, (void*)true );
+}
+
+
 
 std::ostream& eqs::operator << ( std::ostream& os, const Window* window )
 {

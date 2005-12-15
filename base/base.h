@@ -30,15 +30,27 @@ typedef int socklen_t;
 
 // defines
 #define EQ_TIMEOUT_INDEFINITE 0
-#define DUMP_CORE   {((char*)0)[1] = 'c';}
+#define DUMP_CORE   {((char*)0)[0] = 'c';}
 
 // assertions
 #ifdef NDEBUG
+
 #  define ASSERT(x) if( !(x) ) \
         ERROR << "##### Assert: " << #x << " #####" << std::endl;
+#  define ASSERTINFO(x, info) if( !(x) )                                \
+        ERROR << "##### Assert: " << #x << " [" << info << "] #####"    \
+              << std::endl;
+
 #else
+
 #  define ASSERT(x) if( !(x) ) \
     { ERROR << "Assert: " << #x << std::endl; DUMP_CORE; ::abort(); }
+#  define ASSERTINFO(x, info) if( !(x) )                                \
+    {                                                                   \
+        ERROR << "Assert: " << #x << " [" << info << "]" << std::endl;  \
+        DUMP_CORE; ::abort();                                           \
+    }
+
 #endif
 
 #endif //EQBASE_BASE_H

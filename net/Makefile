@@ -14,8 +14,10 @@ HEADER_SRC = \
 	init.h \
 	message.h \
 	node.h \
+	object.h \
 	packets.h \
 	pipeConnection.h \
+	requestQueue.h \
 	session.h \
 	uniPipeConnection.h
 
@@ -29,7 +31,9 @@ SOURCES = \
 	init.cpp \
 	launcher.cpp \
 	node.cpp \
+	object.cpp \
 	pipeConnection.cpp \
+	requestQueue.cpp \
 	session.cpp \
 	socketConnection.cpp \
 	uniPipeConnection.cpp \

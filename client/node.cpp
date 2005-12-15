@@ -5,7 +5,10 @@
 #include "node.h"
 
 #include "commands.h"
+#include "global.h"
+#include "nodeFactory.h"
 #include "packets.h"
+#include "pipe.h"
 #include "server.h"
 
 #include <eq/net/connection.h>
@@ -16,14 +19,19 @@ using namespace std;
 static bool _firstNode = true;
 
 Node::Node()
-        : _id(INVALID_ID),
+        : eqNet::Node( CMD_NODE_ALL ),
           _config(NULL)
 {
-    for( int i=0; i<CMD_NODE_ALL; i++ )
-        _cmdHandler[i] =  &eq::Node::_cmdUnknown;
-
-     _cmdHandler[CMD_NODE_INIT] = &eq::Node::_cmdInit;
-     _cmdHandler[CMD_NODE_EXIT] = &eq::Node::_cmdExit;
+    registerCommand( CMD_NODE_CREATE_CONFIG, this, reinterpret_cast<CommandFcn>(
+                         &eq::Node::_cmdCreateConfig ));
+    registerCommand( CMD_NODE_CREATE_PIPE, this, reinterpret_cast<CommandFcn>(
+                         &eq::Node::_cmdCreatePipe ));
+    registerCommand( CMD_NODE_DESTROY_PIPE, this, reinterpret_cast<CommandFcn>(
+                         &eq::Node::_cmdDestroyPipe ));
+    registerCommand( CMD_NODE_INIT, this, reinterpret_cast<CommandFcn>(
+                         &eq::Node::_cmdInit ));
+    registerCommand( CMD_NODE_EXIT, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Node::_cmdExit ));
 }
 
 Node::~Node()
@@ -51,18 +59,9 @@ void Node::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
 
     switch( datatype )
     {
-        case DATATYPE_EQ_NODE:
-            ASSERT( packet->command <  CMD_NODE_ALL );
-
-            (this->*_cmdHandler[packet->command])( node, packet );
-            break;
-
         case DATATYPE_EQ_SERVER:
-        case DATATYPE_EQ_CONFIG:
-            ASSERT( dynamic_cast<Server*>(node) );
-
-            Server* server = static_cast<Server*>(node);
-            server->handlePacket( packet );
+            ASSERT( node == _server.get( ));
+            _server->handleCommand( node, packet );
             break;
 
         default:
@@ -71,16 +70,74 @@ void Node::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
     }
 }
 
+void Node::_addPipe( Pipe* pipe )
+{
+    _pipes.push_back( pipe );
+    pipe->_node = this;
+}
+
+void Node::_removePipe( Pipe* pipe )
+{
+    vector<Pipe*>::iterator iter = find( _pipes.begin(), _pipes.end(), pipe );
+    if( iter == _pipes.end( ))
+        return;
+    
+    _pipes.erase( iter );
+    pipe->_node = NULL;
+}
+
+//---------------------------------------------------------------------------
+// command handlers
+//---------------------------------------------------------------------------
+void Node::_cmdCreateConfig( eqNet::Node* node, const eqNet::Packet* pkg )
+{
+    NodeCreateConfigPacket* packet = (NodeCreateConfigPacket*)pkg;
+    INFO << "Handle create config " << packet;
+
+    char sessionName[packet->nameLength];
+    node->recv( sessionName, packet->nameLength );
+    INFO << ", name " << sessionName << endl;
+
+    _config = Global::getNodeFactory()->createConfig();
+    
+    addSession( _config, node, packet->configID, sessionName );
+    _server->addConfig( _config );
+}
+
+void Node::_cmdCreatePipe( eqNet::Node* node, const eqNet::Packet* pkg )
+{
+    NodeCreatePipePacket* packet = (NodeCreatePipePacket*)pkg;
+    INFO << "Handle create pipe " << packet << endl;
+
+    Pipe* pipe = Global::getNodeFactory()->createPipe();
+    
+    _config->addRegisteredObject( packet->pipeID, pipe );
+    _addPipe( pipe );
+}
+
+void Node::_cmdDestroyPipe( eqNet::Node* node, const eqNet::Packet* pkg )
+{
+    NodeDestroyPipePacket* packet = (NodeDestroyPipePacket*)pkg;
+    INFO << "Handle destroy pipe " << packet << endl;
+
+    Pipe* pipe = (Pipe*)_config->getRegisteredObject( packet->pipeID );
+    if( !pipe )
+        return;
+
+    _removePipe( pipe );
+    _config->deregisterObject( pipe );
+    delete pipe;
+}
+
 void Node::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     NodeInitPacket* packet = (NodeInitPacket*)pkg;
     INFO << "handle node init " << packet << endl;
 
-    _id     = packet->nodeID;
-    _config = new Config( packet->configID, _server.get() );
-    
+    _config->addRegisteredObject( packet->nodeID, this );
+
     NodeInitReplyPacket reply( packet );
-    reply.result = init();
+    reply.result = init(); // XXX push to app thread
     node->send( reply );
 }
 

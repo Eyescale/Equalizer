@@ -7,9 +7,9 @@
 
 #include <eq/packets.h>
 #include <eq/base/lock.h>
-#include <eq/base/mtQueue.h>
 #include <eq/net/idHash.h>
 #include <eq/net/node.h>
+#include <eq/net/requestQueue.h>
 
 /** 
  * @namespace eqs
@@ -43,37 +43,6 @@ namespace eqs
          *         <code>false</code> if not.
          */
         bool run( int argc, char **argv );
-
-        /** 
-         * Adds a new node to this node.
-         * 
-         * @param node the node.
-         */
-        void addNode( Node* node ){ _nodes.push_back( node ); }
-
-        /** 
-         * Removes a node from this node.
-         * 
-         * @param node the node
-         * @return <code>true</code> if the node was removed, <code>false</code>
-         *         otherwise.
-         */
-        bool removeNode( Node* node );
-
-        /** 
-         * Returns the number of nodes on this node.
-         * 
-         * @return the number of nodes on this node. 
-         */
-        uint nNodes() const { return _nodes.size(); }
-
-        /** 
-         * Gets a node.
-         * 
-         * @param index the node's index. 
-         * @return the node.
-         */
-        Node* getNode( const uint index ){ return _nodes[index]; }
 
         /** 
          * Adds a new config to this config.
@@ -113,7 +82,8 @@ namespace eqs
          * @param node the node sending the packet.
          * @param packet the command packet.
          */
-        void pushRequest( eqNet::Node* node, const eqNet::Packet* packet );
+        void pushRequest( eqNet::Node* node, const eqNet::Packet* packet )
+            { _requestQueue.push( node, packet ); }
 
     protected:
         /** @sa eqNet::Node::handlePacket */
@@ -140,20 +110,8 @@ namespace eqs
         /** The application-allocated configurations, mapped by identifier. */
         eqNet::IDHash<Config*> _appConfigs;
 
-
-        struct Request
-        {
-            Request() : packet( NULL ) {}
-            Node*          node;
-            eqNet::Packet* packet;
-        };
-
-        /** The receiver->main thread request queue. */
-        eqBase::MTQueue<Request*> _requests;
-        
-        /** The free packet store. */
-        std::list<Request*>       _freeRequests;
-        eqBase::Lock              _freeRequestsLock;
+        /** The receiver->main request queue. */
+        eqNet::RequestQueue    _requestQueue;
 
         /** Loads the server's configuration. */
         bool _loadConfig( int argc, char **argv );
@@ -161,19 +119,12 @@ namespace eqs
         /** Clones a configuration. */
         Config* _cloneConfig( Config* config );
 
-        void     _handleRequests(); 
-        void       _completePacket( eqNet::Node* node,
-                                    const eqNet::Packet* packet );
-        void       _freeRequest( Request* request );
+        std::string _genConfigName();
+        void        _handleRequests(); 
 
-        /** The command handler function table. */
-        void (eqs::Server::*_cmdHandler[eq::CMD_SERVER_ALL])
-            ( eqNet::Node* node, const eqNet::Packet* packet );
-
-        void _cmdChooseConfig( eqNet::Node* node,
-                               const eqNet::Packet* packet );
-        void _cmdReleaseConfig( eqNet::Node* node,
-                                const eqNet::Packet* packet );
+        /** The command functions. */
+        void _cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* packet );
+        void _cmdReleaseConfig( eqNet::Node* node,const eqNet::Packet* packet );
     };
 
     inline std::ostream& operator << ( std::ostream& os, Server* server )
@@ -184,14 +135,10 @@ namespace eqs
             return os;
         }
 
-        const uint nNodes   = server->nNodes();
         const uint nConfigs = server->nConfigs();
 
-        os << "server " << (void*)server << " " << nNodes << " nodes " 
-           << nConfigs << " configs";
+        os << "server " << (void*)server << " " << nConfigs << " configs";
 
-        for( uint i=0; i<nNodes; i++ )
-            os << std::endl << "    " << server->getNode(i);
         for( uint i=0; i<nConfigs; i++ )
             os << std::endl << "    " << server->getConfig(i);
 

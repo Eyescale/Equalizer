@@ -79,7 +79,7 @@ bool initLocalNode( int argc, char** argv )
     
     if( listen )
     {
-        INFO << "Listener port requested on command line" << endl;
+        INFO << "Listener port requested" << endl;
         // TODO: connection description parameters from argv
         RefPtr<Connection> connection = Connection::create( eqNet::TYPE_TCPIP );
         RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;

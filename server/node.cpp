@@ -7,28 +7,30 @@
 #include "config.h"
 #include "pipe.h"
 
+#include <eq/packets.h>
+
 using namespace eqs;
 using namespace std;
 
 Node::Node()
-        : eqNet::Node(),
+        : eqNet::Node( eq::CMD_NODE_ALL ),
           _used(0),
           _config(NULL),
           _pendingRequestID(INVALID_ID)
 {
     _autoLaunch = true;
 
-    for( int i=0; i<eq::CMD_NODE_ALL; i++ )
-        _cmdHandler[i] = &eqs::Node::_cmdUnknown;
-
-    _cmdHandler[eq::CMD_NODE_INIT_REPLY] = &eqs::Node::_cmdInitReply;
-    _cmdHandler[eq::CMD_NODE_EXIT_REPLY] = &eqs::Node::_cmdExitReply;
+    registerCommand( eq::CMD_NODE_INIT_REPLY, this,reinterpret_cast<CommandFcn>(
+                         &eqs::Node::_cmdInitReply ));
+    registerCommand( eq::CMD_NODE_EXIT_REPLY, this,reinterpret_cast<CommandFcn>(
+                         &eqs::Node::_cmdExitReply ));
 }
 
 void Node::addPipe( Pipe* pipe )
 {
     _pipes.push_back( pipe ); 
     pipe->_node = this; 
+    _config->registerObject( pipe );
 }
 
 const string& Node::getProgramName()
@@ -43,7 +45,29 @@ const string& Node::getProgramName()
 // Operations
 //===========================================================================
 
-void Node::sendInit()
+//---------------------------------------------------------------------------
+// init
+//---------------------------------------------------------------------------
+void Node::startInit()
+{
+    _sendInit();
+
+    eq::NodeCreatePipePacket createPipePacket( _sessionID, _id );
+
+    const uint nPipes = _pipes.size();
+    for( uint i=0; i<nPipes; i++ )
+    {
+        Pipe* pipe = _pipes[i];
+        if( pipe->isUsed( ))
+        {
+            createPipePacket.pipeID = pipe->getID();
+            send( createPipePacket );
+            pipe->startInit();
+        }
+    }
+}
+
+void Node::_sendInit()
 {
     ASSERT( _pendingRequestID == INVALID_ID );
 
@@ -55,14 +79,42 @@ void Node::sendInit()
 
 bool Node::syncInit()
 {
+    bool success = true;
+    const int nPipes = _pipes.size();
+    for( int i=0; i<nPipes; ++i )
+    {
+        Pipe* pipe = _pipes[i];
+        if( pipe->isUsed( ))
+            if( !pipe->syncInit( ))
+                success = false;
+    }
+
     ASSERT( _pendingRequestID != INVALID_ID );
 
-    const bool result = (bool)_requestHandler.waitRequest( _pendingRequestID );
+    if( !(bool)_requestHandler.waitRequest( _pendingRequestID ))
+        success = false;
     _pendingRequestID = INVALID_ID;
-    return result;
+
+    return success;
 }
 
-void Node::sendExit()
+//---------------------------------------------------------------------------
+// exit
+//---------------------------------------------------------------------------
+void Node::startExit()
+{
+    const uint nPipes = _pipes.size();
+    for( uint i=0; i<nPipes; i++ )
+    {
+        Pipe* pipe = _pipes[i];
+        if( pipe->isUsed( ))
+            pipe->startExit();
+    }
+
+    _sendExit();
+}
+
+void Node::_sendExit()
 {
     ASSERT( _pendingRequestID == INVALID_ID );
 
@@ -76,9 +128,26 @@ bool Node::syncExit()
 {
     ASSERT( _pendingRequestID != INVALID_ID );
 
-    const bool result = (bool)_requestHandler.waitRequest( _pendingRequestID );
+    bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = INVALID_ID;
-    return result;
+    
+    eq::NodeDestroyPipePacket destroyPipePacket( _sessionID, _id );
+    
+    const uint nPipes = _pipes.size();
+    for( uint i=0; i<nPipes; i++ )
+    {
+        Pipe* pipe = _pipes[i];
+        if( pipe->isUsed( ))
+        {
+            if( !pipe->syncExit( ))
+                success = false;
+
+            destroyPipePacket.pipeID = pipe->getID();
+            send( destroyPipePacket );
+        }
+    }
+
+    return success;
 }
 
 void Node::stop()
@@ -90,22 +159,6 @@ void Node::stop()
 //===========================================================================
 // command handling
 //===========================================================================
-void Node::handlePacket( eqNet::Node* node, const eq::NodePacket* packet )
-{
-    switch( packet->datatype )
-    {
-        case eq::DATATYPE_EQ_NODE:
-            ASSERT( packet->command < eq::CMD_NODE_ALL );
-
-            (this->*_cmdHandler[packet->command])(node, packet);
-            break;
-
-        default:
-            ERROR << "unimplemented" << endl;
-            break;
-    }
-}
-
 void Node::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     eq::NodeInitReplyPacket* packet = (eq::NodeInitReplyPacket*)pkg;

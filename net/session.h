@@ -14,6 +14,7 @@
 #include "global.h"
 #include "idHash.h"
 #include "node.h"
+#include "object.h"
 
 namespace eqNet
 {
@@ -27,8 +28,11 @@ namespace eqNet
     public:
         /** 
          * Constructs a new session.
+         *
+         * @param nCommands the highest command ID to be handled by the node, at
+         *                  least <code>CMD_SESSION_CUSTOM</code>.
          */
-        Session();
+        Session( const uint nCommands = CMD_SESSION_CUSTOM );
 
         /** 
          * Returns the name of the session.
@@ -45,16 +49,17 @@ namespace eqNet
         uint getID() const { return _id; }
         
         /** 
-         * Handles a command packet.
+         * Dispatches a command packet to the appropriate object.
          * 
          * @param node the node which sent the packet.
          * @param packet the packet.
+         * @sa handleCommand
          */
-        void handlePacket( Node* node, const SessionPacket* packet );
+        void dispatchPacket( Node* node, const SessionPacket* packet );
 
         /** 
          * Sets the mapping information of this session, used internally by
-         * Node::mapSession().
+         * the Node class.
          * 
          * @param server the node hosting the session.
          * @param id the session's identifier.
@@ -67,8 +72,54 @@ namespace eqNet
          * @name Operations
          */
         //*{
-        uint genIDs( const uint range );
-        void freeIDs( const uint start, const uint range );
+        /** 
+         * Generates a continous block of unique identifiers.
+         * 
+         * @param range the size of the block.
+         * @return the first identifier of the block.
+         */
+        uint  genIDs( const uint range );
+
+        /** 
+         * Frees a continous block of unique identifiers.
+         * 
+         * @param start the first identifier in the block.
+         * @param range the size of the block.
+         */
+        void  freeIDs( const uint start, const uint range );
+
+        /** 
+         * Registers a new distributed object.
+         *
+         * The assigned identifier is unique across all registered objects.
+         * 
+         * @param object the object instance.
+         */
+        void registerObject( Object* object );
+            
+        /** 
+         * Adds an object using a pre-registered identifier.
+         * 
+         * @param id the object's unique identifier.
+         * @param object the object instance.
+         */
+        void addRegisteredObject( const uint id, Object* object );
+
+        /** 
+         * Returns a registered object.
+         * 
+         * @param id the object's identifier.
+         * @return the registered object.
+         */
+        Object* getRegisteredObject( const uint id )
+            { return _registeredObjects[id]; }
+
+        /** 
+         * Deregisters a distributed object.
+         * 
+         * @param object the object instance.
+         */
+        void deregisterObject( Object* object );
         //*}
         
     protected:
@@ -99,9 +150,10 @@ namespace eqNet
         /** The identifier pool. */
         eqBase::IDPool _idPool;
 
-        /** The command handler function table. */
-        void (eqNet::Session::*_cmdHandler[CMD_SESSION_CUSTOM])( Node* node, const Packet* packet );
+        /** The registered object, indexed by identifier. */
+        IDHash<Object*> _registeredObjects;
 
+        /** The command handler functions. */
         void _cmdGenIDs( Node* node, const Packet* packet );
         void _cmdGenIDsReply( Node* node, const Packet* packet );
 

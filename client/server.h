@@ -66,13 +66,7 @@ namespace eq
          */
         void    releaseConfig( Config* config );
 
-        /** 
-         * Handles a packet received for this server.
-         * 
-         * @param packet the packet.
-         */
-        void handlePacket( const eqNet::Packet* packet );
-
+        void addConfig( Config* config );
     private:
         enum State 
         {
@@ -84,21 +78,10 @@ namespace eq
         /** The allocated configurations, mapped by identifier. */
         eqNet::IDHash<Config*> _configs;
 
-        /** 
-         * Handles a command for this server.
-         * 
-         * @param packet the command packet.
-         */
-        void _handleCommand( const ServerPacket* packet );
-
-        /** The command handler function table. */
-        void (eq::Server::*_cmdHandler[CMD_SERVER_ALL])
-            ( const eqNet::Packet* packet );
-
-        void _cmdUnknown( const eqNet::Packet* packet );
-        void _cmdChooseConfigReply( const eqNet::Packet* packet );
-        
-        //friend class eq::Node;
+        /** The command functions. */
+        void _cmdUnknown( eqNet::Node* node,  const eqNet::Packet* packet );
+        void _cmdChooseConfigReply( eqNet::Node* node, 
+                                    const eqNet::Packet* packet );
     };
 }
 

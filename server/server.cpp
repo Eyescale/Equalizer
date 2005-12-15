@@ -17,20 +17,23 @@
 #include <eq/net/init.h>
 #include <eq/net/node.h>
 
+#include <sstream>
+
 using namespace eqs;
 using namespace eqBase;
 using namespace std;
 
-#define SMALL_PACKET_SIZE 1024
-
 Server::Server()
-        : _configID(1)
+        : eqNet::Node( eq::CMD_SERVER_ALL ),
+          _configID(0)
 {
-    for( int i=0; i<eq::CMD_SERVER_ALL; i++ )
-        _cmdHandler[i] =  &eqs::Server::_cmdUnknown;
-
-    _cmdHandler[eq::CMD_SERVER_CHOOSE_CONFIG] = &eqs::Server::_cmdChooseConfig;
-    _cmdHandler[eq::CMD_SERVER_RELEASE_CONFIG] =&eqs::Server::_cmdReleaseConfig;
+    registerCommand( eq::CMD_SERVER_CHOOSE_CONFIG, this, 
+                     reinterpret_cast<CommandFcn>( 
+                         &eqs::Server::_cmdChooseConfig ));
+    registerCommand( eq::CMD_SERVER_RELEASE_CONFIG, this, 
+                     reinterpret_cast<CommandFcn>( 
+                         &eqs::Server::_cmdReleaseConfig ));
+    INFO << "new " << this << endl;
 }
 
 bool Server::run( int argc, char **argv )
@@ -62,7 +65,7 @@ bool Server::run( int argc, char **argv )
 
 RefPtr<eqNet::Node> Server::createNode()
 {
-    return new Node();
+    return new Node( eq::CMD_NODE_ALL );
 }
 
 void Server::handleDisconnect( Node* node )
@@ -71,11 +74,19 @@ void Server::handleDisconnect( Node* node )
     // TODO: free up resources requested by disconnected node
 }
 
+string Server::_genConfigName()
+{
+    ostringstream stringStream;
+    stringStream << "EQ_CONFIG_" << (++_configID);
+    return stringStream.str();
+}
+
 bool Server::_loadConfig( int argc, char **argv )
 {
     // TODO
     Config*    config = new Config( this );
-    const bool mapped = mapSession( this, config, "EQ_CONFIG_" + _configID++ );
+    const string name = _genConfigName();
+    const bool mapped = mapSession( this, config, name );
     ASSERT( mapped );
 
     eqs::Node* node = new eqs::Node();
@@ -85,7 +96,7 @@ bool Server::_loadConfig( int argc, char **argv )
         new eqNet::ConnectionDescription;
     description->launchCommand = "ssh -n %h %c";
     description->hostname      = "localhost";
-    description->launchTimeout = 10000;
+    description->launchTimeout = 100000;
     node->addConnectionDescription( description );
 
     Pipe* pipe = new Pipe();
@@ -126,8 +137,9 @@ static TraverseResult replaceChannelCB( Compound* compound, void* userData )
 
 Config* Server::_cloneConfig( Config* config )
 {
-    Config*    clone  = new Config( this );
-    const bool mapped = mapSession( this, clone, "EQ_CONFIG_" + _configID++ );
+    Config*     clone = new Config( this );
+    const string name = _genConfigName();
+    const bool mapped = mapSession( this, clone, name );
     ASSERT( mapped );
 
     const uint nCompounds = config->nCompounds();
@@ -135,17 +147,19 @@ Config* Server::_cloneConfig( Config* config )
     {
         Compound* compound      = config->getCompound(i);
         Compound* compoundClone = new Compound();
-        
-        compoundClone->setChannel( compound->getChannel() ); // replaced below
+
+        // TODO clone tree
         clone->addCompound( compoundClone );
+        compoundClone->setChannel( compound->getChannel() ); // replaced below
     }
 
-    const NodeHash& nodes = config->getNodes();
-    for( NodeHash::const_iterator iter = nodes.begin();
-         iter != nodes.end(); ++iter )
+    const uint nNodes = config->nNodes();
+    for( uint i=0; i<nNodes; i++ )
     {
-        eqs::Node* node      = (*iter).second;
+        eqs::Node* node      = config->getNode(i);
         eqs::Node* nodeClone = new eqs::Node();
+        
+        clone->addNode( nodeClone );
 
         const uint nConnectionDescriptions = node->nConnectionDescriptions();
         for( uint j=0; j<nConnectionDescriptions; j++ )
@@ -162,17 +176,23 @@ Config* Server::_cloneConfig( Config* config )
             Pipe* pipe      = node->getPipe(j);
             Pipe* pipeClone = new Pipe();
             
+            nodeClone->addPipe( pipeClone );
+            
             const uint nWindows = pipe->nWindows();
             for( uint k=0; k<nWindows; k++ )
             {
                 Window* window      = pipe->getWindow(k);
                 Window* windowClone = new Window();
             
+                pipeClone->addWindow( windowClone );
+            
                 const uint nChannels = window->nChannels();
                 for( uint l=0; l<nChannels; l++ )
                 {
                     Channel* channel      = window->getChannel(l);
                     Channel* channelClone = new Channel();
+
+                    windowClone->addChannel( channelClone );
                     
                     ReplaceChannelData data;
                     data.oldChannel = channel;
@@ -184,17 +204,9 @@ Config* Server::_cloneConfig( Config* config )
                         Compound::traverse( compound, replaceChannelCB, 
                                             replaceChannelCB, NULL, &data );
                     }
-
-                    windowClone->addChannel( channelClone );
                 }
-            
-                pipeClone->addWindow( windowClone );
             }
-            
-            nodeClone->addPipe( pipeClone );
         }
-        
-        clone->addNode( nodeClone );
     }
 
     // utilisation data will be shared between copies
@@ -210,85 +222,24 @@ void Server::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
     switch( packet->datatype )
     {
         case eq::DATATYPE_EQ_SERVER:
-            if( packet->command < eq::CMD_SERVER_ALL )
-                (this->*_cmdHandler[packet->command])( node, packet );
-            else
-                ERROR << "Unknown command " << packet->command << endl;
+            handleCommand( node, packet );
             break;
             
-        case eq::DATATYPE_EQ_CONFIG:
-        case eq::DATATYPE_EQ_NODE:
-        {
-            const eq::ConfigPacket* configPacket = (eq::ConfigPacket*)
-                packet;
-            const uint              configID     = configPacket->configID;
-            Config*                 config       = _appConfigs[configID];
-            ASSERT( config );
-            
-            config->handlePacket( node, configPacket );
-            break;
-        }
         default:
-            ERROR << "unimplemented" << endl;
+            ERROR << "unimplemented " << packet << endl;
             abort();
     }
 }
 
-void Server::pushRequest( eqNet::Node* node, const eqNet::Packet* packet )
-{
-    Request* request;
-
-    _freeRequestsLock.set();
-    if( _freeRequests.empty( ))
-        request = new Request;
-    else
-    {
-        request = _freeRequests.front();
-        _freeRequests.pop_front();
-    }
-    _freeRequestsLock.unset();
-
-    request->node = node;
-
-    const size_t packetSize = packet->size;
-    if( packetSize <= SMALL_PACKET_SIZE )
-    {
-        if( !request->packet )
-            request->packet = (eqNet::Packet*)malloc( SMALL_PACKET_SIZE );
-    }
-    else
-    {
-        if( request->packet )
-            free( request->packet );
-
-        request->packet = (eqNet::Packet*)malloc( packetSize );
-    }
-        
-    memcpy( request->packet, packet, packetSize );
-    request->packet->command++; // REQ must always follow CMD
-    _requests.push( request );
-}
-
-void Server::_freeRequest( Request* request )
-{
-    if( request->packet->size > SMALL_PACKET_SIZE )
-    {
-        free( request->packet );
-        request->packet = NULL;
-    }
-    
-    _freeRequestsLock.set();
-    _freeRequests.push_back( request );
-    _freeRequestsLock.unset();
-}
-
 void Server::_handleRequests()
 {
+    Node*          node;
+    eqNet::Packet* packet;
+
     while( true )
     {
-        Request*       request = _requests.pop();
-        handlePacket( request->node, request->packet );
-        _freeRequest( request );
+        _requestQueue.pop( &node, &packet );
+        dispatchPacket( node, packet );
     }
 }
 
@@ -323,7 +274,11 @@ void Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
     reply.configID = appConfig->getID();
     _appConfigs[reply.configID] = appConfig;
 
+    const string& name = appConfig->getName();
+    reply.sessionNameLength = name.size() + 1;
+    
     node->send( reply );
+    node->send( name.c_str(), reply.sessionNameLength );
 }
 
 void Server::_cmdReleaseConfig( eqNet::Node* node, const eqNet::Packet* pkg )

@@ -18,13 +18,12 @@ using namespace eqBase;
 using namespace std;
 
 Server::Server()
-        : _state( STATE_STOPPED )
+        : Node( CMD_SERVER_ALL ),
+          _state( STATE_STOPPED )
 {
-    for( int i=0; i<CMD_SERVER_ALL; i++ )
-        _cmdHandler[i] =  &eq::Server::_cmdUnknown;
-
-    _cmdHandler[CMD_SERVER_CHOOSE_CONFIG_REPLY] =
-        &eq::Server::_cmdChooseConfigReply;
+    registerCommand( CMD_SERVER_CHOOSE_CONFIG_REPLY, this,
+                     reinterpret_cast<CommandFcn>( 
+                         &eq::Server::_cmdChooseConfigReply ));
 
     INFO << "New server at " << (void*)this << endl;
 }
@@ -84,6 +83,7 @@ Config* Server::chooseConfig( const ConfigParams* parameters )
         return NULL;
 
     ServerChooseConfigPacket packet;
+    INFO << "choose " << (void*)this << endl;
     packet.requestID          = _requestHandler.registerRequest();
     packet.appNameLength      = parameters->appName.size() + 1;
     packet.renderClientLength = parameters->renderClient.size() + 1;
@@ -96,9 +96,6 @@ Config* Server::chooseConfig( const ConfigParams* parameters )
     Config* config = (Config*)_requestHandler.waitRequest( packet.requestID );
     if( !config )
         return NULL;
-
-    const bool mapped = config->map();
-    ASSERT( mapped );
 
     return config;
 }
@@ -114,48 +111,18 @@ void Server::releaseConfig( Config* config )
     delete config;
 }
 
-void Server::handlePacket( const eqNet::Packet* packet )
+void Server::addConfig( Config* config )
 {
-    VERB << "handlePacket " << packet << endl;
-    const uint datatype = packet->datatype;
-
-    switch( datatype )
-    {
-        case DATATYPE_EQ_SERVER:
-            _handleCommand( (ServerPacket*)packet );
-            break;
-
-        case DATATYPE_EQ_CONFIG:
-        {
-            const ConfigPacket* configPacket = (ConfigPacket*)packet;
-            const uint          configID     = configPacket->configID;
-            Config*             config       = _configs[configID];
-            ASSERT( config );
-
-            config->handleCommand( configPacket );
-        }
-        break;
-
-        default:
-            ERROR << "unimplemented" << endl;
-            abort();
-    }
+    ASSERT( config->getID() != INVALID_ID );
+    config->_server = this;
+    _configs[config->getID()] = config;
 }
 
-void Server::_handleCommand( const ServerPacket* packet )
-{
-    INFO << "handle " << packet << endl;
-    ASSERT( packet->command <  CMD_SERVER_ALL );
-
-    (this->*_cmdHandler[packet->command])(packet);
-}
-
-void Server::_cmdUnknown( const eqNet::Packet* pkg )
-{
-    ERROR << "Unknown packet " << pkg << endl;
-}
-
-void Server::_cmdChooseConfigReply( const eqNet::Packet* pkg )
+//---------------------------------------------------------------------------
+// command handlers
+//---------------------------------------------------------------------------
+void Server::_cmdChooseConfigReply( eqNet::Node* node, 
+                                    const eqNet::Packet* pkg )
 {
     ServerChooseConfigReplyPacket* packet = (ServerChooseConfigReplyPacket*)pkg;
     INFO << "Handle choose config reply " << packet << endl;
@@ -165,9 +132,15 @@ void Server::_cmdChooseConfigReply( const eqNet::Packet* pkg )
         _requestHandler.serveRequest( packet->requestID, NULL );
         return;
     }
+
+    char* sessionName = (char*)alloca( packet->sessionNameLength );
+    recv( sessionName, packet->sessionNameLength );
     
-    Config* config = Global::getNodeFactory()->createConfig( packet->configID, 
-                                                             this );
-    _configs[packet->configID] = config;
+    Config* config    = Global::getNodeFactory()->createConfig();
+    Node*   localNode = Node::getLocalNode();
+
+    localNode->addSession( config, node, packet->configID, sessionName );
+    addConfig( config );
+
     _requestHandler.serveRequest( packet->requestID, config );
 }

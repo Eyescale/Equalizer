@@ -13,17 +13,22 @@ namespace eq
     {
         CMD_SERVER_CHOOSE_CONFIG       = eqNet::CMD_NODE_CUSTOM,
         CMD_SERVER_CHOOSE_CONFIG_REPLY,
+        CMD_SERVER_INIT_CONFIG,
+        REQ_SERVER_INIT_CONFIG, // REQ must follow CMD
         CMD_SERVER_RELEASE_CONFIG,
         CMD_SERVER_ALL
     };
 
     enum NodeCommand
     {
-        CMD_NODE_INIT = CMD_SERVER_ALL,
+        CMD_NODE_CREATE_CONFIG = eqNet::CMD_NODE_CUSTOM,
+        CMD_NODE_INIT,
         CMD_NODE_INIT_REPLY,
         CMD_NODE_EXIT,
         CMD_NODE_EXIT_REPLY,
         CMD_NODE_STOP,
+        CMD_NODE_CREATE_PIPE,
+        CMD_NODE_DESTROY_PIPE,
         CMD_NODE_ALL
     };
 
@@ -42,6 +47,37 @@ namespace eq
         REQ_CONFIG_EXIT, // REQ must always follow CMD!
         CMD_CONFIG_EXIT_REPLY,
         CMD_CONFIG_ALL
+    };
+
+    enum PipeCommand
+    {
+        CMD_PIPE_INIT,
+        CMD_PIPE_INIT_REPLY,
+        CMD_PIPE_EXIT,
+        CMD_PIPE_EXIT_REPLY,
+        CMD_PIPE_CREATE_WINDOW,
+        CMD_PIPE_DESTROY_WINDOW,
+        CMD_PIPE_ALL
+    };
+
+    enum WindowCommand
+    {
+        CMD_WINDOW_INIT,
+        CMD_WINDOW_INIT_REPLY,
+        CMD_WINDOW_EXIT,
+        CMD_WINDOW_EXIT_REPLY,
+        CMD_WINDOW_CREATE_CHANNEL,
+        CMD_WINDOW_DESTROY_CHANNEL,
+        CMD_WINDOW_ALL
+    };
+
+    enum ChannelCommand
+    {
+        CMD_CHANNEL_INIT,
+        CMD_CHANNEL_INIT_REPLY,
+        CMD_CHANNEL_EXIT,
+        CMD_CHANNEL_EXIT_REPLY,
+        CMD_CHANNEL_ALL
     };
 };
 

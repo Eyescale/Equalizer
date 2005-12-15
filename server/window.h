@@ -5,6 +5,11 @@
 #ifndef EQS_WINDOW_H
 #define EQS_WINDOW_H
 
+#include "pipe.h"
+
+#include <eq/net/base.h>
+#include <eq/net/object.h>
+
 #include <iostream>
 #include <vector>
 
@@ -16,13 +21,15 @@ namespace eqs
     /**
      * The window.
      */
-    class Window
+    class Window : public eqNet::Base, public eqNet::Object
     {
     public:
         /** 
          * Constructs a new Window.
          */
         Window();
+
+        virtual ~Window(){}
 
         /** 
          * Adds a new channel to this window.
@@ -56,6 +63,10 @@ namespace eqs
         Channel* getChannel( const uint index ) const
             { return _channels[index]; }
 
+        Node* getNode() const { return (_pipe ? _pipe->getNode() : NULL); }
+        Config* getConfig() const 
+            { return (_pipe ? _pipe->getConfig() : NULL); }
+        
         /** 
          * References this window as being actively used.
          */
@@ -74,6 +85,42 @@ namespace eqs
          */
         bool isUsed() const { return (_used!=0); }
 
+        /**
+         * @name Operations
+         */
+        //*{
+        /** 
+         * Start initializing this node.
+         */
+        void startInit();
+
+        /** 
+         * Synchronize the initialisation of the node.
+         * 
+         * @return <code>true</code> if the node was initialised successfully,
+         *         <code>false</code> if not.
+         */
+        bool syncInit();
+        
+        /** 
+         * Starts exiting this node.
+         */
+        void startExit();
+
+        /** 
+         * Synchronize the exit of the node.
+         * 
+         * @return <code>true</code> if the node exited cleanly,
+         *         <code>false</code> if not.
+         */
+        bool syncExit();
+        
+        /** 
+         * Send the node the command to stop its execution.
+         */
+        void stop();
+        //*}
+
     private:
         std::vector<Channel*> _channels;
 
@@ -83,6 +130,17 @@ namespace eqs
         /** The parent pipe. */
         Pipe* _pipe;
         friend class Pipe;
+
+        /** The request id for pending asynchronous operations. */
+        uint _pendingRequestID;
+
+        void _send( const eqNet::Packet& packet ) { getNode()->send( packet ); }
+
+        void _sendInit();
+        void _sendExit();
+
+        void _cmdInitReply(eqNet::Node* node, const eqNet::Packet* packet);
+        void _cmdExitReply(eqNet::Node* node, const eqNet::Packet* packet);
     };
 
     std::ostream& operator << ( std::ostream& os, const Window* window );

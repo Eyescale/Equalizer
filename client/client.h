@@ -32,14 +32,9 @@ namespace eq
                                    const eqNet::Packet* packet );
 
     private:
-        void _handleCommand( const eqNet::Packet* packet );
-
-        /** The command handler function table. */
-        void (eq::Client::*_cmdHandler[CMD_NODE_ALL])
-            ( const eqNet::Packet* packet );
-
-        void _cmdUnknown( const eqNet::Packet* packet );
-        //void _cmdChooseConfigReply( const eqNet::Packet* packet );
+        /** The command functions. */
+        //void _cmdChooseConfigReply( eqNet::Node* node,
+        //                            const eqNet::Packet* packet );
     };
 }
 

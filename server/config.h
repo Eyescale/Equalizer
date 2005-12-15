@@ -46,7 +46,21 @@ namespace eqs
          */
         bool removeNode( Node* node );
 
-        const NodeHash& getNodes() const { return _nodes; }
+        /** 
+         * Returns the number of nodes on this config.
+         * 
+         * @return the number of nodes on this config. 
+         */
+        uint nNodes() const { return _nodes.size(); }
+
+        /** 
+         * Gets a node.
+         * 
+         * @param index the node's index. 
+         * @return the node.
+         */
+        Node* getNode( const uint index ) const
+            { return _nodes[index]; }
 
         /** 
          * Adds a new compound to this config.
@@ -102,14 +116,6 @@ namespace eqs
          */
         const std::string& getRenderClient() const { return _renderClient; }
 
-        /** 
-         * Handles the received command packet.
-         * 
-         * @param node the sending node.
-         * @param packet the config command packet.
-         */
-        void handlePacket( eqNet::Node* node, const eq::ConfigPacket* packet );
-
     private:
         /** The eq server hosting the session. */
         eqBase::RefPtr<Server> _server;
@@ -117,8 +123,8 @@ namespace eqs
         /** The list of compounds. */
         std::vector<Compound*> _compounds;
 
-        /** The nodes indexed by identifier. */
-        NodeHash    _nodes;
+        /** The list of nodes. */
+        std::vector<Node*>     _nodes;
 
         /** The name of the application. */
         std::string _appName;
@@ -126,10 +132,7 @@ namespace eqs
         /** The name of the render client executable. */
         std::string _renderClient;
 
-        /** The command handler function table. */
-        void (eqs::Config::*_cmdHandler[eq::CMD_CONFIG_ALL])
-            ( eqNet::Node* node, const eqNet::Packet* packet );
-
+        /** The command functions. */
         void _cmdRequest( eqNet::Node* node, const eqNet::Packet* packet );
         void _cmdInit( eqNet::Node* node, const eqNet::Packet* packet );
         void _cmdExit( eqNet::Node* node, const eqNet::Packet* packet );

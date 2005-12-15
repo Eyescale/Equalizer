@@ -23,18 +23,9 @@ namespace eq
         /** 
          * Constructs a new config.
          * 
-         * @param id the server-supplied identifier of the config.
-         * @param server the server hosting the session.
+         * @param server the server hosting the config.
          */
-        Config( const uint id, Server* server );
-
-        /** 
-         * Maps the configs' session.
-         * 
-         * @return <code>true</code> if the config was mapped,
-         *         <code>false</code> otherwise.
-         */
-        bool map();
+        Config();
 
         /** 
          * Initialises this configuration.
@@ -55,27 +46,17 @@ namespace eq
          */
         bool exit();
 
-        /** 
-         * Handles a command for this config.
-         * 
-         * @param packet the command packet.
-         */
-        void handleCommand( const ConfigPacket* packet );
-
     private:
         /** The local proxy of the server hosting the session. */
+        friend class Server;
         Server* _server;
 
         /** Registers pending requests waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
 
-        /** The command handler function table. */
-        void (eq::Config::*_cmdHandler[CMD_CONFIG_ALL])
-            ( const ConfigPacket* packet );
-
-        void _cmdUnknown( const ConfigPacket* packet );
-        void _cmdInitReply( const ConfigPacket* packet );
-        void _cmdExitReply( const ConfigPacket* packet );
+        /** The command functions. */
+        void _cmdInitReply( eqNet::Node* node, const eqNet::Packet* packet );
+        void _cmdExitReply( eqNet::Node* node, const eqNet::Packet* packet );
     };
 }
 

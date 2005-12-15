@@ -12,28 +12,13 @@
 using namespace eq;
 using namespace std;
 
-Config::Config( const uint id, Server* server )
-        : _server(server)
+Config::Config()
+        : Session( CMD_CONFIG_ALL )
 {
-    ASSERT( id != INVALID_ID );
-    ASSERT( server );
-
-    _id = id;
-
-    for( int i=0; i<CMD_CONFIG_ALL; i++ )
-        _cmdHandler[i] = &eq::Config::_cmdUnknown;
-
-    _cmdHandler[CMD_CONFIG_INIT_REPLY] = &eq::Config::_cmdInitReply;
-    _cmdHandler[CMD_CONFIG_EXIT_REPLY] = &eq::Config::_cmdExitReply;
-}
-
-bool Config::map()
-{ 
-    eqNet::Node* localNode = eqNet::Node::getLocalNode();
-    if( !localNode )
-        return false;
-
-    return localNode->mapSession( _server, this, _id ); 
+    registerCommand( CMD_CONFIG_INIT_REPLY, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Config::_cmdInitReply ));
+    registerCommand( CMD_CONFIG_EXIT_REPLY, this, reinterpret_cast<CommandFcn>(
+                         &eq::Config::_cmdExitReply ));
 }
 
 bool Config::init()
@@ -52,28 +37,14 @@ bool Config::exit()
     return ( _requestHandler.waitRequest( packet.requestID ) != 0 );
 }
 
-void Config::handleCommand( const ConfigPacket* packet )
-{
-    VERB << "handleCommand " << packet << endl;
-    ASSERT( packet->command < CMD_CONFIG_ALL );
-
-    (this->*_cmdHandler[packet->command])(packet);
-}
-
-void Config::_cmdUnknown( const ConfigPacket* packet )
-{
-    ERROR << "unimplemented" << endl;
-    abort();
-}
-
-void Config::_cmdInitReply( const ConfigPacket* pkg )
+void Config::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     ConfigInitReplyPacket* packet = (ConfigInitReplyPacket*)pkg;
     INFO << "handle init reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
 }
-void Config::_cmdExitReply( const ConfigPacket* pkg )
+void Config::_cmdExitReply( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     ConfigExitReplyPacket* packet = (ConfigExitReplyPacket*)pkg;
     INFO << "handle exit reply " << packet << endl;

@@ -29,8 +29,15 @@ struct DataPacket : public NodePacket
 
 class Server : public Node
 {
+public:
+    Server() : Node( CMD_NODE_CUSTOM+1 ) 
+        { 
+            registerCommand( CMD_NODE_CUSTOM, this, 
+                             reinterpret_cast<CommandFcn>( &Server::command ));
+        }
+
 protected:
-    virtual void handleCommand( Node* node, const NodePacket* pkg )
+    void command( Node* node, const NodePacket* pkg )
         {
             TEST( pkg->command == CMD_NODE_CUSTOM );
 

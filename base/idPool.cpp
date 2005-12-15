@@ -47,8 +47,8 @@ uint IDPool::genIDs( const uint range )
 
 uint IDPool::_genIDs( const uint range )
 {
-    for( list<Block*>::iterator iter = _freeIDs.begin(); iter != _freeIDs.end();
-         ++iter )
+    for( list<Block*>::iterator iter = _freeIDs.begin();
+         iter != _freeIDs.end(); ++iter )
     {
         Block* block = *iter;
 

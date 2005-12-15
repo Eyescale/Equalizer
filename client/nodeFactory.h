@@ -5,9 +5,12 @@
 #ifndef EQ_NODEFACTORY_H
 #define EQ_NODEFACTORY_H
 
+#include <eq/base/base.h>
+#include <eq/channel.h>
 #include <eq/config.h>
 #include <eq/node.h>
-#include <eq/base/base.h>
+#include <eq/pipe.h>
+#include <eq/window.h>
 
 namespace eq
 {
@@ -30,8 +33,8 @@ namespace eq
          * 
          * @return the config.
          */
-        virtual Config* createConfig( const uint id, Server* parent)
-            { return new eq::Config( id, parent ); }
+        virtual Config* createConfig()
+            { return new eq::Config(); }
 
         /** 
          * Creates a new node.
@@ -39,6 +42,27 @@ namespace eq
          * @return the node.
          */
         virtual Node* createNode(){ return new eq::Node; }
+
+        /** 
+         * Creates a new pipe.
+         * 
+         * @return the pipe.
+         */
+        virtual Pipe* createPipe(){ return new eq::Pipe; }
+
+        /** 
+         * Creates a new window.
+         * 
+         * @return the window.
+         */
+        virtual Window* createWindow(){ return new eq::Window; }
+
+        /** 
+         * Creates a new channel.
+         * 
+         * @return the channel.
+         */
+        virtual Channel* createChannel(){ return new eq::Channel; }
         //@}
         
         virtual ~NodeFactory(){}

@@ -30,9 +30,9 @@ Compound* Compound::_getNext() const
     if( !_parent )
         return NULL;
 
-    vector<Compound*> siblings = _parent->_children;
-    vector<Compound*>::iterator result = find( siblings.begin(),
-                                                     siblings.end(), this);
+    vector<Compound*>           siblings = _parent->_children;
+    vector<Compound*>::iterator result   = find( siblings.begin(),
+                                                 siblings.end(), this);
 
     if( result == siblings.end() )
         return NULL;

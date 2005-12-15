@@ -49,12 +49,16 @@ uint RequestHandler::registerRequest( void* data )
     request->data = data;
     const uint requestID = _requestID++;
     _requests[requestID] = request;
+    
     return requestID;
 }
 
 void RequestHandler::unregisterRequest( const uint requestID )
 {
 #ifdef CHECK_THREADSAFETY
+    if( !registerThread )
+        registerThread = pthread_self();
+
     ASSERT( registerThread == pthread_self( ));
 #endif
 
@@ -102,8 +106,12 @@ void* RequestHandler::getRequestData( const uint requestID )
 void RequestHandler::serveRequest( const uint requestID, void* result )
 {
     Request* request = _requests[requestID];
+
     if( !request )
+    {
+        WARN << "Attempt to serve unregistered request" << endl;
         return;
+    }
 
     request->result = result;
     request->lock->unset();

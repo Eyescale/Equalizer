@@ -18,6 +18,7 @@ namespace eqNet
     {
         DATATYPE_EQNET_NODE,
         DATATYPE_EQNET_SESSION,
+        DATATYPE_EQNET_OBJECT,
         DATATYPE_EQNET_USER,
         DATATYPE_CUSTOM = 1<<16
     };
@@ -141,6 +142,22 @@ namespace eqNet
     };
 
     //------------------------------------------------------------
+    // Object
+    //------------------------------------------------------------
+    struct ObjectPacket : public SessionPacket
+    {
+        ObjectPacket( const uint sessionID, const uint objectID )
+                : SessionPacket( sessionID )
+            {
+                datatype       = DATATYPE_EQNET_OBJECT; 
+                this->objectID = objectID;
+                ASSERT( objectID != INVALID_ID );
+                ASSERT( objectID != 0 );
+            }
+        uint objectID;
+    };
+
+    //------------------------------------------------------------
     // User
     //------------------------------------------------------------
     struct UserPacket : public SessionPacket
@@ -158,7 +175,7 @@ namespace eqNet
     inline std::ostream& operator << ( std::ostream& os, 
                                        const Packet* packet )
     {
-        os << "Packet dt " << packet->datatype << " cmd "<< packet->command;
+        os << "packet dt " << packet->datatype << " cmd "<< packet->command;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
@@ -191,7 +208,7 @@ namespace eqNet
     inline std::ostream& operator << ( std::ostream& os, 
                                        const SessionPacket* packet )
     {
-        os << (NodePacket*)packet << " ssn " << packet->sessionID;
+        os << (NodePacket*)packet << " session id " << packet->sessionID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

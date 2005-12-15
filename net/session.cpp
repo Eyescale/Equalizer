@@ -16,20 +16,21 @@ using namespace std;
 
 #define MIN_ID_RANGE 1024
 
-Session::Session()
-        : _id(INVALID_ID),
+Session::Session( const uint nCommands )
+        : Base( nCommands ),
+          _id(INVALID_ID),
           _server(NULL),
           _isMaster(false)
 {
-    INFO << "New " << this << endl;
-
-    for( int i=0; i<CMD_SESSION_CUSTOM; i++ )
-        _cmdHandler[i] = &eqNet::Session::_cmdUnknown;
-
-    _cmdHandler[CMD_SESSION_GEN_IDS]       = &eqNet::Session::_cmdGenIDs;
-    _cmdHandler[CMD_SESSION_GEN_IDS_REPLY] = &eqNet::Session::_cmdGenIDsReply;
+    ASSERT( nCommands >= CMD_SESSION_CUSTOM );
+    registerCommand( CMD_SESSION_GEN_IDS, this, reinterpret_cast<CommandFcn>(
+                         &eqNet::Session::_cmdGenIDs ));
+    registerCommand( CMD_SESSION_GEN_IDS_REPLY, this, 
+                     reinterpret_cast<CommandFcn>(
+                         &eqNet::Session::_cmdGenIDsReply ));
 
     _idPool.genIDs( _idPool.getCapacity( )); // reserve all IDs
+    INFO << "New " << this << endl;
 }
 
 void Session::map( Node* server, const uint id, const std::string& name, 
@@ -42,6 +43,9 @@ void Session::map( Node* server, const uint id, const std::string& name,
 
     if( isMaster )
         _idPool.freeIDs( 1, _idPool.getCapacity( )); // free IDs for further use
+
+    INFO << (isMaster ? "master" : "client") << " session, id " << id 
+         << ", name " << name << ", served by node " << server << endl;
     // _state = mapped;
 }
 
@@ -73,18 +77,64 @@ void Session::freeIDs( const uint start, const uint range )
     // could return IDs to master sometimes ?
 }
 
-void Session::handlePacket( Node* node, const SessionPacket* packet)
+void Session::registerObject( Object* object )
 {
-    INFO << "handle " << packet << endl;
+    const uint id = genIDs( 1 );
+    addRegisteredObject( id, object );
+}
+
+void Session::addRegisteredObject( const uint id, Object* object )
+{
+    ASSERT( !_registeredObjects[id] );
+    _registeredObjects[id] = object;
+    object->_id            = id;
+    object->_sessionID     = _id;
+    VERB << "registered object " << (void*)object << " id " << id
+         << " session id " << _id << endl;
+}
+
+void Session::deregisterObject( Object* object )
+{
+    const uint id = object->getID();
+    if( _registeredObjects.erase(id) == 0 )
+        return;
+    
+    object->_id        = INVALID_ID;
+    object->_sessionID = INVALID_ID;
+    freeIDs( id, 1 );
+}
+
+//===========================================================================
+// Packet handling
+//===========================================================================
+
+void Session::dispatchPacket( Node* node, const SessionPacket* packet)
+{
+    INFO << "dispatch " << packet << endl;
 
     switch( packet->datatype )
     {
         case DATATYPE_EQNET_SESSION:
-            if( packet->command < CMD_SESSION_CUSTOM )
-                (this->*_cmdHandler[packet->command])( node, packet );
-            else 
-                ; // TODO handlePacket?
+            handleCommand( node, packet );
             break;
+
+        case DATATYPE_EQNET_OBJECT:
+        {
+            const ObjectPacket* objPacket = (ObjectPacket*)packet;
+            const uint          id        = objPacket->objectID;
+            Object*             object    = _registeredObjects[id];
+            
+            if( !object )
+            {
+                ERROR << "Received request for unregistered object of id "
+                      << id << endl;
+                ASSERT( object );
+                return;
+            }
+
+            object->handleCommand( node, objPacket );
+            break;
+        }
 
         default:
             WARN << "Unhandled packet " << packet << endl;

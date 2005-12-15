@@ -2,6 +2,7 @@
 include $(TOP)/make/system.mk
 
 HEADER_SRC = \
+	channel.h \
 	commands.h \
 	config.h \
 	configParams.h \
@@ -11,16 +12,21 @@ HEADER_SRC = \
 	node.h \
 	nodeFactory.h \
 	packets.h \
-	server.h
+	pipe.h \
+	server.h \
+	window.h
 
 SOURCES = \
+	channel.cpp \
 	client.cpp \
 	config.cpp \
 	configParams.cpp \
 	global.cpp \
 	init.cpp \
 	node.cpp \
-	server.cpp
+	pipe.cpp \
+	server.cpp \
+	window.cpp
 
 LDFLAGS += -leqnet
 

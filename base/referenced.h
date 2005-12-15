@@ -28,8 +28,10 @@ namespace eqBase
         virtual ~Referenced() 
             {
                 if( _refCount!=0 ) 
+                {
                     ERROR << "Deleting object with ref count " << _refCount
                           << std::endl;
+                }
             }
 
         int _refCount;

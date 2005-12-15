@@ -23,17 +23,20 @@ extern char **environ;
 //----------------------------------------------------------------------
 // State management
 //----------------------------------------------------------------------
-Node::Node()
-        : _state(STATE_STOPPED),
+Node::Node( const uint nCommands )
+        : Base( nCommands ),
+          _state(STATE_STOPPED),
           _autoLaunch(false),
           _pendingRequestID(INVALID_ID)
 {
-    for( int i=0; i<CMD_NODE_CUSTOM; i++ )
-        _cmdHandler[i] =  &eqNet::Node::_cmdUnknown;
-
-    _cmdHandler[CMD_NODE_STOP]              = &eqNet::Node::_cmdStop;
-    _cmdHandler[CMD_NODE_MAP_SESSION]       = &eqNet::Node::_cmdMapSession;
-    _cmdHandler[CMD_NODE_MAP_SESSION_REPLY] = &eqNet::Node::_cmdMapSessionReply;
+    ASSERT( nCommands >= CMD_NODE_CUSTOM );
+    registerCommand( CMD_NODE_STOP, this, reinterpret_cast<CommandFcn>(
+                         &eqNet::Node::_cmdStop ));
+    registerCommand( CMD_NODE_MAP_SESSION, this, reinterpret_cast<CommandFcn>(
+                         &eqNet::Node::_cmdMapSession ));
+    registerCommand( CMD_NODE_MAP_SESSION_REPLY, this, 
+                     reinterpret_cast<CommandFcn>(
+                         &eqNet::Node::_cmdMapSessionReply ));
 
     _receiverThread    = new ReceiverThread( this );
 }
@@ -205,10 +208,19 @@ bool Node::send( const MessageType type, const void *ptr, const uint64 count )
     return true;
 }
 
-bool Node::mapSession( Node* server, Session* session, const std::string& name )
+void Node::addSession( Session* session, Node* server, const uint sessionID,
+                       const string& name )
+{
+    const bool isMaster = ( server==this && isLocal( ));
+    session->map( server, sessionID, name, isMaster );
+    _sessions[sessionID] = session;
+    INFO << "Added " << session << " to " << this << endl;
+}
+
+bool Node::mapSession( Node* server, Session* session, const string& name )
 {
     if( server == this && isLocal( ))
-    {            
+    {
         uint sessionID = INVALID_ID;
         while( sessionID == INVALID_ID ||
                _sessions.find( sessionID ) != _sessions.end( ))
@@ -217,8 +229,7 @@ bool Node::mapSession( Node* server, Session* session, const std::string& name )
             sessionID = random();
         }
             
-        session->map( server, sessionID, name, true );
-        _sessions[sessionID] = session;
+        addSession( session, server, sessionID, name );
         return true;
     }
 
@@ -354,33 +365,38 @@ void Node::_handleRequest( Node* node )
     gotData   = node->recv( ptr, size );
     ASSERT( gotData );
 
-    _handlePacket( node, packet );
+    dispatchPacket( node, packet );
 }
 
-void Node::_handlePacket( Node* node, const Packet* packet )
+void Node::dispatchPacket( Node* node, const Packet* packet )
 {
-    VERB << "handle " << packet << endl;
+    INFO << "dispatch " << packet << " from " << (void*)node << " by " 
+         << (void*)this << endl;
     const uint datatype = packet->datatype;
 
     switch( datatype )
     {
         case DATATYPE_EQNET_NODE:
-            if( packet->command < CMD_NODE_CUSTOM )
-                (this->*_cmdHandler[packet->command])(node, packet);
-            else
-                handlePacket( node, packet );
+            handleCommand( node, packet );
             break;
 
         case DATATYPE_EQNET_SESSION:
+        case DATATYPE_EQNET_OBJECT:
         case DATATYPE_EQNET_USER:
-            ERROR << "unimplemented" << endl;
-            abort();
+        {
+            const SessionPacket* sessionPacket = (SessionPacket*)packet;
+            const uint           id            = sessionPacket->sessionID;
+            Session*             session       = _sessions[id];
+            ASSERTINFO( session, id );
+            
+            session->dispatchPacket( node, sessionPacket );
             break;
+        }
 
         default:
             if( datatype < DATATYPE_CUSTOM )
-                ERROR << "Unknown datatype " << datatype << ", dropping packet."
-                      << endl;
+                ERROR << "Unknown eqNet datatype " << datatype 
+                      << ", dropping packet." << endl;
             else
                 handlePacket( node, packet );
             break;
@@ -416,23 +432,14 @@ void Node::_cmdMapSession( Node* node, const Packet* pkg )
         ASSERT( gotData );
 
         session = _findSession( sessionName );
-
-        if( session )
-            sessionID = session->getID();
-        else
+        
+        if( !session ) // session does not exist, create new one
         {
-            session = new Session();
-            
-            while( sessionID == INVALID_ID ||
-                   _sessions.find( sessionID ) != _sessions.end( ))
-            {
-                srandomdev();
-                sessionID = random();
-            }
-            
-            session->map( this, sessionID, sessionName, true );
-            _sessions[sessionID] = session;
+            session = new Session(); // TODO factory-ize
+            const bool mapped = mapSession( this, session, sessionName );
+            ASSERT( mapped );
         }
+        sessionID = session->getID();
     }
     else // mapped by identifier, session has to exist already
     {
@@ -472,8 +479,7 @@ void Node::_cmdMapSessionReply( Node* node, const Packet* pkg)
     const bool gotData     = node->recv( sessionName, packet->nameLength );
     ASSERT( gotData );
         
-    session->map( node, packet->sessionID, sessionName, false );
-    _sessions[packet->sessionID] = session;
+    addSession( session, node, packet->sessionID, sessionName );
     _requestHandler.serveRequest( requestID, (void*)true );
 }
 

@@ -7,6 +7,7 @@
 
 #include <eq/base/base.h>
 #include <eq/base/refPtr.h>
+#include <eq/base/referenced.h>
 #include <eq/base/requestHandler.h>
 #include <eq/base/thread.h>
 
@@ -43,8 +44,11 @@ namespace eqNet
 
         /** 
          * Constructs a new Node.
+         *
+         * @param nCommands the highest command ID to be handled by the node, at
+         *                  least <code>CMD_NODE_CUSTOM</code>.
          */
-        Node();
+        Node( const uint nCommands = CMD_NODE_CUSTOM );
 
         /**
          * Destructs this node.
@@ -353,6 +357,17 @@ namespace eqNet
          *         <code>false</code> if not.
          */
         bool mapSession( Node* server, Session* session, const uint id );
+
+        /** 
+         * Adds a mapped session to this node.
+         * 
+         * @param session the session.
+         * @param server the node serving the session.
+         * @param sessionID the identifier of the session.
+         * @param name the name of the session.
+         */
+        void addSession( Session* session, Node* server, const uint sessionID,
+                         const std::string& name );
         //*}
 
         /** 
@@ -367,17 +382,26 @@ namespace eqNet
         /** The current state of this node. */
         State _state;
 
-        /** Registers request packets waiting for a return value. */
-        eqBase::RequestHandler _requestHandler;
-
         /** Determines if the node should be launched automatically. */
         bool _autoLaunch;
 
         /** 
-         * Handles a packet which has been received by this node.
+         * Dispatches a packet to the appropriate object or handlePacket.
+         * dispatched.
          * 
          * @param node the node which send the packet.
          * @param packet the packet.
+         * @sa handlePacket, handleCommand
+         */
+        void dispatchPacket( Node* node, const Packet* packet );
+
+        /** 
+         * Handles a packet which has been received by this node and could not
+         * dispatched.
+         * 
+         * @param node the node which send the packet.
+         * @param packet the packet.
+         * @sa dispatchPacket, handleCommand
          */
         virtual void handlePacket( Node* node, const Packet* packet ){}
 
@@ -401,7 +425,8 @@ namespace eqNet
          * 
          * @return the node.
          */
-        virtual eqBase::RefPtr<Node> createNode() { return new Node; }
+        virtual eqBase::RefPtr<Node> createNode() 
+            { return new Node(); }
 
         /** 
          * Returns the program name to start this node.
@@ -412,9 +437,6 @@ namespace eqNet
             { return Global::getProgramName(); }
 
     private:
-        /** The unique session identifier counter. */
-        uint _sessionID;
-
         /** The current sessions of this node. */
         IDHash<Session*> _sessions;
 
@@ -427,7 +449,7 @@ namespace eqNet
         /** The connection set of all connections from/to this node. */
         ConnectionSet _connectionSet;
 
-        /** The request id for pending asynchronous operations (connect, etc) */
+        /** The request id for pending asynchronous operations. */
         uint _pendingRequestID;
 
         /** The list of descriptions on how this node is reachable. */
@@ -502,11 +524,8 @@ namespace eqNet
         void        _addConnectedNode( eqBase::RefPtr<Node> node, 
                                        eqBase::RefPtr<Connection> connection );
         void      _handleRequest( Node* node );
-        void      _handlePacket( Node* node, const Packet* packet);
 
-        /** The command handler function table. */
-        void (eqNet::Node::*_cmdHandler[CMD_NODE_CUSTOM])( Node* node, const Packet* packet );
-
+        /** The command functions. */
         void _cmdStop( Node* node, const Packet* packet );
         void _cmdMapSession( Node* node, const Packet* packet );
         void _cmdMapSessionReply( Node* node, const Packet* packet);
@@ -516,7 +535,6 @@ namespace eqNet
 
         friend inline std::ostream& operator << ( std::ostream& os,
                                                   const Node* node );
-
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Node* node )

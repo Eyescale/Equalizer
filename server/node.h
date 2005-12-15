@@ -5,8 +5,8 @@
 #ifndef EQS_NODE_H
 #define EQS_NODE_H
 
-#include <eq/packets.h>
 #include <eq/net/node.h>
+#include <eq/net/object.h>
 
 #include <vector>
 
@@ -18,7 +18,7 @@ namespace eqs
     /**
      * The node.
      */
-    class Node : public eqNet::Node
+    class Node : public eqNet::Node, public eqNet::Object
     {
     public:
         /** 
@@ -65,13 +65,6 @@ namespace eqs
         Pipe* getPipe( const uint index ) const { return _pipes[index]; }
 
         /** 
-         * Returns the unique identifier of this node in the config.
-         * 
-         * @return the unique identifier of this node in the config.
-         */
-        uint getID() const { return _id; }
-
-        /** 
          * References this node as being actively used.
          */
         void refUsed(){ _used++; }
@@ -94,9 +87,9 @@ namespace eqs
          */
         //*{
         /** 
-         * Send the node initialisation command.
+         * Start initializing this node.
          */
-        void sendInit();
+        void startInit();
 
         /** 
          * Synchronize the initialisation of the node.
@@ -107,9 +100,9 @@ namespace eqs
         bool syncInit();
         
         /** 
-         * Send the node exit command.
+         * Starts exiting this node.
          */
-        void sendExit();
+        void startExit();
 
         /** 
          * Synchronize the exit of the node.
@@ -125,14 +118,6 @@ namespace eqs
         void stop();
         //*}
 
-        /** 
-         * Handles the received command packet.
-         * 
-         * @param node the sending node.
-         * @param packet the node command packet.
-         */
-        void handlePacket( eqNet::Node* node, const eq::NodePacket* packet );
-
     protected:
         /** @sa eqNet::Node::getProgramName */
         virtual const std::string& getProgramName();
@@ -141,17 +126,14 @@ namespace eqs
         /** The vector of pipes belonging to this node. */
         std::vector<Pipe*> _pipes;
 
-        /** Number of entitities actively using this channel. */
+        /** Number of entitities actively using this node. */
         uint _used;
-
-        /** The nodes' identifier in the config. */
-        uint _id;
 
         /** The parent config. */
         Config* _config;
         friend class Config;
 
-        /** The request id for pending asynchronous operations (connect, etc) */
+        /** The request identifier for pending asynchronous operations. */
         uint _pendingRequestID;
 
         enum State
@@ -165,9 +147,8 @@ namespace eqs
         };
 
 
-        /** The command handler function table. */
-        void (eqs::Node::*_cmdHandler[eq::CMD_NODE_ALL])
-            ( eqNet::Node* node, const eqNet::Packet* packet );
+        void _sendInit();
+        void _sendExit();
 
         void _cmdInitReply( eqNet::Node* node, const eqNet::Packet* packet );
         void _cmdExitReply( eqNet::Node* node, const eqNet::Packet* packet );
