@@ -10,6 +10,10 @@
 #include <time.h>
 #include <unistd.h>
 
+#ifndef NDEBUG
+#  include "clock.h"
+#endif
+
 /**
  * @namespace eqBase
  * @brief Namespace for basic Equalizer utility code.
@@ -55,8 +59,12 @@ namespace eqBase
 #  define LOG_EXTRA << getpid()  << "." << pthread_self()  \
         << " " << SUBDIR <<"/" << __FILE__ << ":" << (int)__LINE__ << " " 
 #else
-#  define LOG_EXTRA << getpid()  << "." << pthread_self() \
-        << " " << SUBDIR <<"/" << __FILE__ << ":" << (int)__LINE__ << " " 
+
+extern eqBase::Clock eqLogClock;
+
+#  define LOG_EXTRA << getpid()  << "." << pthread_self()               \
+        << " " << SUBDIR <<"/" << __FILE__ << ":" << (int)__LINE__ << " t:" \
+        << eqLogClock.getMSf() << " "
 #endif
 
 #define ERROR (eqBase::Log::level >= eqBase::LOG_ERROR) && \

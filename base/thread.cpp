@@ -144,11 +144,11 @@ bool Thread::start()
 
 void Thread::exit( ssize_t retVal )
 {
-    if( _threadState == STATE_STOPPED )
+    if( !isRunning( ))
         return;
 
     INFO << "Exiting thread" << endl;
-    _lock->unset();
+    _threadState = STATE_STOPPING;
 
     switch( _type )
     {
@@ -174,7 +174,7 @@ bool Thread::join( ssize_t* retVal )
         case PTHREAD:
         {
             VERB << "Joining pthread " << _threadID.pthread << endl;
-            const int error = pthread_join( _threadID.pthread, 0 );//(void**)_retVal);
+            const int error = pthread_join( _threadID.pthread, (void**)_retVal);
             if( error != 0 )
             {
                 WARN << "Error joining the thread: " << strerror(error) << endl;

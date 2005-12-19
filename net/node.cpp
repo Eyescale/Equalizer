@@ -20,6 +20,8 @@ using namespace std;
 
 extern char **environ;
 
+#define MAX_PACKET_SIZE (4096)
+
 //----------------------------------------------------------------------
 // State management
 //----------------------------------------------------------------------
@@ -212,10 +214,20 @@ bool Node::send( const MessageType type, const void *ptr, const uint64 count )
 void Node::addSession( Session* session, Node* server, const uint sessionID,
                        const string& name )
 {
-    const bool isMaster = ( server==this && isLocal( ));
-    session->map( server, sessionID, name, isMaster );
+    session->_localNode = this;
+    session->_server    = server;
+    session->_id        = sessionID;
+    session->_name      = name;
+    session->_isMaster  = ( server==this && isLocal( ));
+
+    if( session->_isMaster ) // free IDs for further use
+        session->_idPool.freeIDs( 1, IDPool::getCapacity( )); 
+
     _sessions[sessionID] = session;
-    INFO << "Added " << session << " to " << this << endl;
+
+    INFO << (session->_isMaster ? "master" : "client") << " session, id "
+         << sessionID << ", name " << name << ", served by node " << server 
+         << ", managed by " << this << endl;
 }
 
 bool Node::mapSession( Node* server, Session* session, const string& name )
@@ -357,6 +369,9 @@ void Node::_handleRequest( Node* node )
     bool gotData = node->recv( &size, sizeof( size ));
     ASSERT( gotData );
     ASSERT( size );
+
+    // limit size due to use of alloca(). TODO: implement malloc-based recv?
+    ASSERT( size <= MAX_PACKET_SIZE );
 
     Packet* packet = (Packet*)alloca( size );
     packet->size   = size;
@@ -751,6 +766,8 @@ bool Node::runClient( const string& clientArgs )
     packet.wasLaunched = true;
     packet.launchID    = requestID;
     node->send( packet );
+
+    clientLoop();
 
     const bool joined = _receiverThread->join();
     ASSERT( joined );

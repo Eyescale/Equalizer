@@ -24,9 +24,13 @@ Window::Window()
                      reinterpret_cast<CommandFcn>(
                          &eq::Window::_cmdDestroyChannel ));
     registerCommand( CMD_WINDOW_INIT, this, reinterpret_cast<CommandFcn>(
-                         &eq::Window::_cmdInit ));
+                         &eq::Window::_pushRequest ));
+    registerCommand( REQ_WINDOW_INIT, this, reinterpret_cast<CommandFcn>(
+                         &eq::Window::_reqInit ));
     registerCommand( CMD_WINDOW_EXIT, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Window::_cmdExit ));
+                         &eq::Window::_pushRequest ));
+    registerCommand( REQ_WINDOW_EXIT, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Window::_reqExit ));
 }
 
 Window::~Window()
@@ -53,6 +57,14 @@ void Window::_removeChannel( Channel* channel )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
+void Window::_pushRequest( eqNet::Node* node, const eqNet::Packet* packet )
+{
+    if( _pipe )
+        _pipe->pushRequest( node, packet );
+    else
+        _cmdUnknown( node, packet );
+}
+
 void Window::_cmdCreateChannel( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     WindowCreateChannelPacket* packet = (WindowCreateChannelPacket*)pkg;
@@ -79,17 +91,17 @@ void Window::_cmdDestroyChannel( eqNet::Node* node, const eqNet::Packet* pkg )
     delete channel;
 }
 
-void Window::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
+void Window::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     WindowInitPacket* packet = (WindowInitPacket*)pkg;
     INFO << "handle window init " << packet << endl;
 
     WindowInitReplyPacket reply( packet );
-    reply.result = init(); // XXX push to window thread
+    reply.result = init();
     node->send( reply );
 }
 
-void Window::_cmdExit( eqNet::Node* node, const eqNet::Packet* pkg )
+void Window::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     WindowExitPacket* packet = (WindowExitPacket*)pkg;
     INFO << "handle window exit " << packet << endl;

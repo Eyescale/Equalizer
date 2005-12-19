@@ -396,6 +396,13 @@ namespace eqNet
         void dispatchPacket( Node* node, const Packet* packet );
 
         /** 
+         * The main loop for auto-launched clients. 
+         *
+         * @sa runClient()
+         */
+        virtual void clientLoop() {}
+
+        /** 
          * Handles a packet which has been received by this node and could not
          * dispatched.
          * 

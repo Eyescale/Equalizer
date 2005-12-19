@@ -52,12 +52,6 @@ namespace eqNet
         /** Registers request packets waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
 
-    private:
-        /** The command handler function table. */
-        uint        _nCommands;
-        CommandFcn* _commandFunctions;
-        Base**      _commandFunctionsThis;
-
         /** 
          * The default handler for handling commands.
          * 
@@ -67,6 +61,10 @@ namespace eqNet
         void _cmdUnknown( Node* node, const Packet* packet );
 
     private:
+        /** The command handler function table. */
+        uint        _nCommands;
+        CommandFcn* _commandFunctions;
+        Base**      _commandFunctionsThis;
     };
 }
 

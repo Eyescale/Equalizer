@@ -31,7 +31,7 @@ namespace eqBase
         uint genIDs( const uint range );
         void freeIDs( const uint start, const uint range );
 
-        uint getCapacity() const { return 0xfffffff0; }
+        static uint getCapacity() { return 0xfffffff0; }
 
     private:
         struct Block

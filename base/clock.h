@@ -12,12 +12,6 @@
 
 #include <sys/time.h>
 
-#ifdef CLOCK_SGI_CYCLE
-#  define WHICH_CLOCK CLOCK_SGI_CYCLE
-#else
-#  define WHICH_CLOCK CLOCK_REALTIME
-#endif
-
 namespace eqBase
 {
 /** 
@@ -29,38 +23,7 @@ namespace eqBase
         /** 
          * Constructs a new clock.
          */
-        Clock()
-            {
-#ifdef Darwin
-#else // Darwin
-#ifdef CLOCK_SGI_CYCLE
-                // The cycle clock on SGI machines may cycle (surprise!), which
-                // happens every couple of minutes on 32 bit machines. We will
-                // dedect the overflow and correct the result assuming it happened
-                // only once.
-                // On 64 bit machines it happens every couple of years, so we don't
-                // worry about it.
-
-                struct timespec res;
-                const long      cyclesize = syssgi( SGI_CYCLECNTR_SIZE );
-                clock_getres( WHICH_CLOCK, &res );
-            
-                if( cyclesize == 32 )
-                {
-                    // 2^32/10^9 * res
-                    _resolution.tv_sec =(int)(4.294967296l*(double)res.tv_nsec);
-                    _resolution.tv_nsec = (long)( 4294967296l * res.tv_nsec - 
-                                             1000000000l * _resolution.tv_sec );
-                } 
-                else
-                {
-                    _resolution.tv_sec = 0.;
-                    _resolution.tv_nsec = 0.;
-                }
-#endif // CLOCK_SGI_CYCLE
-#endif // Darwin
-                reset();
-            }
+        Clock() { reset(); }
 
         /** 
          * Destroys the clock.
@@ -70,12 +33,12 @@ namespace eqBase
         /** 
          * Resets the base time of the clock to the current time.
          */
-        void reset( void )   
+        void reset()   
             { 
 #ifdef Darwin
                 gettimeofday( &_start , 0 );
 #else // Darwin
-                clock_gettime( WHICH_CLOCK, &_start );
+                clock_gettime( CLOCK_REALTIME, &_start );
 #endif // Darwin
             }
 
@@ -84,40 +47,78 @@ namespace eqBase
          * 
          * @return the elapsed time in milliseconds
          */
-        double getTime( void )
+        float getTimef() const
             {
 #ifdef Darwin
                 struct timeval now;
                 gettimeofday( &now , 0 );
-                return (((double)now.tv_sec - (double)_start.tv_sec)  * 1000. +
-                        ((double)now.tv_usec - (double)_start.tv_usec) / 1000.);
+                return (((float)now.tv_sec - (float)_start.tv_sec)  * 1000.f +
+                        ((float)now.tv_usec - (float)_start.tv_usec) / 1000.f);
 #else // Darwin
                 struct timespec now;
-                clock_gettime( WHICH_CLOCK, &now );
+                clock_gettime( CLOCK_REALTIME, &now );
+                return (((float)now.tv_sec - (float)_start.tv_sec) * 1000.f +
+                     ((float)now.tv_nsec - (float)_start.tv_nsec) / 1000000.f);
+#endif // Darwin
+            }
 
-#if CLOCK_SGI_CYCLE
-                if( now.tv_sec < _start.tv_sec ) // seconds did overflow
-                {
-                    now.tv_sec += _resolution.tv_sec; // add time of one cycle
-                    now.tv_nsec += _resolution.tv_nsec;
+        /** 
+         * Returns the time elapsed since the last clock reset.
+         * 
+         * @return the elapsed time in milliseconds
+         */
+        double getTimed() const
+            {
+#ifdef Darwin
+                struct timeval now;
+                gettimeofday( &now , 0 );
+                return 
+                    (((double)now.tv_sec - (double)_start.tv_sec)  * 1000. +
+                     ((double)now.tv_usec - (double)_start.tv_usec) / 1000.);
+#else // Darwin
+                struct timespec now;
+                clock_gettime( CLOCK_REALTIME, &now );
+                return
+                    (((double)now.tv_sec - (double)_start.tv_sec) * 1000. +
+                     ((double)now.tv_nsec - (double)_start.tv_nsec) /1000000. );
+#endif // Darwin
+            }
+
+        /** 
+         * Returns the millisecond part of the time elapsed since the last
+         * reset. 
+         * 
+         * Obviously the returned time overflows once per second.
+         * 
+         * @return the millisecond part of the time elapsed. 
+         */
+        float getMSf() const
+            {
+#ifdef Darwin
+                struct timeval now;
+                gettimeofday( &now , 0 );
+
+                if( now.tv_usec < _start.tv_usec )
+                    return ( 1000. + ((float)now.tv_usec -
+                                      (float)_start.tv_usec) / 1000.f );
+
+                return (((float)now.tv_usec - (float)_start.tv_usec) / 1000.f );
+#else // Darwin
+                struct timespec now;
+                clock_gettime( CLOCK_REALTIME, &now );
+
+                if( now.tv_nsec < _start.tv_nsec )
+                    return ( 1000. + ((float)now.tv_nsec -
+                                      (float)_start.tv_nsec) / 1000000.f );
                 
-                    if( now.tv_nsec > 999999999l )  // nanoseconds did overflow
-                    {
-                        now.tv_nsec -= 1000000000;
-                        now.tv_sec  += 1;
-                    }
-                }
-#endif // CLOCK_SGI_CYCLE 
-                return (((double)now.tv_sec - (double)_start.tv_sec) * 1000. +
-                     ((double)now.tv_nsec - (double)_start.tv_nsec) / 1000000.);
+                return (((float)now.tv_nsec - (float)_start.tv_nsec)/1000000.f);
 #endif // Darwin
             }
 
     private:
 #  ifdef Darwin
-        struct timeval _start;
+        struct timeval  _start;
 #  else // Darwin
-        struct timespec _resolution;
         struct timespec _start;
 #endif // Darwin
     };

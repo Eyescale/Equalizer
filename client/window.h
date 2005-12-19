@@ -28,6 +28,13 @@ namespace eq
         virtual ~Window();
 
         /** 
+         * Returns the pipe of this window.
+         * 
+         * @return the pipe of this window. 
+         */
+        Pipe* getPipe() const { return _pipe; }
+
+        /** 
          * Returns the config of this window.
          * 
          * @return the config of this window. 
@@ -66,10 +73,11 @@ namespace eq
         void _removeChannel( Channel* channel );
 
         /** The command functions. */
+        void _pushRequest( eqNet::Node* node, const eqNet::Packet* packet );
         void _cmdCreateChannel( eqNet::Node* node, const eqNet::Packet* packet);
         void _cmdDestroyChannel(eqNet::Node* node, const eqNet::Packet* packet);
-        void _cmdInit( eqNet::Node* node, const eqNet::Packet* packet );
-        void _cmdExit( eqNet::Node* node, const eqNet::Packet* packet );
+        void _reqInit( eqNet::Node* node, const eqNet::Packet* packet );
+        void _reqExit( eqNet::Node* node, const eqNet::Packet* packet );
     };
 }
 

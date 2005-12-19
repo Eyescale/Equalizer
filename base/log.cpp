@@ -6,10 +6,13 @@
 
 using namespace eqBase;
 
+#ifndef NDEBUG
+Clock eqLogClock;
+#endif
+
 static int getLogLevel();
 
 int eqBase::Log::level = getLogLevel();
-
 
 int getLogLevel()
 {

@@ -5,21 +5,21 @@
 #define EQ_CHANNEL_H
 
 #include "commands.h"
+#include "window.h"
 
 #include <eq/net/base.h>
 #include <eq/net/object.h>
 
-namespace eqNet
-{
-    class  Node;
-    struct Packet;
-}
+// namespace eqNet
+// {
+//     class  Node;
+//     struct Packet;
+// }
 
 namespace eq
 {
     class Channel;
     class Node;
-    class Window;
 
     class Channel : public eqNet::Base, public eqNet::Object
     {
@@ -33,6 +33,8 @@ namespace eq
          * Destructs the channel.
          */
         virtual ~Channel();
+
+        Pipe* getPipe() const { return ( _window ? _window->getPipe() : NULL );}
 
         /**
          * @name Callbacks
@@ -59,8 +61,9 @@ namespace eq
         friend class Window;
         Window*      _window;
 
-        void _cmdInit( eqNet::Node* node, const eqNet::Packet* packet );
-        void _cmdExit( eqNet::Node* node, const eqNet::Packet* packet );
+        void _pushRequest( eqNet::Node* node, const eqNet::Packet* packet );
+        void _reqInit( eqNet::Node* node, const eqNet::Packet* packet );
+        void _reqExit( eqNet::Node* node, const eqNet::Packet* packet );
     };
 }
 

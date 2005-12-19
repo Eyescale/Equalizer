@@ -9,6 +9,7 @@
 
 #include <eq/net/node.h>
 #include <eq/net/object.h>
+#include <eq/net/requestQueue.h>
 
 namespace eq
 {
@@ -57,6 +58,11 @@ namespace eq
 
     protected:
         /** 
+         * @sa eqNet::Node::clientLoop
+         */
+        virtual void clientLoop();
+
+        /** 
          * @sa eqNet::Node::handlePacket
          */
         virtual void handlePacket( eqNet::Node* node, 
@@ -72,18 +78,28 @@ namespace eq
         Config*                _config;
         std::vector<Pipe*>     _pipes;
 
+        /** The receiver->node thread request queue. */
+        eqNet::RequestQueue    _requestQueue;
+
         void _addPipe( Pipe* pipe );
         void _removePipe( Pipe* pipe );
 
-        /** The command handler function table. */
-        void (eq::Node::*_cmdHandler[CMD_NODE_ALL])
-            ( eqNet::Node* node, const eqNet::Packet* packet );
+        /** 
+         * Push a request to the node thread to be handled asynchronously.
+         * 
+         * @param node the node sending the packet.
+         * @param packet the command packet.
+         */
+        void _pushRequest( eqNet::Node* node, const eqNet::Packet* packet )
+            { _requestQueue.push( node, packet ); }
 
+        /** The command functions. */
         void _cmdCreateConfig( eqNet::Node* node, const eqNet::Packet* packet );
         void _cmdCreatePipe( eqNet::Node* node, const eqNet::Packet* packet );
         void _cmdDestroyPipe( eqNet::Node* node, const eqNet::Packet* packet );
         void _cmdInit( eqNet::Node* node, const eqNet::Packet* packet );
-        void _cmdExit( eqNet::Node* node, const eqNet::Packet* packet );
+        void _reqInit( eqNet::Node* node, const eqNet::Packet* packet );
+        void _reqExit( eqNet::Node* node, const eqNet::Packet* packet );
         void _cmdStop( eqNet::Node* node, const eqNet::Packet* packet );
     };
 }

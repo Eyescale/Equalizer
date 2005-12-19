@@ -47,7 +47,13 @@ namespace eqNet
          * @return the identifier.
          */
         uint getID() const { return _id; }
-        
+
+        /** 
+         * Returns the local node holding this session.
+         * @return the local node holding this session. 
+         */
+        Node* getNode(){ return _localNode.get(); }
+
         /** 
          * Dispatches a command packet to the appropriate object.
          * 
@@ -55,18 +61,7 @@ namespace eqNet
          * @param packet the packet.
          * @sa handleCommand
          */
-        void dispatchPacket( Node* node, const SessionPacket* packet );
-
-        /** 
-         * Sets the mapping information of this session, used internally by
-         * the Node class.
-         * 
-         * @param server the node hosting the session.
-         * @param id the session's identifier.
-         * @param name the name of the session.
-         */
-        void map( Node* server, const uint id, const std::string& name,
-                  const bool isMaster );
+        void dispatchPacket( Node* node, const Packet* packet );
 
         /**
          * @name Operations
@@ -138,6 +133,10 @@ namespace eqNet
         uint _id;
         
     private:
+        friend class Node;
+        /** The local node managing the session. */
+        eqBase::RefPtr<Node> _localNode;
+
         /** The node hosting the session. */
         eqBase::RefPtr<Node> _server;
 

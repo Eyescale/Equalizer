@@ -33,22 +33,6 @@ Session::Session( const uint nCommands )
     INFO << "New " << this << endl;
 }
 
-void Session::map( Node* server, const uint id, const std::string& name, 
-                   const bool isMaster )
-{
-    _server   = server;
-    _id       = id;
-    _name     = name;
-    _isMaster = isMaster;
-
-    if( isMaster )
-        _idPool.freeIDs( 1, _idPool.getCapacity( )); // free IDs for further use
-
-    INFO << (isMaster ? "master" : "client") << " session, id " << id 
-         << ", name " << name << ", served by node " << server << endl;
-    // _state = mapped;
-}
-
 uint Session::genIDs( const uint range )
 {
     // try local pool
@@ -108,7 +92,7 @@ void Session::deregisterObject( Object* object )
 // Packet handling
 //===========================================================================
 
-void Session::dispatchPacket( Node* node, const SessionPacket* packet)
+void Session::dispatchPacket( Node* node, const Packet* packet)
 {
     VERB << "dispatch " << packet << endl;
 

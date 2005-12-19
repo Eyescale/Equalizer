@@ -23,12 +23,19 @@ Pipe::Pipe()
                          &eq::Pipe::_cmdDestroyWindow ));
     registerCommand( CMD_PIPE_INIT, this, reinterpret_cast<CommandFcn>(
                          &eq::Pipe::_cmdInit ));
+    registerCommand( REQ_PIPE_INIT, this, reinterpret_cast<CommandFcn>(
+                         &eq::Pipe::_reqInit ));
     registerCommand( CMD_PIPE_EXIT, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Pipe::_cmdExit ));
+                         &eq::Pipe::pushRequest ));
+    registerCommand( REQ_PIPE_EXIT, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Pipe::_reqExit ));
+
+    _thread = new PipeThread( this );
 }
 
 Pipe::~Pipe()
 {
+    delete _thread; 
 }
 
 void Pipe::_addWindow( Window* window )
@@ -39,12 +46,33 @@ void Pipe::_addWindow( Window* window )
 
 void Pipe::_removeWindow( Window* window )
 {
-    vector<Window*>::iterator iter = find( _windows.begin(), _windows.end(), window );
+    vector<Window*>::iterator iter = find( _windows.begin(), _windows.end(),
+                                           window );
     if( iter == _windows.end( ))
         return;
     
     _windows.erase( iter );
     window->_pipe = NULL;
+}
+
+ssize_t Pipe::_runThread()
+{
+    Config* config = getConfig();
+    ASSERT( config );
+
+    Node::setLocalNode( config->getNode( ));
+
+    eqNet::Node*   node;
+    eqNet::Packet* packet;
+
+    while( _thread->isRunning( ))
+    {
+        _requestQueue.pop( &node, &packet );
+        config->dispatchPacket( node, packet );
+    }
+
+    _thread->join();
+    return EXIT_SUCCESS;
 }
 
 //---------------------------------------------------------------------------
@@ -79,20 +107,31 @@ void Pipe::_cmdDestroyWindow( eqNet::Node* node, const eqNet::Packet* pkg )
 void Pipe::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     PipeInitPacket* packet = (PipeInitPacket*)pkg;
-    INFO << "handle pipe init " << packet << endl;
+    INFO << "handle pipe init (recv)" << packet << endl;
 
+    ASSERT( _thread->isStopped( ));
+    _thread->start();
+    pushRequest( node, pkg );
+}
+
+void Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
+{
+    PipeInitPacket* packet = (PipeInitPacket*)pkg;
+    INFO << "handle pipe init (pipe)" << packet << endl;
     PipeInitReplyPacket reply( packet );
-    reply.result = init(); // XXX push to pipe thread
+    reply.result = init();
     node->send( reply );
 }
 
-void Pipe::_cmdExit( eqNet::Node* node, const eqNet::Packet* pkg )
+void Pipe::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     PipeExitPacket* packet = (PipeExitPacket*)pkg;
     INFO << "handle pipe exit " << packet << endl;
 
     exit();
-
+    
     PipeExitReplyPacket reply( packet );
     node->send( reply );
+
+    _thread->exit( EXIT_SUCCESS );
 }

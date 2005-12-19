@@ -109,6 +109,28 @@ namespace eqBase
          */
         static void* getSpecific();
 
+        /** 
+         * Returns if the thread is stopped.
+         * 
+         * Note that the thread may be neither running nor stopped if it is
+         * currently starting or stopping.
+         *
+         * @return <code>true</code> if the thread is stopped,
+         * <code>false</code> if not.
+         */
+        bool isStopped() { return ( _threadState == STATE_STOPPED ); }
+
+        /** 
+         * Returns if the thread is running.
+         * 
+         * Note that the thread may be neither running nor stopped if it is
+         * currently starting or stopping.
+         *
+         * @return <code>true</code> if the thread is running,
+         * <code>false</code> if not.
+         */
+        bool isRunning() { return ( _threadState == STATE_RUNNING ); }
+
     private:
         /** The current state of this thread. */
         enum State

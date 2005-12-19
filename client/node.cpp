@@ -30,8 +30,12 @@ Node::Node()
                          &eq::Node::_cmdDestroyPipe ));
     registerCommand( CMD_NODE_INIT, this, reinterpret_cast<CommandFcn>(
                          &eq::Node::_cmdInit ));
+    registerCommand( REQ_NODE_INIT, this, reinterpret_cast<CommandFcn>(
+                         &eq::Node::_reqInit ));
     registerCommand( CMD_NODE_EXIT, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Node::_cmdExit ));
+                         &eq::Node::_pushRequest ));
+    registerCommand( REQ_NODE_EXIT, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Node::_reqExit ));
     registerCommand( CMD_NODE_STOP, this, reinterpret_cast<CommandFcn>( 
                          &eq::Node::_cmdStop ));
 }
@@ -52,6 +56,19 @@ eqBase::RefPtr<eqNet::Node> Node::createNode()
     }
 
     return new Node; 
+}
+
+
+void Node::clientLoop()
+{
+    eqNet::Node*   node;
+    eqNet::Packet* packet;
+
+    while( _state != STATE_STOPPED )
+    {
+        _requestQueue.pop( &node, &packet );
+        dispatchPacket( node, packet );
+    }
 }
 
 void Node::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
@@ -134,16 +151,23 @@ void Node::_cmdDestroyPipe( eqNet::Node* node, const eqNet::Packet* pkg )
 void Node::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     NodeInitPacket* packet = (NodeInitPacket*)pkg;
-    INFO << "handle node init " << packet << endl;
+    INFO << "handle node init (recv) " << packet << endl;
 
     _config->addRegisteredObject( packet->nodeID, this );
+    _pushRequest( node, pkg );
+}
+
+void Node::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
+{
+    NodeInitPacket* packet = (NodeInitPacket*)pkg;
+    INFO << "handle node init (node) " << packet << endl;
 
     NodeInitReplyPacket reply( packet );
-    reply.result = init(); // XXX push to app thread
+    reply.result = init();
     node->send( reply );
 }
 
-void Node::_cmdExit( eqNet::Node* node, const eqNet::Packet* pkg )
+void Node::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     NodeExitPacket* packet = (NodeExitPacket*)pkg;
     INFO << "handle node exit " << packet << endl;

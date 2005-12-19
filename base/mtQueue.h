@@ -18,6 +18,8 @@ namespace eqBase
      * 
      * Depending on the thread type, a different implementation is used to
      * create the Queue.
+     *
+     * OPT: evaluate lock-free implementation if performance is problematic
      */
     template<class T> class MTQueue
     {

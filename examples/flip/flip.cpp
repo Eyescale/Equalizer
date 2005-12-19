@@ -15,13 +15,13 @@ class Node : public eq::Node
 public:
     virtual bool init()
         {
-            cout << "Init " << this << endl;
+            INFO << "Init " << this << endl;
             return true;
         }
 
     virtual void exit()
         {
-            cout << "Exit " << this << endl;
+            INFO << "Exit " << this << endl;
         }
 };
 

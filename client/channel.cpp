@@ -18,9 +18,14 @@ Channel::Channel()
           _window(NULL)
 {
     registerCommand( CMD_CHANNEL_INIT, this, reinterpret_cast<CommandFcn>(
-                         &eq::Channel::_cmdInit ));
+                         &eq::Channel::_pushRequest ));
+    registerCommand( REQ_CHANNEL_INIT, this, reinterpret_cast<CommandFcn>(
+                         &eq::Channel::_reqInit ));
     registerCommand( CMD_CHANNEL_EXIT, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Channel::_cmdExit ));
+                         &eq::Channel::_pushRequest ));
+    registerCommand( REQ_CHANNEL_EXIT, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Channel::_reqExit ));
+    // more registerCommands in Window::addChannel and Window::removeChannel
 }
 
 Channel::~Channel()
@@ -30,7 +35,17 @@ Channel::~Channel()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-void Channel::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
+void Channel::_pushRequest( eqNet::Node* node, const eqNet::Packet* packet )
+{
+    Pipe* pipe = getPipe();
+
+    if( pipe )
+        pipe->pushRequest( node, packet );
+    else
+        _cmdUnknown( node, packet );
+}
+
+void Channel::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     ChannelInitPacket* packet = (ChannelInitPacket*)pkg;
     INFO << "handle channel init " << packet << endl;
@@ -40,7 +55,7 @@ void Channel::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
     node->send( reply );
 }
 
-void Channel::_cmdExit( eqNet::Node* node, const eqNet::Packet* pkg )
+void Channel::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     ChannelExitPacket* packet = (ChannelExitPacket*)pkg;
     INFO << "handle channel exit " << packet << endl;
