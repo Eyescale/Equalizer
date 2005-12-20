@@ -6,8 +6,9 @@
 #ifndef EQBASE_CLOCK_H
 #define	EQBASE_CLOCK_H
 
-#ifdef sgi
-# include <sys/syssgi.h>
+#ifdef Darwin
+// http://developer.apple.com/qa/qa2004/qa1398.html
+#  include <mach/mach_time.h>
 #endif
 
 #include <sys/time.h>
@@ -36,7 +37,8 @@ namespace eqBase
         void reset()   
             { 
 #ifdef Darwin
-                gettimeofday( &_start , 0 );
+                mach_timebase_info( &_timebaseInfo );
+                _start = mach_absolute_time();
 #else // Darwin
                 clock_gettime( CLOCK_REALTIME, &_start );
 #endif // Darwin
@@ -50,10 +52,9 @@ namespace eqBase
         float getTimef() const
             {
 #ifdef Darwin
-                struct timeval now;
-                gettimeofday( &now , 0 );
-                return (((float)now.tv_sec - (float)_start.tv_sec)  * 1000.f +
-                        ((float)now.tv_usec - (float)_start.tv_usec) / 1000.f);
+                const uint64_t elapsed = mach_absolute_time() - _start;
+                return ( elapsed * _timebaseInfo.numer / _timebaseInfo.denom /
+                         1000000.f );
 #else // Darwin
                 struct timespec now;
                 clock_gettime( CLOCK_REALTIME, &now );
@@ -70,11 +71,9 @@ namespace eqBase
         double getTimed() const
             {
 #ifdef Darwin
-                struct timeval now;
-                gettimeofday( &now , 0 );
-                return 
-                    (((double)now.tv_sec - (double)_start.tv_sec)  * 1000. +
-                     ((double)now.tv_usec - (double)_start.tv_usec) / 1000.);
+                const uint64_t elapsed = mach_absolute_time() - _start;
+                return ( elapsed * _timebaseInfo.numer / _timebaseInfo.denom /
+                         1000000. );
 #else // Darwin
                 struct timespec now;
                 clock_gettime( CLOCK_REALTIME, &now );
@@ -95,14 +94,8 @@ namespace eqBase
         float getMSf() const
             {
 #ifdef Darwin
-                struct timeval now;
-                gettimeofday( &now , 0 );
-
-                if( now.tv_usec < _start.tv_usec )
-                    return ( 1000. + ((float)now.tv_usec -
-                                      (float)_start.tv_usec) / 1000.f );
-
-                return (((float)now.tv_usec - (float)_start.tv_usec) / 1000.f );
+                double time = getTimed();
+                return (time - (uint64_t)(time/1000.) * 1000);
 #else // Darwin
                 struct timespec now;
                 clock_gettime( CLOCK_REALTIME, &now );
@@ -117,7 +110,8 @@ namespace eqBase
 
     private:
 #  ifdef Darwin
-        struct timeval  _start;
+        uint64_t                  _start;
+        mach_timebase_info_data_t _timebaseInfo;
 #  else // Darwin
         struct timespec _start;
 #endif // Darwin

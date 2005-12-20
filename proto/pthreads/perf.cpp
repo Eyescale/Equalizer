@@ -29,7 +29,7 @@ public:
 
             barrier->enter( nThreads );
             if( master )
-                cerr << nThreads << " threads, " << timer.getTime() << "ms"
+                cerr << nThreads << " threads, " << timer.getTimef() << "ms"
                      << endl;
             return EXIT_SUCCESS;
         }
