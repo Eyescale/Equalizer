@@ -8,8 +8,17 @@ endif
 
 # export MACOSX_DEPLOYMENT_TARGET = 10.3
 
-DSO_LDFLAGS += -dynamiclib -flat_namespace -undefined warning #dynamic_lookup
-DSO_SUFFIX   = dylib
+DSO_LDFLAGS        += -dynamiclib -flat_namespace -undefined warning
+DSO_SUFFIX          = dylib
+WINDOW_SYSTEM      += X11
+
+ifeq ($(findstring X11, $(WINDOW_SYSTEM)),X11)
+  WINDOW_SYSTEM_LIBS += -L/usr/X11R6/lib -lX11 -lGL
+  WINDOW_SYSTEM_INCS += -I/usr/X11R6/include
+endif
+ifeq ($(findstring CGL, $(WINDOW_SYSTEM)),CGL)
+# TODO
+endif
 
 AR           = libtool
 ARFLAGS      = -static

@@ -48,7 +48,7 @@ OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
 
 $(OBJECT_DIR)/%.o : %.cpp
 	@mkdir -p $(OBJECT_DIR)
-	@($(CXX_DEPS) $(CXX_DEPS_FLAGS) -M -E $< | \
+	@($(DEP_CXX) $(CXXFLAGS) $(INT_CXXFLAGS) -M -E $< | \
 		sed 's/\(.*:\)/$(OBJECT_DIR_ESCAPED)\/\1/' > \
 		$(@D)/$*.d ) || rm $(@D)/$*.d
 	$(CXX) $(CXXFLAGS) $(INT_CXXFLAGS) -c $< -o $@

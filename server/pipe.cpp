@@ -17,7 +17,9 @@ Pipe::Pipe()
         : eqNet::Base( eq::CMD_PIPE_ALL ),
           _used( 0 ),
           _node( NULL ),
-          _pendingRequestID(INVALID_ID)
+          _pendingRequestID(INVALID_ID),
+          _display(EQ_UNDEFINED_UINT),
+          _screen(EQ_UNDEFINED_UINT)
 {
     registerCommand( eq::CMD_PIPE_INIT_REPLY, this,reinterpret_cast<CommandFcn>(
                          &eqs::Pipe::_cmdInitReply ));
@@ -78,6 +80,8 @@ void Pipe::_sendInit()
     eq::PipeInitPacket packet( _sessionID, _id );
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
+    packet.display    = _display;
+    packet.screen     = _screen;
     _send( packet );
 }
 

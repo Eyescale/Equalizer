@@ -28,7 +28,8 @@ SOURCES = \
 	server.cpp \
 	window.cpp
 
-LDFLAGS += -leqnet
+CXXFLAGS += $(WINDOW_SYSTEM_INCS)
+LDFLAGS  += -leqnet $(WINDOW_SYSTEM_LIBS)
 
 all: $(HEADERS) $(STATIC_LIB) $(DYNAMIC_LIB)
 

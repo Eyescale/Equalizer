@@ -71,7 +71,8 @@ int main( int argc, char** argv )
 
     if( !config->init( ))
         DIE("Config initialisation failed.");
-    
+
+    sleep(1);
 //     while( running )
 //     {
 //         // update database

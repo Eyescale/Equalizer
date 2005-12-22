@@ -82,6 +82,16 @@ namespace eqs
         bool isUsed() const { return (_used!=0); }
 
         /**
+         * @name Data Access
+         */
+        //*{
+        void setDisplay( const uint display ){ _display = display; }
+        uint getDisplay() const              { return _display; }
+        void setScreen( const uint screen )  { _screen = screen; }
+        uint getScreen() const               { return _screen; }
+        //*}
+
+        /**
          * @name Operations
          */
         //*{
@@ -125,6 +135,17 @@ namespace eqs
 
         /** The request id for pending asynchronous operations. */
         uint _pendingRequestID;
+
+        
+        /** The display (X11) or ignored (Win32, CGL). */
+        uint _display;
+
+        /** The screen (X11), adapter (Win32) or virtual screen (CGL). */
+        uint _screen;
+
+        /* The display (CGL) or output channel (X11, Win32). */
+        //uint _channel;
+
 
         void _send( const eqNet::Packet& packet ){ _node->send( packet ); }
 

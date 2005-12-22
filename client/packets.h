@@ -236,7 +236,9 @@ namespace eq
                 size    = sizeof( PipeInitPacket );
             }
 
-        uint   requestID;
+        uint requestID;
+        uint display;
+        uint screen;
     };
 
     struct PipeInitReplyPacket : public eqNet::ObjectPacket

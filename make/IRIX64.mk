@@ -3,7 +3,7 @@ VARIANT     = n64
 
 CC          = cc
 CXX         = CC
-CXX_DEPS    = g++
+DEP_CXX     = g++
 
 DSO_SUFFIX  = so
 DSO_LDFLAGS = -shared

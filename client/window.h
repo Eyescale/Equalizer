@@ -10,6 +10,10 @@
 #include <eq/net/base.h>
 #include <eq/net/object.h>
 
+#ifdef X11
+#  include <GL/glx.h>
+#endif
+
 namespace eq
 {
     class Channel;
@@ -34,6 +38,33 @@ namespace eq
          */
         Pipe* getPipe() const { return _pipe; }
 
+#ifdef X11
+        /** 
+         * Returns the X11 display connection for this window.
+         * @return the X11 display connection for this window. 
+         */
+        Display* getXDisplay() const 
+            { return ( _pipe ? _pipe->getXDisplay() : NULL ); }
+
+        /** 
+         * Set the X11 drawable ID for this window.
+         * 
+         * This function should only be called from init() or exit().
+         *
+         * @param drawable the X11 drawable ID.
+         */
+        void setXDrawable( XID drawable ) { _xDrawable = drawable; }
+
+        /** 
+         * Set the GLX rendering context for this window.
+         * 
+         * This function should only be called from init() or exit().
+         *
+         * @param drawable the GLX rendering context.
+         */
+        void setGLXContext( GLXContext context ) { _glXContext = context; }
+#endif
+
         /** 
          * Returns the config of this window.
          * 
@@ -51,9 +82,8 @@ namespace eq
 
         /** 
          * Initialises this window.
-         * TODO: Create thread, get display info, etc.
          */
-        virtual bool init(){ return true; }
+        virtual bool init();
 
         /** 
          * Exit this window.
@@ -68,6 +98,14 @@ namespace eq
 
         /** The channels of this window. */
         std::vector<Channel*>     _channels;
+
+#ifdef X11
+        /** The drawable ID of the window. */
+        XID        _xDrawable;
+        /** The glX rendering context. */
+        GLXContext _glXContext;
+#endif
+
 
         void _addChannel( Channel* channel );
         void _removeChannel( Channel* channel );

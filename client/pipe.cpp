@@ -10,12 +10,17 @@
 #include "packets.h"
 #include "window.h"
 
+#include <sstream>
+
 using namespace eq;
 using namespace std;
 
 Pipe::Pipe()
         : eqNet::Base( CMD_PIPE_ALL ),
-          _node(NULL)
+          _node(NULL),
+          _display(EQ_UNDEFINED_UINT),
+          _screen(EQ_UNDEFINED_UINT),
+          _xDisplay(NULL)
 {
     registerCommand( CMD_PIPE_CREATE_WINDOW, this, reinterpret_cast<CommandFcn>(
                          &eq::Pipe::_cmdCreateWindow ));
@@ -119,7 +124,31 @@ void Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
     PipeInitPacket* packet = (PipeInitPacket*)pkg;
     INFO << "handle pipe init (pipe)" << packet << endl;
     PipeInitReplyPacket reply( packet );
+    
+    _display = packet->display;
+    _screen  = packet->screen;
+
     reply.result = init();
+
+    if( !reply.result )
+    {
+        node->send( reply );
+        return;
+    }
+
+#ifdef X11
+    if( !_xDisplay )
+    {
+        ERROR << "Pipe::init() did not set valid display connection" << endl;
+        reply.result = false;
+        node->send( reply );
+        return;
+    }
+
+    // TODO: gather and send back display information
+    INFO << "Using display " << DisplayString( _xDisplay ) << endl;
+#endif
+
     node->send( reply );
 }
 
@@ -134,4 +163,57 @@ void Pipe::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
     node->send( reply );
 
     _thread->exit( EXIT_SUCCESS );
+}
+
+//---------------------------------------------------------------------------
+// pipe-thread methods
+//---------------------------------------------------------------------------
+bool Pipe::init()
+{
+#ifdef X11
+    ostringstream stringStream;
+    const uint    display = getDisplay();
+    const uint    screen  = getScreen();
+
+    if( display != EQ_UNDEFINED_UINT )
+    { 
+        if( screen == EQ_UNDEFINED_UINT )
+            stringStream << ":" << display;
+        else
+            stringStream << ":" << display << "." << screen;
+    }
+    else if( screen != EQ_UNDEFINED_UINT )
+        stringStream << ":0." << screen;
+
+    const string displayName  = stringStream.str();
+    const char*  cDisplayName = ( displayName.length() == 0 ? 
+                                  NULL : displayName.c_str( ));
+    Display*     xDisplay     = XOpenDisplay( cDisplayName );
+    
+    if( !xDisplay )
+    {
+        ERROR << "Can't open display: " << displayName << endl;
+        return false;
+    }
+
+    setXDisplay( xDisplay );
+    return true;
+#else
+    // TODO: non-X11 code
+    return false;
+#endif
+}
+
+void Pipe::exit()
+{
+#ifdef X11
+    Display* xDisplay = getXDisplay();
+    if( !xDisplay )
+        return;
+
+    setXDisplay( NULL );
+    XCloseDisplay( xDisplay );
+#else
+    // TODO: non-X11 code
+#endif
 }

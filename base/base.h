@@ -29,8 +29,9 @@ typedef int socklen_t;
 #endif
 
 // defines
-#define EQ_TIMEOUT_INDEFINITE 0
-#define DUMP_CORE   {((char*)0)[0] = 'c';}
+#define EQ_UNDEFINED_UINT     (0xffffffff)
+#define EQ_TIMEOUT_INDEFINITE (0)
+#define DUMP_CORE             {((char*)0)[0] = 'c';}
 
 // assertions
 #ifdef NDEBUG
