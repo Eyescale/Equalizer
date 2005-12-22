@@ -13,7 +13,7 @@ SUBDIRS = \
 
 .PHONY: docs
 
-all: subdirs # docs
+all: precompile subdirs # docs
 
 docs: net
 	@$(DOXYGEN) Doxyfile

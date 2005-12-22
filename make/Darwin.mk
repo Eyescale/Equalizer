@@ -10,9 +10,9 @@ endif
 
 DSO_LDFLAGS        += -dynamiclib -flat_namespace -undefined warning
 DSO_SUFFIX          = dylib
-WINDOW_SYSTEM      += X11
+WINDOW_SYSTEM      += GLX CGL
 
-ifeq ($(findstring X11, $(WINDOW_SYSTEM)),X11)
+ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
   WINDOW_SYSTEM_LIBS += -L/usr/X11R6/lib -lX11 -lGL
   WINDOW_SYSTEM_INCS += -I/usr/X11R6/include
 endif

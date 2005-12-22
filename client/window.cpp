@@ -107,7 +107,7 @@ void eq::Window::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
         return;
     }
 
-#ifdef X11
+#ifdef GLX
     if( !_xDrawable || !_glXContext )
     {
         ERROR << "Window::init() did not provide a drawable and context" 
@@ -141,7 +141,7 @@ static Bool WaitForNotify(Display *, XEvent *e, char *arg)
 
 bool eq::Window::init()
 {
-#ifdef X11
+#ifdef GLX
     Display *display = getXDisplay();
     if( !display ) 
         return false;
@@ -214,5 +214,26 @@ bool eq::Window::init()
 #else
     // TODO
     return false;
+#endif
+}
+
+void eq::Window::exit()
+{
+#ifdef GLX
+    Display *display = getXDisplay();
+    if( !display ) 
+        return;
+
+    GLXContext context = getGLXContext();
+    if( context )
+        glXDestroyContext( display, context );
+    setGLXContext( NULL );
+
+    XID drawable = getXDrawable();
+    if( drawable )
+        XDestroyWindow( display, drawable );
+    setXDrawable( 0 );
+#else
+    // TODO
 #endif
 }

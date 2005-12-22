@@ -10,8 +10,11 @@
 #include <eq/net/base.h>
 #include <eq/net/object.h>
 
-#ifdef X11
+#ifdef GLX
 #  include <GL/glx.h>
+#endif
+#ifdef CGL
+#  include <OpenGL/OpenGL.h>
 #endif
 
 namespace eq
@@ -38,7 +41,7 @@ namespace eq
          */
         Pipe* getPipe() const { return _pipe; }
 
-#ifdef X11
+#ifdef GLX
         /** 
          * Returns the X11 display connection for this window.
          * @return the X11 display connection for this window. 
@@ -56,6 +59,12 @@ namespace eq
         void setXDrawable( XID drawable ) { _xDrawable = drawable; }
 
         /** 
+         * Returns the X11 drawable ID. 
+         * @return  the X11 drawable ID. 
+         */
+        XID getXDrawable() const { return _xDrawable; }
+        
+        /** 
          * Set the GLX rendering context for this window.
          * 
          * This function should only be called from init() or exit().
@@ -63,6 +72,12 @@ namespace eq
          * @param drawable the GLX rendering context.
          */
         void setGLXContext( GLXContext context ) { _glXContext = context; }
+
+        /** 
+         * Returns the GLX rendering context.
+         * @return the GLX rendering context. 
+         */
+        GLXContext getGLXContext() const { return _glXContext; }
 #endif
 
         /** 
@@ -88,7 +103,7 @@ namespace eq
         /** 
          * Exit this window.
          */
-        virtual void exit(){}
+        virtual void exit();
         //@}
 
     private:
@@ -99,7 +114,7 @@ namespace eq
         /** The channels of this window. */
         std::vector<Channel*>     _channels;
 
-#ifdef X11
+#ifdef GLX
         /** The drawable ID of the window. */
         XID        _xDrawable;
         /** The glX rendering context. */

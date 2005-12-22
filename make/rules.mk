@@ -2,8 +2,13 @@
 .PHONY: subdirs $(SUBDIRS) $(DEPENDENCIES)
 .SUFFIXES: .d
 
-# recursive subdir rules
+# top level precompile commands
+precompile: $(CXX_DEFINES_FILE)
 
+$(CXX_DEFINES_FILE)::
+	echo $(CXX_DEFINES_FILE) > $@
+
+# recursive subdir rules
 subdirs: $(SUBDIRS) 
 
 $(SUBDIRS):

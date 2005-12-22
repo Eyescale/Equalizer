@@ -14,13 +14,21 @@
 #include <eq/net/object.h>
 #include <eq/net/requestQueue.h>
 
-#ifdef X11
+#ifdef GLX
 #  include <X11/Xlib.h>
 #endif
 
 namespace eq
 {
     class Window;
+
+    enum WindowSystem
+    {
+        WINDOW_SYSTEM_NONE, // must be first
+        WINDOW_SYSTEM_GLX,
+        WINDOW_SYSTEM_CGL,
+        WINDOW_SYSTEM_ALL   // must be last
+    };
 
     class Pipe : public eqNet::Base, public eqNet::Object
     {
@@ -45,8 +53,8 @@ namespace eq
         /** 
          * Returns the display number of this pipe.
          * 
-         * The display number identifies the X server for systems using the X11
-         * window system. It has no meaning on Windows systems.
+         * The display number identifies the X server for systems using the
+         * X11/GLX window system. It has no meaning on Windows systems.
          *
          * @return the display number of this pipe, or 
          *         <code>EQ_UNDEFINED_UINT</code>.
@@ -56,16 +64,37 @@ namespace eq
         /** 
          * Returns the screen number of this pipe.
          * 
-         * The screen number identifies the X screen for systems using the X11
-         * window system. Normally the screen identifies a graphics adapter. On
-         * Windows systems it identifies the graphics adapter.
+         * The screen number identifies the X screen for systems using the
+         * X11/GLX window system. Normally the screen identifies a graphics
+         * adapter. One Windows systems it identifies the graphics adapter.
          *
          * @return the screen number of this pipe, or 
          *         <code>EQ_UNDEFINED_UINT</code>.
          */
         uint getScreen() const { return _screen; }
 
-#ifdef X11
+        /** 
+         * Tests wether a particular windowing system is supported by this pipe
+         * and all its windows.
+         * 
+         * @param system the window system to test.
+         * @return <code>true</code> if the window system is supported,
+         *         <code>false</code> if not.
+         */
+        virtual bool supportsWindowSystem( const WindowSystem system ) const;
+
+        /** 
+         * Returns the window system currently used by this pipe.
+         * 
+         * This function determines which of the supported windowing systems is
+         * used by this pipe instance. Its return value has to be static for a
+         * given instance.
+         * 
+         * @return the window system currently used by this pipe.
+         */
+        virtual WindowSystem getWindowSystem() const;
+
+#ifdef GLX
         /** 
          * Set the X11 display connection for this pipe.
          * 
@@ -94,11 +123,15 @@ namespace eq
          * Initialises this pipe.
          */
         virtual bool init();
+        bool initGLX();
+        bool initCGL();
 
         /** 
          * Exit this pipe.
          */
         virtual void exit();
+        void exitGLX();
+        void exitCGL();
         //@}
 
         /** 
@@ -119,13 +152,13 @@ namespace eq
         std::vector<Window*>     _windows;
 
         
-        /** The display (X11) or ignored (Win32). */
+        /** The display (GLX) or ignored (Win32). */
         uint _display;
 
-        /** The screen (X11) or adapter (Win32). */
+        /** The screen (GLX) or adapter (Win32). */
         uint _screen;
 
-#ifdef X11
+#ifdef GLX
         /** The X11 display connection. */
         Display* _xDisplay;
 #endif

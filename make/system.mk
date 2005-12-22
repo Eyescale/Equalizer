@@ -18,11 +18,17 @@ BUILD_DIR       = $(TOP)/build/$(ARCH)
 LIBRARY_DIR     = $(BUILD_DIR)/$(VARIANT)/lib
 SAMPLE_LIB_DIR  = $(BUILD_DIR)/$(VARIANT1)/lib
 
-INT_CXXFLAGS   += -I$(BUILD_DIR)/include -D$(ARCH) -D$(WINDOW_SYSTEM) \
+INT_CXXFLAGS   += -I$(BUILD_DIR)/include $(CXX_DEFINES) \
                   $(WINDOW_SYSTEM_INCS) -DSUBDIR=\"$(SUBDIR)\"
 INT_LDFLAGS    += -L$(LIBRARY_DIR)
 DEP_CXX        ?= $(CXX)
 DOXYGEN        ?= Doxygen
+
+# defines
+CXX_DEFINES           = -D$(ARCH) $(WINDOW_SYSTEM_DEFINES)
+WINDOW_SYSTEM_DEFINES = $(foreach WS,$(WINDOW_SYSTEM),-D$(WS))
+CXX_DEFINES_FILE      = base/defines.h
+CXX_DEFINES_TXT       = $(CXX_DEFINES:-D%=#define %)
 
 # header file variables
 HEADER_SRC      = $(wildcard *.h)

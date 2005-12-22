@@ -60,6 +60,44 @@ void Pipe::_removeWindow( Window* window )
     window->_pipe = NULL;
 }
 
+bool Pipe::supportsWindowSystem( const WindowSystem windowSystem ) const
+{
+    switch( windowSystem )
+    {
+        case WINDOW_SYSTEM_NONE:
+            return true;
+
+        case WINDOW_SYSTEM_GLX:
+#ifdef GLX
+            return true;
+#else
+            return false;
+#endif
+
+        case WINDOW_SYSTEM_CGL:
+#ifdef CGL
+            return true;
+#else
+            return false;
+#endif
+
+        default:
+            return false;
+    }
+}
+
+WindowSystem Pipe::getWindowSystem() const
+{
+    for( WindowSystem i=WINDOW_SYSTEM_NONE; i<WINDOW_SYSTEM_ALL; 
+         i = (WindowSystem)((int)i+1) )
+    {
+        if( supportsWindowSystem( i ))
+            return i;
+    }
+    ASSERTINFO( 0, "No supported window system found" );
+    return WINDOW_SYSTEM_NONE;
+}
+
 ssize_t Pipe::_runThread()
 {
     Config* config = getConfig();
@@ -136,10 +174,10 @@ void Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
         return;
     }
 
-#ifdef X11
+#ifdef GLX
     if( !_xDisplay )
     {
-        ERROR << "Pipe::init() did not set valid display connection" << endl;
+        ERROR << "Pipe::init() did not set a valid display connection" << endl;
         reply.result = false;
         node->send( reply );
         return;
@@ -170,11 +208,27 @@ void Pipe::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
 //---------------------------------------------------------------------------
 bool Pipe::init()
 {
-#ifdef X11
+    const WindowSystem windowSystem = getWindowSystem();
+    switch( windowSystem )
+    {
+        case WINDOW_SYSTEM_GLX:
+            return initGLX();
+
+        case WINDOW_SYSTEM_CGL:
+            return initCGL();
+
+        default:
+            return false;
+    }
+}
+
+bool Pipe::initGLX()
+{
+#ifdef GLX
     ostringstream stringStream;
     const uint    display = getDisplay();
     const uint    screen  = getScreen();
-
+    
     if( display != EQ_UNDEFINED_UINT )
     { 
         if( screen == EQ_UNDEFINED_UINT )
@@ -184,36 +238,63 @@ bool Pipe::init()
     }
     else if( screen != EQ_UNDEFINED_UINT )
         stringStream << ":0." << screen;
-
+    
     const string displayName  = stringStream.str();
     const char*  cDisplayName = ( displayName.length() == 0 ? 
                                   NULL : displayName.c_str( ));
     Display*     xDisplay     = XOpenDisplay( cDisplayName );
-    
+            
     if( !xDisplay )
     {
         ERROR << "Can't open display: " << displayName << endl;
         return false;
     }
-
+    
     setXDisplay( xDisplay );
     return true;
 #else
-    // TODO: non-X11 code
+    return false;
+#endif
+}
+
+bool Pipe::initCGL()
+{
+#ifdef CGL
+    return false;
+#else
     return false;
 #endif
 }
 
 void Pipe::exit()
 {
-#ifdef X11
+    const WindowSystem windowSystem = getWindowSystem();
+    switch( windowSystem )
+    {
+        case WINDOW_SYSTEM_GLX:
+            exitGLX();
+            break;
+
+        case WINDOW_SYSTEM_CGL:
+            exitCGL();
+            break;
+    }
+}
+
+void Pipe::exitGLX()
+{
+#ifdef GLX
     Display* xDisplay = getXDisplay();
     if( !xDisplay )
         return;
 
     setXDisplay( NULL );
     XCloseDisplay( xDisplay );
-#else
-    // TODO: non-X11 code
+#endif
+}
+
+void Pipe::exitCGL()
+{
+#ifdef CGL
 #endif
 }
