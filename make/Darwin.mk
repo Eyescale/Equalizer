@@ -1,5 +1,5 @@
 
-VARIANTS    = ppc ppc64
+VARIANTS    = ppc
 
 ifdef VARIANT
   CXXFLAGS    += -arch $(VARIANT)

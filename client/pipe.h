@@ -17,6 +17,11 @@
 #ifdef GLX
 #  include <X11/Xlib.h>
 #endif
+#ifdef CGL
+#  define Cursor CGLCursor // avoid name clash with X11 Cursor
+#  include <ApplicationServices/ApplicationServices.h>
+#  undef Cursor
+#endif
 
 namespace eq
 {
@@ -24,10 +29,10 @@ namespace eq
 
     enum WindowSystem
     {
-        WINDOW_SYSTEM_NONE, // must be first
+        WINDOW_SYSTEM_NONE = 0, // must be first
         WINDOW_SYSTEM_CGL,
         WINDOW_SYSTEM_GLX,
-        WINDOW_SYSTEM_ALL   // must be last
+        WINDOW_SYSTEM_ALL      // must be last
     };
 
     class Pipe : public eqNet::Base, public eqNet::Object
@@ -54,7 +59,8 @@ namespace eq
          * Returns the display number of this pipe.
          * 
          * The display number identifies the X server for systems using the
-         * X11/GLX window system. It has no meaning on Windows systems.
+         * X11/GLX window system, or the number of the display for the CGL
+         * window system. It has no meaning on Windows systems.
          *
          * @return the display number of this pipe, or 
          *         <code>EQ_UNDEFINED_UINT</code>.
@@ -66,7 +72,8 @@ namespace eq
          * 
          * The screen number identifies the X screen for systems using the
          * X11/GLX window system. Normally the screen identifies a graphics
-         * adapter. One Windows systems it identifies the graphics adapter.
+         * adapter. One Windows systems it identifies the graphics adapter. It
+         * has no meaning for CGL window systems.
          *
          * @return the screen number of this pipe, or 
          *         <code>EQ_UNDEFINED_UINT</code>.
@@ -110,6 +117,22 @@ namespace eq
          */
         Display* getXDisplay() const { return _xDisplay; }
 #endif
+#ifdef CGL
+        /** 
+         * Set the CGL display ID for this pipe.
+         * 
+         * This function should only be called from init() or exit().
+         *
+         * @param id the CGL display ID for this pipe.
+         */
+        void setCGLDisplayID( CGDirectDisplayID id ) { _cglDisplayID = id; }
+
+        /** 
+         * Returns the CGL display ID for this pipe.
+         * @return the CGL display ID for this pipe.
+         */
+        CGDirectDisplayID getCGLDisplayID() const { return _cglDisplayID; }
+#endif
 
         /**
          * @name Callbacks
@@ -152,15 +175,18 @@ namespace eq
         std::vector<Window*>     _windows;
 
         
-        /** The display (GLX) or ignored (Win32). */
+        /** The display (GLX, CGL) or ignored (Win32). */
         uint _display;
 
-        /** The screen (GLX) or adapter (Win32). */
+        /** The screen (GLX), adapter (Win32) or ignored (CGL). */
         uint _screen;
 
 #ifdef GLX
         /** The X11 display connection. */
         Display* _xDisplay;
+#endif
+#ifdef CGL
+        CGDirectDisplayID _cglDisplayID;
 #endif
 
         void _addWindow( Window* window );

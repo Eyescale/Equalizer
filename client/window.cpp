@@ -15,9 +15,14 @@ using namespace std;
 
 eq::Window::Window()
         : eqNet::Base( CMD_WINDOW_ALL ),
-          _pipe(NULL),
+#ifdef GLX
           _xDrawable(0),
-          _glXContext(NULL)
+          _glXContext(NULL),
+#endif
+#ifdef CGL
+          _cglContext( NULL ),
+#endif
+          _pipe(NULL)
 {
     registerCommand( CMD_WINDOW_CREATE_CHANNEL, this,
                      reinterpret_cast<CommandFcn>(
@@ -107,15 +112,29 @@ void eq::Window::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
         return;
     }
 
+    const WindowSystem windowSystem = _pipe->getWindowSystem();
 #ifdef GLX
-    if( !_xDrawable || !_glXContext )
+    if( windowSystem == WINDOW_SYSTEM_GLX )
     {
-        ERROR << "Window::init() did not provide a drawable and context" 
-              << endl;
-
-        reply.result = false;
-        node->send( reply );
-        return;
+        if( !_xDrawable || !_glXContext )
+        {
+            ERROR << "init() did not provide a drawable and context" << endl;
+            reply.result = false;
+            node->send( reply );
+            return;
+        }
+    }
+#endif
+#ifdef CGL
+    if( windowSystem == WINDOW_SYSTEM_CGL )
+    {
+        if( !_cglContext )
+        {
+            ERROR << "init() did not provide an OpenGL context" << endl;
+            reply.result = false;
+            node->send( reply );
+            return;
+        }
     }
 #endif
 
@@ -136,13 +155,36 @@ void eq::Window::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
 //---------------------------------------------------------------------------
 // pipe-thread methods
 //---------------------------------------------------------------------------
-static Bool WaitForNotify(Display *, XEvent *e, char *arg)
-{ return (e->type == MapNotify) && (e->xmap.window == (::Window)arg); }
 
+//----------------------------------------------------------------------
+// init
+//----------------------------------------------------------------------
 bool eq::Window::init()
 {
+    const WindowSystem windowSystem = _pipe->getWindowSystem();
+    switch( windowSystem )
+    {
+        case WINDOW_SYSTEM_GLX:
+            return initGLX();
+
+        case WINDOW_SYSTEM_CGL:
+            return initCGL();
+
+        default:
+            ERROR << "Unknown windowing system: " << windowSystem << endl;
+            return false;
+    }
+}
+
 #ifdef GLX
-    Display *display = getXDisplay();
+static Bool WaitForNotify(Display *, XEvent *e, char *arg)
+{ return (e->type == MapNotify) && (e->xmap.window == (::Window)arg); }
+#endif
+
+bool eq::Window::initGLX()
+{
+#ifdef GLX
+    Display *display = _pipe->getXDisplay();
     if( !display ) 
         return false;
 
@@ -200,27 +242,100 @@ bool eq::Window::init()
 
     // create context
     GLXContext context = glXCreateContext( display, visInfo, NULL, True );
-
-    glXMakeCurrent( display, drawable, context );
-    if ( !drawable )
+    if ( !context )
     {
         ERROR << "Could not create OpenGL context\n" << endl;
         return false;
     }
 
+    glXMakeCurrent( display, drawable, context );
+    glClear( GL_COLOR_BUFFER_BIT );
+    glXSwapBuffers( display, drawable );
+    glClear( GL_COLOR_BUFFER_BIT );
+
     setXDrawable( drawable );
     setGLXContext( context );
     return true;
 #else
-    // TODO
     return false;
 #endif
 }
 
+bool eq::Window::initCGL()
+{
+#ifdef CGL
+    CGDirectDisplayID displayID = _pipe->getCGLDisplayID();
+
+    CGLPixelFormatAttribute attribs[] = { 
+        kCGLPFADisplayMask,
+        (CGLPixelFormatAttribute)CGDisplayIDToOpenGLDisplayMask( displayID ),
+        kCGLPFAFullScreen, 
+        kCGLPFADoubleBuffer, 
+        kCGLPFADepthSize, (CGLPixelFormatAttribute)16, 
+        (CGLPixelFormatAttribute)0 };
+
+    CGLPixelFormatObj pixelFormat = NULL;
+    long numPixelFormats = 0;
+    CGLChoosePixelFormat( attribs, &pixelFormat, &numPixelFormats );
+
+    if( !pixelFormat )
+    {
+        ERROR << "Could not find a matching pixel format\n" << endl;
+        return false;
+    }
+
+    CGLContextObj context = 0;
+    CGLCreateContext( pixelFormat, NULL, &context );
+    CGLDestroyPixelFormat ( pixelFormat );
+
+    if( !context ) 
+    {
+        ERROR << "Could not create OpenGL context\n" << endl;
+        return false;
+    }
+
+    // CGRect displayRect = CGDisplayBounds( displayID );
+    // glViewport( 0, 0, displayRect.size.width, displayRect.size.height );
+
+    CGLSetCurrentContext( context );
+    CGLSetFullScreen( Context );
+    glClear( GL_COLOR_BUFFER_BIT );
+    CGLFlushDrawable( context );
+    glClear( GL_COLOR_BUFFER_BIT );
+
+    setCGLContext( context );
+    return true;
+#else
+    return false;
+#endif
+}
+
+//----------------------------------------------------------------------
+// exit
+//----------------------------------------------------------------------
 void eq::Window::exit()
 {
+    const WindowSystem windowSystem = _pipe->getWindowSystem();
+    switch( windowSystem )
+    {
+        case WINDOW_SYSTEM_GLX:
+            exitGLX();
+            break;
+
+        case WINDOW_SYSTEM_CGL:
+            exitCGL();
+            break;
+
+        default:
+            WARN << "Unknown windowing system: " << windowSystem << endl;
+            return;
+    }
+}
+
+void eq::Window::exitGLX()
+{
 #ifdef GLX
-    Display *display = getXDisplay();
+    Display *display = _pipe->getXDisplay();
     if( !display ) 
         return;
 
@@ -233,7 +348,20 @@ void eq::Window::exit()
     if( drawable )
         XDestroyWindow( display, drawable );
     setXDrawable( 0 );
-#else
-    // TODO
+#endif
+}
+
+void eq::Window::exitCGL()
+{
+#ifdef CGL
+    CGLContextObj context = getCGLContext();
+    if( !context )
+        return;
+
+    setCGLContext( NULL );
+
+    CGLSetCurrentContext( NULL );
+    CGLClearDrawable( context );
+    CGLDestroyContext ( context );       
 #endif
 }

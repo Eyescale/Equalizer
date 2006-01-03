@@ -19,8 +19,13 @@ Pipe::Pipe()
         : eqNet::Base( CMD_PIPE_ALL ),
           _node(NULL),
           _display(EQ_UNDEFINED_UINT),
-          _screen(EQ_UNDEFINED_UINT),
-          _xDisplay(NULL)
+#ifdef GLX
+          _xDisplay(NULL),
+#endif
+#ifdef GLX
+          _cglDisplayID(NULL),
+#endif
+          _screen(EQ_UNDEFINED_UINT)
 {
     registerCommand( CMD_PIPE_CREATE_WINDOW, this, reinterpret_cast<CommandFcn>(
                          &eq::Pipe::_cmdCreateWindow ));
@@ -62,28 +67,15 @@ void Pipe::_removeWindow( Window* window )
 
 bool Pipe::supportsWindowSystem( const WindowSystem windowSystem ) const
 {
-    switch( windowSystem )
-    {
-        case WINDOW_SYSTEM_NONE:
-            return true;
-
-        case WINDOW_SYSTEM_GLX:
 #ifdef GLX
-            return true;
-#else
-            return false;
+    if( windowSystem == WINDOW_SYSTEM_GLX )
+        return true;
 #endif
-
-        case WINDOW_SYSTEM_CGL:
 #ifdef CGL
-            return true;
-#else
-            return false;
+    if( windowSystem == WINDOW_SYSTEM_CGL )
+        return true;
 #endif
-
-        default:
-            return false;
-    }
+    return false;
 }
 
 WindowSystem Pipe::getWindowSystem() const
@@ -174,17 +166,36 @@ void Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
         return;
     }
 
+    const WindowSystem windowSystem = getWindowSystem();
 #ifdef GLX
-    if( !_xDisplay )
+    if( windowSystem == WINDOW_SYSTEM_GLX )
     {
-        ERROR << "Pipe::init() did not set a valid display connection" << endl;
-        reply.result = false;
-        node->send( reply );
-        return;
-    }
+        if( !_xDisplay )
+        {
+            ERROR << "init() did not set a valid display connection" << endl;
+            reply.result = false;
+            node->send( reply );
+            return;
+        }
 
-    // TODO: gather and send back display information
-    INFO << "Using display " << DisplayString( _xDisplay ) << endl;
+        // TODO: gather and send back display information
+        INFO << "Using display " << DisplayString( _xDisplay ) << endl;
+    }
+#endif
+#ifdef CGL
+    if( windowSystem == WINDOW_SYSTEM_CGL )
+    {
+        if( !_cglDisplayID )
+        {
+            ERROR << "init() did not set a valid display id" << endl;
+            reply.result = false;
+            node->send( reply );
+            return;
+        }
+
+        // TODO: gather and send back display information
+        INFO << "Using display " << _display << endl;
+    }
 #endif
 
     node->send( reply );
@@ -218,6 +229,7 @@ bool Pipe::init()
             return initCGL();
 
         default:
+            ERROR << "Unknown windowing system: " << windowSystem << endl;
             return false;
     }
 }
@@ -260,7 +272,34 @@ bool Pipe::initGLX()
 bool Pipe::initCGL()
 {
 #ifdef CGL
-    return false;
+    const uint        display   = getDisplay();
+    CGDirectDisplayID displayID = CGMainDisplayID();
+
+    if( display != EQ_UNDEFINED_UINT )
+    {
+        CGDirectDisplayID displayIDs[display+1];
+        CGDisplayCount    nDisplays;
+
+        if( CGGetOnlineDisplayList( display+1, displayIDs, &nDisplays ) !=
+            kCGErrorSuccess )
+        {
+            ERROR << "Can't get display identifier for display " << display 
+                  << endl;
+            return false;
+        }
+
+        if( nDisplays <= display )
+        {
+            ERROR << "Can't get display identifier for display " << display 
+                  << ", not enough displays for this system" << endl;
+            return false;
+        }
+
+        displayID = displayIDs[display];
+    }
+
+    setCGLDisplayID( displayID );
+    return true;
 #else
     return false;
 #endif
@@ -296,5 +335,6 @@ void Pipe::exitGLX()
 void Pipe::exitCGL()
 {
 #ifdef CGL
+    setCGLDisplayID( NULL );
 #endif
 }

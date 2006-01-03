@@ -43,13 +43,6 @@ namespace eq
 
 #ifdef GLX
         /** 
-         * Returns the X11 display connection for this window.
-         * @return the X11 display connection for this window. 
-         */
-        Display* getXDisplay() const 
-            { return ( _pipe ? _pipe->getXDisplay() : NULL ); }
-
-        /** 
          * Set the X11 drawable ID for this window.
          * 
          * This function should only be called from init() or exit().
@@ -79,6 +72,22 @@ namespace eq
          */
         GLXContext getGLXContext() const { return _glXContext; }
 #endif
+#ifdef CGL
+        /** 
+         * Set the CGL rendering context for this window.
+         * 
+         * This function should only be called from init() or exit().
+         *
+         * @param drawable the CGL rendering context.
+         */
+        void setCGLContext( CGLContextObj context ) { _cglContext = context; }
+
+        /** 
+         * Returns the CGL rendering context.
+         * @return the CGL rendering context. 
+         */
+        CGLContextObj getCGLContext() const { return _cglContext; }
+#endif
 
         /** 
          * Returns the config of this window.
@@ -99,11 +108,15 @@ namespace eq
          * Initialises this window.
          */
         virtual bool init();
+        bool initGLX();
+        bool initCGL();
 
         /** 
          * Exit this window.
          */
         virtual void exit();
+        void exitGLX();
+        void exitCGL();
         //@}
 
     private:
@@ -119,6 +132,10 @@ namespace eq
         XID        _xDrawable;
         /** The glX rendering context. */
         GLXContext _glXContext;
+#endif
+#ifdef CGL
+        /** The CGL context. */
+        CGLContextObj _cglContext;
 #endif
 
 
