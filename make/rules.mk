@@ -2,11 +2,18 @@
 .PHONY: subdirs $(SUBDIRS) $(DEPENDENCIES)
 .SUFFIXES: .d
 
-# top level precompile commands
+# top level precompile command(s)
 precompile: $(CXX_DEFINES_FILE)
 
 $(CXX_DEFINES_FILE)::
-	echo $(CXX_DEFINES_FILE) > $@
+	@rm -f $@
+	@echo "/* Generated from compiler flags during compilation */" >> $@
+	@echo "#ifndef EQ_DEFINES_H" >> $@
+	@echo "#define EQ_DEFINES_H" >> $@
+	@for line in $(CXX_DEFINES_TXT); do  \
+		echo "#define $$line" >> $@ ;\
+	done
+	@echo "#endif // EQ_DEFINES_H" >> $@
 
 # recursive subdir rules
 subdirs: $(SUBDIRS) 
@@ -53,7 +60,7 @@ OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
 
 $(OBJECT_DIR)/%.o : %.cpp
 	@mkdir -p $(OBJECT_DIR)
-	@($(DEP_CXX) $(CXXFLAGS) $(INT_CXXFLAGS) -M -E $< | \
+	@($(DEP_CXX) $(CXXFLAGS) $(INT_CXXFLAGS) -DEXCLUDE_DEFINES -M -E $< | \
 		sed 's/\(.*:\)/$(OBJECT_DIR_ESCAPED)\/\1/' > \
 		$(@D)/$*.d ) || rm $(@D)/$*.d
 	$(CXX) $(CXXFLAGS) $(INT_CXXFLAGS) -c $< -o $@

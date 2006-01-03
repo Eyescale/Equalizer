@@ -5,6 +5,10 @@
 #ifndef EQBASE_BASE_H
 #define EQBASE_BASE_H
 
+#ifndef EXCLUDE_DEFINES // defined during dependency generation
+#  include "defines.h"
+#endif
+
 #include "log.h"
 
 #include <stdio.h>

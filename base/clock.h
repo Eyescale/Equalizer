@@ -6,6 +6,8 @@
 #ifndef EQBASE_CLOCK_H
 #define	EQBASE_CLOCK_H
 
+#include "base.h"
+
 #ifdef Darwin
 // http://developer.apple.com/qa/qa2004/qa1398.html
 #  include <mach/mach_time.h>
