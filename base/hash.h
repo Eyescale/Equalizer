@@ -28,7 +28,7 @@ namespace eqBase
          * 
          * @return the hash value of the pointer.
          */
-        size_t operator()(const T & N) const
+        size_t operator()(const T& N) const
             {  
                 return ((size_t)N);
             }
@@ -49,7 +49,7 @@ namespace eqBase
 
     /** A hash for const char* keys. */
     template<class T> class StringHash
-        : public Sgi::hash_map<const char *, T, hashString, hashString >
+        : public Sgi::hash_map<const char*, T, hashString, hashString >
     {};
 }
 
