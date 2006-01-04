@@ -298,7 +298,7 @@ bool eq::Window::initCGL()
     // glViewport( 0, 0, displayRect.size.width, displayRect.size.height );
 
     CGLSetCurrentContext( context );
-    CGLSetFullScreen( Context );
+    CGLSetFullScreen( context );
     glClear( GL_COLOR_BUFFER_BIT );
     CGLFlushDrawable( context );
     glClear( GL_COLOR_BUFFER_BIT );
