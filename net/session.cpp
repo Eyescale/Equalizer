@@ -16,7 +16,7 @@ using namespace std;
 
 #define MIN_ID_RANGE 1024
 
-Session::Session( const uint nCommands )
+Session::Session( const uint32_t nCommands )
         : Base( nCommands ),
           _id(INVALID_ID),
           _server(NULL),
@@ -33,10 +33,10 @@ Session::Session( const uint nCommands )
     INFO << "New " << this << endl;
 }
 
-uint Session::genIDs( const uint range )
+uint32_t Session::genIDs( const uint32_t range )
 {
     // try local pool
-    uint id = _idPool.genIDs( range );
+    uint32_t id = _idPool.genIDs( range );
     if( id || _isMaster ) // got an id or master pool is depleted
         return id;
 
@@ -55,7 +55,7 @@ uint Session::genIDs( const uint range )
     return _idPool.genIDs( range );
 }
 
-void Session::freeIDs( const uint start, const uint range )
+void Session::freeIDs( const uint32_t start, const uint32_t range )
 {
     _idPool.freeIDs( start, range );
     // could return IDs to master sometimes ?
@@ -63,11 +63,11 @@ void Session::freeIDs( const uint start, const uint range )
 
 void Session::registerObject( Object* object )
 {
-    const uint id = genIDs( 1 );
+    const uint32_t id = genIDs( 1 );
     addRegisteredObject( id, object );
 }
 
-void Session::addRegisteredObject( const uint id, Object* object )
+void Session::addRegisteredObject( const uint32_t id, Object* object )
 {
     ASSERT( !_registeredObjects[id] );
     _registeredObjects[id] = object;
@@ -79,7 +79,7 @@ void Session::addRegisteredObject( const uint id, Object* object )
 
 void Session::deregisterObject( Object* object )
 {
-    const uint id = object->getID();
+    const uint32_t id = object->getID();
     if( _registeredObjects.erase(id) == 0 )
         return;
     
@@ -105,7 +105,7 @@ void Session::dispatchPacket( Node* node, const Packet* packet)
         case DATATYPE_EQNET_OBJECT:
         {
             const ObjectPacket* objPacket = (ObjectPacket*)packet;
-            const uint          id        = objPacket->objectID;
+            const uint32_t      id        = objPacket->objectID;
             Object*             object    = _registeredObjects[id];
             
             if( !object )

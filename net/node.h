@@ -205,14 +205,14 @@ namespace eqNet
          * 
          * @param index the index of the connection description.
          */
-        void removeConnectionDescription( const uint32 index );
+        void removeConnectionDescription( const uint32_t index );
 
         /** 
          * Returns the number of stored connection descriptions. 
          * 
          * @return the number of stored connection descriptions. 
          */
-        uint32 nConnectionDescriptions() const 
+        uint32_t nConnectionDescriptions() const 
             { return _connectionDescriptions.size(); }
 
         /** 
@@ -222,7 +222,7 @@ namespace eqNet
          * @return the connection description.
          */
         eqBase::RefPtr<ConnectionDescription> getConnectionDescription(
-            const uint32 index )
+            const uint32_t index )
             { return _connectionDescriptions[index]; }
 
         /** 
@@ -250,7 +250,8 @@ namespace eqNet
          * @param count the number of message elements.
          * @return the success status of the transaction.
          */
-        bool send( const MessageType type, const void *ptr, const uint64 count);
+        bool send( const MessageType type, const void *ptr, 
+                   const uint64_t count);
 
         /** 
          * Sends a packet to this node.
@@ -266,7 +267,7 @@ namespace eqNet
                 if( _state != STATE_CONNECTED && _state != STATE_LISTENING )
                     return false;
 
-                const uint64 sent = _connection->send( packet );
+                const uint64_t sent = _connection->send( packet );
                 return ( sent==packet.size );
             }
 
@@ -280,12 +281,12 @@ namespace eqNet
          * @param size the size of the data in bytes.
          * @return the success status of the transaction.
          */
-        bool send( const void* data, const uint64 size )
+        bool send( const void* data, const uint64_t size )
             {
                 if( !_checkConnection() )
                     return false;
 
-                const uint64 sent = _connection->send( data, size );
+                const uint64_t sent = _connection->send( data, size );
                 return ( sent==size );
             }
 
@@ -310,7 +311,7 @@ namespace eqNet
          *         <code>NULL</code> if the message was not received.
          */
         //virtual void* notifyReceive( Node* fromNode, const MessageType type,
-        //                             const uint64 count );
+        //                             const uint64_t count );
 
         /** 
          * Receives data from this node.
@@ -323,10 +324,10 @@ namespace eqNet
          * @param size the size of the data in bytes.
          * @return the success status of the transaction.
          */
-        bool recv( const void* buffer, const uint64 size )
+        bool recv( const void* buffer, const uint64_t size )
             {
                 ASSERT( _state == STATE_CONNECTED || _state == STATE_LISTENING);
-                const uint64 received = _connection->recv( buffer, size );
+                const uint64_t received = _connection->recv( buffer, size );
                 return ( received==size );
             }
         //@}
@@ -537,8 +538,8 @@ namespace eqNet
         void _cmdMapSession( Node* node, const Packet* packet );
         void _cmdMapSessionReply( Node* node, const Packet* packet);
 
-        static uint64 _getMessageSize( const MessageType type, 
-                                       const uint64 count );
+        static uint64_t _getMessageSize( const MessageType type, 
+                                         const uint64_t count );
 
         friend inline std::ostream& operator << ( std::ostream& os,
                                                   const Node* node );

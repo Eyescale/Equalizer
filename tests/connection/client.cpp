@@ -22,9 +22,9 @@ int main( int argc, char **argv )
     connDesc->parameters.TCPIP.port = 4242;
     TEST( connection->connect( connDesc ));
 
-    const char   message[] = "buh!";
-    const uint64 nChars    = strlen( message ) + 1;
-    const char  *response  = (const char*)alloca( nChars );
+    const char      message[] = "buh!";
+    const uint64_t  nChars    = strlen( message ) + 1;
+    const char     *response  = (const char*)alloca( nChars );
 
     TEST( connection->send( message, nChars ) == nChars );
     TEST( connection->recv( response, nChars ) == nChars );

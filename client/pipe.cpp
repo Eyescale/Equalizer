@@ -18,14 +18,14 @@ using namespace std;
 Pipe::Pipe()
         : eqNet::Base( CMD_PIPE_ALL ),
           _node(NULL),
-          _display(EQ_UNDEFINED_UINT),
+          _display(EQ_UNDEFINED_UINT32),
 #ifdef GLX
           _xDisplay(NULL),
 #endif
 #ifdef GLX
           _cglDisplayID(NULL),
 #endif
-          _screen(EQ_UNDEFINED_UINT)
+          _screen(EQ_UNDEFINED_UINT32)
 {
     registerCommand( CMD_PIPE_CREATE_WINDOW, this, reinterpret_cast<CommandFcn>(
                          &eq::Pipe::_cmdCreateWindow ));
@@ -237,18 +237,18 @@ bool Pipe::init()
 bool Pipe::initGLX()
 {
 #ifdef GLX
-    ostringstream stringStream;
-    const uint    display = getDisplay();
-    const uint    screen  = getScreen();
+    ostringstream  stringStream;
+    const uint32_t display = getDisplay();
+    const uint32_t screen  = getScreen();
     
-    if( display != EQ_UNDEFINED_UINT )
+    if( display != EQ_UNDEFINED_UINT32 )
     { 
-        if( screen == EQ_UNDEFINED_UINT )
+        if( screen == EQ_UNDEFINED_UINT32 )
             stringStream << ":" << display;
         else
             stringStream << ":" << display << "." << screen;
     }
-    else if( screen != EQ_UNDEFINED_UINT )
+    else if( screen != EQ_UNDEFINED_UINT32 )
         stringStream << ":0." << screen;
     
     const string displayName  = stringStream.str();
@@ -272,10 +272,10 @@ bool Pipe::initGLX()
 bool Pipe::initCGL()
 {
 #ifdef CGL
-    const uint        display   = getDisplay();
+    const uint32_t    display   = getDisplay();
     CGDirectDisplayID displayID = CGMainDisplayID();
 
-    if( display != EQ_UNDEFINED_UINT )
+    if( display != EQ_UNDEFINED_UINT32 )
     {
         CGDirectDisplayID displayIDs[display+1];
         CGDisplayCount    nDisplays;

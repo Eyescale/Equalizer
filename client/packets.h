@@ -34,10 +34,10 @@ namespace eq
                 size    = sizeof( ServerChooseConfigPacket );
             }
 
-        uint requestID;
-        uint appNameLength;
-        uint renderClientLength;
-        uint compoundModes;
+        uint32_t requestID;
+        uint32_t appNameLength;
+        uint32_t renderClientLength;
+        uint32_t compoundModes;
     };
 
     struct ServerChooseConfigReplyPacket : public ServerPacket
@@ -50,9 +50,9 @@ namespace eq
                 requestID = requestPacket->requestID;
             }
 
-        uint requestID;
-        uint configID;
-        uint sessionNameLength;
+        uint32_t requestID;
+        uint32_t configID;
+        uint32_t sessionNameLength;
     };
 
     struct ServerReleaseConfigPacket : public ServerPacket
@@ -63,7 +63,7 @@ namespace eq
                 size    = sizeof( ServerReleaseConfigPacket );
             }
 
-        uint configID;
+        uint32_t configID;
     };
 
     //------------------------------------------------------------
@@ -71,13 +71,13 @@ namespace eq
     //------------------------------------------------------------
     struct ConfigInitPacket : public eqNet::SessionPacket
     {
-        ConfigInitPacket( const uint configID ) 
+        ConfigInitPacket( const uint32_t configID ) 
                 : eqNet::SessionPacket( configID )
             {
                 command   = CMD_CONFIG_INIT;
                 size      = sizeof( ConfigInitPacket );
             }
-        uint requestID;
+        uint32_t requestID;
     };
 
     struct ConfigInitReplyPacket : public eqNet::SessionPacket
@@ -89,19 +89,19 @@ namespace eq
                 size      = sizeof( ConfigInitReplyPacket );
                 requestID = requestPacket->requestID;
             }
-        uint requestID;
-        bool result;
+        uint32_t requestID;
+        bool     result;
     };
 
     struct ConfigExitPacket : public eqNet::SessionPacket
     {
-        ConfigExitPacket( const uint configID )
+        ConfigExitPacket( const uint32_t configID )
                 : eqNet::SessionPacket( configID )
             {
                 command   = CMD_CONFIG_EXIT;
                 size      = sizeof( ConfigExitPacket );
             }
-        uint requestID;
+        uint32_t requestID;
     };
 
     struct ConfigExitReplyPacket : public eqNet::SessionPacket
@@ -113,8 +113,8 @@ namespace eq
                 size      = sizeof( ConfigExitReplyPacket );
                 requestID = requestPacket->requestID;
             }
-        uint requestID;
-        bool result;
+        uint32_t requestID;
+        bool     result;
     };
 
     //------------------------------------------------------------
@@ -128,15 +128,15 @@ namespace eq
                 size    = sizeof( NodeCreateConfigPacket );
             }
 
-        uint configID;
-        uint nameLength;
+        uint32_t configID;
+        uint32_t nameLength;
     };
 
     // This packet is similar to the Create packets, except that the node
     // already exists and is registered and initialized with this one packet.
     struct NodeInitPacket : public eqNet::NodePacket
     {
-        NodeInitPacket( const uint configID, const uint nodeID )
+        NodeInitPacket( const uint32_t configID, const uint32_t nodeID )
             {
                 command        = CMD_NODE_INIT;
                 size           = sizeof( NodeInitPacket );
@@ -144,9 +144,9 @@ namespace eq
                 this->nodeID   = nodeID;
             }
 
-        uint requestID;
-        uint configID;
-        uint nodeID;
+        uint32_t requestID;
+        uint32_t configID;
+        uint32_t nodeID;
     };
 
     struct NodeInitReplyPacket : public eqNet::ObjectPacket
@@ -160,20 +160,20 @@ namespace eq
                 size      = sizeof( NodeInitReplyPacket );
             }
 
-        uint   requestID;
-        bool   result;
+        uint32_t requestID;
+        bool     result;
     };
 
     struct NodeExitPacket : public eqNet::ObjectPacket
     {
-        NodeExitPacket( const uint configID, const uint nodeID )
+        NodeExitPacket( const uint32_t configID, const uint32_t nodeID )
                 : eqNet::ObjectPacket( configID, nodeID )
             {
                 command = CMD_NODE_EXIT;
                 size    = sizeof( NodeExitPacket );
             }
 
-        uint   requestID;
+        uint32_t requestID;
     };
 
     struct NodeExitReplyPacket : public eqNet::ObjectPacket
@@ -187,12 +187,12 @@ namespace eq
                 size      = sizeof( NodeExitReplyPacket );
             }
 
-        uint   requestID;
+        uint32_t requestID;
     };
 
     struct NodeStopPacket : public eqNet::ObjectPacket
     {
-        NodeStopPacket( const uint configID, const uint nodeID )
+        NodeStopPacket( const uint32_t configID, const uint32_t nodeID )
                 : eqNet::ObjectPacket( configID, nodeID )
             {
                 command = CMD_NODE_STOP;
@@ -202,26 +202,26 @@ namespace eq
 
     struct NodeCreatePipePacket : public eqNet::ObjectPacket
     {
-        NodeCreatePipePacket( const uint configID, const uint nodeID )
+        NodeCreatePipePacket( const uint32_t configID, const uint32_t nodeID )
                 : eqNet::ObjectPacket( configID, nodeID )
             {
                 command = CMD_NODE_CREATE_PIPE;
                 size    = sizeof( NodeCreatePipePacket );
             }
 
-        uint   pipeID;
+        uint32_t pipeID;
     };
 
     struct NodeDestroyPipePacket : public eqNet::ObjectPacket
     {
-        NodeDestroyPipePacket( const uint configID, const uint nodeID )
+        NodeDestroyPipePacket( const uint32_t configID, const uint32_t nodeID )
                 : eqNet::ObjectPacket( configID, nodeID )
             {
                 command = CMD_NODE_DESTROY_PIPE;
                 size    = sizeof( NodeDestroyPipePacket );
             }
 
-        uint   pipeID;
+        uint32_t pipeID;
     };
     
     //------------------------------------------------------------
@@ -229,16 +229,16 @@ namespace eq
     //------------------------------------------------------------
     struct PipeInitPacket : public eqNet::ObjectPacket
     {
-        PipeInitPacket( const uint configID, const uint pipeID )
+        PipeInitPacket( const uint32_t configID, const uint32_t pipeID )
                 : eqNet::ObjectPacket( configID, pipeID )
             {
                 command = CMD_PIPE_INIT;
                 size    = sizeof( PipeInitPacket );
             }
 
-        uint requestID;
-        uint display;
-        uint screen;
+        uint32_t requestID;
+        uint32_t display;
+        uint32_t screen;
     };
 
     struct PipeInitReplyPacket : public eqNet::ObjectPacket
@@ -252,20 +252,20 @@ namespace eq
                 size      = sizeof( PipeInitReplyPacket );
             }
 
-        uint   requestID;
-        bool   result;
+        uint32_t requestID;
+        bool     result;
     };
 
     struct PipeExitPacket : public eqNet::ObjectPacket
     {
-        PipeExitPacket( const uint configID, const uint pipeID )
+        PipeExitPacket( const uint32_t configID, const uint32_t pipeID )
                 : eqNet::ObjectPacket( configID, pipeID )
             {
                 command = CMD_PIPE_EXIT;
                 size    = sizeof( PipeExitPacket );
             }
 
-        uint   requestID;
+        uint32_t requestID;
     };
 
     struct PipeExitReplyPacket : public eqNet::ObjectPacket
@@ -279,31 +279,31 @@ namespace eq
                 size      = sizeof( PipeExitReplyPacket );
             }
 
-        uint   requestID;
+        uint32_t requestID;
     };
 
     struct PipeCreateWindowPacket : public eqNet::ObjectPacket
     {
-        PipeCreateWindowPacket( const uint configID, const uint pipeID )
+        PipeCreateWindowPacket( const uint32_t configID, const uint32_t pipeID )
                 : eqNet::ObjectPacket( configID, pipeID )
             {
                 command = CMD_PIPE_CREATE_WINDOW;
                 size    = sizeof( PipeCreateWindowPacket );
             }
 
-        uint   windowID;
+        uint32_t windowID;
     };
 
     struct PipeDestroyWindowPacket : public eqNet::ObjectPacket
     {
-        PipeDestroyWindowPacket( const uint configID, const uint pipeID )
+        PipeDestroyWindowPacket( const uint32_t configID, const uint32_t pipeID )
                 : eqNet::ObjectPacket( configID, pipeID )
             {
                 command = CMD_PIPE_DESTROY_WINDOW;
                 size    = sizeof( PipeDestroyWindowPacket );
             }
 
-        uint   windowID;
+        uint32_t windowID;
     };
 
     //------------------------------------------------------------
@@ -311,14 +311,14 @@ namespace eq
     //------------------------------------------------------------
     struct WindowInitPacket : public eqNet::ObjectPacket
     {
-        WindowInitPacket( const uint configID, const uint windowID )
+        WindowInitPacket( const uint32_t configID, const uint32_t windowID )
                 : eqNet::ObjectPacket( configID, windowID )
             {
                 command = CMD_WINDOW_INIT;
                 size    = sizeof( WindowInitPacket );
             }
 
-        uint   requestID;
+        uint32_t requestID;
     };
 
     struct WindowInitReplyPacket : public eqNet::ObjectPacket
@@ -332,20 +332,20 @@ namespace eq
                 size      = sizeof( WindowInitReplyPacket );
             }
 
-        uint   requestID;
-        bool   result;
+        uint32_t requestID;
+        bool     result;
     };
 
     struct WindowExitPacket : public eqNet::ObjectPacket
     {
-        WindowExitPacket( const uint configID, const uint windowID )
+        WindowExitPacket( const uint32_t configID, const uint32_t windowID )
                 : eqNet::ObjectPacket( configID, windowID )
             {
                 command = CMD_WINDOW_EXIT;
                 size    = sizeof( WindowExitPacket );
             }
 
-        uint   requestID;
+        uint32_t requestID;
     };
 
     struct WindowExitReplyPacket : public eqNet::ObjectPacket
@@ -359,31 +359,33 @@ namespace eq
                 size      = sizeof( WindowExitReplyPacket );
             }
 
-        uint   requestID;
+        uint32_t requestID;
     };
 
     struct WindowCreateChannelPacket : public eqNet::ObjectPacket
     {
-        WindowCreateChannelPacket( const uint configID, const uint windowID )
+        WindowCreateChannelPacket( const uint32_t configID,
+                                   const uint32_t windowID )
                 : eqNet::ObjectPacket( configID, windowID )
             {
                 command = CMD_WINDOW_CREATE_CHANNEL;
                 size    = sizeof( WindowCreateChannelPacket );
             }
 
-        uint   channelID;
+        uint32_t channelID;
     };
 
     struct WindowDestroyChannelPacket : public eqNet::ObjectPacket
     {
-        WindowDestroyChannelPacket( const uint configID, const uint windowID )
+        WindowDestroyChannelPacket( const uint32_t configID,
+                                    const uint32_t windowID )
                 : eqNet::ObjectPacket( configID, windowID )
             {
                 command = CMD_WINDOW_DESTROY_CHANNEL;
                 size    = sizeof( WindowDestroyChannelPacket );
             }
 
-        uint   channelID;
+        uint32_t channelID;
     };
 
     //------------------------------------------------------------
@@ -391,14 +393,14 @@ namespace eq
     //------------------------------------------------------------
     struct ChannelInitPacket : public eqNet::ObjectPacket
     {
-        ChannelInitPacket( const uint configID, const uint channelID )
+        ChannelInitPacket( const uint32_t configID, const uint32_t channelID )
                 : eqNet::ObjectPacket( configID, channelID )
             {
                 command = CMD_CHANNEL_INIT;
                 size    = sizeof( ChannelInitPacket );
             }
 
-        uint   requestID;
+        uint32_t requestID;
     };
 
     struct ChannelInitReplyPacket : public eqNet::ObjectPacket
@@ -412,20 +414,20 @@ namespace eq
                 size      = sizeof( ChannelInitReplyPacket );
             }
 
-        uint   requestID;
-        bool   result;
+        uint32_t requestID;
+        bool     result;
     };
 
     struct ChannelExitPacket : public eqNet::ObjectPacket
     {
-        ChannelExitPacket( const uint configID, const uint channelID )
+        ChannelExitPacket( const uint32_t configID, const uint32_t channelID )
                 : eqNet::ObjectPacket( configID, channelID )
             {
                 command = CMD_CHANNEL_EXIT;
                 size    = sizeof( ChannelExitPacket );
             }
 
-        uint   requestID;
+        uint32_t requestID;
     };
 
     struct ChannelExitReplyPacket : public eqNet::ObjectPacket
@@ -439,7 +441,7 @@ namespace eq
                 size      = sizeof( ChannelExitReplyPacket );
             }
 
-        uint   requestID;
+        uint32_t requestID;
     };
 
 

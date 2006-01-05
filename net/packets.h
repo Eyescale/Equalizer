@@ -28,9 +28,9 @@ namespace eqNet
      */
     struct Packet
     {
-        uint64  size;
-        uint    datatype;
-        uint    command;
+        uint64_t size;
+        uint32_t datatype;
+        uint32_t command;
     };
 
     //------------------------------------------------------------
@@ -58,7 +58,7 @@ namespace eqNet
                 size     = sizeof( NodeMessagePacket ); 
             }
         MessageType type;
-        uint64      nElements;
+        uint64_t    nElements;
     };
 
     struct NodeMapSessionPacket : public NodePacket
@@ -70,9 +70,9 @@ namespace eqNet
                 sessionID = INVALID_ID;
             }
 
-        uint requestID;
-        uint sessionID;
-        uint nameLength;
+        uint32_t requestID;
+        uint32_t sessionID;
+        uint32_t nameLength;
     };
 
     struct NodeMapSessionReplyPacket : public NodePacket
@@ -84,9 +84,9 @@ namespace eqNet
                 requestID = requestPacket->requestID;
             }
             
-        uint requestID;
-        uint sessionID;
-        uint nameLength;
+        uint32_t requestID;
+        uint32_t sessionID;
+        uint32_t nameLength;
     };
 
     struct NodeConnectPacket : public NodePacket
@@ -98,8 +98,8 @@ namespace eqNet
                 wasLaunched = false;
             }
 
-        bool   wasLaunched;
-        uint64 launchID;
+        bool     wasLaunched;
+        uint64_t launchID;
     };
 
     //------------------------------------------------------------
@@ -107,24 +107,25 @@ namespace eqNet
     //------------------------------------------------------------
     struct SessionPacket : public NodePacket
     {
-        SessionPacket( const uint sessionID )
+        SessionPacket( const uint32_t sessionID )
             {
                 datatype        = DATATYPE_EQNET_SESSION;
                 this->sessionID = sessionID;
             }
-        uint sessionID;
+        uint32_t sessionID;
     };
 
     struct SessionGenIDsPacket : public SessionPacket
     {
-        SessionGenIDsPacket( const uint sessionID ) : SessionPacket(sessionID)
+        SessionGenIDsPacket( const uint32_t sessionID ) 
+                : SessionPacket(sessionID)
             {
                 command = CMD_SESSION_GEN_IDS;
                 size    = sizeof( SessionGenIDsPacket ); 
             }
 
-        uint requestID;
-        uint range;
+        uint32_t requestID;
+        uint32_t range;
     };
 
     struct SessionGenIDsReplyPacket : public SessionPacket
@@ -137,8 +138,8 @@ namespace eqNet
                 requestID = request->requestID;
             }
 
-        uint requestID;
-        uint id;
+        uint32_t requestID;
+        uint32_t id;
     };
 
     //------------------------------------------------------------
@@ -146,7 +147,7 @@ namespace eqNet
     //------------------------------------------------------------
     struct ObjectPacket : public SessionPacket
     {
-        ObjectPacket( const uint sessionID, const uint objectID )
+        ObjectPacket( const uint32_t sessionID, const uint32_t objectID )
                 : SessionPacket( sessionID )
             {
                 datatype       = DATATYPE_EQNET_OBJECT; 
@@ -154,7 +155,7 @@ namespace eqNet
                 ASSERT( objectID != INVALID_ID );
                 ASSERT( objectID != 0 );
             }
-        uint objectID;
+        uint32_t objectID;
     };
 
     //------------------------------------------------------------
@@ -162,13 +163,13 @@ namespace eqNet
     //------------------------------------------------------------
     struct UserPacket : public SessionPacket
     {
-        UserPacket( const uint sessionID, const uint userID )
+        UserPacket( const uint32_t sessionID, const uint32_t userID )
                 : SessionPacket( sessionID )
             {
                 datatype     = DATATYPE_EQNET_USER; 
                 this->userID = userID;
             }
-        uint userID;
+        uint32_t userID;
     };
 
 

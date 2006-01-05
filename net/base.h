@@ -18,7 +18,7 @@ namespace eqNet
     class Base
     {
     public:
-        Base( const uint nCommands );
+        Base( const uint32_t nCommands );
         virtual ~Base();        
 
         /** 
@@ -46,7 +46,7 @@ namespace eqNet
          * @param thisPointer the <code>this</code> pointer of the caller.
          * @param handler the member function to handle the command.
          */
-        void registerCommand( const uint command, void* thisPointer, 
+        void registerCommand( const uint32_t command, void* thisPointer, 
                               CommandFcn handler );
 
         /** Registers request packets waiting for a return value. */
@@ -62,7 +62,7 @@ namespace eqNet
 
     private:
         /** The command handler function table. */
-        uint        _nCommands;
+        uint32_t    _nCommands;
         CommandFcn* _commandFunctions;
         Base**      _commandFunctionsThis;
     };

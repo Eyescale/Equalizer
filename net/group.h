@@ -19,7 +19,7 @@ namespace eqNet
     {
     public:
         //void               broadCast( uint gid_to, Type type, void *ptr,
-        //uint64 count, uint flags );
+        //uint64_t count, uint flags );
 
         /** 
          * Performs a barrier operation with all members of this group.

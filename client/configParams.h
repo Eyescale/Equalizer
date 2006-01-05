@@ -27,7 +27,7 @@ namespace eq
 
         std::string appName;
         std::string renderClient;
-        uint        compoundModes;
+        uint32_t    compoundModes;
     private:
     };
 }

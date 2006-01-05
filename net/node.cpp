@@ -25,7 +25,7 @@ extern char **environ;
 //----------------------------------------------------------------------
 // State management
 //----------------------------------------------------------------------
-Node::Node( const uint nCommands )
+Node::Node( const uint32_t nCommands )
         : Base( nCommands ),
           _state(STATE_STOPPED),
           _autoLaunch(false),
@@ -180,7 +180,7 @@ bool Node::disconnect( Node* node )
 //----------------------------------------------------------------------
 // Node functionality
 //----------------------------------------------------------------------
-uint64 Node::_getMessageSize( const MessageType type, const uint64 count )
+uint64_t Node::_getMessageSize( const MessageType type, const uint64_t count )
 {
     switch( type )
     {
@@ -195,7 +195,7 @@ uint64 Node::_getMessageSize( const MessageType type, const uint64 count )
     }
 }
 
-bool Node::send( const MessageType type, const void *ptr, const uint64 count )
+bool Node::send( const MessageType type, const void *ptr, const uint64_t count )
 {
     NodeMessagePacket packet;
     packet.type = type;
@@ -204,14 +204,14 @@ bool Node::send( const MessageType type, const void *ptr, const uint64 count )
     if( !send( packet ))
         return false;
 
-    const uint64 size = _getMessageSize( type, count );
+    const uint64_t size = _getMessageSize( type, count );
     if( !send( ptr, size ))
         return false;
 
     return true;
 }
 
-void Node::addSession( Session* session, Node* server, const uint sessionID,
+void Node::addSession( Session* session, Node* server, const uint32_t sessionID,
                        const string& name )
 {
     session->_localNode = this;
@@ -234,7 +234,7 @@ bool Node::mapSession( Node* server, Session* session, const string& name )
 {
     if( server == this && isLocal( ))
     {
-        uint sessionID = INVALID_ID;
+        uint32_t sessionID = INVALID_ID;
         while( sessionID == INVALID_ID ||
                _sessions.find( sessionID ) != _sessions.end( ))
         {
@@ -255,7 +255,7 @@ bool Node::mapSession( Node* server, Session* session, const string& name )
     return (bool)_requestHandler.waitRequest( packet.requestID );
 }
 
-bool Node::mapSession( Node* server, Session* session, const uint id )
+bool Node::mapSession( Node* server, Session* session, const uint32_t id )
 {
     ASSERT( id != INVALID_ID );
 
@@ -333,7 +333,7 @@ void Node::handleConnect( RefPtr<Connection> connection )
         node = (Node*)packet.launchID;
         INFO << "Launched " << node.get() << " connecting" << endl;
  
-        const uint requestID = node->_pendingRequestID;
+        const uint32_t requestID = node->_pendingRequestID;
         ASSERT( requestID != INVALID_ID );
 
         _requestHandler.serveRequest( requestID, NULL );
@@ -365,7 +365,7 @@ void Node::_handleRequest( Node* node )
 {
     VERB << "Handle request from " << node << endl;
 
-    uint64 size;
+    uint64_t size;
     bool gotData = node->recv( &size, sizeof( size ));
     ASSERT( gotData );
     ASSERT( size );
@@ -388,7 +388,7 @@ void Node::dispatchPacket( Node* node, const Packet* packet )
 {
     VERB << "dispatch " << packet << " from " << (void*)node << " by " 
          << (void*)this << endl;
-    const uint datatype = packet->datatype;
+    const uint32_t datatype = packet->datatype;
 
     switch( datatype )
     {
@@ -401,7 +401,7 @@ void Node::dispatchPacket( Node* node, const Packet* packet )
         case DATATYPE_EQNET_USER:
         {
             const SessionPacket* sessionPacket = (SessionPacket*)packet;
-            const uint           id            = sessionPacket->sessionID;
+            const uint32_t       id            = sessionPacket->sessionID;
             Session*             session       = _sessions[id];
             ASSERTINFO( session, id );
             
@@ -438,7 +438,7 @@ void Node::_cmdMapSession( Node* node, const Packet* pkg )
     INFO << "Cmd map session: " << packet << endl;
     
     Session* session;
-    uint     sessionID   = packet->sessionID;
+    uint32_t sessionID   = packet->sessionID;
     char*    sessionName = NULL;
 
     if( sessionID == INVALID_ID ) // mapped by name
@@ -480,8 +480,8 @@ void Node::_cmdMapSessionReply( Node* node, const Packet* pkg)
     NodeMapSessionReplyPacket* packet  = (NodeMapSessionReplyPacket*)pkg;
     INFO << "Cmd map session reply: " << packet << endl;
 
-    const uint requestID = packet->requestID;
-    Session*   session   = (Session*)_requestHandler.getRequestData( requestID);
+    const uint32_t requestID = packet->requestID;
+    Session*    session = (Session*)_requestHandler.getRequestData( requestID );
     ASSERT( session );
 
     if( packet->sessionID == INVALID_ID )
@@ -612,9 +612,9 @@ bool Node::_launch( RefPtr<ConnectionDescription> description )
     Node* localNode = Node::getLocalNode();
     ASSERT( localNode );
 
-    const uint requestID = 
+    const uint32_t requestID     = 
         localNode->_requestHandler.registerRequest( description.get( ));
-    string launchCommand = _createLaunchCommand( description );
+    string         launchCommand = _createLaunchCommand( description );
 
     if( !Launcher::run( launchCommand ))
     {
@@ -735,9 +735,9 @@ bool Node::runClient( const string& clientArgs )
         return false;
     }
 
-    const string request    = clientArgs.substr( 0, colonPos );
-    const uint64 requestID  = atoll( request.c_str( ));
-    const string serverDesc = clientArgs.substr( colonPos + 1 );
+    const string   request    = clientArgs.substr( 0, colonPos );
+    const uint64_t requestID  = atoll( request.c_str( ));
+    const string   serverDesc = clientArgs.substr( colonPos + 1 );
 
     RefPtr<ConnectionDescription> connectionDesc = new ConnectionDescription;
     if( !connectionDesc->fromString( serverDesc ))

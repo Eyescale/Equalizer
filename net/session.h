@@ -32,7 +32,7 @@ namespace eqNet
          * @param nCommands the highest command ID to be handled by the node, at
          *                  least <code>CMD_SESSION_CUSTOM</code>.
          */
-        Session( const uint nCommands = CMD_SESSION_CUSTOM );
+        Session( const uint32_t nCommands = CMD_SESSION_CUSTOM );
 
         /** 
          * Returns the name of the session.
@@ -46,7 +46,7 @@ namespace eqNet
          * 
          * @return the identifier.
          */
-        uint getID() const { return _id; }
+        uint32_t getID() const { return _id; }
 
         /** 
          * Returns the local node holding this session.
@@ -73,7 +73,7 @@ namespace eqNet
          * @param range the size of the block.
          * @return the first identifier of the block.
          */
-        uint  genIDs( const uint range );
+        uint32_t  genIDs( const uint32_t range );
 
         /** 
          * Frees a continous block of unique identifiers.
@@ -81,7 +81,7 @@ namespace eqNet
          * @param start the first identifier in the block.
          * @param range the size of the block.
          */
-        void  freeIDs( const uint start, const uint range );
+        void  freeIDs( const uint32_t start, const uint32_t range );
 
         /** 
          * Registers a new distributed object.
@@ -98,7 +98,7 @@ namespace eqNet
          * @param id the object's unique identifier.
          * @param object the object instance.
          */
-        void addRegisteredObject( const uint id, Object* object );
+        void addRegisteredObject( const uint32_t id, Object* object );
 
         /** 
          * Returns a registered object.
@@ -106,7 +106,7 @@ namespace eqNet
          * @param id the object's identifier.
          * @return the registered object.
          */
-        Object* getRegisteredObject( const uint id )
+        Object* getRegisteredObject( const uint32_t id )
             { return _registeredObjects[id]; }
 
         /** 
@@ -130,7 +130,7 @@ namespace eqNet
         bool send( const Packet& packet ) { return _server->send( packet ); }
 
         /** The session's identifier. */
-        uint _id;
+        uint32_t _id;
         
     private:
         friend class Node;

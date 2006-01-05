@@ -46,7 +46,7 @@ namespace eqBase
          *             <code>NULL</code>.
          * @return the request identifier.
          */
-        uint registerRequest( void* data = NULL );
+        uint32_t registerRequest( void* data = NULL );
 
         /** 
          * Unregisters a request.
@@ -56,7 +56,7 @@ namespace eqBase
          * 
          * @param requestID the request identifier.
          */
-        void unregisterRequest( const uint requestID );
+        void unregisterRequest( const uint32_t requestID );
 
         /** 
          * Waits a given time for the completion of a request.
@@ -72,8 +72,8 @@ namespace eqBase
          * @return the result of the request, or <code>NULL</code> if the
          *         request was not served.
          */
-        void* waitRequest( const uint requestID, bool* success = NULL,
-                           const uint timeout = EQ_TIMEOUT_INDEFINITE );
+        void* waitRequest( const uint32_t requestID, bool* success = NULL,
+                           const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
 
         /** 
          * Retrieves the user-specific data for a request.
@@ -81,7 +81,7 @@ namespace eqBase
          * @param requestID the request identifier.
          * @return the user-specific data for the request.
          */
-        void* getRequestData( const uint requestID );
+        void* getRequestData( const uint32_t requestID );
 
         /** 
          * Server a request.
@@ -89,7 +89,7 @@ namespace eqBase
          * @param requestID the request identifier.
          * @param result the result of the request.
          */
-        void serveRequest( const uint requestID, void* result );
+        void serveRequest( const uint32_t requestID, void* result );
 
     private:
         Thread::Type _type;
@@ -108,7 +108,7 @@ namespace eqBase
             void*      result;
         };
         
-        uint                          _requestID;
+        uint32_t                      _requestID;
         Sgi::hash_map<uint, Request*> _requests;
         std::list<Request*>           _freeRequests;
     };

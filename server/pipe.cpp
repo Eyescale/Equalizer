@@ -18,8 +18,8 @@ Pipe::Pipe()
           _used( 0 ),
           _node( NULL ),
           _pendingRequestID(INVALID_ID),
-          _display(EQ_UNDEFINED_UINT),
-          _screen(EQ_UNDEFINED_UINT)
+          _display(EQ_UNDEFINED_UINT32),
+          _screen(EQ_UNDEFINED_UINT32)
 {
     registerCommand( eq::CMD_PIPE_INIT_REPLY, this,reinterpret_cast<CommandFcn>(
                          &eqs::Pipe::_cmdInitReply ));

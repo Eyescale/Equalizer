@@ -39,7 +39,7 @@ namespace eqNet
         ConnectionType type;
 
         /** The bandwidth in kilobyte per second for this connection. */
-        uint64 bandwidthKBS;
+        uint64_t bandwidthKBS;
 
         /** 
          * The command to spawn a new process on the node, e.g., 

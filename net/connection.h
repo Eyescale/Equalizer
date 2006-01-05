@@ -101,7 +101,7 @@ namespace eqNet
          * @param bytes the number of bytes to read.
          * @return the number of bytes received.
          */
-        virtual uint64 recv( const void* buffer, const uint64 bytes )
+        virtual uint64_t recv( const void* buffer, const uint64_t bytes )
             {return 0;}
 
         /** 
@@ -111,7 +111,7 @@ namespace eqNet
          * @param bytes the number of bytes to send.
          * @return the number of bytes send.
          */
-        virtual uint64 send( const void* buffer, const uint64 bytes) const
+        virtual uint64_t send( const void* buffer, const uint64_t bytes) const
             {return 0;}
 
         /** 
@@ -120,7 +120,7 @@ namespace eqNet
          * @param packet the message packet.
          * @return the number of bytes send.
          */
-        uint64 send( const Packet &packet ) const
+        uint64_t send( const Packet &packet ) const
             {return send( &packet, packet.size); }
         //@}
 

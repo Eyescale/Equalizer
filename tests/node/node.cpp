@@ -24,7 +24,7 @@ struct DataPacket : public NodePacket
             size     = sizeof( DataPacket );
         }
     
-    uint nBytes;
+    uint32_t nBytes;
 };
 
 class Server : public Node
@@ -43,8 +43,8 @@ protected:
 
             DataPacket* packet = (DataPacket*)pkg;
 
-            uint64 nBytes = packet->nBytes;
-            char*  data   = (char*)alloca( nBytes );
+            uint64_t nBytes = packet->nBytes;
+            char*    data   = (char*)alloca( nBytes );
 
             if( !node->recv( data, nBytes ))
                 exit( EXIT_FAILURE );

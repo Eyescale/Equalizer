@@ -109,7 +109,7 @@ sub generateAsync( $; $; $ )
     print "HEADER             command = $command;\n";
     print "HEADER             size    = sizeof( $packetType );\n";
     print "HEADER         }\n";
-    print "HEADER         uint requestID;\n";
+    print "HEADER         uint32_t requestID;\n";
     
     # asynchronous send function
     print "CODE   \n";
@@ -160,7 +160,7 @@ sub generateAsync( $; $; $ )
 
         if( $type =~ /\*$/ ) # pointer to object -> use ID
         {
-            print "HEADER         uint $name" . "ID;\n";
+            print "HEADER         uint32_t $name" . "ID;\n";
             print "CODE       packet.$name" . "ID = $name->getID();\n";
         }
         else
@@ -191,7 +191,7 @@ sub generateAsync( $; $; $ )
     }
     else
     {
-        print "CODE       const uint requestID = _pendingRequestID;\n";
+        print "CODE       const uint32_t requestID = _pendingRequestID;\n";
         print "CODE       _pendingRequestID    = INVALID_ID;\n";
         print "CODE       return ($functionRet)_requestHandler.waitRequest( requestID );\n";
     }
