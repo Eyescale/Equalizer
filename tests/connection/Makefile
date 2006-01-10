@@ -2,7 +2,10 @@
 include $(TOP)/make/system.mk
 
 CXXFLAGS += -I.. -L$(SAMPLE_LIB_DIR) -leqnet
-PROGRAMS = client server pipe
+
+ifeq "${ARCH}" "Linux"
+SA_CXXFLAGS += -lrt
+endif
 
 CLEAN = $(PROGRAMS)
 

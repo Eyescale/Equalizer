@@ -12,7 +12,10 @@
 #include "session.h"
 
 #include <alloca.h>
+#include <fcntl.h>
 #include <sstream>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 using namespace eqBase;
 using namespace eqNet;
@@ -238,8 +241,15 @@ bool Node::mapSession( Node* server, Session* session, const string& name )
         while( sessionID == INVALID_ID ||
                _sessions.find( sessionID ) != _sessions.end( ))
         {
+#ifdef __linux__
+	    int fd = ::open( "/dev/random", O_RDONLY );
+	    ASSERT( fd != -1 );
+	    int read = ::read( fd, &sessionID, sizeof( sessionID ));
+	    ASSERT( read == sizeof( sessionID ));
+#else
             srandomdev();
             sessionID = random();
+#endif
         }
             
         addSession( session, server, sessionID, name );

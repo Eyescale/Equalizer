@@ -1,6 +1,8 @@
 
 #include <eq/base/idPool.h>
 
+#include <stdlib.h>
+
 using namespace eqBase;
 using namespace std;
 
@@ -11,7 +13,11 @@ int main( int argc, char **argv )
 
     while( nLoops-- )
     {
+#ifdef __linux__
+	srandom( getpid( ));
+#else
         srandomdev();
+#endif
         uint range = (uint)(random() * .0001);
         uint id    = pool.genIDs( range );
         

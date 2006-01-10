@@ -22,7 +22,7 @@ Pipe::Pipe()
 #ifdef GLX
           _xDisplay(NULL),
 #endif
-#ifdef GLX
+#ifdef CGL
           _cglDisplayID(NULL),
 #endif
           _screen(EQ_UNDEFINED_UINT32)

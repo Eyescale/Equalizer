@@ -24,6 +24,10 @@ MODULE  = server
 LDFLAGS     += -L$(LIBRARY_DIR) -leqnet 
 SA_CXXFLAGS += -L$(SAMPLE_LIB_DIR) -leqserver
 
+ifeq "${ARCH}" "Linux"
+SA_CXXFLAGS += -lrt
+endif
+
 CLEAN = $(PROGRAMS)
 
 all: $(PROGRAMS)

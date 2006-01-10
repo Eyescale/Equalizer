@@ -31,6 +31,10 @@ SOURCES = \
 CXXFLAGS += $(WINDOW_SYSTEM_INCS)
 LDFLAGS  += -leqnet $(WINDOW_SYSTEM_LIBS)
 
+# ifeq "${ARCH}" "Linux"
+# LDFLAGS += -lrt
+# endif
+
 all: $(HEADERS) $(DYNAMIC_LIB)
 
 $(STATIC_LIB): $(SAMPLE_LIB_DIR)/libeqnet.a
