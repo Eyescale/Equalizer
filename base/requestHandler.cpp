@@ -28,7 +28,7 @@ RequestHandler::~RequestHandler()
     }
 }
 
-uint RequestHandler::registerRequest( void* data )
+uint32_t RequestHandler::registerRequest( void* data )
 {
 #ifdef CHECK_THREADSAFETY
     if( !registerThread )
@@ -47,13 +47,13 @@ uint RequestHandler::registerRequest( void* data )
     }
 
     request->data = data;
-    const uint requestID = _requestID++;
+    const uint32_t requestID = _requestID++;
     _requests[requestID] = request;
     
     return requestID;
 }
 
-void RequestHandler::unregisterRequest( const uint requestID )
+void RequestHandler::unregisterRequest( const uint32_t requestID )
 {
 #ifdef CHECK_THREADSAFETY
     if( !registerThread )
@@ -70,8 +70,8 @@ void RequestHandler::unregisterRequest( const uint requestID )
     _freeRequests.push_front( request );
 }
 
-void* RequestHandler::waitRequest( const uint requestID, bool* success,
-                                   const uint timeout )
+void* RequestHandler::waitRequest( const uint32_t requestID, bool* success,
+                                   const uint32_t timeout )
 {
 #ifdef CHECK_THREADSAFETY
     ASSERT( registerThread == pthread_self( ));
@@ -94,7 +94,7 @@ void* RequestHandler::waitRequest( const uint requestID, bool* success,
     return result;
 }
 
-void* RequestHandler::getRequestData( const uint requestID )
+void* RequestHandler::getRequestData( const uint32_t requestID )
 {
     const Request* request = _requests[requestID];
     if( !request )
@@ -103,7 +103,7 @@ void* RequestHandler::getRequestData( const uint requestID )
     return request->data;
 }
 
-void RequestHandler::serveRequest( const uint requestID, void* result )
+void RequestHandler::serveRequest( const uint32_t requestID, void* result )
 {
     Request* request = _requests[requestID];
 

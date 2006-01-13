@@ -49,7 +49,7 @@ namespace eqs
          * 
          * @return the number of windows on this config. 
          */
-        uint nWindows() const { return _windows.size(); }
+        uint32_t nWindows() const { return _windows.size(); }
 
         /** 
          * Gets a window.
@@ -57,7 +57,7 @@ namespace eqs
          * @param index the window's index. 
          * @return the window.
          */
-        Window* getWindow( const uint index ) const
+        Window* getWindow( const uint32_t index ) const
             { return _windows[index]; }
 
         Node*   getNode()   const { return _node; }
@@ -85,10 +85,10 @@ namespace eqs
          * @name Data Access
          */
         //*{
-        void setDisplay( const uint display ){ _display = display; }
-        uint getDisplay() const              { return _display; }
-        void setScreen( const uint screen )  { _screen = screen; }
-        uint getScreen() const               { return _screen; }
+        void setDisplay( const uint32_t display ){ _display = display; }
+        uint32_t getDisplay() const              { return _display; }
+        void setScreen( const uint32_t screen )  { _screen = screen; }
+        uint32_t getScreen() const               { return _screen; }
         //*}
 
         /**
@@ -127,24 +127,24 @@ namespace eqs
         std::vector<Window*>   _windows;
 
         /** Number of entitities actively using this pipe. */
-        uint _used;
+        uint32_t _used;
 
         /** The parent node. */
         Node* _node;
         friend class Node;
 
         /** The request id for pending asynchronous operations. */
-        uint _pendingRequestID;
+        uint32_t _pendingRequestID;
 
         
         /** The display (X11) or ignored (Win32, CGL). */
-        uint _display;
+        uint32_t _display;
 
         /** The screen (X11), adapter (Win32) or virtual screen (CGL). */
-        uint _screen;
+        uint32_t _screen;
 
         /* The display (CGL) or output channel (X11, Win32). */
-        //uint _channel;
+        //uint32_t _channel;
 
 
         void _send( const eqNet::Packet& packet ){ _node->send( packet ); }

@@ -54,8 +54,8 @@ void Node::startInit()
 
     eq::NodeCreatePipePacket createPipePacket( _sessionID, _id );
 
-    const uint nPipes = _pipes.size();
-    for( uint i=0; i<nPipes; i++ )
+    const uint32_t nPipes = _pipes.size();
+    for( uint32_t i=0; i<nPipes; i++ )
     {
         Pipe* pipe = _pipes[i];
         if( pipe->isUsed( ))
@@ -103,8 +103,8 @@ bool Node::syncInit()
 //---------------------------------------------------------------------------
 void Node::startExit()
 {
-    const uint nPipes = _pipes.size();
-    for( uint i=0; i<nPipes; i++ )
+    const uint32_t nPipes = _pipes.size();
+    for( uint32_t i=0; i<nPipes; i++ )
     {
         Pipe* pipe = _pipes[i];
         if( pipe->isUsed( ))
@@ -133,8 +133,8 @@ bool Node::syncExit()
     
     eq::NodeDestroyPipePacket destroyPipePacket( _sessionID, _id );
     
-    const uint nPipes = _pipes.size();
-    for( uint i=0; i<nPipes; i++ )
+    const uint32_t nPipes = _pipes.size();
+    for( uint32_t i=0; i<nPipes; i++ )
     {
         Pipe* pipe = _pipes[i];
         if( pipe->isUsed( ))
@@ -184,11 +184,11 @@ ostream& eqs::operator << ( ostream& os, const Node* node )
         return os;
     }
     
-    const uint nPipes = node->nPipes();
+    const uint32_t nPipes = node->nPipes();
     os << "node " << node->getID() << "(" << (void*)node << ")"
        << ( node->isUsed() ? " used " : " unused " ) << nPipes << " pipes";
 
-    for( uint i=0; i<nPipes; i++ )
+    for( uint32_t i=0; i<nPipes; i++ )
         os << endl << "    " << node->getPipe(i);
 
     return os;

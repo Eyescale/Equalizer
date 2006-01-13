@@ -29,6 +29,7 @@ namespace eq
         REQ_NODE_EXIT,
         CMD_NODE_EXIT_REPLY,
         CMD_NODE_STOP,
+        REQ_NODE_STOP,
         CMD_NODE_CREATE_PIPE,
         CMD_NODE_DESTROY_PIPE,
         CMD_NODE_ALL
@@ -43,11 +44,17 @@ namespace eq
     enum ConfigCommand
     {
         CMD_CONFIG_INIT,
-        REQ_CONFIG_INIT, // REQ must always follow CMD!
+        REQ_CONFIG_INIT, // REQ must always follow CMD
         CMD_CONFIG_INIT_REPLY,
         CMD_CONFIG_EXIT,
-        REQ_CONFIG_EXIT, // REQ must always follow CMD!
+        REQ_CONFIG_EXIT, // REQ must always follow CMD
         CMD_CONFIG_EXIT_REPLY,
+        CMD_CONFIG_FRAME_BEGIN,
+        REQ_CONFIG_FRAME_BEGIN, // REQ must always follow CMD
+        CMD_CONFIG_FRAME_BEGIN_REPLY,
+        CMD_CONFIG_FRAME_END,
+        REQ_CONFIG_FRAME_END, // REQ must always follow CMD
+        CMD_CONFIG_FRAME_END_REPLY,
         CMD_CONFIG_ALL
     };
 

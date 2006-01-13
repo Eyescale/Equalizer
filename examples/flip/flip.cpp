@@ -72,18 +72,17 @@ int main( int argc, char** argv )
     if( !config->init( ))
         DIE("Config initialisation failed.");
 
-    sleep( 5 );
-//     while( running )
-//     {
-//         // update database
+    //while( running )
+    {
+        // update database
 
-//         config->frameBegin( void* frameData );
+        config->frameBegin();
 //         config->renderData(...);
 //         ...;
-//         config->frameEnd();
+        config->frameEnd();
 
-//         // process events
-//     }
+        // process events
+    }
 
     config->exit();
     server.releaseConfig( config );

@@ -112,6 +112,9 @@ bool Server::_loadConfig( int argc, char **argv )
     compound->setChannel( channel );
     config->addCompound( compound );
 
+    Compound::Wall wall = WALL_20INCH_16x10;
+    compound->setWall( wall );
+
     addConfig( config );
     return true;
 }
@@ -142,8 +145,8 @@ Config* Server::_cloneConfig( Config* config )
     const bool mapped = mapSession( this, clone, name );
     ASSERT( mapped );
 
-    const uint nCompounds = config->nCompounds();
-    for( uint i=0; i<nCompounds; i++ )
+    const uint32_t nCompounds = config->nCompounds();
+    for( uint32_t i=0; i<nCompounds; i++ )
     {
         Compound* compound      = config->getCompound(i);
         Compound* compoundClone = new Compound();
@@ -153,16 +156,16 @@ Config* Server::_cloneConfig( Config* config )
         compoundClone->setChannel( compound->getChannel() ); // replaced below
     }
 
-    const uint nNodes = config->nNodes();
-    for( uint i=0; i<nNodes; i++ )
+    const uint32_t nNodes = config->nNodes();
+    for( uint32_t i=0; i<nNodes; i++ )
     {
         eqs::Node* node      = config->getNode(i);
         eqs::Node* nodeClone = new eqs::Node();
         
         clone->addNode( nodeClone );
 
-        const uint nConnectionDescriptions = node->nConnectionDescriptions();
-        for( uint j=0; j<nConnectionDescriptions; j++ )
+        const uint32_t nConnectionDescriptions = node->nConnectionDescriptions();
+        for( uint32_t j=0; j<nConnectionDescriptions; j++ )
         {
             RefPtr<eqNet::ConnectionDescription> desc = 
                 node->getConnectionDescription(j);
@@ -170,24 +173,24 @@ Config* Server::_cloneConfig( Config* config )
             nodeClone->addConnectionDescription( desc );
         }
 
-        const uint nPipes = node->nPipes();
-        for( uint j=0; j<nPipes; j++ )
+        const uint32_t nPipes = node->nPipes();
+        for( uint32_t j=0; j<nPipes; j++ )
         {
             Pipe* pipe      = node->getPipe(j);
             Pipe* pipeClone = new Pipe();
             
             nodeClone->addPipe( pipeClone );
             
-            const uint nWindows = pipe->nWindows();
-            for( uint k=0; k<nWindows; k++ )
+            const uint32_t nWindows = pipe->nWindows();
+            for( uint32_t k=0; k<nWindows; k++ )
             {
                 Window* window      = pipe->getWindow(k);
                 Window* windowClone = new Window();
             
                 pipeClone->addWindow( windowClone );
             
-                const uint nChannels = window->nChannels();
-                for( uint l=0; l<nChannels; l++ )
+                const uint32_t nChannels = window->nChannels();
+                for( uint32_t l=0; l<nChannels; l++ )
                 {
                     Channel* channel      = window->getChannel(l);
                     Channel* channelClone = new Channel();
@@ -198,7 +201,7 @@ Config* Server::_cloneConfig( Config* config )
                     data.oldChannel = channel;
                     data.newChannel = channelClone;
 
-                    for( uint m=0; m<nCompounds; m++ )
+                    for( uint32_t m=0; m<nCompounds; m++ )
                     {
                         Compound* compound      = clone->getCompound(m);
                         Compound::traverse( compound, replaceChannelCB, 

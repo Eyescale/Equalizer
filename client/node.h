@@ -80,6 +80,7 @@ namespace eq
 
         /** The receiver->node thread request queue. */
         eqNet::RequestQueue    _requestQueue;
+        bool                   _clientLoopRunning;
 
         void _addPipe( Pipe* pipe );
         void _removePipe( Pipe* pipe );
@@ -100,7 +101,7 @@ namespace eq
         void _cmdInit( eqNet::Node* node, const eqNet::Packet* packet );
         void _reqInit( eqNet::Node* node, const eqNet::Packet* packet );
         void _reqExit( eqNet::Node* node, const eqNet::Packet* packet );
-        void _cmdStop( eqNet::Node* node, const eqNet::Packet* packet );
+        void _reqStop( eqNet::Node* node, const eqNet::Packet* packet );
     };
 }
 

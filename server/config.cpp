@@ -15,16 +15,27 @@ using namespace std;
 
 Config::Config( Server* server )
         : eqNet::Session( eq::CMD_CONFIG_ALL ),
-          _server( server )
+          _server( server ),
+          _frameNumber(0)
 {
     registerCommand( eq::CMD_CONFIG_INIT, this, reinterpret_cast<CommandFcn>(
                          &eqs::Config::_cmdRequest ));
     registerCommand( eq::REQ_CONFIG_INIT, this, reinterpret_cast<CommandFcn>(
-                         &eqs::Config::_cmdInit ));
+                         &eqs::Config::_reqInit ));
     registerCommand( eq::CMD_CONFIG_EXIT, this, reinterpret_cast<CommandFcn>( 
                          &eqs::Config::_cmdRequest ));
     registerCommand( eq::REQ_CONFIG_EXIT, this, reinterpret_cast<CommandFcn>( 
-                         &eqs::Config::_cmdExit ));
+                         &eqs::Config::_reqExit ));
+    registerCommand( eq::CMD_CONFIG_FRAME_BEGIN, this,
+                     reinterpret_cast<CommandFcn>( &eqs::Config::_cmdRequest ));
+    registerCommand( eq::REQ_CONFIG_FRAME_BEGIN, this,
+                     reinterpret_cast<CommandFcn>(
+                         &eqs::Config::_reqFrameBegin ));
+    registerCommand( eq::CMD_CONFIG_FRAME_END, this,
+                     reinterpret_cast<CommandFcn>( &eqs::Config::_cmdRequest ));
+    registerCommand( eq::REQ_CONFIG_FRAME_END, this,
+                     reinterpret_cast<CommandFcn>(
+                         &eqs::Config::_reqFrameEnd ));
 }
 
 void Config::addNode( Node* node )
@@ -58,7 +69,7 @@ void Config::_cmdRequest( eqNet::Node* node, const eqNet::Packet* packet )
     _server->pushRequest( node, packet );
 }
 
-void Config::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
+void Config::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     const eq::ConfigInitPacket* packet = (eq::ConfigInitPacket*)pkg;
     eq::ConfigInitReplyPacket   reply( packet );
@@ -69,7 +80,7 @@ void Config::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
     node->send( reply );
 }
 
-void Config::_cmdExit( eqNet::Node* node, const eqNet::Packet* pkg )
+void Config::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     const eq::ConfigExitPacket* packet = (eq::ConfigExitPacket*)pkg;
     eq::ConfigExitReplyPacket   reply( packet );
@@ -80,14 +91,37 @@ void Config::_cmdExit( eqNet::Node* node, const eqNet::Packet* pkg )
     node->send( reply );
 }
 
+void Config::_reqFrameBegin( eqNet::Node* node, const eqNet::Packet* pkg )
+{
+    const eq::ConfigFrameBeginPacket* packet = (eq::ConfigFrameBeginPacket*)pkg;
+    eq::ConfigFrameBeginReplyPacket   reply( packet );
+    INFO << "handle config frame begin " << packet << endl;
+
+    reply.result = _frameBegin();
+    node->send( reply );
+}
+
+void Config::_reqFrameEnd( eqNet::Node* node, const eqNet::Packet* pkg )
+{
+    const eq::ConfigFrameEndPacket* packet = (eq::ConfigFrameEndPacket*)pkg;
+    eq::ConfigFrameEndReplyPacket   reply( packet );
+    INFO << "handle config frame end " << packet << endl;
+
+    reply.result = _frameEnd();
+    node->send( reply );
+}
+
+
 //===========================================================================
 // operations
 //===========================================================================
 
 bool Config::_init()
 {
-    const uint nCompounds = this->nCompounds();
-    for( uint i=0; i<nCompounds; i++ )
+    _frameNumber = 0;
+
+    const uint32_t nCompounds = this->nCompounds();
+    for( uint32_t i=0; i<nCompounds; i++ )
     {
         Compound* compound = getCompound( i );
         compound->init();
@@ -95,8 +129,8 @@ bool Config::_init()
 
     // connect (and launch) nodes
     vector<Node*>                 usedNodes;
-    uint nNodes = _nodes.size();
-    for( uint i=0; i<nNodes; i++ )
+    uint32_t nNodes = _nodes.size();
+    for( uint32_t i=0; i<nNodes; i++ )
     {
         if( _nodes[i]->isUsed( ))
             usedNodes.push_back( _nodes[i] );
@@ -106,7 +140,7 @@ bool Config::_init()
     if( nNodes == 0 )
         return true;
 
-    for( uint i=0; i<nNodes; i++ )
+    for( uint32_t i=0; i<nNodes; i++ )
     {
         if( !usedNodes[i]->initConnect( ))
         {
@@ -121,7 +155,7 @@ bool Config::_init()
     createConfigPacket.configID     = _id;
     createConfigPacket.nameLength   = name.size()+1;
 
-    for( uint i=0; i<nNodes; i++ )
+    for( uint32_t i=0; i<nNodes; i++ )
     {
         Node* node = usedNodes[i];
         
@@ -138,7 +172,7 @@ bool Config::_init()
         node->startInit();
     }
 
-    for( uint i=0; i<nNodes; i++ )
+    for( uint32_t i=0; i<nNodes; i++ )
     {
         if( !usedNodes[i]->syncInit( ))
         {
@@ -161,8 +195,8 @@ bool Config::_exit()
     bool          cleanExit = true;
     vector<Node*> connectedNodes;
 
-    uint nNodes = _nodes.size();
-    for( uint i=0; i<nNodes; i++ )
+    uint32_t nNodes = _nodes.size();
+    for( uint32_t i=0; i<nNodes; i++ )
     {
         Node* node = _nodes[i];
         if( !node->isUsed( ) || !node->isConnected( ))
@@ -172,10 +206,10 @@ bool Config::_exit()
     }
     
     nNodes = connectedNodes.size();
-    for( uint i=0; i<nNodes; i++ )
+    for( uint32_t i=0; i<nNodes; i++ )
         connectedNodes[i]->startExit();
 
-    for( uint i=0; i<nNodes; i++ )
+    for( uint32_t i=0; i<nNodes; i++ )
     {
         Node* node = connectedNodes[i];
 
@@ -188,15 +222,37 @@ bool Config::_exit()
         node->stop();
     }
 
-    const uint nCompounds = this->nCompounds();
-    for( uint i=0; i<nCompounds; i++ )
+    const uint32_t nCompounds = this->nCompounds();
+    for( uint32_t i=0; i<nCompounds; i++ )
     {
         Compound* compound = getCompound( i );
         compound->exit();
     }
 
+    _frameNumber = 0;
     return cleanExit;
 }
+
+uint32_t Config::_frameBegin()
+{
+    ++_frameNumber;
+
+    const uint32_t nCompounds = this->nCompounds();
+    for( uint32_t i=0; i<nCompounds; i++ )
+    {
+        Compound* compound = getCompound( i );
+        compound->update();
+    }
+    
+    return _frameNumber;
+}
+
+uint32_t Config::_frameEnd()
+{
+    // TODO
+    return 0;
+}
+
 
 std::ostream& eqs::operator << ( std::ostream& os, const Config* config )
 {
@@ -206,14 +262,14 @@ std::ostream& eqs::operator << ( std::ostream& os, const Config* config )
         return os;
     }
     
-    const uint nNodes = config->nNodes();
-    const uint nCompounds = config->nCompounds();
+    const uint32_t nNodes = config->nNodes();
+    const uint32_t nCompounds = config->nCompounds();
     os << "config " << (void*)config << " " << nNodes << " nodes "
            << nCompounds << " compounds";
     
-    for( uint i=0; i<nNodes; i++ )
+    for( uint32_t i=0; i<nNodes; i++ )
         os << std::endl << "    " << config->getNode(i);
-    for( uint i=0; i<nCompounds; i++ )
+    for( uint32_t i=0; i<nCompounds; i++ )
         os << std::endl << "    " << config->getCompound(i);
     
     return os;

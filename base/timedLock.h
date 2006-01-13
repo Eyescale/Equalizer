@@ -38,7 +38,7 @@ namespace eqBase
          * @return <code>true</code> if the lock was acquired,
          *         <code>false</code> if not.
          */
-        bool set( const uint timeout = EQ_TIMEOUT_INDEFINITE );
+        bool set( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
 
         /** 
          * Releases the lock.

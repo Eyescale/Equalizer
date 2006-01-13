@@ -186,11 +186,11 @@ std::ostream& eqs::operator << ( std::ostream& os, const Pipe* pipe )
         return os;
     }
     
-    const uint nWindows = pipe->nWindows();
+    const uint32_t nWindows = pipe->nWindows();
     os << "pipe " << (void*)pipe << ( pipe->isUsed() ? " used " : " unused " )
        << nWindows << " windows";
     
-    for( uint i=0; i<nWindows; i++ )
+    for( uint32_t i=0; i<nWindows; i++ )
         os << std::endl << "    " << pipe->getWindow(i);
     
     return os;

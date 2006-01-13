@@ -65,7 +65,7 @@ namespace eqs
          * 
          * @return the number of configs on this config. 
          */
-        uint nConfigs() const { return _configs.size(); }
+        uint32_t nConfigs() const { return _configs.size(); }
 
         /** 
          * Gets a config.
@@ -73,7 +73,7 @@ namespace eqs
          * @param index the config's index. 
          * @return the config.
          */
-        Config* getConfig( const uint index ){ return _configs[index]; }
+        Config* getConfig( const uint32_t index ){ return _configs[index]; }
 
         /** 
          * Push a request to the servers' main thread to be handled
@@ -99,7 +99,7 @@ namespace eqs
     private:
         
         /** The unique config identifier. */
-        uint _configID;
+        uint32_t _configID;
 
         /** The list of nodes. */
         std::vector<Node*>     _nodes;
@@ -135,11 +135,11 @@ namespace eqs
             return os;
         }
 
-        const uint nConfigs = server->nConfigs();
+        const uint32_t nConfigs = server->nConfigs();
 
         os << "server " << (void*)server << " " << nConfigs << " configs";
 
-        for( uint i=0; i<nConfigs; i++ )
+        for( uint32_t i=0; i<nConfigs; i++ )
             os << std::endl << "    " << server->getConfig(i);
 
         return os;

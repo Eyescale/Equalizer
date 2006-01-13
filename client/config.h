@@ -46,6 +46,22 @@ namespace eq
          */
         bool exit();
 
+        /** 
+         * Requests a new frame of rendering.
+         * 
+         * @todo per-frame data passed to all rendering methods
+         * @return the frame number of the new frame.
+         */
+        uint32_t frameBegin();
+
+        /** 
+         * Synchronizes the end of a frame.
+         * 
+         * @return the frame number of the finished frame, or <code>0</code> if
+         *         no frame has finished yet.
+         */
+        uint32_t frameEnd();
+
     private:
         /** The local proxy of the server hosting the session. */
         friend class Server;
@@ -57,6 +73,9 @@ namespace eq
         /** The command functions. */
         void _cmdInitReply( eqNet::Node* node, const eqNet::Packet* packet );
         void _cmdExitReply( eqNet::Node* node, const eqNet::Packet* packet );
+        void _cmdFrameBeginReply( eqNet::Node* node, 
+                                  const eqNet::Packet* packet );
+        void _cmdFrameEndReply( eqNet::Node* node, const eqNet::Packet* packet);
     };
 }
 

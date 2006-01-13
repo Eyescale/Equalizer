@@ -12,13 +12,13 @@
 using namespace eqNet;
 using namespace std;
 
-Base::Base( const uint nCommands )
+Base::Base( const uint32_t nCommands )
         : _nCommands( nCommands )
 {
     _commandFunctions     = new CommandFcn[nCommands];
     _commandFunctionsThis = new Base*[nCommands];
 
-    for( uint i=0; i<nCommands; i++ )
+    for( uint32_t i=0; i<nCommands; i++ )
         registerCommand( i, this, &eqNet::Base::_cmdUnknown );
 }
 
@@ -31,7 +31,7 @@ Base::~Base()
 //===========================================================================
 // command handling
 //===========================================================================
-void Base::registerCommand( const uint command, void* thisPointer, 
+void Base::registerCommand( const uint32_t command, void* thisPointer, 
                             CommandFcn handler )
 {
     ASSERT( command < _nCommands );
@@ -41,7 +41,7 @@ void Base::registerCommand( const uint command, void* thisPointer,
 
 void Base::handleCommand( Node* node, const Packet* packet )
 {
-    const uint which = packet->command;
+    const uint32_t which = packet->command;
     ASSERT( which < _nCommands );
     (_commandFunctionsThis[which]->*_commandFunctions[which])( node, packet );
 }

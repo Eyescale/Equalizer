@@ -180,12 +180,12 @@ std::ostream& eqs::operator << ( std::ostream& os, const Window* window )
         return os;
     }
     
-    const uint nChannels = window->nChannels();
+    const uint32_t nChannels = window->nChannels();
     os << "window " << (void*)window
        << ( window->isUsed() ? " used " : " unused " ) << nChannels
        << " channels";
     
-    for( uint i=0; i<nChannels; i++ )
+    for( uint32_t i=0; i<nChannels; i++ )
         os << std::endl << "    " << window->getChannel(i);
     
     return os;

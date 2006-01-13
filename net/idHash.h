@@ -9,7 +9,7 @@
 
 namespace eqNet
 {
-    template<class T> class IDHash : public Sgi::hash_map<uint, T>
+    template<class T> class IDHash : public Sgi::hash_map<uint32_t, T>
     {};
 }
 

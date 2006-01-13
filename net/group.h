@@ -18,15 +18,15 @@ namespace eqNet
     class Group
     {
     public:
-        //void               broadCast( uint gid_to, Type type, void *ptr,
-        //uint64_t count, uint flags );
+        //void               broadCast( uint32_t gid_to, Type type, void *ptr,
+        //uint64_t count, uint32_t flags );
 
         /** 
          * Performs a barrier operation with all members of this group.
          * 
          * @param groupID the identifier of the group.
          */
-        static void barrier( const uint groupID );
+        static void barrier( const uint32_t groupID );
     };
 };
 

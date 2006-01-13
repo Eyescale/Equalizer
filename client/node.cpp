@@ -20,7 +20,8 @@ static bool _firstNode = true;
 
 Node::Node()
         : eqNet::Node( CMD_NODE_ALL ),
-          _config(NULL)
+          _config(NULL),
+          _clientLoopRunning(false)
 {
     registerCommand( CMD_NODE_CREATE_CONFIG, this, reinterpret_cast<CommandFcn>(
                          &eq::Node::_cmdCreateConfig ));
@@ -37,7 +38,9 @@ Node::Node()
     registerCommand( REQ_NODE_EXIT, this, reinterpret_cast<CommandFcn>( 
                          &eq::Node::_reqExit ));
     registerCommand( CMD_NODE_STOP, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Node::_cmdStop ));
+                         &eq::Node::_pushRequest ));
+    registerCommand( REQ_NODE_STOP, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Node::_reqStop ));
 }
 
 Node::~Node()
@@ -61,10 +64,12 @@ eqBase::RefPtr<eqNet::Node> Node::createNode()
 
 void Node::clientLoop()
 {
+    _clientLoopRunning = true;
+
     eqNet::Node*   node;
     eqNet::Packet* packet;
 
-    while( _state != STATE_STOPPED )
+    while( _clientLoopRunning )
     {
         _requestQueue.pop( &node, &packet );
         dispatchPacket( node, packet );
@@ -74,7 +79,7 @@ void Node::clientLoop()
 void Node::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
 {
     VERB << "handlePacket " << packet << endl;
-    const uint datatype = packet->datatype;
+    const uint32_t datatype = packet->datatype;
 
     switch( datatype )
     {
@@ -178,10 +183,12 @@ void Node::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
     node->send( reply );
 }
 
-void Node::_cmdStop( eqNet::Node* node, const eqNet::Packet* pkg )
+void Node::_reqStop( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     NodeStopPacket* packet = (NodeStopPacket*)pkg;
     INFO << "handle node stop " << packet << endl;
+
+    _clientLoopRunning = false;
 
     // stop ourselves
     eqNet::NodeStopPacket stopPacket;

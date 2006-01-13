@@ -45,7 +45,7 @@ uint32_t Session::genIDs( const uint32_t range )
     packet.range     = (range > MIN_ID_RANGE) ? range : MIN_ID_RANGE;
 
     _server->send( packet );
-    id = (uint)(long long)_requestHandler.waitRequest( packet.requestID );
+    id = (uint32_t)(long long)_requestHandler.waitRequest( packet.requestID );
 
     if( !id || range >= MIN_ID_RANGE )
         return id;

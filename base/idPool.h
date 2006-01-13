@@ -28,23 +28,23 @@ namespace eqBase
         /** Destructs the identifier pool. */
         ~IDPool();
         
-        uint genIDs( const uint range );
-        void freeIDs( const uint start, const uint range );
+        uint32_t genIDs( const uint32_t range );
+        void freeIDs( const uint32_t start, const uint32_t range );
 
-        static uint getCapacity() { return 0xfffffff0; }
+        static uint32_t getCapacity() { return 0xfffffff0; }
 
     private:
         struct Block
         {
-            uint start;
-            uint range;
+            uint32_t start;
+            uint32_t range;
         };
 
         std::list<Block*> _freeIDs;
         std::list<Block*> _blockCache;
         
-        uint _genIDs( const uint range );
-        uint _compressCounter;
+        uint32_t _genIDs( const uint32_t range );
+        uint32_t _compressCounter;
         void _compressIDs();
     };
 }

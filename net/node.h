@@ -48,7 +48,7 @@ namespace eqNet
          * @param nCommands the highest command ID to be handled by the node, at
          *                  least <code>CMD_NODE_CUSTOM</code>.
          */
-        Node( const uint nCommands = CMD_NODE_CUSTOM );
+        Node( const uint32_t nCommands = CMD_NODE_CUSTOM );
 
         /**
          * Destructs this node.
@@ -357,7 +357,7 @@ namespace eqNet
          * @return <code>true</code> if the session was mapped,
          *         <code>false</code> if not.
          */
-        bool mapSession( Node* server, Session* session, const uint id );
+        bool mapSession( Node* server, Session* session, const uint32_t id );
 
         /** 
          * Adds a mapped session to this node.
@@ -367,7 +367,7 @@ namespace eqNet
          * @param sessionID the identifier of the session.
          * @param name the name of the session.
          */
-        void addSession( Session* session, Node* server, const uint sessionID,
+        void addSession( Session* session, Node* server, const uint32_t sessionID,
                          const std::string& name );
         //*}
 
@@ -380,9 +380,6 @@ namespace eqNet
         bool runClient( const std::string& clientArgs );
 
     protected:
-        /** The current state of this node. */
-        volatile State _state;
-
         /** Determines if the node should be launched automatically. */
         bool _autoLaunch;
 
@@ -445,6 +442,9 @@ namespace eqNet
             { return Global::getProgramName(); }
 
     private:
+        /** The current state of this node. */
+        State _state;
+
         /** The current sessions of this node. */
         IDHash<Session*> _sessions;
 
@@ -458,7 +458,7 @@ namespace eqNet
         ConnectionSet _connectionSet;
 
         /** The request id for pending asynchronous operations. */
-        uint _pendingRequestID;
+        uint32_t _pendingRequestID;
 
         /** The list of descriptions on how this node is reachable. */
         std::vector< eqBase::RefPtr<ConnectionDescription> >

@@ -138,7 +138,6 @@ namespace eq
         CGLContextObj _cglContext;
 #endif
 
-
         void _addChannel( Channel* channel );
         void _removeChannel( Channel* channel );
 

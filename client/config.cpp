@@ -19,6 +19,12 @@ Config::Config()
                          &eq::Config::_cmdInitReply ));
     registerCommand( CMD_CONFIG_EXIT_REPLY, this, reinterpret_cast<CommandFcn>(
                          &eq::Config::_cmdExitReply ));
+    registerCommand( CMD_CONFIG_FRAME_BEGIN_REPLY, this, 
+                     reinterpret_cast<CommandFcn>(
+                         &eq::Config::_cmdFrameBeginReply ));
+    registerCommand( CMD_CONFIG_FRAME_END_REPLY, this, 
+                     reinterpret_cast<CommandFcn>(
+                         &eq::Config::_cmdFrameEndReply ));
 }
 
 bool Config::init()
@@ -37,6 +43,25 @@ bool Config::exit()
     return ( _requestHandler.waitRequest( packet.requestID ) != 0 );
 }
 
+uint32_t Config::frameBegin()
+{
+    ConfigFrameBeginPacket packet( _id );
+    packet.requestID = _requestHandler.registerRequest();
+    _server->send( packet );
+    return (uint32_t)(_requestHandler.waitRequest( packet.requestID ));
+}
+
+uint32_t Config::frameEnd()
+{
+    ConfigFrameEndPacket packet( _id );
+    packet.requestID = _requestHandler.registerRequest();
+    _server->send( packet );
+    return (uint32_t)(_requestHandler.waitRequest( packet.requestID ));
+}
+
+//---------------------------------------------------------------------------
+// command handlers
+//---------------------------------------------------------------------------
 void Config::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     ConfigInitReplyPacket* packet = (ConfigInitReplyPacket*)pkg;
@@ -48,6 +73,22 @@ void Config::_cmdExitReply( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     ConfigExitReplyPacket* packet = (ConfigExitReplyPacket*)pkg;
     INFO << "handle exit reply " << packet << endl;
+
+    _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
+}
+
+void Config::_cmdFrameBeginReply(eqNet::Node* node, const eqNet::Packet* pkg )
+{
+    ConfigFrameBeginReplyPacket* packet = (ConfigFrameBeginReplyPacket*)pkg;
+    INFO << "handle frame begin reply " << packet << endl;
+
+    _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
+}
+
+void Config::_cmdFrameEndReply( eqNet::Node* node, const eqNet::Packet* pkg )
+{
+    ConfigFrameEndReplyPacket* packet = (ConfigFrameEndReplyPacket*)pkg;
+    INFO << "handle frame end reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
 }

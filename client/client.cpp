@@ -26,7 +26,7 @@ Client::~Client()
 void Client::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
 {
     VERB << "handlePacket " << packet << endl;
-    const uint datatype = packet->datatype;
+    const uint32_t datatype = packet->datatype;
 
     switch( datatype )
     {

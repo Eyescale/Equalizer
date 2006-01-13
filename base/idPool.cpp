@@ -35,9 +35,9 @@ IDPool::~IDPool()
     }
 }
 
-uint IDPool::genIDs( const uint range )
+uint32_t IDPool::genIDs( const uint32_t range )
 {
-    const uint id = _genIDs( range );
+    const uint32_t id = _genIDs( range );
     if( id )
         return id;
 
@@ -45,7 +45,7 @@ uint IDPool::genIDs( const uint range )
     return _genIDs( range );
 }
 
-uint IDPool::_genIDs( const uint range )
+uint32_t IDPool::_genIDs( const uint32_t range )
 {
     for( list<Block*>::iterator iter = _freeIDs.begin();
          iter != _freeIDs.end(); ++iter )
@@ -54,7 +54,7 @@ uint IDPool::_genIDs( const uint range )
 
         if( range <= block->range )
         {
-            uint start = block->start;
+            uint32_t start = block->start;
 
             block->range -= range;
             block->start += range;
@@ -71,7 +71,7 @@ uint IDPool::_genIDs( const uint range )
     return 0;
 }
 
-void IDPool::freeIDs( const uint start, const uint range )
+void IDPool::freeIDs( const uint32_t start, const uint32_t range )
 {
     Block* block;
 

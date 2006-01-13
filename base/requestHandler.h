@@ -108,9 +108,9 @@ namespace eqBase
             void*      result;
         };
         
-        uint32_t                      _requestID;
-        Sgi::hash_map<uint, Request*> _requests;
-        std::list<Request*>           _freeRequests;
+        uint32_t                          _requestID;
+        Sgi::hash_map<uint32_t, Request*> _requests;
+        std::list<Request*>               _freeRequests;
     };
 }
 

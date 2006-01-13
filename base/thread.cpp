@@ -153,10 +153,22 @@ void Thread::exit( ssize_t retVal )
     switch( _type )
     {
         case PTHREAD:
+            if( !pthread_equal( pthread_self(), _threadID.pthread ))
+            {
+                pthread_cancel( _threadID.pthread );
+                return;
+            }
+
             pthread_exit( (void*)retVal );
             break;
 
         case FORK:
+            if( getpid() != _threadID.fork )
+            {
+                kill( _threadID.fork, SIGTERM );
+                return;
+            }
+            
             ::exit( retVal );
             break;
     }

@@ -90,14 +90,14 @@ namespace eqs
 
     private:
         /** Number of entitities actively using this channel. */
-        uint _used;
+        uint32_t _used;
 
         /** The parent window. */
         Window* _window;
         friend class Window;
 
         /** The request identifier for pending asynchronous operations. */
-        uint _pendingRequestID;
+        uint32_t _pendingRequestID;
 
         void _send( eqNet::Packet& packet ) { getNode()->send( packet ); }
         void _sendInit();

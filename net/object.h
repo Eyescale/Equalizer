@@ -21,15 +21,15 @@ namespace eqNet
         Object();
         virtual ~Object();
         
-        uint getID() const { return _id; }
+        uint32_t getID() const { return _id; }
 
         virtual void handleCommand( Node* node, const ObjectPacket* packet );
 
     protected:
         friend class  Session;
         friend struct ObjectPacket;
-        uint _id;
-        uint _sessionID;
+        uint32_t _id;
+        uint32_t _sessionID;
 
     private:
     };

@@ -51,7 +51,7 @@ namespace eqs
          * 
          * @return the number of nodes on this config. 
          */
-        uint nNodes() const { return _nodes.size(); }
+        uint32_t nNodes() const { return _nodes.size(); }
 
         /** 
          * Gets a node.
@@ -59,7 +59,7 @@ namespace eqs
          * @param index the node's index. 
          * @return the node.
          */
-        Node* getNode( const uint index ) const
+        Node* getNode( const uint32_t index ) const
             { return _nodes[index]; }
 
         /** 
@@ -84,7 +84,7 @@ namespace eqs
          * 
          * @return the number of compounds on this config. 
          */
-        uint nCompounds() const { return _compounds.size(); }
+        uint32_t nCompounds() const { return _compounds.size(); }
 
         /** 
          * Gets a compound.
@@ -92,7 +92,7 @@ namespace eqs
          * @param index the compound's index. 
          * @return the compound.
          */
-        Compound* getCompound( const uint index ) const
+        Compound* getCompound( const uint32_t index ) const
             { return _compounds[index]; }
 
         /** 
@@ -132,10 +132,15 @@ namespace eqs
         /** The name of the render client executable. */
         std::string _renderClient;
 
+        /** The last started frame, or 0. */
+        uint32_t _frameNumber;
+
         /** The command functions. */
         void _cmdRequest( eqNet::Node* node, const eqNet::Packet* packet );
-        void _cmdInit( eqNet::Node* node, const eqNet::Packet* packet );
-        void _cmdExit( eqNet::Node* node, const eqNet::Packet* packet );
+        void _reqInit( eqNet::Node* node, const eqNet::Packet* packet );
+        void _reqExit( eqNet::Node* node, const eqNet::Packet* packet );
+        void _reqFrameBegin( eqNet::Node* node, const eqNet::Packet* packet );
+        void _reqFrameEnd( eqNet::Node* node, const eqNet::Packet* packet );
 
         /**
          * @name Operations
@@ -143,6 +148,10 @@ namespace eqs
         //*{
         bool _init();
         bool _exit();
+
+        uint32_t _frameBegin();
+        uint32_t _frameEnd();
+
         //*/
     };
 

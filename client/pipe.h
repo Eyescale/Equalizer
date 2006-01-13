@@ -30,8 +30,8 @@ namespace eq
     enum WindowSystem
     {
         WINDOW_SYSTEM_NONE = 0, // must be first
-        WINDOW_SYSTEM_CGL,
         WINDOW_SYSTEM_GLX,
+        WINDOW_SYSTEM_CGL,
         WINDOW_SYSTEM_ALL      // must be last
     };
 
@@ -65,7 +65,7 @@ namespace eq
          * @return the display number of this pipe, or 
          *         <code>EQ_UNDEFINED_UINT</code>.
          */
-        uint getDisplay() const { return _display; }
+        uint32_t getDisplay() const { return _display; }
 
         /** 
          * Returns the screen number of this pipe.
@@ -78,7 +78,7 @@ namespace eq
          * @return the screen number of this pipe, or 
          *         <code>EQ_UNDEFINED_UINT</code>.
          */
-        uint getScreen() const { return _screen; }
+        uint32_t getScreen() const { return _screen; }
 
         /** 
          * Tests wether a particular windowing system is supported by this pipe
@@ -176,10 +176,10 @@ namespace eq
 
         
         /** The display (GLX, CGL) or ignored (Win32). */
-        uint _display;
+        uint32_t _display;
 
         /** The screen (GLX), adapter (Win32) or ignored (CGL). */
-        uint _screen;
+        uint32_t _screen;
 
 #ifdef GLX
         /** The X11 display connection. */

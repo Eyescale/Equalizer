@@ -54,7 +54,7 @@ TimedLock::~TimedLock()
     }
 }
 
-bool TimedLock::set( const uint timeout )
+bool TimedLock::set( const uint32_t timeout )
 {
     switch( _type )
     {

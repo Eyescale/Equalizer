@@ -52,7 +52,7 @@ namespace eqs
          * 
          * @return the number of channels on this window. 
          */
-        uint nChannels() const { return _channels.size(); }
+        uint32_t nChannels() const { return _channels.size(); }
 
         /** 
          * Gets a channel.
@@ -60,7 +60,7 @@ namespace eqs
          * @param index the channel's index. 
          * @return the channel.
          */
-        Channel* getChannel( const uint index ) const
+        Channel* getChannel( const uint32_t index ) const
             { return _channels[index]; }
 
         Node* getNode() const { return (_pipe ? _pipe->getNode() : NULL); }
@@ -125,14 +125,14 @@ namespace eqs
         std::vector<Channel*> _channels;
 
         /** Number of entitities actively using this window. */
-        uint _used;
+        uint32_t _used;
 
         /** The parent pipe. */
         Pipe* _pipe;
         friend class Pipe;
 
         /** The request id for pending asynchronous operations. */
-        uint _pendingRequestID;
+        uint32_t _pendingRequestID;
 
         void _send( const eqNet::Packet& packet ) { getNode()->send( packet ); }
 

@@ -54,7 +54,7 @@ namespace eqNet
          * The amount of time in milliseconds to wait before a node is
          * considered unreachable during start.
          */
-        uint launchTimeout;
+        uint32_t launchTimeout;
 
         /** The host name. */
         std::string hostname;

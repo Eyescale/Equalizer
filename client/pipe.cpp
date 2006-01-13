@@ -317,6 +317,10 @@ void Pipe::exit()
         case WINDOW_SYSTEM_CGL:
             exitCGL();
             break;
+
+        default:
+            WARN << "Unknown windowing system: " << windowSystem << endl;
+            return;
     }
 }
 

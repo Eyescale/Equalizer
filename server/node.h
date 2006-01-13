@@ -54,7 +54,7 @@ namespace eqs
          * 
          * @return the number of pipes on this node. 
          */
-        uint nPipes() const { return _pipes.size(); }
+        uint32_t nPipes() const { return _pipes.size(); }
 
         /** 
          * Gets a pipe.
@@ -62,7 +62,7 @@ namespace eqs
          * @param index the pipe's index. 
          * @return the pipe.
          */
-        Pipe* getPipe( const uint index ) const { return _pipes[index]; }
+        Pipe* getPipe( const uint32_t index ) const { return _pipes[index]; }
 
         /** 
          * References this node as being actively used.
@@ -127,14 +127,14 @@ namespace eqs
         std::vector<Pipe*> _pipes;
 
         /** Number of entitities actively using this node. */
-        uint _used;
+        uint32_t _used;
 
         /** The parent config. */
         Config* _config;
         friend class Config;
 
         /** The request identifier for pending asynchronous operations. */
-        uint _pendingRequestID;
+        uint32_t _pendingRequestID;
 
         enum State
         {

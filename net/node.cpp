@@ -30,8 +30,8 @@ extern char **environ;
 //----------------------------------------------------------------------
 Node::Node( const uint32_t nCommands )
         : Base( nCommands ),
-          _state(STATE_STOPPED),
           _autoLaunch(false),
+          _state(STATE_STOPPED),
           _pendingRequestID(INVALID_ID)
 {
     ASSERT( nCommands >= CMD_NODE_CUSTOM );
@@ -736,7 +736,6 @@ string Node::_createRemoteCommand()
 bool Node::runClient( const string& clientArgs )
 {
     ASSERT( _state == STATE_LISTENING );
-    INFO << "runClient, args: " << clientArgs << endl;
 
     const size_t colonPos = clientArgs.find( ':' );
     if( colonPos == string::npos )

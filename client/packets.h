@@ -117,6 +117,54 @@ namespace eq
         bool     result;
     };
 
+    struct ConfigFrameBeginPacket : public eqNet::SessionPacket
+    {
+        ConfigFrameBeginPacket( const uint32_t configID ) 
+                : eqNet::SessionPacket( configID )
+            {
+                command   = CMD_CONFIG_FRAME_BEGIN;
+                size      = sizeof( ConfigFrameBeginPacket );
+            }
+        uint32_t requestID;
+    };
+
+    struct ConfigFrameBeginReplyPacket : public eqNet::SessionPacket
+    {
+        ConfigFrameBeginReplyPacket(const ConfigFrameBeginPacket* requestPacket)
+                : eqNet::SessionPacket( requestPacket->sessionID )
+            {
+                command   = CMD_CONFIG_FRAME_BEGIN_REPLY;
+                size      = sizeof( ConfigFrameBeginReplyPacket );
+                requestID = requestPacket->requestID;
+            }
+        uint32_t requestID;
+        uint32_t result;
+    };
+
+    struct ConfigFrameEndPacket : public eqNet::SessionPacket
+    {
+        ConfigFrameEndPacket( const uint32_t configID ) 
+                : eqNet::SessionPacket( configID )
+            {
+                command   = CMD_CONFIG_FRAME_END;
+                size      = sizeof( ConfigFrameEndPacket );
+            }
+        uint32_t requestID;
+    };
+
+    struct ConfigFrameEndReplyPacket : public eqNet::SessionPacket
+    {
+        ConfigFrameEndReplyPacket(const ConfigFrameEndPacket* requestPacket)
+                : eqNet::SessionPacket( requestPacket->sessionID )
+            {
+                command   = CMD_CONFIG_FRAME_END_REPLY;
+                size      = sizeof( ConfigFrameEndReplyPacket );
+                requestID = requestPacket->requestID;
+            }
+        uint32_t requestID;
+        uint32_t result;
+    };
+
     //------------------------------------------------------------
     // Node
     //------------------------------------------------------------
