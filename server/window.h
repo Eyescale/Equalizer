@@ -7,7 +7,7 @@
 
 #include "pipe.h"
 
-#include <eq/base/pixelViewport.h>
+#include <eq/pixelViewport.h>
 #include <eq/net/base.h>
 #include <eq/net/object.h>
 
@@ -95,7 +95,7 @@ namespace eqs
          * 
          * @return the pixel viewport.
          */
-        const eqBase::PixelViewport& getPixelViewport() const { return _pvp; }
+        const eq::PixelViewport& getPixelViewport() const { return _pvp; }
         //*}
 
         /**
@@ -148,7 +148,7 @@ namespace eqs
         uint32_t _pendingRequestID;
 
         /** The size and position of the window. */
-        eqBase::PixelViewport _pvp;
+        eq::PixelViewport _pvp;
 
         void _send( const eqNet::Packet& packet ) { getNode()->send( packet ); }
 

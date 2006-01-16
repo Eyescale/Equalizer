@@ -6,12 +6,9 @@
 #define EQ_PACKETS_H
 
 #include "commands.h"
-//#include "config.h"
+#include "renderContext.h"
 
-#include <eq/base/pixelViewport.h>
 #include <eq/net/packets.h>
-
-#include <GL/gl.h> // XXX?
 
 namespace eq
 {
@@ -383,10 +380,10 @@ namespace eq
                 size      = sizeof( WindowInitReplyPacket );
             }
 
-        uint32_t              requestID;
-        bool                  result;
+        uint32_t      requestID;
+        bool          result;
 
-        eqBase::PixelViewport pvp;
+        PixelViewport pvp;
     };
 
     struct WindowExitPacket : public eqNet::ObjectPacket
@@ -469,6 +466,9 @@ namespace eq
 
         uint32_t requestID;
         bool     result;
+
+        float    near;
+        float    far;
     };
 
     struct ChannelExitPacket : public eqNet::ObjectPacket
@@ -502,12 +502,25 @@ namespace eq
         ChannelClearPacket( const uint32_t configID, const uint32_t channelID )
                 : eqNet::ObjectPacket( configID, channelID )
             {
-                command = CMD_CHANNEL_CLEAR;
-                size    = sizeof( ChannelClearPacket );
+                command       = CMD_CHANNEL_CLEAR;
+                size          = sizeof( ChannelClearPacket );
+                context.hints = HINT_BUFFER;
             }
 
-        GLenum                buffer;
-        eqBase::PixelViewport pvp;
+        RenderContext context;
+    };
+        
+    struct ChannelDrawPacket : public eqNet::ObjectPacket
+    {
+        ChannelDrawPacket( const uint32_t configID, const uint32_t channelID )
+                : eqNet::ObjectPacket( configID, channelID )
+            {
+                command       = CMD_CHANNEL_DRAW;
+                size          = sizeof( ChannelDrawPacket );
+                context.hints = HINT_BUFFER | HINT_FRUSTUM;
+            }
+
+        RenderContext context;
     };
         
 

@@ -82,4 +82,8 @@ extern eqBase::Clock eqLogClock;
  << "  " << m[8] << " " << m[9] << " " << m[10] << " " << m[11] << " " << endl \
  << "  " << m[12] << " " << m[13] << " " << m[14] << " " << m[15] << " " << endl
 
+#define LOG_VECTOR6( v ) \
+    "[" << v[0] << " " << v[1] << " " << v[2] << " " << v[3] << " " \
+    << v[4] << " " << v[5] << "]"
+
 #endif //EQBASE_LOG_H

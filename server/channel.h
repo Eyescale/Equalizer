@@ -9,7 +9,7 @@
 #include "window.h"
 
 #include <eq/commands.h>
-#include <eq/base/viewport.h>
+#include <eq/viewport.h>
 #include <eq/net/base.h>
 #include <eq/net/object.h>
 #include <eq/net/packets.h>
@@ -59,12 +59,19 @@ namespace eqs
         bool isUsed() const { return (_used!=0); }
 
         /** 
-         * Return the 
-         * 
-         * 
-         * @return 
+         * Return the current pixel viewport of this channel.
+         * @return the current pixel viewport of this channel.
          */
-        const eqBase::PixelViewport& getPixelViewport() const { return _pvp; }
+        const eq::PixelViewport& getPixelViewport() const { return _pvp; }
+
+        /** 
+         * Returns the current near and far planes for this channel.
+         *
+         * @param near a pointer to store the near plane.
+         * @param far a pointer to store the far plane.
+         */
+        void getNearFar( float* near, float* far ) const 
+            { *near = _near; *far = _far; }
         //*/
 
         /**
@@ -123,10 +130,15 @@ namespace eqs
         uint32_t _pendingRequestID;
 
         /** The fractional viewport with respect to the window. */
-        eqBase::Viewport      _vp;
+        eq::Viewport      _vp;
 
         /** The pixel viewport within the window. */
-        eqBase::PixelViewport _pvp;
+        eq::PixelViewport _pvp;
+
+        /** Static near plane. */
+        float        _near;
+        /** Static far plane. */
+        float        _far;
 
         void _sendInit();
         void _sendExit();

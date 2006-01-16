@@ -2,10 +2,10 @@
 /* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQBASE_VIEWPORT_H
-#define EQBASE_VIEWPORT_H
+#ifndef EQ_VIEWPORT_H
+#define EQ_VIEWPORT_H
 
-namespace eqBase
+namespace eq
 {
     /**
      * Holds a fractional viewport along with some methods for manipulation.
@@ -34,4 +34,4 @@ namespace eqBase
     };
 }
 
-#endif //EQBASE_VIEWPORT_H
+#endif // EQ_VIEWPORT_H

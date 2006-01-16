@@ -112,7 +112,7 @@ bool Server::_loadConfig( int argc, char **argv )
     compound->setChannel( channel );
     config->addCompound( compound );
 
-    Compound::Wall wall = WALL_20INCH_16x10;
+    eq::Wall wall = WALL_20INCH_16x10;
     compound->setWall( wall );
 
     addConfig( config );
@@ -149,11 +149,10 @@ Config* Server::_cloneConfig( Config* config )
     for( uint32_t i=0; i<nCompounds; i++ )
     {
         Compound* compound      = config->getCompound(i);
-        Compound* compoundClone = new Compound();
+        Compound* compoundClone = new Compound( *compound );
 
-        // TODO clone tree
         clone->addCompound( compoundClone );
-        compoundClone->setChannel( compound->getChannel() ); // replaced below
+        // channel is replaced below
     }
 
     const uint32_t nNodes = config->nNodes();

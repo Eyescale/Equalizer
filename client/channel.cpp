@@ -8,14 +8,17 @@
 #include "global.h"
 #include "nodeFactory.h"
 #include "packets.h"
-#include "channel.h"
+#include "renderContext.h"
 
 using namespace eq;
 using namespace std;
 
 Channel::Channel()
         : eqNet::Base( CMD_CHANNEL_ALL ),
-          _window(NULL)
+          _window(NULL),
+          _near(.1),
+          _far(100.),
+          _context( NULL )
 {
     registerCommand( CMD_CHANNEL_INIT, this, reinterpret_cast<CommandFcn>(
                          &eq::Channel::_pushRequest ));
@@ -29,6 +32,10 @@ Channel::Channel()
                          &eq::Channel::_pushRequest ));
     registerCommand( REQ_CHANNEL_CLEAR, this, reinterpret_cast<CommandFcn>( 
                          &eq::Channel::_reqClear ));
+    registerCommand( CMD_CHANNEL_DRAW, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Channel::_pushRequest ));
+    registerCommand( REQ_CHANNEL_DRAW, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Channel::_reqDraw ));
 }
 
 Channel::~Channel()
@@ -45,14 +52,66 @@ void Channel::clear()
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
+void Channel::draw()
+{
+    applyBuffer();
+    applyViewport();
+    
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();
+    applyFrustum();
+
+    glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity();
+    applyHeadTransform();
+
+    glTranslatef( 0, 0, -2 );
+    glColor3f( 1, 1, 0 );
+    glBegin( GL_QUADS );
+    glVertex3f( -.25, -.25, -.25 );
+    glVertex3f( -.25,  .25, -.25 );
+    glVertex3f(  .25, -.25, -.25 );
+    glVertex3f(  .25, - 25, -.25 );
+    glEnd();
+    glFinish();
+}
+
 void Channel::applyBuffer()
 {
-    glDrawBuffer( _drawBuffer );
+    if( !_context || !(_context->hints & HINT_BUFFER ))
+        return;
+
+    glDrawBuffer( _context->drawBuffer );
 }
 
 void Channel::applyViewport()
 {
-    glViewport( _pvp.x, _pvp.y, _pvp.w, _pvp.h );
+    if( !_context || !(_context->hints & HINT_BUFFER ))
+        return;
+
+    const PixelViewport& pvp = _context->pvp;
+    glViewport( pvp.x, pvp.y, pvp.w, pvp.h );
+}
+
+void Channel::applyFrustum()
+{
+    if( !_context || !(_context->hints & HINT_FRUSTUM ))
+        return;
+
+    const float* frustum = _context->frustum;
+    glFrustum( frustum[0], frustum[1], frustum[2], frustum[3], frustum[4],
+               frustum[5] ); 
+    INFO << "Applied frustum: " << LOG_VECTOR6( frustum ) << endl;
+}
+
+void Channel::applyHeadTransform()
+{
+    if( !_context || !(_context->hints & HINT_FRUSTUM ))
+        return;
+    
+    glMultMatrixf( _context->headTransform );
+    INFO << "Applied head transform: " 
+         << LOG_MATRIX4x4( _context->headTransform ) << endl;
 }
 
 //---------------------------------------------------------------------------
@@ -75,6 +134,8 @@ void Channel::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
 
     ChannelInitReplyPacket reply( packet );
     reply.result = init(); // XXX push to channel thread
+    reply.near   = _near;
+    reply.far    = _far;
     node->send( reply );
 }
 
@@ -94,8 +155,17 @@ void Channel::_reqClear( eqNet::Node* node, const eqNet::Packet* pkg )
     ChannelClearPacket* packet = (ChannelClearPacket*)pkg;
     INFO << "handle channel clear " << packet << endl;
 
-    _drawBuffer = packet->buffer;
-    _pvp        = packet->pvp;
-
+    _context = &packet->context;
     clear();
+    _context = NULL;
+}
+
+void Channel::_reqDraw( eqNet::Node* node, const eqNet::Packet* pkg )
+{
+    ChannelClearPacket* packet = (ChannelClearPacket*)pkg;
+    INFO << "handle channel clear " << packet << endl;
+
+    _context = &packet->context;
+    draw();
+    _context = NULL;
 }

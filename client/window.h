@@ -6,8 +6,8 @@
 
 #include "commands.h"
 #include "pipe.h"
+#include "pixelViewport.h"
 
-#include <eq/base/pixelViewport.h>
 #include <eq/net/base.h>
 #include <eq/net/object.h>
 
@@ -129,7 +129,7 @@ namespace eq
         std::vector<Channel*>     _channels;
 
         /** The pixel viewport wrt the pipe. */
-        eqBase::PixelViewport _pvp;
+        eq::PixelViewport _pvp;
 
 #ifdef GLX
         /** The drawable ID of the window. */

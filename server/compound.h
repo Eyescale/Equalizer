@@ -1,21 +1,17 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_COMPOUND_H
 #define EQS_COMPOUND_H
 
-#include <eq/base/viewport.h>
+#include <eq/frustum.h>
+#include <eq/projection.h>
+#include <eq/viewport.h>
+#include <eq/wall.h>
 
 #include <iostream>
 #include <vector>
-
-// Definitions for common display systems in meters
-// to be moved to client lib
-#define WALL_20INCH_16x10 {                            \
-        { -.21672, -.13545, -1, },                     \
-        {  .21672, -.13545, -1, },                     \
-        { -.21672,  .13545, -1, }}
 
 namespace eqs
 {
@@ -37,6 +33,11 @@ namespace eqs
          * Constructs a new Compound.
          */
         Compound();
+
+        /**
+         * Constructs a new, deep copy of the passed compound
+         */
+        Compound( const Compound& from );
 
         /** 
          * Adds a new child to this compound.
@@ -99,69 +100,27 @@ namespace eqs
          * @name View Operations
          */
         //*{
-        /**
-         * A wall definition defining a view frustum.
-         * 
-         * The three points describe the bottom left, bottom right and top left
-         * coordinate of the wall in real-world coordinates.
-         */
-        struct Wall // to be moved to client library 
-        {
-            float bottomLeft[3];
-            float bottomRight[3];
-            float topLeft[3];
-        };
-
-        /**
-         * A projection definition defining a view frustum.
-         * 
-         * The frustum is defined by a projection system positioned at origin,
-         * orientated as defined by the head-pitch-roll angles projecting to a
-         * wall at the given distance. The fov defines the horizontal and
-         * vertical field of view of the projector.
-         */
-        struct Projection // to be moved to client library 
-        {
-            float origin[3];
-            float distance;
-            float fov[2];
-            float hpr[3];
-        };
-
-        /** 
-         * A generic frustum definition
-         *
-         * The frustum is defined by the size of the viewport and a
-         * transformation matrix.
-         * @todo better doc
-         */
-        struct Frustum
-        {
-            float width;
-            float height;
-            float xfm[16];
-        };
 
         /** 
          * Set the compound's view frustum using a wall description.
          * 
          * @param wall the wall description.
          */
-        void setWall( const Wall& wall );
+        void setWall( const eq::Wall& wall );
 
         /** 
          * Set the compound's view frustum using a projection description
          * 
          * @param projection the projection description.
          */
-        void setProjection( const Projection& projection );
+        void setProjection( const eq::Projection& projection );
 
         /** 
          * Set the compound's view frustum as a four-by-four matrix.
          * 
          * @param frustum the frustum description.
          */
-        void setFrustum( const Frustum& frustum );
+        void setFrustum( const eq::Frustum& frustum );
         //*}
 
         /**
@@ -233,21 +192,20 @@ namespace eqs
 
             View() : latest( NONE ) {}
 
-            Type        latest;
-            Wall        wall;
-            Projection  projection;
-            Frustum     frustum;
+            Type           latest;
+            eq::Wall       wall;
+            eq::Projection projection;
+            eq::Frustum    frustum;
         } 
         _view;
-
-        Frustum     _frustum;
 
         struct InheritData
         {
             InheritData();
 
-            Channel*         channel;
-            eqBase::Viewport vp;
+            Channel*     channel;
+            eq::Viewport vp;
+            eq::Frustum  frustum;
         };
 
         InheritData _data;

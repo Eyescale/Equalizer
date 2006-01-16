@@ -5,9 +5,9 @@
 #define EQ_CHANNEL_H
 
 #include "commands.h"
+#include "pixelViewport.h"
 #include "window.h"
 
-#include <eq/base/pixelViewport.h>
 #include <eq/net/base.h>
 #include <eq/net/object.h>
 
@@ -15,6 +15,7 @@ namespace eq
 {
     class Channel;
     class Node;
+    class RenderContext;
 
     class Channel : public eqNet::Base, public eqNet::Object
     {
@@ -29,7 +30,37 @@ namespace eq
          */
         virtual ~Channel();
 
+        /**
+         * @name Data Access
+         */
+        //*{
         Pipe* getPipe() const { return ( _window ? _window->getPipe() : NULL );}
+
+        /** 
+         * Set the near and far planes for this channel.
+         * 
+         * The near and far planes are set during initialisation and are
+         * inherited by source channels contributing to the rendering of this
+         * channel. Dynamic near and far planes can be applied using
+         * applyNearFar.
+         *
+         * @param near the near plane.
+         * @param far the far plane.
+         */
+        void setNearFar( const float near, const float far )
+            { _near = near; _far = far; }
+
+        /** 
+         * Returns the current near and far planes for this channel.
+         *
+         * The current near and far plane depends on the context from which this
+         * function is called.
+         * 
+         * @param near a pointer to store the near plane.
+         * @param far a pointer to store the far plane.
+         */
+        void getNearFar( float *near, float *far );
+        //*}
 
         /**
          * @name Callbacks
@@ -54,6 +85,11 @@ namespace eq
          * Clear the frame buffer.
          */
         virtual void clear();
+
+        /** 
+         * Draw the scene.
+         */
+        virtual void draw();
         //@}
 
         /**
@@ -72,22 +108,40 @@ namespace eq
          * Apply the OpenGL viewport for the current rendering task.
          */
         void applyViewport();
+
+        /**
+         * Apply the frustum matrix for the current rendering task.
+         */
+        void applyFrustum();
+
+        /** 
+         * Apply the modeling transformation to position and orient the view
+         * frustum.
+         */
+        void applyHeadTransform();
+
         //*}
     private:
         /** The parent node. */
-        friend class Window;
-        Window*      _window;
+        friend class   Window;
+        Window*        _window;
 
-        /** The draw buffer for the current task. */
-        GLenum                _drawBuffer;
+        /** Static near plane. */
+        float          _near;
+        /** Static far plane. */
+        float          _far;
+
+        /** server-supplied rendering data. */
+        RenderContext *_context;
 
         /** The pixel viewport for the current task. */
-        eqBase::PixelViewport _pvp;
+        PixelViewport  _pvp;
 
         void _pushRequest( eqNet::Node* node, const eqNet::Packet* packet );
         void _reqInit( eqNet::Node* node, const eqNet::Packet* packet );
         void _reqExit( eqNet::Node* node, const eqNet::Packet* packet );
         void _reqClear( eqNet::Node* node, const eqNet::Packet* packet );
+        void _reqDraw( eqNet::Node* node, const eqNet::Packet* packet );
     };
 }
 

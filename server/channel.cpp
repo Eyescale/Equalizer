@@ -131,6 +131,9 @@ void Channel::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
     eq::ChannelInitReplyPacket* packet = (eq::ChannelInitReplyPacket*)pkg;
     INFO << "handle channel init reply " << packet << endl;
 
+    _near = packet->near;
+    _far  = packet->far;
+
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
 }
 

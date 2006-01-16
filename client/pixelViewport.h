@@ -2,13 +2,14 @@
 /* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQBASE_PIXELVIEWPORT_H
-#define EQBASE_PIXELVIEWPORT_H
+#ifndef EQ_PIXELVIEWPORT_H
+#define EQ_PIXELVIEWPORT_H
 
-#include "base.h"
+#include <eq/base/base.h>
+
 #include "viewport.h"
 
-namespace eqBase
+namespace eq
 {
     /**
      * Holds a pixel viewport along with some methods for manipulation.
@@ -55,4 +56,4 @@ namespace eqBase
     }
 }
 
-#endif //EQBASE_PIXELVIEWPORT_H
+#endif // EQ_PIXELVIEWPORT_H
