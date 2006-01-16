@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "node.h"
@@ -331,7 +331,8 @@ void Node::_handleConnect( ConnectionSet& connectionSet )
 void Node::handleConnect( RefPtr<Connection> connection )
 {
     NodeConnectPacket packet;
-    bool gotData = connection->recv( &packet, sizeof( NodeConnectPacket ));
+    const bool gotData = 
+        connection->recv( &packet, sizeof( NodeConnectPacket ));
     ASSERT( gotData );
     
     RefPtr<Node> node;

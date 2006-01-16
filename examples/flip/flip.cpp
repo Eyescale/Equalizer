@@ -38,6 +38,14 @@ public:
         {
             cout << "Exit " << this << endl;
         }
+
+    virtual void clear()
+        {
+            applyBuffer();
+            applyViewport();
+            glClearColor( 1, 0, 0, 0 );
+            glClear( GL_COLOR_BUFFER_BIT );
+        }
 };
 
 class NodeFactory : public eq::NodeFactory
@@ -84,6 +92,7 @@ int main( int argc, char** argv )
         // process events
     }
 
+    sleep( 1 );
     config->exit();
     server.releaseConfig( config );
     server.close();

@@ -49,8 +49,8 @@ namespace eqBase
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PixelViewport& pvp )
     {
-        os << "[ " << pvp.x << " " << pvp.y << " " << pvp.w << " " << pvp.h
-           << " ]" << std::endl;
+        os << "[" << pvp.x << " " << pvp.y << " " << pvp.w << " " << pvp.h
+           << "]" << std::endl;
         return os;
     }
 }

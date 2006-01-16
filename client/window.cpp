@@ -206,6 +206,8 @@ bool eq::Window::initGLX()
     *aptr++ = 1;
     *aptr++ = GLX_STENCIL_SIZE;
     *aptr++ = 8;
+    *aptr++ = GLX_DOUBLEBUFFER;
+    *aptr++ = 0;
     *aptr = None;
 
     XVisualInfo *visInfo = glXChooseVisual( display, screen, attributes );

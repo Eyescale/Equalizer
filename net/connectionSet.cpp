@@ -117,8 +117,8 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                     if( _fdSet[i].revents == 0 )
                         continue;
                 
-                    const int fd        = _fdSet[i].fd;
-                    const int pollEvent = _fdSet[i].revents;
+                    const int fd         = _fdSet[i].fd;
+                    const int pollEvents = _fdSet[i].revents;
 
                     // The connection set was modified in the select, restart
                     // the selection.
@@ -126,7 +126,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                     if( fd == _selfFD[0] )
                     {
                         INFO << "FD set modified, restarting select" << endl;
-                        ASSERT( pollEvent == POLLIN );
+                        ASSERT( pollEvents == POLLIN );
                         char c = '\0';
                         read( fd, &c, 1 );
                         ASSERT( c == 'd' );
@@ -136,35 +136,47 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                     _connection = _fdSetConnections[fd];
                     
                     VERB << "selected connection #" << i << " of " << _fdSetSize
-                         << ", poll event " << pollEvent << ", " 
+                         << ", poll event " << pollEvents << ", " 
                          << _connection.get() << endl;
 
-                    switch( pollEvent )
+                    if( pollEvents & POLLERR )
                     {
-                        case POLLERR:
-                            _errno = 0;
-                            INFO << "Error during poll()" << endl;
-                            event = EVENT_ERROR;
-                            break;
+                        _errno = 0;
+                        INFO << "Error during poll()" << endl;
+                        event = EVENT_ERROR;
+                        break;
+                    }
 
-                        case POLLIN:
-                        case POLLPRI: // data is ready for reading
-                            if( _connection->getState() == 
-                                Connection::STATE_LISTENING )
-                                event = EVENT_CONNECT;
-                            else
-                                event = EVENT_DATA;
-                            break;
-
-                    case POLLHUP: // disconnect happened
+                    if( pollEvents & POLLHUP ) // disconnect happened
+                    {
                         event = EVENT_DISCONNECT;
                         break;
-
-                    case POLLNVAL: // disconnected connection
+                    }
+    
+                    if( pollEvents & POLLNVAL ) // disconnected connection
+                    {
                         event = EVENT_DISCONNECT;
                         break;
+                    }
+
+                    // Note: Intuitively I would handle the read before HUP to
+                    // read remaining data of the connection, but at least on
+                    // OS X both events happen simultaneously and no more data
+                    // can be read.
+                    if( pollEvents & POLLIN || pollEvents & POLLPRI )
+                    {  
+                        // data is ready for reading
+                        if( _connection->getState() == 
+                            Connection::STATE_LISTENING )
+                            event = EVENT_CONNECT;
+                        else
+                            event = EVENT_DATA;
+                        break;
+                    }
+
+                    ERROR << "Unhandled poll event(s): " << pollEvents << endl;
+                    abort();
                 }
-            }
         }
     }
     _inSelect = false;
