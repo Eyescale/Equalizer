@@ -192,8 +192,8 @@ bool eq::Window::initGLX()
 
     int screen  = DefaultScreen( display );
     XID parent  = RootWindow( display, screen );
-    int size[4] = { 0, 0, DisplayWidth( display, screen ), 
-                    DisplayHeight( display, screen ) };
+    int size[4] = { 0, 0, DisplayWidth( display, screen )/2, 
+                    DisplayHeight( display, screen )/2 };
 
     int attributes[100], *aptr=attributes;    
     *aptr++ = GLX_RGBA;

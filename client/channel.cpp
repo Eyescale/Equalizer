@@ -67,11 +67,11 @@ void Channel::draw()
 
     glTranslatef( 0, 0, -2 );
     glColor3f( 1, 1, 0 );
-    glBegin( GL_QUADS );
+    glBegin( GL_TRIANGLE_STRIP );
     glVertex3f( -.25, -.25, -.25 );
     glVertex3f( -.25,  .25, -.25 );
     glVertex3f(  .25, -.25, -.25 );
-    glVertex3f(  .25, - 25, -.25 );
+    glVertex3f(  .25,  .25, -.25 );
     glEnd();
     glFinish();
 }
@@ -101,7 +101,7 @@ void Channel::applyFrustum()
     const float* frustum = _context->frustum;
     glFrustum( frustum[0], frustum[1], frustum[2], frustum[3], frustum[4],
                frustum[5] ); 
-    INFO << "Applied frustum: " << LOG_VECTOR6( frustum ) << endl;
+    VERB << "Applied frustum: " << LOG_VECTOR6( frustum ) << endl;
 }
 
 void Channel::applyHeadTransform()
@@ -110,7 +110,7 @@ void Channel::applyHeadTransform()
         return;
     
     glMultMatrixf( _context->headTransform );
-    INFO << "Applied head transform: " 
+    VERB << "Applied head transform: " 
          << LOG_MATRIX4x4( _context->headTransform ) << endl;
 }
 

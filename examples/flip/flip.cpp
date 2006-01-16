@@ -84,7 +84,7 @@ int main( int argc, char** argv )
         // process events
     }
 
-    sleep( 1 );
+    sleep( 5 );
     config->exit();
     server.releaseConfig( config );
     server.close();
