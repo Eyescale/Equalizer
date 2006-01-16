@@ -25,11 +25,34 @@ Channel::Channel()
                          &eq::Channel::_pushRequest ));
     registerCommand( REQ_CHANNEL_EXIT, this, reinterpret_cast<CommandFcn>( 
                          &eq::Channel::_reqExit ));
-    // more registerCommands in Window::addChannel and Window::removeChannel
+    registerCommand( CMD_CHANNEL_CLEAR, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Channel::_pushRequest ));
+    registerCommand( REQ_CHANNEL_CLEAR, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Channel::_reqClear ));
 }
 
 Channel::~Channel()
 {
+}
+
+//---------------------------------------------------------------------------
+// operations
+//---------------------------------------------------------------------------
+void Channel::clear()
+{
+    applyBuffer();
+    applyViewport();
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+}
+
+void Channel::applyBuffer()
+{
+    glDrawBuffer( _drawBuffer );
+}
+
+void Channel::applyViewport()
+{
+    glViewport( _pvp.x, _pvp.y, _pvp.w, _pvp.h );
 }
 
 //---------------------------------------------------------------------------
@@ -64,4 +87,15 @@ void Channel::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
 
     ChannelExitReplyPacket reply( packet );
     node->send( reply );
+}
+
+void Channel::_reqClear( eqNet::Node* node, const eqNet::Packet* pkg )
+{
+    ChannelClearPacket* packet = (ChannelClearPacket*)pkg;
+    INFO << "handle channel clear " << packet << endl;
+
+    _drawBuffer = packet->buffer;
+    _pvp        = packet->pvp;
+
+    clear();
 }

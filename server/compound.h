@@ -5,6 +5,8 @@
 #ifndef EQS_COMPOUND_H
 #define EQS_COMPOUND_H
 
+#include <eq/base/viewport.h>
+
 #include <iostream>
 #include <vector>
 
@@ -84,14 +86,14 @@ namespace eqs
          * 
          * @param channel the channel.
          */
-        void setChannel( Channel* channel ){ _channel = channel; }
+        void setChannel( Channel* channel ){ _data.channel = channel; }
 
         /** 
          * Returns the channel of this compound.
          * 
          * @return the channel of this compound.
          */
-        Channel* getChannel() const { return _channel; }
+        Channel* getChannel() const { return _data.channel; }
 
         /**
          * @name View Operations
@@ -201,17 +203,21 @@ namespace eqs
         /** 
          * Updates this compound.
          * 
-         * All tasks are send to produce a new frame of rendering for this
-         * compound tree.
+         * The compound's parameters for the next frame are computed.
          */
         void update();
+
+        /** 
+         * Update a channel by generating all rendering tasks for this frame.
+         * 
+         * @param channel the channel to update.
+         */
+        void updateChannel( Channel* channel );
         //*}
 
     private:
         Compound               *_parent;
         std::vector<Compound*>  _children;
-        
-        Channel* _channel;
         
         Compound* _getNext() const;
 
@@ -236,13 +242,20 @@ namespace eqs
 
         Frustum     _frustum;
 
-        struct
+        struct InheritData
         {
-            Channel* channel;
-            int      pvp[4];
-            int      vp[4];
-        }
-        _inherit;
+            InheritData();
+
+            Channel*         channel;
+            eqBase::Viewport vp;
+        };
+
+        InheritData _data;
+        InheritData _inherit;
+
+        void _updateInheritData();
+
+        static TraverseResult _updateDrawCB(Compound* compound, void* userData);
     };
 
     std::ostream& operator << (std::ostream& os,const Compound* compound);

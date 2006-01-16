@@ -21,7 +21,8 @@ namespace eqNet
         Object();
         virtual ~Object();
         
-        uint32_t getID() const { return _id; }
+        uint32_t getSessionID() const { return _sessionID; }
+        uint32_t getID() const        { return _id; }
 
         virtual void handleCommand( Node* node, const ObjectPacket* packet );
 

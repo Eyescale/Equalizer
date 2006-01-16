@@ -7,18 +7,25 @@
 #include "channel.h"
 
 #include <eq/base/base.h>
+#include <eq/packets.h>
+
+#include <GL/gl.h>
 #include <algorithm>
 #include <math.h>
 #include <vector>
 
 using namespace eqs;
+using namespace eqBase;
 using namespace std;
 
 Compound::Compound()
-        : _parent( NULL ),
-          _channel( NULL )
+        : _parent( NULL )
 {
 }
+
+Compound::InheritData::InheritData()
+        : channel( NULL )
+{}
 
 void Compound::addChild( Compound* child )
 {
@@ -274,14 +281,64 @@ void Compound::exit()
 
 void Compound::update()
 {
-    const uint32_t nChildren = this->nChildren();
+    _updateInheritData();
 
-    if( nChildren == 0 ) // leaf
+    const uint32_t nChildren = this->nChildren();
+    for( uint32_t i=0; i<nChildren; i++ )
     {
+        Compound* child = getChild(i);
+        child->update();
     }
 
 }
 
+void Compound::_updateInheritData()
+{
+    if( !_parent )
+    {
+        _inherit = _data;
+        return;
+    }
+
+    _inherit = _parent->_inherit;
+
+    if( !_inherit.channel ) _inherit.channel = _data.channel;
+    
+    _inherit.vp.multiply( _data.vp );
+}
+
+
+void Compound::updateChannel( Channel* channel )
+{
+    traverse( this, NULL, _updateDrawCB, NULL, channel );
+}
+
+TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
+{
+    Channel* channel = (Channel*)userData;
+    if( compound->_data.channel != channel )
+        return TRAVERSE_CONTINUE;
+
+    const Channel* iChannel  = compound->_inherit.channel;
+
+    if( !compound->_parent || 
+        compound->_parent && compound->_parent->_data.channel != channel )
+    {
+        eq::ChannelClearPacket packet( channel->getSessionID(), 
+                                       channel->getID( ));
+        
+        const PixelViewport iPVP = iChannel->getPixelViewport();
+        
+        packet.buffer = GL_BACK;
+        packet.pvp.x  = 0;
+        packet.pvp.y  = 0;
+        packet.pvp.w  = (uint32_t)(compound->_inherit.vp.w * iPVP.w);
+        packet.pvp.h  = (uint32_t)(compound->_inherit.vp.h * iPVP.h);
+        channel->send( packet );
+    }
+
+    // draw
+}
 
 std::ostream& eqs::operator << (std::ostream& os,const Compound* compound)
 {

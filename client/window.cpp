@@ -135,9 +135,11 @@ void eq::Window::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
             node->send( reply );
             return;
         }
+        // TODO: pvp
     }
 #endif
 
+    reply.pvp = _pvp;
     node->send( reply );
 }
 
@@ -365,3 +367,49 @@ void eq::Window::exitCGL()
     CGLDestroyContext ( context );       
 #endif
 }
+
+
+#ifdef GLX
+void eq::Window::setXDrawable( XID drawable )
+{
+    _xDrawable = drawable;
+
+    if( !drawable )
+    {
+        _pvp.reset();
+        return;
+    }
+
+    // query pixel viewport of window
+    Display          *display = _pipe->getXDisplay();
+    ASSERT( display );
+
+    XWindowAttributes wa;
+    XGetWindowAttributes( display, drawable, &wa );
+    
+    // Window position is relative to parent: translate to absolute coordinates
+    ::Window root, parent, *children;
+    unsigned nChildren;
+    
+    XQueryTree( display, drawable, &root, &parent, &children, &nChildren );
+    if( children != NULL ) XFree( children );
+
+    int x,y;
+    ::Window childReturn;
+    XTranslateCoordinates( display, parent, root, wa.x, wa.y, &x, &y,
+        &childReturn );
+
+    _pvp.x = x;
+    _pvp.y = y;
+    _pvp.w = wa.width;
+    _pvp.h = wa.height;
+}
+#endif // GLX
+
+#ifdef CGL
+void eq::Window::setCGLContext( CGLContextObj context )
+{
+    _cglContext = context;
+    // TODO: pvp
+}
+#endif // CGL

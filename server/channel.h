@@ -9,6 +9,7 @@
 #include "window.h"
 
 #include <eq/commands.h>
+#include <eq/base/viewport.h>
 #include <eq/net/base.h>
 #include <eq/net/object.h>
 #include <eq/net/packets.h>
@@ -31,7 +32,13 @@ namespace eqs
          */
         Channel();
 
+        /**
+         * @name Data Access
+         */
+        //*{
         Node* getNode() const { return (_window ? _window->getNode() : NULL); }
+        Config* getConfig() const 
+            { return (_window ? _window->getConfig() : NULL); }
 
         /** 
          * References this window as being actively used.
@@ -50,6 +57,15 @@ namespace eqs
          *         <code>false</code> if not.
          */
         bool isUsed() const { return (_used!=0); }
+
+        /** 
+         * Return the 
+         * 
+         * 
+         * @return 
+         */
+        const eqBase::PixelViewport& getPixelViewport() const { return _pvp; }
+        //*/
 
         /**
          * @name Operations
@@ -80,11 +96,18 @@ namespace eqs
          *         <code>false</code> if not.
          */
         bool syncExit();
-        
+
         /** 
-         * Send the node the command to stop its execution.
+         * Update the per-frame data of this channel.
          */
-        void stop();
+        void update();
+
+        /** 
+         * Send a command packet to the channel.
+         * 
+         * @param packet the packet.
+         */
+        void send( eqNet::Packet& packet ) { getNode()->send( packet ); }
         //*}
 
 
@@ -99,7 +122,12 @@ namespace eqs
         /** The request identifier for pending asynchronous operations. */
         uint32_t _pendingRequestID;
 
-        void _send( eqNet::Packet& packet ) { getNode()->send( packet ); }
+        /** The fractional viewport with respect to the window. */
+        eqBase::Viewport      _vp;
+
+        /** The pixel viewport within the window. */
+        eqBase::PixelViewport _pvp;
+
         void _sendInit();
         void _sendExit();
 

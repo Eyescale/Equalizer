@@ -7,14 +7,9 @@
 #include "commands.h"
 #include "window.h"
 
+#include <eq/base/pixelViewport.h>
 #include <eq/net/base.h>
 #include <eq/net/object.h>
-
-// namespace eqNet
-// {
-//     class  Node;
-//     struct Packet;
-// }
 
 namespace eq
 {
@@ -54,16 +49,45 @@ namespace eq
          * Exit this channel.
          */
         virtual void exit(){}
+
+        /** 
+         * Clear the frame buffer.
+         */
+        virtual void clear();
         //@}
 
+        /**
+         * @name Operations
+         *
+         * Operations are only available from within certain callbacks.
+         */
+        //*{
+
+        /** 
+         * Apply the current rendering buffer.
+         */
+        void applyBuffer();
+
+        /** 
+         * Apply the OpenGL viewport for the current rendering task.
+         */
+        void applyViewport();
+        //*}
     private:
         /** The parent node. */
         friend class Window;
         Window*      _window;
 
+        /** The draw buffer for the current task. */
+        GLenum                _drawBuffer;
+
+        /** The pixel viewport for the current task. */
+        eqBase::PixelViewport _pvp;
+
         void _pushRequest( eqNet::Node* node, const eqNet::Packet* packet );
         void _reqInit( eqNet::Node* node, const eqNet::Packet* packet );
         void _reqExit( eqNet::Node* node, const eqNet::Packet* packet );
+        void _reqClear( eqNet::Node* node, const eqNet::Packet* packet );
     };
 }
 

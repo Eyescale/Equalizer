@@ -151,6 +151,23 @@ bool Window::syncExit()
     return success;
 }
 
+//---------------------------------------------------------------------------
+// update
+//---------------------------------------------------------------------------
+void Window::update()
+{
+    // TODO: send update window task (make current)
+    const uint32_t nChannels = this->nChannels();
+    for( uint32_t i=0; i<nChannels; i++ )
+    {
+        Channel* channel = getChannel( i );
+        if( channel->isUsed( ))
+            channel->update();
+    }
+    // TODO: swap task?
+}
+
+
 //===========================================================================
 // command handling
 //===========================================================================
@@ -159,6 +176,7 @@ void Window::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
     eq::WindowInitReplyPacket* packet = (eq::WindowInitReplyPacket*)pkg;
     INFO << "handle window init reply " << packet << endl;
 
+    _pvp = packet->pvp;
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
 }
 

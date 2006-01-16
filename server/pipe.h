@@ -120,6 +120,11 @@ namespace eqs
          *         <code>false</code> if not.
          */
         bool syncExit();
+
+        /** 
+         * Update the per-frame data of this pipe.
+         */
+        void update();
         //*}
 
     private:

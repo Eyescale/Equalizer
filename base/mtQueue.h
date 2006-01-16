@@ -94,6 +94,7 @@ namespace eqBase
                     }   
                     default:
                         ERROR << "not implemented" << std::endl;
+                        abort();
                 }
             }
 

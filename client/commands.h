@@ -92,6 +92,10 @@ namespace eq
         CMD_CHANNEL_EXIT,
         REQ_CHANNEL_EXIT,
         CMD_CHANNEL_EXIT_REPLY,
+        CMD_CHANNEL_CLEAR,
+        REQ_CHANNEL_CLEAR,
+        CMD_CHANNEL_DRAW,
+        REQ_CHANNEL_DRAW,
         CMD_CHANNEL_ALL
     };
 };

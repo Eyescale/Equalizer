@@ -1,14 +1,17 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PACKETS_H
 #define EQ_PACKETS_H
 
+#include "commands.h"
+//#include "config.h"
+
+#include <eq/base/pixelViewport.h>
 #include <eq/net/packets.h>
 
-#include "commands.h"
-#include "config.h"
+#include <GL/gl.h> // XXX?
 
 namespace eq
 {
@@ -380,8 +383,10 @@ namespace eq
                 size      = sizeof( WindowInitReplyPacket );
             }
 
-        uint32_t requestID;
-        bool     result;
+        uint32_t              requestID;
+        bool                  result;
+
+        eqBase::PixelViewport pvp;
     };
 
     struct WindowExitPacket : public eqNet::ObjectPacket
@@ -492,6 +497,19 @@ namespace eq
         uint32_t requestID;
     };
 
+    struct ChannelClearPacket : public eqNet::ObjectPacket
+    {
+        ChannelClearPacket( const uint32_t configID, const uint32_t channelID )
+                : eqNet::ObjectPacket( configID, channelID )
+            {
+                command = CMD_CHANNEL_CLEAR;
+                size    = sizeof( ChannelClearPacket );
+            }
+
+        GLenum                buffer;
+        eqBase::PixelViewport pvp;
+    };
+        
 
     //------------------------------------------------------------
 
@@ -518,6 +536,14 @@ namespace eq
                                        const ServerReleaseConfigPacket* packet )
     {
         os << (ServerPacket*)packet << " config " << packet->configID;
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const WindowInitReplyPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " result " << packet->result
+           << " pvp " << packet->pvp;
         return os;
     }
 }

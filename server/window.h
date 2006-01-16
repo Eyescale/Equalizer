@@ -7,6 +7,7 @@
 
 #include "pipe.h"
 
+#include <eq/base/pixelViewport.h>
 #include <eq/net/base.h>
 #include <eq/net/object.h>
 
@@ -31,6 +32,10 @@ namespace eqs
 
         virtual ~Window(){}
 
+        /**
+         * @name Data Access
+         */
+        //*{
         /** 
          * Adds a new channel to this window.
          * 
@@ -78,12 +83,20 @@ namespace eqs
         void unrefUsed();
 
         /** 
-         * Returns if this window is actively used.
+         * Return if this window is actively used.
          *
          * @return <code>true</code> if this window is actively used,
          *         <code>false</code> if not.
          */
         bool isUsed() const { return (_used!=0); }
+
+        /** 
+         * Return this window's pixel viewport.
+         * 
+         * @return the pixel viewport.
+         */
+        const eqBase::PixelViewport& getPixelViewport() const { return _pvp; }
+        //*}
 
         /**
          * @name Operations
@@ -116,9 +129,9 @@ namespace eqs
         bool syncExit();
         
         /** 
-         * Send the node the command to stop its execution.
+         * Update the per-frame data of this window.
          */
-        void stop();
+        void update();
         //*}
 
     private:
@@ -133,6 +146,9 @@ namespace eqs
 
         /** The request id for pending asynchronous operations. */
         uint32_t _pendingRequestID;
+
+        /** The size and position of the window. */
+        eqBase::PixelViewport _pvp;
 
         void _send( const eqNet::Packet& packet ) { getNode()->send( packet ); }
 

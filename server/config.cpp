@@ -243,6 +243,14 @@ uint32_t Config::_frameBegin()
         Compound* compound = getCompound( i );
         compound->update();
     }
+
+    const uint32_t nNodes = this->nNodes();
+    for( uint32_t i=0; i<nNodes; i++ )
+    {
+        Node* node = getNode( i );
+        if( node->isUsed( ))
+            node->update();
+    }
     
     return _frameNumber;
 }

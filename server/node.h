@@ -116,6 +116,11 @@ namespace eqs
          * Send the node the command to stop its execution.
          */
         void stop();
+
+        /** 
+         * Update the per-frame data of this node.
+         */
+        void update();
         //*}
 
     protected:

@@ -4,6 +4,8 @@
 
 #include "channel.h"
 
+#include "compound.h"
+#include "config.h"
 #include "window.h"
 
 #include <eq/commands.h>
@@ -62,7 +64,7 @@ void Channel::_sendInit()
     eq::ChannelInitPacket packet( _sessionID, _id );
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
-    _send( packet );
+    send( packet );
 }
 
 bool Channel::syncInit()
@@ -87,7 +89,7 @@ void Channel::_sendExit()
     eq::ChannelExitPacket packet( _sessionID, _id );
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
-    _send( packet );
+    send( packet );
 }
 
 bool Channel::syncExit()
@@ -98,6 +100,29 @@ bool Channel::syncExit()
     _pendingRequestID = INVALID_ID;
     return success;
 }
+
+
+//---------------------------------------------------------------------------
+// update
+//---------------------------------------------------------------------------
+void Channel::update()
+{
+    _pvp = _window->getPixelViewport();
+
+    _pvp.x = 0;
+    _pvp.y = 0;
+    _pvp.applyViewport( _vp );
+
+
+    Config*        config     = getConfig();
+    const uint32_t nCompounds = config->nCompounds();
+    for( uint32_t i=0; i<nCompounds; i++ )
+    {
+        Compound* compound = config->getCompound( i );
+        compound->updateChannel( this );
+    }
+}
+
 //===========================================================================
 // command handling
 //===========================================================================

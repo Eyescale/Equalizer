@@ -7,6 +7,7 @@
 #include "commands.h"
 #include "pipe.h"
 
+#include <eq/base/pixelViewport.h>
 #include <eq/net/base.h>
 #include <eq/net/object.h>
 
@@ -49,7 +50,7 @@ namespace eq
          *
          * @param drawable the X11 drawable ID.
          */
-        void setXDrawable( XID drawable ) { _xDrawable = drawable; }
+        void setXDrawable( XID drawable );
 
         /** 
          * Returns the X11 drawable ID. 
@@ -80,7 +81,7 @@ namespace eq
          *
          * @param drawable the CGL rendering context.
          */
-        void setCGLContext( CGLContextObj context ) { _cglContext = context; }
+        void setCGLContext( CGLContextObj context );
 
         /** 
          * Returns the CGL rendering context.
@@ -126,6 +127,9 @@ namespace eq
 
         /** The channels of this window. */
         std::vector<Channel*>     _channels;
+
+        /** The pixel viewport wrt the pipe. */
+        eqBase::PixelViewport _pvp;
 
 #ifdef GLX
         /** The drawable ID of the window. */
