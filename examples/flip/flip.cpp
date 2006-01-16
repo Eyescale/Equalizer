@@ -43,8 +43,10 @@ public:
         {
             applyBuffer();
             applyViewport();
+
             glClearColor( 1, 0, 0, 0 );
             glClear( GL_COLOR_BUFFER_BIT );
+            glFinish();
         }
 };
 
