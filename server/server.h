@@ -73,7 +73,8 @@ namespace eqs
          * @param index the config's index. 
          * @return the config.
          */
-        Config* getConfig( const uint32_t index ){ return _configs[index]; }
+        Config* getConfig( const uint32_t index ) const 
+            { return _configs[index]; }
 
         /** 
          * Push a request to the servers' main thread to be handled
@@ -127,7 +128,7 @@ namespace eqs
         void _cmdReleaseConfig( eqNet::Node* node,const eqNet::Packet* packet );
     };
 
-    inline std::ostream& operator << ( std::ostream& os, Server* server )
+    inline std::ostream& operator << ( std::ostream& os, const Server* server )
     {
         if( !server )
         {

@@ -11,6 +11,7 @@
 
 #include <alloca.h>
 
+using namespace eqBase;
 using namespace eqNet;
 using namespace std;
 
@@ -28,21 +29,35 @@ Session::Session( const uint32_t nCommands )
     registerCommand( CMD_SESSION_GEN_IDS_REPLY, this, 
                      reinterpret_cast<CommandFcn>(
                          &eqNet::Session::_cmdGenIDsReply ));
+    registerCommand( CMD_SESSION_SET_ID_MASTER, this, 
+                     reinterpret_cast<CommandFcn>(
+                         &eqNet::Session::_cmdSetIDMaster ));
+    registerCommand( CMD_SESSION_GET_ID_MASTER, this, 
+                     reinterpret_cast<CommandFcn>(
+                         &eqNet::Session::_cmdGetIDMaster ));
+    registerCommand( CMD_SESSION_GET_ID_MASTER_REPLY, this, 
+                     reinterpret_cast<CommandFcn>(
+                         &eqNet::Session::_cmdGetIDMasterReply ));
 
-    _idPool.genIDs( _idPool.getCapacity( )); // reserve all IDs
+    _localPool.genIDs( _localPool.getCapacity( )); // reserve all IDs
     INFO << "New " << this << endl;
 }
 
+//---------------------------------------------------------------------------
+// identifier generation
+//---------------------------------------------------------------------------
 uint32_t Session::genIDs( const uint32_t range )
 {
-    // try local pool
-    uint32_t id = _idPool.genIDs( range );
-    if( id || _isMaster ) // got an id or master pool is depleted
+    if( _isMaster && _server->inReceiverThread( ))
+        return _masterPool.genIDs( range );
+
+    uint32_t id = _localPool.genIDs( range );
+    if( id )
         return id;
 
-    SessionGenIDsPacket packet( id );
+    SessionGenIDsPacket packet( _id );
     packet.requestID = _requestHandler.registerRequest();
-    packet.range     = (range > MIN_ID_RANGE) ? range : MIN_ID_RANGE;
+    packet.range     = MAX(range, MIN_ID_RANGE);
 
     _server->send( packet );
     id = (uint32_t)(long long)_requestHandler.waitRequest( packet.requestID );
@@ -51,16 +66,83 @@ uint32_t Session::genIDs( const uint32_t range )
         return id;
 
     // We allocated more IDs than requested - let the pool handle the details
-    _idPool.freeIDs( id, MIN_ID_RANGE );
-    return _idPool.genIDs( range );
+    _localPool.freeIDs( id, MIN_ID_RANGE );
+    return _localPool.genIDs( range );
 }
 
 void Session::freeIDs( const uint32_t start, const uint32_t range )
 {
-    _idPool.freeIDs( start, range );
+    _localPool.freeIDs( start, range );
     // could return IDs to master sometimes ?
 }
 
+//---------------------------------------------------------------------------
+// identifier master node mapping
+//---------------------------------------------------------------------------
+void Session::setIDMaster( const uint32_t start, const uint32_t range, 
+                           Node* master )
+{
+    if( !master->checkConnection( ))
+        return;
+
+    if( _isMaster )
+    {
+        IDMasterInfo info = { start, start+range, master };
+        _idMasterInfos.push_back( info );
+        return;
+    }
+
+    SessionSetIDMasterPacket packet( _id );
+    packet.start     = start;
+    packet.range     = range;
+
+    RefPtr<Connection> connection = ( master->isConnected() ?
+                                      master->getConnection() : 
+                                      master->getListenerConnection( ));
+    string  connectionDescription = connection->getDescription()->toString();
+    
+    packet.connectionDescriptionLength = connectionDescription.size() + 1;
+    _server->send( packet );
+    _server->send( connectionDescription.c_str(), 
+                   packet.connectionDescriptionLength );
+}
+
+Node* Session::getIDMaster( const uint32_t id )
+{
+    // look up locally
+    const uint32_t nInfos = _idMasterInfos.size();
+    for( uint32_t i=0; i<nInfos; ++i )
+    {
+        const IDMasterInfo& info = _idMasterInfos[i];
+        if( id >= info.start && id < info.end )
+                return info.master;
+    }
+    
+    if( _isMaster )
+        return NULL;
+
+    // ask master
+    SessionGetIDMasterPacket packet( _id );
+    packet.requestID = _requestHandler.registerRequest();
+    packet.id        = id;
+
+    _server->send( packet );
+    IDMasterInfo* info = (IDMasterInfo*)_requestHandler.waitRequest( 
+        packet.requestID );
+
+    if( !info )
+        return NULL;
+    
+    _idMasterInfos.push_back( *info );
+
+    Node*  master = info->master;
+    delete info;
+    return master;
+}
+
+//---------------------------------------------------------------------------
+// object mapping
+//---------------------------------------------------------------------------
 void Session::registerObject( Object* object )
 {
     const uint32_t id = genIDs( 1 );
@@ -128,16 +210,32 @@ void Session::dispatchPacket( Node* node, const Packet* packet)
 void Session::_cmdGenIDs( Node* node, const Packet* pkg )
 {
     SessionGenIDsPacket*     packet = (SessionGenIDsPacket*)pkg;
+    INFO << "Cmd gen IDs: " << packet << endl;
+
     SessionGenIDsReplyPacket reply( packet );
 
-    reply.id = _idPool.genIDs( packet->range );
+    reply.id = _masterPool.genIDs( packet->range );
     node->send( reply );
 }
 
 void Session::_cmdGenIDsReply( Node* node, const Packet* pkg )
 {
     SessionGenIDsReplyPacket* packet = (SessionGenIDsReplyPacket*)pkg;
+    INFO << "Cmd gen IDs reply: " << packet << endl;
     _requestHandler.serveRequest( packet->requestID, (void*)packet->id );
+}
+
+void Session::_cmdSetIDMaster( Node* node, const Packet* pkg )
+{
+    SessionSetIDMasterPacket* packet = (SessionSetIDMasterPacket*)pkg;
+}
+
+void Session::_cmdGetIDMaster( Node* node, const Packet* packet )
+{
+}
+
+void Session::_cmdGetIDMasterReply( Node* node, const Packet* packet )
+{
 }
 
 std::ostream& eqNet::operator << ( std::ostream& os, Session* session )

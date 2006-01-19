@@ -5,6 +5,8 @@
 #ifndef EQS_COMPOUND_H
 #define EQS_COMPOUND_H
 
+#include "channel.h"
+
 #include <eq/frustum.h>
 #include <eq/projection.h>
 #include <eq/viewport.h>
@@ -15,8 +17,6 @@
 
 namespace eqs
 {
-    class Channel;
-
     enum TraverseResult
     {
         TRAVERSE_CONTINUE,
@@ -39,6 +39,10 @@ namespace eqs
          */
         Compound( const Compound& from );
 
+        /**
+         * @name Data Access
+         */
+        //*{
         /** 
          * Adds a new child to this compound.
          * 
@@ -96,11 +100,36 @@ namespace eqs
          */
         Channel* getChannel() const { return _data.channel; }
 
+        Window* getWindow() const 
+            { return _data.channel ? _data.channel->getWindow() : NULL; }
+
+        /**
+         * The decomposition mode of the compound.
+         */
+        enum Mode
+        {
+            MODE_SYNC   //!< Synchronize swap of all channels
+        };
+
+        /** 
+         * Set the decomposition mode.
+         * 
+         * @param mode the decomposition mode.
+         */
+        void setMode( const Mode mode ) { _mode = mode; }
+
+        /** 
+         * Return the decomposition mode.
+         *
+         * @return the decomposition mode.
+         */
+        Mode getMode() const { return _mode; }
+        //*}
+
         /**
          * @name View Operations
          */
         //*{
-
         /** 
          * Set the compound's view frustum using a wall description.
          * 
@@ -211,9 +240,15 @@ namespace eqs
         InheritData _data;
         InheritData _inherit;
 
+        Mode _mode;
+
+
         void _updateInheritData();
 
-        static TraverseResult _updateDrawCB(Compound* compound, void* userData);
+        static TraverseResult _updateDrawCB(Compound* compound, void* );
+        static TraverseResult _updatePostDrawCB( Compound* compound, void* );
+
+        void _updateSwapGroup();
     };
 
     std::ostream& operator << (std::ostream& os,const Compound* compound);

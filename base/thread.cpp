@@ -153,7 +153,7 @@ void Thread::exit( ssize_t retVal )
     switch( _type )
     {
         case PTHREAD:
-            if( !pthread_equal( pthread_self(), _threadID.pthread ))
+            if( !isCurrent( ))
             {
                 pthread_cancel( _threadID.pthread );
                 return;
@@ -163,7 +163,7 @@ void Thread::exit( ssize_t retVal )
             break;
 
         case FORK:
-            if( getpid() != _threadID.fork )
+            if( !isCurrent( ))
             {
                 kill( _threadID.fork, SIGTERM );
                 return;
@@ -179,6 +179,8 @@ void Thread::exit( ssize_t retVal )
 bool Thread::join( ssize_t* retVal )
 {
     if( _threadState == STATE_STOPPED )
+        return false;
+    if( isCurrent( )) // can't join self
         return false;
 
     switch( _type )
@@ -294,4 +296,19 @@ void* Thread::getSpecific()
         return NULL;
 
     return pthread_getspecific( _dataKey );
+}
+
+bool Thread::isCurrent() const
+{
+    switch( _type )
+    {
+        case PTHREAD:
+            return pthread_equal( pthread_self(), _threadID.pthread );
+
+        case FORK:
+            return ( getpid() == _threadID.fork );
+    }
+
+    ERROR << "Unreachable code" <<endl;
+    ::abort();
 }

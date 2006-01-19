@@ -6,14 +6,15 @@
 precompile: $(CXX_DEFINES_FILE)
 
 $(CXX_DEFINES_FILE)::
-	@rm -f $@
-	@echo "/* Generated from compiler flags during compilation */" >> $@
-	@echo "#ifndef EQ_DEFINES_H" >> $@
-	@echo "#define EQ_DEFINES_H" >> $@
+	@echo "/* Generated from CXX_DEFINES during build */" > $@.tmp
+	@echo "#ifndef EQ_DEFINES_H" >> $@.tmp
+	@echo "#define EQ_DEFINES_H" >> $@.tmp
 	@for line in $(CXX_DEFINES_TXT); do  \
-		echo "#define $$line" >> $@ ;\
+		echo "#define $$line" >> $@.tmp ;\
 	done
-	@echo "#endif // EQ_DEFINES_H" >> $@
+	@echo "#endif // EQ_DEFINES_H" >> $@.tmp
+	@cmp -s $@ $@.tmp || cp $@.tmp $@
+	@rm $@.tmp
 
 # recursive subdir rules
 subdirs: $(SUBDIRS) 
@@ -60,7 +61,7 @@ OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
 
 $(OBJECT_DIR)/%.o : %.cpp
 	@mkdir -p $(OBJECT_DIR)
-	@($(DEP_CXX) $(CXXFLAGS) $(INT_CXXFLAGS) -DEXCLUDE_DEFINES -M -E $< | \
+	@($(DEP_CXX) $(CXXFLAGS) $(INT_CXXFLAGS) -M -E $< | \
 		sed 's/\(.*:\)/$(OBJECT_DIR_ESCAPED)\/\1/' > \
 		$(@D)/$*.d ) || rm $(@D)/$*.d
 	$(CXX) $(CXXFLAGS) $(INT_CXXFLAGS) -c $< -o $@

@@ -96,6 +96,18 @@ namespace eqs
          * @return the pixel viewport.
          */
         const eq::PixelViewport& getPixelViewport() const { return _pvp; }
+
+        /** 
+         * Clear the swap group of the window.
+         */
+        void resetSwapGroup();
+
+        /** 
+         * Add the window to the swap group owned by the master.
+         * 
+         * @param master the owner of the swap group.
+         */
+        void setSwapGroup( Window* master );
         //*}
 
         /**
@@ -135,6 +147,7 @@ namespace eqs
         //*}
 
     private:
+        /** The child channels. */
         std::vector<Channel*> _channels;
 
         /** Number of entitities actively using this window. */
@@ -149,7 +162,11 @@ namespace eqs
 
         /** The size and position of the window. */
         eq::PixelViewport _pvp;
-
+        
+        /** The */
+        Window*              _swapMaster;
+        std::vector<Window*> _swapGroup;
+        
         void _send( const eqNet::Packet& packet ) { getNode()->send( packet ); }
 
         void _sendInit();

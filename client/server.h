@@ -83,6 +83,18 @@ namespace eq
         void _cmdChooseConfigReply( eqNet::Node* node, 
                                     const eqNet::Packet* packet );
     };
+
+    inline std::ostream& operator << ( std::ostream& os, const Server* server )
+    {
+        if( !server )
+        {
+            os << "NULL server";
+            return os;
+        }
+
+        os << "server " << (void*)server;
+        return os;
+    }
 }
 
 #endif // EQ_SERVER_H

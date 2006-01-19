@@ -344,7 +344,7 @@ namespace eq
 
     struct PipeDestroyWindowPacket : public eqNet::ObjectPacket
     {
-        PipeDestroyWindowPacket( const uint32_t configID, const uint32_t pipeID )
+        PipeDestroyWindowPacket( const uint32_t configID, const uint32_t pipeID)
                 : eqNet::ObjectPacket( configID, pipeID )
             {
                 command = CMD_PIPE_DESTROY_WINDOW;
@@ -436,6 +436,16 @@ namespace eq
             }
 
         uint32_t channelID;
+    };
+
+    struct WindowSwapPacket : public eqNet::ObjectPacket
+    {
+        WindowSwapPacket( const uint32_t configID, const uint32_t windowID )
+                : eqNet::ObjectPacket( configID, windowID )
+            {
+                command = CMD_WINDOW_SWAP;
+                size    = sizeof( WindowSwapPacket );
+            }
     };
 
     //------------------------------------------------------------

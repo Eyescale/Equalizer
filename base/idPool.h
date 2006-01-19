@@ -46,6 +46,10 @@ namespace eqBase
         uint32_t _genIDs( const uint32_t range );
         uint32_t _compressCounter;
         void _compressIDs();
+
+#ifdef CHECK_THREADSAFETY
+        pthread_t _threadID;
+#endif
     };
 }
 

@@ -25,10 +25,11 @@ DEP_CXX        ?= $(CXX)
 DOXYGEN        ?= Doxygen
 
 # defines
-CXX_DEFINES           = -D$(ARCH) $(WINDOW_SYSTEM_DEFINES)
-WINDOW_SYSTEM_DEFINES = $(foreach WS,$(WINDOW_SYSTEM),-D$(WS))
-CXX_DEFINES_FILE      = base/defines.h
-CXX_DEFINES_TXT       = $(CXX_DEFINES:-D%= %)
+CXX_DEFINES           += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES)
+CXX_DEFINES           += -DCHECK_THREADSAFETY
+WINDOW_SYSTEM_DEFINES  = $(foreach WS,$(WINDOW_SYSTEM),-D$(WS))
+CXX_DEFINES_FILE       = base/defines.h
+CXX_DEFINES_TXT        = $(CXX_DEFINES:-D%= %)
 
 # header file variables
 HEADER_SRC      = $(wildcard *.h)

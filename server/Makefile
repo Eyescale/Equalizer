@@ -2,13 +2,7 @@
 include $(TOP)/make/system.mk
 
 PROGRAMS   = eqs
-HEADER_SRC = \
-	channel.h \
-	config.h \
-	node.h \
-	pipe.h \
-	server.h \
-	window.h
+HEADER_SRC = 
 
 SOURCES = \
 	channel.cpp \

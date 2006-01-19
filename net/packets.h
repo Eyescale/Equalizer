@@ -118,7 +118,7 @@ namespace eqNet
     struct SessionGenIDsPacket : public SessionPacket
     {
         SessionGenIDsPacket( const uint32_t sessionID ) 
-                : SessionPacket(sessionID)
+                : SessionPacket( sessionID )
             {
                 command = CMD_SESSION_GEN_IDS;
                 size    = sizeof( SessionGenIDsPacket ); 
@@ -140,6 +140,49 @@ namespace eqNet
 
         uint32_t requestID;
         uint32_t id;
+    };
+
+    struct SessionSetIDMasterPacket : public SessionPacket
+    {
+        SessionSetIDMasterPacket( const uint32_t sessionID ) 
+                : SessionPacket( sessionID )
+            {
+                command = CMD_SESSION_SET_ID_MASTER;
+                size    = sizeof( SessionSetIDMasterPacket ); 
+            }
+
+        uint32_t start;
+        uint32_t range;
+        uint32_t connectionDescriptionLength;
+    };
+
+    struct SessionGetIDMasterPacket : public SessionPacket
+    {
+        SessionGetIDMasterPacket( const uint32_t sessionID ) 
+                : SessionPacket( sessionID )
+            {
+                command = CMD_SESSION_GET_ID_MASTER;
+                size    = sizeof( SessionGetIDMasterPacket ); 
+            }
+
+        uint32_t requestID;
+        uint32_t id;
+    };
+
+    struct SessionGetIDMasterReplyPacket : public SessionPacket
+    {
+        SessionGetIDMasterReplyPacket( SessionGetIDMasterPacket* request ) 
+                : SessionPacket( request->sessionID )
+            {
+                command   = CMD_SESSION_GET_ID_MASTER_REPLY;
+                size      = sizeof( SessionGetIDMasterPacket ); 
+                requestID = request->requestID;
+            }
+
+        uint32_t requestID;
+        uint32_t start;
+        uint32_t end;
+        uint32_t connectionDescriptionLength;
     };
 
     //------------------------------------------------------------

@@ -7,16 +7,14 @@
 using namespace eqBase;
 using namespace std;
 
-#define CHECK_THREADSAFETY
-
-#ifdef CHECK_THREADSAFETY
-static pthread_t registerThread = 0;
-#endif
-
 RequestHandler::RequestHandler( const Thread::Type type )
         : _type(type),
           _requestID(1)
-{}
+{
+#ifdef CHECK_THREADSAFETY
+    _threadID = 0;
+#endif;
+}
 
 RequestHandler::~RequestHandler()
 {
@@ -30,12 +28,7 @@ RequestHandler::~RequestHandler()
 
 uint32_t RequestHandler::registerRequest( void* data )
 {
-#ifdef CHECK_THREADSAFETY
-    if( !registerThread )
-        registerThread = pthread_self();
-
-    ASSERT( registerThread == pthread_self( ));
-#endif
+    CHECK_THREAD;
 
     Request* request;
     if( _freeRequests.empty( ))
@@ -55,12 +48,7 @@ uint32_t RequestHandler::registerRequest( void* data )
 
 void RequestHandler::unregisterRequest( const uint32_t requestID )
 {
-#ifdef CHECK_THREADSAFETY
-    if( !registerThread )
-        registerThread = pthread_self();
-
-    ASSERT( registerThread == pthread_self( ));
-#endif
+    CHECK_THREAD;
 
     Request* request = _requests[requestID];
     if( !request )
@@ -73,10 +61,7 @@ void RequestHandler::unregisterRequest( const uint32_t requestID )
 void* RequestHandler::waitRequest( const uint32_t requestID, bool* success,
                                    const uint32_t timeout )
 {
-#ifdef CHECK_THREADSAFETY
-    ASSERT( registerThread == pthread_self( ));
-#endif
-
+    CHECK_THREAD;
     Request* request = _requests[requestID];
 
     if( !request || !request->lock->set( timeout ))

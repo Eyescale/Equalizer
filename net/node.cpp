@@ -223,13 +223,10 @@ void Node::addSession( Session* session, Node* server, const uint32_t sessionID,
     session->_name      = name;
     session->_isMaster  = ( server==this && isLocal( ));
 
-    if( session->_isMaster ) // free IDs for further use
-        session->_idPool.freeIDs( 1, IDPool::getCapacity( )); 
-
     _sessions[sessionID] = session;
 
     INFO << (session->_isMaster ? "master" : "client") << " session, id "
-         << sessionID << ", name " << name << ", served by node " << server 
+         << sessionID << ", name " << name << ", served by " << server 
          << ", managed by " << this << endl;
 }
 
@@ -312,6 +309,9 @@ ssize_t Node::_runReceiver()
             } 
 
             case ConnectionSet::EVENT_TIMEOUT:   
+                INFO << "select timeout" << endl;
+                break;
+
             case ConnectionSet::EVENT_ERROR:      
             default:
                 ERROR << "UNIMPLEMENTED" << endl;
@@ -708,8 +708,7 @@ string Node::_createRemoteCommand()
         return "";
     }
 
-    RefPtr<ConnectionDescription> listenerDesc =
-        listener->getConnectionDescription();
+    RefPtr<ConnectionDescription> listenerDesc = listener->getDescription();
     ASSERT( listenerDesc.isValid( ));
 
     ostringstream stringStream;

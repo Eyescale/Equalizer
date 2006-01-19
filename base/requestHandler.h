@@ -111,6 +111,10 @@ namespace eqBase
         uint32_t                          _requestID;
         Sgi::hash_map<uint32_t, Request*> _requests;
         std::list<Request*>               _freeRequests;
+
+#ifdef CHECK_THREADSAFETY
+        pthread_t _threadID;
+#endif
     };
 }
 

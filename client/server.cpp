@@ -83,7 +83,7 @@ Config* Server::chooseConfig( const ConfigParams* parameters )
         return NULL;
 
     ServerChooseConfigPacket packet;
-    INFO << "choose " << (void*)this << endl;
+
     packet.requestID          = _requestHandler.registerRequest();
     packet.appNameLength      = parameters->appName.size() + 1;
     packet.renderClientLength = parameters->renderClient.size() + 1;

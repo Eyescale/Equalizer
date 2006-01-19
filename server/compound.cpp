@@ -296,6 +296,7 @@ void Compound::exit()
 void Compound::update()
 {
     _updateInheritData();
+    _updateSwapGroup();
 
     const uint32_t nChildren = this->nChildren();
     for( uint32_t i=0; i<nChildren; i++ )
@@ -303,7 +304,6 @@ void Compound::update()
         Compound* child = getChild(i);
         child->update();
     }
-
 }
 
 void Compound::_updateInheritData()
@@ -325,10 +325,32 @@ void Compound::_updateInheritData()
     _inherit.vp.multiply( _data.vp );
 }
 
+void Compound::_updateSwapGroup()
+{
+    const bool sync = ( _mode == MODE_SYNC );
+
+    // synchronize swap of all children
+    Window*        master    = NULL;
+    const uint32_t nChildren = this->nChildren();
+    for( uint32_t i=0; i<nChildren; i++ )
+    {
+        const Compound* child  = getChild(i);
+        Window*         window = child->getWindow();
+        
+        if( !window ) continue;
+
+        if( !master )
+            master = window;
+
+        window->resetSwapGroup();
+        if( sync )
+            window->setSwapGroup( master );
+    }
+}
 
 void Compound::updateChannel( Channel* channel )
 {
-    traverse( this, NULL, _updateDrawCB, NULL, channel );
+    traverse( this, NULL, _updateDrawCB, _updatePostDrawCB, channel );
 }
 
 TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
@@ -370,6 +392,13 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
 
     channel->send( drawPacket );
     return TRAVERSE_CONTINUE;
+}
+
+TraverseResult Compound::_updatePostDrawCB( Compound* compound, void* userData )
+{
+//    Channel* channel = (Channel*)userData;
+//    if( compound->_data.channel != channel )
+        return TRAVERSE_CONTINUE;
 }
 
 std::ostream& eqs::operator << (std::ostream& os,const Compound* compound)

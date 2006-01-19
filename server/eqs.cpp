@@ -1,5 +1,5 @@
 
-#include <eq/server/server.h>
+#include "server.h"
 
 #include <iostream>
 

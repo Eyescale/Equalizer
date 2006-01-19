@@ -22,6 +22,9 @@ namespace eqNet
     {
         CMD_SESSION_GEN_IDS,
         CMD_SESSION_GEN_IDS_REPLY,
+        CMD_SESSION_SET_ID_MASTER,
+        CMD_SESSION_GET_ID_MASTER,
+        CMD_SESSION_GET_ID_MASTER_REPLY,
         CMD_SESSION_CUSTOM // must be last
     };
 

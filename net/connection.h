@@ -136,7 +136,7 @@ namespace eqNet
          * 
          * @return the description for this connection. 
          */
-        eqBase::RefPtr<ConnectionDescription> getConnectionDescription()
+        eqBase::RefPtr<ConnectionDescription> getDescription()
             { return _description; }
 
         virtual int getReadFD() const { return -1; }

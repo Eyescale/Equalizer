@@ -71,9 +71,10 @@ namespace eqNet
          * Generates a continous block of unique identifiers.
          * 
          * @param range the size of the block.
-         * @return the first identifier of the block.
+         * @return the first identifier of the block, or <code>0</code> if no
+         *         identifier is available.
          */
-        uint32_t  genIDs( const uint32_t range );
+        uint32_t genIDs( const uint32_t range );
 
         /** 
          * Frees a continous block of unique identifiers.
@@ -81,7 +82,41 @@ namespace eqNet
          * @param start the first identifier in the block.
          * @param range the size of the block.
          */
-        void  freeIDs( const uint32_t start, const uint32_t range );
+        void freeIDs( const uint32_t start, const uint32_t range );
+
+        /** 
+         * Set the master node for a block of identifiers.
+         * 
+         * This can be used to identify the node which is responsible for the
+         * object, action or information associated with an identifier. The
+         * identifiers must be unique, it is therefore advised to allocate them
+         * using genIDs().
+         *
+         * The master node must be reachable.
+         *
+         * @param start the first identifier of the block.
+         * @param range the size of the block.
+         * @param master the master node for the block of identifiers.
+         */
+        void setIDMaster( const uint32_t start, const uint32_t range, 
+                          Node* master );
+
+        /** 
+         * Delete the master node for a block of identifiers.
+         * 
+         * @param start the first identifier of the block.
+         * @param range the size of the block.
+         */
+        void unsetIDMaster( const uint32_t start, const uint32_t range );
+
+        /** 
+         * Returns the master node for an identifier.
+         * 
+         * @param id the identifier.
+         * @return the master node, or an invalid RefPtr if no master node is
+         *         set for the identifier.
+         */
+        Node* getIDMaster( const uint32_t id );
 
         /** 
          * Registers a new distributed object.
@@ -146,16 +181,31 @@ namespace eqNet
         /** The state (master/client) of this session instance. */
         bool _isMaster;
 
-        /** The identifier pool. */
-        eqBase::IDPool _idPool;
+        /** The distributed master identifier pool. */
+        eqBase::IDPool _masterPool;
 
+        /** The local identifier pool. */
+        eqBase::IDPool _localPool;
+
+        /** Stores a mapping from a block of identifiers to a master node. */
+        struct IDMasterInfo
+        {
+            uint32_t start;
+            uint32_t end;
+            Node*    master;
+        };
+        /** The id->master mapping table. */
+        std::vector<IDMasterInfo> _idMasterInfos;
+        
         /** The registered object, indexed by identifier. */
         IDHash<Object*> _registeredObjects;
 
         /** The command handler functions. */
         void _cmdGenIDs( Node* node, const Packet* packet );
         void _cmdGenIDsReply( Node* node, const Packet* packet );
-
+        void _cmdSetIDMaster( Node* node, const Packet* packet );
+        void _cmdGetIDMaster( Node* node, const Packet* packet );
+        void _cmdGetIDMasterReply( Node* node, const Packet* packet );
     };
     std::ostream& operator << ( std::ostream& os, Session* session );
 }

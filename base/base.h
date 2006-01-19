@@ -5,9 +5,7 @@
 #ifndef EQBASE_BASE_H
 #define EQBASE_BASE_H
 
-#ifndef EXCLUDE_DEFINES // defined during dependency generation
-#  include "defines.h"
-#endif
+#include <eq/base/defines.h>
 
 #include "log.h"
 
@@ -46,4 +44,14 @@ typedef int socklen_t;
 
 #endif
 
+#ifdef CHECK_THREADSAFETY
+#  define CHECK_THREAD                                      \
+    if( !_threadID )                                        \
+        _threadID = pthread_self();                         \
+    ASSERTINFO( pthread_equal( _threadID, pthread_self( )), \
+                "Called from two threads" );
+#else
+#  define CHECK_THREAD
+#endif
+    
 #endif //EQBASE_BASE_H

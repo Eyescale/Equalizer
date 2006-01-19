@@ -43,6 +43,32 @@ void Window::unrefUsed()
         _pipe->unrefUsed(); 
 }
 
+//---------------------------------------------------------------------------
+// swap group operations
+//---------------------------------------------------------------------------
+void Window::resetSwapGroup()
+{
+    const uint32_t nMembers = _swapGroup.size();
+    for( uint32_t i=0; i<nMembers; i++ )
+        _swapGroup[i]->_swapMaster = NULL;
+
+    _swapGroup.clear();
+    _swapMaster = NULL;
+}
+
+void Window::setSwapGroup( Window* master )
+{
+    if( _swapMaster )
+    {
+        WARN << "Window already belongs to swap group on " << _swapMaster
+             << ", ignoring swap group request." << endl;
+        return;
+    }
+
+    master->_swapGroup.push_back( this );
+    _swapMaster = master;
+}
+
 //===========================================================================
 // Operations
 //===========================================================================
@@ -164,7 +190,8 @@ void Window::update()
         if( channel->isUsed( ))
             channel->update();
     }
-    // TODO: swap task?
+
+    
 }
 
 

@@ -11,7 +11,7 @@ namespace eq
 {
     enum ServerCommand
     {
-        CMD_SERVER_CHOOSE_CONFIG       = eqNet::CMD_NODE_CUSTOM,
+        CMD_SERVER_CHOOSE_CONFIG        = eqNet::CMD_NODE_CUSTOM,
         CMD_SERVER_CHOOSE_CONFIG_REPLY,
         CMD_SERVER_INIT_CONFIG,
         REQ_SERVER_INIT_CONFIG, // REQ must follow CMD
@@ -21,7 +21,7 @@ namespace eq
 
     enum NodeCommand
     {
-        CMD_NODE_CREATE_CONFIG = eqNet::CMD_NODE_CUSTOM,
+        CMD_NODE_CREATE_CONFIG          = eqNet::CMD_NODE_CUSTOM,
         CMD_NODE_INIT,
         REQ_NODE_INIT,
         CMD_NODE_INIT_REPLY,
@@ -37,13 +37,13 @@ namespace eq
 
     enum ClientCommand
     {
-        CMD_CLIENT_UNUSED = CMD_SERVER_ALL,
+        CMD_CLIENT_UNUSED               = CMD_SERVER_ALL,
         CMD_CLIENT_ALL
     };
 
     enum ConfigCommand
     {
-        CMD_CONFIG_INIT,
+        CMD_CONFIG_INIT                 = eqNet::CMD_SESSION_CUSTOM,
         REQ_CONFIG_INIT, // REQ must always follow CMD
         CMD_CONFIG_INIT_REPLY,
         CMD_CONFIG_EXIT,
@@ -81,6 +81,7 @@ namespace eq
         CMD_WINDOW_EXIT_REPLY,
         CMD_WINDOW_CREATE_CHANNEL,
         CMD_WINDOW_DESTROY_CHANNEL,
+        CMD_WINDOW_SWAP,
         CMD_WINDOW_ALL
     };
 

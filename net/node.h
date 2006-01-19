@@ -155,6 +155,24 @@ namespace eqNet
          *         <code>false</code> otherwise.
          */
         bool disconnect( Node* node );
+
+        /** 
+         * Ensures the connectivity of this node.
+         * 
+         * If the node is not connected, the available connection descriptions
+         * are used to connect the node. 
+         *
+         * @return <code>true</code> if this node is connected,
+         *         <code>false</code> otherwise.
+         */
+        bool checkConnection()
+            {
+                if( _state == STATE_CONNECTED || _state == STATE_LISTENING )
+                    return true;
+                if( _state == STATE_STOPPED )
+                    return connect();
+                return false;
+            }
         //*}
 
 
@@ -226,6 +244,13 @@ namespace eqNet
             { return _connectionDescriptions[index]; }
 
         /** 
+         * Returns the connection to this node.
+         * 
+         * @return the connection to this node. 
+         */
+        eqBase::RefPtr<Connection> getConnection(){ return _connection; }
+
+        /** 
          * Returns the listening connection of this node.
          * 
          * @return the listening connection of this node. 
@@ -283,7 +308,7 @@ namespace eqNet
          */
         bool send( const void* data, const uint64_t size )
             {
-                if( !_checkConnection() )
+                if( !checkConnection() )
                     return false;
 
                 const uint64_t sent = _connection->send( data, size );
@@ -367,8 +392,8 @@ namespace eqNet
          * @param sessionID the identifier of the session.
          * @param name the name of the session.
          */
-        void addSession( Session* session, Node* server, const uint32_t sessionID,
-                         const std::string& name );
+        void addSession( Session* session, Node* server, 
+                         const uint32_t sessionID, const std::string& name );
         //*}
 
         /** 
@@ -378,6 +403,12 @@ namespace eqNet
          * @return the success value of the run.
          */
         bool runClient( const std::string& clientArgs );
+
+        /** 
+         * @return <code>true</code> if executed from the receiver thread,
+         *         <code>false</code> if not.
+         */
+        bool inReceiverThread() const { return _receiverThread->isCurrent(); }
 
     protected:
         /** Determines if the node should be launched automatically. */
@@ -468,24 +499,6 @@ namespace eqNet
 
         bool _listenToSelf();
         void _cleanup();
-
-        /** 
-         * Ensures the connectivity of this node.
-         * 
-         * If the node is not connected, the available connection descriptions
-         * are used to connect the node. 
-         *
-         * @return <code>true</code> if this node is connected,
-         *         <code>false</code> otherwise.
-         */
-        bool _checkConnection()
-            {
-                if( _state == STATE_CONNECTED || _state == STATE_LISTENING )
-                    return true;
-                if( _state == STATE_STOPPED )
-                    return connect();
-                return false;
-            }
 
         /** 
          * Launches the node using the parameters from the connection

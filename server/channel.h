@@ -37,8 +37,8 @@ namespace eqs
          */
         //*{
         Node* getNode() const { return (_window ? _window->getNode() : NULL); }
-        Config* getConfig() const 
-            { return (_window ? _window->getConfig() : NULL); }
+        Window* getWindow() const { return _window; }
+        Config* getConfig() const { return _window ? _window->getConfig():NULL;}
 
         /** 
          * References this window as being actively used.
