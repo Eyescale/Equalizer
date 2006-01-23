@@ -116,15 +116,12 @@ void Node::_removePipe( Pipe* pipe )
 void Node::_cmdCreateConfig( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     NodeCreateConfigPacket* packet = (NodeCreateConfigPacket*)pkg;
-    INFO << "Handle create config " << packet;
-
-    char sessionName[packet->nameLength];
-    node->recv( sessionName, packet->nameLength );
-    INFO << ", name " << sessionName << endl;
+    INFO << "Handle create config " << packet << ", name " << packet->name 
+         << endl;
 
     _config = Global::getNodeFactory()->createConfig();
     
-    addSession( _config, node, packet->configID, sessionName );
+    addSession( _config, node, packet->configID, packet->name );
     _server->addConfig( _config );
 }
 

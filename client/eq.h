@@ -11,6 +11,7 @@
 #include <eq/init.h>
 #include <eq/node.h>
 #include <eq/nodeFactory.h>
+#include <eq/openParams.h>
 #include <eq/server.h>
 
 #endif // EQ_H

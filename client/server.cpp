@@ -9,6 +9,7 @@
 #include "global.h"
 #include "node.h"
 #include "nodeFactory.h"
+#include "openParams.h"
 #include "packets.h"
 
 #include <eq/net/connection.h>
@@ -28,7 +29,7 @@ Server::Server()
     INFO << "New server at " << (void*)this << endl;
 }
 
-bool Server::open( const string& address )
+bool Server::open( const OpenParams& params )
 {
     if( _state != STATE_STOPPED )
         return false;
@@ -39,14 +40,14 @@ bool Server::open( const string& address )
     RefPtr<eqNet::ConnectionDescription> connDesc = 
         new eqNet::ConnectionDescription;
 
-    const size_t colonPos = address.rfind( ':' );
+    const size_t colonPos = params.address.rfind( ':' );
 
     if( colonPos == string::npos )
-        connDesc->hostname = address;
+        connDesc->hostname = params.address;
     else
     {
-        connDesc->hostname = address.substr( 0, colonPos );
-        string port = address.substr( colonPos+1 );
+        connDesc->hostname = params.address.substr( 0, colonPos );
+        string port        = params.address.substr( colonPos+1 );
         connDesc->parameters.TCPIP.port = atoi( port.c_str( ));
     }
 
@@ -60,6 +61,7 @@ bool Server::open( const string& address )
     if( !localNode->connect( this, connection ))
         return false;
 
+    // TODO: send open packet (appName)
     _state = STATE_OPENED;
     return true;
 }
@@ -77,7 +79,7 @@ bool Server::close()
     return true;
 }
 
-Config* Server::chooseConfig( const ConfigParams* parameters )
+Config* Server::chooseConfig( const ConfigParams& parameters )
 {
     if( _state != STATE_OPENED )
         return NULL;
@@ -85,13 +87,9 @@ Config* Server::chooseConfig( const ConfigParams* parameters )
     ServerChooseConfigPacket packet;
 
     packet.requestID          = _requestHandler.registerRequest();
-    packet.appNameLength      = parameters->appName.size() + 1;
-    packet.renderClientLength = parameters->renderClient.size() + 1;
-    packet.compoundModes      = parameters->compoundModes;
+    packet.compoundModes      = parameters.compoundModes;
 
-    send( packet );
-    send( parameters->appName.c_str(),      packet.appNameLength );
-    send( parameters->renderClient.c_str(), packet.renderClientLength );
+    send( packet, parameters.renderClient );
 
     Config* config = (Config*)_requestHandler.waitRequest( packet.requestID );
     if( !config )
@@ -133,13 +131,10 @@ void Server::_cmdChooseConfigReply( eqNet::Node* node,
         return;
     }
 
-    char* sessionName = (char*)alloca( packet->sessionNameLength );
-    recv( sessionName, packet->sessionNameLength );
-    
     Config* config    = Global::getNodeFactory()->createConfig();
     Node*   localNode = Node::getLocalNode();
 
-    localNode->addSession( config, node, packet->configID, sessionName );
+    localNode->addSession( config, node, packet->configID, packet->sessionName);
     addConfig( config );
 
     _requestHandler.serveRequest( packet->requestID, config );

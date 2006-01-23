@@ -1,27 +1,6 @@
 
 include $(TOP)/make/system.mk
 
-HEADER_SRC = \
-	channel.h \
-	commands.h \
-	config.h \
-	configParams.h \
-	eq.h \
-	frustum.h \
-	global.h \
-	init.h \
-	node.h \
-	nodeFactory.h \
-	packets.h \
-	pipe.h \
-	pixelViewport.h \
-	projection.h \
-	renderContext.h \
-	server.h \
-	viewport.h \
-	wall.h \
-	window.h
-
 SOURCES = \
 	channel.cpp \
 	client.cpp \
@@ -30,6 +9,7 @@ SOURCES = \
 	global.cpp \
 	init.cpp \
 	node.cpp \
+	openParams.cpp \
 	pipe.cpp \
 	server.cpp \
 	window.cpp

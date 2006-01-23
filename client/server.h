@@ -14,6 +14,7 @@ namespace eq
     class Config;
     class ConfigParams;
     class Node;
+    class OpenParams;
     struct ServerPacket;
 
     class Server : public eqNet::Node
@@ -32,11 +33,12 @@ namespace eq
         /** 
          * Opens the connection to an Equalizer server.
          * 
-         * @param address the server's address.
+         * @param params parameters for the server connection.
          * @return <code>true</code> if the server was opened correctly,
          *         <code>false</code> otherwise.
+         * @sa OpenParams
          */
-        bool open( const std::string& address );
+        bool open( const OpenParams& params );
 
         /** 
          * Closes the connection to the server.
@@ -54,7 +56,7 @@ namespace eq
          *         config was found.
          * @sa ConfigParams
          */
-        Config* chooseConfig( const ConfigParams* parameters );
+        Config* chooseConfig( const ConfigParams& parameters );
 
         /** 
          * Releases the configuration.

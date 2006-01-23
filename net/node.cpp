@@ -181,7 +181,7 @@ bool Node::disconnect( Node* node )
 }
 
 //----------------------------------------------------------------------
-// Node functionality
+// send functions
 //----------------------------------------------------------------------
 uint64_t Node::_getMessageSize( const MessageType type, const uint64_t count )
 {
@@ -200,6 +200,9 @@ uint64_t Node::_getMessageSize( const MessageType type, const uint64_t count )
 
 bool Node::send( const MessageType type, const void *ptr, const uint64_t count )
 {
+    if( !checkConnection() )
+        return false;
+    
     NodeMessagePacket packet;
     packet.type = type;
     packet.nElements = count;
@@ -208,12 +211,30 @@ bool Node::send( const MessageType type, const void *ptr, const uint64_t count )
         return false;
 
     const uint64_t size = _getMessageSize( type, count );
-    if( !send( ptr, size ))
-        return false;
-
-    return true;
+    return ( _connection->send( ptr, size ) == size );
 }
 
+bool Node::send( const Packet& packet, const std::string& string )
+{
+    if( !checkConnection() )
+        return false;
+    
+    const uint32_t stringLen = string.size() + 1;
+    uint64_t       size      = packet.size + stringLen;
+    size += (4 - size%4);
+    char*          buffer    = (char*)alloca( size );
+
+    memcpy( buffer, &packet, packet.size );
+    memcpy( buffer+packet.size, string.c_str(), stringLen );
+
+    ((Packet*)buffer)->size = size;
+    return ( _connection->send( buffer, size ) == size );
+}
+
+
+//----------------------------------------------------------------------
+// Node functionality
+//----------------------------------------------------------------------
 void Node::addSession( Session* session, Node* server, const uint32_t sessionID,
                        const string& name )
 {
@@ -255,9 +276,7 @@ bool Node::mapSession( Node* server, Session* session, const string& name )
 
     NodeMapSessionPacket packet;
     packet.requestID  = _requestHandler.registerRequest( session );
-    packet.nameLength =  name.size() + 1;
-    server->send( packet );
-    server->send( name.c_str(), packet.nameLength );
+    server->send( packet, name );
 
     return (bool)_requestHandler.waitRequest( packet.requestID );
 }
@@ -450,15 +469,12 @@ void Node::_cmdMapSession( Node* node, const Packet* pkg )
     
     Session* session;
     uint32_t sessionID   = packet->sessionID;
-    char*    sessionName = NULL;
+    string   sessionName;
 
     if( sessionID == INVALID_ID ) // mapped by name
     {
-        sessionName        = (char*)alloca( packet->nameLength );
-        const bool gotData = node->recv( sessionName, packet->nameLength );
-        ASSERT( gotData );
-
-        session = _findSession( sessionName );
+        sessionName = packet->name;
+        session     = _findSession( sessionName );
         
         if( !session ) // session does not exist, create new one
         {
@@ -474,16 +490,13 @@ void Node::_cmdMapSession( Node* node, const Packet* pkg )
         if( !session )
             sessionID = INVALID_ID;
         else
-            sessionName = (char*)session->getName().c_str();
+            sessionName = session->getName();
     }
 
     NodeMapSessionReplyPacket reply( packet );
     reply.sessionID  = sessionID;
-    reply.nameLength = sessionName ? strlen(sessionName) + 1 : 0;
 
-    node->send( reply );
-    if( reply.nameLength )
-        node->send( sessionName, reply.nameLength );
+    node->send( reply, sessionName );
 }
 
 void Node::_cmdMapSessionReply( Node* node, const Packet* pkg)
@@ -501,12 +514,7 @@ void Node::_cmdMapSessionReply( Node* node, const Packet* pkg)
         return;
     }        
     
-    ASSERT( packet->nameLength );
-    char*      sessionName = (char*)alloca( packet->nameLength );
-    const bool gotData     = node->recv( sessionName, packet->nameLength );
-    ASSERT( gotData );
-        
-    addSession( session, node, packet->sessionID, sessionName );
+    addSession( session, node, packet->sessionID, packet->name );
     _requestHandler.serveRequest( requestID, (void*)true );
 }
 

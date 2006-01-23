@@ -73,7 +73,7 @@ uint32_t Session::genIDs( const uint32_t range )
 void Session::freeIDs( const uint32_t start, const uint32_t range )
 {
     _localPool.freeIDs( start, range );
-    // could return IDs to master sometimes ?
+    // TODO: could return IDs to master sometimes ?
 }
 
 //---------------------------------------------------------------------------
@@ -101,10 +101,7 @@ void Session::setIDMaster( const uint32_t start, const uint32_t range,
                                       master->getListenerConnection( ));
     string  connectionDescription = connection->getDescription()->toString();
     
-    packet.connectionDescriptionLength = connectionDescription.size() + 1;
-    _server->send( packet );
-    _server->send( connectionDescription.c_str(), 
-                   packet.connectionDescriptionLength );
+    _server->send( packet, connectionDescription );
 }
 
 Node* Session::getIDMaster( const uint32_t id )
@@ -228,7 +225,21 @@ void Session::_cmdGenIDsReply( Node* node, const Packet* pkg )
 void Session::_cmdSetIDMaster( Node* node, const Packet* pkg )
 {
     SessionSetIDMasterPacket* packet = (SessionSetIDMasterPacket*)pkg;
+
+//     Node* localNode = Node::getLocalNode();
+//     Node* master    = localNode->findNodeByConnection( connectionDescription );
+//     ASSERT( master );
+
 }
+
+// void Session::_reqSetIDMaster( Node* node, const Packet* pkg )
+// {
+//     SessionSetIDMasterPacket* packet = (SessionSetIDMasterPacket*)pkg;
+
+//     IDMasterInfo info = 
+
+//     info.
+// }
 
 void Session::_cmdGetIDMaster( Node* node, const Packet* packet )
 {

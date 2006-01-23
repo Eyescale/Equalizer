@@ -250,12 +250,6 @@ void Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
     eq::ServerChooseConfigPacket* packet = (eq::ServerChooseConfigPacket*)pkg;
     INFO << "Handle choose config " << packet << endl;
 
-    char* appName = (char*)alloca( packet->appNameLength );
-    node->recv( appName, packet->appNameLength );
-
-    char* renderClient = (char*)alloca( packet->renderClientLength );
-    node->recv( renderClient, packet->renderClientLength );
-
     // TODO
     Config* config = nConfigs()>0 ? getConfig(0) : NULL;
     
@@ -270,17 +264,15 @@ void Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
 
     Config* appConfig = _cloneConfig( config );
 
-    appConfig->setAppName( appName );
-    appConfig->setRenderClient( renderClient );
+    // TODO: move to open: appConfig->setAppName( appName );
+    appConfig->setRenderClient( packet->renderClient );
 
     reply.configID = appConfig->getID();
     _appConfigs[reply.configID] = appConfig;
 
     const string& name = appConfig->getName();
-    reply.sessionNameLength = name.size() + 1;
     
-    node->send( reply );
-    node->send( name.c_str(), reply.sessionNameLength );
+    node->send( reply, name );
 }
 
 void Server::_cmdReleaseConfig( eqNet::Node* node, const eqNet::Packet* pkg )

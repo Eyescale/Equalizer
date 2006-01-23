@@ -31,13 +31,12 @@ namespace eq
         ServerChooseConfigPacket()
             {
                 command = CMD_SERVER_CHOOSE_CONFIG;
-                size    = sizeof( ServerChooseConfigPacket );
+                size    = sizeof( ServerChooseConfigPacket ) - 8;
             }
 
         uint32_t requestID;
-        uint32_t appNameLength;
-        uint32_t renderClientLength;
         uint32_t compoundModes;
+        char     renderClient[8];
     };
 
     struct ServerChooseConfigReplyPacket : public ServerPacket
@@ -46,13 +45,13 @@ namespace eq
                                        requestPacket )
             {
                 command   = CMD_SERVER_CHOOSE_CONFIG_REPLY;
-                size      = sizeof( ServerChooseConfigReplyPacket );
+                size      = sizeof( ServerChooseConfigReplyPacket ) - 8;
                 requestID = requestPacket->requestID;
             }
 
         uint32_t requestID;
         uint32_t configID;
-        uint32_t sessionNameLength;
+        char     sessionName[8];
     };
 
     struct ServerReleaseConfigPacket : public ServerPacket
@@ -173,11 +172,11 @@ namespace eq
         NodeCreateConfigPacket()
             {
                 command = CMD_NODE_CREATE_CONFIG;
-                size    = sizeof( NodeCreateConfigPacket );
+                size    = sizeof( NodeCreateConfigPacket ) - 8;
             }
 
         uint32_t configID;
-        uint32_t nameLength;
+        char     name[8];
     };
 
     // This packet is similar to the Create packets, except that the node
@@ -541,9 +540,7 @@ namespace eq
                                        const ServerChooseConfigPacket* packet )
     {
         os << (ServerPacket*)packet << " req " << packet->requestID
-           << " cmp modes " << packet->compoundModes << " appName " 
-           << packet->appNameLength << " renderClient "
-           << packet->renderClientLength;
+           << " cmp modes " << packet->compoundModes;
         return os;
     }
 

@@ -33,6 +33,12 @@ namespace eqNet
         uint32_t command;
     };
 
+    // String transmission: the packets define the string at the end of the
+    // packet as 8 bytes long to enforce the worst-case alignment size. The
+    // 8 bytes are decremented from the packet size and the packet is sent using
+    // send( Packet&, string& ) which appends the whole string to the packet, so
+    // that the receiver has to do nothing special to receive the full packet.
+
     //------------------------------------------------------------
     // Node
     //------------------------------------------------------------
@@ -66,13 +72,13 @@ namespace eqNet
         NodeMapSessionPacket()
             {
                 command   = CMD_NODE_MAP_SESSION;
-                size      = sizeof(NodeMapSessionPacket);
+                size      = sizeof(NodeMapSessionPacket) - 8;
                 sessionID = INVALID_ID;
             }
 
         uint32_t requestID;
         uint32_t sessionID;
-        uint32_t nameLength;
+        char     name[8];
     };
 
     struct NodeMapSessionReplyPacket : public NodePacket
@@ -80,13 +86,13 @@ namespace eqNet
         NodeMapSessionReplyPacket( const NodeMapSessionPacket* requestPacket ) 
             {
                 command   = CMD_NODE_MAP_SESSION_REPLY;
-                size      = sizeof( NodeMapSessionReplyPacket );
+                size      = sizeof( NodeMapSessionReplyPacket ) - 8;
                 requestID = requestPacket->requestID;
             }
             
         uint32_t requestID;
         uint32_t sessionID;
-        uint32_t nameLength;
+        char     name[8];
     };
 
     struct NodeConnectPacket : public NodePacket
@@ -148,12 +154,12 @@ namespace eqNet
                 : SessionPacket( sessionID )
             {
                 command = CMD_SESSION_SET_ID_MASTER;
-                size    = sizeof( SessionSetIDMasterPacket ); 
+                size    = sizeof( SessionSetIDMasterPacket ) - 8; 
             }
 
         uint32_t start;
         uint32_t range;
-        uint32_t connectionDescriptionLength;
+        char     connectionDescription[8];
     };
 
     struct SessionGetIDMasterPacket : public SessionPacket
@@ -175,14 +181,14 @@ namespace eqNet
                 : SessionPacket( request->sessionID )
             {
                 command   = CMD_SESSION_GET_ID_MASTER_REPLY;
-                size      = sizeof( SessionGetIDMasterPacket ); 
+                size      = sizeof( SessionGetIDMasterPacket ) - 8;
                 requestID = request->requestID;
             }
 
         uint32_t requestID;
         uint32_t start;
         uint32_t end;
-        uint32_t connectionDescriptionLength;
+        char     connectionDescription[8];
     };
 
     //------------------------------------------------------------
@@ -232,14 +238,14 @@ namespace eqNet
                                        const NodeMapSessionPacket* packet )
     {
         os << (NodePacket*)packet << " req " << packet->requestID
-           << " sessionID " << packet->sessionID << " l " << packet->nameLength;
+           << " sessionID " << packet->sessionID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeMapSessionReplyPacket* packet )
     {
         os << (NodePacket*)packet << " req " << packet->requestID
-           << " sessionID " << packet->sessionID << " l " << packet->nameLength;
+           << " sessionID " << packet->sessionID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

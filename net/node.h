@@ -286,34 +286,23 @@ namespace eqNet
          */
         bool send( const Packet& packet )
             {
-                ASSERT( getLocalNode( ));
-                if( _state == STATE_STOPPED )
-                    connect();
-                if( _state != STATE_CONNECTED && _state != STATE_LISTENING )
+                if( !checkConnection() )
                     return false;
-
-                const uint64_t sent = _connection->send( packet );
-                return ( sent==packet.size );
+    
+                return ( _connection->send( packet ) == packet.size );
             }
 
         /** 
-         * Sends data to this node.
+         * Sends a packet with a string to the node.
          * 
-         * The data is not further encapsulated, and the receiving node should
-         * be prepared to receive the data by sending a packet describing the
-         * data beforehand.
+         * The data is send as a new packet containing the original packet and
+         * the string, so that it is received as one packet by the node.
          *
-         * @param size the size of the data in bytes.
+         * @param packet the packet.
+         * @param string the string.
          * @return the success status of the transaction.
          */
-        bool send( const void* data, const uint64_t size )
-            {
-                if( !checkConnection() )
-                    return false;
-
-                const uint64_t sent = _connection->send( data, size );
-                return ( sent==size );
-            }
+        bool send( const Packet& packet, const std::string& string );
 
         /** 
          * Notifies that a message is ready to be received.

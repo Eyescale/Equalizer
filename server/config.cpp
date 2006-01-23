@@ -153,7 +153,6 @@ bool Config::_init()
     const string&              name = getName();
     eq::NodeCreateConfigPacket createConfigPacket;
     createConfigPacket.configID     = _id;
-    createConfigPacket.nameLength   = name.size()+1;
 
     for( uint32_t i=0; i<nNodes; i++ )
     {
@@ -167,8 +166,7 @@ bool Config::_init()
         }
         
         // initialize nodes
-        node->send( createConfigPacket );
-        node->send( name.c_str(), createConfigPacket.nameLength );
+        node->send( createConfigPacket, name );
         node->startInit();
     }
 

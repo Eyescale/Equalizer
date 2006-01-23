@@ -11,13 +11,12 @@ using namespace std;
 
 ConfigParams::ConfigParams()
 {
-    appName      = eqNet::Global::getProgramName();
-    renderClient = appName;
-    compoundModes = 
-        COMPOUND_MODE_2D    | 
-        COMPOUND_MODE_DPLEX |
-        COMPOUND_MODE_EYE   |
-        COMPOUND_MODE_FSAA;
+    renderClient = eqNet::Global::getProgramName();
+//     compoundModes = 
+//         COMPOUND_MODE_2D    | 
+//         COMPOUND_MODE_DPLEX |
+//         COMPOUND_MODE_EYE   |
+//         COMPOUND_MODE_FSAA;
 }
 
 ConfigParams& ConfigParams::operator = ( const ConfigParams& rhs )
@@ -25,7 +24,6 @@ ConfigParams& ConfigParams::operator = ( const ConfigParams& rhs )
     if( this == &rhs )
         return *this;
  
-    appName       = rhs.appName;
     renderClient  = rhs.renderClient;
     compoundModes = rhs.compoundModes;
     return *this;

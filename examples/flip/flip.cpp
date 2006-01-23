@@ -57,15 +57,17 @@ int main( int argc, char** argv )
     if( !eq::init( argc, argv ))
         abort();
 
-    eq::Server server;
-    string address = "localhost:4242";
-    if( !server.open( address ))
+    eq::Server     server;
+    eq::OpenParams openParams;
+    openParams.address = "localhost:4242";
+    openParams.appName = "foo";
+
+    if( !server.open( openParams ))
         DIE("Can't open server.");
 
-    eq::ConfigParams params;
-    params.appName = "foo";
+    eq::ConfigParams configParams;
+    eq::Config*      config = server.chooseConfig( configParams );
 
-    eq::Config* config = server.chooseConfig( &params );
     if( !config )
         DIE("No matching config on server.");
 
