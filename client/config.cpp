@@ -48,7 +48,7 @@ uint32_t Config::frameBegin()
     ConfigFrameBeginPacket packet( _id );
     packet.requestID = _requestHandler.registerRequest();
     _server->send( packet );
-    return (uint32_t)(_requestHandler.waitRequest( packet.requestID ));
+    return (uint32_t)(long long)(_requestHandler.waitRequest(packet.requestID));
 }
 
 uint32_t Config::frameEnd()
@@ -56,7 +56,7 @@ uint32_t Config::frameEnd()
     ConfigFrameEndPacket packet( _id );
     packet.requestID = _requestHandler.registerRequest();
     _server->send( packet );
-    return (uint32_t)(_requestHandler.waitRequest( packet.requestID ));
+    return (uint32_t)(long long)(_requestHandler.waitRequest(packet.requestID));
 }
 
 //---------------------------------------------------------------------------

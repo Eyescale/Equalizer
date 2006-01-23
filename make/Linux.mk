@@ -11,7 +11,7 @@ DSO_SUFFIX          = so
 WINDOW_SYSTEM      += GLX
 
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
-  WINDOW_SYSTEM_LIBS += -L/usr/X11R6/lib$(VARIANT) -lX11 -lGL
+  WINDOW_SYSTEM_LIBS += -L/usr/X11R6/lib$(VARIANT1) -lX11 -lGL
   WINDOW_SYSTEM_INCS += -I/usr/X11R6/include
 endif
 
