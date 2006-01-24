@@ -163,8 +163,9 @@ namespace eq
          * @param node the node sending the packet.
          * @param packet the command packet.
          */
-        void pushRequest( eqNet::Node* node, const eqNet::Packet* packet )
-            { _requestQueue.push( node, packet ); }
+        eqNet::CommandResult pushRequest( eqNet::Node* node, 
+                                          const eqNet::Packet* packet )
+            {_requestQueue.push( node, packet ); return eqNet::COMMAND_HANDLED;}
 
     private:
         /** The parent node. */
@@ -174,13 +175,6 @@ namespace eq
         /** The windows of this pipe. */
         std::vector<Window*>     _windows;
 
-        
-        /** The display (GLX, CGL) or ignored (Win32). */
-        uint32_t _display;
-
-        /** The screen (GLX), adapter (Win32) or ignored (CGL). */
-        uint32_t _screen;
-
 #ifdef GLX
         /** The X11 display connection. */
         Display* _xDisplay;
@@ -188,6 +182,12 @@ namespace eq
 #ifdef CGL
         CGDirectDisplayID _cglDisplayID;
 #endif
+        
+        /** The display (GLX, CGL) or ignored (Win32). */
+        uint32_t _display;
+
+        /** The screen (GLX), adapter (Win32) or ignored (CGL). */
+        uint32_t _screen;
 
         void _addWindow( Window* window );
         void _removeWindow( Window* window );
@@ -213,13 +213,19 @@ namespace eq
         /** The receiver->pipe thread request queue. */
         eqNet::RequestQueue    _requestQueue;
 
-        /** The command functions. */
-        void _cmdCreateWindow( eqNet::Node* node, const eqNet::Packet* packet );
-        void _cmdDestroyWindow( eqNet::Node* node, const eqNet::Packet* packet);
-        void _cmdInit( eqNet::Node* node, const eqNet::Packet* packet );
-        void _reqInit( eqNet::Node* node, const eqNet::Packet* packet );
-        void _cmdExit( eqNet::Node* node, const eqNet::Packet* packet );
-        void _reqExit( eqNet::Node* node, const eqNet::Packet* packet );
+        /* The command functions. */
+        eqNet::CommandResult _cmdCreateWindow( eqNet::Node* node,
+                                               const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdDestroyWindow( eqNet::Node* node,
+                                                const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdInit( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
+        eqNet::CommandResult _reqInit( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdExit( eqNet::Node* node, 
+                                       const eqNet::Packet* packet );
+        eqNet::CommandResult _reqExit( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
     };
 }
 

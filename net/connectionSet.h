@@ -46,7 +46,7 @@ namespace eqNet
         bool removeConnection( eqBase::RefPtr<Connection> connection );
         void clear();
         size_t nConnections() const { return _connections.size(); }
-        eqBase::RefPtr<Connection> getConnection( const size_t i )
+        eqBase::RefPtr<Connection> getConnection( const size_t i ) const
             { return _connections[i]; }
 
         eqBase::RefPtr<Node> getNode( eqBase::RefPtr<Connection> connection )

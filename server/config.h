@@ -136,11 +136,16 @@ namespace eqs
         uint32_t _frameNumber;
 
         /** The command functions. */
-        void _cmdRequest( eqNet::Node* node, const eqNet::Packet* packet );
-        void _reqInit( eqNet::Node* node, const eqNet::Packet* packet );
-        void _reqExit( eqNet::Node* node, const eqNet::Packet* packet );
-        void _reqFrameBegin( eqNet::Node* node, const eqNet::Packet* packet );
-        void _reqFrameEnd( eqNet::Node* node, const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdRequest( eqNet::Node* node,
+                                          const eqNet::Packet* packet );
+        eqNet::CommandResult _reqInit( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
+        eqNet::CommandResult _reqExit( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
+        eqNet::CommandResult _reqFrameBegin( eqNet::Node* node,
+                                             const eqNet::Packet* packet );
+        eqNet::CommandResult _reqFrameEnd( eqNet::Node* node, 
+                                           const eqNet::Packet* packet );
 
         /**
          * @name Operations

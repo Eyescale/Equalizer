@@ -23,7 +23,8 @@ Client::~Client()
 {
 }
 
-void Client::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
+eqNet::CommandResult Client::handlePacket( eqNet::Node* node,
+                                           const eqNet::Packet* packet )
 {
     VERB << "handlePacket " << packet << endl;
     const uint32_t datatype = packet->datatype;
@@ -34,12 +35,12 @@ void Client::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
             ASSERT( dynamic_cast<Server*>(node) );
 
             Server* server = static_cast<Server*>(node);
-            server->handleCommand( node, packet );
+            return server->handleCommand( node, packet );
             break;
 
         default:
-            ERROR << "unimplemented" << endl;
-            abort();
+            UNIMPLEMENTED;
+            return eqNet::COMMAND_ERROR;
     }
 }
 

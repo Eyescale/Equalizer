@@ -88,8 +88,8 @@ namespace eqs
 
     protected:
         /** @sa eqNet::Node::handlePacket */
-        virtual void handlePacket( eqNet::Node* node, 
-                                   const eqNet::Packet* packet );
+        virtual eqNet::CommandResult handlePacket( eqNet::Node* node, 
+                                                   const eqNet::Packet* packet);
         
         /** @sa eqNet::Node::createNode */
         virtual eqBase::RefPtr<eqNet::Node> createNode();
@@ -124,8 +124,10 @@ namespace eqs
         void        _handleRequests(); 
 
         /** The command functions. */
-        void _cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* packet );
-        void _cmdReleaseConfig( eqNet::Node* node,const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdChooseConfig( eqNet::Node* node,
+                                               const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdReleaseConfig( eqNet::Node* node,
+                                                const eqNet::Packet* packet );
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Server* server )

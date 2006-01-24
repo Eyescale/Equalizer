@@ -126,7 +126,8 @@ void Channel::update()
 //===========================================================================
 // command handling
 //===========================================================================
-void Channel::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Channel::_cmdInitReply( eqNet::Node* node, 
+                                             const eqNet::Packet* pkg )
 {
     eq::ChannelInitReplyPacket* packet = (eq::ChannelInitReplyPacket*)pkg;
     INFO << "handle channel init reply " << packet << endl;
@@ -135,14 +136,17 @@ void Channel::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
     _far  = packet->far;
 
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Channel::_cmdExitReply( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Channel::_cmdExitReply( eqNet::Node* node, 
+                                             const eqNet::Packet* pkg )
 {
     eq::ChannelExitReplyPacket* packet = (eq::ChannelExitReplyPacket*)pkg;
     INFO << "handle channel exit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );
+    return eqNet::COMMAND_HANDLED;
 }
 
 

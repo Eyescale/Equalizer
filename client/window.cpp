@@ -64,15 +64,17 @@ void eq::Window::_removeChannel( Channel* channel )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-void eq::Window::_pushRequest( eqNet::Node* node, const eqNet::Packet* packet )
+eqNet::CommandResult eq::Window::_pushRequest( eqNet::Node* node,
+                                               const eqNet::Packet* packet )
 {
     if( _pipe )
-        _pipe->pushRequest( node, packet );
-    else
-        _cmdUnknown( node, packet );
+        return _pipe->pushRequest( node, packet );
+
+    return _cmdUnknown( node, packet );
 }
 
-void eq::Window::_cmdCreateChannel( eqNet::Node* node, const eqNet::Packet* pkg)
+eqNet::CommandResult eq::Window::_cmdCreateChannel( eqNet::Node* node,
+                                                    const eqNet::Packet* pkg )
 {
     WindowCreateChannelPacket* packet = (WindowCreateChannelPacket*)pkg;
     INFO << "Handle create channel " << packet << endl;
@@ -81,9 +83,11 @@ void eq::Window::_cmdCreateChannel( eqNet::Node* node, const eqNet::Packet* pkg)
     
     getConfig()->addRegisteredObject( packet->channelID, channel );
     _addChannel( channel );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void eq::Window::_cmdDestroyChannel(eqNet::Node* node, const eqNet::Packet* pkg)
+eqNet::CommandResult eq::Window::_cmdDestroyChannel(eqNet::Node* node, 
+                                                    const eqNet::Packet* pkg)
 {
     WindowDestroyChannelPacket* packet = (WindowDestroyChannelPacket*)pkg;
     INFO << "Handle destroy channel " << packet << endl;
@@ -91,14 +95,16 @@ void eq::Window::_cmdDestroyChannel(eqNet::Node* node, const eqNet::Packet* pkg)
     Config*  config  = getConfig();
     Channel* channel = (Channel*)config->getRegisteredObject(packet->channelID);
     if( !channel )
-        return;
+        return eqNet::COMMAND_HANDLED;
 
     _removeChannel( channel );
     config->deregisterObject( channel );
     delete channel;
+    return eqNet::COMMAND_HANDLED;
 }
 
-void eq::Window::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
+                                           const eqNet::Packet* pkg )
 {
     WindowInitPacket* packet = (WindowInitPacket*)pkg;
     INFO << "handle window init " << packet << endl;
@@ -109,7 +115,7 @@ void eq::Window::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
     if( !reply.result )
     {
         node->send( reply );
-        return;
+        return eqNet::COMMAND_HANDLED;
     }
 
     const WindowSystem windowSystem = _pipe->getWindowSystem();
@@ -121,7 +127,7 @@ void eq::Window::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
             ERROR << "init() did not provide a drawable and context" << endl;
             reply.result = false;
             node->send( reply );
-            return;
+            return eqNet::COMMAND_HANDLED;
         }
     }
 #endif
@@ -133,7 +139,7 @@ void eq::Window::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
             ERROR << "init() did not provide an OpenGL context" << endl;
             reply.result = false;
             node->send( reply );
-            return;
+            return eqNet::COMMAND_HANDLED;
         }
         // TODO: pvp
     }
@@ -141,9 +147,11 @@ void eq::Window::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
 
     reply.pvp = _pvp;
     node->send( reply );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void eq::Window::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult eq::Window::_reqExit( eqNet::Node* node,
+                                           const eqNet::Packet* pkg )
 {
     WindowExitPacket* packet = (WindowExitPacket*)pkg;
     INFO << "handle window exit " << packet << endl;
@@ -152,6 +160,7 @@ void eq::Window::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
 
     WindowExitReplyPacket reply( packet );
     node->send( reply );
+    return eqNet::COMMAND_HANDLED;
 }
 
 //---------------------------------------------------------------------------

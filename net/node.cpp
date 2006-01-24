@@ -165,6 +165,36 @@ bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
     return true;
 }
 
+RefPtr<Node> Node::_findConnectedNode( const char* connectionDescription )
+{
+    const size_t nConnections = _connectionSet.nConnections();
+    for( size_t i=0; i<nConnections; i++ )
+    {
+        eqBase::RefPtr<Connection> connection = _connectionSet.getConnection(i);
+        if( connection->getDescription()->toString() == connectionDescription )
+            return _connectionSet.getNode( connection );
+    }
+    return NULL;
+}
+
+RefPtr<Node> Node::getNodeWithConnection( const char* connectionDescription )
+{
+    RefPtr<Node> node = _findConnectedNode( connectionDescription );
+    if( node.isValid( ))
+        return node;
+
+    node = createNode();
+    RefPtr<ConnectionDescription> cd = new ConnectionDescription();
+    if( !cd->fromString( connectionDescription ))
+        return false;
+
+    node->addConnectionDescription( cd );
+    if( node->checkConnection( ))
+        return node;
+
+    return NULL;
+}
+
 bool Node::disconnect( Node* node )
 {
     if( !node || _state != STATE_LISTENING || 
@@ -317,7 +347,7 @@ ssize_t Node::_runReceiver()
                 RefPtr<Connection> connection = _connectionSet.getConnection();
                 RefPtr<Node>       node = _connectionSet.getNode( connection );
                 ASSERT( node->_connection == connection );
-                _handleRequest( node.get() ); // do not pass down RefPtr for now
+                _handleRequest( node.get() ); // do not pass down RefPtr atm
                 break;
             }
 
@@ -411,10 +441,21 @@ void Node::_handleRequest( Node* node )
     gotData   = node->recv( ptr, size );
     ASSERT( gotData );
 
-    dispatchPacket( node, packet );
+    switch( dispatchPacket( node, packet ))
+    {
+        case COMMAND_HANDLED:
+            break;
+
+        case COMMAND_ERROR:
+            ERROR << "Error handling command packet" << endl;
+            abort();
+
+        case COMMAND_RESCHEDULE:
+            UNIMPLEMENTED;
+    }
 }
 
-void Node::dispatchPacket( Node* node, const Packet* packet )
+CommandResult Node::dispatchPacket( Node* node, const Packet* packet )
 {
     VERB << "dispatch " << packet << " from " << (void*)node << " by " 
          << (void*)this << endl;
@@ -423,8 +464,7 @@ void Node::dispatchPacket( Node* node, const Packet* packet )
     switch( datatype )
     {
         case DATATYPE_EQNET_NODE:
-            handleCommand( node, packet );
-            break;
+            return handleCommand( node, packet );
 
         case DATATYPE_EQNET_SESSION:
         case DATATYPE_EQNET_OBJECT:
@@ -435,21 +475,22 @@ void Node::dispatchPacket( Node* node, const Packet* packet )
             Session*             session       = _sessions[id];
             ASSERTINFO( session, id );
             
-            session->dispatchPacket( node, sessionPacket );
-            break;
+            return session->dispatchPacket( node, sessionPacket );
         }
 
         default:
             if( datatype < DATATYPE_CUSTOM )
+            {
                 ERROR << "Unknown eqNet datatype " << datatype 
                       << ", dropping packet." << endl;
-            else
-                handlePacket( node, packet );
-            break;
+                return COMMAND_ERROR;
+            }
+
+            return handlePacket( node, packet );
     }
 }
 
-void Node::_cmdStop( Node* node, const Packet* pkg )
+CommandResult Node::_cmdStop( Node* node, const Packet* pkg )
 {
     INFO << "Cmd stop " << this << endl;
     ASSERT( _state == STATE_LISTENING );
@@ -458,9 +499,10 @@ void Node::_cmdStop( Node* node, const Packet* pkg )
 //     _connection = NULL;
     _state = STATE_STOPPED;
     _receiverThread->exit( EXIT_SUCCESS );
+    return COMMAND_HANDLED;
 }
 
-void Node::_cmdMapSession( Node* node, const Packet* pkg )
+CommandResult Node::_cmdMapSession( Node* node, const Packet* pkg )
 {
     ASSERT( getState() == STATE_LISTENING );
 
@@ -497,9 +539,10 @@ void Node::_cmdMapSession( Node* node, const Packet* pkg )
     reply.sessionID  = sessionID;
 
     node->send( reply, sessionName );
+    return COMMAND_HANDLED;
 }
 
-void Node::_cmdMapSessionReply( Node* node, const Packet* pkg)
+CommandResult Node::_cmdMapSessionReply( Node* node, const Packet* pkg)
 {
     NodeMapSessionReplyPacket* packet  = (NodeMapSessionReplyPacket*)pkg;
     INFO << "Cmd map session reply: " << packet << endl;
@@ -511,11 +554,12 @@ void Node::_cmdMapSessionReply( Node* node, const Packet* pkg)
     if( packet->sessionID == INVALID_ID )
     {
         _requestHandler.serveRequest( requestID, (void*)false );
-        return;
+        return COMMAND_HANDLED;
     }        
     
     addSession( session, node, packet->sessionID, packet->name );
     _requestHandler.serveRequest( requestID, (void*)true );
+    return COMMAND_HANDLED;
 }
 
 //----------------------------------------------------------------------

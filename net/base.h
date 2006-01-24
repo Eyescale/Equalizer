@@ -14,6 +14,13 @@ namespace eqNet
     class Node;
     struct Packet;
     
+    enum CommandResult
+    {
+        COMMAND_HANDLED,     //*< The command was handled
+        COMMAND_ERROR,       //*< An unrecoverable error occured
+        COMMAND_RESCHEDULE   //*< The command can be handled later, reschedule
+    };
+
     /** The base class for all networked objects. */
     class Base
     {
@@ -22,19 +29,20 @@ namespace eqNet
         virtual ~Base();        
 
         /** 
-         * Handles a received command packet calling the appropriate command
-         * handler function.
+         * Handles a received command packet for this object by calling the
+         * appropriate command handler function.
          * 
          * @param node the sending node.
          * @param packet the command packet.
+         * @return the result of the operation.
          * @sa registerCommand
          */
-        void handleCommand( Node* node, const Packet* packet );
+        CommandResult handleCommand( Node* node, const Packet* packet );
  
     protected:
 
         /** The command function prototype. */
-        typedef void (eqNet::Base::*CommandFcn)( Node* node, const Packet* packet );
+        typedef CommandResult (eqNet::Base::*CommandFcn)( Node* node, const Packet* packet );
 
         /** 
          * Registers a command member function for a command.
@@ -57,8 +65,9 @@ namespace eqNet
          * 
          * @param node the originating node.
          * @param packet the packet.
+         * @return the result of the operation.
          */
-        void _cmdUnknown( Node* node, const Packet* packet );
+        CommandResult _cmdUnknown( Node* node, const Packet* packet );
 
     private:
         /** The command handler function table. */

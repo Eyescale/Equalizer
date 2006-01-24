@@ -39,16 +39,17 @@ void Base::registerCommand( const uint32_t command, void* thisPointer,
     _commandFunctionsThis[command] = (Base*)thisPointer;
 }
 
-void Base::handleCommand( Node* node, const Packet* packet )
+CommandResult Base::handleCommand( Node* node, const Packet* packet )
 {
     const uint32_t which = packet->command;
     ASSERT( which < _nCommands );
-    (_commandFunctionsThis[which]->*_commandFunctions[which])( node, packet );
+    return (_commandFunctionsThis[which]->*_commandFunctions[which])( node,
+                                                                      packet );
 }
 
-void Base::_cmdUnknown( Node* node, const Packet* packet )
+CommandResult Base::_cmdUnknown( Node* node, const Packet* packet )
 {
     ERROR << "Unknown command " << packet << " from " << node << " type "
           << typeid(*this).name() << endl;
-    abort();
+    return COMMAND_ERROR;
 }

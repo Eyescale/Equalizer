@@ -28,8 +28,8 @@ namespace eq
         /** 
          * @sa eqNet::Node::handlePacket
          */
-        virtual void handlePacket( eqNet::Node* node, 
-                                   const eqNet::Packet* packet );
+        virtual eqNet::CommandResult handlePacket( eqNet::Node* node, 
+                                                   const eqNet::Packet* packet);
 
     private:
         /** The command functions. */

@@ -137,11 +137,17 @@ namespace eq
         /** The pixel viewport for the current task. */
         PixelViewport  _pvp;
 
-        void _pushRequest( eqNet::Node* node, const eqNet::Packet* packet );
-        void _reqInit( eqNet::Node* node, const eqNet::Packet* packet );
-        void _reqExit( eqNet::Node* node, const eqNet::Packet* packet );
-        void _reqClear( eqNet::Node* node, const eqNet::Packet* packet );
-        void _reqDraw( eqNet::Node* node, const eqNet::Packet* packet );
+        /* The command handler functions. */
+        eqNet::CommandResult _pushRequest( eqNet::Node* node,
+                                           const eqNet::Packet* packet );
+        eqNet::CommandResult _reqInit( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
+        eqNet::CommandResult _reqExit( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
+        eqNet::CommandResult _reqClear( eqNet::Node* node,
+                                        const eqNet::Packet* packet );
+        eqNet::CommandResult _reqDraw( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
     };
 }
 

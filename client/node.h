@@ -65,8 +65,8 @@ namespace eq
         /** 
          * @sa eqNet::Node::handlePacket
          */
-        virtual void handlePacket( eqNet::Node* node, 
-                                   const eqNet::Packet* packet );
+        virtual eqNet::CommandResult handlePacket( eqNet::Node* node, 
+                                                   const eqNet::Packet* packet);
 
         /** 
          * @sa eqNet::Node::createNode
@@ -95,13 +95,20 @@ namespace eq
             { _requestQueue.push( node, packet ); }
 
         /** The command functions. */
-        void _cmdCreateConfig( eqNet::Node* node, const eqNet::Packet* packet );
-        void _cmdCreatePipe( eqNet::Node* node, const eqNet::Packet* packet );
-        void _cmdDestroyPipe( eqNet::Node* node, const eqNet::Packet* packet );
-        void _cmdInit( eqNet::Node* node, const eqNet::Packet* packet );
-        void _reqInit( eqNet::Node* node, const eqNet::Packet* packet );
-        void _reqExit( eqNet::Node* node, const eqNet::Packet* packet );
-        void _reqStop( eqNet::Node* node, const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdCreateConfig( eqNet::Node* node,
+                                        const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdCreatePipe( eqNet::Node* node,
+                                      const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdDestroyPipe( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdInit( eqNet::Node* node, 
+                                       const eqNet::Packet* packet );
+        eqNet::CommandResult _reqInit( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
+        eqNet::CommandResult _reqExit( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
+        eqNet::CommandResult _reqStop( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
     };
 }
 

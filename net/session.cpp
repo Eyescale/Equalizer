@@ -82,19 +82,17 @@ void Session::freeIDs( const uint32_t start, const uint32_t range )
 void Session::setIDMaster( const uint32_t start, const uint32_t range, 
                            Node* master )
 {
-    if( !master->checkConnection( ))
-        return;
+    ASSERT( master->checkConnection( ));
+
+    IDMasterInfo info = { start, start+range, master };
+    _idMasterInfos.push_back( info );
 
     if( _isMaster )
-    {
-        IDMasterInfo info = { start, start+range, master };
-        _idMasterInfos.push_back( info );
         return;
-    }
 
     SessionSetIDMasterPacket packet( _id );
-    packet.start     = start;
-    packet.range     = range;
+    packet.start = start;
+    packet.range = range;
 
     RefPtr<Connection> connection = ( master->isConnected() ?
                                       master->getConnection() : 
@@ -104,7 +102,7 @@ void Session::setIDMaster( const uint32_t start, const uint32_t range,
     _server->send( packet, connectionDescription );
 }
 
-Node* Session::getIDMaster( const uint32_t id )
+RefPtr<Node> Session::getIDMaster( const uint32_t id )
 {
     // look up locally
     const uint32_t nInfos = _idMasterInfos.size();
@@ -112,7 +110,7 @@ Node* Session::getIDMaster( const uint32_t id )
     {
         const IDMasterInfo& info = _idMasterInfos[i];
         if( id >= info.start && id < info.end )
-                return info.master;
+            return info.master;
     }
     
     if( _isMaster )
@@ -124,17 +122,7 @@ Node* Session::getIDMaster( const uint32_t id )
     packet.id        = id;
 
     _server->send( packet );
-    IDMasterInfo* info = (IDMasterInfo*)_requestHandler.waitRequest( 
-        packet.requestID );
-
-    if( !info )
-        return NULL;
-    
-    _idMasterInfos.push_back( *info );
-
-    Node*  master = info->master;
-    delete info;
-    return master;
+    return (Node*)_requestHandler.waitRequest( packet.requestID );
 }
 
 //---------------------------------------------------------------------------
@@ -171,15 +159,14 @@ void Session::deregisterObject( Object* object )
 // Packet handling
 //===========================================================================
 
-void Session::dispatchPacket( Node* node, const Packet* packet)
+CommandResult Session::dispatchPacket( Node* node, const Packet* packet)
 {
     VERB << "dispatch " << packet << endl;
 
     switch( packet->datatype )
     {
         case DATATYPE_EQNET_SESSION:
-            handleCommand( node, packet );
-            break;
+            return handleCommand( node, packet );
 
         case DATATYPE_EQNET_OBJECT:
         {
@@ -189,22 +176,20 @@ void Session::dispatchPacket( Node* node, const Packet* packet)
             
             if( !object )
             {
-                ERROR << "Received request for unregistered object of id "
-                      << id << endl;
-                ASSERT( object );
-                return;
+                ASSERTINFO( object, "Received request for unregistered object");
+                return COMMAND_ERROR;
             }
 
-            object->handleCommand( node, objPacket );
-            break;
+            return object->handleCommand( node, objPacket );
         }
 
         default:
-            WARN << "Unhandled packet " << packet << endl;
+            WARN << "Undispatched packet " << packet << endl;
+            return COMMAND_ERROR;
     }
 }
 
-void Session::_cmdGenIDs( Node* node, const Packet* pkg )
+CommandResult Session::_cmdGenIDs( Node* node, const Packet* pkg )
 {
     SessionGenIDsPacket*     packet = (SessionGenIDsPacket*)pkg;
     INFO << "Cmd gen IDs: " << packet << endl;
@@ -213,41 +198,83 @@ void Session::_cmdGenIDs( Node* node, const Packet* pkg )
 
     reply.id = _masterPool.genIDs( packet->range );
     node->send( reply );
+    return COMMAND_HANDLED;
 }
 
-void Session::_cmdGenIDsReply( Node* node, const Packet* pkg )
+CommandResult Session::_cmdGenIDsReply( Node* node, const Packet* pkg )
 {
     SessionGenIDsReplyPacket* packet = (SessionGenIDsReplyPacket*)pkg;
     INFO << "Cmd gen IDs reply: " << packet << endl;
     _requestHandler.serveRequest( packet->requestID, (void*)packet->id );
+    return COMMAND_HANDLED;
 }
 
-void Session::_cmdSetIDMaster( Node* node, const Packet* pkg )
+CommandResult Session::_cmdSetIDMaster( Node* node, const Packet* pkg )
 {
     SessionSetIDMasterPacket* packet = (SessionSetIDMasterPacket*)pkg;
 
-//     Node* localNode = Node::getLocalNode();
-//     Node* master    = localNode->findNodeByConnection( connectionDescription );
-//     ASSERT( master );
+    Node*        localNode = Node::getLocalNode();
+    RefPtr<Node> master    = localNode->getNodeWithConnection( 
+        packet->connectionDescription );
 
+    ASSERT( master.isValid( ));
+
+    // TODO thread-safety: _idMasterInfos is also read & written by app
+    IDMasterInfo info = { packet->start, packet->start + packet->range, master};
+    _idMasterInfos.push_back( info );
+    return COMMAND_HANDLED;
 }
 
-// void Session::_reqSetIDMaster( Node* node, const Packet* pkg )
-// {
-//     SessionSetIDMasterPacket* packet = (SessionSetIDMasterPacket*)pkg;
 
-//     IDMasterInfo info = 
-
-//     info.
-// }
-
-void Session::_cmdGetIDMaster( Node* node, const Packet* packet )
+CommandResult Session::_cmdGetIDMaster( Node* node, const Packet* pkg )
 {
+    SessionGetIDMasterPacket*     packet = (SessionGetIDMasterPacket*)pkg;
+    SessionGetIDMasterReplyPacket reply( packet );
+    string                        connectionDescription;
+
+    reply.start = 0;
+
+    // TODO thread-safety: _idMasterInfos is also read & written by app
+    const uint32_t nInfos = _idMasterInfos.size();
+    for( uint32_t i=0; i<nInfos; ++i )
+    {
+        IDMasterInfo& info = _idMasterInfos[i];
+        if( packet->id >= info.start && packet->id < info.end )
+        {
+            reply.start = info.start;
+            reply.end   = info.end;
+
+            RefPtr<Connection> connection = ( info.master->isConnected() ?
+                                              info.master->getConnection() : 
+                                         info.master->getListenerConnection( ));
+            connectionDescription = connection->getDescription()->toString();
+            
+            info.slaves.push_back( node );
+            break;
+        }
+    }
+
+    node->send( reply, connectionDescription );
+    return COMMAND_HANDLED;
 }
 
-void Session::_cmdGetIDMasterReply( Node* node, const Packet* packet )
+CommandResult Session::_cmdGetIDMasterReply( Node* node, const Packet* pkg )
 {
+    SessionGetIDMasterReplyPacket* packet = (SessionGetIDMasterReplyPacket*)pkg;
+
+    Node*        localNode = Node::getLocalNode();
+    RefPtr<Node> master    = localNode->getNodeWithConnection( packet->
+                                                        connectionDescription );
+    ASSERT( master );
+
+    // TODO thread-safety: _idMasterInfos is also read & written by app
+    IDMasterInfo info = { packet->start, packet->end, master};
+    _idMasterInfos.push_back( info );
+
+    _requestHandler.serveRequest( packet->requestID, master.get( ));
+    return COMMAND_HANDLED;
 }
+
 
 std::ostream& eqNet::operator << ( std::ostream& os, Session* session )
 {

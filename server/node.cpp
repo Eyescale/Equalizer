@@ -170,23 +170,42 @@ void Node::update()
     }
 }
 
+//---------------------------------------------------------------------------
+// Barrier cache
+//---------------------------------------------------------------------------
+eqNet::Barrier* Node::getBarrier( const uint32_t height )
+{
+    // TODO
+    return new eqNet::Barrier( this, height );
+}
+
+void Node::releaseBarrier( eqNet::Barrier* barrier )
+{
+    // TODO
+    barrier->release();
+}
+
 //===========================================================================
 // command handling
 //===========================================================================
-void Node::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Node::_cmdInitReply( eqNet::Node* node,
+                                          const eqNet::Packet* pkg )
 {
     eq::NodeInitReplyPacket* packet = (eq::NodeInitReplyPacket*)pkg;
     INFO << "handle node init reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Node::_cmdExitReply( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Node::_cmdExitReply( eqNet::Node* node,
+                                          const eqNet::Packet* pkg )
 {
     eq::NodeExitReplyPacket* packet = (eq::NodeExitReplyPacket*)pkg;
     INFO << "handle node exit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );
+    return eqNet::COMMAND_HANDLED;
 }
 
 

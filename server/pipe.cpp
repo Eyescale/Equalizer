@@ -175,20 +175,22 @@ void Pipe::update()
 //===========================================================================
 // command handling
 //===========================================================================
-void Pipe::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     eq::PipeInitReplyPacket* packet = (eq::PipeInitReplyPacket*)pkg;
     INFO << "handle pipe init reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Pipe::_cmdExitReply( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_cmdExitReply( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     eq::PipeExitReplyPacket* packet = (eq::PipeExitReplyPacket*)pkg;
     INFO << "handle pipe exit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );
+    return eqNet::COMMAND_HANDLED;
 }
 
 

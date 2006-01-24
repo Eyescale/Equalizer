@@ -191,28 +191,42 @@ void Window::update()
             channel->update();
     }
 
-    
+    // swap & swap barrier
+    // XXX swap barrier does not need to exist on server!
+    if( _swapMaster == this )
+    {
+        Node* node = getNode();
+//         if( _swapBarrier )
+//             node->releaseBarrier( _swapBarrier );
+
+//         _swapBarrier = node->getBarrier( _swapGroup.size( ));
+    }
+    // TODO: send barrier creation
+    // TODO: send barrier->enter
+    // TODO: send swap
 }
 
 
 //===========================================================================
 // command handling
 //===========================================================================
-void Window::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Window::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     eq::WindowInitReplyPacket* packet = (eq::WindowInitReplyPacket*)pkg;
     INFO << "handle window init reply " << packet << endl;
 
     _pvp = packet->pvp;
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Window::_cmdExitReply( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Window::_cmdExitReply( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     eq::WindowExitReplyPacket* packet = (eq::WindowExitReplyPacket*)pkg;
     INFO << "handle window exit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );
+    return eqNet::COMMAND_HANDLED;
 }
 
 

@@ -80,10 +80,11 @@ namespace eq
         /** The allocated configurations, mapped by identifier. */
         eqNet::IDHash<Config*> _configs;
 
-        /** The command functions. */
-        void _cmdUnknown( eqNet::Node* node,  const eqNet::Packet* packet );
-        void _cmdChooseConfigReply( eqNet::Node* node, 
-                                    const eqNet::Packet* packet );
+        /* The command handler functions. */
+        eqNet::CommandResult _cmdUnknown( eqNet::Node* node,
+                                          const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdChooseConfigReply(eqNet::Node* node, 
+                                                   const eqNet::Packet* packet);
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Server* server )

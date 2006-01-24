@@ -5,6 +5,7 @@
 #ifndef EQS_NODE_H
 #define EQS_NODE_H
 
+#include <eq/net/barrier.h>
 #include <eq/net/node.h>
 #include <eq/net/object.h>
 
@@ -123,6 +124,28 @@ namespace eqs
         void update();
         //*}
 
+        /**
+         * @name Barrier Cache
+         *
+         * Caches barriers for which this node is the master.
+         */
+        //*{
+        /** 
+         * Get a barrier of a given height.
+         * 
+         * @param height the height of the barrier.
+         * @return the barrier.
+         */
+        eqNet::Barrier* getBarrier( const uint32_t height );
+
+        /** 
+         * Release a barrier server by this node.
+         * 
+         * @param barrier the barrier.
+         */
+        void releaseBarrier( eqNet::Barrier* barrier );
+        //*}
+
     protected:
         /** @sa eqNet::Node::getProgramName */
         virtual const std::string& getProgramName();
@@ -155,8 +178,11 @@ namespace eqs
         void _sendInit();
         void _sendExit();
 
-        void _cmdInitReply( eqNet::Node* node, const eqNet::Packet* packet );
-        void _cmdExitReply( eqNet::Node* node, const eqNet::Packet* packet );
+        /* Command handler functions. */
+        eqNet::CommandResult _cmdInitReply( eqNet::Node* node,
+                                            const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdExitReply( eqNet::Node* node,
+                                            const eqNet::Packet* packet );
     };
 
     std::ostream& operator << ( std::ostream& os, const Node* node );

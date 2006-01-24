@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "node.h"
@@ -58,7 +58,7 @@ eqBase::RefPtr<eqNet::Node> Node::createNode()
         return _server.get();
     }
 
-    return new Node; 
+    return Global::getNodeFactory()->createNode();
 }
 
 
@@ -72,11 +72,24 @@ void Node::clientLoop()
     while( _clientLoopRunning )
     {
         _requestQueue.pop( &node, &packet );
-        dispatchPacket( node, packet );
+
+        switch( dispatchPacket( node, packet ))
+        {
+            case eqNet::COMMAND_HANDLED:
+                break;
+
+            case eqNet::COMMAND_ERROR:
+                ERROR << "Error handling command packet" << endl;
+                abort();
+
+            case eqNet::COMMAND_RESCHEDULE:
+                UNIMPLEMENTED;
+        }
     }
 }
 
-void Node::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
+eqNet::CommandResult Node::handlePacket( eqNet::Node* node,
+                                         const eqNet::Packet* packet )
 {
     VERB << "handlePacket " << packet << endl;
     const uint32_t datatype = packet->datatype;
@@ -85,12 +98,11 @@ void Node::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
     {
         case DATATYPE_EQ_SERVER:
             ASSERT( node == _server.get( ));
-            _server->handleCommand( node, packet );
+            return _server->handleCommand( node, packet );
             break;
 
         default:
-            ERROR << "unimplemented" << endl;
-            abort();
+            return eqNet::COMMAND_ERROR;
     }
 }
 
@@ -113,7 +125,8 @@ void Node::_removePipe( Pipe* pipe )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-void Node::_cmdCreateConfig( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Node::_cmdCreateConfig( eqNet::Node* node, 
+                                             const eqNet::Packet* pkg )
 {
     NodeCreateConfigPacket* packet = (NodeCreateConfigPacket*)pkg;
     INFO << "Handle create config " << packet << ", name " << packet->name 
@@ -123,9 +136,11 @@ void Node::_cmdCreateConfig( eqNet::Node* node, const eqNet::Packet* pkg )
     
     addSession( _config, node, packet->configID, packet->name );
     _server->addConfig( _config );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Node::_cmdCreatePipe( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Node::_cmdCreatePipe( eqNet::Node* node, 
+                                           const eqNet::Packet* pkg )
 {
     NodeCreatePipePacket* packet = (NodeCreatePipePacket*)pkg;
     INFO << "Handle create pipe " << packet << endl;
@@ -134,32 +149,36 @@ void Node::_cmdCreatePipe( eqNet::Node* node, const eqNet::Packet* pkg )
     
     _config->addRegisteredObject( packet->pipeID, pipe );
     _addPipe( pipe );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Node::_cmdDestroyPipe( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Node* node, 
+                                            const eqNet::Packet* pkg )
 {
     NodeDestroyPipePacket* packet = (NodeDestroyPipePacket*)pkg;
     INFO << "Handle destroy pipe " << packet << endl;
 
     Pipe* pipe = (Pipe*)_config->getRegisteredObject( packet->pipeID );
     if( !pipe )
-        return;
+        return eqNet::COMMAND_HANDLED;
 
     _removePipe( pipe );
     _config->deregisterObject( pipe );
     delete pipe;
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Node::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Node::_cmdInit(eqNet::Node* node, const eqNet::Packet* pkg)
 {
     NodeInitPacket* packet = (NodeInitPacket*)pkg;
     INFO << "handle node init (recv) " << packet << endl;
 
     _config->addRegisteredObject( packet->nodeID, this );
     _pushRequest( node, pkg );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Node::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Node::_reqInit(eqNet::Node* node, const eqNet::Packet* pkg)
 {
     NodeInitPacket* packet = (NodeInitPacket*)pkg;
     INFO << "handle node init (node) " << packet << endl;
@@ -167,9 +186,10 @@ void Node::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
     NodeInitReplyPacket reply( packet );
     reply.result = init();
     node->send( reply );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Node::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Node::_reqExit(eqNet::Node* node, const eqNet::Packet* pkg)
 {
     NodeExitPacket* packet = (NodeExitPacket*)pkg;
     INFO << "handle node exit " << packet << endl;
@@ -178,9 +198,10 @@ void Node::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
 
     NodeExitReplyPacket reply( packet );
     node->send( reply );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Node::_reqStop( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Node::_reqStop(eqNet::Node* node, const eqNet::Packet* pkg)
 {
     NodeStopPacket* packet = (NodeStopPacket*)pkg;
     INFO << "handle node stop " << packet << endl;
@@ -190,4 +211,5 @@ void Node::_reqStop( eqNet::Node* node, const eqNet::Packet* pkg )
     // stop ourselves
     eqNet::NodeStopPacket stopPacket;
     send( stopPacket );
+    return eqNet::COMMAND_HANDLED;
 }

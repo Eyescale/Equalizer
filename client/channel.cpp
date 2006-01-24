@@ -117,17 +117,19 @@ void Channel::applyHeadTransform()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-void Channel::_pushRequest( eqNet::Node* node, const eqNet::Packet* packet )
+eqNet::CommandResult Channel::_pushRequest( eqNet::Node* node,
+                                            const eqNet::Packet* packet )
 {
     Pipe* pipe = getPipe();
 
     if( pipe )
-        pipe->pushRequest( node, packet );
-    else
-        _cmdUnknown( node, packet );
+        return pipe->pushRequest( node, packet );
+
+    return _cmdUnknown( node, packet );
 }
 
-void Channel::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Channel::_reqInit( eqNet::Node* node,
+                                        const eqNet::Packet* pkg )
 {
     ChannelInitPacket* packet = (ChannelInitPacket*)pkg;
     INFO << "handle channel init " << packet << endl;
@@ -137,9 +139,11 @@ void Channel::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
     reply.near   = _near;
     reply.far    = _far;
     node->send( reply );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Channel::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Channel::_reqExit( eqNet::Node* node,
+                                        const eqNet::Packet* pkg )
 {
     ChannelExitPacket* packet = (ChannelExitPacket*)pkg;
     INFO << "handle channel exit " << packet << endl;
@@ -148,9 +152,11 @@ void Channel::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
 
     ChannelExitReplyPacket reply( packet );
     node->send( reply );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Channel::_reqClear( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Channel::_reqClear( eqNet::Node* node,
+                                         const eqNet::Packet* pkg )
 {
     ChannelClearPacket* packet = (ChannelClearPacket*)pkg;
     INFO << "handle channel clear " << packet << endl;
@@ -158,9 +164,11 @@ void Channel::_reqClear( eqNet::Node* node, const eqNet::Packet* pkg )
     _context = &packet->context;
     clear();
     _context = NULL;
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Channel::_reqDraw( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Channel::_reqDraw( eqNet::Node* node,
+                                        const eqNet::Packet* pkg )
 {
     ChannelClearPacket* packet = (ChannelClearPacket*)pkg;
     INFO << "handle channel clear " << packet << endl;
@@ -168,4 +176,5 @@ void Channel::_reqDraw( eqNet::Node* node, const eqNet::Packet* pkg )
     _context = &packet->context;
     draw();
     _context = NULL;
+    return eqNet::COMMAND_HANDLED;
 }

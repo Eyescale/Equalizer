@@ -4,7 +4,6 @@
 
 #include "object.h"
 
-#include "base.h"
 #include "packets.h"
 
 #include <eq/base/log.h>
@@ -23,12 +22,13 @@ Object::~Object()
 {
 }
 
-void Object::handleCommand( Node* node, const ObjectPacket* packet )
+CommandResult Object::handleCommand( Node* node, const ObjectPacket* packet )
 {
     Base* baseThis = dynamic_cast<Base*>( this );
 
     if( baseThis )
-        baseThis->handleCommand( node, (Packet*)packet );
-    else
-        WARN << "Unhandled command " << packet << endl;
+        return baseThis->handleCommand( node, (Packet*)packet );
+
+    WARN << "Unhandled command " << packet << endl;
+    return COMMAND_ERROR;
 }

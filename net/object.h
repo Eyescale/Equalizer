@@ -7,6 +7,7 @@
 
 #include <eq/base/base.h>
 
+#include "base.h"
 #include "global.h"
 
 namespace eqNet
@@ -24,7 +25,18 @@ namespace eqNet
         uint32_t getSessionID() const { return _sessionID; }
         uint32_t getID() const        { return _id; }
 
-        virtual void handleCommand( Node* node, const ObjectPacket* packet );
+        /** 
+         * Handle the passed command packet.
+         * 
+         * This function is executed from the receiver thread and should not
+         * block for other packages.
+         *
+         * @param node the node sending the command packet.
+         * @param packet the command packet.
+         * @return the result of the operation.
+         */
+        virtual CommandResult handleCommand( Node* node, 
+                                             const ObjectPacket* packet );
 
     protected:
         friend class  Session;

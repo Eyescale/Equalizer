@@ -64,12 +64,15 @@ bool Config::removeNode( Node* node )
 }
 
 // pushes the request to the main thread to be handled asynchronously
-void Config::_cmdRequest( eqNet::Node* node, const eqNet::Packet* packet )
+eqNet::CommandResult Config::_cmdRequest( eqNet::Node* node,
+                                          const eqNet::Packet* packet )
 {
     _server->pushRequest( node, packet );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Config::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Config::_reqInit( eqNet::Node* node,
+                                       const eqNet::Packet* pkg )
 {
     const eq::ConfigInitPacket* packet = (eq::ConfigInitPacket*)pkg;
     eq::ConfigInitReplyPacket   reply( packet );
@@ -78,9 +81,11 @@ void Config::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
     reply.result = _init();
     INFO << "config init result: " << reply.result << endl;
     node->send( reply );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Config::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Config::_reqExit( eqNet::Node* node, 
+                                       const eqNet::Packet* pkg )
 {
     const eq::ConfigExitPacket* packet = (eq::ConfigExitPacket*)pkg;
     eq::ConfigExitReplyPacket   reply( packet );
@@ -89,9 +94,11 @@ void Config::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
     reply.result = _exit();
     INFO << "config exit result: " << reply.result << endl;
     node->send( reply );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Config::_reqFrameBegin( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Config::_reqFrameBegin( eqNet::Node* node, 
+                                             const eqNet::Packet* pkg )
 {
     const eq::ConfigFrameBeginPacket* packet = (eq::ConfigFrameBeginPacket*)pkg;
     eq::ConfigFrameBeginReplyPacket   reply( packet );
@@ -99,9 +106,11 @@ void Config::_reqFrameBegin( eqNet::Node* node, const eqNet::Packet* pkg )
 
     reply.result = _frameBegin();
     node->send( reply );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Config::_reqFrameEnd( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Config::_reqFrameEnd( eqNet::Node* node, 
+                                           const eqNet::Packet* pkg )
 {
     const eq::ConfigFrameEndPacket* packet = (eq::ConfigFrameEndPacket*)pkg;
     eq::ConfigFrameEndReplyPacket   reply( packet );
@@ -109,6 +118,7 @@ void Config::_reqFrameEnd( eqNet::Node* node, const eqNet::Packet* pkg )
 
     reply.result = _frameEnd();
     node->send( reply );
+    return eqNet::COMMAND_HANDLED;
 }
 
 

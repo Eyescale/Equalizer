@@ -18,13 +18,13 @@ using namespace std;
 Pipe::Pipe()
         : eqNet::Base( CMD_PIPE_ALL ),
           _node(NULL),
-          _display(EQ_UNDEFINED_UINT32),
 #ifdef GLX
           _xDisplay(NULL),
 #endif
 #ifdef CGL
           _cglDisplayID(NULL),
 #endif
+          _display(EQ_UNDEFINED_UINT32),
           _screen(EQ_UNDEFINED_UINT32)
 {
     registerCommand( CMD_PIPE_CREATE_WINDOW, this, reinterpret_cast<CommandFcn>(
@@ -103,7 +103,18 @@ ssize_t Pipe::_runThread()
     while( _thread->isRunning( ))
     {
         _requestQueue.pop( &node, &packet );
-        config->dispatchPacket( node, packet );
+        switch( config->dispatchPacket( node, packet ))
+        {
+            case eqNet::COMMAND_HANDLED:
+                break;
+
+            case eqNet::COMMAND_ERROR:
+                ERROR << "Error handling command packet" << endl;
+                abort();
+
+            case eqNet::COMMAND_RESCHEDULE:
+                UNIMPLEMENTED;
+        }
     }
 
     _thread->join();
@@ -113,7 +124,7 @@ ssize_t Pipe::_runThread()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-void Pipe::_cmdCreateWindow( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_cmdCreateWindow( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     PipeCreateWindowPacket* packet = (PipeCreateWindowPacket*)pkg;
     INFO << "Handle create window " << packet << endl;
@@ -122,9 +133,10 @@ void Pipe::_cmdCreateWindow( eqNet::Node* node, const eqNet::Packet* pkg )
     
     getConfig()->addRegisteredObject( packet->windowID, window );
     _addWindow( window );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Pipe::_cmdDestroyWindow( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_cmdDestroyWindow( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     PipeDestroyWindowPacket* packet = (PipeDestroyWindowPacket*)pkg;
     INFO << "Handle destroy window " << packet << endl;
@@ -132,14 +144,15 @@ void Pipe::_cmdDestroyWindow( eqNet::Node* node, const eqNet::Packet* pkg )
     Config* config = getConfig();
     Window* window = (Window*)config->getRegisteredObject( packet->windowID );
     if( !window )
-        return;
+        return eqNet::COMMAND_HANDLED;
 
     _removeWindow( window );
     config->deregisterObject( window );
     delete window;
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Pipe::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     PipeInitPacket* packet = (PipeInitPacket*)pkg;
     INFO << "handle pipe init (recv)" << packet << endl;
@@ -147,9 +160,10 @@ void Pipe::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
     ASSERT( _thread->isStopped( ));
     _thread->start();
     pushRequest( node, pkg );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     PipeInitPacket* packet = (PipeInitPacket*)pkg;
     INFO << "handle pipe init (pipe)" << packet << endl;
@@ -163,7 +177,7 @@ void Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
     if( !reply.result )
     {
         node->send( reply );
-        return;
+        return eqNet::COMMAND_HANDLED;
     }
 
     const WindowSystem windowSystem = getWindowSystem();
@@ -175,7 +189,7 @@ void Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
             ERROR << "init() did not set a valid display connection" << endl;
             reply.result = false;
             node->send( reply );
-            return;
+            return eqNet::COMMAND_HANDLED;
         }
 
         // TODO: gather and send back display information
@@ -190,7 +204,7 @@ void Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
             ERROR << "init() did not set a valid display id" << endl;
             reply.result = false;
             node->send( reply );
-            return;
+            return eqNet::COMMAND_HANDLED;
         }
 
         // TODO: gather and send back display information
@@ -199,9 +213,10 @@ void Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
 #endif
 
     node->send( reply );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Pipe::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     PipeExitPacket* packet = (PipeExitPacket*)pkg;
     INFO << "handle pipe exit " << packet << endl;
@@ -212,6 +227,7 @@ void Pipe::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
     node->send( reply );
 
     _thread->exit( EXIT_SUCCESS );
+    return eqNet::COMMAND_HANDLED;
 }
 
 //---------------------------------------------------------------------------

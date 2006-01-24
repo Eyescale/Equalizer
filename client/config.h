@@ -71,11 +71,14 @@ namespace eq
         eqBase::RequestHandler _requestHandler;
 
         /** The command functions. */
-        void _cmdInitReply( eqNet::Node* node, const eqNet::Packet* packet );
-        void _cmdExitReply( eqNet::Node* node, const eqNet::Packet* packet );
-        void _cmdFrameBeginReply( eqNet::Node* node, 
-                                  const eqNet::Packet* packet );
-        void _cmdFrameEndReply( eqNet::Node* node, const eqNet::Packet* packet);
+        eqNet::CommandResult _cmdInitReply( eqNet::Node* node,
+                                            const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdExitReply( eqNet::Node* node,
+                                            const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdFrameBeginReply( eqNet::Node* node, 
+                                                  const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdFrameEndReply( eqNet::Node* node,
+                                                const eqNet::Packet* packet);
     };
 }
 

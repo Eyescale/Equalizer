@@ -59,9 +59,10 @@ namespace eqNet
          * 
          * @param node the node which sent the packet.
          * @param packet the packet.
+         * @return the result of the operation.
          * @sa handleCommand
          */
-        void dispatchPacket( Node* node, const Packet* packet );
+        CommandResult dispatchPacket( Node* node, const Packet* packet );
 
         /**
          * @name Operations
@@ -92,7 +93,8 @@ namespace eqNet
          * identifiers must be unique, it is therefore advised to allocate them
          * using genIDs().
          *
-         * The master node must be reachable.
+         * The master node must be reachable from this node and known by the
+         * session server node.
          *
          * @param start the first identifier of the block.
          * @param range the size of the block.
@@ -116,7 +118,7 @@ namespace eqNet
          * @return the master node, or an invalid RefPtr if no master node is
          *         set for the identifier.
          */
-        Node* getIDMaster( const uint32_t id );
+        eqBase::RefPtr<Node> getIDMaster( const uint32_t id );
 
         /** 
          * Registers a new distributed object.
@@ -190,9 +192,10 @@ namespace eqNet
         /** Stores a mapping from a block of identifiers to a master node. */
         struct IDMasterInfo
         {
-            uint32_t start;
-            uint32_t end;
-            Node*    master;
+            uint32_t             start;
+            uint32_t             end;
+            eqBase::RefPtr<Node> master;
+            std::vector< eqBase::RefPtr<Node> > slaves;
         };
         /** The id->master mapping table. */
         std::vector<IDMasterInfo> _idMasterInfos;
@@ -201,11 +204,11 @@ namespace eqNet
         IDHash<Object*> _registeredObjects;
 
         /** The command handler functions. */
-        void _cmdGenIDs( Node* node, const Packet* packet );
-        void _cmdGenIDsReply( Node* node, const Packet* packet );
-        void _cmdSetIDMaster( Node* node, const Packet* packet );
-        void _cmdGetIDMaster( Node* node, const Packet* packet );
-        void _cmdGetIDMasterReply( Node* node, const Packet* packet );
+        CommandResult _cmdGenIDs( Node* node, const Packet* packet );
+        CommandResult _cmdGenIDsReply( Node* node, const Packet* packet );
+        CommandResult _cmdSetIDMaster( Node* node, const Packet* packet );
+        CommandResult _cmdGetIDMaster( Node* node, const Packet* packet );
+        CommandResult _cmdGetIDMasterReply( Node* node, const Packet* packet );
     };
     std::ostream& operator << ( std::ostream& os, Session* session );
 }

@@ -2,6 +2,7 @@
 include $(TOP)/make/system.mk
 
 HEADER_SRC = \
+	barrier.h \
 	base.h \
 	commands.h \
 	connection.h \
@@ -22,6 +23,7 @@ HEADER_SRC = \
 	uniPipeConnection.h
 
 SOURCES = \
+	barrier.cpp \
 	base.cpp \
 	connection.cpp \
 	connectionDescription.cpp \

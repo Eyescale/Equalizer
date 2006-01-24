@@ -218,18 +218,18 @@ Config* Server::_cloneConfig( Config* config )
 //===========================================================================
 // packet handling methods
 //===========================================================================
-void Server::handlePacket( eqNet::Node* node, const eqNet::Packet* packet )
+eqNet::CommandResult Server::handlePacket( eqNet::Node* node,
+                                           const eqNet::Packet* packet )
 {
     ASSERT( node );
     switch( packet->datatype )
     {
         case eq::DATATYPE_EQ_SERVER:
-            handleCommand( node, packet );
-            break;
+            return handleCommand( node, packet );
             
         default:
-            ERROR << "unimplemented " << packet << endl;
-            abort();
+            UNIMPLEMENTED;
+            return eqNet::COMMAND_ERROR;
     }
 }
 
@@ -241,11 +241,23 @@ void Server::_handleRequests()
     while( true )
     {
         _requestQueue.pop( &node, &packet );
-        dispatchPacket( node, packet );
+
+        switch( dispatchPacket( node, packet ))
+        {
+            case eqNet::COMMAND_HANDLED:
+                break;
+
+            case eqNet::COMMAND_ERROR:
+                ERROR << "Error handling command packet" << endl;
+                abort();
+
+            case eqNet::COMMAND_RESCHEDULE:
+                UNIMPLEMENTED;
+        }
     }
 }
 
-void Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     eq::ServerChooseConfigPacket* packet = (eq::ServerChooseConfigPacket*)pkg;
     INFO << "Handle choose config " << packet << endl;
@@ -259,7 +271,7 @@ void Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
     {
         reply.configID = INVALID_ID;
         node->send( reply );
-        return;
+        return eqNet::COMMAND_HANDLED;
     }
 
     Config* appConfig = _cloneConfig( config );
@@ -273,9 +285,10 @@ void Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
     const string& name = appConfig->getName();
     
     node->send( reply, name );
+    return eqNet::COMMAND_HANDLED;
 }
 
-void Server::_cmdReleaseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Server::_cmdReleaseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     eq::ServerReleaseConfigPacket* packet = (eq::ServerReleaseConfigPacket*)pkg;
     INFO << "Handle release config " << packet << endl;
@@ -284,9 +297,10 @@ void Server::_cmdReleaseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
     if( !config )
     {
         WARN << "Release request for unknown config" << endl;
-        return;
+        return eqNet::COMMAND_HANDLED;
     }
 
     _appConfigs.erase( packet->configID );
     delete config;
+    return eqNet::COMMAND_HANDLED;
 }

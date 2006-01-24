@@ -143,8 +143,11 @@ namespace eqs
         void _sendInit();
         void _sendExit();
 
-        void _cmdInitReply(eqNet::Node* node, const eqNet::Packet* packet);
-        void _cmdExitReply(eqNet::Node* node, const eqNet::Packet* packet);
+        /* command handler functions. */
+        eqNet::CommandResult _cmdInitReply(eqNet::Node* node,
+                                           const eqNet::Packet* packet);
+        eqNet::CommandResult _cmdExitReply(eqNet::Node* node,
+                                           const eqNet::Packet* packet);
     };
 
     std::ostream& operator << ( std::ostream& os, const Channel* channel);

@@ -108,6 +108,15 @@ namespace eqNet
         bool connect( eqBase::RefPtr<Node> node, 
                       eqBase::RefPtr<Connection> connection );
 
+        /** 
+         * Find or create a node for a connection description
+         * 
+         * @param connectionDescription the connection description.
+         * @return the node, or <code>NULL</code> if the node could not be found
+         *         and was not reachable.
+         */
+        eqBase::RefPtr<Node> getNodeWithConnection( const char*
+                                                    connectionDescription );
 
         /** 
          * Connects and potentially launches this node using to the available
@@ -248,14 +257,15 @@ namespace eqNet
          * 
          * @return the connection to this node. 
          */
-        eqBase::RefPtr<Connection> getConnection(){ return _connection; }
+        eqBase::RefPtr<Connection> getConnection() const { return _connection; }
 
         /** 
          * Returns the listening connection of this node.
          * 
          * @return the listening connection of this node. 
          */
-        eqBase::RefPtr<Connection> getListenerConnection(){ return _listener; }
+        eqBase::RefPtr<Connection> getListenerConnection() const
+            { return _listener; }
         //*}
 
 
@@ -288,7 +298,6 @@ namespace eqNet
             {
                 if( !checkConnection() )
                     return false;
-    
                 return ( _connection->send( packet ) == packet.size );
             }
 
@@ -341,8 +350,7 @@ namespace eqNet
         bool recv( const void* buffer, const uint64_t size )
             {
                 ASSERT( _state == STATE_CONNECTED || _state == STATE_LISTENING);
-                const uint64_t received = _connection->recv( buffer, size );
-                return ( received==size );
+                return ( _connection->recv( buffer, size ) == size );
             }
         //@}
 
@@ -409,9 +417,10 @@ namespace eqNet
          * 
          * @param node the node which send the packet.
          * @param packet the packet.
-         * @sa handlePacket, handleCommand
+         * @return the result of the operation.
+         * @sa handlePacket, Base::handleCommand
          */
-        void dispatchPacket( Node* node, const Packet* packet );
+        CommandResult dispatchPacket( Node* node, const Packet* packet );
 
         /** 
          * The main loop for auto-launched clients. 
@@ -421,14 +430,16 @@ namespace eqNet
         virtual void clientLoop() {}
 
         /** 
-         * Handles a packet which has been received by this node and could not
-         * dispatched.
+         * Handles a packet which has been received by this node for a custom
+         * data type.
          * 
          * @param node the node which send the packet.
          * @param packet the packet.
+         * @return the result of the operation.
          * @sa dispatchPacket, handleCommand
          */
-        virtual void handlePacket( Node* node, const Packet* packet ){}
+        virtual CommandResult handlePacket( Node* node, const Packet* packet )
+            { return COMMAND_ERROR; }
 
         /** 
          * Handles the connection of a new node by connecting it to this node.
@@ -512,6 +523,15 @@ namespace eqNet
                                           description );
         std::string   _createRemoteCommand();
 
+        /** 
+         * Find a connected node using a connection description
+         * 
+         * @param connectionDescription the connection description for the node.
+         * @return the node, or <code>NULL</code> if no node was found.
+         */
+        eqBase::RefPtr<Node> _findConnectedNode( const char* 
+                                                 connectionDescription );
+
         /** The receiver thread. */
         class ReceiverThread : public eqBase::Thread
         {
@@ -536,9 +556,9 @@ namespace eqNet
         void      _handleRequest( Node* node );
 
         /** The command functions. */
-        void _cmdStop( Node* node, const Packet* packet );
-        void _cmdMapSession( Node* node, const Packet* packet );
-        void _cmdMapSessionReply( Node* node, const Packet* packet);
+        CommandResult _cmdStop( Node* node, const Packet* packet );
+        CommandResult _cmdMapSession( Node* node, const Packet* packet );
+        CommandResult _cmdMapSessionReply( Node* node, const Packet* packet);
 
         static uint64_t _getMessageSize( const MessageType type, 
                                          const uint64_t count );

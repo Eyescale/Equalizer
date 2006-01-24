@@ -121,16 +121,6 @@ namespace eq
         //@}
 
     private:
-        /** The parent node. */
-        friend class Pipe;
-        Pipe*        _pipe;
-
-        /** The channels of this window. */
-        std::vector<Channel*>     _channels;
-
-        /** The pixel viewport wrt the pipe. */
-        eq::PixelViewport _pvp;
-
 #ifdef GLX
         /** The drawable ID of the window. */
         XID        _xDrawable;
@@ -142,15 +132,30 @@ namespace eq
         CGLContextObj _cglContext;
 #endif
 
+        /** The parent node. */
+        friend class Pipe;
+        Pipe*        _pipe;
+
+        /** The channels of this window. */
+        std::vector<Channel*>     _channels;
+
+        /** The pixel viewport wrt the pipe. */
+        eq::PixelViewport _pvp;
+
         void _addChannel( Channel* channel );
         void _removeChannel( Channel* channel );
 
-        /** The command functions. */
-        void _pushRequest( eqNet::Node* node, const eqNet::Packet* packet );
-        void _cmdCreateChannel( eqNet::Node* node, const eqNet::Packet* packet);
-        void _cmdDestroyChannel(eqNet::Node* node, const eqNet::Packet* packet);
-        void _reqInit( eqNet::Node* node, const eqNet::Packet* packet );
-        void _reqExit( eqNet::Node* node, const eqNet::Packet* packet );
+        /* The command functions. */
+        eqNet::CommandResult _pushRequest( eqNet::Node* node,
+                                           const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdCreateChannel( eqNet::Node* node,
+                                                const eqNet::Packet* packet);
+        eqNet::CommandResult _cmdDestroyChannel(eqNet::Node* node,
+                                                const eqNet::Packet* packet);
+        eqNet::CommandResult _reqInit( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
+        eqNet::CommandResult _reqExit( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
     };
 }
 

@@ -119,7 +119,7 @@ void Server::addConfig( Config* config )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-void Server::_cmdChooseConfigReply( eqNet::Node* node, 
+eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Node* node, 
                                     const eqNet::Packet* pkg )
 {
     ServerChooseConfigReplyPacket* packet = (ServerChooseConfigReplyPacket*)pkg;
@@ -128,7 +128,7 @@ void Server::_cmdChooseConfigReply( eqNet::Node* node,
     if( packet->configID == INVALID_ID )
     {
         _requestHandler.serveRequest( packet->requestID, NULL );
-        return;
+        return eqNet::COMMAND_HANDLED;
     }
 
     Config* config    = Global::getNodeFactory()->createConfig();
@@ -138,4 +138,5 @@ void Server::_cmdChooseConfigReply( eqNet::Node* node,
     addConfig( config );
 
     _requestHandler.serveRequest( packet->requestID, config );
+    return eqNet::COMMAND_HANDLED;
 }
