@@ -14,10 +14,13 @@ HEADER_SRC = \
 	idHash.h \
 	init.h \
 	message.h \
+	mobject.h \
+	net.h \
 	node.h \
 	object.h \
 	packets.h \
 	pipeConnection.h \
+	requestCache.h \
 	requestQueue.h \
 	session.h \
 	uniPipeConnection.h
@@ -35,6 +38,7 @@ SOURCES = \
 	node.cpp \
 	object.cpp \
 	pipeConnection.cpp \
+	requestCache.cpp \
 	requestQueue.cpp \
 	session.cpp \
 	socketConnection.cpp \

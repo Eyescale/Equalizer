@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_REFPTR_H
@@ -7,6 +7,8 @@
 
 namespace eqBase
 {
+    struct RefPtr_scast{};
+
     /**
      * A smart reference pointer
      */
@@ -16,6 +18,11 @@ namespace eqBase
         RefPtr()                   : _ptr(NULL)      {}
         RefPtr(T* ptr)             : _ptr(ptr)       { ref(); }
         RefPtr(const RefPtr& from) : _ptr(from._ptr) { ref(); }
+        
+        template<class from>
+        RefPtr( RefPtr<from> const &f, RefPtr_scast )
+            { _ptr = static_cast<T*>(f._ptr); }
+
 
         ~RefPtr() { unref(); }
 
@@ -67,7 +74,15 @@ namespace eqBase
         
     private:
         T* _ptr;
+
+        template<class U> friend class RefPtr;
     };
+
+    // cast functions
+    template<class to, class from> RefPtr<to> RefPtr_static_cast( RefPtr<from>
+                                                                  const &f )
+    { return RefPtr<to>( f, RefPtr_scast() ); }
+
 }
 
 #endif //EQBASE_REFPTR_H

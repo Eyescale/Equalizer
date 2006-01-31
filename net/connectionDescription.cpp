@@ -31,10 +31,19 @@ string ConnectionDescription::toString()
     stringStream << ":" << bandwidthKBS << ":" << launchCommand << ":" 
                  << launchTimeout << ":" << hostname ;
     
-    //switch( type )
-    if( type ==  TYPE_TCPIP )
-        stringStream << ":" << parameters.TCPIP.port;
+    switch( type )
+    {
+        case TYPE_TCPIP:
+            stringStream << ":" << TCPIP.port;
+            break;
 
+        case TYPE_PIPE:
+            stringStream << ":" << Pipe.fd;
+            break;
+
+        default:
+            break;
+    }
     return stringStream.str();
 }
 
@@ -79,19 +88,35 @@ bool ConnectionDescription::fromString( const string& data )
     colonPos = data.find( ':', nextPos );
     hostname = data.substr( nextPos, colonPos-nextPos );
 
-    //switch( type )
-    if( this->type ==  TYPE_TCPIP )
+    switch( this->type )
     {
-        nextPos  = colonPos+1;
-        colonPos = data.find( ':', nextPos );
-        if( colonPos != string::npos )
-            return false;
-        
-        const string port = data.substr( nextPos, colonPos-nextPos );
-        parameters.TCPIP.port = atoi( port.c_str( ));
-    }
-    else if( colonPos != string::npos )
-        return false;
+        case TYPE_TCPIP:
+        {
+            nextPos  = colonPos+1;
+            colonPos = data.find( ':', nextPos );
+            if( colonPos != string::npos )
+                return false;
+            
+            const string port = data.substr( nextPos, colonPos-nextPos );
+            TCPIP.port = atoi( port.c_str( ));
+            break;
+        }
 
+        case TYPE_PIPE:
+        {
+            nextPos  = colonPos+1;
+            colonPos = data.find( ':', nextPos );
+            if( colonPos != string::npos )
+                return false;
+            
+            const string port = data.substr( nextPos, colonPos-nextPos );
+            Pipe.fd = atoi( port.c_str( ));
+            break;
+        }
+
+        default:
+            if( colonPos != string::npos )
+                return false;
+    }
     return true;
 }

@@ -46,13 +46,13 @@ bool Server::open( const OpenParams& params )
         connDesc->hostname = params.address;
     else
     {
-        connDesc->hostname = params.address.substr( 0, colonPos );
-        string port        = params.address.substr( colonPos+1 );
-        connDesc->parameters.TCPIP.port = atoi( port.c_str( ));
+        connDesc->hostname   = params.address.substr( 0, colonPos );
+        string port          = params.address.substr( colonPos+1 );
+        connDesc->TCPIP.port = atoi( port.c_str( ));
     }
 
-    if( !connDesc->parameters.TCPIP.port )
-        connDesc->parameters.TCPIP.port = 4242;
+    if( !connDesc->TCPIP.port )
+        connDesc->TCPIP.port = 4242;
 
     if( !connection->connect( connDesc ))
         return false;

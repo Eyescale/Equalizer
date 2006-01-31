@@ -57,21 +57,18 @@ namespace eq
         //@}
 
     protected:
-        /** 
-         * @sa eqNet::Node::clientLoop
-         */
+        /** @sa eqNet::Node::clientLoop */
         virtual void clientLoop();
 
-        /** 
-         * @sa eqNet::Node::handlePacket
-         */
+        /** @sa eqNet::Node::handlePacket */
         virtual eqNet::CommandResult handlePacket( eqNet::Node* node, 
                                                    const eqNet::Packet* packet);
 
-        /** 
-         * @sa eqNet::Node::createNode
-         */
+        /** @sa eqNet::Node::createNode */
         virtual eqBase::RefPtr<eqNet::Node> createNode();
+        
+        /** @sa eqNet::Node::createSession */
+        virtual eqNet::Session* createSession();
 
     private:
         eqBase::RefPtr<Server> _server;

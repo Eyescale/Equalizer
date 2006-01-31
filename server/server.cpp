@@ -45,7 +45,7 @@ bool Server::run( int argc, char **argv )
     RefPtr<eqNet::ConnectionDescription> connDesc = 
         new eqNet::ConnectionDescription;
 
-    connDesc->parameters.TCPIP.port = 4242;
+    connDesc->TCPIP.port = 4242;
     if( !connection->listen( connDesc ))
     {
         ERROR << "Could not create listening socket" << endl;
@@ -140,9 +140,9 @@ static TraverseResult replaceChannelCB( Compound* compound, void* userData )
 
 Config* Server::_cloneConfig( Config* config )
 {
-    Config*     clone = new Config( this );
-    const string name = _genConfigName();
-    const bool mapped = mapSession( this, clone, name );
+    Config*      clone  = new Config( this );
+    const string name   = _genConfigName();
+    const bool   mapped = mapSession( this, clone, name );
     ASSERT( mapped );
 
     const uint32_t nCompounds = config->nCompounds();

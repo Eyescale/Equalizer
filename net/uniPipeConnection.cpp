@@ -31,6 +31,8 @@ UniPipeConnection::~UniPipeConnection()
 bool UniPipeConnection::connect( 
     eqBase::RefPtr<ConnectionDescription> description )
 {
+    ASSERT( description->type == TYPE_UNI_PIPE );
+
     if( _state != STATE_CLOSED )
         return false;
 
@@ -46,7 +48,8 @@ bool UniPipeConnection::connect(
     _writeFD = _pipe[1];
 
     INFO << "readFD " << _readFD << " writeFD " << _writeFD << endl;
-    _state = STATE_CONNECTED;
+    _description = description;
+    _state       = STATE_CONNECTED;
     return true;
 }
 

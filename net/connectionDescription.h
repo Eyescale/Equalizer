@@ -32,7 +32,7 @@ namespace eqNet
                 : type( TYPE_TCPIP ),
                   bandwidthKBS( 0 )
             {
-                bzero( &parameters, sizeof(parameters));
+                TCPIP.port = 0;
             }
 
         /** The network protocol for the connection. */
@@ -78,8 +78,10 @@ namespace eqNet
             /** pipe parameters */
             struct
             {
-            } PIPE;
-        } parameters;
+                /** Read-only parameter to identify an open pipe connection. */
+                int fd;
+            } Pipe;
+        };
 
         /** @return this description as a string. */
         std::string toString();

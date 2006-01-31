@@ -1,9 +1,9 @@
 
 include $(TOP)/make/system.mk
 
-CXXFLAGS    += -I.. -L$(SAMPLE_LIB_DIR) -leq
+CXXFLAGS    += -I.. $(WINDOW_SYSTEM_INCS)
 PROGRAMS     = flip
-SA_CXXFLAGS += -lpthread $(WINDOW_SYSTEM_LIBS)
+SA_CXXFLAGS += -L$(SAMPLE_LIB_DIR) -leq -lpthread $(WINDOW_SYSTEM_LIBS)
 
 ifeq "${ARCH}" "Linux"
 SA_CXXFLAGS += -lrt

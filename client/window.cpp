@@ -93,7 +93,7 @@ eqNet::CommandResult eq::Window::_cmdDestroyChannel(eqNet::Node* node,
     INFO << "Handle destroy channel " << packet << endl;
 
     Config*  config  = getConfig();
-    Channel* channel = (Channel*)config->getRegisteredObject(packet->channelID);
+    Channel* channel = (Channel*)config->getObject(packet->channelID);
     if( !channel )
         return eqNet::COMMAND_HANDLED;
 

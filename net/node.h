@@ -1,15 +1,9 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_NODE_H
 #define EQNET_NODE_H
-
-#include <eq/base/base.h>
-#include <eq/base/refPtr.h>
-#include <eq/base/referenced.h>
-#include <eq/base/requestHandler.h>
-#include <eq/base/thread.h>
 
 #include "base.h"
 #include "commands.h"
@@ -17,6 +11,15 @@
 #include "connectionSet.h"
 #include "idHash.h"
 #include "message.h"
+#include "requestCache.h"
+
+#include <eq/base/base.h>
+#include <eq/base/refPtr.h>
+#include <eq/base/referenced.h>
+#include <eq/base/requestHandler.h>
+#include <eq/base/thread.h>
+
+#include <list>
 
 namespace eqNet
 {
@@ -367,7 +370,7 @@ namespace eqNet
          * @return <code>true</code> if the session was mapped,
          *         <code>false</code> if not.
          */
-        bool mapSession( Node* server, Session* session, 
+        bool mapSession( eqBase::RefPtr<Node> server, Session* session, 
                          const std::string& name );
 
         /**
@@ -379,7 +382,17 @@ namespace eqNet
          * @return <code>true</code> if the session was mapped,
          *         <code>false</code> if not.
          */
-        bool mapSession( Node* server, Session* session, const uint32_t id );
+        bool mapSession( eqBase::RefPtr<Node> server, Session* session, 
+                         const uint32_t id );
+
+        /** 
+         * Find a named, mapped session.
+         * 
+         * @param name the session name.
+         * @return the session, or <code>NULL</code> if the session is not
+         *         mapped on this node.
+         */
+        Session* findSession( const std::string& name ) const;
 
         /** 
          * Adds a mapped session to this node.
@@ -389,7 +402,7 @@ namespace eqNet
          * @param sessionID the identifier of the session.
          * @param name the name of the session.
          */
-        void addSession( Session* session, Node* server, 
+        void addSession( Session* session, eqBase::RefPtr<Node> server, 
                          const uint32_t sessionID, const std::string& name );
         //*}
 
@@ -465,6 +478,13 @@ namespace eqNet
             { return new Node(); }
 
         /** 
+         * Factory method to create a new session.
+         * 
+         * @return the session.
+         */
+        virtual Session* createSession();
+
+        /** 
          * Returns the program name to start this node.
          * 
          * @return the program name to start this node.
@@ -488,14 +508,16 @@ namespace eqNet
         /** The connection set of all connections from/to this node. */
         ConnectionSet _connectionSet;
 
-        /** The request id for pending asynchronous operations. */
-        uint32_t _pendingRequestID;
+        /** The request id for the async launch operation. */
+        uint32_t _launchID;
+
+        /** Packets re-scheduled for dispatch. */
+        std::list<Request*> _pendingRequests;
+        RequestCache        _requestCache;
 
         /** The list of descriptions on how this node is reachable. */
         std::vector< eqBase::RefPtr<ConnectionDescription> >
             _connectionDescriptions;
-
-        Session* _findSession( const std::string& name ) const;
 
         bool _listenToSelf();
         void _cleanup();
@@ -554,6 +576,7 @@ namespace eqNet
         void        _addConnectedNode( eqBase::RefPtr<Node> node, 
                                        eqBase::RefPtr<Connection> connection );
         void      _handleRequest( Node* node );
+        void      _redispatchPackets();
 
         /** The command functions. */
         CommandResult _cmdStop( Node* node, const Packet* packet );

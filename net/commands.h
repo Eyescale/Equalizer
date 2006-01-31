@@ -15,7 +15,7 @@ namespace eqNet
         CMD_NODE_MAP_SESSION_REPLY,
         CMD_NODE_SESSION,
         CMD_NODE_CONNECT,
-        CMD_NODE_CUSTOM = 16 /*remove assigned value*/  // must be last
+        CMD_NODE_CUSTOM // must be last
     };
 
     enum SessionCommand
@@ -25,6 +25,11 @@ namespace eqNet
         CMD_SESSION_SET_ID_MASTER,
         CMD_SESSION_GET_ID_MASTER,
         CMD_SESSION_GET_ID_MASTER_REPLY,
+        CMD_SESSION_GET_MOBJECT_MASTER,
+        CMD_SESSION_GET_MOBJECT_MASTER_REPLY,
+        CMD_SESSION_GET_MOBJECT,
+        CMD_SESSION_INIT_MOBJECT,
+        CMD_SESSION_INIT_MOBJECT_REPLY,
         CMD_SESSION_CUSTOM // must be last
     };
 

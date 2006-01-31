@@ -22,6 +22,8 @@ typedef int socklen_t;
 #define EQ_UNDEFINED_UINT32   (0xffffffff)
 #define EQ_TIMEOUT_INDEFINITE (0)
 
+#define DUMP_CORE {((char*)0)[0] = 'a';}
+
 // assertions
 #ifdef NDEBUG
 
@@ -35,14 +37,14 @@ typedef int socklen_t;
 #else
 
 #  define ASSERT(x) if( !(x) ) \
-    { ERROR << "Assert: " << #x << std::endl; ::abort(); }
+    { ERROR << "Assert: " << #x << std::endl; DUMP_CORE; ::abort(); }
 #  define ASSERTINFO(x, info) if( !(x) )                                \
     {                                                                   \
         ERROR << "Assert: " << #x << " [" << info << "]" << std::endl;  \
-        ::abort();                                           \
+        DUMP_CORE; ::abort();                                           \
     }
 #  define UNIMPLEMENTED                                         \
-    { ERROR << "Unimplemented code" << std::endl; ::abort(); }
+    { ERROR << "Unimplemented code" << std::endl; DUMP_CORE; ::abort(); }
 
 #endif
 

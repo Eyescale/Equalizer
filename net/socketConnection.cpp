@@ -55,8 +55,7 @@ bool SocketConnection::connect( RefPtr<ConnectionDescription> description )
     if( !connected )
     {
         WARN << "Could not connect to '" << description->hostname << ":"
-             << description->parameters.TCPIP.port << "': "
-             << strerror( errno ) << endl;
+             << description->TCPIP.port << "': " << strerror( errno ) << endl;
         close();
         return false;
     }
@@ -103,7 +102,7 @@ void SocketConnection::_parseAddress( RefPtr<ConnectionDescription> description,
 {
     socketAddress.sin_family = AF_INET;
     socketAddress.sin_addr.s_addr = htonl( INADDR_ANY );
-    socketAddress.sin_port = htons( description->parameters.TCPIP.port );
+    socketAddress.sin_port = htons( description->TCPIP.port );
 
     if( !description->hostname.empty( ))
     {
@@ -124,6 +123,8 @@ void SocketConnection::_parseAddress( RefPtr<ConnectionDescription> description,
 //----------------------------------------------------------------------
 bool SocketConnection::listen( RefPtr<ConnectionDescription> description )
 {
+    ASSERT( description->type == TYPE_TCPIP );
+
     if( _state != STATE_CLOSED )
         return false;
 
@@ -160,9 +161,9 @@ bool SocketConnection::listen( RefPtr<ConnectionDescription> description )
 
     char hostname[256];
     gethostname( hostname, 256 );
-    description->hostname              = hostname;
-    description->parameters.TCPIP.port = getPort();
-
+    description->hostname   = hostname;
+    description->TCPIP.port = getPort();
+    
     _description = description;
     _state       = STATE_LISTENING;
     return listening;
@@ -192,10 +193,10 @@ RefPtr<Connection> SocketConnection::accept()
 
     RefPtr<ConnectionDescription> description = new ConnectionDescription;
 
-    description->type                  = TYPE_TCPIP;
-    description->bandwidthKBS          = _description->bandwidthKBS;
-    description->hostname              = inet_ntoa( newAddress.sin_addr );
-    description->parameters.TCPIP.port = newAddress.sin_port;
+    description->type         = TYPE_TCPIP;
+    description->bandwidthKBS = _description->bandwidthKBS;
+    description->hostname     = inet_ntoa( newAddress.sin_addr );
+    description->TCPIP.port   = newAddress.sin_port;
 
     SocketConnection* newConnection = new SocketConnection;
 

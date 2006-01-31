@@ -36,7 +36,6 @@ eqNet::CommandResult Client::handlePacket( eqNet::Node* node,
 
             Server* server = static_cast<Server*>(node);
             return server->handleCommand( node, packet );
-            break;
 
         default:
             UNIMPLEMENTED;

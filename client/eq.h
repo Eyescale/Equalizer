@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_H
@@ -13,6 +13,8 @@
 #include <eq/nodeFactory.h>
 #include <eq/openParams.h>
 #include <eq/server.h>
+
+#include <eq/net/net.h>
 
 #endif // EQ_H
 

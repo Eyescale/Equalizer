@@ -20,7 +20,7 @@ IDPool::IDPool()
 
 #ifdef CHECK_THREADSAFETY
     _threadID = 0;
-#endif;
+#endif
 }
 
 IDPool::~IDPool()

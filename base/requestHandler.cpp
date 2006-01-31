@@ -13,7 +13,7 @@ RequestHandler::RequestHandler( const Thread::Type type )
 {
 #ifdef CHECK_THREADSAFETY
     _threadID = 0;
-#endif;
+#endif
 }
 
 RequestHandler::~RequestHandler()

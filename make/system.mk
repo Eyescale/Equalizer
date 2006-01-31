@@ -6,8 +6,8 @@ endif
 
 SUBDIR    ?= "src"
 SUBDIRTOP := ../$(TOP)
-DEPTH     := $(subst ../,-,$(TOP))
-DEPTH     := $(subst .,->,$(DEPTH))
+DEPTH     := $(subst ../,--,$(TOP))
+DEPTH     := $(subst .,----->,$(DEPTH))
 
 # os-specific settings
 ARCH = $(shell uname)
@@ -18,8 +18,7 @@ BUILD_DIR       = $(TOP)/build/$(ARCH)
 LIBRARY_DIR     = $(BUILD_DIR)/$(VARIANT)/lib
 SAMPLE_LIB_DIR  = $(BUILD_DIR)/$(VARIANT1)/lib
 
-INT_CXXFLAGS   += -I$(BUILD_DIR)/include $(WINDOW_SYSTEM_INCS) \
-                  -DSUBDIR=\"$(SUBDIR)\"
+INT_CXXFLAGS   += -I$(BUILD_DIR)/include -DSUBDIR=\"$(SUBDIR)\"
 INT_LDFLAGS    += -L$(LIBRARY_DIR)
 DEP_CXX        ?= $(CXX)
 DOXYGEN        ?= Doxygen

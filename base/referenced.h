@@ -30,7 +30,7 @@ namespace eqBase
                 if( _refCount!=0 ) 
                 {
                     ERROR << "Deleting object with ref count " << _refCount
-                          << std::endl;
+                          << " of type " << typeid(*this).name() << std::endl;
                 }
             }
 

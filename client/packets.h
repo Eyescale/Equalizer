@@ -32,6 +32,7 @@ namespace eq
             {
                 command = CMD_SERVER_CHOOSE_CONFIG;
                 size    = sizeof( ServerChooseConfigPacket ) - 8;
+                renderClient[0] = '\0';
             }
 
         uint32_t requestID;
@@ -47,6 +48,7 @@ namespace eq
                 command   = CMD_SERVER_CHOOSE_CONFIG_REPLY;
                 size      = sizeof( ServerChooseConfigReplyPacket ) - 8;
                 requestID = requestPacket->requestID;
+                sessionName[0] = '\0';
             }
 
         uint32_t requestID;
@@ -173,6 +175,7 @@ namespace eq
             {
                 command = CMD_NODE_CREATE_CONFIG;
                 size    = sizeof( NodeCreateConfigPacket ) - 8;
+                name[0] = '\0';
             }
 
         uint32_t configID;

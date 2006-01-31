@@ -22,7 +22,8 @@ Connection::Connection()
 {}
 
 Connection::Connection(const Connection& conn)
-        : _state( conn._state )
+        : _state( conn._state ),
+          _description( conn._description )
 {}
 
 RefPtr<Connection> Connection::create( const ConnectionType type )

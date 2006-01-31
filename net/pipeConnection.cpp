@@ -40,6 +40,8 @@ PipeConnection::~PipeConnection()
 //----------------------------------------------------------------------
 bool PipeConnection::connect( eqBase::RefPtr<ConnectionDescription> description)
 {
+    ASSERT( description->type == TYPE_PIPE );
+
     if( _state != STATE_CLOSED )
         return false;
 
@@ -51,11 +53,14 @@ bool PipeConnection::connect( eqBase::RefPtr<ConnectionDescription> description)
         return false;
     }
 
+    _description          = description;
+    _description->Pipe.fd = _pipes[0];
+
     PipeConnection* childConnection = new PipeConnection( *this );
     childConnection->_setupChild();
     _childConnection = childConnection;
+
     _setupParent();
-    _description = description;
     return true;
 }
 

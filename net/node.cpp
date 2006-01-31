@@ -32,7 +32,7 @@ Node::Node( const uint32_t nCommands )
         : Base( nCommands ),
           _autoLaunch(false),
           _state(STATE_STOPPED),
-          _pendingRequestID(INVALID_ID)
+          _launchID(INVALID_ID)
 {
     ASSERT( nCommands >= CMD_NODE_CUSTOM );
     registerCommand( CMD_NODE_STOP, this, reinterpret_cast<CommandFcn>(
@@ -43,7 +43,7 @@ Node::Node( const uint32_t nCommands )
                      reinterpret_cast<CommandFcn>(
                          &eqNet::Node::_cmdMapSessionReply ));
 
-    _receiverThread    = new ReceiverThread( this );
+    _receiverThread = new ReceiverThread( this );
 }
 
 Node::~Node()
@@ -63,8 +63,9 @@ bool Node::listen( RefPtr<Connection> connection )
     if( !_listenToSelf( ))
         return false;
 
-    if( connection.isValid() )
+    if( connection.isValid( ))
     {
+        ASSERT( connection->getDescription().isValid( ));
         _connectionSet.addConnection( connection, this );
         _listener = connection;
     }
@@ -120,6 +121,8 @@ bool Node::_listenToSelf()
     // setup local connection to myself
     _connection = Connection::create(TYPE_UNI_PIPE);
     eqBase::RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
+    connDesc->type = TYPE_UNI_PIPE;
+
     if( !_connection->connect( connDesc ))
     {
         ERROR << "Could not create pipe() connection to receiver thread."
@@ -129,6 +132,7 @@ bool Node::_listenToSelf()
     }
 
     // add to connection set
+    ASSERT( _connection->getDescription().isValid( ));
     _connectionSet.addConnection( _connection, this );
     return true;
 }
@@ -139,6 +143,7 @@ void Node::_addConnectedNode( RefPtr<Node> node, RefPtr<Connection> connection )
     ASSERT( _state == STATE_LISTENING );
     ASSERT( connection->getState() == Connection::STATE_CONNECTED );
     ASSERT( node->_state == STATE_STOPPED || node->_state == STATE_LAUNCHED );
+    ASSERT( connection->getDescription().isValid( ));
 
     node->_connection = connection;
     node->_state      = STATE_CONNECTED;
@@ -157,9 +162,7 @@ bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
     node->_connection = connection;
     node->_state      = STATE_CONNECTED;
     
-    NodeConnectPacket packet;
-    node->send( packet );
-
+    ASSERT( connection->getDescription().isValid( ));
     _connectionSet.addConnection( connection, node );
     INFO << node.get() << " connected to " << this << endl;
     return true;
@@ -170,8 +173,11 @@ RefPtr<Node> Node::_findConnectedNode( const char* connectionDescription )
     const size_t nConnections = _connectionSet.nConnections();
     for( size_t i=0; i<nConnections; i++ )
     {
-        eqBase::RefPtr<Connection> connection = _connectionSet.getConnection(i);
-        if( connection->getDescription()->toString() == connectionDescription )
+        RefPtr<Connection>      connection = _connectionSet.getConnection(i);
+        RefPtr<ConnectionDescription> desc = connection->getDescription();
+        ASSERT( desc.isValid( ));
+
+        if( desc->toString() == connectionDescription )
             return _connectionSet.getNode( connection );
     }
     return NULL;
@@ -265,8 +271,8 @@ bool Node::send( const Packet& packet, const std::string& string )
 //----------------------------------------------------------------------
 // Node functionality
 //----------------------------------------------------------------------
-void Node::addSession( Session* session, Node* server, const uint32_t sessionID,
-                       const string& name )
+void Node::addSession( Session* session, RefPtr<Node> server, 
+                       const uint32_t sessionID, const string& name )
 {
     session->_localNode = this;
     session->_server    = server;
@@ -277,23 +283,29 @@ void Node::addSession( Session* session, Node* server, const uint32_t sessionID,
     _sessions[sessionID] = session;
 
     INFO << (session->_isMaster ? "master" : "client") << " session, id "
-         << sessionID << ", name " << name << ", served by " << server 
+         << sessionID << ", name " << name << ", served by " << server.get() 
          << ", managed by " << this << endl;
 }
 
-bool Node::mapSession( Node* server, Session* session, const string& name )
+bool Node::mapSession( RefPtr<Node> server, Session* session, 
+                       const string& name )
 {
-    if( server == this && isLocal( ))
+    ASSERT( isLocal( ));
+    if( findSession( name )) // Already mapped [to another session instance]
+        return false;
+
+    if( server.get() == this )
     {
         uint32_t sessionID = INVALID_ID;
         while( sessionID == INVALID_ID ||
                _sessions.find( sessionID ) != _sessions.end( ))
         {
 #ifdef __linux__
-	    int fd = ::open( "/dev/random", O_RDONLY );
-	    ASSERT( fd != -1 );
-	    int read = ::read( fd, &sessionID, sizeof( sessionID ));
-	    ASSERT( read == sizeof( sessionID ));
+            int fd = ::open( "/dev/random", O_RDONLY );
+            ASSERT( fd != -1 );
+            int read = ::read( fd, &sessionID, sizeof( sessionID ));
+            ASSERT( read == sizeof( sessionID ));
+            close( fd );
 #else
             srandomdev();
             sessionID = random();
@@ -311,9 +323,14 @@ bool Node::mapSession( Node* server, Session* session, const string& name )
     return (bool)_requestHandler.waitRequest( packet.requestID );
 }
 
-bool Node::mapSession( Node* server, Session* session, const uint32_t id )
+bool Node::mapSession( RefPtr<Node> server, Session* session, const uint32_t id)
 {
+    ASSERT( isLocal( ));
     ASSERT( id != INVALID_ID );
+
+    if( _sessions.find( id ) != _sessions.end( )) 
+        // Already mapped [to another session instance]
+        return false;
 
     NodeMapSessionPacket packet;
     packet.requestID = _requestHandler.registerRequest( session );
@@ -393,7 +410,7 @@ void Node::handleConnect( RefPtr<Connection> connection )
         node = (Node*)packet.launchID;
         INFO << "Launched " << node.get() << " connecting" << endl;
  
-        const uint32_t requestID = node->_pendingRequestID;
+        const uint32_t requestID = node->_launchID;
         ASSERT( requestID != INVALID_ID );
 
         _requestHandler.serveRequest( requestID, NULL );
@@ -421,6 +438,11 @@ void Node::handleDisconnect( Node* node )
     ASSERT( disconnected );
 }
 
+Session* Node::createSession() 
+{
+    return new Session();
+}
+
 void Node::_handleRequest( Node* node )
 {
     VERB << "Handle request from " << node << endl;
@@ -441,7 +463,11 @@ void Node::_handleRequest( Node* node )
     gotData   = node->recv( ptr, size );
     ASSERT( gotData );
 
-    switch( dispatchPacket( node, packet ))
+    const CommandResult result = dispatchPacket( node, packet );
+
+    _redispatchPackets();
+
+    switch( result )
     {
         case COMMAND_HANDLED:
             break;
@@ -449,9 +475,43 @@ void Node::_handleRequest( Node* node )
         case COMMAND_ERROR:
             ERROR << "Error handling command packet" << endl;
             abort();
+            break;
 
         case COMMAND_RESCHEDULE:
-            UNIMPLEMENTED;
+        {
+            Request* request = _requestCache.alloc( node, packet );
+            _pendingRequests.push_back( request );
+            break;
+        }
+    }
+}
+
+void Node::_redispatchPackets()
+{
+    for( list<Request*>::iterator iter = _pendingRequests.begin(); 
+         iter != _pendingRequests.end(); ++iter )
+    {
+        Request* request = (*iter);
+        
+        switch( dispatchPacket( request->node, request->packet ))
+        {
+            case COMMAND_HANDLED:
+            {
+                list<Request*>::iterator handledIter = iter;
+                iter++;
+                _pendingRequests.erase( handledIter );
+                _requestCache.release( request );
+            }
+            break;
+
+            case COMMAND_ERROR:
+                ERROR << "Error handling command packet" << endl;
+                abort();
+                break;
+                
+            case COMMAND_RESCHEDULE:
+                break;
+        }
     }
 }
 
@@ -495,8 +555,8 @@ CommandResult Node::_cmdStop( Node* node, const Packet* pkg )
     INFO << "Cmd stop " << this << endl;
     ASSERT( _state == STATE_LISTENING );
 
-//     _connectionSet.clear();
-//     _connection = NULL;
+    // TODO: Process pending packets on all other connections?
+
     _state = STATE_STOPPED;
     _receiverThread->exit( EXIT_SUCCESS );
     return COMMAND_HANDLED;
@@ -516,11 +576,11 @@ CommandResult Node::_cmdMapSession( Node* node, const Packet* pkg )
     if( sessionID == INVALID_ID ) // mapped by name
     {
         sessionName = packet->name;
-        session     = _findSession( sessionName );
+        session     = findSession( sessionName );
         
         if( !session ) // session does not exist, create new one
         {
-            session = new Session(); // TODO factory-ize
+            session = createSession();
             const bool mapped = mapSession( this, session, sessionName );
             ASSERT( mapped );
         }
@@ -565,7 +625,7 @@ CommandResult Node::_cmdMapSessionReply( Node* node, const Packet* pkg)
 //----------------------------------------------------------------------
 // utility functions
 //----------------------------------------------------------------------
-Session* Node::_findSession( const std::string& name ) const
+Session* Node::findSession( const std::string& name ) const
 {
     for( IDHash<Session*>::const_iterator iter = _sessions.begin();
          iter != _sessions.end(); iter++ )
@@ -612,8 +672,14 @@ bool Node::initConnect()
         RefPtr<ConnectionDescription> description = getConnectionDescription(i);
         RefPtr<Connection> connection = Connection::create( description->type );
         
-        if( connection->connect( description ))
-            return localNode->connect( this, connection );
+        if( connection->connect( description ) &&
+            localNode->connect( this, connection ))
+        {
+            NodeConnectPacket packet;
+            send( packet );
+            return true;
+        }
+        return false;
     }
 
     INFO << "Node could not be connected." << endl;
@@ -639,19 +705,19 @@ bool Node::syncConnect()
 
     if( _state == STATE_CONNECTED )
     {
-        localNode->_requestHandler.unregisterRequest( _pendingRequestID );
-        _pendingRequestID = INVALID_ID;
+        localNode->_requestHandler.unregisterRequest( _launchID );
+        _launchID = INVALID_ID;
         return true;
     }
 
     ASSERT( _state == STATE_LAUNCHED );
-    ASSERT( _pendingRequestID != INVALID_ID );
+    ASSERT( _launchID != INVALID_ID );
 
     ConnectionDescription *description = (ConnectionDescription*)
-        localNode->_requestHandler.getRequestData( _pendingRequestID );
+        localNode->_requestHandler.getRequestData( _launchID );
 
     bool success;
-    localNode->_requestHandler.waitRequest( _pendingRequestID, &success,
+    localNode->_requestHandler.waitRequest( _launchID, &success,
                                             description->launchTimeout );
     
     if( success )
@@ -661,10 +727,10 @@ bool Node::syncConnect()
     else
     {
         _state = STATE_STOPPED;
-        localNode->_requestHandler.unregisterRequest( _pendingRequestID );
+        localNode->_requestHandler.unregisterRequest( _launchID );
     }
 
-    _pendingRequestID = INVALID_ID;
+    _launchID = INVALID_ID;
     return success;
 }
 
@@ -686,8 +752,8 @@ bool Node::_launch( RefPtr<ConnectionDescription> description )
         return false;
     }
     
-    _state            = STATE_LAUNCHED;
-    _pendingRequestID = requestID;
+    _state    = STATE_LAUNCHED;
+    _launchID = requestID;
     return true;
 }
 

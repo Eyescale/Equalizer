@@ -61,6 +61,11 @@ eqBase::RefPtr<eqNet::Node> Node::createNode()
     return Global::getNodeFactory()->createNode();
 }
 
+eqNet::Session* Node::createSession()
+{
+    return Global::getNodeFactory()->createConfig(); 
+}
+
 
 void Node::clientLoop()
 {
@@ -158,7 +163,7 @@ eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Node* node,
     NodeDestroyPipePacket* packet = (NodeDestroyPipePacket*)pkg;
     INFO << "Handle destroy pipe " << packet << endl;
 
-    Pipe* pipe = (Pipe*)_config->getRegisteredObject( packet->pipeID );
+    Pipe* pipe = (Pipe*)_config->getObject( packet->pipeID );
     if( !pipe )
         return eqNet::COMMAND_HANDLED;
 

@@ -1,9 +1,8 @@
 
 include $(TOP)/make/system.mk
 
-CXXFLAGS     += -L$(SAMPLE_LIB_DIR) -leqbase
 PROGRAMS      = perf
-SA_CXXFLAGS  += -lpthread
+SA_CXXFLAGS  += -L$(SAMPLE_LIB_DIR) -leqbase -lpthread
 
 ifeq "${ARCH}" "Linux"
 SA_CXXFLAGS += -lrt
