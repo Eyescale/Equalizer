@@ -53,7 +53,7 @@ void Node::startInit()
 {
     _sendInit();
 
-    eq::NodeCreatePipePacket createPipePacket( _sessionID, _id );
+    eq::NodeCreatePipePacket createPipePacket( _session->getID(), _id );
 
     const uint32_t nPipes = _pipes.size();
     for( uint32_t i=0; i<nPipes; i++ )
@@ -132,7 +132,7 @@ bool Node::syncExit()
     bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = INVALID_ID;
     
-    eq::NodeDestroyPipePacket destroyPipePacket( _sessionID, _id );
+    eq::NodeDestroyPipePacket destroyPipePacket( _session->getID(), _id );
     
     const uint32_t nPipes = _pipes.size();
     for( uint32_t i=0; i<nPipes; i++ )

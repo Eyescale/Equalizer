@@ -14,7 +14,7 @@ using namespace std;
 
 Object::Object()
         : _id( INVALID_ID ),
-          _sessionID( INVALID_ID )
+          _session( NULL )
 {
 }
 

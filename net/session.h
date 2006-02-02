@@ -164,6 +164,9 @@ namespace eqNet
          *
          * The assigned identifier is unique across all registered mobjects. The
          * mobject gets referenced.
+         *
+         * @todo The master node instance has to exist before any getMobject()
+         *       causes an instanciation request.
          * 
          * @param mobject the mobject instance.
          * @param master the master node for the mobject.
@@ -196,7 +199,7 @@ namespace eqNet
         eqBase::RequestHandler _requestHandler;
 
         /** 
-         * Instanciate the instance of a mobject on this session.
+         * Instanciate the (proxy) instance of a mobject on this session.
          * 
          * @param type the type of the mobject.
          * @param data the instance data of the mobject.
@@ -257,6 +260,8 @@ namespace eqNet
         CommandResult _handleObjectCommand( Node* node, const Packet* packet );
         CommandResult _handleMobjectCommand( Node* node, const Packet* packet );
         CommandResult   _instMobject( const uint32_t id );
+        void              _sendInitMobject( const uint32_t mobjectID, 
+                                            eqBase::RefPtr<Node> master );
 
         /** The command handler functions. */
         CommandResult _cmdGenIDs( Node* node, const Packet* packet );

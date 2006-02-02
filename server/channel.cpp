@@ -61,7 +61,7 @@ void Channel::_sendInit()
 {
     ASSERT( _pendingRequestID == INVALID_ID );
 
-    eq::ChannelInitPacket packet( _sessionID, _id );
+    eq::ChannelInitPacket packet( _session->getID(), _id );
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     send( packet );
@@ -86,7 +86,7 @@ void Channel::_sendExit()
 {
     ASSERT( _pendingRequestID == INVALID_ID );
 
-    eq::ChannelExitPacket packet( _sessionID, _id );
+    eq::ChannelExitPacket packet( _session->getID(), _id );
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     send( packet );

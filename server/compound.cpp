@@ -7,6 +7,7 @@
 #include "channel.h"
 
 #include <eq/base/base.h>
+#include <eq/net/session.h>
 #include <eq/packets.h>
 
 #include <GL/gl.h>
@@ -363,7 +364,7 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
     const eq::PixelViewport& pvp      = iChannel->getPixelViewport();
     const eq::Frustum&       frustum  = compound->_inherit.frustum;
 
-    eq::ChannelDrawPacket drawPacket( channel->getSessionID(), 
+    eq::ChannelDrawPacket drawPacket( channel->getSession()->getID(), 
                                       channel->getID( ));
     drawPacket.context.drawBuffer = GL_BACK;
     drawPacket.context.pvp.x      = 0;
@@ -374,7 +375,7 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
     if( !compound->_parent || 
         compound->_parent && compound->_parent->_data.channel != channel )
     {
-        eq::ChannelClearPacket clearPacket( channel->getSessionID(), 
+        eq::ChannelClearPacket clearPacket( channel->getSession()->getID(), 
                                             channel->getID( ));
         
         clearPacket.context.drawBuffer = drawPacket.context.drawBuffer;

@@ -310,11 +310,16 @@ namespace eqNet
          * The data is send as a new packet containing the original packet and
          * the string, so that it is received as one packet by the node.
          *
+         * It is assumed that the packet has space for additional (wrt
+         * packet.size) 8 characters. This is used for optimising the send of
+         * short strings and on the receiver side to access the string. The node
+         * implementation gives examples of this usage.
+         *
          * @param packet the packet.
          * @param string the string.
          * @return the success status of the transaction.
          */
-        bool send( const Packet& packet, const std::string& string );
+        bool send( Packet& packet, const std::string& string );
 
         /** 
          * Notifies that a message is ready to be received.
@@ -553,6 +558,9 @@ namespace eqNet
          */
         eqBase::RefPtr<Node> _findConnectedNode( const char* 
                                                  connectionDescription );
+
+        /** Generates a new, unique session identifier. */
+        uint32_t Node::_generateSessionID();
 
         /** The receiver thread. */
         class ReceiverThread : public eqBase::Thread

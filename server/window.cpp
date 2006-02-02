@@ -79,7 +79,7 @@ void Window::setSwapGroup( Window* master )
 void Window::startInit()
 {
     _sendInit();
-    eq::WindowCreateChannelPacket createChannelPacket( _sessionID, _id );
+    eq::WindowCreateChannelPacket createChannelPacket( _session->getID(), _id );
     
     const int nChannels = _channels.size();
     for( int i=0; i<nChannels; ++i )
@@ -98,7 +98,7 @@ void Window::_sendInit()
 {
     ASSERT( _pendingRequestID == INVALID_ID );
 
-    eq::WindowInitPacket packet( _sessionID, _id );
+    eq::WindowInitPacket packet( _session->getID(), _id );
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     _send( packet );
@@ -145,7 +145,7 @@ void Window::_sendExit()
 {
     ASSERT( _pendingRequestID == INVALID_ID );
 
-    eq::WindowExitPacket packet( _sessionID, _id );
+    eq::WindowExitPacket packet( _session->getID(), _id );
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     _send( packet );
@@ -158,7 +158,7 @@ bool Window::syncExit()
     bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = INVALID_ID;
     
-    eq::WindowDestroyChannelPacket destroyChannelPacket( _sessionID, _id );
+    eq::WindowDestroyChannelPacket destroyChannelPacket(_session->getID(), _id);
 
     const int nChannels = _channels.size();
     for( int i=0; i<nChannels; ++i )

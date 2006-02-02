@@ -12,7 +12,8 @@
 
 namespace eqNet
 {
-    class  Node;
+    class Node;
+    class Session;
     struct ObjectPacket;
 
     /** A generic, distributed object. */
@@ -22,7 +23,7 @@ namespace eqNet
         Object();
         virtual ~Object();
         
-        uint32_t getSessionID() const { return _sessionID; }
+        Session* getSession() const   { return _session; }
         uint32_t getID() const        { return _id; }
 
         /** 
@@ -40,9 +41,8 @@ namespace eqNet
 
     protected:
         friend class  Session;
-        friend struct ObjectPacket;
         uint32_t _id;
-        uint32_t _sessionID;
+        Session* _session;
 
     private:
     };

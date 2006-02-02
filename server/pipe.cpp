@@ -58,7 +58,7 @@ void Pipe::startInit()
 {
     _sendInit();
 
-    eq::PipeCreateWindowPacket createWindowPacket( _sessionID, _id );
+    eq::PipeCreateWindowPacket createWindowPacket( _session->getID(), _id );
     
     const int nWindows = _windows.size();
     for( int i=0; i<nWindows; ++i )
@@ -77,7 +77,7 @@ void Pipe::_sendInit()
 {
     ASSERT( _pendingRequestID == INVALID_ID );
 
-    eq::PipeInitPacket packet( _sessionID, _id );
+    eq::PipeInitPacket packet( _session->getID(), _id );
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     packet.display    = _display;
@@ -126,7 +126,7 @@ void Pipe::_sendExit()
 {
     ASSERT( _pendingRequestID == INVALID_ID );
 
-    eq::PipeExitPacket packet( _sessionID, _id );
+    eq::PipeExitPacket packet( _session->getID(), _id );
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     _send( packet );
@@ -139,7 +139,7 @@ bool Pipe::syncExit()
     bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = INVALID_ID;
 
-    eq::PipeDestroyWindowPacket destroyWindowPacket( _sessionID, _id );
+    eq::PipeDestroyWindowPacket destroyWindowPacket( _session->getID(), _id );
 
     const int nWindows = _windows.size();
     for( int i=0; i<nWindows; ++i )

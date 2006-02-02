@@ -5,8 +5,9 @@
 #ifndef EQNET_H
 #define EQNET_H
 
-#include <eq/net/init.h>
+#include <eq/net/barrier.h>
 #include <eq/net/connection.h>
+#include <eq/net/init.h>
 #include <eq/net/pipeConnection.h>
 
 #endif // EQNET_H

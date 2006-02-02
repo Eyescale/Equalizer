@@ -250,12 +250,22 @@ bool Node::send( const MessageType type, const void *ptr, const uint64_t count )
     return ( _connection->send( ptr, size ) == size );
 }
 
-bool Node::send( const Packet& packet, const std::string& string )
+bool Node::send( Packet& packet, const std::string& string )
 {
     if( !checkConnection() )
         return false;
     
     const uint32_t stringLen = string.size() + 1;
+
+    if( stringLen <= 8 ) // fits in existing packet
+    {
+        memcpy( (char*)(&packet)+packet.size, string.c_str(), stringLen );
+        packet.size += 8;
+        const bool result = ( _connection->send( packet ) == packet.size );
+        packet.size -= 8;
+        return result;
+    }
+
     uint64_t       size      = packet.size + stringLen;
     size += (4 - size%4);
     char*          buffer    = (char*)alloca( size );
@@ -291,27 +301,14 @@ bool Node::mapSession( RefPtr<Node> server, Session* session,
                        const string& name )
 {
     ASSERT( isLocal( ));
+    ASSERT( !_receiverThread->isCurrent( ));
+
     if( findSession( name )) // Already mapped [to another session instance]
         return false;
 
     if( server.get() == this )
     {
-        uint32_t sessionID = INVALID_ID;
-        while( sessionID == INVALID_ID ||
-               _sessions.find( sessionID ) != _sessions.end( ))
-        {
-#ifdef __linux__
-            int fd = ::open( "/dev/random", O_RDONLY );
-            ASSERT( fd != -1 );
-            int read = ::read( fd, &sessionID, sizeof( sessionID ));
-            ASSERT( read == sizeof( sessionID ));
-            close( fd );
-#else
-            srandomdev();
-            sessionID = random();
-#endif
-        }
-            
+        const uint32_t sessionID = _generateSessionID();
         addSession( session, server, sessionID, name );
         return true;
     }
@@ -340,6 +337,26 @@ bool Node::mapSession( RefPtr<Node> server, Session* session, const uint32_t id)
     return (bool)_requestHandler.waitRequest( packet.requestID );
 }
 
+uint32_t Node::_generateSessionID()
+{
+    uint32_t id = INVALID_ID;
+
+    while( id == INVALID_ID || _sessions.find( id ) != _sessions.end( ))
+    {
+#ifdef __linux__
+        int fd = ::open( "/dev/random", O_RDONLY );
+        ASSERT( fd != -1 );
+        int read = ::read( fd, &id, sizeof( id ));
+        ASSERT( read == sizeof( id ));
+        close( fd );
+#else
+        srandomdev();
+        id = random();
+#endif
+    }
+
+    return id;  
+}
 
 //----------------------------------------------------------------------
 // receiver thread functions
@@ -580,11 +597,12 @@ CommandResult Node::_cmdMapSession( Node* node, const Packet* pkg )
         
         if( !session ) // session does not exist, create new one
         {
-            session = createSession();
-            const bool mapped = mapSession( this, session, sessionName );
-            ASSERT( mapped );
+            session   = createSession();
+            sessionID = _generateSessionID();
+            addSession( session, this, sessionID, sessionName );
         }
-        sessionID = session->getID();
+        else
+            sessionID = session->getID();
     }
     else // mapped by identifier, session has to exist already
     {

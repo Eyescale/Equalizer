@@ -132,8 +132,7 @@ namespace eqBase
         bool isRunning() const { return ( _threadState == STATE_RUNNING ); }
 
         /** 
-         * Return if this thread is the current (calling) thread.
-         * 
+         * Returns if this thread is the current (calling) thread.
          * 
          * @return <code>true</code> if the current thread has is the same
          *         thread as this thread, <code>false</code> if not.

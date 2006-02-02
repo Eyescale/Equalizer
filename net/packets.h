@@ -296,6 +296,30 @@ namespace eqNet
     };
 
     //------------------------------------------------------------
+    // Barrier
+    //------------------------------------------------------------
+    struct BarrierEnterPacket : public MobjectPacket
+    {
+        BarrierEnterPacket( const uint32_t sessionID, const uint32_t objectID )
+                : eqNet::MobjectPacket( sessionID, objectID )
+            {
+                command = CMD_BARRIER_ENTER;
+                size    = sizeof( BarrierEnterPacket );
+            }
+    };
+
+    struct BarrierEnterReplyPacket : public MobjectPacket
+    {
+        BarrierEnterReplyPacket( const uint32_t sessionID, 
+                                 const uint32_t objectID )
+                : eqNet::MobjectPacket( sessionID, objectID )
+            {
+                command = CMD_BARRIER_ENTER_REPLY;
+                size    = sizeof( BarrierEnterReplyPacket );
+            }
+    };
+
+    //------------------------------------------------------------
     // User
     //------------------------------------------------------------
     struct UserPacket : public SessionPacket
@@ -326,14 +350,14 @@ namespace eqNet
                                        const NodeMapSessionPacket* packet )
     {
         os << (NodePacket*)packet << " req " << packet->requestID
-           << " sessionID " << packet->sessionID;
+           << " sessionID " << packet->sessionID << " name " << packet->name;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeMapSessionReplyPacket* packet )
     {
         os << (NodePacket*)packet << " req " << packet->requestID
-           << " sessionID " << packet->sessionID;
+           << " sessionID " << packet->sessionID << " name " << packet->name;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

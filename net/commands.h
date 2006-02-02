@@ -33,6 +33,13 @@ namespace eqNet
         CMD_SESSION_CUSTOM // must be last
     };
 
+    enum BarrierCommand
+    {
+        CMD_BARRIER_ENTER,
+        CMD_BARRIER_ENTER_REPLY,
+        CMD_BARRIER_ALL
+    };
+
     enum UserCommand
     {
         CMD_USER_CUSTOM // must be last

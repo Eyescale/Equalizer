@@ -161,7 +161,7 @@ void Session::addRegisteredObject( const uint32_t id, Object* object )
     ASSERT( !_registeredObjects[id] );
     _registeredObjects[id] = object;
     object->_id            = id;
-    object->_sessionID     = _id;
+    object->_session       = this;
     VERB << "registered object " << (void*)object << " id " << id
          << " session id " << _id << endl;
 }
@@ -172,8 +172,8 @@ void Session::deregisterObject( Object* object )
     if( _registeredObjects.erase(id) == 0 )
         return;
     
-    object->_id        = INVALID_ID;
-    object->_sessionID = INVALID_ID;
+    object->_id      = INVALID_ID;
+    object->_session = NULL;
     freeIDs( id, 1 );
 }
 
@@ -192,8 +192,8 @@ void Session::deregisterMobject( Mobject* object )
         return;
     
     // TODO: unsetIDMaster( object->_id );
-    object->_id        = INVALID_ID;
-    object->_sessionID = INVALID_ID;
+    object->_id      = INVALID_ID;
+    object->_session = NULL;
     freeIDs( id, 1 );
 }
 
@@ -208,7 +208,7 @@ Mobject* Session::getMobject( const uint32_t id )
 
     SessionGetMobjectPacket packet( _id );
 
-    packet.requestID = _requestHandler.registerRequest();
+    packet.requestID = _requestHandler.registerRequest( this );
     packet.mobjectID = id;
 
     _server->send( packet );
@@ -220,10 +220,7 @@ Mobject* Session::instanciateMobject( const uint32_t type, const char* data )
     switch( type )
     {
         case MOBJECT_EQNET_BARRIER:
-        {
-            const uint32_t height = atoi( data );
-            return new Barrier( height );
-        }
+            return new Barrier( data );
 
         default:
             return NULL;
@@ -293,10 +290,7 @@ CommandResult Session::_instMobject( const uint32_t id )
             RefPtr<Node> master = _pollIDMaster( id );
             if( master.isValid( ))
             {
-                SessionInitMobjectPacket packet( _id );
-                packet.mobjectID = id;
-                master->send( packet );
-                _mobjectStates[id] = Mobject::INST_INIT;
+                _sendInitMobject( id, master );
                 return COMMAND_RESCHEDULE;
             }
 
@@ -319,10 +313,7 @@ CommandResult Session::_instMobject( const uint32_t id )
                 return COMMAND_ERROR;
             }
 
-            SessionInitMobjectPacket packet( _id );
-            packet.mobjectID = id;
-            master->send( packet );
-            _mobjectStates[id] = Mobject::INST_INIT;
+            _sendInitMobject( id, master );
             return COMMAND_RESCHEDULE;
         }
             
@@ -335,6 +326,14 @@ CommandResult Session::_instMobject( const uint32_t id )
     }
 }
 
+void Session::_sendInitMobject( const uint32_t mobjectID, RefPtr<Node> master )
+{
+    SessionInitMobjectPacket packet( _id );
+    packet.mobjectID = mobjectID;
+    master->send( packet );
+    _mobjectStates[mobjectID] = Mobject::INST_INIT;
+}
+            
 CommandResult Session::_cmdGenIDs( Node* node, const Packet* pkg )
 {
     SessionGenIDsPacket*     packet = (SessionGenIDsPacket*)pkg;
@@ -486,12 +485,13 @@ CommandResult Session::_cmdGetMobjectMasterReply( Node* node, const Packet* pkg)
 
 CommandResult Session::_cmdGetMobject( Node* node, const Packet* pkg )
 {
-    ASSERT( node == _localNode.get( ));
     SessionGetMobjectPacket* packet = (SessionGetMobjectPacket*)pkg;
     INFO << "cmd get mobject " << packet << endl;
 
     const uint32_t id     = packet->mobjectID;
     Object*        object = _registeredObjects[id];
+
+    ASSERT( _requestHandler.getRequestData( id ) == this );
 
     if( object )
     {
@@ -538,7 +538,6 @@ CommandResult Session::_cmdInitMobjectReply( Node* node, const Packet* pkg )
 
     Mobject* mobject = instanciateMobject( packet->mobjectType, 
                                            packet->mobjectData );
-
     if( !mobject )
         return COMMAND_ERROR;
 
