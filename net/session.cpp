@@ -2,6 +2,8 @@
    All rights reserved. */
 
 #include "session.h"
+
+#include "barrier.h"
 #include "connection.h"
 #include "connectionDescription.h"
 #include "packets.h"
@@ -211,6 +213,21 @@ Mobject* Session::getMobject( const uint32_t id )
 
     _server->send( packet );
     return (Mobject*)_requestHandler.waitRequest( packet.requestID );
+}
+
+Mobject* Session::instanciateMobject( const uint32_t type, const char* data )
+{
+    switch( type )
+    {
+        case MOBJECT_EQNET_BARRIER:
+        {
+            const uint32_t height = atoi( data );
+            return new Barrier( height );
+        }
+
+        default:
+            return NULL;
+    }
 }
 
 //===========================================================================

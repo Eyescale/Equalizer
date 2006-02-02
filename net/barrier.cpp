@@ -6,12 +6,16 @@
 
 using namespace eqNet;
 
-Barrier::Barrier( Node* master, const uint32_t height )
+Barrier::Barrier( const uint32_t height )
+        : _height( height )
 {
-    UNIMPLEMENTED;
 }
 
-void Barrier::release()
+void Barrier::getInstanceInfo( uint32_t* typeID, std::string& data )
 {
-    UNIMPLEMENTED;
+    *typeID = MOBJECT_EQNET_BARRIER;
+    
+    char height[8];
+    snprintf( height, 8, "%d", _height );
+    data = height;
 }

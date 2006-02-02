@@ -16,7 +16,7 @@ namespace eqNet
     enum MobjectType
     {
         MOBJECT_UNDEFINED,
-        MOBJECT_BARRIER,
+        MOBJECT_EQNET_BARRIER,
         MOBJECT_CUSTOM
     };
 

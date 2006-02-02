@@ -8,6 +8,7 @@
 #include "pipe.h"
 
 #include <eq/packets.h>
+#include <eq/net/barrier.h>
 
 using namespace eqs;
 using namespace std;
@@ -176,13 +177,15 @@ void Node::update()
 eqNet::Barrier* Node::getBarrier( const uint32_t height )
 {
     // TODO
-    return new eqNet::Barrier( this, height );
+    eqNet::Barrier* barrier = new eqNet::Barrier( height );
+    _config->registerMobject( barrier, this );
+    return barrier;
 }
 
 void Node::releaseBarrier( eqNet::Barrier* barrier )
 {
     // TODO
-    barrier->release();
+    _config->deregisterMobject( barrier );
 }
 
 //===========================================================================

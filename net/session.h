@@ -203,8 +203,8 @@ namespace eqNet
          * @return the mobject, or <code>NULL</code> upon error.
          * @sa Mobject::getInstanceInfo
          */
-        virtual Mobject* instanciateMobject( const uint32_t type, 
-                                             const char* data ) { return NULL; }
+        virtual Mobject* instanciateMobject( const uint32_t type,
+                                             const char* data );
         /** 
          * Sends a packet to the session's node.
          * 

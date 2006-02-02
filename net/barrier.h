@@ -6,30 +6,24 @@
 #define EQNET_BARRIER_H
 
 #include "base.h"
-#include "object.h"
+#include "mobject.h"
 
 namespace eqNet
 {
     class Node;
 
-    class Barrier : public Object
+    class Barrier : public Mobject
     {
     public:
         /** 
          * Constructs a new barrier.
          */
-        Barrier( Node* master, const uint32_t height );
+        Barrier( const uint32_t height );
 
         /**
          * Destructs the barrier.
          */
         virtual ~Barrier(){}
-
-        /** 
-         * Releases and destructs the barrier on all nodes.
-         * @todo move to Object?
-         */
-        void release();
 
         /**
          * @name Operations
@@ -42,10 +36,11 @@ namespace eqNet
         //@}
 
     protected:
+        /** @sa Mobject::getInstanceInfo */
+        virtual void getInstanceInfo( uint32_t* typeID, std::string& data );
 
     private:
-        /** The command functions. */
-        void _cmdInit( eqNet::Node* node, const eqNet::Packet* packet );
+        uint32_t _height;
     };
 }
 
