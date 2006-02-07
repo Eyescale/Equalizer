@@ -21,7 +21,7 @@ Barrier::Barrier( const Thread::Type type )
             int error = pthread_mutex_init( &_barrier.pthread.mutex, NULL );
             if( error )
             {
-                ERROR << "Error creating pthread mutex: " << strerror( error )
+                EQERROR << "Error creating pthread mutex: " << strerror( error )
                       << endl;
                 return;
             }
@@ -29,14 +29,14 @@ Barrier::Barrier( const Thread::Type type )
             error = pthread_cond_init( &_barrier.pthread.cond, NULL );
             if( error )
             {
-                ERROR << "Error creating pthread condition: " 
+                EQERROR << "Error creating pthread condition: " 
                       << strerror( error ) << endl;
                 return;
             }
         } return;
 
         default:
-            ERROR << "not implemented" << endl;
+            EQERROR << "not implemented" << endl;
     }
 }
 
@@ -50,7 +50,7 @@ Barrier::~Barrier()
             return;
 
         default:
-            ERROR << "not implemented" << endl;
+            EQERROR << "not implemented" << endl;
     }
 }
 
@@ -80,7 +80,7 @@ size_t Barrier::enter( const size_t size )
         }
 
         default:
-            ERROR << "not implemented" << endl;
+            EQERROR << "not implemented" << endl;
             return 0;
     }
 }
