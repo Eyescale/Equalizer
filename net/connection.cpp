@@ -40,7 +40,7 @@ RefPtr<Connection> Connection::create( const ConnectionType type )
             return new UniPipeConnection();
 
         default:
-            WARN << "Connection type not implemented" << endl;
+            EQWARN << "Connection type not implemented" << endl;
             return NULL;
     }
 }
@@ -59,7 +59,7 @@ RefPtr<Connection> Connection::accept( const int timeout )
     if( pollFD.fd == -1 )
     {
         // Could implement the same using a setjmp() + alarm().
-        WARN << "Cannot accept on connection, it does not use a file descriptor"
+        EQWARN << "Cannot accept on connection, it does not use a file descriptor"
              << endl;
         return NULL;
     }
@@ -72,7 +72,7 @@ RefPtr<Connection> Connection::accept( const int timeout )
             return NULL;
 
         case -1: // ERROR
-            WARN << "Error during poll(): " << strerror( errno ) << endl;
+            EQWARN << "Error during poll(): " << strerror( errno ) << endl;
             return NULL;
 
         default: // SUCCESS

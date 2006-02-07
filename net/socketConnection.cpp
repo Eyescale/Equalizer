@@ -35,7 +35,7 @@ SocketConnection::~SocketConnection()
 //----------------------------------------------------------------------
 bool SocketConnection::connect( RefPtr<ConnectionDescription> description )
 {
-    ASSERT( description->type == TYPE_TCPIP );
+    EQASSERT( description->type == TYPE_TCPIP );
     if( _state != STATE_CLOSED )
         return false;
 
@@ -54,7 +54,7 @@ bool SocketConnection::connect( RefPtr<ConnectionDescription> description )
 
     if( !connected )
     {
-        WARN << "Could not connect to '" << description->hostname << ":"
+        EQWARN << "Could not connect to '" << description->hostname << ":"
              << description->TCPIP.port << "': " << strerror( errno ) << endl;
         close();
         return false;
@@ -71,7 +71,7 @@ bool SocketConnection::_createSocket()
 
     if( fd == -1 )
     {
-        ERROR << "Could not create socket: " << strerror( errno ) << endl;
+        EQERROR << "Could not create socket: " << strerror( errno ) << endl;
         return false;
     }
 
@@ -90,7 +90,7 @@ void SocketConnection::close()
 
     const bool closed = ( ::close(_readFD) == 0 );
     if( !closed )
-        WARN << "Could not close socket: " << strerror( errno ) << endl;
+        EQWARN << "Could not close socket: " << strerror( errno ) << endl;
 
     _readFD  = -1;
     _writeFD = -1;
@@ -111,7 +111,7 @@ void SocketConnection::_parseAddress( RefPtr<ConnectionDescription> description,
             memcpy(&socketAddress.sin_addr.s_addr, hptr->h_addr,hptr->h_length);
     }
 
-    INFO << "Address " << ((socketAddress.sin_addr.s_addr >> 24 ) & 0xff)
+    EQINFO << "Address " << ((socketAddress.sin_addr.s_addr >> 24 ) & 0xff)
          << "."  << ((socketAddress.sin_addr.s_addr >> 16 ) & 0xff)
          << "."  << ((socketAddress.sin_addr.s_addr >> 8 ) & 0xff)
          << "."  << (socketAddress.sin_addr.s_addr & 0xff)
@@ -123,7 +123,7 @@ void SocketConnection::_parseAddress( RefPtr<ConnectionDescription> description,
 //----------------------------------------------------------------------
 bool SocketConnection::listen( RefPtr<ConnectionDescription> description )
 {
-    ASSERT( description->type == TYPE_TCPIP );
+    EQASSERT( description->type == TYPE_TCPIP );
 
     if( _state != STATE_CLOSED )
         return false;
@@ -142,19 +142,19 @@ bool SocketConnection::listen( RefPtr<ConnectionDescription> description )
 
     if( !bound )
     {
-        WARN << "Could not bind socket: " << strerror( errno ) << " (" << errno 
+        EQWARN << "Could not bind socket: " << strerror( errno ) << " (" << errno 
              << ")" << endl;
         close();
         return false;
     }
     else if( socketAddress.sin_port == 0 )
-        INFO << "Bound to port " << getPort() << endl;
+        EQINFO << "Bound to port " << getPort() << endl;
 
     const bool listening = (::listen( _readFD, 10 ) == 0);
         
     if( !listening )
     {
-        WARN << "Could not listen on socket: " << strerror( errno ) << endl;
+        EQWARN << "Could not listen on socket: " << strerror( errno ) << endl;
         close();
         return false;
     }
@@ -187,7 +187,7 @@ RefPtr<Connection> SocketConnection::accept()
 
     if( fd == -1 )
     {
-        WARN << "accept failed: " << strerror( errno ) << endl;
+        EQWARN << "accept failed: " << strerror( errno ) << endl;
         return NULL;
     }
 
@@ -205,7 +205,7 @@ RefPtr<Connection> SocketConnection::accept()
     newConnection->_description = description;
     newConnection->_state       = STATE_CONNECTED;
 
-    INFO << "accepted connection from "
+    EQINFO << "accepted connection from "
          << inet_ntoa(newAddress.sin_addr) << ":" << newAddress.sin_port <<endl;
 
     return newConnection;

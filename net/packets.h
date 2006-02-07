@@ -277,8 +277,8 @@ namespace eqNet
             {
                 datatype       = DATATYPE_EQNET_OBJECT; 
                 this->objectID = objectID;
-                ASSERT( objectID != INVALID_ID );
-                ASSERT( objectID != 0 );
+                EQASSERT( objectID != INVALID_ID );
+                EQASSERT( objectID != 0 );
             }
         uint32_t objectID;
     };

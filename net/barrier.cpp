@@ -14,7 +14,7 @@ Barrier::Barrier( const uint32_t height )
           _height( height ),
           _master( true )
 {
-    ASSERT( height > 1 );
+    EQASSERT( height > 1 );
     _lock.set();
     registerCommand( CMD_BARRIER_ENTER, this, reinterpret_cast<CommandFcn>(
                          &eqNet::Barrier::_cmdEnter ));
@@ -39,12 +39,12 @@ void Barrier::getInstanceInfo( uint32_t* typeID, std::string& data )
 
 void Barrier::enter()
 {
-    ASSERT( _session );
+    EQASSERT( _session );
 
     if( _master )
     {
         _lock.set();
-        ASSERT( _slaves.size() == _height-1 );
+        EQASSERT( _slaves.size() == _height-1 );
 
         BarrierEnterReplyPacket packet( _session->getID(), _id );
         for( uint32_t i=0; i<_height-1; ++i )
@@ -55,7 +55,7 @@ void Barrier::enter()
     }
 
     eqBase::RefPtr<Node> master = _session->getIDMaster( _id );
-    ASSERT( master );
+    EQASSERT( master );
 
     BarrierEnterPacket packet( _session->getID(), _id );
     

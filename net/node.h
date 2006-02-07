@@ -357,7 +357,7 @@ namespace eqNet
          */
         bool recv( const void* buffer, const uint64_t size )
             {
-                ASSERT( _state == STATE_CONNECTED || _state == STATE_LISTENING);
+                EQASSERT( _state == STATE_CONNECTED || _state == STATE_LISTENING);
                 return ( _connection->recv( buffer, size ) == size );
             }
         //@}

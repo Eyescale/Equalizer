@@ -31,7 +31,7 @@ UniPipeConnection::~UniPipeConnection()
 bool UniPipeConnection::connect( 
     eqBase::RefPtr<ConnectionDescription> description )
 {
-    ASSERT( description->type == TYPE_UNI_PIPE );
+    EQASSERT( description->type == TYPE_UNI_PIPE );
 
     if( _state != STATE_CLOSED )
         return false;
@@ -47,7 +47,7 @@ bool UniPipeConnection::connect(
     _readFD  = _pipe[0];
     _writeFD = _pipe[1];
 
-    INFO << "readFD " << _readFD << " writeFD " << _writeFD << endl;
+    EQINFO << "readFD " << _readFD << " writeFD " << _writeFD << endl;
     _description = description;
     _state       = STATE_CONNECTED;
     return true;
@@ -57,7 +57,7 @@ bool UniPipeConnection::_createPipe()
 {
     if( ::pipe( _pipe ) == -1 )
     {
-        ERROR << "Could not create pipe: " << strerror( errno );
+        EQERROR << "Could not create pipe: " << strerror( errno );
         close();
         return false;
     }

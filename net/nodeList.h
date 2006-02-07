@@ -22,7 +22,7 @@ namespace eqNet
         {
         public:
             NodeList( Node* localNode ) : _localNode(localNode) 
-                { ASSERT(localNode); }
+                { EQASSERT(localNode); }
 
             void send( Packet& packet ) const
                 {

@@ -28,7 +28,7 @@ FDConnection::FDConnection( const FDConnection& conn )
 //----------------------------------------------------------------------
 uint64_t FDConnection::recv( const void* buffer, const uint64_t bytes )
 {
-    VERB << "Receiving " << bytes << " bytes on " << this << endl;
+    EQVERB << "Receiving " << bytes << " bytes on " << this << endl;
     if( _state != STATE_CONNECTED || _readFD == -1 )
         return 0;
 
@@ -51,7 +51,7 @@ uint64_t FDConnection::recv( const void* buffer, const uint64_t bytes )
                 bytesRead = 0;
             else
             {
-                WARN << "Error during read: " << strerror( errno ) << endl;
+                EQWARN << "Error during read: " << strerror( errno ) << endl;
                 return bytes - bytesLeft;
             }
         }
@@ -62,7 +62,7 @@ uint64_t FDConnection::recv( const void* buffer, const uint64_t bytes )
 
     if( eqBase::Log::level >= eqBase::LOG_VERBATIM )
     {
-        VERB << "Received " << bytes << " bytes:";
+        EQVERB << "Received " << bytes << " bytes:";
         const char* data = (char*)buffer;
 
         for(uint64_t i=0; i<bytes; i++ )
@@ -93,7 +93,7 @@ uint64_t FDConnection::send( const void* buffer, const uint64_t bytes ) const
 
     if( eqBase::Log::level >= eqBase::LOG_VERBATIM )
     {
-        VERB << "Sending " << bytes << " bytes on " << (void*)this << ":";
+        EQVERB << "Sending " << bytes << " bytes on " << (void*)this << ":";
 
         for( uint64_t i=0; i<bytes; i++ )
         {
@@ -117,7 +117,7 @@ uint64_t FDConnection::send( const void* buffer, const uint64_t bytes ) const
                 bytesWritten = 0;
             else
             {
-                WARN << "Error during write: " << strerror( errno ) << endl;
+                EQWARN << "Error during write: " << strerror( errno ) << endl;
                 return bytes - bytesLeft;
             }
         }

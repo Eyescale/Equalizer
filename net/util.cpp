@@ -13,7 +13,7 @@ using namespace eqNet::priv;
 void Util::parseAddress( const char* address, char hostname[MAXHOSTNAMELEN], 
                          ushort &port )
 {
-    ASSERT( address );
+    EQASSERT( address );
 
     const size_t len = strlen( address );
     for( size_t i=0; i<len && i<MAXHOSTNAMELEN; i++ )

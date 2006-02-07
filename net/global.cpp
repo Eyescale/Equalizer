@@ -16,7 +16,7 @@ string Global::_programName;
 void Global::setProgramName( const string& programName )
 {
     _programName = programName;
-    INFO << "Program name set to: " << _programName << endl;
+    EQINFO << "Program name set to: " << _programName << endl;
 }
 
 const string& Global::getProgramName()

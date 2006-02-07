@@ -29,6 +29,6 @@ CommandResult Object::handleCommand( Node* node, const ObjectPacket* packet )
     if( baseThis )
         return baseThis->handleCommand( node, (Packet*)packet );
 
-    WARN << "Unhandled command " << packet << endl;
+    EQWARN << "Unhandled command " << packet << endl;
     return COMMAND_ERROR;
 }

@@ -18,7 +18,7 @@ static bool exitLocalNode();
 
 bool eqNet::init( int argc, char** argv )
 {
-    ASSERT( argc > 0 );
+    EQASSERT( argc > 0 );
 
     const string programName = Global::getProgramName();
     if( programName.size() == 0  )
@@ -34,7 +34,7 @@ bool eqNet::init( int argc, char** argv )
 
     if( !initLocalNode( argc, argv ))
     {
-        ERROR << "Could not initialize local node" << endl;
+        EQERROR << "Could not initialize local node" << endl;
         return false;
     }
 
@@ -44,7 +44,7 @@ bool eqNet::init( int argc, char** argv )
 bool initLocalNode( int argc, char** argv )
 {
     for( int i=0; i<argc; i++ )
-        INFO << "arg " << argv[i] << endl;
+        EQINFO << "arg " << argv[i] << endl;
 
     struct option options[] = {
         { "eq-listen",      no_argument,       NULL, 'l' },
@@ -72,21 +72,21 @@ bool initLocalNode( int argc, char** argv )
                 break;
 
             default:
-                WARN << "unhandled option: " << options[index].name << endl;
+                EQWARN << "unhandled option: " << options[index].name << endl;
                 break;
         }
     }
     
     if( listen )
     {
-        INFO << "Listener port requested" << endl;
+        EQINFO << "Listener port requested" << endl;
         // TODO: connection description parameters from argv
         RefPtr<Connection> connection = Connection::create( eqNet::TYPE_TCPIP );
         RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
 
         if( !connection->listen( connDesc ))
         {
-            WARN << "Can't create listening connection" << endl; 
+            EQWARN << "Can't create listening connection" << endl; 
             if( isClient )
                 exit( EXIT_FAILURE );
             return false;
@@ -101,20 +101,20 @@ bool initLocalNode( int argc, char** argv )
 
         if( !localNode->listen( connection ))
         {
-            WARN << "Can't create listener node" << endl; 
+            EQWARN << "Can't create listener node" << endl; 
             if( isClient )
                 exit( EXIT_FAILURE );
             return false;
         }
     }
 
-    INFO << "clientOpts: " << clientOpts << endl;
+    EQINFO << "clientOpts: " << clientOpts << endl;
     if( isClient )
     {
-        INFO << "Client node started from command line with option " 
+        EQINFO << "Client node started from command line with option " 
              << clientOpts << endl;
         Node* localNode = Node::getLocalNode();
-        ASSERT( localNode );
+        EQASSERT( localNode );
 
         const bool ret = localNode->runClient( clientOpts );
         exit( ret ? EXIT_SUCCESS : EXIT_FAILURE );

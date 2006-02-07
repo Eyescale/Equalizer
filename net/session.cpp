@@ -25,7 +25,7 @@ Session::Session( const uint32_t nCommands )
           _server(NULL),
           _isMaster(false)
 {
-    ASSERT( nCommands >= CMD_SESSION_CUSTOM );
+    EQASSERT( nCommands >= CMD_SESSION_CUSTOM );
     registerCommand( CMD_SESSION_GEN_IDS, this, reinterpret_cast<CommandFcn>(
                          &eqNet::Session::_cmdGenIDs ));
     registerCommand( CMD_SESSION_GEN_IDS_REPLY, this, 
@@ -57,7 +57,7 @@ Session::Session( const uint32_t nCommands )
                          &eqNet::Session::_cmdInitMobjectReply ));
 
     _localPool.genIDs( _localPool.getCapacity( )); // reserve all IDs
-    INFO << "New " << this << endl;
+    EQINFO << "New " << this << endl;
 }
 
 //---------------------------------------------------------------------------
@@ -99,7 +99,7 @@ void Session::freeIDs( const uint32_t start, const uint32_t range )
 void Session::setIDMaster( const uint32_t start, const uint32_t range, 
                            Node* master )
 {
-    ASSERT( master->checkConnection( ));
+    EQASSERT( master->checkConnection( ));
 
     IDMasterInfo info = { start, start+range, master };
     _idMasterInfos.push_back( info );
@@ -158,11 +158,11 @@ void Session::registerObject( Object* object )
 
 void Session::addRegisteredObject( const uint32_t id, Object* object )
 {
-    ASSERT( !_registeredObjects[id] );
+    EQASSERT( !_registeredObjects[id] );
     _registeredObjects[id] = object;
     object->_id            = id;
     object->_session       = this;
-    VERB << "registered object " << (void*)object << " id " << id
+    EQVERB << "registered object " << (void*)object << " id " << id
          << " session id " << _id << endl;
 }
 
@@ -202,7 +202,7 @@ Mobject* Session::getMobject( const uint32_t id )
     Object* object = _registeredObjects[id];
     if( object )
     {
-        ASSERT( dynamic_cast<Mobject*>(object) );
+        EQASSERT( dynamic_cast<Mobject*>(object) );
         return static_cast<Mobject*>(object);
     }
 
@@ -233,7 +233,7 @@ Mobject* Session::instanciateMobject( const uint32_t type, const char* data )
 
 CommandResult Session::dispatchPacket( Node* node, const Packet* packet )
 {
-    VERB << "dispatch " << packet << endl;
+    EQVERB << "dispatch " << packet << endl;
 
     switch( packet->datatype )
     {
@@ -247,7 +247,7 @@ CommandResult Session::dispatchPacket( Node* node, const Packet* packet )
             return _handleMobjectCommand( node, packet );
 
         default:
-            WARN << "Undispatched packet " << packet << endl;
+            EQWARN << "Undispatched packet " << packet << endl;
             return COMMAND_ERROR;
     }
 }
@@ -260,7 +260,7 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
     
     if( !object )
     {
-        ASSERTINFO( object, "Received request for unregistered object");
+        EQASSERTINFO( object, "Received request for unregistered object");
         return COMMAND_ERROR;
     }
 
@@ -337,7 +337,7 @@ void Session::_sendInitMobject( const uint32_t mobjectID, RefPtr<Node> master )
 CommandResult Session::_cmdGenIDs( Node* node, const Packet* pkg )
 {
     SessionGenIDsPacket*     packet = (SessionGenIDsPacket*)pkg;
-    INFO << "Cmd gen IDs: " << packet << endl;
+    EQINFO << "Cmd gen IDs: " << packet << endl;
 
     SessionGenIDsReplyPacket reply( packet );
 
@@ -349,7 +349,7 @@ CommandResult Session::_cmdGenIDs( Node* node, const Packet* pkg )
 CommandResult Session::_cmdGenIDsReply( Node* node, const Packet* pkg )
 {
     SessionGenIDsReplyPacket* packet = (SessionGenIDsReplyPacket*)pkg;
-    INFO << "Cmd gen IDs reply: " << packet << endl;
+    EQINFO << "Cmd gen IDs reply: " << packet << endl;
     _requestHandler.serveRequest( packet->requestID, (void*)packet->id );
     return COMMAND_HANDLED;
 }
@@ -357,12 +357,12 @@ CommandResult Session::_cmdGenIDsReply( Node* node, const Packet* pkg )
 CommandResult Session::_cmdSetIDMaster( Node* node, const Packet* pkg )
 {
     SessionSetIDMasterPacket* packet = (SessionSetIDMasterPacket*)pkg;
-    INFO << "Cmd set ID master: " << packet << endl;
+    EQINFO << "Cmd set ID master: " << packet << endl;
 
     RefPtr<Node> master    = _localNode->getNodeWithConnection( 
         packet->connectionDescription );
 
-    ASSERT( master.isValid( ));
+    EQASSERT( master.isValid( ));
 
     // TODO thread-safety: _idMasterInfos is also read & written by app
     IDMasterInfo info = { packet->start, packet->start + packet->range, master};
@@ -416,7 +416,7 @@ CommandResult Session::_cmdGetIDMasterReply( Node* node, const Packet* pkg )
 
     RefPtr<Node> master = _localNode->getNodeWithConnection( packet->
                                                         connectionDescription );
-    ASSERT( master );
+    EQASSERT( master );
 
     // TODO thread-safety: _idMasterInfos is also read & written by app
     IDMasterInfo info = { packet->start, packet->end, master};
@@ -474,7 +474,7 @@ CommandResult Session::_cmdGetMobjectMasterReply( Node* node, const Packet* pkg)
 
     RefPtr<Node> master = _localNode->getNodeWithConnection( packet->
                                                         connectionDescription );
-    ASSERT( master );
+    EQASSERT( master );
 
     // TODO thread-safety: _idMasterInfos is also read & written by app
     IDMasterInfo info = { packet->start, packet->end, master};
@@ -486,7 +486,7 @@ CommandResult Session::_cmdGetMobjectMasterReply( Node* node, const Packet* pkg)
 CommandResult Session::_cmdGetMobject( Node* node, const Packet* pkg )
 {
     SessionGetMobjectPacket* packet = (SessionGetMobjectPacket*)pkg;
-    INFO << "cmd get mobject " << packet << endl;
+    EQINFO << "cmd get mobject " << packet << endl;
 
     const uint32_t id     = packet->mobjectID;
     Object*        object = _registeredObjects[id];
@@ -495,7 +495,7 @@ CommandResult Session::_cmdGetMobject( Node* node, const Packet* pkg )
 
     if( object )
     {
-        ASSERT( dynamic_cast<Mobject*>(object) );
+        EQASSERT( dynamic_cast<Mobject*>(object) );
         _requestHandler.serveRequest( packet->requestID, object );
         return COMMAND_HANDLED;
     }
@@ -511,12 +511,12 @@ CommandResult Session::_cmdGetMobject( Node* node, const Packet* pkg )
 CommandResult Session::_cmdInitMobject( Node* node, const Packet* pkg )
 {
     SessionInitMobjectPacket* packet = (SessionInitMobjectPacket*)pkg;
-    INFO << "cmd init mobject " << packet << endl;
+    EQINFO << "cmd init mobject " << packet << endl;
 
     const uint32_t id      = packet->mobjectID;
     Object*        object  = _registeredObjects[id];
-    ASSERT( object );
-    ASSERT( dynamic_cast<Mobject*>(object) );
+    EQASSERT( object );
+    EQASSERT( dynamic_cast<Mobject*>(object) );
     
     Mobject*       mobject = (Mobject*)object;
     SessionInitMobjectReplyPacket reply( packet );
@@ -531,10 +531,10 @@ CommandResult Session::_cmdInitMobject( Node* node, const Packet* pkg )
 CommandResult Session::_cmdInitMobjectReply( Node* node, const Packet* pkg )
 {
     SessionInitMobjectReplyPacket* packet = (SessionInitMobjectReplyPacket*)pkg;
-    INFO << "cmd init mobject reply " << packet << endl;
+    EQINFO << "cmd init mobject reply " << packet << endl;
 
     const uint32_t id      = packet->mobjectID;
-    ASSERT( !_registeredObjects[id] );
+    EQASSERT( !_registeredObjects[id] );
 
     Mobject* mobject = instanciateMobject( packet->mobjectType, 
                                            packet->mobjectData );

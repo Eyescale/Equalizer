@@ -80,9 +80,9 @@ ssize_t Launcher::run()
 
     argv[argc] = NULL;
 
-    INFO << "Executing: " << argv[0] << endl;
+    EQINFO << "Executing: " << argv[0] << endl;
     //return EXIT_SUCCESS;
     execvp( argv[0], argv );
-    WARN << "Error executing '" << argv[0] << "': " << strerror(errno) << endl;
+    EQWARN << "Error executing '" << argv[0] << "': " << strerror(errno) << endl;
     return EXIT_FAILURE;
 }

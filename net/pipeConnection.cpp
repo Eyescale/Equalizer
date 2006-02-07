@@ -40,7 +40,7 @@ PipeConnection::~PipeConnection()
 //----------------------------------------------------------------------
 bool PipeConnection::connect( eqBase::RefPtr<ConnectionDescription> description)
 {
-    ASSERT( description->type == TYPE_PIPE );
+    EQASSERT( description->type == TYPE_PIPE );
 
     if( _state != STATE_CLOSED )
         return false;
@@ -71,7 +71,7 @@ bool PipeConnection::_createPipes()
 
     if( pipe( &_pipes[0] ) == -1 || pipe( &_pipes[2] ) == -1 )
     {
-        ERROR << "Could not create pipe: " << strerror( errno );
+        EQERROR << "Could not create pipe: " << strerror( errno );
         close();
         return false;
     }
@@ -105,14 +105,14 @@ void PipeConnection::close()
 
 void PipeConnection::_setupParent()
 {
-    ASSERT( _state == STATE_CONNECTING );
+    EQASSERT( _state == STATE_CONNECTING );
     // assign file descriptors
     _readFD  = _pipes[0];
     _writeFD = _pipes[3];
-    INFO << "Parent readFD " << _readFD << " writeFD " << _writeFD << endl;
+    EQINFO << "Parent readFD " << _readFD << " writeFD " << _writeFD << endl;
 
     // cleanup
-    ASSERT(_pipes);
+    EQASSERT(_pipes);
     delete [] _pipes;
     _pipes = NULL;
 
@@ -122,14 +122,14 @@ void PipeConnection::_setupParent()
 
 void PipeConnection::_setupChild()
 {
-    ASSERT( _state == STATE_CONNECTING );
+    EQASSERT( _state == STATE_CONNECTING );
     // assign file descriptors
     _readFD  = _pipes[2];
     _writeFD = _pipes[1];
-    INFO << "Child  readFD " << _readFD << " writeFD " << _writeFD << endl;
+    EQINFO << "Child  readFD " << _readFD << " writeFD " << _writeFD << endl;
 
     // cleanup
-    ASSERT(_pipes);
+    EQASSERT(_pipes);
     delete [] _pipes;
     _pipes = NULL;
 

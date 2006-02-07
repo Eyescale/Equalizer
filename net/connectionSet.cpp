@@ -28,7 +28,7 @@ ConnectionSet::ConnectionSet()
     // restart with the modified fd set.
     if( pipe( _selfFD ) ==  -1 )
     {
-        ERROR << "Could not create pipe: " << strerror( errno );
+        EQERROR << "Could not create pipe: " << strerror( errno );
         return;
     }
 }
@@ -54,7 +54,7 @@ void ConnectionSet::_dirtyFDSet()
 void ConnectionSet::addConnection( RefPtr<Connection> connection, 
                                    RefPtr<Node> node )
 {
-    ASSERT( connection->getState() == Connection::STATE_CONNECTED ||
+    EQASSERT( connection->getState() == Connection::STATE_CONNECTED ||
             connection->getState() == Connection::STATE_LISTENING );
     //ASSERT( connection == node->getConnection( ));
 
@@ -107,7 +107,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 
             case -1: // ERROR
                 _errno = errno;
-                INFO << "Error during poll(): " << strerror( _errno ) << endl;
+                EQINFO << "Error during poll(): " << strerror( _errno ) << endl;
                 event = EVENT_ERROR;
                 break;
 
@@ -125,24 +125,24 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                     // TODO: decrease timeout accordingly.
                     if( fd == _selfFD[0] )
                     {
-                        INFO << "FD set modified, restarting select" << endl;
-                        ASSERT( pollEvents == POLLIN );
+                        EQINFO << "FD set modified, restarting select" << endl;
+                        EQASSERT( pollEvents == POLLIN );
                         char c = '\0';
                         read( fd, &c, 1 );
-                        ASSERT( c == 'd' );
+                        EQASSERT( c == 'd' );
                         break;
                     }
 
                     _connection = _fdSetConnections[fd];
                     
-                    VERB << "selected connection #" << i << " of " << _fdSetSize
+                    EQVERB << "selected connection #" << i << " of " << _fdSetSize
                          << ", poll event " << pollEvents << ", " 
                          << _connection.get() << endl;
 
                     if( pollEvents & POLLERR )
                     {
                         _errno = 0;
-                        INFO << "Error during poll()" << endl;
+                        EQINFO << "Error during poll()" << endl;
                         event = EVENT_ERROR;
                         break;
                     }
@@ -174,7 +174,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                         break;
                     }
 
-                    ERROR << "Unhandled poll event(s): " << pollEvents << endl;
+                    EQERROR << "Unhandled poll event(s): " << pollEvents << endl;
                     abort();
                 }
         }
@@ -230,7 +230,7 @@ void ConnectionSet::_buildFDSet()
 
         if( fd == -1 )
         {
-            WARN << "Cannot select connection " << i
+            EQWARN << "Cannot select connection " << i
                  << ", connection does not use a file descriptor" << endl;
             continue;
         }
