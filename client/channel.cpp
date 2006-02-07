@@ -101,7 +101,7 @@ void Channel::applyFrustum()
     const float* frustum = _context->frustum;
     glFrustum( frustum[0], frustum[1], frustum[2], frustum[3], frustum[4],
                frustum[5] ); 
-    VERB << "Applied frustum: " << LOG_VECTOR6( frustum ) << endl;
+    EQVERB << "Applied frustum: " << LOG_VECTOR6( frustum ) << endl;
 }
 
 void Channel::applyHeadTransform()
@@ -110,7 +110,7 @@ void Channel::applyHeadTransform()
         return;
     
     glMultMatrixf( _context->headTransform );
-    VERB << "Applied head transform: " 
+    EQVERB << "Applied head transform: " 
          << LOG_MATRIX4x4( _context->headTransform ) << endl;
 }
 
@@ -132,12 +132,12 @@ eqNet::CommandResult Channel::_reqInit( eqNet::Node* node,
                                         const eqNet::Packet* pkg )
 {
     ChannelInitPacket* packet = (ChannelInitPacket*)pkg;
-    INFO << "handle channel init " << packet << endl;
+    EQINFO << "handle channel init " << packet << endl;
 
     ChannelInitReplyPacket reply( packet );
     reply.result = init(); // XXX push to channel thread
-    reply.near   = _near;
-    reply.far    = _far;
+    reply._near   = _near;
+    reply._far    = _far;
     node->send( reply );
     return eqNet::COMMAND_HANDLED;
 }
@@ -146,7 +146,7 @@ eqNet::CommandResult Channel::_reqExit( eqNet::Node* node,
                                         const eqNet::Packet* pkg )
 {
     ChannelExitPacket* packet = (ChannelExitPacket*)pkg;
-    INFO << "handle channel exit " << packet << endl;
+    EQINFO << "handle channel exit " << packet << endl;
 
     exit();
 
@@ -159,7 +159,7 @@ eqNet::CommandResult Channel::_reqClear( eqNet::Node* node,
                                          const eqNet::Packet* pkg )
 {
     ChannelClearPacket* packet = (ChannelClearPacket*)pkg;
-    INFO << "handle channel clear " << packet << endl;
+    EQINFO << "handle channel clear " << packet << endl;
 
     _context = &packet->context;
     clear();
@@ -171,7 +171,7 @@ eqNet::CommandResult Channel::_reqDraw( eqNet::Node* node,
                                         const eqNet::Packet* pkg )
 {
     ChannelClearPacket* packet = (ChannelClearPacket*)pkg;
-    INFO << "handle channel clear " << packet << endl;
+    EQINFO << "handle channel clear " << packet << endl;
 
     _context = &packet->context;
     draw();

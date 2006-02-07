@@ -15,7 +15,12 @@
 #include <eq/net/requestQueue.h>
 
 #ifdef GLX
+#ifdef WIN32
+#include "win32_x11.h"
+#include "win32_glx.h"
+#else
 #  include <X11/Xlib.h>
+#endif
 #endif
 #ifdef CGL
 #  define Cursor CGLCursor // avoid name clash with X11 Cursor

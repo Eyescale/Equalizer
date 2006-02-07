@@ -479,8 +479,8 @@ namespace eq
         uint32_t requestID;
         bool     result;
 
-        float    near;
-        float    far;
+        float    _near;
+        float    _far;
     };
 
     struct ChannelExitPacket : public eqNet::ObjectPacket

@@ -111,7 +111,7 @@ void Server::releaseConfig( Config* config )
 
 void Server::addConfig( Config* config )
 {
-    ASSERT( config->getID() != INVALID_ID );
+    EQASSERT( config->getID() != INVALID_ID );
     config->_server = this;
     _configs[config->getID()] = config;
 }

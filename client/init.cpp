@@ -30,12 +30,12 @@ bool eq::init( int argc, char** argv )
     if( isRenderNode( argc, argv ))
     {
         node = Global::getNodeFactory()->createNode();
-        INFO << "Init libeq for render node" << endl;
+        EQINFO << "Init libeq for render node" << endl;
     }
     else
     {
         node = new Client;
-        INFO << "Init libeq for client" << endl;
+        EQINFO << "Init libeq for client" << endl;
     }
 
     Node::setLocalNode( node );
@@ -49,7 +49,7 @@ bool eq::init( int argc, char** argv )
 
     if( !eqNet::init( argc+1, argvListen ))
     {
-        ERROR << "Failed to initialise Equalizer network layer" << endl;
+        EQERROR << "Failed to initialise Equalizer network layer" << endl;
         Node::setLocalNode( NULL );
         delete node;
         return false;

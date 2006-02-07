@@ -86,14 +86,14 @@ WindowSystem Pipe::getWindowSystem() const
         if( supportsWindowSystem( i ))
             return i;
     }
-    ASSERTINFO( 0, "No supported window system found" );
+    EQASSERTINFO( 0, "No supported window system found" );
     return WINDOW_SYSTEM_NONE;
 }
 
 ssize_t Pipe::_runThread()
 {
     Config* config = getConfig();
-    ASSERT( config );
+    EQASSERT( config );
 
     Node::setLocalNode( config->getNode( ));
 
@@ -109,11 +109,11 @@ ssize_t Pipe::_runThread()
                 break;
 
             case eqNet::COMMAND_ERROR:
-                ERROR << "Error handling command packet" << endl;
+                EQERROR << "Error handling command packet" << endl;
                 abort();
 
             case eqNet::COMMAND_RESCHEDULE:
-                UNIMPLEMENTED;
+                EQUNIMPLEMENTED;
         }
     }
 
@@ -127,7 +127,7 @@ ssize_t Pipe::_runThread()
 eqNet::CommandResult Pipe::_cmdCreateWindow( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     PipeCreateWindowPacket* packet = (PipeCreateWindowPacket*)pkg;
-    INFO << "Handle create window " << packet << endl;
+    EQINFO << "Handle create window " << packet << endl;
 
     Window* window = Global::getNodeFactory()->createWindow();
     
@@ -139,7 +139,7 @@ eqNet::CommandResult Pipe::_cmdCreateWindow( eqNet::Node* node, const eqNet::Pac
 eqNet::CommandResult Pipe::_cmdDestroyWindow( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     PipeDestroyWindowPacket* packet = (PipeDestroyWindowPacket*)pkg;
-    INFO << "Handle destroy window " << packet << endl;
+    EQINFO << "Handle destroy window " << packet << endl;
 
     Config* config = getConfig();
     Window* window = (Window*)config->getObject( packet->windowID );
@@ -155,9 +155,9 @@ eqNet::CommandResult Pipe::_cmdDestroyWindow( eqNet::Node* node, const eqNet::Pa
 eqNet::CommandResult Pipe::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     PipeInitPacket* packet = (PipeInitPacket*)pkg;
-    INFO << "handle pipe init (recv)" << packet << endl;
+    EQINFO << "handle pipe init (recv)" << packet << endl;
 
-    ASSERT( _thread->isStopped( ));
+    EQASSERT( _thread->isStopped( ));
     _thread->start();
     pushRequest( node, pkg );
     return eqNet::COMMAND_HANDLED;
@@ -166,7 +166,7 @@ eqNet::CommandResult Pipe::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg
 eqNet::CommandResult Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     PipeInitPacket* packet = (PipeInitPacket*)pkg;
-    INFO << "handle pipe init (pipe)" << packet << endl;
+    EQINFO << "handle pipe init (pipe)" << packet << endl;
     PipeInitReplyPacket reply( packet );
     
     _display = packet->display;
@@ -186,14 +186,14 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg
     {
         if( !_xDisplay )
         {
-            ERROR << "init() did not set a valid display connection" << endl;
+            EQERROR << "init() did not set a valid display connection" << endl;
             reply.result = false;
             node->send( reply );
             return eqNet::COMMAND_HANDLED;
         }
 
         // TODO: gather and send back display information
-        INFO << "Using display " << DisplayString( _xDisplay ) << endl;
+        EQINFO << "Using display " << DisplayString( _xDisplay ) << endl;
     }
 #endif
 #ifdef CGL
@@ -201,14 +201,14 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg
     {
         if( !_cglDisplayID )
         {
-            ERROR << "init() did not set a valid display id" << endl;
+            EQERROR << "init() did not set a valid display id" << endl;
             reply.result = false;
             node->send( reply );
             return eqNet::COMMAND_HANDLED;
         }
 
         // TODO: gather and send back display information
-        INFO << "Using display " << _display << endl;
+        EQINFO << "Using display " << _display << endl;
     }
 #endif
 
@@ -219,7 +219,7 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg
 eqNet::CommandResult Pipe::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     PipeExitPacket* packet = (PipeExitPacket*)pkg;
-    INFO << "handle pipe exit " << packet << endl;
+    EQINFO << "handle pipe exit " << packet << endl;
 
     exit();
     
@@ -245,7 +245,7 @@ bool Pipe::init()
             return initCGL();
 
         default:
-            ERROR << "Unknown windowing system: " << windowSystem << endl;
+            EQERROR << "Unknown windowing system: " << windowSystem << endl;
             return false;
     }
 }
@@ -274,7 +274,7 @@ bool Pipe::initGLX()
             
     if( !xDisplay )
     {
-        ERROR << "Can't open display: " << displayName << endl;
+        EQERROR << "Can't open display: " << displayName << endl;
         return false;
     }
     
@@ -299,14 +299,14 @@ bool Pipe::initCGL()
         if( CGGetOnlineDisplayList( display+1, displayIDs, &nDisplays ) !=
             kCGErrorSuccess )
         {
-            ERROR << "Can't get display identifier for display " << display 
+            EQERROR << "Can't get display identifier for display " << display 
                   << endl;
             return false;
         }
 
         if( nDisplays <= display )
         {
-            ERROR << "Can't get display identifier for display " << display 
+            EQERROR << "Can't get display identifier for display " << display 
                   << ", not enough displays for this system" << endl;
             return false;
         }
@@ -335,7 +335,7 @@ void Pipe::exit()
             break;
 
         default:
-            WARN << "Unknown windowing system: " << windowSystem << endl;
+            EQWARN << "Unknown windowing system: " << windowSystem << endl;
             return;
     }
 }

@@ -66,7 +66,7 @@ eqNet::CommandResult Config::_cmdInitReply( eqNet::Node* node,
                                             const eqNet::Packet* pkg )
 {
     ConfigInitReplyPacket* packet = (ConfigInitReplyPacket*)pkg;
-    INFO << "handle init reply " << packet << endl;
+    EQINFO << "handle init reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;
@@ -75,7 +75,7 @@ eqNet::CommandResult Config::_cmdExitReply( eqNet::Node* node,
                                             const eqNet::Packet* pkg )
 {
     ConfigExitReplyPacket* packet = (ConfigExitReplyPacket*)pkg;
-    INFO << "handle exit reply " << packet << endl;
+    EQINFO << "handle exit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;
@@ -85,7 +85,7 @@ eqNet::CommandResult Config::_cmdFrameBeginReply(eqNet::Node* node,
                                                  const eqNet::Packet* pkg )
 {
     ConfigFrameBeginReplyPacket* packet = (ConfigFrameBeginReplyPacket*)pkg;
-    INFO << "handle frame begin reply " << packet << endl;
+    EQINFO << "handle frame begin reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;
@@ -95,7 +95,7 @@ eqNet::CommandResult Config::_cmdFrameEndReply( eqNet::Node* node,
                                                 const eqNet::Packet* pkg )
 {
     ConfigFrameEndReplyPacket* packet = (ConfigFrameEndReplyPacket*)pkg;
-    INFO << "handle frame end reply " << packet << endl;
+    EQINFO << "handle frame end reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;

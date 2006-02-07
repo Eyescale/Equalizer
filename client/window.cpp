@@ -124,7 +124,7 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
     {
         if( !_xDrawable || !_glXContext )
         {
-            ERROR << "init() did not provide a drawable and context" << endl;
+            EQERROR << "init() did not provide a drawable and context" << endl;
             reply.result = false;
             node->send( reply );
             return eqNet::COMMAND_HANDLED;
@@ -136,7 +136,7 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
     {
         if( !_cglContext )
         {
-            ERROR << "init() did not provide an OpenGL context" << endl;
+            EQERROR << "init() did not provide an OpenGL context" << endl;
             reply.result = false;
             node->send( reply );
             return eqNet::COMMAND_HANDLED;
@@ -182,7 +182,7 @@ bool eq::Window::init()
             return initCGL();
 
         default:
-            ERROR << "Unknown windowing system: " << windowSystem << endl;
+            EQERROR << "Unknown windowing system: " << windowSystem << endl;
             return false;
     }
 }
@@ -221,7 +221,7 @@ bool eq::Window::initGLX()
     XVisualInfo *visInfo = glXChooseVisual( display, screen, attributes );
     if ( !visInfo )
     {
-        ERROR << "Could not find a matching visual\n" << endl;
+        EQERROR << "Could not find a matching visual\n" << endl;
         return false;
     }
 
@@ -241,7 +241,7 @@ bool eq::Window::initGLX()
     
     if ( !drawable )
     {
-        ERROR << "Could not create window\n" << endl;
+        EQERROR << "Could not create window\n" << endl;
         return false;
     }
 
@@ -256,7 +256,7 @@ bool eq::Window::initGLX()
     GLXContext context = glXCreateContext( display, visInfo, NULL, True );
     if ( !context )
     {
-        ERROR << "Could not create OpenGL context\n" << endl;
+        EQERROR << "Could not create OpenGL context\n" << endl;
         return false;
     }
 
@@ -292,7 +292,7 @@ bool eq::Window::initCGL()
 
     if( !pixelFormat )
     {
-        ERROR << "Could not find a matching pixel format\n" << endl;
+        EQERROR << "Could not find a matching pixel format\n" << endl;
         return false;
     }
 
@@ -302,7 +302,7 @@ bool eq::Window::initCGL()
 
     if( !context ) 
     {
-        ERROR << "Could not create OpenGL context\n" << endl;
+        EQERROR << "Could not create OpenGL context\n" << endl;
         return false;
     }
 
@@ -392,7 +392,7 @@ void eq::Window::setXDrawable( XID drawable )
 
     // query pixel viewport of window
     Display          *display = _pipe->getXDisplay();
-    ASSERT( display );
+    EQASSERT( display );
 
     XWindowAttributes wa;
     XGetWindowAttributes( display, drawable, &wa );

@@ -47,8 +47,8 @@ namespace eq
          * @param near the near plane.
          * @param far the far plane.
          */
-        void setNearFar( const float near, const float far )
-            { _near = near; _far = far; }
+        void setNearFar( const float Nnear, const float Ffar )
+            { _near = Nnear; _far = Ffar; }
 
         /** 
          * Returns the current near and far planes for this channel.
