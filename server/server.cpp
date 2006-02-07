@@ -33,7 +33,7 @@ Server::Server()
     registerCommand( eq::CMD_SERVER_RELEASE_CONFIG, this, 
                      reinterpret_cast<CommandFcn>( 
                          &eqs::Server::_cmdReleaseConfig ));
-    INFO << "new " << this << endl;
+    EQINFO << "new " << this << endl;
 }
 
 bool Server::run( int argc, char **argv )
@@ -48,7 +48,7 @@ bool Server::run( int argc, char **argv )
     connDesc->TCPIP.port = 4242;
     if( !connection->listen( connDesc ))
     {
-        ERROR << "Could not create listening socket" << endl;
+        EQERROR << "Could not create listening socket" << endl;
         return false;
     }
     if( !listen( connection ))
@@ -56,7 +56,7 @@ bool Server::run( int argc, char **argv )
 
     if( !_loadConfig( argc, argv ))
     {
-        ERROR << "Could not load configuration" << endl;
+        EQERROR << "Could not load configuration" << endl;
         return false;
     }
     _handleRequests();
@@ -87,7 +87,7 @@ bool Server::_loadConfig( int argc, char **argv )
     Config*    config = new Config( this );
     const string name = _genConfigName();
     const bool mapped = mapSession( this, config, name );
-    ASSERT( mapped );
+    EQASSERT( mapped );
 
     eqs::Node* node = new eqs::Node();
     config->addNode( node );
@@ -143,7 +143,7 @@ Config* Server::_cloneConfig( Config* config )
     Config*      clone  = new Config( this );
     const string name   = _genConfigName();
     const bool   mapped = mapSession( this, clone, name );
-    ASSERT( mapped );
+    EQASSERT( mapped );
 
     const uint32_t nCompounds = config->nCompounds();
     for( uint32_t i=0; i<nCompounds; i++ )
@@ -221,14 +221,14 @@ Config* Server::_cloneConfig( Config* config )
 eqNet::CommandResult Server::handlePacket( eqNet::Node* node,
                                            const eqNet::Packet* packet )
 {
-    ASSERT( node );
+    EQASSERT( node );
     switch( packet->datatype )
     {
         case eq::DATATYPE_EQ_SERVER:
             return handleCommand( node, packet );
             
         default:
-            UNIMPLEMENTED;
+            EQUNIMPLEMENTED;
             return eqNet::COMMAND_ERROR;
     }
 }
@@ -248,11 +248,11 @@ void Server::_handleRequests()
                 break;
 
             case eqNet::COMMAND_ERROR:
-                ERROR << "Error handling command packet" << endl;
+                EQERROR << "Error handling command packet" << endl;
                 abort();
 
             case eqNet::COMMAND_RESCHEDULE:
-                UNIMPLEMENTED;
+                EQUNIMPLEMENTED;
         }
     }
 }
@@ -260,7 +260,7 @@ void Server::_handleRequests()
 eqNet::CommandResult Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     eq::ServerChooseConfigPacket* packet = (eq::ServerChooseConfigPacket*)pkg;
-    INFO << "Handle choose config " << packet << endl;
+    EQINFO << "Handle choose config " << packet << endl;
 
     // TODO
     Config* config = nConfigs()>0 ? getConfig(0) : NULL;
@@ -291,12 +291,12 @@ eqNet::CommandResult Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::P
 eqNet::CommandResult Server::_cmdReleaseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     eq::ServerReleaseConfigPacket* packet = (eq::ServerReleaseConfigPacket*)pkg;
-    INFO << "Handle release config " << packet << endl;
+    EQINFO << "Handle release config " << packet << endl;
 
     Config* config = _appConfigs[packet->configID];
     if( !config )
     {
-        WARN << "Release request for unknown config" << endl;
+        EQWARN << "Release request for unknown config" << endl;
         return eqNet::COMMAND_HANDLED;
     }
 

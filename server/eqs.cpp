@@ -12,6 +12,6 @@ int main( int argc, char **argv )
 
     const bool result = server.run( argc, argv );
     if( !result )
-        ERROR << "Server did not run correctly. Please consult log." << endl;
+        EQERROR << "Server did not run correctly. Please consult log." << endl;
 }
 

@@ -76,10 +76,10 @@ eqNet::CommandResult Config::_reqInit( eqNet::Node* node,
 {
     const eq::ConfigInitPacket* packet = (eq::ConfigInitPacket*)pkg;
     eq::ConfigInitReplyPacket   reply( packet );
-    INFO << "handle config init " << packet << endl;
+    EQINFO << "handle config init " << packet << endl;
 
     reply.result = _init();
-    INFO << "config init result: " << reply.result << endl;
+    EQINFO << "config init result: " << reply.result << endl;
     node->send( reply );
     return eqNet::COMMAND_HANDLED;
 }
@@ -89,10 +89,10 @@ eqNet::CommandResult Config::_reqExit( eqNet::Node* node,
 {
     const eq::ConfigExitPacket* packet = (eq::ConfigExitPacket*)pkg;
     eq::ConfigExitReplyPacket   reply( packet );
-    INFO << "handle config exit " << packet << endl;
+    EQINFO << "handle config exit " << packet << endl;
 
     reply.result = _exit();
-    INFO << "config exit result: " << reply.result << endl;
+    EQINFO << "config exit result: " << reply.result << endl;
     node->send( reply );
     return eqNet::COMMAND_HANDLED;
 }
@@ -102,7 +102,7 @@ eqNet::CommandResult Config::_reqFrameBegin( eqNet::Node* node,
 {
     const eq::ConfigFrameBeginPacket* packet = (eq::ConfigFrameBeginPacket*)pkg;
     eq::ConfigFrameBeginReplyPacket   reply( packet );
-    INFO << "handle config frame begin " << packet << endl;
+    EQINFO << "handle config frame begin " << packet << endl;
 
     reply.result = _frameBegin();
     node->send( reply );
@@ -114,7 +114,7 @@ eqNet::CommandResult Config::_reqFrameEnd( eqNet::Node* node,
 {
     const eq::ConfigFrameEndPacket* packet = (eq::ConfigFrameEndPacket*)pkg;
     eq::ConfigFrameEndReplyPacket   reply( packet );
-    INFO << "handle config frame end " << packet << endl;
+    EQINFO << "handle config frame end " << packet << endl;
 
     reply.result = _frameEnd();
     node->send( reply );
@@ -154,7 +154,7 @@ bool Config::_init()
     {
         if( !usedNodes[i]->initConnect( ))
         {
-            ERROR << "Connection to " << usedNodes[i] << " failed." << endl;
+            EQERROR << "Connection to " << usedNodes[i] << " failed." << endl;
             _exit();
             return false;
         }
@@ -170,7 +170,7 @@ bool Config::_init()
         
         if( !node->syncConnect( ))
         {
-            ERROR << "Connection of " << node << " failed." << endl;
+            EQERROR << "Connection of " << node << " failed." << endl;
             _exit();
             return false;
         }
@@ -184,7 +184,7 @@ bool Config::_init()
     {
         if( !usedNodes[i]->syncInit( ))
         {
-            ERROR << "Init of " << usedNodes[i] << " failed." << endl;
+            EQERROR << "Init of " << usedNodes[i] << " failed." << endl;
             _exit();
             return false;
         }
@@ -223,7 +223,7 @@ bool Config::_exit()
 
         if( !node->syncExit( ))
         {
-            ERROR << "Exit of " << node << " failed." << endl;
+            EQERROR << "Exit of " << node << " failed." << endl;
             cleanExit = false;
         }
 

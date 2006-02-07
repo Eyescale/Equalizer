@@ -75,7 +75,7 @@ void Pipe::startInit()
 
 void Pipe::_sendInit()
 {
-    ASSERT( _pendingRequestID == INVALID_ID );
+    EQASSERT( _pendingRequestID == INVALID_ID );
 
     eq::PipeInitPacket packet( _session->getID(), _id );
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -97,7 +97,7 @@ bool Pipe::syncInit()
                 success = false;
     }
 
-    ASSERT( _pendingRequestID != INVALID_ID );
+    EQASSERT( _pendingRequestID != INVALID_ID );
 
     if( !(bool)_requestHandler.waitRequest( _pendingRequestID ))
         success = false;
@@ -124,7 +124,7 @@ void Pipe::startExit()
 
 void Pipe::_sendExit()
 {
-    ASSERT( _pendingRequestID == INVALID_ID );
+    EQASSERT( _pendingRequestID == INVALID_ID );
 
     eq::PipeExitPacket packet( _session->getID(), _id );
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -134,7 +134,7 @@ void Pipe::_sendExit()
 
 bool Pipe::syncExit()
 {
-    ASSERT( _pendingRequestID != INVALID_ID );
+    EQASSERT( _pendingRequestID != INVALID_ID );
 
     bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = INVALID_ID;
@@ -178,7 +178,7 @@ void Pipe::update()
 eqNet::CommandResult Pipe::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     eq::PipeInitReplyPacket* packet = (eq::PipeInitReplyPacket*)pkg;
-    INFO << "handle pipe init reply " << packet << endl;
+    EQINFO << "handle pipe init reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
     return eqNet::COMMAND_HANDLED;
@@ -187,7 +187,7 @@ eqNet::CommandResult Pipe::_cmdInitReply( eqNet::Node* node, const eqNet::Packet
 eqNet::CommandResult Pipe::_cmdExitReply( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     eq::PipeExitReplyPacket* packet = (eq::PipeExitReplyPacket*)pkg;
-    INFO << "handle pipe exit reply " << packet << endl;
+    EQINFO << "handle pipe exit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );
     return eqNet::COMMAND_HANDLED;

@@ -45,7 +45,7 @@ Compound::InheritData::InheritData()
 void Compound::addChild( Compound* child )
 {
     _children.push_back( child );
-    ASSERT( !child->_parent );
+    EQASSERT( !child->_parent );
     child->_parent = this;
 }
 
@@ -125,7 +125,7 @@ void Compound::setWall( const eq::Wall& wall )
     _data.frustum.xfm[14] = -(w[0]*center[0] + w[1]*center[1] + w[2]*center[2]);
     _data.frustum.xfm[15] = 1.;
 
-    VERB << "Wall matrix: " << LOG_MATRIX4x4( _data.frustum.xfm ) << endl;
+    EQVERB << "Wall matrix: " << LOG_MATRIX4x4( _data.frustum.xfm ) << endl;
 
     _view.wall        = wall;
     _view.latest      = View::WALL;

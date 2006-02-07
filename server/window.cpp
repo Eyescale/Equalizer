@@ -60,7 +60,7 @@ void Window::setSwapGroup( Window* master )
 {
     if( _swapMaster )
     {
-        WARN << "Window already belongs to swap group on " << _swapMaster
+        EQWARN << "Window already belongs to swap group on " << _swapMaster
              << ", ignoring swap group request." << endl;
         return;
     }
@@ -96,7 +96,7 @@ void Window::startInit()
 
 void Window::_sendInit()
 {
-    ASSERT( _pendingRequestID == INVALID_ID );
+    EQASSERT( _pendingRequestID == INVALID_ID );
 
     eq::WindowInitPacket packet( _session->getID(), _id );
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -116,7 +116,7 @@ bool Window::syncInit()
                 success = false;
     }
 
-    ASSERT( _pendingRequestID != INVALID_ID );
+    EQASSERT( _pendingRequestID != INVALID_ID );
 
     if( !(bool)_requestHandler.waitRequest( _pendingRequestID ))
         success = false;
@@ -143,7 +143,7 @@ void Window::startExit()
 
 void Window::_sendExit()
 {
-    ASSERT( _pendingRequestID == INVALID_ID );
+    EQASSERT( _pendingRequestID == INVALID_ID );
 
     eq::WindowExitPacket packet( _session->getID(), _id );
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -153,7 +153,7 @@ void Window::_sendExit()
 
 bool Window::syncExit()
 {
-    ASSERT( _pendingRequestID != INVALID_ID );
+    EQASSERT( _pendingRequestID != INVALID_ID );
 
     bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = INVALID_ID;
@@ -213,7 +213,7 @@ void Window::update()
 eqNet::CommandResult Window::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     eq::WindowInitReplyPacket* packet = (eq::WindowInitReplyPacket*)pkg;
-    INFO << "handle window init reply " << packet << endl;
+    EQINFO << "handle window init reply " << packet << endl;
 
     _pvp = packet->pvp;
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
@@ -223,7 +223,7 @@ eqNet::CommandResult Window::_cmdInitReply( eqNet::Node* node, const eqNet::Pack
 eqNet::CommandResult Window::_cmdExitReply( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     eq::WindowExitReplyPacket* packet = (eq::WindowExitReplyPacket*)pkg;
-    INFO << "handle window exit reply " << packet << endl;
+    EQINFO << "handle window exit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );
     return eqNet::COMMAND_HANDLED;

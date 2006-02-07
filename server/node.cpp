@@ -37,7 +37,7 @@ void Node::addPipe( Pipe* pipe )
 const string& Node::getProgramName()
 {
     const Config* config = getConfig();
-    ASSERT( config );
+    EQASSERT( config );
 
     return config->getRenderClient();
 }
@@ -70,7 +70,7 @@ void Node::startInit()
 
 void Node::_sendInit()
 {
-    ASSERT( _pendingRequestID == INVALID_ID );
+    EQASSERT( _pendingRequestID == INVALID_ID );
 
     eq::NodeInitPacket packet( _config->getID(), _id );
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -90,7 +90,7 @@ bool Node::syncInit()
                 success = false;
     }
 
-    ASSERT( _pendingRequestID != INVALID_ID );
+    EQASSERT( _pendingRequestID != INVALID_ID );
 
     if( !(bool)_requestHandler.waitRequest( _pendingRequestID ))
         success = false;
@@ -117,7 +117,7 @@ void Node::startExit()
 
 void Node::_sendExit()
 {
-    ASSERT( _pendingRequestID == INVALID_ID );
+    EQASSERT( _pendingRequestID == INVALID_ID );
 
     eq::NodeExitPacket packet( _config->getID(), _id );
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -127,7 +127,7 @@ void Node::_sendExit()
 
 bool Node::syncExit()
 {
-    ASSERT( _pendingRequestID != INVALID_ID );
+    EQASSERT( _pendingRequestID != INVALID_ID );
 
     bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = INVALID_ID;
@@ -195,7 +195,7 @@ eqNet::CommandResult Node::_cmdInitReply( eqNet::Node* node,
                                           const eqNet::Packet* pkg )
 {
     eq::NodeInitReplyPacket* packet = (eq::NodeInitReplyPacket*)pkg;
-    INFO << "handle node init reply " << packet << endl;
+    EQINFO << "handle node init reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
     return eqNet::COMMAND_HANDLED;
@@ -205,7 +205,7 @@ eqNet::CommandResult Node::_cmdExitReply( eqNet::Node* node,
                                           const eqNet::Packet* pkg )
 {
     eq::NodeExitReplyPacket* packet = (eq::NodeExitReplyPacket*)pkg;
-    INFO << "handle node exit reply " << packet << endl;
+    EQINFO << "handle node exit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );
     return eqNet::COMMAND_HANDLED;

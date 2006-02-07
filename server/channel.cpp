@@ -39,7 +39,7 @@ void Channel::refUsed()
 
 void Channel::unrefUsed()
 {
-    ASSERT( _used != 0 );
+    EQASSERT( _used != 0 );
     _used--;
     if( _window ) 
         _window->unrefUsed(); 
@@ -59,7 +59,7 @@ void Channel::startInit()
 
 void Channel::_sendInit()
 {
-    ASSERT( _pendingRequestID == INVALID_ID );
+    EQASSERT( _pendingRequestID == INVALID_ID );
 
     eq::ChannelInitPacket packet( _session->getID(), _id );
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -84,7 +84,7 @@ void Channel::startExit()
 
 void Channel::_sendExit()
 {
-    ASSERT( _pendingRequestID == INVALID_ID );
+    EQASSERT( _pendingRequestID == INVALID_ID );
 
     eq::ChannelExitPacket packet( _session->getID(), _id );
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -94,7 +94,7 @@ void Channel::_sendExit()
 
 bool Channel::syncExit()
 {
-    ASSERT( _pendingRequestID != INVALID_ID );
+    EQASSERT( _pendingRequestID != INVALID_ID );
 
     const bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = INVALID_ID;
@@ -130,10 +130,10 @@ eqNet::CommandResult Channel::_cmdInitReply( eqNet::Node* node,
                                              const eqNet::Packet* pkg )
 {
     eq::ChannelInitReplyPacket* packet = (eq::ChannelInitReplyPacket*)pkg;
-    INFO << "handle channel init reply " << packet << endl;
+    EQINFO << "handle channel init reply " << packet << endl;
 
-    _near = packet->near;
-    _far  = packet->far;
+    _near = packet->_near;
+    _far  = packet->_far;
 
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
     return eqNet::COMMAND_HANDLED;
@@ -143,7 +143,7 @@ eqNet::CommandResult Channel::_cmdExitReply( eqNet::Node* node,
                                              const eqNet::Packet* pkg )
 {
     eq::ChannelExitReplyPacket* packet = (eq::ChannelExitReplyPacket*)pkg;
-    INFO << "handle channel exit reply " << packet << endl;
+    EQINFO << "handle channel exit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );
     return eqNet::COMMAND_HANDLED;
