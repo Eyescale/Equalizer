@@ -34,7 +34,7 @@ Thread::~Thread()
 void* Thread::runChild( void* arg )
 {
     Thread* thread = static_cast<Thread*>(arg);
-    ASSERT( thread );
+    EQASSERT( thread );
     thread->_runChild();
     return NULL; // not reached
 }
@@ -73,7 +73,7 @@ static void sigChildHandler( int /*signal*/ )
 {
     //int status;
     //int pid = wait( &status );
-    INFO << "Received SIGCHILD" << endl;
+    EQINFO << "Received SIGCHILD" << endl;
     signal( SIGCHLD, sigChildHandler );
 }
 
@@ -100,12 +100,12 @@ bool Thread::start()
 
                 if( error == 0 ) // succeeded
                 {
-                    VERB << "Created pthread " << _threadID.pthread << endl;
+                    EQVERB << "Created pthread " << _threadID.pthread << endl;
                     break;
                 }
                 if( error != EAGAIN || nTries==0 )
                 {
-                    WARN << "Could not create thread: " << strerror( error )
+                    EQWARN << "Could not create thread: " << strerror( error )
                          << endl;
                     return false;
                 }
@@ -119,17 +119,17 @@ bool Thread::start()
             switch( result )
             {
                 case 0: // child
-                    VERB << "Child running" << endl;
+                    EQVERB << "Child running" << endl;
                     _runChild(); 
                     return true; // not reached
             
                 case -1: // error
-                    WARN << "Could not fork child process:" 
+                    EQWARN << "Could not fork child process:" 
                          << strerror( errno ) << endl;
                     return false;
 
                 default: // parent
-                    VERB << "Parent running" << endl;
+                    EQVERB << "Parent running" << endl;
                     _threadID.fork = result;
                     break;
             }
@@ -147,7 +147,7 @@ void Thread::exit( ssize_t retVal )
     if( !isRunning( ))
         return;
 
-    INFO << "Exiting thread" << endl;
+    EQINFO << "Exiting thread" << endl;
     _threadState = STATE_STOPPING;
 
     switch( _type )
@@ -172,7 +172,7 @@ void Thread::exit( ssize_t retVal )
             ::exit( retVal );
             break;
     }
-    ERROR << "Unreachable code" <<endl;
+    EQERROR << "Unreachable code" <<endl;
     ::abort();
 }
 
@@ -187,11 +187,11 @@ bool Thread::join( ssize_t* retVal )
     {
         case PTHREAD:
         {
-            VERB << "Joining pthread " << _threadID.pthread << endl;
+            EQVERB << "Joining pthread " << _threadID.pthread << endl;
             const int error = pthread_join( _threadID.pthread, (void**)_retVal);
             if( error != 0 )
             {
-                WARN << "Error joining the thread: " << strerror(error) << endl;
+                EQWARN << "Error joining the thread: " << strerror(error) << endl;
                 return false;
             }
 
@@ -225,7 +225,7 @@ bool Thread::join( ssize_t* retVal )
                         break; // try again
 
                     default:
-                        WARN << "Error joining the process: " 
+                        EQWARN << "Error joining the process: " 
                              << strerror(errno) << endl;
                         return false;
                 }
@@ -272,13 +272,13 @@ bool Thread::_createDataKey()
                 break;
 
             default:
-                ERROR << "Can't create thread-specific data key: "
+                EQERROR << "Can't create thread-specific data key: "
                       << strerror( result ) << endl;
                 return false;
         }
     }
 
-    ERROR << "Can't create thread-specific data key." << endl;
+    EQERROR << "Can't create thread-specific data key." << endl;
     return false;
 }
 
@@ -309,6 +309,6 @@ bool Thread::isCurrent() const
             return ( getpid() == _threadID.fork );
     }
 
-    ERROR << "Unreachable code" <<endl;
+    EQERROR << "Unreachable code" <<endl;
     ::abort();
 }

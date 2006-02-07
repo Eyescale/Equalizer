@@ -55,6 +55,10 @@ namespace eqBase
     }
 }
 
+#ifdef WIN32
+#define SUBDIR " "
+#endif
+
 #ifdef NDEBUG
 #  define LOG_EXTRA << getpid()  << "." << pthread_self()  \
         << " " << SUBDIR <<"/" << __FILE__ << ":" << (int)__LINE__ << " " 
@@ -67,13 +71,13 @@ extern eqBase::Clock eqLogClock;
         << eqLogClock.getMSf() << " "
 #endif
 
-#define ERROR (eqBase::Log::level >= eqBase::LOG_ERROR) && \
+#define EQERROR (eqBase::Log::level >= eqBase::LOG_ERROR) && \
     std::cout << "[E]" LOG_EXTRA
-#define WARN  (eqBase::Log::level >= eqBase::LOG_WARN)  && \
+#define EQWARN  (eqBase::Log::level >= eqBase::LOG_WARN)  && \
     std::cout << "[W]"  LOG_EXTRA
-#define INFO  (eqBase::Log::level >= eqBase::LOG_INFO)  && \
+#define EQINFO  (eqBase::Log::level >= eqBase::LOG_INFO)  && \
     std::cout << "[I]"  LOG_EXTRA
-#define VERB  (eqBase::Log::level >= eqBase::LOG_VERBATIM)  && \
+#define EQVERB  (eqBase::Log::level >= eqBase::LOG_VERBATIM)  && \
     std::cout << "[V]"  LOG_EXTRA
 
 #define LOG_MATRIX4x4( m ) endl \

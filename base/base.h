@@ -27,24 +27,24 @@ typedef int socklen_t;
 // assertions
 #ifdef NDEBUG
 
-#  define ASSERT(x) if( !(x) ) \
-        ERROR << "##### Assert: " << #x << " #####" << std::endl;
-#  define ASSERTINFO(x, info) if( !(x) )                                \
-        ERROR << "##### Assert: " << #x << " [" << info << "] #####"    \
+#  define EQASSERT(x) if( !(x) ) \
+        EQERROR << "##### Assert: " << #x << " #####" << std::endl;
+#  define EQASSERTINFO(x, info) if( !(x) )                                \
+        EQERROR << "##### Assert: " << #x << " [" << info << "] #####"    \
               << std::endl;
-#  define UNIMPLEMENTED { ERROR << "Unimplemented code" << std::endl; }
+#  define EQUNIMPLEMENTED { EQERROR << "Unimplemented code" << std::endl; }
 
 #else
 
-#  define ASSERT(x) if( !(x) ) \
-    { ERROR << "Assert: " << #x << std::endl; DUMP_CORE; ::abort(); }
-#  define ASSERTINFO(x, info) if( !(x) )                                \
+#  define EQASSERT(x) if( !(x) ) \
+    { EQERROR << "Assert: " << #x << std::endl; DUMP_CORE; ::abort(); }
+#  define EQASSERTINFO(x, info) if( !(x) )                                \
     {                                                                   \
-        ERROR << "Assert: " << #x << " [" << info << "]" << std::endl;  \
+        EQERROR << "Assert: " << #x << " [" << info << "]" << std::endl;  \
         DUMP_CORE; ::abort();                                           \
     }
-#  define UNIMPLEMENTED                                         \
-    { ERROR << "Unimplemented code" << std::endl; DUMP_CORE; ::abort(); }
+#  define EQUNIMPLEMENTED                                         \
+    { EQERROR << "Unimplemented code" << std::endl; DUMP_CORE; ::abort(); }
 
 #endif
 
@@ -52,7 +52,7 @@ typedef int socklen_t;
 #  define CHECK_THREAD                                      \
     if( !_threadID )                                        \
         _threadID = pthread_self();                         \
-    ASSERTINFO( pthread_equal( _threadID, pthread_self( )), \
+    EQASSERTINFO( pthread_equal( _threadID, pthread_self( )), \
                 "Called from two threads" );
 #else
 #  define CHECK_THREAD

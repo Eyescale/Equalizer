@@ -63,10 +63,10 @@ namespace eqBase
         bool operator <  ( const T* ptr ) { return ( _ptr < ptr ); }
         bool operator >  ( const T* ptr ) { return ( _ptr > ptr ); }
 
-        T*       operator->()       { ASSERT(_ptr); return _ptr; }
-        const T* operator->() const { ASSERT(_ptr); return _ptr; }
-        T&       operator*()        { ASSERT(_ptr); return *_ptr; }
-        const T& operator*() const  { ASSERT(_ptr); return *_ptr; }
+        T*       operator->()       { EQASSERT(_ptr); return _ptr; }
+        const T* operator->() const { EQASSERT(_ptr); return _ptr; }
+        T&       operator*()        { EQASSERT(_ptr); return *_ptr; }
+        const T& operator*() const  { EQASSERT(_ptr); return *_ptr; }
         T*       get()              { return _ptr; }
         const T* get() const        { return _ptr; }
 

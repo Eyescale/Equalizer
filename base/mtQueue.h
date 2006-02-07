@@ -41,7 +41,7 @@ namespace eqBase
                                                         NULL );
                         if( error )
                         {
-                            ERROR << "Error creating pthread mutex: " 
+                            EQERROR << "Error creating pthread mutex: " 
                                   << strerror( error ) << std::endl;
                             return;
                         }
@@ -49,14 +49,14 @@ namespace eqBase
                         error = pthread_cond_init( &_sync.pthread.cond, NULL );
                         if( error )
                         {
-                            ERROR << "Error creating pthread condition: " 
+                            EQERROR << "Error creating pthread condition: " 
                                   << strerror( error ) << std::endl;
                             return;
                         }
                         break;
                     }
                     default:
-                        ASSERT( "not implemented" == NULL );
+                        EQASSERT( "not implemented" == NULL );
                 }
             }
 
@@ -71,7 +71,7 @@ namespace eqBase
                         break;
                         
                     default:
-                        ERROR << "not implemented" << std::endl;
+                        EQERROR << "not implemented" << std::endl;
                 }
             }
 
@@ -93,7 +93,7 @@ namespace eqBase
                         return element;
                     }   
                     default:
-                        ERROR << "not implemented" << std::endl;
+                        EQERROR << "not implemented" << std::endl;
                         abort();
                 }
             }
@@ -111,7 +111,7 @@ namespace eqBase
                         break;
                     }   
                     default:
-                        ERROR << "not implemented" << std::endl;
+                        EQERROR << "not implemented" << std::endl;
                 }
             }
 

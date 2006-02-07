@@ -27,16 +27,16 @@ Lock::Lock( const Thread::Type type )
                     case EAGAIN:
                         break;
                     default:
-                        ERROR << "Error creating pthread mutex: " 
+                        EQERROR << "Error creating pthread mutex: " 
                               << strerror( error ) << endl;
                         return;
                 }
             } 
-            ERROR << "Error creating pthread mutex"  << endl;
+            EQERROR << "Error creating pthread mutex"  << endl;
         } return;
 
         default:
-            ERROR << "not implemented" << endl;
+            EQERROR << "not implemented" << endl;
     }
 }
 
@@ -49,7 +49,7 @@ Lock::~Lock()
             return;
 
         default:
-            ERROR << "not implemented" << endl;
+            EQERROR << "not implemented" << endl;
     }
 }
 
@@ -62,7 +62,7 @@ void Lock::set()
             return;
 
         default:
-            ERROR << "not implemented" << endl;
+            EQERROR << "not implemented" << endl;
     }
 }
 
@@ -76,7 +76,7 @@ void Lock::unset()
             return;
 
         default:
-            ERROR << "not implemented" << endl;
+            EQERROR << "not implemented" << endl;
     }
 }
 
@@ -89,7 +89,7 @@ bool Lock::trySet()
             return ( pthread_mutex_trylock( &_lock.pthread ) == 0 );
 
         default:
-            ERROR << "not implemented" << endl;
+            EQERROR << "not implemented" << endl;
             return false;
     }
 }
@@ -108,7 +108,7 @@ bool Lock::test()
             return true;
 
         default:
-            ERROR << "not implemented" << endl;
+            EQERROR << "not implemented" << endl;
             return false;
     }
 }

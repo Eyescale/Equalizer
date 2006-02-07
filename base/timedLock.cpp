@@ -19,14 +19,14 @@ TimedLock::TimedLock( const Thread::Type type )
             int error = pthread_mutex_init( &_lock.pthread.mutex, NULL );
             if( error )
             {
-                ERROR << "Error creating pthread mutex: " 
+                EQERROR << "Error creating pthread mutex: " 
                       << strerror( error ) << endl;
                 return;
             }
             error = pthread_cond_init( &_lock.pthread.cond, NULL );
             if( error )
             {
-                ERROR << "Error creating pthread condition: " 
+                EQERROR << "Error creating pthread condition: " 
                       << strerror( error ) << endl;
                 pthread_mutex_destroy( &_lock.pthread.mutex );
                 return;
@@ -36,7 +36,7 @@ TimedLock::TimedLock( const Thread::Type type )
         } break;
 
         default:
-            ERROR << "not implemented" << endl;
+            EQERROR << "not implemented" << endl;
     }
 }
 
@@ -50,7 +50,7 @@ TimedLock::~TimedLock()
             break;
 
         default:
-            ERROR << "not implemented" << endl;
+            EQERROR << "not implemented" << endl;
     }
 }
 
@@ -92,7 +92,7 @@ bool TimedLock::set( const uint32_t timeout )
 
             if( acquired )
             {
-                ASSERT( !_lock.pthread.locked );
+                EQASSERT( !_lock.pthread.locked );
                 _lock.pthread.locked = true;
             }
 
@@ -101,7 +101,7 @@ bool TimedLock::set( const uint32_t timeout )
         }
  
         default:
-            ERROR << "not implemented" << endl;
+            EQERROR << "not implemented" << endl;
     }
     return false;
 }
@@ -121,7 +121,7 @@ void TimedLock::unset()
             return;
 
         default:
-            ERROR << "not implemented" << endl;
+            EQERROR << "not implemented" << endl;
     }
 }
 
@@ -146,7 +146,7 @@ bool TimedLock::trySet()
         }
 
         default:
-            ERROR << "not implemented" << endl;
+            EQERROR << "not implemented" << endl;
             return false;
     }
 }
@@ -160,7 +160,7 @@ bool TimedLock::test()
             return _lock.pthread.locked;
 
         default:
-            ERROR << "not implemented" << endl;
+            EQERROR << "not implemented" << endl;
             return false;
     }
 }

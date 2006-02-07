@@ -94,7 +94,7 @@ void RequestHandler::serveRequest( const uint32_t requestID, void* result )
 
     if( !request )
     {
-        WARN << "Attempt to serve unregistered request" << endl;
+        EQWARN << "Attempt to serve unregistered request" << endl;
         return;
     }
 
