@@ -491,7 +491,7 @@ CommandResult Session::_cmdGetMobject( Node* node, const Packet* pkg )
     const uint32_t id     = packet->mobjectID;
     Object*        object = _registeredObjects[id];
 
-    ASSERT( _requestHandler.getRequestData( id ) == this );
+    EQASSERT( _requestHandler.getRequestData( id ) == this );
 
     if( object )
     {

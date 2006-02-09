@@ -301,37 +301,14 @@ bool Node::mapSession( RefPtr<Node> server, Session* session,
                        const string& name )
 {
     EQASSERT( isLocal( ));
-    ASSERT( !_receiverThread->isCurrent( ));
+    EQASSERT( !_receiverThread->isCurrent( ));
 
     if( findSession( name )) // Already mapped [to another session instance]
         return false;
 
     if( server.get() == this )
     {
-<<<<<<< .mine
-        uint32_t sessionID = INVALID_ID;
-        while( sessionID == INVALID_ID ||
-               _sessions.find( sessionID ) != _sessions.end( ))
-        {
-#ifdef __linux__
-            int fd = ::open( "/dev/random", O_RDONLY );
-            EQASSERT( fd != -1 );
-            int read = ::read( fd, &sessionID, sizeof( sessionID ));
-            EQASSERT( read == sizeof( sessionID ));
-            close( fd );
-#else
-#ifdef WIN32
-            srandom(4542);
-#else
-            srandomdev();
-#endif
-            sessionID = random();
-#endif
-        }
-            
-=======
         const uint32_t sessionID = _generateSessionID();
->>>>>>> .r168
         addSession( session, server, sessionID, name );
         return true;
     }
@@ -368,9 +345,9 @@ uint32_t Node::_generateSessionID()
     {
 #ifdef __linux__
         int fd = ::open( "/dev/random", O_RDONLY );
-        ASSERT( fd != -1 );
+        EQASSERT( fd != -1 );
         int read = ::read( fd, &id, sizeof( id ));
-        ASSERT( read == sizeof( id ));
+        EQASSERT( read == sizeof( id ));
         close( fd );
 #else
         srandomdev();
@@ -620,15 +597,9 @@ CommandResult Node::_cmdMapSession( Node* node, const Packet* pkg )
         
         if( !session ) // session does not exist, create new one
         {
-<<<<<<< .mine
-            session = createSession();
-            const bool mapped = mapSession( this, session, sessionName );
-            EQASSERT( mapped );
-=======
             session   = createSession();
             sessionID = _generateSessionID();
             addSession( session, this, sessionID, sessionName );
->>>>>>> .r168
         }
         else
             sessionID = session->getID();

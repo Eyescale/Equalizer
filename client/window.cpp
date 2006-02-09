@@ -77,7 +77,7 @@ eqNet::CommandResult eq::Window::_cmdCreateChannel( eqNet::Node* node,
                                                     const eqNet::Packet* pkg )
 {
     WindowCreateChannelPacket* packet = (WindowCreateChannelPacket*)pkg;
-    INFO << "Handle create channel " << packet << endl;
+    EQINFO << "Handle create channel " << packet << endl;
 
     Channel* channel = Global::getNodeFactory()->createChannel();
     
@@ -90,7 +90,7 @@ eqNet::CommandResult eq::Window::_cmdDestroyChannel(eqNet::Node* node,
                                                     const eqNet::Packet* pkg)
 {
     WindowDestroyChannelPacket* packet = (WindowDestroyChannelPacket*)pkg;
-    INFO << "Handle destroy channel " << packet << endl;
+    EQINFO << "Handle destroy channel " << packet << endl;
 
     Config*  config  = getConfig();
     Channel* channel = (Channel*)config->getObject(packet->channelID);
@@ -107,7 +107,7 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
                                            const eqNet::Packet* pkg )
 {
     WindowInitPacket* packet = (WindowInitPacket*)pkg;
-    INFO << "handle window init " << packet << endl;
+    EQINFO << "handle window init " << packet << endl;
 
     WindowInitReplyPacket reply( packet );
     reply.result = init();
@@ -154,7 +154,7 @@ eqNet::CommandResult eq::Window::_reqExit( eqNet::Node* node,
                                            const eqNet::Packet* pkg )
 {
     WindowExitPacket* packet = (WindowExitPacket*)pkg;
-    INFO << "handle window exit " << packet << endl;
+    EQINFO << "handle window exit " << packet << endl;
 
     exit();
 
@@ -339,7 +339,7 @@ void eq::Window::exit()
             break;
 
         default:
-            WARN << "Unknown windowing system: " << windowSystem << endl;
+            EQWARN << "Unknown windowing system: " << windowSystem << endl;
             return;
     }
 }

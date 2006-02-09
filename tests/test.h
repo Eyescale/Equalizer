@@ -10,7 +10,7 @@
 #define TEST( x ) \
     if( !(x) ) \
     { \
-        ERROR << #x << " failed." << std::endl; \
+        EQERROR << #x << " failed." << std::endl; \
         eqBase::dumpStack( std::cerr );         \
         ::abort();                              \
     }

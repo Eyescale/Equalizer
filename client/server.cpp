@@ -26,7 +26,7 @@ Server::Server()
                      reinterpret_cast<CommandFcn>( 
                          &eq::Server::_cmdChooseConfigReply ));
 
-    INFO << "New server at " << (void*)this << endl;
+    EQINFO << "New server at " << (void*)this << endl;
 }
 
 bool Server::open( const OpenParams& params )
@@ -123,7 +123,7 @@ eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Node* node,
                                     const eqNet::Packet* pkg )
 {
     ServerChooseConfigReplyPacket* packet = (ServerChooseConfigReplyPacket*)pkg;
-    INFO << "Handle choose config reply " << packet << endl;
+    EQINFO << "Handle choose config reply " << packet << endl;
 
     if( packet->configID == INVALID_ID )
     {
