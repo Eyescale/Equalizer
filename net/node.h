@@ -391,6 +391,15 @@ namespace eqNet
                          const uint32_t id );
 
         /** 
+         * Unmaps a mapped session.
+         * 
+         * @param session the session.
+         * @return <code>true</code> if the session was unmapped,
+         *         <code>false</code> if there was an error.
+         */
+        bool unmapSession( Session* session );
+
+        /** 
          * Find a named, mapped session.
          * 
          * @param name the session name.
@@ -409,8 +418,14 @@ namespace eqNet
          */
         void addSession( Session* session, eqBase::RefPtr<Node> server, 
                          const uint32_t sessionID, const std::string& name );
-        //*}
 
+        /** 
+         * Removes an unmapped session from this node.
+         * 
+         * @param session the session.
+         */
+        void removeSession( Session* session );
+        //*}
         /** 
          * Runs this node as a client to a server.
          * 
@@ -589,7 +604,9 @@ namespace eqNet
         /** The command functions. */
         CommandResult _cmdStop( Node* node, const Packet* packet );
         CommandResult _cmdMapSession( Node* node, const Packet* packet );
-        CommandResult _cmdMapSessionReply( Node* node, const Packet* packet);
+        CommandResult _cmdMapSessionReply( Node* node, const Packet* packet );
+        CommandResult _cmdUnmapSession( Node* node, const Packet* packet );
+        CommandResult _cmdUnmapSessionReply( Node* node, const Packet* packet );
 
         static uint64_t _getMessageSize( const MessageType type, 
                                          const uint64_t count );

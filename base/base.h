@@ -53,7 +53,7 @@ typedef int socklen_t;
     if( !_threadID )                                        \
         _threadID = pthread_self();                         \
     EQASSERTINFO( pthread_equal( _threadID, pthread_self( )), \
-                "Called from two threads" );
+                "Non-threadsave function called from two threads" );
 #else
 #  define CHECK_THREAD
 #endif

@@ -96,15 +96,25 @@ namespace eq
         virtual bool supportsWindowSystem( const WindowSystem system ) const;
 
         /** 
-         * Returns the window system currently used by this pipe.
+         * Return the window system to be used by this pipe.
          * 
          * This function determines which of the supported windowing systems is
-         * used by this pipe instance. Its return value has to be static for a
-         * given instance.
+         * used by this pipe instance. 
          * 
          * @return the window system currently used by this pipe.
          */
-        virtual WindowSystem getWindowSystem() const;
+        virtual WindowSystem selectWindowSystem() const;
+
+        /** 
+         * Return the window system used by this pipe. 
+         * 
+         * The return value is quaranteed to be constant for an initialised
+         * pipe, that is, the window system is determined usign
+         * selectWindowSystem() before the pipe init method is executed.
+         * 
+         * @return the window system used by this pipe.
+         */
+        WindowSystem getWindowSystem() const { return _windowSystem; }
 
 #ifdef GLX
         /** 
@@ -179,6 +189,9 @@ namespace eq
 
         /** The windows of this pipe. */
         std::vector<Window*>     _windows;
+
+        /** The current window system. */
+        WindowSystem _windowSystem;
 
 #ifdef GLX
         /** The X11 display connection. */

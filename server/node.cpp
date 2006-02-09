@@ -17,7 +17,7 @@ Node::Node()
         : eqNet::Node( eq::CMD_NODE_ALL ),
           _used(0),
           _config(NULL),
-          _pendingRequestID(INVALID_ID)
+          _pendingRequestID( INVALID_ID )
 {
     _autoLaunch = true;
 
@@ -176,16 +176,29 @@ void Node::update()
 //---------------------------------------------------------------------------
 eqNet::Barrier* Node::getBarrier( const uint32_t height )
 {
-    // TODO
+    vector<eqNet::Barrier*>& barriers  = _barrierCache[height];
+
+    if( barriers.size() > 0 )
+    {
+        eqNet::Barrier* barrier = barriers.back();
+        barriers.pop_back();
+        return barrier;
+    }
+
     eqNet::Barrier* barrier = new eqNet::Barrier( height );
     _config->registerMobject( barrier, this );
+    
+    eq::NodeCreateBarrierPacket packet( _session->getID(), _id );
+    packet.barrierID = barrier->getID();
+    packet.height    = height;
+    send( packet );
+
     return barrier;
 }
 
 void Node::releaseBarrier( eqNet::Barrier* barrier )
 {
-    // TODO
-    _config->deregisterMobject( barrier );
+    _barrierCache[barrier->getHeight()].push_back( barrier );
 }
 
 //===========================================================================

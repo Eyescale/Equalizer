@@ -143,7 +143,7 @@ namespace eqs
          * 
          * @param barrier the barrier.
          */
-        void releaseBarrier( eqNet::Barrier* barrier );
+        void releaseBarrier( eqNet::Barrier* );
         //*}
 
     protected:
@@ -163,6 +163,9 @@ namespace eqs
 
         /** The request identifier for pending asynchronous operations. */
         uint32_t _pendingRequestID;
+
+        /** Identifiers for cached barriers, sorted by height. */
+        Sgi::hash_map<uint32_t, std::vector<eqNet::Barrier*> > _barrierCache;
 
         enum State
         {

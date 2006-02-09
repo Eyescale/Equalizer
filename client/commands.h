@@ -12,10 +12,12 @@ namespace eq
     enum ServerCommand
     {
         CMD_SERVER_CHOOSE_CONFIG        = eqNet::CMD_NODE_CUSTOM,
+        REQ_SERVER_CHOOSE_CONFIG,
         CMD_SERVER_CHOOSE_CONFIG_REPLY,
+        CMD_SERVER_RELEASE_CONFIG,
+        REQ_SERVER_RELEASE_CONFIG,
         CMD_SERVER_INIT_CONFIG,
         REQ_SERVER_INIT_CONFIG, // REQ must follow CMD
-        CMD_SERVER_RELEASE_CONFIG,
         CMD_SERVER_ALL
     };
 
@@ -32,6 +34,8 @@ namespace eq
         REQ_NODE_STOP,
         CMD_NODE_CREATE_PIPE,
         CMD_NODE_DESTROY_PIPE,
+        CMD_NODE_CREATE_BARRIER,
+        CMD_NODE_DESTROY_BARRIER,
         CMD_NODE_ALL
     };
 
@@ -82,6 +86,9 @@ namespace eq
         CMD_WINDOW_CREATE_CHANNEL,
         CMD_WINDOW_DESTROY_CHANNEL,
         CMD_WINDOW_SWAP,
+        REQ_WINDOW_SWAP,
+        CMD_WINDOW_SWAP_WITH_BARRIER,
+        REQ_WINDOW_SWAP_WITH_BARRIER,
         CMD_WINDOW_ALL
     };
 

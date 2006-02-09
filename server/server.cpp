@@ -28,11 +28,16 @@ Server::Server()
           _configID(0)
 {
     registerCommand( eq::CMD_SERVER_CHOOSE_CONFIG, this, 
-                     reinterpret_cast<CommandFcn>( 
-                         &eqs::Server::_cmdChooseConfig ));
+                     reinterpret_cast<CommandFcn>( &eqs::Server::pushRequest ));
+    registerCommand( eq::REQ_SERVER_CHOOSE_CONFIG, this, 
+                     reinterpret_cast<CommandFcn>(
+                         &eqs::Server::_reqChooseConfig ));
     registerCommand( eq::CMD_SERVER_RELEASE_CONFIG, this, 
                      reinterpret_cast<CommandFcn>( 
-                         &eqs::Server::_cmdReleaseConfig ));
+                         &eqs::Server::pushRequest ));
+    registerCommand( eq::REQ_SERVER_RELEASE_CONFIG, this, 
+                     reinterpret_cast<CommandFcn>( 
+                         &eqs::Server::_reqReleaseConfig ));
     EQINFO << "new " << this << endl;
 }
 
@@ -89,6 +94,10 @@ bool Server::_loadConfig( int argc, char **argv )
     const bool mapped = mapSession( this, config, name );
     EQASSERT( mapped );
 
+    Compound* top  = new Compound;
+    top->setMode( Compound::MODE_SYNC );
+    config->addCompound( top );
+
     eqs::Node* node = new eqs::Node();
     config->addNode( node );
 
@@ -110,10 +119,35 @@ bool Server::_loadConfig( int argc, char **argv )
 
     Compound* compound = new Compound();
     compound->setChannel( channel );
-    config->addCompound( compound );
 
     eq::Wall wall = WALL_20INCH_16x10;
     compound->setWall( wall );
+    top->addChild( compound );
+
+    node = new eqs::Node();
+    config->addNode( node );
+
+    description = new eqNet::ConnectionDescription;
+    description->launchCommand = "ssh -n eile@%h %c";
+    description->hostname      = "go";
+    description->launchTimeout = 100000;
+    node->addConnectionDescription( description );
+
+    pipe = new Pipe();
+    node->addPipe( pipe );
+    
+    window = new Window();
+    pipe->addWindow( window );
+
+    channel = new Channel();
+    window->addChannel( channel );
+
+    compound = new Compound();
+    compound->setChannel( channel );
+
+    eq::Wall wall2 = WALL_12INCH_4x3;
+    compound->setWall( wall2 );
+    top->addChild( compound );
 
     addConfig( config );
     return true;
@@ -163,7 +197,7 @@ Config* Server::_cloneConfig( Config* config )
         
         clone->addNode( nodeClone );
 
-        const uint32_t nConnectionDescriptions = node->nConnectionDescriptions();
+        const uint32_t nConnectionDescriptions =node->nConnectionDescriptions();
         for( uint32_t j=0; j<nConnectionDescriptions; j++ )
         {
             RefPtr<eqNet::ConnectionDescription> desc = 
@@ -202,7 +236,7 @@ Config* Server::_cloneConfig( Config* config )
 
                     for( uint32_t m=0; m<nCompounds; m++ )
                     {
-                        Compound* compound      = clone->getCompound(m);
+                        Compound* compound = clone->getCompound(m);
                         Compound::traverse( compound, replaceChannelCB, 
                                             replaceChannelCB, NULL, &data );
                     }
@@ -257,7 +291,7 @@ void Server::_handleRequests()
     }
 }
 
-eqNet::CommandResult Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Server::_reqChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     eq::ServerChooseConfigPacket* packet = (eq::ServerChooseConfigPacket*)pkg;
     EQINFO << "Handle choose config " << packet << endl;
@@ -288,7 +322,7 @@ eqNet::CommandResult Server::_cmdChooseConfig( eqNet::Node* node, const eqNet::P
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Server::_cmdReleaseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Server::_reqReleaseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     eq::ServerReleaseConfigPacket* packet = (eq::ServerReleaseConfigPacket*)pkg;
     EQINFO << "Handle release config " << packet << endl;

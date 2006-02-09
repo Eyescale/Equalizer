@@ -18,6 +18,7 @@ using namespace std;
 Pipe::Pipe()
         : eqNet::Base( CMD_PIPE_ALL ),
           _node(NULL),
+          _windowSystem( WINDOW_SYSTEM_NONE ),
 #ifdef GLX
           _xDisplay(NULL),
 #endif
@@ -78,7 +79,7 @@ bool Pipe::supportsWindowSystem( const WindowSystem windowSystem ) const
     return false;
 }
 
-WindowSystem Pipe::getWindowSystem() const
+WindowSystem Pipe::selectWindowSystem() const
 {
     for( WindowSystem i=WINDOW_SYSTEM_NONE; i<WINDOW_SYSTEM_ALL; 
          i = (WindowSystem)((int)i+1) )
@@ -172,6 +173,7 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg
     _display = packet->display;
     _screen  = packet->screen;
 
+    _windowSystem = selectWindowSystem();
     reply.result = init();
 
     if( !reply.result )
@@ -180,37 +182,39 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg
         return eqNet::COMMAND_HANDLED;
     }
 
-    const WindowSystem windowSystem = getWindowSystem();
-#ifdef GLX
-    if( windowSystem == WINDOW_SYSTEM_GLX )
+    switch( _windowSystem )
     {
-        if( !_xDisplay )
-        {
-            EQERROR << "init() did not set a valid display connection" << endl;
-            reply.result = false;
-            node->send( reply );
-            return eqNet::COMMAND_HANDLED;
-        }
-
-        // TODO: gather and send back display information
-        EQINFO << "Using display " << DisplayString( _xDisplay ) << endl;
-    }
+#ifdef GLX
+        case WINDOW_SYSTEM_GLX:
+            if( !_xDisplay )
+            {
+                EQERROR << "init() did not set a valid display connection" 
+                        << endl;
+                reply.result = false;
+                node->send( reply );
+                return eqNet::COMMAND_HANDLED;
+            }
+            // TODO: gather and send back display information
+            EQINFO << "Using display " << DisplayString( _xDisplay ) << endl;
+            break;
 #endif
 #ifdef CGL
-    if( windowSystem == WINDOW_SYSTEM_CGL )
-    {
-        if( !_cglDisplayID )
-        {
-            EQERROR << "init() did not set a valid display id" << endl;
-            reply.result = false;
-            node->send( reply );
-            return eqNet::COMMAND_HANDLED;
-        }
-
-        // TODO: gather and send back display information
-        EQINFO << "Using display " << _display << endl;
-    }
+        case WINDOW_SYSTEM_CGL:
+            if( !_cglDisplayID )
+            {
+                EQERROR << "init() did not set a valid display id" << endl;
+                reply.result = false;
+                node->send( reply );
+                    return eqNet::COMMAND_HANDLED;
+            }
+                
+            // TODO: gather and send back display information
+            EQINFO << "Using display " << _display << endl;
+            break;
 #endif
+
+        default: EQUNIMPLEMENTED;
+    }
 
     node->send( reply );
     return eqNet::COMMAND_HANDLED;
@@ -235,8 +239,7 @@ eqNet::CommandResult Pipe::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg
 //---------------------------------------------------------------------------
 bool Pipe::init()
 {
-    const WindowSystem windowSystem = getWindowSystem();
-    switch( windowSystem )
+    switch( _windowSystem )
     {
         case WINDOW_SYSTEM_GLX:
             return initGLX();
@@ -245,7 +248,7 @@ bool Pipe::init()
             return initCGL();
 
         default:
-            EQERROR << "Unknown windowing system: " << windowSystem << endl;
+            EQERROR << "Unknown windowing system: " << _windowSystem << endl;
             return false;
     }
 }
@@ -323,8 +326,7 @@ bool Pipe::initCGL()
 
 void Pipe::exit()
 {
-    const WindowSystem windowSystem = getWindowSystem();
-    switch( windowSystem )
+    switch( _windowSystem )
     {
         case WINDOW_SYSTEM_GLX:
             exitGLX();
@@ -335,7 +337,7 @@ void Pipe::exit()
             break;
 
         default:
-            EQWARN << "Unknown windowing system: " << windowSystem << endl;
+            EQWARN << "Unknown windowing system: " << _windowSystem << endl;
             return;
     }
 }

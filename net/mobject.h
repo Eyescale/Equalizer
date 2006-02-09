@@ -48,6 +48,9 @@ namespace eqNet
         virtual void getInstanceInfo( uint32_t* typeID, std::string& data ) =0;
 
     protected:
+        /** Indicates if this instance is the copy on the server node. */
+        friend class Session;
+        bool     _master;
 
     private:
     };

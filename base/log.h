@@ -38,7 +38,7 @@ namespace eqBase
 
     inline void dumpStack( std::ostream& os )
     {
-#ifdef backtrace
+#   ifdef backtrace
         void* trace[256];
         const int n = backtrace(trace, 256);
         if (!n)
@@ -50,8 +50,8 @@ namespace eqBase
             os << i << ": " << strings[i] << std::endl;
         if (strings)
             free (strings);
-#else // backtrace
-#endif // backtrace
+#   else // backtrace
+#   endif // backtrace
     }
 }
 

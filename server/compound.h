@@ -67,6 +67,12 @@ namespace eqs
         uint32_t nChildren() const { return _children.size(); }
 
         /** 
+         * Return if the compound is a leaf compound.
+         * @return if the compound is a leaf compound. 
+         */
+        bool isLeaf() const { return _children.empty(); }
+
+        /** 
          * Gets a child.
          * 
          * @param index the child's index. 
@@ -240,7 +246,7 @@ namespace eqs
         InheritData _data;
         InheritData _inherit;
 
-        Mode _mode;
+        Mode        _mode;
 
 
         void _updateInheritData();

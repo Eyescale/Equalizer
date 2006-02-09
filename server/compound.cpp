@@ -36,6 +36,7 @@ Compound::Compound( const Compound& from )
 
     _view = from._view;
     _data = from._data;
+    _mode = from._mode;
 }
 
 Compound::InheritData::InheritData()
@@ -200,7 +201,7 @@ TraverseResult Compound::traverse( Compound* compound, TraverseCB preCB,
                                    TraverseCB leafCB, TraverseCB postCB,
                                    void *userData )
 {
-    if ( compound->nChildren( )) 
+    if ( compound->isLeaf( )) 
     {
         if ( leafCB ) 
             return leafCB( compound, userData );

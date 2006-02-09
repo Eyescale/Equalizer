@@ -15,7 +15,9 @@ Window::Window()
         : eqNet::Base( eq::CMD_WINDOW_ALL ),
           _used(0),
           _pipe(NULL),
-          _pendingRequestID(INVALID_ID)
+          _pendingRequestID(INVALID_ID),
+          _swapMaster( NULL ),
+          _swapBarrier( NULL )
 {
     registerCommand( eq::CMD_WINDOW_INIT_REPLY, this,
                      reinterpret_cast<CommandFcn>(&eqs::Window::_cmdInitReply));
@@ -53,7 +55,8 @@ void Window::resetSwapGroup()
         _swapGroup[i]->_swapMaster = NULL;
 
     _swapGroup.clear();
-    _swapMaster = NULL;
+    _swapMaster  = NULL;
+    _swapBarrier = NULL;
 }
 
 void Window::setSwapGroup( Window* master )
@@ -183,6 +186,7 @@ bool Window::syncExit()
 void Window::update()
 {
     // TODO: send update window task (make current)
+
     const uint32_t nChannels = this->nChannels();
     for( uint32_t i=0; i<nChannels; i++ )
     {
@@ -191,19 +195,35 @@ void Window::update()
             channel->update();
     }
 
-    // swap & swap barrier
-    // XXX swap barrier does not need to exist on server!
-    if( _swapMaster == this )
+    if( _swapMaster ) // swap barrier
     {
-        Node* node = getNode();
-//         if( _swapBarrier )
-//             node->releaseBarrier( _swapBarrier );
+        const uint32_t height = _swapMaster->_swapGroup.size();
+        if( height > 1 )
+        {
+            if( _swapMaster == this )
+            {
+                Node* node = getNode();
+            
+                if( _swapBarrier )
+                    node->releaseBarrier( _swapBarrier );
+            
+                _swapBarrier = node->getBarrier( height );
+            }
 
-//         _swapBarrier = node->getBarrier( _swapGroup.size( ));
+            EQASSERT( _swapMaster->_swapBarrier );
+
+            eq::WindowSwapWithBarrierPacket packet( _session->getID(), _id );
+            packet.barrierID = _swapMaster->_swapBarrier->getID();
+            _send( packet );
+            return;
+        }
+
+        EQWARN << "Swap group of size " << height << ", ignoring request" 
+               << endl;
     }
-    // TODO: send barrier creation
-    // TODO: send barrier->enter
-    // TODO: send swap
+
+    eq::WindowSwapPacket packet( _session->getID(), _id );
+    _send( packet );
 }
 
 
@@ -228,7 +248,6 @@ eqNet::CommandResult Window::_cmdExitReply( eqNet::Node* node, const eqNet::Pack
     _requestHandler.serveRequest( packet->requestID, (void*)true );
     return eqNet::COMMAND_HANDLED;
 }
-
 
 
 std::ostream& eqs::operator << ( std::ostream& os, const Window* window )

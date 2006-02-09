@@ -62,6 +62,7 @@ bool Server::open( const OpenParams& params )
         return false;
 
     // TODO: send open packet (appName)
+
     _state = STATE_OPENED;
     return true;
 }

@@ -113,7 +113,7 @@ namespace eq
         //@{
 
         /** 
-         * Initialises this window.
+         * Initialise this window.
          */
         virtual bool init();
         bool initGLX();
@@ -125,6 +125,16 @@ namespace eq
         virtual void exit();
         void exitGLX();
         void exitCGL();
+
+        /**
+         * Swap the front and back buffer of the window.
+         */
+        virtual void swap();
+
+        /**
+         * Finish outstanding rendering requests.
+         */
+        virtual void finish() { glFinish(); }
         //@}
 
     private:
@@ -163,6 +173,10 @@ namespace eq
                                        const eqNet::Packet* packet );
         eqNet::CommandResult _reqExit( eqNet::Node* node,
                                        const eqNet::Packet* packet );
+        eqNet::CommandResult _reqSwap( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
+        eqNet::CommandResult _reqSwapWithBarrier( eqNet::Node* node,
+                                                  const eqNet::Packet* packet );
     };
 }
 

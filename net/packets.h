@@ -98,6 +98,32 @@ namespace eqNet
         char     name[8];
     };
 
+    struct NodeUnmapSessionPacket : public NodePacket
+    {
+        NodeUnmapSessionPacket()
+            {
+                command   = CMD_NODE_UNMAP_SESSION;
+                size      = sizeof(NodeUnmapSessionPacket);
+                sessionID = INVALID_ID;
+            }
+
+        uint32_t requestID;
+        uint32_t sessionID;
+    };
+
+    struct NodeUnmapSessionReplyPacket : public NodePacket
+    {
+        NodeUnmapSessionReplyPacket(const NodeUnmapSessionPacket* requestPacket)
+            {
+                command   = CMD_NODE_UNMAP_SESSION_REPLY;
+                size      = sizeof( NodeUnmapSessionReplyPacket );
+                requestID = requestPacket->requestID;
+            }
+            
+        uint32_t requestID;
+        bool     result;
+    };
+
     struct NodeConnectPacket : public NodePacket
     {
         NodeConnectPacket() 
@@ -251,14 +277,13 @@ namespace eqNet
         uint32_t mobjectID;
     };
 
-    struct SessionInitMobjectReplyPacket : public SessionPacket
+    struct SessionInstanciateMobjectPacket : public SessionPacket
     {
-        SessionInitMobjectReplyPacket( const SessionInitMobjectPacket* request) 
-                : SessionPacket( request->sessionID )
+        SessionInstanciateMobjectPacket( const uint32_t sessionID ) 
+                : SessionPacket( sessionID )
             {
-                command   = CMD_SESSION_INIT_MOBJECT_REPLY;
-                size      = sizeof( SessionInitMobjectReplyPacket ) - 8; 
-                mobjectID = request->mobjectID;
+                command   = CMD_SESSION_INSTANCIATE_MOBJECT;
+                size      = sizeof( SessionInstanciateMobjectPacket ) - 8; 
                 mobjectData[0] = '\0';
             }
 
@@ -382,7 +407,7 @@ namespace eqNet
 
 
     inline std::ostream& operator << ( std::ostream& os, 
-                                   const SessionInitMobjectReplyPacket* packet )
+                                 const SessionInstanciateMobjectPacket* packet )
     {
         os << (SessionPacket*)packet << " mobj id " << packet->mobjectID <<
             " type " << packet->mobjectType << " data " << packet->mobjectData;

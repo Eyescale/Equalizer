@@ -52,9 +52,9 @@ Session::Session( const uint32_t nCommands )
     registerCommand( CMD_SESSION_INIT_MOBJECT, this, 
                      reinterpret_cast<CommandFcn>(
                          &eqNet::Session::_cmdInitMobject ));
-    registerCommand( CMD_SESSION_INIT_MOBJECT_REPLY, this, 
+    registerCommand( CMD_SESSION_INSTANCIATE_MOBJECT, this, 
                      reinterpret_cast<CommandFcn>(
-                         &eqNet::Session::_cmdInitMobjectReply ));
+                         &eqNet::Session::_cmdInstanciateMobject ));
 
     _localPool.genIDs( _localPool.getCapacity( )); // reserve all IDs
     EQINFO << "New " << this << endl;
@@ -183,6 +183,22 @@ void Session::registerMobject( Mobject* object, Node* master )
     const uint32_t id = genIDs( 1 );
     setIDMaster( id, 1, master );
     addRegisteredObject( id, object );
+
+    if( _localNode == master )
+    {
+        object->_master = true;
+        return;
+    }
+    
+    object->_master = false;
+
+    SessionInstanciateMobjectPacket packet( _id );
+    packet.mobjectID = id;
+
+    string mobjectData;
+    object->getInstanceInfo( &packet.mobjectType, mobjectData );
+    
+    master->send( packet, mobjectData );
 }
 
 void Session::deregisterMobject( Mobject* object )
@@ -211,7 +227,7 @@ Mobject* Session::getMobject( const uint32_t id )
     packet.requestID = _requestHandler.registerRequest( this );
     packet.mobjectID = id;
 
-    _server->send( packet );
+    _localNode->send( packet );
     return (Mobject*)_requestHandler.waitRequest( packet.requestID );
 }
 
@@ -518,9 +534,10 @@ CommandResult Session::_cmdInitMobject( Node* node, const Packet* pkg )
     EQASSERT( object );
     EQASSERT( dynamic_cast<Mobject*>(object) );
     
-    Mobject*       mobject = (Mobject*)object;
-    SessionInitMobjectReplyPacket reply( packet );
-
+    Mobject* mobject = (Mobject*)object;
+    SessionInstanciateMobjectPacket reply( _id );
+    reply.mobjectID = id;
+    
     string mobjectData;
     mobject->getInstanceInfo( &reply.mobjectType, mobjectData );
     
@@ -528,15 +545,16 @@ CommandResult Session::_cmdInitMobject( Node* node, const Packet* pkg )
     return COMMAND_HANDLED;
 }
 
-CommandResult Session::_cmdInitMobjectReply( Node* node, const Packet* pkg )
+CommandResult Session::_cmdInstanciateMobject( Node* node, const Packet* pkg )
 {
-    SessionInitMobjectReplyPacket* packet = (SessionInitMobjectReplyPacket*)pkg;
-    EQINFO << "cmd init mobject reply " << packet << endl;
+    SessionInstanciateMobjectPacket* packet = 
+        (SessionInstanciateMobjectPacket*)pkg;
+    EQINFO << "cmd instanciate mobject " << packet << endl;
 
     const uint32_t id      = packet->mobjectID;
     EQASSERT( !_registeredObjects[id] );
 
-    Mobject* mobject = instanciateMobject( packet->mobjectType, 
+    Mobject* mobject = instanciateMobject( packet->mobjectType,
                                            packet->mobjectData );
     if( !mobject )
         return COMMAND_ERROR;

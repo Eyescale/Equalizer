@@ -43,6 +43,9 @@ public:
                 cerr << "Master enter" << endl;
                 barrier.enter();
                 cerr << "Master left" << endl;
+
+                //session.deregisterMobject( &barrier );
+                //node->unmapSession( &session );
             }
             else
             {
@@ -63,8 +66,12 @@ public:
                 cerr << "Slave enter" << endl;
                 barrier->enter();
                 cerr << "Slave left" << endl;
+
+                //session.deregisterMobject( barrier );
+                //node->unmapSession( &session );
             }
 
+            node->stopListening();
             return EXIT_SUCCESS;
         }
             

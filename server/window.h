@@ -163,9 +163,12 @@ namespace eqs
         /** The size and position of the window. */
         eq::PixelViewport _pvp;
         
-        /** The */
+        /** The master window of the swap group, can be <code>this</code> */
         Window*              _swapMaster;
+        /** The list of windows participating in the swap group. */
         std::vector<Window*> _swapGroup;
+        /** The id of the current swap barrier. */
+        eqNet::Barrier*      _swapBarrier;
         
         void _send( const eqNet::Packet& packet ) { getNode()->send( packet ); }
 
@@ -177,6 +180,10 @@ namespace eqs
                                            const eqNet::Packet* packet);
         eqNet::CommandResult _cmdExitReply(eqNet::Node* node, 
                                            const eqNet::Packet* packet);
+        eqNet::CommandResult _cmdSwap(eqNet::Node* node,
+                                      const eqNet::Packet* packet);
+        eqNet::CommandResult _cmdSwapWithBarrier(eqNet::Node* node,
+                                                 const eqNet::Packet* packet);
     };
 
     std::ostream& operator << ( std::ostream& os, const Window* window );

@@ -273,6 +273,7 @@ namespace eqNet
         CommandResult _cmdGetMobjectMasterReply( Node* node, const Packet* pkg);
         CommandResult _cmdGetMobject( Node* node, const Packet* packet );
         CommandResult _cmdInitMobject( Node* node, const Packet* packet );
+        CommandResult _cmdInstanciateMobject( Node* node, const Packet* packet);
         CommandResult _cmdInitMobjectReply( Node* node, const Packet* packet );
     };
     std::ostream& operator << ( std::ostream& os, Session* session );

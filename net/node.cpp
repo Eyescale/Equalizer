@@ -42,6 +42,11 @@ Node::Node( const uint32_t nCommands )
     registerCommand( CMD_NODE_MAP_SESSION_REPLY, this, 
                      reinterpret_cast<CommandFcn>(
                          &eqNet::Node::_cmdMapSessionReply ));
+    registerCommand( CMD_NODE_UNMAP_SESSION, this, reinterpret_cast<CommandFcn>(
+                         &eqNet::Node::_cmdUnmapSession ));
+    registerCommand( CMD_NODE_UNMAP_SESSION_REPLY, this, 
+                     reinterpret_cast<CommandFcn>(
+                         &eqNet::Node::_cmdUnmapSessionReply ));
 
     _receiverThread = new ReceiverThread( this );
 }
@@ -164,6 +169,9 @@ bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
     
     EQASSERT( connection->getDescription().isValid( ));
     _connectionSet.addConnection( connection, node );
+    eqNet::NodeConnectPacket packet;
+    node->send( packet );
+
     EQINFO << node.get() << " connected to " << this << endl;
     return true;
 }
@@ -297,6 +305,17 @@ void Node::addSession( Session* session, RefPtr<Node> server,
          << ", managed by " << this << endl;
 }
 
+void Node::removeSession( Session* session )
+{
+    _sessions.erase( session->getID( ));
+
+    session->_localNode = NULL;
+    session->_server    = NULL;
+    session->_id        = INVALID_ID;
+    session->_name      = "";
+    session->_isMaster  = false;
+}
+
 bool Node::mapSession( RefPtr<Node> server, Session* session, 
                        const string& name )
 {
@@ -333,6 +352,22 @@ bool Node::mapSession( RefPtr<Node> server, Session* session, const uint32_t id)
     packet.requestID = _requestHandler.registerRequest( session );
     packet.sessionID =  id;
     server->send( packet );
+
+    return (bool)_requestHandler.waitRequest( packet.requestID );
+}
+
+bool Node::unmapSession( Session* session )
+{
+    EQASSERT( isLocal( ));
+
+    const uint32_t sessionID = session->getID();
+    if( _sessions.find( sessionID ) == _sessions.end( )) // not mapped
+        return false;
+
+    NodeUnmapSessionPacket packet;
+    packet.requestID = _requestHandler.registerRequest( session );
+    packet.sessionID =  sessionID;
+    session->send( packet );
 
     return (bool)_requestHandler.waitRequest( packet.requestID );
 }
@@ -417,6 +452,16 @@ void Node::handleConnect( RefPtr<Connection> connection )
     const bool gotData = 
         connection->recv( &packet, sizeof( NodeConnectPacket ));
     EQASSERT( gotData );
+
+    if( packet.size != sizeof( NodeConnectPacket ) ||
+        packet.datatype != DATATYPE_EQNET_NODE ||
+        packet.command != CMD_NODE_CONNECT )
+    {
+        EQERROR << "Received invalid node connect packet, rejecting connection"
+              << endl;
+        connection->close();
+        return;
+    }
     
     RefPtr<Node> node;
 
@@ -545,6 +590,7 @@ CommandResult Node::dispatchPacket( Node* node, const Packet* packet )
 
         case DATATYPE_EQNET_SESSION:
         case DATATYPE_EQNET_OBJECT:
+        case DATATYPE_EQNET_MOBJECT:
         case DATATYPE_EQNET_USER:
         {
             const SessionPacket* sessionPacket = (SessionPacket*)packet;
@@ -626,16 +672,61 @@ CommandResult Node::_cmdMapSessionReply( Node* node, const Packet* pkg)
     EQINFO << "Cmd map session reply: " << packet << endl;
 
     const uint32_t requestID = packet->requestID;
-    Session*    session = (Session*)_requestHandler.getRequestData( requestID );
-    EQASSERT( session );
-
     if( packet->sessionID == INVALID_ID )
     {
         _requestHandler.serveRequest( requestID, (void*)false );
         return COMMAND_HANDLED;
     }        
     
+    Session*    session = (Session*)_requestHandler.getRequestData( requestID );
+    EQASSERT( session );
+
     addSession( session, node, packet->sessionID, packet->name );
+    _requestHandler.serveRequest( requestID, (void*)true );
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdUnmapSession( Node* node, const Packet* pkg )
+{
+    NodeUnmapSessionPacket* packet  = (NodeUnmapSessionPacket*)pkg;
+    EQINFO << "Cmd unmap session: " << packet << endl;
+    
+    const uint32_t sessionID = packet->sessionID;
+    const Session* session   = _sessions[sessionID];
+
+    NodeUnmapSessionReplyPacket reply( packet );
+
+    if( !session )
+    {
+        reply.result = false;
+        node->send( reply );
+        return COMMAND_HANDLED;
+    }
+
+    // TODO: if node == session._server, unmap all session instances.
+
+    reply.result = true;
+    node->send( reply );
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdUnmapSessionReply( Node* node, const Packet* pkg)
+{
+    NodeUnmapSessionReplyPacket* packet  = (NodeUnmapSessionReplyPacket*)pkg;
+    EQINFO << "Cmd unmap session reply: " << packet << endl;
+
+    const uint32_t requestID = packet->requestID;
+
+    if( !packet->result == INVALID_ID )
+    {
+        _requestHandler.serveRequest( requestID, (void*)false );
+        return COMMAND_HANDLED;
+    }        
+    
+    Session*    session = (Session*)_requestHandler.getRequestData( requestID );
+    EQASSERT( session );
+
+    removeSession( session );
     _requestHandler.serveRequest( requestID, (void*)true );
     return COMMAND_HANDLED;
 }
@@ -690,14 +781,15 @@ bool Node::initConnect()
         RefPtr<ConnectionDescription> description = getConnectionDescription(i);
         RefPtr<Connection> connection = Connection::create( description->type );
         
-        if( connection->connect( description ) &&
-            localNode->connect( this, connection ))
-        {
-            NodeConnectPacket packet;
-            send( packet );
-            return true;
-        }
-        return false;
+        if( !connection->connect( description ))
+            continue;
+
+        if( !localNode->connect( this, connection ))
+            return false;
+
+        NodeConnectPacket packet;
+        send( packet );
+        return true;
     }
 
     EQINFO << "Node could not be connected." << endl;
@@ -721,15 +813,8 @@ bool Node::syncConnect()
     Node* localNode = Node::getLocalNode();
     EQASSERT( localNode )
 
-    if( _state == STATE_CONNECTED )
-    {
-        localNode->_requestHandler.unregisterRequest( _launchID );
-        _launchID = INVALID_ID;
-        return true;
-    }
-
-    EQASSERT( _state == STATE_LAUNCHED );
-    EQASSERT( _launchID != INVALID_ID );
+    if( _launchID == INVALID_ID )
+        return ( _state == STATE_CONNECTED );
 
     ConnectionDescription *description = (ConnectionDescription*)
         localNode->_requestHandler.getRequestData( _launchID );

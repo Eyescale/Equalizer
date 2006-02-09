@@ -36,6 +36,10 @@ namespace eqNet
         virtual ~Barrier(){}
 
         /**
+         * @name Data Access
+         */
+        const uint32_t getHeight(){ return _height; }
+        /**
          * @name Operations
          */
         //@{
@@ -56,9 +60,6 @@ namespace eqNet
         /** The height of the barrier, only set on the master. */
         uint32_t _height;
 
-        /** Indicates if this instance is the master. */
-        bool     _master;
-        
         /** Slave nodes which have entered the barrier. */
         std::vector<Node*> _slaves; // XXX refptr?!
         

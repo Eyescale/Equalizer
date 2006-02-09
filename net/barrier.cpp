@@ -11,8 +11,7 @@ using namespace eqNet;
 
 Barrier::Barrier( const uint32_t height )
         : Base( CMD_BARRIER_ALL ),
-          _height( height ),
-          _master( true )
+          _height( height )
 {
     EQASSERT( height > 1 );
     _lock.set();
@@ -21,10 +20,9 @@ Barrier::Barrier( const uint32_t height )
 }
 
 Barrier::Barrier( const char* instanceInfo )
-        : Base( CMD_BARRIER_ALL ),
-          _height(0), // irrelevant on slaves
-          _master( false )
+        : Base( CMD_BARRIER_ALL )
 {
+    _height = atoi( instanceInfo );
     _lock.set();
     registerCommand( CMD_BARRIER_ENTER_REPLY, this, 
                 reinterpret_cast<CommandFcn>(&eqNet::Barrier::_cmdEnterReply ));
@@ -34,7 +32,11 @@ Barrier::Barrier( const char* instanceInfo )
 void Barrier::getInstanceInfo( uint32_t* typeID, std::string& data )
 {
     *typeID = MOBJECT_EQNET_BARRIER;
-    data = ""; // no data needed for slaves
+    
+    char height[8];
+    snprintf( height, 8, "%d", _height );
+
+    data = height;
 }
 
 void Barrier::enter()

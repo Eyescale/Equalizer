@@ -274,6 +274,31 @@ namespace eq
         uint32_t pipeID;
     };
     
+    struct NodeCreateBarrierPacket : public eqNet::ObjectPacket
+    {
+        NodeCreateBarrierPacket( const uint32_t configID, const uint32_t nodeID)
+                : eqNet::ObjectPacket( configID, nodeID )
+            {
+                command = CMD_NODE_CREATE_BARRIER;
+                size    = sizeof( NodeCreateBarrierPacket );
+            }
+
+        uint32_t barrierID;
+        uint32_t height;
+    };
+
+    struct NodeDestroyBarrierPacket : public eqNet::ObjectPacket
+    {
+        NodeDestroyBarrierPacket(const uint32_t configID, const uint32_t nodeID)
+                : eqNet::ObjectPacket( configID, nodeID )
+            {
+                command = CMD_NODE_DESTROY_BARRIER;
+                size    = sizeof( NodeDestroyBarrierPacket );
+            }
+
+        uint32_t barrierID;
+    };
+    
     //------------------------------------------------------------
     // Pipe
     //------------------------------------------------------------
@@ -438,6 +463,18 @@ namespace eq
             }
 
         uint32_t channelID;
+    };
+
+    struct WindowSwapWithBarrierPacket : public eqNet::ObjectPacket
+    {
+        WindowSwapWithBarrierPacket( const uint32_t configID, 
+                                     const uint32_t windowID )
+                : eqNet::ObjectPacket( configID, windowID )
+            {
+                command = CMD_WINDOW_SWAP_WITH_BARRIER;
+                size    = sizeof( WindowSwapWithBarrierPacket );
+            }
+        uint32_t barrierID;
     };
 
     struct WindowSwapPacket : public eqNet::ObjectPacket

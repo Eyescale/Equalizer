@@ -124,9 +124,9 @@ namespace eqs
         void        _handleRequests(); 
 
         /** The command functions. */
-        eqNet::CommandResult _cmdChooseConfig( eqNet::Node* node,
+        eqNet::CommandResult _reqChooseConfig( eqNet::Node* node,
                                                const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdReleaseConfig( eqNet::Node* node,
+        eqNet::CommandResult _reqReleaseConfig( eqNet::Node* node,
                                                 const eqNet::Packet* packet );
     };
 

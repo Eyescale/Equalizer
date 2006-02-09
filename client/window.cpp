@@ -10,6 +10,8 @@
 #include "packets.h"
 #include "channel.h"
 
+#include <eq/net/barrier.h>
+
 using namespace eq;
 using namespace std;
 
@@ -38,6 +40,15 @@ eq::Window::Window()
                          &eq::Window::_pushRequest ));
     registerCommand( REQ_WINDOW_EXIT, this, reinterpret_cast<CommandFcn>( 
                          &eq::Window::_reqExit ));
+    registerCommand( CMD_WINDOW_SWAP, this, reinterpret_cast<CommandFcn>(
+                         &eq::Window::_pushRequest));
+    registerCommand( REQ_WINDOW_SWAP, this, reinterpret_cast<CommandFcn>(
+                         &eq::Window::_reqSwap));
+    registerCommand( CMD_WINDOW_SWAP_WITH_BARRIER, this,
+                     reinterpret_cast<CommandFcn>(&eq::Window::_pushRequest));
+    registerCommand( REQ_WINDOW_SWAP_WITH_BARRIER, this,
+                     reinterpret_cast<CommandFcn>(
+                         &eq::Window::_reqSwapWithBarrier));
 }
 
 eq::Window::~Window()
@@ -118,32 +129,35 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
         return eqNet::COMMAND_HANDLED;
     }
 
-    const WindowSystem windowSystem = _pipe->getWindowSystem();
-#ifdef GLX
-    if( windowSystem == WINDOW_SYSTEM_GLX )
+    switch( _pipe->getWindowSystem( ))
     {
-        if( !_xDrawable || !_glXContext )
-        {
-            EQERROR << "init() did not provide a drawable and context" << endl;
-            reply.result = false;
-            node->send( reply );
-            return eqNet::COMMAND_HANDLED;
-        }
-    }
+#ifdef GLX
+        case WINDOW_SYSTEM_GLX:
+            if( !_xDrawable || !_glXContext )
+            {
+                EQERROR << "init() did not provide a drawable and context" 
+                        << endl;
+                reply.result = false;
+                node->send( reply );
+                return eqNet::COMMAND_HANDLED;
+            }
+            break;
 #endif
 #ifdef CGL
-    if( windowSystem == WINDOW_SYSTEM_CGL )
-    {
-        if( !_cglContext )
-        {
-            EQERROR << "init() did not provide an OpenGL context" << endl;
-            reply.result = false;
-            node->send( reply );
-            return eqNet::COMMAND_HANDLED;
-        }
-        // TODO: pvp
-    }
+        case WINDOW_SYSTEM_CGL:
+            if( !_cglContext )
+            {
+                EQERROR << "init() did not provide an OpenGL context" << endl;
+                reply.result = false;
+                node->send( reply );
+                return eqNet::COMMAND_HANDLED;
+            }
+            // TODO: pvp
+            break;
 #endif
+
+        default: EQUNIMPLEMENTED;
+    }
 
     reply.pvp = _pvp;
     node->send( reply );
@@ -160,6 +174,32 @@ eqNet::CommandResult eq::Window::_reqExit( eqNet::Node* node,
 
     WindowExitReplyPacket reply( packet );
     node->send( reply );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult eq::Window::_reqSwap(eqNet::Node* node, 
+                                      const eqNet::Packet* pkg)
+{
+    WindowSwapPacket* packet = (WindowSwapPacket*)pkg;
+    EQINFO << "handle swap " << packet;
+
+    swap();
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult eq::Window::_reqSwapWithBarrier(eqNet::Node* node,
+                                                 const eqNet::Packet* pkg)
+{
+    WindowSwapWithBarrierPacket* packet = (WindowSwapWithBarrierPacket*)pkg;
+    EQINFO << "handle swap with barrier " << packet;
+
+    eqNet::Mobject* mobject = _session->getMobject( packet->barrierID );
+    EQASSERT( dynamic_cast<eqNet::Barrier*>(mobject) );
+
+    eqNet::Barrier* barrier = (eqNet::Barrier*)mobject;
+    finish();
+    barrier->enter();
+    swap();
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -423,3 +463,21 @@ void eq::Window::setCGLContext( CGLContextObj context )
     // TODO: pvp
 }
 #endif // CGL
+
+void eq::Window::swap()
+{
+    switch( _pipe->getWindowSystem( ))
+    {
+#ifdef GLX
+        case WINDOW_SYSTEM_GLX:
+            glXSwapBuffers( _pipe->getXDisplay(), _xDrawable );
+            break;
+#endif
+#ifdef CGL
+        case WINDOW_SYSTEM_CGL:
+            CGLFlushDrawable( _cglContext );
+            break;
+#endif
+        default: EQUNIMPLEMENTED;
+    }
+}
