@@ -103,8 +103,8 @@ bool Server::_loadConfig( int argc, char **argv )
 
     RefPtr<eqNet::ConnectionDescription> description =
         new eqNet::ConnectionDescription;
-    description->launchCommand = "ssh -n %h %c";
-    description->hostname      = "localhost";
+    description->launchCommand = "ssh -n %h %c >& %h.log";
+    description->hostname      = "benjy";
     description->launchTimeout = 100000;
     node->addConnectionDescription( description );
 
@@ -128,7 +128,7 @@ bool Server::_loadConfig( int argc, char **argv )
     config->addNode( node );
 
     description = new eqNet::ConnectionDescription;
-    description->launchCommand = "ssh -n eile@%h %c";
+    description->launchCommand = "ssh -n eile@%h %c >& %h.log";
     description->hostname      = "go";
     description->launchTimeout = 100000;
     node->addConnectionDescription( description );

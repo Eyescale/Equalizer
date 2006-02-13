@@ -71,7 +71,6 @@ void Launcher::_buildCommandLine( const string& command )
 
 ssize_t Launcher::run()
 {
-
     const size_t argc         = _commandLine.size();
     char*        argv[argc+1];
     
@@ -83,6 +82,6 @@ ssize_t Launcher::run()
     EQINFO << "Executing: " << argv[0] << endl;
     //return EXIT_SUCCESS;
     execvp( argv[0], argv );
-    EQWARN << "Error executing '" << argv[0] << "': " << strerror(errno) << endl;
+    EQWARN << "Error executing '" << argv[0] << "': " << strerror(errno) <<endl;
     return EXIT_FAILURE;
 }

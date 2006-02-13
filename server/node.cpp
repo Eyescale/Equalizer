@@ -187,11 +187,6 @@ eqNet::Barrier* Node::getBarrier( const uint32_t height )
 
     eqNet::Barrier* barrier = new eqNet::Barrier( height );
     _config->registerMobject( barrier, this );
-    
-    eq::NodeCreateBarrierPacket packet( _session->getID(), _id );
-    packet.barrierID = barrier->getID();
-    packet.height    = height;
-    send( packet );
 
     return barrier;
 }

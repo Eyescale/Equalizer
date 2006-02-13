@@ -111,12 +111,10 @@ void Session::setIDMaster( const uint32_t start, const uint32_t range,
     packet.start = start;
     packet.range = range;
 
-    RefPtr<Connection> connection = ( master->isConnected() ?
-                                      master->getConnection() : 
-                                      master->getListenerConnection( ));
-    string  connectionDescription = connection->getDescription()->toString();
+    RefPtr<ConnectionDescription> desc = master->getConnectionDescription( 0 );
+    EQASSERT( desc.isValid( ));
     
-    _server->send( packet, connectionDescription );
+    _server->send( packet, desc->toString( ));
 }
 
 RefPtr<Node> Session::_pollIDMaster( const uint32_t id )
@@ -194,6 +192,7 @@ void Session::registerMobject( Mobject* object, Node* master )
 
     SessionInstanciateMobjectPacket packet( _id );
     packet.mobjectID = id;
+    packet.isMaster  = true;
 
     string mobjectData;
     object->getInstanceInfo( &packet.mobjectType, mobjectData );
@@ -406,11 +405,11 @@ CommandResult Session::_cmdGetIDMaster( Node* node, const Packet* pkg )
             reply.start = info.start;
             reply.end   = info.end;
 
-            RefPtr<Connection> connection = ( info.master->isConnected() ?
-                                              info.master->getConnection() : 
-                                         info.master->getListenerConnection( ));
-            connectionDescription = connection->getDescription()->toString();
-            
+            RefPtr<ConnectionDescription> desc = 
+                info.master->getConnectionDescription( 0 );
+            EQASSERT( desc.isValid( ));
+
+            connectionDescription = desc->toString();
             info.slaves.push_back( node );
             break;
         }
@@ -461,11 +460,11 @@ CommandResult Session::_cmdGetMobjectMaster( Node* node, const Packet* pkg )
             reply.start = info.start;
             reply.end   = info.end;
 
-            RefPtr<Connection> connection = ( info.master->isConnected() ?
-                                              info.master->getConnection() : 
-                                         info.master->getListenerConnection( ));
-            connectionDescription = connection->getDescription()->toString();
-            
+            RefPtr<ConnectionDescription> desc = 
+                info.master->getConnectionDescription( 0 );
+            EQASSERT( desc.isValid( ));
+
+            connectionDescription = desc->toString();
             info.slaves.push_back( node );
             break;
         }
@@ -507,7 +506,7 @@ CommandResult Session::_cmdGetMobject( Node* node, const Packet* pkg )
     const uint32_t id     = packet->mobjectID;
     Object*        object = _registeredObjects[id];
 
-    EQASSERT( _requestHandler.getRequestData( id ) == this );
+    EQASSERT( _requestHandler.getRequestData( packet->requestID ) == this );
 
     if( object )
     {
@@ -560,6 +559,7 @@ CommandResult Session::_cmdInstanciateMobject( Node* node, const Packet* pkg )
         return COMMAND_ERROR;
 
     mobject->ref();
+    mobject->_master = packet->isMaster;
     addRegisteredObject( id, mobject );
     return COMMAND_HANDLED;
 }

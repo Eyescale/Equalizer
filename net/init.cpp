@@ -47,13 +47,14 @@ bool initLocalNode( int argc, char** argv )
         EQINFO << "arg " << argv[i] << endl;
 
     struct option options[] = {
-        { "eq-listen",      no_argument,       NULL, 'l' },
+        { "eq-listen",      optional_argument, NULL, 'l' },
         { "eq-client",      required_argument, NULL, 'c' },
         { NULL,             0,                 NULL,  0 }
     };
 
     bool   listen   = false;
     bool   isClient = false;
+    string listenOpts;
     string clientOpts;
     int    result;
     int    index;
@@ -63,7 +64,9 @@ bool initLocalNode( int argc, char** argv )
         switch( result )
         {
             case 'l':
-                listen = true;
+                listen     = true;
+                if( optarg )
+                    listenOpts = optarg;
                 break;
 
             case 'c':
@@ -80,9 +83,13 @@ bool initLocalNode( int argc, char** argv )
     if( listen )
     {
         EQINFO << "Listener port requested" << endl;
-        // TODO: connection description parameters from argv
         RefPtr<Connection> connection = Connection::create( eqNet::TYPE_TCPIP );
         RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
+
+        if( !connDesc->fromString( listenOpts ))
+            EQINFO << "No listening port parameters read from command line"
+                   << endl;
+        EQINFO << "Listening connection description: " << connDesc.get() <<endl;
 
         if( !connection->listen( connDesc ))
         {

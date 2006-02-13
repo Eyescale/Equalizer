@@ -261,14 +261,6 @@ namespace eqNet
          * @return the connection to this node. 
          */
         eqBase::RefPtr<Connection> getConnection() const { return _connection; }
-
-        /** 
-         * Returns the listening connection of this node.
-         * 
-         * @return the listening connection of this node. 
-         */
-        eqBase::RefPtr<Connection> getListenerConnection() const
-            { return _listener; }
         //*}
 
 

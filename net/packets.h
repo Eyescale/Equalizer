@@ -128,13 +128,15 @@ namespace eqNet
     {
         NodeConnectPacket() 
             {
-                command     = CMD_NODE_CONNECT;
-                size        = sizeof( NodeConnectPacket ); 
-                wasLaunched = false;
+                command                  = CMD_NODE_CONNECT;
+                size                     = sizeof( NodeConnectPacket ) - 8; 
+                wasLaunched              = false;
+                connectionDescription[0] = '\0';
             }
 
         bool     wasLaunched;
         uint64_t launchID;
+        char     connectionDescription[8];
     };
 
     //------------------------------------------------------------
@@ -282,13 +284,15 @@ namespace eqNet
         SessionInstanciateMobjectPacket( const uint32_t sessionID ) 
                 : SessionPacket( sessionID )
             {
-                command   = CMD_SESSION_INSTANCIATE_MOBJECT;
-                size      = sizeof( SessionInstanciateMobjectPacket ) - 8; 
+                command        = CMD_SESSION_INSTANCIATE_MOBJECT;
+                size           = sizeof( SessionInstanciateMobjectPacket ) - 8; 
+                isMaster       = false;
                 mobjectData[0] = '\0';
             }
 
         uint32_t mobjectID;
         uint32_t mobjectType;
+        bool     isMaster;
         char     mobjectData[8];
     };
 

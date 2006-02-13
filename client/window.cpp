@@ -181,7 +181,7 @@ eqNet::CommandResult eq::Window::_reqSwap(eqNet::Node* node,
                                       const eqNet::Packet* pkg)
 {
     WindowSwapPacket* packet = (WindowSwapPacket*)pkg;
-    EQINFO << "handle swap " << packet;
+    EQINFO << "handle swap " << packet << endl;
 
     swap();
     return eqNet::COMMAND_HANDLED;
@@ -191,7 +191,7 @@ eqNet::CommandResult eq::Window::_reqSwapWithBarrier(eqNet::Node* node,
                                                  const eqNet::Packet* pkg)
 {
     WindowSwapWithBarrierPacket* packet = (WindowSwapWithBarrierPacket*)pkg;
-    EQINFO << "handle swap with barrier " << packet;
+    EQINFO << "handle swap with barrier " << packet << endl;
 
     eqNet::Mobject* mobject = _session->getMobject( packet->barrierID );
     EQASSERT( dynamic_cast<eqNet::Barrier*>(mobject) );
@@ -225,6 +225,7 @@ bool eq::Window::init()
             EQERROR << "Unknown windowing system: " << windowSystem << endl;
             return false;
     }
+    glClearColor( .7, .5, .5, 1. );
 }
 
 #ifdef GLX
@@ -255,7 +256,7 @@ bool eq::Window::initGLX()
     *aptr++ = 1;
     *aptr++ = GLX_STENCIL_SIZE;
     *aptr++ = 8;
-    //*aptr++ = GLX_DOUBLEBUFFER;
+    *aptr++ = GLX_DOUBLEBUFFER;
     *aptr = None;
 
     XVisualInfo *visInfo = glXChooseVisual( display, screen, attributes );
@@ -480,4 +481,5 @@ void eq::Window::swap()
 #endif
         default: EQUNIMPLEMENTED;
     }
+    EQINFO << "----- SWAP -----" << endl;
 }

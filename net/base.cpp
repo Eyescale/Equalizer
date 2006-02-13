@@ -49,7 +49,7 @@ CommandResult Base::handleCommand( Node* node, const Packet* packet )
 
 CommandResult Base::_cmdUnknown( Node* node, const Packet* packet )
 {
-    EQERROR << "Unknown command " << packet << " from " << node << " type "
+    EQERROR << "Unknown command " << packet << " from " << node << " class "
           << typeid(*this).name() << endl;
     return COMMAND_ERROR;
 }

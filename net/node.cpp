@@ -73,6 +73,7 @@ bool Node::listen( RefPtr<Connection> connection )
         EQASSERT( connection->getDescription().isValid( ));
         _connectionSet.addConnection( connection, this );
         _listener = connection;
+        addConnectionDescription( connection->getDescription( ));
     }
 
     _state = STATE_LISTENING;
@@ -169,8 +170,13 @@ bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
     
     EQASSERT( connection->getDescription().isValid( ));
     _connectionSet.addConnection( connection, node );
-    eqNet::NodeConnectPacket packet;
-    node->send( packet );
+
+    eqNet::NodeConnectPacket      packet;
+    RefPtr<ConnectionDescription> desc = getConnectionDescription( 0 );
+    EQASSERT( desc.isValid( ));
+    EQASSERT( desc->TCPIP.port );
+
+    node->send( packet, desc->toString( ));
 
     EQINFO << node.get() << " connected to " << this << endl;
     return true;
@@ -448,41 +454,58 @@ void Node::_handleConnect( ConnectionSet& connectionSet )
 
 void Node::handleConnect( RefPtr<Connection> connection )
 {
-    NodeConnectPacket packet;
-    const bool gotData = 
-        connection->recv( &packet, sizeof( NodeConnectPacket ));
+    uint64_t size;
+    bool gotData = connection->recv( &size, sizeof( size ));
+    EQASSERT( gotData ); EQASSERT( size );
+
+    NodeConnectPacket* packet = (NodeConnectPacket*)alloca( size );
+    packet->size  = size;
+    size         -= sizeof( size );
+
+    char* ptr = (char*)packet + sizeof(size);
+    gotData   = connection->recv( ptr, size );
     EQASSERT( gotData );
 
-    if( packet.size != sizeof( NodeConnectPacket ) ||
-        packet.datatype != DATATYPE_EQNET_NODE ||
-        packet.command != CMD_NODE_CONNECT )
+    if( packet->datatype != DATATYPE_EQNET_NODE ||
+        packet->command != CMD_NODE_CONNECT )
     {
         EQERROR << "Received invalid node connect packet, rejecting connection"
               << endl;
+        EQINFO << "Received packet: " << packet << endl;
         connection->close();
         return;
     }
     
     RefPtr<Node> node;
 
-    if( packet.wasLaunched )
+    if( packet->wasLaunched )
     {
-        //ASSERT( dynamic_cast<Node*>( (Thread*)packet.launchID ));
+        //ASSERT( dynamic_cast<Node*>( (Thread*)packet->launchID ));
 
-        node = (Node*)packet.launchID;
+        node = (Node*)packet->launchID;
         EQINFO << "Launched " << node.get() << " connecting" << endl;
  
         const uint32_t requestID = node->_launchID;
         EQASSERT( requestID != INVALID_ID );
 
+        RefPtr<ConnectionDescription> desc = node->getConnectionDescription(0);
+        bool readDesc = desc->fromString( packet->connectionDescription );
+        EQASSERT( readDesc );
+
+        _addConnectedNode( node, connection );
         _requestHandler.serveRequest( requestID, NULL );
     }
     else
     {
         node = createNode();
-    }
+        
+        RefPtr<ConnectionDescription> desc = new ConnectionDescription;
+        bool readDesc = desc->fromString( packet->connectionDescription );
+        EQASSERT( readDesc );
+        node->addConnectionDescription( desc );
 
-    _addConnectedNode( node, connection );
+        _addConnectedNode( node, connection );
+    }
 }
 
 void Node::_handleDisconnect( ConnectionSet& connectionSet )
@@ -787,8 +810,6 @@ bool Node::initConnect()
         if( !localNode->connect( this, connection ))
             return false;
 
-        NodeConnectPacket packet;
-        send( packet );
         return true;
     }
 
@@ -921,7 +942,7 @@ string Node::_createRemoteCommand()
         return "";
     }
 
-    RefPtr<Connection> listener = localNode->getListenerConnection();
+    RefPtr<Connection> listener = localNode->_listener;
     if( !listener.isValid() || 
         listener->getState() != Connection::STATE_LISTENING )
     {
@@ -931,6 +952,9 @@ string Node::_createRemoteCommand()
 
     RefPtr<ConnectionDescription> listenerDesc = listener->getDescription();
     EQASSERT( listenerDesc.isValid( ));
+
+    RefPtr<ConnectionDescription> nodeDesc = getConnectionDescription(0);
+    EQASSERT( nodeDesc.isValid( ));
 
     ostringstream stringStream;
 
@@ -942,14 +966,16 @@ string Node::_createRemoteCommand()
     env = getenv( "EQLOGLEVEL" );
     if( env )
         stringStream << "EQLOGLEVEL=" << env << " ";
+
     // for( int i=0; environ[i] != NULL; i++ )
     // {
     //     replacement += environ[i];
     //     replacement += " ";
     // }
 
-    stringStream << "'" << getProgramName() << " --eq-listen --eq-client "
-                 << (long long)this << ":" << listenerDesc->toString() << "'";
+    stringStream << "'" << getProgramName() << " --eq-listen=\"" 
+                 << nodeDesc->toString() << "\" --eq-client \""
+                 << (long long)this << ":" << listenerDesc->toString() << "\"'";
 
     return stringStream.str();
 }
@@ -992,10 +1018,15 @@ bool Node::runClient( const string& clientArgs )
 
     _addConnectedNode( node, connection );
 
+    RefPtr<ConnectionDescription> desc = getConnectionDescription(0);
+    EQASSERT( desc.isValid( ));
+    EQASSERT( desc->TCPIP.port );
+
     NodeConnectPacket packet;
     packet.wasLaunched = true;
     packet.launchID    = requestID;
-    node->send( packet );
+
+    node->send( packet, desc->toString( ));
 
     clientLoop();
 

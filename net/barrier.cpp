@@ -8,6 +8,7 @@
 #include "session.h"
 
 using namespace eqNet;
+using namespace std;
 
 Barrier::Barrier( const uint32_t height )
         : Base( CMD_BARRIER_ALL ),
@@ -15,8 +16,12 @@ Barrier::Barrier( const uint32_t height )
 {
     EQASSERT( height > 1 );
     _lock.set();
+
     registerCommand( CMD_BARRIER_ENTER, this, reinterpret_cast<CommandFcn>(
                          &eqNet::Barrier::_cmdEnter ));
+    registerCommand( CMD_BARRIER_ENTER_REPLY, this, 
+                reinterpret_cast<CommandFcn>(&eqNet::Barrier::_cmdEnterReply ));
+    EQINFO << "New barrier of height " << _height << endl;
 }
 
 Barrier::Barrier( const char* instanceInfo )
@@ -24,8 +29,13 @@ Barrier::Barrier( const char* instanceInfo )
 {
     _height = atoi( instanceInfo );
     _lock.set();
+
+    registerCommand( CMD_BARRIER_ENTER, this, reinterpret_cast<CommandFcn>(
+                         &eqNet::Barrier::_cmdEnter ));
     registerCommand( CMD_BARRIER_ENTER_REPLY, this, 
                 reinterpret_cast<CommandFcn>(&eqNet::Barrier::_cmdEnterReply ));
+    EQINFO << "Barrier of height " << _height << " instanciated from "
+         << instanceInfo << endl;
 }
 
 
@@ -52,12 +62,12 @@ void Barrier::enter()
         for( uint32_t i=0; i<_height-1; ++i )
             _slaves[i]->send( packet );
 
-        _slaves.clear();
+        _slaves.clear(); // XXX not thread-safe w/ _cmdEnter !
         return;
     }
 
     eqBase::RefPtr<Node> master = _session->getIDMaster( _id );
-    EQASSERT( master );
+    EQASSERT( master.isValid( ));
 
     BarrierEnterPacket packet( _session->getID(), _id );
     
@@ -67,6 +77,7 @@ void Barrier::enter()
 
 CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
 {
+    EQASSERT( _master );
     _slaves.push_back( node );
 
     if( _slaves.size() == _height-1 )
@@ -77,6 +88,7 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
 
 CommandResult Barrier::_cmdEnterReply( Node* node, const Packet* pkg )
 {
+    EQASSERT( !_master );
     _lock.unset();
     return COMMAND_HANDLED;
 }
