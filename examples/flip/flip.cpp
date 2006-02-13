@@ -28,6 +28,8 @@ public:
 class Channel : public eq::Channel
 {
 public:
+    Channel() : _spin(0.) {}
+
     virtual bool init()
         {
             cout << "Init " << this << endl;
@@ -38,6 +40,35 @@ public:
         {
             cout << "Exit " << this << endl;
         }
+
+    virtual void draw()
+        {
+            applyBuffer();
+            applyViewport();
+            
+            glMatrixMode( GL_PROJECTION );
+            glLoadIdentity();
+            applyFrustum();
+            
+            glMatrixMode( GL_MODELVIEW );
+            glLoadIdentity();
+            applyHeadTransform();
+            
+            glTranslatef( 0, 0, -2 );
+            glRotatef( _spin, 0, 0, 1. );
+            _spin += .1;
+
+            glColor3f( 1, 1, 0 );
+            glBegin( GL_TRIANGLE_STRIP );
+            glVertex3f( -.25, -.25, -.25 );
+            glVertex3f( -.25,  .25, -.25 );
+            glVertex3f(  .25, -.25, -.25 );
+            glVertex3f(  .25,  .25, -.25 );
+            glEnd();
+            glFinish();
+        }
+private:
+    float _spin;
 };
 
 class NodeFactory : public eq::NodeFactory
@@ -74,7 +105,7 @@ int main( int argc, char** argv )
     if( !config->init( ))
         DIE("Config initialisation failed.");
 
-    //while( running )
+    while( true )
     {
         // update database
 

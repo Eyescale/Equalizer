@@ -56,7 +56,6 @@ void Window::resetSwapGroup()
 
     _swapGroup.clear();
     _swapMaster  = NULL;
-    _swapBarrier = NULL;
 }
 
 void Window::setSwapGroup( Window* master )
@@ -204,10 +203,14 @@ void Window::update()
             {
                 Node* node = getNode();
             
-                if( _swapBarrier )
+                if( _swapBarrier && _swapBarrier->getHeight() != height )
+                {
                     node->releaseBarrier( _swapBarrier );
-            
-                _swapBarrier = node->getBarrier( height );
+                    _swapBarrier = NULL;
+                }
+
+                if( !_swapBarrier )
+                    _swapBarrier = node->getBarrier( height );
             }
 
             EQASSERT( _swapMaster->_swapBarrier );
