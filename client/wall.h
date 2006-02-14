@@ -20,13 +20,16 @@ namespace eq
         { -.12294,  .09220, -1, }}
 
     /**
-     * A wall definition defining a view frustum.
+     * A wall defining a view frustum.
      * 
      * The three points describe the bottom left, bottom right and top left
      * coordinate of the wall in real-world coordinates.
      */
-    struct Wall
+    class Wall
     {
+    public:
+        void translate( float x, float y, float z );
+
         float bottomLeft[3];
         float bottomRight[3];
         float topLeft[3];

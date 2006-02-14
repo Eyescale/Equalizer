@@ -30,7 +30,7 @@ $(HEADER_DIR)/%.h : %.h
 	@echo 'Header file $@'
 	@cp $< $@
 
-# generated source code
+# generated source code: defunct
 %Dist.cpp %Packets.h : %.h $(TOP)/make/codegen.pl
 	$(TOP)/make/codegen.pl $<
 

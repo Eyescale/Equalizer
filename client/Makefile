@@ -12,6 +12,7 @@ SOURCES = \
 	openParams.cpp \
 	pipe.cpp \
 	server.cpp \
+	wall.cpp \
 	window.cpp
 
 CXXFLAGS += $(WINDOW_SYSTEM_INCS)

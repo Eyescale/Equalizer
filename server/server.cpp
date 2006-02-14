@@ -121,6 +121,7 @@ bool Server::_loadConfig( int argc, char **argv )
     compound->setChannel( channel );
 
     eq::Wall wall = WALL_20INCH_16x10;
+    wall.translate( wall.bottomLeft[0], 0, 0 );
     compound->setWall( wall );
     top->addChild( compound );
 
@@ -146,6 +147,7 @@ bool Server::_loadConfig( int argc, char **argv )
     compound->setChannel( channel );
 
     eq::Wall wall2 = WALL_12INCH_4x3;
+    wall2.translate( wall2.bottomRight[0], 0, 0 );
     compound->setWall( wall2 );
     top->addChild( compound );
 

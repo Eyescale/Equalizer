@@ -11,7 +11,8 @@ SOURCES = \
 	node.cpp \
 	pipe.cpp \
 	server.cpp \
-	window.cpp
+	window.cpp \
+	wall.cpp
 
 MODULE  = server
 
@@ -23,6 +24,7 @@ ifeq "${ARCH}" "Linux"
 SA_CXXFLAGS += -lrt
 endif
 
+vpath %.cpp ../client # find the cross-used files from client library
 
 CLEAN = $(PROGRAMS)
 
