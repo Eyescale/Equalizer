@@ -41,6 +41,10 @@ Node::Node()
                          &eq::Node::_pushRequest ));
     registerCommand( REQ_NODE_STOP, this, reinterpret_cast<CommandFcn>( 
                          &eq::Node::_reqStop ));
+    registerCommand( CMD_NODE_FRAME_SYNC, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Node::_pushRequest ));
+    registerCommand( REQ_NODE_FRAME_SYNC, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Node::_reqFrameSync ));
 }
 
 Node::~Node()
@@ -216,5 +220,13 @@ eqNet::CommandResult Node::_reqStop(eqNet::Node* node, const eqNet::Packet* pkg)
     // stop ourselves
     eqNet::NodeStopPacket stopPacket;
     send( stopPacket );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Node::_reqFrameSync(eqNet::Node* node, 
+                                         const eqNet::Packet* packet )
+{
+    NodeFrameSyncPacket reply( _config->getID(), _id );
+    node->send( reply );
     return eqNet::COMMAND_HANDLED;
 }

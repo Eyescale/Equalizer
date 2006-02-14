@@ -5,6 +5,7 @@
 #ifndef EQS_NODE_H
 #define EQS_NODE_H
 
+#include <eq/base/sema.h>
 #include <eq/net/barrier.h>
 #include <eq/net/node.h>
 #include <eq/net/object.h>
@@ -119,9 +120,24 @@ namespace eqs
         void stop();
 
         /** 
-         * Update the per-frame data of this node.
+         * Trigger the rendering of a new frame for this node.
          */
         void update();
+
+        /**
+         * Finish the frame (current-latency).
+         */
+        void syncUpdate() { _frameSync.wait(); }
+
+        /** 
+         * Adjust the latency of this node.
+         * 
+         * If decrementing the latency, the function blocks until the
+         * corresponding frames have been finished.
+         *
+         * @param delta the delta of the latency change.
+         */
+        void adjustLatency( const int delta ){ _frameSync.adjust( delta ); }
         //*}
 
         /**
@@ -161,6 +177,9 @@ namespace eqs
         Config* _config;
         friend class Config;
 
+        /** A counter for the number of pending frames. */
+        eqBase::Sema _frameSync;
+
         /** The request identifier for pending asynchronous operations. */
         uint32_t _pendingRequestID;
 
@@ -185,6 +204,8 @@ namespace eqs
         eqNet::CommandResult _cmdInitReply( eqNet::Node* node,
                                             const eqNet::Packet* packet );
         eqNet::CommandResult _cmdExitReply( eqNet::Node* node,
+                                            const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdFrameSync( eqNet::Node* node,
                                             const eqNet::Packet* packet );
     };
 

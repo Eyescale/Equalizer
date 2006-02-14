@@ -58,7 +58,7 @@ namespace eq
          * Synchronizes the end of a frame.
          * 
          * @return the frame number of the finished frame, or <code>0</code> if
-         *         no frame has finished yet.
+         *         no frame has been finished.
          */
         uint32_t frameEnd();
 

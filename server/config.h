@@ -96,6 +96,17 @@ namespace eqs
             { return _compounds[index]; }
 
         /** 
+         * Set the maximum accepted latency for this config.
+         * 
+         * The latency is defined as the maximum number of frames between frame
+         * begin and swap. This function may block until the new latency
+         * requirement is fulfilled.
+         *
+         * @param latency the latency.
+         */
+        void setLatency( const uint32_t latency );
+
+        /** 
          * Sets the name of the application.
          * 
          * @param name the name of the application.
@@ -131,6 +142,9 @@ namespace eqs
 
         /** The name of the render client executable. */
         std::string _renderClient;
+
+        /** The maximum latency between frame begin and swap, in frames. */
+        uint32_t _latency;
 
         /** The last started frame, or 0. */
         uint32_t _frameNumber;

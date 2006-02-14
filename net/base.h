@@ -18,7 +18,7 @@ namespace eqNet
     {
         COMMAND_HANDLED,     //*< The command was handled
         COMMAND_ERROR,       //*< An unrecoverable error occured
-        COMMAND_RESCHEDULE   //*< The command can be handled later, reschedule
+        COMMAND_RESCHEDULE   //*< Reschedule command to be handled later
     };
 
     /** The base class for all networked objects. */

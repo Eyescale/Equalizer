@@ -9,6 +9,7 @@ SOURCES = \
 	lock.cpp \
 	log.cpp \
 	requestHandler.cpp \
+	sema.cpp \
 	thread.cpp \
 	timedLock.cpp
 

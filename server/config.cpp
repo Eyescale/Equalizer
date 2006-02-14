@@ -16,6 +16,7 @@ using namespace std;
 Config::Config( Server* server )
         : eqNet::Session( eq::CMD_CONFIG_ALL ),
           _server( server ),
+          _latency(1),
           _frameNumber(0)
 {
     registerCommand( eq::CMD_CONFIG_INIT, this, reinterpret_cast<CommandFcn>(
@@ -41,6 +42,8 @@ Config::Config( Server* server )
 void Config::addNode( Node* node )
 {
     node->_config = this; 
+    node->adjustLatency( _latency );
+
     registerObject( node );
     _nodes.push_back( node ); 
 }
@@ -56,11 +59,24 @@ bool Config::removeNode( Node* node )
         return false;
 
     _nodes.erase( iter );
-
     deregisterObject( node );
+
+    node->adjustLatency( -_latency );
     node->_config = NULL; 
 
     return true;
+}
+
+void Config::setLatency( const uint32_t latency )
+{
+    if( _latency == latency )
+        return;
+
+    const int delta = latency - _latency;
+    for( vector<Node*>::iterator iter = _nodes.begin(); iter != _nodes.end();
+         ++iter )
+
+        (*iter)->adjustLatency( delta );
 }
 
 // pushes the request to the main thread to be handled asynchronously
@@ -265,8 +281,15 @@ uint32_t Config::_frameBegin()
 
 uint32_t Config::_frameEnd()
 {
-    // TODO
-    return 0;
+    const uint32_t nNodes = this->nNodes();
+    for( uint32_t i=0; i<nNodes; i++ )
+    {
+        Node* node = getNode( i );
+        if( node->isUsed( ))
+            node->syncUpdate();
+    }
+
+    return (_frameNumber > _latency ? _frameNumber-_latency : 0);
 }
 
 

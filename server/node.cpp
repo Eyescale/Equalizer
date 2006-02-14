@@ -25,6 +25,8 @@ Node::Node()
                          &eqs::Node::_cmdInitReply ));
     registerCommand( eq::CMD_NODE_EXIT_REPLY, this,reinterpret_cast<CommandFcn>(
                          &eqs::Node::_cmdExitReply ));
+    registerCommand( eq::CMD_NODE_FRAME_SYNC, this,reinterpret_cast<CommandFcn>(
+                         &eqs::Node::_cmdFrameSync ));
 }
 
 void Node::addPipe( Pipe* pipe )
@@ -169,6 +171,9 @@ void Node::update()
         if( pipe->isUsed( ))
             pipe->update();
     }
+
+    eq::NodeFrameSyncPacket packet( _config->getID(), _id );
+    send( packet );
 }
 
 //---------------------------------------------------------------------------
@@ -203,7 +208,7 @@ eqNet::CommandResult Node::_cmdInitReply( eqNet::Node* node,
                                           const eqNet::Packet* pkg )
 {
     eq::NodeInitReplyPacket* packet = (eq::NodeInitReplyPacket*)pkg;
-    EQINFO << "handle node init reply " << packet << endl;
+    EQINFO << "handle init reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
     return eqNet::COMMAND_HANDLED;
@@ -213,12 +218,19 @@ eqNet::CommandResult Node::_cmdExitReply( eqNet::Node* node,
                                           const eqNet::Packet* pkg )
 {
     eq::NodeExitReplyPacket* packet = (eq::NodeExitReplyPacket*)pkg;
-    EQINFO << "handle node exit reply " << packet << endl;
+    EQINFO << "handle exit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );
     return eqNet::COMMAND_HANDLED;
 }
 
+eqNet::CommandResult Node::_cmdFrameSync( eqNet::Node* node,
+                                          const eqNet::Packet* pkg )
+{
+    EQINFO << "handle frame sync " << pkg << endl;
+    _frameSync.post();
+    return eqNet::COMMAND_HANDLED;
+}
 
 ostream& eqs::operator << ( ostream& os, const Node* node )
 {

@@ -34,6 +34,8 @@ namespace eq
         REQ_NODE_STOP,
         CMD_NODE_CREATE_PIPE,
         CMD_NODE_DESTROY_PIPE,
+        CMD_NODE_FRAME_SYNC,
+        REQ_NODE_FRAME_SYNC,
         CMD_NODE_ALL
     };
 
