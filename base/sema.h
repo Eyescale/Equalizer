@@ -46,7 +46,7 @@ namespace eqBase
          * 
          * @param delta the resource delta to be applied.
          */
-        void adjust( int delta );
+        void adjust( const int delta );
 
     private:
         Thread::Type _type;

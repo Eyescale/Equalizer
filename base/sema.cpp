@@ -104,7 +104,7 @@ void Sema::wait()
     }
 }
 
-void Sema::adjust( int delta )
+void Sema::adjust( const int delta )
 {
     if( delta == 0 )
         return;
@@ -122,20 +122,21 @@ void Sema::adjust( int delta )
                 return;
             };
 
-            while( delta )
+            uint32_t amount = (uint32_t)-delta;
+            while( amount )
             {
                 while( _value == 0 )
                     pthread_cond_wait( &_pthread.cond, &_pthread.mutex );
                 
-                if( _value < delta )
+                if( _value < amount )
                 {
-                    delta -= _value;
+                    amount -= _value;
                     _value = 0;
                 }
                 else
                 {
-                    _value -= delta;
-                    delta = 0;
+                    _value -= amount;
+                    amount = 0;
                 }
             }
             pthread_mutex_unlock( &_pthread.mutex );
