@@ -25,6 +25,8 @@ Pipe::Pipe()
                          &eqs::Pipe::_cmdInitReply ));
     registerCommand( eq::CMD_PIPE_EXIT_REPLY, this,reinterpret_cast<CommandFcn>(
                          &eqs::Pipe::_cmdExitReply ));
+    registerCommand( eq::CMD_PIPE_FRAME_SYNC, this,reinterpret_cast<CommandFcn>(
+                         &eqs::Pipe::_cmdFrameSync ));
 }
 
 void Pipe::addWindow( Window* window )
@@ -170,6 +172,9 @@ void Pipe::update()
         if( window->isUsed( ))
             window->update();
     }
+
+    eq::PipeFrameSyncPacket packet( _session->getID(), _id );
+    _send( packet );
 }
 
 //===========================================================================
@@ -193,6 +198,14 @@ eqNet::CommandResult Pipe::_cmdExitReply( eqNet::Node* node, const eqNet::Packet
     return eqNet::COMMAND_HANDLED;
 }
 
+
+eqNet::CommandResult Pipe::_cmdFrameSync( eqNet::Node* node,
+                                          const eqNet::Packet* pkg )
+{
+    EQINFO << "handle frame sync " << pkg << endl;
+    _frameSync.post();
+    return eqNet::COMMAND_HANDLED;
+}
 
 
 std::ostream& eqs::operator << ( std::ostream& os, const Pipe* pipe )

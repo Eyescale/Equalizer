@@ -125,9 +125,9 @@ namespace eqs
         void update();
 
         /**
-         * Finish the frame (current-latency).
+         * Finish the frame[current-latency].
          */
-        void syncUpdate() { _frameSync.wait(); }
+        void syncUpdate();
 
         /** 
          * Adjust the latency of this node.
@@ -137,7 +137,7 @@ namespace eqs
          *
          * @param delta the delta of the latency change.
          */
-        void adjustLatency( const int delta ){ _frameSync.adjust( delta ); }
+        void adjustLatency( const int delta );
         //*}
 
         /**
@@ -177,9 +177,6 @@ namespace eqs
         Config* _config;
         friend class Config;
 
-        /** A counter for the number of pending frames. */
-        eqBase::Sema _frameSync;
-
         /** The request identifier for pending asynchronous operations. */
         uint32_t _pendingRequestID;
 
@@ -204,8 +201,6 @@ namespace eqs
         eqNet::CommandResult _cmdInitReply( eqNet::Node* node,
                                             const eqNet::Packet* packet );
         eqNet::CommandResult _cmdExitReply( eqNet::Node* node,
-                                            const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdFrameSync( eqNet::Node* node,
                                             const eqNet::Packet* packet );
     };
 

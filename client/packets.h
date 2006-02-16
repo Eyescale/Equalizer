@@ -274,16 +274,6 @@ namespace eq
         uint32_t pipeID;
     };
     
-    struct NodeFrameSyncPacket : public eqNet::ObjectPacket
-    {
-        NodeFrameSyncPacket( const uint32_t configID, const uint32_t nodeID )
-                : eqNet::ObjectPacket( configID, nodeID )
-            {
-                command = CMD_NODE_FRAME_SYNC;
-                size    = sizeof( NodeFrameSyncPacket );
-            }
-    };
-
     //------------------------------------------------------------
     // Pipe
     //------------------------------------------------------------
@@ -364,6 +354,16 @@ namespace eq
             }
 
         uint32_t windowID;
+    };
+
+    struct PipeFrameSyncPacket : public eqNet::ObjectPacket
+    {
+        PipeFrameSyncPacket( const uint32_t configID, const uint32_t pipeID )
+                : eqNet::ObjectPacket( configID, pipeID )
+            {
+                command = CMD_PIPE_FRAME_SYNC;
+                size    = sizeof( PipeFrameSyncPacket );
+            }
     };
 
     //------------------------------------------------------------

@@ -125,6 +125,21 @@ namespace eqs
          * Update the per-frame data of this pipe.
          */
         void update();
+
+        /**
+         * Finish the frame[current-latency].
+         */
+        void syncUpdate() { _frameSync.wait(); }
+
+        /** 
+         * Adjust the latency of this pipe.
+         * 
+         * If decrementing the latency, the function blocks until the
+         * corresponding frames have been finished.
+         *
+         * @param delta the delta of the latency change.
+         */
+        void adjustLatency( const int delta ){ _frameSync.adjust( delta ); }
         //*}
 
     private:
@@ -151,6 +166,9 @@ namespace eqs
         /* The display (CGL) or output channel (X11, Win32). */
         //uint32_t _channel;
 
+        /** A counter for the number of allowed pending frames. */
+        eqBase::Sema _frameSync;
+
 
         void _send( const eqNet::Packet& packet ){ _node->send( packet ); }
 
@@ -162,6 +180,8 @@ namespace eqs
                                            const eqNet::Packet* packet);
         eqNet::CommandResult _cmdExitReply(eqNet::Node* node,
                                            const eqNet::Packet* packet);
+        eqNet::CommandResult _cmdFrameSync( eqNet::Node* node,
+                                            const eqNet::Packet* packet );
     };
 
     std::ostream& operator << ( std::ostream& os, const Pipe* pipe );

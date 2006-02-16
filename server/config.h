@@ -107,6 +107,12 @@ namespace eqs
         void setLatency( const uint32_t latency );
 
         /** 
+         * Return the latency for this config.
+         * @return the latency for this config.
+         */
+        uint32_t getLatency() const { return _latency; }
+
+        /** 
          * Sets the name of the application.
          * 
          * @param name the name of the application.

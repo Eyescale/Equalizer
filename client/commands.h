@@ -21,24 +21,6 @@ namespace eq
         CMD_SERVER_ALL
     };
 
-    enum NodeCommand
-    {
-        CMD_NODE_CREATE_CONFIG          = eqNet::CMD_NODE_CUSTOM,
-        CMD_NODE_INIT,
-        REQ_NODE_INIT,
-        CMD_NODE_INIT_REPLY,
-        CMD_NODE_EXIT,
-        REQ_NODE_EXIT,
-        CMD_NODE_EXIT_REPLY,
-        CMD_NODE_STOP,
-        REQ_NODE_STOP,
-        CMD_NODE_CREATE_PIPE,
-        CMD_NODE_DESTROY_PIPE,
-        CMD_NODE_FRAME_SYNC,
-        REQ_NODE_FRAME_SYNC,
-        CMD_NODE_ALL
-    };
-
     enum ClientCommand
     {
         CMD_CLIENT_UNUSED               = CMD_SERVER_ALL,
@@ -62,6 +44,22 @@ namespace eq
         CMD_CONFIG_ALL
     };
 
+    enum NodeCommand
+    {
+        CMD_NODE_CREATE_CONFIG          = eqNet::CMD_NODE_CUSTOM,
+        CMD_NODE_INIT,
+        REQ_NODE_INIT,
+        CMD_NODE_INIT_REPLY,
+        CMD_NODE_EXIT,         // Node used as object from here on
+        REQ_NODE_EXIT,
+        CMD_NODE_EXIT_REPLY,
+        CMD_NODE_STOP,
+        REQ_NODE_STOP,
+        CMD_NODE_CREATE_PIPE,
+        CMD_NODE_DESTROY_PIPE,
+        CMD_NODE_ALL
+    };
+
     enum PipeCommand
     {
         CMD_PIPE_INIT,
@@ -72,6 +70,8 @@ namespace eq
         CMD_PIPE_EXIT_REPLY,
         CMD_PIPE_CREATE_WINDOW,
         CMD_PIPE_DESTROY_WINDOW,
+        CMD_PIPE_FRAME_SYNC,
+        REQ_PIPE_FRAME_SYNC,
         CMD_PIPE_ALL
     };
 

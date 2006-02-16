@@ -255,6 +255,7 @@ namespace eqs
         static TraverseResult _updatePostDrawCB( Compound* compound, void* );
 
         void _updateSwapGroup();
+        void _computeFrustum( float frustum[6], float headTransform[16] );
     };
 
     std::ostream& operator << (std::ostream& os,const Compound* compound);

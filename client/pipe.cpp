@@ -40,6 +40,10 @@ Pipe::Pipe()
                          &eq::Pipe::pushRequest ));
     registerCommand( REQ_PIPE_EXIT, this, reinterpret_cast<CommandFcn>( 
                          &eq::Pipe::_reqExit ));
+    registerCommand( CMD_PIPE_FRAME_SYNC, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Pipe::pushRequest ));
+    registerCommand( REQ_PIPE_FRAME_SYNC, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Pipe::_reqFrameSync ));
 
     _thread = new PipeThread( this );
 }
@@ -231,6 +235,14 @@ eqNet::CommandResult Pipe::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg
     node->send( reply );
 
     _thread->exit( EXIT_SUCCESS );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Pipe::_reqFrameSync(eqNet::Node* node, 
+                                         const eqNet::Packet* packet )
+{
+    PipeFrameSyncPacket reply( _session->getID(), _id );
+    node->send( reply );
     return eqNet::COMMAND_HANDLED;
 }
 

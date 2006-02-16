@@ -152,7 +152,8 @@ void Compound::setProjection( const eq::Projection& projection )
         };
 
     // translation = HPR x -origin
-    const float *origin   = projection.origin;
+    const float* origin   = projection.origin;
+    const float  distance = projection.distance;
     const float  trans[3] = 
         {
             -( rot[0]*origin[0] + rot[3]*origin[1] + rot[6]*origin[2] ),
@@ -177,11 +178,11 @@ void Compound::setProjection( const eq::Projection& projection )
 
     _data.frustum.xfm[12] = trans[0];
     _data.frustum.xfm[13] = trans[1];
-    _data.frustum.xfm[14] = trans[2] + projection.distance;
+    _data.frustum.xfm[14] = trans[2] + distance;
     _data.frustum.xfm[15] = 1.;
 
-    _data.frustum.width  = projection.distance*tan(DEG2RAD( projection.fov[0]));
-    _data.frustum.height = projection.distance*tan(DEG2RAD( projection.fov[1]));
+    _data.frustum.width  = distance * tan(DEG2RAD( projection.fov[0] ));
+    _data.frustum.height = distance * tan(DEG2RAD( projection.fov[1] ));
 
     _view.projection = projection;
     _view.latest     = View::PROJECTION;
@@ -363,7 +364,6 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
 
     const Channel*           iChannel = compound->_inherit.channel;
     const eq::PixelViewport& pvp      = iChannel->getPixelViewport();
-    const eq::Frustum&       frustum  = compound->_inherit.frustum;
 
     eq::ChannelDrawPacket drawPacket( channel->getSession()->getID(), 
                                       channel->getID( ));
@@ -384,17 +384,57 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
         channel->send( clearPacket );
     }
 
-    drawPacket.context.frustum[0] = -frustum.width / 2.;
-    drawPacket.context.frustum[1] =  frustum.width / 2.;
-    drawPacket.context.frustum[2] = -frustum.height / 2.;
-    drawPacket.context.frustum[3] =  frustum.height / 2.;
-    iChannel->getNearFar( &drawPacket.context.frustum[4],
-                          &drawPacket.context.frustum[5] );
-    memcpy( drawPacket.context.headTransform, frustum.xfm, 16*sizeof(float) );
+    compound->_computeFrustum( drawPacket.context.frustum, 
+                     drawPacket.context.headTransform );
 
     channel->send( drawPacket );
     return TRAVERSE_CONTINUE;
 }
+
+void Compound::_computeFrustum( float frustum[6], float headTransform[16] )
+{
+    const Channel*     iChannel = _inherit.channel;
+    const eq::Frustum& iFrustum = _inherit.frustum;
+
+    iChannel->getNearFar( &frustum[4], &frustum[5] );
+
+    // eye position in screen space
+    const float  head[3] = { 0, 0, 0 }; // TODO get from headtracking API
+    const float* xfm     = iFrustum.xfm;
+    const float  w       = 
+        xfm[3] * head[0] + xfm[7] * head[1] + xfm[11]* head[2] + xfm[15];
+    const float  eye[3]  = {
+        (xfm[0] * head[0] + xfm[4] * head[1] + xfm[8] * head[2] + xfm[12]) / w,
+        (xfm[1] * head[0] + xfm[5] * head[1] + xfm[9] * head[2] + xfm[13]) / w,
+        (xfm[2] * head[0] + xfm[6] * head[1] + xfm[10]* head[2] + xfm[14]) / w};
+    
+    // compute frustum from size and eye position
+    const float ratio = frustum[4] / eye[2];
+    if( eye[2] > 0 )
+    {
+        frustum[0] = -( iFrustum.width/2.  + eye[0] ) * ratio;
+        frustum[1] =  ( iFrustum.width/2.  - eye[0] ) * ratio;
+        frustum[2] = -( iFrustum.height/2. + eye[1] ) * ratio;
+        frustum[3] =  ( iFrustum.height/2. - eye[1] ) * ratio;
+    }
+    else // eye behind near plane - 'mirror' x
+    {
+        frustum[0] =  ( iFrustum.width/2.  - eye[0] ) * ratio;
+        frustum[1] = -( iFrustum.width/2.  + eye[0] ) * ratio;
+        frustum[2] =  ( iFrustum.height/2. + eye[1] ) * ratio;
+        frustum[3] = -( iFrustum.height/2. - eye[1] ) * ratio;
+    }
+
+    // compute head transform
+    for( int i=0; i<16; i += 4 )
+    {
+        headTransform[i]   = xfm[i]   - eye[0] * xfm[i+3];
+        headTransform[i+1] = xfm[i+1] - eye[1] * xfm[i+3];
+        headTransform[i+2] = xfm[i+2] - eye[2] * xfm[i+3];
+        headTransform[i+3] = xfm[i+3];
+    }
+}
+
 
 TraverseResult Compound::_updatePostDrawCB( Compound* compound, void* userData )
 {

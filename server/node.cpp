@@ -25,15 +25,33 @@ Node::Node()
                          &eqs::Node::_cmdInitReply ));
     registerCommand( eq::CMD_NODE_EXIT_REPLY, this,reinterpret_cast<CommandFcn>(
                          &eqs::Node::_cmdExitReply ));
-    registerCommand( eq::CMD_NODE_FRAME_SYNC, this,reinterpret_cast<CommandFcn>(
-                         &eqs::Node::_cmdFrameSync ));
 }
 
 void Node::addPipe( Pipe* pipe )
 {
     _pipes.push_back( pipe ); 
     pipe->_node = this; 
+    pipe->adjustLatency( _config->getLatency( ));
     _config->registerObject( pipe );
+}
+
+bool Node::removePipe( Pipe* pipe )
+{
+    vector<Pipe*>::iterator iter = _pipes.begin();
+    for( ; iter != _pipes.end(); ++iter )
+        if( (*iter) == pipe )
+            break;
+
+    if( iter == _pipes.end( ))
+        return false;
+
+    _pipes.erase( iter );
+    _config->deregisterObject( pipe );
+
+    pipe->adjustLatency( -_config->getLatency( ));
+    pipe->_node = NULL; 
+
+    return true;
 }
 
 const string& Node::getProgramName()
@@ -164,6 +182,7 @@ void Node::stop()
 //---------------------------------------------------------------------------
 void Node::update()
 {
+    EQINFO << "Start frame" << endl;
     const uint32_t nPipes = this->nPipes();
     for( uint32_t i=0; i<nPipes; i++ )
     {
@@ -171,9 +190,27 @@ void Node::update()
         if( pipe->isUsed( ))
             pipe->update();
     }
+}
 
-    eq::NodeFrameSyncPacket packet( _config->getID(), _id );
-    send( packet );
+void Node::syncUpdate()
+{
+    const uint32_t nPipes = this->nPipes();
+    for( uint32_t i=0; i<nPipes; i++ )
+    {
+        Pipe* pipe = getPipe( i );
+        if( pipe->isUsed( ))
+            pipe->syncUpdate();
+    }
+}
+
+void Node::adjustLatency( const int delta)
+{
+    const uint32_t nPipes = this->nPipes();
+    for( uint32_t i=0; i<nPipes; i++ )
+    {
+        Pipe* pipe = getPipe( i );
+        pipe->adjustLatency( delta );
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -221,14 +258,6 @@ eqNet::CommandResult Node::_cmdExitReply( eqNet::Node* node,
     EQINFO << "handle exit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );
-    return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult Node::_cmdFrameSync( eqNet::Node* node,
-                                          const eqNet::Packet* pkg )
-{
-    EQINFO << "handle frame sync " << pkg << endl;
-    _frameSync.post();
     return eqNet::COMMAND_HANDLED;
 }
 

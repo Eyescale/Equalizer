@@ -101,7 +101,7 @@ void Channel::applyFrustum()
     const float* frustum = _context->frustum;
     glFrustum( frustum[0], frustum[1], frustum[2], frustum[3], frustum[4],
                frustum[5] ); 
-    EQVERB << "Applied frustum: " << LOG_VECTOR6( frustum ) << endl;
+    EQINFO << "Applied frustum: " << LOG_VECTOR6( frustum ) << endl;
 }
 
 void Channel::applyHeadTransform()
@@ -110,7 +110,7 @@ void Channel::applyHeadTransform()
         return;
     
     glMultMatrixf( _context->headTransform );
-    EQVERB << "Applied head transform: " 
+    EQINFO << "Applied head transform: " 
          << LOG_MATRIX4x4( _context->headTransform ) << endl;
 }
 

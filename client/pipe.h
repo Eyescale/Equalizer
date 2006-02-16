@@ -244,6 +244,8 @@ namespace eq
                                        const eqNet::Packet* packet );
         eqNet::CommandResult _reqExit( eqNet::Node* node,
                                        const eqNet::Packet* packet );
+        eqNet::CommandResult _reqFrameSync( eqNet::Node* node,
+                                            const eqNet::Packet* packet );
     };
 }
 
