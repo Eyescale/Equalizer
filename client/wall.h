@@ -9,6 +9,11 @@
 namespace eq
 {
     // Definitions for common display systems in meters
+#   define WALL_30INCH_16x10 {                            \
+        { -.32, -.20, -1, },                        \
+        {  .32, -.20, -1, },                        \
+        { -.32,  .20, -1, }}
+
 #   define WALL_20INCH_16x10 {                            \
         { -.21672, -.13545, -1, },                        \
         {  .21672, -.13545, -1, },                        \

@@ -30,7 +30,8 @@ namespace eqNet
     public:
         ConnectionDescription() 
                 : type( TYPE_TCPIP ),
-                  bandwidthKBS( 0 )
+                  bandwidthKBS( 0 ),
+                  launchTimeout( 10000 )
             {
                 TCPIP.port = 0;
             }

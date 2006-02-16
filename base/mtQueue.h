@@ -87,6 +87,7 @@ namespace eqBase
                             pthread_cond_wait( &_sync.pthread.cond,
                                                &_sync.pthread.mutex );
                         
+                        EQASSERT( !_queue.empty( ));
                         T& element = _queue.front();
                         _queue.pop();
                         pthread_mutex_unlock( &_sync.pthread.mutex );

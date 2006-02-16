@@ -26,6 +26,7 @@ Compound::Compound()
 
 // copy constructor
 Compound::Compound( const Compound& from )
+        : _parent( NULL )
 {
     const uint32_t nChildren = from.nChildren();
     for( uint32_t i=0; i<nChildren; i++ )
@@ -55,7 +56,7 @@ Compound* Compound::_getNext() const
     if( !_parent )
         return NULL;
 
-    vector<Compound*>           siblings = _parent->_children;
+    vector<Compound*>&          siblings = _parent->_children;
     vector<Compound*>::iterator result   = find( siblings.begin(),
                                                  siblings.end(), this);
 

@@ -18,6 +18,7 @@ ConnectionSet::ConnectionSet()
         : _fdSetSize(0),
           _fdSetCapacity(64),
           _fdSetDirty(true),
+          _inSelect(false),
           _errno(0)
 {
     _fdSet = new pollfd[_fdSetCapacity];

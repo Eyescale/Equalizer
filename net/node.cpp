@@ -958,10 +958,16 @@ string Node::_createRemoteCommand()
 
     ostringstream stringStream;
 
+#ifdef Darwin
+    char libPath[] = "DYLD_LIBRARY_PATH";
+#else
+    char libPath[] = "LD_LIBRARY_PATH";
+#endif
+
     stringStream << "env "; // XXX
-    char* env = getenv( "DYLD_LIBRARY_PATH" );
+    char* env = getenv( libPath );
     if( env )
-        stringStream << "DYLD_LIBRARY_PATH=" << env << " ";
+        stringStream << libPath << "=" << env << " ";
 
     env = getenv( "EQLOGLEVEL" );
     if( env )
