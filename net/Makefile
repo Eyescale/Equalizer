@@ -23,7 +23,8 @@ HEADER_SRC = \
 	requestCache.h \
 	requestQueue.h \
 	session.h \
-	uniPipeConnection.h
+	uniPipeConnection.h \
+	versionedObject.h
 
 SOURCES = \
 	barrier.cpp \
@@ -43,7 +44,8 @@ SOURCES = \
 	session.cpp \
 	socketConnection.cpp \
 	uniPipeConnection.cpp \
-	util.cpp
+	util.cpp \
+	versionedObject.cpp
 
 MODULE  = net
 

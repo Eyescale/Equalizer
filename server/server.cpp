@@ -79,20 +79,20 @@ void Server::handleDisconnect( Node* node )
     // TODO: free up resources requested by disconnected node
 }
 
-string Server::_genConfigName()
+void Server::mapConfig( Config* config )
 {
     ostringstream stringStream;
     stringStream << "EQ_CONFIG_" << (++_configID);
-    return stringStream.str();
+
+    const bool   mapped = mapSession( this, config, stringStream.str( ));
+    EQASSERT( mapped );
 }
 
 bool Server::_loadConfig( int argc, char **argv )
 {
     // TODO
     Config*    config = new Config( this );
-    const string name = _genConfigName();
-    const bool mapped = mapSession( this, config, name );
-    EQASSERT( mapped );
+    mapConfig( config );
 
     Compound* top  = new Compound;
     top->setMode( Compound::MODE_SYNC );
@@ -125,7 +125,7 @@ bool Server::_loadConfig( int argc, char **argv )
     compound->setWall( wall );
     top->addChild( compound );
 
-#if 0
+#if 1
     node = new eqs::Node();
     config->addNode( node );
 
@@ -155,102 +155,6 @@ bool Server::_loadConfig( int argc, char **argv )
 
     addConfig( config );
     return true;
-}
-
-//---------------------------------------------------------------------------
-// clones a config, used to create a per-application copy of the server config
-//---------------------------------------------------------------------------
-struct ReplaceChannelData
-{
-    Channel* oldChannel;
-    Channel* newChannel;
-};
-
-static TraverseResult replaceChannelCB( Compound* compound, void* userData )
-{
-    ReplaceChannelData* data = (ReplaceChannelData*)userData;
-
-    if( compound->getChannel() == data->oldChannel )
-        compound->setChannel( data->newChannel );
-
-    return TRAVERSE_CONTINUE;
-}
-
-Config* Server::_cloneConfig( Config* config )
-{
-    Config*      clone  = new Config( this );
-    const string name   = _genConfigName();
-    const bool   mapped = mapSession( this, clone, name );
-    EQASSERT( mapped );
-
-    const uint32_t nCompounds = config->nCompounds();
-    for( uint32_t i=0; i<nCompounds; i++ )
-    {
-        Compound* compound      = config->getCompound(i);
-        Compound* compoundClone = new Compound( *compound );
-
-        clone->addCompound( compoundClone );
-        // channel is replaced below
-    }
-
-    const uint32_t nNodes = config->nNodes();
-    for( uint32_t i=0; i<nNodes; i++ )
-    {
-        eqs::Node* node      = config->getNode(i);
-        eqs::Node* nodeClone = new eqs::Node();
-        
-        clone->addNode( nodeClone );
-
-        const uint32_t nConnectionDescriptions =node->nConnectionDescriptions();
-        for( uint32_t j=0; j<nConnectionDescriptions; j++ )
-        {
-            RefPtr<eqNet::ConnectionDescription> desc = 
-                node->getConnectionDescription(j);
-
-            nodeClone->addConnectionDescription( desc );
-        }
-
-        const uint32_t nPipes = node->nPipes();
-        for( uint32_t j=0; j<nPipes; j++ )
-        {
-            Pipe* pipe      = node->getPipe(j);
-            Pipe* pipeClone = new Pipe();
-            
-            nodeClone->addPipe( pipeClone );
-            
-            const uint32_t nWindows = pipe->nWindows();
-            for( uint32_t k=0; k<nWindows; k++ )
-            {
-                Window* window      = pipe->getWindow(k);
-                Window* windowClone = new Window();
-            
-                pipeClone->addWindow( windowClone );
-            
-                const uint32_t nChannels = window->nChannels();
-                for( uint32_t l=0; l<nChannels; l++ )
-                {
-                    Channel* channel      = window->getChannel(l);
-                    Channel* channelClone = new Channel();
-
-                    windowClone->addChannel( channelClone );
-                    
-                    ReplaceChannelData data;
-                    data.oldChannel = channel;
-                    data.newChannel = channelClone;
-
-                    for( uint32_t m=0; m<nCompounds; m++ )
-                    {
-                        Compound* compound = clone->getCompound(m);
-                        Compound::traverse( compound, replaceChannelCB, 
-                                            replaceChannelCB, NULL, &data );
-                    }
-                }
-            }
-        }
-    }
-
-    // utilisation data will be shared between copies
-    return clone;
 }
 
 //===========================================================================
@@ -312,7 +216,7 @@ eqNet::CommandResult Server::_reqChooseConfig( eqNet::Node* node, const eqNet::P
         return eqNet::COMMAND_HANDLED;
     }
 
-    Config* appConfig = _cloneConfig( config );
+    Config* appConfig = new Config( *config );
 
     // TODO: move to open: appConfig->setAppName( appName );
     appConfig->setRenderClient( packet->renderClient );
@@ -337,6 +241,9 @@ eqNet::CommandResult Server::_reqReleaseConfig( eqNet::Node* node, const eqNet::
         EQWARN << "Release request for unknown config" << endl;
         return eqNet::COMMAND_HANDLED;
     }
+
+    const bool unmapped = unmapSession( config );
+    EQASSERT( unmapped );
 
     _appConfigs.erase( packet->configID );
     delete config;

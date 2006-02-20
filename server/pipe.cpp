@@ -4,6 +4,7 @@
 
 #include "pipe.h"
 
+#include "channel.h"
 #include "config.h"
 #include "node.h"
 #include "window.h"
@@ -13,14 +14,14 @@
 using namespace eqs;
 using namespace std;
 
-Pipe::Pipe()
-        : eqNet::Base( eq::CMD_PIPE_ALL ),
-          _used( 0 ),
-          _node( NULL ),
-          _pendingRequestID(INVALID_ID),
-          _display(EQ_UNDEFINED_UINT32),
-          _screen(EQ_UNDEFINED_UINT32)
+void Pipe::_construct()
 {
+    _used             = 0;
+    _node             = NULL;
+    _pendingRequestID = INVALID_ID;
+    _display          = EQ_UNDEFINED_UINT32;
+    _screen           = EQ_UNDEFINED_UINT32;
+
     registerCommand( eq::CMD_PIPE_INIT_REPLY, this,reinterpret_cast<CommandFcn>(
                          &eqs::Pipe::_cmdInitReply ));
     registerCommand( eq::CMD_PIPE_EXIT_REPLY, this,reinterpret_cast<CommandFcn>(
@@ -29,11 +30,44 @@ Pipe::Pipe()
                          &eqs::Pipe::_cmdFrameSync ));
 }
 
+Pipe::Pipe()
+        : eqNet::Base( eq::CMD_PIPE_ALL )
+{
+    _construct();
+}
+
+Pipe::Pipe( const Pipe& from )
+        : eqNet::Base( eq::CMD_PIPE_ALL )
+{
+    _construct();
+
+    const uint32_t nWindows = from.nWindows();
+    for( uint32_t i=0; i<nWindows; i++ )
+    {
+        Window* window      = from.getWindow(i);
+        Window* windowClone = new Window( *window );
+            
+        addWindow( windowClone );
+    }    
+}
+
+
 void Pipe::addWindow( Window* window )
 {
     _windows.push_back( window ); 
     window->_pipe = this; 
-    getConfig()->registerObject( window );
+
+    Config* config = getConfig();
+    if( !config )
+        return;
+
+    config->registerObject( window );
+    const int nChannels = window->nChannels();
+    for( int i = 0; i<nChannels; ++i )
+    {
+        Channel* channel = window->getChannel( i );
+        config->registerObject( channel );
+    }
 }
 
 void Pipe::refUsed()
@@ -60,8 +94,8 @@ void Pipe::startInit()
 {
     _sendInit();
 
-    eq::PipeCreateWindowPacket createWindowPacket( _session->getID(), _id );
-    
+    eq::PipeCreateWindowPacket createWindowPacket( getSession()->getID(),
+                                                   getID( ));
     const int nWindows = _windows.size();
     for( int i=0; i<nWindows; ++i )
     {
@@ -79,7 +113,7 @@ void Pipe::_sendInit()
 {
     EQASSERT( _pendingRequestID == INVALID_ID );
 
-    eq::PipeInitPacket packet( _session->getID(), _id );
+    eq::PipeInitPacket packet( getSession()->getID(), getID( ));
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     packet.display    = _display;
@@ -128,7 +162,7 @@ void Pipe::_sendExit()
 {
     EQASSERT( _pendingRequestID == INVALID_ID );
 
-    eq::PipeExitPacket packet( _session->getID(), _id );
+    eq::PipeExitPacket packet( getSession()->getID(), getID( ));
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     _send( packet );
@@ -141,8 +175,8 @@ bool Pipe::syncExit()
     bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = INVALID_ID;
 
-    eq::PipeDestroyWindowPacket destroyWindowPacket( _session->getID(), _id );
-
+    eq::PipeDestroyWindowPacket destroyWindowPacket( getSession()->getID(), 
+                                                     getID( ));
     const int nWindows = _windows.size();
     for( int i=0; i<nWindows; ++i )
     {
@@ -173,14 +207,15 @@ void Pipe::update()
             window->update();
     }
 
-    eq::PipeFrameSyncPacket packet( _session->getID(), _id );
+    eq::PipeFrameSyncPacket packet( getSession()->getID(), getID( ));
     _send( packet );
 }
 
 //===========================================================================
 // command handling
 //===========================================================================
-eqNet::CommandResult Pipe::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_cmdInitReply( eqNet::Node* node, 
+                                          const eqNet::Packet* pkg )
 {
     eq::PipeInitReplyPacket* packet = (eq::PipeInitReplyPacket*)pkg;
     EQINFO << "handle pipe init reply " << packet << endl;
@@ -189,7 +224,8 @@ eqNet::CommandResult Pipe::_cmdInitReply( eqNet::Node* node, const eqNet::Packet
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_cmdExitReply( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_cmdExitReply( eqNet::Node* node, 
+                                          const eqNet::Packet* pkg )
 {
     eq::PipeExitReplyPacket* packet = (eq::PipeExitReplyPacket*)pkg;
     EQINFO << "handle pipe exit reply " << packet << endl;
@@ -202,7 +238,7 @@ eqNet::CommandResult Pipe::_cmdExitReply( eqNet::Node* node, const eqNet::Packet
 eqNet::CommandResult Pipe::_cmdFrameSync( eqNet::Node* node,
                                           const eqNet::Packet* pkg )
 {
-    EQINFO << "handle frame sync " << pkg << endl;
+    EQVERB << "handle frame sync " << pkg << endl;
     _frameSync.post();
     return eqNet::COMMAND_HANDLED;
 }

@@ -12,7 +12,7 @@ using namespace std;
 
 class TestMobject : public eqNet::Mobject
 {
-    void getInstanceInfo( uint32_t* typeID, std::string& data ) 
+    void getInstanceData( uint32_t* typeID, std::string& data ) 
         {
             *typeID = eqNet::MOBJECT_CUSTOM;
             data = "42";

@@ -31,6 +31,11 @@ namespace eqs
         Config( Server* server );
 
         /** 
+         * Constructs a new deep copy of a config.
+         */
+        Config( const Config& from );
+
+        /** 
          * Adds a new node to this config.
          * 
          * @param node the node.
@@ -171,13 +176,16 @@ namespace eqs
          * @name Operations
          */
         //*{
+        /** common code for all constructors */
+        void _construct();
+
         bool _init();
         bool _exit();
 
         uint32_t _frameBegin();
         uint32_t _frameEnd();
 
-        //*/
+        //*}
     };
 
     std::ostream& operator << ( std::ostream& os, const Config* config );

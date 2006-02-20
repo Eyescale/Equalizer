@@ -11,25 +11,49 @@
 using namespace eqs;
 using namespace std;
 
-Window::Window()
-        : eqNet::Base( eq::CMD_WINDOW_ALL ),
-          _used(0),
-          _pipe(NULL),
-          _pendingRequestID(INVALID_ID),
-          _swapMaster( NULL ),
-          _swapBarrier( NULL )
+void Window::_construct()
 {
+    _used             = 0;
+    _pipe             = NULL;
+    _pendingRequestID = INVALID_ID;
+    _swapMaster       = NULL;
+    _swapBarrier      = NULL;
+
     registerCommand( eq::CMD_WINDOW_INIT_REPLY, this,
                      reinterpret_cast<CommandFcn>(&eqs::Window::_cmdInitReply));
     registerCommand( eq::CMD_WINDOW_EXIT_REPLY, this, 
                      reinterpret_cast<CommandFcn>(&eqs::Window::_cmdExitReply));
 }
 
+Window::Window()
+        : eqNet::Base( eq::CMD_WINDOW_ALL )
+{
+    _construct();
+}
+
+Window::Window( const Window& from )
+        : eqNet::Base( eq::CMD_WINDOW_ALL )
+{
+    _construct();
+
+    const uint32_t nChannels = from.nChannels();
+    for( uint32_t i=0; i<nChannels; i++ )
+    {
+        Channel* channel      = from.getChannel(i);
+        Channel* channelClone = new Channel( *channel );
+
+        addChannel( channelClone );
+    }            
+}
+
 void Window::addChannel( Channel* channel )
 {
     _channels.push_back( channel ); 
     channel->_window = this; 
-    getConfig()->registerObject( channel );
+
+    Config* config = getConfig();
+    if( config )
+        config->registerObject( channel );
 }
 
 void Window::refUsed()
@@ -81,8 +105,8 @@ void Window::setSwapGroup( Window* master )
 void Window::startInit()
 {
     _sendInit();
-    eq::WindowCreateChannelPacket createChannelPacket( _session->getID(), _id );
-    
+    eq::WindowCreateChannelPacket createChannelPacket( getSession()->getID(), 
+                                                       getID( ));
     const int nChannels = _channels.size();
     for( int i=0; i<nChannels; ++i )
     {
@@ -100,7 +124,7 @@ void Window::_sendInit()
 {
     EQASSERT( _pendingRequestID == INVALID_ID );
 
-    eq::WindowInitPacket packet( _session->getID(), _id );
+    eq::WindowInitPacket packet( getSession()->getID(), getID() );
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     _send( packet );
@@ -147,7 +171,7 @@ void Window::_sendExit()
 {
     EQASSERT( _pendingRequestID == INVALID_ID );
 
-    eq::WindowExitPacket packet( _session->getID(), _id );
+    eq::WindowExitPacket packet( getSession()->getID(), getID() );
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     _send( packet );
@@ -160,7 +184,8 @@ bool Window::syncExit()
     bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = INVALID_ID;
     
-    eq::WindowDestroyChannelPacket destroyChannelPacket(_session->getID(), _id);
+    eq::WindowDestroyChannelPacket destroyChannelPacket(getSession()->getID(), 
+                                                        getID( ));
 
     const int nChannels = _channels.size();
     for( int i=0; i<nChannels; ++i )
@@ -215,7 +240,8 @@ void Window::update()
 
             EQASSERT( _swapMaster->_swapBarrier );
 
-            eq::WindowSwapWithBarrierPacket packet( _session->getID(), _id );
+            eq::WindowSwapWithBarrierPacket packet( getSession()->getID(), 
+                                                    getID( ));
             packet.barrierID = _swapMaster->_swapBarrier->getID();
             _send( packet );
             return;
@@ -225,7 +251,7 @@ void Window::update()
                << endl;
     }
 
-    eq::WindowSwapPacket packet( _session->getID(), _id );
+    eq::WindowSwapPacket packet( getSession()->getID(), getID() );
     _send( packet );
 }
 

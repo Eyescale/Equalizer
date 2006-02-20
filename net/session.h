@@ -74,6 +74,7 @@ namespace eqNet
          * @param range the size of the block.
          * @return the first identifier of the block, or <code>0</code> if no
          *         identifier is available.
+         * @todo getID( TYPE_OBJECT | ... | TYPE_CUSTOM );
          */
         uint32_t genIDs( const uint32_t range );
 

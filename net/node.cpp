@@ -409,9 +409,11 @@ ssize_t Node::_runReceiver()
     if( !getLocalNode( ))
         setLocalNode( this );
 
+    int nErrors = 0;
     while( _state == STATE_LISTENING )
     {
-        switch( _connectionSet.select( ))
+        const int result = _connectionSet.select( );
+        switch( result )
         {
             case ConnectionSet::EVENT_CONNECT:
                 _handleConnect( _connectionSet );
@@ -429,6 +431,7 @@ ssize_t Node::_runReceiver()
             case ConnectionSet::EVENT_DISCONNECT:
             {
                 _handleDisconnect( _connectionSet );
+                EQVERB << &_connectionSet << endl;
                 break;
             } 
 
@@ -437,9 +440,20 @@ ssize_t Node::_runReceiver()
                 break;
 
             case ConnectionSet::EVENT_ERROR:      
+                ++nErrors;
+                EQWARN << "Error during select" << endl;
+                if( nErrors > 9 )
+                {
+                    EQERROR << "Too many errors in a row, bailing out" << endl;
+                    return EXIT_FAILURE;
+                }
+                break;
+
             default:
                 EQERROR << "UNIMPLEMENTED" << endl;
         }
+        if( result != ConnectionSet::EVENT_ERROR )
+            nErrors = 0;
     }
 
     return EXIT_SUCCESS;

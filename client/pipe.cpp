@@ -241,7 +241,7 @@ eqNet::CommandResult Pipe::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg
 eqNet::CommandResult Pipe::_reqFrameSync(eqNet::Node* node, 
                                          const eqNet::Packet* packet )
 {
-    PipeFrameSyncPacket reply( _session->getID(), _id );
+    PipeFrameSyncPacket reply( getSession()->getID(), getID( ));
     node->send( reply );
     return eqNet::COMMAND_HANDLED;
 }

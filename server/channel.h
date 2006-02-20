@@ -32,6 +32,11 @@ namespace eqs
          */
         Channel();
 
+        /** 
+         * Constructs a new deep copy of a channel.
+         */
+        Channel( const Channel& from );
+
         /**
          * @name Data Access
          */
@@ -139,6 +144,9 @@ namespace eqs
         float        _near;
         /** Static far plane. */
         float        _far;
+
+        /** common code for all constructors */
+        void _construct();
 
         void _sendInit();
         void _sendExit();

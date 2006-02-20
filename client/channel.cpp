@@ -101,7 +101,7 @@ void Channel::applyFrustum()
     const float* frustum = _context->frustum;
     glFrustum( frustum[0], frustum[1], frustum[2], frustum[3], frustum[4],
                frustum[5] ); 
-    EQINFO << "Applied frustum: " << LOG_VECTOR6( frustum ) << endl;
+    EQVERB << "Applied frustum: " << LOG_VECTOR6( frustum ) << endl;
 }
 
 void Channel::applyHeadTransform()
@@ -110,7 +110,7 @@ void Channel::applyHeadTransform()
         return;
     
     glMultMatrixf( _context->headTransform );
-    EQINFO << "Applied head transform: " 
+    EQVERB << "Applied head transform: " 
          << LOG_MATRIX4x4( _context->headTransform ) << endl;
 }
 
@@ -159,7 +159,7 @@ eqNet::CommandResult Channel::_reqClear( eqNet::Node* node,
                                          const eqNet::Packet* pkg )
 {
     ChannelClearPacket* packet = (ChannelClearPacket*)pkg;
-    EQINFO << "handle channel clear " << packet << endl;
+    EQVERB << "handle channel clear " << packet << endl;
 
     _context = &packet->context;
     clear();
@@ -171,7 +171,7 @@ eqNet::CommandResult Channel::_reqDraw( eqNet::Node* node,
                                         const eqNet::Packet* pkg )
 {
     ChannelClearPacket* packet = (ChannelClearPacket*)pkg;
-    EQINFO << "handle channel clear " << packet << endl;
+    EQVERB << "handle channel draw " << packet << endl;
 
     _context = &packet->context;
     draw();

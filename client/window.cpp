@@ -181,7 +181,7 @@ eqNet::CommandResult eq::Window::_reqSwap(eqNet::Node* node,
                                       const eqNet::Packet* pkg)
 {
     WindowSwapPacket* packet = (WindowSwapPacket*)pkg;
-    EQINFO << "handle swap " << packet << endl;
+    EQVERB << "handle swap " << packet << endl;
 
     swap();
     return eqNet::COMMAND_HANDLED;
@@ -191,9 +191,9 @@ eqNet::CommandResult eq::Window::_reqSwapWithBarrier(eqNet::Node* node,
                                                  const eqNet::Packet* pkg)
 {
     WindowSwapWithBarrierPacket* packet = (WindowSwapWithBarrierPacket*)pkg;
-    EQINFO << "handle swap with barrier " << packet << endl;
+    EQVERB << "handle swap with barrier " << packet << endl;
 
-    eqNet::Mobject* mobject = _session->getMobject( packet->barrierID );
+    eqNet::Mobject* mobject = getSession()->getMobject( packet->barrierID );
     EQASSERT( dynamic_cast<eqNet::Barrier*>(mobject) );
 
     eqNet::Barrier* barrier = (eqNet::Barrier*)mobject;

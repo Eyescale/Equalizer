@@ -4,22 +4,25 @@
 
 #include "node.h"
 
+#include "channel.h"
 #include "config.h"
 #include "pipe.h"
+#include "window.h"
 
 #include <eq/packets.h>
 #include <eq/net/barrier.h>
 
 using namespace eqs;
+using namespace eqBase;
 using namespace std;
 
-Node::Node()
-        : eqNet::Node( eq::CMD_NODE_ALL ),
-          _used(0),
-          _config(NULL),
-          _pendingRequestID( INVALID_ID )
+void Node::_construct()
 {
-    _autoLaunch = true;
+    _used             = 0;
+    _config           = NULL;
+    _pendingRequestID = INVALID_ID;
+
+    _autoLaunch       = true;
 
     registerCommand( eq::CMD_NODE_INIT_REPLY, this,reinterpret_cast<CommandFcn>(
                          &eqs::Node::_cmdInitReply ));
@@ -27,12 +30,61 @@ Node::Node()
                          &eqs::Node::_cmdExitReply ));
 }
 
+Node::Node()
+        : eqNet::Node( eq::CMD_NODE_ALL )
+{
+    _construct();
+}
+
+Node::Node( const Node& from )
+        : eqNet::Node( eq::CMD_NODE_ALL )
+{
+    _construct();
+
+    const uint32_t nConnectionDescriptions = from.nConnectionDescriptions();
+    for( uint32_t i=0; i<nConnectionDescriptions; i++ )
+    {
+        eqNet::ConnectionDescription* desc = 
+            from.getConnectionDescription(i).get();
+        
+        addConnectionDescription( new eqNet::ConnectionDescription( *desc ));
+    }
+
+    const uint32_t nPipes = from.nPipes();
+    for( uint32_t i=0; i<nPipes; i++ )
+    {
+        Pipe* pipe      = from.getPipe(i);
+        Pipe* pipeClone = new Pipe( *pipe );
+            
+        addPipe( pipeClone );
+    }
+}
+
+
 void Node::addPipe( Pipe* pipe )
 {
     _pipes.push_back( pipe ); 
     pipe->_node = this; 
+
+    if( !_config )
+        return;
+
     pipe->adjustLatency( _config->getLatency( ));
+
     _config->registerObject( pipe );
+    const int nWindows = pipe->nWindows();
+    for( int j = 0; j<nWindows; ++j )
+    {
+        Window* window = pipe->getWindow( j );
+        _config->registerObject( window );
+
+        const int nChannels = window->nChannels();
+        for( int i = 0; i<nChannels; ++i )
+        {
+            Channel* channel = window->getChannel( i );
+            _config->registerObject( channel );
+        }
+    }
 }
 
 bool Node::removePipe( Pipe* pipe )
@@ -73,7 +125,7 @@ void Node::startInit()
 {
     _sendInit();
 
-    eq::NodeCreatePipePacket createPipePacket( _session->getID(), _id );
+    eq::NodeCreatePipePacket createPipePacket( _config->getID(), getID( ));
 
     const uint32_t nPipes = _pipes.size();
     for( uint32_t i=0; i<nPipes; i++ )
@@ -92,7 +144,7 @@ void Node::_sendInit()
 {
     EQASSERT( _pendingRequestID == INVALID_ID );
 
-    eq::NodeInitPacket packet( _config->getID(), _id );
+    eq::NodeInitPacket packet( _config->getID(), getID( ));
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     send( packet );
@@ -139,7 +191,7 @@ void Node::_sendExit()
 {
     EQASSERT( _pendingRequestID == INVALID_ID );
 
-    eq::NodeExitPacket packet( _config->getID(), _id );
+    eq::NodeExitPacket packet( _config->getID(), getID( ));
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     send( packet );
@@ -152,7 +204,7 @@ bool Node::syncExit()
     bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = INVALID_ID;
     
-    eq::NodeDestroyPipePacket destroyPipePacket( _session->getID(), _id );
+    eq::NodeDestroyPipePacket destroyPipePacket( _config->getID(), getID( ));
     
     const uint32_t nPipes = _pipes.size();
     for( uint32_t i=0; i<nPipes; i++ )
@@ -173,7 +225,7 @@ bool Node::syncExit()
 
 void Node::stop()
 {
-    eq::NodeStopPacket packet( _config->getID(), _id );
+    eq::NodeStopPacket packet( _config->getID(), getID( ));
     send( packet );
 }
 
@@ -182,7 +234,7 @@ void Node::stop()
 //---------------------------------------------------------------------------
 void Node::update()
 {
-    EQINFO << "Start frame" << endl;
+    EQVERB << "Start frame" << endl;
     const uint32_t nPipes = this->nPipes();
     for( uint32_t i=0; i<nPipes; i++ )
     {

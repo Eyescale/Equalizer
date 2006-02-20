@@ -45,14 +45,18 @@ namespace eqNet
          * @param typeID the type identifier of this mobject.
          * @param data a serialized string containing the mobject information.
          */
-        virtual void getInstanceInfo( uint32_t* typeID, std::string& data ) =0;
+        virtual void getInstanceData( uint32_t* typeID, std::string& data ) =0;
 
     protected:
+        /** 
+         * @return if this instance is the master version.
+         */
+        bool isMaster() const { return _master; }
+
+    private:
         /** Indicates if this instance is the copy on the server node. */
         friend class Session;
         bool     _master;
-
-    private:
     };
 }
 

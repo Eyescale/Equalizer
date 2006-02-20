@@ -54,7 +54,7 @@ namespace eqNet
 
     protected:
         /** @sa Mobject::getInstanceInfo */
-        virtual void getInstanceInfo( uint32_t* typeID, std::string& data );
+        virtual void getInstanceData( uint32_t* typeID, std::string& data );
 
     private:
         /** The height of the barrier, only set on the master. */

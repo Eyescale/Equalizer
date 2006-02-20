@@ -45,7 +45,14 @@ namespace eqs
         bool run( int argc, char **argv );
 
         /** 
-         * Adds a new config to this config.
+         * Map a config to this server.
+         * @todo 
+         * @param config the config.
+         */
+        void mapConfig( Config* config );
+
+        /** 
+         * Adds a new config to this server.
          * 
          * @param config the config.
          */
@@ -117,10 +124,6 @@ namespace eqs
         /** Loads the server's configuration. */
         bool _loadConfig( int argc, char **argv );
 
-        /** Clones a configuration. */
-        Config* _cloneConfig( Config* config );
-
-        std::string _genConfigName();
         void        _handleRequests(); 
 
         /** The command functions. */

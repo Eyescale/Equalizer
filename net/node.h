@@ -252,7 +252,7 @@ namespace eqNet
          * @return the connection description.
          */
         eqBase::RefPtr<ConnectionDescription> getConnectionDescription(
-            const uint32_t index )
+            const uint32_t index ) const
             { return _connectionDescriptions[index]; }
 
         /** 

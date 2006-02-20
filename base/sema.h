@@ -61,7 +61,7 @@ namespace eqBase
             } _pthread;
         };
 
-        uint32_t _value;
+        volatile uint32_t _value;
     };
 }
 

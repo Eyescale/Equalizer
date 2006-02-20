@@ -29,6 +29,11 @@ namespace eqs
         Pipe();
 
         /** 
+         * Constructs a new deep copy of a pipe.
+         */
+        Pipe( const Pipe& from );
+
+        /** 
          * Adds a new window to this config.
          * 
          * @param window the window.
@@ -169,6 +174,9 @@ namespace eqs
         /** A counter for the number of allowed pending frames. */
         eqBase::Sema _frameSync;
 
+
+        /** common code for all constructors */
+        void _construct();
 
         void _send( const eqNet::Packet& packet ){ _node->send( packet ); }
 

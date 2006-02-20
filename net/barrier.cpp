@@ -39,7 +39,7 @@ Barrier::Barrier( const char* instanceInfo )
 }
 
 
-void Barrier::getInstanceInfo( uint32_t* typeID, std::string& data )
+void Barrier::getInstanceData( uint32_t* typeID, std::string& data )
 {
     *typeID = MOBJECT_EQNET_BARRIER;
     
@@ -51,14 +51,14 @@ void Barrier::getInstanceInfo( uint32_t* typeID, std::string& data )
 
 void Barrier::enter()
 {
-    EQASSERT( _session );
+    EQASSERT( getSession( ));
 
-    if( _master )
+    if( isMaster( ))
     {
         _lock.set();
         EQASSERT( _slaves.size() == _height-1 );
 
-        BarrierEnterReplyPacket packet( _session->getID(), _id );
+        BarrierEnterReplyPacket packet( getSession()->getID(), getID( ));
         for( uint32_t i=0; i<_height-1; ++i )
             _slaves[i]->send( packet );
 
@@ -66,10 +66,10 @@ void Barrier::enter()
         return;
     }
 
-    eqBase::RefPtr<Node> master = _session->getIDMaster( _id );
+    eqBase::RefPtr<Node> master = getSession()->getIDMaster( getID( ));
     EQASSERT( master.isValid( ));
 
-    BarrierEnterPacket packet( _session->getID(), _id );
+    BarrierEnterPacket packet( getSession()->getID(), getID( ));
     
     master->send( packet );
     _lock.set();
@@ -77,7 +77,7 @@ void Barrier::enter()
 
 CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
 {
-    EQASSERT( _master );
+    EQASSERT( isMaster( ));
     _slaves.push_back( node );
 
     if( _slaves.size() == _height-1 )
@@ -88,7 +88,7 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
 
 CommandResult Barrier::_cmdEnterReply( Node* node, const Packet* pkg )
 {
-    EQASSERT( !_master );
+    EQASSERT( !isMaster( ));
     _lock.unset();
     return COMMAND_HANDLED;
 }

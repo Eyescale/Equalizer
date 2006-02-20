@@ -16,18 +16,30 @@ using namespace eqs;
 using namespace eqBase;
 using namespace std;
 
-Channel::Channel()
-        : eqNet::Base( eq::CMD_CHANNEL_ALL ),
-          _used(0),
-          _window(NULL),
-          _pendingRequestID(INVALID_ID)
+void Channel::_construct()
 {
-    registerCommand( eq::CMD_CHANNEL_INIT_REPLY, this, 
+    _used             = 0;
+    _window           = NULL;
+    _pendingRequestID = INVALID_ID;
+
+    registerCommand( eq::CMD_CHANNEL_INIT_REPLY, this,
                      reinterpret_cast<CommandFcn>(
                          &eqs::Channel::_cmdInitReply ));
     registerCommand( eq::CMD_CHANNEL_EXIT_REPLY, this,
                      reinterpret_cast<CommandFcn>(
                          &eqs::Channel::_cmdExitReply ));
+}
+
+Channel::Channel()
+        : eqNet::Base( eq::CMD_CHANNEL_ALL )
+{
+    _construct();
+}
+
+Channel::Channel( const Channel& from )
+        : eqNet::Base( eq::CMD_CHANNEL_ALL )
+{
+    _construct();
 }
 
 void Channel::refUsed()
@@ -61,7 +73,7 @@ void Channel::_sendInit()
 {
     EQASSERT( _pendingRequestID == INVALID_ID );
 
-    eq::ChannelInitPacket packet( _session->getID(), _id );
+    eq::ChannelInitPacket packet( getSession()->getID(), getID( ));
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     send( packet );
@@ -86,7 +98,7 @@ void Channel::_sendExit()
 {
     EQASSERT( _pendingRequestID == INVALID_ID );
 
-    eq::ChannelExitPacket packet( _session->getID(), _id );
+    eq::ChannelExitPacket packet( getSession()->getID(), getID( ));
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     send( packet );

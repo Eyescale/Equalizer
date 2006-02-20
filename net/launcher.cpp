@@ -5,6 +5,7 @@
 #include "launcher.h"
 
 #include <errno.h>
+#include <sstream>
 #include <unistd.h>
 
 using namespace eqNet;
@@ -73,15 +74,21 @@ ssize_t Launcher::run()
 {
     const size_t argc         = _commandLine.size();
     char*        argv[argc+1];
-    
+    ostringstream stringStream;
+
     for( size_t i=0; i<argc; i++ )
+    {
         argv[i] = (char*)_commandLine[i].c_str();
+        stringStream << _commandLine[i] << " ";
+    }
 
     argv[argc] = NULL;
 
-    EQINFO << "Executing: " << argv[0] << endl;
+    EQINFO << "Executing: " << stringStream.str() << endl;
     //return EXIT_SUCCESS;
+
     execvp( argv[0], argv );
     EQWARN << "Error executing '" << argv[0] << "': " << strerror(errno) <<endl;
+
     return EXIT_FAILURE;
 }

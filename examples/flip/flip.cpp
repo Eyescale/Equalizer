@@ -105,7 +105,8 @@ int main( int argc, char** argv )
     if( !config->init( ))
         DIE("Config initialisation failed.");
 
-    while( true )
+    int nFrames = 100;
+    while( --nFrames )
     {
         // update database
 
@@ -117,7 +118,7 @@ int main( int argc, char** argv )
         // process events
     }
 
-    sleep( 5 );
+    //sleep( 5 );
     config->exit();
     server.releaseConfig( config );
     server.close();

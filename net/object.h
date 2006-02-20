@@ -40,11 +40,10 @@ namespace eqNet
                                              const ObjectPacket* packet );
 
     protected:
+    private:
         friend class  Session;
         uint32_t _id;
         Session* _session;
-
-    private:
     };
 }
 

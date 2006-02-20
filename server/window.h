@@ -30,6 +30,11 @@ namespace eqs
          */
         Window();
 
+        /** 
+         * Constructs a new deep copy of a window.
+         */
+        Window( const Window& from );
+
         virtual ~Window(){}
 
         /**
@@ -170,6 +175,9 @@ namespace eqs
         /** The id of the current swap barrier. */
         eqNet::Barrier*      _swapBarrier;
         
+        /** common code for all constructors */
+        void _construct();
+
         void _send( const eqNet::Packet& packet ) { getNode()->send( packet ); }
 
         void _sendInit();

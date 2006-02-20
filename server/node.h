@@ -29,6 +29,11 @@ namespace eqs
         Node();
 
         /** 
+         * Constructs a new deep copy of a node.
+         */
+        Node( const Node& from );
+
+        /** 
          * Returns the parent config of this node.
          * 
          * @return the parent config of this node.
@@ -193,6 +198,8 @@ namespace eqs
             STATE_INITIALISED
         };
 
+        /** common code for all constructors */
+        void _construct();
 
         void _sendInit();
         void _sendExit();

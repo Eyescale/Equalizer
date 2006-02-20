@@ -136,12 +136,13 @@ RefPtr<Node> Session::getIDMaster( const uint32_t id )
     if( master.isValid() || _isMaster )
         return master;
 
-    // ask master
+    // ask session master instance
     SessionGetIDMasterPacket packet( _id );
     packet.requestID = _requestHandler.registerRequest();
     packet.id        = id;
 
-    _localNode->send( packet );
+    // ??? _localNode->send( packet );
+    send( packet );
     return (Node*)_requestHandler.waitRequest( packet.requestID );
 }
 
@@ -195,7 +196,7 @@ void Session::registerMobject( Mobject* object, Node* master )
     packet.isMaster  = true;
 
     string mobjectData;
-    object->getInstanceInfo( &packet.mobjectType, mobjectData );
+    object->getInstanceData( &packet.mobjectType, mobjectData );
     
     master->send( packet, mobjectData );
 }
@@ -538,7 +539,7 @@ CommandResult Session::_cmdInitMobject( Node* node, const Packet* pkg )
     reply.mobjectID = id;
     
     string mobjectData;
-    mobject->getInstanceInfo( &reply.mobjectType, mobjectData );
+    mobject->getInstanceData( &reply.mobjectType, mobjectData );
     
     node->send( reply, mobjectData );
     return COMMAND_HANDLED;
