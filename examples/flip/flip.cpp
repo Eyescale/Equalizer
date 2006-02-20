@@ -102,10 +102,13 @@ int main( int argc, char** argv )
     if( !config )
         DIE("No matching config on server.");
 
+    eqBase::Clock clock;
     if( !config->init( ))
         DIE("Config initialisation failed.");
+    cerr << "Config init took " << clock.getTimef() << " ms" << endl;
 
     int nFrames = 100;
+    clock.reset();
     while( --nFrames )
     {
         // update database
@@ -117,12 +120,15 @@ int main( int argc, char** argv )
 
         // process events
     }
+    cerr << "Rendering took " << clock.getTimef() << " ms" << endl;
 
     //sleep( 5 );
+    clock.reset();
     config->exit();
     server.releaseConfig( config );
     server.close();
     eq::exit();
+    cerr << "Exit took " << clock.getTimef() << " ms" << endl;
     return EXIT_SUCCESS;
 }
 

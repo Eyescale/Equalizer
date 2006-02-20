@@ -86,9 +86,15 @@ ssize_t Launcher::run()
 
     EQINFO << "Executing: " << stringStream.str() << endl;
     //return EXIT_SUCCESS;
-
-    execvp( argv[0], argv );
-    EQWARN << "Error executing '" << argv[0] << "': " << strerror(errno) <<endl;
+    int nTries = 10;
+    while( nTries-- )
+    {
+        execvp( argv[0], argv );
+        EQWARN << "Error executing '" << argv[0] << "': " << strerror(errno)
+               << endl;
+        if( errno != ETXTBSY )
+            break;
+    }
 
     return EXIT_FAILURE;
 }

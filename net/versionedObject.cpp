@@ -27,7 +27,7 @@ uint32_t VersionedObject::commit()
         return EQ_UNDEFINED_UINT32;
 
     
-//    VersionedObjectSyncPacket packet( getSession()->getID(), getID( ));
+    //VersionedObjectSyncPacket packet( getSession()->getID(), getID( ));
     string delta;
     pack( delta );
     

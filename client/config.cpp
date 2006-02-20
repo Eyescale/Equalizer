@@ -85,7 +85,7 @@ eqNet::CommandResult Config::_cmdFrameBeginReply(eqNet::Node* node,
                                                  const eqNet::Packet* pkg )
 {
     ConfigFrameBeginReplyPacket* packet = (ConfigFrameBeginReplyPacket*)pkg;
-    EQINFO << "handle frame begin reply " << packet << endl;
+    EQVERB << "handle frame begin reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;
@@ -95,7 +95,7 @@ eqNet::CommandResult Config::_cmdFrameEndReply( eqNet::Node* node,
                                                 const eqNet::Packet* pkg )
 {
     ConfigFrameEndReplyPacket* packet = (ConfigFrameEndReplyPacket*)pkg;
-    EQINFO << "handle frame end reply " << packet << endl;
+    EQVERB << "handle frame end reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;
