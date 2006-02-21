@@ -414,7 +414,8 @@ namespace eqNet
                                  const SessionInstanciateMobjectPacket* packet )
     {
         os << (SessionPacket*)packet << " mobj id " << packet->mobjectID <<
-            " type " << packet->mobjectType << " data " << packet->mobjectData;
+            " type " << packet->mobjectType << " master " << packet->isMaster 
+           << " data " << packet->mobjectData;
         return os;
     }
 }

@@ -444,8 +444,9 @@ ssize_t Node::_runReceiver()
                 EQWARN << "Error during select" << endl;
                 if( nErrors > 9 )
                 {
-                    EQERROR << "Too many errors in a row, bailing out" << endl;
-                    return EXIT_FAILURE;
+                    EQWARN << "Too many errors in a row, capping connection" 
+                           << endl;
+                    _handleDisconnect( _connectionSet );
                 }
                 break;
 
@@ -547,8 +548,11 @@ void Node::_handleRequest( Node* node )
     EQVERB << "Handle request from " << node << endl;
 
     uint64_t size;
-    bool gotData = node->recv( &size, sizeof( size ));
-    EQASSERT( gotData );
+    const uint64_t read = node->_connection->recv( &size, sizeof( size ));
+    if( read == 0 ) // Some systems signal data on dead connections.
+        return;
+
+    EQASSERT( read == sizeof( size ));
     EQASSERT( size );
 
     // limit size due to use of alloca(). TODO: implement malloc-based recv?
@@ -558,8 +562,8 @@ void Node::_handleRequest( Node* node )
     packet->size   = size;
     size -= sizeof( size );
 
-    char* ptr = (char*)packet + sizeof(size);
-    gotData   = node->recv( ptr, size );
+    char*      ptr     = (char*)packet + sizeof(size);
+    const bool gotData = node->recv( ptr, size );
     EQASSERT( gotData );
 
     const CommandResult result = dispatchPacket( node, packet );
@@ -597,7 +601,7 @@ void Node::_redispatchPackets()
             case COMMAND_HANDLED:
             {
                 list<Request*>::iterator handledIter = iter;
-                iter++;
+                ++iter;
                 _pendingRequests.erase( handledIter );
                 _requestCache.release( request );
             }

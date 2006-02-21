@@ -529,9 +529,12 @@ CommandResult Session::_cmdInitMobject( Node* node, const Packet* pkg )
     SessionInitMobjectPacket* packet = (SessionInitMobjectPacket*)pkg;
     EQINFO << "cmd init mobject " << packet << endl;
 
-    const uint32_t id      = packet->mobjectID;
-    Object*        object  = _registeredObjects[id];
-    EQASSERT( object );
+    const uint32_t id     = packet->mobjectID;
+    Object*        object = _registeredObjects[id];
+
+    if( !object ) // not yet instanciated
+        return COMMAND_RESCHEDULE;
+
     EQASSERT( dynamic_cast<Mobject*>(object) );
     
     Mobject* mobject = (Mobject*)object;

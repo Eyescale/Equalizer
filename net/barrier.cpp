@@ -28,6 +28,7 @@ Barrier::Barrier( const char* instanceInfo )
         : Base( CMD_BARRIER_ALL )
 {
     _height = atoi( instanceInfo );
+    EQASSERT( _height > 1 );
     _lock.set();
 
     registerCommand( CMD_BARRIER_ENTER, this, reinterpret_cast<CommandFcn>(

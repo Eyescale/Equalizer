@@ -3,7 +3,12 @@
    All rights reserved. */
 
 #include <test.h>
-#include <eq/eq.h>
+
+#include <eq/net/barrier.h>
+#include <eq/net/connection.h>
+#include <eq/net/init.h>
+#include <eq/net/node.h>
+#include <eq/net/session.h>
 
 #include <iostream>
 
