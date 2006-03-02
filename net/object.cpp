@@ -13,7 +13,7 @@ using namespace eqNet;
 using namespace std;
 
 Object::Object()
-        : _id( INVALID_ID ),
+        : _id( EQ_INVALID_ID ),
           _session( NULL )
 {
 }

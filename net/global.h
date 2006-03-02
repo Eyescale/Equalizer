@@ -12,10 +12,7 @@ namespace eqNet
     // global defines
 
     /** An invalid identifier. */
-#   define INVALID_ID 0xfffffffe
-
-    /** The any node identifier. */
-#   define NODE_ID_ANY 0xffffffff
+#   define EQ_INVALID_ID 0xfffffffe
 
     /** 
      * Global parameter handling for the Equalizer network implementation. 

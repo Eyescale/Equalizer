@@ -18,9 +18,9 @@ void Pipe::_construct()
 {
     _used             = 0;
     _node             = NULL;
-    _pendingRequestID = INVALID_ID;
-    _display          = EQ_UNDEFINED_UINT32;
-    _screen           = EQ_UNDEFINED_UINT32;
+    _pendingRequestID = EQ_INVALID_ID;
+    _display          = EQ_UNDEFINED;
+    _screen           = EQ_UNDEFINED;
 
     registerCommand( eq::CMD_PIPE_INIT_REPLY, this,reinterpret_cast<CommandFcn>(
                          &eqs::Pipe::_cmdInitReply ));
@@ -111,7 +111,7 @@ void Pipe::startInit()
 
 void Pipe::_sendInit()
 {
-    EQASSERT( _pendingRequestID == INVALID_ID );
+    EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
     eq::PipeInitPacket packet( getSession()->getID(), getID( ));
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -133,11 +133,11 @@ bool Pipe::syncInit()
                 success = false;
     }
 
-    EQASSERT( _pendingRequestID != INVALID_ID );
+    EQASSERT( _pendingRequestID != EQ_INVALID_ID );
 
     if( !(bool)_requestHandler.waitRequest( _pendingRequestID ))
         success = false;
-    _pendingRequestID = INVALID_ID;
+    _pendingRequestID = EQ_INVALID_ID;
 
     return success;
 }
@@ -160,7 +160,7 @@ void Pipe::startExit()
 
 void Pipe::_sendExit()
 {
-    EQASSERT( _pendingRequestID == INVALID_ID );
+    EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
     eq::PipeExitPacket packet( getSession()->getID(), getID( ));
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -170,10 +170,10 @@ void Pipe::_sendExit()
 
 bool Pipe::syncExit()
 {
-    EQASSERT( _pendingRequestID != INVALID_ID );
+    EQASSERT( _pendingRequestID != EQ_INVALID_ID );
 
     bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
-    _pendingRequestID = INVALID_ID;
+    _pendingRequestID = EQ_INVALID_ID;
 
     eq::PipeDestroyWindowPacket destroyWindowPacket( getSession()->getID(), 
                                                      getID( ));

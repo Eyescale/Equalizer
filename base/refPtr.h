@@ -52,16 +52,20 @@ namespace eqBase
                 return *this;
             }
 
-        bool operator == ( const RefPtr& rhs ) { return ( _ptr==rhs._ptr ); }
-        bool operator != ( const RefPtr& rhs ) { return ( _ptr!=rhs._ptr ); }
-        bool operator <  ( const RefPtr& rhs ) { return ( _ptr < rhs._ptr ); }
-        bool operator >  ( const RefPtr& rhs ) { return ( _ptr > rhs._ptr ); }
+        bool operator == ( const RefPtr& rhs ) const 
+            { return ( _ptr==rhs._ptr ); }
+        bool operator != ( const RefPtr& rhs ) const
+            { return ( _ptr!=rhs._ptr ); }
+        bool operator <  ( const RefPtr& rhs ) const
+            { return ( _ptr < rhs._ptr ); }
+        bool operator >  ( const RefPtr& rhs ) const
+            { return ( _ptr > rhs._ptr ); }
         bool operator ! () const               { return ( _ptr==NULL ); }
 
-        bool operator == ( const T* ptr ) { return ( _ptr==ptr ); }
-        bool operator != ( const T* ptr ) { return ( _ptr!=ptr ); }
-        bool operator <  ( const T* ptr ) { return ( _ptr < ptr ); }
-        bool operator >  ( const T* ptr ) { return ( _ptr > ptr ); }
+        bool operator == ( const T* ptr ) const { return ( _ptr==ptr ); }
+        bool operator != ( const T* ptr ) const { return ( _ptr!=ptr ); }
+        bool operator <  ( const T* ptr ) const { return ( _ptr < ptr ); }
+        bool operator >  ( const T* ptr ) const { return ( _ptr > ptr ); }
 
         T*       operator->()       { EQASSERT(_ptr); return _ptr; }
         const T* operator->() const { EQASSERT(_ptr); return _ptr; }

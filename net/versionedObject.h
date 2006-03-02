@@ -6,7 +6,9 @@
 #define EQNET_VERSIONEDOBJECT_H
 
 #include "mobject.h"
-#include <eq/base/referenced.h>
+
+#include "commands.h"
+#include "requestQueue.h"
 
 namespace eqNet
 {
@@ -24,16 +26,16 @@ namespace eqNet
      * that is, a version smaller than the current version cannot be
      * synchronized. Versioned objects are obtained like Mobjects. 
      */
-    class VersionedObject : public Mobject
+    class VersionedObject : public Mobject, public Base
     {
     public:
-        VersionedObject();
+        VersionedObject( const uint32_t nCommands=CMD_VERSIONED_OBJECT_CUSTOM );
         virtual ~VersionedObject();
         
         /** 
          * Commit a new version of this object.
          * 
-         * @return the new head version.
+         * @return the new head version, or <code>0</code> upon error.
          */
         uint32_t commit();
 
@@ -61,7 +63,7 @@ namespace eqNet
          * 
          * @return the head version.
          */
-        uint32_t getHeadVersion() const;
+        uint32_t getHeadVersion();
 
         /** 
          * Get the currently synchronized version.
@@ -83,10 +85,19 @@ namespace eqNet
          * 
          * @param delta a string containing the changes.
          */
-        virtual void unpack( const std::string& delta ) = 0;
+        virtual void unpack( const char* delta ) = 0;
 
     private:
+        /** The current version. */
         uint32_t _version;
+
+        RequestQueue _syncQueue;
+
+        /* The command handlers. */
+        CommandResult _cmdSync( Node* node, const Packet* pkg )
+            { _syncQueue.push( node, pkg ); return eqNet::COMMAND_HANDLED; }
+
+        void _reqSync( Node* node, const Packet* pkg );
     };
 }
 

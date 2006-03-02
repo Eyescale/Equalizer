@@ -20,7 +20,7 @@ void Channel::_construct()
 {
     _used             = 0;
     _window           = NULL;
-    _pendingRequestID = INVALID_ID;
+    _pendingRequestID = EQ_INVALID_ID;
 
     registerCommand( eq::CMD_CHANNEL_INIT_REPLY, this,
                      reinterpret_cast<CommandFcn>(
@@ -71,7 +71,7 @@ void Channel::startInit()
 
 void Channel::_sendInit()
 {
-    EQASSERT( _pendingRequestID == INVALID_ID );
+    EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
     eq::ChannelInitPacket packet( getSession()->getID(), getID( ));
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -82,7 +82,7 @@ void Channel::_sendInit()
 bool Channel::syncInit()
 {
     const bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
-    _pendingRequestID = INVALID_ID;
+    _pendingRequestID = EQ_INVALID_ID;
     return success;
 }
 
@@ -96,7 +96,7 @@ void Channel::startExit()
 
 void Channel::_sendExit()
 {
-    EQASSERT( _pendingRequestID == INVALID_ID );
+    EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
     eq::ChannelExitPacket packet( getSession()->getID(), getID( ));
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -106,10 +106,10 @@ void Channel::_sendExit()
 
 bool Channel::syncExit()
 {
-    EQASSERT( _pendingRequestID != INVALID_ID );
+    EQASSERT( _pendingRequestID != EQ_INVALID_ID );
 
     const bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
-    _pendingRequestID = INVALID_ID;
+    _pendingRequestID = EQ_INVALID_ID;
     return success;
 }
 

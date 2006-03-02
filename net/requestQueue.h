@@ -46,10 +46,33 @@ namespace eqNet
          */
         void pop( Node** node, Packet** packet );
 
+        /** 
+         * Try to pop a request from the queue.
+         *
+         * The returned packet is valid until the next pop operation.
+         * 
+         * @param node return value for the node sending the package.
+         * @param packet return value for the packet.
+         * @return <code>true</code> if a request was popped, <code>false</code>
+         *         if not.
+         */
+        bool tryPop( Node** node, Packet** packet );
+
+        
+        /** 
+         * Peek the request at the end of the queue.
+         *
+         * @param node return value for the node sending the package.
+         * @param packet return value for the packet.
+         * @return <code>true</code> if an element exists, <code>false</code>
+         *         if not.
+         */
+        bool back( Node** node, Packet** packet );
+
     private:
 
         /** Thread-safe request queue. */
-        eqBase::MTQueue<Request*> _requests;
+        eqBase::MTQueue<Request>  _requests;
         
         /** The last popped request, to be released upon the next pop. */
         Request*                  _lastRequest;

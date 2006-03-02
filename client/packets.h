@@ -31,7 +31,7 @@ namespace eq
         ServerChooseConfigPacket()
             {
                 command = CMD_SERVER_CHOOSE_CONFIG;
-                size    = sizeof( ServerChooseConfigPacket ) - 8;
+                size    = sizeof( ServerChooseConfigPacket );
                 renderClient[0] = '\0';
             }
 
@@ -46,7 +46,7 @@ namespace eq
                                        requestPacket )
             {
                 command   = CMD_SERVER_CHOOSE_CONFIG_REPLY;
-                size      = sizeof( ServerChooseConfigReplyPacket ) - 8;
+                size      = sizeof( ServerChooseConfigReplyPacket );
                 requestID = requestPacket->requestID;
                 sessionName[0] = '\0';
             }
@@ -174,7 +174,7 @@ namespace eq
         NodeCreateConfigPacket()
             {
                 command = CMD_NODE_CREATE_CONFIG;
-                size    = sizeof( NodeCreateConfigPacket ) - 8;
+                size    = sizeof( NodeCreateConfigPacket );
                 name[0] = '\0';
             }
 

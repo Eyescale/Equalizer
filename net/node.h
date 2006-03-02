@@ -11,6 +11,7 @@
 #include "connectionSet.h"
 #include "idHash.h"
 #include "message.h"
+#include "nodeID.h"
 #include "requestCache.h"
 
 #include <eq/base/base.h>
@@ -118,8 +119,7 @@ namespace eqNet
          * @return the node, or <code>NULL</code> if the node could not be found
          *         and was not reachable.
          */
-        eqBase::RefPtr<Node> getNodeWithConnection( const char*
-                                                    connectionDescription );
+        eqBase::RefPtr<Node> getNode( const NodeID& id ){ return _nodes[id]; }
 
         /** 
          * Connects and potentially launches this node using to the available
@@ -302,16 +302,21 @@ namespace eqNet
          * The data is send as a new packet containing the original packet and
          * the string, so that it is received as one packet by the node.
          *
-         * It is assumed that the packet has space for additional (wrt
-         * packet.size) 8 characters. This is used for optimising the send of
-         * short strings and on the receiver side to access the string. The node
-         * implementation gives examples of this usage.
+         * It is assumed that the last 8 bytes in the packet are usable for the
+         * string.  This is used for optimising the send of short strings and on
+         * the receiver side to access the string. The node implementation gives
+         * examples of this usage.
          *
          * @param packet the packet.
          * @param string the string.
          * @return the success status of the transaction.
          */
-        bool send( Packet& packet, const std::string& string );
+        bool send( Packet& packet, const std::string& string )
+            {
+                if( !checkConnection() )
+                    return false;
+                return ( _connection->send( packet, string ) >= packet.size );
+            }
 
         /** 
          * Notifies that a message is ready to be received.
@@ -393,15 +398,6 @@ namespace eqNet
         bool unmapSession( Session* session );
 
         /** 
-         * Find a named, mapped session.
-         * 
-         * @param name the session name.
-         * @return the session, or <code>NULL</code> if the session is not
-         *         mapped on this node.
-         */
-        Session* findSession( const std::string& name ) const;
-
-        /** 
          * Adds a mapped session to this node.
          * 
          * @param session the session.
@@ -432,6 +428,8 @@ namespace eqNet
          *         <code>false</code> if not.
          */
         bool inReceiverThread() const { return _receiverThread->isCurrent(); }
+
+        const NodeID& getNodeID(){ return _id; }
 
     protected:
         /** Determines if the node should be launched automatically. */
@@ -491,13 +489,6 @@ namespace eqNet
             { return new Node(); }
 
         /** 
-         * Factory method to create a new session.
-         * 
-         * @return the session.
-         */
-        virtual Session* createSession();
-
-        /** 
          * Returns the program name to start this node.
          * 
          * @return the program name to start this node.
@@ -506,10 +497,16 @@ namespace eqNet
             { return Global::getProgramName(); }
 
     private:
+        /* Globally unique identifier. */
+        NodeID _id;
+
         /** The current state of this node. */
         State _state;
 
-        /** The current sessions of this node. */
+        /** The connected nodes. */
+        NodeIDHash< eqBase::RefPtr<Node> > _nodes;
+
+        /** The current mapped sessions of this node. */
         IDHash<Session*> _sessions;
 
         /** The connection to this node, for remote nodes. */
@@ -531,6 +528,10 @@ namespace eqNet
         /** The list of descriptions on how this node is reachable. */
         std::vector< eqBase::RefPtr<ConnectionDescription> >
             _connectionDescriptions;
+
+#ifdef CHECK_THREADSAFETY
+        mutable pthread_t _threadID;
+#endif
 
         bool _listenToSelf();
         void _cleanup();
@@ -558,6 +559,22 @@ namespace eqNet
                                           description );
         std::string   _createRemoteCommand();
 
+
+        /** 
+         * Performs the initial connection handshake and returns the peer's
+         * connect packet.
+         *
+         * The returned packet has to be free'd by the caller.
+         * 
+         * @param connection the connection.
+         * @return the peer's connect packet, or <code>NULL</code> if the
+         *         connection handshake failed.
+         */
+        NodeConnectPacket* _performConnect( eqBase::RefPtr<Connection>
+                                            connection );
+        NodeConnectPacket*   _readConnectReply( eqBase::RefPtr<Connection> 
+                                                connection );
+
         /** 
          * Find a connected node using a connection description
          * 
@@ -566,6 +583,15 @@ namespace eqNet
          */
         eqBase::RefPtr<Node> _findConnectedNode( const char* 
                                                  connectionDescription );
+
+        /** 
+         * Find a named, mapped session.
+         * 
+         * @param name the session name.
+         * @return the session, or <code>NULL</code> if the session is not
+         *         mapped on this node.
+         */
+        Session* _findSession( const std::string& name ) const;
 
         /** Generates a new, unique session identifier. */
         uint32_t Node::_generateSessionID();
@@ -604,14 +630,13 @@ namespace eqNet
         static uint64_t _getMessageSize( const MessageType type, 
                                          const uint64_t count );
 
-        friend inline std::ostream& operator << ( std::ostream& os,
-                                                  const Node* node );
+        friend std::ostream& operator << ( std::ostream& os, const Node* node );
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Node* node )
     {
         if( node )
-            os << "node " << (void*)node << ", " << node->_connection.get();
+            os << "node " << node->_id << ", " << node->_connection.get();
         else
             os << "NULL node";
         

@@ -3,7 +3,12 @@
    All rights reserved. */
 
 #include <test.h>
-#include <eq/eq.h>
+
+#include <eq/net/connection.h>
+#include <eq/net/init.h>
+#include <eq/net/pipeConnection.h>
+#include <eq/net/session.h>
+#include <eq/net/versionedObject.h>
 
 #include <iostream>
 
@@ -34,69 +39,70 @@ class Session : public eqNet::Session
         }
 };
 
-class Node : public eqNet::Node
+RefPtr<eqNet::Connection> connection;
+volatile uint32_t         testID = EQ_INVALID_ID;
+
+class ServerThread : public eqBase::Thread
 {
-    virtual eqNet::Session* createSession() 
-    { return new Session(); }
+protected:
+    ssize_t run()
+        {
+            RefPtr<eqNet::Node> server    = new eqNet::Node;
+            RefPtr<eqNet::Node> nodeProxy = new eqNet::Node;
+
+            TEST( server->listen( ));
+
+            eqNet::PipeConnection* pipeConnection = 
+                (eqNet::PipeConnection*)connection.get();
+
+            TEST( server->connect( nodeProxy, pipeConnection->getChildEnd( )));
+            TEST( nodeProxy->isConnected( ));
+                        
+            Session session;
+            TEST( server->mapSession( server, &session, "foo" ));
+
+            while( testID == EQ_INVALID_ID ); // spin for test object
+            
+            TestMobject* object = (TestMobject*) session.getMobject( testID );
+            TEST( object );
+            TEST( object->getID() == testID );
+
+            TEST( server->stopListening( ));
+            return EXIT_SUCCESS;
+        }
 };
 
 int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    RefPtr<eqNet::Connection> connection = 
-        eqNet::Connection::create(eqNet::TYPE_PIPE);
+    connection = eqNet::Connection::create(eqNet::TYPE_PIPE);
     RefPtr<eqNet::ConnectionDescription> connDesc = 
         new eqNet::ConnectionDescription;
 
     connDesc->type = eqNet::TYPE_PIPE;
 
-    if( !connection->connect( connDesc ))
-        exit( EXIT_FAILURE );
+    TEST( connection->connect( connDesc ));
 
-    RefPtr<Node> node        = new Node;
-    RefPtr<Node> server      = new Node;
-    RefPtr<Node> nodeProxy   = new Node;
-    RefPtr<Node> serverProxy = new Node;
+    ServerThread server;
+    server.start();
+
+    RefPtr<eqNet::Node> node        = new eqNet::Node;
+    RefPtr<eqNet::Node> serverProxy = new eqNet::Node;
 
     TEST( node->listen( ));
-    TEST( server->listen( ));
-    TEST( node->connect( RefPtr_static_cast<eqNet::Node, Node>(serverProxy),
-                         connection ));
+    TEST( node->connect( serverProxy, connection ));
     TEST( serverProxy->isConnected( ));
 
-    eqNet::PipeConnection* pipeConnection = 
-        (eqNet::PipeConnection*)connection.get();
-
-    TEST( server->connect( RefPtr_static_cast<eqNet::Node, Node>(nodeProxy),
-                           pipeConnection->getChildEnd( )));
-    TEST( nodeProxy->isConnected( ));
-
     Session session;
-    TEST( node->mapSession( RefPtr_static_cast<eqNet::Node, Node>(serverProxy),
-                            &session, "foo" ));
+    TEST( node->mapSession( serverProxy, &session, "foo" ));
     
-    Session *sessionMaster = dynamic_cast<Session*>(server->findSession("foo"));
-    TEST( sessionMaster );
-
     TestMobject obj;
     session.registerMobject( &obj, serverProxy.get( ));
-    const uint32_t id = obj.getID();
-    TEST( id != INVALID_ID );
 
-    TestMobject* objProxy = (TestMobject*)sessionMaster->getMobject( id );
-    TEST( objProxy );
-    TEST( objProxy->getID() == id );
+    testID = obj.getID();
+    TEST( testID != EQ_INVALID_ID );
 
-    sleep(1);
-
-    TEST( server->stopListening( ));
     TEST( node->stopListening( ));
-
-    TEST( connection->getRefCount() == 1 );
-    TEST( node->getRefCount() == 1 );
-    TEST( server->getRefCount() == 1 );
-    TEST( nodeProxy->getRefCount() == 1 );
-    TEST( serverProxy->getRefCount() == 1 );
+    TEST( server.join( ));
 }
-

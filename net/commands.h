@@ -38,9 +38,16 @@ namespace eqNet
 
     enum BarrierCommand
     {
-        CMD_BARRIER_ENTER,
+        CMD_BARRIER_ENTER, // = CMD_MOBJECT_CUSTOM
         CMD_BARRIER_ENTER_REPLY,
         CMD_BARRIER_ALL
+    };
+
+    enum VersionedObjectCommand
+    {
+        CMD_VERSIONED_OBJECT_SYNC,
+        REQ_VERSIONED_OBJECT_SYNC,
+        CMD_VERSIONED_OBJECT_CUSTOM = 1<<8 // must be last
     };
 
     enum UserCommand

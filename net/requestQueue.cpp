@@ -41,3 +41,33 @@ void RequestQueue::pop( Node** node, Packet** packet )
     *node   = _lastRequest->node;
     *packet = _lastRequest->packet;
 }
+
+bool RequestQueue::tryPop( Node** node, Packet** packet )
+{
+    Request* request = _requests.tryPop();
+    if( !request )
+        return false;
+
+    if( _lastRequest )
+    {
+        _requestCacheLock.set();
+        _requestCache.release( _lastRequest );
+        _requestCacheLock.unset();
+    }
+    
+    _lastRequest = request;
+    *node        = request->node;
+    *packet      = request->packet;
+    return true;
+}
+
+bool RequestQueue::back( Node** node, Packet** packet )
+{
+    Request* request = _requests.back();
+    if( !request )
+        return false;
+
+    *node        = request->node;
+    *packet      = request->packet;
+    return true;
+}

@@ -35,7 +35,7 @@ bool Server::open( const OpenParams& params )
         return false;
 
     RefPtr<eqNet::Connection> connection =
-        eqNet::Connection::create(eqNet::TYPE_TCPIP);
+        eqNet::Connection::create( eqNet::TYPE_TCPIP );
 
     RefPtr<eqNet::ConnectionDescription> connDesc = 
         new eqNet::ConnectionDescription;
@@ -112,7 +112,7 @@ void Server::releaseConfig( Config* config )
 
 void Server::addConfig( Config* config )
 {
-    EQASSERT( config->getID() != INVALID_ID );
+    EQASSERT( config->getID() != EQ_INVALID_ID );
     config->_server = this;
     _configs[config->getID()] = config;
 }
@@ -126,7 +126,7 @@ eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Node* node,
     ServerChooseConfigReplyPacket* packet = (ServerChooseConfigReplyPacket*)pkg;
     EQINFO << "Handle choose config reply " << packet << endl;
 
-    if( packet->configID == INVALID_ID )
+    if( packet->configID == EQ_INVALID_ID )
     {
         _requestHandler.serveRequest( packet->requestID, NULL );
         return eqNet::COMMAND_HANDLED;

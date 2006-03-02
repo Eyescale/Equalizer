@@ -228,6 +228,9 @@ namespace eqNet
         /** The node hosting the session. */
         eqBase::RefPtr<Node> _server;
 
+        /** The list of nodes known to this session. */
+        NodeIDHash< eqBase::RefPtr<Node> > _nodes;
+
         /** The session's name. */
         std::string _name;
 
@@ -243,9 +246,9 @@ namespace eqNet
         /** Stores a mapping from a block of identifiers to a master node. */
         struct IDMasterInfo
         {
-            uint32_t             start;
-            uint32_t             end;
-            eqBase::RefPtr<Node> master;
+            uint32_t                            start;
+            uint32_t                            end;
+            eqBase::RefPtr<Node>                master;
             std::vector< eqBase::RefPtr<Node> > slaves;
         };
         /** The id->master mapping table. */

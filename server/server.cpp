@@ -211,7 +211,7 @@ eqNet::CommandResult Server::_reqChooseConfig( eqNet::Node* node, const eqNet::P
 
     if( config==NULL )
     {
-        reply.configID = INVALID_ID;
+        reply.configID = EQ_INVALID_ID;
         node->send( reply );
         return eqNet::COMMAND_HANDLED;
     }

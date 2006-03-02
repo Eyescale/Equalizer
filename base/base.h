@@ -19,7 +19,7 @@ typedef int socklen_t;
 #endif
 
 // defines
-#define EQ_UNDEFINED_UINT32   (0xffffffff)
+#define EQ_UNDEFINED          (~0ul)
 #define EQ_TIMEOUT_INDEFINITE (0)
 
 #define DUMP_CORE {((char*)0)[0] = 'a';}
@@ -53,7 +53,7 @@ typedef int socklen_t;
     if( !_threadID )                                        \
         _threadID = pthread_self();                         \
     EQASSERTINFO( pthread_equal( _threadID, pthread_self( )), \
-                "Non-threadsave function called from two threads" );
+                "Non-threadsave code called from two threads" );
 #else
 #  define CHECK_THREAD
 #endif

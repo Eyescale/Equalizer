@@ -11,43 +11,56 @@ using namespace eqBase;
 using namespace eqNet;
 using namespace std;
 
+RefPtr<eqNet::Connection> connection;
+
+class NodeThread : public eqBase::Thread
+{
+protected:
+    ssize_t run()
+        {
+            RefPtr<Node>        node      = new Node;
+            RefPtr<eqNet::Node> nodeProxy = new eqNet::Node;
+
+            TEST( node->listen( ));
+
+            eqNet::PipeConnection* pipeConnection = 
+                (eqNet::PipeConnection*)connection.get();
+
+            TEST( node->connect( nodeProxy, pipeConnection->getChildEnd( )));
+            TEST( nodeProxy->isConnected( ));
+            
+            Session session;
+            TEST( node->mapSession( nodeProxy, &session, "foo" ));
+
+            TEST( node->stopListening( ));
+        }
+};
 
 int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    RefPtr<Connection>            connection = Connection::create(TYPE_PIPE);
+    connection = Connection::create(TYPE_PIPE);
     RefPtr<ConnectionDescription> connDesc   = new ConnectionDescription;
 
-    if( !connection->connect( connDesc ))
-        exit( EXIT_FAILURE );
+    connDesc->type = TYPE_PIPE;
 
-    RefPtr<Node> node        = new Node;
-    RefPtr<Node> server      = new Node;
-    RefPtr<Node> nodeProxy   = new Node;
-    RefPtr<Node> serverProxy = new Node;
+    TEST( connection->connect( connDesc ));
+
+    NodeThread thread;
+    thread.start();
+
+    RefPtr<Node> node      = new Node;
+    RefPtr<Node> nodeProxy = new Node;
 
     TEST( node->listen( ));
-    TEST( server->listen( ));
-    TEST( node->connect( serverProxy, connection ));
-    TEST( serverProxy->isConnected( ));
-
-    PipeConnection* pipeConnection = (PipeConnection*)connection.get();
-    TEST( server->connect( nodeProxy, pipeConnection->getChildEnd( )));
+    TEST( node->connect( nodeProxy, connection ));
     TEST( nodeProxy->isConnected( ));
 
     Session session;
-    TEST( node->mapSession( serverProxy, &session, "foo" ));
+    TEST( node->mapSession( node, &session, "foo" ));
     
-    TEST( server->stopListening( ));
     TEST( node->stopListening( ));
-
-    sleep(1);
-
-    TEST( connection->getRefCount() == 1 );
-    TEST( node->getRefCount() == 1 );
-    TEST( server->getRefCount() == 1 );
-    TEST( nodeProxy->getRefCount() == 1 );
-    TEST( serverProxy->getRefCount() == 1 );
+    thread.join();
 }
 

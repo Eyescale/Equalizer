@@ -76,7 +76,7 @@ namespace eqBase
             }
 
 
-        const T& pop()
+        T* pop()
             {
                 switch( _type )
                 {
@@ -88,7 +88,7 @@ namespace eqBase
                                                &_sync.pthread.mutex );
                         
                         EQASSERT( !_queue.empty( ));
-                        T& element = _queue.front();
+                        T* element = _queue.front();
                         _queue.pop();
                         pthread_mutex_unlock( &_sync.pthread.mutex );
                         return element;
@@ -99,7 +99,51 @@ namespace eqBase
                 }
             }
 
-        void push( const T& element )
+        T* tryPop()
+            {
+                switch( _type )
+                {
+                    case Thread::PTHREAD:
+                    {
+                        if( _queue.empty( ))
+                            return NULL;
+
+                        pthread_mutex_lock( &_sync.pthread.mutex );
+                        if( _queue.empty( ))
+                        {
+                            pthread_mutex_unlock( &_sync.pthread.mutex );
+                            return NULL;
+                        }
+
+                        T* element = _queue.front();
+                        _queue.pop();
+                        pthread_mutex_unlock( &_sync.pthread.mutex );
+                        return element;
+                    }   
+                    default:
+                        EQERROR << "not implemented" << std::endl;
+                        abort();
+                }
+            }
+
+        T* back()
+            {
+                switch( _type )
+                {
+                    case Thread::PTHREAD:
+                    {
+                        pthread_mutex_lock( &_sync.pthread.mutex );
+                        T* element = _queue.empty() ? NULL : _queue.back();
+                        pthread_mutex_unlock( &_sync.pthread.mutex );
+                        return element;
+                    }   
+                    default:
+                        EQERROR << "not implemented" << std::endl;
+                        abort();
+                }
+            }
+
+        void push( T* element )
             {
                 switch( _type )
                 {
@@ -117,9 +161,8 @@ namespace eqBase
             }
 
     private:
-        Thread::Type _type;
-
-        std::queue<T> _queue;
+        Thread::Type   _type;
+        std::queue<T*> _queue;
 
         union
         {

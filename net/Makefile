@@ -17,6 +17,7 @@ HEADER_SRC = \
 	mobject.h \
 	net.h \
 	node.h \
+	nodeID.h \
 	object.h \
 	packets.h \
 	pipeConnection.h \

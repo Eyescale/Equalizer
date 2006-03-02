@@ -122,6 +122,16 @@ namespace eqNet
          */
         uint64_t send( const Packet &packet ) const
             {return send( &packet, packet.size); }
+
+        /** 
+         * Sends a packaged message including a string using the connection.
+         * 
+         * @param packet the message packet.
+         * @param strign the string.
+         * @return the number of bytes send.
+         * @sa Node::send
+         */
+        uint64_t send( Packet &packet, const std::string& string ) const;
         //@}
 
         /** 

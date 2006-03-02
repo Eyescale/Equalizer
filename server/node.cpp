@@ -20,7 +20,7 @@ void Node::_construct()
 {
     _used             = 0;
     _config           = NULL;
-    _pendingRequestID = INVALID_ID;
+    _pendingRequestID = EQ_INVALID_ID;
 
     _autoLaunch       = true;
 
@@ -142,7 +142,7 @@ void Node::startInit()
 
 void Node::_sendInit()
 {
-    EQASSERT( _pendingRequestID == INVALID_ID );
+    EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
     eq::NodeInitPacket packet( _config->getID(), getID( ));
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -162,11 +162,11 @@ bool Node::syncInit()
                 success = false;
     }
 
-    EQASSERT( _pendingRequestID != INVALID_ID );
+    EQASSERT( _pendingRequestID != EQ_INVALID_ID );
 
     if( !(bool)_requestHandler.waitRequest( _pendingRequestID ))
         success = false;
-    _pendingRequestID = INVALID_ID;
+    _pendingRequestID = EQ_INVALID_ID;
 
     return success;
 }
@@ -189,7 +189,7 @@ void Node::startExit()
 
 void Node::_sendExit()
 {
-    EQASSERT( _pendingRequestID == INVALID_ID );
+    EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
     eq::NodeExitPacket packet( _config->getID(), getID( ));
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -199,10 +199,10 @@ void Node::_sendExit()
 
 bool Node::syncExit()
 {
-    EQASSERT( _pendingRequestID != INVALID_ID );
+    EQASSERT( _pendingRequestID != EQ_INVALID_ID );
 
     bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
-    _pendingRequestID = INVALID_ID;
+    _pendingRequestID = EQ_INVALID_ID;
     
     eq::NodeDestroyPipePacket destroyPipePacket( _config->getID(), getID( ));
     

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PACKETS_PRIV_H
@@ -9,6 +9,7 @@
 #include "connectionDescription.h"
 #include "global.h"
 #include "message.h"
+#include "nodeID.h"
 
 #include <sys/param.h>
 
@@ -20,6 +21,7 @@ namespace eqNet
         DATATYPE_EQNET_SESSION,
         DATATYPE_EQNET_OBJECT,
         DATATYPE_EQNET_MOBJECT,
+        DATATYPE_EQNET_VERSIONED_OBJECT,
         DATATYPE_EQNET_USER,
         DATATYPE_CUSTOM = 1<<10
     };
@@ -34,11 +36,10 @@ namespace eqNet
         uint32_t command;
     };
 
-    // String transmission: the packets define the string at the end of the
-    // packet as 8 bytes long to enforce the worst-case alignment size. The
-    // 8 bytes are decremented from the packet size and the packet is sent using
-    // send( Packet&, string& ) which appends the whole string to the packet, so
-    // that the receiver has to do nothing special to receive the full packet.
+    // String transmission: the packets define a 8-char string at the end of the
+    // packet. When the packet is sent using Node::send( Packet&, string& ), the
+    // whole string is appended to the packet, so that the receiver has to do
+    // nothing special to receive and use the full packet.
 
     //------------------------------------------------------------
     // Node
@@ -73,8 +74,8 @@ namespace eqNet
         NodeMapSessionPacket()
             {
                 command   = CMD_NODE_MAP_SESSION;
-                size      = sizeof(NodeMapSessionPacket) - 8;
-                sessionID = INVALID_ID;
+                size      = sizeof(NodeMapSessionPacket);
+                sessionID = EQ_INVALID_ID;
                 name[0]   = '\0';
             }
 
@@ -88,7 +89,7 @@ namespace eqNet
         NodeMapSessionReplyPacket( const NodeMapSessionPacket* requestPacket ) 
             {
                 command   = CMD_NODE_MAP_SESSION_REPLY;
-                size      = sizeof( NodeMapSessionReplyPacket ) - 8;
+                size      = sizeof( NodeMapSessionReplyPacket );
                 requestID = requestPacket->requestID;
                 name[0]   = '\0';
             }
@@ -104,7 +105,7 @@ namespace eqNet
             {
                 command   = CMD_NODE_UNMAP_SESSION;
                 size      = sizeof(NodeUnmapSessionPacket);
-                sessionID = INVALID_ID;
+                sessionID = EQ_INVALID_ID;
             }
 
         uint32_t requestID;
@@ -129,14 +130,13 @@ namespace eqNet
         NodeConnectPacket() 
             {
                 command                  = CMD_NODE_CONNECT;
-                size                     = sizeof( NodeConnectPacket ) - 8; 
+                size                     = sizeof( NodeConnectPacket ); 
                 wasLaunched              = false;
-                connectionDescription[0] = '\0';
             }
 
         bool     wasLaunched;
         uint64_t launchID;
-        char     connectionDescription[8];
+        NodeID   nodeID;
     };
 
     //------------------------------------------------------------
@@ -185,13 +185,12 @@ namespace eqNet
                 : SessionPacket( sessionID )
             {
                 command = CMD_SESSION_SET_ID_MASTER;
-                size    = sizeof( SessionSetIDMasterPacket ) - 8; 
-                connectionDescription[0] = '\0';
+                size    = sizeof( SessionSetIDMasterPacket ); 
             }
 
         uint32_t start;
         uint32_t range;
-        char     connectionDescription[8];
+        NodeID   masterID;
     };
 
     struct SessionGetIDMasterPacket : public SessionPacket
@@ -213,15 +212,14 @@ namespace eqNet
                 : SessionPacket( request->sessionID )
             {
                 command   = CMD_SESSION_GET_ID_MASTER_REPLY;
-                size      = sizeof( SessionGetIDMasterPacket ) - 8;
+                size      = sizeof( SessionGetIDMasterPacket );
                 requestID = request->requestID;
-                connectionDescription[0] = '\0';
             }
 
         uint32_t requestID;
         uint32_t start;
         uint32_t end;
-        char     connectionDescription[8];
+        NodeID   masterID;
     };
 
     struct SessionGetMobjectMasterPacket : public SessionPacket
@@ -243,15 +241,14 @@ namespace eqNet
                 : SessionPacket( request->sessionID )
             {
                 command   = CMD_SESSION_GET_MOBJECT_MASTER_REPLY;
-                size      = sizeof( SessionGetMobjectMasterReplyPacket ) - 8;
+                size      = sizeof( SessionGetMobjectMasterReplyPacket );
                 mobjectID = request->mobjectID;
-                connectionDescription[0] = '\0';
             }
 
         uint32_t mobjectID;
         uint32_t start;
         uint32_t end;
-        char     connectionDescription[8];
+        NodeID   masterID;
     };
 
     struct SessionGetMobjectPacket : public SessionPacket
@@ -285,14 +282,14 @@ namespace eqNet
                 : SessionPacket( sessionID )
             {
                 command        = CMD_SESSION_INSTANCIATE_MOBJECT;
-                size           = sizeof( SessionInstanciateMobjectPacket ) - 8; 
+                size           = sizeof( SessionInstanciateMobjectPacket ); 
                 isMaster       = false;
                 mobjectData[0] = '\0';
             }
 
+        bool     isMaster;
         uint32_t mobjectID;
         uint32_t mobjectType;
-        bool     isMaster;
         char     mobjectData[8];
     };
 
@@ -306,7 +303,7 @@ namespace eqNet
             {
                 datatype       = DATATYPE_EQNET_OBJECT; 
                 this->objectID = objectID;
-                EQASSERT( objectID != INVALID_ID );
+                EQASSERT( objectID != EQ_INVALID_ID );
                 EQASSERT( objectID != 0 );
             }
         uint32_t objectID;
@@ -322,6 +319,34 @@ namespace eqNet
             {
                 datatype       = DATATYPE_EQNET_MOBJECT; 
             }
+    };
+
+    //------------------------------------------------------------
+    // versioned object
+    //------------------------------------------------------------
+    struct VersionedObjectPacket : public MobjectPacket
+    {
+        VersionedObjectPacket( const uint32_t sessionID, 
+                               const uint32_t objectID )
+                : MobjectPacket( sessionID, objectID )
+            {
+                datatype       = DATATYPE_EQNET_VERSIONED_OBJECT; 
+            }
+    };
+
+    struct VersionedObjectSyncPacket : public VersionedObjectPacket
+    {
+        VersionedObjectSyncPacket( const uint32_t sessionID, 
+                                   const uint32_t objectID )
+                : VersionedObjectPacket( sessionID, objectID )
+            {
+                command        = CMD_VERSIONED_OBJECT_SYNC;
+                size           = sizeof( VersionedObjectSyncPacket ); 
+                delta[0]       = '\0';
+            }
+        
+        uint32_t version;
+        char     delta[8];
     };
 
     //------------------------------------------------------------
@@ -409,6 +434,20 @@ namespace eqNet
         return os;
     }
 
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const SessionGenIDsReplyPacket* packet )
+    {
+        os << (SessionPacket*)packet << " id start " << packet->id;
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const SessionGetMobjectPacket* packet )
+    {
+        os << (SessionPacket*)packet << " id " << packet->mobjectID;
+        return os;
+    }
 
     inline std::ostream& operator << ( std::ostream& os, 
                                  const SessionInstanciateMobjectPacket* packet )

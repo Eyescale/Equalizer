@@ -109,7 +109,7 @@ int main( int argc, char** argv )
 
     int nFrames = 100;
     clock.reset();
-    while( --nFrames )
+    while( nFrames-- )
     {
         // update database
 

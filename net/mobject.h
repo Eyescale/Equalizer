@@ -6,7 +6,9 @@
 #define EQNET_MOBJECT_H
 
 #include "object.h"
+
 #include <eq/base/referenced.h>
+#include <eq/base/refPtr.h>
 
 namespace eqNet
 {
@@ -53,10 +55,27 @@ namespace eqNet
          */
         bool isMaster() const { return _master; }
 
+        /** 
+         * Add a subscribed slave to the mobject.
+         * 
+         * @param slave the slave.
+         */
+        void addSlave( eqBase::RefPtr<Node> slave ) 
+            { _slaves.push_back( slave ); }
+
+        /** 
+         * @return the vector of registered slaves.
+         */
+        std::vector< eqBase::RefPtr<Node> >& getSlaves()
+            { return _slaves; }
+
     private:
         /** Indicates if this instance is the copy on the server node. */
         friend class Session;
-        bool     _master;
+        bool         _master;
+        
+        /** The list of subsribed slaves, kept on the master only. */
+        std::vector< eqBase::RefPtr<Node> > _slaves;
     };
 }
 

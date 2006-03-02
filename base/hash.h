@@ -51,6 +51,7 @@ namespace eqBase
     template<class T> class StringHash
         : public Sgi::hash_map<const char*, T, hashString, hashString >
     {};
+
 }
 
 #endif // EQBASE_HASH_H

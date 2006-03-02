@@ -54,7 +54,6 @@ bool PipeConnection::connect( eqBase::RefPtr<ConnectionDescription> description)
     }
 
     _description          = description;
-    _description->Pipe.fd = _pipes[0];
 
     PipeConnection* childConnection = new PipeConnection( *this );
     childConnection->_setupChild();
@@ -109,6 +108,7 @@ void PipeConnection::_setupParent()
     // assign file descriptors
     _readFD  = _pipes[0];
     _writeFD = _pipes[3];
+    _description->Pipe.fd = _pipes[1]; // i.e. the write end to parent read end
     EQINFO << "Parent readFD " << _readFD << " writeFD " << _writeFD << endl;
 
     // cleanup
@@ -126,6 +126,7 @@ void PipeConnection::_setupChild()
     // assign file descriptors
     _readFD  = _pipes[2];
     _writeFD = _pipes[1];
+    _description->Pipe.fd = _pipes[3]; // i.e. the write end to child read end
     EQINFO << "Child  readFD " << _readFD << " writeFD " << _writeFD << endl;
 
     // cleanup
@@ -137,17 +138,6 @@ void PipeConnection::_setupChild()
     _state = STATE_CONNECTED;
 }
 
-// ssize_t PipeConnection::run()
-// {
-//     _setupChild();
- 
-//     // Note: right now all possible entry functions are hardcoded due to
-//     // security considerations.
-//     int result = EXIT_FAILURE;
-
-//     if( strcmp( _entryFunc, "eqNet_Node_runServer" ) == 0 ||
-//         strcmp( _entryFunc, "testPipeServer" ) == 0 )
-//     {
 // #ifdef sgi
 //         void* dlHandle = dlopen( 0, RTLD_LAZY );
 //         void* func = dlsym( dlHandle, _entryFunc );
@@ -157,11 +147,3 @@ void PipeConnection::_setupChild()
 //         INFO << "Entry function '" << _entryFunc << "', addr: " << func << endl;
 //         typedef int (*EntryFunc)( Connection* connection );
 //         result = ((EntryFunc)func)( this );
-//     }
-//     // else if ....
-
-//     close();
-//     delete this;
-//     ::exit( result );
-//     return result;
-// }
