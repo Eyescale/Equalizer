@@ -104,6 +104,34 @@ namespace eq
          */
         Config* getConfig() const { return (_pipe ? _pipe->getConfig() : NULL);}
 
+        /** 
+         * Set the window's pixel viewport wrt its parent pipe.
+         *
+         * Updates the fractional viewport accordingly.
+         * 
+         * @param pvp the viewport in pixels.
+         */
+        void setPixelViewport( const PixelViewport& pvp );
+        
+        /** 
+         * @return the window's pixel viewport
+         */
+        const PixelViewport& getPixelViewport() const { return _pvp; }
+
+        /** 
+         * Set the window's fractional viewport wrt its parent pipe.
+         *
+         * Updates the pixel viewport accordingly.
+         * 
+         * @param vp the fractional viewport.
+         */
+        void setViewport( const Viewport& vp );
+
+        /** 
+         * @return the window's fractional viewport.
+         */
+        const Viewport& getViewport() const { return _vp; }
+
         /**
          * @name Callbacks
          *
@@ -158,6 +186,9 @@ namespace eq
 
         /** The pixel viewport wrt the pipe. */
         eq::PixelViewport _pvp;
+
+        /** The fractional viewport wrt the pipe. */
+        eq::Viewport      _vp;
 
         void _addChannel( Channel* channel );
         void _removeChannel( Channel* channel );

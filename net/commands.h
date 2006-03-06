@@ -17,6 +17,8 @@ namespace eqNet
         CMD_NODE_UNMAP_SESSION_REPLY,
         CMD_NODE_SESSION,
         CMD_NODE_CONNECT,
+        CMD_NODE_GET_CONNECTION_DESCRIPTION,
+        CMD_NODE_GET_CONNECTION_DESCRIPTION_REPLY,
         CMD_NODE_CUSTOM = 1<<8 // must be last
     };
 

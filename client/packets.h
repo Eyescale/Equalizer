@@ -6,7 +6,9 @@
 #define EQ_PACKETS_H
 
 #include "commands.h"
+#include "pixelViewport.h"
 #include "renderContext.h"
+#include "viewport.h"
 
 #include <eq/net/packets.h>
 
@@ -378,7 +380,9 @@ namespace eq
                 size    = sizeof( WindowInitPacket );
             }
 
-        uint32_t requestID;
+        uint32_t      requestID;
+        PixelViewport pvp;
+        Viewport      vp;
     };
 
     struct WindowInitReplyPacket : public eqNet::ObjectPacket

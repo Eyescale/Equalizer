@@ -188,16 +188,18 @@ bool Thread::join( ssize_t* retVal )
         case PTHREAD:
         {
             EQVERB << "Joining pthread " << _threadID.pthread << endl;
-            const int error = pthread_join( _threadID.pthread, (void**)_retVal);
+            void *_retVal;
+            const int error = pthread_join( _threadID.pthread, &_retVal);
             if( error != 0 )
             {
-                EQWARN << "Error joining the thread: " << strerror(error) << endl;
+                EQWARN << "Error joining the thread: " << strerror(error) 
+                       << endl;
                 return false;
             }
 
             _threadState = STATE_STOPPED;
             if( retVal )
-                *retVal = _retVal;
+                *retVal = (ssize_t)_retVal;
         } return true;
 
         case FORK:
@@ -209,11 +211,10 @@ bool Thread::join( ssize_t* retVal )
                 {
                     if( WIFEXITED( status ))
                     {
-                        _retVal = WEXITSTATUS( status );
+                        if( retVal )
+                            *retVal = WEXITSTATUS( status );
                         _threadState = STATE_STOPPED;
 
-                        if( retVal )
-                            *retVal = _retVal;
                         return true;
                     }
                     return false;

@@ -160,7 +160,6 @@ namespace eqBase
         };
 
         ThreadID             _threadID;
-        ssize_t              _retVal;
         static pthread_key_t _dataKey;
         static bool          _dataKeyCreated;
 

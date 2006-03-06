@@ -95,6 +95,28 @@ WindowSystem Pipe::selectWindowSystem() const
     return WINDOW_SYSTEM_NONE;
 }
 
+#ifdef GLX
+void Pipe::setXDisplay( Display* display )
+{
+    _xDisplay = display; 
+    _pvp.x    = 0;
+    _pvp.y    = 0;
+    _pvp.w    = DisplayWidth(  display, DefaultScreen( display ));
+    _pvp.h    = DisplayHeight( display, DefaultScreen( display ));
+}
+#endif
+#ifdef CGL
+void Pipe::setCGLDisplayID( CGDirectDisplayID id )
+{
+    _cglDisplayID = id; 
+    const CGRect displayRect = CGDisplayBounds( id );
+    _pvp.x = displayRect.origin.x;
+    _pvp.y = displayRect.origin.y;
+    _pvp.w = displayRect.size.width;
+    _pvp.h = displayRect.size.height;
+}
+#endif
+
 ssize_t Pipe::_runThread()
 {
     Config* config = getConfig();
@@ -294,6 +316,7 @@ bool Pipe::initGLX()
     }
     
     setXDisplay( xDisplay );
+    _screen = DefaultScreen( xDisplay );
     return true;
 #else
     return false;

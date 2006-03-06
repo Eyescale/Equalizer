@@ -316,7 +316,7 @@ CommandResult Session::_instMobject( const uint32_t id )
             SessionGetMobjectMasterPacket packet( _id );
             packet.mobjectID = id;
             _server->send( packet );
-            _mobjectStates[id] = Mobject::INST_GETMASTER;
+            _mobjectStates[id] = Mobject::INST_GETMASTERID;
             return COMMAND_RESCHEDULE;
         }
         
@@ -443,7 +443,6 @@ CommandResult Session::_cmdGetMobjectMaster( Node* node, const Packet* pkg )
 {
     SessionGetMobjectMasterPacket* packet = (SessionGetMobjectMasterPacket*)pkg;
     SessionGetMobjectMasterReplyPacket reply( packet );
-    string                        connectionDescription;
 
     reply.start = 0;
 
@@ -455,20 +454,16 @@ CommandResult Session::_cmdGetMobjectMaster( Node* node, const Packet* pkg )
         IDMasterInfo& info = _idMasterInfos[i];
         if( id >= info.start && id < info.end )
         {
-            reply.start = info.start;
-            reply.end   = info.end;
+            reply.start    = info.start;
+            reply.end      = info.end;
+            reply.masterID = info.master->getNodeID();
 
-            RefPtr<ConnectionDescription> desc = 
-                info.master->getConnectionDescription( 0 );
-            EQASSERT( desc.isValid( ));
-
-            connectionDescription = desc->toString();
             info.slaves.push_back( node );
             break;
         }
     }
 
-    node->send( reply, connectionDescription );
+    node->send( reply );
     return COMMAND_HANDLED;
 }
 
@@ -476,7 +471,8 @@ CommandResult Session::_cmdGetMobjectMasterReply( Node* node, const Packet* pkg)
 {
     SessionGetMobjectMasterReplyPacket* packet = 
         (SessionGetMobjectMasterReplyPacket*)pkg;
-
+    EQINFO << "cmd get mobject master reply: " << packet << endl;
+ 
     const uint32_t id = packet->mobjectID;
 
     if( packet->start == 0 ) // not found
@@ -487,16 +483,27 @@ CommandResult Session::_cmdGetMobjectMasterReply( Node* node, const Packet* pkg)
 
     RefPtr<Node> master = _localNode->getNode( packet->masterID );
 
-    if( !master )
+    if( !master ) // query connection description, create and connect node 
     {
-        // TODO: query connection description, create and connect node
-        EQUNIMPLEMENTED;
+        if( _mobjectStates[id] == Mobject::INST_GETMASTER )
+            return COMMAND_RESCHEDULE;
+
+        _mobjectStates[id] = Mobject::INST_GETMASTER;
+
+        NodeGetConnectionDescriptionPacket cdPacket;
+        cdPacket.nodeID = packet->masterID;
+        cdPacket.index  = 0;
+
+        _server->send( cdPacket );
+
+        return COMMAND_RESCHEDULE;
     }
 
     // TODO thread-safety: _idMasterInfos is also read & written by app
     IDMasterInfo info = { packet->start, packet->end, master};
     _idMasterInfos.push_back( info );
     _mobjectStates[id] = Mobject::INST_GOTMASTER;
+
     return COMMAND_HANDLED;
 }
 

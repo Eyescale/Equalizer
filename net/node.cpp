@@ -47,6 +47,12 @@ Node::Node( const uint32_t nCommands )
     registerCommand( CMD_NODE_UNMAP_SESSION_REPLY, this, 
                      reinterpret_cast<CommandFcn>(
                          &eqNet::Node::_cmdUnmapSessionReply ));
+    registerCommand( CMD_NODE_GET_CONNECTION_DESCRIPTION, this,
+                     reinterpret_cast<CommandFcn>(
+                         &eqNet::Node::_cmdGetConnectionDescription ));
+    registerCommand( CMD_NODE_GET_CONNECTION_DESCRIPTION_REPLY, this,
+                     reinterpret_cast<CommandFcn>(
+                         &eqNet::Node::_cmdGetConnectionDescriptionReply ));
 
     _receiverThread = new ReceiverThread( this );
 
@@ -180,6 +186,10 @@ bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
     EQASSERT( !packet->wasLaunched );
 
     node->_id = packet->nodeID;
+    
+    RefPtr<ConnectionDescription> desc = new ConnectionDescription;
+    if( desc->fromString( packet->connectionDescription ))
+        node->addConnectionDescription( desc );
 
     free( packet );
     _addConnectedNode( node, connection );
@@ -194,7 +204,7 @@ NodeConnectPacket* Node::_performConnect( eqBase::RefPtr<Connection> connection)
     eqNet::NodeConnectPacket packet;
 
     packet.nodeID = _id;
-    connection->send( packet );
+    connection->send( packet, _listener->getDescription()->toString( ));
 
     return _readConnectReply( connection );
 }
@@ -458,9 +468,13 @@ void Node::handleConnect( RefPtr<Connection> connection )
 
         node = (Node*)packet->launchID;
         EQINFO << "Launched " << node.get() << " connecting" << endl;
- 
+
         const uint32_t requestID = node->_launchID;
         EQASSERT( requestID != EQ_INVALID_ID );
+
+        RefPtr<ConnectionDescription> desc = node->getConnectionDescription(0);
+        bool readDesc = desc->fromString( packet->connectionDescription );
+        EQASSERT( readDesc );
 
         node->_id = packet->nodeID;
         _addConnectedNode( node, connection );
@@ -470,6 +484,10 @@ void Node::handleConnect( RefPtr<Connection> connection )
     {
         node = createNode();
         node->_id = packet->nodeID;
+
+        RefPtr<ConnectionDescription> desc = new ConnectionDescription;
+        if( desc->fromString( packet->connectionDescription ))
+            node->addConnectionDescription( desc );
 
         _addConnectedNode( node, connection );
     }
@@ -525,7 +543,7 @@ void Node::_handleRequest( Node* node )
             break;
 
         case COMMAND_ERROR:
-            EQERROR << "Error handling command packet" << endl;
+            EQERROR << "Error handling command packet " << packet << endl;
             abort();
             break;
 
@@ -744,6 +762,73 @@ CommandResult Node::_cmdUnmapSessionReply( Node* node, const Packet* pkg)
     _requestHandler.serveRequest( requestID, (void*)true );
     return COMMAND_HANDLED;
 }
+
+CommandResult Node::_cmdGetConnectionDescription( Node* node, const Packet* pkg)
+{
+    NodeGetConnectionDescriptionPacket* packet =
+        (NodeGetConnectionDescriptionPacket*)pkg;
+    EQINFO << "cmd get connection description: " << packet << endl;
+
+    RefPtr<Node> descNode = getNode( packet->nodeID );
+    EQASSERT( descNode );
+
+    NodeGetConnectionDescriptionReplyPacket reply;
+    reply.nodeID    = packet->nodeID;
+    reply.nextIndex = packet->index + 1;
+
+    if( descNode->nConnectionDescriptions() >= reply.nextIndex )
+        reply.nextIndex = 0;
+
+    RefPtr<ConnectionDescription> desc = descNode->getConnectionDescription( 
+        packet->index );
+
+    if( desc.isValid( ))
+        node->send( reply, desc->toString( ));
+    else
+        node->send( reply );
+
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdGetConnectionDescriptionReply( Node* fromNode, 
+                                                       const Packet* pkg )
+{
+    NodeGetConnectionDescriptionReplyPacket* packet =
+        (NodeGetConnectionDescriptionReplyPacket*)pkg;
+    EQINFO << "cmd get connection description reply: " << packet << endl;
+    
+    RefPtr<Node> node = getNode( packet->nodeID );
+    if( node.isValid( )) // already connected, ignore
+        return COMMAND_HANDLED;
+
+    RefPtr<ConnectionDescription> desc = new ConnectionDescription();
+    if( !desc->fromString( packet->connectionDescription ))
+        return COMMAND_ERROR;
+
+    RefPtr<Connection> connection = Connection::create( desc->type );
+
+    if( connection->connect( desc ))
+    {
+        handleConnect( connection );
+
+        node = getNode( packet->nodeID );
+        EQASSERT( node );
+        EQASSERT( node->getNodeID() == packet->nodeID );
+
+        return COMMAND_HANDLED;
+    }
+
+    if( packet->nextIndex == 0 )
+        return COMMAND_ERROR;
+
+    NodeGetConnectionDescriptionPacket reply;
+    reply.nodeID = packet->nodeID;
+    reply.index  = packet->nextIndex;
+    fromNode->send( reply );
+    
+    return COMMAND_HANDLED;
+}
+
 
 //----------------------------------------------------------------------
 // utility functions
@@ -1016,10 +1101,11 @@ bool Node::runClient( const string& clientArgs )
     }
     
     NodeConnectPacket packet;
+    packet.nodeID      = _id;
     packet.wasLaunched = true;
     packet.launchID    = requestID;
 
-    connection->send( packet );
+    connection->send( packet, _listener->getDescription()->toString( ));
 
     NodeConnectPacket* reply = _readConnectReply( connection );
 

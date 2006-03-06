@@ -36,6 +36,9 @@ Window::Window( const Window& from )
 {
     _construct();
 
+    _pvp = from._pvp;
+    _vp  = from._vp;
+
     const uint32_t nChannels = from.nChannels();
     for( uint32_t i=0; i<nChannels; i++ )
     {
@@ -126,7 +129,11 @@ void Window::_sendInit()
 
     eq::WindowInitPacket packet( getSession()->getID(), getID() );
     _pendingRequestID = _requestHandler.registerRequest(); 
-    packet.requestID  = _pendingRequestID;
+
+    packet.requestID = _pendingRequestID;
+    packet.pvp       = _pvp; 
+    packet.vp        = _vp;
+
     _send( packet );
 }
 

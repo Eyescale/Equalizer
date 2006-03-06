@@ -132,11 +132,39 @@ namespace eqNet
                 command                  = CMD_NODE_CONNECT;
                 size                     = sizeof( NodeConnectPacket ); 
                 wasLaunched              = false;
+                connectionDescription[0] = '\0';
             }
 
         bool     wasLaunched;
         uint64_t launchID;
         NodeID   nodeID;
+        char     connectionDescription[8];
+    };
+
+    struct NodeGetConnectionDescriptionPacket : public NodePacket
+    {
+        NodeGetConnectionDescriptionPacket()
+            {
+                command = CMD_NODE_GET_CONNECTION_DESCRIPTION;
+                size    = sizeof( NodeGetConnectionDescriptionPacket );
+            }
+
+        NodeID   nodeID;
+        uint32_t index;
+    };
+
+    struct NodeGetConnectionDescriptionReplyPacket : public NodePacket
+    {
+        NodeGetConnectionDescriptionReplyPacket()
+            {
+                command = CMD_NODE_GET_CONNECTION_DESCRIPTION_REPLY;
+                size    = sizeof( NodeGetConnectionDescriptionReplyPacket );
+                connectionDescription[0] = '\0';
+            }
+
+        NodeID   nodeID;
+        uint32_t nextIndex;
+        char     connectionDescription[8];
     };
 
     //------------------------------------------------------------
@@ -418,9 +446,26 @@ namespace eqNet
                                        const NodeConnectPacket* packet )
     {
         os << (NodePacket*)packet << " wasLaunched " << packet->wasLaunched 
-           << " id " << packet->launchID;
+           << " id " << packet->launchID << " cd " 
+           << packet->connectionDescription;
         return os;
     }
+    inline std::ostream& operator << ( std::ostream& os, 
+                              const NodeGetConnectionDescriptionPacket* packet )
+    {
+        os << (NodePacket*)packet << " nodeID " << packet->nodeID << " i "  
+           << packet->index;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                         const NodeGetConnectionDescriptionReplyPacket* packet )
+    {
+        os << (NodePacket*)packet << " nodeID " << packet->nodeID << " ni "  
+           << packet->nextIndex << " desc " << packet->connectionDescription;
+        return os;
+    }
+
+
     inline std::ostream& operator << ( std::ostream& os, 
                                        const SessionPacket* packet )
     {
@@ -441,14 +486,19 @@ namespace eqNet
         os << (SessionPacket*)packet << " id start " << packet->id;
         return os;
     }
-
+    inline std::ostream& operator << ( std::ostream& os, 
+                             const SessionGetMobjectMasterReplyPacket* packet )
+    {
+        os << (SessionPacket*)packet << " id " << packet->mobjectID
+           << " master " << packet->masterID;
+        return os;
+    }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const SessionGetMobjectPacket* packet )
     {
         os << (SessionPacket*)packet << " id " << packet->mobjectID;
         return os;
     }
-
     inline std::ostream& operator << ( std::ostream& os, 
                                  const SessionInstanciateMobjectPacket* packet )
     {

@@ -114,6 +114,9 @@ bool Server::_loadConfig( int argc, char **argv )
     Window* window = new Window();
     pipe->addWindow( window );
 
+    eq::PixelViewport pvp1( 0, 0, 840, 525 );
+    window->setPixelViewport( pvp1 );
+
     Channel* channel = new Channel();
     window->addChannel( channel );
 
@@ -121,17 +124,19 @@ bool Server::_loadConfig( int argc, char **argv )
     compound->setChannel( channel );
 
     eq::Wall wall = WALL_20INCH_16x10;
-    //wall.translate( wall.bottomLeft[0], 0, 0 );
+    wall.translate( wall.bottomLeft[0], 0, 0 );
     compound->setWall( wall );
     top->addChild( compound );
 
-#if 0
+#if 1
     node = new eqs::Node();
     config->addNode( node );
 
     description = new eqNet::ConnectionDescription;
-    description->launchCommand = "ssh -n eile@%h %c >& %h.log";
-    description->hostname      = "go";
+//     description->launchCommand = "ssh -n eile@%h %c >& %h.log";
+//     description->hostname      = "go";
+    description->launchCommand = "ssh -n %h %c >& %h.2.log";
+    description->hostname      = "benjy";
     description->launchTimeout = 100000;
     node->addConnectionDescription( description );
 
@@ -140,6 +145,9 @@ bool Server::_loadConfig( int argc, char **argv )
     
     window = new Window();
     pipe->addWindow( window );
+
+    eq::PixelViewport pvp2( 840, 70, 512, 384 );
+    window->setPixelViewport( pvp2 );
 
     channel = new Channel();
     window->addChannel( channel );

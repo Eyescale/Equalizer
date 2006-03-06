@@ -13,11 +13,15 @@ namespace eq
     class Viewport 
     {
     public:
-        /** 
-         * Constructs a new viewport.
+        /**
+         * @name Constructors
          */
-        Viewport() : x(0), y(0), w(1), h(1)
-            {}
+        //*{
+        Viewport() : x(0), y(0), w(1), h(1)  {}
+
+        Viewport( const float x, const float y, const float w, const float h )
+                : x(x), y(y), w(w), h(h)  {}
+        //*}
 
         void multiply( const Viewport& vp )
             {
@@ -27,11 +31,19 @@ namespace eq
                 h *= vp.h;
             }
 
+        bool isValid() const { return (w>0 && h>0); }
+
         float x;
         float y;
         float w;
         float h;
     };
+
+    inline std::ostream& operator << ( std::ostream& os, const Viewport& vp )
+    {
+        os << "{" << vp.x << " " << vp.y << " " << vp.w << " " << vp.h << "}";
+        return os;
+    }
 }
 
 #endif // EQ_VIEWPORT_H

@@ -120,6 +120,11 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
     WindowInitPacket* packet = (WindowInitPacket*)pkg;
     EQINFO << "handle window init " << packet << endl;
 
+    if( packet->pvp.isValid( ))
+        setPixelViewport( packet->pvp );
+    else
+        setViewport( packet->vp );
+
     WindowInitReplyPacket reply( packet );
     reply.result = init();
 
@@ -208,6 +213,41 @@ eqNet::CommandResult eq::Window::_reqSwapWithBarrier(eqNet::Node* node,
 //---------------------------------------------------------------------------
 
 //----------------------------------------------------------------------
+// viewport
+//----------------------------------------------------------------------
+void eq::Window::setPixelViewport( const PixelViewport& pvp )
+{
+    if( !pvp.isValid( ))
+        return;
+
+    _pvp = pvp;
+
+    if( !_pipe )
+        return;
+    
+    const PixelViewport& pipePVP = _pipe->getPixelViewport();
+    _vp = pvp / pipePVP;
+
+    EQINFO << "Window pvp set: " << _pvp << ":" << _vp << endl;
+}
+
+void eq::Window::setViewport( const Viewport& vp )
+{
+    if( !vp.isValid( ))
+        return;
+    
+    _vp = vp;
+    
+    if( !_pipe )
+        return;
+
+    const PixelViewport& pipePVP = _pipe->getPixelViewport();
+    _pvp = pipePVP * vp;
+    EQINFO << "Window vp set: " << _pvp << ":" << _vp << endl;
+}
+
+
+//----------------------------------------------------------------------
 // init
 //----------------------------------------------------------------------
 bool eq::Window::init()
@@ -242,8 +282,6 @@ bool eq::Window::initGLX()
 
     int screen  = DefaultScreen( display );
     XID parent  = RootWindow( display, screen );
-    int size[4] = { 0, 0, DisplayWidth( display, screen )/2, 
-                    DisplayHeight( display, screen )/2 };
 
     int attributes[100], *aptr=attributes;    
     *aptr++ = GLX_RGBA;
@@ -274,8 +312,9 @@ bool eq::Window::initGLX()
     wa.event_mask        = StructureNotifyMask | VisibilityChangeMask;
     wa.override_redirect = True;
 
-    XID drawable = XCreateWindow( display, parent, size[0], size[1], size[2],
-                                  size[3], 0, visInfo->depth, InputOutput,
+    XID drawable = XCreateWindow( display, parent, 
+                                  _pvp.x, _pvp.y, _pvp.w, _pvp.h,
+                                  0, visInfo->depth, InputOutput,
                                   visInfo->visual, CWBackPixmap|CWBorderPixel|
                                   CWEventMask|CWColormap|CWOverrideRedirect,
                                   &wa );
@@ -349,6 +388,7 @@ bool eq::Window::initCGL()
 
     // CGRect displayRect = CGDisplayBounds( displayID );
     // glViewport( 0, 0, displayRect.size.width, displayRect.size.height );
+    // glViewport( _pvp.x, _pvp.y, _pvp.w, _pvp.h );
 
     CGLSetCurrentContext( context );
     CGLSetFullScreen( context );

@@ -8,6 +8,7 @@
 #include "commands.h"
 
 #include "node.h"
+#include "pixelViewport.h"
 
 #include <eq/base/thread.h>
 #include <eq/net/base.h>
@@ -59,6 +60,11 @@ namespace eq
          * @return the config of this pipe. 
          */
         Config* getConfig() const { return (_node ? _node->getConfig() : NULL);}
+
+        /** 
+         * @return the pipe's pixel viewport
+         */
+        const PixelViewport& getPixelViewport() const { return _pvp; }
 
         /** 
          * Returns the display number of this pipe.
@@ -120,11 +126,12 @@ namespace eq
         /** 
          * Set the X11 display connection for this pipe.
          * 
-         * This function should only be called from init() or exit().
+         * This function should only be called from init() or exit(). Updates
+         * the pixel viewport.
          *
          * @param display the X11 display connection for this pipe.
          */
-        void setXDisplay( Display* display ) { _xDisplay = display; }
+        void setXDisplay( Display* display );
 
         /** 
          * Returns the X11 display connection for this pipe.
@@ -140,7 +147,7 @@ namespace eq
          *
          * @param id the CGL display ID for this pipe.
          */
-        void setCGLDisplayID( CGDirectDisplayID id ) { _cglDisplayID = id; }
+        void setCGLDisplayID( CGDirectDisplayID id );
 
         /** 
          * Returns the CGL display ID for this pipe.
@@ -192,6 +199,9 @@ namespace eq
 
         /** The current window system. */
         WindowSystem _windowSystem;
+
+        /** The size (and location) of the pipe. */
+        PixelViewport _pvp;
 
 #ifdef GLX
         /** The X11 display connection. */

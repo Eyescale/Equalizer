@@ -132,7 +132,7 @@ namespace eqs
         void update();
 
         /**
-         * Finish the frame[current-latency].
+         * Finish one frame.
          */
         void syncUpdate() { _frameSync.wait(); }
 

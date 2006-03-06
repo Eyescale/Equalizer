@@ -14,7 +14,7 @@ int main( int argc, char **argv )
     while( nLoops-- )
     {
 #ifdef __linux__
-	srandom( getpid( ));
+        srandom( getpid( ));
 #else
         srandomdev();
 #endif

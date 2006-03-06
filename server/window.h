@@ -96,6 +96,13 @@ namespace eqs
         bool isUsed() const { return (_used!=0); }
 
         /** 
+         * Set the window's pixel viewport wrt its parent pipe.
+         * 
+         * @param pvp the viewport in pixels.
+         */
+        void setPixelViewport( const eq::PixelViewport& pvp ) { _pvp = pvp; }
+
+        /** 
          * Return this window's pixel viewport.
          * 
          * @return the pixel viewport.
@@ -165,8 +172,11 @@ namespace eqs
         /** The request id for pending asynchronous operations. */
         uint32_t _pendingRequestID;
 
-        /** The size and position of the window. */
+        /** The absolute size and position of the window. */
         eq::PixelViewport _pvp;
+        
+        /** The fractional size and position of the window. */
+        eq::Viewport _vp;
         
         /** The master window of the swap group, can be <code>this</code> */
         Window*              _swapMaster;

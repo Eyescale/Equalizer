@@ -626,6 +626,10 @@ namespace eqNet
         CommandResult _cmdMapSessionReply( Node* node, const Packet* packet );
         CommandResult _cmdUnmapSession( Node* node, const Packet* packet );
         CommandResult _cmdUnmapSessionReply( Node* node, const Packet* packet );
+        CommandResult _cmdGetConnectionDescription( Node* node, 
+                                                    const Packet* packet );
+        CommandResult _cmdGetConnectionDescriptionReply( Node* node, 
+                                                         const Packet* packet );
 
         static uint64_t _getMessageSize( const MessageType type, 
                                          const uint64_t count );
