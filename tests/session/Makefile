@@ -5,7 +5,7 @@ CXXFLAGS    += -I.. $(WINDOW_SYSTEM_INCS)
 SA_CXXFLAGS += -lpthread -L$(SAMPLE_LIB_DIR) -leqnet
 
 ifeq "${ARCH}" "Linux"
-SA_CXXFLAGS += -lrt
+SA_CXXFLAGS += -lrt -luuid
 endif
 
 CLEAN = $(SIMPLE_PROGRAMS)

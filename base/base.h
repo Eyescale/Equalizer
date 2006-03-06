@@ -19,7 +19,7 @@ typedef int socklen_t;
 #endif
 
 // defines
-#define EQ_UNDEFINED          (~0ul)
+#define EQ_UNDEFINED          (0xffffffff)
 #define EQ_TIMEOUT_INDEFINITE (0)
 
 #define DUMP_CORE {((char*)0)[0] = 'a';}

@@ -9,7 +9,7 @@ else
   DSO_LDFLAGS += -m$(VARIANT1)
 endif
 
-DSO_LDFLAGS        += -shared
+DSO_LDFLAGS        += -shared -luuid
 DSO_SUFFIX          = so
 WINDOW_SYSTEM      += GLX
 
