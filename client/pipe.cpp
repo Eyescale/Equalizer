@@ -101,19 +101,37 @@ void Pipe::setXDisplay( Display* display )
     _xDisplay = display; 
     _pvp.x    = 0;
     _pvp.y    = 0;
-    _pvp.w    = DisplayWidth(  display, DefaultScreen( display ));
-    _pvp.h    = DisplayHeight( display, DefaultScreen( display ));
+    if( display )
+    {
+        _pvp.w = DisplayWidth(  display, DefaultScreen( display ));
+        _pvp.h = DisplayHeight( display, DefaultScreen( display ));
+    }
+    else
+    {
+        _pvp.w = 0;
+        _pvp.h = 0;
+    }
 }
 #endif
 #ifdef CGL
 void Pipe::setCGLDisplayID( CGDirectDisplayID id )
 {
     _cglDisplayID = id; 
-    const CGRect displayRect = CGDisplayBounds( id );
-    _pvp.x = displayRect.origin.x;
-    _pvp.y = displayRect.origin.y;
-    _pvp.w = displayRect.size.width;
-    _pvp.h = displayRect.size.height;
+    if( id )
+    {
+        const CGRect displayRect = CGDisplayBounds( id );
+        _pvp.x = displayRect.origin.x;
+        _pvp.y = displayRect.origin.y;
+        _pvp.w = displayRect.size.width;
+        _pvp.h = displayRect.size.height;
+    }
+    else
+    {
+        _pvp.x = 0;
+        _pvp.y = 0;
+        _pvp.w = 0;
+        _pvp.h = 0;
+    }
 }
 #endif
 

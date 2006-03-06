@@ -54,7 +54,7 @@ public:
             glLoadIdentity();
             applyHeadTransform();
             
-            glTranslatef( 0, 0, -2 );
+            glTranslatef( 0, 0, -3 );
             glRotatef( _spin, 0, 0, 1. );
             _spin += .1;
 
@@ -107,7 +107,7 @@ int main( int argc, char** argv )
         DIE("Config initialisation failed.");
     cerr << "Config init took " << clock.getTimef() << " ms" << endl;
 
-    int nFrames = 1000;
+    int nFrames = 100;
     clock.reset();
     while( nFrames-- )
     {

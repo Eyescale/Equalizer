@@ -127,7 +127,7 @@ namespace eqs
         bool syncExit();
 
         /** 
-         * Update the per-frame data of this pipe.
+         * Update one frame.
          */
         void update();
 
