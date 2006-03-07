@@ -318,6 +318,7 @@ namespace eqNet
         bool     isMaster;
         uint32_t mobjectID;
         uint32_t mobjectType;
+        uint64_t mobjectDataSize;
         char     mobjectData[8];
     };
 
@@ -374,6 +375,7 @@ namespace eqNet
             }
         
         uint32_t version;
+        uint64_t deltaSize;
         char     delta[8];
     };
 
@@ -503,8 +505,7 @@ namespace eqNet
                                  const SessionInstanciateMobjectPacket* packet )
     {
         os << (SessionPacket*)packet << " mobj id " << packet->mobjectID <<
-            " type " << packet->mobjectType << " master " << packet->isMaster 
-           << " data " << packet->mobjectData;
+            " type " << packet->mobjectType << " master " << packet->isMaster;
         return os;
     }
 }

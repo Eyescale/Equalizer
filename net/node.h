@@ -319,6 +319,29 @@ namespace eqNet
             }
 
         /** 
+         * Sends a packet with additional data to the node.
+         * 
+         * The data is send as a new packet containing the original packet and
+         * the data, so that it is received as one packet by the node.
+         *
+         * It is assumed that the last 8 bytes in the packet are usable for the
+         * data.  This is used for optimising the send of short strings and on
+         * the receiver side to access the data. The node implementation gives
+         * examples of this usage.
+         *
+         * @param packet the packet.
+         * @param data the data.
+         * @param size the size of the data in bytes.
+         * @return the success status of the transaction.
+         */
+        bool send( Packet& packet, const void* data, const uint64_t size )
+            {
+                if( !checkConnection() )
+                    return false;
+                return ( _connection->send( packet, data, size )>=packet.size );
+            }
+
+        /** 
          * Notifies that a message is ready to be received.
          *
          * The Node will allocate memory for the message if ptr is

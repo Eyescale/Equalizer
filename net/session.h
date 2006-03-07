@@ -204,11 +204,13 @@ namespace eqNet
          * 
          * @param type the type of the mobject.
          * @param data the instance data of the mobject.
+         * @param dataSize the data size.
          * @return the mobject, or <code>NULL</code> upon error.
          * @sa Mobject::getInstanceInfo
          */
         virtual Mobject* instanciateMobject( const uint32_t type,
-                                             const char* data );
+                                             const void* data, 
+                                             const uint64_t dataSize );
         /** 
          * Sends a packet to the session's node.
          * 

@@ -10,18 +10,53 @@ using namespace std;
 
 #define DIE(reason)    { cout << (reason) << endl; abort(); }
 
-class Node : public eq::Node
+enum DataType
+{
+    OBJECT_FRAMEDATA = eqNet::MOBJECT_CUSTOM
+};
+
+class FrameData : public eqNet::VersionedObject
 {
 public:
-    virtual bool init()
+    FrameData() : VersionedObject( OBJECT_FRAMEDATA ), spin(0.) {}
+
+    FrameData( const void* data, const uint64_t size ) 
+            : VersionedObject( OBJECT_FRAMEDATA )
         {
-            EQINFO << "Init " << this << endl;
-            return true;
+            EQASSERT( size == sizeof( spin ));
+            spin = *(float*)data;
         }
 
-    virtual void exit()
+    float spin;
+
+protected:
+    const void* getInstanceData( uint64_t* size )
+        { return pack( size ); }
+
+    const void* pack( uint64_t* size )
         {
-            EQINFO << "Exit " << this << endl;
+            *size = sizeof( spin );
+            return &spin;
+        }
+
+    void unpack( const void* data, const uint64_t size )
+        {
+            EQASSERT( size == sizeof( spin ));
+            spin = *(float*)data;
+        }
+};
+
+
+class Config : public eq::Config
+{
+protected:
+    eqNet::Mobject* instanciateMobject( const uint32_t type, const void* data, 
+                                        const uint64_t dataSize )
+        {
+            if( type == OBJECT_FRAMEDATA )
+                return new FrameData( data, dataSize );
+
+            return eqNet::Session::instanciateMobject( type, data, dataSize );
         }
 };
 
@@ -74,7 +109,7 @@ private:
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual Node*    createNode()    { return new ::Node; }
+    virtual Config*  createConfig()  { return new ::Config; }
     virtual Channel* createChannel() { return new ::Channel; }
 };
 

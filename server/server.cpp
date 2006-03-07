@@ -93,6 +93,7 @@ bool Server::_loadConfig( int argc, char **argv )
     // TODO
     Config*    config = new Config( this );
     mapConfig( config );
+    config->setLatency(10);
 
     Compound* top  = new Compound;
     top->setMode( Compound::MODE_SYNC );

@@ -17,25 +17,30 @@ using namespace std;
 
 class TestMobject : public eqNet::Mobject
 {
-    void getInstanceData( uint32_t* typeID, std::string& data ) 
-        {
-            *typeID = eqNet::MOBJECT_CUSTOM;
-            data = "42";
-        }
+public:
+    TestMobject() : Mobject( eqNet::MOBJECT_CUSTOM ), value(42) {}
 
+protected:
+    int value;
+
+    const void* getInstanceData( uint64_t* size )
+        {
+            *size = sizeof( value );
+            return &value;
+        }
 };
 
 class Session : public eqNet::Session
 {
-    virtual eqNet::Mobject* instanciateMobject( const uint32_t type, 
-                                                const char* data )
+    eqNet::Mobject* instanciateMobject( const uint32_t type, const void* data, 
+                                        const uint64_t dataSize )
         {
             if( type == eqNet::MOBJECT_CUSTOM )
             {
-                TEST( strcmp( data, "42" ) == 0 );
+                TEST( *(int*)data == 42 );
                 return new TestMobject();
             }
-            return eqNet::Session::instanciateMobject( type, data );
+            return eqNet::Session::instanciateMobject( type, data, dataSize );
         }
 };
 

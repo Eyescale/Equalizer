@@ -189,13 +189,12 @@ void Session::registerMobject( Mobject* object, Node* master )
     object->_master = false;
 
     SessionInstanciateMobjectPacket packet( _id );
-    packet.mobjectID = id;
-    packet.isMaster  = true;
-
-    string mobjectData;
-    object->getInstanceData( &packet.mobjectType, mobjectData );
-    
-    master->send( packet, mobjectData );
+    packet.mobjectID   = id;
+    packet.isMaster    = true;
+    packet.mobjectType = object->_typeID;
+                                                
+    const void* data = object->getInstanceData( &packet.mobjectDataSize );
+    master->send( packet, data, packet.mobjectDataSize );
 }
 
 void Session::deregisterMobject( Mobject* object )
@@ -228,7 +227,8 @@ Mobject* Session::getMobject( const uint32_t id )
     return (Mobject*)_requestHandler.waitRequest( packet.requestID );
 }
 
-Mobject* Session::instanciateMobject( const uint32_t type, const char* data )
+Mobject* Session::instanciateMobject( const uint32_t type, const void* data, 
+                                      const uint64_t dataSize )
 {
     switch( type )
     {
@@ -551,12 +551,11 @@ CommandResult Session::_cmdInitMobject( Node* node, const Packet* pkg )
     mobject->addSlave( node );
 
     SessionInstanciateMobjectPacket reply( _id );
-    reply.mobjectID = id;
+    reply.mobjectID   = id;
+    reply.mobjectType = mobject->_typeID;
     
-    string mobjectData;
-    mobject->getInstanceData( &reply.mobjectType, mobjectData );
-    
-    node->send( reply, mobjectData );
+    const void* data = mobject->getInstanceData( &reply.mobjectDataSize );
+    node->send( reply, data, reply.mobjectDataSize );
     return COMMAND_HANDLED;
 }
 
@@ -570,7 +569,8 @@ CommandResult Session::_cmdInstanciateMobject( Node* node, const Packet* pkg )
     EQASSERT( !_registeredObjects[id] );
 
     Mobject* mobject = instanciateMobject( packet->mobjectType,
-                                           packet->mobjectData );
+                                           packet->mobjectData, 
+                                           packet->mobjectDataSize );
     if( !mobject )
         return COMMAND_ERROR;
 

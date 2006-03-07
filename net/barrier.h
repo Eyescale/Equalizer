@@ -28,7 +28,7 @@ namespace eqNet
         /** 
          * Constructs a new barrier.
          */
-        Barrier( const char* instanceInfo );
+        Barrier( const void* instanceData );
 
         /**
          * Destructs the barrier.
@@ -53,8 +53,8 @@ namespace eqNet
         //@}
 
     protected:
-        /** @sa Mobject::getInstanceInfo */
-        virtual void getInstanceData( uint32_t* typeID, std::string& data );
+        /** @sa Mobject::getInstanceData */
+        virtual const void* getInstanceData( uint64_t* size );
 
     private:
         /** The height of the barrier, only set on the master. */

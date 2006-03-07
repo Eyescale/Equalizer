@@ -127,11 +127,25 @@ namespace eqNet
          * Sends a packaged message including a string using the connection.
          * 
          * @param packet the message packet.
-         * @param strign the string.
+         * @param string the string.
          * @return the number of bytes send.
          * @sa Node::send
          */
-        uint64_t send( Packet &packet, const std::string& string ) const;
+        uint64_t send( Packet &packet, const std::string& string ) const
+            { return send( packet, string.c_str(), string.size()+1 ); }
+
+        /** 
+         * Sends a packaged message including additional data using the
+         * connection.
+         * 
+         * @param packet the message packet.
+         * @param data the data.
+         * @param size the data size in bytes.
+         * @return the number of bytes send.
+         * @sa Node::send
+         */
+        uint64_t send( Packet& packet, const void* data, const uint64_t size )
+            const;
         //@}
 
         /** 

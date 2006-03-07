@@ -80,22 +80,21 @@ RefPtr<Connection> Connection::accept( const int timeout )
     }
 }
 
-uint64_t Connection::send( Packet& packet, const std::string& string ) const
+uint64_t Connection::send( Packet& packet, const void* data, 
+                           const uint64_t dataSize ) const
 {
-    const uint32_t stringLen = string.size() + 1;
-
-    if( stringLen <= 8 ) // fits in existing packet
+    if( dataSize <= 8 ) // fits in existing packet
     {
-        memcpy( (char*)(&packet) + packet.size-8, string.c_str(), stringLen );
+        memcpy( (char*)(&packet) + packet.size-8, data, dataSize );
         return send( packet );
     }
 
-    uint64_t       size      = packet.size-8 + stringLen;
+    uint64_t       size      = packet.size-8 + dataSize;
     size += (4 - size%4);
     char*          buffer    = (char*)alloca( size );
 
     memcpy( buffer, &packet, packet.size-8 );
-    memcpy( buffer + packet.size-8, string.c_str(), stringLen );
+    memcpy( buffer + packet.size-8, data, dataSize );
 
     ((Packet*)buffer)->size = size;
     return send( buffer, size );

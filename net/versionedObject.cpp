@@ -13,8 +13,10 @@
 using namespace eqNet;
 using namespace std;
 
-VersionedObject::VersionedObject( const uint32_t nCommands )
-        : Base( nCommands ),
+VersionedObject::VersionedObject( const uint32_t mobjectType, 
+                                  const uint32_t nCommands )
+        : Mobject( mobjectType ),
+          Base( nCommands ),
           _version(0)
 {
     EQASSERT( nCommands >= CMD_VERSIONED_OBJECT_CUSTOM );
@@ -43,15 +45,15 @@ uint32_t VersionedObject::commit()
     vector< eqBase::RefPtr<Node> >& slaves = getSlaves();
 
     VersionedObjectSyncPacket packet( getSession()->getID(), getID( ));
-    string                    delta;
 
     packet.version = _version;
-    pack( delta );
+    const void* delta = pack( &packet.deltaSize );
     
+    // OPT: packet is re-assembled for each slave!
     for( vector< eqBase::RefPtr<Node> >::iterator iter = slaves.begin();
          iter != slaves.end(); ++iter )
         
-        (*iter)->send( packet, delta );
+        (*iter)->send( packet, delta, packet.deltaSize );
 
     return _version;
 }
@@ -115,7 +117,7 @@ void VersionedObject::_reqSync( Node* node, const Packet* pkg )
 {
     VersionedObjectSyncPacket* packet = (VersionedObjectSyncPacket*)pkg;
     
-    unpack( packet->delta );
+    unpack( packet->delta, packet->deltaSize );
     _version = packet->version;
     //return eqNet::COMMAND_HANDLED;
 }

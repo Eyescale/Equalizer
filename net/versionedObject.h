@@ -29,7 +29,8 @@ namespace eqNet
     class VersionedObject : public Mobject, public Base
     {
     public:
-        VersionedObject( const uint32_t nCommands=CMD_VERSIONED_OBJECT_CUSTOM );
+        VersionedObject( const uint32_t mobjectType, 
+                         const uint32_t nCommands=CMD_VERSIONED_OBJECT_CUSTOM );
         virtual ~VersionedObject();
         
         /** 
@@ -76,16 +77,22 @@ namespace eqNet
         /** 
          * Pack the changes since the last call.
          * 
-         * @param delta a string containing the changes.
+         * The returned pointer has to point to at least size bytes of memory
+         * allocated by the object. It can be free'd or reused on the next call
+         * to this mobject.
+         * 
+         * @param size the size of the returned data.
+         * @return the delta data.
          */
-        virtual void pack( std::string& delta ) = 0;
+        virtual const void* pack( uint64_t* size ) = 0;
 
         /** 
          * Unpack a change.
          * 
-         * @param delta a string containing the changes.
+         * @param data a data containing the changes.
+         * @param size the size of the data.
          */
-        virtual void unpack( const char* delta ) = 0;
+        virtual void unpack( const void* data, const uint64_t size ) = 0;
 
     private:
         /** The current version. */

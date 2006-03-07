@@ -39,16 +39,21 @@ namespace eqNet
             INST_ERROR
         };
 
-        Mobject(){}
+        Mobject( const uint32_t typeID ) : _typeID( typeID ) {}
         virtual ~Mobject(){}
         
         /** 
          * Return the instance information about this mobject.
+         *
+         * The returned pointer has to point to at least size bytes of memory
+         * allocated by the mobject. It can be free'd or reused on the next call
+         * to this mobject.
          * 
          * @param typeID the type identifier of this mobject.
-         * @param data a serialized string containing the mobject information.
+         * @param size the size of the returned data.
+         * @return the instance data.
          */
-        virtual void getInstanceData( uint32_t* typeID, std::string& data ) =0;
+        virtual const void* getInstanceData( uint64_t* size ) = 0;
 
     protected:
         /** 
@@ -77,6 +82,9 @@ namespace eqNet
         
         /** The list of subsribed slaves, kept on the master only. */
         std::vector< eqBase::RefPtr<Node> > _slaves;
+
+        /** The type identifier of the object. */
+        uint32_t _typeID;
     };
 }
 

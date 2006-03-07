@@ -11,7 +11,8 @@ using namespace eqNet;
 using namespace std;
 
 Barrier::Barrier( const uint32_t height )
-        : Base( CMD_BARRIER_ALL ),
+        : Mobject( MOBJECT_EQNET_BARRIER ),
+          Base( CMD_BARRIER_ALL ),
           _height( height )
 {
     EQASSERT( height > 1 );
@@ -24,10 +25,11 @@ Barrier::Barrier( const uint32_t height )
     EQINFO << "New barrier of height " << _height << endl;
 }
 
-Barrier::Barrier( const char* instanceInfo )
-        : Base( CMD_BARRIER_ALL )
+Barrier::Barrier( const void* instanceData )
+        : Mobject( MOBJECT_EQNET_BARRIER ),
+          Base( CMD_BARRIER_ALL )
 {
-    _height = atoi( instanceInfo );
+    _height = *(uint32_t*)instanceData;
     EQASSERT( _height > 1 );
     _lock.set();
 
@@ -35,19 +37,14 @@ Barrier::Barrier( const char* instanceInfo )
                          &eqNet::Barrier::_cmdEnter ));
     registerCommand( CMD_BARRIER_ENTER_REPLY, this, 
                 reinterpret_cast<CommandFcn>(&eqNet::Barrier::_cmdEnterReply ));
-    EQINFO << "Barrier of height " << _height << " instanciated from "
-         << instanceInfo << endl;
+    EQINFO << "Barrier of height " << _height << " instanciated" << endl;
 }
 
 
-void Barrier::getInstanceData( uint32_t* typeID, std::string& data )
+const void* Barrier::getInstanceData( uint64_t* size )
 {
-    *typeID = MOBJECT_EQNET_BARRIER;
-    
-    char height[8];
-    snprintf( height, 8, "%d", _height );
-
-    data = height;
+    *size   = sizeof( _height );
+    return &_height;
 }
 
 void Barrier::enter()
