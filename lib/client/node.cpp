@@ -189,7 +189,7 @@ eqNet::CommandResult Node::_reqInit(eqNet::Node* node, const eqNet::Packet* pkg)
     EQINFO << "handle node init (node) " << packet << endl;
 
     NodeInitReplyPacket reply( packet );
-    reply.result = init();
+    reply.result = init( packet->initID );
     node->send( reply );
     return eqNet::COMMAND_HANDLED;
 }

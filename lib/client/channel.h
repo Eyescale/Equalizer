@@ -72,9 +72,10 @@ namespace eq
 
         /** 
          * Initialises this channel.
-         * TODO: Create thread, get display info, etc.
+         * 
+         * @param initID the init identifier.
          */
-        virtual bool init(){ return true; }
+        virtual bool init( const uint32_t initID ){ return true; }
 
         /** 
          * Exit this channel.

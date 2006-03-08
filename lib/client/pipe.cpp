@@ -218,7 +218,7 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg
     _screen  = packet->screen;
 
     _windowSystem = selectWindowSystem();
-    reply.result = init();
+    reply.result = init( packet->initID );
 
     if( !reply.result )
     {
@@ -289,7 +289,7 @@ eqNet::CommandResult Pipe::_reqFrameSync(eqNet::Node* node,
 //---------------------------------------------------------------------------
 // pipe-thread methods
 //---------------------------------------------------------------------------
-bool Pipe::init()
+bool Pipe::init( const uint32_t initID )
 {
     switch( _windowSystem )
     {

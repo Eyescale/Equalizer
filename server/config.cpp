@@ -199,7 +199,7 @@ eqNet::CommandResult Config::_reqInit( eqNet::Node* node,
     eq::ConfigInitReplyPacket   reply( packet );
     EQINFO << "handle config init " << packet << endl;
 
-    reply.result = _init();
+    reply.result = _init( packet->initID );
     EQINFO << "config init result: " << reply.result << endl;
     node->send( reply );
     return eqNet::COMMAND_HANDLED;
@@ -225,7 +225,7 @@ eqNet::CommandResult Config::_reqFrameBegin( eqNet::Node* node,
     eq::ConfigFrameBeginReplyPacket   reply( packet );
     EQVERB << "handle config frame begin " << packet << endl;
 
-    reply.result = _frameBegin();
+    reply.result = _frameBegin( packet->frameID );
     node->send( reply );
     return eqNet::COMMAND_HANDLED;
 }
@@ -247,7 +247,7 @@ eqNet::CommandResult Config::_reqFrameEnd( eqNet::Node* node,
 // operations
 //===========================================================================
 
-bool Config::_init()
+bool Config::_init( const uint32_t initID )
 {
     _frameNumber = 0;
 
@@ -259,7 +259,7 @@ bool Config::_init()
     }
 
     // connect (and launch) nodes
-    vector<Node*>                 usedNodes;
+    vector<Node*> usedNodes;
     uint32_t nNodes = _nodes.size();
     for( uint32_t i=0; i<nNodes; i++ )
     {
@@ -298,7 +298,7 @@ bool Config::_init()
         
         // initialize nodes
         node->send( createConfigPacket, name );
-        node->startInit();
+        node->startInit( initID );
     }
 
     for( uint32_t i=0; i<nNodes; i++ )
@@ -362,7 +362,7 @@ bool Config::_exit()
     return cleanExit;
 }
 
-uint32_t Config::_frameBegin()
+uint32_t Config::_frameBegin( const uint32_t frameID )
 {
     ++_frameNumber;
 
@@ -378,7 +378,7 @@ uint32_t Config::_frameBegin()
     {
         Node* node = getNode( i );
         if( node->isUsed( ))
-            node->update();
+            node->update( frameID );
     }
     
     return _frameNumber;

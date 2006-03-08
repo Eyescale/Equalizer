@@ -30,10 +30,11 @@ namespace eq
         /** 
          * Initialises this configuration.
          * 
+         * @param initID an identifier to be passed to all init methods.
          * @return <code>true</code> if the initialisation was successful,
          *         <code>false</code> if not.
          */
-        bool init();
+        bool init( const uint32_t initID );
 
         /** 
          * Exits this configuration.
@@ -49,10 +50,11 @@ namespace eq
         /** 
          * Requests a new frame of rendering.
          * 
-         * @todo per-frame data passed to all rendering methods
+         * @param frameID a per-frame identifier passed to all rendering
+         *                methods.
          * @return the frame number of the new frame.
          */
-        uint32_t frameBegin();
+        uint32_t frameBegin( const uint32_t frameID );
 
         /** 
          * Synchronizes the end of a frame.

@@ -126,7 +126,7 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
         setViewport( packet->vp );
 
     WindowInitReplyPacket reply( packet );
-    reply.result = init();
+    reply.result = init( packet->initID );
 
     if( !reply.result )
     {
@@ -250,7 +250,7 @@ void eq::Window::setViewport( const Viewport& vp )
 //----------------------------------------------------------------------
 // init
 //----------------------------------------------------------------------
-bool eq::Window::init()
+bool eq::Window::init( const uint32_t initID )
 {
     const WindowSystem windowSystem = _pipe->getWindowSystem();
     switch( windowSystem )

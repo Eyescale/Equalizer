@@ -105,9 +105,9 @@ void Window::setSwapGroup( Window* master )
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-void Window::startInit()
+void Window::startInit( const uint32_t initID )
 {
-    _sendInit();
+    _sendInit( initID );
     eq::WindowCreateChannelPacket createChannelPacket( getSession()->getID(), 
                                                        getID( ));
     const int nChannels = _channels.size();
@@ -118,12 +118,12 @@ void Window::startInit()
         {
             createChannelPacket.channelID = channel->getID();
             _send( createChannelPacket );
-            channel->startInit();
+            channel->startInit( initID );
         }
     }
 }
 
-void Window::_sendInit()
+void Window::_sendInit( const uint32_t initID )
 {
     EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
@@ -131,6 +131,7 @@ void Window::_sendInit()
     _pendingRequestID = _requestHandler.registerRequest(); 
 
     packet.requestID = _pendingRequestID;
+    packet.initID    = initID;
     packet.pvp       = _pvp; 
     packet.vp        = _vp;
 
@@ -214,7 +215,7 @@ bool Window::syncExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Window::update()
+void Window::update( const uint32_t frameID )
 {
     // TODO: send update window task (make current)
 
@@ -223,7 +224,7 @@ void Window::update()
     {
         Channel* channel = getChannel( i );
         if( channel->isUsed( ))
-            channel->update();
+            channel->update( frameID );
     }
 
     if( _swapMaster ) // swap barrier

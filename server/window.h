@@ -128,8 +128,10 @@ namespace eqs
         //*{
         /** 
          * Start initializing this node.
+         *
+         * @param initID an identifier to be passed to all init methods.
          */
-        void startInit();
+        void startInit( const uint32_t initID );
 
         /** 
          * Synchronize the initialisation of the node.
@@ -154,8 +156,11 @@ namespace eqs
         
         /** 
          * Update the per-frame data of this window.
+         *
+         * @param frameID a per-frame identifier passed to all rendering
+         *                methods.
          */
-        void update();
+        void update( const uint32_t frameID );
         //*}
 
     private:
@@ -190,7 +195,7 @@ namespace eqs
 
         void _send( const eqNet::Packet& packet ) { getNode()->send( packet ); }
 
-        void _sendInit();
+        void _sendInit( const uint32_t initID );
         void _sendExit();
 
         /* command handler functions. */

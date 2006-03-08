@@ -352,14 +352,23 @@ void Compound::_updateSwapGroup()
     }
 }
 
-void Compound::updateChannel( Channel* channel )
+struct UpdateChannelData
 {
-    traverse( this, NULL, _updateDrawCB, _updatePostDrawCB, channel );
+    Channel* channel;
+    uint32_t frameID;
+};
+
+void Compound::updateChannel( Channel* channel, const uint32_t frameID )
+{
+    UpdateChannelData data = { channel, frameID };
+    traverse( this, NULL, _updateDrawCB, _updatePostDrawCB, &data );
 }
 
 TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
 {
-    Channel* channel = (Channel*)userData;
+    UpdateChannelData* data    = (UpdateChannelData*)userData;
+    Channel*           channel = data->channel;
+
     if( compound->_data.channel != channel )
         return TRAVERSE_CONTINUE;
 
@@ -439,8 +448,8 @@ void Compound::_computeFrustum( float frustum[6], float headTransform[16] )
 
 TraverseResult Compound::_updatePostDrawCB( Compound* compound, void* userData )
 {
-//    Channel* channel = (Channel*)userData;
-//    if( compound->_data.channel != channel )
+//    UpdateChannelData* data = (UpdateChannelData*)userData;
+//    if( compound->_data.channel != data->channel )
         return TRAVERSE_CONTINUE;
 }
 

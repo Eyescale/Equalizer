@@ -64,18 +64,19 @@ void Channel::unrefUsed()
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-void Channel::startInit()
+void Channel::startInit( const uint32_t initID )
 {
-    _sendInit();
+    _sendInit( initID );
 }
 
-void Channel::_sendInit()
+void Channel::_sendInit( const uint32_t initID )
 {
     EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
     eq::ChannelInitPacket packet( getSession()->getID(), getID( ));
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
+    packet.initID     = initID;
     send( packet );
 }
 
@@ -117,7 +118,7 @@ bool Channel::syncExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Channel::update()
+void Channel::update( const uint32_t frameID )
 {
     _pvp = _window->getPixelViewport();
 
@@ -131,7 +132,7 @@ void Channel::update()
     for( uint32_t i=0; i<nCompounds; i++ )
     {
         Compound* compound = config->getCompound( i );
-        compound->updateChannel( this );
+        compound->updateChannel( this, frameID );
     }
 }
 

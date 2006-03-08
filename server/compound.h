@@ -205,8 +205,10 @@ namespace eqs
          * Update a channel by generating all rendering tasks for this frame.
          * 
          * @param channel the channel to update.
+         * @param frameID a per-frame identifier passed to all rendering
+         *                methods.
          */
-        void updateChannel( Channel* channel );
+        void updateChannel( Channel* channel, const uint32_t frameID );
         //*}
 
     private:

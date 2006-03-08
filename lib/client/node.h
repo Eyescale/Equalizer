@@ -47,8 +47,10 @@ namespace eq
 
         /** 
          * Initialises this node.
+         * 
+         * @param initID the init identifier.
          */
-        virtual bool init(){ return true; }
+        virtual bool init( const uint32_t initID ){ return true; }
 
         /** 
          * Exit this node.

@@ -138,7 +138,7 @@ int main( int argc, char** argv )
         DIE("No matching config on server.");
 
     eqBase::Clock clock;
-    if( !config->init( ))
+    if( !config->init( 0 ))
         DIE("Config initialisation failed.");
     cerr << "Config init took " << clock.getTimef() << " ms" << endl;
 
@@ -152,7 +152,7 @@ int main( int argc, char** argv )
         frameData.spin += .1;
         const uint32_t version = frameData.commit();
 
-        config->frameBegin();
+        config->frameBegin( version );
 //         config->renderData(...);
 //         ...;
         config->frameEnd();

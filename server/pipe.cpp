@@ -90,9 +90,9 @@ void Pipe::unrefUsed()
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-void Pipe::startInit()
+void Pipe::startInit( const uint32_t initID )
 {
-    _sendInit();
+    _sendInit( initID );
 
     eq::PipeCreateWindowPacket createWindowPacket( getSession()->getID(),
                                                    getID( ));
@@ -104,18 +104,19 @@ void Pipe::startInit()
         {
             createWindowPacket.windowID = window->getID();
             _send( createWindowPacket );
-            window->startInit();
+            window->startInit( initID );
         }
     }
 }
 
-void Pipe::_sendInit()
+void Pipe::_sendInit( const uint32_t initID )
 {
     EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
     eq::PipeInitPacket packet( getSession()->getID(), getID( ));
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
+    packet.initID     = initID;
     packet.display    = _display;
     packet.screen     = _screen;
     _send( packet );
@@ -197,14 +198,14 @@ bool Pipe::syncExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Pipe::update()
+void Pipe::update( const uint32_t frameID )
 {
     const uint32_t nWindows = this->nWindows();
     for( uint32_t i=0; i<nWindows; i++ )
     {
         Window* window = getWindow( i );
         if( window->isUsed( ))
-            window->update();
+            window->update( frameID );
     }
 
     eq::PipeFrameSyncPacket packet( getSession()->getID(), getID( ));

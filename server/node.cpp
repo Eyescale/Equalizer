@@ -121,9 +121,9 @@ const string& Node::getProgramName()
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-void Node::startInit()
+void Node::startInit( const uint32_t initID )
 {
-    _sendInit();
+    _sendInit( initID );
 
     eq::NodeCreatePipePacket createPipePacket( _config->getID(), getID( ));
 
@@ -135,18 +135,19 @@ void Node::startInit()
         {
             createPipePacket.pipeID = pipe->getID();
             send( createPipePacket );
-            pipe->startInit();
+            pipe->startInit( initID );
         }
     }
 }
 
-void Node::_sendInit()
+void Node::_sendInit( const uint32_t initID )
 {
     EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
     eq::NodeInitPacket packet( _config->getID(), getID( ));
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
+    packet.initID     = initID;
     send( packet );
 }
 
@@ -232,7 +233,7 @@ void Node::stop()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Node::update()
+void Node::update( const uint32_t frameID )
 {
     EQVERB << "Start frame" << endl;
     const uint32_t nPipes = this->nPipes();
@@ -240,7 +241,7 @@ void Node::update()
     {
         Pipe* pipe = getPipe( i );
         if( pipe->isUsed( ))
-            pipe->update();
+            pipe->update( frameID );
     }
 }
 

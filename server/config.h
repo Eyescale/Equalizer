@@ -179,10 +179,10 @@ namespace eqs
         /** common code for all constructors */
         void _construct();
 
-        bool _init();
+        bool _init( const uint32_t initID );
         bool _exit();
 
-        uint32_t _frameBegin();
+        uint32_t _frameBegin( const uint32_t frameID );
         uint32_t _frameEnd();
 
         //*}

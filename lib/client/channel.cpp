@@ -135,7 +135,7 @@ eqNet::CommandResult Channel::_reqInit( eqNet::Node* node,
     EQINFO << "handle channel init " << packet << endl;
 
     ChannelInitReplyPacket reply( packet );
-    reply.result = init(); // XXX push to channel thread
+    reply.result = init( packet->initID );
     reply._near   = _near;
     reply._far    = _far;
     node->send( reply );

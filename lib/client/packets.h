@@ -80,7 +80,9 @@ namespace eq
                 command   = CMD_CONFIG_INIT;
                 size      = sizeof( ConfigInitPacket );
             }
+
         uint32_t requestID;
+        uint32_t initID;
     };
 
     struct ConfigInitReplyPacket : public eqNet::SessionPacket
@@ -129,6 +131,7 @@ namespace eq
                 size      = sizeof( ConfigFrameBeginPacket );
             }
         uint32_t requestID;
+        uint32_t frameID;
     };
 
     struct ConfigFrameBeginReplyPacket : public eqNet::SessionPacket
@@ -197,6 +200,7 @@ namespace eq
             }
 
         uint32_t requestID;
+        uint32_t initID;
         uint32_t configID;
         uint32_t nodeID;
     };
@@ -289,6 +293,7 @@ namespace eq
             }
 
         uint32_t requestID;
+        uint32_t initID;
         uint32_t display;
         uint32_t screen;
     };
@@ -381,6 +386,7 @@ namespace eq
             }
 
         uint32_t      requestID;
+        uint32_t      initID;
         PixelViewport pvp;
         Viewport      vp;
     };
@@ -489,6 +495,7 @@ namespace eq
             }
 
         uint32_t requestID;
+        uint32_t initID;
     };
 
     struct ChannelInitReplyPacket : public eqNet::ObjectPacket
@@ -546,6 +553,7 @@ namespace eq
             }
 
         RenderContext context;
+        uint32_t      frameID;
     };
         
     struct ChannelDrawPacket : public eqNet::ObjectPacket
@@ -559,12 +567,11 @@ namespace eq
             }
 
         RenderContext context;
+        uint32_t      frameID;
     };
         
 
     //------------------------------------------------------------
-
-
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ServerChooseConfigPacket* packet )
     {

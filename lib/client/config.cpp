@@ -27,10 +27,12 @@ Config::Config()
                          &eq::Config::_cmdFrameEndReply ));
 }
 
-bool Config::init()
+bool Config::init( const uint32_t initID )
 {
     ConfigInitPacket packet( _id );
     packet.requestID = _requestHandler.registerRequest();
+    packet.initID    = initID;
+
     _server->send( packet );
     return ( _requestHandler.waitRequest( packet.requestID ) != 0 );
 }
@@ -43,10 +45,12 @@ bool Config::exit()
     return ( _requestHandler.waitRequest( packet.requestID ) != 0 );
 }
 
-uint32_t Config::frameBegin()
+uint32_t Config::frameBegin( const uint32_t frameID )
 {
     ConfigFrameBeginPacket packet( _id );
     packet.requestID = _requestHandler.registerRequest();
+    packet.frameID   = frameID;
+
     _server->send( packet );
     return (uint32_t)(long long)(_requestHandler.waitRequest(packet.requestID));
 }

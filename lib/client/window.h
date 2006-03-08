@@ -142,8 +142,10 @@ namespace eq
 
         /** 
          * Initialise this window.
+         * 
+         * @param initID the init identifier.
          */
-        virtual bool init();
+        virtual bool init( const uint32_t initID );
         bool initGLX();
         bool initCGL();
 
