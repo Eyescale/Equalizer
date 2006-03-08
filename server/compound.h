@@ -7,10 +7,10 @@
 
 #include "channel.h"
 
-#include <eq/frustum.h>
-#include <eq/projection.h>
-#include <eq/viewport.h>
-#include <eq/wall.h>
+#include <eq/client/frustum.h>
+#include <eq/client/projection.h>
+#include <eq/client/viewport.h>
+#include <eq/client/wall.h>
 
 #include <iostream>
 #include <vector>

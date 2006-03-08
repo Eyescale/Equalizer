@@ -6,11 +6,11 @@
 #define EQ_NODEFACTORY_H
 
 #include <eq/base/base.h>
-#include <eq/channel.h>
-#include <eq/config.h>
-#include <eq/node.h>
-#include <eq/pipe.h>
-#include <eq/window.h>
+#include <eq/client/channel.h>
+#include <eq/client/config.h>
+#include <eq/client/node.h>
+#include <eq/client/pipe.h>
+#include <eq/client/window.h>
 
 namespace eq
 {

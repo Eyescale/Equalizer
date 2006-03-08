@@ -5,7 +5,7 @@
 #ifndef EQS_CONFIG_H
 #define EQS_CONFIG_H
 
-#include <eq/packets.h>
+#include <eq/client/packets.h>
 #include <eq/net/session.h>
 
 #include <iostream>

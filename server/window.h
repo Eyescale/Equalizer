@@ -7,7 +7,7 @@
 
 #include "pipe.h"
 
-#include <eq/pixelViewport.h>
+#include <eq/client/pixelViewport.h>
 #include <eq/net/base.h>
 #include <eq/net/object.h>
 

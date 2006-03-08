@@ -26,7 +26,7 @@ $(SUBDIRS):
 
 # headers
 $(HEADER_DIR)/%.h : %.h
-	@mkdir -p $(HEADER_DIR)
+	@mkdir -p $(HEADER_DIR)/$(*D)
 	@echo 'Header file $@'
 	@cp $< $@
 
@@ -60,10 +60,10 @@ endif
 OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
 
 $(OBJECT_DIR)/%.o : %.cpp
-	@mkdir -p $(OBJECT_DIR)
+	@mkdir -p $(@D)
 	@($(DEP_CXX) $(CXXFLAGS) $(INT_CXXFLAGS) -M -E $< | \
 		sed 's/\(.*:\)/$(OBJECT_DIR_ESCAPED)\/\1/' > \
-		$(@D)/$*.d ) || rm $(@D)/$*.d
+		$(OBJECT_DIR)/$*.d ) || rm $(OBJECT_DIR)/$*.d
 	$(CXX) $(CXXFLAGS) $(INT_CXXFLAGS) -c $< -o $@
 
 %.cpp: $(OBJECT_DIR)/%d

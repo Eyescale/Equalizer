@@ -8,8 +8,8 @@
 #include "node.h"
 #include "window.h"
 
-#include <eq/commands.h>
-#include <eq/viewport.h>
+#include <eq/client/commands.h>
+#include <eq/client/viewport.h>
 #include <eq/net/base.h>
 #include <eq/net/object.h>
 #include <eq/net/packets.h>

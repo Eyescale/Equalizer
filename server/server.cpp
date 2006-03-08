@@ -11,8 +11,9 @@
 #include "pipe.h"
 #include "window.h"
 
-#include <eq/packets.h>
 #include <eq/base/refPtr.h>
+#include <eq/client/nodeFactory.h>
+#include <eq/client/packets.h>
 #include <eq/net/connectionDescription.h>
 #include <eq/net/init.h>
 #include <eq/net/node.h>
@@ -22,6 +23,11 @@
 using namespace eqs;
 using namespace eqBase;
 using namespace std;
+
+eq::NodeFactory* eq::createNodeFactory()
+{
+    return new eq::NodeFactory;
+}
 
 Server::Server()
         : eqNet::Node( eq::CMD_SERVER_ALL ),
@@ -105,7 +111,7 @@ bool Server::_loadConfig( int argc, char **argv )
     RefPtr<eqNet::ConnectionDescription> description =
         new eqNet::ConnectionDescription;
     description->launchCommand = "ssh -n %h %c >& %h.log";
-    description->hostname      = "benjy";
+    description->hostname      = "go.local";
     description->launchTimeout = 100000;
     node->addConnectionDescription( description );
 
@@ -137,7 +143,7 @@ bool Server::_loadConfig( int argc, char **argv )
 //     description->launchCommand = "ssh -n eile@%h %c >& %h.log";
 //     description->hostname      = "go";
     description->launchCommand = "ssh -n %h %c >& %h.2.log";
-    description->hostname      = "benjy";
+    description->hostname      = "go.local";
     description->launchTimeout = 100000;
     node->addConnectionDescription( description );
 

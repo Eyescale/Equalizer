@@ -8,8 +8,8 @@
 #include "config.h"
 #include "window.h"
 
-#include <eq/commands.h>
-#include <eq/packets.h>
+#include <eq/client/commands.h>
+#include <eq/client/packets.h>
 #include <eq/base/base.h>
 
 using namespace eqs;

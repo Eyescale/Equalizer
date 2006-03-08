@@ -9,7 +9,7 @@
 #include "node.h"
 #include "window.h"
 
-#include <eq/commands.h>
+#include <eq/client/commands.h>
 
 using namespace eqs;
 using namespace std;

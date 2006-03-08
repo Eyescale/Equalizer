@@ -3,10 +3,8 @@
 include make/system.mk
 
 SUBDIRS = \
-	base \
-	client \
+	lib \
 	examples \
-	net \
 	proto \
 	server \
 	tests
@@ -18,11 +16,9 @@ all: precompile subdirs # docs
 docs: net
 	@$(DOXYGEN) Doxyfile
 
-net: base
-proto: base
-tests: net
-client: net
-server: client
-examples: client
+proto: lib
+tests: lib
+examples: lib
+server: lib
 
 include make/rules.mk

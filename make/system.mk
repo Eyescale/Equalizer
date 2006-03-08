@@ -27,7 +27,7 @@ DOXYGEN        ?= Doxygen
 CXX_DEFINES           += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES)
 CXX_DEFINES           += -DCHECK_THREADSAFETY
 WINDOW_SYSTEM_DEFINES  = $(foreach WS,$(WINDOW_SYSTEM),-D$(WS))
-CXX_DEFINES_FILE       = base/defines.h
+CXX_DEFINES_FILE       = lib/base/defines.h
 CXX_DEFINES_TXT        = $(CXX_DEFINES:-D%= %)
 
 # header file variables

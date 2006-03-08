@@ -7,8 +7,8 @@
 #include "channel.h"
 
 #include <eq/base/base.h>
+#include <eq/client/packets.h>
 #include <eq/net/session.h>
-#include <eq/packets.h>
 
 #include <GL/gl.h>
 #include <algorithm>

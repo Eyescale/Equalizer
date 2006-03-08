@@ -9,7 +9,7 @@
 #include "pipe.h"
 #include "window.h"
 
-#include <eq/packets.h>
+#include <eq/client/packets.h>
 #include <eq/net/barrier.h>
 
 using namespace eqs;

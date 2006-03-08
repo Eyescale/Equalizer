@@ -5,7 +5,7 @@
 #ifndef EQS_SERVER_H
 #define EQS_SERVER_H
 
-#include <eq/packets.h>
+#include <eq/client/packets.h>
 #include <eq/base/lock.h>
 #include <eq/net/idHash.h>
 #include <eq/net/node.h>
