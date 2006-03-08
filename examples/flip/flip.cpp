@@ -142,11 +142,15 @@ int main( int argc, char** argv )
         DIE("Config initialisation failed.");
     cerr << "Config init took " << clock.getTimef() << " ms" << endl;
 
+    FrameData frameData;
+
     int nFrames = 100;
     clock.reset();
     while( nFrames-- )
     {
         // update database
+        frameData.spin += .1;
+        const uint32_t version = frameData.commit();
 
         config->frameBegin();
 //         config->renderData(...);
