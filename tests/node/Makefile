@@ -1,15 +1,12 @@
 
 include $(TOP)/make/system.mk
 
-CXXFLAGS    += -I.. -L$(SAMPLE_LIB_DIR) -leqnet
-SA_CXXFLAGS += -lpthread
+SA_CXXFLAGS += -I.. -L$(SAMPLE_LIB_DIR) -leqnet
 
 ifeq "${ARCH}" "Linux"
 SA_CXXFLAGS += -lrt
 endif
 
-CLEAN = $(PROGRAMS)
-
-all: $(PROGRAMS)
+TARGETS = $(SIMPLE_PROGRAMS)
 
 include $(TOP)/make/rules.mk

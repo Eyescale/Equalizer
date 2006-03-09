@@ -31,7 +31,6 @@ CXX_DEFINES_FILE       = lib/base/defines.h
 CXX_DEFINES_TXT        = $(CXX_DEFINES:-D%= %)
 
 # header file variables
-HEADER_SRC      = $(wildcard *.h)
 HEADER_DIR      = $(BUILD_DIR)/include/eq/$(MODULE)
 HEADERS         = $(HEADER_SRC:%=$(HEADER_DIR)/%)
 
@@ -51,6 +50,7 @@ endif
 LIBRARY         = $(DYNAMIC_LIB)
 STATIC_LIB      = $(foreach V,$(VARIANTS),$(BUILD_DIR)/$(V)/lib/libeq$(MODULE).a)
 DYNAMIC_LIB     = $(foreach V,$(VARIANTS),$(BUILD_DIR)/$(V)/lib/libeq$(MODULE).$(DSO_SUFFIX))
+PROGRAMS        = $(foreach V,$(VARIANTS),$(PROGRAM).$(V))
 
 SIMPLE_PROGRAMS = $(CXXFILES:%.cpp=%)
 

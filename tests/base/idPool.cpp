@@ -8,7 +8,7 @@ using namespace std;
 
 int main( int argc, char **argv )
 {
-    IDPool pool;
+    IDPool pool( IDPool::getMaxCapacity( ));
     size_t nLoops = 1000000;
 
     while( nLoops-- )

@@ -2,6 +2,8 @@
 .PHONY: subdirs $(SUBDIRS) $(DEPENDENCIES)
 .SUFFIXES: .d
 
+all: $(TARGETS)
+
 # top level precompile command(s)
 precompile: $(CXX_DEFINES_FILE)
 
@@ -70,14 +72,20 @@ $(OBJECT_DIR)/%.o : %.cpp
 
 
 # executables
+$(PROGRAMS): $(OBJECTS)
+ifdef VARIANT
+	$(CXX) $(SA_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
+else
+	@$(MAKE) VARIANT=$(subst .,,$(suffix $@)) TOP=$(TOP) $@
+endif
+
 % : %.cpp
 	$(CXX) $< $(CXXFLAGS) $(INT_CXXFLAGS) $(SA_CXXFLAGS) -o $@ 
 
 # cleaning targets
 clean:
 ifdef VARIANT
-	rm -f *~ .*~ $(OBJECTS) $(HEADERS) $(STATIC_LIB) $(DYNAMIC_LIB)\
-	    $(CLEAN) $(DEPENDENCIES)
+	rm -f *~ .*~ $(OBJECTS) $(TARGETS) $(CLEAN) $(DEPENDENCIES)
 	rm -rf $(OBJECT_DIR)/ii_files
 ifdef SUBDIRS
 	@for dir in $(SUBDIRS); do \
@@ -86,7 +94,7 @@ ifdef SUBDIRS
 	done
 endif
 else # VARIANT
-	for variant in $(VARIANTS); do \
+	@for variant in $(VARIANTS); do \
 		$(MAKE) VARIANT=$$variant clean; \
 	done
 endif

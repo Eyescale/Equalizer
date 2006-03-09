@@ -4,6 +4,6 @@ include $(TOP)/make/system.mk
 SUBDIRS = \
 	flip
 
-all: subdirs
+TARGETS = subdirs
 
 include $(TOP)/make/rules.mk

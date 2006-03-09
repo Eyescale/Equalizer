@@ -33,6 +33,7 @@ protected:
             TEST( node->mapSession( nodeProxy, &session, "foo" ));
 
             TEST( node->stopListening( ));
+            return EXIT_SUCCESS;
         }
 };
 

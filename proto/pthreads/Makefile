@@ -1,15 +1,15 @@
 
 include $(TOP)/make/system.mk
 
-PROGRAMS      = perf
-SA_CXXFLAGS  += -L$(SAMPLE_LIB_DIR) -leq -lpthread
+PROGRAM = perf
+SOURCES = perf.cpp
+
+SA_LDFLAGS  += -L$(LIBRARY_DIR) -leq -lpthread
 
 ifeq "${ARCH}" "Linux"
-SA_CXXFLAGS += -lrt
+SA_LDFLAGS += -lrt
 endif
 
-CLEAN = $(PROGRAMS)
-
-all: $(PROGRAMS)
+TARGETS = $(PROGRAMS)
 
 include $(TOP)/make/rules.mk

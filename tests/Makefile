@@ -7,6 +7,6 @@ SUBDIRS = \
 	node \
 	session
 
-all: subdirs
+TARGETS = subdirs
 
 include $(TOP)/make/rules.mk

@@ -11,14 +11,14 @@ SUBDIRS = \
 
 .PHONY: docs
 
-all: precompile subdirs # docs
+TARGETS = precompile subdirs # docs
 
-docs: net
+include make/rules.mk
+
+docs: lib
 	@$(DOXYGEN) Doxyfile
 
 proto: lib
 tests: lib
 examples: lib
 server: lib
-
-include make/rules.mk

@@ -1,16 +1,19 @@
 
 include $(TOP)/make/system.mk
 
+PROGRAM = flip
+
+SOURCES = \
+	channel.cpp \
+	flip.cpp
+
 CXXFLAGS    += -I.. $(WINDOW_SYSTEM_INCS)
-PROGRAMS     = flip
-SA_CXXFLAGS += -L$(SAMPLE_LIB_DIR) -leq -lpthread $(WINDOW_SYSTEM_LIBS)
+SA_LDFLAGS  += -L$(SAMPLE_LIB_DIR) -leq -lpthread $(WINDOW_SYSTEM_LIBS)
 
 ifeq "${ARCH}" "Linux"
-SA_CXXFLAGS += -lrt
+SA_LDFLAGS += -lrt
 endif
 
-CLEAN = $(PROGRAMS)
-
-all: $(PROGRAMS)
+TARGETS = $(PROGRAMS)
 
 include $(TOP)/make/rules.mk
