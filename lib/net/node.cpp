@@ -599,6 +599,7 @@ CommandResult Node::dispatchPacket( Node* node, const Packet* packet )
         case DATATYPE_EQNET_SESSION:
         case DATATYPE_EQNET_OBJECT:
         case DATATYPE_EQNET_MOBJECT:
+        case DATATYPE_EQNET_VERSIONED_OBJECT:
         case DATATYPE_EQNET_USER:
         {
             const SessionPacket* sessionPacket = (SessionPacket*)packet;

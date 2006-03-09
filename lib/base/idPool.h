@@ -22,8 +22,12 @@ namespace eqBase
     public:
         /** 
          * Constructs a new identifier pool.
+         *
+         * @param initialCapacity the initial capacity of the pool, the
+         *                        identifiers from initialCapacity to
+         *                        getMaxCapacity() are considered as allocated.
          */
-        IDPool();
+        IDPool( const uint32_t initialCapacity );
 
         /** Destructs the identifier pool. */
         ~IDPool();
@@ -31,7 +35,7 @@ namespace eqBase
         uint32_t genIDs( const uint32_t range );
         void freeIDs( const uint32_t start, const uint32_t range );
 
-        static uint32_t getCapacity() { return 0xfffffff0; }
+        static uint32_t getMaxCapacity() { return 0xfffffff0; }
 
     private:
         struct Block

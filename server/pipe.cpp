@@ -28,6 +28,7 @@ void Pipe::_construct()
                          &eqs::Pipe::_cmdExitReply ));
     registerCommand( eq::CMD_PIPE_FRAME_SYNC, this,reinterpret_cast<CommandFcn>(
                          &eqs::Pipe::_cmdFrameSync ));
+    EQINFO << "New " << this << endl;
 }
 
 Pipe::Pipe()

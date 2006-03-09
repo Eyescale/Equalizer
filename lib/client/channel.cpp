@@ -45,14 +45,14 @@ Channel::~Channel()
 //---------------------------------------------------------------------------
 // operations
 //---------------------------------------------------------------------------
-void Channel::clear()
+void Channel::clear( const uint32_t frameID )
 {
     applyBuffer();
     applyViewport();
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
-void Channel::draw()
+void Channel::draw( const uint32_t frameID )
 {
     applyBuffer();
     applyViewport();
@@ -162,7 +162,7 @@ eqNet::CommandResult Channel::_reqClear( eqNet::Node* node,
     EQVERB << "handle channel clear " << packet << endl;
 
     _context = &packet->context;
-    clear();
+    clear( packet->frameID );
     _context = NULL;
     return eqNet::COMMAND_HANDLED;
 }
@@ -174,7 +174,7 @@ eqNet::CommandResult Channel::_reqDraw( eqNet::Node* node,
     EQVERB << "handle channel draw " << packet << endl;
 
     _context = &packet->context;
-    draw();
+    draw( packet->frameID );
     _context = NULL;
     return eqNet::COMMAND_HANDLED;
 }

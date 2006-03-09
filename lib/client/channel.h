@@ -34,7 +34,10 @@ namespace eq
          * @name Data Access
          */
         //*{
-        Pipe* getPipe() const { return ( _window ? _window->getPipe() : NULL );}
+        Pipe*   getPipe()   const
+            { return ( _window ? _window->getPipe() : NULL );}
+        Config* getConfig() const 
+            { return ( _window ? _window->getConfig() : NULL );}
 
         /** 
          * Set the near and far planes for this channel.
@@ -84,13 +87,17 @@ namespace eq
 
         /** 
          * Clear the frame buffer.
+         * 
+         * @param frameID the per-frame identifier.
          */
-        virtual void clear();
+        virtual void clear( const uint32_t frameID );
 
         /** 
          * Draw the scene.
+         * 
+         * @param frameID the per-frame identifier.
          */
-        virtual void draw();
+        virtual void draw( const uint32_t frameID );
         //@}
 
         /**

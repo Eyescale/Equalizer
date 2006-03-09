@@ -23,7 +23,9 @@ Session::Session( const uint32_t nCommands )
         : Base( nCommands ),
           _id(EQ_INVALID_ID),
           _server(NULL),
-          _isMaster(false)
+          _isMaster(false),
+          _masterPool( IDPool::getMaxCapacity( )),
+          _localPool( 0 )
 {
     EQASSERT( nCommands >= CMD_SESSION_CUSTOM );
     registerCommand( CMD_SESSION_GEN_IDS, this, reinterpret_cast<CommandFcn>(
@@ -56,7 +58,6 @@ Session::Session( const uint32_t nCommands )
                      reinterpret_cast<CommandFcn>(
                          &eqNet::Session::_cmdInstanciateMobject ));
 
-    _localPool.genIDs( _localPool.getCapacity( )); // reserve all IDs
     EQINFO << "New " << this << endl;
 }
 
@@ -257,6 +258,7 @@ CommandResult Session::dispatchPacket( Node* node, const Packet* packet )
             return _handleObjectCommand( node, packet );
 
         case DATATYPE_EQNET_MOBJECT:
+        case DATATYPE_EQNET_VERSIONED_OBJECT:
             return _handleMobjectCommand( node, packet );
 
         default:

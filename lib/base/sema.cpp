@@ -17,41 +17,23 @@ Sema::Sema( const Thread::Type type )
     {
         case Thread::PTHREAD:
         {
-            int nTries = 10;
-            while( nTries-- )
+            int error = pthread_cond_init( &_pthread.cond, NULL );
+            if( error )
             {
-                const int error = pthread_cond_init( &_pthread.cond, NULL );
-                switch( error )
-                {
-                    case 0: // ok
-                        return;
-                    case EAGAIN:
-                        break;
-                    default:
-                        EQERROR << "Error creating pthread condition: " 
-                              << strerror( error ) << endl;
-                        return;
-                }
+                EQERROR << "Error creating pthread condition: " 
+                        << strerror( error ) << endl;
+                return;
             } 
             
-            nTries = 10;
-            while( nTries-- )
+            error = pthread_mutex_init( &_pthread.mutex, NULL );
+            if( error )
             {
-                const int error = pthread_mutex_init( &_pthread.mutex, NULL );
-                switch( error )
-                {
-                    case 0: // ok
-                        return;
-                    case EAGAIN:
-                        break;
-                    default:
-                        EQERROR << "Error creating pthread mutex: " 
-                              << strerror( error ) << endl;
-                        return;
-                }
+                EQERROR << "Error creating pthread mutex: " 
+                        << strerror( error ) << endl;
+                return;
             } 
             EQERROR << "Error creating pthread mutex"  << endl;
-        } return;
+        } break;
 
         default: EQUNIMPLEMENTED;
     }

@@ -508,6 +508,15 @@ namespace eqNet
             " type " << packet->mobjectType << " master " << packet->isMaster;
         return os;
     }
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const VersionedObjectSyncPacket* packet )
+    {
+        os << (VersionedObjectPacket*)packet << " version " << packet->version
+           << " size " << packet->deltaSize;
+        return os;
+    }
+
 }
 
 #endif // EQNET_PACKETS_PRIV_H

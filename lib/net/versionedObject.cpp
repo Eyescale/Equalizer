@@ -55,17 +55,18 @@ uint32_t VersionedObject::commit()
         
         (*iter)->send( packet, delta, packet.deltaSize );
 
+    EQINFO << "Committed version " << _version << ", id " << getID() << endl;
     return _version;
 }
 
 bool VersionedObject::sync( const uint32_t version, const float timeout )
 {
+    EQINFO << "Sync to version " << version << ", id " << getID() << endl;
     if( _version == version )
         return true;
 
-    if( isMaster() || version < _version )
+    if( isMaster( ) || _version > version )
         return false;
-
 
     while( _version < version )
     {
@@ -73,10 +74,12 @@ bool VersionedObject::sync( const uint32_t version, const float timeout )
         eqNet::Packet* packet;
         _syncQueue.pop( &node, &packet );
 
+         // OPT shortcut around handleCommand()
         EQASSERT( packet->command == REQ_VERSIONED_OBJECT_SYNC );
-        _reqSync( node, packet ); // XXX shortcut around handleCommand()
+        _reqSync( node, packet );
     }
 
+    EQINFO << "Sync'ed to version " << version << ", id " << getID() << endl;
     return true;
 }
 
@@ -93,6 +96,8 @@ void VersionedObject::sync()
         EQASSERT( packet->command == REQ_VERSIONED_OBJECT_SYNC );
         _reqSync( node, packet ); // XXX shortcut around handleCommand()
     }
+    EQINFO << "Sync'ed to head version " << _version << ", id " << getID() 
+           << endl;
 }
 
 uint32_t VersionedObject::getHeadVersion()
@@ -116,6 +121,7 @@ uint32_t VersionedObject::getHeadVersion()
 void VersionedObject::_reqSync( Node* node, const Packet* pkg )
 {
     VersionedObjectSyncPacket* packet = (VersionedObjectSyncPacket*)pkg;
+    EQINFO << "req sync " << packet << endl;
     
     unpack( packet->delta, packet->deltaSize );
     _version = packet->version;

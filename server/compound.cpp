@@ -382,6 +382,7 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
     drawPacket.context.pvp.y      = 0;
     drawPacket.context.pvp.w      = (uint32_t)(compound->_inherit.vp.w * pvp.w);
     drawPacket.context.pvp.h      = (uint32_t)(compound->_inherit.vp.h * pvp.h);
+    drawPacket.frameID            = data->frameID;
 
     if( !compound->_parent || 
         compound->_parent && compound->_parent->_data.channel != channel )
@@ -391,6 +392,7 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
         
         clearPacket.context.drawBuffer = drawPacket.context.drawBuffer;
         clearPacket.context.pvp        = drawPacket.context.pvp;
+        clearPacket.frameID            = data->frameID;
         channel->send( clearPacket );
     }
 

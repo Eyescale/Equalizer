@@ -35,7 +35,7 @@ Lock::Lock( const Thread::Type type )
             EQERROR << "Error creating pthread mutex"  << endl;
         } return;
 
-        default:
+        default: //EQUNIMPLEMENTED;
             EQERROR << "not implemented" << endl;
     }
 }

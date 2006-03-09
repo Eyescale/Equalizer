@@ -9,14 +9,17 @@ using namespace std;
 
 #define COMPRESS_INTERVAL 10000
 
-IDPool::IDPool()
+IDPool::IDPool( const uint32_t initialCapacity )
         : _compressCounter(0)
 {
-    Block* block = new Block();
-    block->start = 1;
-    block->range = getCapacity();
-
-    _freeIDs.push_front( block );
+    if( initialCapacity )
+    {
+        Block* block = new Block();
+        block->start = 1;
+        block->range = initialCapacity;
+        
+        _freeIDs.push_front( block );
+    }
 
 #ifdef CHECK_THREADSAFETY
     _threadID = 0;

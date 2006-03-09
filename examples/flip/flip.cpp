@@ -63,11 +63,13 @@ protected:
 class Channel : public eq::Channel
 {
 public:
-    Channel() : _spin(0.) {}
+    Channel() : _frameData(NULL) {}
 
-    virtual bool init()
+    virtual bool init( const uint32_t initID )
         {
-            cout << "Init " << this << endl;
+            cout << "Init channel initID " << initID << " ptr " << this << endl;
+            _frameData = (FrameData*)getConfig()->getMobject( initID );
+            EQASSERT( _frameData );
             return true;
         }
 
@@ -76,7 +78,7 @@ public:
             cout << "Exit " << this << endl;
         }
 
-    virtual void draw()
+    virtual void draw( const uint32_t frameID )
         {
             applyBuffer();
             applyViewport();
@@ -89,9 +91,10 @@ public:
             glLoadIdentity();
             applyHeadTransform();
             
+            _frameData->sync( frameID );
+
             glTranslatef( 0, 0, -3 );
-            glRotatef( _spin, 0, 0, 1. );
-            _spin += .1;
+            glRotatef( _frameData->spin, 0, 0, 1. );
 
             glColor3f( 1, 1, 0 );
             glBegin( GL_TRIANGLE_STRIP );
@@ -103,7 +106,7 @@ public:
             glFinish();
         }
 private:
-    float _spin;
+    FrameData* _frameData;
 };
 
 class NodeFactory : public eq::NodeFactory
@@ -137,12 +140,13 @@ int main( int argc, char** argv )
     if( !config )
         DIE("No matching config on server.");
 
+    FrameData frameData;
+    config->registerMobject( &frameData, config->getNode( ));
+
     eqBase::Clock clock;
-    if( !config->init( 0 ))
+    if( !config->init( frameData.getID( )))
         DIE("Config initialisation failed.");
     cerr << "Config init took " << clock.getTimef() << " ms" << endl;
-
-    FrameData frameData;
 
     int nFrames = 100;
     clock.reset();
