@@ -32,7 +32,6 @@ Sema::Sema( const Thread::Type type )
                         << strerror( error ) << endl;
                 return;
             } 
-            EQERROR << "Error creating pthread mutex"  << endl;
         } break;
 
         default: EQUNIMPLEMENTED;

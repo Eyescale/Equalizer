@@ -535,25 +535,21 @@ void Node::_handleRequest( Node* node )
 
     const CommandResult result = dispatchPacket( node, packet );
 
+    if( result == COMMAND_ERROR )
+    {
+        EQERROR << "Error handling command packet " << packet << endl;
+        abort();
+    }
+
     _redispatchPackets();
 
-    switch( result )
+    if( result == COMMAND_RESCHEDULE )
     {
-        case COMMAND_HANDLED:
-            break;
-
-        case COMMAND_ERROR:
-            EQERROR << "Error handling command packet " << packet << endl;
-            abort();
-            break;
-
-        case COMMAND_RESCHEDULE:
-        {
-            Request* request = _requestCache.alloc( node, packet );
-            _pendingRequests.push_back( request );
-            break;
-        }
+        Request* request = _requestCache.alloc( node, packet );
+        _pendingRequests.push_back( request );
     }
+    else
+        EQASSERT( result == COMMAND_HANDLED );
 }
 
 void Node::_redispatchPackets()

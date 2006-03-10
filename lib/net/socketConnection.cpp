@@ -7,14 +7,15 @@
 
 #include <eq/base/log.h>
 
+#include <arpa/inet.h>
 #include <errno.h>
 #include <netdb.h>
-#include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
 #include <netinet/tcp.h>
+#include <sstream>
+#include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 using namespace eqNet;
 using namespace eqBase;
@@ -100,9 +101,9 @@ void SocketConnection::close()
 void SocketConnection::_parseAddress( RefPtr<ConnectionDescription> description,
                                       sockaddr_in& socketAddress )
 {
-    socketAddress.sin_family = AF_INET;
+    socketAddress.sin_family      = AF_INET;
     socketAddress.sin_addr.s_addr = htonl( INADDR_ANY );
-    socketAddress.sin_port = htons( description->TCPIP.port );
+    socketAddress.sin_port        = htons( description->TCPIP.port );
 
     if( !description->hostname.empty( ))
     {
@@ -111,11 +112,8 @@ void SocketConnection::_parseAddress( RefPtr<ConnectionDescription> description,
             memcpy(&socketAddress.sin_addr.s_addr, hptr->h_addr,hptr->h_length);
     }
 
-    EQINFO << "Address " << ((socketAddress.sin_addr.s_addr >> 24 ) & 0xff)
-         << "."  << ((socketAddress.sin_addr.s_addr >> 16 ) & 0xff)
-         << "."  << ((socketAddress.sin_addr.s_addr >> 8 ) & 0xff)
-         << "."  << (socketAddress.sin_addr.s_addr & 0xff)
-         << ", port " << socketAddress.sin_port << endl;
+    EQINFO << "Address " << inet_ntoa( socketAddress.sin_addr )
+           << ":" << socketAddress.sin_port << endl;
 }
 
 //----------------------------------------------------------------------
@@ -142,8 +140,12 @@ bool SocketConnection::listen( RefPtr<ConnectionDescription> description )
 
     if( !bound )
     {
-        EQWARN << "Could not bind socket: " << strerror( errno ) << " (" << errno 
-             << ")" << endl;
+        EQWARN << "Could not bind socket " << _readFD << ": " 
+               << strerror( errno ) << " (" << errno << ") to "
+               << inet_ntoa( socketAddress.sin_addr )
+               << ":" << socketAddress.sin_port << " AF " 
+               << (int)socketAddress.sin_family << endl;
+
         close();
         return false;
     }
@@ -159,14 +161,33 @@ bool SocketConnection::listen( RefPtr<ConnectionDescription> description )
         return false;
     }
 
-    char hostname[256];
-    gethostname( hostname, 256 );
-    description->hostname   = hostname;
-    description->TCPIP.port = getPort();
+    // get socket parameters
+    sockaddr_in address; // must use new sockaddr_in variable !?!
+    socklen_t   used = sizeof(address);
+    getsockname( _readFD, (struct sockaddr *)&address, &used ); 
+
+    description->TCPIP.port = ntohs( address.sin_port );
+
+    if( description->hostname.empty( ))
+    {
+        if( address.sin_addr.s_addr == INADDR_ANY )
+        {
+            char hostname[256];
+            gethostname( hostname, 256 );
+            description->hostname = hostname;
+        }
+        else
+            description->hostname = inet_ntoa( address.sin_addr );
+    }
     
     _description = description;
     _state       = STATE_LISTENING;
-    return listening;
+
+    EQINFO << "Listening on " << description->hostname << "["
+           << inet_ntoa( socketAddress.sin_addr )
+           << "]:" << description->TCPIP.port << endl;
+    
+    return true;
 }
 
 //----------------------------------------------------------------------
@@ -196,7 +217,7 @@ RefPtr<Connection> SocketConnection::accept()
     description->type         = TYPE_TCPIP;
     description->bandwidthKBS = _description->bandwidthKBS;
     description->hostname     = inet_ntoa( newAddress.sin_addr );
-    description->TCPIP.port   = newAddress.sin_port;
+    description->TCPIP.port   = ntohs( newAddress.sin_port );
 
     SocketConnection* newConnection = new SocketConnection;
 

@@ -80,7 +80,7 @@ else
 endif
 
 % : %.cpp
-	$(CXX) $< $(CXXFLAGS) $(INT_CXXFLAGS) $(SA_CXXFLAGS) -o $@ 
+	$(CXX) $< $(CXXFLAGS) $(INT_CXXFLAGS) $(SA_LDFLAGS) $(SA_CXXFLAGS) -o $@ 
 
 # cleaning targets
 clean:

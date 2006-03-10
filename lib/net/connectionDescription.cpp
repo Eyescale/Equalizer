@@ -49,74 +49,81 @@ string ConnectionDescription::toString()
 
 bool ConnectionDescription::fromString( const string& data )
 {
-    size_t colonPos = data.find( ':' );
-    if( colonPos == string::npos )
-        return false;
-
-    const string type = data.substr( 0, colonPos );
-
-    if( type == "TCPIP" )
-        this->type = TYPE_TCPIP;
-    else if( type == "PIPE" )
-        this->type = TYPE_PIPE;
-    else if( type == "UNIPIPE" )
-        this->type = TYPE_UNI_PIPE;
-    else
-        return false;
-
-    size_t nextPos = colonPos+1;
-    colonPos       = data.find( ':', nextPos );
-    if( colonPos == string::npos )
-        return false;
-    const string bandwidth = data.substr( nextPos, colonPos-nextPos );
-    bandwidthKBS = atoi( bandwidth.c_str( ));
-    
-    nextPos  = colonPos+1;
-    colonPos = data.find( ':', nextPos );
-    if( colonPos == string::npos )
-        return false;
-    launchCommand = data.substr( nextPos, colonPos-nextPos );
-
-    nextPos  = colonPos+1;
-    colonPos = data.find( ':', nextPos );
-    if( colonPos == string::npos )
-        return false;
-    const string launchTimeout = data.substr( nextPos, colonPos-nextPos );
-    this->launchTimeout = atoi( launchTimeout.c_str( ));
-
-    nextPos  = colonPos+1;
-    colonPos = data.find( ':', nextPos );
-    hostname = data.substr( nextPos, colonPos-nextPos );
-
-    switch( this->type )
     {
-        case TYPE_TCPIP:
-        {
-            nextPos  = colonPos+1;
-            colonPos = data.find( ':', nextPos );
-            if( colonPos != string::npos )
-                return false;
-            
-            const string port = data.substr( nextPos, colonPos-nextPos );
-            TCPIP.port = atoi( port.c_str( ));
-            break;
-        }
+        size_t colonPos = data.find( ':' );
+        if( colonPos == string::npos )
+            goto error;
 
-        case TYPE_PIPE:
-        {
-            nextPos  = colonPos+1;
-            colonPos = data.find( ':', nextPos );
-            if( colonPos != string::npos )
-                return false;
-            
-            const string port = data.substr( nextPos, colonPos-nextPos );
-            Pipe.fd = atoi( port.c_str( ));
-            break;
-        }
+        const string type = data.substr( 0, colonPos );
 
-        default:
-            if( colonPos != string::npos )
-                return false;
+        if( type == "TCPIP" )
+            this->type = TYPE_TCPIP;
+        else if( type == "PIPE" )
+            this->type = TYPE_PIPE;
+        else if( type == "UNIPIPE" )
+            this->type = TYPE_UNI_PIPE;
+        else
+            goto error;
+
+        size_t nextPos = colonPos+1;
+        colonPos       = data.find( ':', nextPos );
+        if( colonPos == string::npos )
+            goto error;
+        const string bandwidth = data.substr( nextPos, colonPos-nextPos );
+        bandwidthKBS = atoi( bandwidth.c_str( ));
+    
+        nextPos  = colonPos+1;
+        colonPos = data.find( ':', nextPos );
+        if( colonPos == string::npos )
+            goto error;
+        launchCommand = data.substr( nextPos, colonPos-nextPos );
+
+        nextPos  = colonPos+1;
+        colonPos = data.find( ':', nextPos );
+        if( colonPos == string::npos )
+            goto error;
+
+        const string launchTimeout = data.substr( nextPos, colonPos-nextPos );
+        this->launchTimeout = atoi( launchTimeout.c_str( ));
+
+        nextPos  = colonPos+1;
+        colonPos = data.find( ':', nextPos );
+        hostname = data.substr( nextPos, colonPos-nextPos );
+
+        switch( this->type )
+        {
+            case TYPE_TCPIP:
+            {
+                nextPos  = colonPos+1;
+                colonPos = data.find( ':', nextPos );
+                if( colonPos != string::npos )
+                    goto error;
+            
+                const string port = data.substr( nextPos, colonPos-nextPos );
+                TCPIP.port = atoi( port.c_str( ));
+                break;
+            }
+
+            case TYPE_PIPE:
+            {
+                nextPos  = colonPos+1;
+                colonPos = data.find( ':', nextPos );
+                if( colonPos != string::npos )
+                    goto error;
+            
+                const string port = data.substr( nextPos, colonPos-nextPos );
+                Pipe.fd = atoi( port.c_str( ));
+                break;
+            }
+
+            default:
+                if( colonPos != string::npos )
+                    goto error;
+        }
     }
     return true;
+
+  error:
+    EQWARN << "Could not parse connection description: " << data << endl;
+    return false;
 }

@@ -65,7 +65,7 @@ int main( int argc, char** argv )
         DIE("Config initialisation failed.");
     cerr << "Config init took " << clock.getTimef() << " ms" << endl;
 
-    int nFrames = 1000;
+    int nFrames = 100;
     clock.reset();
     while( nFrames-- )
     {
