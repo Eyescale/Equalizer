@@ -153,7 +153,7 @@ bool Server::_loadConfig( int argc, char **argv )
     window = new Window();
     pipe->addWindow( window );
 
-    eq::PixelViewport pvp2( 840, 70, 512, 384 );
+    eq::PixelViewport pvp2( 840, 84, 512, 357 );
     window->setPixelViewport( pvp2 );
 
     channel = new Channel();
