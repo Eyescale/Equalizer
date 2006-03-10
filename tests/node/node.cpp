@@ -49,7 +49,7 @@ protected:
             if( !node->recv( data, nBytes ))
                 exit( EXIT_FAILURE );
 
-            ASSERT( data[nBytes-1] == '\0' );
+            EQASSERT( data[nBytes-1] == '\0' );
             cerr << "Server received: " << data << endl;
             lock.unset();
         }
@@ -62,8 +62,7 @@ public:
         {
             DataPacket packet;
             packet.nBytes = strlen(string)+1;
-            TEST( toNode->send( packet ));
-            TEST( toNode->send( string, packet.nBytes ));
+            TEST( toNode->send( packet, string ));
         }
 };
 
@@ -78,7 +77,7 @@ int main( int argc, char **argv )
     RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
     connDesc->type = eqNet::TYPE_TCPIP;
     //connDesc->hostname = "benjy";
-    connDesc->parameters.TCPIP.port = 4242;
+    connDesc->TCPIP.port = 4242;
 
     TEST( connection->listen( connDesc ));
     TEST( server.listen( connection ));

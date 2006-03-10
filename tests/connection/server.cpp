@@ -19,7 +19,7 @@ int main( int argc, char **argv )
     RefPtr<ConnectionDescription> connDesc   = new ConnectionDescription;
 
     //connDesc.hostname = "localhost";
-    connDesc->parameters.TCPIP.port = 4242;
+    connDesc->TCPIP.port = 4242;
     TEST( connection->listen( connDesc ));
 
     RefPtr<Connection> client = connection->accept();

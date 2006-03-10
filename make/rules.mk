@@ -74,7 +74,7 @@ $(OBJECT_DIR)/%.o : %.cpp
 # executables
 $(PROGRAMS): $(OBJECTS)
 ifdef VARIANT
-	$(CXX) $(SA_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
+	$(CXX) $(CXXFLAGS) $(SA_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 else
 	@$(MAKE) VARIANT=$(subst .,,$(suffix $@)) TOP=$(TOP) $@
 endif
