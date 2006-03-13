@@ -135,7 +135,7 @@ bool Server::_loadConfig( int argc, char **argv )
     compound->setWall( wall );
     top->addChild( compound );
 
-#if 1
+#if 0
     node = new eqs::Node();
     config->addNode( node );
 

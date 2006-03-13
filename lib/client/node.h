@@ -7,6 +7,7 @@
 
 #include "commands.h"
 
+#include <eq/base/gate.h>
 #include <eq/net/node.h>
 #include <eq/net/object.h>
 #include <eq/net/requestQueue.h>
@@ -37,6 +38,7 @@ namespace eq
          */
         Config* getConfig() const { return _config; }
 
+    protected:
         /**
          * @name Callbacks
          *
@@ -58,7 +60,6 @@ namespace eq
         virtual void exit(){}
         //@}
 
-    protected:
         /** @sa eqNet::Node::clientLoop */
         virtual void clientLoop();
 
@@ -80,6 +81,9 @@ namespace eq
         /** The receiver->node thread request queue. */
         eqNet::RequestQueue    _requestQueue;
         bool                   _clientLoopRunning;
+
+        /** The state of the node thread. */
+        eqBase::Gate           _initialized;
 
         void _addPipe( Pipe* pipe );
         void _removePipe( Pipe* pipe );

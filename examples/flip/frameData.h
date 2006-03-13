@@ -2,8 +2,8 @@
 /* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_EX_FRAMEDATA_H
-#define EQ_EX_FRAMEDATA_H
+#ifndef EQ_FLIP_FRAMEDATA_H
+#define EQ_FLIP_FRAMEDATA_H
 
 #include "flip.h"
 
@@ -42,5 +42,5 @@ protected:
 
 
 
-#endif // EQ_EX_FRAMEDATA_H
+#endif // EQ_FLIP_FRAMEDATA_H
 

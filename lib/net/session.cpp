@@ -196,6 +196,7 @@ void Session::registerMobject( Mobject* object, Node* master )
                                                 
     const void* data = object->getInstanceData( &packet.mobjectDataSize );
     master->send( packet, data, packet.mobjectDataSize );
+    object->releaseInstanceData( data );
 }
 
 void Session::deregisterMobject( Mobject* object )
@@ -558,6 +559,7 @@ CommandResult Session::_cmdInitMobject( Node* node, const Packet* pkg )
     
     const void* data = mobject->getInstanceData( &reply.mobjectDataSize );
     node->send( reply, data, reply.mobjectDataSize );
+    mobject->releaseInstanceData( data );
     return COMMAND_HANDLED;
 }
 
@@ -574,7 +576,11 @@ CommandResult Session::_cmdInstanciateMobject( Node* node, const Packet* pkg )
                                            packet->mobjectData, 
                                            packet->mobjectDataSize );
     if( !mobject )
+    {
+        EQWARN << "Session failed to instanciate object of type "
+               << packet->mobjectType << endl;
         return COMMAND_ERROR;
+    }
 
     mobject->ref();
     mobject->_master = packet->isMaster;

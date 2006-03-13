@@ -24,9 +24,6 @@ namespace eqBase
         /** 
          * Constructs a new Queue of the given type.
          *
-         * Modified the pop() behaviour by letting it return the front-most
-         * value. 
-         * 
          * @param type the type of threads accessing the Queue.
          */
         MTQueue( const Thread::Type type = Thread::PTHREAD )

@@ -55,6 +55,7 @@ uint32_t VersionedObject::commit()
         
         (*iter)->send( packet, delta, packet.deltaSize );
 
+    releasePackData( delta );
     EQVERB << "Committed version " << _version << ", id " << getID() << endl;
     return _version;
 }

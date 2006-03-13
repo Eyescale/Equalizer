@@ -3,8 +3,11 @@
    All rights reserved. */
 
 #include "channel.h"
+#include "config.h"
 #include "flip.h"
 #include "frameData.h"
+#include "initData.h"
+#include "node.h"
 
 #include <stdlib.h>
 
@@ -13,24 +16,12 @@ using namespace std;
 #define DIE(reason)    { cout << (reason) << endl; abort(); }
 
 
-class Config : public eq::Config
-{
-protected:
-    eqNet::Mobject* instanciateMobject( const uint32_t type, const void* data, 
-                                        const uint64_t dataSize )
-        {
-            if( type == OBJECT_FRAMEDATA )
-                return new FrameData( data, dataSize );
-
-            return eqNet::Session::instanciateMobject( type, data, dataSize );
-        }
-};
-
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual Config*  createConfig()  { return new ::Config; }
-    virtual Channel* createChannel() { return new ::Channel; }
+    virtual eq::Config*  createConfig()  { return new ::Config; }
+    virtual eq::Node*    createNode()    { return new ::Node; }
+    virtual eq::Channel* createChannel() { return new ::Channel; }
 };
 
 eq::NodeFactory* eq::createNodeFactory()
@@ -57,11 +48,16 @@ int main( int argc, char** argv )
     if( !config )
         DIE("No matching config on server.");
 
+    InitData initData;
+    config->registerMobject( &initData, config->getNode( ));
+    
     FrameData frameData;
     config->registerMobject( &frameData, config->getNode( ));
 
+    initData.setFrameData( &frameData );
+
     eqBase::Clock clock;
-    if( !config->init( frameData.getID( )))
+    if( !config->init( initData.getID( )))
         DIE("Config initialisation failed.");
     cerr << "Config init took " << clock.getTimef() << " ms" << endl;
 

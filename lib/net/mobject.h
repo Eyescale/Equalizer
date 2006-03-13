@@ -55,6 +55,13 @@ namespace eqNet
          */
         virtual const void* getInstanceData( uint64_t* size ) = 0;
 
+        /** 
+         * Release the instance data obtained by getInstanceData().
+         * 
+         * @param data the data.
+         */
+        virtual void releaseInstanceData( const void* data ){}
+
     protected:
         /** 
          * @return if this instance is the master version.

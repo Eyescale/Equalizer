@@ -2,8 +2,8 @@
 /* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_EX_FLIP_H
-#define EQ_EX_FLIP_H
+#ifndef EQ_FLIP_H
+#define EQ_FLIP_H
 
 #include <eq/eq.h>
 
@@ -14,5 +14,5 @@ enum ObjectType
 };
 
 
-#endif // EQ_EX_FLIP_H
+#endif // EQ_FLIP_H
 

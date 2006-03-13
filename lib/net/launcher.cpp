@@ -85,7 +85,7 @@ ssize_t Launcher::run()
     argv[argc] = NULL;
 
     EQINFO << "Executing: " << stringStream.str() << endl;
-    //return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
     int nTries = 10;
     while( nTries-- )
     {

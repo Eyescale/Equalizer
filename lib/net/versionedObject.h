@@ -87,6 +87,13 @@ namespace eqNet
         virtual const void* pack( uint64_t* size ) = 0;
 
         /** 
+         * Release the delta data obtained by pack().
+         * 
+         * @param data the data.
+         */
+        virtual void releasePackData( const void* data ){}
+
+        /** 
          * Unpack a change.
          * 
          * @param data a data containing the changes.
