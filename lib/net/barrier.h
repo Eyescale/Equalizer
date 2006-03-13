@@ -63,8 +63,12 @@ namespace eqNet
         /** Slave nodes which have entered the barrier. */
         std::vector<Node*> _slaves; // XXX refptr?!
         
-        /** The lock used for barrier synchronization. */
-        eqBase::Lock _lock;
+        /** The main lock used for barrier synchronization. */
+        eqBase::Lock _enterLock;
+        /** The lock used for thread-safety synchronization of _slaves. */
+        eqBase::Lock _leaveLock;
+        /** Flag for the master to enter leave synchronization. */
+        bool         _waitForLeave;
 
         /* The command handlers. */
         CommandResult _cmdEnter( Node* node, const Packet* pkg );
