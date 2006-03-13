@@ -6,6 +6,7 @@
 #include <eq/net/init.h>
 #include <eq/net/node.h>
 #include <eq/net/packets.h>
+#include <eq/nodeFactory.h>
 
 #include <alloca.h>
 #include <iostream>
@@ -15,6 +16,8 @@ using namespace eqNet;
 using namespace std;
 
 Lock lock;
+
+eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
 
 struct DataPacket : public NodePacket
 {

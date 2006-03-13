@@ -9,11 +9,14 @@
 #include <eq/net/pipeConnection.h>
 #include <eq/net/session.h>
 #include <eq/net/versionedObject.h>
+#include <eq/nodeFactory.h>
 
 #include <iostream>
 
 using namespace eqBase;
 using namespace std;
+
+eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
 
 class TestMobject : public eqNet::Mobject
 {

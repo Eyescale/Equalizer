@@ -3,6 +3,7 @@
 #include <eq/net/connection.h>
 #include <eq/net/init.h>
 #include <eq/net/pipeConnection.h>
+#include <eq/nodeFactory.h>
 
 #include <alloca.h>
 #include <iostream>
@@ -10,6 +11,8 @@
 using namespace eqBase;
 using namespace eqNet;
 using namespace std;
+
+eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
 
 class Server : public eqBase::Thread
 {

@@ -13,6 +13,8 @@ using namespace std;
 
 RefPtr<eqNet::Connection> connection;
 
+eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
+
 class NodeThread : public eqBase::Thread
 {
 protected:

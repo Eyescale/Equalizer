@@ -2,6 +2,7 @@
 #include <eq/base/barrier.h>
 #include <eq/base/clock.h>
 #include <eq/base/thread.h>
+#include <eq/nodeFactory.h>
 #include <iostream>
 
 using namespace eqBase;
@@ -12,6 +13,8 @@ using namespace std;
 volatile size_t nThreads;
 Barrier*        barrier;
 Clock           timer;
+
+eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
 
 class Test : public Thread
 {
