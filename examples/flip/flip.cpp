@@ -55,6 +55,7 @@ int main( int argc, char** argv )
     config->registerMobject( &frameData, config->getNode( ));
 
     initData.setFrameData( &frameData );
+    initData.setFilename( "foo" );
 
     eqBase::Clock clock;
     if( !config->init( initData.getID( )))

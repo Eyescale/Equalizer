@@ -7,20 +7,18 @@
 
 #include <eq/eq.h>
 
-#include "frameData.h"
+#include "initData.h"
 
 class Pipe : public eq::Pipe
 {
 public:
-    Pipe() : _frameData(NULL) {}
+    Pipe() : _initData(NULL) {}
 
-    FrameData* getFrameData() const { return _frameData; }
-    
 protected:
     bool init( const uint32_t initID );
 
 private:
-    FrameData* _frameData;
+    InitData* _initData;
 };
 
 #endif // EQ_FLIP_PIPE_H

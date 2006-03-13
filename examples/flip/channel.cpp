@@ -10,17 +10,18 @@ using namespace std;
 
 bool Channel::init( const uint32_t initID )
 {
-    cout << "Init channel initID " << initID << " ptr " << this << endl;
+    EQINFO << "Init channel initID " << initID << " ptr " << this << endl;
     _initData = (InitData*)getConfig()->getMobject( initID );
     _frameData = _initData->getFrameData();
 
     EQASSERT( _frameData );
+
     return true;
 }
 
 void Channel::exit()
 {
-    cout << "Exit " << this << endl;
+    EQINFO << "Exit " << this << endl;
 }
 
 void Channel::draw( const uint32_t frameID )
