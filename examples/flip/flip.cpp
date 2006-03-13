@@ -7,7 +7,7 @@
 #include "flip.h"
 #include "frameData.h"
 #include "initData.h"
-#include "node.h"
+#include "pipe.h"
 
 #include <stdlib.h>
 
@@ -20,7 +20,7 @@ class NodeFactory : public eq::NodeFactory
 {
 public:
     virtual eq::Config*  createConfig()  { return new ::Config; }
-    virtual eq::Node*    createNode()    { return new ::Node; }
+    virtual eq::Pipe*    createPipe()    { return new ::Pipe; }
     virtual eq::Channel* createChannel() { return new ::Channel; }
 };
 

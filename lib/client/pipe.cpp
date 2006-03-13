@@ -200,7 +200,7 @@ eqNet::CommandResult Pipe::_cmdDestroyWindow( eqNet::Node* node, const eqNet::Pa
 eqNet::CommandResult Pipe::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     PipeInitPacket* packet = (PipeInitPacket*)pkg;
-    EQINFO << "handle pipe init (recv)" << packet << endl;
+    EQINFO << "handle pipe init (recv) " << packet << endl;
 
     EQASSERT( _thread->isStopped( ));
     _thread->start();
@@ -211,7 +211,7 @@ eqNet::CommandResult Pipe::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg
 eqNet::CommandResult Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     PipeInitPacket* packet = (PipeInitPacket*)pkg;
-    EQINFO << "handle pipe init (pipe)" << packet << endl;
+    EQINFO << "handle pipe init (pipe) " << packet << endl;
     PipeInitReplyPacket reply( packet );
     
     _display = packet->display;

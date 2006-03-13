@@ -3,7 +3,7 @@
 #include <eq/net/connection.h>
 #include <eq/net/connectionDescription.h>
 #include <eq/net/init.h>
-#include <eq/nodeFactory.h>
+#include <eq/client/nodeFactory.h>
 
 #include <alloca.h>
 #include <iostream>

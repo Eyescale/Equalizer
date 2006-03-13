@@ -6,7 +6,7 @@
 #include <eq/net/init.h>
 #include <eq/net/node.h>
 #include <eq/net/packets.h>
-#include <eq/nodeFactory.h>
+#include <eq/client/nodeFactory.h>
 
 #include <alloca.h>
 #include <iostream>

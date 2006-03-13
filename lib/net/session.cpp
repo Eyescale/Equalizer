@@ -156,9 +156,10 @@ void Session::registerObject( Object* object )
 void Session::addRegisteredObject( const uint32_t id, Object* object )
 {
     EQASSERT( !_registeredObjects[id] );
-    _registeredObjects[id] = object;
     object->_id            = id;
     object->_session       = this;
+
+    _registeredObjects[id] = object;
     EQVERB << "registered object " << (void*)object << " id " << id
          << " session id " << _id << endl;
 }

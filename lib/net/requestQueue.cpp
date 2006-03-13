@@ -7,10 +7,15 @@
 #include "packets.h"
 
 using namespace eqNet;
+using namespace std;
 
 RequestQueue::RequestQueue()
         : _lastRequest(NULL)
-{}
+{
+#ifdef CHECK_THREADSAFETY
+    _threadID = 0;
+#endif
+}
 
 RequestQueue::~RequestQueue()
 {
@@ -30,6 +35,8 @@ void RequestQueue::push( Node* node, const Packet* packet )
 
 void RequestQueue::pop( Node** node, Packet** packet )
 {
+    CHECK_THREAD;
+
     if( _lastRequest )
     {
         _requestCacheLock.set();
@@ -44,6 +51,8 @@ void RequestQueue::pop( Node** node, Packet** packet )
 
 bool RequestQueue::tryPop( Node** node, Packet** packet )
 {
+    CHECK_THREAD;
+
     Request* request = _requests.tryPop();
     if( !request )
         return false;

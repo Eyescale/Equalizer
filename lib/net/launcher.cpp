@@ -72,8 +72,8 @@ void Launcher::_buildCommandLine( const string& command )
 
 ssize_t Launcher::run()
 {
-    const size_t argc         = _commandLine.size();
-    char*        argv[argc+1];
+    const size_t  argc         = _commandLine.size();
+    char*         argv[argc+1];
     ostringstream stringStream;
 
     for( size_t i=0; i<argc; i++ )
@@ -85,7 +85,7 @@ ssize_t Launcher::run()
     argv[argc] = NULL;
 
     EQINFO << "Executing: " << stringStream.str() << endl;
-    return EXIT_SUCCESS;
+    //return EXIT_SUCCESS;
     int nTries = 10;
     while( nTries-- )
     {

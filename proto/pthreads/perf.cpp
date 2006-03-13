@@ -2,7 +2,7 @@
 #include <eq/base/barrier.h>
 #include <eq/base/clock.h>
 #include <eq/base/thread.h>
-#include <eq/nodeFactory.h>
+#include <eq/client/nodeFactory.h>
 #include <iostream>
 
 using namespace eqBase;

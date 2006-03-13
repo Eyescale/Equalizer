@@ -4,6 +4,8 @@
 
 #include "initData.h"
 
+using namespace std;
+
 InitData::InitData()
         : Mobject( OBJECT_INITDATA ),
           _frameDataID( EQ_INVALID_ID ),
@@ -18,6 +20,7 @@ InitData::InitData( const void* data, const uint64_t size )
 
     memcpy( &_frameDataID, data, sizeof( _frameDataID ));
     _filename = (char*)(data) + sizeof(_frameDataID);
+    EQINFO << "New InitData instance" << endl;
 }
 
 const void* InitData::getInstanceData( uint64_t* size )
@@ -57,8 +60,7 @@ FrameData* InitData::getFrameData()
         return NULL;
 
     eqNet::Session* session = getSession();
-    if( !session )
-        return NULL;
+    EQASSERT( session );
 
     return (FrameData*)session->getMobject( _frameDataID );
 }

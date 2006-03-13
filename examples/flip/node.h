@@ -7,13 +7,9 @@
 
 #include <eq/eq.h>
 
-#include "frameData.h"
-
 class Node : public eq::Node
 {
 protected:
-    bool init( const uint32_t initID )
-        { return true; }
 };
 
 #endif // EQ_FLIP_NODE_H

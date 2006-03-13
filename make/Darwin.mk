@@ -16,8 +16,8 @@ WINDOW_SYSTEM      += GLX
 export MACOSX_DEPLOYMENT_TARGET=10.3
 
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
-  WINDOW_SYSTEM_LIBS += -L/usr/X11R6/lib -lX11 -lGL
-  WINDOW_SYSTEM_INCS += -I/usr/X11R6/include
+  LDFLAGS  += -L/usr/X11R6/lib -lX11 -lGL
+  CXXFLAGS += -I/usr/X11R6/include
 endif
 ifeq ($(findstring CGL, $(WINDOW_SYSTEM)),CGL)
 # TODO

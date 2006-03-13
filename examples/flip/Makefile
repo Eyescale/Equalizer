@@ -6,7 +6,8 @@ PROGRAM = flip
 SOURCES = \
 	channel.cpp \
 	flip.cpp \
-	initData.cpp
+	initData.cpp \
+	pipe.cpp
 
 CXXFLAGS    += -I.. $(WINDOW_SYSTEM_INCS)
 SA_LDFLAGS  += -L$(SAMPLE_LIB_DIR) -leq -lpthread $(WINDOW_SYSTEM_LIBS)

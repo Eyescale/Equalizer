@@ -4,13 +4,16 @@
 
 #include "channel.h"
 #include "frameData.h"
+#include "initData.h"
 
 using namespace std;
 
 bool Channel::init( const uint32_t initID )
 {
     cout << "Init channel initID " << initID << " ptr " << this << endl;
-    _frameData = (FrameData*)getConfig()->getMobject( initID );
+    _initData = (InitData*)getConfig()->getMobject( initID );
+    _frameData = _initData->getFrameData();
+
     EQASSERT( _frameData );
     return true;
 }

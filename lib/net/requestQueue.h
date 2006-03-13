@@ -80,6 +80,10 @@ namespace eqNet
         /** The free request cache. */
         RequestCache              _requestCache;
         eqBase::Lock              _requestCacheLock;
+
+#ifdef CHECK_THREADSAFETY
+        pthread_t _threadID;
+#endif
     };
 };
 

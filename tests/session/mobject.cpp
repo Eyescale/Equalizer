@@ -9,7 +9,7 @@
 #include <eq/net/pipeConnection.h>
 #include <eq/net/session.h>
 #include <eq/net/versionedObject.h>
-#include <eq/nodeFactory.h>
+#include <eq/client/nodeFactory.h>
 
 #include <iostream>
 

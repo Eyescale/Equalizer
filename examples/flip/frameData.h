@@ -19,6 +19,7 @@ public:
         {
             EQASSERT( size == sizeof( spin ));
             spin = *(float*)data;
+            EQINFO << "New FrameData instance" << std::endl;
         }
 
     float spin;

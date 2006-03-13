@@ -121,7 +121,7 @@ bool Server::_loadConfig( int argc, char **argv )
     Window* window = new Window();
     pipe->addWindow( window );
 
-    eq::PixelViewport pvp1( 0, 0, 1280, 800 );
+    eq::PixelViewport pvp1( 0, 0, 840, 525 );
     window->setPixelViewport( pvp1 );
 
     Channel* channel = new Channel();
@@ -130,12 +130,12 @@ bool Server::_loadConfig( int argc, char **argv )
     Compound* compound = new Compound();
     compound->setChannel( channel );
 
-    eq::Wall wall = WALL_30INCH_16x10;
-    wall.translate( 0, -wall.bottomLeft[1], 0 );
+    eq::Wall wall = WALL_20INCH_16x10;
+    wall.translate( wall.bottomLeft[0], 0, 0 );
     compound->setWall( wall );
     top->addChild( compound );
 
-#if 0
+#if 1
     node = new eqs::Node();
     config->addNode( node );
 
@@ -162,8 +162,8 @@ bool Server::_loadConfig( int argc, char **argv )
     compound = new Compound();
     compound->setChannel( channel );
 
-    eq::Wall wall2 = WALL_30INCH_16x10;
-    wall2.translate( 0, wall.bottomLeft[1], 0 );
+    eq::Wall wall2 = WALL_12INCH_4x3;
+    wall2.translate( wall2.bottomRight[0], 0, 0 );
     compound->setWall( wall2 );
     top->addChild( compound );
 #endif

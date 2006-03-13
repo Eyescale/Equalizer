@@ -1,6 +1,6 @@
 
 #include <eq/base/idPool.h>
-#include <eq/nodeFactory.h>
+#include <eq/client/nodeFactory.h>
 
 #include <stdlib.h>
 
