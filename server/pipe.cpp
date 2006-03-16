@@ -57,18 +57,6 @@ void Pipe::addWindow( Window* window )
 {
     _windows.push_back( window ); 
     window->_pipe = this; 
-
-    Config* config = getConfig();
-    if( !config )
-        return;
-
-    config->registerObject( window );
-    const int nChannels = window->nChannels();
-    for( int i = 0; i<nChannels; ++i )
-    {
-        Channel* channel = window->getChannel( i );
-        config->registerObject( channel );
-    }
 }
 
 void Pipe::refUsed()
@@ -93,9 +81,12 @@ void Pipe::unrefUsed()
 //---------------------------------------------------------------------------
 void Pipe::startInit( const uint32_t initID )
 {
+    Config* config = getConfig();
+    config->registerObject( this );
+
     _sendInit( initID );
 
-    eq::PipeCreateWindowPacket createWindowPacket( getSession()->getID(),
+    eq::PipeCreateWindowPacket createWindowPacket( config->getID(),
                                                    getID( ));
     const int nWindows = _windows.size();
     for( int i=0; i<nWindows; ++i )
@@ -177,7 +168,8 @@ bool Pipe::syncExit()
     bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = EQ_INVALID_ID;
 
-    eq::PipeDestroyWindowPacket destroyWindowPacket( getSession()->getID(), 
+    Config* config = getConfig();
+    eq::PipeDestroyWindowPacket destroyWindowPacket( config->getID(), 
                                                      getID( ));
     const int nWindows = _windows.size();
     for( int i=0; i<nWindows; ++i )
@@ -193,6 +185,7 @@ bool Pipe::syncExit()
         }
     }
 
+    config->deregisterObject( this );
     return success;
 }
 

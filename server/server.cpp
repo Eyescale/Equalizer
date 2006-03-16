@@ -65,11 +65,20 @@ bool Server::run( int argc, char **argv )
     if( !listen( connection ))
         return false;
 
+#if 0
+    if( nConfigs() == 0 )
+    {
+        EQERROR << "No configurations loaded" << endl;
+        return false;
+    }
+#else
     if( !_loadConfig( argc, argv ))
     {
         EQERROR << "Could not load configuration" << endl;
         return false;
     }
+#endif
+
     _handleRequests();
     return stopListening();
 }
@@ -85,6 +94,12 @@ void Server::handleDisconnect( Node* node )
     // TODO: free up resources requested by disconnected node
 }
 
+void Server::addConfig( Config* config )
+{ 
+    config->_server = this;
+    _configs.push_back( config );
+}
+
 void Server::mapConfig( Config* config )
 {
     ostringstream stringStream;
@@ -97,8 +112,8 @@ void Server::mapConfig( Config* config )
 bool Server::_loadConfig( int argc, char **argv )
 {
     // TODO
-    Config*    config = new Config( this );
-    mapConfig( config );
+    Config*    config = new Config();
+    addConfig( config );
     config->setLatency(10);
 
     Compound* top  = new Compound;
@@ -168,7 +183,6 @@ bool Server::_loadConfig( int argc, char **argv )
     top->addChild( compound );
 #endif
 
-    addConfig( config );
     return true;
 }
 
@@ -232,6 +246,7 @@ eqNet::CommandResult Server::_reqChooseConfig( eqNet::Node* node, const eqNet::P
     }
 
     Config* appConfig = new Config( *config );
+    mapConfig( appConfig );
 
     // TODO: move to open: appConfig->setAppName( appName );
     appConfig->setRenderClient( packet->renderClient );

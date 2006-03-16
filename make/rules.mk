@@ -42,7 +42,7 @@ ifdef HEADER_GEN
 endif
 
 # libraries
-$(DYNAMIC_LIB): $(OBJECTS)
+$(DYNAMIC_LIB): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
 	@mkdir -p $(LIBRARY_DIR)
 	$(CXX) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) $(INT_LDFLAGS) -o $@
@@ -50,7 +50,7 @@ else
 	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).$(DSO_SUFFIX)=%) TOP=$(TOP) $@
 endif
 
-$(STATIC_LIB): $(OBJECTS)
+$(STATIC_LIB): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
 	@mkdir -p $(LIBRARY_DIR)
 	@rm -f $@
@@ -60,6 +60,10 @@ else
 endif
 
 OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
+
+$(OBJECT_DIR)/%.h.gch : %.h
+	@mkdir -p $(@D)
+	$(CXX) -x c++-header $(CXXFLAGS) $(INT_CXXFLAGS) -c $< -o $@
 
 $(OBJECT_DIR)/%.o : %.cpp
 	@mkdir -p $(@D)
@@ -72,7 +76,7 @@ $(OBJECT_DIR)/%.o : %.cpp
 
 
 # executables
-$(PROGRAMS): $(OBJECTS)
+$(PROGRAMS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
 	$(CXX) $(CXXFLAGS) $(SA_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 else
@@ -85,7 +89,7 @@ endif
 # cleaning targets
 clean:
 ifdef VARIANT
-	rm -f *~ .*~ $(OBJECTS) $(TARGETS) $(CLEAN) $(DEPENDENCIES)
+	rm -f *~ .*~ $(PCHEADERS) $(OBJECTS) $(TARGETS) $(CLEAN) $(DEPENDENCIES)
 	rm -rf $(OBJECT_DIR)/ii_files
 ifdef SUBDIRS
 	@for dir in $(SUBDIRS); do \

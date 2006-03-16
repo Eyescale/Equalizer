@@ -5,6 +5,7 @@ SOURCES = \
 	channel.cpp \
 	config.cpp \
 	compound.cpp \
+	loader.cpp \
 	node.cpp \
 	pipe.cpp \
 	server.cpp \

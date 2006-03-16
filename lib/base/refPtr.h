@@ -5,6 +5,8 @@
 #ifndef EQBASE_REFPTR_H
 #define EQBASE_REFPTR_H
 
+#include <stdlib.h>
+
 namespace eqBase
 {
     struct RefPtr_scast{};

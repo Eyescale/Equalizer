@@ -37,9 +37,8 @@ void Config::_construct()
                      reinterpret_cast<CommandFcn>( &eqs::Config::_reqFrameEnd));
 }
 
-Config::Config( Server* server )
-        : eqNet::Session( eq::CMD_CONFIG_ALL ),
-          _server( server )
+Config::Config()
+        : eqNet::Session( eq::CMD_CONFIG_ALL )
 {
     _construct();
 }
@@ -65,8 +64,6 @@ Config::Config( const Config& from )
           _server( from._server )
 {
     _construct();
-
-    _server->mapConfig( this );
 
     const uint32_t nCompounds = from.nCompounds();
     for( uint32_t i=0; i<nCompounds; i++ )
@@ -128,29 +125,6 @@ void Config::addNode( Node* node )
 
     node->_config = this; 
     node->adjustLatency( _latency );
-
-    registerObject( node );
-
-    const int nPipes = node->nPipes();
-    for( int k = 0; k<nPipes; ++k )
-    {
-        Pipe* pipe = node->getPipe( k );
-        registerObject( pipe );
-
-        const int nWindows = pipe->nWindows();
-        for( int j = 0; j<nWindows; ++j )
-        {
-            Window* window = pipe->getWindow( j );
-            registerObject( window );
-            
-            const int nChannels = window->nChannels();
-            for( int i = 0; i<nChannels; ++i )
-            {
-                Channel* channel = window->getChannel( i );
-                registerObject( channel );
-            }
-        }
-    }
 }
 
 bool Config::removeNode( Node* node )
@@ -273,9 +247,10 @@ bool Config::_init( const uint32_t initID )
 
     for( uint32_t i=0; i<nNodes; i++ )
     {
-        if( !usedNodes[i]->initConnect( ))
+        Node* node = usedNodes[i];
+        if( !node->initConnect( ))
         {
-            EQERROR << "Connection to " << usedNodes[i] << " failed." << endl;
+            EQERROR << "Connection to " << node << " failed." << endl;
             _exit();
             return false;
         }
@@ -298,6 +273,8 @@ bool Config::_init( const uint32_t initID )
         
         // initialize nodes
         node->send( createConfigPacket, name );
+
+        registerObject( node );
         node->startInit( initID );
     }
 
@@ -349,6 +326,7 @@ bool Config::_exit()
         }
 
         node->stop();
+        deregisterObject( node );
     }
 
     const uint32_t nCompounds = this->nCompounds();

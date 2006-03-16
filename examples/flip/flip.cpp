@@ -62,7 +62,7 @@ int main( int argc, char** argv )
         DIE("Config initialisation failed.");
     cerr << "Config init took " << clock.getTimef() << " ms" << endl;
 
-    int nFrames = 1000;
+    int nFrames = 100;
     clock.reset();
     while( nFrames-- )
     {
@@ -79,7 +79,7 @@ int main( int argc, char** argv )
     }
     cerr << "Rendering took " << clock.getTimef() << " ms" << endl;
 
-    //sleep( 5 );
+    sleep( 10 );
     clock.reset();
     config->exit();
     server.releaseConfig( config );

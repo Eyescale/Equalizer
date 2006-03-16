@@ -19,7 +19,7 @@ EXTRAS_DIR      = $(TOP)/extras
 LIBRARY_DIR     = $(BUILD_DIR)/$(VARIANT)/lib
 SAMPLE_LIB_DIR  = $(BUILD_DIR)/$(VARIANT1)/lib
 
-INT_CXXFLAGS   += -I$(BUILD_DIR)/include -I$(EXTRAS_DIR) -DSUBDIR=\"$(SUBDIR)\"
+INT_CXXFLAGS   += -I$(OBJECT_DIR) -I$(BUILD_DIR)/include -I$(EXTRAS_DIR) -DSUBDIR=\"$(SUBDIR)\"
 INT_LDFLAGS    += -L$(LIBRARY_DIR)
 DEP_CXX        ?= $(CXX)
 DOXYGEN        ?= Doxygen
@@ -44,6 +44,7 @@ ifndef VARIANT
   VARIANT1      = $(word 1, $(VARIANTS))
 else
   OBJECTS       = $(SOURCES:%.cpp=$(OBJECT_DIR)/%.o)
+#  PCHEADERS     = $(HEADER_SRC:%=$(OBJECT_DIR)/%.gch)
   VARIANT1      = $(VARIANT)
 endif
 

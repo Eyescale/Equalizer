@@ -50,13 +50,15 @@ namespace eqs
          * @param config the config.
          */
         void mapConfig( Config* config );
-
+        void unmapConfig( Config* config )
+            { unmapSession( (eqNet::Session*)config ); }
+        
         /** 
          * Adds a new config to this server.
          * 
          * @param config the config.
          */
-        void addConfig( Config* config ){ _configs.push_back( config ); }
+        void addConfig( Config* config );
 
         /** 
          * Removes a config from this config.

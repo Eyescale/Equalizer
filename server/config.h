@@ -28,7 +28,7 @@ namespace eqs
         /** 
          * Constructs a new Config.
          */
-        Config( Server* server );
+        Config();
 
         /** 
          * Constructs a new deep copy of a config.
@@ -141,6 +141,7 @@ namespace eqs
     private:
         /** The eq server hosting the session. */
         eqBase::RefPtr<Server> _server;
+        friend class Server;
 
         /** The list of compounds. */
         std::vector<Compound*> _compounds;

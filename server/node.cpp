@@ -66,25 +66,8 @@ void Node::addPipe( Pipe* pipe )
     _pipes.push_back( pipe ); 
     pipe->_node = this; 
 
-    if( !_config )
-        return;
-
-    pipe->adjustLatency( _config->getLatency( ));
-
-    _config->registerObject( pipe );
-    const int nWindows = pipe->nWindows();
-    for( int j = 0; j<nWindows; ++j )
-    {
-        Window* window = pipe->getWindow( j );
-        _config->registerObject( window );
-
-        const int nChannels = window->nChannels();
-        for( int i = 0; i<nChannels; ++i )
-        {
-            Channel* channel = window->getChannel( i );
-            _config->registerObject( channel );
-        }
-    }
+    if( _config )
+        pipe->adjustLatency( _config->getLatency( ));
 }
 
 bool Node::removePipe( Pipe* pipe )
@@ -133,6 +116,7 @@ void Node::startInit( const uint32_t initID )
         Pipe* pipe = _pipes[i];
         if( pipe->isUsed( ))
         {
+            _config->registerObject( pipe );
             createPipePacket.pipeID = pipe->getID();
             send( createPipePacket );
             pipe->startInit( initID );
@@ -221,6 +205,7 @@ bool Node::syncExit()
         }
     }
 
+    _config->deregisterObject( this );
     return success;
 }
 

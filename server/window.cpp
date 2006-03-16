@@ -53,10 +53,6 @@ void Window::addChannel( Channel* channel )
 {
     _channels.push_back( channel ); 
     channel->_window = this; 
-
-    Config* config = getConfig();
-    if( config )
-        config->registerObject( channel );
 }
 
 void Window::refUsed()
@@ -107,8 +103,11 @@ void Window::setSwapGroup( Window* master )
 //---------------------------------------------------------------------------
 void Window::startInit( const uint32_t initID )
 {
+    Config* config = getConfig();
+    config->registerObject( this );
+
     _sendInit( initID );
-    eq::WindowCreateChannelPacket createChannelPacket( getSession()->getID(), 
+    eq::WindowCreateChannelPacket createChannelPacket( config->getID(), 
                                                        getID( ));
     const int nChannels = _channels.size();
     for( int i=0; i<nChannels; ++i )
@@ -192,8 +191,9 @@ bool Window::syncExit()
     bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = EQ_INVALID_ID;
     
-    eq::WindowDestroyChannelPacket destroyChannelPacket(getSession()->getID(), 
-                                                        getID( ));
+    Config* config = getConfig();
+    eq::WindowDestroyChannelPacket destroyChannelPacket( config->getID(), 
+                                                         getID( ));
 
     const int nChannels = _channels.size();
     for( int i=0; i<nChannels; ++i )
@@ -209,6 +209,7 @@ bool Window::syncExit()
         }
     }
 
+    config->deregisterObject( this );
     return success;
 }
 

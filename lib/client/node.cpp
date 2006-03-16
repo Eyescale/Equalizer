@@ -149,6 +149,7 @@ eqNet::CommandResult Node::_cmdCreatePipe( eqNet::Node* node,
 {
     NodeCreatePipePacket* packet = (NodeCreatePipePacket*)pkg;
     EQINFO << "Handle create pipe " << packet << endl;
+    EQASSERT( packet->pipeID != EQ_INVALID_ID );
 
     Pipe* pipe = Global::getNodeFactory()->createPipe();
     
