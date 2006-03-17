@@ -79,7 +79,7 @@ int main( int argc, char** argv )
     }
     cerr << "Rendering took " << clock.getTimef() << " ms" << endl;
 
-    sleep( 10 );
+    //sleep( 10 );
     clock.reset();
     config->exit();
     server.releaseConfig( config );

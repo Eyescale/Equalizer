@@ -335,6 +335,7 @@ bool Pipe::initGLX()
     
     setXDisplay( xDisplay );
     _screen = DefaultScreen( xDisplay );
+    EQINFO << "Opened X display " << xDisplay << ", screen " << _screen << endl;
     return true;
 #else
     return false;
@@ -371,6 +372,7 @@ bool Pipe::initCGL()
     }
 
     setCGLDisplayID( displayID );
+    EQINFO << "Using CGL displayID " << displayID << endl;
     return true;
 #else
     return false;
@@ -404,6 +406,7 @@ void Pipe::exitGLX()
 
     setXDisplay( NULL );
     XCloseDisplay( xDisplay );
+    EQINFO << "Closed X display " << xDisplay << endl;
 #endif
 }
 
@@ -411,5 +414,6 @@ void Pipe::exitCGL()
 {
 #ifdef CGL
     setCGLDisplayID( NULL );
+    EQINFO << "Reset X CGL displayID " << endl;
 #endif
 }

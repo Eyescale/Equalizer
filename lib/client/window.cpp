@@ -347,6 +347,8 @@ bool eq::Window::initGLX()
 
     setXDrawable( drawable );
     setGLXContext( context );
+    EQINFO << "Created X11 drawable " << drawable << ", glX context "
+           << context << endl;
     return true;
 #else
     return false;
@@ -397,6 +399,7 @@ bool eq::Window::initCGL()
     glClear( GL_COLOR_BUFFER_BIT );
 
     setCGLContext( context );
+    EQINFO << "Created CGL context " << context << endl;
     return true;
 #else
     return false;
@@ -441,6 +444,8 @@ void eq::Window::exitGLX()
     if( drawable )
         XDestroyWindow( display, drawable );
     setXDrawable( 0 );
+    EQINFO << "Destroyed GLX context " << context << " and X drawable "
+           << drawable << endl;
 #endif
 }
 
@@ -456,6 +461,7 @@ void eq::Window::exitCGL()
     CGLSetCurrentContext( NULL );
     CGLClearDrawable( context );
     CGLDestroyContext ( context );       
+    EQINFO << "Destroyed CGL context " << context << endl;
 #endif
 }
 
