@@ -81,7 +81,6 @@ bool Node::removePipe( Pipe* pipe )
         return false;
 
     _pipes.erase( iter );
-    _config->deregisterObject( pipe );
 
     pipe->adjustLatency( -_config->getLatency( ));
     pipe->_node = NULL; 
@@ -202,10 +201,9 @@ bool Node::syncExit()
 
             destroyPipePacket.pipeID = pipe->getID();
             send( destroyPipePacket );
+            _config->deregisterObject( pipe );
         }
     }
-
-    _config->deregisterObject( this );
     return success;
 }
 

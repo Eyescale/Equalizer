@@ -138,7 +138,6 @@ bool Config::removeNode( Node* node )
         return false;
 
     _nodes.erase( iter );
-    deregisterObject( node );
 
     node->adjustLatency( -_latency );
     node->_config = NULL; 

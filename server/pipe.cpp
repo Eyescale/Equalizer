@@ -81,11 +81,9 @@ void Pipe::unrefUsed()
 //---------------------------------------------------------------------------
 void Pipe::startInit( const uint32_t initID )
 {
-    Config* config = getConfig();
-    config->registerObject( this );
-
     _sendInit( initID );
 
+    Config* config = getConfig();
     eq::PipeCreateWindowPacket createWindowPacket( config->getID(),
                                                    getID( ));
     const int nWindows = _windows.size();
@@ -94,8 +92,10 @@ void Pipe::startInit( const uint32_t initID )
         Window* window = _windows[i];
         if( window->isUsed( ))
         {
+            config->registerObject( window );
             createWindowPacket.windowID = window->getID();
             _send( createWindowPacket );
+
             window->startInit( initID );
         }
     }
@@ -182,10 +182,10 @@ bool Pipe::syncExit()
 
             destroyWindowPacket.windowID = window->getID();
             _send( destroyWindowPacket );
+            config->deregisterObject( window );
         }
     }
 
-    config->deregisterObject( this );
     return success;
 }
 

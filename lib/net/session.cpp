@@ -156,10 +156,12 @@ void Session::registerObject( Object* object )
 void Session::addRegisteredObject( const uint32_t id, Object* object )
 {
     EQASSERT( !_registeredObjects[id] );
+    EQASSERT( object->_id == EQ_INVALID_ID );
+
     object->_id            = id;
     object->_session       = this;
-
     _registeredObjects[id] = object;
+
     EQVERB << "registered object " << (void*)object << " id " << id
          << " session id " << _id << endl;
 }
@@ -277,7 +279,8 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
     
     if( !object )
     {
-        EQASSERTINFO( object, "Received request for unregistered object");
+        EQERROR << "Object for " << objPacket 
+                << " not registered with this session instance" << endl;
         return COMMAND_ERROR;
     }
 

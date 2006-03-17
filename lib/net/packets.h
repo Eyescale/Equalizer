@@ -510,6 +510,13 @@ namespace eqNet
     }
 
     inline std::ostream& operator << ( std::ostream& os, 
+                                       const ObjectPacket* packet )
+    {
+        os << (SessionPacket*)packet << " obj id " << packet->objectID;
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
                                        const VersionedObjectSyncPacket* packet )
     {
         os << (VersionedObjectPacket*)packet << " version " << packet->version

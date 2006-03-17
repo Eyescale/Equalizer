@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "window.h"
@@ -103,10 +103,9 @@ void Window::setSwapGroup( Window* master )
 //---------------------------------------------------------------------------
 void Window::startInit( const uint32_t initID )
 {
-    Config* config = getConfig();
-    config->registerObject( this );
-
     _sendInit( initID );
+
+    Config* config = getConfig();
     eq::WindowCreateChannelPacket createChannelPacket( config->getID(), 
                                                        getID( ));
     const int nChannels = _channels.size();
@@ -115,8 +114,10 @@ void Window::startInit( const uint32_t initID )
         Channel* channel = _channels[i];
         if( channel->isUsed( ))
         {
+            config->registerObject( channel );
             createChannelPacket.channelID = channel->getID();
             _send( createChannelPacket );
+
             channel->startInit( initID );
         }
     }
@@ -206,10 +207,9 @@ bool Window::syncExit()
 
             destroyChannelPacket.channelID = channel->getID();
             _send( destroyChannelPacket );
+            config->deregisterObject( channel );
         }
     }
-
-    config->deregisterObject( this );
     return success;
 }
 

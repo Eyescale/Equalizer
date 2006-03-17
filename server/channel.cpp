@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "channel.h"
@@ -66,9 +66,6 @@ void Channel::unrefUsed()
 //---------------------------------------------------------------------------
 void Channel::startInit( const uint32_t initID )
 {
-    Config* config = getConfig();
-    config->registerObject( this );
-
     _sendInit( initID );
 }
 
@@ -115,7 +112,6 @@ bool Channel::syncExit()
     const bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = EQ_INVALID_ID;
 
-    getConfig()->deregisterObject( this );
     return success;
 }
 
