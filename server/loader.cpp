@@ -68,7 +68,6 @@ struct newConfigAction
         {
             _state.config = _state.loader->createConfig( );
             _state.server->addConfig( _state.config );
-            _state.server->mapConfig( _state.config );
         }
     
     State& _state;
@@ -121,14 +120,31 @@ struct newChannelAction
     
     State& _state;
 };
+
 struct newCompoundAction
 {
     newCompoundAction( State& state ) : _state( state ) {}
 
     void operator()(const char& c) const
         {
-            _state.compound = _state.loader->createCompound( );
-            _state.config->addCompound( _state.compound );
+            Compound* compound = _state.loader->createCompound( );
+            if( !_state.compound )
+                _state.config->addCompound( compound );
+            else
+                _state.compound->addChild( compound );
+
+            _state.compound = compound;
+        }
+    
+    State& _state;
+};
+struct leaveCompoundAction
+{
+    leaveCompoundAction( State& state ) : _state( state ) {}
+
+    void operator()(const char& c) const
+        {
+            _state.compound = _state.compound->getParent();
         }
     
     State& _state;
@@ -153,7 +169,7 @@ struct eqsGrammar : public grammar<eqsGrammar>
             config = "config" 
                 >> ch_p('{')[newConfigAction(self._state)]
                 >> +(node)
-                >> +(compound) // [addCompoundAction(self._state)]
+                >> +(compound)
                 >> ch_p('}');
 
             node = "node"
@@ -176,9 +192,9 @@ struct eqsGrammar : public grammar<eqsGrammar>
                 >> ch_p('}');
 
             compound = "compound"
-                >> ch_p('{') // [newCompoundAction(self._state)]
+                >> ch_p('{')[newCompoundAction(self._state)]
                 >> *(compound)
-                >> ch_p('}');
+                >> ch_p('}')[leaveCompoundAction(self._state)];
         }
 
         rule<ScannerT> server, config, node, pipe, window, channel, compound;

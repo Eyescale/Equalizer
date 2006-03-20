@@ -15,6 +15,7 @@
 #include "requestCache.h"
 
 #include <eq/base/base.h>
+#include <eq/base/perThread.h>
 #include <eq/base/refPtr.h>
 #include <eq/base/referenced.h>
 #include <eq/base/requestHandler.h>
@@ -202,8 +203,7 @@ namespace eqNet
          * @param node the local node for this thread.
          * @sa addConnectionDescription, send
          */
-        static void setLocalNode( Node* node )
-            { eqBase::Thread::setSpecific( node ); }
+        static void setLocalNode( Node* node ) { _localNode = node; }
 
         /** 
          * Returns the local node for this thread.
@@ -211,8 +211,7 @@ namespace eqNet
          * @return the local node for this thread.
          * @sa setLocalNode
          */
-        static Node* getLocalNode() 
-            { return (Node*)eqBase::Thread::getSpecific(); }
+        static Node* getLocalNode() { return _localNode.get(); }
 
         /** 
          * Returns if the node is local.
@@ -520,7 +519,10 @@ namespace eqNet
             { return Global::getProgramName(); }
 
     private:
-        /* Globally unique identifier. */
+        /** per-thread local node */
+        static eqBase::PerThread<Node*> _localNode;
+
+        /** Globally unique node identifier. */
         NodeID _id;
 
         /** The current state of this node. */

@@ -1,0 +1,25 @@
+server
+{
+    config
+    {
+        node
+        {
+            pipe
+            {
+                window
+                {
+                    channel
+                    {
+                    }
+                }
+            }
+        }
+        compound
+        {
+            compound{}
+            compound{}
+        }
+    }    
+}
+
+

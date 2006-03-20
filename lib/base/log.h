@@ -72,17 +72,17 @@ extern eqBase::Clock eqLogClock;
 #endif
 
 #define EQERROR (eqBase::Log::level >= eqBase::LOG_ERROR) && \
-    std::cout << "[E]" LOG_EXTRA
+    std::cout << "E|" LOG_EXTRA
 #define EQWARN  (eqBase::Log::level >= eqBase::LOG_WARN)  && \
-    std::cout << "[W]"  LOG_EXTRA
+    std::cout << "W|"  LOG_EXTRA
 #define EQINFO  (eqBase::Log::level >= eqBase::LOG_INFO)  && \
-    std::cout << "[I]"  LOG_EXTRA
+    std::cout << "I|"  LOG_EXTRA
 #define EQVERB  (eqBase::Log::level >= eqBase::LOG_VERBATIM)  && \
-    std::cout << "[V]"  LOG_EXTRA
+    std::cout << "V|"  LOG_EXTRA
 
 #define LOG_MATRIX4x4( m ) endl \
- << "  " << m[0] << " " << m[4] << " " << m[8] << " " << m[12] << " " << endl \
- << "  " << m[1] << " " << m[5] << " " << m[9] << " " << m[13] << " " << endl \
+ << "  " << m[0] << " " << m[4] << " " << m[8]  << " " << m[12] << " " << endl \
+ << "  " << m[1] << " " << m[5] << " " << m[9]  << " " << m[13] << " " << endl \
  << "  " << m[2] << " " << m[6] << " " << m[10] << " " << m[14] << " " << endl \
  << "  " << m[3] << " " << m[7] << " " << m[11] << " " << m[15] << " " << endl
 

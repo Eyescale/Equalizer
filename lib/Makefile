@@ -15,6 +15,7 @@ HEADER_SRC = \
 	base/lock.h \
 	base/log.h \
 	base/mtQueue.h \
+	base/perThread.h \
 	base/refPtr.h \
 	base/referenced.h \
 	base/requestHandler.h \

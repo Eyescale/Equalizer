@@ -14,9 +14,6 @@
 using namespace eqBase;
 using namespace std;
 
-pthread_key_t Thread::_dataKey;
-bool          Thread::_dataKeyCreated;
-
 Thread::Thread( const Type type )
         : _type(type),
           _threadState(STATE_STOPPED)
@@ -252,51 +249,6 @@ Thread::ThreadID Thread::_getLocalThreadID()
     }
 
     return threadID;
-}
-
-bool Thread::_createDataKey()
-{
-    int nTries = 10;
-
-    while( !_dataKeyCreated && nTries-- )
-    {
-        int result = pthread_key_create( &_dataKey, NULL );
-        if( result == 0 ) // success
-        {
-            _dataKeyCreated = true;
-            return true;
-        }
-
-        switch( result )
-        {            
-            case EAGAIN: // try again
-                break;
-
-            default:
-                EQERROR << "Can't create thread-specific data key: "
-                      << strerror( result ) << endl;
-                return false;
-        }
-    }
-
-    EQERROR << "Can't create thread-specific data key." << endl;
-    return false;
-}
-
-void Thread::setSpecific( void* data )
-{
-    if( !_dataKeyCreated && !_createDataKey( ))
-        return;
-
-    pthread_setspecific( _dataKey, data );
-}
-
-void* Thread::getSpecific()
-{
-    if( !_dataKeyCreated && !_createDataKey( ))
-        return NULL;
-
-    return pthread_getspecific( _dataKey );
 }
 
 bool Thread::isCurrent() const

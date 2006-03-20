@@ -13,7 +13,7 @@ int main( int argc, char **argv )
 {
 #if 0
     Loader loader;
-    RefPtr<Server> server = loader.loadConfig( "config.eqc" );
+    RefPtr<Server> server = loader.loadConfig( "examples/configs/config.eqc" );
 #else
     RefPtr<Server> server = new Server;
 #endif
