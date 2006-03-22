@@ -11,7 +11,7 @@ using namespace std;
 
 int main( int argc, char **argv )
 {
-#if 1
+#if 0
     Loader loader;
     RefPtr<Server> server = loader.loadConfig( "examples/configs/config.eqc" );
 #else

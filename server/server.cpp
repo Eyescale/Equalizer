@@ -65,7 +65,7 @@ bool Server::run( int argc, char **argv )
     if( !listen( connection ))
         return false;
 
-#if 1
+#if 0
     if( nConfigs() == 0 )
     {
         EQERROR << "No configurations loaded" << endl;

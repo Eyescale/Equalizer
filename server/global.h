@@ -29,7 +29,7 @@ namespace eqs
             { return _nodeIAttributes[attr]; }
 
     private:
-        Global()
+        Global();
         
         std::string _nodeSAttributes[Node::SATTR_ALL];
         int         _nodeIAttributes[Node::IATTR_ALL];
