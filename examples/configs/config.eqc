@@ -1,6 +1,6 @@
 global
 {
-    EQ_NODE_ATTR_LAUNCH_COMMAND "ssh -n %h %c >& %h.log"
+    EQ_NODE_ATTR_LAUNCHCOMMAND "ssh -n %h %c >& %h.log"
     EQ_NODE_ATTR_CONNECTION_TYPE TCP_IP
 }
 
