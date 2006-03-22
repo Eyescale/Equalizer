@@ -19,10 +19,15 @@ typedef int socklen_t;
 #endif
 
 // defines
-#define EQ_UNDEFINED          (0xffffffff)
+#define EQ_UNDEFINED_UINT32   (0xffffffff)
+//#define EQ_UNDEFINED_INT32    (0x7fffffff)
 #define EQ_TIMEOUT_INDEFINITE (0)
 
-#define DUMP_CORE {((char*)0)[0] = 'a';}
+// XXX move to client?
+#define EQ_NONE (-1)
+
+
+#define EQ_DUMP_CORE {((char*)0)[0] = 'a';}
 
 // assertions
 #ifdef NDEBUG
@@ -37,14 +42,14 @@ typedef int socklen_t;
 #else
 
 #  define EQASSERT(x) if( !(x) ) \
-    { EQERROR << "Assert: " << #x << std::endl; DUMP_CORE; ::abort(); }
-#  define EQASSERTINFO(x, info) if( !(x) )                                \
+    { EQERROR << "Assert: " << #x << std::endl; EQ_DUMP_CORE; ::abort(); }
+#  define EQASSERTINFO(x, info) if( !(x) )                              \
     {                                                                   \
-        EQERROR << "Assert: " << #x << " [" << info << "]" << std::endl;  \
-        DUMP_CORE; ::abort();                                           \
+        EQERROR << "Assert: " << #x << " [" << info << "]" << std::endl; \
+        EQ_DUMP_CORE; ::abort();                                        \
     }
-#  define EQUNIMPLEMENTED                                         \
-    { EQERROR << "Unimplemented code" << std::endl; DUMP_CORE; ::abort(); }
+#  define EQUNIMPLEMENTED                                               \
+    { EQERROR << "Unimplemented code" << std::endl; EQ_DUMP_CORE; ::abort(); }
 
 #endif
 

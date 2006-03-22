@@ -52,7 +52,7 @@ bool Server::run( int argc, char **argv )
     eqNet::init( argc, argv );
 
     RefPtr<eqNet::Connection> connection =
-        eqNet::Connection::create(eqNet::TYPE_TCPIP);
+        eqNet::Connection::create(eqNet::Connection::TYPE_TCPIP);
     RefPtr<eqNet::ConnectionDescription> connDesc = 
         new eqNet::ConnectionDescription;
 
@@ -65,7 +65,7 @@ bool Server::run( int argc, char **argv )
     if( !listen( connection ))
         return false;
 
-#if 0
+#if 1
     if( nConfigs() == 0 )
     {
         EQERROR << "No configurations loaded" << endl;

@@ -3,6 +3,9 @@
    All rights reserved. */
 
 #include "loader.h"
+#include "loaderCompound.h"
+#include "loaderConnection.h"
+#include "loaderState.h"
 
 #include "channel.h" 
 #include "compound.h"
@@ -18,35 +21,10 @@
 #include <iostream>
 #include <string>
 
+using namespace eqLoader;
 using namespace eqs;
 using namespace std;
 using namespace boost::spirit;
-
-//---------------------------------------------------------------------------
-// Parser State
-//---------------------------------------------------------------------------
-struct State
-{
-    State( Loader* ldr )
-            : loader( ldr ),
-              server( NULL ),
-              config( NULL ),
-              node( NULL ),
-              pipe( NULL ),
-              window( NULL ),
-              channel( NULL ),
-              compound( NULL )
-        {}
-
-    Loader*   loader;
-    Server*   server;
-    Config*   config;
-    Node*     node;
-    Pipe*     pipe;
-    Window*   window;
-    Channel*  channel;
-    Compound* compound;
-};
 
 //---------------------------------------------------------------------------
 // actions
@@ -121,49 +99,6 @@ struct newChannelAction
     State& _state;
 };
 
-struct newCompoundAction
-{
-    newCompoundAction( State& state ) : _state( state ) {}
-
-    void operator()(const char& c) const
-        {
-            Compound* compound = _state.loader->createCompound( );
-            if( !_state.compound )
-                _state.config->addCompound( compound );
-            else
-                _state.compound->addChild( compound );
-
-            _state.compound = compound;
-        }
-    
-    State& _state;
-};
-struct leaveCompoundAction
-{
-    leaveCompoundAction( State& state ) : _state( state ) {}
-
-    void operator()(const char& c) const
-        {
-            _state.compound = _state.compound->getParent();
-        }
-    
-    State& _state;
-};
-struct compoundSetModeAction
-{
-    compoundSetModeAction( State& state, const Compound::Mode mode ) :
-            _state( state ), _mode( mode ) {}
-
-    template <typename IteratorT>
-    void operator()(IteratorT first, IteratorT last) const
-        {
-            _state.compound->setMode( _mode );
-        }
-    
-    State&         _state;
-    Compound::Mode _mode;
-};
-
 //---------------------------------------------------------------------------
 // grammar
 //---------------------------------------------------------------------------
@@ -175,6 +110,16 @@ struct eqsGrammar : public grammar<eqsGrammar>
     {
         definition( eqsGrammar const& self )
         {
+            global = "global" 
+                >> ch_p('{')
+                >> *( str_p("EQ_CONNECTION_TYPE") 
+                      >> connectionType_p[setConnectionType(self._state)] )
+//                 >> *(EQ_CONNECTION_HOSTNAME          "localhost"
+//     EQ_CONNECTION_TCPIP_PORT        4242
+//     EQ_CONNECTION_LAUNCH_TIMEOUT    100s
+//     EQ_CONNECTION_LAUNCH_COMMAND    "ssh -n %h %c >& %h.log"
+                >> ch_p('}');
+
             server = "server"
                 >> ch_p('{')[newServerAction(self._state)]
                 >> +(config)

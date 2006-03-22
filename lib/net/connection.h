@@ -5,11 +5,11 @@
 #ifndef EQNET_CONNECTION_H
 #define EQNET_CONNECTION_H
 
+#include "packets.h"
+
 #include <eq/base/base.h>
 #include <eq/base/referenced.h>
 #include <eq/base/refPtr.h>
-
-#include "packets.h"
 
 #include <poll.h>
 #include <stdexcept>
@@ -18,7 +18,6 @@
 namespace eqNet
 {
     class ConnectionDescription;
-    enum  ConnectionType;
 
 #   define DEFAULT_PORT 4242
 
@@ -28,6 +27,14 @@ namespace eqNet
     class Connection : public eqBase::Referenced
     {
     public:
+
+        /** The supported network protocols. */
+        enum Type
+        {
+            TYPE_TCPIP,   //!< TCP/IP networking.
+            TYPE_PIPE,    //!< pipe() based bi-directional connection
+            TYPE_UNI_PIPE //!< pipe() based uni-directional connection
+        };
 
         enum State {
             STATE_CLOSED,
@@ -46,7 +53,7 @@ namespace eqNet
          * @param type the connection type.
          * @return the connection.
          */
-        static eqBase::RefPtr<Connection> create( const ConnectionType type );
+        static eqBase::RefPtr<Connection> create( const Type type );
         
         /** @name Connection Management */
         //@{
@@ -160,15 +167,14 @@ namespace eqNet
          * 
          * @return the description for this connection. 
          */
-        eqBase::RefPtr<ConnectionDescription> getDescription()
-            { return _description; }
+        eqBase::RefPtr<ConnectionDescription> getDescription();
 
         virtual int getReadFD() const { return -1; }
 
     protected:
         Connection();
         Connection(const Connection& conn);
-        virtual ~Connection(){}
+        virtual ~Connection();
 
         State                                 _state; //!< The connection state
         eqBase::RefPtr<ConnectionDescription> _description;

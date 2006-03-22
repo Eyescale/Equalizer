@@ -5,8 +5,8 @@
 #ifndef EQ_PACKETS_PRIV_H
 #define EQ_PACKETS_PRIV_H
 
+#include "base.h"
 #include "commands.h"
-#include "connectionDescription.h"
 #include "global.h"
 #include "message.h"
 #include "nodeID.h"

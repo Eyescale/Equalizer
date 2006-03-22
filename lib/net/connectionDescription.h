@@ -5,6 +5,8 @@
 #ifndef EQNET_CONNECTION_DESCRIPTION_H
 #define EQNET_CONNECTION_DESCRIPTION_H
 
+#include "connection.h"
+
 #include <eq/base/base.h>
 #include <eq/base/referenced.h>
 #include <strings.h>
@@ -12,14 +14,6 @@
 
 namespace eqNet
 {
-    /** The supported network protocols. */
-    enum ConnectionType
-    {
-        TYPE_TCPIP,   //!< TCP/IP networking.
-        TYPE_PIPE,    //!< pipe() based bi-directional connection
-        TYPE_UNI_PIPE //!< pipe() based uni-directional connection
-    };
-
     /**
      * Describes the connection to a Node.
      *
@@ -29,7 +23,7 @@ namespace eqNet
     {
     public:
         ConnectionDescription() 
-                : type( TYPE_TCPIP ),
+                : type( Connection::TYPE_TCPIP ),
                   bandwidthKBS( 0 ),
                   launchTimeout( 10000 )
             {
@@ -37,9 +31,9 @@ namespace eqNet
             }
 
         /** The network protocol for the connection. */
-        ConnectionType type;
+        Connection::Type type;
 
-        /** The bandwidth in kilobyte per second for this connection. */
+        ///** The bandwidth in kilobyte per second for this connection. */
         uint64_t bandwidthKBS;
 
         /** 
@@ -55,7 +49,7 @@ namespace eqNet
          * The amount of time in milliseconds to wait before a node is
          * considered unreachable during start.
          */
-        uint32_t launchTimeout;
+        int32_t launchTimeout;
 
         /** The host name. */
         std::string hostname;
@@ -97,7 +91,7 @@ namespace eqNet
         bool fromString( const std::string& data );
 
     protected:
-        ~ConnectionDescription() {}
+        virtual ~ConnectionDescription() {}
     };
 
     /** 

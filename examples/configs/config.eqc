@@ -1,7 +1,10 @@
 global
 {
-    EQ_NODE_ATTR_LAUNCHCOMMAND "ssh -n %h %c >& %h.log"
-    EQ_NODE_ATTR_CONNECTION_TYPE TCP_IP
+    EQ_CONNECTION_TYPE              TCPIP
+    EQ_CONNECTION_HOSTNAME          "localhost"
+    EQ_CONNECTION_TCPIP_PORT        4242
+    EQ_CONNECTION_LAUNCH_TIMEOUT    100s
+    EQ_CONNECTION_LAUNCH_COMMAND    "ssh -n %h %c >& %h.log"
 }
 
 server
@@ -12,12 +15,11 @@ server
         {
             connection
             {
-                launchTimeout 100000
-                hostname      "localhost"
-            }
-            attributes
-            {
-                launchTimeout 42
+                type            TCPIP
+                hostname        "benjy"
+                TCPIP_port      0
+                launchTimeout   42
+                launchCommand   "foo"
             }
             pipe
             {

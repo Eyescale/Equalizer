@@ -36,7 +36,7 @@ SocketConnection::~SocketConnection()
 //----------------------------------------------------------------------
 bool SocketConnection::connect( RefPtr<ConnectionDescription> description )
 {
-    EQASSERT( description->type == TYPE_TCPIP );
+    EQASSERT( description->type == Connection::TYPE_TCPIP );
     if( _state != STATE_CLOSED )
         return false;
 
@@ -121,7 +121,7 @@ void SocketConnection::_parseAddress( RefPtr<ConnectionDescription> description,
 //----------------------------------------------------------------------
 bool SocketConnection::listen( RefPtr<ConnectionDescription> description )
 {
-    EQASSERT( description->type == TYPE_TCPIP );
+    EQASSERT( description->type == Connection::TYPE_TCPIP );
 
     if( _state != STATE_CLOSED )
         return false;
@@ -214,7 +214,7 @@ RefPtr<Connection> SocketConnection::accept()
 
     RefPtr<ConnectionDescription> description = new ConnectionDescription;
 
-    description->type         = TYPE_TCPIP;
+    description->type         = Connection::TYPE_TCPIP;
     description->bandwidthKBS = _description->bandwidthKBS;
     description->hostname     = inet_ntoa( newAddress.sin_addr );
     description->TCPIP.port   = ntohs( newAddress.sin_port );

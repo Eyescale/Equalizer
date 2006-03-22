@@ -35,7 +35,7 @@ bool Server::open( const OpenParams& params )
         return false;
 
     RefPtr<eqNet::Connection> connection =
-        eqNet::Connection::create( eqNet::TYPE_TCPIP );
+        eqNet::Connection::create( eqNet::Connection::TYPE_TCPIP );
 
     RefPtr<eqNet::ConnectionDescription> connDesc = 
         new eqNet::ConnectionDescription;

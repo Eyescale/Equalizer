@@ -7,7 +7,7 @@
 
 #include "base.h"
 #include "commands.h"
-#include "connection.h"
+#include "connectionDescription.h"
 #include "connectionSet.h"
 #include "idHash.h"
 #include "message.h"

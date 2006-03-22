@@ -4,6 +4,7 @@
 
 #include "connection.h"
 
+#include "connectionDescription.h"
 #include "pipeConnection.h"
 #include "socketConnection.h"
 #include "uniPipeConnection.h"
@@ -26,7 +27,10 @@ Connection::Connection(const Connection& conn)
           _description( conn._description )
 {}
 
-RefPtr<Connection> Connection::create( const ConnectionType type )
+Connection::~Connection()
+{}
+
+RefPtr<Connection> Connection::create( const Type type )
 {
     switch( type )
     {
@@ -99,3 +103,9 @@ uint64_t Connection::send( Packet& packet, const void* data,
     ((Packet*)buffer)->size = size;
     return send( buffer, size );
 }
+
+eqBase::RefPtr<ConnectionDescription> Connection::getDescription()
+{
+    return _description;
+}
+

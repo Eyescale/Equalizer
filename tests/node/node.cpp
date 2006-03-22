@@ -76,9 +76,9 @@ int main( int argc, char **argv )
     lock.set();
     Server server;
 
-    RefPtr<Connection> connection = Connection::create(TYPE_TCPIP);
+    RefPtr<Connection> connection = Connection::create(Connection::TYPE_TCPIP);
     RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
-    connDesc->type = eqNet::TYPE_TCPIP;
+    connDesc->type = Connection::TYPE_TCPIP;
     //connDesc->hostname = "benjy";
     connDesc->TCPIP.port = 4242;
 

@@ -139,9 +139,9 @@ void Node::_cleanup()
 bool Node::_listenToSelf()
 {
     // setup local connection to myself
-    _connection = Connection::create(TYPE_UNI_PIPE);
+    _connection = Connection::create( Connection::TYPE_UNI_PIPE );
     eqBase::RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
-    connDesc->type = TYPE_UNI_PIPE;
+    connDesc->type = Connection::TYPE_UNI_PIPE;
 
     if( !_connection->connect( connDesc ))
     {

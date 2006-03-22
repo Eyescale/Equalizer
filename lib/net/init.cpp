@@ -83,7 +83,8 @@ bool initLocalNode( int argc, char** argv )
     if( listen )
     {
         EQINFO << "Listener port requested" << endl;
-        RefPtr<Connection> connection = Connection::create( eqNet::TYPE_TCPIP );
+        RefPtr<Connection> connection = 
+            Connection::create( eqNet::Connection::TYPE_TCPIP );
         RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
 
         if( !connDesc->fromString( listenOpts ))

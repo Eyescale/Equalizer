@@ -178,13 +178,11 @@ namespace eqs
         //*{
         enum SAttribute
         {
-            SATTR_LAUNCHCOMMAND,
             SATTR_ALL
         };
 
         enum IAttribute
         {
-            IATTR_LAUNCHTIMEOUT,
             IATTR_ALL
         };
 
@@ -193,9 +191,9 @@ namespace eqs
         const std::string& getSAttribute( const SAttribute attr ) const
             { return _sAttributes[attr]; }
 
-        void setIAttribute( const IAttribute attr, const int value )
+        void setIAttribute( const IAttribute attr, const int32_t value )
             { _iAttributes[attr] = value; }
-        int  getIAttribute( const IAttribute attr ) const
+        int32_t  getIAttribute( const IAttribute attr ) const
             { return _iAttributes[attr]; }
         //*}
 
@@ -218,7 +216,7 @@ namespace eqs
         std::string _sAttributes[SATTR_ALL];
 
         /** Int attributes. */
-        int _iAttributes[IATTR_ALL];
+        int32_t _iAttributes[IATTR_ALL];
 
         /** The request identifier for pending asynchronous operations. */
         uint32_t _pendingRequestID;

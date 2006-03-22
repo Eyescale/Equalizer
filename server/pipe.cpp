@@ -20,8 +20,8 @@ void Pipe::_construct()
     _used             = 0;
     _node             = NULL;
     _pendingRequestID = EQ_INVALID_ID;
-    _display          = EQ_UNDEFINED;
-    _screen           = EQ_UNDEFINED;
+    _display          = EQ_UNDEFINED_UINT32;
+    _screen           = EQ_UNDEFINED_UINT32;
 
     registerCommand( eq::CMD_PIPE_INIT_REPLY, this,reinterpret_cast<CommandFcn>(
                          &eqs::Pipe::_cmdInitReply ));

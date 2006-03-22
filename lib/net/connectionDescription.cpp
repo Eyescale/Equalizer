@@ -15,15 +15,15 @@ string ConnectionDescription::toString()
 
     switch( type )
     {
-        case TYPE_TCPIP:
+        case Connection::TYPE_TCPIP:
             stringStream << "TCPIP";
             break;
 
-        case TYPE_PIPE:
+        case Connection::TYPE_PIPE:
             stringStream << "PIPE";
             break;
 
-        case TYPE_UNI_PIPE:
+        case Connection::TYPE_UNI_PIPE:
             stringStream << "UNIPIPE";
             break;
     }        
@@ -33,11 +33,11 @@ string ConnectionDescription::toString()
     
     switch( type )
     {
-        case TYPE_TCPIP:
+        case Connection::TYPE_TCPIP:
             stringStream << ":" << TCPIP.port;
             break;
 
-        case TYPE_PIPE:
+        case Connection::TYPE_PIPE:
             stringStream << ":" << Pipe.fd;
             break;
 
@@ -57,11 +57,11 @@ bool ConnectionDescription::fromString( const string& data )
         const string type = data.substr( 0, colonPos );
 
         if( type == "TCPIP" )
-            this->type = TYPE_TCPIP;
+            this->type = Connection::TYPE_TCPIP;
         else if( type == "PIPE" )
-            this->type = TYPE_PIPE;
+            this->type = Connection::TYPE_PIPE;
         else if( type == "UNIPIPE" )
-            this->type = TYPE_UNI_PIPE;
+            this->type = Connection::TYPE_UNI_PIPE;
         else
             goto error;
 
@@ -92,7 +92,7 @@ bool ConnectionDescription::fromString( const string& data )
 
         switch( this->type )
         {
-            case TYPE_TCPIP:
+            case Connection::TYPE_TCPIP:
             {
                 nextPos  = colonPos+1;
                 colonPos = data.find( ':', nextPos );
@@ -104,7 +104,7 @@ bool ConnectionDescription::fromString( const string& data )
                 break;
             }
 
-            case TYPE_PIPE:
+            case Connection::TYPE_PIPE:
             {
                 nextPos  = colonPos+1;
                 colonPos = data.find( ':', nextPos );

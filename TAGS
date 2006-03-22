@@ -20,19 +20,23 @@ typedef int socklen_t;socklen_t18,285
 
 build/Darwin/include/eq/base/clock.h,277
 #define	EQBASE_CLOCK_H7,122
-    class ClockClock23,354
-        Clock(Clock29,449
-        virtual ~Clock(~Clock34,535
-        void reset(reset39,655
-        float getTimef(getTimef54,1068
-        double getTimed(getTimed73,1767
-        float getMSf(getMSf96,2606
+    class ClockClock23,357
+        Clock(Clock29,452
+        virtual ~Clock(~Clock34,538
+        void reset(reset39,658
+        float getTimef(getTimef54,1071
+        double getTimed(getTimed73,1770
+        float getMSf(getMSf96,2609
 
 build/Darwin/include/eq/base/defines.h,97
 #define EQ_DEFINES_H3,67
 #define Darwin4,88
 #define GLX5,103
 #define CHECK_THREADSAFETY6,115
+
+build/Darwin/include/eq/base/gate.h,56
+#define EQBASE_GATE_H6,120
+    class Gate Gate19,326
 
 build/Darwin/include/eq/base/hash.h,367
 #define EQBASE_HASH_H6,120
@@ -55,33 +59,50 @@ build/Darwin/include/eq/base/lock.h,56
 #define EQBASE_LOCK_H6,120
     class Lock Lock20,382
 
-build/Darwin/include/eq/base/log.h,456
+build/Darwin/include/eq/base/log.h,826
 #define EQBASE_LOG_H6,119
-    enum LogLevelLogLevel24,398
-        LOG_ERROR,26,422
-        LOG_WARN,27,441
-        LOG_INFO,28,459
-        LOG_VERBATIM29,477
-    class Log Log33,535
-#define SUBDIR 59,1086
-#  define LOG_EXTRA 63,1127
-#  define LOG_EXTRA 69,1304
-#define EQERROR 74,1502
-#define EQWARN 76,1598
-#define EQINFO 78,1695
-#define EQVERB 80,1792
-#define LOG_MATRIX4x4(LOG_MATRIX4x483,1894
-#define LOG_VECTOR6(LOG_VECTOR689,2249
+    enum LogLevelLogLevel25,417
+        LOG_ERROR,27,441
+        LOG_WARN,28,460
+        LOG_INFO,29,478
+        LOG_VERBATIM30,496
+    class LogBuffer LogBuffer34,572
+		LogBuffer(LogBuffer37,631
+        void indent(indent41,753
+        void exdent(exdent42,789
+        virtual int_type overflow overflow45,846
+        virtual int sync(sync61,1269
+    class Log Log88,1989
+        Log(Log91,2045
+        virtual ~Log(~Log93,2140
+        void indent(indent95,2190
+        void exdent(exdent96,2237
+#define SUBDIR 136,3171
+#  define LOG_EXTRA 140,3212
+#  define LOG_EXTRA 146,3389
+#define EQERROR 151,3587
+#define EQWARN 153,3696
+#define EQINFO 155,3806
+#define EQVERB 157,3916
+#define LOG_MATRIX4x4(LOG_MATRIX4x4160,4031
+#define LOG_VECTOR6(LOG_VECTOR6166,4388
 
-build/Darwin/include/eq/base/mtQueue.h,276
+build/Darwin/include/eq/base/mtQueue.h,275
 #define EQBASE_MTQUEUE_H6,123
     template<class T> class MTQueueMTQueue21,417
-        MTQueue(MTQueue32,731
-        ~MTQueue(~MTQueue64,2001
-        T* pop(pop79,2452
-        T* tryPop(tryPop102,3322
-        T* back(back129,4226
-        void push(push146,4813
+        MTQueue(MTQueue29,624
+        ~MTQueue(~MTQueue61,1894
+        T* pop(pop76,2345
+        T* tryPop(tryPop99,3215
+        T* back(back126,4119
+        void push(push143,4706
+
+build/Darwin/include/eq/base/perThread.h,201
+#define EQBASE_PERTHREAD_H6,125
+    template<typename T> class PerThreadPerThread17,328
+        PerThread(PerThread20,387
+        virtual ~PerThread(~PerThread46,1253
+        T get(get51,1355
 
 build/Darwin/include/eq/base/referenced.h,267
 #define EQBASE_REFERENCED_H6,126
@@ -94,20 +115,20 @@ build/Darwin/include/eq/base/referenced.h,267
 
 build/Darwin/include/eq/base/refPtr.h,533
 #define EQBASE_REFPTR_H6,127
-    struct RefPtr_scast{RefPtr_scast10,171
-    template<class T> class RefPtr RefPtr15,248
-        RefPtr(RefPtr18,302
-        RefPtr(RefPtr19,358
-        RefPtr(RefPtr20,422
-        RefPtr(RefPtr23,524
-        ~RefPtr(~RefPtr27,628
-        void ref(ref29,660
-        void unref(unref30,707
-        T&       operator*operator72,2252
-        const T& operator*operator73,2322
-        T*       get(get74,2392
-        const T* get(get75,2445
-        bool isValid(isValid77,2499
+    struct RefPtr_scast{RefPtr_scast12,192
+    template<class T> class RefPtr RefPtr17,269
+        RefPtr(RefPtr20,323
+        RefPtr(RefPtr21,379
+        RefPtr(RefPtr22,443
+        RefPtr(RefPtr25,545
+        ~RefPtr(~RefPtr29,649
+        void ref(ref31,681
+        void unref(unref32,728
+        T&       operator*operator74,2273
+        const T& operator*operator75,2343
+        T*       get(get76,2413
+        const T* get(get77,2466
+        bool isValid(isValid79,2520
 
 build/Darwin/include/eq/base/requestHandler.h,202
 #define EQBASE_REQUESTHANDLER_H6,130
@@ -132,15 +153,15 @@ build/Darwin/include/eq/base/thread.h,572
             FORK28,602
         virtual bool init(init59,1553
         Type getType(getType95,2657
-        bool isStopped(isStopped121,3405
-        bool isRunning(isRunning132,3796
-        bool isCurrent(isCurrent140,4122
-        enum StateState144,4217
-            STATE_STOPPED,146,4246
-            STATE_STARTING,147,4273
-            STATE_RUNNING,148,4324
-            STATE_STOPPING 149,4351
-        union ThreadIDThreadID156,4511
+        bool isStopped(isStopped106,3012
+        bool isRunning(isRunning117,3403
+        bool isCurrent(isCurrent125,3729
+        enum StateState129,3824
+            STATE_STOPPED,131,3853
+            STATE_STARTING,132,3880
+            STATE_RUNNING,133,3931
+            STATE_STOPPING 134,3958
+        union ThreadIDThreadID141,4118
 
 build/Darwin/include/eq/base/timedLock.h,71
 #define EQBASE_TIMEDLOCK_H6,125
@@ -255,9 +276,6 @@ build/Darwin/include/eq/client/configParams.h,128
     class ConfigParamsConfigParams12,192
         virtual ~ConfigParams(~ConfigParams16,257
 
-build/Darwin/include/eq/client/eq.h,19
-#define EQ_H6,116
-
 build/Darwin/include/eq/client/frustum.h,130
 #define EQ_FRUSTUM_H6,119
     struct FrustumFrustum17,334
@@ -274,11 +292,11 @@ build/Darwin/include/eq/client/init.h,24
 
 build/Darwin/include/eq/client/node.h,224
 #define EQ_NODE_H6,116
-    class Node Node20,312
-        Config* getConfig(getConfig38,671
-        virtual bool init(init53,1024
-        virtual void exit(exit58,1144
-        void _pushRequest(_pushRequest93,2260
+    class Node Node21,338
+        Config* getConfig(getConfig39,697
+        virtual bool init(init55,1065
+        virtual void exit(exit60,1185
+        void _pushRequest(_pushRequest97,2377
 
 build/Darwin/include/eq/client/nodeFactory.h,407
 #define EQ_NODEFACTORY_H6,123
@@ -596,7 +614,7 @@ build/Darwin/include/eq/net/message.h,179
         TYPE_INTEGER,14,263
         TYPE_FLOAT15,285
 
-build/Darwin/include/eq/net/mobject.h,674
+build/Darwin/include/eq/net/mobject.h,744
 #define EQNET_MOBJECT_H6,122
     enum MobjectTypeMobjectType18,291
         MOBJECT_UNDEFINED,20,318
@@ -612,46 +630,47 @@ build/Darwin/include/eq/net/mobject.h,674
             INST_ERROR39,798
         Mobject(Mobject42,833
         virtual ~Mobject(~Mobject43,897
-        bool isMaster(isMaster62,1554
-        void addSlave(addSlave69,1727
-        std::vector< eqBase::RefPtr<Node> >& getSlaves(getSlaves75,1902
+        virtual void releaseInstanceData(releaseInstanceData63,1593
+        bool isMaster(isMaster69,1756
+        void addSlave(addSlave76,1929
+        std::vector< eqBase::RefPtr<Node> >& getSlaves(getSlaves82,2104
 
 build/Darwin/include/eq/net/net.h,22
 #define EQNET_H6,114
 
 build/Darwin/include/eq/net/node.h,1633
 #define EQNET_NODE_H6,124
-    class Node Node39,924
-        enum State State42,1005
-            STATE_STOPPED,43,1026
-            STATE_LAUNCHED,44,1066
-            STATE_CONNECTED,45,1142
-            STATE_LISTENING 46,1197
-        State getState(getState67,1744
-        bool  isConnected(isConnected68,1797
-        eqBase::RefPtr<Node> getNode(getNode122,3809
-        bool checkConnection(checkConnection180,5794
-        static void setLocalNode(setLocalNode205,6577
-        static Node* getLocalNode(getLocalNode214,6844
-        bool isLocal(isLocal223,7130
-        void addConnectionDescription(addConnectionDescription230,7348
-        uint32_t nConnectionDescriptions(nConnectionDescriptions245,7877
-        eqBase::RefPtr<ConnectionDescription> getConnectionDescription(getConnectionDescription254,8177
-        eqBase::RefPtr<Connection> getConnection(getConnection263,8480
-        bool send(send292,9412
-        bool send(send314,10302
-        bool send(send337,11272
-        bool recv(recv378,13225
-        bool inReceiverThread(inReceiverThread453,15862
-        const NodeID& getNodeID(getNodeID455,15942
-        virtual void clientLoop(clientLoop477,16620
-        virtual CommandResult handlePacket(handlePacket488,16980
-        virtual eqBase::RefPtr<Node> createNode(createNode511,17712
-        virtual const std::string& getProgramName(getProgramName519,17948
-        Session* _findSession(_findSession617,21459
-        class ReceiverThread ReceiverThread623,21665
-            ReceiverThread(ReceiverThread626,21744
-            virtual ssize_t run(run631,21911
+    class Node Node40,955
+        enum State State43,1036
+            STATE_STOPPED,44,1057
+            STATE_LAUNCHED,45,1097
+            STATE_CONNECTED,46,1173
+            STATE_LISTENING 47,1228
+        State getState(getState68,1775
+        bool  isConnected(isConnected69,1828
+        eqBase::RefPtr<Node> getNode(getNode123,3840
+        bool checkConnection(checkConnection181,5825
+        static void setLocalNode(setLocalNode206,6608
+        static Node* getLocalNode(getLocalNode214,6845
+        bool isLocal(isLocal222,7098
+        void addConnectionDescription(addConnectionDescription229,7316
+        uint32_t nConnectionDescriptions(nConnectionDescriptions244,7845
+        eqBase::RefPtr<ConnectionDescription> getConnectionDescription(getConnectionDescription253,8145
+        eqBase::RefPtr<Connection> getConnection(getConnection262,8448
+        bool send(send291,9380
+        bool send(send313,10270
+        bool send(send336,11240
+        bool recv(recv377,13193
+        bool inReceiverThread(inReceiverThread452,15830
+        const NodeID& getNodeID(getNodeID454,15910
+        virtual void clientLoop(clientLoop476,16588
+        virtual CommandResult handlePacket(handlePacket487,16948
+        virtual eqBase::RefPtr<Node> createNode(createNode510,17680
+        virtual const std::string& getProgramName(getProgramName518,17916
+        Session* _findSession(_findSession619,21523
+        class ReceiverThread ReceiverThread625,21729
+            ReceiverThread(ReceiverThread628,21808
+            virtual ssize_t run(run633,21975
 
 build/Darwin/include/eq/net/nodeID.h,262
 #define EQNET_NODEID_H6,121
@@ -764,48 +783,80 @@ build/Darwin/include/eq/net/uniPipeConnection.h,96
 #define EQNET_UNI_PIPE_CONNECTION_H6,134
     class UniPipeConnection UniPipeConnection16,302
 
-build/Darwin/include/eq/net/versionedObject.h,200
+build/Darwin/include/eq/net/versionedObject.h,262
 #define EQNET_VERSIONEDOBJECT_H6,130
     class VersionedObject VersionedObject29,858
         uint32_t getCurrentVersion(getCurrentVersion74,2253
-        CommandResult _cmdSync(_cmdSync104,3150
+        virtual void releasePackData(releasePackData94,2888
+        CommandResult _cmdSync(_cmdSync111,3334
 
 examples/flip/channel.cpp,81
-bool Channel::init(10,165
-void Channel::exit(18,396
-void Channel::draw(23,459
+bool Channel::init(11,187
+void Channel::exit(22,464
+void Channel::draw(27,529
 
 examples/flip/channel.h,97
 #define EQ_EX_CHANNEL_H6,122
-class Channel Channel14,204
-    Channel(Channel::Channel17,249
+class Channel Channel15,220
+    Channel(Channel::Channel18,265
 
-examples/flip/flip.cpp,366
-#define DIE(DIE13,209
-class Config Config16,273
-    eqNet::Mobject* instanciateMobject(Config::instanciateMobject19,319
-class NodeFactory NodeFactory29,668
-    virtual Config*  createConfig(NodeFactory::createConfig32,721
-    virtual Channel* createChannel(NodeFactory::createChannel33,783
-eq::NodeFactory* eq::createNodeFactory(36,850
-int main(41,926
+examples/flip/config.h,133
+#define EQ_FLIP_CONFIG_H6,123
+class Config Config13,215
+    eqNet::Mobject* instanciateMobject(Config::instanciateMobject16,261
 
-examples/flip/flip.h,208
-#define EQ_EX_FLIP_H6,119
-enum ObjectTypeObjectType10,161
-    OBJECT_INITDATA 12,179
-    OBJECT_INITDATA  = eqNet:12,179
-    OBJECT_INITDATA  = eqNet::MOBJECT_CUSTOM,12,179
-    OBJECT_FRAMEDATA 13,225
+examples/flip/flip.cpp,340
+#define DIE(DIE16,269
+class NodeFactory NodeFactory19,333
+    virtual eq::Config*  createConfig(NodeFactory::createConfig22,386
+    virtual eq::Pipe*    createPipe(NodeFactory::createPipe23,452
+    virtual eq::Channel* createChannel(NodeFactory::createChannel24,516
+eq::NodeFactory* eq::createNodeFactory(27,587
+int main(32,663
 
-examples/flip/frameData.h,306
-#define EQ_EX_FRAMEDATA_H6,124
-class FrameData FrameData12,190
-    FrameData(FrameData::FrameData15,248
-    FrameData(FrameData::FrameData17,316
-    const void* getInstanceData(FrameData::getInstanceData27,552
-    const void* pack(FrameData::pack30,636
-    void unpack(FrameData::unpack36,758
+examples/flip/flip.h,205
+#define EQ_FLIP_H6,116
+enum ObjectTypeObjectType10,155
+    OBJECT_INITDATA 12,173
+    OBJECT_INITDATA  = eqNet:12,173
+    OBJECT_INITDATA  = eqNet::MOBJECT_CUSTOM,12,173
+    OBJECT_FRAMEDATA 13,219
+
+examples/flip/frameData.h,308
+#define EQ_FLIP_FRAMEDATA_H6,126
+class FrameData FrameData12,194
+    FrameData(FrameData::FrameData15,252
+    FrameData(FrameData::FrameData17,320
+    const void* getInstanceData(FrameData::getInstanceData28,617
+    const void* pack(FrameData::pack31,701
+    void unpack(FrameData::unpack37,823
+
+examples/flip/initData.cpp,258
+InitData::InitData(9,143
+InitData::InitData(15,279
+const void* InitData::getInstanceData(26,620
+void InitData::_clearInstanceData(42,1077
+void InitData::setFrameData(51,1213
+FrameData* InitData::getFrameData(57,1369
+void InitData::setFilename(68,1602
+
+examples/flip/initData.h,130
+#define EQ_FLIP_INITDATA_H6,125
+class InitData InitData13,215
+    const std::string& getFilename(InitData::getFilename23,494
+
+examples/flip/node.h,87
+#define EQ_FLIP_NODE_H6,121
+class Node Node10,165
+protected:Node::protected12,196
+
+examples/flip/pipe.cpp,23
+bool Pipe::init(9,139
+
+examples/flip/pipe.h,81
+#define EQ_FLIP_PIPE_H6,121
+class Pipe Pipe12,188
+    Pipe(Pipe::Pipe15,227
 
 lib/base/barrier.cpp,83
 Barrier::Barrier(12,186
@@ -833,19 +884,30 @@ typedef int socklen_t;socklen_t18,285
 
 lib/base/clock.h,277
 #define	EQBASE_CLOCK_H7,122
-    class ClockClock23,354
-        Clock(Clock29,449
-        virtual ~Clock(~Clock34,535
-        void reset(reset39,655
-        float getTimef(getTimef54,1068
-        double getTimed(getTimed73,1767
-        float getMSf(getMSf96,2606
+    class ClockClock23,357
+        Clock(Clock29,452
+        virtual ~Clock(~Clock34,538
+        void reset(reset39,658
+        float getTimef(getTimef54,1071
+        double getTimed(getTimed73,1770
+        float getMSf(getMSf96,2609
 
 lib/base/defines.h,97
 #define EQ_DEFINES_H3,67
 #define Darwin4,88
 #define GLX5,103
 #define CHECK_THREADSAFETY6,115
+
+lib/base/gate.cpp,113
+Gate::Gate(12,183
+Gate::~Gate(41,933
+void Gate::up(54,1175
+void Gate::down(70,1530
+void Gate::enter(83,1730
+
+lib/base/gate.h,56
+#define EQBASE_GATE_H6,120
+    class Gate Gate19,326
 
 lib/base/hash.h,367
 #define EQBASE_HASH_H6,120
@@ -885,38 +947,59 @@ lib/base/lock.h,56
 #define EQBASE_LOCK_H6,120
     class Lock Lock20,382
 
-lib/base/log.cpp,80
-Clock eqLogClock;10,156
-int eqBase::Log::level 15,209
-int getLogLevel(17,250
+lib/base/log.cpp,226
+Clock eqLogClock;12,180
+int eqBase::Log::level 17,233
+static PerThread<Log*> _logInstance;18,273
+int getLogLevel(20,311
+Log& Log::instance(42,768
+std::ostream& eqBase::indent(50,891
+std::ostream& eqBase::exdent(57,1036
 
-lib/base/log.h,456
+lib/base/log.h,826
 #define EQBASE_LOG_H6,119
-    enum LogLevelLogLevel24,398
-        LOG_ERROR,26,422
-        LOG_WARN,27,441
-        LOG_INFO,28,459
-        LOG_VERBATIM29,477
-    class Log Log33,535
-#define SUBDIR 59,1086
-#  define LOG_EXTRA 63,1127
-#  define LOG_EXTRA 69,1304
-#define EQERROR 74,1502
-#define EQWARN 76,1598
-#define EQINFO 78,1695
-#define EQVERB 80,1792
-#define LOG_MATRIX4x4(LOG_MATRIX4x483,1894
-#define LOG_VECTOR6(LOG_VECTOR689,2249
+    enum LogLevelLogLevel25,417
+        LOG_ERROR,27,441
+        LOG_WARN,28,460
+        LOG_INFO,29,478
+        LOG_VERBATIM30,496
+    class LogBuffer LogBuffer34,572
+		LogBuffer(LogBuffer37,631
+        void indent(indent41,753
+        void exdent(exdent42,789
+        virtual int_type overflow overflow45,846
+        virtual int sync(sync61,1269
+    class Log Log88,1989
+        Log(Log91,2045
+        virtual ~Log(~Log93,2140
+        void indent(indent95,2190
+        void exdent(exdent96,2237
+#define SUBDIR 136,3171
+#  define LOG_EXTRA 140,3212
+#  define LOG_EXTRA 146,3389
+#define EQERROR 151,3587
+#define EQWARN 153,3696
+#define EQINFO 155,3806
+#define EQVERB 157,3916
+#define LOG_MATRIX4x4(LOG_MATRIX4x4160,4031
+#define LOG_VECTOR6(LOG_VECTOR6166,4388
 
-lib/base/mtQueue.h,276
+lib/base/mtQueue.h,275
 #define EQBASE_MTQUEUE_H6,123
     template<class T> class MTQueueMTQueue21,417
-        MTQueue(MTQueue32,731
-        ~MTQueue(~MTQueue64,2001
-        T* pop(pop79,2452
-        T* tryPop(tryPop102,3322
-        T* back(back129,4226
-        void push(push146,4813
+        MTQueue(MTQueue29,624
+        ~MTQueue(~MTQueue61,1894
+        T* pop(pop76,2345
+        T* tryPop(tryPop99,3215
+        T* back(back126,4119
+        void push(push143,4706
+
+lib/base/perThread.h,201
+#define EQBASE_PERTHREAD_H6,125
+    template<typename T> class PerThreadPerThread17,328
+        PerThread(PerThread20,387
+        virtual ~PerThread(~PerThread46,1253
+        T get(get51,1355
 
 lib/base/referenced.h,267
 #define EQBASE_REFERENCED_H6,126
@@ -929,20 +1012,20 @@ lib/base/referenced.h,267
 
 lib/base/refPtr.h,533
 #define EQBASE_REFPTR_H6,127
-    struct RefPtr_scast{RefPtr_scast10,171
-    template<class T> class RefPtr RefPtr15,248
-        RefPtr(RefPtr18,302
-        RefPtr(RefPtr19,358
-        RefPtr(RefPtr20,422
-        RefPtr(RefPtr23,524
-        ~RefPtr(~RefPtr27,628
-        void ref(ref29,660
-        void unref(unref30,707
-        T&       operator*operator72,2252
-        const T& operator*operator73,2322
-        T*       get(get74,2392
-        const T* get(get75,2445
-        bool isValid(isValid77,2499
+    struct RefPtr_scast{RefPtr_scast12,192
+    template<class T> class RefPtr RefPtr17,269
+        RefPtr(RefPtr20,323
+        RefPtr(RefPtr21,379
+        RefPtr(RefPtr22,443
+        RefPtr(RefPtr25,545
+        ~RefPtr(~RefPtr29,649
+        void ref(ref31,681
+        void unref(unref32,728
+        T&       operator*operator74,2273
+        const T& operator*operator75,2343
+        T*       get(get76,2413
+        const T* get(get77,2466
+        bool isValid(isValid79,2520
 
 lib/base/requestHandler.cpp,307
 RequestHandler::RequestHandler(10,173
@@ -962,10 +1045,10 @@ lib/base/requestHandler.h,202
 
 lib/base/sema.cpp,116
 Sema::Sema(12,183
-Sema::~Sema(42,994
-void Sema::post(55,1236
-void Sema::wait(71,1586
-void Sema::adjust(89,1989
+Sema::~Sema(41,930
+void Sema::post(54,1172
+void Sema::wait(70,1522
+void Sema::adjust(88,1925
 
 lib/base/sema.h,56
 #define EQBASE_SEMA_H6,120
@@ -975,22 +1058,17 @@ lib/base/shm.h,53
 #define EQBASE_SHM_H6,119
     class Shm Shm17,283
 
-lib/base/thread.cpp,510
-pthread_key_t Thread::_dataKey;17,285
-bool          Thread::_dataKeyCreated;18,317
-Thread::Thread(20,357
-Thread::~Thread(29,549
-void* Thread::runChild(34,590
-void Thread::_runChild(42,760
-static void sigChildHandler(72,1310
-bool Thread::start(80,1495
-void Thread::exit(145,3422
-bool Thread::join(179,4103
-Thread::ThreadID Thread::_getLocalThreadID(239,5799
-bool Thread::_createDataKey(257,6092
-void Thread::setSpecific(286,6758
-void* Thread::getSpecific(294,6910
-bool Thread::isCurrent(302,7057
+lib/base/thread.cpp,316
+Thread::Thread(17,285
+Thread::~Thread(26,477
+void* Thread::runChild(31,518
+void Thread::_runChild(39,688
+static void sigChildHandler(69,1238
+bool Thread::start(77,1423
+void Thread::exit(142,3350
+bool Thread::join(176,4031
+Thread::ThreadID Thread::_getLocalThreadID(236,5727
+bool Thread::isCurrent(254,6020
 
 lib/base/thread.h,572
 #define EQBASE_THREAD_H6,122
@@ -1000,15 +1078,15 @@ lib/base/thread.h,572
             FORK28,602
         virtual bool init(init59,1553
         Type getType(getType95,2657
-        bool isStopped(isStopped121,3405
-        bool isRunning(isRunning132,3796
-        bool isCurrent(isCurrent140,4122
-        enum StateState144,4217
-            STATE_STOPPED,146,4246
-            STATE_STARTING,147,4273
-            STATE_RUNNING,148,4324
-            STATE_STOPPING 149,4351
-        union ThreadIDThreadID156,4511
+        bool isStopped(isStopped106,3012
+        bool isRunning(isRunning117,3403
+        bool isCurrent(isCurrent125,3729
+        enum StateState129,3824
+            STATE_STOPPED,131,3853
+            STATE_STARTING,132,3880
+            STATE_RUNNING,133,3931
+            STATE_STOPPING 134,3958
+        union ThreadIDThreadID141,4118
 
 lib/base/timedLock.cpp,185
 TimedLock::TimedLock(12,188
@@ -1166,9 +1244,6 @@ lib/client/configParams.h,128
     class ConfigParamsConfigParams12,192
         virtual ~ConfigParams(~ConfigParams16,257
 
-lib/client/eq.h,19
-#define EQ_H6,116
-
 lib/client/frustum.h,130
 #define EQ_FRUSTUM_H6,119
     struct FrustumFrustum17,334
@@ -1203,19 +1278,19 @@ void Node::_addPipe(114,3122
 void Node::_removePipe(120,3215
 eqNet::CommandResult Node::_cmdCreateConfig(133,3614
 eqNet::CommandResult Node::_cmdCreatePipe(147,4116
-eqNet::CommandResult Node::_cmdDestroyPipe(160,4550
-eqNet::CommandResult Node::_cmdInit(176,5046
-eqNet::CommandResult Node::_reqInit(186,5368
-eqNet::CommandResult Node::_reqExit(197,5710
-eqNet::CommandResult Node::_reqStop(209,6015
+eqNet::CommandResult Node::_cmdDestroyPipe(161,4599
+eqNet::CommandResult Node::_cmdInit(177,5095
+eqNet::CommandResult Node::_reqInit(187,5417
+eqNet::CommandResult Node::_reqExit(199,5782
+eqNet::CommandResult Node::_reqStop(212,6112
 
 lib/client/node.h,224
 #define EQ_NODE_H6,116
-    class Node Node20,312
-        Config* getConfig(getConfig38,671
-        virtual bool init(init53,1024
-        virtual void exit(exit58,1144
-        void _pushRequest(_pushRequest93,2260
+    class Node Node21,338
+        Config* getConfig(getConfig39,697
+        virtual bool init(init55,1065
+        virtual void exit(exit60,1185
+        void _pushRequest(_pushRequest97,2377
 
 lib/client/nodeFactory.h,407
 #define EQ_NODEFACTORY_H6,123
@@ -1339,15 +1414,15 @@ ssize_t Pipe::_runThread(138,3457
 eqNet::CommandResult Pipe::_cmdCreateWindow(172,4312
 eqNet::CommandResult Pipe::_cmdDestroyWindow(184,4728
 eqNet::CommandResult Pipe::_cmdInit(200,5237
-eqNet::CommandResult Pipe::_reqInit(211,5561
-eqNet::CommandResult Pipe::_reqExit(267,7164
-eqNet::CommandResult Pipe::_reqFrameSync(281,7511
-bool Pipe::init(292,7952
-bool Pipe::initGLX(308,8285
-bool Pipe::initCGL(344,9228
-void Pipe::exit(380,10113
-void Pipe::exitGLX(398,10440
-void Pipe::exitCGL(410,10616
+eqNet::CommandResult Pipe::_reqInit(211,5562
+eqNet::CommandResult Pipe::_reqExit(267,7166
+eqNet::CommandResult Pipe::_reqFrameSync(281,7513
+bool Pipe::init(292,7954
+bool Pipe::initGLX(308,8287
+bool Pipe::initCGL(345,9311
+void Pipe::exit(382,10255
+void Pipe::exitGLX(400,10582
+void Pipe::exitCGL(413,10813
 
 lib/client/pipe.h,858
 #define EQ_PIPE_H6,116
@@ -1590,13 +1665,13 @@ void eq::Window::setViewport(234,7184
 bool eq::Window::init(253,7643
 static Bool WaitForNotify(272,8091
 bool eq::Window::initGLX(276,8230
-bool eq::Window::initCGL(356,10489
-void eq::Window::exit(409,12009
-void eq::Window::exitGLX(428,12404
-void eq::Window::exitCGL(447,12793
-void eq::Window::setXDrawable(464,13073
-void eq::Window::setCGLContext(501,13932
-void eq::Window::swap(508,14051
+bool eq::Window::initCGL(358,10590
+void eq::Window::exit(412,12167
+void eq::Window::exitGLX(431,12562
+void eq::Window::exitCGL(452,13055
+void eq::Window::setXDrawable(470,13394
+void eq::Window::setCGLContext(507,14253
+void eq::Window::swap(514,14372
 
 lib/client/window.h,530
 #define EQ_WINDOW_H5,117
@@ -1614,13 +1689,13 @@ lib/client/window.h,530
 lib/eq.h,19
 #define EQ_H6,116
 
-lib/net/barrier.cpp,214
+lib/net/barrier.cpp,215
 Barrier::Barrier(13,208
-Barrier::Barrier(28,733
-const void* Barrier::getInstanceData(44,1289
-void Barrier::enter(50,1403
-CommandResult Barrier::_cmdEnter(76,2028
-CommandResult Barrier::_cmdEnterReply(87,2253
+Barrier::Barrier(30,794
+const void* Barrier::getInstanceData(48,1411
+void Barrier::enter(54,1525
+CommandResult Barrier::_cmdEnter(81,2150
+CommandResult Barrier::_cmdEnterReply(107,2861
 
 lib/net/barrier.h,157
 #define EQNET_BARRIER_H6,122
@@ -1809,7 +1884,7 @@ lib/net/message.h,179
         TYPE_INTEGER,14,263
         TYPE_FLOAT15,285
 
-lib/net/mobject.h,674
+lib/net/mobject.h,744
 #define EQNET_MOBJECT_H6,122
     enum MobjectTypeMobjectType18,291
         MOBJECT_UNDEFINED,20,318
@@ -1825,91 +1900,93 @@ lib/net/mobject.h,674
             INST_ERROR39,798
         Mobject(Mobject42,833
         virtual ~Mobject(~Mobject43,897
-        bool isMaster(isMaster62,1554
-        void addSlave(addSlave69,1727
-        std::vector< eqBase::RefPtr<Node> >& getSlaves(getSlaves75,1902
+        virtual void releaseInstanceData(releaseInstanceData63,1593
+        bool isMaster(isMaster69,1756
+        void addSlave(addSlave76,1929
+        std::vector< eqBase::RefPtr<Node> >& getSlaves(getSlaves82,2104
 
 lib/net/net.h,22
 #define EQNET_H6,114
 
-lib/net/node.cpp,1647
+lib/net/node.cpp,1690
 #define MAX_PACKET_SIZE 26,459
-Node::Node(31,657
-Node::~Node(64,2109
-bool Node::listen(69,2156
-bool Node::stopListening(99,2878
-void Node::_cleanup(112,3122
-bool Node::_listenToSelf(136,3757
-void Node::_addConnectedNode(158,4388
-bool Node::connect(174,4988
-NodeConnectPacket* Node::_performConnect(201,5748
-NodeConnectPacket* Node::_readConnectReply(212,6050
-bool Node::disconnect(239,6853
-uint64_t Node::_getMessageSize(259,7458
-bool Node::send(274,7777
-void Node::addSession(294,8334
-void Node::removeSession(312,8920
-bool Node::mapSession(324,9198
-bool Node::mapSession(337,9587
-bool Node::unmapSession(350,9961
-uint32_t Node::_generateSessionID(362,10278
-ssize_t Node::_runReceiver(387,10922
-void Node::_handleConnect(445,12655
-void Node::handleConnect(452,12873
-void Node::_handleDisconnect(498,14197
-void Node::handleDisconnect(507,14472
-void Node::_handleRequest(513,14599
-void Node::_redispatchPackets(559,15804
-CommandResult Node::dispatchPacket(588,16599
-CommandResult Node::_cmdStop(625,17794
-CommandResult Node::_cmdMapSession(637,18111
-CommandResult Node::_cmdMapSessionReply(689,19877
-CommandResult Node::_cmdUnmapSession(716,20763
-CommandResult Node::_cmdUnmapSessionReply(743,21455
-CommandResult Node::_cmdGetConnectionDescription(767,22187
-CommandResult Node::_cmdGetConnectionDescriptionReply(794,22992
-Session* Node::_findSession(837,24361
-bool Node::connect(853,24878
-bool Node::initConnect(867,25141
-bool Node::syncConnect(910,26251
-bool Node::_launch(939,26978
-string Node::_createLaunchCommand(963,27665
-string Node::_createRemoteCommand(1015,29219
-bool Node::runClient(1068,30678
+PerThread<Node*> Node::_localNode;29,492
+Node::Node(34,694
+Node::~Node(67,2146
+bool Node::listen(72,2193
+bool Node::stopListening(102,2915
+void Node::_cleanup(115,3159
+bool Node::_listenToSelf(139,3794
+void Node::_addConnectedNode(161,4425
+bool Node::connect(177,5025
+NodeConnectPacket* Node::_performConnect(204,5785
+NodeConnectPacket* Node::_readConnectReply(215,6087
+bool Node::disconnect(242,6890
+uint64_t Node::_getMessageSize(262,7495
+bool Node::send(277,7814
+void Node::addSession(297,8371
+void Node::removeSession(315,8957
+bool Node::mapSession(327,9235
+bool Node::mapSession(340,9624
+bool Node::unmapSession(353,9998
+uint32_t Node::_generateSessionID(365,10315
+ssize_t Node::_runReceiver(390,10959
+void Node::_handleConnect(448,12692
+void Node::handleConnect(455,12910
+void Node::_handleDisconnect(501,14234
+void Node::handleDisconnect(510,14509
+void Node::_handleRequest(516,14636
+void Node::_redispatchPackets(558,15776
+CommandResult Node::dispatchPacket(587,16571
+CommandResult Node::_cmdStop(624,17766
+CommandResult Node::_cmdMapSession(636,18083
+CommandResult Node::_cmdMapSessionReply(688,19849
+CommandResult Node::_cmdUnmapSession(715,20735
+CommandResult Node::_cmdUnmapSessionReply(742,21427
+CommandResult Node::_cmdGetConnectionDescription(766,22159
+CommandResult Node::_cmdGetConnectionDescriptionReply(793,22964
+Session* Node::_findSession(836,24333
+bool Node::connect(852,24850
+bool Node::initConnect(866,25113
+bool Node::syncConnect(909,26223
+bool Node::_launch(938,26950
+string Node::_createLaunchCommand(962,27637
+string Node::_createRemoteCommand(1014,29191
+bool Node::runClient(1067,30650
 
 lib/net/node.h,1633
 #define EQNET_NODE_H6,124
-    class Node Node39,924
-        enum State State42,1005
-            STATE_STOPPED,43,1026
-            STATE_LAUNCHED,44,1066
-            STATE_CONNECTED,45,1142
-            STATE_LISTENING 46,1197
-        State getState(getState67,1744
-        bool  isConnected(isConnected68,1797
-        eqBase::RefPtr<Node> getNode(getNode122,3809
-        bool checkConnection(checkConnection180,5794
-        static void setLocalNode(setLocalNode205,6577
-        static Node* getLocalNode(getLocalNode214,6844
-        bool isLocal(isLocal223,7130
-        void addConnectionDescription(addConnectionDescription230,7348
-        uint32_t nConnectionDescriptions(nConnectionDescriptions245,7877
-        eqBase::RefPtr<ConnectionDescription> getConnectionDescription(getConnectionDescription254,8177
-        eqBase::RefPtr<Connection> getConnection(getConnection263,8480
-        bool send(send292,9412
-        bool send(send314,10302
-        bool send(send337,11272
-        bool recv(recv378,13225
-        bool inReceiverThread(inReceiverThread453,15862
-        const NodeID& getNodeID(getNodeID455,15942
-        virtual void clientLoop(clientLoop477,16620
-        virtual CommandResult handlePacket(handlePacket488,16980
-        virtual eqBase::RefPtr<Node> createNode(createNode511,17712
-        virtual const std::string& getProgramName(getProgramName519,17948
-        Session* _findSession(_findSession617,21459
-        class ReceiverThread ReceiverThread623,21665
-            ReceiverThread(ReceiverThread626,21744
-            virtual ssize_t run(run631,21911
+    class Node Node40,955
+        enum State State43,1036
+            STATE_STOPPED,44,1057
+            STATE_LAUNCHED,45,1097
+            STATE_CONNECTED,46,1173
+            STATE_LISTENING 47,1228
+        State getState(getState68,1775
+        bool  isConnected(isConnected69,1828
+        eqBase::RefPtr<Node> getNode(getNode123,3840
+        bool checkConnection(checkConnection181,5825
+        static void setLocalNode(setLocalNode206,6608
+        static Node* getLocalNode(getLocalNode214,6845
+        bool isLocal(isLocal222,7098
+        void addConnectionDescription(addConnectionDescription229,7316
+        uint32_t nConnectionDescriptions(nConnectionDescriptions244,7845
+        eqBase::RefPtr<ConnectionDescription> getConnectionDescription(getConnectionDescription253,8145
+        eqBase::RefPtr<Connection> getConnection(getConnection262,8448
+        bool send(send291,9380
+        bool send(send313,10270
+        bool send(send336,11240
+        bool recv(recv377,13193
+        bool inReceiverThread(inReceiverThread452,15830
+        const NodeID& getNodeID(getNodeID454,15910
+        virtual void clientLoop(clientLoop476,16588
+        virtual CommandResult handlePacket(handlePacket487,16948
+        virtual eqBase::RefPtr<Node> createNode(createNode510,17680
+        virtual const std::string& getProgramName(getProgramName518,17916
+        Session* _findSession(_findSession619,21523
+        class ReceiverThread ReceiverThread625,21729
+            ReceiverThread(ReceiverThread628,21808
+            virtual ssize_t run(run633,21975
 
 lib/net/nodeID.h,262
 #define EQNET_NODEID_H6,121
@@ -2032,13 +2109,13 @@ lib/net/requestCache.h,143
         Request(Request17,250
     class RequestCacheRequestCache28,557
 
-lib/net/requestQueue.cpp,201
-RequestQueue::RequestQueue(11,176
-RequestQueue::~RequestQueue(15,238
-void RequestQueue::push(21,343
-void RequestQueue::pop(31,622
-bool RequestQueue::tryPop(45,943
-bool RequestQueue::back(64,1361
+lib/net/requestQueue.cpp,202
+RequestQueue::RequestQueue(12,197
+RequestQueue::~RequestQueue(20,312
+void RequestQueue::push(26,417
+void RequestQueue::pop(36,696
+bool RequestQueue::tryPop(52,1036
+bool RequestQueue::back(73,1473
 
 lib/net/requestQueue.h,78
 #define EQNET_REQUESTQUEUE_H6,127
@@ -2054,27 +2131,27 @@ RefPtr<Node> Session::_pollIDMaster(119,4121
 RefPtr<Node> Session::getIDMaster(131,4436
 void Session::registerObject(150,5042
 void Session::addRegisteredObject(156,5170
-void Session::deregisterObject(166,5503
-void Session::registerMobject(178,5753
-void Session::deregisterMobject(201,6393
-Mobject* Session::getMobject(213,6687
-Mobject* Session::instanciateMobject(231,7153
-CommandResult Session::dispatchPacket(248,7626
-CommandResult Session::_handleObjectCommand(270,8233
-CommandResult Session::_handleMobjectCommand(285,8688
-CommandResult Session::_instMobject(297,9111
-void Session::_sendInitMobject(347,10497
-CommandResult Session::_cmdGenIDs(355,10752
-CommandResult Session::_cmdGenIDsReply(367,11091
-CommandResult Session::_cmdSetIDMaster(375,11396
-CommandResult Session::_cmdGetIDMaster(391,11957
-CommandResult Session::_cmdGetIDMasterReply(418,12741
-CommandResult Session::_cmdGetMobjectMaster(444,13523
-CommandResult Session::_cmdGetMobjectMasterReply(472,14354
-CommandResult Session::_cmdGetMobject(512,15551
-CommandResult Session::_cmdInitMobject(537,16294
-CommandResult Session::_cmdInstanciateMobject(564,17125
-std::ostream& eqNet::operator << 588,17960
+void Session::deregisterObject(169,5551
+void Session::registerMobject(181,5801
+void Session::deregisterMobject(205,6482
+Mobject* Session::getMobject(217,6776
+Mobject* Session::instanciateMobject(235,7242
+CommandResult Session::dispatchPacket(252,7715
+CommandResult Session::_handleObjectCommand(274,8322
+CommandResult Session::_handleMobjectCommand(290,8822
+CommandResult Session::_instMobject(302,9245
+void Session::_sendInitMobject(352,10631
+CommandResult Session::_cmdGenIDs(360,10886
+CommandResult Session::_cmdGenIDsReply(372,11225
+CommandResult Session::_cmdSetIDMaster(380,11530
+CommandResult Session::_cmdGetIDMaster(396,12091
+CommandResult Session::_cmdGetIDMasterReply(423,12875
+CommandResult Session::_cmdGetMobjectMaster(449,13657
+CommandResult Session::_cmdGetMobjectMasterReply(477,14488
+CommandResult Session::_cmdGetMobject(517,15685
+CommandResult Session::_cmdInitMobject(542,16428
+CommandResult Session::_cmdInstanciateMobject(570,17301
+std::ostream& eqNet::operator << 598,18261
 
 lib/net/session.h,321
 #define EQNET_SESSION_H6,122
@@ -2087,15 +2164,15 @@ lib/net/session.h,321
         struct IDMasterInfoIDMasterInfo249,7907
 
 lib/net/socketConnection.cpp,394
-SocketConnection::SocketConnection(24,434
-SocketConnection::~SocketConnection(28,476
-bool SocketConnection::connect(36,689
-bool SocketConnection::_createSocket(68,1504
-void SocketConnection::close(86,1923
-void SocketConnection::_parseAddress(100,2212
-bool SocketConnection::listen(124,3235
-RefPtr<Connection> SocketConnection::accept(175,4624
-ushort SocketConnection::getPort(214,5764
+SocketConnection::SocketConnection(25,453
+SocketConnection::~SocketConnection(29,495
+bool SocketConnection::connect(37,708
+bool SocketConnection::_createSocket(69,1523
+void SocketConnection::close(87,1942
+void SocketConnection::_parseAddress(101,2231
+bool SocketConnection::listen(122,3056
+RefPtr<Connection> SocketConnection::accept(196,5243
+ushort SocketConnection::getPort(235,6392
 
 lib/net/socketConnection.h,131
 #define EQNET_SOCKET_CONNECTION_H6,132
@@ -2124,45 +2201,51 @@ lib/net/versionedObject.cpp,288
 VersionedObject::VersionedObject(16,262
 VersionedObject::~VersionedObject(32,872
 uint32_t VersionedObject::commit(36,913
-bool VersionedObject::sync(62,1593
-void VersionedObject::sync(86,2257
-uint32_t VersionedObject::getHeadVersion(103,2677
-void VersionedObject::_reqSync(121,3202
+bool VersionedObject::sync(63,1623
+void VersionedObject::sync(87,2287
+uint32_t VersionedObject::getHeadVersion(104,2707
+void VersionedObject::_reqSync(122,3232
 
-lib/net/versionedObject.h,200
+lib/net/versionedObject.h,262
 #define EQNET_VERSIONEDOBJECT_H6,130
     class VersionedObject VersionedObject29,858
         uint32_t getCurrentVersion(getCurrentVersion74,2253
-        CommandResult _cmdSync(_cmdSync104,3150
+        virtual void releasePackData(releasePackData94,2888
+        CommandResult _cmdSync(_cmdSync111,3334
 
 proto/mpi/init.cpp,0
 
-proto/pthreads/perf.cpp,233
-#define MAXTHREADS 10,152
-volatile size_t nThreads;12,177
-Barrier*        barrier;13,203
-Clock           timer;14,228
-class Test Test16,252
-    Test(Test::Test19,289
-    virtual ssize_t run(Test::run20,331
-int main(38,815
+proto/pthreads/perf.cpp,280
+#define MAXTHREADS 11,187
+volatile size_t nThreads;13,212
+Barrier*        barrier;14,238
+Clock           timer;15,263
+eq::NodeFactory* eq::createNodeFactory(17,287
+class Test Test19,361
+    Test(Test::Test22,398
+    virtual ssize_t run(Test::run23,440
+int main(41,924
+
+proto/spirit/parser.cpp,37
+parse_numbers(33,1254
+main(53,1688
 
 server/channel.cpp,523
-void Channel::_construct(19,340
-Channel::Channel(33,797
-Channel::Channel(39,884
-void Channel::refUsed(45,992
-void Channel::unrefUsed(52,1082
-void Channel::startInit(67,1539
-void Channel::_sendInit(72,1618
-bool Channel::syncInit(83,1948
-void Channel::startExit(93,2282
-void Channel::_sendExit(98,2330
-bool Channel::syncExit(108,2605
-void Channel::update(121,2995
-eqNet::CommandResult Channel::_cmdInitReply(142,3588
-eqNet::CommandResult Channel::_cmdExitReply(155,4035
-std::ostream& eqs::operator << 167,4420
+void Channel::_construct(19,345
+Channel::Channel(33,802
+Channel::Channel(39,889
+void Channel::refUsed(45,997
+void Channel::unrefUsed(52,1087
+void Channel::startInit(67,1544
+void Channel::_sendInit(72,1623
+bool Channel::syncInit(83,1953
+void Channel::startExit(93,2287
+void Channel::_sendExit(98,2335
+bool Channel::syncExit(108,2610
+void Channel::update(122,3001
+eqNet::CommandResult Channel::_cmdInitReply(143,3594
+eqNet::CommandResult Channel::_cmdExitReply(156,4041
+std::ostream& eqs::operator << 168,4426
 
 server/channel.h,377
 #define EQS_CHANNEL_H6,120
@@ -2198,7 +2281,7 @@ void Compound::_computeFrustum(406,11676
 TraverseResult Compound::_updatePostDrawCB(451,13429
 std::ostream& eqs::operator << 458,13664
 
-server/compound.h,1027
+server/compound.h,1057
 #define EQS_COMPOUND_H6,126
     enum TraverseResultTraverseResult20,353
         TRAVERSE_CONTINUE,22,383
@@ -2212,81 +2295,145 @@ server/compound.h,1027
         Channel* getChannel(getChannel107,2519
         Window* getWindow(getWindow109,2582
         enum ModeMode115,2767
-            MODE_SYNC 117,2795
-        void setMode(setMode125,2992
-        Mode getMode(getMode132,3172
-        typedef TraverseResult (*TraverseCB)TraverseCB165,4034
-        Compound* _getNext(_getNext218,6021
-        struct ViewView220,6058
-            enum TypeType222,6088
-                NONE,224,6124
-                WALL,225,6146
-                PROJECTION,226,6168
-                FRUSTUM227,6196
-            View(View230,6236
-        struct InheritDataInheritData239,6446
+            MODE_SYNC,117,2795
+            MODE_2D 118,2858
+        void setMode(setMode126,3047
+        Mode getMode(getMode133,3227
+        typedef TraverseResult (*TraverseCB)TraverseCB166,4089
+        Compound* _getNext(_getNext219,6076
+        struct ViewView221,6113
+            enum TypeType223,6143
+                NONE,225,6179
+                WALL,226,6201
+                PROJECTION,227,6223
+                FRUSTUM228,6251
+            View(View231,6291
+        struct InheritDataInheritData240,6501
 
-server/config.cpp,711
-void Config::_construct(16,251
-Config::Config(40,1423
-struct ReplaceChannelDataReplaceChannelData48,1556
-static TraverseResult replaceChannelCB(53,1637
-Config::Config(63,1947
-void Config::addNode(125,3946
-bool Config::removeNode(156,4717
-void Config::setLatency(175,5097
-eqNet::CommandResult Config::_cmdRequest(188,5449
-eqNet::CommandResult Config::_reqInit(195,5664
-eqNet::CommandResult Config::_reqExit(208,6133
-eqNet::CommandResult Config::_reqFrameBegin(221,6587
-eqNet::CommandResult Config::_reqFrameEnd(233,7039
-bool Config::_init(250,7632
-bool Config::_exit(317,9215
-uint32_t Config::_frameBegin(365,10275
-uint32_t Config::_frameEnd(387,10765
-std::ostream& eqs::operator << 401,11058
+server/config.cpp,705
+void Config::_construct(17,275
+Config::Config(41,1447
+struct ReplaceChannelDataReplaceChannelData48,1535
+static TraverseResult replaceChannelCB(53,1616
+Config::Config(63,1926
+void Config::addNode(123,3892
+bool Config::removeNode(131,4028
+void Config::setLatency(149,4378
+eqNet::CommandResult Config::_cmdRequest(162,4730
+eqNet::CommandResult Config::_reqInit(169,4945
+eqNet::CommandResult Config::_reqExit(182,5414
+eqNet::CommandResult Config::_reqFrameBegin(195,5868
+eqNet::CommandResult Config::_reqFrameEnd(207,6320
+bool Config::_init(224,6913
+bool Config::_exit(294,8548
+uint32_t Config::_frameBegin(343,9642
+uint32_t Config::_frameEnd(365,10132
+ostream& eqs::operator << 379,10425
 
 server/config.h,561
 #define EQS_CONFIG_H6,119
     typedef eqNet::IDHash<Node*> NodeHash;NodeHash20,311
     class Config Config25,390
-        uint32_t nNodes(nNodes59,1223
-        Node* getNode(getNode67,1415
-        void addCompound(addCompound75,1631
-        uint32_t nCompounds(nCompounds92,2177
-        Compound* getCompound(getCompound100,2389
-        uint32_t getLatency(getLatency118,3002
-        void setAppName(setAppName125,3194
-        void setRenderClient(setRenderClient132,3434
-        const std::string& getRenderClient(getRenderClient139,3671
+        uint32_t nNodes(nNodes59,1207
+        Node* getNode(getNode67,1399
+        void addCompound(addCompound75,1615
+        uint32_t nCompounds(nCompounds92,2161
+        Compound* getCompound(getCompound100,2373
+        uint32_t getLatency(getLatency118,2986
+        void setAppName(setAppName125,3178
+        void setRenderClient(setRenderClient132,3418
+        const std::string& getRenderClient(getRenderClient139,3655
 
 server/eqs.cpp,17
-int main(10,110
+int main(12,131
 
-server/node.cpp,694
-void Node::_construct(19,324
-Node::Node(33,753
-Node::Node(39,831
-void Node::addPipe(64,1485
-bool Node::removePipe(90,2106
-const string& Node::getProgramName(109,2504
-void Node::startInit(124,2984
-void Node::_sendInit(143,3443
-bool Node::syncInit(154,3762
-void Node::startExit(178,4396
-void Node::_sendExit(191,4628
-bool Node::syncExit(201,4892
-void Node::stop(227,5533
-void Node::update(236,5802
-void Node::syncUpdate(248,6084
-void Node::adjustLatency(259,6304
-eqNet::Barrier* Node::getBarrier(272,6693
-void Node::releaseBarrier(289,7096
-eqNet::CommandResult Node::_cmdInitReply(297,7392
-eqNet::CommandResult Node::_cmdExitReply(307,7764
-ostream& eqs::operator << 317,8126
+server/global.cpp,89
+static Global *_instance 11,186
+Global::Global(13,220
+Global* Global::instance(19,329
 
-server/node.h,1220
+server/global.h,299
+#define EQS_GLOBAL_H6,119
+    class GlobalGlobal15,230
+        void setNodeSAttribute(setNodeSAttribute20,301
+        const std::string& getNodeSAttribute(getNodeSAttribute23,470
+        void setNodeIAttribute(setNodeIAttribute26,599
+        int getNodeIAttribute(getNodeIAttribute28,726
+
+server/loader.cpp,2252
+struct StateState28,658
+    State(State::State30,673
+struct newServerActionnewServerAction54,1293
+    newServerAction(newServerAction::newServerAction56,1318
+    void operator()(newServerAction::operator()58,1376
+struct newConfigActionnewConfigAction63,1504
+    newConfigAction(newConfigAction::newConfigAction65,1529
+    void operator()(newConfigAction::operator()67,1587
+struct newNodeActionnewNodeAction75,1790
+    newNodeAction(newNodeAction::newNodeAction77,1813
+    void operator()(newNodeAction::operator()79,1869
+struct newPipeActionnewPipeAction87,2064
+    newPipeAction(newPipeAction::newPipeAction89,2087
+    void operator()(newPipeAction::operator()91,2143
+struct newWindowActionnewWindowAction99,2336
+    newWindowAction(newWindowAction::newWindowAction101,2361
+    void operator()(newWindowAction::operator()103,2419
+struct newChannelActionnewChannelAction111,2620
+    newChannelAction(newChannelAction::newChannelAction113,2646
+    void operator()(newChannelAction::operator()115,2705
+struct newCompoundActionnewCompoundAction124,2913
+    newCompoundAction(newCompoundAction::newCompoundAction126,2940
+    void operator()(newCompoundAction::operator()128,3000
+struct leaveCompoundActionleaveCompoundAction141,3359
+    leaveCompoundAction(leaveCompoundAction::leaveCompoundAction143,3388
+    void operator()(leaveCompoundAction::operator()145,3450
+struct compoundSetModeActioncompoundSetModeAction152,3598
+    compoundSetModeAction(compoundSetModeAction::compoundSetModeAction154,3629
+    void operator()(compoundSetModeAction::operator()158,3781
+struct eqsGrammar eqsGrammar170,4136
+    eqsGrammar(eqsGrammar::eqsGrammar172,4185
+    template <typename ScannerT> struct definitioneqsGrammar::definition174,4238
+        definition(eqsGrammar::definition::definition176,4295
+        rule<ScannerT> const& start(eqsGrammar::definition::start227,6089
+Server* Loader::loadConfig(236,6349
+Server*   Loader::createServer(273,7288
+Config*   Loader::createConfig(278,7349
+Node*     Loader::createNode(283,7410
+Pipe*     Loader::createPipe(288,7467
+Window*   Loader::createWindow(293,7524
+Channel*  Loader::createChannel(298,7585
+Compound* Loader::createCompound(303,7648
+
+server/loader.h,128
+#define EQS_LOADER_H6,119
+    class LoaderLoader23,364
+        Loader(Loader29,460
+        virtual ~Loader(~Loader31,481
+
+server/node.cpp,695
+void Node::_construct(20,344
+Node::Node(41,1036
+Node::Node(47,1114
+void Node::addPipe(72,1768
+bool Node::removePipe(81,1935
+const string& Node::getProgramName(99,2294
+void Node::startInit(114,2774
+void Node::_sendInit(134,3278
+bool Node::syncInit(145,3597
+void Node::startExit(170,4232
+void Node::_sendExit(183,4464
+bool Node::syncExit(193,4728
+void Node::stop(219,5415
+void Node::update(228,5684
+void Node::syncUpdate(240,5966
+void Node::adjustLatency(251,6186
+eqNet::Barrier* Node::getBarrier(264,6575
+void Node::releaseBarrier(281,6978
+eqNet::CommandResult Node::_cmdInitReply(289,7274
+eqNet::CommandResult Node::_cmdExitReply(299,7646
+ostream& eqs::operator << 309,8008
+
+server/node.h,1672
 #define EQS_NODE_H6,117
     class Node Node23,347
         Config* getConfig(getConfig41,747
@@ -2295,44 +2442,54 @@ server/node.h,1220
         void refUsed(refUsed77,1708
         void unrefUsed(unrefUsed82,1827
         bool isUsed(isUsed90,2065
-        enum StateState196,4961
-            STATE_STOPPED 198,4990
-            STATE_STOPPED   = eqNet:198,4990
-            STATE_STOPPED   = eqNet::Node:198,4990
-            STATE_STOPPED   = eqNet::Node::STATE_STOPPED,198,4990
-            STATE_LAUNCHED 199,5048
-            STATE_LAUNCHED  = eqNet:199,5048
-            STATE_LAUNCHED  = eqNet::Node:199,5048
-            STATE_LAUNCHED  = eqNet::Node::STATE_LAUNCHED,199,5048
-            STATE_CONNECTED 200,5107
-            STATE_CONNECTED = eqNet:200,5107
-            STATE_CONNECTED = eqNet::Node:200,5107
-            STATE_CONNECTED = eqNet::Node::STATE_CONNECTED,200,5107
-            STATE_LISTENING 201,5167
-            STATE_LISTENING = eqNet:201,5167
-            STATE_LISTENING = eqNet::Node:201,5167
-            STATE_LISTENING = eqNet::Node::STATE_LISTENING,201,5167
-            STATE_INITIALISING,202,5227
-            STATE_INITIALISED203,5259
+        enum SAttributeSAttribute179,4369
+            SATTR_LAUNCHCOMMAND,181,4403
+            SATTR_ALL182,4436
+        enum IAttributeIAttribute185,4470
+            IATTR_LAUNCHTIMEOUT,187,4504
+            IATTR_ALL188,4537
+        void setSAttribute(setSAttribute191,4571
+        const std::string& getSAttribute(getSAttribute193,4693
+        void setIAttribute(setIAttribute196,4809
+        int  getIAttribute(getIAttribute198,4922
+        enum StateState229,5843
+            STATE_STOPPED 231,5872
+            STATE_STOPPED   = eqNet:231,5872
+            STATE_STOPPED   = eqNet::Node:231,5872
+            STATE_STOPPED   = eqNet::Node::STATE_STOPPED,231,5872
+            STATE_LAUNCHED 232,5930
+            STATE_LAUNCHED  = eqNet:232,5930
+            STATE_LAUNCHED  = eqNet::Node:232,5930
+            STATE_LAUNCHED  = eqNet::Node::STATE_LAUNCHED,232,5930
+            STATE_CONNECTED 233,5989
+            STATE_CONNECTED = eqNet:233,5989
+            STATE_CONNECTED = eqNet::Node:233,5989
+            STATE_CONNECTED = eqNet::Node::STATE_CONNECTED,233,5989
+            STATE_LISTENING 234,6049
+            STATE_LISTENING = eqNet:234,6049
+            STATE_LISTENING = eqNet::Node:234,6049
+            STATE_LISTENING = eqNet::Node::STATE_LISTENING,234,6049
+            STATE_INITIALISING,235,6109
+            STATE_INITIALISED236,6141
 
-server/pipe.cpp,561
-void Pipe::_construct(17,273
-Pipe::Pipe(34,921
-Pipe::Pipe(40,999
-void Pipe::addWindow(56,1350
-void Pipe::refUsed(74,1757
-void Pipe::unrefUsed(80,1839
-void Pipe::startInit(94,2261
-void Pipe::_sendInit(113,2794
-bool Pipe::syncInit(126,3186
-void Pipe::startExit(150,3836
-void Pipe::_sendExit(163,4074
-bool Pipe::syncExit(173,4344
-void Pipe::update(202,5220
-eqNet::CommandResult Pipe::_cmdInitReply(219,5749
-eqNet::CommandResult Pipe::_cmdExitReply(229,6127
-eqNet::CommandResult Pipe::_cmdFrameSync(240,6496
-std::ostream& eqs::operator << 249,6741
+server/pipe.cpp,562
+void Pipe::_construct(18,297
+Pipe::Pipe(35,958
+Pipe::Pipe(41,1036
+void Pipe::addWindow(57,1387
+void Pipe::refUsed(63,1493
+void Pipe::unrefUsed(69,1575
+void Pipe::startInit(83,1997
+void Pipe::_sendInit(105,2605
+bool Pipe::syncInit(118,2997
+void Pipe::startExit(142,3647
+void Pipe::_sendExit(155,3885
+bool Pipe::syncExit(165,4155
+void Pipe::update(196,5107
+eqNet::CommandResult Pipe::_cmdInitReply(213,5636
+eqNet::CommandResult Pipe::_cmdExitReply(223,6014
+eqNet::CommandResult Pipe::_cmdFrameSync(234,6383
+std::ostream& eqs::operator << 243,6628
 
 server/pipe.h,575
 #define EQS_PIPE_H6,117
@@ -2350,46 +2507,48 @@ server/pipe.h,575
         void adjustLatency(adjustLatency152,3869
         void _send(_send186,4791
 
-server/server.cpp,453
-eq::NodeFactory* eq::createNodeFactory(27,513
-Server::Server(32,591
-bool Server::run(50,1365
-RefPtr<eqNet::Node> Server::createNode(77,2043
-void Server::handleDisconnect(82,2130
-void Server::mapConfig(88,2277
-bool Server::_loadConfig(97,2505
-eqNet::CommandResult Server::handlePacket(178,4805
-void Server::_handleRequests(193,5197
-eqNet::CommandResult Server::_reqChooseConfig(217,5705
-eqNet::CommandResult Server::_reqReleaseConfig(248,6585
+server/server.cpp,528
+eq::NodeFactory* eq::createNodeFactory(27,518
+Server::Server(32,596
+bool Server::run(50,1370
+RefPtr<eqNet::Node> Server::createNode(88,2254
+void Server::handleDisconnect(93,2341
+void Server::addConfig(99,2488
+void Server::mapConfig(105,2597
+bool Server::_loadConfig(114,2825
+eqNet::CommandResult Server::handlePacket(194,5094
+void Server::_handleRequests(209,5486
+eqNet::CommandResult Server::_reqChooseConfig(233,5994
+eqNet::CommandResult Server::_reqReleaseConfig(265,6902
+std::ostream& eqs::operator << 285,7501
 
-server/server.h,236
+server/server.h,240
 #define EQS_SERVER_H6,119
     class Server Server29,541
-        void addConfig(addConfig59,1299
-        uint32_t nConfigs(nConfigs75,1804
-        Config* getConfig(getConfig83,2006
-        void pushRequest(pushRequest93,2333
+        void unmapConfig(unmapConfig53,1179
+        uint32_t nConfigs(nConfigs77,1880
+        Config* getConfig(getConfig85,2082
+        void pushRequest(pushRequest95,2409
 
 server/window.cpp,618
-void Window::_construct(14,222
-Window::Window(28,681
-Window::Window(34,765
-void Window::addChannel(52,1175
-void Window::refUsed(62,1386
-void Window::unrefUsed(68,1470
-void Window::resetSwapGroup(78,1740
-void Window::setSwapGroup(88,1958
-void Window::startInit(108,2595
-void Window::_sendInit(126,3150
-bool Window::syncInit(141,3537
-void Window::startExit(165,4197
-void Window::_sendExit(178,4445
-bool Window::syncExit(188,4719
-void Window::update(218,5620
-eqNet::CommandResult Window::_cmdInitReply(270,7206
-eqNet::CommandResult Window::_cmdExitReply(280,7573
-std::ostream& eqs::operator << 290,7907
+void Window::_construct(15,251
+Window::Window(29,710
+Window::Window(35,794
+void Window::addChannel(53,1204
+void Window::refUsed(59,1320
+void Window::unrefUsed(65,1404
+void Window::resetSwapGroup(75,1674
+void Window::setSwapGroup(85,1892
+void Window::startInit(105,2529
+void Window::_sendInit(127,3161
+bool Window::syncInit(142,3548
+void Window::startExit(166,4208
+void Window::_sendExit(179,4456
+bool Window::syncExit(189,4730
+void Window::update(220,5709
+eqNet::CommandResult Window::_cmdInitReply(272,7295
+eqNet::CommandResult Window::_cmdExitReply(282,7662
+std::ostream& eqs::operator << 292,7996
 
 server/window.h,482
 #define EQS_WINDOW_H6,119
@@ -2413,8 +2572,9 @@ class Test Test14,201
     virtual ssize_t run(Test::run18,280
 int main(26,454
 
-tests/base/idPool.cpp,15
-int main(9,97
+tests/base/idPool.cpp,64
+eq::NodeFactory* eq::createNodeFactory(10,132
+int main(12,206
 
 tests/base/lock.cpp,199
 #define MAXTHREADS 9,122
@@ -2444,28 +2604,32 @@ int main(36,541
 tests/base/timedLock.cpp,17
 int main(12,146
 
-tests/connection/client.cpp,17
-int main(14,228
+tests/connection/client.cpp,64
+eq::NodeFactory* eq::createNodeFactory(15,263
+int main(17,337
 
-tests/connection/pipe.cpp,126
-class Server Server14,231
-    void start(Server::start17,278
-    virtual ssize_t run(Server::run24,433
-int main(44,974
+tests/connection/pipe.cpp,174
+eq::NodeFactory* eq::createNodeFactory(15,266
+class Server Server17,340
+    void start(Server::start20,387
+    virtual ssize_t run(Server::run27,542
+int main(47,1083
 
-tests/connection/server.cpp,17
-int main(14,209
+tests/connection/server.cpp,64
+eq::NodeFactory* eq::createNodeFactory(15,244
+int main(17,318
 
-tests/node/node.cpp,287
-Lock lock;17,266
-struct DataPacket DataPacket19,278
-    DataPacket(DataPacket::DataPacket21,318
-class Server Server30,470
-    Server(Server::Server33,507
-    void command(Server::command40,715
-class Client Client58,1216
-    void send(Client::send61,1253
-int main(69,1455
+tests/node/node.cpp,334
+Lock lock;18,301
+eq::NodeFactory* eq::createNodeFactory(20,313
+struct DataPacket DataPacket22,387
+    DataPacket(DataPacket::DataPacket24,427
+class Server Server33,579
+    Server(Server::Server36,616
+    void command(Server::command43,824
+class Client Client61,1325
+    void send(Client::send64,1362
+int main(72,1564
 
 tests/session/barrier.cpp,175
 uint32_t barrierID 19,345
@@ -2474,31 +2638,51 @@ class NodeThread NodeThread21,382
     virtual ssize_t run(NodeThread::run26,483
 int main(87,2493
 
-tests/session/init.cpp,138
+tests/session/init.cpp,186
 RefPtr<eqNet::Connection> connection;14,231
-class NodeThread NodeThread16,270
-    ssize_t run(NodeThread::run19,324
-int main(40,941
+eq::NodeFactory* eq::createNodeFactory(16,270
+class NodeThread NodeThread18,344
+    ssize_t run(NodeThread::run21,398
+int main(42,1015
 
-tests/session/mobject.cpp,451
-class TestMobject TestMobject18,340
-    TestMobject(TestMobject::TestMobject21,392
-    const void* getInstanceData(TestMobject::getInstanceData26,487
-class Session Session33,625
-    eqNet::Mobject* instanciateMobject(Session::instanciateMobject35,665
-RefPtr<eqNet::Connection> connection;47,1075
-volatile uint32_t         testID 48,1113
-class ServerThread ServerThread50,1164
-    ssize_t run(ServerThread::run53,1220
-int main(80,2099
+tests/session/mobject.cpp,498
+eq::NodeFactory* eq::createNodeFactory(19,375
+class TestMobject TestMobject21,449
+    TestMobject(TestMobject::TestMobject24,501
+    const void* getInstanceData(TestMobject::getInstanceData29,596
+class Session Session36,734
+    eqNet::Mobject* instanciateMobject(Session::instanciateMobject38,774
+RefPtr<eqNet::Connection> connection;50,1184
+volatile uint32_t         testID 51,1222
+class ServerThread ServerThread53,1273
+    ssize_t run(ServerThread::run56,1329
+int main(83,2208
+
+tests/session/versionedObject.cpp,535
+class TestObject TestObject18,340
+    TestObject(TestObject::TestObject21,399
+    const void* getInstanceData(TestObject::getInstanceData26,505
+    const void* pack(TestObject::pack31,609
+    void unpack(TestObject::unpack37,737
+class Session Session47,986
+    eqNet::Mobject* instanciateMobject(Session::instanciateMobject49,1026
+RefPtr<eqNet::Connection> connection;59,1365
+volatile uint32_t         testID 60,1403
+class ServerThread ServerThread62,1454
+    ssize_t run(ServerThread::run65,1510
+int main(97,2509
 
 tests/test.h,54
 #define EQTEST_TEST_H6,120
 #define TEST(TEST10,169
 
-tt.cpp,131
-namespace test test8,68
-    class Atest::A9,85
-        void _listen(test::A::_listen12,116
-int main(19,228
-void foo(24,257
+tt.cpp,671
+#define SIMPLE_CPP_LEXER_HPP10,464
+namespace boost boost18,705
+namespace boost { namespace spirit boost::spirit18,705
+namespace boost { namespace spirit { namespace repositoryboost::spirit::repository18,705
+    struct simple_cpp_lexerboost::spirit::repository::simple_cpp_lexer29,1261
+        simple_cpp_lexer(boost::spirit::repository::simple_cpp_lexer::simple_cpp_lexer32,1341
+        struct definitionboost::spirit::repository::simple_cpp_lexer::definition36,1456
+            definition(boost::spirit::repository::simple_cpp_lexer::definition::definition38,1492
+            start(boost::spirit::repository::simple_cpp_lexer::definition::start123,4948
