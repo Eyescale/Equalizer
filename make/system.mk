@@ -7,7 +7,7 @@ endif
 SUBDIR    ?= "src"
 SUBDIRTOP := ../$(TOP)
 DEPTH     := $(subst ../,--,$(TOP))
-DEPTH     := $(subst .,----->,$(DEPTH))
+DEPTH     := $(subst .,-->,$(DEPTH))
 
 # os-specific settings
 ARCH = $(shell uname)

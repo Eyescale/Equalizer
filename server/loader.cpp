@@ -8,8 +8,6 @@
 #include "loaderState.h"
 
 #include "channel.h" 
-#include "compound.h"
-#include "config.h"
 #include "node.h"    
 #include "pipe.h"    
 #include "server.h"
@@ -167,6 +165,7 @@ struct eqsGrammar : public grammar<eqsGrammar>
                                                    Compound::MODE_2D )];
         }
 
+        rule<ScannerT> global;
         rule<ScannerT> server, config, node, pipe, window, channel, compound;
         rule<ScannerT> compoundParams, compoundMode;
         rule<ScannerT> const& start() const { return server; }
@@ -200,13 +199,16 @@ Server* Loader::loadConfig( const string& filename )
     eqsGrammar          g( state );
     string              str;
     
-    if( parse( first, last, g, space_p ).full )
-        return state.server;
+    parse_info< file_iterator<char> > info = parse( first, last, g, space_p );
 
-    EQERROR << "Parsing of config file " << filename << " failed\n";
+    if( info.full )
+        return state.server;
+    
+    EQERROR << "Parsing of config file " << filename << " failed" << endl;
 
     if( state.server )
         delete state.server;
+
     return NULL;
 }
 

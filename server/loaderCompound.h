@@ -5,6 +5,11 @@
 #ifndef EQS_LOADER_COMPOUND_H
 #define EQS_LOADER_COMPOUND_H
 
+#include "loaderState.h"
+
+#include "compound.h"
+#include "config.h"
+
 namespace eqLoader
 {
     struct newCompoundAction
@@ -13,7 +18,7 @@ namespace eqLoader
 
         void operator()(const char& c) const
             {
-                Compound* compound = _state.loader->createCompound( );
+                eqs::Compound* compound = _state.loader->createCompound( );
                 if( !_state.compound )
                     _state.config->addCompound( compound );
                 else
@@ -39,7 +44,7 @@ namespace eqLoader
 
     struct compoundSetModeAction
     {
-        compoundSetModeAction( State& state, const Compound::Mode mode ) :
+        compoundSetModeAction( State& state, const eqs::Compound::Mode mode ) :
                 _state( state ), _mode( mode ) {}
 
         template <typename IteratorT>
@@ -48,8 +53,8 @@ namespace eqLoader
                 _state.compound->setMode( _mode );
             }
     
-        State&         _state;
-        Compound::Mode _mode;
+        State&              _state;
+        eqs::Compound::Mode _mode;
     };
 }
 

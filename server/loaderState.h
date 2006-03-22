@@ -5,11 +5,24 @@
 #ifndef EQS_LOADER_STATE_H
 #define EQS_LOADER_STATE_H
 
+namespace eqs
+{
+    class Loader;
+    class Server;
+    class Config;
+    class Node;
+    class Pipe;
+    class Window;
+    class Channel;
+    class Compound;
+    class ConnectionDescription;
+}
+
 namespace eqLoader
 {
     struct State
     {
-        State( Loader* ldr )
+        State( eqs::Loader* ldr )
                 : loader( ldr ),
                   server( NULL ),
                   config( NULL ),
@@ -20,14 +33,15 @@ namespace eqLoader
                   compound( NULL )
             {}
 
-        Loader*   loader;
-        Server*   server;
-        Config*   config;
-        Node*     node;
-        Pipe*     pipe;
-        Window*   window;
-        Channel*  channel;
-        Compound* compound;
+        eqs::Loader*      loader;
+        eqs::Server*      server;
+        eqs::Config*      config;
+        eqs::Node*        node;
+        eqs::Pipe*        pipe;
+        eqs::Window*      window;
+        eqs::Channel*     channel;
+        eqs::Compound*    compound;
+        eqs::ConnectionDescription* connectionDescription;
     };
 }
 

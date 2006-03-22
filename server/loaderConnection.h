@@ -5,15 +5,19 @@
 #ifndef EQS_LOADER_CONNECTION_H
 #define EQS_LOADER_CONNECTION_H
 
+#include "connectionDescription.h"
+
+#include <boost/spirit/symbols/symbols.hpp>
+
 namespace eqLoader
 {
-    struct connectionType : symbols<unsigned>
+    struct connectionType : boost::spirit::symbols<int32_t>
     {
         connectionType()
             {
                 add
-                    ("TCPIP"    , eqNet::ConnectionDescription::TYPE_TCPIP )
-                    ("PIPE"     , eqNet::ConnectionDescription::TYPE_PIPE )
+                    ("TCPIP"    , eqNet::Connection::TYPE_TCPIP )
+                    ("PIPE"     , eqNet::Connection::TYPE_PIPE )
                     ;
             }
     } connectionType_p;
@@ -22,15 +26,13 @@ namespace eqLoader
     {
         setConnectionType( State& state ) : _state( state ) {}
 
-        void operator()( unsigned n ) const
+        void operator()( int32_t n ) const
             {
-                _state.connectionDescription->type = n;
+                _state.connectionDescription->type = (eqNet::Connection::Type)n;
             }
     
         State& _state;
     };
-};
-
 }
 
 #endif // EQS_LOADER_CONNECTION_H
