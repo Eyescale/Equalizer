@@ -149,6 +149,20 @@ struct leaveCompoundAction
     
     State& _state;
 };
+struct compoundSetModeAction
+{
+    compoundSetModeAction( State& state, const Compound::Mode mode ) :
+            _state( state ), _mode( mode ) {}
+
+    template <typename IteratorT>
+    void operator()(IteratorT first, IteratorT last) const
+        {
+            _state.compound->setMode( _mode );
+        }
+    
+    State&         _state;
+    Compound::Mode _mode;
+};
 
 //---------------------------------------------------------------------------
 // grammar
@@ -193,11 +207,23 @@ struct eqsGrammar : public grammar<eqsGrammar>
 
             compound = "compound"
                 >> ch_p('{')[newCompoundAction(self._state)]
+                >> *(compoundParams)
                 >> *(compound)
                 >> ch_p('}')[leaveCompoundAction(self._state)];
+
+            compoundParams = 
+                ( "mode" >> ch_p('[') >> compoundMode >> ch_p(']') ) |
+                ( "channel" >> ch_p('"') >> compoundMode >> ch_p('"') );
+
+            compoundMode = 
+                str_p("SYNC")[compoundSetModeAction( self._state,
+                                                     Compound::MODE_SYNC )] |
+                str_p("2D")[compoundSetModeAction( self._state,
+                                                   Compound::MODE_2D )];
         }
 
         rule<ScannerT> server, config, node, pipe, window, channel, compound;
+        rule<ScannerT> compoundParams, compoundMode;
         rule<ScannerT> const& start() const { return server; }
     };
 

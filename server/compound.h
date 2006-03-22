@@ -114,7 +114,8 @@ namespace eqs
          */
         enum Mode
         {
-            MODE_SYNC   //!< Synchronize swap of all channels
+            MODE_SYNC,   //!< Synchronize swap of all channels
+            MODE_2D      //!< Sort-first distribution
         };
 
         /** 

@@ -9,6 +9,7 @@
 #include "pipe.h"
 
 using namespace eqs;
+using namespace eqBase;
 using namespace std;
 
 void Window::_construct()
@@ -291,18 +292,15 @@ eqNet::CommandResult Window::_cmdExitReply( eqNet::Node* node, const eqNet::Pack
 std::ostream& eqs::operator << ( std::ostream& os, const Window* window )
 {
     if( !window )
-    {
-        os << "NULL window";
         return os;
-    }
     
+    os << "window" << endl;
+    os << "{" << endl << indent; 
+
     const uint32_t nChannels = window->nChannels();
-    os << "window " << (void*)window
-       << ( window->isUsed() ? " used " : " unused " ) << nChannels
-       << " channels";
-    
     for( uint32_t i=0; i<nChannels; i++ )
-        os << std::endl << "    " << window->getChannel(i);
-    
+        os << window->getChannel(i);
+
+    os << exdent << "}" << endl;
     return os;
 }

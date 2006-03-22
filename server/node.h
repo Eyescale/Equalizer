@@ -172,6 +172,33 @@ namespace eqs
         void releaseBarrier( eqNet::Barrier* );
         //*}
 
+        /**
+         * @name Attributes
+         */
+        //*{
+        enum SAttribute
+        {
+            SATTR_LAUNCHCOMMAND,
+            SATTR_ALL
+        };
+
+        enum IAttribute
+        {
+            IATTR_LAUNCHTIMEOUT,
+            IATTR_ALL
+        };
+
+        void setSAttribute( const SAttribute attr, const std::string& value )
+            { _sAttributes[attr] = value; }
+        const std::string& getSAttribute( const SAttribute attr ) const
+            { return _sAttributes[attr]; }
+
+        void setIAttribute( const IAttribute attr, const int value )
+            { _iAttributes[attr] = value; }
+        int  getIAttribute( const IAttribute attr ) const
+            { return _iAttributes[attr]; }
+        //*}
+
     protected:
         /** @sa eqNet::Node::getProgramName */
         virtual const std::string& getProgramName();
@@ -186,6 +213,12 @@ namespace eqs
         /** The parent config. */
         Config* _config;
         friend class Config;
+
+        /** String attributes. */
+        std::string _sAttributes[SATTR_ALL];
+
+        /** Int attributes. */
+        int _iAttributes[IATTR_ALL];
 
         /** The request identifier for pending asynchronous operations. */
         uint32_t _pendingRequestID;

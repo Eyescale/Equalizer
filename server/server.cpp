@@ -65,7 +65,7 @@ bool Server::run( int argc, char **argv )
     if( !listen( connection ))
         return false;
 
-#if 0
+#if 1
     if( nConfigs() == 0 )
     {
         EQERROR << "No configurations loaded" << endl;
@@ -78,6 +78,8 @@ bool Server::run( int argc, char **argv )
         return false;
     }
 #endif
+
+    EQINFO << "Running config: " << endl << indent << this << exdent;
 
     _handleRequests();
     return stopListening();
@@ -278,4 +280,22 @@ eqNet::CommandResult Server::_reqReleaseConfig( eqNet::Node* node, const eqNet::
     _appConfigs.erase( packet->configID );
     delete config;
     return eqNet::COMMAND_HANDLED;
+}
+
+std::ostream& eqs::operator << ( std::ostream& os, const Server* server )
+{
+    if( !server )
+        return os;
+    
+    const uint32_t nConfigs = server->nConfigs();
+    
+    os << "server " << std::endl;
+    os << "{" << std::endl << eqBase::indent;
+    
+    for( uint32_t i=0; i<nConfigs; i++ )
+        os << server->getConfig(i);
+    
+    os << eqBase::exdent << "}" << std::endl;
+
+    return os;
 }

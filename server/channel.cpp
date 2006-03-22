@@ -168,12 +168,11 @@ eqNet::CommandResult Channel::_cmdExitReply( eqNet::Node* node,
 std::ostream& eqs::operator << ( std::ostream& os, const Channel* channel)
 {
     if( !channel )
-    {
-        os << "NULL channel";
-            return os;
-    }
+        return os;
     
-    os << "channel " << (void*)channel
-       << ( channel->isUsed() ? " used" : " unused" );
+    os << "channel" << endl;
+    os << "{" << endl << indent;
+    os << exdent << "}" << endl;
+
     return os;
 }

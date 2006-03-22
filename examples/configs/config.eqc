@@ -1,9 +1,24 @@
+global
+{
+    EQ_NODE_ATTR_LAUNCH_COMMAND "ssh -n %h %c >& %h.log"
+    EQ_NODE_ATTR_CONNECTION_TYPE TCP_IP
+}
+
 server
 {
     config
     {
         node
         {
+            connection
+            {
+                launchTimeout 100000
+                hostname      "localhost"
+            }
+            attributes
+            {
+                launchTimeout 42
+            }
             pipe
             {
                 window
@@ -16,6 +31,7 @@ server
         }
         compound
         {
+            mode [2D]
             compound{}
             compound{}
         }

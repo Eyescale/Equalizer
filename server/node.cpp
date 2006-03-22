@@ -6,6 +6,7 @@
 
 #include "channel.h"
 #include "config.h"
+#include "global.h"
 #include "pipe.h"
 #include "window.h"
 
@@ -28,6 +29,13 @@ void Node::_construct()
                          &eqs::Node::_cmdInitReply ));
     registerCommand( eq::CMD_NODE_EXIT_REPLY, this,reinterpret_cast<CommandFcn>(
                          &eqs::Node::_cmdExitReply ));
+
+    const Global* global = Global::instance();
+
+    for( int i=0; i<SATTR_ALL; ++i )
+        _sAttributes[i] = global->getNodeSAttribute( (SAttribute)i );
+    for( int i=0; i<IATTR_ALL; ++i )
+        _iAttributes[i] = global->getNodeIAttribute( (IAttribute)i );
 }
 
 Node::Node()
@@ -137,6 +145,7 @@ void Node::_sendInit( const uint32_t initID )
 bool Node::syncInit()
 {
     bool success = true;
+
     const int nPipes = _pipes.size();
     for( int i=0; i<nPipes; ++i )
     {
@@ -300,17 +309,15 @@ eqNet::CommandResult Node::_cmdExitReply( eqNet::Node* node,
 ostream& eqs::operator << ( ostream& os, const Node* node )
 {
     if( !node )
-    {
-        os << "NULL node";
         return os;
-    }
     
+    os << "node" << endl;
+    os << "{" << endl << indent;
+
     const uint32_t nPipes = node->nPipes();
-    os << "node " << node->getID() << "(" << (void*)node << ")"
-       << ( node->isUsed() ? " used " : " unused " ) << nPipes << " pipes";
-
     for( uint32_t i=0; i<nPipes; i++ )
-        os << endl << "    " << node->getPipe(i);
+        os << node->getPipe(i);
 
+    os << exdent << "}" << endl;
     return os;
 }

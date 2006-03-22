@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <pthread.h>
+#include <sstream>
 #include <time.h>
 #include <unistd.h>
 
@@ -29,12 +30,88 @@ namespace eqBase
         LOG_VERBATIM
     };
 
+    /** The string buffer used for logging. */
+    class LogBuffer : public std::streambuf
+    {
+	public:
+		LogBuffer( std::ostream& stream )
+                : _indent(0), _newLine(true), _stream(stream)
+            {}
+        
+        void indent(){ ++_indent; }
+        void exdent(){ --_indent; }
+        
+	protected:
+        virtual int_type overflow (int_type c) 
+            {
+                if( c == EOF )
+                    return EOF;
+
+                if( _newLine )
+                {
+                    for( int i=0; i<_indent; ++i )
+                        _stringStream << "    ";
+                    _newLine = false;
+                }
+
+                _stringStream << (char)c;
+                return c;
+            }
+        
+        virtual int sync() 
+            {
+                const std::string& string = _stringStream.str();
+                _stream.write( string.c_str(), string.length( ));
+                _stringStream.str("");
+                _newLine = true;
+                return 0;
+            }
+
+    private:
+        LogBuffer( const LogBuffer& );
+        LogBuffer& operator = ( const LogBuffer& );
+
+        /** The current indentation level. */
+        int _indent;
+
+        /** The flag that a new line has started. */
+        bool _newLine;
+
+        /** The temporary buffer. */
+        std::ostringstream _stringStream;
+
+        /** The wrapped ostream. */
+        std::ostream& _stream;
+    };
+
     /** The logging class */
-    class Log {
-    public:
+    class Log : public std::ostream 
+    {
+    public: 
+        Log() : std::ios(0), std::ostream( &_logBuffer ), _logBuffer(std::cout)
+            {}
+        virtual ~Log() { _logBuffer.pubsync(); }
+
+        void indent() { _logBuffer.indent(); }
+        void exdent() { _logBuffer.exdent(); }
+
         /** The current log level. */
         static int level;
+
+        /** The per-thread logger. */
+        static Log& instance();
+
+    private:
+        LogBuffer _logBuffer; 
+
+        Log( const Log& );
+        Log& operator = ( const Log& );
     };
+
+    /** The ostream indent manipulator. */
+    std::ostream& indent( std::ostream& os );
+    /** The ostream exdent manipulator. */
+    std::ostream& exdent( std::ostream& os );
 
     inline void dumpStack( std::ostream& os )
     {
@@ -72,13 +149,13 @@ extern eqBase::Clock eqLogClock;
 #endif
 
 #define EQERROR (eqBase::Log::level >= eqBase::LOG_ERROR) && \
-    std::cout << "E|" LOG_EXTRA
+    eqBase::Log::instance() << "E " LOG_EXTRA
 #define EQWARN  (eqBase::Log::level >= eqBase::LOG_WARN)  && \
-    std::cout << "W|"  LOG_EXTRA
+    eqBase::Log::instance() << "W "  LOG_EXTRA
 #define EQINFO  (eqBase::Log::level >= eqBase::LOG_INFO)  && \
-    std::cout << "I|"  LOG_EXTRA
+    eqBase::Log::instance() << "I "  LOG_EXTRA
 #define EQVERB  (eqBase::Log::level >= eqBase::LOG_VERBATIM)  && \
-    std::cout << "V|"  LOG_EXTRA
+    eqBase::Log::instance() << "V "  LOG_EXTRA
 
 #define LOG_MATRIX4x4( m ) endl \
  << "  " << m[0] << " " << m[4] << " " << m[8]  << " " << m[12] << " " << endl \

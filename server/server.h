@@ -135,22 +135,6 @@ namespace eqs
                                                 const eqNet::Packet* packet );
     };
 
-    inline std::ostream& operator << ( std::ostream& os, const Server* server )
-    {
-        if( !server )
-        {
-            os << "NULL server";
-            return os;
-        }
-
-        const uint32_t nConfigs = server->nConfigs();
-
-        os << "server " << (void*)server << " " << nConfigs << " configs";
-
-        for( uint32_t i=0; i<nConfigs; i++ )
-            os << std::endl << "    " << server->getConfig(i);
-
-        return os;
-    }
+    std::ostream& operator << ( std::ostream& os, const Server* server );
 };
 #endif // EQS_SERVER_H

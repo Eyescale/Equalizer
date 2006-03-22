@@ -458,17 +458,26 @@ TraverseResult Compound::_updatePostDrawCB( Compound* compound, void* userData )
 std::ostream& eqs::operator << (std::ostream& os,const Compound* compound)
 {
     if( !compound )
-    {
-        os << "NULL compound";
         return os;
-    }
+    
+    os << "compound" << endl;
+    os << "{" << endl << indent;
+      
+    const Compound::Mode mode = compound->getMode();
+    if( mode != Compound::MODE_SYNC )
+        os << "mode [" << ( mode == Compound::MODE_2D   ? "2D" : "???" ) << "]" 
+           << endl;
+
+    //os << "channel \"" << compound->getChannel()->getName() << "\"" << endl;
     
     const uint32_t nChildren = compound->nChildren();
-    os << "compound " << (void*)compound << " channel " 
-       << compound->getChannel() << " " << nChildren << " children";
-    
-    for( uint32_t i=0; i<nChildren; i++ )
-        os << std::endl << "    " << compound->getChild(i);
-    
+    if( nChildren > 0 )
+    {
+        os << endl;
+        for( uint32_t i=0; i<nChildren; i++ )
+            os << compound->getChild(i);
+    }
+
+    os << exdent << "}" << endl;
     return os;
 }

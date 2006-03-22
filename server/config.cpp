@@ -11,6 +11,7 @@
 #include <eq/net/global.h>
 
 using namespace eqs;
+using namespace eqBase;
 using namespace std;
 
 void Config::_construct()
@@ -375,23 +376,23 @@ uint32_t Config::_frameEnd()
 }
 
 
-std::ostream& eqs::operator << ( std::ostream& os, const Config* config )
+ostream& eqs::operator << ( ostream& os, const Config* config )
 {
     if( !config )
-    {
-        os << "NULL config";
         return os;
-    }
     
+    os << "config " << endl;
+    os << "{" << endl << indent;
+
     const uint32_t nNodes = config->nNodes();
-    const uint32_t nCompounds = config->nCompounds();
-    os << "config " << (void*)config << " " << nNodes << " nodes "
-           << nCompounds << " compounds";
-    
     for( uint32_t i=0; i<nNodes; i++ )
-        os << std::endl << "    " << config->getNode(i);
+        os << config->getNode(i);
+
+    const uint32_t nCompounds = config->nCompounds();
     for( uint32_t i=0; i<nCompounds; i++ )
-        os << std::endl << "    " << config->getCompound(i);
+        os << config->getCompound(i);
     
+    os << exdent << "}" << endl;
+
     return os;
 }

@@ -12,6 +12,7 @@
 #include <eq/client/commands.h>
 
 using namespace eqs;
+using namespace eqBase;
 using namespace std;
 
 void Pipe::_construct()
@@ -28,7 +29,7 @@ void Pipe::_construct()
                          &eqs::Pipe::_cmdExitReply ));
     registerCommand( eq::CMD_PIPE_FRAME_SYNC, this,reinterpret_cast<CommandFcn>(
                          &eqs::Pipe::_cmdFrameSync ));
-    EQINFO << "New " << this << endl;
+    EQINFO << "New pipe @ " << (void*)this << endl;
 }
 
 Pipe::Pipe()
@@ -242,17 +243,15 @@ eqNet::CommandResult Pipe::_cmdFrameSync( eqNet::Node* node,
 std::ostream& eqs::operator << ( std::ostream& os, const Pipe* pipe )
 {
     if( !pipe )
-    {
-        os << "NULL pipe";
         return os;
-    }
+    
+    os << "pipe" << endl;
+    os << "{" << endl << indent;
     
     const uint32_t nWindows = pipe->nWindows();
-    os << "pipe " << (void*)pipe << ( pipe->isUsed() ? " used " : " unused " )
-       << nWindows << " windows";
-    
     for( uint32_t i=0; i<nWindows; i++ )
-        os << std::endl << "    " << pipe->getWindow(i);
+        os << pipe->getWindow(i);
     
+    os << exdent << "}" << endl;
     return os;
 }

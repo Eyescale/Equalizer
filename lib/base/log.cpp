@@ -4,6 +4,8 @@
 
 #include "log.h"
 
+#include "perThread.h"
+
 using namespace eqBase;
 
 #ifndef NDEBUG
@@ -13,6 +15,7 @@ Clock eqLogClock;
 static int getLogLevel();
 
 int eqBase::Log::level = getLogLevel();
+static PerThread<Log*> _logInstance;
 
 int getLogLevel()
 {
@@ -34,4 +37,27 @@ int getLogLevel()
 #else
     return LOG_INFO;
 #endif
+}
+
+Log& Log::instance()
+{
+    if( !_logInstance.get( ))
+        _logInstance = new Log();
+
+    return *_logInstance.get();
+}
+
+std::ostream& eqBase::indent( std::ostream& os )
+{
+    Log* log = dynamic_cast<Log*>(&os);
+    if( log )
+        log->indent();
+    return os;
+}
+std::ostream& eqBase::exdent( std::ostream& os )
+{
+    Log* log = dynamic_cast<Log*>(&os);
+    if( log )
+        log->exdent();
+        return os;
 }
