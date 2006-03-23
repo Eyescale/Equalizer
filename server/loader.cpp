@@ -2,6 +2,8 @@
 /* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
+//#define BOOST_SPIRIT_DEBUG
+
 #include "loader.h"
 #include "loaderCompound.h"
 #include "loaderConnection.h"
@@ -106,12 +108,16 @@ struct eqsGrammar : public grammar<eqsGrammar>
 
     template <typename ScannerT> struct definition
     {
+        rule<ScannerT> const& start() const { return file; }
+
         definition( eqsGrammar const& self )
         {
+            file = *(global) >> server;
+
             global = "global" 
                 >> ch_p('{')
                 >> *( str_p("EQ_CONNECTION_TYPE") 
-                      >> connectionType_p[setConnectionType(self._state)] )
+                      >> connectionType_p[setGlobalConnectionType()] )
 //                 >> *(EQ_CONNECTION_HOSTNAME          "localhost"
 //     EQ_CONNECTION_TCPIP_PORT        4242
 //     EQ_CONNECTION_LAUNCH_TIMEOUT    100s
@@ -165,13 +171,34 @@ struct eqsGrammar : public grammar<eqsGrammar>
                                                    Compound::MODE_2D )];
         }
 
-        rule<ScannerT> global;
+        rule<ScannerT> file, global;
         rule<ScannerT> server, config, node, pipe, window, channel, compound;
         rule<ScannerT> compoundParams, compoundMode;
-        rule<ScannerT> const& start() const { return server; }
     };
 
     State& _state;
+};
+
+struct skip_grammar : grammar<skip_grammar>
+{
+    template <typename ScannerT>
+    struct definition
+    {
+        definition(skip_grammar const& /*self*/)
+            {
+                skip
+                    =   space_p
+                    |   '#' >> *(anychar_p - '\n') >> '\n'
+                    |   "//" >> *(anychar_p - '\n') >> '\n'
+                    |   "/*" >> *(anychar_p - "*/") >> "*/"
+                    ;
+            }
+
+        rule<ScannerT> skip;
+        
+        rule<ScannerT> const&
+        start() const { return skip; }
+    };
 };
 
 //---------------------------------------------------------------------------
@@ -197,9 +224,11 @@ Server* Loader::loadConfig( const string& filename )
     file_iterator<char> last = first.make_end();
     State               state( this );
     eqsGrammar          g( state );
+    skip_grammar        skipper;
     string              str;
     
-    parse_info< file_iterator<char> > info = parse( first, last, g, space_p );
+    parse_info< file_iterator<char> > info = parse( first, last, g, 
+                                                    skipper );
 
     if( info.full )
         return state.server;

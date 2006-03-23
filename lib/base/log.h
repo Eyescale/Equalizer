@@ -35,12 +35,15 @@ namespace eqBase
     {
 	public:
 		LogBuffer( std::ostream& stream )
-                : _indent(0), _newLine(true), _stream(stream)
+                : _indent(0), _async(0), _newLine(true), _stream(stream)
             {}
         
-        void indent(){ ++_indent; }
-        void exdent(){ --_indent; }
-        
+        void indent() { ++_indent; }
+        void exdent() { --_indent; }
+
+        void disableSync() { ++_async; } // use counted variable to allow
+        void enableSync()  { --_async; } // nested enable/disable calls
+
 	protected:
         virtual int_type overflow (int_type c) 
             {
@@ -60,9 +63,12 @@ namespace eqBase
         
         virtual int sync() 
             {
-                const std::string& string = _stringStream.str();
-                _stream.write( string.c_str(), string.length( ));
-                _stringStream.str("");
+                if( !_async )
+                {
+                    const std::string& string = _stringStream.str();
+                    _stream.write( string.c_str(), string.length( ));
+                    _stringStream.str("");
+                }
                 _newLine = true;
                 return 0;
             }
@@ -73,6 +79,9 @@ namespace eqBase
 
         /** The current indentation level. */
         int _indent;
+
+        /** Sync reference counter. */
+        int _async;
 
         /** The flag that a new line has started. */
         bool _newLine;
@@ -94,6 +103,8 @@ namespace eqBase
 
         void indent() { _logBuffer.indent(); }
         void exdent() { _logBuffer.exdent(); }
+        void disableSync() { _logBuffer.disableSync(); }
+        void enableSync()  { _logBuffer.enableSync();  }
 
         /** The current log level. */
         static int level;
@@ -112,6 +123,10 @@ namespace eqBase
     std::ostream& indent( std::ostream& os );
     /** The ostream exdent manipulator. */
     std::ostream& exdent( std::ostream& os );
+    /** The ostream sync disable manipulator. */
+    std::ostream& disableSync( std::ostream& os );
+    /** The ostream sync enable manipulator. */
+    std::ostream& enableSync( std::ostream& os );
 
     inline void dumpStack( std::ostream& os )
     {

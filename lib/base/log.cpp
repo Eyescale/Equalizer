@@ -61,3 +61,18 @@ std::ostream& eqBase::exdent( std::ostream& os )
         log->exdent();
         return os;
 }
+
+std::ostream& eqBase::disableSync( std::ostream& os )
+{
+    Log* log = dynamic_cast<Log*>(&os);
+    if( log )
+        log->disableSync();
+    return os;
+}
+std::ostream& eqBase::enableSync( std::ostream& os )
+{
+    Log* log = dynamic_cast<Log*>(&os);
+    if( log )
+        log->enableSync();
+    return os;
+}

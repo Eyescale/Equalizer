@@ -33,3 +33,56 @@ Global::Global()
     _connectionSAttributes[ConnectionDescription::SATTR_HOSTNAME] = "localhost";
 }
 
+std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
+{
+    Global reference;
+
+    os << disableSync;
+    os << "global" << endl;
+    os << '{' << indent << endl;
+#if 0
+    for( int i=0; i<Node::IATTR_ALL; ++i )
+    {
+        if( global->_nodeIAttributes[i] != reference._nodeIAttributes[i] )
+        {
+        }
+    }
+
+    for( int i=0; i<Node::SATTR_ALL; ++i )
+    {
+        if( global->_nodeSAttributes[i] != reference._nodeSAttributes[i] )
+        {
+        }
+    }
+#endif
+
+    for( int i=0; i<ConnectionDescription::IATTR_ALL; ++i )
+    {
+        const int value = global->_connectionIAttributes[i];
+        if( value != reference._connectionIAttributes[i] )
+        {
+
+            os << ( i==ConnectionDescription::IATTR_TYPE ?
+                    "EQ_CONNECTION_TYPE " :
+                    i==ConnectionDescription::IATTR_TCPIP_PORT ?
+                    "EQ_CONNECTION_TCPIP_PORT " :
+                    "EQ_CONNECTION_LAUNCH_TIMEOUT " );
+                
+            switch( i )
+            { 
+                case ConnectionDescription::IATTR_TYPE:
+                    os << ( value == eqNet::Connection::TYPE_TCPIP ? "TCPIP" : 
+                            "PIPE" );
+                    break;
+                default:
+                    os << value;
+            }
+            os << endl;
+        }
+    }
+
+    os << exdent << '}' << endl;
+    os << enableSync;
+    return os;
+}
+

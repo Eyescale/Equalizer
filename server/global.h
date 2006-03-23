@@ -57,6 +57,8 @@ namespace eqs
 
         std::string _connectionSAttributes[ConnectionDescription::SATTR_ALL];
         int32_t     _connectionIAttributes[ConnectionDescription::IATTR_ALL];
+
+        friend std::ostream& operator << ( std::ostream&, const Global* );
     };
 
     std::ostream& operator << ( std::ostream& os, const Global* global );

@@ -6,6 +6,7 @@
 #define EQS_LOADER_CONNECTION_H
 
 #include "connectionDescription.h"
+#include "global.h"
 
 #include <boost/spirit/symbols/symbols.hpp>
 
@@ -21,6 +22,17 @@ namespace eqLoader
                     ;
             }
     } connectionType_p;
+
+    struct setGlobalConnectionType
+    {
+        setGlobalConnectionType() {}
+
+        void operator()( int32_t n ) const
+            {
+                eqs::Global::instance()->setConnectionIAttribute( 
+                    eqs::ConnectionDescription::IATTR_TYPE, n );
+            }
+    };
 
     struct setConnectionType
     {

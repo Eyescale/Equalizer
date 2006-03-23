@@ -7,6 +7,7 @@
 #include "channel.h"
 #include "compound.h"
 #include "config.h"
+#include "global.h"
 #include "node.h"
 #include "pipe.h"
 #include "window.h"
@@ -79,7 +80,9 @@ bool Server::run( int argc, char **argv )
     }
 #endif
 
-    EQINFO << "Running config: " << endl << indent << this << exdent;
+    
+    EQINFO << disableSync << "Running config: " << endl << indent 
+           << Global::instance() << this << exdent << enableSync << flush;
 
     _handleRequests();
     return stopListening();
