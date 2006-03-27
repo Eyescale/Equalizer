@@ -259,6 +259,7 @@ bool Config::_init( const uint32_t initID )
     const string&              name = getName();
     eq::NodeCreateConfigPacket createConfigPacket;
     createConfigPacket.configID     = _id;
+    bool success = true;
 
     for( uint32_t i=0; i<nNodes; i++ )
     {
@@ -267,8 +268,7 @@ bool Config::_init( const uint32_t initID )
         if( !node->syncConnect( ))
         {
             EQERROR << "Connection of " << node << " failed." << endl;
-            _exit();
-            return false;
+            success = false;
         }
         
         // initialize nodes
@@ -282,13 +282,16 @@ bool Config::_init( const uint32_t initID )
     {
         if( !usedNodes[i]->syncInit( ))
         {
-            EQERROR << "Init of " << (void*)usedNodes[i] << " failed." << endl;
-            _exit();
-            return false;
+            EQERROR << "Init of node " << (void*)usedNodes[i] << " failed." 
+                    << endl;
+            success = false;
         }
     }
 
-    return true;
+    if( !success )
+        _exit();
+
+    return success;
 }
 
 bool Config::_exit()
