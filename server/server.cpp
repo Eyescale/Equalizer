@@ -66,7 +66,7 @@ bool Server::run( int argc, char **argv )
     if( !listen( connection ))
         return false;
 
-#if 1
+#ifdef EQLOADER
     if( nConfigs() == 0 )
     {
         EQERROR << "No configurations loaded" << endl;

@@ -603,6 +603,13 @@ namespace eq
     }
 
     inline std::ostream& operator << ( std::ostream& os, 
+                                       const PipeInitReplyPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " result " << packet->result;
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
                                        const WindowInitReplyPacket* packet )
     {
         os << (eqNet::ObjectPacket*)packet << " result " << packet->result

@@ -1,10 +1,10 @@
 global
 {
-    EQ_CONNECTION_TYPE              PIPE
-#    EQ_CONNECTION_HOSTNAME          "localhost"
-#    EQ_CONNECTION_TCPIP_PORT        4242
+    EQ_CONNECTION_TYPE              TCPIP
+    EQ_CONNECTION_HOSTNAME          "localhost"
+    EQ_CONNECTION_TCPIP_PORT        4242
 #    EQ_CONNECTION_LAUNCH_TIMEOUT    100s
-#    EQ_CONNECTION_LAUNCH_COMMAND    "ssh -n %h %c >& %h.log"
+    EQ_CONNECTION_LAUNCH_COMMAND    "ssh -n %h %c >& %h.log"
 }
 
 server

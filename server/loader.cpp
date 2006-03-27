@@ -7,6 +7,7 @@
 #include "loader.h"
 #include "loaderCompound.h"
 #include "loaderConnection.h"
+#include "loaderGlobal.h"
 #include "loaderState.h"
 
 #include "channel.h" 
@@ -15,16 +16,13 @@
 #include "server.h"
 #include "window.h"  
 
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/iterator/file_iterator.hpp>
 #include <fstream>
 #include <iostream>
 #include <string>
 
-using namespace eqLoader;
 using namespace eqs;
 using namespace std;
-using namespace boost::spirit;
+using namespace eqLoader;
 
 //---------------------------------------------------------------------------
 // actions
@@ -112,17 +110,7 @@ struct eqsGrammar : public grammar<eqsGrammar>
 
         definition( eqsGrammar const& self )
         {
-            file = *(global) >> server;
-
-            global = "global" 
-                >> ch_p('{')
-                >> *( str_p("EQ_CONNECTION_TYPE") 
-                      >> connectionType_p[setGlobalConnectionType()] )
-//                 >> *(EQ_CONNECTION_HOSTNAME          "localhost"
-//     EQ_CONNECTION_TCPIP_PORT        4242
-//     EQ_CONNECTION_LAUNCH_TIMEOUT    100s
-//     EQ_CONNECTION_LAUNCH_COMMAND    "ssh -n %h %c >& %h.log"
-                >> ch_p('}');
+            file = *(global_p) >> server;
 
             server = "server"
                 >> ch_p('{')[newServerAction(self._state)]
@@ -171,20 +159,22 @@ struct eqsGrammar : public grammar<eqsGrammar>
                                                    Compound::MODE_2D )];
         }
 
-        rule<ScannerT> file, global;
+        GlobalGrammar global_p;
+
+        rule<ScannerT> file;
         rule<ScannerT> server, config, node, pipe, window, channel, compound;
         rule<ScannerT> compoundParams, compoundMode;
     };
 
-    State& _state;
+    State&        _state;
 };
 
-struct skip_grammar : grammar<skip_grammar>
+struct skipGrammar : grammar<skipGrammar>
 {
     template <typename ScannerT>
     struct definition
     {
-        definition(skip_grammar const& /*self*/)
+        definition( skipGrammar const& /*self*/)
             {
                 skip
                     =   space_p
@@ -213,7 +203,7 @@ Server* Loader::loadConfig( const string& filename )
     }
 
     // Create a file iterator for this file
-    file_iterator<char> first( filename );
+    iterator_t first( filename );
 
     if( !first )
     {
@@ -221,13 +211,13 @@ Server* Loader::loadConfig( const string& filename )
         return NULL;
     }
 
-    file_iterator<char> last = first.make_end();
-    State               state( this );
-    eqsGrammar          g( state );
-    skip_grammar        skipper;
-    string              str;
+    iterator_t last = first.make_end();
+    State           state( this );
+    eqsGrammar      g( state );
+    skipGrammar     skipper;
+    string          str;
     
-    parse_info< file_iterator<char> > info = parse( first, last, g, 
+    parse_info< iterator_t > info = parse( first, last, g, 
                                                     skipper );
 
     if( info.full )

@@ -6,8 +6,6 @@ ifdef VARIANT
   DSO_LDFLAGS += -arch $(VARIANT)
 endif
 
-# export MACOSX_DEPLOYMENT_TARGET = 10.3
-
 DSO_LDFLAGS        += -dynamiclib -undefined dynamic_lookup
 DSO_SUFFIX          = dylib
 #WINDOW_SYSTEM      += GLX CGL

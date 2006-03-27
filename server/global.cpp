@@ -81,6 +81,19 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
         }
     }
 
+    for( int i=0; i<ConnectionDescription::SATTR_ALL; ++i )
+    {
+        const string& value = global->_connectionSAttributes[i];
+        if( value != reference._connectionSAttributes[i] )
+        {
+
+            os << ( i==ConnectionDescription::SATTR_HOSTNAME ?
+                    "EQ_CONNECTION_HOSTNAME" :
+                    "EQ_CONNECTION_LAUNCH_COMMAND" )
+               << " \"" << value << "\"" << endl;
+        }
+    }
+
     os << exdent << '}' << endl;
     os << enableSync;
     return os;

@@ -282,7 +282,7 @@ bool Config::_init( const uint32_t initID )
     {
         if( !usedNodes[i]->syncInit( ))
         {
-            EQERROR << "Init of " << usedNodes[i] << " failed." << endl;
+            EQERROR << "Init of " << (void*)usedNodes[i] << " failed." << endl;
             _exit();
             return false;
         }
