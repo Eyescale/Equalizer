@@ -44,6 +44,9 @@ namespace eqLoader
 
         void operator()( const unsigned value ) const
             {
+                EQINFO << "setGlobalConnectionIAttr " << _attr <<  " = "
+                       << value << endl;
+
                 Global::instance()->setConnectionIAttribute( _attr, value );
             }
         void operator()( const int value ) const
@@ -70,9 +73,9 @@ namespace eqLoader
                         >> *(
                             ( str_p("EQ_CONNECTION_TYPE") 
                               >> connectionType_p[setGlobalConnectionType()] )
-//                         |   ( str_p("EQ_CONNECTION_TCPIP_PORT")
-//                               >> (+(uint_p))[ setGlobalConnectionIAttr( 
-//                                      ConnectionDescription::IATTR_TCPIP_PORT)])
+                        |   ( str_p("EQ_CONNECTION_TCPIP_PORT")
+                              >> +(uint_p)[ setGlobalConnectionIAttr( 
+                                     ConnectionDescription::IATTR_TCPIP_PORT)])
                         |   ( str_p("EQ_CONNECTION_HOSTNAME")
                               >> ch_p('"')
                               >> (+(alnum_p))[ setGlobalConnectionSAttr( 
