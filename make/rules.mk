@@ -8,11 +8,13 @@ all: $(TARGETS)
 precompile: $(CXX_DEFINES_FILE)
 
 $(CXX_DEFINES_FILE)::
-	@echo "/* Generated from CXX_DEFINES during build */" > $@.tmp
+	@echo "/* Generated from CXXFLAGS during build */" > $@.tmp
 	@echo "#ifndef EQ_DEFINES_H" >> $@.tmp
 	@echo "#define EQ_DEFINES_H" >> $@.tmp
 	@for line in $(CXX_DEFINES_TXT); do  \
-		echo "#define $$line" >> $@.tmp ;\
+		echo "#ifndef $$line" >> $@.tmp ;\
+		echo "#  define $$line" >> $@.tmp ;\
+		echo "#endif" >> $@.tmp ;\
 	done
 	@echo "#endif // EQ_DEFINES_H" >> $@.tmp
 	@cmp -s $@ $@.tmp || cp $@.tmp $@
@@ -63,14 +65,14 @@ OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
 
 $(OBJECT_DIR)/%.h.gch : %.h
 	@mkdir -p $(@D)
-	$(CXX) -x c++-header $(CXXFLAGS) $(INT_CXXFLAGS) -c $< -o $@
+	$(CXX) -x c++-header $(CXXFLAGS) $(INT_CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
 
 $(OBJECT_DIR)/%.o : %.cpp
 	@mkdir -p $(@D)
 	@echo -n "$(@D)/" > $(OBJECT_DIR)/$*.d
 	@($(DEP_CXX) $(CXXFLAGS) $(INT_CXXFLAGS) -M -E $< >> \
 		$(OBJECT_DIR)/$*.d ) || rm $(OBJECT_DIR)/$*.d
-	$(CXX) $(CXXFLAGS) $(INT_CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INT_CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
 
 %.cpp: $(OBJECT_DIR)/%d
 
@@ -84,7 +86,7 @@ else
 endif
 
 % : %.cpp
-	$(CXX) $< $(CXXFLAGS) $(INT_CXXFLAGS) $(SA_LDFLAGS) $(SA_CXXFLAGS) -o $@ 
+	$(CXX) $< $(CXXFLAGS) $(INT_CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -o $@ 
 
 # cleaning targets
 clean:

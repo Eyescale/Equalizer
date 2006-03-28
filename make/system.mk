@@ -19,17 +19,17 @@ EXTRAS_DIR      = $(TOP)/extras
 LIBRARY_DIR     = $(BUILD_DIR)/$(VARIANT)/lib
 SAMPLE_LIB_DIR  = $(BUILD_DIR)/$(VARIANT1)/lib
 
-INT_CXXFLAGS   += -I$(OBJECT_DIR) -I$(BUILD_DIR)/include -I$(EXTRAS_DIR) -DSUBDIR=\"$(SUBDIR)\"
+WINDOW_SYSTEM_DEFINES = $(foreach WS,$(WINDOW_SYSTEM),-D$(WS))
+CXXFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DCHECK_THREADSAFETY
+INT_CXXFLAGS   += -I$(OBJECT_DIR) -I$(BUILD_DIR)/include -I$(EXTRAS_DIR)
 INT_LDFLAGS    += -L$(LIBRARY_DIR)
 DEP_CXX        ?= $(CXX)
 DOXYGEN        ?= Doxygen
 
 # defines
-CXX_DEFINES           += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES)
-CXX_DEFINES           += -DCHECK_THREADSAFETY
-WINDOW_SYSTEM_DEFINES  = $(foreach WS,$(WINDOW_SYSTEM),-D$(WS))
-CXX_DEFINES_FILE       = lib/base/defines.h
-CXX_DEFINES_TXT        = $(CXX_DEFINES:-D%= %)
+CXX_DEFINES      = $(filter -D%,$(CXXFLAGS) $(INT_CXXFLAGS))
+CXX_DEFINES_FILE = lib/base/defines.h
+CXX_DEFINES_TXT  = $(CXX_DEFINES:-D%= %)
 
 # header file variables
 HEADER_DIR      = $(BUILD_DIR)/include/eq/$(MODULE)
