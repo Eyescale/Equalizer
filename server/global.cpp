@@ -63,9 +63,9 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
         {
 
             os << ( i==ConnectionDescription::IATTR_TYPE ?
-                    "EQ_CONNECTION_TYPE " :
+                    "EQ_CONNECTION_TYPE           " :
                     i==ConnectionDescription::IATTR_TCPIP_PORT ?
-                    "EQ_CONNECTION_TCPIP_PORT " :
+                    "EQ_CONNECTION_TCPIP_PORT     " :
                     "EQ_CONNECTION_LAUNCH_TIMEOUT " );
                 
             switch( i )
@@ -73,6 +73,9 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
                 case ConnectionDescription::IATTR_TYPE:
                     os << ( value == eqNet::Connection::TYPE_TCPIP ? "TCPIP" : 
                             "PIPE" );
+                    break;
+                case ConnectionDescription::IATTR_LAUNCH_TIMEOUT:
+                    os << value << " ms";
                     break;
                 default:
                     os << value;
@@ -88,9 +91,9 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
         {
 
             os << ( i==ConnectionDescription::SATTR_HOSTNAME ?
-                    "EQ_CONNECTION_HOSTNAME" :
-                    "EQ_CONNECTION_LAUNCH_COMMAND" )
-               << " \"" << value << "\"" << endl;
+                    "EQ_CONNECTION_HOSTNAME       " :
+                    "EQ_CONNECTION_LAUNCH_COMMAND " )
+               << "\"" << value << "\"" << endl;
         }
     }
 

@@ -45,7 +45,7 @@ Server::Server()
     registerCommand( eq::REQ_SERVER_RELEASE_CONFIG, this, 
                      reinterpret_cast<CommandFcn>( 
                          &eqs::Server::_reqReleaseConfig ));
-    EQINFO << "new " << this << endl;
+    EQINFO << "New server @" << (void*)this << endl;
 }
 
 bool Server::run( int argc, char **argv )

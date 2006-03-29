@@ -75,21 +75,24 @@ namespace eqLoader
                               >> connectionType_p[setGlobalConnectionType()] )
                         |   ( str_p("EQ_CONNECTION_TCPIP_PORT")
                               >> +(uint_p)[ setGlobalConnectionIAttr( 
-                                     ConnectionDescription::IATTR_TCPIP_PORT)])
+                                      ConnectionDescription::IATTR_TCPIP_PORT)])
+                        |   ( str_p("EQ_CONNECTION_LAUNCH_TIMEOUT")
+                              >> +(uint_p)[ setGlobalConnectionIAttr( 
+                                  ConnectionDescription::IATTR_LAUNCH_TIMEOUT)]
+                              >> !str_p("ms") )
                         |   ( str_p("EQ_CONNECTION_HOSTNAME")
                               >> ch_p('"')
                               >> (+(alnum_p))[ setGlobalConnectionSAttr( 
                                       ConnectionDescription::SATTR_HOSTNAME ) ]
                               >> ch_p('"') )
                         |    ( str_p("EQ_CONNECTION_LAUNCH_COMMAND")
-                              >> ch_p('"')
-                              >> (+(anychar_p - ch_p('"') ))[
-                                  setGlobalConnectionSAttr( 
-                                   ConnectionDescription::SATTR_LAUNCH_COMMAND)]
-                              >> ch_p('"'))
+                               >> ch_p('"')
+                               >> (+(anychar_p - ch_p('"') ))[
+                                   setGlobalConnectionSAttr( 
+                                  ConnectionDescription::SATTR_LAUNCH_COMMAND)]
+                               >> ch_p('"'))
                             )
-//     EQ_CONNECTION_LAUNCH_TIMEOUT    100s
-                              >> ch_p('}');
+                        >> ch_p('}');
                 }
 
             rule<ScannerT> global;

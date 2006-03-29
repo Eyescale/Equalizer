@@ -5,6 +5,7 @@
 //#define BOOST_SPIRIT_DEBUG
 
 #include "loader.h"
+#include "loaderChannel.h"
 #include "loaderCompound.h"
 #include "loaderConnection.h"
 #include "loaderGlobal.h"
@@ -84,18 +85,6 @@ struct newWindowAction
     
     State& _state;
 };
-struct newChannelAction
-{
-    newChannelAction( State& state ) : _state( state ) {}
-
-    void operator()(const char& c) const
-        {
-            _state.channel = _state.loader->createChannel( );
-            _state.window->addChannel( _state.channel );
-        }
-    
-    State& _state;
-};
 
 //---------------------------------------------------------------------------
 // grammar
@@ -135,11 +124,7 @@ struct eqsGrammar : public grammar<eqsGrammar>
 
             window = "window"
                 >> ch_p('{')[newWindowAction(self._state)]
-                >> +(channel)
-                >> ch_p('}');
-
-            channel = "channel"
-                >> ch_p('{')[newChannelAction(self._state)]
+                >> +(channel_p(self._state))
                 >> ch_p('}');
 
             compound = "compound"
@@ -159,7 +144,7 @@ struct eqsGrammar : public grammar<eqsGrammar>
                                                    Compound::MODE_2D )];
         }
 
-        GlobalGrammar global_p;
+        GlobalGrammar  global_p;
 
         rule<ScannerT> file;
         rule<ScannerT> server, config, node, pipe, window, channel, compound;
