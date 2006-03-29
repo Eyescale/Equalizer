@@ -84,11 +84,11 @@ int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    connection = eqNet::Connection::create(eqNet::TYPE_PIPE);
+    connection = eqNet::Connection::create(eqNet::Connection::TYPE_PIPE);
     RefPtr<eqNet::ConnectionDescription> connDesc = 
         new eqNet::ConnectionDescription;
 
-    connDesc->type = eqNet::TYPE_PIPE;
+    connDesc->type = eqNet::Connection::TYPE_PIPE;
 
     TEST( connection->connect( connDesc ));
 

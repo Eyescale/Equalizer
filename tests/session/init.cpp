@@ -43,10 +43,10 @@ int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    connection = Connection::create(TYPE_PIPE);
-    RefPtr<ConnectionDescription> connDesc   = new ConnectionDescription;
+    connection = Connection::create(Connection::TYPE_PIPE);
+    RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
 
-    connDesc->type = TYPE_PIPE;
+    connDesc->type = Connection::TYPE_PIPE;
 
     TEST( connection->connect( connDesc ));
 

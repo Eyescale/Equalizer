@@ -48,7 +48,7 @@ int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    RefPtr<Connection>            connection = Connection::create(TYPE_PIPE);
+    RefPtr<Connection> connection = Connection::create(Connection::TYPE_PIPE);
     RefPtr<ConnectionDescription> connDesc   = new ConnectionDescription;
 
     if( !connection->connect( connDesc ))
