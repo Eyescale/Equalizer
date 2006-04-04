@@ -244,6 +244,7 @@ namespace eq
             }
 
         uint32_t requestID;
+        bool     result;
     };
 
     struct NodeStopPacket : public eqNet::ObjectPacket
@@ -337,6 +338,7 @@ namespace eq
             }
 
         uint32_t requestID;
+        bool     result;
     };
 
     struct PipeCreateWindowPacket : public eqNet::ObjectPacket
@@ -432,6 +434,7 @@ namespace eq
             }
 
         uint32_t requestID;
+        bool     result;
     };
 
     struct WindowCreateChannelPacket : public eqNet::ObjectPacket
@@ -540,6 +543,7 @@ namespace eq
             }
 
         uint32_t requestID;
+        bool     result;
     };
 
     struct ChannelClearPacket : public eqNet::ObjectPacket

@@ -36,6 +36,8 @@ void Config::_construct()
                      reinterpret_cast<CommandFcn>( &eqs::Config::_cmdRequest ));
     registerCommand( eq::REQ_CONFIG_FRAME_END, this,
                      reinterpret_cast<CommandFcn>( &eqs::Config::_reqFrameEnd));
+
+    EQINFO << "New config @" << (void*)this << endl;
 }
 
 Config::Config()

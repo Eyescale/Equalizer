@@ -311,13 +311,17 @@ ostream& eqs::operator << ( ostream& os, const Node* node )
     if( !node )
         return os;
     
-    os << "node" << endl;
+    os << disableSync << "node" << endl;
     os << "{" << endl << indent;
+
+    const uint32_t nConnectionDescriptions = node->nConnectionDescriptions();
+    for( uint32_t i=0; i<nConnectionDescriptions; i++ )
+        os << node->getConnectionDescription( i ).get();
 
     const uint32_t nPipes = node->nPipes();
     for( uint32_t i=0; i<nPipes; i++ )
         os << node->getPipe(i);
 
-    os << exdent << "}" << endl;
+    os << exdent << "}" << enableSync << endl;
     return os;
 }

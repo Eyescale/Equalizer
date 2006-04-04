@@ -5,6 +5,7 @@
 #include "initData.h"
 
 using namespace std;
+using namespace eqBase;
 
 InitData::InitData()
         : Mobject( OBJECT_INITDATA ),
@@ -48,21 +49,26 @@ void InitData::_clearInstanceData()
     _instanceData = NULL;
 }
 
-void InitData::setFrameData( const FrameData* frameData )
+void InitData::setFrameData( FrameData* frameData )
 {
     _clearInstanceData();
     _frameDataID = frameData ? frameData->getID() : EQ_INVALID_ID;
+    _frameData   = frameData;
 }
 
 FrameData* InitData::getFrameData()
 {
+    if( _frameData.isValid( ))
+        return _frameData.get();
     if( _frameDataID == EQ_INVALID_ID )
         return NULL;
 
     eqNet::Session* session = getSession();
     EQASSERT( session );
 
-    return (FrameData*)session->getMobject( _frameDataID );
+    _frameData = RefPtr_static_cast< FrameData, Mobject >( 
+        session->getMobject( _frameDataID ));
+    return _frameData.get();
 }
 
 void InitData::setFilename( const std::string& filename )

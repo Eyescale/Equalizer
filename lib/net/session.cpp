@@ -214,7 +214,7 @@ void Session::deregisterMobject( Mobject* object )
     freeIDs( id, 1 );
 }
 
-Mobject* Session::getMobject( const uint32_t id )
+RefPtr<Mobject> Session::getMobject( const uint32_t id )
 {
     Object* object = _registeredObjects[id];
     if( object )

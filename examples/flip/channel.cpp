@@ -7,11 +7,15 @@
 #include "initData.h"
 
 using namespace std;
+using namespace eqBase;
+using namespace eqNet;
 
 bool Channel::init( const uint32_t initID )
 {
     EQINFO << "Init channel initID " << initID << " ptr " << this << endl;
-    _initData = (InitData*)getConfig()->getMobject( initID );
+    eq::Config* config = getConfig();
+    _initData = RefPtr_static_cast< InitData, Mobject >( 
+        config->getMobject( initID ));
     _frameData = _initData->getFrameData();
 
     EQASSERT( _frameData );
@@ -19,9 +23,12 @@ bool Channel::init( const uint32_t initID )
     return true;
 }
 
-void Channel::exit()
+bool Channel::exit()
 {
+    _initData  = NULL;
+    _frameData = NULL;
     EQINFO << "Exit " << this << endl;
+    return eq::Channel::exit();
 }
 
 void Channel::draw( const uint32_t frameID )

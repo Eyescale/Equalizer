@@ -264,7 +264,8 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_reqExit( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_reqExit( eqNet::Node* node, 
+                                     const eqNet::Packet* pkg )
 {
     PipeExitPacket* packet = (PipeExitPacket*)pkg;
     EQINFO << "handle pipe exit " << packet << endl;
@@ -379,21 +380,21 @@ bool Pipe::initCGL()
 #endif
 }
 
-void Pipe::exit()
+bool Pipe::exit()
 {
     switch( _windowSystem )
     {
         case WINDOW_SYSTEM_GLX:
             exitGLX();
-            break;
+            return true;
 
         case WINDOW_SYSTEM_CGL:
             exitCGL();
-            break;
+            return true;
 
         default:
             EQWARN << "Unknown windowing system: " << _windowSystem << endl;
-            return;
+            return false;
     }
 }
 

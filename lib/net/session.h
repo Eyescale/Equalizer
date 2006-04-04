@@ -183,7 +183,7 @@ namespace eqNet
          * @return the registered mobject, or <code>NULL</code> if the object is
          *         not registered.
          */
-        Mobject* getMobject( const uint32_t id );
+        eqBase::RefPtr<Mobject> getMobject( const uint32_t id );
 
         /** 
          * Deregisters a distributed mobject.

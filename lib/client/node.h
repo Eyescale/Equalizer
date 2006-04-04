@@ -57,7 +57,7 @@ namespace eq
         /** 
          * Exit this node.
          */
-        virtual void exit(){}
+        virtual bool exit(){ return true; }
         //@}
 
         /** @sa eqNet::Node::clientLoop */

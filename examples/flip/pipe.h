@@ -16,9 +16,10 @@ public:
 
 protected:
     bool init( const uint32_t initID );
+    bool exit();
 
 private:
-    InitData* _initData;
+    eqBase::RefPtr<InitData>  _initData;
 };
 
 #endif // EQ_FLIP_PIPE_H

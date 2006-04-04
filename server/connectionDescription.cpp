@@ -25,3 +25,35 @@ ConnectionDescription::ConnectionDescription()
             break;
     }
 }
+
+std::ostream& eqs::operator << ( std::ostream& os, 
+                                 const eqNet::ConnectionDescription* desc )
+{
+    os << disableSync << "connection" << endl;
+    os << "{" << endl << indent;
+
+    const Global* global = Global::instance();
+
+    if( desc->type != global->getConnectionIAttribute( IATTR_TYPE ))
+        os << "type " << ( desc->type == Connection::TYPE_TCPIP ? "TCPIP" : 
+                           desc->type == Connection::TYPE_PIPE ?  "PIPE" :
+                           "UNIPIPE" ) << endl;
+    
+    if( desc->port != global->getConnectionIAttribute( IATTR_TCPIP_PORT ))
+        os << "TCPIP_port " << desc->port << endl;
+
+    if( desc->launchTimeout != 
+        global->getConnectionIAttribute( IATTR_LAUNCH_TIMEOUT ))
+        os << "launchTimeout " << desc->launchTimeout << endl;
+
+    if( desc->hostname != global->getConnectionSAttribute( SATTR_HOSTNAME ))
+        os << "hostname \"" << desc->hostname << "\"" << endl;
+
+    if( desc->launchCommand != 
+        global->getConnectionSAttribute( SATTR_LAUNCH_COMMAND ))
+        os << "launchCommand \"" << desc->launchCommand << "\"" << endl;
+    
+    os << exdent << "}" << enableSync << endl;
+
+    return os;
+}

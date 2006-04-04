@@ -16,7 +16,7 @@ public:
     InitData();
     InitData( const void* data, const uint64_t size );
 
-    void       setFrameData( const FrameData* frameData );
+    void       setFrameData( FrameData* frameData );
     FrameData* getFrameData();
 
     void               setFilename( const std::string& filename );
@@ -26,7 +26,9 @@ protected:
     const void* getInstanceData( uint64_t* size );
 
 private:
-    uint32_t    _frameDataID;
+    uint32_t                  _frameDataID;
+    eqBase::RefPtr<FrameData> _frameData;
+
     std::string _filename; 
 
     char* _instanceData;

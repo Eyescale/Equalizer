@@ -89,6 +89,13 @@ namespace eqBase
                                                                   const &f )
     { return RefPtr<to>( f, RefPtr_scast() ); }
 
+    template< class T >
+    inline std::ostream& operator << ( std::ostream& os, const RefPtr<T>& rp )
+    {
+        os << "RefPtr[" << rp.get() << "]";
+        return os;
+    }
+
 }
 
 #endif //EQBASE_REFPTR_H

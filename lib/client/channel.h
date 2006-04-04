@@ -83,7 +83,7 @@ namespace eq
         /** 
          * Exit this channel.
          */
-        virtual void exit(){}
+        virtual bool exit(){ return true; }
 
         /** 
          * Clear the frame buffer.

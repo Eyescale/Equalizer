@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PIPE_H
@@ -60,6 +60,15 @@ namespace eq
          * @return the config of this pipe. 
          */
         Config* getConfig() const { return (_node ? _node->getConfig() : NULL);}
+
+        /** 
+         * Gets a window.
+         * 
+         * @param index the window's index. 
+         * @return the window.
+         */
+        Window* getWindow( const uint32_t index ) const
+            { return _windows[index]; }
 
         /** 
          * @return the pipe's pixel viewport
@@ -176,7 +185,7 @@ namespace eq
         /** 
          * Exit this pipe.
          */
-        virtual void exit();
+        virtual bool exit();
         void exitGLX();
         void exitCGL();
         //@}

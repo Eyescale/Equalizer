@@ -13,6 +13,7 @@
 #include <eq/net/barrier.h>
 
 using namespace eq;
+using namespace eqBase;
 using namespace std;
 
 eq::Window::Window()
@@ -198,10 +199,11 @@ eqNet::CommandResult eq::Window::_reqSwapWithBarrier(eqNet::Node* node,
     WindowSwapWithBarrierPacket* packet = (WindowSwapWithBarrierPacket*)pkg;
     EQVERB << "handle swap with barrier " << packet << endl;
 
-    eqNet::Mobject* mobject = getSession()->getMobject( packet->barrierID );
-    EQASSERT( dynamic_cast<eqNet::Barrier*>(mobject) );
+    eqNet::Session*        session = getSession();
+    RefPtr<eqNet::Mobject> mobject = session->getMobject( packet->barrierID );
+    EQASSERT( dynamic_cast<eqNet::Barrier*>(mobject.get()) );
 
-    eqNet::Barrier* barrier = (eqNet::Barrier*)mobject;
+    eqNet::Barrier* barrier = (eqNet::Barrier*)mobject.get();
     finish();
     barrier->enter();
     swap();
@@ -333,7 +335,11 @@ bool eq::Window::initGLX()
     XFlush( display );
 
     // create context
-    GLXContext context = glXCreateContext( display, visInfo, NULL, True );
+    Pipe*      pipe        = getPipe();
+    Window*    firstWindow = pipe->getWindow(0);
+    GLXContext shareCtx    = firstWindow->getGLXContext();
+    GLXContext context = glXCreateContext( display, visInfo, shareCtx, True );
+
     if ( !context )
     {
         EQERROR << "Could not create OpenGL context\n" << endl;
@@ -378,8 +384,11 @@ bool eq::Window::initCGL()
         return false;
     }
 
-    CGLContextObj context = 0;
-    CGLCreateContext( pixelFormat, NULL, &context );
+    Pipe*         pipe        = getPipe();
+    Window*       firstWindow = pipe->getWindow(0);
+    GLXContextObj shareCtx    = firstWindow->getCGLContext();
+    CGLContextObj context     = 0;
+    CGLCreateContext( pixelFormat, shareCtx, &context );
     CGLDestroyPixelFormat ( pixelFormat );
 
     if( !context ) 
@@ -409,22 +418,22 @@ bool eq::Window::initCGL()
 //----------------------------------------------------------------------
 // exit
 //----------------------------------------------------------------------
-void eq::Window::exit()
+bool eq::Window::exit()
 {
     const WindowSystem windowSystem = _pipe->getWindowSystem();
     switch( windowSystem )
     {
         case WINDOW_SYSTEM_GLX:
             exitGLX();
-            break;
+            return true;
 
         case WINDOW_SYSTEM_CGL:
             exitCGL();
-            break;
+            return false;
 
         default:
             EQWARN << "Unknown windowing system: " << windowSystem << endl;
-            return;
+            return false;
     }
 }
 

@@ -50,6 +50,9 @@ Server::Server()
 
 bool Server::run( int argc, char **argv )
 {
+    EQINFO << "Starting server: " << endl << indent 
+           << Global::instance() << this << exdent;
+
     eqNet::init( argc, argv );
 
     RefPtr<eqNet::Connection> connection =
@@ -79,10 +82,6 @@ bool Server::run( int argc, char **argv )
         return false;
     }
 #endif
-
-    
-    EQINFO << disableSync << "Running config: " << endl << indent 
-           << Global::instance() << this << exdent << enableSync << flush;
 
     _handleRequests();
     return stopListening();
@@ -292,13 +291,13 @@ std::ostream& eqs::operator << ( std::ostream& os, const Server* server )
     
     const uint32_t nConfigs = server->nConfigs();
     
-    os << "server " << std::endl;
-    os << "{" << std::endl << eqBase::indent;
+    os << disableSync << "server " << endl;
+    os << "{" << endl << indent;
     
     for( uint32_t i=0; i<nConfigs; i++ )
         os << server->getConfig(i);
     
-    os << eqBase::exdent << "}" << std::endl;
+    os << exdent << "}"  << enableSync << endl;
 
     return os;
 }

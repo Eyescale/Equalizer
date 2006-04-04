@@ -1,7 +1,7 @@
 
 VARIANTS    = ppc
 
-# CXXFLAGS += -DEQLOADER
+CXXFLAGS += #-DEQLOADER
 
 ifdef VARIANT
   CXXFLAGS    += -arch $(VARIANT)

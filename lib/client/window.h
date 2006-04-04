@@ -152,7 +152,7 @@ namespace eq
         /** 
          * Exit this window.
          */
-        virtual void exit();
+        virtual bool exit();
         void exitGLX();
         void exitCGL();
 

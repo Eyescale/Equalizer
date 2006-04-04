@@ -22,17 +22,25 @@ namespace eqLoader
 {
     struct State
     {
+        State() { reset(); }
         State( eqs::Loader* ldr )
-                : loader( ldr ),
-                  server( NULL ),
-                  config( NULL ),
-                  node( NULL ),
-                  pipe( NULL ),
-                  window( NULL ),
-                  channel( NULL ),
-                  compound( NULL )
-            {}
+            {
+                reset();
+                loader = ldr;
+            }
 
+        void reset() 
+            {
+                loader   = NULL;
+                server   = NULL;
+                config   = NULL;
+                node     = NULL;
+                pipe     = NULL;
+                window   = NULL;
+                channel  = NULL;
+                compound = NULL;
+                connectionDescription = NULL;
+            }
         eqs::Loader*      loader;
         eqs::Server*      server;
         eqs::Config*      config;

@@ -10,6 +10,7 @@
 class Node : public eq::Node
 {
 protected:
+    bool init( const uint32_t initID );
 };
 
 #endif // EQ_FLIP_NODE_H

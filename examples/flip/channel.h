@@ -18,12 +18,12 @@ public:
     Channel() : _initData(NULL), _frameData(NULL) {}
 
     virtual bool init( const uint32_t initID );
-    virtual void exit();
+    virtual bool exit();
     virtual void draw( const uint32_t frameID );
 
 private:
-    InitData*  _initData;
-    FrameData* _frameData;
+    eqBase::RefPtr<InitData> _initData;
+    FrameData*               _frameData;
 };
 
 

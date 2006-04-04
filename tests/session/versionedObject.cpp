@@ -9,27 +9,38 @@
 #include <eq/net/pipeConnection.h>
 #include <eq/net/session.h>
 #include <eq/net/versionedObject.h>
-#include <eq/client/nodeFactory.h>
 
 #include <iostream>
 
 using namespace eqBase;
 using namespace std;
 
-eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
-
-class TestMobject : public eqNet::Mobject
+class TestObject : public eqNet::VersionedObject
 {
 public:
-    TestMobject() : Mobject( eqNet::MOBJECT_CUSTOM ), value(42) {}
+    TestObject() : VersionedObject( eqNet::MOBJECT_CUSTOM ), version(42) {}
 
 protected:
-    int value;
+    int version;
 
     const void* getInstanceData( uint64_t* size )
         {
-            *size = sizeof( value );
-            return &value;
+            return pack( size );
+        }
+
+    const void* pack( uint64_t* size )
+        {
+            *size = sizeof( version );
+            return &version;
+        }
+
+    void unpack( const void* data, const uint64_t size )
+        {
+            TEST( size == sizeof( version ));
+
+            int newVersion = *(int*)data;
+            TEST( newVersion+1 == version );
+            version = newVersion;
         }
 };
 
@@ -39,10 +50,8 @@ class Session : public eqNet::Session
                                         const uint64_t dataSize )
         {
             if( type == eqNet::MOBJECT_CUSTOM )
-            {
-                TEST( *(int*)data == 42 );
-                return new TestMobject();
-            }
+                return new TestObject();
+
             return eqNet::Session::instanciateMobject( type, data, dataSize );
         }
 };
@@ -70,15 +79,20 @@ protected:
             TEST( server->mapSession( server, &session, "foo" ));
 
             while( testID == EQ_INVALID_ID ); // spin for test object
-            
+
             RefPtr<eqNet::Mobject> mobject = session.getMobject( testID );
-            TEST( dynamic_cast<TestMobject*>(mobject.get()) );
+            TEST( dynamic_cast<TestObject*>(mobject.get()) );
                 
-            TestMobject* object = (TestMobject*) mobject.get();
+            TestObject* object = (TestObject*) mobject.get();
             TEST( object );
             TEST( object->getID() == testID );
 
+            sleep(1);
+
             TEST( server->stopListening( ));
+            TEST( server->getRefCount() == 1 );
+            TEST( nodeProxy->getRefCount() == 1 );
+            
             return EXIT_SUCCESS;
         }
 };
@@ -108,12 +122,17 @@ int main( int argc, char **argv )
     Session session;
     TEST( node->mapSession( serverProxy, &session, "foo" ));
     
-    TestMobject obj;
+    TestObject obj;
     session.registerMobject( &obj, serverProxy.get( ));
 
     testID = obj.getID();
     TEST( testID != EQ_INVALID_ID );
 
-    TEST( node->stopListening( ));
+    sleep(1);
+
     TEST( server.join( ));
+    TEST( node->stopListening( ));
+    TEST( connection->getRefCount() == 1 );
+    TEST( node->getRefCount() == 1 );
+    TEST( serverProxy->getRefCount() == 1 );
 }

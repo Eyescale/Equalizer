@@ -297,6 +297,10 @@ std::ostream& eqs::operator << ( std::ostream& os, const Window* window )
     os << "window" << endl;
     os << "{" << endl << indent; 
 
+    const eq::PixelViewport& pvp = window->getPixelViewport();
+    if( pvp.isValid( ))
+        os << "viewport " << pvp << endl;
+
     const uint32_t nChannels = window->nChannels();
     for( uint32_t i=0; i<nChannels; i++ )
         os << window->getChannel(i);

@@ -8,6 +8,7 @@
 #include <eq/net/barrier.h>
 #include <eq/net/connection.h>
 #include <eq/net/init.h>
+#include <eq/net/mobject.h>
 #include <eq/net/pipeConnection.h>
 #include <eq/net/versionedObject.h>
 

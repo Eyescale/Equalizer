@@ -66,7 +66,10 @@ public:
                 Session session;
                 TEST( node->mapSession( server, &session, "foo" ));
                 
-                Barrier *barrier = (Barrier*)session.getMobject( barrierID );
+                RefPtr<eqNet::Mobject> mobject = session.getMobject( barrierID);
+                TEST( dynamic_cast<eqNet::Barrier*>(mobject.get()) );
+                
+                eqNet::Barrier* barrier = (eqNet::Barrier*)mobject.get();
                 TEST( barrier );
 
                 cerr << "Slave enter" << endl;

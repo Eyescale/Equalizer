@@ -97,7 +97,13 @@ namespace eqLoader
 
             rule<ScannerT> global;
         };
-    };
+    } 
+        global_g;
+
+//     inline GlobalGrammar global_p()
+//     { 
+//         return GlobalGrammar();
+//     }
 }
 
 #endif // EQS_LOADER_GLOBAL_H
