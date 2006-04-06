@@ -41,9 +41,9 @@ namespace eqNet
     {
     public:
         enum State {
-            STATE_STOPPED,   // initial
-            STATE_LAUNCHED,  // remote node, launched but not yet connected
-            STATE_CONNECTED, // remote node, connected
+            STATE_STOPPED,   // initial               
+            STATE_LAUNCHED,  // remote node, launched
+            STATE_CONNECTED, // remote node, connected  
             STATE_LISTENING  // local node, listening
         };
 
@@ -517,6 +517,14 @@ namespace eqNet
          */
         virtual const std::string& getProgramName() 
             { return Global::getProgramName(); }
+
+        /** 
+         * Returns the working directory to start this node.
+         * 
+         * @return the working directory to start this node.
+         */
+        virtual const std::string& getWorkDir() 
+            { return Global::getWorkDir(); }
 
     private:
         /** per-thread local node */

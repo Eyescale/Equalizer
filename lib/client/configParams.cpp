@@ -12,6 +12,8 @@ using namespace std;
 ConfigParams::ConfigParams()
 {
     renderClient = eqNet::Global::getProgramName();
+    workDir      = eqNet::Global::getWorkDir();
+
 //     compoundModes = 
 //         COMPOUND_MODE_2D    | 
 //         COMPOUND_MODE_DPLEX |
@@ -25,6 +27,7 @@ ConfigParams& ConfigParams::operator = ( const ConfigParams& rhs )
         return *this;
  
     renderClient  = rhs.renderClient;
+    workDir       = rhs.workDir;
     compoundModes = rhs.compoundModes;
     return *this;
 }

@@ -31,8 +31,11 @@ namespace eqNet
          *
          * @param nCommands the highest command ID to be handled by the node, at
          *                  least <code>CMD_SESSION_CUSTOM</code>.
+         * @param threadSafe if <code>true</code>, all public functions are
+         *                   thread-safe.
          */
-        Session( const uint32_t nCommands = CMD_SESSION_CUSTOM );
+        Session( const uint32_t nCommands = CMD_SESSION_CUSTOM, 
+                 const bool threadSafe = false );
 
         /** 
          * Returns the name of the session.

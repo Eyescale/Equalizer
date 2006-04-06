@@ -82,9 +82,6 @@ namespace eq
         eqNet::RequestQueue    _requestQueue;
         bool                   _clientLoopRunning;
 
-        /** The state of the node thread. */
-        eqBase::Gate           _initialized;
-
         void _addPipe( Pipe* pipe );
         void _removePipe( Pipe* pipe );
 

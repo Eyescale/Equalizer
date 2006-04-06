@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "node.h"
@@ -104,6 +104,14 @@ const string& Node::getProgramName()
     return config->getRenderClient();
 }
 
+const string& Node::getWorkDir()
+{
+    const Config* config = getConfig();
+    EQASSERT( config );
+
+    return config->getWorkDir();
+}
+
 //===========================================================================
 // Operations
 //===========================================================================
@@ -112,26 +120,6 @@ const string& Node::getProgramName()
 // init
 //---------------------------------------------------------------------------
 void Node::startInit( const uint32_t initID )
-{
-    _sendInit( initID );
-
-    eq::NodeCreatePipePacket createPipePacket( _config->getID(), getID( ));
-
-    const uint32_t nPipes = _pipes.size();
-    for( uint32_t i=0; i<nPipes; i++ )
-    {
-        Pipe* pipe = _pipes[i];
-        if( pipe->isUsed( ))
-        {
-            _config->registerObject( pipe );
-            createPipePacket.pipeID = pipe->getID();
-            send( createPipePacket );
-            pipe->startInit( initID );
-        }
-    }
-}
-
-void Node::_sendInit( const uint32_t initID )
 {
     EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
@@ -144,21 +132,9 @@ void Node::_sendInit( const uint32_t initID )
 
 bool Node::syncInit()
 {
-    bool success = true;
-
-    const int nPipes = _pipes.size();
-    for( int i=0; i<nPipes; ++i )
-    {
-        Pipe* pipe = _pipes[i];
-        if( pipe->isUsed( ))
-            if( !pipe->syncInit( ))
-                success = false;
-    }
-
     EQASSERT( _pendingRequestID != EQ_INVALID_ID );
 
-    if( !(bool)_requestHandler.waitRequest( _pendingRequestID ))
-        success = false;
+    const bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = EQ_INVALID_ID;
 
     return success;
@@ -168,19 +144,6 @@ bool Node::syncInit()
 // exit
 //---------------------------------------------------------------------------
 void Node::startExit()
-{
-    const uint32_t nPipes = _pipes.size();
-    for( uint32_t i=0; i<nPipes; i++ )
-    {
-        Pipe* pipe = _pipes[i];
-        if( pipe->isUsed( ))
-            pipe->startExit();
-    }
-
-    _sendExit();
-}
-
-void Node::_sendExit()
 {
     EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
@@ -194,25 +157,9 @@ bool Node::syncExit()
 {
     EQASSERT( _pendingRequestID != EQ_INVALID_ID );
 
-    bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
+    const bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = EQ_INVALID_ID;
-    
-    eq::NodeDestroyPipePacket destroyPipePacket( _config->getID(), getID( ));
-    
-    const uint32_t nPipes = _pipes.size();
-    for( uint32_t i=0; i<nPipes; i++ )
-    {
-        Pipe* pipe = _pipes[i];
-        if( pipe->isUsed( ))
-        {
-            if( !pipe->syncExit( ))
-                success = false;
 
-            destroyPipePacket.pipeID = pipe->getID();
-            send( destroyPipePacket );
-            _config->deregisterObject( pipe );
-        }
-    }
     return success;
 }
 

@@ -34,12 +34,12 @@ namespace eq
             {
                 command = CMD_SERVER_CHOOSE_CONFIG;
                 size    = sizeof( ServerChooseConfigPacket );
-                renderClient[0] = '\0';
+                rendererInfo[0] = '\0';
             }
 
         uint32_t requestID;
         uint32_t compoundModes;
-        char     renderClient[8];
+        char     rendererInfo[8];
     };
 
     struct ServerChooseConfigReplyPacket : public ServerPacket
@@ -580,7 +580,8 @@ namespace eq
                                        const ServerChooseConfigPacket* packet )
     {
         os << (ServerPacket*)packet << " req " << packet->requestID
-           << " cmp modes " << packet->compoundModes;
+           << " cmp modes " << packet->compoundModes
+           << " renderer " << packet->rendererInfo;
         return os;
     }
 

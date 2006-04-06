@@ -2,11 +2,13 @@
 /* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
+#include "flip.h"
+
 #include "channel.h"
 #include "config.h"
-#include "flip.h"
 #include "frameData.h"
 #include "initData.h"
+#include "node.h"
 #include "pipe.h"
 
 #include <stdlib.h>
@@ -20,6 +22,7 @@ class NodeFactory : public eq::NodeFactory
 {
 public:
     virtual eq::Config*  createConfig()  { return new ::Config; }
+    virtual eq::Node*    createNode()    { return new ::Node; }
     virtual eq::Pipe*    createPipe()    { return new ::Pipe; }
     virtual eq::Channel* createChannel() { return new ::Channel; }
 };
@@ -88,4 +91,3 @@ int main( int argc, char** argv )
     cerr << "Exit took " << clock.getTimef() << " ms" << endl;
     return EXIT_SUCCESS;
 }
-

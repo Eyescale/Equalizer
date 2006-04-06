@@ -8,6 +8,7 @@
 #include "node.h"
 
 #include <getopt.h>
+#include <unistd.h>
 
 using namespace eqNet;
 using namespace eqBase;
@@ -22,14 +23,15 @@ bool eqNet::init( int argc, char** argv )
 
     const string programName = Global::getProgramName();
     if( programName.size() == 0  )
+        Global::setProgramName( argv[0] );
+
+    const string workDir = Global::getWorkDir();
+    if( workDir.size() == 0 )
     {
-        if( argv[0][0] == '/' )
-            Global::setProgramName( argv[0] );
-        else
-        {
-            const string pwd = getenv("PWD");
-            Global::setProgramName( pwd + "/" + argv[0] );
-        }
+        char cwd[MAXPATHLEN];
+        getcwd( cwd, MAXPATHLEN );
+
+        Global::setWorkDir( cwd );
     }
 
     if( !initLocalNode( argc, argv ))
@@ -116,7 +118,6 @@ bool initLocalNode( int argc, char** argv )
         }
     }
 
-    EQINFO << "clientOpts: " << clientOpts << endl;
     if( isClient )
     {
         EQINFO << "Client node started from command line with option " 

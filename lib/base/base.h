@@ -54,11 +54,16 @@ typedef int socklen_t;
 #endif
 
 #ifdef CHECK_THREADSAFETY
-#  define CHECK_THREAD                                              \
-    if( !_threadID )                                                \
-        _threadID = pthread_self();                                 \
-    EQASSERTINFO( pthread_equal( _threadID, pthread_self( )),       \
-                  "Non-threadsave code called from two threads" );
+#  define CHECK_THREAD                                                  \
+    {                                                                   \
+        if( _threadID==0 )                                              \
+        {                                                               \
+            _threadID = pthread_self();                                 \
+            EQINFO << "Functions locked to this thread" << std::endl;   \
+        }                                                               \
+        EQASSERTINFO( pthread_equal( _threadID, pthread_self( )),       \
+                      "Non-threadsave code called from two threads" ); \
+    }
 #else
 #  define CHECK_THREAD
 #endif

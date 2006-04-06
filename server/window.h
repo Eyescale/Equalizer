@@ -25,6 +25,14 @@ namespace eqs
     class Window : public eqNet::Base, public eqNet::Object
     {
     public:
+        enum State
+        {
+            STATE_STOPPED,       // initial     <----+
+            STATE_INITIALISING,  // init sent        |
+            STATE_RUNNING,       // init successful  |
+            STATE_STOPPING       // exit send   -----+
+        };
+
         /** 
          * Constructs a new Window.
          */
@@ -36,6 +44,11 @@ namespace eqs
         Window( const Window& from );
 
         virtual ~Window(){}
+
+        /** 
+         * @return the state of this pipe.
+         */
+        State getState()    const { return _state; }
 
         /**
          * @name Data Access
@@ -164,6 +177,9 @@ namespace eqs
         //*}
 
     private:
+        /** The current operational state. */
+        State _state;
+
         /** The child channels. */
         std::vector<Channel*> _channels;
 

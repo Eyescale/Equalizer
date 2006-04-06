@@ -4,13 +4,17 @@
 
 #include "requestHandler.h"
 
+#include "lock.h"
+
 using namespace eqBase;
 using namespace std;
 
-RequestHandler::RequestHandler( const Thread::Type type )
+RequestHandler::RequestHandler( const Thread::Type type, const bool threadSafe )
         : _type(type),
           _requestID(1)
 {
+    _mutex = threadSafe ? new Lock( type ) : NULL;
+        
 #ifdef CHECK_THREADSAFETY
     _threadID = 0;
 #endif
@@ -24,11 +28,17 @@ RequestHandler::~RequestHandler()
         _freeRequests.pop_front();
         delete request;
     }
+
+    if( _mutex )
+        delete _mutex;
 }
 
 uint32_t RequestHandler::registerRequest( void* data )
 {
-    CHECK_THREAD;
+    if( _mutex )
+        _mutex->set();
+    else
+        CHECK_THREAD;
 
     Request* request;
     if( _freeRequests.empty( ))
@@ -43,12 +53,17 @@ uint32_t RequestHandler::registerRequest( void* data )
     const uint32_t requestID = _requestID++;
     _requests[requestID] = request;
     
+    if( _mutex )
+        _mutex->unset();
     return requestID;
 }
 
 void RequestHandler::unregisterRequest( const uint32_t requestID )
 {
-    CHECK_THREAD;
+    if( _mutex )
+        _mutex->set();
+    else
+        CHECK_THREAD;
 
     Request* request = _requests[requestID];
     if( !request )
@@ -56,17 +71,25 @@ void RequestHandler::unregisterRequest( const uint32_t requestID )
 
     _requests.erase( requestID );
     _freeRequests.push_front( request );
+    if( _mutex )
+        _mutex->unset();
 }
 
 void* RequestHandler::waitRequest( const uint32_t requestID, bool* success,
                                    const uint32_t timeout )
 {
-    CHECK_THREAD;
+    if( _mutex )
+        _mutex->set();
+    else
+        CHECK_THREAD;
+
     Request* request = _requests[requestID];
 
     if( !request || !request->lock->set( timeout ))
     {
         if( success ) *success = false;
+        if( _mutex )
+            _mutex->unset();
         return NULL;
     }
 
@@ -76,6 +99,8 @@ void* RequestHandler::waitRequest( const uint32_t requestID, bool* success,
     _freeRequests.push_front( request );
 
     if( success ) *success = true;
+    if( _mutex )
+        _mutex->unset();
     return result;
 }
 

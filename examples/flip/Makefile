@@ -7,7 +7,10 @@ SOURCES = \
 	channel.cpp \
 	flip.cpp \
 	initData.cpp \
-	pipe.cpp
+	node.cpp \
+	pipe.cpp \
+	plyfile.cpp \
+	plyFileIO.cpp
 
 CXXFLAGS    += -I.. $(WINDOW_SYSTEM_INCS)
 SA_LDFLAGS  += -L$(SAMPLE_LIB_DIR) -leq -lpthread $(WINDOW_SYSTEM_LIBS)

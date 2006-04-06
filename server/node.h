@@ -17,6 +17,8 @@ namespace eqs
     class Config;
     class Pipe;
 
+    typedef std::vector<Pipe*>::const_iterator PipeIter;
+
     /**
      * The node.
      */
@@ -70,6 +72,13 @@ namespace eqs
          * @return the pipe.
          */
         Pipe* getPipe( const uint32_t index ) const { return _pipes[index]; }
+
+        /** 
+         * Gets the vector of pipes
+         * 
+         * @return the pipe vector.
+         */
+        const std::vector<Pipe*>& getPipes() const { return _pipes; }
 
         /** 
          * References this node as being actively used.
@@ -201,6 +210,9 @@ namespace eqs
         /** @sa eqNet::Node::getProgramName */
         virtual const std::string& getProgramName();
 
+        /** @sa eqNet::Node::getWorkDir */
+        virtual const std::string& getWorkDir();
+
     private:
         /** The vector of pipes belonging to this node. */
         std::vector<Pipe*> _pipes;
@@ -224,21 +236,8 @@ namespace eqs
         /** Identifiers for cached barriers, sorted by height. */
         Sgi::hash_map<uint32_t, std::vector<eqNet::Barrier*> > _barrierCache;
 
-        enum State
-        {
-            STATE_STOPPED   = eqNet::Node::STATE_STOPPED,
-            STATE_LAUNCHED  = eqNet::Node::STATE_LAUNCHED,
-            STATE_CONNECTED = eqNet::Node::STATE_CONNECTED,
-            STATE_LISTENING = eqNet::Node::STATE_LISTENING,
-            STATE_INITIALISING,
-            STATE_INITIALISED
-        };
-
         /** common code for all constructors */
         void _construct();
-
-        void _sendInit( const uint32_t initID );
-        void _sendExit();
 
         /* Command handler functions. */
         eqNet::CommandResult _cmdInitReply( eqNet::Node* node,

@@ -50,9 +50,6 @@ Server::Server()
 
 bool Server::run( int argc, char **argv )
 {
-    EQINFO << "Starting server: " << endl << indent 
-           << Global::instance() << this << exdent;
-
     eqNet::init( argc, argv );
 
     RefPtr<eqNet::Connection> connection =
@@ -82,6 +79,9 @@ bool Server::run( int argc, char **argv )
         return false;
     }
 #endif
+
+    EQINFO << "Running server: " << endl << indent 
+           << Global::instance() << this << exdent;
 
     _handleRequests();
     return stopListening();
@@ -155,6 +155,7 @@ bool Server::_loadConfig( int argc, char **argv )
     top->addChild( compound );
 
 #if 1
+#  if 1
     node = new eqs::Node();
     config->addNode( node );
 
@@ -165,7 +166,7 @@ bool Server::_loadConfig( int argc, char **argv )
     description->hostname      = "localhost";
     description->launchTimeout = 100000;
     node->addConnectionDescription( description );
-
+#  endif
     pipe = new Pipe();
     node->addPipe( pipe );
     
@@ -253,7 +254,13 @@ eqNet::CommandResult Server::_reqChooseConfig( eqNet::Node* node, const eqNet::P
     mapConfig( appConfig );
 
     // TODO: move to open: appConfig->setAppName( appName );
-    appConfig->setRenderClient( packet->renderClient );
+    const string rendererInfo = packet->rendererInfo;
+    const size_t colonPos     = rendererInfo.find( ':' );
+    const string workDir      = rendererInfo.substr( 0, colonPos );
+    const string renderClient = rendererInfo.substr( colonPos + 1 );
+ 
+    appConfig->setWorkDir( workDir );
+    appConfig->setRenderClient( renderClient );
 
     reply.configID = appConfig->getID();
     _appConfigs[reply.configID] = appConfig;

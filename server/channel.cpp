@@ -21,6 +21,7 @@ void Channel::_construct()
     _used             = 0;
     _window           = NULL;
     _pendingRequestID = EQ_INVALID_ID;
+    _state            = STATE_STOPPED;
 
     registerCommand( eq::CMD_CHANNEL_INIT_REPLY, this,
                      reinterpret_cast<CommandFcn>(
@@ -78,12 +79,16 @@ void Channel::_sendInit( const uint32_t initID )
     packet.requestID  = _pendingRequestID;
     packet.initID     = initID;
     send( packet );
+    _state = STATE_INITIALISING;
 }
 
 bool Channel::syncInit()
 {
     const bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = EQ_INVALID_ID;
+
+    if( success )
+        _state = STATE_RUNNING;
     return success;
 }
 
@@ -92,6 +97,7 @@ bool Channel::syncInit()
 //---------------------------------------------------------------------------
 void Channel::startExit()
 {
+    _state = STATE_STOPPING;
     _sendExit();
 }
 
@@ -112,6 +118,7 @@ bool Channel::syncExit()
     const bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = EQ_INVALID_ID;
 
+    _state = STATE_STOPPED;
     return success;
 }
 

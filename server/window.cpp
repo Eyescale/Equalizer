@@ -19,6 +19,7 @@ void Window::_construct()
     _pendingRequestID = EQ_INVALID_ID;
     _swapMaster       = NULL;
     _swapBarrier      = NULL;
+    _state            = STATE_STOPPED;
 
     registerCommand( eq::CMD_WINDOW_INIT_REPLY, this,
                      reinterpret_cast<CommandFcn>(&eqs::Window::_cmdInitReply));
@@ -122,6 +123,7 @@ void Window::startInit( const uint32_t initID )
             channel->startInit( initID );
         }
     }
+    _state = STATE_INITIALISING;
 }
 
 void Window::_sendInit( const uint32_t initID )
@@ -157,6 +159,8 @@ bool Window::syncInit()
         success = false;
     _pendingRequestID = EQ_INVALID_ID;
 
+    if( success )
+        _state = STATE_RUNNING;
     return success;
 }
 
@@ -165,12 +169,15 @@ bool Window::syncInit()
 //---------------------------------------------------------------------------
 void Window::startExit()
 {
+    _state = STATE_STOPPING;
     const int nChannels = _channels.size();
     for( int i=0; i<nChannels; ++i )
     {
         Channel* channel = _channels[i];
-        if( channel->isUsed( ))
-            channel->startExit();
+        if( channel->getState() == Channel::STATE_STOPPED )
+            continue;
+
+        channel->startExit();
     }
 
     _sendExit();
@@ -201,16 +208,18 @@ bool Window::syncExit()
     for( int i=0; i<nChannels; ++i )
     {
         Channel* channel = _channels[i];
-        if( channel->isUsed( ))
-        {
-            if( !channel->syncExit( ))
-                success = false;
+        if( channel->getState() != Channel::STATE_STOPPING )
+            continue;
 
-            destroyChannelPacket.channelID = channel->getID();
-            _send( destroyChannelPacket );
-            config->deregisterObject( channel );
-        }
+        if( !channel->syncExit( ))
+            success = false;
+
+        destroyChannelPacket.channelID = channel->getID();
+        _send( destroyChannelPacket );
+        config->deregisterObject( channel );
     }
+
+    _state = STATE_STOPPED;
     return success;
 }
 

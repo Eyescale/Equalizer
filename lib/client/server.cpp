@@ -89,8 +89,10 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
 
     packet.requestID          = _requestHandler.registerRequest();
     packet.compoundModes      = parameters.compoundModes;
+    const std::string rendererInfo = parameters.workDir + ":" + 
+        parameters.renderClient;
 
-    send( packet, parameters.renderClient );
+    send( packet, rendererInfo );
 
     Config* config = (Config*)_requestHandler.waitRequest( packet.requestID );
     if( !config )

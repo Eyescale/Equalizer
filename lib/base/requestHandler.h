@@ -33,8 +33,11 @@ namespace eqBase
          * Constructs a new requestHandler of the given type.
          * 
          * @param type the type of threads accessing the requestHandler.
+         * @param threadSafe if <code>true</code>, all public functions are
+         *                   thread-safe.
          */
-        RequestHandler( const Thread::Type type = Thread::PTHREAD );
+        RequestHandler( const Thread::Type type = Thread::PTHREAD,
+                        const bool threadSafe = false );
 
         /** Destructs the requestHandler. */
         ~RequestHandler();
@@ -93,6 +96,7 @@ namespace eqBase
 
     private:
         Thread::Type _type;
+        Lock*        _mutex;
 
         struct Request
         {

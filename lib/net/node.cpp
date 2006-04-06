@@ -14,6 +14,7 @@
 #include <alloca.h>
 #include <fcntl.h>
 #include <sstream>
+#include <sys/errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -201,6 +202,7 @@ bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
     return true;
 }
 
+// two-way handshake to exchange node identifiers and other information
 NodeConnectPacket* Node::_performConnect( eqBase::RefPtr<Connection> connection)
 {
     // send connect packet to peer
@@ -961,8 +963,15 @@ bool Node::_launch( RefPtr<ConnectionDescription> description )
 
 string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description )
 {
+    Node* localNode = Node::getLocalNode();
+    if( !localNode )
+    {
+        EQERROR << "No local node, can't launch " << this << endl;
+        return "";
+    }
+
     if( description->launchCommand.size() == 0 )
-        return description->launchCommand;
+        return "";
 
     const string& launchCommand    = description->launchCommand;
     const size_t  launchCommandLen = launchCommand.size();
@@ -988,7 +997,8 @@ string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description )
                 break;
 
             default:
-                EQWARN << "Unknown token " << launchCommand[percentPos+1] << endl;
+                EQWARN << "Unknown token " << launchCommand[percentPos+1] 
+                       << endl;
         }
 
         if( replacement.size() > 0 )
@@ -1014,12 +1024,6 @@ string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description )
 string Node::_createRemoteCommand()
 {
     Node* localNode = Node::getLocalNode();
-    if( !localNode )
-    {
-        EQERROR << "No local node, can't launch " << this << endl;
-        return "";
-    }
-
     RefPtr<Connection> listener = localNode->_listener;
     if( !listener.isValid() || 
         listener->getState() != Connection::STATE_LISTENING )
@@ -1056,10 +1060,15 @@ string Node::_createRemoteCommand()
     //     replacement += environ[i];
     //     replacement += " ";
     // }
+    
+    string program = getProgramName();
+    if( program[0] != '/' )
+        program = getWorkDir() + '/' + program;
 
-    stringStream << "'" << getProgramName() << " --eq-listen=\"" 
+    stringStream << "'" << program << " --eq-listen=\"" 
                  << nodeDesc->toString() << "\" --eq-client \""
-                 << (long long)this << ":" << listenerDesc->toString() << "\"'";
+                 << (long long)this << ":" << getWorkDir() << ":"
+                 << listenerDesc->toString() << "\"'";
 
     return stringStream.str();
 }
@@ -1068,19 +1077,34 @@ bool Node::runClient( const string& clientArgs )
 {
     EQASSERT( _state == STATE_LISTENING );
 
-    const size_t colonPos = clientArgs.find( ':' );
+    size_t colonPos = clientArgs.find( ':' );
     if( colonPos == string::npos )
     {
         EQERROR << "Could not parse request identifier" << endl;
         return false;
     }
 
-    const string   request    = clientArgs.substr( 0, colonPos );
-    const uint64_t requestID  = atoll( request.c_str( ));
-    const string   serverDesc = clientArgs.substr( colonPos + 1 );
+    const string   request     = clientArgs.substr( 0, colonPos );
+    const uint64_t requestID   = atoll( request.c_str( ));
+    string         description = clientArgs.substr( colonPos + 1 );
 
+    colonPos = description.find( ':' );
+    if( colonPos == string::npos )
+    {
+        EQERROR << "Could not parse working directory" << endl;
+        return false;
+    }
+
+    const string workDir = description.substr( 0, colonPos );
+    Global::setWorkDir( workDir );
+
+    if( chdir( workDir.c_str( )) == -1 )
+        EQWARN << "Can't change working directory to " << workDir << ": "
+               << strerror( errno ) << endl;
+    
+    description = description.substr( colonPos + 1 );
     RefPtr<ConnectionDescription> connectionDesc = new ConnectionDescription;
-    if( !connectionDesc->fromString( serverDesc ))
+    if( !connectionDesc->fromString( description ))
     {
         EQERROR << "Could not parse connection description" << endl;
         return false;

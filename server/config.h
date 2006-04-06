@@ -17,7 +17,9 @@ namespace eqs
     class Node;
     class Server;
 
-    typedef eqNet::IDHash<Node*> NodeHash;
+    typedef eqNet::IDHash<Node*>               NodeHash;
+    typedef std::vector<Node*>::const_iterator NodeIter;
+
 
     /**
      * The config.
@@ -138,6 +140,20 @@ namespace eqs
          */
         const std::string& getRenderClient() const { return _renderClient; }
 
+        /** 
+         * Sets the working directory for render client.
+         * 
+         * @param workDir the working directory for the  render client.
+         */
+        void setWorkDir( const std::string& workDir ){ _workDir = workDir; }
+
+        /** 
+         * Returns the working directory for render client.
+         *
+         * @return the working directory for the  render client.
+         */
+        const std::string& getWorkDir() const { return _workDir; }
+
     private:
         /** The eq server hosting the session. */
         eqBase::RefPtr<Server> _server;
@@ -154,6 +170,9 @@ namespace eqs
 
         /** The name of the render client executable. */
         std::string _renderClient;
+
+        /** The working directory of the render client. */
+        std::string _workDir;
 
         /** The maximum latency between frame begin and swap, in frames. */
         uint32_t _latency;
@@ -181,7 +200,12 @@ namespace eqs
         void _construct();
 
         bool _init( const uint32_t initID );
+        bool   _initConnectNodes();
+        bool   _initNodes( const uint32_t initID );
+        bool   _initPipes( const uint32_t initID );
         bool _exit();
+        bool   _exitPipes();
+        bool   _exitNodes();
 
         uint32_t _frameBegin( const uint32_t frameID );
         uint32_t _frameEnd();

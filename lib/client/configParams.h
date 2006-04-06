@@ -18,6 +18,7 @@ namespace eq
         ConfigParams& operator = ( const ConfigParams& rhs );
 
         std::string renderClient;
+        std::string workDir;
         uint32_t    compoundModes;
     private:
     };

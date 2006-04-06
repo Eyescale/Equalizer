@@ -7,10 +7,16 @@
 
 #include <eq/eq.h>
 
+#include "plyFileIO.h"
+
 class Node : public eq::Node
 {
 protected:
     bool init( const uint32_t initID );
+    bool exit();
+
+private:
+    PlyModel< NormalFace<ColorVertex> >* _model;    
 };
 
 #endif // EQ_FLIP_NODE_H

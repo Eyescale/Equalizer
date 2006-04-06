@@ -22,6 +22,7 @@ void Pipe::_construct()
     _pendingRequestID = EQ_INVALID_ID;
     _display          = EQ_UNDEFINED_UINT32;
     _screen           = EQ_UNDEFINED_UINT32;
+    _state            = STATE_STOPPED;
 
     registerCommand( eq::CMD_PIPE_INIT_REPLY, this,reinterpret_cast<CommandFcn>(
                          &eqs::Pipe::_cmdInitReply ));
@@ -100,6 +101,7 @@ void Pipe::startInit( const uint32_t initID )
             window->startInit( initID );
         }
     }
+    _state = STATE_INITIALISING;
 }
 
 void Pipe::_sendInit( const uint32_t initID )
@@ -133,6 +135,8 @@ bool Pipe::syncInit()
         success = false;
     _pendingRequestID = EQ_INVALID_ID;
 
+    if( success )
+        _state = STATE_RUNNING;
     return success;
 }
 
@@ -141,12 +145,15 @@ bool Pipe::syncInit()
 //---------------------------------------------------------------------------
 void Pipe::startExit()
 {
+    _state = STATE_STOPPING;
     const int nWindows = _windows.size();
     for( int i=0; i<nWindows; ++i )
     {
         Window* window = _windows[i];
-        if( window->isUsed( ))
-            window->startExit();
+        if( window->getState() == Window::STATE_STOPPED )
+            continue;
+
+        window->startExit();
     }
 
     _sendExit();
@@ -176,17 +183,18 @@ bool Pipe::syncExit()
     for( int i=0; i<nWindows; ++i )
     {
         Window* window = _windows[i];
-        if( window->isUsed( ))
-        {
-            if( !window->syncExit( ))
-                success = false;
+        if( window->getState() != Window::STATE_STOPPING )
+            continue;
 
-            destroyWindowPacket.windowID = window->getID();
-            _send( destroyWindowPacket );
-            config->deregisterObject( window );
-        }
+        if( !window->syncExit( ))
+            success = false;
+
+        destroyWindowPacket.windowID = window->getID();
+        _send( destroyWindowPacket );
+        config->deregisterObject( window );
     }
 
+    _state = STATE_STOPPED;
     return success;
 }
 

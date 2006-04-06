@@ -191,7 +191,6 @@ eqNet::CommandResult Node::_reqInit(eqNet::Node* node, const eqNet::Packet* pkg)
 
     NodeInitReplyPacket reply( packet );
     reply.result = init( packet->initID );
-    _initialized.up();
     node->send( reply );
     return eqNet::COMMAND_HANDLED;
 }
@@ -201,7 +200,6 @@ eqNet::CommandResult Node::_reqExit(eqNet::Node* node, const eqNet::Packet* pkg)
     NodeExitPacket* packet = (NodeExitPacket*)pkg;
     EQINFO << "handle node exit " << packet << endl;
 
-    _initialized.down();
     exit();
 
     NodeExitReplyPacket reply( packet );

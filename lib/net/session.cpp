@@ -19,8 +19,9 @@ using namespace std;
 
 #define MIN_ID_RANGE 1024
 
-Session::Session( const uint32_t nCommands )
+Session::Session( const uint32_t nCommands, const bool threadSafe )
         : Base( nCommands ),
+          _requestHandler( Thread::PTHREAD, threadSafe ),
           _id(EQ_INVALID_ID),
           _server(NULL),
           _isMaster(false),
@@ -177,7 +178,7 @@ void Session::deregisterObject( Object* object )
     freeIDs( id, 1 );
 }
 
-
+// XXX use RefPtr for object
 void Session::registerMobject( Mobject* object, Node* master )
 {
     const uint32_t id = genIDs( 1 );

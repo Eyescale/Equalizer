@@ -23,6 +23,14 @@ namespace eqs
     class Pipe : public eqNet::Base, public eqNet::Object
     {
     public:
+        enum State
+        {
+            STATE_STOPPED,       // initial     <----+
+            STATE_INITIALISING,  // init sent        |
+            STATE_RUNNING,       // init successful  |
+            STATE_STOPPING       // exit send   -----+
+        };
+
         /** 
          * Constructs a new Pipe.
          */
@@ -32,6 +40,11 @@ namespace eqs
          * Constructs a new deep copy of a pipe.
          */
         Pipe( const Pipe& from );
+
+        /** 
+         * @return the state of this pipe.
+         */
+        State getState()    const { return _state; }
 
         /** 
          * Adds a new window to this config.
@@ -153,6 +166,9 @@ namespace eqs
         //*}
 
     private:
+        /** The current operational state. */
+        State _state;
+
         /** The list of windows. */
         std::vector<Window*>   _windows;
 

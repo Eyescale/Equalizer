@@ -13,7 +13,7 @@ using namespace eq;
 using namespace std;
 
 Config::Config()
-        : Session( CMD_CONFIG_ALL )
+        : Session( CMD_CONFIG_ALL, true )
 {
     registerCommand( CMD_CONFIG_INIT_REPLY, this, reinterpret_cast<CommandFcn>( 
                          &eq::Config::_cmdInitReply ));

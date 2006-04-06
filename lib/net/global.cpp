@@ -12,15 +12,5 @@ using namespace eqNet;
 using namespace std;
 
 string Global::_programName;
-
-void Global::setProgramName( const string& programName )
-{
-    _programName = programName;
-    EQINFO << "Program name set to: " << _programName << endl;
-}
-
-const string& Global::getProgramName()
-{
-    return _programName;
-}
+string Global::_workDir;
 

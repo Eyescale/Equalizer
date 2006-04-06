@@ -69,7 +69,7 @@ Config::Config( const Config& from )
     _construct();
 
     const uint32_t nCompounds = from.nCompounds();
-    for( uint32_t i=0; i<nCompounds; i++ )
+    for( uint32_t i=0; i<nCompounds; ++i )
     {
         Compound* compound      = from.getCompound(i);
         Compound* compoundClone = new Compound( *compound );
@@ -79,7 +79,7 @@ Config::Config( const Config& from )
     }
 
     const uint32_t nNodes = from.nNodes();
-    for( uint32_t i=0; i<nNodes; i++ )
+    for( uint32_t i=0; i<nNodes; ++i )
     {
         eqs::Node* node      = from.getNode(i);
         eqs::Node* nodeClone = new eqs::Node( *node );
@@ -223,76 +223,136 @@ eqNet::CommandResult Config::_reqFrameEnd( eqNet::Node* node,
 // operations
 //===========================================================================
 
+//---------------------------------------------------------------------------
+// init
+//---------------------------------------------------------------------------
 bool Config::_init( const uint32_t initID )
 {
     _frameNumber = 0;
 
     const uint32_t nCompounds = this->nCompounds();
-    for( uint32_t i=0; i<nCompounds; i++ )
+    for( uint32_t i=0; i<nCompounds; ++i )
     {
         Compound* compound = getCompound( i );
         compound->init();
     }
 
-    // connect (and launch) nodes
-    vector<Node*> usedNodes;
-    uint32_t nNodes = _nodes.size();
-    for( uint32_t i=0; i<nNodes; i++ )
+    if( !_initConnectNodes()  ||
+        !_initNodes( initID ) ||
+        !_initPipes( initID ) )
     {
-        if( _nodes[i]->isUsed( ))
-            usedNodes.push_back( _nodes[i] );
+        _exit();
+        return false;
     }
+    return true;
+}
 
-    nNodes = usedNodes.size();
-    if( nNodes == 0 )
-        return true;
-
-    for( uint32_t i=0; i<nNodes; i++ )
+bool Config::_initConnectNodes()
+{
+    for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
-        Node* node = usedNodes[i];
+        Node* node = *iter;
+        if( !node->isUsed( ))
+            continue;
+
         if( !node->initConnect( ))
         {
             EQERROR << "Connection to " << node << " failed." << endl;
-            _exit();
             return false;
         }
     }
+    return true;
+}
 
-    const string&              name = getName();
+bool Config::_initNodes( const uint32_t initID )
+{
+    const string&              name    = getName();
+    bool                       success = true;
+
     eq::NodeCreateConfigPacket createConfigPacket;
-    createConfigPacket.configID     = _id;
-    bool success = true;
+    createConfigPacket.configID        = _id;
 
-    for( uint32_t i=0; i<nNodes; i++ )
+    for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
-        Node* node = usedNodes[i];
+        Node* node = *iter;
+        if( !node->isUsed( ))
+            continue;
         
         if( !node->syncConnect( ))
         {
-            EQERROR << "Connection of " << node << " failed." << endl;
+            EQERROR << "Connection of " << (void*)node << " failed." << endl;
             success = false;
         }
         
+        if( !success ) 
+            continue;
+
         // initialize nodes
         node->send( createConfigPacket, name );
-
         registerObject( node );
         node->startInit( initID );
     }
 
-    for( uint32_t i=0; i<nNodes; i++ )
+    for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
-        if( !usedNodes[i]->syncInit( ))
+        Node* node = *iter;
+        if( !node->isUsed( ))
+            continue;
+        
+        if( !node->syncInit( ))
         {
-            EQERROR << "Init of node " << (void*)usedNodes[i] << " failed." 
+            EQERROR << "Init of node " << (void*)node << " failed." 
                     << endl;
             success = false;
         }
     }
+    return success;
+}
 
-    if( !success )
-        _exit();
+bool Config::_initPipes( const uint32_t initID )
+{
+    // start pipe-window-channel init in parallel
+    for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    {
+        Node* node = *iter;
+        if( !node->isUsed( ))
+            continue;
+        
+        eq::NodeCreatePipePacket createPipePacket( getID(), node->getID( ));
 
+        const vector<Pipe*>& pipes = node->getPipes();
+        for( PipeIter iter = pipes.begin(); iter != pipes.end(); ++iter )
+        {
+            Pipe* pipe = *iter;
+            if( !pipe->isUsed( ))
+                continue;
+            
+            registerObject( pipe );
+            createPipePacket.pipeID = pipe->getID();
+            node->send( createPipePacket );
+            pipe->startInit( initID ); // recurses down
+        }
+    }
+
+    // sync init of all pipe-window-channel entities
+    bool success = true;
+    for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    {
+        Node* node = *iter;
+        if( !node->isUsed( ))
+            continue;
+        
+        const vector<Pipe*>& pipes = node->getPipes();
+        for( PipeIter iter = pipes.begin(); iter != pipes.end(); ++iter )
+        {
+            Pipe* pipe = *iter;
+            if( !pipe->isUsed( ))
+                continue;
+
+            if( !pipe->syncInit( ))
+                success = false;
+        }
+    }
     return success;
 }
 
@@ -303,39 +363,11 @@ bool Config::_exit()
 //     foreach compound
 //         sync exit
 
-    bool          cleanExit = true;
-    vector<Node*> connectedNodes;
-
-    uint32_t nNodes = _nodes.size();
-    for( uint32_t i=0; i<nNodes; i++ )
-    {
-        Node* node = _nodes[i];
-        if( !node->isUsed( ) || !node->isConnected( ))
-            continue;
-        
-        connectedNodes.push_back( node );
-    }
-    
-    nNodes = connectedNodes.size();
-    for( uint32_t i=0; i<nNodes; i++ )
-        connectedNodes[i]->startExit();
-
-    for( uint32_t i=0; i<nNodes; i++ )
-    {
-        Node* node = connectedNodes[i];
-
-        if( !node->syncExit( ))
-        {
-            EQERROR << "Exit of " << node << " failed." << endl;
-            cleanExit = false;
-        }
-
-        node->stop();
-        deregisterObject( node );
-    }
+    const bool cleanExit = ( _exitPipes() &&
+                             _exitNodes()  );
 
     const uint32_t nCompounds = this->nCompounds();
-    for( uint32_t i=0; i<nCompounds; i++ )
+    for( uint32_t i=0; i<nCompounds; ++i )
     {
         Compound* compound = getCompound( i );
         compound->exit();
@@ -345,19 +377,100 @@ bool Config::_exit()
     return cleanExit;
 }
 
+bool Config::_exitPipes()
+{
+    // start pipe-window-channel exit in parallel
+    for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    {
+        Node* node = *iter;
+        if( !node->isUsed( ));
+            continue;
+        
+        const vector<Pipe*>& pipes = node->getPipes();
+        for( PipeIter iter = pipes.begin(); iter != pipes.end(); ++iter )
+        {
+            Pipe* pipe = *iter;
+            if( pipe->getState() == Pipe::STATE_STOPPED )
+                continue;
+
+            pipe->startExit();
+        }
+    }
+
+    // sync exit of all pipe-window-channel entities
+    bool success = true;
+    for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    {
+        Node* node = *iter;
+        if( !node->isUsed( ))
+            continue;
+        
+        eq::NodeDestroyPipePacket destroyPipePacket( getID(), node->getID( ));
+
+        const vector<Pipe*>& pipes = node->getPipes();
+        for( PipeIter iter = pipes.begin(); iter != pipes.end(); ++iter )
+        {
+            Pipe* pipe = *iter;
+            if( pipe->getState() != Pipe::STATE_STOPPING )
+                continue;
+
+            if( !pipe->syncExit( ))
+                success = false;
+
+            destroyPipePacket.pipeID = pipe->getID();
+            send( destroyPipePacket );
+            deregisterObject( pipe );
+        }
+    }
+
+    return success;
+}
+
+bool Config::_exitNodes()
+{
+    for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    {
+        Node* node = *iter;
+        if( node->getState() == eqNet::Node::STATE_STOPPED )
+            continue;
+
+        node->startExit();
+    }
+
+    bool success = true;
+
+    for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    {
+        Node* node = *iter;
+        if( node->getState() == Node::STATE_STOPPED )
+            continue;
+
+        if( !node->syncExit( ))
+        {
+            EQERROR << "Exit of " << node << " failed." << endl;
+            success = false;
+        }
+
+        node->stop();
+        deregisterObject( node );
+    }
+    return success;
+}
+
+
 uint32_t Config::_frameBegin( const uint32_t frameID )
 {
     ++_frameNumber;
 
     const uint32_t nCompounds = this->nCompounds();
-    for( uint32_t i=0; i<nCompounds; i++ )
+    for( uint32_t i=0; i<nCompounds; ++i )
     {
         Compound* compound = getCompound( i );
         compound->update();
     }
 
     const uint32_t nNodes = this->nNodes();
-    for( uint32_t i=0; i<nNodes; i++ )
+    for( uint32_t i=0; i<nNodes; ++i )
     {
         Node* node = getNode( i );
         if( node->isUsed( ))
@@ -370,7 +483,7 @@ uint32_t Config::_frameBegin( const uint32_t frameID )
 uint32_t Config::_frameEnd()
 {
     const uint32_t nNodes = this->nNodes();
-    for( uint32_t i=0; i<nNodes; i++ )
+    for( uint32_t i=0; i<nNodes; ++i )
     {
         Node* node = getNode( i );
         if( node->isUsed( ))
@@ -390,11 +503,11 @@ ostream& eqs::operator << ( ostream& os, const Config* config )
     os << "{" << endl << indent;
 
     const uint32_t nNodes = config->nNodes();
-    for( uint32_t i=0; i<nNodes; i++ )
+    for( uint32_t i=0; i<nNodes; ++i )
         os << config->getNode(i);
 
     const uint32_t nCompounds = config->nCompounds();
-    for( uint32_t i=0; i<nCompounds; i++ )
+    for( uint32_t i=0; i<nCompounds; ++i )
         os << config->getCompound(i);
     
     os << exdent << "}" << endl;

@@ -27,6 +27,14 @@ namespace eqs
     class Channel : public eqNet::Base, public eqNet::Object
     {
     public:
+        enum State
+        {
+            STATE_STOPPED,       // initial     <----+
+            STATE_INITIALISING,  // init sent        |
+            STATE_RUNNING,       // init successful  |
+            STATE_STOPPING       // exit send   -----+
+        };
+
         /** 
          * Constructs a new Channel.
          */
@@ -36,6 +44,11 @@ namespace eqs
          * Constructs a new deep copy of a channel.
          */
         Channel( const Channel& from );
+
+        /** 
+         * @return the state of this pipe.
+         */
+        State getState()    const { return _state; }
 
         /**
          * @name Data Access
@@ -129,6 +142,9 @@ namespace eqs
 
 
     private:
+        /** The current operational state. */
+        State _state;
+
         /** Number of entitities actively using this channel. */
         uint32_t _used;
 
