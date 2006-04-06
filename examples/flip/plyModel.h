@@ -121,7 +121,7 @@ private:
     void calculateBBox( size_t nFaces, FaceType *faces, Vertex bbox[2] );
 
     void fillBBox( size_t nFaces, FaceType *faces, BBox &bbox, 
-        size_t bboxFaceThreshold );
+                   size_t bboxFaceThreshold, int depth );
     void createBBoxChildren( BBox &bbox );
 
     void calculateCullSphere( BBox &bbox );

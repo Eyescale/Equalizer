@@ -58,7 +58,7 @@ int main( int argc, char** argv )
     config->registerMobject( &frameData, config->getNode( ));
 
     initData.setFrameData( &frameData );
-    initData.setFilename( "foo" );
+    initData.setFilename( "rockerarm.ply" );
 
     eqBase::Clock clock;
     if( !config->init( initData.getID( )))

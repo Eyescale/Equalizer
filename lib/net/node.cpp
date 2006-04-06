@@ -1102,6 +1102,9 @@ bool Node::runClient( const string& clientArgs )
         EQWARN << "Can't change working directory to " << workDir << ": "
                << strerror( errno ) << endl;
     
+    EQINFO << "Launching node with launch ID=" << requestID << ", cwd="
+           << workDir << endl;
+
     description = description.substr( colonPos + 1 );
     RefPtr<ConnectionDescription> connectionDesc = new ConnectionDescription;
     if( !connectionDesc->fromString( description ))

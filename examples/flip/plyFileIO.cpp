@@ -355,7 +355,7 @@ void PlyFileIO::readVertices( PlyFile *file, int num, bool color,
     }
         
 #ifndef NDEBUG
-    fprintf( stderr, "Reading %d vertices...\n", num );
+    fprintf( stderr, "Reading %d vertices", num );
 #endif
 
     ply_get_element_setup( file, "vertex", nVProps, vProps );
@@ -364,8 +364,8 @@ void PlyFileIO::readVertices( PlyFile *file, int num, bool color,
     for( int i=0; i<num; i++ )
     {
 #ifndef NDEBUG
-        if( i%1000 == 0 )
-            fprintf( stderr, "\r%d", i );
+        if( i%10000 == 0 )
+            fprintf( stderr, "." );
 #endif
 
         ply_get_element( file, &vertices[i] );
@@ -385,7 +385,7 @@ void PlyFileIO::readVertices( PlyFile *file, int num, bool color,
     }
 
 #ifndef NDEBUG
-    fprintf( stderr, "\r%d done\n", num );
+    fprintf( stderr, "\n" );
 #endif
 }
 
@@ -409,17 +409,18 @@ void PlyFileIO::readFaces( PlyFile *file,
         1, PLY_INT, PLY_INT, offsetof( IndexFace, nVertices ) };
 
 #ifndef NDEBUG
-    fprintf( stderr, "Reading %d faces...\n", nFaces );
+    fprintf( stderr, "Reading %d faces", nFaces );
 #endif
 
     ply_get_element_setup( file, "face", nFProps, fProps );
             
     // read faces
+    int wrongNormals = 0;
     for( int i=0; i<nFaces; i++ )
     {
 #ifndef NDEBUG
-        if( i%1000 == 0 )
-            fprintf( stderr, "\r%d", i );
+        if( i%10000 == 0 )
+            fprintf( stderr, "." );
 #endif
         // read face
         ply_get_element( file, &face );
@@ -434,10 +435,14 @@ void PlyFileIO::readFaces( PlyFile *file,
         
         // calculate normal
         if( !calculateNormal( faces[i] ))
-            fprintf( stderr, "Warning: No normal for face %d.\n", i);
+            ++wrongNormals;
     }
 #ifndef NDEBUG
-    fprintf( stderr, "\r%d done\n", nFaces );
+    fprintf( stderr, "\n" );
+    if( wrongNormals )
+        fprintf( stderr, "Warning: No normal for %d faces (%.2f%%).\n", 
+                 wrongNormals, (float)wrongNormals/(float)nFaces/100. );
+
 #endif            
 }
 

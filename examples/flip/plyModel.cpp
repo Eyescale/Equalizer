@@ -56,7 +56,7 @@
 #include <math.h>
 
 #define CHUNKSIZE 4096
-
+#define MAXDEPTH  256
 
 #define PLYFILEVERSION   17
 
@@ -112,7 +112,7 @@ void PlyModel<FaceType>::setFaces( size_t nFaces, FaceType *faces,
     _nFaces = 0;
 
 #ifndef NDEBUG
-    fprintf( stderr, "Filling bounding boxes...\n" );
+    fprintf( stderr, "Filling bounding boxes" );
 #endif
 
     _bbox.children = NULL;
@@ -121,10 +121,10 @@ void PlyModel<FaceType>::setFaces( size_t nFaces, FaceType *faces,
     _bbox.range[0] = 0.;
     _bbox.range[1] = 1.;
 
-    fillBBox( nFaces, faces, _bbox, bboxFaceThreshold );
+    fillBBox( nFaces, faces, _bbox, bboxFaceThreshold, 0 );
 
 #ifndef NDEBUG
-    fprintf( stderr, " done\n" );
+    fprintf( stderr, "\n" );
 #endif
     if( _nFaces != nFaces )
         fprintf( stderr, "Error %s:%d: used %zd faces of %zd input faces.\n", 
@@ -188,12 +188,12 @@ void PlyModel<FaceType>::calculateBBox( size_t nFaces, FaceType *faces,
 //---------------------------------------------------------------------------
 template<class FaceType>
 void PlyModel<FaceType>::fillBBox( size_t nFaces, FaceType *faces, BBox &bbox, 
-    size_t bboxFaceThreshold )
+                                   size_t bboxFaceThreshold, int depth )
 {
 #ifndef NDEBUG
     static size_t filled = 0;
-    if( filled%10 == 0 )
-        fprintf( stderr, "\r%ld", filled );
+    if( filled%100 == 0 )
+        fprintf( stderr, "." );
     filled++;
 #endif
 
@@ -229,7 +229,7 @@ void PlyModel<FaceType>::fillBBox( size_t nFaces, FaceType *faces, BBox &bbox,
     if( bbox.next != NULL ) // start range position of next child
         bbox.next->range[0] = bbox.range[1];
 
-    if( bbox.nFaces < bboxFaceThreshold )
+    if( bbox.nFaces < bboxFaceThreshold || depth > MAXDEPTH )
     {
         if( bbox.nFaces == 0 )
             return;
@@ -251,7 +251,8 @@ void PlyModel<FaceType>::fillBBox( size_t nFaces, FaceType *faces, BBox &bbox,
 
         for( int j=0; j<8; j++ )
         {
-            fillBBox( bbox.nFaces, faces, bbox.children[j], bboxFaceThreshold );
+            fillBBox( bbox.nFaces, faces, bbox.children[j], bboxFaceThreshold,
+                      depth+1 );
             cnf +=  bbox.children[j].nFaces;
         }
 
