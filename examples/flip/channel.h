@@ -7,6 +7,8 @@
 
 #include "flip.h"
 
+#include "plyModel.h"
+
 #include <eq/eq.h>
 
 class FrameData;
@@ -24,6 +26,8 @@ public:
 private:
     eqBase::RefPtr<InitData> _initData;
     FrameData*               _frameData;
+
+    void _drawBBox( const Model::BBox *bbox );
 };
 
 

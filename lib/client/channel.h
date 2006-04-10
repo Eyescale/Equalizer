@@ -38,6 +38,8 @@ namespace eq
             { return ( _window ? _window->getPipe() : NULL );}
         Config* getConfig() const 
             { return ( _window ? _window->getConfig() : NULL );}
+        Node* getNode() const 
+            { return ( _window ? _window->getNode() : NULL );}
 
         /** 
          * Set the near and far planes for this channel.

@@ -3,18 +3,19 @@
    All rights reserved. */
 
 #include "channel.h"
+
 #include "frameData.h"
 #include "initData.h"
+#include "node.h"
 
 using namespace std;
 using namespace eqBase;
-using namespace eqNet;
 
 bool Channel::init( const uint32_t initID )
 {
     EQINFO << "Init channel initID " << initID << " ptr " << this << endl;
     eq::Config* config = getConfig();
-    _initData = RefPtr_static_cast< InitData, Mobject >( 
+    _initData = RefPtr_static_cast< InitData, eqNet::Mobject >( 
         config->getMobject( initID ));
     _frameData = _initData->getFrameData();
 
@@ -48,14 +49,49 @@ void Channel::draw( const uint32_t frameID )
     
     glTranslatef( 0, 0, -3 );
     glRotatef( _frameData->spin, 0, 0, 1. );
+
+    Node*        node  = (Node*)getNode();
+    const Model* model = node->getModel();
+
+    if( model )
+    {
+        _drawBBox( model->getBBox( ));
+    }
+    else
+    {
+        glColor3f( 1, 1, 0 );
+        glBegin( GL_TRIANGLE_STRIP );
+        glVertex3f( -.25, -.25, -.25 );
+        glVertex3f( -.25,  .25, -.25 );
+        glVertex3f(  .25, -.25, -.25 );
+        glVertex3f(  .25,  .25, -.25 );
+        glEnd();
+        glFinish();
+    }
+}
+
+void Channel::_drawBBox( const Model::BBox *bbox )
+{
+    const size_t nFaces = bbox->nFaces;
+            
+    glBegin( GL_TRIANGLES );
     
-    glColor3f( 1, 1, 0 );
-    glBegin( GL_TRIANGLE_STRIP );
-    glVertex3f( -.25, -.25, -.25 );
-    glVertex3f( -.25,  .25, -.25 );
-    glVertex3f(  .25, -.25, -.25 );
-    glVertex3f(  .25,  .25, -.25 );
+    for( size_t i=0; i<nFaces; i++ )
+    {
+        const NormalFace<ColorVertex> &face = bbox->faces[i];
+        
+        glColor3fv(  face.vertices[0].color );
+        glNormal3fv( face.normal );
+        glVertex3fv( face.vertices[0].pos );
+        
+        glColor3fv(  face.vertices[1].color );
+        glNormal3fv( face.normal ); 
+        glVertex3fv( face.vertices[1].pos );
+        
+        glColor3fv(  face.vertices[2].color );
+        glNormal3fv( face.normal ); 
+        glVertex3fv( face.vertices[2].pos );
+    }
     glEnd();
-    glFinish();
 }
 

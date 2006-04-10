@@ -54,11 +54,7 @@ namespace eq
          */
         virtual ~Pipe();
 
-        /** 
-         * Returns the config of this pipe.
-         * 
-         * @return the config of this pipe. 
-         */
+        Node* getNode() const { return _node; }
         Config* getConfig() const { return (_node ? _node->getConfig() : NULL);}
 
         /** 

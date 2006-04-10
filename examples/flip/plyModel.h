@@ -99,7 +99,7 @@ public:
     void toStream(ostream& os);
     bool fromMemory( char **addr );
 
-    BBox *getModelBBox( void ){ return &_bbox; }
+    const BBox *getBBox( void ) const { return &_bbox; }
 
     static void traverseBBox( BBox *bbox, TraverseCB preCB, TraverseCB leafCB, 
         TraverseCB postCB, void *userData );

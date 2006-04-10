@@ -48,6 +48,8 @@ namespace eq
          * @return the pipe of this window. 
          */
         Pipe* getPipe() const { return _pipe; }
+        Node* getNode() const 
+            { return ( _pipe ? _pipe->getNode() : NULL );}
 
 #ifdef GLX
         /** 

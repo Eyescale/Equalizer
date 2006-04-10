@@ -5,18 +5,21 @@
 #ifndef EQ_FLIP_NODE_H
 #define EQ_FLIP_NODE_H
 
-#include <eq/eq.h>
+#include "flip.h"
 
-#include "plyFileIO.h"
+#include <eq/eq.h>
 
 class Node : public eq::Node
 {
+public:
+    const Model* getModel() const { return _model; }
+
 protected:
     bool init( const uint32_t initID );
     bool exit();
 
 private:
-    PlyModel< NormalFace<ColorVertex> >* _model;    
+    Model* _model;    
 };
 
 #endif // EQ_FLIP_NODE_H
