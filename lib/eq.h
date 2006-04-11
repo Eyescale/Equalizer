@@ -11,6 +11,7 @@
 #include <eq/client/init.h>
 #include <eq/client/node.h>
 #include <eq/client/nodeFactory.h>
+#include <eq/client/object.h>
 #include <eq/client/openParams.h>
 #include <eq/client/server.h>
 

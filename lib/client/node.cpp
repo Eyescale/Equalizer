@@ -153,7 +153,7 @@ eqNet::CommandResult Node::_cmdCreatePipe( eqNet::Node* node,
 
     Pipe* pipe = Global::getNodeFactory()->createPipe();
     
-    _config->addRegisteredObject( packet->pipeID, pipe );
+    _config->_addRegisteredObject( packet->pipeID, pipe );
     _addPipe( pipe );
     return eqNet::COMMAND_HANDLED;
 }
@@ -179,7 +179,7 @@ eqNet::CommandResult Node::_cmdInit(eqNet::Node* node, const eqNet::Packet* pkg)
     NodeInitPacket* packet = (NodeInitPacket*)pkg;
     EQINFO << "handle node init (recv) " << packet << endl;
 
-    _config->addRegisteredObject( packet->nodeID, this );
+    _config->_addRegisteredObject( packet->nodeID, this );
     _pushRequest( node, pkg );
     return eqNet::COMMAND_HANDLED;
 }

@@ -6,7 +6,6 @@
 #define EQS_PIPE_H
 
 #include "node.h"
-#include <eq/net/base.h>
 #include <eq/net/object.h>
 
 #include <ostream>
@@ -15,12 +14,13 @@
 namespace eqs
 {
     class Config;
+    class Server;
     class Window;
-
+    
     /**
      * The pipe.
      */
-    class Pipe : public eqNet::Base, public eqNet::Object
+    class Pipe : public eqNet::Object
     {
     public:
         enum State
@@ -40,6 +40,9 @@ namespace eqs
          * Constructs a new deep copy of a pipe.
          */
         Pipe( const Pipe& from );
+
+        Server* getServer() const
+            { return _node ? _node->getServer() : NULL; }
 
         /** 
          * @return the state of this pipe.

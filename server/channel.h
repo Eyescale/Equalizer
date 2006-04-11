@@ -9,9 +9,8 @@
 #include "window.h"
 
 #include <eq/client/commands.h>
+#include <eq/client/object.h>
 #include <eq/client/viewport.h>
-#include <eq/net/base.h>
-#include <eq/net/object.h>
 #include <eq/net/packets.h>
 
 #include <iostream>
@@ -24,7 +23,7 @@ namespace eqs
     /**
      * The channel.
      */
-    class Channel : public eqNet::Base, public eqNet::Object
+    class Channel : public eqNet::Object
     {
     public:
         enum State

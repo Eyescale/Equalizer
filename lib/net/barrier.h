@@ -5,8 +5,7 @@
 #ifndef EQNET_BARRIER_H
 #define EQNET_BARRIER_H
 
-#include "base.h"
-#include "mobject.h"
+#include "object.h"
 
 #include <eq/base/lock.h>
 
@@ -17,7 +16,7 @@ namespace eqNet
     /**
      * A networked barrier.
      */
-    class Barrier : public Mobject, public Base
+    class Barrier : public Object
     {
     public:
         /** 

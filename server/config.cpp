@@ -289,7 +289,7 @@ bool Config::_initNodes( const uint32_t initID )
 
         // initialize nodes
         node->send( createConfigPacket, name );
-        registerObject( node );
+        registerObject( node, _server.get( ));
         node->startInit( initID );
     }
 
@@ -327,7 +327,7 @@ bool Config::_initPipes( const uint32_t initID )
             if( !pipe->isUsed( ))
                 continue;
             
-            registerObject( pipe );
+            registerObject( pipe, _server.get( ));
             createPipePacket.pipeID = pipe->getID();
             node->send( createPipePacket );
             pipe->startInit( initID ); // recurses down
@@ -499,7 +499,7 @@ ostream& eqs::operator << ( ostream& os, const Config* config )
     if( !config )
         return os;
     
-    os << "config " << endl;
+    os << disableSync << disableHeader << "config " << endl;
     os << "{" << endl << indent;
 
     const uint32_t nNodes = config->nNodes();
@@ -510,7 +510,7 @@ ostream& eqs::operator << ( ostream& os, const Config* config )
     for( uint32_t i=0; i<nCompounds; ++i )
         os << config->getCompound(i);
     
-    os << exdent << "}" << endl;
+    os << exdent << "}" << endl << enableHeader << enableSync;
 
     return os;
 }

@@ -8,6 +8,7 @@
 #include "global.h"
 #include "nodeFactory.h"
 #include "packets.h"
+#include "object.h"
 #include "window.h"
 
 #include <sstream>
@@ -16,7 +17,7 @@ using namespace eq;
 using namespace std;
 
 Pipe::Pipe()
-        : eqNet::Base( CMD_PIPE_ALL ),
+        : eqNet::Object( eq::Object::TYPE_PIPE, CMD_PIPE_ALL ),
           _node(NULL),
           _windowSystem( WINDOW_SYSTEM_NONE ),
 #ifdef GLX
@@ -176,7 +177,7 @@ eqNet::CommandResult Pipe::_cmdCreateWindow( eqNet::Node* node, const eqNet::Pac
 
     Window* window = Global::getNodeFactory()->createWindow();
     
-    getConfig()->addRegisteredObject( packet->windowID, window );
+    getConfig()->_addRegisteredObject( packet->windowID, window );
     _addWindow( window );
     return eqNet::COMMAND_HANDLED;
 }

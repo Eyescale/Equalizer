@@ -5,19 +5,17 @@
 #ifndef EQNET_NODE_H
 #define EQNET_NODE_H
 
-#include "base.h"
 #include "commands.h"
 #include "connectionDescription.h"
 #include "connectionSet.h"
 #include "idHash.h"
 #include "message.h"
 #include "nodeID.h"
+#include "object.h"
 #include "requestCache.h"
 
 #include <eq/base/base.h>
 #include <eq/base/perThread.h>
-#include <eq/base/refPtr.h>
-#include <eq/base/referenced.h>
 #include <eq/base/requestHandler.h>
 #include <eq/base/thread.h>
 
@@ -37,7 +35,7 @@ namespace eqNet
      * has at least one Connection through which is reachable. A Node provides
      * the basic communication facilities through message passing.
      */
-    class Node : public eqBase::Referenced, public eqNet::Base
+    class Node : public Object
     {
     public:
         enum State {

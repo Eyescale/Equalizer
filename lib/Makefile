@@ -35,7 +35,6 @@ HEADER_SRC = \
 	net/idHash.h \
 	net/init.h \
 	net/message.h \
-	net/mobject.h \
 	net/net.h \
 	net/node.h \
 	net/nodeID.h \
@@ -46,7 +45,6 @@ HEADER_SRC = \
 	net/requestQueue.h \
 	net/session.h \
 	net/uniPipeConnection.h \
-	net/versionedObject.h \
 	client/channel.h \
 	client/client.h \
 	client/commands.h \
@@ -57,6 +55,7 @@ HEADER_SRC = \
 	client/init.h \
 	client/node.h \
 	client/nodeFactory.h \
+	client/object.h \
 	client/openParams.h \
 	client/packets.h \
 	client/pipe.h \
@@ -97,7 +96,6 @@ SOURCES = \
 	net/socketConnection.cpp \
 	net/uniPipeConnection.cpp \
 	net/util.cpp \
-	net/versionedObject.cpp \
 	client/channel.cpp \
 	client/client.cpp \
 	client/config.cpp \

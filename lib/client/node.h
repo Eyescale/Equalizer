@@ -9,7 +9,6 @@
 
 #include <eq/base/gate.h>
 #include <eq/net/node.h>
-#include <eq/net/object.h>
 #include <eq/net/requestQueue.h>
 
 namespace eq
@@ -18,7 +17,7 @@ namespace eq
     class Pipe;
     class Server;
 
-    class Node : public eqNet::Node, public eqNet::Object
+    class Node : public eqNet::Node
     {
     public:
         /** 

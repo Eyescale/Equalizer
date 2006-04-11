@@ -41,7 +41,7 @@ public:
                 TEST( node->mapSession( node, &session, "foo" ));
                 
                 Barrier barrier(2);
-                session.registerMobject( &barrier, node.get( ));
+                session.registerObject( &barrier, node.get( ));
                 TEST( barrier.getID() != EQ_INVALID_ID );
                 
                 barrierID = barrier.getID();
@@ -50,7 +50,7 @@ public:
                 barrier.enter();
                 cerr << "Master left" << endl;
 
-                //session.deregisterMobject( &barrier );
+                //session.deregisterObject( &barrier );
                 //node->unmapSession( &session );
             }
             else
@@ -66,17 +66,17 @@ public:
                 Session session;
                 TEST( node->mapSession( server, &session, "foo" ));
                 
-                RefPtr<eqNet::Mobject> mobject = session.getMobject( barrierID);
-                TEST( dynamic_cast<eqNet::Barrier*>(mobject.get()) );
+                RefPtr<eqNet::Object> object = session.getObject( barrierID);
+                TEST( dynamic_cast<eqNet::Barrier*>(object.get()) );
                 
-                eqNet::Barrier* barrier = (eqNet::Barrier*)mobject.get();
+                eqNet::Barrier* barrier = (eqNet::Barrier*)object.get();
                 TEST( barrier );
 
                 cerr << "Slave enter" << endl;
                 barrier->enter();
                 cerr << "Slave left" << endl;
 
-                //session.deregisterMobject( barrier );
+                //session.deregisterObject( barrier );
                 //node->unmapSession( &session );
             }
 

@@ -52,10 +52,10 @@ int main( int argc, char** argv )
         DIE("No matching config on server.");
 
     InitData initData;
-    config->registerMobject( &initData, config->getNode( ));
+    config->registerObject( &initData, config->getNode( ));
     
     FrameData frameData;
-    config->registerMobject( &frameData, config->getNode( ));
+    config->registerObject( &frameData, config->getNode( ));
 
     initData.setFrameData( &frameData );
     initData.setFilename( "rockerarm.ply" );

@@ -10,7 +10,7 @@
 #include "global.h"
 #include "idHash.h"
 #include "node.h"
-#include "mobject.h"
+#include "object.h"
 
 #include <eq/base/base.h>
 #include <eq/base/idPool.h>
@@ -52,10 +52,14 @@ namespace eqNet
         uint32_t getID() const { return _id; }
 
         /** 
-         * Returns the local node holding this session.
          * @return the local node holding this session. 
          */
         Node* getNode(){ return _localNode.get(); }
+
+//         /** 
+//          * @return the server hosting this session. 
+//          */
+//         Node* getServer(){ return _server.get(); }
 
         /** 
          * Dispatches a command packet to the appropriate object.
@@ -132,29 +136,28 @@ namespace eqNet
         /** 
          * Registers a new distributed object.
          *
-         * The assigned identifier is unique across all registered objects.
+         * The assigned identifier is unique across all registered objects. The
+         * object gets referenced.
+         *
+         * @todo The master node instance has to exist before any getObject()
+         *       causes an instanciation request.
          * 
          * @param object the object instance.
+         * @param master the master node for the object, can be
+         *               <code>NULL</code> for unmanaged objects.
          */
-        void registerObject( Object* object );
-            
+        void registerObject( Object* object, Node* master );
+
         /** 
          * Returns a registered object.
          * 
+         * The object will be instanciated locally if necessary.
+         *
          * @param id the object's identifier.
          * @return the registered object, or <code>NULL</code> if the object is
          *         not registered locally.
          */
-        Object* getObject( const uint32_t id )
-            { return _registeredObjects[id]; }
-
-        /** 
-         * Adds an object using a pre-registered identifier.
-         * 
-         * @param id the object's unique identifier.
-         * @param object the object instance.
-         */
-        void addRegisteredObject( const uint32_t id, Object* object );
+        Object* getObject( const uint32_t id );
 
         /** 
          * Deregisters a distributed object.
@@ -162,40 +165,6 @@ namespace eqNet
          * @param object the object instance.
          */
         void deregisterObject( Object* object );
- 
-        /** 
-         * Registers a new distributed mobject.
-         *
-         * The assigned identifier is unique across all registered mobjects. The
-         * mobject gets referenced.
-         *
-         * @todo The master node instance has to exist before any getMobject()
-         *       causes an instanciation request.
-         * 
-         * @param mobject the mobject instance.
-         * @param master the master node for the mobject.
-         */
-        void registerMobject( Mobject* mobject, Node* master );
-            
-        /** 
-         * Returns a registered mobject.
-         * 
-         * The mobject will be instanciated locally if necessary.
-         *
-         * @param id the mobject's identifier.
-         * @return the registered mobject, or <code>NULL</code> if the object is
-         *         not registered.
-         */
-        eqBase::RefPtr<Mobject> getMobject( const uint32_t id );
-
-        /** 
-         * Deregisters a distributed mobject.
-         * 
-         * All instances of the mobject get dereferenced.
-         * 
-         * @param mobject the mobject instance.
-         */
-        void deregisterMobject( Mobject* mobject );
         //*}
         
     protected:
@@ -203,15 +172,15 @@ namespace eqNet
         eqBase::RequestHandler _requestHandler;
 
         /** 
-         * Instanciate the (proxy) instance of a mobject on this session.
+         * Instanciate the slave(proxy) instance of a object on this session.
          * 
-         * @param type the type of the mobject.
-         * @param data the instance data of the mobject.
+         * @param type the type identifier of the object.
+         * @param data the instance data of the object.
          * @param dataSize the data size.
-         * @return the mobject, or <code>NULL</code> upon error.
-         * @sa Mobject::getInstanceInfo
+         * @return the object, or <code>NULL</code> upon error.
+         * @sa Object::getInstanceInfo
          */
-        virtual Mobject* instanciateMobject( const uint32_t type,
+        virtual Object* instanciateObject( const uint32_t type,
                                              const void* data, 
                                              const uint64_t dataSize );
         /** 
@@ -262,14 +231,17 @@ namespace eqNet
         /** The registered object, indexed by identifier. */
         IDHash<Object*> _registeredObjects;
 
-        /** The current state of pending mobject instanciations. */
-        IDHash<Mobject::InstState> _mobjectStates;
+        /** The current state of pending object instanciations. */
+        IDHash<Object::InstState> _objectInstStates;
 
         eqBase::RefPtr<Node> _pollIDMaster( const uint32_t id );
+
+    public: // TODO make private
+        void _addRegisteredObject( const uint32_t id, Object* object );
+    private:
         CommandResult _handleObjectCommand( Node* node, const Packet* packet );
-        CommandResult _handleMobjectCommand( Node* node, const Packet* packet );
-        CommandResult   _instMobject( const uint32_t id );
-        void              _sendInitMobject( const uint32_t mobjectID, 
+        CommandResult   _instObject( const uint32_t id );
+        void              _sendInitObject( const uint32_t objectID, 
                                             eqBase::RefPtr<Node> master );
 
         /** The command handler functions. */
@@ -278,12 +250,12 @@ namespace eqNet
         CommandResult _cmdSetIDMaster( Node* node, const Packet* packet );
         CommandResult _cmdGetIDMaster( Node* node, const Packet* packet );
         CommandResult _cmdGetIDMasterReply( Node* node, const Packet* packet );
-        CommandResult _cmdGetMobjectMaster( Node* node, const Packet* packet );
-        CommandResult _cmdGetMobjectMasterReply( Node* node, const Packet* pkg);
-        CommandResult _cmdGetMobject( Node* node, const Packet* packet );
-        CommandResult _cmdInitMobject( Node* node, const Packet* packet );
-        CommandResult _cmdInstanciateMobject( Node* node, const Packet* packet);
-        CommandResult _cmdInitMobjectReply( Node* node, const Packet* packet );
+        CommandResult _cmdGetObjectMaster( Node* node, const Packet* packet );
+        CommandResult _cmdGetObjectMasterReply( Node* node, const Packet* pkg);
+        CommandResult _cmdGetObject( Node* node, const Packet* packet );
+        CommandResult _cmdInitObject( Node* node, const Packet* packet );
+        CommandResult _cmdInstanciateObject( Node* node, const Packet* packet);
+        CommandResult _cmdInitObjectReply( Node* node, const Packet* packet );
     };
     std::ostream& operator << ( std::ostream& os, Session* session );
 }

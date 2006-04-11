@@ -24,8 +24,8 @@ public:
     virtual void draw( const uint32_t frameID );
 
 private:
-    eqBase::RefPtr<InitData> _initData;
-    FrameData*               _frameData;
+    InitData*  _initData;
+    FrameData* _frameData;
 
     void _drawBBox( const Model::BBox *bbox );
 };

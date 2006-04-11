@@ -5,24 +5,25 @@
 #ifndef EQS_NODE_H
 #define EQS_NODE_H
 
+#include "config.h"
+
 #include <eq/base/sema.h>
 #include <eq/net/barrier.h>
 #include <eq/net/node.h>
-#include <eq/net/object.h>
 
 #include <vector>
 
 namespace eqs
 {
-    class Config;
     class Pipe;
+    class Server;
 
     typedef std::vector<Pipe*>::const_iterator PipeIter;
 
     /**
      * The node.
      */
-    class Node : public eqNet::Node, public eqNet::Object
+    class Node : public eqNet::Node
     {
     public:
         /** 
@@ -35,12 +36,9 @@ namespace eqs
          */
         Node( const Node& from );
 
-        /** 
-         * Returns the parent config of this node.
-         * 
-         * @return the parent config of this node.
-         */
         Config* getConfig() const { return _config; }
+        Server* getServer() const
+            { return _config ? _config->getServer() : NULL; }
 
         /** 
          * Adds a new pipe to this node.

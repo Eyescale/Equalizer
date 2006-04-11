@@ -13,8 +13,8 @@
 
 enum ObjectType
 {
-    OBJECT_INITDATA  = eqNet::MOBJECT_CUSTOM,
-    OBJECT_FRAMEDATA 
+    TYPE_INITDATA  = eq::Object::TYPE_MANAGED_CUSTOM,
+    TYPE_FRAMEDATA = eq::Object::TYPE_VERSIONED_CUSTOM
 };
 
 typedef PlyModel< NormalFace<ColorVertex> > Model;

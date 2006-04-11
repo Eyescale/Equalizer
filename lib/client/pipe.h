@@ -41,7 +41,7 @@ namespace eq
         WINDOW_SYSTEM_ALL      // must be last
     };
 
-    class Pipe : public eqNet::Base, public eqNet::Object
+    class Pipe : public eqNet::Object
     {
     public:
         /** 

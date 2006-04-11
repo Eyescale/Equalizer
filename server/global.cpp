@@ -37,8 +37,7 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
 {
     Global reference;
 
-    os << disableSync;
-    os << "global" << endl;
+    os << disableSync << disableHeader << "global" << endl;
     os << '{' << indent << endl;
 #if 0
     for( int i=0; i<Node::IATTR_ALL; ++i )
@@ -97,8 +96,7 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
         }
     }
 
-    os << exdent << '}' << endl;
-    os << enableSync;
+    os << exdent << '}' << endl << enableHeader << enableSync;
     return os;
 }
 

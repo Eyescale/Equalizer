@@ -35,14 +35,27 @@ namespace eqBase
     {
 	public:
 		LogBuffer( std::ostream& stream )
-                : _indent(0), _async(0), _newLine(true), _stream(stream)
+                : _line(0), _indent(0), _async(0), _noHeader(0), _newLine(true),
+                  _stream(stream)
             {}
         
         void indent() { ++_indent; }
         void exdent() { --_indent; }
 
         void disableSync() { ++_async; } // use counted variable to allow
-        void enableSync()  { --_async; } // nested enable/disable calls
+        void enableSync()                //   nested enable/disable calls
+            { 
+                assert( _async && "Too many enableSync on log stream" );
+                --_async;
+                if( _async == 0 )
+                    pubsync();
+            }
+
+        void disableHeader() { ++_noHeader; } // use counted variable to allow
+        void enableHeader()  { --_noHeader; } //   nested enable/disable calls
+
+        void setLogInfo( const char* file, const int line )
+            { _file = file; _line = line; }
 
 	protected:
         virtual int_type overflow (int_type c) 
@@ -52,6 +65,20 @@ namespace eqBase
 
                 if( _newLine )
                 {
+                    if( !_noHeader )
+                    {
+#                   ifdef NDEBUG
+                        _stringStream << getpid()  << "." << pthread_self() 
+                                      << " " << SUBDIR << "/" << _file
+                                      << ":" << _line << " ";
+#                   else
+                        _stringStream << getpid()  << "." << pthread_self()
+                                      << " " << SUBDIR << "/" << _file
+                                      << ":" << _line << " t:" 
+                                      << _clock.getMSf() << " ";
+#                   endif
+                    }
+
                     for( int i=0; i<_indent; ++i )
                         _stringStream << "    ";
                     _newLine = false;
@@ -77,11 +104,23 @@ namespace eqBase
         LogBuffer( const LogBuffer& );
         LogBuffer& operator = ( const LogBuffer& );
 
+        /** The current file logging. */
+        std::string _file;
+
+        /** The current line logging. */
+        int _line;
+
+        /** Clock for time stamps */
+        Clock _clock;
+
         /** The current indentation level. */
         int _indent;
 
         /** Sync reference counter. */
         int _async;
+
+        /** The header disable counter. */
+        int _noHeader;
 
         /** The flag that a new line has started. */
         bool _newLine;
@@ -105,18 +144,23 @@ namespace eqBase
         void exdent() { _logBuffer.exdent(); }
         void disableSync() { _logBuffer.disableSync(); }
         void enableSync()  { _logBuffer.enableSync();  }
+        void disableHeader() { _logBuffer.disableHeader(); }
+        void enableHeader()  { _logBuffer.enableHeader();  }
 
         /** The current log level. */
         static int level;
 
         /** The per-thread logger. */
-        static Log& instance();
+        static Log& instance( const char* file, const int line );
 
     private:
         LogBuffer _logBuffer; 
 
         Log( const Log& );
         Log& operator = ( const Log& );
+
+        void setLogInfo( const char* file, const int line )
+            { _logBuffer.setLogInfo( file, line ); }
     };
 
     /** The ostream indent manipulator. */
@@ -127,6 +171,10 @@ namespace eqBase
     std::ostream& disableSync( std::ostream& os );
     /** The ostream sync enable manipulator. */
     std::ostream& enableSync( std::ostream& os );
+    /** The ostream header disable manipulator. */
+    std::ostream& disableHeader( std::ostream& os );
+    /** The ostream header enable manipulator. */
+    std::ostream& enableHeader( std::ostream& os );
 
     inline void dumpStack( std::ostream& os )
     {
@@ -151,26 +199,14 @@ namespace eqBase
 #define SUBDIR " "
 #endif
 
-#ifdef NDEBUG
-#  define LOG_EXTRA << getpid()  << "." << pthread_self()  \
-        << " " << SUBDIR <<"/" << __FILE__ << ":" << (int)__LINE__ << " " 
-#else
-
-extern eqBase::Clock eqLogClock;
-
-#  define LOG_EXTRA << getpid()  << "." << pthread_self()               \
-        << " " << SUBDIR <<"/" << __FILE__ << ":" << (int)__LINE__ << " t:" \
-        << eqLogClock.getMSf() << " "
-#endif
-
-#define EQERROR (eqBase::Log::level >= eqBase::LOG_ERROR) && \
-    eqBase::Log::instance() << "E " LOG_EXTRA
-#define EQWARN  (eqBase::Log::level >= eqBase::LOG_WARN)  && \
-    eqBase::Log::instance() << "W "  LOG_EXTRA
-#define EQINFO  (eqBase::Log::level >= eqBase::LOG_INFO)  && \
-    eqBase::Log::instance() << "I "  LOG_EXTRA
-#define EQVERB  (eqBase::Log::level >= eqBase::LOG_VERBATIM)  && \
-    eqBase::Log::instance() << "V "  LOG_EXTRA
+#define EQERROR (eqBase::Log::level >= eqBase::LOG_ERROR) &&    \
+    eqBase::Log::instance( __FILE__, __LINE__ )
+#define EQWARN  (eqBase::Log::level >= eqBase::LOG_WARN)  &&    \
+    eqBase::Log::instance( __FILE__, __LINE__ )
+#define EQINFO  (eqBase::Log::level >= eqBase::LOG_INFO)  &&    \
+    eqBase::Log::instance( __FILE__, __LINE__ )
+#define EQVERB  (eqBase::Log::level >= eqBase::LOG_VERBATIM)  &&    \
+    eqBase::Log::instance( __FILE__, __LINE__ )
 
 #define LOG_MATRIX4x4( m ) endl \
  << "  " << m[0] << " " << m[4] << " " << m[8]  << " " << m[12] << " " << endl \

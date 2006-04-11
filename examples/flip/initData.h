@@ -10,7 +10,7 @@
 
 #include <eq/eq.h>
 
-class InitData : public eqNet::Mobject
+class InitData : public eqNet::Object
 {
 public:
     InitData();

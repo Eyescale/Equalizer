@@ -11,8 +11,7 @@ using namespace eqNet;
 using namespace std;
 
 Barrier::Barrier( const uint32_t height )
-        : Mobject( MOBJECT_EQNET_BARRIER ),
-          Base( CMD_BARRIER_ALL ),
+        : Object( TYPE_BARRIER, CMD_BARRIER_ALL ),
           _height( height ),
           _waitForLeave( false )
 {
@@ -28,8 +27,7 @@ Barrier::Barrier( const uint32_t height )
 }
 
 Barrier::Barrier( const void* instanceData )
-        : Mobject( MOBJECT_EQNET_BARRIER ),
-          Base( CMD_BARRIER_ALL ),
+        : Object( TYPE_BARRIER, CMD_BARRIER_ALL ),
           _waitForLeave( false )
 {
     _height = *(uint32_t*)instanceData;

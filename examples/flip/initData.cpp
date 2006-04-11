@@ -8,13 +8,13 @@ using namespace std;
 using namespace eqBase;
 
 InitData::InitData()
-        : Mobject( OBJECT_INITDATA ),
+        : Object( TYPE_INITDATA, eqNet::CMD_OBJECT_CUSTOM ),
           _frameDataID( EQ_INVALID_ID ),
           _instanceData( NULL )
 {}
 
 InitData::InitData( const void* data, const uint64_t size )
-        : Mobject( OBJECT_INITDATA ),
+        : Object( TYPE_INITDATA, eqNet::CMD_OBJECT_CUSTOM ),
           _instanceData( NULL )
 {
     EQASSERT( size > sizeof( _frameDataID ));
@@ -66,8 +66,7 @@ FrameData* InitData::getFrameData()
     eqNet::Session* session = getSession();
     EQASSERT( session );
 
-    _frameData = RefPtr_static_cast< FrameData, Mobject >( 
-        session->getMobject( _frameDataID ));
+    _frameData = (FrameData*)session->getObject( _frameDataID );
     return _frameData.get();
 }
 

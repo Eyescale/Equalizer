@@ -39,11 +39,12 @@ int getLogLevel()
 #endif
 }
 
-Log& Log::instance()
+Log& Log::instance( const char* file, const int line )
 {
     if( !_logInstance.get( ))
         _logInstance = new Log();
 
+    _logInstance->setLogInfo( file, line );
     return *_logInstance.get();
 }
 
@@ -74,5 +75,20 @@ std::ostream& eqBase::enableSync( std::ostream& os )
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
         log->enableSync();
+    return os;
+}
+
+std::ostream& eqBase::disableHeader( std::ostream& os )
+{
+    Log* log = dynamic_cast<Log*>(&os);
+    if( log )
+        log->disableHeader();
+    return os;
+}
+std::ostream& eqBase::enableHeader( std::ostream& os )
+{
+    Log* log = dynamic_cast<Log*>(&os);
+    if( log )
+        log->enableHeader();
     return os;
 }

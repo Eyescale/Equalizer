@@ -7,6 +7,7 @@
 #include "commands.h"
 #include "global.h"
 #include "nodeFactory.h"
+#include "object.h"
 #include "packets.h"
 #include "channel.h"
 
@@ -17,7 +18,7 @@ using namespace eqBase;
 using namespace std;
 
 eq::Window::Window()
-        : eqNet::Base( CMD_WINDOW_ALL ),
+        : eqNet::Object( eq::Object::TYPE_WINDOW, CMD_WINDOW_ALL ),
 #ifdef GLX
           _xDrawable(0),
           _glXContext(NULL),
@@ -93,7 +94,7 @@ eqNet::CommandResult eq::Window::_cmdCreateChannel( eqNet::Node* node,
 
     Channel* channel = Global::getNodeFactory()->createChannel();
     
-    getConfig()->addRegisteredObject( packet->channelID, channel );
+    getConfig()->_addRegisteredObject( packet->channelID, channel );
     _addChannel( channel );
     return eqNet::COMMAND_HANDLED;
 }
@@ -199,11 +200,11 @@ eqNet::CommandResult eq::Window::_reqSwapWithBarrier(eqNet::Node* node,
     WindowSwapWithBarrierPacket* packet = (WindowSwapWithBarrierPacket*)pkg;
     EQVERB << "handle swap with barrier " << packet << endl;
 
-    eqNet::Session*        session = getSession();
-    RefPtr<eqNet::Mobject> mobject = session->getMobject( packet->barrierID );
-    EQASSERT( dynamic_cast<eqNet::Barrier*>(mobject.get()) );
+    eqNet::Session* session = getSession();
+    eqNet::Object*  object  = session->getObject( packet->barrierID );
+    EQASSERT( dynamic_cast<eqNet::Barrier*>( object ) );
 
-    eqNet::Barrier* barrier = (eqNet::Barrier*)mobject.get();
+    eqNet::Barrier* barrier = (eqNet::Barrier*)object;
     finish();
     barrier->enter();
     swap();

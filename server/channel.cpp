@@ -32,13 +32,13 @@ void Channel::_construct()
 }
 
 Channel::Channel()
-        : eqNet::Base( eq::CMD_CHANNEL_ALL )
+        : eqNet::Object( eq::Object::TYPE_CHANNEL, eq::CMD_CHANNEL_ALL )
 {
     _construct();
 }
 
 Channel::Channel( const Channel& from )
-        : eqNet::Base( eq::CMD_CHANNEL_ALL )
+        : eqNet::Object( eq::Object::TYPE_CHANNEL, eq::CMD_CHANNEL_ALL )
 {
     _construct();
 }
@@ -177,9 +177,9 @@ std::ostream& eqs::operator << ( std::ostream& os, const Channel* channel)
     if( !channel )
         return os;
     
-    os << "channel" << endl;
+    os << disableSync << disableHeader << "channel" << endl;
     os << "{" << endl << indent;
-    os << exdent << "}" << endl;
+    os << exdent << "}" << endl << enableHeader << enableSync;
 
     return os;
 }

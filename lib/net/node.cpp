@@ -33,7 +33,7 @@ PerThread<Node*> Node::_localNode;
 // State management
 //----------------------------------------------------------------------
 Node::Node( const uint32_t nCommands )
-        : Base( nCommands ),
+        : Object( TYPE_UNMANAGED, nCommands ),
           _autoLaunch(false),
           _state(STATE_STOPPED),
           _launchID(EQ_INVALID_ID)
@@ -599,8 +599,6 @@ CommandResult Node::dispatchPacket( Node* node, const Packet* packet )
 
         case DATATYPE_EQNET_SESSION:
         case DATATYPE_EQNET_OBJECT:
-        case DATATYPE_EQNET_MOBJECT:
-        case DATATYPE_EQNET_VERSIONED_OBJECT:
         case DATATYPE_EQNET_USER:
         {
             const SessionPacket* sessionPacket = (SessionPacket*)packet;

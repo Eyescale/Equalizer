@@ -29,7 +29,7 @@ namespace eq
 
     enum ConfigCommand
     {
-        CMD_CONFIG_INIT                 = eqNet::CMD_SESSION_CUSTOM,
+        CMD_CONFIG_INIT       = eqNet::CMD_SESSION_CUSTOM,
         REQ_CONFIG_INIT, // REQ must always follow CMD
         CMD_CONFIG_INIT_REPLY,
         CMD_CONFIG_EXIT,
@@ -46,7 +46,7 @@ namespace eq
 
     enum NodeCommand
     {
-        CMD_NODE_CREATE_CONFIG          = eqNet::CMD_NODE_CUSTOM,
+        CMD_NODE_CREATE_CONFIG = eqNet::CMD_NODE_CUSTOM,
         CMD_NODE_INIT,
         REQ_NODE_INIT,
         CMD_NODE_INIT_REPLY,
@@ -62,7 +62,7 @@ namespace eq
 
     enum PipeCommand
     {
-        CMD_PIPE_INIT,
+        CMD_PIPE_INIT = eqNet::CMD_OBJECT_CUSTOM,
         REQ_PIPE_INIT,
         CMD_PIPE_INIT_REPLY,
         CMD_PIPE_EXIT,
@@ -77,7 +77,7 @@ namespace eq
 
     enum WindowCommand
     {
-        CMD_WINDOW_INIT,
+        CMD_WINDOW_INIT = eqNet::CMD_OBJECT_CUSTOM,
         REQ_WINDOW_INIT,
         CMD_WINDOW_INIT_REPLY,
         CMD_WINDOW_EXIT,
@@ -94,7 +94,7 @@ namespace eq
 
     enum ChannelCommand
     {
-        CMD_CHANNEL_INIT,
+        CMD_CHANNEL_INIT = eqNet::CMD_OBJECT_CUSTOM,
         REQ_CHANNEL_INIT,
         CMD_CHANNEL_INIT_REPLY,
         CMD_CHANNEL_EXIT,

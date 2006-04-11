@@ -7,9 +7,8 @@
 
 #include "pipe.h"
 
+#include <eq/client/object.h>
 #include <eq/client/pixelViewport.h>
-#include <eq/net/base.h>
-#include <eq/net/object.h>
 
 #include <iostream>
 #include <vector>
@@ -22,7 +21,7 @@ namespace eqs
     /**
      * The window.
      */
-    class Window : public eqNet::Base, public eqNet::Object
+    class Window : public eqNet::Object
     {
     public:
         enum State
@@ -44,6 +43,9 @@ namespace eqs
         Window( const Window& from );
 
         virtual ~Window(){}
+
+        Server* getServer() const
+            { return _pipe ? _pipe ->getServer() : NULL; }
 
         /** 
          * @return the state of this pipe.

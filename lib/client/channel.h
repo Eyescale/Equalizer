@@ -17,7 +17,7 @@ namespace eq
     class Node;
     class RenderContext;
 
-    class Channel : public eqNet::Base, public eqNet::Object
+    class Channel : public eqNet::Object
     {
     public:
         /** 

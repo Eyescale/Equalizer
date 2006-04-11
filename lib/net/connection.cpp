@@ -87,6 +87,9 @@ RefPtr<Connection> Connection::accept( const int timeout )
 uint64_t Connection::send( Packet& packet, const void* data, 
                            const uint64_t dataSize ) const
 {
+    if( dataSize == 0 )
+        return send( packet );
+
     if( dataSize <= 8 ) // fits in existing packet
     {
         memcpy( (char*)(&packet) + packet.size-8, data, dataSize );

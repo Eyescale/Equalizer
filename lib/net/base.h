@@ -42,7 +42,8 @@ namespace eqNet
     protected:
 
         /** The command function prototype. */
-        typedef CommandResult (eqNet::Base::*CommandFcn)( Node* node, const Packet* packet );
+        typedef CommandResult (eqNet::Base::*CommandFcn)( Node* node, 
+                                                          const Packet* packet);
 
         /** 
          * Registers a command member function for a command.

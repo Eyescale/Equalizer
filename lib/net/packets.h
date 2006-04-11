@@ -20,8 +20,6 @@ namespace eqNet
         DATATYPE_EQNET_NODE,
         DATATYPE_EQNET_SESSION,
         DATATYPE_EQNET_OBJECT,
-        DATATYPE_EQNET_MOBJECT,
-        DATATYPE_EQNET_VERSIONED_OBJECT,
         DATATYPE_EQNET_USER,
         DATATYPE_CUSTOM = 1<<10
     };
@@ -250,76 +248,76 @@ namespace eqNet
         NodeID   masterID;
     };
 
-    struct SessionGetMobjectMasterPacket : public SessionPacket
+    struct SessionGetObjectMasterPacket : public SessionPacket
     {
-        SessionGetMobjectMasterPacket( const uint32_t sessionID ) 
+        SessionGetObjectMasterPacket( const uint32_t sessionID ) 
                 : SessionPacket( sessionID )
             {
-                command = CMD_SESSION_GET_MOBJECT_MASTER;
-                size    = sizeof( SessionGetMobjectMasterPacket ); 
+                command = CMD_SESSION_GET_OBJECT_MASTER;
+                size    = sizeof( SessionGetObjectMasterPacket ); 
             }
 
-        uint32_t mobjectID;
+        uint32_t objectID;
     };
 
-    struct SessionGetMobjectMasterReplyPacket : public SessionPacket
+    struct SessionGetObjectMasterReplyPacket : public SessionPacket
     {
-        SessionGetMobjectMasterReplyPacket( const SessionGetMobjectMasterPacket*
+        SessionGetObjectMasterReplyPacket( const SessionGetObjectMasterPacket*
                                             request ) 
                 : SessionPacket( request->sessionID )
             {
-                command   = CMD_SESSION_GET_MOBJECT_MASTER_REPLY;
-                size      = sizeof( SessionGetMobjectMasterReplyPacket );
-                mobjectID = request->mobjectID;
+                command   = CMD_SESSION_GET_OBJECT_MASTER_REPLY;
+                size      = sizeof( SessionGetObjectMasterReplyPacket );
+                objectID = request->objectID;
             }
 
-        uint32_t mobjectID;
+        uint32_t objectID;
         uint32_t start;
         uint32_t end;
         NodeID   masterID;
     };
 
-    struct SessionGetMobjectPacket : public SessionPacket
+    struct SessionGetObjectPacket : public SessionPacket
     {
-        SessionGetMobjectPacket( const uint32_t sessionID ) 
+        SessionGetObjectPacket( const uint32_t sessionID ) 
                 : SessionPacket( sessionID )
             {
-                command = CMD_SESSION_GET_MOBJECT;
-                size    = sizeof( SessionGetMobjectPacket ); 
+                command = CMD_SESSION_GET_OBJECT;
+                size    = sizeof( SessionGetObjectPacket ); 
             }
         
         uint32_t requestID;
-        uint32_t mobjectID;
+        uint32_t objectID;
     };
 
-    struct SessionInitMobjectPacket : public SessionPacket
+    struct SessionInitObjectPacket : public SessionPacket
     {
-        SessionInitMobjectPacket( const uint32_t sessionID ) 
+        SessionInitObjectPacket( const uint32_t sessionID ) 
                 : SessionPacket( sessionID )
             {
-                command = CMD_SESSION_INIT_MOBJECT;
-                size    = sizeof( SessionInitMobjectPacket ); 
+                command = CMD_SESSION_INIT_OBJECT;
+                size    = sizeof( SessionInitObjectPacket ); 
             }
 
-        uint32_t mobjectID;
+        uint32_t objectID;
     };
 
-    struct SessionInstanciateMobjectPacket : public SessionPacket
+    struct SessionInstanciateObjectPacket : public SessionPacket
     {
-        SessionInstanciateMobjectPacket( const uint32_t sessionID ) 
+        SessionInstanciateObjectPacket( const uint32_t sessionID ) 
                 : SessionPacket( sessionID )
             {
-                command        = CMD_SESSION_INSTANCIATE_MOBJECT;
-                size           = sizeof( SessionInstanciateMobjectPacket ); 
+                command        = CMD_SESSION_INSTANCIATE_OBJECT;
+                size           = sizeof( SessionInstanciateObjectPacket ); 
                 isMaster       = false;
-                mobjectData[0] = '\0';
+                objectData[0] = '\0';
             }
 
         bool     isMaster;
-        uint32_t mobjectID;
-        uint32_t mobjectType;
-        uint64_t mobjectDataSize;
-        char     mobjectData[8];
+        uint32_t objectID;
+        uint32_t objectType;
+        uint64_t objectDataSize;
+        char     objectData[8];
     };
 
     //------------------------------------------------------------
@@ -338,39 +336,14 @@ namespace eqNet
         uint32_t objectID;
     };
 
-    //------------------------------------------------------------
-    // Mobject
-    //------------------------------------------------------------
-    struct MobjectPacket : public ObjectPacket
+    struct ObjectSyncPacket : public ObjectPacket
     {
-        MobjectPacket( const uint32_t sessionID, const uint32_t objectID )
+        ObjectSyncPacket( const uint32_t sessionID, 
+                                   const uint32_t objectID )
                 : ObjectPacket( sessionID, objectID )
             {
-                datatype       = DATATYPE_EQNET_MOBJECT; 
-            }
-    };
-
-    //------------------------------------------------------------
-    // versioned object
-    //------------------------------------------------------------
-    struct VersionedObjectPacket : public MobjectPacket
-    {
-        VersionedObjectPacket( const uint32_t sessionID, 
-                               const uint32_t objectID )
-                : MobjectPacket( sessionID, objectID )
-            {
-                datatype       = DATATYPE_EQNET_VERSIONED_OBJECT; 
-            }
-    };
-
-    struct VersionedObjectSyncPacket : public VersionedObjectPacket
-    {
-        VersionedObjectSyncPacket( const uint32_t sessionID, 
-                                   const uint32_t objectID )
-                : VersionedObjectPacket( sessionID, objectID )
-            {
-                command        = CMD_VERSIONED_OBJECT_SYNC;
-                size           = sizeof( VersionedObjectSyncPacket ); 
+                command        = CMD_OBJECT_SYNC;
+                size           = sizeof( ObjectSyncPacket ); 
                 delta[0]       = '\0';
             }
         
@@ -382,40 +355,40 @@ namespace eqNet
     //------------------------------------------------------------
     // Barrier
     //------------------------------------------------------------
-    struct BarrierEnterPacket : public MobjectPacket
+    struct BarrierEnterPacket : public ObjectPacket
     {
         BarrierEnterPacket( const uint32_t sessionID, const uint32_t objectID )
-                : eqNet::MobjectPacket( sessionID, objectID )
+                : eqNet::ObjectPacket( sessionID, objectID )
             {
                 command = CMD_BARRIER_ENTER;
                 size    = sizeof( BarrierEnterPacket );
             }
     };
 
-    struct BarrierEnterReplyPacket : public MobjectPacket
+    struct BarrierEnterReplyPacket : public ObjectPacket
     {
         BarrierEnterReplyPacket( const uint32_t sessionID, 
                                  const uint32_t objectID )
-                : eqNet::MobjectPacket( sessionID, objectID )
+                : eqNet::ObjectPacket( sessionID, objectID )
             {
                 command = CMD_BARRIER_ENTER_REPLY;
                 size    = sizeof( BarrierEnterReplyPacket );
             }
     };
 
-    //------------------------------------------------------------
-    // User
-    //------------------------------------------------------------
-    struct UserPacket : public SessionPacket
-    {
-        UserPacket( const uint32_t sessionID, const uint32_t userID )
-                : SessionPacket( sessionID )
-            {
-                datatype     = DATATYPE_EQNET_USER; 
-                this->userID = userID;
-            }
-        uint32_t userID;
-    };
+//     //------------------------------------------------------------
+//     // User
+//     //------------------------------------------------------------
+//     struct UserPacket : public SessionPacket
+//     {
+//         UserPacket( const uint32_t sessionID, const uint32_t userID )
+//                 : SessionPacket( sessionID )
+//             {
+//                 datatype     = DATATYPE_EQNET_USER; 
+//                 this->userID = userID;
+//             }
+//         uint32_t userID;
+//     };
 
 
     inline std::ostream& operator << ( std::ostream& os, 
@@ -474,13 +447,12 @@ namespace eqNet
         os << (NodePacket*)packet << " session id " << packet->sessionID;
         return os;
     }
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const UserPacket* packet )
-    {
-        os << (SessionPacket*)packet << " user id " << packet->userID;
-        return os;
-    }
-
+//     inline std::ostream& operator << ( std::ostream& os, 
+//                                        const UserPacket* packet )
+//     {
+//         os << (SessionPacket*)packet << " user id " << packet->userID;
+//         return os;
+//     }
 
     inline std::ostream& operator << ( std::ostream& os, 
                                        const SessionGenIDsReplyPacket* packet )
@@ -489,23 +461,23 @@ namespace eqNet
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                             const SessionGetMobjectMasterReplyPacket* packet )
+                             const SessionGetObjectMasterReplyPacket* packet )
     {
-        os << (SessionPacket*)packet << " id " << packet->mobjectID
+        os << (SessionPacket*)packet << " id " << packet->objectID
            << " master " << packet->masterID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                       const SessionGetMobjectPacket* packet )
+                                       const SessionGetObjectPacket* packet )
     {
-        os << (SessionPacket*)packet << " id " << packet->mobjectID;
+        os << (SessionPacket*)packet << " id " << packet->objectID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                 const SessionInstanciateMobjectPacket* packet )
+                                 const SessionInstanciateObjectPacket* packet )
     {
-        os << (SessionPacket*)packet << " mobj id " << packet->mobjectID <<
-            " type " << packet->mobjectType << " master " << packet->isMaster;
+        os << (SessionPacket*)packet << " mobj id " << packet->objectID <<
+            " type " << packet->objectType << " master " << packet->isMaster;
         return os;
     }
 
@@ -517,9 +489,9 @@ namespace eqNet
     }
 
     inline std::ostream& operator << ( std::ostream& os, 
-                                       const VersionedObjectSyncPacket* packet )
+                                       const ObjectSyncPacket* packet )
     {
-        os << (VersionedObjectPacket*)packet << " version " << packet->version
+        os << (ObjectPacket*)packet << " version " << packet->version
            << " size " << packet->deltaSize;
         return os;
     }

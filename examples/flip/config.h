@@ -13,18 +13,18 @@
 class Config : public eq::Config
 {
 protected:
-    eqNet::Mobject* instanciateMobject( const uint32_t type, const void* data, 
-                                        const uint64_t dataSize )
+    eqNet::Object* instanciateObject( const uint32_t type, const void* data, 
+                                       const uint64_t dataSize )
         {
             switch( type )
             {
-                case OBJECT_INITDATA:
+                case TYPE_INITDATA:
                     return new InitData( data, dataSize );
-                case OBJECT_FRAMEDATA:
+                case TYPE_FRAMEDATA:
                     return new FrameData( data, dataSize );
                 default:
-                    return eqNet::Session::instanciateMobject( type, data,
-                                                               dataSize );
+                    return eqNet::Session::instanciateObject( type, data,
+                                                              dataSize );
             }
         }
 };

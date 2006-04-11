@@ -5,6 +5,7 @@
 #include "channel.h"
 
 #include "commands.h"
+#include "object.h"
 #include "global.h"
 #include "nodeFactory.h"
 #include "packets.h"
@@ -14,7 +15,7 @@ using namespace eq;
 using namespace std;
 
 Channel::Channel()
-        : eqNet::Base( CMD_CHANNEL_ALL ),
+        : eqNet::Object( eq::Object::TYPE_CHANNEL, CMD_CHANNEL_ALL ),
           _window(NULL),
           _near(.1),
           _far(100.),

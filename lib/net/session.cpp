@@ -43,21 +43,21 @@ Session::Session( const uint32_t nCommands, const bool threadSafe )
     registerCommand( CMD_SESSION_GET_ID_MASTER_REPLY, this, 
                      reinterpret_cast<CommandFcn>(
                          &eqNet::Session::_cmdGetIDMasterReply ));
-    registerCommand( CMD_SESSION_GET_MOBJECT_MASTER, this, 
+    registerCommand( CMD_SESSION_GET_OBJECT_MASTER, this, 
                      reinterpret_cast<CommandFcn>(
-                         &eqNet::Session::_cmdGetMobjectMaster ));
-    registerCommand( CMD_SESSION_GET_MOBJECT_MASTER_REPLY, this, 
+                         &eqNet::Session::_cmdGetObjectMaster ));
+    registerCommand( CMD_SESSION_GET_OBJECT_MASTER_REPLY, this, 
                      reinterpret_cast<CommandFcn>(
-                         &eqNet::Session::_cmdGetMobjectMasterReply ));
-    registerCommand( CMD_SESSION_GET_MOBJECT, this, 
+                         &eqNet::Session::_cmdGetObjectMasterReply ));
+    registerCommand( CMD_SESSION_GET_OBJECT, this, 
                      reinterpret_cast<CommandFcn>(
-                         &eqNet::Session::_cmdGetMobject ));
-    registerCommand( CMD_SESSION_INIT_MOBJECT, this, 
+                         &eqNet::Session::_cmdGetObject ));
+    registerCommand( CMD_SESSION_INIT_OBJECT, this, 
                      reinterpret_cast<CommandFcn>(
-                         &eqNet::Session::_cmdInitMobject ));
-    registerCommand( CMD_SESSION_INSTANCIATE_MOBJECT, this, 
+                         &eqNet::Session::_cmdInitObject ));
+    registerCommand( CMD_SESSION_INSTANCIATE_OBJECT, this, 
                      reinterpret_cast<CommandFcn>(
-                         &eqNet::Session::_cmdInstanciateMobject ));
+                         &eqNet::Session::_cmdInstanciateObject ));
 
     EQINFO << "New " << this << endl;
 }
@@ -148,13 +148,7 @@ RefPtr<Node> Session::getIDMaster( const uint32_t id )
 //---------------------------------------------------------------------------
 // object mapping
 //---------------------------------------------------------------------------
-void Session::registerObject( Object* object )
-{
-    const uint32_t id = genIDs( 1 );
-    addRegisteredObject( id, object );
-}
-
-void Session::addRegisteredObject( const uint32_t id, Object* object )
+void Session::_addRegisteredObject( const uint32_t id, Object* object )
 {
     EQASSERT( !_registeredObjects[id] );
     EQASSERT( object->_id == EQ_INVALID_ID );
@@ -167,23 +161,18 @@ void Session::addRegisteredObject( const uint32_t id, Object* object )
          << " session id " << _id << endl;
 }
 
-void Session::deregisterObject( Object* object )
-{
-    const uint32_t id = object->getID();
-    if( _registeredObjects.erase(id) == 0 )
-        return;
-    
-    object->_id      = EQ_INVALID_ID;
-    object->_session = NULL;
-    freeIDs( id, 1 );
-}
-
 // XXX use RefPtr for object
-void Session::registerMobject( Mobject* object, Node* master )
+void Session::registerObject( Object* object, Node* master )
 {
+    EQASSERT( object->_id == EQ_INVALID_ID );
     const uint32_t id = genIDs( 1 );
-    setIDMaster( id, 1, master );
-    addRegisteredObject( id, object );
+
+    if( object->getTypeID() != Object::TYPE_UNMANAGED )
+    {
+        EQASSERT( master );
+        setIDMaster( id, 1, master );
+    }
+    _addRegisteredObject( id, object );
 
     if( _localNode == master )
     {
@@ -191,19 +180,22 @@ void Session::registerMobject( Mobject* object, Node* master )
         return;
     }
     
+    if( object->getTypeID() == Object::TYPE_UNMANAGED )
+        return;
+
     object->_master = false;
 
-    SessionInstanciateMobjectPacket packet( _id );
-    packet.mobjectID   = id;
-    packet.isMaster    = true;
-    packet.mobjectType = object->_typeID;
+    SessionInstanciateObjectPacket packet( _id );
+    packet.objectID   = id;
+    packet.isMaster   = true;
+    packet.objectType = object->_typeID;
                                                 
-    const void* data = object->getInstanceData( &packet.mobjectDataSize );
-    master->send( packet, data, packet.mobjectDataSize );
+    const void* data = object->getInstanceData( &packet.objectDataSize );
+    master->send( packet, data, packet.objectDataSize );
     object->releaseInstanceData( data );
 }
 
-void Session::deregisterMobject( Mobject* object )
+void Session::deregisterObject( Object* object )
 {
     const uint32_t id = object->getID();
     if( _registeredObjects.erase(id) == 0 )
@@ -215,30 +207,27 @@ void Session::deregisterMobject( Mobject* object )
     freeIDs( id, 1 );
 }
 
-RefPtr<Mobject> Session::getMobject( const uint32_t id )
+Object* Session::getObject( const uint32_t id )
 {
     Object* object = _registeredObjects[id];
     if( object )
-    {
-        EQASSERT( dynamic_cast<Mobject*>(object) );
-        return static_cast<Mobject*>(object);
-    }
+        return object;
 
-    SessionGetMobjectPacket packet( _id );
+    SessionGetObjectPacket packet( _id );
 
     packet.requestID = _requestHandler.registerRequest( this );
-    packet.mobjectID = id;
+    packet.objectID = id;
 
     _localNode->send( packet );
-    return (Mobject*)_requestHandler.waitRequest( packet.requestID );
+    return (Object*)_requestHandler.waitRequest( packet.requestID );
 }
 
-Mobject* Session::instanciateMobject( const uint32_t type, const void* data, 
-                                      const uint64_t dataSize )
+Object* Session::instanciateObject( const uint32_t type, const void* data, 
+                                    const uint64_t dataSize )
 {
     switch( type )
     {
-        case MOBJECT_EQNET_BARRIER:
+        case Object::TYPE_BARRIER:
             return new Barrier( data );
 
         default:
@@ -262,10 +251,6 @@ CommandResult Session::dispatchPacket( Node* node, const Packet* packet )
         case DATATYPE_EQNET_OBJECT:
             return _handleObjectCommand( node, packet );
 
-        case DATATYPE_EQNET_MOBJECT:
-        case DATATYPE_EQNET_VERSIONED_OBJECT:
-            return _handleMobjectCommand( node, packet );
-
         default:
             EQWARN << "Undispatched packet " << packet << endl;
             return COMMAND_ERROR;
@@ -275,45 +260,29 @@ CommandResult Session::dispatchPacket( Node* node, const Packet* packet )
 CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
 {
     const ObjectPacket* objPacket = (ObjectPacket*)packet;
-    const uint32_t      id        = objPacket->objectID;
-    Object*             object    = _registeredObjects[id];
-    
-    if( !object )
-    {
-        EQERROR << "Object for " << objPacket 
-                << " not registered with this session instance" << endl;
-        return COMMAND_ERROR;
-    }
-
-    return object->handleCommand( node, objPacket );
-}
-
-CommandResult Session::_handleMobjectCommand( Node* node, const Packet* packet )
-{
-    const MobjectPacket* objPacket = (MobjectPacket*)packet;
     const uint32_t       id        = objPacket->objectID;
     Object*              object    = _registeredObjects[id];
     
     if( !object )
-        return _instMobject( id ); // instanciate object and reschedule command
+        return _instObject( id ); // instanciate object and reschedule command
 
     return object->handleCommand( node, objPacket );
 }
 
-CommandResult Session::_instMobject( const uint32_t id )
+CommandResult Session::_instObject( const uint32_t id )
 {
-    const Mobject::InstState state = _mobjectStates[id];
+    const Object::InstState state = _objectInstStates[id];
 
     switch( state )
     {
-        case Mobject::INST_UNKNOWN:
+        case Object::INST_UNKNOWN:
         {
             RefPtr<Node> master = _pollIDMaster( id );
             if( master.isValid( ))
             {
                 if( master != _localNode )
-                    _sendInitMobject( id, master );
-                // else hope that the mobject's instanciation is pending
+                    _sendInitObject( id, master );
+                // else hope that the object's instanciation is pending
 
                 return COMMAND_RESCHEDULE;
             }
@@ -321,28 +290,28 @@ CommandResult Session::_instMobject( const uint32_t id )
             if( _isMaster )
                 return COMMAND_ERROR;
 
-            SessionGetMobjectMasterPacket packet( _id );
-            packet.mobjectID = id;
+            SessionGetObjectMasterPacket packet( _id );
+            packet.objectID = id;
             _server->send( packet );
-            _mobjectStates[id] = Mobject::INST_GETMASTERID;
+            _objectInstStates[id] = Object::INST_GETMASTERID;
             return COMMAND_RESCHEDULE;
         }
         
-        case Mobject::INST_GOTMASTER:
+        case Object::INST_GOTMASTER:
         {
             RefPtr<Node> master = _pollIDMaster( id );
             if( !master )
             {
-                _mobjectStates[id] = Mobject::INST_UNKNOWN;
+                _objectInstStates[id] = Object::INST_UNKNOWN;
                 return COMMAND_ERROR;
             }
 
-            _sendInitMobject( id, master );
+            _sendInitObject( id, master );
             return COMMAND_RESCHEDULE;
         }
             
-        case Mobject::INST_ERROR:
-            _mobjectStates[id] = Mobject::INST_UNKNOWN;
+        case Object::INST_ERROR:
+            _objectInstStates[id] = Object::INST_UNKNOWN;
             return COMMAND_ERROR;
 
         default:
@@ -350,12 +319,12 @@ CommandResult Session::_instMobject( const uint32_t id )
     }
 }
 
-void Session::_sendInitMobject( const uint32_t mobjectID, RefPtr<Node> master )
+void Session::_sendInitObject( const uint32_t objectID, RefPtr<Node> master )
 {
-    SessionInitMobjectPacket packet( _id );
-    packet.mobjectID = mobjectID;
+    SessionInitObjectPacket packet( _id );
+    packet.objectID = objectID;
     master->send( packet );
-    _mobjectStates[mobjectID] = Mobject::INST_INIT;
+    _objectInstStates[objectID] = Object::INST_INIT;
 }
             
 CommandResult Session::_cmdGenIDs( Node* node, const Packet* pkg )
@@ -447,15 +416,15 @@ CommandResult Session::_cmdGetIDMasterReply( Node* node, const Packet* pkg )
     return COMMAND_HANDLED;
 }
 
-CommandResult Session::_cmdGetMobjectMaster( Node* node, const Packet* pkg )
+CommandResult Session::_cmdGetObjectMaster( Node* node, const Packet* pkg )
 {
-    SessionGetMobjectMasterPacket* packet = (SessionGetMobjectMasterPacket*)pkg;
-    SessionGetMobjectMasterReplyPacket reply( packet );
+    SessionGetObjectMasterPacket* packet = (SessionGetObjectMasterPacket*)pkg;
+    SessionGetObjectMasterReplyPacket reply( packet );
 
     reply.start = 0;
 
     // TODO thread-safety: _idMasterInfos is also read & written by app
-    const uint32_t id     = packet->mobjectID;
+    const uint32_t id     = packet->objectID;
     const uint32_t nInfos = _idMasterInfos.size();
     for( uint32_t i=0; i<nInfos; ++i )
     {
@@ -475,17 +444,17 @@ CommandResult Session::_cmdGetMobjectMaster( Node* node, const Packet* pkg )
     return COMMAND_HANDLED;
 }
 
-CommandResult Session::_cmdGetMobjectMasterReply( Node* node, const Packet* pkg)
+CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
 {
-    SessionGetMobjectMasterReplyPacket* packet = 
-        (SessionGetMobjectMasterReplyPacket*)pkg;
-    EQINFO << "cmd get mobject master reply: " << packet << endl;
+    SessionGetObjectMasterReplyPacket* packet = 
+        (SessionGetObjectMasterReplyPacket*)pkg;
+    EQINFO << "cmd get object master reply: " << packet << endl;
  
-    const uint32_t id = packet->mobjectID;
+    const uint32_t id = packet->objectID;
 
     if( packet->start == 0 ) // not found
     {
-        _mobjectStates[id] = Mobject::INST_ERROR;
+        _objectInstStates[id] = Object::INST_ERROR;
         return COMMAND_HANDLED;
     }
 
@@ -493,10 +462,10 @@ CommandResult Session::_cmdGetMobjectMasterReply( Node* node, const Packet* pkg)
 
     if( !master ) // query connection description, create and connect node 
     {
-        if( _mobjectStates[id] == Mobject::INST_GETMASTER )
+        if( _objectInstStates[id] == Object::INST_GETMASTER )
             return COMMAND_RESCHEDULE;
 
-        _mobjectStates[id] = Mobject::INST_GETMASTER;
+        _objectInstStates[id] = Object::INST_GETMASTER;
 
         NodeGetConnectionDescriptionPacket cdPacket;
         cdPacket.nodeID = packet->masterID;
@@ -510,29 +479,29 @@ CommandResult Session::_cmdGetMobjectMasterReply( Node* node, const Packet* pkg)
     // TODO thread-safety: _idMasterInfos is also read & written by app
     IDMasterInfo info = { packet->start, packet->end, master};
     _idMasterInfos.push_back( info );
-    _mobjectStates[id] = Mobject::INST_GOTMASTER;
+    _objectInstStates[id] = Object::INST_GOTMASTER;
 
     return COMMAND_HANDLED;
 }
 
-CommandResult Session::_cmdGetMobject( Node* node, const Packet* pkg )
+CommandResult Session::_cmdGetObject( Node* node, const Packet* pkg )
 {
-    SessionGetMobjectPacket* packet = (SessionGetMobjectPacket*)pkg;
+    SessionGetObjectPacket* packet = (SessionGetObjectPacket*)pkg;
     EQASSERT( _requestHandler.getRequestData( packet->requestID ) == this );
 
-    EQINFO << "Cmd get mobject " << packet << endl;
+    EQINFO << "Cmd get object " << packet << endl;
 
-    const uint32_t id     = packet->mobjectID;
+    const uint32_t id     = packet->objectID;
     Object*        object = _registeredObjects[id];
 
     if( object )
     {
-        EQASSERT( dynamic_cast<Mobject*>(object) );
+        EQASSERT( dynamic_cast<Object*>(object) );
         _requestHandler.serveRequest( packet->requestID, object );
         return COMMAND_HANDLED;
     }
 
-    if( _instMobject( id ) == COMMAND_ERROR )
+    if( _instObject( id ) == COMMAND_ERROR )
     {
         _requestHandler.serveRequest( packet->requestID, NULL );
         return COMMAND_HANDLED;
@@ -540,59 +509,58 @@ CommandResult Session::_cmdGetMobject( Node* node, const Packet* pkg )
     return COMMAND_RESCHEDULE;
 }
 
-CommandResult Session::_cmdInitMobject( Node* node, const Packet* pkg )
+CommandResult Session::_cmdInitObject( Node* node, const Packet* pkg )
 {
-    SessionInitMobjectPacket* packet = (SessionInitMobjectPacket*)pkg;
-    EQINFO << "Cmd init mobject " << packet << endl;
+    SessionInitObjectPacket* packet = (SessionInitObjectPacket*)pkg;
+    EQINFO << "Cmd init object " << packet << endl;
 
-    const uint32_t id     = packet->mobjectID;
+    const uint32_t id     = packet->objectID;
     Object*        object = _registeredObjects[id];
 
     if( !object ) // (hopefully) not yet instanciated
         return COMMAND_RESCHEDULE;
 
-    EQASSERT( dynamic_cast<Mobject*>(object) );
+    EQASSERT( object->_master );
 
-    Mobject* mobject = (Mobject*)object;
-    EQASSERT( mobject->_master );
+    object->addSlave( node );
 
-    mobject->addSlave( node );
+    SessionInstanciateObjectPacket reply( _id );
+    reply.objectID       = id;
+    reply.objectType     = object->_typeID;
+    reply.objectDataSize = 0;
 
-    SessionInstanciateMobjectPacket reply( _id );
-    reply.mobjectID   = id;
-    reply.mobjectType = mobject->_typeID;
-    
-    const void* data = mobject->getInstanceData( &reply.mobjectDataSize );
-    node->send( reply, data, reply.mobjectDataSize );
-    mobject->releaseInstanceData( data );
+    const void* data = object->getInstanceData( &reply.objectDataSize );
+    node->send( reply, data, reply.objectDataSize );
+
+    object->releaseInstanceData( data );
     return COMMAND_HANDLED;
 }
 
-CommandResult Session::_cmdInstanciateMobject( Node* node, const Packet* pkg )
+CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )
 {
-    SessionInstanciateMobjectPacket* packet = 
-        (SessionInstanciateMobjectPacket*)pkg;
-    EQINFO << "Cmd instanciate mobject " << packet << " from " << node << endl;
+    SessionInstanciateObjectPacket* packet = 
+        (SessionInstanciateObjectPacket*)pkg;
+    EQINFO << "Cmd instanciate object " << packet << " from " << node << endl;
 
-    const uint32_t id      = packet->mobjectID;
+    const uint32_t id      = packet->objectID;
     EQASSERT( !_registeredObjects[id] );
 
-    Mobject* mobject = instanciateMobject( packet->mobjectType,
-                                           packet->mobjectData, 
-                                           packet->mobjectDataSize );
-    if( !mobject )
+    Object* object = instanciateObject( packet->objectType,
+                                        packet->objectData, 
+                                        packet->objectDataSize );
+    if( !object )
     {
         EQWARN << "Session failed to instanciate object of type "
-               << packet->mobjectType << endl;
+               << packet->objectType << endl;
         return COMMAND_ERROR;
     }
 
-    mobject->ref();
-    mobject->_master = packet->isMaster;
+    object->ref();
+    object->_master = packet->isMaster;
     if( packet->isMaster ) // Assumes that sender is a subscribed slave
-        mobject->addSlave( node );
+        object->addSlave( node );
 
-    addRegisteredObject( id, mobject );
+    _addRegisteredObject( id, object );
     return COMMAND_HANDLED;
 }
 

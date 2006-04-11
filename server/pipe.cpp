@@ -34,13 +34,13 @@ void Pipe::_construct()
 }
 
 Pipe::Pipe()
-        : eqNet::Base( eq::CMD_PIPE_ALL )
+        : eqNet::Object( eq::Object::TYPE_PIPE, eq::CMD_PIPE_ALL )
 {
     _construct();
 }
 
 Pipe::Pipe( const Pipe& from )
-        : eqNet::Base( eq::CMD_PIPE_ALL )
+        : eqNet::Object( eq::Object::TYPE_PIPE, eq::CMD_PIPE_ALL )
 {
     _construct();
 
@@ -94,7 +94,7 @@ void Pipe::startInit( const uint32_t initID )
         Window* window = _windows[i];
         if( window->isUsed( ))
         {
-            config->registerObject( window );
+            config->registerObject( window, (eqNet::Node*)getServer( ));
             createWindowPacket.windowID = window->getID();
             _send( createWindowPacket );
 
@@ -253,13 +253,13 @@ std::ostream& eqs::operator << ( std::ostream& os, const Pipe* pipe )
     if( !pipe )
         return os;
     
-    os << "pipe" << endl;
+    os << disableSync << disableHeader << "pipe" << endl;
     os << "{" << endl << indent;
     
     const uint32_t nWindows = pipe->nWindows();
     for( uint32_t i=0; i<nWindows; i++ )
         os << pipe->getWindow(i);
     
-    os << exdent << "}" << endl;
+    os << exdent << "}" << endl << enableHeader << enableSync;
     return os;
 }

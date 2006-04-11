@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <unistd.h>
 
+using namespace eqBase;
 using namespace eqNet;
 using namespace std;
 
@@ -60,21 +61,21 @@ uint64_t FDConnection::recv( const void* buffer, const uint64_t bytes )
         ptr += bytesRead;
     }
 
-    if( eqBase::Log::level >= eqBase::LOG_VERBATIM )
+    if( eqBase::Log::level >= eqBase::LOG_VERBATIM ) // OPT
     {
-        EQVERB << "Received " << bytes << " bytes:";
+        EQVERB << disableSync << "Received " << bytes << " bytes: ";
         const char* data = (char*)buffer;
 
         for(uint64_t i=0; i<bytes; i++ )
         {
-            if( i%4 )
-                cout << " ";
+            if( i && i%4 )
+                EQVERB << " ";
             else
-                cout << "|";
+                EQVERB << "|";
 
-            cout << (int)data[i];
+            EQVERB << (int)data[i];
         }
-        cout << endl;
+        EQVERB << endl << enableSync;
     }
             
     return bytes;

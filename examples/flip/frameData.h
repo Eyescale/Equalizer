@@ -9,13 +9,14 @@
 
 #include <eq/eq.h>
 
-class FrameData : public eqNet::VersionedObject
+class FrameData : public eqNet::Object
 {
 public:
-    FrameData() : VersionedObject( OBJECT_FRAMEDATA ), spin(0.) {}
+    FrameData() : Object( TYPE_FRAMEDATA, eqNet::CMD_OBJECT_CUSTOM ),
+                  spin(0.) {}
 
     FrameData( const void* data, const uint64_t size ) 
-            : VersionedObject( OBJECT_FRAMEDATA )
+            : Object( TYPE_FRAMEDATA, eqNet::CMD_OBJECT_CUSTOM )
         {
             EQASSERT( size == sizeof( spin ));
             spin = *(float*)data;

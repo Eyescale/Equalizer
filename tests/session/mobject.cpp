@@ -8,7 +8,7 @@
 #include <eq/net/init.h>
 #include <eq/net/pipeConnection.h>
 #include <eq/net/session.h>
-#include <eq/net/versionedObject.h>
+#include <eq/net/object.h>
 #include <eq/client/nodeFactory.h>
 
 #include <iostream>
@@ -18,10 +18,13 @@ using namespace std;
 
 eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
 
-class TestMobject : public eqNet::Mobject
+class TestObject : public eqNet::Object
 {
 public:
-    TestMobject() : Mobject( eqNet::MOBJECT_CUSTOM ), value(42) {}
+    TestObject() 
+            : Object( eqNet::Object::TYPE_MANAGED_CUSTOM,
+                      eqNet::CMD_OBJECT_CUSTOM ), 
+              value(42) {}
 
 protected:
     int value;
@@ -35,15 +38,15 @@ protected:
 
 class Session : public eqNet::Session
 {
-    eqNet::Mobject* instanciateMobject( const uint32_t type, const void* data, 
+    eqNet::Object* instanciateObject( const uint32_t type, const void* data, 
                                         const uint64_t dataSize )
         {
-            if( type == eqNet::MOBJECT_CUSTOM )
+            if( type == eqNet::Object::TYPE_MANAGED_CUSTOM )
             {
                 TEST( *(int*)data == 42 );
-                return new TestMobject();
+                return new TestObject();
             }
-            return eqNet::Session::instanciateMobject( type, data, dataSize );
+            return eqNet::Session::instanciateObject( type, data, dataSize );
         }
 };
 
@@ -71,12 +74,12 @@ protected:
 
             while( testID == EQ_INVALID_ID ); // spin for test object
             
-            RefPtr<eqNet::Mobject> mobject = session.getMobject( testID );
-            TEST( dynamic_cast<TestMobject*>(mobject.get()) );
+            RefPtr<eqNet::Object> object = session.getObject( testID );
+            TEST( dynamic_cast<TestObject*>(object.get()) );
                 
-            TestMobject* object = (TestMobject*) mobject.get();
-            TEST( object );
-            TEST( object->getID() == testID );
+            TestObject* testObject = (TestObject*) object.get();
+            TEST( testObject );
+            TEST( testObject->getID() == testID );
 
             TEST( server->stopListening( ));
             return EXIT_SUCCESS;
@@ -108,8 +111,8 @@ int main( int argc, char **argv )
     Session session;
     TEST( node->mapSession( serverProxy, &session, "foo" ));
     
-    TestMobject obj;
-    session.registerMobject( &obj, serverProxy.get( ));
+    TestObject obj;
+    session.registerObject( &obj, serverProxy.get( ));
 
     testID = obj.getID();
     TEST( testID != EQ_INVALID_ID );

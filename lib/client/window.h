@@ -29,7 +29,7 @@ namespace eq
 {
     class Channel;
 
-    class Window : public eqNet::Base, public eqNet::Object
+    class Window : public eqNet::Object
     {
     public:
         /** 

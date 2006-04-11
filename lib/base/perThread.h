@@ -48,7 +48,10 @@ namespace eqBase
                 pthread_key_delete( _key );
             }
 
-        T get() const { return (T)pthread_getspecific( _key ); }
+        T get() const  { return (T)pthread_getspecific( _key ); }
+        T operator->() { return (T)pthread_getspecific( _key ); }
+        const T operator->() const 
+            { return (const T)pthread_getspecific( _key ); }
 
     private:
         pthread_key_t _key;

@@ -28,13 +28,13 @@ void Window::_construct()
 }
 
 Window::Window()
-        : eqNet::Base( eq::CMD_WINDOW_ALL )
+        : eqNet::Object( eq::Object::TYPE_WINDOW, eq::CMD_WINDOW_ALL )
 {
     _construct();
 }
 
 Window::Window( const Window& from )
-        : eqNet::Base( eq::CMD_WINDOW_ALL )
+        : eqNet::Object( eq::Object::TYPE_WINDOW, eq::CMD_WINDOW_ALL )
 {
     _construct();
 
@@ -116,7 +116,7 @@ void Window::startInit( const uint32_t initID )
         Channel* channel = _channels[i];
         if( channel->isUsed( ))
         {
-            config->registerObject( channel );
+            config->registerObject( channel, (eqNet::Node*)getServer( ));
             createChannelPacket.channelID = channel->getID();
             _send( createChannelPacket );
 
@@ -303,7 +303,7 @@ std::ostream& eqs::operator << ( std::ostream& os, const Window* window )
     if( !window )
         return os;
     
-    os << "window" << endl;
+    os << disableSync << disableHeader << "window" << endl;
     os << "{" << endl << indent; 
 
     const eq::PixelViewport& pvp = window->getPixelViewport();
@@ -314,6 +314,6 @@ std::ostream& eqs::operator << ( std::ostream& os, const Window* window )
     for( uint32_t i=0; i<nChannels; i++ )
         os << window->getChannel(i);
 
-    os << exdent << "}" << endl;
+    os << exdent << "}" << endl << enableHeader << enableSync;
     return os;
 }

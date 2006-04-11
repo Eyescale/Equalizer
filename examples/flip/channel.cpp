@@ -15,10 +15,9 @@ bool Channel::init( const uint32_t initID )
 {
     EQINFO << "Init channel initID " << initID << " ptr " << this << endl;
     eq::Config* config = getConfig();
-    _initData = RefPtr_static_cast< InitData, eqNet::Mobject >( 
-        config->getMobject( initID ));
-    _frameData = _initData->getFrameData();
 
+    _initData  = (InitData*)config->getObject( initID );
+    _frameData = _initData->getFrameData();
     EQASSERT( _frameData );
 
     return true;

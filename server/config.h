@@ -37,6 +37,8 @@ namespace eqs
          */
         Config( const Config& from );
 
+        Server* getServer() { return _server.get(); }
+
         /** 
          * Adds a new node to this config.
          * 

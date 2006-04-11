@@ -11,8 +11,7 @@ using namespace eqNet;
 bool Pipe::init( const uint32_t initID )
 {
     eq::Config* config = getConfig();
-    _initData = RefPtr_static_cast< InitData, Mobject >( 
-        config->getMobject( initID ));
+    _initData = (InitData*)config->getObject( initID );
 
     EQASSERT(_initData);
     EQINFO << "InitData " << _initData.get() << " id " << initID << " filename "

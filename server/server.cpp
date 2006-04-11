@@ -80,8 +80,8 @@ bool Server::run( int argc, char **argv )
     }
 #endif
 
-    EQINFO << "Running server: " << endl << indent 
-           << Global::instance() << this << exdent;
+    EQINFO << disableSync << "Running server: " << endl << indent 
+           << Global::instance() << this << exdent << enableSync;
 
     _handleRequests();
     return stopListening();
@@ -298,13 +298,13 @@ std::ostream& eqs::operator << ( std::ostream& os, const Server* server )
     
     const uint32_t nConfigs = server->nConfigs();
     
-    os << disableSync << "server " << endl;
+    os << disableSync << disableHeader << "server " << endl;
     os << "{" << endl << indent;
     
     for( uint32_t i=0; i<nConfigs; i++ )
         os << server->getConfig(i);
     
-    os << exdent << "}"  << enableSync << endl;
+    os << exdent << "}"  << enableHeader << enableSync << endl;
 
     return os;
 }

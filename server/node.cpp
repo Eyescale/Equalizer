@@ -220,7 +220,7 @@ eqNet::Barrier* Node::getBarrier( const uint32_t height )
     }
 
     eqNet::Barrier* barrier = new eqNet::Barrier( height );
-    _config->registerMobject( barrier, this );
+    _config->registerObject( barrier, this );
 
     return barrier;
 }

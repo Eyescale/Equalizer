@@ -12,11 +12,10 @@ using namespace eqBase;
 
 bool Node::init( const uint32_t initID )
 {
-    eq::Config* config = getConfig();
-    RefPtr<InitData> initData = RefPtr_static_cast< InitData, eqNet::Mobject >( 
-        config->getMobject( initID ));
+    eq::Config* config   = getConfig();
+    InitData*   initData = (InitData*)config->getObject( initID );
 
-    EQASSERT( initData.isValid( ));
+    EQASSERT( initData );
 
     EQINFO << "Loading model " << initData->getFilename() << endl;
 
