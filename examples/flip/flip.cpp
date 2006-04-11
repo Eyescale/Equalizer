@@ -11,6 +11,7 @@
 #include "node.h"
 #include "pipe.h"
 
+#include <getopt.h>
 #include <stdlib.h>
 
 using namespace std;
@@ -37,9 +38,37 @@ int main( int argc, char** argv )
     if( !eq::init( argc, argv ))
         abort();
 
-    eq::Server     server;
     eq::OpenParams openParams;
-    openParams.address = "localhost:4242";
+    InitData       initData;
+
+    int           result;
+    int           index;
+    struct option options[] = 
+        {
+            { "server",         required_argument, NULL, 's' },
+            { "model",          required_argument, NULL, 'm' },
+            { NULL,             0,                 NULL,  0 }
+        };
+    
+    while( (result = getopt_long( argc, argv, "", options, &index )) != -1 )
+    {
+        switch( result )
+        {
+            case 's':
+                openParams.address = optarg;
+                break;
+
+            case 'm':
+                initData.setFilename( optarg );
+                break;
+
+            default:
+                EQWARN << "unhandled option: " << options[index].name << endl;
+                break;
+        }
+    }
+
+    eq::Server     server;
     openParams.appName = "foo";
 
     if( !server.open( openParams ))
@@ -51,14 +80,12 @@ int main( int argc, char** argv )
     if( !config )
         DIE("No matching config on server.");
 
-    InitData initData;
     config->registerObject( &initData, config->getNode( ));
     
     FrameData frameData;
     config->registerObject( &frameData, config->getNode( ));
 
     initData.setFrameData( &frameData );
-    initData.setFilename( "rockerarm.ply" );
 
     eqBase::Clock clock;
     if( !config->init( initData.getID( )))

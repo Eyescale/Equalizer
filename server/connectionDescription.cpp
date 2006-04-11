@@ -29,7 +29,7 @@ ConnectionDescription::ConnectionDescription()
 std::ostream& eqs::operator << ( std::ostream& os, 
                                  const eqNet::ConnectionDescription* desc )
 {
-    os << disableSync << "connection" << endl;
+    os << disableFlush << "connection" << endl;
     os << "{" << endl << indent;
 
     const Global* global = Global::instance();
@@ -53,7 +53,7 @@ std::ostream& eqs::operator << ( std::ostream& os,
         global->getConnectionSAttribute( SATTR_LAUNCH_COMMAND ))
         os << "launchCommand \"" << desc->launchCommand << "\"" << endl;
     
-    os << exdent << "}" << enableSync << endl;
+    os << exdent << "}" << enableFlush << endl;
 
     return os;
 }

@@ -63,18 +63,18 @@ std::ostream& eqBase::exdent( std::ostream& os )
         return os;
 }
 
-std::ostream& eqBase::disableSync( std::ostream& os )
+std::ostream& eqBase::disableFlush( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
-        log->disableSync();
+        log->disableFlush();
     return os;
 }
-std::ostream& eqBase::enableSync( std::ostream& os )
+std::ostream& eqBase::enableFlush( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
-        log->enableSync();
+        log->enableFlush();
     return os;
 }
 

@@ -45,14 +45,17 @@ bool eqNet::init( int argc, char** argv )
 
 bool initLocalNode( int argc, char** argv )
 {
+    EQINFO << disableHeader << "args: ";
     for( int i=0; i<argc; i++ )
-        EQINFO << "arg " << argv[i] << endl;
+         EQINFO << argv[i] << ", ";
+    EQINFO << endl << enableHeader;
 
-    struct option options[] = {
-        { "eq-listen",      optional_argument, NULL, 'l' },
-        { "eq-client",      required_argument, NULL, 'c' },
-        { NULL,             0,                 NULL,  0 }
-    };
+    struct option options[] = 
+        {
+            { "eq-listen",      optional_argument, NULL, 'l' },
+            { "eq-client",      required_argument, NULL, 'c' },
+            { NULL,             0,                 NULL,  0 }
+        };
 
     bool   listen   = false;
     bool   isClient = false;
@@ -61,6 +64,7 @@ bool initLocalNode( int argc, char** argv )
     int    result;
     int    index;
 
+    optreset = 1; // in case options have been parsed by application
     while( (result = getopt_long( argc, argv, "", options, &index )) != -1 )
     {
         switch( result )
@@ -81,7 +85,8 @@ bool initLocalNode( int argc, char** argv )
                 break;
         }
     }
-    
+    optreset = 1; // enable second parsing for application
+
     if( listen )
     {
         EQINFO << "Listener port requested" << endl;

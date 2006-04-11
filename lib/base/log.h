@@ -35,19 +35,19 @@ namespace eqBase
     {
 	public:
 		LogBuffer( std::ostream& stream )
-                : _line(0), _indent(0), _async(0), _noHeader(0), _newLine(true),
+                : _line(0), _indent(0), _noFlush(0), _noHeader(0), _newLine(true),
                   _stream(stream)
             {}
         
         void indent() { ++_indent; }
         void exdent() { --_indent; }
 
-        void disableSync() { ++_async; } // use counted variable to allow
-        void enableSync()                //   nested enable/disable calls
+        void disableFlush() { ++_noFlush; } // use counted variable to allow
+        void enableFlush()                //   nested enable/disable calls
             { 
-                assert( _async && "Too many enableSync on log stream" );
-                --_async;
-                if( _async == 0 )
+                assert( _noFlush && "Too many enableFlush on log stream" );
+                --_noFlush;
+                if( _noFlush == 0 )
                     pubsync();
             }
 
@@ -90,7 +90,7 @@ namespace eqBase
         
         virtual int sync() 
             {
-                if( !_async )
+                if( !_noFlush )
                 {
                     const std::string& string = _stringStream.str();
                     _stream.write( string.c_str(), string.length( ));
@@ -116,8 +116,8 @@ namespace eqBase
         /** The current indentation level. */
         int _indent;
 
-        /** Sync reference counter. */
-        int _async;
+        /** Flush reference counter. */
+        int _noFlush;
 
         /** The header disable counter. */
         int _noHeader;
@@ -142,8 +142,8 @@ namespace eqBase
 
         void indent() { _logBuffer.indent(); }
         void exdent() { _logBuffer.exdent(); }
-        void disableSync() { _logBuffer.disableSync(); }
-        void enableSync()  { _logBuffer.enableSync();  }
+        void disableFlush() { _logBuffer.disableFlush(); }
+        void enableFlush()  { _logBuffer.enableFlush();  }
         void disableHeader() { _logBuffer.disableHeader(); }
         void enableHeader()  { _logBuffer.enableHeader();  }
 
@@ -167,10 +167,10 @@ namespace eqBase
     std::ostream& indent( std::ostream& os );
     /** The ostream exdent manipulator. */
     std::ostream& exdent( std::ostream& os );
-    /** The ostream sync disable manipulator. */
-    std::ostream& disableSync( std::ostream& os );
-    /** The ostream sync enable manipulator. */
-    std::ostream& enableSync( std::ostream& os );
+    /** The ostream flush disable manipulator. */
+    std::ostream& disableFlush( std::ostream& os );
+    /** The ostream flush enable manipulator. */
+    std::ostream& enableFlush( std::ostream& os );
     /** The ostream header disable manipulator. */
     std::ostream& disableHeader( std::ostream& os );
     /** The ostream header enable manipulator. */

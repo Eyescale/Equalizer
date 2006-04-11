@@ -63,19 +63,19 @@ uint64_t FDConnection::recv( const void* buffer, const uint64_t bytes )
 
     if( eqBase::Log::level >= eqBase::LOG_VERBATIM ) // OPT
     {
-        EQVERB << disableSync << "Received " << bytes << " bytes: ";
+        EQVERB << disableFlush << "Received " << bytes << " bytes: ";
         const char* data = (char*)buffer;
 
         for(uint64_t i=0; i<bytes; i++ )
         {
-            if( i && i%4 )
+            if( i%4 )
                 EQVERB << " ";
-            else
+            else if( i )
                 EQVERB << "|";
 
             EQVERB << (int)data[i];
         }
-        EQVERB << endl << enableSync;
+        EQVERB << endl << enableFlush;
     }
             
     return bytes;
@@ -92,20 +92,21 @@ uint64_t FDConnection::send( const void* buffer, const uint64_t bytes ) const
     char*    ptr       = (char*)buffer;
     uint64_t bytesLeft = bytes;
 
-    if( eqBase::Log::level >= eqBase::LOG_VERBATIM )
+    if( eqBase::Log::level >= eqBase::LOG_VERBATIM ) // OPT
     {
-        EQVERB << "Sending " << bytes << " bytes on " << (void*)this << ":";
+        EQVERB << disableFlush
+               << "Sending " << bytes << " bytes on " << (void*)this << ":";
 
         for( uint64_t i=0; i<bytes; i++ )
         {
             if( i%4 )
-                cout << " ";
-            else
-                cout << "|";
+                EQVERB << " ";
+            else if( i )
+                EQVERB << "|";
 
-            cout << (int)ptr[i];
+            EQVERB << (int)ptr[i];
         }
-        cout << endl;
+        EQVERB << endl << enableFlush;
     }
 
     while( bytesLeft )

@@ -253,13 +253,13 @@ std::ostream& eqs::operator << ( std::ostream& os, const Pipe* pipe )
     if( !pipe )
         return os;
     
-    os << disableSync << disableHeader << "pipe" << endl;
+    os << disableFlush << disableHeader << "pipe" << endl;
     os << "{" << endl << indent;
     
     const uint32_t nWindows = pipe->nWindows();
     for( uint32_t i=0; i<nWindows; i++ )
         os << pipe->getWindow(i);
     
-    os << exdent << "}" << endl << enableHeader << enableSync;
+    os << exdent << "}" << endl << enableHeader << enableFlush;
     return os;
 }

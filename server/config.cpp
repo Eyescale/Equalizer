@@ -499,7 +499,7 @@ ostream& eqs::operator << ( ostream& os, const Config* config )
     if( !config )
         return os;
     
-    os << disableSync << disableHeader << "config " << endl;
+    os << disableFlush << disableHeader << "config " << endl;
     os << "{" << endl << indent;
 
     const uint32_t nNodes = config->nNodes();
@@ -510,7 +510,7 @@ ostream& eqs::operator << ( ostream& os, const Config* config )
     for( uint32_t i=0; i<nCompounds; ++i )
         os << config->getCompound(i);
     
-    os << exdent << "}" << endl << enableHeader << enableSync;
+    os << exdent << "}" << endl << enableHeader << enableFlush;
 
     return os;
 }

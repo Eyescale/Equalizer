@@ -10,6 +10,7 @@ using namespace eq;
 using namespace std;
 
 OpenParams::OpenParams()
+        : address( "localhost:4242" )
 {
     appName      = eqNet::Global::getProgramName();
 }

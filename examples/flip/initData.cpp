@@ -10,6 +10,7 @@ using namespace eqBase;
 InitData::InitData()
         : Object( TYPE_INITDATA, eqNet::CMD_OBJECT_CUSTOM ),
           _frameDataID( EQ_INVALID_ID ),
+          _filename( "rockerArm.ply" ),
           _instanceData( NULL )
 {}
 
@@ -74,5 +75,6 @@ void InitData::setFilename( const std::string& filename )
 {
     _clearInstanceData();
     _filename = filename;
+    EQERROR << _filename << " == " << filename << endl;
+    exit( 0 );
 }
-

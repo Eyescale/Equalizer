@@ -177,9 +177,9 @@ std::ostream& eqs::operator << ( std::ostream& os, const Channel* channel)
     if( !channel )
         return os;
     
-    os << disableSync << disableHeader << "channel" << endl;
+    os << disableFlush << disableHeader << "channel" << endl;
     os << "{" << endl << indent;
-    os << exdent << "}" << endl << enableHeader << enableSync;
+    os << exdent << "}" << endl << enableHeader << enableFlush;
 
     return os;
 }

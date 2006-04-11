@@ -303,7 +303,7 @@ std::ostream& eqs::operator << ( std::ostream& os, const Window* window )
     if( !window )
         return os;
     
-    os << disableSync << disableHeader << "window" << endl;
+    os << disableFlush << disableHeader << "window" << endl;
     os << "{" << endl << indent; 
 
     const eq::PixelViewport& pvp = window->getPixelViewport();
@@ -314,6 +314,6 @@ std::ostream& eqs::operator << ( std::ostream& os, const Window* window )
     for( uint32_t i=0; i<nChannels; i++ )
         os << window->getChannel(i);
 
-    os << exdent << "}" << endl << enableHeader << enableSync;
+    os << exdent << "}" << endl << enableHeader << enableFlush;
     return os;
 }

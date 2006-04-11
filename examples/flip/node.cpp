@@ -19,7 +19,7 @@ bool Node::init( const uint32_t initID )
 
     EQINFO << "Loading model " << initData->getFilename() << endl;
 
-    _model = NULL;// PlyFileIO::read( initData->getFilename().c_str( ));
+    _model = PlyFileIO::read( initData->getFilename().c_str( ));
     if( !_model)
         EQWARN << "Can't load model: " << initData->getFilename() << endl;
 

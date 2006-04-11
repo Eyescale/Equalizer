@@ -258,7 +258,7 @@ ostream& eqs::operator << ( ostream& os, const Node* node )
     if( !node )
         return os;
     
-    os << disableSync << "node" << endl;
+    os << disableFlush << "node" << endl;
     os << "{" << endl << indent;
 
     const uint32_t nConnectionDescriptions = node->nConnectionDescriptions();
@@ -269,6 +269,6 @@ ostream& eqs::operator << ( ostream& os, const Node* node )
     for( uint32_t i=0; i<nPipes; i++ )
         os << node->getPipe(i);
 
-    os << exdent << "}" << enableSync << endl;
+    os << exdent << "}" << enableFlush << endl;
     return os;
 }
