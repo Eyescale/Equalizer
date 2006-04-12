@@ -104,6 +104,7 @@ void SocketConnection::_parseAddress( RefPtr<ConnectionDescription> description,
     socketAddress.sin_family      = AF_INET;
     socketAddress.sin_addr.s_addr = htonl( INADDR_ANY );
     socketAddress.sin_port        = htons( description->TCPIP.port );
+    memset( &(socketAddress.sin_zero), 0, 8 ); // zero the rest
 
     if( !description->hostname.empty( ))
     {
