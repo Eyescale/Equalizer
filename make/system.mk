@@ -14,15 +14,15 @@ ARCH = $(shell uname)
 include $(TOP)/make/$(ARCH).mk
 
 # general variables, targets, etc.
+VARIANTS       ?= $(shell uname -m)
 BUILD_DIR       = $(TOP)/build/$(ARCH)
 EXTRAS_DIR      = $(TOP)/extras
 LIBRARY_DIR     = $(BUILD_DIR)/$(VARIANT)/lib
-SAMPLE_LIB_DIR  = $(BUILD_DIR)/$(VARIANT1)/lib
 
 WINDOW_SYSTEM_DEFINES = $(foreach WS,$(WINDOW_SYSTEM),-D$(WS))
 CXXFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DCHECK_THREADSAFETY
 INT_CXXFLAGS   += -I$(OBJECT_DIR) -I$(BUILD_DIR)/include -I$(EXTRAS_DIR)
-INT_LDFLAGS    += -L$(LIBRARY_DIR)
+LDFLAGS        += -L$(LIBRARY_DIR)
 DEP_CXX        ?= $(CXX)
 DOXYGEN        ?= Doxygen
 
@@ -41,11 +41,9 @@ OBJECT_DIR      = obj/$(ARCH)/$(VARIANT)
 
 ifndef VARIANT
   OBJECTS       = foo
-  VARIANT1      = $(word 1, $(VARIANTS))
 else
   OBJECTS       = $(SOURCES:%.cpp=$(OBJECT_DIR)/%.o)
 #  PCHEADERS     = $(HEADER_SRC:%=$(OBJECT_DIR)/%.gch)
-  VARIANT1      = $(VARIANT)
 endif
 
 # library variables
@@ -54,7 +52,8 @@ STATIC_LIB      = $(foreach V,$(VARIANTS),$(BUILD_DIR)/$(V)/lib/libeq$(MODULE).a
 DYNAMIC_LIB     = $(foreach V,$(VARIANTS),$(BUILD_DIR)/$(V)/lib/libeq$(MODULE).$(DSO_SUFFIX))
 PROGRAMS        = $(foreach V,$(VARIANTS),$(PROGRAM).$(V))
 
-SIMPLE_PROGRAMS = $(CXXFILES:%.cpp=%)
+SIMPLE_PROGRAMS_BASE = $(CXXFILES:%.cpp=%)
+SIMPLE_PROGRAMS      = $(foreach V,$(VARIANTS),$(foreach P,$(SIMPLE_PROGRAMS_BASE),$(P).$(V)))
 
 DEPENDENCIES   ?= $(OBJECTS:%.o=%.d)
 

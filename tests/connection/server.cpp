@@ -21,8 +21,8 @@ int main( int argc, char **argv )
     RefPtr<Connection> connection = Connection::create(Connection::TYPE_TCPIP);
     RefPtr<ConnectionDescription> connDesc   = new ConnectionDescription;
 
-    //connDesc.hostname = "localhost";
-    connDesc->TCPIP.port = 4242;
+    connDesc->hostname = "localhost";
+    connDesc->TCPIP.port = 0;
     TEST( connection->listen( connDesc ));
 
     RefPtr<Connection> client = connection->accept();

@@ -1,7 +1,7 @@
 
 include $(TOP)/make/system.mk
 
-SA_CXXFLAGS += -I.. -L$(SAMPLE_LIB_DIR) -leq
+SA_CXXFLAGS += -I.. -leq
 
 ifeq "${ARCH}" "Linux"
 SA_CXXFLAGS += -lrt

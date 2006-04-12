@@ -12,18 +12,21 @@ SOURCES = \
 	server.cpp \
 	window.cpp
 
+CXXFILES = \
+	eqs.cpp
+
 MODULE  = server
 
 CXXFLAGS    += $(WINDOW_SYSTEM_INCS)
-LDFLAGS     += -L$(LIBRARY_DIR) -leq
-SA_LDFLAGS  += -L$(SAMPLE_LIB_DIR) -leq -leqserver
+LDFLAGS     += -leq
+SA_LDFLAGS  += -leq -leqserver
 
 ifeq "${ARCH}" "Linux"
 SA_CXXFLAGS += -lrt
 endif
 
-TARGETS = $(DYNAMIC_LIB) eqs
+TARGETS = $(DYNAMIC_LIB) $(SIMPLE_PROGRAMS)
 
-eqs: $(DYNAMIC_LIB)
+$(SIMPLE_PROGRAMS): $(DYNAMIC_LIB)
 
 include $(TOP)/make/rules.mk
