@@ -85,7 +85,7 @@ bool initLocalNode( int argc, char** argv )
                 break;
         }
     }
-    optreset = 1; // enable second parsing for application
+    optreset = 1; // enable (re-)parsing for application
 
     if( listen )
     {
