@@ -43,6 +43,12 @@ bool eqNet::init( int argc, char** argv )
     return true;
 }
 
+#ifdef __GLIBC__
+#  define RESET_GETOPT { optind = 0; }
+#else
+#  define RESET_GETOPT { optind = 1; }
+#endif
+
 bool initLocalNode( int argc, char** argv )
 {
     EQINFO << disableHeader << "args: ";
@@ -64,7 +70,7 @@ bool initLocalNode( int argc, char** argv )
     int    result;
     int    index;
 
-    optreset = 1; // in case options have been parsed by application
+    RESET_GETOPT; // in case options have been parsed by application
     while( (result = getopt_long( argc, argv, "", options, &index )) != -1 )
     {
         switch( result )
@@ -81,11 +87,14 @@ bool initLocalNode( int argc, char** argv )
                 break;
 
             default:
-                EQWARN << "unhandled option: " << options[index].name << endl;
+                if( index >=0 && index < argc )
+                    EQINFO << "unhandled option: " << options[index].name<<endl;
+                else
+                    EQINFO << "unhandled option, index " << index << endl; 
                 break;
         }
     }
-    optreset = 1; // enable (re-)parsing for application
+    RESET_GETOPT; // enable (re-)parsing for application
 
     if( listen )
     {

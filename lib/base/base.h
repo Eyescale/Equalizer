@@ -53,6 +53,7 @@ typedef int socklen_t;
 
 #endif
 
+// thread-safety checks
 #ifdef CHECK_THREADSAFETY
 #  define CHECK_THREAD                                                  \
     {                                                                   \

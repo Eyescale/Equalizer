@@ -75,6 +75,4 @@ void InitData::setFilename( const std::string& filename )
 {
     _clearInstanceData();
     _filename = filename;
-    EQERROR << _filename << " == " << filename << endl;
-    exit( 0 );
 }

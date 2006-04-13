@@ -50,7 +50,6 @@ int main( int argc, char** argv )
             { NULL,             0,                 NULL,  0 }
         };
 
-    optreset = 1;
     while( (result = getopt_long( argc, argv, "", options, &index )) != -1 )
     {
         switch( result )

@@ -140,7 +140,7 @@ bool Server::_loadConfig( int argc, char **argv )
     Window* window = new Window();
     pipe->addWindow( window );
 
-    eq::PixelViewport pvp1( 0, 0, 840, 525 );
+    eq::PixelViewport pvp1( 164, 350, 840, 525 );
     window->setPixelViewport( pvp1 );
 
     Channel* channel = new Channel();
@@ -154,7 +154,7 @@ bool Server::_loadConfig( int argc, char **argv )
     compound->setWall( wall );
     top->addChild( compound );
 
-#if 1
+#if 0
 #  if 1
     node = new eqs::Node();
     config->addNode( node );
@@ -173,7 +173,7 @@ bool Server::_loadConfig( int argc, char **argv )
     window = new Window();
     pipe->addWindow( window );
 
-    eq::PixelViewport pvp2( 840, 84, 512, 357 );
+    eq::PixelViewport pvp2( 1004, 434, 512, 357 );
     window->setPixelViewport( pvp2 );
 
     channel = new Channel();

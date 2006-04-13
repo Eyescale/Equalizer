@@ -1,4 +1,6 @@
 
+VARIANTS = ppc
+
 CXXFLAGS += #-DEQLOADER
 
 ifdef VARIANT

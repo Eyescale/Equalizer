@@ -344,7 +344,7 @@ void PlyFileIO::readVertices( PlyFile *file, int num, bool color,
         sprintf( vProps[5].name, "blue" );
 
         // non-POD offsets: see comment above
-        const int rOffset = ((char*)&dummy.pos[0] - (char*)&dummy );
+        const int rOffset = ((char*)&dummy.color[0] - (char*)&dummy );
         const int gOffset = xOffset + (int)sizeof(float);
         const int bOffset = yOffset + (int)sizeof(float);
         
