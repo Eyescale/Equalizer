@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "thread.h"
@@ -170,8 +170,7 @@ void Thread::exit( ssize_t retVal )
             ::exit( retVal );
             break;
     }
-    EQERROR << "Unreachable code" <<endl;
-    ::abort();
+    EQASSERTINFO( 0, "Unreachable code" );
 }
 
 bool Thread::join( ssize_t* retVal )
@@ -263,6 +262,5 @@ bool Thread::isCurrent() const
             return ( getpid() == _threadID.fork );
     }
 
-    EQERROR << "Unreachable code" <<endl;
-    ::abort();
+    EQASSERTINFO( 0, "Unreachable code" );
 }

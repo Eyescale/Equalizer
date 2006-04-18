@@ -190,7 +190,7 @@ eqNet::CommandResult eq::Window::_reqSwap(eqNet::Node* node,
     WindowSwapPacket* packet = (WindowSwapPacket*)pkg;
     EQVERB << "handle swap " << packet << endl;
 
-    swap();
+    swapBuffers();
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -207,7 +207,7 @@ eqNet::CommandResult eq::Window::_reqSwapWithBarrier(eqNet::Node* node,
     eqNet::Barrier* barrier = (eqNet::Barrier*)object;
     finish();
     barrier->enter();
-    swap();
+    swapBuffers();
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -259,16 +259,40 @@ bool eq::Window::init( const uint32_t initID )
     switch( windowSystem )
     {
         case WINDOW_SYSTEM_GLX:
-            return initGLX();
+            if( !initGLX( ))
+                return false;
+            break;
 
         case WINDOW_SYSTEM_CGL:
-            return initCGL();
+            if( !initCGL( ))
+                return false;
 
         default:
             EQERROR << "Unknown windowing system: " << windowSystem << endl;
             return false;
     }
+    return initGL( initID );
+}
+
+bool eq::Window::initGL( const uint32_t initID )
+{
+    glEnable( GL_DEPTH_TEST );
+    glDepthFunc (GL_LESS);
+
+    glEnable( GL_LIGHTING );
+    glEnable( GL_LIGHT0 );
+
+    glColorMaterial( GL_FRONT_AND_BACK, GL_DIFFUSE );
+    glEnable( GL_COLOR_MATERIAL );
+
+    glClearDepth( 1. );
     glClearColor( .7, .5, .5, 1. );
+
+    glClear( GL_COLOR_BUFFER_BIT );
+    swapBuffers();
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+    return true;
 }
 
 #ifdef GLX
@@ -348,9 +372,6 @@ bool eq::Window::initGLX()
     }
 
     glXMakeCurrent( display, drawable, context );
-    glClear( GL_COLOR_BUFFER_BIT );
-    glXSwapBuffers( display, drawable );
-    glClear( GL_COLOR_BUFFER_BIT );
 
     setXDrawable( drawable );
     setGLXContext( context );
@@ -404,9 +425,6 @@ bool eq::Window::initCGL()
 
     CGLSetCurrentContext( context );
     CGLSetFullScreen( context );
-    glClear( GL_COLOR_BUFFER_BIT );
-    CGLFlushDrawable( context );
-    glClear( GL_COLOR_BUFFER_BIT );
 
     setCGLContext( context );
     EQINFO << "Created CGL context " << context << endl;
@@ -521,7 +539,7 @@ void eq::Window::setCGLContext( CGLContextObj context )
 }
 #endif // CGL
 
-void eq::Window::swap()
+void eq::Window::swapBuffers()
 {
     switch( _pipe->getWindowSystem( ))
     {

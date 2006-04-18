@@ -143,13 +143,22 @@ namespace eq
         //@{
 
         /** 
-         * Initialise this window.
+         * Initialize this window.
          * 
          * @param initID the init identifier.
          */
         virtual bool init( const uint32_t initID );
         bool initGLX();
         bool initCGL();
+
+        /** 
+         * Initialize the OpenGL state for this window.
+         * 
+         * @param initID the init identifier.
+         * @return <code>true</code> if the initialization was successful,
+         *         <code>false</code> if not.
+         */
+        virtual bool initGL( const uint32_t initID );
 
         /** 
          * Exit this window.
@@ -161,7 +170,7 @@ namespace eq
         /**
          * Swap the front and back buffer of the window.
          */
-        virtual void swap();
+        virtual void swapBuffers();
 
         /**
          * Finish outstanding rendering requests.

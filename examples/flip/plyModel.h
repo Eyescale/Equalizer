@@ -57,10 +57,7 @@
 
 #include <fstream>
 
-using namespace std;
-
-template<class FaceType>
-class PlyModel
+template<class FaceType> class PlyModel
 {
 public:
 
@@ -96,7 +93,7 @@ public:
     void setFaces( size_t nFaces, FaceType *faces, size_t bboxFaceThreshold );
     void normalize( void );
 
-    void toStream(ostream& os);
+    void toStream( std::ostream& os );
     bool fromMemory( char **addr );
 
     const BBox *getBBox( void ) const { return &_bbox; }
@@ -115,7 +112,7 @@ private:
     BBox        _bbox;
 
     // methods
-    void writeBBox( ostream& os, BBox &bbox );
+    void writeBBox( std::ostream& os, BBox &bbox );
     void readBBox( char** addr, BBox &bbox );
 
     void calculateBBox( size_t nFaces, FaceType *faces, Vertex bbox[2] );

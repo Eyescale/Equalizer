@@ -11,6 +11,8 @@
 using namespace std;
 using namespace eqBase;
 
+static float lightpos[] = { 0., 0., 1., 0. };
+
 bool Channel::init( const uint32_t initID )
 {
     EQINFO << "Init channel initID " << initID << " ptr " << this << endl;
@@ -44,6 +46,8 @@ void Channel::draw( const uint32_t frameID )
     glLoadIdentity();
     applyHeadTransform();
     
+    glLightfv( GL_LIGHT0, GL_POSITION, lightpos );
+
     _frameData->sync( frameID );
     
     glTranslatef( 0, 0, -3 );

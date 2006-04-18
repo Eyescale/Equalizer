@@ -53,6 +53,8 @@
 #include "colorVertex.h"
 #include "normalFace.h"
 
+#include <eq/eq.h>
+
 #include <alloca.h>
 #include <assert.h>
 #include <dirent.h>
@@ -64,6 +66,7 @@
 #include <sys/types.h>
 
 using namespace std;
+using namespace eqBase;
 
 //---------------------------------------------------------------------------
 // read
@@ -78,24 +81,30 @@ PlyModel< NormalFace<ColorVertex> > *PlyFileIO::read( const char *filename )
     {
         sprintf( binName, "%s", filename );
         binName[len-3] = 'b';
-#if _MIPS_SZPTR==64 || defined(__ia64__)
-        binName[len-2] = '6';
-        binName[len-1] = '4';
-#else
-        binName[len-2] = '3';
-        binName[len-1] = '2';
-#endif
+        if( sizeof( __SIZE_TYPE__ ) == 8 )
+        {
+            binName[len-2] = '6';
+            binName[len-1] = '4';
+        }
+        else
+        {
+            binName[len-2] = '3';
+            binName[len-1] = '2';
+        }
     }
     else
     {
-#if _MIPS_SZPTR==64 || defined(__ia64__)
-        sprintf( binName, "%s/.b64", filename ); // assumes directory
-#else
-        sprintf( binName, "%s/.b32", filename ); // assumes directory
-#endif
+        if( sizeof( __SIZE_TYPE__ ) == 8 )
+            sprintf( binName, "%s/.b64", filename ); // assumes directory
+        else
+            sprintf( binName, "%s/.b32", filename ); // assumes directory
     }
 
+#if 1
     PlyModel< NormalFace<ColorVertex> > *model = readBin( binName );
+#else
+    PlyModel< NormalFace<ColorVertex> > *model = NULL;
+#endif
 
     if( model == NULL )
     {
@@ -254,9 +263,9 @@ bool PlyFileIO::readPlyFile( const char *filename,
 
     ColorVertex *vertices  = NULL;
     int          nVertices = 0;
-#ifndef NDEBUG
-    fprintf( stderr, "%s: %d elements, version %f\n", filename,nElems,version );
-#endif
+
+    EQINFO << filename << ": " << nElems << " elements, file version " 
+           << version << endl;
 
     for( int i=0; i<nElems; i++ )
     {
@@ -265,10 +274,8 @@ bool PlyFileIO::readPlyFile( const char *filename,
         PlyProperty **props = 
             ply_get_element_description( file, elemNames[i], &nElems, &nProps );
 
-#ifndef NDEBUG
-        fprintf( stderr, "Element %d: Name '%s': %d elements, %d properties\n",
-            i, elemNames[i], nElems, nProps );
-#endif
+        EQINFO << "Element " << i << ": name " << elemNames[i] << ", " 
+               << nProps << " properties" << endl;
 
         // vertices
         if( strcmp( elemNames[i], "vertex" ) == 0 )
@@ -345,8 +352,8 @@ void PlyFileIO::readVertices( PlyFile *file, int num, bool color,
 
         // non-POD offsets: see comment above
         const int rOffset = ((char*)&dummy.color[0] - (char*)&dummy );
-        const int gOffset = xOffset + (int)sizeof(float);
-        const int bOffset = yOffset + (int)sizeof(float);
+        const int gOffset = rOffset + (int)sizeof(float);
+        const int bOffset = gOffset + (int)sizeof(float);
         
         vProps[3].offset = rOffset;
         vProps[4].offset = gOffset;
@@ -354,19 +361,15 @@ void PlyFileIO::readVertices( PlyFile *file, int num, bool color,
         nVProps = 6;
     }
         
-#ifndef NDEBUG
-    fprintf( stderr, "Reading %d vertices", num );
-#endif
+    EQINFO << "Reading " << num << " vertices";
 
     ply_get_element_setup( file, "vertex", nVProps, vProps );
             
     // read vertices
     for( int i=0; i<num; i++ )
     {
-#ifndef NDEBUG
         if( i%10000 == 0 )
-            fprintf( stderr, "." );
-#endif
+            EQINFO << "." << flush;
 
         ply_get_element( file, &vertices[i] );
 
@@ -383,10 +386,7 @@ void PlyFileIO::readVertices( PlyFile *file, int num, bool color,
             vertices[i].color[2] = 1.;
         }
     }
-
-#ifndef NDEBUG
-    fprintf( stderr, "\n" );
-#endif
+    EQINFO << endl;
 }
 
 //---------------------------------------------------------------------------
@@ -408,9 +408,7 @@ void PlyFileIO::readFaces( PlyFile *file,
         "vertex_indices", PLY_INT, PLY_INT, offsetof( IndexFace, vertices ),
         1, PLY_INT, PLY_INT, offsetof( IndexFace, nVertices ) };
 
-#ifndef NDEBUG
-    fprintf( stderr, "Reading %d faces", nFaces );
-#endif
+    EQINFO << "Reading " << nFaces << " faces";
 
     ply_get_element_setup( file, "face", nFProps, fProps );
             
@@ -418,10 +416,9 @@ void PlyFileIO::readFaces( PlyFile *file,
     int wrongNormals = 0;
     for( int i=0; i<nFaces; i++ )
     {
-#ifndef NDEBUG
         if( i%10000 == 0 )
-            fprintf( stderr, "." );
-#endif
+            EQINFO << "." << flush;
+
         // read face
         ply_get_element( file, &face );
         assert( face.nVertices == 3 );
@@ -438,11 +435,11 @@ void PlyFileIO::readFaces( PlyFile *file,
             ++wrongNormals;
     }
 #ifndef NDEBUG
-    fprintf( stderr, "\n" );
-    if( wrongNormals )
-        fprintf( stderr, "Warning: No normal for %d faces (%.2f%%).\n", 
-                 wrongNormals, (float)wrongNormals/(float)nFaces/100. );
+    EQINFO << endl;
 
+    if( wrongNormals )
+        EQWARN << "No normal for " << wrongNormals << " faces ("
+               << (float)wrongNormals/(float)nFaces*100. << "%)" << endl;
 #endif            
 }
 
