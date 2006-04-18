@@ -65,14 +65,14 @@ OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
 
 $(OBJECT_DIR)/%.h.gch : %.h
 	@mkdir -p $(@D)
-	$(CXX) -x c++-header $(CXXFLAGS) $(INT_CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
+	$(CXX) -x c++-header $(CXXFLAGS) $(INT_CXXFLAGS) -DSUBDIR=\"$(SUBDIR)/$(<D)\" -c $< -o $@
 
 $(OBJECT_DIR)/%.o : %.cpp
 	@mkdir -p $(@D)
 	@echo -n "$(@D)/" > $(OBJECT_DIR)/$*.d
 	@($(DEP_CXX) $(CXXFLAGS) $(INT_CXXFLAGS) -M -E $< >> \
 		$(OBJECT_DIR)/$*.d ) || rm $(OBJECT_DIR)/$*.d
-	$(CXX) $(CXXFLAGS) $(INT_CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INT_CXXFLAGS) -DSUBDIR=\"$(SUBDIR)/$(<D)\" -c $< -o $@
 
 %.cpp: $(OBJECT_DIR)/%d
 
@@ -92,7 +92,7 @@ ifndef VARIANT
 endif
 
 %.$(VARIANT) : %.cpp
-	$(CXX) $< $(CXXFLAGS) $(INT_CXXFLAGS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -o $@ 
+	$(CXX) $< $(CXXFLAGS) $(INT_CXXFLAGS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)/$(<D)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -o $@ 
 endif # PROGRAMS
 
 # cleaning targets

@@ -280,7 +280,8 @@ bool Config::_initNodes( const uint32_t initID )
         
         if( !node->syncConnect( ))
         {
-            EQERROR << "Connection of " << (void*)node << " failed." << endl;
+            EQERROR << "Connection of node " << (void*)node << " failed." 
+                    << endl;
             success = false;
         }
         
@@ -383,9 +384,10 @@ bool Config::_exitPipes()
     for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
         Node* node = *iter;
-        if( !node->isUsed( ));
+
+        if( !node->isUsed( ))
             continue;
-        
+            
         const vector<Pipe*>& pipes = node->getPipes();
         for( PipeIter iter = pipes.begin(); iter != pipes.end(); ++iter )
         {
