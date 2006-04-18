@@ -420,7 +420,7 @@ bool Config::_exitPipes()
                 success = false;
 
             destroyPipePacket.pipeID = pipe->getID();
-            send( destroyPipePacket );
+            node->send( destroyPipePacket );
             deregisterObject( pipe );
         }
     }

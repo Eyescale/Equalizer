@@ -63,6 +63,7 @@ void Thread::_runChild()
         case FORK:
             exit( result );
     }
+    EQASSERTINFO( 0, "Unreachable code" );
 }
 
 // the signal handler for SIGCHILD

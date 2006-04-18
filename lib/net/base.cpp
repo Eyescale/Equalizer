@@ -49,7 +49,26 @@ CommandResult Base::handleCommand( Node* node, const Packet* packet )
 
 CommandResult Base::_cmdUnknown( Node* node, const Packet* packet )
 {
-    EQERROR << "Unknown command " << packet << " from " << node << " class "
-          << typeid(*this).name() << endl;
+    switch( packet->datatype )
+    {
+        case DATATYPE_EQNET_NODE:
+            EQERROR << "Unknown command " << (NodePacket*)packet << " from "
+                    << node << " class " << typeid(*this).name() << endl;
+            break;
+        case DATATYPE_EQNET_SESSION:
+            EQERROR << "Unknown command " << (SessionPacket*)packet << " from "
+                    << node << " class " << typeid(*this).name() << endl;
+            break;
+        case DATATYPE_EQNET_OBJECT:
+            EQERROR << "Unknown command " << (ObjectPacket*)packet << " from "
+                    << node << " class " << typeid(*this).name() << endl;
+            break;
+
+        default:
+            EQERROR << "Unknown command " << packet << " from " << node 
+                    << " class " << typeid(*this).name() << endl;
+            break;
+    }
+
     return COMMAND_ERROR;
 }
