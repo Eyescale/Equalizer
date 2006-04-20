@@ -27,6 +27,7 @@ HEADER_SRC = \
 	net/base.h \
 	net/commands.h \
 	net/connection.h \
+	net/connection.ipp \
 	net/connectionSet.h \
 	net/connectionDescription.h \
 	net/fdConnection.h \

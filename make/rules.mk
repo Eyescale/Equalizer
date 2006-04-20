@@ -29,7 +29,7 @@ $(SUBDIRS):
 
 
 # headers
-$(HEADER_DIR)/%.h : %.h
+$(HEADER_DIR)/% : %
 	@mkdir -p $(HEADER_DIR)/$(*D)
 	@echo 'Header file $@'
 	@cp $< $@

@@ -306,9 +306,9 @@ namespace eqNet
          * The data is send as a new packet containing the original packet and
          * the string, so that it is received as one packet by the node.
          *
-         * It is assumed that the last 8 bytes in the packet are usable for the
-         * string. The vector's element are copied using memcpy to the output
-         * stream 
+         * It is assumed that the last item in the packet is of sizeof(T) and
+         * usable for the data. The vector's elements are copied using memcpy to
+         * the output stream.
          *
          * @param packet the packet.
          * @param data the vector containing the data.

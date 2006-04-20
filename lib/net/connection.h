@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_CONNECTION_H
@@ -150,8 +150,7 @@ namespace eqNet
          * @sa Node::send
          */
         template< class T >
-        uint64_t send( Packet &packet, const std::vector<T>& data ) const
-            { return send( packet, &data[0], data.size() * sizeof(T) ); }
+        uint64_t send( Packet &packet, const std::vector<T>& data ) const;
 
         /** 
          * Sends a packaged message including additional data using the
@@ -211,5 +210,7 @@ namespace eqNet
                 "unknown state");
         return os;
     }
+
+#   include "connection.ipp" // template implementation
 }
 #endif //EQNET_CONNECTION_H

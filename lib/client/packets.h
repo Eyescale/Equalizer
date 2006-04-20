@@ -612,8 +612,11 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                      const ConfigBeginFrameReplyPacket* packet )
     {
-        os << (eqNet::SessionPacket*)packet << " frame# " 
+        os << (eqNet::SessionPacket*)packet << " frame #" 
            << packet->frameNumber << ", " << packet->nNodeIDs << " nodes";
+        for( uint32_t i=0 ; i<4 && i<packet->nNodeIDs; ++i )
+            os << " " << i << ":" << packet->nodeIDs[i];
+
         return os;
     }
 

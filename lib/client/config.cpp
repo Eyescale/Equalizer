@@ -90,7 +90,7 @@ eqNet::CommandResult Config::_cmdBeginFrameReply(eqNet::Node* node,
 {
     ConfigBeginFrameReplyPacket* packet = (ConfigBeginFrameReplyPacket*)pkg;
     EQVERB << "handle frame begin reply " << packet << endl;
-    //::exit(1);
+
     _requestHandler.serveRequest( packet->requestID, 
                                   (void*)(packet->frameNumber) );
     return eqNet::COMMAND_HANDLED;

@@ -203,7 +203,7 @@ eqNet::CommandResult Config::_reqBeginFrame( eqNet::Node* node,
 
     vector<Node*> nodes;
     reply.frameNumber = _beginFrame( packet->frameID, nodes );
-
+    reply.nNodeIDs    = nodes.size();
     
     node->send( reply, nodes );
 
