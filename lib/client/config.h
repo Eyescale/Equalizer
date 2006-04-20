@@ -15,6 +15,7 @@
 namespace eq
 {
     struct ConfigPacket;
+    class SceneObject;
     class Server;
 
     class Config : public eqNet::Session
@@ -50,6 +51,10 @@ namespace eq
          */
         bool exit();
 
+        /**
+         * @name Frame Control
+         */
+        //*{
         /** 
          * Requests a new frame of rendering.
          * 
@@ -57,7 +62,15 @@ namespace eq
          *                methods.
          * @return the frame number of the new frame.
          */
-        uint32_t frameBegin( const uint32_t frameID );
+        uint32_t beginFrame( const uint32_t frameID );
+
+        /** 
+         * Sends frame data to 
+         * 
+         * @param data 
+         */
+        void sendSceneObject( SceneObject* object );
+        void flushSceneObjects();
 
         /** 
          * Synchronizes the end of a frame.
@@ -65,7 +78,8 @@ namespace eq
          * @return the frame number of the finished frame, or <code>0</code> if
          *         no frame has been finished.
          */
-        uint32_t frameEnd();
+        uint32_t endFrame();
+        //*}
 
     private:
         /** The local proxy of the server hosting the session. */
@@ -80,9 +94,9 @@ namespace eq
                                             const eqNet::Packet* packet );
         eqNet::CommandResult _cmdExitReply( eqNet::Node* node,
                                             const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdFrameBeginReply( eqNet::Node* node, 
+        eqNet::CommandResult _cmdBeginFrameReply( eqNet::Node* node, 
                                                   const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdFrameEndReply( eqNet::Node* node,
+        eqNet::CommandResult _cmdEndFrameReply( eqNet::Node* node,
                                                 const eqNet::Packet* packet);
     };
 }

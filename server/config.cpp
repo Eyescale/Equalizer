@@ -31,11 +31,11 @@ void Config::_construct()
                      reinterpret_cast<CommandFcn>( &eqs::Config::_cmdRequest ));
     registerCommand( eq::REQ_CONFIG_FRAME_BEGIN, this,
                      reinterpret_cast<CommandFcn>(
-                         &eqs::Config::_reqFrameBegin ));
+                         &eqs::Config::_reqBeginFrame ));
     registerCommand( eq::CMD_CONFIG_FRAME_END, this,
                      reinterpret_cast<CommandFcn>( &eqs::Config::_cmdRequest ));
     registerCommand( eq::REQ_CONFIG_FRAME_END, this,
-                     reinterpret_cast<CommandFcn>( &eqs::Config::_reqFrameEnd));
+                     reinterpret_cast<CommandFcn>( &eqs::Config::_reqEndFrame));
 
     EQINFO << "New config @" << (void*)this << endl;
 }
@@ -194,26 +194,30 @@ eqNet::CommandResult Config::_reqExit( eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_reqFrameBegin( eqNet::Node* node, 
+eqNet::CommandResult Config::_reqBeginFrame( eqNet::Node* node, 
                                              const eqNet::Packet* pkg )
 {
-    const eq::ConfigFrameBeginPacket* packet = (eq::ConfigFrameBeginPacket*)pkg;
-    eq::ConfigFrameBeginReplyPacket   reply( packet );
+    const eq::ConfigBeginFramePacket* packet = (eq::ConfigBeginFramePacket*)pkg;
+    eq::ConfigBeginFrameReplyPacket   reply( packet );
     EQVERB << "handle config frame begin " << packet << endl;
 
-    reply.result = _frameBegin( packet->frameID );
-    node->send( reply );
+    vector<Node*> nodes;
+    reply.frameNumber = _beginFrame( packet->frameID, nodes );
+
+    
+    node->send( reply, nodes );
+
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_reqFrameEnd( eqNet::Node* node, 
+eqNet::CommandResult Config::_reqEndFrame( eqNet::Node* node, 
                                            const eqNet::Packet* pkg )
 {
-    const eq::ConfigFrameEndPacket* packet = (eq::ConfigFrameEndPacket*)pkg;
-    eq::ConfigFrameEndReplyPacket   reply( packet );
+    const eq::ConfigEndFramePacket* packet = (eq::ConfigEndFramePacket*)pkg;
+    eq::ConfigEndFrameReplyPacket   reply( packet );
     EQVERB << "handle config frame end " << packet << endl;
 
-    reply.result = _frameEnd();
+    reply.result = _endFrame();
     node->send( reply );
     return eqNet::COMMAND_HANDLED;
 }
@@ -460,10 +464,10 @@ bool Config::_exitNodes()
 }
 
 
-uint32_t Config::_frameBegin( const uint32_t frameID )
+uint32_t Config::_beginFrame( const uint32_t frameID, vector<Node*>& nodes )
 {
     ++_frameNumber;
-
+    
     const uint32_t nCompounds = this->nCompounds();
     for( uint32_t i=0; i<nCompounds; ++i )
     {
@@ -476,13 +480,16 @@ uint32_t Config::_frameBegin( const uint32_t frameID )
     {
         Node* node = getNode( i );
         if( node->isUsed( ))
+        {
             node->update( frameID );
+            nodes.push_back( node );
+        }
     }
     
     return _frameNumber;
 }
 
-uint32_t Config::_frameEnd()
+uint32_t Config::_endFrame()
 {
     const uint32_t nNodes = this->nNodes();
     for( uint32_t i=0; i<nNodes; ++i )

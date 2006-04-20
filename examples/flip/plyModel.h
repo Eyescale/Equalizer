@@ -94,11 +94,11 @@ public:
     void normalize( void );
 
     void toStream( std::ostream& os );
-    bool fromMemory( char **addr );
+    bool fromMemory( char* addr );
 
     const BBox *getBBox( void ) const { return &_bbox; }
 
-    static void traverseBBox( BBox *bbox, TraverseCB preCB, TraverseCB leafCB, 
+    static void traverseBBox( BBox* bbox, TraverseCB preCB, TraverseCB leafCB, 
         TraverseCB postCB, void *userData );
 
 private:

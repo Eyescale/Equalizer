@@ -263,23 +263,8 @@ namespace eqNet
 
         /**
          * @name Messaging API
-         *
-         * The messaging API provides basic point-to-point communications
-         * between nodes. (Broadcast communications are handled by special
-         * nodes?)
          */
         //@{
-        /**
-         * Sends a message to this node.
-         *
-         * @param type the type of the message elements.
-         * @param ptr the memory address of the message elements.
-         * @param count the number of message elements.
-         * @return the success status of the transaction.
-         */
-        bool send( const MessageType type, const void *ptr, 
-                   const uint64_t count);
-
         /** 
          * Sends a packet to this node.
          * 
@@ -316,13 +301,35 @@ namespace eqNet
             }
 
         /** 
+         * Sends a packet with a string to the node.
+         * 
+         * The data is send as a new packet containing the original packet and
+         * the string, so that it is received as one packet by the node.
+         *
+         * It is assumed that the last 8 bytes in the packet are usable for the
+         * string. The vector's element are copied using memcpy to the output
+         * stream 
+         *
+         * @param packet the packet.
+         * @param data the vector containing the data.
+         * @return the success status of the transaction.
+         */
+        template< class T >
+        bool send( Packet& packet, const std::vector<T>& data )
+            {
+                if( !checkConnection() )
+                    return false;
+                return ( _connection->send( packet, data ) >= packet.size );
+            }
+
+        /** 
          * Sends a packet with additional data to the node.
          * 
          * The data is send as a new packet containing the original packet and
          * the data, so that it is received as one packet by the node.
          *
          * It is assumed that the last 8 bytes in the packet are usable for the
-         * data.  This is used for optimising the send of short strings and on
+         * data.  This is used for optimising the send of short data and on
          * the receiver side to access the data. The node implementation gives
          * examples of this usage.
          *

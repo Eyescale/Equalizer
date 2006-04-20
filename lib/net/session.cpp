@@ -448,7 +448,7 @@ CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
 {
     SessionGetObjectMasterReplyPacket* packet = 
         (SessionGetObjectMasterReplyPacket*)pkg;
-    EQINFO << "cmd get object master reply: " << packet << endl;
+    EQINFO << "Cmd get object master reply: " << packet << endl;
  
     const uint32_t id = packet->objectID;
 

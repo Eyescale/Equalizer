@@ -142,6 +142,18 @@ namespace eqNet
             { return send( packet, string.c_str(), string.size()+1 ); }
 
         /** 
+         * Sends a packaged message including the data.
+         * 
+         * @param packet the message packet.
+         * @param data the vector containing the data.
+         * @return the number of bytes send.
+         * @sa Node::send
+         */
+        template< class T >
+        uint64_t send( Packet &packet, const std::vector<T>& data ) const
+            { return send( packet, &data[0], data.size() * sizeof(T) ); }
+
+        /** 
          * Sends a packaged message including additional data using the
          * connection.
          * 

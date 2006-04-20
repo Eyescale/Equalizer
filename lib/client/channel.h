@@ -16,6 +16,7 @@ namespace eq
     class Channel;
     class Node;
     class RenderContext;
+    class SceneObject;
 
     class Channel : public eqNet::Object
     {
@@ -129,8 +130,17 @@ namespace eq
          * frustum.
          */
         void applyHeadTransform();
-
         //*}
+
+        /** @name Scene Object Access. */
+        //*{
+        SceneObject* getNextSceneObject();
+        SceneObject* checkNextSceneObject();
+        //void putSceneObject( SceneObject* object );
+        void passSceneObject( SceneObject* object );
+        void flushSceneObjects();
+        //*}
+
     private:
         /** The parent node. */
         friend class   Window;

@@ -56,17 +56,6 @@ namespace eqNet
             }
     };
 
-    struct NodeMessagePacket : public NodePacket
-    {
-        NodeMessagePacket()
-            { 
-                command  = CMD_NODE_MESSAGE;
-                size     = sizeof( NodeMessagePacket ); 
-            }
-        MessageType type;
-        uint64_t    nElements;
-    };
-
     struct NodeMapSessionPacket : public NodePacket
     {
         NodeMapSessionPacket()

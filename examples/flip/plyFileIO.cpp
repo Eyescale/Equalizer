@@ -484,13 +484,13 @@ bool PlyFileIO::calculateNormal( NormalFace<ColorVertex> &face )
 PlyModel< NormalFace<ColorVertex> > *PlyFileIO::readBin( const char *filename )
 {
     int fd = open( filename, O_RDONLY );
-    if ( fd < 0 ) return false;
+    if ( fd < 0 ) return NULL;
 
     struct stat status;
 
     fstat( fd, &status );
     char *addr = (char *) mmap( NULL, (size_t) status.st_size, PROT_READ,
-            MAP_SHARED, fd, 0 );
+            MAP_FILE, fd, 0 );
 
     if( addr == MAP_FAILED )
         return NULL;
@@ -498,7 +498,7 @@ PlyModel< NormalFace<ColorVertex> > *PlyFileIO::readBin( const char *filename )
     PlyModel< NormalFace<ColorVertex> > *model = 
         new PlyModel< NormalFace<ColorVertex> >;
 
-    if( !model->fromMemory( &addr ) )
+    if( !model->fromMemory( addr ) )
     {
         delete model;
         model = NULL;

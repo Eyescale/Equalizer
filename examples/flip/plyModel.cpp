@@ -50,8 +50,7 @@
 
 #include "plyModel.h"
 
-#include <alloca.h>
-#include <assert.h>
+#include <eq/eq.h>
 #include <float.h>
 #include <math.h>
 
@@ -85,6 +84,7 @@ PlyModel<FaceType>::~PlyModel()
 {
     if( _faces != NULL )
         free( _faces );
+    _faces = NULL;
 
     freeBBoxes( _bbox );
 }
@@ -113,9 +113,7 @@ void PlyModel<FaceType>::setFaces( size_t nFaces, FaceType *faces,
     _faces    = (FaceType *)malloc( nFaces * sizeof(FaceType) );
     _nFaces = 0;
 
-#ifndef NDEBUG
-    fprintf( stderr, "Filling bounding boxes" );
-#endif
+    EQINFO << "Filling bounding boxes";
 
     _bbox.children = NULL;
     _bbox.parent   = NULL;
@@ -125,12 +123,10 @@ void PlyModel<FaceType>::setFaces( size_t nFaces, FaceType *faces,
 
     fillBBox( nFaces, faces, _bbox, bboxFaceThreshold, 0 );
 
-#ifndef NDEBUG
-    fprintf( stderr, "\n" );
-#endif
+    EQINFO << endl;
     if( _nFaces != nFaces )
-        fprintf( stderr, "Error %s:%d: used %zd faces of %zd input faces.\n", 
-                __FILE__, __LINE__, nFaces, _nFaces );
+        EQWARN << "Used " << nFaces << " faces of " << _nFaces << " input faces"
+               << endl;
 }
 
 //---------------------------------------------------------------------------
@@ -195,8 +191,8 @@ void PlyModel<FaceType>::fillBBox( size_t nFaces, FaceType *faces, BBox &bbox,
 #ifndef NDEBUG
     static size_t filled = 0;
     if( filled%100 == 0 )
-        fprintf( stderr, "." );
-    filled++;
+        EQINFO << ".";
+    ++filled;
 #endif
 
     bbox.nFaces   = 0;
@@ -258,7 +254,7 @@ void PlyModel<FaceType>::fillBBox( size_t nFaces, FaceType *faces, BBox &bbox,
             cnf +=  bbox.children[j].nFaces;
         }
 
-        assert( cnf == bbox.nFaces );
+        EQASSERT( cnf == bbox.nFaces );
         bbox.nFaces = cnf;
 
         free( faces );
@@ -678,31 +674,34 @@ void PlyModel< FaceType >::toStream(ostream& os)
 }
 
 //---------------------------------------------------------------------------
-// fromStream
+// fromMemory
 //---------------------------------------------------------------------------
 
-#define mem_read( dst, len ) { memcpy( dst, *addr, len ); *addr += len; }
+#define MEM_READ( dst, len ) { memcpy( dst, *addr, len ); *addr += len; }
 
 template<class FaceType>
-bool PlyModel<FaceType>::fromMemory( char **addr )
+bool PlyModel<FaceType>::fromMemory( char *start )
 {
-    int version;
-    mem_read( (char *)&version, sizeof(int) );
+    char **addr = &start;
+
+    int    version;
+    MEM_READ( (char *)&version, sizeof(int) );
 
     if( version != PLYFILEVERSION )
     {
-        fprintf( stderr, "Read version %d, expected %d\n", version,
-            PLYFILEVERSION);
+        EQERROR << "Read version " << version <<", expected " 
+                << PLYFILEVERSION << endl;
         return false;
     }
 
-    mem_read( (char *)&_nFaces, sizeof(size_t) );
+    MEM_READ( (char *)&_nFaces, sizeof(size_t) );
     if( _nFaces > 0)
     {
         const size_t size = _nFaces*sizeof( FaceType );
         _faces = (FaceType *)malloc( size );
         
-        mem_read( (char *)_faces, size );
+        MEM_READ( (char *)_faces, size );
+        EQINFO << _nFaces << " faces at " << _faces << endl;
     }
 
     readBBox( addr, _bbox );
@@ -722,7 +721,8 @@ void PlyModel<FaceType>::writeBBox( ostream& os, BBox &bbox )
     {
         size_t ndx = (size_t)( (size_t)((char *)bbox.faces - (char *)_faces) / 
             sizeof(FaceType) );
-        
+        EQASSERT( ndx + bbox.nFaces <= _nFaces );
+
         os.write( (char *)&ndx, sizeof(size_t) );
     }
 
@@ -747,28 +747,30 @@ void PlyModel<FaceType>::writeBBox( ostream& os, BBox &bbox )
 template<class FaceType>
 void PlyModel<FaceType>::readBBox( char** addr, BBox &bbox )
 {
-    mem_read( (char *)&bbox.nFaces, sizeof(size_t) );
+    MEM_READ( (char *)&bbox.nFaces, sizeof(size_t) );
 
     if( bbox.nFaces > 0 )
     {
         size_t ndx;
-        mem_read( (char *)&ndx, sizeof(size_t) );
+        MEM_READ( (char *)&ndx, sizeof(size_t) );
+        EQASSERT( ndx + bbox.nFaces <= _nFaces );
+
         bbox.faces = &_faces[ndx];
     }
 
-    mem_read( (char *)bbox.pos, 2*sizeof(Vertex) );
-    mem_read( (char *)bbox.cullBox, 2*sizeof(Vertex) );
-    mem_read( (char *)&bbox.cullSphere, sizeof(bbox.cullSphere) );
-    mem_read( (char *)bbox.range, 2*sizeof(float) );
+    MEM_READ( (char *)bbox.pos, 2*sizeof(Vertex) );
+    MEM_READ( (char *)bbox.cullBox, 2*sizeof(Vertex) );
+    MEM_READ( (char *)&bbox.cullSphere, sizeof(bbox.cullSphere) );
+    MEM_READ( (char *)bbox.range, 2*sizeof(float) );
 
     int nChildren;
-    mem_read( (char *)&nChildren, sizeof(int) );
+    MEM_READ( (char *)&nChildren, sizeof(int) );
 
     if( nChildren == 0 )
         return;
 
     createBBoxChildren( bbox );
 
-    for( int i=0; i<nChildren; i++ )
+    for( int i=0; i<nChildren; ++i )
         readBBox( addr, bbox.children[i] );
 }

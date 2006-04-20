@@ -276,23 +276,6 @@ uint64_t Node::_getMessageSize( const MessageType type, const uint64_t count )
     }
 }
 
-bool Node::send( const MessageType type, const void *ptr, const uint64_t count )
-{
-    if( !checkConnection() )
-        return false;
-    
-    NodeMessagePacket packet;
-    packet.type = type;
-    packet.nElements = count;
-
-    if( !send( packet ))
-        return false;
-
-    const uint64_t size = _getMessageSize( type, count );
-    return ( _connection->send( ptr, size ) == size );
-}
-
-
 //----------------------------------------------------------------------
 // Node functionality
 //----------------------------------------------------------------------

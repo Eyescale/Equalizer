@@ -41,7 +41,7 @@ namespace eqNet
          */
         enum Type
         {
-            TYPE_UNMANAGED,                     // A non-managed object
+            TYPE_UNMANAGED,                     // A unmanaged object
             TYPE_MANAGED,                       // A managed object
             TYPE_BARRIER,                       // eqNet::Barrier
             TYPE_MANAGED_CUSTOM,                // managed objects up to:

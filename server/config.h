@@ -189,9 +189,9 @@ namespace eqs
                                        const eqNet::Packet* packet );
         eqNet::CommandResult _reqExit( eqNet::Node* node,
                                        const eqNet::Packet* packet );
-        eqNet::CommandResult _reqFrameBegin( eqNet::Node* node,
+        eqNet::CommandResult _reqBeginFrame( eqNet::Node* node,
                                              const eqNet::Packet* packet );
-        eqNet::CommandResult _reqFrameEnd( eqNet::Node* node, 
+        eqNet::CommandResult _reqEndFrame( eqNet::Node* node, 
                                            const eqNet::Packet* packet );
 
         /**
@@ -209,8 +209,9 @@ namespace eqs
         bool   _exitPipes();
         bool   _exitNodes();
 
-        uint32_t _frameBegin( const uint32_t frameID );
-        uint32_t _frameEnd();
+        uint32_t _beginFrame( const uint32_t frameID, 
+                              std::vector<Node*>& nodes );
+        uint32_t _endFrame();
 
         //*}
     };

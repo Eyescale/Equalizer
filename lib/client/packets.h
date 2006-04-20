@@ -122,49 +122,51 @@ namespace eq
         bool     result;
     };
 
-    struct ConfigFrameBeginPacket : public eqNet::SessionPacket
+    struct ConfigBeginFramePacket : public eqNet::SessionPacket
     {
-        ConfigFrameBeginPacket( const uint32_t configID ) 
+        ConfigBeginFramePacket( const uint32_t configID ) 
                 : eqNet::SessionPacket( configID )
             {
                 command   = CMD_CONFIG_FRAME_BEGIN;
-                size      = sizeof( ConfigFrameBeginPacket );
+                size      = sizeof( ConfigBeginFramePacket );
             }
         uint32_t requestID;
         uint32_t frameID;
     };
 
-    struct ConfigFrameBeginReplyPacket : public eqNet::SessionPacket
+    struct ConfigBeginFrameReplyPacket : public eqNet::SessionPacket
     {
-        ConfigFrameBeginReplyPacket(const ConfigFrameBeginPacket* requestPacket)
+        ConfigBeginFrameReplyPacket(const ConfigBeginFramePacket* requestPacket)
                 : eqNet::SessionPacket( requestPacket->sessionID )
             {
                 command   = CMD_CONFIG_FRAME_BEGIN_REPLY;
-                size      = sizeof( ConfigFrameBeginReplyPacket );
+                size      = sizeof( ConfigBeginFrameReplyPacket );
                 requestID = requestPacket->requestID;
             }
         uint32_t requestID;
-        uint32_t result;
+        uint32_t frameNumber;
+        uint32_t nNodeIDs;
+        eqNet::NodeID nodeIDs[1];
     };
 
-    struct ConfigFrameEndPacket : public eqNet::SessionPacket
+    struct ConfigEndFramePacket : public eqNet::SessionPacket
     {
-        ConfigFrameEndPacket( const uint32_t configID ) 
+        ConfigEndFramePacket( const uint32_t configID ) 
                 : eqNet::SessionPacket( configID )
             {
                 command   = CMD_CONFIG_FRAME_END;
-                size      = sizeof( ConfigFrameEndPacket );
+                size      = sizeof( ConfigEndFramePacket );
             }
         uint32_t requestID;
     };
 
-    struct ConfigFrameEndReplyPacket : public eqNet::SessionPacket
+    struct ConfigEndFrameReplyPacket : public eqNet::SessionPacket
     {
-        ConfigFrameEndReplyPacket(const ConfigFrameEndPacket* requestPacket)
+        ConfigEndFrameReplyPacket(const ConfigEndFramePacket* requestPacket)
                 : eqNet::SessionPacket( requestPacket->sessionID )
             {
                 command   = CMD_CONFIG_FRAME_END_REPLY;
-                size      = sizeof( ConfigFrameEndReplyPacket );
+                size      = sizeof( ConfigEndFrameReplyPacket );
                 requestID = requestPacket->requestID;
             }
         uint32_t requestID;
@@ -604,6 +606,14 @@ namespace eq
                                        const NodeCreatePipePacket* packet )
     {
         os << (eqNet::ObjectPacket*)packet << " id " << packet->pipeID;
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                     const ConfigBeginFrameReplyPacket* packet )
+    {
+        os << (eqNet::SessionPacket*)packet << " frame# " 
+           << packet->frameNumber << ", " << packet->nNodeIDs << " nodes";
         return os;
     }
 

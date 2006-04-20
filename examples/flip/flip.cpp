@@ -100,10 +100,10 @@ int main( int argc, char** argv )
         frameData.spin += .1;
         const uint32_t version = frameData.commit();
 
-        config->frameBegin( version );
+        config->beginFrame( version );
 //         config->renderData(...);
 //         ...;
-        config->frameEnd();
+        config->endFrame();
 
         // process events
     }
