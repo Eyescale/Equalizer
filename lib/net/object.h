@@ -81,8 +81,9 @@ namespace eqNet
          * Return the instance information about this managed object.
          *
          * The returned pointer has to point to at least size bytes of memory
-         * allocated by the mobject. It can be free'd or reused on the next call
-         * to this object.
+         * allocated by the object. The data will be released before the next
+         * call to this object, that is, this function may return a pointer to
+         * member variables if no other threads are accessing the object.
          * 
          * @param size the size of the returned data, or unchanged for unmanaged
          *             objects.
@@ -106,12 +107,35 @@ namespace eqNet
         /** 
          * Commit a new version of this object.
          * 
-         * If the object is not versioned or has not changed, the previous
-         * or initial (0) version number is returned.
+         * If the object is not versioned or has not changed, no new version
+         * will be generated, that is, the previous or initial (0) version
+         * number is returned.
          *
-         * @return the new head version, or <code>0</code> upon error.
+         * @return the head version.
          */
         uint32_t commit();
+
+        /** 
+         * Explicitily obsoletes all versions including version.
+         * 
+         * @param version the version to obsolete
+         */
+        void obsolete( const uint32_t version );
+
+        /** 
+         * Automatically obsoletes old versions.
+         *
+         * Flags are a bitwise combination of the following values:
+         *
+         * AUTO_OBSOLETE_COUNT_VERSIONS: count 'full' versions are retained.
+         * AUTO_OBSOLETE_COUNT_COMMIT: The versions for the last count commits
+         *   are retained. Note that the number of versions may be less since
+         *   commit may not generate a new version.
+         * 
+         * @param count the number of versions to retain.
+         * @param flags additional flags for the auto-obsoletion mechanism
+         */
+        void setAutoObsolete( const uint32_t count, const uint32_t flags );
 
         /** 
          * Sync to a given version.
@@ -150,7 +174,9 @@ namespace eqNet
          * Pack the changes since the last call to commit().
          * 
          * The returned pointer has to point to at least size bytes of memory
-         * allocated by the object.
+         * allocated by the object. The data will be released before the next
+         * call to this object, that is, this function may return a pointer to
+         * member variables if no other threads are accessing the object.
          * 
          * @param size the size of the returned data, or untouched for
          *             unversioned or unchanged objects.

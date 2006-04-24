@@ -149,13 +149,13 @@ namespace eqNet
         void registerObject( Object* object, Node* master );
 
         /** 
-         * Returns a registered object.
+         * Access a registered object.
          * 
-         * The object will be instanciated locally if necessary.
+         * The object will be instanciated locally if necessary. Versioned
+         * objects need to have at least one committed version.
          *
          * @param id the object's identifier.
-         * @return the registered object, or <code>NULL</code> if the object is
-         *         not registered locally.
+         * @return the object, or <code>NULL</code> if the object is not known.
          */
         Object* getObject( const uint32_t id );
 
