@@ -61,7 +61,7 @@ void Thread::_runChild()
             break;
 
         case FORK:
-            exit( result );
+            ::exit( result );
     }
     EQASSERTINFO( 0, "Unreachable code" );
 }

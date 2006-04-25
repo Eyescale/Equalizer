@@ -298,7 +298,6 @@ namespace eqNet
             {
                 command        = CMD_SESSION_INSTANCIATE_OBJECT;
                 size           = sizeof( SessionInstanciateObjectPacket ); 
-                isMaster       = false;
                 objectData[0] = '\0';
             }
 

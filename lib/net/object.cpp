@@ -19,7 +19,10 @@ Object::Object( const uint32_t typeID,
           _session( NULL ),
           _id( EQ_INVALID_ID ),
           _typeID( typeID ),
-          _version(0)
+          _version(0),
+          _commitCount(0),
+          _nVersions(0),
+          _countCommits(false)
 {
     EQASSERT( nCommands >= CMD_OBJECT_CUSTOM );
 
@@ -33,22 +36,156 @@ Object::Object( const uint32_t typeID,
 
 Object::~Object()
 {
+    for( list<ChangeData>::iterator iter = _instanceData.begin(); 
+         iter != _instanceData.end(); ++iter )
+    {
+        if( (*iter).data )
+            free( (*iter).data );
+    }
+    for( list<ChangeData>::iterator iter = _changeData.begin(); 
+         iter != _changeData.end(); ++iter )
+    {
+        if( (*iter).data )
+            free( (*iter).data );
+    }
+}
+
+void Object::instanciateOnNode( Node* node )
+{
+    EQASSERT( _session );
+    EQASSERT( _id != EQ_INVALID_ID );
+
+    addSlave( node );
+
+    SessionInstanciateObjectPacket packet( _session->getID( ));
+    packet.objectID       = _id;
+    packet.objectType     = _typeID;
+    packet.objectDataSize = 0;
+    packet.isMaster       = !_master;
+
+    if( _typeID < TYPE_VERSIONED )
+    {
+        const void* data = getInstanceData( &packet.objectDataSize );
+        node->send( packet, data, packet.objectDataSize );
+        releaseInstanceData( data );
+    }
+    else
+    {
+        if( _version == 0 )
+            commit();
+
+        ChangeData& data = _instanceData.front();
+        packet.objectDataSize = data.size;
+        node->send( packet, data.data, packet.objectDataSize );
+    }
 }
 
 uint32_t Object::commit()
 {
-    if( !isMaster( ))
+    if( !isMaster( ) || _typeID < TYPE_VERSIONED )
         return 0;
+
+    if( _version == 0 ) // initial version
+    {
+        EQASSERT( _instanceData.empty( ));
+        EQASSERT( _changeData.empty( ));
+
+        // compute base version
+        ChangeData  data = { 0 };
+        const void* ptr  = getInstanceData( &data.size );
+        
+        if( ptr )
+        {
+            data.data    = malloc( data.size );
+            data.maxSize = data.size;
+            memcpy( data.data, ptr, data.size );
+        }
+        _instanceData.push_front( data );
+        releaseInstanceData( ptr );
+        
+        ++_version;
+        ++_commitCount;
+        return _version;
+    }
+
+    EQASSERT( _instanceData.size() == _changeData.size() + 1 );
 
     uint64_t deltaSize;
     const void* delta = pack( &deltaSize );
+
+    ++_commitCount;
+
+    ChangeData instanceData = { 0 };
+    ChangeData changeData   = { 0 };
+
+    if( _countCommits ) // auto-obsoletion based on # of commits
+    {
+        ChangeData& lastInstanceData = _instanceData.back();
+        if( lastInstanceData.commitCount < (_commitCount - _nVersions) &&
+            _instanceData.size() > 1 )
+        {
+            instanceData = _instanceData.back();
+            changeData   = _changeData.back();
+
+            _instanceData.pop_back();
+            _changeData.pop_back();
+        }
+    }
+
     if( !delta )
         return _version;
 
     ++_version;
+    EQASSERT( _version );
+    
+    // auto-obsoletion based on # of versions
+    if( !_countCommits )
+    {
+        while( _instanceData.size() > _nVersions )
+        {
+            EQASSERT( !_instanceData.empty( ));
+            instanceData = _instanceData.back();
+            _instanceData.pop_back();
 
-    EQASSERT( _version != 0 );
+            if( _nVersions > 0 )
+            {
+                EQASSERT( !_changeData.empty( ));
+                changeData   = _changeData.back();
+                _changeData.pop_back();
+            }
+        }
+    }
 
+    // save delta and instance data
+    if( _nVersions > 0 )
+    {
+        if( deltaSize > changeData.maxSize )
+        {
+            if( changeData.data )
+                free( changeData.data );
+            
+            changeData.data    = malloc( deltaSize );
+            changeData.maxSize = deltaSize;
+        }
+        memcpy( changeData.data, delta, deltaSize );
+        changeData.size        = deltaSize;
+        changeData.commitCount = _commitCount;
+        _changeData.push_front( changeData );
+    }
+
+    const void* ptr = getInstanceData( &instanceData.size );
+    if( instanceData.size > instanceData.maxSize )
+    {
+        if( instanceData.data )
+            free( instanceData.data );
+        instanceData.data    = malloc( instanceData.size );
+        instanceData.maxSize = instanceData.size;
+    }
+    memcpy( instanceData.data, ptr, instanceData.size );
+    instanceData.commitCount = _commitCount;
+    _instanceData.push_front( instanceData );
+
+    // send delta to subscribed slaves
     vector< eqBase::RefPtr<Node> >& slaves = getSlaves();
     ObjectSyncPacket       packet( _session->getID(), getID( ));
 

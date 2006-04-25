@@ -49,6 +49,15 @@ namespace eqNet
             TYPE_VERSIONED_CUSTOM               // user versioned objects
         };
 
+        /**
+         * Flags for auto obsoletion.
+         */
+        enum ObsoleteFlags
+        {
+            AUTO_OBSOLETE_COUNT_VERSIONS = 0,
+            AUTO_OBSOLETE_COUNT_COMMIT   = 1
+        };
+
         enum InstState
         {
             INST_UNKNOWN = 0,
@@ -98,6 +107,13 @@ namespace eqNet
          * @param data the data.
          */
         virtual void releaseInstanceData( const void* data ){}
+
+        /** 
+         * Instanciates this object on a remote node.
+         * 
+         * @param node the remote node.
+         */
+        void instanciateOnNode( Node* node );
         //*}
 
         /**
@@ -118,6 +134,8 @@ namespace eqNet
         /** 
          * Explicitily obsoletes all versions including version.
          * 
+         * The head version can not be obsoleted.
+         * 
          * @param version the version to obsolete
          */
         void obsolete( const uint32_t version );
@@ -130,9 +148,11 @@ namespace eqNet
          * AUTO_OBSOLETE_COUNT_VERSIONS: count 'full' versions are retained.
          * AUTO_OBSOLETE_COUNT_COMMIT: The versions for the last count commits
          *   are retained. Note that the number of versions may be less since
-         *   commit may not generate a new version.
+         *   commit may not generate a new version. This flags takes precedence
+         *   over AUTO_OBSOLETE_COUNT_VERSIONS.
          * 
-         * @param count the number of versions to retain.
+         * @param count the number of versions to retain, excluding the head
+         *              version.
          * @param flags additional flags for the auto-obsoletion mechanism
          */
         void setAutoObsolete( const uint32_t count, const uint32_t flags );
@@ -225,7 +245,7 @@ namespace eqNet
         friend class Session;
         Session*     _session;
 
-        /** The unique instance identifier. */
+        /** The unique object instance identifier. */
         uint32_t     _id;
 
         /** Master (writable) instance if <code>true</code>. */
@@ -234,12 +254,36 @@ namespace eqNet
         /** The list of subsribed slaves, kept on the master only. */
         std::vector< eqBase::RefPtr<Node> > _slaves;
 
-        /** The type identifier of the object. */
+        /** The type identifier of the object class. */
         uint32_t _typeID;
 
         /** The current version. */
         uint32_t _version;
 
+        /** The number of commits, needed for auto-obsoletion. */
+        uint32_t _commitCount;
+
+        /** The number of old versions to retain. */
+        uint32_t _nVersions;
+
+        /** True when using the number of commits for auto-obsoletion. */
+        bool _countCommits;
+
+        struct ChangeData
+        {
+            void*    data;
+            uint64_t size;
+            uint64_t maxSize;
+
+            uint32_t commitCount;
+        };
+        
+        /** The list of full instance datas, head version first. */
+        std::list<ChangeData> _instanceData;
+
+        /** The list of change datas, (head-1):head change first. */
+        std::list<ChangeData> _changeData;
+        
         /** The slave queue for changes. */
         RequestQueue _syncQueue;
 

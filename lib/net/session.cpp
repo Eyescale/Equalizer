@@ -184,15 +184,7 @@ void Session::registerObject( Object* object, Node* master )
         return;
 
     object->_master = false;
-
-    SessionInstanciateObjectPacket packet( _id );
-    packet.objectID   = id;
-    packet.isMaster   = true;
-    packet.objectType = object->_typeID;
-                                                
-    const void* data = object->getInstanceData( &packet.objectDataSize );
-    master->send( packet, data, packet.objectDataSize );
-    object->releaseInstanceData( data );
+    object->instanciateOnNode( master );
 }
 
 void Session::deregisterObject( Object* object )
@@ -522,17 +514,8 @@ CommandResult Session::_cmdInitObject( Node* node, const Packet* pkg )
 
     EQASSERT( object->_master );
 
-    object->addSlave( node );
+    object->instanciateOnNode( node );
 
-    SessionInstanciateObjectPacket reply( _id );
-    reply.objectID       = id;
-    reply.objectType     = object->_typeID;
-    reply.objectDataSize = 0;
-
-    const void* data = object->getInstanceData( &reply.objectDataSize );
-    node->send( reply, data, reply.objectDataSize );
-
-    object->releaseInstanceData( data );
     return COMMAND_HANDLED;
 }
 
