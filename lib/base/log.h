@@ -43,7 +43,7 @@ namespace eqBase
         void exdent() { --_indent; }
 
         void disableFlush() { ++_noFlush; } // use counted variable to allow
-        void enableFlush()                //   nested enable/disable calls
+        void enableFlush()                  //   nested enable/disable calls
             { 
                 assert( _noFlush && "Too many enableFlush on log stream" );
                 --_noFlush;

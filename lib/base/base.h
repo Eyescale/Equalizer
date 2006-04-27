@@ -49,7 +49,7 @@ typedef int socklen_t;
         EQ_DUMP_CORE; ::abort();                                        \
     }
 #  define EQUNIMPLEMENTED                                               \
-    { EQERROR << "Unimplemented code" << std::endl; EQ_DUMP_CORE; ::abort(); }
+    { EQERROR << "Unimplemented code" << std::endl; ::abort(); EQ_DUMP_CORE; }
 
 #endif
 
@@ -62,8 +62,12 @@ typedef int socklen_t;
             _threadID = pthread_self();                                 \
             EQINFO << "Functions locked to this thread" << std::endl;   \
         }                                                               \
-        EQASSERTINFO( pthread_equal( _threadID, pthread_self( )),       \
-                      "Non-threadsave code called from two threads" ); \
+        if( !pthread_equal( _threadID, pthread_self( )))                \
+        {                                                               \
+            EQERROR << "Threadsafety check failed on object of class "  \
+                    << typeid(*this).name() << endl;                    \
+            EQASSERTINFO( 0, "Non-threadsave code called from two threads" ); \
+        }                                                               \
     }
 #else
 #  define CHECK_THREAD

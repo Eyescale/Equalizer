@@ -227,7 +227,7 @@ namespace eqNet
                 : SessionPacket( request->sessionID )
             {
                 command   = CMD_SESSION_GET_ID_MASTER_REPLY;
-                size      = sizeof( SessionGetIDMasterPacket );
+                size      = sizeof( SessionGetIDMasterReplyPacket );
                 requestID = request->requestID;
             }
 
@@ -453,6 +453,19 @@ namespace eqNet
     {
         os << (SessionPacket*)packet << " id " << packet->objectID
            << " master " << packet->masterID;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                   const SessionGetIDMasterPacket* packet )
+    {
+        os << (SessionPacket*)packet << " id " << packet->id;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                   const SessionGetIDMasterReplyPacket* packet )
+    {
+        os << (SessionPacket*)packet << " IDs " << packet->start << "-" 
+           << packet->end << " master " << packet->masterID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
