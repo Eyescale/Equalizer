@@ -1,6 +1,7 @@
 
 #include <eq/base/lock.h>
 #include <eq/base/thread.h>
+#include <eq/client/nodeFactory.h>
 #include <iostream>
 
 using namespace eqBase;
@@ -10,6 +11,8 @@ using namespace std;
 
 volatile size_t nThreads;
 Lock*           lock;
+
+eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
 
 class Test : public Thread
 {

@@ -4,6 +4,7 @@
 
 #include <test.h>
 
+#include <eq/client/nodeFactory.h>
 #include <eq/net/barrier.h>
 #include <eq/net/connection.h>
 #include <eq/net/init.h>
@@ -15,6 +16,8 @@
 using namespace eqBase;
 using namespace eqNet;
 using namespace std;
+
+eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
 
 uint32_t barrierID = EQ_INVALID_ID;
 

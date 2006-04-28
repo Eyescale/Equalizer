@@ -1,5 +1,6 @@
 
 #include <eq/base/thread.h>
+#include <eq/client/nodeFactory.h>
 #include <iostream>
 
 using namespace eqBase;
@@ -8,7 +9,9 @@ using namespace std;
 #define MAXTHREADS 256
 
 volatile size_t nThreads;
-Thread*           thread;
+Thread*         thread;
+
+eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
 
 class TestThread : public Thread
 {

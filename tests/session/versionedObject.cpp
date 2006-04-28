@@ -4,6 +4,7 @@
 
 #include <test.h>
 
+#include <eq/client/nodeFactory.h>
 #include <eq/net/connection.h>
 #include <eq/net/init.h>
 #include <eq/net/pipeConnection.h>
@@ -14,6 +15,8 @@
 
 using namespace eqBase;
 using namespace std;
+
+eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
 
 class TestObject : public eqNet::Object
 {

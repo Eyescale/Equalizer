@@ -3,11 +3,14 @@
 
 #include <eq/base/clock.h>
 #include <eq/base/timedLock.h>
+#include <eq/client/nodeFactory.h>
 
 #include <iostream>
 
 using namespace eqBase;
 using namespace std;
+
+eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
 
 int main( int argc, char **argv )
 {
