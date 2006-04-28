@@ -1,0 +1,65 @@
+
+                               Quickstart
+
+ This directory is the top-level directory for the Equalizer sources.
+ Executing 'make' should build all targets if the platform is supported.
+ If something goes wrong, the best place is to look into make/`uname`.mk
+
+                            Directory Layout
+                            
+ make/      files for the build environment.
+ extras/    third-party source code used by Equalizer
+ lib/       the sources of the client library, i.e. libeq
+ lib/base/    basic source code: utilities, OS abstraction, etc.
+ lib/net/     the sources for the networking P2P layer
+ lib/client/  the client-side implementation of Equalizer
+ server/    the server source code
+ examples/  Equalizer example programs
+ proto/     quick prototypes written during development
+ tests/     small programs testing certain functionality (to-be-unit-tests)
+ 
+                           Running Equalizer
+
+ Right now there is only one example. To run it, first start a server:
+ './server/eqs.<VARIANT>'. Once the server is running, start the example:
+ './examples/flip/flip.<VARIANT>'. 
+
+
+                           Build Environment
+
+ The build environment is build using GNU make. The directy make/
+ contains the following files:
+ 
+   system.mk: Generic Makefile included first by each Makefile. Sets
+     common variables, e.q. $(TOP) to find the make/ directory. This
+     file includes `uname`.mk early on.
+
+   `uname`.mk: The system-specific Makefile, e.g. Linux.mk. This file
+     customizes system-specific settings.
+
+   rules.mk: The build rules to be used by the Makefiles. Typically
+     included last in each Makefile.
+
+
+  The build environment uses the following targets and variables:
+
+    TARGETS  Variable to be set by the Makefile to define the targets.
+             The following targets are defined:
+
+      subdirs        Traverses into all SUBDIRS
+      $(HEADERS)     All header file targets derived from HEADER_SRC
+      $(DYNAMIC_LIB) A dynamic library for all VARIANTS build from all SOURCES.
+      $(STATIC_LIB)  A static library for all VARIANTS build from all SOURCES.
+      $(PROGRAMS)    Executables for PROGRAM on all VARIANTS.
+        
+   SUBDIRS     Variable listing all sub directories to traverse into when
+               executing rule subdirs
+   VARIANTS    All variants to build on a specific ARCHitecture. 
+               Defaults to SUBARCH
+   VARIANT     The variant from VARIANTS currently in build.
+   ARCH        The current architecture, i.e., `uname`
+   SUBARCH     The current sub-architecure, i.e., `uname -m`
+   SOURCES     The source files for a library or executable
+   HEADER_SRC  The source header files, i.e. headers to be packaged and
+               installed.
+   PROGRAM     The name of the stand-alone executable to be build.
