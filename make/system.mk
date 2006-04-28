@@ -10,11 +10,13 @@ DEPTH     := $(subst ../,--,$(TOP))
 DEPTH     := $(subst .,-->,$(DEPTH))
 
 # os-specific settings
-ARCH = $(shell uname)
+ARCH    = $(shell uname)
+SUBARCH = $(shell uname -m)
+
 include $(TOP)/make/$(ARCH).mk
 
 # general variables, targets, etc.
-VARIANTS       ?= $(shell uname -m)
+VARIANTS       ?= $(SUBARCH)
 BUILD_DIR       = $(TOP)/build/$(ARCH)
 EXTRAS_DIR      = $(TOP)/extras
 LIBRARY_DIR     = $(BUILD_DIR)/$(VARIANT)/lib
