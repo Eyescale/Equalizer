@@ -40,14 +40,17 @@ bool Server::open( const OpenParams& params )
     RefPtr<eqNet::ConnectionDescription> connDesc = 
         new eqNet::ConnectionDescription;
 
-    const size_t colonPos = params.address.rfind( ':' );
+    const char* envServer = getenv( "EQ_SERVER" );
+    const string address  = params.address.size() > 0 ? params.address :
+                            envServer ? envServer : "localhost";
+    const size_t colonPos = address.rfind( ':' );
 
     if( colonPos == string::npos )
-        connDesc->hostname = params.address;
+        connDesc->hostname = address;
     else
     {
-        connDesc->hostname   = params.address.substr( 0, colonPos );
-        string port          = params.address.substr( colonPos+1 );
+        connDesc->hostname   = address.substr( 0, colonPos );
+        string port          = address.substr( colonPos+1 );
         connDesc->TCPIP.port = atoi( port.c_str( ));
     }
 

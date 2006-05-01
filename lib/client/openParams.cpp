@@ -4,13 +4,14 @@
 
 #include "openParams.h"
 
+#include <eq/client/global.h>
 #include <eq/net/global.h>
 
 using namespace eq;
 using namespace std;
 
 OpenParams::OpenParams()
-        : address( "localhost:4242" )
+        : address( Global::getServer( ))
 {
     appName      = eqNet::Global::getProgramName();
 }

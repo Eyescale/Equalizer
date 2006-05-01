@@ -220,7 +220,11 @@ NodeConnectPacket* Node::_readConnectReply( eqBase::RefPtr<Connection>
     // receive and verify connect packet from peer
     uint64_t size;
     bool gotData = connection->recv( &size, sizeof( size ));
-    EQASSERT( gotData ); EQASSERT( size );
+    if( !gotData || size == 0 )
+    {
+        EQERROR << "Failed to read data from connection" << endl;
+        return NULL;
+    }
 
     NodeConnectPacket* reply = (NodeConnectPacket*)malloc( size );
     reply->size  = size;

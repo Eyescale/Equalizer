@@ -15,28 +15,39 @@ using namespace eq;
 using namespace eqBase;
 using namespace std;
 
-static bool isRenderNode( int argc, char** argv )
-{
-    for( int i=1; i<argc; i++ )
-        if( strcmp( argv[i], "--eq-client" ) == 0 )
-            return true;
-    return false;
-}
-
 bool eq::init( int argc, char** argv )
 {
-    eqNet::Node* node;
+    eqNet::Node* node = NULL;
 
-    if( isRenderNode( argc, argv ))
+    // We do not use getopt_long because it really does not work due to the
+    // following aspects:
+    // - reordering of arguments
+    // - different behaviour of GNU and BSD implementations
+    // - incomplete man pages
+
+    for( int i=1; i<argc; ++i )
     {
-        node = Global::getNodeFactory()->createNode();
-        EQINFO << "Init libeq for render node" << endl;
+        if( strcmp( "--eq-server", argv[i] ) == 0 )
+        {
+            ++i;
+            if( i<argc )
+                Global::setServer( argv[i] );
+        }
+        else if( strcmp( "--eq-client", argv[i] ) == 0 )
+        {
+            ++i;
+            if( i<argc )
+                node = Global::getNodeFactory()->createNode();
+        }
     }
-    else
+    
+    if( !node )
     {
         node = new Client;
         EQINFO << "Init libeq for client" << endl;
     }
+    else
+        EQINFO << "Init libeq for render node" << endl;
 
     Node::setLocalNode( node );
 

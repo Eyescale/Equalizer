@@ -6,5 +6,7 @@
 #include "nodeFactory.h"
 
 using namespace eq;
+using namespace std;
 
 NodeFactory* Global::_nodeFactory = createNodeFactory();
+string       Global::_server;

@@ -45,7 +45,6 @@ int main( int argc, char** argv )
     int           index;
     struct option options[] = 
         {
-            { "server",         required_argument, NULL, 's' },
             { "model",          required_argument, NULL, 'm' },
             { NULL,             0,                 NULL,  0 }
         };
@@ -54,10 +53,6 @@ int main( int argc, char** argv )
     {
         switch( result )
         {
-            case 's':
-                openParams.address = optarg;
-                break;
-
             case 'm':
                 initData.setFilename( optarg );
                 break;

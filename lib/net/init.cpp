@@ -7,7 +7,6 @@
 #include "global.h"
 #include "node.h"
 
-#include <getopt.h>
 #include <unistd.h>
 
 using namespace eqNet;
@@ -43,58 +42,42 @@ bool eqNet::init( int argc, char** argv )
     return true;
 }
 
-#ifdef __GLIBC__
-#  define RESET_GETOPT { optind = 0; }
-#else
-#  define RESET_GETOPT { optind = 1; }
-#endif
-
 bool initLocalNode( int argc, char** argv )
 {
-    EQINFO << disableHeader << "args: ";
+    EQINFO << "args: ";
     for( int i=0; i<argc; i++ )
          EQINFO << argv[i] << ", ";
-    EQINFO << endl << enableHeader;
+    EQINFO << endl;
 
-    struct option options[] = 
-        {
-            { "eq-listen",      optional_argument, NULL, 'l' },
-            { "eq-client",      required_argument, NULL, 'c' },
-            { NULL,             0,                 NULL,  0 }
-        };
-
+    // We do not use getopt_long because it really does not work due to the
+    // following aspects:
+    // - reordering of arguments
+    // - different behaviour of GNU and BSD implementations
+    // - incomplete man pages
     bool   listen   = false;
     bool   isClient = false;
     string listenOpts;
     string clientOpts;
-    int    result;
-    int    index;
 
-    RESET_GETOPT; // in case options have been parsed by application
-    while( (result = getopt_long( argc, argv, "", options, &index )) != -1 )
+    for( int i=1; i<argc; ++i )
     {
-        switch( result )
+        if( strcmp( "--eq-listen", argv[i] ) == 0 )
         {
-            case 'l':
-                listen     = true;
-                if( optarg )
-                    listenOpts = optarg;
-                break;
-
-            case 'c':
+            listen = true;
+            ++i;
+            if( i<argc && argv[i][0] != '-' )
+                listenOpts = optarg;
+        }
+        else if( strcmp( "--eq-client", argv[i] ) == 0 )
+        {
+            ++i;
+            if( i<argc && argv[i][0] != '-' )
+            {
                 isClient   = true;
-                clientOpts = optarg;
-                break;
-
-            default:
-                if( index >=0 && index < argc )
-                    EQINFO << "unhandled option: " << options[index].name<<endl;
-                else
-                    EQINFO << "unhandled option, index " << index << endl; 
-                break;
+                clientOpts = argv[i];
+            }
         }
     }
-    RESET_GETOPT; // enable (re-)parsing for application
 
     if( listen )
     {
