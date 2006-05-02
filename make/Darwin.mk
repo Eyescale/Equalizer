@@ -1,4 +1,10 @@
 
+ifeq ($(findstring i386, $(SUBARCH)),i386)
+  VARIANTS = ppc i386
+else
+  VARIANTS = ppc
+endif
+
 CXXFLAGS += #-DEQLOADER
 
 ifdef VARIANT
