@@ -17,8 +17,9 @@ namespace eqNet
     enum CommandResult
     {
         COMMAND_HANDLED,     //*< The command was handled
-        COMMAND_ERROR,       //*< An unrecoverable error occured
-        COMMAND_RESCHEDULE   //*< Reschedule command to be handled later
+        COMMAND_PROPAGATE,   //*< Propagate the command to next instance
+        COMMAND_RESCHEDULE,  //*< Reschedule command to be handled later
+        COMMAND_ERROR        //*< An unrecoverable error occured
     };
 
     /** The base class for all networked objects. */

@@ -155,9 +155,11 @@ namespace eqNet
          * objects need to have at least one committed version.
          *
          * @param id the object's identifier.
+         * @param scope the object's instanciation scope.
          * @return the object, or <code>NULL</code> if the object is not known.
          */
-        Object* getObject( const uint32_t id );
+        Object* getObject( const uint32_t id,
+                        const Object::SharePolicy policy = Object::SHARE_NODE );
 
         /** 
          * Deregisters a distributed object.
@@ -228,11 +230,24 @@ namespace eqNet
         /** The id->master mapping table. */
         std::vector<IDMasterInfo> _idMasterInfos;
         
-        /** The registered object, indexed by identifier. */
-        IDHash<Object*> _registeredObjects;
+        /** All SCOPE_THREAD objects, indexed by identifier. */
+        eqBase::PerThread< IDHash<Object*>* > _threadObjects;
+        /** All SCOPE_NODE objects, indexed by identifier. */
+        IDHash<Object*> _nodeObjects;
+        /** All registered objects, including thread and node shared objects. */
+        IDHash< std::vector<Object*> > _registeredObjects;
 
         /** The current state of pending object instanciations. */
-        IDHash<Object::InstState> _objectInstStates;
+        struct GetObjectState
+        {
+            GetObjectState() : instState(Object::INST_UNKNOWN), object(NULL) {}
+
+            Object::SharePolicy policy;
+            uint32_t            objectID;
+            Object::InstState   instState;
+            Object*             object;
+        };
+        IDHash<GetObjectState*> _objectInstStates;
 
         eqBase::RefPtr<Node> _pollIDMaster( const uint32_t id );
 
@@ -240,9 +255,9 @@ namespace eqNet
         void _addRegisteredObject( const uint32_t id, Object* object );
     private:
         CommandResult _handleObjectCommand( Node* node, const Packet* packet );
-        CommandResult   _instObject( const uint32_t id );
-        void              _sendInitObject( const uint32_t objectID, 
-                                            eqBase::RefPtr<Node> master );
+        CommandResult   _instObject( GetObjectState* state );
+        void              _sendInitObject( GetObjectState* state, 
+                                           eqBase::RefPtr<Node> master );
 
         /** The command handler functions. */
         CommandResult _cmdGenIDs( Node* node, const Packet* packet );

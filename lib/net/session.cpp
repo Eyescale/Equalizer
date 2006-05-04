@@ -150,15 +150,15 @@ RefPtr<Node> Session::getIDMaster( const uint32_t id )
 //---------------------------------------------------------------------------
 void Session::_addRegisteredObject( const uint32_t id, Object* object )
 {
-    EQASSERT( !_registeredObjects[id] );
+    vector<Object*>& objects = _registeredObjects[id];
     EQASSERT( object->_id == EQ_INVALID_ID );
 
-    object->_id            = id;
-    object->_session       = this;
-    _registeredObjects[id] = object;
+    object->_id      = id;
+    object->_session = this;
+    objects.push_back( object );
 
     EQVERB << "registered object " << (void*)object << " id " << id
-         << " session id " << _id << endl;
+           << " session id " << _id << endl;
 }
 
 // XXX use RefPtr for object
@@ -189,29 +189,86 @@ void Session::registerObject( Object* object, Node* master )
 
 void Session::deregisterObject( Object* object )
 {
-    const uint32_t id = object->getID();
-    if( _registeredObjects.erase(id) == 0 )
-        return;
+    const uint32_t            id      = object->getID();
+    vector<Object*>&          objects = _registeredObjects[id];
+    vector<Object*>::iterator iter    = find( objects.begin(), objects.end(),
+                                              object );
     
+    if( iter == objects.end( ))
+        return;
+
+    objects.erase( iter );
+
+    // Remove from node/thread shared hash
+    _nodeObjects.erase( id );
+    if( _threadObjects.get( ))
+        _threadObjects->erase( id );
+
     // TODO: unsetIDMaster( object->_id );
     object->_id      = EQ_INVALID_ID;
     object->_session = NULL;
     freeIDs( id, 1 );
 }
 
-Object* Session::getObject( const uint32_t id )
+Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy)
 {
-    Object* object = _registeredObjects[id];
-    if( object )
-        return object;
+    switch( policy )
+    {
+        case Object::SHARE_NODE:
+        {
+            Object* object = _nodeObjects[id];
+            if( object )
+                return object;
+            break;
+        }
+        case Object::SHARE_THREAD:
+        {
+            if( _threadObjects.get() == NULL )
+                break;
+            
+            Object* object = (*_threadObjects.get())[id];
+            if( object )
+                return object;
+            break;
+        }
+            
+        case Object::SHARE_NEVER:
+            break;
+
+        default:
+            EQUNREACHABLE;
+    }
+
+    GetObjectState state;
+    state.policy   = policy;
+    state.objectID = id;
 
     SessionGetObjectPacket packet( _id );
-
-    packet.requestID = _requestHandler.registerRequest( this );
-    packet.objectID = id;
+    packet.requestID = _requestHandler.registerRequest( &state );
 
     _localNode->send( packet );
-    return (Object*)_requestHandler.waitRequest( packet.requestID );
+    const void* result = _requestHandler.waitRequest( packet.requestID );
+    EQASSERT( result == NULL );
+
+    switch( policy )
+    {
+        case Object::SHARE_NODE:
+        case Object::SHARE_NEVER:
+            break;
+
+        case Object::SHARE_THREAD:
+        {
+            if( _threadObjects.get() == NULL )
+                _threadObjects = new IDHash<Object*>;
+            (*_threadObjects.get())[id] = state.object;
+            break;
+        }
+
+        default:
+            EQUNREACHABLE;
+    }
+
+    return state.object;
 }
 
 Object* Session::instanciateObject( const uint32_t type, const void* data, 
@@ -252,28 +309,56 @@ CommandResult Session::dispatchPacket( Node* node, const Packet* packet )
 CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
 {
     const ObjectPacket* objPacket = (ObjectPacket*)packet;
-    const uint32_t       id        = objPacket->objectID;
-    Object*              object    = _registeredObjects[id];
-    
-    if( !object )
-        return _instObject( id ); // instanciate object and reschedule command
+    const uint32_t      id        = objPacket->objectID;
+    vector<Object*>&    objects   = _registeredObjects[id];
+    GetObjectState*     state     = _objectInstStates[id];
 
-    return object->handleCommand( node, objPacket );
+    if( objects.empty( ))
+    {
+        if( !state )
+        {
+            state                 = new GetObjectState;
+            state->policy         = Object::SHARE_NODE;
+            state->objectID       = id;
+            _objectInstStates[id] = state;
+        }
+        return _instObject( state ); // instanciate object->reschedules command
+    }
+    
+    if( state )
+    {
+        delete state;
+        _objectInstStates.erase( id );
+    }
+
+    for( vector<Object*>::iterator iter = objects.begin(); 
+         iter != objects.end(); ++iter )
+    {
+        const CommandResult result = (*iter)->handleCommand( node, objPacket );
+        switch( result )
+        {
+            case COMMAND_PROPAGATE:
+                break;
+            default:
+                return result;
+        }
+    }
+    return COMMAND_HANDLED;
 }
 
-CommandResult Session::_instObject( const uint32_t id )
+CommandResult Session::_instObject( GetObjectState* state )
 {
-    const Object::InstState state = _objectInstStates[id];
+    const uint32_t objectID = state->objectID;
 
-    switch( state )
+    switch( state->instState )
     {
         case Object::INST_UNKNOWN:
         {
-            RefPtr<Node> master = _pollIDMaster( id );
+            RefPtr<Node> master = _pollIDMaster( objectID );
             if( master.isValid( ))
             {
                 if( master != _localNode )
-                    _sendInitObject( id, master );
+                    _sendInitObject( state, master );
                 // else hope that the object's instanciation is pending
 
                 return COMMAND_RESCHEDULE;
@@ -283,40 +368,44 @@ CommandResult Session::_instObject( const uint32_t id )
                 return COMMAND_ERROR;
 
             SessionGetObjectMasterPacket packet( _id );
-            packet.objectID = id;
+            packet.objectID = objectID;
             _server->send( packet );
-            _objectInstStates[id] = Object::INST_GETMASTERID;
+            state->instState = Object::INST_GETMASTERID;
             return COMMAND_RESCHEDULE;
         }
         
         case Object::INST_GOTMASTER:
         {
-            RefPtr<Node> master = _pollIDMaster( id );
+            RefPtr<Node> master = _pollIDMaster( objectID );
             if( !master )
             {
-                _objectInstStates[id] = Object::INST_UNKNOWN;
+                state->instState = Object::INST_UNKNOWN;
                 return COMMAND_ERROR;
             }
 
-            _sendInitObject( id, master );
+            _sendInitObject( state, master );
             return COMMAND_RESCHEDULE;
         }
             
         case Object::INST_ERROR:
-            _objectInstStates[id] = Object::INST_UNKNOWN;
             return COMMAND_ERROR;
 
-        default:
+        case Object::INST_GETMASTERID:
+        case Object::INST_GETMASTER:
+        case Object::INST_INIT:
             return COMMAND_RESCHEDULE;
+
+        default:
+            return COMMAND_ERROR;
     }
 }
 
-void Session::_sendInitObject( const uint32_t objectID, RefPtr<Node> master )
+void Session::_sendInitObject( GetObjectState* state, RefPtr<Node> master )
 {
     SessionInitObjectPacket packet( _id );
-    packet.objectID = objectID;
+    packet.objectID = state->objectID;
     master->send( packet );
-    _objectInstStates[objectID] = Object::INST_INIT;
+    state->instState = Object::INST_INIT;
 }
             
 CommandResult Session::_cmdGenIDs( Node* node, const Packet* pkg )
@@ -359,6 +448,7 @@ CommandResult Session::_cmdGetIDMaster( Node* node, const Packet* pkg )
 {
     SessionGetIDMasterPacket*     packet = (SessionGetIDMasterPacket*)pkg;
     SessionGetIDMasterReplyPacket reply( packet );
+    EQINFO << "handle get idMaster " << packet << endl;
 
     reply.start = 0;
 
@@ -385,6 +475,7 @@ CommandResult Session::_cmdGetIDMaster( Node* node, const Packet* pkg )
 CommandResult Session::_cmdGetIDMasterReply( Node* node, const Packet* pkg )
 {
     SessionGetIDMasterReplyPacket* packet = (SessionGetIDMasterReplyPacket*)pkg;
+    EQINFO << "handle get idMaster reply " << packet << endl;
 
     if( packet->start == 0 ) // not found
     {
@@ -412,6 +503,7 @@ CommandResult Session::_cmdGetObjectMaster( Node* node, const Packet* pkg )
 {
     SessionGetObjectMasterPacket* packet = (SessionGetObjectMasterPacket*)pkg;
     SessionGetObjectMasterReplyPacket reply( packet );
+    EQINFO << "Cmd get object master " << packet << endl;
 
     reply.start = 0;
 
@@ -432,6 +524,7 @@ CommandResult Session::_cmdGetObjectMaster( Node* node, const Packet* pkg )
         }
     }
 
+    EQINFO << "Get object master reply " << &reply << endl;
     node->send( reply );
     return COMMAND_HANDLED;
 }
@@ -440,60 +533,86 @@ CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
 {
     SessionGetObjectMasterReplyPacket* packet = 
         (SessionGetObjectMasterReplyPacket*)pkg;
-    EQINFO << "Cmd get object master reply: " << packet << endl;
+    EQINFO << "Cmd get object master reply " << packet << endl;
  
-    const uint32_t id = packet->objectID;
+    const uint32_t  id    = packet->objectID;
+    GetObjectState* state = _objectInstStates[id];
+    EQASSERT( state );
 
     if( packet->start == 0 ) // not found
     {
-        _objectInstStates[id] = Object::INST_ERROR;
+        state->instState = Object::INST_ERROR;
         return COMMAND_HANDLED;
     }
 
     RefPtr<Node> master = _localNode->getNode( packet->masterID );
 
-    if( !master ) // query connection description, create and connect node 
+    if( master.isValid( ))
     {
-        if( _objectInstStates[id] == Object::INST_GETMASTER )
-            return COMMAND_RESCHEDULE;
-
-        _objectInstStates[id] = Object::INST_GETMASTER;
-
-        NodeGetConnectionDescriptionPacket cdPacket;
-        cdPacket.nodeID = packet->masterID;
-        cdPacket.index  = 0;
-
-        _server->send( cdPacket );
-
-        return COMMAND_RESCHEDULE;
+        // TODO thread-safety: _idMasterInfos is also read & written by app
+        IDMasterInfo info = { packet->start, packet->end, master};
+        _idMasterInfos.push_back( info );
+        
+        state->instState = Object::INST_GOTMASTER;
+        return COMMAND_HANDLED;
     }
 
-    // TODO thread-safety: _idMasterInfos is also read & written by app
-    IDMasterInfo info = { packet->start, packet->end, master};
-    _idMasterInfos.push_back( info );
-    _objectInstStates[id] = Object::INST_GOTMASTER;
-
-    return COMMAND_HANDLED;
+    // query connection description, create and connect node 
+    if( state->instState == Object::INST_GETMASTER )
+        return COMMAND_RESCHEDULE;
+    
+    state->instState = Object::INST_GETMASTER;
+    
+    NodeGetConnectionDescriptionPacket cdPacket;
+    cdPacket.nodeID = packet->masterID;
+    cdPacket.index  = 0;
+    
+    _server->send( cdPacket );
+    
+    return COMMAND_RESCHEDULE;
 }
 
 CommandResult Session::_cmdGetObject( Node* node, const Packet* pkg )
 {
     SessionGetObjectPacket* packet = (SessionGetObjectPacket*)pkg;
-    EQASSERT( _requestHandler.getRequestData( packet->requestID ) == this );
-
     EQINFO << "Cmd get object " << packet << endl;
 
-    const uint32_t id     = packet->objectID;
-    Object*        object = _registeredObjects[id];
+    GetObjectState*         state  = (GetObjectState*)
+        _requestHandler.getRequestData( packet->requestID );
+    EQASSERT( state );
 
-    if( object )
+    const uint32_t id     = state->objectID;
+
+    if( state->object ) // successfully instanciated
     {
-        EQASSERT( dynamic_cast<Object*>(object) );
-        _requestHandler.serveRequest( packet->requestID, object );
+        _objectInstStates.erase( id );
+        _requestHandler.serveRequest( packet->requestID, NULL );
         return COMMAND_HANDLED;
     }
 
-    if( _instObject( id ) == COMMAND_ERROR )
+    if( state->policy == Object::SHARE_NODE )
+    {
+        Object* object = _nodeObjects[id];
+
+        if( object ) // per-node object instanciated already
+        {
+            state->object = object;
+            _requestHandler.serveRequest( packet->requestID, NULL );
+            return COMMAND_HANDLED;
+        }
+    }
+
+    if( !packet->pending ) // first iteration of instantiation
+    {
+        if( _objectInstStates[id] != NULL ) // instantion with same ID pending
+            return COMMAND_RESCHEDULE;
+
+        // mark pending instantion 
+        packet->pending       = true;
+        _objectInstStates[id] = state;
+    }
+
+    if( _instObject( state ) == COMMAND_ERROR )
     {
         _requestHandler.serveRequest( packet->requestID, NULL );
         return COMMAND_HANDLED;
@@ -506,17 +625,22 @@ CommandResult Session::_cmdInitObject( Node* node, const Packet* pkg )
     SessionInitObjectPacket* packet = (SessionInitObjectPacket*)pkg;
     EQINFO << "Cmd init object " << packet << endl;
 
-    const uint32_t id     = packet->objectID;
-    Object*        object = _registeredObjects[id];
+    const uint32_t   id      = packet->objectID;
+    vector<Object*>& objects = _registeredObjects[id];
 
-    if( !object ) // (hopefully) not yet instanciated
-        return COMMAND_RESCHEDULE;
+    for( vector<Object*>::iterator iter = objects.begin();
+         iter != objects.end(); ++iter )
+    {
+        Object* object = *iter;
+        if( object->getID() != id || !object->_master )
+            continue;
 
-    EQASSERT( object->_master );
+        object->instanciateOnNode( node );
+        return COMMAND_HANDLED;
+    }
 
-    object->instanciateOnNode( node );
-
-    return COMMAND_HANDLED;
+    // (hopefully) not yet instanciated -> reschedule
+    return COMMAND_RESCHEDULE;
 }
 
 CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )
@@ -525,12 +649,10 @@ CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )
         (SessionInstanciateObjectPacket*)pkg;
     EQINFO << "Cmd instanciate object " << packet << " from " << node << endl;
 
-    const uint32_t id      = packet->objectID;
-    EQASSERT( !_registeredObjects[id] );
-
-    Object* object = instanciateObject( packet->objectType,
-                                        packet->objectData, 
-                                        packet->objectDataSize );
+    const uint32_t id     = packet->objectID;
+    Object*        object = instanciateObject( packet->objectType,
+                                               packet->objectData, 
+                                               packet->objectDataSize );
     if( !object )
     {
         EQWARN << "Session failed to instanciate object of type "
@@ -542,6 +664,17 @@ CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )
     object->_master = packet->isMaster;
     if( packet->isMaster ) // Assumes that sender is a subscribed slave
         object->addSlave( node );
+
+    GetObjectState* state = _objectInstStates[id];
+    if( state )
+    {
+        state->object = object;
+        if( state->policy == Object::SHARE_NODE )
+        {
+            EQASSERT( !_nodeObjects[id] )
+                _nodeObjects[id] = object;
+        }
+    }
 
     _addRegisteredObject( id, object );
     return COMMAND_HANDLED;

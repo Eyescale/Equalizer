@@ -38,6 +38,7 @@ typedef int socklen_t;
         EQERROR << "##### Assert: " << #x << " [" << info << "] #####"    \
               << std::endl;
 #  define EQUNIMPLEMENTED { EQERROR << "Unimplemented code" << std::endl; }
+#  define EQUNREACHABLE   { EQERROR << "Unreachable code" << std::endl; }
 
 #else
 
@@ -50,6 +51,8 @@ typedef int socklen_t;
     }
 #  define EQUNIMPLEMENTED                                               \
     { EQERROR << "Unimplemented code" << std::endl; ::abort(); EQ_DUMP_CORE; }
+#  define EQUNREACHABLE                                                 \
+    { EQERROR << "Unreachable code" << std::endl; ::abort(); EQ_DUMP_CORE; }
 
 #endif
 

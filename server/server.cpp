@@ -154,16 +154,15 @@ bool Server::_loadConfig( int argc, char **argv )
     compound->setWall( wall );
     top->addChild( compound );
 
-#if 1
+#if 0
 #  if 1
     node = new eqs::Node();
     config->addNode( node );
 
     description = new eqNet::ConnectionDescription;
-//     description->launchCommand = "ssh -n eile@%h %c >& %h.log";
-//     description->hostname      = "go";
     description->launchCommand = "ssh -n %h %c >& %h.2.log";
     description->hostname      = "localhost";
+//     description->hostname      = "go";
     description->launchTimeout = 100000;
     node->addConnectionDescription( description );
 #  endif
@@ -228,6 +227,7 @@ void Server::_handleRequests()
                 abort();
 
             case eqNet::COMMAND_RESCHEDULE:
+            case eqNet::COMMAND_PROPAGATE:
                 EQUNIMPLEMENTED;
         }
     }

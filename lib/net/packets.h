@@ -273,10 +273,11 @@ namespace eqNet
             {
                 command = CMD_SESSION_GET_OBJECT;
                 size    = sizeof( SessionGetObjectPacket ); 
+                pending = false;
             }
         
         uint32_t requestID;
-        uint32_t objectID;
+        bool     pending;
     };
 
     struct SessionInitObjectPacket : public SessionPacket
@@ -466,12 +467,6 @@ namespace eqNet
     {
         os << (SessionPacket*)packet << " IDs " << packet->start << "-" 
            << packet->end << " master " << packet->masterID;
-        return os;
-    }
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const SessionGetObjectPacket* packet )
-    {
-        os << (SessionPacket*)packet << " id " << packet->objectID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

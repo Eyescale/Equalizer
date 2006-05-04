@@ -10,35 +10,42 @@
 using namespace eqNet;
 using namespace std;
 
-Barrier::Barrier( const uint32_t height )
-        : Object( TYPE_BARRIER, CMD_BARRIER_ALL ),
-          _height( height ),
-          _waitForLeave( false )
+void Barrier::_construct()
 {
-    EQASSERT( height > 1 );
-    _enterLock.set();
-    _leaveLock.set();
+    _waitForLeave  = false;
+    _masterEntered = false;
+
+    _enterNotify.set();
+    _leaveNotify.set();
 
     registerCommand( CMD_BARRIER_ENTER, this, reinterpret_cast<CommandFcn>(
                          &eqNet::Barrier::_cmdEnter ));
     registerCommand( CMD_BARRIER_ENTER_REPLY, this, 
                 reinterpret_cast<CommandFcn>(&eqNet::Barrier::_cmdEnterReply ));
+
+#ifdef CHECK_THREADSAFETY
+    _threadID = 0;
+#endif
+}
+
+Barrier::Barrier( const uint32_t height )
+        : Object( TYPE_BARRIER, CMD_BARRIER_ALL ),
+          _height( height )
+{
+    EQASSERT( height > 1 );
+    _construct();
+
     EQINFO << "New barrier of height " << _height << endl;
 }
 
 Barrier::Barrier( const void* instanceData )
         : Object( TYPE_BARRIER, CMD_BARRIER_ALL ),
-          _waitForLeave( false )
+          _height( *(uint32_t*)instanceData )
+ 
 {
-    _height = *(uint32_t*)instanceData;
     EQASSERT( _height > 1 );
-    _enterLock.set();
-    _leaveLock.set();
+    _construct();
 
-    registerCommand( CMD_BARRIER_ENTER, this, reinterpret_cast<CommandFcn>(
-                         &eqNet::Barrier::_cmdEnter ));
-    registerCommand( CMD_BARRIER_ENTER_REPLY, this, 
-                reinterpret_cast<CommandFcn>(&eqNet::Barrier::_cmdEnterReply ));
     EQINFO << "Barrier of height " << _height << " instanciated" << endl;
 }
 
@@ -51,51 +58,73 @@ const void* Barrier::getInstanceData( uint64_t* size )
 
 void Barrier::enter()
 {
+    EQINFO << "enter barrier" << endl;
     EQASSERT( getSession( ));
 
     if( isMaster( ))
     {
-        _enterLock.set();
-        EQASSERT( _slaves.size() == _height-1 );
+        _mutex.set();
+        const bool masterEntered = _masterEntered;
+        if( !_masterEntered )
+            _masterEntered = true;
+        _mutex.unset();
 
-        BarrierEnterReplyPacket packet( getSession()->getID(), getID( ));
-        for( uint32_t i=0; i<_height-1; ++i )
-            _slaves[i]->send( packet );
+        if( !masterEntered )
+        {
+            EQINFO << "master entry" << endl;
+            _enterNotify.set();
+            _mutex.set();
+            _masterEntered = false;
 
-        _slaves.clear();
-        _leaveLock.unset();
-        return;
+            EQASSERT( _slaves.size() == _height-1 );
+
+            BarrierEnterReplyPacket packet( getSession()->getID(), getID( ));
+            for( uint32_t i=0; i<_height-1; ++i )
+                _slaves[i]->send( packet );
+            
+            _slaves.clear();
+            _leaveNotify.unset();
+            _mutex.unset();
+            EQINFO << "master left" << endl;
+            return;
+        }
+        EQINFO << "secondary master entry" << endl;
     }
+    else
+        EQINFO << "slave entry" << endl;
 
+    // slave or secondary enter on master instance
     eqBase::RefPtr<Node> master = getSession()->getIDMaster( getID( ));
     EQASSERT( master.isValid( ));
 
     BarrierEnterPacket packet( getSession()->getID(), getID( ));
     
     master->send( packet );
-    _enterLock.set();
+    _enterNotify.set();
+    EQINFO << "slave left" << endl;
 }
 
 CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
 {
+    CHECK_THREAD;
     EQASSERT( isMaster( ));
 
     if( _waitForLeave )
     {
         _waitForLeave = false;
-         // blocks until unlocks have been send to ensure thread-safety for the
+         // blocks until leaves have been send to ensure thread-safety for the
          // _slaves vector. Otherwise we might re-enter before everybody is
          // unlocked.
          // Not perfect performance-wise, since receiver thread is
-         // blocked. Sending the leave packets should not take long, though.
-        _leaveLock.set();
+         // blocked until the leave packets have been sent.
+        _leaveNotify.set();
     }
 
     _slaves.push_back( node );
 
     if( _slaves.size() == _height-1 )
     {
-        _enterLock.unset();
+        _enterNotify.unset();
         _waitForLeave = true; // sync before next enter
     }
 
@@ -104,7 +133,7 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
 
 CommandResult Barrier::_cmdEnterReply( Node* node, const Packet* pkg )
 {
-    EQASSERT( !isMaster( ));
-    _enterLock.unset();
+    CHECK_THREAD;
+    _enterNotify.unset();
     return COMMAND_HANDLED;
 }

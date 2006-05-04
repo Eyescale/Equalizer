@@ -59,19 +59,31 @@ namespace eqNet
         /** The height of the barrier, only set on the master. */
         uint32_t _height;
 
+        /** A flag if the master instance has entered already. */
+        bool               _masterEntered;
         /** Slave nodes which have entered the barrier. */
         std::vector<Node*> _slaves; // XXX refptr?!
         
         /** The main lock used for barrier synchronization. */
-        eqBase::Lock _enterLock;
+        eqBase::Lock _enterNotify;
         /** The lock used for thread-safety synchronization of _slaves. */
-        eqBase::Lock _leaveLock;
+        eqBase::Lock _leaveNotify;
         /** Flag for the master to enter leave synchronization. */
         bool         _waitForLeave;
+
+        /** Mutex protecting concurrent access to some data. */
+        eqBase::Lock _mutex;
+
+        /** Common constructor function. */
+        void _construct();
 
         /* The command handlers. */
         CommandResult _cmdEnter( Node* node, const Packet* pkg );
         CommandResult _cmdEnterReply( Node* node, const Packet* pkg );
+
+#ifdef CHECK_THREADSAFETY
+        pthread_t _threadID;
+#endif
     };
 }
 

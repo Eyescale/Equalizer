@@ -85,7 +85,8 @@ uint32_t Object::commit()
     if( !isMaster( ) || _typeID < TYPE_VERSIONED )
         return 0;
 
-    if( _version == 0 ) // initial version
+    // build initial version
+    if( _version == 0 )
     {
         EQASSERT( _instanceData.empty( ));
         EQASSERT( _changeData.empty( ));
@@ -124,7 +125,7 @@ uint32_t Object::commit()
         if( lastInstanceData.commitCount < (_commitCount - _nVersions) &&
             _instanceData.size() > 1 )
         {
-            instanceData = _instanceData.back();
+            instanceData = lastInstanceData;
             changeData   = _changeData.back();
 
             _instanceData.pop_back();
@@ -150,7 +151,7 @@ uint32_t Object::commit()
             if( _nVersions > 0 )
             {
                 EQASSERT( !_changeData.empty( ));
-                changeData   = _changeData.back();
+                changeData = _changeData.back();
                 _changeData.pop_back();
             }
         }

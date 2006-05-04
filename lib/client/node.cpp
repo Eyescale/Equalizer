@@ -80,6 +80,11 @@ void Node::clientLoop()
 
         switch( dispatchPacket( node, packet ))
         {
+            case eqNet::COMMAND_PROPAGATE:
+                EQWARN << "COMMAND_PROPAGATE returned, but nowhere to propagate"
+                       << endl;
+                break;
+
             case eqNet::COMMAND_HANDLED:
                 break;
 

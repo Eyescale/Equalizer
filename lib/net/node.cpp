@@ -553,6 +553,10 @@ void Node::_redispatchPackets()
         
         switch( dispatchPacket( request->node, request->packet ))
         {
+            case COMMAND_PROPAGATE:
+                EQWARN << "COMMAND_PROPAGATE returned, but nowhere to propagate"
+                       << endl;
+                // no break;
             case COMMAND_HANDLED:
             {
                 list<Request*>::iterator handledIter = iter;
@@ -805,6 +809,7 @@ CommandResult Node::_cmdGetConnectionDescriptionReply( Node* fromNode,
         return COMMAND_HANDLED;
     }
 
+    // Connection failed, try next connection description
     if( packet->nextIndex == 0 )
         return COMMAND_ERROR;
 

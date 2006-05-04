@@ -50,6 +50,19 @@ namespace eqNet
         };
 
         /**
+         * The share policy defines the scope of the object during
+         * instanciation.
+         *
+         * @sa Session::getObject()
+         */
+        enum SharePolicy
+        {
+            SHARE_NODE = 1, //*< All threads on the a node share the same object
+            SHARE_THREAD,   //*< One instance per thread
+            SHARE_NEVER     //*< A new instance is created for the caller
+        };
+
+        /**
          * Flags for auto obsoletion.
          */
         enum ObsoleteFlags
