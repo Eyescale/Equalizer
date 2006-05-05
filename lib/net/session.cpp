@@ -693,10 +693,15 @@ CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )
         state->object = object;
         if( state->policy == Object::SHARE_NODE )
         {
-            EQASSERT( !_nodeObjects[id] )
-                _nodeObjects[id] = object;
+            EQASSERT( !_nodeObjects[id] );
+            _nodeObjects[id] = object;
         }
     }
+    else
+    {
+        EQASSERT( !_nodeObjects[id] );
+        _nodeObjects[id] = object;
+    }        
 
     _addRegisteredObject( id, object );
     return COMMAND_HANDLED;

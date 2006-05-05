@@ -252,11 +252,11 @@ namespace eqNet
     struct SessionGetObjectMasterReplyPacket : public SessionPacket
     {
         SessionGetObjectMasterReplyPacket( const SessionGetObjectMasterPacket*
-                                            request ) 
+                                           request ) 
                 : SessionPacket( request->sessionID )
             {
-                command   = CMD_SESSION_GET_OBJECT_MASTER_REPLY;
-                size      = sizeof( SessionGetObjectMasterReplyPacket );
+                command  = CMD_SESSION_GET_OBJECT_MASTER_REPLY;
+                size     = sizeof( SessionGetObjectMasterReplyPacket );
                 objectID = request->objectID;
             }
 
@@ -447,6 +447,12 @@ namespace eqNet
                                        const SessionGenIDsReplyPacket* packet )
     {
         os << (SessionPacket*)packet << " id start " << packet->id;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                    const SessionGetObjectMasterPacket* packet )
+    {
+        os << (SessionPacket*)packet << " id " << packet->objectID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
