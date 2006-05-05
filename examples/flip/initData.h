@@ -26,8 +26,8 @@ protected:
     const void* getInstanceData( uint64_t* size );
 
 private:
-    uint32_t                  _frameDataID;
-    eqBase::RefPtr<FrameData> _frameData;
+    uint32_t                      _frameDataID;
+    eqBase::PerThread<FrameData*> _frameData;
 
     std::string _filename; 
 

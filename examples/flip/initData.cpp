@@ -59,7 +59,7 @@ void InitData::setFrameData( FrameData* frameData )
 
 FrameData* InitData::getFrameData()
 {
-    if( _frameData.isValid( ))
+    if( _frameData.get( ))
         return _frameData.get();
     if( _frameDataID == EQ_INVALID_ID )
         return NULL;
@@ -67,7 +67,8 @@ FrameData* InitData::getFrameData()
     eqNet::Session* session = getSession();
     EQASSERT( session );
 
-    _frameData = (FrameData*)session->getObject( _frameDataID );
+    _frameData = (FrameData*)session->getObject( _frameDataID, 
+                                                 Object::SHARE_THREAD );
     return _frameData.get();
 }
 

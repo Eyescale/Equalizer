@@ -302,7 +302,7 @@ namespace eqNet
 
         /* The command handlers. */
         CommandResult _cmdSync( Node* node, const Packet* pkg )
-            { _syncQueue.push( node, pkg ); return eqNet::COMMAND_HANDLED; }
+            { _syncQueue.push( node, pkg ); return eqNet::COMMAND_PROPAGATE; }
 
         void _reqSync( Node* node, const Packet* pkg );
     };

@@ -64,8 +64,10 @@ namespace eqNet
         /** Slave nodes which have entered the barrier. */
         std::vector<Node*> _slaves; // XXX refptr?!
         
-        /** The main lock used for barrier synchronization. */
-        eqBase::Lock _enterNotify;
+        /** The lock used for synchronizing the master instance. */
+        eqBase::Lock _masterNotify;
+        /** The lock used for synchronizing the slave instances. */
+        eqBase::Lock _slaveNotify;
         /** The lock used for thread-safety synchronization of _slaves. */
         eqBase::Lock _leaveNotify;
         /** Flag for the master to enter leave synchronization. */

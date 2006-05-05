@@ -383,7 +383,8 @@ namespace eqNet
     inline std::ostream& operator << ( std::ostream& os, 
                                        const Packet* packet )
     {
-        os << "packet dt " << packet->datatype << " cmd "<< packet->command;
+        os << "packet " << (void*)packet << " dt " << packet->datatype
+           << " cmd "<< packet->command;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

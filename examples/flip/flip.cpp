@@ -92,7 +92,7 @@ int main( int argc, char** argv )
     while( nFrames-- )
     {
         // update database
-        frameData.spin += .1;
+        frameData.spin += .5;
         const uint32_t version = frameData.commit();
 
         config->beginFrame( version );

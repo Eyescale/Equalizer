@@ -15,7 +15,8 @@ void Barrier::_construct()
     _waitForLeave  = false;
     _masterEntered = false;
 
-    _enterNotify.set();
+    _masterNotify.set();
+    _slaveNotify.set();
     _leaveNotify.set();
 
     registerCommand( CMD_BARRIER_ENTER, this, reinterpret_cast<CommandFcn>(
@@ -58,7 +59,7 @@ const void* Barrier::getInstanceData( uint64_t* size )
 
 void Barrier::enter()
 {
-    EQINFO << "enter barrier" << endl;
+    EQVERB << "enter barrier" << endl;
     EQASSERT( getSession( ));
 
     if( isMaster( ))
@@ -71,8 +72,8 @@ void Barrier::enter()
 
         if( !masterEntered )
         {
-            EQINFO << "master entry" << endl;
-            _enterNotify.set();
+            EQVERB << "master entry" << endl;
+            _masterNotify.set();
             _mutex.set();
             _masterEntered = false;
 
@@ -85,13 +86,13 @@ void Barrier::enter()
             _slaves.clear();
             _leaveNotify.unset();
             _mutex.unset();
-            EQINFO << "master left" << endl;
+            EQVERB << "master left" << endl;
             return;
         }
-        EQINFO << "secondary master entry" << endl;
+        EQVERB << "secondary master entry" << endl;
     }
     else
-        EQINFO << "slave entry" << endl;
+        EQVERB << "slave entry" << endl;
 
     // slave or secondary enter on master instance
     eqBase::RefPtr<Node> master = getSession()->getIDMaster( getID( ));
@@ -100,8 +101,8 @@ void Barrier::enter()
     BarrierEnterPacket packet( getSession()->getID(), getID( ));
     
     master->send( packet );
-    _enterNotify.set();
-    EQINFO << "slave left" << endl;
+    _slaveNotify.set();
+    EQVERB << "slave left" << endl;
 }
 
 CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
@@ -124,7 +125,7 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
 
     if( _slaves.size() == _height-1 )
     {
-        _enterNotify.unset();
+        _masterNotify.unset();
         _waitForLeave = true; // sync before next enter
     }
 
@@ -134,6 +135,6 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
 CommandResult Barrier::_cmdEnterReply( Node* node, const Packet* pkg )
 {
     CHECK_THREAD( _threadID );
-    _enterNotify.unset();
+    _slaveNotify.unset();
     return COMMAND_HANDLED;
 }

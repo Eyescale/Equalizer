@@ -154,8 +154,8 @@ bool Server::_loadConfig( int argc, char **argv )
     compound->setWall( wall );
     top->addChild( compound );
 
-#if 1
-#  if 1
+#if 1 // second window?
+#  if 0 // on separate node?
     node = new eqs::Node();
     config->addNode( node );
 
