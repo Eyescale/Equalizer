@@ -50,8 +50,14 @@ endif
 
 # library variables
 LIBRARY         = $(DYNAMIC_LIB)
+ifdef VARIANT
+STATIC_LIB      = $(BUILD_DIR)/$(VARIANT)/lib/libeq$(MODULE).a
+DYNAMIC_LIB     = $(BUILD_DIR)/$(VARIANT)/lib/libeq$(MODULE).$(DSO_SUFFIX)
+else
 STATIC_LIB      = $(foreach V,$(VARIANTS),$(BUILD_DIR)/$(V)/lib/libeq$(MODULE).a)
 DYNAMIC_LIB     = $(foreach V,$(VARIANTS),$(BUILD_DIR)/$(V)/lib/libeq$(MODULE).$(DSO_SUFFIX))
+endif
+
 PROGRAMS        = $(foreach V,$(VARIANTS),$(PROGRAM).$(V))
 
 SIMPLE_PROGRAMS_BASE = $(CXXFILES:%.cpp=%)

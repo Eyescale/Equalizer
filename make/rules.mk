@@ -86,13 +86,15 @@ else
 endif
 
 ifndef PROGRAM
-$(SIMPLE_PROGRAMS): $(CXXFILES)
-ifndef VARIANT
-	@$(MAKE) VARIANT=$(subst .,,$(suffix $@)) TOP=$(TOP) $@
-endif
-
+ifdef VARIANT
 %.$(VARIANT) : %.cpp
 	$(CXX) $< $(CXXFLAGS) $(INT_CXXFLAGS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)/$(<D)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -o $@ 
+
+else # VARIANT
+
+$(SIMPLE_PROGRAMS): $(CXXFILES)
+	@$(MAKE) VARIANT=$(subst .,,$(suffix $@)) TOP=$(TOP) $@
+endif # VARIANT
 endif # PROGRAMS
 
 # cleaning targets

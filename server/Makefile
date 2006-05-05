@@ -27,6 +27,6 @@ endif
 
 TARGETS = $(DYNAMIC_LIB) $(SIMPLE_PROGRAMS)
 
-$(SIMPLE_PROGRAMS): $(DYNAMIC_LIB)
-
 include $(TOP)/make/rules.mk
+
+$(SIMPLE_PROGRAMS): $(DYNAMIC_LIB)
