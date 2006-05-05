@@ -44,7 +44,7 @@ IDPool::~IDPool()
 
 uint32_t IDPool::genIDs( const uint32_t range )
 {
-    CHECK_THREAD;
+    CHECK_THREAD( _threadID );
 
     const uint32_t id = _genIDs( range );
     if( id )
@@ -82,7 +82,7 @@ uint32_t IDPool::_genIDs( const uint32_t range )
 
 void IDPool::freeIDs( const uint32_t start, const uint32_t range )
 {
-    CHECK_THREAD;
+    CHECK_THREAD( _threadID );
 
     Block* block;
 

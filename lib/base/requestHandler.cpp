@@ -38,7 +38,7 @@ uint32_t RequestHandler::registerRequest( void* data )
     if( _mutex )
         _mutex->set();
     else
-        CHECK_THREAD;
+        CHECK_THREAD( _threadID );
 
     Request* request;
     if( _freeRequests.empty( ))
@@ -63,7 +63,7 @@ void RequestHandler::unregisterRequest( const uint32_t requestID )
     if( _mutex )
         _mutex->set();
     else
-        CHECK_THREAD;
+        CHECK_THREAD( _threadID );
 
     Request* request = _requests[requestID];
     if( !request )
@@ -81,7 +81,7 @@ void* RequestHandler::waitRequest( const uint32_t requestID, bool* success,
     if( _mutex )
         _mutex->set();
     else
-        CHECK_THREAD;
+        CHECK_THREAD( _threadID );
 
     Request* request = _requests[requestID];
 

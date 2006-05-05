@@ -193,7 +193,7 @@ eqNet::CommandResult Pipe::_cmdDestroyWindow( eqNet::Node* node, const eqNet::Pa
     EQINFO << "Handle destroy window " << packet << endl;
 
     Config* config = getConfig();
-    Window* window = (Window*)config->getObject( packet->windowID );
+    Window* window = (Window*)config->pollObject( packet->windowID );
     if( !window )
         return eqNet::COMMAND_HANDLED;
 

@@ -106,7 +106,7 @@ void Barrier::enter()
 
 CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
 {
-    CHECK_THREAD;
+    CHECK_THREAD( _threadID );
     EQASSERT( isMaster( ));
 
     if( _waitForLeave )
@@ -133,7 +133,7 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
 
 CommandResult Barrier::_cmdEnterReply( Node* node, const Packet* pkg )
 {
-    CHECK_THREAD;
+    CHECK_THREAD( _threadID );
     _enterNotify.unset();
     return COMMAND_HANDLED;
 }

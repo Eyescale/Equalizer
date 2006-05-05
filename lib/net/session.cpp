@@ -60,6 +60,10 @@ Session::Session( const uint32_t nCommands, const bool threadSafe )
                          &eqNet::Session::_cmdInstanciateObject ));
 
     EQINFO << "New " << this << endl;
+
+#ifdef CHECK_THREADSAFETY
+    _recvThreadID = 0;
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -212,32 +216,11 @@ void Session::deregisterObject( Object* object )
 
 Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy)
 {
-    switch( policy )
-    {
-        case Object::SHARE_NODE:
-        {
-            Object* object = _nodeObjects[id];
-            if( object )
-                return object;
-            break;
-        }
-        case Object::SHARE_THREAD:
-        {
-            if( _threadObjects.get() == NULL )
-                break;
-            
-            Object* object = (*_threadObjects.get())[id];
-            if( object )
-                return object;
-            break;
-        }
-            
-        case Object::SHARE_NEVER:
-            break;
+    CHECK_NOT_THREAD( _recvThreadID );
 
-        default:
-            EQUNREACHABLE;
-    }
+    Object* object = pollObject( id, policy );
+    if( object )
+        return object;
 
     GetObjectState state;
     state.policy   = policy;
@@ -269,6 +252,28 @@ Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy)
     }
 
     return state.object;
+}
+
+Object* Session::pollObject( const uint32_t id, 
+                             const Object::SharePolicy policy)
+{
+    switch( policy )
+    {
+        case Object::SHARE_NODE:
+            return _nodeObjects[id];
+
+        case Object::SHARE_THREAD:
+            if( _threadObjects.get() == NULL )
+                return NULL;
+            
+            return (*_threadObjects.get())[id];
+            
+        case Object::SHARE_NEVER:
+            return NULL;
+        default:
+            EQUNREACHABLE;
+    }
+    return NULL;
 }
 
 Object* Session::instanciateObject( const uint32_t type, const void* data, 
@@ -311,24 +316,35 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
     const ObjectPacket* objPacket = (ObjectPacket*)packet;
     const uint32_t      id        = objPacket->objectID;
     vector<Object*>&    objects   = _registeredObjects[id];
-    GetObjectState*     state     = _objectInstStates[id];
 
-    if( objects.empty( ))
+    if( _localNode->inReceiverThread( ))
     {
-        if( !state )
+        GetObjectState*     state     = _objectInstStates[id];
+
+        if( objects.empty( ))
         {
-            state                 = new GetObjectState;
-            state->policy         = Object::SHARE_NODE;
-            state->objectID       = id;
-            _objectInstStates[id] = state;
+            if( !state )
+            {
+                state                 = new GetObjectState;
+                state->policy         = Object::SHARE_NODE;
+                state->objectID       = id;
+                _objectInstStates[id] = state;
+            }
+            return _instObject( state );
         }
-        return _instObject( state ); // instanciate object->reschedules command
-    }
     
-    if( state )
+        if( state )
+        {
+            delete state;
+            _objectInstStates.erase( id );
+        }
+    }
+    else if( objects.empty( ))
     {
-        delete state;
-        _objectInstStates.erase( id );
+        Object* object = getObject( id, Object::SHARE_NODE );
+        if( !object )
+            return COMMAND_ERROR;
+        EQASSERT( !objects.empty( ));
     }
 
     for( vector<Object*>::iterator iter = objects.begin(); 
@@ -348,6 +364,7 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
 
 CommandResult Session::_instObject( GetObjectState* state )
 {
+    CHECK_THREAD( _recvThreadID );
     const uint32_t objectID = state->objectID;
 
     switch( state->instState )
@@ -531,6 +548,7 @@ CommandResult Session::_cmdGetObjectMaster( Node* node, const Packet* pkg )
 
 CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
 {
+    CHECK_THREAD( _recvThreadID );
     SessionGetObjectMasterReplyPacket* packet = 
         (SessionGetObjectMasterReplyPacket*)pkg;
     EQINFO << "Cmd get object master reply " << packet << endl;
@@ -574,6 +592,8 @@ CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
 
 CommandResult Session::_cmdGetObject( Node* node, const Packet* pkg )
 {
+    CHECK_THREAD( _recvThreadID );
+
     SessionGetObjectPacket* packet = (SessionGetObjectPacket*)pkg;
     EQINFO << "Cmd get object " << packet << endl;
 
@@ -645,6 +665,8 @@ CommandResult Session::_cmdInitObject( Node* node, const Packet* pkg )
 
 CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )
 {
+    CHECK_THREAD( _recvThreadID );
+
     SessionInstanciateObjectPacket* packet = 
         (SessionInstanciateObjectPacket*)pkg;
     EQINFO << "Cmd instanciate object " << packet << " from " << node << endl;

@@ -58,22 +58,39 @@ typedef int socklen_t;
 
 // thread-safety checks
 #ifdef CHECK_THREADSAFETY
-#  define CHECK_THREAD                                                  \
+#  define CHECK_THREAD( THREADID )                                      \
     {                                                                   \
-        if( _threadID==0 )                                              \
+        if( THREADID==0 )                                               \
         {                                                               \
-            _threadID = pthread_self();                                 \
-            EQINFO << "Functions locked to this thread" << std::endl;   \
+            THREADID = pthread_self();                                  \
+            EQINFO << "Functions for " << #THREADID                     \
+                   << " locked to this thread" << std::endl;            \
         }                                                               \
-        if( !pthread_equal( _threadID, pthread_self( )))                \
+        if( !pthread_equal( THREADID, pthread_self( )))                 \
         {                                                               \
-            EQERROR << "Threadsafety check failed on object of class "  \
+            EQERROR << "Threadsafety check for " << #THREADID           \
+                    << " failed on object of class "                    \
                     << typeid(*this).name() << endl;                    \
             EQASSERTINFO( 0, "Non-threadsave code called from two threads" ); \
         }                                                               \
     }
+
+#  define CHECK_NOT_THREAD( THREADID )                                  \
+    {                                                                   \
+        if( THREADID )                                                  \
+        {                                                               \
+            if( pthread_equal( THREADID, pthread_self( )))              \
+            {                                                           \
+                EQERROR << "Threadsafety check for not " << #THREADID   \
+                        << " failed on object of class "                \
+                        << typeid(*this).name() << endl;                \
+                EQASSERTINFO( 0, "Code called from wrong thread" );     \
+            }                                                           \
+        }                                                               \
+    }
 #else
-#  define CHECK_THREAD
+#  define CHECK_THREAD( THREADID )
+#  define CHECK_NOT_THREAD( THREADID )
 #endif
     
 #endif //EQBASE_BASE_H

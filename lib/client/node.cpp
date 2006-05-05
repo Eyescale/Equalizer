@@ -169,7 +169,7 @@ eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Node* node,
     NodeDestroyPipePacket* packet = (NodeDestroyPipePacket*)pkg;
     EQINFO << "Handle destroy pipe " << packet << endl;
 
-    Pipe* pipe = (Pipe*)_config->getObject( packet->pipeID );
+    Pipe* pipe = (Pipe*)_config->pollObject( packet->pipeID );
     if( !pipe )
         return eqNet::COMMAND_HANDLED;
 

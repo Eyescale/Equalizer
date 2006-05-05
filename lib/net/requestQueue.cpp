@@ -35,7 +35,7 @@ void RequestQueue::push( Node* node, const Packet* packet )
 
 void RequestQueue::pop( Node** node, Packet** packet )
 {
-    CHECK_THREAD;
+    CHECK_THREAD( _threadID );
 
     if( _lastRequest )
     {
@@ -51,7 +51,7 @@ void RequestQueue::pop( Node** node, Packet** packet )
 
 bool RequestQueue::tryPop( Node** node, Packet** packet )
 {
-    CHECK_THREAD;
+    CHECK_THREAD( _threadID );
 
     Request* request = _requests.tryPop();
     if( !request )

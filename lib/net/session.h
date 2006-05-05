@@ -139,9 +139,6 @@ namespace eqNet
          * The assigned identifier is unique across all registered objects. The
          * object gets referenced.
          *
-         * @todo The master node instance has to exist before any getObject()
-         *       causes an instanciation request.
-         * 
          * @param object the object instance.
          * @param master the master node for the object, can be
          *               <code>NULL</code> for unmanaged objects.
@@ -149,16 +146,32 @@ namespace eqNet
         void registerObject( Object* object, Node* master );
 
         /** 
-         * Access a registered object.
+         * Access a networked object.
          * 
          * The object will be instanciated locally if necessary. Versioned
-         * objects need to have at least one committed version.
+         * objects need to have at least one committed version. This function
+         * can not be called from the receiver thread, that is, from any command
+         * handling function.
+         *
+         * @param id the object's identifier.
+         * @param scope the object's instanciation scope.
+         * @return the object, or <code>NULL</code> if the object is not known
+         *         or could not be instanciated.
+         */
+        Object* getObject( const uint32_t id,
+                        const Object::SharePolicy policy = Object::SHARE_NODE );
+
+        /** 
+         * Access a registered object.
+         * 
+         * Note the objects with the share policy SHARE_NEVER are not tracked
+         * and can therefore not be accessed using pollObject().
          *
          * @param id the object's identifier.
          * @param scope the object's instanciation scope.
          * @return the object, or <code>NULL</code> if the object is not known.
          */
-        Object* getObject( const uint32_t id,
+        Object* pollObject( const uint32_t id,
                         const Object::SharePolicy policy = Object::SHARE_NODE );
 
         /** 
@@ -271,6 +284,10 @@ namespace eqNet
         CommandResult _cmdInitObject( Node* node, const Packet* packet );
         CommandResult _cmdInstanciateObject( Node* node, const Packet* packet);
         CommandResult _cmdInitObjectReply( Node* node, const Packet* packet );
+
+#ifdef CHECK_THREADSAFETY
+        pthread_t _recvThreadID;
+#endif
     };
     std::ostream& operator << ( std::ostream& os, Session* session );
 }
