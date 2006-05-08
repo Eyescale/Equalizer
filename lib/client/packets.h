@@ -39,7 +39,7 @@ namespace eq
 
         uint32_t requestID;
         uint32_t compoundModes;
-        char     rendererInfo[8];
+        char     rendererInfo[8] EQ_ALIGN8;
     };
 
     struct ServerChooseConfigReplyPacket : public ServerPacket
@@ -55,7 +55,7 @@ namespace eq
 
         uint32_t requestID;
         uint32_t configID;
-        char     sessionName[8];
+        char     sessionName[8] EQ_ALIGN8;
     };
 
     struct ServerReleaseConfigPacket : public ServerPacket
@@ -186,7 +186,7 @@ namespace eq
             }
 
         uint32_t configID;
-        char     name[8];
+        char     name[8] EQ_ALIGN8;
     };
 
     // This packet is similar to the Create packets, except that the node

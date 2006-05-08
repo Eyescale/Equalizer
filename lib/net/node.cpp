@@ -529,7 +529,7 @@ void Node::_handleRequest( Node* node )
 
     if( result == COMMAND_ERROR )
     {
-        EQERROR << "Error handling command packet " << packet << endl;
+        EQERROR << "Error handling command " << packet << endl;
         abort();
     }
 

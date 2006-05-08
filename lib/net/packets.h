@@ -13,6 +13,8 @@
 
 #include <sys/param.h>
 
+#define EQ_ALIGN8  __attribute__ ((aligned (8)))
+
 namespace eqNet
 {
     enum
@@ -68,7 +70,7 @@ namespace eqNet
 
         uint32_t requestID;
         uint32_t sessionID;
-        char     name[8];
+        char     name[8] EQ_ALIGN8;
     };
 
     struct NodeMapSessionReplyPacket : public NodePacket
@@ -83,7 +85,7 @@ namespace eqNet
             
         uint32_t requestID;
         uint32_t sessionID;
-        char     name[8];
+        char     name[8] EQ_ALIGN8;
     };
 
     struct NodeUnmapSessionPacket : public NodePacket
@@ -125,7 +127,7 @@ namespace eqNet
         bool     wasLaunched;
         uint64_t launchID;
         NodeID   nodeID;
-        char     connectionDescription[8];
+        char     connectionDescription[8] EQ_ALIGN8;
     };
 
     struct NodeGetConnectionDescriptionPacket : public NodePacket
@@ -151,7 +153,7 @@ namespace eqNet
 
         NodeID   nodeID;
         uint32_t nextIndex;
-        char     connectionDescription[8];
+        char     connectionDescription[8] EQ_ALIGN8;
     };
 
     //------------------------------------------------------------
@@ -306,7 +308,7 @@ namespace eqNet
         uint32_t objectID;
         uint32_t objectType;
         uint64_t objectDataSize;
-        char     objectData[8];
+        char     objectData[8] EQ_ALIGN8;
     };
 
     //------------------------------------------------------------
@@ -338,7 +340,7 @@ namespace eqNet
         
         uint32_t version;
         uint64_t deltaSize;
-        char     delta[8];
+        char     delta[8] EQ_ALIGN8;
     };
 
     //------------------------------------------------------------
