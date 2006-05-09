@@ -44,7 +44,13 @@ ifdef HEADER_GEN
 endif
 
 # libraries
-$(DYNAMIC_LIB): $(PCHEADERS) $(OBJECTS)
+$(FAT_DYNAMIC_LIB): $(THIN_DYNAMIC_LIBS)
+ifndef VARIANT
+	@mkdir -p $(@D)
+	lipo -create $(THIN_DYNAMIC_LIBS) -output $@
+endif
+
+$(THIN_DYNAMIC_LIBS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
 	@mkdir -p $(LIBRARY_DIR)
 	$(CXX) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) $(INT_LDFLAGS) -o $@
@@ -52,7 +58,13 @@ else
 	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).$(DSO_SUFFIX)=%) TOP=$(TOP) $@
 endif
 
-$(STATIC_LIB): $(PCHEADERS) $(OBJECTS)
+$(FAT_STATIC_LIB): $(THIN_STATIC_LIBS)
+ifndef VARIANT
+	@mkdir -p $(@D)
+	lipo -create $(THIN_STATIC_LIBS) -output $@
+endif
+
+$(THIN_STATIC_LIBS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
 	@mkdir -p $(LIBRARY_DIR)
 	@rm -f $@
@@ -78,7 +90,12 @@ $(OBJECT_DIR)/%.o : %.cpp
 
 
 # executables
-$(PROGRAMS): $(PCHEADERS) $(OBJECTS)
+$(FAT_PROGRAM): $(THIN_PROGRAMS)
+ifndef VARIANT
+	lipo -create $(THIN_PROGRAMS) -output $@
+endif
+
+$(THIN_PROGRAMS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
 	$(CXX) $(CXXFLAGS) $(SA_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 else
@@ -92,7 +109,10 @@ ifdef VARIANT
 
 else # VARIANT
 
-$(SIMPLE_PROGRAMS): $(CXXFILES)
+$(FAT_SIMPLE_PROGRAMS): $(THIN_SIMPLE_PROGRAMS)
+	lipo -create $(foreach V,$(VARIANTS),$@.$(V)) -output $@
+
+$(THIN_SIMPLE_PROGRAMS): $(CXXFILES)
 	@$(MAKE) VARIANT=$(subst .,,$(suffix $@)) TOP=$(TOP) $@
 endif # VARIANT
 endif # PROGRAMS

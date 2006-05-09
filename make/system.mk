@@ -49,19 +49,39 @@ else
 endif
 
 # library variables
-LIBRARY         = $(DYNAMIC_LIB)
+LIBRARY           = $(DYNAMIC_LIB)
+FAT_STATIC_LIB    = $(BUILD_DIR)/lib/libeq$(MODULE).a
+FAT_DYNAMIC_LIB   = $(BUILD_DIR)/lib/libeq$(MODULE).$(DSO_SUFFIX)
+
 ifdef VARIANT
-STATIC_LIB      = $(BUILD_DIR)/$(VARIANT)/lib/libeq$(MODULE).a
-DYNAMIC_LIB     = $(BUILD_DIR)/$(VARIANT)/lib/libeq$(MODULE).$(DSO_SUFFIX)
+THIN_STATIC_LIBS  = $(BUILD_DIR)/$(VARIANT)/lib/libeq$(MODULE).a
+THIN_DYNAMIC_LIBS = $(BUILD_DIR)/$(VARIANT)/lib/libeq$(MODULE).$(DSO_SUFFIX)
+
 else
-STATIC_LIB      = $(foreach V,$(VARIANTS),$(BUILD_DIR)/$(V)/lib/libeq$(MODULE).a)
-DYNAMIC_LIB     = $(foreach V,$(VARIANTS),$(BUILD_DIR)/$(V)/lib/libeq$(MODULE).$(DSO_SUFFIX))
+
+THIN_STATIC_LIBS  = $(foreach V,$(VARIANTS),$(BUILD_DIR)/$(V)/lib/libeq$(MODULE).a)
+THIN_DYNAMIC_LIBS = $(foreach V,$(VARIANTS),$(BUILD_DIR)/$(V)/lib/libeq$(MODULE).$(DSO_SUFFIX))
 endif
 
-PROGRAMS        = $(foreach V,$(VARIANTS),$(PROGRAM).$(V))
+# executable target
+THIN_PROGRAMS     = $(foreach V,$(VARIANTS),$(PROGRAM).$(V))
+FAT_PROGRAM       = $(PROGRAM)
 
-SIMPLE_PROGRAMS_BASE = $(CXXFILES:%.cpp=%)
-SIMPLE_PROGRAMS      = $(foreach V,$(VARIANTS),$(foreach P,$(SIMPLE_PROGRAMS_BASE),$(P).$(V)))
+FAT_SIMPLE_PROGRAMS  = $(CXXFILES:%.cpp=%)
+THIN_SIMPLE_PROGRAMS = $(foreach V,$(VARIANTS),$(foreach P,$(FAT_SIMPLE_PROGRAMS),$(P).$(V)))
+
+# fat/thin switch
+ifdef BUILD_FAT
+DYNAMIC_LIB       = $(FAT_DYNAMIC_LIB)
+STATIC_LIB        = $(FAT_STATIC_LIB)
+PROGRAMS          = $(PROGRAM)
+SIMPLE_PROGRAMS   = $(FAT_SIMPLE_PROGRAMS)
+else
+DYNAMIC_LIB       = $(THIN_DYNAMIC_LIBS)
+STATIC_LIB        = $(THIN_STATIC_LIBS)
+PROGRAMS          = $(THIN_PROGRAMS)
+SIMPLE_PROGRAMS   = $(THIN_SIMPLE_PROGRAMS)
+endif
 
 DEPENDENCIES   ?= $(OBJECTS:%.o=%.d)
 
