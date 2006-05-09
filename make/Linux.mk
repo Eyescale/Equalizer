@@ -1,5 +1,13 @@
 
-# The differences in compiler flags between 64 and 32 bit x86 machines
-# warrants two sub-Makefiles
+# common Linux settings
+
+DSO_LDFLAGS        += -shared -luuid
+DSO_SUFFIX          = so
+WINDOW_SYSTEM      += GLX
+WINDOW_SYSTEM_INCS += -I/usr/X11R6/include
+AR                  = ld
+ARFLAGS             = -r
+
+# SUBARCH-specific settings
 
 include $(TOP)/make/$(ARCH).$(SUBARCH).mk

@@ -24,14 +24,14 @@ EXTRAS_DIR      = $(TOP)/extras
 LIBRARY_DIR     = $(BUILD_DIR)/$(VARIANT)/lib
 
 WINDOW_SYSTEM_DEFINES = $(foreach WS,$(WINDOW_SYSTEM),-D$(WS))
-CXXFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DCHECK_THREADSAFETY
-INT_CXXFLAGS   += -I$(OBJECT_DIR) -I$(BUILD_DIR)/include -I$(EXTRAS_DIR)
+CXXFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DCHECK_THREADSAFETY \
+                  -I$(OBJECT_DIR) -I$(BUILD_DIR)/include -I$(EXTRAS_DIR)
 LDFLAGS        += -L$(LIBRARY_DIR)
 DEP_CXX        ?= $(CXX)
 DOXYGEN        ?= Doxygen
 
 # defines
-CXX_DEFINES      = $(filter -D%,$(CXXFLAGS) $(INT_CXXFLAGS))
+CXX_DEFINES      = $(sort $(filter -D%,$(CXXFLAGS)))
 CXX_DEFINES_FILE = lib/base/defines.h
 CXX_DEFINES_TXT  = $(CXX_DEFINES:-D%= %)
 
@@ -54,8 +54,8 @@ endif
 LIBRARY           = $(DYNAMIC_LIB)
 FAT_STATIC_LIB    = $(BUILD_DIR)/lib/libeq$(MODULE).a
 FAT_DYNAMIC_LIB   = $(BUILD_DIR)/lib/libeq$(MODULE).$(DSO_SUFFIX)
-INSTALL_LIBS     ?= $(wildcard $(BUILD_DIR)/lib/$(VARIANT)/*.a \
-                               $(BUILD_DIR)/lib/$(VARIANT)/*.$(DSO_SUFFIX))
+INSTALL_LIBS     ?= $(wildcard $(BUILD_DIR)/$(VARIANT)/lib/*.a \
+                               $(BUILD_DIR)/$(VARIANT)/lib/*.$(DSO_SUFFIX))
 
 ifdef VARIANT
 THIN_STATIC_LIBS  = $(BUILD_DIR)/$(VARIANT)/lib/libeq$(MODULE).a

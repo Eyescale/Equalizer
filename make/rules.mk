@@ -1,28 +1,33 @@
 
-.PHONY: subdirs $(SUBDIRS) $(DEPENDENCIES)
+.PHONY: subdirs $(SUBDIRS) $(DEPENDENCIES) install
 .SUFFIXES: .d
 
 all: $(TARGETS)
 
+ifdef BUILD_FAT
 install: all
-ifndef VARIANT
 	@mkdir -p $(INSTALL_DIR)/include
 	@cp -vr $(BUILD_DIR)/include $(INSTALL_DIR)
 
-ifdef BUILD_FAT
 	@mkdir -p $(INSTALL_LIBDIR)
-	@cp -v  $(INSTALL_LIBS) $(INSTALL_LIBDIR)
-else
+	@cp -v $(INSTALL_LIBS) $(INSTALL_LIBDIR)
+
+else # BUILD_FAT
+
+ifndef VARIANT
+install: all
+	@mkdir -p $(INSTALL_DIR)/include
+	@cp -vr $(BUILD_DIR)/include $(INSTALL_DIR)
 	@for variant in $(VARIANTS); do \
 		$(MAKE) TOP=$(TOP) VARIANT=$$variant install ;\
 	done
-endif
-
-else
-
+else  # VARIANT
+install:
 	@mkdir -p $(INSTALL_LIBDIR)
-	@cp -v  $(INSTALL_LIBS) $(INSTALL_LIBDIR)
-endif
+	@cp -v $(INSTALL_LIBS) $(INSTALL_LIBDIR)
+endif # VARIANT
+
+endif # BUILD_FAT
 
 # top level precompile command(s)
 precompile: $(CXX_DEFINES_FILE)
@@ -73,7 +78,7 @@ endif
 $(THIN_DYNAMIC_LIBS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
 	@mkdir -p $(LIBRARY_DIR)
-	$(CXX) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) $(INT_LDFLAGS) -o $@
+	$(CXX) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 else
 	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).$(DSO_SUFFIX)=%) TOP=$(TOP) $@
 endif
@@ -88,7 +93,7 @@ $(THIN_STATIC_LIBS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
 	@mkdir -p $(LIBRARY_DIR)
 	@rm -f $@
-	$(AR) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) $(INT_LDFLAGS) -o $@
+	$(AR) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 else
 	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).a=%) TOP=$(TOP) $@
 endif
@@ -97,14 +102,14 @@ OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
 
 $(OBJECT_DIR)/%.h.gch : %.h
 	@mkdir -p $(@D)
-	$(CXX) -x c++-header $(CXXFLAGS) $(INT_CXXFLAGS) -DSUBDIR=\"$(SUBDIR)/$(<D)\" -c $< -o $@
+	$(CXX) -x c++-header $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)/$(<D)\" -c $< -o $@
 
 $(OBJECT_DIR)/%.o : %.cpp
 	@mkdir -p $(@D)
 	@echo -n "$(@D)/" > $(OBJECT_DIR)/$*.d
-	@($(DEP_CXX) $(CXXFLAGS) $(INT_CXXFLAGS) -M -E $< >> \
+	@($(DEP_CXX) $(CXXFLAGS) -M -E $< >> \
 		$(OBJECT_DIR)/$*.d ) || rm $(OBJECT_DIR)/$*.d
-	$(CXX) $(CXXFLAGS) $(INT_CXXFLAGS) -DSUBDIR=\"$(SUBDIR)/$(<D)\" -c $< -o $@
+	$(CXX) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)/$(<D)\" -c $< -o $@
 
 %.cpp: $(OBJECT_DIR)/%d
 
@@ -125,7 +130,7 @@ endif
 ifndef PROGRAM
 ifdef VARIANT
 %.$(VARIANT) : %.cpp
-	$(CXX) $< $(CXXFLAGS) $(INT_CXXFLAGS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)/$(<D)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -o $@ 
+	$(CXX) $< $(CXXFLAGS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)/$(<D)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -o $@ 
 
 else # VARIANT
 
