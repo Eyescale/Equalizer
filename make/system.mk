@@ -17,6 +17,8 @@ include $(TOP)/make/$(ARCH).mk
 
 # general variables, targets, etc.
 VARIANTS       ?= $(SUBARCH)
+INSTALL_DIR    ?= /usr/local
+INSTALL_LIBDIR ?= $(INSTALL_DIR)/lib$(VARIANT)
 BUILD_DIR       = $(TOP)/build/$(ARCH)
 EXTRAS_DIR      = $(TOP)/extras
 LIBRARY_DIR     = $(BUILD_DIR)/$(VARIANT)/lib
@@ -52,6 +54,8 @@ endif
 LIBRARY           = $(DYNAMIC_LIB)
 FAT_STATIC_LIB    = $(BUILD_DIR)/lib/libeq$(MODULE).a
 FAT_DYNAMIC_LIB   = $(BUILD_DIR)/lib/libeq$(MODULE).$(DSO_SUFFIX)
+INSTALL_LIBS     ?= $(wildcard $(BUILD_DIR)/lib/$(VARIANT)/*.a \
+                               $(BUILD_DIR)/lib/$(VARIANT)/*.$(DSO_SUFFIX))
 
 ifdef VARIANT
 THIN_STATIC_LIBS  = $(BUILD_DIR)/$(VARIANT)/lib/libeq$(MODULE).a

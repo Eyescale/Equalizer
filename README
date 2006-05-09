@@ -51,7 +51,13 @@
       $(DYNAMIC_LIB) A dynamic library for all VARIANTS build from all SOURCES.
       $(STATIC_LIB)  A static library for all VARIANTS build from all SOURCES.
       $(PROGRAMS)    Executables for PROGRAM on all VARIANTS.
-        
+
+    install  Copies all include files and libraries from BUILD_DIR to
+             INSTALL_DIR
+
+
+   BUILD_FAT   If defined, fat (universal) libraries and binaries are
+               build. Currently only supported on Darwin.
    SUBDIRS     Variable listing all sub directories to traverse into when
                executing rule subdirs
    VARIANTS    All variants to build on a specific ARCHitecture. 

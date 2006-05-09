@@ -4,6 +4,26 @@
 
 all: $(TARGETS)
 
+install: all
+ifndef VARIANT
+	@mkdir -p $(INSTALL_DIR)/include
+	@cp -vr $(BUILD_DIR)/include $(INSTALL_DIR)
+
+ifdef BUILD_FAT
+	@mkdir -p $(INSTALL_LIBDIR)
+	@cp -v  $(INSTALL_LIBS) $(INSTALL_LIBDIR)
+else
+	@for variant in $(VARIANTS); do \
+		$(MAKE) TOP=$(TOP) VARIANT=$$variant install ;\
+	done
+endif
+
+else
+
+	@mkdir -p $(INSTALL_LIBDIR)
+	@cp -v  $(INSTALL_LIBS) $(INSTALL_LIBDIR)
+endif
+
 # top level precompile command(s)
 precompile: $(CXX_DEFINES_FILE)
 
@@ -120,8 +140,8 @@ endif # PROGRAMS
 # cleaning targets
 clean:
 ifdef VARIANT
-	rm -f *~ .*~ $(PCHEADERS) $(OBJECTS) $(TARGETS) $(CLEAN) $(DEPENDENCIES)
-	rm -rf $(OBJECT_DIR)/ii_files
+	rm -f *~ .*~ $(TARGETS)
+	rm -rf $(OBJECT_DIR) $(BUILD_DIR)
 ifdef SUBDIRS
 	@for dir in $(SUBDIRS); do \
 		echo "$(DEPTH) $$dir clean"; \
