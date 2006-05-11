@@ -11,9 +11,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#ifndef NDEBUG
-#  include "clock.h"
-#endif
+#include "clock.h"
 
 /**
  * @namespace eqBase
@@ -67,15 +65,13 @@ namespace eqBase
                 {
                     if( !_noHeader )
                     {
-#                   ifdef NDEBUG
-                        _stringStream << getpid()  << "." << pthread_self() 
-                                      << " " << SUBDIR << "/" << _file
-                                      << ":" << _line << " ";
-#                   else
-                        _stringStream << getpid()  << "." << pthread_self()
-                                      << " " << SUBDIR << "/" << _file
-                                      << ":" << _line << " t:" 
-                                      << _clock.getMSf() << " ";
+                        _stringStream << getpid()  << "." << pthread_self()<<" "
+#                   ifdef SUBDIR
+                                      << SUBDIR << "/" 
+#                   endif
+                                      << _file << ":" << _line << " ";
+#                   ifndef NDEBUG
+                        _stringStream << _clock.getMSf() << " ";
 #                   endif
                     }
 

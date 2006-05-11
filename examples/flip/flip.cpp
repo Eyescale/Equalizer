@@ -36,7 +36,7 @@ eq::NodeFactory* eq::createNodeFactory()
 int main( int argc, char** argv )
 {
     if( !eq::init( argc, argv ))
-        abort();
+        DIE( "Equalizer init failed" );
 
     eq::OpenParams openParams;
     InitData       initData;

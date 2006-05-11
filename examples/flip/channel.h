@@ -2,8 +2,8 @@
 /* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_EX_CHANNEL_H
-#define EQ_EX_CHANNEL_H
+#ifndef EQ_FLIP_CHANNEL_H
+#define EQ_FLIP_CHANNEL_H
 
 #include "flip.h"
 
@@ -33,5 +33,5 @@ private:
 
 
 
-#endif // EQ_EX_CHANNEL_H
+#endif // EQ_FLIP_CHANNEL_H
 
