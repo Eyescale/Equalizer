@@ -78,6 +78,8 @@ void Channel::_sendInit( const uint32_t initID )
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     packet.initID     = initID;
+    packet.vp         = _vp;
+
     send( packet );
     _state = STATE_INITIALISING;
 }

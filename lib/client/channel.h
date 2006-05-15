@@ -35,12 +35,14 @@ namespace eq
          * @name Data Access
          */
         //*{
+        Window* getWindow()   const
+            { return _window; }
         Pipe*   getPipe()   const
             { return ( _window ? _window->getPipe() : NULL );}
-        Config* getConfig() const 
-            { return ( _window ? _window->getConfig() : NULL );}
         Node* getNode() const 
             { return ( _window ? _window->getNode() : NULL );}
+        Config* getConfig() const 
+            { return ( _window ? _window->getConfig() : NULL );}
 
         /** 
          * Set the near and far planes for this channel.
@@ -120,6 +122,11 @@ namespace eq
          */
         void applyViewport();
 
+        /** 
+         * @return the current fractional viewport of this channel.
+         */
+        const Viewport& getViewport() const;
+
         /**
          * Apply the frustum matrix for the current rendering task.
          */
@@ -154,8 +161,8 @@ namespace eq
         /** server-supplied rendering data. */
         RenderContext *_context;
 
-        /** The pixel viewport for the current task. */
-        PixelViewport  _pvp;
+        /** The native viewport. */
+        Viewport       _vp;
 
         /* The command handler functions. */
         eqNet::CommandResult _pushRequest( eqNet::Node* node,

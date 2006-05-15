@@ -501,6 +501,7 @@ namespace eq
 
         uint32_t requestID;
         uint32_t initID;
+        Viewport vp;
     };
 
     struct ChannelInitReplyPacket : public eqNet::ObjectPacket

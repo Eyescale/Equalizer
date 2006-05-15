@@ -30,6 +30,7 @@ namespace eq
 
         // HINT_BUFFER
         GLenum        drawBuffer;
+        Viewport      vp;
         PixelViewport pvp;
 
         // HINT_FRUSTUM

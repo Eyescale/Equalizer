@@ -85,6 +85,14 @@ void Channel::applyBuffer()
     glDrawBuffer( _context->drawBuffer );
 }
 
+const Viewport& Channel::getViewport() const
+{
+    if( _context && (_context->hints & HINT_BUFFER) )
+        return _context->vp;
+
+    return _vp;
+}
+
 void Channel::applyViewport()
 {
     if( !_context || !(_context->hints & HINT_BUFFER ))
@@ -134,6 +142,8 @@ eqNet::CommandResult Channel::_reqInit( eqNet::Node* node,
 {
     ChannelInitPacket* packet = (ChannelInitPacket*)pkg;
     EQINFO << "handle channel init " << packet << endl;
+
+    _vp = packet->vp;
 
     ChannelInitReplyPacket reply( packet );
     reply.result = init( packet->initID );

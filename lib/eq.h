@@ -13,9 +13,9 @@
 #include <eq/client/nodeFactory.h>
 #include <eq/client/object.h>
 #include <eq/client/openParams.h>
+#include <eq/client/pipe.h>
 #include <eq/client/server.h>
 
 #include <eq/net/net.h>
 
 #endif // EQ_H
-

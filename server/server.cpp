@@ -118,7 +118,7 @@ bool Server::_loadConfig( int argc, char **argv )
     // TODO
     Config*    config = new Config();
     addConfig( config );
-    config->setLatency(10);
+    config->setLatency(1);
 
     Compound* top  = new Compound;
     top->setMode( Compound::MODE_SYNC );
@@ -136,7 +136,7 @@ bool Server::_loadConfig( int argc, char **argv )
 
     Pipe* pipe = new Pipe();
     node->addPipe( pipe );
-    
+
     Window* window = new Window();
     pipe->addWindow( window );
 
@@ -155,7 +155,7 @@ bool Server::_loadConfig( int argc, char **argv )
     top->addChild( compound );
 
 #if 1 // second window?
-#  if 0 // on separate node?
+#  if 1 // on separate node?
     node = new eqs::Node();
     config->addNode( node );
 

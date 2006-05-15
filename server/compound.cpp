@@ -377,7 +377,10 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
 
     eq::ChannelDrawPacket drawPacket( channel->getSession()->getID(), 
                                       channel->getID( ));
+
+    drawPacket.context.hints      = HINT_BUFFER;
     drawPacket.context.drawBuffer = GL_BACK;
+    drawPacket.context.vp         = compound->_inherit.vp;
     drawPacket.context.pvp.x      = 0;
     drawPacket.context.pvp.y      = 0;
     drawPacket.context.pvp.w      = (uint32_t)(compound->_inherit.vp.w * pvp.w);
@@ -390,12 +393,15 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
         eq::ChannelClearPacket clearPacket( channel->getSession()->getID(), 
                                             channel->getID( ));
         
+        clearPacket.context.hints      = HINT_BUFFER;
         clearPacket.context.drawBuffer = drawPacket.context.drawBuffer;
+        clearPacket.context.vp         = drawPacket.context.vp;
         clearPacket.context.pvp        = drawPacket.context.pvp;
         clearPacket.frameID            = data->frameID;
         channel->send( clearPacket );
     }
 
+    drawPacket.context.hints |= HINT_FRUSTUM;
     compound->_computeFrustum( drawPacket.context.frustum, 
                      drawPacket.context.headTransform );
 
