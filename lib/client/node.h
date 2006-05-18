@@ -37,6 +37,15 @@ namespace eq
          */
         Config* getConfig() const { return _config; }
 
+        /** 
+         * Gets a pipe.
+         * 
+         * @param index the pipe's index. 
+         * @return the pipe.
+         */
+        Pipe* getPipe( const uint32_t index ) const
+            { return _pipes[index]; }
+
     protected:
         /**
          * @name Callbacks

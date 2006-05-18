@@ -14,6 +14,12 @@
 using namespace eq;
 using namespace std;
 
+// Move me
+namespace eq
+{
+    float identityMatrix[16] = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
+}
+
 Channel::Channel()
         : eqNet::Object( eq::Object::TYPE_CHANNEL, CMD_CHANNEL_ALL ),
           _window(NULL),
@@ -95,32 +101,40 @@ const Viewport& Channel::getViewport() const
 
 void Channel::applyViewport()
 {
-    if( !_context || !(_context->hints & HINT_BUFFER ))
+    if( !_context || !( _context->hints & HINT_BUFFER ))
         return;
 
     const PixelViewport& pvp = _context->pvp;
     glViewport( pvp.x, pvp.y, pvp.w, pvp.h );
 }
 
-void Channel::applyFrustum()
+const Frustum& Channel::getFrustum() const
 {
-    if( !_context || !(_context->hints & HINT_FRUSTUM ))
-        return;
-
-    const float* frustum = _context->frustum;
-    glFrustum( frustum[0], frustum[1], frustum[2], frustum[3], frustum[4],
-               frustum[5] ); 
-    EQVERB << "Applied frustum: " << LOG_VECTOR6( frustum ) << endl;
+    if( _context && ( _context->hints & HINT_FRUSTUM ))
+        return _context->frustum;
+    return _frustum;
 }
 
-void Channel::applyHeadTransform()
+void Channel::applyFrustum() const
 {
-    if( !_context || !(_context->hints & HINT_FRUSTUM ))
-        return;
-    
-    glMultMatrixf( _context->headTransform );
-    EQVERB << "Applied head transform: " 
-         << LOG_MATRIX4x4( _context->headTransform ) << endl;
+    const Frustum& frustum = getFrustum();
+    glFrustum( frustum.left, frustum.right, frustum.top, frustum.bottom,
+               frustum.near, frustum.far ); 
+    EQVERB << "Applied frustum: " << frustum << endl;
+}
+
+const float* Channel::getHeadTransform() const
+{
+    if( _context && (_context->hints & HINT_FRUSTUM ))
+        return _context->headTransform;
+    return identityMatrix;
+}
+
+void Channel::applyHeadTransform() const
+{
+    const float* xfm = getHeadTransform();
+    glMultMatrixf( xfm );
+    EQVERB << "Applied head transform: " << LOG_MATRIX4x4( xfm ) << endl;
 }
 
 //---------------------------------------------------------------------------

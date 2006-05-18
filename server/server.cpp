@@ -168,7 +168,7 @@ bool Server::_loadConfig( int argc, char **argv )
 #  endif
     pipe = new Pipe();
     node->addPipe( pipe );
-    
+
     window = new Window();
     pipe->addWindow( window );
 

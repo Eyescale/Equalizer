@@ -5,6 +5,7 @@
 #ifndef EQ_RENDERCONTEXT_H
 #define EQ_RENDERCONTEXT_H
 
+#include "frustum.h"
 #include "pixelViewport.h"
 
 #include <GL/gl.h>
@@ -34,7 +35,7 @@ namespace eq
         PixelViewport pvp;
 
         // HINT_FRUSTUM
-        float         frustum[6];
+        Frustum       frustum;
         float         headTransform[16];
     };
 }

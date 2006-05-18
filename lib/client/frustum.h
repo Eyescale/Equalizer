@@ -5,25 +5,38 @@
 #ifndef EQ_FRUSTUM_H
 #define EQ_FRUSTUM_H
 
+#include <iostream>
+
 namespace eq
 {
     /** 
-     * A generic frustum definition
-     *
-     * The frustum is defined by the size of the viewport and a
-     * transformation matrix.
-     * @todo better doc
+     * Frustum helper class.
      */
     struct Frustum
     {
-        Frustum() : width(0), height(0) {}
+        Frustum() : 
+                left(-1.), right(1.),
+                top(-1.),  bottom(1.),
+                near(.1),  far(100.) {}
+        
+        void computeMatrix( float matrix[16] ) const;
 
-        bool isValid() const { return (width!=0 && height!=0); }
-
-        float width;
-        float height;
-        float xfm[16];
+        float left;
+        float right;
+        float top;
+        float bottom;
+        float near;
+        float far;
     };
+
+    inline std::ostream& operator << ( std::ostream& os, const Frustum& frustum)
+    {
+        os << "frustum [" << frustum.left << "," << frustum.right << " " 
+           << frustum.top << "," << frustum.bottom << " " 
+           << frustum.near << "," << frustum.far << "]";
+        
+        return os;
+    }
 }
 
 #endif // EQ_FRUSTUM_H

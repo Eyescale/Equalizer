@@ -70,7 +70,7 @@ Compound* Compound::_getNext() const
 }
 
 //---------------------------------------------------------------------------
-// frustum operations
+// view operations
 //---------------------------------------------------------------------------
 void Compound::setWall( const eq::Wall& wall )
 {
@@ -90,44 +90,44 @@ void Compound::setWall( const eq::Wall& wall )
     u[0] /= length;
     u[1] /= length;
     u[2] /= length;
-    _data.frustum.width = length;
+    _data.view.width = length;
 
     length = sqrt( v[0]*v[0] + v[1]*v[1] + v[2]*v[2] );
     v[0] /= length;
     v[1] /= length;
     v[2] /= length;
-    _data.frustum.height = length;
+    _data.view.height = length;
 
     length = sqrt( w[0]*w[0] + w[1]*w[1] + w[2]*w[2] );
     w[0] /= length;
     w[1] /= length;
     w[2] /= length;
 
-    _data.frustum.xfm[0]  = u[0];
-    _data.frustum.xfm[1]  = v[0];
-    _data.frustum.xfm[2]  = w[0];
-    _data.frustum.xfm[3]  = 0.;
+    _data.view.xfm[0]  = u[0];
+    _data.view.xfm[1]  = v[0];
+    _data.view.xfm[2]  = w[0];
+    _data.view.xfm[3]  = 0.;
                         
-    _data.frustum.xfm[4]  = u[1];
-    _data.frustum.xfm[5]  = v[1];
-    _data.frustum.xfm[6]  = w[1];
-    _data.frustum.xfm[7]  = 0.;
+    _data.view.xfm[4]  = u[1];
+    _data.view.xfm[5]  = v[1];
+    _data.view.xfm[6]  = w[1];
+    _data.view.xfm[7]  = 0.;
                         
-    _data.frustum.xfm[8]  = u[2];
-    _data.frustum.xfm[9]  = v[2];
-    _data.frustum.xfm[10] = w[2];
-    _data.frustum.xfm[11] = 0.;
+    _data.view.xfm[8]  = u[2];
+    _data.view.xfm[9]  = v[2];
+    _data.view.xfm[10] = w[2];
+    _data.view.xfm[11] = 0.;
 
     const float center[3] = { (wall.bottomRight[0] + wall.topLeft[0]) / 2.,
                               (wall.bottomRight[1] + wall.topLeft[1]) / 2.,
                               (wall.bottomRight[2] + wall.topLeft[2]) / 2. };
 
-    _data.frustum.xfm[12] = -(u[0]*center[0] + u[1]*center[1] + u[2]*center[2]);
-    _data.frustum.xfm[13] = -(v[0]*center[0] + v[1]*center[1] + v[2]*center[2]);
-    _data.frustum.xfm[14] = -(w[0]*center[0] + w[1]*center[1] + w[2]*center[2]);
-    _data.frustum.xfm[15] = 1.;
+    _data.view.xfm[12] = -(u[0]*center[0] + u[1]*center[1] + u[2]*center[2]);
+    _data.view.xfm[13] = -(v[0]*center[0] + v[1]*center[1] + v[2]*center[2]);
+    _data.view.xfm[14] = -(w[0]*center[0] + w[1]*center[1] + w[2]*center[2]);
+    _data.view.xfm[15] = 1.;
 
-    EQVERB << "Wall matrix: " << LOG_MATRIX4x4( _data.frustum.xfm ) << endl;
+    EQVERB << "Wall matrix: " << LOG_MATRIX4x4( _data.view.xfm ) << endl;
 
     _view.wall        = wall;
     _view.latest      = View::WALL;
@@ -162,38 +162,38 @@ void Compound::setProjection( const eq::Projection& projection )
             -( rot[2]*origin[0] + rot[5]*origin[1] + rot[8]*origin[2] )
         };
 
-    _data.frustum.xfm[0]  = rot[0];
-    _data.frustum.xfm[1]  = rot[1];
-    _data.frustum.xfm[2]  = rot[2];
-    _data.frustum.xfm[3]  = 0.;
+    _data.view.xfm[0]  = rot[0];
+    _data.view.xfm[1]  = rot[1];
+    _data.view.xfm[2]  = rot[2];
+    _data.view.xfm[3]  = 0.;
 
-    _data.frustum.xfm[4]  = rot[3];
-    _data.frustum.xfm[5]  = rot[4];
-    _data.frustum.xfm[6]  = rot[5];
-    _data.frustum.xfm[7]  = 0.;
+    _data.view.xfm[4]  = rot[3];
+    _data.view.xfm[5]  = rot[4];
+    _data.view.xfm[6]  = rot[5];
+    _data.view.xfm[7]  = 0.;
                        
-    _data.frustum.xfm[8]  = rot[6];                
-    _data.frustum.xfm[9]  = rot[7];
-    _data.frustum.xfm[10] = rot[8];
-    _data.frustum.xfm[11] = 0.;
+    _data.view.xfm[8]  = rot[6];                
+    _data.view.xfm[9]  = rot[7];
+    _data.view.xfm[10] = rot[8];
+    _data.view.xfm[11] = 0.;
 
-    _data.frustum.xfm[12] = trans[0];
-    _data.frustum.xfm[13] = trans[1];
-    _data.frustum.xfm[14] = trans[2] + distance;
-    _data.frustum.xfm[15] = 1.;
+    _data.view.xfm[12] = trans[0];
+    _data.view.xfm[13] = trans[1];
+    _data.view.xfm[14] = trans[2] + distance;
+    _data.view.xfm[15] = 1.;
 
-    _data.frustum.width  = distance * tan(DEG2RAD( projection.fov[0] ));
-    _data.frustum.height = distance * tan(DEG2RAD( projection.fov[1] ));
+    _data.view.width  = distance * tan(DEG2RAD( projection.fov[0] ));
+    _data.view.height = distance * tan(DEG2RAD( projection.fov[1] ));
 
     _view.projection = projection;
     _view.latest     = View::PROJECTION;
 }
 
-void Compound::setFrustum( const eq::Frustum& frustum )
+void Compound::setMatrix( const eq::ViewMatrix& view )
 {
-    _data.frustum      = frustum;
-    _view.frustum = frustum;
-    _view.latest  = View::FRUSTUM;
+    _data.view   = view;
+    _view.matrix = view;
+    _view.latest = View::VIEWMATRIX;
 }
 
 //---------------------------------------------------------------------------
@@ -323,8 +323,8 @@ void Compound::_updateInheritData()
     if( !_inherit.channel ) 
         _inherit.channel = _data.channel;
 
-    if( !_inherit.frustum.isValid( ))
-        _inherit.frustum = _data.frustum;
+    if( !_inherit.view.isValid( ))
+        _inherit.view = _data.view;
 
     _inherit.vp.multiply( _data.vp );
 }
@@ -409,16 +409,16 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
     return TRAVERSE_CONTINUE;
 }
 
-void Compound::_computeFrustum( float frustum[6], float headTransform[16] )
+void Compound::_computeFrustum( eq::Frustum& frustum, float headTransform[16] )
 {
-    const Channel*     iChannel = _inherit.channel;
-    const eq::Frustum& iFrustum = _inherit.frustum;
+    const Channel*        iChannel = _inherit.channel;
+    const eq::ViewMatrix& iView    = _inherit.view;
 
-    iChannel->getNearFar( &frustum[4], &frustum[5] );
+    iChannel->getNearFar( &frustum.near, &frustum.far );
 
     // eye position in screen space
     const float  head[3] = { 0, 0, 0 }; // TODO get from headtracking API
-    const float* xfm     = iFrustum.xfm;
+    const float* xfm     = iView.xfm;
     const float  w       = 
         xfm[3] * head[0] + xfm[7] * head[1] + xfm[11]* head[2] + xfm[15];
     const float  eye[3]  = {
@@ -427,20 +427,20 @@ void Compound::_computeFrustum( float frustum[6], float headTransform[16] )
         (xfm[2] * head[0] + xfm[6] * head[1] + xfm[10]* head[2] + xfm[14]) / w};
     
     // compute frustum from size and eye position
-    const float ratio = frustum[4] / eye[2];
+    const float ratio = frustum.near / eye[2];
     if( eye[2] > 0 )
     {
-        frustum[0] = -( iFrustum.width/2.  + eye[0] ) * ratio;
-        frustum[1] =  ( iFrustum.width/2.  - eye[0] ) * ratio;
-        frustum[2] = -( iFrustum.height/2. + eye[1] ) * ratio;
-        frustum[3] =  ( iFrustum.height/2. - eye[1] ) * ratio;
+        frustum.left   = -( iView.width/2.  + eye[0] ) * ratio;
+        frustum.right  =  ( iView.width/2.  - eye[0] ) * ratio;
+        frustum.top    = -( iView.height/2. + eye[1] ) * ratio;
+        frustum.bottom =  ( iView.height/2. - eye[1] ) * ratio;
     }
     else // eye behind near plane - 'mirror' x
     {
-        frustum[0] =  ( iFrustum.width/2.  - eye[0] ) * ratio;
-        frustum[1] = -( iFrustum.width/2.  + eye[0] ) * ratio;
-        frustum[2] =  ( iFrustum.height/2. + eye[1] ) * ratio;
-        frustum[3] = -( iFrustum.height/2. - eye[1] ) * ratio;
+        frustum.left   =  ( iView.width/2.  - eye[0] ) * ratio;
+        frustum.right  = -( iView.width/2.  + eye[0] ) * ratio;
+        frustum.top    =  ( iView.height/2. + eye[1] ) * ratio;
+        frustum.bottom = -( iView.height/2. - eye[1] ) * ratio;
     }
 
     // compute head transform

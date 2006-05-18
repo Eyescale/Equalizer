@@ -7,6 +7,7 @@
 
 #include <eq/client/config.h>
 #include <eq/client/configParams.h>
+#include <eq/client/frustum.h>
 #include <eq/client/global.h>
 #include <eq/client/init.h>
 #include <eq/client/node.h>

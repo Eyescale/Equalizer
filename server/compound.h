@@ -7,8 +7,8 @@
 
 #include "channel.h"
 
-#include <eq/client/frustum.h>
 #include <eq/client/projection.h>
+#include <eq/client/viewMatrix.h>
 #include <eq/client/viewport.h>
 #include <eq/client/wall.h>
 
@@ -138,25 +138,25 @@ namespace eqs
          */
         //*{
         /** 
-         * Set the compound's view frustum using a wall description.
+         * Set the compound's view using a wall description.
          * 
          * @param wall the wall description.
          */
         void setWall( const eq::Wall& wall );
 
         /** 
-         * Set the compound's view frustum using a projection description
+         * Set the compound's view using a projection description
          * 
          * @param projection the projection description.
          */
         void setProjection( const eq::Projection& projection );
 
         /** 
-         * Set the compound's view frustum as a four-by-four matrix.
+         * Set the compound's view as a four-by-four matrix.
          * 
-         * @param frustum the frustum description.
+         * @param view the view description.
          */
-        void setFrustum( const eq::Frustum& frustum );
+        void setMatrix( const eq::ViewMatrix& view  );
         //*}
 
         /**
@@ -225,7 +225,7 @@ namespace eqs
                 NONE,
                 WALL,
                 PROJECTION,
-                FRUSTUM
+                VIEWMATRIX
             };
 
             View() : latest( NONE ) {}
@@ -233,7 +233,7 @@ namespace eqs
             Type           latest;
             eq::Wall       wall;
             eq::Projection projection;
-            eq::Frustum    frustum;
+            eq::ViewMatrix matrix;
         } 
         _view;
 
@@ -241,9 +241,9 @@ namespace eqs
         {
             InheritData();
 
-            Channel*     channel;
-            eq::Viewport vp;
-            eq::Frustum  frustum;
+            Channel*       channel;
+            eq::Viewport   vp;
+            eq::ViewMatrix view;
         };
 
         InheritData _data;
@@ -258,7 +258,7 @@ namespace eqs
         static TraverseResult _updatePostDrawCB( Compound* compound, void* );
 
         void _updateSwapGroup();
-        void _computeFrustum( float frustum[6], float headTransform[16] );
+        void _computeFrustum( eq::Frustum& frustum, float headTransform[16] );
     };
 
     std::ostream& operator << (std::ostream& os,const Compound* compound);

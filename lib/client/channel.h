@@ -5,6 +5,7 @@
 #define EQ_CHANNEL_H
 
 #include "commands.h"
+#include "frustum.h"
 #include "pixelViewport.h"
 #include "window.h"
 
@@ -128,15 +129,26 @@ namespace eq
         const Viewport& getViewport() const;
 
         /**
+         * @return the view frustum for the current rendering task.
+         */
+        const Frustum& getFrustum() const;
+
+        /**
          * Apply the frustum matrix for the current rendering task.
          */
-        void applyFrustum();
+        void applyFrustum() const;
+
+        /**
+         * @return the modelling transformation to position and orient the view
+         *         frustum.
+         */
+        const float* getHeadTransform() const;
 
         /** 
-         * Apply the modeling transformation to position and orient the view
+         * Apply the modelling transformation to position and orient the view
          * frustum.
          */
-        void applyHeadTransform();
+        void applyHeadTransform() const;
         //*}
 
         /** @name Scene Object Access. */
@@ -163,6 +175,9 @@ namespace eq
 
         /** The native viewport. */
         Viewport       _vp;
+
+        /** The native ('identity') frustum. */
+        Frustum        _frustum;
 
         /* The command handler functions. */
         eqNet::CommandResult _pushRequest( eqNet::Node* node,

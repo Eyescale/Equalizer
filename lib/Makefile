@@ -64,6 +64,7 @@ HEADER_SRC = \
 	client/projection.h \
 	client/renderContext.h \
 	client/server.h \
+	client/viewMatrix.h \
 	client/viewport.h \
 	client/wall.h \
 	client/window.h
@@ -101,6 +102,7 @@ SOURCES = \
 	client/client.cpp \
 	client/config.cpp \
 	client/configParams.cpp \
+	client/frustum.cpp \
 	client/global.cpp \
 	client/init.cpp \
 	client/node.cpp \
