@@ -343,6 +343,18 @@ namespace eq
         bool     result;
     };
 
+    struct PipeUpdatePacket : public eqNet::ObjectPacket
+    {
+        PipeUpdatePacket( const uint32_t configID, const uint32_t pipeID )
+                : eqNet::ObjectPacket( configID, pipeID )
+            {
+                command = CMD_PIPE_UPDATE;
+                size    = sizeof( PipeInitPacket );
+            }
+
+        uint32_t frameID;
+    };
+
     struct PipeCreateWindowPacket : public eqNet::ObjectPacket
     {
         PipeCreateWindowPacket( const uint32_t configID, const uint32_t pipeID )

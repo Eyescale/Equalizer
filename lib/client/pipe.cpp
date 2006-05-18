@@ -41,6 +41,10 @@ Pipe::Pipe()
                          &eq::Pipe::pushRequest ));
     registerCommand( REQ_PIPE_EXIT, this, reinterpret_cast<CommandFcn>( 
                          &eq::Pipe::_reqExit ));
+    registerCommand( CMD_PIPE_UPDATE, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Pipe::pushRequest ));
+    registerCommand( REQ_PIPE_UPDATE, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Pipe::_reqUpdate ));
     registerCommand( CMD_PIPE_FRAME_SYNC, this, reinterpret_cast<CommandFcn>( 
                          &eq::Pipe::pushRequest ));
     registerCommand( REQ_PIPE_FRAME_SYNC, this, reinterpret_cast<CommandFcn>( 
@@ -282,6 +286,16 @@ eqNet::CommandResult Pipe::_reqExit( eqNet::Node* node,
     node->send( reply );
 
     _thread->exit( EXIT_SUCCESS );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Pipe::_reqUpdate( eqNet::Node* node, 
+                                       const eqNet::Packet* pkg )
+{
+    PipeUpdatePacket* packet = (PipeUpdatePacket*)pkg;
+    EQVERB << "handle pipe update " << packet << endl;
+
+    update( packet->frameID );
     return eqNet::COMMAND_HANDLED;
 }
 

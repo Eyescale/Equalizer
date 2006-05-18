@@ -184,6 +184,17 @@ namespace eq
         virtual bool exit();
         void exitGLX();
         void exitCGL();
+
+        /**
+         * Update this pipe.
+         *
+         * Called once at the beginning of each frame, to do per-frame updates
+         * of pipe-specific data, for example updating the rendering engine.
+         *
+         * @param frameID the per-frame identifier.
+         * @sa Config::beginFrame()
+         */
+        virtual void update( const uint32_t frameID ) {}
         //@}
 
         /** 
@@ -261,6 +272,8 @@ namespace eq
                                        const eqNet::Packet* packet );
         eqNet::CommandResult _reqExit( eqNet::Node* node,
                                        const eqNet::Packet* packet );
+        eqNet::CommandResult _reqUpdate( eqNet::Node* node,
+                                         const eqNet::Packet* packet );
         eqNet::CommandResult _reqFrameSync( eqNet::Node* node,
                                             const eqNet::Packet* packet );
     };

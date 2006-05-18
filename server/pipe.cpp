@@ -203,6 +203,10 @@ bool Pipe::syncExit()
 //---------------------------------------------------------------------------
 void Pipe::update( const uint32_t frameID )
 {
+    eq::PipeUpdatePacket updatePacket( getSession()->getID(), getID( ));
+    updatePacket.frameID = frameID;
+    _send( updatePacket );
+
     const uint32_t nWindows = this->nWindows();
     for( uint32_t i=0; i<nWindows; i++ )
     {
@@ -211,8 +215,8 @@ void Pipe::update( const uint32_t frameID )
             window->update( frameID );
     }
 
-    eq::PipeFrameSyncPacket packet( getSession()->getID(), getID( ));
-    _send( packet );
+    eq::PipeFrameSyncPacket syncPacket( getSession()->getID(), getID( ));
+    _send( syncPacket );
 }
 
 //===========================================================================
