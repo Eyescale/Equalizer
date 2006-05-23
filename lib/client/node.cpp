@@ -23,8 +23,6 @@ Node::Node()
           _config(NULL),
           _clientLoopRunning(false)
 {
-    registerCommand( CMD_NODE_CREATE_CONFIG, this, reinterpret_cast<CommandFcn>(
-                         &eq::Node::_cmdCreateConfig ));
     registerCommand( CMD_NODE_CREATE_PIPE, this, reinterpret_cast<CommandFcn>(
                          &eq::Node::_cmdCreatePipe ));
     registerCommand( CMD_NODE_DESTROY_PIPE, this, reinterpret_cast<CommandFcn>(
@@ -54,8 +52,7 @@ eqBase::RefPtr<eqNet::Node> Node::createNode()
     if( _firstNode ) 
     {
         _firstNode = false;
-        _server    = new Server;
-        return _server.get();
+        return new Server;
     }
 
     return Global::getNodeFactory()->createNode();
@@ -65,7 +62,6 @@ eqNet::Session* Node::createSession()
 {
     return Global::getNodeFactory()->createConfig(); 
 }
-
 
 void Node::clientLoop()
 {
@@ -107,8 +103,10 @@ eqNet::CommandResult Node::handlePacket( eqNet::Node* node,
     switch( datatype )
     {
         case DATATYPE_EQ_SERVER:
-            EQASSERT( node == _server.get( ));
-            return _server->handleCommand( node, packet );
+            EQASSERT( dynamic_cast<Server*>(node) );
+
+            Server* server = static_cast<Server*>(node);
+            return server->handleCommand( node, packet );
             break;
 
         default:
@@ -135,20 +133,6 @@ void Node::_removePipe( Pipe* pipe )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Node::_cmdCreateConfig( eqNet::Node* node, 
-                                             const eqNet::Packet* pkg )
-{
-    NodeCreateConfigPacket* packet = (NodeCreateConfigPacket*)pkg;
-    EQINFO << "Handle create config " << packet << ", name " << packet->name 
-         << endl;
-
-    _config = Global::getNodeFactory()->createConfig();
-    
-    addSession( _config, node, packet->configID, packet->name );
-    _server->addConfig( _config );
-    return eqNet::COMMAND_HANDLED;
-}
-
 eqNet::CommandResult Node::_cmdCreatePipe( eqNet::Node* node, 
                                            const eqNet::Packet* pkg )
 {

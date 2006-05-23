@@ -22,6 +22,9 @@ Server::Server()
         : Node( CMD_SERVER_ALL ),
           _state( STATE_STOPPED )
 {
+    registerCommand( CMD_SERVER_CREATE_CONFIG, this, 
+                     reinterpret_cast<CommandFcn>(
+                         &eq::Server::_cmdCreateConfig ));
     registerCommand( CMD_SERVER_CHOOSE_CONFIG_REPLY, this,
                      reinterpret_cast<CommandFcn>( 
                          &eq::Server::_cmdChooseConfigReply ));
@@ -115,7 +118,7 @@ void Server::releaseConfig( Config* config )
     delete config;
 }
 
-void Server::addConfig( Config* config )
+void Server::_addConfig( Config* config )
 {
     EQASSERT( config->getID() != EQ_INVALID_ID );
     config->_server = this;
@@ -125,6 +128,23 @@ void Server::addConfig( Config* config )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
+eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Node* node, 
+                                               const eqNet::Packet* pkg )
+{
+    ServerCreateConfigPacket* packet = (ServerCreateConfigPacket*)pkg;
+    EQINFO << "Handle create config " << packet << ", name " << packet->name 
+         << endl;
+    
+    Config*      config     = Global::getNodeFactory()->createConfig();
+    RefPtr<Node> localNode  = Node::getLocalNode();
+    RefPtr<Node> renderNode = localNode->getNode( packet->renderNodeID );
+
+    config->_addNode( RefPtr_static_cast<eq::Node, eqNet::Node>( renderNode ));
+    localNode->addSession( config, node, packet->configID, packet->name );
+    
+    return eqNet::COMMAND_HANDLED;
+}
+
 eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Node* node, 
                                     const eqNet::Packet* pkg )
 {
@@ -141,7 +161,7 @@ eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Node* node,
     Node*   localNode = Node::getLocalNode();
 
     localNode->addSession( config, node, packet->configID, packet->sessionName);
-    addConfig( config );
+    _addConfig( config );
 
     _requestHandler.serveRequest( packet->requestID, config );
     return eqNet::COMMAND_HANDLED;

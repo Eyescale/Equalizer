@@ -42,6 +42,20 @@ namespace eq
         char     rendererInfo[8] EQ_ALIGN8;
     };
 
+    struct ServerCreateConfigPacket : public ServerPacket
+    {
+        ServerCreateConfigPacket()
+            {
+                command = CMD_SERVER_CREATE_CONFIG;
+                size    = sizeof( ServerCreateConfigPacket );
+                name[0] = '\0';
+            }
+
+        uint32_t      configID;
+        eqNet::NodeID renderNodeID;
+        char          name[8] EQ_ALIGN8;
+    };
+
     struct ServerChooseConfigReplyPacket : public ServerPacket
     {
         ServerChooseConfigReplyPacket( const ServerChooseConfigPacket*
@@ -176,19 +190,6 @@ namespace eq
     //------------------------------------------------------------
     // Node
     //------------------------------------------------------------
-    struct NodeCreateConfigPacket : public eqNet::NodePacket
-    {
-        NodeCreateConfigPacket()
-            {
-                command = CMD_NODE_CREATE_CONFIG;
-                size    = sizeof( NodeCreateConfigPacket );
-                name[0] = '\0';
-            }
-
-        uint32_t configID;
-        char     name[8] EQ_ALIGN8;
-    };
-
     // This packet is similar to the Create packets, except that the node
     // already exists and is registered and initialized with this one packet.
     struct NodeInitPacket : public eqNet::NodePacket

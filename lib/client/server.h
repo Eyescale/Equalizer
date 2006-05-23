@@ -68,7 +68,6 @@ namespace eq
          */
         void    releaseConfig( Config* config );
 
-        void addConfig( Config* config );
     private:
         enum State 
         {
@@ -80,9 +79,11 @@ namespace eq
         /** The allocated configurations, mapped by identifier. */
         eqNet::IDHash<Config*> _configs;
 
+        void _addConfig( Config* config );
+
         /* The command handler functions. */
-        eqNet::CommandResult _cmdUnknown( eqNet::Node* node,
-                                          const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdCreateConfig( eqNet::Node* node,
+                                               const eqNet::Packet* packet );
         eqNet::CommandResult _cmdChooseConfigReply(eqNet::Node* node, 
                                                    const eqNet::Packet* packet);
     };

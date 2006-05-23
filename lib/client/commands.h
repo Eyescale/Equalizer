@@ -14,6 +14,7 @@ namespace eq
         CMD_SERVER_CHOOSE_CONFIG        = eqNet::CMD_NODE_CUSTOM,
         REQ_SERVER_CHOOSE_CONFIG,
         CMD_SERVER_CHOOSE_CONFIG_REPLY,
+        CMD_SERVER_CREATE_CONFIG,
         CMD_SERVER_RELEASE_CONFIG,
         REQ_SERVER_RELEASE_CONFIG,
         CMD_SERVER_INIT_CONFIG,
@@ -46,8 +47,7 @@ namespace eq
 
     enum NodeCommand
     {
-        CMD_NODE_CREATE_CONFIG = eqNet::CMD_NODE_CUSTOM,
-        CMD_NODE_INIT,
+        CMD_NODE_INIT = eqNet::CMD_NODE_CUSTOM,
         REQ_NODE_INIT,
         CMD_NODE_INIT_REPLY,
         CMD_NODE_EXIT,         // Node used as object from here on

@@ -112,11 +112,10 @@ namespace eqNet
                       eqBase::RefPtr<Connection> connection );
 
         /** 
-         * Find or create a node for a connection description
+         * Get a node by identifier.
          * 
-         * @param connectionDescription the connection description.
-         * @return the node, or <code>NULL</code> if the node could not be found
-         *         and was not reachable.
+         * @param id the node identifier.
+         * @return the node.
          */
         eqBase::RefPtr<Node> getNode( const NodeID& id ){ return _nodes[id]; }
 

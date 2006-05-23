@@ -15,6 +15,8 @@
 namespace eq
 {
     struct ConfigPacket;
+
+    class Node;
     class SceneObject;
     class Server;
 
@@ -85,6 +87,8 @@ namespace eq
         /** The local proxy of the server hosting the session. */
         friend class Server;
         Server* _server;
+
+        void _addNode( eqBase::RefPtr<Node> node );
 
         /** Registers pending requests waiting for a return value. */
         eqBase::RequestHandler _requestHandler;

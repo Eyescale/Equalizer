@@ -4,6 +4,7 @@
 
 #include "config.h"
 
+#include "node.h"
 #include "packets.h"
 #include "server.h"
 
@@ -25,6 +26,11 @@ Config::Config()
     registerCommand( CMD_CONFIG_FRAME_END_REPLY, this, 
                      reinterpret_cast<CommandFcn>(
                          &eq::Config::_cmdEndFrameReply ));
+}
+
+void Config::_addNode( eqBase::RefPtr<Node> node )
+{
+    node->_config = this;
 }
 
 bool Config::init( const uint32_t initID )

@@ -82,8 +82,9 @@ namespace eq
         virtual eqNet::Session* createSession();
 
     private:
-        eqBase::RefPtr<Server> _server;
+        friend class Config;
         Config*                _config;
+
         std::vector<Pipe*>     _pipes;
 
         /** The receiver->node thread request queue. */
@@ -103,8 +104,6 @@ namespace eq
             { _requestQueue.push( node, packet ); }
 
         /** The command functions. */
-        eqNet::CommandResult _cmdCreateConfig( eqNet::Node* node,
-                                        const eqNet::Packet* packet );
         eqNet::CommandResult _cmdCreatePipe( eqNet::Node* node,
                                       const eqNet::Packet* packet );
         eqNet::CommandResult _cmdDestroyPipe( eqNet::Node* node,

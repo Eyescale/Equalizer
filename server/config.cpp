@@ -270,11 +270,11 @@ bool Config::_initConnectNodes()
 
 bool Config::_initNodes( const uint32_t initID )
 {
-    const string&              name    = getName();
-    bool                       success = true;
+    const string& name    = getName();
+    bool          success = true;
 
-    eq::NodeCreateConfigPacket createConfigPacket;
-    createConfigPacket.configID        = _id;
+    eq::ServerCreateConfigPacket createConfigPacket;
+    createConfigPacket.configID = _id;
 
     for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
@@ -293,6 +293,7 @@ bool Config::_initNodes( const uint32_t initID )
             continue;
 
         // initialize nodes
+        createConfigPacket.renderNodeID = node->getNodeID();
         node->send( createConfigPacket, name );
         registerObject( node, _server.get( ));
         node->startInit( initID );

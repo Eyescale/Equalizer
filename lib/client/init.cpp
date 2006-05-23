@@ -19,8 +19,7 @@ bool eq::init( int argc, char** argv )
 {
     eqNet::Node* node = NULL;
 
-    // We do not use getopt_long because it really does not work due to the
-    // following aspects:
+    // We do not use getopt_long because of:
     // - reordering of arguments
     // - different behaviour of GNU and BSD implementations
     // - incomplete man pages
