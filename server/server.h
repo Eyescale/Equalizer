@@ -101,7 +101,8 @@ namespace eqs
                                                    const eqNet::Packet* packet);
         
         /** @sa eqNet::Node::createNode */
-        virtual eqBase::RefPtr<eqNet::Node> createNode();
+        virtual eqBase::RefPtr<eqNet::Node> createNode( const CreateReason
+                                                        reason );
 
         /** @sa eqNet::Node::handleDisconnect */
         virtual void handleDisconnect( eqNet::Node* node );

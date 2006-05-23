@@ -52,7 +52,6 @@ namespace eq
             }
 
         uint32_t      configID;
-        eqNet::NodeID renderNodeID;
         char          name[8] EQ_ALIGN8;
     };
 
@@ -86,6 +85,30 @@ namespace eq
     //------------------------------------------------------------
     // Config
     //------------------------------------------------------------
+    struct ConfigCreateNodePacket : public eqNet::SessionPacket
+    {
+        ConfigCreateNodePacket( const uint32_t configID )
+                : eqNet::SessionPacket( configID )
+            {
+                command = CMD_CONFIG_CREATE_NODE;
+                size    = sizeof( ConfigCreateNodePacket );
+            }
+
+        uint32_t nodeID;
+    };
+
+    struct ConfigDestroyNodePacket : public eqNet::SessionPacket
+    {
+        ConfigDestroyNodePacket( const uint32_t configID )
+                : eqNet::SessionPacket( configID )
+            {
+                command = CMD_CONFIG_DESTROY_NODE;
+                size    = sizeof( ConfigDestroyNodePacket );
+            }
+
+        uint32_t nodeID;
+    };
+    
     struct ConfigInitPacket : public eqNet::SessionPacket
     {
         ConfigInitPacket( const uint32_t configID ) 
@@ -190,29 +213,24 @@ namespace eq
     //------------------------------------------------------------
     // Node
     //------------------------------------------------------------
-    // This packet is similar to the Create packets, except that the node
-    // already exists and is registered and initialized with this one packet.
-    struct NodeInitPacket : public eqNet::NodePacket
+    struct NodeInitPacket : public eqNet::ObjectPacket
     {
         NodeInitPacket( const uint32_t configID, const uint32_t nodeID )
+                : eqNet::ObjectPacket( configID, nodeID )
             {
                 command        = CMD_NODE_INIT;
                 size           = sizeof( NodeInitPacket );
-                this->configID = configID;
-                this->nodeID   = nodeID;
             }
 
         uint32_t requestID;
         uint32_t initID;
-        uint32_t configID;
-        uint32_t nodeID;
     };
 
     struct NodeInitReplyPacket : public eqNet::ObjectPacket
     {
         NodeInitReplyPacket( NodeInitPacket* requestPacket )
-                : eqNet::ObjectPacket( requestPacket->configID, 
-                                       requestPacket->nodeID )
+                : eqNet::ObjectPacket( requestPacket->sessionID, 
+                                       requestPacket->objectID )
             {
                 command   = CMD_NODE_INIT_REPLY;
                 requestID = requestPacket->requestID;
@@ -248,16 +266,6 @@ namespace eq
 
         uint32_t requestID;
         bool     result;
-    };
-
-    struct NodeStopPacket : public eqNet::ObjectPacket
-    {
-        NodeStopPacket( const uint32_t configID, const uint32_t nodeID )
-                : eqNet::ObjectPacket( configID, nodeID )
-            {
-                command = CMD_NODE_STOP;
-                size    = sizeof( NodeStopPacket );
-            }
     };
 
     struct NodeCreatePipePacket : public eqNet::ObjectPacket

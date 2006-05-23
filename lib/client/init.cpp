@@ -17,8 +17,6 @@ using namespace std;
 
 bool eq::init( int argc, char** argv )
 {
-    eqNet::Node* node = NULL;
-
     // We do not use getopt_long because of:
     // - reordering of arguments
     // - different behaviour of GNU and BSD implementations
@@ -32,23 +30,10 @@ bool eq::init( int argc, char** argv )
             if( i<argc )
                 Global::setServer( argv[i] );
         }
-        else if( strcmp( "--eq-client", argv[i] ) == 0 )
-        {
-            ++i;
-            if( i<argc )
-                node = Global::getNodeFactory()->createNode();
-        }
     }
     
-    if( !node )
-    {
-        node = new Client;
-        EQINFO << "Init libeq for client" << endl;
-    }
-    else
-        EQINFO << "Init libeq for render node" << endl;
-
-    Node::setLocalNode( node );
+    eqNet::Node* node = new Client;
+    eqNet::Node::setLocalNode( node );
 
     char* argvListen[argc+1];
     
@@ -60,7 +45,7 @@ bool eq::init( int argc, char** argv )
     if( !eqNet::init( argc+1, argvListen ))
     {
         EQERROR << "Failed to initialise Equalizer network layer" << endl;
-        Node::setLocalNode( NULL );
+        eqNet::Node::setLocalNode( NULL );
         delete node;
         return false;
     }

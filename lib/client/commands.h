@@ -30,12 +30,14 @@ namespace eq
 
     enum ConfigCommand
     {
-        CMD_CONFIG_INIT       = eqNet::CMD_SESSION_CUSTOM,
+        CMD_CONFIG_INIT                 = eqNet::CMD_SESSION_CUSTOM,
         REQ_CONFIG_INIT, // REQ must always follow CMD
         CMD_CONFIG_INIT_REPLY,
         CMD_CONFIG_EXIT,
         REQ_CONFIG_EXIT, // REQ must always follow CMD
         CMD_CONFIG_EXIT_REPLY,
+        CMD_CONFIG_CREATE_NODE,
+        CMD_CONFIG_DESTROY_NODE,
         CMD_CONFIG_FRAME_BEGIN,
         REQ_CONFIG_FRAME_BEGIN, // REQ must always follow CMD
         CMD_CONFIG_FRAME_BEGIN_REPLY,
@@ -53,8 +55,6 @@ namespace eq
         CMD_NODE_EXIT,         // Node used as object from here on
         REQ_NODE_EXIT,
         CMD_NODE_EXIT_REPLY,
-        CMD_NODE_STOP,
-        REQ_NODE_STOP,
         CMD_NODE_CREATE_PIPE,
         CMD_NODE_DESTROY_PIPE,
         CMD_NODE_ALL

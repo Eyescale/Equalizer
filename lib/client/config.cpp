@@ -4,7 +4,9 @@
 
 #include "config.h"
 
+#include "global.h"
 #include "node.h"
+#include "nodeFactory.h"
 #include "packets.h"
 #include "server.h"
 
@@ -16,6 +18,10 @@ using namespace std;
 Config::Config()
         : Session( CMD_CONFIG_ALL, true )
 {
+    registerCommand( CMD_CONFIG_CREATE_NODE, this, reinterpret_cast<CommandFcn>(
+                         &eq::Config::_cmdCreateNode ));
+    registerCommand( CMD_CONFIG_DESTROY_NODE, this,reinterpret_cast<CommandFcn>(
+                         &eq::Config::_cmdDestroyNode ));
     registerCommand( CMD_CONFIG_INIT_REPLY, this, reinterpret_cast<CommandFcn>( 
                          &eq::Config::_cmdInitReply ));
     registerCommand( CMD_CONFIG_EXIT_REPLY, this, reinterpret_cast<CommandFcn>(
@@ -28,9 +34,14 @@ Config::Config()
                          &eq::Config::_cmdEndFrameReply ));
 }
 
-void Config::_addNode( eqBase::RefPtr<Node> node )
+void Config::_addNode( Node* node )
 {
     node->_config = this;
+}
+
+void Config::_removeNode( Node* node )
+{
+    node->_config = NULL;
 }
 
 bool Config::init( const uint32_t initID )
@@ -72,6 +83,36 @@ uint32_t Config::endFrame()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
+eqNet::CommandResult Config::_cmdCreateNode( eqNet::Node* node, 
+                                             const eqNet::Packet* pkg )
+{
+    ConfigCreateNodePacket* packet = (ConfigCreateNodePacket*)pkg;
+    EQINFO << "Handle create node " << packet << endl;
+    EQASSERT( packet->nodeID != EQ_INVALID_ID );
+
+    Node* newNode = Global::getNodeFactory()->createNode();
+    
+    _addRegisteredObject( packet->nodeID, newNode );
+    _addNode( newNode );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Config::_cmdDestroyNode( eqNet::Node* Node, 
+                                              const eqNet::Packet* pkg )
+{
+    ConfigDestroyNodePacket* packet = (ConfigDestroyNodePacket*)pkg;
+    EQINFO << "Handle destroy node " << packet << endl;
+
+    eq::Node* delNode = (eq::Node*)pollObject( packet->nodeID );
+    if( !delNode )
+        return eqNet::COMMAND_HANDLED;
+
+    _removeNode( delNode );
+    deregisterObject( delNode );
+    delete delNode; // XXX unref?
+    return eqNet::COMMAND_HANDLED;
+}
+
 eqNet::CommandResult Config::_cmdInitReply( eqNet::Node* node,
                                             const eqNet::Packet* pkg )
 {

@@ -7,6 +7,7 @@
 #include "commands.h"
 #include "global.h"
 #include "nodeFactory.h"
+#include "object.h"
 #include "packets.h"
 #include "pipe.h"
 #include "server.h"
@@ -16,102 +17,26 @@
 using namespace eq;
 using namespace std;
 
-static bool _firstNode = true;
-
 Node::Node()
-        : eqNet::Node( CMD_NODE_ALL ),
-          _config(NULL),
-          _clientLoopRunning(false)
+        : eqNet::Object( eq::Object::TYPE_NODE, CMD_NODE_ALL ),
+          _config(NULL)
 {
     registerCommand( CMD_NODE_CREATE_PIPE, this, reinterpret_cast<CommandFcn>(
                          &eq::Node::_cmdCreatePipe ));
     registerCommand( CMD_NODE_DESTROY_PIPE, this, reinterpret_cast<CommandFcn>(
                          &eq::Node::_cmdDestroyPipe ));
     registerCommand( CMD_NODE_INIT, this, reinterpret_cast<CommandFcn>(
-                         &eq::Node::_cmdInit ));
+                         &eq::Node::_pushRequest ));
     registerCommand( REQ_NODE_INIT, this, reinterpret_cast<CommandFcn>(
                          &eq::Node::_reqInit ));
     registerCommand( CMD_NODE_EXIT, this, reinterpret_cast<CommandFcn>( 
                          &eq::Node::_pushRequest ));
     registerCommand( REQ_NODE_EXIT, this, reinterpret_cast<CommandFcn>( 
                          &eq::Node::_reqExit ));
-    registerCommand( CMD_NODE_STOP, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Node::_pushRequest ));
-    registerCommand( REQ_NODE_STOP, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Node::_reqStop ));
 }
 
 Node::~Node()
 {
-}
-
-eqBase::RefPtr<eqNet::Node> Node::createNode()
-{ 
-    // The first node in a render node's life cycle is the server. There must be
-    // a cleaner way to instantiate it...
-    if( _firstNode ) 
-    {
-        _firstNode = false;
-        return new Server;
-    }
-
-    return Global::getNodeFactory()->createNode();
-}
-
-eqNet::Session* Node::createSession()
-{
-    return Global::getNodeFactory()->createConfig(); 
-}
-
-void Node::clientLoop()
-{
-    _clientLoopRunning = true;
-
-    eqNet::Node*   node;
-    eqNet::Packet* packet;
-
-    while( _clientLoopRunning )
-    {
-        _requestQueue.pop( &node, &packet );
-
-        switch( dispatchPacket( node, packet ))
-        {
-            case eqNet::COMMAND_PROPAGATE:
-                EQWARN << "COMMAND_PROPAGATE returned, but nowhere to propagate"
-                       << endl;
-                break;
-
-            case eqNet::COMMAND_HANDLED:
-                break;
-
-            case eqNet::COMMAND_ERROR:
-                EQERROR << "Error handling command packet" << endl;
-                abort();
-
-            case eqNet::COMMAND_RESCHEDULE:
-                EQUNIMPLEMENTED;
-        }
-    }
-}
-
-eqNet::CommandResult Node::handlePacket( eqNet::Node* node,
-                                         const eqNet::Packet* packet )
-{
-    EQVERB << "handlePacket " << packet << endl;
-    const uint32_t datatype = packet->datatype;
-
-    switch( datatype )
-    {
-        case DATATYPE_EQ_SERVER:
-            EQASSERT( dynamic_cast<Server*>(node) );
-
-            Server* server = static_cast<Server*>(node);
-            return server->handleCommand( node, packet );
-            break;
-
-        default:
-            return eqNet::COMMAND_ERROR;
-    }
 }
 
 void Node::_addPipe( Pipe* pipe )
@@ -163,16 +88,6 @@ eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_cmdInit(eqNet::Node* node, const eqNet::Packet* pkg)
-{
-    NodeInitPacket* packet = (NodeInitPacket*)pkg;
-    EQINFO << "handle node init (recv) " << packet << endl;
-
-    _config->_addRegisteredObject( packet->nodeID, this );
-    _pushRequest( node, pkg );
-    return eqNet::COMMAND_HANDLED;
-}
-
 eqNet::CommandResult Node::_reqInit(eqNet::Node* node, const eqNet::Packet* pkg)
 {
     NodeInitPacket* packet = (NodeInitPacket*)pkg;
@@ -196,15 +111,3 @@ eqNet::CommandResult Node::_reqExit(eqNet::Node* node, const eqNet::Packet* pkg)
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_reqStop(eqNet::Node* node, const eqNet::Packet* pkg)
-{
-    NodeStopPacket* packet = (NodeStopPacket*)pkg;
-    EQINFO << "handle node stop " << packet << endl;
-
-    _clientLoopRunning = false;
-
-    // stop ourselves
-    eqNet::NodeStopPacket stopPacket;
-    send( stopPacket );
-    return eqNet::COMMAND_HANDLED;
-}

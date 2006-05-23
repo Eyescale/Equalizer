@@ -54,7 +54,7 @@ namespace eqNet
         /** 
          * @return the local node holding this session. 
          */
-        Node* getNode(){ return _localNode.get(); }
+        Node* getLocalNode(){ return _localNode.get(); }
 
 //         /** 
 //          * @return the server hosting this session. 

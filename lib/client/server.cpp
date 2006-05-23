@@ -78,7 +78,7 @@ bool Server::close()
     if( _state != STATE_OPENED )
         return false;
 
-    Node* localNode = eq::Node::getLocalNode();
+    Node* localNode = eqNet::Node::getLocalNode();
     if( !localNode->disconnect( this ))
         return false;
 
@@ -137,11 +137,8 @@ eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Node* node,
     
     Config*      config     = Global::getNodeFactory()->createConfig();
     RefPtr<Node> localNode  = Node::getLocalNode();
-    RefPtr<Node> renderNode = localNode->getNode( packet->renderNodeID );
 
-    config->_addNode( RefPtr_static_cast<eq::Node, eqNet::Node>( renderNode ));
     localNode->addSession( config, node, packet->configID, packet->name );
-    
     return eqNet::COMMAND_HANDLED;
 }
 

@@ -87,7 +87,7 @@ bool Server::run( int argc, char **argv )
     return stopListening();
 }
 
-RefPtr<eqNet::Node> Server::createNode()
+RefPtr<eqNet::Node> Server::createNode( const CreateReason reason )
 {
     return new Node( eq::CMD_NODE_ALL );
 }

@@ -18,6 +18,7 @@ namespace eq
             TYPE_CHANNEL          = eqNet::Object::TYPE_MANAGED_CUSTOM,
             TYPE_WINDOW,
             TYPE_PIPE,
+            TYPE_NODE,
             TYPE_MANAGED_CUSTOM,
             TYPE_VERSIONED_CUSTOM = eqNet::Object::TYPE_VERSIONED_CUSTOM
         };

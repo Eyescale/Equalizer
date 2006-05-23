@@ -270,6 +270,7 @@ Object* Session::pollObject( const uint32_t id,
             
         case Object::SHARE_NEVER:
             return NULL;
+
         default:
             EQUNREACHABLE;
     }
@@ -355,6 +356,11 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
         {
             case COMMAND_PROPAGATE:
                 break;
+
+            case COMMAND_ERROR:
+                EQERROR << "Error handling object packet for object of type "
+                        << typeid(**iter).name() << endl;
+                // no break;
             default:
                 return result;
         }

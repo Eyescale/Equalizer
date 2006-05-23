@@ -75,10 +75,10 @@ int main( int argc, char** argv )
     if( !config )
         DIE("No matching config on server.");
 
-    config->registerObject( &initData, config->getNode( ));
+    config->registerObject( &initData, config->getLocalNode( ));
     
     FrameData frameData;
-    config->registerObject( &frameData, config->getNode( ));
+    config->registerObject( &frameData, config->getLocalNode( ));
 
     initData.setFrameData( &frameData );
 

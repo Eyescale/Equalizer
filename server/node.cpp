@@ -165,7 +165,7 @@ bool Node::syncExit()
 
 void Node::stop()
 {
-    eq::NodeStopPacket packet( _config->getID(), getID( ));
+    eqNet::NodeStopPacket packet;
     send( packet );
 }
 

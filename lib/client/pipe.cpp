@@ -145,7 +145,7 @@ ssize_t Pipe::_runThread()
     Config* config = getConfig();
     EQASSERT( config );
 
-    Node::setLocalNode( config->getNode( ));
+    eqNet::Node::setLocalNode( config->getLocalNode( ));
 
     eqNet::Node*   node;
     eqNet::Packet* packet;

@@ -24,17 +24,43 @@ namespace eq
          */
         virtual ~Client();
 
+        /** 
+         * Push a request from the receiver to the app thread to be handled
+         * asynchronously. 
+         * 
+         * @param node the node sending the packet.
+         * @param packet the command packet.
+         */
+        void pushRequest( eqNet::Node* node, const eqNet::Packet* packet )
+            { _requestQueue.push( node, packet ); }
+
     protected:
+        /** @sa eqNet::Node::clientLoop */
+        virtual void clientLoop();
+
         /** 
          * @sa eqNet::Node::handlePacket
          */
         virtual eqNet::CommandResult handlePacket( eqNet::Node* node, 
                                                    const eqNet::Packet* packet);
 
+        /** @sa eqNet::Node::createNode */
+        virtual eqBase::RefPtr<eqNet::Node> createNode( const CreateReason
+                                                        reason );
+        
+        /** @sa eqNet::Node::createSession */
+        virtual eqNet::Session* createSession();
+
     private:
+        /** The receiver->node thread request queue. */
+        eqNet::RequestQueue    _requestQueue;
+        bool                   _clientLoopRunning;
+
         /** The command functions. */
-        //void _cmdChooseConfigReply( eqNet::Node* node,
-        //                            const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdStop( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
+        eqNet::CommandResult _reqStop( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
     };
 }
 

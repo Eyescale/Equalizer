@@ -35,8 +35,10 @@ PerThread<Node*> Node::_localNode;
 Node::Node( const uint32_t nCommands )
         : Object( TYPE_UNMANAGED, nCommands ),
           _autoLaunch(false),
+          _autoLaunched(false),
           _state(STATE_STOPPED),
-          _launchID(EQ_INVALID_ID)
+          _launchID(EQ_INVALID_ID),
+          _clientRunning(false)
 {
     EQASSERT( nCommands >= CMD_NODE_CUSTOM );
     registerCommand( CMD_NODE_STOP, this, reinterpret_cast<CommandFcn>(
@@ -243,6 +245,20 @@ NodeConnectPacket* Node::_readConnectReply( eqBase::RefPtr<Connection>
     }
 
     return reply;
+}
+
+void Node::disconnect()
+{
+    if( _state != STATE_CONNECTED )
+        return;
+
+    if( _autoLaunched )
+    {
+        NodeStopPacket packet;
+        send( packet );
+    }
+
+    getLocalNode()->disconnect( this );
 }
 
 bool Node::disconnect( Node* node )
@@ -468,13 +484,15 @@ void Node::handleConnect( RefPtr<Connection> connection )
         bool readDesc = desc->fromString( packet->connectionDescription );
         EQASSERT( readDesc );
 
-        node->_id = packet->nodeID;
+        node->_id           = packet->nodeID;
+        node->_autoLaunched = true;
+
         _addConnectedNode( node, connection );
         _requestHandler.serveRequest( requestID, NULL );
     }
     else
     {
-        node = createNode();
+        node = createNode( REASON_INCOMING_CONNECT );
         node->_id = packet->nodeID;
 
         RefPtr<ConnectionDescription> desc = new ConnectionDescription;
@@ -616,6 +634,10 @@ CommandResult Node::_cmdStop( Node* node, const Packet* pkg )
 {
     EQINFO << "Cmd stop " << this << endl;
     EQASSERT( _state == STATE_LISTENING );
+
+    if( _clientRunning ) // subclass may override _cmdStop to exit clientLoop
+        EQWARN << "Stopping receiver thread while client loop is still running"
+               << endl;
 
     // TODO: Process pending packets on all other connections?
 
@@ -1110,7 +1132,7 @@ bool Node::runClient( const string& clientArgs )
         return false;
     }
 
-    RefPtr<Node> node = createNode();
+    RefPtr<Node> node = createNode( REASON_CLIENT_CONNECT );
     if( !node.isValid() )
     {
         EQERROR << "Can't create node" << endl;
@@ -1134,9 +1156,11 @@ bool Node::runClient( const string& clientArgs )
     node->_id = reply->nodeID;
 
     free( reply );
+    _clientRunning = true;
     _addConnectedNode( node, connection );
 
     clientLoop();
+    _clientRunning = false;
 
     const bool joined = _receiverThread->join();
     EQASSERT( joined );

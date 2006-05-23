@@ -5,12 +5,14 @@
 #ifndef EQ_CONFIG_H
 #define EQ_CONFIG_H
 
+#include "client.h"
+#include "commands.h"
+
 #include <eq/base/base.h>
 #include <eq/base/requestHandler.h>
 #include <eq/net/packets.h>
 #include <eq/net/session.h>
 
-#include "commands.h"
 
 namespace eq
 {
@@ -83,17 +85,32 @@ namespace eq
         uint32_t endFrame();
         //*}
 
+        /** 
+         * Push a request from the receiver to the app thread to be handled
+         * asynchronously.
+         * 
+         * @param node the node sending the packet.
+         * @param packet the command packet.
+         */
+        void pushRequest( eqNet::Node* node, const eqNet::Packet* packet )
+            { ((eq::Client*)getLocalNode())->pushRequest( node, packet ); }
+
     private:
         /** The local proxy of the server hosting the session. */
         friend class Server;
         Server* _server;
 
-        void _addNode( eqBase::RefPtr<Node> node );
+        void _addNode( Node* node );
+        void _removeNode( Node* node );
 
         /** Registers pending requests waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
 
         /** The command functions. */
+        eqNet::CommandResult _cmdCreateNode( eqNet::Node* node,
+                                             const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdDestroyNode( eqNet::Node* node,
+                                              const eqNet::Packet* packet );
         eqNet::CommandResult _cmdInitReply( eqNet::Node* node,
                                             const eqNet::Packet* packet );
         eqNet::CommandResult _cmdExitReply( eqNet::Node* node,

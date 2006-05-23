@@ -38,11 +38,18 @@ namespace eqNet
     class Node : public Object
     {
     public:
-        enum State {
+        enum State 
+        {
             STATE_STOPPED,   // initial               
             STATE_LAUNCHED,  // remote node, launched
             STATE_CONNECTED, // remote node, connected  
             STATE_LISTENING  // local node, listening
+        };
+
+        enum CreateReason 
+        {
+            REASON_CLIENT_CONNECT,
+            REASON_INCOMING_CONNECT
         };
 
         /** 
@@ -156,6 +163,11 @@ namespace eqNet
          * @sa initConnect
          */
         bool syncConnect();
+
+        /** 
+         * Disconnects and potentially disconnects this node.
+         */
+        void disconnect();
 
         /** 
          * Disconnects a connected node.
@@ -461,6 +473,9 @@ namespace eqNet
         /** Determines if the node should be launched automatically. */
         bool _autoLaunch;
 
+        /** true if this node was launched automatically. */
+        bool _autoLaunched;
+
         /** 
          * Dispatches a packet to the appropriate object or handlePacket.
          * dispatched.
@@ -509,9 +524,10 @@ namespace eqNet
         /** 
          * Factory method to create a new node.
          * 
+         * @param the reason for the node creation.
          * @return the node.
          */
-        virtual eqBase::RefPtr<Node> createNode() 
+        virtual eqBase::RefPtr<Node> createNode( const CreateReason reason )
             { return new Node(); }
 
         /** 
@@ -529,6 +545,8 @@ namespace eqNet
          */
         virtual const std::string& getWorkDir() 
             { return Global::getWorkDir(); }
+
+        CommandResult _cmdStop( Node* node, const Packet* packet );
 
     private:
         /** per-thread local node */
@@ -565,6 +583,9 @@ namespace eqNet
         /** The list of descriptions on how this node is reachable. */
         std::vector< eqBase::RefPtr<ConnectionDescription> >
             _connectionDescriptions;
+
+        /** true if the client loop is active. */
+        bool _clientRunning;
 
 #ifdef CHECK_THREADSAFETY
         mutable pthread_t _threadID;
@@ -658,7 +679,6 @@ namespace eqNet
         void      _redispatchPackets();
 
         /** The command functions. */
-        CommandResult _cmdStop( Node* node, const Packet* packet );
         CommandResult _cmdMapSession( Node* node, const Packet* packet );
         CommandResult _cmdMapSessionReply( Node* node, const Packet* packet );
         CommandResult _cmdUnmapSession( Node* node, const Packet* packet );

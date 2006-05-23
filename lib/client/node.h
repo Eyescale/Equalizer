@@ -6,10 +6,9 @@
 #define EQ_NODE_H
 
 #include "commands.h"
+#include "config.h"
 
 #include <eq/base/gate.h>
-#include <eq/net/node.h>
-#include <eq/net/requestQueue.h>
 
 namespace eq
 {
@@ -17,7 +16,7 @@ namespace eq
     class Pipe;
     class Server;
 
-    class Node : public eqNet::Node
+    class Node : public eqNet::Object
     {
     public:
         /** 
@@ -68,53 +67,33 @@ namespace eq
         virtual bool exit(){ return true; }
         //@}
 
-        /** @sa eqNet::Node::clientLoop */
-        virtual void clientLoop();
-
-        /** @sa eqNet::Node::handlePacket */
-        virtual eqNet::CommandResult handlePacket( eqNet::Node* node, 
-                                                   const eqNet::Packet* packet);
-
-        /** @sa eqNet::Node::createNode */
-        virtual eqBase::RefPtr<eqNet::Node> createNode();
-        
-        /** @sa eqNet::Node::createSession */
-        virtual eqNet::Session* createSession();
-
     private:
         friend class Config;
         Config*                _config;
 
         std::vector<Pipe*>     _pipes;
 
-        /** The receiver->node thread request queue. */
-        eqNet::RequestQueue    _requestQueue;
-        bool                   _clientLoopRunning;
-
         void _addPipe( Pipe* pipe );
         void _removePipe( Pipe* pipe );
 
         /** 
-         * Push a request to the node thread to be handled asynchronously.
+         * Push a request from the receiver to the app thread to be handled
+         * asynchronously.
          * 
          * @param node the node sending the packet.
          * @param packet the command packet.
          */
         void _pushRequest( eqNet::Node* node, const eqNet::Packet* packet )
-            { _requestQueue.push( node, packet ); }
+            { _config->pushRequest( node, packet ); }
 
         /** The command functions. */
         eqNet::CommandResult _cmdCreatePipe( eqNet::Node* node,
-                                      const eqNet::Packet* packet );
+                                             const eqNet::Packet* packet );
         eqNet::CommandResult _cmdDestroyPipe( eqNet::Node* node,
-                                       const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdInit( eqNet::Node* node, 
-                                       const eqNet::Packet* packet );
+                                              const eqNet::Packet* packet );
         eqNet::CommandResult _reqInit( eqNet::Node* node,
                                        const eqNet::Packet* packet );
         eqNet::CommandResult _reqExit( eqNet::Node* node,
-                                       const eqNet::Packet* packet );
-        eqNet::CommandResult _reqStop( eqNet::Node* node,
                                        const eqNet::Packet* packet );
     };
 }

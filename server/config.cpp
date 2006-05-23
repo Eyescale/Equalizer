@@ -276,6 +276,8 @@ bool Config::_initNodes( const uint32_t initID )
     eq::ServerCreateConfigPacket createConfigPacket;
     createConfigPacket.configID = _id;
 
+    eq::ConfigCreateNodePacket createNodePacket( _id );
+    
     for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
         Node* node = *iter;
@@ -293,9 +295,12 @@ bool Config::_initNodes( const uint32_t initID )
             continue;
 
         // initialize nodes
-        createConfigPacket.renderNodeID = node->getNodeID();
         node->send( createConfigPacket, name );
+
         registerObject( node, _server.get( ));
+        createNodePacket.nodeID = node->getID();
+        node->send( createNodePacket );
+
         node->startInit( initID );
     }
 
@@ -323,7 +328,8 @@ bool Config::_initPipes( const uint32_t initID )
         Node* node = *iter;
         if( !node->isUsed( ))
             continue;
-        
+
+        // XXX move to node?
         eq::NodeCreatePipePacket createPipePacket( getID(), node->getID( ));
 
         const vector<Pipe*>& pipes = node->getPipes();
@@ -444,6 +450,7 @@ bool Config::_exitNodes()
         node->startExit();
     }
 
+    eq::ConfigDestroyNodePacket destroyNodePacket( _id );
     bool success = true;
 
     for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
@@ -458,7 +465,9 @@ bool Config::_exitNodes()
             success = false;
         }
 
-        node->stop();
+        destroyNodePacket.nodeID = node->getID();
+        node->send( destroyNodePacket );
+        node->disconnect();
         deregisterObject( node );
     }
     return success;
