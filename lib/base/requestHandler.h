@@ -24,6 +24,12 @@ namespace eqBase
      * thread registers a request. Another thread can serve the request. The
      * original thread can wait for the request to be served and retrieve the
      * result.
+     *
+     * A note on thread-safety: Unless threadSafe is set in the contructor, the
+     * functions registerRequest(), unregisterRequest() and waitRequest() are
+     * supposed to be called from one 'waiting' thread, and the functions
+     * serveRequest() and deleteRequest() are supposed to be called only from
+     * one 'serving' thread.
      */
     class RequestHandler : public Referenced
     {
@@ -94,6 +100,15 @@ namespace eqBase
          */
         void serveRequest( const uint32_t requestID, void* result );
 
+        /** 
+         * Deletes a request.
+         * 
+         * The caller has to ensure that nobody is or will wait on the request.
+         *
+         * @param requestID the request identifier.
+         */
+        void deleteRequest( const uint32_t requestID );
+
     private:
         Thread::Type _type;
         Lock*        _mutex;
@@ -112,9 +127,17 @@ namespace eqBase
             void*      result;
         };
         
-        uint32_t                          _requestID;
-        Sgi::hash_map<uint32_t, Request*> _requests;
-        std::list<Request*>               _freeRequests;
+        typedef Sgi::hash_map<uint32_t, Request*> RequestHash;
+
+        uint32_t            _requestID;
+        RequestHash         _requests;
+        std::list<Request*> _freeRequests;
+
+        std::vector<uint32_t> _deletedRequests;
+        Lock*                 _deletedRequestsLock;
+
+        void _recycleRequests();
+        void _unregisterRequest( const uint32_t requestID );
 
 #ifdef CHECK_THREADSAFETY
         pthread_t _threadID;

@@ -13,8 +13,8 @@ RequestHandler::RequestHandler( const Thread::Type type, const bool threadSafe )
         : _type(type),
           _requestID(1)
 {
-    _mutex = threadSafe ? new Lock( type ) : NULL;
-        
+    _mutex               = threadSafe ? new Lock( type ) : NULL;
+    _deletedRequestsLock = threadSafe ? NULL : new Lock( type );
 #ifdef CHECK_THREADSAFETY
     _threadID = 0;
 #endif
@@ -31,6 +31,8 @@ RequestHandler::~RequestHandler()
 
     if( _mutex )
         delete _mutex;
+    if( _deletedRequestsLock )
+        delete _deletedRequestsLock;
 }
 
 uint32_t RequestHandler::registerRequest( void* data )
@@ -39,6 +41,8 @@ uint32_t RequestHandler::registerRequest( void* data )
         _mutex->set();
     else
         CHECK_THREAD( _threadID );
+
+    _recycleRequests();
 
     Request* request;
     if( _freeRequests.empty( ))
@@ -65,14 +69,22 @@ void RequestHandler::unregisterRequest( const uint32_t requestID )
     else
         CHECK_THREAD( _threadID );
 
-    Request* request = _requests[requestID];
-    if( !request )
-        return;
+    _recycleRequests();
+    _unregisterRequest( requestID );
 
-    _requests.erase( requestID );
-    _freeRequests.push_front( request );
     if( _mutex )
         _mutex->unset();
+}
+
+void RequestHandler::_unregisterRequest( const uint32_t requestID )
+{
+    RequestHash::iterator iter = _requests.find( requestID );
+    if( iter == _requests.end( ))
+        return;
+
+    Request* request = iter->second;
+    _requests.erase( iter );
+    _freeRequests.push_front( request );
 }
 
 void* RequestHandler::waitRequest( const uint32_t requestID, bool* success,
@@ -83,46 +95,86 @@ void* RequestHandler::waitRequest( const uint32_t requestID, bool* success,
     else
         CHECK_THREAD( _threadID );
 
-    Request* request = _requests[requestID];
+    _recycleRequests();
 
-    if( !request || !request->lock->set( timeout ))
+    RequestHash::iterator iter = _requests.find( requestID );
+    if( iter != _requests.end( ))
     {
-        if( success ) *success = false;
-        if( _mutex )
-            _mutex->unset();
-        return NULL;
+        Request* request = iter->second;
+        if( request->lock->set( timeout ))
+        {
+            void* result = request->result;
+    
+            _requests.erase( iter );
+            _freeRequests.push_front( request );
+
+            if( success ) *success = true;
+            if( _mutex )
+                _mutex->unset();
+            return result;
+        }
     }
 
-    void* result = request->result;
-    
-    _requests.erase( requestID );
-    _freeRequests.push_front( request );
-
-    if( success ) *success = true;
+    if( success ) *success = false;
     if( _mutex )
         _mutex->unset();
-    return result;
+    return NULL;
 }
 
 void* RequestHandler::getRequestData( const uint32_t requestID )
 {
-    const Request* request = _requests[requestID];
-    if( !request )
+    RequestHash::iterator iter = _requests.find( requestID );
+    if( iter == _requests.end( ))
         return NULL;
 
-    return request->data;
+    return iter->second->data;
 }
 
 void RequestHandler::serveRequest( const uint32_t requestID, void* result )
 {
-    Request* request = _requests[requestID];
-
-    if( !request )
+    RequestHash::iterator iter = _requests.find( requestID );
+    if( iter == _requests.end( ))
     {
         EQWARN << "Attempt to serve unregistered request" << endl;
         return;
     }
 
+    Request* request = iter->second;
     request->result = result;
     request->lock->unset();
+}
+
+void RequestHandler::deleteRequest( const uint32_t requestID )
+{
+    if( _mutex && _mutex->trySet( )) // only try to get lock, waitReq can hold
+    {                                // lock for a long time, deadlock possible
+        unregisterRequest( requestID );
+        _mutex->unset();
+        return;
+    }
+
+    RequestHash::iterator iter = _requests.find( requestID );
+    if( iter == _requests.end( ))
+    {
+        EQWARN << "Attempt to serve unregistered request" << endl;
+        return;
+    }
+    
+    _deletedRequestsLock->set();
+    _deletedRequests.push_back( requestID );
+    _deletedRequestsLock->unset();
+}
+
+void RequestHandler::_recycleRequests()
+{
+    if( _deletedRequests.empty( ))
+        return;
+
+    _deletedRequestsLock->set();
+    for( vector<uint32_t>::iterator iter = _deletedRequests.begin();
+         iter != _deletedRequests.end(); ++iter )
+        unregisterRequest( *iter );
+
+    _deletedRequests.clear();
+    _deletedRequestsLock->unset();
 }
