@@ -399,6 +399,39 @@ namespace eqNet
         //@}
 
         /**
+         * @name Receiver-thread node connect
+         */
+        //@{
+        /** 
+         * Requests the connection of a node.
+         * 
+         * @param nodeID the identifier of the node to connect.
+         * @param server another node holding connection information to the
+         *               destination node.
+         * @return an identifier for the request for subsequent commands.
+         */
+        uint32_t startConnectNode( NodeID& nodeID, eqBase::RefPtr<Node> server);
+
+        enum ConnectState
+        {
+            CONNECT_PENDING,
+            CONNECT_SUCCESS,
+            CONNECT_FAILURE
+        };
+
+        /** 
+         * Polls the state of a connection request.
+         * 
+         * If the return value is CONNECT_SUCCESS or CONNECT_FAILURE, the
+         * requestID becomes invalid.
+         *
+         * @param requestID the request identifier.
+         * @return the current state of the connection request.
+         */
+        ConnectState pollConnectNode( const uint32_t requestID );
+        //@}
+
+        /**
          * @name Session management
          */
         //*{
@@ -584,8 +617,13 @@ namespace eqNet
         std::vector< eqBase::RefPtr<ConnectionDescription> >
             _connectionDescriptions;
 
-        /** true if the client loop is active. */
+        /** true as long as the client loop is active. */
         bool _clientRunning;
+
+        /** The pending connection requests from startConnectNode(). */
+        IDHash<NodeID> _connectionRequests;
+        /** The identifier for the next connection request. */
+        uint32_t       _nextConnectionRequestID;
 
 #ifdef CHECK_THREADSAFETY
         mutable pthread_t _threadID;

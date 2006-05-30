@@ -85,6 +85,18 @@ namespace eqBase
                            const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
 
         /** 
+         * Polls for the completion of a request.
+         *
+         * The request is never unregistered.
+         * 
+         * @param requestID the request identifier.
+         * @param success return value to indicate if the request was served.
+         * @return the result of the request, or <code>NULL</code> if the
+         *         request was not served.
+         */
+        void* peekRequest( const uint32_t requestID, bool* success = NULL );
+
+        /** 
          * Retrieves the user-specific data for a request.
          * 
          * @param requestID the request identifier.
@@ -99,15 +111,6 @@ namespace eqBase
          * @param result the result of the request.
          */
         void serveRequest( const uint32_t requestID, void* result );
-
-        /** 
-         * Deletes a request.
-         * 
-         * The caller has to ensure that nobody is or will wait on the request.
-         *
-         * @param requestID the request identifier.
-         */
-        void deleteRequest( const uint32_t requestID );
 
     private:
         Thread::Type _type;
@@ -132,12 +135,6 @@ namespace eqBase
         uint32_t            _requestID;
         RequestHash         _requests;
         std::list<Request*> _freeRequests;
-
-        std::vector<uint32_t> _deletedRequests;
-        Lock*                 _deletedRequestsLock;
-
-        void _recycleRequests();
-        void _unregisterRequest( const uint32_t requestID );
 
 #ifdef CHECK_THREADSAFETY
         pthread_t _threadID;

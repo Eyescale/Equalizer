@@ -232,6 +232,7 @@ Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy)
     _localNode->send( packet );
     const void* result = _requestHandler.waitRequest( packet.requestID );
     EQASSERT( result == NULL );
+    EQASSERT( state.nodeConnectRequestID == EQ_INVALID_ID );
 
     switch( policy )
     {
@@ -336,6 +337,7 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
     
         if( state )
         {
+            EQASSERT( state->nodeConnectRequestID == EQ_INVALID_ID );
             delete state;
             _objectInstStates.erase( id );
         }
@@ -414,7 +416,6 @@ CommandResult Session::_instObject( GetObjectState* state )
             return COMMAND_ERROR;
 
         case Object::INST_GETMASTERID:
-        case Object::INST_GETMASTER:
         case Object::INST_INIT:
             return COMMAND_RESCHEDULE;
 
@@ -569,31 +570,54 @@ CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
         return COMMAND_HANDLED;
     }
 
-    RefPtr<Node> master = _localNode->getNode( packet->masterID );
-
-    if( master.isValid( ))
+    RefPtr<Node> master;
+    if( state->nodeConnectRequestID == EQ_INVALID_ID )
     {
-        // TODO thread-safety: _idMasterInfos is also read & written by app
-        IDMasterInfo info = { packet->start, packet->end, master};
-        _idMasterInfos.push_back( info );
-        
-        state->instState = Object::INST_GOTMASTER;
-        return COMMAND_HANDLED;
-    }
+         master = _localNode->getNode( packet->masterID );
 
-    // query connection description, create and connect node 
-    if( state->instState == Object::INST_GETMASTER )
-        return COMMAND_RESCHEDULE;
+         if( !master.isValid( ))
+         {
+             state->nodeConnectRequestID =
+                 _localNode->startConnectNode( packet->masterID, _server );
     
-    state->instState = Object::INST_GETMASTER;
+             return COMMAND_RESCHEDULE;
+         }
+    }
+    else
+    {
+        switch( _localNode->pollConnectNode( state->nodeConnectRequestID ))
+        {
+            case Node::CONNECT_PENDING:
+                return COMMAND_RESCHEDULE;
+
+            case Node::CONNECT_SUCCESS:
+                master = _localNode->getNode( packet->masterID );
+                EQASSERT( master.isValid( ));
+                state->nodeConnectRequestID = EQ_INVALID_ID;
+                break;
+
+            case Node::CONNECT_FAILURE:
+                EQWARN 
+                    << "Can't connect master node during object instantiation"
+                    << endl;
+                state->instState            = Object::INST_ERROR;
+                state->nodeConnectRequestID = EQ_INVALID_ID;
+                return COMMAND_HANDLED;
+
+            default:
+                return COMMAND_ERROR;
+        }
+    }
     
-    NodeGetConnectionDescriptionPacket cdPacket;
-    cdPacket.nodeID = packet->masterID;
-    cdPacket.index  = 0;
+    EQASSERT( master.isValid( ));
+
+    // TODO thread-safety: _idMasterInfos is also read & written by app
+    IDMasterInfo info = { packet->start, packet->end, master};
+    _idMasterInfos.push_back( info );
     
-    _server->send( cdPacket );
+    state->instState = Object::INST_GOTMASTER;
+    return COMMAND_HANDLED;
     
-    return COMMAND_RESCHEDULE;
 }
 
 CommandResult Session::_cmdGetObject( Node* node, const Packet* pkg )

@@ -138,20 +138,23 @@ namespace eqNet
                 size    = sizeof( NodeGetConnectionDescriptionPacket );
             }
 
+        uint32_t requestID;
         NodeID   nodeID;
         uint32_t index;
     };
 
     struct NodeGetConnectionDescriptionReplyPacket : public NodePacket
     {
-        NodeGetConnectionDescriptionReplyPacket()
+        NodeGetConnectionDescriptionReplyPacket(
+            NodeGetConnectionDescriptionPacket* request )
             {
-                command = CMD_NODE_GET_CONNECTION_DESCRIPTION_REPLY;
-                size    = sizeof( NodeGetConnectionDescriptionReplyPacket );
+                command   = CMD_NODE_GET_CONNECTION_DESCRIPTION_REPLY;
+                size      = sizeof( NodeGetConnectionDescriptionReplyPacket );
+                requestID = request->requestID;
                 connectionDescription[0] = '\0';
             }
 
-        NodeID   nodeID;
+        uint32_t requestID;
         uint32_t nextIndex;
         char     connectionDescription[8] EQ_ALIGN8;
     };
@@ -420,14 +423,14 @@ namespace eqNet
     inline std::ostream& operator << ( std::ostream& os, 
                               const NodeGetConnectionDescriptionPacket* packet )
     {
-        os << (NodePacket*)packet << " nodeID " << packet->nodeID << " i "  
-           << packet->index;
+        os << (NodePacket*)packet << " req " << packet->requestID << " nodeID " 
+           << packet->nodeID << " i " << packet->index;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                          const NodeGetConnectionDescriptionReplyPacket* packet )
     {
-        os << (NodePacket*)packet << " nodeID " << packet->nodeID << " ni "  
+        os << (NodePacket*)packet << " req " << packet->requestID << " ni "  
            << packet->nextIndex << " desc " << packet->connectionDescription;
         return os;
     }

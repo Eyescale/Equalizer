@@ -217,9 +217,6 @@ namespace eqNet
         /** The node hosting the session. */
         eqBase::RefPtr<Node> _server;
 
-        /** The list of nodes known to this session. */
-        NodeIDHash< eqBase::RefPtr<Node> > _nodes;
-
         /** The session's name. */
         std::string _name;
 
@@ -253,10 +250,14 @@ namespace eqNet
         /** The current state of pending object instanciations. */
         struct GetObjectState
         {
-            GetObjectState() : instState(Object::INST_UNKNOWN), object(NULL) {}
+            GetObjectState()
+                    : nodeConnectRequestID( EQ_INVALID_ID ),
+                      instState( Object::INST_UNKNOWN ), 
+                      object( NULL ) {}
 
             Object::SharePolicy policy;
             uint32_t            objectID;
+            uint32_t            nodeConnectRequestID;
             Object::InstState   instState;
             Object*             object;
         };

@@ -107,6 +107,13 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                 break;
 
             case -1: // ERROR
+#ifdef DEBUG
+                if( errno == EINTR ) // Interrupted system call (gdb) - ignore
+                {
+                    event = EVENT_NONE;
+                    break;
+                }
+#endif
                 _errno = errno;
                 EQINFO << "Error during poll(): " << strerror( _errno ) << endl;
                 event = EVENT_ERROR;
@@ -175,7 +182,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                         break;
                     }
 
-                    EQERROR << "Unhandled poll event(s): " << pollEvents << endl;
+                    EQERROR << "Unhandled poll event(s): " << pollEvents <<endl;
                     abort();
                 }
         }

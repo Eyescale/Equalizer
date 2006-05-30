@@ -38,7 +38,8 @@ Node::Node( const uint32_t nCommands )
           _autoLaunched(false),
           _state(STATE_STOPPED),
           _launchID(EQ_INVALID_ID),
-          _clientRunning(false)
+          _clientRunning(false),
+          _nextConnectionRequestID(1)
 {
     EQASSERT( nCommands >= CMD_NODE_CUSTOM );
     registerCommand( CMD_NODE_STOP, this, reinterpret_cast<CommandFcn>(
@@ -159,6 +160,35 @@ bool Node::_listenToSelf()
     _connectionSet.addConnection( _connection, this );
     _nodes[ _id ] = this;
     return true;
+}
+
+uint32_t Node::startConnectNode( NodeID& nodeID, RefPtr<Node> server )
+{
+    NodeGetConnectionDescriptionPacket packet;
+    packet.requestID = _nextConnectionRequestID++;
+    packet.nodeID    = nodeID;
+    packet.index     = 0;
+
+    _connectionRequests[ packet.requestID ] = nodeID;
+
+    server->send( packet );
+    return packet.requestID;
+}   
+
+Node::ConnectState Node::pollConnectNode( uint32_t requestID )
+{
+    IDHash<NodeID>::iterator iter = _connectionRequests.find( requestID );
+    if( iter == _connectionRequests.end( ))
+        return CONNECT_FAILURE;
+
+    NodeID& nodeID = iter->second;
+    if( _nodes.find( nodeID ) != _nodes.end( ))
+    {
+        _connectionRequests.erase( requestID );
+        return CONNECT_SUCCESS;
+    }
+
+    return CONNECT_PENDING;
 }
 
 void Node::_addConnectedNode( RefPtr<Node> node, RefPtr<Connection> connection )
@@ -432,7 +462,7 @@ ssize_t Node::_runReceiver()
             case ConnectionSet::EVENT_ERROR:      
                 ++nErrors;
                 EQWARN << "Error during select" << endl;
-                if( nErrors > 9 )
+                if( nErrors > 100 )
                 {
                     EQWARN << "Too many errors in a row, capping connection" 
                            << endl;
@@ -441,7 +471,7 @@ ssize_t Node::_runReceiver()
                 break;
 
             default:
-                EQERROR << "UNIMPLEMENTED" << endl;
+                EQUNIMPLEMENTED;
         }
         if( result != ConnectionSet::EVENT_ERROR )
             nErrors = 0;
@@ -783,17 +813,18 @@ CommandResult Node::_cmdGetConnectionDescription( Node* node, const Packet* pkg)
     EQINFO << "cmd get connection description: " << packet << endl;
 
     RefPtr<Node> descNode = getNode( packet->nodeID );
-    EQASSERT( descNode );
+    
+    NodeGetConnectionDescriptionReplyPacket reply( packet );
 
-    NodeGetConnectionDescriptionReplyPacket reply;
-    reply.nodeID    = packet->nodeID;
-    reply.nextIndex = packet->index + 1;
-
-    if( descNode->nConnectionDescriptions() >= reply.nextIndex )
+    if( !descNode.isValid() ||
+        descNode->nConnectionDescriptions() >= reply.nextIndex )
+        
         reply.nextIndex = 0;
+    else
+        reply.nextIndex = packet->index + 1;
 
-    RefPtr<ConnectionDescription> desc = descNode->getConnectionDescription( 
-        packet->index );
+    RefPtr<ConnectionDescription> desc = descNode.isValid() ?
+        descNode->getConnectionDescription( packet->index ) : NULL;
 
     if( desc.isValid( ))
         node->send( reply, desc->toString( ));
@@ -809,40 +840,45 @@ CommandResult Node::_cmdGetConnectionDescriptionReply( Node* fromNode,
     NodeGetConnectionDescriptionReplyPacket* packet =
         (NodeGetConnectionDescriptionReplyPacket*)pkg;
     EQINFO << "cmd get connection description reply: " << packet << endl;
-    
-    RefPtr<Node> node = getNode( packet->nodeID );
-    if( node.isValid( )) // already connected, ignore
+
+    NodeID& nodeID = _connectionRequests[ packet->requestID ];
+
+    RefPtr<Node> node = getNode( nodeID );
+    if( node.isValid( )) // already connected
         return COMMAND_HANDLED;
 
     RefPtr<ConnectionDescription> desc = new ConnectionDescription();
-    if( !desc->fromString( packet->connectionDescription ))
-        return COMMAND_ERROR;
-
-    RefPtr<Connection> connection = Connection::create( desc->type );
-
-    if( connection->connect( desc ))
+    if( desc->fromString( packet->connectionDescription ))
     {
-        handleConnect( connection );
+        RefPtr<Connection> connection = Connection::create( desc->type );
 
-        node = getNode( packet->nodeID );
-        EQASSERT( node );
-        EQASSERT( node->getNodeID() == packet->nodeID );
+        if( connection->connect( desc ))
+        {
+            handleConnect( connection );
+            
+            node = getNode( nodeID );
+            EQASSERT( node );
+            EQASSERT( node->getNodeID() == nodeID );
+            
+            return COMMAND_HANDLED;
+        }
+    }
 
+    if( packet->nextIndex == 0 )
+    {
+        _connectionRequests.erase( packet->requestID );
         return COMMAND_HANDLED;
     }
 
     // Connection failed, try next connection description
-    if( packet->nextIndex == 0 )
-        return COMMAND_ERROR;
-
     NodeGetConnectionDescriptionPacket reply;
-    reply.nodeID = packet->nodeID;
-    reply.index  = packet->nextIndex;
+    reply.requestID = packet->requestID;
+    reply.nodeID    = nodeID;
+    reply.index     = packet->nextIndex;
     fromNode->send( reply );
     
     return COMMAND_HANDLED;
 }
-
 
 //----------------------------------------------------------------------
 // utility functions

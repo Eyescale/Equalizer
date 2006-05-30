@@ -75,7 +75,6 @@ namespace eqNet
         {
             INST_UNKNOWN = 0,
             INST_GETMASTERID,
-            INST_GETMASTER,
             INST_GOTMASTER,
             INST_INIT,
             INST_ERROR
