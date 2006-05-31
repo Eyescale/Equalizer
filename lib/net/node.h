@@ -127,7 +127,7 @@ namespace eqNet
         eqBase::RefPtr<Node> getNode( const NodeID& id ){ return _nodes[id]; }
 
         /** 
-         * Connects and potentially launches this node using to the available
+         * Connect and potentially launch this node using to the available
          * connection descriptions.
          *
          * On success, the node is in the connected state, otherwise it's state
@@ -140,7 +140,7 @@ namespace eqNet
         bool connect();
 
         /** 
-         * Starts connecting and potentially launching this node using to the
+         * Start connecting and potentially launching this node using to the
          * available connection descriptions.
          *
          * On success, the node is in the launched or connected state, otherwise
@@ -153,7 +153,7 @@ namespace eqNet
         bool initConnect();
 
         /** 
-         * Synchronizes the connection initiated by initConnect().
+         * Synchronize the connection initiated by initConnect().
          *
          * On success, the node is in the connected state, otherwise it's state
          * is unchanged.
@@ -165,7 +165,19 @@ namespace eqNet
         bool syncConnect();
 
         /** 
-         * Disconnects and potentially disconnects this node.
+         * Create and connect a node given be an identifier.
+         * 
+         * @param nodeID the identifier of the node to connect.
+         * @param server a node holding connection information to the
+         *               destination node.
+         * @return the connected node, or an invalid RefPtr if the node could
+         *         not be connected.
+         */
+        eqBase::RefPtr<Node> connect( NodeID& nodeID,
+                                      eqBase::RefPtr<Node> server);
+
+        /** 
+         * Disconnect this node.
          */
         void disconnect();
 

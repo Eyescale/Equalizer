@@ -150,7 +150,7 @@ bool Node::_listenToSelf()
     if( !_connection->connect( connDesc ))
     {
         EQERROR << "Could not create pipe() connection to receiver thread."
-              << endl;
+                << endl;
         _connection = NULL;
         return false;
     }
@@ -165,9 +165,10 @@ bool Node::_listenToSelf()
 uint32_t Node::startConnectNode( NodeID& nodeID, RefPtr<Node> server )
 {
     NodeGetConnectionDescriptionPacket packet;
-    packet.requestID = _nextConnectionRequestID++;
-    packet.nodeID    = nodeID;
-    packet.index     = 0;
+    packet.requestID  = _nextConnectionRequestID++;
+    packet.appRequest = false;
+    packet.nodeID     = nodeID;
+    packet.index      = 0;
 
     _connectionRequests[ packet.requestID ] = nodeID;
 
@@ -841,9 +842,12 @@ CommandResult Node::_cmdGetConnectionDescriptionReply( Node* fromNode,
         (NodeGetConnectionDescriptionReplyPacket*)pkg;
     EQINFO << "cmd get connection description reply: " << packet << endl;
 
-    NodeID& nodeID = _connectionRequests[ packet->requestID ];
+    const uint32_t requestID = packet->requestID;
+    NodeID&        nodeID    = packet->appRequest ? 
+        *((NodeID*)_requestHandler.getRequestData( requestID )) :
+        _connectionRequests[ requestID ];
 
-    RefPtr<Node> node = getNode( nodeID );
+    RefPtr<Node> node   = getNode( nodeID );
     if( node.isValid( )) // already connected
         return COMMAND_HANDLED;
 
@@ -860,21 +864,29 @@ CommandResult Node::_cmdGetConnectionDescriptionReply( Node* fromNode,
             EQASSERT( node );
             EQASSERT( node->getNodeID() == nodeID );
             
+            EQINFO << "Node " << nodeID << " connected" << endl;
+            if( packet->appRequest )
+                _requestHandler.serveRequest( requestID, NULL );
             return COMMAND_HANDLED;
         }
     }
 
     if( packet->nextIndex == 0 )
     {
-        _connectionRequests.erase( packet->requestID );
+        EQWARN << "Connection to node " << nodeID << " failed" << endl;
+        if( packet->appRequest )
+            _requestHandler.serveRequest( requestID, NULL );
+        else
+            _connectionRequests.erase( requestID );
         return COMMAND_HANDLED;
     }
 
     // Connection failed, try next connection description
     NodeGetConnectionDescriptionPacket reply;
-    reply.requestID = packet->requestID;
-    reply.nodeID    = nodeID;
-    reply.index     = packet->nextIndex;
+    reply.requestID  = requestID;
+    reply.nodeID     = nodeID;
+    reply.appRequest = packet->appRequest;
+    reply.index      = packet->nextIndex;
     fromNode->send( reply );
     
     return COMMAND_HANDLED;
@@ -983,6 +995,20 @@ bool Node::syncConnect()
 
     _launchID = EQ_INVALID_ID;
     return success;
+}
+
+RefPtr<Node> Node::connect( NodeID& nodeID, RefPtr<Node> server)
+{
+    NodeGetConnectionDescriptionPacket packet;
+    packet.requestID  = _requestHandler.registerRequest( &nodeID );
+    packet.appRequest = true;
+    packet.nodeID     = nodeID;
+    packet.index      = 0;
+
+    server->send( packet );
+
+    _requestHandler.waitRequest( packet.requestID );
+    return getNode( nodeID );
 }
 
 bool Node::_launch( RefPtr<ConnectionDescription> description )
