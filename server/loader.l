@@ -1,7 +1,7 @@
 
 %{
 #include "compound.h"
-#include "parser.cpp.h"
+#include "parser.hpp"
 #include <stdlib.h>
 
 #define yyerror eqLoader_error
