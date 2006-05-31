@@ -30,6 +30,8 @@ LDFLAGS        += -L$(LIBRARY_DIR)
 DEP_CXX        ?= $(CXX)
 
 DOXYGEN        ?= Doxygen
+FLEX           ?= flex
+BISON          ?= bison
 
 # defines
 CXX_DEFINES      = $(sort $(filter -D%,$(CXXFLAGS)))
