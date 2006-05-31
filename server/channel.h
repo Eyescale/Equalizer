@@ -75,6 +75,8 @@ namespace eqs
          */
         bool isUsed() const { return (_used!=0); }
 
+        void setName( const std::string& name ) { _name = name; }
+        const std::string& getName() const      { return _name; }
         /** 
          * Return the current pixel viewport of this channel.
          * @return the current pixel viewport of this channel.
@@ -151,8 +153,7 @@ namespace eqs
         Window* _window;
         friend class Window;
 
-        /** The request identifier for pending asynchronous operations. */
-        uint32_t _pendingRequestID;
+        std::string _name;
 
         /** The fractional viewport with respect to the window. */
         eq::Viewport      _vp;
@@ -164,6 +165,9 @@ namespace eqs
         float        _near;
         /** Static far plane. */
         float        _far;
+
+        /** The request identifier for pending asynchronous operations. */
+        uint32_t _pendingRequestID;
 
         /** common code for all constructors */
         void _construct();

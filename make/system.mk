@@ -28,6 +28,7 @@ CXXFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DCHECK_THREADSAFETY \
                   -I$(OBJECT_DIR) -I$(BUILD_DIR)/include -I$(EXTRAS_DIR)
 LDFLAGS        += -L$(LIBRARY_DIR)
 DEP_CXX        ?= $(CXX)
+
 DOXYGEN        ?= Doxygen
 
 # defines

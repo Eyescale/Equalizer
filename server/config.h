@@ -13,6 +13,7 @@
 
 namespace eqs
 {
+    class Channel;
     class Compound;
     class Node;
     class Server;
@@ -36,7 +37,11 @@ namespace eqs
          * Constructs a new deep copy of a config.
          */
         Config( const Config& from );
-
+        
+        /**
+         * @name Data Access.
+         */
+        //*{
         Server* getServer() { return _server.get(); }
 
         /** 
@@ -103,6 +108,16 @@ namespace eqs
          */
         Compound* getCompound( const uint32_t index ) const
             { return _compounds[index]; }
+
+        /** 
+         * Find the first channel of a given name.
+         * 
+         * @param name the name of the channel to find
+         * @return the first channel with the name, or <code>NULL</code> if no
+         *         channel with the name exists.
+         */
+        Channel* findChannel( const std::string& name ) const;
+        //*}
 
         /** 
          * Set the maximum accepted latency for this config.

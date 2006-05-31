@@ -5,18 +5,7 @@
 #ifndef EQS_LOADER_H
 #define EQS_LOADER_H
 
-#include <string>
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/iterator/file_iterator.hpp>
-
-namespace eqLoader
-{
-    using namespace boost::spirit;
-
-    typedef file_iterator<char>   iterator_t;
-    typedef scanner<iterator_t>   scanner_t;
-    typedef rule<scanner_t>       rule_t;
-}
+#include <iostream>
 
 namespace eqs
 {
@@ -67,4 +56,5 @@ namespace eqs
     private:
     };
 };
+
 #endif // EQS_LOADER_H

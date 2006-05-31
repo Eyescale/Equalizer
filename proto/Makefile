@@ -2,8 +2,7 @@
 include $(TOP)/make/system.mk
 
 SUBDIRS = \
-	pthreads \
-	spirit
+	pthreads
 
 TARGETS = subdirs
 

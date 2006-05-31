@@ -1,6 +1,7 @@
 
 #include "server.h"
 
+#include "global.h"
 #include "loader.h"
 
 #include <iostream>
@@ -13,11 +14,11 @@ int main( int argc, char **argv )
 {
 #ifdef EQLOADER
     Loader loader;
-    RefPtr<Server> server = loader.loadConfig( "examples/configs/config.eqc" );
+    RefPtr<Server> server = loader.loadConfig( "../examples/configs/config.eqc" );
 #else
     RefPtr<Server> server = new Server;
 #endif
-    
+
     if( !server.isValid( ))
     {
         EQERROR << "Server load failed" << endl;
@@ -26,7 +27,7 @@ int main( int argc, char **argv )
 
     const bool result = server->run( argc, argv );
     if( !result )
-        EQERROR << "Server did not run correctly. Please consult log." << endl;
+        EQERROR << "Server did not run correctly, please consult log." << endl;
 
     EQINFO << "Server ref count: " << server->getRefCount() << endl;
     return EXIT_SUCCESS;

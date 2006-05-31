@@ -148,6 +148,33 @@ bool Config::removeNode( Node* node )
     return true;
 }
 
+Channel* Config::findChannel( const std::string& name ) const
+{
+    const uint32_t nNodes = this->nNodes();
+    for( uint32_t i=0; i<nNodes; ++i )
+    {
+        eqs::Node*     node   = getNode(i);
+        const uint32_t nPipes = node->nPipes();
+        for( uint32_t j=0; j<nPipes; j++ )
+        {
+            Pipe*          pipe     = node->getPipe(j);
+            const uint32_t nWindows = pipe->nWindows();
+            for( uint32_t k=0; k<nWindows; k++ )
+            {
+                Window*        window    = pipe->getWindow(k);
+                const uint32_t nChannels = window->nChannels();
+                for( uint32_t l=0; l<nChannels; l++ )
+                {
+                    Channel* channel = window->getChannel(l);
+                    if( channel->getName() == name )
+                        return channel;
+                }
+            }
+        }
+    }
+    return NULL;
+}
+
 void Config::setLatency( const uint32_t latency )
 {
     if( _latency == latency )

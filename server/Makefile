@@ -10,7 +10,9 @@ SOURCES = \
 	node.cpp \
 	pipe.cpp \
 	server.cpp \
-	window.cpp
+	window.cpp \
+	lexer.cpp \
+	parser.cpp
 
 CXXFILES = \
 	eqs.cpp
@@ -30,3 +32,10 @@ TARGETS = $(DYNAMIC_LIB) $(SIMPLE_PROGRAMS)
 include $(TOP)/make/rules.mk
 
 $(SIMPLE_PROGRAMS): $(DYNAMIC_LIB)
+$(DYNAMIC_LIB): lexer.cpp parser.cpp
+
+lexer.cpp: loader.l parser.cpp
+	$(FLEX) -o$@ $<
+
+parser.cpp: loader.y
+	$(BISON) -l -p eqLoader_ -d $< -o $@

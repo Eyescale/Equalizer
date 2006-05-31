@@ -181,6 +181,7 @@ std::ostream& eqs::operator << ( std::ostream& os, const Channel* channel)
     
     os << disableFlush << disableHeader << "channel" << endl;
     os << "{" << endl << indent;
+    os << "name \"" << channel->getName() << "\"" << endl;
     os << exdent << "}" << endl << enableHeader << enableFlush;
 
     return os;

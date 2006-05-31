@@ -3,7 +3,7 @@ global
     EQ_CONNECTION_TYPE              TCPIP
     EQ_CONNECTION_HOSTNAME          "localhost"
     EQ_CONNECTION_TCPIP_PORT        4242
-    EQ_CONNECTION_LAUNCH_TIMEOUT    100000 ms
+    EQ_CONNECTION_LAUNCH_TIMEOUT    100000
     EQ_CONNECTION_LAUNCH_COMMAND    "ssh -n %h %c >& %h.log"
 }
 
@@ -11,6 +11,27 @@ server
 {
     config
     {
+        node
+        {
+#            connection
+#            {
+#                 type            TCPIP
+#                hostname        "benjy"
+#                TCPIP_port      0
+#                launchTimeout   42
+#                launchCommand   "foo"
+#            }
+            pipe
+            {
+                window
+                {
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+            }
+        }
         node
         {
 #            connection
@@ -27,17 +48,16 @@ server
                 {
                     channel
                     {
+                        name "channel2"
                     }
                 }
             }
         }
         compound
         {
-            mode [2D]
-            compound{}
-            compound{}
+            mode [ SYNC ]
+            compound{ channel "channel1" }
+            compound{ channel "channel2" }
         }
     }    
 }
-
-

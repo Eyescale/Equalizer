@@ -74,7 +74,7 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
                             "PIPE" );
                     break;
                 case ConnectionDescription::IATTR_LAUNCH_TIMEOUT:
-                    os << value << " ms";
+                    os << value;// << " ms";
                     break;
                 default:
                     os << value;
