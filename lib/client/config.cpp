@@ -16,7 +16,7 @@ using namespace eq;
 using namespace std;
 
 Config::Config()
-        : Session( CMD_CONFIG_ALL, true )
+        : Session( CMD_CONFIG_CUSTOM, true )
 {
     registerCommand( CMD_CONFIG_CREATE_NODE, this, reinterpret_cast<CommandFcn>(
                          &eq::Config::_cmdCreateNode ));

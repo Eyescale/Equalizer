@@ -85,10 +85,11 @@ namespace eq
     //------------------------------------------------------------
     // Config
     //------------------------------------------------------------
-    struct ConfigCreateNodePacket : public eqNet::SessionPacket
+    typedef eqNet::SessionPacket ConfigPacket;
+    struct ConfigCreateNodePacket : public ConfigPacket
     {
         ConfigCreateNodePacket( const uint32_t configID )
-                : eqNet::SessionPacket( configID )
+                : ConfigPacket( configID )
             {
                 command = CMD_CONFIG_CREATE_NODE;
                 size    = sizeof( ConfigCreateNodePacket );
@@ -97,10 +98,10 @@ namespace eq
         uint32_t nodeID;
     };
 
-    struct ConfigDestroyNodePacket : public eqNet::SessionPacket
+    struct ConfigDestroyNodePacket : public ConfigPacket
     {
         ConfigDestroyNodePacket( const uint32_t configID )
-                : eqNet::SessionPacket( configID )
+                : ConfigPacket( configID )
             {
                 command = CMD_CONFIG_DESTROY_NODE;
                 size    = sizeof( ConfigDestroyNodePacket );
@@ -109,10 +110,10 @@ namespace eq
         uint32_t nodeID;
     };
     
-    struct ConfigInitPacket : public eqNet::SessionPacket
+    struct ConfigInitPacket : public ConfigPacket
     {
         ConfigInitPacket( const uint32_t configID ) 
-                : eqNet::SessionPacket( configID )
+                : ConfigPacket( configID )
             {
                 command   = CMD_CONFIG_INIT;
                 size      = sizeof( ConfigInitPacket );
@@ -122,10 +123,10 @@ namespace eq
         uint32_t initID;
     };
 
-    struct ConfigInitReplyPacket : public eqNet::SessionPacket
+    struct ConfigInitReplyPacket : public ConfigPacket
     {
         ConfigInitReplyPacket( const ConfigInitPacket* requestPacket )
-                : eqNet::SessionPacket( requestPacket->sessionID )
+                : ConfigPacket( requestPacket->sessionID )
             {
                 command   = CMD_CONFIG_INIT_REPLY;
                 size      = sizeof( ConfigInitReplyPacket );
@@ -135,10 +136,10 @@ namespace eq
         bool     result;
     };
 
-    struct ConfigExitPacket : public eqNet::SessionPacket
+    struct ConfigExitPacket : public ConfigPacket
     {
         ConfigExitPacket( const uint32_t configID )
-                : eqNet::SessionPacket( configID )
+                : ConfigPacket( configID )
             {
                 command   = CMD_CONFIG_EXIT;
                 size      = sizeof( ConfigExitPacket );
@@ -146,10 +147,10 @@ namespace eq
         uint32_t requestID;
     };
 
-    struct ConfigExitReplyPacket : public eqNet::SessionPacket
+    struct ConfigExitReplyPacket : public ConfigPacket
     {
         ConfigExitReplyPacket( const ConfigExitPacket* requestPacket )
-                : eqNet::SessionPacket( requestPacket->sessionID )
+                : ConfigPacket( requestPacket->sessionID )
             {
                 command   = CMD_CONFIG_EXIT_REPLY;
                 size      = sizeof( ConfigExitReplyPacket );
@@ -159,10 +160,10 @@ namespace eq
         bool     result;
     };
 
-    struct ConfigBeginFramePacket : public eqNet::SessionPacket
+    struct ConfigBeginFramePacket : public ConfigPacket
     {
         ConfigBeginFramePacket( const uint32_t configID ) 
-                : eqNet::SessionPacket( configID )
+                : ConfigPacket( configID )
             {
                 command   = CMD_CONFIG_FRAME_BEGIN;
                 size      = sizeof( ConfigBeginFramePacket );
@@ -171,10 +172,10 @@ namespace eq
         uint32_t frameID;
     };
 
-    struct ConfigBeginFrameReplyPacket : public eqNet::SessionPacket
+    struct ConfigBeginFrameReplyPacket : public ConfigPacket
     {
         ConfigBeginFrameReplyPacket(const ConfigBeginFramePacket* requestPacket)
-                : eqNet::SessionPacket( requestPacket->sessionID )
+                : ConfigPacket( requestPacket->sessionID )
             {
                 command   = CMD_CONFIG_FRAME_BEGIN_REPLY;
                 size      = sizeof( ConfigBeginFrameReplyPacket );
@@ -186,10 +187,10 @@ namespace eq
         eqNet::NodeID nodeIDs[1];
     };
 
-    struct ConfigEndFramePacket : public eqNet::SessionPacket
+    struct ConfigEndFramePacket : public ConfigPacket
     {
         ConfigEndFramePacket( const uint32_t configID ) 
-                : eqNet::SessionPacket( configID )
+                : ConfigPacket( configID )
             {
                 command   = CMD_CONFIG_FRAME_END;
                 size      = sizeof( ConfigEndFramePacket );
@@ -197,10 +198,10 @@ namespace eq
         uint32_t requestID;
     };
 
-    struct ConfigEndFrameReplyPacket : public eqNet::SessionPacket
+    struct ConfigEndFrameReplyPacket : public ConfigPacket
     {
         ConfigEndFrameReplyPacket(const ConfigEndFramePacket* requestPacket)
-                : eqNet::SessionPacket( requestPacket->sessionID )
+                : ConfigPacket( requestPacket->sessionID )
             {
                 command   = CMD_CONFIG_FRAME_END_REPLY;
                 size      = sizeof( ConfigEndFrameReplyPacket );
@@ -634,7 +635,7 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                      const ConfigBeginFrameReplyPacket* packet )
     {
-        os << (eqNet::SessionPacket*)packet << " frame #" 
+        os << (ConfigPacket*)packet << " frame #" 
            << packet->frameNumber << ", " << packet->nNodeIDs << " nodes";
         for( uint32_t i=0 ; i<4 && i<packet->nNodeIDs; ++i )
             os << " " << i << ":" << packet->nodeIDs[i];

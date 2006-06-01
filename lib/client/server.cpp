@@ -19,7 +19,7 @@ using namespace eqBase;
 using namespace std;
 
 Server::Server()
-        : Node( CMD_SERVER_ALL ),
+        : Node( CMD_SERVER_CUSTOM ),
           _state( STATE_STOPPED )
 {
     registerCommand( CMD_SERVER_CREATE_CONFIG, this, 

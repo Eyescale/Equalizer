@@ -16,8 +16,6 @@
 
 namespace eq
 {
-    struct ConfigPacket;
-
     class Node;
     class SceneObject;
     class Server;

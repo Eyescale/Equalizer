@@ -39,13 +39,13 @@ void Node::_construct()
 }
 
 Node::Node()
-        : eqNet::Node( eq::CMD_NODE_ALL )
+        : eqNet::Node( eq::CMD_NODE_CUSTOM )
 {
     _construct();
 }
 
 Node::Node( const Node& from )
-        : eqNet::Node( eq::CMD_NODE_ALL )
+        : eqNet::Node( eq::CMD_NODE_CUSTOM )
 {
     _construct();
 

@@ -34,13 +34,13 @@ void Pipe::_construct()
 }
 
 Pipe::Pipe()
-        : eqNet::Object( eq::Object::TYPE_PIPE, eq::CMD_PIPE_ALL )
+        : eqNet::Object( eq::Object::TYPE_PIPE, eq::CMD_PIPE_CUSTOM )
 {
     _construct();
 }
 
 Pipe::Pipe( const Pipe& from )
-        : eqNet::Object( eq::Object::TYPE_PIPE, eq::CMD_PIPE_ALL )
+        : eqNet::Object( eq::Object::TYPE_PIPE, eq::CMD_PIPE_CUSTOM )
 {
     _construct();
 

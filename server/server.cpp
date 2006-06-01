@@ -31,7 +31,7 @@ eq::NodeFactory* eq::createNodeFactory()
 }
 
 Server::Server()
-        : eqNet::Node( eq::CMD_SERVER_ALL ),
+        : eqNet::Node( eq::CMD_SERVER_CUSTOM ),
           _configID(0)
 {
     registerCommand( eq::CMD_SERVER_CHOOSE_CONFIG, this, 
@@ -89,7 +89,7 @@ bool Server::run( int argc, char **argv )
 
 RefPtr<eqNet::Node> Server::createNode( const CreateReason reason )
 {
-    return new Node( eq::CMD_NODE_ALL );
+    return new Node( eq::CMD_NODE_CUSTOM );
 }
 
 void Server::handleDisconnect( Node* node )

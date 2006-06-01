@@ -28,13 +28,13 @@ void Window::_construct()
 }
 
 Window::Window()
-        : eqNet::Object( eq::Object::TYPE_WINDOW, eq::CMD_WINDOW_ALL )
+        : eqNet::Object( eq::Object::TYPE_WINDOW, eq::CMD_WINDOW_CUSTOM )
 {
     _construct();
 }
 
 Window::Window( const Window& from )
-        : eqNet::Object( eq::Object::TYPE_WINDOW, eq::CMD_WINDOW_ALL )
+        : eqNet::Object( eq::Object::TYPE_WINDOW, eq::CMD_WINDOW_CUSTOM )
 {
     _construct();
 

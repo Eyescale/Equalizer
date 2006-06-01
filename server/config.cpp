@@ -41,7 +41,7 @@ void Config::_construct()
 }
 
 Config::Config()
-        : eqNet::Session( eq::CMD_CONFIG_ALL )
+        : eqNet::Session( eq::CMD_CONFIG_CUSTOM )
 {
     _construct();
 }
@@ -63,7 +63,7 @@ static TraverseResult replaceChannelCB(Compound* compound, void* userData )
 }
 
 Config::Config( const Config& from )
-        : eqNet::Session( eq::CMD_CONFIG_ALL ),
+        : eqNet::Session( eq::CMD_CONFIG_CUSTOM ),
           _server( from._server )
 {
     _construct();

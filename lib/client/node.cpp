@@ -18,7 +18,7 @@ using namespace eq;
 using namespace std;
 
 Node::Node()
-        : eqNet::Object( eq::Object::TYPE_NODE, CMD_NODE_ALL ),
+        : eqNet::Object( eq::Object::TYPE_NODE, CMD_NODE_CUSTOM ),
           _config(NULL)
 {
     registerCommand( CMD_NODE_CREATE_PIPE, this, reinterpret_cast<CommandFcn>(

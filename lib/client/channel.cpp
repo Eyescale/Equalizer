@@ -21,7 +21,7 @@ namespace eq
 }
 
 Channel::Channel()
-        : eqNet::Object( eq::Object::TYPE_CHANNEL, CMD_CHANNEL_ALL ),
+        : eqNet::Object( eq::Object::TYPE_CHANNEL, CMD_CHANNEL_CUSTOM ),
           _window(NULL),
           _near(.1),
           _far(100.),

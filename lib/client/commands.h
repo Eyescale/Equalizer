@@ -19,13 +19,13 @@ namespace eq
         REQ_SERVER_RELEASE_CONFIG,
         CMD_SERVER_INIT_CONFIG,
         REQ_SERVER_INIT_CONFIG, // REQ must follow CMD
-        CMD_SERVER_ALL
+        CMD_SERVER_CUSTOM
     };
 
     enum ClientCommand
     {
-        CMD_CLIENT_UNUSED               = CMD_SERVER_ALL,
-        CMD_CLIENT_ALL
+        CMD_CLIENT_UNUSED               = CMD_SERVER_CUSTOM,
+        CMD_CLIENT_CUSTOM
     };
 
     enum ConfigCommand
@@ -44,7 +44,7 @@ namespace eq
         CMD_CONFIG_FRAME_END,
         REQ_CONFIG_FRAME_END, // REQ must always follow CMD
         CMD_CONFIG_FRAME_END_REPLY,
-        CMD_CONFIG_ALL
+        CMD_CONFIG_CUSTOM
     };
 
     enum NodeCommand
@@ -57,7 +57,7 @@ namespace eq
         CMD_NODE_EXIT_REPLY,
         CMD_NODE_CREATE_PIPE,
         CMD_NODE_DESTROY_PIPE,
-        CMD_NODE_ALL
+        CMD_NODE_CUSTOM
     };
 
     enum PipeCommand
@@ -74,7 +74,7 @@ namespace eq
         CMD_PIPE_DESTROY_WINDOW,
         CMD_PIPE_FRAME_SYNC,
         REQ_PIPE_FRAME_SYNC,
-        CMD_PIPE_ALL
+        CMD_PIPE_CUSTOM
     };
 
     enum WindowCommand
@@ -91,7 +91,7 @@ namespace eq
         REQ_WINDOW_SWAP,
         CMD_WINDOW_SWAP_WITH_BARRIER,
         REQ_WINDOW_SWAP_WITH_BARRIER,
-        CMD_WINDOW_ALL
+        CMD_WINDOW_CUSTOM
     };
 
     enum ChannelCommand
@@ -106,7 +106,7 @@ namespace eq
         REQ_CHANNEL_CLEAR,
         CMD_CHANNEL_DRAW,
         REQ_CHANNEL_DRAW,
-        CMD_CHANNEL_ALL
+        CMD_CHANNEL_CUSTOM
     };
 };
 

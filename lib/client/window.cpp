@@ -18,7 +18,7 @@ using namespace eqBase;
 using namespace std;
 
 eq::Window::Window()
-        : eqNet::Object( eq::Object::TYPE_WINDOW, CMD_WINDOW_ALL ),
+        : eqNet::Object( eq::Object::TYPE_WINDOW, CMD_WINDOW_CUSTOM ),
 #ifdef GLX
           _xDrawable(0),
           _glXContext(NULL),

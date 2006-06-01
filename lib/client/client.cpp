@@ -16,7 +16,7 @@ using namespace eq;
 using namespace std;
 
 Client::Client()
-        : Node( CMD_CLIENT_ALL ),
+        : Node( CMD_CLIENT_CUSTOM ),
           _clientLoopRunning(false)
 {
     registerCommand( eqNet::CMD_NODE_STOP, this, reinterpret_cast<CommandFcn>( 

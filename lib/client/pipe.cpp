@@ -17,7 +17,7 @@ using namespace eq;
 using namespace std;
 
 Pipe::Pipe()
-        : eqNet::Object( eq::Object::TYPE_PIPE, CMD_PIPE_ALL ),
+        : eqNet::Object( eq::Object::TYPE_PIPE, CMD_PIPE_CUSTOM ),
           _node(NULL),
           _windowSystem( WINDOW_SYSTEM_NONE ),
 #ifdef GLX

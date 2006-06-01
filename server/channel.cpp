@@ -32,13 +32,13 @@ void Channel::_construct()
 }
 
 Channel::Channel()
-        : eqNet::Object( eq::Object::TYPE_CHANNEL, eq::CMD_CHANNEL_ALL )
+        : eqNet::Object( eq::Object::TYPE_CHANNEL, eq::CMD_CHANNEL_CUSTOM )
 {
     _construct();
 }
 
 Channel::Channel( const Channel& from )
-        : eqNet::Object( eq::Object::TYPE_CHANNEL, eq::CMD_CHANNEL_ALL )
+        : eqNet::Object( eq::Object::TYPE_CHANNEL, eq::CMD_CHANNEL_CUSTOM )
 {
     _construct();
 }
