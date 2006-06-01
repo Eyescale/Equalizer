@@ -7,7 +7,7 @@ else
   VARIANTS = ppc
 endif
 
-CXXFLAGS += #-DEQLOADER
+CXXFLAGS += -DEQLOADER
 
 ifdef VARIANT
   CXXFLAGS    += -arch $(VARIANT)

@@ -110,6 +110,9 @@ namespace eqs
         uint32_t getDisplay() const              { return _display; }
         void setScreen( const uint32_t screen )  { _screen = screen; }
         uint32_t getScreen() const               { return _screen; }
+
+        /** @return the pixel viewport. */
+        const eq::PixelViewport& getPixelViewport() const { return _pvp; }
         //*}
 
         /**
@@ -185,7 +188,6 @@ namespace eqs
         /** The request id for pending asynchronous operations. */
         uint32_t _pendingRequestID;
 
-        
         /** The display (X11) or ignored (Win32, CGL). */
         uint32_t _display;
 
@@ -195,6 +197,9 @@ namespace eqs
         /* The display (CGL) or output channel (X11, Win32). */
         //uint32_t _channel;
 
+        /** The absolute size and position of the pipe. */
+        eq::PixelViewport _pvp;
+        
         /** A counter for the number of allowed pending frames. */
         eqBase::Sema _frameSync;
 

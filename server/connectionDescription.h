@@ -39,6 +39,9 @@ namespace eqs
 
     private:
     };
+
+    std::ostream& operator << ( std::ostream& os, 
+                                const eqNet::ConnectionDescription* desc );
 };
 
 #endif // EQNET_CONNECTION_DESCRIPTION_H

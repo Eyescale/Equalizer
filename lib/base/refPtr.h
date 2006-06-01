@@ -95,7 +95,6 @@ namespace eqBase
         os << "RefPtr[" << rp.get() << "]";
         return os;
     }
-
 }
 
 #endif //EQBASE_REFPTR_H

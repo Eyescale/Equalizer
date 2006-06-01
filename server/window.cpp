@@ -70,6 +70,37 @@ void Window::unrefUsed()
         _pipe->unrefUsed(); 
 }
 
+//----------------------------------------------------------------------
+// viewport
+//----------------------------------------------------------------------
+void eqs::Window::setPixelViewport( const eq::PixelViewport& pvp )
+{
+    if( !pvp.isValid( ))
+        return;
+
+    _pvp = pvp;
+
+    if( !_pipe )
+        return;
+    
+    const eq::PixelViewport& pipePVP = _pipe->getPixelViewport();
+    _vp = pvp / pipePVP;
+}
+
+void eqs::Window::setViewport( const eq::Viewport& vp )
+{
+    if( !vp.isValid( ))
+        return;
+    
+    _vp = vp;
+    
+    if( !_pipe )
+        return;
+
+    const eq::PixelViewport& pipePVP = _pipe->getPixelViewport();
+    _pvp = pipePVP * vp;
+}
+
 //---------------------------------------------------------------------------
 // swap group operations
 //---------------------------------------------------------------------------

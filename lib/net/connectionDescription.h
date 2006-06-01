@@ -93,21 +93,6 @@ namespace eqNet
     protected:
         virtual ~ConnectionDescription() {}
     };
-
-    /** 
-     * Prints the connection description to a std::ostream.
-     * 
-     * @param os the output stream.
-     * @param description the connection description.
-     * @return the output stream.
-     */
-    inline std::ostream& operator << ( std::ostream& os, 
-        ConnectionDescription* description)
-    {
-        os << "connection description " << (void*)description <<  ": "
-           << description->toString();
-        return os;
-    }
 };
 
 #endif // EQNET_CONNECTION_DESCRIPTION_H

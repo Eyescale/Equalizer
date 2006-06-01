@@ -115,7 +115,7 @@ namespace eqs
          * 
          * @param pvp the viewport in pixels.
          */
-        void setPixelViewport( const eq::PixelViewport& pvp ) { _pvp = pvp; }
+        void setPixelViewport( const eq::PixelViewport& pvp );
 
         /** 
          * Return this window's pixel viewport.
@@ -123,6 +123,20 @@ namespace eqs
          * @return the pixel viewport.
          */
         const eq::PixelViewport& getPixelViewport() const { return _pvp; }
+
+        /** 
+         * Set the window's viewport wrt its parent pipe.
+         * 
+         * @param vp the fractional viewport.
+         */
+        void setViewport( const eq::Viewport& vp );
+
+        /** 
+         * Return this window's viewport.
+         * 
+         * @return the fractional viewport.
+         */
+        const eq::Viewport& getViewport() const { return _vp; }
 
         /** 
          * Clear the swap group of the window.

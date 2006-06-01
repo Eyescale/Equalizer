@@ -30,16 +30,24 @@ compound                        { return EQTOKEN_COMPOUND; }
 connection                      { return EQTOKEN_CONNECTION; }
 name                            { return EQTOKEN_NAME; }
 type                            { return EQTOKEN_TYPE; }
+hostname                        { return EQTOKEN_HOSTNAME; }
+command                         { return EQTOKEN_COMMAND; }
+timeout                         { return EQTOKEN_TIMEOUT; }
+viewport                        { return EQTOKEN_VIEWPORT; }
 mode                            { return EQTOKEN_MODE; }
 TCPIP|tcpip                     { return EQTOKEN_TCPIP; }
 SYNC                            { return EQTOKEN_SYNC; }
-[0-9]+                          { return EQTOKEN_INTEGER; }
+
 ["]                             { 
                                     int i = 0;
                                     while( (yytext[i++] = yyinput()) != '"' );
                                     yytext[i-1] = '\0';
                                     return EQTOKEN_STRING; 
                                 }
+[0]?\.[0-9]+                    { return EQTOKEN_NORMALIZED_FLOAT; }
+[01][\.]?                       { return EQTOKEN_NORMALIZED_FLOAT; }
+[0-9]+                          { return EQTOKEN_INTEGER; }
+
 [{}"\[\]]                       { return *yytext; }
 [\n]                            { ++yylineno; }
 [ \t]                           { ; }

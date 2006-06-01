@@ -4,6 +4,7 @@ include $(TOP)/make/system.mk
 SOURCES = \
 	channel.cpp \
 	config.cpp \
+	connectionDescription.cpp \
 	compound.cpp \
 	global.cpp \
 	loader.cpp \

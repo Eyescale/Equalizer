@@ -13,18 +13,19 @@ server
     {
         node
         {
-#            connection
-#            {
-#                 type            TCPIP
-#                hostname        "benjy"
+            connection
+            {
+                 type            TCPIP
+                 hostname        "go"
 #                TCPIP_port      0
-#                launchTimeout   42
-#                launchCommand   "foo"
-#            }
+                 timeout         42
+                 command         "foo"
+            }
             pipe
             {
                 window
                 {
+                    viewport [ 164 350 840 525 ]
                     channel
                     {
                         name "channel1"
