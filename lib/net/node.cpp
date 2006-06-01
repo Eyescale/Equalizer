@@ -36,6 +36,7 @@ Node::Node( const uint32_t nCommands )
         : Object( TYPE_UNMANAGED, nCommands ),
           _autoLaunch(false),
           _autoLaunched(false),
+          _id(true),
           _state(STATE_STOPPED),
           _launchID(EQ_INVALID_ID),
           _clientRunning(false),

@@ -56,10 +56,10 @@ namespace eqNet
          */
         Node* getLocalNode(){ return _localNode.get(); }
 
-//         /** 
-//          * @return the server hosting this session. 
-//          */
-//         Node* getServer(){ return _server.get(); }
+        /** 
+         * @return the server hosting this session. 
+         */
+        eqBase::RefPtr<Node> getServer(){ return _server; }
 
         /** 
          * Dispatches a command packet to the appropriate object.
@@ -109,7 +109,7 @@ namespace eqNet
          * @param master the master node for the block of identifiers.
          */
         void setIDMaster( const uint32_t start, const uint32_t range, 
-                          Node* master );
+                          eqBase::RefPtr<Node> master );
 
         /** 
          * Delete the master node for a block of identifiers.
@@ -143,7 +143,7 @@ namespace eqNet
          * @param master the master node for the object, can be
          *               <code>NULL</code> for unmanaged objects.
          */
-        void registerObject( Object* object, Node* master );
+        void registerObject( Object* object, eqBase::RefPtr<Node> master );
 
         /** 
          * Access a networked object.

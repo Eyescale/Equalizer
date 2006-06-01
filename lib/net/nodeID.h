@@ -19,7 +19,8 @@ namespace eqNet
     class NodeID
     {
     public:
-        NodeID(){ uuid_generate( _id ); }
+        NodeID( const bool generate = false )
+            { generate ? uuid_generate( _id ) : uuid_clear( _id ); }
         NodeID( const NodeID& from ) { uuid_copy( _id, from._id ); }
 
         NodeID& operator = ( const NodeID& from )
@@ -33,6 +34,12 @@ namespace eqNet
 
         bool operator != ( const NodeID& rhs ) const
             { return uuid_compare( _id, rhs._id ) != 0; }
+        bool operator <  ( const NodeID& rhs ) const
+            { return uuid_compare( _id, rhs._id ) < 0; }
+        bool operator >  ( const NodeID& rhs ) const
+            { return uuid_compare( _id, rhs._id ) > 0; }
+
+        bool operator ! () const { return uuid_is_null( _id ); }
 
     private:
         uuid_t _id;

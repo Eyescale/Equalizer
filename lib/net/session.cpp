@@ -103,7 +103,7 @@ void Session::freeIDs( const uint32_t start, const uint32_t range )
 // identifier master node mapping
 //---------------------------------------------------------------------------
 void Session::setIDMaster( const uint32_t start, const uint32_t range, 
-                           Node* master )
+                           RefPtr<Node> master )
 {
     EQASSERT( master->checkConnection( ));
 
@@ -166,14 +166,14 @@ void Session::_addRegisteredObject( const uint32_t id, Object* object )
 }
 
 // XXX use RefPtr for object
-void Session::registerObject( Object* object, Node* master )
+void Session::registerObject( Object* object, RefPtr<Node> master )
 {
     EQASSERT( object->_id == EQ_INVALID_ID );
     const uint32_t id = genIDs( 1 );
 
     if( object->getTypeID() != Object::TYPE_UNMANAGED )
     {
-        EQASSERT( master );
+        EQASSERT( master.isValid( ));
         setIDMaster( id, 1, master );
     }
     _addRegisteredObject( id, object );

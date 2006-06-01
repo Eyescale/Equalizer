@@ -11,6 +11,7 @@
 #include <iostream>
 
 using namespace eqNet;
+using namespace eqBase;
 using namespace std;
 
 Object::Object( const uint32_t typeID, 
@@ -50,7 +51,7 @@ Object::~Object()
     }
 }
 
-void Object::instanciateOnNode( Node* node )
+void Object::instanciateOnNode( RefPtr<Node> node )
 {
     EQASSERT( _session );
     EQASSERT( _id != EQ_INVALID_ID );

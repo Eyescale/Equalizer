@@ -125,7 +125,7 @@ namespace eqNet
          * 
          * @param node the remote node.
          */
-        void instanciateOnNode( Node* node );
+        void instanciateOnNode( eqBase::RefPtr<Node> node );
         //*}
 
         /**
