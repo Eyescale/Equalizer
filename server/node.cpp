@@ -137,6 +137,8 @@ bool Node::syncInit()
     const bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = EQ_INVALID_ID;
 
+    if( !success )
+        EQWARN << "Node initialisation failed" << endl;
     return success;
 }
 

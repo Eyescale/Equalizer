@@ -26,6 +26,7 @@
         static eqs::Window*   window;
         static eqs::Channel*  channel;
         static eqs::Compound* compound;
+        static eq::Wall       wall;
         static eqBase::RefPtr<eqNet::ConnectionDescription> 
             connectionDescription;
     }
@@ -58,18 +59,24 @@
 %token EQTOKEN_COMPOUND
 %token EQTOKEN_CONNECTION
 %token EQTOKEN_NAME
-%token EQTOKEN_MODE
 %token EQTOKEN_TYPE
 %token EQTOKEN_HOSTNAME
 %token EQTOKEN_COMMAND
 %token EQTOKEN_TIMEOUT
 %token EQTOKEN_VIEWPORT
+%token EQTOKEN_WALL
+%token EQTOKEN_BOTTOM_LEFT
+%token EQTOKEN_BOTTOM_RIGHT
+%token EQTOKEN_TOP_LEFT
+%token EQTOKEN_MODE
 %token EQTOKEN_TCPIP
 %token EQTOKEN_SYNC
 
 %token EQTOKEN_STRING
 %token EQTOKEN_NORMALIZED_FLOAT
+%token EQTOKEN_FLOAT
 %token EQTOKEN_INTEGER
+%token EQTOKEN_UINTEGER
 
 %union{
     const char*             stringval;
@@ -78,13 +85,15 @@
     bool                    boolean;
     eqs::Compound::Mode     _compoundMode;
     eqNet::Connection::Type _connectionType;
+    bool                    dummy;
 }
 
 %type <stringval>       STRING;
-%type <integer>         INTEGER;
+%type <integer>         INTEGER UINTEGER;
 %type <_compoundMode>   compoundMode;
-%type<_connectionType>  connectionType;
-%type <floatval>        NORMALIZED_FLOAT;
+%type <_connectionType> connectionType;
+%type <floatval>        NORMALIZED_FLOAT FLOAT;
+%type <dummy>           wallDescription;
 //%type <boolean>       BOOL;
 
 %%
@@ -108,12 +117,12 @@ global:
          eqs::Global::instance()->setConnectionSAttribute(
              eqs::ConnectionDescription::SATTR_HOSTNAME, $2 );
      }
-     | EQTOKEN_CONNECTION_TCPIP_PORT INTEGER
+     | EQTOKEN_CONNECTION_TCPIP_PORT UINTEGER
      {
          eqs::Global::instance()->setConnectionIAttribute(
              eqs::ConnectionDescription::IATTR_TCPIP_PORT, $2 );
      }
-     | EQTOKEN_CONNECTION_LAUNCH_TIMEOUT INTEGER
+     | EQTOKEN_CONNECTION_LAUNCH_TIMEOUT UINTEGER
      {
          eqs::Global::instance()->setConnectionIAttribute(
              eqs::ConnectionDescription::IATTR_LAUNCH_TIMEOUT, $2 );
@@ -158,7 +167,7 @@ connectionAttribute:
     EQTOKEN_TYPE connectionType { connectionDescription->type = $2; }
     | EQTOKEN_HOSTNAME STRING   { connectionDescription->hostname = $2; }
     | EQTOKEN_COMMAND STRING    { connectionDescription->launchCommand = $2; }
-    | EQTOKEN_TIMEOUT INTEGER   { connectionDescription->launchTimeout = $2; }
+    | EQTOKEN_TIMEOUT UINTEGER  { connectionDescription->launchTimeout = $2; }
 
 nodeAttributes: /*null*/ | nodeAttribute | nodeAttributes nodeAttribute
 nodeAttribute: /*TODO*/
@@ -176,7 +185,7 @@ windowAttribute:
     EQTOKEN_VIEWPORT '[' NORMALIZED_FLOAT NORMALIZED_FLOAT 
                          NORMALIZED_FLOAT NORMALIZED_FLOAT ']'
     { window->setViewport( eq::Viewport( $3, $4, $5, $6 )); }
-    | EQTOKEN_VIEWPORT '[' INTEGER INTEGER INTEGER INTEGER ']'
+    | EQTOKEN_VIEWPORT '[' UINTEGER UINTEGER UINTEGER UINTEGER ']'
     { window->setPixelViewport( eq::PixelViewport( $3, $4, $5, $6 )); }
 
 channels: channel | channels channel
@@ -211,9 +220,31 @@ compoundAttribute:
          else
              compound->setChannel( channel );
     }
+    | wallDescription { compound->setWall( wall ); }
 
 compoundMode:
     EQTOKEN_SYNC { $$ = eqs::Compound::MODE_SYNC; }
+
+
+wallDescription: EQTOKEN_WALL '{'
+        EQTOKEN_BOTTOM_LEFT  '[' FLOAT FLOAT FLOAT ']' 
+        EQTOKEN_BOTTOM_RIGHT '[' FLOAT FLOAT FLOAT ']' 
+        EQTOKEN_TOP_LEFT     '[' FLOAT FLOAT FLOAT ']' 
+    '}'
+    { 
+        wall.bottomLeft[0] = $5;
+        wall.bottomLeft[1] = $6;
+        wall.bottomLeft[2] = $7;
+
+        wall.bottomRight[0] = $11;
+        wall.bottomRight[1] = $12;
+        wall.bottomRight[2] = $13;
+
+        wall.topLeft[0] = $17;
+        wall.topLeft[1] = $18;
+        wall.topLeft[2] = $19;
+    }
+
 
 STRING: EQTOKEN_STRING
      {
@@ -221,7 +252,12 @@ STRING: EQTOKEN_STRING
          $$ = stringBuf.c_str(); 
      }
 NORMALIZED_FLOAT: EQTOKEN_NORMALIZED_FLOAT { $$ = atof( yytext ); }
+FLOAT: EQTOKEN_FLOAT                       { $$ = atof( yytext ); }
+    | NORMALIZED_FLOAT                     { $$ = $1; }
+    | INTEGER                              { $$ = $1; }
 INTEGER: EQTOKEN_INTEGER                   { $$ = atoi( yytext ); }
+    | UINTEGER                             { $$ = $1; }
+UINTEGER: EQTOKEN_UINTEGER                 { $$ = atoi( yytext ); }
 %%
 
 void yyerror( char *errmsg )

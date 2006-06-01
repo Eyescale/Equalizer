@@ -12,12 +12,8 @@ using namespace std;
 
 int main( int argc, char **argv )
 {
-#ifdef EQLOADER
     Loader loader;
-    RefPtr<Server> server = loader.loadConfig( "../examples/configs/config.eqc" );
-#else
-    RefPtr<Server> server = new Server;
-#endif
+    RefPtr<Server> server = loader.loadConfig( "examples/configs/config.eqc" );
 
     if( !server.isValid( ))
     {

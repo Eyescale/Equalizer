@@ -19,7 +19,7 @@ namespace eq
         REQ_SERVER_RELEASE_CONFIG,
         CMD_SERVER_INIT_CONFIG,
         REQ_SERVER_INIT_CONFIG, // REQ must follow CMD
-        CMD_SERVER_CUSTOM
+        CMD_SERVER_CUSTOM = 1 << 7
     };
 
     enum ClientCommand

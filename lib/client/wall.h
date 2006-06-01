@@ -5,6 +5,9 @@
 #ifndef EQ_WALL_H
 #define EQ_WALL_H
 
+#include <eq/base/log.h>
+
+#include <iostream>
 
 namespace eq
 {
@@ -39,6 +42,8 @@ namespace eq
         float bottomRight[3];
         float topLeft[3];
     };
+
+    std::ostream& operator << ( std::ostream& os, const Wall& wall );
 }
 
 #endif // EQ_WALL_H

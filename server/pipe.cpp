@@ -137,6 +137,8 @@ bool Pipe::syncInit()
 
     if( success )
         _state = STATE_RUNNING;
+    else
+        EQWARN << "Pipe initialisation failed" << endl;
     return success;
 }
 

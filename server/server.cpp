@@ -66,19 +66,11 @@ bool Server::run( int argc, char **argv )
     if( !listen( connection ))
         return false;
 
-#ifdef EQLOADER
     if( nConfigs() == 0 )
     {
         EQERROR << "No configurations loaded" << endl;
         return false;
     }
-#else
-    if( !_loadConfig( argc, argv ))
-    {
-        EQERROR << "Could not load configuration" << endl;
-        return false;
-    }
-#endif
 
     EQINFO << disableFlush << "Running server: " << endl << indent 
            << Global::instance() << this << exdent << enableFlush;
@@ -111,83 +103,6 @@ void Server::mapConfig( Config* config )
 
     const bool   mapped = mapSession( this, config, stringStream.str( ));
     EQASSERT( mapped );
-}
-
-bool Server::_loadConfig( int argc, char **argv )
-{
-    // TODO
-    Config*    config = new Config();
-    addConfig( config );
-    config->setLatency(1);
-
-    Compound* top  = new Compound;
-    top->setMode( Compound::MODE_SYNC );
-    config->addCompound( top );
-
-    eqs::Node* node = new eqs::Node();
-    config->addNode( node );
-
-    RefPtr<eqNet::ConnectionDescription> description =
-        new eqNet::ConnectionDescription;
-    description->launchCommand = "ssh -n %h %c >& %h.log";
-    description->hostname      = "localhost";
-    description->launchTimeout = 100000;
-    node->addConnectionDescription( description );
-
-    Pipe* pipe = new Pipe();
-    node->addPipe( pipe );
-
-    Window* window = new Window();
-    pipe->addWindow( window );
-
-    eq::PixelViewport pvp1( 164, 350, 840, 525 );
-    window->setPixelViewport( pvp1 );
-
-    Channel* channel = new Channel();
-    window->addChannel( channel );
-
-    Compound* compound = new Compound();
-    compound->setChannel( channel );
-
-    eq::Wall wall = WALL_20INCH_16x10;
-    wall.translate( wall.bottomLeft[0], 0, 0 );
-    compound->setWall( wall );
-    top->addChild( compound );
-
-#if 1 // second window?
-#  if 1 // on separate node?
-    node = new eqs::Node();
-    config->addNode( node );
-
-    description = new eqNet::ConnectionDescription;
-    description->launchCommand = "ssh -n %h %c >& %h.2.log";
-    description->hostname      = "localhost";
-//     description->hostname      = "go";
-    description->launchTimeout = 100000;
-    node->addConnectionDescription( description );
-#  endif
-    pipe = new Pipe();
-    node->addPipe( pipe );
-
-    window = new Window();
-    pipe->addWindow( window );
-
-    eq::PixelViewport pvp2( 1014, 434, 512, 357 );
-    window->setPixelViewport( pvp2 );
-
-    channel = new Channel();
-    window->addChannel( channel );
-
-    compound = new Compound();
-    compound->setChannel( channel );
-
-    eq::Wall wall2 = WALL_12INCH_4x3;
-    wall2.translate( wall2.bottomRight[0], 0, 0 );
-    compound->setWall( wall2 );
-    top->addChild( compound );
-#endif
-
-    return true;
 }
 
 //===========================================================================

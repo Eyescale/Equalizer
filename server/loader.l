@@ -34,19 +34,28 @@ hostname                        { return EQTOKEN_HOSTNAME; }
 command                         { return EQTOKEN_COMMAND; }
 timeout                         { return EQTOKEN_TIMEOUT; }
 viewport                        { return EQTOKEN_VIEWPORT; }
+wall                            { return EQTOKEN_WALL; }
+bottom_left                     { return EQTOKEN_BOTTOM_LEFT; }
+bottom_right                    { return EQTOKEN_BOTTOM_RIGHT; }
+top_left                        { return EQTOKEN_TOP_LEFT; }
 mode                            { return EQTOKEN_MODE; }
 TCPIP|tcpip                     { return EQTOKEN_TCPIP; }
 SYNC                            { return EQTOKEN_SYNC; }
 
 ["]                             { 
-                                    int i = 0;
-                                    while( (yytext[i++] = yyinput()) != '"' );
-                                    yytext[i-1] = '\0';
+                                    int i = -1;
+                                    while( (yytext[++i] = yyinput()) != '"' )
+                                        if( yytext[i] == '\n' )
+                                            ++yylineno;
+                                    yytext[i] = '\0';
                                     return EQTOKEN_STRING; 
                                 }
 [0]?\.[0-9]+                    { return EQTOKEN_NORMALIZED_FLOAT; }
-[01][\.]?                       { return EQTOKEN_NORMALIZED_FLOAT; }
-[0-9]+                          { return EQTOKEN_INTEGER; }
+[01]\.[0]*                      { return EQTOKEN_NORMALIZED_FLOAT; }
+[+-]?[0-9]+[\.][0-9]*           { return EQTOKEN_FLOAT; }
+[+-]?[0-9]*[\.][0-9]+           { return EQTOKEN_FLOAT; }
+[+]?[0-9]+                      { return EQTOKEN_UINTEGER; }
+[+-]?[0-9]+                     { return EQTOKEN_INTEGER; }
 
 [{}"\[\]]                       { return *yytext; }
 [\n]                            { ++yylineno; }

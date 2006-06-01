@@ -124,9 +124,6 @@ namespace eqs
         /** The receiver->main request queue. */
         eqNet::RequestQueue    _requestQueue;
 
-        /** Loads the server's configuration. */
-        bool _loadConfig( int argc, char **argv );
-
         void        _handleRequests(); 
 
         /** The command functions. */

@@ -8,6 +8,7 @@
 
 #include <eq/base/base.h>
 #include <eq/client/packets.h>
+#include <eq/client/wall.h>
 #include <eq/net/session.h>
 
 #include <GL/gl.h>
@@ -189,7 +190,7 @@ void Compound::setProjection( const eq::Projection& projection )
     _view.latest     = View::PROJECTION;
 }
 
-void Compound::setMatrix( const eq::ViewMatrix& view )
+void Compound::setViewMatrix( const eq::ViewMatrix& view )
 {
     _data.view   = view;
     _view.matrix = view;
@@ -477,7 +478,22 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
     const Channel* channel = compound->getChannel();
     if( channel )
         os << "channel \"" << channel->getName() << "\"" << endl;
-    
+
+    switch( compound->_view.latest )
+    {
+        case Compound::View::WALL:
+            os << compound->getWall() << endl;
+            break;
+        case Compound::View::PROJECTION:
+            //os << compound->getProjection() << endl;
+            break;
+        case Compound::View::VIEWMATRIX:
+            //os << compound->getViewMatrix() << endl;
+            break;
+        default: 
+            break;
+    }
+
     const uint32_t nChildren = compound->nChildren();
     if( nChildren > 0 )
     {

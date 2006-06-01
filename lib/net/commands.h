@@ -27,7 +27,7 @@ namespace eqNet
         CMD_NODE_CONNECT,
         CMD_NODE_GET_CONNECTION_DESCRIPTION,
         CMD_NODE_GET_CONNECTION_DESCRIPTION_REPLY,
-        CMD_NODE_CUSTOM // must be last
+        CMD_NODE_CUSTOM = 1<<6 // must be last
     };
 
     enum SessionCommand

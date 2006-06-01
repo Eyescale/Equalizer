@@ -91,6 +91,8 @@ bool Channel::syncInit()
 
     if( success )
         _state = STATE_RUNNING;
+    else
+        EQWARN << "Channel initialisation failed" << endl;
     return success;
 }
 

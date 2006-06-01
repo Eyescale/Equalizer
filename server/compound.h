@@ -143,6 +143,9 @@ namespace eqs
          * @param wall the wall description.
          */
         void setWall( const eq::Wall& wall );
+        
+        /** @return the last specified wall description. */
+        const eq::Wall& getWall() const { return _view.wall; }
 
         /** 
          * Set the compound's view using a projection description
@@ -151,12 +154,18 @@ namespace eqs
          */
         void setProjection( const eq::Projection& projection );
 
+        /** @return the last specified projection description. */
+        const eq::Projection& getProjection() const { return _view.projection; }
+
         /** 
          * Set the compound's view as a four-by-four matrix.
          * 
          * @param view the view description.
          */
-        void setMatrix( const eq::ViewMatrix& view  );
+        void setViewMatrix( const eq::ViewMatrix& view  );
+
+        /** @return the last specified projection matrix. */
+        const eq::ViewMatrix& getViewMatrix() const { return _view.matrix; }
         //*}
 
         /**
@@ -259,8 +268,11 @@ namespace eqs
 
         void _updateSwapGroup();
         void _computeFrustum( eq::Frustum& frustum, float headTransform[16] );
+
+        friend std::ostream& operator << ( std::ostream& os,
+                                           const Compound* compound );
     };
 
-    std::ostream& operator << (std::ostream& os,const Compound* compound);
+    std::ostream& operator << ( std::ostream& os,const Compound* compound );
 };
 #endif // EQS_COMPOUND_H
