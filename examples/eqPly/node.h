@@ -2,10 +2,10 @@
 /* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_FLIP_NODE_H
-#define EQ_FLIP_NODE_H
+#ifndef EQ_PLY_NODE_H
+#define EQ_PLY_NODE_H
 
-#include "flip.h"
+#include "eqPly.h"
 
 #include <eq/eq.h>
 
@@ -22,4 +22,4 @@ private:
     Model* _model;    
 };
 
-#endif // EQ_FLIP_NODE_H
+#endif // EQ_PLY_NODE_H

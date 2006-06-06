@@ -2,10 +2,10 @@
 /* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_FLIP_INITDATA_H
-#define EQ_FLIP_INITDATA_H
+#ifndef EQ_PLY_INITDATA_H
+#define EQ_PLY_INITDATA_H
 
-#include "flip.h"
+#include "eqPly.h"
 #include "frameData.h"
 
 #include <eq/eq.h>
@@ -37,5 +37,5 @@ private:
 
 
 
-#endif // EQ_FLIP_INITDATA_H
+#endif // EQ_PLY_INITDATA_H
 

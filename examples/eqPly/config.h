@@ -2,8 +2,8 @@
 /* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_FLIP_CONFIG_H
-#define EQ_FLIP_CONFIG_H
+#ifndef EQ_PLY_CONFIG_H
+#define EQ_PLY_CONFIG_H
 
 #include <eq/eq.h>
 
@@ -29,4 +29,4 @@ protected:
         }
 };
 
-#endif // EQ_FLIP_CONFIG_H
+#endif // EQ_PLY_CONFIG_H

@@ -2,8 +2,8 @@
 /* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_FLIP_H
-#define EQ_FLIP_H
+#ifndef EQ_PLY_H
+#define EQ_PLY_H
 
 #include "colorVertex.h"
 #include "normalFace.h"
@@ -20,5 +20,5 @@ enum ObjectType
 typedef PlyModel< NormalFace<ColorVertex> > Model;
 
 
-#endif // EQ_FLIP_H
+#endif // EQ_PLY_H
 
