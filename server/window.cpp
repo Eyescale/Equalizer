@@ -38,8 +38,9 @@ Window::Window( const Window& from )
 {
     _construct();
 
-    _pvp = from._pvp;
-    _vp  = from._vp;
+    _name = from._name;
+    _pvp  = from._pvp;
+    _vp   = from._vp;
 
     const uint32_t nChannels = from.nChannels();
     for( uint32_t i=0; i<nChannels; i++ )
@@ -79,12 +80,14 @@ void eqs::Window::setPixelViewport( const eq::PixelViewport& pvp )
         return;
 
     _pvp = pvp;
+    _vp.invalidate();
 
     if( !_pipe )
         return;
     
     const eq::PixelViewport& pipePVP = _pipe->getPixelViewport();
-    _vp = pvp / pipePVP;
+    if( pipePVP.isValid( ))
+        _vp = pvp / pipePVP;
 }
 
 void eqs::Window::setViewport( const eq::Viewport& vp )
@@ -93,12 +96,18 @@ void eqs::Window::setViewport( const eq::Viewport& vp )
         return;
     
     _vp = vp;
-    
+    _pvp.invalidate();
+
     if( !_pipe )
         return;
 
-    const eq::PixelViewport& pipePVP = _pipe->getPixelViewport();
-    _pvp = pipePVP * vp;
+    eq::PixelViewport pipePVP = _pipe->getPixelViewport();
+    if( pipePVP.isValid( ))
+    {
+        pipePVP.x = 0;
+        pipePVP.y = 0;
+        _pvp = pipePVP * vp;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -316,7 +325,8 @@ eqNet::CommandResult Window::_cmdInitReply( eqNet::Node* node, const eqNet::Pack
     eq::WindowInitReplyPacket* packet = (eq::WindowInitReplyPacket*)pkg;
     EQINFO << "handle window init reply " << packet << endl;
 
-    _pvp = packet->pvp;
+    if( packet->pvp.isValid( ))
+        setPixelViewport( packet->pvp );
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
     return eqNet::COMMAND_HANDLED;
 }
@@ -339,10 +349,23 @@ std::ostream& eqs::operator << ( std::ostream& os, const Window* window )
     os << disableFlush << disableHeader << "window" << endl;
     os << "{" << endl << indent; 
 
-    const eq::PixelViewport& pvp = window->getPixelViewport();
-    if( pvp.isValid( ))
-        os << "viewport " << pvp << endl;
+    const std::string& name = window->getName();
+    if( name.empty( ))
+        os << "name \"window_" << (void*)window << "\"" << endl;
+    else
+        os << "name \"" << name << "\"" << endl;
 
+    const eq::Viewport& vp  = window->getViewport();
+    if( vp.isValid( ))
+        os << "viewport " << vp << endl;
+    else
+    {
+        const eq::PixelViewport& pvp = window->getPixelViewport();
+        if( pvp.isValid( ))
+            os << "viewport " << pvp << endl;
+    }
+
+    os << endl;
     const uint32_t nChannels = window->nChannels();
     for( uint32_t i=0; i<nChannels; i++ )
         os << window->getChannel(i);

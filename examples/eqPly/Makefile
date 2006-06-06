@@ -1,7 +1,7 @@
 
 include $(TOP)/make/system.mk
 
-PROGRAM = flip
+PROGRAM = eqPly
 
 SOURCES = \
 	channel.cpp \

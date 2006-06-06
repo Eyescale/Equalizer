@@ -110,6 +110,9 @@ namespace eqs
          */
         bool isUsed() const { return (_used!=0); }
 
+        void setName( const std::string& name ) { _name = name; }
+        const std::string& getName() const      { return _name; }
+
         /** 
          * Set the window's pixel viewport wrt its parent pipe.
          * 
@@ -195,6 +198,8 @@ namespace eqs
     private:
         /** The current operational state. */
         State _state;
+
+        std::string _name;
 
         /** The child channels. */
         std::vector<Channel*> _channels;

@@ -288,7 +288,8 @@ bool Config::_initConnectNodes()
 
         if( !node->initConnect( ))
         {
-            EQERROR << "Connection to " << node << " failed." << endl;
+            EQERROR << "Connection to " << node->getNodeID() << " failed." 
+                    << endl;
             return false;
         }
     }

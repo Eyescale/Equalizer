@@ -2,7 +2,7 @@
 include $(TOP)/make/system.mk
 
 SUBDIRS = \
-	flip
+	eqPly
 
 TARGETS = subdirs
 

@@ -23,6 +23,7 @@ namespace eq
                 : x(x), y(y), w(w), h(h)  {}
         //*}
 
+        void invalidate() { x=0; y=0; w=0; h=0; }
         void multiply( const Viewport& vp )
             {
                 x += vp.x * w;
@@ -32,6 +33,7 @@ namespace eq
             }
 
         bool isValid() const { return (w>0 && h>0); }
+        bool isFullScreen() const { return ( x==0 && y==0 && w==1 && h==1 ); }
 
         float x;
         float y;
@@ -41,7 +43,7 @@ namespace eq
 
     inline std::ostream& operator << ( std::ostream& os, const Viewport& vp )
     {
-        os << "{" << vp.x << " " << vp.y << " " << vp.w << " " << vp.h << "}";
+        os << "[ " << vp.x << " " << vp.y << " " << vp.w << " " << vp.h << " ]";
         return os;
     }
 }

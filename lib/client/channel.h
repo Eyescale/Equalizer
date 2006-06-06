@@ -45,6 +45,8 @@ namespace eq
         Config* getConfig() const 
             { return ( _window ? _window->getConfig() : NULL );}
 
+        const std::string& getName() const { return _name; }
+
         /** 
          * Set the near and far planes for this channel.
          * 
@@ -124,6 +126,29 @@ namespace eq
         void applyViewport();
 
         /** 
+         * Set the channel's pixel viewport wrt its parent pipe.
+         *
+         * Updates the fractional viewport accordingly.
+         * 
+         * @param pvp the viewport in pixels.
+         */
+        void setPixelViewport( const PixelViewport& pvp );
+        
+        /** 
+         * @return the channel's pixel viewport
+         */
+        const PixelViewport& getPixelViewport() const;
+
+        /** 
+         * Set the channel's fractional viewport wrt its parent pipe.
+         *
+         * Updates the pixel viewport accordingly.
+         * 
+         * @param vp the fractional viewport.
+         */
+        void setViewport( const Viewport& vp );
+
+        /** 
          * @return the current fractional viewport of this channel.
          */
         const Viewport& getViewport() const;
@@ -165,6 +190,9 @@ namespace eq
         friend class   Window;
         Window*        _window;
 
+        /** The name. */
+        std::string    _name;
+
         /** Static near plane. */
         float          _near;
         /** Static far plane. */
@@ -172,6 +200,9 @@ namespace eq
 
         /** server-supplied rendering data. */
         RenderContext *_context;
+
+        /** The native pixel viewport wrt the window. */
+        eq::PixelViewport _pvp;
 
         /** The native viewport. */
         Viewport       _vp;

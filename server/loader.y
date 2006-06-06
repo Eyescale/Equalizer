@@ -182,7 +182,8 @@ window: EQTOKEN_WINDOW '{' { window = loader->createWindow(); }
         channels '}' { eqPipe->addWindow( window ); window = NULL; }
 windowAttributes: /*null*/ | windowAttribute | windowAttributes windowAttribute
 windowAttribute: 
-    EQTOKEN_VIEWPORT '[' NORMALIZED_FLOAT NORMALIZED_FLOAT 
+    EQTOKEN_NAME STRING { window->setName( $2 ); }
+    | EQTOKEN_VIEWPORT '[' NORMALIZED_FLOAT NORMALIZED_FLOAT 
                          NORMALIZED_FLOAT NORMALIZED_FLOAT ']'
     { window->setViewport( eq::Viewport( $3, $4, $5, $6 )); }
     | EQTOKEN_VIEWPORT '[' UINTEGER UINTEGER UINTEGER UINTEGER ']'
@@ -190,9 +191,18 @@ windowAttribute:
 
 channels: channel | channels channel
 channel: EQTOKEN_CHANNEL '{' { channel = loader->createChannel(); }
-         channelName
+         channelAttributes
         '}' { window->addChannel( channel ); channel = NULL; }
-channelName: /*null*/ | EQTOKEN_NAME STRING { channel->setName( $2 ); }
+channelAttributes:
+     /*null*/ | channelAttribute | channelAttributes channelAttribute
+channelAttribute: 
+    EQTOKEN_NAME STRING { channel->setName( $2 ); }
+    | EQTOKEN_VIEWPORT '[' NORMALIZED_FLOAT NORMALIZED_FLOAT 
+                         NORMALIZED_FLOAT NORMALIZED_FLOAT ']'
+    { channel->setViewport( eq::Viewport( $3, $4, $5, $6 )); }
+    | EQTOKEN_VIEWPORT '[' UINTEGER UINTEGER UINTEGER UINTEGER ']'
+    { channel->setPixelViewport( eq::PixelViewport( $3, $4, $5, $6 )); }
+
 
 compounds: compound | compounds compound
 compound: EQTOKEN_COMPOUND '{' 

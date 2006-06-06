@@ -34,6 +34,11 @@ namespace eq
         void reset() { x = 0; y = 0; w = 0; h = 0; }
 
         /** 
+         * Invalidates the pixel viewport.
+         */
+        void invalidate() { reset(); }
+
+        /** 
          * Apply a fractional viewport to the current pvp.
          * 
          * @param vp the fractional viewport.
@@ -42,8 +47,8 @@ namespace eq
             {
                 x += (uint32_t)(vp.x * w);
                 y += (uint32_t)(vp.y * h);
-                w *= (uint32_t)(vp.w);
-                h *= (uint32_t)(vp.h);
+                w  = (uint32_t)(w*vp.w);
+                h  = (uint32_t)(h*vp.h);
             }
 
         bool isValid() const { return (w>0 && h>0); }
@@ -54,8 +59,8 @@ namespace eq
         //*{
         const PixelViewport operator * ( const Viewport& rhs ) const
             {
-                return PixelViewport( (int32_t)(w*rhs.x), (int32_t)(h*rhs.y),
-                                      (int32_t)(w*rhs.w), (int32_t)(h*rhs.h) );
+                return PixelViewport( (int32_t)(x+w*rhs.x),(int32_t)(y+h*rhs.y),
+                                      (int32_t)(w*rhs.w),  (int32_t)(h*rhs.h) );
             }
 
         const Viewport operator / ( const PixelViewport& rhs ) const
@@ -74,7 +79,8 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PixelViewport& pvp )
     {
-        os << "[" << pvp.x << " " << pvp.y << " " << pvp.w << " " << pvp.h<<"]";
+        os << "[ " << pvp.x << " " << pvp.y << " " << pvp.w << " " << pvp.h
+           <<" ]";
         return os;
     }
 }

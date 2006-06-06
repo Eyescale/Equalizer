@@ -1,0 +1,42 @@
+
+                      Readme for Polygonal Viewer
+
+
+  This directory contains a simple Equalizer application example, a
+  polygonal viewer.
+
+
+Application Structure
+
+  As any Equalizer application, eqPly consists of the main application
+  and the rendering clients. In this simple example, they are both
+  contained in the same executable.
+
+ Application Loop
+
+  The main application is driving the application, that is, it controls
+  the execution flow by receiving events from the render nodes, acting
+  on these events and by issuing the rendering of new frames. It does
+  not execute any rendering code.
+
+ Render Nodes
+
+  The main function executes first eq::init(), which will not return
+  when the program is executed as a render client. The Equalizer library
+  connects the render client to the server, and receives commands from
+  this server. The individual rendering entities --nodes, pipes,
+  windows, channels-- are created using the NodeFactory. On these
+  entities, various functions, e.g. init, update and exit, are called
+  based on the commands received from the server. These callback
+  functions typically receive an identifier defined by the application
+  to provide contextual information. For example, the node's init
+  method receives the identifier of the InitData object, as defined by
+  the application. It instanciates the object and loads the polygonal
+  model named by the InitData.
+
+ Event Processing
+
+  TBD
+
+
+

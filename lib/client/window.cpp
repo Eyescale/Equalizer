@@ -224,12 +224,14 @@ void eq::Window::setPixelViewport( const PixelViewport& pvp )
         return;
 
     _pvp = pvp;
+    _vp.invalidate();
 
     if( !_pipe )
         return;
     
     const PixelViewport& pipePVP = _pipe->getPixelViewport();
-    _vp = pvp / pipePVP;
+    if( pipePVP.isValid( ))
+        _vp = pvp / pipePVP;
 
     EQINFO << "Window pvp set: " << _pvp << ":" << _vp << endl;
 }
@@ -240,12 +242,18 @@ void eq::Window::setViewport( const Viewport& vp )
         return;
     
     _vp = vp;
-    
+    _pvp.invalidate();
+
     if( !_pipe )
         return;
 
-    const PixelViewport& pipePVP = _pipe->getPixelViewport();
-    _pvp = pipePVP * vp;
+    PixelViewport pipePVP = _pipe->getPixelViewport();
+    if( pipePVP.isValid( ))
+    {
+        pipePVP.x = 0;
+        pipePVP.y = 0;
+        _pvp = pipePVP * vp;
+    }
     EQINFO << "Window vp set: " << _pvp << ":" << _vp << endl;
 }
 
@@ -276,6 +284,7 @@ bool eq::Window::init( const uint32_t initID )
 
 bool eq::Window::initGL( const uint32_t initID )
 {
+    glEnable( GL_SCISSOR_TEST ); // needed to constrain channel viewport
     glEnable( GL_DEPTH_TEST );
     glDepthFunc (GL_LESS);
 

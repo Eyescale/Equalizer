@@ -49,6 +49,49 @@ Channel::~Channel()
 {
 }
 
+//----------------------------------------------------------------------
+// viewport
+//----------------------------------------------------------------------
+void eq::Channel::setPixelViewport( const PixelViewport& pvp )
+{
+    if( !pvp.isValid( ))
+        return;
+
+    _pvp = pvp;
+    _vp.invalidate();
+
+    if( !_window )
+        return;
+    
+    const PixelViewport& windowPVP = _window->getPixelViewport();
+    if( windowPVP.isValid( ))
+        _vp = pvp / windowPVP;
+
+    EQVERB << "Channel pvp set: " << _pvp << ":" << _vp << endl;
+}
+
+void eq::Channel::setViewport( const Viewport& vp )
+{
+    if( !vp.isValid( ))
+        return;
+    
+    _vp = vp;
+    _pvp.invalidate();
+
+    if( !_window )
+        return;
+
+    PixelViewport windowPVP = _window->getPixelViewport();
+    if( windowPVP.isValid( ))
+    {
+        windowPVP.x = 0;
+        windowPVP.y = 0;
+        _pvp = windowPVP * vp;
+    }
+
+    EQVERB << "Channel vp set: " << _pvp << ":" << _vp << endl;
+}
+
 //---------------------------------------------------------------------------
 // operations
 //---------------------------------------------------------------------------
@@ -56,6 +99,16 @@ void Channel::clear( const uint32_t frameID )
 {
     applyBuffer();
     applyViewport();
+    if( getenv( "EQ_TAINT_CHANNELS" ) != NULL )
+    {
+        Sgi::hash<const char*> hasher;
+        unsigned  seed  = (unsigned)this + hasher( getName().c_str( ));
+        const int color = rand_r( &seed );
+
+        glClearColor( (color&0xff) / 255., ((color>>8) & 0xff) / 255.,
+                      ((color>>16) & 0xff) / 255., 1. );
+    }
+
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
@@ -99,13 +152,24 @@ const Viewport& Channel::getViewport() const
     return _vp;
 }
 
+const PixelViewport& Channel::getPixelViewport() const
+{
+    if( _context && (_context->hints & HINT_BUFFER) )
+        return _context->pvp;
+
+    return _pvp;
+}
+
 void Channel::applyViewport()
 {
-    if( !_context || !( _context->hints & HINT_BUFFER ))
+    const PixelViewport& pvp = getPixelViewport();
+    // TODO: OPT return if vp unchanged
+
+    if( !pvp.isValid( ))
         return;
 
-    const PixelViewport& pvp = _context->pvp;
     glViewport( pvp.x, pvp.y, pvp.w, pvp.h );
+    glScissor( pvp.x, pvp.y, pvp.w, pvp.h );
 }
 
 const Frustum& Channel::getFrustum() const
@@ -120,7 +184,7 @@ void Channel::applyFrustum() const
     const Frustum& frustum = getFrustum();
     glFrustum( frustum.left, frustum.right, frustum.top, frustum.bottom,
                frustum.near, frustum.far ); 
-    EQVERB << "Applied frustum: " << frustum << endl;
+    EQVERB << "Apply " << frustum << endl;
 }
 
 const float* Channel::getHeadTransform() const
@@ -134,7 +198,7 @@ void Channel::applyHeadTransform() const
 {
     const float* xfm = getHeadTransform();
     glMultMatrixf( xfm );
-    EQVERB << "Applied head transform: " << LOG_MATRIX4x4( xfm ) << endl;
+    EQVERB << "Apply head transform: " << LOG_MATRIX4x4( xfm ) << endl;
 }
 
 //---------------------------------------------------------------------------
@@ -157,12 +221,17 @@ eqNet::CommandResult Channel::_reqInit( eqNet::Node* node,
     ChannelInitPacket* packet = (ChannelInitPacket*)pkg;
     EQINFO << "handle channel init " << packet << endl;
 
-    _vp = packet->vp;
+    if( packet->pvp.isValid( ))
+        setPixelViewport( packet->pvp );
+    else
+        setViewport( packet->vp );
+    _name = packet->name;
 
     ChannelInitReplyPacket reply( packet );
     reply.result = init( packet->initID );
-    reply._near   = _near;
-    reply._far    = _far;
+    reply.near   = _near;
+    reply.far    = _far;
+    reply.pvp    = _pvp;
     node->send( reply );
     return eqNet::COMMAND_HANDLED;
 }

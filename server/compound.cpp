@@ -382,10 +382,7 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
     drawPacket.context.hints      = HINT_BUFFER;
     drawPacket.context.drawBuffer = GL_BACK;
     drawPacket.context.vp         = compound->_inherit.vp;
-    drawPacket.context.pvp.x      = 0;
-    drawPacket.context.pvp.y      = 0;
-    drawPacket.context.pvp.w      = (uint32_t)(compound->_inherit.vp.w * pvp.w);
-    drawPacket.context.pvp.h      = (uint32_t)(compound->_inherit.vp.h * pvp.h);
+    drawPacket.context.pvp        = pvp * compound->_inherit.vp;
     drawPacket.frameID            = data->frameID;
 
     if( !compound->_parent || 
@@ -477,7 +474,13 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
 
     const Channel* channel = compound->getChannel();
     if( channel )
-        os << "channel \"" << channel->getName() << "\"" << endl;
+    {
+        const std::string& name = channel->getName();
+        if( name.empty( ))
+            os << "channel \"channel_" << (void*)channel << "\"" << endl;
+        else
+            os << "channel \"" << name << "\"" << endl;
+    }
 
     switch( compound->_view.latest )
     {

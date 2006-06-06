@@ -41,6 +41,9 @@ Channel::Channel( const Channel& from )
         : eqNet::Object( eq::Object::TYPE_CHANNEL, eq::CMD_CHANNEL_CUSTOM )
 {
     _construct();
+    _name = from._name;
+    _vp   = from._vp;
+    _pvp  = from._pvp;
 }
 
 void Channel::refUsed()
@@ -56,6 +59,45 @@ void Channel::unrefUsed()
     _used--;
     if( _window ) 
         _window->unrefUsed(); 
+}
+
+//----------------------------------------------------------------------
+// viewport
+//----------------------------------------------------------------------
+void Channel::setPixelViewport( const eq::PixelViewport& pvp )
+{
+    if( !pvp.isValid( ))
+        return;
+
+    _pvp = pvp;
+    _vp.invalidate();
+
+    if( !_window )
+        return;
+    
+    const eq::PixelViewport& windowPVP = _window->getPixelViewport();
+    if( windowPVP.isValid( ))
+        _vp = pvp / windowPVP;
+}
+
+void Channel::setViewport( const eq::Viewport& vp )
+{
+    if( !vp.isValid( ))
+        return;
+    
+    _vp = vp;
+    _pvp.invalidate();
+
+    if( !_window )
+        return;
+
+    eq::PixelViewport windowPVP = _window->getPixelViewport();
+    if( windowPVP.isValid( ))
+    {
+        windowPVP.x = 0;
+        windowPVP.y = 0;
+        _pvp = windowPVP * vp;
+    }
 }
 
 //===========================================================================
@@ -78,9 +120,10 @@ void Channel::_sendInit( const uint32_t initID )
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     packet.initID     = initID;
+    packet.pvp        = _pvp; 
     packet.vp         = _vp;
-
-    send( packet );
+    
+    send( packet, getName( ));
     _state = STATE_INITIALISING;
 }
 
@@ -138,7 +181,6 @@ void Channel::update( const uint32_t frameID )
     _pvp.y = 0;
     _pvp.applyViewport( _vp );
 
-
     Config*        config     = getConfig();
     const uint32_t nCompounds = config->nCompounds();
     for( uint32_t i=0; i<nCompounds; i++ )
@@ -157,8 +199,9 @@ eqNet::CommandResult Channel::_cmdInitReply( eqNet::Node* node,
     eq::ChannelInitReplyPacket* packet = (eq::ChannelInitReplyPacket*)pkg;
     EQINFO << "handle channel init reply " << packet << endl;
 
-    _near = packet->_near;
-    _far  = packet->_far;
+    _near = packet->near;
+    _far  = packet->far;
+    setPixelViewport( packet->pvp );
 
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
     return eqNet::COMMAND_HANDLED;
@@ -175,7 +218,6 @@ eqNet::CommandResult Channel::_cmdExitReply( eqNet::Node* node,
 }
 
 
-
 std::ostream& eqs::operator << ( std::ostream& os, const Channel* channel)
 {
     if( !channel )
@@ -183,7 +225,23 @@ std::ostream& eqs::operator << ( std::ostream& os, const Channel* channel)
     
     os << disableFlush << disableHeader << "channel" << endl;
     os << "{" << endl << indent;
-    os << "name \"" << channel->getName() << "\"" << endl;
+    
+    const std::string& name = channel->getName();
+    if( name.empty( ))
+        os << "name \"channel_" << (void*)channel << "\"" << endl;
+    else
+        os << "name \"" << name << "\"" << endl;
+
+    const eq::Viewport& vp  = channel->getViewport();
+    if( vp.isValid( ))
+        os << "viewport " << vp << endl;
+    else
+    {
+        const eq::PixelViewport& pvp = channel->getPixelViewport();
+        if( pvp.isValid( ))
+            os << "viewport " << pvp << endl;
+    }
+
     os << exdent << "}" << endl << enableHeader << enableFlush;
 
     return os;

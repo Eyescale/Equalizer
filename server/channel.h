@@ -77,11 +77,34 @@ namespace eqs
 
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
+
         /** 
-         * Return the current pixel viewport of this channel.
-         * @return the current pixel viewport of this channel.
+         * Set the channel's pixel viewport wrt its parent pipe.
+         * 
+         * @param pvp the viewport in pixels.
+         */
+        void setPixelViewport( const eq::PixelViewport& pvp );
+
+        /** 
+         * Return this channel's pixel viewport.
+         * 
+         * @return the pixel viewport.
          */
         const eq::PixelViewport& getPixelViewport() const { return _pvp; }
+
+        /** 
+         * Set the channel's viewport wrt its parent pipe.
+         * 
+         * @param vp the fractional viewport.
+         */
+        void setViewport( const eq::Viewport& vp );
+
+        /** 
+         * Return this channel's viewport.
+         * 
+         * @return the fractional viewport.
+         */
+        const eq::Viewport& getViewport() const { return _vp; }
 
         /** 
          * Returns the current near and far planes for this channel.
@@ -139,6 +162,8 @@ namespace eqs
          * @param packet the packet.
          */
         void send( eqNet::Packet& packet ) { getNode()->send( packet ); }
+        void send( eqNet::Packet& packet, const std::string& string ) 
+            { getNode()->send( packet, string ); }
         //*}
 
 

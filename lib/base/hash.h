@@ -34,24 +34,10 @@ namespace eqBase
             }
     };
 
-    struct hashString : public Sgi::hash<const char*>
-    {
-        bool operator()(const char* s1, const char* s2) const
-            {
-                return strcmp(s1, s2) == 0;
-            }
-    };
-    
     /** A hash for pointer keys. */
     template<class K, class T> class PtrHash 
         : public Sgi::hash_map<K, T, hashPtr<K> >
     {};
-
-    /** A hash for const char* keys. */
-    template<class T> class StringHash
-        : public Sgi::hash_map<const char*, T, hashString, hashString >
-    {};
-
 }
 
 #endif // EQBASE_HASH_H

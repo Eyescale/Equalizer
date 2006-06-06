@@ -519,11 +519,14 @@ namespace eq
             {
                 command = CMD_CHANNEL_INIT;
                 size    = sizeof( ChannelInitPacket );
+                name[0] = '\0';
             }
 
-        uint32_t requestID;
-        uint32_t initID;
-        Viewport vp;
+        uint32_t      requestID;
+        uint32_t      initID;
+        PixelViewport pvp;
+        Viewport      vp;
+        char          name[8] EQ_ALIGN8;
     };
 
     struct ChannelInitReplyPacket : public eqNet::ObjectPacket
@@ -540,8 +543,9 @@ namespace eq
         uint32_t requestID;
         bool     result;
 
-        float    _near;
-        float    _far;
+        float         near;
+        float         far;
+        PixelViewport pvp;
     };
 
     struct ChannelExitPacket : public eqNet::ObjectPacket
@@ -657,6 +661,15 @@ namespace eq
            << " pvp " << packet->pvp;
         return os;
     }
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const ChannelInitReplyPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " result " << packet->result
+           << " pvp " << packet->pvp;
+        return os;
+    }
+
 }
 
 #endif // EQ_PACKETS_H
