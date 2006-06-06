@@ -218,6 +218,7 @@ void Pipe::update( const uint32_t frameID )
     }
 
     eq::PipeFrameSyncPacket syncPacket( getSession()->getID(), getID( ));
+    syncPacket.frameID = frameID;
     _send( syncPacket );
 }
 

@@ -295,13 +295,18 @@ eqNet::CommandResult Pipe::_reqUpdate( eqNet::Node* node,
     PipeUpdatePacket* packet = (PipeUpdatePacket*)pkg;
     EQVERB << "handle pipe update " << packet << endl;
 
-    update( packet->frameID );
+    startFrame( packet->frameID );
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_reqFrameSync(eqNet::Node* node, 
-                                         const eqNet::Packet* packet )
+eqNet::CommandResult Pipe::_reqFrameSync( eqNet::Node* node,
+                                          const eqNet::Packet* pkg )
 {
+    PipeFrameSyncPacket* packet = (PipeFrameSyncPacket*)pkg;
+    EQVERB << "handle pipe frame sync " << packet << endl;
+
+    endFrame( packet->frameID );
+    
     PipeFrameSyncPacket reply( getSession()->getID(), getID( ));
     node->send( reply );
     return eqNet::COMMAND_HANDLED;

@@ -186,7 +186,7 @@ namespace eq
         void exitCGL();
 
         /**
-         * Update this pipe.
+         * Start rendering a frame.
          *
          * Called once at the beginning of each frame, to do per-frame updates
          * of pipe-specific data, for example updating the rendering engine.
@@ -194,7 +194,17 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @sa Config::beginFrame()
          */
-        virtual void update( const uint32_t frameID ) {}
+        virtual void startFrame( const uint32_t frameID ) {}
+
+        /**
+         * End rendering a frame.
+         *
+         * Called once at the end of each frame, to do per-frame updates
+         * of pipe-specific data, for example updating the rendering engine.
+         *
+         * @param frameID the per-frame identifier.
+         */
+        virtual void endFrame( const uint32_t frameID ) {}
         //@}
 
         /** 

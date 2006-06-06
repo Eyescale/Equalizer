@@ -397,6 +397,8 @@ namespace eq
                 command = CMD_PIPE_FRAME_SYNC;
                 size    = sizeof( PipeFrameSyncPacket );
             }
+
+        uint32_t frameID;
     };
 
     //------------------------------------------------------------
