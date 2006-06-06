@@ -50,8 +50,8 @@ void Channel::draw( const uint32_t frameID )
 
     _frameData->sync( frameID );
     
-    glTranslatef( 0, 0, -3 );
-    glRotatef( _frameData->spin, 0, 0, 1. );
+    glTranslatef( 0, 0, -2 );
+    glRotatef( _frameData->spin, 1, 1, 1 );
 
     Node*        node  = (Node*)getNode();
     const Model* model = node->getModel();

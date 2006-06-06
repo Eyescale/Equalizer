@@ -69,6 +69,7 @@
 %token EQTOKEN_BOTTOM_RIGHT
 %token EQTOKEN_TOP_LEFT
 %token EQTOKEN_MODE
+%token EQTOKEN_LATENCY
 %token EQTOKEN_TCPIP
 %token EQTOKEN_SYNC
 
@@ -140,13 +141,19 @@ server: EQTOKEN_SERVER '{' { server = loader->createServer(); }
 
 configs: config | configs config
 config: EQTOKEN_CONFIG '{' { config = loader->createConfig(); }
+        configAttributes
         nodes compounds '}' { server->addConfig( config ); config = NULL; }
+configAttributes: /*null*/ | configAttribute | configAttributes configAttribute
+configAttribute:
+    EQTOKEN_LATENCY UINTEGER  { config->setLatency( $2 ); }
 
 nodes: node | nodes node
 node: EQTOKEN_NODE '{' { node = loader->createNode(); }
       connections
       nodeAttributes
       pipes '}' { config->addNode( node ); node = NULL; }
+nodeAttributes: /*null*/ | nodeAttribute | nodeAttributes nodeAttribute
+nodeAttribute: /*TODO*/
 
 connections: /*null*/ 
              { // No connection specified, create default from globals
@@ -169,8 +176,6 @@ connectionAttribute:
     | EQTOKEN_COMMAND STRING    { connectionDescription->launchCommand = $2; }
     | EQTOKEN_TIMEOUT UINTEGER  { connectionDescription->launchTimeout = $2; }
 
-nodeAttributes: /*null*/ | nodeAttribute | nodeAttributes nodeAttribute
-nodeAttribute: /*TODO*/
 
 pipes: pipe | pipes pipe
 pipe: EQTOKEN_PIPE '{' { eqPipe = loader->createPipe(); }

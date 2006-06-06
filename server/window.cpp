@@ -357,7 +357,10 @@ std::ostream& eqs::operator << ( std::ostream& os, const Window* window )
 
     const eq::Viewport& vp  = window->getViewport();
     if( vp.isValid( ))
-        os << "viewport " << vp << endl;
+    {
+        if( !vp.isFullScreen( ))
+            os << "viewport " << vp << endl;
+    }
     else
     {
         const eq::PixelViewport& pvp = window->getPixelViewport();

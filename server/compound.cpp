@@ -464,13 +464,14 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
     if( !compound )
         return os;
     
-    os << "compound" << endl;
+    os << disableFlush << "compound" << endl;
     os << "{" << endl << indent;
       
     const Compound::Mode mode = compound->getMode();
-    if( mode != Compound::MODE_SYNC )
-        os << "mode [" << ( mode == Compound::MODE_2D   ? "2D" : "???" ) << "]" 
-           << endl;
+    if( mode != Compound::MODE_NONE )
+        os << "mode [ " << ( mode == Compound::MODE_SYNC ? "SYNC" : 
+                             mode == Compound::MODE_2D   ? "2D" : "????" ) 
+           << " ]" << endl;
 
     const Channel* channel = compound->getChannel();
     if( channel )
@@ -505,6 +506,6 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
             os << compound->getChild(i);
     }
 
-    os << exdent << "}" << endl;
+    os << exdent << "}" << endl << enableFlush;
     return os;
 }

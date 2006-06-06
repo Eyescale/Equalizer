@@ -181,6 +181,8 @@ void Config::setLatency( const uint32_t latency )
         return;
 
     const int delta = latency - _latency;
+    _latency = latency;
+
     for( vector<Node*>::iterator iter = _nodes.begin(); iter != _nodes.end();
          ++iter )
 
@@ -548,6 +550,10 @@ ostream& eqs::operator << ( ostream& os, const Config* config )
     
     os << disableFlush << disableHeader << "config " << endl;
     os << "{" << endl << indent;
+
+    if( config->getLatency() > 0 )
+        os << "latency " << config->getLatency() << endl;
+    os << endl;
 
     const uint32_t nNodes = config->nNodes();
     for( uint32_t i=0; i<nNodes; ++i )

@@ -234,7 +234,10 @@ std::ostream& eqs::operator << ( std::ostream& os, const Channel* channel)
 
     const eq::Viewport& vp  = channel->getViewport();
     if( vp.isValid( ))
-        os << "viewport " << vp << endl;
+    {
+        if( !vp.isFullScreen( ))
+            os << "viewport " << vp << endl;
+    }
     else
     {
         const eq::PixelViewport& pvp = channel->getPixelViewport();

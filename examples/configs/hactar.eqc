@@ -1,0 +1,103 @@
+# six-node config for 3x2 30" LCD rendering cluster at unizh
+
+server
+{
+    config
+    {
+        latency 10
+        node
+        {
+            connection { hostname "hactar4" }
+            pipe { window { channel { name "channel1" }}}
+        }
+        node
+        {
+            connection { hostname "hactar2" }
+            pipe { window { channel { name "channel2" }}}
+        }
+        node
+        {
+            connection { hostname "hactar3" }
+            pipe { window { channel { name "channel3" }}}
+        }
+        node
+        {
+            connection { hostname "hactar5" }
+            pipe { window { channel { name "channel4" }}}
+        }
+        node
+        {
+            connection { hostname "hactar1" }
+            pipe { window { channel { name "channel5" }}}
+        }
+        node
+        {
+            connection { hostname "hactar6" }
+            pipe { window { channel { name "channel6" }}}
+        }
+        compound
+        {
+            mode [ SYNC ]
+            compound
+            { 
+                channel "channel1"
+                wall
+                {
+                    bottom_left  [ -.984 .0285   -2 ]
+                    bottom_right [ -.344 .0285   -2 ]
+                    top_left     [ -.984 .4285 -2 ]
+                }
+            }
+            compound
+            { 
+                channel "channel2"
+                wall
+                {
+                    bottom_left  [ -.32 .0285 -2 ]
+                    bottom_right [  .32 .0285 -2 ]
+                    top_left     [ -.32 .4285 -2 ]
+                }
+            }
+            compound
+            { 
+                channel "channel3"
+                wall
+                {
+                    bottom_left  [  .344 .0285 -2 ]
+                    bottom_right [  .984 .0285 -2 ]
+                    top_left     [  .344 .4285 -2 ]
+                }
+            }
+            compound
+            { 
+                channel "channel4"
+                wall
+                {
+                    bottom_left  [ -.984 -.4285 -2 ]
+                    bottom_right [ -.344 -.4285 -2 ]
+                    top_left     [ -.984 -.0285 -2 ]
+                }
+            }
+            compound
+            { 
+                channel "channel5"
+                wall
+                {
+                    bottom_left  [ -.32 -.4285 -2 ]
+                    bottom_right [  .32 -.4285 -2 ]
+                    top_left     [ -.32 -.0285 -2 ]
+                }
+            }
+            compound
+            { 
+                channel "channel6"
+                wall
+                {
+                    bottom_left  [  .344 -.4285 -2 ]
+                    bottom_right [  .984 -.4285 -2 ]
+                    top_left     [  .344 -.0285 -2 ]
+                }
+            }
+        }
+    }    
+}
