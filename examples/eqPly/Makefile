@@ -5,8 +5,8 @@ PROGRAM = eqPly
 
 SOURCES = \
 	channel.cpp \
-	flip.cpp \
 	initData.cpp \
+	main.cpp \
 	node.cpp \
 	pipe.cpp \
 	plyfile.cpp \
