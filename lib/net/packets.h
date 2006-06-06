@@ -434,7 +434,8 @@ namespace eqNet
                          const NodeGetConnectionDescriptionReplyPacket* packet )
     {
         os << (NodePacket*)packet << " req " << packet->requestID << " ni "  
-           << packet->nextIndex << " desc " << packet->connectionDescription;
+           << packet->nextIndex << " app? " << packet->appRequest << " desc " 
+           << packet->connectionDescription;
         return os;
     }
 

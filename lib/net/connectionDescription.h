@@ -42,6 +42,7 @@ namespace eqNet
          * 
          * %h - hostname
          * %c - command
+         * %n - unique node identifier
          */
         std::string launchCommand; 
 

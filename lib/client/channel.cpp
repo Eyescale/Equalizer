@@ -102,7 +102,7 @@ void Channel::clear( const uint32_t frameID )
     if( getenv( "EQ_TAINT_CHANNELS" ) != NULL )
     {
         Sgi::hash<const char*> hasher;
-        unsigned  seed  = (unsigned)this + hasher( getName().c_str( ));
+        unsigned  seed  = (unsigned)(long long)this + hasher(getName().c_str());
         const int color = rand_r( &seed );
 
         glClearColor( (color&0xff) / 255., ((color>>8) & 0xff) / 255.,

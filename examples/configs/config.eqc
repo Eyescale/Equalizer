@@ -1,9 +1,11 @@
+# one-window config, covering a quarter of a 30" LCD one meter in front
+# of the viewer
+
 global
 {
     EQ_CONNECTION_TYPE              TCPIP
     EQ_CONNECTION_HOSTNAME          "localhost"
     EQ_CONNECTION_LAUNCH_TIMEOUT    100000
-    EQ_CONNECTION_LAUNCH_COMMAND    "ssh -n %h %c >& %h.log"
 }
 
 server
@@ -12,57 +14,23 @@ server
     {
         node
         {
-            connection
-            {
-                 hostname        "localhost"
-            }
             pipe
             {
                 window
                 {
-                    viewport [ 164 350 840 525 ]
-                    channel
-                    {
-                        name "channel1"
-                    }
-                }
-            }
-        }
-        node
-        {
-            pipe
-            {
-                window
-                {
-                    viewport [ 1014 434 512 357 ]
-                    channel
-                    {
-                        name "channel2"
-                    }
+                    viewport [ 640 400 1280 800 ]
+                    channel { name "channel" }
                 }
             }
         }
         compound
-        {
-            mode [ SYNC ]
-            compound
-            { 
-                channel "channel1"
-                wall
-                {
-                    bottom_left  [ -.43344 -.13545 -1 ]
-                    bottom_right [  0      -.13545 -1 ]
-                    top_left     [ -.43344  .13545 -1 ]
-                }
-            }
-            compound{ 
-                channel "channel2"
-                wall
-                {
-                    bottom_left  [ 0      -.09220 -1 ]
-                    bottom_right [ .24588 -.09220 -1 ]
-                    top_left     [ 0       .09220 -1 ]
-                }
+        { 
+            channel "channel"
+            wall
+            {
+                bottom_left  [ -.16 -.10 -1 ]
+                bottom_right [  .16 -.10 -1 ]
+                top_left     [ -.16  .10 -1 ]
             }
         }
     }    

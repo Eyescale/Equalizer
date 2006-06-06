@@ -32,7 +32,7 @@ Global::Global()
     
     _connectionSAttributes[ConnectionDescription::SATTR_HOSTNAME] = "localhost";
     _connectionSAttributes[ConnectionDescription::SATTR_LAUNCH_COMMAND] = 
-        "ssh -n %h %c >& %h.log";
+        "ssh -n %h %c >& %h.%n.log";
 }
 
 std::ostream& eqs::operator << ( std::ostream& os, const Global* global )

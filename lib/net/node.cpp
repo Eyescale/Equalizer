@@ -850,7 +850,11 @@ CommandResult Node::_cmdGetConnectionDescriptionReply( Node* fromNode,
 
     RefPtr<Node> node   = getNode( nodeID );
     if( node.isValid( )) // already connected
+    {
+        if( packet->appRequest )
+            _requestHandler.serveRequest( requestID, NULL );
         return COMMAND_HANDLED;
+    }
 
     RefPtr<ConnectionDescription> desc = new ConnectionDescription();
     if( desc->fromString( packet->connectionDescription ))
@@ -1000,6 +1004,9 @@ bool Node::syncConnect()
 
 RefPtr<Node> Node::connect( NodeID& nodeID, RefPtr<Node> server)
 {
+    if( _nodes.find( nodeID ) != _nodes.end( ))
+        return _nodes[nodeID];
+
     NodeGetConnectionDescriptionPacket packet;
     packet.requestID  = _requestHandler.registerRequest( &nodeID );
     packet.appRequest = true;
@@ -1058,17 +1065,21 @@ string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description )
          percentPos != string::npos; 
          percentPos = launchCommand.find( '%', percentPos+1 ))
     {
-        string replacement;
+        ostringstream replacement;
         switch( launchCommand[percentPos+1] )
         {
             case 'c':
             {
-                replacement = _createRemoteCommand();
+                replacement << _createRemoteCommand();
                 commandFound = true;
                 break;
             }
             case 'h':
-                replacement  = description->hostname;
+                replacement << description->hostname;
+                break;
+
+            case 'n':
+                replacement << getNodeID();
                 break;
 
             default:
@@ -1076,13 +1087,9 @@ string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description )
                        << endl;
         }
 
-        if( replacement.size() > 0 )
-        {
-            result  += launchCommand.substr( lastPos, percentPos-lastPos );
-            result  += replacement;
-        }
-        else
-            result += launchCommand.substr( lastPos, percentPos-lastPos );
+        result += launchCommand.substr( lastPos, percentPos-lastPos );
+        if( !replacement.str().empty( ))
+            result += replacement.str();
 
         lastPos  = percentPos+2;
     }
