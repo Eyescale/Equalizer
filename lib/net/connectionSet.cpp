@@ -15,14 +15,10 @@ using namespace eqNet;
 using namespace std;
 
 ConnectionSet::ConnectionSet()
-        : _fdSetSize(0),
-          _fdSetCapacity(64),
-          _fdSetDirty(true),
+        : _fdSetDirty(true),
           _inSelect(false),
           _errno(0)
 {
-    _fdSet = new pollfd[_fdSetCapacity];
-
     // Whenever another threads modifies the connection list while the
     // connection set is waiting in a select, the select is interrupted by
     // sending a character through this pipe. Select() will recognize this and
@@ -82,10 +78,13 @@ bool ConnectionSet::removeConnection( eqBase::RefPtr<Connection> connection )
 
 void ConnectionSet::clear()
 {
+    EQASSERT( !_inSelect );
     _connection = NULL;
     _nodes.clear();
     _connections.clear();
     _dirtyFDSet();
+    _fdSet.clear();
+    _fdSetConnections.clear();
 }
         
 ConnectionSet::Event ConnectionSet::select( const int timeout )
@@ -99,7 +98,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
         _setupFDSet();
 
         // poll for a result
-        const int ret = poll( _fdSet, _fdSetSize, timeout );
+        const int ret = poll( &_fdSet[0], _fdSet.size(), timeout );
         switch( ret )
         {
             case 0:
@@ -120,7 +119,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                 break;
 
             default: // SUCCESS
-                for( size_t i=0; i<_fdSetSize; i++ )
+                for( size_t i=0; i<_fdSet.size(); i++ )
                 {
                     if( _fdSet[i].revents == 0 )
                         continue;
@@ -143,9 +142,9 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 
                     _connection = _fdSetConnections[fd];
                     
-                    EQVERB << "selected connection #" << i << " of " << _fdSetSize
-                         << ", poll event " << pollEvents << ", " 
-                         << _connection.get() << endl;
+                    EQVERB << "selected connection #" << i << " of " 
+                           << _fdSet.size() << ", poll event " << pollEvents
+                           << ", " << _connection.get() << endl;
 
                     if( pollEvents & POLLERR )
                     {
@@ -201,7 +200,7 @@ void ConnectionSet::_setupFDSet()
     }
 
     static const int events = POLLIN; // | POLLPRI;
-    for( size_t i=0; i<_fdSetSize; i++ )
+    for( size_t i=0; i<_fdSet.size(); i++ )
     {
         _fdSet[i].events  = events;
         _fdSet[i].revents = 0;
@@ -210,46 +209,35 @@ void ConnectionSet::_setupFDSet()
 
 void ConnectionSet::_buildFDSet()
 {
-    const size_t nConnections = _connections.size();
-
-    if( _fdSetCapacity < nConnections+1 )
-    {
-        delete [] _fdSet;
-        while( _fdSetCapacity < nConnections+1 )
-            _fdSetCapacity = _fdSetCapacity << 1;
-        _fdSet = new pollfd[_fdSetCapacity];
-    }
-
-    size_t    size   = 0;
-    const int events = POLLIN; // | POLLPRI;
+    _fdSet.clear();
     _fdSetConnections.clear();
 
+    pollfd fd;
+    fd.events = POLLIN; // | POLLPRI;
+
     // add self 'connection'
-    _fdSet[size].fd      = _selfFD[0]; // read end of pipe
-    _fdSet[size].events  = events;
-    _fdSet[size].revents = 0;
-    size++;
+    fd.fd      = _selfFD[0];
+    fd.revents = 0;
+    _fdSet.push_back( fd );
 
     // add regular connections
+    const size_t nConnections = _connections.size();
     for( size_t i=0; i<nConnections; i++ )
     {
         eqBase::RefPtr<Connection> connection = _connections[i];
-        const int   fd                        = connection->getReadFD();
+        fd.fd = connection->getReadFD();
 
-        if( fd == -1 )
+        if( fd.fd == -1 )
         {
             EQWARN << "Cannot select connection " << i
                  << ", connection does not use a file descriptor" << endl;
             continue;
         }
 
-        _fdSetConnections[fd] = connection.get();
-        _fdSet[size].fd       = fd;
-        _fdSet[size].events   = events;
-        _fdSet[size].revents  = 0;
-        size++;
+        _fdSetConnections[fd.fd] = connection.get();
+        fd.revents = 0;
+        _fdSet.push_back( fd );
     }
-    _fdSetSize = size;
 }   
 
 std::ostream& eqNet::operator << ( std::ostream& os, ConnectionSet* set)

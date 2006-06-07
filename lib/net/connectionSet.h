@@ -69,10 +69,8 @@ namespace eqNet
         eqBase::RefPtr<Connection> getConnection(){ return _connection; }
 
     private:
-        pollfd* _fdSet;
-        size_t  _fdSetSize;
-        size_t  _fdSetCapacity;
-        bool    _fdSetDirty;
+        std::vector<pollfd> _fdSet;
+        bool                _fdSetDirty;
         Sgi::hash_map<int, Connection*> _fdSetConnections;
 
         /** The fd to reset a running select, see comment in constructor. */
