@@ -95,6 +95,12 @@ eqNet::CommandResult Node::_reqInit(eqNet::Node* node, const eqNet::Packet* pkg)
 
     NodeInitReplyPacket reply( packet );
     reply.result = init( packet->initID );
+
+    if( reply.result )
+    {
+        // start event thread
+    }
+
     node->send( reply );
     return eqNet::COMMAND_HANDLED;
 }

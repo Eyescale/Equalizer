@@ -1,13 +1,10 @@
 
 #include <eq/base/idPool.h>
-#include <eq/client/nodeFactory.h>
 
 #include <stdlib.h>
 
 using namespace eqBase;
 using namespace std;
-
-eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
 
 int main( int argc, char **argv )
 {

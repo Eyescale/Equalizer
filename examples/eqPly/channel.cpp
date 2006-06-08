@@ -77,8 +77,7 @@ void Channel::_drawBBox( const Model::BBox *bbox )
 {
     const size_t nFaces = bbox->nFaces;
             
-    glBegin( GL_TRIANGLES );
-    
+    glBegin( GL_TRIANGLES );    
     for( size_t i=0; i<nFaces; i++ )
     {
         const NormalFace<ColorVertex> &face = bbox->faces[i];

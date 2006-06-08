@@ -17,16 +17,28 @@
 
 #ifdef GLX
 #ifdef WIN32
-#include "win32_x11.h"
-#include "win32_glx.h"
+#  include "win32_x11.h"
+#  include "win32_glx.h"
 #else
 #  include <X11/Xlib.h>
+#  include <GL/glx.h>
 #endif
 #endif
 #ifdef CGL
-#  define Cursor CGLCursor // avoid name clash with X11 Cursor
+#  if defined(i386) // WAR compile error
+#    undef Status 
+#  endif 
+#  define Cursor CGLCursor // avoid name clash with X11 'Cursor'
 #  include <ApplicationServices/ApplicationServices.h>
+#  include <OpenGL/OpenGL.h>
 #  undef Cursor
+#endif
+
+#ifndef GLX
+typedef void Display;
+#endif
+#ifndef CGL
+typedef int32_t CGDirectDisplayID;
 #endif
 
 namespace eq
@@ -88,7 +100,7 @@ namespace eq
          * 
          * The screen number identifies the X screen for systems using the
          * X11/GLX window system. Normally the screen identifies a graphics
-         * adapter. One Windows systems it identifies the graphics adapter. It
+         * adapter. On Windows systems it identifies the graphics adapter. It
          * has no meaning for CGL window systems.
          *
          * @return the screen number of this pipe, or 
@@ -127,7 +139,6 @@ namespace eq
          */
         WindowSystem getWindowSystem() const { return _windowSystem; }
 
-#ifdef GLX
         /** 
          * Set the X11 display connection for this pipe.
          * 
@@ -143,8 +154,7 @@ namespace eq
          * @return the X11 display connection for this pipe. 
          */
         Display* getXDisplay() const { return _xDisplay; }
-#endif
-#ifdef CGL
+
         /** 
          * Set the CGL display ID for this pipe.
          * 
@@ -159,7 +169,6 @@ namespace eq
          * @return the CGL display ID for this pipe.
          */
         CGDirectDisplayID getCGLDisplayID() const { return _cglDisplayID; }
-#endif
 
         /**
          * @name Callbacks
@@ -231,14 +240,18 @@ namespace eq
         /** The size (and location) of the pipe. */
         PixelViewport _pvp;
 
+        union
+        {
 #ifdef GLX
-        /** The X11 display connection. */
-        Display* _xDisplay;
+            /** The X11 display connection. */
+            Display* _xDisplay;
 #endif
 #ifdef CGL
-        CGDirectDisplayID _cglDisplayID;
+            CGDirectDisplayID _cglDisplayID;
 #endif
-        
+            char _fill[8];
+        };
+
         /** The display (GLX, CGL) or ignored (Win32). */
         uint32_t _display;
 

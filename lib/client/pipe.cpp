@@ -20,12 +20,6 @@ Pipe::Pipe()
         : eqNet::Object( eq::Object::TYPE_PIPE, CMD_PIPE_CUSTOM ),
           _node(NULL),
           _windowSystem( WINDOW_SYSTEM_NONE ),
-#ifdef GLX
-          _xDisplay(NULL),
-#endif
-#ifdef CGL
-          _cglDisplayID(NULL),
-#endif
           _display(EQ_UNDEFINED_UINT32),
           _screen(EQ_UNDEFINED_UINT32)
 {
@@ -51,6 +45,13 @@ Pipe::Pipe()
                          &eq::Pipe::_reqFrameSync ));
 
     _thread = new PipeThread( this );
+
+#ifdef GLX
+    _xDisplay = NULL;
+#endif
+#ifdef CGL
+    _cglDisplayID = NULL;
+#endif
 }
 
 Pipe::~Pipe()
@@ -100,14 +101,18 @@ WindowSystem Pipe::selectWindowSystem() const
     return WINDOW_SYSTEM_NONE;
 }
 
-#ifdef GLX
 void Pipe::setXDisplay( Display* display )
 {
+#ifdef GLX
     _xDisplay = display; 
     _pvp.x    = 0;
     _pvp.y    = 0;
     if( display )
     {
+        if( DefaultScreen( display ) != (int)_screen )
+            EQWARN << "Screen mismatch: provided display connection uses"
+                   << " default screen " << DefaultScreen( display ) 
+                   << ", but pipe uses screen " << _screen << endl;
         _pvp.w = DisplayWidth(  display, DefaultScreen( display ));
         _pvp.h = DisplayHeight( display, DefaultScreen( display ));
     }
@@ -116,11 +121,12 @@ void Pipe::setXDisplay( Display* display )
         _pvp.w = 0;
         _pvp.h = 0;
     }
-}
 #endif
-#ifdef CGL
+}
+
 void Pipe::setCGLDisplayID( CGDirectDisplayID id )
 {
+#ifdef CGL
     _cglDisplayID = id; 
     if( id )
     {
@@ -137,8 +143,8 @@ void Pipe::setCGLDisplayID( CGDirectDisplayID id )
         _pvp.w = 0;
         _pvp.h = 0;
     }
-}
 #endif
+}
 
 ssize_t Pipe::_runThread()
 {

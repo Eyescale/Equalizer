@@ -280,6 +280,11 @@ void Window::update( const uint32_t frameID )
             channel->update( frameID );
     }
 
+    _updateSwap();
+}
+
+void Window::_updateSwap()
+{
     if( _swapMaster ) // swap barrier
     {
         const uint32_t height = _swapMaster->_swapGroup.size();

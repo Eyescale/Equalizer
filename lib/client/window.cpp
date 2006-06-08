@@ -47,7 +47,7 @@ eq::Window::Window()
     registerCommand( REQ_WINDOW_SWAP, this, reinterpret_cast<CommandFcn>(
                          &eq::Window::_reqSwap));
     registerCommand( CMD_WINDOW_SWAP_WITH_BARRIER, this,
-                     reinterpret_cast<CommandFcn>(&eq::Window::_pushRequest));
+                     reinterpret_cast<CommandFcn>( &eq::Window::_pushRequest ));
     registerCommand( REQ_WINDOW_SWAP_WITH_BARRIER, this,
                      reinterpret_cast<CommandFcn>(
                          &eq::Window::_reqSwapWithBarrier));
@@ -417,7 +417,7 @@ bool eq::Window::initCGL()
 
     Pipe*         pipe        = getPipe();
     Window*       firstWindow = pipe->getWindow(0);
-    GLXContextObj shareCtx    = firstWindow->getCGLContext();
+    CGLContextObj shareCtx    = firstWindow->getCGLContext();
     CGLContextObj context     = 0;
     CGLCreateContext( pixelFormat, shareCtx, &context );
     CGLDestroyPixelFormat ( pixelFormat );

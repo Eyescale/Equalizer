@@ -11,20 +11,6 @@
 #include <eq/net/base.h>
 #include <eq/net/object.h>
 
-#ifdef GLX
-#ifdef WIN32
-#include <stdlib.h>
-#include <windows.h>
-#include "win32_x11.h"
-#include "win32_glx.h"
-#else
-#  include <GL/glx.h>
-#endif
-#endif
-#ifdef CGL
-#  include <OpenGL/OpenGL.h>
-#endif
-
 namespace eq
 {
     class Channel;
@@ -167,14 +153,10 @@ namespace eq
         void exitGLX();
         void exitCGL();
 
-        /**
-         * Swap the front and back buffer of the window.
-         */
+        /** Swap the front and back buffer of the window. */
         virtual void swapBuffers();
 
-        /**
-         * Finish outstanding rendering requests.
-         */
+        /** Finish outstanding rendering requests. */
         virtual void finish() { glFinish(); }
         //@}
 

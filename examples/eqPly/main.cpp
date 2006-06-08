@@ -73,7 +73,7 @@ int main( int argc, char** argv )
     cerr << "Config init took " << clock.getTimef() << " ms" << endl;
 
     // 6. run main loop
-    int nFrames = 1000;
+    int nFrames = 100;
     clock.reset();
     while( nFrames-- )
     {

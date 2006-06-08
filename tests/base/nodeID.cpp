@@ -1,15 +1,12 @@
 
 #include "test.h"
 
-#include <eq/client/nodeFactory.h>
 #include <eq/net/nodeID.h>
 
 #include <stdlib.h>
 
 using namespace eqNet;
 using namespace std;
-
-eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
 
 int main( int argc, char **argv )
 {

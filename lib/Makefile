@@ -106,6 +106,7 @@ SOURCES = \
 	client/global.cpp \
 	client/init.cpp \
 	client/node.cpp \
+	client/nodeFactory.cpp \
 	client/openParams.cpp \
 	client/pipe.cpp \
 	client/server.cpp \

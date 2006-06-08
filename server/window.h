@@ -235,6 +235,8 @@ namespace eqs
         void _sendInit( const uint32_t initID );
         void _sendExit();
 
+        void _updateSwap();
+
         /* command handler functions. */
         eqNet::CommandResult _cmdInitReply(eqNet::Node* node, 
                                            const eqNet::Packet* packet);
