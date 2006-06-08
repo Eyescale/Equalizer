@@ -34,6 +34,7 @@ hostname                        { return EQTOKEN_HOSTNAME; }
 command                         { return EQTOKEN_COMMAND; }
 timeout                         { return EQTOKEN_TIMEOUT; }
 viewport                        { return EQTOKEN_VIEWPORT; }
+display                         { return EQTOKEN_DISPLAY; }
 wall                            { return EQTOKEN_WALL; }
 bottom_left                     { return EQTOKEN_BOTTOM_LEFT; }
 bottom_right                    { return EQTOKEN_BOTTOM_RIGHT; }

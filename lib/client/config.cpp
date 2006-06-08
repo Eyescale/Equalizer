@@ -15,9 +15,10 @@
 using namespace eq;
 using namespace std;
 
-Config::Config()
-        : Session( CMD_CONFIG_CUSTOM, true )
+Config::Config( const uint32_t nCommands )
+        : Session( nCommands, true )
 {
+    EQASSERT( nCommands >= CMD_CONFIG_CUSTOM );
     registerCommand( CMD_CONFIG_CREATE_NODE, this, reinterpret_cast<CommandFcn>(
                          &eq::Config::_cmdCreateNode ));
     registerCommand( CMD_CONFIG_DESTROY_NODE, this,reinterpret_cast<CommandFcn>(

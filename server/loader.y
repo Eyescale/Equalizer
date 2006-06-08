@@ -64,6 +64,7 @@
 %token EQTOKEN_COMMAND
 %token EQTOKEN_TIMEOUT
 %token EQTOKEN_VIEWPORT
+%token EQTOKEN_DISPLAY
 %token EQTOKEN_WALL
 %token EQTOKEN_BOTTOM_LEFT
 %token EQTOKEN_BOTTOM_RIGHT
@@ -179,7 +180,11 @@ connectionAttribute:
 
 pipes: pipe | pipes pipe
 pipe: EQTOKEN_PIPE '{' { eqPipe = loader->createPipe(); }
+        pipeAttributes
         windows '}' { node->addPipe( eqPipe ); eqPipe = NULL; }
+pipeAttributes: /*null*/ | pipeAttribute | pipeAttributes pipeAttribute
+pipeAttribute:
+    EQTOKEN_DISPLAY UINTEGER { eqPipe->setDisplay( $2 ); }
 
 windows: window | windows window
 window: EQTOKEN_WINDOW '{' { window = loader->createWindow(); }

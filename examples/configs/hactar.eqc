@@ -37,7 +37,7 @@ server
         }
         compound
         {
-            mode [ SYNC ]
+#            mode [ SYNC ]
             compound
             { 
                 channel "channel1"

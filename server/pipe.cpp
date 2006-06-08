@@ -43,6 +43,8 @@ Pipe::Pipe( const Pipe& from )
         : eqNet::Object( eq::Object::TYPE_PIPE, eq::CMD_PIPE_CUSTOM )
 {
     _construct();
+    _display = from._display;
+    _screen  = from._state;
 
     const uint32_t nWindows = from.nWindows();
     for( uint32_t i=0; i<nWindows; i++ )
@@ -262,7 +264,11 @@ std::ostream& eqs::operator << ( std::ostream& os, const Pipe* pipe )
     
     os << disableFlush << disableHeader << "pipe" << endl;
     os << "{" << endl << indent;
+
+    if( pipe->getDisplay() != EQ_UNDEFINED_UINT32 )
+        os << "display " << pipe->getDisplay() << endl;
     
+    os << endl;
     const uint32_t nWindows = pipe->nWindows();
     for( uint32_t i=0; i<nWindows; i++ )
         os << pipe->getWindow(i);

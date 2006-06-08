@@ -160,7 +160,7 @@ CGDirectDisplayID Pipe::getCGLDisplayID() const
 #ifdef CGL
     return _cglDisplayID;
 #else
-    return NULL;
+    return 0;
 #endif
 }
 
@@ -379,7 +379,8 @@ bool Pipe::initGLX()
             
     if( !xDisplay )
     {
-        EQERROR << "Can't open display: " << displayName << endl;
+        EQERROR << "Can't open display: " << XDisplayName( displayName.c_str( ))
+                << endl;
         return false;
     }
     

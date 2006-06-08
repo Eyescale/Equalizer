@@ -11,7 +11,10 @@ using namespace eqNet;
 bool Pipe::init( const uint32_t initID )
 {
     eq::Config* config = getConfig();
-    _initData = (InitData*)config->getObject( initID );
+
+    _initData  = (InitData*)config->getObject( initID );
+    _frameData = _initData->getFrameData();
+    EQASSERT( _frameData );
 
     EQASSERT(_initData);
     EQINFO << "InitData " << _initData.get() << " id " << initID << " filename "
@@ -23,5 +26,11 @@ bool Pipe::init( const uint32_t initID )
 bool Pipe::exit()
 {
     _initData = NULL;
+    _frameData = NULL;
     return eq::Pipe::exit();
+}
+
+void Pipe::startFrame( const uint32_t frameID )
+{
+    _frameData->sync( frameID );
 }

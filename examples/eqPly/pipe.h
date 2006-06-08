@@ -17,9 +17,11 @@ public:
 protected:
     bool init( const uint32_t initID );
     bool exit();
+    void startFrame( const uint32_t frameID );
 
 private:
     eqBase::RefPtr<InitData>  _initData;
+    eqBase::RefPtr<FrameData> _frameData;
 };
 
 #endif // EQ_PLY_PIPE_H

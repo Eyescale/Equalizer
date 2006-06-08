@@ -20,7 +20,6 @@ bool Channel::init( const uint32_t initID )
 
     _initData  = (InitData*)config->getObject( initID );
     _frameData = _initData->getFrameData();
-    EQASSERT( _frameData );
 
     return true;
 }
@@ -48,8 +47,6 @@ void Channel::draw( const uint32_t frameID )
     
     glLightfv( GL_LIGHT0, GL_POSITION, lightpos );
 
-    _frameData->sync( frameID );
-    
     glTranslatef( 0, 0, -2 );
     glRotatef( _frameData->spin, 1, 1, 1 );
 

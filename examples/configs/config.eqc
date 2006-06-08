@@ -16,6 +16,7 @@ server
         {
             pipe
             {
+                display 30
                 window
                 {
                     viewport [ 640 400 1280 800 ]

@@ -29,8 +29,8 @@ namespace eqNet
         /** 
          * Constructs a new session.
          *
-         * @param nCommands the highest command ID to be handled by the node, at
-         *                  least <code>CMD_SESSION_CUSTOM</code>.
+         * @param nCommands the highest command ID to be handled by the session,
+         *                  at least <code>CMD_SESSION_CUSTOM</code>.
          * @param threadSafe if <code>true</code>, all public functions are
          *                   thread-safe.
          */

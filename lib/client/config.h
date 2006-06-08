@@ -27,8 +27,12 @@ namespace eq
          * Constructs a new config.
          * 
          * @param server the server hosting the config.
+         * @param nCommands the highest command ID to be handled by the config, 
+         *                  at least <code>CMD_CONFIG_CUSTOM</code>.
          */
-        Config();
+        Config( const uint32_t nCommands = CMD_CONFIG_CUSTOM );
+
+        virtual ~Config(){}
 
         /** 
          * Initialises this configuration.
