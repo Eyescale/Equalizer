@@ -124,6 +124,15 @@ void Pipe::setXDisplay( Display* display )
 #endif
 }
 
+Display* Pipe::getXDisplay() const
+{
+#ifdef GLX
+    return _xDisplay;
+#else
+    return NULL;
+#endif
+}
+
 void Pipe::setCGLDisplayID( CGDirectDisplayID id )
 {
 #ifdef CGL
@@ -143,6 +152,15 @@ void Pipe::setCGLDisplayID( CGDirectDisplayID id )
         _pvp.w = 0;
         _pvp.h = 0;
     }
+#endif
+}
+
+CGDirectDisplayID Pipe::getCGLDisplayID() const
+{
+#ifdef CGL
+    return _cglDisplayID;
+#else
+    return NULL;
 #endif
 }
 

@@ -42,7 +42,12 @@ void Base::registerCommand( const uint32_t command, void* thisPointer,
 CommandResult Base::handleCommand( Node* node, const Packet* packet )
 {
     const uint32_t which = packet->command;
-    EQASSERT( which < _nCommands );
+    if( which >= _nCommands )
+    {
+        EQERROR << "Command higher than number of registered command handlers "
+                << "for object of type " << typeid(*this).name() << endl;
+        return COMMAND_ERROR;
+    }
     return (_commandFunctionsThis[which]->*_commandFunctions[which])( node,
                                                                       packet );
 }

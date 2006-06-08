@@ -153,7 +153,7 @@ namespace eq
          * Returns the X11 display connection for this pipe.
          * @return the X11 display connection for this pipe. 
          */
-        Display* getXDisplay() const { return _xDisplay; }
+        Display* getXDisplay() const;
 
         /** 
          * Set the CGL display ID for this pipe.
@@ -168,7 +168,7 @@ namespace eq
          * Returns the CGL display ID for this pipe.
          * @return the CGL display ID for this pipe.
          */
-        CGDirectDisplayID getCGLDisplayID() const { return _cglDisplayID; }
+        CGDirectDisplayID getCGLDisplayID() const;
 
         /**
          * @name Callbacks
