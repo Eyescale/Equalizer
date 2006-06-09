@@ -59,5 +59,7 @@ int main( int argc, char **argv )
     
     TEST( node->stopListening( ));
     thread.join();
+    node = NULL;
+    nodeProxy = NULL;
 }
 

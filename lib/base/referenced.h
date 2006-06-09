@@ -19,7 +19,13 @@ namespace eqBase
         // TODO: optional thread-safety
 
         void ref()   { _refCount++; }
-        void unref() { if( (_refCount--)==0 ) delete this; }
+        void unref() 
+            { 
+                EQASSERT( _refCount > 0 ); 
+                --_refCount;
+                if( _refCount==0 )
+                    delete this;
+            }
 
         int  getRefCount() const { return _refCount; }
 

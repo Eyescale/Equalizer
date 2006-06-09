@@ -59,11 +59,16 @@ Session::Session( const uint32_t nCommands, const bool threadSafe )
                      reinterpret_cast<CommandFcn>(
                          &eqNet::Session::_cmdInstanciateObject ));
 
-    EQINFO << "New " << this << endl;
+    EQINFO << "New Session @" << (void*)this << endl;
 
 #ifdef CHECK_THREADSAFETY
     _recvThreadID = 0;
 #endif
+}
+
+Session::~Session()
+{
+    EQINFO << "Delete Session @" << (void*)this << endl;
 }
 
 //---------------------------------------------------------------------------

@@ -19,6 +19,7 @@ PipeConnection::PipeConnection()
 {
     _description = new ConnectionDescription;
     _description->type = Connection::TYPE_PIPE;
+    EQINFO << "New PipeConnection @" << (void*)this << endl;
 }
 
 PipeConnection::PipeConnection(const PipeConnection& conn)
@@ -33,11 +34,13 @@ PipeConnection::PipeConnection(const PipeConnection& conn)
         _pipes = new int[4];
         memcpy( _pipes, conn._pipes, 4*sizeof(int));
     }
+    EQINFO << "New PipeConnection @" << (void*)this << endl;
 }
 
 PipeConnection::~PipeConnection()
 {
     close();
+    EQINFO << "Delete PipeConnection @" << (void*)this << endl;
 }
 
 //----------------------------------------------------------------------

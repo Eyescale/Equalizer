@@ -36,6 +36,7 @@ protected:
                 _connection->send( &c, 1 );
             }
             _connection->close();
+            _connection = NULL;
             return EXIT_SUCCESS;
         }
 private:
@@ -46,12 +47,12 @@ int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    RefPtr<Connection> connection = new PipeConnection();
+    PipeConnection* pipeConnection = new PipeConnection();
+    RefPtr<Connection>  connection = pipeConnection;
     if( !connection->connect( ))
         exit( EXIT_FAILURE );
 
     Server server;
-    PipeConnection* pipeConnection = (PipeConnection*)connection.get();
     server.start( pipeConnection->getChildEnd( ));
 
     const char message[] = "buh!";
@@ -63,6 +64,9 @@ int main( int argc, char **argv )
     cerr << "Client recv: " << response << endl;
 
     connection->close();
+    connection = NULL;
 
+    server.join();
+    
     return EXIT_SUCCESS;
 }

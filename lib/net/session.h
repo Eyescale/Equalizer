@@ -37,6 +37,8 @@ namespace eqNet
         Session( const uint32_t nCommands = CMD_SESSION_CUSTOM, 
                  const bool threadSafe = false );
 
+        virtual ~Session();
+
         /** 
          * Returns the name of the session.
          * 

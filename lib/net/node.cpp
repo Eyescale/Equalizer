@@ -68,11 +68,13 @@ Node::Node( const uint32_t nCommands )
 #ifdef CHECK_THREADSAFETY
     _threadID = 0;
 #endif
+    EQINFO << "New Node @" << (void*)this << endl;
 }
 
 Node::~Node()
 {
     delete _receiverThread;
+    EQINFO << "Delete Node @" << (void*)this << endl;
 }
 
 bool Node::listen( RefPtr<Connection> connection )
@@ -209,6 +211,7 @@ void Node::_addConnectedNode( RefPtr<Node> node, RefPtr<Connection> connection )
 
 bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
 {
+    EQASSERT( connection.isValid( ));
     if( !node.isValid() || _state != STATE_LISTENING ||
         connection->getState() != Connection::STATE_CONNECTED ||
         node->_state != STATE_STOPPED )
@@ -237,11 +240,15 @@ bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
 // two-way handshake to exchange node identifiers and other information
 NodeConnectPacket* Node::_performConnect( eqBase::RefPtr<Connection> connection)
 {
+    EQASSERT( _state == STATE_LISTENING );
     // send connect packet to peer
     eqNet::NodeConnectPacket packet;
 
     packet.nodeID = _id;
-    connection->send( packet, _listener->getDescription()->toString( ));
+    if( _listener.isValid( ))
+        connection->send( packet, _listener->getDescription()->toString( ));
+    else
+        connection->send( packet );
 
     return _readConnectReply( connection );
 }

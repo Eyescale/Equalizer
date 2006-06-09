@@ -115,6 +115,7 @@ eqBase::RefPtr<ConnectionDescription> Connection::getDescription()
 void Connection::setDescription( eqBase::RefPtr<ConnectionDescription> 
                                  description )
 {
+    EQASSERT( description.isValid( ));
     EQASSERTINFO( _description->type == description->type,
                   "Wrong connection type in description" );
     _description = description;
