@@ -4,7 +4,6 @@
 
 #include <test.h>
 
-#include <eq/client/nodeFactory.h>
 #include <eq/net/barrier.h>
 #include <eq/net/connection.h>
 #include <eq/net/init.h>
@@ -17,8 +16,6 @@ using namespace eqBase;
 using namespace eqNet;
 using namespace std;
 
-eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
-
 uint32_t barrierID = EQ_INVALID_ID;
 
 class NodeThread : public Thread
@@ -28,12 +25,13 @@ public:
 
     virtual ssize_t run()
         {
-            RefPtr<Connection> connection = 
+            RefPtr<Connection>            connection = 
                 Connection::create( Connection::TYPE_TCPIP );
-            RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
+            RefPtr<ConnectionDescription> connDesc   = 
+                connection->getDescription();
 
             connDesc->TCPIP.port = _master ? 4242 : 4243;
-            TEST( connection->listen( connDesc ))
+            TEST( connection->listen( ))
             
             RefPtr<Node> node = new Node();
             TEST( node->listen( connection ));

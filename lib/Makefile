@@ -51,6 +51,7 @@ HEADER_SRC = \
 	client/commands.h \
 	client/config.h \
 	client/configParams.h \
+	client/eventThread.h \
 	client/frustum.h \
 	client/global.h \
 	client/init.h \

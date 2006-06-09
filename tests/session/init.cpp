@@ -13,8 +13,6 @@ using namespace std;
 
 RefPtr<eqNet::Connection> connection;
 
-eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
-
 class NodeThread : public eqBase::Thread
 {
 protected:
@@ -43,12 +41,8 @@ int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    connection = Connection::create(Connection::TYPE_PIPE);
-    RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
-
-    connDesc->type = Connection::TYPE_PIPE;
-
-    TEST( connection->connect( connDesc ));
+    connection = new PipeConnection();
+    TEST( connection->connect( ));
 
     NodeThread thread;
     thread.start();

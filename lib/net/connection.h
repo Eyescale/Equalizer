@@ -58,14 +58,12 @@ namespace eqNet
         /** @name Connection Management */
         //@{
         /** 
-         * Connect the connection, as described in the
-         * ConnectionDescription.
+         * Connect the connection.
          *
-         * @param desc The description of the connection.
          * @return <code>true</code> if the connection was successfully
          *         connected, <code>false</code> if not.
          */
-        virtual bool connect( eqBase::RefPtr<ConnectionDescription> desc )
+        virtual bool connect()
             { return false; }
         
         /** 
@@ -75,7 +73,7 @@ namespace eqNet
          * @return <code>true</code> if the connection is listening for new
          *         incoming connections, <code>false</code> if not.
          */
-        virtual bool listen( eqBase::RefPtr<ConnectionDescription> description)
+        virtual bool listen()
             { return false; }
 
         /** 
@@ -174,10 +172,13 @@ namespace eqNet
         State getState() const { return _state; }
 
         /** 
-         * Returns the description for this connection.
+         * Set the connection's description.
          * 
-         * @return the description for this connection. 
+         * @param description the connection parameters.
          */
+        void setDescription( eqBase::RefPtr<ConnectionDescription> description);
+
+        /** @return the description for this connection. */
         eqBase::RefPtr<ConnectionDescription> getDescription();
 
         virtual int getReadFD() const { return -1; }

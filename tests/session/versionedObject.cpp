@@ -107,13 +107,8 @@ int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    connection = eqNet::Connection::create(eqNet::Connection::TYPE_PIPE);
-    RefPtr<eqNet::ConnectionDescription> connDesc = 
-        new eqNet::ConnectionDescription;
-
-    connDesc->type = eqNet::Connection::TYPE_PIPE;
-
-    TEST( connection->connect( connDesc ));
+    connection = new eqNet::PipeConnection();
+    TEST( connection->connect( ));
 
     ServerThread server;
     server.start();

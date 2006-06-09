@@ -13,7 +13,6 @@
 #include "window.h"
 
 #include <eq/base/refPtr.h>
-#include <eq/client/nodeFactory.h>
 #include <eq/client/packets.h>
 #include <eq/net/connectionDescription.h>
 #include <eq/net/init.h>
@@ -24,11 +23,6 @@
 using namespace eqs;
 using namespace eqBase;
 using namespace std;
-
-eq::NodeFactory* eq::createNodeFactory()
-{
-    return new eq::NodeFactory;
-}
 
 Server::Server()
         : eqNet::Node( eq::CMD_SERVER_CUSTOM ),
@@ -53,12 +47,12 @@ bool Server::run( int argc, char **argv )
     eqNet::init( argc, argv );
 
     RefPtr<eqNet::Connection> connection =
-        eqNet::Connection::create(eqNet::Connection::TYPE_TCPIP);
+        eqNet::Connection::create( eqNet::Connection::TYPE_TCPIP );
     RefPtr<eqNet::ConnectionDescription> connDesc = 
-        new eqNet::ConnectionDescription;
+        connection->getDescription();
 
     connDesc->TCPIP.port = 4242;
-    if( !connection->listen( connDesc ))
+    if( !connection->listen( ))
     {
         EQERROR << "Could not create listening socket" << endl;
         return false;

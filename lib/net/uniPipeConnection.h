@@ -19,7 +19,7 @@ namespace eqNet
         UniPipeConnection();
         virtual ~UniPipeConnection();
 
-        virtual bool connect(eqBase::RefPtr<ConnectionDescription> description);
+        virtual bool connect();
         virtual void close();
 
     protected:

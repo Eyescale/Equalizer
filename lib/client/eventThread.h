@@ -5,7 +5,6 @@
 #define EQ_EVENTTHREAD_H
 
 #include <eq/base/thread.h>
-#include <eq/net/connectionSet.h>
 
 namespace eq
 {
@@ -18,22 +17,14 @@ namespace eq
         /** 
          * Constructs a new event thread.
          */
-        EventThread();
+        EventThread(){}
 
         /**
          * Destructs the event thread.
          */
-        virtual ~EventThread();
+        virtual ~EventThread(){}
         
-        /** @sa eqBase::Thread::init. */
-        virtual bool init();
-
-        /** @sa eqBase::Thread::run. */
-        virtual ssize_t run();
-
     private:
-        eqNet::ConnectionSet       _connections;
-        eqBase::RefPtr<Connection> _commandConnection;
     };
 }
 

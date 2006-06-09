@@ -39,9 +39,8 @@ bool Server::open( const OpenParams& params )
 
     RefPtr<eqNet::Connection> connection =
         eqNet::Connection::create( eqNet::Connection::TYPE_TCPIP );
-
     RefPtr<eqNet::ConnectionDescription> connDesc = 
-        new eqNet::ConnectionDescription;
+        connection->getDescription();
 
     const char* envServer = getenv( "EQ_SERVER" );
     const string address  = params.address.size() > 0 ? params.address :
@@ -60,7 +59,7 @@ bool Server::open( const OpenParams& params )
     if( !connDesc->TCPIP.port )
         connDesc->TCPIP.port = 4242;
 
-    if( !connection->connect( connDesc ))
+    if( !connection->connect( ))
         return false;
 
     eqNet::Node* localNode = Node::getLocalNode();

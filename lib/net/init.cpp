@@ -6,6 +6,7 @@
 
 #include "global.h"
 #include "node.h"
+#include "socketConnection.h"
 
 #include <unistd.h>
 
@@ -82,16 +83,15 @@ bool initLocalNode( int argc, char** argv )
     if( listen )
     {
         EQINFO << "Listener port requested" << endl;
-        RefPtr<Connection> connection = 
-            Connection::create( eqNet::Connection::TYPE_TCPIP );
-        RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
+        RefPtr<Connection>            connection = new SocketConnection();
+        RefPtr<ConnectionDescription> connDesc   = connection->getDescription();
 
         if( !connDesc->fromString( listenOpts ))
             EQINFO << "No listening port parameters read from command line"
                    << endl;
         EQINFO << "Listening connection description: " << connDesc.get() <<endl;
 
-        if( !connection->listen( connDesc ))
+        if( !connection->listen( ))
         {
             EQWARN << "Can't create listening connection" << endl; 
             if( isClient )

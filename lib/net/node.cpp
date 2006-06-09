@@ -10,6 +10,7 @@
 #include "packets.h"
 #include "pipeConnection.h"
 #include "session.h"
+#include "uniPipeConnection.h"
 
 #include <alloca.h>
 #include <fcntl.h>
@@ -144,11 +145,8 @@ void Node::_cleanup()
 bool Node::_listenToSelf()
 {
     // setup local connection to myself
-    _connection = Connection::create( Connection::TYPE_UNI_PIPE );
-    eqBase::RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
-    connDesc->type = Connection::TYPE_UNI_PIPE;
-
-    if( !_connection->connect( connDesc ))
+    _connection = new UniPipeConnection;
+    if( !_connection->connect())
     {
         EQERROR << "Could not create pipe() connection to receiver thread."
                 << endl;
@@ -860,8 +858,8 @@ CommandResult Node::_cmdGetConnectionDescriptionReply( Node* fromNode,
     if( desc->fromString( packet->connectionDescription ))
     {
         RefPtr<Connection> connection = Connection::create( desc->type );
-
-        if( connection->connect( desc ))
+        connection->setDescription( desc );
+        if( connection->connect( ))
         {
             handleConnect( connection );
             
@@ -947,8 +945,8 @@ bool Node::initConnect()
     {
         RefPtr<ConnectionDescription> description = getConnectionDescription(i);
         RefPtr<Connection> connection = Connection::create( description->type );
-        
-        if( !connection->connect( description ))
+        connection->setDescription( description );
+        if( !connection->connect( ))
             continue;
 
         if( !localNode->connect( this, connection ))
@@ -1196,7 +1194,8 @@ bool Node::runClient( const string& clientArgs )
     }
 
     RefPtr<Connection> connection = Connection::create( connectionDesc->type );
-    if( !connection->connect( connectionDesc ))
+    connection->setDescription( connectionDesc );
+    if( !connection->connect( ))
     {
         EQERROR << "Can't contact node" << endl;
         return false;

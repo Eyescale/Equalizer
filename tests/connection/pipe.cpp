@@ -46,10 +46,8 @@ int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    RefPtr<Connection> connection = Connection::create(Connection::TYPE_PIPE);
-    RefPtr<ConnectionDescription> connDesc   = new ConnectionDescription;
-
-    if( !connection->connect( connDesc ))
+    RefPtr<Connection> connection = new PipeConnection();
+    if( !connection->connect( ))
         exit( EXIT_FAILURE );
 
     Server server;

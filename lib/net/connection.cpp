@@ -112,3 +112,10 @@ eqBase::RefPtr<ConnectionDescription> Connection::getDescription()
     return _description;
 }
 
+void Connection::setDescription( eqBase::RefPtr<ConnectionDescription> 
+                                 description )
+{
+    EQASSERTINFO( _description->type == description->type,
+                  "Wrong connection type in description" );
+    _description = description;
+}

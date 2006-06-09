@@ -15,12 +15,13 @@ int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    RefPtr<Connection> connection = Connection::create( Connection::TYPE_TCPIP);
-    RefPtr<ConnectionDescription> connDesc   = new ConnectionDescription;
+    RefPtr<Connection>            connection = 
+        Connection::create( Connection::TYPE_TCPIP );
+    RefPtr<ConnectionDescription> connDesc   = connection->getDescription();
 
     connDesc->hostname = "localhost";
     connDesc->TCPIP.port = 4242;
-    TEST( connection->connect( connDesc ));
+    TEST( connection->connect( ));
 
     const char      message[] = "buh!";
     const uint64_t  nChars    = strlen( message ) + 1;

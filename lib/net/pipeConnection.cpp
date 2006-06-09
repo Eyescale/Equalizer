@@ -17,12 +17,17 @@ using namespace std;
 PipeConnection::PipeConnection()
         : _pipes(NULL)
 {
+    _description = new ConnectionDescription;
+    _description->type = Connection::TYPE_PIPE;
 }
 
 PipeConnection::PipeConnection(const PipeConnection& conn)
         : FDConnection(conn),
           _childConnection( conn._childConnection )
 {
+    _description = new ConnectionDescription;
+    _description->type = Connection::TYPE_PIPE;
+
     if( conn._pipes )
     {
         _pipes = new int[4];
@@ -38,9 +43,9 @@ PipeConnection::~PipeConnection()
 //----------------------------------------------------------------------
 // connect
 //----------------------------------------------------------------------
-bool PipeConnection::connect( eqBase::RefPtr<ConnectionDescription> description)
+bool PipeConnection::connect()
 {
-    EQASSERT( description->type == TYPE_PIPE );
+    EQASSERT( _description->type == TYPE_PIPE );
 
     if( _state != STATE_CLOSED )
         return false;
@@ -52,8 +57,6 @@ bool PipeConnection::connect( eqBase::RefPtr<ConnectionDescription> description)
         close();
         return false;
     }
-
-    _description          = description;
 
     PipeConnection* childConnection = new PipeConnection( *this );
     childConnection->_setupChild();
@@ -98,7 +101,6 @@ void PipeConnection::close()
     }
 
     _childConnection = NULL;
-    _description     = NULL;
     _state = STATE_CLOSED;
 }
 

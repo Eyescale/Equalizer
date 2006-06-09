@@ -73,13 +73,13 @@ int main( int argc, char **argv )
     lock.set();
     Server server;
 
-    RefPtr<Connection> connection = Connection::create(Connection::TYPE_TCPIP);
-    RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
-    connDesc->type = Connection::TYPE_TCPIP;
-    //connDesc->hostname = "benjy";
+    RefPtr<Connection>            connection = 
+        Connection::create( Connection::TYPE_TCPIP );
+    RefPtr<ConnectionDescription> connDesc   = connection->getDescription();
+
     connDesc->TCPIP.port = 4242;
 
-    TEST( connection->listen( connDesc ));
+    TEST( connection->listen( ));
     TEST( server.listen( connection ));
 
     Client client;
@@ -95,4 +95,3 @@ int main( int argc, char **argv )
 
     lock.set();
 }
-

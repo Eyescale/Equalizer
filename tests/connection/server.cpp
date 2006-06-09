@@ -15,12 +15,13 @@ int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    RefPtr<Connection> connection = Connection::create(Connection::TYPE_TCPIP);
-    RefPtr<ConnectionDescription> connDesc   = new ConnectionDescription;
+    RefPtr<Connection>            connection = 
+        Connection::create( Connection::TYPE_TCPIP );
+    RefPtr<ConnectionDescription> connDesc   = connection->getDescription();
 
     connDesc->hostname = "localhost";
     connDesc->TCPIP.port = 0;
-    TEST( connection->listen( connDesc ));
+    TEST( connection->listen( ));
 
     RefPtr<Connection> client = connection->accept();
     cerr << "Server accepted connection" << endl;
