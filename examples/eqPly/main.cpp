@@ -15,6 +15,7 @@
 #include <stdlib.h>
 
 using namespace std;
+using namespace eqBase;
 
 #define DIE(reason)    { cout << (reason) << endl; abort(); }
 
@@ -44,16 +45,16 @@ int main( int argc, char** argv )
     _parseArguments( initData, argc, argv );
 
     // 2. connect to server
-    eq::Server     server;
-    eq::OpenParams openParams;
+    RefPtr<eq::Server> server = new eq::Server;
+    eq::OpenParams     openParams;
     openParams.appName = argv[0];
 
-    if( !server.open( openParams ))
+    if( !server->open( openParams ))
         DIE("Can't open server.");
 
     // 3. choose config
     eq::ConfigParams configParams;
-    eq::Config*      config = server.chooseConfig( configParams );
+    eq::Config*      config = server->chooseConfig( configParams );
 
     if( !config )
         DIE("No matching config on server.");
@@ -96,8 +97,9 @@ int main( int argc, char** argv )
     cerr << "Exit took " << clock.getTimef() << " ms" << endl;
 
     // 8. cleanup and exit
-    server.releaseConfig( config );
-    server.close();
+    server->releaseConfig( config );
+    server->close();
+    server = NULL;
     eq::exit();
     return EXIT_SUCCESS;
 }

@@ -62,7 +62,7 @@ bool Server::open( const OpenParams& params )
     if( !connection->connect( ))
         return false;
 
-    eqNet::Node* localNode = Node::getLocalNode();
+    RefPtr<eqNet::Node> localNode = Node::getLocalNode();
     if( !localNode->connect( this, connection ))
         return false;
 
@@ -77,7 +77,7 @@ bool Server::close()
     if( _state != STATE_OPENED )
         return false;
 
-    Node* localNode = eqNet::Node::getLocalNode();
+    RefPtr<eqNet::Node> localNode = eqNet::Node::getLocalNode();
     if( !localNode->disconnect( this ))
         return false;
 
@@ -153,8 +153,8 @@ eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Node* node,
         return eqNet::COMMAND_HANDLED;
     }
 
-    Config* config    = Global::getNodeFactory()->createConfig();
-    Node*   localNode = Node::getLocalNode();
+    Config*      config    = Global::getNodeFactory()->createConfig();
+    RefPtr<Node> localNode = Node::getLocalNode();
 
     localNode->addSession( config, node, packet->configID, packet->sessionName);
     _addConfig( config );

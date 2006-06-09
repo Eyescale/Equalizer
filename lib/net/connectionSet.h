@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_CONNECTION_SET_H
@@ -17,13 +17,11 @@ namespace eqNet
     class Connection;
     class Message;
     class Network;
-    class Node;
         
     /**
      * A set of connections. 
      *
-     * The set associates a Network and a Node with each Connection. From
-     * this set, a connection with pending events can be selected.
+     * From the set, a connection with pending events can be selected.
      */
     class ConnectionSet
     {
@@ -41,22 +39,17 @@ namespace eqNet
         ConnectionSet();
         ~ConnectionSet();
 
-        void addConnection( eqBase::RefPtr<Connection> connection, 
-                            eqBase::RefPtr<Node> node );
+        void addConnection( eqBase::RefPtr<Connection> connection );
         bool removeConnection( eqBase::RefPtr<Connection> connection );
         void clear();
         size_t nConnections() const { return _connections.size(); }
         eqBase::RefPtr<Connection> getConnection( const size_t i ) const
             { return _connections[i]; }
 
-        eqBase::RefPtr<Node> getNode( eqBase::RefPtr<Connection> connection )
-            { return _nodes[connection.get()]; }
-
         /** 
          * Selects a Connection which is ready for I/O.
          *
-         * Depending on the event, the error number, connection and node are
-         * set by this method.
+         * Depending on the event, the error number and connection are set.
          * 
          * @param timeout the timeout to wait for an event in milliseconds,
          *                or <code>-1</code> if the call should block
@@ -80,8 +73,7 @@ namespace eqNet
 
         int      _errno;
 
-        std::vector< eqBase::RefPtr<Connection> >            _connections;
-        eqBase::PtrHash< Connection*, eqBase::RefPtr<Node> > _nodes;
+        std::vector< eqBase::RefPtr<Connection> > _connections;
 
         // result values
         eqBase::RefPtr<Connection> _connection;

@@ -32,7 +32,7 @@ bool eq::init( int argc, char** argv )
         }
     }
     
-    eqNet::Node* node = new Client;
+    RefPtr<eqNet::Node> node = new Client;
     eqNet::Node::setLocalNode( node );
 
     char* argvListen[argc+1];
@@ -46,7 +46,6 @@ bool eq::init( int argc, char** argv )
     {
         EQERROR << "Failed to initialise Equalizer network layer" << endl;
         eqNet::Node::setLocalNode( NULL );
-        delete node;
         return false;
     }
 

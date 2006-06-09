@@ -68,11 +68,19 @@ namespace eqBase
         /** 
          * Exits the child thread immediately.
          * 
-         * This function does not return.
+         * This function does not return. It is only to be called from the child
+         * thread.
          *
          * @param retVal the return value of the thread.
          */
         virtual void exit( ssize_t retVal = NULL );
+
+        /** 
+         * Cancels (stops) the child thread.
+         *
+         * This function is not to be called from the child thread.
+         */
+        void cancel();
 
         /** 
          * Waits for the exit of the child thread.

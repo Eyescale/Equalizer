@@ -96,6 +96,8 @@ namespace eqs
             { _requestQueue.push( node, packet ); }
 
     protected:
+        virtual ~Server() {}
+
         /** @sa eqNet::Node::handlePacket */
         virtual eqNet::CommandResult handlePacket( eqNet::Node* node, 
                                                    const eqNet::Packet* packet);

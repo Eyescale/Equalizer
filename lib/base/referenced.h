@@ -5,6 +5,7 @@
 #ifndef EQBASE_REFERENCED_H
 #define EQBASE_REFERENCED_H
 
+#include "base.h"
 #include "log.h"
 
 namespace eqBase

@@ -99,8 +99,8 @@ bool initLocalNode( int argc, char** argv )
             return false;
         }
 
-        Node* localNode = Node::getLocalNode();
-        if( localNode == NULL )
+        RefPtr<Node> localNode = Node::getLocalNode();
+        if( !localNode.isValid( ))
         {
             localNode = new Node();
             Node::setLocalNode( localNode );
@@ -119,7 +119,7 @@ bool initLocalNode( int argc, char** argv )
     {
         EQINFO << "Client node started from command line with option " 
              << clientOpts << endl;
-        Node* localNode = Node::getLocalNode();
+        RefPtr<Node> localNode = Node::getLocalNode();
         EQASSERT( localNode );
 
         const bool ret = localNode->runClient( clientOpts );
@@ -139,7 +139,7 @@ bool eqNet::exit()
 
 bool exitLocalNode()
 {
-    Node* localNode = Node::getLocalNode();
+    RefPtr<Node> localNode = Node::getLocalNode();
     if( !localNode->stopListening( ))
         return false;
 

@@ -60,11 +60,6 @@ namespace eqNet
          */
         Node( const uint32_t nCommands = CMD_NODE_CUSTOM );
 
-        /**
-         * Destructs this node.
-         */
-        virtual ~Node();
-
         /** 
          * Returns the state of this node.
          * 
@@ -224,7 +219,7 @@ namespace eqNet
          * @param node the local node for this thread.
          * @sa addConnectionDescription, send
          */
-        static void setLocalNode( Node* node ) { _localNode = node; }
+        static void setLocalNode( eqBase::RefPtr<Node> node );
 
         /** 
          * Returns the local node for this thread.
@@ -232,7 +227,7 @@ namespace eqNet
          * @return the local node for this thread.
          * @sa setLocalNode
          */
-        static Node* getLocalNode() { return _localNode.get(); }
+        static eqBase::RefPtr<Node> getLocalNode() { return _localNode.get(); }
 
         /** 
          * Returns if the node is local.
@@ -515,6 +510,9 @@ namespace eqNet
         const NodeID& getNodeID(){ return _id; }
 
     protected:
+        /** Destructs this node. */
+        virtual ~Node();
+
         /** Determines if the node should be launched automatically. */
         bool _autoLaunch;
 
@@ -617,6 +615,9 @@ namespace eqNet
 
         /** The connection set of all connections from/to this node. */
         ConnectionSet _connectionSet;
+
+        /** The node for each connection. */
+        eqBase::PtrHash< Connection*, eqBase::RefPtr<Node> > _connectionNodes;
 
         /** The request id for the async launch operation. */
         uint32_t _launchID;
@@ -721,8 +722,8 @@ namespace eqNet
         ReceiverThread* _receiverThread;
 
         ssize_t _runReceiver();
-        void      _handleConnect( ConnectionSet& connectionSet );
-        void      _handleDisconnect( ConnectionSet& connectionSet );
+        void      _handleConnect();
+        void      _handleDisconnect();
         void        _addConnectedNode( eqBase::RefPtr<Node> node, 
                                        eqBase::RefPtr<Connection> connection );
         void      _handleRequest( Node* node );

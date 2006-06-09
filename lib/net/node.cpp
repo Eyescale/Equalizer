@@ -92,7 +92,8 @@ bool Node::listen( RefPtr<Connection> connection )
     if( connection.isValid( ))
     {
         EQASSERT( connection->getDescription().isValid( ));
-        _connectionSet.addConnection( connection, this );
+        _connectionSet.addConnection( connection );
+        _connectionNodes[ connection.get() ] = this;
         _listener = connection;
         addConnectionDescription( connection->getDescription( ));
     }
@@ -125,6 +126,7 @@ void Node::_cleanup()
     EQASSERTINFO( _state == STATE_STOPPED, _state );
     EQASSERT( _connection );
 
+    _connectionNodes.erase( _connection.get( ));
     _connectionSet.removeConnection( _connection );
     _connection->close();
     _connection = NULL;
@@ -134,12 +136,13 @@ void Node::_cleanup()
     for( size_t i = 0; i<nConnections; i++ )
     {
         RefPtr<Connection> connection = _connectionSet.getConnection(i);
-        RefPtr<Node>       node       = _connectionSet.getNode( connection );
+        RefPtr<Node>       node       = _connectionNodes[ connection.get() ];
 
         node->_state      = STATE_STOPPED;
         node->_connection = NULL;
     }
 
+    _connectionNodes.clear();
     _connectionSet.clear();
     _nodes.clear();
 }
@@ -158,7 +161,8 @@ bool Node::_listenToSelf()
 
     // add to connection set
     EQASSERT( _connection->getDescription().isValid( ));
-    _connectionSet.addConnection( _connection, this );
+    _connectionSet.addConnection( _connection );
+    _connectionNodes[ _connection.get() ] = this;
     _nodes[ _id ] = this;
     return true;
 }
@@ -204,7 +208,8 @@ void Node::_addConnectedNode( RefPtr<Node> node, RefPtr<Connection> connection )
     node->_connection = connection;
     node->_state      = STATE_CONNECTED;
     
-    _connectionSet.addConnection( connection, node );
+    _connectionSet.addConnection( connection );
+    _connectionNodes[ connection.get() ] = node;
     _nodes[ node->_id ] = node;
     EQINFO << node.get() << " connected to " << this << endl;
 }
@@ -284,6 +289,15 @@ NodeConnectPacket* Node::_readConnectReply( eqBase::RefPtr<Connection>
     return reply;
 }
 
+void Node::setLocalNode( eqBase::RefPtr<Node> node )
+{
+    // manual ref/unref to keep correct reference count
+    if( _localNode.get( ))
+        _localNode->unref();
+    node->ref();
+    _localNode = node.get();
+}
+
 void Node::disconnect()
 {
     if( _state != STATE_CONNECTED )
@@ -307,6 +321,7 @@ bool Node::disconnect( Node* node )
     if( !_connectionSet.removeConnection( node->_connection ))
         return false;
 
+    _connectionNodes.erase( node->_connection.get( ));
     _nodes.erase( node->_id );
 
     node->_state      = STATE_STOPPED;
@@ -443,13 +458,13 @@ ssize_t Node::_runReceiver()
         switch( result )
         {
             case ConnectionSet::EVENT_CONNECT:
-                _handleConnect( _connectionSet );
+                _handleConnect();
                 break;
 
             case ConnectionSet::EVENT_DATA:      
             {
                 RefPtr<Connection> connection = _connectionSet.getConnection();
-                RefPtr<Node>       node = _connectionSet.getNode( connection );
+                RefPtr<Node>       node = _connectionNodes[ connection.get() ];
                 EQASSERT( node->_connection == connection );
                 _handleRequest( node.get() ); // do not pass down RefPtr atm
                 break;
@@ -457,7 +472,7 @@ ssize_t Node::_runReceiver()
 
             case ConnectionSet::EVENT_DISCONNECT:
             {
-                _handleDisconnect( _connectionSet );
+                _handleDisconnect();
                 EQVERB << &_connectionSet << endl;
                 break;
             } 
@@ -473,7 +488,7 @@ ssize_t Node::_runReceiver()
                 {
                     EQWARN << "Too many errors in a row, capping connection" 
                            << endl;
-                    _handleDisconnect( _connectionSet );
+                    _handleDisconnect();
                 }
                 break;
 
@@ -487,9 +502,9 @@ ssize_t Node::_runReceiver()
     return EXIT_SUCCESS;
 }
 
-void Node::_handleConnect( ConnectionSet& connectionSet )
+void Node::_handleConnect()
 {
-    RefPtr<Connection> connection = connectionSet.getConnection();
+    RefPtr<Connection> connection = _connectionSet.getConnection();
     RefPtr<Connection> newConn    = connection->accept();
     handleConnect( newConn );
 }
@@ -542,10 +557,10 @@ void Node::handleConnect( RefPtr<Connection> connection )
     free( packet );
 }
 
-void Node::_handleDisconnect( ConnectionSet& connectionSet )
+void Node::_handleDisconnect()
 {
-    RefPtr<Connection> connection = connectionSet.getConnection();
-    RefPtr<Node>       node       = connectionSet.getNode( connection );
+    RefPtr<Connection> connection = _connectionSet.getConnection();
+    RefPtr<Node>       node       = _connectionNodes[ connection.get() ];
 
     handleDisconnect( node.get() ); // XXX
     connection->close();
@@ -942,7 +957,7 @@ bool Node::initConnect()
 
     EQASSERT( _state == STATE_STOPPED );
 
-    Node* localNode = Node::getLocalNode();
+    RefPtr<Node> localNode = Node::getLocalNode();
     if( !localNode )
         return false;
 
@@ -980,7 +995,7 @@ bool Node::initConnect()
 
 bool Node::syncConnect()
 {
-    Node* localNode = Node::getLocalNode();
+    RefPtr<Node> localNode = Node::getLocalNode();
     EQASSERT( localNode )
 
     if( _launchID == EQ_INVALID_ID )
@@ -1028,7 +1043,7 @@ bool Node::_launch( RefPtr<ConnectionDescription> description )
 {
     EQASSERT( _state == STATE_STOPPED );
 
-    Node* localNode = Node::getLocalNode();
+    RefPtr<Node> localNode = Node::getLocalNode();
     EQASSERT( localNode );
 
     const uint32_t requestID     = 
@@ -1050,7 +1065,7 @@ bool Node::_launch( RefPtr<ConnectionDescription> description )
 
 string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description )
 {
-    Node* localNode = Node::getLocalNode();
+    RefPtr<Node> localNode = Node::getLocalNode();
     if( !localNode )
     {
         EQERROR << "No local node, can't launch " << this << endl;
@@ -1110,7 +1125,7 @@ string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description )
 
 string Node::_createRemoteCommand()
 {
-    Node* localNode = Node::getLocalNode();
+    RefPtr<Node>       localNode = Node::getLocalNode();
     RefPtr<Connection> listener = localNode->_listener;
     if( !listener.isValid() || 
         listener->getState() != Connection::STATE_LISTENING )

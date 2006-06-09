@@ -142,8 +142,7 @@ bool Thread::start()
 
 void Thread::exit( ssize_t retVal )
 {
-    if( !isRunning( ))
-        return;
+    EQASSERTINFO( isCurrent( ), "Thread::exit not called from child thread" );
 
     EQINFO << "Exiting thread" << endl;
     _threadState = STATE_STOPPING;
@@ -151,23 +150,31 @@ void Thread::exit( ssize_t retVal )
     switch( _type )
     {
         case PTHREAD:
-            if( !isCurrent( ))
-            {
-                pthread_cancel( _threadID.pthread );
-                return;
-            }
-
             pthread_exit( (void*)retVal );
             break;
 
         case FORK:
-            if( !isCurrent( ))
-            {
-                kill( _threadID.fork, SIGTERM );
-                return;
-            }
-            
             ::exit( retVal );
+            break;
+    }
+    EQUNREACHABLE;
+}
+
+void Thread::cancel()
+{
+    EQASSERTINFO( !isCurrent( ), "Thread::cancel called from child thread" );
+
+    EQINFO << "Cancelling thread" << endl;
+    _threadState = STATE_STOPPING;
+
+    switch( _type )
+    {
+        case PTHREAD:
+            pthread_cancel( _threadID.pthread );
+            break;
+
+        case FORK:
+            kill( _threadID.fork, SIGTERM );
             break;
     }
     EQASSERTINFO( 0, "Unreachable code" );

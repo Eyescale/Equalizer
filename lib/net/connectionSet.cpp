@@ -4,7 +4,6 @@
 
 #include "connectionSet.h"
 #include "connection.h"
-#include "node.h"
 
 #include <eq/base/base.h>
 #include <algorithm>
@@ -48,15 +47,12 @@ void ConnectionSet::_dirtyFDSet()
     write( _selfFD[1], &c, 1 );
 }
 
-void ConnectionSet::addConnection( RefPtr<Connection> connection, 
-                                   RefPtr<Node> node )
+void ConnectionSet::addConnection( RefPtr<Connection> connection )
 {
     EQASSERT( connection->getState() == Connection::STATE_CONNECTED ||
             connection->getState() == Connection::STATE_LISTENING );
-    //ASSERT( connection == node->getConnection( ));
 
     _connections.push_back( connection );
-    _nodes[connection.get()] = node;
     _dirtyFDSet();
 }
 
@@ -67,7 +63,6 @@ bool ConnectionSet::removeConnection( eqBase::RefPtr<Connection> connection )
     if( eraseIter == _connections.end( ))
         return false;
 
-    _nodes.erase( connection.get( ));
     _connections.erase( eraseIter );
     if( _connection == connection )
         _connection = NULL;
@@ -80,7 +75,6 @@ void ConnectionSet::clear()
 {
     EQASSERT( !_inSelect );
     _connection = NULL;
-    _nodes.clear();
     _connections.clear();
     _dirtyFDSet();
     _fdSet.clear();
@@ -250,8 +244,7 @@ std::ostream& eqNet::operator << ( std::ostream& os, ConnectionSet* set)
     for( size_t i=0; i<nConnections; i++ )
     {
         eqBase::RefPtr<Connection> connection = set->getConnection(i);
-        os << endl << "    " << connection.get() << ", " 
-           << set->getNode( connection ).get();
+        os << endl << "    " << connection.get();
     }
     
     return os;
