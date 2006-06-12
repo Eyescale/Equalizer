@@ -58,7 +58,7 @@ protected:
 class Client : public Node
 {
 public:
-    void send( Node* toNode, const char* string )
+    void send( RefPtr<Node> toNode, const char* string )
         {
             DataPacket packet;
             packet.nBytes = strlen(string)+1;
@@ -85,13 +85,14 @@ int main( int argc, char **argv )
     Client client;
     TEST( client.listen( ));
 
-    Node serverProxy;
+    RefPtr<Node> serverProxy = new Node;
 
     connDesc->hostname = "localhost";
-    serverProxy.addConnectionDescription( connDesc );
+    serverProxy->addConnectionDescription( connDesc );
 
     const char message[] = "Don't Panic!";
-    client.send( &serverProxy, message );
+    client.send( serverProxy, message );
 
     lock.set();
+    serverProxy = NULL;
 }
