@@ -109,6 +109,12 @@ namespace eq
         uint32_t getScreen() const { return _screen; }
 
         /** 
+         * @return The string representation of this pipe's display and screen
+         *         setting, in the form used by XOpenDisplay().
+         */
+        std::string getXDisplayString();
+
+        /** 
          * Tests wether a particular windowing system is supported by this pipe
          * and all its windows.
          * 

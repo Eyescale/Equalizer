@@ -14,25 +14,35 @@ using namespace eqNet;
 using namespace eqBase;
 using namespace std;
 
+void Object::_construct()
+{
+    _session      = NULL;
+    _id           = EQ_INVALID_ID;
+    _version      = 0;
+    _commitCount  = 0;
+    _nVersions    = 0;
+    _countCommits = false;
+
+    registerCommand( CMD_OBJECT_SYNC, this, reinterpret_cast<CommandFcn>(
+                         &eqNet::Object::_cmdSync ));
+    registerCommand( REQ_OBJECT_SYNC, this, reinterpret_cast<CommandFcn>(
+                         &eqNet::Object::_reqSync ));
+}
+
 Object::Object( const uint32_t typeID, 
                 const uint32_t nCommands )
         : Base( nCommands ),
-          _session( NULL ),
-          _id( EQ_INVALID_ID ),
-          _typeID( typeID ),
-          _version(0),
-          _commitCount(0),
-          _nVersions(0),
-          _countCommits(false)
+          _typeID( typeID )
 {
     EQASSERT( nCommands >= CMD_OBJECT_CUSTOM );
+    _construct();
+}
 
-    registerCommand( CMD_OBJECT_SYNC, this,
-                     reinterpret_cast<CommandFcn>(
-                         &eqNet::Object::_cmdSync ));
-    registerCommand( REQ_OBJECT_SYNC, this, 
-                     reinterpret_cast<CommandFcn>(
-                         &eqNet::Object::_reqSync ));
+Object::Object( const Object& from )
+        : Base( from.getNCommands( )),
+          _typeID( from._typeID )
+{
+    _construct();
 }
 
 Object::~Object()

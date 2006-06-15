@@ -32,13 +32,15 @@ namespace eqBase
 
     protected:
         Referenced() : _refCount(0) {}
+        Referenced( const Referenced& from ) : _refCount(0) {}
         virtual ~Referenced() 
             {
                 if( _refCount!=0 ) 
                 {
                     EQERROR << "Deleting object with ref count " << _refCount
-                          << " of type " << typeid(*this).name() << std::endl;
+                            << std::endl;
                 }
+                EQASSERT( _refCount == 0 );
             }
 
         int _refCount;

@@ -86,7 +86,11 @@ namespace eqNet
          * @param typeID the type (class) identifier of the object.
          * @param nCommands the number of commands handled by the object.
          */
-        Object( const uint32_t typeID, const uint32_t nCommands );
+        Object( const uint32_t typeID, 
+                const uint32_t nCommands = CMD_OBJECT_CUSTOM );
+
+        Object( const Object& from );
+
         virtual ~Object();
         
         Session* getSession() const   { return _session; }
@@ -298,6 +302,9 @@ namespace eqNet
         
         /** The slave queue for changes. */
         RequestQueue _syncQueue;
+
+        /** Common constructor code. */
+        void _construct();
 
         /* The command handlers. */
         CommandResult _cmdSync( Node* node, const Packet* pkg )

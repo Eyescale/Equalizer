@@ -59,6 +59,10 @@ namespace eqNet
         void registerCommand( const uint32_t command, void* thisPointer, 
                               CommandFcn handler );
 
+        
+        /** The number of registered commands. */
+        uint32_t getNCommands() const { return _nCommands; }
+
         /** Registers request packets waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
 

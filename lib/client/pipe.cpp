@@ -358,24 +358,10 @@ bool Pipe::init( const uint32_t initID )
 bool Pipe::initGLX()
 {
 #ifdef GLX
-    ostringstream  stringStream;
-    const uint32_t display = getDisplay();
-    const uint32_t screen  = getScreen();
-    
-    if( display != EQ_UNDEFINED_UINT32 )
-    { 
-        if( screen == EQ_UNDEFINED_UINT32 )
-            stringStream << ":" << display;
-        else
-            stringStream << ":" << display << "." << screen;
-    }
-    else if( screen != EQ_UNDEFINED_UINT32 )
-        stringStream << ":0." << screen;
-    
-    const string displayName  = stringStream.str();
-    const char*  cDisplayName = ( displayName.length() == 0 ? 
-                                  NULL : displayName.c_str( ));
-    Display*     xDisplay     = XOpenDisplay( cDisplayName );
+    const std::string displayName  = getXDisplayString();
+    const char*       cDisplayName = ( displayName.length() == 0 ? 
+                                       NULL : displayName.c_str( ));
+    Display*          xDisplay     = XOpenDisplay( cDisplayName );
             
     if( !xDisplay )
     {
@@ -391,6 +377,25 @@ bool Pipe::initGLX()
 #else
     return false;
 #endif
+}
+
+std::string Pipe::getXDisplayString()
+{
+    ostringstream  stringStream;
+    const uint32_t display = getDisplay();
+    const uint32_t screen  = getScreen();
+    
+    if( display != EQ_UNDEFINED_UINT32 )
+    { 
+        if( screen == EQ_UNDEFINED_UINT32 )
+            stringStream << ":" << display;
+        else
+            stringStream << ":" << display << "." << screen;
+    }
+    else if( screen != EQ_UNDEFINED_UINT32 )
+        stringStream << ":0." << screen;
+    
+    return stringStream.str();
 }
 
 bool Pipe::initCGL()
