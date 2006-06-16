@@ -93,6 +93,7 @@ void Sema::adjust( const int delta )
     switch( _type )
     {
         case Thread::PTHREAD:
+        {
             pthread_mutex_lock( &_pthread.mutex );
 
             if( delta > 0 )
@@ -122,7 +123,7 @@ void Sema::adjust( const int delta )
             }
             pthread_mutex_unlock( &_pthread.mutex );
             return;
-
+        }
         default:
             EQERROR << "not implemented" << endl;
     }

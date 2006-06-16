@@ -86,11 +86,12 @@ eqNet::CommandResult Client::handlePacket( eqNet::Node* node,
     switch( datatype )
     {
         case DATATYPE_EQ_SERVER:
+	{
             EQASSERT( dynamic_cast<Server*>(node) );
 
             Server* server = static_cast<Server*>(node);
             return server->handleCommand( node, packet );
-
+	}
         default:
             return eqNet::COMMAND_ERROR;
     }
