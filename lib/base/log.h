@@ -192,7 +192,7 @@ namespace eqBase
 }
 
 #ifdef WIN32
-#define SUBDIR " "
+#  define SUBDIR " "
 #endif
 
 #define EQERROR (eqBase::Log::level >= eqBase::LOG_ERROR) &&    \

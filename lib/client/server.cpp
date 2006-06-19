@@ -37,33 +37,35 @@ bool Server::open( const OpenParams& params )
     if( _state != STATE_STOPPED )
         return false;
 
-    RefPtr<eqNet::Connection> connection =
-        eqNet::Connection::create( eqNet::Connection::TYPE_TCPIP );
-    RefPtr<eqNet::ConnectionDescription> connDesc = 
-        connection->getDescription();
-
-    const char* envServer = getenv( "EQ_SERVER" );
-    const string address  = params.address.size() > 0 ? params.address :
-                            envServer ? envServer : "localhost";
-    const size_t colonPos = address.rfind( ':' );
-
-    if( colonPos == string::npos )
-        connDesc->hostname = address;
-    else
+    if( nConnectionDescriptions() == 0 )
     {
-        connDesc->hostname   = address.substr( 0, colonPos );
-        string port          = address.substr( colonPos+1 );
-        connDesc->TCPIP.port = atoi( port.c_str( ));
+        RefPtr<eqNet::ConnectionDescription> connDesc = 
+            new eqNet::ConnectionDescription;
+    
+        connDesc->type = eqNet::Connection::TYPE_TCPIP;
+        
+        const char*  envServer = getenv( "EQ_SERVER" );
+        const string address   = params.address.size() > 0 ? params.address :
+                             envServer ? envServer : "localhost";
+        const size_t colonPos  = address.rfind( ':' );
+
+        if( colonPos == string::npos )
+            connDesc->hostname = address;
+        else
+        {
+            connDesc->hostname   = address.substr( 0, colonPos );
+            string port          = address.substr( colonPos+1 );
+            connDesc->TCPIP.port = atoi( port.c_str( ));
+        }
+
+        if( !connDesc->TCPIP.port )
+            connDesc->TCPIP.port = 4242;
+
+        addConnectionDescription( connDesc );
     }
 
-    if( !connDesc->TCPIP.port )
-        connDesc->TCPIP.port = 4242;
-
-    if( !connection->connect( ))
-        return false;
-
     RefPtr<eqNet::Node> localNode = Node::getLocalNode();
-    if( !localNode->connect( this, connection ))
+    if( !connect( ))
         return false;
 
     // TODO: send open packet (appName)
@@ -78,7 +80,7 @@ bool Server::close()
         return false;
 
     RefPtr<eqNet::Node> localNode = eqNet::Node::getLocalNode();
-    if( !localNode->disconnect( this ))
+    if( !disconnect( ))
         return false;
 
     _state = STATE_STOPPED;

@@ -20,15 +20,21 @@ using namespace std;
 
 Connection::Connection()
         : _state( STATE_CLOSED )
-{}
+{
+    EQINFO << "New Connection @" << (void*)this << endl;
+}
 
 Connection::Connection(const Connection& conn)
         : _state( conn._state ),
           _description( conn._description )
-{}
+{
+    EQINFO << "New Connection copy @" << (void*)this << endl;
+}
 
 Connection::~Connection()
-{}
+{
+    EQINFO << "Delete Connection @" << (void*)this << endl;
+}
 
 RefPtr<Connection> Connection::create( const Type type )
 {

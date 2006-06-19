@@ -174,7 +174,7 @@ namespace eqNet
         /** 
          * Disconnect this node.
          */
-        void disconnect();
+        bool disconnect();
 
         /** 
          * Disconnects a connected node.

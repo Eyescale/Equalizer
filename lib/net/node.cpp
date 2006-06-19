@@ -298,10 +298,10 @@ void Node::setLocalNode( eqBase::RefPtr<Node> node )
     _localNode = node.get();
 }
 
-void Node::disconnect()
+bool Node::disconnect()
 {
     if( _state != STATE_CONNECTED )
-        return;
+        return false;
 
     if( _autoLaunched )
     {
@@ -309,7 +309,7 @@ void Node::disconnect()
         send( packet );
     }
 
-    getLocalNode()->disconnect( this );
+    return getLocalNode()->disconnect( this );
 }
 
 bool Node::disconnect( Node* node )
