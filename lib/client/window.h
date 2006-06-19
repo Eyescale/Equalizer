@@ -153,6 +153,30 @@ namespace eq
         void exitGLX();
         void exitCGL();
 
+        /**
+         * Start rendering a frame.
+         *
+         * Called once at the beginning of each frame, to do per-frame updates
+         * of window-specific data.
+         *
+         * @param frameID the per-frame identifier.
+         * @sa Config::beginFrame()
+         */
+        virtual void startFrame( const uint32_t frameID ) {}
+
+        /**
+         * End rendering a frame.
+         *
+         * Called once at the end of each frame, to do per-frame updates
+         * of window-specific data.
+         *
+         * @param frameID the per-frame identifier.
+         */
+        virtual void endFrame( const uint32_t frameID ) {}
+
+        /** Make the window's drawable and context current. */
+        virtual void makeCurrent();
+
         /** Swap the front and back buffer of the window. */
         virtual void swapBuffers();
 
@@ -203,6 +227,10 @@ namespace eq
                                        const eqNet::Packet* packet );
         eqNet::CommandResult _reqSwapWithBarrier( eqNet::Node* node,
                                                   const eqNet::Packet* packet );
+        eqNet::CommandResult _reqStartFrame( eqNet::Node* node,
+                                             const eqNet::Packet* packet );
+        eqNet::CommandResult _reqEndFrame( eqNet::Node* node,
+                                           const eqNet::Packet* packet );
     };
 }
 

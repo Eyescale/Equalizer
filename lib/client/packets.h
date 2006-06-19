@@ -511,6 +511,28 @@ namespace eq
             }
     };
 
+    struct WindowStartFramePacket : public eqNet::ObjectPacket
+    {
+        WindowStartFramePacket(const uint32_t configID, const uint32_t windowID)
+                : eqNet::ObjectPacket( configID, windowID )
+            {
+                command = CMD_WINDOW_STARTFRAME;
+                size    = sizeof( WindowStartFramePacket );
+            }
+        uint32_t frameID;
+        bool     makeCurrent;
+    };
+    struct WindowEndFramePacket : public eqNet::ObjectPacket
+    {
+        WindowEndFramePacket(const uint32_t configID, const uint32_t windowID)
+                : eqNet::ObjectPacket( configID, windowID )
+            {
+                command = CMD_WINDOW_ENDFRAME;
+                size    = sizeof( WindowEndFramePacket );
+            }
+        uint32_t frameID;
+    };
+
     //------------------------------------------------------------
     // Channel
     //------------------------------------------------------------

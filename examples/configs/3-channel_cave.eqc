@@ -10,6 +10,7 @@ server
             }
             pipe
             {
+#                display 30
                 window
                 {
                     viewport [ 50 300 1200 300 ]

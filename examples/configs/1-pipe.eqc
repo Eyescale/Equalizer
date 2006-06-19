@@ -1,0 +1,41 @@
+# one-pipe fullscreen config, covering a 30" LCD one meter in front
+# of the viewer
+
+global
+{
+    EQ_CONNECTION_TYPE              TCPIP
+    EQ_CONNECTION_HOSTNAME          "localhost"
+    EQ_CONNECTION_LAUNCH_TIMEOUT    100000
+}
+
+server
+{
+    config
+    {
+        node
+        {
+            connection{ hostname "hactar1" }
+            pipe
+            {
+                window
+                {
+                    viewport [ .25 .25 .5 .5 ]
+                    channel
+                    {
+                        name "channel"
+                    }
+                }
+            }
+        }
+        compound
+        { 
+            channel "channel"
+            wall
+            {
+                bottom_left  [ -.32 -.20 -1 ]
+                bottom_right [  .32 -.20 -1 ]
+                top_left     [ -.32  .20 -1 ]
+            }
+        }
+    }    
+}

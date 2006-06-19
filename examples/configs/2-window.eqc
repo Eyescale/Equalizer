@@ -1,0 +1,52 @@
+server
+{
+    config
+    {
+        node
+        {
+#            connection{ hostname "hactar1" }
+            pipe
+            {
+                window
+                {
+                    viewport [ .05 .3 .4 .3 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+                window
+                {
+                    viewport [ .55 .3 .4 .3 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
+                }
+            }
+        }
+        compound
+        { 
+            compound
+            { 
+                channel "channel1"
+                wall
+                {
+                    bottom_left  [ -.64 -.2 -1 ]
+                    bottom_right [  .0  -.2 -1 ]
+                    top_left     [ -.64  .2 -1 ]
+                }
+            }
+            compound
+            { 
+                channel "channel2"
+                wall
+                {
+                    bottom_left  [  .0  -.2 -1 ]
+                    bottom_right [  .64 -.2 -1 ]
+                    top_left     [  .0   .2 -1 ]
+                }
+            }
+        }
+    }    
+}

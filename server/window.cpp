@@ -270,7 +270,11 @@ bool Window::syncExit()
 //---------------------------------------------------------------------------
 void Window::update( const uint32_t frameID )
 {
-    // TODO: send update window task (make current)
+    // TODO: make current window
+    eq::WindowStartFramePacket startPacket(  getSession()->getID(), getID( ));
+    startPacket.frameID     = frameID;
+    startPacket.makeCurrent = _pipe->nWindows() > 1 ? true : false;
+    _send( startPacket );
 
     const uint32_t nChannels = this->nChannels();
     for( uint32_t i=0; i<nChannels; i++ )
@@ -281,6 +285,10 @@ void Window::update( const uint32_t frameID )
     }
 
     _updateSwap();
+
+    eq::WindowEndFramePacket endPacket(  getSession()->getID(), getID( ));
+    endPacket.frameID = frameID;
+    _send( endPacket );
 }
 
 void Window::_updateSwap()

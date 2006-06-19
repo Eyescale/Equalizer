@@ -51,6 +51,14 @@ eq::Window::Window()
     registerCommand( REQ_WINDOW_SWAP_WITH_BARRIER, this,
                      reinterpret_cast<CommandFcn>(
                          &eq::Window::_reqSwapWithBarrier));
+    registerCommand( CMD_WINDOW_STARTFRAME, this, reinterpret_cast<CommandFcn>(
+                         &eq::Window::_pushRequest));
+    registerCommand( REQ_WINDOW_STARTFRAME, this, reinterpret_cast<CommandFcn>(
+                         &eq::Window::_reqStartFrame));
+    registerCommand( CMD_WINDOW_ENDFRAME, this, reinterpret_cast<CommandFcn>(
+                         &eq::Window::_pushRequest));
+    registerCommand( REQ_WINDOW_ENDFRAME, this, reinterpret_cast<CommandFcn>(
+                         &eq::Window::_reqEndFrame));
 }
 
 eq::Window::~Window()
@@ -211,9 +219,33 @@ eqNet::CommandResult eq::Window::_reqSwapWithBarrier(eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-//---------------------------------------------------------------------------
+
+eqNet::CommandResult eq::Window::_reqStartFrame(eqNet::Node* node, 
+                                      const eqNet::Packet* pkg)
+{
+    WindowStartFramePacket* packet = (WindowStartFramePacket*)pkg;
+    EQVERB << "handle startFrame " << packet << endl;
+
+    if( packet->makeCurrent )
+        makeCurrent();
+
+    startFrame( packet->frameID );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult eq::Window::_reqEndFrame(eqNet::Node* node, 
+                                      const eqNet::Packet* pkg)
+{
+    WindowEndFramePacket* packet = (WindowEndFramePacket*)pkg;
+    EQVERB << "handle endFrame " << packet << endl;
+
+    endFrame( packet->frameID );
+    return eqNet::COMMAND_HANDLED;
+}
+
+//======================================================================
 // pipe-thread methods
-//---------------------------------------------------------------------------
+//======================================================================
 
 //----------------------------------------------------------------------
 // viewport
@@ -548,20 +580,38 @@ void eq::Window::setCGLContext( CGLContextObj context )
 }
 #endif // CGL
 
+void eq::Window::makeCurrent()
+{
+    switch( _pipe->getWindowSystem( ))
+    {
+        case WINDOW_SYSTEM_GLX:
+#ifdef GLX
+            glXMakeCurrent( _pipe->getXDisplay(), _xDrawable, _glXContext );
+#endif
+            break;
+
+        case WINDOW_SYSTEM_CGL:
+            EQUNIMPLEMENTED;
+            break;
+
+        default: EQUNIMPLEMENTED;
+    }
+}
+
 void eq::Window::swapBuffers()
 {
     switch( _pipe->getWindowSystem( ))
     {
-#ifdef GLX
         case WINDOW_SYSTEM_GLX:
+#ifdef GLX
             glXSwapBuffers( _pipe->getXDisplay(), _xDrawable );
-            break;
 #endif
-#ifdef CGL
+            break;
         case WINDOW_SYSTEM_CGL:
+#ifdef CGL
             CGLFlushDrawable( _cglContext );
-            break;
 #endif
+            break;
         default: EQUNIMPLEMENTED;
     }
     EQINFO << "----- SWAP -----" << endl;
