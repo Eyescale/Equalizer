@@ -19,7 +19,7 @@ using namespace eqBase;
 
 #define DIE(reason)    { cout << (reason) << endl; abort(); }
 
-static void _parseArguments( InitData& initData, int argc, char** argv );
+static void _parseArguments( int argc, char** argv,  InitData* initData );
 
 class NodeFactory : public eq::NodeFactory
 {
@@ -41,8 +41,8 @@ int main( int argc, char** argv )
     if( !eq::init( argc, argv ))
         DIE( "Equalizer init failed" );
 
-    InitData initData;
-    _parseArguments( initData, argc, argv );
+    InitData* initData = new InitData;
+    _parseArguments( argc, argv, initData );
 
     // 2. connect to server
     RefPtr<eq::Server> server = new eq::Server;
@@ -61,15 +61,15 @@ int main( int argc, char** argv )
 
 
     // 4. register application data
-    FrameData frameData;
+    FrameData *frameData = new FrameData;
 
-    config->registerObject( &initData, config->getLocalNode( ));
-    config->registerObject( &frameData, config->getLocalNode( ));
-    initData.setFrameData( &frameData );
+    config->registerObject( initData, config->getLocalNode( ));
+    config->registerObject( frameData, config->getLocalNode( ));
+    initData->setFrameData( frameData );
 
     // 5. init config
     eqBase::Clock clock;
-    if( !config->init( initData.getID( )))
+    if( !config->init( initData->getID( )))
         DIE("Config initialisation failed.");
     cerr << "Config init took " << clock.getTimef() << " ms" << endl;
 
@@ -79,8 +79,8 @@ int main( int argc, char** argv )
     while( nFrames-- )
     {
         // 6a. update database
-        frameData.spin += .5;
-        const uint32_t version = frameData.commit();
+        frameData->spin += .5;
+        const uint32_t version = frameData->commit();
 
         // 6b. render frame
         config->beginFrame( version );
@@ -97,6 +97,10 @@ int main( int argc, char** argv )
     cerr << "Exit took " << clock.getTimef() << " ms" << endl;
 
     // 8. cleanup and exit
+    EQASSERT( frameData->getRefCount() == 1 );
+    EQASSERT( initData->getRefCount() == 1 );
+    config->deregisterObject( frameData );
+    config->deregisterObject( initData );
     server->releaseConfig( config );
     server->close();
     server = NULL;
@@ -104,7 +108,7 @@ int main( int argc, char** argv )
     return EXIT_SUCCESS;
 }
 
-void _parseArguments( InitData& initData, int argc, char** argv )
+void _parseArguments( int argc, char** argv, InitData* initData )
 {
     int      result;
     int      index;
@@ -119,7 +123,7 @@ void _parseArguments( InitData& initData, int argc, char** argv )
         switch( result )
         {
             case 'm':
-                initData.setFilename( optarg );
+                initData->setFilename( optarg );
                 break;
 
             default:

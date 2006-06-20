@@ -28,11 +28,6 @@ namespace eq
         Channel();
 
         /**
-         * Destructs the channel.
-         */
-        virtual ~Channel();
-
-        /**
          * @name Data Access
          */
         //*{
@@ -184,6 +179,12 @@ namespace eq
         void passSceneObject( SceneObject* object );
         void flushSceneObjects();
         //*}
+
+    protected:
+        /**
+         * Destructs the channel.
+         */
+        virtual ~Channel();
 
     private:
         /** The parent node. */

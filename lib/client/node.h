@@ -24,11 +24,6 @@ namespace eq
          */
         Node();
 
-        /**
-         * Destructs the node.
-         */
-        virtual ~Node();
-
         /** 
          * Returns the config of this node.
          * 
@@ -46,6 +41,11 @@ namespace eq
             { return _pipes[index]; }
 
     protected:
+        /**
+         * Destructs the node.
+         */
+        virtual ~Node();
+
         /**
          * @name Callbacks
          *

@@ -210,7 +210,8 @@ eqNet::CommandResult Pipe::_cmdCreateWindow( eqNet::Node* node, const eqNet::Pac
 
     Window* window = Global::getNodeFactory()->createWindow();
     
-    getConfig()->_addRegisteredObject( packet->windowID, window );
+    getConfig()->addRegisteredObject( packet->windowID, window, 
+                                      eqNet::Object::SHARE_NODE );
     _addWindow( window );
     return eqNet::COMMAND_HANDLED;
 }
@@ -226,8 +227,9 @@ eqNet::CommandResult Pipe::_cmdDestroyWindow( eqNet::Node* node, const eqNet::Pa
         return eqNet::COMMAND_HANDLED;
 
     _removeWindow( window );
+    EQASSERT( window->getRefCount() == 1 );
     config->deregisterObject( window );
-    delete window;
+
     return eqNet::COMMAND_HANDLED;
 }
 

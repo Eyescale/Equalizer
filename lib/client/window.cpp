@@ -102,7 +102,8 @@ eqNet::CommandResult eq::Window::_cmdCreateChannel( eqNet::Node* node,
 
     Channel* channel = Global::getNodeFactory()->createChannel();
     
-    getConfig()->_addRegisteredObject( packet->channelID, channel );
+    getConfig()->addRegisteredObject( packet->channelID, channel, 
+                                      eqNet::Object::SHARE_NODE );
     _addChannel( channel );
     return eqNet::COMMAND_HANDLED;
 }
@@ -119,8 +120,9 @@ eqNet::CommandResult eq::Window::_cmdDestroyChannel(eqNet::Node* node,
         return eqNet::COMMAND_HANDLED;
 
     _removeChannel( channel );
+    EQASSERT( channel->getRefCount() == 1 );
     config->deregisterObject( channel );
-    delete channel;
+    
     return eqNet::COMMAND_HANDLED;
 }
 

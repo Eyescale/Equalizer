@@ -726,7 +726,7 @@ namespace eqNet
         void      _handleDisconnect();
         void        _addConnectedNode( eqBase::RefPtr<Node> node, 
                                        eqBase::RefPtr<Connection> connection );
-        void      _handleRequest( Node* node );
+        bool      _handleRequest( Node* node );
         void      _redispatchPackets();
 
         /** The command functions. */

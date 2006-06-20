@@ -18,11 +18,12 @@ void Object::_construct()
 {
     _session      = NULL;
     _id           = EQ_INVALID_ID;
+    _policy       = SHARE_UNDEFINED;
     _version      = 0;
     _commitCount  = 0;
     _nVersions    = 0;
     _countCommits = false;
-
+    
     registerCommand( CMD_OBJECT_SYNC, this, reinterpret_cast<CommandFcn>(
                          &eqNet::Object::_cmdSync ));
     registerCommand( REQ_OBJECT_SYNC, this, reinterpret_cast<CommandFcn>(
@@ -61,7 +62,8 @@ Object::~Object()
     }
 }
 
-void Object::instanciateOnNode( RefPtr<Node> node )
+void Object::instanciateOnNode( RefPtr<Node> node, 
+                                const Object::SharePolicy policy )
 {
     EQASSERT( _session );
     EQASSERT( _id != EQ_INVALID_ID );
@@ -73,6 +75,7 @@ void Object::instanciateOnNode( RefPtr<Node> node )
     packet.objectType     = _typeID;
     packet.objectDataSize = 0;
     packet.isMaster       = !_master;
+    packet.policy         = policy;
 
     if( _typeID < TYPE_VERSIONED )
     {
@@ -269,6 +272,11 @@ uint32_t Object::getHeadVersion()
     
     EQASSERT( packet->command == REQ_OBJECT_SYNC );
     return packet->version;
+}
+
+void Object::addSlave( RefPtr<Node> slave )
+{
+    _slaves.push_back( slave ); 
 }
 
 //---------------------------------------------------------------------------

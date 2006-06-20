@@ -27,17 +27,17 @@ namespace eqNet
          * The type (class) identifier of the object
          *
          * The type classifies two things: the concrete type of the object for
-         * instantiation and the level of functionality (unmanaged, managed,
+         * instantiation, and the level of functionality (unmanaged, managed,
          * versioned) the object supports.
          *
          * Unmanaged objects have to provide command handlers for the commands
          * they will receive, see Base::registerCommand().
          *
-         * Managed objects have to implement getInstanceData() and potentially
-         * releaseInstanceData().
+         * Managed objects have to implement in addition getInstanceData() and
+         * potentially releaseInstanceData() to enable object instanciation.
          * 
-         * Versioned objects have to implement pack(), unpack() and potentially
-         * releasePackData().
+         * Versioned objects have additionally to implement pack(), unpack() and
+         * potentially releasePackData() for version management.
          */
         enum Type
         {
@@ -57,7 +57,8 @@ namespace eqNet
          */
         enum SharePolicy
         {
-            SHARE_NODE = 1, //*< All threads on the a node share the same object
+            SHARE_UNDEFINED,//*< Not registered with the session
+            SHARE_NODE,     //*< All threads on the a node share the same object
             SHARE_THREAD,   //*< One instance per thread
             SHARE_NEVER     //*< A new instance is created for the caller
         };
@@ -71,6 +72,9 @@ namespace eqNet
             AUTO_OBSOLETE_COUNT_COMMIT   = 1
         };
 
+        /**
+         * The instanciation state for managed objects, used by the session.
+         */
         enum InstState
         {
             INST_UNKNOWN = 0,
@@ -129,7 +133,8 @@ namespace eqNet
          * 
          * @param node the remote node.
          */
-        void instanciateOnNode( eqBase::RefPtr<Node> node );
+        void instanciateOnNode( eqBase::RefPtr<Node> node,
+                                const Object::SharePolicy policy );
         //*}
 
         /**
@@ -247,8 +252,7 @@ namespace eqNet
          * 
          * @param slave the slave.
          */
-        void addSlave( eqBase::RefPtr<Node> slave ) 
-            { _slaves.push_back( slave ); }
+        void addSlave( eqBase::RefPtr<Node> slave ) ;
 
         /** 
          * @return the vector of registered slaves.
@@ -263,6 +267,9 @@ namespace eqNet
 
         /** The unique object instance identifier. */
         uint32_t     _id;
+
+        /** The share policy, set during registration by the session. */
+        SharePolicy  _policy;
 
         /** Master (writable) instance if <code>true</code>. */
         bool         _master;

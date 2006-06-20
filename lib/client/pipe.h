@@ -61,11 +61,6 @@ namespace eq
          */
         Pipe();
 
-        /**
-         * Destructs the pipe.
-         */
-        virtual ~Pipe();
-
         Node* getNode() const { return _node; }
         Config* getConfig() const { return (_node ? _node->getConfig() : NULL);}
 
@@ -231,6 +226,12 @@ namespace eq
         eqNet::CommandResult pushRequest( eqNet::Node* node, 
                                           const eqNet::Packet* packet )
             {_requestQueue.push( node, packet ); return eqNet::COMMAND_HANDLED;}
+
+    protected:
+        /**
+         * Destructs the pipe.
+         */
+        virtual ~Pipe();
 
     private:
         /** The parent node. */

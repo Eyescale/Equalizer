@@ -64,7 +64,7 @@ namespace eqNet
         eqBase::RefPtr<Node> getServer(){ return _server; }
 
         /** 
-         * Dispatches a command packet to the appropriate object.
+         * Dispatches a command packet to the appropriate handler.
          * 
          * @param node the node which sent the packet.
          * @param packet the packet.
@@ -83,7 +83,7 @@ namespace eqNet
          * @param range the size of the block.
          * @return the first identifier of the block, or <code>0</code> if no
          *         identifier is available.
-         * @todo getID( TYPE_OBJECT | ... | TYPE_CUSTOM );
+         * @todo getID();
          */
         uint32_t genIDs( const uint32_t range );
 
@@ -145,18 +145,25 @@ namespace eqNet
          * @param master the master node for the object, can be
          *               <code>NULL</code> for unmanaged objects.
          */
-        void registerObject( Object* object, eqBase::RefPtr<Node> master );
+        void registerObject( Object* object, eqBase::RefPtr<Node> master,
+                       const  Object::SharePolicy policy = Object::SHARE_NODE );
+
+        void addRegisteredObject( const uint32_t id, Object* object,
+                                  const  Object::SharePolicy policy );
+        void removeRegisteredObject( Object* object, Object::SharePolicy
+                                     policy = Object::SHARE_UNDEFINED );
 
         /** 
          * Access a networked object.
          * 
-         * The object will be instanciated locally if necessary. Versioned
-         * objects need to have at least one committed version. This function
-         * can not be called from the receiver thread, that is, from any command
-         * handling function.
+         * The object will be instanciated locally, if necessary. During
+         * instanciation, it gets referenced. Versioned objects need to have at
+         * least one committed version. This function can not be called from the
+         * receiver thread, that is, from any command handling function. The
+         * object may be deregistered when it is no longer needed.
          *
          * @param id the object's identifier.
-         * @param scope the object's instanciation scope.
+         * @param policy the object's instanciation scope.
          * @return the object, or <code>NULL</code> if the object is not known
          *         or could not be instanciated.
          */
@@ -178,6 +185,8 @@ namespace eqNet
 
         /** 
          * Deregisters a distributed object.
+         *
+         * The object gets dereferenced.
          * 
          * @param object the object instance.
          */
@@ -198,8 +207,8 @@ namespace eqNet
          * @sa Object::getInstanceInfo
          */
         virtual Object* instanciateObject( const uint32_t type,
-                                             const void* data, 
-                                             const uint64_t dataSize );
+                                           const void* data, 
+                                           const uint64_t dataSize );
         /** 
          * Sends a packet to the session's node.
          * 
@@ -246,19 +255,21 @@ namespace eqNet
         eqBase::PerThread< IDHash<Object*>* > _threadObjects;
         /** All SCOPE_NODE objects, indexed by identifier. */
         IDHash<Object*> _nodeObjects;
-        /** All registered objects, including thread and node shared objects. */
+        /** All registered objects - unshared, thread and node objects. */
         IDHash< std::vector<Object*> > _registeredObjects;
 
         /** The current state of pending object instanciations. */
         struct GetObjectState
         {
             GetObjectState()
-                    : nodeConnectRequestID( EQ_INVALID_ID ),
+                    : pending( false ),
+                      nodeConnectRequestID( EQ_INVALID_ID ),
                       instState( Object::INST_UNKNOWN ), 
                       object( NULL ) {}
 
             Object::SharePolicy policy;
             uint32_t            objectID;
+            bool                pending;
             uint32_t            nodeConnectRequestID;
             Object::InstState   instState;
             Object*             object;
@@ -267,9 +278,8 @@ namespace eqNet
 
         eqBase::RefPtr<Node> _pollIDMaster( const uint32_t id );
 
-    public: // TODO make private
-        void _addRegisteredObject( const uint32_t id, Object* object );
-    private:
+        void _registerThreadObject( Object* object, const uint32_t id );
+
         CommandResult _handleObjectCommand( Node* node, const Packet* packet );
         CommandResult   _instObject( GetObjectState* state );
         void              _sendInitObject( GetObjectState* state, 
@@ -283,6 +293,8 @@ namespace eqNet
         CommandResult _cmdGetIDMasterReply( Node* node, const Packet* packet );
         CommandResult _cmdGetObjectMaster( Node* node, const Packet* packet );
         CommandResult _cmdGetObjectMasterReply( Node* node, const Packet* pkg);
+        CommandResult _cmdRegisterObject( Node* node, const Packet* packet );
+        CommandResult _cmdUnregisterObject( Node* node, const Packet* packet );
         CommandResult _cmdGetObject( Node* node, const Packet* packet );
         CommandResult _cmdInitObject( Node* node, const Packet* packet );
         CommandResult _cmdInstanciateObject( Node* node, const Packet* packet);

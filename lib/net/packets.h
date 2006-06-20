@@ -2,13 +2,14 @@
 /* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_PACKETS_PRIV_H
-#define EQ_PACKETS_PRIV_H
+#ifndef EQNET_PACKETS_H
+#define EQNET_PACKETS_H
 
 #include "base.h"
 #include "commands.h"
 #include "global.h"
 #include "message.h"
+#include "object.h"
 #include "nodeID.h"
 
 #include <sys/param.h>
@@ -281,11 +282,37 @@ namespace eqNet
             {
                 command = CMD_SESSION_GET_OBJECT;
                 size    = sizeof( SessionGetObjectPacket ); 
-                pending = false;
             }
         
         uint32_t requestID;
-        bool     pending;
+    };
+
+    struct SessionRegisterObjectPacket : public SessionPacket
+    {
+        SessionRegisterObjectPacket( const uint32_t sessionID ) 
+                : SessionPacket( sessionID )
+            {
+                command = CMD_SESSION_REGISTER_OBJECT;
+                size    = sizeof( SessionRegisterObjectPacket ); 
+            }
+        
+        uint32_t            requestID;
+        uint32_t            objectID;
+        Object::SharePolicy policy;
+    };
+
+    struct SessionUnregisterObjectPacket : public SessionPacket
+    {
+        SessionUnregisterObjectPacket( const uint32_t sessionID ) 
+                : SessionPacket( sessionID )
+            {
+                command = CMD_SESSION_UNREGISTER_OBJECT;
+                size    = sizeof( SessionUnregisterObjectPacket ); 
+            }
+        
+        uint32_t            requestID;
+        uint32_t            objectID;
+        Object::SharePolicy policy;
     };
 
     struct SessionInitObjectPacket : public SessionPacket
@@ -297,7 +324,8 @@ namespace eqNet
                 size    = sizeof( SessionInitObjectPacket ); 
             }
 
-        uint32_t objectID;
+        uint32_t            objectID;
+        Object::SharePolicy policy;
     };
 
     struct SessionInstanciateObjectPacket : public SessionPacket
@@ -313,6 +341,7 @@ namespace eqNet
         bool     isMaster;
         uint32_t objectID;
         uint32_t objectType;
+        Object::SharePolicy policy;
         uint64_t objectDataSize;
         char     objectData[8] EQ_ALIGN8;
     };
@@ -510,5 +539,5 @@ namespace eqNet
 
 }
 
-#endif // EQNET_PACKETS_PRIV_H
+#endif // EQNET_PACKETS_H
 

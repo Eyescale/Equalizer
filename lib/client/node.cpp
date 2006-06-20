@@ -67,7 +67,8 @@ eqNet::CommandResult Node::_cmdCreatePipe( eqNet::Node* node,
 
     Pipe* pipe = Global::getNodeFactory()->createPipe();
     
-    _config->_addRegisteredObject( packet->pipeID, pipe );
+    _config->addRegisteredObject( packet->pipeID, pipe, 
+                                   eqNet::Object::SHARE_NODE );
     _addPipe( pipe );
     return eqNet::COMMAND_HANDLED;
 }
@@ -83,8 +84,9 @@ eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Node* node,
         return eqNet::COMMAND_HANDLED;
 
     _removePipe( pipe );
+    EQASSERT( pipe->getRefCount() == 1 );
     _config->deregisterObject( pipe );
-    delete pipe;
+
     return eqNet::COMMAND_HANDLED;
 }
 

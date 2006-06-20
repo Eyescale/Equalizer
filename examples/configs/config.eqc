@@ -6,6 +6,7 @@ global
     EQ_CONNECTION_TYPE              TCPIP
     EQ_CONNECTION_HOSTNAME          "localhost"
     EQ_CONNECTION_LAUNCH_TIMEOUT    100000
+#    EQ_CONNECTION_LAUNCH_COMMAND    "echo %c"
 }
 
 server

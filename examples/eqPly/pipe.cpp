@@ -1,6 +1,14 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
-   All rights reserved. */
+/* 
+ * Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+ * All rights reserved.
+ *
+ * The pipe object is responsible for maintaining the frame-specific data. The
+ * identifier passed by the application contains the version of the frame
+ * data corresponding to the rendered frame. The pipe's start frame
+ * callback synchronizes the thread-local instance of the frame data to this
+ * version.
+ */
 
 #include "pipe.h"
 
@@ -8,24 +16,21 @@ using namespace std;
 using namespace eqBase;
 using namespace eqNet;
 
+/*
+ */
 bool Pipe::init( const uint32_t initID )
 {
     eq::Config* config = getConfig();
 
-    _initData  = (InitData*)config->getObject( initID );
-    _frameData = _initData->getFrameData();
+    RefPtr<InitData> initData  = (InitData*)config->getObject( initID );
+    _frameData = initData->getFrameData();
     EQASSERT( _frameData );
-
-    EQASSERT(_initData);
-    EQINFO << "InitData " << _initData.get() << " id " << initID << " filename "
-           << _initData->getFilename() << endl;
 
     return eq::Pipe::init( initID );
 }
 
 bool Pipe::exit()
 {
-    _initData = NULL;
     _frameData = NULL;
     return eq::Pipe::exit();
 }

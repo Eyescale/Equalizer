@@ -92,8 +92,8 @@ bool Node::listen( RefPtr<Connection> connection )
     if( connection.isValid( ))
     {
         EQASSERT( connection->getDescription().isValid( ));
-        _connectionSet.addConnection( connection );
         _connectionNodes[ connection.get() ] = this;
+        _connectionSet.addConnection( connection );
         _listener = connection;
         addConnectionDescription( connection->getDescription( ));
     }
@@ -126,8 +126,8 @@ void Node::_cleanup()
     EQASSERTINFO( _state == STATE_STOPPED, _state );
     EQASSERT( _connection );
 
-    _connectionNodes.erase( _connection.get( ));
     _connectionSet.removeConnection( _connection );
+    _connectionNodes.erase( _connection.get( ));
     _connection->close();
     _connection = NULL;
     _listener   = NULL;
@@ -161,8 +161,8 @@ bool Node::_listenToSelf()
 
     // add to connection set
     EQASSERT( _connection->getDescription().isValid( ));
-    _connectionSet.addConnection( _connection );
     _connectionNodes[ _connection.get() ] = this;
+    _connectionSet.addConnection( _connection );
     _nodes[ _id ] = this;
     return true;
 }
@@ -208,8 +208,8 @@ void Node::_addConnectedNode( RefPtr<Node> node, RefPtr<Connection> connection )
     node->_connection = connection;
     node->_state      = STATE_CONNECTED;
     
-    _connectionSet.addConnection( connection );
     _connectionNodes[ connection.get() ] = node;
+    _connectionSet.addConnection( connection );
     _nodes[ node->_id ] = node;
     EQINFO << node.get() << " connected to " << this << endl;
 }
@@ -305,6 +305,7 @@ bool Node::disconnect()
 
     if( _autoLaunched )
     {
+        EQINFO << "Stopping autoaunched node" << endl;
         NodeStopPacket packet;
         send( packet );
     }
@@ -562,6 +563,8 @@ void Node::_handleDisconnect()
     RefPtr<Connection> connection = _connectionSet.getConnection();
     RefPtr<Node>       node       = _connectionNodes[ connection.get() ];
 
+    while( _handleRequest( node.get( ))); // read remaining data of connection
+
     handleDisconnect( node.get() ); // XXX
     connection->close();
 }
@@ -572,14 +575,14 @@ void Node::handleDisconnect( Node* node )
     EQASSERT( disconnected );
 }
 
-void Node::_handleRequest( Node* node )
+bool Node::_handleRequest( Node* node )
 {
     EQVERB << "Handle request from " << node << endl;
 
     uint64_t size;
     const uint64_t read = node->_connection->recv( &size, sizeof( size ));
     if( read == 0 ) // Some systems signal data on dead connections.
-        return;
+        return false;
 
     EQASSERT( read == sizeof( size ));
     EQASSERT( size );
@@ -612,6 +615,7 @@ void Node::_handleRequest( Node* node )
     }
     else
         EQASSERT( result == COMMAND_HANDLED );
+    return true;
 }
 
 void Node::_redispatchPackets()

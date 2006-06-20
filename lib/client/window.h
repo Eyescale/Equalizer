@@ -23,11 +23,6 @@ namespace eq
          */
         Window();
 
-        /**
-         * Destructs the window.
-         */
-        virtual ~Window();
-
         /** 
          * Returns the pipe of this window.
          * 
@@ -183,6 +178,12 @@ namespace eq
         /** Finish outstanding rendering requests. */
         virtual void finish() { glFinish(); }
         //@}
+
+    protected:
+        /**
+         * Destructs the window.
+         */
+        virtual ~Window();
 
     private:
 #ifdef GLX

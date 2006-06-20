@@ -93,7 +93,7 @@ eqNet::CommandResult Config::_cmdCreateNode( eqNet::Node* node,
 
     Node* newNode = Global::getNodeFactory()->createNode();
     
-    _addRegisteredObject( packet->nodeID, newNode );
+    addRegisteredObject( packet->nodeID, newNode, eqNet::Object::SHARE_NODE );
     _addNode( newNode );
     return eqNet::COMMAND_HANDLED;
 }
@@ -109,8 +109,9 @@ eqNet::CommandResult Config::_cmdDestroyNode( eqNet::Node* Node,
         return eqNet::COMMAND_HANDLED;
 
     _removeNode( delNode );
+    EQASSERT( delNode->getRefCount() == 1 );
     deregisterObject( delNode );
-    delete delNode; // XXX unref?
+
     return eqNet::COMMAND_HANDLED;
 }
 
