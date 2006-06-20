@@ -185,6 +185,8 @@ pipe: EQTOKEN_PIPE '{' { eqPipe = loader->createPipe(); }
 pipeAttributes: /*null*/ | pipeAttribute | pipeAttributes pipeAttribute
 pipeAttribute:
     EQTOKEN_DISPLAY UINTEGER { eqPipe->setDisplay( $2 ); }
+    | EQTOKEN_VIEWPORT '[' UINTEGER UINTEGER UINTEGER UINTEGER ']'
+    { eqPipe->setPixelViewport( eq::PixelViewport( $3, $4, $5, $6 )); }
 
 windows: window | windows window
 window: EQTOKEN_WINDOW '{' { window = loader->createWindow(); }

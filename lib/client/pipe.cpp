@@ -105,6 +105,10 @@ void Pipe::setXDisplay( Display* display )
 {
 #ifdef GLX
     _xDisplay = display; 
+
+    if( _pvp.isValid( ))
+        return;
+
     _pvp.x    = 0;
     _pvp.y    = 0;
     if( display )
@@ -137,6 +141,10 @@ void Pipe::setCGLDisplayID( CGDirectDisplayID id )
 {
 #ifdef CGL
     _cglDisplayID = id; 
+
+    if( _pvp.isValid( ))
+        return;
+
     if( id )
     {
         const CGRect displayRect = CGDisplayBounds( id );
@@ -146,12 +154,7 @@ void Pipe::setCGLDisplayID( CGDirectDisplayID id )
         _pvp.h = displayRect.size.height;
     }
     else
-    {
-        _pvp.x = 0;
-        _pvp.y = 0;
-        _pvp.w = 0;
-        _pvp.h = 0;
-    }
+        _pvp.reset();
 #endif
 }
 
@@ -250,11 +253,12 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg
     EQINFO << "handle pipe init (pipe) " << packet << endl;
     PipeInitReplyPacket reply( packet );
     
-    _display = packet->display;
-    _screen  = packet->screen;
-
+    _display      = packet->display;
+    _screen       = packet->screen;
+    _pvp          = packet->pvp;
     _windowSystem = selectWindowSystem();
-    reply.result = init( packet->initID );
+
+    reply.result  = init( packet->initID );
 
     if( !reply.result )
     {

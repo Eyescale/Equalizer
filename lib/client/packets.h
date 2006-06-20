@@ -305,10 +305,11 @@ namespace eq
                 size    = sizeof( PipeInitPacket );
             }
 
-        uint32_t requestID;
-        uint32_t initID;
-        uint32_t display;
-        uint32_t screen;
+        uint32_t      requestID;
+        uint32_t      initID;
+        uint32_t      display;
+        uint32_t      screen;
+        PixelViewport pvp;
     };
 
     struct PipeInitReplyPacket : public eqNet::ObjectPacket

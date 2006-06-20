@@ -111,6 +111,17 @@ namespace eqs
         void setScreen( const uint32_t screen )  { _screen = screen; }
         uint32_t getScreen() const               { return _screen; }
 
+        /** 
+         * Set (force) the pixel viewport.
+         *
+         * If the pixel viewport is invalid, it is determined automatically
+         * during initialisation of the pipe. If it is valid, it force this pipe
+         * to assume the given size and position.
+         * 
+         * @param pvp the pixel viewport.
+         */
+        void setPixelViewport( const eq::PixelViewport& pvp ) { _pvp = pvp; }
+
         /** @return the pixel viewport. */
         const eq::PixelViewport& getPixelViewport() const { return _pvp; }
         //*}

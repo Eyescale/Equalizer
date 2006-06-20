@@ -45,6 +45,7 @@ Pipe::Pipe( const Pipe& from )
     _construct();
     _display = from._display;
     _screen  = from._state;
+    _pvp     = from._pvp;
 
     const uint32_t nWindows = from.nWindows();
     for( uint32_t i=0; i<nWindows; i++ )
@@ -116,6 +117,8 @@ void Pipe::_sendInit( const uint32_t initID )
     packet.initID     = initID;
     packet.display    = _display;
     packet.screen     = _screen;
+    packet.pvp        = _pvp;
+
     _send( packet );
 }
 
