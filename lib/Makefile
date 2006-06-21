@@ -23,6 +23,7 @@ HEADER_SRC = \
 	base/shm.h \
 	base/thread.h \
 	base/timedLock.h \
+	base/userdata.h \
 	net/barrier.h \
 	net/base.h \
 	net/commands.h \
@@ -68,8 +69,8 @@ HEADER_SRC = \
 	client/viewMatrix.h \
 	client/viewport.h \
 	client/wall.h \
-	client/window.h
-
+	client/window.h \
+	client/windowSystem.h
 
 SOURCES = \
 	base/barrier.cpp \
@@ -103,6 +104,7 @@ SOURCES = \
 	client/client.cpp \
 	client/config.cpp \
 	client/configParams.cpp \
+	client/eventThread.cpp \
 	client/frustum.cpp \
 	client/global.cpp \
 	client/init.cpp \
@@ -113,6 +115,15 @@ SOURCES = \
 	client/server.cpp \
 	client/wall.cpp \
 	client/window.cpp
+
+ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
+  HEADER_SRC += \
+	client/glXEventThread.h \
+	client/X11Connection.h
+
+  SOURCES += \
+	client/glXEventThread.cpp
+endif
 
 
 CXXFLAGS += $(WINDOW_SYSTEM_INCS)

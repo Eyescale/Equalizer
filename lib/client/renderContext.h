@@ -8,7 +8,11 @@
 #include "frustum.h"
 #include "pixelViewport.h"
 
-#include <GL/gl.h>
+#ifdef Darwin
+#  include <OpenGL/gl.h>
+#else
+#  include <GL/gl.h>
+#endif
 
 namespace eq
 {

@@ -14,6 +14,8 @@
 
 namespace eq
 {
+    class Pipe;
+
     enum DataType
     {
         DATATYPE_EQ_CLIENT = eqNet::DATATYPE_CUSTOM,
@@ -628,6 +630,29 @@ namespace eq
         uint32_t      frameID;
     };
         
+
+    //------------------------------------------------------------
+    // Event Thread
+    //------------------------------------------------------------
+    struct GLXEventThreadAddPipePacket : public eqNet::Packet
+    {
+        GLXEventThreadAddPipePacket()
+            {
+                command = CMD_GLXEVENTTHREAD_ADD_PIPE;
+                size    = sizeof( GLXEventThreadAddPipePacket );
+            }
+        Pipe* pipe;
+    };
+    struct GLXEventThreadRemovePipePacket : public eqNet::Packet
+    {
+        GLXEventThreadRemovePipePacket()
+            {
+                command = CMD_GLXEVENTTHREAD_REMOVE_PIPE;
+                size    = sizeof( GLXEventThreadRemovePipePacket );
+            }
+        uint32_t requestID;
+        Pipe*    pipe;
+    };
 
     //------------------------------------------------------------
     inline std::ostream& operator << ( std::ostream& os, 

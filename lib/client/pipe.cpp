@@ -5,6 +5,7 @@
 #include "pipe.h"
 
 #include "commands.h"
+#include "eventThread.h"
 #include "global.h"
 #include "nodeFactory.h"
 #include "packets.h"
@@ -47,7 +48,8 @@ Pipe::Pipe()
     _thread = new PipeThread( this );
 
 #ifdef GLX
-    _xDisplay = NULL;
+    _xDisplay         = NULL;
+    _xEventConnection = NULL;
 #endif
 #ifdef CGL
     _cglDisplayID = NULL;
@@ -132,6 +134,22 @@ Display* Pipe::getXDisplay() const
 {
 #ifdef GLX
     return _xDisplay;
+#else
+    return NULL;
+#endif
+}
+
+void Pipe::setXEventConnection( X11Connection* display )
+{
+#ifdef GLX
+    _xEventConnection = display; 
+#endif
+}
+
+X11Connection* Pipe::getXEventConnection() const
+{
+#ifdef GLX
+    return _xEventConnection;
 #else
     return NULL;
 #endif
@@ -278,6 +296,7 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg
                 node->send( reply );
                 return eqNet::COMMAND_HANDLED;
             }
+
             // TODO: gather and send back display information
             EQINFO << "Using display " << DisplayString( _xDisplay ) << endl;
             break;
@@ -301,12 +320,20 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg
     }
 
     node->send( reply );
+
+    // start event thread
+    EventThread* thread = EventThread::get( _windowSystem );
+    thread->addPipe( this );
+
     return eqNet::COMMAND_HANDLED;
 }
 
 eqNet::CommandResult Pipe::_reqExit( eqNet::Node* node, 
                                      const eqNet::Packet* pkg )
 {
+    EventThread* thread = EventThread::get( _windowSystem );
+    thread->removePipe( this );
+
     PipeExitPacket* packet = (PipeExitPacket*)pkg;
     EQINFO << "handle pipe exit " << packet << endl;
 

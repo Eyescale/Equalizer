@@ -112,6 +112,13 @@ namespace eq
         REQ_CHANNEL_DRAW,
         CMD_CHANNEL_CUSTOM
     };
+
+    enum GLXEventThreadCommand
+    {
+        CMD_GLXEVENTTHREAD_ADD_PIPE,
+        CMD_GLXEVENTTHREAD_REMOVE_PIPE,
+        CMD_GLXEVENTTHREAD_ALL
+    };
 };
 
 #endif // EQ_COMMANDS_H

@@ -11,6 +11,12 @@
 #include <eq/net/base.h>
 #include <eq/net/object.h>
 
+#ifdef Darwin
+#  include <OpenGL/gl.h>
+#else
+#  include <GL/gl.h>
+#endif
+
 namespace eq
 {
     class Channel;

@@ -203,7 +203,8 @@ namespace eqNet
 
         Connection::State state = connection->getState();
         
-        os << "Connection " << (void*)connection << " state "
+        os << "Connection " << (void*)connection << " type "
+           << typeid(*connection).name() << " state "
            << ( state == Connection::STATE_CLOSED     ? "closed" :
                 state == Connection::STATE_CONNECTING ? "connecting" :
                 state == Connection::STATE_CONNECTED  ? "connected" :

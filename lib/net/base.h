@@ -49,7 +49,7 @@ namespace eqNet
         /** 
          * Registers a command member function for a command.
          * 
-         * Use 'reinterpret_cast<CommandFcn>()' to cast the function of the
+         * Use 'reinterpret_cast<CommandFcn>(foo)' to cast the function of the
          * derived class to the expected type.
          *
          * @param command the command.

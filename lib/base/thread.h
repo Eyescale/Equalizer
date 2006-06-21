@@ -39,10 +39,11 @@ namespace eqBase
         virtual ~Thread();
 
         /** 
-         * Starts the thread using the specified entry function.
+         * Starts the thread.
          * 
          * @return <code>true</code> if the thread was launched,
          *         <code>false</code> otherwise.
+         * @sa init(), run()
          */
         bool start();
 

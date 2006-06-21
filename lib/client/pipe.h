@@ -9,6 +9,7 @@
 
 #include "node.h"
 #include "pixelViewport.h"
+#include "windowSystem.h"
 
 #include <eq/base/thread.h>
 #include <eq/net/base.h>
@@ -44,14 +45,7 @@ typedef int32_t CGDirectDisplayID;
 namespace eq
 {
     class Window;
-
-    enum WindowSystem
-    {
-        WINDOW_SYSTEM_NONE = 0, // must be first
-        WINDOW_SYSTEM_GLX,
-        WINDOW_SYSTEM_CGL,
-        WINDOW_SYSTEM_ALL      // must be last
-    };
+    class X11Connection;
 
     class Pipe : public eqNet::Object
     {
@@ -141,20 +135,29 @@ namespace eq
         WindowSystem getWindowSystem() const { return _windowSystem; }
 
         /** 
-         * Set the X11 display connection for this pipe.
+         * Set the X display connection for this pipe.
          * 
          * This function should only be called from init() or exit(). Updates
          * the pixel viewport.
          *
-         * @param display the X11 display connection for this pipe.
+         * @param display the X display connection for this pipe.
          */
         void setXDisplay( Display* display );
 
-        /** 
-         * Returns the X11 display connection for this pipe.
-         * @return the X11 display connection for this pipe. 
-         */
+        /** @return the X display connection for this pipe. */
         Display* getXDisplay() const;
+
+        /** 
+         * Set the X display connection for event processing
+         * 
+         * This function should only be called from the event thread.
+         *
+         * @param connection the X event display connection for this pipe.
+         */
+        void setXEventConnection( X11Connection* connection );
+
+        /** @return the X event display connection for this pipe. */
+        X11Connection* getXEventConnection() const;
 
         /** 
          * Set the CGL display ID for this pipe.
@@ -250,13 +253,22 @@ namespace eq
         union
         {
 #ifdef GLX
-            /** The X11 display connection. */
+            /** The X display connection. */
             Display* _xDisplay;
 #endif
 #ifdef CGL
             CGDirectDisplayID _cglDisplayID;
 #endif
-            char _fill[8];
+            char _displayFill[8];
+        };
+
+        union
+        {
+#ifdef GLX
+            /** The X event display connection. */
+            X11Connection* _xEventConnection;
+#endif
+            char _eventDisplayFill[8];
         };
 
         /** The display (GLX, CGL) or ignored (Win32). */

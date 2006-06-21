@@ -44,12 +44,14 @@ void Thread::_runChild()
 
     if( init( ))
     {
+        EQINFO << "Thread successfully initialised" << endl;
         _lock->unset(); // sync w/ parent
         result = run();
         _threadState = STATE_STOPPING;
     }
     else
     {
+        EQINFO << "Thread failed to initialise" << endl;
         _threadState = STATE_STOPPED;
         _lock->unset();
     }
