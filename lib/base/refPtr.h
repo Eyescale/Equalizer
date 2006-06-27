@@ -23,7 +23,7 @@ namespace eqBase
         
         template<class from>
         RefPtr( RefPtr<from> const &f, RefPtr_scast )
-            { _ptr = static_cast<T*>(f._ptr); }
+            { _ptr = static_cast<T*>(f._ptr); ref(); }
 
 
         ~RefPtr() { unref(); }
