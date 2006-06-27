@@ -92,6 +92,9 @@ bool Node::listen( RefPtr<Connection> connection )
     if( connection.isValid( ))
     {
         EQASSERT( connection->getDescription().isValid( ));
+        EQASSERT( _connectionNodes.find( connection.get( ))
+                  == _connectionNodes.end( ));
+
         _connectionNodes[ connection.get() ] = this;
         _connectionSet.addConnection( connection );
         _listener = connection;
@@ -128,7 +131,6 @@ void Node::_cleanup()
 
     _connectionSet.removeConnection( _connection );
     _connectionNodes.erase( _connection.get( ));
-    _connection->close();
     _connection = NULL;
     _listener   = NULL;
 
@@ -142,8 +144,8 @@ void Node::_cleanup()
         node->_connection = NULL;
     }
 
-    _connectionNodes.clear();
     _connectionSet.clear();
+    _connectionNodes.clear();
     _nodes.clear();
 }
 
@@ -160,7 +162,9 @@ bool Node::_listenToSelf()
     }
 
     // add to connection set
-    EQASSERT( _connection->getDescription().isValid( ));
+    EQASSERT( _connection->getDescription().isValid( )); 
+    EQASSERT( _connectionNodes.find(_connection.get())==_connectionNodes.end());
+
     _connectionNodes[ _connection.get() ] = this;
     _connectionSet.addConnection( _connection );
     _nodes[ _id ] = this;
@@ -204,6 +208,7 @@ void Node::_addConnectedNode( RefPtr<Node> node, RefPtr<Connection> connection )
     EQASSERT( connection->getState() == Connection::STATE_CONNECTED );
     EQASSERT( node->_state == STATE_STOPPED || node->_state == STATE_LAUNCHED );
     EQASSERT( connection->getDescription().isValid( ));
+    EQASSERT( _connectionNodes.find( connection.get())==_connectionNodes.end());
 
     node->_connection = connection;
     node->_state      = STATE_CONNECTED;
@@ -243,7 +248,7 @@ bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
 }
 
 // two-way handshake to exchange node identifiers and other information
-NodeConnectPacket* Node::_performConnect( eqBase::RefPtr<Connection> connection)
+NodeConnectPacket* Node::_performConnect( RefPtr<Connection> connection)
 {
     EQASSERT( _state == STATE_LISTENING );
     // send connect packet to peer
@@ -258,8 +263,7 @@ NodeConnectPacket* Node::_performConnect( eqBase::RefPtr<Connection> connection)
     return _readConnectReply( connection );
 }
 
-NodeConnectPacket* Node::_readConnectReply( eqBase::RefPtr<Connection> 
-                                            connection )
+NodeConnectPacket* Node::_readConnectReply( RefPtr<Connection> connection )
 {
     // receive and verify connect packet from peer
     uint64_t size;
@@ -289,7 +293,7 @@ NodeConnectPacket* Node::_readConnectReply( eqBase::RefPtr<Connection>
     return reply;
 }
 
-void Node::setLocalNode( eqBase::RefPtr<Node> node )
+void Node::setLocalNode( RefPtr<Node> node )
 {
     // manual ref/unref to keep correct reference count
     if( _localNode.get( ))
@@ -322,12 +326,15 @@ bool Node::disconnect( Node* node )
     if( !_connectionSet.removeConnection( node->_connection ))
         return false;
 
+    EQINFO << node << " disconnecting from " << this << endl;
+    EQASSERT( _connectionNodes.find( node->_connection.get( ))
+              != _connectionNodes.end( ));
+
     _connectionNodes.erase( node->_connection.get( ));
     _nodes.erase( node->_id );
 
     node->_state      = STATE_STOPPED;
     node->_connection = NULL;
-    EQINFO << node << " disconnected from " << this << endl;
     return true;
 }
 
@@ -485,7 +492,7 @@ ssize_t Node::_runReceiver()
             case ConnectionSet::EVENT_ERROR:      
                 ++nErrors;
                 EQWARN << "Error during select" << endl;
-                if( nErrors > 100 )
+                if( nErrors > 1000 )
                 {
                     EQWARN << "Too many errors in a row, capping connection" 
                            << endl;

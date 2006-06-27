@@ -748,7 +748,7 @@ namespace eqNet
     inline std::ostream& operator << ( std::ostream& os, const Node* node )
     {
         if( node )
-            os << "node " << node->_id << ", " << node->_connection.get();
+            os << "node " << node->_id;
         else
             os << "NULL node";
         

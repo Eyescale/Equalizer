@@ -25,11 +25,6 @@ namespace eq
          */
         Server();
 
-        /**
-         * Destructs this server.
-         */
-        virtual ~Server(){}
-
         /** 
          * Opens the connection to an Equalizer server.
          * 
@@ -69,6 +64,11 @@ namespace eq
         void    releaseConfig( Config* config );
 
     private:
+        /**
+         * Destructs this server.
+         */
+        virtual ~Server(){}
+
         enum State 
         {
             STATE_STOPPED,

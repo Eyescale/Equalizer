@@ -64,7 +64,6 @@ bool Server::open( const OpenParams& params )
         addConnectionDescription( connDesc );
     }
 
-    RefPtr<eqNet::Node> localNode = Node::getLocalNode();
     if( !connect( ))
         return false;
 
@@ -79,7 +78,6 @@ bool Server::close()
     if( _state != STATE_OPENED )
         return false;
 
-    RefPtr<eqNet::Node> localNode = eqNet::Node::getLocalNode();
     if( !disconnect( ))
         return false;
 

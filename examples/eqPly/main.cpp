@@ -59,7 +59,6 @@ int main( int argc, char** argv )
     if( !config )
         DIE("No matching config on server.");
 
-
     // 4. register application data
     FrameData *frameData = new FrameData;
 
