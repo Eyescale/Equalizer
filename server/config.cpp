@@ -46,6 +46,13 @@ Config::Config()
     _construct();
 }
 
+Config::~Config()
+{
+    _server = NULL;
+    _appNode = NULL;
+    _compounds.clear();
+    _nodes.clear();
+}
 
 struct ReplaceChannelData
 {
@@ -206,7 +213,7 @@ eqNet::CommandResult Config::_reqInit( eqNet::Node* node,
 
     reply.result = _init( packet->initID );
     EQINFO << "config init result: " << reply.result << endl;
-    node->send( reply );
+    send( node, reply );
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -219,7 +226,7 @@ eqNet::CommandResult Config::_reqExit( eqNet::Node* node,
 
     reply.result = _exit();
     EQINFO << "config exit result: " << reply.result << endl;
-    node->send( reply );
+    send( node, reply );
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -247,7 +254,7 @@ eqNet::CommandResult Config::_reqEndFrame( eqNet::Node* node,
     EQVERB << "handle config frame end " << packet << endl;
 
     reply.result = _endFrame();
-    node->send( reply );
+    send( node, reply );
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -304,9 +311,10 @@ bool Config::_initNodes( const uint32_t initID )
     bool          success = true;
 
     eq::ServerCreateConfigPacket createConfigPacket;
-    createConfigPacket.configID = _id;
+    createConfigPacket.configID  = _id;
+    createConfigPacket.appNodeID = _appNode->getNodeID();
 
-    eq::ConfigCreateNodePacket createNodePacket( _id );
+    eq::ConfigCreateNodePacket createNodePacket;
     
     for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
@@ -329,7 +337,7 @@ bool Config::_initNodes( const uint32_t initID )
 
         registerObject( node, _server.get( ));
         createNodePacket.nodeID = node->getID();
-        node->send( createNodePacket );
+        send( node, createNodePacket );
 
         node->startInit( initID );
     }
@@ -352,7 +360,7 @@ bool Config::_initNodes( const uint32_t initID )
 
 bool Config::_initPipes( const uint32_t initID )
 {
-    // start pipe-window-channel init in parallel
+    // start pipe-window-channel init in parallel on all nodes
     for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
         Node* node = *iter;
@@ -480,7 +488,7 @@ bool Config::_exitNodes()
         node->startExit();
     }
 
-    eq::ConfigDestroyNodePacket destroyNodePacket( _id );
+    eq::ConfigDestroyNodePacket destroyNodePacket;
     bool success = true;
 
     for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
@@ -496,7 +504,7 @@ bool Config::_exitNodes()
         }
 
         destroyNodePacket.nodeID = node->getID();
-        node->send( destroyNodePacket );
+        send( node, destroyNodePacket );
         node->disconnect();
         deregisterObject( node );
     }

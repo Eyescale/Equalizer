@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_CONFIG_H
@@ -32,6 +32,7 @@ namespace eqs
          * Constructs a new Config.
          */
         Config();
+        virtual ~Config();
 
         /** 
          * Constructs a new deep copy of a config.
@@ -61,7 +62,7 @@ namespace eqs
         bool removeNode( Node* node );
 
         /** 
-         * Returns the number of nodes on this config.
+         * Return the number of nodes on this config.
          * 
          * @return the number of nodes on this config. 
          */
@@ -94,7 +95,7 @@ namespace eqs
         bool removeCompound( Compound* compound );
 
         /** 
-         * Returns the number of compounds on this config.
+         * Return the number of compounds on this config.
          * 
          * @return the number of compounds on this config. 
          */
@@ -137,35 +138,43 @@ namespace eqs
         uint32_t getLatency() const { return _latency; }
 
         /** 
-         * Sets the name of the application.
+         * Set the name of the application.
          * 
          * @param name the name of the application.
          */
         void setAppName( const std::string& name )  { _appName = name; }
         
         /** 
-         * Sets the name of the render client executable.
+         * Set the node running the application thread.
+         * 
+         * @param node the application node.
+         */
+        void setApplicationNode( eqBase::RefPtr<eqNet::Node> node )
+            { _appNode = node; }
+
+        /** 
+         * Set the name of the render client executable.
          * 
          * @param rc the name of the render client executable.
          */
         void setRenderClient( const std::string& rc ){ _renderClient = rc; }
 
         /** 
-         * Returns the name of the render client executable.
+         * Return the name of the render client executable.
          * 
          * @return the name of the render client executable.
          */
         const std::string& getRenderClient() const { return _renderClient; }
 
         /** 
-         * Sets the working directory for render client.
+         * Set the working directory for render client.
          * 
          * @param workDir the working directory for the  render client.
          */
         void setWorkDir( const std::string& workDir ){ _workDir = workDir; }
 
         /** 
-         * Returns the working directory for render client.
+         * Return the working directory for render client.
          *
          * @return the working directory for the  render client.
          */
@@ -184,6 +193,9 @@ namespace eqs
 
         /** The name of the application. */
         std::string _appName;
+
+        /** The node running the application thread. */
+        eqBase::RefPtr<eqNet::Node> _appNode;
 
         /** The name of the render client executable. */
         std::string _renderClient;

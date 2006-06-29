@@ -11,6 +11,7 @@
 namespace eq
 {
     class Pipe;
+    class Window;
 
     /**
      * The per-node event processing thread.
@@ -22,6 +23,9 @@ namespace eq
 
         virtual void addPipe( Pipe* pipe ) = 0;
         virtual void removePipe( Pipe* pipe ) = 0;
+
+        virtual void addWindow( Window* window ) = 0;
+        virtual void removeWindow( Window* window ) = 0;
 
     protected:
         /** Constructs a new event thread. */

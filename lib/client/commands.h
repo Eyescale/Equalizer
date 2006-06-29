@@ -44,6 +44,7 @@ namespace eq
         CMD_CONFIG_FRAME_END,
         REQ_CONFIG_FRAME_END, // REQ must always follow CMD
         CMD_CONFIG_FRAME_END_REPLY,
+        CMD_CONFIG_EVENT,
         CMD_CONFIG_CUSTOM
     };
 
@@ -117,6 +118,8 @@ namespace eq
     {
         CMD_GLXEVENTTHREAD_ADD_PIPE,
         CMD_GLXEVENTTHREAD_REMOVE_PIPE,
+        CMD_GLXEVENTTHREAD_ADD_WINDOW,
+        CMD_GLXEVENTTHREAD_REMOVE_WINDOW,
         CMD_GLXEVENTTHREAD_ALL
     };
 };

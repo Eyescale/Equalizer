@@ -45,8 +45,8 @@ void RequestQueue::pop( Node** node, Packet** packet )
     }
     
     _lastRequest = _requests.pop();
-    *node   = _lastRequest->node;
-    *packet = _lastRequest->packet;
+    if( node )   *node   = _lastRequest->node;
+    if( packet ) *packet = _lastRequest->packet;
 }
 
 bool RequestQueue::tryPop( Node** node, Packet** packet )
@@ -65,8 +65,8 @@ bool RequestQueue::tryPop( Node** node, Packet** packet )
     }
     
     _lastRequest = request;
-    *node        = request->node;
-    *packet      = request->packet;
+    if( node )   *node   = _lastRequest->node;
+    if( packet ) *packet = _lastRequest->packet;
     return true;
 }
 

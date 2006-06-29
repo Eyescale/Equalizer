@@ -20,7 +20,8 @@ namespace eqBase
         Userdata() : _userdata(0) {}
         virtual ~Userdata() {}
 
-        T& getUserdata() const { return _userdata; }
+        T& getUserdata() { return _userdata; }
+        const T& getUserdata() const { return _userdata; }
         void setUserdata( T& data ) { _userdata = data; }
 
     private:

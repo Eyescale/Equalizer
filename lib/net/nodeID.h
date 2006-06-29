@@ -23,6 +23,8 @@ namespace eqNet
             { generate ? uuid_generate( _id ) : uuid_clear( _id ); }
         NodeID( const NodeID& from ) { uuid_copy( _id, from._id ); }
 
+        void setNull(){ uuid_clear( _id ); }
+
         NodeID& operator = ( const NodeID& from )
             {
                 uuid_copy( _id, from._id );

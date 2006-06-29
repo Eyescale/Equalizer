@@ -58,6 +58,7 @@ typedef int socklen_t;
 
 // thread-safety checks
 #ifdef CHECK_THREADSAFETY
+#  define CHECK_THREAD_INIT( THREADID ) { THREADID = 0; }
 #  define CHECK_THREAD( THREADID )                                      \
     {                                                                   \
         if( THREADID==0 )                                               \
@@ -89,6 +90,7 @@ typedef int socklen_t;
         }                                                               \
     }
 #else
+#  define CHECK_THREAD_INIT( THREADID )
 #  define CHECK_THREAD( THREADID )
 #  define CHECK_NOT_THREAD( THREADID )
 #endif

@@ -72,6 +72,7 @@ namespace eqBase
                 }
             }
 
+        bool empty() const { return _queue.empty(); }
 
         T* pop()
             {

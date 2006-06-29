@@ -54,7 +54,7 @@ int main( int argc, char** argv )
 
     // 3. choose config
     eq::ConfigParams configParams;
-    eq::Config*      config = server->chooseConfig( configParams );
+    Config*          config = (Config*)server->chooseConfig( configParams );
 
     if( !config )
         DIE("No matching config on server.");
@@ -73,9 +73,8 @@ int main( int argc, char** argv )
     cerr << "Config init took " << clock.getTimef() << " ms" << endl;
 
     // 6. run main loop
-    int nFrames = 100;
     clock.reset();
-    while( nFrames-- )
+    while( config->isRunning( ))
     {
         // 6a. update database
         frameData->spin += .5;

@@ -5,7 +5,9 @@
 #define EQ_GLXEVENTTHREAD_H
 
 #include "eventThread.h"
+
 #include <eq/net/connectionSet.h>
+#include <eq/net/node.h>
 
 namespace eq
 {
@@ -34,12 +36,17 @@ namespace eq
 
         /** @sa EventThread::addPipe. */
         virtual void addPipe( Pipe* pipe );
-
         /** @sa EventThread::removePipe. */
         virtual void removePipe( Pipe* pipe );
 
+        /** @sa EventThread::addWindow. */
+        virtual void addWindow( Window* window );
+        /** @sa EventThread::removeWindow. */
+        virtual void removeWindow( Window* window );
+
     private:
-        eqNet::ConnectionSet       _connections;
+        eqNet::ConnectionSet        _connections;
+        eqBase::RefPtr<eqNet::Node> _localNode;
 
         enum
         {
@@ -58,6 +65,14 @@ namespace eq
                                           const eqNet::Packet* packet );
         eqNet::CommandResult _cmdRemovePipe( eqNet::Node*,
                                              const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdAddWindow( eqNet::Node*,
+                                            const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdRemoveWindow( eqNet::Node*,
+                                               const eqNet::Packet* packet );
+
+#ifdef CHECK_THREADSAFETY
+        pthread_t _threadID;
+#endif
     };
 }
 

@@ -4,12 +4,15 @@
 
 #include "window.h"
 
+#include "channel.h"
 #include "commands.h"
+#include "configEvent.h"
+#include "eventThread.h"
 #include "global.h"
 #include "nodeFactory.h"
 #include "object.h"
 #include "packets.h"
-#include "channel.h"
+#include "windowEvent.h"
 
 #include <eq/net/barrier.h>
 
@@ -137,6 +140,8 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
     else
         setViewport( packet->vp );
 
+    _name = packet->name;
+
     WindowInitReplyPacket reply( packet );
     reply.result = init( packet->initID );
 
@@ -146,7 +151,8 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
         return eqNet::COMMAND_HANDLED;
     }
 
-    switch( _pipe->getWindowSystem( ))
+    const WindowSystem windowSystem =  _pipe->getWindowSystem();
+    switch( windowSystem )
     {
 #ifdef GLX
         case WINDOW_SYSTEM_GLX:
@@ -178,6 +184,10 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
 
     reply.pvp = _pvp;
     node->send( reply );
+
+    EventThread* thread = EventThread::get( windowSystem );
+    thread->addWindow( this );
+
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -186,6 +196,9 @@ eqNet::CommandResult eq::Window::_reqExit( eqNet::Node* node,
 {
     WindowExitPacket* packet = (WindowExitPacket*)pkg;
     EQINFO << "handle window exit " << packet << endl;
+
+    EventThread* thread = EventThread::get( _pipe->getWindowSystem( ));
+    thread->removeWindow( this );
 
     exit();
 
@@ -386,7 +399,7 @@ bool eq::Window::initGLX()
                                   _pvp.x, _pvp.y, _pvp.w, _pvp.h,
                                   0, visInfo->depth, InputOutput,
                                   visInfo->visual, CWBackPixmap|CWBorderPixel|
-                                  CWEventMask|CWColormap|CWOverrideRedirect,
+                                  CWEventMask|CWColormap/*|CWOverrideRedirect*/,
                                   &wa );
     
     if ( !drawable )
@@ -617,4 +630,58 @@ void eq::Window::swapBuffers()
         default: EQUNIMPLEMENTED;
     }
     EQINFO << "----- SWAP -----" << endl;
+}
+
+//======================================================================
+// event-thread methods
+//======================================================================
+
+void eq::Window::processEvent( const WindowEvent& event )
+{
+    ConfigEvent configEvent;
+    switch( event.type )
+    {
+        case WindowEvent::TYPE_EXPOSE:
+            return;
+
+        case WindowEvent::TYPE_RESIZE:
+            setPixelViewport( PixelViewport( event.resize.x, event.resize.y, 
+                                             event.resize.w, event.resize.h ));
+            return;
+
+        case WindowEvent::TYPE_MOUSE_MOTION:
+            configEvent.type          = ConfigEvent::TYPE_MOUSE_MOTION;
+            configEvent.mouseMotion.x = event.mouseMotion.x;
+            configEvent.mouseMotion.y = event.mouseMotion.y;
+            break;
+            
+        case WindowEvent::TYPE_MOUSE_BUTTON_PRESS:
+            configEvent.type = ConfigEvent::TYPE_MOUSE_BUTTON_PRESS;
+            configEvent.mouseButtonPress.x = event.mouseButtonPress.x;
+            configEvent.mouseButtonPress.y = event.mouseButtonPress.y;
+            break;
+
+        case WindowEvent::TYPE_MOUSE_BUTTON_RELEASE:
+            configEvent.type = ConfigEvent::TYPE_MOUSE_BUTTON_RELEASE;
+            configEvent.mouseButtonRelease.x = event.mouseButtonRelease.x;
+            configEvent.mouseButtonRelease.y = event.mouseButtonRelease.y;
+            break;
+
+        case WindowEvent::TYPE_KEY_PRESS:
+            configEvent.type         = ConfigEvent::TYPE_KEY_PRESS;
+            configEvent.keyPress.key = event.keyPress.key;
+            break;
+                
+        case WindowEvent::TYPE_KEY_RELEASE:
+            configEvent.type           = ConfigEvent::TYPE_KEY_RELEASE;
+            configEvent.keyRelease.key = event.keyRelease.key;
+            break;
+
+        default:
+            EQWARN << "Unhandled window event of type " << event.type << endl;
+            EQUNIMPLEMENTED;
+    }
+    
+    Config* config = getConfig();
+    config->sendEvent( configEvent );
 }

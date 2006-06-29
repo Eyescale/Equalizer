@@ -51,6 +51,7 @@ HEADER_SRC = \
 	client/client.h \
 	client/commands.h \
 	client/config.h \
+	client/configEvent.h \
 	client/configParams.h \
 	client/eventThread.h \
 	client/frustum.h \
@@ -70,6 +71,7 @@ HEADER_SRC = \
 	client/viewport.h \
 	client/wall.h \
 	client/window.h \
+	client/windowEvent.h \
 	client/windowSystem.h
 
 SOURCES = \
@@ -103,6 +105,7 @@ SOURCES = \
 	client/channel.cpp \
 	client/client.cpp \
 	client/config.cpp \
+	client/configEvent.cpp \
 	client/configParams.cpp \
 	client/eventThread.cpp \
 	client/frustum.cpp \

@@ -422,7 +422,7 @@ bool Node::unmapSession( Session* session )
     NodeUnmapSessionPacket packet;
     packet.requestID = _requestHandler.registerRequest( session );
     packet.sessionID =  session->getID();
-    session->send( packet );
+    session->getServer()->send( packet );
 
     return (bool)_requestHandler.waitRequest( packet.requestID );
 }

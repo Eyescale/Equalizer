@@ -11,36 +11,11 @@
 #include "pixelViewport.h"
 #include "windowSystem.h"
 
+#include <eq/base/refPtr.h>
 #include <eq/base/thread.h>
 #include <eq/net/base.h>
 #include <eq/net/object.h>
 #include <eq/net/requestQueue.h>
-
-#ifdef GLX
-#ifdef WIN32
-#  include "win32_x11.h"
-#  include "win32_glx.h"
-#else
-#  include <X11/Xlib.h>
-#  include <GL/glx.h>
-#endif
-#endif
-#ifdef CGL
-#  if defined(i386) // WAR compile error
-#    undef Status 
-#  endif 
-#  define Cursor CGLCursor // avoid name clash with X11 'Cursor'
-#  include <ApplicationServices/ApplicationServices.h>
-#  include <OpenGL/OpenGL.h>
-#  undef Cursor
-#endif
-
-#ifndef GLX
-typedef void Display;
-#endif
-#ifndef CGL
-typedef int32_t CGDirectDisplayID;
-#endif
 
 namespace eq
 {
@@ -55,9 +30,13 @@ namespace eq
          */
         Pipe();
 
+        /** @name Data Access. */
+        //*{
         Node* getNode() const { return _node; }
         Config* getConfig() const { return (_node ? _node->getConfig() : NULL);}
 
+        /** @return the number of windows. */
+        uint32_t nWindows() const { return _windows.size(); }
         /** 
          * Gets a window.
          * 
@@ -104,26 +83,6 @@ namespace eq
         std::string getXDisplayString();
 
         /** 
-         * Tests wether a particular windowing system is supported by this pipe
-         * and all its windows.
-         * 
-         * @param system the window system to test.
-         * @return <code>true</code> if the window system is supported,
-         *         <code>false</code> if not.
-         */
-        virtual bool supportsWindowSystem( const WindowSystem system ) const;
-
-        /** 
-         * Return the window system to be used by this pipe.
-         * 
-         * This function determines which of the supported windowing systems is
-         * used by this pipe instance. 
-         * 
-         * @return the window system currently used by this pipe.
-         */
-        virtual WindowSystem selectWindowSystem() const;
-
-        /** 
          * Return the window system used by this pipe. 
          * 
          * The return value is quaranteed to be constant for an initialised
@@ -154,10 +113,10 @@ namespace eq
          *
          * @param connection the X event display connection for this pipe.
          */
-        void setXEventConnection( X11Connection* connection );
+        void setXEventConnection( eqBase::RefPtr<X11Connection> connection );
 
         /** @return the X event display connection for this pipe. */
-        X11Connection* getXEventConnection() const;
+        eqBase::RefPtr<X11Connection> getXEventConnection() const;
 
         /** 
          * Set the CGL display ID for this pipe.
@@ -173,6 +132,27 @@ namespace eq
          * @return the CGL display ID for this pipe.
          */
         CGDirectDisplayID getCGLDisplayID() const;
+        //*}
+
+        /** 
+         * Tests wether a particular windowing system is supported by this pipe
+         * and all its windows.
+         * 
+         * @param system the window system to test.
+         * @return <code>true</code> if the window system is supported,
+         *         <code>false</code> if not.
+         */
+        virtual bool supportsWindowSystem( const WindowSystem system ) const;
+
+        /** 
+         * Return the window system to be used by this pipe.
+         * 
+         * This function determines which of the supported windowing systems is
+         * used by this pipe instance. 
+         * 
+         * @return the window system currently used by this pipe.
+         */
+        virtual WindowSystem selectWindowSystem() const;
 
         /**
          * @name Callbacks
@@ -262,14 +242,12 @@ namespace eq
             char _displayFill[8];
         };
 
-        union
-        {
 #ifdef GLX
-            /** The X event display connection. */
-            X11Connection* _xEventConnection;
+        /** The X event display connection. */
+        eqBase::RefPtr<X11Connection>     _xEventConnection;
+#else
+        eqBase::RefPtr<eqNet::Connection> _xEventConnection;        
 #endif
-            char _eventDisplayFill[8];
-        };
 
         /** The display (GLX, CGL) or ignored (Win32). */
         uint32_t _display;

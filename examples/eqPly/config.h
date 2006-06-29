@@ -12,6 +12,15 @@
 
 class Config : public eq::Config
 {
+public:
+    Config() : _running( false ) {}
+    virtual ~Config(){}
+
+    bool isRunning() const { return _running; }
+    
+    /** @sa eq::Config::init. */
+    virtual bool init( const uint32_t initID );
+
 protected:
     eqNet::Object* instanciateObject( const uint32_t type, const void* data, 
                                        const uint64_t dataSize )
@@ -27,6 +36,11 @@ protected:
                                                               dataSize );
             }
         }
+
+    /** @sa eq::Config::handleEvent */
+    virtual bool handleEvent( eq::ConfigEvent* event );
+
+    bool _running;
 };
 
 #endif // EQ_PLY_CONFIG_H

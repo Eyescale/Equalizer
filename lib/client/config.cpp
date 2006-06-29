@@ -4,6 +4,7 @@
 
 #include "config.h"
 
+#include "configEvent.h"
 #include "global.h"
 #include "node.h"
 #include "nodeFactory.h"
@@ -13,6 +14,7 @@
 #include <eq/net/global.h>
 
 using namespace eq;
+using namespace eqBase;
 using namespace std;
 
 Config::Config( const uint32_t nCommands )
@@ -33,8 +35,15 @@ Config::Config( const uint32_t nCommands )
     registerCommand( CMD_CONFIG_FRAME_END_REPLY, this, 
                      reinterpret_cast<CommandFcn>(
                          &eq::Config::_cmdEndFrameReply ));
+    registerCommand( CMD_CONFIG_EVENT, this, reinterpret_cast<CommandFcn>(
+                         &eq::Config::_cmdEvent ));
 }
 
+Config::~Config()
+{
+    _appNodeID.setNull();
+    _appNode = NULL;
+}
 void Config::_addNode( Node* node )
 {
     node->_config = this;
@@ -47,38 +56,74 @@ void Config::_removeNode( Node* node )
 
 bool Config::init( const uint32_t initID )
 {
-    ConfigInitPacket packet( _id );
+    ConfigInitPacket packet;
     packet.requestID = _requestHandler.registerRequest();
     packet.initID    = initID;
 
-    _server->send( packet );
+    send( packet );
     return ( _requestHandler.waitRequest( packet.requestID ) != 0 );
 }
 
 bool Config::exit()
 {
-    ConfigExitPacket packet( _id );
+    ConfigExitPacket packet;
     packet.requestID = _requestHandler.registerRequest();
-    _server->send( packet );
+    send( packet );
     return ( _requestHandler.waitRequest( packet.requestID ) != 0 );
 }
 
 uint32_t Config::beginFrame( const uint32_t frameID )
 {
-    ConfigBeginFramePacket packet( _id );
+    ConfigBeginFramePacket packet;
     packet.requestID = _requestHandler.registerRequest();
     packet.frameID   = frameID;
 
-    _server->send( packet );
+    send( packet );
     return (uint32_t)(long long)(_requestHandler.waitRequest(packet.requestID));
 }
 
 uint32_t Config::endFrame()
 {
-    ConfigEndFramePacket packet( _id );
+    ConfigEndFramePacket packet;
     packet.requestID = _requestHandler.registerRequest();
-    _server->send( packet );
-    return (uint32_t)(long long)(_requestHandler.waitRequest(packet.requestID));
+    send( packet );
+    const int frameNumber = 
+        (uint32_t)(long long)(_requestHandler.waitRequest(packet.requestID));
+    handleEvents();
+    return frameNumber;
+}
+
+void Config::sendEvent( ConfigEvent& event )
+{
+    EQASSERT( _appNodeID );
+
+    if( !_appNode )
+    {
+        RefPtr<eqNet::Node> localNode = eqNet::Node::getLocalNode();
+        RefPtr<eqNet::Node> server    = getServer();
+        _appNode = localNode->connect( _appNodeID, server );
+    }
+    EQASSERT( _appNode );
+
+    event.sessionID = getID();
+    _appNode->send( event );
+}
+
+ConfigEvent* Config::nextEvent()
+{
+    ConfigEvent* event;
+    _eventQueue.pop( NULL, (eqNet::Packet**)&event );
+    return event;
+}
+
+void Config::handleEvents()
+{
+    while( checkEvent( ))
+    {
+        ConfigEvent* event = nextEvent();
+        if( !handleEvent( event ))
+            EQWARN << "Unhandled " << event << endl;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -152,5 +197,14 @@ eqNet::CommandResult Config::_cmdEndFrameReply( eqNet::Node* node,
     EQVERB << "handle frame end reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Config::_cmdEvent( eqNet::Node* node,
+                                        const eqNet::Packet* packet )
+{
+    EQVERB << "received config event " << (ConfigEvent* )packet << endl;
+
+    _eventQueue.push( node, packet );
     return eqNet::COMMAND_HANDLED;
 }

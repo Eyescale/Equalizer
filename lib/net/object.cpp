@@ -70,7 +70,8 @@ void Object::instanciateOnNode( RefPtr<Node> node,
 
     addSlave( node );
 
-    SessionInstanciateObjectPacket packet( _session->getID( ));
+    SessionInstanciateObjectPacket packet;
+    packet.sessionID      =  _session->getID();
     packet.objectID       = _id;
     packet.objectType     = _typeID;
     packet.objectDataSize = 0;

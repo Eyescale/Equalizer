@@ -168,18 +168,13 @@ namespace eqNet
     //------------------------------------------------------------
     struct SessionPacket : public NodePacket
     {
-        SessionPacket( const uint32_t sessionID )
-            {
-                datatype        = DATATYPE_EQNET_SESSION;
-                this->sessionID = sessionID;
-            }
+        SessionPacket() { datatype = DATATYPE_EQNET_SESSION; }
         uint32_t sessionID;
     };
 
     struct SessionGenIDsPacket : public SessionPacket
     {
-        SessionGenIDsPacket( const uint32_t sessionID ) 
-                : SessionPacket( sessionID )
+        SessionGenIDsPacket() 
             {
                 command = CMD_SESSION_GEN_IDS;
                 size    = sizeof( SessionGenIDsPacket ); 
@@ -192,7 +187,6 @@ namespace eqNet
     struct SessionGenIDsReplyPacket : public SessionPacket
     {
         SessionGenIDsReplyPacket( SessionGenIDsPacket* request )
-                : SessionPacket(request->sessionID)
             {
                 command   = CMD_SESSION_GEN_IDS_REPLY;
                 size      = sizeof( SessionGenIDsReplyPacket ); 
@@ -205,8 +199,7 @@ namespace eqNet
 
     struct SessionSetIDMasterPacket : public SessionPacket
     {
-        SessionSetIDMasterPacket( const uint32_t sessionID ) 
-                : SessionPacket( sessionID )
+        SessionSetIDMasterPacket()
             {
                 command = CMD_SESSION_SET_ID_MASTER;
                 size    = sizeof( SessionSetIDMasterPacket ); 
@@ -219,8 +212,7 @@ namespace eqNet
 
     struct SessionGetIDMasterPacket : public SessionPacket
     {
-        SessionGetIDMasterPacket( const uint32_t sessionID ) 
-                : SessionPacket( sessionID )
+        SessionGetIDMasterPacket()
             {
                 command = CMD_SESSION_GET_ID_MASTER;
                 size    = sizeof( SessionGetIDMasterPacket ); 
@@ -233,7 +225,6 @@ namespace eqNet
     struct SessionGetIDMasterReplyPacket : public SessionPacket
     {
         SessionGetIDMasterReplyPacket( SessionGetIDMasterPacket* request ) 
-                : SessionPacket( request->sessionID )
             {
                 command   = CMD_SESSION_GET_ID_MASTER_REPLY;
                 size      = sizeof( SessionGetIDMasterReplyPacket );
@@ -248,8 +239,7 @@ namespace eqNet
 
     struct SessionGetObjectMasterPacket : public SessionPacket
     {
-        SessionGetObjectMasterPacket( const uint32_t sessionID ) 
-                : SessionPacket( sessionID )
+        SessionGetObjectMasterPacket()
             {
                 command = CMD_SESSION_GET_OBJECT_MASTER;
                 size    = sizeof( SessionGetObjectMasterPacket ); 
@@ -262,7 +252,6 @@ namespace eqNet
     {
         SessionGetObjectMasterReplyPacket( const SessionGetObjectMasterPacket*
                                            request ) 
-                : SessionPacket( request->sessionID )
             {
                 command  = CMD_SESSION_GET_OBJECT_MASTER_REPLY;
                 size     = sizeof( SessionGetObjectMasterReplyPacket );
@@ -277,8 +266,7 @@ namespace eqNet
 
     struct SessionGetObjectPacket : public SessionPacket
     {
-        SessionGetObjectPacket( const uint32_t sessionID ) 
-                : SessionPacket( sessionID )
+        SessionGetObjectPacket()
             {
                 command = CMD_SESSION_GET_OBJECT;
                 size    = sizeof( SessionGetObjectPacket ); 
@@ -289,8 +277,7 @@ namespace eqNet
 
     struct SessionRegisterObjectPacket : public SessionPacket
     {
-        SessionRegisterObjectPacket( const uint32_t sessionID ) 
-                : SessionPacket( sessionID )
+        SessionRegisterObjectPacket()
             {
                 command = CMD_SESSION_REGISTER_OBJECT;
                 size    = sizeof( SessionRegisterObjectPacket ); 
@@ -303,8 +290,7 @@ namespace eqNet
 
     struct SessionUnregisterObjectPacket : public SessionPacket
     {
-        SessionUnregisterObjectPacket( const uint32_t sessionID ) 
-                : SessionPacket( sessionID )
+        SessionUnregisterObjectPacket()
             {
                 command = CMD_SESSION_UNREGISTER_OBJECT;
                 size    = sizeof( SessionUnregisterObjectPacket ); 
@@ -317,8 +303,7 @@ namespace eqNet
 
     struct SessionInitObjectPacket : public SessionPacket
     {
-        SessionInitObjectPacket( const uint32_t sessionID ) 
-                : SessionPacket( sessionID )
+        SessionInitObjectPacket()
             {
                 command = CMD_SESSION_INIT_OBJECT;
                 size    = sizeof( SessionInitObjectPacket ); 
@@ -330,8 +315,7 @@ namespace eqNet
 
     struct SessionInstanciateObjectPacket : public SessionPacket
     {
-        SessionInstanciateObjectPacket( const uint32_t sessionID ) 
-                : SessionPacket( sessionID )
+        SessionInstanciateObjectPacket()
             {
                 command        = CMD_SESSION_INSTANCIATE_OBJECT;
                 size           = sizeof( SessionInstanciateObjectPacket ); 
@@ -352,10 +336,10 @@ namespace eqNet
     struct ObjectPacket : public SessionPacket
     {
         ObjectPacket( const uint32_t sessionID, const uint32_t objectID )
-                : SessionPacket( sessionID )
             {
-                datatype       = DATATYPE_EQNET_OBJECT; 
-                this->objectID = objectID;
+                datatype        = DATATYPE_EQNET_OBJECT; 
+                this->sessionID = sessionID;
+                this->objectID  = objectID;
                 EQASSERT( objectID != EQ_INVALID_ID );
                 EQASSERT( objectID != 0 );
             }

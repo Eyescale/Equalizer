@@ -231,6 +231,8 @@ namespace eqs
         void _construct();
 
         void _send( const eqNet::Packet& packet ) { getNode()->send( packet ); }
+        void _send( eqNet::Packet& packet, const std::string& string ) 
+            { getNode()->send( packet, string ); }
 
         void _sendInit( const uint32_t initID );
         void _sendExit();

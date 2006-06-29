@@ -9,9 +9,9 @@
 #include <eq/base/base.h>
 #include <eq/client/packets.h>
 #include <eq/client/wall.h>
+#include <eq/client/windowSystem.h>
 #include <eq/net/session.h>
 
-#include <GL/gl.h>
 #include <algorithm>
 #include <math.h>
 #include <vector>

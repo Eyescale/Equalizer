@@ -160,6 +160,7 @@ eqNet::CommandResult Server::_reqChooseConfig( eqNet::Node* node, const eqNet::P
     }
 
     Config* appConfig = new Config( *config );
+    appConfig->setApplicationNode( node );
     mapConfig( appConfig );
 
     // TODO: move to open: appConfig->setAppName( appName );

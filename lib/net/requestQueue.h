@@ -69,6 +69,11 @@ namespace eqNet
          */
         bool back( Node** node, Packet** packet );
 
+        /** 
+         * @return <code>true</code> if the request queue is empty,
+         *         <code>false</code> if not. 
+         */
+        bool empty() const { return _requests.empty(); }
     private:
 
         /** Thread-safe request queue. */

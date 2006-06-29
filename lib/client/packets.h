@@ -15,11 +15,14 @@
 namespace eq
 {
     class Pipe;
+    class Window;
 
     enum DataType
     {
         DATATYPE_EQ_CLIENT = eqNet::DATATYPE_CUSTOM,
-        DATATYPE_EQ_SERVER
+        DATATYPE_EQ_SERVER,
+        DATATYPE_EQ_CONFIGEVENT,
+        DATATYPE_EQ_CUSTOM
     };
 
     //------------------------------------------------------------
@@ -54,6 +57,7 @@ namespace eq
             }
 
         uint32_t      configID;
+        eqNet::NodeID appNodeID;
         char          name[8] EQ_ALIGN8;
     };
 
@@ -90,8 +94,7 @@ namespace eq
     typedef eqNet::SessionPacket ConfigPacket;
     struct ConfigCreateNodePacket : public ConfigPacket
     {
-        ConfigCreateNodePacket( const uint32_t configID )
-                : ConfigPacket( configID )
+        ConfigCreateNodePacket()
             {
                 command = CMD_CONFIG_CREATE_NODE;
                 size    = sizeof( ConfigCreateNodePacket );
@@ -102,8 +105,7 @@ namespace eq
 
     struct ConfigDestroyNodePacket : public ConfigPacket
     {
-        ConfigDestroyNodePacket( const uint32_t configID )
-                : ConfigPacket( configID )
+        ConfigDestroyNodePacket()
             {
                 command = CMD_CONFIG_DESTROY_NODE;
                 size    = sizeof( ConfigDestroyNodePacket );
@@ -114,8 +116,7 @@ namespace eq
     
     struct ConfigInitPacket : public ConfigPacket
     {
-        ConfigInitPacket( const uint32_t configID ) 
-                : ConfigPacket( configID )
+        ConfigInitPacket()
             {
                 command   = CMD_CONFIG_INIT;
                 size      = sizeof( ConfigInitPacket );
@@ -128,7 +129,6 @@ namespace eq
     struct ConfigInitReplyPacket : public ConfigPacket
     {
         ConfigInitReplyPacket( const ConfigInitPacket* requestPacket )
-                : ConfigPacket( requestPacket->sessionID )
             {
                 command   = CMD_CONFIG_INIT_REPLY;
                 size      = sizeof( ConfigInitReplyPacket );
@@ -140,8 +140,7 @@ namespace eq
 
     struct ConfigExitPacket : public ConfigPacket
     {
-        ConfigExitPacket( const uint32_t configID )
-                : ConfigPacket( configID )
+        ConfigExitPacket()
             {
                 command   = CMD_CONFIG_EXIT;
                 size      = sizeof( ConfigExitPacket );
@@ -152,7 +151,6 @@ namespace eq
     struct ConfigExitReplyPacket : public ConfigPacket
     {
         ConfigExitReplyPacket( const ConfigExitPacket* requestPacket )
-                : ConfigPacket( requestPacket->sessionID )
             {
                 command   = CMD_CONFIG_EXIT_REPLY;
                 size      = sizeof( ConfigExitReplyPacket );
@@ -164,8 +162,7 @@ namespace eq
 
     struct ConfigBeginFramePacket : public ConfigPacket
     {
-        ConfigBeginFramePacket( const uint32_t configID ) 
-                : ConfigPacket( configID )
+        ConfigBeginFramePacket()
             {
                 command   = CMD_CONFIG_FRAME_BEGIN;
                 size      = sizeof( ConfigBeginFramePacket );
@@ -177,10 +174,10 @@ namespace eq
     struct ConfigBeginFrameReplyPacket : public ConfigPacket
     {
         ConfigBeginFrameReplyPacket(const ConfigBeginFramePacket* requestPacket)
-                : ConfigPacket( requestPacket->sessionID )
             {
                 command   = CMD_CONFIG_FRAME_BEGIN_REPLY;
                 size      = sizeof( ConfigBeginFrameReplyPacket );
+                sessionID = requestPacket->sessionID;
                 requestID = requestPacket->requestID;
             }
         uint32_t requestID;
@@ -191,8 +188,7 @@ namespace eq
 
     struct ConfigEndFramePacket : public ConfigPacket
     {
-        ConfigEndFramePacket( const uint32_t configID ) 
-                : ConfigPacket( configID )
+        ConfigEndFramePacket()
             {
                 command   = CMD_CONFIG_FRAME_END;
                 size      = sizeof( ConfigEndFramePacket );
@@ -203,7 +199,6 @@ namespace eq
     struct ConfigEndFrameReplyPacket : public ConfigPacket
     {
         ConfigEndFrameReplyPacket(const ConfigEndFramePacket* requestPacket)
-                : ConfigPacket( requestPacket->sessionID )
             {
                 command   = CMD_CONFIG_FRAME_END_REPLY;
                 size      = sizeof( ConfigEndFrameReplyPacket );
@@ -414,12 +409,14 @@ namespace eq
             {
                 command = CMD_WINDOW_INIT;
                 size    = sizeof( WindowInitPacket );
+                name[0]   = '\0';
             }
 
         uint32_t      requestID;
         uint32_t      initID;
         PixelViewport pvp;
         Viewport      vp;
+        char          name[8] EQ_ALIGN8;
     };
 
     struct WindowInitReplyPacket : public eqNet::ObjectPacket
@@ -652,6 +649,25 @@ namespace eq
             }
         uint32_t requestID;
         Pipe*    pipe;
+    };
+    struct GLXEventThreadAddWindowPacket : public eqNet::Packet
+    {
+        GLXEventThreadAddWindowPacket()
+            {
+                command = CMD_GLXEVENTTHREAD_ADD_WINDOW;
+                size    = sizeof( GLXEventThreadAddWindowPacket );
+            }
+        Window* window;
+    };
+    struct GLXEventThreadRemoveWindowPacket : public eqNet::Packet
+    {
+        GLXEventThreadRemoveWindowPacket()
+            {
+                command = CMD_GLXEVENTTHREAD_REMOVE_WINDOW;
+                size    = sizeof( GLXEventThreadRemoveWindowPacket );
+            }
+        uint32_t requestID;
+        Window*  window;
     };
 
     //------------------------------------------------------------

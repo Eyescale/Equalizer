@@ -26,7 +26,7 @@ namespace eqNet
     class Base
     {
     public:
-        Base( const uint32_t nCommands );
+        Base( const uint32_t nCommands, const bool threadSafe = false );
         virtual ~Base();        
 
         /** 

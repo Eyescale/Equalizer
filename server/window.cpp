@@ -178,7 +178,7 @@ void Window::_sendInit( const uint32_t initID )
     packet.pvp       = _pvp; 
     packet.vp        = _vp;
 
-    _send( packet );
+    _send( packet, getName( ));
 }
 
 bool Window::syncInit()

@@ -6,6 +6,7 @@
 #define EQ_H
 
 #include <eq/client/config.h>
+#include <eq/client/configEvent.h>
 #include <eq/client/configParams.h>
 #include <eq/client/frustum.h>
 #include <eq/client/global.h>

@@ -1,4 +1,4 @@
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_WINDOW_H
@@ -20,6 +20,7 @@
 namespace eq
 {
     class Channel;
+    class WindowEvent;
 
     class Window : public eqNet::Object
     {
@@ -29,6 +30,8 @@ namespace eq
          */
         Window();
 
+        /** @name Data Access */
+        //*{
         /** 
          * Returns the pipe of this window.
          * 
@@ -37,6 +40,8 @@ namespace eq
         Pipe* getPipe() const { return _pipe; }
         Node* getNode() const 
             { return ( _pipe ? _pipe->getNode() : NULL );}
+
+        const std::string& getName() const { return _name; }
 
 #ifdef GLX
         /** 
@@ -120,6 +125,7 @@ namespace eq
          * @return the window's fractional viewport.
          */
         const Viewport& getViewport() const { return _vp; }
+        //*}
 
         /**
          * @name Callbacks
@@ -127,7 +133,7 @@ namespace eq
          * The callbacks are called by Equalizer during rendering to execute
          * various actions.
          */
-        //@{
+        //*{
 
         /** 
          * Initialize this window.
@@ -183,7 +189,19 @@ namespace eq
 
         /** Finish outstanding rendering requests. */
         virtual void finish() { glFinish(); }
-        //@}
+
+        /** 
+         * Process a received event.
+         *
+         * This function is called from the event thread. The task of this
+         * method is to update the window as necessary, and transform the event
+         * into an config event to be send to the application using
+         * Config::sendEvent().
+         * 
+         * @param event the received window system event.
+         */
+        virtual void processEvent( const WindowEvent& event );
+        //*}
 
     protected:
         /**
@@ -206,6 +224,9 @@ namespace eq
         /** The parent node. */
         friend class Pipe;
         Pipe*        _pipe;
+
+        /** The name. */
+        std::string    _name;
 
         /** The channels of this window. */
         std::vector<Channel*>     _channels;

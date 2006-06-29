@@ -14,9 +14,7 @@ RequestHandler::RequestHandler( const Thread::Type type, const bool threadSafe )
           _requestID(1)
 {
     _mutex               = threadSafe ? new Lock( type ) : NULL;
-#ifdef CHECK_THREADSAFETY
-    _threadID = 0;
-#endif
+    CHECK_THREAD_INIT( _threadID );
 }
 
 RequestHandler::~RequestHandler()

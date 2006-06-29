@@ -6,16 +6,17 @@
 #define EQ_CONFIG_H
 
 #include "client.h"
-#include "commands.h"
 
 #include <eq/base/base.h>
 #include <eq/base/requestHandler.h>
+#include <eq/client/commands.h>
 #include <eq/net/packets.h>
 #include <eq/net/session.h>
 
 
 namespace eq
 {
+    class ConfigEvent;
     class Node;
     class SceneObject;
     class Server;
@@ -32,7 +33,7 @@ namespace eq
          */
         Config( const uint32_t nCommands = CMD_CONFIG_CUSTOM );
 
-        virtual ~Config(){}
+        virtual ~Config();
 
         /** 
          * Initialises this configuration.
@@ -41,7 +42,7 @@ namespace eq
          * @return <code>true</code> if the initialisation was successful,
          *         <code>false</code> if not.
          */
-        bool init( const uint32_t initID );
+        virtual bool init( const uint32_t initID );
 
         /** 
          * Exits this configuration.
@@ -55,7 +56,7 @@ namespace eq
          * @return <code>true</code> if the exit was successful,
          *         <code>false</code> if not.
          */
-        bool exit();
+        virtual bool exit();
 
         /**
          * @name Frame Control
@@ -68,7 +69,7 @@ namespace eq
          *                methods.
          * @return the frame number of the new frame.
          */
-        uint32_t beginFrame( const uint32_t frameID );
+        virtual uint32_t beginFrame( const uint32_t frameID );
 
         /** 
          * Sends frame data to 
@@ -84,9 +85,48 @@ namespace eq
          * @return the frame number of the finished frame, or <code>0</code> if
          *         no frame has been finished.
          */
-        uint32_t endFrame();
+        virtual uint32_t endFrame();
         //*}
 
+        /** @name Event handling. */
+        //*{
+        /** 
+         * Send an event to the application node.
+         * 
+         * @param event the event.
+         */
+        void sendEvent( ConfigEvent& event );
+
+        /** 
+         * Get the next received event on the application node.
+         * 
+         * The returned event is valid until the next call to this method.
+         * 
+         * @return a config event.
+         */
+        ConfigEvent* nextEvent();
+
+        /** @return true if events are pending. */
+        bool checkEvent() const { return !_eventQueue.empty(); }
+
+        /**
+         * Handle all config events.
+         *
+         * Called at the end of each frame to handle pending config events. The
+         * default implementation calls handleEvent() on all pending events,
+         * without blocking.
+         */
+        virtual void handleEvents();
+
+        /** 
+         * Handle one config event.
+         * 
+         * @param event the event.
+         * @return <code>true</code> if the event was handled,
+         *         <code>false</code> if not.
+         */
+        virtual bool handleEvent( ConfigEvent* event ){ return false; }
+        //*}
         /** 
          * Push a request from the receiver to the app thread to be handled
          * asynchronously.
@@ -98,15 +138,20 @@ namespace eq
             { ((eq::Client*)getLocalNode())->pushRequest( node, packet ); }
 
     private:
-        /** The local proxy of the server hosting the session. */
         friend class Server;
-        Server* _server;
+        /** The node identifier of the node running the application thread. */
+        eqNet::NodeID _appNodeID;
+        /** The node running the application thread. */
+        eqBase::RefPtr<eqNet::Node> _appNode;
 
         void _addNode( Node* node );
         void _removeNode( Node* node );
 
         /** Registers pending requests waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
+
+        /** The receiver->app thread event queue. */
+        eqNet::RequestQueue    _eventQueue;
 
         /** The command functions. */
         eqNet::CommandResult _cmdCreateNode( eqNet::Node* node,
@@ -121,6 +166,8 @@ namespace eq
                                                   const eqNet::Packet* packet );
         eqNet::CommandResult _cmdEndFrameReply( eqNet::Node* node,
                                                 const eqNet::Packet* packet);
+        eqNet::CommandResult _cmdEvent( eqNet::Node* node,
+                                        const eqNet::Packet* packet );
     };
 }
 

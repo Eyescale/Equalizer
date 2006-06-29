@@ -10,6 +10,7 @@
 
 namespace eq
 {
+#ifdef GLX
     /**
      * A X11 Display connection wrapper.
      */
@@ -29,6 +30,9 @@ namespace eq
     private:
         Display* _display;
     };
+#else
+    class X11Connection : public eqNet::Connection {};
+#endif
 }
 
 #endif // EQ_X11_CONNECTION_H

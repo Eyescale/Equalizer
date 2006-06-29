@@ -10,11 +10,13 @@
 #include "nodeFactory.h"
 #include "packets.h"
 #include "object.h"
+#include "x11Connection.h"
 #include "window.h"
 
 #include <sstream>
 
 using namespace eq;
+using namespace eqBase;
 using namespace std;
 
 Pipe::Pipe()
@@ -139,14 +141,14 @@ Display* Pipe::getXDisplay() const
 #endif
 }
 
-void Pipe::setXEventConnection( X11Connection* display )
+void Pipe::setXEventConnection( RefPtr<X11Connection> display )
 {
 #ifdef GLX
     _xEventConnection = display; 
 #endif
 }
 
-X11Connection* Pipe::getXEventConnection() const
+RefPtr<X11Connection> Pipe::getXEventConnection() const
 {
 #ifdef GLX
     return _xEventConnection;
@@ -321,7 +323,6 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg
 
     node->send( reply );
 
-    // start event thread
     EventThread* thread = EventThread::get( _windowSystem );
     thread->addPipe( this );
 

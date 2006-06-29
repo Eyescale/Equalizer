@@ -89,11 +89,11 @@ uint32_t Session::genIDs( const uint32_t range )
     if( id )
         return id;
 
-    SessionGenIDsPacket packet( _id );
+    SessionGenIDsPacket packet;
     packet.requestID = _requestHandler.registerRequest();
     packet.range     = MAX(range, MIN_ID_RANGE);
 
-    _server->send( packet );
+    send( packet );
     id = (uint32_t)(long long)_requestHandler.waitRequest( packet.requestID );
 
     if( !id || range >= MIN_ID_RANGE )
@@ -124,12 +124,12 @@ void Session::setIDMaster( const uint32_t start, const uint32_t range,
     if( _isMaster )
         return;
 
-    SessionSetIDMasterPacket packet( _id );
+    SessionSetIDMasterPacket packet;
     packet.start    = start;
     packet.range    = range;
     packet.masterID = master->getNodeID();
 
-    _server->send( packet );
+    send( packet );
 }
 
 RefPtr<Node> Session::_pollIDMaster( const uint32_t id )
@@ -152,7 +152,7 @@ RefPtr<Node> Session::getIDMaster( const uint32_t id )
         return master;
 
     // ask session master instance
-    SessionGetIDMasterPacket packet( _id );
+    SessionGetIDMasterPacket packet;
     packet.requestID = _requestHandler.registerRequest();
     packet.id        = id;
 
@@ -170,13 +170,13 @@ void Session::addRegisteredObject( const uint32_t id, Object* object,
 
     if( !_localNode->inReceiverThread( ))
     {
-        SessionRegisterObjectPacket packet( _id );
+        SessionRegisterObjectPacket packet;
         packet.requestID = _requestHandler.registerRequest( object );
         packet.objectID  = id;
         packet.policy    = ( policy == Object::SHARE_THREAD ?
                              Object::SHARE_NEVER : policy );
 
-        _localNode->send( packet );
+        _sendLocal( packet );
         _requestHandler.waitRequest( packet.requestID );
 
         if( policy == Object::SHARE_THREAD )
@@ -226,12 +226,12 @@ void Session::removeRegisteredObject( Object* object,
 
     if( !_localNode->inReceiverThread( ))
     {
-        SessionUnregisterObjectPacket packet( _id );
+        SessionUnregisterObjectPacket packet;
         packet.requestID = _requestHandler.registerRequest( object );
         packet.policy    = ( policy == Object::SHARE_THREAD ?
                              Object::SHARE_NEVER : policy );
 
-        _localNode->send( packet );
+        _sendLocal( packet );
         _requestHandler.waitRequest( packet.requestID );
 
         if( policy == Object::SHARE_THREAD )
@@ -339,10 +339,10 @@ Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy)
                        Object::SHARE_NEVER : policy );
     state.objectID = id;
 
-    SessionGetObjectPacket packet( _id );
+    SessionGetObjectPacket packet;
     packet.requestID = _requestHandler.registerRequest( &state );
 
-    _localNode->send( packet );
+    _sendLocal( packet );
     const void* result = _requestHandler.waitRequest( packet.requestID );
     EQASSERT( result == NULL );
     EQASSERT( state.nodeConnectRequestID == EQ_INVALID_ID );
@@ -500,9 +500,9 @@ CommandResult Session::_instObject( GetObjectState* state )
             if( _isMaster )
                 return COMMAND_ERROR;
 
-            SessionGetObjectMasterPacket packet( _id );
+            SessionGetObjectMasterPacket packet;
             packet.objectID = objectID;
-            _server->send( packet );
+            send( packet );
             state->instState = Object::INST_GETMASTERID;
             return COMMAND_RESCHEDULE;
         }
@@ -534,11 +534,11 @@ CommandResult Session::_instObject( GetObjectState* state )
 
 void Session::_sendInitObject( GetObjectState* state, RefPtr<Node> master )
 {
-    SessionInitObjectPacket packet( _id );
-    packet.objectID = state->objectID;
-    packet.policy   = state->policy;
+    SessionInitObjectPacket packet;
+    packet.objectID  = state->objectID;
+    packet.policy    = state->policy;
 
-    master->send( packet );
+    send( master.get(), packet );
     state->instState = Object::INST_INIT;
 }
             
@@ -550,7 +550,7 @@ CommandResult Session::_cmdGenIDs( Node* node, const Packet* pkg )
     SessionGenIDsReplyPacket reply( packet );
 
     reply.id = _masterPool.genIDs( packet->range );
-    node->send( reply );
+    send( node, reply );
     return COMMAND_HANDLED;
 }
 
@@ -602,7 +602,7 @@ CommandResult Session::_cmdGetIDMaster( Node* node, const Packet* pkg )
         }
     }
 
-    node->send( reply );
+    send( node, reply );
     return COMMAND_HANDLED;
 }
 
@@ -659,7 +659,7 @@ CommandResult Session::_cmdGetObjectMaster( Node* node, const Packet* pkg )
     }
 
     EQINFO << "Get object master reply " << &reply << endl;
-    node->send( reply );
+    send( node, reply );
     return COMMAND_HANDLED;
 }
 

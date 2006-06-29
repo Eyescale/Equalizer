@@ -5,6 +5,7 @@ PROGRAM = eqPly
 
 SOURCES = \
 	channel.cpp \
+	config.cpp \
 	initData.cpp \
 	main.cpp \
 	node.cpp \

@@ -120,7 +120,6 @@ void Server::releaseConfig( Config* config )
 void Server::_addConfig( Config* config )
 {
     EQASSERT( config->getID() != EQ_INVALID_ID );
-    config->_server = this;
     _configs[config->getID()] = config;
 }
 
@@ -136,6 +135,11 @@ eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Node* node,
     
     Config*      config     = Global::getNodeFactory()->createConfig();
     RefPtr<Node> localNode  = Node::getLocalNode();
+    
+    config->_appNodeID = packet->appNodeID;
+
+    if( !config->_appNode )
+        EQWARN << "Application node could not be connected" << endl;
 
     localNode->addSession( config, node, packet->configID, packet->name );
     return eqNet::COMMAND_HANDLED;

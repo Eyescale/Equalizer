@@ -210,12 +210,29 @@ namespace eqNet
                                            const void* data, 
                                            const uint64_t dataSize );
         /** 
-         * Sends a packet to the session's node.
+         * Send a packet to the session's server node.
          * 
          * @param packet the packet.
          * @return the success status of the transaction.
          */
-        bool send( const Packet& packet ) { return _server->send( packet ); }
+        bool send( SessionPacket& packet )
+            { 
+                packet.sessionID = _id;
+                return _server->send( packet );
+            }
+
+        /** 
+         * Send a packet to a node.
+         * 
+         * @param node the target node.
+         * @param packet the packet.
+         * @return the success status of the transaction.
+         */
+        void send( Node* node, SessionPacket& packet )
+            {
+                packet.sessionID = _id;
+                node->send(packet );
+            }
 
         /** The session's identifier. */
         uint32_t _id;
@@ -279,6 +296,13 @@ namespace eqNet
         eqBase::RefPtr<Node> _pollIDMaster( const uint32_t id );
 
         void _registerThreadObject( Object* object, const uint32_t id );
+
+        /** Sends a packet to the local receiver thread. */
+        void _sendLocal( SessionPacket& packet )
+            {
+                packet.sessionID = _id;
+                _localNode->send( packet );
+            }
 
         CommandResult _handleObjectCommand( Node* node, const Packet* packet );
         CommandResult   _instObject( GetObjectState* state );
