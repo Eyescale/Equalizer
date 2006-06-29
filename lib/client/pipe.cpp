@@ -10,7 +10,7 @@
 #include "nodeFactory.h"
 #include "packets.h"
 #include "object.h"
-#include "x11Connection.h"
+#include "X11Connection.h"
 #include "window.h"
 
 #include <sstream>
