@@ -12,18 +12,25 @@
 class FrameData : public eqNet::Object
 {
 public:
-    FrameData() : Object( TYPE_FRAMEDATA, eqNet::CMD_OBJECT_CUSTOM ),
-                  spin(0.) {}
+    FrameData() : Object( TYPE_FRAMEDATA, eqNet::CMD_OBJECT_CUSTOM )
+        {
+            bzero( &_data, sizeof( Data ));
+            _data.translation[2] = -3.;
+        }
 
     FrameData( const void* data, const uint64_t size ) 
             : Object( TYPE_FRAMEDATA, eqNet::CMD_OBJECT_CUSTOM )
         {
-            EQASSERT( size == sizeof( spin ));
-            spin = *(float*)data;
+            EQASSERT( size == sizeof( Data ));
+            _data = *(Data*)data;
             EQINFO << "New FrameData instance" << std::endl;
         }
-
-    float spin;
+    
+    struct Data
+    {
+        float rotation[2];
+        float translation[3];
+    } _data;
 
 protected:
     const void* getInstanceData( uint64_t* size )
@@ -31,14 +38,14 @@ protected:
 
     const void* pack( uint64_t* size )
         {
-            *size = sizeof( spin );
-            return &spin;
+            *size = sizeof( Data );
+            return &_data;
         }
 
     void unpack( const void* data, const uint64_t size )
         {
-            EQASSERT( size == sizeof( spin ));
-            spin = *(float*)data;
+            EQASSERT( size == sizeof( Data ));
+            _data = *(Data*)data;
         }
 };
 

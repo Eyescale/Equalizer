@@ -4,6 +4,7 @@
 #ifndef EQ_CONFIGEVENT_H
 #define EQ_CONFIGEVENT_H
 
+#include <eq/client/event.h>
 #include <eq/client/packets.h>
 
 namespace eq
@@ -26,9 +27,9 @@ namespace eq
     public:
         enum Type
         {
-            TYPE_MOUSE_MOTION,
-            TYPE_MOUSE_BUTTON_PRESS,
-            TYPE_MOUSE_BUTTON_RELEASE,
+            TYPE_POINTER_MOTION,
+            TYPE_POINTER_BUTTON_PRESS,
+            TYPE_POINTER_BUTTON_RELEASE,
             TYPE_KEY_PRESS,
             TYPE_KEY_RELEASE
         };
@@ -43,25 +44,14 @@ namespace eq
 
         union // event data: Move into subclass?
         {
-            struct
-            {
-                int x; // relative to screen
-                int y;
-                int w;
-                int h;
-            } resize;
+            ResizeEvent  resize;
 
-            struct
-            {
-                int x; // relative to config
-                int y;
-                // TODO button id
-            } mouseMotion, mouseButtonPress, mouseButtonRelease;
+            PointerEvent pointerMotion;
+            PointerEvent pointerButtonPress;
+            PointerEvent pointerButtonRelease;
 
-            struct
-            {
-                unsigned key; // atm config-system native key code
-            } keyPress, keyRelease;
+            KeyEvent     keyPress;
+            KeyEvent     keyRelease;
         };
     };
 

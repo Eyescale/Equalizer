@@ -4,8 +4,9 @@
 #ifndef EQ_GLXEVENTTHREAD_H
 #define EQ_GLXEVENTTHREAD_H
 
-#include "eventThread.h"
+#include <eq/client/eventThread.h>
 
+#include <eq/client/event.h>
 #include <eq/net/connectionSet.h>
 #include <eq/net/node.h>
 
@@ -48,6 +49,9 @@ namespace eq
         eqNet::ConnectionSet        _connections;
         eqBase::RefPtr<eqNet::Node> _localNode;
 
+        Window*      _lastPointerWindow;
+        PointerEvent _lastPointerEvent;
+
         enum
         {
             EVENT_END = 0,
@@ -59,7 +63,10 @@ namespace eq
         void _handleEvent();
         void   _handleCommand();
         void   _handleEvent( eqBase::RefPtr<X11Connection> connection );
-        int      _getKeyFromXEvent( XEvent& event );
+        int32_t  _getButtonState( XEvent& event );
+        int32_t  _getButtonAction( XEvent& event );
+        void     _computePointerDelta( PointerEvent &event );
+        int32_t  _getKey( XEvent& event );
 
         /** The command functions. */
         eqNet::CommandResult _cmdAddPipe( eqNet::Node*,

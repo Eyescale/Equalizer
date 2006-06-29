@@ -53,11 +53,11 @@ HEADER_SRC = \
 	client/config.h \
 	client/configEvent.h \
 	client/configParams.h \
+	client/event.h \
 	client/eventThread.h \
 	client/frustum.h \
 	client/global.h \
 	client/init.h \
-	client/keyCode.h \
 	client/node.h \
 	client/nodeFactory.h \
 	client/object.h \

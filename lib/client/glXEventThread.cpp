@@ -5,7 +5,7 @@
 
 #include "X11Connection.h"
 #include "commands.h"
-#include "keyCode.h"
+#include "event.h"
 #include "packets.h"
 #include "pipe.h"
 #include "window.h"
@@ -19,7 +19,8 @@ using namespace eqBase;
 using namespace std;
 
 GLXEventThread::GLXEventThread()
-        : eqNet::Base( CMD_GLXEVENTTHREAD_ALL, true )
+        : eqNet::Base( CMD_GLXEVENTTHREAD_ALL, true ),
+          _lastPointerWindow( NULL )
 {
     registerCommand( CMD_GLXEVENTTHREAD_ADD_PIPE, this, 
                      reinterpret_cast<CommandFcn>(
@@ -257,34 +258,60 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
                 break;
             }
 
-            // TODO: identify mouse button, compute delta since last event,
+            // TODO: compute delta since last event,
             // create channel event
             case MotionNotify:
-                event.type = WindowEvent::TYPE_MOUSE_MOTION;
-                event.mouseMotion.x = xEvent.xmotion.x;
-                event.mouseMotion.y = xEvent.xmotion.y;
+                event.type = WindowEvent::TYPE_POINTER_MOTION;
+                event.pointerMotion.x = xEvent.xmotion.x;
+                event.pointerMotion.y = xEvent.xmotion.y;
+                event.pointerButtonRelease.buttons = _getButtonState( xEvent );
+                event.pointerButtonRelease.button  = PTR_BUTTON_NONE;
+                if( _lastPointerWindow == window )
+                    _computePointerDelta( event.pointerMotion );
+                _lastPointerEvent  = event.pointerMotion;
+                _lastPointerWindow = window;
                 break;
 
             case ButtonPress:
-                event.type = WindowEvent::TYPE_MOUSE_BUTTON_PRESS;
-                event.mouseButtonPress.x = xEvent.xbutton.x;
-                event.mouseButtonPress.y = xEvent.xbutton.y;
+                event.type = WindowEvent::TYPE_POINTER_BUTTON_PRESS;
+                event.pointerButtonPress.x = xEvent.xbutton.x;
+                event.pointerButtonPress.y = xEvent.xbutton.y;
+                event.pointerButtonPress.buttons = _getButtonState( xEvent );
+                event.pointerButtonPress.button  = _getButtonAction( xEvent );
+
+                if( _lastPointerWindow == window )
+                {   // Reuse dx, dy from last (MotionNotify) event
+                    event.pointerButtonRelease.dx = _lastPointerEvent.dx;
+                    event.pointerButtonRelease.dy = _lastPointerEvent.dy;
+                }
+                _lastPointerEvent  = event.pointerButtonPress;
+                _lastPointerWindow = window;
                 break;
                 
             case ButtonRelease:
-                event.type = WindowEvent::TYPE_MOUSE_BUTTON_RELEASE;
-                event.mouseButtonPress.x = xEvent.xbutton.x;
-                event.mouseButtonPress.y = xEvent.xbutton.y;
+                event.type = WindowEvent::TYPE_POINTER_BUTTON_RELEASE;
+                event.pointerButtonRelease.x = xEvent.xbutton.x;
+                event.pointerButtonRelease.y = xEvent.xbutton.y;
+                event.pointerButtonRelease.buttons = _getButtonState( xEvent );
+                event.pointerButtonRelease.button  = _getButtonAction( xEvent );
+
+                if( _lastPointerWindow == window )
+                {   // Reuse dx, dy from last (MotionNotify) event
+                    event.pointerButtonRelease.dx = _lastPointerEvent.dx;
+                    event.pointerButtonRelease.dy = _lastPointerEvent.dy;
+                }
+                _lastPointerEvent  = event.pointerButtonRelease;
+                _lastPointerWindow = window;
                 break;
             
             case KeyPress:
                 event.type = WindowEvent::TYPE_KEY_PRESS;
-                event.keyPress.key = _getKeyFromXEvent( xEvent );
+                event.keyPress.key = _getKey( xEvent );
                 break;
                 
             case KeyRelease:
                 event.type = WindowEvent::TYPE_KEY_RELEASE;
-                event.keyPress.key = _getKeyFromXEvent( xEvent );
+                event.keyPress.key = _getKey( xEvent );
                 break;
                 
             default:
@@ -295,7 +322,53 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
     }
 }
 
-int GLXEventThread::_getKeyFromXEvent( XEvent& event )
+int32_t GLXEventThread::_getButtonState( XEvent& event )
+{
+    const int xState = event.xbutton.state;
+    int32_t   state  = 0;
+    
+    if( xState & Button1Mask ) state |= PTR_BUTTON1;
+    if( xState & Button2Mask ) state |= PTR_BUTTON2;
+    if( xState & Button3Mask ) state |= PTR_BUTTON3;
+    if( xState & Button4Mask ) state |= PTR_BUTTON4;
+    if( xState & Button5Mask ) state |= PTR_BUTTON5;
+    
+    switch( event.type )
+    {   // state is state before event
+        case ButtonPress:
+            state |= _getButtonAction( event );
+            break;
+
+        case ButtonRelease:
+            state &= ~_getButtonAction( event );
+            break;
+
+        default:
+            break;
+    }
+    return state;
+}
+
+int32_t GLXEventThread::_getButtonAction( XEvent& event )
+{
+    switch( event.xbutton.button )
+    {    
+        case Button1: return PTR_BUTTON1;
+        case Button2: return PTR_BUTTON2;
+        case Button3: return PTR_BUTTON3;
+        case Button4: return PTR_BUTTON4;
+        case Button5: return PTR_BUTTON5;
+        default: return PTR_BUTTON_NONE;
+    }
+}
+
+void GLXEventThread::_computePointerDelta( PointerEvent &event )
+{
+    event.dx = event.x - _lastPointerEvent.x;
+    event.dy = event.y - _lastPointerEvent.y;
+}
+
+int32_t GLXEventThread::_getKey( XEvent& event )
 {
     const KeySym key = XKeycodeToKeysym( event.xany.display, 
                                          event.xkey.keycode, 0);
@@ -448,6 +521,9 @@ eqNet::CommandResult GLXEventThread::_cmdRemoveWindow( eqNet::Node*,
     
     XSelectInput( display, drawable, 0l );
     XFlush( display );
+
+    if( _lastPointerWindow == window )
+        _lastPointerWindow = NULL;
 
     _requestHandler.serveRequest( packet->requestID, NULL );
     return eqNet::COMMAND_HANDLED;    

@@ -4,6 +4,7 @@
 #ifndef EQ_WINDOWEVENT_H
 #define EQ_WINDOWEVENT_H
 
+#include <eq/client/event.h>
 #include <eq/client/windowSystem.h>
 
 namespace eq
@@ -16,9 +17,9 @@ namespace eq
         {
             TYPE_EXPOSE,
             TYPE_RESIZE,
-            TYPE_MOUSE_MOTION,
-            TYPE_MOUSE_BUTTON_PRESS,
-            TYPE_MOUSE_BUTTON_RELEASE,
+            TYPE_POINTER_MOTION,
+            TYPE_POINTER_BUTTON_PRESS,
+            TYPE_POINTER_BUTTON_RELEASE,
             TYPE_KEY_PRESS,
             TYPE_KEY_RELEASE
         };
@@ -27,25 +28,14 @@ namespace eq
 
         union // event data
         {
-            struct
-            {
-                int32_t x; // relative to screen
-                int32_t y;
-                int32_t w;
-                int32_t h;
-            } resize;
+            ResizeEvent  resize;
 
-            struct
-            {
-                int32_t x; // relative to window
-                int32_t y;
-                // TODO button id
-            } mouseMotion, mouseButtonPress, mouseButtonRelease;
+            PointerEvent pointerMotion;
+            PointerEvent pointerButtonPress;
+            PointerEvent pointerButtonRelease;
 
-            struct
-            {
-                int32_t key; // atm window-system native key code
-            } keyPress, keyRelease;
+            KeyEvent     keyPress;
+            KeyEvent     keyRelease;
         };
 
         union // Native event

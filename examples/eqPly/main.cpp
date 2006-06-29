@@ -65,6 +65,7 @@ int main( int argc, char** argv )
     config->registerObject( initData, config->getLocalNode( ));
     config->registerObject( frameData, config->getLocalNode( ));
     initData->setFrameData( frameData );
+    config->setFrameData( frameData );
 
     // 5. init config
     eqBase::Clock clock;
@@ -76,16 +77,9 @@ int main( int argc, char** argv )
     clock.reset();
     while( config->isRunning( ))
     {
-        // 6a. update database
-        frameData->spin += .5;
-        const uint32_t version = frameData->commit();
-
-        // 6b. render frame
-        config->beginFrame( version );
+        config->beginFrame();
         // config->renderData(...);
         config->endFrame();
-
-        // 6c. process events
     }
     cerr << "Rendering took " << clock.getTimef() << " ms" << endl;
 

@@ -7,9 +7,9 @@
 #include "channel.h"
 #include "commands.h"
 #include "configEvent.h"
+#include "event.h"
 #include "eventThread.h"
 #include "global.h"
-#include "keyCode.h"
 #include "nodeFactory.h"
 #include "object.h"
 #include "packets.h"
@@ -650,22 +650,19 @@ void eq::Window::processEvent( const WindowEvent& event )
                                              event.resize.w, event.resize.h ));
             return;
 
-        case WindowEvent::TYPE_MOUSE_MOTION:
-            configEvent.type          = ConfigEvent::TYPE_MOUSE_MOTION;
-            configEvent.mouseMotion.x = event.mouseMotion.x;
-            configEvent.mouseMotion.y = event.mouseMotion.y;
+        case WindowEvent::TYPE_POINTER_MOTION:
+            configEvent.type          = ConfigEvent::TYPE_POINTER_MOTION;
+            configEvent.pointerMotion = event.pointerMotion;
             break;
             
-        case WindowEvent::TYPE_MOUSE_BUTTON_PRESS:
-            configEvent.type = ConfigEvent::TYPE_MOUSE_BUTTON_PRESS;
-            configEvent.mouseButtonPress.x = event.mouseButtonPress.x;
-            configEvent.mouseButtonPress.y = event.mouseButtonPress.y;
+        case WindowEvent::TYPE_POINTER_BUTTON_PRESS:
+            configEvent.type = ConfigEvent::TYPE_POINTER_BUTTON_PRESS;
+            configEvent.pointerButtonPress = event.pointerButtonPress;
             break;
 
-        case WindowEvent::TYPE_MOUSE_BUTTON_RELEASE:
-            configEvent.type = ConfigEvent::TYPE_MOUSE_BUTTON_RELEASE;
-            configEvent.mouseButtonRelease.x = event.mouseButtonRelease.x;
-            configEvent.mouseButtonRelease.y = event.mouseButtonRelease.y;
+        case WindowEvent::TYPE_POINTER_BUTTON_RELEASE:
+            configEvent.type = ConfigEvent::TYPE_POINTER_BUTTON_RELEASE;
+            configEvent.pointerButtonRelease = event.pointerButtonRelease;
             break;
 
         case WindowEvent::TYPE_KEY_PRESS:

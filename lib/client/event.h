@@ -1,8 +1,13 @@
 /* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
-   All rights reserved. */
+   All rights reserved. 
+ 
+   Various event-related definitions.
+*/
 
-#ifndef EQ_KEYCODE_H
-#define EQ_KEYCODE_H
+#ifndef EQ_EVENT_H
+#define EQ_EVENT_H
+
+#include <eq/base/base.h>
 
 namespace eq
 {
@@ -54,7 +59,44 @@ namespace eq
         KC_ALT_R,
         KC_VOID = 0xFFFFFF /* == XK_VoidSymbol */
     };
+
+    /**
+     * Mouse pointer button definition. The enums are defined as masks, so that
+     * the state of all buttons can be OR'd using the same enum.
+     */
+
+    enum PointerButton
+    {
+        PTR_BUTTON_NONE = 0,
+        PTR_BUTTON1     = 0x01,
+        PTR_BUTTON2     = 0x02,
+        PTR_BUTTON3     = 0x04,
+        PTR_BUTTON4     = 0x08,
+        PTR_BUTTON5     = 0x10
+    };
+
+    struct ResizeEvent
+    {
+        int32_t x; // relative to screen
+        int32_t y;
+        int32_t w;
+        int32_t h;
+    };
+    struct PointerEvent
+    {
+        int32_t x; // relative to entity (window)
+        int32_t y;
+        int32_t dx;
+        int32_t dy;
+        int32_t buttons; // current state of all buttons
+        int32_t button;  // fired button
+    };
+    struct KeyEvent
+    {
+        int32_t key; // KC_? for special keys, ascii code otherwise
+        // TODO modifier state
+    };
 }
 
-#endif // EQ_KEYCODE_H
+#endif // EQ_EVENT_H
 

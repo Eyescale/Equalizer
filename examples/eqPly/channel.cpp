@@ -47,8 +47,11 @@ void Channel::draw( const uint32_t frameID )
     
     glLightfv( GL_LIGHT0, GL_POSITION, lightpos );
 
-    glTranslatef( 0, 0, -2 );
-    glRotatef( _frameData->spin, 1, 1, 1 );
+    glTranslatef( _frameData->_data.translation[0],
+                  _frameData->_data.translation[1], 
+                  _frameData->_data.translation[2] );
+    glRotatef( _frameData->_data.rotation[0], 1, 0, 0 );
+    glRotatef( _frameData->_data.rotation[1], 0, 1, 0 );
 
     Node*        node  = (Node*)getNode();
     const Model* model = node->getModel();
