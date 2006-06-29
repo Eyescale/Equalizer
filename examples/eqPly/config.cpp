@@ -18,11 +18,14 @@ bool Config::handleEvent( eq::ConfigEvent* event )
             switch( event->keyPress.key )
             {
                 case 'q':
+                case eq::KC_ESCAPE:
                     _running = false;
                     return true;
             }
             break;
 
+        case eq::ConfigEvent::TYPE_MOUSE_MOTION:
+            
         default:
             break;
     }

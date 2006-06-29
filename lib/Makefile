@@ -57,6 +57,7 @@ HEADER_SRC = \
 	client/frustum.h \
 	client/global.h \
 	client/init.h \
+	client/keyCode.h \
 	client/node.h \
 	client/nodeFactory.h \
 	client/object.h \

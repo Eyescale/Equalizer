@@ -9,6 +9,7 @@
 #include "configEvent.h"
 #include "eventThread.h"
 #include "global.h"
+#include "keyCode.h"
 #include "nodeFactory.h"
 #include "object.h"
 #include "packets.h"
@@ -668,11 +669,15 @@ void eq::Window::processEvent( const WindowEvent& event )
             break;
 
         case WindowEvent::TYPE_KEY_PRESS:
+            if( event.keyPress.key == KC_VOID )
+                return;
             configEvent.type         = ConfigEvent::TYPE_KEY_PRESS;
             configEvent.keyPress.key = event.keyPress.key;
             break;
                 
         case WindowEvent::TYPE_KEY_RELEASE:
+            if( event.keyPress.key == KC_VOID )
+                return;
             configEvent.type           = ConfigEvent::TYPE_KEY_RELEASE;
             configEvent.keyRelease.key = event.keyRelease.key;
             break;

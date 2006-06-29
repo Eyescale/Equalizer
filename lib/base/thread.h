@@ -74,7 +74,7 @@ namespace eqBase
          *
          * @param retVal the return value of the thread.
          */
-        virtual void exit( ssize_t retVal = NULL );
+        virtual void exit( ssize_t retVal = 0 );
 
         /** 
          * Cancels (stops) the child thread.

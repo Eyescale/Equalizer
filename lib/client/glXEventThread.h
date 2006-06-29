@@ -59,6 +59,7 @@ namespace eq
         void _handleEvent();
         void   _handleCommand();
         void   _handleEvent( eqBase::RefPtr<X11Connection> connection );
+        int      _getKeyFromXEvent( XEvent& event );
 
         /** The command functions. */
         eqNet::CommandResult _cmdAddPipe( eqNet::Node*,

@@ -168,10 +168,10 @@ void Pipe::setCGLDisplayID( CGDirectDisplayID id )
     if( id )
     {
         const CGRect displayRect = CGDisplayBounds( id );
-        _pvp.x = displayRect.origin.x;
-        _pvp.y = displayRect.origin.y;
-        _pvp.w = displayRect.size.width;
-        _pvp.h = displayRect.size.height;
+        _pvp.x = (int32_t)displayRect.origin.x;
+        _pvp.y = (int32_t)displayRect.origin.y;
+        _pvp.w = (int32_t)displayRect.size.width;
+        _pvp.h = (int32_t)displayRect.size.height;
     }
     else
         _pvp.reset();

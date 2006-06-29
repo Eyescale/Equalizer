@@ -3,13 +3,16 @@
 
 #include "glXEventThread.h"
 
-#include <eq/client/X11Connection.h>
-#include <eq/client/commands.h>
-#include <eq/client/packets.h>
-#include <eq/client/pipe.h>
-#include <eq/client/window.h>
-#include <eq/client/windowEvent.h>
+#include "X11Connection.h"
+#include "commands.h"
+#include "keyCode.h"
+#include "packets.h"
+#include "pipe.h"
+#include "window.h"
+#include "windowEvent.h"
 #include <eq/net/pipeConnection.h>
+
+#include <X11/keysym.h>
 
 using namespace eq;
 using namespace eqBase;
@@ -276,14 +279,12 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
             
             case KeyPress:
                 event.type = WindowEvent::TYPE_KEY_PRESS;
-                event.keyPress.key = XKeycodeToKeysym( display, 
-                                                       xEvent.xkey.keycode, 0 );
+                event.keyPress.key = _getKeyFromXEvent( xEvent );
                 break;
                 
             case KeyRelease:
                 event.type = WindowEvent::TYPE_KEY_RELEASE;
-                event.keyPress.key = XKeycodeToKeysym( display, 
-                                                       xEvent.xkey.keycode, 0 );
+                event.keyPress.key = _getKeyFromXEvent( xEvent );
                 break;
                 
             default:
@@ -291,6 +292,62 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
                 continue;
         }
         window->processEvent( event );
+    }
+}
+
+int GLXEventThread::_getKeyFromXEvent( XEvent& event )
+{
+    const KeySym key = XKeycodeToKeysym( event.xany.display, 
+                                         event.xkey.keycode, 0);
+    switch( key )
+    {
+        case XK_Escape:    return KC_ESCAPE;    
+        case XK_BackSpace: return KC_BACKSPACE; 
+        case XK_Return:    return KC_RETURN;    
+        case XK_Tab:       return KC_TAB;       
+        case XK_Home:      return KC_HOME;       
+        case XK_Left:      return KC_LEFT;       
+        case XK_Up:        return KC_UP;         
+        case XK_Right:     return KC_RIGHT;      
+        case XK_Down:      return KC_DOWN;       
+        case XK_Page_Up:   return KC_PAGE_UP;    
+        case XK_Page_Down: return KC_PAGE_DOWN;  
+        case XK_End:       return KC_END;        
+        case XK_F1:        return KC_F1;         
+        case XK_F2:        return KC_F2;         
+        case XK_F3:        return KC_F3;         
+        case XK_F4:        return KC_F4;         
+        case XK_F5:        return KC_F5;         
+        case XK_F6:        return KC_F6;         
+        case XK_F7:        return KC_F7;         
+        case XK_F8:        return KC_F8;         
+        case XK_F9:        return KC_F9;         
+        case XK_F10:       return KC_F10;        
+        case XK_F11:       return KC_F11;        
+        case XK_F12:       return KC_F12;        
+        case XK_F13:       return KC_F13;        
+        case XK_F14:       return KC_F14;        
+        case XK_F15:       return KC_F15;        
+        case XK_F16:       return KC_F16;        
+        case XK_F17:       return KC_F17;        
+        case XK_F18:       return KC_F18;        
+        case XK_F19:       return KC_F19;        
+        case XK_F20:       return KC_F20;        
+        case XK_Shift_L:   return KC_SHIFT_L;    
+        case XK_Shift_R:   return KC_SHIFT_R;    
+        case XK_Control_L: return KC_CONTROL_L;  
+        case XK_Control_R: return KC_CONTROL_R;  
+        case XK_Alt_L:     return KC_ALT_L;      
+        case XK_Alt_R:     return KC_ALT_R;
+            
+        default: 
+            // 'Useful' Latin1 characters
+            if( (key >= XK_space && key <= XK_asciitilde ) ||
+                (key >= XK_nobreakspace && key <= XK_ydiaeresis))
+                return key;
+
+            EQWARN << "Unrecognized X11 key code " << key << endl;
+            return KC_VOID;
     }
 }
 

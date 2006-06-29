@@ -29,22 +29,22 @@ namespace eq
         {
             struct
             {
-                int x; // relative to screen
-                int y;
-                int w;
-                int h;
+                int32_t x; // relative to screen
+                int32_t y;
+                int32_t w;
+                int32_t h;
             } resize;
 
             struct
             {
-                int x; // relative to window
-                int y;
+                int32_t x; // relative to window
+                int32_t y;
                 // TODO button id
             } mouseMotion, mouseButtonPress, mouseButtonRelease;
 
             struct
             {
-                unsigned key; // atm window-system native key code
+                int32_t key; // atm window-system native key code
             } keyPress, keyRelease;
         };
 
