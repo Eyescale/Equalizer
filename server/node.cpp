@@ -241,7 +241,13 @@ ostream& eqs::operator << ( ostream& os, const Node* node )
     if( !node )
         return os;
     
-    os << disableFlush << "node" << endl;
+    os << disableFlush;
+    const Config* config = node->getConfig();
+    if( config && config->isApplicationNode( node ))
+        os << "appNode" << endl;
+    else
+        os << "node" << endl;
+
     os << "{" << endl << indent;
 
     const uint32_t nConnectionDescriptions = node->nConnectionDescriptions();

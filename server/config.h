@@ -142,7 +142,7 @@ namespace eqs
          * 
          * @param name the name of the application.
          */
-        void setAppName( const std::string& name )  { _appName = name; }
+        void setApplicationName( const std::string& name )  { _appName = name; }
 
         /** 
          * Add the config node running the application thread.
@@ -150,7 +150,9 @@ namespace eqs
          * @param node the application node.
          */
         void addApplicationNode( Node* node );
-
+        /** @return true if the node is the application node. */
+        bool isApplicationNode( const Node* node ) const
+            { return (_appNode == node); }
         /** 
          * Set the network node running the application thread.
          * 
@@ -231,7 +233,7 @@ namespace eqs
         void _construct();
 
         bool _init( const uint32_t initID );
-        bool   _initConnectNodes();
+        bool   _connectNodes();
         bool   _initNodes( const uint32_t initID );
         bool   _initPipes( const uint32_t initID );
         bool _exit();

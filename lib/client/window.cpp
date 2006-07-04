@@ -125,7 +125,7 @@ eqNet::CommandResult eq::Window::_cmdDestroyChannel(eqNet::Node* node,
 
     _removeChannel( channel );
     EQASSERT( channel->getRefCount() == 1 );
-    config->deregisterObject( channel );
+    config->removeRegisteredObject( channel, eqNet::Object::SHARE_NODE );
     
     return eqNet::COMMAND_HANDLED;
 }

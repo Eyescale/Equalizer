@@ -190,6 +190,7 @@ CGDirectDisplayID Pipe::getCGLDisplayID() const
 
 ssize_t Pipe::_runThread()
 {
+    EQINFO << "Entered pipe thread" << endl;
     Config* config = getConfig();
     EQASSERT( config );
 
@@ -251,7 +252,7 @@ eqNet::CommandResult Pipe::_cmdDestroyWindow( eqNet::Node* node, const eqNet::Pa
 
     _removeWindow( window );
     EQASSERT( window->getRefCount() == 1 );
-    config->deregisterObject( window );
+    config->removeRegisteredObject( window, eqNet::Object::SHARE_NODE );
 
     return eqNet::COMMAND_HANDLED;
 }

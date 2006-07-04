@@ -490,10 +490,8 @@ CommandResult Session::_instObject( GetObjectState* state )
             RefPtr<Node> master = _pollIDMaster( objectID );
             if( master.isValid( ))
             {
-                if( master != _localNode )
-                    _sendInitObject( state, master );
-                // else hope that the object's instanciation is pending
-
+                state->instState = Object::INST_GOTMASTER;
+                _sendInitObject( state, master );
                 return COMMAND_RESCHEDULE;
             }
 
@@ -799,7 +797,7 @@ CommandResult Session::_cmdGetObject( Node* node, const Packet* pkg )
             return COMMAND_RESCHEDULE;
 
         // mark pending instantion 
-        state->pending       = true;
+        state->pending        = true;
         _objectInstStates[id] = state;
     }
 

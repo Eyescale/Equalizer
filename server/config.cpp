@@ -295,7 +295,7 @@ bool Config::_init( const uint32_t initID )
         compound->init();
     }
 
-    if( !_initConnectNodes()  ||
+    if( !_connectNodes()  ||
         !_initNodes( initID ) ||
         !_initPipes( initID ) )
     {
@@ -324,7 +324,7 @@ static RefPtr<eqNet::Node> _createNode( Node* node )
     return netNode;
 }
 
-bool Config::_initConnectNodes()
+bool Config::_connectNodes()
 {
     for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {

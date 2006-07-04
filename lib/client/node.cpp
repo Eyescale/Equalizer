@@ -62,6 +62,8 @@ void Node::_removePipe( Pipe* pipe )
 
 ssize_t Node::_runThread()
 {
+    EQINFO << "Entered node thread" << endl;
+
     Config* config = getConfig();
     EQASSERT( config );
 
@@ -125,7 +127,7 @@ eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Node* node,
 
     _removePipe( pipe );
     EQASSERT( pipe->getRefCount() == 1 );
-    _config->deregisterObject( pipe );
+    _config->removeRegisteredObject( pipe, eqNet::Object::SHARE_NODE );
 
     return eqNet::COMMAND_HANDLED;
 }

@@ -26,7 +26,6 @@ typedef int socklen_t;
 // XXX move to client?
 #define EQ_NONE (-1)
 
-
 #define EQ_DUMP_CORE {((char*)0)[0] = 'a';}
 
 // assertions

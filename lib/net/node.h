@@ -493,8 +493,11 @@ namespace eqNet
          */
         bool unmapSession( Session* session );
 
+        /** @return the mapped session with the given identifier, or NULL. */
+        Session* getSession( const uint32_t id ) { return _sessions[id]; }
+
         /** 
-         * Adds a mapped session to this node.
+         * Adds an already mapped session to this node.
          * 
          * @param session the session.
          * @param server the node serving the session.

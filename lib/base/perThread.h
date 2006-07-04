@@ -13,6 +13,7 @@ namespace eqBase
      * Implements a thread-specific storage.
      * 
      * The size of the stored data has not to exceed sizeof(void*).
+     * OPT: using __thread storage where available might be benefitial.
      */
     template<typename T> class PerThread
     {
@@ -31,7 +32,7 @@ namespace eqBase
                 }
             }
 
-        PerThread<T>& operator = ( const T data )
+        PerThread<T>& operator = ( const T& data )
             { 
                 pthread_setspecific( _key, (const void*)data );
                 return *this; 

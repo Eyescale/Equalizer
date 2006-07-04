@@ -133,15 +133,21 @@ eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Node* node,
     EQINFO << "Handle create config " << packet << ", name " << packet->name 
          << endl;
     
-    Config*      config     = Global::getNodeFactory()->createConfig();
-    RefPtr<Node> localNode  = Node::getLocalNode();
-    
+    RefPtr<Node>    localNode  = Node::getLocalNode();
+    eqNet::Session* session    = localNode->getSession( packet->configID );
+    if( session )
+    {
+        EQASSERT( dynamic_cast<Config*>( session ));
+
+        Config* config = (Config*)session;
+        config->_appNodeID = packet->appNodeID;
+        return eqNet::COMMAND_HANDLED;
+    }
+ 
+    Config* config = Global::getNodeFactory()->createConfig();
     config->_appNodeID = packet->appNodeID;
-
-    if( !config->_appNode )
-        EQWARN << "Application node could not be connected" << endl;
-
     localNode->addSession( config, node, packet->configID, packet->name );
+
     return eqNet::COMMAND_HANDLED;
 }
 

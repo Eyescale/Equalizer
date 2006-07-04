@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "config.h"
@@ -155,7 +155,7 @@ eqNet::CommandResult Config::_cmdDestroyNode( eqNet::Node* Node,
 
     _removeNode( delNode );
     EQASSERT( delNode->getRefCount() == 1 );
-    deregisterObject( delNode );
+    removeRegisteredObject( delNode, eqNet::Object::SHARE_NODE );
 
     return eqNet::COMMAND_HANDLED;
 }

@@ -456,7 +456,7 @@ uint32_t Node::_generateSessionID()
 //----------------------------------------------------------------------
 ssize_t Node::_runReceiver()
 {
-    EQINFO << "Receiver started" << endl;
+    EQINFO << "Entered receiver thread" << endl;
 
     if( !getLocalNode( ))
         setLocalNode( this );
