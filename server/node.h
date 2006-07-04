@@ -23,7 +23,7 @@ namespace eqs
     /**
      * The node.
      */
-    class Node : public eqNet::Node
+    class Node : public eqNet::Object
     {
     public:
         /** 
@@ -36,9 +36,14 @@ namespace eqs
          */
         Node( const Node& from );
 
+        /** @name Data Access. */
+        //*{
         Config* getConfig() const { return _config; }
         Server* getServer() const
             { return _config ? _config->getServer() : NULL; }
+
+        eqBase::RefPtr<eqNet::Node> getNode() const { return _node; }
+        void setNode( eqBase::RefPtr<eqNet::Node> node ) { _node = node; }
 
         /** 
          * Adds a new pipe to this node.
@@ -95,7 +100,8 @@ namespace eqs
          *         <code>false</code> if not.
          */
         bool isUsed() const { return (_used!=0); }
-        
+        //*}
+
         /**
          * @name Operations
          */
@@ -204,29 +210,72 @@ namespace eqs
             { return _iAttributes[attr]; }
         //*}
 
-    protected:
-        /** @sa eqNet::Node::getProgramName */
-        virtual const std::string& getProgramName();
+        /** @sa eqNet::Node::send */
+        bool send( const eqNet::Packet& packet )
+            { return _node->send( packet ); }
+        /** @sa eqNet::Node::send */
+        bool send( eqNet::Packet& packet, const std::string& string )
+            { return _node->send( packet, string ); }
 
-        /** @sa eqNet::Node::getWorkDir */
-        virtual const std::string& getWorkDir();
+        /** 
+         * Adds a new description how this node can be reached.
+         * 
+         * @param cd the connection description.
+         */
+        void addConnectionDescription( 
+            eqBase::RefPtr<eqNet::ConnectionDescription> cd)
+            { _connectionDescriptions.push_back( cd ); }
+        
+        /** 
+         * Removes a connection description.
+         * 
+         * @param index the index of the connection description.
+         */
+        void removeConnectionDescription( const uint32_t index );
+
+        /** 
+         * Returns the number of stored connection descriptions. 
+         * 
+         * @return the number of stored connection descriptions. 
+         */
+        uint32_t nConnectionDescriptions() const 
+            { return _connectionDescriptions.size(); }
+
+        /** 
+         * Returns a connection description.
+         * 
+         * @param index the index of the connection description.
+         * @return the connection description.
+         */
+        eqBase::RefPtr<eqNet::ConnectionDescription> getConnectionDescription(
+            const uint32_t index ) const
+            { return _connectionDescriptions[index]; }
+
+    protected:
 
     private:
+        /** The parent config. */
+        Config* _config;
+        friend class Config;
+
         /** The vector of pipes belonging to this node. */
         std::vector<Pipe*> _pipes;
 
         /** Number of entitities actively using this node. */
         uint32_t _used;
 
-        /** The parent config. */
-        Config* _config;
-        friend class Config;
+        /** The network node on which this Equalizer node is running. */
+        eqBase::RefPtr<eqNet::Node> _node;
 
         /** String attributes. */
         std::string _sAttributes[SATTR_ALL];
 
         /** Int attributes. */
         int32_t _iAttributes[IATTR_ALL];
+
+        /** The list of descriptions on how this node is reachable. */
+        std::vector< eqBase::RefPtr<eqNet::ConnectionDescription> >
+            _connectionDescriptions;
 
         /** The request identifier for pending asynchronous operations. */
         uint32_t _pendingRequestID;

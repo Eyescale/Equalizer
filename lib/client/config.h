@@ -5,8 +5,6 @@
 #ifndef EQ_CONFIG_H
 #define EQ_CONFIG_H
 
-#include "client.h"
-
 #include <eq/base/base.h>
 #include <eq/base/requestHandler.h>
 #include <eq/client/commands.h>
@@ -127,15 +125,6 @@ namespace eq
          */
         virtual bool handleEvent( ConfigEvent* event ){ return false; }
         //*}
-        /** 
-         * Push a request from the receiver to the app thread to be handled
-         * asynchronously.
-         * 
-         * @param node the node sending the packet.
-         * @param packet the command packet.
-         */
-        void pushRequest( eqNet::Node* node, const eqNet::Packet* packet )
-            { ((eq::Client*)getLocalNode())->pushRequest( node, packet ); }
 
     private:
         friend class Server;

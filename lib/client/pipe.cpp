@@ -60,7 +60,8 @@ Pipe::Pipe()
 
 Pipe::~Pipe()
 {
-    delete _thread; 
+    delete _thread;
+    _thread = NULL;
 }
 
 void Pipe::_addWindow( Window* window )
@@ -219,7 +220,6 @@ ssize_t Pipe::_runThread()
         }
     }
 
-    _thread->join();
     return EXIT_SUCCESS;
 }
 

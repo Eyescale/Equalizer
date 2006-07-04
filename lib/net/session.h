@@ -228,7 +228,7 @@ namespace eqNet
          * @param packet the packet.
          * @return the success status of the transaction.
          */
-        void send( Node* node, SessionPacket& packet )
+        void send( eqBase::RefPtr<Node> node, SessionPacket& packet )
             {
                 packet.sessionID = _id;
                 node->send(packet );

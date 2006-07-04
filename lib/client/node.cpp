@@ -4,6 +4,7 @@
 
 #include "node.h"
 
+#include "client.h"
 #include "commands.h"
 #include "global.h"
 #include "nodeFactory.h"
@@ -26,17 +27,21 @@ Node::Node()
     registerCommand( CMD_NODE_DESTROY_PIPE, this, reinterpret_cast<CommandFcn>(
                          &eq::Node::_cmdDestroyPipe ));
     registerCommand( CMD_NODE_INIT, this, reinterpret_cast<CommandFcn>(
-                         &eq::Node::_pushRequest ));
+                         &eq::Node::_cmdInit ));
     registerCommand( REQ_NODE_INIT, this, reinterpret_cast<CommandFcn>(
                          &eq::Node::_reqInit ));
     registerCommand( CMD_NODE_EXIT, this, reinterpret_cast<CommandFcn>( 
                          &eq::Node::_pushRequest ));
     registerCommand( REQ_NODE_EXIT, this, reinterpret_cast<CommandFcn>( 
                          &eq::Node::_reqExit ));
+
+    _thread = new NodeThread( this );
 }
 
 Node::~Node()
 {
+    delete _thread;
+    _thread = NULL;
 }
 
 void Node::_addPipe( Pipe* pipe )
@@ -53,6 +58,41 @@ void Node::_removePipe( Pipe* pipe )
     
     _pipes.erase( iter );
     pipe->_node = NULL;
+}
+
+ssize_t Node::_runThread()
+{
+    Config* config = getConfig();
+    EQASSERT( config );
+
+    eqNet::Node::setLocalNode( config->getLocalNode( ));
+
+    eqNet::Node*   node;
+    eqNet::Packet* packet;
+
+    while( _thread->isRunning( ))
+    {
+        _requestQueue.pop( &node, &packet );
+        switch( config->dispatchPacket( node, packet ))
+        {
+            case eqNet::COMMAND_PROPAGATE:
+                EQWARN << "COMMAND_PROPAGATE returned, but nowhere to propagate"
+                       << endl;
+                break;
+
+            case eqNet::COMMAND_HANDLED:
+                break;
+
+            case eqNet::COMMAND_ERROR:
+                EQERROR << "Error handling command packet" << endl;
+                abort();
+
+            case eqNet::COMMAND_RESCHEDULE:
+                EQUNIMPLEMENTED;
+        }
+    }
+
+    return EXIT_SUCCESS;
 }
 
 //---------------------------------------------------------------------------
@@ -90,6 +130,17 @@ eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
+eqNet::CommandResult Node::_cmdInit(eqNet::Node* node, const eqNet::Packet* pkg)
+{
+    NodeInitPacket* packet = (NodeInitPacket*)pkg;
+    EQINFO << "handle node init (recv) " << packet << endl;
+
+    ((eq::Client*)_config->getLocalNode())->refUsed();
+    _thread->start();
+    _pushRequest( node, pkg );
+    return eqNet::COMMAND_HANDLED;
+}
+
 eqNet::CommandResult Node::_reqInit(eqNet::Node* node, const eqNet::Packet* pkg)
 {
     NodeInitPacket* packet = (NodeInitPacket*)pkg;
@@ -116,6 +167,8 @@ eqNet::CommandResult Node::_reqExit(eqNet::Node* node, const eqNet::Packet* pkg)
 
     NodeExitReplyPacket reply( packet );
     node->send( reply );
+    ((eq::Client*)_config->getLocalNode())->unrefUsed();
+    _thread->exit();
     return eqNet::COMMAND_HANDLED;
 }
 

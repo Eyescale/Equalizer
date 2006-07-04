@@ -52,8 +52,8 @@ namespace eqBase
         void disableHeader() { ++_noHeader; } // use counted variable to allow
         void enableHeader()  { --_noHeader; } //   nested enable/disable calls
 
-        void setLogInfo( const char* file, const int line )
-            { _file = file; _line = line; }
+        void setLogInfo( const char* subdir, const char* file, const int line )
+            { _file = std::string( subdir ) + '/' + file; _line = line; }
 
 	protected:
         virtual int_type overflow (int_type c) 
@@ -66,9 +66,6 @@ namespace eqBase
                     if( !_noHeader )
                     {
                         _stringStream << getpid()  << "." << pthread_self()<<" "
-#                   ifdef SUBDIR
-                                      << SUBDIR << "/" 
-#                   endif
                                       << _file << ":" << _line << " ";
 #                   ifndef NDEBUG
                         _stringStream << _clock.getMSf() << " ";
@@ -147,7 +144,8 @@ namespace eqBase
         static int level;
 
         /** The per-thread logger. */
-        static Log& instance( const char* file, const int line );
+        static Log& instance( const char* subdir, const char* file,
+                              const int line );
 
     private:
         LogBuffer _logBuffer; 
@@ -155,8 +153,8 @@ namespace eqBase
         Log( const Log& );
         Log& operator = ( const Log& );
 
-        void setLogInfo( const char* file, const int line )
-            { _logBuffer.setLogInfo( file, line ); }
+        void setLogInfo( const char* subdir, const char* file, const int line )
+            { _logBuffer.setLogInfo( subdir, file, line ); }
     };
 
     /** The ostream indent manipulator. */
@@ -191,18 +189,18 @@ namespace eqBase
     }
 }
 
-#ifdef WIN32
-#  define SUBDIR " "
+#ifndef SUBDIR
+#  define SUBDIR ""
 #endif
 
 #define EQERROR (eqBase::Log::level >= eqBase::LOG_ERROR) &&    \
-    eqBase::Log::instance( __FILE__, __LINE__ )
+    eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )
 #define EQWARN  (eqBase::Log::level >= eqBase::LOG_WARN)  &&    \
-    eqBase::Log::instance( __FILE__, __LINE__ )
+    eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )
 #define EQINFO  (eqBase::Log::level >= eqBase::LOG_INFO)  &&    \
-    eqBase::Log::instance( __FILE__, __LINE__ )
+    eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )
 #define EQVERB  (eqBase::Log::level >= eqBase::LOG_VERBATIM)  &&    \
-    eqBase::Log::instance( __FILE__, __LINE__ )
+    eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )
 
 #define LOG_MATRIX4x4( m ) endl \
  << "  " << m[0] << " " << m[4] << " " << m[8]  << " " << m[12] << " " << endl \

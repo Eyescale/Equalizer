@@ -414,6 +414,7 @@ bool eq::Window::initGLX()
     XEvent event;
 
     XIfEvent( display, &event, WaitForNotify, (XPointer)(drawable) );
+    XMoveResizeWindow( display, drawable, _pvp.x, _pvp.y, _pvp.w, _pvp.h );
     XFlush( display );
 
     // create context

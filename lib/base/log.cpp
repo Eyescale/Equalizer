@@ -39,12 +39,12 @@ int getLogLevel()
 #endif
 }
 
-Log& Log::instance( const char* file, const int line )
+Log& Log::instance( const char* subdir, const char* file, const int line )
 {
     if( !_logInstance.get( ))
         _logInstance = new Log();
 
-    _logInstance->setLogInfo( file, line );
+    _logInstance->setLogInfo( subdir, file, line );
     return *_logInstance.get();
 }
 

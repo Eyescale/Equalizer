@@ -7,6 +7,7 @@
 
 #include "commands.h"
 
+#include <eq/base/monitor.h>
 #include <eq/net/node.h>
 
 namespace eq
@@ -24,15 +25,11 @@ namespace eq
          */
         virtual ~Client();
 
-        /** 
-         * Push a request from the receiver to the app thread to be handled
-         * asynchronously. 
-         * 
-         * @param node the node sending the packet.
-         * @param packet the command packet.
-         */
-        void pushRequest( eqNet::Node* node, const eqNet::Packet* packet )
-            { _requestQueue.push( node, packet ); }
+        /** @name Referenced by node threads. */
+        //*{
+        void refUsed() { ++_used; }
+        void unrefUsed() { --_used; }
+        //*}
 
     protected:
         /** @sa eqNet::Node::clientLoop */
@@ -52,15 +49,7 @@ namespace eq
         virtual eqNet::Session* createSession();
 
     private:
-        /** The receiver->node thread request queue. */
-        eqNet::RequestQueue    _requestQueue;
-        bool                   _clientLoopRunning;
-
-        /** The command functions. */
-        eqNet::CommandResult _cmdStop( eqNet::Node* node,
-                                       const eqNet::Packet* packet );
-        eqNet::CommandResult _reqStop( eqNet::Node* node,
-                                       const eqNet::Packet* packet );
+        eqBase::Monitor<uint32_t> _used;
     };
 }
 

@@ -102,14 +102,14 @@ OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
 
 $(OBJECT_DIR)/%.h.gch : %.h
 	@mkdir -p $(@D)
-	$(CXX) -x c++-header $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)/$(<D)\" -c $< -o $@
+	$(CXX) -x c++-header $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
 
 $(OBJECT_DIR)/%.o : %.cpp
 	@mkdir -p $(@D)
 	@echo -n "$(@D)/" > $(OBJECT_DIR)/$*.d
 	@($(DEP_CXX) $(CXXFLAGS) -M -E $< >> \
 		$(OBJECT_DIR)/$*.d ) || rm $(OBJECT_DIR)/$*.d
-	$(CXX) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)/$(<D)\" -c $< -o $@
+	$(CXX) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
 
 %.cpp: $(OBJECT_DIR)/%d
 
@@ -130,7 +130,7 @@ endif
 ifndef PROGRAM
 ifdef VARIANT
 %.$(VARIANT) : %.cpp
-	$(CXX) $< $(CXXFLAGS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)/$(<D)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -o $@ 
+	$(CXX) $< $(CXXFLAGS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -o $@ 
 
 else # VARIANT
 

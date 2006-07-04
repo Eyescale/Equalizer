@@ -19,7 +19,7 @@ server
             {
                 window
                 {
-                    viewport [ 640 400 1280 800 ]
+                    viewport [ .25 .25 .5 .5 ]
                     channel { name "channel" }
                 }
             }

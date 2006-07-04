@@ -124,7 +124,7 @@ void Channel::_sendInit( const uint32_t initID )
     packet.vp         = _vp;
     
     send( packet, getName( ));
-    _state = STATE_INITIALISING;
+    _state = STATE_INITIALIZING;
 }
 
 bool Channel::syncInit()

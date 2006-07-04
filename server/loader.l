@@ -22,6 +22,7 @@ EQ_CONNECTION_LAUNCH_TIMEOUT    { return EQTOKEN_CONNECTION_LAUNCH_TIMEOUT; }
 EQ_CONNECTION_LAUNCH_COMMAND    { return EQTOKEN_CONNECTION_LAUNCH_COMMAND; }
 server                          { return EQTOKEN_SERVER; }
 config                          { return EQTOKEN_CONFIG; }
+appNode                         { return EQTOKEN_APPNODE; }
 node                            { return EQTOKEN_NODE; }
 pipe                            { return EQTOKEN_PIPE; }
 window                          { return EQTOKEN_WINDOW; }

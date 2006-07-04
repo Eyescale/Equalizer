@@ -143,28 +143,27 @@ namespace eqs
          * @param name the name of the application.
          */
         void setAppName( const std::string& name )  { _appName = name; }
-        
+
         /** 
-         * Set the node running the application thread.
+         * Add the config node running the application thread.
          * 
          * @param node the application node.
          */
-        void setApplicationNode( eqBase::RefPtr<eqNet::Node> node )
-            { _appNode = node; }
+        void addApplicationNode( Node* node );
 
         /** 
-         * Set the name of the render client executable.
+         * Set the network node running the application thread.
+         * 
+         * @param node the application node.
+         */
+        void setApplicationNode( eqBase::RefPtr<eqNet::Node> node );
+
+        /** 
+         * Set the name of the render client executable. 
          * 
          * @param rc the name of the render client executable.
          */
         void setRenderClient( const std::string& rc ){ _renderClient = rc; }
-
-        /** 
-         * Return the name of the render client executable.
-         * 
-         * @return the name of the render client executable.
-         */
-        const std::string& getRenderClient() const { return _renderClient; }
 
         /** 
          * Set the working directory for render client.
@@ -172,13 +171,6 @@ namespace eqs
          * @param workDir the working directory for the  render client.
          */
         void setWorkDir( const std::string& workDir ){ _workDir = workDir; }
-
-        /** 
-         * Return the working directory for render client.
-         *
-         * @return the working directory for the  render client.
-         */
-        const std::string& getWorkDir() const { return _workDir; }
 
     private:
         /** The eq server hosting the session. */
@@ -195,7 +187,10 @@ namespace eqs
         std::string _appName;
 
         /** The node running the application thread. */
-        eqBase::RefPtr<eqNet::Node> _appNode;
+        Node*                       _appNode;
+
+        /** The network node running the application thread. */
+        eqBase::RefPtr<eqNet::Node> _appNetNode;
 
         /** The name of the render client executable. */
         std::string _renderClient;
@@ -208,6 +203,13 @@ namespace eqs
 
         /** The last started frame, or 0. */
         uint32_t _frameNumber;
+
+        enum State
+        {
+            STATE_STOPPED,
+            STATE_INITIALIZED
+        }
+            _state;
 
         /** The command functions. */
         eqNet::CommandResult _cmdRequest( eqNet::Node* node,

@@ -40,6 +40,8 @@ Node::Node( const uint32_t nCommands )
           _id(true),
           _state(STATE_STOPPED),
           _launchID(EQ_INVALID_ID),
+          _programName( Global::getProgramName( )),
+          _workDir( Global::getWorkDir( )),
           _clientRunning(false),
           _nextConnectionRequestID(1)
 {
@@ -1174,13 +1176,13 @@ string Node::_createRemoteCommand()
     //     replacement += " ";
     // }
     
-    string program = getProgramName();
+    string program = _programName;
     if( program[0] != '/' )
-        program = getWorkDir() + '/' + program;
+        program = _workDir + '/' + program;
 
     stringStream << "'" << program << " --eq-listen=\"" 
                  << nodeDesc->toString() << "\" --eq-client \""
-                 << (long long)this << ":" << getWorkDir() << ":"
+                 << (long long)this << ":" << _workDir << ":"
                  << listenerDesc->toString() << "\"'";
 
     return stringStream.str();

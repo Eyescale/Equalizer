@@ -23,8 +23,6 @@ void Node::_construct()
     _config           = NULL;
     _pendingRequestID = EQ_INVALID_ID;
 
-    _autoLaunch       = true;
-
     registerCommand( eq::CMD_NODE_INIT_REPLY, this,reinterpret_cast<CommandFcn>(
                          &eqs::Node::_cmdInitReply ));
     registerCommand( eq::CMD_NODE_EXIT_REPLY, this,reinterpret_cast<CommandFcn>(
@@ -39,15 +37,21 @@ void Node::_construct()
 }
 
 Node::Node()
-        : eqNet::Node( eq::CMD_NODE_CUSTOM )
+        : eqNet::Object( eq::Object::TYPE_NODE, eq::CMD_NODE_CUSTOM )
 {
     _construct();
 }
 
 Node::Node( const Node& from )
-        : eqNet::Node( eq::CMD_NODE_CUSTOM )
+        : eqNet::Object( eq::Object::TYPE_NODE, eq::CMD_NODE_CUSTOM )
 {
     _construct();
+    _node = from._node;
+
+    for( int i=0; i<SATTR_ALL; ++i )
+        _sAttributes[i] = from._sAttributes[i];
+    for( int i=0; i<IATTR_ALL; ++i )
+        _iAttributes[i] = from._iAttributes[i];
 
     const uint32_t nConnectionDescriptions = from.nConnectionDescriptions();
     for( uint32_t i=0; i<nConnectionDescriptions; i++ )
@@ -67,7 +71,6 @@ Node::Node( const Node& from )
         addPipe( pipeClone );
     }
 }
-
 
 void Node::addPipe( Pipe* pipe )
 {
@@ -94,22 +97,6 @@ bool Node::removePipe( Pipe* pipe )
     pipe->_node = NULL; 
 
     return true;
-}
-
-const string& Node::getProgramName()
-{
-    const Config* config = getConfig();
-    EQASSERT( config );
-
-    return config->getRenderClient();
-}
-
-const string& Node::getWorkDir()
-{
-    const Config* config = getConfig();
-    EQASSERT( config );
-
-    return config->getWorkDir();
 }
 
 //===========================================================================
@@ -216,7 +203,7 @@ eqNet::Barrier* Node::getBarrier( const uint32_t height )
     }
 
     eqNet::Barrier* barrier = new eqNet::Barrier( height );
-    _config->registerObject( barrier, this );
+    _config->registerObject( barrier, _node );
 
     return barrier;
 }

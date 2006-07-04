@@ -52,6 +52,7 @@
 %token EQTOKEN_CONNECTION_LAUNCH_COMMAND
 %token EQTOKEN_SERVER
 %token EQTOKEN_CONFIG
+%token EQTOKEN_APPNODE
 %token EQTOKEN_NODE
 %token EQTOKEN_PIPE
 %token EQTOKEN_WINDOW
@@ -149,10 +150,15 @@ configAttribute:
     EQTOKEN_LATENCY UINTEGER  { config->setLatency( $2 ); }
 
 nodes: node | nodes node
-node: EQTOKEN_NODE '{' { node = loader->createNode(); }
-      connections
-      nodeAttributes
-      pipes '}' { config->addNode( node ); node = NULL; }
+node: appNode | otherNode
+otherNode: EQTOKEN_NODE '{' { node = loader->createNode(); }
+               connections
+               nodeAttributes
+               pipes '}' { config->addNode( node ); node = NULL; }
+appNode: EQTOKEN_APPNODE '{' { node = loader->createNode(); }
+            connections
+            nodeAttributes
+            pipes '}' { config->addApplicationNode( node ); node = NULL; }
 nodeAttributes: /*null*/ | nodeAttribute | nodeAttributes nodeAttribute
 nodeAttribute: /*TODO*/
 

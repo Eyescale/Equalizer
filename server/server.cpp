@@ -73,11 +73,6 @@ bool Server::run( int argc, char **argv )
     return stopListening();
 }
 
-RefPtr<eqNet::Node> Server::createNode( const CreateReason reason )
-{
-    return new Node( eq::CMD_NODE_CUSTOM );
-}
-
 void Server::handleDisconnect( Node* node )
 {
     Node::handleDisconnect( node );
@@ -161,6 +156,7 @@ eqNet::CommandResult Server::_reqChooseConfig( eqNet::Node* node, const eqNet::P
 
     Config* appConfig = new Config( *config );
     appConfig->setApplicationNode( node );
+
     mapConfig( appConfig );
 
     // TODO: move to open: appConfig->setAppName( appName );

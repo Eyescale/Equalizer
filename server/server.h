@@ -54,14 +54,14 @@ namespace eqs
             { unmapSession( (eqNet::Session*)config ); }
         
         /** 
-         * Adds a new config to this server.
+         * Add a new config to this server.
          * 
          * @param config the config.
          */
         void addConfig( Config* config );
 
         /** 
-         * Removes a config from this config.
+         * Remove a config from this config.
          * 
          * @param config the config
          * @return <code>true</code> if the config was removed, <code>false</code>
@@ -70,14 +70,14 @@ namespace eqs
         bool removeConfig( Config* config );
 
         /** 
-         * Returns the number of configs on this config.
+         * Return the number of configs on this config.
          * 
          * @return the number of configs on this config. 
          */
         uint32_t nConfigs() const { return _configs.size(); }
 
         /** 
-         * Gets a config.
+         * Get a config.
          * 
          * @param index the config's index. 
          * @return the config.
@@ -102,10 +102,6 @@ namespace eqs
         virtual eqNet::CommandResult handlePacket( eqNet::Node* node, 
                                                    const eqNet::Packet* packet);
         
-        /** @sa eqNet::Node::createNode */
-        virtual eqBase::RefPtr<eqNet::Node> createNode( const CreateReason
-                                                        reason );
-
         /** @sa eqNet::Node::handleDisconnect */
         virtual void handleDisconnect( eqNet::Node* node );
 

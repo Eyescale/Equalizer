@@ -73,24 +73,44 @@ namespace eq
 
         std::vector<Pipe*>     _pipes;
 
+        /** The receiver->node thread request queue. */
+        eqNet::RequestQueue    _requestQueue;
+
+        /** The node thread. */
+        class NodeThread : public eqBase::Thread
+        {
+        public:
+            NodeThread( Node* node ) 
+                    : eqBase::Thread( Thread::PTHREAD ),
+                      _node( node ) {}
+            virtual ssize_t run(){ return _node->_runThread(); }
+        private:
+            Node* _node;
+        };
+        NodeThread* _thread;
+
+        ssize_t _runThread();
+
         void _addPipe( Pipe* pipe );
         void _removePipe( Pipe* pipe );
 
         /** 
-         * Push a request from the receiver to the app thread to be handled
+         * Push a request from the receiver to the node thread to be handled
          * asynchronously.
          * 
          * @param node the node sending the packet.
          * @param packet the command packet.
          */
         void _pushRequest( eqNet::Node* node, const eqNet::Packet* packet )
-            { _config->pushRequest( node, packet ); }
+            { _requestQueue.push( node, packet ); }
 
         /** The command functions. */
         eqNet::CommandResult _cmdCreatePipe( eqNet::Node* node,
                                              const eqNet::Packet* packet );
         eqNet::CommandResult _cmdDestroyPipe( eqNet::Node* node,
                                               const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdInit( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
         eqNet::CommandResult _reqInit( eqNet::Node* node,
                                        const eqNet::Packet* packet );
         eqNet::CommandResult _reqExit( eqNet::Node* node,

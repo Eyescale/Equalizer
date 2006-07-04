@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "config.h"
@@ -18,6 +18,8 @@ void Config::_construct()
 {
     _latency     = 1;
     _frameNumber = 0;
+    _state       = STATE_STOPPED;
+    _appNode     = NULL;
 
     registerCommand( eq::CMD_CONFIG_INIT, this, reinterpret_cast<CommandFcn>(
                          &eqs::Config::_cmdRequest ));
@@ -48,8 +50,8 @@ Config::Config()
 
 Config::~Config()
 {
-    _server = NULL;
-    _appNode = NULL;
+    _server     = NULL;
+    _appNode    = NULL;
     _compounds.clear();
     _nodes.clear();
 }
@@ -74,6 +76,7 @@ Config::Config( const Config& from )
           _server( from._server )
 {
     _construct();
+    _appNetNode = from._appNetNode;
 
     const uint32_t nCompounds = from.nCompounds();
     for( uint32_t i=0; i<nCompounds; ++i )
@@ -91,7 +94,8 @@ Config::Config( const Config& from )
         eqs::Node* node      = from.getNode(i);
         eqs::Node* nodeClone = new eqs::Node( *node );
         
-        addNode( nodeClone );
+        (node == from._appNode) ? 
+            addApplicationNode( nodeClone ) : addNode( nodeClone );
 
         // replace channels in compounds
         const uint32_t nPipes = node->nPipes();
@@ -132,18 +136,14 @@ Config::Config( const Config& from )
 void Config::addNode( Node* node )
 {
     _nodes.push_back( node ); 
-
+    
     node->_config = this; 
     node->adjustLatency( _latency );
 }
 
 bool Config::removeNode( Node* node )
 {
-    vector<Node*>::iterator iter = _nodes.begin();
-    for( ; iter != _nodes.end(); ++iter )
-        if( (*iter) == node )
-            break;
-
+    vector<Node*>::iterator iter = find( _nodes.begin(), _nodes.end(), node );
     if( iter == _nodes.end( ))
         return false;
 
@@ -194,6 +194,23 @@ void Config::setLatency( const uint32_t latency )
          ++iter )
 
         (*iter)->adjustLatency( delta );
+}
+
+void Config::addApplicationNode( Node* node )
+{
+    EQASSERT( _state == STATE_STOPPED );
+    EQASSERT( !_appNode );
+
+    _appNode = node;
+    addNode( node );
+}
+
+void Config::setApplicationNode( eqBase::RefPtr<eqNet::Node> node )
+{
+    EQASSERT( _state == STATE_STOPPED );
+    EQASSERT( !_appNetNode );
+
+    _appNetNode = node;
 }
 
 // pushes the request to the main thread to be handled asynchronously
@@ -268,6 +285,7 @@ eqNet::CommandResult Config::_reqEndFrame( eqNet::Node* node,
 //---------------------------------------------------------------------------
 bool Config::_init( const uint32_t initID )
 {
+    EQASSERT( _state == STATE_STOPPED );
     _frameNumber = 0;
 
     const uint32_t nCompounds = this->nCompounds();
@@ -284,7 +302,26 @@ bool Config::_init( const uint32_t initID )
         _exit();
         return false;
     }
+
+    _state = STATE_INITIALIZED;
     return true;
+}
+
+static RefPtr<eqNet::Node> _createNode( Node* node )
+{
+    RefPtr<eqNet::Node> netNode = new eqNet::Node;
+
+    const uint32_t nConnectionDescriptions = node->nConnectionDescriptions();
+    for( uint32_t i=0; i<nConnectionDescriptions; i++ )
+    {
+        eqNet::ConnectionDescription* desc = 
+            node->getConnectionDescription(i).get();
+        
+        netNode->addConnectionDescription( 
+            new eqNet::ConnectionDescription( *desc ));
+    }
+
+    return netNode;
 }
 
 bool Config::_initConnectNodes()
@@ -295,12 +332,26 @@ bool Config::_initConnectNodes()
         if( !node->isUsed( ))
             continue;
 
-        if( !node->initConnect( ))
+        RefPtr<eqNet::Node> netNode;
+
+        if( node == _appNode )
+            netNode = _appNetNode;
+        else
         {
-            EQERROR << "Connection to " << node->getNodeID() << " failed." 
+            netNode = _createNode( node );
+            netNode->setAutoLaunch( true );
+            netNode->setProgramName( _renderClient );
+            netNode->setWorkDir( _workDir );
+        }
+
+        if( !netNode->initConnect( ))
+        {
+            EQERROR << "Connection to " << netNode->getNodeID() << " failed." 
                     << endl;
             return false;
         }
+
+        node->setNode( netNode );
     }
     return true;
 }
@@ -312,7 +363,7 @@ bool Config::_initNodes( const uint32_t initID )
 
     eq::ServerCreateConfigPacket createConfigPacket;
     createConfigPacket.configID  = _id;
-    createConfigPacket.appNodeID = _appNode->getNodeID();
+    createConfigPacket.appNodeID = _appNetNode->getNodeID();
 
     eq::ConfigCreateNodePacket createNodePacket;
     
@@ -322,10 +373,12 @@ bool Config::_initNodes( const uint32_t initID )
         if( !node->isUsed( ))
             continue;
         
-        if( !node->syncConnect( ))
+        RefPtr<eqNet::Node> netNode = node->getNode();
+
+        if( !netNode->syncConnect( ))
         {
-            EQERROR << "Connection of node " << (void*)node << " failed." 
-                    << endl;
+            EQERROR << "Connection of node " << netNode->getNodeID() 
+                    << " failed." << endl;
             success = false;
         }
         
@@ -337,7 +390,7 @@ bool Config::_initNodes( const uint32_t initID )
 
         registerObject( node, _server.get( ));
         createNodePacket.nodeID = node->getID();
-        send( node, createNodePacket );
+        send( netNode, createNodePacket );
 
         node->startInit( initID );
     }
@@ -408,6 +461,7 @@ bool Config::_initPipes( const uint32_t initID )
 
 bool Config::_exit()
 {
+    EQASSERT( _state == STATE_INITIALIZED );
 //     foreach compound
 //         call exit compound cb's
 //     foreach compound
@@ -424,6 +478,7 @@ bool Config::_exit()
     }
 
     _frameNumber = 0;
+    _state       = STATE_STOPPED;
     return cleanExit;
 }
 
@@ -482,7 +537,7 @@ bool Config::_exitNodes()
     for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
         Node* node = *iter;
-        if( node->getState() == eqNet::Node::STATE_STOPPED )
+        if( node->getNode()->getState() == eqNet::Node::STATE_STOPPED )
             continue;
 
         node->startExit();
@@ -493,8 +548,9 @@ bool Config::_exitNodes()
 
     for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
-        Node* node = *iter;
-        if( node->getState() == Node::STATE_STOPPED )
+        Node*               node    = *iter;
+        RefPtr<eqNet::Node> netNode = node->getNode();
+        if( netNode->getState() == eqNet::Node::STATE_STOPPED )
             continue;
 
         if( !node->syncExit( ))
@@ -504,8 +560,8 @@ bool Config::_exitNodes()
         }
 
         destroyNodePacket.nodeID = node->getID();
-        send( node, destroyNodePacket );
-        node->disconnect();
+        send( netNode, destroyNodePacket );
+        node->setNode( NULL );
         deregisterObject( node );
     }
     return success;
@@ -514,6 +570,7 @@ bool Config::_exitNodes()
 
 uint32_t Config::_beginFrame( const uint32_t frameID, vector<Node*>& nodes )
 {
+    EQASSERT( _state == STATE_INITIALIZED );
     ++_frameNumber;
     
     const uint32_t nCompounds = this->nCompounds();

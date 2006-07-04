@@ -29,7 +29,7 @@ namespace eqs
         enum State
         {
             STATE_STOPPED,       // initial     <----+
-            STATE_INITIALISING,  // init sent        |
+            STATE_INITIALIZING,  // init sent        |
             STATE_RUNNING,       // init successful  |
             STATE_STOPPING       // exit send   -----+
         };

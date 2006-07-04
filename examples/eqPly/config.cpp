@@ -24,7 +24,7 @@ uint32_t Config::beginFrame()
     _frameData->_data.rotation[1] += .01 * _spinX;
     const uint32_t version = _frameData->commit();
 
-    eq::Config::beginFrame( version );
+    return eq::Config::beginFrame( version );
 }
 
 bool Config::handleEvent( eq::ConfigEvent* event )

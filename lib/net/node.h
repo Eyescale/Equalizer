@@ -60,6 +60,8 @@ namespace eqNet
          */
         Node( const uint32_t nCommands = CMD_NODE_CUSTOM );
 
+        /** @name Data Access. */
+        //*{
         /** 
          * Returns the state of this node.
          * 
@@ -68,6 +70,22 @@ namespace eqNet
         State getState()    const { return _state; }
         bool  isConnected() const { return (_state == STATE_CONNECTED); }
 
+        void setAutoLaunch( const bool autoLaunch ) { _autoLaunch = autoLaunch;}
+
+        /** 
+         * Set the program name to start this node.
+         * 
+         * @param name the program name to start this node.
+         */
+        void setProgramName( const std::string& name ) { _programName = name; }
+
+        /** 
+         * Set the working directory to start this node.
+         * 
+         * @param name the working directory to start this node.
+         */
+        void setWorkDir( const std::string& name ) { _workDir = name; }
+        //*}
         /**
          * @name State Changes
          *
@@ -210,7 +228,7 @@ namespace eqNet
          */
         //*{
         /** 
-         * Sets the local node for this thread.
+         * Sets the local node for this execution thread.
          * 
          * The local node is the listening node to which newly opened nodes
          * will be connected. It is thread-specific and will be set by default
@@ -573,22 +591,6 @@ namespace eqNet
         virtual eqBase::RefPtr<Node> createNode( const CreateReason reason )
             { return new Node(); }
 
-        /** 
-         * Returns the program name to start this node.
-         * 
-         * @return the program name to start this node.
-         */
-        virtual const std::string& getProgramName() 
-            { return Global::getProgramName(); }
-
-        /** 
-         * Returns the working directory to start this node.
-         * 
-         * @return the working directory to start this node.
-         */
-        virtual const std::string& getWorkDir() 
-            { return Global::getWorkDir(); }
-
         CommandResult _cmdStop( Node* node, const Packet* packet );
 
     private:
@@ -629,6 +631,11 @@ namespace eqNet
         /** The list of descriptions on how this node is reachable. */
         std::vector< eqBase::RefPtr<ConnectionDescription> >
             _connectionDescriptions;
+
+        /** The name of the program to autolaunch. */
+        std::string _programName;
+        /** The directory of the program to autolaunch. */
+        std::string _workDir;
 
         /** true as long as the client loop is active. */
         bool _clientRunning;
