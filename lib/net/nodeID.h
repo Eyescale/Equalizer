@@ -7,7 +7,7 @@
 
 #include <eq/base/hash.h>
 #if defined (NetBSD) || defined (FreeBSD)
-#  include <sys/uuid.h>
+#  include <uuid.h>
 #else
 #  include <uuid/uuid.h>
 #endif
