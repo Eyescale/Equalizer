@@ -6,7 +6,11 @@
 #define EQNET_NODEID_H
 
 #include <eq/base/hash.h>
-#include <uuid/uuid.h>
+#ifdef NetBSD
+#  include <sys/uuid.h>
+#else
+#  include <uuid/uuid.h>
+#endif
 
 namespace eqNet
 {
