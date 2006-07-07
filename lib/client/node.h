@@ -8,8 +8,6 @@
 #include "commands.h"
 #include "config.h"
 
-#include <eq/base/gate.h>
-
 namespace eq
 {
     class Config;
