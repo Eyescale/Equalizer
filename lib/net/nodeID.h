@@ -6,7 +6,7 @@
 #define EQNET_NODEID_H
 
 #include <eq/base/hash.h>
-#ifdef NetBSD
+#if defined (NetBSD) || defined (FreeBSD)
 #  include <sys/uuid.h>
 #else
 #  include <uuid/uuid.h>
