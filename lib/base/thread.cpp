@@ -8,7 +8,9 @@
 
 #include <errno.h>
 #include <pthread.h>
+#include <signal.h>
 #include <strings.h>
+#include <sys/types.h>
 #include <sys/wait.h>
 
 using namespace eqBase;
