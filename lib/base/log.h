@@ -130,7 +130,7 @@ namespace eqBase
     class Log : public std::ostream 
     {
     public: 
-        Log() : std::ios(0), std::ostream( &_logBuffer ), _logBuffer(std::cout)
+        Log() : std::ostream( &_logBuffer ), _logBuffer(std::cout)
             {}
         virtual ~Log() { _logBuffer.pubsync(); }
 
