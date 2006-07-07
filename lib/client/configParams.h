@@ -5,6 +5,7 @@
 #ifndef EQ_CONFIG_PARAMS_H
 #define EQ_CONFIG_PARAMS_H
 
+#include <eq/base/base.h>
 #include <string>
 
 namespace eq
