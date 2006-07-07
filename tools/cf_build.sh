@@ -7,6 +7,6 @@
 cd $HOME/Software/build/equalizer/trunk/src
 exec 1>`hostname`.make
 exec 2>&1
-svn up || exit
-make clean || mail -s "Equalizer build failure on `hostname`" $1 < `hostname`.make
-make || mail -s "Equalizer build failure on `hostname`" $1 < `hostname`.make
+svn up || mail -s "Equalizer build failure (svn update) on `hostname`" $1 < `hostname`.make
+make clean || mail -s "Equalizer build failure (make clean) on `hostname`" $1 < `hostname`.make
+make || mail -s "Equalizer build failure (make) on `hostname`" $1 < `hostname`.make
