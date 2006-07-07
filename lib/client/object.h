@@ -10,7 +10,7 @@
 namespace eq
 {
     /** just for the type enum right now. */
-    class Object : protected eqNet::Object
+    class Object
     {
     public:
         enum Type
