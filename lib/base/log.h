@@ -5,6 +5,7 @@
 #ifndef EQBASE_LOG_H
 #define EQBASE_LOG_H
 
+#include <assert.h>
 #include <iostream>
 #include <pthread.h>
 #include <sstream>
