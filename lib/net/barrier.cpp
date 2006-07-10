@@ -4,10 +4,13 @@
 
 #include "barrier.h"
 
+#include "connection.h"
+#include "node.h"
 #include "packets.h"
 #include "session.h"
 
 using namespace eqNet;
+using namespace eqBase;
 using namespace std;
 
 void Barrier::_construct()
@@ -77,13 +80,12 @@ void Barrier::enter()
             _mutex.set();
             _masterEntered = false;
 
-            EQASSERT( _slaves.size() == _height-1 );
+            EQASSERT( _enteredNodes.size() == _height-1 );
 
-            BarrierEnterReplyPacket packet( getSession()->getID(), getID( ));
-            for( uint32_t i=0; i<_height-1; ++i )
-                _slaves[i]->send( packet );
+            BarrierEnterReplyPacket packet;
+            Connection::send< RefPtr<Node> >( _enteredNodes, packet );
             
-            _slaves.clear();
+            _enteredNodes.clear();
             _leaveNotify.unset();
             _mutex.unset();
             EQVERB << "master left" << endl;
@@ -98,9 +100,9 @@ void Barrier::enter()
     eqBase::RefPtr<Node> master = getSession()->getIDMaster( getID( ));
     EQASSERT( master.isValid( ));
 
-    BarrierEnterPacket packet( getSession()->getID(), getID( ));
+    BarrierEnterPacket packet;
+    send( master, packet );
     
-    master->send( packet );
     _slaveNotify.set();
     EQVERB << "slave left" << endl;
 }
@@ -113,17 +115,17 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
     if( _waitForLeave )
     {
         _waitForLeave = false;
-         // blocks until leaves have been send to ensure thread-safety for the
-         // _slaves vector. Otherwise we might re-enter before everybody is
-         // unlocked.
-         // Not perfect performance-wise, since receiver thread is
-         // blocked until the leave packets have been sent.
+        // blocks until leaves have been send to ensure thread-safety for the
+        // _enteredNodes vector. Otherwise we might re-enter before everybody
+        // is unlocked.
+        // Not perfect performance-wise, since receiver thread is
+        // blocked until the leave packets have been sent.
         _leaveNotify.set();
     }
 
-    _slaves.push_back( node );
+    _enteredNodes.push_back( node );
 
-    if( _slaves.size() == _height-1 )
+    if( _enteredNodes.size() == _height-1 )
     {
         _masterNotify.unset();
         _waitForLeave = true; // sync before next enter

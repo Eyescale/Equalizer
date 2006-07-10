@@ -604,7 +604,7 @@ bool Node::_handleRequest( Node* node )
     size -= sizeof( size );
 
     char*      ptr     = (char*)packet + sizeof(size);
-    const bool gotData = node->recv( ptr, size );
+    const bool gotData = node->_connection->recv( ptr, size );
     EQASSERT( gotData );
 
     const CommandResult result = dispatchPacket( node, packet );

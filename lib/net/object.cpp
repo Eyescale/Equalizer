@@ -62,6 +62,39 @@ Object::~Object()
     }
 }
 
+bool Object::send( eqBase::RefPtr<Node> node, ObjectPacket& packet )
+{
+    EQASSERT( _session ); EQASSERT( _id != EQ_INVALID_ID );
+    packet.sessionID = _session->getID();
+    packet.objectID  = _id;
+    return node->send( packet );
+}
+
+bool Object::send( eqBase::RefPtr<Node> node, ObjectPacket& packet, 
+                   const std::string& string )
+{
+    EQASSERT( _session ); EQASSERT( _id != EQ_INVALID_ID );
+    packet.sessionID = _session->getID();
+    packet.objectID  = _id;
+    return node->send( packet, string );
+}
+
+bool Object::send( NodeVector& nodes, ObjectPacket& packet )
+{
+    EQASSERT( _session ); EQASSERT( _id != EQ_INVALID_ID );
+    packet.sessionID = _session->getID();
+    packet.objectID  = _id;
+    return Connection::send( nodes, packet );
+}
+bool Object::send( NodeVector nodes, ObjectPacket& packet, const void* data,
+                   const uint64_t size )
+{
+    EQASSERT( _session ); EQASSERT( _id != EQ_INVALID_ID );
+    packet.sessionID = _session->getID();
+    packet.objectID  = _id;
+    return Connection::send( nodes, packet, data, size );
+}
+
 void Object::instanciateOnNode( RefPtr<Node> node, 
                                 const Object::SharePolicy policy )
 {
@@ -202,17 +235,13 @@ uint32_t Object::commit()
     _instanceData.push_front( instanceData );
 
     // send delta to subscribed slaves
-    vector< eqBase::RefPtr<Node> >& slaves = getSlaves();
-    ObjectSyncPacket       packet( _session->getID(), getID( ));
+    const NodeVector& slaves = getSlaves();
+    ObjectSyncPacket  packet;
 
     packet.version   = _version;
     packet.deltaSize = deltaSize;
 
-    // OPT: packet is re-assembled for each slave!
-    for( vector< eqBase::RefPtr<Node> >::iterator iter = slaves.begin();
-         iter != slaves.end(); ++iter )
-        
-        (*iter)->send( packet, delta, deltaSize );
+    send( slaves, packet, delta, deltaSize );
 
     releasePackData( delta );
     EQVERB << "Committed version " << _version << ", id " << getID() << endl;

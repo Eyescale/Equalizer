@@ -232,7 +232,7 @@ eqNet::CommandResult Channel::_reqInit( eqNet::Node* node,
     reply.near   = _near;
     reply.far    = _far;
     reply.pvp    = _pvp;
-    node->send( reply );
+    send( node, reply );
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -245,7 +245,7 @@ eqNet::CommandResult Channel::_reqExit( eqNet::Node* node,
     exit();
 
     ChannelExitReplyPacket reply( packet );
-    node->send( reply );
+    send( node, reply );
     return eqNet::COMMAND_HANDLED;
 }
 

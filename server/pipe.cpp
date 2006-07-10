@@ -88,9 +88,9 @@ void Pipe::startInit( const uint32_t initID )
 {
     _sendInit( initID );
 
-    Config* config = getConfig();
-    eq::PipeCreateWindowPacket createWindowPacket( config->getID(),
-                                                   getID( ));
+    Config*                    config = getConfig();
+    eq::PipeCreateWindowPacket createWindowPacket;
+
     const int nWindows = _windows.size();
     for( int i=0; i<nWindows; ++i )
     {
@@ -111,7 +111,7 @@ void Pipe::_sendInit( const uint32_t initID )
 {
     EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
-    eq::PipeInitPacket packet( getSession()->getID(), getID( ));
+    eq::PipeInitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     packet.initID     = initID;
@@ -170,7 +170,7 @@ void Pipe::_sendExit()
 {
     EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
-    eq::PipeExitPacket packet( getSession()->getID(), getID( ));
+    eq::PipeExitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     _send( packet );
@@ -184,8 +184,8 @@ bool Pipe::syncExit()
     _pendingRequestID = EQ_INVALID_ID;
 
     Config* config = getConfig();
-    eq::PipeDestroyWindowPacket destroyWindowPacket( config->getID(), 
-                                                     getID( ));
+    eq::PipeDestroyWindowPacket destroyWindowPacket;
+
     const int nWindows = _windows.size();
     for( int i=0; i<nWindows; ++i )
     {
@@ -210,7 +210,7 @@ bool Pipe::syncExit()
 //---------------------------------------------------------------------------
 void Pipe::update( const uint32_t frameID )
 {
-    eq::PipeUpdatePacket updatePacket( getSession()->getID(), getID( ));
+    eq::PipeUpdatePacket updatePacket;
     updatePacket.frameID = frameID;
     _send( updatePacket );
 
@@ -222,7 +222,7 @@ void Pipe::update( const uint32_t frameID )
             window->update( frameID );
     }
 
-    eq::PipeFrameSyncPacket syncPacket( getSession()->getID(), getID( ));
+    eq::PipeFrameSyncPacket syncPacket;
     syncPacket.frameID = frameID;
     _send( syncPacket );
 }

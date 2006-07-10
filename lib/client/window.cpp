@@ -148,7 +148,7 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
 
     if( !reply.result )
     {
-        node->send( reply );
+        send( node, reply );
         return eqNet::COMMAND_HANDLED;
     }
 
@@ -162,7 +162,7 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
                 EQERROR << "init() did not provide a drawable and context" 
                         << endl;
                 reply.result = false;
-                node->send( reply );
+                send( node, reply );
                 return eqNet::COMMAND_HANDLED;
             }
             break;
@@ -173,7 +173,7 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
             {
                 EQERROR << "init() did not provide an OpenGL context" << endl;
                 reply.result = false;
-                node->send( reply );
+                send( node, reply );
                 return eqNet::COMMAND_HANDLED;
             }
             // TODO: pvp
@@ -184,7 +184,7 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
     }
 
     reply.pvp = _pvp;
-    node->send( reply );
+    send( node, reply );
 
     EventThread* thread = EventThread::get( windowSystem );
     thread->addWindow( this );
@@ -204,7 +204,7 @@ eqNet::CommandResult eq::Window::_reqExit( eqNet::Node* node,
     exit();
 
     WindowExitReplyPacket reply( packet );
-    node->send( reply );
+    send( node, reply );
     return eqNet::COMMAND_HANDLED;
 }
 

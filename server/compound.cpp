@@ -376,8 +376,7 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
     const Channel*           iChannel = compound->_inherit.channel;
     const eq::PixelViewport& pvp      = iChannel->getPixelViewport();
 
-    eq::ChannelDrawPacket drawPacket( channel->getSession()->getID(), 
-                                      channel->getID( ));
+    eq::ChannelDrawPacket drawPacket;
 
     drawPacket.context.hints      = HINT_BUFFER;
     drawPacket.context.drawBuffer = GL_BACK;
@@ -388,8 +387,7 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
     if( !compound->_parent || 
         compound->_parent && compound->_parent->_data.channel != channel )
     {
-        eq::ChannelClearPacket clearPacket( channel->getSession()->getID(), 
-                                            channel->getID( ));
+        eq::ChannelClearPacket clearPacket;
         
         clearPacket.context.hints      = HINT_BUFFER;
         clearPacket.context.drawBuffer = drawPacket.context.drawBuffer;

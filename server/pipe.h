@@ -218,7 +218,8 @@ namespace eqs
         /** common code for all constructors */
         void _construct();
 
-        void _send( const eqNet::Packet& packet ){ _node->send( packet ); }
+        void _send( eqNet::ObjectPacket& packet )
+            { send( _node->getNode(), packet ); }
 
         void _sendInit( const uint32_t initID );
         void _sendExit();

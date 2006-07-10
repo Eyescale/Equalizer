@@ -22,9 +22,10 @@ struct DataPacket : public NodePacket
         {
             command  = CMD_NODE_CUSTOM;
             size     = sizeof( DataPacket );
+            data[0]  = '\0';
         }
     
-    uint32_t nBytes;
+    char     data[8];
 };
 
 class Server : public Node
@@ -42,27 +43,8 @@ protected:
             TEST( pkg->command == CMD_NODE_CUSTOM );
 
             DataPacket* packet = (DataPacket*)pkg;
-
-            uint64_t nBytes = packet->nBytes;
-            char*    data   = (char*)alloca( nBytes );
-
-            if( !node->recv( data, nBytes ))
-                exit( EXIT_FAILURE );
-
-            EQASSERT( data[nBytes-1] == '\0' );
-            cerr << "Server received: " << data << endl;
+            cerr << "Server received: " << packet->data << endl;
             lock.unset();
-        }
-};
-
-class Client : public Node
-{
-public:
-    void send( RefPtr<Node> toNode, const char* string )
-        {
-            DataPacket packet;
-            packet.nBytes = strlen(string)+1;
-            TEST( toNode->send( packet, string ));
         }
 };
 
@@ -82,8 +64,8 @@ int main( int argc, char **argv )
     TEST( connection->listen( ));
     TEST( server.listen( connection ));
 
-    Client client;
-    TEST( client.listen( ));
+    RefPtr<eqNet::Node> client = new eqNet::Node;
+    TEST( client->listen( ));
 
     RefPtr<Node> serverProxy = new Node;
 
@@ -91,8 +73,13 @@ int main( int argc, char **argv )
     serverProxy->addConnectionDescription( connDesc );
 
     const char message[] = "Don't Panic!";
-    client.send( serverProxy, message );
+    DataPacket packet;
+    serverProxy->send( packet, message );
 
     lock.set();
+    TEST( serverProxy->getRefCount() == 1 );
     serverProxy = NULL;
+
+    TEST( client->getRefCount() == 1 );
+    client      = NULL;
 }

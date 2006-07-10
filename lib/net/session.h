@@ -5,12 +5,12 @@
 #ifndef EQNET_SESSION_H
 #define EQNET_SESSION_H
 
-#include "base.h"
-#include "commands.h"
-#include "global.h"
-#include "idHash.h"
-#include "node.h"
-#include "object.h"
+#include <eq/net/base.h>
+#include <eq/net/commands.h>
+#include <eq/net/global.h>
+#include <eq/net/idHash.h>
+#include <eq/net/node.h>
+#include <eq/net/object.h>
 
 #include <eq/base/base.h>
 #include <eq/base/idPool.h>

@@ -148,8 +148,8 @@ void Window::startInit( const uint32_t initID )
     _sendInit( initID );
 
     Config* config = getConfig();
-    eq::WindowCreateChannelPacket createChannelPacket( config->getID(), 
-                                                       getID( ));
+    eq::WindowCreateChannelPacket createChannelPacket;
+
     const int nChannels = _channels.size();
     for( int i=0; i<nChannels; ++i )
     {
@@ -170,7 +170,7 @@ void Window::_sendInit( const uint32_t initID )
 {
     EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
-    eq::WindowInitPacket packet( getSession()->getID(), getID() );
+    eq::WindowInitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
 
     packet.requestID = _pendingRequestID;
@@ -229,7 +229,7 @@ void Window::_sendExit()
 {
     EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
-    eq::WindowExitPacket packet( getSession()->getID(), getID() );
+    eq::WindowExitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     _send( packet );
@@ -243,8 +243,7 @@ bool Window::syncExit()
     _pendingRequestID = EQ_INVALID_ID;
     
     Config* config = getConfig();
-    eq::WindowDestroyChannelPacket destroyChannelPacket( config->getID(), 
-                                                         getID( ));
+    eq::WindowDestroyChannelPacket destroyChannelPacket;
 
     const int nChannels = _channels.size();
     for( int i=0; i<nChannels; ++i )
@@ -271,7 +270,7 @@ bool Window::syncExit()
 void Window::update( const uint32_t frameID )
 {
     // TODO: make current window
-    eq::WindowStartFramePacket startPacket(  getSession()->getID(), getID( ));
+    eq::WindowStartFramePacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.makeCurrent = _pipe->nWindows() > 1 ? true : false;
     _send( startPacket );
@@ -286,7 +285,7 @@ void Window::update( const uint32_t frameID )
 
     _updateSwap();
 
-    eq::WindowEndFramePacket endPacket(  getSession()->getID(), getID( ));
+    eq::WindowEndFramePacket endPacket;
     endPacket.frameID = frameID;
     _send( endPacket );
 }
@@ -314,8 +313,7 @@ void Window::_updateSwap()
 
             EQASSERT( _swapMaster->_swapBarrier );
 
-            eq::WindowSwapWithBarrierPacket packet( getSession()->getID(), 
-                                                    getID( ));
+            eq::WindowSwapWithBarrierPacket packet;
             packet.barrierID = _swapMaster->_swapBarrier->getID();
             _send( packet );
             return;
@@ -325,7 +323,7 @@ void Window::_updateSwap()
                << endl;
     }
 
-    eq::WindowSwapPacket packet( getSession()->getID(), getID() );
+    eq::WindowSwapPacket packet;
     _send( packet );
 }
 

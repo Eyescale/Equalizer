@@ -116,14 +116,14 @@ void Channel::_sendInit( const uint32_t initID )
 {
     EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
-    eq::ChannelInitPacket packet( getSession()->getID(), getID( ));
+    eq::ChannelInitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     packet.initID     = initID;
     packet.pvp        = _pvp; 
     packet.vp         = _vp;
     
-    send( packet, getName( ));
+    Object::send( _getNetNode(), packet, _name );
     _state = STATE_INITIALIZING;
 }
 
@@ -152,10 +152,10 @@ void Channel::_sendExit()
 {
     EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
-    eq::ChannelExitPacket packet( getSession()->getID(), getID( ));
+    eq::ChannelExitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
-    send( packet );
+    Object::send( _getNetNode(), packet );
 }
 
 bool Channel::syncExit()

@@ -210,12 +210,9 @@ namespace eqs
             { return _iAttributes[attr]; }
         //*}
 
-        /** @sa eqNet::Node::send */
-        bool send( const eqNet::Packet& packet )
-            { return _node->send( packet ); }
-        /** @sa eqNet::Node::send */
-        bool send( eqNet::Packet& packet, const std::string& string )
-            { return _node->send( packet, string ); }
+        /** @sa eqNet::Object::send */
+        bool send( eqNet::ObjectPacket& packet )
+            { return eqNet::Object::send( _node, packet ); }
 
         /** 
          * Adds a new description how this node can be reached.

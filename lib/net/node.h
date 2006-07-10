@@ -403,24 +403,6 @@ namespace eqNet
          */
         //virtual void* notifyReceive( Node* fromNode, const MessageType type,
         //                             const uint64_t count );
-
-        /** 
-         * Receives data from this node.
-         *
-         * This method receives raw data from this node and should only be
-         * called upon receiption of a packet describing the data to be
-         * received. It is potentially blocking.
-         * 
-         * @param buffer the buffer to store the data.
-         * @param size the size of the data in bytes.
-         * @return the success status of the transaction.
-         */
-        bool recv( const void* buffer, const uint64_t size )
-            {
-                EQASSERT( _state == STATE_CONNECTED ||
-                          _state == STATE_LISTENING );
-                return ( _connection->recv( buffer, size ) == size );
-            }
         //@}
 
         /**

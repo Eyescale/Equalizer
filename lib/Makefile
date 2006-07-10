@@ -46,6 +46,7 @@ HEADER_SRC = \
 	net/requestCache.h \
 	net/requestQueue.h \
 	net/session.h \
+	net/types.h \
 	net/uniPipeConnection.h \
 	client/channel.h \
 	client/client.h \

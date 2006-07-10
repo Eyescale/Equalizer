@@ -5,7 +5,7 @@
 #ifndef EQNET_BARRIER_H
 #define EQNET_BARRIER_H
 
-#include "object.h"
+#include <eq/net/object.h>
 
 #include <eq/base/lock.h>
 
@@ -62,13 +62,13 @@ namespace eqNet
         /** A flag if the master instance has entered already. */
         bool               _masterEntered;
         /** Slave nodes which have entered the barrier. */
-        std::vector<Node*> _slaves; // XXX refptr?!
+        NodeVector _enteredNodes;
         
         /** The lock used for synchronizing the master instance. */
         eqBase::Lock _masterNotify;
         /** The lock used for synchronizing the slave instances. */
         eqBase::Lock _slaveNotify;
-        /** The lock used for thread-safety synchronization of _slaves. */
+        /** The lock used for thread-safety synchronization of _enteredNodes. */
         eqBase::Lock _leaveNotify;
         /** Flag for the master to enter leave synchronization. */
         bool         _waitForLeave;

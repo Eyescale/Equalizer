@@ -386,7 +386,7 @@ bool Config::_initNodes( const uint32_t initID )
             continue;
 
         // initialize nodes
-        node->send( createConfigPacket, name );
+        netNode->send( createConfigPacket, name );
 
         registerObject( node, _server.get( ));
         createNodePacket.nodeID = node->getID();
@@ -421,7 +421,7 @@ bool Config::_initPipes( const uint32_t initID )
             continue;
 
         // XXX move to node?
-        eq::NodeCreatePipePacket createPipePacket( getID(), node->getID( ));
+        eq::NodeCreatePipePacket createPipePacket;
 
         const vector<Pipe*>& pipes = node->getPipes();
         for( PipeIter iter = pipes.begin(); iter != pipes.end(); ++iter )
@@ -511,7 +511,7 @@ bool Config::_exitPipes()
         if( !node->isUsed( ))
             continue;
         
-        eq::NodeDestroyPipePacket destroyPipePacket( getID(), node->getID( ));
+        eq::NodeDestroyPipePacket destroyPipePacket;
 
         const vector<Pipe*>& pipes = node->getPipes();
         for( PipeIter iter = pipes.begin(); iter != pipes.end(); ++iter )

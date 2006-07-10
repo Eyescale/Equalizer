@@ -5,12 +5,12 @@
 #ifndef EQNET_PACKETS_H
 #define EQNET_PACKETS_H
 
-#include "base.h"
-#include "commands.h"
-#include "global.h"
-#include "message.h"
-#include "object.h"
-#include "nodeID.h"
+#include <eq/net/base.h>
+#include <eq/net/commands.h>
+#include <eq/net/global.h>
+#include <eq/net/message.h>
+#include <eq/net/nodeID.h>
+#include <eq/net/object.h>
 
 #include <sys/param.h>
 
@@ -335,22 +335,16 @@ namespace eqNet
     //------------------------------------------------------------
     struct ObjectPacket : public SessionPacket
     {
-        ObjectPacket( const uint32_t sessionID, const uint32_t objectID )
+        ObjectPacket()
             {
                 datatype        = DATATYPE_EQNET_OBJECT; 
-                this->sessionID = sessionID;
-                this->objectID  = objectID;
-                EQASSERT( objectID != EQ_INVALID_ID );
-                EQASSERT( objectID != 0 );
             }
         uint32_t objectID;
     };
 
     struct ObjectSyncPacket : public ObjectPacket
     {
-        ObjectSyncPacket( const uint32_t sessionID, 
-                                   const uint32_t objectID )
-                : ObjectPacket( sessionID, objectID )
+        ObjectSyncPacket()
             {
                 command        = CMD_OBJECT_SYNC;
                 size           = sizeof( ObjectSyncPacket ); 
@@ -367,8 +361,7 @@ namespace eqNet
     //------------------------------------------------------------
     struct BarrierEnterPacket : public ObjectPacket
     {
-        BarrierEnterPacket( const uint32_t sessionID, const uint32_t objectID )
-                : eqNet::ObjectPacket( sessionID, objectID )
+        BarrierEnterPacket()
             {
                 command = CMD_BARRIER_ENTER;
                 size    = sizeof( BarrierEnterPacket );
@@ -377,9 +370,7 @@ namespace eqNet
 
     struct BarrierEnterReplyPacket : public ObjectPacket
     {
-        BarrierEnterReplyPacket( const uint32_t sessionID, 
-                                 const uint32_t objectID )
-                : eqNet::ObjectPacket( sessionID, objectID )
+        BarrierEnterReplyPacket()
             {
                 command = CMD_BARRIER_ENTER_REPLY;
                 size    = sizeof( BarrierEnterReplyPacket );

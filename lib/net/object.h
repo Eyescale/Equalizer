@@ -5,13 +5,11 @@
 #ifndef EQNET_OBJECT_H
 #define EQNET_OBJECT_H
 
-#include "commands.h"
-#include "global.h"
-#include "requestQueue.h"
-
-#include <eq/base/base.h>
-#include <eq/base/refPtr.h>
 #include <eq/net/base.h>
+#include <eq/net/commands.h>
+#include <eq/net/global.h>
+#include <eq/net/requestQueue.h>
+#include <eq/net/types.h>
 
 namespace eqNet
 {
@@ -241,6 +239,16 @@ namespace eqNet
         virtual void unpack( const void* data, const uint64_t size ) {}
         //*}
 
+        /** @name Packet Transmission */
+        //*{
+        bool send( eqBase::RefPtr<Node> node, ObjectPacket& packet );
+        bool send( eqBase::RefPtr<Node> node, ObjectPacket& packet, 
+                   const std::string& string );
+        bool send( NodeVector& nodes, ObjectPacket& packet );
+        bool send( NodeVector nodes, ObjectPacket& packet, const void* data,
+                   const uint64_t size );
+        //*}
+        
     protected:
         /** 
          * @return if this instance is the master version.
@@ -257,7 +265,7 @@ namespace eqNet
         /** 
          * @return the vector of registered slaves.
          */
-        std::vector< eqBase::RefPtr<Node> >& getSlaves()
+        const NodeVector& getSlaves() const
             { return _slaves; }
 
     private:
@@ -275,7 +283,7 @@ namespace eqNet
         bool         _master;
         
         /** The list of subsribed slaves, kept on the master only. */
-        std::vector< eqBase::RefPtr<Node> > _slaves;
+        NodeVector _slaves;
 
         /** The type identifier of the object class. */
         uint32_t _typeID;

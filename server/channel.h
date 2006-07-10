@@ -156,16 +156,10 @@ namespace eqs
          */
         void update( const uint32_t frameID );
 
-        /** 
-         * Send a command packet to the channel.
-         * 
-         * @param packet the packet.
-         */
-        void send( eqNet::Packet& packet ) { getNode()->send( packet ); }
-        void send( eqNet::Packet& packet, const std::string& string ) 
-            { getNode()->send( packet, string ); }
+        /** @sa eqNet::Object::send */
+        bool send( eqNet::ObjectPacket& packet )
+            { return eqNet::Object::send( _getNetNode(), packet ); }
         //*}
-
 
     private:
         /** The current operational state. */
@@ -199,6 +193,9 @@ namespace eqs
 
         void _sendInit( const uint32_t initID );
         void _sendExit();
+
+        eqBase::RefPtr<eqNet::Node> _getNetNode() const 
+            { return getNode()->getNode(); }
 
         /* command handler functions. */
         eqNet::CommandResult _cmdInitReply(eqNet::Node* node,

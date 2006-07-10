@@ -110,11 +110,11 @@ void Node::startInit( const uint32_t initID )
 {
     EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
-    eq::NodeInitPacket packet( _config->getID(), getID( ));
+    eq::NodeInitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     packet.initID     = initID;
-    send( packet );
+    Object::send( _node, packet );
 }
 
 bool Node::syncInit()
@@ -136,10 +136,10 @@ void Node::startExit()
 {
     EQASSERT( _pendingRequestID == EQ_INVALID_ID );
 
-    eq::NodeExitPacket packet( _config->getID(), getID( ));
+    eq::NodeExitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
-    send( packet );
+    Object::send( _node, packet );
 }
 
 bool Node::syncExit()

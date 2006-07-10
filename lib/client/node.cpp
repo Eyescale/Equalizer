@@ -151,12 +151,7 @@ eqNet::CommandResult Node::_reqInit(eqNet::Node* node, const eqNet::Packet* pkg)
     NodeInitReplyPacket reply( packet );
     reply.result = init( packet->initID );
 
-    if( reply.result )
-    {
-        // start event thread
-    }
-
-    node->send( reply );
+    send( node, reply );
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -168,7 +163,7 @@ eqNet::CommandResult Node::_reqExit(eqNet::Node* node, const eqNet::Packet* pkg)
     exit();
 
     NodeExitReplyPacket reply( packet );
-    node->send( reply );
+    send( node, reply );
     ((eq::Client*)_config->getLocalNode())->unrefUsed();
     _thread->exit();
     return eqNet::COMMAND_HANDLED;

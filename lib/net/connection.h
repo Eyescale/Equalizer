@@ -100,26 +100,6 @@ namespace eqNet
         /** @name Messaging API */
         //@{
         /** 
-         * Reads a message from the connection.
-         * 
-         * @param buffer the buffer for saving the message.
-         * @param bytes the number of bytes to read.
-         * @return the number of bytes received.
-         */
-        virtual uint64_t recv( const void* buffer, const uint64_t bytes )
-            {return 0;}
-
-        /** 
-         * Sends a message using the connection.
-         * 
-         * @param buffer the buffer containing the message.
-         * @param bytes the number of bytes to send.
-         * @return the number of bytes send.
-         */
-        virtual uint64_t send( const void* buffer, const uint64_t bytes) const
-            {return 0;}
-
-        /** 
          * Sends a packaged message using the connection.
          * 
          * @param packet the message packet.
@@ -134,7 +114,6 @@ namespace eqNet
          * @param packet the message packet.
          * @param string the string.
          * @return the number of bytes send.
-         * @sa Node::send
          */
         uint64_t send( Packet &packet, const std::string& string ) const
             { return send( packet, string.c_str(), string.size()+1 ); }
@@ -145,9 +124,8 @@ namespace eqNet
          * @param packet the message packet.
          * @param data the vector containing the data.
          * @return the number of bytes send.
-         * @sa Node::send
          */
-        template< class T >
+        template< typename T >
         uint64_t send( Packet &packet, const std::vector<T>& data ) const;
 
         /** 
@@ -158,10 +136,56 @@ namespace eqNet
          * @param data the data.
          * @param size the data size in bytes.
          * @return the number of bytes send.
-         * @sa Node::send
          */
         uint64_t send( Packet& packet, const void* data, const uint64_t size )
             const;
+
+        /** 
+         * Sends a packaged message to multiple receivers.
+         *
+         * The receivers have to implement getConnection(). The reason we don't
+         * use an abstract class to define the interface is that we sometimes
+         * use a vector of RefPtr<SomeThing> in some places.
+         * 
+         * @param receivers The receiving entities.
+         * @param packet the message packet.
+         * @return true if the packet was sent successfully to all receivers.
+         */
+        template< typename T >
+        static bool send(const std::vector<T>& receivers, const Packet& packet);
+        /** 
+         * Sends a packaged message including additional data to multiple
+         * receivers.
+         *
+         * @param receivers The receiving entities.
+         * @param packet the message packet.
+         * @param data the data.
+         * @param size the data size in bytes.
+         * @return true if the packet was sent successfully to all receivers.
+         */
+        template< typename T >
+        static bool send( const std::vector<T>& receivers, Packet& packet,
+                          const void* data, const uint64_t size );
+
+        /** 
+         * Sends data using the connection.
+         * 
+         * @param buffer the buffer containing the message.
+         * @param bytes the number of bytes to send.
+         * @return the number of bytes send.
+         */
+        virtual uint64_t send( const void* buffer, const uint64_t bytes) const
+            {return 0;}
+
+        /** 
+         * Reads data from the connection.
+         * 
+         * @param buffer the buffer for saving the message.
+         * @param bytes the number of bytes to read.
+         * @return the number of bytes received.
+         */
+        virtual uint64_t recv( const void* buffer, const uint64_t bytes )
+            {return 0;}
         //@}
 
         /** 

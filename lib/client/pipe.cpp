@@ -283,7 +283,7 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg
 
     if( !reply.result )
     {
-        node->send( reply );
+        send( node, reply );
         return eqNet::COMMAND_HANDLED;
     }
 
@@ -296,7 +296,7 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg
                 EQERROR << "init() did not set a valid display connection" 
                         << endl;
                 reply.result = false;
-                node->send( reply );
+                send( node, reply );
                 return eqNet::COMMAND_HANDLED;
             }
 
@@ -310,8 +310,8 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg
             {
                 EQERROR << "init() did not set a valid display id" << endl;
                 reply.result = false;
-                node->send( reply );
-                    return eqNet::COMMAND_HANDLED;
+                send( node, reply );
+                return eqNet::COMMAND_HANDLED;
             }
                 
             // TODO: gather and send back display information
@@ -322,7 +322,7 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg
         default: EQUNIMPLEMENTED;
     }
 
-    node->send( reply );
+    send( node, reply );
 
     EventThread* thread = EventThread::get( _windowSystem );
     thread->addPipe( this );
@@ -342,7 +342,7 @@ eqNet::CommandResult Pipe::_reqExit( eqNet::Node* node,
     exit();
     
     PipeExitReplyPacket reply( packet );
-    node->send( reply );
+    send( node, reply );
 
     _thread->exit( EXIT_SUCCESS );
     return eqNet::COMMAND_HANDLED;
@@ -366,8 +366,8 @@ eqNet::CommandResult Pipe::_reqFrameSync( eqNet::Node* node,
 
     endFrame( packet->frameID );
     
-    PipeFrameSyncPacket reply( getSession()->getID(), getID( ));
-    node->send( reply );
+    PipeFrameSyncPacket reply;
+    send( node, reply );
     return eqNet::COMMAND_HANDLED;
 }
 

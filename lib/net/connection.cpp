@@ -102,9 +102,9 @@ uint64_t Connection::send( Packet& packet, const void* data,
         return send( packet );
     }
 
-    uint64_t       size      = packet.size-8 + dataSize;
+    uint64_t       size   = packet.size-8 + dataSize;
     size += (4 - size%4);
-    char*          buffer    = (char*)alloca( size );
+    char*          buffer = (char*)alloca( size );
 
     memcpy( buffer, &packet, packet.size-8 );
     memcpy( buffer + packet.size-8, data, dataSize );
