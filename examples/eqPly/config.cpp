@@ -38,6 +38,13 @@ bool Config::handleEvent( eq::ConfigEvent* event )
                 case eq::KC_ESCAPE:
                     _running = false;
                     return true;
+
+                case 'r':
+                case ' ':
+                    _spinX = 0;
+                    _spinY = 0;
+                    _frameData->reset();
+                    return true;
             }
             break;
 

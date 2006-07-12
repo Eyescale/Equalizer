@@ -14,8 +14,7 @@ class FrameData : public eqNet::Object
 public:
     FrameData() : Object( TYPE_FRAMEDATA, eqNet::CMD_OBJECT_CUSTOM )
         {
-            bzero( &_data, sizeof( Data ));
-            _data.translation[2] = -3.;
+            reset();
         }
 
     FrameData( const void* data, const uint64_t size ) 
@@ -26,6 +25,12 @@ public:
             EQINFO << "New FrameData instance" << std::endl;
         }
     
+    void reset()
+        {
+            bzero( &_data, sizeof( Data ));
+            _data.translation[2] = -3.;
+        }
+
     struct Data
     {
         float rotation[2];
