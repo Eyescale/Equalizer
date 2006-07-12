@@ -44,7 +44,7 @@ Pipe::Pipe( const Pipe& from )
 {
     _construct();
     _display = from._display;
-    _screen  = from._state;
+    _screen  = from._screen;
     _pvp     = from._pvp;
 
     const uint32_t nWindows = from.nWindows();
