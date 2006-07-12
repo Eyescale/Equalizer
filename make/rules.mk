@@ -54,13 +54,13 @@ $(SUBDIRS):
 
 
 # headers
-$(HEADER_DIR)/% : %
-	@mkdir -p $(HEADER_DIR)/$(*D)
+$(HEADER_DIR)/%: %
+	@mkdir -p $(@D)
 	@echo 'Header file $@'
 	@cp $< $@
 
 # generated source code: defunct
-%Dist.cpp %Packets.h : %.h $(TOP)/make/codegen.pl
+%Dist.cpp %Packets.h: %.h $(TOP)/make/codegen.pl
 	$(TOP)/make/codegen.pl $<
 
 ifdef HEADER_GEN
@@ -77,7 +77,7 @@ endif
 
 $(THIN_DYNAMIC_LIBS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
-	@mkdir -p $(LIBRARY_DIR)
+	@mkdir -p $(@D)
 	$(CXX) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 else
 	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).$(DSO_SUFFIX)=%) TOP=$(TOP) $@
@@ -91,7 +91,7 @@ endif
 
 $(THIN_STATIC_LIBS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
-	@mkdir -p $(LIBRARY_DIR)
+	@mkdir -p $(@D)
 	@rm -f $@
 	$(AR) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 else
@@ -100,11 +100,11 @@ endif
 
 OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
 
-$(OBJECT_DIR)/%.h.gch : %.h
+$(OBJECT_DIR)/%.h.gch: %.h
 	@mkdir -p $(@D)
 	$(CXX) -x c++-header $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
 
-$(OBJECT_DIR)/%.o : %.cpp
+$(OBJECT_DIR)/%.o: %.cpp
 	@mkdir -p $(@D)
 	@echo -n "$(@D)/" > $(OBJECT_DIR)/$*.d
 	@($(DEP_CXX) $(CXXFLAGS) -M -E $< >> \
@@ -129,7 +129,7 @@ endif
 
 ifndef PROGRAM
 ifdef VARIANT
-%.$(VARIANT) : %.cpp
+%.$(VARIANT): %.cpp
 	$(CXX) $< $(CXXFLAGS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -o $@ 
 
 else # VARIANT

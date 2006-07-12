@@ -136,3 +136,5 @@ LDFLAGS  += $(WINDOW_SYSTEM_LIBS)
 TARGETS = $(HEADERS) $(DYNAMIC_LIB)
 
 include $(TOP)/make/rules.mk
+
+$(DYNAMIC_LIB): $(HEADERS)

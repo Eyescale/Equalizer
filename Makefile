@@ -18,6 +18,7 @@ include make/rules.mk
 docs: lib
 	@$(DOXYGEN) Doxyfile
 
+lib: precompile
 proto: lib
 tests: lib
 examples: lib
