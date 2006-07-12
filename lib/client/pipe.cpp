@@ -111,6 +111,33 @@ void Pipe::setXDisplay( Display* display )
 #ifdef GLX
     _xDisplay = display; 
 
+    if( display )
+    {
+        string       displayString = DisplayString( display );
+        const size_t colonPos      = displayString.find( ':' );
+        if( colonPos != string::npos )
+        {
+            const string displayNumberString = displayString.substr(colonPos+1);
+            const uint32_t displayNumber = atoi( displayNumberString.c_str( ));
+            
+            if( _display != EQ_UNDEFINED_UINT32 && displayNumber != _display )
+                EQWARN << "Display mismatch: provided display connection uses"
+                   << " display " << displayNumber
+                   << ", but pipe has display " << _display << endl;
+
+            _display = displayNumber;
+        
+            if( _screen != EQ_UNDEFINED_UINT32 &&
+                DefaultScreen( display ) != (int)_screen )
+                
+                EQWARN << "Screen mismatch: provided display connection uses"
+                       << " default screen " << DefaultScreen( display ) 
+                       << ", but pipe has screen " << _screen << endl;
+            
+            _screen  = DefaultScreen( display );
+        }
+    }
+
     if( _pvp.isValid( ))
         return;
 
@@ -118,10 +145,6 @@ void Pipe::setXDisplay( Display* display )
     _pvp.y    = 0;
     if( display )
     {
-        if( DefaultScreen( display ) != (int)_screen )
-            EQWARN << "Screen mismatch: provided display connection uses"
-                   << " default screen " << DefaultScreen( display ) 
-                   << ", but pipe uses screen " << _screen << endl;
         _pvp.w = DisplayWidth(  display, DefaultScreen( display ));
         _pvp.h = DisplayHeight( display, DefaultScreen( display ));
     }
@@ -406,7 +429,6 @@ bool Pipe::initGLX()
     }
     
     setXDisplay( xDisplay );
-    _screen = DefaultScreen( xDisplay );
     EQINFO << "Opened X display " << xDisplay << ", screen " << _screen << endl;
     return true;
 #else
