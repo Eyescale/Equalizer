@@ -461,7 +461,8 @@ bool Config::_initPipes( const uint32_t initID )
 
 bool Config::_exit()
 {
-    EQASSERT( _state == STATE_INITIALIZED );
+    if( _state != STATE_INITIALIZED )
+        return false;
 //     foreach compound
 //         call exit compound cb's
 //     foreach compound
