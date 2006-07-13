@@ -195,8 +195,8 @@ pipeAttribute:
     EQTOKEN_DISPLAY UINTEGER         { eqPipe->setDisplay( $2 ); }
     | EQTOKEN_VIEWPORT viewport 
         {
-            eqPipe->setPixelViewport( eq::PixelViewport( $2[0], $2[1], 
-                                                         $2[2], $2[3] )); 
+            eqPipe->setPixelViewport( eq::PixelViewport( (int)$2[0], (int)$2[1],
+                                                      (int)$2[2], (int)$2[3] ));
         }
 
 windows: window | windows window
@@ -209,8 +209,8 @@ windowAttribute:
     | EQTOKEN_VIEWPORT viewport
         {
             if( $2[2] > 1 || $2[3] > 1 )
-                window->setPixelViewport( eq::PixelViewport( $2[0], $2[1], 
-                                                             $2[2], $2[3] )); 
+                window->setPixelViewport( eq::PixelViewport( (int)$2[0], 
+                                          (int)$2[1], (int)$2[2], (int)$2[3] ));
             else
                 window->setViewport( eq::Viewport($2[0], $2[1], $2[2], $2[3])); 
         }
@@ -226,8 +226,8 @@ channelAttribute:
     | EQTOKEN_VIEWPORT viewport
         {
             if( $2[2] > 1 || $2[3] > 1 )
-                channel->setPixelViewport( eq::PixelViewport( $2[0], $2[1], 
-                                                             $2[2], $2[3] )); 
+                channel->setPixelViewport( eq::PixelViewport( (int)$2[0],
+                                          (int)$2[1], (int)$2[2], (int)$2[3] ));
             else
                 channel->setViewport(eq::Viewport( $2[0], $2[1], $2[2], $2[3]));
         }
