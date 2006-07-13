@@ -7,6 +7,7 @@
 #include <eq/client/eventThread.h>
 
 #include <eq/client/event.h>
+#include <eq/client/windowEvent.h>
 #include <eq/net/connectionSet.h>
 #include <eq/net/node.h>
 
@@ -49,8 +50,7 @@ namespace eq
         eqNet::ConnectionSet        _connections;
         eqBase::RefPtr<eqNet::Node> _localNode;
 
-        Window*      _lastPointerWindow;
-        PointerEvent _lastPointerEvent;
+        WindowEvent _lastPointerEvent;
 
         enum
         {
@@ -65,7 +65,7 @@ namespace eq
         void   _handleEvent( eqBase::RefPtr<X11Connection> connection );
         int32_t  _getButtonState( XEvent& event );
         int32_t  _getButtonAction( XEvent& event );
-        void     _computePointerDelta( PointerEvent &event );
+        void     _computePointerDelta( WindowEvent &event );
         int32_t  _getKey( XEvent& event );
 
         /** The command functions. */

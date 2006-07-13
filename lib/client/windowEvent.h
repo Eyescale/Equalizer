@@ -24,16 +24,19 @@ namespace eq
             TYPE_KEY_RELEASE
         };
 
-        Type type;
+        Type    type;
+        Window* window;
 
         union // event data
         {
             ResizeEvent  resize;
 
+            PointerEvent pointerEvent;
             PointerEvent pointerMotion;
             PointerEvent pointerButtonPress;
             PointerEvent pointerButtonRelease;
 
+            KeyEvent     keyEvent;
             KeyEvent     keyPress;
             KeyEvent     keyRelease;
         };

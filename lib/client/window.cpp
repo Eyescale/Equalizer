@@ -631,7 +631,7 @@ void eq::Window::swapBuffers()
             break;
         default: EQUNIMPLEMENTED;
     }
-    EQINFO << "----- SWAP -----" << endl;
+    EQVERB << "----- SWAP -----" << endl;
 }
 
 //======================================================================

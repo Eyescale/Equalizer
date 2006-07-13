@@ -4,10 +4,9 @@
 #ifndef EQ_WINDOW_H
 #define EQ_WINDOW_H
 
-#include "commands.h"
-#include "pipe.h"
-#include "pixelViewport.h"
-
+#include <eq/client/commands.h>
+#include <eq/client/pipe.h>
+#include <eq/client/pixelViewport.h>
 #include <eq/net/base.h>
 #include <eq/net/object.h>
 

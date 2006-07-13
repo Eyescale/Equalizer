@@ -4,8 +4,7 @@
 #ifndef EQ_EVENTTHREAD_H
 #define EQ_EVENTTHREAD_H
 
-#include "windowSystem.h"
-
+#include <eq/client/windowSystem.h>
 #include <eq/base/thread.h>
 
 namespace eq

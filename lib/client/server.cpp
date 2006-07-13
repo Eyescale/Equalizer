@@ -64,13 +64,17 @@ bool Server::open( const OpenParams& params )
         addConnectionDescription( connDesc );
     }
 
-    if( !connect( ))
-        return false;
+    if( connect( ))
+    {
+        // TODO?: send open packet (appName)
+        _state = STATE_OPENED;
+        return true;
+    }
 
-    // TODO: send open packet (appName)
+    //if( params.address.size()>0 || getenv("EQ_SERVER"))
+    return false;
 
-    _state = STATE_OPENED;
-    return true;
+    // TODO: Use app-local server if no server was requested explicitly
 }
 
 bool Server::close()

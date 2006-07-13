@@ -19,8 +19,7 @@ using namespace eqBase;
 using namespace std;
 
 GLXEventThread::GLXEventThread()
-        : eqNet::Base( CMD_GLXEVENTTHREAD_ALL, true ),
-          _lastPointerWindow( NULL )
+        : eqNet::Base( CMD_GLXEVENTTHREAD_ALL, true )
 {
     registerCommand( CMD_GLXEVENTTHREAD_ADD_PIPE, this, 
                      reinterpret_cast<CommandFcn>(
@@ -211,18 +210,18 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
         XNextEvent( display, &xEvent );
         
         XID            drawable = xEvent.xany.window;
-        Window*        window   = NULL;
         const uint32_t nWindows = pipe->nWindows();
 
+        event.window   = NULL;
         for( uint32_t i=0; i<nWindows; ++i )
         {
             if( pipe->getWindow(i)->getXDrawable() == drawable )
             {
-                window = pipe->getWindow(i);
+                event.window = pipe->getWindow(i);
                 break;
             }
         }
-        if( !window )
+        if( !event.window )
         {
             EQWARN << "Can't match window to received X event" << endl;
             continue;
@@ -258,18 +257,16 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
                 break;
             }
 
-            // TODO: compute delta since last event,
-            // create channel event
+            // TODO: create channel event
             case MotionNotify:
                 event.type = WindowEvent::TYPE_POINTER_MOTION;
                 event.pointerMotion.x = xEvent.xmotion.x;
                 event.pointerMotion.y = xEvent.xmotion.y;
                 event.pointerButtonRelease.buttons = _getButtonState( xEvent );
                 event.pointerButtonRelease.button  = PTR_BUTTON_NONE;
-                if( _lastPointerWindow == window )
-                    _computePointerDelta( event.pointerMotion );
-                _lastPointerEvent  = event.pointerMotion;
-                _lastPointerWindow = window;
+
+                _computePointerDelta( event );
+                _lastPointerEvent = event;
                 break;
 
             case ButtonPress:
@@ -279,13 +276,8 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
                 event.pointerButtonPress.buttons = _getButtonState( xEvent );
                 event.pointerButtonPress.button  = _getButtonAction( xEvent );
 
-                if( _lastPointerWindow == window )
-                {   // Reuse dx, dy from last (MotionNotify) event
-                    event.pointerButtonRelease.dx = _lastPointerEvent.dx;
-                    event.pointerButtonRelease.dy = _lastPointerEvent.dy;
-                }
-                _lastPointerEvent  = event.pointerButtonPress;
-                _lastPointerWindow = window;
+                _computePointerDelta( event );
+                _lastPointerEvent = event;
                 break;
                 
             case ButtonRelease:
@@ -295,13 +287,8 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
                 event.pointerButtonRelease.buttons = _getButtonState( xEvent );
                 event.pointerButtonRelease.button  = _getButtonAction( xEvent );
 
-                if( _lastPointerWindow == window )
-                {   // Reuse dx, dy from last (MotionNotify) event
-                    event.pointerButtonRelease.dx = _lastPointerEvent.dx;
-                    event.pointerButtonRelease.dy = _lastPointerEvent.dy;
-                }
-                _lastPointerEvent  = event.pointerButtonRelease;
-                _lastPointerWindow = window;
+                _computePointerDelta( event );
+                _lastPointerEvent = event;
                 break;
             
             case KeyPress:
@@ -318,7 +305,7 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
                 EQWARN << "Unhandled X event" << endl;
                 continue;
         }
-        window->processEvent( event );
+        event.window->processEvent( event );
     }
 }
 
@@ -362,10 +349,34 @@ int32_t GLXEventThread::_getButtonAction( XEvent& event )
     }
 }
 
-void GLXEventThread::_computePointerDelta( PointerEvent &event )
+void GLXEventThread::_computePointerDelta( WindowEvent &event )
 {
-    event.dx = event.x - _lastPointerEvent.x;
-    event.dy = event.y - _lastPointerEvent.y;
+    if( _lastPointerEvent.window != event.window )
+    {
+        event.pointerEvent.dx = 0;
+        event.pointerEvent.dy = 0;
+        return;
+    }
+
+    switch( event.type )
+    {
+        case WindowEvent::TYPE_POINTER_BUTTON_PRESS:
+        case WindowEvent::TYPE_POINTER_BUTTON_RELEASE:
+            if( _lastPointerEvent.type == WindowEvent::TYPE_POINTER_MOTION )
+            {
+                event.pointerEvent.dx = _lastPointerEvent.pointerEvent.dx;
+                event.pointerEvent.dy = _lastPointerEvent.pointerEvent.dy;
+                break;
+            }
+            // fall through
+
+        default:
+            event.pointerEvent.dx = 
+                event.pointerEvent.x - _lastPointerEvent.pointerEvent.x;
+            event.pointerEvent.dy = 
+                event.pointerEvent.y - _lastPointerEvent.pointerEvent.y;
+    }
+    _lastPointerEvent = event;
 }
 
 int32_t GLXEventThread::_getKey( XEvent& event )
@@ -521,9 +532,6 @@ eqNet::CommandResult GLXEventThread::_cmdRemoveWindow( eqNet::Node*,
     
     XSelectInput( display, drawable, 0l );
     XFlush( display );
-
-    if( _lastPointerWindow == window )
-        _lastPointerWindow = NULL;
 
     _requestHandler.serveRequest( packet->requestID, NULL );
     return eqNet::COMMAND_HANDLED;    
