@@ -113,6 +113,11 @@ void Pipe::setXDisplay( Display* display )
 
     if( display )
     {
+#ifdef DEBUG
+        // somewhat reduntant since it is a global handler
+        XSetErrorHandler( eq::Pipe::XErrorHandler );
+#endif
+
         string       displayString = DisplayString( display );
         const size_t colonPos      = displayString.find( ':' );
         if( colonPos != string::npos )
@@ -179,6 +184,42 @@ RefPtr<X11Connection> Pipe::getXEventConnection() const
 #else
     return NULL;
 #endif
+}
+
+int Pipe::XErrorHandler( Display* display, XErrorEvent* event )
+{
+#ifdef GLX
+    EQERROR << disableFlush;
+    EQERROR << "X Error occured: " << disableHeader;
+
+    char buffer[256];
+    XGetErrorText( display, event->error_code, buffer, 256);
+
+    EQERROR << buffer << endl;
+    EQERROR << "  Major opcode: " << (int)event->request_code << endl;
+    EQERROR << "  Minor opcode: " << (int)event->minor_code << endl;
+    EQERROR << "  Error code: " << (int)event->error_code << endl;
+    EQERROR << "  Request serial: " << event->serial << endl;
+    EQERROR << "  Current serial: " << NextRequest( display ) - 1 << endl;
+
+    switch( event->error_code )
+    {
+        case BadValue:
+            EQERROR << "  Value: " << event->resourceid << endl;
+            break;
+
+        case BadAtom:
+            EQERROR << "  AtomID: " << event->resourceid << endl;
+            break;
+
+        default:
+            EQERROR << "  ResourceID: " << event->resourceid << endl;
+            break;
+    }
+    EQERROR << enableFlush << enableHeader;
+#endif // GLX
+
+    return 0;
 }
 
 void Pipe::setCGLDisplayID( CGDirectDisplayID id )

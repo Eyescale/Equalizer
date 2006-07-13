@@ -255,6 +255,8 @@ namespace eq
         /** The screen (GLX), adapter (Win32) or ignored (CGL). */
         uint32_t _screen;
 
+        static int XErrorHandler( Display* display, XErrorEvent* event );
+
         void _addWindow( Window* window );
         void _removeWindow( Window* window );
 

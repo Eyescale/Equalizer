@@ -26,6 +26,7 @@
 
 #ifndef GLX
 typedef void Display;
+typedef void XErrorEvent;
 #endif
 #ifndef CGL
 typedef int32_t CGDirectDisplayID;

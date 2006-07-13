@@ -494,7 +494,7 @@ ssize_t Node::_runReceiver()
             case ConnectionSet::EVENT_ERROR:      
                 ++nErrors;
                 EQWARN << "Error during select" << endl;
-                if( nErrors > 1000 )
+                if( nErrors > 100 )
                 {
                     EQWARN << "Too many errors in a row, capping connection" 
                            << endl;

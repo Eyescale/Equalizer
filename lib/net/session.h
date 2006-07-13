@@ -56,7 +56,7 @@ namespace eqNet
         /** 
          * @return the local node holding this session. 
          */
-        Node* getLocalNode(){ return _localNode.get(); }
+        eqBase::RefPtr<Node> getLocalNode(){ return _localNode; }
 
         /** 
          * @return the server hosting this session. 

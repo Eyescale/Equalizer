@@ -153,6 +153,7 @@ eqNet::CommandResult Config::_cmdDestroyNode( eqNet::Node* Node,
     if( !delNode )
         return eqNet::COMMAND_HANDLED;
 
+    delNode->_thread->join(); // wait for node thread termination. move to node
     _removeNode( delNode );
     EQASSERT( delNode->getRefCount() == 1 );
     removeRegisteredObject( delNode, eqNet::Object::SHARE_NODE );

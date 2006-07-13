@@ -42,6 +42,7 @@ typedef int socklen_t;
 
 #else
 
+#  define DEBUG
 #  define EQASSERT(x) if( !(x) ) \
     { EQERROR << "Assert: " << #x << std::endl; EQ_DUMP_CORE; ::abort(); }
 #  define EQASSERTINFO(x, info) if( !(x) )                              \

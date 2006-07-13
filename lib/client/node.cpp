@@ -16,6 +16,7 @@
 #include <eq/net/connection.h>
 
 using namespace eq;
+using namespace eqBase;
 using namespace std;
 
 Node::Node()
@@ -36,10 +37,12 @@ Node::Node()
                          &eq::Node::_reqExit ));
 
     _thread = new NodeThread( this );
+    EQINFO << " New eq::Node @" << (void*)this << endl;
 }
 
 Node::~Node()
 {
+    EQINFO << " Delete eq::Node @" << (void*)this << endl;
     delete _thread;
     _thread = NULL;
 }
@@ -125,6 +128,8 @@ eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Node* node,
     if( !pipe )
         return eqNet::COMMAND_HANDLED;
 
+    pipe->_thread->join(); // wait for pipe thread termination. move to pipe
+
     _removePipe( pipe );
     EQASSERT( pipe->getRefCount() == 1 );
     _config->removeRegisteredObject( pipe, eqNet::Object::SHARE_NODE );
@@ -137,7 +142,7 @@ eqNet::CommandResult Node::_cmdInit(eqNet::Node* node, const eqNet::Packet* pkg)
     NodeInitPacket* packet = (NodeInitPacket*)pkg;
     EQINFO << "handle node init (recv) " << packet << endl;
 
-    ((eq::Client*)_config->getLocalNode())->refUsed();
+    ((eq::Client*)_config->getLocalNode().get())->refUsed();
     _thread->start();
     _pushRequest( node, pkg );
     return eqNet::COMMAND_HANDLED;
@@ -164,7 +169,8 @@ eqNet::CommandResult Node::_reqExit(eqNet::Node* node, const eqNet::Packet* pkg)
 
     NodeExitReplyPacket reply( packet );
     send( node, reply );
-    ((eq::Client*)_config->getLocalNode())->unrefUsed();
+
+    ((eq::Client*)_config->getLocalNode().get())->unrefUsed();
     _thread->exit();
     return eqNet::COMMAND_HANDLED;
 }
