@@ -41,6 +41,24 @@ namespace eqs
         Compound( const Compound& from );
 
         /**
+         * Compound tasks define the actions executed by a compound on its
+         * channel during compound update, in the order they are defined.
+         *
+         * The enums are spaced apart to leave room for future additions without
+         * breaking binary backward compatibility.
+         */
+        enum Task
+        {
+            TASK_NONE     = 0,
+            TASK_CLEAR    = 0x1,     //!< Clear the framebuffer
+            TASK_CULL     = 0x10,    //!< Cull data
+            TASK_DRAW     = 0x100,   //!< Draw data to the framebuffer
+            TASK_ASSEMBLE = 0x1000,  //!< Combine input frames
+            TASK_READBACK = 0x10000, //!< Read results to output frames
+            TASK_ALL      = 0xfffffff
+        };
+
+        /**
          * @name Data Access
          */
         //*{
@@ -110,8 +128,33 @@ namespace eqs
         Window* getWindow() const 
             { return _data.channel ? _data.channel->getWindow() : NULL; }
 
+
+        /** 
+         * Set the tasks to be executed by the compound.
+         * 
+         * Previously set tasks are overwritten.
+         *
+         * @param tasks the compound tasks.
+         */
+        void setTasks( const uint32_t tasks ) { _tasks = tasks; }
+
+        /** 
+         * Add tasks to be executed by the compound.
+         *
+         * Previously set tasks are preserved.
+         * 
+         * @param tasks the compound tasks.
+         */
+        void enableTasks( const uint32_t tasks ) { _tasks |= tasks; }
+
+        /** @return the tasks executed by this compound. */
+        uint32_t getTasks() const { return _tasks; }
+
+        /** @return true if the task is set, false if not. */
+        bool testTask( const Task task ) const { return (_tasks & task); }
+
         /**
-         * The decomposition mode of the compound.
+         * The decomposition mode of the compound. Deprecated, will go away.
          */
         enum Mode
         {
@@ -234,6 +277,8 @@ namespace eqs
         std::vector<Compound*>  _children;
         
         Compound* _getNext() const;
+
+        uint32_t _tasks;
 
         struct View
         {

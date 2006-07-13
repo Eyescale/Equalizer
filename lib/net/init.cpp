@@ -89,7 +89,8 @@ bool initLocalNode( int argc, char** argv )
         if( !connDesc->fromString( listenOpts ))
             EQINFO << "No listening port parameters read from command line"
                    << endl;
-        EQINFO << "Listening connection description: " << connDesc.get() <<endl;
+        EQINFO << "Listening connection description: " << connDesc->toString()
+               << endl;
 
         if( !connection->listen( ))
         {

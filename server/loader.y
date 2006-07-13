@@ -64,6 +64,9 @@
 %token EQTOKEN_HOSTNAME
 %token EQTOKEN_COMMAND
 %token EQTOKEN_TIMEOUT
+%token EQTOKEN_TASK
+%token EQTOKEN_CLEAR
+%token EQTOKEN_DRAW
 %token EQTOKEN_VIEWPORT
 %token EQTOKEN_RANGE
 %token EQTOKEN_DISPLAY
@@ -79,27 +82,27 @@
 %token EQTOKEN_STRING
 %token EQTOKEN_FLOAT
 %token EQTOKEN_INTEGER
-%token EQTOKEN_UINTEGER
+%token EQTOKEN_UNSIGNED
 
 %union{
-    const char*             stringval;
-    int                     integer;
-    float                   floatval;
-    bool                    boolean;
+    const char*             _string;
+    int                     _int;
+    unsigned                _unsigned;
+    float                   _float;
     eqs::Compound::Mode     _compoundMode;
     eqNet::Connection::Type _connectionType;
     float                   _viewport[4];
     bool                    dummy;
 }
 
-%type <stringval>       STRING;
-%type <integer>         INTEGER UINTEGER;
+%type <_string>         STRING;
+%type <_int>            INTEGER;
+%type <_unsigned>       UNSIGNED;
 %type <_compoundMode>   compoundMode;
 %type <_connectionType> connectionType;
 %type <_viewport>       viewport;
-%type <floatval>        FLOAT;
+%type <_float>          FLOAT;
 %type <dummy>           wallDescription;
-//%type <boolean>       BOOL;
 
 %%
 
@@ -122,12 +125,12 @@ global:
          eqs::Global::instance()->setConnectionSAttribute(
              eqs::ConnectionDescription::SATTR_HOSTNAME, $2 );
      }
-     | EQTOKEN_CONNECTION_TCPIP_PORT UINTEGER
+     | EQTOKEN_CONNECTION_TCPIP_PORT UNSIGNED
      {
          eqs::Global::instance()->setConnectionIAttribute(
              eqs::ConnectionDescription::IATTR_TCPIP_PORT, $2 );
      }
-     | EQTOKEN_CONNECTION_LAUNCH_TIMEOUT UINTEGER
+     | EQTOKEN_CONNECTION_LAUNCH_TIMEOUT UNSIGNED
      {
          eqs::Global::instance()->setConnectionIAttribute(
              eqs::ConnectionDescription::IATTR_LAUNCH_TIMEOUT, $2 );
@@ -149,7 +152,7 @@ config: EQTOKEN_CONFIG '{' { config = loader->createConfig(); }
         nodes compounds '}' { server->addConfig( config ); config = NULL; }
 configAttributes: /*null*/ | configAttribute | configAttributes configAttribute
 configAttribute:
-    EQTOKEN_LATENCY UINTEGER  { config->setLatency( $2 ); }
+    EQTOKEN_LATENCY UNSIGNED  { config->setLatency( $2 ); }
 
 nodes: node | nodes node
 node: appNode | otherNode
@@ -183,7 +186,7 @@ connectionAttribute:
     EQTOKEN_TYPE connectionType { connectionDescription->type = $2; }
     | EQTOKEN_HOSTNAME STRING   { connectionDescription->hostname = $2; }
     | EQTOKEN_COMMAND STRING    { connectionDescription->launchCommand = $2; }
-    | EQTOKEN_TIMEOUT UINTEGER  { connectionDescription->launchTimeout = $2; }
+    | EQTOKEN_TIMEOUT UNSIGNED  { connectionDescription->launchTimeout = $2; }
 
 
 pipes: pipe | pipes pipe
@@ -192,7 +195,7 @@ pipe: EQTOKEN_PIPE '{' { eqPipe = loader->createPipe(); }
         windows '}' { node->addPipe( eqPipe ); eqPipe = NULL; }
 pipeAttributes: /*null*/ | pipeAttribute | pipeAttributes pipeAttribute
 pipeAttribute:
-    EQTOKEN_DISPLAY UINTEGER         { eqPipe->setDisplay( $2 ); }
+    EQTOKEN_DISPLAY UNSIGNED         { eqPipe->setDisplay( $2 ); }
     | EQTOKEN_VIEWPORT viewport 
         {
             eqPipe->setPixelViewport( eq::PixelViewport( (int)$2[0], (int)$2[1],
@@ -250,8 +253,8 @@ compoundChildren: /*null*/ | compounds
 compoundAttributes: /*null*/ | compoundAttribute |
                     compoundAttributes compoundAttribute
 compoundAttribute: 
-    EQTOKEN_MODE '[' compoundMode ']' { compound->setMode( $3 ); } |
-    EQTOKEN_CHANNEL STRING
+    EQTOKEN_MODE '[' compoundMode ']' { compound->setMode( $3 ); }
+    | EQTOKEN_CHANNEL STRING
     {
          eqs::Channel* channel = config->findChannel( $2 );
          if( !channel )
@@ -259,17 +262,21 @@ compoundAttribute:
          else
              compound->setChannel( channel );
     }
+    | EQTOKEN_TASK '['      { compound->setTasks( eqs::Compound::TASK_NONE ); }
+        compoundTasks ']'
     | EQTOKEN_VIEWPORT viewport
-        {
-            compound->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] )); 
-        }
+        { compound->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] )); }
     | EQTOKEN_RANGE '[' FLOAT FLOAT ']'
-    { compound->setRange( eq::Range( $3, $4 )); }
+        { compound->setRange( eq::Range( $3, $4 )); }
     | wallDescription { compound->setWall( wall ); }
 
 compoundMode:
     EQTOKEN_SYNC { $$ = eqs::Compound::MODE_SYNC; }
 
+compoundTasks: /*null*/ | compoundTask | compoundTasks compoundTask
+compoundTask:
+    EQTOKEN_CLEAR   { compound->enableTasks( eqs::Compound::TASK_CLEAR ); }
+    | EQTOKEN_DRAW  { compound->enableTasks( eqs::Compound::TASK_DRAW ); }
 
 wallDescription: EQTOKEN_WALL '{'
         EQTOKEN_BOTTOM_LEFT  '[' FLOAT FLOAT FLOAT ']' 
@@ -307,8 +314,8 @@ FLOAT: EQTOKEN_FLOAT                       { $$ = atof( yytext ); }
     | INTEGER                              { $$ = $1; }
 
 INTEGER: EQTOKEN_INTEGER                   { $$ = atoi( yytext ); }
-    | UINTEGER                             { $$ = $1; }
-UINTEGER: EQTOKEN_UINTEGER                 { $$ = atoi( yytext ); }
+    | UNSIGNED                             { $$ = $1; }
+UNSIGNED: EQTOKEN_UNSIGNED                 { $$ = atoi( yytext ); }
 %%
 
 void yyerror( char *errmsg )

@@ -253,7 +253,7 @@ eqNet::CommandResult Channel::_reqClear( eqNet::Node* node,
     EQVERB << "handle channel clear " << packet << endl;
 
     _context = &packet->context;
-    clear( packet->frameID );
+    clear( packet->context.frameID );
     _context = NULL;
     return eqNet::COMMAND_HANDLED;
 }
@@ -265,7 +265,7 @@ eqNet::CommandResult Channel::_reqDraw( eqNet::Node* node,
     EQVERB << "handle channel draw " << packet << endl;
 
     _context = &packet->context;
-    draw( packet->frameID );
+    draw( packet->context.frameID );
     _context = NULL;
     return eqNet::COMMAND_HANDLED;
 }

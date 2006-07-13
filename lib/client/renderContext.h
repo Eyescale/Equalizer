@@ -23,6 +23,7 @@ namespace eq
     struct RenderContext 
     {
     public:
+        uint32_t      frameID;
         GLenum        drawBuffer;
         Viewport      vp;
         PixelViewport pvp;

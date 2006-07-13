@@ -34,6 +34,9 @@ type                            { return EQTOKEN_TYPE; }
 hostname                        { return EQTOKEN_HOSTNAME; }
 command                         { return EQTOKEN_COMMAND; }
 timeout                         { return EQTOKEN_TIMEOUT; }
+task                            { return EQTOKEN_TASK; }
+CLEAR                           { return EQTOKEN_CLEAR; }
+DRAW                            { return EQTOKEN_DRAW; }
 viewport                        { return EQTOKEN_VIEWPORT; }
 range                           { return EQTOKEN_RANGE; }
 display                         { return EQTOKEN_DISPLAY; }
@@ -56,7 +59,7 @@ SYNC                            { return EQTOKEN_SYNC; }
                                 }
 [+-]?[0-9]+[\.][0-9]*           { return EQTOKEN_FLOAT; }
 [+-]?[0-9]*[\.][0-9]+           { return EQTOKEN_FLOAT; }
-[+]?[0-9]+                      { return EQTOKEN_UINTEGER; }
+[+]?[0-9]+                      { return EQTOKEN_UNSIGNED; }
 [+-]?[0-9]+                     { return EQTOKEN_INTEGER; }
 
 [{}"\[\]]                       { return *yytext; }

@@ -569,7 +569,6 @@ namespace eq
             }
 
         RenderContext context;
-        uint32_t      frameID;
     };
         
     struct ChannelDrawPacket : public eqNet::ObjectPacket
@@ -581,7 +580,6 @@ namespace eq
             }
 
         RenderContext context;
-        uint32_t      frameID;
     };
         
 

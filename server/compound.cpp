@@ -21,7 +21,8 @@ using namespace eqBase;
 using namespace std;
 
 Compound::Compound()
-        : _parent( NULL )
+        : _parent( NULL ),
+          _tasks( TASK_ALL )
 {
 }
 
@@ -29,6 +30,8 @@ Compound::Compound()
 Compound::Compound( const Compound& from )
         : _parent( NULL )
 {
+    _tasks = from._tasks;
+
     const uint32_t nChildren = from.nChildren();
     for( uint32_t i=0; i<nChildren; i++ )
     {
@@ -371,35 +374,34 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
     UpdateChannelData* data    = (UpdateChannelData*)userData;
     Channel*           channel = data->channel;
 
-    if( compound->_data.channel != channel )
+    if( compound->_data.channel != channel || !compound->_tasks )
         return TRAVERSE_CONTINUE;
 
     const Channel*           iChannel = compound->_inherit.channel;
     const eq::PixelViewport& pvp      = iChannel->getPixelViewport();
 
-    eq::ChannelDrawPacket drawPacket;
-
-    drawPacket.context.drawBuffer = GL_BACK;
-    drawPacket.context.vp         = compound->_inherit.vp;
-    drawPacket.context.pvp        = pvp * compound->_inherit.vp;
-    drawPacket.context.range      = compound->_inherit.range;
-    drawPacket.frameID            = data->frameID;
-
-    compound->_computeFrustum( drawPacket.context.frustum, 
-                     drawPacket.context.headTransform );
-
-
-    if( !compound->_parent || 
-        compound->_parent && compound->_parent->_data.channel != channel )
+    eq::RenderContext context;
+    context.frameID    = data->frameID;
+    context.drawBuffer = GL_BACK; // TODO: traversal eye pass 
+    context.vp         = compound->_inherit.vp;
+    context.pvp        = pvp * compound->_inherit.vp;
+    context.range      = compound->_inherit.range;
+    
+    if( compound->testTask( TASK_CLEAR ))
     {
-        eq::ChannelClearPacket clearPacket;
-        
-        clearPacket.context = drawPacket.context;
-        clearPacket.frameID = data->frameID;
+        eq::ChannelClearPacket clearPacket;        
+        clearPacket.context = context;
         channel->send( clearPacket );
     }
+    if( compound->testTask( TASK_DRAW ))
+    {
+        eq::ChannelDrawPacket drawPacket;
 
-    channel->send( drawPacket );
+        drawPacket.context = context;
+        compound->_computeFrustum( drawPacket.context.frustum, 
+                     drawPacket.context.headTransform );
+        channel->send( drawPacket );
+    }
     return TRAVERSE_CONTINUE;
 }
 
@@ -488,10 +490,27 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
     {
         const std::string& name = channel->getName();
         if( name.empty( ))
-            os << "channel \"channel_" << (void*)channel << "\"" << endl;
+            os << "channel  \"channel_" << (void*)channel << "\"" << endl;
         else
-            os << "channel \"" << name << "\"" << endl;
+            os << "channel  \"" << name << "\"" << endl;
     }
+
+    os << "tasks    [";
+    if( compound->testTask( Compound::TASK_CLEAR ))    os << " CLEAR";
+    if( compound->testTask( Compound::TASK_CULL ))     os << " CULL";
+    if( compound->isLeaf() && compound->testTask( Compound::TASK_DRAW ))
+        os << " DRAW";
+    if( compound->testTask( Compound::TASK_ASSEMBLE )) os << " ASSEMBLE";
+    if( compound->testTask( Compound::TASK_READBACK )) os << " READBACK";
+    os << " ]" << endl;
+
+    const eq::Viewport& vp = compound->getViewport();
+    if( vp.isValid() && !vp.isFullScreen( ))
+        os << "viewport " << vp << endl;
+    
+    const eq::Range& range = compound->getRange();
+    if( range.isValid() && !range.isFull( ))
+        os << range << endl;
 
     switch( compound->_view.latest )
     {
@@ -507,14 +526,6 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
         default: 
             break;
     }
-
-    const eq::Viewport& vp = compound->getViewport();
-    if( vp.isValid() && !vp.isFullScreen( ))
-        os << "viewport " << vp << endl;
-    
-    const eq::Range& range = compound->getRange();
-    if( range.isValid() && !range.isFull( ))
-        os << range << endl;
 
     const uint32_t nChildren = compound->nChildren();
     if( nChildren > 0 )
