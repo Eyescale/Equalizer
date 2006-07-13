@@ -5,8 +5,9 @@
 #ifndef EQBASE_REFERENCED_H
 #define EQBASE_REFERENCED_H
 
-#include "base.h"
-#include "log.h"
+#include <eq/base/base.h>
+#include <eq/base/lock.h>
+#include <eq/base/log.h>
 
 namespace eqBase
 {
@@ -18,14 +19,17 @@ namespace eqBase
     {
     public:
         // TODO: optional thread-safety
+        // TODO: use fast mutex (futex, atomic-op based spinlock or similar)
 
-        void ref()   { _refCount++; }
+        void ref()   { _mutex.set(); _refCount++; _mutex.unset(); }
         void unref() 
             { 
+                _mutex.set();
                 EQASSERT( _refCount > 0 ); 
                 --_refCount;
                 if( _refCount==0 )
                     delete this;
+                _mutex.unset();
             }
 
         int  getRefCount() const { return _refCount; }
@@ -43,7 +47,8 @@ namespace eqBase
                 EQASSERT( _refCount == 0 );
             }
 
-        int _refCount;
+        int  _refCount;
+        Lock _mutex;
     };
 }
 
