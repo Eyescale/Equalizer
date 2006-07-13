@@ -100,7 +100,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                 break;
 
             case -1: // ERROR
-//#ifdef DEBUG
+//#ifndef NDEBUG
                 if( errno == EINTR ) // Interrupted system call (gdb) - ignore
                 {
                     event = EVENT_NONE;

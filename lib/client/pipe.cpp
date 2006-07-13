@@ -113,7 +113,7 @@ void Pipe::setXDisplay( Display* display )
 
     if( display )
     {
-#ifdef DEBUG
+#ifndef NDEBUG
         // somewhat reduntant since it is a global handler
         XSetErrorHandler( eq::Pipe::XErrorHandler );
 #endif
