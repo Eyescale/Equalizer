@@ -327,7 +327,8 @@ void Compound::_updateInheritData()
     if( !_inherit.view.isValid( ))
         _inherit.view = _data.view;
 
-    _inherit.vp.multiply( _data.vp );
+    _inherit.vp    *= _data.vp;
+    _inherit.range *= _data.range;
 }
 
 void Compound::_updateSwapGroup()
@@ -378,28 +379,25 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
 
     eq::ChannelDrawPacket drawPacket;
 
-    drawPacket.context.hints      = HINT_BUFFER;
     drawPacket.context.drawBuffer = GL_BACK;
     drawPacket.context.vp         = compound->_inherit.vp;
     drawPacket.context.pvp        = pvp * compound->_inherit.vp;
+    drawPacket.context.range      = compound->_inherit.range;
     drawPacket.frameID            = data->frameID;
+
+    compound->_computeFrustum( drawPacket.context.frustum, 
+                     drawPacket.context.headTransform );
+
 
     if( !compound->_parent || 
         compound->_parent && compound->_parent->_data.channel != channel )
     {
         eq::ChannelClearPacket clearPacket;
         
-        clearPacket.context.hints      = HINT_BUFFER;
-        clearPacket.context.drawBuffer = drawPacket.context.drawBuffer;
-        clearPacket.context.vp         = drawPacket.context.vp;
-        clearPacket.context.pvp        = drawPacket.context.pvp;
-        clearPacket.frameID            = data->frameID;
+        clearPacket.context = drawPacket.context;
+        clearPacket.frameID = data->frameID;
         channel->send( clearPacket );
     }
-
-    drawPacket.context.hints |= HINT_FRUSTUM;
-    compound->_computeFrustum( drawPacket.context.frustum, 
-                     drawPacket.context.headTransform );
 
     channel->send( drawPacket );
     return TRAVERSE_CONTINUE;
@@ -437,6 +435,20 @@ void Compound::_computeFrustum( eq::Frustum& frustum, float headTransform[16] )
         frustum.right  = -( iView.width/2.  + eye[0] ) * ratio;
         frustum.top    =  ( iView.height/2. + eye[1] ) * ratio;
         frustum.bottom = -( iView.height/2. - eye[1] ) * ratio;
+    }
+
+    // adjust to viewport (screen-space decomposition)
+    // Note: may need to be computed in pvp space to avoid rounding problems
+    const eq::Viewport vp = _inherit.vp;
+    if( !vp.isFullScreen() && vp.isValid( ))
+    {
+        const float frustumWidth = frustum.right - frustum.left;
+        frustum.left += frustumWidth * vp.x;
+        frustum.right = frustum.left + frustumWidth * vp.w;
+        
+        const float frustumHeight = frustum.bottom - frustum.top;
+        frustum.top   += frustumHeight * vp.y;
+        frustum.bottom = frustum.top + frustumHeight * vp.h;
     }
 
     // compute head transform
@@ -495,6 +507,14 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
         default: 
             break;
     }
+
+    const eq::Viewport& vp = compound->getViewport();
+    if( vp.isValid() && !vp.isFullScreen( ))
+        os << "viewport " << vp << endl;
+    
+    const eq::Range& range = compound->getRange();
+    if( range.isValid() && !range.isFull( ))
+        os << range << endl;
 
     const uint32_t nChildren = compound->nChildren();
     if( nChildren > 0 )

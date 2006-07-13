@@ -67,6 +67,7 @@ HEADER_SRC = \
 	client/pipe.h \
 	client/pixelViewport.h \
 	client/projection.h \
+	client/range.h \
 	client/renderContext.h \
 	client/server.h \
 	client/viewMatrix.h \

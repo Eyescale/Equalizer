@@ -65,6 +65,7 @@
 %token EQTOKEN_COMMAND
 %token EQTOKEN_TIMEOUT
 %token EQTOKEN_VIEWPORT
+%token EQTOKEN_RANGE
 %token EQTOKEN_DISPLAY
 %token EQTOKEN_WALL
 %token EQTOKEN_BOTTOM_LEFT
@@ -76,7 +77,6 @@
 %token EQTOKEN_SYNC
 
 %token EQTOKEN_STRING
-%token EQTOKEN_NORMALIZED_FLOAT
 %token EQTOKEN_FLOAT
 %token EQTOKEN_INTEGER
 %token EQTOKEN_UINTEGER
@@ -88,6 +88,7 @@
     bool                    boolean;
     eqs::Compound::Mode     _compoundMode;
     eqNet::Connection::Type _connectionType;
+    float                   _viewport[4];
     bool                    dummy;
 }
 
@@ -95,7 +96,8 @@
 %type <integer>         INTEGER UINTEGER;
 %type <_compoundMode>   compoundMode;
 %type <_connectionType> connectionType;
-%type <floatval>        NORMALIZED_FLOAT FLOAT;
+%type <_viewport>       viewport;
+%type <floatval>        FLOAT;
 %type <dummy>           wallDescription;
 //%type <boolean>       BOOL;
 
@@ -190,9 +192,12 @@ pipe: EQTOKEN_PIPE '{' { eqPipe = loader->createPipe(); }
         windows '}' { node->addPipe( eqPipe ); eqPipe = NULL; }
 pipeAttributes: /*null*/ | pipeAttribute | pipeAttributes pipeAttribute
 pipeAttribute:
-    EQTOKEN_DISPLAY UINTEGER { eqPipe->setDisplay( $2 ); }
-    | EQTOKEN_VIEWPORT '[' UINTEGER UINTEGER UINTEGER UINTEGER ']'
-    { eqPipe->setPixelViewport( eq::PixelViewport( $3, $4, $5, $6 )); }
+    EQTOKEN_DISPLAY UINTEGER         { eqPipe->setDisplay( $2 ); }
+    | EQTOKEN_VIEWPORT viewport 
+        {
+            eqPipe->setPixelViewport( eq::PixelViewport( $2[0], $2[1], 
+                                                         $2[2], $2[3] )); 
+        }
 
 windows: window | windows window
 window: EQTOKEN_WINDOW '{' { window = loader->createWindow(); }
@@ -200,12 +205,15 @@ window: EQTOKEN_WINDOW '{' { window = loader->createWindow(); }
         channels '}' { eqPipe->addWindow( window ); window = NULL; }
 windowAttributes: /*null*/ | windowAttribute | windowAttributes windowAttribute
 windowAttribute: 
-    EQTOKEN_NAME STRING { window->setName( $2 ); }
-    | EQTOKEN_VIEWPORT '[' NORMALIZED_FLOAT NORMALIZED_FLOAT 
-                         NORMALIZED_FLOAT NORMALIZED_FLOAT ']'
-    { window->setViewport( eq::Viewport( $3, $4, $5, $6 )); }
-    | EQTOKEN_VIEWPORT '[' UINTEGER UINTEGER UINTEGER UINTEGER ']'
-    { window->setPixelViewport( eq::PixelViewport( $3, $4, $5, $6 )); }
+    EQTOKEN_NAME STRING              { window->setName( $2 ); }
+    | EQTOKEN_VIEWPORT viewport
+        {
+            if( $2[2] > 1 || $2[3] > 1 )
+                window->setPixelViewport( eq::PixelViewport( $2[0], $2[1], 
+                                                             $2[2], $2[3] )); 
+            else
+                window->setViewport( eq::Viewport($2[0], $2[1], $2[2], $2[3])); 
+        }
 
 channels: channel | channels channel
 channel: EQTOKEN_CHANNEL '{' { channel = loader->createChannel(); }
@@ -215,11 +223,14 @@ channelAttributes:
      /*null*/ | channelAttribute | channelAttributes channelAttribute
 channelAttribute: 
     EQTOKEN_NAME STRING { channel->setName( $2 ); }
-    | EQTOKEN_VIEWPORT '[' NORMALIZED_FLOAT NORMALIZED_FLOAT 
-                         NORMALIZED_FLOAT NORMALIZED_FLOAT ']'
-    { channel->setViewport( eq::Viewport( $3, $4, $5, $6 )); }
-    | EQTOKEN_VIEWPORT '[' UINTEGER UINTEGER UINTEGER UINTEGER ']'
-    { channel->setPixelViewport( eq::PixelViewport( $3, $4, $5, $6 )); }
+    | EQTOKEN_VIEWPORT viewport
+        {
+            if( $2[2] > 1 || $2[3] > 1 )
+                channel->setPixelViewport( eq::PixelViewport( $2[0], $2[1], 
+                                                             $2[2], $2[3] )); 
+            else
+                channel->setViewport(eq::Viewport( $2[0], $2[1], $2[2], $2[3]));
+        }
 
 
 compounds: compound | compounds compound
@@ -248,6 +259,12 @@ compoundAttribute:
          else
              compound->setChannel( channel );
     }
+    | EQTOKEN_VIEWPORT viewport
+        {
+            compound->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] )); 
+        }
+    | EQTOKEN_RANGE '[' FLOAT FLOAT ']'
+    { compound->setRange( eq::Range( $3, $4 )); }
     | wallDescription { compound->setWall( wall ); }
 
 compoundMode:
@@ -273,16 +290,22 @@ wallDescription: EQTOKEN_WALL '{'
         wall.topLeft[2] = $19;
     }
 
+viewport: '[' FLOAT FLOAT FLOAT FLOAT ']'
+     { 
+         $$[0] = $2;
+         $$[1] = $3;
+         $$[2] = $4;
+         $$[3] = $5;
+     }
 
 STRING: EQTOKEN_STRING
      {
          stringBuf = yytext;
          $$ = stringBuf.c_str(); 
      }
-NORMALIZED_FLOAT: EQTOKEN_NORMALIZED_FLOAT { $$ = atof( yytext ); }
 FLOAT: EQTOKEN_FLOAT                       { $$ = atof( yytext ); }
-    | NORMALIZED_FLOAT                     { $$ = $1; }
     | INTEGER                              { $$ = $1; }
+
 INTEGER: EQTOKEN_INTEGER                   { $$ = atoi( yytext ); }
     | UINTEGER                             { $$ = $1; }
 UINTEGER: EQTOKEN_UINTEGER                 { $$ = atoi( yytext ); }

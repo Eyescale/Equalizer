@@ -5,10 +5,10 @@
 #ifndef EQ_PACKETS_H
 #define EQ_PACKETS_H
 
-#include "commands.h"
-#include "pixelViewport.h"
-#include "renderContext.h"
-#include "viewport.h"
+#include <eq/client/commands.h>
+#include <eq/client/pixelViewport.h>
+#include <eq/client/renderContext.h>
+#include <eq/client/viewport.h>
 
 #include <eq/net/packets.h>
 
@@ -566,7 +566,6 @@ namespace eq
             {
                 command       = CMD_CHANNEL_CLEAR;
                 size          = sizeof( ChannelClearPacket );
-                context.hints = HINT_BUFFER;
             }
 
         RenderContext context;
@@ -579,7 +578,6 @@ namespace eq
             {
                 command       = CMD_CHANNEL_DRAW;
                 size          = sizeof( ChannelDrawPacket );
-                context.hints = HINT_BUFFER | HINT_FRUSTUM;
             }
 
         RenderContext context;

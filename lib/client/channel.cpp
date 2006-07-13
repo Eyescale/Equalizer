@@ -9,6 +9,7 @@
 #include "global.h"
 #include "nodeFactory.h"
 #include "packets.h"
+#include "range.h"
 #include "renderContext.h"
 
 using namespace eq;
@@ -17,7 +18,8 @@ using namespace std;
 // Move me
 namespace eq
 {
-    float identityMatrix[16] = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
+    static float identityMatrix[16] = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
+    static Range fullRange;
 }
 
 Channel::Channel()
@@ -138,7 +140,7 @@ void Channel::draw( const uint32_t frameID )
 
 void Channel::applyBuffer()
 {
-    if( !_context || !(_context->hints & HINT_BUFFER ))
+    if( !_context )
         return;
 
     glDrawBuffer( _context->drawBuffer );
@@ -146,18 +148,12 @@ void Channel::applyBuffer()
 
 const Viewport& Channel::getViewport() const
 {
-    if( _context && (_context->hints & HINT_BUFFER) )
-        return _context->vp;
-
-    return _vp;
+    return _context ? _context->vp : _vp;
 }
 
 const PixelViewport& Channel::getPixelViewport() const
 {
-    if( _context && (_context->hints & HINT_BUFFER) )
-        return _context->pvp;
-
-    return _pvp;
+    return _context ? _context->pvp : _pvp;
 }
 
 void Channel::applyViewport()
@@ -174,9 +170,12 @@ void Channel::applyViewport()
 
 const Frustum& Channel::getFrustum() const
 {
-    if( _context && ( _context->hints & HINT_FRUSTUM ))
-        return _context->frustum;
-    return _frustum;
+    return _context ? _context->frustum : _frustum;
+}
+
+const Range& Channel::getRange() const
+{
+    return _context ? _context->range : fullRange;
 }
 
 void Channel::applyFrustum() const
@@ -189,9 +188,7 @@ void Channel::applyFrustum() const
 
 const float* Channel::getHeadTransform() const
 {
-    if( _context && (_context->hints & HINT_FRUSTUM ))
-        return _context->headTransform;
-    return identityMatrix;
+    return _context ? _context->headTransform : identityMatrix;
 }
 
 void Channel::applyHeadTransform() const

@@ -16,6 +16,7 @@ namespace eq
 {
     class Channel;
     class Node;
+    class Range;
     class RenderContext;
     class SceneObject;
 
@@ -143,15 +144,14 @@ namespace eq
          */
         void setViewport( const Viewport& vp );
 
-        /** 
-         * @return the current fractional viewport of this channel.
-         */
+        /** @return the current fractional viewport of this channel. */
         const Viewport& getViewport() const;
 
-        /**
-         * @return the view frustum for the current rendering task.
-         */
+        /** @return the view frustum for the current rendering task. */
         const Frustum& getFrustum() const;
+
+        /** @return the database range for the current rendering task. */
+        const Range& getRange() const;
 
         /**
          * Apply the frustum matrix for the current rendering task.

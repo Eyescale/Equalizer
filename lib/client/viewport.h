@@ -24,12 +24,13 @@ namespace eq
         //*}
 
         void invalidate() { x=0; y=0; w=0; h=0; }
-        void multiply( const Viewport& vp )
+        Viewport& operator *= ( const Viewport& rhs )
             {
-                x += vp.x * w;
-                y += vp.y * h;
-                w *= vp.w;
-                h *= vp.h;
+                x += rhs.x * w;
+                y += rhs.y * h;
+                w *= rhs.w;
+                h *= rhs.h;
+                return *this;
             }
 
         bool isValid() const { return (w>0 && h>0); }

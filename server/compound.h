@@ -8,6 +8,7 @@
 #include "channel.h"
 
 #include <eq/client/projection.h>
+#include <eq/client/range.h>
 #include <eq/client/viewMatrix.h>
 #include <eq/client/viewport.h>
 #include <eq/client/wall.h>
@@ -132,6 +133,12 @@ namespace eqs
          * @return the decomposition mode.
          */
         Mode getMode() const { return _mode; }
+
+        void setViewport( const eq::Viewport& vp ) { _data.vp = vp; }
+        const eq::Viewport& getViewport() const { return _data.vp; }
+
+        void setRange( const eq::Range& range ) { _data.range = range; }
+        const eq::Range& getRange() const { return _data.range; }
         //*}
 
         /**
@@ -253,6 +260,7 @@ namespace eqs
 
             Channel*       channel;
             eq::Viewport   vp;
+            eq::Range      range;
             eq::ViewMatrix view;
         };
 
@@ -260,7 +268,6 @@ namespace eqs
         InheritData _inherit;
 
         Mode        _mode;
-
 
         void _updateInheritData();
 
