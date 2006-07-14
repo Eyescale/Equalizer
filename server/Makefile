@@ -11,6 +11,7 @@ SOURCES = \
 	node.cpp \
 	pipe.cpp \
 	server.cpp \
+	swapBarrier.cpp \
 	window.cpp \
 	lexer.cpp \
 	parser.cpp

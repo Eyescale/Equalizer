@@ -18,6 +18,9 @@
 
 namespace eqs
 {
+    class Frame;
+    class SwapBarrier;
+
     enum TraverseResult
     {
         TRAVERSE_CONTINUE,
@@ -85,10 +88,7 @@ namespace eqs
          */
         uint32_t nChildren() const { return _children.size(); }
 
-        /** 
-         * Return if the compound is a leaf compound.
-         * @return if the compound is a leaf compound. 
-         */
+        /** @return if the compound is a leaf compound. */
         bool isLeaf() const { return _children.empty(); }
 
         /** 
@@ -100,13 +100,16 @@ namespace eqs
         Compound* getChild( const uint32_t index ) const
             { return _children[index]; }
 
-        /** 
-         * Gets the parent compound.
-         * 
-         * @return the parent compound.
-         */
+        /** @return the parent compound. */
         Compound* getParent() const
             { return _parent; }
+
+        /** @return the root of the compound tree. */
+        Compound* getRoot()
+            { return _parent ? _parent->getRoot() : this; }
+
+        void setName( const std::string& name ) { _name = name; }
+        const std::string& getName() const      { return _name; }
 
         /** 
          * Set the channel of this compound.
@@ -127,7 +130,6 @@ namespace eqs
 
         Window* getWindow() const 
             { return _data.channel ? _data.channel->getWindow() : NULL; }
-
 
         /** 
          * Set the tasks to be executed by the compound.
@@ -184,6 +186,47 @@ namespace eqs
         const eq::Range& getRange() const { return _data.range; }
         //*}
 
+        /** @name IO object access. */
+        //*{
+        /** 
+         * Set a swap barrier.
+         *
+         * Windows of compounds with the same swap barrier name will enter a
+         * barrier before executing eq::Window::swap. Setting an empty string
+         * disables the swap barrier.
+         * 
+         * @param barrier the swap barrier.
+         */
+        void setSwapBarrier( SwapBarrier* barrier );
+        
+        /** @return the current swap barrier. */
+        SwapBarrier* getSwapBarrier() const { return _swapBarrier; }
+
+        /** 
+         * Add a new input frame for this compound.
+         *
+         * The task parameter is currently ignored, since right now input frames
+         * are only used for the assemble task.
+         * 
+         * @param task The task using the input frame.
+         * @param frame the input frame.
+         */
+        void addInputFrame( Frame* frame, const Task task = TASK_ASSEMBLE )
+            { _inputFrames.push_back( frame ); }
+
+        /** 
+         * Add a new output frame for this compound.
+         *
+         * The task parameter is currently ignored, since right now output
+         * frames are only used for the readback task.
+         * 
+         * @param task The task using the output frame.
+         * @param frame the output frame.
+         */
+        void addOutputFrame( Frame* frame, const Task task = TASK_READBACK )
+            { _outputFrames.push_back( frame ); }
+        //*}
+
         /**
          * @name View Operations
          */
@@ -219,9 +262,7 @@ namespace eqs
         const eq::ViewMatrix& getViewMatrix() const { return _view.matrix; }
         //*}
 
-        /**
-         * @name Compound Operations
-         */
+        /** @name Compound Operations. */
         //*{
         typedef TraverseResult (*TraverseCB)(Compound* compound,void* userData);
 
@@ -273,6 +314,8 @@ namespace eqs
         //*}
 
     private:
+        std::string _name;
+
         Compound               *_parent;
         std::vector<Compound*>  _children;
         
@@ -313,7 +356,12 @@ namespace eqs
         InheritData _inherit;
 
         Mode        _mode;
+        
+        SwapBarrier* _swapBarrier;
 
+        std::vector<Frame*> _inputFrames;
+        std::vector<Frame*> _outputFrames;
+        
         void _updateInheritData();
 
         static TraverseResult _updateDrawCB(Compound* compound, void* );

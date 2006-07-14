@@ -31,6 +31,7 @@ compound                        { return EQTOKEN_COMPOUND; }
 connection                      { return EQTOKEN_CONNECTION; }
 name                            { return EQTOKEN_NAME; }
 type                            { return EQTOKEN_TYPE; }
+TCPIP|tcpip                     { return EQTOKEN_TCPIP; }
 hostname                        { return EQTOKEN_HOSTNAME; }
 command                         { return EQTOKEN_COMMAND; }
 timeout                         { return EQTOKEN_TIMEOUT; }
@@ -45,9 +46,9 @@ bottom_left                     { return EQTOKEN_BOTTOM_LEFT; }
 bottom_right                    { return EQTOKEN_BOTTOM_RIGHT; }
 top_left                        { return EQTOKEN_TOP_LEFT; }
 mode                            { return EQTOKEN_MODE; }
-latency                         { return EQTOKEN_LATENCY; }
-TCPIP|tcpip                     { return EQTOKEN_TCPIP; }
 SYNC                            { return EQTOKEN_SYNC; }
+latency                         { return EQTOKEN_LATENCY; }
+swapbarrier                     { return EQTOKEN_SWAPBARRIER; }
 
 ["]                             { 
                                     int i = -1;

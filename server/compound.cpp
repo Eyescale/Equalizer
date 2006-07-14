@@ -5,6 +5,7 @@
 #include "compound.h"
 
 #include "channel.h"
+#include "swapBarrier.h"
 
 #include <eq/base/base.h>
 #include <eq/client/packets.h>
@@ -22,7 +23,8 @@ using namespace std;
 
 Compound::Compound()
         : _parent( NULL ),
-          _tasks( TASK_ALL )
+          _tasks( TASK_ALL ),
+          _swapBarrier( NULL )
 {
 }
 
@@ -30,6 +32,7 @@ Compound::Compound()
 Compound::Compound( const Compound& from )
         : _parent( NULL )
 {
+    _name  = from._name;
     _tasks = from._tasks;
 
     const uint32_t nChildren = from.nChildren();
@@ -42,6 +45,7 @@ Compound::Compound( const Compound& from )
     _view = from._view;
     _data = from._data;
     _mode = from._mode;
+    _swapBarrier = from._swapBarrier;
 }
 
 Compound::InheritData::InheritData()
@@ -71,6 +75,21 @@ Compound* Compound::_getNext() const
         return NULL;
 
     return *result;
+}
+
+void Compound::setSwapBarrier( SwapBarrier* barrier )
+{
+    if( barrier && barrier->getName().size() == 0 )
+    {
+        const Compound* root     = getRoot();
+        const string&   rootName = root->getName();
+        if( rootName.size() == 0 )
+            barrier->setName( "barrier" );
+        else
+            barrier->setName( "barrier." + rootName );
+    }
+
+    _swapBarrier = barrier; 
 }
 
 //---------------------------------------------------------------------------
@@ -479,10 +498,14 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
     os << disableFlush << "compound" << endl;
     os << "{" << endl << indent;
       
+    const std::string& name = compound->getName();
+    if( !name.empty( ))
+        os << "name     \"" << name << "\"" << endl;
+
     const Compound::Mode mode = compound->getMode();
     if( mode != Compound::MODE_NONE )
-        os << "mode [ " << ( mode == Compound::MODE_SYNC ? "SYNC" : 
-                             mode == Compound::MODE_2D   ? "2D" : "????" ) 
+        os << "mode     [ " << ( mode == Compound::MODE_SYNC ? "SYNC" : 
+                                 mode == Compound::MODE_2D   ? "2D" : "????" ) 
            << " ]" << endl;
 
     const Channel* channel = compound->getChannel();
@@ -495,14 +518,21 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
             os << "channel  \"" << name << "\"" << endl;
     }
 
-    os << "tasks    [";
-    if( compound->testTask( Compound::TASK_CLEAR ))    os << " CLEAR";
-    if( compound->testTask( Compound::TASK_CULL ))     os << " CULL";
-    if( compound->isLeaf() && compound->testTask( Compound::TASK_DRAW ))
-        os << " DRAW";
-    if( compound->testTask( Compound::TASK_ASSEMBLE )) os << " ASSEMBLE";
-    if( compound->testTask( Compound::TASK_READBACK )) os << " READBACK";
-    os << " ]" << endl;
+    if( !compound->testTask( Compound::TASK_CLEAR ) ||
+        !compound->testTask( Compound::TASK_CULL ) ||
+        (compound->isLeaf() && !compound->testTask( Compound::TASK_DRAW )) ||
+        !compound->testTask( Compound::TASK_ASSEMBLE ) ||
+        !compound->testTask( Compound::TASK_READBACK ))
+    {
+        os << "tasks    [";
+        if( compound->testTask( Compound::TASK_CLEAR ))    os << " CLEAR";
+        if( compound->testTask( Compound::TASK_CULL ))     os << " CULL";
+        if( compound->isLeaf() && compound->testTask( Compound::TASK_DRAW ))
+            os << " DRAW";
+        if( compound->testTask( Compound::TASK_ASSEMBLE )) os << " ASSEMBLE";
+        if( compound->testTask( Compound::TASK_READBACK )) os << " READBACK";
+        os << " ]" << endl;
+    }
 
     const eq::Viewport& vp = compound->getViewport();
     if( vp.isValid() && !vp.isFullScreen( ))
@@ -535,6 +565,7 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
             os << compound->getChild(i);
     }
 
+    os << compound->getSwapBarrier();
     os << exdent << "}" << endl << enableFlush;
     return os;
 }

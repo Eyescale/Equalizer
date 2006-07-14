@@ -9,6 +9,7 @@
 #include "global.h"
 #include "pipe.h"
 #include "server.h"
+#include "swapBarrier.h"
 #include "window.h"
 
 #include <eq/base/base.h>
@@ -19,14 +20,14 @@
         static eqs::Loader* loader = NULL;
         static std::string  stringBuf;
         
-        static eqs::Server*   server;
-        static eqs::Config*   config;
-        static eqs::Node*     node;
-        static eqs::Pipe*     eqPipe; // avoid name clash with pipe()
-        static eqs::Window*   window;
-        static eqs::Channel*  channel;
-        static eqs::Compound* compound;
-        static eq::Wall       wall;
+        static eqs::Server*      server;
+        static eqs::Config*      config;
+        static eqs::Node*        node;
+        static eqs::Pipe*        eqPipe; // avoid name clash with pipe()
+        static eqs::Window*      window;
+        static eqs::Channel*     channel;
+        static eqs::Compound*    compound;
+        static eqs::SwapBarrier* swapBarrier;
         static eqBase::RefPtr<eqNet::ConnectionDescription> 
             connectionDescription;
     }
@@ -61,6 +62,7 @@
 %token EQTOKEN_CONNECTION
 %token EQTOKEN_NAME
 %token EQTOKEN_TYPE
+%token EQTOKEN_TCPIP
 %token EQTOKEN_HOSTNAME
 %token EQTOKEN_COMMAND
 %token EQTOKEN_TIMEOUT
@@ -75,9 +77,9 @@
 %token EQTOKEN_BOTTOM_RIGHT
 %token EQTOKEN_TOP_LEFT
 %token EQTOKEN_MODE
-%token EQTOKEN_LATENCY
-%token EQTOKEN_TCPIP
 %token EQTOKEN_SYNC
+%token EQTOKEN_LATENCY
+%token EQTOKEN_SWAPBARRIER
 
 %token EQTOKEN_STRING
 %token EQTOKEN_FLOAT
@@ -92,7 +94,6 @@
     eqs::Compound::Mode     _compoundMode;
     eqNet::Connection::Type _connectionType;
     float                   _viewport[4];
-    bool                    dummy;
 }
 
 %type <_string>         STRING;
@@ -102,7 +103,6 @@
 %type <_connectionType> connectionType;
 %type <_viewport>       viewport;
 %type <_float>          FLOAT;
-%type <dummy>           wallDescription;
 
 %%
 
@@ -253,7 +253,8 @@ compoundChildren: /*null*/ | compounds
 compoundAttributes: /*null*/ | compoundAttribute |
                     compoundAttributes compoundAttribute
 compoundAttribute: 
-    EQTOKEN_MODE '[' compoundMode ']' { compound->setMode( $3 ); }
+    EQTOKEN_NAME STRING { compound->setName( $2 ); }
+    | EQTOKEN_MODE '[' compoundMode ']' { compound->setMode( $3 ); }
     | EQTOKEN_CHANNEL STRING
     {
          eqs::Channel* channel = config->findChannel( $2 );
@@ -268,7 +269,8 @@ compoundAttribute:
         { compound->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] )); }
     | EQTOKEN_RANGE '[' FLOAT FLOAT ']'
         { compound->setRange( eq::Range( $3, $4 )); }
-    | wallDescription { compound->setWall( wall ); }
+    | wall
+    | swapBarrier
 
 compoundMode:
     EQTOKEN_SYNC { $$ = eqs::Compound::MODE_SYNC; }
@@ -278,12 +280,13 @@ compoundTask:
     EQTOKEN_CLEAR   { compound->enableTasks( eqs::Compound::TASK_CLEAR ); }
     | EQTOKEN_DRAW  { compound->enableTasks( eqs::Compound::TASK_DRAW ); }
 
-wallDescription: EQTOKEN_WALL '{'
-        EQTOKEN_BOTTOM_LEFT  '[' FLOAT FLOAT FLOAT ']' 
-        EQTOKEN_BOTTOM_RIGHT '[' FLOAT FLOAT FLOAT ']' 
-        EQTOKEN_TOP_LEFT     '[' FLOAT FLOAT FLOAT ']' 
-    '}'
+wall: EQTOKEN_WALL '{'
+          EQTOKEN_BOTTOM_LEFT  '[' FLOAT FLOAT FLOAT ']' 
+          EQTOKEN_BOTTOM_RIGHT '[' FLOAT FLOAT FLOAT ']' 
+          EQTOKEN_TOP_LEFT     '[' FLOAT FLOAT FLOAT ']' 
+      '}'
     { 
+        eq::Wall wall;
         wall.bottomLeft[0] = $5;
         wall.bottomLeft[1] = $6;
         wall.bottomLeft[2] = $7;
@@ -295,7 +298,19 @@ wallDescription: EQTOKEN_WALL '{'
         wall.topLeft[0] = $17;
         wall.topLeft[1] = $18;
         wall.topLeft[2] = $19;
+        compound->setWall( wall );
     }
+
+swapBarrier : EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eqs::SwapBarrier(); }
+    swapBarrierAttributes '}'
+        { 
+            compound->setSwapBarrier( swapBarrier );
+            swapBarrier = NULL;
+        } 
+swapBarrierAttributes: /*null*/ | swapBarrierAttribute 
+    | swapBarrierAttributes swapBarrierAttribute
+swapBarrierAttribute: 
+    EQTOKEN_NAME STRING { swapBarrier->setName( $2 ); }
 
 viewport: '[' FLOAT FLOAT FLOAT FLOAT ']'
      { 

@@ -617,7 +617,7 @@ ostream& eqs::operator << ( ostream& os, const Config* config )
     os << disableFlush << disableHeader << "config " << endl;
     os << "{" << endl << indent;
 
-    if( config->getLatency() > 0 )
+    if( config->getLatency() != 1 )
         os << "latency " << config->getLatency() << endl;
     os << endl;
 

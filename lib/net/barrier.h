@@ -60,7 +60,7 @@ namespace eqNet
         uint32_t _height;
 
         /** A flag if the master instance has entered already. */
-        bool               _masterEntered;
+        bool       _masterEntered;
         /** Slave nodes which have entered the barrier. */
         NodeVector _enteredNodes;
         
