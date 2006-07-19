@@ -17,8 +17,6 @@ void Window::_construct()
     _used             = 0;
     _pipe             = NULL;
     _pendingRequestID = EQ_INVALID_ID;
-    _swapMaster       = NULL;
-    _swapBarrier      = NULL;
     _state            = STATE_STOPPED;
 
     registerCommand( eq::CMD_WINDOW_INIT_REPLY, this,
@@ -111,29 +109,35 @@ void eqs::Window::setViewport( const eq::Viewport& vp )
 }
 
 //---------------------------------------------------------------------------
-// swap group operations
+// swap barrier operations
 //---------------------------------------------------------------------------
-void Window::resetSwapGroup()
-{
-    const uint32_t nMembers = _swapGroup.size();
-    for( uint32_t i=0; i<nMembers; i++ )
-        _swapGroup[i]->_swapMaster = NULL;
+void Window::resetSwapBarriers()
+{ 
+    Node* node = getNode();
 
-    _swapGroup.clear();
-    _swapMaster  = NULL;
+    for( vector<eqNet::Barrier*>::iterator iter = _masterSwapBarriers.begin();
+         iter != _masterSwapBarriers.end(); ++iter )
+            
+        node->releaseBarrier( *iter );
+
+    _masterSwapBarriers.clear();
+    _swapBarriers.clear();
 }
 
-void Window::setSwapGroup( Window* master )
+eqNet::Barrier* Window::newSwapBarrier()
 {
-    if( _swapMaster )
-    {
-        EQWARN << "Window already belongs to swap group on " << _swapMaster
-             << ", ignoring swap group request." << endl;
-        return;
-    }
+    Node*           node    = getNode();
+    eqNet::Barrier* barrier = node->getBarrier();
+    _masterSwapBarriers.push_back( barrier );
 
-    master->_swapGroup.push_back( this );
-    _swapMaster = master;
+    addSwapBarrier( barrier );
+    return barrier;
+}
+
+void Window::addSwapBarrier( eqNet::Barrier* barrier )
+{ 
+    barrier->increase();
+    _swapBarriers.push_back( barrier );
 }
 
 //===========================================================================
@@ -292,35 +296,26 @@ void Window::update( const uint32_t frameID )
 
 void Window::_updateSwap()
 {
-    if( _swapMaster ) // swap barrier
+    for( vector<eqNet::Barrier*>::iterator iter = _masterSwapBarriers.begin();
+         iter != _masterSwapBarriers.end(); ++iter )
+
+        (*iter)->commit();
+
+    if( !_swapBarriers.empty())
     {
-        const uint32_t height = _swapMaster->_swapGroup.size();
-        if( height > 1 )
-        {
-            if( _swapMaster == this )
-            {
-                Node* node = getNode();
-            
-                if( _swapBarrier && _swapBarrier->getHeight() != height )
-                {
-                    node->releaseBarrier( _swapBarrier );
-                    _swapBarrier = NULL;
-                }
+        eq::WindowFinishPacket packet;
+        _send( packet );
+    }
 
-                if( !_swapBarrier )
-                    _swapBarrier = node->getBarrier( height );
-            }
+    for( vector<eqNet::Barrier*>::iterator iter = _swapBarriers.begin();
+         iter != _swapBarriers.end(); ++iter )
+    {
+        const eqNet::Barrier*   barrier = *iter;
+        eq::WindowBarrierPacket packet;
 
-            EQASSERT( _swapMaster->_swapBarrier );
-
-            eq::WindowSwapWithBarrierPacket packet;
-            packet.barrierID = _swapMaster->_swapBarrier->getID();
-            _send( packet );
-            return;
-        }
-
-        EQWARN << "Swap group of size " << height << ", ignoring request" 
-               << endl;
+        packet.barrierID      = barrier->getID();
+        packet.barrierVersion = barrier->getVersion();
+        _send( packet );
     }
 
     eq::WindowSwapPacket packet;

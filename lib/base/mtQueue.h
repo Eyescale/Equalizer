@@ -124,7 +124,7 @@ namespace eqBase
                 }
             }
 
-        T* back()
+        T* back() const
             {
                 switch( _type )
                 {
@@ -166,7 +166,7 @@ namespace eqBase
         {
             struct 
             {
-                pthread_mutex_t mutex;
+                mutable pthread_mutex_t mutex;
                 pthread_cond_t  cond;
             } pthread;
         } _sync;

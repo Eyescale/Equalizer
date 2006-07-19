@@ -67,7 +67,7 @@ namespace eqNet
          * @return <code>true</code> if an element exists, <code>false</code>
          *         if not.
          */
-        bool back( Node** node, Packet** packet );
+        bool back( Node** node, Packet** packet ) const;
 
         /** 
          * @return <code>true</code> if the request queue is empty,

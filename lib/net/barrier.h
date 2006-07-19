@@ -6,6 +6,7 @@
 #define EQNET_BARRIER_H
 
 #include <eq/net/object.h>
+#include <eq/net/nodeID.h>
 
 #include <eq/base/lock.h>
 
@@ -14,7 +15,7 @@ namespace eqNet
     class Node;
 
     /**
-     * A networked barrier.
+     * A networked, versioned barrier.
      */
     class Barrier : public Object
     {
@@ -22,7 +23,7 @@ namespace eqNet
         /** 
          * Constructs a new barrier.
          */
-        Barrier( const uint32_t height );
+        Barrier( eqBase::RefPtr<Node> master, const uint32_t height=0 );
 
         /** 
          * Constructs a new barrier.
@@ -34,14 +35,22 @@ namespace eqNet
          */
         virtual ~Barrier(){}
 
-        /**
+        /** 
          * @name Data Access
+         *
+         * After a change, the barrier should be committed and synced to the
+         * same version on all nodes entering the barrier.
          */
-        const uint32_t getHeight(){ return _height; }
-        /**
-         * @name Operations
-         */
-        //@{
+        //*{
+        void setHeight( const uint32_t height ){ _data.height = height; }
+        void increase() { ++_data.height; }
+
+        const uint32_t getHeight() const { return _data.height; }
+        //@}
+        //*}
+
+        /** @name Operations */
+        //*{
         /** 
          * Enters the barrier and blocks until the barrier has been reached.
          *
@@ -49,32 +58,52 @@ namespace eqNet
          * the barrier.
          */
         void enter();
-        //@}
+        //*}
 
     protected:
-        /** @sa Mobject::getInstanceData */
-        virtual const void* getInstanceData( uint64_t* size );
+        /** @sa Object::getInstanceData */
+        virtual const void* getInstanceData( uint64_t* size )
+            { *size = sizeof( _data ); return &_data; }
+
+        /** @sa Object::init */
+        virtual void init( const void* data, const uint64_t dataSize );
+
+        /** @sa Object::pack */
+        virtual const void* pack( uint64_t* size )
+            {
+                *size   = sizeof( _data.height );
+                return &_data.height;
+            }
+
+        /** @sa Object::unpack */
+        virtual void unpack( const void* data, const uint64_t size ) 
+            { _data.height = *(uint32_t*)data; }
 
     private:
-        /** The height of the barrier, only set on the master. */
-        uint32_t _height;
+        struct Data
+        {
+            /** The master barrier node. */
+            NodeID   master;
+            /** The height of the barrier, only set on the master. */
+            uint32_t height;
+        }
+            _data;
 
-        /** A flag if the master instance has entered already. */
-        bool       _masterEntered;
+        eqBase::RefPtr<Node> _master;
+
+        struct EnteredBarrier
+        {
+            EnteredBarrier( eqBase::RefPtr<Node> _node, uint32_t _instanceID )
+                    : node(_node), instanceID( _instanceID ) {}
+
+            eqBase::RefPtr<Node> node;
+            uint32_t             instanceID;
+        };
         /** Slave nodes which have entered the barrier. */
-        NodeVector _enteredNodes;
+        std::vector<EnteredBarrier> _enteredBarriers;
         
-        /** The lock used for synchronizing the master instance. */
-        eqBase::Lock _masterNotify;
-        /** The lock used for synchronizing the slave instances. */
-        eqBase::Lock _slaveNotify;
-        /** The lock used for thread-safety synchronization of _enteredNodes. */
+        /** The lock used for barrier leave notification. */
         eqBase::Lock _leaveNotify;
-        /** Flag for the master to enter leave synchronization. */
-        bool         _waitForLeave;
-
-        /** Mutex protecting concurrent access to some data. */
-        eqBase::Lock _mutex;
 
         /** Common constructor function. */
         void _construct();

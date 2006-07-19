@@ -46,15 +46,18 @@ eq::Window::Window()
                          &eq::Window::_pushRequest ));
     registerCommand( REQ_WINDOW_EXIT, this, reinterpret_cast<CommandFcn>( 
                          &eq::Window::_reqExit ));
+    registerCommand( CMD_WINDOW_FINISH, this, reinterpret_cast<CommandFcn>(
+                         &eq::Window::_pushRequest));
+    registerCommand( REQ_WINDOW_FINISH, this, reinterpret_cast<CommandFcn>(
+                         &eq::Window::_reqFinish));
+    registerCommand( CMD_WINDOW_BARRIER, this, reinterpret_cast<CommandFcn>(
+                         &eq::Window::_pushRequest ));
+    registerCommand( REQ_WINDOW_BARRIER, this, reinterpret_cast<CommandFcn>(
+                         &eq::Window::_reqBarrier ));
     registerCommand( CMD_WINDOW_SWAP, this, reinterpret_cast<CommandFcn>(
                          &eq::Window::_pushRequest));
     registerCommand( REQ_WINDOW_SWAP, this, reinterpret_cast<CommandFcn>(
                          &eq::Window::_reqSwap));
-    registerCommand( CMD_WINDOW_SWAP_WITH_BARRIER, this,
-                     reinterpret_cast<CommandFcn>( &eq::Window::_pushRequest ));
-    registerCommand( REQ_WINDOW_SWAP_WITH_BARRIER, this,
-                     reinterpret_cast<CommandFcn>(
-                         &eq::Window::_reqSwapWithBarrier));
     registerCommand( CMD_WINDOW_STARTFRAME, this, reinterpret_cast<CommandFcn>(
                          &eq::Window::_pushRequest));
     registerCommand( REQ_WINDOW_STARTFRAME, this, reinterpret_cast<CommandFcn>(
@@ -208,33 +211,36 @@ eqNet::CommandResult eq::Window::_reqExit( eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_reqSwap(eqNet::Node* node, 
+eqNet::CommandResult eq::Window::_reqFinish(eqNet::Node* node, 
                                       const eqNet::Packet* pkg)
 {
-    WindowSwapPacket* packet = (WindowSwapPacket*)pkg;
-    EQVERB << "handle swap " << packet << endl;
-
-    swapBuffers();
+    finish();
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_reqSwapWithBarrier(eqNet::Node* node,
-                                                 const eqNet::Packet* pkg)
+eqNet::CommandResult eq::Window::_reqBarrier( eqNet::Node* node,
+                                             const eqNet::Packet* pkg )
 {
-    WindowSwapWithBarrierPacket* packet = (WindowSwapWithBarrierPacket*)pkg;
-    EQVERB << "handle swap with barrier " << packet << endl;
+    WindowBarrierPacket* packet = (WindowBarrierPacket*)pkg;
+    EQVERB << "handle barrier " << packet << endl;
 
     eqNet::Session* session = getSession();
-    eqNet::Object*  object  = session->getObject( packet->barrierID );
+    eqNet::Object*  object  = session->getObject( packet->barrierID, 
+                                                  Object::SHARE_NODE,
+                                                  packet->barrierVersion );
     EQASSERT( dynamic_cast<eqNet::Barrier*>( object ) );
 
     eqNet::Barrier* barrier = (eqNet::Barrier*)object;
-    finish();
     barrier->enter();
-    swapBuffers();
     return eqNet::COMMAND_HANDLED;
 }
 
+eqNet::CommandResult eq::Window::_reqSwap(eqNet::Node* node, 
+                                      const eqNet::Packet* pkg)
+{
+    swapBuffers();
+    return eqNet::COMMAND_HANDLED;
+}
 
 eqNet::CommandResult eq::Window::_reqStartFrame(eqNet::Node* node, 
                                       const eqNet::Packet* pkg)

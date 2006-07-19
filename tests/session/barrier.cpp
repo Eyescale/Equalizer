@@ -41,8 +41,8 @@ public:
                 Session session;
                 TEST( node->mapSession( node, &session, "foo" ));
                 
-                Barrier barrier(2);
-                session.registerObject( &barrier, node.get( ));
+                Barrier barrier( node, 2 );
+                session.registerObject( &barrier, node );
                 TEST( barrier.getID() != EQ_INVALID_ID );
                 
                 barrierID = barrier.getID();

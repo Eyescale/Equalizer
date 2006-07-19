@@ -11,6 +11,8 @@
 #include <eq/net/requestQueue.h>
 #include <eq/net/types.h>
 
+#include <eq/base/idPool.h>
+
 namespace eqNet
 {
     class Node;
@@ -41,9 +43,9 @@ namespace eqNet
         {
             TYPE_UNMANAGED,                     // A unmanaged object
             TYPE_MANAGED,                       // A managed object
-            TYPE_BARRIER,                       // eqNet::Barrier
             TYPE_MANAGED_CUSTOM,                // managed objects up to:
             TYPE_VERSIONED        = 0x40000000, // A versioned object
+            TYPE_BARRIER,                       // eqNet::Barrier
             TYPE_VERSIONED_CUSTOM               // user versioned objects
         };
 
@@ -67,7 +69,7 @@ namespace eqNet
         enum ObsoleteFlags
         {
             AUTO_OBSOLETE_COUNT_VERSIONS = 0,
-            AUTO_OBSOLETE_COUNT_COMMIT   = 1
+            AUTO_OBSOLETE_COUNT_COMMITS  = 1
         };
 
         /**
@@ -80,6 +82,18 @@ namespace eqNet
             INST_GOTMASTER,
             INST_INIT,
             INST_ERROR
+        };
+
+        /** Special version enums */
+        enum Version
+        {
+            VERSION_NONE = 0,
+            VERSION_HEAD = 0xffffffffu
+        };
+
+        enum Instance
+        {
+            INSTANCE_ALL = eqBase::IDPool::MAX_CAPACITY + 1
         };
 
         /** 
@@ -95,45 +109,13 @@ namespace eqNet
 
         virtual ~Object();
         
-        Session* getSession() const   { return _session; }
-        uint32_t getID() const        { return _id; }
-
-        int32_t getTypeID() const     { return _typeID; }
-
-        /**
-         * @name Automatic Instanciation
-         */
-        //*{
-        /** 
-         * Return the instance information about this managed object.
-         *
-         * The returned pointer has to point to at least size bytes of memory
-         * allocated by the object. The data will be released before the next
-         * call to this object, that is, this function may return a pointer to
-         * member variables if no other threads are accessing the object.
-         * 
-         * @param size the size of the returned data, or unchanged for unmanaged
-         *             objects.
-         * @return the instance data, or <code>NULL</code> for unmanaged
-         *         objects.
-         */
-        virtual const void* getInstanceData( uint64_t* size ){ return NULL; }
-
-        /** 
-         * Release the instance data obtained by getInstanceData().
-         * 
-         * @param data the data.
-         */
-        virtual void releaseInstanceData( const void* data ){}
-
-        /** 
-         * Instanciates this object on a remote node.
-         * 
-         * @param node the remote node.
-         */
-        void instanciateOnNode( eqBase::RefPtr<Node> node,
-                                const Object::SharePolicy policy );
-        //*}
+        Session* getSession() const    { return _session; }
+        /** @return the session-wide unique object identifier. */
+        uint32_t getID() const         { return _id; }
+        /** @return the node-wide unique object instance identifier. */
+        uint32_t getInstanceID() const { return _instanceID; }
+        /** @return the object class type identifier. */
+        uint32_t getTypeID() const     { return _typeID; }
 
         /**
          * @name Versioning
@@ -174,10 +156,14 @@ namespace eqNet
          *              version.
          * @param flags additional flags for the auto-obsoletion mechanism
          */
-        void setAutoObsolete( const uint32_t count, const uint32_t flags );
+        void setAutoObsolete( const uint32_t count, const uint32_t flags )
+            { _nVersions = count; _obsoleteFlags = flags; }
 
         /** 
          * Sync to a given version.
+         *
+         * Syncing to VERSION_HEAD syncs to the last received version, does
+         * not block, ignores the timeout and always returns true.
          * 
          * @param version the version to synchronize, must be bigger than the
          *                current version.
@@ -185,29 +171,75 @@ namespace eqNet
          * @return <code>true</code> if the version was synchronized,
          *         <code>false</code> if not.
          */
-        bool sync( const uint32_t version, 
+        bool sync( const uint32_t version = VERSION_HEAD, 
                    const float timeout = EQ_TIMEOUT_INDEFINITE );
-
-        /** 
-         * Sync to latest received version.
-         * 
-         * This function unpacks all received deltas. It does not block.
-         */
-        void sync();
 
         /** 
          * Get the latest available version.
          * 
          * @return the head version.
          */
-        uint32_t getHeadVersion();
+        uint32_t getHeadVersion() const;
 
         /** 
          * Get the currently synchronized version.
          * 
          * @return the current version.
          */
-        uint32_t getCurrentVersion() const { return _version; }
+        uint32_t getVersion() const { return _version; }
+
+        //*}
+
+    protected:
+        /**
+         * @name Automatic Instanciation and Versioning
+         */
+        //*{
+        /** 
+         * Return the instance information about this managed object.
+         *
+         * The returned pointer has to point to at least size bytes of memory
+         * allocated by the object. The data will be released before the next
+         * call to this object, that is, this function may return a pointer to
+         * member variables if no other threads are accessing the object.
+         * 
+         * @param size the size of the returned data, or unchanged for unmanaged
+         *             objects.
+         * @return the instance data, or <code>NULL</code> for unmanaged
+         *         objects.
+         */
+        virtual const void* getInstanceData( uint64_t* size ){ return NULL; }
+
+        /** 
+         * Release the instance data obtained by getInstanceData().
+         * 
+         * @param data the data.
+         */
+        virtual void releaseInstanceData( const void* data ){}
+
+        /** 
+         * Initialize this object after it has been instanciated and registered
+         * to a session.
+         *
+         * Note the this methods receives the same data as
+         * Session::instanciateObject. It is provided to perform initialization
+         * which requires the object to be registered to the session.
+         * 
+         * @param data the instance data of the object.
+         * @param dataSize the data size.
+         */
+        virtual void init( const void* data, const uint64_t dataSize ) {}
+
+        /** 
+         * Instanciates this object on a remote node.
+         * 
+         * @param node the remote node.
+         * @param policy the share policy for the remote node instance.
+         * @param version the version to instanciate.
+         */
+        void instanciateOnNode( eqBase::RefPtr<Node> node,
+                                const SharePolicy policy, 
+                                const uint32_t version = VERSION_HEAD );
 
         /** 
          * Pack the changes since the last call to commit().
@@ -239,17 +271,6 @@ namespace eqNet
         virtual void unpack( const void* data, const uint64_t size ) {}
         //*}
 
-        /** @name Packet Transmission */
-        //*{
-        bool send( eqBase::RefPtr<Node> node, ObjectPacket& packet );
-        bool send( eqBase::RefPtr<Node> node, ObjectPacket& packet, 
-                   const std::string& string );
-        bool send( NodeVector& nodes, ObjectPacket& packet );
-        bool send( NodeVector nodes, ObjectPacket& packet, const void* data,
-                   const uint64_t size );
-        //*}
-        
-    protected:
         /** 
          * @return if this instance is the master version.
          */
@@ -268,13 +289,28 @@ namespace eqNet
         const NodeVector& getSlaves() const
             { return _slaves; }
 
+        /** @name Packet Transmission */
+        //*{
+        bool send( eqBase::RefPtr<Node> node, ObjectPacket& packet );
+        bool send( eqBase::RefPtr<Node> node, ObjectPacket& packet, 
+                   const std::string& string );
+        bool send( eqBase::RefPtr<Node> node, ObjectPacket& packet, 
+                   const void* data, const uint64_t size );
+        bool send( NodeVector& nodes, ObjectPacket& packet );
+        bool send( NodeVector nodes, ObjectPacket& packet, const void* data,
+                   const uint64_t size );
+        //*}
+        
     private:
         /** Indicates if this instance is the copy on the server node. */
         friend class Session;
         Session*     _session;
 
-        /** The unique object instance identifier. */
+        /** The session-unique object identifier. */
         uint32_t     _id;
+
+        /** A node-unique identifier of the concrete instance. */
+        uint32_t     _instanceID;
 
         /** The share policy, set during registration by the session. */
         SharePolicy  _policy;
@@ -297,33 +333,47 @@ namespace eqNet
         /** The number of old versions to retain. */
         uint32_t _nVersions;
 
-        /** True when using the number of commits for auto-obsoletion. */
-        bool _countCommits;
+        /** The flags for automatic version obsoletion. */
+        uint32_t _obsoleteFlags;
 
-        struct ChangeData
+        struct InstanceData
         {
+            InstanceData() : data(NULL), size(0), maxSize(0), commitCount(0) {}
             void*    data;
             uint64_t size;
             uint64_t maxSize;
 
             uint32_t commitCount;
         };
+        struct ChangeData : public InstanceData
+        {
+            ChangeData() : version(0) {}
+            uint32_t version;
+        };
         
         /** The list of full instance datas, head version first. */
-        std::list<ChangeData> _instanceData;
+        std::list<InstanceData> _instanceData;
 
         /** The list of change datas, (head-1):head change first. */
         std::list<ChangeData> _changeData;
         
+        std::vector<InstanceData> _instanceDataCache;
+        std::vector<ChangeData>   _changeDataCache;
+
         /** The slave queue for changes. */
         RequestQueue _syncQueue;
 
         /** Common constructor code. */
         void _construct();
 
+        void _syncToHead();
+
+        uint32_t _commitInitial();
+        void _obsolete();
+
         /* The command handlers. */
         CommandResult _cmdSync( Node* node, const Packet* pkg )
-            { _syncQueue.push( node, pkg ); return eqNet::COMMAND_PROPAGATE; }
+            { _syncQueue.push( node, pkg ); return eqNet::COMMAND_HANDLED; }
 
         void _reqSync( Node* node, const Packet* pkg );
     };

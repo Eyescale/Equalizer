@@ -268,11 +268,6 @@ ssize_t Pipe::_runThread()
         _requestQueue.pop( &node, &packet );
         switch( config->dispatchPacket( node, packet ))
         {
-            case eqNet::COMMAND_PROPAGATE:
-                EQWARN << "COMMAND_PROPAGATE returned, but nowhere to propagate"
-                       << endl;
-                break;
-
             case eqNet::COMMAND_HANDLED:
                 break;
 

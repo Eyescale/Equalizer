@@ -310,6 +310,7 @@ namespace eqNet
             }
 
         uint32_t            objectID;
+        uint32_t            version;
         Object::SharePolicy policy;
     };
 
@@ -317,12 +318,14 @@ namespace eqNet
     {
         SessionInstanciateObjectPacket()
             {
-                command        = CMD_SESSION_INSTANCIATE_OBJECT;
-                size           = sizeof( SessionInstanciateObjectPacket ); 
+                command       = CMD_SESSION_INSTANCIATE_OBJECT;
+                size          = sizeof( SessionInstanciateObjectPacket ); 
                 objectData[0] = '\0';
+                error         = false;
             }
 
         bool     isMaster;
+        bool     error;
         uint32_t objectID;
         uint32_t objectType;
         Object::SharePolicy policy;
@@ -337,9 +340,11 @@ namespace eqNet
     {
         ObjectPacket()
             {
-                datatype        = DATATYPE_EQNET_OBJECT; 
+                datatype   = DATATYPE_EQNET_OBJECT; 
+                instanceID = Object::INSTANCE_ALL;
             }
         uint32_t objectID;
+        uint32_t instanceID;
     };
 
     struct ObjectSyncPacket : public ObjectPacket
@@ -366,6 +371,7 @@ namespace eqNet
                 command = CMD_BARRIER_ENTER;
                 size    = sizeof( BarrierEnterPacket );
             }
+        uint32_t version;
     };
 
     struct BarrierEnterReplyPacket : public ObjectPacket
@@ -492,15 +498,23 @@ namespace eqNet
     inline std::ostream& operator << ( std::ostream& os, 
                                  const SessionInstanciateObjectPacket* packet )
     {
-        os << (SessionPacket*)packet << " mobj id " << packet->objectID <<
-            " type " << packet->objectType << " master " << packet->isMaster;
+        os << (SessionPacket*)packet << " objectID " << packet->objectID
+           << " type " << packet->objectType << " master " << packet->isMaster;
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                 const SessionRegisterObjectPacket* packet )
+    {
+        os << (SessionPacket*)packet << " objectID " << packet->objectID 
+           << " policy " << packet->policy;
         return os;
     }
 
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ObjectPacket* packet )
     {
-        os << (SessionPacket*)packet << " obj id " << packet->objectID;
+        os << (SessionPacket*)packet << " objectID " << packet->objectID;
         return os;
     }
 

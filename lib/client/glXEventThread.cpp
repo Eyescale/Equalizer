@@ -49,11 +49,13 @@ bool GLXEventThread::init()
     _commandConnection[APP_END]   = pipeConnection->getChildEnd();
 
     _connections.addConnection( _commandConnection[EVENT_END] );
+    EQINFO << "Initialized glX event thread" << endl;
     return true;
 }
 
 void GLXEventThread::exit()
 {
+    EQINFO << "Exiting glX event thread" << endl;
     CHECK_THREAD( _threadID );
     _commandConnection[EVENT_END]->close();
     _commandConnection[APP_END]->close();
@@ -66,11 +68,13 @@ void GLXEventThread::exit()
 void GLXEventThread::addPipe( Pipe* pipe )
 {
     CHECK_NOT_THREAD( _threadID );
+    _startMutex.set();
     if( isStopped( ))
     {
         _localNode = eqNet::Node::getLocalNode();
         start();
     }
+    _startMutex.unset();
 
     GLXEventThreadAddPipePacket packet;
     packet.pipe = pipe;
@@ -83,6 +87,7 @@ void GLXEventThread::removePipe( Pipe* pipe )
     GLXEventThreadRemovePipePacket packet;
     packet.pipe      = pipe;
     packet.requestID = _requestHandler.registerRequest();
+    _startMutex.set();
     _commandConnection[APP_END]->send( packet );
     
     const bool stop = _requestHandler.waitRequest( packet.requestID );
@@ -91,6 +96,7 @@ void GLXEventThread::removePipe( Pipe* pipe )
         join();
         _localNode = NULL;
     }
+    _startMutex.unset();
 }
 
 void GLXEventThread::addWindow( Window* window )
@@ -169,8 +175,8 @@ void GLXEventThread::_handleEvent()
         _handleCommand();
         return;
     }
-    _handleEvent( RefPtr_static_cast<X11Connection, eqNet::Connection>(
-                      connection ));
+    _handleEvent( 
+        RefPtr_static_cast<eqNet::Connection, X11Connection>( connection ));
 }
 
 void GLXEventThread::_handleCommand()
@@ -472,8 +478,8 @@ eqNet::CommandResult GLXEventThread::_cmdRemovePipe( eqNet::Node*,
     Pipe*                     pipe          = packet->pipe;
     RefPtr<X11Connection>     x11Connection = pipe->getXEventConnection();
     
-    _connections.removeConnection(RefPtr_static_cast<eqNet::Connection,
-                                  X11Connection>( x11Connection ));
+    _connections.removeConnection(
+        RefPtr_static_cast<X11Connection, eqNet::Connection>( x11Connection ));
     pipe->setXEventConnection( NULL );
     XCloseDisplay( x11Connection->getDisplay( ));
 

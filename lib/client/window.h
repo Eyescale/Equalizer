@@ -250,10 +250,12 @@ namespace eq
                                        const eqNet::Packet* packet );
         eqNet::CommandResult _reqExit( eqNet::Node* node,
                                        const eqNet::Packet* packet );
+        eqNet::CommandResult _reqBarrier( eqNet::Node* node,
+                                          const eqNet::Packet* packet );
+        eqNet::CommandResult _reqFinish( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
         eqNet::CommandResult _reqSwap( eqNet::Node* node,
                                        const eqNet::Packet* packet );
-        eqNet::CommandResult _reqSwapWithBarrier( eqNet::Node* node,
-                                                  const eqNet::Packet* packet );
         eqNet::CommandResult _reqStartFrame( eqNet::Node* node,
                                              const eqNet::Packet* packet );
         eqNet::CommandResult _reqEndFrame( eqNet::Node* node,

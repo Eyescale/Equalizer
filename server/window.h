@@ -142,16 +142,23 @@ namespace eqs
         const eq::Viewport& getViewport() const { return _vp; }
 
         /** 
-         * Clear the swap group of the window.
+         * Clears all swap barriers of the window.
          */
-        void resetSwapGroup();
+        void resetSwapBarriers();
+
+        /**
+         * Create a new swap barrier and add it to this window.
+         *
+         * @return the created swap barrier.
+         */
+        eqNet::Barrier* newSwapBarrier();
 
         /** 
-         * Add the window to the swap group owned by the master.
+         * Add a swap barrier.
          * 
-         * @param master the owner of the swap group.
+         * @param barrier the swap barrier.
          */
-        void setSwapGroup( Window* master );
+        void addSwapBarrier( eqNet::Barrier* barrier );
         //*}
 
         /**
@@ -220,12 +227,10 @@ namespace eqs
         /** The fractional size and position of the window. */
         eq::Viewport _vp;
         
-        /** The master window of the swap group, can be <code>this</code> */
-        Window*              _swapMaster;
-        /** The list of windows participating in the swap group. */
-        std::vector<Window*> _swapGroup;
-        /** The id of the current swap barrier. */
-        eqNet::Barrier*      _swapBarrier;
+        /** The list of master swap barriers for the current frame. */
+        std::vector<eqNet::Barrier*> _masterSwapBarriers;
+        /** The list of slave swap barriers for the current frame. */
+        std::vector<eqNet::Barrier*> _swapBarriers;
         
         /** common code for all constructors */
         void _construct();

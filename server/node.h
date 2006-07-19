@@ -170,19 +170,18 @@ namespace eqs
          */
         //*{
         /** 
-         * Get a barrier of a given height.
+         * Get a new barrier of height 0.
          * 
-         * @param height the height of the barrier.
          * @return the barrier.
          */
-        eqNet::Barrier* getBarrier( const uint32_t height );
+        eqNet::Barrier* getBarrier();
 
         /** 
          * Release a barrier server by this node.
          * 
          * @param barrier the barrier.
          */
-        void releaseBarrier( eqNet::Barrier* );
+        void releaseBarrier( eqNet::Barrier* barrier );
         //*}
 
         /**
@@ -277,8 +276,8 @@ namespace eqs
         /** The request identifier for pending asynchronous operations. */
         uint32_t _pendingRequestID;
 
-        /** Identifiers for cached barriers, sorted by height. */
-        Sgi::hash_map<uint32_t, std::vector<eqNet::Barrier*> > _barrierCache;
+        /** The cached barriers. */
+        std::vector<eqNet::Barrier*> _barrierCache;
 
         /** common code for all constructors */
         void _construct();

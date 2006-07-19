@@ -25,8 +25,9 @@ Session::Session( const uint32_t nCommands, const bool threadSafe )
           _id(EQ_INVALID_ID),
           _server(NULL),
           _isMaster(false),
-          _masterPool( IDPool::getMaxCapacity( )),
-          _localPool( 0 )
+          _masterPool( IDPool::MAX_CAPACITY ),
+          _localPool( 0 ),
+          _instanceIDs( IDPool::MAX_CAPACITY ) 
 {
     EQASSERT( nCommands >= CMD_SESSION_CUSTOM );
     registerCommand( CMD_SESSION_GEN_IDS, this, reinterpret_cast<CommandFcn>(
@@ -86,7 +87,7 @@ uint32_t Session::genIDs( const uint32_t range )
         return _masterPool.genIDs( range );
 
     uint32_t id = _localPool.genIDs( range );
-    if( id )
+    if( id != EQ_INVALID_ID )
         return id;
 
     SessionGenIDsPacket packet;
@@ -96,7 +97,7 @@ uint32_t Session::genIDs( const uint32_t range )
     send( packet );
     id = (uint32_t)(long long)_requestHandler.waitRequest( packet.requestID );
 
-    if( !id || range >= MIN_ID_RANGE )
+    if( id == EQ_INVALID_ID || range >= MIN_ID_RANGE )
         return id;
 
     // We allocated more IDs than requested - let the pool handle the details
@@ -167,6 +168,7 @@ void Session::addRegisteredObject( const uint32_t id, Object* object,
                                    const Object::SharePolicy policy )
 {
     EQASSERT( object->_id == EQ_INVALID_ID );
+    EQASSERT( id != EQ_INVALID_ID );
 
     if( !_localNode->inReceiverThread( ))
     {
@@ -188,10 +190,13 @@ void Session::addRegisteredObject( const uint32_t id, Object* object,
         return;
     }
 
-    object->_id      = id;
-    object->_policy  = policy;
-    object->_session = this;
+    object->_id         = id;
+    object->_instanceID = _instanceIDs.genIDs(1);
+    object->_policy     = policy;
+    object->_session    = this;
     object->ref();
+
+    EQASSERT( object->_instanceID != EQ_INVALID_ID );
 
     vector<Object*>& objects = _registeredObjects[id];
     objects.push_back( object );
@@ -271,11 +276,14 @@ void Session::removeRegisteredObject( Object* object,
         default:
             EQUNREACHABLE;
     }
-            
+
+    EQASSERT( object->_instanceID != EQ_INVALID_ID );
+    _instanceIDs.freeIDs( object->_instanceID, 1 );
     // TODO: unsetIDMaster( object->_id );
-    object->_id      = EQ_INVALID_ID;
-    object->_policy  = Object::SHARE_UNDEFINED;
-    object->_session = NULL;
+    object->_id         = EQ_INVALID_ID;
+    object->_instanceID = EQ_INVALID_ID;
+    object->_policy     = Object::SHARE_UNDEFINED;
+    object->_session    = NULL;
     object->unref();
 }
 
@@ -283,7 +291,9 @@ void Session::registerObject( Object* object, RefPtr<Node> master,
                               const Object::SharePolicy policy )
 {
     EQASSERT( object->_id == EQ_INVALID_ID );
+
     const uint32_t id = genIDs( 1 );
+    EQASSERT( id != EQ_INVALID_ID );
 
     if( object->getTypeID() != Object::TYPE_UNMANAGED )
     {
@@ -326,7 +336,8 @@ void Session::deregisterObject( Object* object )
     freeIDs( id, 1 );
 }
 
-Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy)
+Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy,
+                            const uint32_t version )
 {
     CHECK_NOT_THREAD( _recvThreadID );
 
@@ -338,6 +349,7 @@ Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy)
     state.policy   = ( policy == Object::SHARE_THREAD ?
                        Object::SHARE_NEVER : policy );
     state.objectID = id;
+    state.version  = version;
 
     SessionGetObjectPacket packet;
     packet.requestID = _requestHandler.registerRequest( &state );
@@ -360,6 +372,8 @@ Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy)
             EQUNREACHABLE;
     }
 
+    if( state.object )
+        state.object->sync( version );
     return state.object;
 }
 
@@ -438,6 +452,7 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
                 state                 = new GetObjectState;
                 state->policy         = Object::SHARE_NODE;
                 state->objectID       = id;
+                state->version        = Object::VERSION_HEAD;
                 _objectInstStates[id] = state;
             }
             return _instObject( state );
@@ -461,21 +476,35 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
     for( vector<Object*>::iterator iter = objects.begin(); 
          iter != objects.end(); ++iter )
     {
-        const CommandResult result = (*iter)->handleCommand( node, objPacket );
-        switch( result )
+        Object* object = *iter;
+        if( objPacket->instanceID == Object::INSTANCE_ALL ||
+            objPacket->instanceID == object->getInstanceID( ))
         {
-            case COMMAND_PROPAGATE:
-                break;
+            const CommandResult result = object->handleCommand( node, 
+                                                                objPacket );
+            switch( result )
+            {
+                case COMMAND_ERROR:
+                    EQERROR << "Error handling command for object of type "
+                            << typeid(*object).name() << endl;
+                    return COMMAND_ERROR;
 
-            case COMMAND_ERROR:
-                EQERROR << "Error handling object packet for object of type "
-                        << typeid(**iter).name() << endl;
-                // no break;
-            default:
-                return result;
+                case COMMAND_RESCHEDULE:
+                    // Not sure if we should ever allow rescheduling of packets
+                    // which are sent to all object instances
+                    if( objPacket->instanceID == Object::INSTANCE_ALL )
+                        EQUNIMPLEMENTED;
+                    return COMMAND_RESCHEDULE;
+
+                default:
+                    if( objPacket->instanceID == object->getInstanceID( ))
+                        return result;
+                    break;
+            }
         }
     }
-    return COMMAND_HANDLED;
+    return (objPacket->instanceID == Object::INSTANCE_ALL) ? 
+        COMMAND_HANDLED : COMMAND_ERROR;
 }
 
 CommandResult Session::_instObject( GetObjectState* state )
@@ -534,6 +563,7 @@ void Session::_sendInitObject( GetObjectState* state, RefPtr<Node> master )
 {
     SessionInitObjectPacket packet;
     packet.objectID  = state->objectID;
+    packet.version   = state->version;
     packet.policy    = state->policy;
 
     send( master.get(), packet );
@@ -733,6 +763,7 @@ CommandResult Session::_cmdRegisterObject( Node* node, const Packet* pkg )
 
     SessionRegisterObjectPacket* packet = (SessionRegisterObjectPacket*)pkg;
     EQINFO << "Cmd register object " << packet << endl;
+    EQASSERT( packet->objectID != EQ_INVALID_ID );
 
     Object* object = (Object*)_requestHandler.getRequestData(packet->requestID);
     EQASSERT( object );
@@ -824,7 +855,7 @@ CommandResult Session::_cmdInitObject( Node* node, const Packet* pkg )
         if( object->getID() != id || !object->_master )
             continue;
 
-        object->instanciateOnNode( node, packet->policy );
+        object->instanciateOnNode( node, packet->policy, packet->version );
         return COMMAND_HANDLED;
     }
 
@@ -841,13 +872,22 @@ CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )
     EQINFO << "Cmd instanciate object " << packet << " from " << node << endl;
 
     const uint32_t id     = packet->objectID;
-    Object*        object = instanciateObject( packet->objectType,
-                                               packet->objectData, 
-                                               packet->objectDataSize );
+    if( packet->error )
+    {
+        EQWARN << "Object master encountered error during instanciation request"
+               << endl;
+        GetObjectState* state = _objectInstStates[id];
+        if( state )
+            state->instState = Object::INST_ERROR;
+        return COMMAND_HANDLED;
+    }
+
+    Object* object = instanciateObject( packet->objectType, packet->objectData, 
+                                        packet->objectDataSize );
     if( !object )
     {
-        EQWARN << "Session failed to instanciate object of type "
-               << packet->objectType << endl;
+        EQWARN << "Instanciation of object of type " << packet->objectType
+               << " failed" << endl;
         return COMMAND_ERROR;
     }
 
@@ -861,6 +901,8 @@ CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )
 
     addRegisteredObject( id, object, 
                          state ? state->policy : packet->policy );
+    object->init( packet->objectData, packet->objectDataSize );
+
     return COMMAND_HANDLED;
 }
 

@@ -5,11 +5,21 @@
 #ifndef EQS_SWAPBARRIER_H
 #define EQS_SWAPBARRIER_H
 
-#include <eq/net/barrier.h>
 #include <eq/net/node.h>
 
 namespace eqs
 {
+    class Barrier;
+
+    /**
+     * A swapbarrier is set on a Compound to synchronize the swap buffer between
+     * windows.
+     *
+     * Swap barriers with the same name are linked together, that is, all
+     * compounds holding a swap barrier with the same name synchronize their
+     * window's swap command. The same Barrier is set up for all swap barriers
+     * of the same name during compound init.
+     */
     class SwapBarrier
     {
     public:
@@ -25,8 +35,7 @@ namespace eqs
         //*}
 
     private:
-        std::string     _name;
-        eqNet::Barrier* _barrier;
+        std::string _name;
     };
 
     std::ostream& operator << ( std::ostream& os, const SwapBarrier* barrier );

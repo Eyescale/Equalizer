@@ -47,6 +47,8 @@ namespace eq
         virtual void removeWindow( Window* window );
 
     private:
+        eqBase::Lock _startMutex;
+
         eqNet::ConnectionSet        _connections;
         eqBase::RefPtr<eqNet::Node> _localNode;
 

@@ -1,4 +1,7 @@
 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+   All rights reserved. */
+
 #include <eq/base/idPool.h>
 
 #include <stdlib.h>
@@ -8,7 +11,7 @@ using namespace std;
 
 int main( int argc, char **argv )
 {
-    IDPool pool( IDPool::getMaxCapacity( ));
+    IDPool pool( IDPool::MAX_CAPACITY );
     size_t nLoops = 1000000;
 
     while( nLoops-- )
@@ -23,7 +26,7 @@ int main( int argc, char **argv )
         
         //cout << "id: " << id << " range " << range << endl;
 
-        if( id == 0 ) 
+        if( id == EQ_INVALID_ID ) 
         {
             cout << "Failed to allocate identifiers after " << nLoops
                  << " allocations" << endl;

@@ -294,16 +294,16 @@ TraverseResult Compound::traverse( Compound* compound, TraverseCB preCB,
 
 void Compound::init()
 {
-    const uint32_t nChildren = this->nChildren();
-    for( uint32_t i=0; i<nChildren; i++ )
-    {
-        Compound* child = getChild(i);
-        child->init();
-    }
+    traverse( this, _initCB, _initCB, NULL, NULL );
+}
 
-    Channel* channel = getChannel();
+TraverseResult Compound::_initCB( Compound* compound, void* userData )
+{
+    Channel* channel = compound->getChannel();
     if( channel )
         channel->refUsed();
+
+    return TRAVERSE_CONTINUE;    
 }
 
 void Compound::exit()
@@ -320,17 +320,26 @@ void Compound::exit()
         channel->unrefUsed();
 }
 
+//---------------------------------------------------------------------------
+// update
+//---------------------------------------------------------------------------
 void Compound::update()
 {
-    _updateInheritData();
-    _updateSwapGroup();
+    UpdateData data;
+    traverse( this, _updateCB, _updateCB, NULL, &data );
+    
+    for( Sgi::hash_map<std::string, eqNet::Barrier*>::iterator iter = 
+             data.swapBarriers.begin(); iter != data.swapBarriers.end(); ++iter)
+ 
+        iter->second->commit();
+}
 
-    const uint32_t nChildren = this->nChildren();
-    for( uint32_t i=0; i<nChildren; i++ )
-    {
-        Compound* child = getChild(i);
-        child->update();
-    }
+TraverseResult Compound::_updateCB( Compound* compound, void* userData )
+{
+    UpdateData* data = (UpdateData*)userData;
+    compound->_updateInheritData();
+    compound->_updateSwapBarrier( data );
+    return TRAVERSE_CONTINUE;
 }
 
 void Compound::_updateInheritData()
@@ -353,27 +362,23 @@ void Compound::_updateInheritData()
     _inherit.range *= _data.range;
 }
 
-void Compound::_updateSwapGroup()
+void Compound::_updateSwapBarrier( UpdateData* data )
 {
-    const bool sync = ( _mode == MODE_SYNC );
+    Window* window = getWindow();
+    if( window )
+        window->resetSwapBarriers();
 
-    // synchronize swap of all children
-    Window*        master    = NULL;
-    const uint32_t nChildren = this->nChildren();
-    for( uint32_t i=0; i<nChildren; i++ )
-    {
-        const Compound* child  = getChild(i);
-        Window*         window = child->getWindow();
-        
-        if( !window ) continue;
+    if( !_swapBarrier )
+        return;
 
-        if( !master )
-            master = window;
+    const std::string& barrierName = _swapBarrier->getName();
+    Sgi::hash_map<string, eqNet::Barrier*>::iterator iter =
+        data->swapBarriers.find( barrierName );
 
-        window->resetSwapGroup();
-        if( sync )
-            window->setSwapGroup( master );
-    }
+    if( iter == data->swapBarriers.end( ))
+        data->swapBarriers[barrierName] = window->newSwapBarrier();
+    else
+        window->addSwapBarrier( iter->second );
 }
 
 struct UpdateChannelData

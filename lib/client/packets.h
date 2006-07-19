@@ -461,14 +461,24 @@ namespace eq
         uint32_t channelID;
     };
 
-    struct WindowSwapWithBarrierPacket : public eqNet::ObjectPacket
+    struct WindowFinishPacket : public eqNet::ObjectPacket
     {
-        WindowSwapWithBarrierPacket()
+        WindowFinishPacket()
             {
-                command = CMD_WINDOW_SWAP_WITH_BARRIER;
-                size    = sizeof( WindowSwapWithBarrierPacket );
+                command = CMD_WINDOW_FINISH;
+                size    = sizeof( WindowFinishPacket );
+            }
+    };
+
+    struct WindowBarrierPacket : public eqNet::ObjectPacket
+    {
+        WindowBarrierPacket()
+            {
+                command = CMD_WINDOW_BARRIER;
+                size    = sizeof( WindowBarrierPacket );
             }
         uint32_t barrierID;
+        uint32_t barrierVersion;
     };
 
     struct WindowSwapPacket : public eqNet::ObjectPacket

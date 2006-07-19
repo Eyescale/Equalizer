@@ -70,9 +70,9 @@ bool RequestQueue::tryPop( Node** node, Packet** packet )
     return true;
 }
 
-bool RequestQueue::back( Node** node, Packet** packet )
+bool RequestQueue::back( Node** node, Packet** packet ) const
 {
-    Request* request = _requests.back();
+    const Request* request = _requests.back();
     if( !request )
         return false;
 

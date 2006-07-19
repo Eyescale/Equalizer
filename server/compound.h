@@ -362,12 +362,19 @@ namespace eqs
         std::vector<Frame*> _inputFrames;
         std::vector<Frame*> _outputFrames;
         
-        void _updateInheritData();
+        static TraverseResult _initCB( Compound* compound, void* );
 
         static TraverseResult _updateDrawCB(Compound* compound, void* );
         static TraverseResult _updatePostDrawCB( Compound* compound, void* );
 
-        void _updateSwapGroup();
+        struct UpdateData
+        {
+            Sgi::hash_map<std::string, eqNet::Barrier*> swapBarriers;
+        };
+
+        static TraverseResult _updateCB( Compound* compound, void* userData );
+        void _updateInheritData();
+        void _updateSwapBarrier( UpdateData* data );
         void _computeFrustum( eq::Frustum& frustum, float headTransform[16] );
 
         friend std::ostream& operator << ( std::ostream& os,

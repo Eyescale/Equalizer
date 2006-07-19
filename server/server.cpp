@@ -131,13 +131,13 @@ void Server::_handleRequests()
                 abort();
 
             case eqNet::COMMAND_RESCHEDULE:
-            case eqNet::COMMAND_PROPAGATE:
                 EQUNIMPLEMENTED;
         }
     }
 }
 
-eqNet::CommandResult Server::_reqChooseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Server::_reqChooseConfig( eqNet::Node* node, 
+                                               const eqNet::Packet* pkg )
 {
     eq::ServerChooseConfigPacket* packet = (eq::ServerChooseConfigPacket*)pkg;
     EQINFO << "Handle choose config " << packet << endl;

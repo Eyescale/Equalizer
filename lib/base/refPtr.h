@@ -86,7 +86,7 @@ namespace eqBase
     };
 
     // cast functions
-    template<class to, class from> RefPtr<to> RefPtr_static_cast( RefPtr<from>
+    template<class from, class to> RefPtr<to> RefPtr_static_cast( RefPtr<from>
                                                                   const &f )
     { return RefPtr<to>( f, RefPtr_scast() ); }
 

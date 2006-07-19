@@ -146,7 +146,7 @@ namespace eqNet
          *               <code>NULL</code> for unmanaged objects.
          */
         void registerObject( Object* object, eqBase::RefPtr<Node> master,
-                       const  Object::SharePolicy policy = Object::SHARE_NODE );
+                        const Object::SharePolicy policy = Object::SHARE_NODE );
 
         void addRegisteredObject( const uint32_t id, Object* object,
                                   const  Object::SharePolicy policy );
@@ -168,7 +168,8 @@ namespace eqNet
          *         or could not be instanciated.
          */
         Object* getObject( const uint32_t id,
-                        const Object::SharePolicy policy = Object::SHARE_NODE );
+                           const Object::SharePolicy policy =Object::SHARE_NODE,
+                           const uint32_t version = Object::VERSION_HEAD );
 
         /** 
          * Access a registered object.
@@ -257,6 +258,9 @@ namespace eqNet
         /** The local identifier pool. */
         eqBase::IDPool _localPool;
 
+        /** The identifier pool for node-local instance identifiers. */
+        eqBase::IDPool _instanceIDs;
+
         /** Stores a mapping from a block of identifiers to a master node. */
         struct IDMasterInfo
         {
@@ -285,8 +289,9 @@ namespace eqNet
                       object( NULL ) {}
 
             Object::SharePolicy policy;
-            uint32_t            objectID;
             bool                pending;
+            uint32_t            objectID;
+            uint32_t            version;
             uint32_t            nodeConnectRequestID;
             Object::InstState   instState;
             Object*             object;

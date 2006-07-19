@@ -8,6 +8,7 @@
 #include "config.h"
 #include "global.h"
 #include "pipe.h"
+#include "server.h"
 #include "window.h"
 
 #include <eq/client/packets.h>
@@ -191,26 +192,28 @@ void Node::adjustLatency( const int delta)
 //---------------------------------------------------------------------------
 // Barrier cache
 //---------------------------------------------------------------------------
-eqNet::Barrier* Node::getBarrier( const uint32_t height )
+eqNet::Barrier* Node::getBarrier()
 {
-    vector<eqNet::Barrier*>& barriers  = _barrierCache[height];
-
-    if( barriers.size() > 0 )
+    if( _barrierCache.empty() )
     {
-        eqNet::Barrier* barrier = barriers.back();
-        barriers.pop_back();
+        eqNet::Barrier* barrier = new eqNet::Barrier( _node );
+        barrier->setAutoObsolete( getConfig()->getLatency()+1, 
+                                  Object::AUTO_OBSOLETE_COUNT_VERSIONS );
+        _config->registerObject( barrier, 
+                        RefPtr_static_cast<Server, eqNet::Node>(getServer( )) );
+        
         return barrier;
     }
 
-    eqNet::Barrier* barrier = new eqNet::Barrier( height );
-    _config->registerObject( barrier, _node );
-
+    eqNet::Barrier* barrier = _barrierCache.back();
+    _barrierCache.pop_back();
+    barrier->setHeight(0);
     return barrier;
 }
 
 void Node::releaseBarrier( eqNet::Barrier* barrier )
 {
-    _barrierCache[barrier->getHeight()].push_back( barrier );
+    _barrierCache.push_back( barrier );
 }
 
 //===========================================================================
