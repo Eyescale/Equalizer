@@ -229,7 +229,7 @@ eqNet::CommandResult Config::_reqInit( eqNet::Node* node,
     EQINFO << "handle config init " << packet << endl;
 
     reply.result = _init( packet->initID );
-    EQINFO << "config init result: " << reply.result << endl;
+    EQINFO << "config init " << (reply.result ? "successfulq":"failed") << endl;
     send( node, reply );
     return eqNet::COMMAND_HANDLED;
 }
@@ -538,7 +538,8 @@ bool Config::_exitNodes()
     for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
         Node* node = *iter;
-        if( node->getNode()->getState() == eqNet::Node::STATE_STOPPED )
+        if( !node->isUsed() || 
+            node->getNode()->getState() == eqNet::Node::STATE_STOPPED )
             continue;
 
         node->startExit();
@@ -551,7 +552,8 @@ bool Config::_exitNodes()
     {
         Node*               node    = *iter;
         RefPtr<eqNet::Node> netNode = node->getNode();
-        if( netNode->getState() == eqNet::Node::STATE_STOPPED )
+        if( !node->isUsed() || 
+            netNode->getState() == eqNet::Node::STATE_STOPPED )
             continue;
 
         if( !node->syncExit( ))
