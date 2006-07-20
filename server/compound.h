@@ -369,7 +369,7 @@ namespace eqs
 
         struct UpdateData
         {
-            Sgi::hash_map<std::string, eqNet::Barrier*> swapBarriers;
+            eqBase::StringHash<eqNet::Barrier*> swapBarriers;
         };
 
         static TraverseResult _updateCB( Compound* compound, void* userData );

@@ -15,25 +15,21 @@ namespace Sgi = ::__gnu_cxx;
 namespace Sgi = std;
 #endif
 
- // good idea?
-#ifdef __GNUC__              // GCC 3.1 and later
-namespace __gnu_cxx
-#else
-namespace std
-#endif
+namespace eqBase
 {
     /** Provides a hashing function for std::string. */
-    template<> struct hash<std::string>
+    struct hashString
     {
         size_t operator()(const std::string& string) const
             {  
-                return __stl_hash_string( string.c_str( ));
+                return Sgi::__stl_hash_string( string.c_str( ));
             }
     };
-}
+    /** A hash for std::string keys. */
+    template<class T> class StringHash 
+        : public Sgi::hash_map<std::string, T, hashString >
+    {};
 
-namespace eqBase
-{
     /** Provides a hashing function for pointers. */
     template< class T > struct hashPtr
     {
@@ -42,7 +38,6 @@ namespace eqBase
                 return ((size_t)N);
             }
     };
-
     /** A hash for pointer keys. */
     template<class K, class T> class PtrHash 
         : public Sgi::hash_map<K, T, hashPtr<K> >

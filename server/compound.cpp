@@ -328,8 +328,8 @@ void Compound::update()
     UpdateData data;
     traverse( this, _updateCB, _updateCB, NULL, &data );
     
-    for( Sgi::hash_map<std::string, eqNet::Barrier*>::iterator iter = 
-             data.swapBarriers.begin(); iter != data.swapBarriers.end(); ++iter)
+    for( StringHash<eqNet::Barrier*>::iterator iter = data.swapBarriers.begin();
+         iter != data.swapBarriers.end(); ++iter )
  
         iter->second->commit();
 }
@@ -372,7 +372,7 @@ void Compound::_updateSwapBarrier( UpdateData* data )
         return;
 
     const std::string& barrierName = _swapBarrier->getName();
-    Sgi::hash_map<string, eqNet::Barrier*>::iterator iter =
+    StringHash<eqNet::Barrier*>::iterator iter = 
         data->swapBarriers.find( barrierName );
 
     if( iter == data->swapBarriers.end( ))
