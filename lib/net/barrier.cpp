@@ -15,8 +15,6 @@ using namespace std;
 
 void Barrier::_construct()
 {
-    _leaveNotify.set();
-
     registerCommand( CMD_BARRIER_ENTER, this, reinterpret_cast<CommandFcn>(
                          &eqNet::Barrier::_cmdEnter ));
     registerCommand( CMD_BARRIER_ENTER_REPLY, this, 
@@ -64,7 +62,7 @@ void Barrier::enter()
     packet.instanceID = getInstanceID();
     send( _master, packet );
     
-    _leaveNotify.set();
+    _leaveNotify.wait();
     EQVERB << "slave left barrier of height " << _data.height << endl;
 }
 
@@ -96,7 +94,10 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
          iter != _enteredBarriers.end(); ++iter )
     {
         reply.instanceID = iter->instanceID;
-        iter->node->send( reply );
+        if( iter->node->isLocal( ))
+            _leaveNotify.post(); // OPT
+        else
+            iter->node->send( reply );
     }
 
     _enteredBarriers.clear();
@@ -106,6 +107,6 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
 CommandResult Barrier::_cmdEnterReply( Node* node, const Packet* pkg )
 {
     CHECK_THREAD( _threadID );
-    _leaveNotify.unset();
+    _leaveNotify.post();
     return COMMAND_HANDLED;
 }

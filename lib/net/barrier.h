@@ -8,7 +8,7 @@
 #include <eq/net/object.h>
 #include <eq/net/nodeID.h>
 
-#include <eq/base/lock.h>
+#include <eq/base/sema.h>
 
 namespace eqNet
 {
@@ -102,8 +102,8 @@ namespace eqNet
         /** Slave nodes which have entered the barrier. */
         std::vector<EnteredBarrier> _enteredBarriers;
         
-        /** The lock used for barrier leave notification. */
-        eqBase::Lock _leaveNotify;
+        /** The sema used for barrier leave notification. */
+        eqBase::Sema _leaveNotify;
 
         /** Common constructor function. */
         void _construct();

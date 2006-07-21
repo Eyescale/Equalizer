@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "window.h"
@@ -414,6 +414,9 @@ bool eq::Window::initGLX()
         EQERROR << "Could not create window\n" << endl;
         return false;
     }
+
+    XStoreName( display, drawable, 
+                _name.size() > 0 ? _name.c_str() : "Equalizer" );
 
     // map and wait for MapNotify event
     XMapWindow( display, drawable );

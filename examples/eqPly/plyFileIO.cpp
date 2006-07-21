@@ -408,7 +408,7 @@ void PlyFileIO::readFaces( PlyFile *file,
         "vertex_indices", PLY_INT, PLY_INT, offsetof( IndexFace, vertices ),
         1, PLY_INT, PLY_INT, offsetof( IndexFace, nVertices ) };
 
-    EQINFO << "Reading " << nFaces << " faces";
+    EQINFO << "Reading " << nFaces << " faces" << disableHeader;
 
     ply_get_element_setup( file, "face", nFProps, fProps );
             
@@ -435,7 +435,7 @@ void PlyFileIO::readFaces( PlyFile *file,
             ++wrongNormals;
     }
 #ifndef NDEBUG
-    EQINFO << endl;
+    EQINFO << endl << enableHeader;
 
     if( wrongNormals )
         EQWARN << "No normal for " << wrongNormals << " faces ("
