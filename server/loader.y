@@ -76,7 +76,6 @@
 %token EQTOKEN_BOTTOM_LEFT
 %token EQTOKEN_BOTTOM_RIGHT
 %token EQTOKEN_TOP_LEFT
-%token EQTOKEN_MODE
 %token EQTOKEN_SYNC
 %token EQTOKEN_LATENCY
 %token EQTOKEN_SWAPBARRIER
@@ -91,7 +90,6 @@
     int                     _int;
     unsigned                _unsigned;
     float                   _float;
-    eqs::Compound::Mode     _compoundMode;
     eqNet::Connection::Type _connectionType;
     float                   _viewport[4];
 }
@@ -99,7 +97,6 @@
 %type <_string>         STRING;
 %type <_int>            INTEGER;
 %type <_unsigned>       UNSIGNED;
-%type <_compoundMode>   compoundMode;
 %type <_connectionType> connectionType;
 %type <_viewport>       viewport;
 %type <_float>          FLOAT;
@@ -254,7 +251,6 @@ compoundAttributes: /*null*/ | compoundAttribute |
                     compoundAttributes compoundAttribute
 compoundAttribute: 
     EQTOKEN_NAME STRING { compound->setName( $2 ); }
-    | EQTOKEN_MODE '[' compoundMode ']' { compound->setMode( $3 ); }
     | EQTOKEN_CHANNEL STRING
     {
          eqs::Channel* channel = config->findChannel( $2 );
@@ -271,9 +267,6 @@ compoundAttribute:
         { compound->setRange( eq::Range( $3, $4 )); }
     | wall
     | swapBarrier
-
-compoundMode:
-    EQTOKEN_SYNC { $$ = eqs::Compound::MODE_SYNC; }
 
 compoundTasks: /*null*/ | compoundTask | compoundTasks compoundTask
 compoundTask:

@@ -155,30 +155,6 @@ namespace eqs
         /** @return true if the task is set, false if not. */
         bool testTask( const Task task ) const { return (_tasks & task); }
 
-        /**
-         * The decomposition mode of the compound. Deprecated, will go away.
-         */
-        enum Mode
-        {
-            MODE_NONE,    //!< Do nothing
-            MODE_SYNC,    //!< Synchronize swap of all channels
-            MODE_2D       //!< Sort-first distribution
-        };
-
-        /** 
-         * Set the decomposition mode.
-         * 
-         * @param mode the decomposition mode.
-         */
-        void setMode( const Mode mode ) { _mode = mode; }
-
-        /** 
-         * Return the decomposition mode.
-         *
-         * @return the decomposition mode.
-         */
-        Mode getMode() const { return _mode; }
-
         void setViewport( const eq::Viewport& vp ) { _data.vp = vp; }
         const eq::Viewport& getViewport() const { return _data.vp; }
 
@@ -355,8 +331,6 @@ namespace eqs
         InheritData _data;
         InheritData _inherit;
 
-        Mode        _mode;
-        
         SwapBarrier* _swapBarrier;
 
         std::vector<Frame*> _inputFrames;

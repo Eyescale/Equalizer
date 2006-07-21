@@ -33,26 +33,33 @@ typedef int socklen_t;
 #ifdef NDEBUG
 
 #  define EQASSERT(x) if( !(x) ) \
-        EQERROR << "##### Assert: " << #x << " #####" << std::endl;
+        EQERROR << "##### Assert: " << #x << " #####" << std::endl \
+                << eqBase::forceFlush;
 #  define EQASSERTINFO(x, info) if( !(x) )                                \
         EQERROR << "##### Assert: " << #x << " [" << info << "] #####"    \
-              << std::endl;
-#  define EQUNIMPLEMENTED { EQERROR << "Unimplemented code" << std::endl; }
-#  define EQUNREACHABLE   { EQERROR << "Unreachable code" << std::endl; }
+              << std::endl << eqBase::forceFlush;
+#  define EQUNIMPLEMENTED { EQERROR << "Unimplemented code" << std::endl \
+                                    << eqBase::forceFlush; }
+#  define EQUNREACHABLE   { EQERROR << "Unreachable code" << std::endl \
+                                    << eqBase::forceFlush; }
 
 #else
 
 #  define EQASSERT(x) if( !(x) ) \
-    { EQERROR << "Assert: " << #x << std::endl; EQ_DUMP_CORE; ::abort(); }
+    { EQERROR << "Assert: " << #x << std::endl << eqBase::forceFlush; \
+        EQ_DUMP_CORE; ::abort(); }
 #  define EQASSERTINFO(x, info) if( !(x) )                              \
     {                                                                   \
-        EQERROR << "Assert: " << #x << " [" << info << "]" << std::endl; \
+        EQERROR << "Assert: " << #x << " [" << info << "]" << std::endl \
+                << eqBase::forceFlush;                                  \
         EQ_DUMP_CORE; ::abort();                                        \
     }
 #  define EQUNIMPLEMENTED                                               \
-    { EQERROR << "Unimplemented code" << std::endl; ::abort(); EQ_DUMP_CORE; }
+    { EQERROR << "Unimplemented code" << std::endl << eqBase::forceFlush; \
+        ::abort(); EQ_DUMP_CORE; }
 #  define EQUNREACHABLE                                                 \
-    { EQERROR << "Unreachable code" << std::endl; ::abort(); EQ_DUMP_CORE; }
+    { EQERROR << "Unreachable code" << std::endl << eqBase::forceFlush; \
+        ::abort(); EQ_DUMP_CORE; }
 
 #endif
 

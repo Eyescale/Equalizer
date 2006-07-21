@@ -45,8 +45,6 @@ wall                            { return EQTOKEN_WALL; }
 bottom_left                     { return EQTOKEN_BOTTOM_LEFT; }
 bottom_right                    { return EQTOKEN_BOTTOM_RIGHT; }
 top_left                        { return EQTOKEN_TOP_LEFT; }
-mode                            { return EQTOKEN_MODE; }
-SYNC                            { return EQTOKEN_SYNC; }
 latency                         { return EQTOKEN_LATENCY; }
 swapbarrier                     { return EQTOKEN_SWAPBARRIER; }
 

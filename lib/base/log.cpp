@@ -19,7 +19,7 @@ static PerThread<Log*> _logInstance;
 
 int getLogLevel()
 {
-    const char *env = getenv("EQLOGLEVEL");
+    const char *env = getenv("EQ_LOG_LEVEL");
     if( env != NULL )
     {
         if( strcmp( env, "ERROR" ) == 0 )
@@ -75,6 +75,13 @@ std::ostream& eqBase::enableFlush( std::ostream& os )
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
         log->enableFlush();
+    return os;
+}
+std::ostream& eqBase::forceFlush( std::ostream& os )
+{
+    Log* log = dynamic_cast<Log*>(&os);
+    if( log )
+        log->forceFlush();
     return os;
 }
 

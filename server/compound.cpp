@@ -32,8 +32,11 @@ Compound::Compound()
 Compound::Compound( const Compound& from )
         : _parent( NULL )
 {
-    _name  = from._name;
-    _tasks = from._tasks;
+    _name        = from._name;
+    _tasks       = from._tasks;
+    _view        = from._view;
+    _data        = from._data;
+    _swapBarrier = from._swapBarrier;
 
     const uint32_t nChildren = from.nChildren();
     for( uint32_t i=0; i<nChildren; i++ )
@@ -41,11 +44,6 @@ Compound::Compound( const Compound& from )
         const Compound* child = from.getChild(i);
         addChild( new Compound( *child ));
     }
-
-    _view = from._view;
-    _data = from._data;
-    _mode = from._mode;
-    _swapBarrier = from._swapBarrier;
 }
 
 Compound::InheritData::InheritData()
@@ -506,12 +504,6 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
     const std::string& name = compound->getName();
     if( !name.empty( ))
         os << "name     \"" << name << "\"" << endl;
-
-    const Compound::Mode mode = compound->getMode();
-    if( mode != Compound::MODE_NONE )
-        os << "mode     [ " << ( mode == Compound::MODE_SYNC ? "SYNC" : 
-                                 mode == Compound::MODE_2D   ? "2D" : "????" ) 
-           << " ]" << endl;
 
     const Channel* channel = compound->getChannel();
     if( channel )

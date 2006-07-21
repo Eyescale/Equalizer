@@ -138,6 +138,7 @@ namespace eqBase
         void exdent() { _logBuffer.exdent(); }
         void disableFlush() { _logBuffer.disableFlush(); }
         void enableFlush()  { _logBuffer.enableFlush();  }
+        void forceFlush()  { _logBuffer.pubsync();  }
         void disableHeader() { _logBuffer.disableHeader(); }
         void enableHeader()  { _logBuffer.enableHeader();  }
 
@@ -166,6 +167,8 @@ namespace eqBase
     std::ostream& disableFlush( std::ostream& os );
     /** The ostream flush enable manipulator. */
     std::ostream& enableFlush( std::ostream& os );
+    /** The ostream forced flush manipulator. */
+    std::ostream& forceFlush( std::ostream& os );
     /** The ostream header disable manipulator. */
     std::ostream& disableHeader( std::ostream& os );
     /** The ostream header enable manipulator. */
