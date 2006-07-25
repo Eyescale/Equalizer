@@ -75,6 +75,23 @@ Compound* Compound::_getNext() const
     return *result;
 }
 
+Channel* Compound::getChannel() const
+{
+    if( _data.channel )
+        return _data.channel;
+    if( _parent )
+        return _parent->getChannel();
+    return NULL;
+}
+
+eqs::Window* Compound::getWindow() const
+{
+    Channel* channel = getChannel();
+    if( channel )
+        return channel->getWindow();
+    return NULL;
+}
+
 void Compound::setSwapBarrier( SwapBarrier* barrier )
 {
     if( barrier && barrier->getName().size() == 0 )
@@ -336,7 +353,9 @@ TraverseResult Compound::_updateCB( Compound* compound, void* userData )
 {
     UpdateData* data = (UpdateData*)userData;
     compound->_updateInheritData();
-    compound->_updateSwapBarrier( data );
+    compound->_updateIO( data );
+    compound->_updateSwapBarriers( data );
+    
     return TRAVERSE_CONTINUE;
 }
 
@@ -350,7 +369,7 @@ void Compound::_updateInheritData()
 
     _inherit = _parent->_inherit;
 
-    if( !_inherit.channel ) 
+    if( !_inherit.channel )
         _inherit.channel = _data.channel;
 
     if( !_inherit.view.isValid( ))
@@ -360,11 +379,16 @@ void Compound::_updateInheritData()
     _inherit.range *= _data.range;
 }
 
-void Compound::_updateSwapBarrier( UpdateData* data )
+void Compound::_updateIO( UpdateData* data )
+{
+}
+void Compound::_updateSwapBarriers( UpdateData* data )
 {
     Window* window = getWindow();
-    if( window )
-        window->resetSwapBarriers();
+    if( !window )
+        return;
+
+    window->resetSwapBarriers();
 
     if( !_swapBarrier )
         return;
@@ -396,11 +420,11 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
     UpdateChannelData* data    = (UpdateChannelData*)userData;
     Channel*           channel = data->channel;
 
-    if( compound->_data.channel != channel || !compound->_tasks )
+    if( compound->getChannel() != channel || !compound->_tasks )
         return TRAVERSE_CONTINUE;
 
-    const Channel*           iChannel = compound->_inherit.channel;
-    const eq::PixelViewport& pvp      = iChannel->getPixelViewport();
+    const Channel*           destination = compound->_inherit.channel;
+    const eq::PixelViewport& pvp         = destination->getPixelViewport();
 
     eq::RenderContext context;
     context.frameID    = data->frameID;
@@ -429,17 +453,17 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
 
 void Compound::_computeFrustum( eq::Frustum& frustum, float headTransform[16] )
 {
-    const Channel*        iChannel = _inherit.channel;
-    const eq::ViewMatrix& iView    = _inherit.view;
+    const Channel*        destination = _inherit.channel;
+    const eq::ViewMatrix& iView       = _inherit.view;
 
-    iChannel->getNearFar( &frustum.near, &frustum.far );
+    destination->getNearFar( &frustum.near, &frustum.far );
 
     // eye position in screen space
     const float  head[3] = { 0, 0, 0 }; // TODO get from headtracking API
     const float* xfm     = iView.xfm;
     const float  w       = 
         xfm[3] * head[0] + xfm[7] * head[1] + xfm[11]* head[2] + xfm[15];
-    const float  eye[3]  = {
+    const float  eye[3]  = { // Eye position in screen space
         (xfm[0] * head[0] + xfm[4] * head[1] + xfm[8] * head[2] + xfm[12]) / w,
         (xfm[1] * head[0] + xfm[5] * head[1] + xfm[9] * head[2] + xfm[13]) / w,
         (xfm[2] * head[0] + xfm[6] * head[1] + xfm[10]* head[2] + xfm[14]) / w};
@@ -476,6 +500,7 @@ void Compound::_computeFrustum( eq::Frustum& frustum, float headTransform[16] )
     }
 
     // compute head transform
+    // headTransform = -trans(eye) * view matrix (frustum position)
     for( int i=0; i<16; i += 4 )
     {
         headTransform[i]   = xfm[i]   - eye[0] * xfm[i+3];
@@ -489,7 +514,7 @@ void Compound::_computeFrustum( eq::Frustum& frustum, float headTransform[16] )
 TraverseResult Compound::_updatePostDrawCB( Compound* compound, void* userData )
 {
 //    UpdateChannelData* data = (UpdateChannelData*)userData;
-//    if( compound->_data.channel != data->channel )
+//    if( compound->getChannel() != data->channel )
         return TRAVERSE_CONTINUE;
 }
 
@@ -521,7 +546,7 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
         !compound->testTask( Compound::TASK_ASSEMBLE ) ||
         !compound->testTask( Compound::TASK_READBACK ))
     {
-        os << "tasks    [";
+        os << "task     [";
         if( compound->testTask( Compound::TASK_CLEAR ))    os << " CLEAR";
         if( compound->testTask( Compound::TASK_CULL ))     os << " CULL";
         if( compound->isLeaf() && compound->testTask( Compound::TASK_DRAW ))

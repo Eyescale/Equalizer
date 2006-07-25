@@ -1,0 +1,112 @@
+server
+{
+    config
+    {
+        latency 10
+        appNode
+        {
+#            connection{ hostname "hactar1" }
+            pipe
+            {
+                window
+                {
+                    name "left"
+                    viewport [ 19 20 300 400 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    name "right"
+                    viewport [ 321 20 300 400 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    name "left"
+                    viewport [ 19 321 300 400 ]
+                    channel
+                    {
+                        name "channel3"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    name "right"
+                    viewport [ 321 321 300 400 ]
+                    channel
+                    {
+                        name "channel4"
+                    }
+                }
+            }
+        }
+        compound
+        {
+            name "root"
+            compound
+            { 
+                channel "channel1"
+                wall
+                {
+                    bottom_left  [ -.2 -.3 -1 ]
+                    bottom_right [  .0 -.3 -1 ]
+                    top_left     [ -.2  .0 -1 ]
+                }
+                swapbarrier { name "barrier1" }
+            }
+            compound
+            { 
+                channel "channel2"
+                wall
+                {
+                    bottom_left  [  .0 -.3 -1 ]
+                    bottom_right [  .2 -.3 -1 ]
+                    top_left     [  .0  .0 -1 ]
+                }
+                swapbarrier { name "barrier1" }
+            }
+            compound
+            { 
+                channel "channel3"
+                compound
+                {
+                    task [ CULL DRAW ]
+                    wall
+                    {
+                         bottom_left  [ -.2  .0 -1 ]
+                         bottom_right [  .0  .0 -1 ]
+                         top_left     [ -.2  .3 -1 ]
+                    }
+                    swapbarrier { name "barrier2" }
+                }
+                swapbarrier { name "barrier1" }
+            }
+            compound
+            { 
+                channel "channel4"
+                wall
+                {
+                    bottom_left  [  .0  .0 -1 ]
+                    bottom_right [  .2  .0 -1 ]
+                    top_left     [  .0  .3 -1 ]
+                }
+                swapbarrier { name "barrier2" }
+            }
+        }
+    }    
+}

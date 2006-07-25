@@ -7,6 +7,7 @@
 
 #include "channel.h"
 
+#include <eq/client/frameBuffer.h>
 #include <eq/client/projection.h>
 #include <eq/client/range.h>
 #include <eq/client/viewMatrix.h>
@@ -20,7 +21,7 @@ namespace eqs
 {
     class Frame;
     class SwapBarrier;
-
+    
     enum TraverseResult
     {
         TRAVERSE_CONTINUE,
@@ -122,14 +123,16 @@ namespace eqs
         void setChannel( Channel* channel ){ _data.channel = channel; }
 
         /** 
-         * Returns the channel of this compound.
+         * Return the channel of this compound.
          * 
+         * Note that the channel is inherited, that is, if this compound has no
+         * channel, the parent's channel is returned.
+         *
          * @return the channel of this compound.
          */
-        Channel* getChannel() const { return _data.channel; }
+        Channel* getChannel() const;
 
-        Window* getWindow() const 
-            { return _data.channel ? _data.channel->getWindow() : NULL; }
+        Window* getWindow() const;
 
         /** 
          * Set the tasks to be executed by the compound.
@@ -343,12 +346,14 @@ namespace eqs
 
         struct UpdateData
         {
-            eqBase::StringHash<eqNet::Barrier*> swapBarriers;
+            eqBase::StringHash<eqNet::Barrier*>  swapBarriers;
+            eqBase::StringHash<eq::FrameBuffer*> frames;
         };
 
         static TraverseResult _updateCB( Compound* compound, void* userData );
         void _updateInheritData();
-        void _updateSwapBarrier( UpdateData* data );
+        void _updateIO( UpdateData* data );
+        void _updateSwapBarriers( UpdateData* data );
         void _computeFrustum( eq::Frustum& frustum, float headTransform[16] );
 
         friend std::ostream& operator << ( std::ostream& os,

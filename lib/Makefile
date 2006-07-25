@@ -56,6 +56,7 @@ HEADER_SRC = \
 	client/configParams.h \
 	client/event.h \
 	client/eventThread.h \
+	client/frameBuffer.h \
 	client/frustum.h \
 	client/global.h \
 	client/init.h \
@@ -110,6 +111,7 @@ SOURCES = \
 	client/configEvent.cpp \
 	client/configParams.cpp \
 	client/eventThread.cpp \
+	client/frameBuffer.cpp \
 	client/frustum.cpp \
 	client/global.cpp \
 	client/init.cpp \

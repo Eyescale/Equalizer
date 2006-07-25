@@ -116,6 +116,11 @@ namespace eq
         CMD_CHANNEL_CUSTOM
     };
 
+    enum FrameBufferCommand
+    {
+        CMD_FRAMEBUFFER_CUSTOM = eqNet::CMD_OBJECT_CUSTOM,
+    };
+
     enum GLXEventThreadCommand
     {
         CMD_GLXEVENTTHREAD_ADD_PIPE,
