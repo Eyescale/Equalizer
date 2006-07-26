@@ -12,9 +12,12 @@ using namespace eqBase;
 Clock eqLogClock;
 #endif
 
-static int getLogLevel();
+static int      getLogLevel();
+static unsigned getLogTopics();
 
-int eqBase::Log::level = getLogLevel();
+int      eqBase::Log::level  = getLogLevel();
+unsigned eqBase::Log::topics = getLogTopics();
+
 static PerThread<Log*> _logInstance;
 
 int getLogLevel()
@@ -36,6 +39,21 @@ int getLogLevel()
     return LOG_WARN;
 #else
     return LOG_INFO;
+#endif
+}
+
+unsigned getLogTopics()
+{
+    const char *env = getenv("EQ_LOG_TOPICS");
+    if( env != NULL )
+    {
+        return (unsigned)atoll(env);
+    }
+
+#ifdef NDEBUG
+    return 0;
+#else
+    return 0xffffffffu;
 #endif
 }
 

@@ -5,6 +5,7 @@
 #include "compound.h"
 
 #include "channel.h"
+#include "log.h"
 #include "swapBarrier.h"
 
 #include <eq/base/base.h>
@@ -341,7 +342,7 @@ void Compound::exit()
 void Compound::update()
 {
     UpdateData data;
-    traverse( this, _updateCB, _updateCB, NULL, &data );
+    traverse( this, _updatePreCB, _updateCB, _updatePostCB, &data );
     
     for( StringHash<eqNet::Barrier*>::iterator iter = data.swapBarriers.begin();
          iter != data.swapBarriers.end(); ++iter )
@@ -349,10 +350,24 @@ void Compound::update()
         iter->second->commit();
 }
 
+TraverseResult Compound::_updatePreCB( Compound* compound, void* userData )
+{
+    compound->_updateInheritData();
+    
+    return TRAVERSE_CONTINUE;
+}
 TraverseResult Compound::_updateCB( Compound* compound, void* userData )
 {
     UpdateData* data = (UpdateData*)userData;
     compound->_updateInheritData();
+    compound->_updateIO( data );
+    compound->_updateSwapBarriers( data );
+    
+    return TRAVERSE_CONTINUE;
+}
+TraverseResult Compound::_updatePostCB( Compound* compound, void* userData )
+{
+    UpdateData* data = (UpdateData*)userData;
     compound->_updateIO( data );
     compound->_updateSwapBarriers( data );
     
@@ -437,6 +452,7 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
     {
         eq::ChannelClearPacket clearPacket;        
         clearPacket.context = context;
+        EQLOG( LOG_TASKS ) << "TASK clear " << &clearPacket << endl;
         channel->send( clearPacket );
     }
     if( compound->testTask( TASK_DRAW ))
@@ -446,6 +462,7 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
         drawPacket.context = context;
         compound->_computeFrustum( drawPacket.context.frustum, 
                      drawPacket.context.headTransform );
+        EQLOG( LOG_TASKS ) << "TASK draw  " << &drawPacket << endl;
         channel->send( drawPacket );
     }
     return TRAVERSE_CONTINUE;

@@ -60,6 +60,7 @@ HEADER_SRC = \
 	client/frustum.h \
 	client/global.h \
 	client/init.h \
+	client/log.h \
 	client/node.h \
 	client/nodeFactory.h \
 	client/object.h \
@@ -119,6 +120,7 @@ SOURCES = \
 	client/nodeFactory.cpp \
 	client/openParams.cpp \
 	client/pipe.cpp \
+	client/renderContext.cpp \
 	client/server.cpp \
 	client/wall.cpp \
 	client/window.cpp

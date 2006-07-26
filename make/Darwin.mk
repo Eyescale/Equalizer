@@ -2,9 +2,9 @@
 BUILD_FAT = 1
 
 ifeq ($(findstring i386, $(SUBARCH)),i386)
-  VARIANTS = ppc i386
+  VARIANTS ?= ppc i386
 else
-  VARIANTS = ppc
+  VARIANTS ?= ppc
 endif
 
 ifdef VARIANT

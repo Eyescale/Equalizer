@@ -31,6 +31,8 @@ namespace eq
         Frustum       frustum;
         float         headTransform[16];
     };
+
+    std::ostream& operator << ( std::ostream& os, const RenderContext& ctx );
 }
 
 #endif // EQ_RENDERCONTEXT_H

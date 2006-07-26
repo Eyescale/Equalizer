@@ -29,13 +29,19 @@ namespace eqBase
         LOG_VERBATIM
     };
 
+    /** The logging topics. */
+    enum LogTopic
+    {
+        LOG_CUSTOM = 0x10
+    };
+
     /** The string buffer used for logging. */
     class LogBuffer : public std::streambuf
     {
 	public:
 		LogBuffer( std::ostream& stream )
-                : _line(0), _indent(0), _noFlush(0), _noHeader(0), _newLine(true),
-                  _stream(stream)
+                : _line(0), _indent(0), _noFlush(0), _noHeader(0), 
+                  _newLine(true), _stream(stream)
             {}
         
         void indent() { ++_indent; }
@@ -145,6 +151,9 @@ namespace eqBase
         /** The current log level. */
         static int level;
 
+        /** The current log topics. */
+        static unsigned topics;
+
         /** The per-thread logger. */
         static Log& instance( const char* subdir, const char* file,
                               const int line );
@@ -204,6 +213,8 @@ namespace eqBase
 #define EQINFO  (eqBase::Log::level >= eqBase::LOG_INFO)  &&    \
     eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )
 #define EQVERB  (eqBase::Log::level >= eqBase::LOG_VERBATIM)  &&    \
+    eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )
+#define EQLOG(topic)  (eqBase::Log::topics && (topic))  &&  \
     eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )
 
 #define LOG_MATRIX4x4( m ) endl \

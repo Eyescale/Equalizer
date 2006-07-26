@@ -12,6 +12,7 @@
 #include <eq/client/frustum.h>
 #include <eq/client/global.h>
 #include <eq/client/init.h>
+#include <eq/client/log.h>
 #include <eq/client/node.h>
 #include <eq/client/nodeFactory.h>
 #include <eq/client/object.h>

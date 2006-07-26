@@ -245,6 +245,8 @@ compound: EQTOKEN_COMPOUND '{'
               }
           compoundAttributes 
           compoundChildren '}' { compound = compound->getParent(); } 
+          compoundAttributes 
+
 compoundChildren: /*null*/ | compounds
 
 compoundAttributes: /*null*/ | compoundAttribute |

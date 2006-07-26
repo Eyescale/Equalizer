@@ -701,13 +701,44 @@ namespace eq
     }
 
     inline std::ostream& operator << ( std::ostream& os, 
+                                       const WindowBarrierPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " barrier " << packet->barrierID
+           << " version " << packet->barrierVersion;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const WindowStartFramePacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameID;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const WindowEndFramePacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameID;
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
                                        const ChannelInitReplyPacket* packet )
     {
         os << (eqNet::ObjectPacket*)packet << " result " << packet->result
            << " pvp " << packet->pvp;
         return os;
     }
-
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const ChannelClearPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << packet->context;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const ChannelDrawPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << packet->context;
+        return os;
+    }
 }
 
 #endif // EQ_PACKETS_H

@@ -350,7 +350,9 @@ namespace eqs
             eqBase::StringHash<eq::FrameBuffer*> frames;
         };
 
-        static TraverseResult _updateCB( Compound* compound, void* userData );
+        static TraverseResult _updatePreCB( Compound* compound, void* );
+        static TraverseResult _updateCB( Compound* compound, void* );
+        static TraverseResult _updatePostCB( Compound* compound, void* );
         void _updateInheritData();
         void _updateIO( UpdateData* data );
         void _updateSwapBarriers( UpdateData* data );

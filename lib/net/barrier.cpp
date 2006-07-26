@@ -54,7 +54,7 @@ void Barrier::enter()
 {
     EQASSERT( _data.height > 1 );
     EQASSERT( _master.isValid( ));
-    EQVERB << "enter barrier of height " << _data.height << endl;
+    EQINFO << "enter barrier of height " << _data.height << endl;
     EQASSERT( getSession( ));
 
     BarrierEnterPacket packet;
@@ -63,7 +63,7 @@ void Barrier::enter()
     send( _master, packet );
     
     _leaveNotify.wait();
-    EQVERB << "slave left barrier of height " << _data.height << endl;
+    EQINFO << "slave left barrier of height " << _data.height << endl;
 }
 
 CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
@@ -72,7 +72,7 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
     EQASSERT( _master == eqNet::Node::getLocalNode( ));
 
     BarrierEnterPacket* packet = (BarrierEnterPacket*)pkg;
-    EQVERB << "Handle barrier enter " << packet << endl;
+    EQINFO << "Handle barrier enter " << packet << endl;
     if( packet->version > getVersion( ))
         return COMMAND_RESCHEDULE;
     
@@ -84,7 +84,7 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
         return COMMAND_HANDLED;
 
     EQASSERT( _enteredBarriers.size() == _data.height );
-    EQVERB << "Barrier reached" << endl;
+    EQINFO << "Barrier reached" << endl;
 
     BarrierEnterReplyPacket reply;
     reply.sessionID = getSession()->getID();
