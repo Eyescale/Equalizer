@@ -6,6 +6,7 @@
 
 #include "channel.h"
 #include "config.h"
+#include "log.h"
 #include "pipe.h"
 
 using namespace eqs;
