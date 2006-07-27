@@ -22,9 +22,12 @@
 
                            Running Equalizer
 
- Right now there is only one example. To run it, first start a server:
- './server/eqs.<VARIANT>'. Once the server is running, start the example:
- './examples/flip/flip.<VARIANT>'. 
+ Right now there is only one example. To run it, first setup your
+ library search path (LD_LIBRARY_PATH) to point to trunk/src/<os>/<VARIANT>/lib
+ Then start a server: './server/eqs.<VARIANT>'. Once the server is
+ running, start the example: './examples/flip/flip.<VARIANT>'. On Mac OS
+ X, fat (universal) libraries and binaries are build. Therefore,
+ <VARIANT> can be omitted.
 
 
                            Build Environment
