@@ -146,7 +146,8 @@ namespace eqNet
          *               <code>NULL</code> for unmanaged objects.
          */
         void registerObject( Object* object, eqBase::RefPtr<Node> master,
-                        const Object::SharePolicy policy = Object::SHARE_NODE );
+                          const Object::SharePolicy policy = Object::SHARE_NODE,
+                             const Object::ThreadSafety ts = Object::CS_AUTO );
 
         void addRegisteredObject( const uint32_t id, Object* object,
                                   const  Object::SharePolicy policy );
@@ -160,16 +161,22 @@ namespace eqNet
          * instanciation, it gets referenced. Versioned objects need to have at
          * least one committed version. This function can not be called from the
          * receiver thread, that is, from any command handling function. The
-         * object may be deregistered when it is no longer needed.
+         * object can be deregistered when it is no longer needed.
+         * If a version other than the head version is specified, the function
+         * will block until the version has been committed. It may fail if the
+         * version has already been obsoleted.
          *
          * @param id the object's identifier.
          * @param policy the object's instanciation scope.
+         * @param version the initial version.
+         * @param ts the thread-safety needed for the object.
          * @return the object, or <code>NULL</code> if the object is not known
          *         or could not be instanciated.
          */
         Object* getObject( const uint32_t id,
                            const Object::SharePolicy policy =Object::SHARE_NODE,
-                           const uint32_t version = Object::VERSION_HEAD );
+                           const uint32_t version = Object::VERSION_HEAD,
+                           const Object::ThreadSafety ts = Object::CS_AUTO );
 
         /** 
          * Access a registered object.
@@ -289,6 +296,7 @@ namespace eqNet
                       object( NULL ) {}
 
             Object::SharePolicy policy;
+            bool                threadSafe;
             bool                pending;
             uint32_t            objectID;
             uint32_t            version;

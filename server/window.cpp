@@ -112,9 +112,10 @@ void eqs::Window::setViewport( const eq::Viewport& vp )
 //---------------------------------------------------------------------------
 // swap barrier operations
 //---------------------------------------------------------------------------
-void Window::resetSwapBarriers()
+void Window::_resetSwapBarriers()
 { 
     Node* node = getNode();
+    EQASSERT( node );
 
     for( vector<eqNet::Barrier*>::iterator iter = _masterSwapBarriers.begin();
          iter != _masterSwapBarriers.end(); ++iter )
@@ -131,11 +132,11 @@ eqNet::Barrier* Window::newSwapBarrier()
     eqNet::Barrier* barrier = node->getBarrier();
     _masterSwapBarriers.push_back( barrier );
 
-    addSwapBarrier( barrier );
+    joinSwapBarrier( barrier );
     return barrier;
 }
 
-void Window::addSwapBarrier( eqNet::Barrier* barrier )
+void Window::joinSwapBarrier( eqNet::Barrier* barrier )
 { 
     barrier->increase();
     _swapBarriers.push_back( barrier );
@@ -183,8 +184,8 @@ void Window::_sendInit( const uint32_t initID )
     packet.pvp       = _pvp; 
     packet.vp        = _vp;
 
-    EQLOG( LOG_TASKS ) << "TASK init  " << &packet << endl;
     _send( packet, getName( ));
+    EQLOG( LOG_TASKS ) << "TASK init  " << &packet << endl;
 }
 
 bool Window::syncInit()
@@ -238,8 +239,8 @@ void Window::_sendExit()
     eq::WindowExitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
-    EQLOG( LOG_TASKS ) << "TASK exit  " << &packet << endl;
     _send( packet );
+    EQLOG( LOG_TASKS ) << "TASK exit  " << &packet << endl;
 }
 
 bool Window::syncExit()
@@ -280,8 +281,8 @@ void Window::update( const uint32_t frameID )
     eq::WindowStartFramePacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.makeCurrent = _pipe->nWindows() > 1 ? true : false;
-    EQLOG( LOG_TASKS ) << "TASK start frame  " << &startPacket << endl;
     _send( startPacket );
+    EQLOG( LOG_TASKS ) << "TASK start frame  " << &startPacket << endl;
 
     const uint32_t nChannels = this->nChannels();
     for( uint32_t i=0; i<nChannels; i++ )
@@ -295,8 +296,8 @@ void Window::update( const uint32_t frameID )
 
     eq::WindowEndFramePacket endPacket;
     endPacket.frameID = frameID;
-    EQLOG( LOG_TASKS ) << "TASK end frame  " << &endPacket << endl;
     _send( endPacket );
+    EQLOG( LOG_TASKS ) << "TASK end frame  " << &endPacket << endl;
 }
 
 void Window::_updateSwap()
@@ -309,8 +310,8 @@ void Window::_updateSwap()
     if( !_swapBarriers.empty())
     {
         eq::WindowFinishPacket packet;
-        EQLOG( LOG_TASKS ) << "TASK finish  " << &packet << endl;
         _send( packet );
+        EQLOG( LOG_TASKS ) << "TASK finish  " << &packet << endl;
     }
 
     for( vector<eqNet::Barrier*>::iterator iter = _swapBarriers.begin();
@@ -321,13 +322,14 @@ void Window::_updateSwap()
 
         packet.barrierID      = barrier->getID();
         packet.barrierVersion = barrier->getVersion();
-        EQLOG( LOG_TASKS ) << "TASK barrier  " << &packet << endl;
         _send( packet );
+        EQLOG( LOG_TASKS ) << "TASK barrier  " << &packet << endl;
     }
 
     eq::WindowSwapPacket packet;
-    EQLOG( LOG_TASKS ) << "TASK swap  " << &packet << endl;
     _send( packet );
+    EQLOG( LOG_TASKS ) << "TASK swap  " << &packet << endl;
+    _resetSwapBarriers();
 }
 
 

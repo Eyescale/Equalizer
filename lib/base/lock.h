@@ -1,11 +1,11 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_LOCK_H
 #define EQBASE_LOCK_H
 
-#include "thread.h"
+#include <eq/base/thread.h>
 
 #include <pthread.h>
 

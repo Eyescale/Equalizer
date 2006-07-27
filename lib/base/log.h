@@ -111,7 +111,7 @@ namespace eqBase
         int _line;
 
         /** Clock for time stamps */
-        Clock _clock;
+        static Clock _clock;
 
         /** The current indentation level. */
         int _indent;

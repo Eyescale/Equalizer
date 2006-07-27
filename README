@@ -3,7 +3,8 @@
 
  This directory is the top-level directory for the Equalizer sources.
  Executing 'make' should build all targets if the platform is supported.
- If something goes wrong, the best place is to look into make/`uname`.mk
+ Please make sure to also read the FAQ in this directory.
+
 
                             Directory Layout
                             
@@ -17,7 +18,8 @@
  examples/  Equalizer example programs
  proto/     quick prototypes written during development
  tests/     small programs testing certain functionality (to-be-unit-tests)
- 
+
+
                            Running Equalizer
 
  Right now there is only one example. To run it, first start a server:
@@ -27,18 +29,19 @@
 
                            Build Environment
 
- The build environment is build using GNU make. The directy make/
- contains the following files:
+ The build environment is using GNU make. Furthermore, flex, bison and
+ libuuid are needed during compilation. The directory make/ contains the
+ following files:
  
    system.mk: Generic Makefile included first by each Makefile. Sets
-     common variables, e.q. $(TOP) to find the make/ directory. This
+     common variables, e.g., $(TOP) to find the make/ directory. This
      file includes `uname`.mk early on.
 
-   `uname`.mk: The system-specific Makefile, e.g. Linux.mk. This file
+   `uname`.mk: The system-specific Makefile, e.g., Linux.mk. This file
      customizes system-specific settings.
 
    rules.mk: The build rules to be used by the Makefiles. Typically
-     included last in each Makefile.
+     included at the end of each Makefile.
 
 
   The build environment uses the following targets and variables:

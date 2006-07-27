@@ -12,6 +12,7 @@
 #include "session.h"
 
 #include <eq/base/log.h>
+#include <eq/base/scopedMutex.h>
 #include <iostream>
 
 using namespace eqNet;
@@ -20,6 +21,7 @@ using namespace std;
 
 void Object::_construct()
 {
+    _mutex         = NULL;
     _session       = NULL;
     _id            = EQ_INVALID_ID;
     _policy        = SHARE_UNDEFINED;
@@ -32,10 +34,11 @@ void Object::_construct()
                          &eqNet::Object::_cmdSync ));
     registerCommand( REQ_OBJECT_SYNC, this, reinterpret_cast<CommandFcn>(
                          &eqNet::Object::_reqSync ));
+
+    CHECK_THREAD_INIT( _threadID );
 }
 
-Object::Object( const uint32_t typeID, 
-                const uint32_t nCommands )
+Object::Object( const uint32_t typeID, const uint32_t nCommands )
         : Base( nCommands ),
           _typeID( typeID )
 {
@@ -181,6 +184,10 @@ uint32_t Object::commit()
     if( !isMaster( ) || _typeID < TYPE_VERSIONED )
         return VERSION_NONE;
 
+    if( !_mutex )
+        CHECK_THREAD( _threadID );
+
+    ScopedMutex mutex( _mutex );
     if( _version == VERSION_NONE )
         return _commitInitial();
 
@@ -264,6 +271,7 @@ uint32_t Object::commit()
 
 uint32_t Object::_commitInitial()
 {
+    CHECK_THREAD( _threadID );
     EQASSERT( _version == VERSION_NONE );
     EQASSERT( _instanceData.empty( ));
     EQASSERT( _changeData.empty( ));
@@ -327,6 +335,11 @@ bool Object::sync( const uint32_t version, const float timeout )
     EQVERB << "Sync to version " << version << ", id " << getID() << endl;
     if( _version == version )
         return true;
+
+    if( !_mutex )
+        CHECK_THREAD( _threadID );
+
+    ScopedMutex mutex( _mutex );
 
     if( version == VERSION_HEAD )
     {

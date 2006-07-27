@@ -288,7 +288,8 @@ void Session::removeRegisteredObject( Object* object,
 }
 
 void Session::registerObject( Object* object, RefPtr<Node> master, 
-                              const Object::SharePolicy policy )
+                              const Object::SharePolicy policy,
+                              const Object::ThreadSafety ts )
 {
     EQASSERT( object->_id == EQ_INVALID_ID );
 
@@ -300,6 +301,11 @@ void Session::registerObject( Object* object, RefPtr<Node> master,
         EQASSERT( master.isValid( ));
         setIDMaster( id, 1, master );
     }
+
+    const bool threadSafe = ( ts==Object::CS_SAFE || 
+                         ( ts==Object::CS_AUTO && policy==Object::SHARE_NODE ));
+    if( threadSafe ) 
+        object->makeThreadSafe();
 
     addRegisteredObject( id, object, policy );
 
@@ -337,19 +343,28 @@ void Session::deregisterObject( Object* object )
 }
 
 Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy,
-                            const uint32_t version )
+                            const uint32_t version, 
+                            const Object::ThreadSafety ts )
 {
     CHECK_NOT_THREAD( _recvThreadID );
 
+    const bool threadSafe = ( ts==Object::CS_SAFE || 
+                         ( ts==Object::CS_AUTO && policy==Object::SHARE_NODE ));
+
     Object* object = pollObject( id, policy );
     if( object )
+    {
+        EQASSERTINFO( !threadSafe || object->isThreadSafe(), 
+                      "Can't make existing object thread safe." );
         return object;
+    }
 
     GetObjectState state;
-    state.policy   = ( policy == Object::SHARE_THREAD ?
-                       Object::SHARE_NEVER : policy );
-    state.objectID = id;
-    state.version  = version;
+    state.policy     = ( policy == Object::SHARE_THREAD ?
+                         Object::SHARE_NEVER : policy );
+    state.threadSafe = threadSafe;
+    state.objectID   = id;
+    state.version    = version;
 
     SessionGetObjectPacket packet;
     packet.requestID = _requestHandler.registerRequest( &state );
@@ -373,7 +388,10 @@ Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy,
     }
 
     if( state.object )
+    {
+        EQASSERT( threadSafe == state.object->isThreadSafe( ));
         state.object->sync( version );
+    }
     return state.object;
 }
 
@@ -451,6 +469,7 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
             {
                 state                 = new GetObjectState;
                 state->policy         = Object::SHARE_NODE;
+                state->threadSafe     = true;
                 state->objectID       = id;
                 state->version        = Object::VERSION_HEAD;
                 _objectInstStates[id] = state;
@@ -805,6 +824,8 @@ CommandResult Session::_cmdGetObject( Node* node, const Packet* pkg )
 
     if( state->object ) // successfully instanciated
     {
+        EQASSERTINFO( !state->threadSafe || state->object->isThreadSafe(), 
+                      "Can't make existing object thread safe." );
         _objectInstStates.erase( id );
         _requestHandler.serveRequest( packet->requestID, NULL );
         return COMMAND_HANDLED;
@@ -897,7 +918,11 @@ CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )
 
     GetObjectState* state = _objectInstStates[id];
     if( state )
+    {
+        if( state->threadSafe ) 
+            object->makeThreadSafe();
         state->object = object;
+    }
 
     addRegisteredObject( id, object, 
                          state ? state->policy : packet->policy );

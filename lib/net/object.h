@@ -52,7 +52,6 @@ namespace eqNet
         /**
          * The share policy defines the scope of the object during
          * instanciation.
-         *
          * @sa Session::getObject()
          */
         enum SharePolicy
@@ -61,6 +60,24 @@ namespace eqNet
             SHARE_NODE,     //*< All threads on the a node share the same object
             SHARE_THREAD,   //*< One instance per thread
             SHARE_NEVER     //*< A new instance is created for the caller
+        };
+
+        /** 
+         * The thread safety defines if critical sections are protected by the
+         * object.
+         *
+         * Note that thread-safety will only be enabled during object
+         * instanciation. There is no safe way to automatically enable thread
+         * safety for an existing object, since the object may be in a cs in
+         * another thread. An assertion will be generated if this condition is
+         * encountered.
+         * @sa makeThreadSafe(), Session::getObject()
+         */
+        enum ThreadSafety
+        {
+            CS_AUTO,   //*< Safe if SHARE_NODE, otherwise unsafe
+            CS_SAFE,   //*< Protect critical sections
+            CS_UNSAFE  //*< Do not protect critical sections
         };
 
         /**
@@ -108,7 +125,22 @@ namespace eqNet
         Object( const Object& from );
 
         virtual ~Object();
-        
+
+        /** 
+         * Make this object thread safe.
+         * 
+         * The caller has to ensure that no other thread is using this object
+         * when this function is called. It is primarily used by the session
+         * during object instanciation.
+         * @sa Session::getObject().
+         */
+        virtual void makeThreadSafe()
+            {
+                if( _mutex ) return;
+                _mutex = new eqBase::Lock;
+            }
+
+        bool isThreadSafe() const      { return ( _mutex!=NULL ); }
         Session* getSession() const    { return _session; }
         /** @return the session-wide unique object identifier. */
         uint32_t getID() const         { return _id; }
@@ -336,6 +368,9 @@ namespace eqNet
         /** The flags for automatic version obsoletion. */
         uint32_t _obsoleteFlags;
 
+        /** The mutex, if thread safety is enabled. */
+        eqBase::Lock* _mutex;
+
         struct InstanceData
         {
             InstanceData() : data(NULL), size(0), maxSize(0), commitCount(0) {}
@@ -376,6 +411,10 @@ namespace eqNet
             { _syncQueue.push( node, pkg ); return eqNet::COMMAND_HANDLED; }
 
         void _reqSync( Node* node, const Packet* pkg );
+
+#ifdef CHECK_THREADSAFETY
+        pthread_t _threadID;
+#endif
     };
 }
 

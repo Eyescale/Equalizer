@@ -19,6 +19,7 @@ HEADER_SRC = \
 	base/refPtr.h \
 	base/referenced.h \
 	base/requestHandler.h \
+	base/scopedMutex.h \
 	base/sema.h \
 	base/shm.h \
 	base/thread.h \

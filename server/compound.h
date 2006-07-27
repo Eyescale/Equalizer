@@ -354,7 +354,8 @@ namespace eqs
         static TraverseResult _updateCB( Compound* compound, void* );
         static TraverseResult _updatePostCB( Compound* compound, void* );
         void _updateInheritData();
-        void _updateIO( UpdateData* data );
+        void _updateOutput( UpdateData* data );
+        void _updateInput( UpdateData* data );
         void _updateSwapBarriers( UpdateData* data );
         void _computeFrustum( eq::Frustum& frustum, float headTransform[16] );
 

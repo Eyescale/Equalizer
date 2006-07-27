@@ -1,0 +1,11 @@
+
+Q: I am getting a compile error that the include file uuid/uuid.h can
+   not be found.
+A: Equalizer uses the libuuid to generate unique node identifiers. 
+   Under Linux, this library is often part of the ext2fsprogs. Depending
+   on you distribution you have to install ext2fsprogs, libuuid,
+   libuuid-dev or uuid-dev.
+   Under other Unix operating systems, the uuid library is either a
+   separate package, or may be part of DCE, from which it originates.
+
+

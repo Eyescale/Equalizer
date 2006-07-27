@@ -17,6 +17,7 @@ static unsigned getLogTopics();
 
 int      eqBase::Log::level  = getLogLevel();
 unsigned eqBase::Log::topics = getLogTopics();
+Clock    eqBase::LogBuffer::_clock;
 
 static PerThread<Log*> _logInstance;
 
@@ -50,11 +51,7 @@ unsigned getLogTopics()
         return (unsigned)atoll(env);
     }
 
-#ifdef NDEBUG
     return 0;
-#else
-    return 0xffffffffu;
-#endif
 }
 
 Log& Log::instance( const char* subdir, const char* file, const int line )

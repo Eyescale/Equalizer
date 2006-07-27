@@ -64,6 +64,11 @@ typedef int socklen_t;
 #endif
 
 // thread-safety checks
+// These checks are for development purposes, to check that certain objects are
+// properly used within the framework. Leaving them enabled during application
+// developement may cause false positives, e.g. when threadsafety is ensured
+// outside of the objects by the application.
+
 #ifdef CHECK_THREADSAFETY
 #  define CHECK_THREAD_INIT( THREADID ) { THREADID = 0; }
 #  define CHECK_THREAD( THREADID )                                      \

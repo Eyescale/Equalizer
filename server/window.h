@@ -141,24 +141,19 @@ namespace eqs
          */
         const eq::Viewport& getViewport() const { return _vp; }
 
-        /** 
-         * Clears all swap barriers of the window.
-         */
-        void resetSwapBarriers();
-
         /**
-         * Create a new swap barrier and add it to this window.
+         * Create a new swap barrier and join it for the next update.
          *
          * @return the created swap barrier.
          */
         eqNet::Barrier* newSwapBarrier();
 
         /** 
-         * Add a swap barrier.
+         * Join a swap barrier for the next update.
          * 
          * @param barrier the swap barrier.
          */
-        void addSwapBarrier( eqNet::Barrier* barrier );
+        void joinSwapBarrier( eqNet::Barrier* barrier );
         //*}
 
         /**
@@ -234,6 +229,9 @@ namespace eqs
         
         /** common code for all constructors */
         void _construct();
+
+        /** Clears all swap barriers of the window. */
+        void _resetSwapBarriers();
 
         void _send( eqNet::ObjectPacket& packet ) 
             { send( getNode()->getNode(), packet ); }

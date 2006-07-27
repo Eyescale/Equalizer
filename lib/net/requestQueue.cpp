@@ -12,9 +12,7 @@ using namespace std;
 RequestQueue::RequestQueue()
         : _lastRequest(NULL)
 {
-#ifdef CHECK_THREADSAFETY
-    _threadID = 0;
-#endif
+    CHECK_THREAD_INIT( _threadID );
 }
 
 RequestQueue::~RequestQueue()

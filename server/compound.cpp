@@ -360,7 +360,7 @@ TraverseResult Compound::_updateCB( Compound* compound, void* userData )
 {
     UpdateData* data = (UpdateData*)userData;
     compound->_updateInheritData();
-    compound->_updateIO( data );
+    compound->_updateOutput( data );
     compound->_updateSwapBarriers( data );
     
     return TRAVERSE_CONTINUE;
@@ -368,7 +368,7 @@ TraverseResult Compound::_updateCB( Compound* compound, void* userData )
 TraverseResult Compound::_updatePostCB( Compound* compound, void* userData )
 {
     UpdateData* data = (UpdateData*)userData;
-    compound->_updateIO( data );
+    compound->_updateOutput( data );
     compound->_updateSwapBarriers( data );
     
     return TRAVERSE_CONTINUE;
@@ -394,16 +394,12 @@ void Compound::_updateInheritData()
     _inherit.range *= _data.range;
 }
 
-void Compound::_updateIO( UpdateData* data )
+void Compound::_updateOutput( UpdateData* data )
 {
-}
-void Compound::_updateSwapBarriers( UpdateData* data )
-{
+#if 0
     Window* window = getWindow();
     if( !window )
         return;
-
-    window->resetSwapBarriers();
 
     if( !_swapBarrier )
         return;
@@ -415,7 +411,27 @@ void Compound::_updateSwapBarriers( UpdateData* data )
     if( iter == data->swapBarriers.end( ))
         data->swapBarriers[barrierName] = window->newSwapBarrier();
     else
-        window->addSwapBarrier( iter->second );
+        window->addSwapBarrier( iter->second );    
+#endif
+}
+
+void Compound::_updateSwapBarriers( UpdateData* data )
+{
+    Window* window = getWindow();
+    if( !window )
+        return;
+
+    if( !_swapBarrier )
+        return;
+
+    const std::string& barrierName = _swapBarrier->getName();
+    StringHash<eqNet::Barrier*>::iterator iter = 
+        data->swapBarriers.find( barrierName );
+
+    if( iter == data->swapBarriers.end( ))
+        data->swapBarriers[barrierName] = window->newSwapBarrier();
+    else
+        window->joinSwapBarrier( iter->second );
 }
 
 struct UpdateChannelData
@@ -452,8 +468,8 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
     {
         eq::ChannelClearPacket clearPacket;        
         clearPacket.context = context;
-        EQLOG( LOG_TASKS ) << "TASK clear " << &clearPacket << endl;
         channel->send( clearPacket );
+        EQLOG( LOG_TASKS ) << "TASK clear " << &clearPacket << endl;
     }
     if( compound->testTask( TASK_DRAW ))
     {
@@ -462,8 +478,8 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
         drawPacket.context = context;
         compound->_computeFrustum( drawPacket.context.frustum, 
                      drawPacket.context.headTransform );
-        EQLOG( LOG_TASKS ) << "TASK draw  " << &drawPacket << endl;
         channel->send( drawPacket );
+        EQLOG( LOG_TASKS ) << "TASK draw  " << &drawPacket << endl;
     }
     return TRAVERSE_CONTINUE;
 }
