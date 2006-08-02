@@ -44,14 +44,14 @@ void Channel::draw( const uint32_t frameID )
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
     applyHeadTransform();
-    
+
     glLightfv( GL_LIGHT0, GL_POSITION, lightpos );
 
     glTranslatef( _frameData->_data.translation[0],
                   _frameData->_data.translation[1], 
                   _frameData->_data.translation[2] );
-    glRotatef( _frameData->_data.rotation[0], 1, 0, 0 );
-    glRotatef( _frameData->_data.rotation[1], 0, 1, 0 );
+    glMultMatrixf( _frameData->_data.rotation );
+
 
     Node*        node  = (Node*)getNode();
     const Model* model = node->getModel();

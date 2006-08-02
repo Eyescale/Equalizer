@@ -24,16 +24,24 @@ public:
             _data = *(Data*)data;
             EQINFO << "New FrameData instance" << std::endl;
         }
-    
+
+
     void reset()
         {
             bzero( &_data, sizeof( Data ));
             _data.translation[2] = -3.;
+
+            //initialize rotation matrix -> identity
+            for( int i=0; i<16; i++ )
+            {
+                if( i%5 == 0 )
+                    _data.rotation[i] = 1;
+            }
         }
 
     struct Data
     {
-        float rotation[2];
+        float rotation[16];
         float translation[3];
     } _data;
 

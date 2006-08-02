@@ -47,6 +47,9 @@ protected:
     bool       _running;
     FrameData* _frameData;
     int        _spinX, _spinY;
+
+private:
+    static void _applyRotation( float m[16], const float dx, const float dy );
 };
 
 #endif // EQ_PLY_CONFIG_H

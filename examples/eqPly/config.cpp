@@ -3,6 +3,7 @@
    All rights reserved. */
 
 #include "config.h"
+#include <math.h>
 
 Config::Config()
         : _running( false ),
@@ -20,8 +21,7 @@ bool Config::init( const uint32_t initID )
 uint32_t Config::beginFrame()
 {
     // update database
-    _frameData->_data.rotation[0] += .01 * _spinY;
-    _frameData->_data.rotation[1] += .01 * _spinX;
+    _applyRotation(_frameData->_data.rotation, 0.001 * _spinX, 0.001 * _spinY );
     const uint32_t version = _frameData->commit();
 
     return eq::Config::beginFrame( version );
@@ -52,8 +52,8 @@ bool Config::handleEvent( eq::ConfigEvent* event )
             if( event->pointerButtonRelease.buttons == eq::PTR_BUTTON_NONE &&
                 event->pointerButtonRelease.button  == eq::PTR_BUTTON1 )
             {
-                _spinX = event->pointerButtonRelease.dx;
-                _spinY = event->pointerButtonRelease.dy;
+                _spinX = -event->pointerButtonRelease.dx;
+                _spinY = -event->pointerButtonRelease.dy;
             }
             return true;
 
@@ -65,8 +65,8 @@ bool Config::handleEvent( eq::ConfigEvent* event )
             {
                 _spinX = 0;
                 _spinY = 0;
-                _frameData->_data.rotation[0] += .1 * event->pointerMotion.dy;
-                _frameData->_data.rotation[1] += .1 * event->pointerMotion.dx;
+                
+                _applyRotation(_frameData->_data.rotation, -0.005*event->pointerMotion.dx, -0.005*event->pointerMotion.dy );
             }
             else if( event->pointerMotion.buttons == eq::PTR_BUTTON2 ||
                      event->pointerMotion.buttons == ( eq::PTR_BUTTON1 | 
@@ -88,4 +88,29 @@ bool Config::handleEvent( eq::ConfigEvent* event )
             break;
     }
     return eq::Config::handleEvent( event );
+}
+
+void Config::_applyRotation( float m[16], const float dx, const float dy )
+{
+    //rotation matrix
+    float rotxy[16] = { cos(dx),            0,       sin(dx),          0,
+                        sin(dy) * sin(dx),  cos(dy), -sin(dy)*cos(dx), 0,
+                        cos(dy)*(-sin(dx)), sin(dy), cos(dy)*cos(dx),  0,
+                        0,                  0,       0,                1};
+
+    float rotM[16];
+    memcpy( rotM, m, 16*sizeof( float ));
+    bzero( m, 16*sizeof( float ));
+
+    //_data.rotation = rotM * rotxy           matrix multiplication
+    for( int i=0; i<4; i++ )
+    {
+        for( int k=0; k<4; k++ )
+        {
+            for( int n=0; n<4; n++ )
+            {
+                m[4*i+k] += rotM[4*i+n] * rotxy[n*4+k];
+            }
+        }
+    }
 }
