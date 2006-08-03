@@ -34,7 +34,7 @@ namespace eqBase
 
         PerThread<T>& operator = ( const T& data )
             { 
-                pthread_setspecific( _key, (const void*)data );
+                pthread_setspecific( _key, static_cast<const void*>( data ));
                 return *this; 
             }
 
@@ -49,10 +49,10 @@ namespace eqBase
                 pthread_key_delete( _key );
             }
 
-        T get() const  { return (T)pthread_getspecific( _key ); }
-        T operator->() { return (T)pthread_getspecific( _key ); }
+        T get() const  { return static_cast<T>( pthread_getspecific( _key )); }
+        T operator->() { return static_cast<T>( pthread_getspecific( _key )); }
         const T operator->() const 
-            { return (const T)pthread_getspecific( _key ); }
+            { return const_cast<T>( pthread_getspecific( _key )); }
 
         bool operator == ( const PerThread& rhs ) const 
             { return ( get() == rhs.get( )); }

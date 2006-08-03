@@ -397,11 +397,24 @@ void Compound::_updateInheritData()
 void Compound::_updateOutput( UpdateData* data )
 {
 #if 0
-    Window* window = getWindow();
-    if( !window )
+    if( !testTask( TASK_READBACK ))
         return;
 
-    if( !_swapBarrier )
+    for( vector<Frame*>::iterator iter = _outputFrames.begin(); 
+         iter != _outputFrames.end(); ++iter )
+    {
+        Frame*       frame  = *iter;
+        FrameBuffer* buffer = frame->getBuffer();
+        if( !buffer )
+        {
+           
+        }
+        
+        frame->
+    }
+
+    Window* window = getWindow();
+    if( !window )
         return;
 
     const std::string& barrierName = _swapBarrier->getName();

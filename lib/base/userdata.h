@@ -5,14 +5,10 @@
 #ifndef EQBASE_USERDATA_H
 #define EQBASE_USERDATA_H
 
-#include "base.h"
-#include "log.h"
-
 namespace eqBase
 {
     /**
      * Base class providing set/get userdata on objects
-     * @sa RefPtr
      */
     template< typename T > class Userdata 
     {

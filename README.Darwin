@@ -2,14 +2,14 @@
                          Darwin-Specific Notes
 
  Equalizer is developed on the latest OS X version, at the time of
- writing 10.4.6. Other version may work, but are not tested.
-
+ writing 10.4.7. Other versions may work, but are not tested.
+  
 
 Universal Binary Notes
 
  Right now, we compile separate libraries for each SUBARCH (ppc,
- i386). We do not support ppc64 since the UI libraries do not exist for
- this target.
+ i386), which are later combined to universal libraries using lipo. We
+ do not support ppc64 since the UI libraries do not exist for this target.
 
  Compiling for i386 on ppc Macs does not work since several libraries do
  not contain i386 code. Copying them over from a Intel Mac may work.

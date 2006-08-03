@@ -27,6 +27,5 @@ ifeq ($(findstring CGL, $(WINDOW_SYSTEM)),CGL)
   WINDOW_SYSTEM_LIBS += -framework OpenGL -framework Carbon
 endif
 
-BISON        = /sw/bin/bison  # installed bison is to old on Darwin
 AR           = libtool
 ARFLAGS      = -static
