@@ -39,7 +39,8 @@ public:
         float rotation[16];
         float translation[3];
     } _data;
-    eqBase::Matrix4f _rotation;
+
+    eq::Matrix4f _rotation;
 
 protected:
     const void* getInstanceData( uint64_t* size )

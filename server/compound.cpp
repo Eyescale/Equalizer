@@ -397,13 +397,18 @@ void Compound::_updateInheritData()
 void Compound::_updateOutput( UpdateData* data )
 {
 #if 0
-    if( !testTask( TASK_READBACK ))
+    if( !testTask( TASK_READBACK ) || _outputFrames.empty( ))
         return;
+
+    const Config   config      = getConfig();
+    const uint32_t frameNumber = config->getFrameNumber();
 
     for( vector<Frame*>::iterator iter = _outputFrames.begin(); 
          iter != _outputFrames.end(); ++iter )
     {
         Frame*       frame  = *iter;
+
+        frame->releaseFrameBuffer( 
         FrameBuffer* buffer = frame->getBuffer();
         if( !buffer )
         {

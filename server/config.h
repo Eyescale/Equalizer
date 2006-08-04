@@ -5,6 +5,7 @@
 #ifndef EQS_CONFIG_H
 #define EQS_CONFIG_H
 
+#include <eq/client/matrix4.h>
 #include <eq/client/packets.h>
 #include <eq/net/session.h>
 
@@ -19,8 +20,7 @@ namespace eqs
     class Server;
 
     typedef eqNet::IDHash<Node*>               NodeHash;
-    typedef std::vector<Node*>::const_iterator NodeIter;
-
+    typedef std::vector<Node*>::const_iterator NodeHashIter;
 
     /**
      * The config.
@@ -44,7 +44,8 @@ namespace eqs
          */
         //*{
         Server* getServer() { return _server.get(); }
-
+        uint32_t getFrameNumber() const { return _frameNumber; }
+        
         /** 
          * Adds a new node to this config.
          * 
@@ -176,7 +177,7 @@ namespace eqs
 
     private:
 
-        //eqBase::Matrix4f _headMatrix;
+        // eq::Matrix4f _headMatrix;
 
         /** The eq server hosting the session. */
         eqBase::RefPtr<Server> _server;

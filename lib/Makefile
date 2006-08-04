@@ -119,6 +119,7 @@ SOURCES = \
 	client/frustum.cpp \
 	client/global.cpp \
 	client/init.cpp \
+	client/matrix4.cpp \
 	client/node.cpp \
 	client/nodeFactory.cpp \
 	client/openParams.cpp \

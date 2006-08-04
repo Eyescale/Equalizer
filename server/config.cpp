@@ -326,7 +326,7 @@ static RefPtr<eqNet::Node> _createNode( Node* node )
 
 bool Config::_connectNodes()
 {
-    for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
         Node* node = *iter;
         if( !node->isUsed( ))
@@ -367,7 +367,7 @@ bool Config::_initNodes( const uint32_t initID )
 
     eq::ConfigCreateNodePacket createNodePacket;
     
-    for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
         Node* node = *iter;
         if( !node->isUsed( ))
@@ -395,7 +395,7 @@ bool Config::_initNodes( const uint32_t initID )
         node->startInit( initID );
     }
 
-    for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
         Node* node = *iter;
         if( !node->isUsed( ))
@@ -414,7 +414,7 @@ bool Config::_initNodes( const uint32_t initID )
 bool Config::_initPipes( const uint32_t initID )
 {
     // start pipe-window-channel init in parallel on all nodes
-    for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
         Node* node = *iter;
         if( !node->isUsed( ))
@@ -439,7 +439,7 @@ bool Config::_initPipes( const uint32_t initID )
 
     // sync init of all pipe-window-channel entities
     bool success = true;
-    for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
         Node* node = *iter;
         if( !node->isUsed( ))
@@ -486,7 +486,7 @@ bool Config::_exit()
 bool Config::_exitPipes()
 {
     // start pipe-window-channel exit in parallel
-    for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
         Node* node = *iter;
 
@@ -506,7 +506,7 @@ bool Config::_exitPipes()
 
     // sync exit of all pipe-window-channel entities
     bool success = true;
-    for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
         Node* node = *iter;
         if( !node->isUsed( ))
@@ -535,7 +535,7 @@ bool Config::_exitPipes()
 
 bool Config::_exitNodes()
 {
-    for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
         Node* node = *iter;
         if( !node->isUsed() || 
@@ -548,7 +548,7 @@ bool Config::_exitNodes()
     eq::ConfigDestroyNodePacket destroyNodePacket;
     bool success = true;
 
-    for( NodeIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
         Node*               node    = *iter;
         RefPtr<eqNet::Node> netNode = node->getNode();

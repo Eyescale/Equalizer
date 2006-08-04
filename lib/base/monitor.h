@@ -12,7 +12,10 @@
 namespace eqBase
 {
     /**
-     * A monitor for different thread types.
+     * A monitor primitive.
+     *
+     * A monitor has a value, which can be monitored to reach a certain
+     * state. The caller is blocked until the condition is fulfilled.
      */
     template< typename T > class Monitor 
     {
@@ -160,8 +163,6 @@ namespace eqBase
 
             } _pthread;
         };
-
-        volatile bool _open;
     };
 }
 
