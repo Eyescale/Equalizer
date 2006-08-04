@@ -12,6 +12,7 @@
 class FrameData : public eqNet::Object
 {
 public:
+
     FrameData() : Object( TYPE_FRAMEDATA, eqNet::CMD_OBJECT_CUSTOM )
         {
             reset();
@@ -25,18 +26,12 @@ public:
             EQINFO << "New FrameData instance" << std::endl;
         }
 
-
     void reset()
         {
             bzero( &_data, sizeof( Data ));
             _data.translation[2] = -3.;
 
-            //initialize rotation matrix -> identity
-            for( int i=0; i<16; i++ )
-            {
-                if( i%5 == 0 )
-                    _data.rotation[i] = 1;
-            }
+            _rotation.makeIdentity();
         }
 
     struct Data
@@ -44,22 +39,24 @@ public:
         float rotation[16];
         float translation[3];
     } _data;
+    eqBase::Matrix4f _rotation;
 
 protected:
     const void* getInstanceData( uint64_t* size )
-        { return pack( size ); }
+    { return pack( size ); }
 
     const void* pack( uint64_t* size )
-        {
-            *size = sizeof( Data );
-            return &_data;
-        }
+    {
+        memcpy(_data.rotation, _rotation.getMatrix(), 16*sizeof( float ));
+        *size = sizeof( Data );
+        return &_data;
+    }
 
     void unpack( const void* data, const uint64_t size )
-        {
-            EQASSERT( size == sizeof( Data ));
-            _data = *(Data*)data;
-        }
+    {
+        EQASSERT( size == sizeof( Data ));
+        _data = *(Data*)data;
+    }
 };
 
 

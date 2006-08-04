@@ -175,6 +175,9 @@ namespace eqs
         void setWorkDir( const std::string& workDir ){ _workDir = workDir; }
 
     private:
+
+        //eqBase::Matrix4f _headMatrix;
+
         /** The eq server hosting the session. */
         eqBase::RefPtr<Server> _server;
         friend class Server;

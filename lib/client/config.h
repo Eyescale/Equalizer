@@ -10,6 +10,7 @@
 #include <eq/client/commands.h>
 #include <eq/net/packets.h>
 #include <eq/net/session.h>
+#include <eq/client/matrix4.h>
 
 
 namespace eq
@@ -125,6 +126,8 @@ namespace eq
          */
         virtual bool handleEvent( ConfigEvent* event ){ return false; }
         //*}
+
+        //void setHeadMatrix( const matrix4& matrix );
 
     private:
         friend class Server;

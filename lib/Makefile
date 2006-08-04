@@ -62,6 +62,8 @@ HEADER_SRC = \
 	client/global.h \
 	client/init.h \
 	client/log.h \
+	client/matrix4.h \
+	client/matrix4.ipp \
 	client/node.h \
 	client/nodeFactory.h \
 	client/object.h \
