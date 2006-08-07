@@ -184,25 +184,17 @@ namespace eqs
         /** 
          * Add a new input frame for this compound.
          *
-         * The task parameter is currently ignored, since right now input frames
-         * are only used for the assemble task.
-         * 
-         * @param task The task using the input frame.
          * @param frame the input frame.
          */
-        void addInputFrame( Frame* frame, const Task task = TASK_ASSEMBLE )
+        void addInputFrame( Frame* frame )
             { _inputFrames.push_back( frame ); }
 
         /** 
          * Add a new output frame for this compound.
          *
-         * The task parameter is currently ignored, since right now output
-         * frames are only used for the readback task.
-         * 
-         * @param task The task using the output frame.
          * @param frame the output frame.
          */
-        void addOutputFrame( Frame* frame, const Task task = TASK_READBACK )
+        void addOutputFrame( Frame* frame )
             { _outputFrames.push_back( frame ); }
         //*}
 

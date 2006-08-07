@@ -6,6 +6,7 @@
 
 #include "channel.h"
 #include "log.h"
+#include "frame.h"
 #include "swapBarrier.h"
 
 #include <eq/base/base.h>
@@ -402,20 +403,16 @@ void Compound::_updateOutput( UpdateData* data )
 
     const Config   config      = getConfig();
     const uint32_t frameNumber = config->getFrameNumber();
+    const uint32_t latency     = config->getLatency();
 
     for( vector<Frame*>::iterator iter = _outputFrames.begin(); 
          iter != _outputFrames.end(); ++iter )
     {
         Frame*       frame  = *iter;
 
-        frame->releaseFrameBuffer( 
-        FrameBuffer* buffer = frame->getBuffer();
-        if( !buffer )
-        {
-           
-        }
-        
-        frame->
+        frame->updateInheritData( this );
+        frame->cycleFrameBuffer( frameNumber, latency );
+        frame->commit();
     }
 
     Window* window = getWindow();

@@ -114,7 +114,7 @@ namespace eqs
          */
         void getNearFar( float* near, float* far ) const 
             { *near = _near; *far = _far; }
-        //*/
+        //*}
 
         /**
          * @name Operations
