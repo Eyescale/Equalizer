@@ -346,6 +346,7 @@ namespace eqs
 
         static TraverseResult _updateDrawCB(Compound* compound, void* );
         static TraverseResult _updatePostDrawCB( Compound* compound, void* );
+        void _updatePostDraw( eq::RenderContext& context );
 
         struct UpdateData
         {

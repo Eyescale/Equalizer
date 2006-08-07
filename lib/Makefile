@@ -127,6 +127,7 @@ SOURCES = \
 	client/pipe.cpp \
 	client/renderContext.cpp \
 	client/server.cpp \
+	client/viewMatrix.cpp \
 	client/wall.cpp \
 	client/window.cpp
 

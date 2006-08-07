@@ -7,6 +7,9 @@
 
 namespace eq
 {
+    class Projection;
+    class Wall;
+
     /** 
      * A generic view definition
      *
@@ -19,6 +22,9 @@ namespace eq
         ViewMatrix() : width(0), height(0) {}
 
         bool isValid() const { return (width!=0 && height!=0); }
+
+        void applyProjection( const Projection& projection );
+        void applyWall( const Wall& wall );
 
         float width;
         float height;
