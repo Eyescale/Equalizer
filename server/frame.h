@@ -5,10 +5,14 @@
 #ifndef EQS_FRAME_H
 #define EQS_FRAME_H
 
-#include <eq/net/object.h>
+#include <eq/client/frame.h>
+#include <eq/client/packets.h>
 
 namespace eqs
 {
+    class Compound;
+    class FrameBuffer;
+
     /**
      * A holder for a FrameBuffer and frame parameters.
      */
@@ -19,6 +23,8 @@ namespace eqs
          * Constructs a new Frame.
          */
         Frame();
+
+        virtual ~Frame();
 
         /**
          * @name Data Access
@@ -32,14 +38,14 @@ namespace eqs
          * 
          * @param vp the fractional viewport.
          */
-        void setViewport( const eq::Viewport& vp ) { _data.vp = vp; }
+        void setViewport( const eq::Viewport& vp ) { _inherit.vp = vp; }
         
         /** 
          * Return this frame's viewport.
          * 
          * @return the fractional viewport.
          */
-        const eq::Viewport& getViewport() const { return _data.vp; }
+        const eq::Viewport& getViewport() const { return _inherit.vp; }
         //*}
 
         /**
@@ -56,26 +62,43 @@ namespace eqs
         /** 
          * Cycle the current FrameBuffer.
          * 
+         * Used for output frames.
+         *
          * @param frameNumber the current frame number.
          * @param frameNumber the maximum age before frame buffers can be
          *                    recycled.
          */
         void cycleFrameBuffer( const uint32_t frameNumber, 
                                const uint32_t maxAge );
+
+        /** 
+         * Set the output frame for this (input) frame.
+         * 
+         * @param frame the corresponding output frame.
+         */
+        void setOutputFrame( Frame* frame );
+
+        /** Unset the frame buffer. */
+        void unsetFrameBuffer() { _setFrameBuffer( NULL ); }
+
+        /** Reset the frame and delete all frame buffers. */
+        void flush();
         //*}
 
     private:
 
         std::string _name;
 
-        /** All distributed Data */
-        // FIXME: move to eq::Frame
-        struct Data
-        {
-            /** The fractional viewport wrt the compound. */
-            eq::Viewport vp;
-        }
-            _data;
+        /** All distributed data */
+        eq::Frame::Data _inherit;
+
+        /** All framebuffers ever allocated, used for recycling old buffers. */
+        std::list<FrameBuffer*> _buffers;
+        
+        /** Current frame buffer. */
+        FrameBuffer* _buffer;
+
+        void _setFrameBuffer( FrameBuffer* buffer );
     };
 };
 #endif // EQS_FRAME_H

@@ -90,7 +90,7 @@ void Server::mapConfig( Config* config )
     ostringstream stringStream;
     stringStream << "EQ_CONFIG_" << (++_configID);
 
-    const bool   mapped = mapSession( this, config, stringStream.str( ));
+    const bool mapped = mapSession( this, config, stringStream.str( ));
     EQASSERT( mapped );
 }
 

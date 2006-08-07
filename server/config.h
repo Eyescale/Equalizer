@@ -83,8 +83,7 @@ namespace eqs
          * 
          * @param compound the compound.
          */
-        void addCompound( Compound* compound )
-            { _compounds.push_back( compound ); }
+        void addCompound( Compound* compound );
 
         /** 
          * Removes a compound from this config.

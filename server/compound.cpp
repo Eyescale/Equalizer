@@ -320,11 +320,50 @@ TraverseResult Compound::_initCB( Compound* compound, void* userData )
     if( channel )
         channel->refUsed();
 
+    Config*             config = compound->getConfig();
+    RefPtr<eqNet::Node> node   = config->getLocalNode();
+    EQASSERT( config );
+    EQASSERT( node );
+    
+    for( vector<Frame*>::iterator iter = compound->_outputFrames.begin(); 
+         iter != compound->_outputFrames.end(); ++iter )
+    {
+        Frame* frame = *iter;
+        config->registerObject( frame, node );
+    }
+
+    for( vector<Frame*>::iterator iter = compound->_inputFrames.begin(); 
+         iter != compound->_inputFrames.end(); ++iter )
+    {
+        Frame* frame = *iter;
+        config->registerObject( frame, node );
+    }
+    
     return TRAVERSE_CONTINUE;    
 }
 
 void Compound::exit()
 {
+    Config* config = getConfig();
+    EQASSERT( config );
+
+    for( vector<Frame*>::iterator iter = _outputFrames.begin(); 
+         iter != _outputFrames.end(); ++iter )
+    {
+        Frame* frame = *iter;
+        frame->flush();
+        config->deregisterObject( frame );
+    }
+    _outputFrames.clear();
+
+    for( vector<Frame*>::iterator iter = _inputFrames.begin(); 
+         iter != _inputFrames.end(); ++iter )
+    {
+        Frame* frame = *iter;
+        config->deregisterObject( frame );
+    }
+    _inputFrames.clear();
+
     const uint32_t nChildren = this->nChildren();
     for( uint32_t i=0; i<nChildren; i++ )
     {
@@ -338,12 +377,13 @@ void Compound::exit()
 }
 
 //---------------------------------------------------------------------------
-// update
+// pre-render compound state update
 //---------------------------------------------------------------------------
 void Compound::update()
 {
     UpdateData data;
     traverse( this, _updatePreCB, _updateCB, _updatePostCB, &data );
+    traverse( this, _updateInputCB, _updateInputCB, NULL, &data );
     
     for( StringHash<eqNet::Barrier*>::iterator iter = data.swapBarriers.begin();
          iter != data.swapBarriers.end(); ++iter )
@@ -397,37 +437,32 @@ void Compound::_updateInheritData()
 
 void Compound::_updateOutput( UpdateData* data )
 {
-#if 0
     if( !testTask( TASK_READBACK ) || _outputFrames.empty( ))
         return;
 
-    const Config   config      = getConfig();
+    const Config*  config      = getConfig();
     const uint32_t frameNumber = config->getFrameNumber();
     const uint32_t latency     = config->getLatency();
 
     for( vector<Frame*>::iterator iter = _outputFrames.begin(); 
          iter != _outputFrames.end(); ++iter )
     {
-        Frame*       frame  = *iter;
+        Frame*             frame  = *iter;
+        const std::string& name   = frame->getName();
+
+        if( data->outputFrames.find( name ) == data->outputFrames.end())
+        {
+            EQWARN << "Multiple output frames of the same name are unsupported"
+                   << ", ignoring output frame " << name << endl;
+            frame->unsetFrameBuffer();
+            continue;
+        }
 
         frame->updateInheritData( this );
         frame->cycleFrameBuffer( frameNumber, latency );
         frame->commit();
+        data->outputFrames[name] = frame;
     }
-
-    Window* window = getWindow();
-    if( !window )
-        return;
-
-    const std::string& barrierName = _swapBarrier->getName();
-    StringHash<eqNet::Barrier*>::iterator iter = 
-        data->swapBarriers.find( barrierName );
-
-    if( iter == data->swapBarriers.end( ))
-        data->swapBarriers[barrierName] = window->newSwapBarrier();
-    else
-        window->addSwapBarrier( iter->second );    
-#endif
 }
 
 void Compound::_updateSwapBarriers( UpdateData* data )
@@ -449,6 +484,42 @@ void Compound::_updateSwapBarriers( UpdateData* data )
         window->joinSwapBarrier( iter->second );
 }
 
+TraverseResult Compound::_updateInputCB( Compound* compound, void* userData )
+{
+    UpdateData* data = (UpdateData*)userData;
+    compound->_updateInput( data );
+    return TRAVERSE_CONTINUE;
+}
+
+void Compound::_updateInput( UpdateData* data )
+{
+    if( !testTask( TASK_ASSEMBLE ) || _inputFrames.empty( ))
+        return;
+
+    for( vector<Frame*>::iterator iter = _inputFrames.begin(); 
+         iter != _inputFrames.end(); ++iter )
+    {
+        Frame*                       frame = *iter;
+        const std::string&           name  = frame->getName();
+        StringHash<Frame*>::iterator iter  = data->outputFrames.find( name );
+
+        if( iter == data->outputFrames.end())
+        {
+            EQWARN << "Can't find matching output frame, ignoring input frame "
+                   << name << endl;
+            frame->unsetFrameBuffer();
+            continue;
+        }
+
+        frame->updateInheritData( this );
+        frame->setOutputFrame( iter->second );
+        frame->commit();
+    }
+}
+
+//---------------------------------------------------------------------------
+// per-channel task generation
+//---------------------------------------------------------------------------
 struct UpdateChannelData
 {
     Channel* channel;

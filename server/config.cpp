@@ -155,6 +155,12 @@ bool Config::removeNode( Node* node )
     return true;
 }
 
+void Config::addCompound( Compound* compound )
+{
+    compound->_config = this;
+    _compounds.push_back( compound ); 
+}
+
 Channel* Config::findChannel( const std::string& name ) const
 {
     const uint32_t nNodes = this->nNodes();
@@ -229,7 +235,7 @@ eqNet::CommandResult Config::_reqInit( eqNet::Node* node,
     EQINFO << "handle config init " << packet << endl;
 
     reply.result = _init( packet->initID );
-    EQINFO << "config init " << (reply.result ? "successfulq":"failed") << endl;
+    EQINFO << "config init " << (reply.result ? "successful":"failed") << endl;
     send( node, reply );
     return eqNet::COMMAND_HANDLED;
 }

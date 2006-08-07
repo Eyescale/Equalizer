@@ -6,6 +6,8 @@ SOURCES = \
 	config.cpp \
 	connectionDescription.cpp \
 	compound.cpp \
+	frame.cpp \
+	frameBuffer.cpp \
 	global.cpp \
 	loader.cpp \
 	node.cpp \

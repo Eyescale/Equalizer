@@ -7,6 +7,7 @@
 
 #include "channel.h"
 
+#include <eq/client/frame.h>
 #include <eq/client/frameBuffer.h>
 #include <eq/client/projection.h>
 #include <eq/client/range.h>
@@ -108,6 +109,9 @@ namespace eqs
         /** @return the root of the compound tree. */
         Compound* getRoot()
             { return _parent ? _parent->getRoot() : this; }
+
+        Config* getConfig()
+            { return getRoot()->_config; }
 
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
@@ -286,6 +290,13 @@ namespace eqs
 
     private:
         std::string _name;
+        
+        /** 
+         * The config the compound is attached to, only set on the root 
+         * compound.
+         */
+        friend class Config;
+        Config* _config;
 
         Compound               *_parent;
         std::vector<Compound*>  _children;
@@ -338,8 +349,8 @@ namespace eqs
 
         struct UpdateData
         {
-            eqBase::StringHash<eqNet::Barrier*>  swapBarriers;
-            eqBase::StringHash<eq::FrameBuffer*> frames;
+            eqBase::StringHash<eqNet::Barrier*> swapBarriers;
+            eqBase::StringHash<Frame*>          outputFrames;
         };
 
         static TraverseResult _updatePreCB( Compound* compound, void* );
@@ -347,9 +358,11 @@ namespace eqs
         static TraverseResult _updatePostCB( Compound* compound, void* );
         void _updateInheritData();
         void _updateOutput( UpdateData* data );
-        void _updateInput( UpdateData* data );
         void _updateSwapBarriers( UpdateData* data );
         void _computeFrustum( eq::Frustum& frustum, float headTransform[16] );
+
+        static TraverseResult _updateInputCB( Compound* compound, void* );
+        void _updateInput( UpdateData* data );
 
         friend std::ostream& operator << ( std::ostream& os,
                                            const Compound* compound );

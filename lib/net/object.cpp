@@ -29,7 +29,9 @@ void Object::_construct()
     _commitCount   = 0;
     _nVersions     = 0;
     _obsoleteFlags = AUTO_OBSOLETE_COUNT_VERSIONS;
-    
+    _distributedData     = NULL;
+    _distributedDataSize = 0;
+
     registerCommand( CMD_OBJECT_SYNC, this, reinterpret_cast<CommandFcn>(
                          &eqNet::Object::_cmdSync ));
     registerCommand( REQ_OBJECT_SYNC, this, reinterpret_cast<CommandFcn>(
@@ -51,6 +53,8 @@ Object::Object( const Object& from )
           _typeID( from._typeID )
 {
     _construct();
+    _distributedData     = from._distributedData;
+    _distributedDataSize = from._distributedDataSize;
 }
 
 Object::~Object()

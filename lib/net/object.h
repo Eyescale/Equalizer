@@ -240,7 +240,8 @@ namespace eqNet
          * @return the instance data, or <code>NULL</code> for unmanaged
          *         objects.
          */
-        virtual const void* getInstanceData( uint64_t* size ){ return NULL; }
+        virtual const void* getInstanceData( uint64_t* size )
+            { *size = _distributedDataSize; return _distributedData; }
 
         /** 
          * Release the instance data obtained by getInstanceData().
@@ -286,7 +287,8 @@ namespace eqNet
          * @return the delta data, or <code>NULL</code> if the object has not
          *             changed or is not versioned.
          */
-        virtual const void* pack( uint64_t* size ){ return NULL; }
+        virtual const void* pack( uint64_t* size )
+            { *size = _distributedDataSize; return _distributedData; }
 
         /** 
          * Release the delta data obtained by pack().
@@ -300,7 +302,25 @@ namespace eqNet
          *
          * @param data the change delta. 
          */
-        virtual void unpack( const void* data, const uint64_t size ) {}
+        virtual void unpack( const void* data, const uint64_t size ) 
+            { 
+                EQASSERT( size == _distributedDataSize );
+                memcpy( _distributedData, data, size );
+            }
+
+        /** 
+         * Set the distributed data of this object.
+         * 
+         * The data is used by the default data distribution methods to
+         * generate the instance data and version deltas for this
+         * object. Complex objects are strongly advised to implement their own
+         * pack and unpack methods for performance.
+         *
+         * @param data A pointer to this object's data
+         * @param size The size of the data.
+         */
+        void setDistributedData( void* data, const uint64_t size )
+            { _distributedData = data; _distributedDataSize = size; }
         //*}
 
         /** 
@@ -370,6 +390,10 @@ namespace eqNet
 
         /** The mutex, if thread safety is enabled. */
         eqBase::Lock* _mutex;
+
+        /** A pointer to the object's data. */
+        void*    _distributedData;
+        uint64_t _distributedDataSize;
 
         struct InstanceData
         {

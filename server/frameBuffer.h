@@ -1,0 +1,42 @@
+
+/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+   All rights reserved. */
+
+#ifndef EQS_FRAMEBUFFER_H
+#define EQS_FRAMEBUFFER_H
+
+#include <eq/net/object.h>
+
+namespace eqs
+{
+    /**
+     * A holder for a FrameBufferBuffer and frameBuffer parameters.
+     */
+    class FrameBuffer : public eqNet::Object
+    {
+    public:
+        /** 
+         * Constructs a new FrameBuffer.
+         */
+        FrameBuffer();
+
+        /**
+         * @name Data Access
+         */
+        //*{
+        /** Set the number of the frame when this buffer was last used. */
+        void setFrameNumber( const uint32_t number ) { _frameNumber = number; }
+        uint32_t getFrameNumber() const { return _frameNumber; }
+        //*}
+
+        /**
+         * @name Operations
+         */
+        //*{
+        //*}
+
+    private:
+        uint32_t _frameNumber;
+    };
+};
+#endif // EQS_FRAMEBUFFER_H

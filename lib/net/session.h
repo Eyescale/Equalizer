@@ -53,9 +53,7 @@ namespace eqNet
          */
         uint32_t getID() const { return _id; }
 
-        /** 
-         * @return the local node holding this session. 
-         */
+        /** @return the local node holding this session. */
         eqBase::RefPtr<Node> getLocalNode(){ return _localNode; }
 
         /** 
@@ -155,7 +153,7 @@ namespace eqNet
                                      policy = Object::SHARE_UNDEFINED );
 
         /** 
-         * Access a networked object.
+         * Access a distributed object.
          * 
          * The object will be instanciated locally, if necessary. During
          * instanciation, it gets referenced. Versioned objects need to have at
@@ -179,9 +177,9 @@ namespace eqNet
                            const Object::ThreadSafety ts = Object::CS_AUTO );
 
         /** 
-         * Access a registered object.
+         * Access a registered, distributed object.
          * 
-         * Note the objects with the share policy SHARE_NEVER are not tracked
+         * Note that objects with the share policy SHARE_NEVER are not tracked
          * and can therefore not be accessed using pollObject().
          *
          * @param id the object's identifier.

@@ -67,8 +67,8 @@ namespace eqs
          * Removes a channel from this window.
          * 
          * @param channel the channel
-         * @return <code>true</code> if the channel was removed, <code>false</code>
-         *         otherwise.
+         * @return <code>true</code> if the channel was removed,
+         *         <code>false</code> otherwise.
          */
         bool removeChannel( Channel* channel );
 

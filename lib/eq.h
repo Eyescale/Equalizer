@@ -9,6 +9,7 @@
 #include <eq/client/configEvent.h>
 #include <eq/client/configParams.h>
 #include <eq/client/event.h>
+#include <eq/client/frame.h>
 #include <eq/client/frustum.h>
 #include <eq/client/global.h>
 #include <eq/client/init.h>
