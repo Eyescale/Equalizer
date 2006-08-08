@@ -24,7 +24,7 @@ namespace eqNet
         DATATYPE_EQNET_SESSION,
         DATATYPE_EQNET_OBJECT,
         DATATYPE_EQNET_USER,
-        DATATYPE_CUSTOM = 1<<10
+        DATATYPE_EQNET_CUSTOM = 1<<7
     };
 
     /**

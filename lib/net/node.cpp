@@ -680,7 +680,7 @@ CommandResult Node::dispatchPacket( Node* node, const Packet* packet )
         }
 
         default:
-            if( datatype < DATATYPE_CUSTOM )
+            if( datatype < DATATYPE_EQNET_CUSTOM )
             {
                 EQERROR << "Unknown eqNet datatype " << datatype 
                       << ", dropping packet." << endl;

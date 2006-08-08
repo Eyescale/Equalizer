@@ -19,7 +19,7 @@ namespace eq
 
     enum DataType
     {
-        DATATYPE_EQ_CLIENT = eqNet::DATATYPE_CUSTOM,
+        DATATYPE_EQ_CLIENT = eqNet::DATATYPE_EQNET_CUSTOM,
         DATATYPE_EQ_SERVER,
         DATATYPE_EQ_CONFIGEVENT,
         DATATYPE_EQ_FRAME,
