@@ -11,8 +11,8 @@
 
 namespace eqBase
 {
-    /** An invalid identifier. */
-#   define EQ_INVALID_ID 0xffffffffu
+#   define EQ_ID_INVALID 0xfffffffeu
+#   define EQ_ID_ANY     0xffffffffu
 
     /**
      * A identifier pool.
@@ -44,7 +44,7 @@ namespace eqBase
          * 
          * @param range The number of identifiers to allocate
          * 
-         * @return the first identifier of the block, or EQ_INVALID_ID if no
+         * @return the first identifier of the block, or EQ_ID_INVALID if no
          *         block of size range is available.
          */
         uint32_t genIDs( const uint32_t range );

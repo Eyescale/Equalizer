@@ -348,9 +348,20 @@ namespace eqNet
                    const std::string& string );
         bool send( eqBase::RefPtr<Node> node, ObjectPacket& packet, 
                    const void* data, const uint64_t size );
+
         bool send( NodeVector& nodes, ObjectPacket& packet );
         bool send( NodeVector nodes, ObjectPacket& packet, const void* data,
                    const uint64_t size );
+#if 0
+        template< class T > bool send( eqBase::RefPtr<Node> node, 
+                                       ObjectPacket& packet,
+                                       const std::vector<T>& data )
+            {
+                packet.sessionID = _session->getID();
+                packet.objectID  = _id;
+                return node->send<T>( packet, data );
+            }
+#endif
         //*}
         
     private:
@@ -439,6 +450,18 @@ namespace eqNet
 #ifdef CHECK_THREADSAFETY
         pthread_t _threadID;
 #endif
+    };
+
+    /** A helper struct bundling an object identifier and a version. */
+    struct ObjectVersion
+    {
+        ObjectVersion() {}
+        ObjectVersion( Object* object ) 
+                : objectID( object->getID( )),
+                  version( object->getVersion( )) {}
+
+        uint32_t objectID;
+        uint32_t version;
     };
 }
 

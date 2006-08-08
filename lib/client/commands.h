@@ -19,7 +19,7 @@ namespace eq
         REQ_SERVER_RELEASE_CONFIG,
         CMD_SERVER_INIT_CONFIG,
         REQ_SERVER_INIT_CONFIG, // REQ must follow CMD
-        CMD_SERVER_CUSTOM = 1 << 7
+        CMD_SERVER_CUSTOM
     };
 
     enum ClientCommand
@@ -113,12 +113,14 @@ namespace eq
         REQ_CHANNEL_CLEAR,
         CMD_CHANNEL_DRAW,
         REQ_CHANNEL_DRAW,
+        CMD_CHANNEL_READBACK,
+        REQ_CHANNEL_READBACK,
         CMD_CHANNEL_CUSTOM
     };
 
     enum FrameBufferCommand
     {
-        CMD_FRAMEBUFFER_CUSTOM = eqNet::CMD_OBJECT_CUSTOM,
+        CMD_FRAMEBUFFER_CUSTOM
     };
 
     enum GLXEventThreadCommand

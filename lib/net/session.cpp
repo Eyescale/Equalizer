@@ -22,7 +22,7 @@ using namespace std;
 Session::Session( const uint32_t nCommands, const bool threadSafe )
         : Base( nCommands ),
           _requestHandler( Thread::PTHREAD, threadSafe ),
-          _id(EQ_INVALID_ID),
+          _id(EQ_ID_INVALID),
           _server(NULL),
           _isMaster(false),
           _masterPool( IDPool::MAX_CAPACITY ),
@@ -87,7 +87,7 @@ uint32_t Session::genIDs( const uint32_t range )
         return _masterPool.genIDs( range );
 
     uint32_t id = _localPool.genIDs( range );
-    if( id != EQ_INVALID_ID )
+    if( id != EQ_ID_INVALID )
         return id;
 
     SessionGenIDsPacket packet;
@@ -97,7 +97,7 @@ uint32_t Session::genIDs( const uint32_t range )
     send( packet );
     id = (uint32_t)(long long)_requestHandler.waitRequest( packet.requestID );
 
-    if( id == EQ_INVALID_ID || range >= MIN_ID_RANGE )
+    if( id == EQ_ID_INVALID || range >= MIN_ID_RANGE )
         return id;
 
     // We allocated more IDs than requested - let the pool handle the details
@@ -167,8 +167,8 @@ RefPtr<Node> Session::getIDMaster( const uint32_t id )
 void Session::addRegisteredObject( const uint32_t id, Object* object,
                                    const Object::SharePolicy policy )
 {
-    EQASSERT( object->_id == EQ_INVALID_ID );
-    EQASSERT( id != EQ_INVALID_ID );
+    EQASSERT( object->_id == EQ_ID_INVALID );
+    EQASSERT( id != EQ_ID_INVALID );
 
     if( !_localNode->inReceiverThread( ))
     {
@@ -196,7 +196,7 @@ void Session::addRegisteredObject( const uint32_t id, Object* object,
     object->_session    = this;
     object->ref();
 
-    EQASSERT( object->_instanceID != EQ_INVALID_ID );
+    EQASSERT( object->_instanceID != EQ_ID_INVALID );
 
     vector<Object*>& objects = _registeredObjects[id];
     objects.push_back( object );
@@ -225,7 +225,7 @@ void Session::addRegisteredObject( const uint32_t id, Object* object,
 void Session::removeRegisteredObject( Object* object, 
                                       Object::SharePolicy policy )
 {
-    EQASSERT( object->_id != EQ_INVALID_ID );
+    EQASSERT( object->_id != EQ_ID_INVALID );
     if( policy == Object::SHARE_UNDEFINED )
         policy = object->_policy;
 
@@ -277,11 +277,11 @@ void Session::removeRegisteredObject( Object* object,
             EQUNREACHABLE;
     }
 
-    EQASSERT( object->_instanceID != EQ_INVALID_ID );
+    EQASSERT( object->_instanceID != EQ_ID_INVALID );
     _instanceIDs.freeIDs( object->_instanceID, 1 );
     // TODO: unsetIDMaster( object->_id );
-    object->_id         = EQ_INVALID_ID;
-    object->_instanceID = EQ_INVALID_ID;
+    object->_id         = EQ_ID_INVALID;
+    object->_instanceID = EQ_ID_INVALID;
     object->_policy     = Object::SHARE_UNDEFINED;
     object->_session    = NULL;
     object->unref();
@@ -291,10 +291,10 @@ void Session::registerObject( Object* object, RefPtr<Node> master,
                               const Object::SharePolicy policy,
                               const Object::ThreadSafety ts )
 {
-    EQASSERT( object->_id == EQ_INVALID_ID );
+    EQASSERT( object->_id == EQ_ID_INVALID );
 
     const uint32_t id = genIDs( 1 );
-    EQASSERT( id != EQ_INVALID_ID );
+    EQASSERT( id != EQ_ID_INVALID );
 
     if( object->getTypeID() != Object::TYPE_UNMANAGED )
     {
@@ -372,7 +372,7 @@ Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy,
     _sendLocal( packet );
     const void* result = _requestHandler.waitRequest( packet.requestID );
     EQASSERT( result == NULL );
-    EQASSERT( state.nodeConnectRequestID == EQ_INVALID_ID );
+    EQASSERT( state.nodeConnectRequestID == EQ_ID_INVALID );
 
     switch( policy )
     {
@@ -479,7 +479,7 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
     
         if( state )
         {
-            EQASSERT( state->nodeConnectRequestID == EQ_INVALID_ID );
+            EQASSERT( state->nodeConnectRequestID == EQ_ID_INVALID );
             delete state;
             _objectInstStates.erase( id );
         }
@@ -496,7 +496,7 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
          iter != objects.end(); ++iter )
     {
         Object* object = *iter;
-        if( objPacket->instanceID == Object::INSTANCE_ALL ||
+        if( objPacket->instanceID == EQ_ID_ANY ||
             objPacket->instanceID == object->getInstanceID( ))
         {
             const CommandResult result = object->handleCommand( node, 
@@ -522,7 +522,7 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
             }
         }
     }
-    return (objPacket->instanceID == Object::INSTANCE_ALL) ? 
+    return ( objPacket->instanceID == EQ_ID_ANY ) ? 
         COMMAND_HANDLED : COMMAND_ERROR;
 }
 
@@ -728,7 +728,7 @@ CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
     }
 
     RefPtr<Node> master;
-    if( state->nodeConnectRequestID == EQ_INVALID_ID )
+    if( state->nodeConnectRequestID == EQ_ID_INVALID )
     {
          master = _localNode->getNode( packet->masterID );
 
@@ -750,7 +750,7 @@ CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
             case Node::CONNECT_SUCCESS:
                 master = _localNode->getNode( packet->masterID );
                 EQASSERT( master.isValid( ));
-                state->nodeConnectRequestID = EQ_INVALID_ID;
+                state->nodeConnectRequestID = EQ_ID_INVALID;
                 break;
 
             case Node::CONNECT_FAILURE:
@@ -758,7 +758,7 @@ CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
                     << "Can't connect master node during object instantiation"
                     << endl;
                 state->instState            = Object::INST_ERROR;
-                state->nodeConnectRequestID = EQ_INVALID_ID;
+                state->nodeConnectRequestID = EQ_ID_INVALID;
                 return COMMAND_HANDLED;
 
             default:
@@ -782,7 +782,7 @@ CommandResult Session::_cmdRegisterObject( Node* node, const Packet* pkg )
 
     SessionRegisterObjectPacket* packet = (SessionRegisterObjectPacket*)pkg;
     EQINFO << "Cmd register object " << packet << endl;
-    EQASSERT( packet->objectID != EQ_INVALID_ID );
+    EQASSERT( packet->objectID != EQ_ID_INVALID );
 
     Object* object = (Object*)_requestHandler.getRequestData(packet->requestID);
     EQASSERT( object );

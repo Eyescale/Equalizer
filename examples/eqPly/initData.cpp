@@ -18,7 +18,7 @@ using namespace eqBase;
 
 InitData::InitData()
         : Object( TYPE_INITDATA, eqNet::CMD_OBJECT_CUSTOM ),
-          _frameDataID( EQ_INVALID_ID ),
+          _frameDataID( EQ_ID_INVALID ),
           _filename( "rockerArm.ply" ),
           _instanceData( NULL )
 {}
@@ -62,7 +62,7 @@ void InitData::_clearInstanceData()
 void InitData::setFrameData( FrameData* frameData )
 {
     _clearInstanceData();
-    _frameDataID = frameData ? frameData->getID() : EQ_INVALID_ID;
+    _frameDataID = frameData ? frameData->getID() : EQ_ID_INVALID;
     _frameData   = frameData;
 }
 
@@ -70,7 +70,7 @@ FrameData* InitData::getFrameData()
 {
     if( _frameData.get( ))
         return _frameData.get();
-    if( _frameDataID == EQ_INVALID_ID )
+    if( _frameDataID == EQ_ID_INVALID )
         return NULL;
 
     eqNet::Session* session = getSession();

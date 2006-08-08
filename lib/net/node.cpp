@@ -39,7 +39,7 @@ Node::Node( const uint32_t nCommands )
           _autoLaunched(false),
           _id(true),
           _state(STATE_STOPPED),
-          _launchID(EQ_INVALID_ID),
+          _launchID(EQ_ID_INVALID),
           _programName( Global::getProgramName( )),
           _workDir( Global::getWorkDir( )),
           _clientRunning(false),
@@ -386,7 +386,7 @@ void Node::removeSession( Session* session )
 
     session->_localNode = NULL;
     session->_server    = NULL;
-    session->_id        = EQ_INVALID_ID;
+    session->_id        = EQ_ID_INVALID;
     session->_name      = "";
     session->_isMaster  = false;
 }
@@ -407,7 +407,7 @@ bool Node::mapSession( RefPtr<Node> server, Session* session,
 bool Node::mapSession( RefPtr<Node> server, Session* session, const uint32_t id)
 {
     EQASSERT( isLocal( ));
-    EQASSERT( id != EQ_INVALID_ID );
+    EQASSERT( id != EQ_ID_INVALID );
 
     NodeMapSessionPacket packet;
     packet.requestID = _requestHandler.registerRequest( session );
@@ -432,9 +432,9 @@ bool Node::unmapSession( Session* session )
 uint32_t Node::_generateSessionID()
 {
     CHECK_THREAD( _threadID );
-    uint32_t id = EQ_INVALID_ID;
+    uint32_t id = EQ_ID_INVALID;
 
-    while( id == EQ_INVALID_ID || _sessions.find( id ) != _sessions.end( ))
+    while( id == EQ_ID_INVALID || _sessions.find( id ) != _sessions.end( ))
     {
 #ifdef __linux__
         int fd = ::open( "/dev/random", O_RDONLY );
@@ -540,7 +540,7 @@ void Node::handleConnect( RefPtr<Connection> connection )
         EQINFO << "Launched " << node.get() << " connecting" << endl;
 
         const uint32_t requestID = node->_launchID;
-        EQASSERT( requestID != EQ_INVALID_ID );
+        EQASSERT( requestID != EQ_ID_INVALID );
 
         RefPtr<ConnectionDescription> desc = node->getConnectionDescription(0);
         bool readDesc = desc->fromString( packet->connectionDescription );
@@ -721,7 +721,7 @@ CommandResult Node::_cmdMapSession( Node* node, const Packet* pkg )
     
     if( node == this ) // local mapping
     {
-        if( sessionID == EQ_INVALID_ID ) // mapped by name
+        if( sessionID == EQ_ID_INVALID ) // mapped by name
         {
             sessionName = packet->name;
             if( !_findSession( sessionName )) // not yet mapped 
@@ -736,7 +736,7 @@ CommandResult Node::_cmdMapSession( Node* node, const Packet* pkg )
     }
     else // remote mapping
     {
-        if( sessionID == EQ_INVALID_ID ) // mapped by name
+        if( sessionID == EQ_ID_INVALID ) // mapped by name
         {
             sessionName = packet->name;
             session     = _findSession( sessionName );
@@ -753,7 +753,7 @@ CommandResult Node::_cmdMapSession( Node* node, const Packet* pkg )
     }
 
     NodeMapSessionReplyPacket reply( packet );
-    reply.sessionID  = session ? session->getID() : EQ_INVALID_ID;
+    reply.sessionID  = session ? session->getID() : EQ_ID_INVALID;
                 
     node->send( reply, sessionName );
     return COMMAND_HANDLED;
@@ -766,7 +766,7 @@ CommandResult Node::_cmdMapSessionReply( Node* node, const Packet* pkg)
     CHECK_THREAD( _threadID );
 
     const uint32_t requestID = packet->requestID;
-    if( packet->sessionID == EQ_INVALID_ID )
+    if( packet->sessionID == EQ_ID_INVALID )
     {
         _requestHandler.serveRequest( requestID, (void*)false );
         return COMMAND_HANDLED;
@@ -821,7 +821,7 @@ CommandResult Node::_cmdUnmapSessionReply( Node* node, const Packet* pkg)
 
     const uint32_t requestID = packet->requestID;
 
-    if( !packet->result == EQ_INVALID_ID )
+    if( !packet->result == EQ_ID_INVALID )
     {
         _requestHandler.serveRequest( requestID, (void*)false );
         return COMMAND_HANDLED;
@@ -1007,7 +1007,7 @@ bool Node::syncConnect()
     RefPtr<Node> localNode = Node::getLocalNode();
     EQASSERT( localNode )
 
-    if( _launchID == EQ_INVALID_ID )
+    if( _launchID == EQ_ID_INVALID )
         return ( _state == STATE_CONNECTED );
 
     ConnectionDescription *description = (ConnectionDescription*)
@@ -1027,7 +1027,7 @@ bool Node::syncConnect()
         localNode->_requestHandler.unregisterRequest( _launchID );
     }
 
-    _launchID = EQ_INVALID_ID;
+    _launchID = EQ_ID_INVALID;
     return success;
 }
 

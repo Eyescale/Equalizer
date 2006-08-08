@@ -159,6 +159,11 @@ namespace eqs
         /** @sa eqNet::Object::send */
         bool send( eqNet::ObjectPacket& packet )
             { return eqNet::Object::send( _getNetNode(), packet ); }
+#if 0
+        template< class T >
+        bool send( eqNet::ObjectPacket& packet, const std::vector<T>& data )
+            { return send<T>( _getNetNode(), packet, data ); }
+#endif
         //*}
 
     private:

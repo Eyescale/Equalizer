@@ -22,7 +22,7 @@ void Node::_construct()
 {
     _used             = 0;
     _config           = NULL;
-    _pendingRequestID = EQ_INVALID_ID;
+    _pendingRequestID = EQ_ID_INVALID;
 
     registerCommand( eq::CMD_NODE_INIT_REPLY, this,reinterpret_cast<CommandFcn>(
                          &eqs::Node::_cmdInitReply ));
@@ -109,7 +109,7 @@ bool Node::removePipe( Pipe* pipe )
 //---------------------------------------------------------------------------
 void Node::startInit( const uint32_t initID )
 {
-    EQASSERT( _pendingRequestID == EQ_INVALID_ID );
+    EQASSERT( _pendingRequestID == EQ_ID_INVALID );
 
     eq::NodeInitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -120,10 +120,10 @@ void Node::startInit( const uint32_t initID )
 
 bool Node::syncInit()
 {
-    EQASSERT( _pendingRequestID != EQ_INVALID_ID );
+    EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
     const bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
-    _pendingRequestID = EQ_INVALID_ID;
+    _pendingRequestID = EQ_ID_INVALID;
 
     if( !success )
         EQWARN << "Node initialisation failed" << endl;
@@ -135,7 +135,7 @@ bool Node::syncInit()
 //---------------------------------------------------------------------------
 void Node::startExit()
 {
-    EQASSERT( _pendingRequestID == EQ_INVALID_ID );
+    EQASSERT( _pendingRequestID == EQ_ID_INVALID );
 
     eq::NodeExitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -145,10 +145,10 @@ void Node::startExit()
 
 bool Node::syncExit()
 {
-    EQASSERT( _pendingRequestID != EQ_INVALID_ID );
+    EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
     const bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
-    _pendingRequestID = EQ_INVALID_ID;
+    _pendingRequestID = EQ_ID_INVALID;
 
     return success;
 }

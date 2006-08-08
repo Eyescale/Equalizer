@@ -134,7 +134,7 @@ eqNet::CommandResult Config::_cmdCreateNode( eqNet::Node* node,
 {
     ConfigCreateNodePacket* packet = (ConfigCreateNodePacket*)pkg;
     EQINFO << "Handle create node " << packet << endl;
-    EQASSERT( packet->nodeID != EQ_INVALID_ID );
+    EQASSERT( packet->nodeID != EQ_ID_INVALID );
 
     Node* newNode = Global::getNodeFactory()->createNode();
     

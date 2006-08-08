@@ -26,7 +26,7 @@ int main( int argc, char **argv )
         
         //cout << "id: " << id << " range " << range << endl;
 
-        if( id == EQ_INVALID_ID ) 
+        if( id == EQ_ID_INVALID ) 
         {
             cout << "Failed to allocate identifiers after " << nLoops
                  << " allocations" << endl;

@@ -23,7 +23,8 @@ void Object::_construct()
 {
     _mutex         = NULL;
     _session       = NULL;
-    _id            = EQ_INVALID_ID;
+    _id            = EQ_ID_INVALID;
+    _instanceID    = EQ_ID_INVALID;
     _policy        = SHARE_UNDEFINED;
     _version       = 0;
     _commitCount   = 0;
@@ -75,7 +76,7 @@ Object::~Object()
 
 bool Object::send( eqBase::RefPtr<Node> node, ObjectPacket& packet )
 {
-    EQASSERT( _session ); EQASSERT( _id != EQ_INVALID_ID );
+    EQASSERT( _session ); EQASSERT( _id != EQ_ID_INVALID );
     packet.sessionID = _session->getID();
     packet.objectID  = _id;
     return node->send( packet );
@@ -84,7 +85,7 @@ bool Object::send( eqBase::RefPtr<Node> node, ObjectPacket& packet )
 bool Object::send( eqBase::RefPtr<Node> node, ObjectPacket& packet, 
                    const std::string& string )
 {
-    EQASSERT( _session ); EQASSERT( _id != EQ_INVALID_ID );
+    EQASSERT( _session ); EQASSERT( _id != EQ_ID_INVALID );
     packet.sessionID = _session->getID();
     packet.objectID  = _id;
     return node->send( packet, string );
@@ -93,7 +94,7 @@ bool Object::send( eqBase::RefPtr<Node> node, ObjectPacket& packet,
 bool Object::send( eqBase::RefPtr<Node> node, ObjectPacket& packet, 
                    const void* data, const uint64_t size )
 {
-    EQASSERT( _session ); EQASSERT( _id != EQ_INVALID_ID );
+    EQASSERT( _session ); EQASSERT( _id != EQ_ID_INVALID );
     packet.sessionID = _session->getID();
     packet.objectID  = _id;
     return node->send( packet, data, size );
@@ -101,7 +102,7 @@ bool Object::send( eqBase::RefPtr<Node> node, ObjectPacket& packet,
 
 bool Object::send( NodeVector& nodes, ObjectPacket& packet )
 {
-    EQASSERT( _session ); EQASSERT( _id != EQ_INVALID_ID );
+    EQASSERT( _session ); EQASSERT( _id != EQ_ID_INVALID );
     packet.sessionID = _session->getID();
     packet.objectID  = _id;
     return Connection::send( nodes, packet );
@@ -109,7 +110,7 @@ bool Object::send( NodeVector& nodes, ObjectPacket& packet )
 bool Object::send( NodeVector nodes, ObjectPacket& packet, const void* data,
                    const uint64_t size )
 {
-    EQASSERT( _session ); EQASSERT( _id != EQ_INVALID_ID );
+    EQASSERT( _session ); EQASSERT( _id != EQ_ID_INVALID );
     packet.sessionID = _session->getID();
     packet.objectID  = _id;
     return Connection::send( nodes, packet, data, size );
@@ -119,7 +120,7 @@ void Object::instanciateOnNode( RefPtr<Node> node, const SharePolicy policy,
                                 const uint32_t version )
 {
     EQASSERT( _session );
-    EQASSERT( _id != EQ_INVALID_ID );
+    EQASSERT( _id != EQ_ID_INVALID );
 
     addSlave( node );
 

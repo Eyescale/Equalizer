@@ -19,7 +19,7 @@ void Pipe::_construct()
 {
     _used             = 0;
     _node             = NULL;
-    _pendingRequestID = EQ_INVALID_ID;
+    _pendingRequestID = EQ_ID_INVALID;
     _display          = EQ_UNDEFINED_UINT32;
     _screen           = EQ_UNDEFINED_UINT32;
     _state            = STATE_STOPPED;
@@ -109,7 +109,7 @@ void Pipe::startInit( const uint32_t initID )
 
 void Pipe::_sendInit( const uint32_t initID )
 {
-    EQASSERT( _pendingRequestID == EQ_INVALID_ID );
+    EQASSERT( _pendingRequestID == EQ_ID_INVALID );
 
     eq::PipeInitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -134,11 +134,11 @@ bool Pipe::syncInit()
                 success = false;
     }
 
-    EQASSERT( _pendingRequestID != EQ_INVALID_ID );
+    EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
     if( !(bool)_requestHandler.waitRequest( _pendingRequestID ))
         success = false;
-    _pendingRequestID = EQ_INVALID_ID;
+    _pendingRequestID = EQ_ID_INVALID;
 
     if( success )
         _state = STATE_RUNNING;
@@ -168,7 +168,7 @@ void Pipe::startExit()
 
 void Pipe::_sendExit()
 {
-    EQASSERT( _pendingRequestID == EQ_INVALID_ID );
+    EQASSERT( _pendingRequestID == EQ_ID_INVALID );
 
     eq::PipeExitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -178,10 +178,10 @@ void Pipe::_sendExit()
 
 bool Pipe::syncExit()
 {
-    EQASSERT( _pendingRequestID != EQ_INVALID_ID );
+    EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
     bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
-    _pendingRequestID = EQ_INVALID_ID;
+    _pendingRequestID = EQ_ID_INVALID;
 
     Config* config = getConfig();
     eq::PipeDestroyWindowPacket destroyWindowPacket;

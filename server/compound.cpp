@@ -556,8 +556,25 @@ TraverseResult Compound::_updatePostDrawCB( Compound* compound, void* userData )
 
 void Compound::_updatePostDraw( eq::RenderContext& context )
 {
-    if( testTask( TASK_READBACK ))
+    if( testTask( TASK_READBACK ) && !_outputFrames.empty( ))
     {
+        vector<eqNet::ObjectVersion> frames;
+        for( vector<Frame*>::iterator iter = _outputFrames.begin(); 
+             iter != _outputFrames.end(); ++iter )
+        {
+            Frame* frame = *iter;
+            // TODO: filter
+            frames.push_back( eqNet::ObjectVersion( frame ));
+        }
+
+        if( !frames.empty() )
+        {
+            Channel*                  channel = getChannel();
+            eq::ChannelReadbackPacket packet;
+            packet.context = context;
+
+            //channel->send<eqNet::ObjectVersion>( packet, frames );
+        }
     }
 }
 

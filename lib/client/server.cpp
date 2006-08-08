@@ -123,7 +123,7 @@ void Server::releaseConfig( Config* config )
 
 void Server::_addConfig( Config* config )
 {
-    EQASSERT( config->getID() != EQ_INVALID_ID );
+    EQASSERT( config->getID() != EQ_ID_INVALID );
     _configs[config->getID()] = config;
 }
 
@@ -161,7 +161,7 @@ eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Node* node,
     ServerChooseConfigReplyPacket* packet = (ServerChooseConfigReplyPacket*)pkg;
     EQINFO << "Handle choose config reply " << packet << endl;
 
-    if( packet->configID == EQ_INVALID_ID )
+    if( packet->configID == EQ_ID_INVALID )
     {
         _requestHandler.serveRequest( packet->requestID, NULL );
         return eqNet::COMMAND_HANDLED;

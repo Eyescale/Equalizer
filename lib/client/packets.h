@@ -572,26 +572,38 @@ namespace eq
         bool     result;
     };
 
-    struct ChannelClearPacket : public eqNet::ObjectPacket
+    struct ChannelTaskPacket : public eqNet::ObjectPacket
+    {
+        RenderContext context;
+    };
+
+    struct ChannelClearPacket : public ChannelTaskPacket
     {
         ChannelClearPacket()
             {
                 command       = CMD_CHANNEL_CLEAR;
                 size          = sizeof( ChannelClearPacket );
             }
-
-        RenderContext context;
     };
         
-    struct ChannelDrawPacket : public eqNet::ObjectPacket
+    struct ChannelDrawPacket : public ChannelTaskPacket
     {
         ChannelDrawPacket()
             {
                 command       = CMD_CHANNEL_DRAW;
                 size          = sizeof( ChannelDrawPacket );
             }
+    };
+        
+    struct ChannelReadbackPacket : public ChannelTaskPacket
+    {
+        ChannelReadbackPacket()
+            {
+                command       = CMD_CHANNEL_READBACK;
+                size          = sizeof( ChannelReadbackPacket );
+            }
 
-        RenderContext context;
+        eqNet::ObjectVersion frames[1];
     };
         
 

@@ -20,7 +20,7 @@ void Channel::_construct()
 {
     _used             = 0;
     _window           = NULL;
-    _pendingRequestID = EQ_INVALID_ID;
+    _pendingRequestID = EQ_ID_INVALID;
     _state            = STATE_STOPPED;
 
     registerCommand( eq::CMD_CHANNEL_INIT_REPLY, this,
@@ -114,7 +114,7 @@ void Channel::startInit( const uint32_t initID )
 
 void Channel::_sendInit( const uint32_t initID )
 {
-    EQASSERT( _pendingRequestID == EQ_INVALID_ID );
+    EQASSERT( _pendingRequestID == EQ_ID_INVALID );
 
     eq::ChannelInitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -130,7 +130,7 @@ void Channel::_sendInit( const uint32_t initID )
 bool Channel::syncInit()
 {
     const bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
-    _pendingRequestID = EQ_INVALID_ID;
+    _pendingRequestID = EQ_ID_INVALID;
 
     if( success )
         _state = STATE_RUNNING;
@@ -150,7 +150,7 @@ void Channel::startExit()
 
 void Channel::_sendExit()
 {
-    EQASSERT( _pendingRequestID == EQ_INVALID_ID );
+    EQASSERT( _pendingRequestID == EQ_ID_INVALID );
 
     eq::ChannelExitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -160,10 +160,10 @@ void Channel::_sendExit()
 
 bool Channel::syncExit()
 {
-    EQASSERT( _pendingRequestID != EQ_INVALID_ID );
+    EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
     const bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
-    _pendingRequestID = EQ_INVALID_ID;
+    _pendingRequestID = EQ_ID_INVALID;
 
     _state = STATE_STOPPED;
     return success;

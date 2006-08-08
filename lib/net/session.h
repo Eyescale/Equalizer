@@ -289,7 +289,7 @@ namespace eqNet
         {
             GetObjectState()
                     : pending( false ),
-                      nodeConnectRequestID( EQ_INVALID_ID ),
+                      nodeConnectRequestID( EQ_ID_INVALID ),
                       instState( Object::INST_UNKNOWN ), 
                       object( NULL ) {}
 

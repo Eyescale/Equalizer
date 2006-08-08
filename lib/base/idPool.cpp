@@ -77,7 +77,7 @@ uint32_t IDPool::_genIDs( const uint32_t range )
             return start;
         }
     }
-    return EQ_INVALID_ID;
+    return EQ_ID_INVALID;
 }
 
 void IDPool::freeIDs( const uint32_t start, const uint32_t range )

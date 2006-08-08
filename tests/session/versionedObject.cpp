@@ -63,7 +63,7 @@ class Session : public eqNet::Session
 };
 
 RefPtr<eqNet::Connection> connection;
-volatile uint32_t         testID = EQ_INVALID_ID;
+volatile uint32_t         testID = EQ_ID_INVALID;
 
 class ServerThread : public eqBase::Thread
 {
@@ -84,7 +84,7 @@ protected:
             Session session;
             TEST( server->mapSession( server, &session, "foo" ));
 
-            while( testID == EQ_INVALID_ID ); // spin for test object
+            while( testID == EQ_ID_INVALID ); // spin for test object
 
             RefPtr<eqNet::Object> object = session.getObject( testID );
             TEST( dynamic_cast<TestObject*>(object.get()) );
@@ -127,7 +127,7 @@ int main( int argc, char **argv )
     session.registerObject( &obj, serverProxy.get( ));
 
     testID = obj.getID();
-    TEST( testID != EQ_INVALID_ID );
+    TEST( testID != EQ_ID_INVALID );
 
     sleep(1);
 

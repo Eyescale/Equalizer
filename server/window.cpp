@@ -17,7 +17,7 @@ void Window::_construct()
 {
     _used             = 0;
     _pipe             = NULL;
-    _pendingRequestID = EQ_INVALID_ID;
+    _pendingRequestID = EQ_ID_INVALID;
     _state            = STATE_STOPPED;
 
     registerCommand( eq::CMD_WINDOW_INIT_REPLY, this,
@@ -174,7 +174,7 @@ void Window::startInit( const uint32_t initID )
 
 void Window::_sendInit( const uint32_t initID )
 {
-    EQASSERT( _pendingRequestID == EQ_INVALID_ID );
+    EQASSERT( _pendingRequestID == EQ_ID_INVALID );
 
     eq::WindowInitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -200,11 +200,11 @@ bool Window::syncInit()
                 success = false;
     }
 
-    EQASSERT( _pendingRequestID != EQ_INVALID_ID );
+    EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
     if( !(bool)_requestHandler.waitRequest( _pendingRequestID ))
         success = false;
-    _pendingRequestID = EQ_INVALID_ID;
+    _pendingRequestID = EQ_ID_INVALID;
 
     if( success )
         _state = STATE_RUNNING;
@@ -234,7 +234,7 @@ void Window::startExit()
 
 void Window::_sendExit()
 {
-    EQASSERT( _pendingRequestID == EQ_INVALID_ID );
+    EQASSERT( _pendingRequestID == EQ_ID_INVALID );
 
     eq::WindowExitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
@@ -245,10 +245,10 @@ void Window::_sendExit()
 
 bool Window::syncExit()
 {
-    EQASSERT( _pendingRequestID != EQ_INVALID_ID );
+    EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
     bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
-    _pendingRequestID = EQ_INVALID_ID;
+    _pendingRequestID = EQ_ID_INVALID;
     
     Config* config = getConfig();
     eq::WindowDestroyChannelPacket destroyChannelPacket;

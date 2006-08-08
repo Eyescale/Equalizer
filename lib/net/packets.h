@@ -13,6 +13,7 @@
 #include <eq/net/object.h>
 
 #include <sys/param.h>
+#include <eq/base/idPool.h> // for EQ_ID_*
 
 #define EQ_ALIGN8  __attribute__ ((aligned (8)))
 
@@ -65,7 +66,7 @@ namespace eqNet
             {
                 command   = CMD_NODE_MAP_SESSION;
                 size      = sizeof(NodeMapSessionPacket);
-                sessionID = EQ_INVALID_ID;
+                sessionID = EQ_ID_INVALID;
                 name[0]   = '\0';
             }
 
@@ -95,7 +96,7 @@ namespace eqNet
             {
                 command   = CMD_NODE_UNMAP_SESSION;
                 size      = sizeof(NodeUnmapSessionPacket);
-                sessionID = EQ_INVALID_ID;
+                sessionID = EQ_ID_INVALID;
             }
 
         uint32_t requestID;
@@ -341,7 +342,7 @@ namespace eqNet
         ObjectPacket()
             {
                 datatype   = DATATYPE_EQNET_OBJECT; 
-                instanceID = Object::INSTANCE_ALL;
+                instanceID = EQ_ID_ANY;
             }
         uint32_t objectID;
         uint32_t instanceID;

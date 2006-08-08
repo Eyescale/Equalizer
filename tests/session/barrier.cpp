@@ -16,7 +16,7 @@ using namespace eqBase;
 using namespace eqNet;
 using namespace std;
 
-uint32_t barrierID = EQ_INVALID_ID;
+uint32_t barrierID = EQ_ID_INVALID;
 
 class NodeThread : public Thread
 {
@@ -43,7 +43,7 @@ public:
                 
                 Barrier barrier( node, 2 );
                 session.registerObject( &barrier, node );
-                TEST( barrier.getID() != EQ_INVALID_ID );
+                TEST( barrier.getID() != EQ_ID_INVALID );
                 
                 barrierID = barrier.getID();
 
@@ -56,7 +56,7 @@ public:
             }
             else
             {
-                while( barrierID == EQ_INVALID_ID );
+                while( barrierID == EQ_ID_INVALID );
 
                 RefPtr<Node>                  server     = new Node;
                 RefPtr<ConnectionDescription> serverDesc = 
