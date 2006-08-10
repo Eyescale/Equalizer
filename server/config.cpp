@@ -234,7 +234,7 @@ eqNet::CommandResult Config::_reqInit( eqNet::Node* node,
     EQINFO << "handle config init " << packet << endl;
 
     reply.result       = _init( packet->initID );
-    reply.headMatrixID = _headMatrix->getID();
+    reply.headMatrixID = reply.result ? _headMatrix->getID() : EQ_ID_INVALID;
 
     EQINFO << "config init " << (reply.result ? "successfulq":"failed") << endl;
     send( node, reply );
