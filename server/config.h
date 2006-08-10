@@ -176,8 +176,6 @@ namespace eqs
 
     private:
 
-        eq::Matrix4f _headMatrix;
-
         /** The eq server hosting the session. */
         eqBase::RefPtr<Server> _server;
         friend class Server;
@@ -192,7 +190,7 @@ namespace eqs
         std::string _appName;
 
         /** The node running the application thread. */
-        Node*                       _appNode;
+        Node*       _appNode;
 
         /** The network node running the application thread. */
         eqBase::RefPtr<eqNet::Node> _appNetNode;
@@ -208,6 +206,9 @@ namespace eqs
 
         /** The last started frame, or 0. */
         uint32_t _frameNumber;
+
+        /** The matrix defining the head's position for head tracking. */
+        eqBase::RefPtr<eq::Matrix4f> _headMatrix;
 
         enum State
         {

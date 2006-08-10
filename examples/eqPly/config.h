@@ -24,7 +24,7 @@ public:
     /** @sa eq::Config::beginFrame. */
     virtual uint32_t beginFrame();
 
-    void setFrameData( FrameData* data ) { _frameData = data; }
+    void setFrameData( eqBase::RefPtr<FrameData> data ) { _frameData = data; }
 protected:
     eqNet::Object* instanciateObject( const uint32_t type, const void* data, 
                                        const uint64_t dataSize )
@@ -45,8 +45,8 @@ protected:
     virtual bool handleEvent( eq::ConfigEvent* event );
 
     bool       _running;
-    FrameData* _frameData;
     int        _spinX, _spinY;
+    eqBase::RefPtr<FrameData> _frameData;
 
 private:
     static void _applyRotation( float m[16], const float dx, const float dy );

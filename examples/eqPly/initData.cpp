@@ -34,6 +34,11 @@ InitData::InitData( const void* data, const uint64_t size )
     EQINFO << "New InitData instance" << endl;
 }
 
+InitData::~InitData()
+{
+    setFrameData( NULL );
+}
+
 const void* InitData::getInstanceData( uint64_t* size )
 {
     *size = sizeof( _frameDataID ) + _filename.length() + 1;
@@ -59,14 +64,18 @@ void InitData::_clearInstanceData()
     _instanceData = NULL;
 }
 
-void InitData::setFrameData( FrameData* frameData )
+void InitData::setFrameData( RefPtr<FrameData> frameData )
 {
     _clearInstanceData();
-    _frameDataID = frameData ? frameData->getID() : EQ_ID_INVALID;
-    _frameData   = frameData;
+    _frameDataID = frameData.isValid() ? frameData->getID() : EQ_ID_INVALID;
+
+    if( _frameData.get( ))
+        _frameData->unref();
+    frameData.ref();
+    _frameData = frameData.get();
 }
 
-FrameData* InitData::getFrameData()
+RefPtr<FrameData> InitData::getFrameData()
 {
     if( _frameData.get( ))
         return _frameData.get();
@@ -78,6 +87,7 @@ FrameData* InitData::getFrameData()
 
     _frameData = (FrameData*)session->getObject( _frameDataID, 
                                                  Object::SHARE_THREAD );
+    _frameData->ref();
     return _frameData.get();
 }
 

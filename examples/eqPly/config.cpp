@@ -6,7 +6,6 @@
 
 Config::Config()
         : _running( false ),
-          _frameData(NULL),
           _spinX(0),
           _spinY(0)
 {}

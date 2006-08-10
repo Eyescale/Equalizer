@@ -19,7 +19,7 @@ using namespace eqBase;
 
 #define DIE(reason)    { cout << (reason) << endl; abort(); }
 
-static void _parseArguments( int argc, char** argv,  InitData* initData );
+static void _parseArguments( int argc, char** argv,  RefPtr<InitData> initData);
 
 class NodeFactory : public eq::NodeFactory
 {
@@ -41,7 +41,7 @@ int main( int argc, char** argv )
     if( !eq::init( argc, argv ))
         DIE( "Equalizer init failed" );
 
-    InitData* initData = new InitData;
+    RefPtr<InitData> initData = new InitData;
     _parseArguments( argc, argv, initData );
 
     // 2. connect to server
@@ -60,10 +60,10 @@ int main( int argc, char** argv )
         DIE("No matching config on server.");
 
     // 4. register application data
-    FrameData *frameData = new FrameData;
+    RefPtr<FrameData> frameData = new FrameData;
 
-    config->registerObject( initData, config->getLocalNode( ));
-    config->registerObject( frameData, config->getLocalNode( ));
+    config->registerObject( initData.get(), config->getLocalNode( ));
+    config->registerObject( frameData.get(), config->getLocalNode( ));
     initData->setFrameData( frameData );
     config->setFrameData( frameData );
 
@@ -76,7 +76,7 @@ int main( int argc, char** argv )
     // 6. run main loop
     clock.reset();
 
-    //eq::Matrix4f testMatrix;
+    eq::Matrix4f testMatrix;
 
     while( config->isRunning( ))
     {
@@ -95,10 +95,13 @@ int main( int argc, char** argv )
     cerr << "Exit took " << clock.getTimef() << " ms" << endl;
 
     // 8. cleanup and exit
+    initData->setFrameData( NULL );
+    config->setFrameData( NULL );
+    config->deregisterObject( frameData.get( ));
+    config->deregisterObject( initData.get( ));
     EQASSERT( frameData->getRefCount() == 1 );
     EQASSERT( initData->getRefCount() == 1 );
-    config->deregisterObject( frameData );
-    config->deregisterObject( initData );
+
     server->releaseConfig( config );
     server->close();
     server = NULL;
@@ -106,7 +109,7 @@ int main( int argc, char** argv )
     return EXIT_SUCCESS;
 }
 
-void _parseArguments( int argc, char** argv, InitData* initData )
+void _parseArguments( int argc, char** argv, RefPtr<InitData> initData )
 {
     int      result;
     int      index;
