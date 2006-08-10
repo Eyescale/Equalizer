@@ -28,6 +28,8 @@ namespace eq
          * @return the config of this node. 
          */
         Config* getConfig() const { return _config; }
+        eqBase::RefPtr<eqNet::Node> getServer() const
+            { return (_config ? _config->getServer() : NULL); }
 
         /** 
          * Gets a pipe.

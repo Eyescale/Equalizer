@@ -523,8 +523,7 @@ namespace eqNet
         bool _autoLaunched;
 
         /** 
-         * Dispatches a packet to the appropriate object or handlePacket.
-         * dispatched.
+         * Dispatches a packet to the appropriate object or to handlePacket.
          * 
          * @param node the node which send the packet.
          * @param packet the packet.
@@ -547,7 +546,7 @@ namespace eqNet
          * @param node the node which send the packet.
          * @param packet the packet.
          * @return the result of the operation.
-         * @sa dispatchPacket, handleCommand
+         * @sa dispatchPacket
          */
         virtual CommandResult handlePacket( Node* node, const Packet* packet )
             { return COMMAND_ERROR; }
@@ -566,6 +565,25 @@ namespace eqNet
          * @param node the disconnected node.
          */
         virtual void handleDisconnect( Node* node );
+
+        /** 
+         * Push a command to be handled by another entity, typically a thread.
+         * 
+         * @param node the node which send the packet.
+         * @param packet the packet.
+         */
+        virtual void pushCommand( Node* node, const Packet* packet )
+            { EQUNIMPLEMENTED; }
+
+        /** 
+         * Push a command to be handled immediately by another entity, typically
+         * a thread. 
+         * 
+         * @param node the node which send the packet.
+         * @param packet the packet.
+         */
+        virtual void pushCommandFront( Node* node, const Packet* packet )
+            { EQUNIMPLEMENTED; }
 
         /** 
          * Factory method to create a new node.

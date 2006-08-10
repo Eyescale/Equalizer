@@ -11,6 +11,7 @@
 
 using namespace eq;
 using namespace eqBase;
+using namespace std;
 
 EventThread* EventThread::_threads[WINDOW_SYSTEM_ALL] = { NULL };
 
@@ -32,7 +33,9 @@ EventThread* EventThread::get( const WindowSystem windowSystem )
 #endif
                 break;
             default:
-                EQUNIMPLEMENTED;
+                EQERROR << "Event thread unimplemented for window system "
+                        << windowSystem << endl;
+                return NULL;
         }
     }
     _threadsLock.unset();

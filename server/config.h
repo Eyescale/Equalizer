@@ -218,8 +218,8 @@ namespace eqs
             _state;
 
         /** The command functions. */
-        eqNet::CommandResult _cmdRequest( eqNet::Node* node,
-                                          const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdPush( eqNet::Node* node,
+                                       const eqNet::Packet* packet );
         eqNet::CommandResult _reqInit( eqNet::Node* node,
                                        const eqNet::Packet* packet );
         eqNet::CommandResult _reqExit( eqNet::Node* node,

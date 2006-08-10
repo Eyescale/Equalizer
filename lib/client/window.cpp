@@ -140,9 +140,9 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
     EQINFO << "handle window init " << packet << endl;
 
     if( packet->pvp.isValid( ))
-        setPixelViewport( packet->pvp );
+        _setPixelViewport( packet->pvp );
     else
-        setViewport( packet->vp );
+        _setViewport( packet->vp );
 
     _name = packet->name;
 
@@ -274,23 +274,33 @@ eqNet::CommandResult eq::Window::_reqEndFrame(eqNet::Node* node,
 //----------------------------------------------------------------------
 void eq::Window::setPixelViewport( const PixelViewport& pvp )
 {
-    if( !pvp.isValid( ))
-        return;
+    if( !_setPixelViewport( pvp ))
+        return; // nothing changed
+    
+    WindowSetPVPPacket packet;
+    packet.pvp = pvp;
+    _send( packet );
+}
+
+bool eq::Window::_setPixelViewport( const PixelViewport& pvp )
+{
+    if( pvp == _pvp || !pvp.isValid( ))
+        return false;
 
     _pvp = pvp;
     _vp.invalidate();
 
-    if( !_pipe )
-        return;
+    EQASSERT( _pipe );
     
     const PixelViewport& pipePVP = _pipe->getPixelViewport();
     if( pipePVP.isValid( ))
         _vp = pvp / pipePVP;
 
     EQINFO << "Window pvp set: " << _pvp << ":" << _vp << endl;
+    return true;
 }
 
-void eq::Window::setViewport( const Viewport& vp )
+void eq::Window::_setViewport( const Viewport& vp )
 {
     if( !vp.isValid( ))
         return;
@@ -485,10 +495,6 @@ bool eq::Window::initCGL()
         EQERROR << "Could not create OpenGL context\n" << endl;
         return false;
     }
-
-    // CGRect displayRect = CGDisplayBounds( displayID );
-    // glViewport( 0, 0, displayRect.size.width, displayRect.size.height );
-    // glViewport( _pvp.x, _pvp.y, _pvp.w, _pvp.h );
 
     CGLSetCurrentContext( context );
     CGLSetFullScreen( context );

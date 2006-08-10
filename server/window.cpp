@@ -24,6 +24,10 @@ void Window::_construct()
                      reinterpret_cast<CommandFcn>(&eqs::Window::_cmdInitReply));
     registerCommand( eq::CMD_WINDOW_EXIT_REPLY, this, 
                      reinterpret_cast<CommandFcn>(&eqs::Window::_cmdExitReply));
+    registerCommand( eq::CMD_WINDOW_SET_PVP, this, reinterpret_cast<CommandFcn>(
+                         &eqs::Window::_cmdPushFront));
+    registerCommand( eq::REQ_WINDOW_SET_PVP, this, reinterpret_cast<CommandFcn>(
+                         &eqs::Window::_reqSetPixelViewport));
 }
 
 Window::Window()
@@ -79,14 +83,20 @@ void eqs::Window::setPixelViewport( const eq::PixelViewport& pvp )
         return;
 
     _pvp = pvp;
-    _vp.invalidate();
 
-    if( !_pipe )
-        return;
-    
-    const eq::PixelViewport& pipePVP = _pipe->getPixelViewport();
-    if( pipePVP.isValid( ))
-        _vp = pvp / pipePVP;
+    if( _pipe )
+    {
+        const eq::PixelViewport& pipePVP = _pipe->getPixelViewport();
+        if( pipePVP.isValid( ))
+            _vp = pvp / pipePVP;
+    }
+
+    for( std::vector<Channel*>::iterator iter = _channels.begin(); 
+         iter != _channels.end(); ++iter )
+
+        (*iter)->notifyWindowPVPChanged();
+        
+    EQINFO << "Window pvp set: " << _pvp << ":" << _vp << endl;
 }
 
 void eqs::Window::setViewport( const eq::Viewport& vp )
@@ -95,7 +105,6 @@ void eqs::Window::setViewport( const eq::Viewport& vp )
         return;
     
     _vp = vp;
-    _pvp.invalidate();
 
     if( !_pipe )
         return;
@@ -156,10 +165,10 @@ void Window::startInit( const uint32_t initID )
     Config* config = getConfig();
     eq::WindowCreateChannelPacket createChannelPacket;
 
-    const int nChannels = _channels.size();
-    for( int i=0; i<nChannels; ++i )
+    for( std::vector<Channel*>::iterator iter = _channels.begin(); 
+         iter != _channels.end(); ++iter )
     {
-        Channel* channel = _channels[i];
+        Channel* channel = *iter;
         if( channel->isUsed( ))
         {
             config->registerObject( channel, (eqNet::Node*)getServer( ));
@@ -191,10 +200,10 @@ void Window::_sendInit( const uint32_t initID )
 bool Window::syncInit()
 {
     bool success = true;
-    const int nChannels = _channels.size();
-    for( int i=0; i<nChannels; ++i )
+    for( std::vector<Channel*>::iterator iter = _channels.begin(); 
+         iter != _channels.end(); ++iter )
     {
-        Channel* channel = _channels[i];
+        Channel* channel = *iter;
         if( channel->isUsed( ))
             if( !channel->syncInit( ))
                 success = false;
@@ -219,10 +228,10 @@ bool Window::syncInit()
 void Window::startExit()
 {
     _state = STATE_STOPPING;
-    const int nChannels = _channels.size();
-    for( int i=0; i<nChannels; ++i )
+    for( std::vector<Channel*>::iterator iter = _channels.begin(); 
+         iter != _channels.end(); ++iter )
     {
-        Channel* channel = _channels[i];
+        Channel* channel = *iter;
         if( channel->getState() == Channel::STATE_STOPPED )
             continue;
 
@@ -253,10 +262,10 @@ bool Window::syncExit()
     Config* config = getConfig();
     eq::WindowDestroyChannelPacket destroyChannelPacket;
 
-    const int nChannels = _channels.size();
-    for( int i=0; i<nChannels; ++i )
+    for( std::vector<Channel*>::iterator iter = _channels.begin(); 
+         iter != _channels.end(); ++iter )
     {
-        Channel* channel = _channels[i];
+        Channel* channel = *iter;
         if( channel->getState() != Channel::STATE_STOPPING )
             continue;
 
@@ -356,6 +365,15 @@ eqNet::CommandResult Window::_cmdExitReply( eqNet::Node* node, const eqNet::Pack
     return eqNet::COMMAND_HANDLED;
 }
 
+eqNet::CommandResult Window::_reqSetPixelViewport( eqNet::Node* node, 
+                                                   const eqNet::Packet* pkg )
+{
+    eq::WindowSetPVPPacket* packet = (eq::WindowSetPVPPacket*)pkg;
+    EQVERB << "handle window set pvp " << packet << endl;
+
+    setPixelViewport( packet->pvp );
+    return eqNet::COMMAND_HANDLED;
+}
 
 std::ostream& eqs::operator << ( std::ostream& os, const Window* window )
 {

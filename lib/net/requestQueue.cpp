@@ -31,6 +31,16 @@ void RequestQueue::push( Node* node, const Packet* packet )
     _requests.push( request );
 }
 
+void RequestQueue::pushFront( Node* node, const Packet* packet )
+{
+    _requestCacheLock.set();
+    Request* request = _requestCache.alloc( node, packet );
+    _requestCacheLock.unset();
+
+    request->packet->command++; // REQ must always follow CMD
+    _requests.pushFront( request );
+}
+
 void RequestQueue::pop( Node** node, Packet** packet )
 {
     CHECK_THREAD( _threadID );

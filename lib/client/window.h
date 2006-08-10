@@ -39,6 +39,8 @@ namespace eq
         Pipe* getPipe() const { return _pipe; }
         Node* getNode() const 
             { return ( _pipe ? _pipe->getNode() : NULL );}
+        eqBase::RefPtr<eqNet::Node> getServer() const 
+            { return ( _pipe ? _pipe->getServer() : NULL );}
 
         const std::string& getName() const { return _name; }
 
@@ -110,15 +112,6 @@ namespace eq
          * @return the window's pixel viewport
          */
         const PixelViewport& getPixelViewport() const { return _pvp; }
-
-        /** 
-         * Set the window's fractional viewport wrt its parent pipe.
-         *
-         * Updates the pixel viewport accordingly.
-         * 
-         * @param vp the fractional viewport.
-         */
-        void setViewport( const Viewport& vp );
 
         /** 
          * @return the window's fractional viewport.
@@ -238,6 +231,12 @@ namespace eq
 
         void _addChannel( Channel* channel );
         void _removeChannel( Channel* channel );
+
+        bool _setPixelViewport( const PixelViewport& pvp );
+        void _setViewport( const Viewport& vp );
+
+        void _send( eqNet::ObjectPacket& packet )
+            { eqNet::Object::send( getServer(), packet ); }
 
         /* The command functions. */
         eqNet::CommandResult _pushRequest( eqNet::Node* node,

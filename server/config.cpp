@@ -22,20 +22,20 @@ void Config::_construct()
     _appNode     = NULL;
 
     registerCommand( eq::CMD_CONFIG_INIT, this, reinterpret_cast<CommandFcn>(
-                         &eqs::Config::_cmdRequest ));
+                         &eqs::Config::_cmdPush ));
     registerCommand( eq::REQ_CONFIG_INIT, this, reinterpret_cast<CommandFcn>(
                          &eqs::Config::_reqInit ));
     registerCommand( eq::CMD_CONFIG_EXIT, this, reinterpret_cast<CommandFcn>( 
-                         &eqs::Config::_cmdRequest ));
+                         &eqs::Config::_cmdPush ));
     registerCommand( eq::REQ_CONFIG_EXIT, this, reinterpret_cast<CommandFcn>( 
                          &eqs::Config::_reqExit ));
     registerCommand( eq::CMD_CONFIG_FRAME_BEGIN, this,
-                     reinterpret_cast<CommandFcn>( &eqs::Config::_cmdRequest ));
+                     reinterpret_cast<CommandFcn>( &eqs::Config::_cmdPush ));
     registerCommand( eq::REQ_CONFIG_FRAME_BEGIN, this,
                      reinterpret_cast<CommandFcn>(
                          &eqs::Config::_reqBeginFrame ));
     registerCommand( eq::CMD_CONFIG_FRAME_END, this,
-                     reinterpret_cast<CommandFcn>( &eqs::Config::_cmdRequest ));
+                     reinterpret_cast<CommandFcn>( &eqs::Config::_cmdPush ));
     registerCommand( eq::REQ_CONFIG_FRAME_END, this,
                      reinterpret_cast<CommandFcn>( &eqs::Config::_reqEndFrame));
 
@@ -220,11 +220,10 @@ void Config::setApplicationNode( eqBase::RefPtr<eqNet::Node> node )
 }
 
 // pushes the request to the main thread to be handled asynchronously
-eqNet::CommandResult Config::_cmdRequest( eqNet::Node* node,
-                                          const eqNet::Packet* packet )
+eqNet::CommandResult Config::_cmdPush( eqNet::Node* node,
+                                       const eqNet::Packet* packet )
 {
-    _server->pushRequest( node, packet );
-    return eqNet::COMMAND_HANDLED;
+    return eqNet::COMMAND_PUSH;
 }
 
 eqNet::CommandResult Config::_reqInit( eqNet::Node* node,

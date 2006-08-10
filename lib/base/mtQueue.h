@@ -81,13 +81,13 @@ namespace eqBase
                     case Thread::PTHREAD:
                     {
                         pthread_mutex_lock( &_sync.pthread.mutex );
-                        while( _queue.size() == 0 )
+                        while( _queue.empty( ))
                             pthread_cond_wait( &_sync.pthread.cond,
                                                &_sync.pthread.mutex );
                         
                         EQASSERT( !_queue.empty( ));
                         T* element = _queue.front();
-                        _queue.pop();
+                        _queue.pop_front();
                         pthread_mutex_unlock( &_sync.pthread.mutex );
                         return element;
                     }   
@@ -114,7 +114,7 @@ namespace eqBase
                         }
 
                         T* element = _queue.front();
-                        _queue.pop();
+                        _queue.pop_front();
                         pthread_mutex_unlock( &_sync.pthread.mutex );
                         return element;
                     }   
@@ -148,7 +148,24 @@ namespace eqBase
                     case Thread::PTHREAD:
                     {
                         pthread_mutex_lock( &_sync.pthread.mutex );
-                        _queue.push( element );
+                        _queue.push_back( element );
+                        pthread_cond_signal( &_sync.pthread.cond );
+                        pthread_mutex_unlock( &_sync.pthread.mutex );
+                        break;
+                    }   
+                    default:
+                        EQERROR << "not implemented" << std::endl;
+                }
+            }
+
+        void pushFront( T* element )
+            {
+                switch( _type )
+                {
+                    case Thread::PTHREAD:
+                    {
+                        pthread_mutex_lock( &_sync.pthread.mutex );
+                        _queue.push_front( element );
                         pthread_cond_signal( &_sync.pthread.cond );
                         pthread_mutex_unlock( &_sync.pthread.mutex );
                         break;
@@ -160,7 +177,7 @@ namespace eqBase
 
     private:
         Thread::Type   _type;
-        std::queue<T*> _queue;
+        std::deque<T*> _queue;
 
         union
         {

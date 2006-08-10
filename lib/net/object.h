@@ -108,11 +108,6 @@ namespace eqNet
             VERSION_HEAD = 0xffffffffu
         };
 
-        enum Instance
-        {
-            INSTANCE_ALL = eqBase::IDPool::MAX_CAPACITY + 1
-        };
-
         /** 
          * Construct a new object.
          * 

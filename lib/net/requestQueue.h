@@ -37,6 +37,18 @@ namespace eqNet
         void push( Node* node, const Packet* packet );
 
         /** 
+         * Push a request to the front of the queue.
+         *
+         * The request's command is incremented by one, which enables the usage
+         * of the same code for handling the arriving packet and the queued
+         * request, as they use different commands.
+         * 
+         * @param node the node sending the packet.
+         * @param packet the command packet.
+         */
+        void pushFront( Node* node, const Packet* packet );
+
+        /** 
          * Pop a request from the queue.
          *
          * The returned packet is valid until the next pop operation.

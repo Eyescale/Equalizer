@@ -29,13 +29,12 @@ Server::Server()
           _configID(0)
 {
     registerCommand( eq::CMD_SERVER_CHOOSE_CONFIG, this, 
-                     reinterpret_cast<CommandFcn>( &eqs::Server::pushRequest ));
+                     reinterpret_cast<CommandFcn>( &eqs::Server::_cmdPush ));
     registerCommand( eq::REQ_SERVER_CHOOSE_CONFIG, this, 
                      reinterpret_cast<CommandFcn>(
                          &eqs::Server::_reqChooseConfig ));
     registerCommand( eq::CMD_SERVER_RELEASE_CONFIG, this, 
-                     reinterpret_cast<CommandFcn>( 
-                         &eqs::Server::pushRequest ));
+                     reinterpret_cast<CommandFcn>( &eqs::Server::_cmdPush ));
     registerCommand( eq::REQ_SERVER_RELEASE_CONFIG, this, 
                      reinterpret_cast<CommandFcn>( 
                          &eqs::Server::_reqReleaseConfig ));
@@ -130,6 +129,10 @@ void Server::_handleRequests()
                 EQERROR << "Error handling command packet" << endl;
                 abort();
 
+            case eqNet::COMMAND_PUSH:
+                EQUNIMPLEMENTED;
+            case eqNet::COMMAND_PUSH_FRONT:
+                EQUNIMPLEMENTED;
             case eqNet::COMMAND_RESCHEDULE:
                 EQUNIMPLEMENTED;
         }

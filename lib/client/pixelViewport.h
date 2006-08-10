@@ -68,6 +68,12 @@ namespace eq
                 return Viewport(  x / (float)rhs.w,  y / (float)rhs.w,
                                   w / (float)rhs.w,  h / (float)rhs.h );
             }
+
+        bool operator == ( const PixelViewport& rhs ) const 
+            { 
+                return ( x==rhs.x && x==rhs.x && 
+                         y==rhs.y && w==rhs.w && h==rhs.h);
+            }
         //*}
 
         int32_t x;

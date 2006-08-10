@@ -509,11 +509,18 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
                     return COMMAND_ERROR;
 
                 case COMMAND_RESCHEDULE:
-                    // Not sure if we should ever allow rescheduling of packets
-                    // which are sent to all object instances
-                    if( objPacket->instanceID == Object::INSTANCE_ALL )
+                case COMMAND_PUSH:
+                case COMMAND_PUSH_FRONT:
+                    // Not sure if we should ever allow these functions on
+                    // packets which are sent to all object instances
+                    // Note: if the first object returns one of these results,
+                    // we assume for now that it applies to all.
+                    if( iter != objects.begin() &&
+                        objPacket->instanceID == EQ_ID_ANY )
+
                         EQUNIMPLEMENTED;
-                    return COMMAND_RESCHEDULE;
+
+                    return result;
 
                 default:
                     if( objPacket->instanceID == object->getInstanceID( ))

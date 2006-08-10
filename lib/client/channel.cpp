@@ -228,7 +228,6 @@ eqNet::CommandResult Channel::_reqInit( eqNet::Node* node,
     reply.result = init( packet->initID );
     reply.near   = _near;
     reply.far    = _far;
-    reply.pvp    = _pvp;
     send( node, reply );
     return eqNet::COMMAND_HANDLED;
 }

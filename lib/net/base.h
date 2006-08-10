@@ -18,6 +18,8 @@ namespace eqNet
     {
         COMMAND_HANDLED,     //*< The command was handled
         COMMAND_RESCHEDULE,  //*< Reschedule command to be handled later
+        COMMAND_PUSH,        //*< Push to another thread
+        COMMAND_PUSH_FRONT,  //*< Push to another thread with high priority
         COMMAND_ERROR        //*< An unrecoverable error occured
     };
 

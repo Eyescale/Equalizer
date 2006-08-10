@@ -22,6 +22,7 @@ void Channel::_construct()
     _window           = NULL;
     _pendingRequestID = EQ_ID_INVALID;
     _state            = STATE_STOPPED;
+    _fixedPVP         = false;
 
     registerCommand( eq::CMD_CHANNEL_INIT_REPLY, this,
                      reinterpret_cast<CommandFcn>(
@@ -41,9 +42,10 @@ Channel::Channel( const Channel& from )
         : eqNet::Object( eq::Object::TYPE_CHANNEL, eq::CMD_CHANNEL_CUSTOM )
 {
     _construct();
-    _name = from._name;
-    _vp   = from._vp;
-    _pvp  = from._pvp;
+    _name     = from._name;
+    _vp       = from._vp;
+    _pvp      = from._pvp;
+    _fixedPVP = from._fixedPVP;
 }
 
 void Channel::refUsed()
@@ -68,36 +70,53 @@ void Channel::setPixelViewport( const eq::PixelViewport& pvp )
 {
     if( !pvp.isValid( ))
         return;
+    
+    _fixedPVP = true;
+
+    if( pvp == _pvp )
+        return;
 
     _pvp = pvp;
     _vp.invalidate();
-
-    if( !_window )
-        return;
-    
-    const eq::PixelViewport& windowPVP = _window->getPixelViewport();
-    if( windowPVP.isValid( ))
-        _vp = pvp / windowPVP;
+    notifyWindowPVPChanged();
 }
 
 void Channel::setViewport( const eq::Viewport& vp )
 {
     if( !vp.isValid( ))
         return;
-    
+     
+    _fixedPVP = false;
+
+    if( vp == _vp )
+        return;
+
     _vp = vp;
     _pvp.invalidate();
+    notifyWindowPVPChanged();
+}
 
+void Channel::notifyWindowPVPChanged()
+{
     if( !_window )
         return;
 
-    eq::PixelViewport windowPVP = _window->getPixelViewport();
-    if( windowPVP.isValid( ))
+    const eq::PixelViewport& windowPVP = _window->getPixelViewport();
+    if( !windowPVP.isValid( ))
+        return;
+
+    if( _fixedPVP )
     {
-        windowPVP.x = 0;
-        windowPVP.y = 0;
-        _pvp = windowPVP * vp;
+        _vp = _pvp / windowPVP;
     }
+    else
+    {
+        eq::PixelViewport relWindowPVP = windowPVP;
+        relWindowPVP.x = 0;
+        relWindowPVP.y = 0;
+        _pvp = relWindowPVP * _vp;
+    }
+    EQINFO << "Channel viewport update: " << _pvp << ":" << _vp << endl;
 }
 
 //===========================================================================
@@ -201,7 +220,6 @@ eqNet::CommandResult Channel::_cmdInitReply( eqNet::Node* node,
 
     _near = packet->near;
     _far  = packet->far;
-    setPixelViewport( packet->pvp );
 
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
     return eqNet::COMMAND_HANDLED;

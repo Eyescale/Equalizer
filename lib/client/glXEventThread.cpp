@@ -245,7 +245,7 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
             case ConfigureNotify:
             {
                 // Get window coordinates from X11, the event data is relative
-                // to window parent, but we need pvp relative to root window.
+                // to window parent, but we report pvp relative to root window.
                 XWindowAttributes windowAttrs;
                 
                 XGetWindowAttributes( display, drawable, &windowAttrs );

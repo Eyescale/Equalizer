@@ -34,6 +34,8 @@ namespace eq
         //*{
         Node* getNode() const { return _node; }
         Config* getConfig() const { return (_node ? _node->getConfig() : NULL);}
+        eqBase::RefPtr<eqNet::Node> getServer() const
+            { return (_node ? _node->getServer() : NULL);}
 
         /** @return the number of windows. */
         uint32_t nWindows() const { return _windows.size(); }

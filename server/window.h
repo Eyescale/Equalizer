@@ -244,14 +244,15 @@ namespace eqs
         void _updateSwap();
 
         /* command handler functions. */
-        eqNet::CommandResult _cmdInitReply(eqNet::Node* node, 
-                                           const eqNet::Packet* packet);
-        eqNet::CommandResult _cmdExitReply(eqNet::Node* node, 
-                                           const eqNet::Packet* packet);
-        eqNet::CommandResult _cmdSwap(eqNet::Node* node,
-                                      const eqNet::Packet* packet);
-        eqNet::CommandResult _cmdSwapWithBarrier(eqNet::Node* node,
-                                                 const eqNet::Packet* packet);
+        eqNet::CommandResult _cmdPushFront( eqNet::Node* node, 
+                                           const eqNet::Packet* packet )
+            { return eqNet::COMMAND_PUSH_FRONT; }
+        eqNet::CommandResult _cmdInitReply( eqNet::Node* node, 
+                                            const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdExitReply( eqNet::Node* node, 
+                                            const eqNet::Packet* packet );
+        eqNet::CommandResult _reqSetPixelViewport( eqNet::Node* node,
+                                                   const eqNet::Packet* packet);
     };
 
     std::ostream& operator << ( std::ostream& os, const Window* window );

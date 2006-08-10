@@ -275,6 +275,10 @@ ssize_t Pipe::_runThread()
                 EQERROR << "Error handling command packet" << endl;
                 abort();
 
+            case eqNet::COMMAND_PUSH:
+                EQUNIMPLEMENTED;
+            case eqNet::COMMAND_PUSH_FRONT:
+                EQUNIMPLEMENTED;
             case eqNet::COMMAND_RESCHEDULE:
                 EQUNIMPLEMENTED;
         }

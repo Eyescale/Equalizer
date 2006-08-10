@@ -85,16 +85,6 @@ namespace eqs
         Config* getConfig( const uint32_t index ) const 
             { return _configs[index]; }
 
-        /** 
-         * Push a request to the servers' main thread to be handled
-         * asynchronously.
-         * 
-         * @param node the node sending the packet.
-         * @param packet the command packet.
-         */
-        void pushRequest( eqNet::Node* node, const eqNet::Packet* packet )
-            { _requestQueue.push( node, packet ); }
-
     protected:
         virtual ~Server() {}
 
@@ -104,6 +94,15 @@ namespace eqs
         
         /** @sa eqNet::Node::handleDisconnect */
         virtual void handleDisconnect( eqNet::Node* node );
+
+        /** @sa eqNet::Node::pushCommand */
+        virtual void pushCommand(eqNet::Node* node, const eqNet::Packet* packet)
+            { _requestQueue.push( node, packet ); }
+
+        /** @sa eqNet::Node::pushCommandFront */
+        virtual void pushCommandFront( eqNet::Node* node, 
+                                       const eqNet::Packet* packet )
+            { _requestQueue.pushFront( node, packet ); }
 
     private:
         
@@ -129,6 +128,9 @@ namespace eqs
                                                const eqNet::Packet* packet );
         eqNet::CommandResult _reqReleaseConfig( eqNet::Node* node,
                                                 const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdPush( eqNet::Node* node,
+                                           const eqNet::Packet* packet )
+            { return eqNet::COMMAND_PUSH; }
     };
 
     std::ostream& operator << ( std::ostream& os, const Server* server );

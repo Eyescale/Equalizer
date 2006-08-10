@@ -38,9 +38,11 @@ typedef int socklen_t;
 #  define EQASSERTINFO(x, info) if( !(x) )                                \
         EQERROR << "##### Assert: " << #x << " [" << info << "] #####"    \
               << std::endl << eqBase::forceFlush;
-#  define EQUNIMPLEMENTED { EQERROR << "Unimplemented code" << std::endl \
+#  define EQUNIMPLEMENTED { EQERROR << "Unimplemented code in "        \
+                                    << typeid(*this).name() << std::endl \
                                     << eqBase::forceFlush; }
-#  define EQUNREACHABLE   { EQERROR << "Unreachable code" << std::endl \
+#  define EQUNREACHABLE   { EQERROR << "Unreachable code in " \
+                                    << typeid(*this).name() << std::endl \
                                     << eqBase::forceFlush; }
 
 #else
@@ -55,10 +57,12 @@ typedef int socklen_t;
         EQ_DUMP_CORE; ::abort();                                        \
     }
 #  define EQUNIMPLEMENTED                                               \
-    { EQERROR << "Unimplemented code" << std::endl << eqBase::forceFlush; \
+    { EQERROR << "Unimplemented code in " << typeid(*this).name() \
+              << std::endl << eqBase::forceFlush;                  \
         ::abort(); EQ_DUMP_CORE; }
 #  define EQUNREACHABLE                                                 \
-    { EQERROR << "Unreachable code" << std::endl << eqBase::forceFlush; \
+    { EQERROR << "Unreachable code in " << typeid(*this).name() \
+              << std::endl << eqBase::forceFlush;                \
         ::abort(); EQ_DUMP_CORE; }
 
 #endif

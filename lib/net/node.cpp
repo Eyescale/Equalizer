@@ -609,21 +609,32 @@ bool Node::_handleRequest( Node* node )
 
     const CommandResult result = dispatchPacket( node, packet );
 
-    if( result == COMMAND_ERROR )
-    {
-        EQERROR << "Error handling command " << packet << endl;
-        abort();
-    }
+    EQASSERTINFO( result != COMMAND_ERROR, "Error handling command packet" );
 
     _redispatchPackets();
 
-    if( result == COMMAND_RESCHEDULE )
+    switch( result )
     {
-        Request* request = _requestCache.alloc( node, packet );
-        _pendingRequests.push_back( request );
+        case COMMAND_RESCHEDULE:
+        {
+            Request* request = _requestCache.alloc( node, packet );
+            _pendingRequests.push_back( request );
+        }
+        
+        case COMMAND_HANDLED:
+            break;
+            
+        case COMMAND_PUSH:
+            pushCommand( node, packet );
+            break;
+
+        case COMMAND_PUSH_FRONT:
+            pushCommandFront( node, packet );
+            break;
+
+        default:
+            EQUNIMPLEMENTED;
     }
-    else
-        EQASSERT( result == COMMAND_HANDLED );
     return true;
 }
 
@@ -650,6 +661,10 @@ void Node::_redispatchPackets()
                 abort();
                 break;
                 
+            case COMMAND_PUSH:
+                // Already a pushed packet?!
+                EQUNIMPLEMENTED;
+
             case COMMAND_RESCHEDULE:
                 break;
         }

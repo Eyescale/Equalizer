@@ -465,6 +465,17 @@ namespace eq
         uint32_t channelID;
     };
 
+    struct WindowSetPVPPacket : public eqNet::ObjectPacket
+    {
+        WindowSetPVPPacket()
+            {
+                command = CMD_WINDOW_SET_PVP;
+                size    = sizeof( WindowSetPVPPacket );
+            }
+
+        PixelViewport pvp;
+    };
+
     struct WindowFinishPacket : public eqNet::ObjectPacket
     {
         WindowFinishPacket()
@@ -544,10 +555,8 @@ namespace eq
 
         uint32_t requestID;
         bool     result;
-
-        float         near;
-        float         far;
-        PixelViewport pvp;
+        float    near;
+        float    far;
     };
 
     struct ChannelExitPacket : public eqNet::ObjectPacket
@@ -739,8 +748,7 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ChannelInitReplyPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " result " << packet->result
-           << " pvp " << packet->pvp;
+        os << (eqNet::ObjectPacket*)packet << " result " << packet->result;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

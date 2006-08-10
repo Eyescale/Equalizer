@@ -122,15 +122,6 @@ namespace eq
         void applyViewport();
 
         /** 
-         * Set the channel's pixel viewport wrt its parent pipe.
-         *
-         * Updates the fractional viewport accordingly.
-         * 
-         * @param pvp the viewport in pixels.
-         */
-        void setPixelViewport( const PixelViewport& pvp );
-        
-        /** 
          * @return the channel's pixel viewport
          */
         const PixelViewport& getPixelViewport() const;
@@ -211,6 +202,15 @@ namespace eq
         /** The native ('identity') frustum. */
         Frustum        _frustum;
 
+        /** 
+         * Set the channel's pixel viewport wrt its parent pipe.
+         *
+         * Updates the fractional viewport accordingly.
+         * 
+         * @param pvp the viewport in pixels.
+         */
+        void setPixelViewport( const PixelViewport& pvp );
+        
         /* The command handler functions. */
         eqNet::CommandResult _pushRequest( eqNet::Node* node,
                                            const eqNet::Packet* packet );
