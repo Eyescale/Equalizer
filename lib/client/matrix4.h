@@ -16,11 +16,7 @@ namespace eq
     {
     public:
         Matrix4();
-        Matrix4( const void* data, uint64_t dataSize )
-                : Object( DATATYPE_EQ_MATRIX4F, eqNet::CMD_OBJECT_CUSTOM )
-        {
-            memcpy( _m, data, dataSize );
-        }
+        Matrix4( const void* data, uint64_t dataSize );
 
         void makeIdentity();
         void setTranslation( const T x, const T y, const T z );
@@ -52,7 +48,7 @@ namespace eq
           void unpack( const void* data, const uint64_t size )
           {
               EQASSERT( size == 16*sizeof( T ) );
-              memcpy( _m, data, 16*sizeof( T ) );
+              memcpy( _m, data, size );
           }
 
     private:
@@ -76,8 +72,7 @@ namespace eq
             os << "  " << values[i] << "  " << values[i+1] << "  " << 
                       values[i+2] << "  " << values[i+3] << std::endl;
         }
-        os << eqBase::exdent << std::endl << eqBase::enableHeader 
-           << eqBase::enableFlush;
+        os << std::endl << eqBase::enableHeader << eqBase::enableFlush;
         return os;
     }
 }

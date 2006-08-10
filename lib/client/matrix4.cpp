@@ -18,6 +18,13 @@ Matrix4<float>::Matrix4() : Object( DATATYPE_EQ_MATRIX4F,
 }
 
 template<>
+Matrix4<float>::Matrix4( const void* data, uint64_t dataSize )
+        : Object( DATATYPE_EQ_MATRIX4F, eqNet::CMD_OBJECT_CUSTOM )
+{
+    memcpy( _m, data, dataSize );
+}
+
+template<>
 void Matrix4<float>::rotateX( const float angle )
 {
     //matrix multiplication: _m = _m * rotation x axis

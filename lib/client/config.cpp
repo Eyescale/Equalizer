@@ -133,6 +133,18 @@ void Config::setHeadMatrix( const Matrix4f& matrix )
     _headMatrix->commit();
 }
 
+eqNet::Object* Config::instanciateObject( const uint32_t type, const void* data,
+                                          const uint64_t dataSize )
+{
+    switch( type )
+    {
+        case DATATYPE_EQ_MATRIX4F:
+            return new Matrix4f( data, dataSize );
+        default:
+            return eqNet::Session::instanciateObject( type, data, dataSize );
+    }
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
