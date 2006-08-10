@@ -9,6 +9,14 @@ using namespace eq;
 //----------------------------------------------------------------------
 // float template specialization using cosf/sinf
 //----------------------------------------------------------------------
+
+template<>
+Matrix4<float>::Matrix4() : Object( DATATYPE_EQ_MATRIX4F,
+                                    eqNet::CMD_OBJECT_CUSTOM )
+{
+    makeIdentity();
+}
+
 template<>
 void Matrix4<float>::rotateX( const float angle )
 {

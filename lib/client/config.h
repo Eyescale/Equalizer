@@ -12,7 +12,6 @@
 #include <eq/net/session.h>
 #include <eq/client/matrix4.h>
 
-
 namespace eq
 {
     class ConfigEvent;
@@ -127,7 +126,25 @@ namespace eq
         virtual bool handleEvent( ConfigEvent* event ){ return false; }
         //*}
 
-        //void setHeadMatrix( const matrix4& matrix );
+        /** Sets the head matrix according to the specified matrix.
+         *
+         * @param matrix the matrix
+         */
+        void setHeadMatrix( const Matrix4f& matrix );
+
+    protected:
+        virtual eqNet::Object* instanciateObject( const uint32_t type,
+                                                  const void* data, 
+                                                  const uint64_t dataSize )
+        {
+            switch( type )
+            {
+                case DATATYPE_EQ_MATRIX4F:
+                    return new Matrix4f( data, dataSize );
+                default:
+                    return eqNet::Session::instanciateObject( type, data, dataSize );
+            }
+        }
 
     private:
         friend class Server;
@@ -138,6 +155,9 @@ namespace eq
 
         void _addNode( Node* node );
         void _removeNode( Node* node );
+
+        /** The Matrix for the movement. */
+        Matrix4f* _headMatrix;
 
         /** Registers pending requests waiting for a return value. */
         eqBase::RequestHandler _requestHandler;

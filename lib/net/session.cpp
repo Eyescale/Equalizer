@@ -908,7 +908,7 @@ CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )
     if( !object )
     {
         EQWARN << "Instanciation of object of type " << packet->objectType
-               << " failed" << endl;
+               << " failed from " << typeid(*this).name() << endl;
         return COMMAND_ERROR;
     }
 

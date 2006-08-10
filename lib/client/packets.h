@@ -23,6 +23,7 @@ namespace eq
         DATATYPE_EQ_SERVER,
         DATATYPE_EQ_CONFIGEVENT,
         DATATYPE_EQ_FRAME,
+        DATATYPE_EQ_MATRIX4F,
         DATATYPE_EQ_FRAMEBUFFER,
         DATATYPE_EQ_CUSTOM = 1<<8
     };
@@ -137,6 +138,7 @@ namespace eq
                 requestID = requestPacket->requestID;
             }
         uint32_t requestID;
+        uint32_t headMatrixID;
         bool     result;
     };
 
@@ -751,6 +753,13 @@ namespace eq
                                        const ChannelDrawPacket* packet )
     {
         os << (eqNet::ObjectPacket*)packet << packet->context;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os,
+                                       const ConfigInitReplyPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " requestID " << packet->requestID
+           << " headMatrixID " << packet->headMatrixID;
         return os;
     }
 }

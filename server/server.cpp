@@ -172,7 +172,7 @@ eqNet::CommandResult Server::_reqChooseConfig( eqNet::Node* node,
     _appConfigs[reply.configID] = appConfig;
 
     const string& name = appConfig->getName();
-    
+
     node->send( reply, name );
     return eqNet::COMMAND_HANDLED;
 }

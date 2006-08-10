@@ -37,6 +37,7 @@ Config::Config( const uint32_t nCommands )
                          &eq::Config::_cmdEndFrameReply ));
     registerCommand( CMD_CONFIG_EVENT, this, reinterpret_cast<CommandFcn>(
                          &eq::Config::_cmdEvent ));
+    _headMatrix = NULL;
 }
 
 Config::~Config()
@@ -126,6 +127,12 @@ void Config::handleEvents()
     }
 }
 
+void Config::setHeadMatrix( const Matrix4f& matrix )
+{
+    *_headMatrix = matrix;
+    _headMatrix->commit();
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
@@ -167,6 +174,9 @@ eqNet::CommandResult Config::_cmdInitReply( eqNet::Node* node,
     ConfigInitReplyPacket* packet = (ConfigInitReplyPacket*)pkg;
     EQINFO << "handle init reply " << packet << endl;
 
+    _headMatrix = (Matrix4f*)pollObject( packet->headMatrixID );
+    EQASSERT( _headMatrix );
+
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;
 }
@@ -175,6 +185,8 @@ eqNet::CommandResult Config::_cmdExitReply( eqNet::Node* node,
 {
     ConfigExitReplyPacket* packet = (ConfigExitReplyPacket*)pkg;
     EQINFO << "handle exit reply " << packet << endl;
+
+    _headMatrix = NULL;
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;

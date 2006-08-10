@@ -36,8 +36,8 @@ protected:
                 case TYPE_FRAMEDATA:
                     return new FrameData( data, dataSize );
                 default:
-                    return eqNet::Session::instanciateObject( type, data,
-                                                              dataSize );
+                    return eq::Config::instanciateObject( type, data,
+                                                          dataSize );
             }
         }
 

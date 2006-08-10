@@ -235,7 +235,9 @@ eqNet::CommandResult Config::_reqInit( eqNet::Node* node,
     EQINFO << "handle config init " << packet << endl;
 
     reply.result = _init( packet->initID );
-    EQINFO << "config init " << (reply.result ? "successful":"failed") << endl;
+    reply.headMatrixID = _headMatrix.getID();
+
+    EQINFO << "config init " << (reply.result ? "successfulq":"failed") << endl;
     send( node, reply );
     return eqNet::COMMAND_HANDLED;
 }
@@ -308,6 +310,8 @@ bool Config::_init( const uint32_t initID )
         _exit();
         return false;
     }
+
+    registerObject( &_headMatrix, _appNetNode );
 
     _state = STATE_INITIALIZED;
     return true;
@@ -484,6 +488,8 @@ bool Config::_exit()
         compound->exit();
     }
 
+    //deregisterObject( &_headMatrix );
+
     _frameNumber = 0;
     _state       = STATE_STOPPED;
     return cleanExit;
@@ -582,6 +588,8 @@ uint32_t Config::_beginFrame( const uint32_t frameID, vector<Node*>& nodes )
     EQASSERT( _state == STATE_INITIALIZED );
     ++_frameNumber;
     
+    _headMatrix.sync();
+
     const uint32_t nCompounds = this->nCompounds();
     for( uint32_t i=0; i<nCompounds; ++i )
     {

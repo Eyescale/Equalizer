@@ -75,8 +75,14 @@ int main( int argc, char** argv )
 
     // 6. run main loop
     clock.reset();
+
+    //eq::Matrix4f testMatrix;
+
     while( config->isRunning( ))
     {
+        //testMatrix.rotateX(1);
+        //EQINFO << testMatrix << endl;
+
         config->beginFrame();
         // config->renderData(...);
         config->endFrame();

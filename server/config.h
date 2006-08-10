@@ -176,7 +176,7 @@ namespace eqs
 
     private:
 
-        // eq::Matrix4f _headMatrix;
+        eq::Matrix4f _headMatrix;
 
         /** The eq server hosting the session. */
         eqBase::RefPtr<Server> _server;
