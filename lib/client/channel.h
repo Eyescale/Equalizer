@@ -212,7 +212,7 @@ namespace eq
         void setPixelViewport( const PixelViewport& pvp );
         
         /* The command handler functions. */
-        eqNet::CommandResult _pushRequest( eqNet::Node* node,
+        eqNet::CommandResult _pushCommand( eqNet::Node* node,
                                            const eqNet::Packet* packet );
         eqNet::CommandResult _reqInit( eqNet::Node* node,
                                        const eqNet::Packet* packet );

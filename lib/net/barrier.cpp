@@ -74,7 +74,7 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
     BarrierEnterPacket* packet = (BarrierEnterPacket*)pkg;
     EQINFO << "Handle barrier enter " << packet << endl;
     if( packet->version > getVersion( ))
-        return COMMAND_RESCHEDULE;
+        return COMMAND_REDISPATCH;
     
     EQASSERT( packet->version == getVersion( ));
 

@@ -34,7 +34,7 @@ PerThread<Node*> Node::_localNode;
 // State management
 //----------------------------------------------------------------------
 Node::Node( const uint32_t nCommands )
-        : Object( TYPE_UNMANAGED, nCommands ),
+        : Base( nCommands ),
           _autoLaunch(false),
           _autoLaunched(false),
           _id(true),
@@ -609,32 +609,42 @@ bool Node::_handleRequest( Node* node )
 
     const CommandResult result = dispatchPacket( node, packet );
 
-    EQASSERTINFO( result != COMMAND_ERROR, "Error handling command packet" );
-
-    _redispatchPackets();
-
     switch( result )
     {
-        case COMMAND_RESCHEDULE:
-        {
-            Request* request = _requestCache.alloc( node, packet );
-            _pendingRequests.push_back( request );
-        }
+        case COMMAND_ERROR:
+            EQASSERTINFO( result != COMMAND_ERROR, 
+                          "Error handling command packet" );
+            break;
         
+        case COMMAND_REDISPATCH:
         case COMMAND_HANDLED:
             break;
             
         case COMMAND_PUSH:
-            pushCommand( node, packet );
+            if( !pushCommand( node, packet ))
+                EQASSERTINFO( 0, "Error handling command packet: " 
+                              << "pushCommand failed for " << packet << endl );
             break;
 
         case COMMAND_PUSH_FRONT:
-            pushCommandFront( node, packet );
+            if( !pushCommand( node, packet ))
+                EQASSERTINFO( 0, "Error handling command packet: " 
+                              << "pushCommandFront failed for " << packet 
+                              << endl );
             break;
 
         default:
             EQUNIMPLEMENTED;
     }
+
+    _redispatchPackets();
+
+    if( result == COMMAND_REDISPATCH )
+    {
+        Request* request = _requestCache.alloc( node, packet );
+        _pendingRequests.push_back( request );
+    }
+
     return true;
 }
 
@@ -661,11 +671,13 @@ void Node::_redispatchPackets()
                 abort();
                 break;
                 
+            // Already a pushed packet?!
             case COMMAND_PUSH:
-                // Already a pushed packet?!
+                EQUNIMPLEMENTED;
+            case COMMAND_PUSH_FRONT:
                 EQUNIMPLEMENTED;
 
-            case COMMAND_RESCHEDULE:
+            case COMMAND_REDISPATCH:
                 break;
         }
     }
@@ -684,7 +696,6 @@ CommandResult Node::dispatchPacket( Node* node, const Packet* packet )
 
         case DATATYPE_EQNET_SESSION:
         case DATATYPE_EQNET_OBJECT:
-        case DATATYPE_EQNET_USER:
         {
             const SessionPacket* sessionPacket = (SessionPacket*)packet;
             const uint32_t       id            = sessionPacket->sessionID;
@@ -757,7 +768,7 @@ CommandResult Node::_cmdMapSession( Node* node, const Packet* pkg )
             session     = _findSession( sessionName );
         
             if( !session ) // session does not exist, wait until master maps it
-                return COMMAND_RESCHEDULE;
+                return COMMAND_REDISPATCH;
         }
         else // mapped by identifier, session has to exist already
         {

@@ -91,7 +91,7 @@ ssize_t Node::_runThread()
                 EQUNIMPLEMENTED;
             case eqNet::COMMAND_PUSH_FRONT:
                 EQUNIMPLEMENTED;
-            case eqNet::COMMAND_RESCHEDULE:
+            case eqNet::COMMAND_REDISPATCH:
                 EQUNIMPLEMENTED;
         }
     }

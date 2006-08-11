@@ -96,13 +96,13 @@ namespace eqs
         virtual void handleDisconnect( eqNet::Node* node );
 
         /** @sa eqNet::Node::pushCommand */
-        virtual void pushCommand(eqNet::Node* node, const eqNet::Packet* packet)
-            { _requestQueue.push( node, packet ); }
+        virtual bool pushCommand(eqNet::Node* node, const eqNet::Packet* packet)
+            { _requestQueue.push( node, packet ); return true; }
 
         /** @sa eqNet::Node::pushCommandFront */
-        virtual void pushCommandFront( eqNet::Node* node, 
+        virtual bool pushCommandFront( eqNet::Node* node, 
                                        const eqNet::Packet* packet )
-            { _requestQueue.pushFront( node, packet ); }
+            { _requestQueue.pushFront( node, packet ); return true; }
 
     private:
         
@@ -128,9 +128,6 @@ namespace eqs
                                                const eqNet::Packet* packet );
         eqNet::CommandResult _reqReleaseConfig( eqNet::Node* node,
                                                 const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdPush( eqNet::Node* node,
-                                           const eqNet::Packet* packet )
-            { return eqNet::COMMAND_PUSH; }
     };
 
     std::ostream& operator << ( std::ostream& os, const Server* server );

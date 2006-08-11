@@ -17,13 +17,18 @@ namespace eqNet
     enum CommandResult
     {
         COMMAND_HANDLED,     //*< The command was handled
-        COMMAND_RESCHEDULE,  //*< Reschedule command to be handled later
+        COMMAND_REDISPATCH,  //*< Reschedule command to be handled later
         COMMAND_PUSH,        //*< Push to another thread
         COMMAND_PUSH_FRONT,  //*< Push to another thread with high priority
         COMMAND_ERROR        //*< An unrecoverable error occured
     };
 
-    /** The base class for all networked objects. */
+    /** 
+     * The base class for all networked objects. 
+     *
+     * Provides packet dispatch for an object using a command handler
+     * table. Handles the result of the command handlers.
+     */
     class Base
     {
     public:
@@ -75,6 +80,20 @@ namespace eqNet
          * @return the result of the operation.
          */
         CommandResult _cmdUnknown( Node* node, const Packet* packet );
+
+        /**
+         * The command handler which requests the command to be pushed to
+         * another entity.
+         */
+        CommandResult _cmdPush( Node* node, const Packet* packet )
+            { return eqNet::COMMAND_PUSH; }
+
+        /**
+         * The command handler which requests the command to be pushed to
+         * another entity with high priority.
+         */
+        CommandResult _cmdPushFront( Node* node, const Packet* packet )
+            { return eqNet::COMMAND_PUSH_FRONT; }
 
     private:
         /** The command handler function table. */

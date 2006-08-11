@@ -239,7 +239,7 @@ namespace eq
             { eqNet::Object::send( getServer(), packet ); }
 
         /* The command functions. */
-        eqNet::CommandResult _pushRequest( eqNet::Node* node,
+        eqNet::CommandResult _pushCommand( eqNet::Node* node,
                                            const eqNet::Packet* packet );
         eqNet::CommandResult _cmdCreateChannel( eqNet::Node* node,
                                                 const eqNet::Packet* packet);

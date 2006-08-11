@@ -5,14 +5,14 @@
 #ifndef EQNET_NODE_H
 #define EQNET_NODE_H
 
-#include "commands.h"
-#include "connectionDescription.h"
-#include "connectionSet.h"
-#include "idHash.h"
-#include "message.h"
-#include "nodeID.h"
-#include "object.h"
-#include "requestCache.h"
+#include <eq/net/base.h>
+#include <eq/net/commands.h>
+#include <eq/net/connectionDescription.h>
+#include <eq/net/connectionSet.h>
+#include <eq/net/idHash.h>
+#include <eq/net/message.h>
+#include <eq/net/nodeID.h>
+#include <eq/net/requestCache.h>
 
 #include <eq/base/base.h>
 #include <eq/base/perThread.h>
@@ -35,7 +35,7 @@ namespace eqNet
      * has at least one Connection through which is reachable. A Node provides
      * the basic communication facilities through message passing.
      */
-    class Node : public Object
+    class Node : public Base, public eqBase::Referenced
     {
     public:
         enum State 
@@ -571,9 +571,11 @@ namespace eqNet
          * 
          * @param node the node which send the packet.
          * @param packet the packet.
+         * @return <code>true</code> if the command was pushed,
+         *         <code>false</code> if not.
          */
-        virtual void pushCommand( Node* node, const Packet* packet )
-            { EQUNIMPLEMENTED; }
+        virtual bool pushCommand( Node* node, const Packet* packet )
+            { return false; }
 
         /** 
          * Push a command to be handled immediately by another entity, typically
@@ -581,9 +583,11 @@ namespace eqNet
          * 
          * @param node the node which send the packet.
          * @param packet the packet.
+         * @return <code>true</code> if the command was pushed,
+         *         <code>false</code> if not.
          */
-        virtual void pushCommandFront( Node* node, const Packet* packet )
-            { EQUNIMPLEMENTED; }
+        virtual bool pushCommandFront( Node* node, const Packet* packet )
+            { return false; }
 
         /** 
          * Factory method to create a new node.

@@ -39,31 +39,31 @@ eq::Window::Window()
                      reinterpret_cast<CommandFcn>(
                          &eq::Window::_cmdDestroyChannel ));
     registerCommand( CMD_WINDOW_INIT, this, reinterpret_cast<CommandFcn>(
-                         &eq::Window::_pushRequest ));
+                         &eq::Window::_pushCommand ));
     registerCommand( REQ_WINDOW_INIT, this, reinterpret_cast<CommandFcn>(
                          &eq::Window::_reqInit ));
     registerCommand( CMD_WINDOW_EXIT, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Window::_pushRequest ));
+                         &eq::Window::_pushCommand ));
     registerCommand( REQ_WINDOW_EXIT, this, reinterpret_cast<CommandFcn>( 
                          &eq::Window::_reqExit ));
     registerCommand( CMD_WINDOW_FINISH, this, reinterpret_cast<CommandFcn>(
-                         &eq::Window::_pushRequest));
+                         &eq::Window::_pushCommand));
     registerCommand( REQ_WINDOW_FINISH, this, reinterpret_cast<CommandFcn>(
                          &eq::Window::_reqFinish));
     registerCommand( CMD_WINDOW_BARRIER, this, reinterpret_cast<CommandFcn>(
-                         &eq::Window::_pushRequest ));
+                         &eq::Window::_pushCommand ));
     registerCommand( REQ_WINDOW_BARRIER, this, reinterpret_cast<CommandFcn>(
                          &eq::Window::_reqBarrier ));
     registerCommand( CMD_WINDOW_SWAP, this, reinterpret_cast<CommandFcn>(
-                         &eq::Window::_pushRequest));
+                         &eq::Window::_pushCommand ));
     registerCommand( REQ_WINDOW_SWAP, this, reinterpret_cast<CommandFcn>(
                          &eq::Window::_reqSwap));
     registerCommand( CMD_WINDOW_STARTFRAME, this, reinterpret_cast<CommandFcn>(
-                         &eq::Window::_pushRequest));
+                         &eq::Window::_pushCommand ));
     registerCommand( REQ_WINDOW_STARTFRAME, this, reinterpret_cast<CommandFcn>(
                          &eq::Window::_reqStartFrame));
     registerCommand( CMD_WINDOW_ENDFRAME, this, reinterpret_cast<CommandFcn>(
-                         &eq::Window::_pushRequest));
+                         &eq::Window::_pushCommand ));
     registerCommand( REQ_WINDOW_ENDFRAME, this, reinterpret_cast<CommandFcn>(
                          &eq::Window::_reqEndFrame));
 }
@@ -92,13 +92,11 @@ void eq::Window::_removeChannel( Channel* channel )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult eq::Window::_pushRequest( eqNet::Node* node,
-                                               const eqNet::Packet* packet )
+eqNet::CommandResult eq::Window::_pushCommand( eqNet::Node* node,
+                                            const eqNet::Packet* packet )
 {
-    if( _pipe )
-        return _pipe->pushRequest( node, packet );
-
-    return _cmdUnknown( node, packet );
+    return ( _pipe ? _pipe->pushCommand( node, packet ) :
+             _cmdUnknown( node, packet ));
 }
 
 eqNet::CommandResult eq::Window::_cmdCreateChannel( eqNet::Node* node,
@@ -276,7 +274,7 @@ void eq::Window::setPixelViewport( const PixelViewport& pvp )
 {
     if( !_setPixelViewport( pvp ))
         return; // nothing changed
-    
+
     WindowSetPVPPacket packet;
     packet.pvp = pvp;
     _send( packet );

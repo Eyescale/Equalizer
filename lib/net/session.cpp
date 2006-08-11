@@ -504,11 +504,12 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
             switch( result )
             {
                 case COMMAND_ERROR:
-                    EQERROR << "Error handling command for object of type "
-                            << typeid(*object).name() << endl;
+                    EQERROR << "Error handling command " << objPacket
+                            << " for object of type " << typeid(*object).name()
+                            << endl;
                     return COMMAND_ERROR;
 
-                case COMMAND_RESCHEDULE:
+                case COMMAND_REDISPATCH:
                 case COMMAND_PUSH:
                 case COMMAND_PUSH_FRONT:
                     // Not sure if we should ever allow these functions on
@@ -522,10 +523,13 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
 
                     return result;
 
-                default:
+                case COMMAND_HANDLED:
                     if( objPacket->instanceID == object->getInstanceID( ))
                         return result;
                     break;
+
+                default:
+                    EQUNREACHABLE;
             }
         }
     }
@@ -547,7 +551,7 @@ CommandResult Session::_instObject( GetObjectState* state )
             {
                 state->instState = Object::INST_GOTMASTER;
                 _sendInitObject( state, master );
-                return COMMAND_RESCHEDULE;
+                return COMMAND_REDISPATCH;
             }
 
             if( _isMaster )
@@ -557,7 +561,7 @@ CommandResult Session::_instObject( GetObjectState* state )
             packet.objectID = objectID;
             send( packet );
             state->instState = Object::INST_GETMASTERID;
-            return COMMAND_RESCHEDULE;
+            return COMMAND_REDISPATCH;
         }
         
         case Object::INST_GOTMASTER:
@@ -570,7 +574,7 @@ CommandResult Session::_instObject( GetObjectState* state )
             }
 
             _sendInitObject( state, master );
-            return COMMAND_RESCHEDULE;
+            return COMMAND_REDISPATCH;
         }
             
         case Object::INST_ERROR:
@@ -578,7 +582,7 @@ CommandResult Session::_instObject( GetObjectState* state )
 
         case Object::INST_GETMASTERID:
         case Object::INST_INIT:
-            return COMMAND_RESCHEDULE;
+            return COMMAND_REDISPATCH;
 
         default:
             return COMMAND_ERROR;
@@ -744,7 +748,7 @@ CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
              state->nodeConnectRequestID =
                  _localNode->startConnectNode( packet->masterID, _server );
     
-             return COMMAND_RESCHEDULE;
+             return COMMAND_REDISPATCH;
          }
     }
     else
@@ -752,7 +756,7 @@ CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
         switch( _localNode->pollConnectNode( state->nodeConnectRequestID ))
         {
             case Node::CONNECT_PENDING:
-                return COMMAND_RESCHEDULE;
+                return COMMAND_REDISPATCH;
 
             case Node::CONNECT_SUCCESS:
                 master = _localNode->getNode( packet->masterID );
@@ -853,7 +857,7 @@ CommandResult Session::_cmdGetObject( Node* node, const Packet* pkg )
     if( !state->pending ) // first iteration of instantiation
     {
         if( _objectInstStates[id] != NULL ) // instantion with same ID pending
-            return COMMAND_RESCHEDULE;
+            return COMMAND_REDISPATCH;
 
         // mark pending instantion 
         state->pending        = true;
@@ -865,7 +869,7 @@ CommandResult Session::_cmdGetObject( Node* node, const Packet* pkg )
         _requestHandler.serveRequest( packet->requestID, NULL );
         return COMMAND_HANDLED;
     }
-    return COMMAND_RESCHEDULE;
+    return COMMAND_REDISPATCH;
 }
 
 CommandResult Session::_cmdInitObject( Node* node, const Packet* pkg )
@@ -888,7 +892,7 @@ CommandResult Session::_cmdInitObject( Node* node, const Packet* pkg )
     }
 
     // (hopefully) not yet instanciated -> reschedule
-    return COMMAND_RESCHEDULE;
+    return COMMAND_REDISPATCH;
 }
 
 CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )

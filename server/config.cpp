@@ -219,13 +219,6 @@ void Config::setApplicationNode( eqBase::RefPtr<eqNet::Node> node )
     _appNetNode = node;
 }
 
-// pushes the request to the main thread to be handled asynchronously
-eqNet::CommandResult Config::_cmdPush( eqNet::Node* node,
-                                       const eqNet::Packet* packet )
-{
-    return eqNet::COMMAND_PUSH;
-}
-
 eqNet::CommandResult Config::_reqInit( eqNet::Node* node,
                                        const eqNet::Packet* pkg )
 {

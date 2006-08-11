@@ -208,7 +208,7 @@ namespace eq
          * @param node the node sending the packet.
          * @param packet the command packet.
          */
-        eqNet::CommandResult pushRequest( eqNet::Node* node, 
+        eqNet::CommandResult pushCommand( eqNet::Node* node, 
                                           const eqNet::Packet* packet )
             {_requestQueue.push( node, packet ); return eqNet::COMMAND_HANDLED;}
 

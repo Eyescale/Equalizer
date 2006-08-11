@@ -30,19 +30,19 @@ Channel::Channel()
           _context( NULL )
 {
     registerCommand( CMD_CHANNEL_INIT, this, reinterpret_cast<CommandFcn>(
-                         &eq::Channel::_pushRequest ));
+                         &eq::Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_INIT, this, reinterpret_cast<CommandFcn>(
                          &eq::Channel::_reqInit ));
     registerCommand( CMD_CHANNEL_EXIT, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Channel::_pushRequest ));
+                         &eq::Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_EXIT, this, reinterpret_cast<CommandFcn>( 
                          &eq::Channel::_reqExit ));
     registerCommand( CMD_CHANNEL_CLEAR, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Channel::_pushRequest ));
+                         &eq::Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_CLEAR, this, reinterpret_cast<CommandFcn>( 
                          &eq::Channel::_reqClear ));
     registerCommand( CMD_CHANNEL_DRAW, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Channel::_pushRequest ));
+                         &eq::Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_DRAW, this, reinterpret_cast<CommandFcn>( 
                          &eq::Channel::_reqDraw ));
 }
@@ -201,15 +201,13 @@ void Channel::applyHeadTransform() const
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Channel::_pushRequest( eqNet::Node* node,
+eqNet::CommandResult Channel::_pushCommand( eqNet::Node* node,
                                             const eqNet::Packet* packet )
 {
     Pipe* pipe = getPipe();
 
-    if( pipe )
-        return pipe->pushRequest( node, packet );
-
-    return _cmdUnknown( node, packet );
+    return ( pipe ? pipe->pushCommand( node, packet ) :
+             _cmdUnknown( node, packet ));
 }
 
 eqNet::CommandResult Channel::_reqInit( eqNet::Node* node,

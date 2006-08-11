@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "pipe.h"
@@ -35,15 +35,15 @@ Pipe::Pipe()
     registerCommand( REQ_PIPE_INIT, this, reinterpret_cast<CommandFcn>(
                          &eq::Pipe::_reqInit ));
     registerCommand( CMD_PIPE_EXIT, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Pipe::pushRequest ));
+                         &eq::Pipe::pushCommand ));
     registerCommand( REQ_PIPE_EXIT, this, reinterpret_cast<CommandFcn>( 
                          &eq::Pipe::_reqExit ));
     registerCommand( CMD_PIPE_UPDATE, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Pipe::pushRequest ));
+                         &eq::Pipe::pushCommand ));
     registerCommand( REQ_PIPE_UPDATE, this, reinterpret_cast<CommandFcn>( 
                          &eq::Pipe::_reqUpdate ));
     registerCommand( CMD_PIPE_FRAME_SYNC, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Pipe::pushRequest ));
+                         &eq::Pipe::pushCommand ));
     registerCommand( REQ_PIPE_FRAME_SYNC, this, reinterpret_cast<CommandFcn>( 
                          &eq::Pipe::_reqFrameSync ));
 
@@ -279,7 +279,7 @@ ssize_t Pipe::_runThread()
                 EQUNIMPLEMENTED;
             case eqNet::COMMAND_PUSH_FRONT:
                 EQUNIMPLEMENTED;
-            case eqNet::COMMAND_RESCHEDULE:
+            case eqNet::COMMAND_REDISPATCH:
                 EQUNIMPLEMENTED;
         }
     }
@@ -320,18 +320,18 @@ eqNet::CommandResult Pipe::_cmdDestroyWindow( eqNet::Node* node, const eqNet::Pa
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_cmdInit( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_cmdInit(eqNet::Node* node, const eqNet::Packet* pkg)
 {
     PipeInitPacket* packet = (PipeInitPacket*)pkg;
     EQINFO << "handle pipe init (recv) " << packet << endl;
 
     EQASSERT( _thread->isStopped( ));
     _thread->start();
-    pushRequest( node, pkg );
-    return eqNet::COMMAND_HANDLED;
+
+    return pushCommand( node, pkg );
 }
 
-eqNet::CommandResult Pipe::_reqInit( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_reqInit(eqNet::Node* node, const eqNet::Packet* pkg)
 {
     PipeInitPacket* packet = (PipeInitPacket*)pkg;
     EQINFO << "handle pipe init (pipe) " << packet << endl;

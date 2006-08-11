@@ -24,7 +24,6 @@ namespace eqNet
         DATATYPE_EQNET_NODE,
         DATATYPE_EQNET_SESSION,
         DATATYPE_EQNET_OBJECT,
-        DATATYPE_EQNET_USER,
         DATATYPE_EQNET_CUSTOM = 1<<7
     };
 
@@ -383,21 +382,6 @@ namespace eqNet
                 size    = sizeof( BarrierEnterReplyPacket );
             }
     };
-
-//     //------------------------------------------------------------
-//     // User
-//     //------------------------------------------------------------
-//     struct UserPacket : public SessionPacket
-//     {
-//         UserPacket( const uint32_t sessionID, const uint32_t userID )
-//                 : SessionPacket( sessionID )
-//             {
-//                 datatype     = DATATYPE_EQNET_USER; 
-//                 this->userID = userID;
-//             }
-//         uint32_t userID;
-//     };
-
 
     inline std::ostream& operator << ( std::ostream& os, 
                                        const Packet* packet )
