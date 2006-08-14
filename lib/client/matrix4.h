@@ -7,7 +7,6 @@
 
 #include <math.h>
 #include <eq/net/object.h>
-#include <eq/client/packets.h>
 
 namespace eq
 {

@@ -6,7 +6,7 @@
 
 #include "frameBuffer.h"
 
-#include <eq/client/packets.h>
+#include <eq/client/object.h>
 #include <eq/net/session.h>
 
 using namespace eqs;
@@ -14,7 +14,7 @@ using namespace eqBase;
 using namespace std;
 
 Frame::Frame()
-        : eqNet::Object( eq::DATATYPE_EQ_FRAME, eqNet::CMD_OBJECT_CUSTOM ),
+        : eqNet::Object( eq::Object::TYPE_FRAME, eqNet::CMD_OBJECT_CUSTOM ),
           _buffer( NULL )
 {
     setDistributedData( &_inherit, sizeof( eq::Frame::Data ));

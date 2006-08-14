@@ -4,12 +4,12 @@
 
 #include "frameBuffer.h"
 
-#include <eq/client/packets.h>
+#include <eq/client/object.h>
 
 using namespace eqs;
 
 FrameBuffer::FrameBuffer()
-        : eqNet::Object( eq::DATATYPE_EQ_FRAMEBUFFER, eqNet::CMD_OBJECT_CUSTOM )
+        : eqNet::Object( eq::Object::TYPE_FRAMEBUFFER, eqNet::CMD_OBJECT_CUSTOM)
 {
     //setDistributedData( &_data, sizeof( Data ));
 }

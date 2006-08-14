@@ -21,7 +21,9 @@ namespace eq
             TYPE_NODE,
             TYPE_FRAMEBUFFER,
             TYPE_MANAGED_CUSTOM,
-            TYPE_VERSIONED_CUSTOM = eqNet::Object::TYPE_VERSIONED_CUSTOM
+            TYPE_MATRIX4F         = eqNet::Object::TYPE_VERSIONED_CUSTOM,
+            TYPE_FRAME,
+            TYPE_VERSIONED_CUSTOM
         };
     };
 }

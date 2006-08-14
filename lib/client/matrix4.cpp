@@ -4,6 +4,9 @@
 
 #include "matrix4.h"
 
+#include "object.h"
+#include "packets.h"
+
 using namespace eq;
 
 //----------------------------------------------------------------------
@@ -11,7 +14,7 @@ using namespace eq;
 //----------------------------------------------------------------------
 
 template<>
-Matrix4<float>::Matrix4() : Object( DATATYPE_EQ_MATRIX4F,
+Matrix4<float>::Matrix4() : Object( eq::Object::TYPE_MATRIX4F,
                                     eqNet::CMD_OBJECT_CUSTOM )
 {
     makeIdentity();
@@ -19,7 +22,7 @@ Matrix4<float>::Matrix4() : Object( DATATYPE_EQ_MATRIX4F,
 
 template<>
 Matrix4<float>::Matrix4( const void* data, uint64_t dataSize )
-        : Object( DATATYPE_EQ_MATRIX4F, eqNet::CMD_OBJECT_CUSTOM )
+        : Object( eq::Object::TYPE_MATRIX4F, eqNet::CMD_OBJECT_CUSTOM )
 {
     memcpy( _m, data, dataSize );
 }
