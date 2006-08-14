@@ -190,16 +190,21 @@ namespace eqs
          *
          * @param frame the input frame.
          */
-        void addInputFrame( Frame* frame )
-            { _inputFrames.push_back( frame ); }
+        void addInputFrame( Frame* frame );
+
+        /** @return the vector of input frames. */
+        const std::vector<Frame*>& getInputFrames() const {return _inputFrames;}
 
         /** 
          * Add a new output frame for this compound.
          *
          * @param frame the output frame.
          */
-        void addOutputFrame( Frame* frame )
-            { _outputFrames.push_back( frame ); }
+        void addOutputFrame( Frame* frame );
+
+        /** @return the vector of output frames. */
+        const std::vector<Frame*>& getOutputFrames() const
+            { return _outputFrames; }
         //*}
 
         /**
@@ -342,6 +347,8 @@ namespace eqs
         std::vector<Frame*> _inputFrames;
         std::vector<Frame*> _outputFrames;
         
+        void _setDefaultFrameName( Frame* frame );
+
         static TraverseResult _initCB( Compound* compound, void* );
 
         static TraverseResult _updateDrawCB(Compound* compound, void* );

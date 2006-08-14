@@ -10,7 +10,8 @@
 #include <eq/net/session.h>
 
 using namespace eqs;
-using namespace eqNet;
+using namespace eqBase;
+using namespace std;
 
 Frame::Frame()
         : eqNet::Object( eq::DATATYPE_EQ_FRAME, eqNet::CMD_OBJECT_CUSTOM ),
@@ -26,7 +27,7 @@ Frame::~Frame()
 
 void Frame::flush()
 {
-    Session* session = getSession();
+    eqNet::Session* session = getSession();
     EQASSERT( session );
     while( !_buffers.empty( ))
     {
@@ -43,16 +44,19 @@ void Frame::updateInheritData( const Compound* compound )
 
 void Frame::cycleFrameBuffer( const uint32_t frameNumber, const uint32_t maxAge)
 {
+
     // find unused frame buffer
-    FrameBuffer* buffer = _buffers.back();
+    FrameBuffer* buffer = _buffers.empty() ? NULL : _buffers.back();
     
-    if( buffer->getFrameNumber() < frameNumber-maxAge ) // not used anymore
+    if( buffer && 
+        buffer->getFrameNumber() < frameNumber-maxAge ) // not used anymore
+
         _buffers.pop_back();
     else
     {
         buffer = new FrameBuffer;
         
-        Session* session = getSession();
+        eqNet::Session* session = getSession();
         EQASSERT( session );
 
         session->registerObject( buffer, session->getLocalNode( ));
@@ -79,4 +83,19 @@ void Frame::_setFrameBuffer( FrameBuffer* buffer )
 
     _inherit.bufferID      = buffer->getID();
     _inherit.bufferVersion = buffer->getVersion();
+}
+
+std::ostream& eqs::operator << ( std::ostream& os, const Frame* frame )
+{
+    if( !frame )
+        return os;
+    
+    os << disableFlush << "Frame" << endl;
+    os << "{" << endl << indent;
+      
+    const std::string& name = frame->getName();
+    os << "name     \"" << name << "\"" << endl;
+
+    os << exdent << "}" << endl << enableFlush;
+    return os;
 }

@@ -46,6 +46,16 @@ Compound::Compound( const Compound& from )
         const Compound* child = from.getChild(i);
         addChild( new Compound( *child ));
     }
+
+    for( vector<Frame*>::const_iterator iter = from._outputFrames.begin();
+         iter != from._outputFrames.end(); ++iter )
+
+        addOutputFrame( new Frame( **iter ));
+
+    for( vector<Frame*>::const_iterator iter = from._inputFrames.begin();
+         iter != from._inputFrames.end(); ++iter )
+
+        addInputFrame( new Frame( **iter ));
 }
 
 Compound::InheritData::InheritData()
@@ -96,7 +106,7 @@ eqs::Window* Compound::getWindow() const
 
 void Compound::setSwapBarrier( SwapBarrier* barrier )
 {
-    if( barrier && barrier->getName().size() == 0 )
+    if( barrier && barrier->getName().empty( ))
     {
         const Compound* root     = getRoot();
         const string&   rootName = root->getName();
@@ -107,6 +117,39 @@ void Compound::setSwapBarrier( SwapBarrier* barrier )
     }
 
     _swapBarrier = barrier; 
+}
+
+void Compound::addInputFrame( Frame* frame )
+{ 
+    if( frame->getName().empty() )
+        _setDefaultFrameName( frame );
+    _inputFrames.push_back( frame ); 
+}
+void Compound::addOutputFrame( Frame* frame )
+{ 
+    if( frame->getName().empty() )
+        _setDefaultFrameName( frame );
+    _outputFrames.push_back( frame ); 
+}
+
+void Compound::_setDefaultFrameName( Frame* frame )
+{
+    for( Compound* compound = this; compound; compound = compound->getParent())
+    {
+        if( !compound->getName().empty( ))
+        {
+            frame->setName( "frame." + compound->getName( ));
+            return;
+        }
+
+        const Channel* channel = compound->getChannel();
+        if( channel && !channel->getName().empty( ))
+        {
+            frame->setName( "frame." + channel->getName( ));
+            return;
+        }
+    }
+    frame->setName( "frame" );
 }
 
 //---------------------------------------------------------------------------
@@ -349,7 +392,7 @@ void Compound::_updateOutput( UpdateData* data )
         Frame*             frame  = *iter;
         const std::string& name   = frame->getName();
 
-        if( data->outputFrames.find( name ) == data->outputFrames.end())
+        if( data->outputFrames.find( name ) != data->outputFrames.end())
         {
             EQWARN << "Multiple output frames of the same name are unsupported"
                    << ", ignoring output frame " << name << endl;
@@ -570,10 +613,16 @@ void Compound::_updatePostDraw( eq::RenderContext& context )
         if( !frames.empty() )
         {
             Channel*                  channel = getChannel();
+            Node*                     node    = channel->getNode();
+            RefPtr<eqNet::Node>       netNode = node->getNode();
             eq::ChannelReadbackPacket packet;
-            packet.context = context;
 
-            //channel->send<eqNet::ObjectVersion>( packet, frames );
+            packet.sessionID = channel->getSession()->getID();
+            packet.objectID  = channel->getID();;
+            packet.context   = context;
+            packet.nFrames   = frames.size();
+
+            netNode->send<eqNet::ObjectVersion>( packet, frames );
         }
     }
 }
@@ -648,6 +697,20 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
     }
 
     os << compound->getSwapBarrier();
+
+    const vector<Frame*>& outputFrames = compound->getOutputFrames();
+    for( vector<Frame*>::const_iterator iter = outputFrames.begin();
+         iter != outputFrames.end(); ++iter )
+        
+        os << "output"  << *iter << endl;
+
+    const vector<Frame*>& inputFrames = compound->getInputFrames();
+    for( vector<Frame*>::const_iterator iter = inputFrames.begin();
+         iter != inputFrames.end(); ++iter )
+        
+        os << "input" << *iter << endl;
+
+
     os << exdent << "}" << endl << enableFlush;
     return os;
 }

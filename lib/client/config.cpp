@@ -5,6 +5,7 @@
 #include "config.h"
 
 #include "configEvent.h"
+#include "frame.h"
 #include "global.h"
 #include "node.h"
 #include "nodeFactory.h"
@@ -140,6 +141,8 @@ eqNet::Object* Config::instanciateObject( const uint32_t type, const void* data,
     {
         case DATATYPE_EQ_MATRIX4F:
             return new Matrix4f( data, dataSize );
+        case DATATYPE_EQ_FRAME:
+            return new Frame( data, dataSize );
         default:
             return eqNet::Session::instanciateObject( type, data, dataSize );
     }

@@ -116,6 +116,7 @@ SOURCES = \
 	client/configEvent.cpp \
 	client/configParams.cpp \
 	client/eventThread.cpp \
+	client/frame.cpp \
 	client/frameBuffer.cpp \
 	client/frustum.cpp \
 	client/global.cpp \

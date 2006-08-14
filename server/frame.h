@@ -24,8 +24,6 @@ namespace eqs
          */
         Frame();
 
-        virtual ~Frame();
-
         /**
          * @name Data Access
          */
@@ -85,6 +83,9 @@ namespace eqs
         void flush();
         //*}
 
+    protected:
+        virtual ~Frame();
+
     private:
 
         std::string _name;
@@ -100,5 +101,7 @@ namespace eqs
 
         void _setFrameBuffer( FrameBuffer* buffer );
     };
+
+    std::ostream& operator << ( std::ostream& os, const Frame* frame );
 };
 #endif // EQS_FRAME_H

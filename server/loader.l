@@ -47,7 +47,8 @@ bottom_right                    { return EQTOKEN_BOTTOM_RIGHT; }
 top_left                        { return EQTOKEN_TOP_LEFT; }
 latency                         { return EQTOKEN_LATENCY; }
 swapbarrier                     { return EQTOKEN_SWAPBARRIER; }
-
+outputframe                     { return EQTOKEN_OUTPUTFRAME; }
+inputframe                      { return EQTOKEN_INPUTFRAME; }
 ["]                             { 
                                     int i = -1;
                                     while( (yytext[++i] = yyinput()) != '"' )

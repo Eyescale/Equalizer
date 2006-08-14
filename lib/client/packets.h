@@ -23,8 +23,8 @@ namespace eq
         DATATYPE_EQ_SERVER,
         DATATYPE_EQ_CONFIGEVENT,
         DATATYPE_EQ_FRAME,
-        DATATYPE_EQ_MATRIX4F,
         DATATYPE_EQ_FRAMEBUFFER,
+        DATATYPE_EQ_MATRIX4F,
         DATATYPE_EQ_CUSTOM = 1<<8
     };
 
@@ -614,6 +614,7 @@ namespace eq
                 size          = sizeof( ChannelReadbackPacket );
             }
 
+        uint32_t             nFrames;
         eqNet::ObjectVersion frames[1];
     };
         

@@ -347,16 +347,6 @@ namespace eqNet
         bool send( NodeVector& nodes, ObjectPacket& packet );
         bool send( NodeVector nodes, ObjectPacket& packet, const void* data,
                    const uint64_t size );
-#if 0
-        template< class T > bool send( eqBase::RefPtr<Node> node, 
-                                       ObjectPacket& packet,
-                                       const std::vector<T>& data )
-            {
-                packet.sessionID = _session->getID();
-                packet.objectID  = _id;
-                return node->send<T>( packet, data );
-            }
-#endif
         //*}
         
     private:

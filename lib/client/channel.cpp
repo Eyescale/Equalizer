@@ -6,6 +6,7 @@
 
 #include "commands.h"
 #include "object.h"
+#include "frame.h"
 #include "global.h"
 #include "nodeFactory.h"
 #include "packets.h"
@@ -45,6 +46,10 @@ Channel::Channel()
                          &eq::Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_DRAW, this, reinterpret_cast<CommandFcn>( 
                          &eq::Channel::_reqDraw ));
+    registerCommand( CMD_CHANNEL_READBACK, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Channel::_pushCommand ));
+    registerCommand( REQ_CHANNEL_READBACK, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Channel::_reqReadback ));
 }
 
 Channel::~Channel()
@@ -136,6 +141,11 @@ void Channel::draw( const uint32_t frameID )
     glVertex3f(  .25,  .25, -.25 );
     glEnd();
     glFinish();
+}
+
+void Channel::readback( const uint32_t frameID )
+{
+    EQERROR << "Unimplemented" << endl;
 }
 
 void Channel::applyBuffer()
@@ -258,11 +268,36 @@ eqNet::CommandResult Channel::_reqClear( eqNet::Node* node,
 eqNet::CommandResult Channel::_reqDraw( eqNet::Node* node,
                                         const eqNet::Packet* pkg )
 {
-    ChannelClearPacket* packet = (ChannelClearPacket*)pkg;
+    ChannelDrawPacket* packet = (ChannelDrawPacket*)pkg;
     EQVERB << "handle channel draw " << packet << endl;
 
     _context = &packet->context;
     draw( packet->context.frameID );
+    _context = NULL;
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Channel::_reqReadback( eqNet::Node* node,
+                                        const eqNet::Packet* pkg )
+{
+    ChannelReadbackPacket* packet = (ChannelReadbackPacket*)pkg;
+    EQVERB << "handle channel readback " << packet << endl;
+
+    _context = &packet->context;
+
+    eqNet::Session* session = getSession();
+    for( uint32_t i=0; i<packet->nFrames; ++i )
+    {
+        eqNet::Object* object = session->getObject( packet->frames[i].objectID, 
+                                                    Object::SHARE_THREAD,
+                                                    packet->frames[i].version );
+        EQASSERT( dynamic_cast<Frame*>( object ) );
+        _outputFrames.push_back( static_cast<Frame*>( object ));
+    }
+
+    readback( packet->context.frameID );
+
+    _outputFrames.clear();
     _context = NULL;
     return eqNet::COMMAND_HANDLED;
 }

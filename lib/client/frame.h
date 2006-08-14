@@ -24,7 +24,7 @@ namespace eq
         /** 
          * Constructs a new Frame.
          */
-        Frame();
+        Frame( const void* data, uint64_t dataSize );
 
         /**
          * @name Data Access

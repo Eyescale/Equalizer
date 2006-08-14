@@ -15,6 +15,7 @@
 namespace eq
 {
     class Channel;
+    class Frame;
     class Node;
     class Range;
     class RenderContext;
@@ -75,10 +76,10 @@ namespace eq
          * The callbacks are called by Equalizer during rendering to execute
          * various actions.
          */
-        //@{
+        //*{
 
         /** 
-         * Initialises this channel.
+         * Initialise this channel.
          * 
          * @param initID the init identifier.
          */
@@ -102,7 +103,15 @@ namespace eq
          * @param frameID the per-frame identifier.
          */
         virtual void draw( const uint32_t frameID );
-        //@}
+
+        /** 
+         * Read back the rendered scene.
+         * 
+         * @param frameID the per-frame identifier.
+         * @sa getOutputFrames
+         */
+        virtual void readback( const uint32_t frameID );
+        //*}
 
         /**
          * @name Operations
@@ -193,6 +202,9 @@ namespace eq
         /** server-supplied rendering data. */
         RenderContext *_context;
 
+        /** server-supplied vector of output frames for current task. */
+        std::vector<Frame*> _outputFrames;
+
         /** The native pixel viewport wrt the window. */
         eq::PixelViewport _pvp;
 
@@ -222,6 +234,8 @@ namespace eq
                                         const eqNet::Packet* packet );
         eqNet::CommandResult _reqDraw( eqNet::Node* node,
                                        const eqNet::Packet* packet );
+        eqNet::CommandResult _reqReadback( eqNet::Node* node,
+                                           const eqNet::Packet* packet );
     };
 }
 

@@ -6,6 +6,7 @@
 #include "loader.h"
 
 #include "compound.h"
+#include "frame.h"
 #include "global.h"
 #include "pipe.h"
 #include "server.h"
@@ -28,6 +29,7 @@
         static eqs::Channel*     channel;
         static eqs::Compound*    compound;
         static eqs::SwapBarrier* swapBarrier;
+        static eqs::Frame*       frame;
         static eqBase::RefPtr<eqNet::ConnectionDescription> 
             connectionDescription;
     }
@@ -79,6 +81,8 @@
 %token EQTOKEN_SYNC
 %token EQTOKEN_LATENCY
 %token EQTOKEN_SWAPBARRIER
+%token EQTOKEN_OUTPUTFRAME
+%token EQTOKEN_INPUTFRAME
 
 %token EQTOKEN_STRING
 %token EQTOKEN_FLOAT
@@ -269,6 +273,8 @@ compoundAttribute:
         { compound->setRange( eq::Range( $3, $4 )); }
     | wall
     | swapBarrier
+    | outputFrame
+    | inputFrame
 
 compoundTasks: /*null*/ | compoundTask | compoundTasks compoundTask
 compoundTask:
@@ -306,6 +312,22 @@ swapBarrierAttributes: /*null*/ | swapBarrierAttribute
     | swapBarrierAttributes swapBarrierAttribute
 swapBarrierAttribute: 
     EQTOKEN_NAME STRING { swapBarrier->setName( $2 ); }
+
+outputFrame : EQTOKEN_OUTPUTFRAME '{' { frame = new eqs::Frame(); }
+    frameAttributes '}'
+        { 
+            compound->addOutputFrame( frame );
+            frame = NULL;
+        } 
+inputFrame : EQTOKEN_INPUTFRAME '{' { frame = new eqs::Frame(); }
+    frameAttributes '}'
+        { 
+            compound->addInputFrame( frame );
+            frame = NULL;
+        } 
+frameAttributes: /*null*/ | frameAttribute | frameAttributes frameAttribute
+frameAttribute: 
+    EQTOKEN_NAME STRING { frame->setName( $2 ); }
 
 viewport: '[' FLOAT FLOAT FLOAT FLOAT ']'
      { 
