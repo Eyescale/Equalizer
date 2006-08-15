@@ -24,6 +24,7 @@ HEADER_SRC = \
 	base/sema.h \
 	base/shm.h \
 	base/thread.h \
+	base/threadListener.h \
 	base/timedLock.h \
 	base/userdata.h \
 	net/barrier.h \
@@ -62,6 +63,7 @@ HEADER_SRC = \
 	client/frameBuffer.h \
 	client/frustum.h \
 	client/global.h \
+	client/image.h \
 	client/init.h \
 	client/log.h \
 	client/matrix4.h \

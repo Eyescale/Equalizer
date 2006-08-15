@@ -22,6 +22,12 @@ namespace eq
     class Frame : public eqNet::Object
     {
     public:
+        enum Format
+        {
+            FORMAT_COLOR = 0x01,
+            FORMAT_DEPTH = 0x02
+        };
+
         /** 
          * Constructs a new Frame.
          */

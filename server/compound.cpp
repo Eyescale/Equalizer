@@ -525,15 +525,15 @@ void Compound::_computeFrustum( eq::Frustum& frustum, float headTransform[16] )
     Config*               config      = getConfig();
     destination->getNearFar( &frustum.near, &frustum.far );
 
-    // eye position in screen space
-    const float* head = config->getEyePosition();
-    const float* xfm     = iView.xfm;
-    const float  w       = 
-        xfm[3] * head[0] + xfm[7] * head[1] + xfm[11]* head[2] + xfm[15];
-    const float  eye[3]  = { // Eye position in screen space
-        (xfm[0] * head[0] + xfm[4] * head[1] + xfm[8] * head[2] + xfm[12]) / w,
-        (xfm[1] * head[0] + xfm[5] * head[1] + xfm[9] * head[2] + xfm[13]) / w,
-        (xfm[2] * head[0] + xfm[6] * head[1] + xfm[10]* head[2] + xfm[14]) / w};
+    // compute eye position in screen space
+    const float* eyeW   = config->getEyePosition();
+    const float* xfm    = iView.xfm;
+    const float  w      = 
+        xfm[3] * eyeW[0] + xfm[7] * eyeW[1] + xfm[11]* eyeW[2] + xfm[15];
+    const float  eye[3] = {
+        (xfm[0] * eyeW[0] + xfm[4] * eyeW[1] + xfm[8] * eyeW[2] + xfm[12]) / w,
+        (xfm[1] * eyeW[0] + xfm[5] * eyeW[1] + xfm[9] * eyeW[2] + xfm[13]) / w,
+        (xfm[2] * eyeW[0] + xfm[6] * eyeW[1] + xfm[10]* eyeW[2] + xfm[14]) / w};
 
     // compute frustum from size and eye position
     const float ratio = frustum.near / eye[2];

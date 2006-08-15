@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_THREAD_H
@@ -7,9 +7,12 @@
 
 #include "base.h"
 
+#include <vector>
+
 namespace eqBase
 {
     class Lock;
+    class ThreadListener;
 
     /**
      * An abstraction to create a new execution thread.
@@ -18,8 +21,8 @@ namespace eqBase
      * thread. Please note that certain implementations, e.g., fork, create the
      * working unit in another address space. 
      */
-    class Thread {
-
+    class Thread 
+    {
     public:
         /** The thread types. */
         enum Type
@@ -40,6 +43,9 @@ namespace eqBase
 
         /** 
          * Starts the thread.
+         *
+         * All thread listeners will be notified from within the thread, after
+         * the thread was initialized successfully.
          * 
          * @return <code>true</code> if the thread was launched,
          *         <code>false</code> otherwise.
@@ -70,7 +76,7 @@ namespace eqBase
          * Exits the child thread immediately.
          * 
          * This function does not return. It is only to be called from the child
-         * thread.
+         * thread. The thread listeners will be notified.
          *
          * @param retVal the return value of the thread.
          */
@@ -133,6 +139,13 @@ namespace eqBase
          */
         bool isCurrent() const;
 
+        /** 
+         * Add a new thread state listener.
+         * 
+         * @param listener the listener.
+         */
+        static void addListener( ThreadListener* listener );
+
     private:
         /** The current state of this thread. */
         enum State
@@ -159,6 +172,13 @@ namespace eqBase
         void        _runChild();
 
         ThreadID    _getLocalThreadID();
+
+        // listener API
+        static Lock                         _listenerLock;
+        static std::vector<ThreadListener*> _listeners;
+
+        static void _notifyStarted();
+        static void _notifyStopping();
     };
 }
 

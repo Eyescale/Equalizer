@@ -3,6 +3,7 @@
    All rights reserved. */
 
 #include "thread.h"
+#include "threadListener.h"
 #include "base.h"
 #include "lock.h"
 
@@ -15,6 +16,9 @@
 
 using namespace eqBase;
 using namespace std;
+
+Lock                         Thread::_listenerLock;
+std::vector<ThreadListener*> Thread::_listeners;
 
 Thread::Thread( const Type type )
         : _type(type),
@@ -47,6 +51,7 @@ void Thread::_runChild()
     if( init( ))
     {
         EQINFO << "Thread successfully initialised" << endl;
+        _notifyStarted();
         _lock->unset(); // sync w/ parent
         result = run();
         _threadState = STATE_STOPPING;
@@ -66,8 +71,34 @@ void Thread::_runChild()
 
         case FORK:
             ::exit( result );
+
+        default:
+            EQUNREACHABLE;
     }
-    EQASSERTINFO( 0, "Unreachable code" );
+}
+
+void Thread::_notifyStarted()
+{
+    _listenerLock.set();
+
+    for( vector<ThreadListener*>::const_iterator iter = _listeners.begin();
+         iter != _listeners.end(); ++iter )
+        
+        (*iter)->notifyThreadStarted();
+
+    _listenerLock.unset();
+}
+
+void Thread::_notifyStopping()
+{
+    _listenerLock.set();
+
+    for( vector<ThreadListener*>::const_iterator iter = _listeners.begin();
+         iter != _listeners.end(); ++iter )
+        
+        (*iter)->notifyThreadStopping();
+
+    _listenerLock.unset();
 }
 
 // the signal handler for SIGCHILD
@@ -149,6 +180,7 @@ void Thread::exit( ssize_t retVal )
     EQASSERTINFO( isCurrent( ), "Thread::exit not called from child thread" );
 
     EQINFO << "Exiting thread" << endl;
+    _notifyStopping();
     _threadState = STATE_STOPPING;
 
     switch( _type )
@@ -275,3 +307,11 @@ bool Thread::isCurrent() const
 
     EQASSERTINFO( 0, "Unreachable code" );
 }
+
+void Thread::addListener( ThreadListener* listener )
+{
+    _listenerLock.set();
+    _listeners.push_back( listener );
+    _listenerLock.unset();
+}
+
