@@ -522,11 +522,11 @@ void Compound::_computeFrustum( eq::Frustum& frustum, float headTransform[16] )
 {
     const Channel*        destination = _inherit.channel;
     const eq::ViewMatrix& iView       = _inherit.view;
-
+    Config*               config      = getConfig();
     destination->getNearFar( &frustum.near, &frustum.far );
 
     // eye position in screen space
-    const float  head[3] = { 0, 0, 0 }; // TODO get from headtracking API
+    const float* head = config->getEyePosition();
     const float* xfm     = iView.xfm;
     const float  w       = 
         xfm[3] * head[0] + xfm[7] * head[1] + xfm[11]* head[2] + xfm[15];
@@ -534,7 +534,7 @@ void Compound::_computeFrustum( eq::Frustum& frustum, float headTransform[16] )
         (xfm[0] * head[0] + xfm[4] * head[1] + xfm[8] * head[2] + xfm[12]) / w,
         (xfm[1] * head[0] + xfm[5] * head[1] + xfm[9] * head[2] + xfm[13]) / w,
         (xfm[2] * head[0] + xfm[6] * head[1] + xfm[10]* head[2] + xfm[14]) / w};
-    
+
     // compute frustum from size and eye position
     const float ratio = frustum.near / eye[2];
     if( eye[2] > 0 )

@@ -13,6 +13,7 @@
 
 #include <getopt.h>
 #include <stdlib.h>
+#include "tracker.h"
 
 using namespace std;
 using namespace eqBase;
@@ -42,6 +43,7 @@ int main( int argc, char** argv )
         DIE( "Equalizer init failed" );
 
     RefPtr<InitData> initData = new InitData;
+    //initData->setTrackerPort( "" );
     _parseArguments( argc, argv, initData );
 
     // 2. connect to server
@@ -67,21 +69,33 @@ int main( int argc, char** argv )
     initData->setFrameData( frameData );
     config->setFrameData( frameData );
 
-    // 5. init config
+    // 5a. init config
     eqBase::Clock clock;
     if( !config->init( initData->getID( )))
         DIE("Config initialisation failed.");
     cerr << "Config init took " << clock.getTimef() << " ms" << endl;
 
+    // 5b. init tracker
+    Tracker tracker;
+    if(initData->getTrackerPort() != "")
+    {
+        if( !tracker.init( initData->getTrackerPort() ))
+            EQWARN << "Failed to initialise tracker" << endl;
+        else
+            EQINFO << "Tracker initialised" << endl;
+    }
+
     // 6. run main loop
     clock.reset();
 
-    eq::Matrix4f testMatrix;
-
     while( config->isRunning( ))
     {
-        //testMatrix.rotateX(1);
-        //EQINFO << testMatrix << endl;
+        if(tracker.isRunning())
+        {
+            tracker.update();
+            const eq::Matrix4f& headMatrix = tracker.getHeadMatrix();
+            config->setHeadMatrix( headMatrix );
+        }
 
         config->beginFrame();
         // config->renderData(...);
@@ -116,6 +130,7 @@ void _parseArguments( int argc, char** argv, RefPtr<InitData> initData )
     struct option options[] = 
         {
             { "model",          required_argument, NULL, 'm' },
+            { "port",           required_argument, NULL, 'p' },
             { NULL,             0,                 NULL,  0 }
         };
 
@@ -126,6 +141,9 @@ void _parseArguments( int argc, char** argv, RefPtr<InitData> initData )
             case 'm':
                 initData->setFilename( optarg );
                 break;
+
+            case 'p':
+                initData->setTrackerPort( optarg );
 
             default:
                 EQWARN << "unhandled option: " << options[index].name << endl;

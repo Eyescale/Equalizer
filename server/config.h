@@ -174,6 +174,12 @@ namespace eqs
          */
         void setWorkDir( const std::string& workDir ){ _workDir = workDir; }
 
+         /** 
+         * Return the eye position.
+         * @return the eye position.
+         */
+        const float* getEyePosition();
+
     private:
 
         /** The eq server hosting the session. */
@@ -210,6 +216,9 @@ namespace eqs
         /** The matrix defining the head's position for head tracking. */
         eqBase::RefPtr<eq::Matrix4f> _headMatrix;
 
+        /** The vector defining the eye position. */
+        float _eyePosition[3];
+
         enum State
         {
             STATE_STOPPED,
@@ -241,6 +250,8 @@ namespace eqs
         bool _exit();
         bool   _exitPipes();
         bool   _exitNodes();
+
+        void _updateHead();
 
         uint32_t _beginFrame( const uint32_t frameID, 
                               std::vector<Node*>& nodes );

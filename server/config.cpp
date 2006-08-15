@@ -577,13 +577,29 @@ bool Config::_exitNodes()
     return success;
 }
 
+void Config::_updateHead()
+{
+    _headMatrix->sync();
+
+    float eyeOffset = 0; //will be used later...
+    const float* matrix = _headMatrix->getMatrix();
+    const float w = eyeOffset * matrix[12] + matrix[15]; 
+    _eyePosition[0] = (( eyeOffset * matrix[0] + matrix[3] ) / w );
+    _eyePosition[1] = (( eyeOffset * matrix[4] + matrix[7] ) / w );
+    _eyePosition[2] = (( eyeOffset * matrix[8] + matrix[11] ) / w );
+}
+
+const float* Config::getEyePosition()
+{
+    return _eyePosition;
+}
 
 uint32_t Config::_beginFrame( const uint32_t frameID, vector<Node*>& nodes )
 {
     EQASSERT( _state == STATE_INITIALIZED );
     ++_frameNumber;
-    
-    _headMatrix->sync();
+
+    _updateHead();
 
     const uint32_t nCompounds = this->nCompounds();
     for( uint32_t i=0; i<nCompounds; ++i )
