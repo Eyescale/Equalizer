@@ -11,5 +11,5 @@ using namespace eqs;
 FrameBuffer::FrameBuffer()
         : eqNet::Object( eq::Object::TYPE_FRAMEBUFFER, eqNet::CMD_OBJECT_CUSTOM)
 {
-    //setDistributedData( &_data, sizeof( Data ));
+    setDistributedData( &_data, sizeof( eq::FrameBuffer::Data ));
 }

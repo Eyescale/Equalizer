@@ -11,23 +11,21 @@
 
 using namespace eq;
 
-FrameBuffer::FrameBuffer( eqBase::RefPtr<eqNet::Node> master )
+FrameBuffer::FrameBuffer( const void* data, const uint64_t size )
         : Object( eq::Object::TYPE_FRAMEBUFFER, CMD_FRAMEBUFFER_CUSTOM ),
-          _master( master )
+          _data( *(Data*)data ) 
 {
-    _data.master = master->getNodeID();    
+    EQASSERT( size == sizeof( Data ));
+    setDistributedData( &_data, sizeof( Data ));
 }
 
-FrameBuffer::FrameBuffer( const void* instanceData )
-        : Object( eq::Object::TYPE_FRAMEBUFFER, CMD_FRAMEBUFFER_CUSTOM ),
-          _data( *(Data*)instanceData ) 
+
+void FrameBuffer::clear()
 {
 }
 
-void FrameBuffer::init( const void* data, const uint64_t dataSize )
+void FrameBuffer::startReadback()
 {
-    _master = eqNet::Node::getLocalNode()->connect( _data.master, 
-                                                    getSession()->getServer( ));
 }
 
 

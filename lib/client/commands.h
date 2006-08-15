@@ -122,7 +122,7 @@ namespace eq
 
     enum FrameBufferCommand
     {
-        CMD_FRAMEBUFFER_CUSTOM
+        CMD_FRAMEBUFFER_CUSTOM = eqNet::CMD_OBJECT_CUSTOM
     };
 
     enum GLXEventThreadCommand

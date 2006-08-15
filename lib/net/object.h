@@ -183,7 +183,8 @@ namespace eqNet
          *              version.
          * @param flags additional flags for the auto-obsoletion mechanism
          */
-        void setAutoObsolete( const uint32_t count, const uint32_t flags )
+        void setAutoObsolete( const uint32_t count, 
+                           const uint32_t flags = AUTO_OBSOLETE_COUNT_VERSIONS )
             { _nVersions = count; _obsoleteFlags = flags; }
 
         /** 
@@ -407,10 +408,10 @@ namespace eqNet
         };
         
         /** The list of full instance datas, head version first. */
-        std::list<InstanceData> _instanceData;
+        std::deque<InstanceData> _instanceData;
 
         /** The list of change datas, (head-1):head change first. */
-        std::list<ChangeData> _changeData;
+        std::deque<ChangeData> _changeData;
         
         std::vector<InstanceData> _instanceDataCache;
         std::vector<ChangeData>   _changeDataCache;

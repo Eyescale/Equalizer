@@ -5,6 +5,8 @@
 #ifndef EQ_VIEWPORT_H
 #define EQ_VIEWPORT_H
 
+#include <iostream>
+
 namespace eq
 {
     /**

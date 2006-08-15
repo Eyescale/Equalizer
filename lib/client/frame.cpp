@@ -6,6 +6,8 @@
 #include "object.h"
 #include "packets.h"
 
+#include <eq/net/session.h>
+
 using namespace eq;
 
 Frame::Frame( const void* data, uint64_t dataSize )
@@ -15,4 +17,18 @@ Frame::Frame( const void* data, uint64_t dataSize )
     _data = *(Data*)data;
 
     setDistributedData( &_data, sizeof( Data ));
+}
+
+FrameBuffer* Frame::_getBuffer()
+{
+    if( !_buffer )
+    {
+        eqNet::Session* session = getSession();
+        eqNet::Object*  object  = session->getObject( _data.buffer.objectID,
+                                                      Object::SHARE_NODE,
+                                                      _data.buffer.version );
+        EQASSERT( dynamic_cast<FrameBuffer*>( object ) );
+        _buffer = static_cast<FrameBuffer*>( object );
+    }
+    return _buffer;
 }

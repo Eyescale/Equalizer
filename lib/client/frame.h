@@ -7,6 +7,7 @@
 
 #include <eq/net/object.h>
 #include <eq/client/viewport.h>
+#include <eq/client/frameBuffer.h>
 
 namespace eqs
 {
@@ -42,21 +43,38 @@ namespace eq
          * @name Operations
          */
         //*{
+
+        /** Clear the frame by deleting the attached images. */
+        void clear() { _getBuffer()->clear(); }
+
+        /** 
+         * Read back a set of images according to the current frame data.
+         * 
+         * The images are added to the frame, existing images are retained.
+         */
+        void startReadback()  { _getBuffer()->startReadback(); }
         //*}
 
-    private:
+    protected:
+        /** @sa eqNet::Object::unpack */
+        virtual void unpack( const void* data, const uint64_t size ) 
+            { _buffer = NULL; eqNet::Object::unpack( data, size ); }
 
+    private:
         std::string _name;
 
-        /** All distributed Data */
-        friend class eqs::Frame;
+        /** All distributed Data shared between eq::Frame and eqs::Frame. */
         struct Data
         {
-            eq::Viewport vp;
-            uint32_t     bufferID;
-            uint32_t     bufferVersion;
+            Viewport             vp;
+            eqNet::ObjectVersion buffer;
         }
             _data;
+        friend class eqs::Frame;
+
+        FrameBuffer* _buffer;
+
+        FrameBuffer* _getBuffer();
     };
 };
-#endif // EQS_FRAME_H
+#endif // EQ_FRAME_H

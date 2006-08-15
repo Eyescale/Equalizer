@@ -5,7 +5,7 @@
 #ifndef EQS_FRAMEBUFFER_H
 #define EQS_FRAMEBUFFER_H
 
-#include <eq/net/object.h>
+#include <eq/client/frameBuffer.h>
 
 namespace eqs
 {
@@ -36,6 +36,9 @@ namespace eqs
         //*}
 
     private:
+        eq::FrameBuffer::Data _data;
+        
+        /** The number of the config frame when this buffer was last used. */
         uint32_t _frameNumber;
     };
 };

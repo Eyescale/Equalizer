@@ -20,6 +20,13 @@ Frame::Frame()
     setDistributedData( &_inherit, sizeof( eq::Frame::Data ));
 }
 
+Frame::Frame( const Frame& from )
+        : eqNet::Object( eq::Object::TYPE_FRAME, eqNet::CMD_OBJECT_CUSTOM ),
+          _buffer( NULL )
+{
+    setDistributedData( &_inherit, sizeof( eq::Frame::Data ));
+}
+
 Frame::~Frame()
 {
     EQASSERT( _buffers.empty());
@@ -81,8 +88,8 @@ void Frame::_setFrameBuffer( FrameBuffer* buffer )
     if( !buffer )
         return;
 
-    _inherit.bufferID      = buffer->getID();
-    _inherit.bufferVersion = buffer->getVersion();
+    _inherit.buffer.objectID = buffer->getID();
+    _inherit.buffer.version  = buffer->getVersion();
 }
 
 std::ostream& eqs::operator << ( std::ostream& os, const Frame* frame )

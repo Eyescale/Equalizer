@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "log.h"
@@ -47,9 +47,7 @@ unsigned getLogTopics()
 {
     const char *env = getenv("EQ_LOG_TOPICS");
     if( env != NULL )
-    {
         return (unsigned)atoll(env);
-    }
 
     return 0;
 }

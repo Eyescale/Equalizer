@@ -15,6 +15,7 @@ HEADER_SRC = \
 	base/log.h \
 	base/monitor.h \
 	base/mtQueue.h \
+	base/nonCopyable.h \
 	base/perThread.h \
 	base/refPtr.h \
 	base/referenced.h \

@@ -60,18 +60,21 @@ Object::Object( const Object& from )
 
 Object::~Object()
 {
-    for( list<InstanceData>::iterator iter = _instanceData.begin(); 
+    for( deque<InstanceData>::const_iterator iter = _instanceData.begin(); 
          iter != _instanceData.end(); ++iter )
     {
         if( (*iter).data )
             free( (*iter).data );
     }
-    for( list<ChangeData>::iterator iter = _changeData.begin(); 
+    _instanceData.clear();
+
+    for( deque<ChangeData>::const_iterator iter = _changeData.begin(); 
          iter != _changeData.end(); ++iter )
     {
         if( (*iter).data )
             free( (*iter).data );
     }
+    _changeData.clear();
 }
 
 bool Object::send( eqBase::RefPtr<Node> node, ObjectPacket& packet )
@@ -122,12 +125,17 @@ void Object::instanciateOnNode( RefPtr<Node> node, const SharePolicy policy,
     EQASSERT( _session );
     EQASSERT( _id != EQ_ID_INVALID );
 
+    EQLOG( LOG_OBJECTS ) << "Object, id " << _id 
+                         << ", send instanciation cmd to " << node->getNodeID()
+                         << endl;
+
     addSlave( node );
 
     SessionInstanciateObjectPacket packet;
     packet.sessionID      =  _session->getID();
     packet.objectID       = _id;
     packet.objectType     = _typeID;
+    packet.version        = _version;
     packet.objectDataSize = 0;
     packet.isMaster       = !_master;
     packet.policy         = policy;
@@ -152,7 +160,7 @@ void Object::instanciateOnNode( RefPtr<Node> node, const SharePolicy policy,
     }
 
     const uint32_t age = _version - version;
-    if( age > _instanceData.size( ))
+    if( age >= _instanceData.size( ))
     {
         EQWARN << "Instanciation request for obsolete version " << version
                << " for object of type " << typeid(*this).name() << endl;
@@ -160,18 +168,18 @@ void Object::instanciateOnNode( RefPtr<Node> node, const SharePolicy policy,
         node->send( packet );
     }
 
-    list<InstanceData>::iterator iter = _instanceData.begin();
+    deque<InstanceData>::const_iterator iter = _instanceData.begin();
     for( uint32_t i=0; i<age; ++i ) ++iter;
-    InstanceData& data = *iter;
+    const InstanceData& data = *iter;
 
     packet.objectDataSize = data.size;
     node->send( packet, data.data, packet.objectDataSize );    
 
     // send deltas since version
-    for( list<ChangeData>::iterator iter = _changeData.end(); 
+    for( deque<ChangeData>::const_iterator iter = _changeData.end(); 
          iter !=_changeData.begin(); --iter )
     {
-        ChangeData& data = (*iter);
+        const ChangeData& data = (*iter);
         if( data.version < version )
             continue;
 

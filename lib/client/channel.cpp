@@ -59,7 +59,7 @@ Channel::~Channel()
 //----------------------------------------------------------------------
 // viewport
 //----------------------------------------------------------------------
-void eq::Channel::setPixelViewport( const PixelViewport& pvp )
+void eq::Channel::_setPixelViewport( const PixelViewport& pvp )
 {
     if( !pvp.isValid( ))
         return;
@@ -77,7 +77,7 @@ void eq::Channel::setPixelViewport( const PixelViewport& pvp )
     EQVERB << "Channel pvp set: " << _pvp << ":" << _vp << endl;
 }
 
-void eq::Channel::setViewport( const Viewport& vp )
+void eq::Channel::_setViewport( const Viewport& vp )
 {
     if( !vp.isValid( ))
         return;
@@ -145,7 +145,14 @@ void Channel::draw( const uint32_t frameID )
 
 void Channel::readback( const uint32_t frameID )
 {
-    EQERROR << "Unimplemented" << endl;
+    applyBuffer();
+    applyViewport();
+
+    const vector<Frame*>& frames = getOutputFrames();
+    for( vector<Frame*>::const_iterator iter = frames.begin();
+         iter != frames.end(); ++iter )
+
+        (*iter)->startReadback();
 }
 
 void Channel::applyBuffer()
@@ -227,9 +234,9 @@ eqNet::CommandResult Channel::_reqInit( eqNet::Node* node,
     EQINFO << "handle channel init " << packet << endl;
 
     if( packet->pvp.isValid( ))
-        setPixelViewport( packet->pvp );
+        _setPixelViewport( packet->pvp );
     else
-        setViewport( packet->vp );
+        _setViewport( packet->vp );
     _name = packet->name;
 
     ChannelInitReplyPacket reply( packet );
@@ -292,7 +299,9 @@ eqNet::CommandResult Channel::_reqReadback( eqNet::Node* node,
                                                     Object::SHARE_THREAD,
                                                     packet->frames[i].version );
         EQASSERT( dynamic_cast<Frame*>( object ) );
-        _outputFrames.push_back( static_cast<Frame*>( object ));
+        Frame* frame = static_cast<Frame*>( object );
+        frame->clear();
+        _outputFrames.push_back( frame );
     }
 
     readback( packet->context.frameID );

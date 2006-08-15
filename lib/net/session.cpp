@@ -218,8 +218,8 @@ void Session::addRegisteredObject( const uint32_t id, Object* object,
             EQUNREACHABLE;
     }
 
-    EQVERB << "registered object " << (void*)object << " id " << id
-           << " session id " << _id << endl;
+    EQLOG( LOG_OBJECTS ) << "addRegisteredObject id " << id << " @" 
+                         << (void*)object << endl;
 }
 
 void Session::removeRegisteredObject( Object* object, 
@@ -256,6 +256,9 @@ void Session::removeRegisteredObject( Object* object,
     if( iter == objects.end( ))
         return;
 
+    EQLOG( LOG_OBJECTS ) << "removeRegisteredObject id " << id << " @" 
+                         << (void*)object << " ref " << object->getRefCount()
+                         << endl;
     objects.erase( iter );
 
     switch( policy )
@@ -307,6 +310,10 @@ void Session::registerObject( Object* object, RefPtr<Node> master,
     if( threadSafe ) 
         object->makeThreadSafe();
 
+    EQLOG( LOG_OBJECTS ) << "registerObject id " << id 
+                         << " @" << (void*)object << " ref " 
+                         << object->getRefCount() << endl;
+
     addRegisteredObject( id, object, policy );
 
     if( _localNode == master )
@@ -338,6 +345,10 @@ void Session::deregisterObject( Object* object )
 {
     const uint32_t id = object->getID();
 
+    EQLOG( LOG_OBJECTS ) << "deregisterObject id " << id 
+                         << " @" << (void*)object << " ref " 
+                         << object->getRefCount() << endl;
+
     removeRegisteredObject( object );
     freeIDs( id, 1 );
 }
@@ -354,6 +365,10 @@ Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy,
     Object* object = pollObject( id, policy );
     if( object )
     {
+        EQLOG( LOG_OBJECTS ) << "getObject polled ok, id " << id 
+                             << " @" << (void*)object << " ref " 
+                             << object->getRefCount() << endl;
+
         EQASSERTINFO( !threadSafe || object->isThreadSafe(), 
                       "Can't make existing object thread safe." );
         return object;
@@ -369,10 +384,16 @@ Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy,
     SessionGetObjectPacket packet;
     packet.requestID = _requestHandler.registerRequest( &state );
 
+    EQLOG( LOG_OBJECTS ) << "getObject send request for id " << id 
+                         << " my node id " << _localNode->getNodeID() << endl;
     _sendLocal( packet );
+
     const void* result = _requestHandler.waitRequest( packet.requestID );
     EQASSERT( result == NULL );
     EQASSERT( state.nodeConnectRequestID == EQ_ID_INVALID );
+    EQLOG( LOG_OBJECTS ) << "getObject request ok, id " << id 
+                         << " @" << (void*)state.object << " ref " 
+                         << state.object->getRefCount() << endl;
 
     switch( policy )
     {
@@ -549,14 +570,23 @@ CommandResult Session::_instObject( GetObjectState* state )
             RefPtr<Node> master = _pollIDMaster( objectID );
             if( master.isValid( ))
             {
+                EQLOG( LOG_OBJECTS ) << "instObject id " << objectID
+                                     << " send init req to master" << endl;
                 state->instState = Object::INST_GOTMASTER;
                 _sendInitObject( state, master );
                 return COMMAND_REDISPATCH;
             }
 
             if( _isMaster )
+            {
+                EQLOG( LOG_OBJECTS ) << "instObject id " << objectID
+                                     << " failure, id unknown to master "
+                                     << endl;
                 return COMMAND_ERROR;
+            }
 
+            EQLOG( LOG_OBJECTS ) << "instObject id " << objectID
+                                 << " send get master req to session" << endl;
             SessionGetObjectMasterPacket packet;
             packet.objectID = objectID;
             send( packet );
@@ -569,15 +599,21 @@ CommandResult Session::_instObject( GetObjectState* state )
             RefPtr<Node> master = _pollIDMaster( objectID );
             if( !master )
             {
+                EQLOG( LOG_OBJECTS ) << "instObject id " << objectID
+                                     << " failure in get master req" << endl;
                 state->instState = Object::INST_UNKNOWN;
                 return COMMAND_ERROR;
             }
 
+            EQLOG( LOG_OBJECTS ) << "instObject id " << objectID
+                                 << " got master, send init req" << endl;
             _sendInitObject( state, master );
             return COMMAND_REDISPATCH;
         }
             
         case Object::INST_ERROR:
+            EQLOG( LOG_OBJECTS ) << "instObject id " << objectID
+                                 << " failure" << endl;
             return COMMAND_ERROR;
 
         case Object::INST_GETMASTERID:
@@ -695,7 +731,7 @@ CommandResult Session::_cmdGetObjectMaster( Node* node, const Packet* pkg )
 {
     SessionGetObjectMasterPacket* packet = (SessionGetObjectMasterPacket*)pkg;
     SessionGetObjectMasterReplyPacket reply( packet );
-    EQINFO << "Cmd get object master " << packet << endl;
+    EQLOG( LOG_OBJECTS ) << "Cmd get object master " << packet << endl;
 
     reply.start = 0;
 
@@ -716,7 +752,7 @@ CommandResult Session::_cmdGetObjectMaster( Node* node, const Packet* pkg )
         }
     }
 
-    EQINFO << "Get object master reply " << &reply << endl;
+    EQLOG( LOG_OBJECTS ) << "Send get object master reply " << &reply << endl;
     send( node, reply );
     return COMMAND_HANDLED;
 }
@@ -726,7 +762,7 @@ CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
     CHECK_THREAD( _recvThreadID );
     SessionGetObjectMasterReplyPacket* packet = 
         (SessionGetObjectMasterReplyPacket*)pkg;
-    EQINFO << "Cmd get object master reply " << packet << endl;
+    EQLOG( LOG_OBJECTS ) << "Cmd get object master reply " << packet << endl;
  
     const uint32_t  id    = packet->objectID;
     GetObjectState* state = _objectInstStates[id];
@@ -734,6 +770,7 @@ CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
 
     if( packet->start == 0 ) // not found
     {
+        EQLOG( LOG_OBJECTS ) << "Master for id " << id << " not found" << endl;
         state->instState = Object::INST_ERROR;
         return COMMAND_HANDLED;
     }
@@ -745,6 +782,8 @@ CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
 
          if( !master.isValid( ))
          {
+             EQLOG( LOG_OBJECTS ) << "Connect node " << packet->masterID 
+                                  << endl;
              state->nodeConnectRequestID =
                  _localNode->startConnectNode( packet->masterID, _server );
     
@@ -759,6 +798,8 @@ CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
                 return COMMAND_REDISPATCH;
 
             case Node::CONNECT_SUCCESS:
+                EQLOG( LOG_OBJECTS ) << "Node " << packet->masterID 
+                                     << " connected" << endl;
                 master = _localNode->getNode( packet->masterID );
                 EQASSERT( master.isValid( ));
                 state->nodeConnectRequestID = EQ_ID_INVALID;
@@ -792,7 +833,7 @@ CommandResult Session::_cmdRegisterObject( Node* node, const Packet* pkg )
     CHECK_THREAD( _recvThreadID );
 
     SessionRegisterObjectPacket* packet = (SessionRegisterObjectPacket*)pkg;
-    EQINFO << "Cmd register object " << packet << endl;
+    EQLOG( LOG_OBJECTS ) << "Cmd register object " << packet << endl;
     EQASSERT( packet->objectID != EQ_ID_INVALID );
 
     Object* object = (Object*)_requestHandler.getRequestData(packet->requestID);
@@ -809,7 +850,7 @@ CommandResult Session::_cmdUnregisterObject( Node* node, const Packet* pkg )
     CHECK_THREAD( _recvThreadID );
 
     SessionUnregisterObjectPacket* packet = (SessionUnregisterObjectPacket*)pkg;
-    EQINFO << "Cmd unregister object " << packet << endl;
+    EQLOG( LOG_OBJECTS ) << "Cmd unregister object " << packet << endl;
 
     Object* object = (Object*)_requestHandler.getRequestData(packet->requestID);
     EQASSERT( object );
@@ -825,16 +866,20 @@ CommandResult Session::_cmdGetObject( Node* node, const Packet* pkg )
     CHECK_THREAD( _recvThreadID );
 
     SessionGetObjectPacket* packet = (SessionGetObjectPacket*)pkg;
-    EQINFO << "Cmd get object " << packet << endl;
 
     GetObjectState*         state  = (GetObjectState*)
         _requestHandler.getRequestData( packet->requestID );
     EQASSERT( state );
 
     const uint32_t id     = state->objectID;
+    EQLOG( LOG_OBJECTS ) << "Cmd get object " << packet << " id " << id << endl;
 
     if( state->object ) // successfully instanciated
     {
+        EQLOG( LOG_OBJECTS ) << "Object instanciated, id " << id << " @" 
+                             << (void*)state->object << " ref " 
+                             << state->object->getRefCount() << endl;
+
         EQASSERTINFO( !state->threadSafe || state->object->isThreadSafe(), 
                       "Can't make existing object thread safe." );
         _objectInstStates.erase( id );
@@ -848,6 +893,9 @@ CommandResult Session::_cmdGetObject( Node* node, const Packet* pkg )
 
         if( object ) // per-node object instanciated already
         {
+            EQLOG( LOG_OBJECTS ) << "object known, id " << id << " @" 
+                                 << (void*)state->object << " ref " 
+                                 << state->object->getRefCount() << endl;
             state->object = object;
             _requestHandler.serveRequest( packet->requestID, NULL );
             return COMMAND_HANDLED;
@@ -859,6 +907,7 @@ CommandResult Session::_cmdGetObject( Node* node, const Packet* pkg )
         if( _objectInstStates[id] != NULL ) // instantion with same ID pending
             return COMMAND_REDISPATCH;
 
+        EQLOG( LOG_OBJECTS ) << "start object instanciation, id " << id << endl;
         // mark pending instantion 
         state->pending        = true;
         _objectInstStates[id] = state;
@@ -866,6 +915,7 @@ CommandResult Session::_cmdGetObject( Node* node, const Packet* pkg )
 
     if( _instObject( state ) == COMMAND_ERROR )
     {
+        EQLOG( LOG_OBJECTS ) << "error during instanciation, id " << id << endl;
         _requestHandler.serveRequest( packet->requestID, NULL );
         return COMMAND_HANDLED;
     }
@@ -875,7 +925,7 @@ CommandResult Session::_cmdGetObject( Node* node, const Packet* pkg )
 CommandResult Session::_cmdInitObject( Node* node, const Packet* pkg )
 {
     SessionInitObjectPacket* packet = (SessionInitObjectPacket*)pkg;
-    EQINFO << "Cmd init object " << packet << endl;
+    EQLOG( LOG_OBJECTS ) << "Cmd init object " << packet << endl;
 
     const uint32_t   id      = packet->objectID;
     vector<Object*>& objects = _registeredObjects[id];
@@ -901,7 +951,8 @@ CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )
 
     SessionInstanciateObjectPacket* packet = 
         (SessionInstanciateObjectPacket*)pkg;
-    EQINFO << "Cmd instanciate object " << packet << " from " << node << endl;
+    EQLOG( LOG_OBJECTS ) << "Cmd instanciate object " << packet << " from "
+                         << node << endl;
 
     const uint32_t id     = packet->objectID;
     if( packet->error )
@@ -918,18 +969,20 @@ CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )
                                         packet->objectDataSize );
     if( !object )
     {
-        EQWARN << "Instanciation of object of type " << packet->objectType
+        EQWARN << "Session::instanciateObject of type " << packet->objectType
                << " failed from " << typeid(*this).name() << endl;
         return COMMAND_ERROR;
     }
 
-    object->_master = packet->isMaster;
+    object->_master  = packet->isMaster;
+    object->_version = packet->version;
     if( packet->isMaster ) // Assumes that sender is a subscribed slave
         object->addSlave( node );
 
     GetObjectState* state = _objectInstStates[id];
     if( state )
     {
+        EQLOG( LOG_OBJECTS ) << "Object instanciation caused by request" <<endl;
         if( state->threadSafe ) 
             object->makeThreadSafe();
         state->object = object;

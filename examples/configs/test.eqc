@@ -36,16 +36,17 @@ server
                 bottom_right [  .32 -.2 -1 ]
                 top_left     [ -.32  .2 -1 ]
             }
-            compound
-            {
-                viewport [ 0 0 .5 1 ]
-            }
-            compound
-            { 
-                channel "channel2"
-                viewport [ .5 0 .5 1 ]
-                outputframe {}
-            }
+//            compound
+//            {
+//                viewport [ 0 0 .5 1 ]
+//            }
+//            compound
+//            { 
+//                channel "channel2"
+//                viewport [ .5 0 .5 1 ]
+//                outputframe {}
+//            }
+            outputframe{}
         }
     }    
 }

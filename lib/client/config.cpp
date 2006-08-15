@@ -144,6 +144,8 @@ eqNet::Object* Config::instanciateObject( const uint32_t type, const void* data,
             return new Matrix4f( data, dataSize );
         case Object::TYPE_FRAME:
             return new Frame( data, dataSize );
+        case Object::TYPE_FRAMEBUFFER:
+            return new FrameBuffer( data, dataSize );
         default:
             return eqNet::Session::instanciateObject( type, data, dataSize );
     }

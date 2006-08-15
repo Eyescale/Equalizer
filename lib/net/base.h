@@ -6,6 +6,7 @@
 #define EQNET_BASE_H
 
 #include <eq/base/base.h>
+#include <eq/base/nonCopyable.h>
 #include <eq/base/requestHandler.h>
 
 namespace eqNet
@@ -29,7 +30,7 @@ namespace eqNet
      * Provides packet dispatch for an object using a command handler
      * table. Handles the result of the command handlers.
      */
-    class Base
+    class Base : public virtual eqBase::NonCopyable
     {
     public:
         Base( const uint32_t nCommands, const bool threadSafe = false );

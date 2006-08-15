@@ -32,7 +32,8 @@ namespace eqBase
     /** The logging topics. */
     enum LogTopic
     {
-        LOG_CUSTOM = 0x10
+        LOG_OBJECTS = 0x01,
+        LOG_CUSTOM  = 0x10
     };
 
     /** The string buffer used for logging. */

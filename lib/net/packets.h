@@ -328,6 +328,7 @@ namespace eqNet
         bool     error;
         uint32_t objectID;
         uint32_t objectType;
+        uint32_t version;
         Object::SharePolicy policy;
         uint64_t objectDataSize;
         char     objectData[8] EQ_ALIGN8;
@@ -383,6 +384,9 @@ namespace eqNet
             }
     };
 
+    //------------------------------------------------------------
+    // ostream operators
+    //------------------------------------------------------------
     inline std::ostream& operator << ( std::ostream& os, 
                                        const Packet* packet )
     {
@@ -434,19 +438,13 @@ namespace eqNet
         return os;
     }
 
-
+    //------------------------------------------------------------
     inline std::ostream& operator << ( std::ostream& os, 
                                        const SessionPacket* packet )
     {
         os << (NodePacket*)packet << " session id " << packet->sessionID;
         return os;
     }
-//     inline std::ostream& operator << ( std::ostream& os, 
-//                                        const UserPacket* packet )
-//     {
-//         os << (SessionPacket*)packet << " user id " << packet->userID;
-//         return os;
-//     }
 
     inline std::ostream& operator << ( std::ostream& os, 
                                        const SessionGenIDsReplyPacket* packet )
@@ -496,6 +494,7 @@ namespace eqNet
         return os;
     }
 
+    //------------------------------------------------------------
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ObjectPacket* packet )
     {

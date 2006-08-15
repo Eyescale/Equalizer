@@ -23,6 +23,7 @@ namespace eqs
          * Constructs a new Frame.
          */
         Frame();
+        Frame( const Frame& from );
 
         /**
          * @name Data Access
@@ -87,7 +88,6 @@ namespace eqs
         virtual ~Frame();
 
     private:
-
         std::string _name;
 
         /** All distributed data */

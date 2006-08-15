@@ -130,19 +130,28 @@ namespace eq
          */
         void applyViewport();
 
-        /** 
-         * @return the channel's pixel viewport
+        /**
+         * Apply the frustum matrix for the current rendering task.
          */
-        const PixelViewport& getPixelViewport() const;
+        void applyFrustum() const;
 
         /** 
-         * Set the channel's fractional viewport wrt its parent pipe.
-         *
-         * Updates the pixel viewport accordingly.
-         * 
-         * @param vp the fractional viewport.
+         * Apply the modelling transformation to position and orient the view
+         * frustum.
          */
-        void setViewport( const Viewport& vp );
+        void applyHeadTransform() const;
+        //*}
+
+        /**
+         * @name Context-specific data access.
+         * 
+         * The data returned by these methods depends on the context (callback)
+         * they are called from, typically the data for the current rendering
+         * task.
+         */
+        //*{
+        /** @return the channel's current pixel viewport */
+        const PixelViewport& getPixelViewport() const;
 
         /** @return the current fractional viewport of this channel. */
         const Viewport& getViewport() const;
@@ -154,21 +163,13 @@ namespace eq
         const Range& getRange() const;
 
         /**
-         * Apply the frustum matrix for the current rendering task.
-         */
-        void applyFrustum() const;
-
-        /**
          * @return the modelling transformation to position and orient the view
          *         frustum.
          */
         const float* getHeadTransform() const;
 
-        /** 
-         * Apply the modelling transformation to position and orient the view
-         * frustum.
-         */
-        void applyHeadTransform() const;
+        /** @return the list of output frames, used from readback(). */
+        const std::vector<Frame*>& getOutputFrames() { return _outputFrames; }
         //*}
 
         /** @name Scene Object Access. */
@@ -215,13 +216,22 @@ namespace eq
         Frustum        _frustum;
 
         /** 
+         * Set the channel's fractional viewport wrt its parent pipe.
+         *
+         * Updates the pixel viewport accordingly.
+         * 
+         * @param vp the fractional viewport.
+         */
+        void _setViewport( const Viewport& vp );
+
+        /** 
          * Set the channel's pixel viewport wrt its parent pipe.
          *
          * Updates the fractional viewport accordingly.
          * 
          * @param pvp the viewport in pixels.
          */
-        void setPixelViewport( const PixelViewport& pvp );
+        void _setPixelViewport( const PixelViewport& pvp );
         
         /* The command handler functions. */
         eqNet::CommandResult _pushCommand( eqNet::Node* node,
