@@ -43,12 +43,23 @@ bool Tracker::init( const string& port )
 
    termio.c_cflag &= ~(CSIZE|PARENB|PARODD|HUPCL); 
    termio.c_cflag |= CS8|CSTOPB|CREAD|CLOCAL|CRTSCTS;
-   termio.c_iflag &= ~(IXON|IUCLC|IXANY|IMAXBEL|BRKINT|IGNPAR|PARMRK|
+   termio.c_iflag &= ~(IXON|IXANY|IMAXBEL|BRKINT|IGNPAR|PARMRK|
                        INPCK|ISTRIP|INLCR|IGNCR|ICRNL);
+#ifdef IUCLC
+   termio.c_iflag &= ~IUCLC;
+#endif
+
    termio.c_iflag |= IXOFF|IGNBRK;
-   termio.c_oflag &= ~(OPOST|OLCUC|OCRNL|ONLCR|ONOCR|ONLRET|OFILL|OFDEL);
+   termio.c_oflag &= ~(OPOST|OCRNL|ONLCR|ONOCR|ONLRET|OFILL|OFDEL);
+#ifdef OLCUC
+   termio.c_oflag &= ~OLCUC;
+#endif
+
    termio.c_lflag &= ~(ISIG|ICANON|IEXTEN|ECHO|ECHOE|ECHOK|ECHONL|NOFLSH|
-                       XCASE|TOSTOP|ECHOPRT|ECHOCTL|ECHOKE);
+                       TOSTOP|ECHOPRT|ECHOCTL|ECHOKE);
+#ifdef XCASE
+   termio.c_lflag &= ~XCASE;
+#endif
 
    cfsetspeed( &termio, B9600 );
    termio.c_cc[VMIN]  = 26;

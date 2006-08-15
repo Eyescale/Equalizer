@@ -20,7 +20,7 @@ bool Channel::init( const uint32_t initID )
 
     _initData  = (InitData*)config->getObject( initID );
     _frameData = _initData->getFrameData();
-
+    
     return true;
 }
 

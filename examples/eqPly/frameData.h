@@ -29,7 +29,7 @@ public:
     void reset()
         {
             bzero( &_data, sizeof( Data ));
-            _data.translation[2] = -3.;
+            _data.translation[2] = -3.0;
 
             _rotation.makeIdentity();
         }
