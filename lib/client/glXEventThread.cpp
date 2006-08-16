@@ -491,7 +491,7 @@ eqNet::CommandResult GLXEventThread::_cmdRemovePipe( eqNet::Node*,
     else
     {
         _requestHandler.serveRequest( packet->requestID, (void*)true );
-        EQINFO << "GLXEventThread exiting" << endl;
+        EQINFO << "GLXEventThread finished" << endl;
         exit();
     }
 

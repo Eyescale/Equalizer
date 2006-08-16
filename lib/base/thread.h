@@ -176,9 +176,13 @@ namespace eqBase
         // listener API
         static Lock                         _listenerLock;
         static std::vector<ThreadListener*> _listeners;
+        static pthread_key_t                _cleanupKey;
+
+        static pthread_key_t _createCleanupKey();
+        void _installCleanupHandler();
 
         static void _notifyStarted();
-        static void _notifyStopping();
+        static void _notifyStopping( void* arg );
     };
 }
 

@@ -3,9 +3,11 @@
    All rights reserved. */
 
 #include "thread.h"
-#include "threadListener.h"
+
 #include "base.h"
 #include "lock.h"
+#include "scopedMutex.h"
+#include "threadListener.h"
 
 #include <errno.h>
 #include <pthread.h>
@@ -17,8 +19,23 @@
 using namespace eqBase;
 using namespace std;
 
+    
 Lock                         Thread::_listenerLock;
 std::vector<ThreadListener*> Thread::_listeners;
+pthread_key_t                Thread::_cleanupKey = Thread::_createCleanupKey();
+
+pthread_key_t Thread::_createCleanupKey()
+{
+    const int error = pthread_key_create(&_cleanupKey, Thread::_notifyStopping);
+    if( error )
+    {
+        EQERROR
+            << "Can't create thread-specific key for thread cleanup handler: " 
+            << strerror( error ) << std::endl;
+        EQASSERT( !error );
+    }
+    return _cleanupKey;
+}
 
 Thread::Thread( const Type type )
         : _type(type),
@@ -51,6 +68,7 @@ void Thread::_runChild()
     if( init( ))
     {
         EQINFO << "Thread successfully initialised" << endl;
+        _installCleanupHandler();
         _notifyStarted();
         _lock->unset(); // sync w/ parent
         result = run();
@@ -79,26 +97,41 @@ void Thread::_runChild()
 
 void Thread::_notifyStarted()
 {
-    _listenerLock.set();
+    ScopedMutex mutex( _listenerLock );
 
+    EQINFO << "Calling " << _listeners.size() << " thread started listeners"
+           << endl;
     for( vector<ThreadListener*>::const_iterator iter = _listeners.begin();
          iter != _listeners.end(); ++iter )
         
         (*iter)->notifyThreadStarted();
-
-    _listenerLock.unset();
 }
 
-void Thread::_notifyStopping()
+void Thread::_installCleanupHandler()
 {
-    _listenerLock.set();
+    switch( _type )
+    {
+        case PTHREAD:
+            pthread_setspecific( _cleanupKey, this );
+            break;
 
+        case FORK:
+        default:
+            EQERROR << "unimplemented" << endl;
+    }
+}
+
+void Thread::_notifyStopping( void* )
+{
+    pthread_setspecific( _cleanupKey, NULL );
+
+    ScopedMutex mutex( _listenerLock );
+    EQINFO << "Calling " << _listeners.size() << " thread stopping listeners"
+           <<endl;
     for( vector<ThreadListener*>::const_iterator iter = _listeners.begin();
          iter != _listeners.end(); ++iter )
         
         (*iter)->notifyThreadStopping();
-
-    _listenerLock.unset();
 }
 
 // the signal handler for SIGCHILD
@@ -180,7 +213,6 @@ void Thread::exit( ssize_t retVal )
     EQASSERTINFO( isCurrent( ), "Thread::exit not called from child thread" );
 
     EQINFO << "Exiting thread" << endl;
-    _notifyStopping();
     _threadState = STATE_STOPPING;
 
     switch( _type )
@@ -310,8 +342,7 @@ bool Thread::isCurrent() const
 
 void Thread::addListener( ThreadListener* listener )
 {
-    _listenerLock.set();
+    ScopedMutex mutex( _listenerLock );
     _listeners.push_back( listener );
-    _listenerLock.unset();
 }
 

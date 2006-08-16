@@ -26,11 +26,14 @@ namespace eqBase
          */
         explicit ScopedMutex( Lock* lock ) : _lock( lock )
             { if( lock ) lock->set(); }
+        explicit ScopedMutex( Lock& lock ) : _lock( &lock )
+            { lock.set(); }
 
 
         /** Destructs the scoped mutex and unsets the mutex. */
         ~ScopedMutex() { if( _lock ) _lock->unset(); }
     private:
+        ScopedMutex(){}
         Lock* _lock;
     };
 }
