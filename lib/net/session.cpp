@@ -21,7 +21,7 @@ using namespace std;
 
 Session::Session( const uint32_t nCommands, const bool threadSafe )
         : Base( nCommands ),
-          _requestHandler( Thread::PTHREAD, threadSafe ),
+          _requestHandler( threadSafe ),
           _id(EQ_ID_INVALID),
           _server(NULL),
           _isMaster(false),

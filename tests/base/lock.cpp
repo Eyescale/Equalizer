@@ -14,8 +14,7 @@ Lock*           lock;
 class Test : public Thread
 {
 public:
-    Test() : Thread( Thread::PTHREAD ) {}
-    virtual ssize_t run()
+    virtual void* run()
         {
             lock->set();
             lock->unset();
@@ -25,7 +24,7 @@ public:
 
 int main( int argc, char **argv )
 {
-    lock = new Lock( Thread::PTHREAD );
+    lock = new Lock;
     lock->set();
 
     Test threads[MAXTHREADS];

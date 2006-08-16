@@ -5,25 +5,26 @@
 #ifndef EQNET_LAUNCHER_H
 #define EQNET_LAUNCHER_H
 
-#include <eq/base/thread.h>
+#include <eq/base/process.h>
+
 #include <string>
 #include <vector>
 
 namespace eqNet
 {
     /** The launcher executes a shell command in a separate process. */
-    class Launcher : public eqBase::Thread
+    class Launcher : public eqBase::Process
     {
     public:
         static bool run( const std::string& command );
 
     private:
-        Launcher() : eqBase::Thread( eqBase::Thread::FORK ) {}
+        Launcher(){}
 
         std::vector<std::string> _commandLine;
 
         void _buildCommandLine( const std::string& command );
-        virtual ssize_t run();
+        virtual int run();
         
     };
 }

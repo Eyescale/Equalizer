@@ -14,8 +14,7 @@ Barrier*        barrier;
 class Test : public Thread
 {
 public:
-    Test() : Thread( Thread::PTHREAD ) {}
-    virtual ssize_t run()
+    virtual void* run()
         {
             const size_t num = barrier->enter( nThreads );
             cerr << " " << num;
@@ -25,7 +24,7 @@ public:
 
 int main( int argc, char **argv )
 {
-    barrier = new Barrier( Thread::PTHREAD );
+    barrier = new Barrier;
     Test threads[MAXTHREADS];
 
     for( nThreads = MAXTHREADS; nThreads>1; nThreads = nThreads>>1 )

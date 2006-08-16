@@ -5,27 +5,21 @@
 #ifndef EQBASE_SEMA_H
 #define EQBASE_SEMA_H
 
-#include "thread.h"
-
+#include <eq/base/base.h>
 #include <pthread.h>
 
 namespace eqBase
 {
     /**
-     * A generalized semaphore for different thread types.
-     * 
-     * Depending on the thread type, a different implementation is used to
-     * create the sema.
+     * A semaphore primitive.
      */
     class Sema 
     {
     public:
         /** 
-         * Constructs a new sema of the given type.
-         * 
-         * @param type the type of threads accessing the sema.
+         * Constructs a new semaphore.
          */
-        Sema( const Thread::Type type = Thread::PTHREAD );
+        Sema();
 
 
         /** Destructs the sema. */
@@ -49,19 +43,9 @@ namespace eqBase
         void adjust( const int delta );
 
     private:
-        Thread::Type _type;
-
-        union
-        {
-            struct
-            {
-                pthread_cond_t  cond;
-                pthread_mutex_t mutex;
-
-            } _pthread;
-        };
-
-        volatile uint32_t _value;
+        pthread_cond_t  _cond;
+        pthread_mutex_t _mutex;
+        uint32_t        _value;
     };
 }
 

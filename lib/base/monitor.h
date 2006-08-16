@@ -5,8 +5,7 @@
 #ifndef EQBASE_MONITOR_H
 #define EQBASE_MONITOR_H
 
-#include "thread.h"
-
+#include <eq/base/log.h>
 #include <pthread.h>
 
 namespace eqBase
@@ -25,97 +24,57 @@ namespace eqBase
          * 
          * @param type the type of threads accessing the monitor.
          */
-        Monitor( const Thread::Type type = Thread::PTHREAD )
-                : _type( type ), _var( 0 )
+        Monitor()
+                : _var( 0 )
             {
-                switch( _type )
+                int error = pthread_cond_init( &_cond, NULL );
+                if( error )
                 {
-                    case Thread::PTHREAD:
-                    {
-                        int error = pthread_cond_init( &_pthread.cond, NULL );
-                        if( error )
-                        {
-                            EQERROR << "Error creating pthread condition: " 
-                                    << strerror( error ) << std::endl;
-                            return;
-                        } 
-                        
-                        error = pthread_mutex_init( &_pthread.mutex, NULL );
-                        if( error )
-                        {
-                            EQERROR << "Error creating pthread mutex: " 
-                                    << strerror( error ) << std::endl;
-                            return;
-                        } 
-                    } break;
-                    
-                    default: EQUNIMPLEMENTED;
+                    EQERROR << "Error creating pthread condition: " 
+                            << strerror( error ) << std::endl;
+                    return;
+                } 
+                
+                error = pthread_mutex_init( &_mutex, NULL );
+                if( error )
+                {
+                    EQERROR << "Error creating pthread mutex: "
+                            << strerror( error ) << std::endl;
+                    return;
                 }
             }
         
         /** Destructs the monitor. */
         ~Monitor()
             {
-                switch( _type )
-                {
-                    case Thread::PTHREAD:
-                        pthread_cond_destroy( &_pthread.cond );
-                        pthread_mutex_destroy( &_pthread.mutex );
-                        return;
-            
-                    default: EQUNIMPLEMENTED;
-                }
+                pthread_cond_destroy( &_cond );
+                pthread_mutex_destroy( &_mutex );
             }
 
         /** @name Changing the monitored value. */
         //*{
         Monitor& operator++ ()    // prefix only
             {
-                switch( _type )
-                {
-                    case Thread::PTHREAD:
-                        pthread_mutex_lock( &_pthread.mutex );
-                        ++_var;
-                        pthread_cond_broadcast( &_pthread.cond );
-                        pthread_mutex_unlock( &_pthread.mutex );
-                        return *this;
-
-                    default:
-                        EQUNIMPLEMENTED;
-                }
+                pthread_mutex_lock( &_mutex );
+                ++_var;
+                pthread_cond_broadcast( &_cond );
+                pthread_mutex_unlock( &_mutex );
                 return *this;
             }
         Monitor& operator-- ()    // prefix only
             {
-                switch( _type )
-                {
-                    case Thread::PTHREAD:
-                        pthread_mutex_lock( &_pthread.mutex );
-                        --_var;
-                        pthread_cond_broadcast( &_pthread.cond );
-                        pthread_mutex_unlock( &_pthread.mutex );
-                        return *this;
-
-                    default:
-                        EQUNIMPLEMENTED;
-                }
+                pthread_mutex_lock( &_mutex );
+                --_var;
+                pthread_cond_broadcast( &_cond );
+                pthread_mutex_unlock( &_mutex );
                 return *this;
             }
         void set( const T& val )
             {
-                switch( _type )
-                {
-                    case Thread::PTHREAD:
-                        pthread_mutex_lock( &_pthread.mutex );
-                        _var = val;
-                        pthread_cond_broadcast( &_pthread.cond );
-                        pthread_mutex_unlock( &_pthread.mutex );
-                        return;
-
-                    default:
-                        EQUNIMPLEMENTED;
-                }
-                return *this;
+                pthread_mutex_lock( &_mutex );
+                _var = val;
+                pthread_cond_broadcast( &_cond );
+                pthread_mutex_unlock( &_mutex );
             }
         //*}
 
@@ -123,46 +82,24 @@ namespace eqBase
         //*{
         void waitEQ( const T& val )
             {
-                switch( _type )
-                {
-                    case Thread::PTHREAD:
-                        pthread_mutex_lock( &_pthread.mutex );
-                        while( _var != val )
-                            pthread_cond_wait( &_pthread.cond, &_pthread.mutex);
-                        pthread_mutex_unlock( &_pthread.mutex );
-                        return;
-                    default:
-                        EQUNIMPLEMENTED;
-                }
+                pthread_mutex_lock( &_mutex );
+                while( _var != val )
+                    pthread_cond_wait( &_cond, &_mutex);
+                pthread_mutex_unlock( &_mutex );
             }
         void waitGE( const T& val )
             {
-                switch( _type )
-                {
-                    case Thread::PTHREAD:
-                        pthread_mutex_lock( &_pthread.mutex );
-                        while( _var < val )
-                            pthread_cond_wait( &_pthread.cond, &_pthread.mutex);
-                        pthread_mutex_unlock( &_pthread.mutex );
-                        return;
-                    default:
-                        EQUNIMPLEMENTED;
-                }
+                pthread_mutex_lock( &_mutex );
+                while( _var < val )
+                    pthread_cond_wait( &_cond, &_mutex);
+                pthread_mutex_unlock( &_mutex );
             }
         //*}
     private:
-        Thread::Type _type;
-        T            _var;
+        T _var;
 
-        union
-        {
-            struct
-            {
-                pthread_cond_t  cond;
-                pthread_mutex_t mutex;
-
-            } _pthread;
-        };
+        pthread_cond_t  _cond;
+        pthread_mutex_t _mutex;
     };
 }
 

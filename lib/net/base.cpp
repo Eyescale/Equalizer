@@ -14,7 +14,7 @@ using namespace eqBase;
 using namespace std;
 
 Base::Base( const uint32_t nCommands, const bool threadSafe )
-        : _requestHandler( Thread::PTHREAD, threadSafe ),
+        : _requestHandler( threadSafe ),
           _nCommands( nCommands )
 {
     _commandFunctions     = new CommandFcn[nCommands];

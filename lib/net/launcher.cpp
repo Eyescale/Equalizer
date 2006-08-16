@@ -70,7 +70,7 @@ void Launcher::_buildCommandLine( const string& command )
     }
 }
 
-ssize_t Launcher::run()
+int Launcher::run()
 {
     const size_t  argc         = _commandLine.size();
     char*         argv[argc+1];

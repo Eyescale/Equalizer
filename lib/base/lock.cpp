@@ -1,116 +1,57 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "lock.h"
+
+#include "log.h"
 
 #include <errno.h>
 
 using namespace eqBase;
 using namespace std;
 
-Lock::Lock( const Thread::Type type )
-        : _type( type )
+Lock::Lock()
 {
-    switch( _type )
+    const int error = pthread_mutex_init( &_mutex, NULL );
+    if( error )
     {
-        case Thread::PTHREAD:
-        {
-            int nTries = 10;
-            while( nTries-- )
-            {
-                const int error = pthread_mutex_init( &_lock.pthread, NULL );
-                switch( error )
-                {
-                    case 0: // ok
-                        return;
-                    case EAGAIN:
-                        break;
-                    default:
-                        EQERROR << "Error creating pthread mutex: " 
-                              << strerror( error ) << endl;
-                        return;
-                }
-            } 
-            EQERROR << "Error creating pthread mutex"  << endl;
-        } return;
-
-        default: //EQUNIMPLEMENTED;
-            EQERROR << "not implemented" << endl;
+        EQERROR << "Error creating pthread mutex: " << strerror(error) << endl;
+        return;
     }
 }
 
 Lock::~Lock()
 {
-    switch( _type )
-    {
-        case Thread::PTHREAD:
-            pthread_mutex_destroy( &_lock.pthread );
-            return;
-
-        default:
-            EQERROR << "not implemented" << endl;
-    }
+    pthread_mutex_destroy( &_mutex );
 }
 
 void Lock::set()
 {
-    switch( _type )
-    {
-        case Thread::PTHREAD:
-            pthread_mutex_lock( &_lock.pthread );
-            return;
-
-        default:
-            EQERROR << "not implemented" << endl;
-    }
+    pthread_mutex_lock( &_mutex );
 }
 
 
 void Lock::unset()
 {
-    switch( _type )
-    {
-        case Thread::PTHREAD:
-            pthread_mutex_unlock( &_lock.pthread );
-            return;
-
-        default:
-            EQERROR << "not implemented" << endl;
-    }
+    pthread_mutex_unlock( &_mutex );
 }
 
 
 bool Lock::trySet()
 {
-    switch( _type )
-    {
-        case Thread::PTHREAD:
-            return ( pthread_mutex_trylock( &_lock.pthread ) == 0 );
-
-        default:
-            EQERROR << "not implemented" << endl;
-            return false;
-    }
+    return ( pthread_mutex_trylock( &_mutex ) == 0 );
 }
 
 
 bool Lock::test()
 {
-    switch( _type )
+    if( pthread_mutex_trylock( &_mutex ) == 0 )
     {
-        case Thread::PTHREAD:
-            if( pthread_mutex_trylock( &_lock.pthread ) == 0 )
-            {
-                pthread_mutex_unlock( &_lock.pthread );
-                return false;
-            }
-            return true;
-
-        default:
-            EQERROR << "not implemented" << endl;
-            return false;
+        pthread_mutex_unlock( &_mutex );
+        return false;
     }
+    return true;
 }
 
 

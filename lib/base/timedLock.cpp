@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "timedLock.h"
@@ -9,160 +9,96 @@
 using namespace eqBase;
 using namespace std;
 
-TimedLock::TimedLock( const Thread::Type type )
-        : _type( type )
+TimedLock::TimedLock()
+        : _locked( false )
 {
-    switch( _type )
+    int error = pthread_mutex_init( &_mutex, NULL );
+    if( error )
     {
-        case Thread::PTHREAD:
-        {
-            int error = pthread_mutex_init( &_lock.pthread.mutex, NULL );
-            if( error )
-            {
-                EQERROR << "Error creating pthread mutex: " 
-                      << strerror( error ) << endl;
-                return;
-            }
-            error = pthread_cond_init( &_lock.pthread.cond, NULL );
-            if( error )
-            {
-                EQERROR << "Error creating pthread condition: " 
-                      << strerror( error ) << endl;
-                pthread_mutex_destroy( &_lock.pthread.mutex );
-                return;
-            }
-
-            _lock.pthread.locked = false;
-        } break;
-
-        default:
-            EQERROR << "not implemented" << endl;
+        EQERROR << "Error creating pthread mutex: " << strerror(error) << endl;
+        return;
+    }
+    error = pthread_cond_init( &_cond, NULL );
+    if( error )
+    {
+        EQERROR << "Error creating pthread condition: " << strerror( error )
+                << endl;
+        pthread_mutex_destroy( &_mutex );
+        return;
     }
 }
 
 TimedLock::~TimedLock()
 {
-    switch( _type )
-    {
-        case Thread::PTHREAD:
-            pthread_mutex_destroy( &_lock.pthread.mutex );
-            pthread_cond_destroy( &_lock.pthread.cond );
-            break;
-
-        default:
-            EQERROR << "not implemented" << endl;
-    }
+    pthread_mutex_destroy( &_mutex );
+    pthread_cond_destroy( &_cond );
 }
 
 bool TimedLock::set( const uint32_t timeout )
 {
-    switch( _type )
+    pthread_mutex_lock( &_mutex );
+
+    bool acquired = true;
+    while( _locked )
     {
-        case Thread::PTHREAD:
+        if( timeout )
         {
-            pthread_mutex_lock( &_lock.pthread.mutex );
-
-            bool acquired = true;
-            while( _lock.pthread.locked )
+            timespec ts;
+            ts.tv_sec  = (int)(timeout/1000);
+            ts.tv_nsec = (timeout - ts.tv_sec*1000) * 1000000;
+            
+            timeval tv;
+            gettimeofday( &tv, 0 );
+            ts.tv_sec  += tv.tv_sec;
+            ts.tv_nsec += tv.tv_usec * 1000;
+            
+            int error = pthread_cond_timedwait( &_cond, &_mutex, &ts );
+            if( error == ETIMEDOUT )
             {
-                if( timeout )
-                {
-                    timespec ts;
-                    ts.tv_sec  = (int)(timeout/1000);
-                    ts.tv_nsec = (timeout - ts.tv_sec*1000) * 1000000;
-
-                    timeval tv;
-                    gettimeofday( &tv, 0 );
-                    ts.tv_sec  += tv.tv_sec;
-                    ts.tv_nsec += tv.tv_usec * 1000;
-
-                    int error = pthread_cond_timedwait( &_lock.pthread.cond,
-                                                        &_lock.pthread.mutex,
-                                                        &ts );
-                    if( error == ETIMEDOUT )
-                    {
-                        acquired = false;
-                        break;
-                    }
-                }
-                else
-                    pthread_cond_wait( &_lock.pthread.cond,
-                                       &_lock.pthread.mutex );
+                acquired = false;
+                break;
             }
-
-            if( acquired )
-            {
-                EQASSERT( !_lock.pthread.locked );
-                _lock.pthread.locked = true;
-            }
-
-            pthread_mutex_unlock( &_lock.pthread.mutex );
-            return acquired;
         }
- 
-        default:
-            EQERROR << "not implemented" << endl;
+        else
+            pthread_cond_wait( &_cond, &_mutex );
     }
-    return false;
-}
 
+    if( acquired )
+    {
+        EQASSERT( !_locked );
+        _locked = true;
+    }
+
+    pthread_mutex_unlock( &_mutex );
+    return acquired;
+}
 
 void TimedLock::unset()
 {
-    switch( _type )
-    {
-        case Thread::PTHREAD:
-            pthread_mutex_lock( &_lock.pthread.mutex );
-
-            _lock.pthread.locked = false;
-            pthread_cond_signal( &_lock.pthread.cond );
-
-            pthread_mutex_unlock( &_lock.pthread.mutex );
-            return;
-
-        default:
-            EQERROR << "not implemented" << endl;
-    }
+    pthread_mutex_lock( &_mutex );
+    _locked = false;
+    pthread_cond_signal( &_cond );
+    pthread_mutex_unlock( &_mutex );
 }
 
 
 bool TimedLock::trySet()
 {
-    switch( _type )
+    pthread_mutex_lock( &_mutex );
+    
+    bool acquired = false;
+    if( _locked )
     {
-        case Thread::PTHREAD:
-        {
-            pthread_mutex_lock( &_lock.pthread.mutex );
-
-            bool acquired = false;
-            if( _lock.pthread.locked )
-            {
-                _lock.pthread.locked = true;
-                acquired             = true;
-            }
-
-            pthread_mutex_unlock( &_lock.pthread.mutex );
-            return acquired;
-        }
-
-        default:
-            EQERROR << "not implemented" << endl;
-            return false;
+        _locked  = true;
+        acquired = true;
     }
+
+    pthread_mutex_unlock( &_mutex );
+    return acquired;
 }
 
 
 bool TimedLock::test()
 {
-    switch( _type )
-    {
-        case Thread::PTHREAD:
-            return _lock.pthread.locked;
-
-        default:
-            EQERROR << "not implemented" << endl;
-            return false;
-    }
+    return _locked;
 }
-
-

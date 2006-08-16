@@ -5,27 +5,20 @@
 #ifndef EQBASE_LOCK_H
 #define EQBASE_LOCK_H
 
-#include <eq/base/thread.h>
-
 #include <pthread.h>
 
 namespace eqBase
 {
     /**
-     * A generalized lock for different thread types.
-     * 
-     * Depending on the thread type, a different implementation is used to
-     * create the lock.
+     * A lock (mutex) primitive.
      */
     class Lock 
     {
     public:
         /** 
-         * Constructs a new lock of the given type.
-         * 
-         * @param type the type of threads accessing the lock.
+         * Constructs a new lock.
          */
-        Lock( const Thread::Type type = Thread::PTHREAD );
+        Lock();
 
 
         /** Destructs the lock. */
@@ -58,12 +51,7 @@ namespace eqBase
         bool test(); 
 
     private:
-        Thread::Type _type;
-
-        union
-        {
-            pthread_mutex_t pthread;
-        } _lock;
+        pthread_mutex_t _mutex;
     };
 }
 

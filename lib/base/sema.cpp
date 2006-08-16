@@ -4,85 +4,54 @@
 
 #include "sema.h"
 
+#include <eq/base/log.h>
+
 #include <errno.h>
 
 using namespace eqBase;
 using namespace std;
 
-Sema::Sema( const Thread::Type type )
-        : _type( type ),
-          _value( 0 )
+Sema::Sema()
+        : _value( 0 )
 {
-    switch( _type )
+    int error = pthread_cond_init( &_cond, NULL );
+    if( error )
     {
-        case Thread::PTHREAD:
-        {
-            int error = pthread_cond_init( &_pthread.cond, NULL );
-            if( error )
-            {
-                EQERROR << "Error creating pthread condition: " 
-                        << strerror( error ) << endl;
-                return;
-            } 
+        EQERROR << "Error creating pthread condition: " << strerror( error )
+                << endl;
+        return;
+    } 
             
-            error = pthread_mutex_init( &_pthread.mutex, NULL );
-            if( error )
-            {
-                EQERROR << "Error creating pthread mutex: " 
-                        << strerror( error ) << endl;
-                return;
-            } 
-        } break;
-
-        default: EQUNIMPLEMENTED;
-    }
+    error = pthread_mutex_init( &_mutex, NULL );
+    if( error )
+    {
+        EQERROR << "Error creating pthread mutex: " << strerror(error) << endl;
+        return;
+    } 
 }
 
 Sema::~Sema()
 {
-    switch( _type )
-    {
-        case Thread::PTHREAD:
-            pthread_cond_destroy( &_pthread.cond );
-            pthread_mutex_destroy( &_pthread.mutex );
-            return;
-
-        default: EQUNIMPLEMENTED;
-    }
+    pthread_cond_destroy( &_cond );
+    pthread_mutex_destroy( &_mutex );
 }
 
 void Sema::post()
 {
-    switch( _type )
-    {
-        case Thread::PTHREAD:
-            pthread_mutex_lock( &_pthread.mutex );
-            ++_value;
-            pthread_cond_signal( &_pthread.cond );
-            pthread_mutex_unlock( &_pthread.mutex );
-            return;
-
-        default:
-            EQERROR << "not implemented" << endl;
-    }
+    pthread_mutex_lock( &_mutex );
+    ++_value;
+    pthread_cond_signal( &_cond );
+    pthread_mutex_unlock( &_mutex );
 }
 
 void Sema::wait()
 {
-    switch( _type )
-    {
-        case Thread::PTHREAD:
-            pthread_mutex_lock( &_pthread.mutex );
-            while( _value == 0 )
-                pthread_cond_wait( &_pthread.cond, &_pthread.mutex );
+    pthread_mutex_lock( &_mutex );
+    while( _value == 0 )
+        pthread_cond_wait( &_cond, &_mutex );
 
-            --_value;
-            pthread_mutex_unlock( &_pthread.mutex );
-            return;
-
-        default:
-            EQERROR << "not implemented" << endl;
-    }
+    --_value;
+    pthread_mutex_unlock( &_mutex );
 }
 
 void Sema::adjust( const int delta )
@@ -90,42 +59,33 @@ void Sema::adjust( const int delta )
     if( delta == 0 )
         return;
 
-    switch( _type )
+    pthread_mutex_lock( &_mutex );
+    
+    if( delta > 0 )
     {
-        case Thread::PTHREAD:
-        {
-            pthread_mutex_lock( &_pthread.mutex );
+        _value += delta;
+        pthread_cond_broadcast( &_cond );
+        pthread_mutex_unlock( &_mutex );
+        return;
+    };
 
-            if( delta > 0 )
-            {
-                _value += delta;
-                pthread_cond_broadcast( &_pthread.cond );
-                pthread_mutex_unlock( &_pthread.mutex );
-                return;
-            };
-
-            uint32_t amount = (uint32_t)-delta;
-            while( amount )
-            {
-                while( _value == 0 )
-                    pthread_cond_wait( &_pthread.cond, &_pthread.mutex );
+    uint32_t amount = (uint32_t)-delta;
+    while( amount )
+    {
+        while( _value == 0 )
+            pthread_cond_wait( &_cond, &_mutex );
                 
-                if( _value < amount )
-                {
-                    amount -= _value;
-                    _value = 0;
-                }
-                else
-                {
-                    _value -= amount;
-                    amount = 0;
-                }
-            }
-            pthread_mutex_unlock( &_pthread.mutex );
-            return;
+        if( _value < amount )
+        {
+            amount -= _value;
+            _value = 0;
         }
-        default:
-            EQERROR << "not implemented" << endl;
+        else
+        {
+            _value -= amount;
+            amount = 0;
+        }
     }
+    pthread_mutex_unlock( &_mutex );
 }
 

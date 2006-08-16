@@ -16,7 +16,7 @@ RefPtr<eqNet::Connection> connection;
 class NodeThread : public eqBase::Thread
 {
 protected:
-    ssize_t run()
+    virtual void* run()
         {
             RefPtr<Node>        node      = new Node;
             RefPtr<eqNet::Node> nodeProxy = new eqNet::Node;

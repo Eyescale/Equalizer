@@ -7,22 +7,18 @@
 #include "base.h"
 #include "lock.h"
 #include "scopedMutex.h"
-#include "threadListener.h"
+#include "executionListener.h"
 
 #include <errno.h>
 #include <pthread.h>
-#include <signal.h>
 #include <strings.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 
 using namespace eqBase;
 using namespace std;
-
     
-Lock                         Thread::_listenerLock;
-std::vector<ThreadListener*> Thread::_listeners;
-pthread_key_t                Thread::_cleanupKey = Thread::_createCleanupKey();
+Lock                            Thread::_listenerLock;
+std::vector<ExecutionListener*> Thread::_listeners;
+pthread_key_t                   Thread::_cleanupKey=Thread::_createCleanupKey();
 
 pthread_key_t Thread::_createCleanupKey()
 {
@@ -37,62 +33,45 @@ pthread_key_t Thread::_createCleanupKey()
     return _cleanupKey;
 }
 
-Thread::Thread( const Type type )
-        : _type(type),
-          _threadState(STATE_STOPPED)
+Thread::Thread()
+        : _state(STATE_STOPPED)
 {
-    bzero( &_threadID, sizeof( ThreadID ));
-    _lock = new Lock( type );
-    _lock->set();
+    bzero( &_threadID, sizeof( pthread_t ));
+    _syncChild.set();
 }
 
 Thread::~Thread()
 {
-    delete _lock;
 }
 
 void* Thread::runChild( void* arg )
 {
     Thread* thread = static_cast<Thread*>(arg);
-    EQASSERT( thread );
     thread->_runChild();
     return NULL; // not reached
 }
 
 void Thread::_runChild()
 {
-    _threadID      = _getLocalThreadID();
-    _threadState   = STATE_RUNNING;
-    ssize_t result = 0;
+    _threadID = pthread_self();
 
-    if( init( ))
-    {
-        EQINFO << "Thread successfully initialised" << endl;
-        _installCleanupHandler();
-        _notifyStarted();
-        _lock->unset(); // sync w/ parent
-        result = run();
-        _threadState = STATE_STOPPING;
-    }
-    else
+    if( !init( ))
     {
         EQINFO << "Thread failed to initialise" << endl;
-        _threadState = STATE_STOPPED;
-        _lock->unset();
+        _state = STATE_STOPPED;
+        _syncChild.unset();
+        pthread_exit( NULL );
     }
 
-    switch( _type )
-    {
-        case PTHREAD:
-            pthread_exit( (void*)result );
-            break;
+    _state    = STATE_RUNNING;
+    EQINFO << "Thread successfully initialised" << endl;
+    pthread_setspecific( _cleanupKey, this ); // install cleanup handler
+    _notifyStarted();
+    _syncChild.unset(); // sync w/ parent
 
-        case FORK:
-            ::exit( result );
-
-        default:
-            EQUNREACHABLE;
-    }
+    void* result = run();
+    _state = STATE_STOPPING;
+    pthread_exit( result );
 }
 
 void Thread::_notifyStarted()
@@ -101,24 +80,10 @@ void Thread::_notifyStarted()
 
     EQINFO << "Calling " << _listeners.size() << " thread started listeners"
            << endl;
-    for( vector<ThreadListener*>::const_iterator iter = _listeners.begin();
+    for( vector<ExecutionListener*>::const_iterator iter = _listeners.begin();
          iter != _listeners.end(); ++iter )
         
-        (*iter)->notifyThreadStarted();
-}
-
-void Thread::_installCleanupHandler()
-{
-    switch( _type )
-    {
-        case PTHREAD:
-            pthread_setspecific( _cleanupKey, this );
-            break;
-
-        case FORK:
-        default:
-            EQERROR << "unimplemented" << endl;
-    }
+        (*iter)->notifyExecutionStarted();
 }
 
 void Thread::_notifyStopping( void* )
@@ -128,219 +93,97 @@ void Thread::_notifyStopping( void* )
     ScopedMutex mutex( _listenerLock );
     EQINFO << "Calling " << _listeners.size() << " thread stopping listeners"
            <<endl;
-    for( vector<ThreadListener*>::const_iterator iter = _listeners.begin();
+    for( vector<ExecutionListener*>::const_iterator iter = _listeners.begin();
          iter != _listeners.end(); ++iter )
         
-        (*iter)->notifyThreadStopping();
-}
-
-// the signal handler for SIGCHILD
-static void sigChildHandler( int /*signal*/ )
-{
-    //int status;
-    //int pid = wait( &status );
-    EQINFO << "Received SIGCHILD" << endl;
-    signal( SIGCHLD, sigChildHandler );
+        (*iter)->notifyExecutionStopping();
 }
 
 bool Thread::start()
 {
-    if( _threadState != STATE_STOPPED )
+    if( _state != STATE_STOPPED )
         return false;
 
-    _threadState = STATE_STARTING;
+    _state = STATE_STARTING;
 
-    switch( _type )
+    pthread_attr_t attributes;
+    pthread_attr_init( &attributes );
+    pthread_attr_setscope( &attributes, PTHREAD_SCOPE_SYSTEM );
+
+    int nTries = 10;
+    while( nTries-- )
     {
-        case PTHREAD:
+        const int error = pthread_create( &_threadID, &attributes,
+                                          runChild, this );
+
+        if( error == 0 ) // succeeded
         {
-            pthread_attr_t attributes;
-            pthread_attr_init( &attributes );
-            pthread_attr_setscope( &attributes, PTHREAD_SCOPE_SYSTEM );
-
-            int nTries = 10;
-            while( nTries-- )
-            {
-                const int error = pthread_create( &_threadID.pthread,
-                                                  &attributes, runChild, this );
-
-                if( error == 0 ) // succeeded
-                {
-                    EQVERB << "Created pthread " << _threadID.pthread << endl;
-                    break;
-                }
-                if( error != EAGAIN || nTries==0 )
-                {
-                    EQWARN << "Could not create thread: " << strerror( error )
-                         << endl;
-                    return false;
-                }
-            }
-        } break;
-
-        case FORK:
+            EQVERB << "Created pthread " << _threadID << endl;
+            break;
+        }
+        if( error != EAGAIN || nTries==0 )
         {
-            signal( SIGCHLD, sigChildHandler );
-            const int result = fork();
-            switch( result )
-            {
-                case 0: // child
-                    EQVERB << "Child running" << endl;
-                    _runChild(); 
-                    return true; // not reached
-            
-                case -1: // error
-                    EQWARN << "Could not fork child process:" 
-                         << strerror( errno ) << endl;
-                    return false;
-
-                default: // parent
-                    EQVERB << "Parent running" << endl;
-                    _threadID.fork = result;
-                    break;
-            }
-        } break;
+            EQWARN << "Could not create thread: " << strerror( error )
+                   << endl;
+            return false;
+        }
     }
 
-    _lock->set(); // sync with child's entry func
-    // TODO: check if thread's initialised correctly. needs shmem for FORK.
-    _threadState = STATE_RUNNING;
+    _syncChild.set(); // sync with child's entry func
+    _state = STATE_RUNNING;
     return true;
 }
 
-void Thread::exit( ssize_t retVal )
+void Thread::exit( void* retVal )
 {
-    EQASSERTINFO( isCurrent( ), "Thread::exit not called from child thread" );
+    EQASSERTINFO( isCurrent(), "Thread::exit not called from child thread" );
 
     EQINFO << "Exiting thread" << endl;
-    _threadState = STATE_STOPPING;
+    _state = STATE_STOPPING;
 
-    switch( _type )
-    {
-        case PTHREAD:
-            pthread_exit( (void*)retVal );
-            break;
-
-        case FORK:
-            ::exit( retVal );
-            break;
-    }
+    pthread_exit( (void*)retVal );
     EQUNREACHABLE;
 }
 
 void Thread::cancel()
 {
-    EQASSERTINFO( !isCurrent( ), "Thread::cancel called from child thread" );
+    EQASSERTINFO( !isCurrent(), "Thread::cancel called from child thread" );
 
     EQINFO << "Cancelling thread" << endl;
-    _threadState = STATE_STOPPING;
+    _state = STATE_STOPPING;
 
-    switch( _type )
-    {
-        case PTHREAD:
-            pthread_cancel( _threadID.pthread );
-            break;
-
-        case FORK:
-            kill( _threadID.fork, SIGTERM );
-            break;
-    }
-    EQASSERTINFO( 0, "Unreachable code" );
+    pthread_cancel( _threadID );
+    EQUNREACHABLE;
 }
 
-bool Thread::join( ssize_t* retVal )
+bool Thread::join( void** retVal )
 {
-    if( _threadState == STATE_STOPPED )
+    if( _state == STATE_STOPPED )
         return false;
     if( isCurrent( )) // can't join self
         return false;
 
-    switch( _type )
+    EQVERB << "Joining thread" << endl;
+    void *_retVal;
+    const int error = pthread_join( _threadID, &_retVal);
+    if( error != 0 )
     {
-        case PTHREAD:
-        {
-            EQVERB << "Joining pthread " << _threadID.pthread << endl;
-            void *_retVal;
-            const int error = pthread_join( _threadID.pthread, &_retVal);
-            if( error != 0 )
-            {
-                EQWARN << "Error joining the thread: " << strerror(error) 
-                       << endl;
-                return false;
-            }
-
-            _threadState = STATE_STOPPED;
-            if( retVal )
-                *retVal = (ssize_t)_retVal;
-        } return true;
-
-        case FORK:
-            while( true )
-            {
-                int status;
-                pid_t result = waitpid( _threadID.fork, &status, 0 );
-                if( result == _threadID.fork )
-                {
-                    if( WIFEXITED( status ))
-                    {
-                        if( retVal )
-                            *retVal = WEXITSTATUS( status );
-                        _threadState = STATE_STOPPED;
-
-                        return true;
-                    }
-                    return false;
-                }
-                
-                switch( errno )
-                {
-                    case EINTR:
-                        break; // try again
-
-                    default:
-                        EQWARN << "Error joining the process: " 
-                             << strerror(errno) << endl;
-                        return false;
-                }
-            }
-            return false;
-    }
-    return false;
-}
-
-Thread::ThreadID Thread::_getLocalThreadID()
-{
-    ThreadID threadID;
-
-    switch( _type )
-    {
-        case PTHREAD:
-            threadID.pthread = pthread_self();
-            break;
-
-        case FORK:
-            threadID.fork = getpid();
-            break;
+        EQWARN << "Error joining thread: " << strerror(error) << endl;
+        return false;
     }
 
-    return threadID;
+    _state = STATE_STOPPED;
+    if( retVal )
+        *retVal = _retVal;
+    return true;
 }
 
 bool Thread::isCurrent() const
 {
-    switch( _type )
-    {
-        case PTHREAD:
-            return pthread_equal( pthread_self(), _threadID.pthread );
-
-        case FORK:
-            return ( getpid() == _threadID.fork );
-    }
-
-    EQASSERTINFO( 0, "Unreachable code" );
+    return pthread_equal( pthread_self(), _threadID );
 }
 
-void Thread::addListener( ThreadListener* listener )
+void Thread::addListener( ExecutionListener* listener )
 {
     ScopedMutex mutex( _listenerLock );
     _listeners.push_back( listener );

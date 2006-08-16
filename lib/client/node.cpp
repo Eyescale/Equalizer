@@ -63,7 +63,7 @@ void Node::_removePipe( Pipe* pipe )
     pipe->_node = NULL;
 }
 
-ssize_t Node::_runThread()
+void* Node::_runThread()
 {
     EQINFO << "Entered node thread" << endl;
 

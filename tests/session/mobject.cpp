@@ -56,7 +56,7 @@ volatile uint32_t         testID = EQ_ID_INVALID;
 class ServerThread : public eqBase::Thread
 {
 protected:
-    ssize_t run()
+    virtual void* run()
         {
             RefPtr<eqNet::Node> server    = new eqNet::Node;
             RefPtr<eqNet::Node> nodeProxy = new eqNet::Node;

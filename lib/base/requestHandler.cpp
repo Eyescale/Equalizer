@@ -9,11 +9,10 @@
 using namespace eqBase;
 using namespace std;
 
-RequestHandler::RequestHandler( const Thread::Type type, const bool threadSafe )
-        : _type(type),
-          _requestID(1)
+RequestHandler::RequestHandler( const bool threadSafe )
+        : _requestID(1)
 {
-    _mutex               = threadSafe ? new Lock( type ) : NULL;
+    _mutex               = threadSafe ? new Lock() : NULL;
     CHECK_THREAD_INIT( _threadID );
 }
 
@@ -39,7 +38,7 @@ uint32_t RequestHandler::registerRequest( void* data )
 
     Request* request;
     if( _freeRequests.empty( ))
-        request = new Request( _type );
+        request = new Request;
     else
     {
         request = _freeRequests.front();
@@ -86,7 +85,7 @@ void* RequestHandler::waitRequest( const uint32_t requestID, bool* success,
     if( iter != _requests.end( ))
     {
         Request* request = iter->second;
-        if( request->lock->set( timeout ))
+        if( request->lock.set( timeout ))
         {
             void* result = request->result;
     
@@ -126,7 +125,7 @@ void RequestHandler::serveRequest( const uint32_t requestID, void* result )
 
     Request* request = iter->second;
     request->result = result;
-    request->lock->unset();
+    request->lock.unset();
 }
     
 void* RequestHandler::peekRequest( const uint32_t requestID, bool* success )
@@ -135,7 +134,7 @@ void* RequestHandler::peekRequest( const uint32_t requestID, bool* success )
     if( iter != _requests.end( ))
     {
         Request* request = iter->second;
-        if( !request->lock->test( ))
+        if( !request->lock.test( ))
         {
             if( success ) *success = true;
             return request->result;

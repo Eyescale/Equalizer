@@ -22,11 +22,12 @@ public:
         }
 
 protected:
-    virtual ssize_t run()
+    virtual void* run()
         {
             if( !_connection || 
                 _connection->getState() != Connection::STATE_CONNECTED )
-                exit( EXIT_FAILURE );
+
+                return (void*)EXIT_FAILURE;
 
             cerr << "Server up" << endl;
             char c;

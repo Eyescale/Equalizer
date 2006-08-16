@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_REQUESTHANDLER_H
@@ -8,7 +8,6 @@
 #include "base.h"
 #include "hash.h"
 #include "referenced.h"
-#include "thread.h"
 #include "timedLock.h"
 
 #include <list>
@@ -36,14 +35,12 @@ namespace eqBase
 
     public:
         /** 
-         * Constructs a new requestHandler of the given type.
+         * Constructs a new request handler.
          * 
-         * @param type the type of threads accessing the requestHandler.
          * @param threadSafe if <code>true</code>, all public functions are
          *                   thread-safe.
          */
-        RequestHandler( const Thread::Type type = Thread::PTHREAD,
-                        const bool threadSafe = false );
+        RequestHandler( const bool threadSafe = false );
 
         /** Destructs the requestHandler. */
         ~RequestHandler();
@@ -113,21 +110,19 @@ namespace eqBase
         void serveRequest( const uint32_t requestID, void* result );
 
     private:
-        Thread::Type _type;
         Lock*        _mutex;
 
         struct Request
         {
-            Request( Thread::Type type )
+            Request()
                 {
-                    lock = new TimedLock( type );
-                    lock->set();
+                    lock.set();
                 }
-            ~Request(){ delete lock; }
+            ~Request(){}
             
-            TimedLock* lock;
-            void*      data;
-            void*      result;
+            TimedLock lock;
+            void*     data;
+            void*     result;
         };
         
         typedef Sgi::hash_map<uint32_t, Request*> RequestHash;

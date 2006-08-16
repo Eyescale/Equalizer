@@ -454,7 +454,7 @@ uint32_t Node::_generateSessionID()
 //----------------------------------------------------------------------
 // receiver thread functions
 //----------------------------------------------------------------------
-ssize_t Node::_runReceiver()
+void* Node::_runReceiver()
 {
     EQINFO << "Entered receiver thread" << endl;
 

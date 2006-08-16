@@ -34,7 +34,7 @@ namespace eq
         virtual void exit();
 
         /** @sa eqBase::Thread::run. */
-        virtual ssize_t run();
+        virtual void* run();
 
         /** @sa EventThread::addPipe. */
         virtual void addPipe( Pipe* pipe );

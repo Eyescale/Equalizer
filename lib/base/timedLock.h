@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_TIMEDLOCK_H
@@ -12,18 +12,15 @@
 namespace eqBase
 {
     /**
-     * A generalized lock with time out capabilities for different thread
-     * types.
+     * A timed lock primitive.
      */
     class TimedLock 
     {
     public:
         /** 
-         * Constructs a new timed lock for a given thread type.
-         * 
-         * @param type the type of threads accessing the lock.
+         * Constructs a new timed lock.
          */
-        TimedLock( const Thread::Type type = Thread::PTHREAD );
+        TimedLock();
 
 
         /** Destructs the lock. */
@@ -62,17 +59,9 @@ namespace eqBase
         bool test(); 
 
     private:
-        Thread::Type _type;
-
-        union
-        {
-            struct
-            {
-                pthread_mutex_t mutex;
-                pthread_cond_t  cond;
-                bool            locked;
-            } pthread;
-        } _lock;
+        pthread_mutex_t _mutex;
+        pthread_cond_t  _cond;
+        bool            _locked;
     };
 }
 

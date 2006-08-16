@@ -1,42 +1,34 @@
-
 /* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_THREAD_H
 #define EQBASE_THREAD_H
 
-#include "base.h"
+#include <eq/base/base.h>
+#include <eq/base/lock.h>
 
 #include <vector>
 
 namespace eqBase
 {
     class Lock;
-    class ThreadListener;
+    class ExecutionListener;
 
     /**
      * An abstraction to create a new execution thread.
      * 
      * Depending on the type, a different implementation is used to create the
-     * thread. Please note that certain implementations, e.g., fork, create the
-     * working unit in another address space. 
+     * thread.
      */
     class Thread 
     {
     public:
-        /** The thread types. */
-        enum Type
-        {
-            PTHREAD,
-            FORK
-        };
-
         /** 
          * Constructs a new thread.
          * 
          * @param type the execution model to use for the thread.
          */
-        Thread( const Type type = PTHREAD );
+        Thread();
 
         /** Destructs the thread. */
         virtual ~Thread();
@@ -70,7 +62,7 @@ namespace eqBase
          * 
          * @return the return value of the child thread.
          */
-        virtual ssize_t run() = 0;
+        virtual void* run() = 0;
 
         /** 
          * Exits the child thread immediately.
@@ -80,7 +72,7 @@ namespace eqBase
          *
          * @param retVal the return value of the thread.
          */
-        virtual void exit( ssize_t retVal = 0 );
+        virtual void exit( void* retVal = NULL );
 
         /** 
          * Cancels (stops) the child thread.
@@ -91,23 +83,13 @@ namespace eqBase
 
         /** 
          * Waits for the exit of the child thread.
-         * 
-         * The actual size of the return value is thread-type dependent and may
-         * be as low as 8 bits.
          *
          * @param retVal output value for the return value of the child, can be
          *               <code>NULL</code>.
          * @return <code>true</code> if the thread was joined,
          *         <code>false</code> otherwise.
          */
-        bool join( ssize_t* retVal=NULL );
-
-        /** 
-         * Returns the execution type for this thread.
-         * 
-         * @return the execution type for this thread.
-         */
-        Type getType() { return _type; }
+        bool join( void** retVal=NULL );
 
         /** 
          * Returns if the thread is stopped.
@@ -118,7 +100,7 @@ namespace eqBase
          * @return <code>true</code> if the thread is stopped,
          * <code>false</code> if not.
          */
-        bool isStopped() const { return ( _threadState == STATE_STOPPED ); }
+        bool isStopped() const { return ( _state == STATE_STOPPED ); }
 
         /** 
          * Returns if the thread is running.
@@ -129,7 +111,7 @@ namespace eqBase
          * @return <code>true</code> if the thread is running,
          * <code>false</code> if not.
          */
-        bool isRunning() const { return ( _threadState == STATE_RUNNING ); }
+        bool isRunning() const { return ( _state == STATE_RUNNING ); }
 
         /** 
          * Returns if this thread is the current (calling) thread.
@@ -144,7 +126,7 @@ namespace eqBase
          * 
          * @param listener the listener.
          */
-        static void addListener( ThreadListener* listener );
+        static void addListener( ExecutionListener* listener );
 
     private:
         /** The current state of this thread. */
@@ -156,27 +138,18 @@ namespace eqBase
             STATE_STOPPING  // child no longer active, join() not yet called
         };
 
-        Type  _type;
-        State _threadState;
-        Lock* _lock;
+        State _state;
+        Lock  _syncChild;
 
-        union ThreadID
-        {
-            pthread_t pthread;
-            pid_t     fork;
-        };
-
-        ThreadID             _threadID;
+        pthread_t _threadID;
 
         static void* runChild( void* arg );
         void        _runChild();
 
-        ThreadID    _getLocalThreadID();
-
         // listener API
-        static Lock                         _listenerLock;
-        static std::vector<ThreadListener*> _listeners;
-        static pthread_key_t                _cleanupKey;
+        static Lock                            _listenerLock;
+        static std::vector<ExecutionListener*> _listeners;
+        static pthread_key_t                   _cleanupKey;
 
         static pthread_key_t _createCleanupKey();
         void _installCleanupHandler();

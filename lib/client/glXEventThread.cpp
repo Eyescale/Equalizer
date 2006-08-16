@@ -126,7 +126,7 @@ void GLXEventThread::removeWindow( Window* window )
 // Event thread methods
 //===========================================================================
 
-ssize_t GLXEventThread::run()
+void* GLXEventThread::run()
 {
     CHECK_THREAD( _threadID );
     EQINFO << "GLXEventThread running" << endl;

@@ -152,7 +152,6 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
    tv.tv_sec = timeout / 1000000;
    tv.tv_usec = timeout % 1000000;
 
-   fd_set readfds;
    while( remaining > 0 )
    {
       // wait for data
@@ -180,12 +179,10 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
          return false;
       }
 
+      EQASSERT( remaining >= k );
       remaining -= k;
-      if(remaining == 0) //size_t is unsigned, can't be <0
-      {
-         return true;
-      }
    }
+   return true;
 }
 
 const eq::Matrix4f& Tracker::getHeadMatrix()

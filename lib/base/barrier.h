@@ -1,31 +1,24 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_BARRIER_H
 #define EQBASE_BARRIER_H
-
-#include "thread.h"
 
 #include <pthread.h>
 
 namespace eqBase
 {
     /**
-     * A generalized barrier.
-     * 
-     * Depending on the thread type, a different implementation is used to
-     * create the barrier.
+     * A barrier primitive.
      */
     class Barrier 
     {
     public:
         /** 
-         * Constructs a new barrier of the given type.
-         * 
-         * @param type the type of threads accessing the barrier.
+         * Constructs a new barrier.
          */
-        Barrier( const Thread::Type type );
+        Barrier();
 
         /** Destructs the barrier. */
         ~Barrier();
@@ -40,17 +33,9 @@ namespace eqBase
         size_t enter( const size_t size );
 
     private:
-        Thread::Type _type;
-
-        union
-        {
-            struct 
-            {
-                pthread_mutex_t mutex;
-                pthread_cond_t  cond;
-                size_t          count;
-            } pthread;
-        } _barrier;
+        pthread_mutex_t _mutex;
+        pthread_cond_t  _cond;
+        size_t          _count;
     };
 }
 

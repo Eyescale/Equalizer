@@ -252,7 +252,7 @@ CGDirectDisplayID Pipe::getCGLDisplayID() const
 #endif
 }
 
-ssize_t Pipe::_runThread()
+void* Pipe::_runThread()
 {
     EQINFO << "Entered pipe thread" << endl;
     Config* config = getConfig();

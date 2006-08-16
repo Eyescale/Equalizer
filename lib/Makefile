@@ -9,6 +9,7 @@ HEADER_SRC = \
 	base/base.h \
 	base/clock.h \
 	base/defines.h \
+	base/executionListener.h \
 	base/hash.h \
 	base/idPool.h \
 	base/lock.h \
@@ -17,6 +18,7 @@ HEADER_SRC = \
 	base/mtQueue.h \
 	base/nonCopyable.h \
 	base/perThread.h \
+	base/process.h \
 	base/refPtr.h \
 	base/referenced.h \
 	base/requestHandler.h \
@@ -24,7 +26,6 @@ HEADER_SRC = \
 	base/sema.h \
 	base/shm.h \
 	base/thread.h \
-	base/threadListener.h \
 	base/timedLock.h \
 	base/userdata.h \
 	net/barrier.h \
@@ -91,6 +92,7 @@ SOURCES = \
 	base/idPool.cpp \
 	base/lock.cpp \
 	base/log.cpp \
+	base/process.cpp \
 	base/requestHandler.cpp \
 	base/sema.cpp \
 	base/thread.cpp \

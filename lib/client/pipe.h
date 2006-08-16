@@ -267,18 +267,17 @@ namespace eq
         {
         public:
             PipeThread( Pipe* pipe ) 
-                    : eqBase::Thread( Thread::PTHREAD ),
-                      _pipe( pipe )
+                    : _pipe( pipe )
                 {}
             
-            virtual ssize_t run(){ return _pipe->_runThread(); }
+            virtual void* run(){ return _pipe->_runThread(); }
 
         private:
             Pipe* _pipe;
         };
         PipeThread* _thread;
 
-        ssize_t _runThread();
+        void* _runThread();
 
         /** The receiver->pipe thread request queue. */
         eqNet::RequestQueue    _requestQueue;

@@ -5,188 +5,114 @@
 #ifndef EQBASE_MTQUEUE_H
 #define EQBASE_MTQUEUE_H
 
-#include "thread.h"
-
+#include <eq/base/base.h>
+#include <eq/base/log.h>
 #include <pthread.h>
 #include <queue>
 
 namespace eqBase
 {
     /**
-     * A queue between two execution threads with a blocking pop()
-     * implementation.
+     * A queue with a blocking pop() implementation, typically used between two
+     * execution threads.
      *
-     * OPT: evaluate lock-free implementation if performance is problematic
+     * @todo evaluate lock-free implementation if performance is problematic
      */
     template<class T> class MTQueue
     {
     public:
         /** 
-         * Constructs a new Queue of the given type.
-         *
-         * @param type the type of threads accessing the Queue.
+         * Constructs a new queue.
          */
-        MTQueue( const Thread::Type type = Thread::PTHREAD )
-                : _type( type )
+        MTQueue()
             {
-                switch( type )
+                // mutex init
+                int error = pthread_mutex_init( &_mutex, NULL );
+                if( error )
                 {
-                    case Thread::PTHREAD:
-                    {
-                        // mutex init
-                        int error = pthread_mutex_init( &_sync.pthread.mutex,
-                                                        NULL );
-                        if( error )
-                        {
-                            EQERROR << "Error creating pthread mutex: " 
-                                  << strerror( error ) << std::endl;
-                            return;
-                        }
-                        // condvar init
-                        error = pthread_cond_init( &_sync.pthread.cond, NULL );
-                        if( error )
-                        {
-                            EQERROR << "Error creating pthread condition: " 
-                                  << strerror( error ) << std::endl;
-                            return;
-                        }
-                        break;
-                    }
-                    default:
-                        EQASSERT( "not implemented" == NULL );
+                    EQERROR << "Error creating pthread mutex: " 
+                            << strerror( error ) << std::endl;
+                    return;
+                }
+                // condvar init
+                error = pthread_cond_init( &_cond, NULL );
+                if( error )
+                {
+                    EQERROR << "Error creating pthread condition: " 
+                            << strerror( error ) << std::endl;
+                    return;
                 }
             }
 
         /** Destructs the Queue. */
         ~MTQueue()
             {
-                switch( _type )
-                {
-                    case Thread::PTHREAD:
-                        pthread_mutex_destroy( &_sync.pthread.mutex );
-                        pthread_cond_destroy( &_sync.pthread.cond );
-                        break;
-                        
-                    default:
-                        EQERROR << "not implemented" << std::endl;
-                }
+                pthread_mutex_destroy( &_mutex );
+                pthread_cond_destroy( &_cond );
             }
 
         bool empty() const { return _queue.empty(); }
 
         T* pop()
             {
-                switch( _type )
-                {
-                    case Thread::PTHREAD:
-                    {
-                        pthread_mutex_lock( &_sync.pthread.mutex );
-                        while( _queue.empty( ))
-                            pthread_cond_wait( &_sync.pthread.cond,
-                                               &_sync.pthread.mutex );
-                        
-                        EQASSERT( !_queue.empty( ));
-                        T* element = _queue.front();
-                        _queue.pop_front();
-                        pthread_mutex_unlock( &_sync.pthread.mutex );
-                        return element;
-                    }   
-                    default:
-                        EQERROR << "not implemented" << std::endl;
-                        abort();
-                }
+                pthread_mutex_lock( &_mutex );
+                while( _queue.empty( ))
+                    pthread_cond_wait( &_cond, &_mutex );
+                
+                EQASSERT( !_queue.empty( ));
+                T* element = _queue.front();
+                _queue.pop_front();
+                pthread_mutex_unlock( &_mutex );
+                return element;
             }
 
         T* tryPop()
             {
-                switch( _type )
+                if( _queue.empty( ))
+                    return NULL;
+                
+                pthread_mutex_lock( &_mutex );
+                if( _queue.empty( ))
                 {
-                    case Thread::PTHREAD:
-                    {
-                        if( _queue.empty( ))
-                            return NULL;
-
-                        pthread_mutex_lock( &_sync.pthread.mutex );
-                        if( _queue.empty( ))
-                        {
-                            pthread_mutex_unlock( &_sync.pthread.mutex );
-                            return NULL;
-                        }
-
-                        T* element = _queue.front();
-                        _queue.pop_front();
-                        pthread_mutex_unlock( &_sync.pthread.mutex );
-                        return element;
-                    }   
-                    default:
-                        EQERROR << "not implemented" << std::endl;
-                        abort();
+                    pthread_mutex_unlock( &_mutex );
+                    return NULL;
                 }
-            }
+
+                T* element = _queue.front();
+                _queue.pop_front();
+                pthread_mutex_unlock( &_mutex );
+                return element;
+            }   
 
         T* back() const
             {
-                switch( _type )
-                {
-                    case Thread::PTHREAD:
-                    {
-                        pthread_mutex_lock( &_sync.pthread.mutex );
-                        T* element = _queue.empty() ? NULL : _queue.back();
-                        pthread_mutex_unlock( &_sync.pthread.mutex );
-                        return element;
-                    }   
-                    default:
-                        EQERROR << "not implemented" << std::endl;
-                        abort();
-                }
+                pthread_mutex_lock( &_mutex );
+                T* element = _queue.empty() ? NULL : _queue.back();
+                pthread_mutex_unlock( &_mutex );
+                return element;
             }
 
         void push( T* element )
             {
-                switch( _type )
-                {
-                    case Thread::PTHREAD:
-                    {
-                        pthread_mutex_lock( &_sync.pthread.mutex );
-                        _queue.push_back( element );
-                        pthread_cond_signal( &_sync.pthread.cond );
-                        pthread_mutex_unlock( &_sync.pthread.mutex );
-                        break;
-                    }   
-                    default:
-                        EQERROR << "not implemented" << std::endl;
-                }
+                pthread_mutex_lock( &_mutex );
+                _queue.push_back( element );
+                pthread_cond_signal( &_cond );
+                pthread_mutex_unlock( &_mutex );
             }
 
         void pushFront( T* element )
             {
-                switch( _type )
-                {
-                    case Thread::PTHREAD:
-                    {
-                        pthread_mutex_lock( &_sync.pthread.mutex );
-                        _queue.push_front( element );
-                        pthread_cond_signal( &_sync.pthread.cond );
-                        pthread_mutex_unlock( &_sync.pthread.mutex );
-                        break;
-                    }   
-                    default:
-                        EQERROR << "not implemented" << std::endl;
-                }
+                pthread_mutex_lock( &_mutex );
+                _queue.push_front( element );
+                pthread_cond_signal( &_cond );
+                pthread_mutex_unlock( &_mutex );
             }
 
     private:
-        Thread::Type   _type;
         std::deque<T*> _queue;
 
-        union
-        {
-            struct 
-            {
-                mutable pthread_mutex_t mutex;
-                pthread_cond_t  cond;
-            } pthread;
-        } _sync;
+        mutable pthread_mutex_t _mutex;
+        pthread_cond_t          _cond;
     };
 }
 

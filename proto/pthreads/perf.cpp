@@ -16,8 +16,7 @@ Clock           timer;
 class Test : public Thread
 {
 public:
-    Test() : Thread( Thread::PTHREAD ) {}
-    virtual ssize_t run()
+    virtual void* run()
         {
             int nLoops = MAXTHREADS / nThreads * 100000;
             const bool master = ( barrier->enter( nThreads ) == 0 );
@@ -37,7 +36,7 @@ public:
 
 int main( int argc, char **argv )
 {
-    barrier = new Barrier( Thread::PTHREAD );
+    barrier = new Barrier;
     Test threads[MAXTHREADS];
 
     for( nThreads = MAXTHREADS; nThreads>1; nThreads = nThreads>>1 )

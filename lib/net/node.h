@@ -724,24 +724,23 @@ namespace eqNet
         {
         public:
             ReceiverThread( Node* node ) 
-                    : eqBase::Thread( Thread::PTHREAD ),
-                      _node( node )
+                    : _node( node )
                 {}
             
-            virtual ssize_t run(){ return _node->_runReceiver(); }
+            virtual void* run(){ return _node->_runReceiver(); }
 
         private:
             Node* _node;
         };
         ReceiverThread* _receiverThread;
 
-        ssize_t _runReceiver();
-        void      _handleConnect();
-        void      _handleDisconnect();
-        void        _addConnectedNode( eqBase::RefPtr<Node> node, 
-                                       eqBase::RefPtr<Connection> connection );
-        bool      _handleRequest( Node* node );
-        void      _redispatchPackets();
+        void* _runReceiver();
+        void    _handleConnect();
+        void    _handleDisconnect();
+        void      _addConnectedNode( eqBase::RefPtr<Node> node, 
+                                     eqBase::RefPtr<Connection> connection );
+        bool    _handleRequest( Node* node );
+        void    _redispatchPackets();
 
         /** The command functions. */
         CommandResult _cmdMapSession( Node* node, const Packet* packet );

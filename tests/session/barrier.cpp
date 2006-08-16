@@ -23,7 +23,7 @@ class NodeThread : public Thread
 public:
     NodeThread( const bool master ) : _master(master) {}
 
-    virtual ssize_t run()
+    virtual void* run()
         {
             RefPtr<Connection>            connection = 
                 Connection::create( Connection::TYPE_TCPIP );

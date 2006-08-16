@@ -81,15 +81,14 @@ namespace eq
         {
         public:
             NodeThread( Node* node ) 
-                    : eqBase::Thread( Thread::PTHREAD ),
-                      _node( node ) {}
-            virtual ssize_t run(){ return _node->_runThread(); }
+                    : _node( node ) {}
+            virtual void* run(){ return _node->_runThread(); }
         private:
             Node* _node;
         };
         NodeThread* _thread;
 
-        ssize_t _runThread();
+        void* _runThread();
 
         void _addPipe( Pipe* pipe );
         void _removePipe( Pipe* pipe );
