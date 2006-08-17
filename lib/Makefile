@@ -146,7 +146,6 @@ ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
 	client/glXEventThread.cpp
 endif
 
-
 CXXFLAGS += $(WINDOW_SYSTEM_INCS)
 LDFLAGS  += $(WINDOW_SYSTEM_LIBS)
 

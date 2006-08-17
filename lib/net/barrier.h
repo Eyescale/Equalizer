@@ -6,7 +6,7 @@
 #define EQNET_BARRIER_H
 
 #include <eq/net/object.h>
-#include <eq/net/nodeID.h>
+#include <eq/net/node.h>
 
 #include <eq/base/sema.h>
 

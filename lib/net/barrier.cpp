@@ -5,7 +5,6 @@
 #include "barrier.h"
 
 #include "connection.h"
-#include "node.h"
 #include "packets.h"
 #include "session.h"
 

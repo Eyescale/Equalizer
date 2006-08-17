@@ -63,11 +63,13 @@ namespace eq
          */
         void    releaseConfig( Config* config );
 
-    private:
+    protected:
         /**
          * Destructs this server.
          */
         virtual ~Server(){}
+
+    private:
 
         enum State 
         {

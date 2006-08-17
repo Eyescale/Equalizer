@@ -217,7 +217,7 @@ eqNet::CommandResult Config::_cmdBeginFrameReply(eqNet::Node* node,
     EQVERB << "handle frame begin reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, 
-                                  (void*)(packet->frameNumber) );
+                                  (void*)(long long)(packet->frameNumber) );
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -227,7 +227,8 @@ eqNet::CommandResult Config::_cmdEndFrameReply( eqNet::Node* node,
     ConfigEndFrameReplyPacket* packet = (ConfigEndFrameReplyPacket*)pkg;
     EQVERB << "handle frame end reply " << packet << endl;
 
-    _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
+    _requestHandler.serveRequest( packet->requestID,
+                                  (void*)(long long)(packet->result) );
     return eqNet::COMMAND_HANDLED;
 }
 

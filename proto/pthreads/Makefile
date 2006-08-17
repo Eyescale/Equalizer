@@ -7,7 +7,10 @@ SOURCES = perf.cpp
 SA_LDFLAGS  += -L$(LIBRARY_DIR) -leq -lpthread
 
 ifeq "${ARCH}" "Linux"
-SA_LDFLAGS += -lrt
+  SA_LDFLAGS += -lrt
+ifeq "${SUBARCH}" "ia64"
+    SA_LDFLAGS += -luuid
+endif
 endif
 
 TARGETS = $(PROGRAMS)
