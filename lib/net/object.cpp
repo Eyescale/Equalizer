@@ -202,7 +202,7 @@ uint32_t Object::commit()
 
     ScopedMutex mutex( _mutex );
     if( _version == VERSION_NONE )
-        return _commitInitial();
+        _commitInitial();
 
     EQASSERT( _instanceData.size() == _changeData.size() + 1 );
 
@@ -285,26 +285,36 @@ uint32_t Object::commit()
 uint32_t Object::_commitInitial()
 {
     CHECK_THREAD( _threadID );
+
+    // compute base version
+    uint64_t    size;
+    const void* ptr  = getInstanceData( &size );
+
+    _setInitialVersion( ptr, size );
+    releaseInstanceData( ptr );
+        
+    return _version;
+}
+
+void Object::_setInitialVersion( const void* ptr, const uint64_t size )
+{
     EQASSERT( _version == VERSION_NONE );
     EQASSERT( _instanceData.empty( ));
     EQASSERT( _changeData.empty( ));
 
-    // compute base version
     InstanceData data;
-    const void*  ptr  = getInstanceData( &data.size );
 
-    if( ptr )
+    data.size = size;
+    if( ptr && size )
     {
-        data.data    = malloc( data.size );
-        data.maxSize = data.size;
-        memcpy( data.data, ptr, data.size );
+        data.data    = malloc( size );
+        data.maxSize = size;
+        memcpy( data.data, ptr, size );
     }
+
     _instanceData.push_front( data );
-    releaseInstanceData( ptr );
-        
     ++_version;
     ++_commitCount;
-    return _version;
 }
 
 // Obsoletes old changes based on number of commits or number of versions,

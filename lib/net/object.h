@@ -425,6 +425,7 @@ namespace eqNet
         void _syncToHead();
 
         uint32_t _commitInitial();
+        void _setInitialVersion( const void* ptr, const uint64_t size );
         void _obsolete();
 
         /* The command handlers. */

@@ -976,8 +976,11 @@ CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )
 
     object->_master  = packet->isMaster;
     object->_version = packet->version;
-    if( packet->isMaster ) // Assumes that sender is a subscribed slave
-        object->addSlave( node );
+    if( packet->isMaster )
+    {
+        object->addSlave( node ); // Assumes that sender is a subscribed slave
+        object->_setInitialVersion( packet->objectData, packet->objectDataSize);
+    }
 
     GetObjectState* state = _objectInstStates[id];
     if( state )
