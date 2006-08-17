@@ -190,17 +190,17 @@ int Pipe::XErrorHandler( Display* display, XErrorEvent* event )
 {
 #ifdef GLX
     EQERROR << disableFlush;
-    EQERROR << "X Error occured: " << disableHeader;
+    EQERROR << "X Error occured: " << disableHeader << indent;
 
     char buffer[256];
     XGetErrorText( display, event->error_code, buffer, 256);
 
     EQERROR << buffer << endl;
-    EQERROR << "  Major opcode: " << (int)event->request_code << endl;
-    EQERROR << "  Minor opcode: " << (int)event->minor_code << endl;
-    EQERROR << "  Error code: " << (int)event->error_code << endl;
-    EQERROR << "  Request serial: " << event->serial << endl;
-    EQERROR << "  Current serial: " << NextRequest( display ) - 1 << endl;
+    EQERROR << "Major opcode: " << (int)event->request_code << endl;
+    EQERROR << "Minor opcode: " << (int)event->minor_code << endl;
+    EQERROR << "Error code: " << (int)event->error_code << endl;
+    EQERROR << "Request serial: " << event->serial << endl;
+    EQERROR << "Current serial: " << NextRequest( display ) - 1 << endl;
 
     switch( event->error_code )
     {
@@ -216,7 +216,7 @@ int Pipe::XErrorHandler( Display* display, XErrorEvent* event )
             EQERROR << "  ResourceID: " << event->resourceid << endl;
             break;
     }
-    EQERROR << enableFlush << enableHeader;
+    EQERROR << enableFlush << exdent << enableHeader;
 #endif // GLX
 
     return 0;
