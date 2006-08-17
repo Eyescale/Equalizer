@@ -59,7 +59,7 @@ bool Server::open( const OpenParams& params )
         }
 
         if( !connDesc->TCPIP.port )
-            connDesc->TCPIP.port = 4242;
+            connDesc->TCPIP.port = EQ_DEFAULT_PORT;
 
         addConnectionDescription( connDesc );
     }

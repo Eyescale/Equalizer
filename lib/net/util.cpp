@@ -32,6 +32,6 @@ void Util::parseAddress( const char* address, char hostname[MAXHOSTNAMELEN],
 
     strncpy( hostname, address, MAXHOSTNAMELEN );
     hostname[MAXHOSTNAMELEN-1] = '\0';
-    port = DEFAULT_PORT;
+    port = EQ_DEFAULT_PORT;
 }
 

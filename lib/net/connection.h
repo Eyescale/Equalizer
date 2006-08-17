@@ -13,13 +13,15 @@
 
 #include <poll.h>
 #include <stdexcept>
+#include <sys/types.h>
+#include <unistd.h>
 #include <vector>
 
 namespace eqNet
 {
     class ConnectionDescription;
 
-#   define DEFAULT_PORT 4242
+#   define EQ_DEFAULT_PORT (4242 + getuid())
 
     /**
      * A base class to provide communication to other hosts.

@@ -50,7 +50,7 @@ bool Server::run( int argc, char **argv )
     RefPtr<eqNet::ConnectionDescription> connDesc = 
         connection->getDescription();
 
-    connDesc->TCPIP.port = 4242;
+    connDesc->TCPIP.port = EQ_DEFAULT_PORT;
     if( !connection->listen( ))
     {
         EQERROR << "Could not create listening socket" << endl;
