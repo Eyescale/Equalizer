@@ -96,8 +96,3 @@ void InitData::setFilename( const std::string& filename )
     _clearInstanceData();
     _filename = filename;
 }
-
-void InitData::setTrackerPort( const std::string& trackerPort )
-{
-    _trackerPort = trackerPort;
-}

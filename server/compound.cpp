@@ -552,6 +552,24 @@ void Compound::_computeFrustum( eq::Frustum& frustum, float headTransform[16] )
         frustum.bottom = -( iView.height/2. - eye[1] ) * ratio;
     }
 
+    #if 0
+    if( eye[2] > 0 )
+    {
+        frustum.left   = -( iView.width/2.  - eye[0] ) * ratio;
+        frustum.right  =  ( iView.width/2.  + eye[0] ) * ratio;
+        frustum.top    =  ( iView.height/2. + eye[1] ) * ratio;
+        frustum.bottom = -( iView.height/2. - eye[1] ) * ratio;
+    }
+    else // eye behind near plane - 'mirror' x
+    {
+        frustum.left   =  ( iView.width/2.  + eye[0] ) * ratio;
+        frustum.right  = -( iView.width/2.  - eye[0] ) * ratio;
+        frustum.top    =  ( iView.height/2. + eye[1] ) * ratio;
+        frustum.bottom = -( iView.height/2. - eye[1] ) * ratio;
+        //top und bottom identical to eye[2] > 0, only x mirrored
+    }
+    #endif
+
     // adjust to viewport (screen-space decomposition)
     // Note: may need to be computed in pvp space to avoid rounding problems
     const eq::Viewport vp = _inherit.vp;

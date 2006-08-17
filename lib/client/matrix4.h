@@ -19,7 +19,7 @@ namespace eq
 
         void makeIdentity();
         void setTranslation( const T x, const T y, const T z );
-
+        void scale( const T scale[3] );
         void rotateX( const T angle );
         void rotateY( const T angle );
         void rotateZ( const T angle );
@@ -31,6 +31,8 @@ namespace eq
                 memcpy( _m, matrix._m, 16*sizeof( T ) );
                 return *this;
             }
+
+        void operator *= ( const Matrix4<T>& rhs );
 
     protected:
           const void* getInstanceData( uint64_t* size )

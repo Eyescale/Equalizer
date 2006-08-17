@@ -7,7 +7,7 @@
 #include "channel.h"
 #include "config.h"
 #include "frameData.h"
-#include "initData.h"
+#include "appInitData.h"
 #include "node.h"
 #include "pipe.h"
 
@@ -20,7 +20,8 @@ using namespace eqBase;
 
 #define DIE(reason)    { cout << (reason) << endl; abort(); }
 
-static void _parseArguments( int argc, char** argv,  RefPtr<InitData> initData);
+static void _parseArguments( int argc, char** argv,
+                             RefPtr<AppInitData> appInitData );
 
 class NodeFactory : public eq::NodeFactory
 {
@@ -42,9 +43,8 @@ int main( int argc, char** argv )
     if( !eq::init( argc, argv ))
         DIE( "Equalizer init failed" );
 
-    RefPtr<InitData> initData = new InitData;
-    //initData->setTrackerPort( "" );
-    _parseArguments( argc, argv, initData );
+    RefPtr<AppInitData> appInitData = new AppInitData;
+    _parseArguments( argc, argv, appInitData );
 
     // 2. connect to server
     RefPtr<eq::Server> server = new eq::Server;
@@ -64,22 +64,22 @@ int main( int argc, char** argv )
     // 4. register application data
     RefPtr<FrameData> frameData = new FrameData;
 
-    config->registerObject( initData.get(), config->getLocalNode( ));
+    config->registerObject( appInitData.get(), config->getLocalNode( ));
     config->registerObject( frameData.get(), config->getLocalNode( ));
-    initData->setFrameData( frameData );
+    appInitData->setFrameData( frameData );
     config->setFrameData( frameData );
 
     // 5a. init config
     eqBase::Clock clock;
-    if( !config->init( initData->getID( )))
+    if( !config->init( appInitData->getID( )))
         DIE("Config initialisation failed.");
     cerr << "Config init took " << clock.getTimef() << " ms" << endl;
 
     // 5b. init tracker
     Tracker tracker;
-    if(initData->getTrackerPort() != "")
+    if(appInitData->getTrackerPort() != "")
     {
-        if( !tracker.init( initData->getTrackerPort() ))
+        if( !tracker.init( appInitData->getTrackerPort() ))
             EQWARN << "Failed to initialise tracker" << endl;
         else
             EQINFO << "Tracker initialised" << endl;
@@ -109,12 +109,12 @@ int main( int argc, char** argv )
     cerr << "Exit took " << clock.getTimef() << " ms" << endl;
 
     // 8. cleanup and exit
-    initData->setFrameData( NULL );
+    appInitData->setFrameData( NULL );
     config->setFrameData( NULL );
     config->deregisterObject( frameData.get( ));
-    config->deregisterObject( initData.get( ));
+    config->deregisterObject( appInitData.get( ));
     EQASSERT( frameData->getRefCount() == 1 );
-    EQASSERT( initData->getRefCount() == 1 );
+    EQASSERT( appInitData->getRefCount() == 1 );
 
     server->releaseConfig( config );
     server->close();
@@ -123,7 +123,7 @@ int main( int argc, char** argv )
     return EXIT_SUCCESS;
 }
 
-void _parseArguments( int argc, char** argv, RefPtr<InitData> initData )
+void _parseArguments( int argc, char** argv, RefPtr<AppInitData> appInitData )
 {
     int      result;
     int      index;
@@ -139,11 +139,11 @@ void _parseArguments( int argc, char** argv, RefPtr<InitData> initData )
         switch( result )
         {
             case 'm':
-                initData->setFilename( optarg );
+                appInitData->setFilename( optarg );
                 break;
 
             case 'p':
-                initData->setTrackerPort( optarg );
+                appInitData->setTrackerPort( optarg );
 
             default:
                 EQWARN << "unhandled option: " << options[index].name << endl;

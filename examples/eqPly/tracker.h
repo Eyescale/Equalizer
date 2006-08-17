@@ -46,13 +46,21 @@ class Tracker
        bool update();
 
        /**
+        * Transforms the data from the tracker into the application's
+        * coordinate system.
+        *
+        * @param matrix the matrix with the transformation data.
+        */
+       void setTransform( const eq::Matrix4f& matrix );
+
+       /**
         * Gets the transformation matrix with the position and orientation data.
         *
         * This function will not communicate with the tracker,.
         *
         * @return the transformation matrix.
         */
-       const eq::Matrix4f& getHeadMatrix();
+       const eq::Matrix4f& getHeadMatrix() const;
 
    private:
        bool _update(); //update without state checking
@@ -66,6 +74,9 @@ class Tracker
 
        /** The matrix defining the orientation and position of the sensor. */
        eq::Matrix4f _matrix;
+
+       eq::Matrix4f _transform;
+       float _scale[3];
 };
 
 #endif // FOB_TRACKER_H

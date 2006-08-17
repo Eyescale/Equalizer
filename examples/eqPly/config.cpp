@@ -51,8 +51,8 @@ bool Config::handleEvent( eq::ConfigEvent* event )
             if( event->pointerButtonRelease.buttons == eq::PTR_BUTTON_NONE &&
                 event->pointerButtonRelease.button  == eq::PTR_BUTTON1 )
             {
-                _spinX = -event->pointerButtonRelease.dx;
-                _spinY = -event->pointerButtonRelease.dy;
+                _spinX = event->pointerButtonRelease.dx;
+                _spinY = event->pointerButtonRelease.dy;
             }
             return true;
 
@@ -65,11 +65,11 @@ bool Config::handleEvent( eq::ConfigEvent* event )
                 _spinX = 0;
                 _spinY = 0;
 
-                _frameData->_rotation.rotateX( -0.005*event->pointerMotion.dx );
-                _frameData->_rotation.rotateY( -0.005*event->pointerMotion.dy );
+                _frameData->_rotation.rotateX( 0.005*event->pointerMotion.dx );
+                _frameData->_rotation.rotateY( 0.005*event->pointerMotion.dy );
             }
             else if( event->pointerMotion.buttons == eq::PTR_BUTTON2 ||
-                     event->pointerMotion.buttons == ( eq::PTR_BUTTON1 | 
+                     event->pointerMotion.buttons == ( eq::PTR_BUTTON1 |
                                                        eq::PTR_BUTTON3 ))
             {
                 _frameData->_data.translation[2] +=

@@ -48,7 +48,7 @@ void Channel::draw( const uint32_t frameID )
     glLightfv( GL_LIGHT0, GL_POSITION, lightpos );
 
     glTranslatef( _frameData->_data.translation[0],
-                  _frameData->_data.translation[1], 
+                  _frameData->_data.translation[1],
                   _frameData->_data.translation[2] );
     glMultMatrixf( _frameData->_data.rotation );
 

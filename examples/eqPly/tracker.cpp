@@ -15,7 +15,14 @@ using namespace std;
 
 Tracker::Tracker()
          : _running( false )
-{}
+{
+    _scale[0] = 1.0/18000;
+    _scale[1] = 1.0/18000;
+    _scale[2] = -1.0/18000;
+    _transform.makeIdentity();
+    const eq::Matrix4f matrix; //identity matrix for now...
+    setTransform( matrix );
+}
 
 bool Tracker::init( const string& port )
 {
@@ -117,27 +124,28 @@ bool Tracker::_update()
    short pitch = (buffer[9]<<8 | buffer[8]);
    short roll = (buffer[11]<<8 | buffer[10]);
 
-   //TODO: make following part generic, with rotation matrices...
    float pos[3];
    float hpr[3];
-   pos[0] = ypos / 18000.0;
-   if( pos[0] > 0.906639 )          //32639 / 18000 = 1.813278
-      pos[0] -= 1.813278;           //1.813278 / 2 = 0.906639
+   pos[0] = ypos;
+   //highest value for y and z position of the tracker sensor is 32639,
+   //after that it switches back to zero (and vice versa if descending values).
+   if( pos[0] > 16320 )             //32640 / 2 = 16320
+      pos[0] -= 32640;
 
-   pos[1] =  zpos / 18000.0;
-   if( pos[1] > 0.906639 )
-      pos[1] -= 1.813278;
+   pos[1] = zpos;
+   if( pos[1] > 16320 )
+      pos[1] -= 32640;
 
-   pos[2] = -xpos / 18000.0;        //measured on 29.7cm with DinA4
-
-   hpr[0] = head / 90.6639;
-   hpr[1] = pitch / 90.6639;
-   hpr[2] = roll / 90.6639;         //32639 -> 360 degree = /90.66389
+   pos[2] = xpos;
+   hpr[0] = head / 90.667;
+   hpr[1] = pitch / 90.667;
+   hpr[2] = roll / 90.667;         //32640 -> 360 degree = /90.667
 
    _matrix.setTranslation( pos[0], pos[1], pos[2] );
    _matrix.rotateX( hpr[0] );
    _matrix.rotateY( hpr[1] );
    _matrix.rotateZ( hpr[2] );
+   _matrix *= _transform;
 
    return b;
 }
@@ -147,7 +155,6 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
 {
    size_t remaining = size;
    struct timeval tv;
-   int k;
 
    tv.tv_sec = timeout / 1000000;
    tv.tv_usec = timeout % 1000000;
@@ -159,33 +166,39 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
       FD_ZERO( &readfds );
       FD_SET( _fd, &readfds );
 
-      k = select( _fd+1, &readfds, NULL, NULL, &tv );
-      if( k== 0 )
+      const int errCode = select( _fd+1, &readfds, NULL, NULL, &tv );
+      if( errCode == 0 )
       {
          cerr << "Error: no data from tracker" << endl;
          return false;
       }
-      if( k==-1 )
+      if( errCode == -1 )
       {
          cerr << "Select error: " << strerror( errno ) << endl;
          return false;
       }
 
       //try_to read remaining bytes, returns # of readed bytes
-      k = read( _fd, &buffer[size-remaining], remaining );
-      if( k==-1 )
+      const size_t receiver = read( _fd, &buffer[size-remaining], remaining );
+      if( receiver == -1 )
       {	
          cerr << "Read error: " << strerror( errno ) << endl;
          return false;
       }
 
-      EQASSERT( remaining >= k );
-      remaining -= k;
+      EQASSERT( remaining >= receiver );
+      remaining -= receiver;
    }
    return true;
 }
 
-const eq::Matrix4f& Tracker::getHeadMatrix()
+void Tracker::setTransform( const eq::Matrix4f& matrix )
+{
+    _transform = matrix;
+    _transform.scale( _scale );
+}
+
+const eq::Matrix4f& Tracker::getHeadMatrix() const
 {
     return _matrix;
 }
