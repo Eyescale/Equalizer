@@ -633,7 +633,7 @@ void Compound::_updatePostDraw( eq::RenderContext& context )
 
         if( !frames.empty() )
         {
-            Channel*                  channel = getChannel();
+            Channel*                  channel = _inherit.channel;
             Node*                     node    = channel->getNode();
             RefPtr<eqNet::Node>       netNode = node->getNode();
             eq::ChannelReadbackPacket packet;
@@ -663,11 +663,15 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
     const Channel* channel = compound->getChannel();
     if( channel )
     {
-        const std::string& name = channel->getName();
-        if( name.empty( ))
-            os << "channel  \"channel_" << (void*)channel << "\"" << endl;
-        else
-            os << "channel  \"" << name << "\"" << endl;
+        Compound* parent = compound->getParent();
+        if( parent && parent->getChannel() != channel )
+        {
+            const std::string& name = channel->getName();
+            if( name.empty( ))
+                os << "channel  \"channel_" << (void*)channel << "\"" << endl;
+            else
+                os << "channel  \"" << name << "\"" << endl;
+        }
     }
 
     if( !compound->testTask( Compound::TASK_CLEAR ) ||

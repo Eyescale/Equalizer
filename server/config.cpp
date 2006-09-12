@@ -179,7 +179,7 @@ Channel* Config::findChannel( const std::string& name ) const
                 for( uint32_t l=0; l<nChannels; l++ )
                 {
                     Channel* channel = window->getChannel(l);
-                    if( channel->getName() == name )
+                    if( channel && channel->getName() == name )
                         return channel;
                 }
             }
