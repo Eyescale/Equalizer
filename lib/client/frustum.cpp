@@ -20,7 +20,7 @@ void Frustum::computeMatrix( float matrix[16] ) const
     
     matrix[2]  =  0;
     matrix[6]  =  0;
-    matrix[10] =  (far - near) / (far - near);
+    matrix[10] =  -(far + near) / (far - near);
     matrix[14] = -2 * far * near / (far - near);
 
     matrix[3] =  0;
