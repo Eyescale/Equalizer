@@ -69,8 +69,12 @@
 %token EQTOKEN_COMMAND
 %token EQTOKEN_TIMEOUT
 %token EQTOKEN_TASK
+%token EQTOKEN_FORMAT
 %token EQTOKEN_CLEAR
 %token EQTOKEN_DRAW
+%token EQTOKEN_READBACK
+%token EQTOKEN_COLOR
+%token EQTOKEN_DEPTH
 %token EQTOKEN_VIEWPORT
 %token EQTOKEN_RANGE
 %token EQTOKEN_DISPLAY
@@ -248,8 +252,9 @@ compound: EQTOKEN_COMPOUND '{'
                   compound = child;
               }
           compoundAttributes 
-          compoundChildren '}' { compound = compound->getParent(); } 
-          compoundAttributes 
+          compoundChildren
+          compoundAttributes
+          '}' { compound = compound->getParent(); } 
 
 compoundChildren: /*null*/ | compounds
 
@@ -267,6 +272,9 @@ compoundAttribute:
     }
     | EQTOKEN_TASK '['      { compound->setTasks( eqs::Compound::TASK_NONE ); }
         compoundTasks ']'
+    | EQTOKEN_FORMAT
+        '[' { compound->setFormats( eq::Frame::FORMAT_UNDEFINED ); }
+        compoundFormats ']'
     | EQTOKEN_VIEWPORT viewport
         { compound->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] )); }
     | EQTOKEN_RANGE '[' FLOAT FLOAT ']'
@@ -278,8 +286,14 @@ compoundAttribute:
 
 compoundTasks: /*null*/ | compoundTask | compoundTasks compoundTask
 compoundTask:
-    EQTOKEN_CLEAR   { compound->enableTasks( eqs::Compound::TASK_CLEAR ); }
-    | EQTOKEN_DRAW  { compound->enableTasks( eqs::Compound::TASK_DRAW ); }
+    EQTOKEN_CLEAR      { compound->enableTask( eqs::Compound::TASK_CLEAR ); }
+    | EQTOKEN_DRAW     { compound->enableTask( eqs::Compound::TASK_DRAW ); }
+    | EQTOKEN_READBACK { compound->enableTask( eqs::Compound::TASK_READBACK ); }
+
+compoundFormats: /*null*/ | compoundFormat | compoundFormats compoundFormat
+compoundFormat:
+    EQTOKEN_COLOR    { compound->enableFormat( eq::Frame::FORMAT_COLOR ); }
+    | EQTOKEN_DEPTH  { compound->enableFormat( eq::Frame::FORMAT_DEPTH ); }
 
 wall: EQTOKEN_WALL '{'
           EQTOKEN_BOTTOM_LEFT  '[' FLOAT FLOAT FLOAT ']' 

@@ -3,6 +3,7 @@
 
 #include "frame.h"
 
+#include "frameBuffer.h"
 #include "object.h"
 #include "packets.h"
 
@@ -31,4 +32,14 @@ FrameBuffer* Frame::_getBuffer()
         _buffer = static_cast<FrameBuffer*>( object );
     }
     return _buffer;
+}
+
+void Frame::clear()
+{
+    _getBuffer()->clear(); 
+}
+
+void Frame::startReadback() 
+{
+    _getBuffer()->startReadback(); 
 }

@@ -36,8 +36,12 @@ hostname                        { return EQTOKEN_HOSTNAME; }
 command                         { return EQTOKEN_COMMAND; }
 timeout                         { return EQTOKEN_TIMEOUT; }
 task                            { return EQTOKEN_TASK; }
+format                          { return EQTOKEN_FORMAT; }
 CLEAR                           { return EQTOKEN_CLEAR; }
 DRAW                            { return EQTOKEN_DRAW; }
+READBACK                        { return EQTOKEN_READBACK; }
+COLOR                           { return EQTOKEN_COLOR; }
+DEPTH                           { return EQTOKEN_DEPTH; }
 viewport                        { return EQTOKEN_VIEWPORT; }
 range                           { return EQTOKEN_RANGE; }
 display                         { return EQTOKEN_DISPLAY; }

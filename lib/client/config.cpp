@@ -6,6 +6,7 @@
 
 #include "configEvent.h"
 #include "frame.h"
+#include "frameBuffer.h"
 #include "global.h"
 #include "node.h"
 #include "nodeFactory.h"

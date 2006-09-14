@@ -70,6 +70,7 @@ void Frame::cycleFrameBuffer( const uint32_t frameNumber, const uint32_t maxAge)
     }
 
     buffer->setFrameNumber( frameNumber );
+    buffer->setViewport( _inherit.vp );
     buffer->commit();
     
     _buffers.push_front( buffer );

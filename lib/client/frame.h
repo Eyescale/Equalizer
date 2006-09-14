@@ -7,7 +7,6 @@
 
 #include <eq/net/object.h>
 #include <eq/client/viewport.h>
-#include <eq/client/frameBuffer.h>
 
 namespace eqs
 {
@@ -16,16 +15,25 @@ namespace eqs
 
 namespace eq
 {
+    class FrameBuffer;
+
     /**
      * A holder for a FrameBuffer and frame parameters.
      */
     class Frame : public eqNet::Object
     {
     public:
+        /** 
+         * The frame format defines which components of the framebuffer are to
+         * be used during recomposition.
+         */
         enum Format
         {
-            FORMAT_COLOR = 0x01,
-            FORMAT_DEPTH = 0x02
+            FORMAT_NONE      = 0,
+            FORMAT_UNDEFINED = 0x1,      //!< Inherit, only if no others are set
+            FORMAT_COLOR     = 0x10,     //!< Use color images
+            FORMAT_DEPTH     = 0x10000,  //!< Use depth images
+            FORMAT_ALL       = 0xfffffff
         };
 
         /** 
@@ -51,14 +59,14 @@ namespace eq
         //*{
 
         /** Clear the frame by deleting the attached images. */
-        void clear() { _getBuffer()->clear(); }
+        void clear();
 
         /** 
          * Read back a set of images according to the current frame data.
          * 
          * The images are added to the frame, existing images are retained.
          */
-        void startReadback()  { _getBuffer()->startReadback(); }
+        void startReadback();
         //*}
 
     protected:

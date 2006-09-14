@@ -27,6 +27,19 @@ FrameBuffer::~FrameBuffer()
     flush();
 }
 
+FrameBuffer::FormatIndex FrameBuffer::_getIndexForFormat( const Frame::Format
+                                                          format )
+{
+    switch( format )
+    {
+        case Frame::FORMAT_COLOR: return INDEX_COLOR;
+        case Frame::FORMAT_DEPTH: return INDEX_DEPTH;
+
+        default: EQUNIMPLEMENTED;
+    }
+    return static_cast<FormatIndex>(-1);
+}
+
 void FrameBuffer::clear()
 {
     for( uint32_t i=0; i<INDEX_ALL; ++i )
@@ -56,6 +69,22 @@ void FrameBuffer::_flushImages( const FormatIndex i )
 
     _imageCache[i].clear();
 }
+
+Image* FrameBuffer::newImage( const Frame::Format format )
+{
+    const FormatIndex index = _getIndexForFormat( format );
+    Image* image;
+    if( _imageCache[index].empty( ))
+        image = new Image();
+    else
+    {
+        image = _imageCache[index].back();
+        _imageCache[index].pop_back();
+    }
+    _images[index].push_back( image );
+    return image;
+}
+
 
 
 void FrameBuffer::startReadback()

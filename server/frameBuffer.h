@@ -33,6 +33,7 @@ namespace eqs
          * @name Operations
          */
         //*{
+        void setViewport( const eq::Viewport& vp ) { _data.vp = vp; }
         //*}
 
     private:

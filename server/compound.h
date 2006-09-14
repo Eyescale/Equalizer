@@ -139,28 +139,53 @@ namespace eqs
         Window* getWindow() const;
 
         /** 
-         * Set the tasks to be executed by the compound.
-         * 
-         * Previously set tasks are overwritten.
+         * Set the tasks to be executed by the compound, overwriting previous
+         * tasks.
          *
+         * Tasks define which actions are executed by the compound, and provide
+         * a flexible way of configuring the decomposition and recomposition. A
+         * separate html design document describes them in depth.
+         * 
          * @param tasks the compound tasks.
          */
         void setTasks( const uint32_t tasks ) { _tasks = tasks; }
 
         /** 
-         * Add tasks to be executed by the compound.
-         *
-         * Previously set tasks are preserved.
+         * Add a task to be executed by the compound, preserving previous tasks.
          * 
          * @param tasks the compound tasks.
          */
-        void enableTasks( const uint32_t tasks ) { _tasks |= tasks; }
+        void enableTask( const Task task ) { _tasks |= task; }
 
         /** @return the tasks executed by this compound. */
         uint32_t getTasks() const { return _tasks; }
 
         /** @return true if the task is set, false if not. */
         bool testTask( const Task task ) const { return (_tasks & task); }
+
+
+        /** 
+         * Set the formats to be used by the compound during recomposition,
+         * overwriting previous formats.
+         *
+         * @param formats the compound formats.
+         */
+        void setFormats( const uint32_t formats ) { _formats = formats; }
+
+        /** 
+         * Add a format to be used by the compound, preserving previous formats.
+         * 
+         * @param formats the compound formats.
+         */
+        void enableFormat( const eq::Frame::Format format )
+            { _formats |= format; }
+
+        /** @return the formats used by this compound. */
+        uint32_t getFormats() const { return _formats; }
+
+        /** @return true if the format is set, false if not. */
+        bool testFormat( const eq::Frame::Format format ) const
+            { return (_formats & format); }
 
         void setViewport( const eq::Viewport& vp ) { _data.vp = vp; }
         const eq::Viewport& getViewport() const { return _data.vp; }
@@ -308,7 +333,10 @@ namespace eqs
         
         Compound* _getNext() const;
 
+        /** The compound tasks. */
         uint32_t _tasks;
+        /** The framebuffer formats to use during recomposition. */
+        uint32_t _formats;
 
         struct View
         {
