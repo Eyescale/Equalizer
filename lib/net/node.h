@@ -717,7 +717,7 @@ namespace eqNet
         Session* _findSession( const std::string& name ) const;
 
         /** Generates a new, unique session identifier. */
-        uint32_t Node::_generateSessionID();
+        uint32_t _generateSessionID();
 
         /** The receiver thread. */
         class ReceiverThread : public eqBase::Thread
