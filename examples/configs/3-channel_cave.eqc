@@ -34,7 +34,6 @@ server
         }
         compound
         {
-            mode [ SYNC ]
             compound
             { 
                 channel "channel-left"

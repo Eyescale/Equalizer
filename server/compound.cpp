@@ -365,6 +365,8 @@ void Compound::_updateInheritData()
     if( !_parent )
     {
         _inherit = _data;
+        if( _data.format == eq::Frame::FORMAT_UNDEFINED )
+            _inherit.format = eq::Frame::FORMAT_COLOR;
         return;
     }
 
@@ -378,6 +380,9 @@ void Compound::_updateInheritData()
 
     _inherit.vp    *= _data.vp;
     _inherit.range *= _data.range;
+
+    if( _data.format == eq::Frame::FORMAT_UNDEFINED )
+        _inherit.format = eq::Frame::FORMAT_COLOR;
 }
 
 void Compound::_updateOutput( UpdateData* data )

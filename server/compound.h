@@ -361,10 +361,11 @@ namespace eqs
         {
             InheritData();
 
-            Channel*       channel;
-            eq::Viewport   vp;
-            eq::Range      range;
-            eq::ViewMatrix view;
+            Channel*          channel;
+            eq::Viewport      vp;
+            eq::Range         range;
+            eq::ViewMatrix    view;
+            eq::Frame::Format format;
         };
 
         InheritData _data;
