@@ -285,7 +285,7 @@ eqNet::CommandResult Channel::_reqDraw( eqNet::Node* node,
 }
 
 eqNet::CommandResult Channel::_reqReadback( eqNet::Node* node,
-                                        const eqNet::Packet* pkg )
+                                            const eqNet::Packet* pkg )
 {
     ChannelReadbackPacket* packet = (ChannelReadbackPacket*)pkg;
     EQVERB << "handle channel readback " << packet << endl;
@@ -298,7 +298,7 @@ eqNet::CommandResult Channel::_reqReadback( eqNet::Node* node,
         eqNet::Object* object = session->getObject( packet->frames[i].objectID, 
                                                     Object::SHARE_THREAD,
                                                     packet->frames[i].version );
-        EQASSERT( dynamic_cast<Frame*>( object ) );
+        EQASSERT( dynamic_cast<Frame*>( object ));
         Frame* frame = static_cast<Frame*>( object );
         frame->clear();
         _outputFrames.push_back( frame );

@@ -175,7 +175,7 @@ void GLXEventThread::_handleEvent()
         _handleCommand();
         return;
     }
-    _handleEvent( 
+    _handleEvent(
         RefPtr_static_cast<eqNet::Connection, X11Connection>( connection ));
 }
 
