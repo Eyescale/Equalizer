@@ -34,11 +34,11 @@ namespace eq
         const float sinus = sinf(angle);
         const float cosin = cosf(angle);
         for( int i=0; i<16; i+=4 )
-	    {
+        {
             const float temp = _m[i];
             _m[i] = _m[i] * cosin - _m[i+2] * sinus;
             _m[i+2] = temp * sinus + _m[i+2] * cosin;
-	    }
+        }
     }
 
     template<>
@@ -48,11 +48,11 @@ namespace eq
         const float sinus = sinf(angle);
         const float cosin = cosf(angle);
         for( int i=0; i<16; i+=4 )
-	    {
+        {
             const float temp = _m[i+1];
             _m[i+1] = _m[i+1] * cosin + _m[i+2] * sinus;
             _m[i+2] = temp * -sinus + _m[i+2] * cosin;
-	    }
+        }
     }
 
     template<>
@@ -62,10 +62,10 @@ namespace eq
         const float sinus = sinf(angle);
         const float cosin = cosf(angle);
         for( int i=0; i<16; i+=4 )
-	    {
+        {
             const float temp = _m[i];
             _m[i] = _m[i] * cosin + _m[i+1] * sinus;
             _m[i+1] = temp * -sinus + _m[i+1] * cosin;
-	    }
+        }
     }
 }
