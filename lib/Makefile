@@ -125,6 +125,7 @@ SOURCES = \
 	client/frameBuffer.cpp \
 	client/frustum.cpp \
 	client/global.cpp \
+	client/image.cpp \
 	client/init.cpp \
 	client/matrix4.cpp \
 	client/node.cpp \

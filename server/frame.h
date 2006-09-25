@@ -37,14 +37,21 @@ namespace eqs
          * 
          * @param vp the fractional viewport.
          */
-        void setViewport( const eq::Viewport& vp ) { _inherit.vp = vp; }
+        void setViewport( const eq::Viewport& vp ) { _data.vp = vp; }
         
+        /** @return the fractional viewport. */
+        const eq::Viewport& getViewport() const { return _data.vp; }
+
         /** 
-         * Return this frame's viewport.
+         * Set the frame buffer types to be read or write by this frame.
          * 
-         * @return the fractional viewport.
+         * @param format a bitwise combination of the frame buffer formats.
          */
-        const eq::Viewport& getViewport() const { return _inherit.vp; }
+        void setFormat( const eq::Frame::Format format )
+            { _data.format = format; }
+        
+        /** @return the frame buffer parts used by this frame. */
+        eq::Frame::Format getFormat() const { return _data.format; }
         //*}
 
         /**
@@ -90,7 +97,10 @@ namespace eqs
     private:
         std::string _name;
 
-        /** All distributed data */
+        /** Frame-specific data. */
+        eq::Frame::Data _data;
+
+        /** The current, actual data used by the frame. */
         eq::Frame::Data _inherit;
 
         /** All framebuffers ever allocated, used for recycling old buffers. */

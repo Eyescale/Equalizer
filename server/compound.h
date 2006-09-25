@@ -318,6 +318,17 @@ namespace eqs
         void updateChannel( Channel* channel, const uint32_t frameID );
         //*}
 
+        /** 
+         * @name Inherit Data Access.
+         * 
+         * Inherit data are the actual, as opposed to configured, attributes and
+         * data used by the compound. The inherit data is update at the
+         * beginning of each update().
+         */
+        //*{
+        eq::Frame::Format getInheritFormat() const { return _inherit.format; }
+        //*}
+
     private:
         std::string _name;
         

@@ -381,8 +381,8 @@ void Compound::_updateInheritData()
     _inherit.vp    *= _data.vp;
     _inherit.range *= _data.range;
 
-    if( _data.format == eq::Frame::FORMAT_UNDEFINED )
-        _inherit.format = eq::Frame::FORMAT_COLOR;
+    if( _data.format != eq::Frame::FORMAT_UNDEFINED )
+        _inherit.format = _data.format;
 }
 
 void Compound::_updateOutput( UpdateData* data )
@@ -408,8 +408,8 @@ void Compound::_updateOutput( UpdateData* data )
             continue;
         }
 
-        frame->updateInheritData( this );
         frame->cycleFrameBuffer( frameNumber, latency );
+        frame->updateInheritData( this );
         frame->commit();
         data->outputFrames[name] = frame;
     }
@@ -461,8 +461,8 @@ void Compound::_updateInput( UpdateData* data )
             continue;
         }
 
-        frame->updateInheritData( this );
         frame->setOutputFrame( iter->second );
+        frame->updateInheritData( this );
         frame->commit();
     }
 }

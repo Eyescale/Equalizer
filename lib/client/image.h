@@ -5,6 +5,7 @@
 #ifndef EQ_IMAGE_H
 #define EQ_IMAGE_H
 
+#include <eq/client/frame.h>
 #include <eq/client/viewport.h>
 
 namespace eq
@@ -16,7 +17,7 @@ namespace eq
     {
     public:
         /** Constructs a new Image. */
-        Image() {}
+        Image( const Frame::Format format ) : _format( format ) {}
         
         virtual ~Image() {}
         
@@ -36,6 +37,7 @@ namespace eq
          * @name Operations
          */
         //*{
+        void startReadback( const Viewport& vp );
         //*}
 
     private:
@@ -45,6 +47,8 @@ namespace eq
             Viewport             vp;
         }
             _data;
+
+        const Frame::Format _format;
     };
 };
 #endif // EQ_IMAGE_H

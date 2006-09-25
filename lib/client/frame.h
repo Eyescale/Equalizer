@@ -81,6 +81,7 @@ namespace eq
         struct Data
         {
             Viewport             vp;
+            Format               format;
             eqNet::ObjectVersion buffer;
         }
             _data;

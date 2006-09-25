@@ -27,12 +27,7 @@ namespace eqs
         /** Set the number of the frame when this buffer was last used. */
         void setFrameNumber( const uint32_t number ) { _frameNumber = number; }
         uint32_t getFrameNumber() const { return _frameNumber; }
-        //*}
 
-        /**
-         * @name Operations
-         */
-        //*{
         void setViewport( const eq::Viewport& vp ) { _data.vp = vp; }
         //*}
 

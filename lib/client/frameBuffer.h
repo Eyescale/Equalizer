@@ -56,9 +56,10 @@ namespace eq
         /** 
          * Read back a set of images according to the current frame data.
          * 
-         * The images are added to the frame, existing images are retained.
+         * The newly read images are added to the frame, existing images are
+         * retained.
          */
-        void startReadback();
+        void startReadback( const Frame::Format format );
         //*}
 
     protected:
@@ -75,9 +76,11 @@ namespace eq
 
         struct Data
         {
-            Viewport vp;
+            Viewport      vp;
+            Frame::Format format;
         }
             _data;
+
         friend class eqs::FrameBuffer;
 
         std::vector<Image*> _images[INDEX_ALL];

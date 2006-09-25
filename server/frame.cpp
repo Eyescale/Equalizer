@@ -4,6 +4,7 @@
 
 #include "frame.h"
 
+#include "compound.h"
 #include "frameBuffer.h"
 
 #include <eq/client/object.h>
@@ -17,6 +18,7 @@ Frame::Frame()
         : eqNet::Object( eq::Object::TYPE_FRAME, eqNet::CMD_OBJECT_CUSTOM ),
           _buffer( NULL )
 {
+    _data.format = eq::Frame::FORMAT_UNDEFINED;
     setDistributedData( &_inherit, sizeof( eq::Frame::Data ));
 }
 
@@ -47,6 +49,9 @@ void Frame::flush()
 
 void Frame::updateInheritData( const Compound* compound )
 {
+    _inherit = _data;
+    if( _inherit.format == eq::Frame::FORMAT_UNDEFINED )
+        _inherit.format = compound->getInheritFormat();
 }
 
 void Frame::cycleFrameBuffer( const uint32_t frameNumber, const uint32_t maxAge)
@@ -89,8 +94,8 @@ void Frame::_setFrameBuffer( FrameBuffer* buffer )
     if( !buffer )
         return;
 
-    _inherit.buffer.objectID = buffer->getID();
-    _inherit.buffer.version  = buffer->getVersion();
+    _data.buffer.objectID = buffer->getID();
+    _data.buffer.version  = buffer->getVersion();
 }
 
 std::ostream& eqs::operator << ( std::ostream& os, const Frame* frame )

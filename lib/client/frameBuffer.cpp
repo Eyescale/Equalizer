@@ -75,7 +75,7 @@ Image* FrameBuffer::newImage( const Frame::Format format )
     const FormatIndex index = _getIndexForFormat( format );
     Image* image;
     if( _imageCache[index].empty( ))
-        image = new Image();
+        image = new Image( format );
     else
     {
         image = _imageCache[index].back();
@@ -87,8 +87,16 @@ Image* FrameBuffer::newImage( const Frame::Format format )
 
 
 
-void FrameBuffer::startReadback()
+void FrameBuffer::startReadback( const Frame::Format frameFormat )
 {
+    const Frame::Format format = (_data.format == Frame::FORMAT_UNDEFINED) ?
+        frameFormat : static_cast<Frame::Format>(_data.format & frameFormat);
+
+    if( format & Frame::FORMAT_COLOR )
+    {
+        Image* image = newImage( Frame::FORMAT_COLOR );
+        image->startReadback( _data.vp );
+    }
 }
 
 
