@@ -48,7 +48,8 @@ void FrameBuffer::clear()
 
 void FrameBuffer::_clearImages( const FormatIndex i )
 {
-    copy( _images[i].begin(), _images[i].end(), _imageCache[i].end() );
+    copy( _images[i].begin(), _images[i].end(), 
+          inserter( _imageCache[i], _imageCache[i].end( )));
     _images[i].clear();
 }
 

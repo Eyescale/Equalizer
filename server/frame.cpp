@@ -26,6 +26,7 @@ Frame::Frame( const Frame& from )
         : eqNet::Object( eq::Object::TYPE_FRAME, eqNet::CMD_OBJECT_CUSTOM ),
           _buffer( NULL )
 {
+    _data = from._data;
     setDistributedData( &_inherit, sizeof( eq::Frame::Data ));
 }
 

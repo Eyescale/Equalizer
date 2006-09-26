@@ -59,7 +59,8 @@ Compound::Compound( const Compound& from )
 }
 
 Compound::InheritData::InheritData()
-        : channel( NULL )
+        : channel( NULL ),
+          format( eq::Frame::FORMAT_UNDEFINED )
 {}
 
 void Compound::addChild( Compound* child )
