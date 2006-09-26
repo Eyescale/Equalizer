@@ -11,7 +11,8 @@
 #include <eq/client/frameBuffer.h>
 #include <eq/client/projection.h>
 #include <eq/client/range.h>
-#include <eq/client/viewMatrix.h>
+#include <eq/client/renderContext.h>
+#include <eq/client/view.h>
 #include <eq/client/viewport.h>
 #include <eq/client/wall.h>
 
@@ -261,10 +262,10 @@ namespace eqs
          * 
          * @param view the view description.
          */
-        void setViewMatrix( const eq::ViewMatrix& view  );
+        void setView( const eq::View& view  );
 
         /** @return the last specified projection matrix. */
-        const eq::ViewMatrix& getViewMatrix() const { return _view.matrix; }
+        const eq::View& getView() const { return _view.view; }
         //*}
 
         /** @name Compound Operations. */
@@ -356,7 +357,7 @@ namespace eqs
                 NONE,
                 WALL,
                 PROJECTION,
-                VIEWMATRIX
+                VIEW
             };
 
             View() : latest( NONE ) {}
@@ -364,7 +365,7 @@ namespace eqs
             Type           latest;
             eq::Wall       wall;
             eq::Projection projection;
-            eq::ViewMatrix matrix;
+            eq::View       view;
         } 
         _view;
 
@@ -374,8 +375,9 @@ namespace eqs
 
             Channel*          channel;
             eq::Viewport      vp;
+            eq::PixelViewport pvp;
             eq::Range         range;
-            eq::ViewMatrix    view;
+            eq::View          view;
             eq::Frame::Format format;
         };
 
@@ -390,11 +392,8 @@ namespace eqs
         void _setDefaultFrameName( Frame* frame );
 
         static TraverseResult _initCB( Compound* compound, void* );
-
-        static TraverseResult _updateDrawCB(Compound* compound, void* );
-        static TraverseResult _updatePostDrawCB( Compound* compound, void* );
-        void _updatePostDraw( eq::RenderContext& context );
-
+        
+        //----- pre-render compound setup
         struct UpdateData
         {
             eqBase::StringHash<eqNet::Barrier*> swapBarriers;
@@ -405,12 +404,24 @@ namespace eqs
         static TraverseResult _updateCB( Compound* compound, void* );
         static TraverseResult _updatePostCB( Compound* compound, void* );
         void _updateInheritData();
-        void _updateOutput( UpdateData* data );
         void _updateSwapBarriers( UpdateData* data );
-        void _computeFrustum( eq::Frustum& frustum, float headTransform[16] );
-
+        void _updateOutput( UpdateData* data );
         static TraverseResult _updateInputCB( Compound* compound, void* );
         void _updateInput( UpdateData* data );
+
+        //----- per-channel render task generation
+        struct UpdateChannelData
+        {
+            Channel* channel;
+            uint32_t frameID;
+        };
+
+        static TraverseResult _updateDrawCB(Compound* compound, void* );
+        static TraverseResult _updatePostDrawCB( Compound* compound, void* );
+        void _updatePostDraw( eq::RenderContext& context );
+        void _setupRenderContext( eq::RenderContext& context, 
+                                  const UpdateChannelData* data );
+        void _computeFrustum( eq::Frustum& frustum, float headTransform[16] );
 
         friend std::ostream& operator << ( std::ostream& os,
                                            const Compound* compound );

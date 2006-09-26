@@ -57,6 +57,15 @@ namespace eq
          * @name Operators
          */
         //*{
+        PixelViewport& operator *= ( const Viewport& rhs )
+            {
+                x += (int32_t)rhs.x * w;
+                y += (int32_t)rhs.y * h;
+                w  = (int32_t)w*rhs.w;
+                h  = (int32_t)h*rhs.h;
+                return *this;
+            }
+
         const PixelViewport operator * ( const Viewport& rhs ) const
             {
                 return PixelViewport( (int32_t)(x+w*rhs.x),(int32_t)(y+h*rhs.y),

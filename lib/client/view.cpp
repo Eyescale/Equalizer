@@ -2,7 +2,7 @@
 /* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#include "viewMatrix.h"
+#include "view.h"
 
 #include "projection.h"
 #include "wall.h"
@@ -13,7 +13,7 @@ using namespace eq;
 
 #define DEG2RAD( angle ) ( (angle) * M_PI / 180.f )
 
-void ViewMatrix::applyWall( const Wall& wall )
+void View::applyWall( const Wall& wall )
 {
     float u[3] = { wall.bottomRight[0] - wall.bottomLeft[0],
                    wall.bottomRight[1] - wall.bottomLeft[1],
@@ -69,7 +69,7 @@ void ViewMatrix::applyWall( const Wall& wall )
     xfm[15] = 1.;
 }
 
-void ViewMatrix::applyProjection( const Projection& projection )
+void View::applyProjection( const Projection& projection )
 {
     const float cosH = cosf( DEG2RAD( projection.hpr[0] ));
     const float sinH = sinf( DEG2RAD( projection.hpr[0] ));

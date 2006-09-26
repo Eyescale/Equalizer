@@ -172,11 +172,11 @@ void Compound::setProjection( const eq::Projection& projection )
     _view.latest     = View::PROJECTION;
 }
 
-void Compound::setViewMatrix( const eq::ViewMatrix& view )
+void Compound::setView( const eq::View& view )
 {
     _data.view   = view;
-    _view.matrix = view;
-    _view.latest = View::VIEWMATRIX;
+    _view.view   = view;
+    _view.latest = View::VIEW;
 }
 
 //---------------------------------------------------------------------------
@@ -366,6 +366,10 @@ void Compound::_updateInheritData()
     if( !_parent )
     {
         _inherit = _data;
+
+        if( _inherit.channel )
+            _inherit.pvp = _inherit.channel->getPixelViewport();
+
         if( _data.format == eq::Frame::FORMAT_UNDEFINED )
             _inherit.format = eq::Frame::FORMAT_COLOR;
         return;
@@ -381,6 +385,11 @@ void Compound::_updateInheritData()
 
     _inherit.vp    *= _data.vp;
     _inherit.range *= _data.range;
+
+    if( _inherit.pvp.isValid( ))
+        _inherit.pvp *= _data.vp;
+    else if ( _inherit.channel )
+        _inherit.pvp = _inherit.channel->getPixelViewport();
 
     if( _data.format != eq::Frame::FORMAT_UNDEFINED )
         _inherit.format = _data.format;
@@ -471,12 +480,6 @@ void Compound::_updateInput( UpdateData* data )
 //---------------------------------------------------------------------------
 // per-channel update/task generation
 //---------------------------------------------------------------------------
-struct UpdateChannelData
-{
-    Channel* channel;
-    uint32_t frameID;
-};
-
 void Compound::updateChannel( Channel* channel, const uint32_t frameID )
 {
     UpdateChannelData data = { channel, frameID };
@@ -492,16 +495,9 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
     if( compound->getChannel() != channel || !compound->_tasks )
         return TRAVERSE_CONTINUE;
 
-    const Channel*           destination = compound->_inherit.channel;
-    const eq::PixelViewport& pvp         = destination->getPixelViewport();
-
     eq::RenderContext context;
-    context.frameID    = data->frameID;
-    context.drawBuffer = GL_BACK; // TODO: traversal eye pass 
-    context.vp         = compound->_inherit.vp;
-    context.pvp        = pvp * compound->_inherit.vp;
-    context.range      = compound->_inherit.range;
-    
+    compound->_setupRenderContext( context, data );
+
     if( compound->testTask( TASK_CLEAR ))
     {
         eq::ChannelClearPacket clearPacket;        
@@ -524,11 +520,29 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
     return TRAVERSE_CONTINUE;
 }
 
+
+void Compound::_setupRenderContext( eq::RenderContext& context, 
+                                    const UpdateChannelData* data )
+{
+    context.frameID    = data->frameID;
+    context.drawBuffer = GL_BACK; // TODO: traversal eye pass 
+    context.pvp        = _inherit.pvp;
+    context.range      = _inherit.range;
+
+    if( true /* use dest channel origin hint set */ )
+    {
+        const eq::PixelViewport& nativePVP = data->channel->getPixelViewport();
+        context.pvp.x = nativePVP.x;
+        context.pvp.y = nativePVP.y;
+    }
+    // TODO: pvp size overcommit check?
+}
+    
 void Compound::_computeFrustum( eq::Frustum& frustum, float headTransform[16] )
 {
-    const Channel*        destination = _inherit.channel;
-    const eq::ViewMatrix& iView       = _inherit.view;
-    Config*               config      = getConfig();
+    const Channel*  destination = _inherit.channel;
+    const eq::View& iView       = _inherit.view;
+    Config*         config      = getConfig();
     destination->getNearFar( &frustum.near, &frustum.far );
 
     // compute eye position in screen space
@@ -610,16 +624,8 @@ TraverseResult Compound::_updatePostDrawCB( Compound* compound, void* userData )
     if( compound->getChannel() != channel || !compound->_tasks )
         return TRAVERSE_CONTINUE;
 
-    const Channel*           destination = compound->_inherit.channel;
-    const eq::PixelViewport& pvp         = destination->getPixelViewport();
-
     eq::RenderContext context;
-    context.frameID    = data->frameID;
-    context.drawBuffer = GL_BACK; // TODO: traversal eye pass 
-    context.vp         = compound->_inherit.vp;
-    context.pvp        = pvp * compound->_inherit.vp;
-    context.range      = compound->_inherit.range;
-    
+    compound->_setupRenderContext( context, data );
     compound->_updatePostDraw( context );
     return TRAVERSE_CONTINUE;
 }
@@ -712,8 +718,8 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
         case Compound::View::PROJECTION:
             //os << compound->getProjection() << endl;
             break;
-        case Compound::View::VIEWMATRIX:
-            //os << compound->getViewMatrix() << endl;
+        case Compound::View::VIEW:
+            //os << compound->getView() << endl;
             break;
         default: 
             break;

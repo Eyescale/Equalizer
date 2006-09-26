@@ -23,13 +23,12 @@ namespace eq
     struct RenderContext 
     {
     public:
-        uint32_t      frameID;
-        GLenum        drawBuffer;
-        Viewport      vp;
-        PixelViewport pvp;
-        Range         range;
-        Frustum       frustum;
-        float         headTransform[16];
+        uint32_t      frameID;    //<! identifier passed to Config::beginFrame
+        uint32_t      drawBuffer; //<! buffer as passed to glDrawBuffer()
+        PixelViewport pvp;        //<! pixel viewport of channel wrt window
+        Range         range;      //<! database-range to be rendered
+        Frustum       frustum;    //<! frustum for projection matrix
+        float         headTransform[16]; //<! frustum transform for modelview
     };
 
     std::ostream& operator << ( std::ostream& os, const RenderContext& ctx );

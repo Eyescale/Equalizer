@@ -150,11 +150,8 @@ namespace eq
          * task.
          */
         //*{
-        /** @return the channel's current pixel viewport */
+        /** @return the channel's current pixel viewport. */
         const PixelViewport& getPixelViewport() const;
-
-        /** @return the current fractional viewport of this channel. */
-        const Viewport& getViewport() const;
 
         /** @return the view frustum for the current rendering task. */
         const Frustum& getFrustum() const;

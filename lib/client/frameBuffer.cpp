@@ -86,8 +86,6 @@ Image* FrameBuffer::newImage( const Frame::Format format )
     return image;
 }
 
-
-
 void FrameBuffer::startReadback( const Frame::Format frameFormat )
 {
     const Frame::Format format = (_data.format == Frame::FORMAT_UNDEFINED) ?
@@ -99,5 +97,4 @@ void FrameBuffer::startReadback( const Frame::Format frameFormat )
         image->startReadback( _data.vp );
     }
 }
-
 

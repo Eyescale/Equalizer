@@ -80,7 +80,7 @@ HEADER_SRC = \
 	client/range.h \
 	client/renderContext.h \
 	client/server.h \
-	client/viewMatrix.h \
+	client/view.h \
 	client/viewport.h \
 	client/wall.h \
 	client/window.h \
@@ -134,7 +134,7 @@ SOURCES = \
 	client/pipe.cpp \
 	client/renderContext.cpp \
 	client/server.cpp \
-	client/viewMatrix.cpp \
+	client/view.cpp \
 	client/wall.cpp \
 	client/window.cpp
 

@@ -2,8 +2,8 @@
 /* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_VIEWMATRIX_H
-#define EQ_VIEWMATRIX_H
+#ifndef EQ_VIEW_H
+#define EQ_VIEW_H
 
 namespace eq
 {
@@ -17,9 +17,9 @@ namespace eq
      * transformation matrix.
      * @todo better doc
      */
-    struct ViewMatrix
+    struct View
     {
-        ViewMatrix() : width(0), height(0) {}
+        View() : width(0), height(0) {}
 
         bool isValid() const { return (width!=0 && height!=0); }
 
@@ -32,4 +32,4 @@ namespace eq
     };
 }
 
-#endif // EQ_VIEWMATRIX_H
+#endif // EQ_VIEW_H
