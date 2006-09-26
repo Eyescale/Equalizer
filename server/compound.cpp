@@ -669,7 +669,7 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
     if( channel )
     {
         Compound* parent = compound->getParent();
-        if( parent && parent->getChannel() != channel )
+        if( !parent || parent->getChannel() != channel )
         {
             const std::string& name = channel->getName();
             if( name.empty( ))
