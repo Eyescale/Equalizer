@@ -31,7 +31,7 @@ public:
             bzero( &_data, sizeof( Data ));
             _data.translation[2] = -3.0;
 
-            _rotation.makeIdentity();
+            _rotation = vmml::Matrix4f::IDENTITY;
         }
 
     struct Data
@@ -40,7 +40,7 @@ public:
         float translation[3];
     } _data;
 
-    eq::Matrix4f _rotation;
+    vmml::Matrix4f _rotation;
 
 protected:
     const void* getInstanceData( uint64_t* size )
@@ -48,7 +48,7 @@ protected:
 
     const void* pack( uint64_t* size )
     {
-        memcpy(_data.rotation, _rotation.getMatrix(), 16*sizeof( float ));
+        memcpy( _data.rotation, _rotation.ml, 16*sizeof( float ));
         *size = sizeof( Data );
         return &_data;
     }

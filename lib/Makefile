@@ -68,7 +68,6 @@ HEADER_SRC = \
 	client/init.h \
 	client/log.h \
 	client/matrix4.h \
-	client/matrix4.ipp \
 	client/node.h \
 	client/nodeFactory.h \
 	client/object.h \
@@ -150,8 +149,29 @@ endif
 CXXFLAGS += $(WINDOW_SYSTEM_INCS)
 LDFLAGS  += $(WINDOW_SYSTEM_LIBS)
 
-TARGETS = $(HEADERS) $(DYNAMIC_LIB)
+TARGETS = $(HEADERS) $(VMMLIB_HEADERS) $(DYNAMIC_LIB)
 
 include $(TOP)/make/rules.mk
 
-$(DYNAMIC_LIB): $(HEADERS)
+#----------------------------------------------------------------------
+# External template math library
+
+VMMLIB_HEADER_SRC = $(wildcard vmmlib/include/*.h)
+VMMLIB_HEADERS    = \
+	$(VMMLIB_HEADER_SRC:vmmlib/include/%=$(HEADER_DIR)/vmmlib/%) \
+	$(HEADER_DIR)/vmmlib/LICENSE
+
+$(HEADER_DIR)/vmmlib/%: vmmlib/include/%
+	@mkdir -p $(@D)
+	@echo 'VMMLib header file $@'
+	@cp $< $@
+
+$(HEADER_DIR)/vmmlib/LICENSE: vmmlib/LICENSE
+	@mkdir -p $(@D)
+	@echo 'VMMLib $@'
+	@cp $< $@
+
+#----------------------------------------------------------------------
+
+$(DYNAMIC_LIB): $(HEADERS) $(VMMLIB_HEADERS)
+

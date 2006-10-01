@@ -581,9 +581,9 @@ void Config::_updateHead()
 {
     _headMatrix->sync();
 
-    float eyeOffset = 0; //will be used later...
-    const float* matrix = _headMatrix->getMatrix();
-    const float w = eyeOffset * matrix[12] + matrix[15]; 
+    float        eyeOffset = 0; //will be used later...
+    const float* matrix    = _headMatrix->ml;
+    const float  w         = eyeOffset * matrix[12] + matrix[15]; 
     _eyePosition[0] = (( eyeOffset * matrix[0] + matrix[3] ) / w );
     _eyePosition[1] = (( eyeOffset * matrix[4] + matrix[7] ) / w );
     _eyePosition[2] = (( eyeOffset * matrix[8] + matrix[11] ) / w );

@@ -1,62 +1,26 @@
 
 /* Copyright (c) 2006, Dustin Wueest <wueest@dustin.ch> 
+   Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef CLIENT_MATRIX4_H
 #define CLIENT_MATRIX4_H
 
-#include <math.h>
+#include <eq/vmmlib/Matrix4.h>
 #include <eq/net/object.h>
 
 namespace eq
 {
     template< typename T >
-    class Matrix4 : public eqNet::Object
+    class Matrix4 : public vmml::Matrix4<T>, public eqNet::Object
     {
     public:
         Matrix4();
         Matrix4( const void* data, uint64_t dataSize );
 
-        void makeIdentity();
-        void setTranslation( const T x, const T y, const T z );
-        void scale( const T scale[3] );
-        void rotateX( const T angle );
-        void rotateY( const T angle );
-        void rotateZ( const T angle );
-
-        const T* getMatrix() const { return _m; } 
-
-        Matrix4& operator = ( const Matrix4& matrix )
-            {
-                memcpy( _m, matrix._m, 16*sizeof( T ) );
-                return *this;
-            }
-
-        void operator *= ( const Matrix4<T>& rhs );
-
-    protected:
-          const void* getInstanceData( uint64_t* size )
-          {
-              return pack( size );
-          }
-
-          const void* pack( uint64_t* size )
-          {
-              *size = 16*sizeof( T );
-              return _m;
-          }
-
-          void unpack( const void* data, const uint64_t size )
-          {
-              EQASSERT( size == 16*sizeof( T ) );
-              memcpy( _m, data, size );
-          }
-
-    private:
-        T _m[16];
+        Matrix4& operator= ( const Matrix4& mm )
+            { vmml::Matrix4<T>::operator= (mm); return *this; }
     };
-
-#   include "matrix4.ipp" // template implementation
 
     typedef Matrix4<float> Matrix4f;
 
@@ -66,14 +30,15 @@ namespace eq
     {
         os << eqBase::disableFlush << eqBase::disableHeader << "Matrix " 
            << std::endl;
-        T values[16];
-        memcpy( values, matrix.getMatrix(), 16*sizeof( T ) );
-        for( int i=0; i<16; i+=4 )
-        {
-            os << "  " << values[i] << "  " << values[i+1] << "  " << 
-                      values[i+2] << "  " << values[i+3] << std::endl;
-        }
-        os << std::endl << eqBase::enableHeader << eqBase::enableFlush;
+        os << "  " << matrix.m[0][0] << ", " << matrix.m[0][1] << ", " 
+           << matrix.m[0][2] << ", " << matrix.m[0][3] << std::endl;
+        os << "  " << matrix.m[1][0] << ", " << matrix.m[1][1] << ", " 
+           << matrix.m[1][2] << ", " << matrix.m[1][3] << std::endl;
+        os << "  " << matrix.m[2][0] << ", " << matrix.m[2][1] << ", " 
+           << matrix.m[2][2] << ", " << matrix.m[2][3] << std::endl;
+        os << "  " << matrix.m[3][0] << ", " << matrix.m[3][1] << ", " 
+           << matrix.m[3][2] << ", " << matrix.m[3][3] << std::endl;
+        os << eqBase::enableHeader << eqBase::enableFlush;
         return os;
     }
 }

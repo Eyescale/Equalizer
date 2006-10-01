@@ -19,8 +19,7 @@ Tracker::Tracker()
     _scale[0] = 1.0/18000;
     _scale[1] = 1.0/18000;
     _scale[2] = -1.0/18000;
-    _transform.makeIdentity();
-    const eq::Matrix4f matrix; //identity matrix for now...
+    const eq::Matrix4f matrix; // identity
     setTransform( matrix );
 }
 

@@ -7,65 +7,26 @@
 #include "object.h"
 #include "packets.h"
 
-//----------------------------------------------------------------------
-// float template specialization using cosf/sinf
-//----------------------------------------------------------------------
-
 namespace eq
 {
+// Specialized Constructors
+//   We need a new eq::Object type for each specialization. Below are the
+//   specialized constructors for all used template types.
+
     template<>
-    Matrix4<float>::Matrix4() : Object( eq::Object::TYPE_MATRIX4F,
-                                        eqNet::CMD_OBJECT_CUSTOM )
+    Matrix4<float>::Matrix4() 
+            : vmml::Matrix4f(),
+              Object( eq::Object::TYPE_MATRIX4F, eqNet::CMD_OBJECT_CUSTOM )
     {
-        makeIdentity();
+        vmml::Matrix4f::operator= ( vmml::Matrix4f::IDENTITY );
+        setDistributedData( &ml, 16 * sizeof( float ));
     }
 
     template<>
     Matrix4<float>::Matrix4( const void* data, uint64_t dataSize )
-            : Object( eq::Object::TYPE_MATRIX4F, eqNet::CMD_OBJECT_CUSTOM )
+            : vmml::Matrix4f( (float*)data ),
+              Object( eq::Object::TYPE_MATRIX4F, eqNet::CMD_OBJECT_CUSTOM )
     {
-        memcpy( _m, data, dataSize );
-    }
-
-    template<>
-    void Matrix4<float>::rotateX( const float angle )
-    {
-        //matrix multiplication: _m = _m * rotation x axis
-        const float sinus = sinf(angle);
-        const float cosin = cosf(angle);
-        for( int i=0; i<16; i+=4 )
-        {
-            const float temp = _m[i];
-            _m[i] = _m[i] * cosin - _m[i+2] * sinus;
-            _m[i+2] = temp * sinus + _m[i+2] * cosin;
-        }
-    }
-
-    template<>
-    void Matrix4<float>::rotateY( const float angle )
-    {
-        //matrix multiplication: _m = _m * rotation y axis
-        const float sinus = sinf(angle);
-        const float cosin = cosf(angle);
-        for( int i=0; i<16; i+=4 )
-        {
-            const float temp = _m[i+1];
-            _m[i+1] = _m[i+1] * cosin + _m[i+2] * sinus;
-            _m[i+2] = temp * -sinus + _m[i+2] * cosin;
-        }
-    }
-
-    template<>
-    void Matrix4<float>::rotateZ( const float angle )
-    {
-        //matrix multiplication: _m = _m * rotation z axis
-        const float sinus = sinf(angle);
-        const float cosin = cosf(angle);
-        for( int i=0; i<16; i+=4 )
-        {
-            const float temp = _m[i];
-            _m[i] = _m[i] * cosin + _m[i+1] * sinus;
-            _m[i+1] = temp * -sinus + _m[i+1] * cosin;
-        }
+        setDistributedData( &ml, 16 * sizeof( float ));
     }
 }
