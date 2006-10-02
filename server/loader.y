@@ -27,7 +27,7 @@
         static eqs::Pipe*        eqPipe; // avoid name clash with pipe()
         static eqs::Window*      window;
         static eqs::Channel*     channel;
-        static eqs::Compound*    compound;
+        static eqs::Compound*    eqCompound; // avoid name clash on Darwin
         static eqs::SwapBarrier* swapBarrier;
         static eqs::Frame*       frame;
         static eqBase::RefPtr<eqNet::ConnectionDescription> 
@@ -234,7 +234,7 @@ window: EQTOKEN_WINDOW '{' { window = loader->createWindow(); }
 windowFields: /*null*/ | windowField | windowFields windowField
 windowField: 
     EQTOKEN_ATTRIBUTES '{' 
-    windowHints '}'
+    windowAttributess '}'
     | EQTOKEN_NAME STRING              { window->setName( $2 ); }
     | EQTOKEN_VIEWPORT viewport
         {
@@ -244,12 +244,13 @@ windowField:
             else
                 window->setViewport( eq::Viewport($2[0], $2[1], $2[2], $2[3])); 
         }
+windowAttributess: /*null*/ | windowAttributes 
+    | windowAttributess windowAttributes
+windowAttributes:
+    EQTOKEN_HINTS '{'
+    windowHints '}'
 windowHints: /*null*/ | windowHint | windowHints windowHint
 windowHint:
-    EQTOKEN_HINTS '{'
-    hintFields '}'
-hintFields: /*null*/ | hintField | hintFields hintField
-hintField:
     EQTOKEN_STEREO stereo
 stereo:
     EQTOKEN_ON     { window->setIAttribute( 
@@ -281,41 +282,41 @@ compounds: compound | compounds compound
 compound: EQTOKEN_COMPOUND '{' 
               {
                   eqs::Compound* child = loader->createCompound();
-                  if( compound )
-                      compound->addChild( child );
+                  if( eqCompound )
+                      eqCompound->addChild( child );
                   else
                       config->addCompound( child );
-                  compound = child;
+                  eqCompound = child;
               }
           compoundFields 
           compoundChildren
           compoundFields
-          '}' { compound = compound->getParent(); } 
+          '}' { eqCompound = eqCompound->getParent(); } 
 
 compoundChildren: /*null*/ | compounds
 
 compoundFields: /*null*/ | compoundField |
                     compoundFields compoundField
 compoundField: 
-    EQTOKEN_NAME STRING { compound->setName( $2 ); }
+    EQTOKEN_NAME STRING { eqCompound->setName( $2 ); }
     | EQTOKEN_CHANNEL STRING
     {
          eqs::Channel* channel = config->findChannel( $2 );
          if( !channel )
              yyerror( "No channel of the given name" );
          else
-             compound->setChannel( channel );
+             eqCompound->setChannel( channel );
     }
-    | EQTOKEN_TASK '['   { compound->setTasks( eqs::Compound::TASK_NONE ); }
+    | EQTOKEN_TASK '['   { eqCompound->setTasks( eqs::Compound::TASK_NONE ); }
         compoundTasks ']'
-    | EQTOKEN_EYE  '['   { compound->setEyes( eqs::Compound::EYE_UNDEFINED ); }
+    | EQTOKEN_EYE  '['   { eqCompound->setEyes( eqs::Compound::EYE_UNDEFINED ); }
         compoundEyes  ']'
-    | EQTOKEN_FORMAT '[' { compound->setFormats( eq::Frame::FORMAT_UNDEFINED );}
+    | EQTOKEN_FORMAT '[' { eqCompound->setFormats( eq::Frame::FORMAT_UNDEFINED );}
         compoundFormats ']'
     | EQTOKEN_VIEWPORT viewport
-        { compound->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] )); }
+        { eqCompound->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] )); }
     | EQTOKEN_RANGE '[' FLOAT FLOAT ']'
-        { compound->setRange( eq::Range( $3, $4 )); }
+        { eqCompound->setRange( eq::Range( $3, $4 )); }
     | wall
     | swapBarrier
     | outputFrame
@@ -323,20 +324,20 @@ compoundField:
 
 compoundTasks: /*null*/ | compoundTask | compoundTasks compoundTask
 compoundTask:
-    EQTOKEN_CLEAR      { compound->enableTask( eqs::Compound::TASK_CLEAR ); }
-    | EQTOKEN_DRAW     { compound->enableTask( eqs::Compound::TASK_DRAW ); }
-    | EQTOKEN_READBACK { compound->enableTask( eqs::Compound::TASK_READBACK ); }
+    EQTOKEN_CLEAR      { eqCompound->enableTask( eqs::Compound::TASK_CLEAR ); }
+    | EQTOKEN_DRAW     { eqCompound->enableTask( eqs::Compound::TASK_DRAW ); }
+    | EQTOKEN_READBACK { eqCompound->enableTask( eqs::Compound::TASK_READBACK ); }
 
 compoundEyes: /*null*/ | compoundEye | compoundEyes compoundEye
 compoundEye:
-    EQTOKEN_CYCLOP  { compound->enableEye( eqs::Compound::EYE_CYCLOP ); }
-    | EQTOKEN_LEFT  { compound->enableEye( eqs::Compound::EYE_LEFT ); }
-    | EQTOKEN_RIGHT { compound->enableEye( eqs::Compound::EYE_RIGHT ); }
+    EQTOKEN_CYCLOP  { eqCompound->enableEye( eqs::Compound::EYE_CYCLOP ); }
+    | EQTOKEN_LEFT  { eqCompound->enableEye( eqs::Compound::EYE_LEFT ); }
+    | EQTOKEN_RIGHT { eqCompound->enableEye( eqs::Compound::EYE_RIGHT ); }
 
 compoundFormats: /*null*/ | compoundFormat | compoundFormats compoundFormat
 compoundFormat:
-    EQTOKEN_COLOR    { compound->enableFormat( eq::Frame::FORMAT_COLOR ); }
-    | EQTOKEN_DEPTH  { compound->enableFormat( eq::Frame::FORMAT_DEPTH ); }
+    EQTOKEN_COLOR    { eqCompound->enableFormat( eq::Frame::FORMAT_COLOR ); }
+    | EQTOKEN_DEPTH  { eqCompound->enableFormat( eq::Frame::FORMAT_DEPTH ); }
 
 wall: EQTOKEN_WALL '{'
           EQTOKEN_BOTTOM_LEFT  '[' FLOAT FLOAT FLOAT ']' 
@@ -356,13 +357,13 @@ wall: EQTOKEN_WALL '{'
         wall.topLeft[0] = $17;
         wall.topLeft[1] = $18;
         wall.topLeft[2] = $19;
-        compound->setWall( wall );
+        eqCompound->setWall( wall );
     }
 
 swapBarrier : EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eqs::SwapBarrier(); }
     swapBarrierFields '}'
         { 
-            compound->setSwapBarrier( swapBarrier );
+            eqCompound->setSwapBarrier( swapBarrier );
             swapBarrier = NULL;
         } 
 swapBarrierFields: /*null*/ | swapBarrierField 
@@ -373,13 +374,13 @@ swapBarrierField:
 outputFrame : EQTOKEN_OUTPUTFRAME '{' { frame = new eqs::Frame(); }
     frameFields '}'
         { 
-            compound->addOutputFrame( frame );
+            eqCompound->addOutputFrame( frame );
             frame = NULL;
         } 
 inputFrame : EQTOKEN_INPUTFRAME '{' { frame = new eqs::Frame(); }
     frameFields '}'
         { 
-            compound->addInputFrame( frame );
+            eqCompound->addInputFrame( frame );
             frame = NULL;
         } 
 frameFields: /*null*/ | frameField | frameFields frameField
