@@ -371,6 +371,8 @@ Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy,
 
         EQASSERTINFO( !threadSafe || object->isThreadSafe(), 
                       "Can't make existing object thread safe." );
+
+        object->sync( version );
         return object;
     }
 
