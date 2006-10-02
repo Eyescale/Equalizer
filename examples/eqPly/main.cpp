@@ -77,7 +77,7 @@ int main( int argc, char** argv )
 
     // 5b. init tracker
     Tracker tracker;
-    if(appInitData->getTrackerPort() != "")
+    if( !appInitData->getTrackerPort().empty() )
     {
         if( !tracker.init( appInitData->getTrackerPort() ))
             EQWARN << "Failed to initialise tracker" << endl;
@@ -90,7 +90,7 @@ int main( int argc, char** argv )
 
     while( config->isRunning( ))
     {
-        if(tracker.isRunning())
+        if( tracker.isRunning() )
         {
             tracker.update();
             const eq::Matrix4f& headMatrix = tracker.getHeadMatrix();

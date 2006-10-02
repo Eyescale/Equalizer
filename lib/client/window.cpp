@@ -143,6 +143,8 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
         _setViewport( packet->vp );
 
     _name = packet->name;
+    for( uint32_t i=0; i<IATTR_ALL; ++i )
+        _iAttributes[i] = packet->iattr[i];
 
     WindowInitReplyPacket reply( packet );
     reply.result = init( packet->initID );
@@ -185,6 +187,14 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
     }
 
     reply.pvp = _pvp;
+    
+    for( uint32_t i=0; i<eq::Window::IATTR_ALL; ++i )
+        reply.iattr[i] = _iAttributes[i];
+    
+    int glStereo;
+    glGetIntegerv( GL_STEREO, &glStereo );
+    reply.iattr[IATTR_HINTS_STEREO] = glStereo ? STEREO_ON : STEREO_OFF;
+        
     send( node, reply );
 
     EventThread* thread = EventThread::get( windowSystem );
@@ -374,7 +384,7 @@ static Bool WaitForNotify(Display *, XEvent *e, char *arg)
 bool eq::Window::initGLX()
 {
 #ifdef GLX
-    Display *display = _pipe->getXDisplay();
+    Display* display = _pipe->getXDisplay();
     if( !display ) 
         return false;
 
@@ -393,9 +403,23 @@ bool eq::Window::initGLX()
     *aptr++ = GLX_STENCIL_SIZE;
     *aptr++ = 8;
     *aptr++ = GLX_DOUBLEBUFFER;
+    if( getIAttribute( IATTR_HINTS_STEREO ) != STEREO_OFF )
+    {
+        *aptr++ = GLX_STEREO;
+        *aptr++ = 1;
+    }   
     *aptr = None;
 
     XVisualInfo *visInfo = glXChooseVisual( display, screen, attributes );
+    if( !visInfo && getIAttribute( IATTR_HINTS_STEREO ) == STEREO_AUTO )
+    {        
+        for( int i=0; attributes[i] != None; i++ )
+        {
+            if( attributes[i] == GLX_STEREO )
+                attributes[i+1] = 0;
+        }
+        visInfo = glXChooseVisual( display, screen, attributes );
+    }
     if ( !visInfo )
     {
         EQERROR << "Could not find a matching visual\n" << endl;

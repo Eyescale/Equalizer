@@ -3,9 +3,10 @@
    All rights reserved. */
 
 #include "window.h"
-
+#include "global.h"
 #include "channel.h"
 #include "config.h"
+#include "compound.h"
 #include "log.h"
 #include "pipe.h"
 
@@ -13,7 +14,7 @@ using namespace eqs;
 using namespace eqBase;
 using namespace std;
 
-void Window::_construct()
+void eqs::Window::_construct()
 {
     _used             = 0;
     _pipe             = NULL;
@@ -28,15 +29,20 @@ void Window::_construct()
                          &eqs::Window::_cmdPushFront));
     registerCommand( eq::REQ_WINDOW_SET_PVP, this, reinterpret_cast<CommandFcn>(
                          &eqs::Window::_reqSetPixelViewport));
+                         
+    const Global* global = Global::instance();
+    
+    for( int i=0; i<eq::Window::IATTR_ALL; ++i )
+        _iAttributes[i] = global->getWindowIAttribute( (eq::Window::IAttribute)i );
 }
 
-Window::Window()
+eqs::Window::Window()
         : eqNet::Object( eq::Object::TYPE_WINDOW, eq::CMD_WINDOW_CUSTOM )
 {
     _construct();
 }
 
-Window::Window( const Window& from )
+eqs::Window::Window( const Window& from )
         : eqNet::Object( eq::Object::TYPE_WINDOW, eq::CMD_WINDOW_CUSTOM )
 {
     _construct();
@@ -44,6 +50,9 @@ Window::Window( const Window& from )
     _name = from._name;
     _pvp  = from._pvp;
     _vp   = from._vp;
+    
+    for( int i=0; i<eq::Window::IATTR_ALL; ++i )
+        _iAttributes[i] = from._iAttributes[i];
 
     const uint32_t nChannels = from.nChannels();
     for( uint32_t i=0; i<nChannels; i++ )
@@ -55,19 +64,19 @@ Window::Window( const Window& from )
     }            
 }
 
-void Window::addChannel( Channel* channel )
+void eqs::Window::addChannel( Channel* channel )
 {
     _channels.push_back( channel ); 
     channel->_window = this; 
 }
 
-void Window::refUsed()
+void eqs::Window::refUsed()
 {
     _used++;
     if( _pipe ) 
         _pipe->refUsed(); 
 }
-void Window::unrefUsed()
+void eqs::Window::unrefUsed()
 {
     _used--;
     if( _pipe ) 
@@ -121,7 +130,7 @@ void eqs::Window::setViewport( const eq::Viewport& vp )
 //---------------------------------------------------------------------------
 // swap barrier operations
 //---------------------------------------------------------------------------
-void Window::_resetSwapBarriers()
+void eqs::Window::_resetSwapBarriers()
 { 
     Node* node = getNode();
     EQASSERT( node );
@@ -135,7 +144,7 @@ void Window::_resetSwapBarriers()
     _swapBarriers.clear();
 }
 
-eqNet::Barrier* Window::newSwapBarrier()
+eqNet::Barrier* eqs::Window::newSwapBarrier()
 {
     Node*           node    = getNode();
     eqNet::Barrier* barrier = node->getBarrier();
@@ -145,7 +154,7 @@ eqNet::Barrier* Window::newSwapBarrier()
     return barrier;
 }
 
-void Window::joinSwapBarrier( eqNet::Barrier* barrier )
+void eqs::Window::joinSwapBarrier( eqNet::Barrier* barrier )
 { 
     barrier->increase();
     _swapBarriers.push_back( barrier );
@@ -158,7 +167,7 @@ void Window::joinSwapBarrier( eqNet::Barrier* barrier )
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-void Window::startInit( const uint32_t initID )
+void eqs::Window::startInit( const uint32_t initID )
 {
     _sendInit( initID );
 
@@ -181,7 +190,7 @@ void Window::startInit( const uint32_t initID )
     _state = STATE_INITIALISING;
 }
 
-void Window::_sendInit( const uint32_t initID )
+void eqs::Window::_sendInit( const uint32_t initID )
 {
     EQASSERT( _pendingRequestID == EQ_ID_INVALID );
 
@@ -192,12 +201,14 @@ void Window::_sendInit( const uint32_t initID )
     packet.initID    = initID;
     packet.pvp       = _pvp; 
     packet.vp        = _vp;
-
+    for( int i=0; i<eq::Window::IATTR_ALL; ++i )
+        packet.iattr[i] = _iAttributes[i];
+    
     _send( packet, getName( ));
     EQLOG( LOG_TASKS ) << "TASK init  " << &packet << endl;
 }
 
-bool Window::syncInit()
+bool eqs::Window::syncInit()
 {
     bool success = true;
     for( std::vector<Channel*>::iterator iter = _channels.begin(); 
@@ -225,7 +236,7 @@ bool Window::syncInit()
 //---------------------------------------------------------------------------
 // exit
 //---------------------------------------------------------------------------
-void Window::startExit()
+void eqs::Window::startExit()
 {
     _state = STATE_STOPPING;
     for( std::vector<Channel*>::iterator iter = _channels.begin(); 
@@ -241,7 +252,7 @@ void Window::startExit()
     _sendExit();
 }
 
-void Window::_sendExit()
+void eqs::Window::_sendExit()
 {
     EQASSERT( _pendingRequestID == EQ_ID_INVALID );
 
@@ -252,7 +263,7 @@ void Window::_sendExit()
     EQLOG( LOG_TASKS ) << "TASK exit  " << &packet << endl;
 }
 
-bool Window::syncExit()
+bool eqs::Window::syncExit()
 {
     EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
@@ -284,7 +295,7 @@ bool Window::syncExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Window::update( const uint32_t frameID )
+void eqs::Window::update( const uint32_t frameID )
 {
     // TODO: make current window
     eq::WindowStartFramePacket startPacket;
@@ -309,7 +320,7 @@ void Window::update( const uint32_t frameID )
     EQLOG( LOG_TASKS ) << "TASK end frame  " << &endPacket << endl;
 }
 
-void Window::_updateSwap()
+void eqs::Window::_updateSwap()
 {
     for( vector<eqNet::Barrier*>::iterator iter = _masterSwapBarriers.begin();
          iter != _masterSwapBarriers.end(); ++iter )
@@ -345,7 +356,7 @@ void Window::_updateSwap()
 //===========================================================================
 // command handling
 //===========================================================================
-eqNet::CommandResult Window::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult eqs::Window::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     eq::WindowInitReplyPacket* packet = (eq::WindowInitReplyPacket*)pkg;
     EQINFO << "handle window init reply " << packet << endl;
@@ -356,7 +367,7 @@ eqNet::CommandResult Window::_cmdInitReply( eqNet::Node* node, const eqNet::Pack
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_cmdExitReply( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult eqs::Window::_cmdExitReply( eqNet::Node* node, const eqNet::Packet* pkg )
 {
     eq::WindowExitReplyPacket* packet = (eq::WindowExitReplyPacket*)pkg;
     EQINFO << "handle window exit reply " << packet << endl;
@@ -365,7 +376,7 @@ eqNet::CommandResult Window::_cmdExitReply( eqNet::Node* node, const eqNet::Pack
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_reqSetPixelViewport( eqNet::Node* node, 
+eqNet::CommandResult eqs::Window::_reqSetPixelViewport( eqNet::Node* node, 
                                                    const eqNet::Packet* pkg )
 {
     eq::WindowSetPVPPacket* packet = (eq::WindowSetPVPPacket*)pkg;
@@ -375,7 +386,7 @@ eqNet::CommandResult Window::_reqSetPixelViewport( eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-std::ostream& eqs::operator << ( std::ostream& os, const Window* window )
+std::ostream& eqs::operator << ( std::ostream& os, const eqs::Window* window )
 {
     if( !window )
         return os;
@@ -389,6 +400,39 @@ std::ostream& eqs::operator << ( std::ostream& os, const Window* window )
     else
         os << "name \"" << name << "\"" << endl;
 
+    os << endl << "attributes" << endl;
+    os << "{" << endl << indent;
+    os << "hints" << endl;
+    os << "{" << endl << indent;
+    
+    for( int i=0; i<eq::Window::IATTR_ALL; ++i )
+    {
+        const int value = window->getIAttribute((eq::Window::IAttribute)i);
+        switch( i )
+        {
+            case eq::Window::IATTR_HINTS_STEREO:
+                os << "stereo ";
+                switch( value )
+                {
+                    case eq::STEREO_ON:
+                        os << "on" << endl;
+                        break;
+                    case eq::STEREO_OFF:
+                        os << "off" << endl;
+                        break;
+                    case eq::STEREO_AUTO:
+                        os << "auto" << endl;
+                        break;
+                    default:
+                        os << value << endl;
+                }
+                break;
+        }
+    }
+    
+    os << exdent << "}" << endl;
+    os << exdent << "}" << endl << endl;
+        
     const eq::Viewport& vp  = window->getViewport();
     if( vp.isValid( ))
     {

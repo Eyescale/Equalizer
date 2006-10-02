@@ -8,7 +8,7 @@
 #include <sys/termios.h>
 #include <sys/select.h>
 
-#define COMMAND_POS_ANG "Y"	
+#define COMMAND_POS_ANG "Y"
 #define COMMAND_POINT "B"
 
 using namespace std;
@@ -16,11 +16,9 @@ using namespace std;
 Tracker::Tracker()
          : _running( false )
 {
-    _scale[0] = 1.0/18000;
-    _scale[1] = 1.0/18000;
-    _scale[2] = -1.0/18000;
-    const eq::Matrix4f matrix; // identity
-    setTransform( matrix );
+    _scale[0] = -1.0/18000;
+    _scale[1] = -1.0/18000;
+    _scale[2] = 1.0/18000;
 }
 
 bool Tracker::init( const string& port )
@@ -47,8 +45,8 @@ bool Tracker::init( const string& port )
       return false;
    }
 
-   termio.c_cflag &= ~(CSIZE|PARENB|PARODD|HUPCL); 
-   termio.c_cflag |= CS8|CSTOPB|CREAD|CLOCAL|CRTSCTS;
+   termio.c_cflag &= ~(CSIZE|PARENB|CSTOPB|PARODD|HUPCL|CRTSCTS); 
+   termio.c_cflag |= CS8|CREAD|CLOCAL;
    termio.c_iflag &= ~(IXON|IXANY|IMAXBEL|BRKINT|IGNPAR|PARMRK|
                        INPCK|ISTRIP|INLCR|IGNCR|ICRNL);
 #ifdef IUCLC
@@ -115,19 +113,23 @@ bool Tracker::_update()
    if( !b )
       cerr << "Read error: " << strerror( errno ) << endl;
 
-   short xpos = (buffer[1]<<8 | buffer[0]);
-   short ypos = (buffer[3]<<8 | buffer[2]);
-   short zpos = (buffer[5]<<8 | buffer[4]);
+   const short xpos = (buffer[1]<<8 | buffer[0]);
+   const short ypos = (buffer[3]<<8 | buffer[2]);
+   const short zpos = (buffer[5]<<8 | buffer[4]);
 
-   short head = (buffer[7]<<8 | buffer[6]);
-   short pitch = (buffer[9]<<8 | buffer[8]);
-   short roll = (buffer[11]<<8 | buffer[10]);
+   const short head = (buffer[7]<<8 | buffer[6]);
+   const short pitch = (buffer[9]<<8 | buffer[8]);
+   const short roll = (buffer[11]<<8 | buffer[10]);
+
+   const float hpr[3] = { head / 5194.81734f,    //32640 -> 2 * pi = /5194.81734
+                          pitch / 5194.81734f,
+                          roll / 5194.81734f };
 
    float pos[3];
-   float hpr[3];
-   pos[0] = ypos;
+
    //highest value for y and z position of the tracker sensor is 32639,
    //after that it switches back to zero (and vice versa if descending values).
+   pos[0] = ypos;
    if( pos[0] > 16320 )             //32640 / 2 = 16320
       pos[0] -= 32640;
 
@@ -136,15 +138,13 @@ bool Tracker::_update()
       pos[1] -= 32640;
 
    pos[2] = xpos;
-   hpr[0] = head / 90.667;
-   hpr[1] = pitch / 90.667;
-   hpr[2] = roll / 90.667;         //32640 -> 360 degree = /90.667
-
+   
+   _matrix = eq::Matrix4f::IDENTITY;
    _matrix.setTranslation( pos[0], pos[1], pos[2] );
+   _matrix.scaleTranslation( _scale );
    _matrix.rotateX( hpr[0] );
    _matrix.rotateY( hpr[1] );
    _matrix.rotateZ( hpr[2] );
-   _matrix *= _transform;
 
    return b;
 }
@@ -178,7 +178,7 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
       }
 
       //try_to read remaining bytes, returns # of readed bytes
-      const size_t receiver = read( _fd, &buffer[size-remaining], remaining );
+      const ssize_t receiver = read( _fd, &buffer[size-remaining], remaining );
       if( receiver == -1 )
       {	
          cerr << "Read error: " << strerror( errno ) << endl;
@@ -189,12 +189,6 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
       remaining -= receiver;
    }
    return true;
-}
-
-void Tracker::setTransform( const eq::Matrix4f& matrix )
-{
-    _transform = matrix;
-    _transform.scale( _scale );
 }
 
 const eq::Matrix4f& Tracker::getHeadMatrix() const

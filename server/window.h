@@ -9,6 +9,7 @@
 
 #include <eq/client/object.h>
 #include <eq/client/pixelViewport.h>
+#include <eq/client/window.h>
 
 #include <iostream>
 #include <vector>
@@ -197,11 +198,20 @@ namespace eqs
         void update( const uint32_t frameID );
         //*}
 
+        void setIAttribute( const eq::Window::IAttribute attr,
+                            const int32_t value )
+            { _iAttributes[attr] = value; }
+        int32_t  getIAttribute( const eq::Window::IAttribute attr ) const
+            { return _iAttributes[attr]; }
+            
     private:
         /** The current operational state. */
         State _state;
 
         std::string _name;
+
+        /** Int attributes. */
+        int32_t _iAttributes[eq::Window::IATTR_ALL];
 
         /** The child channels. */
         std::vector<Channel*> _channels;

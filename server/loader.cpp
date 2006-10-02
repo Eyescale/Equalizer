@@ -37,7 +37,7 @@ Pipe*     Loader::createPipe()
     return new Pipe;
 }
 
-Window*   Loader::createWindow()
+eqs::Window*   Loader::createWindow()
 {
     return new Window;
 }

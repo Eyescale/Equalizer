@@ -7,6 +7,7 @@ global
     EQ_CONNECTION_HOSTNAME          "localhost"
     EQ_CONNECTION_LAUNCH_TIMEOUT    100000
 #    EQ_CONNECTION_LAUNCH_COMMAND    "echo %c"
+    EQ_WINDOW_IATTR_HINTS_STEREO    auto
 }
 
 server
@@ -19,21 +20,29 @@ server
             {
                 window
                 {
+                    attributes
+                    {
+                        hints
+                        {
+                            stereo on
+                        }
+                    }
+                    
                     viewport [ .25 .25 .5 .5 ]
                     
-                    channel { name "channel" }
+                    channel { name "channel1" }
                 }
             }
         }
-        compound
-        { 
-            channel "channel"
+        compound 
+        {
             eye [ LEFT RIGHT ]
+            channel "channel1"
             wall
             {
-                bottom_left  [ -.16 -.10 -1 ]
-                bottom_right [  .16 -.10 -1 ]
-                top_left     [ -.16  .10 -1 ]
+                bottom_left  [ -.32 -.2 -1 ]
+                bottom_right [  .32 -.2 -1 ]
+                top_left     [ -.32  .2 -1 ]
             }
         }
     }    

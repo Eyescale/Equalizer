@@ -15,6 +15,7 @@
 #include <eq/client/view.h>
 #include <eq/client/viewport.h>
 #include <eq/client/wall.h>
+#include <eq/client/global.h>
 
 #include <iostream>
 #include <vector>
@@ -62,6 +63,21 @@ namespace eqs
             TASK_ASSEMBLE = 0x1000,  //!< Combine input frames
             TASK_READBACK = 0x10000, //!< Read results to output frames
             TASK_ALL      = 0xfffffff
+        };
+
+        /**
+         * The cyclop eye is the standard for monoscopic rendering. It is
+         * also selected if no eye is set. The left and right eye are used
+         * for stereo rendering and are computed from the cyclop eye and the
+         * eye offset.
+         * The enums allow bitwise OR operations.
+         */
+        enum Eye
+        {
+            EYE_UNDEFINED = 0,
+            EYE_CYCLOP    = 0x01,    //default monoscopic rendering
+            EYE_LEFT      = 0x02,    //for active stereo buffering
+            EYE_RIGHT     = 0x04     //for active stereo buffering
         };
 
         /**
@@ -266,6 +282,27 @@ namespace eqs
 
         /** @return the last specified projection matrix. */
         const eq::View& getView() const { return _view.view; }
+
+        /** @return the bitwise OR of the eye values. */
+        const uint32_t getEyes() const { return _data.eyes; }
+
+         /** 
+         * Set the eyes to be used by the compound.
+         * 
+         * Previously set eyes are overwritten.
+         *
+         * @param eyes the compound eyes.
+         */
+        void setEyes( const uint32_t eyes ) { _data.eyes = eyes; }
+
+        /** 
+         * Add eyes to be used by the compound.
+         *
+         * Previously set eyes are preserved.
+         * 
+         * @param eyes the compound eyes.
+         */
+        void enableEye( const uint32_t eyes ) { _data.eyes |= eyes; }
         //*}
 
         /** @name Compound Operations. */
@@ -379,6 +416,7 @@ namespace eqs
             eq::Range         range;
             eq::View          view;
             eq::Frame::Format format;
+            uint32_t          eyes;
         };
 
         InheritData _data;
@@ -392,7 +430,7 @@ namespace eqs
         void _setDefaultFrameName( Frame* frame );
 
         static TraverseResult _initCB( Compound* compound, void* );
-        
+
         //----- pre-render compound setup
         struct UpdateData
         {
@@ -414,6 +452,7 @@ namespace eqs
         {
             Channel* channel;
             uint32_t frameID;
+            Eye      eye;
         };
 
         static TraverseResult _updateDrawCB(Compound* compound, void* );
@@ -421,7 +460,8 @@ namespace eqs
         void _updatePostDraw( eq::RenderContext& context );
         void _setupRenderContext( eq::RenderContext& context, 
                                   const UpdateChannelData* data );
-        void _computeFrustum( eq::Frustum& frustum, float headTransform[16] );
+        void _computeFrustum( eq::Frustum& frustum, float headTransform[16],
+                                                    const Eye whichEye );
 
         friend std::ostream& operator << ( std::ostream& os,
                                            const Compound* compound );

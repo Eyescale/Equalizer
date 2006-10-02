@@ -5,6 +5,7 @@
 #include "compound.h"
 
 #include "channel.h"
+#include "config.h"
 #include "log.h"
 #include "frame.h"
 #include "swapBarrier.h"
@@ -28,6 +29,7 @@ Compound::Compound()
           _tasks( TASK_ALL ),
           _swapBarrier( NULL )
 {
+    _data.eyes = EYE_UNDEFINED;
 }
 
 // copy constructor
@@ -367,6 +369,9 @@ void Compound::_updateInheritData()
     {
         _inherit = _data;
 
+        if( _data.eyes == EYE_UNDEFINED )
+            _inherit.eyes = EYE_CYCLOP;
+
         if( _inherit.channel )
             _inherit.pvp = _inherit.channel->getPixelViewport();
 
@@ -386,6 +391,9 @@ void Compound::_updateInheritData()
     _inherit.vp    *= _data.vp;
     _inherit.range *= _data.range;
 
+    if( _inherit.eyes != EYE_UNDEFINED )
+        _inherit.eyes = _data.eyes;
+   
     if( _inherit.pvp.isValid( ))
         _inherit.pvp *= _data.vp;
     else if ( _inherit.channel )
@@ -483,6 +491,14 @@ void Compound::_updateInput( UpdateData* data )
 void Compound::updateChannel( Channel* channel, const uint32_t frameID )
 {
     UpdateChannelData data = { channel, frameID };
+
+    data.eye = EYE_LEFT;
+    traverse( this, NULL, _updateDrawCB, _updatePostDrawCB, &data );
+
+    data.eye = EYE_RIGHT;
+    traverse( this, NULL, _updateDrawCB, _updatePostDrawCB, &data );
+
+    data.eye = EYE_CYCLOP;
     traverse( this, NULL, _updateDrawCB, _updatePostDrawCB, &data );
 }
 
@@ -492,7 +508,9 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
     UpdateChannelData* data    = (UpdateChannelData*)userData;
     Channel*           channel = data->channel;
 
-    if( compound->getChannel() != channel || !compound->_tasks )
+    if( compound->getChannel() != channel || !compound->_tasks ||
+        !(compound->_inherit.eyes & data->eye) )
+        
         return TRAVERSE_CONTINUE;
 
     eq::RenderContext context;
@@ -511,7 +529,7 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
 
         drawPacket.context = context;
         compound->_computeFrustum( drawPacket.context.frustum, 
-                     drawPacket.context.headTransform );
+                     drawPacket.context.headTransform, data->eye );
         channel->send( drawPacket );
         EQLOG( LOG_TASKS ) << "TASK draw  " << &drawPacket << endl;
     }
@@ -520,34 +538,55 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
     return TRAVERSE_CONTINUE;
 }
 
-
 void Compound::_setupRenderContext( eq::RenderContext& context, 
                                     const UpdateChannelData* data )
 {
     context.frameID    = data->frameID;
-    context.drawBuffer = GL_BACK; // TODO: traversal eye pass 
     context.pvp        = _inherit.pvp;
     context.range      = _inherit.range;
 
+    const Channel* channel = data->channel;
+    const Window*  window  = channel->getWindow();
+
+    if( window->getIAttribute( eq::Window::IATTR_HINTS_STEREO )
+        == eq::STEREO_OFF )
+        context.drawBuffer = GL_BACK;
+    else
+    {
+        switch( data->eye )
+        {
+            case Compound::EYE_LEFT:
+                context.drawBuffer = GL_BACK_LEFT;
+                break;
+            case Compound::EYE_RIGHT:
+                context.drawBuffer = GL_BACK_RIGHT;
+                break;
+            default:
+                context.drawBuffer = GL_BACK;
+                break;
+        }
+    }
+    
     if( true /* use dest channel origin hint set */ )
     {
-        const eq::PixelViewport& nativePVP = data->channel->getPixelViewport();
+        const eq::PixelViewport& nativePVP = channel->getPixelViewport();
         context.pvp.x = nativePVP.x;
         context.pvp.y = nativePVP.y;
     }
     // TODO: pvp size overcommit check?
 }
     
-void Compound::_computeFrustum( eq::Frustum& frustum, float headTransform[16] )
+void Compound::_computeFrustum( eq::Frustum& frustum, float headTransform[16],
+                                const Eye whichEye )
 {
     const Channel*  destination = _inherit.channel;
-    const eq::View& iView       = _inherit.view;
+    const eq::View& view       = _inherit.view;
     Config*         config      = getConfig();
     destination->getNearFar( &frustum.near, &frustum.far );
 
     // compute eye position in screen space
-    const float* eyeW   = config->getEyePosition();
-    const float* xfm    = iView.xfm;
+    const float* eyeW   = config->getEyePosition( whichEye );
+    const float* xfm    = view.xfm;
     const float  w      = 
         xfm[3] * eyeW[0] + xfm[7] * eyeW[1] + xfm[11]* eyeW[2] + xfm[15];
     const float  eye[3] = {
@@ -559,33 +598,32 @@ void Compound::_computeFrustum( eq::Frustum& frustum, float headTransform[16] )
     const float ratio = frustum.near / eye[2];
     if( eye[2] > 0 )
     {
-        frustum.left   = -( iView.width/2.  + eye[0] ) * ratio;
-        frustum.right  =  ( iView.width/2.  - eye[0] ) * ratio;
-        frustum.top    = -( iView.height/2. + eye[1] ) * ratio;
-        frustum.bottom =  ( iView.height/2. - eye[1] ) * ratio;
+        frustum.left   =  ( -view.width/2.  - eye[0] ) * ratio;
+        frustum.right  =  (  view.width/2.  - eye[0] ) * ratio;
+        frustum.top    =  ( -view.height/2. - eye[1] ) * ratio;
+        frustum.bottom =  (  view.height/2. - eye[1] ) * ratio;
     }
     else // eye behind near plane - 'mirror' x
     {
-        frustum.left   =  ( iView.width/2.  - eye[0] ) * ratio;
-        frustum.right  = -( iView.width/2.  + eye[0] ) * ratio;
-        frustum.top    =  ( iView.height/2. + eye[1] ) * ratio;
-        frustum.bottom = -( iView.height/2. - eye[1] ) * ratio;
+        frustum.left   =  (  view.width/2.  - eye[0] ) * ratio;
+        frustum.right  =  ( -view.width/2.  - eye[0] ) * ratio;
+        frustum.top    =  (  view.height/2. + eye[1] ) * ratio;
+        frustum.bottom =  ( -view.height/2. + eye[1] ) * ratio;
     }
-
 #if 0
     if( eye[2] > 0 )
     {
-        frustum.left   = -( iView.width/2.  - eye[0] ) * ratio;
-        frustum.right  =  ( iView.width/2.  + eye[0] ) * ratio;
-        frustum.top    =  ( iView.height/2. + eye[1] ) * ratio;
-        frustum.bottom = -( iView.height/2. - eye[1] ) * ratio;
+        frustum.left   = -( view.width/2.  - eye[0] ) * ratio;
+        frustum.right  =  ( view.width/2.  + eye[0] ) * ratio;
+        frustum.top    =  ( view.height/2. + eye[1] ) * ratio;
+        frustum.bottom = -( view.height/2. - eye[1] ) * ratio;
     }
     else // eye behind near plane - 'mirror' x
     {
-        frustum.left   =  ( iView.width/2.  + eye[0] ) * ratio;
-        frustum.right  = -( iView.width/2.  - eye[0] ) * ratio;
-        frustum.top    =  ( iView.height/2. + eye[1] ) * ratio;
-        frustum.bottom = -( iView.height/2. - eye[1] ) * ratio;
+        frustum.left   =  ( view.width/2.  + eye[0] ) * ratio;
+        frustum.right  = -( view.width/2.  - eye[0] ) * ratio;
+        frustum.top    =  ( view.height/2. + eye[1] ) * ratio;
+        frustum.bottom = -( view.height/2. - eye[1] ) * ratio;
         //top und bottom identical to eye[2] > 0, only x mirrored
     }
 #endif
@@ -621,7 +659,9 @@ TraverseResult Compound::_updatePostDrawCB( Compound* compound, void* userData )
     UpdateChannelData* data    = (UpdateChannelData*)userData;
     Channel*           channel = data->channel;
 
-    if( compound->getChannel() != channel || !compound->_tasks )
+    if( compound->getChannel() != channel || !compound->_tasks ||
+        !(compound->_inherit.eyes & data->eye) )
+
         return TRAVERSE_CONTINUE;
 
     eq::RenderContext context;
@@ -709,6 +749,19 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
     const eq::Range& range = compound->getRange();
     if( range.isValid() && !range.isFull( ))
         os << range << endl;
+
+    const uint32_t eye = compound->getEyes();
+    if( eye )
+    {
+        os << "eye [ ";
+        if( eye & Compound::EYE_CYCLOP )
+            os << "CYCLOP ";
+        if( eye & Compound::EYE_LEFT )
+            os << "LEFT ";
+        if( eye & Compound::EYE_RIGHT )
+            os << "RIGHT ";
+        os << "]" << endl;
+    }
 
     switch( compound->_view.latest )
     {

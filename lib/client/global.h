@@ -11,6 +11,14 @@ namespace eq
 {
     class NodeFactory;
 
+    /** Stereo Mode Setting */
+    enum Stereo
+    {
+        STEREO_OFF, //<! Monoscopic
+        STEREO_ON,  //<! Quad-buffered/Active stereo
+        STEREO_AUTO //<! Automatic choice
+    };
+
     /** 
      * Global parameter handling for the Equalizer client library. 
      */

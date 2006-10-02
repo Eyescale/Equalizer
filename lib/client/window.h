@@ -195,6 +195,21 @@ namespace eq
         virtual void processEvent( const WindowEvent& event );
         //*}
 
+        /**
+         * @name Attributes
+         */
+        enum IAttribute
+        {
+            IATTR_HINTS_STEREO,
+            IATTR_ALL
+        };
+
+        void setIAttribute( const IAttribute attr, const int32_t value )
+            { _iAttributes[attr] = value; }
+        int32_t  getIAttribute( const IAttribute attr ) const
+            { return _iAttributes[attr]; }
+        //*}
+        
     protected:
         /**
          * Destructs the window.
@@ -219,6 +234,9 @@ namespace eq
 
         /** The name. */
         std::string    _name;
+
+        /** Int attributes. */
+        int32_t _iAttributes[IATTR_ALL];
 
         /** The channels of this window. */
         std::vector<Channel*>     _channels;

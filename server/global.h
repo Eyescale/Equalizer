@@ -7,6 +7,9 @@
 
 #include "node.h"
 #include "connectionDescription.h"
+#include "window.h"
+
+#include <eq/client/global.h>
 
 namespace eqs
 {
@@ -48,6 +51,15 @@ namespace eqs
         int32_t getConnectionIAttribute( 
             const ConnectionDescription::IAttribute attr ) const
             { return _connectionIAttributes[attr]; }
+            
+        /**
+         * @name Window Attributes.
+         */
+        void setWindowIAttribute( const eq::Window::IAttribute attr,
+                                  const uint32_t value )
+            { _windowIAttributes[attr] = value; }
+        int32_t getWindowIAttribute( const eq::Window::IAttribute attr ) const
+            { return _windowIAttributes[attr]; }
 
     private:
         Global();
@@ -57,6 +69,8 @@ namespace eqs
 
         std::string _connectionSAttributes[ConnectionDescription::SATTR_ALL];
         int32_t     _connectionIAttributes[ConnectionDescription::IATTR_ALL];
+        
+        int32_t     _windowIAttributes[eq::Window::IATTR_ALL];
 
         friend std::ostream& operator << ( std::ostream&, const Global* );
     };

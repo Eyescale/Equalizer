@@ -46,14 +46,6 @@ class Tracker
        bool update();
 
        /**
-        * Transforms the data from the tracker into the application's
-        * coordinate system.
-        *
-        * @param matrix the matrix with the transformation data.
-        */
-       void setTransform( const eq::Matrix4f& matrix );
-
-       /**
         * Gets the transformation matrix with the position and orientation data.
         *
         * This function will not communicate with the tracker,.
@@ -65,7 +57,7 @@ class Tracker
    private:
        bool _update(); //update without state checking
        bool _read( unsigned char* buffer, const size_t size,
-                                          const unsigned long int timeout );
+                   const unsigned long int timeout );
 
        /** The state defining if the tracker is running. */
        bool  _running;
@@ -75,7 +67,6 @@ class Tracker
        /** The matrix defining the orientation and position of the sensor. */
        eq::Matrix4f _matrix;
 
-       eq::Matrix4f _transform;
        float _scale[3];
 };
 

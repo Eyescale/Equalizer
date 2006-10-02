@@ -7,8 +7,9 @@
 #include "compound.h"
 #include "node.h"
 #include "server.h"
-
 #include <eq/net/global.h>
+
+#define EYE_OFFSET 0.05
 
 using namespace eqs;
 using namespace eqBase;
@@ -158,7 +159,7 @@ bool Config::removeNode( Node* node )
 void Config::addCompound( Compound* compound )
 {
     compound->_config = this;
-    _compounds.push_back( compound ); 
+    _compounds.push_back( compound );
 }
 
 Channel* Config::findChannel( const std::string& name ) const
@@ -581,17 +582,36 @@ void Config::_updateHead()
 {
     _headMatrix->sync();
 
-    float        eyeOffset = 0; //will be used later...
-    const float* matrix    = _headMatrix->ml;
-    const float  w         = eyeOffset * matrix[12] + matrix[15]; 
-    _eyePosition[0] = (( eyeOffset * matrix[0] + matrix[3] ) / w );
-    _eyePosition[1] = (( eyeOffset * matrix[4] + matrix[7] ) / w );
-    _eyePosition[2] = (( eyeOffset * matrix[8] + matrix[11] ) / w );
+    const float* matrix = _headMatrix->ml;
+    //memcpy( matrix, _headMatrix.ml, 16*sizeof( float ) );
+    const float w = EYE_OFFSET * matrix[12] + matrix[15];
+    _eyePosition[EYE_INDEX_CYCLOP][0] = ( matrix[3] / w );
+    _eyePosition[EYE_INDEX_CYCLOP][1] = ( matrix[7] / w );
+    _eyePosition[EYE_INDEX_CYCLOP][2] = ( matrix[11] / w );
+    //The transformation matrix gets multiplicated by the eye offset vector 
+    //[eye_offset, 0, 0, w]' to get the left and right eye positions.
+    _eyePosition[EYE_INDEX_LEFT][0] = ( -0.5 * EYE_OFFSET * matrix[0] + matrix[3] ) / w;
+    _eyePosition[EYE_INDEX_LEFT][1] = ( -0.5 * EYE_OFFSET * matrix[4] + matrix[7] ) / w;
+    _eyePosition[EYE_INDEX_LEFT][2] = ( -0.5 * EYE_OFFSET * matrix[8] + matrix[11] ) / w;
+    _eyePosition[EYE_INDEX_RIGHT][0] = ( 0.5 * EYE_OFFSET * matrix[0] + matrix[3] ) / w;
+    _eyePosition[EYE_INDEX_RIGHT][1] = ( 0.5 * EYE_OFFSET * matrix[4] + matrix[7] ) / w;
+    _eyePosition[EYE_INDEX_RIGHT][2] = ( 0.5 * EYE_OFFSET * matrix[8] + matrix[11] ) / w;
 }
 
-const float* Config::getEyePosition()
+const float* Config::getEyePosition( const uint32_t eye )
 {
-    return _eyePosition;
+    switch( eye )
+    {
+        case Compound::EYE_CYCLOP:
+            return _eyePosition[EYE_INDEX_CYCLOP];
+        case Compound::EYE_LEFT:
+            return _eyePosition[EYE_INDEX_LEFT];
+        case Compound::EYE_RIGHT:
+            return _eyePosition[EYE_INDEX_RIGHT];
+        default:
+            EQERROR << "Unknown eye position" << endl;
+            return _eyePosition[EYE_INDEX_CYCLOP];
+    }
 }
 
 uint32_t Config::_beginFrame( const uint32_t frameID, vector<Node*>& nodes )

@@ -18,7 +18,9 @@ namespace eq
         Matrix4();
         Matrix4( const void* data, uint64_t dataSize );
 
-        Matrix4& operator= ( const Matrix4& mm )
+        Matrix4& operator= ( const Matrix4<T>& mm )
+            { vmml::Matrix4<T>::operator= (mm); return *this; }
+        Matrix4& operator= ( const vmml::Matrix4<T>& mm )
             { vmml::Matrix4<T>::operator= (mm); return *this; }
     };
 

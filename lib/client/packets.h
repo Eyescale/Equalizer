@@ -9,6 +9,7 @@
 #include <eq/client/pixelViewport.h>
 #include <eq/client/renderContext.h>
 #include <eq/client/viewport.h>
+#include <eq/client/window.h>
 
 #include <eq/net/packets.h>
 
@@ -393,11 +394,12 @@ namespace eq
                 name[0]   = '\0';
             }
 
-        uint32_t      requestID;
-        uint32_t      initID;
-        PixelViewport pvp;
-        Viewport      vp;
-        char          name[8] EQ_ALIGN8;
+        uint32_t       requestID;
+        uint32_t       initID;
+        int32_t        iattr[eq::Window::IATTR_ALL];
+        PixelViewport  pvp;
+        Viewport       vp;
+        char           name[8] EQ_ALIGN8;
     };
 
     struct WindowInitReplyPacket : public eqNet::ObjectPacket
@@ -413,6 +415,7 @@ namespace eq
         bool          result;
 
         PixelViewport pvp;
+        int32_t       iattr[eq::Window::IATTR_ALL];
     };
 
     struct WindowExitPacket : public eqNet::ObjectPacket

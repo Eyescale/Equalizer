@@ -33,6 +33,8 @@ Global::Global()
     _connectionSAttributes[ConnectionDescription::SATTR_HOSTNAME] = "localhost";
     _connectionSAttributes[ConnectionDescription::SATTR_LAUNCH_COMMAND] = 
         "ssh -n %h %c >& %h.%n.log";
+        
+    _windowIAttributes[eq::Window::IATTR_HINTS_STEREO] = eq::STEREO_AUTO;
 }
 
 std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
@@ -98,6 +100,34 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
         }
     }
 
+    for( int i=0; i<eq::Window::IATTR_ALL; ++i )
+    {
+        const int value = global->_windowIAttributes[i];
+        if( value != reference._windowIAttributes[i] )
+        {
+            switch( i )
+            {
+                case eq::Window::IATTR_HINTS_STEREO:
+                    os << "EQ_WINDOW_IATTR_HINTS_STEREO ";
+                    switch( value )
+                    {
+                        case eq::STEREO_ON:
+                            os << "on" << endl;
+                            break;
+                        case eq::STEREO_OFF:
+                            os << "off" << endl;
+                            break;
+                        case eq::STEREO_AUTO:
+                            os << "auto" << endl;
+                            break;
+                        default:
+                            os << value << endl;
+                    }
+                    break;
+            }
+        }
+    }
+    
     os << exdent << '}' << endl << enableHeader << enableFlush;
     return os;
 }
