@@ -61,8 +61,8 @@ namespace eq
             {
                 x += (int32_t)rhs.x * w;
                 y += (int32_t)rhs.y * h;
-                w  = (int32_t)w*rhs.w;
-                h  = (int32_t)h*rhs.h;
+                w  = (int32_t)rhs.w * w;
+                h  = (int32_t)rhs.h * h;
                 return *this;
             }
 
