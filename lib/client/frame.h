@@ -6,7 +6,8 @@
 #define EQ_FRAME_H
 
 #include <eq/net/object.h>
-#include <eq/client/viewport.h>
+#include <eq/vmmlib/Vector2.h>
+#include <eq/client/pixelViewport.h>
 
 namespace eqs
 {
@@ -45,12 +46,6 @@ namespace eq
          * @name Data Access
          */
         //*{
-        /** 
-         * Return this frame's viewport.
-         *
-         * @return the fractional viewport.
-         */
-        const eq::Viewport& getViewport() const { return _data.vp; }
         //*}
 
         /**
@@ -80,7 +75,8 @@ namespace eq
         /** All distributed Data shared between eq::Frame and eqs::Frame. */
         struct Data
         {
-            Viewport             vp;
+            PixelViewport        pvp;
+            vmml::Vector2f       offset;
             Format               format;
             eqNet::ObjectVersion buffer;
         }

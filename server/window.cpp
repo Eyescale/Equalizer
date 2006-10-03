@@ -100,12 +100,12 @@ void eqs::Window::setPixelViewport( const eq::PixelViewport& pvp )
             _vp = pvp / pipePVP;
     }
 
+    EQINFO << "Window pvp set: " << _pvp << ":" << _vp << endl;
+
     for( std::vector<Channel*>::iterator iter = _channels.begin(); 
          iter != _channels.end(); ++iter )
 
         (*iter)->notifyWindowPVPChanged();
-        
-    EQINFO << "Window pvp set: " << _pvp << ":" << _vp << endl;
 }
 
 void eqs::Window::setViewport( const eq::Viewport& vp )

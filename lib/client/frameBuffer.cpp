@@ -94,7 +94,7 @@ void FrameBuffer::startReadback( const Frame::Format frameFormat )
     if( format & Frame::FORMAT_COLOR )
     {
         Image* image = newImage( Frame::FORMAT_COLOR );
-        image->startReadback( _data.vp );
+        image->startReadback( _data.pvp );
     }
 }
 

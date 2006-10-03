@@ -11,7 +11,7 @@ namespace eq
 {
     enum LogTopics
     {
-        // LOG_??? = eqBase::LOG_CUSTOM
+        // LOG_??? = eqNet::LOG_CUSTOM
         LOG_CUSTOM = 0x1000
     };
 }

@@ -6,7 +6,6 @@
 #define EQ_FRAMEBUFFER_H
 
 #include <eq/client/frame.h>
-#include <eq/client/viewport.h>
 #include <eq/net/object.h>
 
 namespace eqs
@@ -76,7 +75,7 @@ namespace eq
 
         struct Data
         {
-            Viewport      vp;
+            PixelViewport pvp;
             Frame::Format format;
         }
             _data;

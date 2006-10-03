@@ -28,7 +28,8 @@ namespace eqs
         void setFrameNumber( const uint32_t number ) { _frameNumber = number; }
         uint32_t getFrameNumber() const { return _frameNumber; }
 
-        void setViewport( const eq::Viewport& vp ) { _data.vp = vp; }
+        void setPixelViewport( const eq::PixelViewport& pvp ) 
+            { _data.pvp = pvp; }
         //*}
 
     private:
