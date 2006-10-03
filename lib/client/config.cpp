@@ -193,8 +193,11 @@ eqNet::CommandResult Config::_cmdInitReply( eqNet::Node* node,
     ConfigInitReplyPacket* packet = (ConfigInitReplyPacket*)pkg;
     EQINFO << "handle init reply " << packet << endl;
 
-    _headMatrix = (Matrix4f*)pollObject( packet->headMatrixID );
-    EQASSERT( _headMatrix );
+    if( packet->result )
+    {
+        _headMatrix = (Matrix4f*)pollObject( packet->headMatrixID );
+        EQASSERT( _headMatrix );
+    }
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;

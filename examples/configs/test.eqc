@@ -7,6 +7,7 @@ global
     EQ_CONNECTION_HOSTNAME          "localhost"
     EQ_CONNECTION_LAUNCH_TIMEOUT    100000
 #    EQ_CONNECTION_LAUNCH_COMMAND    "echo %c"
+    EQ_WINDOW_IATTR_HINTS_STEREO    off
 }
 
 server
@@ -28,7 +29,6 @@ server
         compound
         { 
             channel "channel"
-            eye [ LEFT RIGHT ]
             wall
             {
                 bottom_left  [ -.16 -.10 -1 ]

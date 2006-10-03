@@ -133,8 +133,8 @@ namespace eq
          * @param initID the init identifier.
          */
         virtual bool init( const uint32_t initID );
-        bool initGLX();
-        bool initCGL();
+        virtual bool initGLX();
+        virtual bool initCGL();
 
         /** 
          * Initialize the OpenGL state for this window.

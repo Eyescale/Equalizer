@@ -391,35 +391,34 @@ bool eq::Window::initGLX()
     int screen  = DefaultScreen( display );
     XID parent  = RootWindow( display, screen );
 
-    int attributes[100], *aptr=attributes;    
-    *aptr++ = GLX_RGBA;
-    *aptr++ = 1;
-    *aptr++ = GLX_RED_SIZE;
-    *aptr++ = 8;
-    //*aptr++ = GLX_ALPHA_SIZE;
-    //*aptr++ = 1;
-    *aptr++ = GLX_DEPTH_SIZE;
-    *aptr++ = 1;
-    *aptr++ = GLX_STENCIL_SIZE;
-    *aptr++ = 8;
-    *aptr++ = GLX_DOUBLEBUFFER;
-    if( getIAttribute( IATTR_HINTS_STEREO ) != STEREO_OFF )
-    {
-        *aptr++ = GLX_STEREO;
-        *aptr++ = 1;
-    }   
-    *aptr = None;
+    vector<int> attributes;
+    attributes.push_back( GLX_RGBA );
+    attributes.push_back( 1 );
+    attributes.push_back( GLX_RED_SIZE );     
+    attributes.push_back( 8 );
+    //attributes.push_back( GLX_ALPHA_SIZE );
+    //attributes.push_back( 1 );
+    attributes.push_back( GLX_DEPTH_SIZE );
+    attributes.push_back( 1 );
+    attributes.push_back( GLX_STENCIL_SIZE );
+    attributes.push_back( 8 );
+    attributes.push_back( GLX_DOUBLEBUFFER );
 
-    XVisualInfo *visInfo = glXChooseVisual( display, screen, attributes );
+    if( getIAttribute( IATTR_HINTS_STEREO ) != STEREO_OFF )
+        attributes.push_back( GLX_STEREO );
+
+    attributes.push_back( None );
+
+    XVisualInfo *visInfo = glXChooseVisual( display, screen, &attributes[0] );
+
     if( !visInfo && getIAttribute( IATTR_HINTS_STEREO ) == STEREO_AUTO )
     {        
-        for( int i=0; attributes[i] != None; i++ )
-        {
-            if( attributes[i] == GLX_STEREO )
-                attributes[i+1] = 0;
-        }
-        visInfo = glXChooseVisual( display, screen, attributes );
+        vector<int>::iterator iter = find( attributes.begin(), attributes.end(),
+                                           GLX_STEREO );
+        attributes.erase( iter );
+        visInfo = glXChooseVisual( display, screen, &attributes[0] );
     }
+
     if ( !visInfo )
     {
         EQERROR << "Could not find a matching visual\n" << endl;
@@ -487,17 +486,31 @@ bool eq::Window::initCGL()
 #ifdef CGL
     CGDirectDisplayID displayID = _pipe->getCGLDisplayID();
 
-    CGLPixelFormatAttribute attribs[] = { 
-        kCGLPFADisplayMask,
-        (CGLPixelFormatAttribute)CGDisplayIDToOpenGLDisplayMask( displayID ),
-        kCGLPFAFullScreen, 
-        kCGLPFADoubleBuffer, 
-        kCGLPFADepthSize, (CGLPixelFormatAttribute)16, 
-        (CGLPixelFormatAttribute)0 };
+    vector<CGLPixelFormatAttribute> attributes;
+    attributes.push_back( kCGLPFADisplayMask );
+    attributes.push_back( 
+        (CGLPixelFormatAttribute)CGDisplayIDToOpenGLDisplayMask( displayID ));
+    attributes.push_back( kCGLPFAFullScreen ); 
+    attributes.push_back( kCGLPFADoubleBuffer );
+    attributes.push_back( kCGLPFADepthSize );
+    attributes.push_back( (CGLPixelFormatAttribute)16 );
+
+    if( getIAttribute( IATTR_HINTS_STEREO ) != STEREO_OFF )
+        attributes.push_back( kCGLPFAStereo );
+
+    attributes.push_back( (CGLPixelFormatAttribute)0 );
 
     CGLPixelFormatObj pixelFormat = NULL;
     long numPixelFormats = 0;
-    CGLChoosePixelFormat( attribs, &pixelFormat, &numPixelFormats );
+    CGLChoosePixelFormat( &attributes[0], &pixelFormat, &numPixelFormats );
+
+    if( !pixelFormat && getIAttribute( IATTR_HINTS_STEREO ) == STEREO_AUTO )
+    {
+        vector<CGLPixelFormatAttribute>::iterator iter = 
+            find( attributes.begin(), attributes.end(), kCGLPFAStereo );
+        attributes.erase( iter );
+        CGLChoosePixelFormat( &attributes[0], &pixelFormat, &numPixelFormats );
+    }
 
     if( !pixelFormat )
     {
