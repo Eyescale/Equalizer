@@ -201,6 +201,11 @@ namespace eq
         enum IAttribute
         {
             IATTR_HINTS_STEREO,
+            IATTR_HINTS_DOUBLEBUFFER,
+            IATTR_PLANES_COLOR,
+            IATTR_PLANES_ALPHA,
+            IATTR_PLANES_DEPTH,
+            IATTR_PLANES_STENCIL,
             IATTR_ALL
         };
 

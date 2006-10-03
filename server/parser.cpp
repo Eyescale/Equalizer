@@ -71,54 +71,63 @@
      EQTOKEN_CONNECTION_LAUNCH_TIMEOUT = 262,
      EQTOKEN_CONNECTION_LAUNCH_COMMAND = 263,
      EQTOKEN_WINDOW_IATTR_HINTS_STEREO = 264,
-     EQTOKEN_SERVER = 265,
-     EQTOKEN_CONFIG = 266,
-     EQTOKEN_APPNODE = 267,
-     EQTOKEN_NODE = 268,
-     EQTOKEN_PIPE = 269,
-     EQTOKEN_WINDOW = 270,
-     EQTOKEN_ATTRIBUTES = 271,
-     EQTOKEN_HINTS = 272,
-     EQTOKEN_STEREO = 273,
-     EQTOKEN_ON = 274,
-     EQTOKEN_OFF = 275,
-     EQTOKEN_AUTO = 276,
-     EQTOKEN_CHANNEL = 277,
-     EQTOKEN_COMPOUND = 278,
-     EQTOKEN_CONNECTION = 279,
-     EQTOKEN_NAME = 280,
-     EQTOKEN_TYPE = 281,
-     EQTOKEN_TCPIP = 282,
-     EQTOKEN_HOSTNAME = 283,
-     EQTOKEN_COMMAND = 284,
-     EQTOKEN_TIMEOUT = 285,
-     EQTOKEN_TASK = 286,
-     EQTOKEN_EYE = 287,
-     EQTOKEN_FORMAT = 288,
-     EQTOKEN_CLEAR = 289,
-     EQTOKEN_DRAW = 290,
-     EQTOKEN_READBACK = 291,
-     EQTOKEN_CYCLOP = 292,
-     EQTOKEN_LEFT = 293,
-     EQTOKEN_RIGHT = 294,
-     EQTOKEN_COLOR = 295,
-     EQTOKEN_DEPTH = 296,
-     EQTOKEN_VIEWPORT = 297,
-     EQTOKEN_RANGE = 298,
-     EQTOKEN_DISPLAY = 299,
-     EQTOKEN_WALL = 300,
-     EQTOKEN_BOTTOM_LEFT = 301,
-     EQTOKEN_BOTTOM_RIGHT = 302,
-     EQTOKEN_TOP_LEFT = 303,
-     EQTOKEN_SYNC = 304,
-     EQTOKEN_LATENCY = 305,
-     EQTOKEN_SWAPBARRIER = 306,
-     EQTOKEN_OUTPUTFRAME = 307,
-     EQTOKEN_INPUTFRAME = 308,
-     EQTOKEN_STRING = 309,
-     EQTOKEN_FLOAT = 310,
-     EQTOKEN_INTEGER = 311,
-     EQTOKEN_UNSIGNED = 312
+     EQTOKEN_WINDOW_IATTR_HINTS_DOUBLEBUFFER = 265,
+     EQTOKEN_WINDOW_IATTR_PLANES_COLOR = 266,
+     EQTOKEN_WINDOW_IATTR_PLANES_ALPHA = 267,
+     EQTOKEN_WINDOW_IATTR_PLANES_DEPTH = 268,
+     EQTOKEN_WINDOW_IATTR_PLANES_STENCIL = 269,
+     EQTOKEN_SERVER = 270,
+     EQTOKEN_CONFIG = 271,
+     EQTOKEN_APPNODE = 272,
+     EQTOKEN_NODE = 273,
+     EQTOKEN_PIPE = 274,
+     EQTOKEN_WINDOW = 275,
+     EQTOKEN_ATTRIBUTES = 276,
+     EQTOKEN_HINTS = 277,
+     EQTOKEN_STEREO = 278,
+     EQTOKEN_DOUBLEBUFFER = 279,
+     EQTOKEN_PLANES = 280,
+     EQTOKEN_COLOR = 281,
+     EQTOKEN_ALPHA = 282,
+     EQTOKEN_DEPTH = 283,
+     EQTOKEN_STENCIL = 284,
+     EQTOKEN_ON = 285,
+     EQTOKEN_OFF = 286,
+     EQTOKEN_AUTO = 287,
+     EQTOKEN_CHANNEL = 288,
+     EQTOKEN_COMPOUND = 289,
+     EQTOKEN_CONNECTION = 290,
+     EQTOKEN_NAME = 291,
+     EQTOKEN_TYPE = 292,
+     EQTOKEN_TCPIP = 293,
+     EQTOKEN_HOSTNAME = 294,
+     EQTOKEN_COMMAND = 295,
+     EQTOKEN_TIMEOUT = 296,
+     EQTOKEN_TASK = 297,
+     EQTOKEN_EYE = 298,
+     EQTOKEN_FORMAT = 299,
+     EQTOKEN_CLEAR = 300,
+     EQTOKEN_DRAW = 301,
+     EQTOKEN_READBACK = 302,
+     EQTOKEN_CYCLOP = 303,
+     EQTOKEN_LEFT = 304,
+     EQTOKEN_RIGHT = 305,
+     EQTOKEN_VIEWPORT = 306,
+     EQTOKEN_RANGE = 307,
+     EQTOKEN_DISPLAY = 308,
+     EQTOKEN_WALL = 309,
+     EQTOKEN_BOTTOM_LEFT = 310,
+     EQTOKEN_BOTTOM_RIGHT = 311,
+     EQTOKEN_TOP_LEFT = 312,
+     EQTOKEN_SYNC = 313,
+     EQTOKEN_LATENCY = 314,
+     EQTOKEN_SWAPBARRIER = 315,
+     EQTOKEN_OUTPUTFRAME = 316,
+     EQTOKEN_INPUTFRAME = 317,
+     EQTOKEN_STRING = 318,
+     EQTOKEN_FLOAT = 319,
+     EQTOKEN_INTEGER = 320,
+     EQTOKEN_UNSIGNED = 321
    };
 #endif
 /* Tokens.  */
@@ -129,54 +138,63 @@
 #define EQTOKEN_CONNECTION_LAUNCH_TIMEOUT 262
 #define EQTOKEN_CONNECTION_LAUNCH_COMMAND 263
 #define EQTOKEN_WINDOW_IATTR_HINTS_STEREO 264
-#define EQTOKEN_SERVER 265
-#define EQTOKEN_CONFIG 266
-#define EQTOKEN_APPNODE 267
-#define EQTOKEN_NODE 268
-#define EQTOKEN_PIPE 269
-#define EQTOKEN_WINDOW 270
-#define EQTOKEN_ATTRIBUTES 271
-#define EQTOKEN_HINTS 272
-#define EQTOKEN_STEREO 273
-#define EQTOKEN_ON 274
-#define EQTOKEN_OFF 275
-#define EQTOKEN_AUTO 276
-#define EQTOKEN_CHANNEL 277
-#define EQTOKEN_COMPOUND 278
-#define EQTOKEN_CONNECTION 279
-#define EQTOKEN_NAME 280
-#define EQTOKEN_TYPE 281
-#define EQTOKEN_TCPIP 282
-#define EQTOKEN_HOSTNAME 283
-#define EQTOKEN_COMMAND 284
-#define EQTOKEN_TIMEOUT 285
-#define EQTOKEN_TASK 286
-#define EQTOKEN_EYE 287
-#define EQTOKEN_FORMAT 288
-#define EQTOKEN_CLEAR 289
-#define EQTOKEN_DRAW 290
-#define EQTOKEN_READBACK 291
-#define EQTOKEN_CYCLOP 292
-#define EQTOKEN_LEFT 293
-#define EQTOKEN_RIGHT 294
-#define EQTOKEN_COLOR 295
-#define EQTOKEN_DEPTH 296
-#define EQTOKEN_VIEWPORT 297
-#define EQTOKEN_RANGE 298
-#define EQTOKEN_DISPLAY 299
-#define EQTOKEN_WALL 300
-#define EQTOKEN_BOTTOM_LEFT 301
-#define EQTOKEN_BOTTOM_RIGHT 302
-#define EQTOKEN_TOP_LEFT 303
-#define EQTOKEN_SYNC 304
-#define EQTOKEN_LATENCY 305
-#define EQTOKEN_SWAPBARRIER 306
-#define EQTOKEN_OUTPUTFRAME 307
-#define EQTOKEN_INPUTFRAME 308
-#define EQTOKEN_STRING 309
-#define EQTOKEN_FLOAT 310
-#define EQTOKEN_INTEGER 311
-#define EQTOKEN_UNSIGNED 312
+#define EQTOKEN_WINDOW_IATTR_HINTS_DOUBLEBUFFER 265
+#define EQTOKEN_WINDOW_IATTR_PLANES_COLOR 266
+#define EQTOKEN_WINDOW_IATTR_PLANES_ALPHA 267
+#define EQTOKEN_WINDOW_IATTR_PLANES_DEPTH 268
+#define EQTOKEN_WINDOW_IATTR_PLANES_STENCIL 269
+#define EQTOKEN_SERVER 270
+#define EQTOKEN_CONFIG 271
+#define EQTOKEN_APPNODE 272
+#define EQTOKEN_NODE 273
+#define EQTOKEN_PIPE 274
+#define EQTOKEN_WINDOW 275
+#define EQTOKEN_ATTRIBUTES 276
+#define EQTOKEN_HINTS 277
+#define EQTOKEN_STEREO 278
+#define EQTOKEN_DOUBLEBUFFER 279
+#define EQTOKEN_PLANES 280
+#define EQTOKEN_COLOR 281
+#define EQTOKEN_ALPHA 282
+#define EQTOKEN_DEPTH 283
+#define EQTOKEN_STENCIL 284
+#define EQTOKEN_ON 285
+#define EQTOKEN_OFF 286
+#define EQTOKEN_AUTO 287
+#define EQTOKEN_CHANNEL 288
+#define EQTOKEN_COMPOUND 289
+#define EQTOKEN_CONNECTION 290
+#define EQTOKEN_NAME 291
+#define EQTOKEN_TYPE 292
+#define EQTOKEN_TCPIP 293
+#define EQTOKEN_HOSTNAME 294
+#define EQTOKEN_COMMAND 295
+#define EQTOKEN_TIMEOUT 296
+#define EQTOKEN_TASK 297
+#define EQTOKEN_EYE 298
+#define EQTOKEN_FORMAT 299
+#define EQTOKEN_CLEAR 300
+#define EQTOKEN_DRAW 301
+#define EQTOKEN_READBACK 302
+#define EQTOKEN_CYCLOP 303
+#define EQTOKEN_LEFT 304
+#define EQTOKEN_RIGHT 305
+#define EQTOKEN_VIEWPORT 306
+#define EQTOKEN_RANGE 307
+#define EQTOKEN_DISPLAY 308
+#define EQTOKEN_WALL 309
+#define EQTOKEN_BOTTOM_LEFT 310
+#define EQTOKEN_BOTTOM_RIGHT 311
+#define EQTOKEN_TOP_LEFT 312
+#define EQTOKEN_SYNC 313
+#define EQTOKEN_LATENCY 314
+#define EQTOKEN_SWAPBARRIER 315
+#define EQTOKEN_OUTPUTFRAME 316
+#define EQTOKEN_INPUTFRAME 317
+#define EQTOKEN_STRING 318
+#define EQTOKEN_FLOAT 319
+#define EQTOKEN_INTEGER 320
+#define EQTOKEN_UNSIGNED 321
 
 
 
@@ -418,22 +436,22 @@ union yyalloc
 #endif
 
 /* YYFINAL -- State number of the termination state. */
-#define YYFINAL  23
+#define YYFINAL  36
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   248
+#define YYLAST   292
 
 /* YYNTOKENS -- Number of terminals. */
-#define YYNTOKENS  62
+#define YYNTOKENS  71
 /* YYNNTS -- Number of nonterminals. */
-#define YYNNTS  77
+#define YYNNTS  78
 /* YYNRULES -- Number of rules. */
-#define YYNRULES  151
+#define YYNRULES  163
 /* YYNRULES -- Number of states. */
-#define YYNSTATES  252
+#define YYNSTATES  276
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   312
+#define YYMAXUTOK   321
 
 #define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -450,10 +468,10 @@ static const unsigned char yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,    60,     2,    61,     2,     2,     2,     2,     2,     2,
+       2,    69,     2,    70,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,    58,     2,    59,     2,     2,     2,     2,
+       2,     2,     2,    67,     2,    68,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -472,7 +490,8 @@ static const unsigned char yytranslate[] =
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
       35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
       45,    46,    47,    48,    49,    50,    51,    52,    53,    54,
-      55,    56,    57
+      55,    56,    57,    58,    59,    60,    61,    62,    63,    64,
+      65,    66
 };
 
 #if YYDEBUG
@@ -481,90 +500,96 @@ static const unsigned char yytranslate[] =
 static const unsigned short int yyprhs[] =
 {
        0,     0,     3,     6,    11,    12,    14,    17,    20,    23,
-      26,    29,    32,    35,    37,    39,    41,    43,    44,    50,
-      52,    55,    56,    64,    65,    67,    70,    73,    75,    78,
-      80,    82,    83,    91,    92,   100,   101,   103,   106,   107,
-     108,   110,   113,   114,   120,   121,   123,   126,   129,   132,
-     135,   138,   140,   143,   144,   151,   152,   154,   157,   160,
-     163,   165,   168,   169,   176,   177,   179,   182,   187,   190,
-     193,   194,   196,   199,   204,   205,   207,   210,   213,   215,
-     217,   219,   221,   224,   225,   231,   232,   234,   237,   240,
-     243,   245,   248,   249,   257,   258,   260,   261,   263,   266,
-     269,   272,   273,   279,   280,   286,   287,   293,   296,   302,
-     304,   306,   308,   310,   311,   313,   316,   318,   320,   322,
-     323,   325,   328,   330,   332,   334,   335,   337,   340,   342,
-     344,   366,   367,   373,   374,   376,   379,   382,   383,   389,
-     390,   396,   397,   399,   402,   405,   412,   414,   416,   418,
-     420,   422
+      26,    29,    32,    35,    38,    41,    44,    47,    50,    52,
+      53,    59,    61,    64,    65,    73,    74,    76,    79,    82,
+      84,    87,    89,    91,    92,   100,   101,   109,   110,   112,
+     115,   116,   117,   119,   122,   123,   129,   130,   132,   135,
+     138,   141,   144,   147,   149,   152,   153,   160,   161,   163,
+     166,   169,   172,   174,   177,   178,   185,   186,   188,   191,
+     196,   199,   202,   203,   205,   208,   213,   218,   219,   221,
+     224,   227,   230,   231,   233,   236,   239,   242,   245,   248,
+     250,   253,   254,   260,   261,   263,   266,   269,   272,   274,
+     277,   278,   286,   287,   289,   290,   292,   295,   298,   301,
+     302,   308,   309,   315,   316,   322,   325,   331,   333,   335,
+     337,   339,   340,   342,   345,   347,   349,   351,   352,   354,
+     357,   359,   361,   363,   364,   366,   369,   371,   373,   395,
+     396,   402,   403,   405,   408,   411,   412,   418,   419,   425,
+     426,   428,   431,   434,   441,   443,   445,   447,   449,   451,
+     453,   455,   457,   459
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS. */
 static const short int yyrhs[] =
 {
-      63,     0,    -1,    64,    68,    -1,     3,    58,    65,    59,
-      -1,    -1,    64,    -1,    65,    64,    -1,     4,    67,    -1,
-       5,   135,    -1,     6,   138,    -1,     7,   138,    -1,     8,
-     135,    -1,     9,    66,    -1,    19,    -1,    20,    -1,    21,
-      -1,    27,    -1,    -1,    10,    58,    69,    70,    59,    -1,
-      71,    -1,    70,    71,    -1,    -1,    11,    58,    72,    73,
-      75,   108,    59,    -1,    -1,    74,    -1,    73,    74,    -1,
-      50,   138,    -1,    76,    -1,    75,    76,    -1,    79,    -1,
-      77,    -1,    -1,    13,    58,    78,    83,    81,    88,    59,
-      -1,    -1,    12,    58,    80,    83,    81,    88,    59,    -1,
-      -1,    82,    -1,    81,    82,    -1,    -1,    -1,    84,    -1,
-      83,    84,    -1,    -1,    24,    58,    85,    86,    59,    -1,
-      -1,    87,    -1,    86,    87,    -1,    26,    67,    -1,    28,
-     135,    -1,    29,   135,    -1,    30,   138,    -1,    89,    -1,
-      88,    89,    -1,    -1,    14,    58,    90,    91,    93,    59,
-      -1,    -1,    92,    -1,    91,    92,    -1,    44,   138,    -1,
-      42,   134,    -1,    94,    -1,    93,    94,    -1,    -1,    15,
-      58,    95,    96,   103,    59,    -1,    -1,    97,    -1,    96,
-      97,    -1,    16,    58,    98,    59,    -1,    25,   135,    -1,
-      42,   134,    -1,    -1,    99,    -1,    98,    99,    -1,    17,
-      58,   100,    59,    -1,    -1,   101,    -1,   100,   101,    -1,
-      18,   102,    -1,    19,    -1,    20,    -1,    21,    -1,   104,
-      -1,   103,   104,    -1,    -1,    22,    58,   105,   106,    59,
-      -1,    -1,   107,    -1,   106,   107,    -1,    25,   135,    -1,
-      42,   134,    -1,   109,    -1,   108,   109,    -1,    -1,    23,
-      58,   110,   112,   111,   112,    59,    -1,    -1,   108,    -1,
-      -1,   113,    -1,   112,   113,    -1,    25,   135,    -1,    22,
-     135,    -1,    -1,    31,    60,   114,   117,    61,    -1,    -1,
-      32,    60,   115,   119,    61,    -1,    -1,    33,    60,   116,
-     121,    61,    -1,    42,   134,    -1,    43,    60,   136,   136,
-      61,    -1,   123,    -1,   124,    -1,   128,    -1,   130,    -1,
-      -1,   118,    -1,   117,   118,    -1,    34,    -1,    35,    -1,
-      36,    -1,    -1,   120,    -1,   119,   120,    -1,    37,    -1,
-      38,    -1,    39,    -1,    -1,   122,    -1,   121,   122,    -1,
-      40,    -1,    41,    -1,    45,    58,    46,    60,   136,   136,
-     136,    61,    47,    60,   136,   136,   136,    61,    48,    60,
-     136,   136,   136,    61,    59,    -1,    -1,    51,    58,   125,
-     126,    59,    -1,    -1,   127,    -1,   126,   127,    -1,    25,
-     135,    -1,    -1,    52,    58,   129,   132,    59,    -1,    -1,
-      53,    58,   131,   132,    59,    -1,    -1,   133,    -1,   132,
-     133,    -1,    25,   135,    -1,    60,   136,   136,   136,   136,
-      61,    -1,    54,    -1,    55,    -1,   137,    -1,    56,    -1,
-     138,    -1,    57,    -1
+      72,     0,    -1,    73,    76,    -1,     3,    67,    74,    68,
+      -1,    -1,    73,    -1,    74,    73,    -1,     4,    75,    -1,
+       5,   145,    -1,     6,   148,    -1,     7,   148,    -1,     8,
+     145,    -1,     9,   144,    -1,    10,   144,    -1,    11,   144,
+      -1,    12,   144,    -1,    13,   144,    -1,    14,   144,    -1,
+      38,    -1,    -1,    15,    67,    77,    78,    68,    -1,    79,
+      -1,    78,    79,    -1,    -1,    16,    67,    80,    81,    83,
+     117,    68,    -1,    -1,    82,    -1,    81,    82,    -1,    59,
+     148,    -1,    84,    -1,    83,    84,    -1,    87,    -1,    85,
+      -1,    -1,    18,    67,    86,    91,    89,    96,    68,    -1,
+      -1,    17,    67,    88,    91,    89,    96,    68,    -1,    -1,
+      90,    -1,    89,    90,    -1,    -1,    -1,    92,    -1,    91,
+      92,    -1,    -1,    35,    67,    93,    94,    68,    -1,    -1,
+      95,    -1,    94,    95,    -1,    37,    75,    -1,    39,   145,
+      -1,    40,   145,    -1,    41,   148,    -1,    97,    -1,    96,
+      97,    -1,    -1,    19,    67,    98,    99,   101,    68,    -1,
+      -1,   100,    -1,    99,   100,    -1,    53,   148,    -1,    51,
+     143,    -1,   102,    -1,   101,   102,    -1,    -1,    20,    67,
+     103,   104,   112,    68,    -1,    -1,   105,    -1,   104,   105,
+      -1,    21,    67,   106,    68,    -1,    36,   145,    -1,    51,
+     143,    -1,    -1,   107,    -1,   106,   107,    -1,    22,    67,
+     108,    68,    -1,    25,    67,   110,    68,    -1,    -1,   109,
+      -1,   108,   109,    -1,    23,   144,    -1,    24,   144,    -1,
+      -1,   111,    -1,   110,   111,    -1,    26,   144,    -1,    27,
+     144,    -1,    28,   144,    -1,    29,   144,    -1,   113,    -1,
+     112,   113,    -1,    -1,    33,    67,   114,   115,    68,    -1,
+      -1,   116,    -1,   115,   116,    -1,    36,   145,    -1,    51,
+     143,    -1,   118,    -1,   117,   118,    -1,    -1,    34,    67,
+     119,   121,   120,   121,    68,    -1,    -1,   117,    -1,    -1,
+     122,    -1,   121,   122,    -1,    36,   145,    -1,    33,   145,
+      -1,    -1,    42,    69,   123,   126,    70,    -1,    -1,    43,
+      69,   124,   128,    70,    -1,    -1,    44,    69,   125,   130,
+      70,    -1,    51,   143,    -1,    52,    69,   146,   146,    70,
+      -1,   132,    -1,   133,    -1,   137,    -1,   139,    -1,    -1,
+     127,    -1,   126,   127,    -1,    45,    -1,    46,    -1,    47,
+      -1,    -1,   129,    -1,   128,   129,    -1,    48,    -1,    49,
+      -1,    50,    -1,    -1,   131,    -1,   130,   131,    -1,    26,
+      -1,    28,    -1,    54,    67,    55,    69,   146,   146,   146,
+      70,    56,    69,   146,   146,   146,    70,    57,    69,   146,
+     146,   146,    70,    68,    -1,    -1,    60,    67,   134,   135,
+      68,    -1,    -1,   136,    -1,   135,   136,    -1,    36,   145,
+      -1,    -1,    61,    67,   138,   141,    68,    -1,    -1,    62,
+      67,   140,   141,    68,    -1,    -1,   142,    -1,   141,   142,
+      -1,    36,   145,    -1,    69,   146,   146,   146,   146,    70,
+      -1,    30,    -1,    31,    -1,    32,    -1,   147,    -1,    63,
+      -1,    64,    -1,   147,    -1,    65,    -1,   148,    -1,    66,
+      -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const unsigned short int yyrline[] =
 {
-       0,   125,   125,   127,   128,   131,   131,   134,   139,   144,
-     149,   154,   159,   162,   164,   166,   169,   171,   171,   174,
-     174,   175,   175,   178,   178,   178,   180,   182,   182,   183,
-     183,   184,   184,   188,   188,   192,   192,   192,   193,   196,
-     200,   200,   202,   201,   208,   208,   209,   211,   212,   213,
-     214,   217,   217,   218,   218,   221,   221,   221,   223,   224,
-     230,   230,   231,   231,   234,   234,   234,   236,   238,   239,
-     247,   247,   248,   250,   252,   252,   252,   254,   256,   258,
-     260,   263,   263,   264,   264,   267,   268,   268,   270,   271,
-     281,   281,   283,   282,   296,   296,   298,   298,   299,   301,
-     302,   310,   310,   312,   312,   314,   314,   316,   318,   320,
-     321,   322,   323,   325,   325,   325,   327,   328,   329,   331,
-     331,   331,   333,   334,   335,   337,   337,   337,   339,   340,
-     342,   363,   363,   369,   369,   370,   372,   374,   374,   380,
-     380,   386,   386,   386,   388,   390,   398,   403,   404,   406,
-     407,   408
+       0,   136,   136,   138,   139,   142,   142,   145,   150,   155,
+     160,   165,   170,   175,   180,   185,   190,   195,   201,   203,
+     203,   206,   206,   207,   207,   210,   210,   210,   212,   214,
+     214,   215,   215,   216,   216,   220,   220,   224,   224,   224,
+     225,   228,   232,   232,   234,   233,   240,   240,   241,   243,
+     244,   245,   246,   249,   249,   250,   250,   253,   253,   253,
+     255,   256,   262,   262,   263,   263,   266,   266,   266,   268,
+     270,   271,   279,   279,   279,   281,   282,   283,   283,   283,
+     285,   287,   289,   289,   289,   291,   293,   295,   297,   300,
+     300,   301,   301,   304,   305,   305,   307,   308,   318,   318,
+     320,   319,   333,   333,   335,   335,   336,   338,   339,   347,
+     347,   349,   349,   351,   351,   353,   355,   357,   358,   359,
+     360,   362,   362,   362,   364,   365,   366,   368,   368,   368,
+     370,   371,   372,   374,   374,   374,   376,   377,   379,   400,
+     400,   406,   406,   407,   409,   411,   411,   417,   417,   423,
+     423,   423,   425,   427,   436,   437,   438,   439,   441,   446,
+     447,   449,   450,   451
 };
 #endif
 
@@ -577,34 +602,40 @@ static const char *const yytname[] =
   "EQTOKEN_CONNECTION_TYPE", "EQTOKEN_CONNECTION_HOSTNAME",
   "EQTOKEN_CONNECTION_TCPIP_PORT", "EQTOKEN_CONNECTION_LAUNCH_TIMEOUT",
   "EQTOKEN_CONNECTION_LAUNCH_COMMAND", "EQTOKEN_WINDOW_IATTR_HINTS_STEREO",
-  "EQTOKEN_SERVER", "EQTOKEN_CONFIG", "EQTOKEN_APPNODE", "EQTOKEN_NODE",
-  "EQTOKEN_PIPE", "EQTOKEN_WINDOW", "EQTOKEN_ATTRIBUTES", "EQTOKEN_HINTS",
-  "EQTOKEN_STEREO", "EQTOKEN_ON", "EQTOKEN_OFF", "EQTOKEN_AUTO",
-  "EQTOKEN_CHANNEL", "EQTOKEN_COMPOUND", "EQTOKEN_CONNECTION",
-  "EQTOKEN_NAME", "EQTOKEN_TYPE", "EQTOKEN_TCPIP", "EQTOKEN_HOSTNAME",
-  "EQTOKEN_COMMAND", "EQTOKEN_TIMEOUT", "EQTOKEN_TASK", "EQTOKEN_EYE",
-  "EQTOKEN_FORMAT", "EQTOKEN_CLEAR", "EQTOKEN_DRAW", "EQTOKEN_READBACK",
-  "EQTOKEN_CYCLOP", "EQTOKEN_LEFT", "EQTOKEN_RIGHT", "EQTOKEN_COLOR",
-  "EQTOKEN_DEPTH", "EQTOKEN_VIEWPORT", "EQTOKEN_RANGE", "EQTOKEN_DISPLAY",
-  "EQTOKEN_WALL", "EQTOKEN_BOTTOM_LEFT", "EQTOKEN_BOTTOM_RIGHT",
-  "EQTOKEN_TOP_LEFT", "EQTOKEN_SYNC", "EQTOKEN_LATENCY",
-  "EQTOKEN_SWAPBARRIER", "EQTOKEN_OUTPUTFRAME", "EQTOKEN_INPUTFRAME",
-  "EQTOKEN_STRING", "EQTOKEN_FLOAT", "EQTOKEN_INTEGER", "EQTOKEN_UNSIGNED",
-  "'{'", "'}'", "'['", "']'", "$accept", "file", "global", "globals",
-  "globalStereo", "connectionType", "server", "@1", "configs", "config",
-  "@2", "configFields", "configField", "nodes", "node", "otherNode", "@3",
-  "appNode", "@4", "nodeFields", "nodeField", "connections", "connection",
-  "@5", "connectionFields", "connectionField", "pipes", "pipe", "@6",
-  "pipeFields", "pipeField", "windows", "window", "@7", "windowFields",
-  "windowField", "windowAttributess", "windowAttributes", "windowHints",
-  "windowHint", "stereo", "channels", "channel", "@8", "channelFields",
+  "EQTOKEN_WINDOW_IATTR_HINTS_DOUBLEBUFFER",
+  "EQTOKEN_WINDOW_IATTR_PLANES_COLOR", "EQTOKEN_WINDOW_IATTR_PLANES_ALPHA",
+  "EQTOKEN_WINDOW_IATTR_PLANES_DEPTH",
+  "EQTOKEN_WINDOW_IATTR_PLANES_STENCIL", "EQTOKEN_SERVER",
+  "EQTOKEN_CONFIG", "EQTOKEN_APPNODE", "EQTOKEN_NODE", "EQTOKEN_PIPE",
+  "EQTOKEN_WINDOW", "EQTOKEN_ATTRIBUTES", "EQTOKEN_HINTS",
+  "EQTOKEN_STEREO", "EQTOKEN_DOUBLEBUFFER", "EQTOKEN_PLANES",
+  "EQTOKEN_COLOR", "EQTOKEN_ALPHA", "EQTOKEN_DEPTH", "EQTOKEN_STENCIL",
+  "EQTOKEN_ON", "EQTOKEN_OFF", "EQTOKEN_AUTO", "EQTOKEN_CHANNEL",
+  "EQTOKEN_COMPOUND", "EQTOKEN_CONNECTION", "EQTOKEN_NAME", "EQTOKEN_TYPE",
+  "EQTOKEN_TCPIP", "EQTOKEN_HOSTNAME", "EQTOKEN_COMMAND",
+  "EQTOKEN_TIMEOUT", "EQTOKEN_TASK", "EQTOKEN_EYE", "EQTOKEN_FORMAT",
+  "EQTOKEN_CLEAR", "EQTOKEN_DRAW", "EQTOKEN_READBACK", "EQTOKEN_CYCLOP",
+  "EQTOKEN_LEFT", "EQTOKEN_RIGHT", "EQTOKEN_VIEWPORT", "EQTOKEN_RANGE",
+  "EQTOKEN_DISPLAY", "EQTOKEN_WALL", "EQTOKEN_BOTTOM_LEFT",
+  "EQTOKEN_BOTTOM_RIGHT", "EQTOKEN_TOP_LEFT", "EQTOKEN_SYNC",
+  "EQTOKEN_LATENCY", "EQTOKEN_SWAPBARRIER", "EQTOKEN_OUTPUTFRAME",
+  "EQTOKEN_INPUTFRAME", "EQTOKEN_STRING", "EQTOKEN_FLOAT",
+  "EQTOKEN_INTEGER", "EQTOKEN_UNSIGNED", "'{'", "'}'", "'['", "']'",
+  "$accept", "file", "global", "globals", "connectionType", "server", "@1",
+  "configs", "config", "@2", "configFields", "configField", "nodes",
+  "node", "otherNode", "@3", "appNode", "@4", "nodeFields", "nodeField",
+  "connections", "connection", "@5", "connectionFields", "connectionField",
+  "pipes", "pipe", "@6", "pipeFields", "pipeField", "windows", "window",
+  "@7", "windowFields", "windowField", "windowAttributes",
+  "windowAttribute", "windowHints", "windowHint", "windowPlanes",
+  "windowPlane", "channels", "channel", "@8", "channelFields",
   "channelField", "compounds", "compound", "@9", "compoundChildren",
   "compoundFields", "compoundField", "@10", "@11", "@12", "compoundTasks",
   "compoundTask", "compoundEyes", "compoundEye", "compoundFormats",
   "compoundFormat", "wall", "swapBarrier", "@13", "swapBarrierFields",
   "swapBarrierField", "outputFrame", "@14", "inputFrame", "@15",
-  "frameFields", "frameField", "viewport", "STRING", "FLOAT", "INTEGER",
-  "UNSIGNED", 0
+  "frameFields", "frameField", "viewport", "IATTR", "STRING", "FLOAT",
+  "INTEGER", "UNSIGNED", 0
 };
 #endif
 
@@ -618,51 +649,54 @@ static const unsigned short int yytoknum[] =
      275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
      285,   286,   287,   288,   289,   290,   291,   292,   293,   294,
      295,   296,   297,   298,   299,   300,   301,   302,   303,   304,
-     305,   306,   307,   308,   309,   310,   311,   312,   123,   125,
-      91,    93
+     305,   306,   307,   308,   309,   310,   311,   312,   313,   314,
+     315,   316,   317,   318,   319,   320,   321,   123,   125,    91,
+      93
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const unsigned char yyr1[] =
 {
-       0,    62,    63,    64,    64,    65,    65,    64,    64,    64,
-      64,    64,    64,    66,    66,    66,    67,    69,    68,    70,
-      70,    72,    71,    73,    73,    73,    74,    75,    75,    76,
-      76,    78,    77,    80,    79,    81,    81,    81,    82,    83,
-      83,    83,    85,    84,    86,    86,    86,    87,    87,    87,
-      87,    88,    88,    90,    89,    91,    91,    91,    92,    92,
-      93,    93,    95,    94,    96,    96,    96,    97,    97,    97,
-      98,    98,    98,    99,   100,   100,   100,   101,   102,   102,
-     102,   103,   103,   105,   104,   106,   106,   106,   107,   107,
-     108,   108,   110,   109,   111,   111,   112,   112,   112,   113,
-     113,   114,   113,   115,   113,   116,   113,   113,   113,   113,
-     113,   113,   113,   117,   117,   117,   118,   118,   118,   119,
-     119,   119,   120,   120,   120,   121,   121,   121,   122,   122,
-     123,   125,   124,   126,   126,   126,   127,   129,   128,   131,
-     130,   132,   132,   132,   133,   134,   135,   136,   136,   137,
-     137,   138
+       0,    71,    72,    73,    73,    74,    74,    73,    73,    73,
+      73,    73,    73,    73,    73,    73,    73,    73,    75,    77,
+      76,    78,    78,    80,    79,    81,    81,    81,    82,    83,
+      83,    84,    84,    86,    85,    88,    87,    89,    89,    89,
+      90,    91,    91,    91,    93,    92,    94,    94,    94,    95,
+      95,    95,    95,    96,    96,    98,    97,    99,    99,    99,
+     100,   100,   101,   101,   103,   102,   104,   104,   104,   105,
+     105,   105,   106,   106,   106,   107,   107,   108,   108,   108,
+     109,   109,   110,   110,   110,   111,   111,   111,   111,   112,
+     112,   114,   113,   115,   115,   115,   116,   116,   117,   117,
+     119,   118,   120,   120,   121,   121,   121,   122,   122,   123,
+     122,   124,   122,   125,   122,   122,   122,   122,   122,   122,
+     122,   126,   126,   126,   127,   127,   127,   128,   128,   128,
+     129,   129,   129,   130,   130,   130,   131,   131,   132,   134,
+     133,   135,   135,   135,   136,   138,   137,   140,   139,   141,
+     141,   141,   142,   143,   144,   144,   144,   144,   145,   146,
+     146,   147,   147,   148
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const unsigned char yyr2[] =
 {
        0,     2,     2,     4,     0,     1,     2,     2,     2,     2,
-       2,     2,     2,     1,     1,     1,     1,     0,     5,     1,
-       2,     0,     7,     0,     1,     2,     2,     1,     2,     1,
-       1,     0,     7,     0,     7,     0,     1,     2,     0,     0,
-       1,     2,     0,     5,     0,     1,     2,     2,     2,     2,
-       2,     1,     2,     0,     6,     0,     1,     2,     2,     2,
-       1,     2,     0,     6,     0,     1,     2,     4,     2,     2,
-       0,     1,     2,     4,     0,     1,     2,     2,     1,     1,
-       1,     1,     2,     0,     5,     0,     1,     2,     2,     2,
-       1,     2,     0,     7,     0,     1,     0,     1,     2,     2,
-       2,     0,     5,     0,     5,     0,     5,     2,     5,     1,
-       1,     1,     1,     0,     1,     2,     1,     1,     1,     0,
-       1,     2,     1,     1,     1,     0,     1,     2,     1,     1,
-      21,     0,     5,     0,     1,     2,     2,     0,     5,     0,
-       5,     0,     1,     2,     2,     6,     1,     1,     1,     1,
-       1,     1
+       2,     2,     2,     2,     2,     2,     2,     2,     1,     0,
+       5,     1,     2,     0,     7,     0,     1,     2,     2,     1,
+       2,     1,     1,     0,     7,     0,     7,     0,     1,     2,
+       0,     0,     1,     2,     0,     5,     0,     1,     2,     2,
+       2,     2,     2,     1,     2,     0,     6,     0,     1,     2,
+       2,     2,     1,     2,     0,     6,     0,     1,     2,     4,
+       2,     2,     0,     1,     2,     4,     4,     0,     1,     2,
+       2,     2,     0,     1,     2,     2,     2,     2,     2,     1,
+       2,     0,     5,     0,     1,     2,     2,     2,     1,     2,
+       0,     7,     0,     1,     0,     1,     2,     2,     2,     0,
+       5,     0,     5,     0,     5,     2,     5,     1,     1,     1,
+       1,     0,     1,     2,     1,     1,     1,     0,     1,     2,
+       1,     1,     1,     0,     1,     2,     1,     1,    21,     0,
+       5,     0,     1,     2,     2,     0,     5,     0,     5,     0,
+       1,     2,     2,     6,     1,     1,     1,     1,     1,     1,
+       1,     1,     1,     1
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -671,90 +705,94 @@ static const unsigned char yyr2[] =
 static const unsigned char yydefact[] =
 {
        4,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       4,    16,     7,   146,     8,   151,     9,    10,    11,    13,
-      14,    15,    12,     1,     0,     2,     5,     0,    17,     3,
-       6,     0,     0,     0,    19,    21,    18,    20,    23,     0,
-       0,    24,    26,     0,     0,    25,     0,    27,    30,    29,
-      33,    31,     0,    28,     0,    90,    39,    39,    92,    22,
-      91,     0,    35,    40,    35,    96,    42,     0,    36,    41,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,    94,    97,   109,   110,   111,   112,    44,     0,
-      37,     0,    51,     0,   100,    99,   101,   103,   105,     0,
-     107,     0,     0,   131,   137,   139,    95,    96,    98,     0,
-       0,     0,     0,     0,    45,    53,    34,    52,    32,   113,
-     119,   125,   147,   149,     0,   148,   150,     0,     0,   133,
-     141,   141,     0,    47,    48,    49,    50,    43,    46,    55,
-     116,   117,   118,     0,   114,   122,   123,   124,     0,   120,
-     128,   129,     0,   126,     0,     0,     0,     0,     0,   134,
-       0,     0,   142,     0,    93,     0,     0,     0,    56,   102,
-     115,   104,   121,   106,   127,     0,   108,     0,   136,   132,
-     135,   144,   138,   143,   140,    59,    58,     0,    57,     0,
-      60,     0,     0,    62,    54,    61,   145,     0,    64,     0,
-       0,     0,     0,     0,    65,     0,    70,    68,    69,     0,
-      66,     0,    81,     0,     0,     0,    71,    83,    63,    82,
-       0,    74,    67,    72,    85,     0,     0,     0,    75,     0,
-       0,     0,    86,     0,    78,    79,    80,    77,    73,    76,
-      88,    89,    84,    87,     0,     0,     0,     0,     0,     0,
-       0,   130
+       0,     0,     0,     0,     0,     4,    18,     7,   158,     8,
+     163,     9,    10,    11,   154,   155,   156,   161,    12,   157,
+     162,    13,    14,    15,    16,    17,     1,     0,     2,     5,
+       0,    19,     3,     6,     0,     0,     0,    21,    23,    20,
+      22,    25,     0,     0,    26,    28,     0,     0,    27,     0,
+      29,    32,    31,    35,    33,     0,    30,     0,    98,    41,
+      41,   100,    24,    99,     0,    37,    42,    37,   104,    44,
+       0,    38,    43,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,   102,   105,   117,   118,   119,
+     120,    46,     0,    39,     0,    53,     0,   108,   107,   109,
+     111,   113,     0,   115,     0,     0,   139,   145,   147,   103,
+     104,   106,     0,     0,     0,     0,     0,    47,    55,    36,
+      54,    34,   121,   127,   133,   159,     0,   160,     0,     0,
+     141,   149,   149,     0,    49,    50,    51,    52,    45,    48,
+      57,   124,   125,   126,     0,   122,   130,   131,   132,     0,
+     128,   136,   137,     0,   134,     0,     0,     0,     0,     0,
+     142,     0,     0,   150,     0,   101,     0,     0,     0,    58,
+     110,   123,   112,   129,   114,   135,     0,   116,     0,   144,
+     140,   143,   152,   146,   151,   148,    61,    60,     0,    59,
+       0,    62,     0,     0,    64,    56,    63,   153,     0,    66,
+       0,     0,     0,     0,     0,    67,     0,    72,    70,    71,
+       0,    68,     0,    89,     0,     0,     0,     0,    73,    91,
+      65,    90,     0,    77,    82,    69,    74,    93,     0,     0,
+       0,     0,    78,     0,     0,     0,     0,     0,    83,     0,
+       0,     0,    94,     0,    80,    81,    75,    79,    85,    86,
+      87,    88,    76,    84,    96,    97,    92,    95,     0,     0,
+       0,     0,     0,     0,     0,   138
 };
 
 /* YYDEFGOTO[NTERM-NUM]. */
 static const short int yydefgoto[] =
 {
-      -1,     8,     9,    27,    22,    12,    25,    31,    33,    34,
-      38,    40,    41,    46,    47,    48,    57,    49,    56,    67,
-      68,    62,    63,    88,   113,   114,    91,    92,   139,   167,
-     168,   189,   190,   198,   203,   204,   215,   216,   227,   228,
-     237,   211,   212,   224,   231,   232,    54,    55,    65,   107,
-      82,    83,   119,   120,   121,   143,   144,   148,   149,   152,
-     153,    84,    85,   129,   158,   159,    86,   130,    87,   131,
-     161,   162,   100,    14,   124,   125,   126
+      -1,    13,    14,    40,    17,    38,    44,    46,    47,    51,
+      53,    54,    59,    60,    61,    70,    62,    69,    80,    81,
+      75,    76,   101,   126,   127,   104,   105,   150,   178,   179,
+     200,   201,   209,   214,   215,   227,   228,   241,   242,   247,
+     248,   222,   223,   237,   251,   252,    67,    68,    78,   120,
+      95,    96,   132,   133,   134,   154,   155,   159,   160,   163,
+     164,    97,    98,   140,   169,   170,    99,   141,   100,   142,
+     172,   173,   113,    28,    19,   136,   137,    30
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -162
+#define YYPACT_NINF -167
 static const short int yypact[] =
 {
-     168,   -31,    -8,   -20,   -14,   -14,   -20,   120,    49,    74,
-     168,  -162,  -162,  -162,  -162,  -162,  -162,  -162,  -162,  -162,
-    -162,  -162,  -162,  -162,    30,  -162,  -162,     2,  -162,  -162,
-    -162,   100,    63,     3,  -162,  -162,  -162,  -162,    75,   -14,
-      20,  -162,  -162,    79,    84,  -162,   107,  -162,  -162,  -162,
-    -162,  -162,    85,  -162,    12,  -162,   110,   110,  -162,  -162,
-    -162,    89,   110,  -162,   110,   137,  -162,   138,  -162,  -162,
-     138,   -20,   -20,    93,    97,   101,   118,   121,   102,   109,
-     129,   136,   113,  -162,  -162,  -162,  -162,  -162,   103,   144,
-    -162,     1,  -162,     8,  -162,  -162,  -162,  -162,  -162,   128,
-    -162,   128,   140,  -162,  -162,  -162,   181,   137,  -162,    -8,
-     -20,   -20,   -14,    16,  -162,  -162,  -162,  -162,  -162,   157,
-     159,    73,  -162,  -162,   128,  -162,  -162,   128,   143,   182,
-     183,   183,    65,  -162,  -162,  -162,  -162,  -162,  -162,   -19,
-    -162,  -162,  -162,    17,  -162,  -162,  -162,  -162,    62,  -162,
-    -162,  -162,    51,  -162,   128,   145,   128,   -20,    13,  -162,
-     -20,    14,  -162,    15,  -162,   118,   -14,     6,  -162,  -162,
-    -162,  -162,  -162,  -162,  -162,   128,  -162,   128,  -162,  -162,
-    -162,  -162,  -162,  -162,  -162,  -162,  -162,   147,  -162,     9,
-    -162,   148,   128,  -162,  -162,  -162,  -162,   149,    64,   164,
-     154,   -20,   118,    60,  -162,   153,   197,  -162,  -162,   158,
-    -162,    -4,  -162,   128,   160,     0,  -162,  -162,  -162,  -162,
-     128,   199,  -162,  -162,     5,   128,   180,    -2,  -162,   -20,
-     118,    -5,  -162,   161,  -162,  -162,  -162,  -162,  -162,  -162,
-    -162,  -162,  -162,  -162,   167,   165,   128,   128,   128,   163,
-     162,  -162
+     204,   -43,    68,   -10,    60,    60,   -10,    62,    62,    62,
+      62,    62,    62,    61,   119,   204,  -167,  -167,  -167,  -167,
+    -167,  -167,  -167,  -167,  -167,  -167,  -167,  -167,  -167,  -167,
+    -167,  -167,  -167,  -167,  -167,  -167,  -167,    63,  -167,  -167,
+      23,  -167,  -167,  -167,   126,   108,    -4,  -167,  -167,  -167,
+    -167,   120,    60,    28,  -167,  -167,   138,   156,  -167,   115,
+    -167,  -167,  -167,  -167,  -167,   158,  -167,    15,  -167,   152,
+     152,  -167,  -167,  -167,   159,   152,  -167,   152,   134,  -167,
+     174,  -167,  -167,   174,   -10,   -10,   160,   161,   162,   164,
+     167,   165,   170,   175,   179,   112,  -167,  -167,  -167,  -167,
+    -167,   143,   185,  -167,    -1,  -167,     0,  -167,  -167,  -167,
+    -167,  -167,   133,  -167,   133,   172,  -167,  -167,  -167,   194,
+     134,  -167,    68,   -10,   -10,    60,    83,  -167,  -167,  -167,
+    -167,  -167,   155,   171,    74,  -167,   133,  -167,   133,   178,
+     217,   218,   218,    53,  -167,  -167,  -167,  -167,  -167,  -167,
+      59,  -167,  -167,  -167,    90,  -167,  -167,  -167,  -167,    91,
+    -167,  -167,  -167,    12,  -167,   133,   186,   133,   -10,    35,
+    -167,   -10,    40,  -167,    41,  -167,   164,    60,    21,  -167,
+    -167,  -167,  -167,  -167,  -167,  -167,   133,  -167,   133,  -167,
+    -167,  -167,  -167,  -167,  -167,  -167,  -167,  -167,   188,  -167,
+       1,  -167,   187,   133,  -167,  -167,  -167,  -167,   189,    80,
+     202,   193,   -10,   164,    29,  -167,   192,    26,  -167,  -167,
+     195,  -167,   -13,  -167,   133,   196,   197,    17,  -167,  -167,
+    -167,  -167,   133,   180,   163,  -167,  -167,   102,   133,    62,
+      62,    20,  -167,    62,    62,    62,    62,    31,  -167,   -10,
+     164,    30,  -167,   198,  -167,  -167,  -167,  -167,  -167,  -167,
+    -167,  -167,  -167,  -167,  -167,  -167,  -167,  -167,   208,   200,
+     133,   133,   133,   201,   199,  -167
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const short int yypgoto[] =
 {
-    -162,  -162,    76,  -162,  -162,   111,  -162,  -162,  -162,   186,
-    -162,  -162,   187,  -162,   184,  -162,  -162,  -162,  -162,   169,
-     -39,   171,    19,  -162,  -162,   116,   156,    35,  -162,  -162,
-      67,  -162,    42,  -162,  -162,    29,  -162,    21,  -162,    10,
-    -162,  -162,    24,  -162,  -162,     7,   166,   -42,  -162,  -162,
-     132,   -69,  -162,  -162,  -162,  -162,    98,  -162,    92,  -162,
-      90,  -162,  -162,  -162,  -162,    86,  -162,  -162,  -162,  -162,
-     112,   -68,  -161,    -6,   -98,  -162,    -3
+    -167,  -167,   128,  -167,   144,  -167,  -167,  -167,   224,  -167,
+    -167,   219,  -167,   214,  -167,  -167,  -167,  -167,   203,    64,
+     205,    75,  -167,  -167,   148,   206,    65,  -167,  -167,    98,
+    -167,    77,  -167,  -167,    67,  -167,    51,  -167,    38,  -167,
+      36,  -167,    66,  -167,  -167,    33,   190,   -56,  -167,  -167,
+     166,   -73,  -167,  -167,  -167,  -167,   136,  -167,   123,  -167,
+     124,  -167,  -167,  -167,  -167,   122,  -167,  -167,  -167,  -167,
+     150,    50,  -166,     5,    -6,  -113,    -5,     4
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -762,94 +800,106 @@ static const short int yypgoto[] =
    number is the opposite.  If zero, do what YYDEFACT says.
    If YYTABLE_NINF, syntax error.  */
 #define YYTABLE_NINF -1
-static const unsigned char yytable[] =
+static const unsigned short int yytable[] =
 {
-      18,    16,    17,   127,   185,     1,     2,     3,     4,     5,
-       6,     7,    60,   108,    32,    89,   226,   214,   209,    11,
-     229,   187,    89,   165,   187,   166,   154,    10,    90,   155,
-     229,    90,    43,    44,    13,    52,    42,   230,   157,   160,
-     160,   208,   109,    15,   110,   111,   112,   230,   165,    23,
-     166,   140,   141,   142,   242,   218,   175,   238,   177,   222,
-     116,    29,    36,   108,    60,    94,    95,   118,   194,   241,
-      39,    59,   179,   182,   184,   137,   200,   191,   169,   192,
-     200,    69,   209,    69,    24,   201,    26,    71,    28,   201,
-      72,   150,   151,   183,   197,   183,    73,    74,    75,   145,
-     146,   147,   202,    30,   134,   135,   202,    76,    77,   136,
-      78,    32,   173,   150,   151,   220,    79,    80,    81,    43,
-      44,    35,   225,   171,   164,    39,   117,   233,   117,   109,
-      52,   110,   111,   112,    61,    71,    52,    50,    72,    19,
-      20,    21,    51,    58,    73,    74,    75,    66,   247,   248,
-     249,   178,    89,    96,   181,    76,    77,    97,    78,    71,
-     102,    98,    72,   186,    79,    80,    81,   103,    73,    74,
-      75,     1,     2,     3,     4,     5,     6,     7,    99,    76,
-      77,   101,    78,   122,   123,    15,   128,   104,    79,    80,
-      81,   140,   141,   142,   105,   207,   145,   146,   147,   234,
-     235,   236,   115,   156,    52,   193,   176,   157,   160,   196,
-     199,   205,   206,   213,   214,   245,   217,   226,   221,    37,
-     133,   251,   244,   240,   250,   246,    93,    45,    64,   138,
-      53,   195,   210,    70,   188,   219,   223,   239,   243,   132,
-     172,   170,   174,   163,   180,     0,     0,     0,   106
+      23,   138,    29,    29,    29,    29,    29,    29,    21,    22,
+     196,    73,    45,    31,    32,    33,    34,    35,   102,   102,
+     220,   198,   121,   165,    15,   166,     1,     2,     3,     4,
+       5,     6,     7,     8,     9,    10,    11,    12,   161,   225,
+     162,   198,   226,   239,   240,    56,    57,   219,   225,    65,
+     211,   226,   186,    18,   188,   230,    55,   243,   244,   245,
+     246,    36,   220,    73,    49,   212,   249,   129,   131,   205,
+     121,   168,   176,   202,   177,   203,   171,   171,   107,   108,
+     213,   250,   184,    72,   265,   235,    84,    52,   256,    85,
+     208,    42,    24,    25,    26,    86,    87,    88,   266,   262,
+     161,   211,   162,   190,    89,    90,    16,    91,   193,   195,
+     176,   232,   177,    92,    93,    94,   212,   145,   146,   238,
+     122,   175,   123,   124,   125,   253,    20,    27,    20,   147,
+      41,   213,    56,    57,    37,   151,   152,   153,   249,   156,
+     157,   158,    45,    39,   103,    84,    65,   103,    85,    65,
+      82,   148,    82,   250,    86,    87,    88,   271,   272,   273,
+     180,   182,   189,    89,    90,   192,    91,    84,    43,   130,
+      85,   130,    92,    93,    94,    48,    86,    87,    88,    52,
+     122,   197,   123,   124,   125,    89,    90,    74,    91,   243,
+     244,   245,   246,   102,    92,    93,    94,   135,    27,    20,
+     151,   152,   153,   239,   240,    63,   218,     1,     2,     3,
+       4,     5,     6,     7,     8,     9,    10,    11,    12,   156,
+     157,   158,   194,    64,   194,    71,    79,   139,    65,   109,
+     110,   111,   115,   112,    29,    29,   114,   116,    29,    29,
+      29,    29,   117,   264,   254,   255,   118,   167,   258,   259,
+     260,   261,   128,   168,   171,   204,   187,   207,   216,   210,
+     217,   224,   229,   233,   234,   269,   144,   275,   268,   270,
+      50,   274,    58,    66,   149,    77,   199,   206,   236,   257,
+      83,   221,   183,   263,   267,   119,   143,   185,   231,   106,
+     181,   191,   174
 };
 
-static const short int yycheck[] =
+static const unsigned short int yycheck[] =
 {
-       6,     4,     5,   101,   165,     3,     4,     5,     6,     7,
-       8,     9,    54,    82,    11,    14,    18,    17,    22,    27,
-      25,    15,    14,    42,    15,    44,   124,    58,    67,   127,
-      25,    70,    12,    13,    54,    23,    39,    42,    25,    25,
-      25,   202,    26,    57,    28,    29,    30,    42,    42,     0,
-      44,    34,    35,    36,    59,    59,   154,    59,   156,    59,
-      59,    59,    59,   132,   106,    71,    72,    59,    59,   230,
-      50,    59,    59,    59,    59,    59,    16,   175,    61,   177,
-      16,    62,    22,    64,    10,    25,    10,    22,    58,    25,
-      25,    40,    41,   161,   192,   163,    31,    32,    33,    37,
-      38,    39,    42,    27,   110,   111,    42,    42,    43,   112,
-      45,    11,    61,    40,    41,   213,    51,    52,    53,    12,
-      13,    58,   220,    61,    59,    50,    91,   225,    93,    26,
-      23,    28,    29,    30,    24,    22,    23,    58,    25,    19,
-      20,    21,    58,    58,    31,    32,    33,    58,   246,   247,
-     248,   157,    14,    60,   160,    42,    43,    60,    45,    22,
-      58,    60,    25,   166,    51,    52,    53,    58,    31,    32,
-      33,     3,     4,     5,     6,     7,     8,     9,    60,    42,
-      43,    60,    45,    55,    56,    57,    46,    58,    51,    52,
-      53,    34,    35,    36,    58,   201,    37,    38,    39,    19,
-      20,    21,    58,    60,    23,    58,    61,    25,    25,    61,
-      61,    47,    58,    60,    17,    48,    58,    18,    58,    33,
-     109,    59,    61,   229,    61,    60,    70,    40,    57,   113,
-      46,   189,   203,    64,   167,   211,   215,   227,   231,   107,
-     148,   143,   152,   131,   158,    -1,    -1,    -1,    82
+       6,   114,     7,     8,     9,    10,    11,    12,     4,     5,
+     176,    67,    16,     8,     9,    10,    11,    12,    19,    19,
+      33,    20,    95,   136,    67,   138,     3,     4,     5,     6,
+       7,     8,     9,    10,    11,    12,    13,    14,    26,    22,
+      28,    20,    25,    23,    24,    17,    18,   213,    22,    34,
+      21,    25,   165,    63,   167,    68,    52,    26,    27,    28,
+      29,     0,    33,   119,    68,    36,    36,    68,    68,    68,
+     143,    36,    51,   186,    53,   188,    36,    36,    84,    85,
+      51,    51,    70,    68,   250,    68,    33,    59,    68,    36,
+     203,    68,    30,    31,    32,    42,    43,    44,    68,    68,
+      26,    21,    28,    68,    51,    52,    38,    54,    68,    68,
+      51,   224,    53,    60,    61,    62,    36,   123,   124,   232,
+      37,    68,    39,    40,    41,   238,    66,    65,    66,   125,
+      67,    51,    17,    18,    15,    45,    46,    47,    36,    48,
+      49,    50,    16,    15,    80,    33,    34,    83,    36,    34,
+      75,    68,    77,    51,    42,    43,    44,   270,   271,   272,
+      70,    70,   168,    51,    52,   171,    54,    33,    40,   104,
+      36,   106,    60,    61,    62,    67,    42,    43,    44,    59,
+      37,   177,    39,    40,    41,    51,    52,    35,    54,    26,
+      27,    28,    29,    19,    60,    61,    62,    64,    65,    66,
+      45,    46,    47,    23,    24,    67,   212,     3,     4,     5,
+       6,     7,     8,     9,    10,    11,    12,    13,    14,    48,
+      49,    50,   172,    67,   174,    67,    67,    55,    34,    69,
+      69,    69,    67,    69,   239,   240,    69,    67,   243,   244,
+     245,   246,    67,   249,   239,   240,    67,    69,   243,   244,
+     245,   246,    67,    36,    36,    67,    70,    70,    56,    70,
+      67,    69,    67,    67,    67,    57,   122,    68,    70,    69,
+      46,    70,    53,    59,   126,    70,   178,   200,   227,   241,
+      77,   214,   159,   247,   251,    95,   120,   163,   222,    83,
+     154,   169,   142
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const unsigned char yystos[] =
 {
-       0,     3,     4,     5,     6,     7,     8,     9,    63,    64,
-      58,    27,    67,    54,   135,    57,   138,   138,   135,    19,
-      20,    21,    66,     0,    10,    68,    64,    65,    58,    59,
-      64,    69,    11,    70,    71,    58,    59,    71,    72,    50,
-      73,    74,   138,    12,    13,    74,    75,    76,    77,    79,
-      58,    58,    23,    76,   108,   109,    80,    78,    58,    59,
-     109,    24,    83,    84,    83,   110,    58,    81,    82,    84,
-      81,    22,    25,    31,    32,    33,    42,    43,    45,    51,
-      52,    53,   112,   113,   123,   124,   128,   130,    85,    14,
-      82,    88,    89,    88,   135,   135,    60,    60,    60,    60,
-     134,    60,    58,    58,    58,    58,   108,   111,   113,    26,
-      28,    29,    30,    86,    87,    58,    59,    89,    59,   114,
-     115,   116,    55,    56,   136,   137,   138,   136,    46,   125,
-     129,   131,   112,    67,   135,   135,   138,    59,    87,    90,
-      34,    35,    36,   117,   118,    37,    38,    39,   119,   120,
-      40,    41,   121,   122,   136,   136,    60,    25,   126,   127,
-      25,   132,   133,   132,    59,    42,    44,    91,    92,    61,
-     118,    61,   120,    61,   122,   136,    61,   136,   135,    59,
-     127,   135,    59,   133,    59,   134,   138,    15,    92,    93,
-      94,   136,   136,    58,    59,    94,    61,   136,    95,    61,
-      16,    25,    42,    96,    97,    47,    58,   135,   134,    22,
-      97,   103,   104,    60,    17,    98,    99,    58,    59,   104,
-     136,    58,    59,    99,   105,   136,    18,   100,   101,    25,
-      42,   106,   107,   136,    19,    20,    21,   102,    59,   101,
-     135,   134,    59,   107,    61,    48,    60,   136,   136,   136,
-      61,    59
+       0,     3,     4,     5,     6,     7,     8,     9,    10,    11,
+      12,    13,    14,    72,    73,    67,    38,    75,    63,   145,
+      66,   148,   148,   145,    30,    31,    32,    65,   144,   147,
+     148,   144,   144,   144,   144,   144,     0,    15,    76,    73,
+      74,    67,    68,    73,    77,    16,    78,    79,    67,    68,
+      79,    80,    59,    81,    82,   148,    17,    18,    82,    83,
+      84,    85,    87,    67,    67,    34,    84,   117,   118,    88,
+      86,    67,    68,   118,    35,    91,    92,    91,   119,    67,
+      89,    90,    92,    89,    33,    36,    42,    43,    44,    51,
+      52,    54,    60,    61,    62,   121,   122,   132,   133,   137,
+     139,    93,    19,    90,    96,    97,    96,   145,   145,    69,
+      69,    69,    69,   143,    69,    67,    67,    67,    67,   117,
+     120,   122,    37,    39,    40,    41,    94,    95,    67,    68,
+      97,    68,   123,   124,   125,    64,   146,   147,   146,    55,
+     134,   138,   140,   121,    75,   145,   145,   148,    68,    95,
+      98,    45,    46,    47,   126,   127,    48,    49,    50,   128,
+     129,    26,    28,   130,   131,   146,   146,    69,    36,   135,
+     136,    36,   141,   142,   141,    68,    51,    53,    99,   100,
+      70,   127,    70,   129,    70,   131,   146,    70,   146,   145,
+      68,   136,   145,    68,   142,    68,   143,   148,    20,   100,
+     101,   102,   146,   146,    67,    68,   102,    70,   146,   103,
+      70,    21,    36,    51,   104,   105,    56,    67,   145,   143,
+      33,   105,   112,   113,    69,    22,    25,   106,   107,    67,
+      68,   113,   146,    67,    67,    68,   107,   114,   146,    23,
+      24,   108,   109,    26,    27,    28,    29,   110,   111,    36,
+      51,   115,   116,   146,   144,   144,    68,   109,   144,   144,
+     144,   144,    68,   111,   145,   143,    68,   116,    70,    57,
+      69,   146,   146,   146,    70,    68
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1558,57 +1608,77 @@ yyreduce:
      ;}
     break;
 
+  case 12:
+
+    {
+         eqs::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_HINTS_STEREO, (yyvsp[0]._int) );
+     ;}
+    break;
+
   case 13:
 
-    { eqs::Global::instance()->setWindowIAttribute( 
-                     eq::Window::IATTR_HINTS_STEREO, eq::STEREO_ON ); ;}
+    {
+         eqs::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_HINTS_DOUBLEBUFFER, (yyvsp[0]._int) );
+     ;}
     break;
 
   case 14:
 
-    { eqs::Global::instance()->setWindowIAttribute( 
-                     eq::Window::IATTR_HINTS_STEREO, eq::STEREO_OFF ); ;}
+    {
+         eqs::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_PLANES_COLOR, (yyvsp[0]._int) );
+     ;}
     break;
 
   case 15:
 
-    { eqs::Global::instance()->setWindowIAttribute( 
-                     eq::Window::IATTR_HINTS_STEREO, eq::STEREO_AUTO );;}
+    {
+         eqs::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_PLANES_ALPHA, (yyvsp[0]._int) );
+     ;}
     break;
 
   case 16:
 
-    { (yyval._connectionType) = eqNet::Connection::TYPE_TCPIP; ;}
+    {
+         eqs::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_PLANES_DEPTH, (yyvsp[0]._int) );
+     ;}
     break;
 
   case 17:
 
+    {
+         eqs::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_PLANES_STENCIL, (yyvsp[0]._int) );
+     ;}
+    break;
+
+  case 18:
+
+    { (yyval._connectionType) = eqNet::Connection::TYPE_TCPIP; ;}
+    break;
+
+  case 19:
+
     { server = loader->createServer(); ;}
     break;
 
-  case 21:
+  case 23:
 
     { config = loader->createConfig(); ;}
     break;
 
-  case 22:
+  case 24:
 
     { server->addConfig( config ); config = NULL; ;}
     break;
 
-  case 26:
+  case 28:
 
     { config->setLatency( (yyvsp[0]._unsigned) ); ;}
-    break;
-
-  case 31:
-
-    { node = loader->createNode(); ;}
-    break;
-
-  case 32:
-
-    { config->addNode( node ); node = NULL; ;}
     break;
 
   case 33:
@@ -1618,10 +1688,20 @@ yyreduce:
 
   case 34:
 
+    { config->addNode( node ); node = NULL; ;}
+    break;
+
+  case 35:
+
+    { node = loader->createNode(); ;}
+    break;
+
+  case 36:
+
     { config->addApplicationNode( node ); node = NULL; ;}
     break;
 
-  case 39:
+  case 41:
 
     { // No connection specified, create default from globals
                  node->addConnectionDescription(
@@ -1629,12 +1709,12 @@ yyreduce:
              ;}
     break;
 
-  case 42:
+  case 44:
 
     { connectionDescription = new eqs::ConnectionDescription(); ;}
     break;
 
-  case 43:
+  case 45:
 
     { 
                  node->addConnectionDescription( connectionDescription );
@@ -1642,42 +1722,42 @@ yyreduce:
              ;}
     break;
 
-  case 47:
+  case 49:
 
     { connectionDescription->type = (yyvsp[0]._connectionType); ;}
     break;
 
-  case 48:
+  case 50:
 
     { connectionDescription->hostname = (yyvsp[0]._string); ;}
     break;
 
-  case 49:
+  case 51:
 
     { connectionDescription->launchCommand = (yyvsp[0]._string); ;}
     break;
 
-  case 50:
+  case 52:
 
     { connectionDescription->launchTimeout = (yyvsp[0]._unsigned); ;}
     break;
 
-  case 53:
+  case 55:
 
     { eqPipe = loader->createPipe(); ;}
     break;
 
-  case 54:
+  case 56:
 
     { node->addPipe( eqPipe ); eqPipe = NULL; ;}
     break;
 
-  case 58:
+  case 60:
 
     { eqPipe->setDisplay( (yyvsp[0]._unsigned) ); ;}
     break;
 
-  case 59:
+  case 61:
 
     {
             eqPipe->setPixelViewport( eq::PixelViewport( (int)(yyvsp[0]._viewport)[0], (int)(yyvsp[0]._viewport)[1],
@@ -1685,22 +1765,22 @@ yyreduce:
         ;}
     break;
 
-  case 62:
+  case 64:
 
     { window = loader->createWindow(); ;}
     break;
 
-  case 63:
+  case 65:
 
     { eqPipe->addWindow( window ); window = NULL; ;}
     break;
 
-  case 68:
+  case 70:
 
     { window->setName( (yyvsp[0]._string) ); ;}
     break;
 
-  case 69:
+  case 71:
 
     {
             if( (yyvsp[0]._viewport)[2] > 1 || (yyvsp[0]._viewport)[3] > 1 )
@@ -1711,40 +1791,52 @@ yyreduce:
         ;}
     break;
 
-  case 78:
-
-    { window->setIAttribute( 
-                     eq::Window::IATTR_HINTS_STEREO, eq::STEREO_ON ); ;}
-    break;
-
-  case 79:
-
-    { window->setIAttribute( 
-                     eq::Window::IATTR_HINTS_STEREO, eq::STEREO_OFF ); ;}
-    break;
-
   case 80:
 
-    { window->setIAttribute( 
-                     eq::Window::IATTR_HINTS_STEREO, eq::STEREO_AUTO ); ;}
+    { window->setIAttribute( eq::Window::IATTR_HINTS_STEREO, (yyvsp[0]._int) ); ;}
     break;
 
-  case 83:
+  case 81:
 
-    { channel = loader->createChannel(); ;}
+    { window->setIAttribute( eq::Window::IATTR_HINTS_DOUBLEBUFFER, (yyvsp[0]._int) ); ;}
     break;
 
-  case 84:
+  case 85:
 
-    { window->addChannel( channel ); channel = NULL; ;}
+    { window->setIAttribute( eq::Window::IATTR_PLANES_COLOR, (yyvsp[0]._int) ); ;}
+    break;
+
+  case 86:
+
+    { window->setIAttribute( eq::Window::IATTR_PLANES_ALPHA, (yyvsp[0]._int) ); ;}
+    break;
+
+  case 87:
+
+    { window->setIAttribute( eq::Window::IATTR_PLANES_DEPTH, (yyvsp[0]._int) ); ;}
     break;
 
   case 88:
 
+    { window->setIAttribute( eq::Window::IATTR_PLANES_STENCIL, (yyvsp[0]._int) ); ;}
+    break;
+
+  case 91:
+
+    { channel = loader->createChannel(); ;}
+    break;
+
+  case 92:
+
+    { window->addChannel( channel ); channel = NULL; ;}
+    break;
+
+  case 96:
+
     { channel->setName( (yyvsp[0]._string) ); ;}
     break;
 
-  case 89:
+  case 97:
 
     {
             if( (yyvsp[0]._viewport)[2] > 1 || (yyvsp[0]._viewport)[3] > 1 )
@@ -1755,7 +1847,7 @@ yyreduce:
         ;}
     break;
 
-  case 92:
+  case 100:
 
     {
                   eqs::Compound* child = loader->createCompound();
@@ -1767,17 +1859,17 @@ yyreduce:
               ;}
     break;
 
-  case 93:
+  case 101:
 
     { eqCompound = eqCompound->getParent(); ;}
     break;
 
-  case 99:
+  case 107:
 
     { eqCompound->setName( (yyvsp[0]._string) ); ;}
     break;
 
-  case 100:
+  case 108:
 
     {
          eqs::Channel* channel = config->findChannel( (yyvsp[0]._string) );
@@ -1788,72 +1880,72 @@ yyreduce:
     ;}
     break;
 
-  case 101:
+  case 109:
 
     { eqCompound->setTasks( eqs::Compound::TASK_NONE ); ;}
     break;
 
-  case 103:
+  case 111:
 
     { eqCompound->setEyes( eqs::Compound::EYE_UNDEFINED ); ;}
     break;
 
-  case 105:
+  case 113:
 
     { eqCompound->setFormats( eq::Frame::FORMAT_UNDEFINED );;}
     break;
 
-  case 107:
+  case 115:
 
     { eqCompound->setViewport( eq::Viewport( (yyvsp[0]._viewport)[0], (yyvsp[0]._viewport)[1], (yyvsp[0]._viewport)[2], (yyvsp[0]._viewport)[3] )); ;}
     break;
 
-  case 108:
+  case 116:
 
     { eqCompound->setRange( eq::Range( (yyvsp[-2]._float), (yyvsp[-1]._float) )); ;}
     break;
 
-  case 116:
+  case 124:
 
     { eqCompound->enableTask( eqs::Compound::TASK_CLEAR ); ;}
     break;
 
-  case 117:
+  case 125:
 
     { eqCompound->enableTask( eqs::Compound::TASK_DRAW ); ;}
     break;
 
-  case 118:
+  case 126:
 
     { eqCompound->enableTask( eqs::Compound::TASK_READBACK ); ;}
     break;
 
-  case 122:
+  case 130:
 
     { eqCompound->enableEye( eqs::Compound::EYE_CYCLOP ); ;}
     break;
 
-  case 123:
+  case 131:
 
     { eqCompound->enableEye( eqs::Compound::EYE_LEFT ); ;}
     break;
 
-  case 124:
+  case 132:
 
     { eqCompound->enableEye( eqs::Compound::EYE_RIGHT ); ;}
     break;
 
-  case 128:
+  case 136:
 
     { eqCompound->enableFormat( eq::Frame::FORMAT_COLOR ); ;}
     break;
 
-  case 129:
+  case 137:
 
     { eqCompound->enableFormat( eq::Frame::FORMAT_DEPTH ); ;}
     break;
 
-  case 130:
+  case 138:
 
     { 
         eq::Wall wall;
@@ -1872,12 +1964,12 @@ yyreduce:
     ;}
     break;
 
-  case 131:
+  case 139:
 
     { swapBarrier = new eqs::SwapBarrier(); ;}
     break;
 
-  case 132:
+  case 140:
 
     { 
             eqCompound->setSwapBarrier( swapBarrier );
@@ -1885,17 +1977,17 @@ yyreduce:
         ;}
     break;
 
-  case 136:
+  case 144:
 
     { swapBarrier->setName( (yyvsp[0]._string) ); ;}
     break;
 
-  case 137:
+  case 145:
 
     { frame = new eqs::Frame(); ;}
     break;
 
-  case 138:
+  case 146:
 
     { 
             eqCompound->addOutputFrame( frame );
@@ -1903,12 +1995,12 @@ yyreduce:
         ;}
     break;
 
-  case 139:
+  case 147:
 
     { frame = new eqs::Frame(); ;}
     break;
 
-  case 140:
+  case 148:
 
     { 
             eqCompound->addInputFrame( frame );
@@ -1916,12 +2008,12 @@ yyreduce:
         ;}
     break;
 
-  case 144:
+  case 152:
 
     { frame->setName( (yyvsp[0]._string) ); ;}
     break;
 
-  case 145:
+  case 153:
 
     { 
          (yyval._viewport)[0] = (yyvsp[-4]._float);
@@ -1931,7 +2023,27 @@ yyreduce:
      ;}
     break;
 
-  case 146:
+  case 154:
+
+    { (yyval._int) = eq::ON; ;}
+    break;
+
+  case 155:
+
+    { (yyval._int) = eq::OFF; ;}
+    break;
+
+  case 156:
+
+    { (yyval._int) = eq::AUTO; ;}
+    break;
+
+  case 157:
+
+    { (yyval._int) = (yyvsp[0]._int); ;}
+    break;
+
+  case 158:
 
     {
          stringBuf = yytext;
@@ -1939,27 +2051,27 @@ yyreduce:
      ;}
     break;
 
-  case 147:
+  case 159:
 
     { (yyval._float) = atof( yytext ); ;}
     break;
 
-  case 148:
+  case 160:
 
     { (yyval._float) = (yyvsp[0]._int); ;}
     break;
 
-  case 149:
+  case 161:
 
     { (yyval._int) = atoi( yytext ); ;}
     break;
 
-  case 150:
+  case 162:
 
     { (yyval._int) = (yyvsp[0]._unsigned); ;}
     break;
 
-  case 151:
+  case 163:
 
     { (yyval._unsigned) = atoi( yytext ); ;}
     break;

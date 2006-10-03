@@ -11,12 +11,13 @@ namespace eq
 {
     class NodeFactory;
 
-    /** Stereo Mode Setting */
-    enum Stereo
+    /** Possible values for some integer attributes */
+    enum IAttrValue
     {
-        STEREO_OFF, //<! Monoscopic
-        STEREO_ON,  //<! Quad-buffered/Active stereo
-        STEREO_AUTO //<! Automatic choice
+        UNDEFINED = -2,
+        AUTO      = -1,
+        OFF       = false,
+        ON        = true,
     };
 
     /** 
@@ -51,6 +52,8 @@ namespace eq
         static NodeFactory* _nodeFactory;
         static std::string  _server;
     };
+
+    std::ostream& operator << ( std::ostream& os, const IAttrValue value );
 }
 
 #endif // EQ_GLOBAL_H

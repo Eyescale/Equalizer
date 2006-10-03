@@ -548,8 +548,7 @@ void Compound::_setupRenderContext( eq::RenderContext& context,
     const Channel* channel = data->channel;
     const Window*  window  = channel->getWindow();
 
-    if( window->getIAttribute( eq::Window::IATTR_HINTS_STEREO )
-        == eq::STEREO_OFF )
+    if( window->getIAttribute( eq::Window::IATTR_HINTS_STEREO ) == eq::OFF )
         context.drawBuffer = GL_BACK;
     else
     {

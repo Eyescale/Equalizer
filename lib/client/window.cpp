@@ -193,7 +193,7 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
     
     int glStereo;
     glGetIntegerv( GL_STEREO, &glStereo );
-    reply.iattr[IATTR_HINTS_STEREO] = glStereo ? STEREO_ON : STEREO_OFF;
+    reply.iattr[IATTR_HINTS_STEREO] = glStereo ? ON : OFF;
         
     send( node, reply );
 
@@ -393,28 +393,56 @@ bool eq::Window::initGLX()
 
     vector<int> attributes;
     attributes.push_back( GLX_RGBA );
-    attributes.push_back( 1 );
-    attributes.push_back( GLX_RED_SIZE );     
-    attributes.push_back( 8 );
-    //attributes.push_back( GLX_ALPHA_SIZE );
-    //attributes.push_back( 1 );
-    attributes.push_back( GLX_DEPTH_SIZE );
-    attributes.push_back( 1 );
-    attributes.push_back( GLX_STENCIL_SIZE );
-    attributes.push_back( 8 );
-    attributes.push_back( GLX_DOUBLEBUFFER );
 
-    if( getIAttribute( IATTR_HINTS_STEREO ) != STEREO_OFF )
+    const int colorSize = getIAttribute( IATTR_PLANES_COLOR );
+    if( colorSize > 0 || colorSize == AUTO )
+    {
+        attributes.push_back( GLX_RED_SIZE );
+        attributes.push_back( colorSize>0 ? colorSize : 1 );
+        attributes.push_back( GLX_GREEN_SIZE );
+        attributes.push_back( colorSize>0 ? colorSize : 1 );
+        attributes.push_back( GLX_BLUE_SIZE );
+        attributes.push_back( colorSize>0 ? colorSize : 1 );
+    }
+    const int alphaSize = getIAttribute( IATTR_PLANES_ALPHA );
+    if( alphaSize > 0 || alphaSize == AUTO )
+    {
+        attributes.push_back( GLX_ALPHA_SIZE );
+        attributes.push_back( alphaSize>0 ? alphaSize : 1 );
+    }
+    const int depthSize = getIAttribute( IATTR_PLANES_DEPTH );
+    if( depthSize > 0  || depthSize == AUTO )
+    {
+        attributes.push_back( GLX_DEPTH_SIZE );
+        attributes.push_back( depthSize>0 ? depthSize : 1 );
+    }
+    const int stencilSize = getIAttribute( IATTR_PLANES_STENCIL );
+    if( stencilSize >0 || depthSize == AUTO )
+    {
+        attributes.push_back( GLX_STENCIL_SIZE );
+        attributes.push_back( stencilSize>0 ? stencilSize : 1 );
+    }
+
+    if( getIAttribute( IATTR_HINTS_STEREO ) != OFF )
         attributes.push_back( GLX_STEREO );
+    if( getIAttribute( IATTR_HINTS_DOUBLEBUFFER ) != OFF )
+        attributes.push_back( GLX_DOUBLEBUFFER );
 
     attributes.push_back( None );
 
     XVisualInfo *visInfo = glXChooseVisual( display, screen, &attributes[0] );
 
-    if( !visInfo && getIAttribute( IATTR_HINTS_STEREO ) == STEREO_AUTO )
+    if( !visInfo && getIAttribute( IATTR_HINTS_STEREO ) == AUTO )
     {        
         vector<int>::iterator iter = find( attributes.begin(), attributes.end(),
                                            GLX_STEREO );
+        attributes.erase( iter );
+        visInfo = glXChooseVisual( display, screen, &attributes[0] );
+    }
+    if( !visInfo && getIAttribute( IATTR_HINTS_DOUBLEBUFFER ) == AUTO )
+    {        
+        vector<int>::iterator iter = find( attributes.begin(), attributes.end(),
+                                           GLX_DOUBLEBUFFER );
         attributes.erase( iter );
         visInfo = glXChooseVisual( display, screen, &attributes[0] );
     }
@@ -486,30 +514,66 @@ bool eq::Window::initCGL()
 #ifdef CGL
     CGDirectDisplayID displayID = _pipe->getCGLDisplayID();
 
-    vector<CGLPixelFormatAttribute> attributes;
+    vector<int> attributes;
     attributes.push_back( kCGLPFADisplayMask );
-    attributes.push_back( 
-        (CGLPixelFormatAttribute)CGDisplayIDToOpenGLDisplayMask( displayID ));
-    attributes.push_back( kCGLPFAFullScreen ); 
-    attributes.push_back( kCGLPFADoubleBuffer );
-    attributes.push_back( kCGLPFADepthSize );
-    attributes.push_back( (CGLPixelFormatAttribute)16 );
+    attributes.push_back( CGDisplayIDToOpenGLDisplayMask( displayID ));
+    attributes.push_back( kCGLPFAFullScreen );
 
-    if( getIAttribute( IATTR_HINTS_STEREO ) != STEREO_OFF )
+    const int colorSize = getIAttribute( IATTR_PLANES_COLOR );
+    if( colorSize > 0 || colorSize == AUTO )
+    {
+        attributes.push_back( kCGLPFAColorSize );
+        attributes.push_back( colorSize>0 ? colorSize : 1 );
+    }
+    const int alphaSize = getIAttribute( IATTR_PLANES_ALPHA );
+    if( alphaSize > 0 || alphaSize == AUTO )
+    {
+        attributes.push_back( kCGLPFAAlphaSize );
+        attributes.push_back( alphaSize>0 ? alphaSize : 1  );
+    }
+    const int depthSize = getIAttribute( IATTR_PLANES_DEPTH );
+    if( depthSize > 0 || depthSize == AUTO )
+    {
+        attributes.push_back( kCGLPFADepthSize );
+        attributes.push_back( depthSize>0 ? depthSize : 1 );
+    }
+    const int stencilSize = getIAttribute( IATTR_PLANES_STENCIL );
+    if( stencilSize > 0 )
+    {
+        attributes.push_back( kCGLPFAStencilSize );
+        attributes.push_back( stencilSize>0 ? stencilSize : 1 );
+    }
+
+    if( getIAttribute( IATTR_HINTS_DOUBLEBUFFER ) != OFF )
+        attributes.push_back( kCGLPFADoubleBuffer );
+    if( getIAttribute( IATTR_HINTS_STEREO ) != OFF )
         attributes.push_back( kCGLPFAStereo );
 
-    attributes.push_back( (CGLPixelFormatAttribute)0 );
+    attributes.push_back( 0 );
 
     CGLPixelFormatObj pixelFormat = NULL;
     long numPixelFormats = 0;
-    CGLChoosePixelFormat( &attributes[0], &pixelFormat, &numPixelFormats );
+    const CGLPixelFormatAttribute* cglAttribs = 
+        (CGLPixelFormatAttribute*)&attributes[0];
+    CGLChoosePixelFormat( cglAttribs, &pixelFormat, &numPixelFormats );
 
-    if( !pixelFormat && getIAttribute( IATTR_HINTS_STEREO ) == STEREO_AUTO )
+    if( !pixelFormat && getIAttribute( IATTR_HINTS_STEREO ) == AUTO )
     {
-        vector<CGLPixelFormatAttribute>::iterator iter = 
+        vector<int>::iterator iter = 
             find( attributes.begin(), attributes.end(), kCGLPFAStereo );
         attributes.erase( iter );
-        CGLChoosePixelFormat( &attributes[0], &pixelFormat, &numPixelFormats );
+        const CGLPixelFormatAttribute* cglAttribs = 
+            (CGLPixelFormatAttribute*)&attributes[0];
+        CGLChoosePixelFormat( cglAttribs, &pixelFormat, &numPixelFormats );
+    }
+    if( !pixelFormat && getIAttribute( IATTR_HINTS_DOUBLEBUFFER ) == AUTO )
+    {
+        vector<int>::iterator iter = 
+            find( attributes.begin(), attributes.end(), kCGLPFADoubleBuffer );
+        attributes.erase( iter );
+        const CGLPixelFormatAttribute* cglAttribs = 
+            (CGLPixelFormatAttribute*)&attributes[0];
+        CGLChoosePixelFormat( cglAttribs, &pixelFormat, &numPixelFormats );
     }
 
     if( !pixelFormat )

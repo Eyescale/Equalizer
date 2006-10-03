@@ -24,9 +24,6 @@ typedef int socklen_t;
 //#define EQ_UNDEFINED_INT32    (0x7fffffff)
 #define EQ_TIMEOUT_INDEFINITE (0)
 
-// XXX move to client?
-#define EQ_NONE (-1)
-
 #define EQ_DUMP_CORE {((char*)0)[0] = 'a';}
 
 // assertions

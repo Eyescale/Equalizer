@@ -405,29 +405,27 @@ std::ostream& eqs::operator << ( std::ostream& os, const eqs::Window* window )
     os << "hints" << endl;
     os << "{" << endl << indent;
     
-    for( int i=0; i<eq::Window::IATTR_ALL; ++i )
+    for( eq::Window::IAttribute i = static_cast<eq::Window::IAttribute>( 0 );
+         i<eq::Window::IATTR_ALL; 
+         i = static_cast<eq::Window::IAttribute>( static_cast<uint32_t>( i )+1))
     {
-        const int value = window->getIAttribute((eq::Window::IAttribute)i);
-        switch( i )
-        {
-            case eq::Window::IATTR_HINTS_STEREO:
-                os << "stereo ";
-                switch( value )
-                {
-                    case eq::STEREO_ON:
-                        os << "on" << endl;
-                        break;
-                    case eq::STEREO_OFF:
-                        os << "off" << endl;
-                        break;
-                    case eq::STEREO_AUTO:
-                        os << "auto" << endl;
-                        break;
-                    default:
-                        os << value << endl;
-                }
-                break;
-        }
+        const int value = window->getIAttribute( i );
+        if( value == Global::instance()->getWindowIAttribute( i ))
+            continue;
+
+        os << ( i==eq::Window::IATTR_HINTS_STEREO ?
+                    "stereo       " :
+                i==eq::Window::IATTR_HINTS_DOUBLEBUFFER ?
+                    "doublebuffer " :
+                i==eq::Window::IATTR_PLANES_COLOR ? 
+                    "color        " :
+                i==eq::Window::IATTR_PLANES_ALPHA ?
+                    "alpha        " :
+                i==eq::Window::IATTR_PLANES_DEPTH ?
+                    "depth        " :
+                i==eq::Window::IATTR_PLANES_STENCIL ?
+                    "stencil      " : "ERROR" )
+           << value << endl;
     }
     
     os << exdent << "}" << endl;

@@ -21,10 +21,10 @@ Global* Global::instance()
 Global::Global()
 {
     for( int i=0; i<Node::IATTR_ALL; ++i )
-        _nodeIAttributes[i] = EQ_NONE;
+        _nodeIAttributes[i] = eq::UNDEFINED;
 
     for( int i=0; i<ConnectionDescription::IATTR_ALL; ++i )
-        _connectionIAttributes[i] = EQ_NONE;
+        _connectionIAttributes[i] = eq::UNDEFINED;
 
     _connectionIAttributes[ConnectionDescription::IATTR_TYPE] = 
         eqNet::Connection::TYPE_TCPIP;
@@ -34,7 +34,13 @@ Global::Global()
     _connectionSAttributes[ConnectionDescription::SATTR_LAUNCH_COMMAND] = 
         "ssh -n %h %c >& %h.%n.log";
         
-    _windowIAttributes[eq::Window::IATTR_HINTS_STEREO] = eq::STEREO_AUTO;
+    for( int i=0; i<eq::Window::IATTR_ALL; ++i )
+        _windowIAttributes[i] = eq::UNDEFINED;
+
+    _windowIAttributes[eq::Window::IATTR_HINTS_STEREO]       = eq::AUTO;
+    _windowIAttributes[eq::Window::IATTR_HINTS_DOUBLEBUFFER] = eq::AUTO;
+    _windowIAttributes[eq::Window::IATTR_PLANES_COLOR]       = 1;
+    _windowIAttributes[eq::Window::IATTR_PLANES_DEPTH]       = 1;
 }
 
 std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
@@ -62,70 +68,61 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
     for( int i=0; i<ConnectionDescription::IATTR_ALL; ++i )
     {
         const int value = global->_connectionIAttributes[i];
-        if( value != reference._connectionIAttributes[i] )
-        {
+        if( value == reference._connectionIAttributes[i] )
+            continue;
 
-            os << ( i==ConnectionDescription::IATTR_TYPE ?
-                    "EQ_CONNECTION_TYPE           " :
-                    i==ConnectionDescription::IATTR_TCPIP_PORT ?
-                    "EQ_CONNECTION_TCPIP_PORT     " :
-                    "EQ_CONNECTION_LAUNCH_TIMEOUT " );
+        os << ( i==ConnectionDescription::IATTR_TYPE ?
+                "EQ_CONNECTION_TYPE           " :
+                i==ConnectionDescription::IATTR_TCPIP_PORT ?
+                "EQ_CONNECTION_TCPIP_PORT     " :
+                "EQ_CONNECTION_LAUNCH_TIMEOUT " );
                 
-            switch( i )
-            { 
-                case ConnectionDescription::IATTR_TYPE:
-                    os << ( value == eqNet::Connection::TYPE_TCPIP ? "TCPIP" : 
-                            "PIPE" );
-                    break;
-                case ConnectionDescription::IATTR_LAUNCH_TIMEOUT:
-                    os << value;// << " ms";
-                    break;
-                default:
-                    os << value;
-            }
-            os << endl;
+        switch( i )
+        { 
+            case ConnectionDescription::IATTR_TYPE:
+                os << ( value == eqNet::Connection::TYPE_TCPIP ? "TCPIP" : 
+                        "PIPE" );
+                break;
+            case ConnectionDescription::IATTR_LAUNCH_TIMEOUT:
+                os << value;// << " ms";
+                break;
+            default:
+                os << value;
         }
+        os << endl;
     }
 
     for( int i=0; i<ConnectionDescription::SATTR_ALL; ++i )
     {
         const string& value = global->_connectionSAttributes[i];
-        if( value != reference._connectionSAttributes[i] )
-        {
+        if( value == reference._connectionSAttributes[i] )
+            continue;
 
-            os << ( i==ConnectionDescription::SATTR_HOSTNAME ?
-                    "EQ_CONNECTION_HOSTNAME       " :
-                    "EQ_CONNECTION_LAUNCH_COMMAND " )
-               << "\"" << value << "\"" << endl;
-        }
+        os << ( i==ConnectionDescription::SATTR_HOSTNAME ?
+                "EQ_CONNECTION_HOSTNAME       " :
+                "EQ_CONNECTION_LAUNCH_COMMAND " )
+           << "\"" << value << "\"" << endl;
     }
 
     for( int i=0; i<eq::Window::IATTR_ALL; ++i )
     {
         const int value = global->_windowIAttributes[i];
-        if( value != reference._windowIAttributes[i] )
-        {
-            switch( i )
-            {
-                case eq::Window::IATTR_HINTS_STEREO:
-                    os << "EQ_WINDOW_IATTR_HINTS_STEREO ";
-                    switch( value )
-                    {
-                        case eq::STEREO_ON:
-                            os << "on" << endl;
-                            break;
-                        case eq::STEREO_OFF:
-                            os << "off" << endl;
-                            break;
-                        case eq::STEREO_AUTO:
-                            os << "auto" << endl;
-                            break;
-                        default:
-                            os << value << endl;
-                    }
-                    break;
-            }
-        }
+        if( value == reference._windowIAttributes[i] )
+            continue;
+
+        os << ( i==eq::Window::IATTR_HINTS_STEREO ?
+                    "EQ_WINDOW_IATTR_HINTS_STEREO       " :
+                i==eq::Window::IATTR_HINTS_DOUBLEBUFFER ?
+                    "EQ_WINDOW_IATTR_HINTS_DOUBLEBUFFER " :
+                i==eq::Window::IATTR_PLANES_COLOR ? 
+                    "EQ_WINDOW_IATTR_PLANES_COLOR       " :
+                i==eq::Window::IATTR_PLANES_ALPHA ?
+                    "EQ_WINDOW_IATTR_PLANES_ALPHA       " :
+                i==eq::Window::IATTR_PLANES_DEPTH ?
+                    "EQ_WINDOW_IATTR_PLANES_DEPTH       " :
+                i==eq::Window::IATTR_PLANES_STENCIL ?
+                    "EQ_WINDOW_IATTR_PLANES_STENCIL     " : "ERROR" )
+           << static_cast<eq::IAttrValue>( value ) << endl;
     }
     
     os << exdent << '}' << endl << enableHeader << enableFlush;

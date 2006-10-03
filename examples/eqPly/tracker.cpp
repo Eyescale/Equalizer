@@ -180,15 +180,15 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
       }
 
       //try_to read remaining bytes, returns # of readed bytes
-      const ssize_t receiver = read( _fd, &buffer[size-remaining], remaining );
-      if( receiver == -1 )
+      const ssize_t received = read( _fd, &buffer[size-remaining], remaining );
+      if( received == -1 )
       {	
          cerr << "Read error: " << strerror( errno ) << endl;
          return false;
       }
 
-      EQASSERT( remaining >= receiver );
-      remaining -= receiver;
+      EQASSERT( remaining >= (size_t)received );
+      remaining -= received;
    }
    return true;
 }

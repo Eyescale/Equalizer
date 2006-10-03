@@ -54,6 +54,11 @@
 %token EQTOKEN_CONNECTION_LAUNCH_TIMEOUT
 %token EQTOKEN_CONNECTION_LAUNCH_COMMAND
 %token EQTOKEN_WINDOW_IATTR_HINTS_STEREO
+%token EQTOKEN_WINDOW_IATTR_HINTS_DOUBLEBUFFER
+%token EQTOKEN_WINDOW_IATTR_PLANES_COLOR
+%token EQTOKEN_WINDOW_IATTR_PLANES_ALPHA
+%token EQTOKEN_WINDOW_IATTR_PLANES_DEPTH
+%token EQTOKEN_WINDOW_IATTR_PLANES_STENCIL
 %token EQTOKEN_SERVER
 %token EQTOKEN_CONFIG
 %token EQTOKEN_APPNODE
@@ -63,6 +68,12 @@
 %token EQTOKEN_ATTRIBUTES
 %token EQTOKEN_HINTS
 %token EQTOKEN_STEREO
+%token EQTOKEN_DOUBLEBUFFER
+%token EQTOKEN_PLANES
+%token EQTOKEN_COLOR
+%token EQTOKEN_ALPHA
+%token EQTOKEN_DEPTH
+%token EQTOKEN_STENCIL
 %token EQTOKEN_ON
 %token EQTOKEN_OFF
 %token EQTOKEN_AUTO
@@ -114,7 +125,7 @@
 }
 
 %type <_string>         STRING;
-%type <_int>            INTEGER;
+%type <_int>            INTEGER IATTR;
 %type <_unsigned>       UNSIGNED;
 %type <_connectionType> connectionType;
 %type <_viewport>       viewport;
@@ -156,15 +167,36 @@ global:
          eqs::Global::instance()->setConnectionSAttribute(
              eqs::ConnectionDescription::SATTR_LAUNCH_COMMAND, $2 );
      }
-     | EQTOKEN_WINDOW_IATTR_HINTS_STEREO globalStereo
-
-globalStereo:
-    EQTOKEN_ON     { eqs::Global::instance()->setWindowIAttribute( 
-                     eq::Window::IATTR_HINTS_STEREO, eq::STEREO_ON ); }
-    | EQTOKEN_OFF  { eqs::Global::instance()->setWindowIAttribute( 
-                     eq::Window::IATTR_HINTS_STEREO, eq::STEREO_OFF ); }
-    | EQTOKEN_AUTO { eqs::Global::instance()->setWindowIAttribute( 
-                     eq::Window::IATTR_HINTS_STEREO, eq::STEREO_AUTO );}
+     | EQTOKEN_WINDOW_IATTR_HINTS_STEREO IATTR
+     {
+         eqs::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_HINTS_STEREO, $2 );
+     }
+     | EQTOKEN_WINDOW_IATTR_HINTS_DOUBLEBUFFER IATTR
+     {
+         eqs::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_HINTS_DOUBLEBUFFER, $2 );
+     }
+     | EQTOKEN_WINDOW_IATTR_PLANES_COLOR IATTR
+     {
+         eqs::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_PLANES_COLOR, $2 );
+     }
+     | EQTOKEN_WINDOW_IATTR_PLANES_ALPHA IATTR
+     {
+         eqs::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_PLANES_ALPHA, $2 );
+     }
+     | EQTOKEN_WINDOW_IATTR_PLANES_DEPTH IATTR
+     {
+         eqs::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_PLANES_DEPTH, $2 );
+     }
+     | EQTOKEN_WINDOW_IATTR_PLANES_STENCIL IATTR
+     {
+         eqs::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_PLANES_STENCIL, $2 );
+     }
 
 connectionType: EQTOKEN_TCPIP { $$ = eqNet::Connection::TYPE_TCPIP; };
 
@@ -234,7 +266,7 @@ window: EQTOKEN_WINDOW '{' { window = loader->createWindow(); }
 windowFields: /*null*/ | windowField | windowFields windowField
 windowField: 
     EQTOKEN_ATTRIBUTES '{' 
-    windowAttributess '}'
+    windowAttributes '}'
     | EQTOKEN_NAME STRING              { window->setName( $2 ); }
     | EQTOKEN_VIEWPORT viewport
         {
@@ -244,21 +276,26 @@ windowField:
             else
                 window->setViewport( eq::Viewport($2[0], $2[1], $2[2], $2[3])); 
         }
-windowAttributess: /*null*/ | windowAttributes 
-    | windowAttributess windowAttributes
-windowAttributes:
-    EQTOKEN_HINTS '{'
-    windowHints '}'
+windowAttributes: /*null*/ | windowAttribute | windowAttributes windowAttribute
+windowAttribute:
+    EQTOKEN_HINTS '{' windowHints '}'
+    | EQTOKEN_PLANES '{' windowPlanes '}'
 windowHints: /*null*/ | windowHint | windowHints windowHint
 windowHint:
-    EQTOKEN_STEREO stereo
-stereo:
-    EQTOKEN_ON     { window->setIAttribute( 
-                     eq::Window::IATTR_HINTS_STEREO, eq::STEREO_ON ); }
-    | EQTOKEN_OFF  { window->setIAttribute( 
-                     eq::Window::IATTR_HINTS_STEREO, eq::STEREO_OFF ); }
-    | EQTOKEN_AUTO { window->setIAttribute( 
-                     eq::Window::IATTR_HINTS_STEREO, eq::STEREO_AUTO ); }
+    EQTOKEN_STEREO IATTR
+        { window->setIAttribute( eq::Window::IATTR_HINTS_STEREO, $2 ); }
+    | EQTOKEN_DOUBLEBUFFER IATTR
+        { window->setIAttribute( eq::Window::IATTR_HINTS_DOUBLEBUFFER, $2 ); }
+windowPlanes: /*null*/ | windowPlane | windowPlanes windowPlane
+windowPlane:
+    EQTOKEN_COLOR IATTR
+        { window->setIAttribute( eq::Window::IATTR_PLANES_COLOR, $2 ); }
+    | EQTOKEN_ALPHA IATTR
+        { window->setIAttribute( eq::Window::IATTR_PLANES_ALPHA, $2 ); }
+    | EQTOKEN_DEPTH IATTR
+        { window->setIAttribute( eq::Window::IATTR_PLANES_DEPTH, $2 ); }
+    | EQTOKEN_STENCIL IATTR
+        { window->setIAttribute( eq::Window::IATTR_PLANES_STENCIL, $2 ); }
                      
 channels: channel | channels channel
 channel: EQTOKEN_CHANNEL '{' { channel = loader->createChannel(); }
@@ -360,7 +397,7 @@ wall: EQTOKEN_WALL '{'
         eqCompound->setWall( wall );
     }
 
-swapBarrier : EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eqs::SwapBarrier(); }
+swapBarrier: EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eqs::SwapBarrier(); }
     swapBarrierFields '}'
         { 
             eqCompound->setSwapBarrier( swapBarrier );
@@ -377,7 +414,7 @@ outputFrame : EQTOKEN_OUTPUTFRAME '{' { frame = new eqs::Frame(); }
             eqCompound->addOutputFrame( frame );
             frame = NULL;
         } 
-inputFrame : EQTOKEN_INPUTFRAME '{' { frame = new eqs::Frame(); }
+inputFrame: EQTOKEN_INPUTFRAME '{' { frame = new eqs::Frame(); }
     frameFields '}'
         { 
             eqCompound->addInputFrame( frame );
@@ -394,6 +431,12 @@ viewport: '[' FLOAT FLOAT FLOAT FLOAT ']'
          $$[2] = $4;
          $$[3] = $5;
      }
+
+IATTR:
+    EQTOKEN_ON     { $$ = eq::ON; }
+    | EQTOKEN_OFF  { $$ = eq::OFF; }
+    | EQTOKEN_AUTO { $$ = eq::AUTO; }
+    | INTEGER      { $$ = $1; }
 
 STRING: EQTOKEN_STRING
      {

@@ -21,6 +21,11 @@ EQ_CONNECTION_TCPIP_PORT        { return EQTOKEN_CONNECTION_TCPIP_PORT; }
 EQ_CONNECTION_LAUNCH_TIMEOUT    { return EQTOKEN_CONNECTION_LAUNCH_TIMEOUT; }
 EQ_CONNECTION_LAUNCH_COMMAND    { return EQTOKEN_CONNECTION_LAUNCH_COMMAND; }
 EQ_WINDOW_IATTR_HINTS_STEREO    { return EQTOKEN_WINDOW_IATTR_HINTS_STEREO; }
+EQ_WINDOW_IATTR_HINTS_DOUBLEBUFFER { return EQTOKEN_WINDOW_IATTR_HINTS_DOUBLEBUFFER; }
+EQ_WINDOW_IATTR_PLANES_COLOR    { return EQTOKEN_WINDOW_IATTR_PLANES_COLOR; }
+EQ_WINDOW_IATTR_PLANES_ALPHA    { return EQTOKEN_WINDOW_IATTR_PLANES_ALPHA; }
+EQ_WINDOW_IATTR_PLANES_DEPTH    { return EQTOKEN_WINDOW_IATTR_PLANES_DEPTH; }
+EQ_WINDOW_IATTR_PLANES_STENCIL  { return EQTOKEN_WINDOW_IATTR_PLANES_STENCIL; } 
 server                          { return EQTOKEN_SERVER; }
 config                          { return EQTOKEN_CONFIG; }
 appNode                         { return EQTOKEN_APPNODE; }
@@ -30,6 +35,12 @@ window                          { return EQTOKEN_WINDOW; }
 attributes                      { return EQTOKEN_ATTRIBUTES; }
 hints                           { return EQTOKEN_HINTS; }
 stereo                          { return EQTOKEN_STEREO; }
+doublebuffer                    { return EQTOKEN_DOUBLEBUFFER; }
+planes                          { return EQTOKEN_PLANES; }
+color                           { return EQTOKEN_COLOR; }
+alpha                           { return EQTOKEN_ALPHA; }
+depth                           { return EQTOKEN_DEPTH; }
+stencil                         { return EQTOKEN_STENCIL; }
 on                              { return EQTOKEN_ON; }
 off                             { return EQTOKEN_OFF; }
 auto                            { return EQTOKEN_AUTO; }
