@@ -121,12 +121,14 @@ bool Tracker::_update()
    const short pitch = (buffer[9]<<8 | buffer[8]);
    const short roll = (buffer[11]<<8 | buffer[10]);
 
-   const float hpr[3] = { head / 5194.81734f,    //32640 -> 2 * pi = /5194.81734
-                          pitch / 5194.81734f,
-                          roll / 5194.81734f };
+   float hpr[3] = { head  / -5194.81734f,    //32640 -> 2 * pi = /5194.81734
+                    pitch / -5194.81734f,
+                    roll  / -5194.81734f };
+   hpr[0] +=   M_PI;
+   hpr[1] += 2*M_PI;
+   hpr[2] += 2*M_PI;
 
    float pos[3];
-
    //highest value for y and z position of the tracker sensor is 32639,
    //after that it switches back to zero (and vice versa if descending values).
    pos[0] = ypos;
