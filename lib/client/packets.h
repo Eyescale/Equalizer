@@ -411,11 +411,10 @@ namespace eq
                 size      = sizeof( WindowInitReplyPacket );
             }
 
-        uint32_t      requestID;
-        bool          result;
-
-        PixelViewport pvp;
-        int32_t       iattr[eq::Window::IATTR_ALL];
+        uint32_t                requestID;
+        bool                    result;
+        PixelViewport           pvp;
+        Window::DrawableConfig  drawableConfig;
     };
 
     struct WindowExitPacket : public eqNet::ObjectPacket

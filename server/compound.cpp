@@ -438,8 +438,8 @@ void Compound::_updateOutput( UpdateData* data )
 
         if( true /* !use dest channel origin hint set */ )
         {
-            framePVP.x = frameVP.x * _inherit.pvp.w;
-            framePVP.y = frameVP.y * _inherit.pvp.h;
+            framePVP.x = (int32_t)(frameVP.x * _inherit.pvp.w);
+            framePVP.y = (int32_t)(frameVP.y * _inherit.pvp.h);
         }
 
         frame->setPixelViewport( framePVP );
@@ -514,8 +514,8 @@ void Compound::_updateInput( UpdateData* data )
 
         // input frames are moved using the offset. The pvp signifies the pixels
         // to be used from the frame buffer.
-        framePVP.x = frameVP.x * _inherit.pvp.w;
-        framePVP.y = frameVP.y * _inherit.pvp.h;
+        framePVP.x = (int32_t)(frameVP.x * _inherit.pvp.w);
+        framePVP.y = (int32_t)(frameVP.y * _inherit.pvp.h);
 
         frame->setOffset( frameOffset );
         frame->setPixelViewport( framePVP );
@@ -591,26 +591,8 @@ void Compound::_setupRenderContext( eq::RenderContext& context,
     context.range      = _inherit.range;
 
     const Channel* channel = data->channel;
-    const Window*  window  = channel->getWindow();
+    context.drawBuffer = _getDrawBuffer( data );
 
-    if( window->getIAttribute( eq::Window::IATTR_HINTS_STEREO ) == eq::OFF )
-        context.drawBuffer = GL_BACK;
-    else
-    {
-        switch( data->eye )
-        {
-            case Compound::EYE_LEFT:
-                context.drawBuffer = GL_BACK_LEFT;
-                break;
-            case Compound::EYE_RIGHT:
-                context.drawBuffer = GL_BACK_RIGHT;
-                break;
-            default:
-                context.drawBuffer = GL_BACK;
-                break;
-        }
-    }
-    
     if( true /* use dest channel origin hint set */ )
     {
         const eq::PixelViewport& nativePVP = channel->getPixelViewport();
@@ -619,7 +601,54 @@ void Compound::_setupRenderContext( eq::RenderContext& context,
     }
     // TODO: pvp size overcommit check?
 }
+
+GLenum Compound::_getDrawBuffer( const UpdateChannelData* data )
+{
+    eq::Window::DrawableConfig drawableConfig = 
+        data->channel->getWindow()->getDrawableConfig();
     
+    if( !drawableConfig.stereo )
+    {    
+        if( drawableConfig.doublebuffered )
+            return GL_BACK;
+        else
+            return GL_FRONT;
+    }
+    else
+    {
+        if( drawableConfig.doublebuffered )
+        {
+            switch( data->eye )
+            {
+                case Compound::EYE_LEFT:
+                    return GL_BACK_LEFT;
+                    break;
+                case Compound::EYE_RIGHT:
+                    return GL_BACK_RIGHT;
+                    break;
+                default:
+                    return GL_BACK;
+                    break;
+            }
+        }
+        else
+        {
+            switch( data->eye )
+            {
+                case Compound::EYE_LEFT:
+                    return GL_FRONT_LEFT;
+                    break;
+                case Compound::EYE_RIGHT:
+                    return GL_FRONT_RIGHT;
+                    break;
+                default:
+                    return GL_FRONT;
+                    break;
+            }
+        }
+    }
+}
+
 void Compound::_computeFrustum( eq::Frustum& frustum, float headTransform[16],
                                 const Eye whichEye )
 {

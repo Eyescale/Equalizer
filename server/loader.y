@@ -54,6 +54,7 @@
 %token EQTOKEN_CONNECTION_LAUNCH_TIMEOUT
 %token EQTOKEN_CONNECTION_LAUNCH_COMMAND
 %token EQTOKEN_WINDOW_IATTR_HINTS_STEREO
+%token EQTOKEN_CONFIG_FATTR_EYE_BASE
 %token EQTOKEN_WINDOW_IATTR_HINTS_DOUBLEBUFFER
 %token EQTOKEN_WINDOW_IATTR_PLANES_COLOR
 %token EQTOKEN_WINDOW_IATTR_PLANES_ALPHA
@@ -88,6 +89,7 @@
 %token EQTOKEN_TIMEOUT
 %token EQTOKEN_TASK
 %token EQTOKEN_EYE
+%token EQTOKEN_EYE_BASE
 %token EQTOKEN_FORMAT
 %token EQTOKEN_CLEAR
 %token EQTOKEN_DRAW
@@ -197,6 +199,11 @@ global:
          eqs::Global::instance()->setWindowIAttribute(
              eq::Window::IATTR_PLANES_STENCIL, $2 );
      }
+     | EQTOKEN_CONFIG_FATTR_EYE_BASE FLOAT
+     {
+         eqs::Global::instance()->setConfigFAttribute(
+             eqs::Config::FATTR_EYE_BASE, $2 );
+     }
 
 connectionType: EQTOKEN_TCPIP { $$ = eqNet::Connection::TYPE_TCPIP; };
 
@@ -210,6 +217,11 @@ config: EQTOKEN_CONFIG '{' { config = loader->createConfig(); }
 configFields: /*null*/ | configField | configFields configField
 configField:
     EQTOKEN_LATENCY UNSIGNED  { config->setLatency( $2 ); }
+    | EQTOKEN_ATTRIBUTES '{' configAttributes '}'
+configAttributes: /*null*/ | configAttribute | configAttributes configAttribute
+configAttribute:
+    EQTOKEN_EYE_BASE FLOAT { config->setFAttribute( 
+                             eqs::Config::FATTR_EYE_BASE, $2 ); }
 
 nodes: node | nodes node
 node: appNode | otherNode

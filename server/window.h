@@ -203,8 +203,12 @@ namespace eqs
             { _iAttributes[attr] = value; }
         int32_t  getIAttribute( const eq::Window::IAttribute attr ) const
             { return _iAttributes[attr]; }
-            
+        
+        const eq::Window::DrawableConfig& getDrawableConfig() const
+            { return _drawableConfig; }
     private:
+        eq::Window::DrawableConfig _drawableConfig;
+
         /** The current operational state. */
         State _state;
 

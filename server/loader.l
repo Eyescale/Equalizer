@@ -21,6 +21,7 @@ EQ_CONNECTION_TCPIP_PORT        { return EQTOKEN_CONNECTION_TCPIP_PORT; }
 EQ_CONNECTION_LAUNCH_TIMEOUT    { return EQTOKEN_CONNECTION_LAUNCH_TIMEOUT; }
 EQ_CONNECTION_LAUNCH_COMMAND    { return EQTOKEN_CONNECTION_LAUNCH_COMMAND; }
 EQ_WINDOW_IATTR_HINTS_STEREO    { return EQTOKEN_WINDOW_IATTR_HINTS_STEREO; }
+EQ_CONFIG_FATTR_EYE_BASE        { return EQTOKEN_CONFIG_FATTR_EYE_BASE; }
 EQ_WINDOW_IATTR_HINTS_DOUBLEBUFFER { return EQTOKEN_WINDOW_IATTR_HINTS_DOUBLEBUFFER; }
 EQ_WINDOW_IATTR_PLANES_COLOR    { return EQTOKEN_WINDOW_IATTR_PLANES_COLOR; }
 EQ_WINDOW_IATTR_PLANES_ALPHA    { return EQTOKEN_WINDOW_IATTR_PLANES_ALPHA; }
@@ -55,6 +56,7 @@ command                         { return EQTOKEN_COMMAND; }
 timeout                         { return EQTOKEN_TIMEOUT; }
 task                            { return EQTOKEN_TASK; }
 eye                             { return EQTOKEN_EYE; }
+eyeBase                         { return EQTOKEN_EYE_BASE; }
 format                          { return EQTOKEN_FORMAT; }
 CLEAR                           { return EQTOKEN_CLEAR; }
 DRAW                            { return EQTOKEN_DRAW; }

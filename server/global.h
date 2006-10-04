@@ -61,6 +61,14 @@ namespace eqs
         int32_t getWindowIAttribute( const eq::Window::IAttribute attr ) const
             { return _windowIAttributes[attr]; }
 
+        /**
+         * @name Compound Attributes.
+         */  
+        void setConfigFAttribute( const Config::FAttribute attr,
+                                    const float value )
+            { _configFAttributes[attr] = value; }
+        float getConfigFAttribute( const Config::FAttribute attr ) const
+            { return _configFAttributes[attr]; }
     private:
         Global();
         
@@ -71,6 +79,8 @@ namespace eqs
         int32_t     _connectionIAttributes[ConnectionDescription::IATTR_ALL];
         
         int32_t     _windowIAttributes[eq::Window::IATTR_ALL];
+        
+        float       _configFAttributes[Config::FATTR_ALL];
 
         friend std::ostream& operator << ( std::ostream&, const Global* );
     };

@@ -24,6 +24,13 @@ namespace eq
     class Window : public eqNet::Object
     {
     public:
+        /** Stores current drawable characteristics. */
+        struct DrawableConfig
+        {
+            bool doublebuffered;
+            bool stereo;
+        };
+        
         /** 
          * Constructs a new window.
          */
@@ -214,7 +221,9 @@ namespace eq
         int32_t  getIAttribute( const IAttribute attr ) const
             { return _iAttributes[attr]; }
         //*}
-        
+
+        const DrawableConfig& getDrawableConfig() const
+            { return _drawableConfig; }
     protected:
         /**
          * Destructs the window.
@@ -222,6 +231,8 @@ namespace eq
         virtual ~Window();
 
     private:
+        /** Drawable characteristics of this window */
+        DrawableConfig _drawableConfig;
 #ifdef GLX
         /** The drawable ID of the window. */
         XID        _xDrawable;

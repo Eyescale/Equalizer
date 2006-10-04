@@ -361,6 +361,9 @@ eqNet::CommandResult eqs::Window::_cmdInitReply( eqNet::Node* node, const eqNet:
     eq::WindowInitReplyPacket* packet = (eq::WindowInitReplyPacket*)pkg;
     EQINFO << "handle window init reply " << packet << endl;
 
+    if( packet->result )
+        _drawableConfig = packet->drawableConfig;
+    
     if( packet->pvp.isValid( ))
         setPixelViewport( packet->pvp );
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );

@@ -6,14 +6,18 @@ global
     EQ_CONNECTION_TYPE              TCPIP
     EQ_CONNECTION_HOSTNAME          "localhost"
     EQ_CONNECTION_LAUNCH_TIMEOUT    100000
-#    EQ_CONNECTION_LAUNCH_COMMAND    "echo %c"
     EQ_WINDOW_IATTR_HINTS_STEREO    auto
+    EQ_CONFIG_FATTR_EYE_BASE        0.05
 }
 
 server
 {
     config
     {
+        attributes
+        {
+            eyeBase 0.05
+        }
         appNode
         {
             pipe

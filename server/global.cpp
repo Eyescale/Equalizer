@@ -41,6 +41,8 @@ Global::Global()
     _windowIAttributes[eq::Window::IATTR_HINTS_DOUBLEBUFFER] = eq::AUTO;
     _windowIAttributes[eq::Window::IATTR_PLANES_COLOR]       = 1;
     _windowIAttributes[eq::Window::IATTR_PLANES_DEPTH]       = 1;
+    
+    _configFAttributes[Config::FATTR_EYE_BASE] = 0.05;
 }
 
 std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
@@ -124,7 +126,18 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
                     "EQ_WINDOW_IATTR_PLANES_STENCIL     " : "ERROR" )
            << static_cast<eq::IAttrValue>( value ) << endl;
     }
-    
+
+    for( int i=0; i<Config::FATTR_ALL; ++i )
+    {
+        const float value = global->_configFAttributes[i];
+        if( value != reference._configFAttributes[i] )
+            continue;
+
+        os << ( i==Config::FATTR_EYE_BASE ?
+                    "EQ_CONFIG_FATTR_EYE_BASE           " : "ERROR" )
+           << value << endl;
+    }
+
     os << exdent << '}' << endl << enableHeader << enableFlush;
     return os;
 }

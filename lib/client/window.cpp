@@ -187,14 +187,15 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
     }
 
     reply.pvp = _pvp;
-    
-    for( uint32_t i=0; i<eq::Window::IATTR_ALL; ++i )
-        reply.iattr[i] = _iAttributes[i];
-    
-    int glStereo;
-    glGetIntegerv( GL_STEREO, &glStereo );
-    reply.iattr[IATTR_HINTS_STEREO] = glStereo ? ON : OFF;
-        
+
+    GLboolean glStereo;
+    GLboolean dBuffer;
+    glGetBooleanv( GL_STEREO, &glStereo );
+    glGetBooleanv( GL_DOUBLEBUFFER, &dBuffer );
+    _drawableConfig.doublebuffered = dBuffer;
+    _drawableConfig.stereo = glStereo;
+    reply.drawableConfig = getDrawableConfig();
+
     send( node, reply );
 
     EventThread* thread = EventThread::get( windowSystem );

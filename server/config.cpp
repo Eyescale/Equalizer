@@ -7,9 +7,8 @@
 #include "compound.h"
 #include "node.h"
 #include "server.h"
+#include "global.h"
 #include <eq/net/global.h>
-
-#define EYE_OFFSET 0.05
 
 using namespace eqs;
 using namespace eqBase;
@@ -40,6 +39,11 @@ void Config::_construct()
     registerCommand( eq::REQ_CONFIG_FRAME_END, this,
                      reinterpret_cast<CommandFcn>( &eqs::Config::_reqEndFrame));
 
+    const Global* global = Global::instance();
+    
+    for( int i=0; i<FATTR_ALL; ++i )
+        _fAttributes[i] = global->getConfigFAttribute( (FAttribute)i );
+        
     EQINFO << "New config @" << (void*)this << endl;
 }
 
@@ -89,6 +93,9 @@ Config::Config( const Config& from )
         // channel is replaced below
     }
 
+    for( int i=0; i<FATTR_ALL; ++i )
+        _fAttributes[i] = from.getFAttribute( (FAttribute)i );
+        
     const uint32_t nNodes = from.nNodes();
     for( uint32_t i=0; i<nNodes; ++i )
     {
@@ -581,21 +588,26 @@ bool Config::_exitNodes()
 void Config::_updateHead()
 {
     _headMatrix->sync();
-
+    const float eyeBase = getFAttribute( Config::FATTR_EYE_BASE );
     const float* matrix = _headMatrix->ml;
-    //memcpy( matrix, _headMatrix.ml, 16*sizeof( float ) );
-    const float w = EYE_OFFSET * matrix[12] + matrix[15];
+    const float w = eyeBase * matrix[12] + matrix[15];
     _eyePosition[EYE_INDEX_CYCLOP][0] = ( matrix[3] / w );
     _eyePosition[EYE_INDEX_CYCLOP][1] = ( matrix[7] / w );
     _eyePosition[EYE_INDEX_CYCLOP][2] = ( matrix[11] / w );
     //The transformation matrix gets multiplicated by the eye offset vector 
     //[eye_offset, 0, 0, w]' to get the left and right eye positions.
-    _eyePosition[EYE_INDEX_LEFT][0] = ( -0.5 * EYE_OFFSET * matrix[0] + matrix[3] ) / w;
-    _eyePosition[EYE_INDEX_LEFT][1] = ( -0.5 * EYE_OFFSET * matrix[4] + matrix[7] ) / w;
-    _eyePosition[EYE_INDEX_LEFT][2] = ( -0.5 * EYE_OFFSET * matrix[8] + matrix[11] ) / w;
-    _eyePosition[EYE_INDEX_RIGHT][0] = ( 0.5 * EYE_OFFSET * matrix[0] + matrix[3] ) / w;
-    _eyePosition[EYE_INDEX_RIGHT][1] = ( 0.5 * EYE_OFFSET * matrix[4] + matrix[7] ) / w;
-    _eyePosition[EYE_INDEX_RIGHT][2] = ( 0.5 * EYE_OFFSET * matrix[8] + matrix[11] ) / w;
+    _eyePosition[EYE_INDEX_LEFT][0] =
+        ( -0.5 * eyeBase * matrix[0] + matrix[3] ) / w;
+    _eyePosition[EYE_INDEX_LEFT][1] =
+        ( -0.5 * eyeBase * matrix[4] + matrix[7] ) / w;
+    _eyePosition[EYE_INDEX_LEFT][2] =
+        ( -0.5 * eyeBase * matrix[8] + matrix[11] ) / w;
+    _eyePosition[EYE_INDEX_RIGHT][0] =
+        ( 0.5 * eyeBase * matrix[0] + matrix[3] ) / w;
+    _eyePosition[EYE_INDEX_RIGHT][1] =
+        ( 0.5 * eyeBase * matrix[4] + matrix[7] ) / w;
+    _eyePosition[EYE_INDEX_RIGHT][2] =
+        ( 0.5 * eyeBase * matrix[8] + matrix[11] ) / w;
 }
 
 const float* Config::getEyePosition( const uint32_t eye )
@@ -660,13 +672,18 @@ ostream& eqs::operator << ( ostream& os, const Config* config )
 {
     if( !config )
         return os;
-    
+
     os << disableFlush << disableHeader << "config " << endl;
     os << "{" << endl << indent;
 
     if( config->getLatency() != 1 )
         os << "latency " << config->getLatency() << endl;
     os << endl;
+
+    os << "attributes" << endl << "{" << endl << indent;
+    os << "eyeBase " << config->getFAttribute( Config::FATTR_EYE_BASE ) << endl;
+
+    os << exdent << "}" << endl;
 
     const uint32_t nNodes = config->nNodes();
     for( uint32_t i=0; i<nNodes; ++i )
@@ -675,7 +692,7 @@ ostream& eqs::operator << ( ostream& os, const Config* config )
     const uint32_t nCompounds = config->nCompounds();
     for( uint32_t i=0; i<nCompounds; ++i )
         os << config->getCompound(i);
-    
+
     os << exdent << "}" << endl << enableHeader << enableFlush;
 
     return os;

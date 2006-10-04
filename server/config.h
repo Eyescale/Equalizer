@@ -181,6 +181,19 @@ namespace eqs
           */
         const float* getEyePosition( const uint32_t eye );
 
+        /**
+         * @name Float Attributes
+         */
+        enum FAttribute
+        {
+            FATTR_EYE_BASE,
+            FATTR_ALL
+        };
+        
+        void setFAttribute( const FAttribute attr, const float value )
+            { _fAttributes[attr] = value; }
+        float getFAttribute( const FAttribute attr ) const
+            { return _fAttributes[attr]; }
     private:
 
         enum EyeIndex
@@ -191,6 +204,9 @@ namespace eqs
             EYE_INDEX_ALL // must be last
         };
 
+        /** float attributes. */
+        float _fAttributes[FATTR_ALL];
+        
         /** The eq server hosting the session. */
         eqBase::RefPtr<Server> _server;
         friend class Server;

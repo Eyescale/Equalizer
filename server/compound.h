@@ -460,6 +460,7 @@ namespace eqs
         void _updatePostDraw( eq::RenderContext& context );
         void _setupRenderContext( eq::RenderContext& context, 
                                   const UpdateChannelData* data );
+        GLenum _getDrawBuffer( const UpdateChannelData* data );
         void _computeFrustum( eq::Frustum& frustum, float headTransform[16],
                                                     const Eye whichEye );
 
