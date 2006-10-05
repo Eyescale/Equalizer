@@ -28,8 +28,15 @@ namespace eqs
         void setFrameNumber( const uint32_t number ) { _frameNumber = number; }
         uint32_t getFrameNumber() const { return _frameNumber; }
 
+        /** Set the buffers area within the channel */
         void setPixelViewport( const eq::PixelViewport& pvp ) 
             { _data.pvp = pvp; }
+        /** Set the position of the buffer relative to the window. */
+        void setOffset( const vmml::Vector2i& offset ) 
+            { _data.offset = offset; }
+        /** Set the format of the source frame. */
+        void setFormat( const eq::Frame::Format format ) 
+            { _data.format = format; }
         //*}
 
     private:

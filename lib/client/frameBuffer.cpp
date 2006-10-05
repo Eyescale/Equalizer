@@ -86,15 +86,16 @@ Image* FrameBuffer::newImage( const Frame::Format format )
     return image;
 }
 
-void FrameBuffer::startReadback( const Frame::Format frameFormat )
+void FrameBuffer::startReadback( const Frame& frame )
 {
-    const Frame::Format format = (_data.format == Frame::FORMAT_UNDEFINED) ?
-        frameFormat : static_cast<Frame::Format>(_data.format & frameFormat);
+    PixelViewport absPVP = _data.pvp + frame.getOffset();
+    if( !absPVP.isValid( ))
+        return;
 
-    if( format & Frame::FORMAT_COLOR )
+    if( _data.format & Frame::FORMAT_COLOR )
     {
         Image* image = newImage( Frame::FORMAT_COLOR );
-        image->startReadback( _data.pvp );
+        image->startReadback( absPVP );
     }
 }
 

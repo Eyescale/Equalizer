@@ -5,9 +5,9 @@
 #ifndef EQ_PIXELVIEWPORT_H
 #define EQ_PIXELVIEWPORT_H
 
-#include <eq/base/base.h>
-
 #include "viewport.h"
+
+#include <eq/vmmlib/Vector2.h>
 
 namespace eq
 {
@@ -70,6 +70,11 @@ namespace eq
             {
                 return PixelViewport( (int32_t)(x+w*rhs.x),(int32_t)(y+h*rhs.y),
                                       (int32_t)(w*rhs.w),  (int32_t)(h*rhs.h) );
+            }
+
+        const PixelViewport operator + ( const vmml::Vector2i& offset ) const
+            {
+                return PixelViewport( x+offset.x, y+offset.y, w, h );
             }
 
         const Viewport operator / ( const PixelViewport& rhs ) const

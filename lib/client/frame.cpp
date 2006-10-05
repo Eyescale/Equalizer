@@ -41,5 +41,5 @@ void Frame::clear()
 
 void Frame::startReadback() 
 {
-    _getBuffer()->startReadback( _data.format );
+    _getBuffer()->startReadback( *this );
 }

@@ -53,9 +53,11 @@ void Frame::updateInheritData( const Compound* compound )
     _inherit = _data;
     if( _inherit.format == eq::Frame::FORMAT_UNDEFINED )
         _inherit.format = compound->getInheritFormat();
+    if( _buffer )
+        _buffer->setFormat( _inherit.format );
 }
 
-void Frame::cycleFrameBuffer( const uint32_t frameNumber, const uint32_t maxAge)
+void Frame::cycleBuffer( const uint32_t frameNumber, const uint32_t maxAge )
 {
 
     // find unused frame buffer
@@ -76,27 +78,29 @@ void Frame::cycleFrameBuffer( const uint32_t frameNumber, const uint32_t maxAge)
     }
 
     buffer->setFrameNumber( frameNumber );
-    buffer->setPixelViewport( _data.pvp );
-    buffer->commit();
     
     _buffers.push_front( buffer );
-    _setFrameBuffer( buffer );
+    _buffer = buffer;
 }
 
 void Frame::setOutputFrame( Frame* frame )
 {
     EQASSERT( frame->_buffer );
-    _setFrameBuffer( frame->_buffer );
+    _buffer = frame->_buffer;
 }
 
-void Frame::_setFrameBuffer( FrameBuffer* buffer )
+const void* Frame::pack( uint64_t* size )
 {
-    _buffer = buffer;
-    if( !buffer )
-        return;
+    if( _buffer )
+    {
+        _buffer->commit();
+        _inherit.buffer.objectID = _buffer->getID();
+        _inherit.buffer.version  = _buffer->getVersion();
+    }
+    else
+        _inherit.buffer.objectID = EQ_ID_INVALID;
 
-    _data.buffer.objectID = buffer->getID();
-    _data.buffer.version  = buffer->getVersion();
+    return Object::pack( size );
 }
 
 std::ostream& eqs::operator << ( std::ostream& os, const Frame* frame )

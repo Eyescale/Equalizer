@@ -32,6 +32,8 @@ namespace eqs
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
 
+        FrameBuffer* getBuffer() const { return _buffer; }
+
         /** 
          * Set the frame's viewport wrt the compound (output frames) or wrt the
          * corresponding output frame (input frames).
@@ -44,31 +46,16 @@ namespace eqs
         const eq::Viewport& getViewport() const { return _vp; }
 
         /** 
-         * Set the pixel viewport of the frame.
-         * 
-         * The pixel viewport is computed during compound update using the
-         * frame's viewport and other parameters. The pixel viewport is the
-         * channel region to be read back (as passed to glReadPixels) for output
-         * frames, or the area to use from the frame buffer (for input frames).
-         */
-        void setPixelViewport( const eq::PixelViewport& pvp ){ _data.pvp = pvp;}
-
-        /** @return the frame's pixel viewport. */
-        const eq::PixelViewport& getPixelViewport() const { return _data.pvp; }
-
-        /** 
          * Set the offset of the frame.
          *
-         * The offset is computed during compound update. The offset for output
-         * frames defines the tile offset, that is, the position of the current
-         * channel wrt the destination channel. The offset for input frames is
-         * the relative tile position of the frame buffer wrt to the current
-         * channel.
+         * The offset is computed during compound update. The offset defines
+         * relative buffer position wrt to the current destination channel of
+         * the source.
          */
-        void setOffset( const vmml::Vector2f& offset ) { _data.offset = offset;}
+        void setOffset( const vmml::Vector2i& offset ) { _data.offset = offset;}
         
         /** @return the frame offset. */
-        const vmml::Vector2f& getOffset() const { return _data.offset; }
+        const vmml::Vector2i& getOffset() const { return _data.offset; }
 
         /** 
          * Set the frame buffer types to be read or write by this frame.
@@ -102,7 +89,7 @@ namespace eqs
          * @param frameNumber the maximum age before frame buffers can be
          *                    recycled.
          */
-        void cycleFrameBuffer( const uint32_t frameNumber, 
+        void cycleBuffer( const uint32_t frameNumber, 
                                const uint32_t maxAge );
 
         /** 
@@ -113,7 +100,7 @@ namespace eqs
         void setOutputFrame( Frame* frame );
 
         /** Unset the frame buffer. */
-        void unsetFrameBuffer() { _setFrameBuffer( NULL ); }
+        void unsetBuffer() { _buffer = NULL; }
 
         /** Reset the frame and delete all frame buffers. */
         void flush();
@@ -121,6 +108,9 @@ namespace eqs
 
     protected:
         virtual ~Frame();
+
+        /** @sa eqNet::Object::pack */
+        virtual const void* pack( uint64_t* size );
 
     private:
         std::string _name;
@@ -137,8 +127,6 @@ namespace eqs
         
         /** Current frame buffer. */
         FrameBuffer* _buffer;
-
-        void _setFrameBuffer( FrameBuffer* buffer );
     };
 
     std::ostream& operator << ( std::ostream& os, const Frame* frame );

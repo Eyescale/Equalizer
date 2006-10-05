@@ -46,6 +46,7 @@ namespace eq
          * @name Data Access
          */
         //*{
+        const vmml::Vector2i& getOffset() const { return _data.offset; }
         //*}
 
         /**
@@ -75,8 +76,7 @@ namespace eq
         /** All distributed Data shared between eq::Frame and eqs::Frame. */
         struct Data
         {
-            PixelViewport        pvp;
-            vmml::Vector2f       offset;
+            vmml::Vector2i       offset;
             Format               format;
             eqNet::ObjectVersion buffer;
         }

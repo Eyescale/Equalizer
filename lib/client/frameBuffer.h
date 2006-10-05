@@ -55,10 +55,11 @@ namespace eq
         /** 
          * Read back a set of images according to the current frame data.
          * 
-         * The newly read images are added to the frame, existing images are
+         * The newly read images are added to the buffer, existing images are
          * retained.
+         * @param frame the corresponding output frame holder.
          */
-        void startReadback( const Frame::Format format );
+        void startReadback( const Frame& frame );
         //*}
 
     protected:
@@ -75,8 +76,9 @@ namespace eq
 
         struct Data
         {
-            PixelViewport pvp;
-            Frame::Format format;
+            PixelViewport  pvp;
+            vmml::Vector2i offset;
+            Frame::Format  format;
         }
             _data;
 

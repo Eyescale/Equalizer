@@ -8,6 +8,7 @@
 #include "config.h"
 #include "log.h"
 #include "frame.h"
+#include "frameBuffer.h"
 #include "swapBarrier.h"
 
 #include <eq/base/base.h>
@@ -422,29 +423,40 @@ void Compound::_updateOutput( UpdateData* data )
         {
             EQWARN << "Multiple output frames of the same name are unsupported"
                    << ", ignoring output frame " << name << endl;
-            frame->unsetFrameBuffer();
+            frame->unsetBuffer();
             continue;
         }
 
         const eq::Viewport& frameVP  = frame->getViewport();
         eq::PixelViewport   framePVP = _inherit.pvp * frameVP;
 
-        frame->setOffset( vmml::Vector2f( framePVP.x, framePVP.y ));
+        // Buffer offset is position of buffer wrt destination view
+        frame->cycleBuffer( frameNumber, latency );
+        FrameBuffer* buffer = frame->getBuffer();
+        EQASSERT( buffer );
+
+        buffer->setOffset( vmml::Vector2i( framePVP.x, framePVP.y ));
 
         EQLOG( LOG_ASSEMBLY )
             << disableFlush << "Output frame \"" << name << "\" on channel \"" 
             << _data.channel->getName() << "\" tile pos " << framePVP.x << ", "
             << framePVP.y;
 
-        if( true /* !use dest channel origin hint set */ )
+        // Buffer pvp is area within channel
+        framePVP.x = (int32_t)(frameVP.x * _inherit.pvp.w);
+        framePVP.y = (int32_t)(frameVP.y * _inherit.pvp.h);
+        buffer->setPixelViewport( framePVP );
+
+        // Frame offset is position wrt window, i.e., the channel position
+        if( false /* use dest channel origin hint set */ )
+            frame->setOffset( vmml::Vector2i( _inherit.pvp.x, _inherit.pvp.y));
+        else
         {
-            framePVP.x = (int32_t)(frameVP.x * _inherit.pvp.w);
-            framePVP.y = (int32_t)(frameVP.y * _inherit.pvp.h);
+            const eq::PixelViewport& nativePVP =
+                _data.channel->getPixelViewport();
+            frame->setOffset( vmml::Vector2i( nativePVP.x, nativePVP.y ));
         }
 
-        frame->setPixelViewport( framePVP );
-        frame->setOffset( vmml::Vector2f( _inherit.pvp.x, _inherit.pvp.y ));
-        frame->cycleFrameBuffer( frameNumber, latency );
         frame->updateInheritData( this );
         frame->commit();
         data->outputFrames[name] = frame;
@@ -496,14 +508,14 @@ void Compound::_updateInput( UpdateData* data )
         {
             EQWARN << "Can't find matching output frame, ignoring input frame "
                    << name << endl;
-            frame->unsetFrameBuffer();
+            frame->unsetBuffer();
             continue;
         }
 
         const Frame*        outputFrame = iter->second;
         const eq::Viewport& frameVP     = frame->getViewport();
         eq::PixelViewport   framePVP    = _inherit.pvp * frameVP;
-        vmml::Vector2f      frameOffset = outputFrame->getOffset();
+        vmml::Vector2i      frameOffset = outputFrame->getOffset();
  
         if( true /* !use dest channel origin hint set */ )
         {
@@ -519,7 +531,7 @@ void Compound::_updateInput( UpdateData* data )
         framePVP.y = (int32_t)(frameVP.y * _inherit.pvp.h);
 
         frame->setOffset( frameOffset );
-        frame->setPixelViewport( framePVP );
+        //frame->setPixelViewport( framePVP );
         frame->setOutputFrame( iter->second );
         frame->updateInheritData( this );
         frame->commit();
@@ -594,7 +606,7 @@ void Compound::_setupRenderContext( eq::RenderContext& context,
     const Channel* channel = data->channel;
     context.drawBuffer = _getDrawBuffer( data );
 
-    if( true /* use dest channel origin hint set */ )
+    if( true /* !use dest channel origin hint set */ )
     {
         const eq::PixelViewport& nativePVP = channel->getPixelViewport();
         context.pvp.x = nativePVP.x;
@@ -746,12 +758,12 @@ void Compound::_updatePostDraw( eq::RenderContext& context )
             Node*                     node    = channel->getNode();
             RefPtr<eqNet::Node>       netNode = node->getNode();
             eq::ChannelReadbackPacket packet;
-
+            
             packet.sessionID = channel->getSession()->getID();
             packet.objectID  = channel->getID();;
             packet.context   = context;
             packet.nFrames   = frames.size();
-
+            
             netNode->send<eqNet::ObjectVersion>( packet, frames );
         }
     }
