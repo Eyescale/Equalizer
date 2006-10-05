@@ -43,6 +43,9 @@ namespace eq
          */
         //*{
         void startReadback( const PixelViewport& pvp );
+        
+        /** Writes the pixel data as an .rgb image file. */
+        void writeImage( const std::string& filename );
         //*}
 
     private:
@@ -53,11 +56,17 @@ namespace eq
         }
             _data;
 
+        /** The rectangle of the current pixels data. */
+        PixelViewport _pvp;
+
         /** Raw image data. */
         std::vector<uint8_t> _pixels;
 
         /** The image frame buffer type. */
         const Frame::Format  _format;
+
+        friend std::ostream& operator << ( std::ostream& os, const Image* );
     };
+    std::ostream& operator << ( std::ostream& os, const Image* image );
 };
 #endif // EQ_IMAGE_H

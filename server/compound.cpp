@@ -443,6 +443,7 @@ void Compound::_updateOutput( UpdateData* data )
         }
 
         frame->setPixelViewport( framePVP );
+        frame->setOffset( vmml::Vector2f( _inherit.pvp.x, _inherit.pvp.y ));
         frame->cycleFrameBuffer( frameNumber, latency );
         frame->updateInheritData( this );
         frame->commit();
@@ -683,23 +684,6 @@ void Compound::_computeFrustum( eq::Frustum& frustum, float headTransform[16],
         frustum.top    =  (  view.height/2. + eye[1] ) * ratio;
         frustum.bottom =  ( -view.height/2. + eye[1] ) * ratio;
     }
-#if 0
-    if( eye[2] > 0 )
-    {
-        frustum.left   = -( view.width/2.  - eye[0] ) * ratio;
-        frustum.right  =  ( view.width/2.  + eye[0] ) * ratio;
-        frustum.top    =  ( view.height/2. + eye[1] ) * ratio;
-        frustum.bottom = -( view.height/2. - eye[1] ) * ratio;
-    }
-    else // eye behind near plane - 'mirror' x
-    {
-        frustum.left   =  ( view.width/2.  + eye[0] ) * ratio;
-        frustum.right  = -( view.width/2.  - eye[0] ) * ratio;
-        frustum.top    =  ( view.height/2. + eye[1] ) * ratio;
-        frustum.bottom = -( view.height/2. - eye[1] ) * ratio;
-        //top und bottom identical to eye[2] > 0, only x mirrored
-    }
-#endif
 
     // adjust to viewport (screen-space decomposition)
     // Note: may need to be computed in pvp space to avoid rounding problems
