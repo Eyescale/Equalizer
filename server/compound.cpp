@@ -30,7 +30,6 @@ Compound::Compound()
           _tasks( TASK_ALL ),
           _swapBarrier( NULL )
 {
-    _data.eyes = EYE_UNDEFINED;
 }
 
 // copy constructor
@@ -63,7 +62,8 @@ Compound::Compound( const Compound& from )
 
 Compound::InheritData::InheritData()
         : channel( NULL ),
-          format( eq::Frame::FORMAT_UNDEFINED )
+          format( eq::Frame::FORMAT_UNDEFINED ),
+          eyes( EYE_UNDEFINED )
 {}
 
 void Compound::addChild( Compound* child )
@@ -370,13 +370,13 @@ void Compound::_updateInheritData()
     {
         _inherit = _data;
 
-        if( _data.eyes == EYE_UNDEFINED )
+        if( _inherit.eyes == EYE_UNDEFINED )
             _inherit.eyes = EYE_CYCLOP;
 
         if( _inherit.channel )
             _inherit.pvp = _inherit.channel->getPixelViewport();
 
-        if( _data.format == eq::Frame::FORMAT_UNDEFINED )
+        if( _inherit.format == eq::Frame::FORMAT_UNDEFINED )
             _inherit.format = eq::Frame::FORMAT_COLOR;
         return;
     }
@@ -392,7 +392,7 @@ void Compound::_updateInheritData()
     _inherit.vp    *= _data.vp;
     _inherit.range *= _data.range;
 
-    if( _inherit.eyes != EYE_UNDEFINED )
+    if( _data.eyes != EYE_UNDEFINED )
         _inherit.eyes = _data.eyes;
    
     if( _inherit.pvp.isValid( ))

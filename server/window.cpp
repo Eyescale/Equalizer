@@ -92,6 +92,7 @@ void eqs::Window::setPixelViewport( const eq::PixelViewport& pvp )
         return;
 
     _pvp = pvp;
+    _vp.invalidate();
 
     if( _pipe )
     {

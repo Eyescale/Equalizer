@@ -1,0 +1,65 @@
+# single-window config simulating a 3-sided cave
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 50 300 1200 300 ]
+                    channel 
+                    {
+                        viewport [ 0 0 400 300 ]
+                        name "channel-left"
+                    }
+                    channel 
+                    {
+                        viewport [ 400 0 400 300 ]
+                        name "channel-middle"
+                    }
+                    channel 
+                    {
+                        viewport [ 800 0 400 300 ]
+                        name "channel-right"
+                    }
+                }
+            }
+        }
+        compound
+        {
+            compound
+            { 
+                channel "channel-left"
+                wall
+                {
+                    bottom_left  [ -1 -1  1 ]
+                    bottom_right [ -1 -1 -1 ]
+                    top_left     [ -1  1  1 ]
+                }
+            }
+            compound
+            {
+                channel "channel-middle"
+                wall
+                {
+                    bottom_left  [ -1 -1 -1 ]
+                    bottom_right [  1 -1 -1 ]
+                    top_left     [ -1  1 -1 ]
+                }
+            }
+            compound
+            { 
+                channel "channel-right"
+                wall
+                {
+                    bottom_left  [ 1 -1 -1 ]
+                    bottom_right [ 1 -1  1 ]
+                    top_left     [ 1  1 -1 ]
+                }
+            }
+        }
+    }    
+}

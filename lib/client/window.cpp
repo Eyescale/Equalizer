@@ -367,8 +367,8 @@ bool eq::Window::initGL( const uint32_t initID )
     glColorMaterial( GL_FRONT_AND_BACK, GL_DIFFUSE );
     glEnable( GL_COLOR_MATERIAL );
 
-    glClearDepth( 1. );
-    glClearColor( .7, .5, .5, 1. );
+    glClearDepth( 1.f );
+    glClearColor( .7f, .5f, .5f, 1.f );
 
     glClear( GL_COLOR_BUFFER_BIT );
     swapBuffers();

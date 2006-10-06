@@ -1,34 +1,41 @@
+# single-window config simulating a 5-sided cave
 server
 {
     config
     {
-        node
+        appNode
         {
-            connection
-            {
-                 hostname        "localhost"
-            }
             pipe
             {
-#                display 30
                 window
                 {
-                    viewport [ 50 300 1200 300 ]
+                    viewport [ 10 10 980 980 ]
                     channel 
                     {
-                        viewport [ 0 0 400 300 ]
+                        viewport [ 0 .333 .333 .333 ]
                         name "channel-left"
                     }
                     channel 
                     {
-                        viewport [ 400 0 400 300 ]
+                        viewport [ .333 .333 .333 .333 ]
                         name "channel-middle"
                     }
                     channel 
                     {
-                        viewport [ 800 0 400 300 ]
+                        viewport [ .666 .333 .333 .333 ]
                         name "channel-right"
                     }
+                    channel 
+                    {
+                        viewport [ .333 .666 .333 .333 ]
+                        name "channel-top"
+                    }
+                    channel 
+                    {
+                        viewport [ .333 0 .333 .333 ]
+                        name "channel-bottom"
+                    }
+                    channel { name "channel" }
                 }
             }
         }
@@ -64,6 +71,27 @@ server
                     top_left     [ 1  1 -1 ]
                 }
             }
+            compound
+            {
+                channel "channel-bottom"
+                wall
+                {
+                    bottom_left  [ -1  1  1 ]
+                    bottom_right [  1  1  1 ]
+                    top_left     [ -1  1 -1 ]
+                }
+            }
+            compound
+            { 
+                channel "channel-top"
+                wall
+                {
+                    bottom_left  [ -1 -1 -1 ]
+                    bottom_right [  1 -1 -1 ]
+                    top_left     [ -1 -1  1 ]
+                }
+            }
+            compound { channel "channel" task [ READBACK ] outputframe{} }
         }
     }    
 }
