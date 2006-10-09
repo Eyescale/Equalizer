@@ -46,6 +46,7 @@ void Frame::flush()
         _buffers.pop_front();
     }
     _buffer = NULL;
+    _inputFrames.clear();
 }
 
 void Frame::updateInheritData( const Compound* compound )
@@ -59,7 +60,6 @@ void Frame::updateInheritData( const Compound* compound )
 
 void Frame::cycleBuffer( const uint32_t frameNumber, const uint32_t maxAge )
 {
-
     // find unused frame buffer
     FrameBuffer* buffer = _buffers.empty() ? NULL : _buffers.back();
     
@@ -75,18 +75,21 @@ void Frame::cycleBuffer( const uint32_t frameNumber, const uint32_t maxAge )
         EQASSERT( session );
 
         session->registerObject( buffer, session->getLocalNode( ));
+        buffer->setAutoObsolete( getAutoObsoleteCount( ));
     }
 
     buffer->setFrameNumber( frameNumber );
     
     _buffers.push_front( buffer );
     _buffer = buffer;
+    _inputFrames.clear();
 }
 
-void Frame::setOutputFrame( Frame* frame )
+void Frame::addInputFrame( Frame* frame )
 {
-    EQASSERT( frame->_buffer );
-    _buffer = frame->_buffer;
+    EQASSERT( _buffer );
+    frame->_buffer = _buffer;
+    _inputFrames.push_back( frame );
 }
 
 const void* Frame::pack( uint64_t* size )

@@ -109,7 +109,7 @@ namespace eqNet
          * @param master the master node for the block of identifiers.
          */
         void setIDMaster( const uint32_t start, const uint32_t range, 
-                          eqBase::RefPtr<Node> master );
+                          const NodeID& master );
 
         /** 
          * Delete the master node for a block of identifiers.
@@ -120,13 +120,13 @@ namespace eqNet
         void unsetIDMaster( const uint32_t start, const uint32_t range );
 
         /** 
-         * Returns the master node for an identifier.
+         * Returns the master node id for an identifier.
          * 
          * @param id the identifier.
-         * @return the master node, or an invalid RefPtr if no master node is
+         * @return the master node, or Node::ZERO if no master node is
          *         set for the identifier.
          */
-        eqBase::RefPtr<Node> getIDMaster( const uint32_t id );
+        const NodeID& getIDMaster( const uint32_t id );
         //*}
 
         /**
@@ -271,7 +271,7 @@ namespace eqNet
         {
             uint32_t                            start;
             uint32_t                            end;
-            eqBase::RefPtr<Node>                master;
+            NodeID                              master;
             std::vector< eqBase::RefPtr<Node> > slaves;
         };
         /** The id->master mapping table. */
@@ -304,7 +304,8 @@ namespace eqNet
         };
         IDHash<GetObjectState*> _objectInstStates;
 
-        eqBase::RefPtr<Node> _pollIDMaster( const uint32_t id );
+        const NodeID& _pollIDMaster( const uint32_t id ) const;
+        eqBase::RefPtr<Node> _pollIDMasterNode( const uint32_t id ) const;
 
         void _registerThreadObject( Object* object, const uint32_t id );
 

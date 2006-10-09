@@ -22,6 +22,7 @@ Frame::Frame( const void* data, uint64_t dataSize )
 
 FrameBuffer* Frame::_getBuffer()
 {
+    EQASSERT( _data.buffer.objectID != EQ_ID_INVALID );
     if( !_buffer )
     {
         eqNet::Session* session = getSession();

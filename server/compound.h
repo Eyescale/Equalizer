@@ -457,7 +457,8 @@ namespace eqs
 
         static TraverseResult _updateDrawCB(Compound* compound, void* );
         static TraverseResult _updatePostDrawCB( Compound* compound, void* );
-        void _updatePostDraw( eq::RenderContext& context );
+        void _updatePostDraw( const eq::RenderContext& context );
+        void   _updateReadback( const eq::RenderContext& context );
         void _setupRenderContext( eq::RenderContext& context, 
                                   const UpdateChannelData* data );
         GLenum _getDrawBuffer( const UpdateChannelData* data );

@@ -27,8 +27,6 @@ namespace eqNet
             { generate ? uuid_generate( _id ) : uuid_clear( _id ); }
         NodeID( const NodeID& from ) { uuid_copy( _id, from._id ); }
 
-        void setNull(){ uuid_clear( _id ); }
-
         NodeID& operator = ( const NodeID& from )
             {
                 uuid_copy( _id, from._id );
@@ -46,6 +44,8 @@ namespace eqNet
             { return uuid_compare( _id, rhs._id ) > 0; }
 
         bool operator ! () const { return uuid_is_null( _id ); }
+
+        static const NodeID ZERO;
 
     private:
         uuid_t _id;

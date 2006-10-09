@@ -512,7 +512,7 @@ void Compound::_updateInput( UpdateData* data )
             continue;
         }
 
-        const Frame*        outputFrame = iter->second;
+        Frame*              outputFrame = iter->second;
         const eq::Viewport& frameVP     = frame->getViewport();
         eq::PixelViewport   framePVP    = _inherit.pvp * frameVP;
         vmml::Vector2i      frameOffset = outputFrame->getOffset();
@@ -532,7 +532,7 @@ void Compound::_updateInput( UpdateData* data )
 
         frame->setOffset( frameOffset );
         //frame->setPixelViewport( framePVP );
-        frame->setOutputFrame( iter->second );
+        outputFrame->addInputFrame( frame );
         frame->updateInheritData( this );
         frame->commit();
 
@@ -573,6 +573,7 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
 
     eq::RenderContext context;
     compound->_setupRenderContext( context, data );
+    // OPT: Send render context once before task packets?
 
     if( compound->testTask( TASK_CLEAR ))
     {
@@ -624,8 +625,8 @@ GLenum Compound::_getDrawBuffer( const UpdateChannelData* data )
     {    
         if( drawableConfig.doublebuffered )
             return GL_BACK;
-        else
-            return GL_FRONT;
+        // else singlebuffered
+        return GL_FRONT;
     }
     else
     {
@@ -644,20 +645,18 @@ GLenum Compound::_getDrawBuffer( const UpdateChannelData* data )
                     break;
             }
         }
-        else
+        // else singlebuffered
+        switch( data->eye )
         {
-            switch( data->eye )
-            {
-                case Compound::EYE_LEFT:
-                    return GL_FRONT_LEFT;
-                    break;
-                case Compound::EYE_RIGHT:
-                    return GL_FRONT_RIGHT;
-                    break;
-                default:
-                    return GL_FRONT;
-                    break;
-            }
+            case Compound::EYE_LEFT:
+                return GL_FRONT_LEFT;
+                break;
+            case Compound::EYE_RIGHT:
+                return GL_FRONT_RIGHT;
+                break;
+            default:
+                return GL_FRONT;
+                break;
         }
     }
 }
@@ -739,34 +738,75 @@ TraverseResult Compound::_updatePostDrawCB( Compound* compound, void* userData )
     return TRAVERSE_CONTINUE;
 }
 
-void Compound::_updatePostDraw( eq::RenderContext& context )
+void Compound::_updatePostDraw( const eq::RenderContext& context )
 {
-    if( testTask( TASK_READBACK ) && !_outputFrames.empty( ))
+    //_updateAssemble( context );
+    _updateReadback( context );
+}
+
+void Compound::_updateReadback( const eq::RenderContext& context )
+{
+    if( !testTask( TASK_READBACK ) || _outputFrames.empty( ))
+        return;
+
+    vector<Frame*>               frames;
+    vector<eqNet::ObjectVersion> frameIDs;
+    for( vector<Frame*>::const_iterator iter = _outputFrames.begin(); 
+         iter != _outputFrames.end(); ++iter )
     {
-        vector<eqNet::ObjectVersion> frames;
-        for( vector<Frame*>::iterator iter = _outputFrames.begin(); 
-             iter != _outputFrames.end(); ++iter )
+        Frame* frame = *iter;
+        // TODO: filter: format, vp, eye
+        frames.push_back( frame );
+        frameIDs.push_back( eqNet::ObjectVersion( frame ));
+    }
+
+    if( frames.empty() )
+        return;
+
+    // readback task
+    Channel*                  channel = _inherit.channel;
+    Node*                     node    = channel->getNode();
+    RefPtr<eqNet::Node>       netNode = node->getNode();
+    eq::ChannelReadbackPacket packet;
+    
+    packet.sessionID = channel->getSession()->getID();
+    packet.objectID  = channel->getID();
+    packet.context   = context;
+    packet.nFrames   = frames.size();
+            
+    netNode->send<eqNet::ObjectVersion>( packet, frameIDs );
+    
+    // transmit tasks
+    for( vector<Frame*>::const_iterator iter = frames.begin();
+         iter != frames.end(); ++iter )
+    {
+        Frame* frame = *iter;
+
+        const vector<Frame*>& inputFrames = frame->getInputFrames();
+        vector<eqNet::NodeID> nodeIDs;
+        for( vector<Frame*>::const_iterator iter = inputFrames.begin();
+             iter != inputFrames.end(); ++iter )
         {
-            Frame* frame = *iter;
-            // TODO: filter
-            frames.push_back( eqNet::ObjectVersion( frame ));
+            const Frame* frame   = *iter;
+            // TODO: filter: format, vp, eye
+
+            eqNet::Session*      session = frame->getSession();
+            const eqNet::NodeID& nodeID  = session->getIDMaster(frame->getID());
+            nodeIDs.push_back( nodeID );
         }
 
-        if( !frames.empty() )
-        {
-            Channel*                  channel = _inherit.channel;
-            Node*                     node    = channel->getNode();
-            RefPtr<eqNet::Node>       netNode = node->getNode();
-            eq::ChannelReadbackPacket packet;
-            
-            packet.sessionID = channel->getSession()->getID();
-            packet.objectID  = channel->getID();;
-            packet.context   = context;
-            packet.nFrames   = frames.size();
-            
-            netNode->send<eqNet::ObjectVersion>( packet, frames );
-        }
-    }
+        if( nodeIDs.empty( ))
+            continue;
+
+        eq::ChannelTransmitPacket transmitPacket;
+        transmitPacket.sessionID = packet.sessionID;
+        transmitPacket.objectID  = packet.objectID;
+        transmitPacket.context   = context;
+        transmitPacket.frame     = eqNet::ObjectVersion( frame );
+        transmitPacket.nNodes    = nodeIDs.size();
+
+        netNode->send<eqNet::NodeID>( transmitPacket, nodeIDs );
+    }        
 }
 
 std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)

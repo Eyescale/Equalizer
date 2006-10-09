@@ -83,21 +83,22 @@ namespace eqs
         /** 
          * Cycle the current FrameBuffer.
          * 
-         * Used for output frames.
+         * Used for output frames to allocate/recycle a frame buffer. Also
+         * clears the list of input frames.
          *
          * @param frameNumber the current frame number.
-         * @param frameNumber the maximum age before frame buffers can be
-         *                    recycled.
+         * @param maxAge the maximum age before frame buffers can be recycled.
          */
-        void cycleBuffer( const uint32_t frameNumber, 
-                               const uint32_t maxAge );
+        void cycleBuffer( const uint32_t frameNumber, const uint32_t maxAge );
 
         /** 
-         * Set the output frame for this (input) frame.
+         * Add an input frame to this (output) frame
          * 
-         * @param frame the corresponding output frame.
+         * @param frame the input frame.
          */
-        void setOutputFrame( Frame* frame );
+        void addInputFrame( Frame* frame );
+        /** @return the vector of current input frames. */
+        const std::vector<Frame*> getInputFrames() const { return _inputFrames;}
 
         /** Unset the frame buffer. */
         void unsetBuffer() { _buffer = NULL; }
@@ -127,6 +128,9 @@ namespace eqs
         
         /** Current frame buffer. */
         FrameBuffer* _buffer;
+
+        /** Vector of current input frames. */
+        std::vector<Frame*> _inputFrames;
     };
 
     std::ostream& operator << ( std::ostream& os, const Frame* frame );

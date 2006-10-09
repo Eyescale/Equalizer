@@ -106,6 +106,7 @@ SOURCES = \
 	net/init.cpp \
 	net/launcher.cpp \
 	net/node.cpp \
+	net/nodeID.cpp \
 	net/object.cpp \
 	net/pipeConnection.cpp \
 	net/requestCache.cpp \

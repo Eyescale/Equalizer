@@ -115,10 +115,8 @@ void Session::freeIDs( const uint32_t start, const uint32_t range )
 // identifier master node mapping
 //---------------------------------------------------------------------------
 void Session::setIDMaster( const uint32_t start, const uint32_t range, 
-                           RefPtr<Node> master )
+                           const NodeID& master )
 {
-    EQASSERT( master->checkConnection( ));
-
     IDMasterInfo info = { start, start+range, master };
     _idMasterInfos.push_back( info );
 
@@ -128,28 +126,34 @@ void Session::setIDMaster( const uint32_t start, const uint32_t range,
     SessionSetIDMasterPacket packet;
     packet.start    = start;
     packet.range    = range;
-    packet.masterID = master->getNodeID();
+    packet.masterID = master;
 
     send( packet );
 }
 
-RefPtr<Node> Session::_pollIDMaster( const uint32_t id )
+const NodeID& Session::_pollIDMaster( const uint32_t id ) const 
 {
-    const uint32_t nInfos = _idMasterInfos.size();
-    for( uint32_t i=0; i<nInfos; ++i )
+    for( vector<IDMasterInfo>::const_iterator iter = _idMasterInfos.begin();
+         iter != _idMasterInfos.end(); ++iter )
     {
-        const IDMasterInfo& info = _idMasterInfos[i];
+        const IDMasterInfo& info = *iter;
         if( id >= info.start && id < info.end )
             return info.master;
     }
-    return NULL;
+    return NodeID::ZERO;
 }
 
-RefPtr<Node> Session::getIDMaster( const uint32_t id )
+RefPtr<Node> Session::_pollIDMasterNode( const uint32_t id ) const
 {
-    RefPtr<Node> master = _pollIDMaster( id );
+    const NodeID& nodeID = _pollIDMaster( id );
+    return _localNode->getNode( nodeID );
+}
+
+const NodeID& Session::getIDMaster( const uint32_t id )
+{
+    const NodeID& master = _pollIDMaster( id );
         
-    if( master.isValid() || _isMaster )
+    if( !master || _isMaster )
         return master;
 
     // ask session master instance
@@ -158,7 +162,8 @@ RefPtr<Node> Session::getIDMaster( const uint32_t id )
     packet.id        = id;
 
     send( packet );
-    return (Node*)_requestHandler.waitRequest( packet.requestID );
+    _requestHandler.waitRequest( packet.requestID );
+    return _pollIDMaster( id );
 }
 
 //---------------------------------------------------------------------------
@@ -302,7 +307,7 @@ void Session::registerObject( Object* object, RefPtr<Node> master,
     if( object->getTypeID() != Object::TYPE_UNMANAGED )
     {
         EQASSERT( master.isValid( ));
-        setIDMaster( id, 1, master );
+        setIDMaster( id, 1, master->getNodeID( ));
     }
 
     const bool threadSafe = ( ts==Object::CS_SAFE || 
@@ -569,7 +574,7 @@ CommandResult Session::_instObject( GetObjectState* state )
     {
         case Object::INST_UNKNOWN:
         {
-            RefPtr<Node> master = _pollIDMaster( objectID );
+            RefPtr<Node> master = _pollIDMasterNode( objectID );
             if( master.isValid( ))
             {
                 EQLOG( LOG_OBJECTS ) << "instObject id " << objectID
@@ -598,7 +603,7 @@ CommandResult Session::_instObject( GetObjectState* state )
         
         case Object::INST_GOTMASTER:
         {
-            RefPtr<Node> master = _pollIDMaster( objectID );
+            RefPtr<Node> master = _pollIDMasterNode( objectID );
             if( !master )
             {
                 EQLOG( LOG_OBJECTS ) << "instObject id " << objectID
@@ -664,11 +669,9 @@ CommandResult Session::_cmdSetIDMaster( Node* node, const Packet* pkg )
     SessionSetIDMasterPacket* packet = (SessionSetIDMasterPacket*)pkg;
     EQINFO << "Cmd set ID master: " << packet << endl;
 
-    RefPtr<Node> master = _localNode->getNode( packet->masterID );
-    EQASSERT( master.isValid( ));
-
     // TODO thread-safety: _idMasterInfos is also read & written by app
-    IDMasterInfo info = { packet->start, packet->start + packet->range, master};
+    IDMasterInfo info = { packet->start, packet->start + packet->range, 
+                          packet->masterID };
     info.slaves.push_back( node );
     _idMasterInfos.push_back( info );
 
@@ -684,15 +687,16 @@ CommandResult Session::_cmdGetIDMaster( Node* node, const Packet* pkg )
     reply.start = 0;
 
     // TODO thread-safety: _idMasterInfos is also read & written by app
+    const uint32_t id     = packet->id;
     const uint32_t nInfos = _idMasterInfos.size();
     for( uint32_t i=0; i<nInfos; ++i )
     {
         IDMasterInfo& info = _idMasterInfos[i];
-        if( packet->id >= info.start && packet->id < info.end )
+        if( id >= info.start && id < info.end )
         {
             reply.start    = info.start;
             reply.end      = info.end;
-            reply.masterID = info.master->getNodeID();
+            reply.masterID = info.master;
 
             info.slaves.push_back( node );
             break;
@@ -714,19 +718,11 @@ CommandResult Session::_cmdGetIDMasterReply( Node* node, const Packet* pkg )
         return COMMAND_HANDLED;
     }
 
-    RefPtr<Node> master = _localNode->getNode( packet->masterID );
-
-    if( !master )
-    {
-        // TODO: query connection description, create and connect node
-        EQUNIMPLEMENTED;
-    }
-
     // TODO thread-safety: _idMasterInfos is also read & written by app
-    IDMasterInfo info = { packet->start, packet->end, master};
+    IDMasterInfo info = { packet->start, packet->end, packet->masterID };
     _idMasterInfos.push_back( info );
 
-    _requestHandler.serveRequest( packet->requestID, master.get( ));
+    _requestHandler.serveRequest( packet->requestID, NULL );
     return COMMAND_HANDLED;
 }
 
@@ -748,7 +744,7 @@ CommandResult Session::_cmdGetObjectMaster( Node* node, const Packet* pkg )
         {
             reply.start    = info.start;
             reply.end      = info.end;
-            reply.masterID = info.master->getNodeID();
+            reply.masterID = info.master;
 
             info.slaves.push_back( node );
             break;
@@ -824,7 +820,7 @@ CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
     EQASSERT( master.isValid( ));
 
     // TODO thread-safety: _idMasterInfos is also read & written by app
-    IDMasterInfo info = { packet->start, packet->end, master};
+    IDMasterInfo info = { packet->start, packet->end, packet->masterID };
     _idMasterInfos.push_back( info );
     
     state->instState = Object::INST_GOTMASTER;

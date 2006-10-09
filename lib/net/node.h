@@ -137,7 +137,7 @@ namespace eqNet
          * @param id the node identifier.
          * @return the node.
          */
-        eqBase::RefPtr<Node> getNode( const NodeID& id ){ return _nodes[id]; }
+        eqBase::RefPtr<Node> getNode( const NodeID& id ) const;
 
         /** 
          * Connect and potentially launch this node using to the available

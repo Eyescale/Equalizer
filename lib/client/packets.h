@@ -616,6 +616,19 @@ namespace eq
         eqNet::ObjectVersion frames[1];
     };
         
+    struct ChannelTransmitPacket : public ChannelTaskPacket
+    {
+        ChannelTransmitPacket()
+            {
+                command       = CMD_CHANNEL_TRANSMIT;
+                size          = sizeof( ChannelTransmitPacket );
+            }
+
+        
+        eqNet::ObjectVersion frame;
+        uint32_t             nNodes;
+        eqNet::NodeID        nodes[1];
+    };
 
     //------------------------------------------------------------
     // Event Thread

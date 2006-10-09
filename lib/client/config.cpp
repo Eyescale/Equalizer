@@ -45,8 +45,8 @@ Config::Config( const uint32_t nCommands )
 
 Config::~Config()
 {
-    _appNodeID.setNull();
-    _appNode = NULL;
+    _appNodeID = eqNet::NodeID::ZERO;
+    _appNode   = NULL;
 }
 void Config::_addNode( Node* node )
 {

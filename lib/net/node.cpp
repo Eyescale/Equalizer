@@ -295,6 +295,14 @@ NodeConnectPacket* Node::_readConnectReply( RefPtr<Connection> connection )
     return reply;
 }
 
+eqBase::RefPtr<Node> Node::getNode( const NodeID& id ) const
+{ 
+    NodeIDHash< eqBase::RefPtr<Node> >::const_iterator iter = _nodes.find( id );
+    if( iter == _nodes.end( ))
+        return NULL;
+    return iter->second;
+}
+
 void Node::setLocalNode( RefPtr<Node> node )
 {
     // manual ref/unref to keep correct reference count

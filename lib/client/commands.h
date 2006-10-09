@@ -117,6 +117,8 @@ namespace eq
         REQ_CHANNEL_DRAW,
         CMD_CHANNEL_READBACK,
         REQ_CHANNEL_READBACK,
+        CMD_CHANNEL_TRANSMIT,
+        REQ_CHANNEL_TRANSMIT,
         CMD_CHANNEL_CUSTOM
     };
 

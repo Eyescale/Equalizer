@@ -187,6 +187,9 @@ namespace eqNet
                            const uint32_t flags = AUTO_OBSOLETE_COUNT_VERSIONS )
             { _nVersions = count; _obsoleteFlags = flags; }
 
+        /** @return get the number of versions this object retains. */
+        uint32_t getAutoObsoleteCount() const { return _nVersions; }
+
         /** 
          * Sync to a given version.
          *
