@@ -498,7 +498,7 @@ std::string Pipe::getXDisplayString()
 bool Pipe::initCGL()
 {
 #ifdef CGL
-    const uint32_t    display   = getDisplay();
+    const uint32_t    display   = getScreen();
     CGDirectDisplayID displayID = CGMainDisplayID();
 
     if( display != EQ_UNDEFINED_UINT32 )

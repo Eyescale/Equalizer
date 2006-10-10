@@ -57,8 +57,7 @@ namespace eq
          * Returns the display number of this pipe.
          * 
          * The display number identifies the X server for systems using the
-         * X11/GLX window system, or the number of the display for the CGL
-         * window system. It has no meaning on Windows systems.
+         * X11/GLX window system. It currently has no meaning on other systems.
          *
          * @return the display number of this pipe, or 
          *         <code>EQ_UNDEFINED_UINT</code>.
@@ -69,9 +68,9 @@ namespace eq
          * Returns the screen number of this pipe.
          * 
          * The screen number identifies the X screen for systems using the
-         * X11/GLX window system. Normally the screen identifies a graphics
-         * adapter. On Windows systems it identifies the graphics adapter. It
-         * has no meaning for CGL window systems.
+         * X11/GLX window system, or the number of the display for the CGL
+         * window system. On Windows systems it identifies the graphics adapter.
+         * Normally the screen identifies a graphics adapter.
          *
          * @return the screen number of this pipe, or 
          *         <code>EQ_UNDEFINED_UINT</code>.
