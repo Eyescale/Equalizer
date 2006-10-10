@@ -44,3 +44,13 @@ void Frame::startReadback()
 {
     _getBuffer()->startReadback( *this );
 }
+
+void Frame::syncReadback() 
+{
+    _getBuffer()->syncReadback();
+}
+
+void Frame::transmit( eqBase::RefPtr<eqNet::Node> toNode )
+{
+    _getBuffer()->transmit( toNode );
+}

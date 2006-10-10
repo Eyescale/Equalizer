@@ -14,6 +14,7 @@
 #include "renderContext.h"
 
 using namespace eq;
+using namespace eqBase;
 using namespace std;
 
 Channel::Channel()
@@ -43,6 +44,10 @@ Channel::Channel()
                          &eq::Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_READBACK, this, reinterpret_cast<CommandFcn>( 
                          &eq::Channel::_reqReadback ));
+    registerCommand( CMD_CHANNEL_TRANSMIT, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Channel::_pushCommand ));
+    registerCommand( REQ_CHANNEL_TRANSMIT, this, reinterpret_cast<CommandFcn>( 
+                         &eq::Channel::_reqTransmit ));
 }
 
 Channel::~Channel()
@@ -296,5 +301,31 @@ eqNet::CommandResult Channel::_reqReadback( eqNet::Node* node,
 
     _outputFrames.clear();
     _context = NULL;
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Channel::_reqTransmit( eqNet::Node* node,
+                                            const eqNet::Packet* pkg )
+{
+    ChannelTransmitPacket* packet = (ChannelTransmitPacket*)pkg;
+    EQVERB << "handle channel transmit " << packet << endl;
+
+    eqNet::Session*     session   = getSession();
+    RefPtr<eqNet::Node> localNode = session->getLocalNode();
+    RefPtr<eqNet::Node> server    = session->getServer();
+    eqNet::Object*      object    = session->getObject( packet->frame.objectID,
+                                                        Object::SHARE_THREAD,
+                                                        packet->frame.version );
+    EQASSERT( dynamic_cast<Frame*>( object ));
+    Frame* frame = static_cast<Frame*>( object );
+    frame->syncReadback();
+
+    for( uint32_t i=0; i<packet->nNodes; ++i )
+    {
+        eqNet::NodeID&       nodeID = packet->nodes[i];
+        RefPtr<eqNet::Node>  toNode = localNode->connect( nodeID, node );
+        frame->transmit( toNode );
+    }
+
     return eqNet::COMMAND_HANDLED;
 }

@@ -62,13 +62,17 @@ void Image::startReadback( const PixelViewport& pvp )
 
     glReadPixels( pvp.x, pvp.y, pvp.w, pvp.h, getFormat(), getType(),
                   &_pixels[0] );
-    _pvp = pvp;
+    _pvp   = pvp;
+    _pvp.x = 0;
+    _pvp.y = 0;
 
+#if 0
     // XXX remove me
     static size_t counter = 0;
     ostringstream  filename;
     filename << "eqImage" << ++counter << ".rgb";
     writeImage( filename.str( ));
+#endif
 }
 
 void Image::writeImage( const std::string& filename )

@@ -7,6 +7,7 @@
 #include "commands.h"
 #include "image.h"
 #include "object.h"
+#include "packets.h"
 
 #include <eq/net/session.h>
 #include <algorithm>
@@ -97,5 +98,36 @@ void FrameBuffer::startReadback( const Frame& frame )
         Image* image = newImage( Frame::FORMAT_COLOR );
         image->startReadback( absPVP );
     }
+    if( _data.format & Frame::FORMAT_DEPTH )
+    {
+        Image* image = newImage( Frame::FORMAT_DEPTH );
+        image->startReadback( absPVP );
+    }
+}
+
+void FrameBuffer::syncReadback()
+{
+    // TODO: setReady
+}
+
+void FrameBuffer::transmit( eqBase::RefPtr<eqNet::Node> toNode )
+{
+    FrameBufferTransmitPacket packet;
+    packet.sessionID = getSession()->getID();
+    packet.objectID  = getID();
+
+    if( _data.format & Frame::FORMAT_COLOR )
+    {
+        for( vector<Image*>::const_iterator iter = _images[INDEX_COLOR].begin();
+             iter != _images[INDEX_COLOR].end(); ++iter )
+        {
+            const Image*           image = *iter;
+            const vector<uint8_t>& data  = image->getPixelData();
+
+            packet.pvp = image->getPixelViewport();
+            toNode->send<uint8_t>( packet, data );
+        }
+    }
+    
 }
 

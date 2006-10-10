@@ -187,7 +187,7 @@ namespace eqNet
          *         not be connected.
          */
         eqBase::RefPtr<Node> connect( NodeID& nodeID,
-                                      eqBase::RefPtr<Node> server);
+                                      eqBase::RefPtr<Node> server );
 
         /** 
          * Disconnect this node.

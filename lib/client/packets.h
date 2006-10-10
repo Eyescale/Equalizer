@@ -6,6 +6,7 @@
 #define EQ_PACKETS_H
 
 #include <eq/client/commands.h>
+#include <eq/client/frame.h>
 #include <eq/client/pixelViewport.h>
 #include <eq/client/renderContext.h>
 #include <eq/client/viewport.h>
@@ -616,7 +617,7 @@ namespace eq
         eqNet::ObjectVersion frames[1];
     };
         
-    struct ChannelTransmitPacket : public ChannelTaskPacket
+    struct ChannelTransmitPacket : public eqNet::ObjectPacket
     {
         ChannelTransmitPacket()
             {
@@ -628,6 +629,22 @@ namespace eq
         eqNet::ObjectVersion frame;
         uint32_t             nNodes;
         eqNet::NodeID        nodes[1];
+    };
+
+    //------------------------------------------------------------
+    // Frame Buffer
+    //------------------------------------------------------------
+    struct FrameBufferTransmitPacket : public eqNet::ObjectPacket
+    {
+        FrameBufferTransmitPacket()
+            {
+                command = CMD_FRAMEBUFFER_TRANSMIT;
+                size    = sizeof( FrameBufferTransmitPacket );
+            }
+
+        Frame::Format format;
+        PixelViewport pvp;
+        uint8_t       data[1];
     };
 
     //------------------------------------------------------------

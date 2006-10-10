@@ -36,16 +36,40 @@ namespace eq
 
         /** @return the size of a single image pixel in bytes. */
         size_t getDepth() const;
+
+        /** @return a pointer to the raw pixel data. */
+        const std::vector<uint8_t>& getPixelData() const { return _pixels; }
+
+        /** @return the pixel viewport of the image with in the frame buffer. */
+        const PixelViewport& getPixelViewport() const { return _pvp; }
         //*}
 
         /**
          * @name Operations
          */
         //*{
+        /** 
+         * Start reading back an image from the frame buffer.
+         *
+         * @param pvp the area of the frame buffer to read back.
+         */
         void startReadback( const PixelViewport& pvp );
+
+        /** Make sure that the last readback operation is complete. */
+        void syncReadback() {}
         
         /** Writes the pixel data as an .rgb image file. */
         void writeImage( const std::string& filename );
+        
+        /** 
+         * Transmit the frame data to the specified node.
+         *
+         * Used internally after readback to push the image data to the input
+         * frame nodes. Do not use directly.
+         * 
+         * @param toNode the receiving node.
+         */
+        void transmit( eqBase::RefPtr<eqNet::Node> toNode );
         //*}
 
     private:

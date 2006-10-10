@@ -243,6 +243,8 @@ namespace eq
                                        const eqNet::Packet* packet );
         eqNet::CommandResult _reqReadback( eqNet::Node* node,
                                            const eqNet::Packet* packet );
+        eqNet::CommandResult _reqTransmit( eqNet::Node* node,
+                                           const eqNet::Packet* packet );
     };
 }
 

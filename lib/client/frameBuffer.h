@@ -57,9 +57,23 @@ namespace eq
          * 
          * The newly read images are added to the buffer, existing images are
          * retained.
+         *
          * @param frame the corresponding output frame holder.
          */
         void startReadback( const Frame& frame );
+
+        /** Synchronize the last image readback. */
+        void syncReadback();
+
+        /** 
+         * Transmit the frame data to the specified node.
+         *
+         * Used internally after readback to push the image data to the input
+         * frame nodes. Do not use directly.
+         * 
+         * @param toNode the receiving node.
+         */        
+        void transmit( eqBase::RefPtr<eqNet::Node> toNode );
         //*}
 
     protected:

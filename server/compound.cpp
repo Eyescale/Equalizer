@@ -783,25 +783,34 @@ void Compound::_updateReadback( const eq::RenderContext& context )
         Frame* frame = *iter;
 
         const vector<Frame*>& inputFrames = frame->getInputFrames();
+        const eqNet::NodeID&  netNodeID   = netNode->getNodeID();
         vector<eqNet::NodeID> nodeIDs;
         for( vector<Frame*>::const_iterator iter = inputFrames.begin();
              iter != inputFrames.end(); ++iter )
         {
-            const Frame* frame   = *iter;
-            // TODO: filter: format, vp, eye
-
+            const Frame*         frame   = *iter;
             eqNet::Session*      session = frame->getSession();
             const eqNet::NodeID& nodeID  = session->getIDMaster(frame->getID());
+
+            if( nodeID == netNodeID ) // TODO filter: format, vp, eye
+                continue;
+
             nodeIDs.push_back( nodeID );
         }
 
         if( nodeIDs.empty( ))
             continue;
 
+        // sort & filter dupes
+        sort( nodeIDs.begin(), nodeIDs.end( ));
+        const vector<eqNet::NodeID>::iterator end = 
+            unique( nodeIDs.begin(), nodeIDs.end( ));
+        nodeIDs.erase( end, nodeIDs.end( ));
+
+        // send
         eq::ChannelTransmitPacket transmitPacket;
         transmitPacket.sessionID = packet.sessionID;
         transmitPacket.objectID  = packet.objectID;
-        transmitPacket.context   = context;
         transmitPacket.frame     = eqNet::ObjectVersion( frame );
         transmitPacket.nNodes    = nodeIDs.size();
 

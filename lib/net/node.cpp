@@ -1067,8 +1067,10 @@ bool Node::syncConnect()
 
 RefPtr<Node> Node::connect( NodeID& nodeID, RefPtr<Node> server)
 {
-    if( _nodes.find( nodeID ) != _nodes.end( ))
-        return _nodes[nodeID];
+    NodeIDHash< eqBase::RefPtr<Node> >::const_iterator iter = 
+        _nodes.find( nodeID );
+    if( iter != _nodes.end( ))
+        return iter->second;
 
     NodeGetConnectionDescriptionPacket packet;
     packet.requestID  = _requestHandler.registerRequest( &nodeID );
