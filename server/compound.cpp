@@ -587,8 +587,7 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
         eq::ChannelDrawPacket drawPacket;
 
         drawPacket.context = context;
-        compound->_computeFrustum( drawPacket.context.frustum, 
-                     drawPacket.context.headTransform, data->eye );
+        compound->_computeFrustum( drawPacket.context, data->eye );
         channel->send( drawPacket );
         EQLOG( LOG_TASKS ) << "TASK draw  " << &drawPacket << endl;
     }
@@ -661,13 +660,12 @@ GLenum Compound::_getDrawBuffer( const UpdateChannelData* data )
     }
 }
 
-void Compound::_computeFrustum( eq::Frustum& frustum, float headTransform[16],
-                                const Eye whichEye )
+void Compound::_computeFrustum( eq::RenderContext& context, const Eye whichEye )
 {
     const Channel*  destination = _inherit.channel;
     const eq::View& view       = _inherit.view;
     Config*         config      = getConfig();
-    destination->getNearFar( &frustum.near, &frustum.far );
+    destination->getNearFar( &context.frustum.near, &context.frustum.far );
 
     // compute eye position in screen space
     const float* eyeW   = config->getEyePosition( whichEye );
@@ -680,6 +678,7 @@ void Compound::_computeFrustum( eq::Frustum& frustum, float headTransform[16],
         (xfm[2] * eyeW[0] + xfm[6] * eyeW[1] + xfm[10]* eyeW[2] + xfm[14]) / w};
 
     // compute frustum from size and eye position
+    eq::Frustum& frustum = context.frustum;
     const float ratio = frustum.near / eye[2];
     if( eye[2] > 0 )
     {
@@ -705,19 +704,20 @@ void Compound::_computeFrustum( eq::Frustum& frustum, float headTransform[16],
         frustum.left += frustumWidth * vp.x;
         frustum.right = frustum.left + frustumWidth * vp.w;
         
-        const float frustumHeight = frustum.bottom - frustum.top;
+        const float frustumHeight = frustum.bottom -frustum.top;
         frustum.top   += frustumHeight * vp.y;
         frustum.bottom = frustum.top + frustumHeight * vp.h;
     }
 
     // compute head transform
     // headTransform = -trans(eye) * view matrix (frustum position)
+    vmml::Matrix4f& headTransform = context.headTransform;
     for( int i=0; i<16; i += 4 )
     {
-        headTransform[i]   = xfm[i]   - eye[0] * xfm[i+3];
-        headTransform[i+1] = xfm[i+1] - eye[1] * xfm[i+3];
-        headTransform[i+2] = xfm[i+2] - eye[2] * xfm[i+3];
-        headTransform[i+3] = xfm[i+3];
+        headTransform.ml[i]   = xfm[i]   - eye[0] * xfm[i+3];
+        headTransform.ml[i+1] = xfm[i+1] - eye[1] * xfm[i+3];
+        headTransform.ml[i+2] = xfm[i+2] - eye[2] * xfm[i+3];
+        headTransform.ml[i+3] = xfm[i+3];
     }
 }
 

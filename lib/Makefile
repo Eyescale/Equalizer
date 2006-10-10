@@ -132,6 +132,7 @@ SOURCES = \
 	client/nodeFactory.cpp \
 	client/openParams.cpp \
 	client/pipe.cpp \
+	client/range.cpp \
 	client/renderContext.cpp \
 	client/server.cpp \
 	client/view.cpp \

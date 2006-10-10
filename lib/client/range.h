@@ -5,6 +5,8 @@
 #ifndef EQ_RANGE_H
 #define EQ_RANGE_H
 
+#include <iostream>
+
 namespace eq
 {
     /**
@@ -17,7 +19,7 @@ namespace eq
          * @name Constructors
          */
         //*{
-        Range() : start(0), end(1)  {}
+        Range() : start(0.f), end(1.f)  {}
 
         Range( const float start, const float end )
                 : start(start), end(end) {}
@@ -31,14 +33,16 @@ namespace eq
                 return *this;
             }
 
-        void invalidate() { start=0; end=0; }
+        void invalidate() { start=0.f; end=0.f; }
 
         bool isValid() const 
-            { return ( start>=0 && end <=1 && (end - start) > 0 ); }
-        bool isFull() const { return ( start==0 && end==1 ); }
+            { return ( start>=0.f && end <=1.f && (end - start) > 0.f ); }
+        bool isFull() const { return ( start==0.f && end==1.f ); }
 
         float start;
         float end;
+
+        static const Range FULL;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Range& range )

@@ -16,13 +16,6 @@
 using namespace eq;
 using namespace std;
 
-// Move me
-namespace eq
-{
-    static float identityMatrix[16] = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
-    static Range fullRange;
-}
-
 Channel::Channel()
         : eqNet::Object( eq::Object::TYPE_CHANNEL, CMD_CHANNEL_CUSTOM ),
           _window(NULL),
@@ -187,7 +180,7 @@ const Frustum& Channel::getFrustum() const
 
 const Range& Channel::getRange() const
 {
-    return _context ? _context->range : fullRange;
+    return _context ? _context->range : Range::FULL;
 }
 
 void Channel::applyFrustum() const
@@ -198,16 +191,16 @@ void Channel::applyFrustum() const
     EQVERB << "Apply " << frustum << endl;
 }
 
-const float* Channel::getHeadTransform() const
+const vmml::Matrix4f& Channel::getHeadTransform() const
 {
-    return _context ? _context->headTransform : identityMatrix;
+    return _context ? _context->headTransform : vmml::Matrix4f::IDENTITY;
 }
 
 void Channel::applyHeadTransform() const
 {
-    const float* xfm = getHeadTransform();
-    glMultMatrixf( xfm );
-    EQVERB << "Apply head transform: " << LOG_MATRIX4x4( xfm ) << endl;
+    const vmml::Matrix4f& xfm = getHeadTransform();
+    glMultMatrixf( xfm.ml );
+    EQVERB << "Apply head transform: " << xfm << endl;
 }
 
 //---------------------------------------------------------------------------

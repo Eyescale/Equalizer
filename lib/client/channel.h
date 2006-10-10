@@ -163,7 +163,7 @@ namespace eq
          * @return the modelling transformation to position and orient the view
          *         frustum.
          */
-        const float* getHeadTransform() const;
+        const vmml::Matrix4f& getHeadTransform() const;
 
         /** @return the list of output frames, used from readback(). */
         const std::vector<Frame*>& getOutputFrames() { return _outputFrames; }

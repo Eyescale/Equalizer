@@ -462,8 +462,7 @@ namespace eqs
         void _setupRenderContext( eq::RenderContext& context, 
                                   const UpdateChannelData* data );
         GLenum _getDrawBuffer( const UpdateChannelData* data );
-        void _computeFrustum( eq::Frustum& frustum, float headTransform[16],
-                                                    const Eye whichEye );
+        void _computeFrustum( eq::RenderContext& context, const Eye whichEye );
 
         friend std::ostream& operator << ( std::ostream& os,
                                            const Compound* compound );
