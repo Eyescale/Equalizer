@@ -7,6 +7,7 @@
 
 #include "viewport.h"
 
+#include <eq/base/base.h>
 #include <eq/vmmlib/Vector2.h>
 
 namespace eq
