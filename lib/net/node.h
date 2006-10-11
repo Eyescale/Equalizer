@@ -652,10 +652,6 @@ namespace eqNet
         /** The identifier for the next connection request. */
         uint32_t       _nextConnectionRequestID;
 
-#ifdef CHECK_THREADSAFETY
-        mutable pthread_t _threadID;
-#endif
-
         bool _listenToSelf();
         void _cleanup();
 
@@ -756,6 +752,8 @@ namespace eqNet
                                          const uint64_t count );
 
         friend std::ostream& operator << ( std::ostream& os, const Node* node );
+
+        CHECK_THREAD_DECLARE( _thread );
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Node* node )

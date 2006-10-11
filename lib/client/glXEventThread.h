@@ -80,9 +80,7 @@ namespace eq
         eqNet::CommandResult _cmdRemoveWindow( eqNet::Node*,
                                                const eqNet::Packet* packet );
 
-#ifdef CHECK_THREADSAFETY
-        pthread_t _threadID;
-#endif
+        CHECK_THREAD_DECLARE( _thread );
     };
 }
 

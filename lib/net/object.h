@@ -129,11 +129,7 @@ namespace eqNet
          * during object instanciation.
          * @sa Session::getObject().
          */
-        virtual void makeThreadSafe()
-            {
-                if( _mutex ) return;
-                _mutex = new eqBase::Lock;
-            }
+        virtual void makeThreadSafe();
 
         bool isThreadSafe() const      { return ( _mutex!=NULL ); }
         Session* getSession() const    { return _session; }
@@ -437,9 +433,7 @@ namespace eqNet
 
         void _reqSync( Node* node, const Packet* pkg );
 
-#ifdef CHECK_THREADSAFETY
-        pthread_t _threadID;
-#endif
+        CHECK_THREAD_DECLARE( _thread );
     };
 
     /** A helper struct bundling an object identifier and a version. */

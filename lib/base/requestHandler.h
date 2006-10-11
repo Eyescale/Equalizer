@@ -131,9 +131,7 @@ namespace eqBase
         RequestHash         _requests;
         std::list<Request*> _freeRequests;
 
-#ifdef CHECK_THREADSAFETY
-        pthread_t _threadID;
-#endif
+        CHECK_THREAD_DECLARE( _thread );
     };
 }
 

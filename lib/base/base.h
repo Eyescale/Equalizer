@@ -71,31 +71,37 @@ typedef int socklen_t;
 // outside of the objects by the application.
 
 #ifdef CHECK_THREADSAFETY
-#  define CHECK_THREAD_INIT( THREADID ) { THREADID = 0; }
-#  define CHECK_THREAD( THREADID )                                      \
+#  define CHECK_THREAD_DECLARE( NAME )                    \
+    struct NAME ## Struct                                 \
+    {                                                     \
+        NAME ## Struct () : id( 0 ), extMutex( false ) {} \
+        mutable pthread_t id;                             \
+        bool extMutex;                                    \
+    } NAME;
+#  define CHECK_THREAD( NAME )                                          \
     {                                                                   \
-        if( THREADID==0 )                                               \
+        if( NAME.id==0 )                                                \
         {                                                               \
-            THREADID = pthread_self();                                  \
-            EQINFO << "Functions for " << #THREADID                     \
+            NAME.id = pthread_self();                                   \
+            EQINFO << "Functions for " << #NAME                         \
                    << " locked to this thread" << std::endl;            \
         }                                                               \
-        if( !pthread_equal( THREADID, pthread_self( )))                 \
+        if( !NAME.extMutex && !pthread_equal( NAME.id, pthread_self( ))) \
         {                                                               \
-            EQERROR << "Threadsafety check for " << #THREADID           \
+            EQERROR << "Threadsafety check for " << #NAME               \
                     << " failed on object of class "                    \
                     << typeid(*this).name() << endl;                    \
             EQASSERTINFO( 0, "Non-threadsave code called from two threads" ); \
         }                                                               \
     }
 
-#  define CHECK_NOT_THREAD( THREADID )                                  \
+#  define CHECK_NOT_THREAD( NAME )                                      \
     {                                                                   \
-        if( THREADID )                                                  \
+        if( !NAME.extMutex && NAME.id )                                 \
         {                                                               \
-            if( pthread_equal( THREADID, pthread_self( )))              \
+            if( pthread_equal( NAME.id, pthread_self( )))               \
             {                                                           \
-                EQERROR << "Threadsafety check for not " << #THREADID   \
+                EQERROR << "Threadsafety check for not " << #NAME       \
                         << " failed on object of class "                \
                         << typeid(*this).name() << endl;                \
                 EQASSERTINFO( 0, "Code called from wrong thread" );     \
@@ -103,9 +109,9 @@ typedef int socklen_t;
         }                                                               \
     }
 #else
-#  define CHECK_THREAD_INIT( THREADID )
-#  define CHECK_THREAD( THREADID )
-#  define CHECK_NOT_THREAD( THREADID )
+#  define CHECK_THREAD_DECLARE( NAME )
+#  define CHECK_THREAD( NAME )
+#  define CHECK_NOT_THREAD( NAME )
 #endif
     
 #endif //EQBASE_BASE_H

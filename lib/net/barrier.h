@@ -111,9 +111,7 @@ namespace eqNet
         CommandResult _cmdEnter( Node* node, const Packet* pkg );
         CommandResult _cmdEnterReply( Node* node, const Packet* pkg );
 
-#ifdef CHECK_THREADSAFETY
-        pthread_t _threadID;
-#endif
+        CHECK_THREAD_DECLARE( _thread );
     };
 }
 

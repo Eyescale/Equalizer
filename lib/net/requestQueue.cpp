@@ -12,7 +12,6 @@ using namespace std;
 RequestQueue::RequestQueue()
         : _lastRequest(NULL)
 {
-    CHECK_THREAD_INIT( _threadID );
 }
 
 RequestQueue::~RequestQueue()
@@ -43,7 +42,7 @@ void RequestQueue::pushFront( Node* node, const Packet* packet )
 
 void RequestQueue::pop( Node** node, Packet** packet )
 {
-    CHECK_THREAD( _threadID );
+    CHECK_THREAD( _thread );
 
     if( _lastRequest )
     {
@@ -59,7 +58,7 @@ void RequestQueue::pop( Node** node, Packet** packet )
 
 bool RequestQueue::tryPop( Node** node, Packet** packet )
 {
-    CHECK_THREAD( _threadID );
+    CHECK_THREAD( _thread );
 
     Request* request = _requests.tryPop();
     if( !request )

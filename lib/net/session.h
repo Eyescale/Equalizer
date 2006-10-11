@@ -336,9 +336,7 @@ namespace eqNet
         CommandResult _cmdInstanciateObject( Node* node, const Packet* packet);
         CommandResult _cmdInitObjectReply( Node* node, const Packet* packet );
 
-#ifdef CHECK_THREADSAFETY
-        pthread_t _recvThreadID;
-#endif
+        CHECK_THREAD_DECLARE( _receiverThread );
     };
     std::ostream& operator << ( std::ostream& os, Session* session );
 }

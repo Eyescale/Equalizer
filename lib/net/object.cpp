@@ -37,8 +37,6 @@ void Object::_construct()
                          &eqNet::Object::_cmdSync ));
     registerCommand( REQ_OBJECT_SYNC, this, reinterpret_cast<CommandFcn>(
                          &eqNet::Object::_reqSync ));
-
-    CHECK_THREAD_INIT( _threadID );
 }
 
 Object::Object( const uint32_t typeID, const uint32_t nCommands )
@@ -75,6 +73,16 @@ Object::~Object()
             free( (*iter).data );
     }
     _changeData.clear();
+    delete _mutex;
+}
+
+void Object::makeThreadSafe()
+{
+    if( _mutex ) return;
+    _mutex = new eqBase::Lock;
+#ifdef CHECK_THREADSAFETY
+    _syncQueue._thread.extMutex = true;
+#endif
 }
 
 bool Object::send( eqBase::RefPtr<Node> node, ObjectPacket& packet )
@@ -198,7 +206,7 @@ uint32_t Object::commit()
         return VERSION_NONE;
 
     if( !_mutex )
-        CHECK_THREAD( _threadID );
+        CHECK_THREAD( _thread );
 
     ScopedMutex mutex( _mutex );
     if( _version == VERSION_NONE )
@@ -284,7 +292,7 @@ uint32_t Object::commit()
 
 uint32_t Object::_commitInitial()
 {
-    CHECK_THREAD( _threadID );
+    CHECK_THREAD( _thread );
 
     // compute base version
     uint64_t    size;
@@ -360,7 +368,7 @@ bool Object::sync( const uint32_t version, const float timeout )
         return true;
 
     if( !_mutex )
-        CHECK_THREAD( _threadID );
+        CHECK_THREAD( _thread );
 
     ScopedMutex mutex( _mutex );
 

@@ -13,7 +13,6 @@ RequestHandler::RequestHandler( const bool threadSafe )
         : _requestID(1)
 {
     _mutex               = threadSafe ? new Lock() : NULL;
-    CHECK_THREAD_INIT( _threadID );
 }
 
 RequestHandler::~RequestHandler()
@@ -34,7 +33,7 @@ uint32_t RequestHandler::registerRequest( void* data )
     if( _mutex )
         _mutex->set();
     else
-        CHECK_THREAD( _threadID );
+        CHECK_THREAD( _thread );
 
     Request* request;
     if( _freeRequests.empty( ))
@@ -59,7 +58,7 @@ void RequestHandler::unregisterRequest( const uint32_t requestID )
     if( _mutex )
         _mutex->set();
     else
-        CHECK_THREAD( _threadID );
+        CHECK_THREAD( _thread );
 
     RequestHash::iterator iter = _requests.find( requestID );
     if( iter == _requests.end( ))
@@ -79,7 +78,7 @@ void* RequestHandler::waitRequest( const uint32_t requestID, bool* success,
     if( _mutex )
         _mutex->set();
     else
-        CHECK_THREAD( _threadID );
+        CHECK_THREAD( _thread );
 
     RequestHash::iterator iter = _requests.find( requestID );
     if( iter != _requests.end( ))

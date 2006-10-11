@@ -86,6 +86,8 @@ namespace eqNet
          *         <code>false</code> if not. 
          */
         bool empty() const { return _requests.empty(); }
+
+        CHECK_THREAD_DECLARE( _thread );
     private:
 
         /** Thread-safe request queue. */
@@ -98,9 +100,6 @@ namespace eqNet
         RequestCache              _requestCache;
         eqBase::Lock              _requestCacheLock;
 
-#ifdef CHECK_THREADSAFETY
-        pthread_t _threadID;
-#endif
     };
 };
 

@@ -20,10 +20,6 @@ IDPool::IDPool( const uint32_t initialCapacity )
         
         _freeIDs.push_front( block );
     }
-
-#ifdef CHECK_THREADSAFETY
-    _threadID = 0;
-#endif
 }
 
 IDPool::~IDPool()
@@ -44,7 +40,7 @@ IDPool::~IDPool()
 
 uint32_t IDPool::genIDs( const uint32_t range )
 {
-    CHECK_THREAD( _threadID );
+    CHECK_THREAD( _thread );
 
     const uint32_t id = _genIDs( range );
     if( id )
@@ -82,7 +78,7 @@ uint32_t IDPool::_genIDs( const uint32_t range )
 
 void IDPool::freeIDs( const uint32_t start, const uint32_t range )
 {
-    CHECK_THREAD( _threadID );
+    CHECK_THREAD( _thread );
 
     Block* block;
 

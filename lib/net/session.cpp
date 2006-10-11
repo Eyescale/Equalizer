@@ -67,10 +67,6 @@ Session::Session( const uint32_t nCommands, const bool threadSafe )
                          &eqNet::Session::_cmdInstanciateObject ));
 
     EQINFO << "New Session @" << (void*)this << endl;
-
-#ifdef CHECK_THREADSAFETY
-    _recvThreadID = 0;
-#endif
 }
 
 Session::~Session()
@@ -362,7 +358,7 @@ Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy,
                             const uint32_t version, 
                             const Object::ThreadSafety ts )
 {
-    CHECK_NOT_THREAD( _recvThreadID );
+    CHECK_NOT_THREAD( _receiverThread );
 
     const bool threadSafe = ( ts==Object::CS_SAFE || 
                          ( ts==Object::CS_AUTO && policy==Object::SHARE_NODE ));
@@ -567,7 +563,7 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
 
 CommandResult Session::_instObject( GetObjectState* state )
 {
-    CHECK_THREAD( _recvThreadID );
+    CHECK_THREAD( _receiverThread );
     const uint32_t objectID = state->objectID;
 
     switch( state->instState )
@@ -758,7 +754,7 @@ CommandResult Session::_cmdGetObjectMaster( Node* node, const Packet* pkg )
 
 CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
 {
-    CHECK_THREAD( _recvThreadID );
+    CHECK_THREAD( _receiverThread );
     SessionGetObjectMasterReplyPacket* packet = 
         (SessionGetObjectMasterReplyPacket*)pkg;
     EQLOG( LOG_OBJECTS ) << "Cmd get object master reply " << packet << endl;
@@ -829,7 +825,7 @@ CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
 
 CommandResult Session::_cmdRegisterObject( Node* node, const Packet* pkg )
 {
-    CHECK_THREAD( _recvThreadID );
+    CHECK_THREAD( _receiverThread );
 
     SessionRegisterObjectPacket* packet = (SessionRegisterObjectPacket*)pkg;
     EQLOG( LOG_OBJECTS ) << "Cmd register object " << packet << endl;
@@ -846,7 +842,7 @@ CommandResult Session::_cmdRegisterObject( Node* node, const Packet* pkg )
 
 CommandResult Session::_cmdUnregisterObject( Node* node, const Packet* pkg )
 {
-    CHECK_THREAD( _recvThreadID );
+    CHECK_THREAD( _receiverThread );
 
     SessionUnregisterObjectPacket* packet = (SessionUnregisterObjectPacket*)pkg;
     EQLOG( LOG_OBJECTS ) << "Cmd unregister object " << packet << endl;
@@ -862,7 +858,7 @@ CommandResult Session::_cmdUnregisterObject( Node* node, const Packet* pkg )
 
 CommandResult Session::_cmdGetObject( Node* node, const Packet* pkg )
 {
-    CHECK_THREAD( _recvThreadID );
+    CHECK_THREAD( _receiverThread );
 
     SessionGetObjectPacket* packet = (SessionGetObjectPacket*)pkg;
 
@@ -946,7 +942,7 @@ CommandResult Session::_cmdInitObject( Node* node, const Packet* pkg )
 
 CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )
 {
-    CHECK_THREAD( _recvThreadID );
+    CHECK_THREAD( _receiverThread );
 
     SessionInstanciateObjectPacket* packet = 
         (SessionInstanciateObjectPacket*)pkg;

@@ -18,10 +18,6 @@ void Barrier::_construct()
                          &eqNet::Barrier::_cmdEnter ));
     registerCommand( CMD_BARRIER_ENTER_REPLY, this, 
                 reinterpret_cast<CommandFcn>(&eqNet::Barrier::_cmdEnterReply ));
-
-#ifdef CHECK_THREADSAFETY
-    _threadID = 0;
-#endif
 }
 
 Barrier::Barrier( eqBase::RefPtr<Node> master, const uint32_t height )
@@ -53,7 +49,7 @@ void Barrier::enter()
 {
     EQASSERT( _data.height > 1 );
     EQASSERT( _master.isValid( ));
-    EQINFO << "enter barrier of height " << _data.height << endl;
+    EQVERB << "enter barrier of height " << _data.height << endl;
     EQASSERT( getSession( ));
 
     BarrierEnterPacket packet;
@@ -62,16 +58,16 @@ void Barrier::enter()
     send( _master, packet );
     
     _leaveNotify.wait();
-    EQINFO << "slave left barrier of height " << _data.height << endl;
+    EQVERB << "slave left barrier of height " << _data.height << endl;
 }
 
 CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
 {
-    CHECK_THREAD( _threadID );
+    CHECK_THREAD( _thread );
     EQASSERT( _master == eqNet::Node::getLocalNode( ));
 
     BarrierEnterPacket* packet = (BarrierEnterPacket*)pkg;
-    EQINFO << "Handle barrier enter " << packet << endl;
+    EQVERB << "Handle barrier enter " << packet << endl;
     if( packet->version > getVersion( ))
         return COMMAND_REDISPATCH;
     
@@ -83,7 +79,7 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
         return COMMAND_HANDLED;
 
     EQASSERT( _enteredBarriers.size() == _data.height );
-    EQINFO << "Barrier reached" << endl;
+    EQVERB << "Barrier reached" << endl;
 
     BarrierEnterReplyPacket reply;
     reply.sessionID = getSession()->getID();
@@ -105,7 +101,7 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
 
 CommandResult Barrier::_cmdEnterReply( Node* node, const Packet* pkg )
 {
-    CHECK_THREAD( _threadID );
+    CHECK_THREAD( _thread );
     _leaveNotify.post();
     return COMMAND_HANDLED;
 }

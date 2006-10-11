@@ -65,9 +65,7 @@ namespace eqBase
         uint32_t _compressCounter;
         void _compressIDs();
 
-#ifdef CHECK_THREADSAFETY
-        pthread_t _threadID;
-#endif
+        CHECK_THREAD_DECLARE( _thread );
     };
 }
 

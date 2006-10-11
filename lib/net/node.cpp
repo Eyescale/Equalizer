@@ -67,9 +67,6 @@ Node::Node( const uint32_t nCommands )
 
     _receiverThread = new ReceiverThread( this );
 
-#ifdef CHECK_THREADSAFETY
-    _threadID = 0;
-#endif
     EQINFO << "New Node @" << (void*)this << endl;
 }
 
@@ -372,7 +369,7 @@ uint64_t Node::_getMessageSize( const MessageType type, const uint64_t count )
 void Node::addSession( Session* session, RefPtr<Node> server, 
                        const uint32_t sessionID, const string& name )
 {
-    CHECK_THREAD( _threadID );
+    CHECK_THREAD( _thread );
 
     session->_localNode = this;
     session->_server    = server;
@@ -389,7 +386,7 @@ void Node::addSession( Session* session, RefPtr<Node> server,
 
 void Node::removeSession( Session* session )
 {
-    CHECK_THREAD( _threadID );
+    CHECK_THREAD( _thread );
     _sessions.erase( session->getID( ));
 
     session->_localNode = NULL;
@@ -439,7 +436,7 @@ bool Node::unmapSession( Session* session )
 
 uint32_t Node::_generateSessionID()
 {
-    CHECK_THREAD( _threadID );
+    CHECK_THREAD( _thread );
     uint32_t id = EQ_ID_INVALID;
 
     while( id == EQ_ID_INVALID || _sessions.find( id ) != _sessions.end( ))
@@ -747,7 +744,7 @@ CommandResult Node::_cmdMapSession( Node* node, const Packet* pkg )
 
     NodeMapSessionPacket* packet  = (NodeMapSessionPacket*)pkg;
     EQINFO << "Cmd map session: " << packet << endl;
-    CHECK_THREAD( _threadID );
+    CHECK_THREAD( _thread );
     
     Session*       session   = NULL;
     const uint32_t sessionID = packet->sessionID;
@@ -797,7 +794,7 @@ CommandResult Node::_cmdMapSessionReply( Node* node, const Packet* pkg)
 {
     NodeMapSessionReplyPacket* packet  = (NodeMapSessionReplyPacket*)pkg;
     EQINFO << "Cmd map session reply: " << packet << endl;
-    CHECK_THREAD( _threadID );
+    CHECK_THREAD( _thread );
 
     const uint32_t requestID = packet->requestID;
     if( packet->sessionID == EQ_ID_INVALID )
@@ -824,7 +821,7 @@ CommandResult Node::_cmdUnmapSession( Node* node, const Packet* pkg )
 {
     NodeUnmapSessionPacket* packet  = (NodeUnmapSessionPacket*)pkg;
     EQINFO << "Cmd unmap session: " << packet << endl;
-    CHECK_THREAD( _threadID );
+    CHECK_THREAD( _thread );
     
     const uint32_t sessionID = packet->sessionID;
     Session*       session   = _sessions[sessionID];
@@ -851,7 +848,7 @@ CommandResult Node::_cmdUnmapSessionReply( Node* node, const Packet* pkg)
 {
     NodeUnmapSessionReplyPacket* packet  = (NodeUnmapSessionReplyPacket*)pkg;
     EQINFO << "Cmd unmap session reply: " << packet << endl;
-    CHECK_THREAD( _threadID );
+    CHECK_THREAD( _thread );
 
     const uint32_t requestID = packet->requestID;
 
@@ -965,7 +962,7 @@ CommandResult Node::_cmdGetConnectionDescriptionReply( Node* fromNode,
 //----------------------------------------------------------------------
 Session* Node::_findSession( const std::string& name ) const
 {
-    CHECK_THREAD( _threadID );
+    CHECK_THREAD( _thread );
     for( IDHash<Session*>::const_iterator iter = _sessions.begin();
          iter != _sessions.end(); iter++ )
     {
