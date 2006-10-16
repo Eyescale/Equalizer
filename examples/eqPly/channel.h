@@ -8,6 +8,7 @@
 #include "eqPly.h"
 
 #include "plyModel.h"
+#include "frustum.h"
 
 #include <eq/eq.h>
 
@@ -27,7 +28,8 @@ private:
     eqBase::RefPtr<InitData>  _initData;
     eqBase::RefPtr<FrameData> _frameData;
 
-    void _drawBBox( const Model::BBox *bbox );
+    void _drawBBox( const Model::BBox* bbox );
+    void _initFrustum( Frustumf& frustum );
 };
 
 

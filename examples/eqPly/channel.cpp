@@ -56,9 +56,37 @@ void Channel::draw( const uint32_t frameID )
     Node*        node  = (Node*)getNode();
     const Model* model = node->getModel();
 
+    Frustumf frustum;
+    _initFrustum( frustum );
+    const size_t  bboxThreshold = 64;
+
     if( model )
     {
-        _drawBBox( model->getBBox( ));
+        vector<const Model::BBox*> bBoxVector;
+        bBoxVector.push_back( model->getBBox( ) );
+        while( !bBoxVector.empty( ) )
+        {
+            const Model::BBox *bbox = bBoxVector.back();
+            bBoxVector.pop_back();
+
+            const FrustumVisibility visibility = frustum.sphereVisibility(
+                bbox->cullSphere.center.pos, bbox->cullSphere.radius );
+            switch( visibility )
+            {
+                case FRUSTUM_VISIBILITY_FULL:
+                    _drawBBox( bbox );
+                    break;   
+                case FRUSTUM_VISIBILITY_PARTIAL:
+                    if( !bbox->children || bbox->nFaces < bboxThreshold )
+                        _drawBBox( bbox );
+                    else
+                        for( int i=0; i<8; i++ )
+                            bBoxVector.push_back( &bbox->children[i] );
+                    break;
+                case FRUSTUM_VISIBILITY_NULL:
+                    break;
+            }
+        }
     }
     else
     {
@@ -97,3 +125,22 @@ void Channel::_drawBBox( const Model::BBox *bbox )
     glEnd();
 }
 
+void Channel::_initFrustum( Frustumf& frustum )
+{
+    // apply frustum
+    const eq::Frustum& channelFrustum = getFrustum();
+    float proj[16];
+    channelFrustum.computeMatrix( proj );
+
+    // apply rot + trans + head transform
+    vmml::Matrix4f modelview( _frameData->_data.rotation );
+    const float*   tra      = _frameData->_data.translation;
+    modelview.ml[12] = tra[0];
+    modelview.ml[13] = tra[1];
+    modelview.ml[14] = tra[2];
+    modelview *= getHeadTransform();;
+
+    const eq::PixelViewport& pvp = getPixelViewport();
+
+    frustum.initView( proj, modelview.ml, pvp);
+}

@@ -9,7 +9,7 @@ server
             {
                 window
                 {
-                    viewport [ 10 10 980 980 ]
+                    viewport [ 10 10 700 700 ]
                     channel 
                     {
                         viewport [ 0 .333 .333 .333 ]

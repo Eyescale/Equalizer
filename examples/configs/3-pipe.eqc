@@ -1,0 +1,78 @@
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 0 256 340 255 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 340 256 340 255 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 680 256 340 255 ]
+                    channel
+                    {
+                        name "channel3"
+                    }
+                }
+            }
+        }
+        compound
+        { 
+            compound
+            { 
+                channel "channel1"
+                wall
+                {
+                    bottom_left  [ -.6 -.15 -1 ]
+                    bottom_right [ -.2 -.15 -1 ]
+                    top_left     [ -.6  .15 -1 ]
+                }
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel2"
+                wall
+                {
+                    bottom_left  [ -.2 -.15 -1 ]
+                    bottom_right [  .2 -.15 -1 ]
+                    top_left     [ -.2  .15 -1 ]
+                }
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel3"
+                wall
+                {
+                    bottom_left  [  .2 -.15 -1 ]
+                    bottom_right [  .6 -.15 -1 ]
+                    top_left     [  .2  .15 -1 ]
+                }
+                swapbarrier {}
+            }
+        }
+    }    
+}

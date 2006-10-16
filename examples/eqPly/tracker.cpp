@@ -82,9 +82,28 @@ bool Tracker::init( const string& port )
       cerr << "Write error: " << strerror( errno ) << endl;
 
    usleep( 10000 ); //give enough time for initialising
+   
+   /*
+     _translationOrigin[0] = 0.0;
+     _translationOrigin[1] = 0.0;
+     _translationOrigin[2] = 0.0;
+     _angleOrigin[0] = 0.0;
+     _angleOrigin[1] = 0.0;
+     _angleOrigin[2] = 0.0;
+   */
+     
    bool b = _update(); //try an update to see if it works
    if(b)
      _running = true;
+     //save the position and angle origins of the sensor
+     _angleOrigin[0] = hpr[0];
+     _angleOrigin[1] = hpr[1];
+     _angleOrigin[2] = hpr[2];
+     _headCos = cos( hpr[0] ); 
+     _headSin = sin( hpr[0] );
+     _translationOrigin[0] = _posWoAng[0];
+     _translationOrigin[1] = _posWoAng[1];
+     _translationOrigin[2] = _posWoAng[2];
    return b;
 }
 
@@ -121,26 +140,61 @@ bool Tracker::_update()
    const short pitch = (buffer[9]<<8 | buffer[8]);
    const short roll = (buffer[11]<<8 | buffer[10]);
 
+   /*
    float hpr[3] = { head  / -5194.81734f,    //32640 -> 2 * pi = /5194.81734
                     pitch / -5194.81734f,
                     roll  / -5194.81734f };
+   */
+   hpr[0] = head  / -5194.81734f;    //32640 -> 2 * pi = /5194.81734
+   hpr[1] = pitch / -5194.81734f;
+   hpr[2] = roll  / -5194.81734f;
+              
    hpr[0] +=   M_PI;
    hpr[1] += 2*M_PI;
    hpr[2] += 2*M_PI;
 
+   /*
    float pos[3];
+   */
    //highest value for y and z position of the tracker sensor is 32639,
    //after that it switches back to zero (and vice versa if descending values).
    pos[0] = ypos;
    if( pos[0] > 16320 )             //32640 / 2 = 16320
       pos[0] -= 32640;
-
+   
    pos[1] = zpos;
    if( pos[1] > 16320 )
       pos[1] -= 32640;
 
    pos[2] = xpos;
+
+   //position of the sensor in pure tracker coordinates,
+   //which is used at the initialization to determine the [0,0,0] point
+   _posWoAng[0] = pos[0];
+   _posWoAng[1] = pos[1];
+   _posWoAng[2] = pos[2];
    
+   //location of sensor during init is set to [0,0,0]
+   pos[0] -= _translationOrigin[0];
+   pos[1] -= _translationOrigin[1];
+   pos[2] -= _translationOrigin[2];
+   
+   //orientation of the sensor during init is set to [0,0,0]
+   hpr[0] -= _angleOrigin[0];
+   hpr[1] -= _angleOrigin[1];
+   hpr[2] -= _angleOrigin[2];
+
+   //sensor moving relative to it's head angle
+   const float tmp0 = pos[0];
+   const float tmp2 = pos[2];
+   pos[0] = _headCos * tmp0 + _headSin * tmp2;
+   pos[2] = -_headSin * tmp0 + _headCos * tmp2; 
+   
+   //std::cout << _headSin << ", " << _headCos << endl;
+   //std::cout << "pos0 " << pos[0] << " pos2 " << pos[2] << endl;
+   
+   //position and rotation are stored in transformation matrix
+   //and matrix is scaled to the application's units
    _matrix = eq::Matrix4f::IDENTITY;
    _matrix.setTranslation( pos[0], pos[1], pos[2] );
    _matrix.scaleTranslation( _scale );

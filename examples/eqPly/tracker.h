@@ -68,6 +68,17 @@ class Tracker
        eq::Matrix4f _matrix;
 
        float _scale[3];
+       
+       /** Position and angles of the sensor while initialization */
+       float _translationOrigin[3];
+       float _angleOrigin[3];
+       float _headCos;
+       float _headSin;
+       
+       /** Actual position and angles of the sensor */
+       float hpr[3];
+       float pos[3];
+       float _posWoAng[3]; //position not altered by head angle
 };
 
 #endif // FOB_TRACKER_H
