@@ -588,26 +588,26 @@ bool Config::_exitNodes()
 void Config::_updateHead()
 {
     _headMatrix->sync();
-    const float eyeBase = getFAttribute( Config::FATTR_EYE_BASE );
-    const float* matrix = _headMatrix->ml;
-    const float w = eyeBase * matrix[12] + matrix[15];
+    const float  eyeBase = getFAttribute( Config::FATTR_EYE_BASE );
+    const float* matrix  = _headMatrix->ml;
+    const float  w       = eyeBase * matrix[12] + matrix[15];
     _eyePosition[EYE_INDEX_CYCLOP][0] = ( matrix[3] / w );
     _eyePosition[EYE_INDEX_CYCLOP][1] = ( matrix[7] / w );
     _eyePosition[EYE_INDEX_CYCLOP][2] = ( matrix[11] / w );
     //The transformation matrix gets multiplicated by the eye offset vector 
     //[eye_offset, 0, 0, w]' to get the left and right eye positions.
     _eyePosition[EYE_INDEX_LEFT][0] =
-        ( -0.5 * eyeBase * matrix[0] + matrix[3] ) / w;
+        ( -0.5f * eyeBase * matrix[0] + matrix[3] ) / w;
     _eyePosition[EYE_INDEX_LEFT][1] =
-        ( -0.5 * eyeBase * matrix[4] + matrix[7] ) / w;
+        ( -0.5f * eyeBase * matrix[4] + matrix[7] ) / w;
     _eyePosition[EYE_INDEX_LEFT][2] =
-        ( -0.5 * eyeBase * matrix[8] + matrix[11] ) / w;
+        ( -0.5f * eyeBase * matrix[8] + matrix[11] ) / w;
     _eyePosition[EYE_INDEX_RIGHT][0] =
-        ( 0.5 * eyeBase * matrix[0] + matrix[3] ) / w;
+        ( 0.5f * eyeBase * matrix[0] + matrix[3] ) / w;
     _eyePosition[EYE_INDEX_RIGHT][1] =
-        ( 0.5 * eyeBase * matrix[4] + matrix[7] ) / w;
+        ( 0.5f * eyeBase * matrix[4] + matrix[7] ) / w;
     _eyePosition[EYE_INDEX_RIGHT][2] =
-        ( 0.5 * eyeBase * matrix[8] + matrix[11] ) / w;
+        ( 0.5f * eyeBase * matrix[8] + matrix[11] ) / w;
 }
 
 const float* Config::getEyePosition( const uint32_t eye )

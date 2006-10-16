@@ -269,7 +269,10 @@ std::ostream& eqs::operator << ( std::ostream& os, const Pipe* pipe )
     os << "{" << endl << indent;
 
     if( pipe->getDisplay() != EQ_UNDEFINED_UINT32 )
-        os << "display " << pipe->getDisplay() << endl;
+        os << "display  " << pipe->getDisplay() << endl;
+        
+    if( pipe->getScreen() != EQ_UNDEFINED_UINT32 )
+        os << "screen   " << pipe->getScreen() << endl;
     
     const eq::PixelViewport& pvp = pipe->getPixelViewport();
     if( pvp.isValid( ))

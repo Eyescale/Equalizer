@@ -428,7 +428,6 @@ bool eq::Window::initGLX()
         attributes.push_back( GLX_STEREO );
     if( getIAttribute( IATTR_HINTS_DOUBLEBUFFER ) != OFF )
         attributes.push_back( GLX_DOUBLEBUFFER );
-
     attributes.push_back( None );
 
     XVisualInfo *visInfo = glXChooseVisual( display, screen, &attributes[0] );
@@ -460,21 +459,33 @@ bool eq::Window::initGLX()
     wa.background_pixmap = None;
     wa.border_pixel      = 0;
     wa.event_mask        = StructureNotifyMask | VisibilityChangeMask;
-    wa.override_redirect = True;
+    if( getIAttribute( IATTR_HINTS_DECORATION ) != OFF )
+        wa.override_redirect = False;
+    else
+        wa.override_redirect = True;
+        
+    if( getIAttribute( IATTR_HINTS_FULLSCREEN ) == ON )
+    {
+        wa.override_redirect = True;
+        _pvp.h = DisplayHeight( display, screen );
+        _pvp.w = DisplayWidth( display, screen );
+        _pvp.x = 0;
+        _pvp.y = 0;
+    }
 
     XID drawable = XCreateWindow( display, parent, 
                                   _pvp.x, _pvp.y, _pvp.w, _pvp.h,
                                   0, visInfo->depth, InputOutput,
                                   visInfo->visual, CWBackPixmap|CWBorderPixel|
-                                  CWEventMask|CWColormap/*|CWOverrideRedirect*/,
+                                  CWEventMask|CWColormap|CWOverrideRedirect,
                                   &wa );
     
     if ( !drawable )
     {
         EQERROR << "Could not create window\n" << endl;
         return false;
-    }
-
+    }   
+   
     XStoreName( display, drawable, 
                 _name.size() > 0 ? _name.c_str() : "Equalizer" );
 

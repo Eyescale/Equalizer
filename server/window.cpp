@@ -421,6 +421,10 @@ std::ostream& eqs::operator << ( std::ostream& os, const eqs::Window* window )
                     "stereo       " :
                 i==eq::Window::IATTR_HINTS_DOUBLEBUFFER ?
                     "doublebuffer " :
+                i==eq::Window::IATTR_HINTS_FULLSCREEN ?
+                    "fullscreen   " :
+                i==eq::Window::IATTR_HINTS_DECORATION ?
+                    "decoration   " :
                 i==eq::Window::IATTR_PLANES_COLOR ? 
                     "color        " :
                 i==eq::Window::IATTR_PLANES_ALPHA ?

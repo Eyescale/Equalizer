@@ -39,6 +39,8 @@ Global::Global()
 
     _windowIAttributes[eq::Window::IATTR_HINTS_STEREO]       = eq::AUTO;
     _windowIAttributes[eq::Window::IATTR_HINTS_DOUBLEBUFFER] = eq::AUTO;
+    _windowIAttributes[eq::Window::IATTR_HINTS_FULLSCREEN]   = eq::OFF;
+    _windowIAttributes[eq::Window::IATTR_HINTS_DECORATION]   = eq::ON;
     _windowIAttributes[eq::Window::IATTR_PLANES_COLOR]       = 1;
     _windowIAttributes[eq::Window::IATTR_PLANES_DEPTH]       = 1;
     
@@ -116,6 +118,10 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
                     "EQ_WINDOW_IATTR_HINTS_STEREO       " :
                 i==eq::Window::IATTR_HINTS_DOUBLEBUFFER ?
                     "EQ_WINDOW_IATTR_HINTS_DOUBLEBUFFER " :
+                i==eq::Window::IATTR_HINTS_FULLSCREEN ?
+                    "EQ_WINDOW_IATTR_HINTS_FULLSCREEN   " :
+                i==eq::Window::IATTR_HINTS_DECORATION ?
+                    "EQ_WINDOW_IATTR_HINTS_DECORATION   " :
                 i==eq::Window::IATTR_PLANES_COLOR ? 
                     "EQ_WINDOW_IATTR_PLANES_COLOR       " :
                 i==eq::Window::IATTR_PLANES_ALPHA ?

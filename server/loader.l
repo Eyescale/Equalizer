@@ -23,6 +23,8 @@ EQ_CONNECTION_LAUNCH_COMMAND    { return EQTOKEN_CONNECTION_LAUNCH_COMMAND; }
 EQ_WINDOW_IATTR_HINTS_STEREO    { return EQTOKEN_WINDOW_IATTR_HINTS_STEREO; }
 EQ_CONFIG_FATTR_EYE_BASE        { return EQTOKEN_CONFIG_FATTR_EYE_BASE; }
 EQ_WINDOW_IATTR_HINTS_DOUBLEBUFFER { return EQTOKEN_WINDOW_IATTR_HINTS_DOUBLEBUFFER; }
+EQ_WINDOW_IATTR_HINTS_FULLSCREEN   { return EQTOKEN_WINDOW_IATTR_HINTS_FULLSCREEN; }
+EQ_WINDOW_IATTR_HINTS_DECORATION   { return EQTOKEN_WINDOW_IATTR_HINTS_DECORATION; }
 EQ_WINDOW_IATTR_PLANES_COLOR    { return EQTOKEN_WINDOW_IATTR_PLANES_COLOR; }
 EQ_WINDOW_IATTR_PLANES_ALPHA    { return EQTOKEN_WINDOW_IATTR_PLANES_ALPHA; }
 EQ_WINDOW_IATTR_PLANES_DEPTH    { return EQTOKEN_WINDOW_IATTR_PLANES_DEPTH; }
@@ -37,6 +39,8 @@ attributes                      { return EQTOKEN_ATTRIBUTES; }
 hints                           { return EQTOKEN_HINTS; }
 stereo                          { return EQTOKEN_STEREO; }
 doublebuffer                    { return EQTOKEN_DOUBLEBUFFER; }
+fullscreen                      { return EQTOKEN_FULLSCREEN; }
+decoration                      { return EQTOKEN_DECORATION; }
 planes                          { return EQTOKEN_PLANES; }
 color                           { return EQTOKEN_COLOR; }
 alpha                           { return EQTOKEN_ALPHA; }
@@ -69,6 +73,7 @@ DEPTH                           { return EQTOKEN_DEPTH; }
 viewport                        { return EQTOKEN_VIEWPORT; }
 range                           { return EQTOKEN_RANGE; }
 display                         { return EQTOKEN_DISPLAY; }
+screen                          { return EQTOKEN_SCREEN; }
 wall                            { return EQTOKEN_WALL; }
 bottom_left                     { return EQTOKEN_BOTTOM_LEFT; }
 bottom_right                    { return EQTOKEN_BOTTOM_RIGHT; }

@@ -56,6 +56,8 @@
 %token EQTOKEN_WINDOW_IATTR_HINTS_STEREO
 %token EQTOKEN_CONFIG_FATTR_EYE_BASE
 %token EQTOKEN_WINDOW_IATTR_HINTS_DOUBLEBUFFER
+%token EQTOKEN_WINDOW_IATTR_HINTS_FULLSCREEN
+%token EQTOKEN_WINDOW_IATTR_HINTS_DECORATION
 %token EQTOKEN_WINDOW_IATTR_PLANES_COLOR
 %token EQTOKEN_WINDOW_IATTR_PLANES_ALPHA
 %token EQTOKEN_WINDOW_IATTR_PLANES_DEPTH
@@ -70,6 +72,8 @@
 %token EQTOKEN_HINTS
 %token EQTOKEN_STEREO
 %token EQTOKEN_DOUBLEBUFFER
+%token EQTOKEN_FULLSCREEN
+%token EQTOKEN_DECORATION
 %token EQTOKEN_PLANES
 %token EQTOKEN_COLOR
 %token EQTOKEN_ALPHA
@@ -102,6 +106,7 @@
 %token EQTOKEN_VIEWPORT
 %token EQTOKEN_RANGE
 %token EQTOKEN_DISPLAY
+%token EQTOKEN_SCREEN
 %token EQTOKEN_WALL
 %token EQTOKEN_BOTTOM_LEFT
 %token EQTOKEN_BOTTOM_RIGHT
@@ -178,6 +183,16 @@ global:
      {
          eqs::Global::instance()->setWindowIAttribute(
              eq::Window::IATTR_HINTS_DOUBLEBUFFER, $2 );
+     }
+     | EQTOKEN_WINDOW_IATTR_HINTS_FULLSCREEN IATTR
+     {
+         eqs::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_HINTS_FULLSCREEN, $2 );
+     }
+     | EQTOKEN_WINDOW_IATTR_HINTS_DECORATION IATTR
+     {
+         eqs::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_HINTS_DECORATION, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_PLANES_COLOR IATTR
      {
@@ -265,6 +280,7 @@ pipe: EQTOKEN_PIPE '{' { eqPipe = loader->createPipe(); }
 pipeFields: /*null*/ | pipeField | pipeFields pipeField
 pipeField:
     EQTOKEN_DISPLAY UNSIGNED         { eqPipe->setDisplay( $2 ); }
+    | EQTOKEN_SCREEN UNSIGNED        { eqPipe->setScreen( $2 ); }
     | EQTOKEN_VIEWPORT viewport 
         {
             eqPipe->setPixelViewport( eq::PixelViewport( (int)$2[0], (int)$2[1],
@@ -298,6 +314,10 @@ windowHint:
         { window->setIAttribute( eq::Window::IATTR_HINTS_STEREO, $2 ); }
     | EQTOKEN_DOUBLEBUFFER IATTR
         { window->setIAttribute( eq::Window::IATTR_HINTS_DOUBLEBUFFER, $2 ); }
+    | EQTOKEN_FULLSCREEN IATTR
+        { window->setIAttribute( eq::Window::IATTR_HINTS_FULLSCREEN, $2 ); }
+    | EQTOKEN_DECORATION IATTR
+        { window->setIAttribute( eq::Window::IATTR_HINTS_DECORATION, $2 ); }
 windowPlanes: /*null*/ | windowPlane | windowPlanes windowPlane
 windowPlane:
     EQTOKEN_COLOR IATTR

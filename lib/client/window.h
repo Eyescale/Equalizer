@@ -209,6 +209,8 @@ namespace eq
         {
             IATTR_HINTS_STEREO,
             IATTR_HINTS_DOUBLEBUFFER,
+            IATTR_HINTS_FULLSCREEN,
+            IATTR_HINTS_DECORATION,
             IATTR_PLANES_COLOR,
             IATTR_PLANES_ALPHA,
             IATTR_PLANES_DEPTH,
@@ -216,8 +218,6 @@ namespace eq
             IATTR_ALL
         };
 
-        void setIAttribute( const IAttribute attr, const int32_t value )
-            { _iAttributes[attr] = value; }
         int32_t  getIAttribute( const IAttribute attr ) const
             { return _iAttributes[attr]; }
         //*}
