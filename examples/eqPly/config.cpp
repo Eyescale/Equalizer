@@ -47,6 +47,15 @@ bool Config::handleEvent( eq::ConfigEvent* event )
             }
             break;
 
+        case eq::ConfigEvent::TYPE_POINTER_BUTTON_PRESS:
+            if( event->pointerButtonPress.buttons == 
+                ( eq::PTR_BUTTON1 | eq::PTR_BUTTON2 | eq::PTR_BUTTON3 ))
+            {
+                _running = false;
+                return true;
+            }
+            break;
+
         case eq::ConfigEvent::TYPE_POINTER_BUTTON_RELEASE:
             if( event->pointerButtonRelease.buttons == eq::PTR_BUTTON_NONE &&
                 event->pointerButtonRelease.button  == eq::PTR_BUTTON1 )

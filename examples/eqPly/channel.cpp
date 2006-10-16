@@ -138,7 +138,7 @@ void Channel::_initFrustum( Frustumf& frustum )
     modelview.ml[12] = tra[0];
     modelview.ml[13] = tra[1];
     modelview.ml[14] = tra[2];
-    modelview *= getHeadTransform();;
+    modelview *= getHeadTransform();
 
     const eq::PixelViewport& pvp = getPixelViewport();
 

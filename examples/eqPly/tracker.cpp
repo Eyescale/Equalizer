@@ -92,19 +92,20 @@ bool Tracker::init( const string& port )
      _angleOrigin[2] = 0.0;
    */
      
-   bool b = _update(); //try an update to see if it works
-   if(b)
-     _running = true;
-     //save the position and angle origins of the sensor
-     _angleOrigin[0] = hpr[0];
-     _angleOrigin[1] = hpr[1];
-     _angleOrigin[2] = hpr[2];
-     _headCos = cos( hpr[0] ); 
-     _headSin = sin( hpr[0] );
-     _translationOrigin[0] = _posWoAng[0];
-     _translationOrigin[1] = _posWoAng[1];
-     _translationOrigin[2] = _posWoAng[2];
-   return b;
+   if( _update( )) //try an update to see if it works
+       _running = true;
+
+   //save the position and angle origins of the sensor
+   _angleOrigin[0] = hpr[0];
+   _angleOrigin[1] = hpr[1];
+   _angleOrigin[2] = hpr[2];
+   _headCos = cos( hpr[0] ); 
+   _headSin = sin( hpr[0] );
+   _translationOrigin[0] = _posWoAng[0];
+   _translationOrigin[1] = _posWoAng[1];
+   _translationOrigin[2] = _posWoAng[2];
+
+   return _running;
 }
 
 bool Tracker::update()
