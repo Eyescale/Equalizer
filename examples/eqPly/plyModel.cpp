@@ -488,55 +488,70 @@ void PlyModel<FaceType>::addFaceToBBox( BBox &bbox, FaceType &face )
 //---------------------------------------------------------------------------
 // scale
 //---------------------------------------------------------------------------
+struct ScaleData
+{
+    float scale;
+    vmml::Vector3f offset;
+};
+
 template<class FaceType>
 void PlyModel<FaceType>::normalize( void )
 {
-    Vertex bbox[2];
-    memcpy( bbox, _bbox.pos, 2*sizeof(Vertex) );
+    ScaleData data = {
+        _getScaleFactor( _bbox.pos ),
+        vmml::Vector3f( (_bbox.pos[0].pos[0] + _bbox.pos[1].pos[0])*.5f,
+                        (_bbox.pos[0].pos[1] + _bbox.pos[1].pos[1])*.5f,
+                        (_bbox.pos[0].pos[2] + _bbox.pos[1].pos[2])*.5f )
+    };
 
-    scaleModel( bbox );
-    traverseBBox( &_bbox, scaleBBoxCB, scaleBBoxCB, NULL, bbox );
+    scaleModel( data.scale, data.offset );
+    traverseBBox( &_bbox, scaleBBoxCB, scaleBBoxCB, NULL, &data );
 }
 
 template<class FaceType>
-void PlyModel<FaceType>::scaleModel( Vertex bbox[2] )
+float PlyModel<FaceType>::_getScaleFactor( const Vertex bbox[2] )
 {
     const float xScale = bbox[1].pos[0] - bbox[0].pos[0];
     const float yScale = bbox[1].pos[1] - bbox[0].pos[1];
     const float zScale = bbox[1].pos[2] - bbox[0].pos[2];
+
     float scale = xScale;
     if( yScale > scale ) scale = yScale;
     if( zScale > scale ) scale = zScale;
 
-    const float xOff = (bbox[0].pos[0] + bbox[1].pos[0])/2.;
-    const float yOff = (bbox[0].pos[1] + bbox[1].pos[1])/2.;
-    const float zOff = (bbox[0].pos[2] + bbox[1].pos[2])/2.;
+    return .1f/scale;
+}
 
+
+template<class FaceType>
+void PlyModel<FaceType>::scaleModel( const float scale, 
+                                     const vmml::Vector3f& offset )
+{
     for( size_t i=0; i<_nFaces; i++ )
     {        
-        _faces[i].vertices[0].pos[0] -= xOff;
-        _faces[i].vertices[0].pos[1] -= yOff;
-        _faces[i].vertices[0].pos[2] -= zOff;
+        _faces[i].vertices[0].pos[0] -= offset.x;
+        _faces[i].vertices[0].pos[1] -= offset.y;
+        _faces[i].vertices[0].pos[2] -= offset.z;
 
-        _faces[i].vertices[0].pos[0] /= scale;
-        _faces[i].vertices[0].pos[1] /= scale;
-        _faces[i].vertices[0].pos[2] /= scale;
+        _faces[i].vertices[0].pos[0] *= scale;
+        _faces[i].vertices[0].pos[1] *= scale;
+        _faces[i].vertices[0].pos[2] *= scale;
 
-        _faces[i].vertices[1].pos[0] -= xOff;
-        _faces[i].vertices[1].pos[1] -= yOff;
-        _faces[i].vertices[1].pos[2] -= zOff;
+        _faces[i].vertices[1].pos[0] -= offset.x;
+        _faces[i].vertices[1].pos[1] -= offset.y;
+        _faces[i].vertices[1].pos[2] -= offset.z;
 
-        _faces[i].vertices[1].pos[0] /= scale;
-        _faces[i].vertices[1].pos[1] /= scale;
-        _faces[i].vertices[1].pos[2] /= scale;
+        _faces[i].vertices[1].pos[0] *= scale;
+        _faces[i].vertices[1].pos[1] *= scale;
+        _faces[i].vertices[1].pos[2] *= scale;
 
-        _faces[i].vertices[2].pos[0] -= xOff;
-        _faces[i].vertices[2].pos[1] -= yOff;
-        _faces[i].vertices[2].pos[2] -= zOff;
+        _faces[i].vertices[2].pos[0] -= offset.x;
+        _faces[i].vertices[2].pos[1] -= offset.y;
+        _faces[i].vertices[2].pos[2] -= offset.z;
 
-        _faces[i].vertices[2].pos[0] /= scale;
-        _faces[i].vertices[2].pos[1] /= scale;
-        _faces[i].vertices[2].pos[2] /= scale;
+        _faces[i].vertices[2].pos[0] *= scale;
+        _faces[i].vertices[2].pos[1] *= scale;
+        _faces[i].vertices[2].pos[2] *= scale;
     }
 }
 
@@ -544,44 +559,33 @@ template<class FaceType>
 void PlyModel<FaceType>::scaleBBoxCB( PlyModel< FaceType >::BBox *bbox,
     void *data )
 {
-    Vertex *box = (Vertex *)data;
+    const ScaleData*      scaleData = (const ScaleData*)data;
+    const vmml::Vector3f& offset    = scaleData->offset;
+    const float           scale     = scaleData->scale;
 
-    const float xScale = box[1].pos[0] - box[0].pos[0];
-    const float yScale = box[1].pos[1] - box[0].pos[1];
-    const float zScale = box[1].pos[2] - box[0].pos[2];
-    float scale = xScale;
-    if( yScale > scale ) scale = yScale;
-    if( zScale > scale ) scale = zScale;
+    bbox->cullSphere.center.pos[0] -= offset.x;
+    bbox->cullSphere.center.pos[1] -= offset.y;
+    bbox->cullSphere.center.pos[2] -= offset.z;
 
-    const float xOff = (box[0].pos[0] + box[1].pos[0])/2.;
-    const float yOff = (box[0].pos[1] + box[1].pos[1])/2.;
-    const float zOff = (box[0].pos[2] + box[1].pos[2])/2.;
+    bbox->cullSphere.center.pos[0] *= scale;
+    bbox->cullSphere.center.pos[1] *= scale; 
+    bbox->cullSphere.center.pos[2] *= scale;
 
-    
-    bbox->cullSphere.center.pos[0] -= xOff;
-    bbox->cullSphere.center.pos[1] -= yOff;
-    bbox->cullSphere.center.pos[2] -= zOff;
+    bbox->cullSphere.radius *= scale;
 
-    bbox->cullSphere.center.pos[0] /= scale;
-    bbox->cullSphere.center.pos[1] /= scale; 
-    bbox->cullSphere.center.pos[2] /= scale;
+    bbox->cullBox[0].pos[0] -= offset.x;
+    bbox->cullBox[0].pos[1] -= offset.y;
+    bbox->cullBox[0].pos[2] -= offset.z;
+    bbox->cullBox[1].pos[0] -= offset.x;
+    bbox->cullBox[1].pos[1] -= offset.y;
+    bbox->cullBox[1].pos[2] -= offset.z;
 
-    bbox->cullSphere.radius /= scale;
-
-    
-    bbox->cullBox[0].pos[0] -= xOff;
-    bbox->cullBox[0].pos[1] -= yOff;
-    bbox->cullBox[0].pos[2] -= zOff;
-    bbox->cullBox[1].pos[0] -= xOff;
-    bbox->cullBox[1].pos[1] -= yOff;
-    bbox->cullBox[1].pos[2] -= zOff;
-
-    bbox->cullBox[0].pos[0] /= scale;
-    bbox->cullBox[0].pos[1] /= scale;
-    bbox->cullBox[0].pos[2] /= scale;
-    bbox->cullBox[1].pos[0] /= scale;
-    bbox->cullBox[1].pos[1] /= scale;
-    bbox->cullBox[1].pos[2] /= scale;
+    bbox->cullBox[0].pos[0] *= scale;
+    bbox->cullBox[0].pos[1] *= scale;
+    bbox->cullBox[0].pos[2] *= scale;
+    bbox->cullBox[1].pos[0] *= scale;
+    bbox->cullBox[1].pos[1] *= scale;
+    bbox->cullBox[1].pos[2] *= scale;
 }
 
 //---------------------------------------------------------------------------

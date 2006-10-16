@@ -55,6 +55,7 @@
 
 #include "vertex.h"
 
+#include <eq/vmmlib/Vector3.h>
 #include <fstream>
 
 template<class FaceType> class PlyModel
@@ -128,8 +129,9 @@ private:
     void expandBox( Vertex bbox[2], Vertex faceBBox[2] );
     void addFaceToBBox( BBox &bbox, FaceType &face );
 
-    void        scaleModel( Vertex bbox[2] );
-    static void scaleBBoxCB( PlyModel< FaceType >::BBox *bbox, void *data);
+    static float _getScaleFactor( const Vertex bbox[2] );
+    void        scaleModel( const float scale, const vmml::Vector3f& offset );
+    static void scaleBBoxCB( PlyModel< FaceType >::BBox *bbox, void *data );
 
     void freeBBoxes( BBox &bbox );
 };
