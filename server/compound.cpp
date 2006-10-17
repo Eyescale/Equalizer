@@ -668,9 +668,9 @@ void Compound::_computeFrustum( eq::RenderContext& context, const Eye whichEye )
     destination->getNearFar( &context.frustum.near, &context.frustum.far );
 
     // compute eye position in screen space
-    const float* eyeW   = config->getEyePosition( whichEye );
-    const float* xfm    = view.xfm;
-    const float  w      = 
+    const vmml::Vector3f& eyeW = config->getEyePosition( whichEye );
+    const float*          xfm  = view.xfm;
+    const float           w    = 
         xfm[3] * eyeW[0] + xfm[7] * eyeW[1] + xfm[11]* eyeW[2] + xfm[15];
     const float  eye[3] = {
         (xfm[0] * eyeW[0] + xfm[4] * eyeW[1] + xfm[8] * eyeW[2] + xfm[12]) / w,

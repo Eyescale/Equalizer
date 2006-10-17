@@ -588,29 +588,28 @@ bool Config::_exitNodes()
 void Config::_updateHead()
 {
     _headMatrix->sync();
-    const float  eyeBase = getFAttribute( Config::FATTR_EYE_BASE );
-    const float* matrix  = _headMatrix->ml;
-    const float  w       = eyeBase * matrix[12] + matrix[15];
-    _eyePosition[EYE_INDEX_CYCLOP][0] = ( matrix[3] / w );
-    _eyePosition[EYE_INDEX_CYCLOP][1] = ( matrix[7] / w );
-    _eyePosition[EYE_INDEX_CYCLOP][2] = ( matrix[11] / w );
-    //The transformation matrix gets multiplicated by the eye offset vector 
-    //[eye_offset, 0, 0, w]' to get the left and right eye positions.
-    _eyePosition[EYE_INDEX_LEFT][0] =
-        ( -0.5f * eyeBase * matrix[0] + matrix[3] ) / w;
-    _eyePosition[EYE_INDEX_LEFT][1] =
-        ( -0.5f * eyeBase * matrix[4] + matrix[7] ) / w;
-    _eyePosition[EYE_INDEX_LEFT][2] =
-        ( -0.5f * eyeBase * matrix[8] + matrix[11] ) / w;
-    _eyePosition[EYE_INDEX_RIGHT][0] =
-        ( 0.5f * eyeBase * matrix[0] + matrix[3] ) / w;
-    _eyePosition[EYE_INDEX_RIGHT][1] =
-        ( 0.5f * eyeBase * matrix[4] + matrix[7] ) / w;
-    _eyePosition[EYE_INDEX_RIGHT][2] =
-        ( 0.5f * eyeBase * matrix[8] + matrix[11] ) / w;
+    const float         eyeBase_2 = .5f * getFAttribute(Config::FATTR_EYE_BASE);
+    const eq::Matrix4f* head  = _headMatrix.get();
+
+    // eye_world = (+-eye_base/2., 0, 0 ) x head_matrix
+    // Don't use matrix operators due to possible simplification
+
+    _eyePosition[EYE_INDEX_CYCLOP].x = head->m30 / head->m33;
+    _eyePosition[EYE_INDEX_CYCLOP].y = head->m31 / head->m33;
+    _eyePosition[EYE_INDEX_CYCLOP].z = head->m32 / head->m33;
+
+    const float wi = 1.f / (eyeBase_2 * head->m30 + head->m33);
+
+    _eyePosition[EYE_INDEX_LEFT].x = (-eyeBase_2 * head->m00 + head->m30) * wi;
+    _eyePosition[EYE_INDEX_LEFT].y = (-eyeBase_2 * head->m01 + head->m31) * wi;
+    _eyePosition[EYE_INDEX_LEFT].z = (-eyeBase_2 * head->m02 + head->m32) * wi;
+
+    _eyePosition[EYE_INDEX_RIGHT].x = (eyeBase_2 * head->m00 + head->m30) * wi;
+    _eyePosition[EYE_INDEX_RIGHT].y = (eyeBase_2 * head->m01 + head->m31) * wi;
+    _eyePosition[EYE_INDEX_RIGHT].z = (eyeBase_2 * head->m02 + head->m32) * wi;
 }
 
-const float* Config::getEyePosition( const uint32_t eye )
+const vmml::Vector3f& Config::getEyePosition( const uint32_t eye )
 {
     switch( eye )
     {

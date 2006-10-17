@@ -179,7 +179,7 @@ namespace eqs
           * @return the eye position.
           * @sa Compound::Eye
           */
-        const float* getEyePosition( const uint32_t eye );
+        const vmml::Vector3f& getEyePosition( const uint32_t eye );
 
         /**
          * @name Float Attributes
@@ -242,7 +242,7 @@ namespace eqs
         eqBase::RefPtr<eq::Matrix4f> _headMatrix;
 
         /** The vectors defining the eye positions. */
-        float _eyePosition[EYE_INDEX_ALL][3];
+        vmml::Vector3f _eyePosition[EYE_INDEX_ALL];
 
         enum State
         {
