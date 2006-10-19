@@ -390,8 +390,8 @@ namespace eqNet
     inline std::ostream& operator << ( std::ostream& os, 
                                        const Packet* packet )
     {
-        os << "packet " << (void*)packet << " dt " << packet->datatype
-           << " cmd "<< packet->command;
+        os << "packet dt " << packet->datatype << " cmd "
+           << packet->command;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
@@ -498,7 +498,8 @@ namespace eqNet
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ObjectPacket* packet )
     {
-        os << (SessionPacket*)packet << " objectID " << packet->objectID;
+        os << (SessionPacket*)packet << " objectID " << packet->objectID
+           << " instance " << packet->instanceID;
         return os;
     }
 

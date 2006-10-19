@@ -617,8 +617,8 @@ bool Node::_handleRequest( Node* node )
     switch( result )
     {
         case COMMAND_ERROR:
-            EQASSERTINFO( result != COMMAND_ERROR, 
-                          "Error handling command packet" );
+            EQERROR << "Error handling command " << packet << endl;
+            EQASSERT(0);
             break;
         
         case COMMAND_REDISPATCH:
@@ -672,8 +672,8 @@ void Node::_redispatchPackets()
             break;
 
             case COMMAND_ERROR:
-                EQERROR << "Error handling command packet" << endl;
-                abort();
+                EQERROR << "Error handling command " << request->packet << endl;
+                EQASSERT(0);
                 break;
                 
             // Already a pushed packet?!

@@ -557,8 +557,12 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
             }
         }
     }
-    return ( objPacket->instanceID == EQ_ID_ANY ) ? 
-        COMMAND_HANDLED : COMMAND_ERROR;
+    if( objPacket->instanceID == EQ_ID_ANY )
+        return COMMAND_HANDLED;
+
+    EQERROR << "Error handling command " << objPacket
+            << ": instance not found" << endl;
+    return COMMAND_ERROR;
 }
 
 CommandResult Session::_instObject( GetObjectState* state )
