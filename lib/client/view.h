@@ -5,6 +5,8 @@
 #ifndef EQ_VIEW_H
 #define EQ_VIEW_H
 
+#include <eq/vmmlib/Matrix4.h>
+
 namespace eq
 {
     class Projection;
@@ -19,16 +21,16 @@ namespace eq
      */
     struct View
     {
-        View() : width(0), height(0) {}
+        View() : width(0.f), height(0.f) {}
 
-        bool isValid() const { return (width!=0 && height!=0); }
+        bool isValid() const { return (width!=0.f && height!=0.f); }
 
         void applyProjection( const Projection& projection );
         void applyWall( const Wall& wall );
 
         float width;
         float height;
-        float xfm[16];
+        vmml::Matrix4f xfm;
     };
 }
 

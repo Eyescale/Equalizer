@@ -47,21 +47,24 @@ void Channel::draw( const uint32_t frameID )
 
     glLightfv( GL_LIGHT0, GL_POSITION, lightpos );
 
-    glTranslatef( _frameData->_data.translation[0],
-                  _frameData->_data.translation[1],
-                  _frameData->_data.translation[2] );
-    glMultMatrixf( _frameData->_data.rotation );
-
+    glTranslatef( _frameData->_data.translation.x,
+                  _frameData->_data.translation.y,
+                  _frameData->_data.translation.z );
+    glMultMatrixf( _frameData->_data.rotation.ml );
+    EQINFO << _frameData->_data.rotation << endl;
 
     Node*        node  = (Node*)getNode();
     const Model* model = node->getModel();
 
     Frustumf frustum;
-    _initFrustum( frustum );
+    //_initFrustum( frustum );
     const size_t  bboxThreshold = 64;
 
     if( model )
     {
+#if 1
+        _drawBBox( model->getBBox( ));
+#else
         vector<const Model::BBox*> bBoxVector;
         bBoxVector.push_back( model->getBBox( ) );
         while( !bBoxVector.empty( ) )
@@ -87,6 +90,7 @@ void Channel::draw( const uint32_t frameID )
                     break;
             }
         }
+#endif
     }
     else
     {
@@ -134,10 +138,8 @@ void Channel::_initFrustum( Frustumf& frustum )
 
     // apply rot + trans + head transform
     vmml::Matrix4f modelview( _frameData->_data.rotation );
-    const float*   tra      = _frameData->_data.translation;
-    modelview.ml[12] = tra[0];
-    modelview.ml[13] = tra[1];
-    modelview.ml[14] = tra[2];
+
+    modelview.setTranslation( _frameData->_data.translation );
     modelview *= getHeadTransform();
 
     const eq::PixelViewport& pvp = getPixelViewport();

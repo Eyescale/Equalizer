@@ -589,7 +589,7 @@ void Config::_updateHead()
 {
     _headMatrix->sync();
     const float         eyeBase_2 = .5f * getFAttribute(Config::FATTR_EYE_BASE);
-    const eq::Matrix4f* head  = _headMatrix.get();
+    const eq::Matrix4f* head      = _headMatrix.get();
 
     // eye_world = (+-eye_base/2., 0, 0 ) x head_matrix
     // Don't use matrix operators due to possible simplification

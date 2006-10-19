@@ -165,7 +165,7 @@ void Compound::setWall( const eq::Wall& wall )
     _view.wall   = wall;
     _view.latest = View::WALL;
 
-    EQVERB << "Wall matrix: " << LOG_MATRIX4x4( _data.view.xfm ) << endl;
+    EQVERB << "Wall matrix: " << _data.view.xfm << endl;
 }
 
 void Compound::setProjection( const eq::Projection& projection )
@@ -669,13 +669,18 @@ void Compound::_computeFrustum( eq::RenderContext& context, const Eye whichEye )
 
     // compute eye position in screen space
     const vmml::Vector3f& eyeW = config->getEyePosition( whichEye );
-    const float*          xfm  = view.xfm;
+    const vmml::Matrix4f& xfm  = view.xfm;
+
+#if 1
     const float           w    = 
-        xfm[3] * eyeW[0] + xfm[7] * eyeW[1] + xfm[11]* eyeW[2] + xfm[15];
+        xfm.ml[3] * eyeW[0] + xfm.ml[7] * eyeW[1] + xfm.ml[11]* eyeW[2] + xfm.ml[15];
     const float  eye[3] = {
-        (xfm[0] * eyeW[0] + xfm[4] * eyeW[1] + xfm[8] * eyeW[2] + xfm[12]) / w,
-        (xfm[1] * eyeW[0] + xfm[5] * eyeW[1] + xfm[9] * eyeW[2] + xfm[13]) / w,
-        (xfm[2] * eyeW[0] + xfm[6] * eyeW[1] + xfm[10]* eyeW[2] + xfm[14]) / w};
+        (xfm.ml[0] * eyeW[0] + xfm.ml[4] * eyeW[1] + xfm.ml[8] * eyeW[2] + xfm.ml[12]) / w,
+        (xfm.ml[1] * eyeW[0] + xfm.ml[5] * eyeW[1] + xfm.ml[9] * eyeW[2] + xfm.ml[13]) / w,
+        (xfm.ml[2] * eyeW[0] + xfm.ml[6] * eyeW[1] + xfm.ml[10]* eyeW[2] + xfm.ml[14]) / w};
+#else
+    const vmml::Vector3f  eye  = xfm * eyeW;
+#endif
 
     // compute frustum from size and eye position
     eq::Frustum& frustum = context.frustum;
@@ -714,10 +719,10 @@ void Compound::_computeFrustum( eq::RenderContext& context, const Eye whichEye )
     vmml::Matrix4f& headTransform = context.headTransform;
     for( int i=0; i<16; i += 4 )
     {
-        headTransform.ml[i]   = xfm[i]   - eye[0] * xfm[i+3];
-        headTransform.ml[i+1] = xfm[i+1] - eye[1] * xfm[i+3];
-        headTransform.ml[i+2] = xfm[i+2] - eye[2] * xfm[i+3];
-        headTransform.ml[i+3] = xfm[i+3];
+        headTransform.ml[i]   = xfm.ml[i]   - eye[0] * xfm.ml[i+3];
+        headTransform.ml[i+1] = xfm.ml[i+1] - eye[1] * xfm.ml[i+3];
+        headTransform.ml[i+2] = xfm.ml[i+2] - eye[2] * xfm.ml[i+3];
+        headTransform.ml[i+3] = xfm.ml[i+3];
     }
 }
 

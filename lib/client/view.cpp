@@ -44,29 +44,29 @@ void View::applyWall( const Wall& wall )
     w[1] /= length;
     w[2] /= length;
 
-    xfm[0]  = u[0];
-    xfm[1]  = v[0];
-    xfm[2]  = w[0];
-    xfm[3]  = 0.;
+    xfm.ml[0]  = u[0];
+    xfm.ml[1]  = v[0];
+    xfm.ml[2]  = w[0];
+    xfm.ml[3]  = 0.;
              
-    xfm[4]  = u[1];
-    xfm[5]  = v[1];
-    xfm[6]  = w[1];
-    xfm[7]  = 0.;
+    xfm.ml[4]  = u[1];
+    xfm.ml[5]  = v[1];
+    xfm.ml[6]  = w[1];
+    xfm.ml[7]  = 0.;
              
-    xfm[8]  = u[2];
-    xfm[9]  = v[2];
-    xfm[10] = w[2];
-    xfm[11] = 0.;
+    xfm.ml[8]  = u[2];
+    xfm.ml[9]  = v[2];
+    xfm.ml[10] = w[2];
+    xfm.ml[11] = 0.;
 
     const float center[3] = { (wall.bottomRight[0] + wall.topLeft[0]) / 2.,
                               (wall.bottomRight[1] + wall.topLeft[1]) / 2.,
                               (wall.bottomRight[2] + wall.topLeft[2]) / 2. };
 
-    xfm[12] = -(u[0]*center[0] + u[1]*center[1] + u[2]*center[2]);
-    xfm[13] = -(v[0]*center[0] + v[1]*center[1] + v[2]*center[2]);
-    xfm[14] = -(w[0]*center[0] + w[1]*center[1] + w[2]*center[2]);
-    xfm[15] = 1.;
+    xfm.ml[12] = -(u[0]*center[0] + u[1]*center[1] + u[2]*center[2]);
+    xfm.ml[13] = -(v[0]*center[0] + v[1]*center[1] + v[2]*center[2]);
+    xfm.ml[14] = -(w[0]*center[0] + w[1]*center[1] + w[2]*center[2]);
+    xfm.ml[15] = 1.;
 }
 
 void View::applyProjection( const Projection& projection )
@@ -96,25 +96,25 @@ void View::applyProjection( const Projection& projection )
             -( rot[2]*origin[0] + rot[5]*origin[1] + rot[8]*origin[2] )
         };
 
-    xfm[0]  = rot[0];
-    xfm[1]  = rot[1];
-    xfm[2]  = rot[2];
-    xfm[3]  = 0.;
+    xfm.ml[0]  = rot[0];
+    xfm.ml[1]  = rot[1];
+    xfm.ml[2]  = rot[2];
+    xfm.ml[3]  = 0.;
 
-    xfm[4]  = rot[3];
-    xfm[5]  = rot[4];
-    xfm[6]  = rot[5];
-    xfm[7]  = 0.;
+    xfm.ml[4]  = rot[3];
+    xfm.ml[5]  = rot[4];
+    xfm.ml[6]  = rot[5];
+    xfm.ml[7]  = 0.;
             
-    xfm[8]  = rot[6];                
-    xfm[9]  = rot[7];
-    xfm[10] = rot[8];
-    xfm[11] = 0.;
+    xfm.ml[8]  = rot[6];                
+    xfm.ml[9]  = rot[7];
+    xfm.ml[10] = rot[8];
+    xfm.ml[11] = 0.;
 
-    xfm[12] = trans[0];
-    xfm[13] = trans[1];
-    xfm[14] = trans[2] + distance;
-    xfm[15] = 1.;
+    xfm.ml[12] = trans[0];
+    xfm.ml[13] = trans[1];
+    xfm.ml[14] = trans[2] + distance;
+    xfm.ml[15] = 1.;
 
     width  = distance * tan(DEG2RAD( projection.fov[0] ));
     height = distance * tan(DEG2RAD( projection.fov[1] ));

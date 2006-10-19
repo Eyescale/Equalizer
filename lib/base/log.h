@@ -218,14 +218,4 @@ namespace eqBase
 #define EQLOG(topic)  (eqBase::Log::topics && (topic))  &&  \
     eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )
 
-#define LOG_MATRIX4x4( m ) endl \
- << "  " << m[0] << " " << m[4] << " " << m[8]  << " " << m[12] << " " << endl \
- << "  " << m[1] << " " << m[5] << " " << m[9]  << " " << m[13] << " " << endl \
- << "  " << m[2] << " " << m[6] << " " << m[10] << " " << m[14] << " " << endl \
- << "  " << m[3] << " " << m[7] << " " << m[11] << " " << m[15] << " " << endl
-
-#define LOG_VECTOR6( v ) \
-    "[" << v[0] << " " << v[1] << " " << v[2] << " " << v[3] << " " \
-    << v[4] << " " << v[5] << "]"
-
 #endif //EQBASE_LOG_H

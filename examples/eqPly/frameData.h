@@ -16,48 +16,31 @@ public:
     FrameData() : Object( TYPE_FRAMEDATA, eqNet::CMD_OBJECT_CUSTOM )
         {
             reset();
+            setDistributedData( &_data, sizeof( Data ));
         }
 
     FrameData( const void* data, const uint64_t size ) 
             : Object( TYPE_FRAMEDATA, eqNet::CMD_OBJECT_CUSTOM )
         {
             EQASSERT( size == sizeof( Data ));
-            _data = *(Data*)data;
+
+            memcpy( &_data, data, sizeof( Data ));
+            setDistributedData( &_data, sizeof( Data ));
             EQINFO << "New FrameData instance" << std::endl;
         }
 
     void reset()
         {
-            bzero( &_data, sizeof( Data ));
-            _data.translation[2] = -3.0f;
-
-            _rotation = vmml::Matrix4f::IDENTITY;
+            _data.translation.z = -3.0f;
+            _data.rotation = vmml::Matrix4f::IDENTITY;
         }
 
     struct Data
     {
-        float rotation[16];
-        float translation[3];
+        vmml::Matrix4f rotation;
+        vmml::Vector3f translation;
     } _data;
 
-    vmml::Matrix4f _rotation;
-
-protected:
-    const void* getInstanceData( uint64_t* size )
-    { return pack( size ); }
-
-    const void* pack( uint64_t* size )
-    {
-        memcpy( _data.rotation, _rotation.ml, 16*sizeof( float ));
-        *size = sizeof( Data );
-        return &_data;
-    }
-
-    void unpack( const void* data, const uint64_t size )
-    {
-        EQASSERT( size == sizeof( Data ));
-        _data = *(Data*)data;
-    }
 };
 
 
