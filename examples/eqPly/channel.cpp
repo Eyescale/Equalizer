@@ -132,12 +132,12 @@ void Channel::_initFrustum( Frustumf& frustum )
     channelFrustum.computeMatrix( proj );
 
     // apply rot + trans + head transform
-    vmml::Matrix4f modelview( _frameData->_data.rotation );
+    vmml::Matrix4f view( _frameData->_data.rotation );
+    view.setTranslation( _frameData->_data.translation );
 
-    modelview.setTranslation( _frameData->_data.translation );
-    modelview *= getHeadTransform();
+    const vmml::Matrix4f& mvm = getHeadTransform() * view;
 
     const eq::PixelViewport& pvp = getPixelViewport();
 
-    frustum.initView( proj, modelview.ml, pvp);
+    frustum.initView( proj, view.ml, pvp);
 }

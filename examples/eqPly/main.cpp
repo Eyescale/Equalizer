@@ -87,10 +87,6 @@ int main( int argc, char** argv )
 
     // 6. run main loop
     clock.reset();
-    eq::Matrix4f headMatrix;
-    headMatrix.setTranslation( 0.f, 0.f, .5f );
-    float delta = .01;
-
     while( config->isRunning( ))
     {
         if( tracker.isRunning() )
@@ -99,12 +95,6 @@ int main( int argc, char** argv )
             const eq::Matrix4f& headMatrix = tracker.getHeadMatrix();
             config->setHeadMatrix( headMatrix );
         }
-
-        if( headMatrix.ml[11] > 1.f || headMatrix.ml[11] < -1.f )
-            delta = -delta;
-
-        headMatrix.ml[11] += delta;
-        //config->setHeadMatrix( headMatrix );
 
         config->beginFrame();
         // config->renderData(...);
