@@ -1,10 +1,14 @@
 # six-node config for 3x2 30" LCD rendering cluster at unizh
+global
+{
+    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
+}
 
 server
 {
     config
     {
-        latency 10
+        latency 2
         node
         {
             connection { hostname "hactar4" }
