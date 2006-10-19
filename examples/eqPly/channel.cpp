@@ -51,20 +51,16 @@ void Channel::draw( const uint32_t frameID )
                   _frameData->_data.translation.y,
                   _frameData->_data.translation.z );
     glMultMatrixf( _frameData->_data.rotation.ml );
-    EQINFO << _frameData->_data.rotation << endl;
 
     Node*        node  = (Node*)getNode();
     const Model* model = node->getModel();
 
     Frustumf frustum;
-    //_initFrustum( frustum );
+    _initFrustum( frustum );
     const size_t  bboxThreshold = 64;
 
     if( model )
     {
-#if 1
-        _drawBBox( model->getBBox( ));
-#else
         vector<const Model::BBox*> bBoxVector;
         bBoxVector.push_back( model->getBBox( ) );
         while( !bBoxVector.empty( ) )
@@ -90,7 +86,6 @@ void Channel::draw( const uint32_t frameID )
                     break;
             }
         }
-#endif
     }
     else
     {

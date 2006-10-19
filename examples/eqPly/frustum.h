@@ -1,4 +1,4 @@
-/* Copyright (c) 2006, Dustin Wüest <wueest@dustin.ch>
+/* Copyright (c) 2006, Dustin Wueest <wueest@dustin.ch>
    All rights reserved.
    Adapted code for Equalizer usage.
  */
@@ -81,26 +81,27 @@ public:
     ~Frustum(){};
 
     void initView( void );
-    void initView( T proj[16], T model[16], const eq::PixelViewport& pvp );
+    void initView( const T proj[16], const T model[16], 
+                   const eq::PixelViewport& pvp );
 
     // frustum culling tests
-    bool pointInFrustum( const float x, const float y, const float z );
-    FrustumVisibility sphereVisibility( const float x, const float y, 
-        const float z, const float r, float *distance = NULL );
-    FrustumVisibility sphereVisibility( const float pos[3], const float r, 
-        float *distance = NULL );
+    bool pointInFrustum( const T x, const T y, const T z );
+    FrustumVisibility sphereVisibility( const T x, const T y, 
+        const T z, const T r, T *distance = NULL );
+    FrustumVisibility sphereVisibility( const T pos[3], const T r, 
+        T *distance = NULL );
 
     // visibility in screen space
-    bool sphereScreenRegion( const float x, const float y, const float z,
-        const float r,                                           // in
-        float vp[4], int pvp[4]=NULL );                          // out
-    bool sphereScreenRegion( const float pos[3], const float r,  // in
-        float vp[4], int pvp[4]=NULL );                          // out
+    bool sphereScreenRegion( const T x, const T y, const T z,
+        const T r,                                           // in
+        T vp[4], int pvp[4]=NULL );                          // out
+    bool sphereScreenRegion( const T pos[3], const T r,  // in
+        T vp[4], int pvp[4]=NULL );                          // out
 
-    bool boxScreenRegion( const float box[2][3],                 // in
-        float vp[4], int pvp[4]=NULL );                          // out
+    bool boxScreenRegion( const T box[2][3],                 // in
+        T vp[4], int pvp[4]=NULL );                          // out
     bool boxScreenRegion( const Vertex box[2],                   // in
-        float vp[4], int pvp[4]=NULL );                          // out
+        T vp[4], int pvp[4]=NULL );                          // out
 
 private:
     T _proj[16];
@@ -117,6 +118,8 @@ private:
 
     void initScreenVec( void );
     void normalize( double vector[3] );
+
+    inline T _sqrt( const T value );
 };
 
 typedef Frustum<float>  Frustumf;
@@ -130,9 +133,8 @@ typedef Frustum<float>  Frustumf;
 //---------------------------------------------------------------------------
 // pointInFrustum
 //---------------------------------------------------------------------------
-#if 0
 template< typename T > 
-bool Frustum< T >::pointInFrustum( const float x, const float y, const float z )
+bool Frustum< T >::pointInFrustum( const T x, const T y, const T z )
 {
     for( int i = 0; i < 6; i++ )
       if( _frustum[i][0] * x + _frustum[i][1] * y + 
@@ -141,24 +143,24 @@ bool Frustum< T >::pointInFrustum( const float x, const float y, const float z )
 
    return true;
 }
-#endif
+
 //---------------------------------------------------------------------------
 // sphereVisiblity
 //---------------------------------------------------------------------------
 template< typename T > 
-FrustumVisibility Frustum< T >::sphereVisibility( const float pos[3], 
-                                                  const float r, 
-                                                  float *distance )
+FrustumVisibility Frustum< T >::sphereVisibility( const T pos[3], 
+                                                  const T r, 
+                                                  T *distance )
 {
     return sphereVisibility( pos[0], pos[1], pos[2], r, distance );
 }
 
 template< typename T > 
-FrustumVisibility Frustum< T >::sphereVisibility( const float x, const float y,
-    const float z, const float r, float *distance )
+FrustumVisibility Frustum< T >::sphereVisibility( const T x, const T y,
+    const T z, const T r, T *distance )
 {
-    float minDistance = r;
-    float d;
+    T minDistance = r;
+    T d;
 
     d = _frustum[0][0] * x + _frustum[0][1] * y + _frustum[0][2] * z +
         _frustum[0][3];
@@ -214,21 +216,20 @@ FrustumVisibility Frustum< T >::sphereVisibility( const float x, const float y,
 //       It does compute the region based on the top-most and right point,
 //       when using a perspective frustum these are not the outmost points of
 //       the sphere.
-#if 0
 template< typename T > 
-bool Frustum< T >::sphereScreenRegion( const float pos[3], const float r,
-    float vp[4], int pvp[4] )
+bool Frustum< T >::sphereScreenRegion( const T pos[3], const T r,
+    T vp[4], int pvp[4] )
 {
    return sphereScreenRegion( pos[0], pos[1], pos[2], r, vp, pvp );
 }
 
 template< typename T > 
-bool Frustum< T >::sphereScreenRegion( const float x, const float y, const float z,
-    const float r, float vp[4], int pvp[4] )
+bool Frustum< T >::sphereScreenRegion( const T x, const T y, const T z,
+    const T r, T vp[4], int pvp[4] )
 {
-    const float sphereDistance = _frustum[5][0] * x + _frustum[5][1] * y + 
+    const T sphereDistance = _frustum[5][0] * x + _frustum[5][1] * y + 
                              _frustum[5][2] * z + _frustum[5][3]+_frustum[5][3];
-    const float frontDistance  = _frustum[5][3];
+    const T frontDistance  = _frustum[5][3];
 
     if( sphereDistance+r < frontDistance )
         return false;
@@ -255,7 +256,7 @@ bool Frustum< T >::sphereScreenRegion( const float x, const float y, const float
     vp[1] = top[1]   - vp[3];
 
     // pixel viewport
-    if( pvp != NULL )
+    if( pvp )
     {
         pvp[0] = (int)(vp[0] * _pvp.w + _pvp.x );
         pvp[1] = (int)(vp[1] * _pvp.h + _pvp.y);
@@ -270,9 +271,9 @@ bool Frustum< T >::sphereScreenRegion( const float x, const float y, const float
 // boxScreenRegion
 //---------------------------------------------------------------------------
 template< typename T > 
-bool Frustum< T >::boxScreenRegion( const Vertex box[2], float vp[4], int pvp[4] )
+bool Frustum< T >::boxScreenRegion( const Vertex box[2], T vp[4], int pvp[4] )
 {
-    float fbox[2][3];
+    T fbox[2][3];
     
     fbox[0][0] = box[0].pos[0];
     fbox[0][1] = box[0].pos[1];
@@ -285,10 +286,10 @@ bool Frustum< T >::boxScreenRegion( const Vertex box[2], float vp[4], int pvp[4]
 }
 
 template< typename T > 
-bool Frustum< T >::boxScreenRegion( const float box[2][3], float vp[4], int pvp[4] )
+bool Frustum< T >::boxScreenRegion( const T box[2][3], T vp[4], int pvp[4] )
 {
     // world coordinate of the box vertices
-    float worldCoordinate [8][3];
+    T worldCoordinate [8][3];
 
     worldCoordinate[0][0] = box[0][0];
     worldCoordinate[0][1] = box[0][1];
@@ -392,7 +393,6 @@ bool Frustum< T >::boxScreenRegion( const float box[2][3], float vp[4], int pvp[
     
     return true;
 }
-#endif
 //---------------------------------------------------------------------------
 // initView
 //---------------------------------------------------------------------------
@@ -410,7 +410,7 @@ void Frustum< T >::initView( void )
 }
 
 template< typename T > 
-void Frustum< T >::initView( T proj[16], T model[16], 
+void Frustum< T >::initView( const T proj[16], const T model[16], 
                              const eq::PixelViewport& pvp )
 {
     T   clip[16];
@@ -466,7 +466,7 @@ void Frustum< T >::initView( T proj[16], T model[16],
     _frustum[0][3] = clip[15] - clip[12];
 
     /* Normalize the result */
-    t = sqrt( _frustum[0][0]*_frustum[0][0] + _frustum[0][1]*_frustum[0][1] +
+    t = _sqrt( _frustum[0][0]*_frustum[0][0] + _frustum[0][1]*_frustum[0][1] +
         _frustum[0][2]*_frustum[0][2] );
     _frustum[0][0] /= t;
     _frustum[0][1] /= t;
@@ -480,7 +480,7 @@ void Frustum< T >::initView( T proj[16], T model[16],
     _frustum[1][3] = clip[15] + clip[12];
 
     /* Normalize the result */
-    t = sqrt( _frustum[1][0]*_frustum[1][0] + _frustum[1][1]*_frustum[1][1] +
+    t = _sqrt( _frustum[1][0]*_frustum[1][0] + _frustum[1][1]*_frustum[1][1] +
         _frustum[1][2]*_frustum[1][2] );
     _frustum[1][0] /= t;
     _frustum[1][1] /= t;
@@ -494,7 +494,7 @@ void Frustum< T >::initView( T proj[16], T model[16],
     _frustum[2][3] = clip[15] + clip[13];
 
     /* Normalize the result */
-    t = sqrt( _frustum[2][0]*_frustum[2][0] + _frustum[2][1]*_frustum[2][1] +
+    t = _sqrt( _frustum[2][0]*_frustum[2][0] + _frustum[2][1]*_frustum[2][1] +
         _frustum[2][2]*_frustum[2][2] );
     _frustum[2][0] /= t;
     _frustum[2][1] /= t;
@@ -508,7 +508,7 @@ void Frustum< T >::initView( T proj[16], T model[16],
     _frustum[3][3] = clip[15] - clip[13];
 
     /* Normalize the result */
-    t = sqrt( _frustum[3][0]*_frustum[3][0] + _frustum[3][1]*_frustum[3][1] +
+    t = _sqrt( _frustum[3][0]*_frustum[3][0] + _frustum[3][1]*_frustum[3][1] +
         _frustum[3][2]*_frustum[3][2] );
     _frustum[3][0] /= t;
     _frustum[3][1] /= t;
@@ -522,7 +522,7 @@ void Frustum< T >::initView( T proj[16], T model[16],
     _frustum[4][3] = clip[15] - clip[14];
 
     /* Normalize the result */
-    t = sqrt( _frustum[4][0]*_frustum[4][0] + _frustum[4][1]*_frustum[4][1] +
+    t = _sqrt( _frustum[4][0]*_frustum[4][0] + _frustum[4][1]*_frustum[4][1] +
         _frustum[4][2]*_frustum[4][2] );
     _frustum[4][0] /= t;
     _frustum[4][1] /= t;
@@ -536,7 +536,7 @@ void Frustum< T >::initView( T proj[16], T model[16],
     _frustum[5][3] = clip[15] + clip[14];
 
     /* Normalize the result */
-    t = sqrt( _frustum[5][0]*_frustum[5][0] + _frustum[5][1]*_frustum[5][1] +
+    t = _sqrt( _frustum[5][0]*_frustum[5][0] + _frustum[5][1]*_frustum[5][1] +
         _frustum[5][2]*_frustum[5][2] );
     _frustum[5][0] /= t;
     _frustum[5][1] /= t;
@@ -550,7 +550,6 @@ void Frustum< T >::initView( T proj[16], T model[16],
 //---------------------------------------------------------------------------
 // initScreenVec
 //---------------------------------------------------------------------------
-#if 0
 template< typename T > 
 void Frustum< T >::initScreenVec( void )
 {
@@ -605,7 +604,7 @@ void Frustum< T >::initScreenVec( void )
 template< typename T > 
 void Frustum< T >::normalize( double vector[3] )
 {
-    const float scale = sqrt( vector[0]*vector[0] + vector[1]*vector[1] +
+    const T scale = _sqrt( vector[0]*vector[0] + vector[1]*vector[1] +
         vector[2]*vector[2] );
 
     assert( scale );
@@ -614,10 +613,22 @@ void Frustum< T >::normalize( double vector[3] )
     vector[1] /= scale;
     vector[2] /= scale;
 }
-#endif
+
+template< typename T > 
+inline T Frustum<T>::_sqrt( const T value )
+{
+    return ::sqrt( value );
+}
+template<> 
+inline float Frustum<float>::_sqrt( const float value )
+{
+    return ::sqrtf( value );
+}
+
+
 #if 0
 // starting point for bounding boxes
-bool CubeInFrustum( const float x, const float y,const float z,const float size)
+bool cubeInFrustum( const T x, const T y,const T z,const T size)
 {
    int p;
 
