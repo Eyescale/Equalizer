@@ -468,11 +468,11 @@ void Compound::_updateOutput( UpdateData* data )
 
 void Compound::_updateSwapBarriers( UpdateData* data )
 {
-    Window* window = getWindow();
-    if( !window )
+    if( !_swapBarrier )
         return;
 
-    if( !_swapBarrier )
+    Window* window = getWindow();
+    if( !window )
         return;
 
     const std::string& barrierName = _swapBarrier->getName();

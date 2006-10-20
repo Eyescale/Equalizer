@@ -623,6 +623,7 @@ bool Node::_handleRequest( Node* node )
         
         case COMMAND_REDISPATCH:
         case COMMAND_HANDLED:
+        case COMMAND_DISCARD:
             break;
             
         case COMMAND_PUSH:
@@ -663,6 +664,7 @@ void Node::_redispatchPackets()
         switch( dispatchPacket( request->node, request->packet ))
         {
             case COMMAND_HANDLED:
+            case COMMAND_DISCARD:
             {
                 list<Request*>::iterator handledIter = iter;
                 ++iter;

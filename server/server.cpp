@@ -123,6 +123,7 @@ void Server::_handleRequests()
         switch( dispatchPacket( node, packet ))
         {
             case eqNet::COMMAND_HANDLED:
+            case eqNet::COMMAND_DISCARD:
                 break;
 
             case eqNet::COMMAND_ERROR:

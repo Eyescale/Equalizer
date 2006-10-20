@@ -139,5 +139,5 @@ void Channel::_initFrustum( Frustumf& frustum )
 
     const eq::PixelViewport& pvp = getPixelViewport();
 
-    frustum.initView( proj, view.ml, pvp);
+    frustum.initView( proj, mvm.ml, pvp);
 }

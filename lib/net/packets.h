@@ -373,6 +373,7 @@ namespace eqNet
                 size    = sizeof( BarrierEnterPacket );
             }
         uint32_t version;
+        uint32_t requestorID;
     };
 
     struct BarrierEnterReplyPacket : public ObjectPacket

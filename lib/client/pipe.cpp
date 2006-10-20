@@ -269,6 +269,7 @@ void* Pipe::_runThread()
         switch( config->dispatchPacket( node, packet ))
         {
             case eqNet::COMMAND_HANDLED:
+            case eqNet::COMMAND_DISCARD:
                 break;
 
             case eqNet::COMMAND_ERROR:

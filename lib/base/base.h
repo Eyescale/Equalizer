@@ -35,10 +35,10 @@ typedef int socklen_t;
 #  define EQASSERTINFO(x, info) if( !(x) )                                \
         EQERROR << "##### Assert: " << #x << " [" << info << "] #####"    \
               << std::endl << eqBase::forceFlush;
-#  define EQUNIMPLEMENTED { EQERROR << "Unimplemented code in "        \
+#  define EQUNIMPLEMENTED { EQERROR << "Unimplemented code for "        \
                                     << typeid(*this).name() << std::endl \
                                     << eqBase::forceFlush; }
-#  define EQUNREACHABLE   { EQERROR << "Unreachable code in " \
+#  define EQUNREACHABLE   { EQERROR << "Unreachable code for "          \
                                     << typeid(*this).name() << std::endl \
                                     << eqBase::forceFlush; }
 

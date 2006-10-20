@@ -527,6 +527,9 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
                                                                 objPacket );
             switch( result )
             {
+                case COMMAND_DISCARD:
+                    return COMMAND_DISCARD;
+
                 case COMMAND_ERROR:
                     EQERROR << "Error handling command " << objPacket
                             << " for object of type " << typeid(*object).name()

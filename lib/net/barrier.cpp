@@ -53,8 +53,8 @@ void Barrier::enter()
     EQASSERT( getSession( ));
 
     BarrierEnterPacket packet;
-    packet.version    = getVersion();
-    packet.instanceID = getInstanceID();
+    packet.version     = getVersion();
+    packet.requestorID = getInstanceID();
     send( _master, packet );
     
     _leaveNotify.wait();
@@ -73,17 +73,17 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
     
     EQASSERT( packet->version == getVersion( ));
 
-    _enteredBarriers.push_back( EnteredBarrier( node, packet->instanceID ));
+    _enteredBarriers.push_back( EnteredBarrier( node, packet->requestorID ));
 
     if( _enteredBarriers.size() < _data.height )
-        return COMMAND_HANDLED;
+        return COMMAND_DISCARD;
 
     EQASSERT( _enteredBarriers.size() == _data.height );
     EQVERB << "Barrier reached" << endl;
 
     BarrierEnterReplyPacket reply;
-    reply.sessionID = getSession()->getID();
-    reply.objectID  = getID();
+    reply.sessionID  = getSession()->getID();
+    reply.objectID   = getID();
 
     for( vector<EnteredBarrier>::iterator iter = _enteredBarriers.begin();
          iter != _enteredBarriers.end(); ++iter )
@@ -96,7 +96,7 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
     }
 
     _enteredBarriers.clear();
-    return COMMAND_HANDLED;
+    return COMMAND_DISCARD;
 }
 
 CommandResult Barrier::_cmdEnterReply( Node* node, const Packet* pkg )
