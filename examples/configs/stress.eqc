@@ -1,0 +1,159 @@
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 0 0 80 60 ]
+                    channel { name "channel1" }
+                }
+            }
+        }
+        node
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 100 0 80 60 ]
+                    channel { name "channel2" }
+                }
+            }
+        }
+        node
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 200 0 80 60 ]
+                    channel { name "channel3" }
+                }
+            }
+        }
+        node
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 0 100 80 60 ]
+                    channel { name "channel4" }
+                }
+            }
+        }
+        node
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 100 100 80 60 ]
+                    channel { name "channel5" }
+                }
+            }
+        }
+        node
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 200 100 80 60 ]
+                    channel { name "channel6" }
+                }
+            }
+        }
+        node
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 0 200 80 60 ]
+                    channel { name "channel7" }
+                }
+            }
+        }
+        node
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 100 200 80 60 ]
+                    channel { name "channel8" }
+                }
+            }
+        }
+        node
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 200 200 80 60 ]
+                    channel { name "channel9" }
+                }
+            }
+        }
+        compound
+        { 
+            channel "channel1"
+            wall
+            {
+                bottom_left  [ -.2 -.15 -1 ]
+                bottom_right [  .2 -.15 -1 ]
+                top_left     [ -.2  .15 -1 ]
+            }
+            compound
+            { 
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel2"
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel3"
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel4"
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel5"
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel6"
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel7"
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel8"
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel9"
+                swapbarrier {}
+            }
+        }
+    }    
+}
