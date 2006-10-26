@@ -16,12 +16,13 @@ namespace eq
     {
     public:
         Matrix4();
+        Matrix4( const vmml::Matrix4<T>& matrix );
         Matrix4( const void* data, uint64_t dataSize );
 
-        Matrix4& operator= ( const Matrix4<T>& mm )
-            { vmml::Matrix4<T>::operator= (mm); return *this; }
-        Matrix4& operator= ( const vmml::Matrix4<T>& mm )
-            { vmml::Matrix4<T>::operator= (mm); return *this; }
+        Matrix4& operator= ( const Matrix4<T>& matrix )
+            { vmml::Matrix4<T>::operator= (matrix); return *this; }
+        Matrix4& operator= ( const vmml::Matrix4<T>& matrix )
+            { vmml::Matrix4<T>::operator= (matrix); return *this; }
     };
 
     typedef Matrix4<float> Matrix4f;
