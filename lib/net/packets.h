@@ -125,9 +125,9 @@ namespace eqNet
                 connectionDescription[0] = '\0';
             }
 
-        bool     wasLaunched;
-        uint64_t launchID;
         NodeID   nodeID;
+        uint64_t launchID;
+        bool     wasLaunched;
         char     connectionDescription[8] EQ_ALIGN8;
     };
 
@@ -139,10 +139,10 @@ namespace eqNet
                 size    = sizeof( NodeGetConnectionDescriptionPacket );
             }
 
-        uint32_t requestID;
-        bool     appRequest;
         NodeID   nodeID;
+        uint32_t requestID;
         uint32_t index;
+        bool     appRequest;
     };
 
     struct NodeGetConnectionDescriptionReplyPacket : public NodePacket
@@ -158,8 +158,8 @@ namespace eqNet
             } 
 
         uint32_t requestID;
-        bool     appRequest;
         uint32_t nextIndex;
+        bool     appRequest;
         char     connectionDescription[8] EQ_ALIGN8;
     };
 
@@ -312,6 +312,7 @@ namespace eqNet
         uint32_t            objectID;
         uint32_t            version;
         Object::SharePolicy policy;
+        bool                threadSafe;
     };
 
     struct SessionInstanciateObjectPacket : public SessionPacket
@@ -324,13 +325,14 @@ namespace eqNet
                 error         = false;
             }
 
-        bool     isMaster;
-        bool     error;
+        uint64_t objectDataSize;
         uint32_t objectID;
         uint32_t objectType;
         uint32_t version;
         Object::SharePolicy policy;
-        uint64_t objectDataSize;
+        bool     isMaster;
+        bool     error;
+        bool     threadSafe;
         char     objectData[8] EQ_ALIGN8;
     };
 
@@ -346,6 +348,17 @@ namespace eqNet
             }
         uint32_t objectID;
         uint32_t instanceID;
+    };
+
+    struct ObjectCommitPacket : public ObjectPacket
+    {
+        ObjectCommitPacket()
+            {
+                command        = CMD_OBJECT_COMMIT;
+                size           = sizeof( ObjectCommitPacket ); 
+            }
+        
+        uint32_t requestID;
     };
 
     struct ObjectSyncPacket : public ObjectPacket
@@ -373,7 +386,6 @@ namespace eqNet
                 size    = sizeof( BarrierEnterPacket );
             }
         uint32_t version;
-        uint32_t requestorID;
     };
 
     struct BarrierEnterReplyPacket : public ObjectPacket
@@ -480,10 +492,18 @@ namespace eqNet
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
+                                 const SessionInitObjectPacket* packet )
+    {
+        os << (SessionPacket*)packet << " id " << packet->objectID 
+           << " v" << packet->version << " ts " << packet->threadSafe;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
                                  const SessionInstanciateObjectPacket* packet )
     {
-        os << (SessionPacket*)packet << " objectID " << packet->objectID
-           << " type " << packet->objectType << " master " << packet->isMaster;
+        os << (SessionPacket*)packet << " id " << packet->objectID 
+           << " err " << packet->error << " v" << packet->version << " type "
+           << packet->objectType << " master " << packet->isMaster;
         return os;
     }
 
@@ -500,18 +520,24 @@ namespace eqNet
                                        const ObjectPacket* packet )
     {
         os << (SessionPacket*)packet << " objectID " << packet->objectID
-           << " instance " << packet->instanceID;
+           << " inst " << packet->instanceID;
         return os;
     }
 
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ObjectSyncPacket* packet )
     {
-        os << (ObjectPacket*)packet << " version " << packet->version
+        os << (ObjectPacket*)packet << " v" << packet->version
            << " size " << packet->deltaSize;
         return os;
     }
 
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const BarrierEnterPacket* packet )
+    {
+        os << (ObjectPacket*)packet << " v" << packet->version;
+        return os;
+    }
 }
 
 #endif // EQNET_PACKETS_H

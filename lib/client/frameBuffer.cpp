@@ -20,7 +20,7 @@ FrameBuffer::FrameBuffer( const void* data, const uint64_t size )
           _data( *(Data*)data ) 
 {
     EQASSERT( size == sizeof( Data ));
-    setDistributedData( &_data, sizeof( Data ));
+    setInstanceData( &_data, sizeof( Data ));
 }
 
 FrameBuffer::~FrameBuffer()

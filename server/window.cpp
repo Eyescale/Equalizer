@@ -323,11 +323,6 @@ void eqs::Window::update( const uint32_t frameID )
 
 void eqs::Window::_updateSwap()
 {
-    for( vector<eqNet::Barrier*>::iterator iter = _masterSwapBarriers.begin();
-         iter != _masterSwapBarriers.end(); ++iter )
-
-        (*iter)->commit();
-
     if( !_swapBarriers.empty())
     {
         eq::WindowFinishPacket packet;

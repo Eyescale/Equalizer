@@ -125,7 +125,7 @@ namespace eqBase
             void*     result;
         };
         
-        typedef Sgi::hash_map<uint32_t, Request*> RequestHash;
+        typedef stde::hash_map<uint32_t, Request*> RequestHash;
 
         uint32_t            _requestID;
         RequestHash         _requests;

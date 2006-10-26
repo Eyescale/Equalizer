@@ -16,7 +16,8 @@ public:
     FrameData() : Object( TYPE_FRAMEDATA, eqNet::CMD_OBJECT_CUSTOM )
         {
             reset();
-            setDistributedData( &_data, sizeof( Data ));
+            setInstanceData( &_data, sizeof( Data ));
+            EQINFO << "New FrameData " << std::endl;
         }
 
     FrameData( const void* data, const uint64_t size ) 
@@ -25,7 +26,7 @@ public:
             EQASSERT( size == sizeof( Data ));
 
             memcpy( &_data, data, sizeof( Data ));
-            setDistributedData( &_data, sizeof( Data ));
+            setInstanceData( &_data, sizeof( Data ));
             EQINFO << "New FrameData instance" << std::endl;
         }
 

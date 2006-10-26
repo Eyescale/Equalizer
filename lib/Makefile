@@ -25,6 +25,7 @@ HEADER_SRC = \
 	base/scopedMutex.h \
 	base/sema.h \
 	base/shm.h \
+	base/stdExt.h \
 	base/thread.h \
 	base/timedLock.h \
 	base/userdata.h \
@@ -40,6 +41,7 @@ HEADER_SRC = \
 	net/group.h \
 	net/idHash.h \
 	net/init.h \
+	net/log.h \
 	net/message.h \
 	net/net.h \
 	net/node.h \

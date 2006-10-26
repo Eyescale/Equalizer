@@ -26,17 +26,21 @@ void Object::_construct()
     _id            = EQ_ID_INVALID;
     _instanceID    = EQ_ID_INVALID;
     _policy        = SHARE_UNDEFINED;
-    _version       = 0;
+    _version       = VERSION_NONE;
     _commitCount   = 0;
     _nVersions     = 0;
     _obsoleteFlags = AUTO_OBSOLETE_COUNT_VERSIONS;
-    _distributedData     = NULL;
-    _distributedDataSize = 0;
+    _instanceData     = NULL;
+    _instanceDataSize = 0;
+    _deltaData     = NULL;
+    _deltaDataSize = 0;
 
     registerCommand( CMD_OBJECT_SYNC, this, reinterpret_cast<CommandFcn>(
                          &eqNet::Object::_cmdSync ));
     registerCommand( REQ_OBJECT_SYNC, this, reinterpret_cast<CommandFcn>(
                          &eqNet::Object::_reqSync ));
+    registerCommand( CMD_OBJECT_COMMIT, this, reinterpret_cast<CommandFcn>(
+                         &eqNet::Object::_cmdCommit ));
 }
 
 Object::Object( const uint32_t typeID, const uint32_t nCommands )
@@ -52,27 +56,29 @@ Object::Object( const Object& from )
           _typeID( from._typeID )
 {
     _construct();
-    _distributedData     = from._distributedData;
-    _distributedDataSize = from._distributedDataSize;
+    _instanceData     = from._instanceData;
+    _instanceDataSize = from._instanceDataSize;
+    _deltaData        = from._deltaData;
+    _deltaDataSize    = from._deltaDataSize;
 }
 
 Object::~Object()
 {
-    for( deque<InstanceData>::const_iterator iter = _instanceData.begin(); 
-         iter != _instanceData.end(); ++iter )
+    for( deque<InstanceData>::const_iterator iter = _instanceDatas.begin(); 
+         iter != _instanceDatas.end(); ++iter )
     {
         if( (*iter).data )
             free( (*iter).data );
     }
-    _instanceData.clear();
+    _instanceDatas.clear();
 
-    for( deque<ChangeData>::const_iterator iter = _changeData.begin(); 
-         iter != _changeData.end(); ++iter )
+    for( deque<ChangeData>::const_iterator iter = _changeDatas.begin(); 
+         iter != _changeDatas.end(); ++iter )
     {
         if( (*iter).data )
             free( (*iter).data );
     }
-    _changeData.clear();
+    _changeDatas.clear();
     delete _mutex;
 }
 
@@ -128,30 +134,33 @@ bool Object::send( NodeVector nodes, ObjectPacket& packet, const void* data,
 }
 
 void Object::instanciateOnNode( RefPtr<Node> node, const SharePolicy policy, 
-                                const uint32_t version )
+                                const uint32_t version, const bool threadSafe )
 {
     EQASSERT( _session );
     EQASSERT( _id != EQ_ID_INVALID );
+    _checkConsistency();
 
-    EQLOG( LOG_OBJECTS ) << "Object, id " << _id 
-                         << ", send instanciation cmd to " << node->getNodeID()
-                         << endl;
+    EQLOG( LOG_OBJECTS ) << "Object id " << _id << " v" << _version
+                         << ", instanciate v" << version << " on " 
+                         << node->getNodeID() << endl;
 
     addSlave( node );
 
-    SessionInstanciateObjectPacket packet;
-    packet.sessionID      =  _session->getID();
-    packet.objectID       = _id;
-    packet.objectType     = _typeID;
-    packet.version        = _version;
-    packet.objectDataSize = 0;
-    packet.isMaster       = !_master;
-    packet.policy         = policy;
+    SessionInstanciateObjectPacket initPacket;
+    initPacket.sessionID      =  _session->getID();
+    initPacket.objectID       = _id;
+    initPacket.objectType     = _typeID;
+    initPacket.objectDataSize = 0;
+    initPacket.isMaster       = !_master;
+    initPacket.policy         = policy;
+    initPacket.threadSafe     = threadSafe;
 
     if( _typeID < TYPE_VERSIONED )
     {
-        const void* data = getInstanceData( &packet.objectDataSize );
-        node->send( packet, data, packet.objectDataSize );
+        const void* data   = getInstanceData( &initPacket.objectDataSize );
+        initPacket.version = _version;
+        EQLOG( LOG_OBJECTS ) << "send " << &initPacket << endl;
+        node->send( initPacket, data, initPacket.objectDataSize );
         releaseInstanceData( data );
         return;
     }
@@ -159,60 +168,295 @@ void Object::instanciateOnNode( RefPtr<Node> node, const SharePolicy policy,
     if( _version == VERSION_NONE )
         _commitInitial();
 
-    if( _version <= version )
+    if( version == VERSION_HEAD || version == _version )
     {
-        InstanceData& data = _instanceData.front();
-        packet.objectDataSize = data.size;
-        node->send( packet, data.data, packet.objectDataSize );
+        InstanceData& data    = _instanceDatas.front();
+        initPacket.objectDataSize = data.size;
+        initPacket.version        = _version;
+        EQLOG( LOG_OBJECTS ) << "send " << &initPacket << endl;
+        node->send( initPacket, data.data, initPacket.objectDataSize );
         return;
     }
 
+    EQASSERT( _version >= version );
+    initPacket.version     = version;
     const uint32_t age = _version - version;
-    if( age >= _instanceData.size( ))
+
+    if( age >= _instanceDatas.size( ))
     {
         EQWARN << "Instanciation request for obsolete version " << version
                << " for object of type " << typeid(*this).name() << endl;
-        packet.error = true;
-        node->send( packet );
+        initPacket.error = true;
+        EQLOG( LOG_OBJECTS ) << "send " << &initPacket << endl;
+        node->send( initPacket );
     }
 
-    deque<InstanceData>::const_iterator iter = _instanceData.begin();
-    for( uint32_t i=0; i<age; ++i ) ++iter;
-    const InstanceData& data = *iter;
+    const InstanceData& data = _instanceDatas[age];
 
-    packet.objectDataSize = data.size;
-    node->send( packet, data.data, packet.objectDataSize );    
+    initPacket.objectDataSize = data.size;
+    EQLOG( LOG_OBJECTS ) << "send " << &initPacket << endl;
+    node->send( initPacket, data.data, initPacket.objectDataSize );    
 
     // send deltas since version
-    for( deque<ChangeData>::const_iterator iter = _changeData.end(); 
-         iter !=_changeData.begin(); --iter )
+    for( deque<ChangeData>::reverse_iterator i = _changeDatas.rbegin();
+         i != _changeDatas.rend(); ++i )
     {
-        const ChangeData& data = (*iter);
+        const ChangeData& data = *i;
         if( data.version < version )
             continue;
 
-        ObjectSyncPacket  packet;
+        ObjectSyncPacket deltaPacket;
 
-        packet.version   = data.version;
-        packet.deltaSize = data.size;
-
-        send( node, packet, data.data, data.size );
+        deltaPacket.version   = data.version;
+        deltaPacket.deltaSize = data.size;
+        
+        EQLOG( LOG_OBJECTS ) << "send " << &deltaPacket << endl;
+        send( node, deltaPacket, data.data, data.size );
     }
 }
 
 uint32_t Object::commit()
 {
-    if( !isMaster( ) || _typeID < TYPE_VERSIONED )
-        return VERSION_NONE;
+    const uint32_t requestID = commitNB();
+    return commitSync( requestID );
+}
+
+uint32_t Object::commitNB()
+{
+    EQASSERT( isMaster( ));
+    EQASSERT( _typeID >= TYPE_VERSIONED );
+
+    ObjectCommitPacket packet;
+    packet.instanceID = _instanceID;
+    packet.requestID  = _requestHandler.registerRequest();
+
+    send( Node::getLocalNode(), packet );
+    return packet.requestID;
+}
+
+uint32_t Object::commitSync( const uint32_t commitID )
+{
+    return (uint32_t)(long long)_requestHandler.waitRequest( commitID );
+}
+
+uint32_t Object::_commitInitial()
+{
+    CHECK_THREAD( _thread );
+
+    // compute base version
+    uint64_t    size;
+    const void* ptr  = getInstanceData( &size );
+
+    _setInitialVersion( ptr, size );
+    releaseInstanceData( ptr );
+        
+    return _version;
+}
+
+void Object::_setInitialVersion( const void* ptr, const uint64_t size )
+{
+    EQASSERT( _version == VERSION_NONE );
+    EQASSERT( _instanceDatas.empty( ));
+    EQASSERT( _changeDatas.empty( ));
+
+    InstanceData data;
+
+    data.size = size;
+    if( ptr && size )
+    {
+        data.data    = malloc( size );
+        data.maxSize = size;
+        memcpy( data.data, ptr, size );
+    }
+
+    _instanceDatas.push_front( data );
+    ++_version;
+    ++_commitCount;
+}
+
+// Obsoletes old changes based on number of commits or number of versions,
+// depending on the obsolete flags.
+void Object::_obsolete()
+{
+    if( _obsoleteFlags & AUTO_OBSOLETE_COUNT_COMMITS )
+    {
+        InstanceData& lastInstanceData = _instanceDatas.back();
+        if( lastInstanceData.commitCount < (_commitCount - _nVersions) &&
+            _instanceDatas.size() > 1 )
+        {
+            EQASSERT( !_changeDatas.empty( ));
+            _instanceDataCache.push_back( lastInstanceData );
+            _instanceDatas.pop_back();
+
+            _changeDataCache.push_back( _changeDatas.back( ));        
+            _changeDatas.pop_back();
+        }
+        _checkConsistency();
+        return;
+    }
+    // else count versions
+    while( _instanceDatas.size() > (_nVersions+1) )
+    {
+        _instanceDataCache.push_back( _instanceDatas.back( ));
+        _instanceDatas.pop_back();
+        
+        if( _nVersions > 0 )
+        {
+            EQASSERT( !_changeDatas.empty( ));
+            _changeDataCache.push_back( _changeDatas.back( ));        
+            _changeDatas.pop_back();
+        }
+        _checkConsistency();
+    }
+}
+
+bool Object::sync( const uint32_t version )
+{
+    EQLOG( LOG_OBJECTS ) << "sync to v" << version << ", id " << getID() <<endl;
+    if( _version == version )
+        return true;
 
     if( !_mutex )
         CHECK_THREAD( _thread );
 
     ScopedMutex mutex( _mutex );
-    if( _version == VERSION_NONE )
-        _commitInitial();
 
-    EQASSERT( _instanceData.size() == _changeData.size() + 1 );
+    if( version == VERSION_HEAD )
+    {
+        _syncToHead();
+        return true;
+    }
+
+    EQASSERTINFO( !isMaster(), "can't sync master to a specified version" );
+    EQASSERTINFO( _version <= version, "can't sync to older version of object");
+
+    while( _version < version )
+    {
+        eqNet::Node*   node;
+        eqNet::Packet* packet;
+        _syncQueue.pop( &node, &packet );
+
+         // OPT shortcut around handleCommand()
+        EQASSERT( packet->command == REQ_OBJECT_SYNC );
+        _reqSync( node, packet );
+    }
+
+    EQVERB << "Sync'ed to v" << version << ", id " << getID() << endl;
+    return true;
+}
+
+void Object::_syncToHead()
+{
+    if( isMaster( ))
+        return;
+
+    eqNet::Node*   node;
+    eqNet::Packet* packet;
+
+    while( _syncQueue.tryPop( &node, &packet ))
+    {
+        EQASSERT( packet->command == REQ_OBJECT_SYNC );
+        _reqSync( node, packet ); // XXX shortcut around handleCommand()
+    }
+    EQVERB << "Sync'ed to head v" << _version << ", id " << getID() 
+           << endl;
+}
+
+uint32_t Object::getHeadVersion() const
+{
+    if( isMaster( ))
+        return _version;
+
+    eqNet::Node*      node;
+    ObjectSyncPacket* packet;
+
+    if( !_syncQueue.back( &node, (Packet**)&packet ))
+        return _version;
+    
+    EQASSERT( packet->command == REQ_OBJECT_SYNC );
+    return packet->version;
+}
+
+void Object::setInstanceData( void* data, const uint64_t size )
+{
+    _instanceData     = data;
+    _instanceDataSize = size;
+
+    if( _deltaData )
+        return;
+    _deltaData     = data;
+    _deltaDataSize = size;
+}
+
+void Object::addSlave( RefPtr<Node> slave )
+{
+    _slaves.push_back( slave ); 
+    stde::usort( _slaves );
+}
+
+void Object::_checkConsistency() const
+{
+#ifndef NDEBUG
+    if( _typeID < TYPE_VERSIONED || _version == VERSION_NONE )
+        return;
+
+    EQASSERT( _instanceDatas.size() == _changeDatas.size() + 1 );
+
+    if( !( _obsoleteFlags & AUTO_OBSOLETE_COUNT_COMMITS )) // count versions
+    {
+        if( _version > _nVersions )
+        {
+            EQASSERT( _changeDatas.size() == _nVersions );
+        }
+        else
+        {
+            EQASSERT( _instanceDatas.size() == _version );
+        }
+    }
+
+    uint32_t version = _version;
+    for( deque<ChangeData>::const_iterator i = _changeDatas.begin();
+         i != _changeDatas.end(); ++i )
+    {
+        const ChangeData& data = *i;
+        EQASSERT( data.version == version );
+        EQASSERT( version > 0 );
+        --version;
+    }
+#endif
+}
+
+//---------------------------------------------------------------------------
+// command handlers
+//---------------------------------------------------------------------------
+void Object::_reqSync( Node* node, const Packet* pkg )
+{
+    ObjectSyncPacket* packet = (ObjectSyncPacket*)pkg;
+    EQLOG( LOG_OBJECTS ) << "req sync v" << _version << " " << packet << endl;
+    EQASSERT( _version == packet->version-1 );
+
+    unpack( packet->delta, packet->deltaSize );
+    _version = packet->version;
+    //return eqNet::COMMAND_HANDLED;
+}
+
+CommandResult Object::_cmdCommit( Node* node, const Packet* pkg )
+{
+    ObjectCommitPacket* packet = (ObjectCommitPacket*)pkg;
+    EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << packet << endl;
+
+    EQASSERT( isMaster( ));
+
+    if( _version == VERSION_NONE )
+    {
+        _commitInitial();
+        EQASSERT( _slaves.empty( ));
+        _requestHandler.serveRequest( packet->requestID, (void*)_version );
+        _checkConsistency();
+        return COMMAND_HANDLED;
+    }
+
+    EQASSERT( _instanceDatas.size() == _changeDatas.size() + 1 );
 
     ++_commitCount;
 
@@ -222,7 +466,9 @@ uint32_t Object::commit()
     if( !delta || deltaSize == 0 )
     {
         _obsolete();
-        return _version;
+        _requestHandler.serveRequest( packet->requestID, (void*)_version );
+        _checkConsistency();
+        return COMMAND_HANDLED;
     }
 
     ++_version;
@@ -250,7 +496,7 @@ uint32_t Object::commit()
         changeData.size        = deltaSize;
         changeData.commitCount = _commitCount;
         changeData.version     = _version;
-        _changeData.push_front( changeData );
+        _changeDatas.push_front( changeData );
     }
 
     // save instance data
@@ -272,176 +518,29 @@ uint32_t Object::commit()
         memcpy( instanceData.data, ptr, instanceData.size );
     releaseInstanceData( ptr );
     instanceData.commitCount = _commitCount;
-    _instanceData.push_front( instanceData );
+    _instanceDatas.push_front( instanceData );
     
     _obsolete();
 
     // send delta to subscribed slaves
     const NodeVector& slaves = getSlaves();
-    ObjectSyncPacket  packet;
+    if( !slaves.empty( ))
+    {
+        ObjectSyncPacket  deltaPacket;
 
-    packet.version   = _version;
-    packet.deltaSize = deltaSize;
-
-    send( slaves, packet, delta, deltaSize );
+        deltaPacket.version   = _version;
+        deltaPacket.deltaSize = deltaSize;
+        
+        EQLOG( LOG_OBJECTS ) << "send " << &deltaPacket << " to " 
+                             << slaves.size() << " nodes " << endl;
+        send( slaves, deltaPacket, delta, deltaSize );
+    }
 
     releasePackData( delta );
-    EQVERB << "Committed version " << _version << ", id " << getID() << endl;
-    return _version;
-}
+    EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " << getID() 
+                         << endl;
 
-uint32_t Object::_commitInitial()
-{
-    CHECK_THREAD( _thread );
-
-    // compute base version
-    uint64_t    size;
-    const void* ptr  = getInstanceData( &size );
-
-    _setInitialVersion( ptr, size );
-    releaseInstanceData( ptr );
-        
-    return _version;
-}
-
-void Object::_setInitialVersion( const void* ptr, const uint64_t size )
-{
-    EQASSERT( _version == VERSION_NONE );
-    EQASSERT( _instanceData.empty( ));
-    EQASSERT( _changeData.empty( ));
-
-    InstanceData data;
-
-    data.size = size;
-    if( ptr && size )
-    {
-        data.data    = malloc( size );
-        data.maxSize = size;
-        memcpy( data.data, ptr, size );
-    }
-
-    _instanceData.push_front( data );
-    ++_version;
-    ++_commitCount;
-}
-
-// Obsoletes old changes based on number of commits or number of versions,
-// depending on the obsolete flags.
-void Object::_obsolete()
-{
-    if( _obsoleteFlags & AUTO_OBSOLETE_COUNT_COMMITS )
-    {
-        InstanceData& lastInstanceData = _instanceData.back();
-        if( lastInstanceData.commitCount < (_commitCount - _nVersions) &&
-            _instanceData.size() > 1 )
-        {
-            EQASSERT( !_changeData.empty( ));
-            _instanceDataCache.push_back( lastInstanceData );
-            _instanceData.pop_back();
-
-            _changeDataCache.push_back( _changeData.back( ));        
-            _changeData.pop_back();
-        }
-        EQASSERT( _instanceData.size() == _changeData.size() + 1 );
-        return;
-    }
-
-    while( _instanceData.size() > (_nVersions+1) )
-    {
-        _instanceDataCache.push_back( _instanceData.back( ));
-        _instanceData.pop_back();
-        
-        if( _nVersions > 0 )
-        {
-            EQASSERT( !_changeData.empty( ));
-            _changeDataCache.push_back( _changeData.back( ));        
-            _changeData.pop_back();
-            EQASSERT( _instanceData.size() == _changeData.size() + 1 );
-        }
-    }
-}
-
-bool Object::sync( const uint32_t version, const float timeout )
-{
-    EQVERB << "Sync to version " << version << ", id " << getID() << endl;
-    if( _version == version )
-        return true;
-
-    if( !_mutex )
-        CHECK_THREAD( _thread );
-
-    ScopedMutex mutex( _mutex );
-
-    if( version == VERSION_HEAD )
-    {
-        _syncToHead();
-        return true;
-    }
-
-    if( isMaster( ) || _version > version )
-        return false;
-
-    while( _version < version )
-    {
-        eqNet::Node*   node;
-        eqNet::Packet* packet;
-        _syncQueue.pop( &node, &packet );
-
-         // OPT shortcut around handleCommand()
-        EQASSERT( packet->command == REQ_OBJECT_SYNC );
-        _reqSync( node, packet );
-    }
-
-    EQVERB << "Sync'ed to version " << version << ", id " << getID() << endl;
-    return true;
-}
-
-void Object::_syncToHead()
-{
-    if( isMaster( ))
-        return;
-
-    eqNet::Node*   node;
-    eqNet::Packet* packet;
-
-    while( _syncQueue.tryPop( &node, &packet ))
-    {
-        EQASSERT( packet->command == REQ_OBJECT_SYNC );
-        _reqSync( node, packet ); // XXX shortcut around handleCommand()
-    }
-    EQVERB << "Sync'ed to head version " << _version << ", id " << getID() 
-           << endl;
-}
-
-uint32_t Object::getHeadVersion() const
-{
-    if( isMaster( ))
-        return _version;
-
-    eqNet::Node*      node;
-    ObjectSyncPacket* packet;
-
-    if( !_syncQueue.back( &node, (Packet**)&packet ))
-        return _version;
-    
-    EQASSERT( packet->command == REQ_OBJECT_SYNC );
-    return packet->version;
-}
-
-void Object::addSlave( RefPtr<Node> slave )
-{
-    _slaves.push_back( slave ); 
-}
-
-//---------------------------------------------------------------------------
-// command handlers
-//---------------------------------------------------------------------------
-void Object::_reqSync( Node* node, const Packet* pkg )
-{
-    ObjectSyncPacket* packet = (ObjectSyncPacket*)pkg;
-    EQVERB << "req sync " << packet << endl;
-    
-    unpack( packet->delta, packet->deltaSize );
-    _version = packet->version;
-    //return eqNet::COMMAND_HANDLED;
+    _requestHandler.serveRequest( packet->requestID, (void*)_version );
+    _checkConsistency();
+    return COMMAND_HANDLED;
 }

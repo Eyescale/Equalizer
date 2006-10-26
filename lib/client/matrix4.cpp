@@ -19,7 +19,7 @@ namespace eq
               Object( eq::Object::TYPE_MATRIX4F, eqNet::CMD_OBJECT_CUSTOM )
     {
         vmml::Matrix4f::operator= ( vmml::Matrix4f::IDENTITY );
-        setDistributedData( &ml, 16 * sizeof( float ));
+        setInstanceData( &ml, 16 * sizeof( float ));
     }
 
     template<>
@@ -27,6 +27,6 @@ namespace eq
             : vmml::Matrix4f( (float*)data ),
               Object( eq::Object::TYPE_MATRIX4F, eqNet::CMD_OBJECT_CUSTOM )
     {
-        setDistributedData( &ml, 16 * sizeof( float ));
+        setInstanceData( &ml, 16 * sizeof( float ));
     }
 }

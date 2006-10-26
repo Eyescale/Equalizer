@@ -64,7 +64,7 @@ namespace eqNet
     private:
         std::vector<pollfd> _fdSet;
         bool                _fdSetDirty;
-        Sgi::hash_map<int, Connection*> _fdSetConnections;
+        stde::hash_map<int, Connection*> _fdSetConnections;
 
         /** The fd to reset a running select, see comment in constructor. */
         int      _selfFD[2];

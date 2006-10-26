@@ -1,4 +1,4 @@
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "session.h"
@@ -311,23 +311,35 @@ void Session::registerObject( Object* object, RefPtr<Node> master,
     if( threadSafe ) 
         object->makeThreadSafe();
 
-    EQLOG( LOG_OBJECTS ) << "registerObject id " << id 
-                         << " @" << (void*)object << " ref " 
-                         << object->getRefCount() << endl;
-
-    addRegisteredObject( id, object, policy );
+    EQLOG( LOG_OBJECTS ) << "registerObject type " << typeid(*object).name()
+                         << " id " << id << " @" 
+                         << (void*)object << " ref " << object->getRefCount()
+                         << " ts " << threadSafe << " master " 
+                         << master->getNodeID() << endl;
 
     if( _localNode == master )
-    {
         object->_master = true;
-        return;
+    else
+    {
+        object->_master = false;
+
+        if( object->getTypeID() != Object::TYPE_UNMANAGED )
+        {
+            // Do initial instanciation before registration to be thread-safe
+            // with other requests in the recv thread. Pre-stage object fields
+            // needed for sending out instancation. Ugly.
+            object->_id      = id;
+            object->_policy  = policy;
+            object->_session = this;
+            object->instanciateOnNode( master, policy, Object::VERSION_HEAD, 
+                                       threadSafe );
+            // reset pre-staged data to avoid safety asserts during registration
+            object->_id      = EQ_ID_INVALID;
+            object->_session = NULL;
+        }
     }
-    object->_master = false;
 
-    if( object->getTypeID() == Object::TYPE_UNMANAGED )
-        return;
-
-    object->instanciateOnNode( master, policy );
+    addRegisteredObject( id, object, policy );
 }
 
 void Session::_registerThreadObject( Object* object, const uint32_t id )
@@ -360,15 +372,17 @@ Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy,
 {
     CHECK_NOT_THREAD( _receiverThread );
 
+    EQLOG( LOG_OBJECTS ) << "getObject id " << id << " v" << version << endl;
+
     const bool threadSafe = ( ts==Object::CS_SAFE || 
                          ( ts==Object::CS_AUTO && policy==Object::SHARE_NODE ));
 
     Object* object = pollObject( id, policy );
     if( object )
     {
-        EQLOG( LOG_OBJECTS ) << "getObject polled ok, id " << id 
-                             << " @" << (void*)object << " ref " 
-                             << object->getRefCount() << endl;
+        EQLOG( LOG_OBJECTS ) << "getObject polled ok, id " << id << " v"
+                             << object->getVersion() << " @" << (void*)object
+                             << " ref " << object->getRefCount() << endl;
 
         EQASSERTINFO( !threadSafe || object->isThreadSafe(), 
                       "Can't make existing object thread safe." );
@@ -387,14 +401,16 @@ Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy,
     SessionGetObjectPacket packet;
     packet.requestID = _requestHandler.registerRequest( &state );
 
-    EQLOG( LOG_OBJECTS ) << "getObject send request for id " << id 
-                         << " my node id " << _localNode->getNodeID() << endl;
+    EQLOG( LOG_OBJECTS ) << "getObject send request for id " << id << " v" 
+                         << version << " my node id "
+                         << _localNode->getNodeID() << endl;
     _sendLocal( packet );
 
     const void* result = _requestHandler.waitRequest( packet.requestID );
     EQASSERT( result == NULL );
     EQASSERT( state.nodeConnectRequestID == EQ_ID_INVALID );
-    EQLOG( LOG_OBJECTS ) << "getObject request ok, id " << id 
+    EQLOG( LOG_OBJECTS ) << "getObject request ok, id " << id << " v" 
+                         << state.object->getVersion()
                          << " @" << (void*)state.object << " ref " 
                          << state.object->getRefCount() << endl;
 
@@ -483,39 +499,14 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
     const uint32_t      id        = objPacket->objectID;
     vector<Object*>&    objects   = _registeredObjects[id];
 
-    if( _localNode->inReceiverThread( ))
+    if( objects.empty( ))
     {
-        GetObjectState*     state     = _objectInstStates[id];
-
-        if( objects.empty( ))
-        {
-            if( !state )
-            {
-                state                 = new GetObjectState;
-                state->policy         = Object::SHARE_NODE;
-                state->threadSafe     = true;
-                state->objectID       = id;
-                state->version        = Object::VERSION_HEAD;
-                _objectInstStates[id] = state;
-            }
-            return _instObject( state );
-        }
-    
-        if( state )
-        {
-            EQASSERT( state->nodeConnectRequestID == EQ_ID_INVALID );
-            delete state;
-            _objectInstStates.erase( id );
-        }
-    }
-    else if( objects.empty( ))
-    {
-        Object* object = getObject( id, Object::SHARE_NODE );
-        if( !object )
-            return COMMAND_ERROR;
-        EQASSERT( !objects.empty( ));
+        EQWARN << "no objects to handle command, redispatching " << objPacket
+               << endl;
+        return COMMAND_REDISPATCH;
     }
 
+    EQASSERT( !objects.empty( ));
     for( vector<Object*>::iterator iter = objects.begin(); 
          iter != objects.end(); ++iter )
     {
@@ -563,9 +554,8 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
     if( objPacket->instanceID == EQ_ID_ANY )
         return COMMAND_HANDLED;
 
-    EQERROR << "Error handling command " << objPacket
-            << ": instance not found" << endl;
-    return COMMAND_ERROR;
+    EQWARN << "instance not found, redispatching " << objPacket << endl;
+    return COMMAND_REDISPATCH;
 }
 
 CommandResult Session::_instObject( GetObjectState* state )
@@ -638,10 +628,12 @@ CommandResult Session::_instObject( GetObjectState* state )
 void Session::_sendInitObject( GetObjectState* state, RefPtr<Node> master )
 {
     SessionInitObjectPacket packet;
-    packet.objectID  = state->objectID;
-    packet.version   = state->version;
-    packet.policy    = state->policy;
+    packet.objectID   = state->objectID;
+    packet.version    = state->version;
+    packet.policy     = state->policy;
+    packet.threadSafe = state->threadSafe;
 
+    EQLOG( LOG_OBJECTS ) << "send init obj " << &packet << endl;
     send( master.get(), packet );
     state->instState = Object::INST_INIT;
 }
@@ -874,7 +866,8 @@ CommandResult Session::_cmdGetObject( Node* node, const Packet* pkg )
     EQASSERT( state );
 
     const uint32_t id     = state->objectID;
-    EQLOG( LOG_OBJECTS ) << "Cmd get object " << packet << " id " << id << endl;
+    EQLOG( LOG_OBJECTS ) << "Cmd get object " << packet << " id " << id
+                         << " v" << state->version << endl;
 
     if( state->object ) // successfully instanciated
     {
@@ -896,8 +889,8 @@ CommandResult Session::_cmdGetObject( Node* node, const Packet* pkg )
         if( object ) // per-node object instanciated already
         {
             EQLOG( LOG_OBJECTS ) << "object known, id " << id << " @" 
-                                 << (void*)state->object << " ref " 
-                                 << state->object->getRefCount() << endl;
+                                 << (void*)object << " ref " 
+                                 << object->getRefCount() << endl;
             state->object = object;
             _requestHandler.serveRequest( packet->requestID, NULL );
             return COMMAND_HANDLED;
@@ -932,14 +925,15 @@ CommandResult Session::_cmdInitObject( Node* node, const Packet* pkg )
     const uint32_t   id      = packet->objectID;
     vector<Object*>& objects = _registeredObjects[id];
 
-    for( vector<Object*>::iterator iter = objects.begin();
+    for( vector<Object*>::const_iterator iter = objects.begin();
          iter != objects.end(); ++iter )
     {
         Object* object = *iter;
         if( object->getID() != id || !object->_master )
             continue;
 
-        object->instanciateOnNode( node, packet->policy, packet->version );
+        object->instanciateOnNode( node, packet->policy, packet->version, 
+                                   packet->threadSafe );
         return COMMAND_HANDLED;
     }
 
@@ -956,7 +950,7 @@ CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )
     EQLOG( LOG_OBJECTS ) << "Cmd instanciate object " << packet << " from "
                          << node << endl;
 
-    const uint32_t id     = packet->objectID;
+    const uint32_t id = packet->objectID;
     if( packet->error )
     {
         EQWARN << "Object master encountered error during instanciation request"
@@ -966,6 +960,9 @@ CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )
             state->instState = Object::INST_ERROR;
         return COMMAND_HANDLED;
     }
+    EQASSERTINFO( packet->objectType < Object::TYPE_VERSIONED ||
+                  packet->version > Object::VERSION_NONE, 
+                  "can't instanciate versioned object with no version"  );
 
     Object* object = instanciateObject( packet->objectType, packet->objectData, 
                                         packet->objectDataSize );
@@ -976,13 +973,15 @@ CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )
         return COMMAND_ERROR;
     }
 
-    object->_master  = packet->isMaster;
-    object->_version = packet->version;
     if( packet->isMaster )
     {
         object->addSlave( node ); // Assumes that sender is a subscribed slave
         object->_setInitialVersion( packet->objectData, packet->objectDataSize);
+        EQASSERT( object->getVersion() == packet->version );
     }
+
+    object->_master  = packet->isMaster;
+    object->_version = packet->version;
 
     GetObjectState* state = _objectInstStates[id];
     if( state )

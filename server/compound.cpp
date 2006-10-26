@@ -12,6 +12,7 @@
 #include "swapBarrier.h"
 
 #include <eq/base/base.h>
+#include <eq/base/stdExt.h>
 #include <eq/client/packets.h>
 #include <eq/client/wall.h>
 #include <eq/client/windowSystem.h>
@@ -114,7 +115,7 @@ void Compound::setSwapBarrier( SwapBarrier* barrier )
     {
         const Compound* root     = getRoot();
         const string&   rootName = root->getName();
-        if( rootName.size() == 0 )
+        if( rootName.empty( ))
             barrier->setName( "barrier" );
         else
             barrier->setName( "barrier." + rootName );
@@ -807,10 +808,7 @@ void Compound::_updateReadback( const eq::RenderContext& context )
             continue;
 
         // sort & filter dupes
-        sort( nodeIDs.begin(), nodeIDs.end( ));
-        const vector<eqNet::NodeID>::iterator end = 
-            unique( nodeIDs.begin(), nodeIDs.end( ));
-        nodeIDs.erase( end, nodeIDs.end( ));
+        stde::usort( nodeIDs );
 
         // send
         eq::ChannelTransmitPacket transmitPacket;

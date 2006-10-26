@@ -147,13 +147,33 @@ namespace eqNet
         /** 
          * Commit a new version of this object.
          * 
-         * If the object is not versioned or has not changed, no new version
-         * will be generated, that is, the previous or initial (0) version
-         * number is returned.
+         * If the object has not changed no new version will be generated, that
+         * is, the previous or initial (0) version number is returned. This
+         * method is a convenience function for commitNB and commitSync
          *
-         * @return the head version.
+         * @return the new head version.
+         * @sa commitNB, commitSync
          */
         uint32_t commit();
+
+        /** 
+         * Start committing a new version of this object.
+         * 
+         * The commit transaction has to be completed using commitSync, passing
+         * the returned identifier.
+         *
+         * @return the commit identifier to be passed to commitSync
+         * @sa commitSync
+         */
+        uint32_t Object::commitNB();
+        
+        /** 
+         * Finalizes a commit transaction.
+         * 
+         * @param commitID the commit identifier returned from commitNB
+         * @return the new head version.
+         */
+        uint32_t Object::commitSync( const uint32_t commitID );
 
         /** 
          * Explicitily obsoletes all versions including version.
@@ -194,12 +214,11 @@ namespace eqNet
          * 
          * @param version the version to synchronize, must be bigger than the
          *                current version.
-         * @param timeout A timeout to wait for the version to be committed.
          * @return <code>true</code> if the version was synchronized,
          *         <code>false</code> if not.
          */
-        bool sync( const uint32_t version = VERSION_HEAD, 
-                   const float timeout = EQ_TIMEOUT_INDEFINITE );
+        bool sync( const uint32_t version = VERSION_HEAD
+                   /*, const float timeout = EQ_TIMEOUT_INDEFINITE*/ );
 
         /** 
          * Get the latest available version.
@@ -236,7 +255,7 @@ namespace eqNet
          *         objects.
          */
         virtual const void* getInstanceData( uint64_t* size )
-            { *size = _distributedDataSize; return _distributedData; }
+            { *size = _instanceDataSize; return _instanceData; }
 
         /** 
          * Release the instance data obtained by getInstanceData().
@@ -267,7 +286,7 @@ namespace eqNet
          */
         void instanciateOnNode( eqBase::RefPtr<Node> node,
                                 const SharePolicy policy, 
-                                const uint32_t version = VERSION_HEAD );
+                                const uint32_t version, const bool threadSafe );
 
         /** 
          * Pack the changes since the last call to commit().
@@ -283,7 +302,7 @@ namespace eqNet
          *             changed or is not versioned.
          */
         virtual const void* pack( uint64_t* size )
-            { *size = _distributedDataSize; return _distributedData; }
+            { *size = _deltaDataSize; return _deltaData; }
 
         /** 
          * Release the delta data obtained by pack().
@@ -299,23 +318,35 @@ namespace eqNet
          */
         virtual void unpack( const void* data, const uint64_t size ) 
             { 
-                EQASSERT( size == _distributedDataSize );
-                memcpy( _distributedData, data, size );
+                EQASSERT( size == _deltaDataSize );
+                memcpy( _deltaData, data, size );
             }
 
         /** 
-         * Set the distributed data of this object.
+         * Set the instance data of this object.
          * 
          * The data is used by the default data distribution methods to
-         * generate the instance data and version deltas for this
-         * object. Complex objects are strongly advised to implement their own
-         * pack and unpack methods for performance.
+         * generate the instance data for this object. It also sets the pack
+         * data, if it was not set already.
          *
          * @param data A pointer to this object's data
          * @param size The size of the data.
          */
-        void setDistributedData( void* data, const uint64_t size )
-            { _distributedData = data; _distributedDataSize = size; }
+        void setInstanceData( void* data, const uint64_t size );
+
+        /** 
+         * Set the delta data of this object.
+         * 
+         * The data is used by the default data distribution methods to
+         * generate the delta data for this object. Complex objects are
+         * strongly advised to implement their own delta and undelta methods for
+         * performance. 
+         *
+         * @param data A pointer to this object's data
+         * @param size The size of the data.
+         */
+        void setDeltaData( void* data, const uint64_t size )
+            { _deltaData = data; _deltaDataSize = size; }
         //*}
 
         /** 
@@ -328,7 +359,7 @@ namespace eqNet
          * 
          * @param slave the slave.
          */
-        void addSlave( eqBase::RefPtr<Node> slave ) ;
+        void addSlave( eqBase::RefPtr<Node> slave );
 
         /** 
          * @return the vector of registered slaves.
@@ -387,9 +418,13 @@ namespace eqNet
         /** The mutex, if thread safety is enabled. */
         eqBase::Lock* _mutex;
 
-        /** A pointer to the object's data. */
-        void*    _distributedData;
-        uint64_t _distributedDataSize;
+        /** A pointer to the object's instance data. */
+        void*    _instanceData;
+        uint64_t _instanceDataSize;
+
+        /** A pointer to the object's delta data. */
+        void*    _deltaData;
+        uint64_t _deltaDataSize;
 
         struct InstanceData
         {
@@ -407,10 +442,10 @@ namespace eqNet
         };
         
         /** The list of full instance datas, head version first. */
-        std::deque<InstanceData> _instanceData;
+        std::deque<InstanceData> _instanceDatas;
 
         /** The list of change datas, (head-1):head change first. */
-        std::deque<ChangeData> _changeData;
+        std::deque<ChangeData> _changeDatas;
         
         std::vector<InstanceData> _instanceDataCache;
         std::vector<ChangeData>   _changeDataCache;
@@ -426,12 +461,14 @@ namespace eqNet
         uint32_t _commitInitial();
         void _setInitialVersion( const void* ptr, const uint64_t size );
         void _obsolete();
+        void _checkConsistency() const;
 
         /* The command handlers. */
         CommandResult _cmdSync( Node* node, const Packet* pkg )
             { _syncQueue.push( node, pkg ); return eqNet::COMMAND_HANDLED; }
 
-        void _reqSync( Node* node, const Packet* pkg );
+        void          _reqSync( Node* node, const Packet* pkg );
+        CommandResult _cmdCommit( Node* node, const Packet* pkg );
 
         CHECK_THREAD_DECLARE( _thread );
     };

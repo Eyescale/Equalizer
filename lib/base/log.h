@@ -32,8 +32,8 @@ namespace eqBase
     /** The logging topics. */
     enum LogTopic
     {
-        LOG_OBJECTS = 0x01,
-        LOG_CUSTOM  = 0x10
+        LOG_OBJECTS = 0x01, // 1
+        LOG_CUSTOM  = 0x10  // 16
     };
 
     /** The string buffer used for logging. */
@@ -215,7 +215,7 @@ namespace eqBase
     eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )
 #define EQVERB  (eqBase::Log::level >= eqBase::LOG_VERBATIM)  &&    \
     eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )
-#define EQLOG(topic)  (eqBase::Log::topics && (topic))  &&  \
+#define EQLOG(topic)  (eqBase::Log::topics & (topic))  &&  \
     eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )
 
 #endif //EQBASE_LOG_H

@@ -213,7 +213,7 @@ void Config::setLatency( const uint32_t latency )
 void Config::addApplicationNode( Node* node )
 {
     EQASSERT( _state == STATE_STOPPED );
-    EQASSERT( !_appNode );
+    EQASSERTINFO( !_appNode, "Only one application node per config possible" );
 
     _appNode = node;
     addNode( node );

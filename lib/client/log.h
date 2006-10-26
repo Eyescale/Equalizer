@@ -5,7 +5,7 @@
 #ifndef EQ_LOG_H
 #define EQ_LOG_H
 
-#include <eq/base/log.h>
+#include <eq/net/log.h>
 
 namespace eq
 {

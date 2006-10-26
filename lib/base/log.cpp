@@ -46,7 +46,7 @@ int getLogLevel()
 unsigned getLogTopics()
 {
     const char *env = getenv("EQ_LOG_TOPICS");
-    if( env != NULL )
+    if( env )
         return (unsigned)atoll(env);
 
     return 0;

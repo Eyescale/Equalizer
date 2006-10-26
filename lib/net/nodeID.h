@@ -64,7 +64,7 @@ namespace eqNet
 
     /** A hash for NodeID keys. */
     template<class T> class NodeIDHash 
-        : public Sgi::hash_map<const NodeID, T, hashNodeID >
+        : public stde::hash_map<const NodeID, T, hashNodeID >
     {};
 
     inline std::ostream& operator << ( std::ostream& os, const NodeID& id )

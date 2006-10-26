@@ -1,19 +1,11 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_HASH_H
 #define EQBASE_HASH_H
 
-#ifdef __GNUC__              // GCC 3.1 and later
-#  include <ext/hash_map>
-#  include <ext/hash_set>
-namespace Sgi = ::__gnu_cxx; 
-#else                        //  other compilers
-#  include <hash_map>
-#  include <hash_set>
-namespace Sgi = std;
-#endif
+#include <eq/base/stdExt.h>
 
 namespace eqBase
 {
@@ -22,12 +14,12 @@ namespace eqBase
     {
         size_t operator()(const std::string& string) const
             {  
-                return Sgi::__stl_hash_string( string.c_str( ));
+                return stde::__stl_hash_string( string.c_str( ));
             }
     };
     /** A hash for std::string keys. */
     template<class T> class StringHash 
-        : public Sgi::hash_map<std::string, T, hashString >
+        : public stde::hash_map<std::string, T, hashString >
     {};
 
     /** Provides a hashing function for pointers. */
@@ -40,7 +32,7 @@ namespace eqBase
     };
     /** A hash for pointer keys. */
     template<class K, class T> class PtrHash 
-        : public Sgi::hash_map<K, T, hashPtr<K> >
+        : public stde::hash_map<K, T, hashPtr<K> >
     {};
 }
 

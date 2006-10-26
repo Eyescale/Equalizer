@@ -7,8 +7,7 @@
 
 #include <eq/net/object.h>
 #include <eq/net/node.h>
-
-#include <eq/base/sema.h>
+#include <eq/base/monitor.h>
 
 namespace eqNet
 {
@@ -60,23 +59,8 @@ namespace eqNet
         //*}
 
     protected:
-        /** @sa Object::getInstanceData */
-        virtual const void* getInstanceData( uint64_t* size )
-            { *size = sizeof( _data ); return &_data; }
-
         /** @sa Object::init */
         virtual void init( const void* data, const uint64_t dataSize );
-
-        /** @sa Object::pack */
-        virtual const void* pack( uint64_t* size )
-            {
-                *size   = sizeof( _data.height );
-                return &_data.height;
-            }
-
-        /** @sa Object::unpack */
-        virtual void unpack( const void* data, const uint64_t size ) 
-            { _data.height = *(uint32_t*)data; }
 
     private:
         struct Data
@@ -90,19 +74,11 @@ namespace eqNet
 
         eqBase::RefPtr<Node> _master;
 
-        struct EnteredBarrier
-        {
-            EnteredBarrier( eqBase::RefPtr<Node> _node, uint32_t _instanceID )
-                    : node(_node), instanceID( _instanceID ) {}
-
-            eqBase::RefPtr<Node> node;
-            uint32_t             instanceID;
-        };
         /** Slave nodes which have entered the barrier. */
-        std::vector<EnteredBarrier> _enteredBarriers;
+        std::vector<Node*> _enteredNodes;
         
-        /** The sema used for barrier leave notification. */
-        eqBase::Sema _leaveNotify;
+        /** The monitor used for barrier leave notification. */
+        eqBase::Monitor<uint32_t> _leaveNotify;
 
         /** Common constructor function. */
         void _construct();

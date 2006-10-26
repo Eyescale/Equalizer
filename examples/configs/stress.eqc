@@ -2,13 +2,14 @@ server
 {
     config
     {
+        latency 0
         appNode
         {
             pipe
             {
                 window
                 {
-                    viewport [ 0 0 80 60 ]
+                    viewport [ 100 100 80 60 ]
                     channel { name "channel1" }
                 }
             }
@@ -19,7 +20,7 @@ server
             {
                 window
                 {
-                    viewport [ 100 0 80 60 ]
+                    viewport [ 200 100 80 60 ]
                     channel { name "channel2" }
                 }
             }
@@ -30,7 +31,7 @@ server
             {
                 window
                 {
-                    viewport [ 200 0 80 60 ]
+                    viewport [ 300 100 80 60 ]
                     channel { name "channel3" }
                 }
             }
@@ -41,7 +42,7 @@ server
             {
                 window
                 {
-                    viewport [ 0 100 80 60 ]
+                    viewport [ 100 200 80 60 ]
                     channel { name "channel4" }
                 }
             }
@@ -52,7 +53,7 @@ server
             {
                 window
                 {
-                    viewport [ 100 100 80 60 ]
+                    viewport [ 200 200 80 60 ]
                     channel { name "channel5" }
                 }
             }
@@ -63,7 +64,7 @@ server
             {
                 window
                 {
-                    viewport [ 200 100 80 60 ]
+                    viewport [ 300 200 80 60 ]
                     channel { name "channel6" }
                 }
             }
@@ -74,7 +75,7 @@ server
             {
                 window
                 {
-                    viewport [ 0 200 80 60 ]
+                    viewport [ 100 300 80 60 ]
                     channel { name "channel7" }
                 }
             }
@@ -85,7 +86,7 @@ server
             {
                 window
                 {
-                    viewport [ 100 200 80 60 ]
+                    viewport [ 200 300 80 60 ]
                     channel { name "channel8" }
                 }
             }
@@ -96,7 +97,7 @@ server
             {
                 window
                 {
-                    viewport [ 200 200 80 60 ]
+                    viewport [ 300 300 80 60 ]
                     channel { name "channel9" }
                 }
             }

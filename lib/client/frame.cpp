@@ -17,7 +17,7 @@ Frame::Frame( const void* data, uint64_t dataSize )
     EQASSERT( dataSize == sizeof( Data ));
     _data = *(Data*)data;
 
-    setDistributedData( &_data, sizeof( Data ));
+    setInstanceData( &_data, sizeof( Data ));
 }
 
 FrameBuffer* Frame::_getBuffer()

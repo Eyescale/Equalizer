@@ -19,7 +19,7 @@ Frame::Frame()
           _buffer( NULL )
 {
     _data.format = eq::Frame::FORMAT_UNDEFINED;
-    setDistributedData( &_inherit, sizeof( eq::Frame::Data ));
+    setInstanceData( &_inherit, sizeof( eq::Frame::Data ));
 }
 
 Frame::Frame( const Frame& from )
@@ -27,7 +27,7 @@ Frame::Frame( const Frame& from )
           _buffer( NULL )
 {
     _data = from._data;
-    setDistributedData( &_inherit, sizeof( eq::Frame::Data ));
+    setInstanceData( &_inherit, sizeof( eq::Frame::Data ));
 }
 
 Frame::~Frame()

@@ -126,7 +126,7 @@ void Config::handleEvents()
     {
         ConfigEvent* event = nextEvent();
         if( !handleEvent( event ))
-            EQWARN << "Unhandled " << event << endl;
+            EQINFO << "Unhandled " << event << endl;
     }
 }
 

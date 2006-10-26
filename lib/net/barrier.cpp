@@ -5,6 +5,7 @@
 #include "barrier.h"
 
 #include "connection.h"
+#include "log.h"
 #include "packets.h"
 #include "session.h"
 
@@ -14,6 +15,9 @@ using namespace std;
 
 void Barrier::_construct()
 {
+    setInstanceData( &_data, sizeof( _data ));
+    setDeltaData( &_data.height, sizeof( _data.height ));
+
     registerCommand( CMD_BARRIER_ENTER, this, reinterpret_cast<CommandFcn>(
                          &eqNet::Barrier::_cmdEnter ));
     registerCommand( CMD_BARRIER_ENTER_REPLY, this, 
@@ -28,6 +32,7 @@ Barrier::Barrier( eqBase::RefPtr<Node> master, const uint32_t height )
     _data.height = height;
     _construct();
 
+    EQASSERT( _data.master != NodeID::ZERO );
     EQINFO << "New barrier of height " << _data.height << endl;
 }
 
@@ -41,6 +46,7 @@ Barrier::Barrier( const void* instanceData )
 
 void Barrier::init( const void* data, const uint64_t dataSize )
 {
+    EQASSERT( _data.master != NodeID::ZERO );
     _master = eqNet::Node::getLocalNode()->connect( _data.master, 
                                                     getSession()->getServer( ));
 }
@@ -49,16 +55,19 @@ void Barrier::enter()
 {
     EQASSERT( _data.height > 1 );
     EQASSERT( _master.isValid( ));
-    EQVERB << "enter barrier of height " << _data.height << endl;
+    EQLOG( LOG_BARRIER ) << "enter barrier " << getID() << " v" << getVersion()
+                         << ", height " << _data.height << endl;
     EQASSERT( getSession( ));
 
+    const uint32_t leaveVal = _leaveNotify.get() + 1;
+
     BarrierEnterPacket packet;
-    packet.version     = getVersion();
-    packet.requestorID = getInstanceID();
+    packet.version = getVersion();
     send( _master, packet );
     
-    _leaveNotify.wait();
-    EQVERB << "slave left barrier of height " << _data.height << endl;
+    _leaveNotify.waitEQ( leaveVal );
+    EQLOG( LOG_BARRIER ) << "left barrier " << getID() << " v" << getVersion()
+                         << ", height " << _data.height << endl;
 }
 
 CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
@@ -67,41 +76,46 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
     EQASSERT( _master == eqNet::Node::getLocalNode( ));
 
     BarrierEnterPacket* packet = (BarrierEnterPacket*)pkg;
-    EQVERB << "Handle barrier enter " << packet << endl;
+    EQLOG( LOG_BARRIER ) << "handle barrier enter " << packet << " barrier v"
+                         << getVersion() << endl;
     if( packet->version > getVersion( ))
         return COMMAND_REDISPATCH;
     
     EQASSERT( packet->version == getVersion( ));
 
-    _enteredBarriers.push_back( EnteredBarrier( node, packet->requestorID ));
+    EQLOG( LOG_BARRIER ) << "enter barrier, has " << _enteredNodes.size()
+                         << " of " << _data.height << endl;
+    _enteredNodes.push_back( node );
 
-    if( _enteredBarriers.size() < _data.height )
+    if( _enteredNodes.size() < _data.height )
         return COMMAND_DISCARD;
 
-    EQASSERT( _enteredBarriers.size() == _data.height );
-    EQVERB << "Barrier reached" << endl;
+    EQASSERT( _enteredNodes.size() == _data.height );
+    EQLOG( LOG_BARRIER ) << "Barrier reached" << endl;
 
     BarrierEnterReplyPacket reply;
     reply.sessionID  = getSession()->getID();
     reply.objectID   = getID();
 
-    for( vector<EnteredBarrier>::iterator iter = _enteredBarriers.begin();
-         iter != _enteredBarriers.end(); ++iter )
+    stde::usort( _enteredNodes );
+
+    for( vector<Node*>::const_iterator iter = _enteredNodes.begin();
+         iter != _enteredNodes.end(); ++iter )
     {
-        reply.instanceID = iter->instanceID;
-        if( iter->node->isLocal( ))
-            _leaveNotify.post(); // OPT
+        Node* node = *iter;
+        if( node->isLocal( )) // OPT
+            ++_leaveNotify;
         else
-            iter->node->send( reply );
+            node->send( reply );
     }
 
-    _enteredBarriers.clear();
+    _enteredNodes.clear();
     return COMMAND_DISCARD;
 }
 
 CommandResult Barrier::_cmdEnterReply( Node* node, const Packet* pkg )
 {
     CHECK_THREAD( _thread );
-    _leaveNotify.post();
+    ++_leaveNotify;
     return COMMAND_HANDLED;
 }

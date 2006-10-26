@@ -11,6 +11,7 @@ namespace eqNet
     {
         CMD_OBJECT_SYNC,
         REQ_OBJECT_SYNC,
+        CMD_OBJECT_COMMIT,
         CMD_OBJECT_CUSTOM // must be last
     };
 

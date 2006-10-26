@@ -24,17 +24,15 @@ typedef int socklen_t;
 //#define EQ_UNDEFINED_INT32    (0x7fffffff)
 #define EQ_TIMEOUT_INDEFINITE (0)
 
-#define EQ_DUMP_CORE {((char*)0)[0] = 'a';}
-
 // assertions
 #ifdef NDEBUG
 
-#  define EQASSERT(x) if( !(x) ) \
+#  define EQASSERT(x) { if( !(x) )                                 \
         EQERROR << "##### Assert: " << #x << " #####" << std::endl \
-                << eqBase::forceFlush;
-#  define EQASSERTINFO(x, info) if( !(x) )                                \
-        EQERROR << "##### Assert: " << #x << " [" << info << "] #####"    \
-              << std::endl << eqBase::forceFlush;
+                << eqBase::forceFlush; }
+#  define EQASSERTINFO(x, info) { if( !(x) )                            \
+            EQERROR << "##### Assert: " << #x << " [" << info << "] #####" \
+                    << std::endl << eqBase::forceFlush; }
 #  define EQUNIMPLEMENTED { EQERROR << "Unimplemented code for "        \
                                     << typeid(*this).name() << std::endl \
                                     << eqBase::forceFlush; }
@@ -44,23 +42,23 @@ typedef int socklen_t;
 
 #else
 
-#  define EQASSERT(x) if( !(x) ) \
-    { EQERROR << "Assert: " << #x << std::endl << eqBase::forceFlush; \
-        EQ_DUMP_CORE; ::abort(); }
-#  define EQASSERTINFO(x, info) if( !(x) )                              \
-    {                                                                   \
-        EQERROR << "Assert: " << #x << " [" << info << "]" << std::endl \
-                << eqBase::forceFlush;                                  \
-        EQ_DUMP_CORE; ::abort();                                        \
-    }
+#  define EQASSERT(x) { if( !(x) )                                      \
+    { EQERROR << "Assert: " << #x << std::endl << eqBase::forceFlush;   \
+        ::abort(); }}
+#  define EQASSERTINFO(x, info) { if( !(x) )                            \
+        {                                                               \
+            EQERROR << "Assert: " << #x << " [" << info << "]" << std::endl \
+                    << eqBase::forceFlush;                              \
+            ::abort();                                                  \
+        }}
 #  define EQUNIMPLEMENTED                                               \
-    { EQERROR << "Unimplemented code in " << typeid(*this).name() \
-              << std::endl << eqBase::forceFlush;                  \
-        ::abort(); EQ_DUMP_CORE; }
-#  define EQUNREACHABLE                                                 \
-    { EQERROR << "Unreachable code in " << typeid(*this).name() \
+    { EQERROR << "Unimplemented code in " << typeid(*this).name()       \
+              << std::endl << eqBase::forceFlush;                       \
+        ::abort(); }
+#  define EQUNREACHABLE                                          \
+    { EQERROR << "Unreachable code in " << typeid(*this).name()  \
               << std::endl << eqBase::forceFlush;                \
-        ::abort(); EQ_DUMP_CORE; }
+        ::abort(); }
 
 #endif
 

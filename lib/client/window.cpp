@@ -10,6 +10,7 @@
 #include "event.h"
 #include "eventThread.h"
 #include "global.h"
+#include "log.h"
 #include "nodeFactory.h"
 #include "object.h"
 #include "packets.h"
@@ -232,7 +233,9 @@ eqNet::CommandResult eq::Window::_reqBarrier( eqNet::Node* node,
 {
     WindowBarrierPacket* packet = (WindowBarrierPacket*)pkg;
     EQVERB << "handle barrier " << packet << endl;
-
+    EQLOG( eqNet::LOG_BARRIER ) << "swap barrier " << packet->barrierID
+                                << " v" << packet->barrierVersion <<endl;
+    
     eqNet::Session* session = getSession();
     eqNet::Object*  object  = session->getObject( packet->barrierID, 
                                                   Object::SHARE_NODE,

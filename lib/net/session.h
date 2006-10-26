@@ -288,19 +288,20 @@ namespace eqNet
         struct GetObjectState
         {
             GetObjectState()
-                    : pending( false ),
+                    : object( NULL ),
                       nodeConnectRequestID( EQ_ID_INVALID ),
                       instState( Object::INST_UNKNOWN ), 
-                      object( NULL ) {}
+                      pending( false )
+                {}
 
-            Object::SharePolicy policy;
-            bool                threadSafe;
-            bool                pending;
+            Object*             object;
             uint32_t            objectID;
             uint32_t            version;
             uint32_t            nodeConnectRequestID;
+            Object::SharePolicy policy;
             Object::InstState   instState;
-            Object*             object;
+            bool                threadSafe;
+            bool                pending;
         };
         IDHash<GetObjectState*> _objectInstStates;
 

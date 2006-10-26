@@ -25,7 +25,7 @@ namespace eqBase
          * @param type the type of threads accessing the monitor.
          */
         Monitor()
-                : _var( 0 )
+                : _value( 0 )
             {
                 int error = pthread_cond_init( &_cond, NULL );
                 if( error )
@@ -56,7 +56,7 @@ namespace eqBase
         Monitor& operator++ ()    // prefix only
             {
                 pthread_mutex_lock( &_mutex );
-                ++_var;
+                ++_value;
                 pthread_cond_broadcast( &_cond );
                 pthread_mutex_unlock( &_mutex );
                 return *this;
@@ -64,15 +64,16 @@ namespace eqBase
         Monitor& operator-- ()    // prefix only
             {
                 pthread_mutex_lock( &_mutex );
-                --_var;
+                --_value;
                 pthread_cond_broadcast( &_cond );
                 pthread_mutex_unlock( &_mutex );
                 return *this;
             }
+        const T& get() const { return _value; }
         void set( const T& val )
             {
                 pthread_mutex_lock( &_mutex );
-                _var = val;
+                _value = val;
                 pthread_cond_broadcast( &_cond );
                 pthread_mutex_unlock( &_mutex );
             }
@@ -83,20 +84,20 @@ namespace eqBase
         void waitEQ( const T& val )
             {
                 pthread_mutex_lock( &_mutex );
-                while( _var != val )
+                while( _value != val )
                     pthread_cond_wait( &_cond, &_mutex);
                 pthread_mutex_unlock( &_mutex );
             }
         void waitGE( const T& val )
             {
                 pthread_mutex_lock( &_mutex );
-                while( _var < val )
+                while( _value < val )
                     pthread_cond_wait( &_cond, &_mutex);
                 pthread_mutex_unlock( &_mutex );
             }
         //*}
     private:
-        T _var;
+        T _value;
 
         pthread_cond_t  _cond;
         pthread_mutex_t _mutex;
