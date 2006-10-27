@@ -8,6 +8,7 @@
 #include "global.h"
 #include "node.h"
 #include "nodeFactory.h"
+#include "version.h"
 
 #include <eq/net/init.h>
 
@@ -17,6 +18,8 @@ using namespace std;
 
 bool eq::init( int argc, char** argv )
 {
+    EQINFO << "Equalizer v" << Version::getString() << " initializing" << endl;
+
     // We do not use getopt_long because of:
     // - reordering of arguments
     // - different behaviour of GNU and BSD implementations

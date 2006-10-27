@@ -22,6 +22,7 @@
 #include <eq/client/packets.h>
 #include <eq/client/pipe.h>
 #include <eq/client/server.h>
+#include <eq/client/version.h>
 
 #include <eq/net/net.h>
 #include <eq/vmmlib/VMMLib.h>

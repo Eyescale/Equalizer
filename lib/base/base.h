@@ -7,7 +7,7 @@
 
 #include <eq/base/defines.h>
 
-#include "log.h"
+#include <eq/base/log.h>
 
 #include <stdio.h>
 #include <stdint.h>

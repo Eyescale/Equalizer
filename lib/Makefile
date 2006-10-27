@@ -81,6 +81,7 @@ HEADER_SRC = \
 	client/range.h \
 	client/renderContext.h \
 	client/server.h \
+	client/version.h \
 	client/view.h \
 	client/viewport.h \
 	client/wall.h \
