@@ -1,0 +1,46 @@
+# one pipe fullscreen config using two channels for passive stereo output.
+# assumes 8x3 aspect ratio of the pipe - change wall coordinates to adapt
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    channel 
+                    {
+                        name "channel-left" 
+                        viewport [ 0 0 0.5 1.0 ]
+                    }
+                    channel 
+                    {
+                        name "channel-right" 
+                        viewport [ 0.5 0 0.5 1.0 ]
+                    }
+                }
+            }
+        }
+        compound 
+        {
+            channel "channel-left"
+            wall
+            {
+                bottom_left  [ -.2 -.15 -1 ]
+                bottom_right [  .2 -.15 -1 ]
+                top_left     [ -.2  .15 -1 ]
+            }
+            compound
+            {
+                eye [ LEFT ]
+            }
+            compound
+            {
+                channel "channel-right"
+                eye [ RIGHT ]
+            }
+        }
+    }    
+}

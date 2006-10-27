@@ -1,4 +1,4 @@
-# six-node config for 3x2 30" LCD rendering cluster at unizh
+# six-node config for 3x2 30" display wall at unizh
 global
 {
     EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
@@ -41,16 +41,16 @@ server
         }
         compound
         {
-#            mode [ SYNC ]
             compound
             { 
                 channel "channel1"
                 wall
                 {
-                    bottom_left  [ -.984 .0285   -2 ]
-                    bottom_right [ -.344 .0285   -2 ]
+                    bottom_left  [ -.984 .0285 -2 ]
+                    bottom_right [ -.344 .0285 -2 ]
                     top_left     [ -.984 .4285 -2 ]
                 }
+                swapbarrier {}
             }
             compound
             { 
@@ -61,6 +61,7 @@ server
                     bottom_right [  .32 .0285 -2 ]
                     top_left     [ -.32 .4285 -2 ]
                 }
+                swapbarrier {}
             }
             compound
             { 
@@ -71,6 +72,7 @@ server
                     bottom_right [  .984 .0285 -2 ]
                     top_left     [  .344 .4285 -2 ]
                 }
+                swapbarrier {}
             }
             compound
             { 
@@ -81,6 +83,7 @@ server
                     bottom_right [ -.344 -.4285 -2 ]
                     top_left     [ -.984 -.0285 -2 ]
                 }
+                swapbarrier {}
             }
             compound
             { 
@@ -91,6 +94,7 @@ server
                     bottom_right [  .32 -.4285 -2 ]
                     top_left     [ -.32 -.0285 -2 ]
                 }
+                swapbarrier {}
             }
             compound
             { 
@@ -101,6 +105,7 @@ server
                     bottom_right [  .984 -.4285 -2 ]
                     top_left     [  .344 -.0285 -2 ]
                 }
+                swapbarrier {}
             }
         }
     }    

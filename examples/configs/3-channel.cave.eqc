@@ -1,4 +1,4 @@
-# single-window config simulating a 3-sided cave
+# single-window config simulating a 3-sided cave with 2m walls
 server
 {
     config
@@ -9,20 +9,20 @@ server
             {
                 window
                 {
-                    viewport [ 50 300 1200 300 ]
+                    viewport [ 10 200 1200 400 ]
                     channel 
                     {
-                        viewport [ 0 0 400 300 ]
+                        viewport [ 0 0 400 400 ]
                         name "channel-left"
                     }
                     channel 
                     {
-                        viewport [ 400 0 400 300 ]
+                        viewport [ 400 0 400 400 ]
                         name "channel-middle"
                     }
                     channel 
                     {
-                        viewport [ 800 0 400 300 ]
+                        viewport [ 800 0 400 400 ]
                         name "channel-right"
                     }
                 }

@@ -519,7 +519,7 @@ float PlyModel<FaceType>::_getScaleFactor( const Vertex bbox[2] )
     if( yScale > scale ) scale = yScale;
     if( zScale > scale ) scale = zScale;
 
-    return .1f/scale;
+    return 1.f/scale;
 }
 
 

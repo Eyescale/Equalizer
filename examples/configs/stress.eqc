@@ -1,3 +1,4 @@
+# stress-test config, currently for swap barrier debugging
 server
 {
     config
@@ -107,9 +108,9 @@ server
             channel "channel1"
             wall
             {
-                bottom_left  [ -.2 -.15 -1 ]
-                bottom_right [  .2 -.15 -1 ]
-                top_left     [ -.2  .15 -1 ]
+                bottom_left  [ -1 -1.5 -2 ]
+                bottom_right [  1 -1.5 -2 ]
+                top_left     [ -1  1.5 -2 ]
             }
             compound
             { 

@@ -36,7 +36,10 @@ Application Structure
 
  Event Processing
 
-  TBD
+  Equalizer collects events for all windows asynchronously and sends
+  them to the application thread, where they are processed at the end of
+  the frame by Config::handleEvent. This example implements a trackball,
+  move and zoom mouse interaction, as well as some keystroke commands.
 
 
 

@@ -32,8 +32,10 @@ public:
 
     void reset()
         {
-            _data.translation.z = -3.0f;
+            _data.translation.z = -2.0f;
             _data.rotation = vmml::Matrix4f::IDENTITY;
+            _data.rotation.rotateZ( -M_PI_2 );
+            _data.rotation.rotateX( -M_PI_2 );
         }
 
     struct Data

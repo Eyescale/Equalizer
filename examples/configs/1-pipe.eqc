@@ -3,9 +3,7 @@
 
 global
 {
-    EQ_CONNECTION_TYPE              TCPIP
-    EQ_CONNECTION_HOSTNAME          "localhost"
-    EQ_CONNECTION_LAUNCH_TIMEOUT    100000
+    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
 }
 
 server
@@ -14,12 +12,10 @@ server
     {
         appNode
         {
-#            connection{ hostname "hactar1" }
             pipe
             {
                 window
                 {
-                    viewport [ .25 .25 .5 .5 ]
                     channel
                     {
                         name "channel"

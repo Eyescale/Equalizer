@@ -1,4 +1,4 @@
-# single-window config simulating a 5-sided cave
+# single-window config simulating a 5-sided cave with 2 meter walls
 server
 {
     config
@@ -9,7 +9,7 @@ server
             {
                 window
                 {
-                    viewport [ 10 10 700 700 ]
+                    viewport [ 10 10 800 800 ]
                     channel 
                     {
                         viewport [ 0 .333 .333 .333 ]
@@ -91,7 +91,6 @@ server
                     top_left     [ -1 -1  1 ]
                 }
             }
-            compound { channel "channel" task [ READBACK ] outputframe{} }
         }
     }    
 }

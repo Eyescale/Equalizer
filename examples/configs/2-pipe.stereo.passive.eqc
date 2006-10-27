@@ -1,0 +1,49 @@
+# two pipe fullscreen config for passive stereo output onto a 2x2 meter wall
+# Note: the root compounds channel is chosen arbitrarily to define the frustum.
+# The compound children inherit from the root, therefore the channel does not 
+# need to be respecified for the left eye.
+
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                screen 0
+                window
+                {
+                    channel { name "channel-left" }
+                }
+            }
+            pipe
+            {
+                screen 1
+                window
+                {
+                    channel { name "channel-right" }
+                }
+            }
+        }
+        compound 
+        {
+            channel "channel-left"
+            wall
+            {
+                bottom_left  [ -1 -1 -1 ]
+                bottom_right [  1 -1 -1 ]
+                top_left     [ -1  1 -1 ]
+            }
+            compound
+            {
+                eye [ LEFT ]
+            }
+            compound
+            {
+                channel "channel-right"
+                eye [ RIGHT ]
+            }
+        }
+    }    
+}

@@ -1,3 +1,7 @@
+# Simulating a three pipe system on a single pipe. Projections are set up for a
+# 1.5m high wall, 4x3 aspect ratio and 10% overlap. Add pipe screen numbers and
+# remove window viewports to get a deployable config.
+
 server
 {
     config
@@ -8,10 +12,10 @@ server
             {
                 window
                 {
-                    viewport [ 0 256 340 255 ]
+                    viewport [ 10 200 400 300 ]
                     channel
                     {
-                        name "channel1"
+                        name "channel-left"
                     }
                 }
             }
@@ -19,10 +23,10 @@ server
             {
                 window
                 {
-                    viewport [ 340 256 340 255 ]
+                    viewport [ 420 200 400 300 ]
                     channel
                     {
-                        name "channel2"
+                        name "channel-middle"
                     }
                 }
             }
@@ -30,10 +34,10 @@ server
             {
                 window
                 {
-                    viewport [ 680 256 340 255 ]
+                    viewport [ 830 200 400 300 ]
                     channel
                     {
-                        name "channel3"
+                        name "channel-right"
                     }
                 }
             }
@@ -42,34 +46,34 @@ server
         { 
             compound
             { 
-                channel "channel1"
+                channel "channel-left"
                 wall
                 {
-                    bottom_left  [ -.6 -.15 -1 ]
-                    bottom_right [ -.2 -.15 -1 ]
-                    top_left     [ -.6  .15 -1 ]
+                    bottom_left  [ -2.8 -1.5 -2 ]
+                    bottom_right [  -.8 -1.5 -2 ]
+                    top_left     [ -2.8  1.5 -2 ]
                 }
                 swapbarrier {}
             }
             compound
             { 
-                channel "channel2"
+                channel "channel-middle"
                 wall
                 {
-                    bottom_left  [ -.2 -.15 -1 ]
-                    bottom_right [  .2 -.15 -1 ]
-                    top_left     [ -.2  .15 -1 ]
+                    bottom_left  [ -1 -1.5 -2 ]
+                    bottom_right [  1 -1.5 -2 ]
+                    top_left     [ -1  1.5 -2 ]
                 }
                 swapbarrier {}
             }
             compound
             { 
-                channel "channel3"
+                channel "channel-right"
                 wall
                 {
-                    bottom_left  [  .2 -.15 -1 ]
-                    bottom_right [  .6 -.15 -1 ]
-                    top_left     [  .2  .15 -1 ]
+                    bottom_left  [  .8 -1.5 -2 ]
+                    bottom_right [ 2.8 -1.5 -2 ]
+                    top_left     [  .8  1.5 -2 ]
                 }
                 swapbarrier {}
             }
