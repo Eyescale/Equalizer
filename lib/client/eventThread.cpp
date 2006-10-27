@@ -19,9 +19,6 @@ static Lock _threadsLock;
 
 EventThread* EventThread::get( const WindowSystem windowSystem )
 {
-    if( _threads[windowSystem] )
-        return _threads[windowSystem];
-
     _threadsLock.set();
     if( !_threads[windowSystem] )
     {
@@ -32,14 +29,16 @@ EventThread* EventThread::get( const WindowSystem windowSystem )
                 _threads[windowSystem] = new GLXEventThread;
 #endif
                 break;
+
             default:
-                EQERROR << "Event thread unimplemented for window system "
-                        << windowSystem << endl;
-                return NULL;
+                break;
         }
     }
     _threadsLock.unset();
+    
+    if( !_threads[windowSystem] )
+        EQERROR << "Event thread unimplemented for window system "
+                << windowSystem << endl;
 
-    EQASSERT( _threads[windowSystem] );
     return _threads[windowSystem];
 }

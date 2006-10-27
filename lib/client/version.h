@@ -5,7 +5,7 @@
 #ifndef EQ_VERSION_H
 #define EQ_VERSION_H
 
-#include <sstream>
+#include <string>
 
 namespace eq
 {
@@ -17,23 +17,13 @@ namespace eq
     class Version
     {
     public:
-        static uint32_t getMajor() { return EQ_VERSION_MAJOR; }
-        static uint32_t getMinor() { return EQ_VERSION_MINOR; }
-        static uint32_t getPatch() { return EQ_VERSION_PATCH; }
+        static uint32_t getMajor();
+        static uint32_t getMinor();
+        static uint32_t getPatch();
 
-        static uint32_t getInt()   { return ( EQ_VERSION_MAJOR * 10000 +
-                                              EQ_VERSION_MINOR * 100   +
-                                              EQ_VERSION_PATCH ); }
-        static float    getFloat() { return ( EQ_VERSION_MAJOR +
-                                              .01f   * EQ_VERSION_MINOR   +
-                                              .0001f * EQ_VERSION_PATCH ); }
-        static std::string getString()
-            {
-                std::ostringstream  version;
-                version << EQ_VERSION_MAJOR << '.' << EQ_VERSION_MINOR << '.'
-                        << EQ_VERSION_PATCH;
-                return version.str();
-            }
+        static uint32_t getInt();
+        static float    getFloat();
+        static std::string getString();
     };
 }
 

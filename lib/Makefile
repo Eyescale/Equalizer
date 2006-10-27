@@ -138,6 +138,7 @@ SOURCES = \
 	client/range.cpp \
 	client/renderContext.cpp \
 	client/server.cpp \
+	client/version.cpp \
 	client/view.cpp \
 	client/wall.cpp \
 	client/window.cpp
