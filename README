@@ -30,6 +30,10 @@
  (universal) libraries and binaries are build. Therefore, <VARIANT> can
  be omitted.
 
+ The default launch mechanism for nodes uses ssh. If your configuration
+ contains remote nodes, make sure a passwordless login using ssh is
+ possible, or reconfigure the launch command.
+
 
                            Build Environment
 
