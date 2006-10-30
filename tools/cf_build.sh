@@ -5,7 +5,7 @@
 # Usage : <name> <email>
 
 PATH=${PATH}:/sw/bin
-cd $HOME/Software/build/equalizer/trunk/src
+cd $HOME/Software/build/equalizer
 exec 1>`hostname`.make
 exec 2>&1
 svn up
