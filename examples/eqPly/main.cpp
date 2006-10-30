@@ -77,12 +77,22 @@ int main( int argc, char** argv )
 
     // 5b. init tracker
     Tracker tracker;
-    if( !appInitData->getTrackerPort().empty() )
+    if( !appInitData->getTrackerPort().empty( ))
     {
         if( !tracker.init( appInitData->getTrackerPort() ))
             EQWARN << "Failed to initialise tracker" << endl;
         else
+        {
+            // Set up position of tracking system in world space
+            // Note: this depends on the installation used.
+            vmml::Matrix4f reference( vmml::Matrix4f::IDENTITY );
+            //reference.rotateX(  M_PI_2 );
+            //reference.y = .5;
+            reference.rotateZ( -M_PI_2 );
+            
+            tracker.setReference( reference );
             EQINFO << "Tracker initialised" << endl;
+        }
     }
 
     // 6. run main loop

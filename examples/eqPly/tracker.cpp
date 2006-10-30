@@ -16,23 +16,20 @@ using namespace std;
 Tracker::Tracker()
          : _running( false )
 {
-    _scale[0] = -1.0/18000;
-    _scale[1] = -1.0/18000;
-    _scale[2] = 1.0/18000;
 }
 
 bool Tracker::init( const string& port )
 {
    if( _running )
    {
-      cout << "Duplicate tracker initialisation" << endl;
+      EQERROR << "Duplicate tracker initialisation" << endl;
       return false;
    }
  
    _fd = open( port.c_str(), O_RDWR | O_EXCL );
    if( _fd < 0 )
    {
-      cout << "Failed to open " << port << ": " << strerror( errno ) << endl;
+      EQERROR << "Failed to open " << port << ": " << strerror( errno ) << endl;
       return false;
    }
 
@@ -40,7 +37,7 @@ bool Tracker::init( const string& port )
    struct termios termio;
    if( tcgetattr( _fd, &termio ) != 0 )
    {
-      cout << "tcgetattr failed: " << strerror( errno ) << endl;
+      EQERROR << "tcgetattr failed: " << strerror( errno ) << endl;
       close( _fd );
       return false;
    }
@@ -71,39 +68,20 @@ bool Tracker::init( const string& port )
 
    if( tcsetattr( _fd, TCSANOW, &termio ) != 0)
    {
-      cout << "tcsetattr failed: " << strerror( errno ) << endl;
+      EQERROR << "tcsetattr failed: " << strerror( errno ) << endl;
       close( _fd );
       return false;
    }
 
-   //tell the tracker what kind of data to prepare
+   // tell the tracker what kind of data to prepare
    int k = write( _fd, COMMAND_POS_ANG, 1 ); //take data
    if( k==-1 )
-      cerr << "Write error: " << strerror( errno ) << endl;
+      EQERROR << "Write error: " << strerror( errno ) << endl;
 
    usleep( 10000 ); //give enough time for initialising
    
-   /*
-     _translationOrigin[0] = 0.0;
-     _translationOrigin[1] = 0.0;
-     _translationOrigin[2] = 0.0;
-     _angleOrigin[0] = 0.0;
-     _angleOrigin[1] = 0.0;
-     _angleOrigin[2] = 0.0;
-   */
-     
    if( _update( )) //try an update to see if it works
        _running = true;
-
-   //save the position and angle origins of the sensor
-   _angleOrigin[0] = hpr[0];
-   _angleOrigin[1] = hpr[1];
-   _angleOrigin[2] = hpr[2];
-   _headCos = cos( hpr[0] ); 
-   _headSin = sin( hpr[0] );
-   _translationOrigin[0] = _posWoAng[0];
-   _translationOrigin[1] = _posWoAng[1];
-   _translationOrigin[2] = _posWoAng[2];
 
    return _running;
 }
@@ -112,7 +90,7 @@ bool Tracker::update()
 {
    if( !_running )
    {
-      cerr << "Update error, tracker not running" << endl;
+      EQERROR << "Update error, tracker not running" << endl;
       return false;
    }
    else
@@ -124,14 +102,19 @@ bool Tracker::update()
 
 bool Tracker::_update()
 {
-   unsigned char buffer[12];
-   int k = write( _fd, COMMAND_POINT, 1 ); //send data
-   if( k==-1 )
-      cerr << "Write error: " << strerror( errno ) << endl;
+   const ssize_t wrote = write( _fd, COMMAND_POINT, 1 ); // send data
+   if( wrote==-1 )
+   {
+      EQERROR << "Write error: " << strerror( errno ) << endl;
+      return false;
+   }
 
-   bool b = _read( buffer, 12, 500000 );
-   if( !b )
-      cerr << "Read error: " << strerror( errno ) << endl;
+   unsigned char buffer[12];
+   if( !_read( buffer, 12, 500000 ))
+   {
+       EQERROR << "Read error" << endl;
+       return false;
+   }
 
    const short xpos = (buffer[1]<<8 | buffer[0]);
    const short ypos = (buffer[3]<<8 | buffer[2]);
@@ -141,69 +124,43 @@ bool Tracker::_update()
    const short pitch = (buffer[9]<<8 | buffer[8]);
    const short roll = (buffer[11]<<8 | buffer[10]);
 
-   /*
-   float hpr[3] = { head  / -5194.81734f,    //32640 -> 2 * pi = /5194.81734
-                    pitch / -5194.81734f,
-                    roll  / -5194.81734f };
-   */
-   hpr[0] = head  / -5194.81734f;    //32640 -> 2 * pi = /5194.81734
-   hpr[1] = pitch / -5194.81734f;
-   hpr[2] = roll  / -5194.81734f;
-              
-   hpr[0] +=   M_PI;
-   hpr[1] += 2*M_PI;
-   hpr[2] += 2*M_PI;
+   // 32640 is 360 degrees (2pi) -> scale is 1/5194.81734
+   const vmml::Vector3f hpr( head  / -5194.81734f + M_PI,
+                             pitch / -5194.81734f + 2.0f * M_PI,
+                             roll  / -5194.81734f + 2.0f * M_PI );
 
-   /*
-   float pos[3];
-   */
-   //highest value for y and z position of the tracker sensor is 32639,
-   //after that it switches back to zero (and vice versa if descending values).
-   pos[0] = ypos;
-   if( pos[0] > 16320 )             //32640 / 2 = 16320
-      pos[0] -= 32640;
-   
-   pos[1] = zpos;
-   if( pos[1] > 16320 )
-      pos[1] -= 32640;
+   vmml::Vector3f pos;
 
-   pos[2] = xpos;
+   // highest value for y and z position of the tracker sensor is 32639,
+   // after that it switches back to zero (and vice versa if descending values).
+   pos.x = ypos;
+   if( pos.x > 16320 )             //32640 / 2 = 16320
+      pos.x -= 32640;
+   
+   pos.y = zpos;
+   if( pos.y > 16320 )
+      pos.y -= 32640;
 
-   //position of the sensor in pure tracker coordinates,
-   //which is used at the initialization to determine the [0,0,0] point
-   _posWoAng[0] = pos[0];
-   _posWoAng[1] = pos[1];
-   _posWoAng[2] = pos[2];
-   
-   //location of sensor during init is set to [0,0,0]
-   pos[0] -= _translationOrigin[0];
-   pos[1] -= _translationOrigin[1];
-   pos[2] -= _translationOrigin[2];
-   
-   //orientation of the sensor during init is set to [0,0,0]
-   hpr[0] -= _angleOrigin[0];
-   hpr[1] -= _angleOrigin[1];
-   hpr[2] -= _angleOrigin[2];
+   pos.z = xpos;
 
-   //sensor moving relative to it's head angle
-   const float tmp0 = pos[0];
-   const float tmp2 = pos[2];
-   pos[0] =  _headCos * tmp0 + _headSin * tmp2;
-   pos[2] = -_headSin * tmp0 + _headCos * tmp2; 
-   
-   //std::cout << _headSin << ", " << _headCos << endl;
-   //std::cout << "pos0 " << pos[0] << " pos2 " << pos[2] << endl;
-   
-   //position and rotation are stored in transformation matrix
-   //and matrix is scaled to the application's units
+   pos /= 18000.f; // scale to meter
+
+   // position and rotation are stored in transformation matrix
+   // and matrix is scaled to the application's units
    _matrix = eq::Matrix4f::IDENTITY;
-   _matrix.setTranslation( pos[0], pos[1], pos[2] );
-   _matrix.scaleTranslation( _scale );
-   _matrix.rotateX( hpr[0] );
-   _matrix.rotateY( hpr[1] );
-   _matrix.rotateZ( hpr[2] );
+   _matrix.setTranslation( pos );
+   _matrix.rotateX( hpr.x );
+   _matrix.rotateY( hpr.y );
+   _matrix.rotateZ( hpr.z );
 
-   return b;
+   EQINFO << "Tracker pos " << pos << " hpr " << hpr << " = " << _matrix;
+
+   // apply reference transformation
+   _matrix *= _reference;
+
+   EQINFO << "Tracker matrix " << _matrix;
+
+   return true;
 }
 
 bool Tracker::_read( unsigned char* buffer, const size_t size,
@@ -225,20 +182,20 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
       const int errCode = select( _fd+1, &readfds, NULL, NULL, &tv );
       if( errCode == 0 )
       {
-         cerr << "Error: no data from tracker" << endl;
+         EQERROR << "Error: no data from tracker" << endl;
          return false;
       }
       if( errCode == -1 )
       {
-         cerr << "Select error: " << strerror( errno ) << endl;
+         EQERROR << "Select error: " << strerror( errno ) << endl;
          return false;
       }
 
-      //try_to read remaining bytes, returns # of readed bytes
+      // try to read remaining bytes, returns # of read bytes
       const ssize_t received = read( _fd, &buffer[size-remaining], remaining );
       if( received == -1 )
       {	
-         cerr << "Read error: " << strerror( errno ) << endl;
+         EQERROR << "Read error: " << strerror( errno ) << endl;
          return false;
       }
 
