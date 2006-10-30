@@ -5,6 +5,8 @@
 #ifndef EQ_VERSION_H
 #define EQ_VERSION_H
 
+#include <eq/base/base.h>
+
 #include <string>
 
 namespace eq

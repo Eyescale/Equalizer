@@ -188,7 +188,7 @@ bool Tracker::_update()
    //sensor moving relative to it's head angle
    const float tmp0 = pos[0];
    const float tmp2 = pos[2];
-   pos[0] = _headCos * tmp0 + _headSin * tmp2;
+   pos[0] =  _headCos * tmp0 + _headSin * tmp2;
    pos[2] = -_headSin * tmp0 + _headCos * tmp2; 
    
    //std::cout << _headSin << ", " << _headCos << endl;
