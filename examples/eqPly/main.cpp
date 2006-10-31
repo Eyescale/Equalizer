@@ -85,12 +85,14 @@ int main( int argc, char** argv )
         {
             // Set up position of tracking system in world space
             // Note: this depends on the installation used.
-            vmml::Matrix4f reference( vmml::Matrix4f::IDENTITY );
-            //reference.rotateX(  M_PI_2 );
-            //reference.y = .5;
-            reference.rotateZ( -M_PI_2 );
-            
-            tracker.setReference( reference );
+            vmml::Matrix4f m( vmml::Matrix4f::IDENTITY );
+            m.rotateY( M_PI_2 );
+            //m.x = .5;
+            tracker.setWorldToEmitter( m );
+
+            m = vmml::Matrix4f::IDENTITY;
+            m.rotateZ( -M_PI_2 );
+            //tracker.setSensorToObject( m );
             EQINFO << "Tracker initialised" << endl;
         }
     }
@@ -102,7 +104,7 @@ int main( int argc, char** argv )
         if( tracker.isRunning() )
         {
             tracker.update();
-            const eq::Matrix4f& headMatrix = tracker.getHeadMatrix();
+            const vmml::Matrix4f& headMatrix = tracker.getMatrix();
             config->setHeadMatrix( headMatrix );
         }
 

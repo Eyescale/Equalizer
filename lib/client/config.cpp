@@ -130,8 +130,9 @@ void Config::handleEvents()
     }
 }
 
-void Config::setHeadMatrix( const Matrix4f& matrix )
+void Config::setHeadMatrix( const vmml::Matrix4f& matrix )
 {
+    EQASSERT( _headMatrix );
     *_headMatrix = matrix;
     _headMatrix->commit();
 }

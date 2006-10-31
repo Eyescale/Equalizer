@@ -130,7 +130,7 @@ namespace eq
          *
          * @param matrix the matrix
          */
-        void setHeadMatrix( const Matrix4f& matrix );
+        void setHeadMatrix( const vmml::Matrix4f& matrix );
 
     protected:
         virtual eqNet::Object* instanciateObject( const uint32_t type,

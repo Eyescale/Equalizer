@@ -14,7 +14,9 @@
 using namespace std;
 
 Tracker::Tracker()
-         : _running( false )
+        : _running( false ),
+          _worldToEmitter( vmml::Matrix4f::IDENTITY ),
+          _sensorToObject( vmml::Matrix4f::IDENTITY )
 {
 }
 
@@ -147,16 +149,16 @@ bool Tracker::_update()
 
    // position and rotation are stored in transformation matrix
    // and matrix is scaled to the application's units
-   _matrix = eq::Matrix4f::IDENTITY;
-   _matrix.setTranslation( pos );
+   _matrix = vmml::Matrix4f::IDENTITY;
    _matrix.rotateX( hpr.x );
    _matrix.rotateY( hpr.y );
    _matrix.rotateZ( hpr.z );
+   _matrix.setTranslation( pos );
 
    EQINFO << "Tracker pos " << pos << " hpr " << hpr << " = " << _matrix;
 
-   // apply reference transformation
-   _matrix *= _reference;
+    // M = M_world_emitter * M_emitter_sensor * M_sensor_object
+   _matrix = _worldToEmitter * _matrix * _sensorToObject;
 
    EQINFO << "Tracker matrix " << _matrix;
 
@@ -203,9 +205,4 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
       remaining -= received;
    }
    return true;
-}
-
-const eq::Matrix4f& Tracker::getHeadMatrix() const
-{
-    return _matrix;
 }

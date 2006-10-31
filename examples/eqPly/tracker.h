@@ -1,4 +1,4 @@
-/* Copyright (c) 2006, Dustin Wueest <wueest@dustin.ch> 
+/* Copyright (c) 2006, Dustin Wueest <wueest@dustin.ch>
    All rights reserved. */
 
 #ifndef FOB_TRACKER_H
@@ -27,17 +27,22 @@ public:
     bool init( const std::string& port );
 
     /** 
-     * Defines the transformation from the world coordinate system to the
-     * tracker coordinate system.
+     * Set the matrix defining the transformation from world coordinates to
+     * emitter coordinates.
      *
-     * This transformation is defined by the position of the tracker emitter and
-     * the initial transformation of the sensor, i.e., its rotation and
-     * translation on the stereo glasses wrt the 'cyclop' eye.
-     * 
-     * @param reference The reference matrix.
+     * @param matrix the world to emitter matrix.
      */
-    void setReference( const vmml::Matrix4f& reference )
-        { _reference = reference; }
+    void setWorldToEmitter( const vmml::Matrix4f& matrix )
+        { _worldToEmitter = matrix; }
+
+    /** 
+     * Set the matrix defining the transformation from sensor coordinates to
+     * coordinates of the tracked object.
+     *
+     * @param matrix the sensor to object matrix.
+     */
+    void setSensorToObject( const vmml::Matrix4f& matrix )
+        { _sensorToObject = matrix; }
 
     /**
      * Checks if the tracker is running
@@ -65,7 +70,7 @@ public:
      *
      * @return the transformation matrix.
      */
-    const eq::Matrix4f& getHeadMatrix() const;
+    const vmml::Matrix4f& getMatrix() const { return _matrix; }
 
 private:
     bool _update(); //update without state checking
@@ -77,14 +82,15 @@ private:
 
     int   _fd;
 
-    /** The matrix defining the orientation and position of the sensor. */
-    eq::Matrix4f _matrix;
+    /** matrix defining the orientation and position of the tracked object. */
+    vmml::Matrix4f _matrix;
 
-    /** 
-     * The transformation of the reference, i.e., the emitter, to world
-     * coordinates.
-     */
-    vmml::Matrix4f _reference;
+    /** world to emitter transformation */
+    vmml::Matrix4f _worldToEmitter;
+    /** sensor to object transformation */
+    vmml::Matrix4f _sensorToObject;
+
+
 };
 
 #endif // FOB_TRACKER_H
