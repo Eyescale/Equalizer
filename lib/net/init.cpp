@@ -86,7 +86,7 @@ bool initLocalNode( int argc, char** argv )
         RefPtr<Connection>            connection = new SocketConnection();
         RefPtr<ConnectionDescription> connDesc   = connection->getDescription();
 
-        if( !connDesc->fromString( listenOpts ))
+        if( !listenOpts.empty() && !connDesc->fromString( listenOpts ))
             EQINFO << "No listening port parameters read from command line"
                    << endl;
         EQINFO << "Listening connection description: " << connDesc->toString()

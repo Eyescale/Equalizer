@@ -136,7 +136,7 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
     for( int i=0; i<Config::FATTR_ALL; ++i )
     {
         const float value = global->_configFAttributes[i];
-        if( value != reference._configFAttributes[i] )
+        if( value == reference._configFAttributes[i] )
             continue;
 
         os << ( i==Config::FATTR_EYE_BASE ?
