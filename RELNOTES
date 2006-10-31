@@ -1,12 +1,11 @@
 
-Release Notes for Equalizer 0.1
+                    Release Notes for Equalizer 0.1
 
    Welcome to Equalizer 0.1, a framework for the development and deployment
    of scalable multipipe applications, based on C++ and OpenGL.
 
-   Equalizer 0.1 is the first official release. It is intended as an early
-   preview and evaluation snapshot for application developers and other
-   interested parties.
+   Equalizer 0.1 is the first official release. It is intended as preview and
+   evaluation snapshot for application developers and early adopters.
 
   Features
 
