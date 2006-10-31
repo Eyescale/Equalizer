@@ -1,7 +1,8 @@
-Equalizer - A programming framework and resource management systems for
-            multi-pipe rendering.
+Equalizer - A programming framework and resource management system for
+            multipipe rendering.
 
-Unless noted otherwise in individual source code files:
+Equalizer is licensed under the LGPL, unless noted otherwise in external
+dependencies.
 
 Copyright (C) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com>
 

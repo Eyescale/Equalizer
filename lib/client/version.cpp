@@ -35,7 +35,9 @@ float Version::getFloat()
 std::string Version::getString()
 {
     std::ostringstream  version;
-    version << EQ_VERSION_MAJOR << '.' << EQ_VERSION_MINOR << '.'
-            << EQ_VERSION_PATCH;
+    version << EQ_VERSION_MAJOR << '.' << EQ_VERSION_MINOR;
+    if( EQ_VERSION_PATCH > 0 )
+        version << '.' << EQ_VERSION_PATCH;
+
     return version.str();
 }

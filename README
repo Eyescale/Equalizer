@@ -2,8 +2,23 @@
                                Quickstart
 
  This directory is the top-level directory for the Equalizer sources.
- Executing 'make' should build all targets if the platform is supported.
- Please make sure to also read the FAQ in this directory.
+ Executing 'make' should build all targets, if the platform is supported.
+ See also the FAQ in this directory.
+
+
+                           Running Equalizer
+
+ Right now there is only one example. To run it, first setup your
+ library search path (LD_LIBRARY_PATH) to point to
+ trunk/src/build/<os>/<VARIANT>/lib. Then start a server:
+ './server/eqs.<VARIANT>'. Once the server is  running, start the
+ example: './examples/eqPly/eqPly.<VARIANT>'. On Mac OS X, fat
+ (universal) libraries and binaries are build. Therefore, '.<VARIANT>' can
+ be omitted.
+
+ The default launch mechanism for nodes uses ssh. If your configuration
+ contains remote nodes, make sure a passwordless login using ssh is
+ possible, or reconfigure the launch command.
 
 
                             Directory Layout
@@ -18,21 +33,6 @@
  examples/  Equalizer example programs
  proto/     quick prototypes written during development
  tests/     small programs testing certain functionality (to-be-unit-tests)
-
-
-                           Running Equalizer
-
- Right now there is only one example. To run it, first setup your
- library search path (LD_LIBRARY_PATH) to point to
- trunk/src/build/<os>/<VARIANT>/lib. Then start a server:
- './server/eqs.<VARIANT>'. Once the server is  running, start the
- example: './examples/eqPly/eqPly.<VARIANT>'. On Mac OS X, fat
- (universal) libraries and binaries are build. Therefore, <VARIANT> can
- be omitted.
-
- The default launch mechanism for nodes uses ssh. If your configuration
- contains remote nodes, make sure a passwordless login using ssh is
- possible, or reconfigure the launch command.
 
 
                            Build Environment
