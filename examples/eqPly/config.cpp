@@ -19,8 +19,8 @@ bool Config::init( const uint32_t initID )
 uint32_t Config::beginFrame()
 {
     // update database
-    _frameData->_data.rotation.preRotateX( 0.001 * _spinX );
-    _frameData->_data.rotation.preRotateY( 0.001 * _spinY );
+    _frameData->_data.rotation.preRotateX( -0.001 * _spinX );
+    _frameData->_data.rotation.preRotateY( -0.001 * _spinY );
     const uint32_t version = _frameData->commit();
 
     return eq::Config::beginFrame( version );
@@ -75,9 +75,9 @@ bool Config::handleEvent( eq::ConfigEvent* event )
                 _spinY = 0;
 
                 _frameData->_data.rotation.preRotateX( 
-                    0.005*event->pointerMotion.dx );
+                    -0.005*event->pointerMotion.dx );
                 _frameData->_data.rotation.preRotateY(
-                    0.005*event->pointerMotion.dy );
+                    -0.005*event->pointerMotion.dy );
             }
             else if( event->pointerMotion.buttons == eq::PTR_BUTTON2 ||
                      event->pointerMotion.buttons == ( eq::PTR_BUTTON1 |

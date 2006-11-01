@@ -24,7 +24,7 @@ static PerThread<Log*> _logInstance;
 int getLogLevel()
 {
     const char *env = getenv("EQ_LOG_LEVEL");
-    if( env != NULL )
+    if( env )
     {
         if( strcmp( env, "ERROR" ) == 0 )
             return LOG_ERROR;

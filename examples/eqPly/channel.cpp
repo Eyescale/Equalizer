@@ -89,12 +89,13 @@ void Channel::draw( const uint32_t frameID )
     }
     else
     {
-        glColor3f( 1, 1, 0 );
+        glColor3f( 1.f, 1.f, 0.f );
+        glNormal3f( 0.f, -1.f, 0.f );
         glBegin( GL_TRIANGLE_STRIP );
-        glVertex3f( -.25, -.25, -.25 );
-        glVertex3f( -.25,  .25, -.25 );
-        glVertex3f(  .25, -.25, -.25 );
-        glVertex3f(  .25,  .25, -.25 );
+        glVertex3f(  .25f, 0.f,  .25f );
+        glVertex3f(  .25f, 0.f, -.25f );
+        glVertex3f( -.25f, 0.f,  .25f );
+        glVertex3f( -.25f, 0.f, -.25f );
         glEnd();
         glFinish();
     }
