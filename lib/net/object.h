@@ -165,7 +165,7 @@ namespace eqNet
          * @return the commit identifier to be passed to commitSync
          * @sa commitSync
          */
-        uint32_t Object::commitNB();
+        uint32_t commitNB();
         
         /** 
          * Finalizes a commit transaction.
@@ -173,7 +173,7 @@ namespace eqNet
          * @param commitID the commit identifier returned from commitNB
          * @return the new head version.
          */
-        uint32_t Object::commitSync( const uint32_t commitID );
+        uint32_t commitSync( const uint32_t commitID );
 
         /** 
          * Explicitily obsoletes all versions including version.
