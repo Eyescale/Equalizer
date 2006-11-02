@@ -29,7 +29,7 @@ CXXFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DCHECK_THREADSAFETY \
 LDFLAGS        += -L$(LIBRARY_DIR)
 DEP_CXX        ?= $(CXX)
 
-ifneq ($(findstring "-g", $(CXXFLAGS)),"-g")
+ifneq ($(findstring -g, $(CXXFLAGS)),-g)
     CXXFLAGS += -DNDEBUG
 endif
 
