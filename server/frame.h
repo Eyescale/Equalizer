@@ -5,6 +5,8 @@
 #ifndef EQS_FRAME_H
 #define EQS_FRAME_H
 
+#include "compound.h"
+
 #include <eq/client/frame.h>
 #include <eq/client/packets.h>
 
@@ -12,6 +14,7 @@ namespace eqs
 {
     class Compound;
     class FrameBuffer;
+    class Node;
 
     /**
      * A holder for a FrameBuffer and frame parameters.
@@ -29,6 +32,8 @@ namespace eqs
          * @name Data Access
          */
         //*{
+        Node* getNode() const { return _compound ? _compound->getNode() :NULL; }
+
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
 
@@ -87,9 +92,8 @@ namespace eqs
          * clears the list of input frames.
          *
          * @param frameNumber the current frame number.
-         * @param maxAge the maximum age before frame buffers can be recycled.
          */
-        void cycleBuffer( const uint32_t frameNumber, const uint32_t maxAge );
+        void cycleBuffer( const uint32_t frameNumber );
 
         /** 
          * Add an input frame to this (output) frame
@@ -114,6 +118,11 @@ namespace eqs
         virtual const void* pack( uint64_t* size );
 
     private:
+        /** The parent compound. */
+        Compound* _compound;
+        friend class Compound;
+
+        /** The name which associates input to output frames. */
         std::string _name;
 
         /** Frame-specific data. */

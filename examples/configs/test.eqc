@@ -16,6 +16,9 @@ server
                     }
                 }
             }
+        }
+        node
+        {
             pipe
             {
                 window
@@ -42,14 +45,14 @@ server
 //            {
 //                viewport [ 0 0 .5 1 ]
 //            }
-//            compound
-//            { 
-//                channel "channel2"
-//                viewport [ .5 0 .5 1 ]
-//                outputframe {}
-//            }
-            outputframe{}
-//            inputframe{}
+            compound
+            { 
+                channel "channel2"
+                viewport [ .5 0 .5 1 ]
+                outputframe {}
+            }
+//            outputframe{}
+            inputframe{ name "frame.channel2" }
         }
     }    
 }

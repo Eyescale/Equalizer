@@ -129,6 +129,8 @@ namespace eqs
 
         Config* getConfig()
             { return getRoot()->_config; }
+        Node* getNode()
+            { return getChannel()->getNode(); }
 
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }

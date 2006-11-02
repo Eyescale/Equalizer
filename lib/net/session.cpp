@@ -910,7 +910,8 @@ CommandResult Session::_cmdGetObject( Node* node, const Packet* pkg )
 
     if( _instObject( state ) == COMMAND_ERROR )
     {
-        EQLOG( LOG_OBJECTS ) << "error during instanciation, id " << id << endl;
+        EQLOG( LOG_OBJECTS ) << "error during object instanciation, id " 
+                             << id << endl;
         _requestHandler.serveRequest( packet->requestID, NULL );
         return COMMAND_HANDLED;
     }

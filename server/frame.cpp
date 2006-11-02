@@ -16,6 +16,7 @@ using namespace std;
 
 Frame::Frame()
         : eqNet::Object( eq::Object::TYPE_FRAME, eqNet::CMD_OBJECT_CUSTOM ),
+          _compound( NULL ),
           _buffer( NULL )
 {
     _data.format = eq::Frame::FORMAT_UNDEFINED;
@@ -24,9 +25,12 @@ Frame::Frame()
 
 Frame::Frame( const Frame& from )
         : eqNet::Object( eq::Object::TYPE_FRAME, eqNet::CMD_OBJECT_CUSTOM ),
+          _compound( NULL ),
           _buffer( NULL )
 {
     _data = from._data;
+    _name = from._name;
+    _vp   = from._vp;
     setInstanceData( &_inherit, sizeof( eq::Frame::Data ));
 }
 
@@ -58,13 +62,13 @@ void Frame::updateInheritData( const Compound* compound )
         _buffer->setFormat( _inherit.format );
 }
 
-void Frame::cycleBuffer( const uint32_t frameNumber, const uint32_t maxAge )
+void Frame::cycleBuffer( const uint32_t frameNumber )
 {
     // find unused frame buffer
-    FrameBuffer* buffer = _buffers.empty() ? NULL : _buffers.back();
-    
+    FrameBuffer*   buffer  = _buffers.empty() ? NULL : _buffers.back();
+    const uint32_t latency = getAutoObsoleteCount();
     if( buffer && 
-        buffer->getFrameNumber() < frameNumber-maxAge ) // not used anymore
+        buffer->getFrameNumber() < frameNumber-latency ) // not used anymore
 
         _buffers.pop_back();
     else
@@ -75,7 +79,7 @@ void Frame::cycleBuffer( const uint32_t frameNumber, const uint32_t maxAge )
         EQASSERT( session );
 
         session->registerObject( buffer, session->getLocalNode( ));
-        buffer->setAutoObsolete( getAutoObsoleteCount( ));
+        buffer->setAutoObsolete( 1 );
     }
 
     buffer->setFrameNumber( frameNumber );

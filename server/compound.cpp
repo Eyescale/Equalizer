@@ -129,12 +129,14 @@ void Compound::addInputFrame( Frame* frame )
     if( frame->getName().empty() )
         _setDefaultFrameName( frame );
     _inputFrames.push_back( frame ); 
+    frame->_compound = this;
 }
 void Compound::addOutputFrame( Frame* frame )
 { 
     if( frame->getName().empty() )
         _setDefaultFrameName( frame );
     _outputFrames.push_back( frame ); 
+    frame->_compound = this;
 }
 
 void Compound::_setDefaultFrameName( Frame* frame )
@@ -412,7 +414,6 @@ void Compound::_updateOutput( UpdateData* data )
 
     const Config*  config      = getConfig();
     const uint32_t frameNumber = config->getFrameNumber();
-    const uint32_t latency     = config->getLatency();
 
     for( vector<Frame*>::iterator iter = _outputFrames.begin(); 
          iter != _outputFrames.end(); ++iter )
@@ -432,7 +433,7 @@ void Compound::_updateOutput( UpdateData* data )
         eq::PixelViewport   framePVP = _inherit.pvp * frameVP;
 
         // Buffer offset is position of buffer wrt destination view
-        frame->cycleBuffer( frameNumber, latency );
+        frame->cycleBuffer( frameNumber );
         FrameBuffer* buffer = frame->getBuffer();
         EQASSERT( buffer );
 
@@ -783,32 +784,34 @@ void Compound::_updateReadback( const eq::RenderContext& context )
     netNode->send<eqNet::ObjectVersion>( packet, frameIDs );
     
     // transmit tasks
+    const eqNet::NodeID&  outputNodeID = netNode->getNodeID();
     for( vector<Frame*>::const_iterator iter = frames.begin();
          iter != frames.end(); ++iter )
     {
         Frame* frame = *iter;
 
-        const vector<Frame*>& inputFrames = frame->getInputFrames();
-        const eqNet::NodeID&  netNodeID   = netNode->getNodeID();
+        const vector<Frame*>& inputFrames  = frame->getInputFrames();
         vector<eqNet::NodeID> nodeIDs;
         for( vector<Frame*>::const_iterator iter = inputFrames.begin();
              iter != inputFrames.end(); ++iter )
         {
             const Frame*         frame   = *iter;
-            eqNet::Session*      session = frame->getSession();
-            const eqNet::NodeID& nodeID  = session->getIDMaster(frame->getID());
+            const Node*          node    = frame->getNode();
+            RefPtr<eqNet::Node>  netNode = node->getNode();
+            const eqNet::NodeID& nodeID  = netNode->getNodeID();
+            EQASSERT( node );
 
-            if( nodeID == netNodeID ) // TODO filter: format, vp, eye
+            if( nodeID == outputNodeID ) // TODO filter: format, vp, eye
                 continue;
 
             nodeIDs.push_back( nodeID );
         }
 
-        if( nodeIDs.empty( ))
-            continue;
-
         // sort & filter dupes
         stde::usort( nodeIDs );
+
+        if( nodeIDs.empty( ))
+            continue;
 
         // send
         eq::ChannelTransmitPacket transmitPacket;
