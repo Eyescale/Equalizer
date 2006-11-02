@@ -82,6 +82,9 @@ namespace eqs
         
         float       _configFAttributes[Config::FATTR_ALL];
 
+        void _setupDefaults();
+        void _readEnvironment();
+
         friend std::ostream& operator << ( std::ostream&, const Global* );
     };
 

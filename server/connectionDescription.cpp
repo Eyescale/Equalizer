@@ -12,6 +12,17 @@ using namespace eqs;
 using namespace eqBase;
 using namespace std;
 
+#define MAKE_ATTR_STRING( attr ) ( string("EQ_CONNECTION_") + #attr )
+std::string ConnectionDescription::_sAttributeStrings[SATTR_ALL] = {
+    MAKE_ATTR_STRING( SATTR_HOSTNAME ),
+    MAKE_ATTR_STRING( SATTR_LAUNCH_COMMAND )
+};
+std::string ConnectionDescription::_iAttributeStrings[IATTR_ALL] = {
+    MAKE_ATTR_STRING( IATTR_TYPE ),
+    MAKE_ATTR_STRING( IATTR_TCPIP_PORT ),
+    MAKE_ATTR_STRING( IATTR_LAUNCH_TIMEOUT )
+};
+
 ConnectionDescription::ConnectionDescription()
 {
     const Global* global = Global::instance();

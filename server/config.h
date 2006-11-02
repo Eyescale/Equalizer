@@ -184,6 +184,7 @@ namespace eqs
         /**
          * @name Float Attributes
          */
+        // Note: also update string array initialization in config.cpp
         enum FAttribute
         {
             FATTR_EYE_BASE,
@@ -194,6 +195,8 @@ namespace eqs
             { _fAttributes[attr] = value; }
         float getFAttribute( const FAttribute attr ) const
             { return _fAttributes[attr]; }
+        static const std::string&  getFAttributeString( const FAttribute attr )
+            { return _fAttributeStrings[attr]; }
     private:
 
         enum EyeIndex
@@ -206,6 +209,8 @@ namespace eqs
 
         /** float attributes. */
         float _fAttributes[FATTR_ALL];
+        /** String representation of float attributes. */
+        static std::string _fAttributeStrings[FATTR_ALL];
         
         /** The eq server hosting the session. */
         eqBase::RefPtr<Server> _server;

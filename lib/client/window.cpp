@@ -22,6 +22,19 @@ using namespace eq;
 using namespace eqBase;
 using namespace std;
 
+#define MAKE_ATTR_STRING( attr ) ( string("EQ_WINDOW_") + #attr )
+std::string eq::Window::_iAttributeStrings[IATTR_ALL] = {
+    MAKE_ATTR_STRING( IATTR_HINTS_STEREO ),
+    MAKE_ATTR_STRING( IATTR_HINTS_DOUBLEBUFFER ),
+    MAKE_ATTR_STRING( IATTR_HINTS_FULLSCREEN ),
+    MAKE_ATTR_STRING( IATTR_HINTS_DECORATION ),
+    MAKE_ATTR_STRING( IATTR_PLANES_COLOR ),
+    MAKE_ATTR_STRING( IATTR_PLANES_ALPHA ),
+    MAKE_ATTR_STRING( IATTR_PLANES_DEPTH ),
+    MAKE_ATTR_STRING( IATTR_PLANES_STENCIL )
+};
+
+
 eq::Window::Window()
         : eqNet::Object( eq::Object::TYPE_WINDOW, CMD_WINDOW_CUSTOM ),
 #ifdef GLX

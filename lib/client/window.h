@@ -205,6 +205,8 @@ namespace eq
         /**
          * @name Attributes
          */
+        //*{
+        // Note: also update string array initialization in window.cpp
         enum IAttribute
         {
             IATTR_HINTS_STEREO,
@@ -217,9 +219,11 @@ namespace eq
             IATTR_PLANES_STENCIL,
             IATTR_ALL
         };
-
+        
         int32_t  getIAttribute( const IAttribute attr ) const
             { return _iAttributes[attr]; }
+        static const std::string&  getIAttributeString( const IAttribute attr )
+            { return _iAttributeStrings[attr]; }
         //*}
 
         const DrawableConfig& getDrawableConfig() const
@@ -251,8 +255,10 @@ namespace eq
         /** The name. */
         std::string    _name;
 
-        /** Int attributes. */
+        /** Integer attributes. */
         int32_t _iAttributes[IATTR_ALL];
+        /** String representation of integer attributes. */
+        static std::string _iAttributeStrings[IATTR_ALL];
 
         /** The channels of this window. */
         std::vector<Channel*>     _channels;

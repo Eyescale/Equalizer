@@ -18,6 +18,7 @@ namespace eqs
          * @name Attributes
          */
         //*{
+        // Note: also update string array init in connectionDescription.cpp
         enum SAttribute
         {
             SATTR_HOSTNAME,
@@ -34,10 +35,18 @@ namespace eqs
         };
         //*}
 
+        static const std::string&  getSAttributeString( const SAttribute attr )
+            { return _sAttributeStrings[attr]; }
+        static const std::string&  getIAttributeString( const IAttribute attr )
+            { return _iAttributeStrings[attr]; }
     protected:
         virtual ~ConnectionDescription() {}
 
     private:
+        /** String representation of string attributes. */
+        static std::string _sAttributeStrings[SATTR_ALL];
+        /** String representation of integer attributes. */
+        static std::string _iAttributeStrings[IATTR_ALL];
     };
 
     std::ostream& operator << ( std::ostream& os, 

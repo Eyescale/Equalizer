@@ -20,6 +20,12 @@ Global* Global::instance()
 
 Global::Global()
 {
+    _setupDefaults();
+    _readEnvironment();
+}
+
+void Global::_setupDefaults()
+{
     for( int i=0; i<Node::IATTR_ALL; ++i )
         _nodeIAttributes[i] = eq::UNDEFINED;
 
@@ -47,9 +53,50 @@ Global::Global()
     _configFAttributes[Config::FATTR_EYE_BASE] = 0.05;
 }
 
+void Global::_readEnvironment()
+{
+    for( int i=0; i<ConnectionDescription::SATTR_ALL; ++i )
+    {
+        const string& name     = ConnectionDescription::getSAttributeString(
+            (ConnectionDescription::SAttribute)i);
+        const char*   envValue = getenv( name.c_str( ));
+        
+        if( envValue )
+            _connectionSAttributes[i] = envValue;
+    }
+    for( int i=0; i<ConnectionDescription::IATTR_ALL; ++i )
+    {
+        const string& name     = ConnectionDescription::getIAttributeString(
+            (ConnectionDescription::IAttribute)i);
+        const char*   envValue = getenv( name.c_str( ));
+        
+        if( envValue )
+            _connectionIAttributes[i] = atol( envValue );
+    }
+    for( int i=0; i<Config::FATTR_ALL; ++i )
+    {
+        const string& name     = Config::getFAttributeString(
+            (Config::FAttribute)i);
+        const char*   envValue = getenv( name.c_str( ));
+        
+        if( envValue )
+            _configFAttributes[i] = atof( envValue );
+    }
+    for( int i=0; i<eq::Window::IATTR_ALL; ++i )
+    {
+        const string& name     = eq::Window::getIAttributeString(
+            (eq::Window::IAttribute)i);
+        const char*   envValue = getenv( name.c_str( ));
+        
+        if( envValue )
+            _windowIAttributes[i] = atol( envValue );
+    }
+}
+
 std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
 {
     Global reference;
+    reference._setupDefaults(); // ignore environment variables
 
     os << disableFlush << disableHeader << "global" << endl;
     os << '{' << indent << endl;
