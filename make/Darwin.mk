@@ -29,3 +29,7 @@ endif
 
 AR           = libtool
 ARFLAGS      = -static
+
+# default bison on Darwin is too old, use fink version. 
+# Change to /opt/local/bin/bison if you are using DarwinPorts
+BISON        = /sw/bin/bison

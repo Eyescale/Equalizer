@@ -22,15 +22,20 @@ INSTALL_LIBDIR ?= $(INSTALL_DIR)/lib$(VARIANT)
 BUILD_DIR       = $(TOP)/build/$(ARCH)
 EXTRAS_DIR      = $(TOP)/extras
 LIBRARY_DIR     = $(BUILD_DIR)/$(VARIANT)/lib
+INCLUDEFLAGS    = -I$(BUILD_DIR)/include -I$(EXTRAS_DIR)
 
 WINDOW_SYSTEM_DEFINES = $(foreach WS,$(WINDOW_SYSTEM),-D$(WS))
-CXXFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DCHECK_THREADSAFETY \
-                  -I$(OBJECT_DIR) -I$(BUILD_DIR)/include -I$(EXTRAS_DIR)
-LDFLAGS        += -L$(LIBRARY_DIR)
 DEP_CXX        ?= $(CXX)
 
+ifeq (0,${MAKELEVEL})
+  CXXFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DCHECK_THREADSAFETY
+  LDFLAGS        += -L$(LIBRARY_DIR)
 ifneq ($(findstring -g, $(CXXFLAGS)),-g)
-    CXXFLAGS += -DNDEBUG
+    CXXFLAGS       += -DNDEBUG
+endif
+ifeq ($(CXX),g++)
+    CXXFLAGS       += -Wall
+endif
 endif
 
 DOXYGEN        ?= Doxygen

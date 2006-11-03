@@ -21,6 +21,10 @@ SOURCES = \
 CXXFILES = \
 	eqs.cpp
 
+CLEAN_EXTRA = \
+	lexer.cpp \
+	parser.cpp
+
 MODULE  = server
 
 CXXFLAGS    += $(WINDOW_SYSTEM_INCS)
@@ -46,3 +50,5 @@ lexer.cpp: loader.l parser.cpp
 
 parser.cpp: loader.y
 	$(BISON) -l -p eqLoader_ -d $< -o $@
+
+parser.hpp: parser.cpp

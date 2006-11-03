@@ -1,7 +1,9 @@
-/* A Bison parser, made by GNU Bison 1.875.  */
+/* A Bison parser, made by GNU Bison 2.2.  */
 
-/* Skeleton parser for Yacc-like parsing with Bison,
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002 Free Software Foundation, Inc.
+/* Skeleton interface for Bison's Yacc-like parsers in C
+
+   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,13 +17,21 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  */
+   Foundation, Inc., 51 Franklin Street, Fifth Floor,
+   Boston, MA 02110-1301, USA.  */
 
-/* As a special exception, when this file is copied by Bison into a
-   Bison output file, you may use that output file without restriction.
-   This special exception was added by the Free Software Foundation
-   in version 1.24 of Bison.  */
+/* As a special exception, you may create a larger work that contains
+   part or all of the Bison parser skeleton and distribute that work
+   under terms of your choice, so long as that work isn't itself a
+   parser generator using the skeleton or a modified version thereof
+   as a parser skeleton.  Alternatively, if you modify or redistribute
+   the parser skeleton itself, you may (at your option) remove this
+   special exception, which will cause the skeleton and the resulting
+   Bison output files to be licensed under the GNU General Public
+   License without this special exception.
+
+   This special exception was added by the Free Software Foundation in
+   version 2.2 of Bison.  */
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -30,13 +40,13 @@
       know about them.  */
    enum yytokentype {
      EQTOKEN_GLOBAL = 258,
-     EQTOKEN_CONNECTION_TYPE = 259,
-     EQTOKEN_CONNECTION_HOSTNAME = 260,
-     EQTOKEN_CONNECTION_TCPIP_PORT = 261,
-     EQTOKEN_CONNECTION_LAUNCH_TIMEOUT = 262,
-     EQTOKEN_CONNECTION_LAUNCH_COMMAND = 263,
-     EQTOKEN_WINDOW_IATTR_HINTS_STEREO = 264,
-     EQTOKEN_CONFIG_FATTR_EYE_BASE = 265,
+     EQTOKEN_CONNECTION_SATTR_HOSTNAME = 259,
+     EQTOKEN_CONNECTION_SATTR_LAUNCH_COMMAND = 260,
+     EQTOKEN_CONNECTION_IATTR_TYPE = 261,
+     EQTOKEN_CONNECTION_IATTR_TCPIP_PORT = 262,
+     EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT = 263,
+     EQTOKEN_CONFIG_FATTR_EYE_BASE = 264,
+     EQTOKEN_WINDOW_IATTR_HINTS_STEREO = 265,
      EQTOKEN_WINDOW_IATTR_HINTS_DOUBLEBUFFER = 266,
      EQTOKEN_WINDOW_IATTR_HINTS_FULLSCREEN = 267,
      EQTOKEN_WINDOW_IATTR_HINTS_DECORATION = 268,
@@ -102,14 +112,15 @@
      EQTOKEN_UNSIGNED = 328
    };
 #endif
+/* Tokens.  */
 #define EQTOKEN_GLOBAL 258
-#define EQTOKEN_CONNECTION_TYPE 259
-#define EQTOKEN_CONNECTION_HOSTNAME 260
-#define EQTOKEN_CONNECTION_TCPIP_PORT 261
-#define EQTOKEN_CONNECTION_LAUNCH_TIMEOUT 262
-#define EQTOKEN_CONNECTION_LAUNCH_COMMAND 263
-#define EQTOKEN_WINDOW_IATTR_HINTS_STEREO 264
-#define EQTOKEN_CONFIG_FATTR_EYE_BASE 265
+#define EQTOKEN_CONNECTION_SATTR_HOSTNAME 259
+#define EQTOKEN_CONNECTION_SATTR_LAUNCH_COMMAND 260
+#define EQTOKEN_CONNECTION_IATTR_TYPE 261
+#define EQTOKEN_CONNECTION_IATTR_TCPIP_PORT 262
+#define EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT 263
+#define EQTOKEN_CONFIG_FATTR_EYE_BASE 264
+#define EQTOKEN_WINDOW_IATTR_HINTS_STEREO 265
 #define EQTOKEN_WINDOW_IATTR_HINTS_DOUBLEBUFFER 266
 #define EQTOKEN_WINDOW_IATTR_HINTS_FULLSCREEN 267
 #define EQTOKEN_WINDOW_IATTR_HINTS_DECORATION 268
@@ -177,24 +188,24 @@
 
 
 
-#if ! defined (YYSTYPE) && ! defined (YYSTYPE_IS_DECLARED)
+#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
+typedef union YYSTYPE
 
-typedef union YYSTYPE {
+{
     const char*             _string;
     int                     _int;
     unsigned                _unsigned;
     float                   _float;
     eqNet::Connection::Type _connectionType;
     float                   _viewport[4];
-} YYSTYPE;
-/* Line 1249 of yacc.c.  */
+}
+/* Line 1528 of yacc.c.  */
 
+	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1
 #endif
 
 extern YYSTYPE eqLoader_lval;
-
-
 

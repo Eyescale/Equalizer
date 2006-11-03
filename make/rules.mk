@@ -102,14 +102,14 @@ OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
 
 $(OBJECT_DIR)/%.h.gch: %.h
 	@mkdir -p $(@D)
-	$(CXX) -x c++-header $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
+	$(CXX) -x c++-header $(INCLUDEFLAGS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
 
 $(OBJECT_DIR)/%.o: %.cpp
 	@mkdir -p $(@D)
 	@echo -n "$(@D)/" > $(OBJECT_DIR)/$*.d
-	@($(DEP_CXX) $(CXXFLAGS) -M -E $< >> \
+	@($(DEP_CXX) $(INCLUDEFLAGS) $(CXXFLAGS) -M -E $< >> \
 		$(OBJECT_DIR)/$*.d ) || rm $(OBJECT_DIR)/$*.d
-	$(CXX) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
+	$(CXX) $(INCLUDEFLAGS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
 
 %.cpp: $(OBJECT_DIR)/%d
 
@@ -122,7 +122,7 @@ endif
 
 $(THIN_PROGRAMS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
-	$(CXX) $(CXXFLAGS) $(SA_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
+	$(CXX) $(INCLUDEFLAGS) $(CXXFLAGS) $(SA_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 else
 	@$(MAKE) VARIANT=$(subst .,,$(suffix $@)) TOP=$(TOP) $@
 endif
@@ -130,7 +130,7 @@ endif
 ifndef PROGRAM
 ifdef VARIANT
 %.$(VARIANT): %.cpp
-	$(CXX) $< $(CXXFLAGS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -o $@ 
+	$(CXX) $< $(INCLUDEFLAGS) $(CXXFLAGS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -o $@ 
 
 else # VARIANT
 
@@ -145,7 +145,7 @@ endif # PROGRAMS
 # cleaning targets
 clean:
 ifdef VARIANT
-	rm -f *~ .*~ $(TARGETS)
+	rm -f *~ .*~ $(TARGETS) $(CLEAN_EXTRA)
 	rm -rf $(OBJECT_DIR) $(BUILD_DIR)
 ifdef SUBDIRS
 	@for dir in $(SUBDIRS); do \

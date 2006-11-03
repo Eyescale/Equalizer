@@ -101,8 +101,6 @@
 %token EQTOKEN_CYCLOP
 %token EQTOKEN_LEFT
 %token EQTOKEN_RIGHT
-%token EQTOKEN_COLOR
-%token EQTOKEN_DEPTH
 %token EQTOKEN_VIEWPORT
 %token EQTOKEN_RANGE
 %token EQTOKEN_DISPLAY
@@ -149,30 +147,30 @@ global: EQTOKEN_GLOBAL '{' globals '}'
 globals: global | globals global;
 
 global:
-     EQTOKEN_CONNECTION_TYPE connectionType 
-     { 
-         eqs::Global::instance()->setConnectionIAttribute( 
-             eqs::ConnectionDescription::IATTR_TYPE, $2 ); 
-     }
-     | EQTOKEN_CONNECTION_HOSTNAME STRING
+     EQTOKEN_CONNECTION_SATTR_HOSTNAME STRING
      {
          eqs::Global::instance()->setConnectionSAttribute(
              eqs::ConnectionDescription::SATTR_HOSTNAME, $2 );
      }
-     | EQTOKEN_CONNECTION_TCPIP_PORT UNSIGNED
+     | EQTOKEN_CONNECTION_SATTR_LAUNCH_COMMAND STRING
+     {
+         eqs::Global::instance()->setConnectionSAttribute(
+             eqs::ConnectionDescription::SATTR_LAUNCH_COMMAND, $2 );
+     }
+     | EQTOKEN_CONNECTION_IATTR_TYPE connectionType 
+     { 
+         eqs::Global::instance()->setConnectionIAttribute( 
+             eqs::ConnectionDescription::IATTR_TYPE, $2 ); 
+     }
+     | EQTOKEN_CONNECTION_IATTR_TCPIP_PORT UNSIGNED
      {
          eqs::Global::instance()->setConnectionIAttribute(
              eqs::ConnectionDescription::IATTR_TCPIP_PORT, $2 );
      }
-     | EQTOKEN_CONNECTION_LAUNCH_TIMEOUT UNSIGNED
+     | EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT UNSIGNED
      {
          eqs::Global::instance()->setConnectionIAttribute(
              eqs::ConnectionDescription::IATTR_LAUNCH_TIMEOUT, $2 );
-     }
-     | EQTOKEN_CONNECTION_LAUNCH_COMMAND STRING
-     {
-         eqs::Global::instance()->setConnectionSAttribute(
-             eqs::ConnectionDescription::SATTR_LAUNCH_COMMAND, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_HINTS_STEREO IATTR
      {
