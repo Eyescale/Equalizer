@@ -37,6 +37,7 @@ ifeq ($(CXX),g++)
     CXXFLAGS       += -Wall
 endif
 endif
+export CXXFLAGS
 
 DOXYGEN        ?= Doxygen
 FLEX           ?= flex
