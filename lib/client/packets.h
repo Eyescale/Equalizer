@@ -786,6 +786,19 @@ namespace eq
         os << (eqNet::ObjectPacket*)packet << " " << packet->context;
         return os;
     }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const ChannelReadbackPacket* packet )
+    {
+        os << (ChannelTaskPacket*)packet << " nFrames " << packet->nFrames;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const ChannelTransmitPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frame
+           << " nNodes " << packet->nNodes;
+        return os;
+    }
     inline std::ostream& operator << ( std::ostream& os,
                                        const ConfigInitReplyPacket* packet )
     {

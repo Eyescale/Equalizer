@@ -484,6 +484,12 @@ namespace eqNet
         uint32_t objectID;
         uint32_t version;
     };
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const ObjectVersion& ov )
+    {
+        os << " id " << ov.objectID << " v" << ov.version;
+        return os;
+    }
 }
 
 #endif // EQNET_OBJECT_H

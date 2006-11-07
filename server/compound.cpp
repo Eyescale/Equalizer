@@ -442,7 +442,7 @@ void Compound::_updateOutput( UpdateData* data )
 
         buffer->setOffset( vmml::Vector2i( framePVP.x, framePVP.y ));
 
-        EQLOG( LOG_ASSEMBLY )
+        EQLOG( eq::LOG_ASSEMBLY )
             << disableFlush << "Output frame \"" << name << "\" on channel \"" 
             << _data.channel->getName() << "\" tile pos " << framePVP.x << ", "
             << framePVP.y;
@@ -472,7 +472,7 @@ void Compound::_updateOutput( UpdateData* data )
         frame->commit();
         data->outputFrames[name] = frame;
 
-        EQLOG( LOG_ASSEMBLY ) 
+        EQLOG( eq::LOG_ASSEMBLY ) 
             << " read area " << framePVP << endl << enableFlush;
     }
 }
@@ -547,8 +547,8 @@ void Compound::_updateInput( UpdateData* data )
         frame->updateInheritData( this );
         frame->commit();
 
-        EQLOG( LOG_ASSEMBLY )
-            << "Input frame \"" << name << "\" on channel \"" 
+        EQLOG( eq::LOG_ASSEMBLY )
+            << "Input frame  \"" << name << "\" on channel \"" 
             << _data.channel->getName() << "\" tile pos " << frameOffset
             << " use pvp from input " << framePVP << endl;
     }
@@ -789,7 +789,9 @@ void Compound::_updateReadback( const eq::RenderContext& context )
     packet.objectID  = channel->getID();
     packet.context   = context;
     packet.nFrames   = frames.size();
-            
+
+    EQLOG( eq::LOG_ASSEMBLY | LOG_TASKS ) 
+        << "TASK readback " << &packet << endl;
     netNode->send<eqNet::ObjectVersion>( packet, frameIDs );
     
     // transmit tasks
@@ -829,6 +831,8 @@ void Compound::_updateReadback( const eq::RenderContext& context )
         transmitPacket.frame     = eqNet::ObjectVersion( frame );
         transmitPacket.nNodes    = nodeIDs.size();
 
+        EQLOG( eq::LOG_ASSEMBLY | LOG_TASKS ) 
+            << "TASK transmit " << &packet << endl;
         netNode->send<eqNet::NodeID>( transmitPacket, nodeIDs );
     }        
 }

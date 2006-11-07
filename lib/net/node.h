@@ -510,7 +510,7 @@ namespace eqNet
          */
         bool inReceiverThread() const { return _receiverThread->isCurrent(); }
 
-        const NodeID& getNodeID(){ return _id; }
+        const NodeID& getNodeID() const { return _id; }
 
     protected:
         /** Destructs this node. */
@@ -751,15 +751,13 @@ namespace eqNet
         static uint64_t _getMessageSize( const MessageType type, 
                                          const uint64_t count );
 
-        friend std::ostream& operator << ( std::ostream& os, const Node* node );
-
         CHECK_THREAD_DECLARE( _thread );
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Node* node )
     {
         if( node )
-            os << "node " << node->_id;
+            os << "node " << node->getNodeID();
         else
             os << "NULL node";
         

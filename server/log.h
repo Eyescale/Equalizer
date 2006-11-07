@@ -11,8 +11,7 @@ namespace eqs
 {
     enum LogTopics
     {
-        LOG_TASKS    = eq::LOG_CUSTOM, // 4096
-        LOG_ASSEMBLY = 0x2000          // 8192
+        LOG_TASKS    = eq::LOG_CUSTOM  // 4096
     };
 }
 #endif // EQS_LOG_H

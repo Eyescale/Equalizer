@@ -3,6 +3,7 @@
    All rights reserved. */
 
 #include "image.h"
+#include "log.h"
 
 #include <eq/client/windowSystem.h>
 
@@ -55,7 +56,7 @@ uint32_t Image::getType() const
 
 void Image::startReadback( const PixelViewport& pvp )
 {
-    EQINFO << "startReadback " << pvp << endl;
+    EQLOG( LOG_ASSEMBLY ) << "startReadback " << pvp << endl;
 
     const size_t size = pvp.w * pvp.h * getDepth();
     _pixels.resize( size );

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "channel.h"
@@ -8,6 +8,7 @@
 #include "object.h"
 #include "frame.h"
 #include "global.h"
+#include "log.h"
 #include "nodeFactory.h"
 #include "packets.h"
 #include "range.h"
@@ -297,6 +298,7 @@ eqNet::CommandResult Channel::_reqReadback( eqNet::Node* node,
         EQASSERT( dynamic_cast<Frame*>( object ));
         Frame* frame = static_cast<Frame*>( object );
         frame->clear();
+        EQLOG( LOG_ASSEMBLY ) << "readback " << frame << endl;
         _outputFrames.push_back( frame );
     }
 
@@ -327,6 +329,8 @@ eqNet::CommandResult Channel::_reqTransmit( eqNet::Node* node,
     {
         eqNet::NodeID&       nodeID = packet->nodes[i];
         RefPtr<eqNet::Node>  toNode = localNode->connect( nodeID, node );
+        EQLOG( LOG_ASSEMBLY ) << "transmit " << frame << " to " << nodeID \
+                              << endl;
         frame->transmit( toNode );
     }
 

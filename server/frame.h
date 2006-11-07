@@ -32,6 +32,9 @@ namespace eqs
          * @name Data Access
          */
         //*{
+        Compound* getCompound() const { return _compound; }
+        Channel* getChannel() const 
+            { return _compound ? _compound->getChannel() :NULL; }
         Node* getNode() const { return _compound ? _compound->getNode() :NULL; }
 
         void setName( const std::string& name ) { _name = name; }

@@ -11,8 +11,8 @@ namespace eq
 {
     enum LogTopics
     {
-        // LOG_??? = eqNet::LOG_CUSTOM
-        LOG_CUSTOM = 0x1000   // 4096
+        LOG_ASSEMBLY = eqNet::LOG_CUSTOM,  // 256
+        LOG_CUSTOM   = 0x1000              // 4096
     };
 }
 #endif // EQ_LOG_H

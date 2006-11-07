@@ -86,6 +86,7 @@ void Frame::cycleBuffer( const uint32_t frameNumber )
         EQASSERT( session );
 
         session->registerObject( buffer, session->getLocalNode( ));
+        buffer->setAutoObsolete( 1 ); // current + in use by render nodes
     }
 
     buffer->setFrameNumber( frameNumber );
