@@ -22,14 +22,14 @@ INSTALL_LIBDIR ?= $(INSTALL_DIR)/lib$(VARIANT)
 BUILD_DIR       = $(TOP)/build/$(ARCH)
 EXTRAS_DIR      = $(TOP)/extras
 LIBRARY_DIR     = $(BUILD_DIR)/$(VARIANT)/lib
-INCLUDEFLAGS    = -I$(BUILD_DIR)/include -I$(EXTRAS_DIR)
+INCLUDEDIRS     = -I$(BUILD_DIR)/include -I$(EXTRAS_DIR)
+LINKDIRS        = -L$(LIBRARY_DIR)
 
 WINDOW_SYSTEM_DEFINES = $(foreach WS,$(WINDOW_SYSTEM),-D$(WS))
 DEP_CXX        ?= $(CXX)
 
 ifeq (0,${MAKELEVEL})
   CXXFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DCHECK_THREADSAFETY
-  LDFLAGS        += -L$(LIBRARY_DIR)
 ifneq ($(findstring -g, $(CXXFLAGS)),-g)
     CXXFLAGS       += -DNDEBUG
 endif

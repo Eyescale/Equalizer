@@ -78,7 +78,7 @@ endif
 $(THIN_DYNAMIC_LIBS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
 	@mkdir -p $(@D)
-	$(CXX) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
+	$(CXX) $(LINKDIRS) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 else
 	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).$(DSO_SUFFIX)=%) TOP=$(TOP) $@
 endif
@@ -93,7 +93,7 @@ $(THIN_STATIC_LIBS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
 	@mkdir -p $(@D)
 	@rm -f $@
-	$(AR) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
+	$(AR) $(LINKDIRS) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 else
 	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).a=%) TOP=$(TOP) $@
 endif
@@ -102,14 +102,14 @@ OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
 
 $(OBJECT_DIR)/%.h.gch: %.h
 	@mkdir -p $(@D)
-	$(CXX) -x c++-header $(INCLUDEFLAGS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
+	$(CXX) -x c++-header $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
 
 $(OBJECT_DIR)/%.o: %.cpp
 	@mkdir -p $(@D)
 	@echo -n "$(@D)/" > $(OBJECT_DIR)/$*.d
-	@($(DEP_CXX) $(INCLUDEFLAGS) $(CXXFLAGS) -M -E $< >> \
+	@($(DEP_CXX) $(INCLUDEDIRS) $(CXXFLAGS) -M -E $< >> \
 		$(OBJECT_DIR)/$*.d ) || rm $(OBJECT_DIR)/$*.d
-	$(CXX) $(INCLUDEFLAGS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
+	$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
 
 %.cpp: $(OBJECT_DIR)/%d
 
@@ -122,7 +122,7 @@ endif
 
 $(THIN_PROGRAMS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
-	$(CXX) $(INCLUDEFLAGS) $(CXXFLAGS) $(SA_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
+	$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) $(LINKDIRS) $(SA_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 else
 	@$(MAKE) VARIANT=$(subst .,,$(suffix $@)) TOP=$(TOP) $@
 endif
@@ -130,7 +130,7 @@ endif
 ifndef PROGRAM
 ifdef VARIANT
 %.$(VARIANT): %.cpp
-	$(CXX) $< $(INCLUDEFLAGS) $(CXXFLAGS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -o $@ 
+	$(CXX) $< $(INCLUDEDIRS) $(CXXFLAGS) $(LINKDIRS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -o $@ 
 
 else # VARIANT
 
