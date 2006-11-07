@@ -377,7 +377,10 @@ void Compound::_updateInheritData()
             _inherit.eyes = EYE_CYCLOP;
 
         if( _inherit.channel )
-            _inherit.pvp = _inherit.channel->getPixelViewport();
+        {
+            _inherit.pvp  = _inherit.channel->getPixelViewport();
+            _inherit.pvp *= _data.vp;
+        }
 
         if( _inherit.format == eq::Frame::FORMAT_UNDEFINED )
             _inherit.format = eq::Frame::FORMAT_COLOR;
@@ -398,10 +401,10 @@ void Compound::_updateInheritData()
     if( _data.eyes != EYE_UNDEFINED )
         _inherit.eyes = _data.eyes;
    
+    if ( !_inherit.pvp.isValid() && _inherit.channel )
+        _inherit.pvp = _inherit.channel->getPixelViewport();
     if( _inherit.pvp.isValid( ))
         _inherit.pvp *= _data.vp;
-    else if ( _inherit.channel )
-        _inherit.pvp = _inherit.channel->getPixelViewport();
 
     if( _data.format != eq::Frame::FORMAT_UNDEFINED )
         _inherit.format = _data.format;
@@ -459,6 +462,12 @@ void Compound::_updateOutput( UpdateData* data )
             frame->setOffset( vmml::Vector2i( nativePVP.x, nativePVP.y ));
         }
 
+        // buffer format
+        eq::Frame::Format format = frame->getFormat();
+        buffer->setFormat( format == eq::Frame::FORMAT_UNDEFINED ? 
+                           getInheritFormat() : format );
+
+        buffer->commit();
         frame->updateInheritData( this );
         frame->commit();
         data->outputFrames[name] = frame;

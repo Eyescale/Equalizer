@@ -59,7 +59,7 @@ Channel::~Channel()
 //----------------------------------------------------------------------
 void eq::Channel::_setPixelViewport( const PixelViewport& pvp )
 {
-    if( !pvp.isValid( ))
+    if( !pvp.hasArea( ))
         return;
 
     _pvp = pvp;
@@ -77,7 +77,7 @@ void eq::Channel::_setPixelViewport( const PixelViewport& pvp )
 
 void eq::Channel::_setViewport( const Viewport& vp )
 {
-    if( !vp.isValid( ))
+    if( !vp.hasArea( ))
         return;
     
     _vp = vp;
@@ -171,8 +171,11 @@ void Channel::applyViewport()
     const PixelViewport& pvp = getPixelViewport();
     // TODO: OPT return if vp unchanged
 
-    if( !pvp.isValid( ))
+    if( !pvp.hasArea( ))
+    { 
+        EQERROR << "Can't apply viewport " << pvp << endl;
         return;
+    }
 
     glViewport( pvp.x, pvp.y, pvp.w, pvp.h );
     glScissor( pvp.x, pvp.y, pvp.w, pvp.h );

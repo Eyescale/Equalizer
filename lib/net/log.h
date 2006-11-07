@@ -11,7 +11,8 @@ namespace eqNet
 {
     enum LogTopics
     {
-        LOG_BARRIER = eqBase::LOG_CUSTOM, // 16
+        LOG_OBJECTS = eqBase::LOG_CUSTOM, // 16
+        LOG_BARRIER = 0x20,               // 32
         LOG_CUSTOM  = 0x100               // 256
     };
 }

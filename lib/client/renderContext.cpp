@@ -6,6 +6,6 @@
 
 std::ostream& eq::operator << ( std::ostream& os, const RenderContext& ctx )
 {
-    os << "pvp " << ctx.pvp << " range " << ctx.range;
+    os << "pvp " << ctx.pvp << " " << ctx.range;
     return os;
 }

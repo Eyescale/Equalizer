@@ -22,7 +22,7 @@ namespace eq
          * @name Constructors
          */
         //*{
-        PixelViewport() : x(0), y(0), w(0), h(0)  {}
+        PixelViewport() : x(0), y(0), w(-1), h(-1)  {}
 
         PixelViewport( const int32_t x, const int32_t y, 
                        const int32_t w, const int32_t h )
@@ -32,7 +32,7 @@ namespace eq
         /** 
          * Reset the pixel viewport to be empty.
          */
-        void reset() { x = 0; y = 0; w = 0; h = 0; }
+        void reset() { x = 0; y = 0; w = -1; h = -1; }
 
         /** 
          * Invalidates the pixel viewport.
@@ -51,8 +51,18 @@ namespace eq
                 w  = (uint32_t)(w*vp.w);
                 h  = (uint32_t)(h*vp.h);
             }
-
-        bool isValid() const { return (w>0 && h>0); }
+        
+        /** 
+         * @return true if the pixel viewport has a non-negative, but
+         *         potentially empty, size.
+         */
+        bool isValid() const { return (w>=0 && h>=0); }
+        
+        /** 
+         * @return true if the pixel viewport has a non-zero area, i.e, it is
+         *         not empty.
+         */
+        bool hasArea() const { return (w>0 && h>0); }
 
         /**
          * @name Operators
@@ -60,10 +70,10 @@ namespace eq
         //*{
         PixelViewport& operator *= ( const Viewport& rhs )
             {
-                x += (int32_t)rhs.x * w;
-                y += (int32_t)rhs.y * h;
-                w  = (int32_t)rhs.w * w;
-                h  = (int32_t)rhs.h * h;
+                x += static_cast<float>(rhs.x) * w;
+                y += static_cast<float>(rhs.y) * h;
+                w  = static_cast<float>(rhs.w) * w;
+                h  = static_cast<float>(rhs.h) * h;
                 return *this;
             }
 

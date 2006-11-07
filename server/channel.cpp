@@ -68,7 +68,7 @@ void Channel::unrefUsed()
 //----------------------------------------------------------------------
 void Channel::setPixelViewport( const eq::PixelViewport& pvp )
 {
-    if( !pvp.isValid( ))
+    if( !pvp.hasArea( ))
         return;
     
     _fixedPVP = true;
@@ -83,7 +83,7 @@ void Channel::setPixelViewport( const eq::PixelViewport& pvp )
 
 void Channel::setViewport( const eq::Viewport& vp )
 {
-    if( !vp.isValid( ))
+    if( !vp.hasArea( ))
         return;
      
     _fixedPVP = false;

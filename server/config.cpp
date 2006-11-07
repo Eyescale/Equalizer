@@ -633,6 +633,7 @@ const vmml::Vector3f& Config::getEyePosition( const uint32_t eye )
 
 uint32_t Config::_beginFrame( const uint32_t frameID, vector<Node*>& nodes )
 {
+    EQLOG( LOG_ANY ) << "----- Begin New Frame -----" << endl;
     EQASSERT( _state == STATE_INITIALIZED );
     ++_frameNumber;
 

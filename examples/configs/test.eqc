@@ -12,7 +12,6 @@ server
                     channel
                     {
                         name "channel1"
-                        viewport [ .25 .25 .5 .5 ]
                     }
                 }
             }
@@ -41,18 +40,17 @@ server
                 top_left     [ -.32  .2 -1 ]
             }
             
-//            compound
-//            {
-//                viewport [ 0 0 .5 1 ]
-//            }
+            compound
+            {
+                viewport [ 0 0 .5 1 ]
+            }
             compound
             { 
                 channel "channel2"
                 viewport [ .5 0 .5 1 ]
-                outputframe {}
+//                outputframe {}
             }
-//            outputframe{}
-            inputframe{ name "frame.channel2" }
+//            inputframe{ name "frame.channel2" }
         }
     }    
 }

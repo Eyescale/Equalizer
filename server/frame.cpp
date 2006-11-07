@@ -58,18 +58,25 @@ void Frame::updateInheritData( const Compound* compound )
     _inherit = _data;
     if( _inherit.format == eq::Frame::FORMAT_UNDEFINED )
         _inherit.format = compound->getInheritFormat();
+
     if( _buffer )
-        _buffer->setFormat( _inherit.format );
+    {
+        _inherit.buffer.objectID = _buffer->getID();
+        _inherit.buffer.version  = _buffer->getVersion();
+    }
+    else
+        _inherit.buffer.objectID = EQ_ID_INVALID;
 }
 
 void Frame::cycleBuffer( const uint32_t frameNumber )
 {
     // find unused frame buffer
-    FrameBuffer*   buffer  = _buffers.empty() ? NULL : _buffers.back();
-    const uint32_t latency = getAutoObsoleteCount();
-    if( buffer && 
-        buffer->getFrameNumber() < frameNumber-latency ) // not used anymore
+    FrameBuffer*   buffer    = _buffers.empty() ? NULL : _buffers.back();
+    const uint32_t latency   = getAutoObsoleteCount();
+    const uint32_t bufferAge = buffer ? buffer->getFrameNumber() : 0;
 
+    if( bufferAge < frameNumber-latency && frameNumber > latency )
+        // not used anymore
         _buffers.pop_back();
     else
     {
@@ -79,7 +86,6 @@ void Frame::cycleBuffer( const uint32_t frameNumber )
         EQASSERT( session );
 
         session->registerObject( buffer, session->getLocalNode( ));
-        buffer->setAutoObsolete( 1 );
     }
 
     buffer->setFrameNumber( frameNumber );
@@ -94,20 +100,6 @@ void Frame::addInputFrame( Frame* frame )
     EQASSERT( _buffer );
     frame->_buffer = _buffer;
     _inputFrames.push_back( frame );
-}
-
-const void* Frame::pack( uint64_t* size )
-{
-    if( _buffer )
-    {
-        _buffer->commit();
-        _inherit.buffer.objectID = _buffer->getID();
-        _inherit.buffer.version  = _buffer->getVersion();
-    }
-    else
-        _inherit.buffer.objectID = EQ_ID_INVALID;
-
-    return Object::pack( size );
 }
 
 std::ostream& eqs::operator << ( std::ostream& os, const Frame* frame )

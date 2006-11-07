@@ -6,10 +6,10 @@
 #include "barrier.h"
 #include "connection.h"
 #include "connectionDescription.h"
+#include "log.h"
 #include "packets.h"
 #include "session.h"
 
-#include <eq/base/log.h>
 
 #include <alloca.h>
 
@@ -401,7 +401,7 @@ Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy,
     SessionGetObjectPacket packet;
     packet.requestID = _requestHandler.registerRequest( &state );
 
-    EQLOG( LOG_OBJECTS ) << "getObject send request for id " << id << " v" 
+    EQLOG( LOG_OBJECTS ) << "getObject send request, id " << id << " v" 
                          << version << " my node id "
                          << _localNode->getNodeID() << endl;
     _sendLocal( packet );
@@ -409,6 +409,13 @@ Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy,
     const void* result = _requestHandler.waitRequest( packet.requestID );
     EQASSERT( result == NULL );
     EQASSERT( state.nodeConnectRequestID == EQ_ID_INVALID );
+
+    if( !state.object )
+    {
+        EQWARN << "Could not instanciate object" << endl;
+        return NULL;
+    }
+
     EQLOG( LOG_OBJECTS ) << "getObject request ok, id " << id << " v" 
                          << state.object->getVersion()
                          << " @" << (void*)state.object << " ref " 
@@ -427,11 +434,8 @@ Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy,
             EQUNREACHABLE;
     }
 
-    if( state.object )
-    {
-        EQASSERT( threadSafe == state.object->isThreadSafe( ));
-        state.object->sync( version );
-    }
+    EQASSERT( threadSafe == state.object->isThreadSafe( ));
+    state.object->sync( version );
     return state.object;
 }
 
@@ -930,7 +934,7 @@ CommandResult Session::_cmdInitObject( Node* node, const Packet* pkg )
          iter != objects.end(); ++iter )
     {
         Object* object = *iter;
-        if( object->getID() != id || !object->_master )
+        if( object->getID() != id || !object->isMaster( ))
             continue;
 
         object->instanciateOnNode( node, packet->policy, packet->version, 

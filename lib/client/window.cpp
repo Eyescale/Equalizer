@@ -309,7 +309,7 @@ void eq::Window::setPixelViewport( const PixelViewport& pvp )
 
 bool eq::Window::_setPixelViewport( const PixelViewport& pvp )
 {
-    if( pvp == _pvp || !pvp.isValid( ))
+    if( pvp == _pvp || !pvp.hasArea( ))
         return false;
 
     _pvp = pvp;
@@ -327,7 +327,7 @@ bool eq::Window::_setPixelViewport( const PixelViewport& pvp )
 
 void eq::Window::_setViewport( const Viewport& vp )
 {
-    if( !vp.isValid( ))
+    if( !vp.hasArea( ))
         return;
     
     _vp = vp;

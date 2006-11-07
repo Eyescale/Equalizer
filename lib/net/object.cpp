@@ -8,10 +8,10 @@
 
 #include "object.h"
 
+#include "log.h"
 #include "packets.h"
 #include "session.h"
 
-#include <eq/base/log.h>
 #include <eq/base/scopedMutex.h>
 #include <iostream>
 
@@ -185,10 +185,12 @@ void Object::instanciateOnNode( RefPtr<Node> node, const SharePolicy policy,
     if( age >= _instanceDatas.size( ))
     {
         EQWARN << "Instanciation request for obsolete version " << version
-               << " for object of type " << typeid(*this).name() << endl;
+               << " for object of type " << typeid(*this).name() << " v" 
+               << _version << endl;
         initPacket.error = true;
         EQLOG( LOG_OBJECTS ) << "send " << &initPacket << endl;
         node->send( initPacket );
+        return;
     }
 
     const InstanceData& data = _instanceDatas[age];

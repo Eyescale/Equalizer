@@ -41,7 +41,18 @@ namespace eq
                          y==rhs.y && w==rhs.w && h==rhs.h);
             }
 
-        bool isValid() const { return (w>0 && h>0); }
+        /** 
+         * @return true if the viewport has a non-negative, but potentially
+         *         empty, size.
+         */
+        bool isValid() const { return (w>=0 && h>=0); }
+        
+        /** 
+         * @return true if the viewport has a non-zero area, i.e, it is
+         *         not empty.
+         */
+        bool hasArea() const { return (w>0 && h>0); }
+
         bool isFullScreen() const { return ( x==0 && y==0 && w==1 && h==1 ); }
 
         float x;

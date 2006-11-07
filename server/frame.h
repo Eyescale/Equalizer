@@ -114,9 +114,6 @@ namespace eqs
     protected:
         virtual ~Frame();
 
-        /** @sa eqNet::Object::pack */
-        virtual const void* pack( uint64_t* size );
-
     private:
         /** The parent compound. */
         Compound* _compound;

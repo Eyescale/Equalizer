@@ -149,7 +149,7 @@ namespace eqNet
          * 
          * If the object has not changed no new version will be generated, that
          * is, the previous or initial (0) version number is returned. This
-         * method is a convenience function for commitNB and commitSync
+         * method is a convenience function for commitNB(); commitSync()
          *
          * @return the new head version.
          * @sa commitNB, commitSync

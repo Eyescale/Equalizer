@@ -88,7 +88,7 @@ void eqs::Window::unrefUsed()
 //----------------------------------------------------------------------
 void eqs::Window::setPixelViewport( const eq::PixelViewport& pvp )
 {
-    if( !pvp.isValid( ))
+    if( !pvp.hasArea( ))
         return;
 
     _pvp = pvp;
@@ -111,7 +111,7 @@ void eqs::Window::setPixelViewport( const eq::PixelViewport& pvp )
 
 void eqs::Window::setViewport( const eq::Viewport& vp )
 {
-    if( !vp.isValid( ))
+    if( !vp.hasArea( ))
         return;
     
     _vp = vp;

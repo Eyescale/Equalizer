@@ -781,15 +781,9 @@ namespace eq
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                       const ChannelClearPacket* packet )
+                                       const ChannelTaskPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << packet->context;
-        return os;
-    }
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const ChannelDrawPacket* packet )
-    {
-        os << (eqNet::ObjectPacket*)packet << packet->context;
+        os << (eqNet::ObjectPacket*)packet << " " << packet->context;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os,
