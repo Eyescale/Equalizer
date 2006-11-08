@@ -93,7 +93,7 @@ namespace eqBase
     template< class T >
     inline std::ostream& operator << ( std::ostream& os, const RefPtr<T>& rp )
     {
-        os << "RefPtr[" << rp.get() << "]";
+        os << disableFlush << "RefPtr<" << rp.get() << ">" << enableFlush;
         return os;
     }
 }

@@ -780,7 +780,7 @@ void Compound::_updateReadback( const eq::RenderContext& context )
         return;
 
     // readback task
-    Channel*                  channel = _inherit.channel;
+    Channel*                  channel = getChannel();
     Node*                     node    = channel->getNode();
     RefPtr<eqNet::Node>       netNode = node->getNode();
     eq::ChannelReadbackPacket packet;
@@ -831,8 +831,10 @@ void Compound::_updateReadback( const eq::RenderContext& context )
         transmitPacket.frame     = eqNet::ObjectVersion( frame );
         transmitPacket.nNodes    = nodeIDs.size();
 
-        EQLOG( eq::LOG_ASSEMBLY | LOG_TASKS ) 
-            << "TASK transmit " << &packet << endl;
+        EQLOG( eq::LOG_ASSEMBLY | LOG_TASKS )
+            << "TASK transmit " << &transmitPacket << " first " << nodeIDs[0] 
+            << endl;
+
         netNode->send<eqNet::NodeID>( transmitPacket, nodeIDs );
     }        
 }

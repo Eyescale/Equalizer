@@ -6,12 +6,13 @@ server
         {
             pipe
             {
+                viewport [ 0 0 1280 1024 ]
                 window
                 {
                     viewport [ .05 .3 .4 .3 ]
                     channel
                     {
-                        name "channel1"
+                        name "channel2"
                     }
                 }
             }
@@ -20,12 +21,13 @@ server
         {
             pipe
             {
+                viewport [ 0 0 1280 1024 ]
                 window
                 {
                     viewport [ .55 .3 .4 .3 ]
                     channel
                     {
-                        name "channel2"
+                        name "channel1"
                     }
                 }
             }
