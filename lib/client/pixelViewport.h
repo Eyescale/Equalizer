@@ -70,10 +70,10 @@ namespace eq
         //*{
         PixelViewport& operator *= ( const Viewport& rhs )
             {
-                x += static_cast<float>(rhs.x) * w;
-                y += static_cast<float>(rhs.y) * h;
-                w  = static_cast<float>(rhs.w) * w;
-                h  = static_cast<float>(rhs.h) * h;
+                x += static_cast<int32_t>( static_cast<float>(rhs.x) * w );
+                y += static_cast<int32_t>( static_cast<float>(rhs.y) * h );
+                w  = static_cast<int32_t>( static_cast<float>(rhs.w) * w );
+                h  = static_cast<int32_t>( static_cast<float>(rhs.h) * h );
                 return *this;
             }
 
