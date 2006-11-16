@@ -86,13 +86,13 @@ int main( int argc, char** argv )
             // Set up position of tracking system in world space
             // Note: this depends on the installation used.
             vmml::Matrix4f m( vmml::Matrix4f::IDENTITY );
-            m.rotateY( M_PI_2 );
+            m.scale( 1.f, 1.f, -1.f );
             //m.x = .5;
             tracker.setWorldToEmitter( m );
 
             m = vmml::Matrix4f::IDENTITY;
             m.rotateZ( -M_PI_2 );
-            //tracker.setSensorToObject( m );
+            tracker.setSensorToObject( m );
             EQINFO << "Tracker initialised" << endl;
         }
     }

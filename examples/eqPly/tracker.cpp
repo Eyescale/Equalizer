@@ -64,7 +64,7 @@ bool Tracker::init( const string& port )
    termio.c_lflag &= ~XCASE;
 #endif
 
-   cfsetspeed( &termio, B9600 );
+   cfsetspeed( &termio, B115200 );
    termio.c_cc[VMIN]  = 26;
    termio.c_cc[VTIME] = 1;
 
