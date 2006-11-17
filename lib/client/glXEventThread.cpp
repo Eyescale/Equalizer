@@ -19,20 +19,16 @@ using namespace eqBase;
 using namespace std;
 
 GLXEventThread::GLXEventThread()
-        : eqNet::Base( CMD_GLXEVENTTHREAD_ALL, true )
+        : eqNet::Base( true )
 {
-    registerCommand( CMD_GLXEVENTTHREAD_ADD_PIPE, this, 
-                     reinterpret_cast<CommandFcn>(
-                         &eq::GLXEventThread::_cmdAddPipe ));
-    registerCommand( CMD_GLXEVENTTHREAD_REMOVE_PIPE, this, 
-                     reinterpret_cast<CommandFcn>(
-                         &eq::GLXEventThread::_cmdRemovePipe ));
-    registerCommand( CMD_GLXEVENTTHREAD_ADD_WINDOW, this, 
-                     reinterpret_cast<CommandFcn>(
-                         &eq::GLXEventThread::_cmdAddWindow ));
-    registerCommand( CMD_GLXEVENTTHREAD_REMOVE_WINDOW, this, 
-                     reinterpret_cast<CommandFcn>(
-                         &eq::GLXEventThread::_cmdRemoveWindow ));
+    registerCommand( CMD_GLXEVENTTHREAD_ADD_PIPE,
+       eqNet::PacketFunc<GLXEventThread>( this, &GLXEventThread::_cmdAddPipe ));
+    registerCommand( CMD_GLXEVENTTHREAD_REMOVE_PIPE, 
+    eqNet::PacketFunc<GLXEventThread>( this, &GLXEventThread::_cmdRemovePipe ));
+    registerCommand( CMD_GLXEVENTTHREAD_ADD_WINDOW, 
+     eqNet::PacketFunc<GLXEventThread>( this, &GLXEventThread::_cmdAddWindow ));
+    registerCommand( CMD_GLXEVENTTHREAD_REMOVE_WINDOW,
+  eqNet::PacketFunc<GLXEventThread>( this, &GLXEventThread::_cmdRemoveWindow ));
 }
 
 bool GLXEventThread::init()

@@ -25,19 +25,16 @@ using namespace eqBase;
 using namespace std;
 
 Server::Server()
-        : eqNet::Node( eq::CMD_SERVER_CUSTOM ),
-          _configID(0)
+        : _configID(0)
 {
-    registerCommand( eq::CMD_SERVER_CHOOSE_CONFIG, this, 
-                     reinterpret_cast<CommandFcn>( &eqs::Server::_cmdPush ));
-    registerCommand( eq::REQ_SERVER_CHOOSE_CONFIG, this, 
-                     reinterpret_cast<CommandFcn>(
-                         &eqs::Server::_reqChooseConfig ));
-    registerCommand( eq::CMD_SERVER_RELEASE_CONFIG, this, 
-                     reinterpret_cast<CommandFcn>( &eqs::Server::_cmdPush ));
-    registerCommand( eq::REQ_SERVER_RELEASE_CONFIG, this, 
-                     reinterpret_cast<CommandFcn>( 
-                         &eqs::Server::_reqReleaseConfig ));
+    registerCommand( eq::CMD_SERVER_CHOOSE_CONFIG,
+                     eqNet::PacketFunc<Server>( this, &Server::_cmdPush ));
+    registerCommand( eq::REQ_SERVER_CHOOSE_CONFIG, 
+                  eqNet::PacketFunc<Server>( this, &Server::_reqChooseConfig ));
+    registerCommand( eq::CMD_SERVER_RELEASE_CONFIG,
+                     eqNet::PacketFunc<Server>( this, &Server::_cmdPush ));
+    registerCommand( eq::REQ_SERVER_RELEASE_CONFIG,
+                 eqNet::PacketFunc<Server>( this, &Server::_reqReleaseConfig ));
     EQINFO << "New server @" << (void*)this << endl;
 }
 

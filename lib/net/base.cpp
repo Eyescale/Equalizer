@@ -13,47 +13,30 @@ using namespace eqNet;
 using namespace eqBase;
 using namespace std;
 
-Base::Base( const uint32_t nCommands, const bool threadSafe )
-        : _requestHandler( threadSafe ),
-          _nCommands( nCommands )
+Base::Base( const bool threadSafe )
+        : _requestHandler( threadSafe )
 {
-    _commandFunctions     = new CommandFcn[nCommands];
-    _commandFunctionsThis = new Base*[nCommands];
-
-    for( uint32_t i=0; i<nCommands; i++ )
-        registerCommand( i, this, &eqNet::Base::_cmdUnknown );
 }
 
 Base::~Base()
 {
-    delete [] _commandFunctions;
-    delete [] _commandFunctionsThis;
 }
 
 //===========================================================================
 // command handling
 //===========================================================================
-void Base::registerCommand( const uint32_t command, void* thisPointer, 
-                            CommandFcn handler )
-{
-    EQASSERT( command < _nCommands );
-    _commandFunctions[command]     = handler;
-    _commandFunctionsThis[command] = (Base*)thisPointer;
-}
-
 CommandResult Base::handleCommand( Node* node, const Packet* packet )
 {
     const uint32_t which = packet->command;
-    if( which >= _nCommands )
+    if( which >= _vTable.size( ))
     {
         EQERROR << "Command " << which
                 << " higher than number of registered command handlers ("
-                << _nCommands << ") for object of type "
+                << _vTable.size() << ") for object of type "
                 << typeid(*this).name() << endl;
         return COMMAND_ERROR;
     }
-    return (_commandFunctionsThis[which]->*_commandFunctions[which])( node,
-                                                                      packet );
+    return _vTable[which]( node, packet );
 }
 
 CommandResult Base::_cmdUnknown( Node* node, const Packet* packet )

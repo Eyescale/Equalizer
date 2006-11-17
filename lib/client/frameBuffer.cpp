@@ -16,7 +16,7 @@ using namespace eq;
 using namespace std;
 
 FrameBuffer::FrameBuffer( const void* data, const uint64_t size )
-        : Object( eq::Object::TYPE_FRAMEBUFFER, CMD_FRAMEBUFFER_CUSTOM ),
+        : Object( eq::Object::TYPE_FRAMEBUFFER ),
           _data( *(Data*)data ) 
 {
     EQASSERT( size == sizeof( Data ));

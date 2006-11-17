@@ -114,9 +114,7 @@ namespace eqNet
          * @param typeID the type (class) identifier of the object.
          * @param nCommands the number of commands handled by the object.
          */
-        Object( const uint32_t typeID, 
-                const uint32_t nCommands = CMD_OBJECT_CUSTOM );
-
+        Object( const uint32_t typeID );
         Object( const Object& from );
 
         virtual ~Object();
@@ -467,7 +465,7 @@ namespace eqNet
         CommandResult _cmdSync( Node* node, const Packet* pkg )
             { _syncQueue.push( node, pkg ); return eqNet::COMMAND_HANDLED; }
 
-        void          _reqSync( Node* node, const Packet* pkg );
+        CommandResult _reqSync( Node* node, const Packet* pkg );
         CommandResult _cmdCommit( Node* node, const Packet* pkg );
 
         CHECK_THREAD_DECLARE( _thread );

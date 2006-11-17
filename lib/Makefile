@@ -31,6 +31,7 @@ HEADER_SRC = \
 	base/userdata.h \
 	net/barrier.h \
 	net/base.h \
+	net/commandResult.h \
 	net/commands.h \
 	net/connection.h \
 	net/connection.ipp \
@@ -47,6 +48,7 @@ HEADER_SRC = \
 	net/node.h \
 	net/nodeID.h \
 	net/object.h \
+	net/packetFunc.h \
 	net/packets.h \
 	net/pipeConnection.h \
 	net/requestCache.h \

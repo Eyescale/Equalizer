@@ -13,7 +13,7 @@ class FrameData : public eqNet::Object
 {
 public:
 
-    FrameData() : Object( TYPE_FRAMEDATA, eqNet::CMD_OBJECT_CUSTOM )
+    FrameData() : Object( TYPE_FRAMEDATA )
         {
             reset();
             setInstanceData( &_data, sizeof( Data ));
@@ -21,7 +21,7 @@ public:
         }
 
     FrameData( const void* data, const uint64_t size ) 
-            : Object( TYPE_FRAMEDATA, eqNet::CMD_OBJECT_CUSTOM )
+            : Object( TYPE_FRAMEDATA )
         {
             EQASSERT( size == sizeof( Data ));
 

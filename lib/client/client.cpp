@@ -16,7 +16,6 @@ using namespace eq;
 using namespace std;
 
 Client::Client()
-        : Node( CMD_CLIENT_CUSTOM )
 {
 }
 

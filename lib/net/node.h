@@ -54,11 +54,8 @@ namespace eqNet
 
         /** 
          * Constructs a new Node.
-         *
-         * @param nCommands the highest command ID to be handled by the node, at
-         *                  least <code>CMD_NODE_CUSTOM</code>.
          */
-        Node( const uint32_t nCommands = CMD_NODE_CUSTOM );
+        Node();
 
         /** @name Data Access. */
         //*{

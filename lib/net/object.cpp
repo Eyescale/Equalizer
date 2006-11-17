@@ -35,25 +35,22 @@ void Object::_construct()
     _deltaData     = NULL;
     _deltaDataSize = 0;
 
-    registerCommand( CMD_OBJECT_SYNC, this, reinterpret_cast<CommandFcn>(
-                         &eqNet::Object::_cmdSync ));
-    registerCommand( REQ_OBJECT_SYNC, this, reinterpret_cast<CommandFcn>(
-                         &eqNet::Object::_reqSync ));
-    registerCommand( CMD_OBJECT_COMMIT, this, reinterpret_cast<CommandFcn>(
-                         &eqNet::Object::_cmdCommit ));
+    registerCommand( CMD_OBJECT_SYNC, 
+                     PacketFunc<Object>( this, &Object::_cmdSync ));
+    registerCommand( REQ_OBJECT_SYNC,
+                     PacketFunc<Object>( this, &Object::_reqSync ));
+    registerCommand( CMD_OBJECT_COMMIT, 
+                     PacketFunc<Object>( this, &Object::_cmdCommit ));
 }
 
-Object::Object( const uint32_t typeID, const uint32_t nCommands )
-        : Base( nCommands ),
-          _typeID( typeID )
+Object::Object( const uint32_t typeID )
+        : _typeID( typeID )
 {
-    EQASSERT( nCommands >= CMD_OBJECT_CUSTOM );
     _construct();
 }
 
 Object::Object( const Object& from )
-        : Base( from.getNCommands( )),
-          _typeID( from._typeID )
+        : _typeID( from._typeID )
 {
     _construct();
     _instanceData     = from._instanceData;
@@ -431,7 +428,7 @@ void Object::_checkConsistency() const
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-void Object::_reqSync( Node* node, const Packet* pkg )
+CommandResult Object::_reqSync( Node* node, const Packet* pkg )
 {
     ObjectSyncPacket* packet = (ObjectSyncPacket*)pkg;
     EQLOG( LOG_OBJECTS ) << "req sync v" << _version << " " << packet << endl;
@@ -439,7 +436,7 @@ void Object::_reqSync( Node* node, const Packet* pkg )
 
     unpack( packet->delta, packet->deltaSize );
     _version = packet->version;
-    //return eqNet::COMMAND_HANDLED;
+    return eqNet::COMMAND_HANDLED;
 }
 
 CommandResult Object::_cmdCommit( Node* node, const Packet* pkg )

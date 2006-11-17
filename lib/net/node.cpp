@@ -33,9 +33,8 @@ PerThread<Node*> Node::_localNode;
 //----------------------------------------------------------------------
 // State management
 //----------------------------------------------------------------------
-Node::Node( const uint32_t nCommands )
-        : Base( nCommands ),
-          _autoLaunch(false),
+Node::Node()
+        : _autoLaunch(false),
           _autoLaunched(false),
           _id(true),
           _state(STATE_STOPPED),
@@ -45,25 +44,24 @@ Node::Node( const uint32_t nCommands )
           _clientRunning(false),
           _nextConnectionRequestID(1)
 {
-    EQASSERT( nCommands >= CMD_NODE_CUSTOM );
-    registerCommand( CMD_NODE_STOP, this, reinterpret_cast<CommandFcn>(
-                         &eqNet::Node::_cmdStop ));
-    registerCommand( CMD_NODE_MAP_SESSION, this, reinterpret_cast<CommandFcn>(
-                         &eqNet::Node::_cmdMapSession ));
-    registerCommand( CMD_NODE_MAP_SESSION_REPLY, this, 
-                     reinterpret_cast<CommandFcn>(
-                         &eqNet::Node::_cmdMapSessionReply ));
-    registerCommand( CMD_NODE_UNMAP_SESSION, this, reinterpret_cast<CommandFcn>(
-                         &eqNet::Node::_cmdUnmapSession ));
-    registerCommand( CMD_NODE_UNMAP_SESSION_REPLY, this, 
-                     reinterpret_cast<CommandFcn>(
-                         &eqNet::Node::_cmdUnmapSessionReply ));
-    registerCommand( CMD_NODE_GET_CONNECTION_DESCRIPTION, this,
-                     reinterpret_cast<CommandFcn>(
-                         &eqNet::Node::_cmdGetConnectionDescription ));
-    registerCommand( CMD_NODE_GET_CONNECTION_DESCRIPTION_REPLY, this,
-                     reinterpret_cast<CommandFcn>(
-                         &eqNet::Node::_cmdGetConnectionDescriptionReply ));
+    registerCommand( CMD_NODE_STOP, 
+                     PacketFunc<Node>( this, &Node::_cmdStop ));
+    registerCommand( CMD_NODE_MAP_SESSION, 
+                     PacketFunc<Node>( this, &Node::_cmdMapSession ));
+    registerCommand( CMD_NODE_MAP_SESSION_REPLY,
+                     PacketFunc<Node>( this, 
+                                          &Node::_cmdMapSessionReply ));
+    registerCommand( CMD_NODE_UNMAP_SESSION, 
+                     PacketFunc<Node>( this,
+                                          &Node::_cmdUnmapSession ));
+    registerCommand( CMD_NODE_UNMAP_SESSION_REPLY,
+                     PacketFunc<Node>( this,
+                                          &Node::_cmdUnmapSessionReply ));
+    registerCommand( CMD_NODE_GET_CONNECTION_DESCRIPTION,
+                     PacketFunc<Node>( this, 
+                                          &Node::_cmdGetConnectionDescription));
+    registerCommand( CMD_NODE_GET_CONNECTION_DESCRIPTION_REPLY,
+         PacketFunc<Node>( this, &Node::_cmdGetConnectionDescriptionReply ));
 
     _receiverThread = new ReceiverThread( this );
 

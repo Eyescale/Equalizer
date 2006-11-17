@@ -20,21 +20,21 @@ using namespace eqBase;
 using namespace std;
 
 Node::Node()
-        : eqNet::Object( eq::Object::TYPE_NODE, CMD_NODE_CUSTOM ),
+        : eqNet::Object( eq::Object::TYPE_NODE ),
           _config(NULL)
 {
-    registerCommand( CMD_NODE_CREATE_PIPE, this, reinterpret_cast<CommandFcn>(
-                         &eq::Node::_cmdCreatePipe ));
-    registerCommand( CMD_NODE_DESTROY_PIPE, this, reinterpret_cast<CommandFcn>(
-                         &eq::Node::_cmdDestroyPipe ));
-    registerCommand( CMD_NODE_INIT, this, reinterpret_cast<CommandFcn>(
-                         &eq::Node::_cmdInit ));
-    registerCommand( REQ_NODE_INIT, this, reinterpret_cast<CommandFcn>(
-                         &eq::Node::_reqInit ));
-    registerCommand( CMD_NODE_EXIT, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Node::_pushRequest ));
-    registerCommand( REQ_NODE_EXIT, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Node::_reqExit ));
+    registerCommand( CMD_NODE_CREATE_PIPE, 
+                     eqNet::PacketFunc<Node>( this, &Node::_cmdCreatePipe ));
+    registerCommand( CMD_NODE_DESTROY_PIPE,
+                    eqNet::PacketFunc<Node>( this, &Node::_cmdDestroyPipe ));
+    registerCommand( CMD_NODE_INIT, 
+                     eqNet::PacketFunc<Node>( this, &Node::_cmdInit ));
+    registerCommand( REQ_NODE_INIT,
+                     eqNet::PacketFunc<Node>( this, &Node::_reqInit ));
+    registerCommand( CMD_NODE_EXIT,
+                     eqNet::PacketFunc<Node>( this, &Node::_pushRequest ));
+    registerCommand( REQ_NODE_EXIT,
+                     eqNet::PacketFunc<Node>( this, &Node::_reqExit ));
 
     _thread = new NodeThread( this );
     EQINFO << " New eq::Node @" << (void*)this << endl;

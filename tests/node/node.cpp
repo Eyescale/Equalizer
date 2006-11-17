@@ -31,20 +31,21 @@ struct DataPacket : public NodePacket
 class Server : public Node
 {
 public:
-    Server() : Node( CMD_NODE_CUSTOM+1 ) 
+    Server()
         { 
-            registerCommand( CMD_NODE_CUSTOM, this, 
-                             reinterpret_cast<CommandFcn>( &Server::command ));
+            registerCommand( CMD_NODE_CUSTOM, 
+                             PacketFunc<Server>( this, &Server::command ));
         }
 
 protected:
-    void command( Node* node, const NodePacket* pkg )
+    CommandResult command( Node* node, const Packet* pkg )
         {
             TEST( pkg->command == CMD_NODE_CUSTOM );
 
             DataPacket* packet = (DataPacket*)pkg;
             cerr << "Server received: " << packet->data << endl;
             lock.unset();
+            return COMMAND_HANDLED;
         }
 };
 

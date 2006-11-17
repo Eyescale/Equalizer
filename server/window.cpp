@@ -21,14 +21,14 @@ void eqs::Window::_construct()
     _pendingRequestID = EQ_ID_INVALID;
     _state            = STATE_STOPPED;
 
-    registerCommand( eq::CMD_WINDOW_INIT_REPLY, this,
-                     reinterpret_cast<CommandFcn>(&eqs::Window::_cmdInitReply));
-    registerCommand( eq::CMD_WINDOW_EXIT_REPLY, this, 
-                     reinterpret_cast<CommandFcn>(&eqs::Window::_cmdExitReply));
-    registerCommand( eq::CMD_WINDOW_SET_PVP, this, reinterpret_cast<CommandFcn>(
-                         &eqs::Window::_cmdPushFront));
-    registerCommand( eq::REQ_WINDOW_SET_PVP, this, reinterpret_cast<CommandFcn>(
-                         &eqs::Window::_reqSetPixelViewport));
+    registerCommand( eq::CMD_WINDOW_INIT_REPLY, 
+                     eqNet::PacketFunc<Window>( this, &Window::_cmdInitReply ));
+    registerCommand( eq::CMD_WINDOW_EXIT_REPLY, 
+                     eqNet::PacketFunc<Window>( this, &Window::_cmdExitReply ));
+    registerCommand( eq::CMD_WINDOW_SET_PVP, 
+                     eqNet::PacketFunc<Window>( this, &Window::_cmdPushFront ));
+    registerCommand( eq::REQ_WINDOW_SET_PVP,
+               eqNet::PacketFunc<Window>( this, &Window::_reqSetPixelViewport));
                          
     const Global* global = Global::instance();
     
@@ -37,13 +37,13 @@ void eqs::Window::_construct()
 }
 
 eqs::Window::Window()
-        : eqNet::Object( eq::Object::TYPE_WINDOW, eq::CMD_WINDOW_CUSTOM )
+        : eqNet::Object( eq::Object::TYPE_WINDOW )
 {
     _construct();
 }
 
 eqs::Window::Window( const Window& from )
-        : eqNet::Object( eq::Object::TYPE_WINDOW, eq::CMD_WINDOW_CUSTOM )
+        : eqNet::Object( eq::Object::TYPE_WINDOW )
 {
     _construct();
 

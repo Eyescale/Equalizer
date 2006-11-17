@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_BASE_H
@@ -8,22 +8,14 @@
 #include <eq/base/base.h>
 #include <eq/base/nonCopyable.h>
 #include <eq/base/requestHandler.h>
+#include <eq/net/commandResult.h>
+#include <eq/net/packetFunc.h>
 
 namespace eqNet
 {
     class Connection;
     class Node;
     struct Packet;
-    
-    enum CommandResult
-    {
-        COMMAND_HANDLED,     //*< The command was handled
-        COMMAND_DISCARD,     //*< Discard command, used by Objects
-        COMMAND_REDISPATCH,  //*< Reschedule command to be handled later
-        COMMAND_PUSH,        //*< Push to another thread
-        COMMAND_PUSH_FRONT,  //*< Push to another thread with high priority
-        COMMAND_ERROR        //*< An unrecoverable error occured
-    };
 
     /** 
      * The base class for all networked objects. 
@@ -34,7 +26,7 @@ namespace eqNet
     class Base : public virtual eqBase::NonCopyable
     {
     public:
-        Base( const uint32_t nCommands, const bool threadSafe = false );
+        Base( const bool threadSafe = false );
         virtual ~Base();        
 
         /** 
@@ -50,10 +42,6 @@ namespace eqNet
  
     protected:
 
-        /** The command function prototype. */
-        typedef CommandResult (eqNet::Base::*CommandFcn)( Node* node, 
-                                                          const Packet* packet);
-
         /** 
          * Registers a command member function for a command.
          * 
@@ -61,16 +49,13 @@ namespace eqNet
          * derived class to the expected type.
          *
          * @param command the command.
-         * @param thisPointer the <code>this</code> pointer of the caller.
-         * @param handler the member function to handle the command.
+         * @param func the functor to handle the command.
          */
-        void registerCommand( const uint32_t command, void* thisPointer, 
-                              CommandFcn handler );
+        template< typename T >
+        void registerCommand( const uint32_t command, 
+                              const PacketFunc<T>& func);
 
         
-        /** The number of registered commands. */
-        uint32_t getNCommands() const { return _nCommands; }
-
         /** Registers request packets waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
 
@@ -99,10 +84,20 @@ namespace eqNet
 
     private:
         /** The command handler function table. */
-        uint32_t    _nCommands;
-        CommandFcn* _commandFunctions;
-        Base**      _commandFunctionsThis;
+        std::vector< PacketFunc<Base> > _vTable;
     };
+
+    template< typename T >
+    void Base::registerCommand( const uint32_t command,
+                                const PacketFunc<T>& func)
+    {
+        if( command >= _vTable.size( ))
+            _vTable.resize( command+1, 
+                            PacketFunc<Base>( this, &Base::_cmdUnknown ));
+        
+        _vTable[command] = static_cast< PacketFunc<Base> >(func);
+    }
+
 }
 
 #endif // EQNET_BASE_H

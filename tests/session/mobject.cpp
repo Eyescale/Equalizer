@@ -22,8 +22,7 @@ class TestObject : public eqNet::Object
 {
 public:
     TestObject() 
-            : Object( eqNet::Object::TYPE_MANAGED_CUSTOM,
-                      eqNet::CMD_OBJECT_CUSTOM ), 
+            : Object( eqNet::Object::TYPE_MANAGED_CUSTOM ), 
               value(42) {}
 
 protected:

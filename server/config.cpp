@@ -26,23 +26,22 @@ void Config::_construct()
     _state       = STATE_STOPPED;
     _appNode     = NULL;
 
-    registerCommand( eq::CMD_CONFIG_INIT, this, reinterpret_cast<CommandFcn>(
-                         &eqs::Config::_cmdPush ));
-    registerCommand( eq::REQ_CONFIG_INIT, this, reinterpret_cast<CommandFcn>(
-                         &eqs::Config::_reqInit ));
-    registerCommand( eq::CMD_CONFIG_EXIT, this, reinterpret_cast<CommandFcn>( 
-                         &eqs::Config::_cmdPush ));
-    registerCommand( eq::REQ_CONFIG_EXIT, this, reinterpret_cast<CommandFcn>( 
-                         &eqs::Config::_reqExit ));
-    registerCommand( eq::CMD_CONFIG_FRAME_BEGIN, this,
-                     reinterpret_cast<CommandFcn>( &eqs::Config::_cmdPush ));
-    registerCommand( eq::REQ_CONFIG_FRAME_BEGIN, this,
-                     reinterpret_cast<CommandFcn>(
-                         &eqs::Config::_reqBeginFrame ));
-    registerCommand( eq::CMD_CONFIG_FRAME_END, this,
-                     reinterpret_cast<CommandFcn>( &eqs::Config::_cmdPush ));
-    registerCommand( eq::REQ_CONFIG_FRAME_END, this,
-                     reinterpret_cast<CommandFcn>( &eqs::Config::_reqEndFrame));
+    registerCommand( eq::CMD_CONFIG_INIT,
+                     eqNet::PacketFunc<Config>( this, &Config::_cmdPush ));
+    registerCommand( eq::REQ_CONFIG_INIT,
+                     eqNet::PacketFunc<Config>( this, &Config::_reqInit ));
+    registerCommand( eq::CMD_CONFIG_EXIT, 
+                     eqNet::PacketFunc<Config>( this, &Config::_cmdPush ));
+    registerCommand( eq::REQ_CONFIG_EXIT, 
+                     eqNet::PacketFunc<Config>( this, &Config::_reqExit ));
+    registerCommand( eq::CMD_CONFIG_FRAME_BEGIN, 
+                     eqNet::PacketFunc<Config>( this, &Config::_cmdPush ));
+    registerCommand( eq::REQ_CONFIG_FRAME_BEGIN,
+                     eqNet::PacketFunc<Config>( this, &Config::_reqBeginFrame));
+    registerCommand( eq::CMD_CONFIG_FRAME_END, 
+                     eqNet::PacketFunc<Config>( this, &Config::_cmdPush ));
+    registerCommand( eq::REQ_CONFIG_FRAME_END, 
+                     eqNet::PacketFunc<Config>( this, &Config::_reqEndFrame));
 
     const Global* global = Global::instance();
     
@@ -53,7 +52,6 @@ void Config::_construct()
 }
 
 Config::Config()
-        : eqNet::Session( eq::CMD_CONFIG_CUSTOM )
 {
     _construct();
 }

@@ -36,7 +36,7 @@ std::string eq::Window::_iAttributeStrings[IATTR_ALL] = {
 
 
 eq::Window::Window()
-        : eqNet::Object( eq::Object::TYPE_WINDOW, CMD_WINDOW_CUSTOM ),
+        : eqNet::Object( eq::Object::TYPE_WINDOW ),
 #ifdef GLX
           _xDrawable(0),
           _glXContext(NULL),
@@ -46,40 +46,38 @@ eq::Window::Window()
 #endif
           _pipe(NULL)
 {
-    registerCommand( CMD_WINDOW_CREATE_CHANNEL, this,
-                     reinterpret_cast<CommandFcn>(
-                         &eq::Window::_cmdCreateChannel ));
-    registerCommand( CMD_WINDOW_DESTROY_CHANNEL, this,
-                     reinterpret_cast<CommandFcn>(
-                         &eq::Window::_cmdDestroyChannel ));
-    registerCommand( CMD_WINDOW_INIT, this, reinterpret_cast<CommandFcn>(
-                         &eq::Window::_pushCommand ));
-    registerCommand( REQ_WINDOW_INIT, this, reinterpret_cast<CommandFcn>(
-                         &eq::Window::_reqInit ));
-    registerCommand( CMD_WINDOW_EXIT, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Window::_pushCommand ));
-    registerCommand( REQ_WINDOW_EXIT, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Window::_reqExit ));
-    registerCommand( CMD_WINDOW_FINISH, this, reinterpret_cast<CommandFcn>(
-                         &eq::Window::_pushCommand));
-    registerCommand( REQ_WINDOW_FINISH, this, reinterpret_cast<CommandFcn>(
-                         &eq::Window::_reqFinish));
-    registerCommand( CMD_WINDOW_BARRIER, this, reinterpret_cast<CommandFcn>(
-                         &eq::Window::_pushCommand ));
-    registerCommand( REQ_WINDOW_BARRIER, this, reinterpret_cast<CommandFcn>(
-                         &eq::Window::_reqBarrier ));
-    registerCommand( CMD_WINDOW_SWAP, this, reinterpret_cast<CommandFcn>(
-                         &eq::Window::_pushCommand ));
-    registerCommand( REQ_WINDOW_SWAP, this, reinterpret_cast<CommandFcn>(
-                         &eq::Window::_reqSwap));
-    registerCommand( CMD_WINDOW_STARTFRAME, this, reinterpret_cast<CommandFcn>(
-                         &eq::Window::_pushCommand ));
-    registerCommand( REQ_WINDOW_STARTFRAME, this, reinterpret_cast<CommandFcn>(
-                         &eq::Window::_reqStartFrame));
-    registerCommand( CMD_WINDOW_ENDFRAME, this, reinterpret_cast<CommandFcn>(
-                         &eq::Window::_pushCommand ));
-    registerCommand( REQ_WINDOW_ENDFRAME, this, reinterpret_cast<CommandFcn>(
-                         &eq::Window::_reqEndFrame));
+    registerCommand( CMD_WINDOW_CREATE_CHANNEL, 
+                 eqNet::PacketFunc<Window>( this, &Window::_cmdCreateChannel ));
+    registerCommand( CMD_WINDOW_DESTROY_CHANNEL,
+                eqNet::PacketFunc<Window>( this, &Window::_cmdDestroyChannel ));
+    registerCommand( CMD_WINDOW_INIT,
+                     eqNet::PacketFunc<Window>( this, &Window::_pushCommand ));
+    registerCommand( REQ_WINDOW_INIT, 
+                     eqNet::PacketFunc<Window>( this, &Window::_reqInit ));
+    registerCommand( CMD_WINDOW_EXIT, 
+                     eqNet::PacketFunc<Window>( this, &Window::_pushCommand ));
+    registerCommand( REQ_WINDOW_EXIT, 
+                     eqNet::PacketFunc<Window>( this, &Window::_reqExit ));
+    registerCommand( CMD_WINDOW_FINISH, 
+                     eqNet::PacketFunc<Window>( this, &Window::_pushCommand));
+    registerCommand( REQ_WINDOW_FINISH, 
+                     eqNet::PacketFunc<Window>( this, &Window::_reqFinish));
+    registerCommand( CMD_WINDOW_BARRIER, 
+                     eqNet::PacketFunc<Window>( this, &Window::_pushCommand ));
+    registerCommand( REQ_WINDOW_BARRIER,
+                     eqNet::PacketFunc<Window>( this, &Window::_reqBarrier ));
+    registerCommand( CMD_WINDOW_SWAP, 
+                     eqNet::PacketFunc<Window>( this, &Window::_pushCommand ));
+    registerCommand( REQ_WINDOW_SWAP, 
+                     eqNet::PacketFunc<Window>( this, &Window::_reqSwap));
+    registerCommand( CMD_WINDOW_STARTFRAME,
+                     eqNet::PacketFunc<Window>( this, &Window::_pushCommand ));
+    registerCommand( REQ_WINDOW_STARTFRAME,
+                     eqNet::PacketFunc<Window>( this, &Window::_reqStartFrame));
+    registerCommand( CMD_WINDOW_ENDFRAME, 
+                     eqNet::PacketFunc<Window>( this, &Window::_pushCommand ));
+    registerCommand( REQ_WINDOW_ENDFRAME, 
+                     eqNet::PacketFunc<Window>( this, &Window::_reqEndFrame));
 }
 
 eq::Window::~Window()

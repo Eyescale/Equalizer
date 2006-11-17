@@ -9,7 +9,7 @@
 using namespace eqs;
 
 FrameBuffer::FrameBuffer()
-        : eqNet::Object( eq::Object::TYPE_FRAMEBUFFER, eqNet::CMD_OBJECT_CUSTOM)
+        : eqNet::Object( eq::Object::TYPE_FRAMEBUFFER )
 {
     _data.format = eq::Frame::FORMAT_UNDEFINED;
     setInstanceData( &_data, sizeof( eq::FrameBuffer::Data ));

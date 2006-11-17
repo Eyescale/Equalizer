@@ -24,23 +24,23 @@ void Pipe::_construct()
     _screen           = EQ_UNDEFINED_UINT32;
     _state            = STATE_STOPPED;
 
-    registerCommand( eq::CMD_PIPE_INIT_REPLY, this,reinterpret_cast<CommandFcn>(
-                         &eqs::Pipe::_cmdInitReply ));
-    registerCommand( eq::CMD_PIPE_EXIT_REPLY, this,reinterpret_cast<CommandFcn>(
-                         &eqs::Pipe::_cmdExitReply ));
-    registerCommand( eq::CMD_PIPE_FRAME_SYNC, this,reinterpret_cast<CommandFcn>(
-                         &eqs::Pipe::_cmdFrameSync ));
+    registerCommand( eq::CMD_PIPE_INIT_REPLY,
+                     eqNet::PacketFunc<Pipe>( this, &Pipe::_cmdInitReply ));
+    registerCommand( eq::CMD_PIPE_EXIT_REPLY, 
+                     eqNet::PacketFunc<Pipe>( this, &Pipe::_cmdExitReply ));
+    registerCommand( eq::CMD_PIPE_FRAME_SYNC, 
+                     eqNet::PacketFunc<Pipe>( this, &Pipe::_cmdFrameSync ));
     EQINFO << "New pipe @" << (void*)this << endl;
 }
 
 Pipe::Pipe()
-        : eqNet::Object( eq::Object::TYPE_PIPE, eq::CMD_PIPE_CUSTOM )
+        : eqNet::Object( eq::Object::TYPE_PIPE )
 {
     _construct();
 }
 
 Pipe::Pipe( const Pipe& from )
-        : eqNet::Object( eq::Object::TYPE_PIPE, eq::CMD_PIPE_CUSTOM )
+        : eqNet::Object( eq::Object::TYPE_PIPE )
 {
     _construct();
     _display = from._display;

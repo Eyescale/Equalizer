@@ -15,7 +15,7 @@ using namespace eqBase;
 using namespace std;
 
 Frame::Frame()
-        : eqNet::Object( eq::Object::TYPE_FRAME, eqNet::CMD_OBJECT_CUSTOM ),
+        : eqNet::Object( eq::Object::TYPE_FRAME ),
           _compound( NULL ),
           _buffer( NULL )
 {
@@ -24,7 +24,7 @@ Frame::Frame()
 }
 
 Frame::Frame( const Frame& from )
-        : eqNet::Object( eq::Object::TYPE_FRAME, eqNet::CMD_OBJECT_CUSTOM ),
+        : eqNet::Object( eq::Object::TYPE_FRAME ),
           _compound( NULL ),
           _buffer( NULL )
 {

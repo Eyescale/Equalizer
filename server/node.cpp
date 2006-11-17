@@ -24,10 +24,10 @@ void Node::_construct()
     _config           = NULL;
     _pendingRequestID = EQ_ID_INVALID;
 
-    registerCommand( eq::CMD_NODE_INIT_REPLY, this,reinterpret_cast<CommandFcn>(
-                         &eqs::Node::_cmdInitReply ));
-    registerCommand( eq::CMD_NODE_EXIT_REPLY, this,reinterpret_cast<CommandFcn>(
-                         &eqs::Node::_cmdExitReply ));
+    registerCommand( eq::CMD_NODE_INIT_REPLY, 
+                     eqNet::PacketFunc<Node>( this, &Node::_cmdInitReply ));
+    registerCommand( eq::CMD_NODE_EXIT_REPLY, 
+                     eqNet::PacketFunc<Node>( this, &Node::_cmdExitReply ));
 
     const Global* global = Global::instance();
 
@@ -38,13 +38,13 @@ void Node::_construct()
 }
 
 Node::Node()
-        : eqNet::Object( eq::Object::TYPE_NODE, eq::CMD_NODE_CUSTOM )
+        : eqNet::Object( eq::Object::TYPE_NODE )
 {
     _construct();
 }
 
 Node::Node( const Node& from )
-        : eqNet::Object( eq::Object::TYPE_NODE, eq::CMD_NODE_CUSTOM )
+        : eqNet::Object( eq::Object::TYPE_NODE )
 {
     _construct();
     _node = from._node;

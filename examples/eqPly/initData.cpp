@@ -17,14 +17,14 @@ using namespace std;
 using namespace eqBase;
 
 InitData::InitData()
-        : Object( TYPE_INITDATA, eqNet::CMD_OBJECT_CUSTOM ),
+        : Object( TYPE_INITDATA ),
           _frameDataID( EQ_ID_INVALID ),
           _filename( "rockerArm.ply" ),
           _instanceData( NULL )
 {}
 
 InitData::InitData( const void* data, const uint64_t size )
-        : Object( TYPE_INITDATA, eqNet::CMD_OBJECT_CUSTOM ),
+        : Object( TYPE_INITDATA ),
           _instanceData( NULL )
 {
     EQASSERT( size > sizeof( _frameDataID ));

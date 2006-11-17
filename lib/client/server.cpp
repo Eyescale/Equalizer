@@ -19,15 +19,12 @@ using namespace eqBase;
 using namespace std;
 
 Server::Server()
-        : Node( CMD_SERVER_CUSTOM ),
-          _state( STATE_STOPPED )
+        : _state( STATE_STOPPED )
 {
-    registerCommand( CMD_SERVER_CREATE_CONFIG, this, 
-                     reinterpret_cast<CommandFcn>(
-                         &eq::Server::_cmdCreateConfig ));
-    registerCommand( CMD_SERVER_CHOOSE_CONFIG_REPLY, this,
-                     reinterpret_cast<CommandFcn>( 
-                         &eq::Server::_cmdChooseConfigReply ));
+    registerCommand( CMD_SERVER_CREATE_CONFIG, 
+               eqNet::PacketFunc<Server>( this, &Server::_cmdCreateConfig ));
+    registerCommand( CMD_SERVER_CHOOSE_CONFIG_REPLY, 
+          eqNet::PacketFunc<Server>( this, &Server::_cmdChooseConfigReply ));
 
     EQINFO << "New server at " << (void*)this << endl;
 }

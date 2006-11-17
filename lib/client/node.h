@@ -100,8 +100,9 @@ namespace eq
          * @param node the node sending the packet.
          * @param packet the command packet.
          */
-        void _pushRequest( eqNet::Node* node, const eqNet::Packet* packet )
-            { _requestQueue.push( node, packet ); }
+        eqNet::CommandResult _pushRequest( eqNet::Node* node, 
+                                           const eqNet::Packet* packet )
+            {_requestQueue.push( node, packet ); return eqNet::COMMAND_HANDLED;}
 
         /** The command functions. */
         eqNet::CommandResult _cmdCreatePipe( eqNet::Node* node,

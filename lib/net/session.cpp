@@ -19,9 +19,8 @@ using namespace std;
 
 #define MIN_ID_RANGE 1024
 
-Session::Session( const uint32_t nCommands, const bool threadSafe )
-        : Base( nCommands ),
-          _requestHandler( threadSafe ),
+Session::Session( const bool threadSafe )
+        : Base( threadSafe ),
           _id(EQ_ID_INVALID),
           _server(NULL),
           _isMaster(false),
@@ -29,42 +28,35 @@ Session::Session( const uint32_t nCommands, const bool threadSafe )
           _localPool( 0 ),
           _instanceIDs( IDPool::MAX_CAPACITY ) 
 {
-    EQASSERT( nCommands >= CMD_SESSION_CUSTOM );
-    registerCommand( CMD_SESSION_GEN_IDS, this, reinterpret_cast<CommandFcn>(
-                         &eqNet::Session::_cmdGenIDs ));
-    registerCommand( CMD_SESSION_GEN_IDS_REPLY, this, 
-                     reinterpret_cast<CommandFcn>(
-                         &eqNet::Session::_cmdGenIDsReply ));
-    registerCommand( CMD_SESSION_SET_ID_MASTER, this, 
-                     reinterpret_cast<CommandFcn>(
-                         &eqNet::Session::_cmdSetIDMaster ));
-    registerCommand( CMD_SESSION_GET_ID_MASTER, this, 
-                     reinterpret_cast<CommandFcn>(
-                         &eqNet::Session::_cmdGetIDMaster ));
-    registerCommand( CMD_SESSION_GET_ID_MASTER_REPLY, this, 
-                     reinterpret_cast<CommandFcn>(
-                         &eqNet::Session::_cmdGetIDMasterReply ));
-    registerCommand( CMD_SESSION_GET_OBJECT_MASTER, this, 
-                     reinterpret_cast<CommandFcn>(
-                         &eqNet::Session::_cmdGetObjectMaster ));
-    registerCommand( CMD_SESSION_GET_OBJECT_MASTER_REPLY, this, 
-                     reinterpret_cast<CommandFcn>(
-                         &eqNet::Session::_cmdGetObjectMasterReply ));
-    registerCommand( CMD_SESSION_REGISTER_OBJECT, this,
-                     reinterpret_cast<CommandFcn>(
-                         &eqNet::Session::_cmdRegisterObject ));
-    registerCommand( CMD_SESSION_UNREGISTER_OBJECT, this,
-                     reinterpret_cast<CommandFcn>(
-                         &eqNet::Session::_cmdUnregisterObject ));
-    registerCommand( CMD_SESSION_GET_OBJECT, this,
-                     reinterpret_cast<CommandFcn>(
-                         &eqNet::Session::_cmdGetObject ));
-    registerCommand( CMD_SESSION_INIT_OBJECT, this, 
-                     reinterpret_cast<CommandFcn>(
-                         &eqNet::Session::_cmdInitObject ));
-    registerCommand( CMD_SESSION_INSTANCIATE_OBJECT, this, 
-                     reinterpret_cast<CommandFcn>(
-                         &eqNet::Session::_cmdInstanciateObject ));
+    registerCommand( CMD_SESSION_GEN_IDS, 
+                     PacketFunc<Session>( this, &Session::_cmdGenIDs ));
+    registerCommand( CMD_SESSION_GEN_IDS_REPLY,
+                     PacketFunc<Session>( this, &Session::_cmdGenIDsReply ));
+    registerCommand( CMD_SESSION_SET_ID_MASTER,
+                     PacketFunc<Session>( this, &Session::_cmdSetIDMaster ));
+    registerCommand( CMD_SESSION_GET_ID_MASTER, 
+                     PacketFunc<Session>( this, &Session::_cmdGetIDMaster ));
+    registerCommand( CMD_SESSION_GET_ID_MASTER_REPLY,
+                     PacketFunc<Session>( this,
+                                             &Session::_cmdGetIDMasterReply ));
+    registerCommand( CMD_SESSION_GET_OBJECT_MASTER, 
+                     PacketFunc<Session>( this,
+                                             &Session::_cmdGetObjectMaster ));
+    registerCommand( CMD_SESSION_GET_OBJECT_MASTER_REPLY,
+            PacketFunc<Session>( this, &Session::_cmdGetObjectMasterReply ));
+    registerCommand( CMD_SESSION_REGISTER_OBJECT,
+                     PacketFunc<Session>( this,
+                                             &Session::_cmdRegisterObject ));
+    registerCommand( CMD_SESSION_UNREGISTER_OBJECT, 
+                     PacketFunc<Session>( this,
+                                             &Session::_cmdUnregisterObject ));
+    registerCommand( CMD_SESSION_GET_OBJECT,
+                     PacketFunc<Session>( this, &Session::_cmdGetObject ));
+    registerCommand( CMD_SESSION_INIT_OBJECT, 
+                     PacketFunc<Session>( this, &Session::_cmdInitObject ));
+    registerCommand( CMD_SESSION_INSTANCIATE_OBJECT, 
+                     PacketFunc<Session>( this,
+                                             &Session::_cmdInstanciateObject ));
 
     EQINFO << "New Session @" << (void*)this << endl;
 }

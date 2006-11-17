@@ -34,8 +34,7 @@ namespace eqNet
          * @param threadSafe if <code>true</code>, all public functions are
          *                   thread-safe.
          */
-        Session( const uint32_t nCommands = CMD_SESSION_CUSTOM, 
-                 const bool threadSafe = false );
+        Session( const bool threadSafe = false );
 
         virtual ~Session();
 
@@ -200,9 +199,6 @@ namespace eqNet
         //*}
         
     protected:
-        /** Registers requests waiting for a return value. */
-        eqBase::RequestHandler _requestHandler;
-
         /** 
          * Instanciate the slave(proxy) instance of a object on this session.
          * 

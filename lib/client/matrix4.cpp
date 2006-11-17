@@ -16,7 +16,7 @@ namespace eq
     template<>
     Matrix4<float>::Matrix4() 
             : vmml::Matrix4f(),
-              Object( eq::Object::TYPE_MATRIX4F, eqNet::CMD_OBJECT_CUSTOM )
+              Object( eq::Object::TYPE_MATRIX4F )
     {
         vmml::Matrix4f::operator= ( vmml::Matrix4f::IDENTITY );
         setInstanceData( &ml, 16 * sizeof( float ));
@@ -25,7 +25,7 @@ namespace eq
     template<>
     Matrix4<float>::Matrix4( const vmml::Matrix4f& matrix )
             : vmml::Matrix4f( matrix ),
-              Object( eq::Object::TYPE_MATRIX4F, eqNet::CMD_OBJECT_CUSTOM )
+              Object( eq::Object::TYPE_MATRIX4F )
     {
         setInstanceData( &ml, 16 * sizeof( float ));
     }
@@ -33,7 +33,7 @@ namespace eq
     template<>
     Matrix4<float>::Matrix4( const void* data, uint64_t dataSize )
             : vmml::Matrix4f( (float*)data ),
-              Object( eq::Object::TYPE_MATRIX4F, eqNet::CMD_OBJECT_CUSTOM )
+              Object( eq::Object::TYPE_MATRIX4F )
     {
         setInstanceData( &ml, 16 * sizeof( float ));
     }

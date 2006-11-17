@@ -20,32 +20,32 @@ using namespace eqBase;
 using namespace std;
 
 Pipe::Pipe()
-        : eqNet::Object( eq::Object::TYPE_PIPE, CMD_PIPE_CUSTOM ),
+        : eqNet::Object( eq::Object::TYPE_PIPE ),
           _node(NULL),
           _windowSystem( WINDOW_SYSTEM_NONE ),
           _display(EQ_UNDEFINED_UINT32),
           _screen(EQ_UNDEFINED_UINT32)
 {
-    registerCommand( CMD_PIPE_CREATE_WINDOW, this, reinterpret_cast<CommandFcn>(
-                         &eq::Pipe::_cmdCreateWindow ));
-    registerCommand( CMD_PIPE_DESTROY_WINDOW, this,reinterpret_cast<CommandFcn>(
-                         &eq::Pipe::_cmdDestroyWindow ));
-    registerCommand( CMD_PIPE_INIT, this, reinterpret_cast<CommandFcn>(
-                         &eq::Pipe::_cmdInit ));
-    registerCommand( REQ_PIPE_INIT, this, reinterpret_cast<CommandFcn>(
-                         &eq::Pipe::_reqInit ));
-    registerCommand( CMD_PIPE_EXIT, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Pipe::pushCommand ));
-    registerCommand( REQ_PIPE_EXIT, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Pipe::_reqExit ));
-    registerCommand( CMD_PIPE_UPDATE, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Pipe::pushCommand ));
-    registerCommand( REQ_PIPE_UPDATE, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Pipe::_reqUpdate ));
-    registerCommand( CMD_PIPE_FRAME_SYNC, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Pipe::pushCommand ));
-    registerCommand( REQ_PIPE_FRAME_SYNC, this, reinterpret_cast<CommandFcn>( 
-                         &eq::Pipe::_reqFrameSync ));
+    registerCommand( CMD_PIPE_CREATE_WINDOW,
+                   eqNet::PacketFunc<Pipe>( this, &Pipe::_cmdCreateWindow ));
+    registerCommand( CMD_PIPE_DESTROY_WINDOW, 
+                  eqNet::PacketFunc<Pipe>( this, &Pipe::_cmdDestroyWindow ));
+    registerCommand( CMD_PIPE_INIT, 
+                     eqNet::PacketFunc<Pipe>( this, &Pipe::_cmdInit ));
+    registerCommand( REQ_PIPE_INIT,
+                     eqNet::PacketFunc<Pipe>( this, &Pipe::_reqInit ));
+    registerCommand( CMD_PIPE_EXIT, 
+                     eqNet::PacketFunc<Pipe>( this, &Pipe::pushCommand ));
+    registerCommand( REQ_PIPE_EXIT,
+                     eqNet::PacketFunc<Pipe>( this, &Pipe::_reqExit ));
+    registerCommand( CMD_PIPE_UPDATE,
+                     eqNet::PacketFunc<Pipe>( this, &Pipe::pushCommand ));
+    registerCommand( REQ_PIPE_UPDATE,
+                     eqNet::PacketFunc<Pipe>( this, &Pipe::_reqUpdate ));
+    registerCommand( CMD_PIPE_FRAME_SYNC,
+                     eqNet::PacketFunc<Pipe>( this, &Pipe::pushCommand ));
+    registerCommand( REQ_PIPE_FRAME_SYNC,
+                     eqNet::PacketFunc<Pipe>( this, &Pipe::_reqFrameSync ));
 
     _thread = new PipeThread( this );
 

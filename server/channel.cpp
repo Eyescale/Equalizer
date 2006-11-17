@@ -24,22 +24,20 @@ void Channel::_construct()
     _state            = STATE_STOPPED;
     _fixedPVP         = false;
 
-    registerCommand( eq::CMD_CHANNEL_INIT_REPLY, this,
-                     reinterpret_cast<CommandFcn>(
-                         &eqs::Channel::_cmdInitReply ));
-    registerCommand( eq::CMD_CHANNEL_EXIT_REPLY, this,
-                     reinterpret_cast<CommandFcn>(
-                         &eqs::Channel::_cmdExitReply ));
+    registerCommand( eq::CMD_CHANNEL_INIT_REPLY, 
+                  eqNet::PacketFunc<Channel>( this, &Channel::_cmdInitReply ));
+    registerCommand( eq::CMD_CHANNEL_EXIT_REPLY,
+                   eqNet::PacketFunc<Channel>( this, &Channel::_cmdExitReply ));
 }
 
 Channel::Channel()
-        : eqNet::Object( eq::Object::TYPE_CHANNEL, eq::CMD_CHANNEL_CUSTOM )
+        : eqNet::Object( eq::Object::TYPE_CHANNEL )
 {
     _construct();
 }
 
 Channel::Channel( const Channel& from )
-        : eqNet::Object( eq::Object::TYPE_CHANNEL, eq::CMD_CHANNEL_CUSTOM )
+        : eqNet::Object( eq::Object::TYPE_CHANNEL )
 {
     _construct();
     _name     = from._name;

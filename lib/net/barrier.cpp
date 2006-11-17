@@ -18,14 +18,14 @@ void Barrier::_construct()
     setInstanceData( &_data, sizeof( _data ));
     setDeltaData( &_data.height, sizeof( _data.height ));
 
-    registerCommand( CMD_BARRIER_ENTER, this, reinterpret_cast<CommandFcn>(
-                         &eqNet::Barrier::_cmdEnter ));
-    registerCommand( CMD_BARRIER_ENTER_REPLY, this, 
-                reinterpret_cast<CommandFcn>(&eqNet::Barrier::_cmdEnterReply ));
+    registerCommand( CMD_BARRIER_ENTER, 
+                     PacketFunc<Barrier>( this, &Barrier::_cmdEnter ));
+    registerCommand( CMD_BARRIER_ENTER_REPLY, 
+                     PacketFunc<Barrier>( this, &Barrier::_cmdEnterReply ));
 }
 
 Barrier::Barrier( eqBase::RefPtr<Node> master, const uint32_t height )
-        : Object( TYPE_BARRIER, CMD_BARRIER_ALL ),
+        : Object( TYPE_BARRIER ),
           _master( master )
 {
     _data.master = master->getNodeID();
@@ -37,7 +37,7 @@ Barrier::Barrier( eqBase::RefPtr<Node> master, const uint32_t height )
 }
 
 Barrier::Barrier( const void* instanceData )
-        : Object( TYPE_BARRIER, CMD_BARRIER_ALL ),
+        : Object( TYPE_BARRIER ),
           _data( *(Data*)instanceData ) 
 {
     _construct();

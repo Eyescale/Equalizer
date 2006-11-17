@@ -29,7 +29,7 @@ namespace eq
          * @param nCommands the highest command ID to be handled by the config, 
          *                  at least <code>CMD_CONFIG_CUSTOM</code>.
          */
-        Config( const uint32_t nCommands = CMD_CONFIG_CUSTOM );
+        Config();
 
         virtual ~Config();
 
