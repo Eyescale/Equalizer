@@ -9,7 +9,7 @@
 #include <eq/base/lock.h>
 #include <eq/net/idHash.h>
 #include <eq/net/node.h>
-#include <eq/net/requestQueue.h>
+#include <eq/net/commandQueue.h>
 
 /** 
  * @namespace eqs
@@ -88,21 +88,19 @@ namespace eqs
     protected:
         virtual ~Server() {}
 
-        /** @sa eqNet::Node::handlePacket */
-        virtual eqNet::CommandResult handlePacket( eqNet::Node* node, 
-                                                   const eqNet::Packet* packet);
+        /** @sa eqNet::Node::handleCommand */
+        virtual eqNet::CommandResult handleCommand( eqNet::Command& command );
         
         /** @sa eqNet::Node::handleDisconnect */
         virtual void handleDisconnect( eqNet::Node* node );
 
         /** @sa eqNet::Node::pushCommand */
-        virtual bool pushCommand(eqNet::Node* node, const eqNet::Packet* packet)
-            { _requestQueue.push( node, packet ); return true; }
+        virtual bool pushCommand( eqNet::Command& command )
+            { _commandQueue.push( command ); return true; }
 
         /** @sa eqNet::Node::pushCommandFront */
-        virtual bool pushCommandFront( eqNet::Node* node, 
-                                       const eqNet::Packet* packet )
-            { _requestQueue.pushFront( node, packet ); return true; }
+        virtual bool pushCommandFront( eqNet::Command& command )
+            { _commandQueue.pushFront( command ); return true; }
 
     private:
         
@@ -118,16 +116,14 @@ namespace eqs
         /** The application-allocated configurations, mapped by identifier. */
         eqNet::IDHash<Config*> _appConfigs;
 
-        /** The receiver->main request queue. */
-        eqNet::RequestQueue    _requestQueue;
+        /** The receiver->main command queue. */
+        eqNet::CommandQueue    _commandQueue;
 
-        void        _handleRequests(); 
+        void        _handleCommands(); 
 
         /** The command functions. */
-        eqNet::CommandResult _reqChooseConfig( eqNet::Node* node,
-                                               const eqNet::Packet* packet );
-        eqNet::CommandResult _reqReleaseConfig( eqNet::Node* node,
-                                                const eqNet::Packet* packet );
+        eqNet::CommandResult _reqChooseConfig( eqNet::Command& command );
+        eqNet::CommandResult _reqReleaseConfig( eqNet::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Server* server );

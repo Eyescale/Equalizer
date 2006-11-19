@@ -227,7 +227,7 @@ namespace eq
 
     struct NodeInitReplyPacket : public eqNet::ObjectPacket
     {
-        NodeInitReplyPacket( NodeInitPacket* requestPacket )
+        NodeInitReplyPacket( const NodeInitPacket* requestPacket )
             {
                 command   = CMD_NODE_INIT_REPLY;
                 requestID = requestPacket->requestID;
@@ -251,7 +251,7 @@ namespace eq
 
     struct NodeExitReplyPacket : public eqNet::ObjectPacket
     {
-        NodeExitReplyPacket( NodeExitPacket* requestPacket )
+        NodeExitReplyPacket( const NodeExitPacket* requestPacket )
             {
                 command   = CMD_NODE_EXIT_REPLY;
                 requestID = requestPacket->requestID;
@@ -304,7 +304,7 @@ namespace eq
 
     struct PipeInitReplyPacket : public eqNet::ObjectPacket
     {
-        PipeInitReplyPacket( PipeInitPacket* requestPacket )
+        PipeInitReplyPacket( const PipeInitPacket* requestPacket )
             {
                 command   = CMD_PIPE_INIT_REPLY;
                 requestID = requestPacket->requestID;
@@ -328,7 +328,7 @@ namespace eq
 
     struct PipeExitReplyPacket : public eqNet::ObjectPacket
     {
-        PipeExitReplyPacket( PipeExitPacket* requestPacket )
+        PipeExitReplyPacket( const PipeExitPacket* requestPacket )
             {
                 command   = CMD_PIPE_EXIT_REPLY;
                 requestID = requestPacket->requestID;
@@ -405,7 +405,7 @@ namespace eq
 
     struct WindowInitReplyPacket : public eqNet::ObjectPacket
     {
-        WindowInitReplyPacket( WindowInitPacket* requestPacket )
+        WindowInitReplyPacket( const WindowInitPacket* requestPacket )
             {
                 command   = CMD_WINDOW_INIT_REPLY;
                 requestID = requestPacket->requestID;
@@ -431,7 +431,7 @@ namespace eq
 
     struct WindowExitReplyPacket : public eqNet::ObjectPacket
     {
-        WindowExitReplyPacket( WindowExitPacket* requestPacket )
+        WindowExitReplyPacket( const WindowExitPacket* requestPacket )
             {
                 command   = CMD_WINDOW_EXIT_REPLY;
                 requestID = requestPacket->requestID;
@@ -545,7 +545,7 @@ namespace eq
 
     struct ChannelInitReplyPacket : public eqNet::ObjectPacket
     {
-        ChannelInitReplyPacket( ChannelInitPacket* requestPacket )
+        ChannelInitReplyPacket( const ChannelInitPacket* requestPacket )
             {
                 command   = CMD_CHANNEL_INIT_REPLY;
                 requestID = requestPacket->requestID;
@@ -571,7 +571,7 @@ namespace eq
 
     struct ChannelExitReplyPacket : public eqNet::ObjectPacket
     {
-        ChannelExitReplyPacket( ChannelExitPacket* requestPacket )
+        ChannelExitReplyPacket( const ChannelExitPacket* requestPacket )
             {
                 command   = CMD_CHANNEL_EXIT_REPLY;
                 requestID = requestPacket->requestID;

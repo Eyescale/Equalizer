@@ -257,14 +257,10 @@ namespace eqs
             _state;
 
         /** The command functions. */
-        eqNet::CommandResult _reqInit( eqNet::Node* node,
-                                       const eqNet::Packet* packet );
-        eqNet::CommandResult _reqExit( eqNet::Node* node,
-                                       const eqNet::Packet* packet );
-        eqNet::CommandResult _reqBeginFrame( eqNet::Node* node,
-                                             const eqNet::Packet* packet );
-        eqNet::CommandResult _reqEndFrame( eqNet::Node* node, 
-                                           const eqNet::Packet* packet );
+        eqNet::CommandResult _reqInit( eqNet::Command& command );
+        eqNet::CommandResult _reqExit( eqNet::Command& command );
+        eqNet::CommandResult _reqBeginFrame( eqNet::Command& command );
+        eqNet::CommandResult _reqEndFrame( eqNet::Command& command ); 
 
         /**
          * @name Operations

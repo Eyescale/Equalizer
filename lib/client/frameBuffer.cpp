@@ -113,7 +113,10 @@ void FrameBuffer::syncReadback()
 void FrameBuffer::transmit( eqBase::RefPtr<eqNet::Node> toNode )
 {
     FrameBufferTransmitPacket packet;
-    packet.sessionID = getSession()->getID();
+    const eqNet::Session*     session = getSession();
+    EQASSERT( session );
+
+    packet.sessionID = session->getID();
     packet.objectID  = getID();
 
     if( _data.format & Frame::FORMAT_COLOR )

@@ -38,11 +38,11 @@ public:
         }
 
 protected:
-    CommandResult command( Node* node, const Packet* pkg )
+    CommandResult command( Command& command )
         {
-            TEST( pkg->command == CMD_NODE_CUSTOM );
+            TEST( command->command == CMD_NODE_CUSTOM );
 
-            DataPacket* packet = (DataPacket*)pkg;
+            const DataPacket* packet = command.getPacket<DataPacket>();
             cerr << "Server received: " << packet->data << endl;
             lock.unset();
             return COMMAND_HANDLED;

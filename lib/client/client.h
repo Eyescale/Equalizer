@@ -36,10 +36,9 @@ namespace eq
         virtual void clientLoop();
 
         /** 
-         * @sa eqNet::Node::handlePacket
+         * @sa eqNet::Node::handleCommand
          */
-        virtual eqNet::CommandResult handlePacket( eqNet::Node* node, 
-                                                   const eqNet::Packet* packet);
+        virtual eqNet::CommandResult handleCommand( eqNet::Command& command );
 
         /** @sa eqNet::Node::createNode */
         virtual eqBase::RefPtr<eqNet::Node> createNode( const CreateReason

@@ -230,20 +230,20 @@ void Pipe::update( const uint32_t frameID )
 //===========================================================================
 // command handling
 //===========================================================================
-eqNet::CommandResult Pipe::_cmdInitReply( eqNet::Node* node, 
-                                          const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_cmdInitReply( eqNet::Command& command ) 
 {
-    eq::PipeInitReplyPacket* packet = (eq::PipeInitReplyPacket*)pkg;
+    const eq::PipeInitReplyPacket* packet = 
+        command.getPacket<eq::PipeInitReplyPacket>();
     EQINFO << "handle pipe init reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_cmdExitReply( eqNet::Node* node, 
-                                          const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_cmdExitReply( eqNet::Command& command ) 
 {
-    eq::PipeExitReplyPacket* packet = (eq::PipeExitReplyPacket*)pkg;
+    const eq::PipeExitReplyPacket* packet = 
+        command.getPacket<eq::PipeExitReplyPacket>();
     EQINFO << "handle pipe exit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );
@@ -251,10 +251,9 @@ eqNet::CommandResult Pipe::_cmdExitReply( eqNet::Node* node,
 }
 
 
-eqNet::CommandResult Pipe::_cmdFrameSync( eqNet::Node* node,
-                                          const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_cmdFrameSync( eqNet::Command& command )
 {
-    EQVERB << "handle frame sync " << pkg << endl;
+    EQVERB << "handle frame sync " << command << endl;
     _frameSync.post();
     return eqNet::COMMAND_HANDLED;
 }

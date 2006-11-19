@@ -260,13 +260,10 @@ void* Pipe::_runThread()
 
     eqNet::Node::setLocalNode( config->getLocalNode( ));
 
-    eqNet::Node*   node;
-    eqNet::Packet* packet;
-
     while( _thread->isRunning( ))
     {
-        _requestQueue.pop( &node, &packet );
-        switch( config->dispatchPacket( node, packet ))
+        eqNet::Command* command = _commandQueue.pop();
+        switch( config->dispatchCommand( *command ))
         {
             case eqNet::COMMAND_HANDLED:
             case eqNet::COMMAND_DISCARD:
@@ -291,9 +288,9 @@ void* Pipe::_runThread()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Pipe::_cmdCreateWindow( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_cmdCreateWindow(  eqNet::Command& command  )
 {
-    PipeCreateWindowPacket* packet = (PipeCreateWindowPacket*)pkg;
+    const PipeCreateWindowPacket* packet = command.getPacket<PipeCreateWindowPacket>();
     EQINFO << "Handle create window " << packet << endl;
 
     Window* window = Global::getNodeFactory()->createWindow();
@@ -304,9 +301,9 @@ eqNet::CommandResult Pipe::_cmdCreateWindow( eqNet::Node* node, const eqNet::Pac
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_cmdDestroyWindow( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_cmdDestroyWindow(  eqNet::Command& command  )
 {
-    PipeDestroyWindowPacket* packet = (PipeDestroyWindowPacket*)pkg;
+    const PipeDestroyWindowPacket* packet = command.getPacket<PipeDestroyWindowPacket>();
     EQINFO << "Handle destroy window " << packet << endl;
 
     Config* config = getConfig();
@@ -321,20 +318,20 @@ eqNet::CommandResult Pipe::_cmdDestroyWindow( eqNet::Node* node, const eqNet::Pa
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_cmdInit(eqNet::Node* node, const eqNet::Packet* pkg)
+eqNet::CommandResult Pipe::_cmdInit( eqNet::Command& command )
 {
-    PipeInitPacket* packet = (PipeInitPacket*)pkg;
+    const PipeInitPacket* packet = command.getPacket<PipeInitPacket>();
     EQINFO << "handle pipe init (recv) " << packet << endl;
 
     EQASSERT( _thread->isStopped( ));
     _thread->start();
 
-    return pushCommand( node, pkg );
+    return pushCommand( command );
 }
 
-eqNet::CommandResult Pipe::_reqInit(eqNet::Node* node, const eqNet::Packet* pkg)
+eqNet::CommandResult Pipe::_reqInit( eqNet::Command& command )
 {
-    PipeInitPacket* packet = (PipeInitPacket*)pkg;
+    const PipeInitPacket* packet = command.getPacket<PipeInitPacket>();
     EQINFO << "handle pipe init (pipe) " << packet << endl;
     PipeInitReplyPacket reply( packet );
     
@@ -345,6 +342,7 @@ eqNet::CommandResult Pipe::_reqInit(eqNet::Node* node, const eqNet::Packet* pkg)
 
     reply.result  = init( packet->initID );
 
+    RefPtr<eqNet::Node> node = command.getNode();
     if( !reply.result )
     {
         send( node, reply );
@@ -394,44 +392,41 @@ eqNet::CommandResult Pipe::_reqInit(eqNet::Node* node, const eqNet::Packet* pkg)
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_reqExit( eqNet::Node* node, 
-                                     const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_reqExit( eqNet::Command& command )
 {
     EventThread* thread = EventThread::get( _windowSystem );
     thread->removePipe( this );
 
-    PipeExitPacket* packet = (PipeExitPacket*)pkg;
+    const PipeExitPacket* packet = command.getPacket<PipeExitPacket>();
     EQINFO << "handle pipe exit " << packet << endl;
 
     exit();
     
     PipeExitReplyPacket reply( packet );
-    send( node, reply );
+    send( command.getNode(), reply );
 
     _thread->exit( EXIT_SUCCESS );
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_reqUpdate( eqNet::Node* node, 
-                                       const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_reqUpdate( eqNet::Command& command )
 {
-    PipeUpdatePacket* packet = (PipeUpdatePacket*)pkg;
+    const PipeUpdatePacket* packet = command.getPacket<PipeUpdatePacket>();
     EQVERB << "handle pipe update " << packet << endl;
 
     startFrame( packet->frameID );
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_reqFrameSync( eqNet::Node* node,
-                                          const eqNet::Packet* pkg )
+eqNet::CommandResult Pipe::_reqFrameSync( eqNet::Command& command )
 {
-    PipeFrameSyncPacket* packet = (PipeFrameSyncPacket*)pkg;
+    const PipeFrameSyncPacket* packet =command.getPacket<PipeFrameSyncPacket>();
     EQVERB << "handle pipe frame sync " << packet << endl;
 
     endFrame( packet->frameID );
     
     PipeFrameSyncPacket reply;
-    send( node, reply );
+    send( command.getNode(), reply );
     return eqNet::COMMAND_HANDLED;
 }
 

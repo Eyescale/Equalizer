@@ -102,7 +102,7 @@ namespace eq
          * 
          * @return a config event.
          */
-        ConfigEvent* nextEvent();
+        const ConfigEvent* nextEvent();
 
         /** @return true if events are pending. */
         bool checkEvent() const { return !_eventQueue.empty(); }
@@ -123,7 +123,7 @@ namespace eq
          * @return <code>true</code> if the event was handled,
          *         <code>false</code> if not.
          */
-        virtual bool handleEvent( ConfigEvent* event ){ return false; }
+        virtual bool handleEvent( const ConfigEvent* event ){ return false; }
         //*}
 
         /** Sets the head matrix according to the specified matrix.
@@ -148,27 +148,20 @@ namespace eq
         /** The Matrix for the movement. */
         Matrix4f* _headMatrix;
 
-        /** Registers pending requests waiting for a return value. */
+        /** Registers pending commands waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
 
         /** The receiver->app thread event queue. */
-        eqNet::RequestQueue    _eventQueue;
+        eqNet::CommandQueue    _eventQueue;
 
         /** The command functions. */
-        eqNet::CommandResult _cmdCreateNode( eqNet::Node* node,
-                                             const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdDestroyNode( eqNet::Node* node,
-                                              const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdInitReply( eqNet::Node* node,
-                                            const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdExitReply( eqNet::Node* node,
-                                            const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdBeginFrameReply( eqNet::Node* node, 
-                                                  const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdEndFrameReply( eqNet::Node* node,
-                                                const eqNet::Packet* packet);
-        eqNet::CommandResult _cmdEvent( eqNet::Node* node,
-                                        const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdCreateNode( eqNet::Command& command );
+        eqNet::CommandResult _cmdDestroyNode( eqNet::Command& command );
+        eqNet::CommandResult _cmdInitReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdExitReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdBeginFrameReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdEndFrameReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdEvent( eqNet::Command& command );
     };
 }
 

@@ -378,6 +378,7 @@ Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy,
 
         EQASSERTINFO( !threadSafe || object->isThreadSafe(), 
                       "Can't make existing object thread safe." );
+        EQASSERT( object->_session );
 
         object->sync( version );
         return object;
@@ -471,27 +472,29 @@ Object* Session::instanciateObject( const uint32_t type, const void* data,
 // Packet handling
 //===========================================================================
 
-CommandResult Session::dispatchPacket( Node* node, const Packet* packet )
+CommandResult Session::dispatchCommand( Command& command )
 {
-    EQVERB << "dispatch " << packet << endl;
+    EQVERB << "dispatch " << command << endl;
+    EQASSERT( command.isValid( ));
 
-    switch( packet->datatype )
+    switch( command->datatype )
     {
         case DATATYPE_EQNET_SESSION:
-            return handleCommand( node, packet );
+            return invokeCommand( command );
 
         case DATATYPE_EQNET_OBJECT:
-            return _handleObjectCommand( node, packet );
+            return _handleObjectCommand( command );
 
         default:
-            EQWARN << "Undispatched packet " << packet << endl;
+            EQWARN << "Undispatched command " << command << endl;
             return COMMAND_ERROR;
     }
 }
 
-CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
+CommandResult Session::_handleObjectCommand( Command& command )
 {
-    const ObjectPacket* objPacket = (ObjectPacket*)packet;
+    EQASSERT( command.isValid( ));
+    const ObjectPacket* objPacket = command.getPacket<ObjectPacket>();
     const uint32_t      id        = objPacket->objectID;
     vector<Object*>&    objects   = _registeredObjects[id];
 
@@ -510,8 +513,18 @@ CommandResult Session::_handleObjectCommand( Node* node, const Packet* packet )
         if( objPacket->instanceID == EQ_ID_ANY ||
             objPacket->instanceID == object->getInstanceID( ))
         {
-            const CommandResult result = object->handleCommand( node, 
-                                                                objPacket );
+            if( !command.isValid( ))
+            {
+                // NOTE: command got invalidated (last object pushed command to
+                // another thread) . Object should push copy of command, or we
+                // should make it clear what invalidating a command means here
+                // (same as discard?)
+                EQERROR << "Object of type " << typeid(*object).name()
+                        << " invalidated command send all instances" << endl;
+                return COMMAND_ERROR;
+            }
+
+            const CommandResult result = object->invokeCommand( command );
             switch( result )
             {
                 case COMMAND_DISCARD:
@@ -634,52 +647,56 @@ void Session::_sendInitObject( GetObjectState* state, RefPtr<Node> master )
     state->instState = Object::INST_INIT;
 }
             
-CommandResult Session::_cmdGenIDs( Node* node, const Packet* pkg )
+CommandResult Session::_cmdGenIDs( Command& command )
 {
-    SessionGenIDsPacket*     packet = (SessionGenIDsPacket*)pkg;
+    const SessionGenIDsPacket* packet =command.getPacket<SessionGenIDsPacket>();
     EQINFO << "Cmd gen IDs: " << packet << endl;
 
     SessionGenIDsReplyPacket reply( packet );
 
     reply.id = _masterPool.genIDs( packet->range );
-    send( node, reply );
+    send( command.getNode(), reply );
     return COMMAND_HANDLED;
 }
 
-CommandResult Session::_cmdGenIDsReply( Node* node, const Packet* pkg )
+CommandResult Session::_cmdGenIDsReply( Command& command )
 {
-    SessionGenIDsReplyPacket* packet = (SessionGenIDsReplyPacket*)pkg;
+    const SessionGenIDsReplyPacket* packet =
+        command.getPacket<SessionGenIDsReplyPacket>();
     EQINFO << "Cmd gen IDs reply: " << packet << endl;
     _requestHandler.serveRequest( packet->requestID, 
                                   (void*)(long long)(packet->id) );
     return COMMAND_HANDLED;
 }
 
-CommandResult Session::_cmdSetIDMaster( Node* node, const Packet* pkg )
+CommandResult Session::_cmdSetIDMaster( Command& command )
 {
-    SessionSetIDMasterPacket* packet = (SessionSetIDMasterPacket*)pkg;
+    const SessionSetIDMasterPacket* packet = 
+        command.getPacket<SessionSetIDMasterPacket>();
     EQINFO << "Cmd set ID master: " << packet << endl;
 
     // TODO thread-safety: _idMasterInfos is also read & written by app
     IDMasterInfo info = { packet->start, packet->start + packet->range, 
                           packet->masterID };
-    info.slaves.push_back( node );
+    info.slaves.push_back( command.getNode() );
     _idMasterInfos.push_back( info );
 
     return COMMAND_HANDLED;
 }
 
-CommandResult Session::_cmdGetIDMaster( Node* node, const Packet* pkg )
+CommandResult Session::_cmdGetIDMaster( Command& command )
 {
-    SessionGetIDMasterPacket*     packet = (SessionGetIDMasterPacket*)pkg;
-    SessionGetIDMasterReplyPacket reply( packet );
+    const SessionGetIDMasterPacket* packet =
+        command.getPacket<SessionGetIDMasterPacket>();
     EQINFO << "handle get idMaster " << packet << endl;
 
+    SessionGetIDMasterReplyPacket reply( packet );
     reply.start = 0;
 
     // TODO thread-safety: _idMasterInfos is also read & written by app
     const uint32_t id     = packet->id;
     const uint32_t nInfos = _idMasterInfos.size();
+    RefPtr<Node>   node   = command.getNode();
     for( uint32_t i=0; i<nInfos; ++i )
     {
         IDMasterInfo& info = _idMasterInfos[i];
@@ -698,9 +715,10 @@ CommandResult Session::_cmdGetIDMaster( Node* node, const Packet* pkg )
     return COMMAND_HANDLED;
 }
 
-CommandResult Session::_cmdGetIDMasterReply( Node* node, const Packet* pkg )
+CommandResult Session::_cmdGetIDMasterReply( Command& command )
 {
-    SessionGetIDMasterReplyPacket* packet = (SessionGetIDMasterReplyPacket*)pkg;
+    const SessionGetIDMasterReplyPacket* packet = 
+        command.getPacket<SessionGetIDMasterReplyPacket>();
     EQINFO << "handle get idMaster reply " << packet << endl;
 
     if( packet->start == 0 ) // not found
@@ -717,17 +735,19 @@ CommandResult Session::_cmdGetIDMasterReply( Node* node, const Packet* pkg )
     return COMMAND_HANDLED;
 }
 
-CommandResult Session::_cmdGetObjectMaster( Node* node, const Packet* pkg )
+CommandResult Session::_cmdGetObjectMaster( Command& command )
 {
-    SessionGetObjectMasterPacket* packet = (SessionGetObjectMasterPacket*)pkg;
-    SessionGetObjectMasterReplyPacket reply( packet );
+    const SessionGetObjectMasterPacket* packet = 
+        command.getPacket<SessionGetObjectMasterPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd get object master " << packet << endl;
 
+    SessionGetObjectMasterReplyPacket reply( packet );
     reply.start = 0;
 
     // TODO thread-safety: _idMasterInfos is also read & written by app
     const uint32_t id     = packet->objectID;
     const uint32_t nInfos = _idMasterInfos.size();
+    RefPtr<Node>   node   = command.getNode();
     for( uint32_t i=0; i<nInfos; ++i )
     {
         IDMasterInfo& info = _idMasterInfos[i];
@@ -747,11 +767,11 @@ CommandResult Session::_cmdGetObjectMaster( Node* node, const Packet* pkg )
     return COMMAND_HANDLED;
 }
 
-CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
+CommandResult Session::_cmdGetObjectMasterReply( Command& command)
 {
     CHECK_THREAD( _receiverThread );
-    SessionGetObjectMasterReplyPacket* packet = 
-        (SessionGetObjectMasterReplyPacket*)pkg;
+    const SessionGetObjectMasterReplyPacket* packet = 
+        command.getPacket<SessionGetObjectMasterReplyPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd get object master reply " << packet << endl;
  
     const uint32_t  id    = packet->objectID;
@@ -775,14 +795,14 @@ CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
              EQLOG( LOG_OBJECTS ) << "Connect node " << packet->masterID 
                                   << endl;
              state->nodeConnectRequestID =
-                 _localNode->startConnectNode( packet->masterID, _server );
+                 _localNode->startNodeConnect( packet->masterID, _server );
     
              return COMMAND_REDISPATCH;
          }
     }
     else
     {
-        switch( _localNode->pollConnectNode( state->nodeConnectRequestID ))
+        switch( _localNode->pollNodeConnect( state->nodeConnectRequestID ))
         {
             case Node::CONNECT_PENDING:
                 return COMMAND_REDISPATCH;
@@ -818,11 +838,12 @@ CommandResult Session::_cmdGetObjectMasterReply( Node* node, const Packet* pkg)
     return COMMAND_HANDLED;
 }
 
-CommandResult Session::_cmdRegisterObject( Node* node, const Packet* pkg )
+CommandResult Session::_cmdRegisterObject( Command& command )
 {
     CHECK_THREAD( _receiverThread );
 
-    SessionRegisterObjectPacket* packet = (SessionRegisterObjectPacket*)pkg;
+    const SessionRegisterObjectPacket* packet = 
+        command.getPacket<SessionRegisterObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd register object " << packet << endl;
     EQASSERT( packet->objectID != EQ_ID_INVALID );
 
@@ -835,11 +856,12 @@ CommandResult Session::_cmdRegisterObject( Node* node, const Packet* pkg )
     return COMMAND_HANDLED;
 }
 
-CommandResult Session::_cmdUnregisterObject( Node* node, const Packet* pkg )
+CommandResult Session::_cmdUnregisterObject( Command& command )
 {
     CHECK_THREAD( _receiverThread );
 
-    SessionUnregisterObjectPacket* packet = (SessionUnregisterObjectPacket*)pkg;
+    const SessionUnregisterObjectPacket* packet =
+        command.getPacket<SessionUnregisterObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd unregister object " << packet << endl;
 
     Object* object = (Object*)_requestHandler.getRequestData(packet->requestID);
@@ -851,11 +873,12 @@ CommandResult Session::_cmdUnregisterObject( Node* node, const Packet* pkg )
     return COMMAND_HANDLED;
 }
 
-CommandResult Session::_cmdGetObject( Node* node, const Packet* pkg )
+CommandResult Session::_cmdGetObject( Command& command )
 {
     CHECK_THREAD( _receiverThread );
 
-    SessionGetObjectPacket* packet = (SessionGetObjectPacket*)pkg;
+    const SessionGetObjectPacket* packet = 
+        command.getPacket<SessionGetObjectPacket>();
 
     GetObjectState*         state  = (GetObjectState*)
         _requestHandler.getRequestData( packet->requestID );
@@ -914,9 +937,10 @@ CommandResult Session::_cmdGetObject( Node* node, const Packet* pkg )
     return COMMAND_REDISPATCH;
 }
 
-CommandResult Session::_cmdInitObject( Node* node, const Packet* pkg )
+CommandResult Session::_cmdInitObject( Command& command )
 {
-    SessionInitObjectPacket* packet = (SessionInitObjectPacket*)pkg;
+    const SessionInitObjectPacket* packet =
+        command.getPacket<SessionInitObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd init object " << packet << endl;
 
     const uint32_t   id      = packet->objectID;
@@ -929,6 +953,7 @@ CommandResult Session::_cmdInitObject( Node* node, const Packet* pkg )
         if( object->getID() != id || !object->isMaster( ))
             continue;
 
+        RefPtr<Node>   node   = command.getNode();
         object->instanciateOnNode( node, packet->policy, packet->version, 
                                    packet->threadSafe );
         return COMMAND_HANDLED;
@@ -938,14 +963,14 @@ CommandResult Session::_cmdInitObject( Node* node, const Packet* pkg )
     return COMMAND_REDISPATCH;
 }
 
-CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )
+CommandResult Session::_cmdInstanciateObject( Command& command )
 {
     CHECK_THREAD( _receiverThread );
 
-    SessionInstanciateObjectPacket* packet = 
-        (SessionInstanciateObjectPacket*)pkg;
+    const SessionInstanciateObjectPacket* packet = 
+        command.getPacket<SessionInstanciateObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd instanciate object " << packet << " from "
-                         << node << endl;
+                         << command.getNode() << endl;
 
     const uint32_t id = packet->objectID;
     if( packet->error )
@@ -972,6 +997,7 @@ CommandResult Session::_cmdInstanciateObject( Node* node, const Packet* pkg )
 
     if( packet->isMaster )
     {
+        RefPtr<Node> node = command.getNode();
         object->addSlave( node ); // Assumes that sender is a subscribed slave
         object->_setInitialVersion( packet->objectData, packet->objectDataSize);
         EQASSERT( object->getVersion() == packet->version );

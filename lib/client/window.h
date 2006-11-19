@@ -279,26 +279,16 @@ namespace eq
             { eqNet::Object::send( getServer(), packet ); }
 
         /* The command functions. */
-        eqNet::CommandResult _pushCommand( eqNet::Node* node,
-                                           const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdCreateChannel( eqNet::Node* node,
-                                                const eqNet::Packet* packet);
-        eqNet::CommandResult _cmdDestroyChannel(eqNet::Node* node,
-                                                const eqNet::Packet* packet);
-        eqNet::CommandResult _reqInit( eqNet::Node* node,
-                                       const eqNet::Packet* packet );
-        eqNet::CommandResult _reqExit( eqNet::Node* node,
-                                       const eqNet::Packet* packet );
-        eqNet::CommandResult _reqBarrier( eqNet::Node* node,
-                                          const eqNet::Packet* packet );
-        eqNet::CommandResult _reqFinish( eqNet::Node* node,
-                                       const eqNet::Packet* packet );
-        eqNet::CommandResult _reqSwap( eqNet::Node* node,
-                                       const eqNet::Packet* packet );
-        eqNet::CommandResult _reqStartFrame( eqNet::Node* node,
-                                             const eqNet::Packet* packet );
-        eqNet::CommandResult _reqEndFrame( eqNet::Node* node,
-                                           const eqNet::Packet* packet );
+        eqNet::CommandResult _pushCommand( eqNet::Command& command );
+        eqNet::CommandResult _cmdCreateChannel( eqNet::Command& command );
+        eqNet::CommandResult _cmdDestroyChannel(eqNet::Command& command );
+        eqNet::CommandResult _reqInit( eqNet::Command& command );
+        eqNet::CommandResult _reqExit( eqNet::Command& command );
+        eqNet::CommandResult _reqBarrier( eqNet::Command& command );
+        eqNet::CommandResult _reqFinish( eqNet::Command& command );
+        eqNet::CommandResult _reqSwap( eqNet::Command& command );
+        eqNet::CommandResult _reqStartFrame( eqNet::Command& command );
+        eqNet::CommandResult _reqEndFrame( eqNet::Command& command );
     };
 }
 

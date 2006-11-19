@@ -65,7 +65,7 @@ bool Server::run( int argc, char **argv )
     EQINFO << disableFlush << "Running server: " << endl << indent 
            << Global::instance() << this << exdent << enableFlush;
 
-    _handleRequests();
+    _handleCommands();
     return stopListening();
 }
 
@@ -93,14 +93,12 @@ void Server::mapConfig( Config* config )
 //===========================================================================
 // packet handling methods
 //===========================================================================
-eqNet::CommandResult Server::handlePacket( eqNet::Node* node,
-                                           const eqNet::Packet* packet )
+eqNet::CommandResult Server::handleCommand( eqNet::Command& command )
 {
-    EQASSERT( node );
-    switch( packet->datatype )
+    switch( command->datatype )
     {
         case eq::DATATYPE_EQ_SERVER:
-            return handleCommand( node, packet );
+            return invokeCommand( command );
             
         default:
             EQUNIMPLEMENTED;
@@ -108,23 +106,20 @@ eqNet::CommandResult Server::handlePacket( eqNet::Node* node,
     }
 }
 
-void Server::_handleRequests()
+void Server::_handleCommands()
 {
-    Node*          node;
-    eqNet::Packet* packet;
-
     while( true )
     {
-        _requestQueue.pop( &node, &packet );
+        eqNet::Command* command = _commandQueue.pop();
 
-        switch( dispatchPacket( node, packet ))
+        switch( dispatchCommand( *command ))
         {
             case eqNet::COMMAND_HANDLED:
             case eqNet::COMMAND_DISCARD:
                 break;
 
             case eqNet::COMMAND_ERROR:
-                EQERROR << "Error handling command packet" << endl;
+                EQERROR << "Error handling command " << command << endl;
                 abort();
 
             case eqNet::COMMAND_PUSH:
@@ -137,16 +132,17 @@ void Server::_handleRequests()
     }
 }
 
-eqNet::CommandResult Server::_reqChooseConfig( eqNet::Node* node, 
-                                               const eqNet::Packet* pkg )
+eqNet::CommandResult Server::_reqChooseConfig( eqNet::Command& command ) 
 {
-    eq::ServerChooseConfigPacket* packet = (eq::ServerChooseConfigPacket*)pkg;
+    const eq::ServerChooseConfigPacket* packet = 
+        command.getPacket<eq::ServerChooseConfigPacket>();
     EQINFO << "Handle choose config " << packet << endl;
 
     // TODO
     Config* config = nConfigs()>0 ? getConfig(0) : NULL;
     
     eq::ServerChooseConfigReplyPacket reply( packet );
+    RefPtr<eqNet::Node>               node = command.getNode();
 
     if( config==NULL )
     {
@@ -178,9 +174,10 @@ eqNet::CommandResult Server::_reqChooseConfig( eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Server::_reqReleaseConfig( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult Server::_reqReleaseConfig( eqNet::Command& command )
 {
-    eq::ServerReleaseConfigPacket* packet = (eq::ServerReleaseConfigPacket*)pkg;
+    const eq::ServerReleaseConfigPacket* packet = 
+        command.getPacket<eq::ServerReleaseConfigPacket>();
     EQINFO << "Handle release config " << packet << endl;
 
     Config* config = _appConfigs[packet->configID];

@@ -75,7 +75,7 @@ namespace eqNet
         eqBase::RefPtr<Node> _master;
 
         /** Slave nodes which have entered the barrier. */
-        std::vector<Node*> _enteredNodes;
+        std::vector< eqBase::RefPtr<Node> > _enteredNodes;
         
         /** The monitor used for barrier leave notification. */
         eqBase::Monitor<uint32_t> _leaveNotify;
@@ -84,8 +84,8 @@ namespace eqNet
         void _construct();
 
         /* The command handlers. */
-        CommandResult _cmdEnter( Node* node, const Packet* pkg );
-        CommandResult _cmdEnterReply( Node* node, const Packet* pkg );
+        CommandResult _cmdEnter( Command& command );
+        CommandResult _cmdEnterReply( Command& command );
 
         CHECK_THREAD_DECLARE( _thread );
     };

@@ -12,7 +12,7 @@ server
                     viewport [ .05 .3 .4 .3 ]
                     channel
                     {
-                        name "channel2"
+                        name "channel1"
                     }
                 }
             }
@@ -27,7 +27,7 @@ server
                     viewport [ .55 .3 .4 .3 ]
                     channel
                     {
-                        name "channel1"
+                        name "channel2"
                     }
                 }
             }

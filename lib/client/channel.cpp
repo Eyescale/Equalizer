@@ -27,7 +27,7 @@ Channel::Channel()
 {
     registerCommand( CMD_CHANNEL_INIT,
                      eqNet::PacketFunc<Channel>( this, 
-                                                    &Channel::_pushCommand ));
+                                                 &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_INIT, 
                      eqNet::PacketFunc<Channel>( this, &Channel::_reqInit ));
     registerCommand( CMD_CHANNEL_EXIT, 
@@ -223,19 +223,15 @@ void Channel::applyHeadTransform() const
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Channel::_pushCommand( eqNet::Node* node,
-                                            const eqNet::Packet* packet )
+eqNet::CommandResult Channel::_pushCommand( eqNet::Command& command )
 {
-    Pipe* pipe = getPipe();
-
-    return ( pipe ? pipe->pushCommand( node, packet ) :
-             _cmdUnknown( node, packet ));
+    Pipe*        pipe = getPipe();
+    return ( pipe ? pipe->pushCommand( command ) : _cmdUnknown( command ));
 }
 
-eqNet::CommandResult Channel::_reqInit( eqNet::Node* node,
-                                        const eqNet::Packet* pkg )
+eqNet::CommandResult Channel::_reqInit( eqNet::Command& command )
 {
-    ChannelInitPacket* packet = (ChannelInitPacket*)pkg;
+    const ChannelInitPacket* packet = command.getPacket<ChannelInitPacket>();
     EQINFO << "handle channel init " << packet << endl;
 
     if( packet->pvp.isValid( ))
@@ -248,27 +244,25 @@ eqNet::CommandResult Channel::_reqInit( eqNet::Node* node,
     reply.result = init( packet->initID );
     reply.near   = _near;
     reply.far    = _far;
-    send( node, reply );
+    send( command.getNode(), reply );
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_reqExit( eqNet::Node* node,
-                                        const eqNet::Packet* pkg )
+eqNet::CommandResult Channel::_reqExit( eqNet::Command& command )
 {
-    ChannelExitPacket* packet = (ChannelExitPacket*)pkg;
+    const ChannelExitPacket* packet = command.getPacket<ChannelExitPacket>();
     EQINFO << "handle channel exit " << packet << endl;
 
     exit();
 
     ChannelExitReplyPacket reply( packet );
-    send( node, reply );
+    send( command.getNode(), reply );
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_reqClear( eqNet::Node* node,
-                                         const eqNet::Packet* pkg )
+eqNet::CommandResult Channel::_reqClear( eqNet::Command& command )
 {
-    ChannelClearPacket* packet = (ChannelClearPacket*)pkg;
+    const ChannelClearPacket* packet = command.getPacket<ChannelClearPacket>();
     EQVERB << "handle channel clear " << packet << endl;
 
     _context = &packet->context;
@@ -277,10 +271,9 @@ eqNet::CommandResult Channel::_reqClear( eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_reqDraw( eqNet::Node* node,
-                                        const eqNet::Packet* pkg )
+eqNet::CommandResult Channel::_reqDraw( eqNet::Command& command )
 {
-    ChannelDrawPacket* packet = (ChannelDrawPacket*)pkg;
+    const ChannelDrawPacket* packet = command.getPacket<ChannelDrawPacket>();
     EQVERB << "handle channel draw " << packet << endl;
 
     _context = &packet->context;
@@ -289,10 +282,10 @@ eqNet::CommandResult Channel::_reqDraw( eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_reqReadback( eqNet::Node* node,
-                                            const eqNet::Packet* pkg )
+eqNet::CommandResult Channel::_reqReadback( eqNet::Command& command )
 {
-    ChannelReadbackPacket* packet = (ChannelReadbackPacket*)pkg;
+    const ChannelReadbackPacket* packet = 
+        command.getPacket<ChannelReadbackPacket>();
     EQVERB << "handle channel readback " << packet << endl;
 
     _context = &packet->context;
@@ -317,10 +310,10 @@ eqNet::CommandResult Channel::_reqReadback( eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_reqTransmit( eqNet::Node* node,
-                                            const eqNet::Packet* pkg )
+eqNet::CommandResult Channel::_reqTransmit( eqNet::Command& command )
 {
-    ChannelTransmitPacket* packet = (ChannelTransmitPacket*)pkg;
+    const ChannelTransmitPacket* packet = 
+        command.getPacket<ChannelTransmitPacket>();
     EQVERB << "handle channel transmit " << packet << endl;
 
     eqNet::Session*     session   = getSession();
@@ -335,7 +328,8 @@ eqNet::CommandResult Channel::_reqTransmit( eqNet::Node* node,
 
     for( uint32_t i=0; i<packet->nNodes; ++i )
     {
-        eqNet::NodeID&       nodeID = packet->nodes[i];
+        const eqNet::NodeID& nodeID = packet->nodes[i];
+        RefPtr<eqNet::Node>  node   = command.getNode();
         RefPtr<eqNet::Node>  toNode = localNode->connect( nodeID, node );
         EQLOG( LOG_ASSEMBLY ) << "transmit " << frame << " to " << nodeID \
                               << endl;

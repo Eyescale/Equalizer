@@ -219,20 +219,20 @@ void Node::releaseBarrier( eqNet::Barrier* barrier )
 //===========================================================================
 // command handling
 //===========================================================================
-eqNet::CommandResult Node::_cmdInitReply( eqNet::Node* node,
-                                          const eqNet::Packet* pkg )
+eqNet::CommandResult Node::_cmdInitReply( eqNet::Command& command )
 {
-    eq::NodeInitReplyPacket* packet = (eq::NodeInitReplyPacket*)pkg;
+    const eq::NodeInitReplyPacket* packet = 
+        command.getPacket<eq::NodeInitReplyPacket>();
     EQINFO << "handle init reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_cmdExitReply( eqNet::Node* node,
-                                          const eqNet::Packet* pkg )
+eqNet::CommandResult Node::_cmdExitReply( eqNet::Command& command )
 {
-    eq::NodeExitReplyPacket* packet = (eq::NodeExitReplyPacket*)pkg;
+    const eq::NodeExitReplyPacket* packet =
+        command.getPacket<eq::NodeExitReplyPacket>();
     EQINFO << "handle exit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );

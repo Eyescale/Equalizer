@@ -70,12 +70,13 @@ void Barrier::enter()
                          << ", height " << _data.height << endl;
 }
 
-CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
+CommandResult Barrier::_cmdEnter( Command& command )
 {
     CHECK_THREAD( _thread );
     EQASSERT( _master == eqNet::Node::getLocalNode( ));
 
-    BarrierEnterPacket* packet = (BarrierEnterPacket*)pkg;
+    const BarrierEnterPacket* packet = command.getPacket<BarrierEnterPacket>();
+
     EQLOG( LOG_BARRIER ) << "handle barrier enter " << packet << " barrier v"
                          << getVersion() << endl;
     if( packet->version > getVersion( ))
@@ -85,7 +86,7 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
 
     EQLOG( LOG_BARRIER ) << "enter barrier, has " << _enteredNodes.size()
                          << " of " << _data.height << endl;
-    _enteredNodes.push_back( node );
+    _enteredNodes.push_back( command.getNode( ));
 
     if( _enteredNodes.size() < _data.height )
         return COMMAND_DISCARD;
@@ -99,10 +100,10 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
 
     stde::usort( _enteredNodes );
 
-    for( vector<Node*>::const_iterator iter = _enteredNodes.begin();
+    for( vector< RefPtr<Node> >::iterator iter = _enteredNodes.begin();
          iter != _enteredNodes.end(); ++iter )
     {
-        Node* node = *iter;
+        RefPtr<Node>& node = *iter;
         if( node->isLocal( )) // OPT
             ++_leaveNotify;
         else
@@ -113,7 +114,7 @@ CommandResult Barrier::_cmdEnter( Node* node, const Packet* pkg )
     return COMMAND_DISCARD;
 }
 
-CommandResult Barrier::_cmdEnterReply( Node* node, const Packet* pkg )
+CommandResult Barrier::_cmdEnterReply( Command& command )
 {
     CHECK_THREAD( _thread );
     ++_leaveNotify;

@@ -42,7 +42,7 @@ protected:
         }
 
     /** @sa eq::Config::handleEvent */
-    virtual bool handleEvent( eq::ConfigEvent* event );
+    virtual bool handleEvent( const eq::ConfigEvent* event );
 
     bool       _running;
     int        _spinX, _spinY;

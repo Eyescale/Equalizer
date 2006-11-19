@@ -184,17 +184,16 @@ void GLXEventThread::_handleCommand()
 
     EQASSERT( read == sizeof( size ));
     EQASSERT( size );
-    EQASSERT( size < 4096 );
+    EQASSERT( size < 4096 ); // not a hard error, just sanity check
 
-    eqNet::Packet* packet = (eqNet::Packet*)alloca( size );
-    packet->size   = size;
+    _receivedCommand.allocate( NULL, size );
     size -= sizeof( size );
 
-    char*      ptr     = (char*)packet + sizeof(size);
+    char*      ptr     = (char*)_receivedCommand.getPacket() + sizeof(size);
     const bool gotData = _commandConnection[EVENT_END]->recv( ptr, size );
     EQASSERT( gotData );
 
-    const eqNet::CommandResult result = handleCommand( NULL, packet );
+    const eqNet::CommandResult result = invokeCommand( _receivedCommand );
     EQASSERT( result == eqNet::COMMAND_HANDLED );
 } 
 
@@ -436,11 +435,11 @@ int32_t GLXEventThread::_getKey( XEvent& event )
     }
 }
 
-eqNet::CommandResult GLXEventThread::_cmdAddPipe( eqNet::Node*,
-                                                  const eqNet::Packet* pkg )
+eqNet::CommandResult GLXEventThread::_cmdAddPipe( eqNet::Command& command )
 {
     CHECK_THREAD( _thread );
-    GLXEventThreadAddPipePacket* packet = (GLXEventThreadAddPipePacket*)pkg;
+    const GLXEventThreadAddPipePacket* packet = 
+        command.getPacket<GLXEventThreadAddPipePacket>();
 
     Pipe*        pipe        = packet->pipe;
     const string displayName = pipe->getXDisplayString();
@@ -464,11 +463,10 @@ eqNet::CommandResult GLXEventThread::_cmdAddPipe( eqNet::Node*,
     return eqNet::COMMAND_HANDLED;    
 }
 
-eqNet::CommandResult GLXEventThread::_cmdRemovePipe( eqNet::Node*,
-                                                     const eqNet::Packet* pkg )
+eqNet::CommandResult GLXEventThread::_cmdRemovePipe( eqNet::Command& command )
 {
-    GLXEventThreadRemovePipePacket* packet = 
-        (GLXEventThreadRemovePipePacket*)pkg;
+    const GLXEventThreadRemovePipePacket* packet = 
+        command.getPacket<GLXEventThreadRemovePipePacket>();
 
     Pipe*                     pipe          = packet->pipe;
     RefPtr<X11Connection>     x11Connection = pipe->getXEventConnection();
@@ -493,10 +491,10 @@ eqNet::CommandResult GLXEventThread::_cmdRemovePipe( eqNet::Node*,
     return eqNet::COMMAND_HANDLED;    
 }
 
-eqNet::CommandResult GLXEventThread::_cmdAddWindow( eqNet::Node*,
-                                                  const eqNet::Packet* pkg )
+eqNet::CommandResult GLXEventThread::_cmdAddWindow( eqNet::Command& command )
 {
-    GLXEventThreadAddWindowPacket* packet = (GLXEventThreadAddWindowPacket*)pkg;
+    const GLXEventThreadAddWindowPacket* packet = 
+        command.getPacket<GLXEventThreadAddWindowPacket>();
 
     Window*               window        = packet->window;
     Pipe*                 pipe          = window->getPipe();
@@ -516,11 +514,10 @@ eqNet::CommandResult GLXEventThread::_cmdAddWindow( eqNet::Node*,
     return eqNet::COMMAND_HANDLED;    
 }
 
-eqNet::CommandResult GLXEventThread::_cmdRemoveWindow( eqNet::Node*,
-                                                     const eqNet::Packet* pkg )
+eqNet::CommandResult GLXEventThread::_cmdRemoveWindow( eqNet::Command& command )
 {
-    GLXEventThreadRemoveWindowPacket* packet = 
-        (GLXEventThreadRemoveWindowPacket*)pkg;
+    const GLXEventThreadRemoveWindowPacket* packet = 
+        command.getPacket<GLXEventThreadRemoveWindowPacket>();
 
     Window*               window        = packet->window;
     Pipe*                 pipe          = window->getPipe();

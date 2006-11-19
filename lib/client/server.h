@@ -84,10 +84,8 @@ namespace eq
         void _addConfig( Config* config );
 
         /* The command handler functions. */
-        eqNet::CommandResult _cmdCreateConfig( eqNet::Node* node,
-                                               const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdChooseConfigReply(eqNet::Node* node, 
-                                                   const eqNet::Packet* packet);
+        eqNet::CommandResult _cmdCreateConfig( eqNet::Command& command );
+        eqNet::CommandResult _cmdChooseConfigReply( eqNet::Command& command );
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Server* server )

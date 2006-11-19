@@ -225,12 +225,9 @@ namespace eqs
         void _sendExit();
 
         /* command handler functions. */
-        eqNet::CommandResult _cmdInitReply(eqNet::Node* node,
-                                           const eqNet::Packet* packet);
-        eqNet::CommandResult _cmdExitReply(eqNet::Node* node,
-                                           const eqNet::Packet* packet);
-        eqNet::CommandResult _cmdFrameSync( eqNet::Node* node,
-                                            const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdInitReply(eqNet::Command& command );
+        eqNet::CommandResult _cmdExitReply(eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameSync( eqNet::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Pipe* pipe );

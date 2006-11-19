@@ -127,10 +127,10 @@ void Server::_addConfig( Config* config )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Node* node, 
-                                               const eqNet::Packet* pkg )
+eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Command& command )
 {
-    ServerCreateConfigPacket* packet = (ServerCreateConfigPacket*)pkg;
+    const ServerCreateConfigPacket* packet = 
+        command.getPacket<ServerCreateConfigPacket>();
     EQINFO << "Handle create config " << packet << ", name " << packet->name 
          << endl;
     
@@ -147,15 +147,16 @@ eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Node* node,
  
     Config* config = Global::getNodeFactory()->createConfig();
     config->_appNodeID = packet->appNodeID;
-    localNode->addSession( config, node, packet->configID, packet->name );
+    localNode->addSession( config, command.getNode(), packet->configID,
+                           packet->name );
 
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Node* node, 
-                                    const eqNet::Packet* pkg )
+eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Command& command )
 {
-    ServerChooseConfigReplyPacket* packet = (ServerChooseConfigReplyPacket*)pkg;
+    const ServerChooseConfigReplyPacket* packet = 
+        command.getPacket<ServerChooseConfigReplyPacket>();
     EQINFO << "Handle choose config reply " << packet << endl;
 
     if( packet->configID == EQ_ID_INVALID )
@@ -167,7 +168,8 @@ eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Node* node,
     Config*      config    = Global::getNodeFactory()->createConfig();
     RefPtr<Node> localNode = Node::getLocalNode();
 
-    localNode->addSession( config, node, packet->configID, packet->sessionName);
+    localNode->addSession( config, command.getNode(), packet->configID, 
+                           packet->sessionName);
     _addConfig( config );
 
     _requestHandler.serveRequest( packet->requestID, config );

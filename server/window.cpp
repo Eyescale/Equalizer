@@ -352,9 +352,10 @@ void eqs::Window::_updateSwap()
 //===========================================================================
 // command handling
 //===========================================================================
-eqNet::CommandResult eqs::Window::_cmdInitReply( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult eqs::Window::_cmdInitReply( eqNet::Command& command )
 {
-    eq::WindowInitReplyPacket* packet = (eq::WindowInitReplyPacket*)pkg;
+    const eq::WindowInitReplyPacket* packet =
+        command.getPacket<eq::WindowInitReplyPacket>();
     EQINFO << "handle window init reply " << packet << endl;
 
     if( packet->result )
@@ -366,19 +367,20 @@ eqNet::CommandResult eqs::Window::_cmdInitReply( eqNet::Node* node, const eqNet:
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eqs::Window::_cmdExitReply( eqNet::Node* node, const eqNet::Packet* pkg )
+eqNet::CommandResult eqs::Window::_cmdExitReply( eqNet::Command& command )
 {
-    eq::WindowExitReplyPacket* packet = (eq::WindowExitReplyPacket*)pkg;
+    const eq::WindowExitReplyPacket* packet =
+        command.getPacket<eq::WindowExitReplyPacket>();
     EQINFO << "handle window exit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eqs::Window::_reqSetPixelViewport( eqNet::Node* node, 
-                                                   const eqNet::Packet* pkg )
+eqNet::CommandResult eqs::Window::_reqSetPixelViewport( eqNet::Command& command)
 {
-    eq::WindowSetPVPPacket* packet = (eq::WindowSetPVPPacket*)pkg;
+    const eq::WindowSetPVPPacket* packet = 
+        command.getPacket<eq::WindowSetPVPPacket>();
     EQVERB << "handle window set pvp " << packet << endl;
 
     setPixelViewport( packet->pvp );

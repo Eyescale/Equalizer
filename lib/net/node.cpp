@@ -7,12 +7,10 @@
 #include "connectionSet.h"
 #include "global.h"
 #include "launcher.h"
-#include "packets.h"
 #include "pipeConnection.h"
 #include "session.h"
 #include "uniPipeConnection.h"
 
-#include <alloca.h>
 #include <fcntl.h>
 #include <sstream>
 #include <sys/errno.h>
@@ -24,9 +22,6 @@ using namespace eqNet;
 using namespace std;
 
 extern char **environ;
-
-#define MAX_PACKET_SIZE (4096)
-
 
 PerThread<Node*> Node::_localNode;
 
@@ -168,7 +163,7 @@ bool Node::_listenToSelf()
     return true;
 }
 
-uint32_t Node::startConnectNode( NodeID& nodeID, RefPtr<Node> server )
+uint32_t Node::startNodeConnect( const NodeID& nodeID, RefPtr<Node> server )
 {
     NodeGetConnectionDescriptionPacket packet;
     packet.requestID  = _nextConnectionRequestID++;
@@ -182,7 +177,7 @@ uint32_t Node::startConnectNode( NodeID& nodeID, RefPtr<Node> server )
     return packet.requestID;
 }   
 
-Node::ConnectState Node::pollConnectNode( uint32_t requestID )
+Node::ConnectState Node::pollNodeConnect( uint32_t requestID )
 {
     IDHash<NodeID>::iterator iter = _connectionRequests.find( requestID );
     if( iter == _connectionRequests.end( ))
@@ -322,7 +317,7 @@ bool Node::disconnect()
     return getLocalNode()->disconnect( this );
 }
 
-bool Node::disconnect( Node* node )
+bool Node::disconnect( RefPtr<Node> node )
 {
     if( !node || _state != STATE_LISTENING || 
         !node->_state == STATE_CONNECTED || !node->_connection )
@@ -341,24 +336,6 @@ bool Node::disconnect( Node* node )
     node->_state      = STATE_STOPPED;
     node->_connection = NULL;
     return true;
-}
-
-//----------------------------------------------------------------------
-// send functions
-//----------------------------------------------------------------------
-uint64_t Node::_getMessageSize( const MessageType type, const uint64_t count )
-{
-    switch( type )
-    {
-        default:
-        case TYPE_BYTE:
-            return count;
-        case TYPE_SHORT:
-            return 2 * count;
-        case TYPE_INTEGER:
-        case TYPE_FLOAT:
-            return 4 * count;
-    }
 }
 
 //----------------------------------------------------------------------
@@ -479,7 +456,7 @@ void* Node::_runReceiver()
                 RefPtr<Connection> connection = _connectionSet.getConnection();
                 RefPtr<Node>       node = _connectionNodes[ connection.get() ];
                 EQASSERT( node->_connection == connection );
-                _handleRequest( node.get() ); // do not pass down RefPtr atm
+                _handleCommand( node );
                 break;
             }
 
@@ -575,21 +552,21 @@ void Node::_handleDisconnect()
     RefPtr<Connection> connection = _connectionSet.getConnection();
     RefPtr<Node>       node       = _connectionNodes[ connection.get() ];
 
-    while( _handleRequest( node.get( ))); // read remaining data of connection
+    while( _handleCommand( node )); // read remaining data of connection
 
     handleDisconnect( node.get() ); // XXX
     connection->close();
 }
 
-void Node::handleDisconnect( Node* node )
+void Node::handleDisconnect( RefPtr<Node> node )
 {
     const bool disconnected = disconnect( node );
     EQASSERT( disconnected );
 }
 
-bool Node::_handleRequest( Node* node )
+bool Node::_handleCommand( RefPtr<Node> node )
 {
-    EQVERB << "Handle request from " << node << endl;
+    EQVERB << "Handle command from " << node << endl;
 
     uint64_t size;
     const uint64_t read = node->_connection->recv( &size, sizeof( size ));
@@ -599,23 +576,19 @@ bool Node::_handleRequest( Node* node )
     EQASSERT( read == sizeof( size ));
     EQASSERT( size );
 
-    // limit size due to use of alloca(). TODO: implement malloc-based recv?
-    EQASSERT( size <= MAX_PACKET_SIZE );
-
-    Packet* packet = (Packet*)alloca( size );
-    packet->size   = size;
+    _receivedCommand.allocate( node, size );
     size -= sizeof( size );
 
-    char*      ptr     = (char*)packet + sizeof(size);
+    char*      ptr     = (char*)_receivedCommand.getPacket() + sizeof(size);
     const bool gotData = node->_connection->recv( ptr, size );
     EQASSERT( gotData );
+    EQASSERT( _receivedCommand.isValid( ));
 
-    const CommandResult result = dispatchPacket( node, packet );
-
+    const CommandResult result = dispatchCommand( _receivedCommand );
     switch( result )
     {
         case COMMAND_ERROR:
-            EQERROR << "Error handling command " << packet << endl;
+            EQERROR << "Error handling command " << _receivedCommand << endl;
             EQASSERT(0);
             break;
         
@@ -625,54 +598,60 @@ bool Node::_handleRequest( Node* node )
             break;
             
         case COMMAND_PUSH:
-            if( !pushCommand( node, packet ))
-                EQASSERTINFO( 0, "Error handling command packet: " 
-                              << "pushCommand failed for " << packet << endl );
+            if( !pushCommand( _receivedCommand ))
+                EQASSERTINFO( 0, "Error handling command packet: pushCommand "
+                              << "failed for " << _receivedCommand << endl );
             break;
 
         case COMMAND_PUSH_FRONT:
-            if( !pushCommand( node, packet ))
-                EQASSERTINFO( 0, "Error handling command packet: " 
-                              << "pushCommandFront failed for " << packet 
-                              << endl );
+            if( !pushCommandFront( _receivedCommand ))
+                EQASSERTINFO( 0, "Error handling command packet: "
+                              << "pushCommandFront failed for "
+                              << _receivedCommand << endl );
             break;
 
         default:
             EQUNIMPLEMENTED;
     }
 
-    _redispatchPackets();
-
+    _redispatchCommands();
+ 
     if( result == COMMAND_REDISPATCH )
     {
-        Request* request = _requestCache.alloc( node, packet );
-        _pendingRequests.push_back( request );
+        Command* command = _commandCache.alloc( _receivedCommand );
+        _pendingCommands.push_back( command );
     }
+    
+#if 0 // Note: tradeoff between memory footprint and performance
+    // dealloc 'big' packets immediately
+    if( _receivedCommand.isValid() && _receivedCommand->exceedsMinSize( ))
+        _receivedCommand.release();
+#endif
 
     return true;
 }
 
-void Node::_redispatchPackets()
+void Node::_redispatchCommands()
 {
-    for( list<Request*>::iterator iter = _pendingRequests.begin(); 
-         iter != _pendingRequests.end(); ++iter )
+    for( list<Command*>::iterator iter = _pendingCommands.begin(); 
+         iter != _pendingCommands.end(); ++iter )
     {
-        Request* request = (*iter);
+        Command* command = (*iter);
         
-        switch( dispatchPacket( request->node, request->packet ))
+        switch( dispatchCommand( *command ))
         {
             case COMMAND_HANDLED:
             case COMMAND_DISCARD:
             {
-                list<Request*>::iterator handledIter = iter;
+                list<Command*>::iterator handledIter = iter;
                 ++iter;
-                _pendingRequests.erase( handledIter );
-                _requestCache.release( request );
+                _pendingCommands.erase( handledIter );
+                _commandCache.release( command );
             }
             break;
 
             case COMMAND_ERROR:
-                EQERROR << "Error handling command " << request->packet << endl;
+                EQERROR << "Error handling command " << command << endl;
                 EQASSERT(0);
                 break;
                 
@@ -688,41 +667,41 @@ void Node::_redispatchPackets()
     }
 }
 
-CommandResult Node::dispatchPacket( Node* node, const Packet* packet )
+CommandResult Node::dispatchCommand( Command& command )
 {
-    EQVERB << "dispatch " << packet << " from " << (void*)node << " by " 
-         << (void*)this << endl;
-    const uint32_t datatype = packet->datatype;
+    EQVERB << "dispatch " << command << " by " << (void*)this << endl;
+    EQASSERT( command.isValid( ));
 
+    const uint32_t datatype = command->datatype;
     switch( datatype )
     {
         case DATATYPE_EQNET_NODE:
-            return handleCommand( node, packet );
+            return invokeCommand( command );
 
         case DATATYPE_EQNET_SESSION:
         case DATATYPE_EQNET_OBJECT:
         {
-            const SessionPacket* sessionPacket = (SessionPacket*)packet;
+            const SessionPacket* sessionPacket = 
+                static_cast<SessionPacket*>( command.getPacket( ));
             const uint32_t       id            = sessionPacket->sessionID;
             Session*             session       = _sessions[id];
             EQASSERTINFO( session, id );
             
-            return session->dispatchPacket( node, sessionPacket );
+            return session->dispatchCommand( command );
         }
 
         default:
             if( datatype < DATATYPE_EQNET_CUSTOM )
             {
-                EQERROR << "Unknown eqNet datatype " << datatype 
-                      << ", dropping packet." << endl;
+                EQERROR << "Unknown eqNet datatype " << datatype << endl;
                 return COMMAND_ERROR;
             }
 
-            return handlePacket( node, packet );
+            return handleCommand( command );
     }
 }
 
-CommandResult Node::_cmdStop( Node* node, const Packet* pkg )
+CommandResult Node::_cmdStop( Command& command )
 {
     EQINFO << "Cmd stop " << this << endl;
     EQASSERT( _state == STATE_LISTENING );
@@ -738,18 +717,20 @@ CommandResult Node::_cmdStop( Node* node, const Packet* pkg )
     return COMMAND_HANDLED;
 }
 
-CommandResult Node::_cmdMapSession( Node* node, const Packet* pkg )
+CommandResult Node::_cmdMapSession( Command& command )
 {
     EQASSERT( getState() == STATE_LISTENING );
 
-    NodeMapSessionPacket* packet  = (NodeMapSessionPacket*)pkg;
+    const NodeMapSessionPacket* packet = 
+        command.getPacket<NodeMapSessionPacket>();
     EQINFO << "Cmd map session: " << packet << endl;
     CHECK_THREAD( _thread );
     
     Session*       session   = NULL;
     const uint32_t sessionID = packet->sessionID;
     string         sessionName;
-    
+    RefPtr<Node>   node      = command.getNode();
+
     if( node == this ) // local mapping
     {
         if( sessionID == EQ_ID_INVALID ) // mapped by name
@@ -790,9 +771,10 @@ CommandResult Node::_cmdMapSession( Node* node, const Packet* pkg )
     return COMMAND_HANDLED;
 }
 
-CommandResult Node::_cmdMapSessionReply( Node* node, const Packet* pkg)
+CommandResult Node::_cmdMapSessionReply( Command& command)
 {
-    NodeMapSessionReplyPacket* packet  = (NodeMapSessionReplyPacket*)pkg;
+    const NodeMapSessionReplyPacket* packet = 
+        command.getPacket<NodeMapSessionReplyPacket>();
     EQINFO << "Cmd map session reply: " << packet << endl;
     CHECK_THREAD( _thread );
 
@@ -803,6 +785,7 @@ CommandResult Node::_cmdMapSessionReply( Node* node, const Packet* pkg)
         return COMMAND_HANDLED;
     }        
     
+    RefPtr<Node>   node      = command.getNode();
     if( node == this ) // local mapping, was performed in _cmdMapSession
     {
         _requestHandler.serveRequest( requestID, (void*)true );
@@ -817,9 +800,10 @@ CommandResult Node::_cmdMapSessionReply( Node* node, const Packet* pkg)
     return COMMAND_HANDLED;
 }
 
-CommandResult Node::_cmdUnmapSession( Node* node, const Packet* pkg )
+CommandResult Node::_cmdUnmapSession( Command& command )
 {
-    NodeUnmapSessionPacket* packet  = (NodeUnmapSessionPacket*)pkg;
+    const NodeUnmapSessionPacket* packet =
+        command.getPacket<NodeUnmapSessionPacket>();
     EQINFO << "Cmd unmap session: " << packet << endl;
     CHECK_THREAD( _thread );
     
@@ -828,6 +812,7 @@ CommandResult Node::_cmdUnmapSession( Node* node, const Packet* pkg )
 
     NodeUnmapSessionReplyPacket reply( packet );
 
+    RefPtr<Node>   node      = command.getNode();
     if( !session )
     {
         reply.result = false;
@@ -844,9 +829,10 @@ CommandResult Node::_cmdUnmapSession( Node* node, const Packet* pkg )
     return COMMAND_HANDLED;
 }
 
-CommandResult Node::_cmdUnmapSessionReply( Node* node, const Packet* pkg)
+CommandResult Node::_cmdUnmapSessionReply( Command& command)
 {
-    NodeUnmapSessionReplyPacket* packet  = (NodeUnmapSessionReplyPacket*)pkg;
+    const NodeUnmapSessionReplyPacket* packet = 
+        command.getPacket<NodeUnmapSessionReplyPacket>();
     EQINFO << "Cmd unmap session reply: " << packet << endl;
     CHECK_THREAD( _thread );
 
@@ -861,6 +847,7 @@ CommandResult Node::_cmdUnmapSessionReply( Node* node, const Packet* pkg)
     Session* session = (Session*)_requestHandler.getRequestData( requestID );
     EQASSERT( session );
 
+    RefPtr<Node>   node      = command.getNode();
     if( node != this ) // client instance unmapping
         removeSession( session );
 
@@ -868,10 +855,10 @@ CommandResult Node::_cmdUnmapSessionReply( Node* node, const Packet* pkg)
     return COMMAND_HANDLED;
 }
 
-CommandResult Node::_cmdGetConnectionDescription( Node* node, const Packet* pkg)
+CommandResult Node::_cmdGetConnectionDescription( Command& command)
 {
-    NodeGetConnectionDescriptionPacket* packet =
-        (NodeGetConnectionDescriptionPacket*)pkg;
+    const NodeGetConnectionDescriptionPacket* packet = 
+        command.getPacket<NodeGetConnectionDescriptionPacket>();
     EQINFO << "cmd get connection description: " << packet << endl;
 
     RefPtr<Node> descNode = getNode( packet->nodeID );
@@ -888,6 +875,7 @@ CommandResult Node::_cmdGetConnectionDescription( Node* node, const Packet* pkg)
     RefPtr<ConnectionDescription> desc = descNode.isValid() ?
         descNode->getConnectionDescription( packet->index ) : NULL;
 
+    RefPtr<Node>   node      = command.getNode();
     if( desc.isValid( ))
         node->send( reply, desc->toString( ));
     else
@@ -896,23 +884,22 @@ CommandResult Node::_cmdGetConnectionDescription( Node* node, const Packet* pkg)
     return COMMAND_HANDLED;
 }
 
-CommandResult Node::_cmdGetConnectionDescriptionReply( Node* fromNode, 
-                                                       const Packet* pkg )
+CommandResult Node::_cmdGetConnectionDescriptionReply( Command& command )
 {
-    NodeGetConnectionDescriptionReplyPacket* packet =
-        (NodeGetConnectionDescriptionReplyPacket*)pkg;
+    const NodeGetConnectionDescriptionReplyPacket* packet = 
+        command.getPacket<NodeGetConnectionDescriptionReplyPacket>();
     EQINFO << "cmd get connection description reply: " << packet << endl;
 
     const uint32_t requestID = packet->requestID;
-    NodeID&        nodeID    = packet->appRequest ? 
-        *((NodeID*)_requestHandler.getRequestData( requestID )) :
-        _connectionRequests[ requestID ];
+    const NodeID&  nodeID    = packet->nodeID;
 
     RefPtr<Node> node   = getNode( nodeID );
     if( node.isValid( )) // already connected
     {
         if( packet->appRequest )
             _requestHandler.serveRequest( requestID, NULL );
+        else
+            _connectionRequests[requestID] = nodeID;
         return COMMAND_HANDLED;
     }
 
@@ -932,6 +919,8 @@ CommandResult Node::_cmdGetConnectionDescriptionReply( Node* fromNode,
             EQINFO << "Node " << nodeID << " connected" << endl;
             if( packet->appRequest )
                 _requestHandler.serveRequest( requestID, NULL );
+            else
+                _connectionRequests[requestID] = nodeID;            
             return COMMAND_HANDLED;
         }
     }
@@ -952,7 +941,7 @@ CommandResult Node::_cmdGetConnectionDescriptionReply( Node* fromNode,
     reply.nodeID     = nodeID;
     reply.appRequest = packet->appRequest;
     reply.index      = packet->nextIndex;
-    fromNode->send( reply );
+    command.getNode()->send( reply );
     
     return COMMAND_HANDLED;
 }
@@ -1062,7 +1051,7 @@ bool Node::syncConnect()
     return success;
 }
 
-RefPtr<Node> Node::connect( NodeID& nodeID, RefPtr<Node> server)
+RefPtr<Node> Node::connect( const NodeID& nodeID, RefPtr<Node> server)
 {
     NodeIDHash< eqBase::RefPtr<Node> >::const_iterator iter = 
         _nodes.find( nodeID );
@@ -1070,7 +1059,7 @@ RefPtr<Node> Node::connect( NodeID& nodeID, RefPtr<Node> server)
         return iter->second;
 
     NodeGetConnectionDescriptionPacket packet;
-    packet.requestID  = _requestHandler.registerRequest( &nodeID );
+    packet.requestID  = _requestHandler.registerRequest();
     packet.appRequest = true;
     packet.nodeID     = nodeID;
     packet.index      = 0;

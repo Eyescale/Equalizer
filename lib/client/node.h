@@ -73,8 +73,8 @@ namespace eq
 
         std::vector<Pipe*>     _pipes;
 
-        /** The receiver->node thread request queue. */
-        eqNet::RequestQueue    _requestQueue;
+        /** The receiver->node thread command queue. */
+        eqNet::CommandQueue    _commandQueue;
 
         /** The node thread. */
         class NodeThread : public eqBase::Thread
@@ -94,27 +94,21 @@ namespace eq
         void _removePipe( Pipe* pipe );
 
         /** 
-         * Push a request from the receiver to the node thread to be handled
+         * Push a command from the receiver to the node thread to be handled
          * asynchronously.
          * 
          * @param node the node sending the packet.
          * @param packet the command packet.
          */
-        eqNet::CommandResult _pushRequest( eqNet::Node* node, 
-                                           const eqNet::Packet* packet )
-            {_requestQueue.push( node, packet ); return eqNet::COMMAND_HANDLED;}
+        eqNet::CommandResult _pushCommand( eqNet::Command& command )
+            {_commandQueue.push( command ); return eqNet::COMMAND_HANDLED;}
 
         /** The command functions. */
-        eqNet::CommandResult _cmdCreatePipe( eqNet::Node* node,
-                                             const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdDestroyPipe( eqNet::Node* node,
-                                              const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdInit( eqNet::Node* node,
-                                       const eqNet::Packet* packet );
-        eqNet::CommandResult _reqInit( eqNet::Node* node,
-                                       const eqNet::Packet* packet );
-        eqNet::CommandResult _reqExit( eqNet::Node* node,
-                                       const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdCreatePipe( eqNet::Command& command );
+        eqNet::CommandResult _cmdDestroyPipe( eqNet::Command& command );
+        eqNet::CommandResult _cmdInit( eqNet::Command& command );
+        eqNet::CommandResult _reqInit( eqNet::Command& command );
+        eqNet::CommandResult _reqExit( eqNet::Command& command );
     };
 }
 

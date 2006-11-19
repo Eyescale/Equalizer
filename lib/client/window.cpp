@@ -104,17 +104,15 @@ void eq::Window::_removeChannel( Channel* channel )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult eq::Window::_pushCommand( eqNet::Node* node,
-                                            const eqNet::Packet* packet )
+eqNet::CommandResult eq::Window::_pushCommand( eqNet::Command& command )
 {
-    return ( _pipe ? _pipe->pushCommand( node, packet ) :
-             _cmdUnknown( node, packet ));
+    return ( _pipe ? _pipe->pushCommand( command ) : _cmdUnknown( command ));
 }
 
-eqNet::CommandResult eq::Window::_cmdCreateChannel( eqNet::Node* node,
-                                                    const eqNet::Packet* pkg )
+eqNet::CommandResult eq::Window::_cmdCreateChannel( eqNet::Command& command )
 {
-    WindowCreateChannelPacket* packet = (WindowCreateChannelPacket*)pkg;
+    const WindowCreateChannelPacket* packet = 
+        command.getPacket<WindowCreateChannelPacket>();
     EQINFO << "Handle create channel " << packet << endl;
 
     Channel* channel = Global::getNodeFactory()->createChannel();
@@ -125,10 +123,10 @@ eqNet::CommandResult eq::Window::_cmdCreateChannel( eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_cmdDestroyChannel(eqNet::Node* node, 
-                                                    const eqNet::Packet* pkg)
+eqNet::CommandResult eq::Window::_cmdDestroyChannel(eqNet::Command& command ) 
 {
-    WindowDestroyChannelPacket* packet = (WindowDestroyChannelPacket*)pkg;
+    const WindowDestroyChannelPacket* packet =
+        command.getPacket<WindowDestroyChannelPacket>();
     EQINFO << "Handle destroy channel " << packet << endl;
 
     Config*  config  = getConfig();
@@ -143,10 +141,9 @@ eqNet::CommandResult eq::Window::_cmdDestroyChannel(eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
-                                           const eqNet::Packet* pkg )
+eqNet::CommandResult eq::Window::_reqInit( eqNet::Command& command )
 {
-    WindowInitPacket* packet = (WindowInitPacket*)pkg;
+    const WindowInitPacket* packet = command.getPacket<WindowInitPacket>();
     EQINFO << "handle window init " << packet << endl;
 
     if( packet->pvp.isValid( ))
@@ -161,6 +158,7 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
     WindowInitReplyPacket reply( packet );
     reply.result = init( packet->initID );
 
+    RefPtr<eqNet::Node> node = command.getNode();
     if( !reply.result )
     {
         send( node, reply );
@@ -216,10 +214,9 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_reqExit( eqNet::Node* node,
-                                           const eqNet::Packet* pkg )
+eqNet::CommandResult eq::Window::_reqExit( eqNet::Command& command )
 {
-    WindowExitPacket* packet = (WindowExitPacket*)pkg;
+    const WindowExitPacket* packet = command.getPacket<WindowExitPacket>();
     EQINFO << "handle window exit " << packet << endl;
 
     EventThread* thread = EventThread::get( _pipe->getWindowSystem( ));
@@ -228,21 +225,20 @@ eqNet::CommandResult eq::Window::_reqExit( eqNet::Node* node,
     exit();
 
     WindowExitReplyPacket reply( packet );
-    send( node, reply );
+    send( command.getNode(), reply );
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_reqFinish(eqNet::Node* node, 
-                                      const eqNet::Packet* pkg)
+eqNet::CommandResult eq::Window::_reqFinish(eqNet::Command& command ) 
 {
     finish();
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_reqBarrier( eqNet::Node* node,
-                                             const eqNet::Packet* pkg )
+eqNet::CommandResult eq::Window::_reqBarrier( eqNet::Command& command )
 {
-    WindowBarrierPacket* packet = (WindowBarrierPacket*)pkg;
+    const WindowBarrierPacket* packet = 
+        command.getPacket<WindowBarrierPacket>();
     EQVERB << "handle barrier " << packet << endl;
     EQLOG( eqNet::LOG_BARRIER ) << "swap barrier " << packet->barrierID
                                 << " v" << packet->barrierVersion <<endl;
@@ -258,17 +254,16 @@ eqNet::CommandResult eq::Window::_reqBarrier( eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_reqSwap(eqNet::Node* node, 
-                                      const eqNet::Packet* pkg)
+eqNet::CommandResult eq::Window::_reqSwap(eqNet::Command& command ) 
 {
     swapBuffers();
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_reqStartFrame(eqNet::Node* node, 
-                                      const eqNet::Packet* pkg)
+eqNet::CommandResult eq::Window::_reqStartFrame(eqNet::Command& command ) 
 {
-    WindowStartFramePacket* packet = (WindowStartFramePacket*)pkg;
+    const WindowStartFramePacket* packet = 
+        command.getPacket<WindowStartFramePacket>();
     EQVERB << "handle startFrame " << packet << endl;
 
     if( packet->makeCurrent )
@@ -278,10 +273,10 @@ eqNet::CommandResult eq::Window::_reqStartFrame(eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_reqEndFrame(eqNet::Node* node, 
-                                      const eqNet::Packet* pkg)
+eqNet::CommandResult eq::Window::_reqEndFrame(eqNet::Command& command ) 
 {
-    WindowEndFramePacket* packet = (WindowEndFramePacket*)pkg;
+    const WindowEndFramePacket* packet =
+        command.getPacket<WindowEndFramePacket>();
     EQVERB << "handle endFrame " << packet << endl;
 
     endFrame( packet->frameID );

@@ -15,7 +15,7 @@ namespace eqNet
 {
     class Connection;
     class Node;
-    struct Packet;
+    class Command;
 
     /** 
      * The base class for all networked objects. 
@@ -33,15 +33,13 @@ namespace eqNet
          * Handles a received command packet for this object by calling the
          * appropriate command handler function.
          * 
-         * @param node the sending node.
-         * @param packet the command packet.
+         * @param command the command.
          * @return the result of the operation.
          * @sa registerCommand
          */
-        CommandResult handleCommand( Node* node, const Packet* packet );
+        CommandResult invokeCommand( Command& command );
  
     protected:
-
         /** 
          * Registers a command member function for a command.
          * 
@@ -66,20 +64,20 @@ namespace eqNet
          * @param packet the packet.
          * @return the result of the operation.
          */
-        CommandResult _cmdUnknown( Node* node, const Packet* packet );
+        CommandResult _cmdUnknown( Command& packet );
 
         /**
          * The command handler which requests the command to be pushed to
          * another entity.
          */
-        CommandResult _cmdPush( Node* node, const Packet* packet )
+        CommandResult _cmdPush( Command& packet )
             { return eqNet::COMMAND_PUSH; }
 
         /**
          * The command handler which requests the command to be pushed to
          * another entity with high priority.
          */
-        CommandResult _cmdPushFront( Node* node, const Packet* packet )
+        CommandResult _cmdPushFront( Command& packet )
             { return eqNet::COMMAND_PUSH_FRONT; }
 
     private:

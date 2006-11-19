@@ -9,26 +9,24 @@
 
 namespace eqNet
 {
-    class  Node;
-    struct Packet;
+    class Command;
 
     template< typename T > class PacketFunc
     {
     public:
         PacketFunc( T* object, 
-                    CommandResult (T::*func)( Node*, const Packet* ))
+                    CommandResult (T::*func)( Command& ))
             : _object( object ), _func( func ) {}
 
         template< typename O > PacketFunc( const O& from )
                 : _object( from._object ),
                   _func( 
-                      static_cast<CommandResult (T::*)( Node*, const Packet* )>(
-                          from._func ))
+                      static_cast<CommandResult (T::*)( Command& )>(from._func))
             {}
 
-        CommandResult operator()( Node* node, const Packet* packet )
+        CommandResult operator()( Command& command )
         {
-            return (_object->*_func)( node, packet );
+            return (_object->*_func)( command );
         }
 
          // Can't make private because copy constructor needs access. Can't
@@ -36,7 +34,7 @@ namespace eqNet
          // in template classes.
         // private:
         T* _object;
-        CommandResult (T::*_func)( Node*, const Packet* );
+        CommandResult (T::*_func)( Command& );
     };
 
      

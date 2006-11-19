@@ -8,7 +8,7 @@
 #include <eq/net/base.h>
 #include <eq/net/commands.h>
 #include <eq/net/global.h>
-#include <eq/net/requestQueue.h>
+#include <eq/net/commandQueue.h>
 #include <eq/net/types.h>
 
 #include <eq/base/idPool.h>
@@ -449,7 +449,7 @@ namespace eqNet
         std::vector<ChangeData>   _changeDataCache;
 
         /** The slave queue for changes. */
-        RequestQueue _syncQueue;
+        CommandQueue _syncQueue;
 
         /** Common constructor code. */
         void _construct();
@@ -462,11 +462,9 @@ namespace eqNet
         void _checkConsistency() const;
 
         /* The command handlers. */
-        CommandResult _cmdSync( Node* node, const Packet* pkg )
-            { _syncQueue.push( node, pkg ); return eqNet::COMMAND_HANDLED; }
-
-        CommandResult _reqSync( Node* node, const Packet* pkg );
-        CommandResult _cmdCommit( Node* node, const Packet* pkg );
+        CommandResult _cmdSync( Command& command );
+        CommandResult _reqSync( Command& pkg );
+        CommandResult _cmdCommit( Command& pkg );
 
         CHECK_THREAD_DECLARE( _thread );
     };

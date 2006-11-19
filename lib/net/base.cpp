@@ -25,9 +25,9 @@ Base::~Base()
 //===========================================================================
 // command handling
 //===========================================================================
-CommandResult Base::handleCommand( Node* node, const Packet* packet )
+CommandResult Base::invokeCommand( Command& command )
 {
-    const uint32_t which = packet->command;
+    const uint32_t which = command->command;
     if( which >= _vTable.size( ))
     {
         EQERROR << "Command " << which
@@ -36,31 +36,12 @@ CommandResult Base::handleCommand( Node* node, const Packet* packet )
                 << typeid(*this).name() << endl;
         return COMMAND_ERROR;
     }
-    return _vTable[which]( node, packet );
+    return _vTable[which]( command );
 }
 
-CommandResult Base::_cmdUnknown( Node* node, const Packet* packet )
+CommandResult Base::_cmdUnknown( Command& packet )
 {
-    switch( packet->datatype )
-    {
-        case DATATYPE_EQNET_NODE:
-            EQERROR << "Unknown command " << (NodePacket*)packet << " from "
-                    << node << " class " << typeid(*this).name() << endl;
-            break;
-        case DATATYPE_EQNET_SESSION:
-            EQERROR << "Unknown command " << (SessionPacket*)packet << " from "
-                    << node << " class " << typeid(*this).name() << endl;
-            break;
-        case DATATYPE_EQNET_OBJECT:
-            EQERROR << "Unknown command " << (ObjectPacket*)packet << " from "
-                    << node << " class " << typeid(*this).name() << endl;
-            break;
-
-        default:
-            EQERROR << "Unknown command " << packet << " from " << node 
-                    << " class " << typeid(*this).name() << endl;
-            break;
-    }
-
+    EQERROR << "Unknown command " << packet << " class " << typeid(*this).name()
+            << endl;
     return COMMAND_ERROR;
 }

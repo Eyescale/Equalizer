@@ -198,7 +198,7 @@ namespace eq
         float          _far;
 
         /** server-supplied rendering data. */
-        RenderContext *_context;
+        const RenderContext *_context;
 
         /** server-supplied vector of output frames for current task. */
         std::vector<Frame*> _outputFrames;
@@ -231,20 +231,13 @@ namespace eq
         void _setPixelViewport( const PixelViewport& pvp );
         
         /* The command handler functions. */
-        eqNet::CommandResult _pushCommand( eqNet::Node* node,
-                                           const eqNet::Packet* packet );
-        eqNet::CommandResult _reqInit( eqNet::Node* node,
-                                       const eqNet::Packet* packet );
-        eqNet::CommandResult _reqExit( eqNet::Node* node,
-                                       const eqNet::Packet* packet );
-        eqNet::CommandResult _reqClear( eqNet::Node* node,
-                                        const eqNet::Packet* packet );
-        eqNet::CommandResult _reqDraw( eqNet::Node* node,
-                                       const eqNet::Packet* packet );
-        eqNet::CommandResult _reqReadback( eqNet::Node* node,
-                                           const eqNet::Packet* packet );
-        eqNet::CommandResult _reqTransmit( eqNet::Node* node,
-                                           const eqNet::Packet* packet );
+        eqNet::CommandResult _pushCommand( eqNet::Command& command );
+        eqNet::CommandResult _reqInit( eqNet::Command& command );
+        eqNet::CommandResult _reqExit( eqNet::Command& command );
+        eqNet::CommandResult _reqClear( eqNet::Command& command );
+        eqNet::CommandResult _reqDraw( eqNet::Command& command );
+        eqNet::CommandResult _reqReadback( eqNet::Command& command );
+        eqNet::CommandResult _reqTransmit( eqNet::Command& command );
     };
 }
 

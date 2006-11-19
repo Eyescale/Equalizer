@@ -52,6 +52,9 @@ namespace eq
         eqNet::ConnectionSet        _connections;
         eqBase::RefPtr<eqNet::Node> _localNode;
 
+        /** The cache to store the last received command, stored for reuse */
+        eqNet::Command _receivedCommand;
+
         WindowEvent _lastPointerEvent;
 
         enum
@@ -71,14 +74,10 @@ namespace eq
         int32_t  _getKey( XEvent& event );
 
         /** The command functions. */
-        eqNet::CommandResult _cmdAddPipe( eqNet::Node*,
-                                          const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdRemovePipe( eqNet::Node*,
-                                             const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdAddWindow( eqNet::Node*,
-                                            const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdRemoveWindow( eqNet::Node*,
-                                               const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdAddPipe( eqNet::Command& command );
+        eqNet::CommandResult _cmdRemovePipe( eqNet::Command& command );
+        eqNet::CommandResult _cmdAddWindow( eqNet::Command& command );
+        eqNet::CommandResult _cmdRemoveWindow( eqNet::Command& command );
 
         CHECK_THREAD_DECLARE( _thread );
     };

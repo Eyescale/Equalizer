@@ -210,10 +210,10 @@ void Channel::update( const uint32_t frameID )
 //===========================================================================
 // command handling
 //===========================================================================
-eqNet::CommandResult Channel::_cmdInitReply( eqNet::Node* node, 
-                                             const eqNet::Packet* pkg )
+eqNet::CommandResult Channel::_cmdInitReply( eqNet::Command& command ) 
 {
-    eq::ChannelInitReplyPacket* packet = (eq::ChannelInitReplyPacket*)pkg;
+    const eq::ChannelInitReplyPacket* packet = 
+        command.getPacket<eq::ChannelInitReplyPacket>();
     EQINFO << "handle channel init reply " << packet << endl;
 
     _near = packet->near;
@@ -223,10 +223,10 @@ eqNet::CommandResult Channel::_cmdInitReply( eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_cmdExitReply( eqNet::Node* node, 
-                                             const eqNet::Packet* pkg )
+eqNet::CommandResult Channel::_cmdExitReply( eqNet::Command& command ) 
 {
-    eq::ChannelExitReplyPacket* packet = (eq::ChannelExitReplyPacket*)pkg;
+    const eq::ChannelExitReplyPacket* packet = 
+        command.getPacket<eq::ChannelExitReplyPacket>();
     EQINFO << "handle channel exit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );

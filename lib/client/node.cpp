@@ -32,7 +32,7 @@ Node::Node()
     registerCommand( REQ_NODE_INIT,
                      eqNet::PacketFunc<Node>( this, &Node::_reqInit ));
     registerCommand( CMD_NODE_EXIT,
-                     eqNet::PacketFunc<Node>( this, &Node::_pushRequest ));
+                     eqNet::PacketFunc<Node>( this, &Node::_pushCommand ));
     registerCommand( REQ_NODE_EXIT,
                      eqNet::PacketFunc<Node>( this, &Node::_reqExit ));
 
@@ -72,13 +72,10 @@ void* Node::_runThread()
 
     eqNet::Node::setLocalNode( config->getLocalNode( ));
 
-    eqNet::Node*   node;
-    eqNet::Packet* packet;
-
     while( _thread->isRunning( ))
     {
-        _requestQueue.pop( &node, &packet );
-        switch( config->dispatchPacket( node, packet ))
+        eqNet::Command* command = _commandQueue.pop();
+        switch( config->dispatchCommand( *command ))
         {
             case eqNet::COMMAND_HANDLED:
             case eqNet::COMMAND_DISCARD:
@@ -103,10 +100,10 @@ void* Node::_runThread()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Node::_cmdCreatePipe( eqNet::Node* node, 
-                                           const eqNet::Packet* pkg )
+eqNet::CommandResult Node::_cmdCreatePipe( eqNet::Command& command )
 {
-    NodeCreatePipePacket* packet = (NodeCreatePipePacket*)pkg;
+    const NodeCreatePipePacket* packet = 
+        command.getPacket<NodeCreatePipePacket>();
     EQINFO << "Handle create pipe " << packet << endl;
     EQASSERT( packet->pipeID != EQ_ID_INVALID );
 
@@ -118,10 +115,10 @@ eqNet::CommandResult Node::_cmdCreatePipe( eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Node* node, 
-                                            const eqNet::Packet* pkg )
+eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Command& command )
 {
-    NodeDestroyPipePacket* packet = (NodeDestroyPipePacket*)pkg;
+    const NodeDestroyPipePacket* packet = 
+        command.getPacket<NodeDestroyPipePacket>();
     EQINFO << "Handle destroy pipe " << packet << endl;
 
     Pipe* pipe = (Pipe*)_config->pollObject( packet->pipeID );
@@ -137,38 +134,38 @@ eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_cmdInit(eqNet::Node* node, const eqNet::Packet* pkg)
+eqNet::CommandResult Node::_cmdInit( eqNet::Command& command )
 {
-    NodeInitPacket* packet = (NodeInitPacket*)pkg;
-    EQINFO << "handle node init (recv) " << packet << endl;
+    EQINFO << "handle node init (recv) " << command.getPacket<NodeInitPacket>()
+           << endl;
 
     ((eq::Client*)_config->getLocalNode().get())->refUsed();
     _thread->start();
-    _pushRequest( node, pkg );
+    _pushCommand( command );
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_reqInit(eqNet::Node* node, const eqNet::Packet* pkg)
+eqNet::CommandResult Node::_reqInit( eqNet::Command& command )
 {
-    NodeInitPacket* packet = (NodeInitPacket*)pkg;
+    const NodeInitPacket* packet = command.getPacket<NodeInitPacket>();
     EQINFO << "handle node init (node) " << packet << endl;
 
     NodeInitReplyPacket reply( packet );
     reply.result = init( packet->initID );
 
-    send( node, reply );
+    send( command.getNode(), reply );
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_reqExit(eqNet::Node* node, const eqNet::Packet* pkg)
+eqNet::CommandResult Node::_reqExit( eqNet::Command& command )
 {
-    NodeExitPacket* packet = (NodeExitPacket*)pkg;
+    const NodeExitPacket* packet = command.getPacket<NodeExitPacket>();
     EQINFO << "handle node exit " << packet << endl;
 
     exit();
 
     NodeExitReplyPacket reply( packet );
-    send( node, reply );
+    send( command.getNode(), reply );
 
     ((eq::Client*)_config->getLocalNode().get())->unrefUsed();
     _thread->exit();

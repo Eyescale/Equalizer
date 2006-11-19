@@ -8,7 +8,6 @@
 #include <eq/net/base.h>
 #include <eq/net/commands.h>
 #include <eq/net/global.h>
-#include <eq/net/message.h>
 #include <eq/net/nodeID.h>
 #include <eq/net/object.h>
 
@@ -35,6 +34,9 @@ namespace eqNet
         uint64_t size;
         uint32_t datatype;
         uint32_t command;
+        
+        static size_t minSize;
+        bool exceedsMinSize() const { return (size > minSize); }
     };
 
     // String transmission: the packets define a 8-char string at the end of the
@@ -148,15 +150,17 @@ namespace eqNet
     struct NodeGetConnectionDescriptionReplyPacket : public NodePacket
     {
         NodeGetConnectionDescriptionReplyPacket(
-            NodeGetConnectionDescriptionPacket* request )
+            const NodeGetConnectionDescriptionPacket* request )
             {
                 command    = CMD_NODE_GET_CONNECTION_DESCRIPTION_REPLY;
                 size       = sizeof( NodeGetConnectionDescriptionReplyPacket );
+                nodeID     = request->nodeID;
                 requestID  = request->requestID;
                 appRequest = request->appRequest;
                 connectionDescription[0] = '\0';
             } 
 
+        NodeID   nodeID;
         uint32_t requestID;
         uint32_t nextIndex;
         bool     appRequest;
@@ -186,7 +190,7 @@ namespace eqNet
 
     struct SessionGenIDsReplyPacket : public SessionPacket
     {
-        SessionGenIDsReplyPacket( SessionGenIDsPacket* request )
+        SessionGenIDsReplyPacket( const SessionGenIDsPacket* request )
             {
                 command   = CMD_SESSION_GEN_IDS_REPLY;
                 size      = sizeof( SessionGenIDsReplyPacket ); 
@@ -224,7 +228,7 @@ namespace eqNet
 
     struct SessionGetIDMasterReplyPacket : public SessionPacket
     {
-        SessionGetIDMasterReplyPacket( SessionGetIDMasterPacket* request ) 
+        SessionGetIDMasterReplyPacket( const SessionGetIDMasterPacket* request )
             {
                 command   = CMD_SESSION_GET_ID_MASTER_REPLY;
                 size      = sizeof( SessionGetIDMasterReplyPacket );

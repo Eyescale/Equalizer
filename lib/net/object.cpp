@@ -331,13 +331,11 @@ bool Object::sync( const uint32_t version )
 
     while( _version < version )
     {
-        eqNet::Node*   node;
-        eqNet::Packet* packet;
-        _syncQueue.pop( &node, &packet );
+        Command* command = _syncQueue.pop();
 
-         // OPT shortcut around handleCommand()
-        EQASSERT( packet->command == REQ_OBJECT_SYNC );
-        _reqSync( node, packet );
+         // OPT shortcut around invokeCommand()
+        EQASSERT( (*command)->command == REQ_OBJECT_SYNC );
+        _reqSync( *command );
     }
 
     EQVERB << "Sync'ed to v" << version << ", id " << getID() << endl;
@@ -349,13 +347,11 @@ void Object::_syncToHead()
     if( isMaster( ))
         return;
 
-    eqNet::Node*   node;
-    eqNet::Packet* packet;
-
-    while( _syncQueue.tryPop( &node, &packet ))
+    for( Command* command = _syncQueue.tryPop(); command; 
+         command = _syncQueue.tryPop( ))
     {
-        EQASSERT( packet->command == REQ_OBJECT_SYNC );
-        _reqSync( node, packet ); // XXX shortcut around handleCommand()
+        EQASSERT( (*command)->command == REQ_OBJECT_SYNC );
+        _reqSync( *command ); // XXX shortcut around invokeCommand()
     }
     EQVERB << "Sync'ed to head v" << _version << ", id " << getID() 
            << endl;
@@ -366,14 +362,15 @@ uint32_t Object::getHeadVersion() const
     if( isMaster( ))
         return _version;
 
-    eqNet::Node*      node;
-    ObjectSyncPacket* packet;
+    Command* command = _syncQueue.back();
+    if( command )
+    {
+        EQASSERT( (*command)->command == REQ_OBJECT_SYNC );
+        const ObjectSyncPacket* packet = command->getPacket<ObjectSyncPacket>();
+        return packet->version;
+    }
 
-    if( !_syncQueue.back( &node, (Packet**)&packet ))
-        return _version;
-    
-    EQASSERT( packet->command == REQ_OBJECT_SYNC );
-    return packet->version;
+    return _version;    
 }
 
 void Object::setInstanceData( void* data, const uint64_t size )
@@ -428,10 +425,17 @@ void Object::_checkConsistency() const
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-CommandResult Object::_reqSync( Node* node, const Packet* pkg )
+CommandResult Object::_cmdSync( Command& command )
 {
-    ObjectSyncPacket* packet = (ObjectSyncPacket*)pkg;
-    EQLOG( LOG_OBJECTS ) << "req sync v" << _version << " " << packet << endl;
+    Command copy( command ); // sync is sent to all instances: make copy
+    _syncQueue.push( copy ); 
+    return eqNet::COMMAND_HANDLED;
+}
+
+CommandResult Object::_reqSync( Command& command )
+{
+    const ObjectSyncPacket* packet = command.getPacket<ObjectSyncPacket>();
+    EQLOG( LOG_OBJECTS ) << "req sync v" << _version << " " << command << endl;
     EQASSERT( _version == packet->version-1 );
 
     unpack( packet->delta, packet->deltaSize );
@@ -439,10 +443,10 @@ CommandResult Object::_reqSync( Node* node, const Packet* pkg )
     return eqNet::COMMAND_HANDLED;
 }
 
-CommandResult Object::_cmdCommit( Node* node, const Packet* pkg )
+CommandResult Object::_cmdCommit( Command& command )
 {
-    ObjectCommitPacket* packet = (ObjectCommitPacket*)pkg;
-    EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << packet << endl;
+    const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
+    EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command << endl;
 
     EQASSERT( isMaster( ));
 

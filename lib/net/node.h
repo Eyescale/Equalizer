@@ -6,13 +6,13 @@
 #define EQNET_NODE_H
 
 #include <eq/net/base.h>
+#include <eq/net/command.h>
 #include <eq/net/commands.h>
 #include <eq/net/connectionDescription.h>
 #include <eq/net/connectionSet.h>
 #include <eq/net/idHash.h>
-#include <eq/net/message.h>
 #include <eq/net/nodeID.h>
-#include <eq/net/requestCache.h>
+#include <eq/net/commandCache.h>
 
 #include <eq/base/base.h>
 #include <eq/base/perThread.h>
@@ -24,7 +24,6 @@
 namespace eqNet
 {
     class ConnectionDescription;
-    class Packet;
     class Session;
 
     /**
@@ -94,11 +93,11 @@ namespace eqNet
          * Initializes this node.
          *
          * The node will spawn a thread locally and listen on the connection for
-         * incoming requests. The node will be in the listening state if the
+         * incoming commands. The node will be in the listening state if the
          * method completed successfully. A listening node can connect to other
          * nodes.
          * 
-         * @param connection a listening connection for incoming request, can be
+         * @param connection a listening connection for incoming command, can be
          *                   <CODE>NULL</CODE>.
          * @return <code>true</code> if the node could be initialized,
          *         <code>false</code> if not.
@@ -183,7 +182,7 @@ namespace eqNet
          * @return the connected node, or an invalid RefPtr if the node could
          *         not be connected.
          */
-        eqBase::RefPtr<Node> connect( NodeID& nodeID,
+        eqBase::RefPtr<Node> connect( const NodeID& nodeID,
                                       eqBase::RefPtr<Node> server );
 
         /** 
@@ -198,7 +197,7 @@ namespace eqNet
          * @return <code>true</code> if the node was disconnected correctly,
          *         <code>false</code> otherwise.
          */
-        bool disconnect( Node* node );
+        bool disconnect( eqBase::RefPtr<Node> node );
 
         /** 
          * Ensures the connectivity of this node.
@@ -292,7 +291,6 @@ namespace eqNet
          */
         eqBase::RefPtr<Connection> getConnection() const { return _connection; }
         //*}
-
 
         /**
          * @name Messaging API
@@ -414,7 +412,8 @@ namespace eqNet
          *               destination node.
          * @return an identifier for the request for subsequent commands.
          */
-        uint32_t startConnectNode( NodeID& nodeID, eqBase::RefPtr<Node> server);
+        uint32_t startNodeConnect( const NodeID& nodeID, 
+                                   eqBase::RefPtr<Node> server );
 
         enum ConnectState
         {
@@ -432,7 +431,7 @@ namespace eqNet
          * @param requestID the request identifier.
          * @return the current state of the connection request.
          */
-        ConnectState pollConnectNode( const uint32_t requestID );
+        ConnectState pollNodeConnect( const uint32_t requestID );
         //@}
 
         /**
@@ -520,14 +519,13 @@ namespace eqNet
         bool _autoLaunched;
 
         /** 
-         * Dispatches a packet to the appropriate object or to handlePacket.
+         * Dispatches a packet to the appropriate object or to handleCommand.
          * 
-         * @param node the node which send the packet.
-         * @param packet the packet.
+         * @param command the command.
          * @return the result of the operation.
-         * @sa handlePacket, Base::handleCommand
+         * @sa handleCommand, Base::invokeCommand
          */
-        CommandResult dispatchPacket( Node* node, const Packet* packet );
+        CommandResult dispatchCommand( Command& command );
 
         /** 
          * The main loop for auto-launched clients. 
@@ -543,9 +541,9 @@ namespace eqNet
          * @param node the node which send the packet.
          * @param packet the packet.
          * @return the result of the operation.
-         * @sa dispatchPacket
+         * @sa dispatchCommand
          */
-        virtual CommandResult handlePacket( Node* node, const Packet* packet )
+        virtual CommandResult handleCommand( Command& holder )
             { return COMMAND_ERROR; }
 
         /** 
@@ -561,7 +559,7 @@ namespace eqNet
          * 
          * @param node the disconnected node.
          */
-        virtual void handleDisconnect( Node* node );
+        virtual void handleDisconnect( eqBase::RefPtr<Node> node );
 
         /** 
          * Push a command to be handled by another entity, typically a thread.
@@ -571,7 +569,7 @@ namespace eqNet
          * @return <code>true</code> if the command was pushed,
          *         <code>false</code> if not.
          */
-        virtual bool pushCommand( Node* node, const Packet* packet )
+        virtual bool pushCommand( Command& holder )
             { return false; }
 
         /** 
@@ -583,7 +581,7 @@ namespace eqNet
          * @return <code>true</code> if the command was pushed,
          *         <code>false</code> if not.
          */
-        virtual bool pushCommandFront( Node* node, const Packet* packet )
+        virtual bool pushCommandFront( Command& holder )
             { return false; }
 
         /** 
@@ -594,8 +592,6 @@ namespace eqNet
          */
         virtual eqBase::RefPtr<Node> createNode( const CreateReason reason )
             { return new Node(); }
-
-        CommandResult _cmdStop( Node* node, const Packet* packet );
 
     private:
         /** per-thread local node */
@@ -625,12 +621,15 @@ namespace eqNet
         /** The node for each connection. */
         eqBase::PtrHash< Connection*, eqBase::RefPtr<Node> > _connectionNodes;
 
+        /** The cache to store the last received command, stored for reuse */
+        Command _receivedCommand;
+
         /** The request id for the async launch operation. */
         uint32_t _launchID;
 
-        /** Packets re-scheduled for dispatch. */
-        std::list<Request*> _pendingRequests;
-        RequestCache        _requestCache;
+        /** Commands re-scheduled for dispatch. */
+        std::list<Command*> _pendingCommands;
+        CommandCache        _commandCache;
 
         /** The list of descriptions on how this node is reachable. */
         std::vector< eqBase::RefPtr<ConnectionDescription> >
@@ -644,7 +643,7 @@ namespace eqNet
         /** true as long as the client loop is active. */
         bool _clientRunning;
 
-        /** The pending connection requests from startConnectNode(). */
+        /** The pending connection requests from startNodeConnect(). */
         IDHash<NodeID> _connectionRequests;
         /** The identifier for the next connection request. */
         uint32_t       _nextConnectionRequestID;
@@ -732,21 +731,17 @@ namespace eqNet
         void    _handleDisconnect();
         void      _addConnectedNode( eqBase::RefPtr<Node> node, 
                                      eqBase::RefPtr<Connection> connection );
-        bool    _handleRequest( Node* node );
-        void    _redispatchPackets();
+        bool    _handleCommand( eqBase::RefPtr<Node> node );
+        void    _redispatchCommands();
 
         /** The command functions. */
-        CommandResult _cmdMapSession( Node* node, const Packet* packet );
-        CommandResult _cmdMapSessionReply( Node* node, const Packet* packet );
-        CommandResult _cmdUnmapSession( Node* node, const Packet* packet );
-        CommandResult _cmdUnmapSessionReply( Node* node, const Packet* packet );
-        CommandResult _cmdGetConnectionDescription( Node* node, 
-                                                    const Packet* packet );
-        CommandResult _cmdGetConnectionDescriptionReply( Node* node, 
-                                                         const Packet* packet );
-
-        static uint64_t _getMessageSize( const MessageType type, 
-                                         const uint64_t count );
+        CommandResult _cmdStop( Command& holder );
+        CommandResult _cmdMapSession( Command& holder );
+        CommandResult _cmdMapSessionReply( Command& holder );
+        CommandResult _cmdUnmapSession( Command& holder );
+        CommandResult _cmdUnmapSessionReply( Command& holder );
+        CommandResult _cmdGetConnectionDescription( Command& holder );
+        CommandResult _cmdGetConnectionDescriptionReply( Command& holder );
 
         CHECK_THREAD_DECLARE( _thread );
     };

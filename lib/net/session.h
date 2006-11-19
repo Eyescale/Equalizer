@@ -66,9 +66,9 @@ namespace eqNet
          * @param node the node which sent the packet.
          * @param packet the packet.
          * @return the result of the operation.
-         * @sa handleCommand
+         * @sa Base::invokeCommand
          */
-        CommandResult dispatchPacket( Node* node, const Packet* packet );
+        CommandResult dispatchCommand( Command& packet );
 
         /**
          * @name Identifier management
@@ -313,25 +313,25 @@ namespace eqNet
                 _localNode->send( packet );
             }
 
-        CommandResult _handleObjectCommand( Node* node, const Packet* packet );
+        CommandResult _handleObjectCommand( Command& packet );
         CommandResult   _instObject( GetObjectState* state );
         void              _sendInitObject( GetObjectState* state, 
                                            eqBase::RefPtr<Node> master );
 
         /** The command handler functions. */
-        CommandResult _cmdGenIDs( Node* node, const Packet* packet );
-        CommandResult _cmdGenIDsReply( Node* node, const Packet* packet );
-        CommandResult _cmdSetIDMaster( Node* node, const Packet* packet );
-        CommandResult _cmdGetIDMaster( Node* node, const Packet* packet );
-        CommandResult _cmdGetIDMasterReply( Node* node, const Packet* packet );
-        CommandResult _cmdGetObjectMaster( Node* node, const Packet* packet );
-        CommandResult _cmdGetObjectMasterReply( Node* node, const Packet* pkg);
-        CommandResult _cmdRegisterObject( Node* node, const Packet* packet );
-        CommandResult _cmdUnregisterObject( Node* node, const Packet* packet );
-        CommandResult _cmdGetObject( Node* node, const Packet* packet );
-        CommandResult _cmdInitObject( Node* node, const Packet* packet );
-        CommandResult _cmdInstanciateObject( Node* node, const Packet* packet);
-        CommandResult _cmdInitObjectReply( Node* node, const Packet* packet );
+        CommandResult _cmdGenIDs( Command& packet );
+        CommandResult _cmdGenIDsReply( Command& packet );
+        CommandResult _cmdSetIDMaster( Command& packet );
+        CommandResult _cmdGetIDMaster( Command& packet );
+        CommandResult _cmdGetIDMasterReply( Command& packet );
+        CommandResult _cmdGetObjectMaster( Command& packet );
+        CommandResult _cmdGetObjectMasterReply( Command& pkg);
+        CommandResult _cmdRegisterObject( Command& packet );
+        CommandResult _cmdUnregisterObject( Command& packet );
+        CommandResult _cmdGetObject( Command& packet );
+        CommandResult _cmdInitObject( Command& packet );
+        CommandResult _cmdInstanciateObject( Command& packet);
+        CommandResult _cmdInitObjectReply( Command& packet );
 
         CHECK_THREAD_DECLARE( _receiverThread );
     };

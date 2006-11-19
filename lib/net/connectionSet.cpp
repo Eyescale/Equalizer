@@ -3,6 +3,7 @@
    All rights reserved. */
 
 #include "connectionSet.h"
+
 #include "connection.h"
 
 #include <eq/base/base.h>

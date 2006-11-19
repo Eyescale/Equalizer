@@ -21,15 +21,16 @@ namespace eqBase
         // TODO: optional thread-safety
         // TODO: use fast mutex (futex, atomic-op based spinlock or similar)
 
-        void ref()   { _mutex.set(); _refCount++; _mutex.unset(); }
+        void ref()   { _mutex.set(); ++_refCount; _mutex.unset(); }
         void unref() 
             { 
                 _mutex.set();
                 EQASSERT( _refCount > 0 ); 
                 --_refCount;
-                if( _refCount==0 )
-                    delete this;
+                const bool deleteMe = (_refCount==0);
                 _mutex.unset();
+                if( deleteMe )
+                    delete this;
             }
 
         int  getRefCount() const { return _refCount; }
@@ -47,7 +48,7 @@ namespace eqBase
                 EQASSERT( _refCount == 0 );
             }
 
-        int  _refCount;
+        uint32_t  _refCount;
         Lock _mutex;
     };
 }

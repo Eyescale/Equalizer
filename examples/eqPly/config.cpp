@@ -26,7 +26,7 @@ uint32_t Config::beginFrame()
     return eq::Config::beginFrame( version );
 }
 
-bool Config::handleEvent( eq::ConfigEvent* event )
+bool Config::handleEvent( const eq::ConfigEvent* event )
 {
     switch( event->type )
     {

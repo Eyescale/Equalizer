@@ -24,22 +24,17 @@ Config::Config()
         : Session( true )
 {
     registerCommand( CMD_CONFIG_CREATE_NODE,
-                     eqNet::PacketFunc<Config>( this,
-                                                   &Config::_cmdCreateNode ));
+                    eqNet::PacketFunc<Config>( this, &Config::_cmdCreateNode ));
     registerCommand( CMD_CONFIG_DESTROY_NODE, 
-                     eqNet::PacketFunc<Config>( this,
-                                                   &Config::_cmdDestroyNode ));
+                   eqNet::PacketFunc<Config>( this, &Config::_cmdDestroyNode ));
     registerCommand( CMD_CONFIG_INIT_REPLY, 
-                     eqNet::PacketFunc<Config>( this,
-                                                   &Config::_cmdInitReply ));
+                     eqNet::PacketFunc<Config>( this, &Config::_cmdInitReply ));
     registerCommand( CMD_CONFIG_EXIT_REPLY, 
-                     eqNet::PacketFunc<Config>( this,
-                                                   &Config::_cmdExitReply ));
+                     eqNet::PacketFunc<Config>( this, &Config::_cmdExitReply ));
     registerCommand( CMD_CONFIG_FRAME_BEGIN_REPLY, 
-            eqNet::PacketFunc<Config>( this, &Config::_cmdBeginFrameReply ));
+               eqNet::PacketFunc<Config>( this, &Config::_cmdBeginFrameReply ));
     registerCommand( CMD_CONFIG_FRAME_END_REPLY, 
-                     eqNet::PacketFunc<Config>( this,
-                                                   &Config::_cmdEndFrameReply));
+                  eqNet::PacketFunc<Config>( this, &Config::_cmdEndFrameReply));
     registerCommand( CMD_CONFIG_EVENT, 
                      eqNet::PacketFunc<Config>( this, &Config::_cmdEvent ));
 
@@ -116,18 +111,17 @@ void Config::sendEvent( ConfigEvent& event )
     _appNode->send( event );
 }
 
-ConfigEvent* Config::nextEvent()
+const ConfigEvent* Config::nextEvent()
 {
-    ConfigEvent* event;
-    _eventQueue.pop( NULL, (eqNet::Packet**)&event );
-    return event;
+    eqNet::Command* command = _eventQueue.pop();
+    return command->getPacket<ConfigEvent>();
 }
 
 void Config::handleEvents()
 {
     while( checkEvent( ))
     {
-        ConfigEvent* event = nextEvent();
+        const ConfigEvent* event = nextEvent();
         if( !handleEvent( event ))
             EQINFO << "Unhandled " << event << endl;
     }
@@ -159,10 +153,10 @@ eqNet::Object* Config::instanciateObject( const uint32_t type, const void* data,
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Config::_cmdCreateNode( eqNet::Node* node, 
-                                             const eqNet::Packet* pkg )
+eqNet::CommandResult Config::_cmdCreateNode( eqNet::Command& command )
 {
-    ConfigCreateNodePacket* packet = (ConfigCreateNodePacket*)pkg;
+    const ConfigCreateNodePacket* packet = 
+        command.getPacket<ConfigCreateNodePacket>();
     EQINFO << "Handle create node " << packet << endl;
     EQASSERT( packet->nodeID != EQ_ID_INVALID );
 
@@ -173,10 +167,10 @@ eqNet::CommandResult Config::_cmdCreateNode( eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_cmdDestroyNode( eqNet::Node* Node, 
-                                              const eqNet::Packet* pkg )
+eqNet::CommandResult Config::_cmdDestroyNode( eqNet::Command& command )
 {
-    ConfigDestroyNodePacket* packet = (ConfigDestroyNodePacket*)pkg;
+    const ConfigDestroyNodePacket* packet = 
+        command.getPacket<ConfigDestroyNodePacket>();
     EQINFO << "Handle destroy node " << packet << endl;
 
     eq::Node* delNode = (eq::Node*)pollObject( packet->nodeID );
@@ -191,10 +185,10 @@ eqNet::CommandResult Config::_cmdDestroyNode( eqNet::Node* Node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_cmdInitReply( eqNet::Node* node,
-                                            const eqNet::Packet* pkg )
+eqNet::CommandResult Config::_cmdInitReply( eqNet::Command& command )
 {
-    ConfigInitReplyPacket* packet = (ConfigInitReplyPacket*)pkg;
+    const ConfigInitReplyPacket* packet = 
+        command.getPacket<ConfigInitReplyPacket>();
     EQINFO << "handle init reply " << packet << endl;
 
     if( packet->result )
@@ -206,10 +200,10 @@ eqNet::CommandResult Config::_cmdInitReply( eqNet::Node* node,
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;
 }
-eqNet::CommandResult Config::_cmdExitReply( eqNet::Node* node,
-                                            const eqNet::Packet* pkg )
+eqNet::CommandResult Config::_cmdExitReply( eqNet::Command& command )
 {
-    ConfigExitReplyPacket* packet = (ConfigExitReplyPacket*)pkg;
+    const ConfigExitReplyPacket* packet = 
+        command.getPacket<ConfigExitReplyPacket>();
     EQINFO << "handle exit reply " << packet << endl;
 
     _headMatrix = NULL;
@@ -218,10 +212,10 @@ eqNet::CommandResult Config::_cmdExitReply( eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_cmdBeginFrameReply(eqNet::Node* node,
-                                                 const eqNet::Packet* pkg )
+eqNet::CommandResult Config::_cmdBeginFrameReply( eqNet::Command& command )
 {
-    ConfigBeginFrameReplyPacket* packet = (ConfigBeginFrameReplyPacket*)pkg;
+    const ConfigBeginFrameReplyPacket* packet =
+        command.getPacket<ConfigBeginFrameReplyPacket>();
     EQVERB << "handle frame begin reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, 
@@ -229,10 +223,10 @@ eqNet::CommandResult Config::_cmdBeginFrameReply(eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_cmdEndFrameReply( eqNet::Node* node,
-                                                const eqNet::Packet* pkg )
+eqNet::CommandResult Config::_cmdEndFrameReply( eqNet::Command& command )
 {
-    ConfigEndFrameReplyPacket* packet = (ConfigEndFrameReplyPacket*)pkg;
+    const ConfigEndFrameReplyPacket* packet = 
+        command.getPacket<ConfigEndFrameReplyPacket>();
     EQVERB << "handle frame end reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID,
@@ -240,11 +234,11 @@ eqNet::CommandResult Config::_cmdEndFrameReply( eqNet::Node* node,
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_cmdEvent( eqNet::Node* node,
-                                        const eqNet::Packet* packet )
+eqNet::CommandResult Config::_cmdEvent( eqNet::Command& command )
 {
-    EQVERB << "received config event " << (ConfigEvent* )packet << endl;
+    EQVERB << "received config event " << command.getPacket<ConfigEvent>()
+           << endl;
 
-    _eventQueue.push( node, packet );
+    _eventQueue.push( command );
     return eqNet::COMMAND_HANDLED;
 }

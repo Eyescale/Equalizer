@@ -31,8 +31,11 @@ HEADER_SRC = \
 	base/userdata.h \
 	net/barrier.h \
 	net/base.h \
+	net/command.h \
 	net/commandResult.h \
 	net/commands.h \
+	net/commandCache.h \
+	net/commandQueue.h \
 	net/connection.h \
 	net/connection.ipp \
 	net/connectionSet.h \
@@ -43,7 +46,6 @@ HEADER_SRC = \
 	net/idHash.h \
 	net/init.h \
 	net/log.h \
-	net/message.h \
 	net/net.h \
 	net/node.h \
 	net/nodeID.h \
@@ -51,8 +53,6 @@ HEADER_SRC = \
 	net/packetFunc.h \
 	net/packets.h \
 	net/pipeConnection.h \
-	net/requestCache.h \
-	net/requestQueue.h \
 	net/session.h \
 	net/types.h \
 	net/uniPipeConnection.h \
@@ -103,6 +103,9 @@ SOURCES = \
 	base/timedLock.cpp \
 	net/barrier.cpp \
 	net/base.cpp \
+	net/command.cpp \
+	net/commandCache.cpp \
+	net/commandQueue.cpp \
 	net/connection.cpp \
 	net/connectionDescription.cpp \
 	net/connectionSet.cpp \
@@ -113,9 +116,8 @@ SOURCES = \
 	net/node.cpp \
 	net/nodeID.cpp \
 	net/object.cpp \
+	net/packets.cpp \
 	net/pipeConnection.cpp \
-	net/requestCache.cpp \
-	net/requestQueue.cpp \
 	net/session.cpp \
 	net/socketConnection.cpp \
 	net/uniPipeConnection.cpp \

@@ -212,10 +212,8 @@ namespace eqs
             { return getNode()->getNode(); }
 
         /* command handler functions. */
-        eqNet::CommandResult _cmdInitReply(eqNet::Node* node,
-                                           const eqNet::Packet* packet);
-        eqNet::CommandResult _cmdExitReply(eqNet::Node* node,
-                                           const eqNet::Packet* packet);
+        eqNet::CommandResult _cmdInitReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdExitReply(eqNet::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Channel* channel);

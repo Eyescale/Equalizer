@@ -13,6 +13,7 @@
 #include <eq/net/connection.h>
 
 using namespace eq;
+using namespace eqBase;
 using namespace std;
 
 Client::Client()
@@ -50,20 +51,22 @@ void Client::clientLoop()
     send( packet );
 }
 
-eqNet::CommandResult Client::handlePacket( eqNet::Node* node,
-                                           const eqNet::Packet* packet )
+eqNet::CommandResult Client::handleCommand( eqNet::Command& command )
 {
-    EQVERB << "handlePacket " << packet << endl;
-    const uint32_t datatype = packet->datatype;
+    EQVERB << "handleCommand " << command << endl;
+    const uint32_t datatype = command->datatype;
 
     switch( datatype )
     {
         case DATATYPE_EQ_SERVER:
         {
-            EQASSERT( dynamic_cast<Server*>(node) );
+            RefPtr<eqNet::Node> node = command.getNode();
 
-            Server* server = static_cast<Server*>(node);
-            return server->handleCommand( node, packet );
+            EQASSERT( dynamic_cast<Server*>( node.get( )) );
+            RefPtr<Server> server = 
+                RefPtr_static_cast<eqNet::Node, Server>( node );
+
+            return server->invokeCommand( command );
         }
         default:
             return eqNet::COMMAND_ERROR;

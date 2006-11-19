@@ -15,7 +15,7 @@
 #include <eq/base/thread.h>
 #include <eq/net/base.h>
 #include <eq/net/object.h>
-#include <eq/net/requestQueue.h>
+#include <eq/net/commandQueue.h>
 
 namespace eq
 {
@@ -202,14 +202,13 @@ namespace eq
         //@}
 
         /** 
-         * Push a request to the pipe thread to be handled from there.
+         * Push a command to the pipe thread to be handled from there.
          * 
          * @param node the node sending the packet.
          * @param packet the command packet.
          */
-        eqNet::CommandResult pushCommand( eqNet::Node* node, 
-                                          const eqNet::Packet* packet )
-            {_requestQueue.push( node, packet ); return eqNet::COMMAND_HANDLED;}
+        eqNet::CommandResult pushCommand( eqNet::Command& command )
+            {_commandQueue.push( command ); return eqNet::COMMAND_HANDLED;}
 
     protected:
         /**
@@ -278,26 +277,18 @@ namespace eq
 
         void* _runThread();
 
-        /** The receiver->pipe thread request queue. */
-        eqNet::RequestQueue    _requestQueue;
+        /** The receiver->pipe thread command queue. */
+        eqNet::CommandQueue    _commandQueue;
 
         /* The command functions. */
-        eqNet::CommandResult _cmdCreateWindow( eqNet::Node* node,
-                                               const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdDestroyWindow( eqNet::Node* node,
-                                                const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdInit( eqNet::Node* node,
-                                       const eqNet::Packet* packet );
-        eqNet::CommandResult _reqInit( eqNet::Node* node,
-                                       const eqNet::Packet* packet );
-        eqNet::CommandResult _cmdExit( eqNet::Node* node, 
-                                       const eqNet::Packet* packet );
-        eqNet::CommandResult _reqExit( eqNet::Node* node,
-                                       const eqNet::Packet* packet );
-        eqNet::CommandResult _reqUpdate( eqNet::Node* node,
-                                         const eqNet::Packet* packet );
-        eqNet::CommandResult _reqFrameSync( eqNet::Node* node,
-                                            const eqNet::Packet* packet );
+        eqNet::CommandResult _cmdCreateWindow( eqNet::Command& command );
+        eqNet::CommandResult _cmdDestroyWindow( eqNet::Command& command );
+        eqNet::CommandResult _cmdInit( eqNet::Command& command );
+        eqNet::CommandResult _reqInit( eqNet::Command& command );
+        eqNet::CommandResult _cmdExit( eqNet::Command& command );
+        eqNet::CommandResult _reqExit( eqNet::Command& command );
+        eqNet::CommandResult _reqUpdate( eqNet::Command& command );
+        eqNet::CommandResult _reqFrameSync( eqNet::Command& command );
     };
 }
 
