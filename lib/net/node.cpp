@@ -323,18 +323,21 @@ bool Node::disconnect( RefPtr<Node> node )
         !node->_state == STATE_CONNECTED || !node->_connection )
         return false;
 
-    if( !_connectionSet.removeConnection( node->_connection ))
+    node->_state      = STATE_STOPPED;
+
+    RefPtr<Connection> connection = node->_connection;
+    node->_connection = NULL;
+
+    if( !_connectionSet.removeConnection( connection ))
         return false;
 
     EQINFO << node << " disconnecting from " << this << endl;
-    EQASSERT( _connectionNodes.find( node->_connection.get( ))
-              != _connectionNodes.end( ));
+    EQASSERT( _connectionNodes.find( connection.get( )) !=
+              _connectionNodes.end( ));
 
-    _connectionNodes.erase( node->_connection.get( ));
+    _connectionNodes.erase( connection.get( ));
     _nodes.erase( node->_id );
 
-    node->_state      = STATE_STOPPED;
-    node->_connection = NULL;
     return true;
 }
 
@@ -554,7 +557,7 @@ void Node::_handleDisconnect()
 
     while( _handleCommand( node )); // read remaining data of connection
 
-    handleDisconnect( node.get() ); // XXX
+    handleDisconnect( node );
     connection->close();
 }
 
@@ -1184,9 +1187,7 @@ string Node::_createRemoteCommand()
     if( env )
         stringStream << libPath << "=" << env << " ";
 
-    env = getenv( "EQLOGLEVEL" );
-    if( env )
-        stringStream << "EQLOGLEVEL=" << env << " ";
+    stringStream << "EQ_LOG_LEVEL=" << eqBase::Log::getLogLevelString() << " ";
 
     // for( int i=0; environ[i] != NULL; i++ )
     // {

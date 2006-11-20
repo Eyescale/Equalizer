@@ -33,6 +33,7 @@ Connection::Connection(const Connection& conn)
 
 Connection::~Connection()
 {
+    _state = STATE_CLOSED;
     EQINFO << "Delete Connection @" << (void*)this << endl;
 }
 

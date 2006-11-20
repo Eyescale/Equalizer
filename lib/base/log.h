@@ -23,7 +23,7 @@ namespace eqBase
     /** The logging levels. */
     enum LogLevel
     {
-        LOG_ERROR,
+        LOG_ERROR = 1,
         LOG_WARN,
         LOG_INFO,
         LOG_VERBATIM
@@ -41,20 +41,18 @@ namespace eqBase
     {
 	public:
 		LogBuffer( std::ostream& stream )
-                : _line(0), _indent(0), _noFlush(0), _noHeader(0), 
+                : _line(0), _indent(0), _blocked(0), _noHeader(0), 
                   _newLine(true), _stream(stream)
             {}
         
         void indent() { ++_indent; }
         void exdent() { --_indent; }
 
-        void disableFlush() { ++_noFlush; } // use counted variable to allow
+        void disableFlush() { ++_blocked; } // use counted variable to allow
         void enableFlush()                  //   nested enable/disable calls
             { 
-                assert( _noFlush && "Too many enableFlush on log stream" );
-                --_noFlush;
-                if( _noFlush == 0 )
-                    pubsync();
+                assert( _blocked && "Too many enableFlush on log stream" );
+                --_blocked;
             }
 
         void disableHeader() { ++_noHeader; } // use counted variable to allow
@@ -91,7 +89,7 @@ namespace eqBase
         
         virtual int sync() 
             {
-                if( !_noFlush )
+                if( !_blocked )
                 {
                     const std::string& string = _stringStream.str();
                     _stream.write( string.c_str(), string.length( ));
@@ -118,7 +116,7 @@ namespace eqBase
         int _indent;
 
         /** Flush reference counter. */
-        int _noFlush;
+        int _blocked;
 
         /** The header disable counter. */
         int _noHeader;
@@ -158,6 +156,9 @@ namespace eqBase
         /** The per-thread logger. */
         static Log& instance( const char* subdir, const char* file,
                               const int line );
+
+        /** The string representation of the current log level. */
+        static std::string& getLogLevelString();
 
     private:
         LogBuffer _logBuffer; 

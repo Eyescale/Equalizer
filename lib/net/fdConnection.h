@@ -5,7 +5,8 @@
 #ifndef EQNET_FD_CONNECTION_H
 #define EQNET_FD_CONNECTION_H
 
-#include "connection.h"
+#include <eq/net/connection.h>
+#include <eq/base/lock.h>
 
 namespace eqNet
 {
@@ -27,6 +28,8 @@ namespace eqNet
 
         int   _readFD;     //!< The read file descriptor.
         int   _writeFD;    //!< The write file descriptor.
+
+        mutable eqBase::Lock _writeLock;
 
         friend inline std::ostream& operator << ( std::ostream& os, 
                                                const FDConnection* connection );

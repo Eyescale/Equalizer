@@ -644,7 +644,7 @@ namespace eq
 
         Frame::Format format;
         PixelViewport pvp;
-        uint8_t       data[1];
+        uint8_t       data[1]; // size is pvp.w * pvp.h * depth
     };
 
     //------------------------------------------------------------

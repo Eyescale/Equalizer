@@ -31,8 +31,10 @@ namespace eqNet
         
         Packet*       getPacket()              { return _packet; }
         const Packet* getPacket() const        { return _packet; }
-        template< class P > 
-        const P* getPacket() const
+
+        template< class P > P* getPacket()
+            { EQASSERT( _packet ); return reinterpret_cast<P*>( _packet ); }
+        template< class P > const P* getPacket() const
             { EQASSERT( _packet ); return reinterpret_cast<P*>( _packet ); }
 
         eqBase::RefPtr<Node> getNode() const { return _node; }

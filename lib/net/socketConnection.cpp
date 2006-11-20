@@ -87,8 +87,11 @@ bool SocketConnection::_createSocket()
 
 void SocketConnection::close()
 {
-    if( _readFD == -1 )
+    if( !(_state == STATE_CONNECTED || _state == STATE_LISTENING ))
         return;
+
+    _state   = STATE_CLOSED;
+    EQASSERT( _readFD > 0 ); 
 
     const bool closed = ( ::close(_readFD) == 0 );
     if( !closed )
@@ -96,7 +99,6 @@ void SocketConnection::close()
 
     _readFD  = -1;
     _writeFD = -1;
-    _state   = STATE_CLOSED;
 }
 
 void SocketConnection::_parseAddress( sockaddr_in& socketAddress )

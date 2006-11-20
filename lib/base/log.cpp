@@ -7,6 +7,7 @@
 #include "perThread.h"
 
 using namespace eqBase;
+using namespace std;
 
 #ifndef NDEBUG
 Clock eqLogClock;
@@ -14,6 +15,30 @@ Clock eqLogClock;
 
 static int      getLogLevel();
 static unsigned getLogTopics();
+
+namespace eqBase
+{
+    class LogTable
+    {
+    public:
+        LogTable( const LogLevel _level, const string& _name )
+                : level( _level ), name( _name ) {}
+
+        LogLevel level;
+        string   name;
+    };
+
+#   define LOG_TABLE_ENTRY( name ) LogTable( LOG_ ## name, string( #name ))
+#   define LOG_TABLE_SIZE (4)
+    
+    static LogTable _logTable[ LOG_TABLE_SIZE ] =
+    {
+        LOG_TABLE_ENTRY( ERROR ),
+        LOG_TABLE_ENTRY( WARN ),
+        LOG_TABLE_ENTRY( INFO ),
+        LOG_TABLE_ENTRY( VERBATIM )
+    };
+}
 
 int      eqBase::Log::level  = getLogLevel();
 unsigned eqBase::Log::topics = getLogTopics();
@@ -26,14 +51,14 @@ int getLogLevel()
     const char *env = getenv("EQ_LOG_LEVEL");
     if( env )
     {
-        if( strcmp( env, "ERROR" ) == 0 )
-            return LOG_ERROR;
-        if( strcmp( env, "WARN" ) == 0 )
-            return LOG_WARN;
-        if( strcmp( env, "INFO" ) == 0 )
-            return LOG_INFO;
-        if( strcmp( env, "VERB" ) == 0 )
-            return LOG_VERBATIM;
+        const int level = atoi( env );
+        if( level )
+            return level;
+
+        const string envString( env );
+        for( uint32_t i=0; i<LOG_TABLE_SIZE; ++i )
+            if( _logTable[i].name == envString )
+                return _logTable[i].level;
     }
 
 #ifdef NDEBUG
@@ -41,6 +66,15 @@ int getLogLevel()
 #else
     return LOG_INFO;
 #endif
+}
+
+std::string& Log::getLogLevelString()
+{
+    for( uint32_t i=0; i<LOG_TABLE_SIZE; ++i )
+        if( _logTable[i].level == level )
+                return _logTable[i].name;
+
+    return _logTable[0].name;
 }
 
 unsigned getLogTopics()

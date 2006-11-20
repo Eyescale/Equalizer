@@ -127,10 +127,13 @@ void FrameBuffer::transmit( eqBase::RefPtr<eqNet::Node> toNode )
             const Image*           image = *iter;
             const vector<uint8_t>& data  = image->getPixelData();
 
-            packet.pvp = image->getPixelViewport();
+            packet.format = Frame::FORMAT_COLOR;
+            packet.pvp    = image->getPixelViewport();
+
+            EQASSERT( data.size() == 
+                      packet.pvp.w * packet.pvp.h * image->getDepth( ));
             toNode->send<uint8_t>( packet, data );
         }
     }
-    
 }
 

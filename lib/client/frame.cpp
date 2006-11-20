@@ -10,9 +10,11 @@
 #include <eq/net/session.h>
 
 using namespace eq;
+using namespace std;
 
 Frame::Frame( const void* data, uint64_t dataSize )
-        : eqNet::Object( eq::Object::TYPE_FRAME )
+        : eqNet::Object( eq::Object::TYPE_FRAME ),
+          _buffer( 0 )
 {
     EQASSERT( dataSize == sizeof( Data ));
     _data = *(Data*)data;

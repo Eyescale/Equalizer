@@ -14,6 +14,9 @@ uint64_t Connection::send( Packet &packet, const std::vector<T>& data ) const
         return send( packet );
     }
 
+    // Possible OPT: For big packets, lock the connection and do two send() to
+    // avoid memcpy
+
     uint64_t size   = packet.size + (data.size() - 1) * sizeof(T);
     char*    buffer = (char*)alloca( size );
 

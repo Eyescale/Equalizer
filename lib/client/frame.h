@@ -81,7 +81,7 @@ namespace eq
     protected:
         /** @sa eqNet::Object::unpack */
         virtual void unpack( const void* data, const uint64_t size ) 
-            { _buffer = NULL; eqNet::Object::unpack( data, size ); }
+            { _buffer = 0; eqNet::Object::unpack( data, size ); }
 
     private:
         std::string _name;

@@ -212,7 +212,8 @@ void Session::addRegisteredObject( const uint32_t id, Object* object,
     }
 
     EQLOG( LOG_OBJECTS ) << "addRegisteredObject id " << id << " @" 
-                         << (void*)object << endl;
+                         << (void*)object << " is " << typeid(*object).name()
+                         << endl;
 }
 
 void Session::removeRegisteredObject( Object* object, 

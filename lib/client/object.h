@@ -19,7 +19,7 @@ namespace eq
             TYPE_WINDOW,
             TYPE_PIPE,
             TYPE_NODE,
-            TYPE_MANAGED_CUSTOM,
+            TYPE_MANAGED_CUSTOM,  // 6
             TYPE_MATRIX4F         = eqNet::Object::TYPE_VERSIONED_CUSTOM,
             TYPE_FRAME,
             TYPE_FRAMEBUFFER,
