@@ -79,6 +79,7 @@ bool SocketConnection::_createSocket()
 
     const int on = 1;
     setsockopt( fd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on) );
+    setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on) );
 
     _readFD  = fd;
     _writeFD = fd; // TCP/IP sockets are bidirectional
