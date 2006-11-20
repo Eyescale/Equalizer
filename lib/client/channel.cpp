@@ -26,37 +26,33 @@ Channel::Channel()
           _context( NULL )
 {
     registerCommand( CMD_CHANNEL_INIT,
-                     eqNet::PacketFunc<Channel>( this, 
-                                                 &Channel::_pushCommand ));
+                    eqNet::PacketFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_INIT, 
                      eqNet::PacketFunc<Channel>( this, &Channel::_reqInit ));
     registerCommand( CMD_CHANNEL_EXIT, 
-                     eqNet::PacketFunc<Channel>( this,
-                                                    &Channel::_pushCommand ));
+                    eqNet::PacketFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_EXIT, 
                      eqNet::PacketFunc<Channel>( this, &Channel::_reqExit ));
     registerCommand( CMD_CHANNEL_CLEAR, 
-                     eqNet::PacketFunc<Channel>( this,
-                                                    &Channel::_pushCommand ));
+                    eqNet::PacketFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_CLEAR, 
                      eqNet::PacketFunc<Channel>( this, &Channel::_reqClear));
     registerCommand( CMD_CHANNEL_DRAW, 
-                     eqNet::PacketFunc<Channel>( this, 
-                                                    &Channel::_pushCommand ));
+                    eqNet::PacketFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_DRAW, 
                      eqNet::PacketFunc<Channel>( this, &Channel::_reqDraw ));
+    registerCommand( CMD_CHANNEL_ASSEMBLE, 
+                    eqNet::PacketFunc<Channel>( this, &Channel::_pushCommand ));
+    registerCommand( REQ_CHANNEL_ASSEMBLE, 
+                    eqNet::PacketFunc<Channel>( this, &Channel::_reqAssemble ));
     registerCommand( CMD_CHANNEL_READBACK, 
-                     eqNet::PacketFunc<Channel>( this,
-                                                    &Channel::_pushCommand ));
+                    eqNet::PacketFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_READBACK, 
-                     eqNet::PacketFunc<Channel>( this, 
-                                                    &Channel::_reqReadback ));
+                    eqNet::PacketFunc<Channel>( this, &Channel::_reqReadback ));
     registerCommand( CMD_CHANNEL_TRANSMIT, 
-                     eqNet::PacketFunc<Channel>( this, 
-                                                    &Channel::_pushCommand ));
+                    eqNet::PacketFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_TRANSMIT, 
-                     eqNet::PacketFunc<Channel>( this,
-                                                    &Channel::_reqTransmit ));
+                    eqNet::PacketFunc<Channel>( this, &Channel::_reqTransmit ));
 }
 
 Channel::~Channel()
@@ -148,6 +144,20 @@ void Channel::draw( const uint32_t frameID )
     glVertex3f(  .25,  .25, -.25 );
     glEnd();
     glFinish();
+}
+
+void Channel::assemble( const uint32_t frameID )
+{
+    applyBuffer();
+    applyViewport();
+
+#if 0
+    const vector<Frame*>& frames = getOutputFrames();
+    for( vector<Frame*>::const_iterator iter = frames.begin();
+         iter != frames.end(); ++iter )
+
+        (*iter)->startReadback();
+#endif
 }
 
 void Channel::readback( const uint32_t frameID )
@@ -278,6 +288,34 @@ eqNet::CommandResult Channel::_reqDraw( eqNet::Command& command )
 
     _context = &packet->context;
     draw( packet->context.frameID );
+    _context = NULL;
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Channel::_reqAssemble( eqNet::Command& command )
+{
+    const ChannelAssemblePacket* packet = 
+        command.getPacket<ChannelAssemblePacket>();
+    EQVERB << "handle channel assemble " << packet << endl;
+
+    _context = &packet->context;
+
+    eqNet::Session* session = getSession();
+    for( uint32_t i=0; i<packet->nFrames; ++i )
+    {
+        eqNet::Object* object = session->getObject( packet->frames[i].objectID, 
+                                                    Object::SHARE_THREAD,
+                                                    packet->frames[i].version );
+        EQASSERT( dynamic_cast<Frame*>( object ));
+        Frame* frame = static_cast<Frame*>( object );
+        //frame->clear();
+        EQLOG( LOG_ASSEMBLY ) << "assemble " << frame << endl;
+        //_inputFrames.push_back( frame );
+    }
+
+    assemble( packet->context.frameID );
+
+    //_inputFrames.clear();
     _context = NULL;
     return eqNet::COMMAND_HANDLED;
 }

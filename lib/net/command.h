@@ -48,7 +48,7 @@ namespace eqNet
         void allocate( eqBase::RefPtr<Node> node, const uint64_t packetSize );
         void release();
         bool isValid() const { return ( _packet!=0 ); }
-        
+
     private:
         eqBase::RefPtr<Node> _node;
         Packet*              _packet;

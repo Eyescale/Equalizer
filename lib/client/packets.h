@@ -605,6 +605,18 @@ namespace eq
             }
     };
         
+    struct ChannelAssemblePacket : public ChannelTaskPacket
+    {
+        ChannelAssemblePacket()
+            {
+                command       = CMD_CHANNEL_ASSEMBLE;
+                size          = sizeof( ChannelAssemblePacket );
+            }
+
+        uint32_t             nFrames;
+        eqNet::ObjectVersion frames[1];
+    };
+        
     struct ChannelReadbackPacket : public ChannelTaskPacket
     {
         ChannelReadbackPacket()

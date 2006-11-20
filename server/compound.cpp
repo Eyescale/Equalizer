@@ -756,10 +756,45 @@ TraverseResult Compound::_updatePostDrawCB( Compound* compound, void* userData )
 
 void Compound::_updatePostDraw( const eq::RenderContext& context )
 {
-    //_updateAssemble( context );
+    _updateAssemble( context );
     _updateReadback( context );
 }
 
+void Compound::_updateAssemble( const eq::RenderContext& context )
+{
+    if( !testTask( TASK_ASSEMBLE ) || _inputFrames.empty( ))
+        return;
+
+    vector<Frame*>               frames;
+    vector<eqNet::ObjectVersion> frameIDs;
+    for( vector<Frame*>::const_iterator iter = _inputFrames.begin(); 
+         iter != _outputFrames.end(); ++iter )
+    {
+        Frame* frame = *iter;
+        // TODO: filter: format, vp, eye
+        frames.push_back( frame );
+        frameIDs.push_back( eqNet::ObjectVersion( frame ));
+    }
+
+    if( frames.empty() )
+        return;
+
+    // assemble task
+    Channel*                  channel = getChannel();
+    Node*                     node    = channel->getNode();
+    RefPtr<eqNet::Node>       netNode = node->getNode();
+    eq::ChannelAssemblePacket packet;
+    
+    packet.sessionID = channel->getSession()->getID();
+    packet.objectID  = channel->getID();
+    packet.context   = context;
+    packet.nFrames   = frames.size();
+
+    EQLOG( eq::LOG_ASSEMBLY | LOG_TASKS ) 
+        << "TASK assemble " << &packet << endl;
+    netNode->send<eqNet::ObjectVersion>( packet, frameIDs );
+}
+    
 void Compound::_updateReadback( const eq::RenderContext& context )
 {
     if( !testTask( TASK_READBACK ) || _outputFrames.empty( ))

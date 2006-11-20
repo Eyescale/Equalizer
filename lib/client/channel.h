@@ -105,6 +105,14 @@ namespace eq
         virtual void draw( const uint32_t frameID );
 
         /** 
+         * Assemble input frames.
+         * 
+         * @param frameID the per-frame identifier.
+         * @sa getInputFrames
+         */
+        virtual void assemble( const uint32_t frameID );
+
+        /** 
          * Read back the rendered scene.
          * 
          * @param frameID the per-frame identifier.
@@ -236,6 +244,7 @@ namespace eq
         eqNet::CommandResult _reqExit( eqNet::Command& command );
         eqNet::CommandResult _reqClear( eqNet::Command& command );
         eqNet::CommandResult _reqDraw( eqNet::Command& command );
+        eqNet::CommandResult _reqAssemble( eqNet::Command& command );
         eqNet::CommandResult _reqReadback( eqNet::Command& command );
         eqNet::CommandResult _reqTransmit( eqNet::Command& command );
     };
