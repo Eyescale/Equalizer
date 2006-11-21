@@ -26,9 +26,9 @@ void Node::_construct()
     _pendingRequestID = EQ_ID_INVALID;
 
     registerCommand( eq::CMD_NODE_INIT_REPLY, 
-                     eqNet::PacketFunc<Node>( this, &Node::_cmdInitReply ));
+                     eqNet::CommandFunc<Node>( this, &Node::_cmdInitReply ));
     registerCommand( eq::CMD_NODE_EXIT_REPLY, 
-                     eqNet::PacketFunc<Node>( this, &Node::_cmdExitReply ));
+                     eqNet::CommandFunc<Node>( this, &Node::_cmdExitReply ));
 
     const Global* global = Global::instance();
 

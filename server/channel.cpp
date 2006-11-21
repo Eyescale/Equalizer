@@ -26,9 +26,9 @@ void Channel::_construct()
     _fixedPVP         = false;
 
     registerCommand( eq::CMD_CHANNEL_INIT_REPLY, 
-                  eqNet::PacketFunc<Channel>( this, &Channel::_cmdInitReply ));
+                  eqNet::CommandFunc<Channel>( this, &Channel::_cmdInitReply ));
     registerCommand( eq::CMD_CHANNEL_EXIT_REPLY,
-                   eqNet::PacketFunc<Channel>( this, &Channel::_cmdExitReply ));
+                   eqNet::CommandFunc<Channel>( this, &Channel::_cmdExitReply ));
 }
 
 Channel::Channel()

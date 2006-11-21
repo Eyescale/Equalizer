@@ -9,7 +9,7 @@
 #include <eq/base/nonCopyable.h>
 #include <eq/base/requestHandler.h>
 #include <eq/net/commandResult.h>
-#include <eq/net/packetFunc.h>
+#include <eq/net/commandFunc.h>
 
 namespace eqNet
 {
@@ -51,7 +51,7 @@ namespace eqNet
          */
         template< typename T >
         void registerCommand( const uint32_t command, 
-                              const PacketFunc<T>& func);
+                              const CommandFunc<T>& func);
 
         
         /** Registers request packets waiting for a return value. */
@@ -82,18 +82,18 @@ namespace eqNet
 
     private:
         /** The command handler function table. */
-        std::vector< PacketFunc<Base> > _vTable;
+        std::vector< CommandFunc<Base> > _vTable;
     };
 
     template< typename T >
     void Base::registerCommand( const uint32_t command,
-                                const PacketFunc<T>& func)
+                                const CommandFunc<T>& func)
     {
         if( command >= _vTable.size( ))
             _vTable.resize( command+1, 
-                            PacketFunc<Base>( this, &Base::_cmdUnknown ));
+                            CommandFunc<Base>( this, &Base::_cmdUnknown ));
         
-        _vTable[command] = static_cast< PacketFunc<Base> >(func);
+        _vTable[command] = static_cast< CommandFunc<Base> >(func);
     }
 
 }

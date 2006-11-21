@@ -35,6 +35,7 @@ HEADER_SRC = \
 	net/commandResult.h \
 	net/commands.h \
 	net/commandCache.h \
+	net/commandFunc.h \
 	net/commandQueue.h \
 	net/connection.h \
 	net/connection.ipp \
@@ -50,7 +51,6 @@ HEADER_SRC = \
 	net/node.h \
 	net/nodeID.h \
 	net/object.h \
-	net/packetFunc.h \
 	net/packets.h \
 	net/pipeConnection.h \
 	net/session.h \

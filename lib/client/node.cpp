@@ -25,17 +25,17 @@ Node::Node()
           _config(NULL)
 {
     registerCommand( CMD_NODE_CREATE_PIPE, 
-                     eqNet::PacketFunc<Node>( this, &Node::_cmdCreatePipe ));
+                     eqNet::CommandFunc<Node>( this, &Node::_cmdCreatePipe ));
     registerCommand( CMD_NODE_DESTROY_PIPE,
-                    eqNet::PacketFunc<Node>( this, &Node::_cmdDestroyPipe ));
+                    eqNet::CommandFunc<Node>( this, &Node::_cmdDestroyPipe ));
     registerCommand( CMD_NODE_INIT, 
-                     eqNet::PacketFunc<Node>( this, &Node::_cmdInit ));
+                     eqNet::CommandFunc<Node>( this, &Node::_cmdInit ));
     registerCommand( REQ_NODE_INIT,
-                     eqNet::PacketFunc<Node>( this, &Node::_reqInit ));
+                     eqNet::CommandFunc<Node>( this, &Node::_reqInit ));
     registerCommand( CMD_NODE_EXIT,
-                     eqNet::PacketFunc<Node>( this, &Node::_pushCommand ));
+                     eqNet::CommandFunc<Node>( this, &Node::_pushCommand ));
     registerCommand( REQ_NODE_EXIT,
-                     eqNet::PacketFunc<Node>( this, &Node::_reqExit ));
+                     eqNet::CommandFunc<Node>( this, &Node::_reqExit ));
 
     _thread = new NodeThread( this );
     EQINFO << " New eq::Node @" << (void*)this << endl;

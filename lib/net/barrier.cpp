@@ -20,9 +20,9 @@ void Barrier::_construct()
     setDeltaData( &_data.height, sizeof( _data.height ));
 
     registerCommand( CMD_BARRIER_ENTER, 
-                     PacketFunc<Barrier>( this, &Barrier::_cmdEnter ));
+                     CommandFunc<Barrier>( this, &Barrier::_cmdEnter ));
     registerCommand( CMD_BARRIER_ENTER_REPLY, 
-                     PacketFunc<Barrier>( this, &Barrier::_cmdEnterReply ));
+                     CommandFunc<Barrier>( this, &Barrier::_cmdEnterReply ));
 }
 
 Barrier::Barrier( eqBase::RefPtr<Node> master, const uint32_t height )

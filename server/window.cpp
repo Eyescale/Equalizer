@@ -24,13 +24,13 @@ void eqs::Window::_construct()
     _state            = STATE_STOPPED;
 
     registerCommand( eq::CMD_WINDOW_INIT_REPLY, 
-                     eqNet::PacketFunc<Window>( this, &Window::_cmdInitReply ));
+                     eqNet::CommandFunc<Window>( this, &Window::_cmdInitReply ));
     registerCommand( eq::CMD_WINDOW_EXIT_REPLY, 
-                     eqNet::PacketFunc<Window>( this, &Window::_cmdExitReply ));
+                     eqNet::CommandFunc<Window>( this, &Window::_cmdExitReply ));
     registerCommand( eq::CMD_WINDOW_SET_PVP, 
-                     eqNet::PacketFunc<Window>( this, &Window::_cmdPushFront ));
+                     eqNet::CommandFunc<Window>( this, &Window::_cmdPushFront ));
     registerCommand( eq::REQ_WINDOW_SET_PVP,
-               eqNet::PacketFunc<Window>( this, &Window::_reqSetPixelViewport));
+               eqNet::CommandFunc<Window>( this, &Window::_reqSetPixelViewport));
                          
     const Global* global = Global::instance();
     

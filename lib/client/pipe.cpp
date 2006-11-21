@@ -29,25 +29,25 @@ Pipe::Pipe()
           _screen( EQ_UNDEFINED_UINT32 )
 {
     registerCommand( CMD_PIPE_CREATE_WINDOW,
-                   eqNet::PacketFunc<Pipe>( this, &Pipe::_cmdCreateWindow ));
+                   eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdCreateWindow ));
     registerCommand( CMD_PIPE_DESTROY_WINDOW, 
-                  eqNet::PacketFunc<Pipe>( this, &Pipe::_cmdDestroyWindow ));
+                  eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdDestroyWindow ));
     registerCommand( CMD_PIPE_INIT, 
-                     eqNet::PacketFunc<Pipe>( this, &Pipe::_cmdInit ));
+                     eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdInit ));
     registerCommand( REQ_PIPE_INIT,
-                     eqNet::PacketFunc<Pipe>( this, &Pipe::_reqInit ));
+                     eqNet::CommandFunc<Pipe>( this, &Pipe::_reqInit ));
     registerCommand( CMD_PIPE_EXIT, 
-                     eqNet::PacketFunc<Pipe>( this, &Pipe::pushCommand ));
+                     eqNet::CommandFunc<Pipe>( this, &Pipe::pushCommand ));
     registerCommand( REQ_PIPE_EXIT,
-                     eqNet::PacketFunc<Pipe>( this, &Pipe::_reqExit ));
+                     eqNet::CommandFunc<Pipe>( this, &Pipe::_reqExit ));
     registerCommand( CMD_PIPE_UPDATE,
-                     eqNet::PacketFunc<Pipe>( this, &Pipe::pushCommand ));
+                     eqNet::CommandFunc<Pipe>( this, &Pipe::pushCommand ));
     registerCommand( REQ_PIPE_UPDATE,
-                     eqNet::PacketFunc<Pipe>( this, &Pipe::_reqUpdate ));
+                     eqNet::CommandFunc<Pipe>( this, &Pipe::_reqUpdate ));
     registerCommand( CMD_PIPE_FRAME_SYNC,
-                     eqNet::PacketFunc<Pipe>( this, &Pipe::pushCommand ));
+                     eqNet::CommandFunc<Pipe>( this, &Pipe::pushCommand ));
     registerCommand( REQ_PIPE_FRAME_SYNC,
-                     eqNet::PacketFunc<Pipe>( this, &Pipe::_reqFrameSync ));
+                     eqNet::CommandFunc<Pipe>( this, &Pipe::_reqFrameSync ));
 
     _thread = new PipeThread( this );
 

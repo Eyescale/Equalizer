@@ -25,19 +25,19 @@ Config::Config()
         : Session( true )
 {
     registerCommand( CMD_CONFIG_CREATE_NODE,
-                    eqNet::PacketFunc<Config>( this, &Config::_cmdCreateNode ));
+                    eqNet::CommandFunc<Config>( this, &Config::_cmdCreateNode ));
     registerCommand( CMD_CONFIG_DESTROY_NODE, 
-                   eqNet::PacketFunc<Config>( this, &Config::_cmdDestroyNode ));
+                   eqNet::CommandFunc<Config>( this, &Config::_cmdDestroyNode ));
     registerCommand( CMD_CONFIG_INIT_REPLY, 
-                     eqNet::PacketFunc<Config>( this, &Config::_cmdInitReply ));
+                     eqNet::CommandFunc<Config>( this, &Config::_cmdInitReply ));
     registerCommand( CMD_CONFIG_EXIT_REPLY, 
-                     eqNet::PacketFunc<Config>( this, &Config::_cmdExitReply ));
+                     eqNet::CommandFunc<Config>( this, &Config::_cmdExitReply ));
     registerCommand( CMD_CONFIG_FRAME_BEGIN_REPLY, 
-               eqNet::PacketFunc<Config>( this, &Config::_cmdBeginFrameReply ));
+               eqNet::CommandFunc<Config>( this, &Config::_cmdBeginFrameReply ));
     registerCommand( CMD_CONFIG_FRAME_END_REPLY, 
-                  eqNet::PacketFunc<Config>( this, &Config::_cmdEndFrameReply));
+                  eqNet::CommandFunc<Config>( this, &Config::_cmdEndFrameReply));
     registerCommand( CMD_CONFIG_EVENT, 
-                     eqNet::PacketFunc<Config>( this, &Config::_cmdEvent ));
+                     eqNet::CommandFunc<Config>( this, &Config::_cmdEvent ));
 
     _headMatrix = NULL;
 }

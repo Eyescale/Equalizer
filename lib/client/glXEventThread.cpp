@@ -22,13 +22,13 @@ GLXEventThread::GLXEventThread()
         : eqNet::Base( true )
 {
     registerCommand( CMD_GLXEVENTTHREAD_ADD_PIPE,
-       eqNet::PacketFunc<GLXEventThread>( this, &GLXEventThread::_cmdAddPipe ));
+       eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdAddPipe ));
     registerCommand( CMD_GLXEVENTTHREAD_REMOVE_PIPE, 
-    eqNet::PacketFunc<GLXEventThread>( this, &GLXEventThread::_cmdRemovePipe ));
+    eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdRemovePipe ));
     registerCommand( CMD_GLXEVENTTHREAD_ADD_WINDOW, 
-     eqNet::PacketFunc<GLXEventThread>( this, &GLXEventThread::_cmdAddWindow ));
+     eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdAddWindow ));
     registerCommand( CMD_GLXEVENTTHREAD_REMOVE_WINDOW,
-  eqNet::PacketFunc<GLXEventThread>( this, &GLXEventThread::_cmdRemoveWindow ));
+  eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdRemoveWindow ));
 }
 
 bool GLXEventThread::init()

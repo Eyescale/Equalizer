@@ -33,11 +33,11 @@ void Object::_construct()
     _deltaDataSize = 0;
 
     registerCommand( CMD_OBJECT_SYNC, 
-                     PacketFunc<Object>( this, &Object::_cmdSync ));
+                     CommandFunc<Object>( this, &Object::_cmdSync ));
     registerCommand( REQ_OBJECT_SYNC,
-                     PacketFunc<Object>( this, &Object::_reqSync ));
+                     CommandFunc<Object>( this, &Object::_reqSync ));
     registerCommand( CMD_OBJECT_COMMIT, 
-                     PacketFunc<Object>( this, &Object::_cmdCommit ));
+                     CommandFunc<Object>( this, &Object::_cmdCommit ));
 }
 
 Object::Object( const uint32_t typeID )

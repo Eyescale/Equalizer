@@ -41,23 +41,23 @@ Node::Node()
           _nextConnectionRequestID(1)
 {
     registerCommand( CMD_NODE_STOP, 
-                     PacketFunc<Node>( this, &Node::_cmdStop ));
+                     CommandFunc<Node>( this, &Node::_cmdStop ));
     registerCommand( CMD_NODE_MAP_SESSION, 
-                     PacketFunc<Node>( this, &Node::_cmdMapSession ));
+                     CommandFunc<Node>( this, &Node::_cmdMapSession ));
     registerCommand( CMD_NODE_MAP_SESSION_REPLY,
-                     PacketFunc<Node>( this, 
+                     CommandFunc<Node>( this, 
                                           &Node::_cmdMapSessionReply ));
     registerCommand( CMD_NODE_UNMAP_SESSION, 
-                     PacketFunc<Node>( this,
+                     CommandFunc<Node>( this,
                                           &Node::_cmdUnmapSession ));
     registerCommand( CMD_NODE_UNMAP_SESSION_REPLY,
-                     PacketFunc<Node>( this,
+                     CommandFunc<Node>( this,
                                           &Node::_cmdUnmapSessionReply ));
     registerCommand( CMD_NODE_GET_CONNECTION_DESCRIPTION,
-                     PacketFunc<Node>( this, 
+                     CommandFunc<Node>( this, 
                                           &Node::_cmdGetConnectionDescription));
     registerCommand( CMD_NODE_GET_CONNECTION_DESCRIPTION_REPLY,
-         PacketFunc<Node>( this, &Node::_cmdGetConnectionDescriptionReply ));
+         CommandFunc<Node>( this, &Node::_cmdGetConnectionDescriptionReply ));
 
     _receiverThread  = new ReceiverThread( this );
     _receivedCommand = new Command;

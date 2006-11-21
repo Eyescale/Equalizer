@@ -30,33 +30,33 @@ Session::Session( const bool threadSafe )
           _instanceIDs( IDPool::MAX_CAPACITY ) 
 {
     registerCommand( CMD_SESSION_GEN_IDS, 
-                     PacketFunc<Session>( this, &Session::_cmdGenIDs ));
+                     CommandFunc<Session>( this, &Session::_cmdGenIDs ));
     registerCommand( CMD_SESSION_GEN_IDS_REPLY,
-                     PacketFunc<Session>( this, &Session::_cmdGenIDsReply ));
+                     CommandFunc<Session>( this, &Session::_cmdGenIDsReply ));
     registerCommand( CMD_SESSION_SET_ID_MASTER,
-                     PacketFunc<Session>( this, &Session::_cmdSetIDMaster ));
+                     CommandFunc<Session>( this, &Session::_cmdSetIDMaster ));
     registerCommand( CMD_SESSION_GET_ID_MASTER, 
-                     PacketFunc<Session>( this, &Session::_cmdGetIDMaster ));
+                     CommandFunc<Session>( this, &Session::_cmdGetIDMaster ));
     registerCommand( CMD_SESSION_GET_ID_MASTER_REPLY,
-                     PacketFunc<Session>( this,
+                     CommandFunc<Session>( this,
                                              &Session::_cmdGetIDMasterReply ));
     registerCommand( CMD_SESSION_GET_OBJECT_MASTER, 
-                     PacketFunc<Session>( this,
+                     CommandFunc<Session>( this,
                                              &Session::_cmdGetObjectMaster ));
     registerCommand( CMD_SESSION_GET_OBJECT_MASTER_REPLY,
-            PacketFunc<Session>( this, &Session::_cmdGetObjectMasterReply ));
+            CommandFunc<Session>( this, &Session::_cmdGetObjectMasterReply ));
     registerCommand( CMD_SESSION_REGISTER_OBJECT,
-                     PacketFunc<Session>( this,
+                     CommandFunc<Session>( this,
                                              &Session::_cmdRegisterObject ));
     registerCommand( CMD_SESSION_UNREGISTER_OBJECT, 
-                     PacketFunc<Session>( this,
+                     CommandFunc<Session>( this,
                                              &Session::_cmdUnregisterObject ));
     registerCommand( CMD_SESSION_GET_OBJECT,
-                     PacketFunc<Session>( this, &Session::_cmdGetObject ));
+                     CommandFunc<Session>( this, &Session::_cmdGetObject ));
     registerCommand( CMD_SESSION_INIT_OBJECT, 
-                     PacketFunc<Session>( this, &Session::_cmdInitObject ));
+                     CommandFunc<Session>( this, &Session::_cmdInitObject ));
     registerCommand( CMD_SESSION_INSTANCIATE_OBJECT, 
-                     PacketFunc<Session>( this,
+                     CommandFunc<Session>( this,
                                              &Session::_cmdInstanciateObject ));
 
     EQINFO << "New Session @" << (void*)this << endl;

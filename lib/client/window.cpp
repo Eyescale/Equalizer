@@ -48,37 +48,37 @@ eq::Window::Window()
           _pipe(NULL)
 {
     registerCommand( CMD_WINDOW_CREATE_CHANNEL, 
-                 eqNet::PacketFunc<Window>( this, &Window::_cmdCreateChannel ));
+                 eqNet::CommandFunc<Window>( this, &Window::_cmdCreateChannel ));
     registerCommand( CMD_WINDOW_DESTROY_CHANNEL,
-                eqNet::PacketFunc<Window>( this, &Window::_cmdDestroyChannel ));
+                eqNet::CommandFunc<Window>( this, &Window::_cmdDestroyChannel ));
     registerCommand( CMD_WINDOW_INIT,
-                     eqNet::PacketFunc<Window>( this, &Window::_pushCommand ));
+                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
     registerCommand( REQ_WINDOW_INIT, 
-                     eqNet::PacketFunc<Window>( this, &Window::_reqInit ));
+                     eqNet::CommandFunc<Window>( this, &Window::_reqInit ));
     registerCommand( CMD_WINDOW_EXIT, 
-                     eqNet::PacketFunc<Window>( this, &Window::_pushCommand ));
+                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
     registerCommand( REQ_WINDOW_EXIT, 
-                     eqNet::PacketFunc<Window>( this, &Window::_reqExit ));
+                     eqNet::CommandFunc<Window>( this, &Window::_reqExit ));
     registerCommand( CMD_WINDOW_FINISH, 
-                     eqNet::PacketFunc<Window>( this, &Window::_pushCommand));
+                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand));
     registerCommand( REQ_WINDOW_FINISH, 
-                     eqNet::PacketFunc<Window>( this, &Window::_reqFinish));
+                     eqNet::CommandFunc<Window>( this, &Window::_reqFinish));
     registerCommand( CMD_WINDOW_BARRIER, 
-                     eqNet::PacketFunc<Window>( this, &Window::_pushCommand ));
+                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
     registerCommand( REQ_WINDOW_BARRIER,
-                     eqNet::PacketFunc<Window>( this, &Window::_reqBarrier ));
+                     eqNet::CommandFunc<Window>( this, &Window::_reqBarrier ));
     registerCommand( CMD_WINDOW_SWAP, 
-                     eqNet::PacketFunc<Window>( this, &Window::_pushCommand ));
+                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
     registerCommand( REQ_WINDOW_SWAP, 
-                     eqNet::PacketFunc<Window>( this, &Window::_reqSwap));
+                     eqNet::CommandFunc<Window>( this, &Window::_reqSwap));
     registerCommand( CMD_WINDOW_STARTFRAME,
-                     eqNet::PacketFunc<Window>( this, &Window::_pushCommand ));
+                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
     registerCommand( REQ_WINDOW_STARTFRAME,
-                     eqNet::PacketFunc<Window>( this, &Window::_reqStartFrame));
+                     eqNet::CommandFunc<Window>( this, &Window::_reqStartFrame));
     registerCommand( CMD_WINDOW_ENDFRAME, 
-                     eqNet::PacketFunc<Window>( this, &Window::_pushCommand ));
+                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
     registerCommand( REQ_WINDOW_ENDFRAME, 
-                     eqNet::PacketFunc<Window>( this, &Window::_reqEndFrame));
+                     eqNet::CommandFunc<Window>( this, &Window::_reqEndFrame));
 }
 
 eq::Window::~Window()

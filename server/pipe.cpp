@@ -26,11 +26,11 @@ void Pipe::_construct()
     _state            = STATE_STOPPED;
 
     registerCommand( eq::CMD_PIPE_INIT_REPLY,
-                     eqNet::PacketFunc<Pipe>( this, &Pipe::_cmdInitReply ));
+                     eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdInitReply ));
     registerCommand( eq::CMD_PIPE_EXIT_REPLY, 
-                     eqNet::PacketFunc<Pipe>( this, &Pipe::_cmdExitReply ));
+                     eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdExitReply ));
     registerCommand( eq::CMD_PIPE_FRAME_SYNC, 
-                     eqNet::PacketFunc<Pipe>( this, &Pipe::_cmdFrameSync ));
+                     eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdFrameSync ));
     EQINFO << "New pipe @" << (void*)this << endl;
 }
 

@@ -35,7 +35,7 @@ public:
     Server()
         { 
             registerCommand( CMD_NODE_CUSTOM, 
-                             PacketFunc<Server>( this, &Server::command ));
+                             CommandFunc<Server>( this, &Server::command ));
         }
 
 protected:
