@@ -69,7 +69,12 @@ namespace eqBase
                 pthread_mutex_unlock( &_mutex );
                 return *this;
             }
-        const T& get() const { return _value; }
+        Monitor& operator = ( const T& val )
+            {
+                set( val );
+                return *this;
+            }
+
         void set( const T& val )
             {
                 pthread_mutex_lock( &_mutex );
@@ -81,14 +86,14 @@ namespace eqBase
 
         /** Monitor the value. */
         //*{
-        void waitEQ( const T& val )
+        void waitEQ( const T& val ) const
             {
                 pthread_mutex_lock( &_mutex );
                 while( _value != val )
                     pthread_cond_wait( &_cond, &_mutex);
                 pthread_mutex_unlock( &_mutex );
             }
-        void waitGE( const T& val )
+        void waitGE( const T& val ) const
             {
                 pthread_mutex_lock( &_mutex );
                 while( _value < val )
@@ -96,11 +101,17 @@ namespace eqBase
                 pthread_mutex_unlock( &_mutex );
             }
         //*}
+
+        /** Data Access. */
+        bool operator == ( const T& val ) const { return _value == val; }
+
+        const T& get() const { return _value; }
+
     private:
         T _value;
 
-        pthread_cond_t  _cond;
-        pthread_mutex_t _mutex;
+        mutable pthread_cond_t  _cond;
+        mutable pthread_mutex_t _mutex;
     };
 }
 

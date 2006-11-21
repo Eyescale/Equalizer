@@ -48,9 +48,9 @@ eq::Window::Window()
           _pipe(NULL)
 {
     registerCommand( CMD_WINDOW_CREATE_CHANNEL, 
-                 eqNet::CommandFunc<Window>( this, &Window::_cmdCreateChannel ));
+                eqNet::CommandFunc<Window>( this, &Window::_cmdCreateChannel ));
     registerCommand( CMD_WINDOW_DESTROY_CHANNEL,
-                eqNet::CommandFunc<Window>( this, &Window::_cmdDestroyChannel ));
+               eqNet::CommandFunc<Window>( this, &Window::_cmdDestroyChannel ));
     registerCommand( CMD_WINDOW_INIT,
                      eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
     registerCommand( REQ_WINDOW_INIT, 
@@ -74,7 +74,7 @@ eq::Window::Window()
     registerCommand( CMD_WINDOW_STARTFRAME,
                      eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
     registerCommand( REQ_WINDOW_STARTFRAME,
-                     eqNet::CommandFunc<Window>( this, &Window::_reqStartFrame));
+                    eqNet::CommandFunc<Window>( this, &Window::_reqStartFrame));
     registerCommand( CMD_WINDOW_ENDFRAME, 
                      eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
     registerCommand( REQ_WINDOW_ENDFRAME, 

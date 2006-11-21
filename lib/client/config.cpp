@@ -77,6 +77,7 @@ bool Config::exit()
 
 uint32_t Config::beginFrame( const uint32_t frameID )
 {
+    EQLOG( LOG_ANY ) << "----- Begin Frame -----" << endl;
     ConfigBeginFramePacket packet;
     packet.requestID = _requestHandler.registerRequest();
     packet.frameID   = frameID;
@@ -93,6 +94,7 @@ uint32_t Config::endFrame()
     const int frameNumber = 
         (uint32_t)(long long)(_requestHandler.waitRequest(packet.requestID));
     handleEvents();
+    EQLOG( LOG_ANY ) << "------ End Frame ------" << endl;
     return frameNumber;
 }
 

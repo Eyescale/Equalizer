@@ -153,13 +153,14 @@ void Channel::assemble( const uint32_t frameID )
     applyBuffer();
     applyViewport();
 
-#if 0
-    const vector<Frame*>& frames = getOutputFrames();
+    const vector<Frame*>& frames = getInputFrames();
     for( vector<Frame*>::const_iterator iter = frames.begin();
          iter != frames.end(); ++iter )
-
-        (*iter)->startReadback();
-#endif
+    {
+        Frame* frame = *iter;
+        
+        frame->waitReady();
+    }
 }
 
 void Channel::readback( const uint32_t frameID )
@@ -310,8 +311,6 @@ eqNet::CommandResult Channel::_reqAssemble( eqNet::Command& command )
                                                     packet->frames[i].version );
         EQASSERT( dynamic_cast<Frame*>( object ));
         Frame* frame = static_cast<Frame*>( object );
-        //frame->clear();
-        EQLOG( LOG_ASSEMBLY ) << "assemble " << frame << endl;
         _inputFrames.push_back( frame );
     }
 
@@ -338,7 +337,6 @@ eqNet::CommandResult Channel::_reqReadback( eqNet::Command& command )
                                                     packet->frames[i].version );
         EQASSERT( dynamic_cast<Frame*>( object ));
         Frame* frame = static_cast<Frame*>( object );
-        frame->clear();
         EQLOG( LOG_ASSEMBLY ) << "readback " << frame << endl;
         _outputFrames.push_back( frame );
     }

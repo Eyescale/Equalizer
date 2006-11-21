@@ -54,9 +54,6 @@ namespace eq
          */
         //*{
 
-        /** Clear the frame by deleting the attached images. */
-        void clear();
-
         /** 
          * Read back a set of images according to the current frame data.
          * 
@@ -76,12 +73,25 @@ namespace eq
          * @param toNode the receiving node.
          */
         void transmit( eqBase::RefPtr<eqNet::Node> toNode );
+
+        /** 
+         * Test the readiness of the frame.
+         * 
+         * The readiness of the frame is automatically managed by the frame
+         * buffer readback and transmit implementation.
+         * 
+         * @return true if the frame is ready, false if not. 
+         */
+        bool isReady();
+
+        /** Wait for the frame to become available. */
+        void waitReady();
         //*}
 
     protected:
         /** @sa eqNet::Object::unpack */
         virtual void unpack( const void* data, const uint64_t size ) 
-            { _buffer = 0; eqNet::Object::unpack( data, size ); }
+            { _clear(); eqNet::Object::unpack( data, size ); }
 
     private:
         std::string _name;
@@ -99,6 +109,12 @@ namespace eq
         FrameBuffer* _buffer;
 
         FrameBuffer* _getBuffer();
+
+        /** 
+         * Clear the frame by deleting the attached images and unsetting the
+         * frame buffer.
+         */
+        void _clear();
     };
 };
 #endif // EQ_FRAME_H

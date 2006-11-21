@@ -52,9 +52,6 @@ void Command::allocate( eqBase::RefPtr<Node> node, const uint64_t packetSize )
     if( !_packet )
         _packet = static_cast<Packet*>( malloc( MAX( Packet::minSize,
                                                      packetSize      )));
-    else
-        // Not a hard error, just sanity check for eq use case
-        EQASSERT( _packet->size <= Packet::minSize );
 
     _node         = node;
     _packet->size = packetSize;

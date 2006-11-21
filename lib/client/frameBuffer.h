@@ -6,6 +6,8 @@
 #define EQ_FRAMEBUFFER_H
 
 #include <eq/client/frame.h>
+
+#include <eq/base/monitor.h>
 #include <eq/net/object.h>
 
 namespace eqs
@@ -15,7 +17,8 @@ namespace eqs
 
 namespace eq
 {
-    class Image;
+    class  Image;
+    struct FrameBufferTransmitPacket;
 
     /**
      * A frame buffer holds multiple images and is used by frames.
@@ -74,6 +77,20 @@ namespace eq
          * @param toNode the receiving node.
          */        
         void transmit( eqBase::RefPtr<eqNet::Node> toNode );
+
+        /** 
+         * Set the frame buffer ready.
+         * 
+         * The frame buffer is automatically set ready by syncReadback
+         * and upon processing of the transmit commands.
+         */
+        void setReady()        { _readyVersion = getVersion(); }
+
+        /** @return true if the frame buffer is ready, false if not. */
+        bool isReady() const   { return _readyVersion == getVersion(); }
+
+        /** Wait for the frame buffer to become available. */
+        void waitReady() const { _readyVersion.waitEQ( getVersion( )); }
         //*}
 
     protected:
@@ -101,13 +118,20 @@ namespace eq
         std::vector<Image*> _images[INDEX_ALL];
         std::vector<Image*> _imageCache[INDEX_ALL];
 
+        eqBase::Monitor<uint32_t> _readyVersion;
+
         void _clearImages( const FormatIndex index );
         void _flushImages( const FormatIndex index );
 
         FormatIndex _getIndexForFormat( const Frame::Format format );
 
+        void _transmit( eqBase::RefPtr<eqNet::Node> toNode,
+                        FrameBufferTransmitPacket& packet,
+                        const Frame::Format format );
+
         /* The command handlers. */
-        //CommandResult _cmdEnter( Node* node, const Packet* pkg );
+        eqNet::CommandResult _cmdTransmit( eqNet::Command& command );
+        eqNet::CommandResult _cmdReady( eqNet::Command& command );
     };
 }
 

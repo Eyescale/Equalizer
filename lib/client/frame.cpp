@@ -37,9 +37,10 @@ FrameBuffer* Frame::_getBuffer()
     return _buffer;
 }
 
-void Frame::clear()
+void Frame::_clear()
 {
     _getBuffer()->clear(); 
+    _buffer = 0;
 }
 
 void Frame::startReadback() 
@@ -55,4 +56,14 @@ void Frame::syncReadback()
 void Frame::transmit( eqBase::RefPtr<eqNet::Node> toNode )
 {
     _getBuffer()->transmit( toNode );
+}
+
+bool Frame::isReady()
+{
+    return _getBuffer()->isReady();
+}
+
+void Frame::waitReady()
+{
+    _getBuffer()->waitReady();
 }

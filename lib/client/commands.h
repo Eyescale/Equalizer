@@ -127,6 +127,7 @@ namespace eq
     enum FrameBufferCommand
     {
         CMD_FRAMEBUFFER_TRANSMIT = eqNet::CMD_OBJECT_CUSTOM,
+        CMD_FRAMEBUFFER_READY,
         CMD_FRAMEBUFFER_CUSTOM
     };
 

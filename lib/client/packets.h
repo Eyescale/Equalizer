@@ -659,6 +659,16 @@ namespace eq
         uint8_t       data[1]; // size is pvp.w * pvp.h * depth
     };
 
+    struct FrameBufferReadyPacket : public eqNet::ObjectPacket
+    {
+        FrameBufferReadyPacket()
+            {
+                command = CMD_FRAMEBUFFER_READY;
+                size    = sizeof( FrameBufferReadyPacket );
+            }
+        uint32_t version;
+    };
+
     //------------------------------------------------------------
     // Event Thread
     //------------------------------------------------------------

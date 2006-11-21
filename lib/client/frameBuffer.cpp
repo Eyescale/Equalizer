@@ -9,6 +9,7 @@
 #include "object.h"
 #include "packets.h"
 
+#include <eq/net/command.h>
 #include <eq/net/session.h>
 #include <algorithm>
 
@@ -21,6 +22,11 @@ FrameBuffer::FrameBuffer( const void* data, const uint64_t size )
 {
     EQASSERT( size == sizeof( Data ));
     setInstanceData( &_data, sizeof( Data ));
+
+    registerCommand( CMD_FRAMEBUFFER_TRANSMIT,
+           eqNet::CommandFunc<FrameBuffer>( this, &FrameBuffer::_cmdTransmit ));
+    registerCommand( CMD_FRAMEBUFFER_READY,
+              eqNet::CommandFunc<FrameBuffer>( this, &FrameBuffer::_cmdReady ));
 }
 
 FrameBuffer::~FrameBuffer()
@@ -107,7 +113,21 @@ void FrameBuffer::startReadback( const Frame& frame )
 
 void FrameBuffer::syncReadback()
 {
-    // TODO: setReady
+    for( vector<Image*>::const_iterator iter = _images[INDEX_COLOR].begin();
+         iter != _images[INDEX_COLOR].end(); ++iter )
+    {
+        Image* image = *iter;
+        image->syncReadback();
+    }
+    
+    for( vector<Image*>::const_iterator iter = _images[INDEX_DEPTH].begin();
+         iter != _images[INDEX_DEPTH].end(); ++iter )
+    {
+        Image* image = *iter;
+        image->syncReadback();
+    }
+    
+    setReady();
 }
 
 void FrameBuffer::transmit( eqBase::RefPtr<eqNet::Node> toNode )
@@ -119,21 +139,51 @@ void FrameBuffer::transmit( eqBase::RefPtr<eqNet::Node> toNode )
     packet.sessionID = session->getID();
     packet.objectID  = getID();
 
-    if( _data.format & Frame::FORMAT_COLOR )
+    _transmit( toNode, packet, Frame::FORMAT_COLOR );
+    _transmit( toNode, packet, Frame::FORMAT_DEPTH );
+
+    FrameBufferReadyPacket readyPacket;
+    readyPacket.sessionID = session->getID();
+    readyPacket.objectID  = getID();
+    readyPacket.version   = getVersion();
+    toNode->send( readyPacket );
+}
+
+void FrameBuffer::_transmit( eqBase::RefPtr<eqNet::Node> toNode, 
+                             FrameBufferTransmitPacket& packet, 
+                             const Frame::Format format )
+{
+    if( !(_data.format & format))
+        return;
+
+    const uint32_t index = _getIndexForFormat( format );
+    for( vector<Image*>::const_iterator iter = _images[index].begin();
+         iter != _images[index].end(); ++iter )
     {
-        for( vector<Image*>::const_iterator iter = _images[INDEX_COLOR].begin();
-             iter != _images[INDEX_COLOR].end(); ++iter )
-        {
-            const Image*           image = *iter;
-            const vector<uint8_t>& data  = image->getPixelData();
+        const Image*           image = *iter;
+        const vector<uint8_t>& data  = image->getPixelData();
 
-            packet.format = Frame::FORMAT_COLOR;
-            packet.pvp    = image->getPixelViewport();
+        packet.format = format;
+        packet.pvp    = image->getPixelViewport();
 
-            EQASSERT( data.size() == 
-                      packet.pvp.w * packet.pvp.h * image->getDepth( ));
-            toNode->send<uint8_t>( packet, data );
-        }
+        EQASSERT( data.size() == packet.pvp.w*packet.pvp.h*image->getDepth());
+        toNode->send<uint8_t>( packet, data );
     }
 }
 
+eqNet::CommandResult FrameBuffer::_cmdTransmit( eqNet::Command& command )
+{
+    const FrameBufferTransmitPacket* packet = 
+        command.getPacket<FrameBufferTransmitPacket>();
+    // TODO create and attach Image
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult FrameBuffer::_cmdReady( eqNet::Command& command )
+{
+    const FrameBufferReadyPacket* packet = 
+        command.getPacket<FrameBufferReadyPacket>();
+
+    _readyVersion = packet->version;
+    return eqNet::COMMAND_HANDLED;
+}

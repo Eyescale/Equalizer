@@ -332,14 +332,13 @@ namespace eqNet
             }
 
         /** 
-         * Sends a packet with a string to the node.
+         * Sends a packet with additional data to the node.
          * 
          * The data is send as a new packet containing the original packet and
          * the string, so that it is received as one packet by the node.
          *
          * It is assumed that the last item in the packet is of sizeof(T) and
-         * usable for the data. The vector's elements are copied using memcpy to
-         * the output stream.
+         * usable for the data.
          *
          * @param packet the packet.
          * @param data the vector containing the data.

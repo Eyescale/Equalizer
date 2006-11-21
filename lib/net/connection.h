@@ -121,7 +121,7 @@ namespace eqNet
             { return send( packet, string.c_str(), string.size()+1 ); }
 
         /** 
-         * Sends a packaged message including the data.
+         * Sends a packaged message including additional data.
          * 
          * @param packet the message packet.
          * @param data the vector containing the data.
