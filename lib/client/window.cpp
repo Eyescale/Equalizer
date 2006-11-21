@@ -17,6 +17,7 @@
 #include "windowEvent.h"
 
 #include <eq/net/barrier.h>
+#include <eq/net/command.h>
 
 using namespace eq;
 using namespace eqBase;

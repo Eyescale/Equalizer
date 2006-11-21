@@ -14,6 +14,8 @@
 #include "range.h"
 #include "renderContext.h"
 
+#include <eq/net/command.h>
+
 using namespace eq;
 using namespace eqBase;
 using namespace std;

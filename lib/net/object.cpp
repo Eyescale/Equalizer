@@ -2,12 +2,9 @@
 /* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-// TODO:
-// - thread-safety: right now, commits and obsoletions are done by the app
-// thread, whereas the instanciation requests are served by the recv thread.
-
 #include "object.h"
 
+#include "command.h"
 #include "log.h"
 #include "packets.h"
 #include "session.h"
@@ -454,7 +451,8 @@ CommandResult Object::_cmdCommit( Command& command )
     {
         _commitInitial();
         EQASSERT( _slaves.empty( ));
-        _requestHandler.serveRequest( packet->requestID, (void*)_version );
+        _requestHandler.serveRequest( packet->requestID, 
+                                      reinterpret_cast<void*>(_version) );
         _checkConsistency();
         return COMMAND_HANDLED;
     }
@@ -469,7 +467,8 @@ CommandResult Object::_cmdCommit( Command& command )
     if( !delta || deltaSize == 0 )
     {
         _obsolete();
-        _requestHandler.serveRequest( packet->requestID, (void*)_version );
+        _requestHandler.serveRequest( packet->requestID, 
+                                      reinterpret_cast<void*>(_version) );
         _checkConsistency();
         return COMMAND_HANDLED;
     }
@@ -543,7 +542,8 @@ CommandResult Object::_cmdCommit( Command& command )
     EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " << getID() 
                          << endl;
 
-    _requestHandler.serveRequest( packet->requestID, (void*)_version );
+    _requestHandler.serveRequest( packet->requestID, 
+                                  reinterpret_cast<void*>(_version) );
     _checkConsistency();
     return COMMAND_HANDLED;
 }

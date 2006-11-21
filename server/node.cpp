@@ -11,8 +11,9 @@
 #include "server.h"
 #include "window.h"
 
-#include <eq/client/packets.h>
 #include <eq/net/barrier.h>
+#include <eq/net/command.h>
+#include <eq/client/packets.h>
 
 using namespace eqs;
 using namespace eqBase;

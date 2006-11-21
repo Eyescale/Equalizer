@@ -2,6 +2,7 @@
 #include <test.h>
 
 #include <eq/base/lock.h>
+#include <eq/net/command.h>
 #include <eq/net/connection.h>
 #include <eq/net/init.h>
 #include <eq/net/node.h>

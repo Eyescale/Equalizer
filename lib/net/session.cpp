@@ -4,6 +4,7 @@
 #include "session.h"
 
 #include "barrier.h"
+#include "command.h"
 #include "connection.h"
 #include "connectionDescription.h"
 #include "log.h"

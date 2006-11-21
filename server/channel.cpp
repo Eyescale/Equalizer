@@ -8,9 +8,10 @@
 #include "config.h"
 #include "window.h"
 
+#include <eq/base/base.h>
+#include <eq/net/command.h>
 #include <eq/client/commands.h>
 #include <eq/client/packets.h>
-#include <eq/base/base.h>
 
 using namespace eqs;
 using namespace eqBase;

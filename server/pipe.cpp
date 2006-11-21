@@ -9,6 +9,7 @@
 #include "node.h"
 #include "window.h"
 
+#include <eq/net/command.h>
 #include <eq/client/commands.h>
 
 using namespace eqs;

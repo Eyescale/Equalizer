@@ -4,6 +4,7 @@
 
 #include "barrier.h"
 
+#include "command.h"
 #include "connection.h"
 #include "log.h"
 #include "packets.h"

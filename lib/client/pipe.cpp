@@ -13,6 +13,8 @@
 #include "X11Connection.h"
 #include "window.h"
 
+#include <eq/net/command.h>
+
 #include <sstream>
 
 using namespace eq;
@@ -23,8 +25,8 @@ Pipe::Pipe()
         : eqNet::Object( eq::Object::TYPE_PIPE ),
           _node(NULL),
           _windowSystem( WINDOW_SYSTEM_NONE ),
-          _display(EQ_UNDEFINED_UINT32),
-          _screen(EQ_UNDEFINED_UINT32)
+          _display( EQ_UNDEFINED_UINT32 ),
+          _screen( EQ_UNDEFINED_UINT32 )
 {
     registerCommand( CMD_PIPE_CREATE_WINDOW,
                    eqNet::PacketFunc<Pipe>( this, &Pipe::_cmdCreateWindow ));

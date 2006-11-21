@@ -8,8 +8,8 @@
 
 #include <eq/client/event.h>
 #include <eq/client/windowEvent.h>
+#include <eq/net/command.h>
 #include <eq/net/connectionSet.h>
-#include <eq/net/node.h>
 
 namespace eq
 {

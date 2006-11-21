@@ -6,7 +6,6 @@
 #define EQNET_NODE_H
 
 #include <eq/net/base.h>
-#include <eq/net/command.h>
 #include <eq/net/commands.h>
 #include <eq/net/connectionDescription.h>
 #include <eq/net/connectionSet.h>
@@ -23,6 +22,7 @@
 
 namespace eqNet
 {
+    class Command;
     class ConnectionDescription;
     class Session;
 
@@ -621,8 +621,8 @@ namespace eqNet
         /** The node for each connection. */
         eqBase::PtrHash< Connection*, eqBase::RefPtr<Node> > _connectionNodes;
 
-        /** The cache to store the last received command, stored for reuse */
-        Command _receivedCommand;
+        /** The cache to store the last received command for reuse */
+        Command* _receivedCommand;
 
         /** The request id for the async launch operation. */
         uint32_t _launchID;

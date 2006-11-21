@@ -5,12 +5,13 @@
 #ifndef EQNET_COMMAND_H
 #define EQNET_COMMAND_H
 
+#include <eq/net/node.h>
+
 #include <eq/base/base.h>
 #include <eq/base/refPtr.h>
 
 namespace eqNet
 {    
-    class  Node;
     struct Packet;
 
     /**

@@ -13,10 +13,11 @@
 #include "window.h"
 
 #include <eq/base/refPtr.h>
-#include <eq/client/packets.h>
+#include <eq/net/command.h>
 #include <eq/net/connectionDescription.h>
 #include <eq/net/init.h>
 #include <eq/net/node.h>
+#include <eq/client/packets.h>
 
 #include <sstream>
 

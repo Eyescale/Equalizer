@@ -4,6 +4,7 @@
 
 #include "node.h"
 
+#include "command.h"
 #include "connectionSet.h"
 #include "global.h"
 #include "launcher.h"
@@ -58,13 +59,14 @@ Node::Node()
     registerCommand( CMD_NODE_GET_CONNECTION_DESCRIPTION_REPLY,
          PacketFunc<Node>( this, &Node::_cmdGetConnectionDescriptionReply ));
 
-    _receiverThread = new ReceiverThread( this );
-
+    _receiverThread  = new ReceiverThread( this );
+    _receivedCommand = new Command;
     EQINFO << "New Node @" << (void*)this << endl;
 }
 
 Node::~Node()
 {
+    delete _receivedCommand;
     delete _receiverThread;
     EQINFO << "Delete Node @" << (void*)this << endl;
 }
@@ -579,19 +581,19 @@ bool Node::_handleCommand( RefPtr<Node> node )
     EQASSERT( read == sizeof( size ));
     EQASSERT( size );
 
-    _receivedCommand.allocate( node, size );
+    _receivedCommand->allocate( node, size );
     size -= sizeof( size );
 
-    char*      ptr     = (char*)_receivedCommand.getPacket() + sizeof(size);
+    char*      ptr     = (char*)_receivedCommand->getPacket() + sizeof(size);
     const bool gotData = node->_connection->recv( ptr, size );
     EQASSERT( gotData );
-    EQASSERT( _receivedCommand.isValid( ));
+    EQASSERT( _receivedCommand->isValid( ));
 
-    const CommandResult result = dispatchCommand( _receivedCommand );
+    const CommandResult result = dispatchCommand( *_receivedCommand );
     switch( result )
     {
         case COMMAND_ERROR:
-            EQERROR << "Error handling command " << _receivedCommand << endl;
+            EQERROR << "Error handling command " << *_receivedCommand << endl;
             EQASSERT(0);
             break;
         
@@ -601,16 +603,16 @@ bool Node::_handleCommand( RefPtr<Node> node )
             break;
             
         case COMMAND_PUSH:
-            if( !pushCommand( _receivedCommand ))
+            if( !pushCommand( *_receivedCommand ))
                 EQASSERTINFO( 0, "Error handling command packet: pushCommand "
-                              << "failed for " << _receivedCommand << endl );
+                              << "failed for " << *_receivedCommand << endl );
             break;
 
         case COMMAND_PUSH_FRONT:
-            if( !pushCommandFront( _receivedCommand ))
+            if( !pushCommandFront( *_receivedCommand ))
                 EQASSERTINFO( 0, "Error handling command packet: "
                               << "pushCommandFront failed for "
-                              << _receivedCommand << endl );
+                              << *_receivedCommand << endl );
             break;
 
         default:
@@ -621,14 +623,14 @@ bool Node::_handleCommand( RefPtr<Node> node )
  
     if( result == COMMAND_REDISPATCH )
     {
-        Command* command = _commandCache.alloc( _receivedCommand );
+        Command* command = _commandCache.alloc( *_receivedCommand );
         _pendingCommands.push_back( command );
     }
     
 #if 0 // Note: tradeoff between memory footprint and performance
     // dealloc 'big' packets immediately
-    if( _receivedCommand.isValid() && _receivedCommand->exceedsMinSize( ))
-        _receivedCommand.release();
+    if( _receivedCommand->isValid() && (*_receivedCommand)->exceedsMinSize( ))
+        _receivedCommand->release();
 #endif
 
     return true;

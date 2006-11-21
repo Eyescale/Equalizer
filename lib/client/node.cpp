@@ -13,6 +13,7 @@
 #include "pipe.h"
 #include "server.h"
 
+#include <eq/net/command.h>
 #include <eq/net/connection.h>
 
 using namespace eq;

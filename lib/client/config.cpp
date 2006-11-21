@@ -14,6 +14,7 @@
 #include "packets.h"
 #include "server.h"
 
+#include <eq/net/command.h>
 #include <eq/net/global.h>
 
 using namespace eq;

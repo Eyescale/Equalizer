@@ -4,6 +4,7 @@
 
 #include "base.h"
 
+#include "command.h"
 #include "node.h"
 #include "packets.h"
 

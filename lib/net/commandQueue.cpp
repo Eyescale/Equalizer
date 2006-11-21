@@ -4,6 +4,7 @@
 
 #include "commandQueue.h"
 
+#include "command.h"
 #include "node.h"
 #include "packets.h"
 

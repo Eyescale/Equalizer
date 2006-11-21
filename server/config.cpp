@@ -8,6 +8,8 @@
 #include "node.h"
 #include "server.h"
 #include "global.h"
+
+#include <eq/net/command.h>
 #include <eq/net/global.h>
 
 using namespace eqs;

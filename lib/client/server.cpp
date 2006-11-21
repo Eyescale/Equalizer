@@ -12,6 +12,7 @@
 #include "openParams.h"
 #include "packets.h"
 
+#include <eq/net/command.h>
 #include <eq/net/connection.h>
 
 using namespace eq;

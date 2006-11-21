@@ -4,6 +4,7 @@
 
 #include "commandCache.h"
 
+#include "command.h"
 #include "node.h"
 #include "packets.h"
 
@@ -16,35 +17,35 @@ CommandCache::~CommandCache()
 {
     while( !_freeCommands.empty( ))
     {
-        Command* holder = _freeCommands.front();
+        Command* command = _freeCommands.front();
         _freeCommands.pop_front();
-        delete holder;
+        delete command;
     }
 }
 
-Command* CommandCache::alloc( Command& inHolder )
+Command* CommandCache::alloc( Command& inCommand )
 {
-    Command* outHolder;
+    Command* outCommand;
 
     if( _freeCommands.empty( ))
-        outHolder = new Command;
+        outCommand = new Command;
     else
     {
-        outHolder = _freeCommands.front();
+        outCommand = _freeCommands.front();
         _freeCommands.pop_front();
     }
 
-    *outHolder = inHolder;
-    return outHolder;
+    *outCommand = inCommand;
+    return outCommand;
 }
 
-void CommandCache::release( Command* holder )
+void CommandCache::release( Command* command )
 {
-    EQASSERT( holder->isValid( ));
+    EQASSERT( command->isValid( ));
 
-    if( (*holder)->exceedsMinSize( )) // old packet was 'big', release
-        holder->release();
+    if( (*command)->exceedsMinSize( )) // old packet was 'big', release
+        command->release();
     
-    _freeCommands.push_back( holder );
+    _freeCommands.push_back( command );
 }
 

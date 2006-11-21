@@ -10,6 +10,8 @@
 #include "log.h"
 #include "pipe.h"
 
+#include <eq/net/command.h>
+
 using namespace eqs;
 using namespace eqBase;
 using namespace std;
