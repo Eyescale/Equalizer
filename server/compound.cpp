@@ -126,6 +126,7 @@ void Compound::setSwapBarrier( SwapBarrier* barrier )
 
 void Compound::addInputFrame( Frame* frame )
 { 
+    EQASSERT( frame );
     if( frame->getName().empty() )
         _setDefaultFrameName( frame );
     _inputFrames.push_back( frame ); 
@@ -283,7 +284,7 @@ TraverseResult Compound::_initCB( Compound* compound, void* userData )
         frame->setAutoObsolete( latency );
     }
 
-    for( vector<Frame*>::iterator iter = compound->_inputFrames.begin(); 
+    for( vector<Frame*>::const_iterator iter = compound->_inputFrames.begin(); 
          iter != compound->_inputFrames.end(); ++iter )
     {
         Frame* frame = *iter;
@@ -308,7 +309,7 @@ void Compound::exit()
     }
     _outputFrames.clear();
 
-    for( vector<Frame*>::iterator iter = _inputFrames.begin(); 
+    for( vector<Frame*>::const_iterator iter = _inputFrames.begin(); 
          iter != _inputFrames.end(); ++iter )
     {
         Frame* frame = *iter;
@@ -508,7 +509,7 @@ void Compound::_updateInput( UpdateData* data )
     if( !testTask( TASK_ASSEMBLE ) || _inputFrames.empty( ) || !_data.channel )
         return;
 
-    for( vector<Frame*>::iterator iter = _inputFrames.begin(); 
+    for( vector<Frame*>::const_iterator iter = _inputFrames.begin(); 
          iter != _inputFrames.end(); ++iter )
     {
         Frame*                       frame = *iter;
@@ -768,7 +769,7 @@ void Compound::_updateAssemble( const eq::RenderContext& context )
     vector<Frame*>               frames;
     vector<eqNet::ObjectVersion> frameIDs;
     for( vector<Frame*>::const_iterator iter = _inputFrames.begin(); 
-         iter != _outputFrames.end(); ++iter )
+         iter != _inputFrames.end(); ++iter )
     {
         Frame* frame = *iter;
         // TODO: filter: format, vp, eye

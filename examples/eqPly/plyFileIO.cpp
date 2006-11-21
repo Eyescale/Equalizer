@@ -106,7 +106,7 @@ PlyModel< NormalFace<ColorVertex> > *PlyFileIO::read( const char *filename )
     PlyModel< NormalFace<ColorVertex> > *model = NULL;
 #endif
 
-    if( model == NULL )
+    if( !model )
     {
         if( isFile )
             model = readPly( filename );

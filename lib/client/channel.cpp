@@ -310,12 +310,12 @@ eqNet::CommandResult Channel::_reqAssemble( eqNet::Command& command )
         Frame* frame = static_cast<Frame*>( object );
         //frame->clear();
         EQLOG( LOG_ASSEMBLY ) << "assemble " << frame << endl;
-        //_inputFrames.push_back( frame );
+        _inputFrames.push_back( frame );
     }
 
     assemble( packet->context.frameID );
 
-    //_inputFrames.clear();
+    _inputFrames.clear();
     _context = NULL;
     return eqNet::COMMAND_HANDLED;
 }
