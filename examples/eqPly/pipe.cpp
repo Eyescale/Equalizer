@@ -39,3 +39,14 @@ void Pipe::startFrame( const uint32_t frameID )
 {
     _frameData->sync( frameID );
 }
+
+GLuint Pipe::getDisplayList( const void* key )
+{
+    return _displayLists[key];
+}
+
+GLuint Pipe::newDisplayList( const void* key )
+{
+    _displayLists[key] = glGenLists( 1 );
+    return _displayLists[key];
+}

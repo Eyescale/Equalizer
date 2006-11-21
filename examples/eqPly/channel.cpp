@@ -7,6 +7,7 @@
 #include "frameData.h"
 #include "initData.h"
 #include "node.h"
+#include "pipe.h"
 
 using namespace std;
 using namespace eqBase;
@@ -103,6 +104,19 @@ void Channel::draw( const uint32_t frameID )
 
 void Channel::_drawBBox( const Model::BBox *bbox )
 {
+    Pipe*  pipe        = static_cast<Pipe*>( getPipe( ));
+    GLuint displayList = pipe->getDisplayList( bbox );
+
+    if( displayList != 0 )
+    {
+        glCallList( displayList );
+        return;
+    }
+
+    displayList = pipe->newDisplayList( bbox );
+    EQASSERT( displayList );
+
+    glNewList( displayList, GL_COMPILE );
     const size_t nFaces = bbox->nFaces;
             
     glBegin( GL_TRIANGLES );    
@@ -123,6 +137,9 @@ void Channel::_drawBBox( const Model::BBox *bbox )
         glVertex3fv( face.vertices[2].pos );
     }
     glEnd();
+
+    glEndList();
+    glCallList( displayList );
 }
 
 void Channel::_initFrustum( Frustumf& frustum )

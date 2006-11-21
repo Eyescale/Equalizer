@@ -158,8 +158,8 @@ PlyModel< NormalFace<ColorVertex> > *PlyFileIO::readDir( const char *dirname )
         free( faces[i] );
     }
     
-    size_t threshold = (nAllFaces<16000) ? 16 : nAllFaces/1000;
-    threshold = (threshold>4096) ? 4096 : threshold;
+    size_t threshold = MAX( nAllFaces/1000, 1024 );
+    threshold = MIN( 4096 , threshold );
 
     model->setFaces( nAllFaces, allFaces, threshold );
     model->normalize();
