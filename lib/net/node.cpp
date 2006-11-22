@@ -487,6 +487,10 @@ void* Node::_runReceiver()
                 }
                 break;
 
+            case ConnectionSet::EVENT_INTERRUPT:
+                _redispatchCommands();
+                break;
+
             default:
                 EQUNIMPLEMENTED;
         }
@@ -638,36 +642,42 @@ bool Node::_handleCommand( RefPtr<Node> node )
 
 void Node::_redispatchCommands()
 {
-    for( list<Command*>::iterator iter = _pendingCommands.begin(); 
-         iter != _pendingCommands.end(); ++iter )
+    bool changes = !_pendingCommands.empty();
+    while( changes )
     {
-        Command* command = (*iter);
-        
-        switch( dispatchCommand( *command ))
+        changes = false;
+        for( list<Command*>::iterator iter = _pendingCommands.begin(); 
+             iter != _pendingCommands.end(); ++iter )
         {
-            case COMMAND_HANDLED:
-            case COMMAND_DISCARD:
+            Command* command = (*iter);
+        
+            switch( dispatchCommand( *command ))
             {
-                list<Command*>::iterator handledIter = iter;
-                ++iter;
-                _pendingCommands.erase( handledIter );
-                _commandCache.release( command );
-            }
-            break;
-
-            case COMMAND_ERROR:
-                EQERROR << "Error handling command " << command << endl;
-                EQASSERT(0);
+                case COMMAND_HANDLED:
+                case COMMAND_DISCARD:
+                {
+                    list<Command*>::iterator handledIter = iter;
+                    ++iter;
+                    _pendingCommands.erase( handledIter );
+                    _commandCache.release( command );
+                    changes = true;
+                }
                 break;
+
+                case COMMAND_ERROR:
+                    EQERROR << "Error handling command " << command << endl;
+                    EQASSERT(0);
+                    break;
                 
-            // Already a pushed packet?!
-            case COMMAND_PUSH:
-                EQUNIMPLEMENTED;
-            case COMMAND_PUSH_FRONT:
-                EQUNIMPLEMENTED;
-
-            case COMMAND_REDISPATCH:
-                break;
+                    // Already a pushed packet?!
+                case COMMAND_PUSH:
+                    EQUNIMPLEMENTED;
+                case COMMAND_PUSH_FRONT:
+                    EQUNIMPLEMENTED;
+                    
+                case COMMAND_REDISPATCH:
+                    break;
+            }
         }
     }
 }

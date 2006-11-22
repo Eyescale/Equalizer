@@ -82,6 +82,7 @@ namespace eqNet
          */
         void setWorkDir( const std::string& name ) { _workDir = name; }
         //*}
+
         /**
          * @name State Changes
          *
@@ -374,6 +375,14 @@ namespace eqNet
                     return false;
                 return ( _connection->send( packet, data, size )>=packet.size );
             }
+
+        /**
+         * Flush all pending commands on this listening node.
+         *
+         * This causes the receiver thread to redispatch all pending commands,
+         * which are normally only redispatched when a new command is received.
+         */
+        void flushCommands() { _connectionSet.interrupt(); }
 
         /** 
          * Notifies that a message is ready to be received.

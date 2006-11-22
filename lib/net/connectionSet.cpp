@@ -33,8 +33,8 @@ ConnectionSet::ConnectionSet()
 ConnectionSet::~ConnectionSet()
 {
     _connection = NULL;
-    close( _selfFD[0] );
-    close( _selfFD[1] );
+    close( _selfFD[SIDE_SELECT] );
+    close( _selfFD[SIDE_APP] );
 }
 
 
@@ -44,8 +44,14 @@ void ConnectionSet::_dirtyFDSet()
     if( !_inSelect )
         return;
 
-    const char c = 'd';
-    write( _selfFD[1], &c, 1 );
+    const char c = SELF_MODIFIED;
+    write( _selfFD[SIDE_APP], &c, 1 );
+}
+
+void ConnectionSet::interrupt()
+{
+    const char c = SELF_INTERRUPT;
+    write( _selfFD[SIDE_APP], &c, 1 );
 }
 
 void ConnectionSet::addConnection( RefPtr<Connection> connection )
@@ -89,7 +95,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 
     while( event == EVENT_NONE )
     {
-        _connection = NULL;
+        _connection = 0;
         _setupFDSet();
 
         // poll for a result
@@ -101,13 +107,9 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                 break;
 
             case -1: // ERROR
-//#ifndef NDEBUG
                 if( errno == EINTR ) // Interrupted system call (gdb) - ignore
-                {
-                    event = EVENT_NONE;
                     break;
-                }
-//#endif
+
                 _errno = errno;
                 EQINFO << "Error during poll(): " << strerror( _errno ) << endl;
                 event = EVENT_ERROR;
@@ -122,16 +124,28 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                     const int fd         = _fdSet[i].fd;
                     const int pollEvents = _fdSet[i].revents;
 
-                    // The connection set was modified in the select, restart
-                    // the selection.
-                    // TODO: decrease timeout accordingly.
-                    if( fd == _selfFD[0] )
+                    if( fd == _selfFD[SIDE_SELECT] )
                     {
-                        EQINFO << "FD set modified, restarting select" << endl;
                         EQASSERT( pollEvents == POLLIN );
-                        char c = '\0';
+                        char c = 0;
                         read( fd, &c, 1 );
-                        EQASSERT( c == 'd' );
+                        switch( c ) 
+                        {
+                            case SELF_MODIFIED:
+                                // The connection set was modified in the
+                                // select, restart the selection.
+                                // TODO: decrease timeout accordingly.
+                                EQINFO << "FD set modified, restarting select"
+                                       << endl;
+                                break;
+
+                            case SELF_INTERRUPT:
+                                event = EVENT_INTERRUPT;
+                                break;
+
+                            default:
+                                EQUNIMPLEMENTED;
+                        }
                         break;
                     }
 
@@ -211,7 +225,7 @@ void ConnectionSet::_buildFDSet()
     fd.events = POLLIN; // | POLLPRI;
 
     // add self 'connection'
-    fd.fd      = _selfFD[0];
+    fd.fd      = _selfFD[SIDE_SELECT];
     fd.revents = 0;
     _fdSet.push_back( fd );
 

@@ -130,6 +130,8 @@ namespace eqNet
         virtual void makeThreadSafe();
 
         bool isThreadSafe() const      { return ( _mutex!=NULL ); }
+
+        eqBase::RefPtr<Node> getLocalNode();
         Session* getSession() const    { return _session; }
         /** @return the session-wide unique object identifier. */
         uint32_t getID() const         { return _id; }

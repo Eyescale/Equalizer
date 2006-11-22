@@ -62,6 +62,9 @@ namespace eqNet
         /** @sa Object::init */
         virtual void init( const void* data, const uint64_t dataSize );
 
+        /** @sa Object::unpack */
+        virtual void unpack( const void* data, const uint64_t size );
+
     private:
         struct Data
         {

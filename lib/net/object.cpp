@@ -85,6 +85,11 @@ void Object::makeThreadSafe()
 #endif
 }
 
+RefPtr<Node> Object::getLocalNode()
+{ 
+    return _session ? _session->getLocalNode() : 0; 
+}
+
 bool Object::send( eqBase::RefPtr<Node> node, ObjectPacket& packet )
 {
     EQASSERT( _session ); EQASSERT( _id != EQ_ID_INVALID );

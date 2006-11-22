@@ -33,6 +33,7 @@ namespace eqNet
             EVENT_DISCONNECT,      //!< A disconnect
             EVENT_DATA,            //!< Data can be read
             EVENT_TIMEOUT,         //!< The selection request timed out
+            EVENT_INTERRUPT,       //!< ConnectionSet::interrupt was called
             EVENT_ERROR            //!< An error occured during selection
         };
 
@@ -58,6 +59,11 @@ namespace eqNet
          */
         Event select( const int timeout = -1 );
 
+        /**
+         * Interrupt the current or next select call.
+         */
+        void interrupt();
+
         int                        getErrno()     { return _errno; }
         eqBase::RefPtr<Connection> getConnection(){ return _connection; }
 
@@ -66,8 +72,21 @@ namespace eqNet
         bool                _fdSetDirty;
         stde::hash_map<int, Connection*> _fdSetConnections;
 
+        enum SelfFD
+        {
+            SIDE_SELECT = 0,
+            SIDE_APP    = 1
+        };
+
+        enum SelfCommands
+        {
+            SELF_MODIFIED = 1,
+            SELF_INTERRUPT
+        };
+
         /** The fd to reset a running select, see comment in constructor. */
         int      _selfFD[2];
+
         /** True if the connection set is in select(). */
         bool     _inSelect;
 
