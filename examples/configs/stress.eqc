@@ -3,7 +3,7 @@ server
 {
     config
     {
-        latency 0
+        latency 10
         appNode
         {
             pipe

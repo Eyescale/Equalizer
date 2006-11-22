@@ -1190,6 +1190,8 @@ string Node::_createRemoteCommand()
         stringStream << libPath << "=" << env << " ";
 
     stringStream << "EQ_LOG_LEVEL=" << eqBase::Log::getLogLevelString() << " ";
+    if( eqBase::Log::topics != 0 )
+        stringStream << "EQ_LOG_TOPICS=" << eqBase::Log::topics << " ";
 
     // for( int i=0; environ[i] != NULL; i++ )
     // {
