@@ -94,7 +94,7 @@
 %token EQTOKEN_TASK
 %token EQTOKEN_EYE
 %token EQTOKEN_EYE_BASE
-%token EQTOKEN_FORMAT
+%token EQTOKEN_BUFFER
 %token EQTOKEN_CLEAR
 %token EQTOKEN_DRAW
 %token EQTOKEN_READBACK
@@ -378,8 +378,8 @@ compoundField:
         compoundTasks ']'
     | EQTOKEN_EYE  '['   { eqCompound->setEyes( eqs::Compound::EYE_UNDEFINED ); }
         compoundEyes  ']'
-    | EQTOKEN_FORMAT '[' { eqCompound->setFormats( eq::Frame::FORMAT_UNDEFINED );}
-        compoundFormats ']'
+    | EQTOKEN_BUFFER '[' { eqCompound->setBuffers( eq::Frame::BUFFER_UNDEFINED );}
+        compoundBuffers ']'
     | EQTOKEN_VIEWPORT viewport
         { eqCompound->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] )); }
     | EQTOKEN_RANGE '[' FLOAT FLOAT ']'
@@ -401,10 +401,10 @@ compoundEye:
     | EQTOKEN_LEFT  { eqCompound->enableEye( eqs::Compound::EYE_LEFT ); }
     | EQTOKEN_RIGHT { eqCompound->enableEye( eqs::Compound::EYE_RIGHT ); }
 
-compoundFormats: /*null*/ | compoundFormat | compoundFormats compoundFormat
-compoundFormat:
-    EQTOKEN_COLOR    { eqCompound->enableFormat( eq::Frame::FORMAT_COLOR ); }
-    | EQTOKEN_DEPTH  { eqCompound->enableFormat( eq::Frame::FORMAT_DEPTH ); }
+compoundBuffers: /*null*/ | compoundBuffer | compoundBuffers compoundBuffer
+compoundBuffer:
+    EQTOKEN_COLOR    { eqCompound->enableBuffer( eq::Frame::BUFFER_COLOR ); }
+    | EQTOKEN_DEPTH  { eqCompound->enableBuffer( eq::Frame::BUFFER_DEPTH ); }
 
 wall: EQTOKEN_WALL '{'
           EQTOKEN_BOTTOM_LEFT  '[' FLOAT FLOAT FLOAT ']' 

@@ -7,7 +7,7 @@ SOURCES = \
 	connectionDescription.cpp \
 	compound.cpp \
 	frame.cpp \
-	frameBuffer.cpp \
+	frameData.cpp \
 	global.cpp \
 	loader.cpp \
 	node.cpp \

@@ -152,6 +152,7 @@ void Channel::assemble( const uint32_t frameID )
 {
     applyBuffer();
     applyViewport();
+    setupAssemblyState();
 
     const vector<Frame*>& frames = getInputFrames();
     for( vector<Frame*>::const_iterator iter = frames.begin();
@@ -160,19 +161,31 @@ void Channel::assemble( const uint32_t frameID )
         Frame* frame = *iter;
         
         frame->waitReady();
+        frame->startAssemble();
     }
+    for( vector<Frame*>::const_iterator iter = frames.begin();
+         iter != frames.end(); ++iter )
+    {
+        Frame* frame = *iter;
+        
+        frame->syncAssemble();
+    }
+    resetAssemblyState();
 }
 
 void Channel::readback( const uint32_t frameID )
 {
     applyBuffer();
     applyViewport();
+    setupAssemblyState();
 
     const vector<Frame*>& frames = getOutputFrames();
     for( vector<Frame*>::const_iterator iter = frames.begin();
          iter != frames.end(); ++iter )
 
         (*iter)->startReadback();
+
+    resetAssemblyState();
 }
 
 void Channel::applyBuffer()
@@ -180,7 +193,49 @@ void Channel::applyBuffer()
     if( !_context )
         return;
 
-    glDrawBuffer( _context->drawBuffer );
+    glReadBuffer( _context->buffer );
+    glDrawBuffer( _context->buffer );
+}
+
+void Channel::setupAssemblyState()
+{
+    glPushAttrib( GL_ENABLE_BIT );
+
+    glDisable( GL_DEPTH_TEST );
+    glDisable( GL_BLEND );
+    glDisable( GL_ALPHA_TEST );
+    glDisable( GL_STENCIL_TEST );
+    glDisable( GL_TEXTURE_1D );
+    glDisable( GL_TEXTURE_2D );
+    glDisable( GL_TEXTURE_3D );
+    glDisable( GL_FOG );
+    glDisable( GL_CLIP_PLANE0 );
+    glDisable( GL_CLIP_PLANE1 );
+    glDisable( GL_CLIP_PLANE2 );
+    glDisable( GL_CLIP_PLANE3 );
+    glDisable( GL_CLIP_PLANE4 );
+    glDisable( GL_CLIP_PLANE5 );
+
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+
+    glOrtho( 0.0f, _pvp.w, 0.0f, _pvp.h, -1.0f, 1.0f );
+   
+    glMatrixMode( GL_MODELVIEW );
+    glPushMatrix();
+    glLoadIdentity();
+}
+
+void Channel::resetAssemblyState()
+{
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+
+    glMatrixMode( GL_MODELVIEW );
+    glPopMatrix();
+
+    glPopAttrib();
 }
 
 const PixelViewport& Channel::getPixelViewport() const
@@ -314,6 +369,8 @@ eqNet::CommandResult Channel::_reqAssemble( eqNet::Command& command )
         _inputFrames.push_back( frame );
     }
 
+    EQLOG( LOG_ASSEMBLY ) << "channel \"" << getName() << "\" assemble "
+                          << packet->nFrames << " frames" <<endl;
     assemble( packet->context.frameID );
 
     _inputFrames.clear();
@@ -337,11 +394,19 @@ eqNet::CommandResult Channel::_reqReadback( eqNet::Command& command )
                                                     packet->frames[i].version );
         EQASSERT( dynamic_cast<Frame*>( object ));
         Frame* frame = static_cast<Frame*>( object );
-        EQLOG( LOG_ASSEMBLY ) << "readback " << frame << endl;
         _outputFrames.push_back( frame );
     }
 
+    EQLOG( LOG_ASSEMBLY ) << "channel \"" << getName() << "\" readback "
+                          << packet->nFrames << " frames" <<endl;
     readback( packet->context.frameID );
+
+    for( vector<Frame*>::const_iterator i = _outputFrames.begin();
+         i != _outputFrames.end(); ++i )
+    {
+        Frame* frame = *i;
+        frame->syncReadback();
+    }
 
     _outputFrames.clear();
     _context = NULL;
@@ -362,15 +427,14 @@ eqNet::CommandResult Channel::_reqTransmit( eqNet::Command& command )
                                                         packet->frame.version );
     EQASSERT( dynamic_cast<Frame*>( object ));
     Frame* frame = static_cast<Frame*>( object );
-    frame->syncReadback();
 
     for( uint32_t i=0; i<packet->nNodes; ++i )
     {
         const eqNet::NodeID& nodeID = packet->nodes[i];
         RefPtr<eqNet::Node>  node   = command.getNode();
         RefPtr<eqNet::Node>  toNode = localNode->connect( nodeID, node );
-        EQLOG( LOG_ASSEMBLY ) << "transmit " << frame << " to " << nodeID \
-                              << endl;
+        EQLOG( LOG_ASSEMBLY ) << "channel \"" << getName() << "\" transmit " 
+                              << frame << " to " << nodeID << endl;
         frame->transmit( toNode );
     }
 

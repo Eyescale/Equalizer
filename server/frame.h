@@ -13,11 +13,11 @@
 namespace eqs
 {
     class Compound;
-    class FrameBuffer;
+    class FrameData;
     class Node;
 
     /**
-     * A holder for a FrameBuffer and frame parameters.
+     * A holder for frame data and parameters.
      */
     class Frame : public eqNet::Object
     {
@@ -40,7 +40,7 @@ namespace eqs
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
 
-        FrameBuffer* getBuffer() const { return _buffer; }
+        FrameData* getData() const { return _frameData; }
 
         /** 
          * Set the frame's viewport wrt the compound (output frames) or wrt the
@@ -57,7 +57,7 @@ namespace eqs
          * Set the offset of the frame.
          *
          * The offset is computed during compound update. The offset defines
-         * relative buffer position wrt to the current destination channel of
+         * relative data position wrt to the current destination channel of
          * the source.
          */
         void setOffset( const vmml::Vector2i& offset ) { _data.offset = offset;}
@@ -66,15 +66,15 @@ namespace eqs
         const vmml::Vector2i& getOffset() const { return _data.offset; }
 
         /** 
-         * Set the frame buffer types to be read or write by this frame.
+         * Set the frame buffers to be read or write by this frame.
          * 
-         * @param format a bitwise combination of the frame buffer formats.
+         * @param buffers a bitwise combination of the buffers.
          */
-        void setFormat( const eq::Frame::Format format )
-            { _data.format = format; }
+        void setBuffers( const eq::Frame::Buffer buffers )
+            { _data.buffers = buffers; }
         
-        /** @return the frame buffer parts used by this frame. */
-        eq::Frame::Format getFormat() const { return _data.format; }
+        /** @return the frame buffers used by this frame. */
+        eq::Frame::Buffer getBuffers() const { return _data.buffers; }
         //*}
 
         /**
@@ -89,14 +89,14 @@ namespace eqs
         void updateInheritData( const Compound* compound );
 
         /** 
-         * Cycle the current FrameBuffer.
+         * Cycle the current FrameData.
          * 
-         * Used for output frames to allocate/recycle a frame buffer. Also
+         * Used for output frames to allocate/recycle frame data. Also
          * clears the list of input frames.
          *
          * @param frameNumber the current frame number.
          */
-        void cycleBuffer( const uint32_t frameNumber );
+        void cycleData( const uint32_t frameNumber );
 
         /** 
          * Add an input frame to this (output) frame
@@ -107,10 +107,10 @@ namespace eqs
         /** @return the vector of current input frames. */
         const std::vector<Frame*> getInputFrames() const { return _inputFrames;}
 
-        /** Unset the frame buffer. */
-        void unsetBuffer() { _buffer = NULL; }
+        /** Unset the frame data. */
+        void unsetData() { _frameData = NULL; }
 
-        /** Reset the frame and delete all frame buffers. */
+        /** Reset the frame and delete all frame datas. */
         void flush();
         //*}
 
@@ -132,11 +132,11 @@ namespace eqs
         /** The current, actual data used by the frame. */
         eq::Frame::Data _inherit;
 
-        /** All framebuffers ever allocated, used for recycling old buffers. */
-        std::list<FrameBuffer*> _buffers;
+        /** All framedatas ever allocated, used for recycling old datas. */
+        std::list<FrameData*> _datas;
         
-        /** Current frame buffer. */
-        FrameBuffer* _buffer;
+        /** Current frame data. */
+        FrameData* _frameData;
 
         /** Vector of current input frames. */
         std::vector<Frame*> _inputFrames;

@@ -6,6 +6,7 @@ server
         {
             pipe
             {
+                screen 0
                 viewport [ 0 0 1280 1024 ]
                 window
                 {
@@ -17,11 +18,12 @@ server
                     }
                 }
             }
-        }
-        node
-        {
+#        }
+#        node
+#        {
             pipe
             {
+                screen 0
                 viewport [ 0 0 1280 1024 ]
                 window
                 {

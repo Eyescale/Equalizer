@@ -3,7 +3,7 @@
 
 #include "frame.h"
 
-#include "frameBuffer.h"
+#include "frameData.h"
 #include "object.h"
 #include "packets.h"
 
@@ -14,7 +14,7 @@ using namespace std;
 
 Frame::Frame( const void* data, uint64_t dataSize )
         : eqNet::Object( eq::Object::TYPE_FRAME ),
-          _buffer( 0 )
+          _frameData( 0 )
 {
     EQASSERT( dataSize == sizeof( Data ));
     _data = *(Data*)data;
@@ -22,48 +22,52 @@ Frame::Frame( const void* data, uint64_t dataSize )
     setInstanceData( &_data, sizeof( Data ));
 }
 
-FrameBuffer* Frame::_getBuffer()
+FrameData* Frame::_getData()
 {
-    EQASSERT( _data.buffer.objectID != EQ_ID_INVALID );
-    if( !_buffer )
+    EQASSERT( _data.frameData.objectID != EQ_ID_INVALID );
+    if( !_frameData )
     {
         eqNet::Session* session = getSession();
-        eqNet::Object*  object  = session->getObject( _data.buffer.objectID,
+        eqNet::Object*  object  = session->getObject( _data.frameData.objectID,
                                                       Object::SHARE_NODE,
-                                                      _data.buffer.version );
-        EQASSERT( dynamic_cast<FrameBuffer*>( object ) );
-        _buffer = static_cast<FrameBuffer*>( object );
+                                                      _data.frameData.version );
+        EQASSERT( dynamic_cast<FrameData*>( object ) );
+        _frameData = static_cast<FrameData*>( object );
     }
-    return _buffer;
-}
-
-void Frame::_clear()
-{
-    _getBuffer()->clear(); 
-    _buffer = 0;
+    return _frameData;
 }
 
 void Frame::startReadback() 
 {
-    _getBuffer()->startReadback( *this );
+    _getData()->startReadback( *this );
 }
 
 void Frame::syncReadback() 
 {
-    _getBuffer()->syncReadback();
+    _getData()->syncReadback();
+}
+
+void Frame::startAssemble() 
+{
+    _getData()->startAssemble( *this );
+}
+
+void Frame::syncAssemble() 
+{
+    _getData()->syncAssemble();
 }
 
 void Frame::transmit( eqBase::RefPtr<eqNet::Node> toNode )
 {
-    _getBuffer()->transmit( toNode );
+    _getData()->transmit( toNode );
 }
 
 bool Frame::isReady()
 {
-    return _getBuffer()->isReady();
+    return _getData()->isReady();
 }
 
 void Frame::waitReady()
 {
-    _getBuffer()->waitReady();
+    _getData()->waitReady();
 }

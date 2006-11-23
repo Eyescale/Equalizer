@@ -2,8 +2,8 @@
 /* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_FRAMEBUFFER_H
-#define EQ_FRAMEBUFFER_H
+#ifndef EQ_FRAMEDATA_H
+#define EQ_FRAMEDATA_H
 
 #include <eq/client/frame.h>
 
@@ -12,23 +12,23 @@
 
 namespace eqs
 {
-    class FrameBuffer;
+    class FrameData;
 }
 
 namespace eq
 {
     class  Image;
-    struct FrameBufferTransmitPacket;
+    struct FrameDataTransmitPacket;
 
     /**
-     * A frame buffer holds multiple images and is used by frames.
+     * A frame data holds multiple images and is used by frames.
      * It is not intended to be used directly by application code.
      */
-    class FrameBuffer : public eqNet::Object
+    class FrameData : public eqNet::Object
     {
     public:
-        /** Instanciates a frame buffer. */
-        FrameBuffer( const void* data, const uint64_t size );
+        /** Instanciates a frame data. */
+        FrameData( const void* data, const uint64_t size );
 
         /** 
          * @name Data Access
@@ -41,24 +41,20 @@ namespace eq
          */
         //*{
 
-        /** Clear the frame by recycling the attached images. */
-        void clear();
-
         /** Flush the frame by deleting all images. */
         void flush();
 
         /** 
-         * Allocate and add a new image of a given format.
+         * Allocate and add a new image.
          * 
-         * @param format the image format.
          * @return the image.
          */
-        Image* newImage( const Frame::Format format );
+        Image* newImage();
 
         /** 
          * Read back a set of images according to the current frame data.
          * 
-         * The newly read images are added to the buffer, existing images are
+         * The newly read images are added to the data, existing images are
          * retained.
          *
          * @param frame the corresponding output frame holder.
@@ -67,6 +63,14 @@ namespace eq
 
         /** Synchronize the last image readback. */
         void syncReadback();
+
+        /** 
+         * Assemble all images according of the current frame data.
+         */
+        void startAssemble( const Frame& frame );
+        
+        /** Synchronize the image assembly. */
+        void syncAssemble();
 
         /** 
          * Transmit the frame data to the specified node.
@@ -78,56 +82,50 @@ namespace eq
          */        
         void transmit( eqBase::RefPtr<eqNet::Node> toNode );
 
-        /** 
-         * Set the frame buffer ready.
-         * 
-         * The frame buffer is automatically set ready by syncReadback
-         * and upon processing of the transmit commands.
-         */
-        void setReady()        { _readyVersion = getVersion(); }
-
-        /** @return true if the frame buffer is ready, false if not. */
+        /** @return true if the frame data is ready, false if not. */
         bool isReady() const   { return _readyVersion == getVersion(); }
 
-        /** Wait for the frame buffer to become available. */
+        /** Wait for the frame data to become available. */
         void waitReady() const { _readyVersion.waitEQ( getVersion( )); }
         //*}
 
     protected:
 
-        virtual ~FrameBuffer();
+        virtual ~FrameData();
+        /** @sa eqNet::Object::unpack */
+        virtual void unpack( const void* data, const uint64_t size )
+            { eqNet::Object::unpack( data, size ); _clear(); }
 
     private:
-        enum FormatIndex
-        {
-            INDEX_COLOR,
-            INDEX_DEPTH,
-            INDEX_ALL
-        };
-
         struct Data
         {
             PixelViewport  pvp;
             vmml::Vector2i offset;
-            Frame::Format  format;
+            Frame::Buffer  buffers;
         }
             _data;
 
-        friend class eqs::FrameBuffer;
+        friend class eqs::FrameData;
 
-        std::vector<Image*> _images[INDEX_ALL];
-        std::vector<Image*> _imageCache[INDEX_ALL];
+        std::vector<Image*> _images;
+        std::vector<Image*> _imageCache;
 
         eqBase::Monitor<uint32_t> _readyVersion;
 
-        void _clearImages( const FormatIndex index );
-        void _flushImages( const FormatIndex index );
+        /** Clear the frame by recycling the attached images. */
+        void _clear();
 
-        FormatIndex _getIndexForFormat( const Frame::Format format );
+        /** 
+         * Set the frame data ready.
+         * 
+         * The frame data is automatically set ready by syncReadback
+         * and upon processing of the transmit commands.
+         */
+        void _setReady()        { _readyVersion = getVersion(); }
 
         void _transmit( eqBase::RefPtr<eqNet::Node> toNode,
-                        FrameBufferTransmitPacket& packet,
-                        const Frame::Format format );
+                        FrameDataTransmitPacket& packet,
+                        const Frame::Buffer buffers );
 
         /* The command handlers. */
         eqNet::CommandResult _cmdTransmit( eqNet::Command& command );
@@ -135,5 +133,5 @@ namespace eq
     };
 }
 
-#endif // EQ_FRAMEBUFFER_H
+#endif // EQ_FRAMEDATA_H
 

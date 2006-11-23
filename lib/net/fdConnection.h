@@ -6,7 +6,6 @@
 #define EQNET_FD_CONNECTION_H
 
 #include <eq/net/connection.h>
-#include <eq/base/lock.h>
 
 namespace eqNet
 {
@@ -18,7 +17,8 @@ namespace eqNet
     {
     public:
         virtual uint64_t recv( const void* buffer, const uint64_t bytes );
-        virtual uint64_t send( const void* buffer, const uint64_t bytes ) const;
+        virtual uint64_t send( const void* buffer, const uint64_t bytes, 
+                               bool isLocked = false ) const;
 
         virtual int getReadFD() const { return _readFD; }
 
@@ -28,8 +28,6 @@ namespace eqNet
 
         int   _readFD;     //!< The read file descriptor.
         int   _writeFD;    //!< The write file descriptor.
-
-        mutable eqBase::Lock _writeLock;
 
         friend inline std::ostream& operator << ( std::ostream& os, 
                                                const FDConnection* connection );

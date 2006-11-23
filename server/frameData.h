@@ -1,0 +1,49 @@
+
+/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+   All rights reserved. */
+
+#ifndef EQS_FRAMEDATA_H
+#define EQS_FRAMEDATA_H
+
+#include <eq/client/frameData.h>
+
+namespace eqs
+{
+    /**
+     * A holder for a Frame Data and parameters.
+     */
+    class FrameData : public eqNet::Object
+    {
+    public:
+        /** 
+         * Constructs a new FrameData.
+         */
+        FrameData();
+
+        /**
+         * @name Data Access
+         */
+        //*{
+        /** Set the number of the frame when this data was last used. */
+        void setFrameNumber( const uint32_t number ) { _frameNumber = number; }
+        uint32_t getFrameNumber() const { return _frameNumber; }
+
+        /** Set the datas area within the channel */
+        void setPixelViewport( const eq::PixelViewport& pvp ) 
+            { _data.pvp = pvp; }
+        /** Set the position of the data relative to the window. */
+        void setOffset( const vmml::Vector2i& offset ) 
+            { _data.offset = offset; }
+        /** Set the buffers of the source frame. */
+        void setBuffers( const eq::Frame::Buffer buffers ) 
+            { _data.buffers = buffers; }
+        //*}
+
+    private:
+        eq::FrameData::Data _data;
+        
+        /** The number of the config frame when this data was last used. */
+        uint32_t _frameNumber;
+    };
+};
+#endif // EQS_FRAMEDATA_H

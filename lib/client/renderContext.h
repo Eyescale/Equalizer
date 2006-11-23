@@ -19,7 +19,7 @@ namespace eq
     {
     public:
         uint32_t       frameID;       //<! identifier from Config::beginFrame
-        uint32_t       drawBuffer;    //<! buffer as passed to glDrawBuffer()
+        uint32_t       buffer;        //<! buffer as passed to glDrawBuffer()
         PixelViewport  pvp;           //<! pixel viewport of channel wrt window
         Range          range;         //<! database-range to be rendered
         Frustum        frustum;       //<! frustum for projection matrix

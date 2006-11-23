@@ -6,7 +6,7 @@
 
 #include "configEvent.h"
 #include "frame.h"
-#include "frameBuffer.h"
+#include "frameData.h"
 #include "global.h"
 #include "node.h"
 #include "nodeFactory.h"
@@ -25,17 +25,17 @@ Config::Config()
         : Session( true )
 {
     registerCommand( CMD_CONFIG_CREATE_NODE,
-                    eqNet::CommandFunc<Config>( this, &Config::_cmdCreateNode ));
+                   eqNet::CommandFunc<Config>( this, &Config::_cmdCreateNode ));
     registerCommand( CMD_CONFIG_DESTROY_NODE, 
-                   eqNet::CommandFunc<Config>( this, &Config::_cmdDestroyNode ));
+                  eqNet::CommandFunc<Config>( this, &Config::_cmdDestroyNode ));
     registerCommand( CMD_CONFIG_INIT_REPLY, 
-                     eqNet::CommandFunc<Config>( this, &Config::_cmdInitReply ));
+                    eqNet::CommandFunc<Config>( this, &Config::_cmdInitReply ));
     registerCommand( CMD_CONFIG_EXIT_REPLY, 
-                     eqNet::CommandFunc<Config>( this, &Config::_cmdExitReply ));
+                    eqNet::CommandFunc<Config>( this, &Config::_cmdExitReply ));
     registerCommand( CMD_CONFIG_FRAME_BEGIN_REPLY, 
-               eqNet::CommandFunc<Config>( this, &Config::_cmdBeginFrameReply ));
+              eqNet::CommandFunc<Config>( this, &Config::_cmdBeginFrameReply ));
     registerCommand( CMD_CONFIG_FRAME_END_REPLY, 
-                  eqNet::CommandFunc<Config>( this, &Config::_cmdEndFrameReply));
+                 eqNet::CommandFunc<Config>( this, &Config::_cmdEndFrameReply));
     registerCommand( CMD_CONFIG_EVENT, 
                      eqNet::CommandFunc<Config>( this, &Config::_cmdEvent ));
 
@@ -146,8 +146,8 @@ eqNet::Object* Config::instanciateObject( const uint32_t type, const void* data,
             return new Matrix4f( data, dataSize );
         case Object::TYPE_FRAME:
             return new Frame( data, dataSize );
-        case Object::TYPE_FRAMEBUFFER:
-            return new FrameBuffer( data, dataSize );
+        case Object::TYPE_FRAMEDATA:
+            return new FrameData( data, dataSize );
         default:
             return eqNet::Session::instanciateObject( type, data, dataSize );
     }

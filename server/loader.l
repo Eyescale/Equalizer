@@ -61,7 +61,7 @@ timeout                         { return EQTOKEN_TIMEOUT; }
 task                            { return EQTOKEN_TASK; }
 eye                             { return EQTOKEN_EYE; }
 eyeBase                         { return EQTOKEN_EYE_BASE; }
-format                          { return EQTOKEN_FORMAT; }
+buffer                          { return EQTOKEN_BUFFER; }
 CLEAR                           { return EQTOKEN_CLEAR; }
 DRAW                            { return EQTOKEN_DRAW; }
 CYCLOP                          { return EQTOKEN_CYCLOP; }

@@ -6,8 +6,8 @@
 
 Config::Config()
         : _running( false ),
-          _spinX(0),
-          _spinY(0)
+          _spinX( 5 ),
+          _spinY( 5 )
 {}
 
 bool Config::init( const uint32_t initID )

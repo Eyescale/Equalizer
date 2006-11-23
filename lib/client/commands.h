@@ -124,11 +124,11 @@ namespace eq
         CMD_CHANNEL_CUSTOM
     };
 
-    enum FrameBufferCommand
+    enum FrameDataCommand
     {
-        CMD_FRAMEBUFFER_TRANSMIT = eqNet::CMD_OBJECT_CUSTOM,
-        CMD_FRAMEBUFFER_READY,
-        CMD_FRAMEBUFFER_CUSTOM
+        CMD_FRAMEDATA_TRANSMIT = eqNet::CMD_OBJECT_CUSTOM,
+        CMD_FRAMEDATA_READY,
+        CMD_FRAMEDATA_CUSTOM
     };
 
     enum GLXEventThreadCommand

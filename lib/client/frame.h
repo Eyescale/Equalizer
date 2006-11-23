@@ -16,25 +16,25 @@ namespace eqs
 
 namespace eq
 {
-    class FrameBuffer;
+    class FrameData;
 
     /**
-     * A holder for a FrameBuffer and frame parameters.
+     * A holder for a frame data and parameters.
      */
     class Frame : public eqNet::Object
     {
     public:
         /** 
-         * The frame format defines which components of the framebuffer are to
+         * The buffer format defines which components of the frame are to
          * be used during recomposition.
          */
-        enum Format
+        enum Buffer
         {
-            FORMAT_NONE      = 0,
-            FORMAT_UNDEFINED = 0x1,      //!< Inherit, only if no others are set
-            FORMAT_COLOR     = 0x10,     //!< Use color images
-            FORMAT_DEPTH     = 0x10000,  //!< Use depth images
-            FORMAT_ALL       = 0xfffffff
+            BUFFER_NONE      = 0,
+            BUFFER_UNDEFINED = 0x1,      //!< Inherit, only if no others are set
+            BUFFER_COLOR     = 0x10,     //!< Use color images
+            BUFFER_DEPTH     = 0x10000,  //!< Use depth images
+            BUFFER_ALL       = 0xfffffff
         };
 
         /** 
@@ -65,6 +65,14 @@ namespace eq
         void syncReadback();
 
         /** 
+         * Assemble all images according of the current frame data.
+         */
+        void startAssemble();
+        
+        /** Synchronize the image assembly. */
+        void syncAssemble();
+
+        /** 
          * Transmit the frame data to the specified node.
          *
          * Used internally after readback to push the image data to the input
@@ -90,8 +98,8 @@ namespace eq
 
     protected:
         /** @sa eqNet::Object::unpack */
-        virtual void unpack( const void* data, const uint64_t size ) 
-            { _clear(); eqNet::Object::unpack( data, size ); }
+        virtual void unpack( const void* data, const uint64_t size )
+            { eqNet::Object::unpack( data, size ); _frameData = 0; }
 
     private:
         std::string _name;
@@ -100,21 +108,15 @@ namespace eq
         struct Data
         {
             vmml::Vector2i       offset;
-            Format               format;
-            eqNet::ObjectVersion buffer;
+            Buffer               buffers;
+            eqNet::ObjectVersion frameData;
         }
             _data;
         friend class eqs::Frame;
 
-        FrameBuffer* _buffer;
+        FrameData* _frameData;
 
-        FrameBuffer* _getBuffer();
-
-        /** 
-         * Clear the frame by deleting the attached images and unsetting the
-         * frame buffer.
-         */
-        void _clear();
+        FrameData* _getData();
     };
 };
 #endif // EQ_FRAME_H

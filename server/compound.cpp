@@ -8,7 +8,7 @@
 #include "config.h"
 #include "log.h"
 #include "frame.h"
-#include "frameBuffer.h"
+#include "frameData.h"
 #include "swapBarrier.h"
 
 #include <eq/base/base.h>
@@ -63,7 +63,7 @@ Compound::Compound( const Compound& from )
 
 Compound::InheritData::InheritData()
         : channel( NULL ),
-          format( eq::Frame::FORMAT_UNDEFINED ),
+          buffers( eq::Frame::BUFFER_UNDEFINED ),
           eyes( EYE_UNDEFINED )
 {}
 
@@ -383,8 +383,8 @@ void Compound::_updateInheritData()
             _inherit.pvp *= _data.vp;
         }
 
-        if( _inherit.format == eq::Frame::FORMAT_UNDEFINED )
-            _inherit.format = eq::Frame::FORMAT_COLOR;
+        if( _inherit.buffers == eq::Frame::BUFFER_UNDEFINED )
+            _inherit.buffers = eq::Frame::BUFFER_COLOR;
         return;
     }
 
@@ -407,8 +407,8 @@ void Compound::_updateInheritData()
     if( _inherit.pvp.isValid( ))
         _inherit.pvp *= _data.vp;
 
-    if( _data.format != eq::Frame::FORMAT_UNDEFINED )
-        _inherit.format = _data.format;
+    if( _data.buffers != eq::Frame::BUFFER_UNDEFINED )
+        _inherit.buffers = _data.buffers;
 }
 
 void Compound::_updateOutput( UpdateData* data )
@@ -429,29 +429,29 @@ void Compound::_updateOutput( UpdateData* data )
         {
             EQWARN << "Multiple output frames of the same name are unsupported"
                    << ", ignoring output frame " << name << endl;
-            frame->unsetBuffer();
+            frame->unsetData();
             continue;
         }
 
         const eq::Viewport& frameVP  = frame->getViewport();
         eq::PixelViewport   framePVP = _inherit.pvp * frameVP;
 
-        // Buffer offset is position of buffer wrt destination view
-        frame->cycleBuffer( frameNumber );
-        FrameBuffer* buffer = frame->getBuffer();
-        EQASSERT( buffer );
+        // Data offset is position of data wrt destination view
+        frame->cycleData( frameNumber );
+        FrameData* frameData = frame->getData();
+        EQASSERT( frameData );
 
-        buffer->setOffset( vmml::Vector2i( framePVP.x, framePVP.y ));
+        frameData->setOffset( vmml::Vector2i( framePVP.x, framePVP.y ));
 
         EQLOG( eq::LOG_ASSEMBLY )
             << disableFlush << "Output frame \"" << name << "\" on channel \"" 
             << _data.channel->getName() << "\" tile pos " << framePVP.x << ", "
             << framePVP.y;
 
-        // Buffer pvp is area within channel
+        // FrameData pvp is area within channel
         framePVP.x = (int32_t)(frameVP.x * _inherit.pvp.w);
         framePVP.y = (int32_t)(frameVP.y * _inherit.pvp.h);
-        buffer->setPixelViewport( framePVP );
+        frameData->setPixelViewport( framePVP );
 
         // Frame offset is position wrt window, i.e., the channel position
         if( false /* use dest channel origin hint set */ )
@@ -463,12 +463,12 @@ void Compound::_updateOutput( UpdateData* data )
             frame->setOffset( vmml::Vector2i( nativePVP.x, nativePVP.y ));
         }
 
-        // buffer format
-        eq::Frame::Format format = frame->getFormat();
-        buffer->setFormat( format == eq::Frame::FORMAT_UNDEFINED ? 
-                           getInheritFormat() : format );
+        // image buffers
+        eq::Frame::Buffer buffers = frame->getBuffers();
+        frameData->setBuffers( buffers == eq::Frame::BUFFER_UNDEFINED ? 
+                               getInheritBuffers() : buffers );
 
-        buffer->commit();
+        frameData->commit();
         frame->updateInheritData( this );
         frame->commit();
         data->outputFrames[name] = frame;
@@ -520,7 +520,7 @@ void Compound::_updateInput( UpdateData* data )
         {
             EQWARN << "Can't find matching output frame, ignoring input frame "
                    << name << endl;
-            frame->unsetBuffer();
+            frame->unsetData();
             continue;
         }
 
@@ -538,7 +538,7 @@ void Compound::_updateInput( UpdateData* data )
         }
 
         // input frames are moved using the offset. The pvp signifies the pixels
-        // to be used from the frame buffer.
+        // to be used from the frame data.
         framePVP.x = (int32_t)(frameVP.x * _inherit.pvp.w);
         framePVP.y = (int32_t)(frameVP.y * _inherit.pvp.h);
 
@@ -614,12 +614,11 @@ void Compound::_setupRenderContext( eq::RenderContext& context,
     context.frameID    = data->frameID;
     context.pvp        = _inherit.pvp;
     context.range      = _inherit.range;
-
-    const Channel* channel = data->channel;
-    context.drawBuffer = _getDrawBuffer( data );
+    context.buffer     = _getGLBuffer( data );
 
     if( true /* !use dest channel origin hint set */ )
     {
+        const Channel* channel = data->channel;
         const eq::PixelViewport& nativePVP = channel->getPixelViewport();
         context.pvp.x = nativePVP.x;
         context.pvp.y = nativePVP.y;
@@ -627,7 +626,7 @@ void Compound::_setupRenderContext( eq::RenderContext& context,
     // TODO: pvp size overcommit check?
 }
 
-GLenum Compound::_getDrawBuffer( const UpdateChannelData* data )
+GLenum Compound::_getGLBuffer( const UpdateChannelData* data )
 {
     eq::Window::DrawableConfig drawableConfig = 
         data->channel->getWindow()->getDrawableConfig();
@@ -772,7 +771,7 @@ void Compound::_updateAssemble( const eq::RenderContext& context )
          iter != _inputFrames.end(); ++iter )
     {
         Frame* frame = *iter;
-        // TODO: filter: format, vp, eye
+        // TODO: filter: buffers, vp, eye
         frames.push_back( frame );
         frameIDs.push_back( eqNet::ObjectVersion( frame ));
     }
@@ -807,7 +806,7 @@ void Compound::_updateReadback( const eq::RenderContext& context )
          iter != _outputFrames.end(); ++iter )
     {
         Frame* frame = *iter;
-        // TODO: filter: format, vp, eye
+        // TODO: filter: buffers, vp, eye
         frames.push_back( frame );
         frameIDs.push_back( eqNet::ObjectVersion( frame ));
     }
@@ -848,7 +847,7 @@ void Compound::_updateReadback( const eq::RenderContext& context )
             const eqNet::NodeID& nodeID  = netNode->getNodeID();
             EQASSERT( node );
 
-            if( nodeID == outputNodeID ) // TODO filter: format, vp, eye
+            if( nodeID == outputNodeID ) // TODO filter: buffers, vp, eye
                 continue;
 
             nodeIDs.push_back( nodeID );

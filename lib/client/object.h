@@ -22,7 +22,7 @@ namespace eq
             TYPE_MANAGED_CUSTOM,  // 6
             TYPE_MATRIX4F         = eqNet::Object::TYPE_VERSIONED_CUSTOM,
             TYPE_FRAME,
-            TYPE_FRAMEBUFFER,
+            TYPE_FRAMEDATA,
             TYPE_VERSIONED_CUSTOM
         };
     };

@@ -119,6 +119,16 @@ namespace eq
          * @sa getOutputFrames
          */
         virtual void readback( const uint32_t frameID );
+
+        /**
+         * Setup the OpenGL state for a readback or assemble operation.
+         */
+        virtual void setupAssemblyState();
+
+        /**
+         * Reset the OpenGL state after an assembly operation.
+         */
+        virtual void resetAssemblyState();
         //*}
 
         /**

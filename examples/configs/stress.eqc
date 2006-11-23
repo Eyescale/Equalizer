@@ -10,7 +10,7 @@ server
             {
                 window
                 {
-                    viewport [ 100 100 80 60 ]
+                    viewport [ .025 .025 .3 .3 ]
                     channel { name "channel1" }
                 }
             }
@@ -21,7 +21,7 @@ server
             {
                 window
                 {
-                    viewport [ 200 100 80 60 ]
+                    viewport [ .35 .025 .3 .3 ]
                     channel { name "channel2" }
                 }
             }
@@ -32,7 +32,7 @@ server
             {
                 window
                 {
-                    viewport [ 300 100 80 60 ]
+                    viewport [ .675 .025 .3 .3 ]
                     channel { name "channel3" }
                 }
             }
@@ -43,7 +43,7 @@ server
             {
                 window
                 {
-                    viewport [ 100 200 80 60 ]
+                    viewport [ .025 .35 .3 .3 ]
                     channel { name "channel4" }
                 }
             }
@@ -54,7 +54,7 @@ server
             {
                 window
                 {
-                    viewport [ 200 200 80 60 ]
+                    viewport [ .35 .35 .3 .3 ]
                     channel { name "channel5" }
                 }
             }
@@ -65,7 +65,7 @@ server
             {
                 window
                 {
-                    viewport [ 300 200 80 60 ]
+                    viewport [ .675 .35 .3 .3 ]
                     channel { name "channel6" }
                 }
             }
@@ -76,7 +76,7 @@ server
             {
                 window
                 {
-                    viewport [ 100 300 80 60 ]
+                    viewport [ .025 .675 .3 .3 ]
                     channel { name "channel7" }
                 }
             }
@@ -87,7 +87,7 @@ server
             {
                 window
                 {
-                    viewport [ 200 300 80 60 ]
+                    viewport [ .35 .675 .3 .3 ]
                     channel { name "channel8" }
                 }
             }
@@ -98,7 +98,7 @@ server
             {
                 window
                 {
-                    viewport [ 300 300 80 60 ]
+                    viewport [ .675 .675 .3 .3 ]
                     channel { name "channel9" }
                 }
             }

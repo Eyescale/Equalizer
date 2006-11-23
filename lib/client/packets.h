@@ -644,27 +644,27 @@ namespace eq
     };
 
     //------------------------------------------------------------
-    // Frame Buffer
+    // Frame Data
     //------------------------------------------------------------
-    struct FrameBufferTransmitPacket : public eqNet::ObjectPacket
+    struct FrameDataTransmitPacket : public eqNet::ObjectPacket
     {
-        FrameBufferTransmitPacket()
+        FrameDataTransmitPacket()
             {
-                command = CMD_FRAMEBUFFER_TRANSMIT;
-                size    = sizeof( FrameBufferTransmitPacket );
+                command = CMD_FRAMEDATA_TRANSMIT;
+                size    = sizeof( FrameDataTransmitPacket );
             }
 
-        Frame::Format format;
+        uint32_t      buffers;
         PixelViewport pvp;
         uint8_t       data[1]; // size is pvp.w * pvp.h * depth
     };
 
-    struct FrameBufferReadyPacket : public eqNet::ObjectPacket
+    struct FrameDataReadyPacket : public eqNet::ObjectPacket
     {
-        FrameBufferReadyPacket()
+        FrameDataReadyPacket()
             {
-                command = CMD_FRAMEBUFFER_READY;
-                size    = sizeof( FrameBufferReadyPacket );
+                command = CMD_FRAMEDATA_READY;
+                size    = sizeof( FrameDataReadyPacket );
             }
         uint32_t version;
     };

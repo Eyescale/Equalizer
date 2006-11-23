@@ -8,8 +8,10 @@
 #include "packets.h"
 
 #include <eq/base/base.h>
+#include <eq/base/lock.h>
 #include <eq/base/referenced.h>
 #include <eq/base/refPtr.h>
+#include <eq/base/scopedMutex.h>
 
 #include <poll.h>
 #include <stdexcept>
@@ -95,7 +97,10 @@ namespace eqNet
          *         connection was accepted.
          */
         virtual eqBase::RefPtr<Connection> accept( const int timeout );
-        
+
+        /** 
+         * Closes a connected or listening connection.
+         */
         virtual void close(){};
         //@}
 
@@ -176,8 +181,14 @@ namespace eqNet
          * @param bytes the number of bytes to send.
          * @return the number of bytes send.
          */
-        virtual uint64_t send( const void* buffer, const uint64_t bytes) const
+        virtual uint64_t send( const void* buffer, const uint64_t bytes, 
+                               bool isLocked = false  ) const
             {return 0;}
+
+        /** Lock the connection, no other thread can send data. */
+        void lockSend()   { _sendLock.set(); }
+        /** Unlock the connection. */
+        void unlockSend() { _sendLock.unset(); }
 
         /** 
          * Reads data from the connection.
@@ -216,6 +227,8 @@ namespace eqNet
 
         State                                 _state; //!< The connection state
         eqBase::RefPtr<ConnectionDescription> _description;
+
+        mutable eqBase::Lock _sendLock;
     };
 
     inline std::ostream& operator << ( std::ostream& os, 

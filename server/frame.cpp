@@ -5,7 +5,7 @@
 #include "frame.h"
 
 #include "compound.h"
-#include "frameBuffer.h"
+#include "frameData.h"
 
 #include <eq/client/object.h>
 #include <eq/net/session.h>
@@ -17,16 +17,16 @@ using namespace std;
 Frame::Frame()
         : eqNet::Object( eq::Object::TYPE_FRAME ),
           _compound( NULL ),
-          _buffer( NULL )
+          _frameData( NULL )
 {
-    _data.format = eq::Frame::FORMAT_UNDEFINED;
+    _data.buffers = eq::Frame::BUFFER_UNDEFINED;
     setInstanceData( &_inherit, sizeof( eq::Frame::Data ));
 }
 
 Frame::Frame( const Frame& from )
         : eqNet::Object( eq::Object::TYPE_FRAME ),
           _compound( NULL ),
-          _buffer( NULL )
+          _frameData( NULL )
 {
     _data = from._data;
     _name = from._name;
@@ -36,70 +36,70 @@ Frame::Frame( const Frame& from )
 
 Frame::~Frame()
 {
-    EQASSERT( _buffers.empty());
+    EQASSERT( _datas.empty());
 }
 
 void Frame::flush()
 {
     eqNet::Session* session = getSession();
     EQASSERT( session );
-    while( !_buffers.empty( ))
+    while( !_datas.empty( ))
     {
-        FrameBuffer* buffer = _buffers.front();
-        session->deregisterObject( buffer );
-        _buffers.pop_front();
+        FrameData* data = _datas.front();
+        session->deregisterObject( data );
+        _datas.pop_front();
     }
-    _buffer = NULL;
+    _frameData = NULL;
     _inputFrames.clear();
 }
 
 void Frame::updateInheritData( const Compound* compound )
 {
     _inherit = _data;
-    if( _inherit.format == eq::Frame::FORMAT_UNDEFINED )
-        _inherit.format = compound->getInheritFormat();
+    if( _inherit.buffers == eq::Frame::BUFFER_UNDEFINED )
+        _inherit.buffers = compound->getInheritBuffers();
 
-    if( _buffer )
+    if( _frameData )
     {
-        _inherit.buffer.objectID = _buffer->getID();
-        _inherit.buffer.version  = _buffer->getVersion();
+        _inherit.frameData.objectID = _frameData->getID();
+        _inherit.frameData.version  = _frameData->getVersion();
     }
     else
-        _inherit.buffer.objectID = EQ_ID_INVALID;
+        _inherit.frameData.objectID = EQ_ID_INVALID;
 }
 
-void Frame::cycleBuffer( const uint32_t frameNumber )
+void Frame::cycleData( const uint32_t frameNumber )
 {
-    // find unused frame buffer
-    FrameBuffer*   buffer    = _buffers.empty() ? NULL : _buffers.back();
-    const uint32_t latency   = getAutoObsoleteCount();
-    const uint32_t bufferAge = buffer ? buffer->getFrameNumber() : 0;
+    // find unused frame data
+    FrameData*     data    = _datas.empty() ? NULL : _datas.back();
+    const uint32_t latency = getAutoObsoleteCount();
+    const uint32_t dataAge = data ? data->getFrameNumber() : 0;
 
-    if( bufferAge < frameNumber-latency && frameNumber > latency )
+    if( dataAge < frameNumber-latency && frameNumber > latency )
         // not used anymore
-        _buffers.pop_back();
+        _datas.pop_back();
     else
     {
-        buffer = new FrameBuffer;
+        data = new FrameData;
         
         eqNet::Session* session = getSession();
         EQASSERT( session );
 
-        session->registerObject( buffer, session->getLocalNode( ));
-        buffer->setAutoObsolete( 1 ); // current + in use by render nodes
+        session->registerObject( data, session->getLocalNode( ));
+        data->setAutoObsolete( 1 ); // current + in use by render nodes
     }
 
-    buffer->setFrameNumber( frameNumber );
+    data->setFrameNumber( frameNumber );
     
-    _buffers.push_front( buffer );
-    _buffer = buffer;
+    _datas.push_front( data );
+    _frameData = data;
     _inputFrames.clear();
 }
 
 void Frame::addInputFrame( Frame* frame )
 {
-    EQASSERT( _buffer );
-    frame->_buffer = _buffer;
+    EQASSERT( _frameData );
+    frame->_frameData = _frameData;
     _inputFrames.push_back( frame );
 }
 

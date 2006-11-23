@@ -8,7 +8,7 @@
 #include "channel.h"
 
 #include <eq/client/frame.h>
-#include <eq/client/frameBuffer.h>
+#include <eq/client/frameData.h>
 #include <eq/client/projection.h>
 #include <eq/client/range.h>
 #include <eq/client/renderContext.h>
@@ -184,27 +184,28 @@ namespace eqs
 
 
         /** 
-         * Set the formats to be used by the compound during recomposition,
-         * overwriting previous formats.
+         * Set the image buffers to be used by the compound during
+         * recomposition, overwriting previous buffers.
          *
-         * @param formats the compound formats.
+         * @param buffers the compound image buffers.
          */
-        void setFormats( const uint32_t formats ) { _formats = formats; }
+        void setBuffers( const uint32_t buffers ) { _buffers = buffers; }
 
         /** 
-         * Add a format to be used by the compound, preserving previous formats.
+         * Add a image buffer to be used by the compound, preserving previous
+         * buffers.
          * 
-         * @param formats the compound formats.
+         * @param buffers the compound image buffers.
          */
-        void enableFormat( const eq::Frame::Format format )
-            { _formats |= format; }
+        void enableBuffer( const eq::Frame::Buffer buffer )
+            { _buffers |= buffer; }
 
-        /** @return the formats used by this compound. */
-        uint32_t getFormats() const { return _formats; }
+        /** @return the image buffers used by this compound. */
+        uint32_t getBuffers() const { return _buffers; }
 
-        /** @return true if the format is set, false if not. */
-        bool testFormat( const eq::Frame::Format format ) const
-            { return (_formats & format); }
+        /** @return true if the image buffer is set, false if not. */
+        bool testBuffer( const eq::Frame::Buffer buffer ) const
+            { return (_buffers & buffer); }
 
         void setViewport( const eq::Viewport& vp ) { _data.vp = vp; }
         const eq::Viewport& getViewport() const { return _data.vp; }
@@ -366,7 +367,7 @@ namespace eqs
          * beginning of each update().
          */
         //*{
-        eq::Frame::Format getInheritFormat() const { return _inherit.format; }
+        eq::Frame::Buffer getInheritBuffers() const { return _inherit.buffers; }
         //*}
 
     private:
@@ -386,8 +387,8 @@ namespace eqs
 
         /** The compound tasks. */
         uint32_t _tasks;
-        /** The framebuffer formats to use during recomposition. */
-        uint32_t _formats;
+        /** The image buffers to use during recomposition. */
+        uint32_t _buffers;
 
         struct View
         {
@@ -417,7 +418,7 @@ namespace eqs
             eq::PixelViewport pvp;
             eq::Range         range;
             eq::View          view;
-            eq::Frame::Format format;
+            eq::Frame::Buffer buffers;
             uint32_t          eyes;
         };
 
@@ -464,7 +465,7 @@ namespace eqs
         void   _updateReadback( const eq::RenderContext& context );
         void _setupRenderContext( eq::RenderContext& context, 
                                   const UpdateChannelData* data );
-        GLenum _getDrawBuffer( const UpdateChannelData* data );
+        GLenum _getGLBuffer( const UpdateChannelData* data );
         void _computeFrustum( eq::RenderContext& context, const Eye whichEye );
 
         friend std::ostream& operator << ( std::ostream& os,
