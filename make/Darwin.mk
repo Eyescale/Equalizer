@@ -15,7 +15,7 @@ endif
 # needed for '-undefined dynamic_lookup'
 export MACOSX_DEPLOYMENT_TARGET=10.3
 
-DSO_LDFLAGS        += -dynamiclib -undefined dynamic_lookup
+DSO_LDFLAGS        += -dynamiclib
 DSO_SUFFIX          = dylib
 WINDOW_SYSTEM      += GLX CGL
 
