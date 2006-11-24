@@ -52,12 +52,6 @@ void Barrier::init( const void* data, const uint64_t dataSize )
                                                     getSession()->getServer( ));
 }
 
-void Barrier::unpack( const void* data, const uint64_t size )
-{ 
-    eqNet::Object::unpack( data, size ); 
-    getLocalNode()->flushCommands(); // process rescheduled enter packets
-}
-
 void Barrier::enter()
 {
     EQASSERT( _data.height > 1 );

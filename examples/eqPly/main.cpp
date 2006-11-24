@@ -102,7 +102,7 @@ int main( int argc, char** argv )
     uint32_t frame     = 0;
     uint32_t maxFrames = 0; // set to 0 for 'endless'
     clock.reset();
-    while( config->isRunning( ) && maxFrames-- )
+    while( config->isRunning( ) && --maxFrames )
     {
         if( tracker.isRunning() )
         {

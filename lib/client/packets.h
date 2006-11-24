@@ -643,6 +643,7 @@ namespace eq
                 size    = sizeof( FrameDataTransmitPacket );
             }
 
+        uint32_t      version;
         uint32_t      buffers;
         PixelViewport pvp;
         uint8_t       data[8]; // size is pvp.w * pvp.h * depth

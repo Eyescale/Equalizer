@@ -86,15 +86,14 @@ namespace eq
         bool isReady() const   { return _readyVersion == getVersion(); }
 
         /** Wait for the frame data to become available. */
-        void waitReady() const { _readyVersion.waitEQ( getVersion( )); }
+        void waitReady() const;
         //*}
 
     protected:
 
         virtual ~FrameData();
         /** @sa eqNet::Object::unpack */
-        virtual void unpack( const void* data, const uint64_t size )
-            { eqNet::Object::unpack( data, size ); _clear(); }
+        virtual void unpack( const void* data, const uint64_t size );
 
     private:
         struct Data
@@ -131,6 +130,7 @@ namespace eq
         eqNet::CommandResult _cmdTransmit( eqNet::Command& command );
         eqNet::CommandResult _cmdReady( eqNet::Command& command );
     };
+    std::ostream& operator << ( std::ostream& os, const FrameData* data );
 }
 
 #endif // EQ_FRAMEDATA_H

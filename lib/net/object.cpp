@@ -231,7 +231,7 @@ uint32_t Object::commitNB()
     packet.instanceID = _instanceID;
     packet.requestID  = _requestHandler.registerRequest();
 
-    send( Node::getLocalNode(), packet );
+    send( getLocalNode(), packet );
     return packet.requestID;
 }
 
@@ -339,6 +339,7 @@ bool Object::sync( const uint32_t version )
         EQASSERT( (*command)->command == REQ_OBJECT_SYNC );
         _reqSync( *command );
     }
+    getLocalNode()->flushCommands();
 
     EQVERB << "Sync'ed to v" << version << ", id " << getID() << endl;
     return true;
@@ -346,7 +347,7 @@ bool Object::sync( const uint32_t version )
 
 void Object::_syncToHead()
 {
-    if( isMaster( ))
+    if( isMaster( ) || _syncQueue.empty( ))
         return;
 
     for( Command* command = _syncQueue.tryPop(); command; 
@@ -355,6 +356,8 @@ void Object::_syncToHead()
         EQASSERT( (*command)->command == REQ_OBJECT_SYNC );
         _reqSync( *command ); // XXX shortcut around invokeCommand()
     }
+
+    getLocalNode()->flushCommands();
     EQVERB << "Sync'ed to head v" << _version << ", id " << getID() 
            << endl;
 }

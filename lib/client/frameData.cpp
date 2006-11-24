@@ -36,6 +36,13 @@ FrameData::~FrameData()
     flush();
 }
 
+void FrameData::unpack( const void* data, const uint64_t size )
+{ 
+    _clear();
+    eqNet::Object::unpack( data, size ); 
+    getLocalNode()->flushCommands(); // process rescheduled transmit packets
+}
+
 void FrameData::_clear()
 {
     copy( _images.begin(), _images.end(), 
@@ -140,6 +147,7 @@ void FrameData::transmit( eqBase::RefPtr<eqNet::Node> toNode )
 
     packet.sessionID = session->getID();
     packet.objectID  = getID();
+    packet.version   = getVersion();
 
     for( vector<Image*>::const_iterator iter = _images.begin();
          iter != _images.end(); ++iter )
@@ -193,14 +201,28 @@ void FrameData::transmit( eqBase::RefPtr<eqNet::Node> toNode )
     toNode->send( readyPacket );
 }
 
+void FrameData::waitReady() const
+{
+    EQLOG( LOG_ASSEMBLY ) << this << " wait for v" << getVersion() << endl;
+    _readyVersion.waitEQ( getVersion( )); 
+    EQLOG( LOG_ASSEMBLY ) << this << " v" << getVersion() << " ready" << endl;
+}
+
+//----- Command handlers
+
 eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
 {
     const FrameDataTransmitPacket* packet = 
         command.getPacket<FrameDataTransmitPacket>();
 
+    if( getVersion() < packet->version )
+        return eqNet::COMMAND_REDISPATCH;
+
     EQLOG( LOG_ASSEMBLY ) << "received image, buffers " << packet->buffers 
                           << " pvp " << packet->pvp << endl;
+
     EQASSERT( packet->pvp.isValid( ));
+    EQASSERT( getVersion() == packet->version );
 
     Image*         image   = newImage();
     const uint8_t* data    = packet->data;
@@ -227,6 +249,20 @@ eqNet::CommandResult FrameData::_cmdReady( eqNet::Command& command )
     const FrameDataReadyPacket* packet = 
         command.getPacket<FrameDataReadyPacket>();
 
+    if( getVersion() < packet->version )
+        return eqNet::COMMAND_REDISPATCH;
+
+    EQASSERT( getVersion() == packet->version );
+    EQLOG( LOG_ASSEMBLY ) << this << " received v" << packet->version
+                          << " ready " << _images.size() << " images" << endl;
+    
     _readyVersion = packet->version;
     return eqNet::COMMAND_HANDLED;
+}
+
+std::ostream& eq::operator << ( std::ostream& os, const FrameData* data )
+{
+    os << "frame data id " << data->getID() << " v" << data->getVersion()
+       << " ready " << data->isReady();
+    return os;
 }

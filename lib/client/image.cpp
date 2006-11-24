@@ -118,11 +118,6 @@ void Image::_startAssemble2D( const vmml::Vector2i& offset )
     glRasterPos2i( offset.x + _pvp.x, offset.y + _pvp.y );
     glDrawPixels( _pvp.w, _pvp.h, getFormat( Frame::BUFFER_COLOR ), 
                   getType( Frame::BUFFER_COLOR ), &_pixels[INDEX_COLOR][0] );
-
-        static uint32_t counter = 0;
-        ostringstream stringstream;
-        stringstream << "Image_" << ++counter;
-        writeImages( stringstream.str( ));
 }
 
 void Image::_startAssembleDB( const vmml::Vector2i& offset )
