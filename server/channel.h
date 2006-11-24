@@ -169,6 +169,9 @@ namespace eqs
             { return eqNet::Object::send( _getNetNode(), packet ); }
         //*}
 
+    protected:
+        virtual ~Channel();
+
     private:
         /** The current operational state. */
         State _state;

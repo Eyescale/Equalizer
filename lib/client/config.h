@@ -156,7 +156,6 @@ namespace eq
 
         /** The command functions. */
         eqNet::CommandResult _cmdCreateNode( eqNet::Command& command );
-        eqNet::CommandResult _cmdDestroyNode( eqNet::Command& command );
         eqNet::CommandResult _cmdInitReply( eqNet::Command& command );
         eqNet::CommandResult _cmdExitReply( eqNet::Command& command );
         eqNet::CommandResult _cmdBeginFrameReply( eqNet::Command& command );

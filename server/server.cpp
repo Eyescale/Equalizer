@@ -188,6 +188,7 @@ eqNet::CommandResult Server::_reqReleaseConfig( eqNet::Command& command )
         return eqNet::COMMAND_HANDLED;
     }
 
+    config->exit(); // Make sure config is exited
     const bool unmapped = unmapSession( config );
     EQASSERT( unmapped );
 

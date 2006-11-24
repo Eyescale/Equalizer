@@ -29,6 +29,8 @@ void Channel::_construct()
                   eqNet::CommandFunc<Channel>( this, &Channel::_cmdInitReply ));
     registerCommand( eq::CMD_CHANNEL_EXIT_REPLY,
                   eqNet::CommandFunc<Channel>( this, &Channel::_cmdExitReply ));
+
+    ref(); // We don't use RefPtr so far
     EQINFO << "New channel @" << (void*)this << endl;
 }
 
@@ -46,6 +48,14 @@ Channel::Channel( const Channel& from )
     _vp       = from._vp;
     _pvp      = from._pvp;
     _fixedPVP = from._fixedPVP;
+}
+
+Channel::~Channel()
+{
+    EQINFO << "Delete channel @" << (void*)this << endl;
+
+    if( _window )
+        _window->removeChannel( this );
 }
 
 void Channel::refUsed()

@@ -31,6 +31,8 @@ void Pipe::_construct()
                      eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdExitReply ));
     registerCommand( eq::CMD_PIPE_FRAME_SYNC, 
                      eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdFrameSync ));
+
+    ref(); // We don't use RefPtr so far
     EQINFO << "New pipe @" << (void*)this << endl;
 }
 
@@ -58,11 +60,41 @@ Pipe::Pipe( const Pipe& from )
     }    
 }
 
+Pipe::~Pipe()
+{
+    EQINFO << "Delete pipe @" << (void*)this << endl;
+
+    if( _node )
+        _node->removePipe( this );
+    
+    for( vector<Window*>::const_iterator i = _windows.begin(); 
+         i != _windows.end(); ++i )
+    {
+        Window* window = *i;
+        EQASSERT( window->getRefCount() == 1 );
+
+        window->_pipe = NULL;
+        window->unref(); // a.k.a delete
+    }
+    _windows.clear();
+}
 
 void Pipe::addWindow( Window* window )
 {
     _windows.push_back( window ); 
     window->_pipe = this; 
+}
+
+bool Pipe::removeWindow( Window* window )
+{
+    vector<Window*>::iterator i = find( _windows.begin(), _windows.end(),
+                                        window );
+    if( i == _windows.end( ))
+        return false;
+
+    _windows.erase( i );
+    window->_pipe = 0;
+    return true;
 }
 
 void Pipe::refUsed()

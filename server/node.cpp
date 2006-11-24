@@ -36,6 +36,9 @@ void Node::_construct()
         _sAttributes[i] = global->getNodeSAttribute( (SAttribute)i );
     for( int i=0; i<IATTR_ALL; ++i )
         _iAttributes[i] = global->getNodeIAttribute( (IAttribute)i );
+
+    ref(); // We don't use RefPtr so far
+    EQINFO << "Add node @" << (void*)this << endl;
 }
 
 Node::Node()
@@ -74,29 +77,41 @@ Node::Node( const Node& from )
     }
 }
 
+Node::~Node()
+{
+    EQINFO << "Delete node @" << (void*)this << endl;
+
+    if( _config )
+        _config->removeNode( this );
+    
+    for( vector<Pipe*>::const_iterator i = _pipes.begin(); i != _pipes.end();
+         ++i )
+    {
+        Pipe* pipe = *i;
+        EQASSERT( pipe->getRefCount() == 1 );
+
+        pipe->_node = NULL;
+        pipe->unref(); // a.k.a delete
+    }
+    _pipes.clear();
+}
+
 void Node::addPipe( Pipe* pipe )
 {
     _pipes.push_back( pipe ); 
     pipe->_node = this; 
-
-    if( _config )
-        pipe->adjustLatency( _config->getLatency( ));
 }
 
 bool Node::removePipe( Pipe* pipe )
 {
-    vector<Pipe*>::iterator iter = _pipes.begin();
-    for( ; iter != _pipes.end(); ++iter )
-        if( (*iter) == pipe )
-            break;
-
-    if( iter == _pipes.end( ))
+    vector<Pipe*>::iterator i = find( _pipes.begin(), _pipes.end(), pipe );
+    if( i == _pipes.end( ))
         return false;
 
-    _pipes.erase( iter );
+    _pipes.erase( i );
 
     pipe->adjustLatency( -_config->getLatency( ));
-    pipe->_node = NULL; 
+    pipe->_node = 0; 
 
     return true;
 }

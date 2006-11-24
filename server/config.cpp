@@ -26,7 +26,7 @@ void Config::_construct()
     _latency     = 1;
     _frameNumber = 0;
     _state       = STATE_STOPPED;
-    _appNode     = NULL;
+    _appNode     = 0;
 
     registerCommand( eq::CMD_CONFIG_INIT,
                      eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
@@ -60,10 +60,30 @@ Config::Config()
 
 Config::~Config()
 {
-    _server     = NULL;
-    _appNode    = NULL;
-    _compounds.clear();
+    EQINFO << "Delete config @" << (void*)this << endl;
+    _server     = 0;
+    _appNode    = 0;
+
+    for( vector<Node*>::const_iterator i = _nodes.begin(); i != _nodes.end();
+         ++i )
+    {
+        Node* node = *i;
+        EQASSERT( node->getRefCount( ) == 1 );
+
+        node->_config = 0;
+        node->unref(); // a.k.a delete
+    }
     _nodes.clear();
+
+    for( vector<Compound*>::const_iterator i = _compounds.begin(); 
+         i != _compounds.end(); ++i )
+    {
+        Compound* compound = *i;
+
+        compound->_config = 0;
+        delete compound;
+    }
+    _compounds.clear();
 }
 
 struct ReplaceChannelData
@@ -163,7 +183,7 @@ bool Config::removeNode( Node* node )
     _nodes.erase( iter );
 
     node->adjustLatency( -_latency );
-    node->_config = NULL; 
+    node->_config = 0; 
 
     return true;
 }
@@ -172,6 +192,18 @@ void Config::addCompound( Compound* compound )
 {
     compound->_config = this;
     _compounds.push_back( compound );
+}
+
+bool Config::removeCompound( Compound* compound )
+{
+    vector<Compound*>::iterator i = find( _compounds.begin(), _compounds.end(),
+                                          compound );
+    if( i == _compounds.end( ))
+        return false;
+
+    _compounds.erase( i );
+    compound->_config = 0;
+    return true;
 }
 
 Channel* Config::findChannel( const std::string& name ) const
@@ -254,7 +286,7 @@ eqNet::CommandResult Config::_reqExit( eqNet::Command& command )
     eq::ConfigExitReplyPacket   reply( packet );
     EQINFO << "handle config exit " << packet << endl;
 
-    reply.result = _exit();
+    reply.result = exit();
     EQINFO << "config exit result: " << reply.result << endl;
     send( command.getNode(), reply );
     return eqNet::COMMAND_HANDLED;
@@ -312,7 +344,7 @@ bool Config::_init( const uint32_t initID )
         !_initNodes( initID ) ||
         !_initPipes( initID ) )
     {
-        _exit();
+        exit();
         return false;
     }
 
@@ -475,7 +507,7 @@ bool Config::_initPipes( const uint32_t initID )
     return success;
 }
 
-bool Config::_exit()
+bool Config::exit()
 {
     if( _state != STATE_INITIALIZED )
         return false;
@@ -484,8 +516,15 @@ bool Config::_exit()
 //     foreach compound
 //         sync exit
 
-    const bool cleanExit = ( _exitPipes() &&
-                             _exitNodes()  );
+    bool cleanExit = _exitPipes();
+    if( !cleanExit )
+        EQERROR << "pipes exit failed" << endl;
+
+    if( !_exitNodes( ))
+    {
+        EQERROR << "nodes exit failed" << endl;
+        cleanExit = false;
+    }
 
     const uint32_t nCompounds = this->nCompounds();
     for( uint32_t i=0; i<nCompounds; ++i )
@@ -542,7 +581,10 @@ bool Config::_exitPipes()
                 continue;
 
             if( !pipe->syncExit( ))
+            {
+                EQWARN << "Could not exit cleanly: " << pipe << endl;
                 success = false;
+            }
 
             destroyPipePacket.pipeID = pipe->getID();
             node->send( destroyPipePacket );
@@ -555,6 +597,7 @@ bool Config::_exitPipes()
 
 bool Config::_exitNodes()
 {
+    vector<Node*> exitingNodes;
     for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
         Node* node = *iter;
@@ -562,28 +605,28 @@ bool Config::_exitNodes()
             node->getNode()->getState() == eqNet::Node::STATE_STOPPED )
             continue;
 
+        exitingNodes.push_back( node );
         node->startExit();
     }
 
-    eq::ConfigDestroyNodePacket destroyNodePacket;
     bool success = true;
-
-    for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    for( vector<Node*>::const_iterator i = exitingNodes.begin();
+         i != exitingNodes.end(); ++i )
     {
-        Node*               node    = *iter;
+        Node*               node    = *i;
         RefPtr<eqNet::Node> netNode = node->getNode();
-        if( !node->isUsed() || 
-            netNode->getState() == eqNet::Node::STATE_STOPPED )
-            continue;
 
         if( !node->syncExit( ))
         {
-            EQERROR << "Exit of " << node << " failed." << endl;
+            EQERROR << "Could not exit cleanly: " << node << endl;
             success = false;
         }
 
-        destroyNodePacket.nodeID = node->getID();
-        send( netNode, destroyNodePacket );
+        if( netNode->getState() != eqNet::Node::STATE_STOPPED &&
+            node != _appNode )
+
+            EQWARN << "Config::exit: Node should have exited by now" << endl;
+
         node->setNode( NULL );
         deregisterObject( node );
     }

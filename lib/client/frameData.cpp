@@ -103,7 +103,10 @@ void FrameData::startAssemble( const Frame& frame )
                           << _data.buffers << " offset " << _data.offset <<endl;
     if( _data.buffers == Frame::BUFFER_NONE )
         return;
-    
+
+    if( _images.empty( ))
+        EQWARN << "No Images to assemble" << endl;
+
     for( vector<Image*>::const_iterator i = _images.begin();
          i != _images.end(); ++i )
     {

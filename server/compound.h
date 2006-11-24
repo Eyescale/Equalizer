@@ -370,6 +370,9 @@ namespace eqs
         eq::Frame::Buffer getInheritBuffers() const { return _inherit.buffers; }
         //*}
 
+    protected:
+        virtual ~Compound();
+
     private:
         std::string _name;
         

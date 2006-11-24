@@ -37,7 +37,6 @@ namespace eq
         REQ_CONFIG_EXIT, // REQ must always follow CMD
         CMD_CONFIG_EXIT_REPLY,
         CMD_CONFIG_CREATE_NODE,
-        CMD_CONFIG_DESTROY_NODE,
         CMD_CONFIG_FRAME_BEGIN,
         REQ_CONFIG_FRAME_BEGIN, // REQ must always follow CMD
         CMD_CONFIG_FRAME_BEGIN_REPLY,

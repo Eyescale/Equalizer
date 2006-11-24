@@ -38,6 +38,7 @@ void eqs::Window::_construct()
         _iAttributes[i] = global->getWindowIAttribute(
             static_cast<eq::Window::IAttribute>( i ));
 
+    ref(); // We don't use RefPtr so far
     EQINFO << "New window @" << (void*)this << endl;
 }
 
@@ -69,10 +70,42 @@ eqs::Window::Window( const Window& from )
     }            
 }
 
+eqs::Window::~Window()
+{
+    EQINFO << "Delete window @" << (void*)this << endl;
+
+    if( _pipe )
+        _pipe->removeWindow( this );
+    
+    for( vector<Channel*>::const_iterator i = _channels.begin(); 
+         i != _channels.end(); ++i )
+    {
+        Channel* channel = *i;
+        EQASSERT( channel->getRefCount() == 1 );
+
+        channel->_window = NULL;
+        channel->unref(); // a.k.a delete
+    }
+    _channels.clear();
+}
+
+
 void eqs::Window::addChannel( Channel* channel )
 {
     _channels.push_back( channel ); 
     channel->_window = this; 
+}
+
+bool eqs::Window::removeChannel( Channel* channel )
+{
+    vector<Channel*>::iterator i = find( _channels.begin(), _channels.end(),
+                                        channel );
+    if( i == _channels.end( ))
+        return false;
+
+    _channels.erase( i );
+    channel->_window = 0;
+    return true;
 }
 
 void eqs::Window::refUsed()
@@ -279,10 +312,10 @@ bool eqs::Window::syncExit()
     Config* config = getConfig();
     eq::WindowDestroyChannelPacket destroyChannelPacket;
 
-    for( std::vector<Channel*>::iterator iter = _channels.begin(); 
-         iter != _channels.end(); ++iter )
+    for( std::vector<Channel*>::iterator i = _channels.begin(); 
+         i != _channels.end(); ++i )
     {
-        Channel* channel = *iter;
+        Channel* channel = *i;
         if( channel->getState() != Channel::STATE_STOPPING )
             continue;
 

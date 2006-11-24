@@ -18,7 +18,7 @@
 using namespace std;
 using namespace eqBase;
 
-#define DIE(reason)    { cout << (reason) << endl; abort(); }
+#define DIE(reason)    { EQERROR << (reason) << endl; abort(); }
 
 static void _parseArguments( int argc, char** argv,
                              RefPtr<AppInitData> appInitData );
@@ -73,7 +73,8 @@ int main( int argc, char** argv )
     eqBase::Clock clock;
     if( !config->init( appInitData->getID( )))
         DIE("Config initialisation failed.");
-    EQINFO << "Config init took " << clock.getTimef() << " ms" << endl;
+    EQLOG( eq::LOG_CUSTOM ) << "Config init took " << clock.getTimef() << " ms"
+                            << endl;
 
     // 5b. init tracker
     Tracker tracker;
@@ -93,14 +94,15 @@ int main( int argc, char** argv )
             m = vmml::Matrix4f::IDENTITY;
             m.rotateZ( -M_PI_2 );
             tracker.setSensorToObject( m );
-            EQINFO << "Tracker initialised" << endl;
+            EQLOG( eq::LOG_CUSTOM ) << "Tracker initialised" << endl;
         }
     }
 
     // 6. run main loop
-    uint32_t frame = 0;
+    uint32_t frame     = 0;
+    uint32_t maxFrames = 0; // set to 0 for 'endless'
     clock.reset();
-    while( config->isRunning( ))
+    while( config->isRunning( ) && maxFrames-- )
     {
         if( tracker.isRunning() )
         {
@@ -113,13 +115,16 @@ int main( int argc, char** argv )
         // config->renderData(...);
         frame = config->endFrame();
     }
-    EQINFO << "Rendering took " << clock.getTimef() << " ms (" << 
-        (frame / clock.getTimef() * 1000.f) << " FPS)" << endl;
+    // config->finishFrames() ???
+    ++frame;
+    EQLOG( eq::LOG_CUSTOM ) << "Rendering took " << clock.getTimef() << " ms ("
+                            << ( frame / clock.getTimef() * 1000.f) << " FPS)"
+                            << endl;
 
     // 7. exit config
     clock.reset();
     config->exit();
-    EQINFO << "Exit took " << clock.getTimef() << " ms" << endl;
+    EQLOG( eq::LOG_CUSTOM ) << "Exit took " << clock.getTimef() << " ms" <<endl;
 
     // 8. cleanup and exit
     appInitData->setFrameData( NULL );

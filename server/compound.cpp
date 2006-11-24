@@ -27,15 +27,17 @@ using namespace eqBase;
 using namespace std;
 
 Compound::Compound()
-        : _parent( NULL ),
+        : _config( 0 ),
+          _parent( 0 ),
           _tasks( TASK_ALL ),
-          _swapBarrier( NULL )
+          _swapBarrier( 0 )
 {
 }
 
 // copy constructor
 Compound::Compound( const Compound& from )
-        : _parent( NULL )
+        : _config( 0 ),
+          _parent( 0 )
 {
     _name        = from._name;
     _tasks       = from._tasks;
@@ -59,6 +61,44 @@ Compound::Compound( const Compound& from )
          iter != from._inputFrames.end(); ++iter )
 
         addInputFrame( new Frame( **iter ));
+}
+
+Compound::~Compound()
+{
+    if( _config )
+        _config->removeCompound( this );
+
+    _config = 0;
+
+    for( vector<Compound*>::const_iterator i = _children.begin(); 
+         i != _children.end(); ++i )
+    {
+        Compound* compound = *i;
+
+        compound->_parent = NULL;
+        delete compound;
+    }
+    _children.clear();
+
+    for( vector<Frame*>::const_iterator i = _inputFrames.begin(); 
+         i != _inputFrames.end(); ++i )
+    {
+        Frame* frame = *i;
+
+        frame->_compound = NULL;
+        delete frame;
+    }
+    _inputFrames.clear();
+
+    for( vector<Frame*>::const_iterator i = _outputFrames.begin(); 
+         i != _outputFrames.end(); ++i )
+    {
+        Frame* frame = *i;
+
+        frame->_compound = NULL;
+        delete frame;
+    }
+    _outputFrames.clear();
 }
 
 Compound::InheritData::InheritData()

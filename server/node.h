@@ -248,6 +248,7 @@ namespace eqs
             { return _connectionDescriptions[index]; }
 
     protected:
+        virtual ~Node();
 
     private:
         /** The parent config. */

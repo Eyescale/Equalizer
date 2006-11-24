@@ -43,8 +43,6 @@ namespace eqs
          */
         Window( const Window& from );
 
-        virtual ~Window(){}
-
         Server* getServer() const
             { return _pipe ? _pipe ->getServer() : NULL; }
 
@@ -206,6 +204,10 @@ namespace eqs
         
         const eq::Window::DrawableConfig& getDrawableConfig() const
             { return _drawableConfig; }
+        
+    protected:
+        virtual ~Window();
+
     private:
         eq::Window::DrawableConfig _drawableConfig;
 

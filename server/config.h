@@ -181,6 +181,9 @@ namespace eqs
           */
         const vmml::Vector3f& getEyePosition( const uint32_t eye );
 
+        // Used by Server::releaseConfig() to make sure config is exited
+        bool exit();
+
         /**
          * @name Float Attributes
          */
@@ -273,7 +276,6 @@ namespace eqs
         bool   _connectNodes();
         bool   _initNodes( const uint32_t initID );
         bool   _initPipes( const uint32_t initID );
-        bool _exit();
         bool   _exitPipes();
         bool   _exitNodes();
 

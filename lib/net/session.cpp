@@ -65,6 +65,27 @@ Session::Session( const bool threadSafe )
 Session::~Session()
 {
     EQINFO << "Delete Session @" << (void*)this << endl;
+
+    _localNode = 0;
+    _server    = 0;
+        
+    if( _threadObjects.get( ))
+    {
+        if( !_threadObjects->empty( ))
+            EQWARN << _threadObjects->size()
+                   << " registed thread objects in destructor" << endl;
+        _threadObjects->clear();
+    }
+
+    if( !_nodeObjects.empty( ))
+        EQWARN << _nodeObjects.size()
+               << " registed node objects in destructor" << endl;
+    _nodeObjects.clear();
+
+    if( !_registeredObjects.empty( ))
+        EQWARN << _registeredObjects.size()
+               << " registered objects in destructor" << endl;
+    _registeredObjects.clear();
 }
 
 //---------------------------------------------------------------------------
@@ -198,7 +219,7 @@ void Session::addRegisteredObject( const uint32_t id, Object* object,
     switch( policy )
     {
         case Object::SHARE_NODE:
-            EQASSERT( !_nodeObjects[id] );
+            EQASSERT( _nodeObjects.find( id ) == _nodeObjects.end( ));
             _nodeObjects[id] = object;
             break;
 
@@ -237,8 +258,8 @@ void Session::removeRegisteredObject( Object* object,
         if( policy == Object::SHARE_THREAD )
         {
             const uint32_t id = object->getID();
-            EQASSERT( _threadObjects.get( ))
-            EQASSERT( (*_threadObjects.get( ))[id] );
+            EQASSERT( _threadObjects.get( ));
+            EQASSERT( _threadObjects->find( id ) != _threadObjects->end() );
             _threadObjects->erase( id );
         }
         return;
@@ -259,13 +280,13 @@ void Session::removeRegisteredObject( Object* object,
     switch( policy )
     {
         case Object::SHARE_NODE:
-            EQASSERT( _nodeObjects[id] );
+            EQASSERT( _nodeObjects.find( id ) != _nodeObjects.end( ));
             _nodeObjects.erase( id );
             break;
 
         case Object::SHARE_THREAD:
             EQASSERT( _threadObjects.get( ))
-            EQASSERT( (*_threadObjects.get( ))[id] );
+            EQASSERT( _threadObjects->find( id ) != _threadObjects->end() );
             _threadObjects->erase( id );
             break;
 
@@ -340,11 +361,10 @@ void Session::_registerThreadObject( Object* object, const uint32_t id )
 {
     EQASSERT( !_localNode->inReceiverThread( ))
 
-    if( _threadObjects.get() == NULL )
+    if( !_threadObjects.get() )
         _threadObjects = new IDHash<Object*>;
-    else
-        EQASSERT( !(*_threadObjects.get())[id] );
 
+    EQASSERT( _threadObjects->find( id ) == _threadObjects->end( ));
     (*_threadObjects.get())[id] = object;
 }
 
@@ -440,16 +460,19 @@ Object* Session::pollObject( const uint32_t id,
     switch( policy )
     {
         case Object::SHARE_NODE:
+            if( _nodeObjects.find( id ) == _nodeObjects.end( )) // obj not found
+                return 0;
             return _nodeObjects[id];
 
         case Object::SHARE_THREAD:
-            if( _threadObjects.get() == NULL )
-                return NULL;
+            if( !_threadObjects.get( ) ||       // no thread objects registered
+                _threadObjects->find( id ) == _threadObjects->end( )) // !found
+                return 0;
             
             return (*_threadObjects.get())[id];
             
         case Object::SHARE_NEVER:
-            return NULL;
+            return 0;
 
         default:
             EQUNREACHABLE;
@@ -905,7 +928,7 @@ CommandResult Session::_cmdGetObject( Command& command )
 
     if( state->policy == Object::SHARE_NODE )
     {
-        Object* object = _nodeObjects[id];
+        Object* object = pollObject( id, Object::SHARE_NODE );
 
         if( object ) // per-node object instanciated already
         {

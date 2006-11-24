@@ -274,7 +274,7 @@ connectionField:
 pipes: pipe | pipes pipe
 pipe: EQTOKEN_PIPE '{' { eqPipe = loader->createPipe(); }
         pipeFields
-        windows '}' { node->addPipe( eqPipe ); eqPipe = NULL; }
+        windows    '}' { node->addPipe( eqPipe ); eqPipe = NULL; }
 pipeFields: /*null*/ | pipeField | pipeFields pipeField
 pipeField:
     EQTOKEN_DISPLAY UNSIGNED         { eqPipe->setDisplay( $2 ); }

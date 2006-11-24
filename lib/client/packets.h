@@ -104,17 +104,6 @@ namespace eq
         uint32_t nodeID;
     };
 
-    struct ConfigDestroyNodePacket : public ConfigPacket
-    {
-        ConfigDestroyNodePacket()
-            {
-                command = CMD_CONFIG_DESTROY_NODE;
-                size    = sizeof( ConfigDestroyNodePacket );
-            }
-
-        uint32_t nodeID;
-    };
-    
     struct ConfigInitPacket : public ConfigPacket
     {
         ConfigInitPacket()

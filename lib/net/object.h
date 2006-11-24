@@ -12,6 +12,7 @@
 #include <eq/net/types.h>
 
 #include <eq/base/idPool.h>
+#include <eq/base/referenced.h>
 
 namespace eqNet
 {

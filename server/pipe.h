@@ -182,6 +182,9 @@ namespace eqs
         void adjustLatency( const int delta ){ _frameSync.adjust( delta ); }
         //*}
 
+    protected:
+        virtual ~Pipe();
+
     private:
         /** The current operational state. */
         State _state;

@@ -5,10 +5,9 @@
 #ifndef EQBASE_REQUESTHANDLER_H
 #define EQBASE_REQUESTHANDLER_H
 
-#include "base.h"
-#include "hash.h"
-#include "referenced.h"
-#include "timedLock.h"
+#include <eq/base/base.h>
+#include <eq/base/hash.h>
+#include <eq/base/timedLock.h>
 
 #include <list>
 
@@ -30,7 +29,7 @@ namespace eqBase
      * serveRequest() and deleteRequest() are supposed to be called only from
      * one 'serving' thread.
      */
-    class RequestHandler : public Referenced
+    class RequestHandler
     {
 
     public:
