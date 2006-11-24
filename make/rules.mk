@@ -1,5 +1,5 @@
 
-.PHONY: subdirs $(SUBDIRS) $(DEPENDENCIES) install
+.PHONY: subdirs $(SUBDIRS) $(DEPENDENCIES) install uninstall
 .SUFFIXES: .d
 
 all: $(TARGETS)
@@ -12,6 +12,10 @@ install: all
 	@mkdir -p $(INSTALL_LIBDIR)
 	@cp -v $(INSTALL_LIBS) $(INSTALL_LIBDIR)
 
+uninstall:
+	rm -rf $(INSTALL_DIR)/include/eq
+	@rm -i $(INSTALL_LIBDIR)/libeq*
+
 else # BUILD_FAT
 
 ifndef VARIANT
@@ -21,10 +25,21 @@ install: all
 	@for variant in $(VARIANTS); do \
 		$(MAKE) TOP=$(TOP) VARIANT=$$variant install ;\
 	done
+
+uninstall:
+	rm -rf $(INSTALL_DIR)/include/eq
+	@for variant in $(VARIANTS); do \
+		$(MAKE) TOP=$(TOP) VARIANT=$$variant uninstall ;\
+	done
+
 else  # VARIANT
 install:
 	@mkdir -p $(INSTALL_LIBDIR)
 	@cp -v $(INSTALL_LIBS) $(INSTALL_LIBDIR)
+
+uninstall:
+	@rm -i $(INSTALL_LIBDIR)/libeq*
+
 endif # VARIANT
 
 endif # BUILD_FAT
