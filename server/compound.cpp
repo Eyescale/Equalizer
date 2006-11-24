@@ -454,7 +454,9 @@ void Compound::_updateOutput( UpdateData* data )
         frameData->setPixelViewport( framePVP );
 
         // Frame offset is position wrt window, i.e., the channel position
-        if( false /* use dest channel origin hint set */ )
+        if( _inherit.channel == _data.channel 
+            /* || use dest channel origin hint set */ )
+
             frame->setOffset( vmml::Vector2i( _inherit.pvp.x, _inherit.pvp.y));
         else
         {
@@ -529,7 +531,8 @@ void Compound::_updateInput( UpdateData* data )
         eq::PixelViewport   framePVP    = _inherit.pvp * frameVP;
         vmml::Vector2i      frameOffset = outputFrame->getOffset();
  
-        if( true /* !use dest channel origin hint set */ )
+        if( _data.channel != _inherit.channel 
+            /* || !use dest channel origin hint set */ )
         {
             // compute delta offset between source and destination, since the
             // channel's native origin (as opposed to destination) is used.
@@ -611,14 +614,14 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
 void Compound::_setupRenderContext( eq::RenderContext& context, 
                                     const UpdateChannelData* data )
 {
-    context.frameID    = data->frameID;
-    context.pvp        = _inherit.pvp;
-    context.range      = _inherit.range;
-    context.buffer     = _getGLBuffer( data );
+    context.frameID        = data->frameID;
+    context.pvp            = _inherit.pvp;
+    context.range          = _inherit.range;
+    context.buffer         = _getGLBuffer( data );
+    const Channel* channel = data->channel;
 
-    if( true /* !use dest channel origin hint set */ )
+    if( channel != _inherit.channel /* || !use dest channel origin hint set */ )
     {
-        const Channel* channel = data->channel;
         const eq::PixelViewport& nativePVP = channel->getPixelViewport();
         context.pvp.x = nativePVP.x;
         context.pvp.y = nativePVP.y;
