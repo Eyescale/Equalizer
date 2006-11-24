@@ -103,10 +103,10 @@ namespace eq
         
         /** Writes the pixel data as rgb image files. */
         void writeImage( const std::string& filename, 
-                         const Frame::Buffer buffer );
+                         const Frame::Buffer buffer ) const;
         
         /** Writes all pixel data as separate images. */
-        void writeImages( const std::string& filenameTemplate );
+        void writeImages( const std::string& filenameTemplate ) const;
         //*}
 
     private:

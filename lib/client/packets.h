@@ -656,7 +656,7 @@ namespace eq
 
         uint32_t      buffers;
         PixelViewport pvp;
-        uint8_t       data[1]; // size is pvp.w * pvp.h * depth
+        uint8_t       data[8]; // size is pvp.w * pvp.h * depth
     };
 
     struct FrameDataReadyPacket : public eqNet::ObjectPacket

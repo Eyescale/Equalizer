@@ -127,6 +127,9 @@ namespace eqNet
 
         /** 
          * Sends a packaged message including additional data.
+         *
+         * The last item of the packet has to be able to hold one item or eight
+         * bytes of the data, whatever is bigger.
          * 
          * @param packet the message packet.
          * @param data the vector containing the data.
@@ -197,7 +200,7 @@ namespace eqNet
          * @param bytes the number of bytes to read.
          * @return the number of bytes received.
          */
-        virtual uint64_t recv( const void* buffer, const uint64_t bytes )
+        virtual uint64_t recv( void* buffer, const uint64_t bytes )
             {return 0;}
         //@}
 

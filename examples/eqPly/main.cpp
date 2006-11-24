@@ -73,7 +73,7 @@ int main( int argc, char** argv )
     eqBase::Clock clock;
     if( !config->init( appInitData->getID( )))
         DIE("Config initialisation failed.");
-    cerr << "Config init took " << clock.getTimef() << " ms" << endl;
+    EQINFO << "Config init took " << clock.getTimef() << " ms" << endl;
 
     // 5b. init tracker
     Tracker tracker;
@@ -98,6 +98,7 @@ int main( int argc, char** argv )
     }
 
     // 6. run main loop
+    uint32_t frame = 0;
     clock.reset();
     while( config->isRunning( ))
     {
@@ -110,14 +111,15 @@ int main( int argc, char** argv )
 
         config->beginFrame();
         // config->renderData(...);
-        config->endFrame();
+        frame = config->endFrame();
     }
-    cerr << "Rendering took " << clock.getTimef() << " ms" << endl;
+    EQINFO << "Rendering took " << clock.getTimef() << " ms (" << 
+        (frame / clock.getTimef() * 1000.f) << " FPS)" << endl;
 
     // 7. exit config
     clock.reset();
     config->exit();
-    cerr << "Exit took " << clock.getTimef() << " ms" << endl;
+    EQINFO << "Exit took " << clock.getTimef() << " ms" << endl;
 
     // 8. cleanup and exit
     appInitData->setFrameData( NULL );

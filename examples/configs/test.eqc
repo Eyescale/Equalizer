@@ -18,9 +18,9 @@ server
                     }
                 }
             }
-#        }
-#        node
-#        {
+        }
+        node
+        {
             pipe
             {
                 screen 0

@@ -131,8 +131,8 @@ void FrameData::transmit( eqBase::RefPtr<eqNet::Node> toNode )
     }
 
     FrameDataTransmitPacket packet;
-    const uint64_t            packetSize = sizeof( packet ) - sizeof( uint8_t );
-    const eqNet::Session*     session    = getSession();
+    const uint64_t          packetSize = sizeof( packet ) - 8*sizeof( uint8_t );
+    const eqNet::Session*   session    = getSession();
     EQASSERT( session );
 
     packet.sessionID = session->getID();
@@ -177,10 +177,10 @@ void FrameData::transmit( eqBase::RefPtr<eqNet::Node> toNode )
         for( vector< const vector<uint8_t>* >::iterator i = pixelDatas.begin();
              i != pixelDatas.end(); ++i )
         {
-            const std::vector<uint8_t>* item = *i;
-            connection->send( &item[0], item->size(), true );
+            const std::vector<uint8_t>& item = **i;
+            connection->send( &item[0], item.size(), true );
         }    
-        connection->unlockSend();
+        connection->unlockSend(); 
     }
 
     FrameDataReadyPacket readyPacket;

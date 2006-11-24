@@ -8,20 +8,25 @@ uint64_t Connection::send( Packet &packet, const std::vector<T>& data ) const
     if( data.size() == 0 )
         return send( packet );
 
-    if( data.size() == 1 ) // fits in existing packet
+    const size_t packetStorage = MAX( 8, sizeof( T ));
+    const size_t nItems        = data.size();
+    const size_t dataSize      = nItems * sizeof( T );
+
+    if( dataSize <= packetStorage ) // fits in existing packet
     {
-        memcpy( (char*)(&packet) + packet.size-sizeof(T), &data[0], sizeof(T) );
+        memcpy( (char*)(&packet) + packet.size-packetStorage, &data[0], 
+                dataSize );
         return send( packet );
     }
 
     // Possible OPT: For big packets, lock the connection and do two send()
     // calls to avoid memcpy
 
-    uint64_t size   = packet.size + (data.size() - 1) * sizeof(T);
+    uint64_t size   = packet.size - packetStorage + dataSize;
     char*    buffer = (char*)alloca( size );
 
-    memcpy( buffer, &packet, packet.size-sizeof(T) );
-    memcpy( buffer + packet.size-sizeof(T), &data[0], data.size() * sizeof(T) );
+    memcpy( buffer, &packet, packet.size-packetStorage );
+    memcpy( buffer + packetStorage, &data[0], dataSize );
 
     ((Packet*)buffer)->size = size;
     return send( buffer, size );

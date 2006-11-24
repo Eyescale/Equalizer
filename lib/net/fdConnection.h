@@ -16,7 +16,7 @@ namespace eqNet
     class FDConnection : public Connection
     {
     public:
-        virtual uint64_t recv( const void* buffer, const uint64_t bytes );
+        virtual uint64_t recv( void* buffer, const uint64_t bytes );
         virtual uint64_t send( const void* buffer, const uint64_t bytes, 
                                bool isLocked = false ) const;
 

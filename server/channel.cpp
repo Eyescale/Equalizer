@@ -28,7 +28,8 @@ void Channel::_construct()
     registerCommand( eq::CMD_CHANNEL_INIT_REPLY, 
                   eqNet::CommandFunc<Channel>( this, &Channel::_cmdInitReply ));
     registerCommand( eq::CMD_CHANNEL_EXIT_REPLY,
-                   eqNet::CommandFunc<Channel>( this, &Channel::_cmdExitReply ));
+                  eqNet::CommandFunc<Channel>( this, &Channel::_cmdExitReply ));
+    EQINFO << "New channel @" << (void*)this << endl;
 }
 
 Channel::Channel()

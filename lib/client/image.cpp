@@ -146,7 +146,7 @@ void Image::setData( const Frame::Buffer buffer, const uint8_t* data )
     memcpy( &_pixels[index][0], data, size );
 }
 
-void Image::writeImages( const std::string& filenameTemplate )
+void Image::writeImages( const std::string& filenameTemplate ) const
 {
     if( !_pixels[INDEX_COLOR].empty( ))
         writeImage( filenameTemplate + "_color.rgb", Frame::BUFFER_COLOR );
@@ -208,7 +208,8 @@ struct RGBHeader
     char fill[404]             __attribute__ ((packed));
 };
 
-void Image::writeImage( const std::string& filename, const Frame::Buffer buffer)
+void Image::writeImage( const std::string& filename, 
+                        const Frame::Buffer buffer ) const
 {
     const size_t           nPixels = _pvp.w * _pvp.h;
     const size_t           depth   = getDepth( buffer );

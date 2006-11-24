@@ -3,8 +3,8 @@
    All rights reserved. */
 
 #include "fdConnection.h"
+#include "log.h"
 
-#include <eq/base/log.h>
 #include <eq/base/scopedMutex.h>
 
 #include <errno.h>
@@ -28,13 +28,13 @@ FDConnection::FDConnection( const FDConnection& conn )
 //----------------------------------------------------------------------
 // read
 //----------------------------------------------------------------------
-uint64_t FDConnection::recv( const void* buffer, const uint64_t bytes )
+uint64_t FDConnection::recv( void* buffer, const uint64_t bytes )
 {
-    EQVERB << "Receiving " << bytes << " bytes on " << this << endl;
+    EQLOG( LOG_WIRE ) << "Receiving " << bytes << " bytes on " << this << endl;
     if( _state != STATE_CONNECTED || _readFD == -1 )
         return 0;
 
-    unsigned char* ptr       = (unsigned char*)buffer;
+    unsigned char* ptr       = static_cast<unsigned char*>(buffer);
     uint64_t       bytesLeft = bytes;
 
     while( bytesLeft )
@@ -63,24 +63,24 @@ uint64_t FDConnection::recv( const void* buffer, const uint64_t bytes )
         ptr += bytesRead;
     }
 
-    if( eqBase::Log::level >= eqBase::LOG_VERBATIM ) // OPT
+    if( eqBase::Log::topics & LOG_WIRE ) // OPT
     {
-        EQVERB << disableFlush << "Received " << bytes << " bytes: ";
-        const char*    data       = (char*)buffer;
+        EQLOG( LOG_WIRE ) << disableFlush << "Received " << bytes << " bytes: ";
         const uint32_t printBytes = MIN( bytes, 256 );
+        unsigned char* data       = static_cast<unsigned char*>(buffer);
 
         for( uint32_t i=0; i<printBytes; i++ )
         {
             if( i%4 )
-                EQVERB << " ";
+                EQLOG( LOG_WIRE ) << " ";
             else if( i )
-                EQVERB << "|";
+                EQLOG( LOG_WIRE ) << "|";
 
-            EQVERB << static_cast<int>(data[i]);
+            EQLOG( LOG_WIRE ) << static_cast<int>(data[i]);
         }
         if( printBytes < bytes ) 
-            EQVERB << "...";
-        EQVERB << endl << enableFlush;
+            EQLOG( LOG_WIRE ) << "|...";
+        EQLOG( LOG_WIRE ) << endl << enableFlush;
     }
             
     return bytes;
@@ -104,27 +104,27 @@ uint64_t FDConnection::send( const void* buffer, const uint64_t bytes,
     // 3) Introduce a send thread with a thread-safe task queue
     ScopedMutex mutex( isLocked ? 0 : &_sendLock );
 
-    unsigned char* ptr       = (unsigned char*)buffer;
+    const unsigned char* ptr       = static_cast<const unsigned char*>(buffer);
     uint64_t       bytesLeft = bytes;
 
-    if( eqBase::Log::level >= eqBase::LOG_VERBATIM ) // OPT
+    if( eqBase::Log::topics & LOG_WIRE ) // OPT
     {
-        EQVERB << disableFlush
-               << "Sending " << bytes << " bytes on " << (void*)this << ":";
+        EQLOG( LOG_WIRE ) << disableFlush << "Sending " << bytes 
+                          << " bytes on " << (void*)this << ":";
         const uint32_t printBytes = MIN( bytes, 256 );
 
         for( uint32_t i=0; i<printBytes; i++ )
         {
             if( i%4 )
-                EQVERB << " ";
+                EQLOG( LOG_WIRE ) << " ";
             else if( i )
-                EQVERB << "|";
+                EQLOG( LOG_WIRE ) << "|";
 
-            EQVERB << static_cast<int>(ptr[i]);
+            EQLOG( LOG_WIRE ) << static_cast<int>(ptr[i]);
         }
         if( printBytes < bytes ) 
-            EQVERB << "...";
-        EQVERB << endl << enableFlush;
+            EQLOG( LOG_WIRE ) << "|...";
+        EQLOG( LOG_WIRE ) << endl << enableFlush;
     }
 
     while( bytesLeft )
