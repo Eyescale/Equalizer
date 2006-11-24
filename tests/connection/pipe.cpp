@@ -57,8 +57,8 @@ int main( int argc, char **argv )
     server.start( pipeConnection->getChildEnd( ));
 
     const char message[] = "buh!";
-    int nChars = strlen( message ) + 1;
-    const char *response = (const char*)alloca( nChars );
+    int        nChars    = strlen( message ) + 1;
+    char*      response  = static_cast<char*>( alloca( nChars ));
 
     connection->send( message, nChars );
     connection->recv( response, nChars );

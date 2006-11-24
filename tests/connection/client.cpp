@@ -23,9 +23,9 @@ int main( int argc, char **argv )
     connDesc->TCPIP.port = 4242;
     TEST( connection->connect( ));
 
-    const char      message[] = "buh!";
-    const uint64_t  nChars    = strlen( message ) + 1;
-    const char     *response  = (const char*)alloca( nChars );
+    const char     message[] = "buh!";
+    const uint64_t nChars    = strlen( message ) + 1;
+    char*          response  = static_cast<char*>( alloca( nChars ));
 
     TEST( connection->send( message, nChars ) == nChars );
     TEST( connection->recv( response, nChars ) == nChars );
