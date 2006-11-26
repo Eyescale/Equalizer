@@ -597,8 +597,7 @@ bool Node::_handleCommand( RefPtr<Node> node )
     switch( result )
     {
         case COMMAND_ERROR:
-            EQERROR << "Error handling command " << *_receivedCommand << endl;
-            EQASSERT(0);
+            EQASSERTINFO( 0, "Error handling command " << *_receivedCommand );
             break;
         
         case COMMAND_REDISPATCH:
@@ -711,7 +710,7 @@ CommandResult Node::dispatchCommand( Command& command )
                 EQERROR << "Unknown eqNet datatype " << datatype << endl;
                 return COMMAND_ERROR;
             }
-
+            
             return handleCommand( command );
     }
 }

@@ -1,0 +1,153 @@
+# stress-test config, currently for swap barrier debugging
+server
+{
+    config
+    {
+        latency 10
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ .025 .025 .3 .3 ]
+                    channel { name "channel1" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ .35 .025 .3 .3 ]
+                    channel { name "channel2" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ .675 .025 .3 .3 ]
+                    channel { name "channel3" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ .025 .35 .3 .3 ]
+                    channel { name "channel4" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ .35 .35 .3 .3 ]
+                    channel { name "channel5" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ .675 .35 .3 .3 ]
+                    channel { name "channel6" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ .025 .675 .3 .3 ]
+                    channel { name "channel7" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ .35 .675 .3 .3 ]
+                    channel { name "channel8" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ .675 .675 .3 .3 ]
+                    channel { name "channel9" }
+                }
+            }
+        }
+        compound
+        { 
+            channel "channel1"
+            wall
+            {
+                bottom_left  [ -1 -1.5 -2 ]
+                bottom_right [  1 -1.5 -2 ]
+                top_left     [ -1  1.5 -2 ]
+            }
+            compound
+            {
+                viewport [ 0 0 .333 .333 ]
+            }
+            compound
+            { 
+                channel "channel2"
+                viewport [ .333 0 .333 .333 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel3"
+                viewport [ .666 0 .334 .333 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel4"
+                viewport [ 0 .333 .333 .333 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel5"
+                viewport [ .333 .333 .333 .333 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel6"
+                viewport [ .666 .333 .334 .333 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel7"
+                viewport [ 0 .666 .333 .334 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel8"
+                viewport [ .333 .666 .333 .334 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel9"
+                viewport [ .666 .666 .334 .334 ]
+                outputframe {}
+            }
+            inputframe{ name "frame.channel2" }
+            inputframe{ name "frame.channel3" }
+            inputframe{ name "frame.channel4" }
+            inputframe{ name "frame.channel5" }
+            inputframe{ name "frame.channel6" }
+            inputframe{ name "frame.channel7" }
+            inputframe{ name "frame.channel8" }
+            inputframe{ name "frame.channel9" }
+        }
+    }    
+}

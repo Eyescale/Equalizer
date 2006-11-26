@@ -25,8 +25,8 @@ uint64_t Connection::send( Packet &packet, const std::vector<T>& data ) const
     uint64_t size   = packet.size - packetStorage + dataSize;
     char*    buffer = (char*)alloca( size );
 
-    memcpy( buffer, &packet, packet.size-packetStorage );
-    memcpy( buffer + packetStorage, &data[0], dataSize );
+    memcpy( buffer, &packet, packet.size - packetStorage );
+    memcpy( buffer + packet.size - packetStorage, &data[0], dataSize );
 
     ((Packet*)buffer)->size = size;
     return send( buffer, size );

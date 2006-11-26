@@ -6,6 +6,7 @@
 #define EQBASE_LOG_H
 
 #include <assert.h>
+#include <iomanip>
 #include <iostream>
 #include <pthread.h>
 #include <sstream>
@@ -74,7 +75,17 @@ namespace eqBase
                         _stringStream << getpid()  << "." << pthread_self()<<" "
                                       << _file << ":" << _line << " ";
 #                   ifndef NDEBUG
-                        _stringStream << _clock.getMSf() << " ";
+                        const std::ios::fmtflags flags = _stringStream.flags();
+                        const int prec  = _stringStream.precision();
+
+                        _stringStream.setf( std::ios::right, 
+                                            std::ios::adjustfield );
+                        _stringStream.precision( 4 );
+
+                        _stringStream << std::setw(5) << _clock.getMSf() << " ";
+
+                        _stringStream.precision( prec );
+                        _stringStream.setf( flags );
 #                   endif
                     }
 

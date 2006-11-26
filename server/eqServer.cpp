@@ -4,6 +4,8 @@
 #include "global.h"
 #include "loader.h"
 
+#include <eq/net/init.h>
+
 #include <iostream>
 
 using namespace eqs;
@@ -12,6 +14,8 @@ using namespace std;
 
 int main( int argc, char **argv )
 {
+    eqNet::init( argc, argv );
+
     Loader loader;
     RefPtr<Server> server = loader.loadConfig( argc > 1 ? argv[1] :
                                                "examples/configs/config.eqc" );
@@ -22,7 +26,7 @@ int main( int argc, char **argv )
         return EXIT_FAILURE;
     }
 
-    const bool result = server->run( argc, argv );
+    const bool result = server->run();
     if( !result )
         EQERROR << "Server did not run correctly, please consult log." << endl;
 

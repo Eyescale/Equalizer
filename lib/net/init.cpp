@@ -19,6 +19,9 @@ static bool exitLocalNode();
 
 bool eqNet::init( int argc, char** argv )
 {
+    EQINFO << "Log level " << Log::getLogLevelString() << " topics " 
+           << Log::topics << endl;
+
     EQASSERT( argc > 0 );
 
     const string programName = Global::getProgramName();
@@ -39,7 +42,6 @@ bool eqNet::init( int argc, char** argv )
         EQERROR << "Could not initialize local node" << endl;
         return false;
     }
-
     return true;
 }
 

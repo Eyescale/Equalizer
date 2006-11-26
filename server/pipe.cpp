@@ -19,7 +19,8 @@ using namespace std;
 void Pipe::_construct()
 {
     _used             = 0;
-    _node             = NULL;
+    _node             = 0;
+    _currentWindow    = 0;
     _pendingRequestID = EQ_ID_INVALID;
     _display          = EQ_UNDEFINED_UINT32;
     _screen           = EQ_UNDEFINED_UINT32;
@@ -94,6 +95,15 @@ bool Pipe::removeWindow( Window* window )
 
     _windows.erase( i );
     window->_pipe = 0;
+    return true;
+}
+
+bool Pipe::testMakeCurrentWindow( const Window* window )
+{
+    if( _currentWindow == window )
+        return false;
+
+    _currentWindow = window;
     return true;
 }
 

@@ -39,10 +39,8 @@ Server::Server()
     EQINFO << "New server @" << (void*)this << endl;
 }
 
-bool Server::run( int argc, char **argv )
+bool Server::run()
 {
-    eqNet::init( argc, argv );
-
     RefPtr<eqNet::Connection> connection =
         eqNet::Connection::create( eqNet::Connection::TYPE_TCPIP );
     RefPtr<eqNet::ConnectionDescription> connDesc = 

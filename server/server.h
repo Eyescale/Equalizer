@@ -37,12 +37,10 @@ namespace eqs
         /** 
          * Runs the server.
          * 
-         * @param argc the number of command line arguments.
-         * @param argv the command line arguments.
          * @return <code>true</code> if the server did run successfully,
          *         <code>false</code> if not.
          */
-        bool run( int argc, char **argv );
+        bool run();
 
         /** 
          * Map a config to this server.

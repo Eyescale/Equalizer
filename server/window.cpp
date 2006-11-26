@@ -339,7 +339,7 @@ void eqs::Window::update( const uint32_t frameID )
     // TODO: make current window
     eq::WindowStartFramePacket startPacket;
     startPacket.frameID     = frameID;
-    startPacket.makeCurrent = _pipe->nWindows() > 1 ? true : false;
+    startPacket.makeCurrent = _pipe->testMakeCurrentWindow( this );
     _send( startPacket );
     EQLOG( LOG_TASKS ) << "TASK start frame  " << &startPacket << endl;
 

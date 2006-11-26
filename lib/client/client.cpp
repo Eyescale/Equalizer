@@ -55,9 +55,8 @@ void Client::clientLoop()
 eqNet::CommandResult Client::handleCommand( eqNet::Command& command )
 {
     EQVERB << "handleCommand " << command << endl;
-    const uint32_t datatype = command->datatype;
 
-    switch( datatype )
+    switch( command->datatype )
     {
         case DATATYPE_EQ_SERVER:
         {

@@ -19,7 +19,7 @@ SOURCES = \
 	parser.cpp
 
 CXXFILES = \
-	eqs.cpp
+	eqServer.cpp
 
 CLEAN_EXTRA = \
 	lexer.cpp \
