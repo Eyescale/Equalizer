@@ -14,6 +14,13 @@ using namespace eqBase;
 
 static float lightpos[] = { 0., 0., 1., 0. };
 
+#ifndef M_SQRT3
+#  define M_SQRT3    1.7321f   /* sqrt(3) */
+#endif
+#ifndef M_SQRT3_2
+#  define M_SQRT3_2  0.86603f  /* sqrt(3)/2 */
+#endif
+
 bool Channel::init( const uint32_t initID )
 {
     EQINFO << "Init channel initID " << initID << " ptr " << this << endl;
@@ -41,9 +48,9 @@ void Channel::draw( const uint32_t frameID )
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
 
-    const float       near      = MAX( 0.001f,
-                                       -_frameData->_data.translation.z - 0.5f);
-    const float       far       = 1.0f + near;
+    const float near = MAX( 0.001f, 
+                            -_frameData->_data.translation.z - M_SQRT3_2 );
+    const float far  = near + M_SQRT3;
     const eq::Frustum eqFrustum = computeDynamicFrustum( near, far );
     glFrustum( eqFrustum.left, eqFrustum.right, eqFrustum.top, eqFrustum.bottom,
                eqFrustum.near, eqFrustum.far ); 
