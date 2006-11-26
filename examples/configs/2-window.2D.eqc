@@ -1,0 +1,51 @@
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ .05 .3 .4 .3 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+                window
+                {
+                    viewport [ .55 .3 .4 .3 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
+                }
+            }
+        }
+        compound
+        {
+            channel "channel2"
+
+            wall
+            {
+                bottom_left  [ -.32 -.2 -1 ]
+                bottom_right [  .32 -.2 -1 ]
+                top_left     [ -.32  .2 -1 ]
+            }
+            
+            compound
+            {
+                viewport [ .5 0 .5 1 ]
+            }
+            compound
+            { 
+                channel "channel1"
+                viewport [ 0 0 .5 1 ]
+                outputframe {}
+            }
+            inputframe { name "frame.channel1" }
+        }
+    }    
+}
