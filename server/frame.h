@@ -70,11 +70,11 @@ namespace eqs
          * 
          * @param buffers a bitwise combination of the buffers.
          */
-        void setBuffers( const eq::Frame::Buffer buffers )
+        void setBuffers( const uint32_t buffers )
             { _data.buffers = buffers; }
         
         /** @return the frame buffers used by this frame. */
-        eq::Frame::Buffer getBuffers() const { return _data.buffers; }
+        uint32_t getBuffers() const { return _data.buffers; }
         //*}
 
         /**

@@ -189,7 +189,7 @@ namespace eqs
          *
          * @param buffers the compound image buffers.
          */
-        void setBuffers( const uint32_t buffers ) { _buffers = buffers; }
+        void setBuffers( const uint32_t buffers ) { _data.buffers = buffers; }
 
         /** 
          * Add a image buffer to be used by the compound, preserving previous
@@ -198,14 +198,10 @@ namespace eqs
          * @param buffers the compound image buffers.
          */
         void enableBuffer( const eq::Frame::Buffer buffer )
-            { _buffers |= buffer; }
+            { _data.buffers |= buffer; }
 
         /** @return the image buffers used by this compound. */
-        uint32_t getBuffers() const { return _buffers; }
-
-        /** @return true if the image buffer is set, false if not. */
-        bool testBuffer( const eq::Frame::Buffer buffer ) const
-            { return (_buffers & buffer); }
+        uint32_t getBuffers() const { return _data.buffers; }
 
         void setViewport( const eq::Viewport& vp ) { _data.vp = vp; }
         const eq::Viewport& getViewport() const { return _data.vp; }
@@ -367,7 +363,7 @@ namespace eqs
          * beginning of each update().
          */
         //*{
-        eq::Frame::Buffer getInheritBuffers() const { return _inherit.buffers; }
+        uint32_t getInheritBuffers() const { return _inherit.buffers; }
         //*}
 
     protected:
@@ -390,8 +386,6 @@ namespace eqs
 
         /** The compound tasks. */
         uint32_t _tasks;
-        /** The image buffers to use during recomposition. */
-        uint32_t _buffers;
 
         struct View
         {
@@ -421,7 +415,7 @@ namespace eqs
             eq::PixelViewport pvp;
             eq::Range         range;
             eq::View          view;
-            eq::Frame::Buffer buffers;
+            uint32_t          buffers;
             uint32_t          eyes;
         };
 

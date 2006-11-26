@@ -40,6 +40,7 @@ server
         {
             channel "channel1"
             name    "top"
+            buffer  [ COLOR DEPTH ]
 
             wall
             {
@@ -51,14 +52,14 @@ server
             compound
             {
                 name     "leaf-channel1"
-                viewport [ .5 0 .5 1 ]
+                range    [ 0 .5 ]
             }
             compound
             { 
                 channel "channel2"
                 name    "leaf-channel2"
 
-                viewport [ 0 0 .5 1 ]
+                range    [ .5 1 ]
                 outputframe { name "frame.channel2" }
             }
             inputframe { name "frame.channel2" }

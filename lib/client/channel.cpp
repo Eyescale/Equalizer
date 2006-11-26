@@ -276,6 +276,23 @@ void Channel::applyFrustum() const
     EQVERB << "Apply " << frustum << endl;
 }
 
+void Channel::applyDynamicFrustum( const float near, const float far ) const
+{
+    Frustum frustum = computeDynamicFrustum( near, far );
+    glFrustum( frustum.left, frustum.right, frustum.top, frustum.bottom,
+               frustum.near, frustum.far ); 
+    EQVERB << "Apply " << frustum << endl;
+}
+
+Frustum Channel::computeDynamicFrustum( const float near, const float far ) 
+    const
+{
+    Frustum frustum = getFrustum();
+    frustum.adjustNear( near );
+    frustum.far = far;
+    return frustum;
+}
+
 const vmml::Matrix4f& Channel::getHeadTransform() const
 {
     return _context ? _context->headTransform : vmml::Matrix4f::IDENTITY;

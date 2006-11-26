@@ -83,8 +83,7 @@ namespace eq
          * @param pvp the area of the frame buffer to read back.
          * @param buffers bit-wise combination of the frame buffer components.
          */
-        void startReadback( const PixelViewport& pvp, 
-                            const Frame::Buffer buffers );
+        void startReadback( const PixelViewport& pvp, const uint32_t buffers );
 
         /** Make sure that the last readback operation is complete. */
         void syncReadback() {}
@@ -95,8 +94,8 @@ namespace eq
          * @param offset the x,y offset wrt the current drawable.
          * @param buffers bit-wise combination of the frame buffer components.
          */
-        void startAssemble( const vmml::Vector2i& offset, 
-                            const Frame::Buffer buffers );
+        void startAssemble( const vmml::Vector2i& offset,
+                            const uint32_t buffers );
 
         /** Make sure that the last assemble operation is complete. */
         void syncAssemble() {}
@@ -132,7 +131,7 @@ namespace eq
 
         static BufferIndex _getIndexForBuffer( const Frame::Buffer buffer );
 
-        void _startReadback( const Frame::Buffer buffers );
+        void _startReadback( const Frame::Buffer buffer );
         void _startAssemble2D( const vmml::Vector2i& offset );
         void _startAssembleDB( const vmml::Vector2i& offset );
 

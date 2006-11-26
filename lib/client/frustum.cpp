@@ -6,6 +6,23 @@
 
 using namespace eq;
 
+void Frustum::adjustNear( const float _near )
+{
+    const float ratio_2 = 0.5f * _near / near;
+
+    const float hMiddle = (right + left) * 0.5f;
+    const float width_2 = (right - left) * ratio_2;
+    right = hMiddle + width_2;
+    left  = hMiddle - width_2; 
+
+    const float vMiddle  = (top + bottom) * 0.5f;
+    const float height_2 = (top - bottom) * ratio_2;
+    top    = vMiddle + height_2;
+    bottom = vMiddle - height_2;
+
+    near = _near;
+}
+
 void Frustum::computeMatrix( float matrix[16] ) const
 {
     matrix[0]  =  2 * near / (right - left);

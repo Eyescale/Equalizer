@@ -108,7 +108,7 @@ namespace eq
         struct Data
         {
             vmml::Vector2i       offset;
-            Buffer               buffers;
+            uint32_t             buffers;
             eqNet::ObjectVersion frameData;
         }
             _data;

@@ -100,7 +100,7 @@ namespace eq
         {
             PixelViewport  pvp;
             vmml::Vector2i offset;
-            Frame::Buffer  buffers;
+            uint32_t       buffers;
         }
             _data;
 

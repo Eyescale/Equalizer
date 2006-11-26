@@ -35,7 +35,7 @@ namespace eqs
         void setOffset( const vmml::Vector2i& offset ) 
             { _data.offset = offset; }
         /** Set the buffers of the source frame. */
-        void setBuffers( const eq::Frame::Buffer buffers ) 
+        void setBuffers( const uint32_t buffers ) 
             { _data.buffers = buffers; }
         //*}
 

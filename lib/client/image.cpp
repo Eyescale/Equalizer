@@ -55,7 +55,7 @@ uint32_t Image::getType( const Frame::Buffer buffer ) const
     }
 }
 
-void Image::startReadback(const PixelViewport& pvp, const Frame::Buffer buffers)
+void Image::startReadback(const PixelViewport& pvp, const uint32_t buffers )
 {
     EQLOG( LOG_ASSEMBLY ) << "startReadback " << pvp << ", buffers " << buffers 
                           << endl;
@@ -86,8 +86,7 @@ void Image::_startReadback( const Frame::Buffer buffer )
                   getType( buffer ), &_pixels[index][0] );
 }
 
-void Image::startAssemble( const vmml::Vector2i& offset, 
-                           const Frame::Buffer buffers )
+void Image::startAssemble( const vmml::Vector2i& offset, const uint32_t buffers)
 {
     uint32_t useBuffers = Frame::BUFFER_NONE;
 

@@ -40,8 +40,14 @@ void Channel::draw( const uint32_t frameID )
             
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-    applyFrustum();
-    
+
+    const float       near      = MAX( 0.001f,
+                                       -_frameData->_data.translation.z - 0.5f);
+    const float       far       = 1.0f + near;
+    const eq::Frustum eqFrustum = computeDynamicFrustum( near, far );
+    glFrustum( eqFrustum.left, eqFrustum.right, eqFrustum.top, eqFrustum.bottom,
+               eqFrustum.near, eqFrustum.far ); 
+
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
     applyHeadTransform();
@@ -57,7 +63,7 @@ void Channel::draw( const uint32_t frameID )
     const Model* model = node->getModel();
 
     Frustumf frustum;
-    _initFrustum( frustum );
+    _initFrustum( eqFrustum, frustum );
     const size_t  bboxThreshold = 64;
 
     if( model )
@@ -142,12 +148,11 @@ void Channel::_drawBBox( const Model::BBox *bbox )
     glCallList( displayList );
 }
 
-void Channel::_initFrustum( Frustumf& frustum )
+void Channel::_initFrustum( const eq::Frustum& eqFrustum, Frustumf& frustum )
 {
     // apply frustum
-    const eq::Frustum& channelFrustum = getFrustum();
     float proj[16];
-    channelFrustum.computeMatrix( proj );
+    eqFrustum.computeMatrix( proj );
 
     // apply rot + trans + head transform
     vmml::Matrix4f view( _frameData->_data.rotation );

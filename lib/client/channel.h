@@ -153,6 +153,24 @@ namespace eq
          */
         void applyFrustum() const;
 
+        /**
+         * Apply a dynamically near, far adjusted frustum matrix for the current
+         * rendering task.
+         *
+         * @param near the current near plane.
+         * @param far the current far plane.
+         */
+        void applyDynamicFrustum( const float near, const float far ) const;
+
+        /** 
+         * Compute a adjusted frustum for a dynamic near plane.
+         * 
+         * @param near the current near plane.
+         * @param far the current far plane.
+         * @return the near-adjusted frustum.
+         */
+        Frustum computeDynamicFrustum( const float near, const float far )const;
+
         /** 
          * Apply the modelling transformation to position and orient the view
          * frustum.

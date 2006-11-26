@@ -29,7 +29,7 @@ private:
     eqBase::RefPtr<FrameData> _frameData;
 
     void _drawBBox( const Model::BBox* bbox );
-    void _initFrustum( Frustumf& frustum );
+    void _initFrustum( const eq::Frustum& eqFrustum, Frustumf& frustum );
 };
 
 

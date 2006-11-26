@@ -20,6 +20,7 @@ namespace eq
                 near(.1),  far(100.) {}
         
         void computeMatrix( float matrix[16] ) const;
+        void adjustNear( const float near );
 
         float left;
         float right;

@@ -506,7 +506,7 @@ void Compound::_updateOutput( UpdateData* data )
         }
 
         // image buffers
-        eq::Frame::Buffer buffers = frame->getBuffers();
+        uint32_t buffers = frame->getBuffers();
         frameData->setBuffers( buffers == eq::Frame::BUFFER_UNDEFINED ? 
                                getInheritBuffers() : buffers );
 
@@ -956,6 +956,15 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
             os << " DRAW";
         if( compound->testTask( Compound::TASK_ASSEMBLE )) os << " ASSEMBLE";
         if( compound->testTask( Compound::TASK_READBACK )) os << " READBACK";
+        os << " ]" << endl;
+    }
+
+    const uint32_t buffers = compound->getBuffers();
+    if( buffers != eq::Frame::BUFFER_UNDEFINED )
+    {
+        os << "buffers  [";
+        if( buffers & eq::Frame::BUFFER_COLOR )  os << " COLOR";
+        if( buffers & eq::Frame::BUFFER_DEPTH )  os << " DEPTH";
         os << " ]" << endl;
     }
 
