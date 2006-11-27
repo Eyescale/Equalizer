@@ -1,0 +1,93 @@
+# six-to-one sort-first config for cluster at unizh
+global
+{
+#    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
+}
+
+server
+{
+    config
+    {
+        latency 2
+        node
+        {
+            connection { hostname "hactar1" }
+            pipe { window { channel { name "channel1" }}}
+        }
+        node
+        {
+            connection { hostname "hactar2" }
+            pipe { window { channel { name "channel2" }}}
+        }
+        node
+        {
+            connection { hostname "hactar3" }
+            pipe { window { channel { name "channel3" }}}
+        }
+        node
+        {
+            connection { hostname "hactar4" }
+            pipe { window { channel { name "channel4" }}}
+        }
+        node
+        {
+            connection { hostname "hactar5" }
+            pipe { window { channel { name "channel5" }}}
+        }
+        node
+        {
+            connection { hostname "hactar6" }
+            pipe { window { channel { name "channel6" }}}
+        }
+        compound
+        {
+            channel "channel1"
+            wall
+            {
+                bottom_left  [ -.32  -.20 -1 ]
+                bottom_right [  .32   .20 -1 ]
+                top_left     [ -.32  -.20 -1 ]
+            }
+
+            compound
+            {
+                viewport [ 0 0 .333 .5 ]
+            }
+            compound
+            {
+                channel "channel2"
+                viewport [ 0.333 0 .333 .5 ]
+                outputFrame {}
+            }
+            compound
+            {
+                channel "channel3"
+                viewport [ 0.666 0 .334 .5 ]
+                outputFrame {}
+            }
+            compound
+            {
+                channel "channel4"
+                viewport [ 0 .5 .333 .5 ]
+                outputFrame {}
+            }
+            compound
+            {
+                channel "channel5"
+                viewport [ 0.333 .5 .333 .5 ]
+                outputFrame {}
+            }
+            compound
+            {
+                channel "channel6"
+                viewport [ 0.666 .5 .334 .5 ]
+                outputFrame {}
+            }
+            inputframe{ name "frame.channel2" }
+            inputframe{ name "frame.channel3" }
+            inputframe{ name "frame.channel4" }
+            inputframe{ name "frame.channel5" }
+            inputframe{ name "frame.channel6" }
+        }
+    }    
+}
