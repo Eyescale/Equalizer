@@ -9,28 +9,38 @@ server
     config
     {
         latency 2
-        node
+        appNode
         {
-            connection { hostname "10.42.42.1" }
+#            connection { hostname "10.42.42.1" }
             pipe 
             {
                 window 
                 {
                     attributes{ planes{ stencil on }}
-                    viewport [ 640 512 1280 800 ]
+                    viewport [ 0 512 640 480 ]
                     channel { name "channel1" }
                 }
             }
-        }
-        node
-        {
-            connection { hostname "10.42.42.2" }
-            pipe { window { channel { name "channel2" }}}
-        }
-        node
-        {
-            connection { hostname "10.42.42.3" }
-            pipe { window { channel { name "channel3" }}}
+#        }
+#        node
+#        {
+#            connection { hostname "10.42.42.2" }
+            pipe { 
+                window { 
+                    viewport [ 700 512 640 480 ] 
+                    channel { name "channel2" }
+                }
+            }
+#        }
+#        node
+#        {
+#            connection { hostname "10.42.42.3" }
+            pipe { 
+                window { 
+                    viewport [ 1400 512 640 480 ] 
+                    channel { name "channel3" }
+                }
+            }
         }
         node
         {
@@ -54,9 +64,9 @@ server
 
             wall
             {
-                bottom_left  [ -.32 -.2 -1 ]
-                bottom_right [  .32 -.2 -1 ]
-                top_left     [ -.32  .2 -1 ]
+                bottom_left  [ -.32 -.2 -.5 ]
+                bottom_right [  .32 -.2 -.5 ]
+                top_left     [ -.32  .2 -.5 ]
             }
 
             compound
@@ -64,9 +74,9 @@ server
                 range [ 0 .333 ]
 
                 compound {
-                    task [ READBACK ]
-                    outputframe { name "f1.c1" viewport [ 0 .33   1 .33 ] }
-                    outputframe { name "f2.c1" viewport [ 0 .66   1 .33 ] }
+                    task [ CLEAR DRAW READBACK ]
+                    outputframe { name "f1.c1" viewport [ 0 .33 1 .33 ] }
+                    outputframe { name "f2.c1" viewport [ 0 .66 1 .33 ] }
                 }
             }
             compound
@@ -75,7 +85,7 @@ server
                 range [ .333 .666 ]
 
                 compound {
-                    task [ READBACK ]
+                    task [ CLEAR DRAW READBACK ]
                     outputframe { name "f1.c2" viewport [ 0 0   1 .33 ] }
                     outputframe { name "f2.c2" viewport [ 0 .33 1 .33 ] }
                 }
@@ -89,7 +99,7 @@ server
                 range [ .666 1 ]
 
                 compound {
-                    task [ READBACK ]
+                    task [ CLEAR DRAW READBACK ]
                     outputframe { name "f1.c3" viewport [ 0 0   1 .33 ] }
                     outputframe { name "f2.c3" viewport [ 0 .66 1 .33 ] }
                 }
@@ -97,8 +107,8 @@ server
                 inputframe { name "f2.c2" }
                 outputframe { buffer [ COLOR ] viewport [ 0 .33 1 .33 ] }
             }
-            inputframe { name "frame.channel2" }
-            inputframe { name "frame.channel3" }
+#            inputframe { name "frame.channel2" }
+#            inputframe { name "frame.channel3" }
         }
     }    
 }

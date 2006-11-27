@@ -100,7 +100,7 @@ int main( int argc, char** argv )
 
     // 6. run main loop
     uint32_t frame     = 0;
-    uint32_t maxFrames = 30; // set to 0 for 'endless'
+    uint32_t maxFrames = 0; // set to 0 for 'endless'
 
     
     // render one frame to remove initial display list download from total time

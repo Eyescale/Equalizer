@@ -453,7 +453,8 @@ void Compound::_updateInheritData()
 
 void Compound::_updateOutput( UpdateData* data )
 {
-    if( !testTask( TASK_READBACK ) || _outputFrames.empty( ) || !_data.channel )
+    const Channel* channel     = getChannel();
+    if( !testTask( TASK_READBACK ) || _outputFrames.empty( ) || !channel )
         return;
 
     const Config*  config      = getConfig();
@@ -485,7 +486,7 @@ void Compound::_updateOutput( UpdateData* data )
 
         EQLOG( eq::LOG_ASSEMBLY )
             << disableFlush << "Output frame \"" << name << "\" on channel \"" 
-            << _data.channel->getName() << "\" tile pos " << framePVP.x << ", "
+            << channel->getName() << "\" tile pos " << framePVP.x << ", "
             << framePVP.y;
 
         // FrameData pvp is area within channel
@@ -494,14 +495,13 @@ void Compound::_updateOutput( UpdateData* data )
         frameData->setPixelViewport( framePVP );
 
         // Frame offset is position wrt window, i.e., the channel position
-        if( _inherit.channel == _data.channel 
+        if( _inherit.channel == channel 
             /* || use dest channel origin hint set */ )
 
             frame->setOffset( vmml::Vector2i( _inherit.pvp.x, _inherit.pvp.y));
         else
         {
-            const eq::PixelViewport& nativePVP =
-                _data.channel->getPixelViewport();
+            const eq::PixelViewport& nativePVP = channel->getPixelViewport();
             frame->setOffset( vmml::Vector2i( nativePVP.x, nativePVP.y ));
         }
 
@@ -548,7 +548,8 @@ TraverseResult Compound::_updateInputCB( Compound* compound, void* userData )
 
 void Compound::_updateInput( UpdateData* data )
 {
-    if( !testTask( TASK_ASSEMBLE ) || _inputFrames.empty( ) || !_data.channel )
+    const Channel* channel     = getChannel();
+    if( !testTask( TASK_ASSEMBLE ) || _inputFrames.empty( ) || !channel )
         return;
 
     for( vector<Frame*>::const_iterator iter = _inputFrames.begin(); 
@@ -571,7 +572,7 @@ void Compound::_updateInput( UpdateData* data )
         eq::PixelViewport   framePVP    = _inherit.pvp * frameVP;
         vmml::Vector2i      frameOffset = outputFrame->getOffset();
  
-        if( _data.channel != _inherit.channel 
+        if( channel != _inherit.channel 
             /* || !use dest channel origin hint set */ )
         {
             // compute delta offset between source and destination, since the
@@ -593,7 +594,7 @@ void Compound::_updateInput( UpdateData* data )
 
         EQLOG( eq::LOG_ASSEMBLY )
             << "Input frame  \"" << name << "\" on channel \"" 
-            << _data.channel->getName() << "\" tile pos " << frameOffset
+            << channel->getName() << "\" tile pos " << frameOffset
             << " use pvp from input " << framePVP << endl;
     }
 }

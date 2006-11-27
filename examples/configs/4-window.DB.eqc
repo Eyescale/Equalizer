@@ -1,0 +1,84 @@
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ .05 .05 .4 .3 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+                window
+                {
+                    viewport [ .55 .05 .4 .3 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
+                }
+                window
+                {
+                    viewport [ .05 .5 .4 .3 ]
+                    channel
+                    {
+                        name "channel3"
+                    }
+                }
+                window
+                {
+                    viewport [ .55 .5 .4 .3 ]
+                    attributes{ planes{ stencil on }}
+
+                    channel
+                    {
+                        name "channel4"
+                    }
+                }
+            }
+        }
+        compound
+        {
+            channel "channel4"
+            buffer  [ COLOR DEPTH ]
+
+            wall
+            {
+                bottom_left  [ -.64 -.4 -1 ]
+                bottom_right [  .64 -.4 -1 ]
+                top_left     [ -.64  .4 -1 ]
+            }
+            
+            compound
+            {
+                range   [ 0 .25 ]
+            }
+            compound
+            { 
+                channel "channel1"
+                range   [ .25 .5 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel2"
+                range   [ .5 .75 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel3"
+                range   [ .75 1 ]
+                outputframe {}
+            }
+            inputframe { name "frame.channel1" }
+            inputframe { name "frame.channel2" }
+            inputframe { name "frame.channel3" }
+        }
+    }    
+}

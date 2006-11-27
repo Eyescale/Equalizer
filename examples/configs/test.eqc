@@ -1,8 +1,3 @@
-global
-{
-    EQ_WINDOW_IATTR_PLANES_STENCIL on
-}
-
 server
 {
     config
@@ -11,29 +6,19 @@ server
         {
             pipe
             {
-                screen 0
-                viewport [ 0 0 1280 1024 ]
                 window
                 {
-                    name  "app-window"
                     viewport [ .05 .3 .4 .3 ]
                     channel
                     {
                         name "channel1"
                     }
                 }
-            }
-        }
-        node
-        {
-            pipe
-            {
-                screen 0
-                viewport [ 0 0 1280 1024 ]
                 window
                 {
-                    name  "remote-window"
                     viewport [ .55 .3 .4 .3 ]
+                    attributes{ planes{ stencil on }}
+
                     channel
                     {
                         name "channel2"
@@ -44,7 +29,6 @@ server
         compound
         {
             channel "channel2"
-            name    "top"
             buffer  [ COLOR DEPTH ]
 
             wall
@@ -56,16 +40,13 @@ server
             
             compound
             {
-                name     "leaf-channel2"
-                range    [ 0 .5 ]
+                range   [ 0 .5 ]
             }
             compound
             { 
                 channel "channel1"
-                name    "leaf-channel1"
-
-                range    [ .5 1 ]
-                outputframe { name "frame.channel1" }
+                range   [ .5 1 ]
+                outputframe { viewport [ 0 0 .5 .5 ] }
             }
             inputframe { name "frame.channel1" }
         }
