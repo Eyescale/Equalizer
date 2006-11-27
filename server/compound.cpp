@@ -1014,18 +1014,17 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
 
     os << compound->getSwapBarrier();
 
-    const vector<Frame*>& outputFrames = compound->getOutputFrames();
-    for( vector<Frame*>::const_iterator iter = outputFrames.begin();
-         iter != outputFrames.end(); ++iter )
-        
-        os << "output"  << *iter << endl;
-
     const vector<Frame*>& inputFrames = compound->getInputFrames();
     for( vector<Frame*>::const_iterator iter = inputFrames.begin();
          iter != inputFrames.end(); ++iter )
         
         os << "input" << *iter << endl;
 
+    const vector<Frame*>& outputFrames = compound->getOutputFrames();
+    for( vector<Frame*>::const_iterator iter = outputFrames.begin();
+         iter != outputFrames.end(); ++iter )
+        
+        os << "output"  << *iter << endl;
 
     os << exdent << "}" << endl << enableFlush;
     return os;

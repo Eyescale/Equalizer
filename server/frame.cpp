@@ -114,6 +114,19 @@ std::ostream& eqs::operator << ( std::ostream& os, const Frame* frame )
     const std::string& name = frame->getName();
     os << "name     \"" << name << "\"" << endl;
 
+    const uint32_t buffers = frame->getBuffers();
+    if( buffers != eq::Frame::BUFFER_UNDEFINED )
+    {
+        os << "buffers  [";
+        if( buffers & eq::Frame::BUFFER_COLOR )  os << " COLOR";
+        if( buffers & eq::Frame::BUFFER_DEPTH )  os << " DEPTH";
+        os << " ]" << endl;
+    }
+
+    const eq::Viewport& vp = frame->getViewport();
+    if( !vp.isFullScreen( ))
+        os << "viewport " << vp << endl;
+
     os << exdent << "}" << endl << enableFlush;
     return os;
 }
