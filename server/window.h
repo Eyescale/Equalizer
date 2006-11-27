@@ -260,8 +260,6 @@ namespace eqs
         void _updateSwap();
 
         /* command handler functions. */
-        eqNet::CommandResult _cmdPushFront( eqNet::Command& command )
-            { return eqNet::COMMAND_PUSH_FRONT; }
         eqNet::CommandResult _cmdInitReply( eqNet::Command& command ); 
         eqNet::CommandResult _cmdExitReply( eqNet::Command& command ); 
         eqNet::CommandResult _reqSetPixelViewport( eqNet::Command& command );

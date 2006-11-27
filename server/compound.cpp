@@ -717,7 +717,7 @@ GLenum Compound::_getGLBuffer( const UpdateChannelData* data )
 void Compound::_computeFrustum( eq::RenderContext& context, const Eye whichEye )
 {
     const Channel*  destination = _inherit.channel;
-    const eq::View& view       = _inherit.view;
+    const eq::View& view        = _inherit.view;
     Config*         config      = getConfig();
     destination->getNearFar( &context.frustum.near, &context.frustum.far );
 

@@ -571,6 +571,18 @@ namespace eq
         bool     result;
     };
 
+    struct ChannelSetNearFarPacket : public eqNet::ObjectPacket
+    {
+        ChannelSetNearFarPacket()
+            {
+                command   = CMD_CHANNEL_SET_NEARFAR;
+                size      = sizeof( ChannelSetNearFarPacket );
+            }
+
+        float    near;
+        float    far;
+    };
+
     struct ChannelTaskPacket : public eqNet::ObjectPacket
     {
         RenderContext context;

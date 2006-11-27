@@ -14,6 +14,7 @@ using namespace eqBase;
 
 static float lightpos[] = { 0., 0., 1., 0. };
 
+// #define DYNAMIC_NEAR 
 #ifndef M_SQRT3
 #  define M_SQRT3    1.7321f   /* sqrt(3) */
 #endif
@@ -48,12 +49,14 @@ void Channel::draw( const uint32_t frameID )
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
 
+#ifdef DYNAMIC_NEAR // Code assumes the view is in the x-y plane
     const float near = MAX( 0.001f, 
                             -_frameData->_data.translation.z - M_SQRT3_2 );
     const float far  = near + M_SQRT3;
-    const eq::Frustum eqFrustum = computeDynamicFrustum( near, far );
-    glFrustum( eqFrustum.left, eqFrustum.right, eqFrustum.top, eqFrustum.bottom,
-               eqFrustum.near, eqFrustum.far ); 
+    setNearFar( near, far );
+#endif
+
+    applyFrustum();
 
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
@@ -70,7 +73,7 @@ void Channel::draw( const uint32_t frameID )
     const Model* model = node->getModel();
 
     Frustumf frustum;
-    _initFrustum( eqFrustum, frustum );
+    _initFrustum( frustum );
     const size_t  bboxThreshold = 64;
 
     if( model )
@@ -155,9 +158,10 @@ void Channel::_drawBBox( const Model::BBox *bbox )
     glCallList( displayList );
 }
 
-void Channel::_initFrustum( const eq::Frustum& eqFrustum, Frustumf& frustum )
+void Channel::_initFrustum( Frustumf& frustum )
 {
     // apply frustum
+    const eq::Frustum& eqFrustum = getFrustum();
     float proj[16];
     eqFrustum.computeMatrix( proj );
 

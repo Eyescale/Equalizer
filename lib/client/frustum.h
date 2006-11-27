@@ -15,9 +15,9 @@ namespace eq
     struct Frustum
     {
         Frustum() : 
-                left(-1.), right(1.),
-                top(-1.),  bottom(1.),
-                near(.1),  far(100.) {}
+                left(-1.0f), right(1.0f),
+                top(-1.0f),  bottom(1.0f),
+                near(0.1f),  far(100.0f) {}
         
         void computeMatrix( float matrix[16] ) const;
         void adjustNear( const float near );

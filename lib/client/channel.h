@@ -36,11 +36,13 @@ namespace eq
         Window* getWindow()   const
             { return _window; }
         Pipe*   getPipe()   const
-            { return ( _window ? _window->getPipe() : NULL );}
+            { return ( _window ? _window->getPipe() : 0 );}
         Node* getNode() const 
-            { return ( _window ? _window->getNode() : NULL );}
+            { return ( _window ? _window->getNode() : 0 );}
         Config* getConfig() const 
-            { return ( _window ? _window->getConfig() : NULL );}
+            { return ( _window ? _window->getConfig() : 0 );}
+        eqBase::RefPtr<eqNet::Node> getServer() const 
+            { return ( _window ? _window->getServer() : 0 );}
 
         const std::string& getName() const { return _name; }
 
@@ -55,8 +57,7 @@ namespace eq
          * @param near the near plane.
          * @param far the far plane.
          */
-        void setNearFar( const float near, const float far )
-            { _near = near; _far = far; }
+        void setNearFar( const float near, const float far );
 
         /** 
          * Returns the current near and far planes for this channel.
@@ -153,24 +154,6 @@ namespace eq
          */
         void applyFrustum() const;
 
-        /**
-         * Apply a dynamically near, far adjusted frustum matrix for the current
-         * rendering task.
-         *
-         * @param near the current near plane.
-         * @param far the current far plane.
-         */
-        void applyDynamicFrustum( const float near, const float far ) const;
-
-        /** 
-         * Compute a adjusted frustum for a dynamic near plane.
-         * 
-         * @param near the current near plane.
-         * @param far the current far plane.
-         * @return the near-adjusted frustum.
-         */
-        Frustum computeDynamicFrustum( const float near, const float far )const;
-
         /** 
          * Apply the modelling transformation to position and orient the view
          * frustum.
@@ -231,13 +214,8 @@ namespace eq
         /** The name. */
         std::string    _name;
 
-        /** Static near plane. */
-        float          _near;
-        /** Static far plane. */
-        float          _far;
-
         /** server-supplied rendering data. */
-        const RenderContext *_context;
+        RenderContext *_context;
 
         /** server-supplied vector of output frames for current task. */
         std::vector<Frame*> _outputFrames;

@@ -29,6 +29,10 @@ void Channel::_construct()
                   eqNet::CommandFunc<Channel>( this, &Channel::_cmdInitReply ));
     registerCommand( eq::CMD_CHANNEL_EXIT_REPLY,
                   eqNet::CommandFunc<Channel>( this, &Channel::_cmdExitReply ));
+    registerCommand( eq::CMD_CHANNEL_SET_NEARFAR,
+                     eqNet::CommandFunc<Channel>( this, &Channel::_cmdPush ));
+    registerCommand( eq::REQ_CHANNEL_SET_NEARFAR,
+                 eqNet::CommandFunc<Channel>( this, &Channel::_reqSetNearFar ));
 
     ref(); // We don't use RefPtr so far
     EQINFO << "New channel @" << (void*)this << endl;
@@ -245,6 +249,14 @@ eqNet::CommandResult Channel::_cmdExitReply( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
+eqNet::CommandResult Channel::_reqSetNearFar( eqNet::Command& command )
+{
+    const eq::ChannelSetNearFarPacket* packet = 
+        command.getPacket<eq::ChannelSetNearFarPacket>();
+    _near = packet->near;
+    _far  = packet->far;
+    return eqNet::COMMAND_HANDLED;
+}
 
 std::ostream& eqs::operator << ( std::ostream& os, const Channel* channel)
 {

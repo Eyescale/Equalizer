@@ -8,6 +8,9 @@ using namespace eq;
 
 void Frustum::adjustNear( const float _near )
 {
+    if( _near == near )
+        return;
+
     const float ratio_2 = 0.5f * _near / near;
 
     const float hMiddle = (right + left) * 0.5f;

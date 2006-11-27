@@ -23,8 +23,6 @@ using namespace std;
 Channel::Channel()
         : eqNet::Object( eq::Object::TYPE_CHANNEL ),
           _window(NULL),
-          _near(.1),
-          _far(100.),
           _context( NULL )
 {
     registerCommand( CMD_CHANNEL_INIT,
@@ -102,6 +100,27 @@ void eq::Channel::_setViewport( const Viewport& vp )
     }
 
     EQVERB << "Channel vp set: " << _pvp << ":" << _vp << endl;
+}
+
+void eq::Channel::setNearFar( const float near, const float far )
+{
+    if( _frustum.near == near && _frustum.far == far )
+        return;
+
+    _frustum.adjustNear( near );
+    _frustum.far = far;
+
+    if( _context )
+    {
+        _context->frustum.adjustNear( near );
+        _context->frustum.far = far;
+    }
+
+    ChannelSetNearFarPacket packet;
+    packet.near = near;
+    packet.far  = far;
+    
+    send( getServer(), packet );
 }
 
 //---------------------------------------------------------------------------
@@ -276,23 +295,6 @@ void Channel::applyFrustum() const
     EQVERB << "Apply " << frustum << endl;
 }
 
-void Channel::applyDynamicFrustum( const float near, const float far ) const
-{
-    Frustum frustum = computeDynamicFrustum( near, far );
-    glFrustum( frustum.left, frustum.right, frustum.top, frustum.bottom,
-               frustum.near, frustum.far ); 
-    EQVERB << "Apply " << frustum << endl;
-}
-
-Frustum Channel::computeDynamicFrustum( const float near, const float far ) 
-    const
-{
-    Frustum frustum = getFrustum();
-    frustum.adjustNear( near );
-    frustum.far = far;
-    return frustum;
-}
-
 const vmml::Matrix4f& Channel::getHeadTransform() const
 {
     return _context ? _context->headTransform : vmml::Matrix4f::IDENTITY;
@@ -327,8 +329,8 @@ eqNet::CommandResult Channel::_reqInit( eqNet::Command& command )
 
     ChannelInitReplyPacket reply( packet );
     reply.result = init( packet->initID );
-    reply.near   = _near;
-    reply.far    = _far;
+    reply.near   = _frustum.near;
+    reply.far    = _frustum.far;
     send( command.getNode(), reply );
     return eqNet::COMMAND_HANDLED;
 }
@@ -347,7 +349,7 @@ eqNet::CommandResult Channel::_reqExit( eqNet::Command& command )
 
 eqNet::CommandResult Channel::_reqClear( eqNet::Command& command )
 {
-    const ChannelClearPacket* packet = command.getPacket<ChannelClearPacket>();
+    ChannelClearPacket* packet = command.getPacket<ChannelClearPacket>();
     EQVERB << "handle channel clear " << packet << endl;
 
     _context = &packet->context;
@@ -358,7 +360,7 @@ eqNet::CommandResult Channel::_reqClear( eqNet::Command& command )
 
 eqNet::CommandResult Channel::_reqDraw( eqNet::Command& command )
 {
-    const ChannelDrawPacket* packet = command.getPacket<ChannelDrawPacket>();
+    ChannelDrawPacket* packet = command.getPacket<ChannelDrawPacket>();
     EQVERB << "handle channel draw " << packet << endl;
 
     _context = &packet->context;
@@ -369,8 +371,7 @@ eqNet::CommandResult Channel::_reqDraw( eqNet::Command& command )
 
 eqNet::CommandResult Channel::_reqAssemble( eqNet::Command& command )
 {
-    const ChannelAssemblePacket* packet = 
-        command.getPacket<ChannelAssemblePacket>();
+    ChannelAssemblePacket* packet = command.getPacket<ChannelAssemblePacket>();
     EQVERB << "handle channel assemble " << packet << endl;
 
     _context = &packet->context;
@@ -397,8 +398,7 @@ eqNet::CommandResult Channel::_reqAssemble( eqNet::Command& command )
 
 eqNet::CommandResult Channel::_reqReadback( eqNet::Command& command )
 {
-    const ChannelReadbackPacket* packet = 
-        command.getPacket<ChannelReadbackPacket>();
+    ChannelReadbackPacket* packet = command.getPacket<ChannelReadbackPacket>();
     EQVERB << "handle channel readback " << packet << endl;
 
     _context = &packet->context;

@@ -197,9 +197,9 @@ namespace eqs
          */
         bool _fixedPVP;
 
-        /** Static near plane. */
+        /** Frustum near plane. */
         float        _near;
-        /** Static far plane. */
+        /** Frustum far plane. */
         float        _far;
 
         /** The request identifier for pending asynchronous operations. */
@@ -216,7 +216,8 @@ namespace eqs
 
         /* command handler functions. */
         eqNet::CommandResult _cmdInitReply( eqNet::Command& command );
-        eqNet::CommandResult _cmdExitReply(eqNet::Command& command );
+        eqNet::CommandResult _cmdExitReply( eqNet::Command& command );
+        eqNet::CommandResult _reqSetNearFar( eqNet::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Channel* channel);
