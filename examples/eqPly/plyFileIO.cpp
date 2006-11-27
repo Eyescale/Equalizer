@@ -61,6 +61,7 @@
 #include <fcntl.h>
 #include <math.h>
 #include <unistd.h>
+#include <sys/errno.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -103,7 +104,7 @@ PlyModel< NormalFace<ColorVertex> > *PlyFileIO::read( const char *filename )
 #if 1
     PlyModel< NormalFace<ColorVertex> > *model = readBin( binName );
 #else
-    PlyModel< NormalFace<ColorVertex> > *model = NULL;
+    PlyModel< NormalFace<ColorVertex> > *model = 0;
 #endif
 
     if( !model )
@@ -113,8 +114,8 @@ PlyModel< NormalFace<ColorVertex> > *PlyFileIO::read( const char *filename )
         else
             model = readDir( filename );
 
-        if( model == NULL )
-            return NULL;
+        if( !model )
+            return 0;
         
         writeBin( model, binName );
     }
@@ -132,8 +133,8 @@ PlyModel< NormalFace<ColorVertex> > *PlyFileIO::readDir( const char *dirname )
 
     readDirRec( dirname, faces, nFaces );
 
-    if( faces.size() == 0 )
-        return NULL;
+    if( faces.empty( ))
+        return 0;
 
 
     PlyModel< NormalFace<ColorVertex> > *model = 
@@ -172,12 +173,13 @@ void PlyFileIO::readDirRec( const char *dirname,
     vector<NormalFace<ColorVertex> *> &faces, vector<size_t> &nFaces )
 {
     DIR *dirp = opendir( dirname );
-    if (dirp == NULL) return;
+    if( !dirp )
+        return;
 
     struct dirent *de;
     const size_t   dirNameLen = strlen( dirname );
 
-    while( (de = readdir(dirp)) != NULL )
+    while( (de = readdir(dirp)) != 0 )
     {
         const unsigned len    = (unsigned)( strlen( de->d_name )+dirNameLen+2 );
         char        *filename = (char *)alloca( len );
@@ -229,11 +231,11 @@ bool PlyFileIO::isPlyFile( const char *filename )
 //---------------------------------------------------------------------------
 PlyModel< NormalFace<ColorVertex> > *PlyFileIO::readPly( const char *filename )
 {
-    NormalFace<ColorVertex>  *faces    = NULL;
+    NormalFace<ColorVertex>  *faces    = 0;
     size_t                    nFaces;
 
     if( !readPlyFile( filename, &faces, &nFaces ))
-        return NULL;
+        return 0;
 
     PlyModel< NormalFace<ColorVertex> > *model = 
         new PlyModel< NormalFace<ColorVertex> >;
@@ -258,10 +260,10 @@ bool PlyFileIO::readPlyFile( const char *filename,
     PlyFile *file = ply_open_for_reading( (char *)filename, &nElems, 
         &elemNames, &fileType, &version );
 
-    if( file == NULL )
+    if( !file )
         return false;
 
-    ColorVertex *vertices  = NULL;
+    ColorVertex *vertices  = 0;
     int          nVertices = 0;
 
     EQINFO << filename << ": " << nElems << " elements, file version " 
@@ -361,7 +363,7 @@ void PlyFileIO::readVertices( PlyFile *file, int num, bool color,
         nVProps = 6;
     }
         
-    EQINFO << "Reading " << num << " vertices";
+    EQINFO << disableHeader << "Reading " << num << " vertices";
 
     ply_get_element_setup( file, "vertex", nVProps, vProps );
             
@@ -369,7 +371,7 @@ void PlyFileIO::readVertices( PlyFile *file, int num, bool color,
     for( int i=0; i<num; i++ )
     {
         if( i%10000 == 0 )
-            EQINFO << "." << flush;
+            EQINFO << "." << forceFlush;
 
         ply_get_element( file, &vertices[i] );
 
@@ -386,7 +388,7 @@ void PlyFileIO::readVertices( PlyFile *file, int num, bool color,
             vertices[i].color[2] = 1.;
         }
     }
-    EQINFO << endl;
+    EQINFO << enableHeader << endl;
 }
 
 //---------------------------------------------------------------------------
@@ -417,7 +419,7 @@ void PlyFileIO::readFaces( PlyFile *file,
     for( int i=0; i<nFaces; i++ )
     {
         if( i%10000 == 0 )
-            EQINFO << "." << flush;
+            EQINFO << "." << forceFlush;
 
         // read face
         ply_get_element( file, &face );
@@ -484,16 +486,20 @@ bool PlyFileIO::calculateNormal( NormalFace<ColorVertex> &face )
 PlyModel< NormalFace<ColorVertex> > *PlyFileIO::readBin( const char *filename )
 {
     int fd = open( filename, O_RDONLY );
-    if ( fd < 0 ) return NULL;
+    if( fd < 0 ) 
+        return 0;
 
     struct stat status;
 
     fstat( fd, &status );
-    char *addr = (char *) mmap( NULL, (size_t) status.st_size, PROT_READ,
-            MAP_FILE, fd, 0 );
+    char *addr = (char *) mmap( 0, (size_t) status.st_size, PROT_READ,
+            MAP_SHARED, fd, 0 );
 
     if( addr == MAP_FAILED )
-        return NULL;
+    {
+        EQERROR << "mmap failed: " << strerror( errno ) << endl;
+        return 0;
+    }
 
     PlyModel< NormalFace<ColorVertex> > *model = 
         new PlyModel< NormalFace<ColorVertex> >;
@@ -501,7 +507,7 @@ PlyModel< NormalFace<ColorVertex> > *PlyFileIO::readBin( const char *filename )
     if( !model->fromMemory( addr ) )
     {
         delete model;
-        model = NULL;
+        model = 0;
     }
 
     munmap( addr, (size_t) status.st_size );

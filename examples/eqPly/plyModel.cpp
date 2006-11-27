@@ -113,7 +113,7 @@ void PlyModel<FaceType>::setFaces( size_t nFaces, FaceType *faces,
     _faces    = (FaceType *)malloc( nFaces * sizeof(FaceType) );
     _nFaces = 0;
 
-    EQINFO << "Filling bounding boxes";
+    EQINFO << eqBase::disableHeader << "Filling bounding boxes";
 
     _bbox.children = NULL;
     _bbox.parent   = NULL;
@@ -123,7 +123,7 @@ void PlyModel<FaceType>::setFaces( size_t nFaces, FaceType *faces,
 
     fillBBox( nFaces, faces, _bbox, bboxFaceThreshold, 0 );
 
-    EQINFO << endl;
+    EQINFO << eqBase::enableHeader << endl;
     if( _nFaces != nFaces )
         EQWARN << "Used " << nFaces << " faces of " << _nFaces << " input faces"
                << endl;
@@ -191,7 +191,7 @@ void PlyModel<FaceType>::fillBBox( size_t nFaces, FaceType *faces, BBox &bbox,
 #ifndef NDEBUG
     static size_t filled = 0;
     if( filled%100 == 0 )
-        EQINFO << ".";
+        EQINFO << "." << eqBase::forceFlush;
     ++filled;
 #endif
 
