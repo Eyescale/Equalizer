@@ -737,8 +737,8 @@ void Compound::_computeFrustum( eq::RenderContext& context, const Eye whichEye )
 #endif
 
     // compute frustum from size and eye position
-    eq::Frustum& frustum = context.frustum;
-    const float  ratio   = frustum.near / eye[2];
+    vmml::Frustumf& frustum = context.frustum;
+    const float     ratio   = frustum.near / eye[2];
     if( eye[2] > 0 )
     {
         frustum.left   =  ( -view.width/2.  - eye[0] ) * ratio;

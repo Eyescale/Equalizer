@@ -66,7 +66,6 @@ HEADER_SRC = \
 	client/eventThread.h \
 	client/frame.h \
 	client/frameData.h \
-	client/frustum.h \
 	client/global.h \
 	client/image.h \
 	client/init.h \
@@ -130,7 +129,6 @@ SOURCES = \
 	client/eventThread.cpp \
 	client/frame.cpp \
 	client/frameData.cpp \
-	client/frustum.cpp \
 	client/global.cpp \
 	client/image.cpp \
 	client/init.cpp \

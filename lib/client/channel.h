@@ -4,13 +4,13 @@
 #ifndef EQ_CHANNEL_H
 #define EQ_CHANNEL_H
 
-#include "commands.h"
-#include "frustum.h"
-#include "pixelViewport.h"
-#include "window.h"
+#include <eq/client/commands.h>
+#include <eq/client/pixelViewport.h>
+#include <eq/client/window.h>
 
 #include <eq/net/base.h>
 #include <eq/net/object.h>
+#include <eq/vmmlib/VMMLib.h>
 
 namespace eq
 {
@@ -176,7 +176,7 @@ namespace eq
         const PixelViewport& getPixelViewport() const;
 
         /** @return the view frustum for the current rendering task. */
-        const Frustum& getFrustum() const;
+        const vmml::Frustumf& getFrustum() const;
 
         /** @return the database range for the current rendering task. */
         const Range& getRange() const;
@@ -233,7 +233,7 @@ namespace eq
         Viewport       _vp;
 
         /** The native ('identity') frustum. */
-        Frustum        _frustum;
+        vmml::Frustumf  _frustum;
 
         /** 
          * Set the channel's fractional viewport wrt its parent pipe.

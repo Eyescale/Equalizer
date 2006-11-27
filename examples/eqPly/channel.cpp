@@ -176,8 +176,8 @@ void Channel::_drawBBox( const Model::BBox *bbox )
 void Channel::_initFrustum( Frustumf& frustum )
 {
     // apply frustum
-    const eq::Frustum&   eqFrustum  = getFrustum();
-    const vmml::Matrix4f projection = eqFrustum.computeMatrix();
+    const vmml::Frustumf& eqFrustum  = getFrustum();
+    const vmml::Matrix4f  projection = eqFrustum.computeMatrix();
 
     // apply rot + trans + head transform
     vmml::Matrix4f view( _frameData->_data.rotation );

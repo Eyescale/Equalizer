@@ -23,7 +23,8 @@ using namespace std;
 Channel::Channel()
         : eqNet::Object( eq::Object::TYPE_CHANNEL ),
           _window(NULL),
-          _context( NULL )
+          _context( NULL ),
+          _frustum( vmml::Frustumf::DEFAULT )
 {
     registerCommand( CMD_CHANNEL_INIT,
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
@@ -277,7 +278,7 @@ void Channel::applyViewport()
     glScissor( pvp.x, pvp.y, pvp.w, pvp.h );
 }
 
-const Frustum& Channel::getFrustum() const
+const vmml::Frustumf& Channel::getFrustum() const
 {
     return _context ? _context->frustum : _frustum;
 }
@@ -289,7 +290,7 @@ const Range& Channel::getRange() const
 
 void Channel::applyFrustum() const
 {
-    const Frustum& frustum = getFrustum();
+    const vmml::Frustumf& frustum = getFrustum();
     glFrustum( frustum.left, frustum.right, frustum.top, frustum.bottom,
                frustum.near, frustum.far ); 
     EQVERB << "Apply " << frustum << endl;
@@ -297,12 +298,12 @@ void Channel::applyFrustum() const
 
 const vmml::Matrix4f& Channel::getHeadTransform() const
 {
-    return _context ? _context->headTransform : vmml::Matrix4f::IDENTITY;
+    return _context ? _context->headTransform : Matrix4f::IDENTITY;
 }
 
 void Channel::applyHeadTransform() const
 {
-    const vmml::Matrix4f& xfm = getHeadTransform();
+    const Matrix4f& xfm = getHeadTransform();
     glMultMatrixf( xfm.ml );
     EQVERB << "Apply head transform: " << xfm << endl;
 }

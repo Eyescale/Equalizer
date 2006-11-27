@@ -5,7 +5,6 @@
 #ifndef EQ_RENDERCONTEXT_H
 #define EQ_RENDERCONTEXT_H
 
-#include <eq/client/frustum.h>
 #include <eq/client/pixelViewport.h>
 #include <eq/client/range.h>
 #include <eq/vmmlib/VMMLib.h>
@@ -22,7 +21,7 @@ namespace eq
         uint32_t       buffer;        //<! buffer as passed to glDrawBuffer()
         PixelViewport  pvp;           //<! pixel viewport of channel wrt window
         Range          range;         //<! database-range to be rendered
-        Frustum        frustum;       //<! frustum for projection matrix
+        vmml::Frustumf frustum;       //<! frustum for projection matrix
         vmml::Matrix4f headTransform; //<! frustum transform for modelview
     };
 
