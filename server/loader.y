@@ -32,6 +32,7 @@
         static eqs::Frame*       frame;
         static eqBase::RefPtr<eqNet::ConnectionDescription> 
             connectionDescription;
+        static uint32_t          flags;
     }
 
     using namespace std;
@@ -378,8 +379,8 @@ compoundField:
         compoundTasks ']'
     | EQTOKEN_EYE  '['   { eqCompound->setEyes( eqs::Compound::EYE_UNDEFINED ); }
         compoundEyes  ']'
-    | EQTOKEN_BUFFER '[' { eqCompound->setBuffers( eq::Frame::BUFFER_UNDEFINED );}
-        compoundBuffers ']'
+    | EQTOKEN_BUFFER '[' { flags = eq::Frame::BUFFER_UNDEFINED;}
+        buffers ']' { eqCompound->setBuffers( flags ); flags = 0; }
     | EQTOKEN_VIEWPORT viewport
         { eqCompound->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] )); }
     | EQTOKEN_RANGE '[' FLOAT FLOAT ']'
@@ -401,10 +402,10 @@ compoundEye:
     | EQTOKEN_LEFT  { eqCompound->enableEye( eqs::Compound::EYE_LEFT ); }
     | EQTOKEN_RIGHT { eqCompound->enableEye( eqs::Compound::EYE_RIGHT ); }
 
-compoundBuffers: /*null*/ | compoundBuffer | compoundBuffers compoundBuffer
-compoundBuffer:
-    EQTOKEN_COLOR    { eqCompound->enableBuffer( eq::Frame::BUFFER_COLOR ); }
-    | EQTOKEN_DEPTH  { eqCompound->enableBuffer( eq::Frame::BUFFER_DEPTH ); }
+buffers: /*null*/ | buffer | buffers buffer
+buffer:
+    EQTOKEN_COLOR    { flags |= eq::Frame::BUFFER_COLOR; }
+    | EQTOKEN_DEPTH  { flags |= eq::Frame::BUFFER_DEPTH; }
 
 wall: EQTOKEN_WALL '{'
           EQTOKEN_BOTTOM_LEFT  '[' FLOAT FLOAT FLOAT ']' 
@@ -453,6 +454,10 @@ inputFrame: EQTOKEN_INPUTFRAME '{' { frame = new eqs::Frame(); }
 frameFields: /*null*/ | frameField | frameFields frameField
 frameField: 
     EQTOKEN_NAME STRING { frame->setName( $2 ); }
+    | EQTOKEN_VIEWPORT viewport
+        { frame->setViewport(eq::Viewport( $2[0], $2[1], $2[2], $2[3])); }
+    | EQTOKEN_BUFFER '[' { flags = eq::Frame::BUFFER_UNDEFINED; }
+        buffers ']' { frame->setBuffers( flags ); flags = 0; }
 
 viewport: '[' FLOAT FLOAT FLOAT FLOAT ']'
      { 

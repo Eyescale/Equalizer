@@ -1,4 +1,4 @@
-# six-to-one sort-first config for cluster at unizh
+# six-to-one sort-last, direct-send config for cluster at unizh
 global
 {
 #    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
@@ -14,8 +14,9 @@ server
             connection { hostname "10.42.42.1" }
             pipe 
             {
-                window
+                window 
                 {
+                    attributes{ planes{ stencil on }}
                     viewport [ 640 512 1280 800 ]
                     channel { name "channel1" }
                 }
@@ -49,6 +50,8 @@ server
         compound
         {
             channel "channel1"
+            buffer  [ COLOR DEPTH ]
+
             wall
             {
                 bottom_left  [ -.32 -.2 -1 ]
@@ -58,43 +61,44 @@ server
 
             compound
             {
-                viewport [ 0 0 .333 .5 ]
+                range [ 0 .333 ]
+
+                compound {
+                    task [ READBACK ]
+                    outputframe { name "f1.c1" viewport [ 0 .33   1 .33 ] }
+                    outputframe { name "f2.c1" viewport [ 0 .66   1 .33 ] }
+                }
             }
             compound
             {
                 channel "channel2"
-                viewport [ .333 0 .333 .5 ]
-                outputframe {}
+                range [ .333 .666 ]
+
+                compound {
+                    task [ READBACK ]
+                    outputframe { name "f1.c2" viewport [ 0 0   1 .33 ] }
+                    outputframe { name "f2.c2" viewport [ 0 .33 1 .33 ] }
+                }
+                inputframe { name "f2.c1" }
+                inputframe { name "f2.c3" }
+                outputframe { buffer [ COLOR ] viewport [ 0 .66 1 .34 ] }
             }
             compound
             {
                 channel "channel3"
-                viewport [ .666 0 .334 .5 ]
-                outputframe {}
-            }
-            compound
-            {
-                channel "channel4"
-                viewport [ 0 .5 .333 .5 ]
-                outputframe {}
-            }
-            compound
-            {
-                channel "channel5"
-                viewport [ .333 .5 .333 .5 ]
-                outputframe {}
-            }
-            compound
-            {
-                channel "channel6"
-                viewport [ .666 .5 .334 .5 ]
-                outputframe {}
+                range [ .666 1 ]
+
+                compound {
+                    task [ READBACK ]
+                    outputframe { name "f1.c3" viewport [ 0 0   1 .33 ] }
+                    outputframe { name "f2.c3" viewport [ 0 .66 1 .33 ] }
+                }
+                inputframe { name "f1.c1" }
+                inputframe { name "f2.c2" }
+                outputframe { buffer [ COLOR ] viewport [ 0 .33 1 .33 ] }
             }
             inputframe { name "frame.channel2" }
             inputframe { name "frame.channel3" }
-            inputframe { name "frame.channel4" }
-            inputframe { name "frame.channel5" }
-            inputframe { name "frame.channel6" }
         }
     }    
 }
