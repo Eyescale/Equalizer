@@ -123,6 +123,9 @@ namespace eq
 
         /**
          * Setup the OpenGL state for a readback or assemble operation.
+         *
+         * The default implementation is very conservative and saves any state
+         * which is potentially changed by the assembly routines.
          */
         virtual void setupAssemblyState();
 

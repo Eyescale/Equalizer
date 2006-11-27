@@ -125,7 +125,24 @@ void Image::_startAssembleDB( const vmml::Vector2i& offset )
     EQASSERT( !_pixels[INDEX_DEPTH].empty( ));
 
     // Z-Based sort-last assembly
-    EQUNIMPLEMENTED;
+    glEnable( GL_STENCIL_TEST );
+    
+    // test who is in front and mark in stencil buffer
+    glEnable( GL_DEPTH_TEST );
+    glStencilFunc( GL_ALWAYS, 1, 1 );
+    glStencilOp( GL_ZERO, GL_ZERO, GL_REPLACE );
+
+    glDrawPixels( _pvp.w, _pvp.h, getFormat( Frame::BUFFER_DEPTH ), 
+                  getType( Frame::BUFFER_DEPTH ), &_pixels[INDEX_DEPTH][0] );
+    
+    glDisable( GL_DEPTH_TEST );
+
+    // draw 'our' front pixels using stencil mask
+    glStencilFunc( GL_EQUAL, 1, 1 );
+    glStencilOp( GL_KEEP, GL_ZERO, GL_ZERO );
+    
+    glDrawPixels( _pvp.w, _pvp.h, getFormat( Frame::BUFFER_COLOR ), 
+                  getType( Frame::BUFFER_COLOR ), &_pixels[INDEX_COLOR][0] );
 }
 
 void Image::setPixelViewport( const PixelViewport& pvp )

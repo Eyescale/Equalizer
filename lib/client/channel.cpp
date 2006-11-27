@@ -26,33 +26,33 @@ Channel::Channel()
           _context( NULL )
 {
     registerCommand( CMD_CHANNEL_INIT,
-                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
+                   eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_INIT, 
                      eqNet::CommandFunc<Channel>( this, &Channel::_reqInit ));
     registerCommand( CMD_CHANNEL_EXIT, 
-                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
+                   eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_EXIT, 
                      eqNet::CommandFunc<Channel>( this, &Channel::_reqExit ));
     registerCommand( CMD_CHANNEL_CLEAR, 
-                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
+                   eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_CLEAR, 
                      eqNet::CommandFunc<Channel>( this, &Channel::_reqClear));
     registerCommand( CMD_CHANNEL_DRAW, 
-                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
+                   eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_DRAW, 
                      eqNet::CommandFunc<Channel>( this, &Channel::_reqDraw ));
     registerCommand( CMD_CHANNEL_ASSEMBLE, 
-                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
+                   eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_ASSEMBLE, 
-                    eqNet::CommandFunc<Channel>( this, &Channel::_reqAssemble ));
+                   eqNet::CommandFunc<Channel>( this, &Channel::_reqAssemble ));
     registerCommand( CMD_CHANNEL_READBACK, 
-                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
+                   eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_READBACK, 
-                    eqNet::CommandFunc<Channel>( this, &Channel::_reqReadback ));
+                   eqNet::CommandFunc<Channel>( this, &Channel::_reqReadback ));
     registerCommand( CMD_CHANNEL_TRANSMIT, 
-                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
+                   eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_TRANSMIT, 
-                    eqNet::CommandFunc<Channel>( this, &Channel::_reqTransmit ));
+                   eqNet::CommandFunc<Channel>( this, &Channel::_reqTransmit ));
 }
 
 Channel::~Channel()
@@ -218,7 +218,7 @@ void Channel::applyBuffer()
 
 void Channel::setupAssemblyState()
 {
-    glPushAttrib( GL_ENABLE_BIT );
+    glPushAttrib( GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT );
 
     glDisable( GL_DEPTH_TEST );
     glDisable( GL_BLEND );

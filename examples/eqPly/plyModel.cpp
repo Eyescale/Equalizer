@@ -57,7 +57,7 @@
 #define CHUNKSIZE 4096
 #define MAXDEPTH  256
 
-#define PLYFILEVERSION   17
+#define PLYFILEVERSION   18
 
 using namespace std;
 
@@ -118,8 +118,8 @@ void PlyModel<FaceType>::setFaces( size_t nFaces, FaceType *faces,
     _bbox.children = NULL;
     _bbox.parent   = NULL;
     _bbox.next     = NULL;
-    _bbox.range[0] = 0.;
-    _bbox.range[1] = 1.;
+    _bbox.range[0] = 0.0f;
+    _bbox.range[1] = 1.0f - numeric_limits<float>::epsilon();
 
     fillBBox( nFaces, faces, _bbox, bboxFaceThreshold, 0 );
 

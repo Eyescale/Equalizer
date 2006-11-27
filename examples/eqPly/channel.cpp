@@ -74,7 +74,8 @@ void Channel::draw( const uint32_t frameID )
 
     Frustumf frustum;
     _initFrustum( frustum );
-    const size_t  bboxThreshold = 64;
+
+    const eq::Range& range = getRange();
 
     if( model )
     {
@@ -85,15 +86,27 @@ void Channel::draw( const uint32_t frameID )
             const Model::BBox *bbox = bBoxVector.back();
             bBoxVector.pop_back();
 
+            // cull against 'completely out of range'
+            if( bbox->range[0] >= range.end || bbox->range[1] < range.start )
+                continue;
+
             const FrustumVisibility visibility = frustum.sphereVisibility(
                 bbox->cullSphere.center.pos, bbox->cullSphere.radius );
             switch( visibility )
             {
                 case FRUSTUM_VISIBILITY_FULL:
-                    _drawBBox( bbox );
-                    break;   
+                {
+                    const bool fullyInRange = (bbox->range[0] >= range.start && 
+                                               bbox->range[1] <  range.end );
+                    if( fullyInRange )
+                    {
+                        _drawBBox( bbox );
+                        break;   
+                    }
+                    // partial range, fall through
+                }
                 case FRUSTUM_VISIBILITY_PARTIAL:
-                    if( !bbox->children || bbox->nFaces < bboxThreshold )
+                    if( !bbox->children )
                         _drawBBox( bbox );
                     else
                         for( int i=0; i<8; i++ )
