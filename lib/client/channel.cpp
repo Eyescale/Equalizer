@@ -174,18 +174,18 @@ void Channel::assemble( const uint32_t frameID )
     setupAssemblyState();
 
     const vector<Frame*>& frames = getInputFrames();
-    for( vector<Frame*>::const_iterator iter = frames.begin();
-         iter != frames.end(); ++iter )
+    for( vector<Frame*>::const_iterator i = frames.begin();
+         i != frames.end(); ++i )
     {
-        Frame* frame = *iter;
+        Frame* frame = *i;
         
         frame->waitReady();
         frame->startAssemble();
     }
-    for( vector<Frame*>::const_iterator iter = frames.begin();
-         iter != frames.end(); ++iter )
+    for( vector<Frame*>::const_iterator i = frames.begin();
+         i != frames.end(); ++i )
     {
-        Frame* frame = *iter;
+        Frame* frame = *i;
         
         frame->syncAssemble();
     }
