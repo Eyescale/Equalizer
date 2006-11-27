@@ -50,6 +50,8 @@ void Channel::draw( const uint32_t frameID )
     glLoadIdentity();
 
 #ifdef DYNAMIC_NEAR // Code assumes the view is in the x-y plane
+    
+    //vmml::Vector3f viewTrans = _frameData->_data.translation * 
     const float near = MAX( 0.001f, 
                             -_frameData->_data.translation.z - M_SQRT3_2 );
     const float far  = near + M_SQRT3;
@@ -174,9 +176,8 @@ void Channel::_drawBBox( const Model::BBox *bbox )
 void Channel::_initFrustum( Frustumf& frustum )
 {
     // apply frustum
-    const eq::Frustum& eqFrustum = getFrustum();
-    float proj[16];
-    eqFrustum.computeMatrix( proj );
+    const eq::Frustum&   eqFrustum  = getFrustum();
+    const vmml::Matrix4f projection = eqFrustum.computeMatrix();
 
     // apply rot + trans + head transform
     vmml::Matrix4f view( _frameData->_data.rotation );
@@ -186,5 +187,5 @@ void Channel::_initFrustum( Frustumf& frustum )
 
     const eq::PixelViewport& pvp = getPixelViewport();
 
-    frustum.initView( proj, mvm.ml, pvp);
+    frustum.initView( projection.ml, mvm.ml, pvp);
 }

@@ -26,25 +26,21 @@ void Frustum::adjustNear( const float _near )
     near = _near;
 }
 
-void Frustum::computeMatrix( float matrix[16] ) const
+vmml::Matrix4f Frustum::computeMatrix() const
 {
-    matrix[0]  =  2 * near / (right - left);
-    matrix[4]  =  0.;
-    matrix[8]  =  (right + left) / (right - left );
-    matrix[12]  =  0;
-    
-    matrix[1]  =  0;
-    matrix[5]  =  2 * near / (top - bottom);
-    matrix[9]  =  (top + bottom) / (top - bottom);
-    matrix[13]  =  0;
-    
-    matrix[2]  =  0;
-    matrix[6]  =  0;
-    matrix[10] =  -(far + near) / (far - near);
-    matrix[14] = -2 * far * near / (far - near);
+    vmml::Matrix4f matrix = vmml::Matrix4f::IDENTITY;
 
-    matrix[3] =  0;
-    matrix[7] =  0;
-    matrix[11] = -1;
-    matrix[15] =  0;
+    matrix.m00 = 2 * near / (right - left);
+    matrix.m02 = (right + left) / (right - left );
+    
+    matrix.m11 = 2 * near / (top - bottom);
+    matrix.m12 = (top + bottom) / (top - bottom);
+
+    matrix.m22 = (far + near) / (far - near);
+    matrix.m23 = 2 * far * near / (far - near);
+
+    matrix.m32 = -1;
+    matrix.m33 =  0;
+
+    return matrix;
 }

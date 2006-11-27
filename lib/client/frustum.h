@@ -5,6 +5,7 @@
 #ifndef EQ_FRUSTUM_H
 #define EQ_FRUSTUM_H
 
+#include <eq/vmmlib/VMMLib.h>
 #include <iostream>
 
 namespace eq
@@ -19,8 +20,8 @@ namespace eq
                 top(-1.0f),  bottom(1.0f),
                 near(0.1f),  far(100.0f) {}
         
-        void computeMatrix( float matrix[16] ) const;
-        void adjustNear( const float near );
+        vmml::Matrix4f computeMatrix() const;
+        void           adjustNear( const float near );
 
         float left;
         float right;
