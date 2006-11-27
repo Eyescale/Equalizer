@@ -60,8 +60,8 @@ namespace eqBase
 #else // Darwin
                 struct timespec now;
                 clock_gettime( CLOCK_REALTIME, &now );
-                return (((float)now.tv_sec - (float)_start.tv_sec) * 1000.f +
-                     ((float)now.tv_nsec - (float)_start.tv_nsec) / 1000000.f);
+                return ( 1000.0f * (now.tv_sec - _start.tv_sec) +
+                         0.000001f * (now.tv_nsec - _start.tv_nsec));
 #endif // Darwin
             }
 
@@ -79,9 +79,8 @@ namespace eqBase
 #else // Darwin
                 struct timespec now;
                 clock_gettime( CLOCK_REALTIME, &now );
-                return
-                    (((double)now.tv_sec - (double)_start.tv_sec) * 1000. +
-                     ((double)now.tv_nsec - (double)_start.tv_nsec) /1000000. );
+                return ( 1000.0 * (now.tv_sec - _start.tv_sec) +
+                         0.000001 * (now.tv_nsec - _start.tv_nsec));
 #endif // Darwin
             }
 
@@ -103,10 +102,9 @@ namespace eqBase
                 clock_gettime( CLOCK_REALTIME, &now );
 
                 if( now.tv_nsec < _start.tv_nsec )
-                    return ( 1000. + ((float)now.tv_nsec -
-                                      (float)_start.tv_nsec) / 1000000.f );
+                    return ( 1000.f + 0.000001f*(now.tv_nsec - _start.tv_nsec));
                 
-                return (((float)now.tv_nsec - (float)_start.tv_nsec)/1000000.f);
+                return ( 0.000001f * ( now.tv_nsec - _start.tv_nsec ));
 #endif // Darwin
             }
 
