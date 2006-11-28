@@ -131,7 +131,7 @@ void Channel::clear( const uint32_t frameID )
 {
     applyBuffer();
     applyViewport();
-    if( getenv( "EQ_TAINT_CHANNELS" ) != NULL )
+    if( getenv( "EQ_TAINT_CHANNELS" ))
     {
         stde::hash<const char*> hasher;
         unsigned  seed  = (unsigned)(long long)this + hasher(getName().c_str());
@@ -240,7 +240,8 @@ void Channel::setupAssemblyState()
     glPushMatrix();
     glLoadIdentity();
 
-    glOrtho( 0.0f, _pvp.w, 0.0f, _pvp.h, -1.0f, 1.0f );
+    const PixelViewport& pvp = getPixelViewport();
+    glOrtho( 0.0f, pvp.w, 0.0f, pvp.h, -1.0f, 1.0f );
    
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();

@@ -70,13 +70,12 @@ namespace eq
         //*{
         PixelViewport& operator *= ( const Viewport& rhs )
             {
-                // honor position over size to avoid rounding errors
+                // honor position over size to avoid rounding artifacts
                 const int32_t xEnd = x + static_cast<int32_t>((rhs.x+rhs.w)*w);
                 const int32_t yEnd = y + static_cast<int32_t>((rhs.y+rhs.h)*h);
 
                 x += static_cast<int32_t>( w * rhs.x );
                 y += static_cast<int32_t>( h * rhs.y );
-                
                 w = xEnd - x;
                 h = yEnd - y;
 
@@ -85,8 +84,18 @@ namespace eq
 
         const PixelViewport operator * ( const Viewport& rhs ) const
             {
-                return PixelViewport( (int32_t)(x+w*rhs.x),(int32_t)(y+h*rhs.y),
-                                      (int32_t)(w*rhs.w),  (int32_t)(h*rhs.h) );
+                PixelViewport result;
+
+                // honor position over size to avoid rounding artifacts
+                const int32_t xEnd = x + static_cast<int32_t>((rhs.x+rhs.w)*w);
+                const int32_t yEnd = y + static_cast<int32_t>((rhs.y+rhs.h)*h);
+
+                result.x += static_cast<int32_t>( w * rhs.x );
+                result.y += static_cast<int32_t>( h * rhs.y );
+                result.w = xEnd - result.x;
+                result.h = yEnd - result.y;
+
+                return result;
             }
 
         const PixelViewport operator + ( const vmml::Vector2i& offset ) const
