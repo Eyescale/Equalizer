@@ -2,6 +2,7 @@
 global
 {
 #    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
+    EQ_WINDOW_IATTR_PLANES_STENCIL on
 }
 
 server
@@ -16,7 +17,7 @@ server
             {
                 window 
                 {
-                    attributes{ planes{ stencil on }}
+                    name    "window1"
                     viewport [ 0 512 640 480 ]
                     channel { name "channel1" }
                 }
@@ -27,6 +28,7 @@ server
 #            connection { hostname "10.42.42.2" }
             pipe { 
                 window { 
+                    name    "window2"
                     viewport [ 700 512 640 480 ] 
                     channel { name "channel2" }
                 }
@@ -37,6 +39,7 @@ server
 #            connection { hostname "10.42.42.3" }
             pipe { 
                 window { 
+                    name    "window3"
                     viewport [ 1400 512 640 480 ] 
                     channel { name "channel3" }
                 }
@@ -73,44 +76,39 @@ server
             {
                 range [ 0 .333 ]
 
-                compound {
-                    task [ CLEAR DRAW READBACK ]
-                    outputframe { name "f1.c1" viewport [ 0 .33 1 .33 ] }
-#                    outputframe { name "f2.c1" viewport [ 0 .66 1 .33 ] }
-                }
+                outputframe { name "f1.c1" viewport [ 0 .333 1 .333 ] }
+                outputframe { name "f2.c1" viewport [ 0 .666 1 .334 ] }
             }
             compound
             {
                 channel "channel2"
-                range [ .333 .666 ]
 
-#                compound {
-#                    task [ CLEAR DRAW READBACK ]
-#                    outputframe { name "f1.c2" viewport [ 0 0   1 .33 ] }
-#                    outputframe { name "f2.c2" viewport [ 0 .33 1 .33 ] }
-#                }
+                compound {
+                    range [ .333 .666 ]
+                    outputframe { name "f1.c2" viewport [ 0 0    1 .333 ] }
+                    outputframe { name "f2.c2" viewport [ 0 .333 1 .333 ] }
+                }
                 inputframe { name "f2.c1" }
                 inputframe { name "f2.c3" }
-#                outputframe { buffer [ COLOR ] viewport [ 0 .66 1 .34 ] }
+                outputframe { buffer [ COLOR ] viewport [ 0 .666 1 .334 ] }
             }
             compound
             {
                 channel "channel3"
-                range [ .666 1 ]
 
                 compound {
-                    task [ CLEAR DRAW READBACK ]
-#                    outputframe { name "f1.c3" viewport [ 0 0   1 .33 ] }
-                    outputframe { name "f2.c3" viewport [ 0 .66 1 .33 ] }
+                    range [ .666 1 ]
+                    outputframe { name "f1.c3" viewport [ 0 0    1 .333 ] }
+                    outputframe { name "f2.c3" viewport [ 0 .666 1 .334 ] }
                 }
-#                inputframe { name "f1.c1" }
-#                inputframe { name "f2.c2" }
-#                outputframe { buffer [ COLOR ] viewport [ 0 .33 1 .33 ] }
+                inputframe { name "f1.c1" }
+                inputframe { name "f2.c2" }
+                outputframe { buffer [ COLOR ] viewport [ 0 .333 1 .333 ] }
             }
-#            inputframe { name "f1.c2" }
-#            inputframe { name "f1.c3" }
-#            inputframe { name "frame.channel2" }
-#            inputframe { name "frame.channel3" }
+            inputframe { name "f1.c2" }
+            inputframe { name "f1.c3" }
+            inputframe { name "frame.channel2" }
+            inputframe { name "frame.channel3" }
         }
     }    
 }

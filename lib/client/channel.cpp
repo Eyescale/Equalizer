@@ -320,7 +320,7 @@ eqNet::CommandResult Channel::_pushCommand( eqNet::Command& command )
 eqNet::CommandResult Channel::_reqInit( eqNet::Command& command )
 {
     const ChannelInitPacket* packet = command.getPacket<ChannelInitPacket>();
-    EQINFO << "handle channel init " << packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK init " << packet->name <<  " " << packet <<endl;
 
     if( packet->pvp.isValid( ))
         _setPixelViewport( packet->pvp );
@@ -339,7 +339,7 @@ eqNet::CommandResult Channel::_reqInit( eqNet::Command& command )
 eqNet::CommandResult Channel::_reqExit( eqNet::Command& command )
 {
     const ChannelExitPacket* packet = command.getPacket<ChannelExitPacket>();
-    EQINFO << "handle channel exit " << packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK exit " << getName() <<  " " << packet << endl;
 
     exit();
 
@@ -351,7 +351,7 @@ eqNet::CommandResult Channel::_reqExit( eqNet::Command& command )
 eqNet::CommandResult Channel::_reqClear( eqNet::Command& command )
 {
     ChannelClearPacket* packet = command.getPacket<ChannelClearPacket>();
-    EQVERB << "handle channel clear " << packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet << endl;
 
     _context = &packet->context;
     clear( packet->context.frameID );
@@ -362,7 +362,7 @@ eqNet::CommandResult Channel::_reqClear( eqNet::Command& command )
 eqNet::CommandResult Channel::_reqDraw( eqNet::Command& command )
 {
     ChannelDrawPacket* packet = command.getPacket<ChannelDrawPacket>();
-    EQVERB << "handle channel draw " << packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << packet << endl;
 
     _context = &packet->context;
     draw( packet->context.frameID );
@@ -373,7 +373,8 @@ eqNet::CommandResult Channel::_reqDraw( eqNet::Command& command )
 eqNet::CommandResult Channel::_reqAssemble( eqNet::Command& command )
 {
     ChannelAssemblePacket* packet = command.getPacket<ChannelAssemblePacket>();
-    EQVERB << "handle channel assemble " << packet << endl;
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK assemble " << getName() <<  " " 
+                                       << packet << endl;
 
     _context = &packet->context;
 
@@ -388,8 +389,6 @@ eqNet::CommandResult Channel::_reqAssemble( eqNet::Command& command )
         _inputFrames.push_back( frame );
     }
 
-    EQLOG( LOG_ASSEMBLY ) << "channel \"" << getName() << "\" assemble "
-                          << packet->nFrames << " frames" <<endl;
     assemble( packet->context.frameID );
 
     _inputFrames.clear();
@@ -400,7 +399,8 @@ eqNet::CommandResult Channel::_reqAssemble( eqNet::Command& command )
 eqNet::CommandResult Channel::_reqReadback( eqNet::Command& command )
 {
     ChannelReadbackPacket* packet = command.getPacket<ChannelReadbackPacket>();
-    EQVERB << "handle channel readback " << packet << endl;
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " " 
+                                       << packet << endl;
 
     _context = &packet->context;
 
@@ -415,8 +415,6 @@ eqNet::CommandResult Channel::_reqReadback( eqNet::Command& command )
         _outputFrames.push_back( frame );
     }
 
-    EQLOG( LOG_ASSEMBLY ) << "channel \"" << getName() << "\" readback "
-                          << packet->nFrames << " frames" <<endl;
     readback( packet->context.frameID );
 
     for( vector<Frame*>::const_iterator i = _outputFrames.begin();
@@ -435,7 +433,8 @@ eqNet::CommandResult Channel::_reqTransmit( eqNet::Command& command )
 {
     const ChannelTransmitPacket* packet = 
         command.getPacket<ChannelTransmitPacket>();
-    EQVERB << "handle channel transmit " << packet << endl;
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK transmit " << getName() <<  " " 
+                                      << packet << endl;
 
     eqNet::Session*     session   = getSession();
     RefPtr<eqNet::Node> localNode = session->getLocalNode();

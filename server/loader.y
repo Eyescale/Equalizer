@@ -378,12 +378,12 @@ compoundField:
     }
     | EQTOKEN_TASK '['   { eqCompound->setTasks( eqs::Compound::TASK_NONE ); }
         compoundTasks ']'
-    | EQTOKEN_EYE  '['   { eqCompound->setEyes( eqs::Compound::EYE_UNDEFINED ); }
+    | EQTOKEN_EYE  '['   { eqCompound->setEyes( eqs::Compound::EYE_UNDEFINED );}
         compoundEyes  ']'
     | EQTOKEN_BUFFER '[' { flags = eq::Frame::BUFFER_UNDEFINED;}
         buffers ']' { eqCompound->setBuffers( flags ); flags = 0; }
     | EQTOKEN_VIEWPORT viewport
-        { eqCompound->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] )); }
+        { eqCompound->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] ));}
     | EQTOKEN_RANGE '[' FLOAT FLOAT ']'
         { eqCompound->setRange( eq::Range( $3, $4 )); }
     | wall

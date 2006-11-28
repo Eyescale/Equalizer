@@ -57,11 +57,12 @@ namespace eqs
         enum Task
         {
             TASK_NONE     = 0,
-            TASK_CLEAR    = 0x1,     //!< Clear the framebuffer
-            TASK_CULL     = 0x10,    //!< Cull data
-            TASK_DRAW     = 0x100,   //!< Draw data to the framebuffer
-            TASK_ASSEMBLE = 0x1000,  //!< Combine input frames
-            TASK_READBACK = 0x10000, //!< Read results to output frames
+            TASK_DEFAULT  = 0x1,      //!< ALL for leaf, else ASSEMBLE|READBACK
+            TASK_CLEAR    = 0x10,     //!< Clear the framebuffer
+            TASK_CULL     = 0x100,    //!< Cull data
+            TASK_DRAW     = 0x1000,   //!< Draw data to the framebuffer
+            TASK_ASSEMBLE = 0x10000,  //!< Combine input frames
+            TASK_READBACK = 0x100000, //!< Read results to output frames
             TASK_ALL      = 0xfffffff
         };
 
@@ -167,21 +168,17 @@ namespace eqs
          * 
          * @param tasks the compound tasks.
          */
-        void setTasks( const uint32_t tasks ) { _tasks = tasks; }
+        void setTasks( const uint32_t tasks ) { _data.tasks = tasks; }
 
         /** 
          * Add a task to be executed by the compound, preserving previous tasks.
          * 
          * @param tasks the compound tasks.
          */
-        void enableTask( const Task task ) { _tasks |= task; }
+        void enableTask( const Task task ) { _data.tasks |= task; }
 
         /** @return the tasks executed by this compound. */
-        uint32_t getTasks() const { return _tasks; }
-
-        /** @return true if the task is set, false if not. */
-        bool testTask( const Task task ) const { return (_tasks & task); }
-
+        uint32_t getTasks() const { return _data.tasks; }
 
         /** 
          * Set the image buffers to be used by the compound during
@@ -359,11 +356,15 @@ namespace eqs
          * @name Inherit Data Access.
          * 
          * Inherit data are the actual, as opposed to configured, attributes and
-         * data used by the compound. The inherit data is update at the
+         * data used by the compound. The inherit data is updated at the
          * beginning of each update().
          */
         //*{
         uint32_t getInheritBuffers() const { return _inherit.buffers; }
+
+        /** @return true if the task is set, false if not. */
+        bool testInheritTask( const Task task ) const
+            { return (_inherit.tasks & task); }
         //*}
 
     protected:
@@ -383,9 +384,6 @@ namespace eqs
         std::vector<Compound*>  _children;
         
         Compound* _getNext() const;
-
-        /** The compound tasks. */
-        uint32_t _tasks;
 
         struct View
         {
@@ -411,6 +409,7 @@ namespace eqs
             InheritData();
 
             Channel*          channel;
+            uint32_t          tasks;            
             eq::Viewport      vp;
             eq::PixelViewport pvp;
             eq::Range         range;
@@ -455,6 +454,7 @@ namespace eqs
             Eye      eye;
         };
 
+        static TraverseResult _updatePreDrawCB(Compound* compound, void* );
         static TraverseResult _updateDrawCB(Compound* compound, void* );
         static TraverseResult _updatePostDrawCB( Compound* compound, void* );
         void _updatePostDraw( const eq::RenderContext& context );

@@ -90,7 +90,6 @@ server
                 range   [ .75 1 ]
             }
 
-            inputframe { name "frame.channel1" }
             inputframe { name "frame.channel2" }
             inputframe { name "frame.channel3" }
         }

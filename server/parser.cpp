@@ -1894,7 +1894,7 @@ yyreduce:
 
   case 122:
 
-    { eqCompound->setEyes( eqs::Compound::EYE_UNDEFINED ); ;}
+    { eqCompound->setEyes( eqs::Compound::EYE_UNDEFINED );;}
     break;
 
   case 124:
@@ -1909,7 +1909,7 @@ yyreduce:
 
   case 126:
 
-    { eqCompound->setViewport( eq::Viewport( (yyvsp[0]._viewport)[0], (yyvsp[0]._viewport)[1], (yyvsp[0]._viewport)[2], (yyvsp[0]._viewport)[3] )); ;}
+    { eqCompound->setViewport( eq::Viewport( (yyvsp[0]._viewport)[0], (yyvsp[0]._viewport)[1], (yyvsp[0]._viewport)[2], (yyvsp[0]._viewport)[3] ));;}
     break;
 
   case 127:

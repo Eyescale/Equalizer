@@ -9,6 +9,8 @@ server
                 window
                 {
                     viewport [ .05 .05 .4 .3 ]
+                    name "window1"
+
                     channel
                     {
                         name "channel1"
@@ -17,6 +19,8 @@ server
                 window
                 {
                     viewport [ .55 .05 .4 .3 ]
+                    name "window2"
+
                     channel
                     {
                         name "channel2"
@@ -25,6 +29,8 @@ server
                 window
                 {
                     viewport [ .05 .5 .4 .3 ]
+                    name "window3"
+
                     channel
                     {
                         name "channel3"
@@ -34,6 +40,7 @@ server
                 {
                     viewport [ .55 .5 .4 .3 ]
                     attributes{ planes{ stencil on }}
+                    name "window4"
 
                     channel
                     {
