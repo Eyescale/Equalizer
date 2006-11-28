@@ -78,8 +78,11 @@ Image* FrameData::newImage()
 
 void FrameData::startReadback( const Frame& frame )
 {
+    if( _data.buffers == Frame::BUFFER_NONE )
+        return;
+
     PixelViewport absPVP = _data.pvp + frame.getOffset();
-    if( !absPVP.isValid( ) || _data.buffers == Frame::BUFFER_NONE )
+    if( !absPVP.isValid( ))
         return;
     
     Image* image = newImage();
@@ -199,13 +202,6 @@ void FrameData::transmit( eqBase::RefPtr<eqNet::Node> toNode )
     readyPacket.objectID  = getID();
     readyPacket.version   = getVersion();
     toNode->send( readyPacket );
-}
-
-void FrameData::waitReady() const
-{
-    EQLOG( LOG_ASSEMBLY ) << this << " wait for v" << getVersion() << endl;
-    _readyVersion.waitEQ( getVersion( )); 
-    EQLOG( LOG_ASSEMBLY ) << this << " v" << getVersion() << " ready" << endl;
 }
 
 //----- Command handlers

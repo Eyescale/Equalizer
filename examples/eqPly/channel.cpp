@@ -14,7 +14,7 @@ using namespace eqBase;
 
 static float lightpos[] = { 0., 0., 1., 0. };
 
-// #define DYNAMIC_NEAR 
+//#define DYNAMIC_NEAR 
 #ifndef M_SQRT3
 #  define M_SQRT3    1.7321f   /* sqrt(3) */
 #endif
@@ -50,10 +50,12 @@ void Channel::draw( const uint32_t frameID )
     glLoadIdentity();
 
 #ifdef DYNAMIC_NEAR // Code assumes the view is in the x-y plane
-    
-    //vmml::Vector3f viewTrans = _frameData->_data.translation * 
-    const float near = MAX( 0.001f, 
-                            -_frameData->_data.translation.z - M_SQRT3_2 );
+    //vmml::Vector3f viewTrans = getFrustum().computeMatrix() * 
+    //    getHeadTransform() * _frameData->_data.translation;
+    vmml::Vector3f& viewTrans = _frameData->_data.translation;
+    viewTrans *= getFrustum().near;
+    EQINFO << "Model pos in view space: " << viewTrans << endl;
+    const float near = MAX( 0.001f, -viewTrans.z - M_SQRT3_2 );
     const float far  = near + M_SQRT3;
     setNearFar( near, far );
 #endif

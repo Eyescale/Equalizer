@@ -86,7 +86,7 @@ namespace eq
         bool isReady() const   { return _readyVersion == getVersion(); }
 
         /** Wait for the frame data to become available. */
-        void waitReady() const;
+        void waitReady() const { _readyVersion.waitEQ( getVersion( )); }
         //*}
 
     protected:

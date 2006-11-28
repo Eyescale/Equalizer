@@ -61,8 +61,6 @@ void Image::startReadback(const PixelViewport& pvp, const uint32_t buffers )
                           << endl;
 
     _pvp   = pvp;
-    _pvp.x = 0;
-    _pvp.y = 0;
 
     if( buffers & Frame::BUFFER_COLOR )
         _startReadback( Frame::BUFFER_COLOR );
@@ -73,6 +71,9 @@ void Image::startReadback(const PixelViewport& pvp, const uint32_t buffers )
         _startReadback( Frame::BUFFER_DEPTH );
     else
         _pixels[INDEX_DEPTH].clear();
+
+    _pvp.x = 0;
+    _pvp.y = 0;
 }
 
 void Image::_startReadback( const Frame::Buffer buffer )
@@ -101,6 +102,8 @@ void Image::startAssemble( const vmml::Vector2i& offset, const uint32_t buffers)
         return;
     }
 
+    glRasterPos2i( offset.x + _pvp.x, offset.y + _pvp.y );
+
     if( useBuffers == Frame::BUFFER_COLOR )
         _startAssemble2D( offset );
     else if( useBuffers == ( Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH ))
@@ -114,13 +117,13 @@ void Image::_startAssemble2D( const vmml::Vector2i& offset )
     EQLOG( LOG_ASSEMBLY ) << "_startAssemble2D " << _pvp << endl;
     EQASSERT( !_pixels[INDEX_COLOR].empty( ));
 
-    glRasterPos2i( offset.x + _pvp.x, offset.y + _pvp.y );
     glDrawPixels( _pvp.w, _pvp.h, getFormat( Frame::BUFFER_COLOR ), 
                   getType( Frame::BUFFER_COLOR ), &_pixels[INDEX_COLOR][0] );
 }
 
 void Image::_startAssembleDB( const vmml::Vector2i& offset )
 {
+    EQLOG( LOG_ASSEMBLY ) << "_startAssembleDB " << _pvp << endl;
     EQASSERT( !_pixels[INDEX_COLOR].empty( ));
     EQASSERT( !_pixels[INDEX_DEPTH].empty( ));
 
@@ -166,7 +169,7 @@ void Image::writeImages( const std::string& filenameTemplate ) const
 {
     if( !_pixels[INDEX_COLOR].empty( ))
         writeImage( filenameTemplate + "_color.rgb", Frame::BUFFER_COLOR );
-    if( _pixels[INDEX_DEPTH].empty( ))
+    if( !_pixels[INDEX_DEPTH].empty( ))
         writeImage( filenameTemplate + "_depth.rgb", Frame::BUFFER_DEPTH );
 }
 

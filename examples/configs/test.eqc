@@ -7,29 +7,33 @@ server
             pipe
             {
                 window
-                {
-                    viewport [ .05 .3 .4 .3 ]
+                { 
+                    viewport [ .05 .5 .6 .45 ]
                     channel
                     {
+                        name "channel-all"
+                    }
+                    channel
+                    {
+                        viewport [ .666 0 .334 1 ]
                         name "channel1"
                     }
-                }
-                window
-                {
-                    viewport [ .55 .3 .4 .3 ]
-                    attributes{ planes{ stencil on }}
-
                     channel
                     {
+                        viewport [ 0 0 .333 1 ]
                         name "channel2"
+                    }
+                    channel
+                    {
+                        viewport [ .333 0 .333 1 ]
+                        name "channel3"
                     }
                 }
             }
         }
         compound
         {
-            channel "channel2"
-            buffer  [ COLOR DEPTH ]
+            channel "channel-all"
 
             wall
             {
@@ -40,15 +44,19 @@ server
             
             compound
             {
-                range   [ 0 .5 ]
+                channel "channel1"
+                viewport [ .666 0 .334 1 ]
             }
             compound
             { 
-                channel "channel1"
-                range   [ .5 1 ]
-                outputframe { viewport [ 0 0 .5 .5 ] }
+                channel "channel2"
+                viewport [ 0 0 .333 1 ]
             }
-            inputframe { name "frame.channel1" }
+            compound
+            { 
+                channel "channel3"
+                viewport [ .333 0 .333 1 ]
+            }
         }
     }    
 }
