@@ -745,6 +745,13 @@ namespace eq
         return os;
     }
 
+    inline std::ostream& operator << ( std::ostream& os,
+                                       const ConfigInitReplyPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " requestID " << packet->requestID
+           << " headMatrixID " << packet->headMatrixID;
+        return os;
+    }
     inline std::ostream& operator << ( std::ostream& os, 
                                      const ConfigBeginFrameReplyPacket* packet )
     {
@@ -823,11 +830,10 @@ namespace eq
            << " nNodes " << packet->nNodes;
         return os;
     }
-    inline std::ostream& operator << ( std::ostream& os,
-                                       const ConfigInitReplyPacket* packet )
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const ChannelAssemblePacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " requestID " << packet->requestID
-           << " headMatrixID " << packet->headMatrixID;
+        os << (ChannelTaskPacket*)packet << " nFrames " << packet->nFrames;
         return os;
     }
 }

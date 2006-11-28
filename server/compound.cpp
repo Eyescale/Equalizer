@@ -537,7 +537,9 @@ void Compound::_updateOutput( UpdateData* data )
         data->outputFrames[name] = frame;
 
         EQLOG( eq::LOG_ASSEMBLY ) 
-            << " read area " << framePVP << endl << enableFlush;
+            << " buffers frame " << frame->getInheritBuffers() << " data " 
+            << frameData->getBuffers() << " read area " << framePVP << endl
+            << enableFlush;
     }
 }
 
@@ -616,8 +618,9 @@ void Compound::_updateInput( UpdateData* data )
         EQLOG( eq::LOG_ASSEMBLY )
             << "Input frame  \"" << name << "\" on channel \"" 
             << channel->getName() << "\" id " << frame->getID() << " v"
-            << frame->getVersion() << "\" tile pos " << frameOffset
-            << " use pvp from input " << framePVP << endl;
+            << frame->getVersion() << " buffers " << frame->getInheritBuffers() 
+            << "\" tile pos " << frameOffset << " use pvp from input "
+            << framePVP << endl;
     }
 }
 

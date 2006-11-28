@@ -1899,7 +1899,7 @@ yyreduce:
 
   case 124:
 
-    { flags = eq::Frame::BUFFER_UNDEFINED;;}
+    { flags = eq::Frame::BUFFER_NONE; ;}
     break;
 
   case 125:
@@ -2037,7 +2037,7 @@ yyreduce:
 
   case 166:
 
-    { flags = eq::Frame::BUFFER_UNDEFINED; ;}
+    { flags = eq::Frame::BUFFER_NONE; ;}
     break;
 
   case 167:

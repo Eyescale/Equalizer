@@ -146,6 +146,8 @@ void Image::_startAssembleDB( const vmml::Vector2i& offset )
     
     glDrawPixels( _pvp.w, _pvp.h, getFormat( Frame::BUFFER_COLOR ), 
                   getType( Frame::BUFFER_COLOR ), &_pixels[INDEX_COLOR][0] );
+
+    glDisable( GL_STENCIL_TEST );
 }
 
 void Image::setPixelViewport( const PixelViewport& pvp )

@@ -34,9 +34,11 @@ namespace eqs
         /** Set the position of the data relative to the window. */
         void setOffset( const vmml::Vector2i& offset ) 
             { _data.offset = offset; }
+
         /** Set the buffers of the source frame. */
         void setBuffers( const uint32_t buffers ) 
             { _data.buffers = buffers; }
+        uint32_t getBuffers() const { return _data.buffers; }
         //*}
 
     private:

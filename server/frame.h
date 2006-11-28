@@ -76,6 +76,7 @@ namespace eqs
         
         /** @return the frame buffers used by this frame. */
         uint32_t getBuffers() const { return _data.buffers; }
+        uint32_t getInheritBuffers() const { return _inherit.buffers; }
         //*}
 
         /**

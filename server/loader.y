@@ -380,7 +380,7 @@ compoundField:
         compoundTasks ']'
     | EQTOKEN_EYE  '['   { eqCompound->setEyes( eqs::Compound::EYE_UNDEFINED );}
         compoundEyes  ']'
-    | EQTOKEN_BUFFER '[' { flags = eq::Frame::BUFFER_UNDEFINED;}
+    | EQTOKEN_BUFFER '[' { flags = eq::Frame::BUFFER_NONE; }
         buffers ']' { eqCompound->setBuffers( flags ); flags = 0; }
     | EQTOKEN_VIEWPORT viewport
         { eqCompound->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] ));}
@@ -458,7 +458,7 @@ frameField:
     EQTOKEN_NAME STRING { frame->setName( $2 ); }
     | EQTOKEN_VIEWPORT viewport
         { frame->setViewport(eq::Viewport( $2[0], $2[1], $2[2], $2[3])); }
-    | EQTOKEN_BUFFER '[' { flags = eq::Frame::BUFFER_UNDEFINED; }
+    | EQTOKEN_BUFFER '[' { flags = eq::Frame::BUFFER_NONE; }
         buffers ']' { frame->setBuffers( flags ); flags = 0; }
 
 viewport: '[' FLOAT FLOAT FLOAT FLOAT ']'

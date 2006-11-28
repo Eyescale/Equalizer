@@ -1,7 +1,7 @@
 # six-to-one sort-last, direct-send config for cluster at unizh
 global
 {
-#    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
+    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
     EQ_WINDOW_IATTR_PLANES_STENCIL on
 }
 
@@ -12,35 +12,34 @@ server
         latency 2
         appNode
         {
-#            connection { hostname "10.42.42.1" }
+            connection { hostname "10.42.42.1" }
             pipe 
             {
                 window 
                 {
+                    attributes { hints { fullscreen off }}
                     name    "window1"
-                    viewport [ 0 512 640 480 ]
+                    viewport [ 0 0 1280 1024 ]
                     channel { name "channel1" }
                 }
             }
-#        }
-#        node
-#        {
-#            connection { hostname "10.42.42.2" }
+        }
+        node
+        {
+            connection { hostname "10.42.42.2" }
             pipe { 
                 window { 
                     name    "window2"
-                    viewport [ 700 512 640 480 ] 
                     channel { name "channel2" }
                 }
             }
-#        }
-#        node
-#        {
-#            connection { hostname "10.42.42.3" }
+        }
+        node
+        {
+            connection { hostname "10.42.42.3" }
             pipe { 
                 window { 
                     name    "window3"
-                    viewport [ 1400 512 640 480 ] 
                     channel { name "channel3" }
                 }
             }
@@ -48,17 +47,32 @@ server
         node
         {
             connection { hostname "10.42.42.4" }
-            pipe { window { channel { name "channel4" }}}
+            pipe { 
+                window { 
+                    name    "window4"
+                    channel { name "channel4" }
+                }
+            }
         }
         node
         {
             connection { hostname "10.42.42.5" }
-            pipe { window { channel { name "channel5" }}}
+            pipe { 
+                window { 
+                    name    "window5"
+                    channel { name "channel5" }
+                }
+            }
         }
         node
         {
             connection { hostname "10.42.42.6" }
-            pipe { window { channel { name "channel6" }}}
+            pipe { 
+                window { 
+                    name    "window6"
+                    channel { name "channel6" }
+                }
+            }
         }
         compound
         {
@@ -74,41 +88,121 @@ server
 
             compound
             {
-                range [ 0 .333 ]
-
-                outputframe { name "f1.c1" viewport [ 0 .333 1 .333 ] }
-                outputframe { name "f2.c1" viewport [ 0 .666 1 .334 ] }
-            }
-            compound
-            {
                 channel "channel2"
 
                 compound {
-                    range [ .333 .666 ]
-                    outputframe { name "f1.c2" viewport [ 0 0    1 .333 ] }
-                    outputframe { name "f2.c2" viewport [ 0 .333 1 .333 ] }
+                    range [ 0 .166 ]
+                    outputframe { name "stripe1.c2" viewport [ 0 0    1 .166 ] }
+                    outputframe { name "stripe2.c2" viewport [ 0 .166 1 .167 ] }
+                    outputframe { name "stripe3.c2" viewport [ 0 .333 1 .167 ] }
+                    outputframe { name "stripe4.c2" viewport [ 0 .5   1 .166 ] }
+                    outputframe { name "stripe5.c2" viewport [ 0 .666 1 .167 ] }
                 }
-                inputframe { name "f2.c1" }
-                inputframe { name "f2.c3" }
-                outputframe { buffer [ COLOR ] viewport [ 0 .666 1 .334 ] }
+                inputframe { name "stripe6.c1" }
+                inputframe { name "stripe6.c3" }
+                inputframe { name "stripe6.c4" }
+                inputframe { name "stripe6.c5" }
+                inputframe { name "stripe6.c6" }
+                outputframe { buffer [ COLOR ] viewport [ 0 .833 1 .167 ] }
             }
             compound
             {
                 channel "channel3"
 
                 compound {
-                    range [ .666 1 ]
-                    outputframe { name "f1.c3" viewport [ 0 0    1 .333 ] }
-                    outputframe { name "f2.c3" viewport [ 0 .666 1 .334 ] }
+                    range [ .166 .333 ]
+                    outputframe { name "stripe1.c3" viewport [ 0 0    1 .166 ] }
+                    outputframe { name "stripe2.c3" viewport [ 0 .166 1 .167 ] }
+                    outputframe { name "stripe3.c3" viewport [ 0 .333 1 .167 ] }
+                    outputframe { name "stripe4.c3" viewport [ 0 .5   1 .166 ] }
+                    outputframe { name "stripe6.c3" viewport [ 0 .833 1 .167 ] }
                 }
-                inputframe { name "f1.c1" }
-                inputframe { name "f2.c2" }
-                outputframe { buffer [ COLOR ] viewport [ 0 .333 1 .333 ] }
+                inputframe { name "stripe5.c1" }
+                inputframe { name "stripe5.c2" }
+                inputframe { name "stripe5.c4" }
+                inputframe { name "stripe5.c5" }
+                inputframe { name "stripe5.c6" }
+                outputframe { buffer [ COLOR ] viewport [ 0 .666 1 .167 ] }
             }
-            inputframe { name "f1.c2" }
-            inputframe { name "f1.c3" }
+            compound
+            {
+                channel "channel4"
+
+                compound {
+                    range [ .333 .5 ]
+                    outputframe { name "stripe1.c4" viewport [ 0 0    1 .166 ] }
+                    outputframe { name "stripe2.c4" viewport [ 0 .166 1 .167 ] }
+                    outputframe { name "stripe3.c4" viewport [ 0 .333 1 .167 ] }
+                    outputframe { name "stripe5.c4" viewport [ 0 .666 1 .167 ] }
+                    outputframe { name "stripe6.c4" viewport [ 0 .833 1 .167 ] }
+                }
+                inputframe { name "stripe4.c1" }
+                inputframe { name "stripe4.c2" }
+                inputframe { name "stripe4.c3" }
+                inputframe { name "stripe4.c5" }
+                inputframe { name "stripe4.c6" }
+                outputframe { buffer [ COLOR ] viewport [ 0 .5 1 .166 ] }
+            }
+            compound
+            {
+                channel "channel5"
+
+                compound {
+                    range [ .5 .666 ]
+                    outputframe { name "stripe1.c5" viewport [ 0 0    1 .166 ] }
+                    outputframe { name "stripe2.c5" viewport [ 0 .166 1 .167 ] }
+                    outputframe { name "stripe4.c5" viewport [ 0 .5   1 .166 ] }
+                    outputframe { name "stripe5.c5" viewport [ 0 .666 1 .167 ] }
+                    outputframe { name "stripe6.c5" viewport [ 0 .833 1 .167 ] }
+                }
+                inputframe { name "stripe3.c1" }
+                inputframe { name "stripe3.c2" }
+                inputframe { name "stripe3.c3" }
+                inputframe { name "stripe3.c4" }
+                inputframe { name "stripe3.c6" }
+                outputframe { buffer [ COLOR ] viewport [ 0 .333 1 .167 ] }
+            }
+            compound
+            {
+                channel "channel6"
+
+                compound {
+                    range [ .666 .833 ]
+                    outputframe { name "stripe1.c6" viewport [ 0 0    1 .166 ] }
+                    outputframe { name "stripe3.c6" viewport [ 0 .333 1 .167 ] }
+                    outputframe { name "stripe4.c6" viewport [ 0 .5   1 .166 ] }
+                    outputframe { name "stripe5.c6" viewport [ 0 .666 1 .167 ] }
+                    outputframe { name "stripe6.c6" viewport [ 0 .833 1 .167 ] }
+                }
+                inputframe { name "stripe2.c1" }
+                inputframe { name "stripe2.c2" }
+                inputframe { name "stripe2.c3" }
+                inputframe { name "stripe2.c4" }
+                inputframe { name "stripe2.c5" }
+                outputframe { buffer [ COLOR ] viewport [ 0 .166 1 .167 ] }
+            }
+
+            compound
+            {
+                range [ .833 1 ]
+
+                outputframe { name "stripe2.c1" viewport [ 0 .166 1 .167 ] }
+                outputframe { name "stripe3.c1" viewport [ 0 .333 1 .167 ] }
+                outputframe { name "stripe4.c1" viewport [ 0 .5   1 .166 ] }
+                outputframe { name "stripe5.c1" viewport [ 0 .666 1 .167 ] }
+                outputframe { name "stripe6.c1" viewport [ 0 .833 1 .167 ] }
+            }
+            inputframe { name "stripe1.c2" }
+            inputframe { name "stripe1.c3" }
+            inputframe { name "stripe1.c4" }
+            inputframe { name "stripe1.c5" }
+            inputframe { name "stripe1.c6" }
+
             inputframe { name "frame.channel2" }
             inputframe { name "frame.channel3" }
+            inputframe { name "frame.channel4" }
+            inputframe { name "frame.channel5" }
+            inputframe { name "frame.channel6" }
         }
     }    
 }

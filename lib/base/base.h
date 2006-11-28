@@ -81,7 +81,7 @@ typedef int socklen_t;
         if( NAME.id==0 )                                                \
         {                                                               \
             NAME.id = pthread_self();                                   \
-            EQINFO << "Functions for " << #NAME                         \
+            EQVERB << "Functions for " << #NAME                         \
                    << " locked to this thread" << std::endl;            \
         }                                                               \
         if( !NAME.extMutex && !pthread_equal( NAME.id, pthread_self( ))) \
