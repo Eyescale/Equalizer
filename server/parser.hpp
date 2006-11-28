@@ -1,9 +1,7 @@
-/* A Bison parser, made by GNU Bison 2.2.  */
+/* A Bison parser, made by GNU Bison 2.0.  */
 
-/* Skeleton interface for Bison's Yacc-like parsers in C
-
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
-   Free Software Foundation, Inc.
+/* Skeleton parser for Yacc-like parsing with Bison,
+   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -17,21 +15,13 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street, Fifth Floor,
-   Boston, MA 02110-1301, USA.  */
+   Foundation, Inc., 59 Temple Place - Suite 330,
+   Boston, MA 02111-1307, USA.  */
 
-/* As a special exception, you may create a larger work that contains
-   part or all of the Bison parser skeleton and distribute that work
-   under terms of your choice, so long as that work isn't itself a
-   parser generator using the skeleton or a modified version thereof
-   as a parser skeleton.  Alternatively, if you modify or redistribute
-   the parser skeleton itself, you may (at your option) remove this
-   special exception, which will cause the skeleton and the resulting
-   Bison output files to be licensed under the GNU General Public
-   License without this special exception.
-
-   This special exception was added by the Free Software Foundation in
-   version 2.2 of Bison.  */
+/* As a special exception, when this file is copied by Bison into a
+   Bison output file, you may use that output file without restriction.
+   This special exception was added by the Free Software Foundation
+   in version 1.24 of Bison.  */
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -89,30 +79,30 @@
      EQTOKEN_BUFFER = 305,
      EQTOKEN_CLEAR = 306,
      EQTOKEN_DRAW = 307,
-     EQTOKEN_READBACK = 308,
-     EQTOKEN_CYCLOP = 309,
-     EQTOKEN_LEFT = 310,
-     EQTOKEN_RIGHT = 311,
-     EQTOKEN_VIEWPORT = 312,
-     EQTOKEN_RANGE = 313,
-     EQTOKEN_DISPLAY = 314,
-     EQTOKEN_SCREEN = 315,
-     EQTOKEN_WALL = 316,
-     EQTOKEN_BOTTOM_LEFT = 317,
-     EQTOKEN_BOTTOM_RIGHT = 318,
-     EQTOKEN_TOP_LEFT = 319,
-     EQTOKEN_SYNC = 320,
-     EQTOKEN_LATENCY = 321,
-     EQTOKEN_SWAPBARRIER = 322,
-     EQTOKEN_OUTPUTFRAME = 323,
-     EQTOKEN_INPUTFRAME = 324,
-     EQTOKEN_STRING = 325,
-     EQTOKEN_FLOAT = 326,
-     EQTOKEN_INTEGER = 327,
-     EQTOKEN_UNSIGNED = 328
+     EQTOKEN_ASSEMBLE = 308,
+     EQTOKEN_READBACK = 309,
+     EQTOKEN_CYCLOP = 310,
+     EQTOKEN_LEFT = 311,
+     EQTOKEN_RIGHT = 312,
+     EQTOKEN_VIEWPORT = 313,
+     EQTOKEN_RANGE = 314,
+     EQTOKEN_DISPLAY = 315,
+     EQTOKEN_SCREEN = 316,
+     EQTOKEN_WALL = 317,
+     EQTOKEN_BOTTOM_LEFT = 318,
+     EQTOKEN_BOTTOM_RIGHT = 319,
+     EQTOKEN_TOP_LEFT = 320,
+     EQTOKEN_SYNC = 321,
+     EQTOKEN_LATENCY = 322,
+     EQTOKEN_SWAPBARRIER = 323,
+     EQTOKEN_OUTPUTFRAME = 324,
+     EQTOKEN_INPUTFRAME = 325,
+     EQTOKEN_STRING = 326,
+     EQTOKEN_FLOAT = 327,
+     EQTOKEN_INTEGER = 328,
+     EQTOKEN_UNSIGNED = 329
    };
 #endif
-/* Tokens.  */
 #define EQTOKEN_GLOBAL 258
 #define EQTOKEN_CONNECTION_SATTR_HOSTNAME 259
 #define EQTOKEN_CONNECTION_SATTR_LAUNCH_COMMAND 260
@@ -163,49 +153,50 @@
 #define EQTOKEN_BUFFER 305
 #define EQTOKEN_CLEAR 306
 #define EQTOKEN_DRAW 307
-#define EQTOKEN_READBACK 308
-#define EQTOKEN_CYCLOP 309
-#define EQTOKEN_LEFT 310
-#define EQTOKEN_RIGHT 311
-#define EQTOKEN_VIEWPORT 312
-#define EQTOKEN_RANGE 313
-#define EQTOKEN_DISPLAY 314
-#define EQTOKEN_SCREEN 315
-#define EQTOKEN_WALL 316
-#define EQTOKEN_BOTTOM_LEFT 317
-#define EQTOKEN_BOTTOM_RIGHT 318
-#define EQTOKEN_TOP_LEFT 319
-#define EQTOKEN_SYNC 320
-#define EQTOKEN_LATENCY 321
-#define EQTOKEN_SWAPBARRIER 322
-#define EQTOKEN_OUTPUTFRAME 323
-#define EQTOKEN_INPUTFRAME 324
-#define EQTOKEN_STRING 325
-#define EQTOKEN_FLOAT 326
-#define EQTOKEN_INTEGER 327
-#define EQTOKEN_UNSIGNED 328
+#define EQTOKEN_ASSEMBLE 308
+#define EQTOKEN_READBACK 309
+#define EQTOKEN_CYCLOP 310
+#define EQTOKEN_LEFT 311
+#define EQTOKEN_RIGHT 312
+#define EQTOKEN_VIEWPORT 313
+#define EQTOKEN_RANGE 314
+#define EQTOKEN_DISPLAY 315
+#define EQTOKEN_SCREEN 316
+#define EQTOKEN_WALL 317
+#define EQTOKEN_BOTTOM_LEFT 318
+#define EQTOKEN_BOTTOM_RIGHT 319
+#define EQTOKEN_TOP_LEFT 320
+#define EQTOKEN_SYNC 321
+#define EQTOKEN_LATENCY 322
+#define EQTOKEN_SWAPBARRIER 323
+#define EQTOKEN_OUTPUTFRAME 324
+#define EQTOKEN_INPUTFRAME 325
+#define EQTOKEN_STRING 326
+#define EQTOKEN_FLOAT 327
+#define EQTOKEN_INTEGER 328
+#define EQTOKEN_UNSIGNED 329
 
 
 
 
-#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef union YYSTYPE
+#if ! defined (YYSTYPE) && ! defined (YYSTYPE_IS_DECLARED)
 
-{
+typedef union YYSTYPE {
     const char*             _string;
     int                     _int;
     unsigned                _unsigned;
     float                   _float;
     eqNet::Connection::Type _connectionType;
     float                   _viewport[4];
-}
-/* Line 1528 of yacc.c.  */
+} YYSTYPE;
+/* Line 1318 of yacc.c.  */
 
-	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1
 #endif
 
 extern YYSTYPE eqLoader_lval;
+
+
 

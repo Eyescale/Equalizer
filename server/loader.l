@@ -67,6 +67,7 @@ DRAW                            { return EQTOKEN_DRAW; }
 CYCLOP                          { return EQTOKEN_CYCLOP; }
 LEFT                            { return EQTOKEN_LEFT; }
 RIGHT                           { return EQTOKEN_RIGHT; }
+ASSEMBLE                        { return EQTOKEN_ASSEMBLE; }
 READBACK                        { return EQTOKEN_READBACK; }
 COLOR                           { return EQTOKEN_COLOR; }
 DEPTH                           { return EQTOKEN_DEPTH; }

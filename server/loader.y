@@ -98,6 +98,7 @@
 %token EQTOKEN_BUFFER
 %token EQTOKEN_CLEAR
 %token EQTOKEN_DRAW
+%token EQTOKEN_ASSEMBLE
 %token EQTOKEN_READBACK
 %token EQTOKEN_CYCLOP
 %token EQTOKEN_LEFT
@@ -394,7 +395,8 @@ compoundTasks: /*null*/ | compoundTask | compoundTasks compoundTask
 compoundTask:
     EQTOKEN_CLEAR      { eqCompound->enableTask( eqs::Compound::TASK_CLEAR ); }
     | EQTOKEN_DRAW     { eqCompound->enableTask( eqs::Compound::TASK_DRAW ); }
-    | EQTOKEN_READBACK { eqCompound->enableTask( eqs::Compound::TASK_READBACK ); }
+    | EQTOKEN_ASSEMBLE { eqCompound->enableTask( eqs::Compound::TASK_ASSEMBLE);}
+    | EQTOKEN_READBACK { eqCompound->enableTask( eqs::Compound::TASK_READBACK);}
 
 compoundEyes: /*null*/ | compoundEye | compoundEyes compoundEye
 compoundEye:
