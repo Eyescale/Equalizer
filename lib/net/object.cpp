@@ -184,8 +184,8 @@ void Object::instanciateOnNode( RefPtr<Node> node, const SharePolicy policy,
     if( age >= _instanceDatas.size( ))
     {
         EQWARN << "Instanciation request for obsolete version " << version
-               << " of object of type " << typeid(*this).name() << " v" 
-               << _version << endl;
+               << " of object of type " << typeid(*this).name() << " id "
+               << _id << " v" << _version << endl;
         initPacket.error = true;
         EQLOG( LOG_OBJECTS ) << "send " << &initPacket << endl;
         node->send( initPacket );

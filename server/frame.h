@@ -41,6 +41,7 @@ namespace eqs
         const std::string& getName() const      { return _name; }
 
         FrameData* getData() const { return _frameData; }
+        bool       hasData() const { return ( _frameData != 0 ); }
 
         /** 
          * Set the frame's viewport wrt the compound (output frames) or wrt the

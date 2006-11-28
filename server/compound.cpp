@@ -322,6 +322,9 @@ TraverseResult Compound::_initCB( Compound* compound, void* userData )
         Frame* frame = *iter;
         config->registerObject( frame, node );
         frame->setAutoObsolete( latency );
+        EQLOG( eq::LOG_ASSEMBLY ) 
+            << "Output frame \"" << frame->getName() << "\" id " 
+            << frame->getID() << endl;
     }
 
     for( vector<Frame*>::const_iterator iter = compound->_inputFrames.begin(); 
@@ -330,6 +333,9 @@ TraverseResult Compound::_initCB( Compound* compound, void* userData )
         Frame* frame = *iter;
         config->registerObject( frame, node );
         frame->setAutoObsolete( latency );
+        EQLOG( eq::LOG_ASSEMBLY ) 
+            << "Input frame \"" << frame->getName() << "\" id " 
+            << frame->getID() << endl;
     }
     
     return TRAVERSE_CONTINUE;    
@@ -485,8 +491,11 @@ void Compound::_updateOutput( UpdateData* data )
         frameData->setOffset( vmml::Vector2i( framePVP.x, framePVP.y ));
 
         EQLOG( eq::LOG_ASSEMBLY )
-            << disableFlush << "Output frame \"" << name << "\" on channel \"" 
-            << channel->getName() << "\" tile pos " << framePVP.x << ", "
+            << disableFlush << "Output frame \"" << name << "\" id " 
+            << frame->getID() << " v" << frame->getVersion()+1
+            << " data id " << frameData->getID() << " v" 
+            << frameData->getVersion() + 1 << " on channel \""
+            << channel->getName() << "\" tile pos " << framePVP.x << ", " 
             << framePVP.y;
 
         // FrameData pvp is area within channel
@@ -594,7 +603,8 @@ void Compound::_updateInput( UpdateData* data )
 
         EQLOG( eq::LOG_ASSEMBLY )
             << "Input frame  \"" << name << "\" on channel \"" 
-            << channel->getName() << "\" tile pos " << frameOffset
+            << channel->getName() << "\" id " << frame->getID() << " v"
+            << frame->getVersion() << "\" tile pos " << frameOffset
             << " use pvp from input " << framePVP << endl;
     }
 }
@@ -636,7 +646,8 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
         eq::ChannelClearPacket clearPacket;        
         clearPacket.context = context;
         channel->send( clearPacket );
-        EQLOG( LOG_TASKS ) << "TASK clear " << &clearPacket << endl;
+        EQLOG( LOG_TASKS ) << "TASK clear " << channel->getName() <<  " "
+                           << &clearPacket << endl;
     }
     if( compound->testTask( TASK_DRAW ))
     {
@@ -645,7 +656,8 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
         drawPacket.context = context;
         compound->_computeFrustum( drawPacket.context, data->eye );
         channel->send( drawPacket );
-        EQLOG( LOG_TASKS ) << "TASK draw  " << &drawPacket << endl;
+        EQLOG( LOG_TASKS ) << "TASK draw " << channel->getName() <<  " " 
+                           << &drawPacket << endl;
     }
     
     compound->_updatePostDraw( context );
@@ -815,7 +827,10 @@ void Compound::_updateAssemble( const eq::RenderContext& context )
          iter != _inputFrames.end(); ++iter )
     {
         Frame* frame = *iter;
-        // TODO: filter: buffers, vp, eye
+
+        if( !frame->hasData( )) // TODO: filter: buffers, vp, eye
+            continue;
+
         frames.push_back( frame );
         frameIDs.push_back( eqNet::ObjectVersion( frame ));
     }
@@ -835,7 +850,7 @@ void Compound::_updateAssemble( const eq::RenderContext& context )
     packet.nFrames   = frames.size();
 
     EQLOG( eq::LOG_ASSEMBLY | LOG_TASKS ) 
-        << "TASK assemble " << &packet << endl;
+        << "TASK assemble " << channel->getName() <<  " " << &packet << endl;
     netNode->send<eqNet::ObjectVersion>( packet, frameIDs );
 }
     
@@ -850,7 +865,10 @@ void Compound::_updateReadback( const eq::RenderContext& context )
          iter != _outputFrames.end(); ++iter )
     {
         Frame* frame = *iter;
-        // TODO: filter: buffers, vp, eye
+
+        if( !frame->hasData( )) // TODO: filter: buffers, vp, eye
+            continue;
+
         frames.push_back( frame );
         frameIDs.push_back( eqNet::ObjectVersion( frame ));
     }
@@ -870,7 +888,8 @@ void Compound::_updateReadback( const eq::RenderContext& context )
     packet.nFrames   = frames.size();
 
     EQLOG( eq::LOG_ASSEMBLY | LOG_TASKS ) 
-        << "TASK readback " << &packet << endl;
+        << "TASK readback channel " << channel->getName() <<  " "
+        << &packet << endl;
     netNode->send<eqNet::ObjectVersion>( packet, frameIDs );
     
     // transmit tasks
@@ -911,8 +930,8 @@ void Compound::_updateReadback( const eq::RenderContext& context )
         transmitPacket.nNodes    = nodeIDs.size();
 
         EQLOG( eq::LOG_ASSEMBLY | LOG_TASKS )
-            << "TASK transmit " << &transmitPacket << " first " << nodeIDs[0] 
-            << endl;
+            << "TASK transmit channel " << channel->getName() <<  " " << 
+            &transmitPacket << " first " << nodeIDs[0] << endl;
 
         netNode->send<eqNet::NodeID>( transmitPacket, nodeIDs );
     }        
