@@ -71,8 +71,8 @@ namespace eq
         PixelViewport& operator *= ( const Viewport& rhs )
             {
                 // honor position over size to avoid rounding errors
-                const float xEnd = x + static_cast<int32_t>((rhs.x + rhs.w)*w );
-                const float yEnd = y + static_cast<int32_t>((rhs.y + rhs.h)*h );
+                const int32_t xEnd = x + static_cast<int32_t>((rhs.x+rhs.w)*w);
+                const int32_t yEnd = y + static_cast<int32_t>((rhs.y+rhs.h)*h);
 
                 x += static_cast<int32_t>( w * rhs.x );
                 y += static_cast<int32_t>( h * rhs.y );

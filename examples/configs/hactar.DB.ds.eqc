@@ -1,7 +1,7 @@
 # six-to-one sort-last, direct-send config for cluster at unizh
 global
 {
-    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
+    EQ_WINDOW_IATTR_HINTS_FULLSCREEN off
     EQ_WINDOW_IATTR_PLANES_STENCIL on
 }
 
@@ -19,7 +19,7 @@ server
                 {
                     attributes { hints { fullscreen off }}
                     name    "window1"
-                    viewport [ 0 0 1280 1024 ]
+                    viewport [ 0 0 1280 800 ]
                     channel { name "channel1" }
                 }
             }
@@ -30,6 +30,7 @@ server
             pipe { 
                 window { 
                     name    "window2"
+                    viewport [ 0 0 1280 800 ]
                     channel { name "channel2" }
                 }
             }
@@ -40,6 +41,7 @@ server
             pipe { 
                 window { 
                     name    "window3"
+                    viewport [ 0 0 1280 800 ]
                     channel { name "channel3" }
                 }
             }
@@ -50,6 +52,7 @@ server
             pipe { 
                 window { 
                     name    "window4"
+                    viewport [ 0 0 1280 800 ]
                     channel { name "channel4" }
                 }
             }
@@ -60,6 +63,7 @@ server
             pipe { 
                 window { 
                     name    "window5"
+                    viewport [ 0 0 1280 800 ]
                     channel { name "channel5" }
                 }
             }
@@ -70,6 +74,7 @@ server
             pipe { 
                 window { 
                     name    "window6"
+                    viewport [ 0 0 1280 800 ]
                     channel { name "channel6" }
                 }
             }

@@ -1,95 +1,88 @@
+# three-to-one sort-last, direct-send single-pipe demo config
+global
+{
+    EQ_WINDOW_IATTR_PLANES_STENCIL on
+}
+
 server
 {
     config
     {
+        latency 2
         appNode
         {
-            pipe
+            pipe 
             {
-                window
+                window 
                 {
-                    viewport [ .05 .05 .4 .3 ]
-                    name "window1"
-
-                    channel
-                    {
-                        name "channel1"
-                    }
+                    name    "window1"
+                    viewport [ 320 50 600 375 ]
+                    channel { name "channel1" }
                 }
-                window
-                {
-                    viewport [ .55 .05 .4 .3 ]
-                    name "window2"
-
-                    channel
-                    {
-                        name "channel2"
-                    }
+            }
+            pipe { 
+                window { 
+                    name    "window2"
+                    viewport [ 0 512 600 375 ] 
+                    channel { name "channel2" }
                 }
-                window
-                {
-                    viewport [ .05 .5 .4 .3 ]
-                    name "window3"
-
-                    channel
-                    {
-                        name "channel3"
-                    }
-                }
-                window
-                {
-                    viewport [ .55 .5 .4 .3 ]
-                    attributes{ planes{ stencil on }}
-                    name "window4"
-
-                    channel
-                    {
-                        name "channel4"
-                    }
-                    channel
-                    {
-                        name "channel4a"
-                    }
+            }
+            pipe { 
+                window { 
+                    name    "window3"
+                    viewport [ 640 512 1200 800 ] 
+                    channel { name "channel3" }
                 }
             }
         }
         compound
         {
-            channel "channel4a"
+            channel "channel1"
             buffer  [ COLOR DEPTH ]
 
             wall
             {
-                bottom_left  [ -.64 -.4 -1 ]
-                bottom_right [  .64 -.4 -1 ]
-                top_left     [ -.64  .4 -1 ]
+                bottom_left  [ -.32 -.2 -.5 ]
+                bottom_right [  .32 -.2 -.5 ]
+                top_left     [ -.32  .2 -.5 ]
             }
-            
+
             compound
-            { 
-                channel "channel1"
-                range   [ 0 .25 ]
-                outputframe {}
-            }
-            compound
-            { 
+            {
                 channel "channel2"
-                range   [ .25 .5 ]
-                inputframe { name "frame.channel1" }
-                outputframe {}
-            }
-            compound
-            { 
-                channel "channel3"
-                range   [ .5 .75 ]
-                outputframe {}
+
+                compound {
+                    range [ .333 .666 ]
+                    outputframe { name "f1.c2" viewport [ 0 0    1 .333 ] }
+                    outputframe { name "f2.c2" viewport [ 0 .333 1 .333 ] }
+                }
+                inputframe { name "f2.c1" }
+                inputframe { name "f2.c3" }
+                outputframe { buffer [ COLOR ] viewport [ 0 .666 1 .334 ] }
             }
             compound
             {
-                channel "channel4"
-                range   [ .75 1 ]
+                channel "channel3"
+
+                compound {
+                    range [ .666 1 ]
+                    outputframe { name "f1.c3" viewport [ 0 0    1 .333 ] }
+                    outputframe { name "f2.c3" viewport [ 0 .666 1 .334 ] }
+                }
+                inputframe { name "f1.c1" }
+                inputframe { name "f2.c2" }
+                outputframe { buffer [ COLOR ] viewport [ 0 .333 1 .333 ] }
             }
 
+            compound
+            {
+                range [ 0 .333 ]
+
+                outputframe { name "f1.c1" viewport [ 0 .333 1 .333 ] }
+                outputframe { name "f2.c1" viewport [ 0 .666 1 .334 ] }
+            }
+            inputframe { name "f1.c2" }
+            inputframe { name "f1.c3" }
             inputframe { name "frame.channel2" }
             inputframe { name "frame.channel3" }
         }
