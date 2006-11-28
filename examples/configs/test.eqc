@@ -7,56 +7,92 @@ server
             pipe
             {
                 window
-                { 
-                    viewport [ .05 .5 .6 .45 ]
+                {
+                    viewport [ .05 .05 .4 .3 ]
+                    name "window1"
+
                     channel
                     {
-                        name "channel-all"
-                    }
-                    channel
-                    {
-                        viewport [ .666 0 .334 1 ]
                         name "channel1"
                     }
+                }
+                window
+                {
+                    viewport [ .55 .05 .4 .3 ]
+                    name "window2"
+
                     channel
                     {
-                        viewport [ 0 0 .333 1 ]
                         name "channel2"
+                    }
+                }
+                window
+                {
+                    viewport [ .05 .5 .4 .3 ]
+                    name "window3"
+
+                    channel
+                    {
+                        name "channel3"
+                    }
+                }
+                window
+                {
+                    viewport [ .55 .5 .4 .3 ]
+                    attributes{ planes{ stencil on }}
+                    name "window4"
+
+                    channel
+                    {
+                        name "channel4"
                     }
                     channel
                     {
-                        viewport [ .333 0 .333 1 ]
-                        name "channel3"
+                        name "channel4a"
                     }
                 }
             }
         }
         compound
         {
-            channel "channel-all"
+            channel "channel4a"
+            buffer  [ COLOR DEPTH ]
 
             wall
             {
-                bottom_left  [ -.32 -.2 -1 ]
-                bottom_right [  .32 -.2 -1 ]
-                top_left     [ -.32  .2 -1 ]
+                bottom_left  [ -.64 -.4 -1 ]
+                bottom_right [  .64 -.4 -1 ]
+                top_left     [ -.64  .4 -1 ]
             }
             
             compound
-            {
+            { 
                 channel "channel1"
-                viewport [ .666 0 .334 1 ]
+                range   [ 0 .25 ]
+                outputframe {}
             }
             compound
             { 
                 channel "channel2"
-                viewport [ 0 0 .333 1 ]
+                range   [ .25 .5 ]
+                inputframe { name "frame.channel1" }
+                outputframe {}
             }
             compound
             { 
                 channel "channel3"
-                viewport [ .333 0 .333 1 ]
+                range   [ .5 .75 ]
+                outputframe {}
             }
+            compound
+            {
+                channel "channel4"
+                range   [ .75 1 ]
+            }
+
+            inputframe { name "frame.channel1" }
+            inputframe { name "frame.channel2" }
+            inputframe { name "frame.channel3" }
         }
     }    
 }
