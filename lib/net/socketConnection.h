@@ -32,6 +32,7 @@ namespace eqNet
 
     private:
         bool _createSocket();
+        void _tuneSocket( const int fd );
         void _parseAddress( sockaddr_in& socketAddress );
     };
 }

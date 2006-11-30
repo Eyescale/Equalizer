@@ -77,13 +77,22 @@ bool SocketConnection::_createSocket()
         return false;
     }
 
-    const int on = 1;
-    setsockopt( fd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on) );
-    setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on) );
+    _tuneSocket( fd );
 
     _readFD  = fd;
     _writeFD = fd; // TCP/IP sockets are bidirectional
     return true;
+}
+
+void SocketConnection::_tuneSocket( const int fd )
+{
+    const int on         = 1;
+    setsockopt( fd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof( on ));
+    setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof( on ));
+
+    const int bufferSize = 1024*1024;
+    setsockopt( fd, SOL_SOCKET, SO_SNDBUF, &bufferSize, sizeof( bufferSize ));
+    setsockopt( fd, SOL_SOCKET, SO_RCVBUF, &bufferSize, sizeof( bufferSize ));
 }
 
 void SocketConnection::close()
@@ -214,6 +223,8 @@ RefPtr<Connection> SocketConnection::accept()
         EQWARN << "accept failed: " << strerror( errno ) << endl;
         return NULL;
     }
+
+    _tuneSocket( fd );
 
     SocketConnection* newConnection = new SocketConnection;
 

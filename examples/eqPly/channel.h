@@ -28,6 +28,7 @@ private:
     eqBase::RefPtr<InitData>  _initData;
     eqBase::RefPtr<FrameData> _frameData;
 
+    static void _drawBBoxCB( Model::BBox *bbox, void *userData );
     void _drawBBox( const Model::BBox* bbox );
     void _initFrustum( Frustumf& frustum );
 };

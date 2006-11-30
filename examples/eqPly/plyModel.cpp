@@ -57,7 +57,7 @@
 #define CHUNKSIZE 4096
 #define MAXDEPTH  256
 
-#define PLYFILEVERSION   18
+#define PLYFILEVERSION   19
 
 using namespace std;
 
@@ -609,6 +609,14 @@ void PlyModel<FaceType>::freeBBoxes( BBox &bbox )
 //---------------------------------------------------------------------------
 // traverseBBox
 //---------------------------------------------------------------------------
+template<class FaceType>
+void PlyModel<FaceType>::traverseBBox( const BBox *top, TraverseCB preCB, 
+    TraverseCB leafCB, TraverseCB postCB, void *userData )
+{
+    // UGLY
+    traverseBBox( const_cast< BBox* >( top ), preCB, leafCB, preCB, userData );
+}
+
 template<class FaceType>
 void PlyModel<FaceType>::traverseBBox( BBox *top, TraverseCB preCB, 
     TraverseCB leafCB, TraverseCB postCB, void *userData )

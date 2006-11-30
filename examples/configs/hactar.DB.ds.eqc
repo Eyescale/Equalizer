@@ -1,7 +1,7 @@
 # six-to-one sort-last, direct-send config for cluster at unizh
 global
 {
-    EQ_WINDOW_IATTR_HINTS_FULLSCREEN off
+    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
     EQ_WINDOW_IATTR_PLANES_STENCIL on
 }
 
@@ -17,9 +17,9 @@ server
             {
                 window 
                 {
-                    attributes { hints { fullscreen off }}
                     name    "window1"
-                    viewport [ 0 0 1280 800 ]
+                    attributes { hints { fullscreen off }}
+                    viewport [ 640 512 1280 800 ]
                     channel { name "channel1" }
                 }
             }
@@ -27,57 +27,27 @@ server
         node
         {
             connection { hostname "10.42.42.2" }
-            pipe { 
-                window { 
-                    name    "window2"
-                    viewport [ 0 0 1280 800 ]
-                    channel { name "channel2" }
-                }
-            }
+            pipe { window { channel { name "channel2" }}}
         }
         node
         {
             connection { hostname "10.42.42.3" }
-            pipe { 
-                window { 
-                    name    "window3"
-                    viewport [ 0 0 1280 800 ]
-                    channel { name "channel3" }
-                }
-            }
+            pipe { window { channel { name "channel3" }}}
         }
         node
         {
             connection { hostname "10.42.42.4" }
-            pipe { 
-                window { 
-                    name    "window4"
-                    viewport [ 0 0 1280 800 ]
-                    channel { name "channel4" }
-                }
-            }
+            pipe { window { channel { name "channel4" }}}
         }
         node
         {
             connection { hostname "10.42.42.5" }
-            pipe { 
-                window { 
-                    name    "window5"
-                    viewport [ 0 0 1280 800 ]
-                    channel { name "channel5" }
-                }
-            }
+            pipe { window { channel { name "channel5" }}}
         }
         node
         {
             connection { hostname "10.42.42.6" }
-            pipe { 
-                window { 
-                    name    "window6"
-                    viewport [ 0 0 1280 800 ]
-                    channel { name "channel6" }
-                }
-            }
+            pipe { window { channel { name "channel6" }}}
         }
         compound
         {

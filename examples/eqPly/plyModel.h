@@ -101,6 +101,9 @@ public:
 
     static void traverseBBox( BBox* bbox, TraverseCB preCB, TraverseCB leafCB, 
         TraverseCB postCB, void *userData );
+    static void traverseBBox( const BBox* bbox, TraverseCB preCB, 
+                              TraverseCB leafCB, TraverseCB postCB,
+                              void *userData );
 
 private:
 

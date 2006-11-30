@@ -79,12 +79,13 @@ void Channel::draw( const uint32_t frameID )
     Frustumf frustum;
     _initFrustum( frustum );
 
-    const eq::Range& range = getRange();
-
     if( model )
     {
+        const eq::Range& range = getRange();
+
         vector<const Model::BBox*> bBoxVector;
         bBoxVector.push_back( model->getBBox( ) );
+
         while( !bBoxVector.empty( ) )
         {
             const Model::BBox *bbox = bBoxVector.back();
@@ -96,6 +97,7 @@ void Channel::draw( const uint32_t frameID )
 
             const FrustumVisibility visibility = frustum.sphereVisibility(
                 bbox->cullSphere.center.pos, bbox->cullSphere.radius );
+
             switch( visibility )
             {
                 case FRUSTUM_VISIBILITY_FULL:
@@ -104,14 +106,14 @@ void Channel::draw( const uint32_t frameID )
                                                bbox->range[1] <  range.end );
                     if( fullyInRange )
                     {
-                        _drawBBox( bbox );
+                        model->traverseBBox( bbox, 0, _drawBBoxCB, 0, this );
                         break;   
                     }
                     // partial range, fall through
                 }
                 case FRUSTUM_VISIBILITY_PARTIAL:
                     if( !bbox->children )
-                        _drawBBox( bbox );
+                        model->traverseBBox( bbox, 0, _drawBBoxCB, 0, this );
                     else
                         for( int i=0; i<8; i++ )
                             bBoxVector.push_back( &bbox->children[i] );
@@ -133,6 +135,12 @@ void Channel::draw( const uint32_t frameID )
         glEnd();
         glFinish();
     }
+}
+
+void Channel::_drawBBoxCB( Model::BBox *bbox, void *userData )
+{
+    Channel* channel = static_cast<Channel*>( userData );
+    channel->_drawBBox( bbox );
 }
 
 void Channel::_drawBBox( const Model::BBox *bbox )
