@@ -1,0 +1,137 @@
+# three-to-one sort-last, direct-send single-pipe demo config
+global
+{
+    EQ_WINDOW_IATTR_PLANES_STENCIL on
+}
+
+server
+{
+    config
+    {
+        latency 2
+        appNode
+        {
+            pipe 
+            {
+                window 
+                {
+                    name    "window1"
+                    viewport [ 0 50 600 375 ]
+                    channel { name "channel1" }
+                }
+            }
+            pipe 
+            {
+                window 
+                {
+                    name    "window2"
+                    viewport [ 640 50 600 375 ]
+                    channel { name "channel2" }
+                }
+            }
+            pipe { 
+                window
+                { 
+                    name    "window3"
+                    viewport [ 0 512 600 375 ] 
+                    channel { name "channel3" }
+                }
+            }
+            pipe { 
+                window 
+                { 
+                    name    "window4"
+                    viewport [ 640 512 600 375 ] 
+                    channel { name "channel4" }
+                }
+            }
+        }
+        compound
+        {
+            channel "channel1"
+            buffer  [ COLOR DEPTH ]
+
+            wall
+            {
+                bottom_left  [ -.32 -.2 -.5 ]
+                bottom_right [  .32 -.2 -.5 ]
+                top_left     [ -.32  .2 -.5 ]
+            }
+
+            compound
+            {
+                compound 
+                {
+                    range [ 0 .25 ]
+                    outputframe { name "f1.c1" viewport [ 0 0 1 .5 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f1.c2"  }
+                    outputframe { name "f2.c1" viewport [ 0 .5 1 .25 ] }
+                }
+            }
+            compound
+            {
+                channel "channel2"
+
+                compound 
+                {
+                    range [ .25 .5 ]
+                    outputframe { name "f1.c2" viewport [ 0 .5 1 .5 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f1.c1"  }
+                    outputframe { name "f2.c2" viewport [ 0 0 1 .25 ] }
+                }
+                inputframe { name "f2.c4" }
+                outputframe { buffer [ COLOR ] viewport [ 0 .25 1 .25 ] }
+            }
+            compound
+            {
+                channel "channel3"
+
+                compound 
+                {
+                    range [ .5 .75 ]
+                    outputframe { name "f1.c3" viewport [ 0 0 1 .5 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f1.c4"  }
+                    outputframe { name "f2.c3" viewport [ 0 .75 1 .25 ] }
+                }
+                inputframe { name "f2.c1" }
+                outputframe { buffer [ COLOR ] viewport [ 0 .5 1 .25 ] }
+            }
+
+            compound
+            {
+                channel "channel4"
+
+                compound 
+                {
+                    range [ .75 1 ]
+                    outputframe { name "f1.c4" viewport [ 0 .5 1 .5 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f1.c3"  }
+                    outputframe { name "f2.c4" viewport [ 0 .25 1 .25 ] }
+                }
+                inputframe { name "f2.c2" }
+                outputframe { buffer [ COLOR ] viewport [ 0 0 1 .25 ] }
+            }
+
+            inputframe { name "f2.c3" }
+            inputframe { name "frame.channel2" }
+            inputframe { name "frame.channel3" }
+            inputframe { name "frame.channel4" }
+        }
+    }    
+}
