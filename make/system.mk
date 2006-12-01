@@ -29,14 +29,19 @@ WINDOW_SYSTEM_DEFINES = $(foreach WS,$(WINDOW_SYSTEM),-D$(WS))
 DEP_CXX        ?= $(CXX)
 
 ifeq (0,${MAKELEVEL})
-  CXXFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DCHECK_THREADSAFETY
+  CXXFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DEQ_CHECK_THREADSAFETY \
+                    # -DEQ_USE_COMPRESSION
 ifneq ($(findstring -g, $(CXXFLAGS)),-g)
     CXXFLAGS       += -DNDEBUG
-endif
+ifneq ($(findstring -O, $(CXXFLAGS)),-O)
+    CXXFLAGS       += -O2
+endif # -O
+endif # -g
 ifeq ($(CXX),g++)
     CXXFLAGS       += -Wall
-endif
-endif
+endif # g++
+endif # top-level
+
 export CXXFLAGS
 
 DOXYGEN        ?= Doxygen

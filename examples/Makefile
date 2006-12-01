@@ -1,8 +1,13 @@
 
 include $(TOP)/make/system.mk
 
+OPTIONAL = $(wildcard WorldSkin*)
+
 SUBDIRS = \
-	eqPly
+	eqPly \
+	$(OPTIONAL)
+
+
 
 TARGETS = subdirs
 

@@ -10,6 +10,7 @@
 #include "object.h"
 #include "packets.h"
 
+#include <eq/base/compressor.h>
 #include <eq/net/command.h>
 #include <eq/net/session.h>
 #include <algorithm>
@@ -155,8 +156,12 @@ void FrameData::transmit( eqBase::RefPtr<eqNet::Node> toNode )
     for( vector<Image*>::const_iterator iter = _images.begin();
          iter != _images.end(); ++iter )
     {
-        const Image*                          image = *iter;
-        vector< const std::vector<uint8_t>* > pixelDatas;
+        const Image*                     image = *iter;
+#ifdef EQ_USE_COMPRESSION
+        vector<uint8_t>                  compressedData;
+#else
+        vector< const vector<uint8_t>* > pixelDatas;
+#endif
 
         packet.size    = packetSize;
         packet.buffers = Frame::BUFFER_NONE;
@@ -168,32 +173,51 @@ void FrameData::transmit( eqBase::RefPtr<eqNet::Node> toNode )
         {
             const vector<uint8_t>& data = 
                 image->getPixelData( Frame::BUFFER_COLOR );
+#ifdef EQ_USE_COMPRESSION
+            Compressor::compressLZ( data, compressedData );
+#else
             pixelDatas.push_back( &data );
             packet.size    += data.size();
+#endif
             packet.buffers |= Frame::BUFFER_COLOR;
         }
         if( image->hasPixelData( Frame::BUFFER_DEPTH ))
         {
             const vector<uint8_t>& data = 
                 image->getPixelData( Frame::BUFFER_DEPTH );
+#ifdef EQ_USE_COMPRESSION
+            Compressor::compressLZ( data, compressedData );
+#else
             pixelDatas.push_back( &data );
             packet.size    += data.size();
+#endif
             packet.buffers |= Frame::BUFFER_DEPTH;
         }
-
-        if( pixelDatas.empty( ))
+ 
+#ifdef EQ_USE_COMPRESSION
+       if( compressedData.empty( ))
             continue;
+
+       packet.size += compressedData.size();
+#else
+       if( pixelDatas.empty( ))
+            continue;
+#endif
 
         RefPtr<eqNet::Connection> connection = toNode->getConnection();
         connection->lockSend();
         connection->send( &packet, packetSize, true );
 
+#ifdef EQ_USE_COMPRESSION
+        connection->send( &compressedData[0], compressedData.size(), true );
+#else
         for( vector< const vector<uint8_t>* >::iterator i = pixelDatas.begin();
              i != pixelDatas.end(); ++i )
         {
             const std::vector<uint8_t>& item = **i;
             connection->send( &item[0], item.size(), true );
         }    
+#endif
         connection->unlockSend(); 
     }
 
@@ -223,18 +247,39 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
     Image*         image   = newImage();
     const uint8_t* data    = packet->data;
     const uint64_t nPixels = packet->pvp.w * packet->pvp.h;
+#ifdef EQ_USE_COMPRESSION
+    vector<uint8_t> decompressedData;
+#endif
 
     image->setPixelViewport( packet->pvp );
 
     if( packet->buffers & Frame::BUFFER_COLOR )
     {
+#ifdef EQ_USE_COMPRESSION
+        data += Compressor::decompressLZ( data, decompressedData );
+        EQASSERT( decompressedData.size() == 
+                  nPixels * image->getDepth( Frame::BUFFER_COLOR ));
+
+        image->setData( Frame::BUFFER_COLOR, &decompressedData[0] );        
+        decompressedData.clear();
+#else
         image->setData( Frame::BUFFER_COLOR, data );
         data += nPixels * image->getDepth( Frame::BUFFER_COLOR );
+#endif
     }
     if( packet->buffers & Frame::BUFFER_DEPTH )
     {
+#ifdef EQ_USE_COMPRESSION
+        data += Compressor::decompressLZ( data, decompressedData );
+        EQASSERT( decompressedData.size() == 
+                  nPixels * image->getDepth( Frame::BUFFER_DEPTH ));
+
+        image->setData( Frame::BUFFER_DEPTH, &decompressedData[0] );        
+        decompressedData.clear();
+#else
         image->setData( Frame::BUFFER_DEPTH, data );
         data += nPixels * image->getDepth( Frame::BUFFER_DEPTH );
+#endif
     }
 
     return eqNet::COMMAND_HANDLED;

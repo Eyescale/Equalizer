@@ -43,22 +43,14 @@ bool Channel::exit()
 
 void Channel::draw( const uint32_t frameID )
 {
+    Frustumf frustum;
+    _initFrustum( frustum );
+
     applyBuffer();
     applyViewport();
             
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-
-#ifdef DYNAMIC_NEAR // Code assumes the view is in the x-y plane
-    //vmml::Vector3f viewTrans = getFrustum().computeMatrix() * 
-    //    getHeadTransform() * _frameData->_data.translation;
-    vmml::Vector3f& viewTrans = _frameData->_data.translation;
-    viewTrans *= getFrustum().near;
-    EQINFO << "Model pos in view space: " << viewTrans << endl;
-    const float near = MAX( 0.001f, -viewTrans.z - M_SQRT3_2 );
-    const float far  = near + M_SQRT3;
-    setNearFar( near, far );
-#endif
 
     applyFrustum();
 
@@ -75,9 +67,6 @@ void Channel::draw( const uint32_t frameID )
 
     Node*        node  = (Node*)getNode();
     const Model* model = node->getModel();
-
-    Frustumf frustum;
-    _initFrustum( frustum );
 
     if( model )
     {
@@ -186,6 +175,21 @@ void Channel::_drawBBox( const Model::BBox *bbox )
 void Channel::_initFrustum( Frustumf& frustum )
 {
     // apply frustum
+#ifdef DYNAMIC_NEAR
+    vmml::Frustumf oldFrustum = getFrustum();
+
+    //oldFrustum.adjustNear( 1.0f );
+    const vmml::Matrix4f  oldProj = oldFrustum.computeMatrix();
+    const vmml::Vector3f& center = 
+        oldProj * getHeadTransform() * -_frameData->_data.translation;
+
+    const float near = MAX( 0.001f,        center.z - M_SQRT3_2 );
+    const float far  = MAX( near + 0.001f, center.z + M_SQRT3_2 );
+    EQINFO << "Model Z position: " << center.z << " near, far: " << near << " " 
+           << far << endl;
+    setNearFar( near, far );
+#endif
+
     const vmml::Frustumf& eqFrustum  = getFrustum();
     const vmml::Matrix4f  projection = eqFrustum.computeMatrix();
 
@@ -195,7 +199,9 @@ void Channel::_initFrustum( Frustumf& frustum )
 
     const vmml::Matrix4f& mvm = getHeadTransform() * view;
 
+
     const eq::PixelViewport& pvp = getPixelViewport();
 
     frustum.initView( projection.ml, mvm.ml, pvp);
+
 }
