@@ -70,7 +70,7 @@ namespace eq
          * @param buffer the image buffer to set
          * @param data the buffer data of size pvp.w * pvp.h * depth
          */
-        void setData( const Frame::Buffer buffer, const uint8_t* data );
+        void setPixelData( const Frame::Buffer buffer, const uint8_t* data );
         //*}
 
         /**
@@ -106,6 +106,9 @@ namespace eq
         
         /** Writes all pixel data as separate images. */
         void writeImages( const std::string& filenameTemplate ) const;
+
+        /** Read pixel data from an uncompressed rgb image file. */
+        bool readImage(const std::string& filename, const Frame::Buffer buffer);
         //*}
 
     private:

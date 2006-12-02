@@ -260,10 +260,10 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
         EQASSERT( decompressedData.size() == 
                   nPixels * image->getDepth( Frame::BUFFER_COLOR ));
 
-        image->setData( Frame::BUFFER_COLOR, &decompressedData[0] );        
+        image->setPixelData( Frame::BUFFER_COLOR, &decompressedData[0] ); 
         decompressedData.clear();
 #else
-        image->setData( Frame::BUFFER_COLOR, data );
+        image->setPixelData( Frame::BUFFER_COLOR, data );
         data += nPixels * image->getDepth( Frame::BUFFER_COLOR );
 #endif
     }
@@ -274,10 +274,10 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
         EQASSERT( decompressedData.size() == 
                   nPixels * image->getDepth( Frame::BUFFER_DEPTH ));
 
-        image->setData( Frame::BUFFER_DEPTH, &decompressedData[0] );        
+        image->setPixelData( Frame::BUFFER_DEPTH, &decompressedData[0] ); 
         decompressedData.clear();
 #else
-        image->setData( Frame::BUFFER_DEPTH, data );
+        image->setPixelData( Frame::BUFFER_DEPTH, data );
         data += nPixels * image->getDepth( Frame::BUFFER_DEPTH );
 #endif
     }

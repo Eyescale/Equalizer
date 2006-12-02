@@ -157,6 +157,11 @@ $(THIN_SIMPLE_PROGRAMS): $(CXXFILES)
 endif # VARIANT
 endif # PROGRAMS
 
+testRun: $(SIMPLE_PROGRAMS)
+	@for program in $(THIN_SIMPLE_PROGRAMS); do \
+		./$$program; \
+	done && touch $@ || rm -f $@
+
 # cleaning targets
 clean:
 ifdef VARIANT

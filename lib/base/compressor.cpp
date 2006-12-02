@@ -121,7 +121,7 @@ void Compressor::compressLZ( const vector<uint8_t>& input,
 {
     if( input.empty( ))
         return;
-    
+
     EQASSERT( input.size() < (100 * 1024 * 1024 )); // < 100MB
 
     const unsigned insize = input.size();
@@ -259,7 +259,6 @@ void Compressor::compressLZ( const vector<uint8_t>& input,
     delete [] work;
     uint32_t* size = reinterpret_cast<uint32_t*>( &output[start] );
     *size = input.size();
-    EQINFO << "Compressed " << input.size() << "->" << output.size() << endl;
 }
 
 uint32_t Compressor::decompressLZ( const uint8_t* input,
@@ -278,7 +277,7 @@ uint32_t Compressor::decompressLZ( const uint8_t* input,
     unsigned       inpos  = 5;
 
     /* Main decompression loop */
-    while( output.size() < totalSize );
+    while( output.size() < totalSize )
     {
         const uint8_t symbol = input[ inpos++ ];
         if( symbol == marker )
@@ -289,14 +288,12 @@ uint32_t Compressor::decompressLZ( const uint8_t* input,
                 /* It was a single occurrence of the marker byte */
                 output.push_back( marker );
                 ++inpos;
-                EQINFO << "Single marker" << endl;
             }
             else
             {
                 /* Extract true length and offset */
                 const unsigned length = _LZ_ReadVarSize( input, &inpos );
                 const unsigned offset = _LZ_ReadVarSize( input, &inpos );
-                EQINFO << "Copy " << length << " offset " << offset << endl;
 
                 /* Copy corresponding data from history window */
                 for( unsigned i = 0; i < length; ++i )
@@ -306,13 +303,11 @@ uint32_t Compressor::decompressLZ( const uint8_t* input,
         else
         {
             /* No marker, plain copy */
-            EQINFO << "Plain " << (unsigned)symbol << endl;
             output.push_back( symbol );
         }
     }
-    EQASSERT( output.size() == totalSize );
 
-    EQINFO << "Decompressed " << inpos << "->" << output.size() << endl;
+    EQASSERT( output.size() == totalSize );
     return inpos;
 }
 
@@ -372,11 +367,12 @@ static unsigned _LZ_ReadVarSize( const uint8_t* buffer, unsigned* position )
 {
 
     /* Read complete value (stop when byte contains zero in 8:th bit) */
-    unsigned y         = 0;
+    unsigned y = 0;
     unsigned b;
     do
     {
-        b = static_cast<unsigned int>(buffer[ *position++ ]);
+        b = static_cast<unsigned int>(buffer[ *position ]);
+        ++(*position);
         y = (y << 7) | (b & 0x0000007f);
     }
     while( b & 0x00000080 );

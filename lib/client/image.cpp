@@ -159,7 +159,7 @@ void Image::setPixelViewport( const PixelViewport& pvp )
     _pixels[INDEX_DEPTH].resize( nPixels * getDepth( Frame::BUFFER_DEPTH ));
 }
 
-void Image::setData( const Frame::Buffer buffer, const uint8_t* data )
+void Image::setPixelData( const Frame::Buffer buffer, const uint8_t* data )
 {
     const uint32_t index = _getIndexForBuffer( buffer );
     const size_t   size  = _pvp.w * _pvp.h * getDepth( Frame::BUFFER_COLOR );
@@ -256,14 +256,94 @@ void Image::writeImage( const std::string& filename,
     strncpy( header.filename, filename.c_str(), 80 );
 
     header.convert();
-    image.write( (const char *)&header, sizeof( header ));
+    image.write( reinterpret_cast<const char *>( &header ), sizeof( header ));
 
-    // Each channel is written separately
+    // Each channel is saved separately
     for( size_t i = 0; i < depth; ++i )
         for( size_t j = i; j < nBytes; j += depth )
             image << pixels[j];
 
     image.close();
+}
+
+bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
+{
+    ifstream image( filename.c_str(), ios::in | ios::binary );
+    if( !image.is_open( ))
+    {
+        EQERROR << "Can't open " << filename << " for reading" << endl;
+        return false;
+    }
+
+    RGBHeader header;
+    image.read( reinterpret_cast<char *>( &header ), sizeof( header ));
+
+    if( image.bad() || image.eof( ))
+    {
+        EQERROR << "Error during image header input " << filename << endl;
+        image.close();
+        return false;
+    }
+
+    header.convert();
+    
+    if( header.magic != 474)
+    {
+        EQERROR << "Bad magic number " << filename << endl;
+        image.close();
+        return false;
+    }
+    if( header.width == 0 || header.height == 0 )
+    {
+        EQERROR << "Zero-sized image " << filename << endl;
+        image.close();
+        return false;
+    }
+    if( header.depth != getDepth( buffer ))
+    {
+        EQERROR << "Pixel depth mismatch " << filename << endl;
+        image.close();
+        return false;
+    }
+    if( header.compression != 0)
+    {
+        EQERROR << "Unsupported compression " << filename << endl;
+        image.close();
+        return false;
+    }
+    if( header.bytesPerChannel != 1 || header.nDimensions != 3 || 
+        header.minValue != 0 || header.maxValue != 255 || header.colorMode != 0)
+    {
+        EQERROR << "Unsupported image type " << filename << endl;
+        image.close();
+        return false;
+    }
+
+
+    const size_t     nPixels = header.width * header.height;
+    const size_t     depth   = header.depth;
+    const size_t     nBytes  = nPixels * depth;
+    vector<uint8_t>  pixels;
+
+    pixels.resize( nBytes );
+
+    // Each channel is saved separately
+    for( size_t i = 0; i < depth; ++i )
+        for( size_t j = i; j < nBytes; j += depth )
+            image.read( reinterpret_cast<char*>( &pixels[j] ), 1 );
+
+    if( image.bad() || image.eof( ))
+    {
+        EQERROR << "Error during image data input " << filename << endl;
+        image.close();
+        return false;
+    }
+
+    setPixelViewport( PixelViewport( 0, 0, header.width, header.height ));
+    setPixelData( buffer, &pixels[0] );
+
+    image.close();
+    return true;
 }
 
 Image::BufferIndex Image::_getIndexForBuffer( const Frame::Buffer buffer )
