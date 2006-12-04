@@ -1198,15 +1198,14 @@ string Node::_createRemoteCommand()
     if( env )
         stringStream << libPath << "=" << env << " ";
 
+    for( int i=0; environ[i] != NULL; i++ )
+        if( strlen( environ[i] ) > 2 && strncmp( environ[i], "EQ_", 3 ) == 0 )
+            stringStream << environ[i] << " ";
+
     stringStream << "EQ_LOG_LEVEL=" << eqBase::Log::getLogLevelString() << " ";
     if( eqBase::Log::topics != 0 )
         stringStream << "EQ_LOG_TOPICS=" << eqBase::Log::topics << " ";
 
-    // for( int i=0; environ[i] != NULL; i++ )
-    // {
-    //     replacement += environ[i];
-    //     replacement += " ";
-    // }
     
     string program = _programName;
     if( program[0] != '/' )
