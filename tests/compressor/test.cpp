@@ -5,7 +5,6 @@
 #include <test.h>
 
 #include <eq/base/clock.h>
-#include <eq/base/compressor.h>
 #include <eq/client/image.h>
 
 using namespace eqBase;
@@ -22,68 +21,65 @@ int main( int argc, char **argv )
     TEST( image.readImage( "Image_7_color.rgb", Frame::BUFFER_COLOR ));
     TEST( image.readImage( "Image_7_depth.rgb", Frame::BUFFER_DEPTH ));
 
-    const vector<uint8_t>& colorData = image.getPixelData( Frame::BUFFER_COLOR);
-    const size_t           colorSize = colorData.size();
-    const vector<uint8_t>& depthData = image.getPixelData( Frame::BUFFER_DEPTH);
-    const size_t           depthSize = depthData.size();
-    vector<uint8_t>        compressedData;
-    vector<uint8_t>        decompressedData;
+    Image destImage;
+    destImage.setPixelViewport( image.getPixelViewport( ));
 
-    Clock clock;
+    const uint8_t* colorData = image.getPixelData( Frame::BUFFER_COLOR);
+    const size_t   colorSize = image.getPixelDataSize( Frame::BUFFER_COLOR);
+    const uint8_t* depthData = image.getPixelData( Frame::BUFFER_DEPTH);
+    const size_t   depthSize = image.getPixelDataSize( Frame::BUFFER_DEPTH);
+    const uint8_t* compressedData;
+    const uint8_t* data;
+    uint32_t       size;
+    Clock          clock;
+    float          time;
 
-    // Color, LZ
+    // Color
     clock.reset();
-    Compressor::compressLZ( colorData, compressedData );
-    float time = clock.getTimef();
-    cout << argv[0] << ": Color, LZ " << colorSize << "->" 
-         << compressedData.size() << " " 
-         << 100.0f * compressedData.size() / colorSize << "%, " 
-         << time << " ms, max bw " 
-         << 1000.0f * (colorSize - compressedData.size()) / 
-                time / 1024.0f / 1024.0f << "MB/s" 
-         << endl;
-
-    
-    clock.reset();
-    TEST( compressedData.size() == 
-          Compressor::decompressLZ( &compressedData[0], decompressedData ));
+    compressedData = image.compressPixelData( Frame::BUFFER_COLOR, size );
     time = clock.getTimef();
-    TEST( decompressedData.size() == colorSize );
-    TEST( memcmp( &decompressedData[0], &colorData[0], colorSize ) == 0 );
 
-    cout << argv[0] << ": Color, LZ " << compressedData.size()  << "->" 
-         << colorSize << " " << time << " ms, max bw " 
-         << 1000.0f * (colorSize - compressedData.size()) / 
-                time / 1024.0f / 1024.0f << "MB/s" 
+    cout << argv[0] << ": Color " << colorSize << "->" << size << " " 
+         << 100.0f * size / colorSize << "%, " << time << " ms, max bw " 
+         << 1000.0f * (colorSize - size) / time / 1024.0f / 1024.0f << "MB/s" 
          << endl;
-    compressedData.clear();
-    decompressedData.clear();
 
-    // Depth, LZ
     clock.reset();
-    Compressor::compressLZ( depthData, compressedData );
+    TEST( size == 
+          destImage.decompressPixelData( Frame::BUFFER_COLOR, compressedData ));
     time = clock.getTimef();
-    cout << argv[0] << ": Depth, LZ " << depthSize << "->" 
-         << compressedData.size() << " " 
-         << 100.0f * compressedData.size() / depthSize << "%, " 
-         << time << " ms, max bw " 
-         << 1000.0f * (depthSize - compressedData.size()) / 
-                time / 1024.0f / 1024.0f << "MB/s" 
+
+    cout << argv[0] << ": Color " << size  << "->" << colorSize << " " << time
+         << " ms, max bw " 
+         << 1000.0f * (colorSize - size) / time / 1024.0f / 1024.0f << "MB/s" 
          << endl;
 
-    
+    data = destImage.getPixelData( Frame::BUFFER_COLOR );
+    for( uint32_t i=0; i<colorSize; ++i )
+        TEST( colorData[i] == data[i] );
+
+
+    // Depth
     clock.reset();
-    TEST( compressedData.size() == 
-          Compressor::decompressLZ( &compressedData[0], decompressedData ));
+    compressedData = image.compressPixelData( Frame::BUFFER_DEPTH, size );
     time = clock.getTimef();
-    TEST( decompressedData.size() == depthSize );
-    TEST( memcmp( &decompressedData[0], &depthData[0], depthSize ) == 0 );
 
-    cout << argv[0] << ": Depth, LZ " << compressedData.size()  << "->" 
-         << depthSize << " " << time << " ms, max bw " 
-         << 1000.0f * (depthSize - compressedData.size()) / 
-                time / 1024.0f / 1024.0f << "MB/s" 
+    cout << argv[0] << ": Depth " << depthSize << "->" << size << " " 
+         << 100.0f * size / depthSize << "%, " << time << " ms, max bw " 
+         << 1000.0f * (depthSize - size) / time / 1024.0f / 1024.0f << "MB/s" 
          << endl;
-    compressedData.clear();
-    decompressedData.clear();
+
+    clock.reset();
+    TEST( size == 
+          destImage.decompressPixelData( Frame::BUFFER_DEPTH, compressedData ));
+    time = clock.getTimef();
+
+    cout << argv[0] << ": Depth " << size  << "->" << depthSize << " " << time
+         << " ms, max bw " 
+         << 1000.0f * (depthSize - size) / time / 1024.0f / 1024.0f << "MB/s" 
+         << endl;
+
+    data = destImage.getPixelData( Frame::BUFFER_DEPTH );
+    for( uint32_t i=0; i<depthSize; ++i )
+        TEST( depthData[i] == data[i] );
 }

@@ -14,11 +14,9 @@ using namespace std;
 
 Image::~Image()
 {
-    for( uint32_t i=0; i<INDEX_ALL; ++i )
-        _pixels[i].clear();
 }
 
-size_t Image::getDepth( const Frame::Buffer buffer ) const
+uint32_t Image::getDepth( const Frame::Buffer buffer ) const
 {
     // TODO: OpenGL format/type
     switch( buffer )
@@ -65,15 +63,27 @@ void Image::startReadback(const PixelViewport& pvp, const uint32_t buffers )
     if( buffers & Frame::BUFFER_COLOR )
         _startReadback( Frame::BUFFER_COLOR );
     else
-        _pixels[INDEX_COLOR].clear();
+        _pixels[INDEX_COLOR].valid = false;
 
     if( buffers & Frame::BUFFER_DEPTH )
         _startReadback( Frame::BUFFER_DEPTH );
     else
-        _pixels[INDEX_DEPTH].clear();
+        _pixels[INDEX_DEPTH].valid = false;
 
     _pvp.x = 0;
     _pvp.y = 0;
+}
+
+void Image::Pixels::resize( const uint32_t size )
+{
+    valid = true;
+
+    if( maxSize >= size )
+        return;
+
+    delete [] data;
+    data    = new uint8_t[size];
+    maxSize = size;
 }
 
 void Image::_startReadback( const Frame::Buffer buffer )
@@ -82,18 +92,19 @@ void Image::_startReadback( const Frame::Buffer buffer )
     const size_t   size  = _pvp.w * _pvp.h * getDepth( buffer );
 
     _pixels[index].resize( size );
+    _compressedPixels[index].valid = false;
 
     glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h, getFormat( buffer ), 
-                  getType( buffer ), &_pixels[index][0] );
+                  getType( buffer ), _pixels[index].data );
 }
 
 void Image::startAssemble( const vmml::Vector2i& offset, const uint32_t buffers)
 {
     uint32_t useBuffers = Frame::BUFFER_NONE;
 
-    if( buffers & Frame::BUFFER_COLOR && !_pixels[INDEX_COLOR].empty( ))
+    if( buffers & Frame::BUFFER_COLOR && _pixels[INDEX_COLOR].valid )
         useBuffers |= Frame::BUFFER_COLOR;
-    if( buffers & Frame::BUFFER_DEPTH && !_pixels[INDEX_DEPTH].empty( ))
+    if( buffers & Frame::BUFFER_DEPTH && _pixels[INDEX_DEPTH].valid )
         useBuffers |= Frame::BUFFER_DEPTH;
 
     if( useBuffers == Frame::BUFFER_NONE )
@@ -115,17 +126,17 @@ void Image::startAssemble( const vmml::Vector2i& offset, const uint32_t buffers)
 void Image::_startAssemble2D( const vmml::Vector2i& offset )
 {
     EQLOG( LOG_ASSEMBLY ) << "_startAssemble2D " << _pvp << endl;
-    EQASSERT( !_pixels[INDEX_COLOR].empty( ));
+    EQASSERT( _pixels[INDEX_COLOR].valid );
 
     glDrawPixels( _pvp.w, _pvp.h, getFormat( Frame::BUFFER_COLOR ), 
-                  getType( Frame::BUFFER_COLOR ), &_pixels[INDEX_COLOR][0] );
+                  getType( Frame::BUFFER_COLOR ), _pixels[INDEX_COLOR].data );
 }
 
 void Image::_startAssembleDB( const vmml::Vector2i& offset )
 {
     EQLOG( LOG_ASSEMBLY ) << "_startAssembleDB " << _pvp << endl;
-    EQASSERT( !_pixels[INDEX_COLOR].empty( ));
-    EQASSERT( !_pixels[INDEX_DEPTH].empty( ));
+    EQASSERT( _pixels[INDEX_COLOR].valid );
+    EQASSERT( _pixels[INDEX_DEPTH].valid );
 
     // Z-Based sort-last assembly
     glEnable( GL_STENCIL_TEST );
@@ -136,7 +147,7 @@ void Image::_startAssembleDB( const vmml::Vector2i& offset )
     glStencilOp( GL_ZERO, GL_ZERO, GL_REPLACE );
 
     glDrawPixels( _pvp.w, _pvp.h, getFormat( Frame::BUFFER_DEPTH ), 
-                  getType( Frame::BUFFER_DEPTH ), &_pixels[INDEX_DEPTH][0] );
+                  getType( Frame::BUFFER_DEPTH ), _pixels[INDEX_DEPTH].data );
     
     glDisable( GL_DEPTH_TEST );
 
@@ -145,7 +156,7 @@ void Image::_startAssembleDB( const vmml::Vector2i& offset )
     glStencilOp( GL_KEEP, GL_ZERO, GL_ZERO );
     
     glDrawPixels( _pvp.w, _pvp.h, getFormat( Frame::BUFFER_COLOR ), 
-                  getType( Frame::BUFFER_COLOR ), &_pixels[INDEX_COLOR][0] );
+                  getType( Frame::BUFFER_COLOR ), _pixels[INDEX_COLOR].data );
 
     glDisable( GL_STENCIL_TEST );
 }
@@ -154,24 +165,212 @@ void Image::setPixelViewport( const PixelViewport& pvp )
 {
     _pvp = pvp;
 
-    const size_t nPixels = pvp.w * pvp.h;
+    const uint32_t nPixels = pvp.w * pvp.h;
     _pixels[INDEX_COLOR].resize( nPixels * getDepth( Frame::BUFFER_COLOR ));
     _pixels[INDEX_DEPTH].resize( nPixels * getDepth( Frame::BUFFER_DEPTH ));
+    _compressedPixels[INDEX_COLOR].valid = false;
+    _compressedPixels[INDEX_DEPTH].valid = false;
 }
 
 void Image::setPixelData( const Frame::Buffer buffer, const uint8_t* data )
 {
+    const uint32_t size  = getPixelDataSize( buffer );
+    if( size == 0 )
+        return;
+    
     const uint32_t index = _getIndexForBuffer( buffer );
-    const size_t   size  = _pvp.w * _pvp.h * getDepth( Frame::BUFFER_COLOR );
 
-    memcpy( &_pixels[index][0], data, size );
+    _pixels[index].resize( size );
+    memcpy( _pixels[index].data, data, size );
+    _compressedPixels[index].valid = false;
 }
 
+uint32_t Image::decompressPixelData( const Frame::Buffer buffer,
+                                     const uint8_t* data )
+{
+    const uint32_t size = getPixelDataSize( buffer );
+    if( size == 0 )
+        return 0;
+    
+    EQASSERT( (size % 4) == 0 )             // may change with RGB format
+    EQASSERT( size < (100 * 1024 * 1024 )); // < 100MB
+
+    const uint32_t index = _getIndexForBuffer( buffer );
+    _pixels[index].resize( size );
+    _compressedPixels[index].valid = false;
+
+    const uint32_t* in  = reinterpret_cast<const uint32_t*>( data );
+    uint32_t* out = reinterpret_cast<uint32_t*>( _pixels[index].data );
+
+    EQASSERT( size > 0 );
+
+    const uint32_t marker = in[0];    
+    uint32_t       outpos = 0;
+    const uint32_t endpos = size>>2;
+
+    uint32_t i = 1;
+    while( outpos < endpos )
+    {
+        const uint32_t token = in[i++];
+        if( token == marker )
+        {
+            const uint32_t symbol = in[i++];
+            const uint32_t nSame  = in[i++];
+            for( uint32_t i = 0; i<nSame; ++i )
+                out[outpos++] = symbol;
+        }
+        else // symbol
+            out[outpos++] = token;
+    }
+    EQASSERT( outpos == endpos );
+
+    return (i<<2);
+}
+
+const uint8_t* Image::compressPixelData( const Frame::Buffer buffer, 
+                                         uint32_t& compressedSize )
+{
+    const uint32_t size = getPixelDataSize( buffer );
+    if( size == 0 ) 
+        return 0;
+
+    const uint32_t  index = _getIndexForBuffer( buffer );
+    if( _compressedPixels[index].valid )
+    {
+        compressedSize = _compressedPixels[index].size;
+        return _compressedPixels[index].data;
+    }
+
+    EQASSERT( (size % 4) == 0 )             // may change with RGB format
+    EQASSERT( size < (100 * 1024 * 1024 )); // < 100MB
+
+    const uint32_t* data     = reinterpret_cast<const uint32_t*>
+                                   ( _pixels[index].data );
+    uint32_t        marker   = 0xffffffffu;
+    const uint32_t  nWords   = size>>2;
+
+#ifdef PERFECT_MARKER
+    bool            markerOk = true;
+    for( uint32_t i=0; i<nWords; ++i )
+    {
+        if( data[i] == marker )
+        {
+            markerOk = false;
+            break;
+        }
+    }
+    while( !markerOk )
+    {
+        --marker; // Could guess random marker?
+        EQWARN << "Trying marker " << marker << endl;
+        
+        for( uint32_t i=0; i<nWords; ++i )
+        {
+            if( data[i] == marker )
+            {
+                markerOk = false;
+                break;
+            }
+        }
+    }
+#endif
+
+#ifdef PERFECT_MARKER
+    // Can't get bigger than input since marker is not in input data
+    _compressedPixels[index].resize( size + sizeof( uint32_t ));
+#else
+    _compressedPixels[index].resize( 2 * size + sizeof( uint32_t ));
+#endif
+
+    uint32_t* out = reinterpret_cast<uint32_t*>( _compressedPixels[index].data);
+
+    out[ 0 ] = marker;
+
+    uint32_t outpos     = 1;
+    uint32_t lastSymbol = data[0];
+    uint32_t nSame      = 1;
+    for( uint32_t i=1; i<nWords; ++i )
+    {
+        const uint32_t symbol = data[i];
+
+        if( symbol == lastSymbol )
+            ++nSame;
+        else
+        {
+#ifndef PERFECT_MARKER
+            if( lastSymbol == marker )
+            {
+                out[ outpos++ ] = marker;
+                out[ outpos++ ] = lastSymbol;
+                out[ outpos++ ] = nSame;
+            }
+            else
+#endif
+            switch( nSame )
+            {
+                case 0:
+                    EQASSERTINFO( 0, "Unreachable code" );
+                    break;
+                case 3:
+                    out[ outpos++ ] = lastSymbol; // fall through
+                case 2:
+                    out[ outpos++ ] = lastSymbol; // fall through
+                case 1:
+                    out[ outpos++ ] = lastSymbol;
+                    break;
+                default:
+                    out[ outpos++ ] = marker;
+                    out[ outpos++ ] = lastSymbol;
+                    out[ outpos++ ] = nSame;
+                    break;
+            }     
+            lastSymbol = symbol;
+            nSame      = 1;
+        }
+    }
+
+    // write remaining ...C&P code...
+#ifndef PERFECT_MARKER
+    if( lastSymbol == marker )
+    {
+        out[ outpos++ ] = marker;
+        out[ outpos++ ] = lastSymbol;
+        out[ outpos++ ] = nSame;
+    }
+    else
+#endif
+    switch( nSame )
+    {
+        case 0:
+            EQASSERTINFO( 0, "Unreachable code" );
+            break;
+        case 3:
+            out[ outpos++ ] = lastSymbol; // fall through
+        case 2:
+            out[ outpos++ ] = lastSymbol; // fall through
+        case 1:
+            out[ outpos++ ] = lastSymbol;
+            break;
+        default:
+            out[ outpos++ ] = marker;
+            out[ outpos++ ] = lastSymbol;
+            out[ outpos++ ] = nSame;
+            break;
+    }         
+    _compressedPixels[index].size = outpos<<2;
+
+    compressedSize = _compressedPixels[index].size;
+    return _compressedPixels[index].data;
+}
+
+//---------------------------------------------------------------------------
+// IO
+//---------------------------------------------------------------------------
 void Image::writeImages( const std::string& filenameTemplate ) const
 {
-    if( !_pixels[INDEX_COLOR].empty( ))
+    if( _pixels[INDEX_COLOR].valid )
         writeImage( filenameTemplate + "_color.rgb", Frame::BUFFER_COLOR );
-    if( !_pixels[INDEX_DEPTH].empty( ))
+    if( _pixels[INDEX_DEPTH].valid )
         writeImage( filenameTemplate + "_depth.rgb", Frame::BUFFER_DEPTH );
 }
 
@@ -232,13 +431,13 @@ struct RGBHeader
 void Image::writeImage( const std::string& filename, 
                         const Frame::Buffer buffer ) const
 {
-    const size_t           nPixels = _pvp.w * _pvp.h;
-    const size_t           depth   = getDepth( buffer );
-    const size_t           nBytes  = nPixels * depth;
-    const uint32_t         index   = _getIndexForBuffer( buffer );
-    const vector<uint8_t>& pixels  = _pixels[index];
+    const size_t   nPixels = _pvp.w * _pvp.h;
+    const size_t   depth   = getDepth( buffer );
+    const size_t   nBytes  = nPixels * depth;
+    const uint32_t index   = _getIndexForBuffer( buffer );
+    const uint8_t* pixels  = _pixels[index].data;
 
-    if( nPixels == 0 || pixels.size() < nBytes )
+    if( nPixels == 0 || !_pixels[index].valid );
         return;
 
     ofstream image( filename.c_str(), ios::out | ios::binary );
@@ -261,7 +460,7 @@ void Image::writeImage( const std::string& filename,
     // Each channel is saved separately
     for( size_t i = 0; i < depth; ++i )
         for( size_t j = i; j < nBytes; j += depth )
-            image << pixels[j];
+            image.write( reinterpret_cast<const char*>( &pixels[j] ), 1 );
 
     image.close();
 }
@@ -323,14 +522,14 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
     const size_t     nPixels = header.width * header.height;
     const size_t     depth   = header.depth;
     const size_t     nBytes  = nPixels * depth;
-    vector<uint8_t>  pixels;
-
+    Pixels           pixels;
+    
     pixels.resize( nBytes );
 
     // Each channel is saved separately
     for( size_t i = 0; i < depth; ++i )
         for( size_t j = i; j < nBytes; j += depth )
-            image.read( reinterpret_cast<char*>( &pixels[j] ), 1 );
+            image.read( reinterpret_cast<char*>( &pixels.data[j] ), 1 );
 
     if( image.bad() || image.eof( ))
     {
@@ -340,7 +539,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
     }
 
     setPixelViewport( PixelViewport( 0, 0, header.width, header.height ));
-    setPixelData( buffer, &pixels[0] );
+    setPixelData( buffer, pixels.data );
 
     image.close();
     return true;

@@ -8,7 +8,6 @@ HEADER_SRC = \
 	base/barrier.h \
 	base/base.h \
 	base/clock.h \
-	base/compressor.h \
 	base/defines.h \
 	base/executionListener.h \
 	base/hash.h \
@@ -93,7 +92,6 @@ HEADER_SRC = \
 
 SOURCES = \
 	base/barrier.cpp \
-	base/compressor.cpp \
 	base/idPool.cpp \
 	base/lock.cpp \
 	base/log.cpp \

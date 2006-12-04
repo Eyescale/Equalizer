@@ -37,18 +37,25 @@ namespace eq
         uint32_t getType( const Frame::Buffer buffer ) const;
 
         /** @return the size of a single image pixel in bytes. */
-        size_t getDepth( const Frame::Buffer buffer ) const;
+        uint32_t getDepth( const Frame::Buffer buffer ) const;
 
         /** @return a pointer to the raw pixel data. */
-        const std::vector<uint8_t>& getPixelData( const Frame::Buffer b ) const
-            { return _pixels[ _getIndexForBuffer( b )]; }
-        
+        const uint8_t* getPixelData( const Frame::Buffer b ) const
+            { return _pixels[ _getIndexForBuffer( b )].data; }
+        /** @return the size of the raw pixel data in bytes */
+        uint32_t getPixelDataSize( const Frame::Buffer b ) const
+            { return (_pvp.w * _pvp.h * getDepth( b )); }
+            
+        /** @return a pointer to compressed pixel data. */
+        const uint8_t* compressPixelData( const Frame::Buffer b,
+                                          uint32_t& size );
+
         /** 
          * @return true if the image has pixel data for the buffer, false if
          * not.
          */
         bool hasPixelData( const Frame::Buffer buffer ) const 
-            { return !(getPixelData( buffer ).empty()); }
+            { return _pixels[ _getIndexForBuffer( buffer )].valid; }
             
         /** @return the pixel viewport of the image with in the frame buffer. */
         const PixelViewport& getPixelViewport() const { return _pvp; }
@@ -71,6 +78,18 @@ namespace eq
          * @param data the buffer data of size pvp.w * pvp.h * depth
          */
         void setPixelData( const Frame::Buffer buffer, const uint8_t* data );
+
+        /** 
+         * Decompress and set the pixel data of one of the image buffers.
+         *
+         * Previous data for the buffer is overwritten.
+         * 
+         * @param buffer the image buffer to set
+         * @param data the buffer data decompressing to getPixelDataSize()
+         * @return the number of bytes read from the input data.
+         */
+        uint32_t decompressPixelData( const Frame::Buffer buffer, 
+                                      const uint8_t* data );
         //*}
 
         /**
@@ -129,8 +148,29 @@ namespace eq
         /** The rectangle of the current pixels data. */
         PixelViewport _pvp;
 
-        /** Raw image data. */
-        std::vector<uint8_t> _pixels[INDEX_ALL];
+        /** 
+         * Raw image data.
+         * Previous implementations used a std::vector, but resizing it took
+         * about 20ms for typical image sizes.
+         */
+        struct Pixels
+        {
+            Pixels() : data(0), maxSize(0), valid( false ) {}
+            ~Pixels() { delete [] data; }
+
+            void resize( const uint32_t size );
+
+            uint8_t* data;    // allocated (and cached data)
+            uint32_t maxSize; // the size of the allocation
+            bool     valid;   // data is currently valid
+        };
+        Pixels _pixels[INDEX_ALL];
+
+        struct CompressedPixels : public Pixels
+        {
+            uint32_t size; // current size of the compressed data
+        };
+        CompressedPixels _compressedPixels[INDEX_ALL];
 
         static BufferIndex _getIndexForBuffer( const Frame::Buffer buffer );
 

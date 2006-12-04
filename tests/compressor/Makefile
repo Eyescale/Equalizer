@@ -11,3 +11,5 @@ endif
 TARGETS = $(SIMPLE_PROGRAMS) testRun
 
 include $(TOP)/make/rules.mk
+
+$(SIMPLE_PROGRAMS): $(wildcard $(TOP)/lib/client/image.*)
