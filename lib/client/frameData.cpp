@@ -233,6 +233,7 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
 
     EQASSERT( packet->pvp.isValid( ));
     EQASSERT( getVersion() == packet->version );
+    EQASSERT( _readyVersion.get() < getVersion( ));
 
     Image*         image   = newImage();
     const uint8_t* data    = packet->data;
@@ -270,6 +271,8 @@ eqNet::CommandResult FrameData::_cmdReady( eqNet::Command& command )
         return eqNet::COMMAND_REDISPATCH;
 
     EQASSERT( getVersion() == packet->version );
+    EQASSERT( _readyVersion.get() < getVersion( ));
+
     EQLOG( LOG_ASSEMBLY ) << this << " received v" << packet->version
                           << " ready " << _images.size() << " images" << endl;
     

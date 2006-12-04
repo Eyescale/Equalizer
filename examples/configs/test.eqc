@@ -1,70 +1,56 @@
-# six-to-one sort-first config for cluster at unizh
-global
-{
-    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
-}
-
+# 2-window sort-first config running on a single pipe.
+# Note: uses two pipes mapping to the same card to achieve parallelism
 server
 {
     config
     {
-        latency 2
-        appNode
+        node
         {
-            connection { hostname "10.42.42.1" }
-            pipe 
+            pipe
             {
                 window
                 {
-                    viewport [ 640 512 1280 800 ]
-                    attributes { hints { fullscreen off }}
-                    channel { name "channel1" }
+                    viewport [ .05 .3 .4 .3 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
                 }
             }
         }
-        node
+        appNode
         {
-            connection { hostname "10.42.42.2" }
-            pipe { window { channel { name "channel2" }}}
-        }
-        node
-        {
-            connection { hostname "10.42.42.3" }
-            pipe { window { channel { name "channel3" }}}
-        }
-        node
-        {
-            connection { hostname "10.42.42.4" }
-            pipe { window { channel { name "channel4" }}}
-        }
-        node
-        {
-            connection { hostname "10.42.42.5" }
-            pipe { window { channel { name "channel5" }}}
-        }
-        node
-        {
-            connection { hostname "10.42.42.6" }
-            pipe { window { channel { name "channel6" }}}
+            pipe
+            {
+                window
+                {
+                    viewport [ .55 .3 .4 .3 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+            }
         }
         compound
         {
-            channel "channel4"
+            channel "channel1"
+
             wall
             {
                 bottom_left  [ -.32 -.2 -1 ]
                 bottom_right [  .32 -.2 -1 ]
                 top_left     [ -.32  .2 -1 ]
             }
-
+            
             compound
             {
-                viewport [ 0 0 1 .5 ]
+                viewport [ 0 0 .5 1 ]
             }
             compound
-            {
+            { 
                 channel "channel2"
-                viewport [ 0 0.5 1 .5 ]
+                viewport [ .5 0 .5 1 ]
                 outputframe {}
             }
             inputframe { name "frame.channel2" }
