@@ -1,8 +1,10 @@
+# 2-window sort-first config running on a single pipe.
+# Note: uses two pipes mapping to the same card to achieve parallelism
 server
 {
     config
     {
-        node
+        appNode
         {
             pipe
             {
@@ -11,13 +13,10 @@ server
                     viewport [ .05 .3 .4 .3 ]
                     channel
                     {
-                        name "channel1"
+                        name "channel2"
                     }
                 }
             }
-        }
-        appNode
-        {
             pipe
             {
                 window
@@ -25,14 +24,14 @@ server
                     viewport [ .55 .3 .4 .3 ]
                     channel
                     {
-                        name "channel2"
+                        name "channel1"
                     }
                 }
             }
         }
         compound
         {
-            channel "channel2"
+            channel "channel1"
 
             wall
             {
@@ -43,15 +42,15 @@ server
             
             compound
             {
-                viewport [ .5 0 .5 1 ]
+                viewport [ 0 0 .5 1 ]
             }
             compound
             { 
-                channel "channel1"
-                viewport [ 0 0 .5 1 ]
+                channel "channel2"
+                viewport [ .5 0 .5 1 ]
                 outputframe {}
             }
-            inputframe { name "frame.channel1" }
+            inputframe { name "frame.channel2" }
         }
     }    
 }

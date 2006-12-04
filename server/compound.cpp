@@ -619,8 +619,7 @@ void Compound::_updateInput( UpdateData* data )
             << "Input frame  \"" << name << "\" on channel \"" 
             << channel->getName() << "\" id " << frame->getID() << " v"
             << frame->getVersion() << " buffers " << frame->getInheritBuffers() 
-            << "\" tile pos " << frameOffset << " use pvp from input "
-            << framePVP << endl;
+            << "\" tile pos " << frameOffset << " sub-pvp " << framePVP << endl;
     }
 }
 

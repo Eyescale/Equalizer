@@ -80,7 +80,7 @@ void Object::makeThreadSafe()
 {
     if( _mutex ) return;
     _mutex = new eqBase::Lock;
-#ifdef CHECK_THREADSAFETY
+#ifdef EQ_CHECK_THREADSAFETY
     _syncQueue._thread.extMutex = true;
 #endif
 }
