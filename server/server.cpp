@@ -31,11 +31,11 @@ Server::Server()
     registerCommand( eq::CMD_SERVER_CHOOSE_CONFIG,
                      eqNet::CommandFunc<Server>( this, &Server::_cmdPush ));
     registerCommand( eq::REQ_SERVER_CHOOSE_CONFIG, 
-                  eqNet::CommandFunc<Server>( this, &Server::_reqChooseConfig ));
+                 eqNet::CommandFunc<Server>( this, &Server::_reqChooseConfig ));
     registerCommand( eq::CMD_SERVER_RELEASE_CONFIG,
                      eqNet::CommandFunc<Server>( this, &Server::_cmdPush ));
     registerCommand( eq::REQ_SERVER_RELEASE_CONFIG,
-                 eqNet::CommandFunc<Server>( this, &Server::_reqReleaseConfig ));
+                eqNet::CommandFunc<Server>( this, &Server::_reqReleaseConfig ));
     EQINFO << "New server @" << (void*)this << endl;
 }
 

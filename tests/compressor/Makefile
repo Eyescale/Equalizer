@@ -8,7 +8,7 @@ ifeq "${ARCH}" "Linux"
 SA_CXXFLAGS += -lrt -luuid
 endif
 
-TARGETS = $(SIMPLE_PROGRAMS) testRun
+TARGETS = $(SIMPLE_PROGRAMS) $(TESTS)
 
 include $(TOP)/make/rules.mk
 

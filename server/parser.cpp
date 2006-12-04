@@ -1,7 +1,7 @@
-/* A Bison parser, made by GNU Bison 2.0.  */
+/* A Bison parser, made by GNU Bison 1.875.  */
 
 /* Skeleton parser for Yacc-like parsing with Bison,
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -45,7 +45,8 @@
 /* Using locations.  */
 #define YYLSP_NEEDED 0
 
-/* Substitute the variable and function names.  */
+/* If NAME_PREFIX is specified substitute the variables and functions
+   names.  */
 #define yyparse eqLoader_parse
 #define yylex   eqLoader_lex
 #define yyerror eqLoader_error
@@ -229,21 +230,21 @@
 
     namespace eqLoader
     {
-        static eqs::Loader* loader = NULL;
+        static eqs::Loader* loader = 0;
         static std::string  stringBuf;
         
-        static eqs::Server*      server;
-        static eqs::Config*      config;
-        static eqs::Node*        node;
-        static eqs::Pipe*        eqPipe; // avoid name clash with pipe()
-        static eqs::Window*      window;
-        static eqs::Channel*     channel;
-        static eqs::Compound*    eqCompound; // avoid name clash on Darwin
-        static eqs::SwapBarrier* swapBarrier;
-        static eqs::Frame*       frame;
+        static eqs::Server*      server = 0;
+        static eqs::Config*      config = 0;
+        static eqs::Node*        node = 0;
+        static eqs::Pipe*        eqPipe = 0; // avoid name clash with pipe()
+        static eqs::Window*      window = 0;
+        static eqs::Channel*     channel = 0;
+        static eqs::Compound*    eqCompound = 0; // avoid name clash on Darwin
+        static eqs::SwapBarrier* swapBarrier = 0;
+        static eqs::Frame*       frame = 0;
         static eqBase::RefPtr<eqNet::ConnectionDescription> 
             connectionDescription;
-        static uint32_t          flags;
+        static uint32_t          flags = 0;
     }
 
     using namespace std;
@@ -282,7 +283,7 @@ typedef union YYSTYPE {
     eqNet::Connection::Type _connectionType;
     float                   _viewport[4];
 } YYSTYPE;
-/* Line 190 of yacc.c.  */
+/* Line 191 of yacc.c.  */
 
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -294,26 +295,23 @@ typedef union YYSTYPE {
 /* Copy the second part of user declarations.  */
 
 
-/* Line 213 of yacc.c.  */
+/* Line 214 of yacc.c.  */
 
 
 #if ! defined (yyoverflow) || YYERROR_VERBOSE
 
-# ifndef YYFREE
-#  define YYFREE free
-# endif
-# ifndef YYMALLOC
-#  define YYMALLOC malloc
-# endif
-
 /* The parser invokes alloca or malloc; define the necessary symbols.  */
 
-# ifdef YYSTACK_USE_ALLOCA
-#  if YYSTACK_USE_ALLOCA
-#   ifdef __GNUC__
-#    define YYSTACK_ALLOC __builtin_alloca
-#   else
+# if YYSTACK_USE_ALLOCA
+#  define YYSTACK_ALLOC alloca
+# else
+#  ifndef YYSTACK_USE_ALLOCA
+#   if defined (alloca) || defined (_ALLOCA_H)
 #    define YYSTACK_ALLOC alloca
+#   else
+#    ifdef __GNUC__
+#     define YYSTACK_ALLOC __builtin_alloca
+#    endif
 #   endif
 #  endif
 # endif
@@ -326,20 +324,20 @@ typedef union YYSTYPE {
 #   include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
 #   define YYSIZE_T size_t
 #  endif
-#  define YYSTACK_ALLOC YYMALLOC
-#  define YYSTACK_FREE YYFREE
+#  define YYSTACK_ALLOC malloc
+#  define YYSTACK_FREE free
 # endif
 #endif /* ! defined (yyoverflow) || YYERROR_VERBOSE */
 
 
 #if (! defined (yyoverflow) \
      && (! defined (__cplusplus) \
-	 || (defined (YYSTYPE_IS_TRIVIAL) && YYSTYPE_IS_TRIVIAL)))
+	 || (YYSTYPE_IS_TRIVIAL)))
 
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
 {
-  short int yyss;
+  short yyss;
   YYSTYPE yyvs;
   };
 
@@ -349,13 +347,13 @@ union yyalloc
 /* The size of an array large to enough to hold all stacks, each with
    N elements.  */
 # define YYSTACK_BYTES(N) \
-     ((N) * (sizeof (short int) + sizeof (YYSTYPE))			\
+     ((N) * (sizeof (short) + sizeof (YYSTYPE))				\
       + YYSTACK_GAP_MAXIMUM)
 
 /* Copy COUNT objects from FROM to TO.  The source and destination do
    not overlap.  */
 # ifndef YYCOPY
-#  if defined (__GNUC__) && 1 < __GNUC__
+#  if 1 < __GNUC__
 #   define YYCOPY(To, From, Count) \
       __builtin_memcpy (To, From, (Count) * sizeof (*(From)))
 #  else
@@ -391,7 +389,7 @@ union yyalloc
 #if defined (__STDC__) || defined (__cplusplus)
    typedef signed char yysigned_char;
 #else
-   typedef short int yysigned_char;
+   typedef short yysigned_char;
 #endif
 
 /* YYFINAL -- State number of the termination state. */
@@ -456,7 +454,7 @@ static const unsigned char yytranslate[] =
 #if YYDEBUG
 /* YYPRHS[YYN] -- Index of the first RHS symbol of rule number YYN in
    YYRHS.  */
-static const unsigned short int yyprhs[] =
+static const unsigned short yyprhs[] =
 {
        0,     0,     3,     6,    11,    12,    14,    17,    20,    23,
       26,    29,    32,    35,    38,    41,    44,    47,    50,    53,
@@ -479,7 +477,7 @@ static const unsigned short int yyprhs[] =
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS. */
-static const short int yyrhs[] =
+static const short yyrhs[] =
 {
       80,     0,    -1,    81,    84,    -1,     3,    75,    82,    76,
       -1,    -1,    81,    -1,    82,    81,    -1,     4,   156,    -1,
@@ -535,7 +533,7 @@ static const short int yyrhs[] =
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
-static const unsigned short int yyrline[] =
+static const unsigned short yyrline[] =
 {
        0,   143,   143,   145,   146,   149,   149,   152,   157,   162,
      167,   172,   177,   182,   187,   192,   197,   202,   207,   212,
@@ -563,56 +561,58 @@ static const unsigned short int yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals. */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "EQTOKEN_GLOBAL",
-  "EQTOKEN_CONNECTION_SATTR_HOSTNAME",
-  "EQTOKEN_CONNECTION_SATTR_LAUNCH_COMMAND",
-  "EQTOKEN_CONNECTION_IATTR_TYPE", "EQTOKEN_CONNECTION_IATTR_TCPIP_PORT",
-  "EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT",
-  "EQTOKEN_CONFIG_FATTR_EYE_BASE", "EQTOKEN_WINDOW_IATTR_HINTS_STEREO",
-  "EQTOKEN_WINDOW_IATTR_HINTS_DOUBLEBUFFER",
-  "EQTOKEN_WINDOW_IATTR_HINTS_FULLSCREEN",
-  "EQTOKEN_WINDOW_IATTR_HINTS_DECORATION",
-  "EQTOKEN_WINDOW_IATTR_PLANES_COLOR", "EQTOKEN_WINDOW_IATTR_PLANES_ALPHA",
-  "EQTOKEN_WINDOW_IATTR_PLANES_DEPTH",
-  "EQTOKEN_WINDOW_IATTR_PLANES_STENCIL", "EQTOKEN_SERVER",
-  "EQTOKEN_CONFIG", "EQTOKEN_APPNODE", "EQTOKEN_NODE", "EQTOKEN_PIPE",
-  "EQTOKEN_WINDOW", "EQTOKEN_ATTRIBUTES", "EQTOKEN_HINTS",
-  "EQTOKEN_STEREO", "EQTOKEN_DOUBLEBUFFER", "EQTOKEN_FULLSCREEN",
-  "EQTOKEN_DECORATION", "EQTOKEN_PLANES", "EQTOKEN_COLOR", "EQTOKEN_ALPHA",
-  "EQTOKEN_DEPTH", "EQTOKEN_STENCIL", "EQTOKEN_ON", "EQTOKEN_OFF",
-  "EQTOKEN_AUTO", "EQTOKEN_CHANNEL", "EQTOKEN_COMPOUND",
-  "EQTOKEN_CONNECTION", "EQTOKEN_NAME", "EQTOKEN_TYPE", "EQTOKEN_TCPIP",
-  "EQTOKEN_HOSTNAME", "EQTOKEN_COMMAND", "EQTOKEN_TIMEOUT", "EQTOKEN_TASK",
-  "EQTOKEN_EYE", "EQTOKEN_EYE_BASE", "EQTOKEN_BUFFER", "EQTOKEN_CLEAR",
-  "EQTOKEN_DRAW", "EQTOKEN_ASSEMBLE", "EQTOKEN_READBACK", "EQTOKEN_CYCLOP",
-  "EQTOKEN_LEFT", "EQTOKEN_RIGHT", "EQTOKEN_VIEWPORT", "EQTOKEN_RANGE",
-  "EQTOKEN_DISPLAY", "EQTOKEN_SCREEN", "EQTOKEN_WALL",
-  "EQTOKEN_BOTTOM_LEFT", "EQTOKEN_BOTTOM_RIGHT", "EQTOKEN_TOP_LEFT",
-  "EQTOKEN_SYNC", "EQTOKEN_LATENCY", "EQTOKEN_SWAPBARRIER",
-  "EQTOKEN_OUTPUTFRAME", "EQTOKEN_INPUTFRAME", "EQTOKEN_STRING",
-  "EQTOKEN_FLOAT", "EQTOKEN_INTEGER", "EQTOKEN_UNSIGNED", "'{'", "'}'",
-  "'['", "']'", "$accept", "file", "global", "globals", "connectionType",
-  "server", "@1", "configs", "config", "@2", "configFields", "configField",
-  "configAttributes", "configAttribute", "nodes", "node", "otherNode",
-  "@3", "appNode", "@4", "nodeFields", "nodeField", "connections",
-  "connection", "@5", "connectionFields", "connectionField", "pipes",
-  "pipe", "@6", "pipeFields", "pipeField", "windows", "window", "@7",
-  "windowFields", "windowField", "windowAttributes", "windowAttribute",
-  "windowHints", "windowHint", "windowPlanes", "windowPlane", "channels",
-  "channel", "@8", "channelFields", "channelField", "compounds",
-  "compound", "@9", "compoundChildren", "compoundFields", "compoundField",
-  "@10", "@11", "@12", "compoundTasks", "compoundTask", "compoundEyes",
-  "compoundEye", "buffers", "buffer", "wall", "swapBarrier", "@13",
-  "swapBarrierFields", "swapBarrierField", "outputFrame", "@14",
-  "inputFrame", "@15", "frameFields", "frameField", "@16", "viewport",
-  "IATTR", "STRING", "FLOAT", "INTEGER", "UNSIGNED", 0
+  "$end", "error", "$undefined", "EQTOKEN_GLOBAL", 
+  "EQTOKEN_CONNECTION_SATTR_HOSTNAME", 
+  "EQTOKEN_CONNECTION_SATTR_LAUNCH_COMMAND", 
+  "EQTOKEN_CONNECTION_IATTR_TYPE", "EQTOKEN_CONNECTION_IATTR_TCPIP_PORT", 
+  "EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT", 
+  "EQTOKEN_CONFIG_FATTR_EYE_BASE", "EQTOKEN_WINDOW_IATTR_HINTS_STEREO", 
+  "EQTOKEN_WINDOW_IATTR_HINTS_DOUBLEBUFFER", 
+  "EQTOKEN_WINDOW_IATTR_HINTS_FULLSCREEN", 
+  "EQTOKEN_WINDOW_IATTR_HINTS_DECORATION", 
+  "EQTOKEN_WINDOW_IATTR_PLANES_COLOR", 
+  "EQTOKEN_WINDOW_IATTR_PLANES_ALPHA", 
+  "EQTOKEN_WINDOW_IATTR_PLANES_DEPTH", 
+  "EQTOKEN_WINDOW_IATTR_PLANES_STENCIL", "EQTOKEN_SERVER", 
+  "EQTOKEN_CONFIG", "EQTOKEN_APPNODE", "EQTOKEN_NODE", "EQTOKEN_PIPE", 
+  "EQTOKEN_WINDOW", "EQTOKEN_ATTRIBUTES", "EQTOKEN_HINTS", 
+  "EQTOKEN_STEREO", "EQTOKEN_DOUBLEBUFFER", "EQTOKEN_FULLSCREEN", 
+  "EQTOKEN_DECORATION", "EQTOKEN_PLANES", "EQTOKEN_COLOR", 
+  "EQTOKEN_ALPHA", "EQTOKEN_DEPTH", "EQTOKEN_STENCIL", "EQTOKEN_ON", 
+  "EQTOKEN_OFF", "EQTOKEN_AUTO", "EQTOKEN_CHANNEL", "EQTOKEN_COMPOUND", 
+  "EQTOKEN_CONNECTION", "EQTOKEN_NAME", "EQTOKEN_TYPE", "EQTOKEN_TCPIP", 
+  "EQTOKEN_HOSTNAME", "EQTOKEN_COMMAND", "EQTOKEN_TIMEOUT", 
+  "EQTOKEN_TASK", "EQTOKEN_EYE", "EQTOKEN_EYE_BASE", "EQTOKEN_BUFFER", 
+  "EQTOKEN_CLEAR", "EQTOKEN_DRAW", "EQTOKEN_ASSEMBLE", "EQTOKEN_READBACK", 
+  "EQTOKEN_CYCLOP", "EQTOKEN_LEFT", "EQTOKEN_RIGHT", "EQTOKEN_VIEWPORT", 
+  "EQTOKEN_RANGE", "EQTOKEN_DISPLAY", "EQTOKEN_SCREEN", "EQTOKEN_WALL", 
+  "EQTOKEN_BOTTOM_LEFT", "EQTOKEN_BOTTOM_RIGHT", "EQTOKEN_TOP_LEFT", 
+  "EQTOKEN_SYNC", "EQTOKEN_LATENCY", "EQTOKEN_SWAPBARRIER", 
+  "EQTOKEN_OUTPUTFRAME", "EQTOKEN_INPUTFRAME", "EQTOKEN_STRING", 
+  "EQTOKEN_FLOAT", "EQTOKEN_INTEGER", "EQTOKEN_UNSIGNED", "'{'", "'}'", 
+  "'['", "']'", "$accept", "file", "global", "globals", "connectionType", 
+  "server", "@1", "configs", "config", "@2", "configFields", 
+  "configField", "configAttributes", "configAttribute", "nodes", "node", 
+  "otherNode", "@3", "appNode", "@4", "nodeFields", "nodeField", 
+  "connections", "connection", "@5", "connectionFields", 
+  "connectionField", "pipes", "pipe", "@6", "pipeFields", "pipeField", 
+  "windows", "window", "@7", "windowFields", "windowField", 
+  "windowAttributes", "windowAttribute", "windowHints", "windowHint", 
+  "windowPlanes", "windowPlane", "channels", "channel", "@8", 
+  "channelFields", "channelField", "compounds", "compound", "@9", 
+  "compoundChildren", "compoundFields", "compoundField", "@10", "@11", 
+  "@12", "compoundTasks", "compoundTask", "compoundEyes", "compoundEye", 
+  "buffers", "buffer", "wall", "swapBarrier", "@13", "swapBarrierFields", 
+  "swapBarrierField", "outputFrame", "@14", "inputFrame", "@15", 
+  "frameFields", "frameField", "@16", "viewport", "IATTR", "STRING", 
+  "FLOAT", "INTEGER", "UNSIGNED", 0
 };
 #endif
 
 # ifdef YYPRINT
 /* YYTOKNUM[YYLEX-NUM] -- Internal token number corresponding to
    token YYLEX-NUM.  */
-static const unsigned short int yytoknum[] =
+static const unsigned short yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
@@ -710,7 +710,7 @@ static const unsigned char yydefact[] =
 };
 
 /* YYDEFGOTO[NTERM-NUM]. */
-static const short int yydefgoto[] =
+static const short yydefgoto[] =
 {
       -1,    16,    17,    48,    23,    46,    52,    54,    55,    59,
       62,    63,    74,    75,    69,    70,    71,    86,    72,    85,
@@ -726,7 +726,7 @@ static const short int yydefgoto[] =
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
 #define YYPACT_NINF -169
-static const short int yypact[] =
+static const short yypact[] =
 {
      274,   -27,   -14,   -14,    89,   -13,   -13,   103,    46,    46,
       46,    46,    46,    46,    46,    46,   150,    50,   274,  -169,
@@ -762,7 +762,7 @@ static const short int yypact[] =
 };
 
 /* YYPGOTO[NTERM-NUM].  */
-static const short int yypgoto[] =
+static const short yypgoto[] =
 {
     -169,  -169,    62,  -169,   172,  -169,  -169,  -169,   257,  -169,
     -169,   250,  -169,   243,  -169,   249,  -169,  -169,  -169,  -169,
@@ -780,7 +780,7 @@ static const short int yypgoto[] =
    number is the opposite.  If zero, do what YYDEFACT says.
    If YYTABLE_NINF, syntax error.  */
 #define YYTABLE_NINF -1
-static const unsigned short int yytable[] =
+static const unsigned short yytable[] =
 {
       21,    36,    36,    36,    36,    36,    36,    36,    36,    82,
       89,    25,    26,    37,    38,    39,    40,    41,    42,    43,
@@ -818,7 +818,7 @@ static const unsigned short int yytable[] =
      295,   135,   157,   199,   191,   231,   201,   209
 };
 
-static const unsigned short int yycheck[] =
+static const unsigned short yycheck[] =
 {
        3,     8,     9,    10,    11,    12,    13,    14,    15,    73,
       80,     5,     6,     9,    10,    11,    12,    13,    14,    15,
@@ -916,8 +916,7 @@ static const unsigned char yystos[] =
 
 #define YYACCEPT	goto yyacceptlab
 #define YYABORT		goto yyabortlab
-#define YYERROR		goto yyerrorlab
-
+#define YYERROR		goto yyerrlab1
 
 /* Like YYERROR except do call yyerror.  This remains here temporarily
    to ease the transition to the new meaning of YYERROR, for GCC.
@@ -944,52 +943,19 @@ do								\
     }								\
 while (0)
 
-
 #define YYTERROR	1
 #define YYERRCODE	256
 
+/* YYLLOC_DEFAULT -- Compute the default location (before the actions
+   are run).  */
 
-/* YYLLOC_DEFAULT -- Set CURRENT to span from RHS[1] to RHS[N].
-   If N is 0, then set CURRENT to the empty location which ends
-   the previous symbol: RHS[0] (always defined).  */
-
-#define YYRHSLOC(Rhs, K) ((Rhs)[K])
 #ifndef YYLLOC_DEFAULT
-# define YYLLOC_DEFAULT(Current, Rhs, N)				\
-    do									\
-      if (N)								\
-	{								\
-	  (Current).first_line   = YYRHSLOC (Rhs, 1).first_line;	\
-	  (Current).first_column = YYRHSLOC (Rhs, 1).first_column;	\
-	  (Current).last_line    = YYRHSLOC (Rhs, N).last_line;		\
-	  (Current).last_column  = YYRHSLOC (Rhs, N).last_column;	\
-	}								\
-      else								\
-	{								\
-	  (Current).first_line   = (Current).last_line   =		\
-	    YYRHSLOC (Rhs, 0).last_line;				\
-	  (Current).first_column = (Current).last_column =		\
-	    YYRHSLOC (Rhs, 0).last_column;				\
-	}								\
-    while (0)
+# define YYLLOC_DEFAULT(Current, Rhs, N)         \
+  Current.first_line   = Rhs[1].first_line;      \
+  Current.first_column = Rhs[1].first_column;    \
+  Current.last_line    = Rhs[N].last_line;       \
+  Current.last_column  = Rhs[N].last_column;
 #endif
-
-
-/* YY_LOCATION_PRINT -- Print the location on the stream.
-   This macro was not mandated originally: define only if we know
-   we won't break user code: when these are the locations we know.  */
-
-#ifndef YY_LOCATION_PRINT
-# if YYLTYPE_IS_TRIVIAL
-#  define YY_LOCATION_PRINT(File, Loc)			\
-     fprintf (File, "%d.%d-%d.%d",			\
-              (Loc).first_line, (Loc).first_column,	\
-              (Loc).last_line,  (Loc).last_column)
-# else
-#  define YY_LOCATION_PRINT(File, Loc) ((void) 0)
-# endif
-#endif
-
 
 /* YYLEX -- calling `yylex' with the right arguments.  */
 
@@ -1013,30 +979,36 @@ do {						\
     YYFPRINTF Args;				\
 } while (0)
 
-# define YY_SYMBOL_PRINT(Title, Type, Value, Location)		\
+# define YYDSYMPRINT(Args)			\
+do {						\
+  if (yydebug)					\
+    yysymprint Args;				\
+} while (0)
+
+# define YYDSYMPRINTF(Title, Token, Value, Location)		\
 do {								\
   if (yydebug)							\
     {								\
       YYFPRINTF (stderr, "%s ", Title);				\
       yysymprint (stderr, 					\
-                  Type, Value);	\
+                  Token, Value);	\
       YYFPRINTF (stderr, "\n");					\
     }								\
 } while (0)
 
 /*------------------------------------------------------------------.
 | yy_stack_print -- Print the state stack from its BOTTOM up to its |
-| TOP (included).                                                   |
+| TOP (cinluded).                                                   |
 `------------------------------------------------------------------*/
 
 #if defined (__STDC__) || defined (__cplusplus)
 static void
-yy_stack_print (short int *bottom, short int *top)
+yy_stack_print (short *bottom, short *top)
 #else
 static void
 yy_stack_print (bottom, top)
-    short int *bottom;
-    short int *top;
+    short *bottom;
+    short *top;
 #endif
 {
   YYFPRINTF (stderr, "Stack now");
@@ -1066,9 +1038,9 @@ yy_reduce_print (yyrule)
 #endif
 {
   int yyi;
-  unsigned int yylno = yyrline[yyrule];
+  unsigned int yylineno = yyrline[yyrule];
   YYFPRINTF (stderr, "Reducing stack by rule %d (line %u), ",
-             yyrule - 1, yylno);
+             yyrule - 1, yylineno);
   /* Print the symbols being reduced, and their result.  */
   for (yyi = yyprhs[yyrule]; 0 <= yyrhs[yyi]; yyi++)
     YYFPRINTF (stderr, "%s ", yytname [yyrhs[yyi]]);
@@ -1086,7 +1058,8 @@ do {					\
 int yydebug;
 #else /* !YYDEBUG */
 # define YYDPRINTF(Args)
-# define YY_SYMBOL_PRINT(Title, Type, Value, Location)
+# define YYDSYMPRINT(Args)
+# define YYDSYMPRINTF(Title, Token, Value, Location)
 # define YY_STACK_PRINT(Bottom, Top)
 # define YY_REDUCE_PRINT(Rule)
 #endif /* !YYDEBUG */
@@ -1103,6 +1076,10 @@ int yydebug;
    Do not make this value too large; the results are undefined if
    SIZE_MAX < YYSTACK_BYTES (YYMAXDEPTH)
    evaluated with infinite-precision integer arithmetic.  */
+
+#if YYMAXDEPTH == 0
+# undef YYMAXDEPTH
+#endif
 
 #ifndef YYMAXDEPTH
 # define YYMAXDEPTH 10000
@@ -1185,15 +1162,15 @@ yysymprint (yyoutput, yytype, yyvaluep)
   (void) yyvaluep;
 
   if (yytype < YYNTOKENS)
-    YYFPRINTF (yyoutput, "token %s (", yytname[yytype]);
+    {
+      YYFPRINTF (yyoutput, "token %s (", yytname[yytype]);
+# ifdef YYPRINT
+      YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
+# endif
+    }
   else
     YYFPRINTF (yyoutput, "nterm %s (", yytname[yytype]);
 
-
-# ifdef YYPRINT
-  if (yytype < YYNTOKENS)
-    YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
-# endif
   switch (yytype)
     {
       default:
@@ -1209,21 +1186,16 @@ yysymprint (yyoutput, yytype, yyvaluep)
 
 #if defined (__STDC__) || defined (__cplusplus)
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep)
+yydestruct (int yytype, YYSTYPE *yyvaluep)
 #else
 static void
-yydestruct (yymsg, yytype, yyvaluep)
-    const char *yymsg;
+yydestruct (yytype, yyvaluep)
     int yytype;
     YYSTYPE *yyvaluep;
 #endif
 {
   /* Pacify ``unused variable'' warnings.  */
   (void) yyvaluep;
-
-  if (!yymsg)
-    yymsg = "Deleting";
-  YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
 
   switch (yytype)
     {
@@ -1252,10 +1224,10 @@ int yyparse ();
 
 
 
-/* The look-ahead symbol.  */
+/* The lookahead symbol.  */
 int yychar;
 
-/* The semantic value of the look-ahead symbol.  */
+/* The semantic value of the lookahead symbol.  */
 YYSTYPE yylval;
 
 /* Number of syntax errors so far.  */
@@ -1291,7 +1263,7 @@ yyparse ()
   int yyresult;
   /* Number of tokens to shift before error messages enabled.  */
   int yyerrstatus;
-  /* Look-ahead token as an internal (translated) token number.  */
+  /* Lookahead token as an internal (translated) token number.  */
   int yytoken = 0;
 
   /* Three stacks and their tools:
@@ -1303,9 +1275,9 @@ yyparse ()
      to reallocate them elsewhere.  */
 
   /* The state stack.  */
-  short int yyssa[YYINITDEPTH];
-  short int *yyss = yyssa;
-  register short int *yyssp;
+  short	yyssa[YYINITDEPTH];
+  short *yyss = yyssa;
+  register short *yyssp;
 
   /* The semantic value stack.  */
   YYSTYPE yyvsa[YYINITDEPTH];
@@ -1342,9 +1314,6 @@ yyparse ()
   yyssp = yyss;
   yyvsp = yyvs;
 
-
-  yyvsp[0] = yylval;
-
   goto yysetstate;
 
 /*------------------------------------------------------------.
@@ -1370,7 +1339,7 @@ yyparse ()
 	   these so that the &'s don't force the real ones into
 	   memory.  */
 	YYSTYPE *yyvs1 = yyvs;
-	short int *yyss1 = yyss;
+	short *yyss1 = yyss;
 
 
 	/* Each stack pointer address is followed by the size of the
@@ -1398,7 +1367,7 @@ yyparse ()
 	yystacksize = YYMAXDEPTH;
 
       {
-	short int *yyss1 = yyss;
+	short *yyss1 = yyss;
 	union yyalloc *yyptr =
 	  (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
 	if (! yyptr)
@@ -1434,18 +1403,18 @@ yyparse ()
 yybackup:
 
 /* Do appropriate processing given the current state.  */
-/* Read a look-ahead token if we need one and don't already have one.  */
+/* Read a lookahead token if we need one and don't already have one.  */
 /* yyresume: */
 
-  /* First try to decide what to do without reference to look-ahead token.  */
+  /* First try to decide what to do without reference to lookahead token.  */
 
   yyn = yypact[yystate];
   if (yyn == YYPACT_NINF)
     goto yydefault;
 
-  /* Not known => get a look-ahead token if don't already have one.  */
+  /* Not known => get a lookahead token if don't already have one.  */
 
-  /* YYCHAR is either YYEMPTY or YYEOF or a valid look-ahead symbol.  */
+  /* YYCHAR is either YYEMPTY or YYEOF or a valid lookahead symbol.  */
   if (yychar == YYEMPTY)
     {
       YYDPRINTF ((stderr, "Reading a token: "));
@@ -1460,7 +1429,7 @@ yybackup:
   else
     {
       yytoken = YYTRANSLATE (yychar);
-      YY_SYMBOL_PRINT ("Next token is", yytoken, &yylval, &yylloc);
+      YYDSYMPRINTF ("Next token is", yytoken, &yylval, &yylloc);
     }
 
   /* If the proper action on seeing token YYTOKEN is to reduce or to
@@ -1480,8 +1449,8 @@ yybackup:
   if (yyn == YYFINAL)
     YYACCEPT;
 
-  /* Shift the look-ahead token.  */
-  YY_SYMBOL_PRINT ("Shifting", yytoken, &yylval, &yylloc);
+  /* Shift the lookahead token.  */
+  YYDPRINTF ((stderr, "Shifting token %s, ", yytname[yytoken]));
 
   /* Discard the token being shifted unless it is eof.  */
   if (yychar != YYEOF)
@@ -1534,7 +1503,7 @@ yyreduce:
 
     {
          eqs::Global::instance()->setConnectionSAttribute(
-             eqs::ConnectionDescription::SATTR_HOSTNAME, (yyvsp[0]._string) );
+             eqs::ConnectionDescription::SATTR_HOSTNAME, yyvsp[0]._string );
      ;}
     break;
 
@@ -1542,7 +1511,7 @@ yyreduce:
 
     {
          eqs::Global::instance()->setConnectionSAttribute(
-             eqs::ConnectionDescription::SATTR_LAUNCH_COMMAND, (yyvsp[0]._string) );
+             eqs::ConnectionDescription::SATTR_LAUNCH_COMMAND, yyvsp[0]._string );
      ;}
     break;
 
@@ -1550,7 +1519,7 @@ yyreduce:
 
     { 
          eqs::Global::instance()->setConnectionIAttribute( 
-             eqs::ConnectionDescription::IATTR_TYPE, (yyvsp[0]._connectionType) ); 
+             eqs::ConnectionDescription::IATTR_TYPE, yyvsp[0]._connectionType ); 
      ;}
     break;
 
@@ -1558,7 +1527,7 @@ yyreduce:
 
     {
          eqs::Global::instance()->setConnectionIAttribute(
-             eqs::ConnectionDescription::IATTR_TCPIP_PORT, (yyvsp[0]._unsigned) );
+             eqs::ConnectionDescription::IATTR_TCPIP_PORT, yyvsp[0]._unsigned );
      ;}
     break;
 
@@ -1566,7 +1535,7 @@ yyreduce:
 
     {
          eqs::Global::instance()->setConnectionIAttribute(
-             eqs::ConnectionDescription::IATTR_LAUNCH_TIMEOUT, (yyvsp[0]._unsigned) );
+             eqs::ConnectionDescription::IATTR_LAUNCH_TIMEOUT, yyvsp[0]._unsigned );
      ;}
     break;
 
@@ -1574,7 +1543,7 @@ yyreduce:
 
     {
          eqs::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_HINTS_STEREO, (yyvsp[0]._int) );
+             eq::Window::IATTR_HINTS_STEREO, yyvsp[0]._int );
      ;}
     break;
 
@@ -1582,7 +1551,7 @@ yyreduce:
 
     {
          eqs::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_HINTS_DOUBLEBUFFER, (yyvsp[0]._int) );
+             eq::Window::IATTR_HINTS_DOUBLEBUFFER, yyvsp[0]._int );
      ;}
     break;
 
@@ -1590,7 +1559,7 @@ yyreduce:
 
     {
          eqs::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_HINTS_FULLSCREEN, (yyvsp[0]._int) );
+             eq::Window::IATTR_HINTS_FULLSCREEN, yyvsp[0]._int );
      ;}
     break;
 
@@ -1598,7 +1567,7 @@ yyreduce:
 
     {
          eqs::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_HINTS_DECORATION, (yyvsp[0]._int) );
+             eq::Window::IATTR_HINTS_DECORATION, yyvsp[0]._int );
      ;}
     break;
 
@@ -1606,7 +1575,7 @@ yyreduce:
 
     {
          eqs::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_PLANES_COLOR, (yyvsp[0]._int) );
+             eq::Window::IATTR_PLANES_COLOR, yyvsp[0]._int );
      ;}
     break;
 
@@ -1614,7 +1583,7 @@ yyreduce:
 
     {
          eqs::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_PLANES_ALPHA, (yyvsp[0]._int) );
+             eq::Window::IATTR_PLANES_ALPHA, yyvsp[0]._int );
      ;}
     break;
 
@@ -1622,7 +1591,7 @@ yyreduce:
 
     {
          eqs::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_PLANES_DEPTH, (yyvsp[0]._int) );
+             eq::Window::IATTR_PLANES_DEPTH, yyvsp[0]._int );
      ;}
     break;
 
@@ -1630,7 +1599,7 @@ yyreduce:
 
     {
          eqs::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_PLANES_STENCIL, (yyvsp[0]._int) );
+             eq::Window::IATTR_PLANES_STENCIL, yyvsp[0]._int );
      ;}
     break;
 
@@ -1638,13 +1607,13 @@ yyreduce:
 
     {
          eqs::Global::instance()->setConfigFAttribute(
-             eqs::Config::FATTR_EYE_BASE, (yyvsp[0]._float) );
+             eqs::Config::FATTR_EYE_BASE, yyvsp[0]._float );
      ;}
     break;
 
   case 21:
 
-    { (yyval._connectionType) = eqNet::Connection::TYPE_TCPIP; ;}
+    { yyval._connectionType = eqNet::Connection::TYPE_TCPIP; ;}
     break;
 
   case 22:
@@ -1664,13 +1633,13 @@ yyreduce:
 
   case 31:
 
-    { config->setLatency( (yyvsp[0]._unsigned) ); ;}
+    { config->setLatency( yyvsp[0]._unsigned ); ;}
     break;
 
   case 36:
 
     { config->setFAttribute( 
-                             eqs::Config::FATTR_EYE_BASE, (yyvsp[0]._float) ); ;}
+                             eqs::Config::FATTR_EYE_BASE, yyvsp[0]._float ); ;}
     break;
 
   case 41:
@@ -1680,7 +1649,7 @@ yyreduce:
 
   case 42:
 
-    { config->addNode( node ); node = NULL; ;}
+    { config->addNode( node ); node = 0; ;}
     break;
 
   case 43:
@@ -1690,7 +1659,7 @@ yyreduce:
 
   case 44:
 
-    { config->addApplicationNode( node ); node = NULL; ;}
+    { config->addApplicationNode( node ); node = 0; ;}
     break;
 
   case 49:
@@ -1710,28 +1679,28 @@ yyreduce:
 
     { 
                  node->addConnectionDescription( connectionDescription );
-                 connectionDescription = NULL;
+                 connectionDescription = 0;
              ;}
     break;
 
   case 57:
 
-    { connectionDescription->type = (yyvsp[0]._connectionType); ;}
+    { connectionDescription->type = yyvsp[0]._connectionType; ;}
     break;
 
   case 58:
 
-    { connectionDescription->hostname = (yyvsp[0]._string); ;}
+    { connectionDescription->hostname = yyvsp[0]._string; ;}
     break;
 
   case 59:
 
-    { connectionDescription->launchCommand = (yyvsp[0]._string); ;}
+    { connectionDescription->launchCommand = yyvsp[0]._string; ;}
     break;
 
   case 60:
 
-    { connectionDescription->launchTimeout = (yyvsp[0]._unsigned); ;}
+    { connectionDescription->launchTimeout = yyvsp[0]._unsigned; ;}
     break;
 
   case 63:
@@ -1741,24 +1710,24 @@ yyreduce:
 
   case 64:
 
-    { node->addPipe( eqPipe ); eqPipe = NULL; ;}
+    { node->addPipe( eqPipe ); eqPipe = 0; ;}
     break;
 
   case 68:
 
-    { eqPipe->setDisplay( (yyvsp[0]._unsigned) ); ;}
+    { eqPipe->setDisplay( yyvsp[0]._unsigned ); ;}
     break;
 
   case 69:
 
-    { eqPipe->setScreen( (yyvsp[0]._unsigned) ); ;}
+    { eqPipe->setScreen( yyvsp[0]._unsigned ); ;}
     break;
 
   case 70:
 
     {
-            eqPipe->setPixelViewport( eq::PixelViewport( (int)(yyvsp[0]._viewport)[0], (int)(yyvsp[0]._viewport)[1],
-                                                      (int)(yyvsp[0]._viewport)[2], (int)(yyvsp[0]._viewport)[3] ));
+            eqPipe->setPixelViewport( eq::PixelViewport( (int)yyvsp[0]._viewport[0], (int)yyvsp[0]._viewport[1],
+                                                      (int)yyvsp[0]._viewport[2], (int)yyvsp[0]._viewport[3] ));
         ;}
     break;
 
@@ -1769,63 +1738,63 @@ yyreduce:
 
   case 74:
 
-    { eqPipe->addWindow( window ); window = NULL; ;}
+    { eqPipe->addWindow( window ); window = 0; ;}
     break;
 
   case 79:
 
-    { window->setName( (yyvsp[0]._string) ); ;}
+    { window->setName( yyvsp[0]._string ); ;}
     break;
 
   case 80:
 
     {
-            if( (yyvsp[0]._viewport)[2] > 1 || (yyvsp[0]._viewport)[3] > 1 )
-                window->setPixelViewport( eq::PixelViewport( (int)(yyvsp[0]._viewport)[0], 
-                                          (int)(yyvsp[0]._viewport)[1], (int)(yyvsp[0]._viewport)[2], (int)(yyvsp[0]._viewport)[3] ));
+            if( yyvsp[0]._viewport[2] > 1 || yyvsp[0]._viewport[3] > 1 )
+                window->setPixelViewport( eq::PixelViewport( (int)yyvsp[0]._viewport[0], 
+                                          (int)yyvsp[0]._viewport[1], (int)yyvsp[0]._viewport[2], (int)yyvsp[0]._viewport[3] ));
             else
-                window->setViewport( eq::Viewport((yyvsp[0]._viewport)[0], (yyvsp[0]._viewport)[1], (yyvsp[0]._viewport)[2], (yyvsp[0]._viewport)[3])); 
+                window->setViewport( eq::Viewport(yyvsp[0]._viewport[0], yyvsp[0]._viewport[1], yyvsp[0]._viewport[2], yyvsp[0]._viewport[3])); 
         ;}
     break;
 
   case 89:
 
-    { window->setIAttribute( eq::Window::IATTR_HINTS_STEREO, (yyvsp[0]._int) ); ;}
+    { window->setIAttribute( eq::Window::IATTR_HINTS_STEREO, yyvsp[0]._int ); ;}
     break;
 
   case 90:
 
-    { window->setIAttribute( eq::Window::IATTR_HINTS_DOUBLEBUFFER, (yyvsp[0]._int) ); ;}
+    { window->setIAttribute( eq::Window::IATTR_HINTS_DOUBLEBUFFER, yyvsp[0]._int ); ;}
     break;
 
   case 91:
 
-    { window->setIAttribute( eq::Window::IATTR_HINTS_FULLSCREEN, (yyvsp[0]._int) ); ;}
+    { window->setIAttribute( eq::Window::IATTR_HINTS_FULLSCREEN, yyvsp[0]._int ); ;}
     break;
 
   case 92:
 
-    { window->setIAttribute( eq::Window::IATTR_HINTS_DECORATION, (yyvsp[0]._int) ); ;}
+    { window->setIAttribute( eq::Window::IATTR_HINTS_DECORATION, yyvsp[0]._int ); ;}
     break;
 
   case 96:
 
-    { window->setIAttribute( eq::Window::IATTR_PLANES_COLOR, (yyvsp[0]._int) ); ;}
+    { window->setIAttribute( eq::Window::IATTR_PLANES_COLOR, yyvsp[0]._int ); ;}
     break;
 
   case 97:
 
-    { window->setIAttribute( eq::Window::IATTR_PLANES_ALPHA, (yyvsp[0]._int) ); ;}
+    { window->setIAttribute( eq::Window::IATTR_PLANES_ALPHA, yyvsp[0]._int ); ;}
     break;
 
   case 98:
 
-    { window->setIAttribute( eq::Window::IATTR_PLANES_DEPTH, (yyvsp[0]._int) ); ;}
+    { window->setIAttribute( eq::Window::IATTR_PLANES_DEPTH, yyvsp[0]._int ); ;}
     break;
 
   case 99:
 
-    { window->setIAttribute( eq::Window::IATTR_PLANES_STENCIL, (yyvsp[0]._int) ); ;}
+    { window->setIAttribute( eq::Window::IATTR_PLANES_STENCIL, yyvsp[0]._int ); ;}
     break;
 
   case 102:
@@ -1835,22 +1804,22 @@ yyreduce:
 
   case 103:
 
-    { window->addChannel( channel ); channel = NULL; ;}
+    { window->addChannel( channel ); channel = 0; ;}
     break;
 
   case 107:
 
-    { channel->setName( (yyvsp[0]._string) ); ;}
+    { channel->setName( yyvsp[0]._string ); ;}
     break;
 
   case 108:
 
     {
-            if( (yyvsp[0]._viewport)[2] > 1 || (yyvsp[0]._viewport)[3] > 1 )
-                channel->setPixelViewport( eq::PixelViewport( (int)(yyvsp[0]._viewport)[0],
-                                          (int)(yyvsp[0]._viewport)[1], (int)(yyvsp[0]._viewport)[2], (int)(yyvsp[0]._viewport)[3] ));
+            if( yyvsp[0]._viewport[2] > 1 || yyvsp[0]._viewport[3] > 1 )
+                channel->setPixelViewport( eq::PixelViewport( (int)yyvsp[0]._viewport[0],
+                                          (int)yyvsp[0]._viewport[1], (int)yyvsp[0]._viewport[2], (int)yyvsp[0]._viewport[3] ));
             else
-                channel->setViewport(eq::Viewport( (yyvsp[0]._viewport)[0], (yyvsp[0]._viewport)[1], (yyvsp[0]._viewport)[2], (yyvsp[0]._viewport)[3]));
+                channel->setViewport(eq::Viewport( yyvsp[0]._viewport[0], yyvsp[0]._viewport[1], yyvsp[0]._viewport[2], yyvsp[0]._viewport[3]));
         ;}
     break;
 
@@ -1873,13 +1842,13 @@ yyreduce:
 
   case 118:
 
-    { eqCompound->setName( (yyvsp[0]._string) ); ;}
+    { eqCompound->setName( yyvsp[0]._string ); ;}
     break;
 
   case 119:
 
     {
-         eqs::Channel* channel = config->findChannel( (yyvsp[0]._string) );
+         eqs::Channel* channel = config->findChannel( yyvsp[0]._string );
          if( !channel )
              yyerror( "No channel of the given name" );
          else
@@ -1909,12 +1878,12 @@ yyreduce:
 
   case 126:
 
-    { eqCompound->setViewport( eq::Viewport( (yyvsp[0]._viewport)[0], (yyvsp[0]._viewport)[1], (yyvsp[0]._viewport)[2], (yyvsp[0]._viewport)[3] ));;}
+    { eqCompound->setViewport( eq::Viewport( yyvsp[0]._viewport[0], yyvsp[0]._viewport[1], yyvsp[0]._viewport[2], yyvsp[0]._viewport[3] ));;}
     break;
 
   case 127:
 
-    { eqCompound->setRange( eq::Range( (yyvsp[-2]._float), (yyvsp[-1]._float) )); ;}
+    { eqCompound->setRange( eq::Range( yyvsp[-2]._float, yyvsp[-1]._float )); ;}
     break;
 
   case 135:
@@ -1966,17 +1935,17 @@ yyreduce:
 
     { 
         eq::Wall wall;
-        wall.bottomLeft[0] = (yyvsp[-16]._float);
-        wall.bottomLeft[1] = (yyvsp[-15]._float);
-        wall.bottomLeft[2] = (yyvsp[-14]._float);
+        wall.bottomLeft[0] = yyvsp[-16]._float;
+        wall.bottomLeft[1] = yyvsp[-15]._float;
+        wall.bottomLeft[2] = yyvsp[-14]._float;
 
-        wall.bottomRight[0] = (yyvsp[-10]._float);
-        wall.bottomRight[1] = (yyvsp[-9]._float);
-        wall.bottomRight[2] = (yyvsp[-8]._float);
+        wall.bottomRight[0] = yyvsp[-10]._float;
+        wall.bottomRight[1] = yyvsp[-9]._float;
+        wall.bottomRight[2] = yyvsp[-8]._float;
 
-        wall.topLeft[0] = (yyvsp[-4]._float);
-        wall.topLeft[1] = (yyvsp[-3]._float);
-        wall.topLeft[2] = (yyvsp[-2]._float);
+        wall.topLeft[0] = yyvsp[-4]._float;
+        wall.topLeft[1] = yyvsp[-3]._float;
+        wall.topLeft[2] = yyvsp[-2]._float;
         eqCompound->setWall( wall );
     ;}
     break;
@@ -1990,13 +1959,13 @@ yyreduce:
 
     { 
             eqCompound->setSwapBarrier( swapBarrier );
-            swapBarrier = NULL;
+            swapBarrier = 0;
         ;}
     break;
 
   case 156:
 
-    { swapBarrier->setName( (yyvsp[0]._string) ); ;}
+    { swapBarrier->setName( yyvsp[0]._string ); ;}
     break;
 
   case 157:
@@ -2008,7 +1977,7 @@ yyreduce:
 
     { 
             eqCompound->addOutputFrame( frame );
-            frame = NULL;
+            frame = 0;
         ;}
     break;
 
@@ -2021,18 +1990,18 @@ yyreduce:
 
     { 
             eqCompound->addInputFrame( frame );
-            frame = NULL;
+            frame = 0;
         ;}
     break;
 
   case 164:
 
-    { frame->setName( (yyvsp[0]._string) ); ;}
+    { frame->setName( yyvsp[0]._string ); ;}
     break;
 
   case 165:
 
-    { frame->setViewport(eq::Viewport( (yyvsp[0]._viewport)[0], (yyvsp[0]._viewport)[1], (yyvsp[0]._viewport)[2], (yyvsp[0]._viewport)[3])); ;}
+    { frame->setViewport(eq::Viewport( yyvsp[0]._viewport[0], yyvsp[0]._viewport[1], yyvsp[0]._viewport[2], yyvsp[0]._viewport[3])); ;}
     break;
 
   case 166:
@@ -2048,70 +2017,70 @@ yyreduce:
   case 168:
 
     { 
-         (yyval._viewport)[0] = (yyvsp[-4]._float);
-         (yyval._viewport)[1] = (yyvsp[-3]._float);
-         (yyval._viewport)[2] = (yyvsp[-2]._float);
-         (yyval._viewport)[3] = (yyvsp[-1]._float);
+         yyval._viewport[0] = yyvsp[-4]._float;
+         yyval._viewport[1] = yyvsp[-3]._float;
+         yyval._viewport[2] = yyvsp[-2]._float;
+         yyval._viewport[3] = yyvsp[-1]._float;
      ;}
     break;
 
   case 169:
 
-    { (yyval._int) = eq::ON; ;}
+    { yyval._int = eq::ON; ;}
     break;
 
   case 170:
 
-    { (yyval._int) = eq::OFF; ;}
+    { yyval._int = eq::OFF; ;}
     break;
 
   case 171:
 
-    { (yyval._int) = eq::AUTO; ;}
+    { yyval._int = eq::AUTO; ;}
     break;
 
   case 172:
 
-    { (yyval._int) = (yyvsp[0]._int); ;}
+    { yyval._int = yyvsp[0]._int; ;}
     break;
 
   case 173:
 
     {
          stringBuf = yytext;
-         (yyval._string) = stringBuf.c_str(); 
+         yyval._string = stringBuf.c_str(); 
      ;}
     break;
 
   case 174:
 
-    { (yyval._float) = atof( yytext ); ;}
+    { yyval._float = atof( yytext ); ;}
     break;
 
   case 175:
 
-    { (yyval._float) = (yyvsp[0]._int); ;}
+    { yyval._float = yyvsp[0]._int; ;}
     break;
 
   case 176:
 
-    { (yyval._int) = atoi( yytext ); ;}
+    { yyval._int = atoi( yytext ); ;}
     break;
 
   case 177:
 
-    { (yyval._int) = (yyvsp[0]._unsigned); ;}
+    { yyval._int = yyvsp[0]._unsigned; ;}
     break;
 
   case 178:
 
-    { (yyval._unsigned) = atoi( yytext ); ;}
+    { yyval._unsigned = atoi( yytext ); ;}
     break;
 
 
     }
 
-/* Line 1037 of yacc.c.  */
+/* Line 991 of yacc.c.  */
 
 
   yyvsp -= yylen;
@@ -2153,33 +2122,18 @@ yyerrlab:
 	{
 	  YYSIZE_T yysize = 0;
 	  int yytype = YYTRANSLATE (yychar);
-	  const char* yyprefix;
 	  char *yymsg;
-	  int yyx;
+	  int yyx, yycount;
 
+	  yycount = 0;
 	  /* Start YYX at -YYN if negative to avoid negative indexes in
 	     YYCHECK.  */
-	  int yyxbegin = yyn < 0 ? -yyn : 0;
-
-	  /* Stay within bounds of both yycheck and yytname.  */
-	  int yychecklim = YYLAST - yyn;
-	  int yyxend = yychecklim < YYNTOKENS ? yychecklim : YYNTOKENS;
-	  int yycount = 0;
-
-	  yyprefix = ", expecting ";
-	  for (yyx = yyxbegin; yyx < yyxend; ++yyx)
+	  for (yyx = yyn < 0 ? -yyn : 0;
+	       yyx < (int) (sizeof (yytname) / sizeof (char *)); yyx++)
 	    if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR)
-	      {
-		yysize += yystrlen (yyprefix) + yystrlen (yytname [yyx]);
-		yycount += 1;
-		if (yycount == 5)
-		  {
-		    yysize = 0;
-		    break;
-		  }
-	      }
-	  yysize += (sizeof ("syntax error, unexpected ")
-		     + yystrlen (yytname[yytype]));
+	      yysize += yystrlen (yytname[yyx]) + 15, yycount++;
+	  yysize += yystrlen ("syntax error, unexpected ") + 1;
+	  yysize += yystrlen (yytname[yytype]);
 	  yymsg = (char *) YYSTACK_ALLOC (yysize);
 	  if (yymsg != 0)
 	    {
@@ -2188,13 +2142,16 @@ yyerrlab:
 
 	      if (yycount < 5)
 		{
-		  yyprefix = ", expecting ";
-		  for (yyx = yyxbegin; yyx < yyxend; ++yyx)
+		  yycount = 0;
+		  for (yyx = yyn < 0 ? -yyn : 0;
+		       yyx < (int) (sizeof (yytname) / sizeof (char *));
+		       yyx++)
 		    if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR)
 		      {
-			yyp = yystpcpy (yyp, yyprefix);
+			const char *yyq = ! yycount ? ", expecting " : " or ";
+			yyp = yystpcpy (yyp, yyq);
 			yyp = yystpcpy (yyp, yytname[yyx]);
-			yyprefix = " or ";
+			yycount++;
 		      }
 		}
 	      yyerror (yymsg);
@@ -2212,58 +2169,55 @@ yyerrlab:
 
   if (yyerrstatus == 3)
     {
-      /* If just tried and failed to reuse look-ahead token after an
+      /* If just tried and failed to reuse lookahead token after an
 	 error, discard it.  */
 
-      if (yychar <= YYEOF)
+      /* Return failure if at end of input.  */
+      if (yychar == YYEOF)
         {
-          /* If at end of input, pop the error token,
-	     then the rest of the stack, then return failure.  */
-	  if (yychar == YYEOF)
-	     for (;;)
-	       {
-
-		 YYPOPSTACK;
-		 if (yyssp == yyss)
-		   YYABORT;
-		 yydestruct ("Error: popping",
-                             yystos[*yyssp], yyvsp);
-	       }
+	  /* Pop the error token.  */
+          YYPOPSTACK;
+	  /* Pop the rest of the stack.  */
+	  while (yyss < yyssp)
+	    {
+	      YYDSYMPRINTF ("Error: popping", yystos[*yyssp], yyvsp, yylsp);
+	      yydestruct (yystos[*yyssp], yyvsp);
+	      YYPOPSTACK;
+	    }
+	  YYABORT;
         }
-      else
-	{
-	  yydestruct ("Error: discarding", yytoken, &yylval);
-	  yychar = YYEMPTY;
-	}
+
+      YYDSYMPRINTF ("Error: discarding", yytoken, &yylval, &yylloc);
+      yydestruct (yytoken, &yylval);
+      yychar = YYEMPTY;
+
     }
 
-  /* Else will try to reuse look-ahead token after shifting the error
+  /* Else will try to reuse lookahead token after shifting the error
      token.  */
-  goto yyerrlab1;
+  goto yyerrlab2;
 
 
-/*---------------------------------------------------.
-| yyerrorlab -- error raised explicitly by YYERROR.  |
-`---------------------------------------------------*/
-yyerrorlab:
+/*----------------------------------------------------.
+| yyerrlab1 -- error raised explicitly by an action.  |
+`----------------------------------------------------*/
+yyerrlab1:
 
-#ifdef __GNUC__
-  /* Pacify GCC when the user code never invokes YYERROR and the label
-     yyerrorlab therefore never appears in user code.  */
-  if (0)
-     goto yyerrorlab;
+  /* Suppress GCC warning that yyerrlab1 is unused when no action
+     invokes YYERROR.  */
+#if defined (__GNUC_MINOR__) && 2093 <= (__GNUC__ * 1000 + __GNUC_MINOR__) \
+    && !defined __cplusplus
+  __attribute__ ((__unused__))
 #endif
 
-yyvsp -= yylen;
-  yyssp -= yylen;
-  yystate = *yyssp;
-  goto yyerrlab1;
+
+  goto yyerrlab2;
 
 
-/*-------------------------------------------------------------.
-| yyerrlab1 -- common code for both syntax error and YYERROR.  |
-`-------------------------------------------------------------*/
-yyerrlab1:
+/*---------------------------------------------------------------.
+| yyerrlab2 -- pop states until the error token can be shifted.  |
+`---------------------------------------------------------------*/
+yyerrlab2:
   yyerrstatus = 3;	/* Each real token shifted decrements this.  */
 
   for (;;)
@@ -2284,21 +2238,21 @@ yyerrlab1:
       if (yyssp == yyss)
 	YYABORT;
 
+      YYDSYMPRINTF ("Error: popping", yystos[*yyssp], yyvsp, yylsp);
+      yydestruct (yystos[yystate], yyvsp);
+      yyvsp--;
+      yystate = *--yyssp;
 
-      yydestruct ("Error: popping", yystos[yystate], yyvsp);
-      YYPOPSTACK;
-      yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
     }
 
   if (yyn == YYFINAL)
     YYACCEPT;
 
+  YYDPRINTF ((stderr, "Shifting error token, "));
+
   *++yyvsp = yylval;
 
-
-  /* Shift the error token. */
-  YY_SYMBOL_PRINT ("Shifting", yystos[yyn], yyvsp, yylsp);
 
   yystate = yyn;
   goto yynewstate;
@@ -2315,9 +2269,6 @@ yyacceptlab:
 | yyabortlab -- YYABORT comes here.  |
 `-----------------------------------*/
 yyabortlab:
-  yydestruct ("Error: discarding lookahead",
-              yytoken, &yylval);
-  yychar = YYEMPTY;
   yyresult = 1;
   goto yyreturn;
 
@@ -2361,16 +2312,16 @@ eqs::Server* eqs::Loader::loadConfig( const string& filename )
     if( !yyin )
     {
         EQERROR << "Can't open config file " << filename << endl;
-        return NULL;
+        return 0;
     }
 
-    server      = NULL;
+    server      = 0;
     bool retval = true;
     if( eqLoader_parse() )
         retval = false;
 
     fclose( yyin );
-    loader = NULL;
+    loader = 0;
     return server;
 }
 

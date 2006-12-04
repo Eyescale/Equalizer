@@ -236,7 +236,6 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
 
     Image*         image   = newImage();
     const uint8_t* data    = packet->data;
-    const uint64_t nPixels = packet->pvp.w * packet->pvp.h;
 
     image->setPixelViewport( packet->pvp );
 
@@ -246,7 +245,7 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
         data += image->decompressPixelData( Frame::BUFFER_COLOR, data );
 #else
         image->setPixelData( Frame::BUFFER_COLOR, data );
-        data += nPixels * image->getDepth( Frame::BUFFER_COLOR );
+        data += image->getPixelDataSize( Frame::BUFFER_COLOR );
 #endif
     }
     if( packet->buffers & Frame::BUFFER_DEPTH )
@@ -255,7 +254,7 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
         data += image->decompressPixelData( Frame::BUFFER_DEPTH, data );
 #else
         image->setPixelData( Frame::BUFFER_DEPTH, data );
-        data += nPixels * image->getDepth( Frame::BUFFER_DEPTH );
+        data += image->getPixelDataSize( Frame::BUFFER_DEPTH );
 #endif
     }
 

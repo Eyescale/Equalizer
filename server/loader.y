@@ -18,21 +18,21 @@
 
     namespace eqLoader
     {
-        static eqs::Loader* loader = NULL;
+        static eqs::Loader* loader = 0;
         static std::string  stringBuf;
         
-        static eqs::Server*      server;
-        static eqs::Config*      config;
-        static eqs::Node*        node;
-        static eqs::Pipe*        eqPipe; // avoid name clash with pipe()
-        static eqs::Window*      window;
-        static eqs::Channel*     channel;
-        static eqs::Compound*    eqCompound; // avoid name clash on Darwin
-        static eqs::SwapBarrier* swapBarrier;
-        static eqs::Frame*       frame;
+        static eqs::Server*      server = 0;
+        static eqs::Config*      config = 0;
+        static eqs::Node*        node = 0;
+        static eqs::Pipe*        eqPipe = 0; // avoid name clash with pipe()
+        static eqs::Window*      window = 0;
+        static eqs::Channel*     channel = 0;
+        static eqs::Compound*    eqCompound = 0; // avoid name clash on Darwin
+        static eqs::SwapBarrier* swapBarrier = 0;
+        static eqs::Frame*       frame = 0;
         static eqBase::RefPtr<eqNet::ConnectionDescription> 
             connectionDescription;
-        static uint32_t          flags;
+        static uint32_t          flags = 0;
     }
 
     using namespace std;
@@ -243,11 +243,11 @@ node: appNode | otherNode
 otherNode: EQTOKEN_NODE '{' { node = loader->createNode(); }
                connections
                nodeFields
-               pipes '}' { config->addNode( node ); node = NULL; }
+               pipes '}' { config->addNode( node ); node = 0; }
 appNode: EQTOKEN_APPNODE '{' { node = loader->createNode(); }
             connections
             nodeFields
-            pipes '}' { config->addApplicationNode( node ); node = NULL; }
+            pipes '}' { config->addApplicationNode( node ); node = 0; }
 nodeFields: /*null*/ | nodeField | nodeFields nodeField
 nodeField: /*TODO*/
 
@@ -262,7 +262,7 @@ connection: EQTOKEN_CONNECTION
             connectionFields '}' 
              { 
                  node->addConnectionDescription( connectionDescription );
-                 connectionDescription = NULL;
+                 connectionDescription = 0;
              }
 connectionFields: /*null*/ | connectionField | 
                       connectionFields connectionField
@@ -276,7 +276,7 @@ connectionField:
 pipes: pipe | pipes pipe
 pipe: EQTOKEN_PIPE '{' { eqPipe = loader->createPipe(); }
         pipeFields
-        windows    '}' { node->addPipe( eqPipe ); eqPipe = NULL; }
+        windows    '}' { node->addPipe( eqPipe ); eqPipe = 0; }
 pipeFields: /*null*/ | pipeField | pipeFields pipeField
 pipeField:
     EQTOKEN_DISPLAY UNSIGNED         { eqPipe->setDisplay( $2 ); }
@@ -290,7 +290,7 @@ pipeField:
 windows: window | windows window
 window: EQTOKEN_WINDOW '{' { window = loader->createWindow(); }
         windowFields
-        channels '}' { eqPipe->addWindow( window ); window = NULL; }
+        channels '}' { eqPipe->addWindow( window ); window = 0; }
 windowFields: /*null*/ | windowField | windowFields windowField
 windowField: 
     EQTOKEN_ATTRIBUTES '{' 
@@ -332,7 +332,7 @@ windowPlane:
 channels: channel | channels channel
 channel: EQTOKEN_CHANNEL '{' { channel = loader->createChannel(); }
          channelFields
-        '}' { window->addChannel( channel ); channel = NULL; }
+        '}' { window->addChannel( channel ); channel = 0; }
 channelFields:
      /*null*/ | channelField | channelFields channelField
 channelField: 
@@ -434,7 +434,7 @@ swapBarrier: EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eqs::SwapBarrier(); }
     swapBarrierFields '}'
         { 
             eqCompound->setSwapBarrier( swapBarrier );
-            swapBarrier = NULL;
+            swapBarrier = 0;
         } 
 swapBarrierFields: /*null*/ | swapBarrierField 
     | swapBarrierFields swapBarrierField
@@ -445,13 +445,13 @@ outputFrame : EQTOKEN_OUTPUTFRAME '{' { frame = new eqs::Frame(); }
     frameFields '}'
         { 
             eqCompound->addOutputFrame( frame );
-            frame = NULL;
+            frame = 0;
         } 
 inputFrame: EQTOKEN_INPUTFRAME '{' { frame = new eqs::Frame(); }
     frameFields '}'
         { 
             eqCompound->addInputFrame( frame );
-            frame = NULL;
+            frame = 0;
         } 
 frameFields: /*null*/ | frameField | frameFields frameField
 frameField: 
@@ -506,15 +506,15 @@ eqs::Server* eqs::Loader::loadConfig( const string& filename )
     if( !yyin )
     {
         EQERROR << "Can't open config file " << filename << endl;
-        return NULL;
+        return 0;
     }
 
-    server      = NULL;
+    server      = 0;
     bool retval = true;
     if( eqLoader_parse() )
         retval = false;
 
     fclose( yyin );
-    loader = NULL;
+    loader = 0;
     return server;
 }

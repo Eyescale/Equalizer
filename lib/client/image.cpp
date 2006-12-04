@@ -401,7 +401,7 @@ struct RGBHeader
          */
         void convert()
         {
-#       ifdef i386
+#if defined(__i386__) || defined(__amd64__)
             SWAP_SHORT(magic);
             SWAP_SHORT(nDimensions);
             SWAP_SHORT(width);
@@ -410,7 +410,7 @@ struct RGBHeader
             SWAP_INT(minValue);
             SWAP_INT(maxValue);
             SWAP_INT(colorMode);
-#       endif
+#endif
         }
     
     unsigned short magic       __attribute__ ((packed));
@@ -420,11 +420,11 @@ struct RGBHeader
     unsigned short width       __attribute__ ((packed));
     unsigned short height      __attribute__ ((packed));
     unsigned short depth       __attribute__ ((packed));
-    long minValue              __attribute__ ((packed));
-    long maxValue              __attribute__ ((packed));
+    unsigned minValue          __attribute__ ((packed));
+    unsigned maxValue          __attribute__ ((packed));
     char unused[4]             __attribute__ ((packed));
     char filename[80]          __attribute__ ((packed));
-    long colorMode             __attribute__ ((packed));
+    unsigned colorMode         __attribute__ ((packed));
     char fill[404]             __attribute__ ((packed));
 };
 

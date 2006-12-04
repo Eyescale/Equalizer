@@ -157,10 +157,8 @@ $(THIN_SIMPLE_PROGRAMS): $(CXXFILES)
 endif # VARIANT
 endif # PROGRAMS
 
-testRun: $(SIMPLE_PROGRAMS)
-	@for program in $(THIN_SIMPLE_PROGRAMS); do \
-		./$$program; \
-	done && touch $@ || rm -f $@
+testRun.%: %
+	env LD_LIBRARY_PATH=$(BUILD_DIR)/$(subst .,,$(suffix $<))/lib ./$< && touch $@ || rm -f $@
 
 # cleaning targets
 clean:

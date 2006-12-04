@@ -15,7 +15,7 @@
 #endif
 #endif
 #ifdef CGL
-#  if defined(i386) // WAR compile error
+#  if defined(__i386__) // WAR compile error
 #    undef Status 
 #  endif 
 #  define Cursor CGLCursor // avoid name clash with X11 'Cursor'
