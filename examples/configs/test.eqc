@@ -1,7 +1,7 @@
-# three-to-one sort-last, direct-send single-pipe demo config
+# six-to-one sort-first config for cluster at unizh
 global
 {
-    EQ_WINDOW_IATTR_PLANES_STENCIL on
+    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
 }
 
 server
@@ -11,80 +11,63 @@ server
         latency 2
         appNode
         {
+            connection { hostname "10.42.42.1" }
             pipe 
             {
-                window 
+                window
                 {
-                    name    "window1"
-                    viewport [ 320 50 600 375 ]
+                    viewport [ 640 512 1280 800 ]
+                    attributes { hints { fullscreen off }}
                     channel { name "channel1" }
                 }
             }
-            pipe { 
-                window { 
-                    name    "window2"
-                    viewport [ 0 512 600 375 ] 
-                    channel { name "channel2" }
-                }
-            }
-            pipe { 
-                window { 
-                    name    "window3"
-                    viewport [ 640 512 1200 800 ] 
-                    channel { name "channel3" }
-                }
-            }
+        }
+        node
+        {
+            connection { hostname "10.42.42.2" }
+            pipe { window { channel { name "channel2" }}}
+        }
+        node
+        {
+            connection { hostname "10.42.42.3" }
+            pipe { window { channel { name "channel3" }}}
+        }
+        node
+        {
+            connection { hostname "10.42.42.4" }
+            pipe { window { channel { name "channel4" }}}
+        }
+        node
+        {
+            connection { hostname "10.42.42.5" }
+            pipe { window { channel { name "channel5" }}}
+        }
+        node
+        {
+            connection { hostname "10.42.42.6" }
+            pipe { window { channel { name "channel6" }}}
         }
         compound
         {
-            channel "channel1"
-            buffer  [ COLOR DEPTH ]
-
+            channel "channel4"
             wall
             {
-                bottom_left  [ -.32 -.2 -.5 ]
-                bottom_right [  .32 -.2 -.5 ]
-                top_left     [ -.32  .2 -.5 ]
+                bottom_left  [ -.32 -.2 -1 ]
+                bottom_right [  .32 -.2 -1 ]
+                top_left     [ -.32  .2 -1 ]
             }
 
+            compound
+            {
+                viewport [ 0 0 1 .5 ]
+            }
             compound
             {
                 channel "channel2"
-
-                compound {
-                    range [ .333 .666 ]
-                    outputframe { name "f1.c2" viewport [ 0 0    1 .333 ] }
-                    outputframe { name "f2.c2" viewport [ 0 .333 1 .333 ] }
-                }
-                inputframe { name "f2.c1" }
-                inputframe { name "f2.c3" }
-                outputframe { buffer [ COLOR ] viewport [ 0 .666 1 .334 ] }
+                viewport [ 0 0.5 1 .5 ]
+                outputframe {}
             }
-            compound
-            {
-                channel "channel3"
-
-                compound {
-                    range [ .666 1 ]
-                    outputframe { name "f1.c3" viewport [ 0 0    1 .333 ] }
-                    outputframe { name "f2.c3" viewport [ 0 .666 1 .334 ] }
-                }
-                inputframe { name "f1.c1" }
-                inputframe { name "f2.c2" }
-                outputframe { buffer [ COLOR ] viewport [ 0 .333 1 .333 ] }
-            }
-
-            compound
-            {
-                range [ 0 .333 ]
-
-                outputframe { name "f1.c1" viewport [ 0 .333 1 .333 ] }
-                outputframe { name "f2.c1" viewport [ 0 .666 1 .334 ] }
-            }
-            inputframe { name "f1.c2" }
-            inputframe { name "f1.c3" }
             inputframe { name "frame.channel2" }
-            inputframe { name "frame.channel3" }
         }
     }    
 }

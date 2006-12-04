@@ -1,4 +1,4 @@
-# six-to-one sort-first config for cluster at unizh
+# six-to-one sort-last config for cluster at unizh
 global
 {
     EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
@@ -16,7 +16,11 @@ server
                 window
                 {
                     viewport [ 640 512 1280 800 ]
-                    attributes { hints { fullscreen off }}
+                    attributes
+                    {
+                        hints  { fullscreen off }
+                        planes { stencil on }
+                    }
                     channel { name "channel1" }
                 }
             }
@@ -49,6 +53,8 @@ server
         compound
         {
             channel "channel1"
+            buffer  [ COLOR DEPTH ]
+
             wall
             {
                 bottom_left  [ -.32 -.20 -.5 ]
@@ -58,36 +64,36 @@ server
 
             compound
             {
-                viewport [ 0 0 .333 .5 ]
+                range   [ 0 .166 ]
             }
             compound
             {
                 channel "channel2"
-                viewport [ .333 0 .333 .5 ]
+                range   [ .166 .333 ]
                 outputframe {}
             }
             compound
             {
                 channel "channel3"
-                viewport [ .666 0 .334 .5 ]
+                range   [ .333 .5 ]
                 outputframe {}
             }
             compound
             {
                 channel "channel4"
-                viewport [ 0 .5 .333 .5 ]
+                range   [ .5 .666 ]
                 outputframe {}
             }
             compound
             {
                 channel "channel5"
-                viewport [ .333 .5 .333 .5 ]
+                range   [ .666 .833 ]
                 outputframe {}
             }
             compound
             {
                 channel "channel6"
-                viewport [ .666 .5 .334 .5 ]
+                range   [ .833 1 ]
                 outputframe {}
             }
             inputframe { name "frame.channel2" }

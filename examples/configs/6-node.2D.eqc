@@ -15,8 +15,6 @@ server
             {
                 window
                 {
-                    viewport [ 640 512 1280 800 ]
-                    attributes { hints { fullscreen off }}
                     channel { name "channel1" }
                 }
             }
@@ -51,43 +49,43 @@ server
             channel "channel1"
             wall
             {
-                bottom_left  [ -.32 -.20 -.5 ]
-                bottom_right [  .32 -.20 -.5 ]
-                top_left     [ -.32  .20 -.5 ]
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
             }
 
             compound
             {
-                viewport [ 0 0 .333 .5 ]
+                viewport [ 0 0 1 .166 ]
             }
             compound
             {
                 channel "channel2"
-                viewport [ .333 0 .333 .5 ]
+                viewport [ 0 .166 1 .167 ]
                 outputframe {}
             }
             compound
             {
                 channel "channel3"
-                viewport [ .666 0 .334 .5 ]
+                viewport [ 0 .333 1 .167 ]
                 outputframe {}
             }
             compound
             {
                 channel "channel4"
-                viewport [ 0 .5 .333 .5 ]
+                viewport [ 0 .5 1 .166 ]
                 outputframe {}
             }
             compound
             {
                 channel "channel5"
-                viewport [ .333 .5 .333 .5 ]
+                viewport [ 0 .666 1 .167 ]
                 outputframe {}
             }
             compound
             {
                 channel "channel6"
-                viewport [ .666 .5 .334 .5 ]
+                viewport [ 0 .833 1 .167 ]
                 outputframe {}
             }
             inputframe { name "frame.channel2" }

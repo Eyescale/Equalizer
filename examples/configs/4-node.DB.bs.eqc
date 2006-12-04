@@ -1,8 +1,8 @@
 # four-to-one sort-last, binary-swap config for cluster at unizh
 global
 {
-    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
     EQ_WINDOW_IATTR_PLANES_STENCIL on
+    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
 }
 
 server
@@ -17,16 +17,9 @@ server
             {
                 window 
                 {
-                    attributes { hints { fullscreen off }}
-                    viewport [ 640 512 1280 800 ]
-                    channel { name "destination" }
+                    channel { name "channel1" }
                 }
             }
-        }
-        node
-        {
-            connection { hostname "10.42.42.3" }
-            pipe { window { channel { name "channel1" }}}
         }
         node
         {
@@ -35,24 +28,24 @@ server
         }
         node
         {
-            connection { hostname "10.42.42.5" }
+            connection { hostname "10.42.42.2" }
             pipe { window { channel { name "channel3" }}}
         }
         node
         {
-            connection { hostname "10.42.42.6" }
+            connection { hostname "10.42.42.3" }
             pipe { window { channel { name "channel4" }}}
         }
         compound
         {
-            channel "destination"
+            channel "channel1"
             buffer  [ COLOR DEPTH ]
 
             wall
             {
-                bottom_left  [ -.32 -.2 -.5 ]
-                bottom_right [  .32 -.2 -.5 ]
-                top_left     [ -.32  .2 -.5 ]
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
             }
 
             compound
@@ -69,8 +62,6 @@ server
                     inputframe { name "f1.c2"  }
                     outputframe { name "f2.c1" viewport [ 0 .5 1 .25 ] }
                 }
-                inputframe { name "f2.c3" }
-                outputframe { buffer [ COLOR ] viewport [ 0 .75 1 .25 ] }
             }
             compound
             {
@@ -128,7 +119,7 @@ server
                 outputframe { buffer [ COLOR ] viewport [ 0 0 1 .25 ] }
             }
 
-            inputframe { name "frame.channel1" }
+            inputframe { name "f2.c3" }
             inputframe { name "frame.channel2" }
             inputframe { name "frame.channel3" }
             inputframe { name "frame.channel4" }

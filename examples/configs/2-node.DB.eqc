@@ -1,0 +1,54 @@
+# four-to-one sort-last config for cluster at unizh
+global
+{
+    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
+}
+
+server
+{
+    config
+    {
+        latency 2
+        node
+        {
+            connection { hostname "10.42.42.1" }
+            pipe 
+            {
+                window
+                {
+                    attributes { planes { stencil on }}
+                    channel { name "channel1" }
+                }
+            }
+        }
+        node
+        {
+            connection { hostname "10.42.42.4" }
+            pipe { window { channel { name "channel2" }}}
+        }
+        compound
+        {
+            channel "channel1"
+            buffer  [ COLOR DEPTH ]
+
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+            }
+
+            compound
+            {
+                range   [ 0 .5 ]
+            }
+            compound
+            {
+                channel "channel2"
+                range   [ .5 1 ]
+                outputframe {}
+            }
+            inputframe { name "frame.channel2" }
+        }
+    }    
+}
