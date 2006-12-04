@@ -90,8 +90,8 @@ namespace eq
                 const int32_t xEnd = x + static_cast<int32_t>((rhs.x+rhs.w)*w);
                 const int32_t yEnd = y + static_cast<int32_t>((rhs.y+rhs.h)*h);
 
-                result.x += static_cast<int32_t>( w * rhs.x );
-                result.y += static_cast<int32_t>( h * rhs.y );
+                result.x = x + static_cast<int32_t>( w * rhs.x );
+                result.y = y + static_cast<int32_t>( h * rhs.y );
                 result.w = xEnd - result.x;
                 result.h = yEnd - result.y;
 
