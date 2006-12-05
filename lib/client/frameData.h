@@ -109,10 +109,23 @@ namespace eq
         std::vector<Image*> _images;
         std::vector<Image*> _imageCache;
 
+        struct ImageVersion
+        {
+            ImageVersion( Image* _image, const uint32_t _version )
+                    : image( _image ), version( _version ) {}
+
+            Image*   image;
+            uint32_t version;
+        };
+        std::list<ImageVersion> _pendingImages;
+
         eqBase::Monitor<uint32_t> _readyVersion;
 
         /** Clear the frame by recycling the attached images. */
         void _clear();
+
+        /** Allocate or reuse a new image. */
+        Image* _allocImage();
 
         /** 
          * Set the frame data ready.

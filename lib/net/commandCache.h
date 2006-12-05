@@ -13,7 +13,7 @@ namespace eqNet
     class Node;
     
     /**
-     * A CommandCache handles the creation of command for the CommandQueue and
+     * A CommandCache handles the creation of commands for the CommandQueue and
      * the node reschedule queue.
      *
      * The packets are copied and can therefore be retained in the queues.

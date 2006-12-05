@@ -64,6 +64,13 @@ void FrameData::flush()
 
 Image* FrameData::newImage()
 {
+    Image* image = _allocImage();
+    _images.push_back( image );
+    return image;
+}
+
+Image* FrameData::_allocImage()
+{
     Image* image;
     if( _imageCache.empty( ))
         image = new Image();
@@ -72,7 +79,6 @@ Image* FrameData::newImage()
         image = _imageCache.back();
         _imageCache.pop_back();
     }
-    _images.push_back( image );
     return image;
 }
 
@@ -225,17 +231,13 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
     const FrameDataTransmitPacket* packet = 
         command.getPacket<FrameDataTransmitPacket>();
 
-    if( getVersion() < packet->version )
-        return eqNet::COMMAND_REDISPATCH;
-
-    EQLOG( LOG_ASSEMBLY ) << "received image, buffers " << packet->buffers 
-                          << " pvp " << packet->pvp << endl;
+    EQLOG( LOG_ASSEMBLY ) 
+        << "received image, buffers " << packet->buffers << " pvp " 
+        << packet->pvp << " v" << packet->version << endl;
 
     EQASSERT( packet->pvp.isValid( ));
-    EQASSERT( getVersion() == packet->version );
-    EQASSERT( _readyVersion.get() < getVersion( ));
 
-    Image*         image   = newImage();
+    Image*         image   = _allocImage();
     const uint8_t* data    = packet->data;
 
     image->setPixelViewport( packet->pvp );
@@ -259,6 +261,19 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
 #endif
     }
 
+    const uint32_t version = getVersion();
+
+    if( version == packet->version )
+    {
+        EQASSERT( getVersion() == packet->version );
+        EQASSERT( _readyVersion.get() < getVersion( ));
+        _images.push_back( image );
+    }
+    else
+    {
+        EQASSERT( getVersion() < packet->version );
+        _pendingImages.push_back( ImageVersion( image, packet->version ));
+    }
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -273,9 +288,22 @@ eqNet::CommandResult FrameData::_cmdReady( eqNet::Command& command )
     EQASSERT( getVersion() == packet->version );
     EQASSERT( _readyVersion.get() < getVersion( ));
 
+    for( list<ImageVersion>::iterator i = _pendingImages.begin();
+         i != _pendingImages.end(); ++i )
+    {
+        const ImageVersion& imageVersion = *i;
+        EQASSERT( imageVersion.version >= packet->version );
+
+        if( imageVersion.version == packet->version )
+        {
+            _images.push_back( imageVersion.image );
+            _pendingImages.erase( i );
+        }
+    }
+
     EQLOG( LOG_ASSEMBLY ) << this << " received v" << packet->version
-                          << " ready " << _images.size() << " images" << endl;
-    
+                          << " with " << _images.size() << " images" << endl;
+
     _readyVersion = packet->version;
     return eqNet::COMMAND_HANDLED;
 }
