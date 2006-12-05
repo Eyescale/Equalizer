@@ -3,8 +3,8 @@ include $(TOP)/make/system.mk
 
 SUBDIRS = \
 	base \
-	compressor \
 	connection \
+	image \
 	node \
 	session
 
