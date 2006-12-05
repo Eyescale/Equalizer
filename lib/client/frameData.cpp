@@ -289,7 +289,7 @@ eqNet::CommandResult FrameData::_cmdReady( eqNet::Command& command )
     EQASSERT( _readyVersion.get() < getVersion( ));
 
     for( list<ImageVersion>::iterator i = _pendingImages.begin();
-         i != _pendingImages.end(); ++i )
+         i != _pendingImages.end(); )
     {
         const ImageVersion& imageVersion = *i;
         EQASSERT( imageVersion.version >= packet->version );
@@ -297,8 +297,12 @@ eqNet::CommandResult FrameData::_cmdReady( eqNet::Command& command )
         if( imageVersion.version == packet->version )
         {
             _images.push_back( imageVersion.image );
-            _pendingImages.erase( i );
+            list<ImageVersion>::iterator eraseIter = i;
+            ++i;
+            _pendingImages.erase( eraseIter );
         }
+        else
+            ++i;
     }
 
     EQLOG( LOG_ASSEMBLY ) << this << " received v" << packet->version
