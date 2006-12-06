@@ -82,6 +82,7 @@ HEADER_SRC = \
 	client/range.h \
 	client/renderContext.h \
 	client/server.h \
+	client/statEvent.h \
 	client/version.h \
 	client/view.h \
 	client/viewport.h \
@@ -140,6 +141,7 @@ SOURCES = \
 	client/range.cpp \
 	client/renderContext.cpp \
 	client/server.cpp \
+	client/statEvent.cpp \
 	client/version.cpp \
 	client/view.cpp \
 	client/wall.cpp \

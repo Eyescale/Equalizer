@@ -439,41 +439,6 @@ std::ostream& eqs::operator << ( std::ostream& os, const eqs::Window* window )
     else
         os << "name \"" << name << "\"" << endl;
 
-    os << endl << "attributes" << endl;
-    os << "{" << endl << indent;
-    os << "hints" << endl;
-    os << "{" << endl << indent;
-    
-    for( eq::Window::IAttribute i = static_cast<eq::Window::IAttribute>( 0 );
-         i<eq::Window::IATTR_ALL; 
-         i = static_cast<eq::Window::IAttribute>( static_cast<uint32_t>( i )+1))
-    {
-        const int value = window->getIAttribute( i );
-        if( value == Global::instance()->getWindowIAttribute( i ))
-            continue;
-
-        os << ( i==eq::Window::IATTR_HINTS_STEREO ?
-                    "stereo       " :
-                i==eq::Window::IATTR_HINTS_DOUBLEBUFFER ?
-                    "doublebuffer " :
-                i==eq::Window::IATTR_HINTS_FULLSCREEN ?
-                    "fullscreen   " :
-                i==eq::Window::IATTR_HINTS_DECORATION ?
-                    "decoration   " :
-                i==eq::Window::IATTR_PLANES_COLOR ? 
-                    "color        " :
-                i==eq::Window::IATTR_PLANES_ALPHA ?
-                    "alpha        " :
-                i==eq::Window::IATTR_PLANES_DEPTH ?
-                    "depth        " :
-                i==eq::Window::IATTR_PLANES_STENCIL ?
-                    "stencil      " : "ERROR" )
-           << value << endl;
-    }
-    
-    os << exdent << "}" << endl;
-    os << exdent << "}" << endl << endl;
-        
     const eq::Viewport& vp  = window->getViewport();
     if( vp.isValid( ))
     {
@@ -487,7 +452,45 @@ std::ostream& eqs::operator << ( std::ostream& os, const eqs::Window* window )
             os << "viewport " << pvp << endl;
     }
 
-    os << endl;
+    bool attrPrinted   = false;
+    
+    for( eq::Window::IAttribute i = static_cast<eq::Window::IAttribute>( 0 );
+         i<eq::Window::IATTR_ALL; 
+         i = static_cast<eq::Window::IAttribute>( static_cast<uint32_t>( i )+1))
+    {
+        const int value = window->getIAttribute( i );
+        if( value == Global::instance()->getWindowIAttribute( i ))
+            continue;
+
+        if( !attrPrinted )
+        {
+            os << endl << "attributes" << endl;
+            os << "{" << endl << indent;
+            attrPrinted = true;
+        }
+        
+        os << ( i==eq::Window::IATTR_HINT_STEREO ?
+                    "hint_stereo       " :
+                i==eq::Window::IATTR_HINT_DOUBLEBUFFER ?
+                    "hint_doublebuffer " :
+                i==eq::Window::IATTR_HINT_FULLSCREEN ?
+                    "hint_fullscreen   " :
+                i==eq::Window::IATTR_HINT_DECORATION ?
+                    "hint_decoration   " :
+                i==eq::Window::IATTR_PLANES_COLOR ? 
+                    "planes_color      " :
+                i==eq::Window::IATTR_PLANES_ALPHA ?
+                    "planes_alpha      " :
+                i==eq::Window::IATTR_PLANES_DEPTH ?
+                    "planes_depth      " :
+                i==eq::Window::IATTR_PLANES_STENCIL ?
+                    "planes_stencil    " : "ERROR" )
+           << static_cast<eq::IAttrValue>( value ) << endl;
+    }
+    
+    if( attrPrinted )
+        os << exdent << "}" << endl << endl;
+
     const uint32_t nChannels = window->nChannels();
     for( uint32_t i=0; i<nChannels; i++ )
         os << window->getChannel(i);

@@ -7,9 +7,10 @@
 
 #include "commands.h"
 
-#include "node.h"
-#include "pixelViewport.h"
-#include "windowSystem.h"
+#include <eq/client/node.h>
+#include <eq/client/pixelViewport.h>
+#include <eq/client/statEvent.h>
+#include <eq/client/windowSystem.h>
 
 #include <eq/base/refPtr.h>
 #include <eq/base/thread.h>
@@ -133,6 +134,9 @@ namespace eq
          * @return the CGL display ID for this pipe.
          */
         CGDirectDisplayID getCGLDisplayID() const;
+
+        /** @return the time in ms elapsed since the frame started. */
+        float getFrameTime() const { return _frameClock.getTimef(); }
         //*}
 
         /** 
@@ -201,6 +205,14 @@ namespace eq
         virtual void endFrame( const uint32_t frameID ) {}
         //@}
 
+        /**
+         * @name Operations
+         */
+        //*{
+        /** Add a new statistics event to the current frame. */
+        void addStatEvent( const StatEvent& event )
+            { _statEvents.push_back( event ); }
+
         /** 
          * Push a command to the pipe thread to be handled from there.
          * 
@@ -209,6 +221,7 @@ namespace eq
          */
         eqNet::CommandResult pushCommand( eqNet::Command& command )
             {_commandQueue.push( command ); return eqNet::COMMAND_HANDLED;}
+        //*}
 
     protected:
         /**
@@ -254,6 +267,15 @@ namespace eq
 
         /** The screen (GLX), adapter (Win32) or ignored (CGL). */
         uint32_t _screen;
+        
+        /** The running per-frame statistic clocks. */
+        std::deque<eqBase::Clock> _frameClocks;
+
+        /** The clock for the currently active frame. */
+        eqBase::Clock _frameClock;
+
+        /** The statistics events gathered during the current frame. */
+        std::vector<StatEvent> _statEvents;
 
         static int XErrorHandler( Display* display, XErrorEvent* event );
 
@@ -288,6 +310,7 @@ namespace eq
         eqNet::CommandResult _cmdExit( eqNet::Command& command );
         eqNet::CommandResult _reqExit( eqNet::Command& command );
         eqNet::CommandResult _reqUpdate( eqNet::Command& command );
+        eqNet::CommandResult _cmdUpdate( eqNet::Command& command );
         eqNet::CommandResult _reqFrameSync( eqNet::Command& command );
     };
 }

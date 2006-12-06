@@ -5,10 +5,12 @@
 #ifndef EQ_PACKETS_H
 #define EQ_PACKETS_H
 
+#include <eq/client/channel.h>
 #include <eq/client/commands.h>
 #include <eq/client/frame.h>
 #include <eq/client/pixelViewport.h>
 #include <eq/client/renderContext.h>
+#include <eq/client/statEvent.h>
 #include <eq/client/viewport.h>
 #include <eq/client/window.h>
 
@@ -369,7 +371,9 @@ namespace eq
                 size    = sizeof( PipeFrameSyncPacket );
             }
 
-        uint32_t frameID;
+        uint32_t  frameID;
+        uint32_t  nStatEvents;
+        StatEvent statEvents[1] EQ_ALIGN8;
     };
 
     //------------------------------------------------------------
@@ -527,6 +531,7 @@ namespace eq
 
         uint32_t      requestID;
         uint32_t      initID;
+        int32_t       iattr[eq::Channel::IATTR_ALL];
         PixelViewport pvp;
         Viewport      vp;
         char          name[8] EQ_ALIGN8;

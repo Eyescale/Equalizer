@@ -55,14 +55,15 @@
 %token EQTOKEN_CONNECTION_IATTR_TCPIP_PORT
 %token EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT
 %token EQTOKEN_CONFIG_FATTR_EYE_BASE
-%token EQTOKEN_WINDOW_IATTR_HINTS_STEREO
-%token EQTOKEN_WINDOW_IATTR_HINTS_DOUBLEBUFFER
-%token EQTOKEN_WINDOW_IATTR_HINTS_FULLSCREEN
-%token EQTOKEN_WINDOW_IATTR_HINTS_DECORATION
+%token EQTOKEN_WINDOW_IATTR_HINT_STEREO
+%token EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER
+%token EQTOKEN_WINDOW_IATTR_HINT_FULLSCREEN
+%token EQTOKEN_WINDOW_IATTR_HINT_DECORATION
 %token EQTOKEN_WINDOW_IATTR_PLANES_COLOR
 %token EQTOKEN_WINDOW_IATTR_PLANES_ALPHA
 %token EQTOKEN_WINDOW_IATTR_PLANES_DEPTH
 %token EQTOKEN_WINDOW_IATTR_PLANES_STENCIL
+%token EQTOKEN_CHANNEL_IATTR_HINT_STATISTICS
 %token EQTOKEN_SERVER
 %token EQTOKEN_CONFIG
 %token EQTOKEN_APPNODE
@@ -70,19 +71,20 @@
 %token EQTOKEN_PIPE
 %token EQTOKEN_WINDOW
 %token EQTOKEN_ATTRIBUTES
-%token EQTOKEN_HINTS
-%token EQTOKEN_STEREO
-%token EQTOKEN_DOUBLEBUFFER
-%token EQTOKEN_FULLSCREEN
-%token EQTOKEN_DECORATION
-%token EQTOKEN_PLANES
-%token EQTOKEN_COLOR
-%token EQTOKEN_ALPHA
-%token EQTOKEN_DEPTH
-%token EQTOKEN_STENCIL
+%token EQTOKEN_HINT_STEREO
+%token EQTOKEN_HINT_DOUBLEBUFFER
+%token EQTOKEN_HINT_FULLSCREEN
+%token EQTOKEN_HINT_DECORATION
+%token EQTOKEN_HINT_STATISTICS
+%token EQTOKEN_PLANES_COLOR
+%token EQTOKEN_PLANES_ALPHA
+%token EQTOKEN_PLANES_DEPTH
+%token EQTOKEN_PLANES_STENCIL
 %token EQTOKEN_ON
 %token EQTOKEN_OFF
 %token EQTOKEN_AUTO
+%token EQTOKEN_FASTEST
+%token EQTOKEN_NICEST
 %token EQTOKEN_CHANNEL
 %token EQTOKEN_COMPOUND
 %token EQTOKEN_CONNECTION
@@ -100,6 +102,8 @@
 %token EQTOKEN_DRAW
 %token EQTOKEN_ASSEMBLE
 %token EQTOKEN_READBACK
+%token EQTOKEN_COLOR
+%token EQTOKEN_DEPTH
 %token EQTOKEN_CYCLOP
 %token EQTOKEN_LEFT
 %token EQTOKEN_RIGHT
@@ -174,25 +178,30 @@ global:
          eqs::Global::instance()->setConnectionIAttribute(
              eqs::ConnectionDescription::IATTR_LAUNCH_TIMEOUT, $2 );
      }
-     | EQTOKEN_WINDOW_IATTR_HINTS_STEREO IATTR
+     | EQTOKEN_CONFIG_FATTR_EYE_BASE FLOAT
      {
-         eqs::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_HINTS_STEREO, $2 );
+         eqs::Global::instance()->setConfigFAttribute(
+             eqs::Config::FATTR_EYE_BASE, $2 );
      }
-     | EQTOKEN_WINDOW_IATTR_HINTS_DOUBLEBUFFER IATTR
+     | EQTOKEN_WINDOW_IATTR_HINT_STEREO IATTR
      {
          eqs::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_HINTS_DOUBLEBUFFER, $2 );
+             eq::Window::IATTR_HINT_STEREO, $2 );
      }
-     | EQTOKEN_WINDOW_IATTR_HINTS_FULLSCREEN IATTR
+     | EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER IATTR
      {
          eqs::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_HINTS_FULLSCREEN, $2 );
+             eq::Window::IATTR_HINT_DOUBLEBUFFER, $2 );
      }
-     | EQTOKEN_WINDOW_IATTR_HINTS_DECORATION IATTR
+     | EQTOKEN_WINDOW_IATTR_HINT_FULLSCREEN IATTR
      {
          eqs::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_HINTS_DECORATION, $2 );
+             eq::Window::IATTR_HINT_FULLSCREEN, $2 );
+     }
+     | EQTOKEN_WINDOW_IATTR_HINT_DECORATION IATTR
+     {
+         eqs::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_HINT_DECORATION, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_PLANES_COLOR IATTR
      {
@@ -214,10 +223,10 @@ global:
          eqs::Global::instance()->setWindowIAttribute(
              eq::Window::IATTR_PLANES_STENCIL, $2 );
      }
-     | EQTOKEN_CONFIG_FATTR_EYE_BASE FLOAT
+     | EQTOKEN_CHANNEL_IATTR_HINT_STATISTICS IATTR
      {
-         eqs::Global::instance()->setConfigFAttribute(
-             eqs::Config::FATTR_EYE_BASE, $2 );
+         eqs::Global::instance()->setChannelIAttribute(
+             eq::Channel::IATTR_HINT_STATISTICS, $2 );
      }
 
 connectionType: EQTOKEN_TCPIP { $$ = eqNet::Connection::TYPE_TCPIP; };
@@ -306,27 +315,21 @@ windowField:
         }
 windowAttributes: /*null*/ | windowAttribute | windowAttributes windowAttribute
 windowAttribute:
-    EQTOKEN_HINTS '{' windowHints '}'
-    | EQTOKEN_PLANES '{' windowPlanes '}'
-windowHints: /*null*/ | windowHint | windowHints windowHint
-windowHint:
-    EQTOKEN_STEREO IATTR
-        { window->setIAttribute( eq::Window::IATTR_HINTS_STEREO, $2 ); }
-    | EQTOKEN_DOUBLEBUFFER IATTR
-        { window->setIAttribute( eq::Window::IATTR_HINTS_DOUBLEBUFFER, $2 ); }
-    | EQTOKEN_FULLSCREEN IATTR
-        { window->setIAttribute( eq::Window::IATTR_HINTS_FULLSCREEN, $2 ); }
-    | EQTOKEN_DECORATION IATTR
-        { window->setIAttribute( eq::Window::IATTR_HINTS_DECORATION, $2 ); }
-windowPlanes: /*null*/ | windowPlane | windowPlanes windowPlane
-windowPlane:
-    EQTOKEN_COLOR IATTR
+    EQTOKEN_HINT_STEREO IATTR
+        { window->setIAttribute( eq::Window::IATTR_HINT_STEREO, $2 ); }
+    | EQTOKEN_HINT_DOUBLEBUFFER IATTR
+        { window->setIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER, $2 ); }
+    | EQTOKEN_HINT_FULLSCREEN IATTR
+        { window->setIAttribute( eq::Window::IATTR_HINT_FULLSCREEN, $2 ); }
+    | EQTOKEN_HINT_DECORATION IATTR
+        { window->setIAttribute( eq::Window::IATTR_HINT_DECORATION, $2 ); }
+    | EQTOKEN_PLANES_COLOR IATTR
         { window->setIAttribute( eq::Window::IATTR_PLANES_COLOR, $2 ); }
-    | EQTOKEN_ALPHA IATTR
+    | EQTOKEN_PLANES_ALPHA IATTR
         { window->setIAttribute( eq::Window::IATTR_PLANES_ALPHA, $2 ); }
-    | EQTOKEN_DEPTH IATTR
+    | EQTOKEN_PLANES_DEPTH IATTR
         { window->setIAttribute( eq::Window::IATTR_PLANES_DEPTH, $2 ); }
-    | EQTOKEN_STENCIL IATTR
+    | EQTOKEN_PLANES_STENCIL IATTR
         { window->setIAttribute( eq::Window::IATTR_PLANES_STENCIL, $2 ); }
                      
 channels: channel | channels channel
@@ -337,6 +340,8 @@ channelFields:
      /*null*/ | channelField | channelFields channelField
 channelField: 
     EQTOKEN_NAME STRING { channel->setName( $2 ); }
+    | EQTOKEN_ATTRIBUTES '{' 
+    channelAttributes '}'
     | EQTOKEN_VIEWPORT viewport
         {
             if( $2[2] > 1 || $2[3] > 1 )
@@ -345,6 +350,10 @@ channelField:
             else
                 channel->setViewport(eq::Viewport( $2[0], $2[1], $2[2], $2[3]));
         }
+channelAttributes: /*null*/ | channelAttribute | channelAttributes channelAttribute
+channelAttribute:
+    EQTOKEN_HINT_STATISTICS IATTR
+        { channel->setIAttribute( eq::Channel::IATTR_HINT_STATISTICS, $2 ); }
 
 
 compounds: compound | compounds compound
@@ -470,10 +479,12 @@ viewport: '[' FLOAT FLOAT FLOAT FLOAT ']'
      }
 
 IATTR:
-    EQTOKEN_ON     { $$ = eq::ON; }
-    | EQTOKEN_OFF  { $$ = eq::OFF; }
-    | EQTOKEN_AUTO { $$ = eq::AUTO; }
-    | INTEGER      { $$ = $1; }
+    EQTOKEN_ON        { $$ = eq::ON; }
+    | EQTOKEN_OFF     { $$ = eq::OFF; }
+    | EQTOKEN_AUTO    { $$ = eq::AUTO; }
+    | EQTOKEN_FASTEST { $$ = eq::FASTEST; }
+    | EQTOKEN_NICEST  { $$ = eq::NICEST; }
+    | INTEGER         { $$ = $1; }
 
 STRING: EQTOKEN_STRING
      {

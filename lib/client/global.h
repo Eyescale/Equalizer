@@ -14,10 +14,12 @@ namespace eq
     /** Possible values for some integer attributes */
     enum IAttrValue
     {
-        UNDEFINED = -2,
+        UNDEFINED = -0xfffffff,
+        NICEST    = -2,
         AUTO      = -1,
         OFF       = false,
         ON        = true,
+        FASTEST   = ON,
     };
 
     /** 

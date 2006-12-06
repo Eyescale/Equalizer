@@ -20,6 +20,11 @@ using namespace eq;
 using namespace eqBase;
 using namespace std;
 
+#define MAKE_ATTR_STRING( attr ) ( string("EQ_CHANNEL_") + #attr )
+std::string eq::Channel::_iAttributeStrings[IATTR_ALL] = {
+    MAKE_ATTR_STRING( IATTR_HINT_STATISTICS ),
+};
+
 Channel::Channel()
         : eqNet::Object( eq::Object::TYPE_CHANNEL ),
           _window(NULL),
@@ -329,6 +334,9 @@ eqNet::CommandResult Channel::_reqInit( eqNet::Command& command )
         _setViewport( packet->vp );
     _name = packet->name;
 
+    for( uint32_t i=0; i<IATTR_ALL; ++i )
+        _iAttributes[i] = packet->iattr[i];
+
     ChannelInitReplyPacket reply( packet );
     reply.result = init( packet->initID );
     reply.near   = _frustum.near;
@@ -354,9 +362,18 @@ eqNet::CommandResult Channel::_reqClear( eqNet::Command& command )
     ChannelClearPacket* packet = command.getPacket<ChannelClearPacket>();
     EQLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet << endl;
 
+    Pipe* pipe = getPipe();
+    StatEvent event( StatEvent::CHANNEL_CLEAR, this, pipe->getFrameTime( ));
+
     _context = &packet->context;
     clear( packet->context.frameID );
     _context = NULL;
+
+    if( getIAttribute( IATTR_HINT_STATISTICS ))
+    {
+        event.endTime = pipe->getFrameTime();
+        pipe->addStatEvent( event );
+    }
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -365,9 +382,18 @@ eqNet::CommandResult Channel::_reqDraw( eqNet::Command& command )
     ChannelDrawPacket* packet = command.getPacket<ChannelDrawPacket>();
     EQLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << packet << endl;
 
+    Pipe* pipe = getPipe();
+    StatEvent event( StatEvent::CHANNEL_DRAW, this, pipe->getFrameTime( ));
+
     _context = &packet->context;
     draw( packet->context.frameID );
     _context = NULL;
+
+    if( getIAttribute( IATTR_HINT_STATISTICS ))
+    {
+        event.endTime = pipe->getFrameTime();
+        pipe->addStatEvent( event );
+    }
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -376,6 +402,9 @@ eqNet::CommandResult Channel::_reqAssemble( eqNet::Command& command )
     ChannelAssemblePacket* packet = command.getPacket<ChannelAssemblePacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK assemble " << getName() <<  " " 
                                        << packet << endl;
+
+    Pipe* pipe = getPipe();
+    StatEvent event( StatEvent::CHANNEL_ASSEMBLE, this, pipe->getFrameTime( ));
 
     _context = &packet->context;
 
@@ -394,6 +423,12 @@ eqNet::CommandResult Channel::_reqAssemble( eqNet::Command& command )
 
     _inputFrames.clear();
     _context = NULL;
+
+    if( getIAttribute( IATTR_HINT_STATISTICS ))
+    {
+        event.endTime = pipe->getFrameTime();
+        pipe->addStatEvent( event );
+    }
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -402,6 +437,9 @@ eqNet::CommandResult Channel::_reqReadback( eqNet::Command& command )
     ChannelReadbackPacket* packet = command.getPacket<ChannelReadbackPacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " " 
                                        << packet << endl;
+
+    Pipe* pipe = getPipe();
+    StatEvent event( StatEvent::CHANNEL_READBACK, this, pipe->getFrameTime( ));
 
     _context = &packet->context;
 
@@ -427,6 +465,12 @@ eqNet::CommandResult Channel::_reqReadback( eqNet::Command& command )
 
     _outputFrames.clear();
     _context = NULL;
+
+    if( getIAttribute( IATTR_HINT_STATISTICS ))
+    {
+        event.endTime = pipe->getFrameTime();
+        pipe->addStatEvent( event );
+    }
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -436,6 +480,9 @@ eqNet::CommandResult Channel::_reqTransmit( eqNet::Command& command )
         command.getPacket<ChannelTransmitPacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK transmit " << getName() <<  " " 
                                       << packet << endl;
+
+    Pipe* pipe = getPipe();
+    StatEvent event( StatEvent::CHANNEL_TRANSMIT, this, pipe->getFrameTime( ));
 
     eqNet::Session*     session   = getSession();
     RefPtr<eqNet::Node> localNode = session->getLocalNode();
@@ -456,5 +503,10 @@ eqNet::CommandResult Channel::_reqTransmit( eqNet::Command& command )
         frame->transmit( toNode );
     }
 
+    if( getIAttribute( IATTR_HINT_STATISTICS ))
+    {
+        event.endTime = pipe->getFrameTime();
+        pipe->addStatEvent( event );
+    }
     return eqNet::COMMAND_HANDLED;
 }

@@ -18,6 +18,8 @@ std::ostream& eq::operator << ( std::ostream& os, const IAttrValue value )
     else
         os << ( value == UNDEFINED ? "undefined" :
                 value == OFF       ? "off" :
-                value == ON        ? "on" : "auto" );
+                value == ON        ? "on" : 
+                value == AUTO      ? "auto" :
+                value == NICEST    ? "nicest" : "ERROR"  );
     return os;
 }

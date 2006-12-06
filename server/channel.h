@@ -169,6 +169,17 @@ namespace eqs
             { return eqNet::Object::send( _getNetNode(), packet ); }
         //*}
 
+        /**
+         * @name Attributes
+         */
+        //*{
+        void setIAttribute( const eq::Channel::IAttribute attr,
+                            const int32_t value )
+            { _iAttributes[attr] = value; }
+        int32_t  getIAttribute( const eq::Channel::IAttribute attr ) const
+            { return _iAttributes[attr]; }
+        //*}
+
     protected:
         virtual ~Channel();
 
@@ -184,6 +195,9 @@ namespace eqs
         friend class Window;
 
         std::string _name;
+
+        /** Integer attributes. */
+        int32_t _iAttributes[eq::Channel::IATTR_ALL];
 
         /** The fractional viewport with respect to the window. */
         eq::Viewport      _vp;

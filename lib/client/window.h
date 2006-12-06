@@ -209,10 +209,10 @@ namespace eq
         // Note: also update string array initialization in window.cpp
         enum IAttribute
         {
-            IATTR_HINTS_STEREO,
-            IATTR_HINTS_DOUBLEBUFFER,
-            IATTR_HINTS_FULLSCREEN,
-            IATTR_HINTS_DECORATION,
+            IATTR_HINT_STEREO,
+            IATTR_HINT_DOUBLEBUFFER,
+            IATTR_HINT_FULLSCREEN,
+            IATTR_HINT_DECORATION,
             IATTR_PLANES_COLOR,
             IATTR_PLANES_ALPHA,
             IATTR_PLANES_DEPTH,

@@ -11,7 +11,7 @@ namespace eqs
 {
     enum LogTopics
     {
-        //LOG_???    = eq::LOG_CUSTOM  // 4096
+        LOG_STATS    = eq::LOG_CUSTOM  // 4096
     };
 }
 #endif // EQS_LOG_H

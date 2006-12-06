@@ -194,6 +194,23 @@ namespace eq
         const std::vector<Frame*>& getOutputFrames() { return _outputFrames; }
         //*}
 
+        /**
+         * @name Attributes
+         */
+        //*{
+        // Note: also update string array initialization in channel.cpp
+        enum IAttribute
+        {
+            IATTR_HINT_STATISTICS,
+            IATTR_ALL
+        };
+        
+        int32_t  getIAttribute( const IAttribute attr ) const
+            { return _iAttributes[attr]; }
+        static const std::string&  getIAttributeString( const IAttribute attr )
+            { return _iAttributeStrings[attr]; }
+        //*}
+#if 0
         /** @name Scene Object Access. */
         //*{
         SceneObject* getNextSceneObject();
@@ -202,6 +219,7 @@ namespace eq
         void passSceneObject( SceneObject* object );
         void flushSceneObjects();
         //*}
+#endif
 
     protected:
         /**
@@ -216,6 +234,11 @@ namespace eq
 
         /** The name. */
         std::string    _name;
+
+        /** Integer attributes. */
+        int32_t _iAttributes[IATTR_ALL];
+        /** String representation of integer attributes. */
+        static std::string _iAttributeStrings[IATTR_ALL];
 
         /** server-supplied rendering data. */
         RenderContext *_context;

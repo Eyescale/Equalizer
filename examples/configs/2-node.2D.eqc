@@ -1,7 +1,7 @@
 # four-to-one sort-first config for cluster at unizh
 global
 {
-    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN on
 }
 
 server

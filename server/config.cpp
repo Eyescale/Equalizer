@@ -729,10 +729,14 @@ ostream& eqs::operator << ( ostream& os, const Config* config )
         os << "latency " << config->getLatency() << endl;
     os << endl;
 
-    os << "attributes" << endl << "{" << endl << indent;
-    os << "eyeBase " << config->getFAttribute( Config::FATTR_EYE_BASE ) << endl;
-
-    os << exdent << "}" << endl;
+    const float value = config->getFAttribute( Config::FATTR_EYE_BASE );
+    if( value != 
+        Global::instance()->getConfigFAttribute( Config::FATTR_EYE_BASE ))
+    {
+        os << "attributes" << endl << "{" << endl << indent;
+        os << "eyeBase " << value << endl;
+        os << exdent << "}" << endl;
+    }
 
     const uint32_t nNodes = config->nNodes();
     for( uint32_t i=0; i<nNodes; ++i )

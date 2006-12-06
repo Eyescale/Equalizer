@@ -1,7 +1,7 @@
 # six-node config for 3x2 30" display wall at unizh
 global
 {
-#    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
+#    EQ_WINDOW_IATTR_HINT_FULLSCREEN on
 }
 
 server

@@ -40,17 +40,22 @@ void Global::_setupDefaults()
     _connectionSAttributes[ConnectionDescription::SATTR_LAUNCH_COMMAND] = 
         "ssh -n %h %c >& %h.%n.log";
         
+    _configFAttributes[Config::FATTR_EYE_BASE] = 0.05f;
+
     for( int i=0; i<eq::Window::IATTR_ALL; ++i )
         _windowIAttributes[i] = eq::UNDEFINED;
 
-    _windowIAttributes[eq::Window::IATTR_HINTS_STEREO]       = eq::AUTO;
-    _windowIAttributes[eq::Window::IATTR_HINTS_DOUBLEBUFFER] = eq::AUTO;
-    _windowIAttributes[eq::Window::IATTR_HINTS_FULLSCREEN]   = eq::OFF;
-    _windowIAttributes[eq::Window::IATTR_HINTS_DECORATION]   = eq::ON;
+    _windowIAttributes[eq::Window::IATTR_HINT_STEREO]       = eq::AUTO;
+    _windowIAttributes[eq::Window::IATTR_HINT_DOUBLEBUFFER] = eq::AUTO;
+    _windowIAttributes[eq::Window::IATTR_HINT_FULLSCREEN]   = eq::OFF;
+    _windowIAttributes[eq::Window::IATTR_HINT_DECORATION]   = eq::ON;
     _windowIAttributes[eq::Window::IATTR_PLANES_COLOR]       = 1;
     _windowIAttributes[eq::Window::IATTR_PLANES_DEPTH]       = 1;
     
-    _configFAttributes[Config::FATTR_EYE_BASE] = 0.05;
+    for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
+        _channelIAttributes[i] = eq::UNDEFINED;
+
+    _channelIAttributes[eq::Channel::IATTR_HINT_STATISTICS] = eq::FASTEST;
 }
 
 void Global::_readEnvironment()
@@ -91,6 +96,15 @@ void Global::_readEnvironment()
         if( envValue )
             _windowIAttributes[i] = atol( envValue );
     }
+    for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
+    {
+        const string& name     = eq::Channel::getIAttributeString(
+            (eq::Channel::IAttribute)i);
+        const char*   envValue = getenv( name.c_str( ));
+        
+        if( envValue )
+            _channelIAttributes[i] = atol( envValue );
+    }
 }
 
 std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
@@ -100,21 +114,6 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
 
     os << disableFlush << disableHeader << "global" << endl;
     os << '{' << indent << endl;
-#if 0
-    for( int i=0; i<Node::IATTR_ALL; ++i )
-    {
-        if( global->_nodeIAttributes[i] != reference._nodeIAttributes[i] )
-        {
-        }
-    }
-
-    for( int i=0; i<Node::SATTR_ALL; ++i )
-    {
-        if( global->_nodeSAttributes[i] != reference._nodeSAttributes[i] )
-        {
-        }
-    }
-#endif
 
     for( int i=0; i<ConnectionDescription::IATTR_ALL; ++i )
     {
@@ -155,20 +154,31 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
            << "\"" << value << "\"" << endl;
     }
 
+    for( int i=0; i<Config::FATTR_ALL; ++i )
+    {
+        const float value = global->_configFAttributes[i];
+        if( value == reference._configFAttributes[i] )
+            continue;
+
+        os << ( i==Config::FATTR_EYE_BASE ?
+                    "EQ_CONFIG_FATTR_EYE_BASE           " : "ERROR" )
+           << value << endl;
+    }
+
     for( int i=0; i<eq::Window::IATTR_ALL; ++i )
     {
         const int value = global->_windowIAttributes[i];
         if( value == reference._windowIAttributes[i] )
             continue;
 
-        os << ( i==eq::Window::IATTR_HINTS_STEREO ?
-                    "EQ_WINDOW_IATTR_HINTS_STEREO       " :
-                i==eq::Window::IATTR_HINTS_DOUBLEBUFFER ?
-                    "EQ_WINDOW_IATTR_HINTS_DOUBLEBUFFER " :
-                i==eq::Window::IATTR_HINTS_FULLSCREEN ?
-                    "EQ_WINDOW_IATTR_HINTS_FULLSCREEN   " :
-                i==eq::Window::IATTR_HINTS_DECORATION ?
-                    "EQ_WINDOW_IATTR_HINTS_DECORATION   " :
+        os << ( i==eq::Window::IATTR_HINT_STEREO ?
+                    "EQ_WINDOW_IATTR_HINT_STEREO       " :
+                i==eq::Window::IATTR_HINT_DOUBLEBUFFER ?
+                    "EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER " :
+                i==eq::Window::IATTR_HINT_FULLSCREEN ?
+                    "EQ_WINDOW_IATTR_HINT_FULLSCREEN   " :
+                i==eq::Window::IATTR_HINT_DECORATION ?
+                    "EQ_WINDOW_IATTR_HINT_DECORATION   " :
                 i==eq::Window::IATTR_PLANES_COLOR ? 
                     "EQ_WINDOW_IATTR_PLANES_COLOR       " :
                 i==eq::Window::IATTR_PLANES_ALPHA ?
@@ -180,15 +190,15 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
            << static_cast<eq::IAttrValue>( value ) << endl;
     }
 
-    for( int i=0; i<Config::FATTR_ALL; ++i )
+    for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
     {
-        const float value = global->_configFAttributes[i];
-        if( value == reference._configFAttributes[i] )
+        const int value = global->_channelIAttributes[i];
+        if( value == reference._channelIAttributes[i] )
             continue;
 
-        os << ( i==Config::FATTR_EYE_BASE ?
-                    "EQ_CONFIG_FATTR_EYE_BASE           " : "ERROR" )
-           << value << endl;
+        os << ( i==eq::Channel::IATTR_HINT_STATISTICS ?
+                    "EQ_CHANNEL_IATTR_HINT_STATISTICS   " : "ERROR" )
+           << static_cast<eq::IAttrValue>( value ) << endl;
     }
 
     os << exdent << '}' << endl << enableHeader << enableFlush;

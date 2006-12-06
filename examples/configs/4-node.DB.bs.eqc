@@ -1,8 +1,8 @@
 # four-to-one sort-last, binary-swap config for cluster at unizh
 global
 {
-    EQ_WINDOW_IATTR_PLANES_STENCIL on
-    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
+    EQ_WINDOW_IATTR_PLANES_STENCIL  on
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN on
 }
 
 server

@@ -6,6 +6,7 @@
 
 #include "channel.h"
 #include "config.h"
+#include "log.h"
 #include "node.h"
 #include "window.h"
 
@@ -296,8 +297,18 @@ eqNet::CommandResult Pipe::_cmdExitReply( eqNet::Command& command )
 
 eqNet::CommandResult Pipe::_cmdFrameSync( eqNet::Command& command )
 {
-    EQVERB << "handle frame sync " << command << endl;
+    const eq::PipeFrameSyncPacket* packet = 
+        command.getPacket<eq::PipeFrameSyncPacket>();
+    EQVERB << "handle frame sync " << packet << endl;
     _frameSync.post();
+    
+    // Move me
+    for( uint32_t i =0; i<packet->nStatEvents; ++i )
+    {
+        const eq::StatEvent& event = packet->statEvents[i];
+        EQLOG( LOG_STATS ) << event << endl;
+    }
+
     return eqNet::COMMAND_HANDLED;
 }
 

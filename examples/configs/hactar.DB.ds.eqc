@@ -2,7 +2,7 @@
 global
 {
     EQ_WINDOW_IATTR_PLANES_STENCIL on
-    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN on
 }
 
 server
@@ -19,7 +19,7 @@ server
                     viewport [ 640 512 1280 800 ]
                     attributes
                     {
-                        hints  { fullscreen off }
+                        hint_fullscreen off
                     }
                     channel { name "channel1" }
                 }

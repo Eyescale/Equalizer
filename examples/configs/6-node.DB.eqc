@@ -1,7 +1,7 @@
 # six-to-one sort-last config for cluster at unizh
 global
 {
-    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN on
 }
 
 server
@@ -16,7 +16,7 @@ server
             {
                 window
                 {
-                    attributes { planes { stencil on }}
+                    attributes { planes_stencil on }
                     channel { name "channel1" }
                 }
             }

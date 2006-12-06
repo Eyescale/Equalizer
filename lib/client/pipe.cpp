@@ -41,7 +41,7 @@ Pipe::Pipe()
     registerCommand( REQ_PIPE_EXIT,
                      eqNet::CommandFunc<Pipe>( this, &Pipe::_reqExit ));
     registerCommand( CMD_PIPE_UPDATE,
-                     eqNet::CommandFunc<Pipe>( this, &Pipe::pushCommand ));
+                     eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdUpdate ));
     registerCommand( REQ_PIPE_UPDATE,
                      eqNet::CommandFunc<Pipe>( this, &Pipe::_reqUpdate ));
     registerCommand( CMD_PIPE_FRAME_SYNC,
@@ -411,10 +411,20 @@ eqNet::CommandResult Pipe::_reqExit( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
+eqNet::CommandResult Pipe::_cmdUpdate( eqNet::Command& command )
+{
+    _frameClocks.push_back( Clock( ));
+    return pushCommand( command );
+}
+
 eqNet::CommandResult Pipe::_reqUpdate( eqNet::Command& command )
 {
     const PipeUpdatePacket* packet = command.getPacket<PipeUpdatePacket>();
     EQVERB << "handle pipe update " << packet << endl;
+    EQASSERT( !_frameClocks.empty( ));
+    
+    _frameClock = _frameClocks.front();
+    _frameClocks.pop_front();
 
     startFrame( packet->frameID );
     return eqNet::COMMAND_HANDLED;
@@ -428,7 +438,12 @@ eqNet::CommandResult Pipe::_reqFrameSync( eqNet::Command& command )
     endFrame( packet->frameID );
     
     PipeFrameSyncPacket reply;
-    send( command.getNode(), reply );
+    reply.nStatEvents = _statEvents.size();
+    reply.sessionID   = getSession()->getID();
+    reply.objectID    = getID();
+
+    command.getNode()->send( reply, _statEvents );
+    _statEvents.clear();
     return eqNet::COMMAND_HANDLED;
 }
 

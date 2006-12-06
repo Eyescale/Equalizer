@@ -8,7 +8,10 @@ uint64_t Connection::send( Packet &packet, const std::vector<T>& data ) const
     if( data.size() == 0 )
         return send( packet );
 
-    const size_t packetStorage = MAX( 8, sizeof( T ));
+    size_t       packetStorage = MAX( 8, sizeof( T ));
+    const size_t offset        = packetStorage % 8;
+    if( offset )
+        packetStorage += 8 - offset;
     const size_t nItems        = data.size();
     const size_t dataSize      = nItems * sizeof( T );
 

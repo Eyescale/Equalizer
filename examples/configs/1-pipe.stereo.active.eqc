@@ -4,8 +4,8 @@
 
 global
 {
-    EQ_CONFIG_FATTR_EYE_BASE         0.025
-    EQ_WINDOW_IATTR_HINTS_FULLSCREEN on
+    EQ_CONFIG_FATTR_EYE_BASE        0.025
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN on
 }
 
 server
@@ -18,7 +18,7 @@ server
             {
                 window
                 {
-                    attributes { hints { stereo on }}
+                    attributes { hint_stereo on }
                     channel { name "channel" }
                 }
             }

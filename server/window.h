@@ -91,6 +91,9 @@ namespace eqs
         Config* getConfig() const 
             { return (_pipe ? _pipe->getConfig() : NULL); }
         
+        const eq::Window::DrawableConfig& getDrawableConfig() const
+            { return _drawableConfig; }
+
         /** 
          * References this window as being actively used.
          */
@@ -196,15 +199,17 @@ namespace eqs
         void update( const uint32_t frameID );
         //*}
 
+        /**
+         * @name Attributes
+         */
+        //*{
         void setIAttribute( const eq::Window::IAttribute attr,
                             const int32_t value )
             { _iAttributes[attr] = value; }
         int32_t  getIAttribute( const eq::Window::IAttribute attr ) const
             { return _iAttributes[attr]; }
-        
-        const eq::Window::DrawableConfig& getDrawableConfig() const
-            { return _drawableConfig; }
-        
+        //*}
+
     protected:
         virtual ~Window();
 
@@ -216,7 +221,7 @@ namespace eqs
 
         std::string _name;
 
-        /** Int attributes. */
+        /** Integer attributes. */
         int32_t _iAttributes[eq::Window::IATTR_ALL];
 
         /** The child channels. */

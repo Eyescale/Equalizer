@@ -17,7 +17,7 @@ server
                 window
                 {
                     viewport [ .55 .3 .4 .3 ]
-                    attributes{ planes{ stencil on }}
+                    attributes{ planes_stencil on }
 
                     channel
                     {

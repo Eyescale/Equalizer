@@ -25,10 +25,10 @@ using namespace std;
 
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_WINDOW_") + #attr )
 std::string eq::Window::_iAttributeStrings[IATTR_ALL] = {
-    MAKE_ATTR_STRING( IATTR_HINTS_STEREO ),
-    MAKE_ATTR_STRING( IATTR_HINTS_DOUBLEBUFFER ),
-    MAKE_ATTR_STRING( IATTR_HINTS_FULLSCREEN ),
-    MAKE_ATTR_STRING( IATTR_HINTS_DECORATION ),
+    MAKE_ATTR_STRING( IATTR_HINT_STEREO ),
+    MAKE_ATTR_STRING( IATTR_HINT_DOUBLEBUFFER ),
+    MAKE_ATTR_STRING( IATTR_HINT_FULLSCREEN ),
+    MAKE_ATTR_STRING( IATTR_HINT_DECORATION ),
     MAKE_ATTR_STRING( IATTR_PLANES_COLOR ),
     MAKE_ATTR_STRING( IATTR_PLANES_ALPHA ),
     MAKE_ATTR_STRING( IATTR_PLANES_DEPTH ),
@@ -434,22 +434,22 @@ bool eq::Window::initGLX()
         attributes.push_back( stencilSize>0 ? stencilSize : 1 );
     }
 
-    if( getIAttribute( IATTR_HINTS_STEREO ) != OFF )
+    if( getIAttribute( IATTR_HINT_STEREO ) != OFF )
         attributes.push_back( GLX_STEREO );
-    if( getIAttribute( IATTR_HINTS_DOUBLEBUFFER ) != OFF )
+    if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) != OFF )
         attributes.push_back( GLX_DOUBLEBUFFER );
     attributes.push_back( None );
 
     XVisualInfo *visInfo = glXChooseVisual( display, screen, &attributes[0] );
 
-    if( !visInfo && getIAttribute( IATTR_HINTS_STEREO ) == AUTO )
+    if( !visInfo && getIAttribute( IATTR_HINT_STEREO ) == AUTO )
     {        
         vector<int>::iterator iter = find( attributes.begin(), attributes.end(),
                                            GLX_STEREO );
         attributes.erase( iter );
         visInfo = glXChooseVisual( display, screen, &attributes[0] );
     }
-    if( !visInfo && getIAttribute( IATTR_HINTS_DOUBLEBUFFER ) == AUTO )
+    if( !visInfo && getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
     {        
         vector<int>::iterator iter = find( attributes.begin(), attributes.end(),
                                            GLX_DOUBLEBUFFER );
@@ -469,12 +469,12 @@ bool eq::Window::initGLX()
     wa.background_pixmap = None;
     wa.border_pixel      = 0;
     wa.event_mask        = StructureNotifyMask | VisibilityChangeMask;
-    if( getIAttribute( IATTR_HINTS_DECORATION ) != OFF )
+    if( getIAttribute( IATTR_HINT_DECORATION ) != OFF )
         wa.override_redirect = False;
     else
         wa.override_redirect = True;
         
-    if( getIAttribute( IATTR_HINTS_FULLSCREEN ) == ON )
+    if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON )
     {
         wa.override_redirect = True;
         _pvp.h = DisplayHeight( display, screen );
@@ -566,9 +566,9 @@ bool eq::Window::initCGL()
         attributes.push_back( stencilSize>0 ? stencilSize : 1 );
     }
 
-    if( getIAttribute( IATTR_HINTS_DOUBLEBUFFER ) != OFF )
+    if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) != OFF )
         attributes.push_back( kCGLPFADoubleBuffer );
-    if( getIAttribute( IATTR_HINTS_STEREO ) != OFF )
+    if( getIAttribute( IATTR_HINT_STEREO ) != OFF )
         attributes.push_back( kCGLPFAStereo );
 
     attributes.push_back( 0 );
@@ -579,7 +579,7 @@ bool eq::Window::initCGL()
         (CGLPixelFormatAttribute*)&attributes[0];
     CGLChoosePixelFormat( cglAttribs, &pixelFormat, &numPixelFormats );
 
-    if( !pixelFormat && getIAttribute( IATTR_HINTS_STEREO ) == AUTO )
+    if( !pixelFormat && getIAttribute( IATTR_HINT_STEREO ) == AUTO )
     {
         vector<int>::iterator iter = 
             find( attributes.begin(), attributes.end(), kCGLPFAStereo );
@@ -588,7 +588,7 @@ bool eq::Window::initCGL()
             (CGLPixelFormatAttribute*)&attributes[0];
         CGLChoosePixelFormat( cglAttribs, &pixelFormat, &numPixelFormats );
     }
-    if( !pixelFormat && getIAttribute( IATTR_HINTS_DOUBLEBUFFER ) == AUTO )
+    if( !pixelFormat && getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
     {
         vector<int>::iterator iter = 
             find( attributes.begin(), attributes.end(), kCGLPFADoubleBuffer );

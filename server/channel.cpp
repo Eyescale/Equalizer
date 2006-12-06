@@ -6,11 +6,13 @@
 
 #include "compound.h"
 #include "config.h"
+#include "global.h"
 #include "window.h"
 
 #include <eq/base/base.h>
 #include <eq/net/command.h>
 #include <eq/client/commands.h>
+#include <eq/client/global.h>
 #include <eq/client/packets.h>
 
 using namespace eqs;
@@ -34,6 +36,12 @@ void Channel::_construct()
     registerCommand( eq::REQ_CHANNEL_SET_NEARFAR,
                  eqNet::CommandFunc<Channel>( this, &Channel::_reqSetNearFar ));
 
+    const Global* global = Global::instance();
+    
+    for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
+        _iAttributes[i] = global->getChannelIAttribute(
+            static_cast<eq::Channel::IAttribute>( i ));
+
     ref(); // We don't use RefPtr so far
     EQINFO << "New channel @" << (void*)this << endl;
 }
@@ -52,6 +60,9 @@ Channel::Channel( const Channel& from )
     _vp       = from._vp;
     _pvp      = from._pvp;
     _fixedPVP = from._fixedPVP;
+
+    for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
+        _iAttributes[i] = from._iAttributes[i];
 }
 
 Channel::~Channel()
@@ -155,6 +166,8 @@ void Channel::_sendInit( const uint32_t initID )
     packet.initID     = initID;
     packet.pvp        = _pvp; 
     packet.vp         = _vp;
+    for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
+        packet.iattr[i] = _iAttributes[i];
     
     Object::send( _getNetNode(), packet, _name );
     _state = STATE_INITIALIZING;
@@ -284,6 +297,31 @@ std::ostream& eqs::operator << ( std::ostream& os, const Channel* channel)
         if( pvp.isValid( ))
             os << "viewport " << pvp << endl;
     }
+
+    bool attrPrinted   = false;
+    
+    for( eq::Channel::IAttribute i = static_cast<eq::Channel::IAttribute>( 0 );
+         i<eq::Channel::IATTR_ALL; 
+         i = static_cast<eq::Channel::IAttribute>( static_cast<uint32_t>(i)+1 ))
+    {
+        const int value = channel->getIAttribute( i );
+        if( value == Global::instance()->getChannelIAttribute( i ))
+            continue;
+
+        if( !attrPrinted )
+        {
+            os << endl << "attributes" << endl;
+            os << "{" << endl << indent;
+            attrPrinted = true;
+        }
+        
+        os << ( i==eq::Channel::IATTR_HINT_STATISTICS ?
+                    "hint_statistics   " : "ERROR" )
+           << static_cast<eq::IAttrValue>( value ) << endl;
+    }
+    
+    if( attrPrinted )
+        os << exdent << "}" << endl << endl;
 
     os << exdent << "}" << endl << enableHeader << enableFlush;
 
