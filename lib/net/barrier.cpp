@@ -45,16 +45,15 @@ Barrier::Barrier( const void* instanceData )
     EQINFO << "Barrier of height " << _data.height << " instanciated" << endl;
 }
 
-void Barrier::init( const void* data, const uint64_t dataSize )
-{
-    EQASSERT( _data.master != NodeID::ZERO );
-    _master = eqNet::Node::getLocalNode()->connect( _data.master, 
-                                                    getSession()->getServer( ));
-}
-
 void Barrier::enter()
 {
     EQASSERT( _data.height > 1 );
+    EQASSERT( _data.master != NodeID::ZERO );
+
+    if( !_master )
+        _master = eqNet::Node::getLocalNode()->
+            connect( _data.master, getSession()->getServer( ));
+
     EQASSERT( _master.isValid( ));
     EQLOG( LOG_BARRIER ) << "enter barrier " << getID() << " v" << getVersion()
                          << ", height " << _data.height << endl;
@@ -74,7 +73,7 @@ void Barrier::enter()
 CommandResult Barrier::_cmdEnter( Command& command )
 {
     CHECK_THREAD( _thread );
-    EQASSERT( _master == eqNet::Node::getLocalNode( ));
+    EQASSERT( !_master || _master == eqNet::Node::getLocalNode( ));
 
     const BarrierEnterPacket* packet = command.getPacket<BarrierEnterPacket>();
 

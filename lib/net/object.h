@@ -266,19 +266,6 @@ namespace eqNet
         virtual void releaseInstanceData( const void* data ){}
 
         /** 
-         * Initialize this object after it has been instanciated and registered
-         * to a session.
-         *
-         * Note the this methods receives the same data as
-         * Session::instanciateObject. It is provided to perform initialization
-         * which requires the object to be registered to the session.
-         * 
-         * @param data the instance data of the object.
-         * @param dataSize the data size.
-         */
-        virtual void init( const void* data, const uint64_t dataSize ) {}
-
-        /** 
          * Instanciates this object on a remote node.
          * 
          * @param node the remote node.

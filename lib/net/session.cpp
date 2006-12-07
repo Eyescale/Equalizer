@@ -1042,7 +1042,6 @@ CommandResult Session::_cmdInstanciateObject( Command& command )
 
     addRegisteredObject( id, object, 
                          state ? state->policy : packet->policy );
-    object->init( packet->objectData, packet->objectDataSize );
 
     return COMMAND_HANDLED;
 }

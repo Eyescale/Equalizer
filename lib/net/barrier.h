@@ -58,10 +58,6 @@ namespace eqNet
         void enter();
         //*}
 
-    protected:
-        /** @sa Object::init */
-        virtual void init( const void* data, const uint64_t dataSize );
-
     private:
         struct Data
         {
