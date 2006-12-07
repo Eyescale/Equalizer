@@ -42,6 +42,9 @@ bool SocketConnection::connect()
     if( _state != STATE_CLOSED )
         return false;
 
+    if( _description->TCPIP.port == 0 )
+        return false;
+
     _state = STATE_CONNECTING;
 
     if( !_createSocket( ))
