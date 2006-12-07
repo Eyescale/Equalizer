@@ -1,0 +1,112 @@
+# config for 3x2 30" display wall at unizh, configured as a curved screen
+global
+{
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN on
+}
+
+server
+{
+    config
+    {
+        latency 2
+        node
+        {
+            connection { hostname "hactar4" }
+            pipe { window { channel { name "channel1" }}}
+        }
+        node
+        {
+            connection { hostname "hactar2" }
+            pipe { window { channel { name "channel2" }}}
+        }
+        node
+        {
+            connection { hostname "hactar3" }
+            pipe { window { channel { name "channel3" }}}
+        }
+        node
+        {
+            connection { hostname "hactar5" }
+            pipe { window { channel { name "channel4" }}}
+        }
+        node
+        {
+            connection { hostname "hactar1" }
+            pipe { window { channel { name "channel5" }}}
+        }
+        node
+        {
+            connection { hostname "hactar6" }
+            pipe { window { channel { name "channel6" }}}
+        }
+        compound
+        {
+            compound
+            { 
+                channel "channel1"
+                wall
+                {
+                    bottom_left  [ -.54 .0285 -.54 ]
+                    bottom_right [ -.35 .0285 -.99 ]
+                    top_left     [ -.54 .4285 -.54 ]
+                }
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel2"
+                wall
+                {
+                    bottom_left  [ -.32 .0285 -1 ]
+                    bottom_right [  .32 .0285 -1 ]
+                    top_left     [ -.32 .4285 -1 ]
+                }
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel3"
+                wall
+                {
+                    bottom_left  [  .35 .0285 -.99 ]
+                    bottom_right [  .54 .0285 -.54 ]
+                    top_left     [  .35 .4285 -.99 ]
+                }
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel4"
+                wall
+                {
+                    bottom_left  [ -.54  -.4285 -.54 ]
+                    bottom_right [ -.35  -.4285 -.99 ]
+                    top_left     [ -.54  -.0285 -.54 ]
+                }
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel5"
+                wall
+                {
+                    bottom_left  [ -.32 -.4285 -1 ]
+                    bottom_right [  .32 -.4285 -1 ]
+                    top_left     [ -.32 -.0285 -1 ]
+                }
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel6"
+                wall
+                {
+                    bottom_left  [  .35 -.4285 -.99 ]
+                    bottom_right [  .54 -.4285 -.54 ]
+                    top_left     [  .35 -.0285 -.99 ]
+                }
+                swapbarrier {}
+            }
+        }
+    }    
+}
