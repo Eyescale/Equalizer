@@ -148,19 +148,12 @@ namespace eqs
         void update( const uint32_t frameID );
 
         /**
-         * Finish the frame[current-latency].
-         */
-        void syncUpdate();
-
-        /** 
-         * Adjust the latency of this node.
-         * 
-         * If decrementing the latency, the function blocks until the
-         * corresponding frames have been finished.
+         * Finish one frame.
          *
-         * @param delta the delta of the latency change.
+         * @param frame the number of the frame to complete.
          */
-        void adjustLatency( const int delta );
+        void syncUpdate( const uint32_t frame ) const;
+
         //*}
 
         /**

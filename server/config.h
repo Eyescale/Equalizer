@@ -124,12 +124,11 @@ namespace eqs
          * Set the maximum accepted latency for this config.
          * 
          * The latency is defined as the maximum number of frames between frame
-         * begin and swap. This function may block until the new latency
-         * requirement is fulfilled.
+         * begin and swap.
          *
          * @param latency the latency.
          */
-        void setLatency( const uint32_t latency );
+        void setLatency( const uint32_t latency ) { _latency = latency; }
 
         /** 
          * Return the latency for this config.

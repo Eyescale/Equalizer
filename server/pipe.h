@@ -180,18 +180,11 @@ namespace eqs
 
         /**
          * Finish one frame.
-         */
-        void syncUpdate() { _frameSync.wait(); }
-
-        /** 
-         * Adjust the latency of this pipe.
-         * 
-         * If decrementing the latency, the function blocks until the
-         * corresponding frames have been finished.
          *
-         * @param delta the delta of the latency change.
+         * @param frame the number of the frame to complete.
          */
-        void adjustLatency( const int delta ){ _frameSync.adjust( delta ); }
+        void syncUpdate( const uint32_t frame ) const 
+            { _frameFinished.waitGE( frame ); }
         //*}
 
     protected:
@@ -230,7 +223,7 @@ namespace eqs
         eq::PixelViewport _pvp;
         
         /** A counter for the number of allowed pending frames. */
-        eqBase::Sema _frameSync;
+        eqBase::Monitor<uint32_t> _frameFinished;
 
 
         /** common code for all constructors */

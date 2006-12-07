@@ -107,6 +107,7 @@ Config::Config( const Config& from )
 {
     _construct();
     _appNetNode = from._appNetNode;
+    _latency    = from._latency;
 
     const uint32_t nCompounds = from.nCompounds();
     for( uint32_t i=0; i<nCompounds; ++i )
@@ -171,7 +172,6 @@ void Config::addNode( Node* node )
     _nodes.push_back( node ); 
     
     node->_config = this; 
-    node->adjustLatency( _latency );
 }
 
 bool Config::removeNode( Node* node )
@@ -181,8 +181,6 @@ bool Config::removeNode( Node* node )
         return false;
 
     _nodes.erase( iter );
-
-    node->adjustLatency( -_latency );
     node->_config = 0; 
 
     return true;
@@ -231,20 +229,6 @@ Channel* Config::findChannel( const std::string& name ) const
         }
     }
     return NULL;
-}
-
-void Config::setLatency( const uint32_t latency )
-{
-    if( _latency == latency )
-        return;
-
-    const int delta = latency - _latency;
-    _latency = latency;
-
-    for( vector<Node*>::iterator iter = _nodes.begin(); iter != _nodes.end();
-         ++iter )
-
-        (*iter)->adjustLatency( delta );
 }
 
 void Config::addApplicationNode( Node* node )
@@ -676,9 +660,9 @@ const vmml::Vector3f& Config::getEyePosition( const uint32_t eye )
 
 uint32_t Config::_beginFrame( const uint32_t frameID, vector<Node*>& nodes )
 {
-    EQLOG( LOG_ANY ) << "----- Begin Frame -----" << endl;
     EQASSERT( _state == STATE_INITIALIZED );
     ++_frameNumber;
+    EQLOG( LOG_ANY ) << "----- Begin Frame ----- " << _frameNumber << endl;
 
     _updateHead();
 
@@ -705,15 +689,20 @@ uint32_t Config::_beginFrame( const uint32_t frameID, vector<Node*>& nodes )
 
 uint32_t Config::_endFrame()
 {
+    if( _frameNumber <= _latency )
+        return 0;
+
+    const uint32_t finishFrame = _frameNumber - _latency;
     const uint32_t nNodes = this->nNodes();
     for( uint32_t i=0; i<nNodes; ++i )
     {
         Node* node = getNode( i );
         if( node->isUsed( ))
-            node->syncUpdate();
+            node->syncUpdate( finishFrame );
     }
 
-    return (_frameNumber > _latency ? _frameNumber-_latency : 0);
+    EQLOG( LOG_ANY ) << "------ End Frame ------ " << finishFrame << endl;
+    return finishFrame;
 }
 
 

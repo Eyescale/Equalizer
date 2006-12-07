@@ -31,7 +31,7 @@ void Pipe::_construct()
                      eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdInitReply ));
     registerCommand( eq::CMD_PIPE_EXIT_REPLY, 
                      eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdExitReply ));
-    registerCommand( eq::CMD_PIPE_FRAME_SYNC, 
+    registerCommand( eq::CMD_PIPE_FRAME_SYNC_REPLY, 
                      eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdFrameSync ));
 
     ref(); // We don't use RefPtr so far
@@ -255,7 +255,8 @@ bool Pipe::syncExit()
 void Pipe::update( const uint32_t frameID )
 {
     eq::PipeUpdatePacket updatePacket;
-    updatePacket.frameID = frameID;
+    updatePacket.frameID     = frameID;
+
     _send( updatePacket );
 
     const uint32_t nWindows = this->nWindows();
@@ -267,7 +268,8 @@ void Pipe::update( const uint32_t frameID )
     }
 
     eq::PipeFrameSyncPacket syncPacket;
-    syncPacket.frameID = frameID;
+    syncPacket.frameID     = frameID;
+    syncPacket.frameNumber = getConfig()->getFrameNumber();
     _send( syncPacket );
 }
 
@@ -297,10 +299,9 @@ eqNet::CommandResult Pipe::_cmdExitReply( eqNet::Command& command )
 
 eqNet::CommandResult Pipe::_cmdFrameSync( eqNet::Command& command )
 {
-    const eq::PipeFrameSyncPacket* packet = 
-        command.getPacket<eq::PipeFrameSyncPacket>();
+    const eq::PipeFrameSyncReplyPacket* packet = 
+        command.getPacket<eq::PipeFrameSyncReplyPacket>();
     EQVERB << "handle frame sync " << packet << endl;
-    _frameSync.post();
     
     // Move me
     for( uint32_t i =0; i<packet->nStatEvents; ++i )
@@ -309,6 +310,7 @@ eqNet::CommandResult Pipe::_cmdFrameSync( eqNet::Command& command )
         EQLOG( LOG_STATS ) << event << endl;
     }
 
+    _frameFinished = packet->frameNumber;
     return eqNet::COMMAND_HANDLED;
 }
 

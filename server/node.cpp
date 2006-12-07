@@ -109,8 +109,6 @@ bool Node::removePipe( Pipe* pipe )
         return false;
 
     _pipes.erase( i );
-
-    pipe->adjustLatency( -_config->getLatency( ));
     pipe->_node = 0; 
 
     return true;
@@ -184,24 +182,14 @@ void Node::update( const uint32_t frameID )
     }
 }
 
-void Node::syncUpdate()
+void Node::syncUpdate( const uint32_t frame ) const
 {
     const uint32_t nPipes = this->nPipes();
     for( uint32_t i=0; i<nPipes; i++ )
     {
         Pipe* pipe = getPipe( i );
         if( pipe->isUsed( ))
-            pipe->syncUpdate();
-    }
-}
-
-void Node::adjustLatency( const int delta)
-{
-    const uint32_t nPipes = this->nPipes();
-    for( uint32_t i=0; i<nPipes; i++ )
-    {
-        Pipe* pipe = getPipe( i );
-        pipe->adjustLatency( delta );
+            pipe->syncUpdate( frame );
     }
 }
 

@@ -278,6 +278,28 @@ namespace eq
     //------------------------------------------------------------
     // Pipe
     //------------------------------------------------------------
+    struct PipeCreateWindowPacket : public eqNet::ObjectPacket
+    {
+        PipeCreateWindowPacket()
+            {
+                command = CMD_PIPE_CREATE_WINDOW;
+                size    = sizeof( PipeCreateWindowPacket );
+            }
+
+        uint32_t windowID;
+    };
+
+    struct PipeDestroyWindowPacket : public eqNet::ObjectPacket
+    {
+        PipeDestroyWindowPacket()
+            {
+                command = CMD_PIPE_DESTROY_WINDOW;
+                size    = sizeof( PipeDestroyWindowPacket );
+            }
+
+        uint32_t windowID;
+    };
+
     struct PipeInitPacket : public eqNet::ObjectPacket
     {
         PipeInitPacket()
@@ -341,28 +363,6 @@ namespace eq
         uint32_t frameID;
     };
 
-    struct PipeCreateWindowPacket : public eqNet::ObjectPacket
-    {
-        PipeCreateWindowPacket()
-            {
-                command = CMD_PIPE_CREATE_WINDOW;
-                size    = sizeof( PipeCreateWindowPacket );
-            }
-
-        uint32_t windowID;
-    };
-
-    struct PipeDestroyWindowPacket : public eqNet::ObjectPacket
-    {
-        PipeDestroyWindowPacket()
-            {
-                command = CMD_PIPE_DESTROY_WINDOW;
-                size    = sizeof( PipeDestroyWindowPacket );
-            }
-
-        uint32_t windowID;
-    };
-
     struct PipeFrameSyncPacket : public eqNet::ObjectPacket
     {
         PipeFrameSyncPacket()
@@ -371,7 +371,19 @@ namespace eq
                 size    = sizeof( PipeFrameSyncPacket );
             }
 
-        uint32_t  frameID;
+        uint32_t frameID;
+        uint32_t frameNumber;
+    };
+
+    struct PipeFrameSyncReplyPacket : public eqNet::ObjectPacket
+    {
+        PipeFrameSyncReplyPacket()
+            {
+                command = CMD_PIPE_FRAME_SYNC_REPLY;
+                size    = sizeof( PipeFrameSyncReplyPacket );
+            }
+
+        uint32_t  frameNumber;
         uint32_t  nStatEvents;
         StatEvent statEvents[1] EQ_ALIGN8;
     };

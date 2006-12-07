@@ -71,11 +71,11 @@ void Frame::updateInheritData( const Compound* compound )
 void Frame::cycleData( const uint32_t frameNumber )
 {
     // find unused frame data
-    FrameData*     data    = _datas.empty() ? NULL : _datas.back();
+    FrameData*     data    = _datas.empty() ? 0 : _datas.back();
     const uint32_t latency = getAutoObsoleteCount();
     const uint32_t dataAge = data ? data->getFrameNumber() : 0;
 
-    if( dataAge < frameNumber-latency && frameNumber > latency )
+    if( data && dataAge < frameNumber-latency && frameNumber > latency )
         // not used anymore
         _datas.pop_back();
     else

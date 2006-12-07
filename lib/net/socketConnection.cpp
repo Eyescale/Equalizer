@@ -92,10 +92,11 @@ void SocketConnection::_tuneSocket( const int fd )
     const int on         = 1;
     setsockopt( fd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof( on ));
     setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof( on ));
-
-    const int bufferSize = 1024*1024;
+#if 0
+    const int bufferSize = 10*1024*1024;
     setsockopt( fd, SOL_SOCKET, SO_SNDBUF, &bufferSize, sizeof( bufferSize ));
     setsockopt( fd, SOL_SOCKET, SO_RCVBUF, &bufferSize, sizeof( bufferSize ));
+#endif
 }
 
 void SocketConnection::close()

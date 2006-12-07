@@ -437,10 +437,11 @@ eqNet::CommandResult Pipe::_reqFrameSync( eqNet::Command& command )
 
     endFrame( packet->frameID );
     
-    PipeFrameSyncPacket reply;
+    PipeFrameSyncReplyPacket reply;
     reply.nStatEvents = _statEvents.size();
     reply.sessionID   = getSession()->getID();
     reply.objectID    = getID();
+    reply.frameNumber = packet->frameNumber;
 
     command.getNode()->send( reply, _statEvents );
     _statEvents.clear();

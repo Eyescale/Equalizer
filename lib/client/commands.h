@@ -74,6 +74,7 @@ namespace eq
         CMD_PIPE_DESTROY_WINDOW,
         CMD_PIPE_FRAME_SYNC,
         REQ_PIPE_FRAME_SYNC,
+        CMD_PIPE_FRAME_SYNC_REPLY,
         CMD_PIPE_CUSTOM
     };
 
