@@ -6,11 +6,13 @@ server
     {
         node
         {
+            connection { hostname "petit" }
             pipe
             {
+                screen 0
                 window
                 {
-                    viewport [ .05 .3 .4 .3 ]
+                    attributes { hint_fullscreen on }
                     channel
                     {
                         name "channel2"
@@ -22,9 +24,9 @@ server
         {
             pipe
             {
+                viewport [ 0 0 1024 768 ]
                 window
                 {
-                    viewport [ .55 .3 .4 .3 ]
                     channel
                     {
                         name "channel1"

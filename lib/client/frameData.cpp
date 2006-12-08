@@ -171,6 +171,9 @@ void FrameData::transmit( eqBase::RefPtr<eqNet::Node> toNode )
 
         EQASSERT( packet.pvp.isValid( ));
 
+#ifdef EQ_USE_COMPRESSION
+        Clock clock;
+#endif
         if( image->hasPixelData( Frame::BUFFER_COLOR ))
         {
 #ifdef EQ_USE_COMPRESSION
@@ -203,6 +206,10 @@ void FrameData::transmit( eqBase::RefPtr<eqNet::Node> toNode )
             packet.size    += size;
             packet.buffers |= Frame::BUFFER_DEPTH;
         }
+#ifdef EQ_USE_COMPRESSION
+        EQLOG( LOG_ASSEMBLY ) << "Image compression took " << clock.getTimef() 
+                              << endl;
+#endif
  
         if( pixelDatas.empty( ))
             continue;
@@ -242,6 +249,9 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
 
     image->setPixelViewport( packet->pvp );
 
+#ifdef EQ_USE_COMPRESSION
+    Clock          clock;
+#endif
     if( packet->buffers & Frame::BUFFER_COLOR )
     {
 #ifdef EQ_USE_COMPRESSION
@@ -260,7 +270,11 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
         data += image->getPixelDataSize( Frame::BUFFER_DEPTH );
 #endif
     }
-
+#ifdef EQ_USE_COMPRESSION
+    EQLOG( LOG_ASSEMBLY ) << "Image decompression took " << clock.getTimef() 
+                          << endl;
+#endif
+    
     const uint32_t version = getVersion();
 
     if( version == packet->version )

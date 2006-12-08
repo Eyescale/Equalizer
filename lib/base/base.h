@@ -19,6 +19,13 @@
 typedef int socklen_t;
 #endif
 
+#ifdef Darwin
+#  include <crt_externs.h>
+#  define environ (*_NSGetEnviron())
+#else
+extern char **environ;
+#endif
+
 // defines
 #define EQ_UNDEFINED_UINT32   (0xffffffff)
 //#define EQ_UNDEFINED_INT32    (0x7fffffff)

@@ -179,13 +179,24 @@ void Channel::assemble( const uint32_t frameID )
     applyViewport();
     setupAssemblyState();
 
+    Pipe* pipe = getPipe();
     const vector<Frame*>& frames = getInputFrames();
     for( vector<Frame*>::const_iterator i = frames.begin();
          i != frames.end(); ++i )
     {
         Frame* frame = *i;
         
+        StatEvent event( StatEvent::CHANNEL_WAIT_FRAME, this, 
+                         pipe->getFrameTime( ));
+
         frame->waitReady();
+
+        if( getIAttribute( IATTR_HINT_STATISTICS ))
+        {
+            event.endTime = pipe->getFrameTime();
+            pipe->addStatEvent( event );
+        }
+
         frame->startAssemble();
     }
     for( vector<Frame*>::const_iterator i = frames.begin();

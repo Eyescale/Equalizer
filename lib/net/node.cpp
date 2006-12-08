@@ -22,8 +22,6 @@ using namespace eqBase;
 using namespace eqNet;
 using namespace std;
 
-extern char **environ;
-
 PerThread<Node*> Node::_localNode;
 
 //----------------------------------------------------------------------
@@ -1198,11 +1196,9 @@ string Node::_createRemoteCommand()
     if( env )
         stringStream << libPath << "=" << env << " ";
 
-#if 0
     for( int i=0; environ[i] != NULL; i++ )
         if( strlen( environ[i] ) > 2 && strncmp( environ[i], "EQ_", 3 ) == 0 )
             stringStream << environ[i] << " ";
-#endif
 
     stringStream << "EQ_LOG_LEVEL=" << eqBase::Log::getLogLevelString() << " ";
     if( eqBase::Log::topics != 0 )
