@@ -84,6 +84,13 @@ namespace eq
          *         no frame has been finished.
          */
         virtual uint32_t endFrame();
+
+        /**
+         * Finish rendering all pending frames.
+         *
+         * @return the frame number of the last finished frame.
+         */
+        virtual uint32_t finishFrames();
         //*}
 
         /** @name Event handling. */
@@ -160,6 +167,7 @@ namespace eq
         eqNet::CommandResult _cmdExitReply( eqNet::Command& command );
         eqNet::CommandResult _cmdBeginFrameReply( eqNet::Command& command );
         eqNet::CommandResult _cmdEndFrameReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdFinishFramesReply( eqNet::Command& command );
         eqNet::CommandResult _cmdEvent( eqNet::Command& command );
     };
 }

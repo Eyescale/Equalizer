@@ -157,7 +157,7 @@ namespace eq
     {
         ConfigBeginFramePacket()
             {
-                command   = CMD_CONFIG_FRAME_BEGIN;
+                command   = CMD_CONFIG_BEGIN_FRAME;
                 size      = sizeof( ConfigBeginFramePacket );
             }
         uint32_t requestID;
@@ -168,7 +168,7 @@ namespace eq
     {
         ConfigBeginFrameReplyPacket(const ConfigBeginFramePacket* requestPacket)
             {
-                command   = CMD_CONFIG_FRAME_BEGIN_REPLY;
+                command   = CMD_CONFIG_BEGIN_FRAME_REPLY;
                 size      = sizeof( ConfigBeginFrameReplyPacket );
                 sessionID = requestPacket->sessionID;
                 requestID = requestPacket->requestID;
@@ -183,7 +183,7 @@ namespace eq
     {
         ConfigEndFramePacket()
             {
-                command   = CMD_CONFIG_FRAME_END;
+                command   = CMD_CONFIG_END_FRAME;
                 size      = sizeof( ConfigEndFramePacket );
             }
         uint32_t requestID;
@@ -193,8 +193,31 @@ namespace eq
     {
         ConfigEndFrameReplyPacket(const ConfigEndFramePacket* requestPacket)
             {
-                command   = CMD_CONFIG_FRAME_END_REPLY;
+                command   = CMD_CONFIG_END_FRAME_REPLY;
                 size      = sizeof( ConfigEndFrameReplyPacket );
+                requestID = requestPacket->requestID;
+            }
+        uint32_t requestID;
+        uint32_t result;
+    };
+
+    struct ConfigFinishFramesPacket : public ConfigPacket
+    {
+        ConfigFinishFramesPacket()
+            {
+                command   = CMD_CONFIG_FINISH_FRAMES;
+                size      = sizeof( ConfigFinishFramesPacket );
+            }
+        uint32_t requestID;
+    };
+
+    struct ConfigFinishFramesReplyPacket : public ConfigPacket
+    {
+        ConfigFinishFramesReplyPacket( const ConfigFinishFramesPacket* 
+                                       requestPacket )
+            {
+                command   = CMD_CONFIG_FINISH_FRAMES_REPLY;
+                size      = sizeof( ConfigFinishFramesReplyPacket );
                 requestID = requestPacket->requestID;
             }
         uint32_t requestID;

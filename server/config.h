@@ -263,6 +263,7 @@ namespace eqs
         eqNet::CommandResult _reqExit( eqNet::Command& command );
         eqNet::CommandResult _reqBeginFrame( eqNet::Command& command );
         eqNet::CommandResult _reqEndFrame( eqNet::Command& command ); 
+        eqNet::CommandResult _reqFinishFrames( eqNet::Command& command ); 
 
         /**
          * @name Operations
@@ -283,6 +284,7 @@ namespace eqs
         uint32_t _beginFrame( const uint32_t frameID, 
                               std::vector<Node*>& nodes );
         uint32_t _endFrame();
+        uint32_t _finishFrames();
 
         //*}
     };

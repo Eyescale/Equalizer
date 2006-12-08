@@ -4,6 +4,7 @@ server
 {
     config
     {
+        latency 0
         node
         {
             connection { hostname "petit" }

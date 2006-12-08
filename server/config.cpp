@@ -36,14 +36,18 @@ void Config::_construct()
                      eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
     registerCommand( eq::REQ_CONFIG_EXIT, 
                      eqNet::CommandFunc<Config>( this, &Config::_reqExit ));
-    registerCommand( eq::CMD_CONFIG_FRAME_BEGIN, 
+    registerCommand( eq::CMD_CONFIG_BEGIN_FRAME, 
                      eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
-    registerCommand( eq::REQ_CONFIG_FRAME_BEGIN,
-                     eqNet::CommandFunc<Config>( this, &Config::_reqBeginFrame));
-    registerCommand( eq::CMD_CONFIG_FRAME_END, 
+    registerCommand( eq::REQ_CONFIG_BEGIN_FRAME,
+                   eqNet::CommandFunc<Config>( this, &Config::_reqBeginFrame ));
+    registerCommand( eq::CMD_CONFIG_END_FRAME, 
                      eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
-    registerCommand( eq::REQ_CONFIG_FRAME_END, 
-                     eqNet::CommandFunc<Config>( this, &Config::_reqEndFrame));
+    registerCommand( eq::REQ_CONFIG_END_FRAME, 
+                     eqNet::CommandFunc<Config>( this, &Config::_reqEndFrame ));
+    registerCommand( eq::CMD_CONFIG_FINISH_FRAMES, 
+                     eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
+    registerCommand( eq::REQ_CONFIG_FINISH_FRAMES, 
+                 eqNet::CommandFunc<Config>( this, &Config::_reqFinishFrames ));
 
     const Global* global = Global::instance();
     
@@ -300,6 +304,18 @@ eqNet::CommandResult Config::_reqEndFrame( eqNet::Command& command )
     EQVERB << "handle config frame end " << packet << endl;
 
     reply.result = _endFrame();
+    send( command.getNode(), reply );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Config::_reqFinishFrames( eqNet::Command& command ) 
+{
+    const eq::ConfigFinishFramesPacket* packet = 
+        command.getPacket<eq::ConfigFinishFramesPacket>();
+    eq::ConfigFinishFramesReplyPacket   reply( packet );
+    EQVERB << "handle config frames finish " << packet << endl;
+
+    reply.result = _finishFrames();
     send( command.getNode(), reply );
     return eqNet::COMMAND_HANDLED;
 }
@@ -703,6 +719,20 @@ uint32_t Config::_endFrame()
 
     EQLOG( LOG_ANY ) << "------ End Frame ------ " << finishFrame << endl;
     return finishFrame;
+}
+
+uint32_t Config::_finishFrames()
+{
+    const uint32_t nNodes = this->nNodes();
+    for( uint32_t i=0; i<nNodes; ++i )
+    {
+        Node* node = getNode( i );
+        if( node->isUsed( ))
+            node->syncUpdate( _frameNumber );
+    }
+
+    EQLOG( LOG_ANY ) << "---- Finish Frames ---- " << _frameNumber << endl;
+    return _frameNumber;
 }
 
 

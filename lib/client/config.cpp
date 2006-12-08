@@ -30,10 +30,12 @@ Config::Config()
                     eqNet::CommandFunc<Config>( this, &Config::_cmdInitReply ));
     registerCommand( CMD_CONFIG_EXIT_REPLY, 
                     eqNet::CommandFunc<Config>( this, &Config::_cmdExitReply ));
-    registerCommand( CMD_CONFIG_FRAME_BEGIN_REPLY, 
+    registerCommand( CMD_CONFIG_BEGIN_FRAME_REPLY, 
               eqNet::CommandFunc<Config>( this, &Config::_cmdBeginFrameReply ));
-    registerCommand( CMD_CONFIG_FRAME_END_REPLY, 
-                 eqNet::CommandFunc<Config>( this, &Config::_cmdEndFrameReply));
+    registerCommand( CMD_CONFIG_END_FRAME_REPLY, 
+                eqNet::CommandFunc<Config>( this, &Config::_cmdEndFrameReply ));
+    registerCommand( CMD_CONFIG_FINISH_FRAMES_REPLY, 
+            eqNet::CommandFunc<Config>( this, &Config::_cmdFinishFramesReply ));
     registerCommand( CMD_CONFIG_EVENT, 
                      eqNet::CommandFunc<Config>( this, &Config::_cmdEvent ));
 
@@ -94,6 +96,17 @@ uint32_t Config::endFrame()
     handleEvents();
     EQLOG( LOG_ANY ) << "------ End Frame ------" << endl;
     return frameNumber;
+}
+
+uint32_t Config::finishFrames()
+{
+    ConfigFinishFramesPacket packet;
+    packet.requestID = _requestHandler.registerRequest();
+    send( packet );
+    const int framesNumber = 
+        (uint32_t)(long long)(_requestHandler.waitRequest(packet.requestID));
+    EQLOG( LOG_ANY ) << "---- Finish Frames ----" << endl;
+    return framesNumber;
 }
 
 void Config::sendEvent( ConfigEvent& event )
@@ -211,6 +224,17 @@ eqNet::CommandResult Config::_cmdEndFrameReply( eqNet::Command& command )
     const ConfigEndFrameReplyPacket* packet = 
         command.getPacket<ConfigEndFrameReplyPacket>();
     EQVERB << "handle frame end reply " << packet << endl;
+
+    _requestHandler.serveRequest( packet->requestID,
+                                  (void*)(long long)(packet->result) );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Config::_cmdFinishFramesReply( eqNet::Command& command )
+{
+    const ConfigFinishFramesReplyPacket* packet = 
+        command.getPacket<ConfigFinishFramesReplyPacket>();
+    EQVERB << "handle frames finish reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID,
                                   (void*)(long long)(packet->result) );

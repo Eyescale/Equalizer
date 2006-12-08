@@ -37,12 +37,15 @@ namespace eq
         REQ_CONFIG_EXIT, // REQ must always follow CMD
         CMD_CONFIG_EXIT_REPLY,
         CMD_CONFIG_CREATE_NODE,
-        CMD_CONFIG_FRAME_BEGIN,
-        REQ_CONFIG_FRAME_BEGIN, // REQ must always follow CMD
-        CMD_CONFIG_FRAME_BEGIN_REPLY,
-        CMD_CONFIG_FRAME_END,
-        REQ_CONFIG_FRAME_END, // REQ must always follow CMD
-        CMD_CONFIG_FRAME_END_REPLY,
+        CMD_CONFIG_BEGIN_FRAME,
+        REQ_CONFIG_BEGIN_FRAME, // REQ must always follow CMD
+        CMD_CONFIG_BEGIN_FRAME_REPLY,
+        CMD_CONFIG_END_FRAME,
+        REQ_CONFIG_END_FRAME, // REQ must always follow CMD
+        CMD_CONFIG_END_FRAME_REPLY,
+        CMD_CONFIG_FINISH_FRAMES,
+        REQ_CONFIG_FINISH_FRAMES, // REQ must always follow CMD
+        CMD_CONFIG_FINISH_FRAMES_REPLY,
         CMD_CONFIG_EVENT,
         CMD_CONFIG_CUSTOM
     };
