@@ -16,7 +16,7 @@ namespace eq
     class StatEvent 
     {
     public:
-        enum Type
+        enum Type // Also update string table in statEvent.cpp
         {
             CHANNEL_CLEAR,
             CHANNEL_DRAW,
