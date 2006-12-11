@@ -23,17 +23,17 @@ server
         }
         node
         {
-            connection { hostname "10.42.42.3" }
+            connection { hostname "10.42.42.4" }
             pipe { window { channel { name "channel2" }}}
         }
         node
         {
-            connection { hostname "10.42.42.4" }
+            connection { hostname "10.42.42.2" }
             pipe { window { channel { name "channel3" }}}
         }
         node
         {
-            connection { hostname "10.42.42.5" }
+            connection { hostname "10.42.42.3" }
             pipe { window { channel { name "channel4" }}}
         }
         node

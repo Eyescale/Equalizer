@@ -53,11 +53,18 @@ server
 
             compound
             {
+                range [ 0 .333 ]
+
+                outputframe { name "f1.c1" viewport [ 0 .333 1 .333 ] }
+                outputframe { name "f2.c1" viewport [ 0 .666 1 .334 ] }
+            }
+            compound
+            {
                 channel "channel2"
 
                 compound
                 {
-                    range [ 0 .333 ]
+                    range [ .333 .666 ]
                     outputframe { name "f1.c2" viewport [ 0 0    1 .333 ] }
                     outputframe { name "f2.c2" viewport [ 0 .333 1 .333 ] }
                 }
@@ -71,7 +78,7 @@ server
 
                 compound
                 {
-                    range [ .333 .666 ]
+                    range [ .666 1 ]
                     outputframe { name "f1.c3" viewport [ 0 0    1 .333 ] }
                     outputframe { name "f2.c3" viewport [ 0 .666 1 .334 ] }
                 }
@@ -80,13 +87,6 @@ server
                 outputframe { buffer [ COLOR ] viewport [ 0 .333 1 .333 ] }
             }
 
-            compound
-            {
-                range [ .666 1 ]
-
-                outputframe { name "f1.c1" viewport [ 0 .333 1 .333 ] }
-                outputframe { name "f2.c1" viewport [ 0 .666 1 .334 ] }
-            }
             inputframe { name "f1.c2" }
             inputframe { name "f1.c3" }
             inputframe { name "frame.channel2" }

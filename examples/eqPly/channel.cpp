@@ -14,6 +14,7 @@ using namespace eqBase;
 
 static float lightpos[] = { 0., 0., 1., 0. };
 
+#define COLOR_DB
 //#define DYNAMIC_NEAR 
 #ifndef M_SQRT3
 #  define M_SQRT3    1.7321f   /* sqrt(3) */
@@ -68,6 +69,15 @@ void Channel::draw( const uint32_t frameID )
     Node*        node  = (Node*)getNode();
     const Model* model = node->getModel();
 
+#ifdef COLOR_DB
+    stde::hash<const char*> hasher;
+    unsigned  seed  = (unsigned)(long long)this + hasher(getName().c_str());
+    const int color = rand_r( &seed );
+    
+    glColor3f( (color&0xff) / 255., ((color>>8) & 0xff) / 255.,
+               ((color>>16) & 0xff) / 255. );
+#endif
+
     if( model )
     {
         const eq::Range& range = getRange();
@@ -102,7 +112,11 @@ void Channel::draw( const uint32_t frameID )
                 }
                 case FRUSTUM_VISIBILITY_PARTIAL:
                     if( !bbox->children )
-                        model->traverseBBox( bbox, 0, _drawBBoxCB, 0, this );
+                    {
+                        if( bbox->range[0] >= range.start )
+                            model->traverseBBox( bbox, 0, _drawBBoxCB, 0, this);
+                        // else drop, will be drawn by 'previous' channel
+                    }
                     else
                         for( int i=0; i<8; i++ )
                             bBoxVector.push_back( &bbox->children[i] );
@@ -154,15 +168,21 @@ void Channel::_drawBBox( const Model::BBox *bbox )
     {
         const NormalFace<ColorVertex> &face = bbox->faces[i];
         
+#ifndef COLOR_DB
         glColor3fv(  face.vertices[0].color );
+#endif
         glNormal3fv( face.normal );
         glVertex3fv( face.vertices[0].pos );
         
+#ifndef COLOR_DB
         glColor3fv(  face.vertices[1].color );
+#endif
         glNormal3fv( face.normal ); 
         glVertex3fv( face.vertices[1].pos );
         
+#ifndef COLOR_DB
         glColor3fv(  face.vertices[2].color );
+#endif
         glNormal3fv( face.normal ); 
         glVertex3fv( face.vertices[2].pos );
     }
