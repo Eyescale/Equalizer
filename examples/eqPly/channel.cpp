@@ -14,7 +14,6 @@ using namespace eqBase;
 
 static float lightpos[] = { 0., 0., 1., 0. };
 
-#define COLOR_DB
 //#define DYNAMIC_NEAR 
 #ifndef M_SQRT3
 #  define M_SQRT3    1.7321f   /* sqrt(3) */
@@ -66,29 +65,29 @@ void Channel::draw( const uint32_t frameID )
                   _frameData->_data.translation.z );
     glMultMatrixf( _frameData->_data.rotation.ml );
 
-    Node*        node  = (Node*)getNode();
-    const Model* model = node->getModel();
+    Node*            node  = (Node*)getNode();
+    const Model*     model = node->getModel();
+    const eq::Range& range = getRange();
 
-#ifdef COLOR_DB
-    stde::hash<const char*> hasher;
-    unsigned  seed  = (unsigned)(long long)this + hasher(getName().c_str());
-    const int color = rand_r( &seed );
+    if( !range.isFull( )) // Color DB-patches
+    {
+        stde::hash<const char*> hasher;
+        unsigned  seed  = (unsigned)(long long)this + hasher(getName().c_str());
+        const int color = rand_r( &seed );
     
-    glColor3f( (color&0xff) / 255., ((color>>8) & 0xff) / 255.,
-               ((color>>16) & 0xff) / 255. );
-#endif
+        glColor3f( (color&0xff) / 255., ((color>>8) & 0xff) / 255.,
+                   ((color>>16) & 0xff) / 255. );
+    }
 
     if( model )
     {
-        const eq::Range& range = getRange();
+        vector<const Model::BBox*> candidates;
+        candidates.push_back( model->getBBox( ) );
 
-        vector<const Model::BBox*> bBoxVector;
-        bBoxVector.push_back( model->getBBox( ) );
-
-        while( !bBoxVector.empty( ) )
+        while( !candidates.empty( ) )
         {
-            const Model::BBox *bbox = bBoxVector.back();
-            bBoxVector.pop_back();
+            const Model::BBox *bbox = candidates.back();
+            candidates.pop_back();
 
             // cull against 'completely out of range'
             if( bbox->range[0] >= range.end || bbox->range[1] < range.start )
@@ -119,7 +118,7 @@ void Channel::draw( const uint32_t frameID )
                     }
                     else
                         for( int i=0; i<8; i++ )
-                            bBoxVector.push_back( &bbox->children[i] );
+                            candidates.push_back( &bbox->children[i] );
                     break;
                 case FRUSTUM_VISIBILITY_NULL:
                     break;
@@ -160,29 +159,28 @@ void Channel::_drawBBox( const Model::BBox *bbox )
     displayList = pipe->newDisplayList( bbox );
     EQASSERT( displayList );
 
+    const size_t     nFaces = bbox->nFaces;
+    const eq::Range& range  = getRange();
+    const bool       color  = range.isFull(); // Use color only if not DB
+
     glNewList( displayList, GL_COMPILE );
-    const size_t nFaces = bbox->nFaces;
-            
     glBegin( GL_TRIANGLES );    
     for( size_t i=0; i<nFaces; i++ )
     {
         const NormalFace<ColorVertex> &face = bbox->faces[i];
         
-#ifndef COLOR_DB
-        glColor3fv(  face.vertices[0].color );
-#endif
+        if( color )
+            glColor3fv(  face.vertices[0].color );
         glNormal3fv( face.normal );
         glVertex3fv( face.vertices[0].pos );
         
-#ifndef COLOR_DB
-        glColor3fv(  face.vertices[1].color );
-#endif
+        if( color )
+            glColor3fv(  face.vertices[1].color );
         glNormal3fv( face.normal ); 
         glVertex3fv( face.vertices[1].pos );
         
-#ifndef COLOR_DB
-        glColor3fv(  face.vertices[2].color );
-#endif
+        if( color )
+            glColor3fv(  face.vertices[2].color );
         glNormal3fv( face.normal ); 
         glVertex3fv( face.vertices[2].pos );
     }
