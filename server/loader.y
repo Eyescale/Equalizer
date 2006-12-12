@@ -237,10 +237,12 @@ server: EQTOKEN_SERVER '{' { server = loader->createServer(); }
 configs: config | configs config
 config: EQTOKEN_CONFIG '{' { config = loader->createConfig(); }
         configFields
-        nodes compounds '}' { server->addConfig( config ); config = NULL; }
+        '}' { server->addConfig( config ); config = NULL; }
 configFields: /*null*/ | configField | configFields configField
 configField:
-    EQTOKEN_LATENCY UNSIGNED  { config->setLatency( $2 ); }
+    nodes
+    | compounds
+    | EQTOKEN_LATENCY UNSIGNED  { config->setLatency( $2 ); }
     | EQTOKEN_ATTRIBUTES '{' configAttributes '}'
 configAttributes: /*null*/ | configAttribute | configAttributes configAttribute
 configAttribute:
@@ -250,16 +252,15 @@ configAttribute:
 nodes: node | nodes node
 node: appNode | otherNode
 otherNode: EQTOKEN_NODE '{' { node = loader->createNode(); }
-               connections
                nodeFields
-               pipes '}' { config->addNode( node ); node = 0; }
+               '}' { config->addNode( node ); node = 0; }
 appNode: EQTOKEN_APPNODE '{' { node = loader->createNode(); }
-            connections
             nodeFields
-            pipes '}' { config->addApplicationNode( node ); node = 0; }
+            '}' { config->addApplicationNode( node ); node = 0; }
 nodeFields: /*null*/ | nodeField | nodeFields nodeField
 nodeField: /*TODO*/
-
+    connections
+    | pipes                
 connections: /*null*/ 
              { // No connection specified, create default from globals
                  node->addConnectionDescription(
@@ -285,10 +286,11 @@ connectionField:
 pipes: pipe | pipes pipe
 pipe: EQTOKEN_PIPE '{' { eqPipe = loader->createPipe(); }
         pipeFields
-        windows    '}' { node->addPipe( eqPipe ); eqPipe = 0; }
+        '}' { node->addPipe( eqPipe ); eqPipe = 0; }
 pipeFields: /*null*/ | pipeField | pipeFields pipeField
 pipeField:
-    EQTOKEN_DISPLAY UNSIGNED         { eqPipe->setDisplay( $2 ); }
+    windows   
+    | EQTOKEN_DISPLAY UNSIGNED       { eqPipe->setDisplay( $2 ); }
     | EQTOKEN_SCREEN UNSIGNED        { eqPipe->setScreen( $2 ); }
     | EQTOKEN_VIEWPORT viewport 
         {
@@ -299,11 +301,11 @@ pipeField:
 windows: window | windows window
 window: EQTOKEN_WINDOW '{' { window = loader->createWindow(); }
         windowFields
-        channels '}' { eqPipe->addWindow( window ); window = 0; }
+        '}' { eqPipe->addWindow( window ); window = 0; }
 windowFields: /*null*/ | windowField | windowFields windowField
 windowField: 
-    EQTOKEN_ATTRIBUTES '{' 
-    windowAttributes '}'
+    channels
+    | EQTOKEN_ATTRIBUTES '{' windowAttributes '}'
     | EQTOKEN_NAME STRING              { window->setName( $2 ); }
     | EQTOKEN_VIEWPORT viewport
         {
@@ -367,16 +369,13 @@ compound: EQTOKEN_COMPOUND '{'
                   eqCompound = child;
               }
           compoundFields 
-          compoundChildren
-          compoundFields
           '}' { eqCompound = eqCompound->getParent(); } 
-
-compoundChildren: /*null*/ | compounds
 
 compoundFields: /*null*/ | compoundField |
                     compoundFields compoundField
 compoundField: 
-    EQTOKEN_NAME STRING { eqCompound->setName( $2 ); }
+    compound
+    | EQTOKEN_NAME STRING { eqCompound->setName( $2 ); }
     | EQTOKEN_CHANNEL STRING
     {
          eqs::Channel* channel = config->findChannel( $2 );
