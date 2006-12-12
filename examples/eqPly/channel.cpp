@@ -164,29 +164,43 @@ void Channel::_drawBBox( const Model::BBox *bbox )
     const bool       color  = range.isFull(); // Use color only if not DB
 
     glNewList( displayList, GL_COMPILE );
-    glBegin( GL_TRIANGLES );    
-    for( size_t i=0; i<nFaces; i++ )
-    {
-        const NormalFace<ColorVertex> &face = bbox->faces[i];
-        
-        if( color )
-            glColor3fv(  face.vertices[0].color );
-        glNormal3fv( face.normal );
-        glVertex3fv( face.vertices[0].pos );
-        
-        if( color )
-            glColor3fv(  face.vertices[1].color );
-        glNormal3fv( face.normal ); 
-        glVertex3fv( face.vertices[1].pos );
-        
-        if( color )
-            glColor3fv(  face.vertices[2].color );
-        glNormal3fv( face.normal ); 
-        glVertex3fv( face.vertices[2].pos );
-    }
-    glEnd();
+    glBegin( GL_TRIANGLES );
 
+    if( color )
+        for( size_t i=0; i<nFaces; ++i )
+        {
+            const NormalFace<ColorVertex> &face = bbox->faces[i];
+            
+            glColor3fv(  face.vertices[0].color );
+            glNormal3fv( face.normal );
+            glVertex3fv( face.vertices[0].pos );
+            
+            glColor3fv(  face.vertices[1].color );
+            glNormal3fv( face.normal ); 
+            glVertex3fv( face.vertices[1].pos );
+            
+            glColor3fv(  face.vertices[2].color );
+            glNormal3fv( face.normal ); 
+            glVertex3fv( face.vertices[2].pos );
+        }
+    else
+        for( size_t i=0; i<nFaces; ++i )
+        {
+            const NormalFace<ColorVertex> &face = bbox->faces[i];
+            
+            glNormal3fv( face.normal );
+            glVertex3fv( face.vertices[0].pos );
+            
+            glNormal3fv( face.normal ); 
+            glVertex3fv( face.vertices[1].pos );
+            
+            glNormal3fv( face.normal ); 
+            glVertex3fv( face.vertices[2].pos );
+        }
+
+    glEnd();
     glEndList();
+
     glCallList( displayList );
 }
 
