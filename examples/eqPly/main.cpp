@@ -101,11 +101,7 @@ int main( int argc, char** argv )
     // 6. run main loop
     uint32_t maxFrames = 0; // set to 0 for 'endless'
     
-    // render one frame to remove initial display list download from total time
-    config->beginFrame();
-    config->endFrame();
     clock.reset();
-
     while( config->isRunning( ) && --maxFrames )
     {
         if( tracker.isRunning() )
@@ -120,7 +116,6 @@ int main( int argc, char** argv )
         config->endFrame();
     }
     const uint32_t frame = config->finishFrames();
-
     EQLOG( eq::LOG_CUSTOM ) << "Rendering took " << clock.getTimef() << " ms ("
                             << ( frame / clock.getTimef() * 1000.f) << " FPS)"
                             << endl;
