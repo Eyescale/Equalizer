@@ -1,0 +1,262 @@
+# eight-to-one sort-last, binary-swap config for cluster at unizh
+global
+{
+    EQ_WINDOW_IATTR_PLANES_STENCIL  on
+#    EQ_WINDOW_IATTR_HINT_FULLSCREEN on
+}
+
+server
+{
+    config
+    {
+        latency 2
+        node
+        {
+            connection { hostname "10.42.42.1" }
+            pipe 
+            {
+                window
+                {
+                    attributes { planes_stencil on }
+                    channel { name "channel1" }
+                }
+            }
+        }
+        node
+        {
+            connection { hostname "10.42.42.2" }
+            pipe { window { channel { name "channel2" }}}
+        }
+        node
+        {
+            connection { hostname "10.42.42.3" }
+            pipe { window { channel { name "channel3" }}}
+        }
+        node
+        {
+            connection { hostname "10.42.42.4" }
+            pipe { window { channel { name "channel4" }}}
+        }
+        node
+        {
+            connection { hostname "10.42.42.5" }
+            pipe { window { channel { name "channel5" }}}
+            pipe { window { channel { name "channel7" }}}
+        }
+        node
+        {
+            connection { hostname "10.42.42.6" }
+            pipe { window { channel { name "channel6" }}}
+            pipe { window { channel { name "channel8" }}}
+        }
+        compound
+        {
+            channel "channel1"
+            buffer  [ COLOR DEPTH ]
+
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+            }
+
+            compound
+            {
+                channel "channel1"
+                compound 
+                {
+                    range [ 0 .125 ]
+                    outputframe { name "f1.c1" viewport [ 0 0 1 .5 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f1.c2"  }
+                    outputframe { name "f2.c1" viewport [ 0 .5 1 .25 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f2.c3"  }
+                    outputframe { name "f3.c1" viewport [ 0 .75 1 .125 ] }
+                }
+                inputframe { name "f3.c5" }
+                #outputframe { buffer [COLOR] viewport [ 0 .875 1 .125 ] }
+            }
+            compound
+            {
+                channel "channel2"
+                compound 
+                {
+                    range [ .125 .25 ]
+                    outputframe { name "f1.c2" viewport [ 0 .5 1 .5 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f1.c1"  }
+                    outputframe { name "f2.c2" viewport [ 0 0 1 .25 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f2.c4"  }
+                    outputframe { name "f3.c2" viewport [ 0 .25 1 .125 ] }
+                }
+                inputframe { name "f3.c6" }
+                outputframe { buffer [COLOR] viewport [ 0 .375 1 .125 ] }
+            }
+
+            compound
+            {
+                channel "channel3"
+                compound 
+                {
+                    range [ .25 .375 ]
+                    outputframe { name "f1.c3" viewport [ 0 0 1 .5 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f1.c4"  }
+                    outputframe { name "f2.c3" viewport [ 0 .75 1 .25 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f2.c1"  }
+                    outputframe { name "f3.c3" viewport [ 0 .5 1 .125 ] }
+                }
+                inputframe { name "f3.c7" }
+                outputframe { buffer [COLOR] viewport [ 0 .625 1 .125 ] }
+            }
+            compound
+            {
+                channel "channel4"
+                compound 
+                {
+                    range [ .375 .5 ]
+                    outputframe { name "f1.c4" viewport [ 0 .5 1 .5 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f1.c3"  }
+                    outputframe { name "f2.c4" viewport [ 0 .25 1 .25 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f2.c2"  }
+                    outputframe { name "f3.c4" viewport [ 0 0 1 .125 ] }
+                }
+                inputframe { name "f3.c8" }
+                outputframe { buffer [COLOR] viewport [ 0 .125 1 .125 ] }
+            }
+
+
+            compound
+            {
+                channel "channel5"
+                compound 
+                {
+                    range [ .5 .625 ]
+                    outputframe { name "f1.c5" viewport [ 0 0 1 .5 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f1.c6"  }
+                    outputframe { name "f2.c5" viewport [ 0 .5 1 .25 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f2.c7"  }
+                    outputframe { name "f3.c5" viewport [ 0 .875 1 .125 ] }
+                }
+                inputframe { name "f3.c1" }
+                outputframe { buffer [COLOR] viewport [ 0 .75 1 .125 ] }
+            }
+            compound
+            {
+                channel "channel6"
+                compound 
+                {
+                    range [ .625 .75 ]
+                    outputframe { name "f1.c6" viewport [ 0 .5 1 .5 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f1.c5"  }
+                    outputframe { name "f2.c6" viewport [ 0 0 1 .25 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f2.c8"  }
+                    outputframe { name "f3.c6" viewport [ 0 .375 1 .125 ] }
+                }
+                inputframe { name "f3.c2" }
+                outputframe { buffer [COLOR] viewport [ 0 .25 1 .125 ] }
+            }
+
+            compound
+            {
+                channel "channel7"
+                compound 
+                {
+                    range [ .75 .875 ]
+                    outputframe { name "f1.c7" viewport [ 0 0 1 .5 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f1.c8"  }
+                    outputframe { name "f2.c7" viewport [ 0 .75 1 .25 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f2.c5"  }
+                    outputframe { name "f3.c7" viewport [ 0 .625 1 .125 ] }
+                }
+                inputframe { name "f3.c3" }
+                outputframe { buffer [COLOR] viewport [ 0 .5 1 .125 ] }
+            }
+            compound
+            {
+                channel "channel8"
+                compound 
+                {
+                    range [ .875 1 ]
+                    outputframe { name "f1.c8" viewport [ 0 .5 1 .5 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f1.c7"  }
+                    outputframe { name "f2.c8" viewport [ 0 .25 1 .25 ] }
+                }
+                compound 
+                {
+                    task [ ASSEMBLE READBACK ]
+                    inputframe { name "f2.c6"  }
+                    outputframe { name "f3.c8" viewport [ 0 .125 1 .125 ] }
+                }
+                inputframe { name "f3.c4" }
+                outputframe { buffer [COLOR] viewport [ 0 0 1 .125 ] }
+            }
+
+            inputframe { name "frame.channel2" }
+            inputframe { name "frame.channel3" }
+            inputframe { name "frame.channel4" }
+            inputframe { name "frame.channel5" }
+            inputframe { name "frame.channel6" }
+            inputframe { name "frame.channel7" }
+            inputframe { name "frame.channel8" }
+        }
+    }    
+}
