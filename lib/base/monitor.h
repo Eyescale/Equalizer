@@ -118,7 +118,7 @@ namespace eqBase
     };
 
     template< typename T >
-    std::ostream& operator << ( std::ostream& os, const Monitor<T> monitor )
+    std::ostream& operator << ( std::ostream& os, const Monitor<T>& monitor )
     {
         os << "Monitor< " << monitor.get() << " >";
         return os;
