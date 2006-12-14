@@ -45,6 +45,7 @@ void FrameData::unpack( const void* data, const uint64_t size )
 
 void FrameData::_clear()
 {
+    EQASSERT( _listeners.empty( ));
     copy( _images.begin(), _images.end(), 
           inserter( _imageCache, _imageCache.end( )));
     _images.clear();
@@ -111,6 +112,23 @@ void FrameData::syncReadback()
 #endif
     }
     _setReady();
+}
+
+void FrameData::_setReady()
+{ 
+    EQASSERT( _readyVersion < getVersion( ))
+
+    _listenersMutex.set();
+    _readyVersion = getVersion(); 
+
+    for( vector< Monitor<uint32_t>* >::iterator i = _listeners.begin();
+         i != _listeners.end(); ++i )
+    {
+        Monitor<uint32_t>* monitor = *i;
+        ++(*monitor);
+    }
+
+    _listenersMutex.unset();
 }
 
 void FrameData::startAssemble( const Frame& frame )
@@ -231,6 +249,30 @@ void FrameData::transmit( eqBase::RefPtr<eqNet::Node> toNode )
     toNode->send( readyPacket );
 }
 
+void FrameData::addListener( eqBase::Monitor<uint32_t>& listener )
+{
+    _listenersMutex.set();
+
+    _listeners.push_back( &listener );
+    if( _readyVersion == getVersion( ))
+        ++listener;
+
+    _listenersMutex.unset();
+}
+
+void FrameData::removeListener( eqBase::Monitor<uint32_t>& listener )
+{
+    _listenersMutex.set();
+
+    vector< Monitor<uint32_t>* >::iterator i = find( _listeners.begin(),
+                                                     _listeners.end(),
+                                                     &listener );
+    EQASSERT( i != _listeners.end( ));
+    _listeners.erase( i );
+
+    _listenersMutex.unset();
+}
+
 //----- Command handlers
 
 eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
@@ -322,7 +364,7 @@ eqNet::CommandResult FrameData::_cmdReady( eqNet::Command& command )
     EQLOG( LOG_ASSEMBLY ) << this << " received v" << packet->version
                           << " with " << _images.size() << " images" << endl;
 
-    _readyVersion = packet->version;
+    _setReady();
     return eqNet::COMMAND_HANDLED;
 }
 

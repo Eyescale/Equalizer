@@ -5,6 +5,7 @@
 #ifndef EQ_FRAME_H
 #define EQ_FRAME_H
 
+#include <eq/base/monitor.h>
 #include <eq/net/object.h>
 #include <eq/vmmlib/Vector2.h>
 #include <eq/client/pixelViewport.h>
@@ -94,6 +95,20 @@ namespace eq
 
         /** Wait for the frame to become available. */
         void waitReady();
+
+        /** 
+         * Add a listener which will be incremented when the frame is ready.
+         * 
+         * @param listener the listener.
+         */
+        void addListener( eqBase::Monitor<uint32_t>& listener );
+
+        /** 
+         * Remove a frame listener.
+         * 
+         * @param listener the listener.
+         */
+        void removeListener( eqBase::Monitor<uint32_t>& listener );
         //*}
 
     protected:

@@ -87,6 +87,21 @@ namespace eq
 
         /** Wait for the frame data to become available. */
         void waitReady() const { _readyVersion.waitEQ( getVersion( )); }
+
+        /** 
+         * Add a listener which will be incremented when the frame becomes
+         * ready.
+         * 
+         * @param listener the listener.
+         */
+        void addListener( eqBase::Monitor<uint32_t>& listener );
+
+        /** 
+         * Remove a frame listener.
+         * 
+         * @param listener the listener.
+         */
+        void removeListener( eqBase::Monitor<uint32_t>& listener );
         //*}
 
     protected:
@@ -119,8 +134,12 @@ namespace eq
         };
         std::list<ImageVersion> _pendingImages;
 
+        /** Data ready monitor synchronization primitive. */
         eqBase::Monitor<uint32_t> _readyVersion;
 
+        /** External monitors for readyness synchronization. */
+        std::vector< eqBase::Monitor<uint32_t>* > _listeners;
+        eqBase::Lock                              _listenersMutex;
         /** Clear the frame by recycling the attached images. */
         void _clear();
 
@@ -133,7 +152,7 @@ namespace eq
          * The frame data is automatically set ready by syncReadback
          * and upon processing of the transmit commands.
          */
-        void _setReady()        { _readyVersion = getVersion(); }
+        void _setReady();
 
         void _transmit( eqBase::RefPtr<eqNet::Node> toNode,
                         FrameDataTransmitPacket& packet,

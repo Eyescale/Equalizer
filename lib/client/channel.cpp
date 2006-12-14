@@ -179,33 +179,54 @@ void Channel::assemble( const uint32_t frameID )
     applyViewport();
     setupAssemblyState();
 
-    Pipe* pipe = getPipe();
-    const vector<Frame*>& frames = getInputFrames();
+    Pipe*                 pipe    = getPipe();
+    const vector<Frame*>& frames  = getInputFrames();
+    Monitor<uint32_t>     monitor;
+
     for( vector<Frame*>::const_iterator i = frames.begin();
          i != frames.end(); ++i )
     {
         Frame* frame = *i;
-        
+        frame->addListener( monitor );
+    }
+
+    uint32_t       nUsedFrames  = 0;
+    vector<Frame*> unusedFrames = frames;
+
+    while( !unusedFrames.empty( ))
+    {
         StatEvent event( StatEvent::CHANNEL_WAIT_FRAME, this, 
                          pipe->getFrameTime( ));
 
-        frame->waitReady();
-
+        monitor.waitGE( ++nUsedFrames );
+        
         if( getIAttribute( IATTR_HINT_STATISTICS ))
         {
             event.endTime = pipe->getFrameTime();
             pipe->addStatEvent( event );
         }
 
-        frame->startAssemble();
+        for( vector<Frame*>::iterator i = unusedFrames.begin();
+             i != unusedFrames.end(); ++i )
+        {
+            Frame* frame = *i;
+            if( !frame->isReady( ))
+                continue;
+
+            frame->startAssemble();
+            unusedFrames.erase( i );
+            break;
+        }
     }
-    for( vector<Frame*>::const_iterator i = frames.begin();
-         i != frames.end(); ++i )
+
+    for( vector<Frame*>::const_iterator i = frames.begin(); i != frames.end();
+         ++i )
     {
         Frame* frame = *i;
-        
         frame->syncAssemble();
+        frame->removeListener( monitor );
     }
+
     resetAssemblyState();
 }
 

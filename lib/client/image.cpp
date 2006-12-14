@@ -432,12 +432,9 @@ void Image::writeImage( const std::string& filename,
                         const Frame::Buffer buffer ) const
 {
     const size_t   nPixels = _pvp.w * _pvp.h;
-    const size_t   depth   = getDepth( buffer );
-    const size_t   nBytes  = nPixels * depth;
     const uint32_t index   = _getIndexForBuffer( buffer );
-    const uint8_t* pixels  = _pixels[index].data;
 
-    if( nPixels == 0 || !_pixels[index].valid );
+    if( nPixels == 0 || !_pixels[index].valid )
         return;
 
     ofstream image( filename.c_str(), ios::out | ios::binary );
@@ -447,7 +444,8 @@ void Image::writeImage( const std::string& filename,
         return;
     }
 
-    RGBHeader header;
+    const size_t depth   = getDepth( buffer );
+    RGBHeader    header;
     
     header.width  = _pvp.w;
     header.height = _pvp.h;
@@ -458,6 +456,9 @@ void Image::writeImage( const std::string& filename,
     image.write( reinterpret_cast<const char *>( &header ), sizeof( header ));
 
     // Each channel is saved separately
+    const size_t   nBytes  = nPixels * depth;
+    const uint8_t* pixels  = _pixels[index].data;
+
     for( size_t i = 0; i < depth; ++i )
         for( size_t j = i; j < nBytes; j += depth )
             image.write( reinterpret_cast<const char*>( &pixels[j] ), 1 );

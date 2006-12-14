@@ -82,7 +82,7 @@ void Channel::draw( const uint32_t frameID )
     if( model )
     {
         vector<const Model::BBox*> candidates;
-        candidates.push_back( model->getBBox( ) );
+        candidates.push_back( model->getBBox( ));
 
         while( !candidates.empty( ) )
         {

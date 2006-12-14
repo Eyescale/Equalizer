@@ -55,8 +55,8 @@ server
             {
                 range [ 0 .333 ]
 
-                outputframe { name "f1.c1" viewport [ 0 .333 1 .333 ] }
-                outputframe { name "f2.c1" viewport [ 0 .666 1 .334 ] }
+                outputframe { name "f1.c1" viewport [ 0  0 .5 .666 ] }
+                outputframe { name "f2.c1" viewport [ .5 0 .5 .666 ] }
             }
             compound
             {
@@ -65,12 +65,12 @@ server
                 compound
                 {
                     range [ .333 .666 ]
-                    outputframe { name "f1.c2" viewport [ 0 0    1 .333 ] }
-                    outputframe { name "f2.c2" viewport [ 0 .333 1 .333 ] }
+                    outputframe { name "f1.c2" viewport [ 0 .666 1 .334 ] }
+                    outputframe { name "f2.c2" viewport [ .5 0  .5 .666 ] }
                 }
-                inputframe { name "f2.c1" }
+                inputframe { name "f1.c1" }
                 inputframe { name "f2.c3" }
-                outputframe { buffer [ COLOR ] viewport [ 0 .666 1 .334 ] }
+                outputframe { buffer [ COLOR ] viewport [ 0 0 .5 .666 ] }
             }
             compound
             {
@@ -79,12 +79,12 @@ server
                 compound
                 {
                     range [ .666 1 ]
-                    outputframe { name "f1.c3" viewport [ 0 0    1 .333 ] }
-                    outputframe { name "f2.c3" viewport [ 0 .666 1 .334 ] }
+                    outputframe { name "f1.c3" viewport [ 0 .666 1 .334 ] }
+                    outputframe { name "f2.c3" viewport [ 0 0   .5 .666 ] }
                 }
-                inputframe { name "f1.c1" }
+                inputframe { name "f2.c1" }
                 inputframe { name "f2.c2" }
-                outputframe { buffer [ COLOR ] viewport [ 0 .333 1 .333 ] }
+                outputframe { buffer [ COLOR ] viewport [ .5 0 .5 .666 ] }
             }
 
             inputframe { name "f1.c2" }

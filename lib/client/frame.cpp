@@ -71,3 +71,14 @@ void Frame::waitReady()
 {
     _getData()->waitReady();
 }
+
+
+void Frame::addListener( eqBase::Monitor<uint32_t>& listener )
+{
+    _getData()->addListener( listener );
+}
+
+void Frame::removeListener( eqBase::Monitor<uint32_t>& listener )
+{
+    _getData()->removeListener( listener );
+}

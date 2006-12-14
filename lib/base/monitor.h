@@ -6,6 +6,7 @@
 #define EQBASE_MONITOR_H
 
 #include <eq/base/log.h>
+#include <eq/base/nonCopyable.h>
 #include <pthread.h>
 
 namespace eqBase
@@ -16,7 +17,7 @@ namespace eqBase
      * A monitor has a value, which can be monitored to reach a certain
      * state. The caller is blocked until the condition is fulfilled.
      */
-    template< typename T > class Monitor 
+    template< typename T > class Monitor : public NonCopyable
     {
     public:
         /** 
@@ -104,6 +105,8 @@ namespace eqBase
 
         /** Data Access. */
         bool operator == ( const T& val ) const { return _value == val; }
+        bool operator < ( const T& val ) const { return _value < val; }
+        bool operator > ( const T& val ) const { return _value > val; }
 
         const T& get() const { return _value; }
 
@@ -113,6 +116,13 @@ namespace eqBase
         mutable pthread_cond_t  _cond;
         mutable pthread_mutex_t _mutex;
     };
+
+    template< typename T >
+    std::ostream& operator << ( std::ostream& os, const Monitor<T> monitor )
+    {
+        os << "Monitor< " << monitor.get() << " >";
+        return os;
+    }
 }
 
 #endif //EQBASE_MONITOR_H
