@@ -401,7 +401,7 @@ struct RGBHeader
          */
         void convert()
         {
-#if defined(__i386__) || defined(__amd64__)
+#if defined(__i386__) || defined(__amd64__) || defined (__ia64)
             SWAP_SHORT(magic);
             SWAP_SHORT(nDimensions);
             SWAP_SHORT(width);
