@@ -2,7 +2,6 @@
 global
 {
     EQ_WINDOW_IATTR_PLANES_STENCIL  on
-#    EQ_WINDOW_IATTR_HINT_FULLSCREEN on
 }
 
 server
@@ -17,7 +16,7 @@ server
             {
                 window
                 {
-                    attributes { planes_stencil on }
+                    viewport [ 640 400 1280 800 ]
                     channel { name "channel1" }
                 }
             }
@@ -40,14 +39,36 @@ server
         node
         {
             connection { hostname "10.42.42.5" }
-            pipe { window { channel { name "channel5" }}}
-            pipe { window { channel { name "channel7" }}}
+            pipe 
+            { 
+                window
+                {
+                    viewport [ 0 0 1280 800 ]
+                    channel { name "channel5" }
+                }
+                window
+                {
+                    viewport [ 1280 800 1280 800 ]
+                    channel { name "channel7" }
+                }
+            }
         }
         node
         {
             connection { hostname "10.42.42.6" }
-            pipe { window { channel { name "channel6" }}}
-            pipe { window { channel { name "channel8" }}}
+            pipe 
+            { 
+                window
+                {
+                    viewport [ 0 0 1280 800 ]
+                    channel { name "channel6" }
+                }
+                window
+                {
+                    viewport [ 1280 800 1280 800 ]
+                    channel { name "channel8" }
+                }
+            }
         }
         compound
         {
