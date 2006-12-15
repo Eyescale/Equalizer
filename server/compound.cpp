@@ -1031,7 +1031,7 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
     const uint32_t eye = compound->getEyes();
     if( eye )
     {
-        os << "eye [ ";
+        os << "eye      [ ";
         if( eye & Compound::EYE_CYCLOP )
             os << "CYCLOP ";
         if( eye & Compound::EYE_LEFT )

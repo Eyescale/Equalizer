@@ -488,6 +488,8 @@ IATTR:
 STRING: EQTOKEN_STRING
      {
          stringBuf = yytext;
+         stringBuf.erase( 0, 1 );                  // Leading '"'
+         stringBuf.erase( stringBuf.size()-1, 1 ); // Trailing '"'
          $$ = stringBuf.c_str(); 
      }
 FLOAT: EQTOKEN_FLOAT                       { $$ = atof( yytext ); }

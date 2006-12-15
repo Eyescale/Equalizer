@@ -11,6 +11,7 @@
 void yyerror(char *);
 int yylineno = 0;
 %}
+%option noyywrap
 
 %%
 
@@ -85,26 +86,15 @@ latency                         { return EQTOKEN_LATENCY; }
 swapbarrier                     { return EQTOKEN_SWAPBARRIER; }
 outputframe                     { return EQTOKEN_OUTPUTFRAME; }
 inputframe                      { return EQTOKEN_INPUTFRAME; }
-["]                             { 
-                                    int i = -1;
-                                    while( (yytext[++i] = yyinput()) != '"' )
-                                        if( yytext[i] == '\n' )
-                                            ++yylineno;
-                                    yytext[i] = '\0';
-                                    return EQTOKEN_STRING; 
-                                }
 [+-]?[0-9]+[\.][0-9]*           { return EQTOKEN_FLOAT; }
 [+-]?[0-9]*[\.][0-9]+           { return EQTOKEN_FLOAT; }
 [+]?[0-9]+                      { return EQTOKEN_UNSIGNED; }
 [+-]?[0-9]+                     { return EQTOKEN_INTEGER; }
+\"[a-zA-Z][-_\.:a-zA-Z0-9]*\"   { return EQTOKEN_STRING; }
 
-[{}"\[\]]                       { return *yytext; }
+[{}\[\]]                        { return *yytext; }
 [\n]                            { ++yylineno; }
 [ \t]                           { ; }
 [/][/]|[#]                      { while( yyinput() != '\n' ); ++yylineno; }
 
 %%
-
-int yywrap(void) {
-    return 1;
-}
