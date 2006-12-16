@@ -21,7 +21,7 @@ EQ_CONNECTION_SATTR_LAUNCH_COMMAND { return EQTOKEN_CONNECTION_SATTR_LAUNCH_COMM
 EQ_CONNECTION_IATTR_TYPE         { return EQTOKEN_CONNECTION_IATTR_TYPE; }
 EQ_CONNECTION_IATTR_TCPIP_PORT   { return EQTOKEN_CONNECTION_IATTR_TCPIP_PORT; }
 EQ_CONNECTION_IATTR_LAUNCH_TIMEOUT { return EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT; }
-EQ_CONFIG_FATTR_EYE_BASE           { return EQTOKEN_CONFIG_FATTR_EYE_BASE; }
+EQ_CONFIG_FATTR_EYE_BASE          { return EQTOKEN_CONFIG_FATTR_EYE_BASE; }
 EQ_WINDOW_IATTR_HINT_STEREO       { return EQTOKEN_WINDOW_IATTR_HINT_STEREO; }
 EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER { return EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER; }
 EQ_WINDOW_IATTR_HINT_FULLSCREEN   { return EQTOKEN_WINDOW_IATTR_HINT_FULLSCREEN; }
@@ -90,7 +90,7 @@ inputframe                      { return EQTOKEN_INPUTFRAME; }
 [+-]?[0-9]*[\.][0-9]+           { return EQTOKEN_FLOAT; }
 [+]?[0-9]+                      { return EQTOKEN_UNSIGNED; }
 [+-]?[0-9]+                     { return EQTOKEN_INTEGER; }
-\"[a-zA-Z][-_\.:a-zA-Z0-9]*\"   { return EQTOKEN_STRING; }
+\"[\-_\.:a-zA-Z0-9]*\"          { return EQTOKEN_STRING; }
 
 [{}\[\]]                        { return *yytext; }
 [\n]                            { ++yylineno; }
