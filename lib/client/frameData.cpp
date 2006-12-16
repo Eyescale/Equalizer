@@ -198,6 +198,10 @@ void FrameData::transmit( eqBase::RefPtr<eqNet::Node> toNode )
             uint32_t size;
             const uint8_t* data = image->compressPixelData( Frame::BUFFER_COLOR,
                                                             size );
+            EQLOG( LOG_ASSEMBLY )
+                << "Compress color "
+                << image->getPixelData( Frame::BUFFER_COLOR ) << "->" << size
+                << " done at " << clock.getTimef() << endl;
 #else
             const uint8_t* data = image->getPixelData( Frame::BUFFER_COLOR );
             const uint32_t size = image->getPixelDataSize( Frame::BUFFER_COLOR);
@@ -214,6 +218,10 @@ void FrameData::transmit( eqBase::RefPtr<eqNet::Node> toNode )
             uint32_t size;
             const uint8_t* data = image->compressPixelData( Frame::BUFFER_DEPTH,
                                                             size );
+            EQLOG( LOG_ASSEMBLY )
+                << "Compress depth "
+                << image->getPixelData( Frame::BUFFER_DEPTH ) << "->" << size
+                << " done at " << clock.getTimef() << endl;
 #else
             const uint8_t* data = image->getPixelData( Frame::BUFFER_DEPTH );
             const uint32_t size = image->getPixelDataSize( Frame::BUFFER_DEPTH);
@@ -225,8 +233,9 @@ void FrameData::transmit( eqBase::RefPtr<eqNet::Node> toNode )
             packet.buffers |= Frame::BUFFER_DEPTH;
         }
 #ifdef EQ_USE_COMPRESSION
-        EQLOG( LOG_ASSEMBLY ) << "Image compression took " << clock.getTimef() 
+        EQLOG( LOG_ASSEMBLY ) << "Image compress took " << clock.getTimef() 
                               << endl;
+        clock.reset();
 #endif
  
         if( pixelDatas.empty( ))
@@ -240,6 +249,11 @@ void FrameData::transmit( eqBase::RefPtr<eqNet::Node> toNode )
             connection->send( pixelDatas[i], pixelDataSizes[i], true );
 
         connection->unlockSend(); 
+#ifdef EQ_USE_COMPRESSION
+        EQLOG( LOG_ASSEMBLY ) << "Image transmit took " << clock.getTimef() 
+                              << endl;
+        clock.reset();
+#endif
     }
 
     FrameDataReadyPacket readyPacket;
@@ -298,6 +312,8 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
     {
 #ifdef EQ_USE_COMPRESSION
         data += image->decompressPixelData( Frame::BUFFER_COLOR, data );
+        EQLOG( LOG_ASSEMBLY ) << "Decompress color done at " 
+                              << clock.getTimef() << endl;
 #else
         image->setPixelData( Frame::BUFFER_COLOR, data );
         data += image->getPixelDataSize( Frame::BUFFER_COLOR );
@@ -307,6 +323,8 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
     {
 #ifdef EQ_USE_COMPRESSION
         data += image->decompressPixelData( Frame::BUFFER_DEPTH, data );
+        EQLOG( LOG_ASSEMBLY ) << "Decompress depth done at " 
+                              << clock.getTimef() << endl;
 #else
         image->setPixelData( Frame::BUFFER_DEPTH, data );
         data += image->getPixelDataSize( Frame::BUFFER_DEPTH );
