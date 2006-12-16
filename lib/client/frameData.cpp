@@ -200,8 +200,8 @@ void FrameData::transmit( eqBase::RefPtr<eqNet::Node> toNode )
                                                             size );
             EQLOG( LOG_ASSEMBLY )
                 << "Compress color "
-                << image->getPixelData( Frame::BUFFER_COLOR ) << "->" << size
-                << " done at " << clock.getTimef() << endl;
+                << image->getPixelDataSize( Frame::BUFFER_COLOR ) << "->" 
+                << size << " done at " << clock.getTimef() << endl;
 #else
             const uint8_t* data = image->getPixelData( Frame::BUFFER_COLOR );
             const uint32_t size = image->getPixelDataSize( Frame::BUFFER_COLOR);
@@ -220,8 +220,8 @@ void FrameData::transmit( eqBase::RefPtr<eqNet::Node> toNode )
                                                             size );
             EQLOG( LOG_ASSEMBLY )
                 << "Compress depth "
-                << image->getPixelData( Frame::BUFFER_DEPTH ) << "->" << size
-                << " done at " << clock.getTimef() << endl;
+                << image->getPixelDataSize( Frame::BUFFER_DEPTH ) << "->" 
+                << size << " done at " << clock.getTimef() << endl;
 #else
             const uint8_t* data = image->getPixelData( Frame::BUFFER_DEPTH );
             const uint32_t size = image->getPixelDataSize( Frame::BUFFER_DEPTH);
