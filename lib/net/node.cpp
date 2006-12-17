@@ -201,6 +201,7 @@ void Node::_addConnectedNode( RefPtr<Node> node, RefPtr<Connection> connection )
     EQASSERT( node->_state == STATE_STOPPED || node->_state == STATE_LAUNCHED );
     EQASSERT( connection->getDescription().isValid( ));
     EQASSERT( _connectionNodes.find( connection.get())==_connectionNodes.end());
+    EQASSERT( node->_id != EQ_ID_INVALID );
 
     node->_connection = connection;
     node->_state      = STATE_CONNECTED;
@@ -455,13 +456,8 @@ void* Node::_runReceiver()
                 break;
 
             case ConnectionSet::EVENT_DATA:      
-            {
-                RefPtr<Connection> connection = _connectionSet.getConnection();
-                RefPtr<Node>       node = _connectionNodes[ connection.get() ];
-                EQASSERT( node->_connection == connection );
-                _handleCommand( node );
+                _handleData();
                 break;
-            }
 
             case ConnectionSet::EVENT_DISCONNECT:
             {
@@ -556,10 +552,10 @@ void Node::handleConnect( RefPtr<Connection> connection )
 
 void Node::_handleDisconnect()
 {
+    while( _handleData( )); // read remaining data off connection
+
     RefPtr<Connection> connection = _connectionSet.getConnection();
     RefPtr<Node>       node       = _connectionNodes[ connection.get() ];
-
-    while( _handleCommand( node )); // read remaining data of connection
 
     handleDisconnect( node );
     connection->close();
@@ -571,12 +567,16 @@ void Node::handleDisconnect( RefPtr<Node> node )
     EQASSERT( disconnected );
 }
 
-bool Node::_handleCommand( RefPtr<Node> node )
+bool Node::_handleData()
 {
-    EQVERB << "Handle command from " << node << endl;
+    RefPtr<Connection> connection = _connectionSet.getConnection();
+    RefPtr<Node>       node       = _connectionNodes[ connection.get() ];
 
-    uint64_t size;
-    const uint64_t read = node->_connection->recv( &size, sizeof( size ));
+    EQASSERT( node->_connection == connection );
+    EQVERB << "Handle data from " << node << endl;
+
+    uint64_t       size;
+    const uint64_t read = connection->recv( &size, sizeof( size ));
     if( read == 0 ) // Some systems signal data on dead connections.
         return false;
 
@@ -587,7 +587,7 @@ bool Node::_handleCommand( RefPtr<Node> node )
     size -= sizeof( size );
 
     char*      ptr     = (char*)_receivedCommand->getPacket() + sizeof(size);
-    const bool gotData = node->_connection->recv( ptr, size );
+    const bool gotData = connection->recv( ptr, size );
     EQASSERT( gotData );
     EQASSERT( _receivedCommand->isValid( ));
 
