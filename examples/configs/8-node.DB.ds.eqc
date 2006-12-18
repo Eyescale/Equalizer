@@ -9,45 +9,42 @@ server
     config
     {
         latency 2
-        appNode
+        node
         {
-            pipe
+            connection { hostname "10.42.42.1" }
+            pipe 
             {
                 window
                 {
-                    viewport [ .025 .025 .3 .3 ]
+                    viewport [ 640 400 1280 800 ]
+                    attributes { planes_stencil on }
                     channel { name "channel1" }
                 }
             }
-            pipe
-            {
+        }
+        node
+        {
+            connection { hostname "10.42.42.2" }
+            pipe { window { channel { name "channel2" }}}
+        }
+        node
+        {
+            connection { hostname "10.42.42.3" }
+            pipe { window { channel { name "channel3" }}}
+        }
+        node
+        {
+            connection { hostname "10.42.42.4" }
+            pipe { window { channel { name "channel4" }}}
+        }
+        node
+        {
+            connection { hostname "10.42.42.5" }
+            pipe 
+            { 
                 window
                 {
-                    viewport [ .35 .025 .3 .3 ]
-                    channel { name "channel2" }
-                }
-            }
-            pipe
-            {
-                window
-                {
-                    viewport [ .675 .025 .3 .3 ]
-                    channel { name "channel3" }
-                }
-            }
-            pipe
-            {
-                window
-                {
-                    viewport [ .025 .35 .3 .3 ]
-                    channel { name "channel4" }
-                }
-            }
-            pipe
-            {
-                window
-                {
-                    viewport [ .35 .35 .3 .3 ]
+                    viewport [ 0 0 1280 800 ]
                     channel { name "channel5" }
                 }
             }
@@ -55,7 +52,19 @@ server
             {
                 window
                 {
-                    viewport [ .675 .35 .3 .3 ]
+                    viewport [ 1280 800 1280 800 ]
+                    channel { name "channel7" }
+                }
+            }
+        }
+        node
+        {
+            connection { hostname "10.42.42.6" }
+            pipe 
+            { 
+                window
+                {
+                    viewport [ 0 0 1280 800 ]
                     channel { name "channel6" }
                 }
             }
@@ -63,15 +72,7 @@ server
             {
                 window
                 {
-                    viewport [ .025 .675 .3 .3 ]
-                    channel { name "channel7" }
-                }
-            }
-            pipe
-            {
-                window
-                {
-                    viewport [ .35 .675 .3 .3 ]
+                    viewport [ 1280 800 1280 800 ]
                     channel { name "channel8" }
                 }
             }
@@ -90,10 +91,25 @@ server
 
             compound
             {
+                channel "channel1"
+
+                compound {
+                    range [ 0 .15 ]
+                    outputframe { name "stripe2.c1" viewport [ 0 .125 1 .125 ] }
+                    outputframe { name "stripe3.c1" viewport [ 0 .25  1 .125 ] }
+                    outputframe { name "stripe4.c1" viewport [ 0 .375 1 .125 ] }
+                    outputframe { name "stripe5.c1" viewport [ 0 .5   1 .125 ] }
+                    outputframe { name "stripe6.c1" viewport [ 0 .625 1 .125 ] }
+                    outputframe { name "stripe7.c1" viewport [ 0 .75  1 .125 ] }
+                    outputframe { name "stripe8.c1" viewport [ 0 .875 1 .125 ] }
+                }
+            }
+            compound
+            {
                 channel "channel2"
 
                 compound {
-                    range [ 0 .125 ]
+                    range [ .15 .3 ]
                     outputframe { name "stripe1.c2" viewport [ 0 0    1 .125 ] }
                     outputframe { name "stripe2.c2" viewport [ 0 .125 1 .125 ] }
                     outputframe { name "stripe3.c2" viewport [ 0 .25  1 .125 ] }
@@ -116,7 +132,7 @@ server
                 channel "channel3"
 
                 compound {
-                    range [ .125 .25 ]
+                    range [ .3 .45 ]
                     outputframe { name "stripe1.c3" viewport [ 0 0    1 .125 ] }
                     outputframe { name "stripe2.c3" viewport [ 0 .125 1 .125 ] }
                     outputframe { name "stripe3.c3" viewport [ 0 .25  1 .125 ] }
@@ -139,7 +155,7 @@ server
                 channel "channel4"
 
                 compound {
-                    range [ .25 .375 ]
+                    range [ .45 .6 ]
                     outputframe { name "stripe1.c4" viewport [ 0 0    1 .125 ] }
                     outputframe { name "stripe2.c4" viewport [ 0 .125 1 .125 ] }
                     outputframe { name "stripe3.c4" viewport [ 0 .25  1 .125 ] }
@@ -162,7 +178,7 @@ server
                 channel "channel5"
 
                 compound {
-                    range [ .375 .5 ]
+                    range [ .6 .7 ]
                     outputframe { name "stripe1.c5" viewport [ 0 0    1 .125 ] }
                     outputframe { name "stripe2.c5" viewport [ 0 .125 1 .125 ] }
                     outputframe { name "stripe3.c5" viewport [ 0 .25  1 .125 ] }
@@ -185,7 +201,7 @@ server
                 channel "channel6"
 
                 compound {
-                    range [ .5 .625 ]
+                    range [ .7 .8 ]
                     outputframe { name "stripe1.c6" viewport [ 0 0    1 .125 ] }
                     outputframe { name "stripe2.c6" viewport [ 0 .125 1 .125 ] }
                     outputframe { name "stripe3.c6" viewport [ 0 .25  1 .125 ] }
@@ -208,7 +224,7 @@ server
                 channel "channel7"
 
                 compound {
-                    range [ .625 .75 ]
+                    range [ .8 .9 ]
                     outputframe { name "stripe1.c7" viewport [ 0 0    1 .125 ] }
                     outputframe { name "stripe2.c7" viewport [ 0 .125 1 .125 ] }
                     outputframe { name "stripe4.c7" viewport [ 0 .375 1 .125 ] }
@@ -231,7 +247,7 @@ server
                 channel "channel8"
 
                 compound {
-                    range [ .75 .875 ]
+                    range [ .9 1 ]
                     outputframe { name "stripe1.c8" viewport [ 0 0    1 .125 ] }
                     outputframe { name "stripe3.c8" viewport [ 0 .25  1 .125 ] }
                     outputframe { name "stripe4.c8" viewport [ 0 .375 1 .125 ] }
@@ -249,21 +265,7 @@ server
                 inputframe { name "stripe2.c7" }
                 outputframe { buffer [ COLOR ] viewport [ 0 .125 1 .125 ] }
             }
-            compound
-            {
-                channel "channel1"
 
-                compound {
-                    range [ .875 1 ]
-                    outputframe { name "stripe2.c1" viewport [ 0 .125 1 .125 ] }
-                    outputframe { name "stripe3.c1" viewport [ 0 .25  1 .125 ] }
-                    outputframe { name "stripe4.c1" viewport [ 0 .375 1 .125 ] }
-                    outputframe { name "stripe5.c1" viewport [ 0 .5   1 .125 ] }
-                    outputframe { name "stripe6.c1" viewport [ 0 .625 1 .125 ] }
-                    outputframe { name "stripe7.c1" viewport [ 0 .75  1 .125 ] }
-                    outputframe { name "stripe8.c1" viewport [ 0 .875 1 .125 ] }
-                }
-            }
             inputframe { name "stripe1.c2" }
             inputframe { name "stripe1.c3" }
             inputframe { name "stripe1.c4" }

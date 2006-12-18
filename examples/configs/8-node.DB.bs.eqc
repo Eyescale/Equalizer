@@ -46,6 +46,9 @@ server
                     viewport [ 0 0 1280 800 ]
                     channel { name "channel5" }
                 }
+            }
+            pipe
+            {
                 window
                 {
                     viewport [ 1280 800 1280 800 ]
@@ -63,6 +66,9 @@ server
                     viewport [ 0 0 1280 800 ]
                     channel { name "channel6" }
                 }
+            }
+            pipe
+            {
                 window
                 {
                     viewport [ 1280 800 1280 800 ]
@@ -87,7 +93,7 @@ server
                 channel "channel1"
                 compound 
                 {
-                    range [ 0 .125 ]
+                    range [ 0 .15 ]
                     outputframe { name "f1.c1" viewport [ 0 0 1 .5 ] }
                 }
                 compound 
@@ -110,7 +116,7 @@ server
                 channel "channel2"
                 compound 
                 {
-                    range [ .125 .25 ]
+                    range [ .15 .3 ]
                     outputframe { name "f1.c2" viewport [ 0 .5 1 .5 ] }
                 }
                 compound 
@@ -134,7 +140,7 @@ server
                 channel "channel3"
                 compound 
                 {
-                    range [ .25 .375 ]
+                    range [ .3 .45 ]
                     outputframe { name "f1.c3" viewport [ 0 0 1 .5 ] }
                 }
                 compound 
@@ -157,7 +163,7 @@ server
                 channel "channel4"
                 compound 
                 {
-                    range [ .375 .5 ]
+                    range [ .45 .6 ]
                     outputframe { name "f1.c4" viewport [ 0 .5 1 .5 ] }
                 }
                 compound 
@@ -182,7 +188,7 @@ server
                 channel "channel5"
                 compound 
                 {
-                    range [ .5 .625 ]
+                    range [ .6 .7 ]
                     outputframe { name "f1.c5" viewport [ 0 0 1 .5 ] }
                 }
                 compound 
@@ -205,7 +211,7 @@ server
                 channel "channel6"
                 compound 
                 {
-                    range [ .625 .75 ]
+                    range [ .7 .8 ]
                     outputframe { name "f1.c6" viewport [ 0 .5 1 .5 ] }
                 }
                 compound 
@@ -229,7 +235,7 @@ server
                 channel "channel7"
                 compound 
                 {
-                    range [ .75 .875 ]
+                    range [ .8 .9 ]
                     outputframe { name "f1.c7" viewport [ 0 0 1 .5 ] }
                 }
                 compound 
@@ -252,7 +258,7 @@ server
                 channel "channel8"
                 compound 
                 {
-                    range [ .875 1 ]
+                    range [ .9 1 ]
                     outputframe { name "f1.c8" viewport [ 0 .5 1 .5 ] }
                 }
                 compound 

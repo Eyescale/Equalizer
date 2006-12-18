@@ -42,6 +42,9 @@ server
                     viewport [ 0 0 1280 800 ]
                     channel { name "channel5" }
                 }
+            }
+            pipe
+            {
                 window
                 {
                     viewport [ 1280 800 1280 800 ]
@@ -59,6 +62,9 @@ server
                     viewport [ 0 0 1280 800 ]
                     channel { name "channel6" }
                 }
+            }
+            pipe
+            {
                 window
                 {
                     viewport [ 1280 800 1280 800 ]
@@ -80,49 +86,49 @@ server
 
             compound
             {
-                range   [ 0 .125 ]
+                range   [ 0 .15 ]
             }
             compound
             {
                 channel "channel2"
-                range   [ .125 .25 ]
-                outputframe {}
+                range   [ .15 .3 ]
+                #outputframe {}
             }
             compound
             {
                 channel "channel3"
-                range   [ .25 .375 ]
-                outputframe {}
+                range   [ .3 .45 ]
+                #outputframe {}
             }
             compound
             {
                 channel "channel4"
-                range   [ .375 .5 ]
-                outputframe {}
+                range   [ .45 .6 ]
+                #outputframe {}
             }
             compound
             {
                 channel "channel5"
-                range   [ .5 .625 ]
-                outputframe {}
+                range   [ .6 .7 ]
+                #outputframe {}
             }
             compound
             {
                 channel "channel6"
-                range   [ .625 .75 ]
-                outputframe {}
+                range   [ .7 .8 ]
+                #outputframe {}
             }
             compound
             {
                 channel "channel7"
-                range   [ .75 .875 ]
-                outputframe {}
+                range   [ .8 .9 ]
+                #outputframe {}
             }
             compound
             {
                 channel "channel8"
-                range   [ .875 1 ]
-                outputframe {}
+                range   [ .9 1 ]
+                #outputframe {}
             }
             inputframe { name "frame.channel2" }
             inputframe { name "frame.channel3" }
