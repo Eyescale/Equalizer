@@ -253,7 +253,14 @@ nodes: node | nodes node
 node: appNode | otherNode
 otherNode: EQTOKEN_NODE '{' { node = loader->createNode(); }
                nodeFields
-               '}' { config->addNode( node ); node = 0; }
+               '}' { 
+                        if( node->nConnectionDescriptions() == 0 )
+                            node->addConnectionDescription(
+                                new eqs::ConnectionDescription( ));
+
+                        config->addNode( node );
+                        node = 0; 
+                   }
 appNode: EQTOKEN_APPNODE '{' { node = loader->createNode(); }
             nodeFields
             '}' { config->addApplicationNode( node ); node = 0; }
@@ -262,10 +269,6 @@ nodeField: /*TODO*/
     connections
     | pipes                
 connections: /*null*/ 
-             { // No connection specified, create default from globals
-                 node->addConnectionDescription(
-                     new eqs::ConnectionDescription( ));
-             }
              | connection | connections connection
 connection: EQTOKEN_CONNECTION 
             '{' { connectionDescription = new eqs::ConnectionDescription(); }
