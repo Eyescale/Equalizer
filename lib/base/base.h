@@ -94,7 +94,7 @@ extern char **environ;
         if( !NAME.extMutex && !pthread_equal( NAME.id, pthread_self( ))) \
         {                                                               \
             EQERROR << "Threadsafety check for " << #NAME               \
-                    << " failed on object of class "                    \
+                    << " failed on object of type "                     \
                     << typeid(*this).name() << endl;                    \
             EQASSERTINFO( 0, "Non-threadsave code called from two threads" ); \
         }                                                               \
@@ -107,7 +107,7 @@ extern char **environ;
             if( pthread_equal( NAME.id, pthread_self( )))               \
             {                                                           \
                 EQERROR << "Threadsafety check for not " << #NAME       \
-                        << " failed on object of class "                \
+                        << " failed on object of type "                 \
                         << typeid(*this).name() << endl;                \
                 EQASSERTINFO( 0, "Code called from wrong thread" );     \
             }                                                           \

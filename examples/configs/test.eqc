@@ -1,55 +1,61 @@
-# 2-window sort-first config running on a single pipe.
-# Note: uses two pipes mapping to the same card to achieve parallelism
+# stress-test config, currently for swap barrier debugging
 server
 {
     config
     {
-        appNode
+#        latency 10
+        node
         {
             pipe
             {
                 window
                 {
-                    viewport [ 640 400 1280 800 ]
-                    channel
-                    {
-                        name "channel1"
-                    }
+                    name "window1"
+                    viewport [ .025 .025 .3 .3 ]
+                    channel { name "channel1" }
                 }
             }
         }
         node
         {
-            connection { hostname "localhost" }
+            connection
+            {
+#                command "echo -n %h %c"
+            }
             pipe
             {
                 window
                 {
-                    viewport [ 640 400 1280 800 ]
-                    channel
-                    {
-                        name "channel2"
-                    }
+                    name "window2"
+                    viewport [ .35 .025 .3 .3 ]
+                    channel { name "channel2" }
                 }
             }
         }
         compound
-        {
-            channel "channel1"
-
-            wall
-            {
-                bottom_left  [ -.32 -.2 -1 ]
-                bottom_right [  .32 -.2 -1 ]
-                top_left     [ -.32  .2 -1 ]
+        { 
+            compound
+            { 
+                channel "channel1"
+                wall
+                {
+                    bottom_left  [ -2    0.6 -2 ]
+                    bottom_right [ -0.8  0.6 -2 ]
+                    top_left     [ -2    1.5 -2 ]
+                }
+                swapbarrier {}
             }
-            
             compound
             { 
                 channel "channel2"
-                outputframe {}
+                wall
+                {
+                    bottom_left  [ -0.6  0.6 -2 ]
+                    bottom_right [  0.6  0.6 -2 ]
+                    top_left     [ -0.6  1.5 -2 ]
+                }
+                swapbarrier {}
             }
-            inputframe { name "frame.channel2" }
         }
     }    
 }

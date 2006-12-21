@@ -106,11 +106,11 @@ namespace eqNet
 
     struct NodeUnmapSessionReplyPacket : public NodePacket
     {
-        NodeUnmapSessionReplyPacket(const NodeUnmapSessionPacket* requestPacket)
+        NodeUnmapSessionReplyPacket( const NodeUnmapSessionPacket* request )
             {
                 command   = CMD_NODE_UNMAP_SESSION_REPLY;
                 size      = sizeof( NodeUnmapSessionReplyPacket );
-                requestID = requestPacket->requestID;
+                requestID = request->requestID;
             }
             
         uint32_t requestID;
@@ -123,13 +123,50 @@ namespace eqNet
             {
                 command                  = CMD_NODE_CONNECT;
                 size                     = sizeof( NodeConnectPacket ); 
-                wasLaunched              = false;
+                requestID                = EQ_ID_INVALID;
                 connectionDescription[0] = '\0';
             }
 
         NodeID   nodeID;
-        uint64_t launchID;
-        bool     wasLaunched;
+        uint32_t requestID;
+        char     connectionDescription[8] EQ_ALIGN8;
+    };
+
+    struct NodeLaunchedPacket : public NodePacket
+    {
+        NodeLaunchedPacket() 
+            {
+                command                  = CMD_NODE_LAUNCHED;
+                size                     = sizeof( NodeLaunchedPacket ); 
+                requestID                = EQ_ID_INVALID;
+                connectionDescription[0] = '\0';
+            }
+
+        NodeID   nodeID;
+        uint32_t launchID;
+        uint32_t requestID;
+        char     connectionDescription[8] EQ_ALIGN8;
+    };
+    
+    struct NodeConnectReplyPacket : public NodePacket
+    {
+        NodeConnectReplyPacket( const NodeConnectPacket* request ) 
+            {
+                command                  = CMD_NODE_CONNECT_REPLY;
+                size                     = sizeof( NodeConnectReplyPacket ); 
+                requestID                = request->requestID;
+                connectionDescription[0] = '\0';
+            }
+        NodeConnectReplyPacket( const NodeLaunchedPacket* request ) 
+            {
+                command                  = CMD_NODE_CONNECT_REPLY;
+                size                     = sizeof( NodeConnectReplyPacket ); 
+                requestID                = request->requestID;
+                connectionDescription[0] = '\0';
+            }
+
+        NodeID   nodeID;
+        uint32_t requestID;
         char     connectionDescription[8] EQ_ALIGN8;
     };
 
@@ -434,9 +471,23 @@ namespace eqNet
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeConnectPacket* packet )
     {
-        os << (NodePacket*)packet << " wasLaunched " << packet->wasLaunched 
-           << " id " << packet->launchID << " cd " 
-           << packet->connectionDescription;
+        os << (NodePacket*)packet << " req " << packet->requestID << " node "
+           << packet->nodeID << " cd " << packet->connectionDescription;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const NodeConnectReplyPacket* packet )
+    {
+        os << (NodePacket*)packet << " req " << packet->requestID << " node "
+           << packet->nodeID << " cd " << packet->connectionDescription;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const NodeLaunchedPacket* packet )
+    {
+        os << (NodePacket*)packet << " launch id " << packet->launchID 
+           << " req " << packet->requestID << " node " << packet->nodeID
+           << " cd " << packet->connectionDescription;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

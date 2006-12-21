@@ -43,10 +43,13 @@ bool TimedLock::set( const uint32_t timeout )
     {
         if( timeout )
         {
-            timespec ts;
-            ts.tv_sec  = (int)(timeout/1000);
-            ts.tv_nsec = (timeout - ts.tv_sec*1000) * 1000000;
-            
+            timespec ts = 0;
+            if( timeout > 0 )
+            {
+                ts.tv_sec  = (int)(timeout/1000);
+                ts.tv_nsec = (timeout - ts.tv_sec*1000) * 1000000;
+            }
+
             timeval tv;
             gettimeofday( &tv, 0 );
             ts.tv_sec  += tv.tv_sec;

@@ -47,6 +47,24 @@ namespace eqBase
             }
 
         /** 
+         * Set an alarm.
+         * 
+         * @param time The time in milliseconds when the alarm happens.
+         */
+        void setAlarm( const float time )
+            {
+                reset();
+#ifdef Darwin
+                _start += time / _timebaseInfo.numer * _timebaseInfo.denom *
+                    1000000.f;
+#else // Darwin
+                const int sec   = static_cast<int>( time * 0.001f );
+                _start.tv_sec  += sec;
+                _start.tv_nsec += (time - sec) * 1000000.0f;
+#endif // Darwin
+            }
+
+        /** 
          * Returns the time elapsed since the last clock reset.
          * 
          * @return the elapsed time in milliseconds

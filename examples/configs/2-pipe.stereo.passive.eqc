@@ -1,7 +1,5 @@
 # two pipe fullscreen config for passive stereo output onto a 2x2 meter wall
 # Note: the root compounds channel is chosen arbitrarily to define the frustum.
-# The compound children inherit from the root, therefore the channel does not 
-# need to be respecified for the left eye.
 
 server
 {
@@ -38,11 +36,13 @@ server
             compound
             {
                 eye [ LEFT ]
+                swapbarrier{}
             }
             compound
             {
                 channel "channel-right"
                 eye [ RIGHT ]
+                swapbarrier{}
             }
         }
     }    

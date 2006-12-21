@@ -66,8 +66,7 @@ namespace eqBase
         /** 
          * Waits a given time for the completion of a request.
          *
-         * If the request was served, it is unregistered and the request result
-         * is returned.
+         * The request is unregistered.
          * 
          * @param requestID the request identifier.
          * @param success return value to indicate if the request was served.

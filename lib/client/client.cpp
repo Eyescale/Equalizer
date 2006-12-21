@@ -29,7 +29,7 @@ eqBase::RefPtr<eqNet::Node> Client::createNode( const CreateReason reason )
 { 
     switch( reason )
     {
-        case REASON_CLIENT_CONNECT:
+        case REASON_CLIENT_LAUNCH:
             return new Server;
 
         default:

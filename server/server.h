@@ -89,9 +89,6 @@ namespace eqs
         /** @sa eqNet::Node::handleCommand */
         virtual eqNet::CommandResult handleCommand( eqNet::Command& command );
         
-        /** @sa eqNet::Node::handleDisconnect */
-        virtual void handleDisconnect( eqNet::Node* node );
-
         /** @sa eqNet::Node::pushCommand */
         virtual bool pushCommand( eqNet::Command& command )
             { _commandQueue.push( command ); return true; }

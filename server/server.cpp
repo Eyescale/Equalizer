@@ -68,12 +68,6 @@ bool Server::run()
     return stopListening();
 }
 
-void Server::handleDisconnect( Node* node )
-{
-    Node::handleDisconnect( node );
-    // TODO: free up resources requested by disconnected node
-}
-
 void Server::addConfig( Config* config )
 { 
     config->_server = this;

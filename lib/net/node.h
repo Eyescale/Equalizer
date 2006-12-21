@@ -47,8 +47,9 @@ namespace eqNet
 
         enum CreateReason 
         {
-            REASON_CLIENT_CONNECT,
-            REASON_INCOMING_CONNECT
+            REASON_CLIENT_LAUNCH,
+            REASON_INCOMING_CONNECT,
+            REASON_OUTGOING_CONNECT
         };
 
         /** 
@@ -383,29 +384,6 @@ namespace eqNet
          * which are normally only redispatched when a new command is received.
          */
         void flushCommands() { _connectionSet.interrupt(); }
-
-        /** 
-         * Notifies that a message is ready to be received.
-         *
-         * The Node will allocate memory for the message if ptr is
-         * <CODE>NULL</CODE> or if more the count elements have been
-         * received. It is the applications responsibity to free the memory,
-         * even if it was allocated by this method.
-         *
-         * @param fromNode the node sending the message, or
-         *                 <code>NODE_ID_ANY</code>.
-         * @param type the type of the message to receive, or
-         *             <code>TYPE_ID_ANY</code>.
-         * @param ptr the memory address where the received message should be
-         *            stored, or <code>NULL</code> if the memory should be
-         *            allocated automatically.
-         * @param count the maximum number of elements storeable in ptr and the
-         *              return value to store the number of received elements.
-         * @return the address where the received message was stored, or
-         *         <code>NULL</code> if the message was not received.
-         */
-        //virtual void* notifyReceive( Node* fromNode, const MessageType type,
-        //                             const uint64_t count );
         //@}
 
         /**
@@ -555,21 +533,6 @@ namespace eqNet
             { return COMMAND_ERROR; }
 
         /** 
-         * Handles the connection of a new node by connecting it to this node.
-         * 
-         * @param connection the incoming connection for the new node.
-         */
-        virtual void handleConnect( eqBase::RefPtr<Connection> connection );
-
-        /** 
-         * Handles the disconnection of a new node by disconnecting it from this
-         * node.
-         * 
-         * @param node the disconnected node.
-         */
-        virtual void handleDisconnect( eqBase::RefPtr<Node> node );
-
-        /** 
          * Push a command to be handled by another entity, typically a thread.
          * 
          * @param node the node which send the packet.
@@ -635,6 +598,9 @@ namespace eqNet
         /** The request id for the async launch operation. */
         uint32_t _launchID;
 
+        /** The remaining timeout for the launch operation. */
+        eqBase::Clock _launchTimeout;
+
         /** Commands re-scheduled for dispatch. */
         std::list<Command*> _pendingCommands;
         CommandCache        _commandCache;
@@ -658,6 +624,8 @@ namespace eqNet
 
         bool _listenToSelf();
         void _cleanup();
+        uint32_t _initiateConnection( eqBase::RefPtr<Node> node, 
+                                      eqBase::RefPtr<Connection> connection );
 
         /** 
          * Launches the node using the parameters from the connection
@@ -681,22 +649,6 @@ namespace eqNet
         std::string _createLaunchCommand( eqBase::RefPtr<ConnectionDescription> 
                                           description );
         std::string   _createRemoteCommand();
-
-
-        /** 
-         * Performs the initial connection handshake and returns the peer's
-         * connect packet.
-         *
-         * The returned packet has to be free'd by the caller.
-         * 
-         * @param connection the connection.
-         * @return the peer's connect packet, or <code>NULL</code> if the
-         *         connection handshake failed.
-         */
-        NodeConnectPacket* _performConnect( eqBase::RefPtr<Connection>
-                                            connection );
-        NodeConnectPacket*   _readConnectReply( eqBase::RefPtr<Connection> 
-                                                connection );
 
         /** 
          * Find a connected node using a connection description
@@ -748,6 +700,9 @@ namespace eqNet
         CommandResult _cmdMapSessionReply( Command& holder );
         CommandResult _cmdUnmapSession( Command& holder );
         CommandResult _cmdUnmapSessionReply( Command& holder );
+        CommandResult _cmdLaunched( Command& holder );
+        CommandResult _cmdConnect( Command& holder );
+        CommandResult _cmdConnectReply( Command& holder );
         CommandResult _cmdGetConnectionDescription( Command& holder );
         CommandResult _cmdGetConnectionDescriptionReply( Command& holder );
 

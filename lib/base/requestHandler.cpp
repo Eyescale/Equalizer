@@ -5,6 +5,7 @@
 #include "requestHandler.h"
 
 #include "lock.h"
+#include "scopedMutex.h"
 
 using namespace eqBase;
 using namespace std;
@@ -12,7 +13,7 @@ using namespace std;
 RequestHandler::RequestHandler( const bool threadSafe )
         : _requestID(1)
 {
-    _mutex               = threadSafe ? new Lock() : NULL;
+    _mutex               = threadSafe ? new Lock() : 0;
 }
 
 RequestHandler::~RequestHandler()
@@ -75,40 +76,37 @@ void RequestHandler::unregisterRequest( const uint32_t requestID )
 void* RequestHandler::waitRequest( const uint32_t requestID, bool* success,
                                    const uint32_t timeout )
 {
-    if( _mutex )
-        _mutex->set();
-    else
+    ScopedMutex mutex( _mutex );
+
+    if( !_mutex )
         CHECK_THREAD( _thread );
 
     RequestHash::iterator iter = _requests.find( requestID );
-    if( iter != _requests.end( ))
+    if( iter == _requests.end( ))
     {
-        Request* request = iter->second;
-        if( request->lock.set( timeout ))
-        {
-            void* result = request->result;
-    
-            _requests.erase( iter );
-            _freeRequests.push_front( request );
-
-            if( success ) *success = true;
-            if( _mutex )
-                _mutex->unset();
-            return result;
-        }
+        if( success )
+            *success = false;
+        return 0;
     }
 
-    if( success ) *success = false;
-    if( _mutex )
-        _mutex->unset();
-    return NULL;
+    Request* request = iter->second;
+    const bool requestServed = request->lock.set( timeout );
+    void*      result        = requestServed ? request->result : 0;
+
+    _requests.erase( iter );
+    _freeRequests.push_front( request );
+    
+    if( success )
+        *success = requestServed;
+
+    return result;
 }
 
 void* RequestHandler::getRequestData( const uint32_t requestID )
 {
     RequestHash::iterator iter = _requests.find( requestID );
     if( iter == _requests.end( ))
-        return NULL;
+        return 0;
 
     return iter->second->data;
 }
