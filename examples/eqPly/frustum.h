@@ -51,6 +51,8 @@
 
 #include "vertex.h"
 
+#include <eq/eq.h>
+
 #include <stdlib.h>
 #include <assert.h>
 #include <limits.h>
@@ -81,7 +83,8 @@ public:
     ~Frustum(){};
 
     void initView( void );
-    void initView( const T proj[16], const T model[16], 
+    void initView( const vmml::Matrix4<T>& projection, 
+                   const vmml::Matrix4<T>& modelView,
                    const eq::PixelViewport& pvp );
 
     // frustum culling tests
@@ -104,8 +107,8 @@ public:
         T vp[4], int pvp[4]=NULL );                          // out
 
 private:
-    T _proj[16];
-    T _model[16];
+    vmml::Matrix4<T> _projection;
+    vmml::Matrix4<T> _modelView;
 
     T      _frustum[6][4];
     double _screenUp[3];
@@ -227,6 +230,11 @@ template< typename T >
 bool Frustum< T >::sphereScreenRegion( const T x, const T y, const T z,
     const T r, T vp[4], int pvp[4] )
 {
+#if 1
+    EQUNIMPLEMENTED;
+    // remove dependency to gluProject, since it expects a double vector, but we
+    // might use float matrices.
+#else
     const T sphereDistance = _frustum[5][0] * x + _frustum[5][1] * y + 
                              _frustum[5][2] * z + _frustum[5][3]+_frustum[5][3];
     const T frontDistance  = _frustum[5][3];
@@ -264,6 +272,7 @@ bool Frustum< T >::sphereScreenRegion( const T x, const T y, const T z,
         pvp[3] = (int)(vp[3] * _pvp.h);
     }
 
+#endif
     return true;
 }
 
@@ -288,6 +297,11 @@ bool Frustum< T >::boxScreenRegion( const Vertex box[2], T vp[4], int pvp[4] )
 template< typename T > 
 bool Frustum< T >::boxScreenRegion( const T box[2][3], T vp[4], int pvp[4] )
 {
+#if 1
+    EQUNIMPLEMENTED;
+    // remove dependency to gluProject, since it expects a double vector, but we
+    // might use float matrices.
+#else
     // world coordinate of the box vertices
     T worldCoordinate [8][3];
 
@@ -390,7 +404,7 @@ bool Frustum< T >::boxScreenRegion( const T box[2][3], T vp[4], int pvp[4] )
         pvp[2] = (int)(vp[2] * _pvp.w);
         pvp[3] = (int)(vp[3] * _pvp.h);
     }
-    
+#endif    
     return true;
 }
 //---------------------------------------------------------------------------
@@ -406,64 +420,28 @@ void Frustum< T >::initView( void )
     glGetDoublev( GL_MODELVIEW_MATRIX, model );
     glGetIntegerv( GL_VIEWPORT, pvp );
 
-    initView( proj, model, pvp );
+    initView( vmml::Matrix4<T>( proj ), vmml::Matrix4<T>( model ), pvp );
 }
 
 template< typename T > 
-void Frustum< T >::initView( const T proj[16], const T model[16], 
+void Frustum< T >::initView( const vmml::Matrix4<T>& projection, 
+                             const vmml::Matrix4<T>& modelView, 
                              const eq::PixelViewport& pvp )
 {
-    T   clip[16];
     T   t;
 
-    memcpy( _proj,  proj,  16*sizeof( T ));
-    memcpy( _model, model, 16*sizeof( T ));
-    _pvp = pvp;
+    _projection = projection;
+    _modelView  = modelView;
+    _pvp        = pvp;
 
     //===== init frustum
-
-    /* Combine the two matrices (multiply projection by modelview) */
-    clip[ 0] = _model[ 0] * _proj[ 0] + _model[ 1] * _proj[ 4] + 
-        _model[ 2] * _proj[ 8] + _model[ 3] * _proj[12];
-    clip[ 1] = _model[ 0] * _proj[ 1] + _model[ 1] * _proj[ 5] +
-        _model[ 2] * _proj[ 9] + _model[ 3] * _proj[13];
-    clip[ 2] = _model[ 0] * _proj[ 2] + _model[ 1] * _proj[ 6] +
-        _model[ 2] * _proj[10] + _model[ 3] * _proj[14];
-    clip[ 3] = _model[ 0] * _proj[ 3] + _model[ 1] * _proj[ 7] +
-        _model[ 2] * _proj[11] + _model[ 3] * _proj[15];
-
-    clip[ 4] = _model[ 4] * _proj[ 0] + _model[ 5] * _proj[ 4] +
-        _model[ 6] * _proj[ 8] + _model[ 7] * _proj[12];
-    clip[ 5] = _model[ 4] * _proj[ 1] + _model[ 5] * _proj[ 5] +
-        _model[ 6] * _proj[ 9] + _model[ 7] * _proj[13];
-    clip[ 6] = _model[ 4] * _proj[ 2] + _model[ 5] * _proj[ 6] +
-        _model[ 6] * _proj[10] + _model[ 7] * _proj[14];
-    clip[ 7] = _model[ 4] * _proj[ 3] + _model[ 5] * _proj[ 7] +
-        _model[ 6] * _proj[11] + _model[ 7] * _proj[15];
-
-    clip[ 8] = _model[ 8] * _proj[ 0] + _model[ 9] * _proj[ 4] +
-        _model[10] * _proj[ 8] + _model[11] * _proj[12];
-    clip[ 9] = _model[ 8] * _proj[ 1] + _model[ 9] * _proj[ 5] +
-        _model[10] * _proj[ 9] + _model[11] * _proj[13];
-    clip[10] = _model[ 8] * _proj[ 2] + _model[ 9] * _proj[ 6] +
-        _model[10] * _proj[10] + _model[11] * _proj[14];
-    clip[11] = _model[ 8] * _proj[ 3] + _model[ 9] * _proj[ 7] + 
-        _model[10] * _proj[11] + _model[11] * _proj[15];
-
-    clip[12] = _model[12] * _proj[ 0] + _model[13] * _proj[ 4] +
-        _model[14] * _proj[ 8] + _model[15] * _proj[12];
-    clip[13] = _model[12] * _proj[ 1] + _model[13] * _proj[ 5] +
-        _model[14] * _proj[ 9] + _model[15] * _proj[13];
-    clip[14] = _model[12] * _proj[ 2] + _model[13] * _proj[ 6] +
-        _model[14] * _proj[10] + _model[15] * _proj[14];
-    clip[15] = _model[12] * _proj[ 3] + _model[13] * _proj[ 7] +
-        _model[14] * _proj[11] + _model[15] * _proj[15];
+    vmml::Matrix4<T> clip = projection * modelView;
     
     /* Extract the numbers for the RIGHT plane */
-    _frustum[0][0] = clip[ 3] - clip[ 0];
-    _frustum[0][1] = clip[ 7] - clip[ 4];
-    _frustum[0][2] = clip[11] - clip[ 8];
-    _frustum[0][3] = clip[15] - clip[12];
+    _frustum[0][0] = clip.ml[ 3] - clip.ml[ 0];
+    _frustum[0][1] = clip.ml[ 7] - clip.ml[ 4];
+    _frustum[0][2] = clip.ml[11] - clip.ml[ 8];
+    _frustum[0][3] = clip.ml[15] - clip.ml[12];
 
     /* Normalize the result */
     t = _sqrt( _frustum[0][0]*_frustum[0][0] + _frustum[0][1]*_frustum[0][1] +
@@ -474,10 +452,10 @@ void Frustum< T >::initView( const T proj[16], const T model[16],
     _frustum[0][3] /= t;
 
     /* Extract the numbers for the LEFT plane */
-    _frustum[1][0] = clip[ 3] + clip[ 0];
-    _frustum[1][1] = clip[ 7] + clip[ 4];
-    _frustum[1][2] = clip[11] + clip[ 8];
-    _frustum[1][3] = clip[15] + clip[12];
+    _frustum[1][0] = clip.ml[ 3] + clip.ml[ 0];
+    _frustum[1][1] = clip.ml[ 7] + clip.ml[ 4];
+    _frustum[1][2] = clip.ml[11] + clip.ml[ 8];
+    _frustum[1][3] = clip.ml[15] + clip.ml[12];
 
     /* Normalize the result */
     t = _sqrt( _frustum[1][0]*_frustum[1][0] + _frustum[1][1]*_frustum[1][1] +
@@ -488,10 +466,10 @@ void Frustum< T >::initView( const T proj[16], const T model[16],
     _frustum[1][3] /= t;
 
     /* Extract the BOTTOM plane */
-    _frustum[2][0] = clip[ 3] + clip[ 1];
-    _frustum[2][1] = clip[ 7] + clip[ 5];
-    _frustum[2][2] = clip[11] + clip[ 9];
-    _frustum[2][3] = clip[15] + clip[13];
+    _frustum[2][0] = clip.ml[ 3] + clip.ml[ 1];
+    _frustum[2][1] = clip.ml[ 7] + clip.ml[ 5];
+    _frustum[2][2] = clip.ml[11] + clip.ml[ 9];
+    _frustum[2][3] = clip.ml[15] + clip.ml[13];
 
     /* Normalize the result */
     t = _sqrt( _frustum[2][0]*_frustum[2][0] + _frustum[2][1]*_frustum[2][1] +
@@ -502,10 +480,10 @@ void Frustum< T >::initView( const T proj[16], const T model[16],
     _frustum[2][3] /= t;
 
     /* Extract the TOP plane */
-    _frustum[3][0] = clip[ 3] - clip[ 1];
-    _frustum[3][1] = clip[ 7] - clip[ 5];
-    _frustum[3][2] = clip[11] - clip[ 9];
-    _frustum[3][3] = clip[15] - clip[13];
+    _frustum[3][0] = clip.ml[ 3] - clip.ml[ 1];
+    _frustum[3][1] = clip.ml[ 7] - clip.ml[ 5];
+    _frustum[3][2] = clip.ml[11] - clip.ml[ 9];
+    _frustum[3][3] = clip.ml[15] - clip.ml[13];
 
     /* Normalize the result */
     t = _sqrt( _frustum[3][0]*_frustum[3][0] + _frustum[3][1]*_frustum[3][1] +
@@ -516,10 +494,10 @@ void Frustum< T >::initView( const T proj[16], const T model[16],
     _frustum[3][3] /= t;
 
     /* Extract the FAR plane */
-    _frustum[4][0] = clip[ 3] - clip[ 2];
-    _frustum[4][1] = clip[ 7] - clip[ 6];
-    _frustum[4][2] = clip[11] - clip[10];
-    _frustum[4][3] = clip[15] - clip[14];
+    _frustum[4][0] = clip.ml[ 3] - clip.ml[ 2];
+    _frustum[4][1] = clip.ml[ 7] - clip.ml[ 6];
+    _frustum[4][2] = clip.ml[11] - clip.ml[10];
+    _frustum[4][3] = clip.ml[15] - clip.ml[14];
 
     /* Normalize the result */
     t = _sqrt( _frustum[4][0]*_frustum[4][0] + _frustum[4][1]*_frustum[4][1] +
@@ -530,10 +508,10 @@ void Frustum< T >::initView( const T proj[16], const T model[16],
     _frustum[4][3] /= t;
 
     /* Extract the NEAR plane */
-    _frustum[5][0] = clip[ 3] + clip[ 2];
-    _frustum[5][1] = clip[ 7] + clip[ 6];
-    _frustum[5][2] = clip[11] + clip[10];
-    _frustum[5][3] = clip[15] + clip[14];
+    _frustum[5][0] = clip.ml[ 3] + clip.ml[ 2];
+    _frustum[5][1] = clip.ml[ 7] + clip.ml[ 6];
+    _frustum[5][2] = clip.ml[11] + clip.ml[10];
+    _frustum[5][3] = clip.ml[15] + clip.ml[14];
 
     /* Normalize the result */
     t = _sqrt( _frustum[5][0]*_frustum[5][0] + _frustum[5][1]*_frustum[5][1] +
@@ -553,6 +531,11 @@ void Frustum< T >::initView( const T proj[16], const T model[16],
 template< typename T > 
 void Frustum< T >::initScreenVec( void )
 {
+#if 1
+    EQUNIMPLEMENTED;
+    // remove dependency to gluUnProject, since it expects a double vector, but
+    // we might use float matrices.
+#else
     if( !_dirty.screenVec )
         return;
 
@@ -596,6 +579,7 @@ void Frustum< T >::initScreenVec( void )
     normalize( _screenRight );
 
     _dirty.screenVec = false;
+#endif
 }
 
 //---------------------------------------------------------------------------

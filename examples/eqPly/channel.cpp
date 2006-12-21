@@ -114,7 +114,7 @@ void Channel::draw( const uint32_t frameID )
                     {
                         if( bbox->range[0] >= range.start )
                             model->traverseBBox( bbox, 0, _drawBBoxCB, 0, this);
-                        // else drop, will be drawn by 'previous' channel
+                        // else drop, to be drawn by 'previous' channel
                     }
                     else
                         for( int i=0; i<8; i++ )
@@ -206,14 +206,16 @@ void Channel::_drawBBox( const Model::BBox *bbox )
 
 void Channel::_initFrustum( Frustumf& frustum )
 {
-    // apply frustum
-#ifdef DYNAMIC_NEAR
-    vmml::Frustumf oldFrustum = getFrustum();
+    vmml::Matrix4f view( _frameData->_data.rotation );
+    view.setTranslation( _frameData->_data.translation );
 
-    //oldFrustum.adjustNear( 1.0f );
-    const vmml::Matrix4f  oldProj = oldFrustum.computeMatrix();
-    const vmml::Vector3f& center = 
-        oldProj * getHeadTransform() * -_frameData->_data.translation;
+    const vmml::Matrix4f  modelView = getHeadTransform() * view;
+    const vmml::Frustumf& eqFrustum = getFrustum();
+
+#ifdef DYNAMIC_NEAR
+    const vmml::Matrix4f  oldProj = eqFrustum.computeMatrix();
+    const vmml::Vector3f& center  = 
+        oldProj * modelView * vmml::Vector3f( 0, 0, 0 );
 
     const float near = MAX( 0.001f,        center.z - M_SQRT3_2 );
     const float far  = MAX( near + 0.001f, center.z + M_SQRT3_2 );
@@ -222,18 +224,8 @@ void Channel::_initFrustum( Frustumf& frustum )
     setNearFar( near, far );
 #endif
 
-    const vmml::Frustumf& eqFrustum  = getFrustum();
-    const vmml::Matrix4f  projection = eqFrustum.computeMatrix();
+    const vmml::Matrix4f     projection = eqFrustum.computeMatrix();
+    const eq::PixelViewport& pvp        = getPixelViewport();
 
-    // apply rot + trans + head transform
-    vmml::Matrix4f view( _frameData->_data.rotation );
-    view.setTranslation( _frameData->_data.translation );
-
-    const vmml::Matrix4f& mvm = getHeadTransform() * view;
-
-
-    const eq::PixelViewport& pvp = getPixelViewport();
-
-    frustum.initView( projection.ml, mvm.ml, pvp);
-
+    frustum.initView( projection, modelView, pvp);
 }
