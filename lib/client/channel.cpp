@@ -329,7 +329,7 @@ const Range& Channel::getRange() const
 void Channel::applyFrustum() const
 {
     const vmml::Frustumf& frustum = getFrustum();
-    glFrustum( frustum.left, frustum.right, frustum.top, frustum.bottom,
+    glFrustum( frustum.left, frustum.right, frustum.bottom, frustum.top,
                frustum.near, frustum.far ); 
     EQVERB << "Apply " << frustum << endl;
 }

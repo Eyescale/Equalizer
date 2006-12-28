@@ -791,15 +791,15 @@ void Compound::_computeFrustum( eq::RenderContext& context, const Eye whichEye )
     {
         frustum.left   =  ( -view.width/2.  - eye[0] ) * ratio;
         frustum.right  =  (  view.width/2.  - eye[0] ) * ratio;
-        frustum.top    =  ( -view.height/2. - eye[1] ) * ratio;
-        frustum.bottom =  (  view.height/2. - eye[1] ) * ratio;
+        frustum.bottom =  ( -view.height/2. - eye[1] ) * ratio;
+        frustum.top    =  (  view.height/2. - eye[1] ) * ratio;
     }
     else // eye behind near plane - 'mirror' x
     {
         frustum.left   =  (  view.width/2.  - eye[0] ) * ratio;
         frustum.right  =  ( -view.width/2.  - eye[0] ) * ratio;
-        frustum.top    =  (  view.height/2. + eye[1] ) * ratio;
-        frustum.bottom =  ( -view.height/2. + eye[1] ) * ratio;
+        frustum.bottom =  (  view.height/2. + eye[1] ) * ratio;
+        frustum.top    =  ( -view.height/2. + eye[1] ) * ratio;
     }
 
     // adjust to viewport (screen-space decomposition)
@@ -808,12 +808,12 @@ void Compound::_computeFrustum( eq::RenderContext& context, const Eye whichEye )
     if( !vp.isFullScreen() && vp.isValid( ))
     {
         const float frustumWidth = frustum.right - frustum.left;
-        frustum.left += frustumWidth * vp.x;
-        frustum.right = frustum.left + frustumWidth * vp.w;
+        frustum.left  += frustumWidth * vp.x;
+        frustum.right  = frustum.left + frustumWidth * vp.w;
         
         const float frustumHeight = frustum.bottom -frustum.top;
-        frustum.top   += frustumHeight * vp.y;
-        frustum.bottom = frustum.top + frustumHeight * vp.h;
+        frustum.bottom += frustumHeight * vp.y;
+        frustum.top     = frustum.bottom + frustumHeight * vp.h;
     }
 
     // compute head transform
