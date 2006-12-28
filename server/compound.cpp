@@ -811,7 +811,7 @@ void Compound::_computeFrustum( eq::RenderContext& context, const Eye whichEye )
         frustum.left  += frustumWidth * vp.x;
         frustum.right  = frustum.left + frustumWidth * vp.w;
         
-        const float frustumHeight = frustum.bottom -frustum.top;
+        const float frustumHeight = frustum.top - frustum.bottom;
         frustum.bottom += frustumHeight * vp.y;
         frustum.top     = frustum.bottom + frustumHeight * vp.h;
     }
