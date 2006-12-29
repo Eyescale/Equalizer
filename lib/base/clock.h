@@ -60,7 +60,7 @@ namespace eqBase
 #else // Darwin
                 const int sec   = static_cast<int>( time * 0.001f );
                 _start.tv_sec  += sec;
-                _start.tv_nsec += (time - sec) * 1000000.0f;
+                _start.tv_nsec += (static_cast<int>(time) - sec) * 1000000;
 #endif // Darwin
             }
 

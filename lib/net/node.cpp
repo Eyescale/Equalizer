@@ -1139,8 +1139,9 @@ bool Node::syncConnect()
         return ( _state == STATE_CONNECTED );
 
     bool success;
-    localNode->_requestHandler.waitRequest( _launchID, &success,
-                                            _launchTimeout.getTimef( ));
+    const uint32_t time = static_cast<uint32_t>( _launchTimeout.getTimef( ));
+    localNode->_requestHandler.waitRequest( _launchID, &success, time );
+                      
     
     if( success )
     {
