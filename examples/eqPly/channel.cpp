@@ -14,7 +14,7 @@ using namespace eqBase;
 
 static float lightpos[] = { 0., 0., 1., 0. };
 
-//#define DYNAMIC_NEAR 
+//#define DYNAMIC_NEAR_FAR 
 #ifndef M_SQRT3
 #  define M_SQRT3    1.7321f   /* sqrt(3) */
 #endif
@@ -29,7 +29,9 @@ bool Channel::init( const uint32_t initID )
 
     _initData  = (InitData*)config->getObject( initID );
     _frameData = _initData->getFrameData();
-    
+#ifndef DYNAMIC_NEAR_FAR
+    setNearFar( 0.0001f, 10.0f );
+#endif
     return true;
 }
 
@@ -209,19 +211,31 @@ void Channel::_initFrustum( Frustumf& frustum )
     vmml::Matrix4f view( _frameData->_data.rotation );
     view.setTranslation( _frameData->_data.translation );
 
-    const vmml::Matrix4f  modelView = getHeadTransform() * view;
-    const vmml::Frustumf& eqFrustum = getFrustum();
+    const vmml::Frustumf&  eqFrustum     = getFrustum();
+    const vmml::Matrix4f&  headTransform = getHeadTransform();
+    const vmml::Matrix4f   modelView     = headTransform * view;
 
-#ifdef DYNAMIC_NEAR
-    const vmml::Matrix4f  oldProj = eqFrustum.computeMatrix();
-    const vmml::Vector3f& center  = 
-        oldProj * modelView * vmml::Vector3f( 0, 0, 0 );
+#ifdef DYNAMIC_NEAR_FAR
+    vmml::Matrix4f modelInv;
+    headTransform.getInverse( modelInv );
 
-    const float near = MAX( 0.001f,        center.z - M_SQRT3_2 );
-    const float far  = MAX( near + 0.001f, center.z + M_SQRT3_2 );
-    EQINFO << "Model Z position: " << center.z << " near, far: " << near << " " 
-           << far << endl;
-    setNearFar( near, far );
+    const vmml::Vector3f zero  = modelInv * vmml::Vector3f( 0.0f, 0.0f,  0.0f );
+    vmml::Vector3f       front = modelInv * vmml::Vector3f( 0.0f, 0.0f, -1.0f );
+    front -= zero;
+    front.normalise();
+    EQINFO << getName()  << " front " << front << endl;
+    front.scale( M_SQRT3_2 ); // bounding sphere size of unit-sized cube
+
+    const vmml::Vector3f center( _frameData->_data.translation );
+    const vmml::Vector3f near  = headTransform * ( center - front );
+    const vmml::Vector3f far   = headTransform * ( center + front );
+    const float          zNear = MAX( 0.0001f, -near.z );
+    const float          zFar  = MAX( 0.0002f, -far.z );
+
+    EQINFO << getName() << " center:    " << headTransform * center << endl;
+    EQINFO << getName() << " near, far: " << near << " " << far << endl;
+    EQINFO << getName() << " near, far: " << zNear << " " << zFar << endl;
+    setNearFar( zNear, zFar );
 #endif
 
     const vmml::Matrix4f     projection = eqFrustum.computeMatrix();
