@@ -158,7 +158,7 @@ endif # VARIANT
 endif # PROGRAMS
 
 testRun.%: %
-	env LD_LIBRARY_PATH=$(BUILD_DIR)/$(subst .,,$(suffix $<))/lib ./$< && touch $@ || rm -f $@
+	env LD_LIBRARY_PATH=$(BUILD_DIR)/$(subst .,,$(suffix $<))/lib DYLD_LIBRARY_PATH=$(BUILD_DIR)/$(subst .,,$(suffix $<))/lib ./$< && touch $@ || rm -f $@
 
 # cleaning targets
 clean:
