@@ -1,3 +1,4 @@
+# single pipe, four-to-one sort-last demo configuration
 server
 {
     config

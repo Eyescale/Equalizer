@@ -1,6 +1,6 @@
 # Simulating a three pipe system on a single pipe. Projections are set up for a
 # 1.5m high wall, 4x3 aspect ratio and 10% overlap. Add pipe screen numbers and
-# remove window viewports to get a deployable config.
+# remove window viewports to get a typical production setup.
 
 server
 {

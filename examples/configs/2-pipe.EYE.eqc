@@ -1,7 +1,4 @@
-# two pipe fullscreen config for passive stereo output onto a 2x2 meter wall
-# Note: the root compounds channel is chosen arbitrarily to define the frustum.
-# The compound children inherit from the root, therefore the channel does not 
-# need to be respecified for the left eye.
+# two pipe configuration for active stereo decomposition for a 2x2 meter wall
 
 server
 {
@@ -35,6 +32,7 @@ server
                 bottom_right [  .2 -.15 -.75 ]
                 top_left     [ -.2  .15 -.75 ]
             }
+
             compound
             {
                 eye [ LEFT ]

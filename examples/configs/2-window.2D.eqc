@@ -1,5 +1,4 @@
 # 2-window sort-first config running on a single pipe.
-# Note: uses two pipes mapping to the same card to achieve parallelism
 server
 {
     config

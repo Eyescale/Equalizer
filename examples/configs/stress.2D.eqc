@@ -1,4 +1,4 @@
-# stress-test config, currently for swap barrier debugging
+# stress-test config doing a many-to-one sort-first decomposition
 server
 {
     config

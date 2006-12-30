@@ -1,4 +1,4 @@
-# stress-test config, currently for swap barrier debugging
+# stress-test config using multiple windows and a swap barrier
 server
 {
     config

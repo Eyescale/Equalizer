@@ -1,4 +1,4 @@
-# config for 3x2 30" display wall at unizh, configured as a curved screen
+# config for 3x2 30" display wall at unizh, configured as a 'curved' screen
 global
 {
     EQ_WINDOW_IATTR_HINT_FULLSCREEN on

@@ -1,4 +1,4 @@
-# single-window config simulating a 3-sided cave with 2m walls
+# single-window config simulating a 3-sided cave with 2x2 meter walls
 server
 {
     config

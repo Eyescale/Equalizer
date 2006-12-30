@@ -1,3 +1,4 @@
+# single pipe, three-to-one sort-first configuration
 server
 {
     config

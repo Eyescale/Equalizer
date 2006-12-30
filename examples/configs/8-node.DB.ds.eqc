@@ -1,4 +1,4 @@
-# six-to-one sort-last, direct-send config for cluster at unizh
+# eight-to-one sort-last, direct-send config for cluster at unizh
 global
 {
     EQ_WINDOW_IATTR_PLANES_STENCIL  on
