@@ -11,7 +11,6 @@
 #include <pthread.h>
 #include <sstream>
 #include <time.h>
-#include <unistd.h>
 
 #include "clock.h"
 
