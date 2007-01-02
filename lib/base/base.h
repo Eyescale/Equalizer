@@ -10,7 +10,6 @@
 #include <eq/base/log.h>
 
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <sys/types.h>
 
