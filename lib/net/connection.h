@@ -13,7 +13,6 @@
 #include <eq/base/refPtr.h>
 #include <eq/base/scopedMutex.h>
 
-#include <poll.h>
 #include <stdexcept>
 #include <sys/types.h>
 #include <sys/param.h>  // for MAX()
