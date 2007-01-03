@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_CONNECTION_DESCRIPTION_H
@@ -9,7 +9,6 @@
 
 #include <eq/base/base.h>
 #include <eq/base/referenced.h>
-#include <sys/param.h>
 
 namespace eqNet
 {
