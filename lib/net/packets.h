@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_PACKETS_H
@@ -11,7 +11,6 @@
 #include <eq/net/nodeID.h>
 #include <eq/net/object.h>
 
-#include <sys/param.h>
 #include <eq/base/idPool.h> // for EQ_ID_*
 
 #define EQ_ALIGN8  __attribute__ ((aligned (8)))

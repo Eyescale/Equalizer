@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_CONNECTION_H
@@ -16,6 +16,7 @@
 #include <poll.h>
 #include <stdexcept>
 #include <sys/types.h>
+#include <sys/param.h>  // for MAX()
 #include <unistd.h>
 #include <vector>
 
