@@ -16,7 +16,6 @@
 #include <stdexcept>
 #include <sys/types.h>
 #include <sys/param.h>  // for MAX()
-#include <unistd.h>
 #include <vector>
 
 namespace eqNet
