@@ -1,0 +1,27 @@
+
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+   All rights reserved. */
+
+#ifndef EQBASE_LAUNCHER_H
+#define EQBASE_LAUNCHER_H
+
+#include <string>
+#include <vector>
+
+namespace eqBase
+{
+    /** The launcher executes a command in a separate process. */
+    class Launcher
+    {
+    public:
+        static bool run( const std::string& command );
+
+    private:
+        Launcher(){}
+
+        static void _buildCommandLine( const std::string& command,
+                                       std::vector<std::string>& commandLine );
+    };
+}
+
+#endif // EQBASE_LAUNCHER_H

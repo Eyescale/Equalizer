@@ -12,13 +12,13 @@ HEADER_SRC = \
 	base/executionListener.h \
 	base/hash.h \
 	base/idPool.h \
+	base/launcher.h \
 	base/lock.h \
 	base/log.h \
 	base/monitor.h \
 	base/mtQueue.h \
 	base/nonCopyable.h \
 	base/perThread.h \
-	base/process.h \
 	base/refPtr.h \
 	base/referenced.h \
 	base/requestHandler.h \
@@ -94,9 +94,9 @@ HEADER_SRC = \
 SOURCES = \
 	base/barrier.cpp \
 	base/idPool.cpp \
+	base/launcher.cpp \
 	base/lock.cpp \
 	base/log.cpp \
-	base/process.cpp \
 	base/requestHandler.cpp \
 	base/sema.cpp \
 	base/thread.cpp \
@@ -112,7 +112,6 @@ SOURCES = \
 	net/fdConnection.cpp \
 	net/global.cpp \
 	net/init.cpp \
-	net/launcher.cpp \
 	net/node.cpp \
 	net/nodeID.cpp \
 	net/object.cpp \

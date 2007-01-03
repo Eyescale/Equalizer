@@ -7,10 +7,11 @@
 #include "command.h"
 #include "connectionSet.h"
 #include "global.h"
-#include "launcher.h"
 #include "pipeConnection.h"
 #include "session.h"
 #include "uniPipeConnection.h"
+
+#include <eq/base/launcher.h>
 
 #include <fcntl.h>
 #include <sstream>
@@ -1189,7 +1190,7 @@ bool Node::_launch( RefPtr<ConnectionDescription> description )
 
     const string launchCommand = _createLaunchCommand( description );
 
-    if( !Launcher::run( launchCommand ))
+    if( !eqBase::Launcher::run( launchCommand ))
     {
         EQWARN << "Could not launch node using '" << launchCommand << "'" 
                << endl;
