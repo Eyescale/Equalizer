@@ -11,7 +11,6 @@
 
 #include <errno.h>
 #include <pthread.h>
-#include <strings.h>
 
 using namespace eqBase;
 using namespace std;
