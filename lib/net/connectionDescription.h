@@ -9,7 +9,6 @@
 
 #include <eq/base/base.h>
 #include <eq/base/referenced.h>
-#include <strings.h>
 #include <sys/param.h>
 
 namespace eqNet
