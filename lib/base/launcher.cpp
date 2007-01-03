@@ -7,7 +7,6 @@
 
 #include <errno.h>
 #include <sstream>
-#include <unistd.h>
 
 using namespace eqBase;
 using namespace std;
