@@ -8,7 +8,6 @@
 #include <eq/base/scopedMutex.h>
 
 #include <errno.h>
-#include <unistd.h>
 
 using namespace eqBase;
 using namespace eqNet;
