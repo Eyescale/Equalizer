@@ -8,8 +8,6 @@
 #include "node.h"
 #include "socketConnection.h"
 
-#include <unistd.h>
-
 using namespace eqNet;
 using namespace eqBase;
 using namespace std;
