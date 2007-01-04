@@ -15,7 +15,6 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <unistd.h>
 
 using namespace eqNet;
 using namespace eqBase;

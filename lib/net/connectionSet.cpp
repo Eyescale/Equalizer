@@ -96,6 +96,8 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
     while( event == EVENT_NONE )
     {
         _connection = 0;
+        _errno      = 0;
+
         _setupFDSet();
 
         // poll for a result
@@ -116,7 +118,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                 break;
 
             default: // SUCCESS
-                for( size_t i=0; i<_fdSet.size(); i++ )
+                for( size_t i=0; i<_fdSet.size() && event == EVENT_NONE; ++i )
                 {
                     if( _fdSet[i].revents == 0 )
                         continue;
@@ -157,7 +159,6 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 
                     if( pollEvents & POLLERR )
                     {
-                        _errno = 0;
                         EQINFO << "Error during poll()" << endl;
                         event = EVENT_ERROR;
                         break;
