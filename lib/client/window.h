@@ -51,7 +51,6 @@ namespace eq
 
         const std::string& getName() const { return _name; }
 
-#ifdef GLX
         /** 
          * Set the X11 drawable ID for this window.
          * 
@@ -81,8 +80,7 @@ namespace eq
          * @return the GLX rendering context. 
          */
         GLXContext getGLXContext() const { return _glXContext; }
-#endif
-#ifdef CGL
+
         /** 
          * Set the CGL rendering context for this window.
          * 
@@ -97,7 +95,6 @@ namespace eq
          * @return the CGL rendering context. 
          */
         CGLContextObj getCGLContext() const { return _cglContext; }
-#endif
 
         /** 
          * Returns the config of this window.
@@ -237,16 +234,22 @@ namespace eq
     private:
         /** Drawable characteristics of this window */
         DrawableConfig _drawableConfig;
-#ifdef GLX
-        /** The drawable ID of the window. */
-        XID        _xDrawable;
-        /** The glX rendering context. */
-        GLXContext _glXContext;
-#endif
-#ifdef CGL
-        /** The CGL context. */
-        CGLContextObj _cglContext;
-#endif
+
+        union
+        {
+            struct
+            {
+                /** The X11 drawable ID of the window. */
+                XID        _xDrawable;
+                /** The glX rendering context. */
+                GLXContext _glXContext;
+            };
+
+            /** The CGL context. */
+            CGLContextObj _cglContext;
+
+            char _windowFill[32];
+        };
 
         /** The parent node. */
         friend class Pipe;

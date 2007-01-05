@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PIPE_H
@@ -245,13 +245,9 @@ namespace eq
 
         union
         {
-#ifdef GLX
             /** The X display connection. */
             Display* _xDisplay;
-#endif
-#ifdef CGL
             CGDirectDisplayID _cglDisplayID;
-#endif
             char _displayFill[8];
         };
 

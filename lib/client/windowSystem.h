@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_WINDOWSYSTEM_H
@@ -21,15 +21,19 @@
 #  define Cursor CGLCursor // avoid name clash with X11 'Cursor'
 #  include <ApplicationServices/ApplicationServices.h>
 #  include <OpenGL/OpenGL.h>
+#  include <OpenGL/gl.h>
 #  undef Cursor
 #endif
 
 #ifndef GLX
 typedef void Display;
 typedef void XErrorEvent;
+typedef unsigned long XID;
+typedef void* GLXContext;
 #endif
 #ifndef CGL
 typedef int32_t CGDirectDisplayID;
+typedef void*   CGLContextObj;
 #endif
 
 

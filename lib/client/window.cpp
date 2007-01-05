@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "window.h"
@@ -38,14 +38,7 @@ std::string eq::Window::_iAttributeStrings[IATTR_ALL] = {
 
 eq::Window::Window()
         : eqNet::Object( eq::Object::TYPE_WINDOW ),
-#ifdef GLX
-          _xDrawable(0),
-          _glXContext(NULL),
-#endif
-#ifdef CGL
-          _cglContext( NULL ),
-#endif
-          _pipe(NULL)
+          _pipe( 0 )
 {
     registerCommand( CMD_WINDOW_CREATE_CHANNEL, 
                 eqNet::CommandFunc<Window>( this, &Window::_cmdCreateChannel ));
@@ -79,6 +72,14 @@ eq::Window::Window()
                      eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
     registerCommand( REQ_WINDOW_ENDFRAME, 
                      eqNet::CommandFunc<Window>( this, &Window::_reqEndFrame));
+
+#ifdef GLX
+    _xDrawable = 0;
+    _glXContext = 0;
+#endif
+#ifdef CGL
+    _cglContext = 0;
+#endif
 }
 
 eq::Window::~Window()
@@ -99,7 +100,7 @@ void eq::Window::_removeChannel( Channel* channel )
         return;
     
     _channels.erase( iter );
-    channel->_window = NULL;
+    channel->_window = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -573,7 +574,7 @@ bool eq::Window::initCGL()
 
     attributes.push_back( 0 );
 
-    CGLPixelFormatObj pixelFormat = NULL;
+    CGLPixelFormatObj pixelFormat = 0;
     long numPixelFormats = 0;
     const CGLPixelFormatAttribute* cglAttribs = 
         (CGLPixelFormatAttribute*)&attributes[0];
@@ -660,7 +661,7 @@ void eq::Window::exitGLX()
     GLXContext context = getGLXContext();
     if( context )
         glXDestroyContext( display, context );
-    setGLXContext( NULL );
+    setGLXContext( 0 );
 
     XID drawable = getXDrawable();
     if( drawable )
@@ -678,9 +679,9 @@ void eq::Window::exitCGL()
     if( !context )
         return;
 
-    setCGLContext( NULL );
+    setCGLContext( 0 );
 
-    CGLSetCurrentContext( NULL );
+    CGLSetCurrentContext( 0 );
     CGLClearDrawable( context );
     CGLDestroyContext ( context );       
     EQINFO << "Destroyed CGL context " << context << endl;
@@ -688,9 +689,9 @@ void eq::Window::exitCGL()
 }
 
 
-#ifdef GLX
 void eq::Window::setXDrawable( XID drawable )
 {
+#ifdef GLX
     _xDrawable = drawable;
 
     if( !drawable )
@@ -711,7 +712,7 @@ void eq::Window::setXDrawable( XID drawable )
     unsigned nChildren;
     
     XQueryTree( display, drawable, &root, &parent, &children, &nChildren );
-    if( children != NULL ) XFree( children );
+    if( children != 0 ) XFree( children );
 
     int x,y;
     ::Window childReturn;
@@ -722,16 +723,16 @@ void eq::Window::setXDrawable( XID drawable )
     _pvp.y = y;
     _pvp.w = wa.width;
     _pvp.h = wa.height;
-}
 #endif // GLX
+}
 
-#ifdef CGL
 void eq::Window::setCGLContext( CGLContextObj context )
 {
+#ifdef CGL
     _cglContext = context;
     // TODO: pvp
-}
 #endif // CGL
+}
 
 void eq::Window::makeCurrent()
 {
