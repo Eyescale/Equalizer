@@ -413,20 +413,20 @@ struct RGBHeader
 #endif
         }
     
-    unsigned short magic       __attribute__ ((packed));
-    char compression           __attribute__ ((packed));
-    char bytesPerChannel       __attribute__ ((packed));
-    unsigned short nDimensions __attribute__ ((packed));
-    unsigned short width       __attribute__ ((packed));
-    unsigned short height      __attribute__ ((packed));
-    unsigned short depth       __attribute__ ((packed));
-    unsigned minValue          __attribute__ ((packed));
-    unsigned maxValue          __attribute__ ((packed));
-    char unused[4]             __attribute__ ((packed));
-    char filename[80]          __attribute__ ((packed));
-    unsigned colorMode         __attribute__ ((packed));
-    char fill[404]             __attribute__ ((packed));
-};
+    unsigned short magic;
+    char compression;
+    char bytesPerChannel;
+    unsigned short nDimensions;
+    unsigned short width;
+    unsigned short height;
+    unsigned short depth;
+    unsigned minValue;
+    unsigned maxValue;
+    char unused[4];
+    char filename[80];
+    unsigned colorMode;
+    char fill[404];
+} __attribute__((packed));
 
 void Image::writeImage( const std::string& filename, 
                         const Frame::Buffer buffer ) const
