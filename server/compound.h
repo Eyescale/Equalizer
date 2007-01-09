@@ -433,8 +433,8 @@ namespace eqs
         //----- pre-render compound setup
         struct UpdateData
         {
-            eqBase::StringHash<eqNet::Barrier*> swapBarriers;
-            eqBase::StringHash<Frame*>          outputFrames;
+            stde::hash_map<std::string, eqNet::Barrier*> swapBarriers;
+            stde::hash_map<std::string, Frame*>          outputFrames;
         };
 
         static TraverseResult _updatePreCB( Compound* compound, void* );

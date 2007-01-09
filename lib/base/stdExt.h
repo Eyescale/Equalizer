@@ -11,7 +11,7 @@
 #ifdef __GNUC__              // GCC 3.1 and later
 #  include <ext/hash_map>
 #  include <ext/hash_set>
-namespace stde = ::__gnu_cxx; 
+namespace stde = __gnu_cxx; 
 #else                        //  other compilers
 #  include <hash_map>
 #  include <hash_set>
@@ -27,6 +27,16 @@ namespace __gnu_cxx
 namespace std
 #endif
 {
+    /** std::string hash function. */
+    template<> 
+    struct hash< std::string >
+    {
+        size_t operator()( const std::string& str ) const
+        {
+            return hash< const char* >()( str.c_str() );
+        }
+    };
+
     /** Uniquely sorts and truncates a STL container. */
     template< typename C >
     void usort( C& c )

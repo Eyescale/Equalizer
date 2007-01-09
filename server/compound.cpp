@@ -25,6 +25,7 @@
 using namespace eqs;
 using namespace eqBase;
 using namespace std;
+using namespace stde;
 
 Compound::Compound()
         : _config( 0 ),
@@ -383,8 +384,8 @@ void Compound::update()
     traverse( this, _updatePreCB, _updateCB, _updatePostCB, &data );
     traverse( this, _updateInputCB, _updateInputCB, NULL, &data );
     
-    for( StringHash<eqNet::Barrier*>::iterator iter = data.swapBarriers.begin();
-         iter != data.swapBarriers.end(); ++iter )
+    for( hash_map<string, eqNet::Barrier*>::const_iterator iter = data.swapBarriers.begin();
+    iter != data.swapBarriers.end(); ++iter )
  
         iter->second->commit();
 }
@@ -553,7 +554,7 @@ void Compound::_updateSwapBarriers( UpdateData* data )
         return;
 
     const std::string& barrierName = _swapBarrier->getName();
-    StringHash<eqNet::Barrier*>::iterator iter = 
+    hash_map<string, eqNet::Barrier*>::iterator iter = 
         data->swapBarriers.find( barrierName );
 
     if( iter == data->swapBarriers.end( ))
@@ -578,9 +579,9 @@ void Compound::_updateInput( UpdateData* data )
     for( vector<Frame*>::const_iterator iter = _inputFrames.begin(); 
          iter != _inputFrames.end(); ++iter )
     {
-        Frame*                       frame = *iter;
-        const std::string&           name  = frame->getName();
-        StringHash<Frame*>::iterator iter  = data->outputFrames.find( name );
+        Frame*                             frame = *iter;
+        const std::string&                 name  = frame->getName();
+        hash_map<string, Frame*>::iterator iter = data->outputFrames.find(name);
 
         if( iter == data->outputFrames.end())
         {
