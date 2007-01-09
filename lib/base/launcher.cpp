@@ -6,6 +6,7 @@
 #include "log.h"
 
 #include <errno.h>
+#include <signal.h>
 #include <sstream>
 
 using namespace eqBase;
