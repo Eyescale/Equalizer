@@ -7,9 +7,8 @@
 #include "command.h"
 #include "connectionSet.h"
 #include "global.h"
-#include "pipeConnection.h"
 #include "session.h"
-#include "uniPipeConnection.h"
+#include "pipeConnection.h"
 
 #include <eq/base/launcher.h>
 
@@ -25,7 +24,7 @@ using namespace std;
 
 PerThread<Node*> Node::_localNode;
 
-// node get connection 'magics'
+// node get connection description magic numbers
 #define NEXT_INDEX_NONE       0xffffffffu
 #define NEXT_INDEX_CONNECTING 0xfffffffeu
 
@@ -152,7 +151,7 @@ void Node::_cleanup()
 bool Node::_listenToSelf()
 {
     // setup local connection to myself
-    _connection = new UniPipeConnection;
+    _connection = new PipeConnection;
     if( !_connection->connect())
     {
         EQERROR << "Could not create pipe() connection to receiver thread."

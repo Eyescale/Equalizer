@@ -83,8 +83,28 @@ Session::~Session()
     _nodeObjects.clear();
 
     if( !_registeredObjects.empty( ))
-        EQWARN << _registeredObjects.size()
-               << " registered objects in destructor" << endl;
+    {
+        if( eqBase::Log::level >= eqBase::LOG_WARN ) // OPT
+        {
+            EQWARN << _registeredObjects.size()
+                   << " registered objects in destructor" << endl;
+
+            for( IDHash< vector<Object*> >::const_iterator i =
+                     _registeredObjects.begin(); 
+                 i != _registeredObjects.end(); ++i )
+            {
+                const vector<Object*>& objects = i->second;
+                EQWARN << "  " << objects.size() << " objects of type " 
+                       << i->first << endl;
+
+                for( vector<Object*>::const_iterator j = objects.begin();
+                     j != objects.end(); ++j )
+
+                    EQINFO << "    Object of class " << typeid(*j).name() 
+                           << endl;
+            }
+        }
+    }
     _registeredObjects.clear();
 }
 
@@ -266,6 +286,10 @@ void Session::removeRegisteredObject( Object* object,
     }
 
     const uint32_t            id      = object->getID();
+
+    if( _registeredObjects.find( id ) == _registeredObjects.end( ))
+        return;
+
     vector<Object*>&          objects = _registeredObjects[id];
     vector<Object*>::iterator iter    = find( objects.begin(), objects.end(),
                                               object );
@@ -276,6 +300,9 @@ void Session::removeRegisteredObject( Object* object,
                          << (void*)object << " ref " << object->getRefCount()
                          << endl;
     objects.erase( iter );
+
+    if( objects.empty( ))
+        _registeredObjects.erase( id );
 
     switch( policy )
     {
@@ -521,6 +548,14 @@ CommandResult Session::_handleObjectCommand( Command& command )
     EQASSERT( command.isValid( ));
     const ObjectPacket* objPacket = command.getPacket<ObjectPacket>();
     const uint32_t      id        = objPacket->objectID;
+
+    if( _registeredObjects.find( id ) == _registeredObjects.end( ))
+    {
+        EQWARN << "no objects to handle command, redispatching " << objPacket
+               << endl;
+        return COMMAND_REDISPATCH;
+    }
+
     vector<Object*>&    objects   = _registeredObjects[id];
 
     if( objects.empty( ))

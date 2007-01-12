@@ -55,7 +55,6 @@ HEADER_SRC = \
 	net/pipeConnection.h \
 	net/session.h \
 	net/types.h \
-	net/uniPipeConnection.h \
 	client/channel.h \
 	client/client.h \
 	client/commands.h \
@@ -119,7 +118,6 @@ SOURCES = \
 	net/pipeConnection.cpp \
 	net/session.cpp \
 	net/socketConnection.cpp \
-	net/uniPipeConnection.cpp \
 	net/util.cpp \
 	client/channel.cpp \
 	client/client.cpp \

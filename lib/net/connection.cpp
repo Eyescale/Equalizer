@@ -5,9 +5,8 @@
 #include "connection.h"
 
 #include "connectionDescription.h"
-#include "pipeConnection.h"
 #include "socketConnection.h"
-#include "uniPipeConnection.h"
+#include "pipeConnection.h"
 
 #include <eq/base/log.h>
 
@@ -47,9 +46,6 @@ RefPtr<Connection> Connection::create( const Type type )
 
         case TYPE_PIPE:
             return new PipeConnection();
-
-        case TYPE_UNI_PIPE:
-            return new UniPipeConnection();
 
         default:
             EQWARN << "Connection type not implemented" << endl;

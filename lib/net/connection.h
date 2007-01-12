@@ -35,8 +35,7 @@ namespace eqNet
         enum Type
         {
             TYPE_TCPIP,   //!< TCP/IP networking.
-            TYPE_PIPE,    //!< pipe() based bi-directional connection
-            TYPE_UNI_PIPE //!< pipe() based uni-directional connection
+            TYPE_PIPE     //!< pipe() based uni-directional connection
         };
 
         enum State {

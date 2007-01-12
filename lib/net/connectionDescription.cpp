@@ -22,10 +22,6 @@ string ConnectionDescription::toString()
         case Connection::TYPE_PIPE:
             stringStream << "PIPE";
             break;
-
-        case Connection::TYPE_UNI_PIPE:
-            stringStream << "UNIPIPE";
-            break;
     }        
 
     stringStream << ":" << bandwidthKBS << ":" << launchCommand << ":" 
@@ -35,10 +31,6 @@ string ConnectionDescription::toString()
     {
         case Connection::TYPE_TCPIP:
             stringStream << ":" << TCPIP.port;
-            break;
-
-        case Connection::TYPE_PIPE:
-            stringStream << ":" << Pipe.fd;
             break;
 
         default:
@@ -60,8 +52,6 @@ bool ConnectionDescription::fromString( const string& data )
             this->type = Connection::TYPE_TCPIP;
         else if( type == "PIPE" )
             this->type = Connection::TYPE_PIPE;
-        else if( type == "UNIPIPE" )
-            this->type = Connection::TYPE_UNI_PIPE;
         else
             goto error;
 
@@ -101,18 +91,6 @@ bool ConnectionDescription::fromString( const string& data )
             
                 const string port = data.substr( nextPos, colonPos-nextPos );
                 TCPIP.port = atoi( port.c_str( ));
-                break;
-            }
-
-            case Connection::TYPE_PIPE:
-            {
-                nextPos  = colonPos+1;
-                colonPos = data.find( ':', nextPos );
-                if( colonPos != string::npos )
-                    goto error;
-            
-                const string port = data.substr( nextPos, colonPos-nextPos );
-                Pipe.fd = atoi( port.c_str( ));
                 break;
             }
 

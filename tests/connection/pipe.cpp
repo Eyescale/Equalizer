@@ -1,4 +1,6 @@
 
+#include <test.h>
+
 #include <eq/base/thread.h>
 #include <eq/net/connection.h>
 #include <eq/net/connectionDescription.h>
@@ -24,18 +26,13 @@ public:
 protected:
     virtual void* run()
         {
-            if( !_connection || 
-                _connection->getState() != Connection::STATE_CONNECTED )
+            TEST( _connection.isValid( ));
+            TEST( _connection->getState() == Connection::STATE_CONNECTED );
 
-                return (void*)EXIT_FAILURE;
+            char text[5];
+            TEST( _connection->recv( &text, 5 ) == 5 );
+            TEST( strcmp( "buh!", text ) == 0 );
 
-            cerr << "Server up" << endl;
-            char c;
-            while( _connection->recv( &c, 1 ))
-            {
-                cerr << "Server recv: " << c << endl;
-                _connection->send( &c, 1 );
-            }
             _connection->close();
             _connection = NULL;
             return EXIT_SUCCESS;
@@ -48,21 +45,16 @@ int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
 
-    PipeConnection* pipeConnection = new PipeConnection();
-    RefPtr<Connection>  connection = pipeConnection;
-    if( !connection->connect( ))
-        exit( EXIT_FAILURE );
+    RefPtr<Connection>  connection = new PipeConnection();
+    TEST( connection->connect( ));
 
     Server server;
-    server.start( pipeConnection->getChildEnd( ));
+    server.start( connection );
 
     const char message[] = "buh!";
-    int        nChars    = strlen( message ) + 1;
-    char*      response  = static_cast<char*>( alloca( nChars ));
+    const size_t nChars  = strlen( message ) + 1;
 
-    connection->send( message, nChars );
-    connection->recv( response, nChars );
-    cerr << "Client recv: " << response << endl;
+    TEST( connection->send( message, nChars ) == nChars );
 
     connection->close();
     connection = NULL;

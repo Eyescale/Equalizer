@@ -22,28 +22,24 @@ GLXEventThread::GLXEventThread()
         : eqNet::Base( true )
 {
     registerCommand( CMD_GLXEVENTTHREAD_ADD_PIPE,
-       eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdAddPipe ));
+      eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdAddPipe ));
     registerCommand( CMD_GLXEVENTTHREAD_REMOVE_PIPE, 
-    eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdRemovePipe ));
+   eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdRemovePipe ));
     registerCommand( CMD_GLXEVENTTHREAD_ADD_WINDOW, 
-     eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdAddWindow ));
+    eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdAddWindow ));
     registerCommand( CMD_GLXEVENTTHREAD_REMOVE_WINDOW,
-  eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdRemoveWindow ));
+ eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdRemoveWindow ));
 }
 
 bool GLXEventThread::init()
 {
     CHECK_THREAD( _thread );
-    eqNet::PipeConnection*    pipeConnection = new eqNet::PipeConnection();
-    RefPtr<eqNet::Connection> connection     = pipeConnection;
+    _commandConnection   = new eqNet::PipeConnection();
 
-    if( !connection->connect( ))
+    if( !_commandConnection->connect( ))
         return false;
 
-    _commandConnection[EVENT_END] = connection;
-    _commandConnection[APP_END]   = pipeConnection->getChildEnd();
-
-    _connections.addConnection( _commandConnection[EVENT_END] );
+    _connections.addConnection( _commandConnection );
     EQINFO << "Initialized glX event thread" << endl;
     return true;
 }
@@ -52,11 +48,9 @@ void GLXEventThread::exit()
 {
     EQINFO << "Exiting glX event thread" << endl;
     CHECK_THREAD( _thread );
-    _commandConnection[EVENT_END]->close();
-    _commandConnection[APP_END]->close();
-    
-    _commandConnection[EVENT_END] = NULL;
-    _commandConnection[APP_END]   = NULL;
+
+    _commandConnection->close();
+    _commandConnection = 0;
     EventThread::exit();
 }
 
@@ -73,7 +67,7 @@ void GLXEventThread::addPipe( Pipe* pipe )
 
     GLXEventThreadAddPipePacket packet;
     packet.pipe = pipe;
-    _commandConnection[APP_END]->send( packet );
+    _commandConnection->send( packet );
 }
 
 void GLXEventThread::removePipe( Pipe* pipe )
@@ -83,13 +77,13 @@ void GLXEventThread::removePipe( Pipe* pipe )
     packet.pipe      = pipe;
     packet.requestID = _requestHandler.registerRequest();
     _startMutex.set();
-    _commandConnection[APP_END]->send( packet );
+    _commandConnection->send( packet );
     
     const bool stop = _requestHandler.waitRequest( packet.requestID );
     if( stop )
     {
         join();
-        _localNode = NULL;
+        _localNode = 0;
     }
     _startMutex.unset();
 }
@@ -101,7 +95,7 @@ void GLXEventThread::addWindow( Window* window )
 
     GLXEventThreadAddWindowPacket packet;
     packet.window = window;
-    _commandConnection[APP_END]->send( packet );
+    _commandConnection->send( packet );
 }
 
 void GLXEventThread::removeWindow( Window* window )
@@ -113,7 +107,7 @@ void GLXEventThread::removeWindow( Window* window )
     packet.window    = window;
     packet.requestID = _requestHandler.registerRequest();
 
-    _commandConnection[APP_END]->send( packet );
+    _commandConnection->send( packet );
     _requestHandler.waitRequest( packet.requestID );
 }
 
@@ -165,7 +159,7 @@ void GLXEventThread::_handleEvent()
     CHECK_THREAD( _thread );
     RefPtr<eqNet::Connection> connection = _connections.getConnection();
 
-    if( connection == _commandConnection[EVENT_END] )
+    if( connection == _commandConnection )
     {
         _handleCommand();
         return;
@@ -177,8 +171,7 @@ void GLXEventThread::_handleEvent()
 void GLXEventThread::_handleCommand()
 {
     uint64_t size;
-    const uint64_t read = _commandConnection[EVENT_END]->recv( &size, 
-                                                               sizeof( size ));
+    const uint64_t read = _commandConnection->recv( &size, sizeof( size ));
     if( read == 0 ) // Some systems signal data on dead connections.
         return;
 
@@ -186,11 +179,11 @@ void GLXEventThread::_handleCommand()
     EQASSERT( size );
     EQASSERT( size < 4096 ); // not a hard error, just sanity check
 
-    _receivedCommand.allocate( NULL, size );
+    _receivedCommand.allocate( 0, size );
     size -= sizeof( size );
 
     char*      ptr     = (char*)_receivedCommand.getPacket() + sizeof(size);
-    const bool gotData = _commandConnection[EVENT_END]->recv( ptr, size );
+    const bool gotData = _commandConnection->recv( ptr, size );
     EQASSERT( gotData );
 
     const eqNet::CommandResult result = invokeCommand( _receivedCommand );
@@ -212,7 +205,7 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
         XID            drawable = xEvent.xany.window;
         const uint32_t nWindows = pipe->nWindows();
 
-        event.window   = NULL;
+        event.window   = 0;
         for( uint32_t i=0; i<nWindows; ++i )
         {
             if( pipe->getWindow(i)->getXDrawable() == drawable )
@@ -473,7 +466,7 @@ eqNet::CommandResult GLXEventThread::_cmdRemovePipe( eqNet::Command& command )
     
     _connections.removeConnection(
         RefPtr_static_cast<X11Connection, eqNet::Connection>( x11Connection ));
-    pipe->setXEventConnection( NULL );
+    pipe->setXEventConnection( 0 );
     XCloseDisplay( x11Connection->getDisplay( ));
 
     EQINFO << "Stopped processing events on display "
@@ -531,6 +524,6 @@ eqNet::CommandResult GLXEventThread::_cmdRemoveWindow( eqNet::Command& command )
     XSelectInput( display, drawable, 0l );
     XFlush( display );
 
-    _requestHandler.serveRequest( packet->requestID, NULL );
+    _requestHandler.serveRequest( packet->requestID, 0 );
     return eqNet::COMMAND_HANDLED;    
 }

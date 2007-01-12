@@ -1,44 +1,34 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_PIPE_CONNECTION_H
 #define EQNET_PIPE_CONNECTION_H
 
 #include "fdConnection.h"
-
-#include <eq/base/refPtr.h>
 #include <eq/base/thread.h>
 
 namespace eqNet
 {
     /**
-     * A bi-directional pipe connection (pair).
+     * A uni-directional pipe connection.
      */
     class PipeConnection : public FDConnection
     {
     public:
         PipeConnection();
+        virtual ~PipeConnection();
 
         virtual bool connect();
         virtual void close();
 
-        /** 
-         * @return the 'other' end of the pipe connection.
-         */
-        eqBase::RefPtr<Connection> getChildEnd(){ return _childConnection; }
-
     protected:
         PipeConnection( const PipeConnection& conn );
-        virtual ~PipeConnection();
 
     private:
-        bool _createPipes();
-        void _setupParent();
-        void _setupChild();
+        bool _createPipe();
 
-        int*                       _pipes;
-        eqBase::RefPtr<Connection> _childConnection;
+        int  _pipe[2];
     };
 }
 

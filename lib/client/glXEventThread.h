@@ -57,13 +57,8 @@ namespace eq
 
         WindowEvent _lastPointerEvent;
 
-        enum
-        {
-            EVENT_END = 0,
-            APP_END   = 1
-        };
-        eqBase::RefPtr<eqNet::Connection> _commandConnection[2];
-
+        /** Application->Event thread command connection. */
+        eqBase::RefPtr<eqNet::Connection> _commandConnection;
 
         void _handleEvent();
         void   _handleCommand();
