@@ -94,14 +94,16 @@ Session::~Session()
                  i != _registeredObjects.end(); ++i )
             {
                 const vector<Object*>& objects = i->second;
-                EQWARN << "  " << objects.size() << " objects of type " 
+                EQWARN << "  " << objects.size() << " objects with id " 
                        << i->first << endl;
 
                 for( vector<Object*>::const_iterator j = objects.begin();
                      j != objects.end(); ++j )
-
-                    EQINFO << "    Object of class " << typeid(*j).name() 
-                           << endl;
+                {
+                    const Object* object = *j;
+                    EQINFO << "    Object of class " << typeid(*object).name() 
+                           << ", type " << object->getTypeID() << endl;
+                }
             }
         }
     }

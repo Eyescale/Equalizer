@@ -4,6 +4,7 @@ include $(TOP)/make/system.mk
 PROGRAM = eqPly
 
 SOURCES = \
+	appInitData.cpp \
 	channel.cpp \
 	config.cpp \
 	initData.cpp \

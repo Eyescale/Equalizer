@@ -20,10 +20,11 @@ public:
     void setFrameData( eqBase::RefPtr<FrameData> frameData );
     eqBase::RefPtr<FrameData> getFrameData();
 
-    void               setFilename( const std::string& filename );
     const std::string& getFilename() const { return _filename; }
 
 protected:
+    void setFilename( const std::string& filename );
+
     const void* getInstanceData( uint64_t* size );
 
 private:

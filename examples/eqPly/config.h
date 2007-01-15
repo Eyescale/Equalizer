@@ -7,25 +7,29 @@
 
 #include <eq/eq.h>
 
+#include "appInitData.h"
 #include "frameData.h"
-#include "initData.h"
 
 class Config : public eq::Config
 {
 public:
     Config();
-    virtual ~Config(){}
 
     bool isRunning() const { return _running; }
     
     /** @sa eq::Config::init. */
-    virtual bool init( const uint32_t initID );
+    virtual bool init();
+    /** @sa eq::Config::exit. */
+    virtual bool exit();
 
     /** @sa eq::Config::beginFrame. */
     virtual uint32_t beginFrame();
 
-    void setFrameData( eqBase::RefPtr<FrameData> data ) { _frameData = data; }
+    eqBase::RefPtr<AppInitData> getInitData() { return _initData; }
+
 protected:
+    virtual ~Config();
+
     eqNet::Object* instanciateObject( const uint32_t type, const void* data, 
                                        const uint64_t dataSize )
         {
@@ -46,7 +50,9 @@ protected:
 
     bool       _running;
     int        _spinX, _spinY;
-    eqBase::RefPtr<FrameData> _frameData;
+
+    eqBase::RefPtr<AppInitData> _initData;
+    eqBase::RefPtr<FrameData>   _frameData;
 
 private:
     static void _applyRotation( float m[16], const float dx, const float dy );

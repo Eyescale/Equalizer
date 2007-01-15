@@ -5,14 +5,14 @@
 #ifndef EQ_PLY_APPINITDATA_H
 #define EQ_PLY_APPINITDATA_H
 
+#include "initData.h"
+
 class AppInitData : public InitData
 {
 public:
-    void setTrackerPort( const std::string& trackerPort )
-    {
-        _trackerPort = trackerPort;
-    }
     const std::string& getTrackerPort() const { return _trackerPort; }
+
+    void parseArguments( int argc, char** argv );
 
 private:
     std::string _trackerPort;

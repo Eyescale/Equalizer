@@ -6,12 +6,9 @@
 
 #include "channel.h"
 #include "config.h"
-#include "frameData.h"
-#include "appInitData.h"
 #include "node.h"
 #include "pipe.h"
 
-#include <getopt.h>
 #include <stdlib.h>
 #include "tracker.h"
 
@@ -19,9 +16,6 @@ using namespace std;
 using namespace eqBase;
 
 #define DIE(reason)    { EQERROR << (reason) << endl; abort(); }
-
-static void _parseArguments( int argc, char** argv,
-                             RefPtr<AppInitData> appInitData );
 
 class NodeFactory : public eq::NodeFactory
 {
@@ -43,9 +37,6 @@ int main( int argc, char** argv )
     if( !eq::init( argc, argv ))
         DIE( "Equalizer init failed" );
 
-    RefPtr<AppInitData> appInitData = new AppInitData;
-    _parseArguments( argc, argv, appInitData );
-
     // 2. connect to server
     RefPtr<eq::Server> server = new eq::Server;
     eq::OpenParams     openParams;
@@ -61,31 +52,26 @@ int main( int argc, char** argv )
     if( !config )
         DIE("No matching config on server.");
 
-    // 4. register application data
-    RefPtr<FrameData> frameData = new FrameData;
-
-    config->registerObject( appInitData.get(), config->getLocalNode( ));
-    config->registerObject( frameData.get(), config->getLocalNode( ));
-    appInitData->setFrameData( frameData );
-    config->setFrameData( frameData );
-
-    // 5a. init config
+    // 4. init config
     eqBase::Clock clock;
-    if( !config->init( appInitData->getID( )))
+
+    RefPtr<AppInitData> initData = config->getInitData();
+    initData->parseArguments( argc, argv );
+    
+    if( !config->init( ))
         DIE("Config initialisation failed.");
     EQLOG( eq::LOG_CUSTOM ) << "Config init took " << clock.getTimef() << " ms"
                             << endl;
-
-    // 5b. init tracker
+    // 5. init tracker
     Tracker tracker;
-    if( !appInitData->getTrackerPort().empty( ))
+    if( !initData->getTrackerPort().empty( ))
     {
-        if( !tracker.init( appInitData->getTrackerPort() ))
+        if( !tracker.init( initData->getTrackerPort() ))
             EQWARN << "Failed to initialise tracker" << endl;
         else
         {
             // Set up position of tracking system in world space
-            // Note: this depends on the installation used.
+            // Note: this depends on the physical installation.
             vmml::Matrix4f m( vmml::Matrix4f::IDENTITY );
             m.scale( 1.f, 1.f, -1.f );
             //m.x = .5;
@@ -97,6 +83,7 @@ int main( int argc, char** argv )
             EQLOG( eq::LOG_CUSTOM ) << "Tracker initialised" << endl;
         }
     }
+    initData = 0;
 
     // 6. run main loop
     uint32_t maxFrames = 0; // set to 0 for 'endless'
@@ -126,45 +113,9 @@ int main( int argc, char** argv )
     EQLOG( eq::LOG_CUSTOM ) << "Exit took " << clock.getTimef() << " ms" <<endl;
 
     // 8. cleanup and exit
-    appInitData->setFrameData( NULL );
-    config->setFrameData( NULL );
-    config->deregisterObject( frameData.get( ));
-    config->deregisterObject( appInitData.get( ));
-    EQASSERT( frameData->getRefCount() == 1 );
-    EQASSERT( appInitData->getRefCount() == 1 );
-
     server->releaseConfig( config );
     server->close();
-    server = NULL;
+    server = 0;
     eq::exit();
     return EXIT_SUCCESS;
-}
-
-void _parseArguments( int argc, char** argv, RefPtr<AppInitData> appInitData )
-{
-    int      result;
-    int      index;
-    struct option options[] = 
-        {
-            { "model",          required_argument, NULL, 'm' },
-            { "port",           required_argument, NULL, 'p' },
-            { NULL,             0,                 NULL,  0 }
-        };
-
-    while( (result = getopt_long( argc, argv, "", options, &index )) != -1 )
-    {
-        switch( result )
-        {
-            case 'm':
-                appInitData->setFilename( optarg );
-                break;
-
-            case 'p':
-                appInitData->setTrackerPort( optarg );
-
-            default:
-                EQWARN << "unhandled option: " << options[index].name << endl;
-                break;
-        }
-    }
 }

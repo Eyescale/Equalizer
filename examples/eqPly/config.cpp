@@ -8,12 +8,40 @@ Config::Config()
         : _running( false ),
           _spinX( 5 ),
           _spinY( 5 )
-{}
-
-bool Config::init( const uint32_t initID )
 {
-    _running = eq::Config::init( initID );
+    _initData  = new AppInitData;
+    _frameData = new FrameData;
+}
+
+Config::~Config()
+{
+    _initData  = 0;
+    _frameData = 0;
+}
+
+bool Config::init()
+{
+    registerObject( _initData.get(), getLocalNode( ));
+    registerObject( _frameData.get(), getLocalNode( ));
+
+    _initData->setFrameData( _frameData );
+
+    _running = eq::Config::init( _initData->getID( ));
     return _running;
+}
+
+bool Config::exit()
+{
+    _running = false;
+    const bool ret = eq::Config::exit();
+
+    _initData->setFrameData( 0 );
+    deregisterObject( _frameData.get( ));
+    deregisterObject( _initData.get( ));
+
+    EQASSERT( _frameData->getRefCount() == 1 );
+    EQASSERT( _initData->getRefCount() == 1 );
+    return ret;
 }
 
 uint32_t Config::beginFrame()
