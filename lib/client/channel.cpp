@@ -336,12 +336,12 @@ void Channel::applyFrustum() const
 
 const vmml::Matrix4f& Channel::getHeadTransform() const
 {
-    return _context ? _context->headTransform : Matrix4f::IDENTITY;
+    return _context ? _context->headTransform : vmml::Matrix4f::IDENTITY;
 }
 
 void Channel::applyHeadTransform() const
 {
-    const Matrix4f& xfm = getHeadTransform();
+    const vmml::Matrix4f& xfm = getHeadTransform();
     glMultMatrixf( xfm.ml );
     EQVERB << "Apply head transform: " << xfm << endl;
 }
