@@ -5,17 +5,18 @@
 #ifndef EQNET_BASE_H
 #define EQNET_BASE_H
 
+#include <eq/net/commandFunc.h>
+
 #include <eq/base/base.h>
 #include <eq/base/nonCopyable.h>
 #include <eq/base/requestHandler.h>
-#include <eq/net/commandResult.h>
-#include <eq/net/commandFunc.h>
 
 namespace eqNet
 {
     class Connection;
     class Node;
     class Command;
+    enum  CommandResult;
 
     /** 
      * The base class for all networked objects. 
@@ -43,9 +44,6 @@ namespace eqNet
         /** 
          * Registers a command member function for a command.
          * 
-         * Use 'reinterpret_cast<CommandFcn>(foo)' to cast the function of the
-         * derived class to the expected type.
-         *
          * @param command the command.
          * @param func the functor to handle the command.
          */

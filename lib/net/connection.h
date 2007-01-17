@@ -5,7 +5,7 @@
 #ifndef EQNET_CONNECTION_H
 #define EQNET_CONNECTION_H
 
-#include "packets.h"
+#include <eq/net/packets.h>
 
 #include <eq/base/base.h>
 #include <eq/base/lock.h>

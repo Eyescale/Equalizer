@@ -1,11 +1,11 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_CONNECTION_SET_H
 #define EQNET_CONNECTION_SET_H
 
-#include "connection.h"
+#include <eq/net/connection.h>
 
 #include <eq/base/hash.h>
 #include <eq/base/refPtr.h>

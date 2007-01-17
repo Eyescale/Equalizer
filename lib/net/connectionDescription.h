@@ -5,7 +5,7 @@
 #ifndef EQNET_CONNECTION_DESCRIPTION_H
 #define EQNET_CONNECTION_DESCRIPTION_H
 
-#include "connection.h"
+#include <eq/net/connection.h>
 
 #include <eq/base/base.h>
 #include <eq/base/referenced.h>

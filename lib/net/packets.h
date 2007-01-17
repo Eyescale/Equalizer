@@ -5,11 +5,9 @@
 #ifndef EQNET_PACKETS_H
 #define EQNET_PACKETS_H
 
-#include <eq/net/base.h>
 #include <eq/net/commands.h>
-#include <eq/net/global.h>
 #include <eq/net/nodeID.h>
-#include <eq/net/object.h>
+#include <eq/net/object.h> // for Object::SharePolicy
 
 #include <eq/base/idPool.h> // for EQ_ID_*
 
