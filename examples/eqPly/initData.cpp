@@ -91,6 +91,19 @@ RefPtr<FrameData> InitData::getFrameData()
     return _frameData.get();
 }
 
+void InitData::releaseFrameData()
+{
+    FrameData* frameData = _frameData.get();
+    _frameData = 0;
+
+    if( !frameData )
+        return;
+
+    eqNet::Session* session = getSession();
+    session->removeRegisteredObject( frameData );
+    frameData->unref();
+}
+
 void InitData::setFilename( const std::string& filename )
 {
     _clearInstanceData();

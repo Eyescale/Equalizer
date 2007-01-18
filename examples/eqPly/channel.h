@@ -20,6 +20,7 @@ class Channel : public eq::Channel
 public:
     Channel() : _initData(NULL), _frameData(NULL) {}
 
+protected:
     virtual bool init( const uint32_t initID );
     virtual bool exit();
     virtual void draw( const uint32_t frameID );

@@ -1,6 +1,6 @@
 
 /* 
- * Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
  * All rights reserved.
  *
  * The pipe object is responsible for maintaining the frame-specific data. The
@@ -20,10 +20,11 @@ using namespace eqNet;
  */
 bool Pipe::init( const uint32_t initID )
 {
-    eq::Config* config = getConfig();
+    eq::Config*      config   = getConfig();
 
-    RefPtr<InitData> initData  = (InitData*)config->getObject( initID );
-    _frameData = initData->getFrameData();
+    _initData  = static_cast<InitData*>( config->getObject( initID ));
+    _frameData = _initData->getFrameData();
+
     EQASSERT( _frameData );
 
     return eq::Pipe::init( initID );
@@ -31,7 +32,10 @@ bool Pipe::init( const uint32_t initID )
 
 bool Pipe::exit()
 {
-    _frameData = NULL;
+    _initData->releaseFrameData();
+    _initData  = 0;
+    _frameData = 0;
+
     return eq::Pipe::exit();
 }
 

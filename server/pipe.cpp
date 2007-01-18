@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "pipe.h"
@@ -168,26 +168,33 @@ void Pipe::_sendInit( const uint32_t initID )
 
 bool Pipe::syncInit()
 {
-    bool success = true;
+    bool      success  = true;
+    string    error;
     const int nWindows = _windows.size();
+
     for( int i=0; i<nWindows; ++i )
     {
         Window* window = _windows[i];
         if( window->isUsed( ))
             if( !window->syncInit( ))
+            {
+                error += (' ' + window->getErrorMessage( ));
                 success = false;
+            }
     }
 
     EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
     if( !(bool)_requestHandler.waitRequest( _pendingRequestID ))
         success = false;
+
     _pendingRequestID = EQ_ID_INVALID;
+    _error += (' ' + error);
 
     if( success )
         _state = STATE_RUNNING;
     else
-        EQWARN << "Pipe initialisation failed" << endl;
+        EQWARN << "Pipe initialisation failed: " << _error << endl;
     return success;
 }
 
@@ -282,6 +289,7 @@ eqNet::CommandResult Pipe::_cmdInitReply( eqNet::Command& command )
         command.getPacket<eq::PipeInitReplyPacket>();
     EQINFO << "handle pipe init reply " << packet << endl;
 
+    _error = packet->error;
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
     return eqNet::COMMAND_HANDLED;
 }

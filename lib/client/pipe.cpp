@@ -335,19 +335,20 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Command& command )
 {
     const PipeInitPacket* packet = command.getPacket<PipeInitPacket>();
     EQINFO << "handle pipe init (pipe) " << packet << endl;
-    PipeInitReplyPacket reply( packet );
     
     _display      = packet->display;
     _screen       = packet->screen;
     _pvp          = packet->pvp;
     _windowSystem = selectWindowSystem();
+    _error.clear();
 
+    PipeInitReplyPacket reply( packet );
     reply.result  = init( packet->initID );
 
     RefPtr<eqNet::Node> node = command.getNode();
     if( !reply.result )
     {
-        send( node, reply );
+        send( node, reply, _error );
         return eqNet::COMMAND_HANDLED;
     }
 
@@ -463,6 +464,7 @@ bool Pipe::init( const uint32_t initID )
 
         default:
             EQERROR << "Unknown windowing system: " << _windowSystem << endl;
+            setErrorMessage( "Unknown windowing system" );
             return false;
     }
 }
@@ -477,8 +479,9 @@ bool Pipe::initGLX()
             
     if( !xDisplay )
     {
-        EQERROR << "Can't open display: " << XDisplayName( displayName.c_str( ))
-                << endl;
+        ostringstream msg;
+        msg << "Can't open display: " << XDisplayName( displayName.c_str( ));
+        setErrorMessage( msg.str( ));
         return false;
     }
     
@@ -486,6 +489,7 @@ bool Pipe::initGLX()
     EQINFO << "Opened X display " << xDisplay << ", screen " << _screen << endl;
     return true;
 #else
+    setErrorMessage( "Library compiled without GLX support" );
     return false;
 #endif
 }
@@ -523,15 +527,18 @@ bool Pipe::initCGL()
         if( CGGetOnlineDisplayList( display+1, displayIDs, &nDisplays ) !=
             kCGErrorSuccess )
         {
-            EQERROR << "Can't get display identifier for display " << display 
-                  << endl;
+            ostringstream msg;
+            msg << "Can't get display identifier for display " << display;
+            setErrorMessage( msg.str( ));
             return false;
         }
 
         if( nDisplays <= display )
         {
-            EQERROR << "Can't get display identifier for display " << display 
-                  << ", not enough displays for this system" << endl;
+            ostringstream msg;
+            msg << "Can't get display identifier for display " << display 
+                << ", not enough displays for this system";
+            setErrorMessage( msg.str( ));
             return false;
         }
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_CHANNEL_H
@@ -180,6 +180,12 @@ namespace eqs
             { return _iAttributes[attr]; }
         //*}
 
+        /** @name Error information. */
+        //@{
+        /** @return the error message from the last operation. */
+        const std::string& getErrorMessage() const { return _error; }
+        //@}
+        
     protected:
         virtual ~Channel();
 
@@ -189,6 +195,9 @@ namespace eqs
 
         /** Number of entitities actively using this channel. */
         uint32_t _used;
+
+        /** The reason for the last error. */
+        std::string            _error;
 
         /** The parent window. */
         Window* _window;

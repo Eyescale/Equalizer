@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "eqPly.h"
@@ -14,8 +14,6 @@
 
 using namespace std;
 using namespace eqBase;
-
-#define DIE(reason)    { EQERROR << (reason) << endl; abort(); }
 
 class NodeFactory : public eq::NodeFactory
 {
@@ -35,7 +33,10 @@ int main( int argc, char** argv )
 {
     // 1. initialisation
     if( !eq::init( argc, argv ))
-        DIE( "Equalizer init failed" );
+    {
+        EQERROR << "Equalizer init failed" << endl;
+        return EXIT_FAILURE;
+    }
 
     // 2. connect to server
     RefPtr<eq::Server> server = new eq::Server;
@@ -43,14 +44,23 @@ int main( int argc, char** argv )
     openParams.appName = argv[0];
 
     if( !server->open( openParams ))
-        DIE("Can't open server.");
+    {
+        EQERROR << "Can't open server." << endl;
+        eq::exit();
+        return EXIT_FAILURE;
+    }
 
     // 3. choose config
     eq::ConfigParams configParams;
     Config*          config = (Config*)server->chooseConfig( configParams );
 
     if( !config )
-        DIE("No matching config on server.");
+    {
+        EQERROR <<"No matching config on server." << endl;
+        server->close();
+        eq::exit();
+        return EXIT_FAILURE;
+    }
 
     // 4. init config
     eqBase::Clock clock;
@@ -59,7 +69,15 @@ int main( int argc, char** argv )
     initData->parseArguments( argc, argv );
     
     if( !config->init( ))
-        DIE("Config initialisation failed.");
+    {
+        EQERROR << "Config initialisation failed: " 
+                << config->getErrorMessage() << endl;
+        server->releaseConfig( config );
+        server->close();
+        eq::exit();
+        return EXIT_FAILURE;
+    }
+
     EQLOG( eq::LOG_CUSTOM ) << "Config init took " << clock.getTimef() << " ms"
                             << endl;
     // 5. init tracker

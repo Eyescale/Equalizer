@@ -125,10 +125,13 @@ namespace eq
                 command   = CMD_CONFIG_INIT_REPLY;
                 size      = sizeof( ConfigInitReplyPacket );
                 requestID = requestPacket->requestID;
+                error[0]  = '\0';
             }
+
         uint32_t requestID;
         uint32_t headMatrixID;
         bool     result;
+        char     error[8] EQ_ALIGN8;
     };
 
     struct ConfigExitPacket : public ConfigPacket
@@ -246,10 +249,12 @@ namespace eq
                 command   = CMD_NODE_INIT_REPLY;
                 requestID = requestPacket->requestID;
                 size      = sizeof( NodeInitReplyPacket );
+                error[0]  = '\0';
             }
 
         uint32_t requestID;
         bool     result;
+        char     error[8] EQ_ALIGN8;
     };
 
     struct NodeExitPacket : public eqNet::ObjectPacket
@@ -345,10 +350,12 @@ namespace eq
                 command   = CMD_PIPE_INIT_REPLY;
                 requestID = requestPacket->requestID;
                 size      = sizeof( PipeInitReplyPacket );
+                error[0]  = '\0';
             }
 
         uint32_t requestID;
         bool     result;
+        char     error[8] EQ_ALIGN8;
     };
 
     struct PipeExitPacket : public eqNet::ObjectPacket
@@ -438,12 +445,14 @@ namespace eq
                 command   = CMD_WINDOW_INIT_REPLY;
                 requestID = requestPacket->requestID;
                 size      = sizeof( WindowInitReplyPacket );
+                error[0]  = '\0';
             }
 
         uint32_t                requestID;
         bool                    result;
         PixelViewport           pvp;
         Window::DrawableConfig  drawableConfig;
+        char                    error[8] EQ_ALIGN8;
     };
 
     struct WindowExitPacket : public eqNet::ObjectPacket
@@ -579,12 +588,14 @@ namespace eq
                 command   = CMD_CHANNEL_INIT_REPLY;
                 requestID = requestPacket->requestID;
                 size      = sizeof( ChannelInitReplyPacket );
+                error[0]  = '\0';
             }
 
         uint32_t requestID;
-        bool     result;
         float    near;
         float    far;
+        bool     result;
+        char     error[8] EQ_ALIGN8;
     };
 
     struct ChannelExitPacket : public eqNet::ObjectPacket

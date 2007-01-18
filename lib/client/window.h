@@ -124,6 +124,38 @@ namespace eq
         //*}
 
         /**
+         * @name Attributes
+         */
+        //*{
+        // Note: also update string array initialization in window.cpp
+        enum IAttribute
+        {
+            IATTR_HINT_STEREO,
+            IATTR_HINT_DOUBLEBUFFER,
+            IATTR_HINT_FULLSCREEN,
+            IATTR_HINT_DECORATION,
+            IATTR_PLANES_COLOR,
+            IATTR_PLANES_ALPHA,
+            IATTR_PLANES_DEPTH,
+            IATTR_PLANES_STENCIL,
+            IATTR_ALL
+        };
+        
+        int32_t  getIAttribute( const IAttribute attr ) const
+            { return _iAttributes[attr]; }
+        static const std::string&  getIAttributeString( const IAttribute attr )
+            { return _iAttributeStrings[attr]; }
+        //*}
+
+        const DrawableConfig& getDrawableConfig() const
+            { return _drawableConfig; }
+    protected:
+        /**
+         * Destructs the window.
+         */
+        virtual ~Window();
+
+        /**
          * @name Callbacks
          *
          * The callbacks are called by Equalizer during rendering to execute
@@ -197,44 +229,29 @@ namespace eq
          * @param event the received window system event.
          */
         virtual void processEvent( const WindowEvent& event );
+        friend class GLXEventThread;
         //*}
 
-        /**
-         * @name Attributes
+        /** @name Error information. */
+        //@{
+        /** 
+         * Set a message why the last operation failed.
+         * 
+         * The message will be transmitted to the originator of the request, for
+         * example to Config::init when set from within the init method.
+         *
+         * @param message the error message.
          */
-        //*{
-        // Note: also update string array initialization in window.cpp
-        enum IAttribute
-        {
-            IATTR_HINT_STEREO,
-            IATTR_HINT_DOUBLEBUFFER,
-            IATTR_HINT_FULLSCREEN,
-            IATTR_HINT_DECORATION,
-            IATTR_PLANES_COLOR,
-            IATTR_PLANES_ALPHA,
-            IATTR_PLANES_DEPTH,
-            IATTR_PLANES_STENCIL,
-            IATTR_ALL
-        };
-        
-        int32_t  getIAttribute( const IAttribute attr ) const
-            { return _iAttributes[attr]; }
-        static const std::string&  getIAttributeString( const IAttribute attr )
-            { return _iAttributeStrings[attr]; }
-        //*}
-
-        const DrawableConfig& getDrawableConfig() const
-            { return _drawableConfig; }
-    protected:
-        /**
-         * Destructs the window.
-         */
-        virtual ~Window();
-
+        void setErrorMessage( const std::string& message ) { _error = message; }
+        //@}
     private:
         /** Drawable characteristics of this window */
         DrawableConfig _drawableConfig;
 
+        /** The reason for the last error. */
+        std::string            _error;
+
+        /** Window-system specific drawable information. */
         union
         {
             struct

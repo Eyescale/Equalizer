@@ -369,11 +369,12 @@ eqNet::CommandResult Channel::_reqInit( eqNet::Command& command )
     for( uint32_t i=0; i<IATTR_ALL; ++i )
         _iAttributes[i] = packet->iattr[i];
 
+    _error.clear();
     ChannelInitReplyPacket reply( packet );
     reply.result = init( packet->initID );
     reply.near   = _frustum.near;
     reply.far    = _frustum.far;
-    send( command.getNode(), reply );
+    send( command.getNode(), reply, _error );
     return eqNet::COMMAND_HANDLED;
 }
 

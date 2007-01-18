@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_WINDOW_H
@@ -210,6 +210,12 @@ namespace eqs
             { return _iAttributes[attr]; }
         //*}
 
+        /** @name Error information. */
+        //@{
+        /** @return the error message from the last operation. */
+        const std::string& getErrorMessage() const { return _error; }
+        //@}
+
     protected:
         virtual ~Window();
 
@@ -220,6 +226,9 @@ namespace eqs
         State _state;
 
         std::string _name;
+
+        /** The reason for the last error. */
+        std::string            _error;
 
         /** Integer attributes. */
         int32_t _iAttributes[eq::Window::IATTR_ALL];

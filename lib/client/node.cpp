@@ -151,10 +151,11 @@ eqNet::CommandResult Node::_reqInit( eqNet::Command& command )
     const NodeInitPacket* packet = command.getPacket<NodeInitPacket>();
     EQINFO << "handle node init (node) " << packet << endl;
 
+    _error.clear();
     NodeInitReplyPacket reply( packet );
     reply.result = init( packet->initID );
 
-    send( command.getNode(), reply );
+    send( command.getNode(), reply, _error );
     return eqNet::COMMAND_HANDLED;
 }
 

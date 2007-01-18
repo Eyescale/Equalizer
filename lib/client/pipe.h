@@ -160,6 +160,30 @@ namespace eq
         virtual WindowSystem selectWindowSystem() const;
 
         /**
+         * @name Operations
+         */
+        //*{
+        /** Add a new statistics event to the current frame. */
+        void addStatEvent( const StatEvent& event )
+            { _statEvents.push_back( event ); }
+
+        /** 
+         * Push a command to the pipe thread to be handled from there.
+         * 
+         * @param node the node sending the packet.
+         * @param packet the command packet.
+         */
+        eqNet::CommandResult pushCommand( eqNet::Command& command )
+            {_commandQueue.push( command ); return eqNet::COMMAND_HANDLED;}
+        //*}
+
+    protected:
+        /**
+         * Destructs the pipe.
+         */
+        virtual ~Pipe();
+
+        /**
          * @name Callbacks
          *
          * The callbacks are called by Equalizer during rendering to execute
@@ -205,30 +229,18 @@ namespace eq
         virtual void endFrame( const uint32_t frameID ) {}
         //@}
 
-        /**
-         * @name Operations
-         */
-        //*{
-        /** Add a new statistics event to the current frame. */
-        void addStatEvent( const StatEvent& event )
-            { _statEvents.push_back( event ); }
-
+        /** @name Error information. */
+        //@{
         /** 
-         * Push a command to the pipe thread to be handled from there.
+         * Set a message why the last operation failed.
          * 
-         * @param node the node sending the packet.
-         * @param packet the command packet.
+         * The message will be transmitted to the originator of the request, for
+         * example to Config::init when set from within the init method.
+         *
+         * @param message the error message.
          */
-        eqNet::CommandResult pushCommand( eqNet::Command& command )
-            {_commandQueue.push( command ); return eqNet::COMMAND_HANDLED;}
-        //*}
-
-    protected:
-        /**
-         * Destructs the pipe.
-         */
-        virtual ~Pipe();
-
+        void setErrorMessage( const std::string& message ) { _error = message; }
+        //@}
     private:
         /** The parent node. */
         friend class Node;
@@ -243,9 +255,12 @@ namespace eq
         /** The size (and location) of the pipe. */
         PixelViewport _pvp;
 
+        /** The reason for the last error. */
+        std::string            _error;
+
+        /** Window-system specific display information. */
         union
         {
-            /** The X display connection. */
             Display* _xDisplay;
             CGDirectDisplayID _cglDisplayID;
             char _displayFill[8];

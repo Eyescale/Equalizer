@@ -193,6 +193,7 @@ eqNet::CommandResult Config::_cmdInitReply( eqNet::Command& command )
         EQASSERT( _headMatrix );
     }
 
+    _error = packet->error;
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;
 }

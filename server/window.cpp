@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "window.h"
@@ -250,25 +250,32 @@ void eqs::Window::_sendInit( const uint32_t initID )
 bool eqs::Window::syncInit()
 {
     bool success = true;
+    string error;
+
     for( std::vector<Channel*>::iterator iter = _channels.begin(); 
          iter != _channels.end(); ++iter )
     {
         Channel* channel = *iter;
         if( channel->isUsed( ))
             if( !channel->syncInit( ))
+            {
+                error += (channel->getErrorMessage() + ' ');
                 success = false;
+            }
     }
 
     EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
-    if( !(bool)_requestHandler.waitRequest( _pendingRequestID ))
+    if( !static_cast<bool>( _requestHandler.waitRequest( _pendingRequestID )))
         success = false;
+
     _pendingRequestID = EQ_ID_INVALID;
+    _error += (error + ' ');
 
     if( success )
         _state = STATE_RUNNING;
     else
-        EQWARN << "Window initialisation failed" << endl;
+        EQWARN << "Window initialisation failed: " << _error << endl;
     return success;
 }
 
@@ -401,6 +408,8 @@ eqNet::CommandResult eqs::Window::_cmdInitReply( eqNet::Command& command )
     
     if( packet->pvp.isValid( ))
         setPixelViewport( packet->pvp );
+
+    _error = packet->error;
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
     return eqNet::COMMAND_HANDLED;
 }

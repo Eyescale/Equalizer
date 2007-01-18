@@ -22,6 +22,7 @@ protected:
     void startFrame( const uint32_t frameID );
 
 private:
+    eqBase::RefPtr<InitData>  _initData;
     eqBase::RefPtr<FrameData> _frameData;
 
     eqBase::PtrHash< const void *, GLuint > _displayLists;

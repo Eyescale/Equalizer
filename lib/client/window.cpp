@@ -157,13 +157,14 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Command& command )
     for( uint32_t i=0; i<IATTR_ALL; ++i )
         _iAttributes[i] = packet->iattr[i];
 
+    _error.clear();
     WindowInitReplyPacket reply( packet );
     reply.result = init( packet->initID );
 
     RefPtr<eqNet::Node> node = command.getNode();
     if( !reply.result )
     {
-        send( node, reply );
+        send( node, reply, _error );
         return eqNet::COMMAND_HANDLED;
     }
 
@@ -397,11 +398,14 @@ bool eq::Window::initGLX()
 {
 #ifdef GLX
     Display* display = _pipe->getXDisplay();
-    if( !display ) 
+    if( !display )
+    {
+        setErrorMessage( "Pipe has no X11 display connection" );
         return false;
+    }
 
-    int screen  = DefaultScreen( display );
-    XID parent  = RootWindow( display, screen );
+    int screen = DefaultScreen( display );
+    XID parent = RootWindow( display, screen );
 
     vector<int> attributes;
     attributes.push_back( GLX_RGBA );
@@ -460,7 +464,7 @@ bool eq::Window::initGLX()
 
     if ( !visInfo )
     {
-        EQERROR << "Could not find a matching visual\n" << endl;
+        setErrorMessage( "Could not find a matching visual" );
         return false;
     }
 
@@ -493,7 +497,7 @@ bool eq::Window::initGLX()
     
     if ( !drawable )
     {
-        EQERROR << "Could not create window\n" << endl;
+        setErrorMessage( "Could not create window" );
         return false;
     }   
    
@@ -516,7 +520,7 @@ bool eq::Window::initGLX()
 
     if ( !context )
     {
-        EQERROR << "Could not create OpenGL context\n" << endl;
+        setErrorMessage( "Could not create OpenGL context" );
         return false;
     }
 
@@ -601,7 +605,7 @@ bool eq::Window::initCGL()
 
     if( !pixelFormat )
     {
-        EQERROR << "Could not find a matching pixel format\n" << endl;
+        setErrorMessage( "Could not find a matching pixel format" );
         return false;
     }
 
@@ -614,7 +618,7 @@ bool eq::Window::initCGL()
 
     if( !context ) 
     {
-        EQERROR << "Could not create OpenGL context\n" << endl;
+        setErrorMessage( "Could not create OpenGL context" );
         return false;
     }
 
@@ -625,6 +629,7 @@ bool eq::Window::initCGL()
     EQINFO << "Created CGL context " << context << endl;
     return true;
 #else
+    setErrorMessage( "Library compiled without CGL support" );
     return false;
 #endif
 }

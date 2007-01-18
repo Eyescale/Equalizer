@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_CONFIG_H
@@ -199,6 +199,13 @@ namespace eqs
             { return _fAttributes[attr]; }
         static const std::string&  getFAttributeString( const FAttribute attr )
             { return _fAttributeStrings[attr]; }
+
+        /** @name Error information. */
+        //@{
+        /** @return the error message from the last operation. */
+        const std::string& getErrorMessage() const { return _error; }
+        //@}
+
     private:
 
         enum EyeIndex
@@ -223,6 +230,9 @@ namespace eqs
 
         /** The list of nodes. */
         std::vector<Node*>     _nodes;
+
+        /** The reason for the last error. */
+        std::string            _error;
 
         /** The name of the application. */
         std::string _appName;

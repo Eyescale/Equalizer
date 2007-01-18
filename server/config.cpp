@@ -72,7 +72,7 @@ Config::~Config()
          ++i )
     {
         Node* node = *i;
-        EQASSERT( node->getRefCount( ) == 1 );
+        EQASSERT( node->getRefCount() == 1 );
 
         node->_config = 0;
         node->unref(); // a.k.a delete
@@ -259,11 +259,13 @@ eqNet::CommandResult Config::_reqInit( eqNet::Command& command )
     eq::ConfigInitReplyPacket   reply( packet );
     EQINFO << "handle config init " << packet << endl;
 
+    _error.clear();
     reply.result       = _init( packet->initID );
     reply.headMatrixID = reply.result ? _headMatrix->getID() : EQ_ID_INVALID;
 
-    EQINFO << "Config init " << (reply.result ? "successful":"failed") << endl;
-    send( command.getNode(), reply );
+    EQINFO << "Config init " << (reply.result ? "successful":"failed: ") 
+           << _error << endl;
+    send( command.getNode(), reply, _error );
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -451,6 +453,7 @@ bool Config::_initNodes( const uint32_t initID )
         
         if( !node->syncInit( ))
         {
+            _error += ( ' ' + node->getErrorMessage( ));
             EQERROR << "Init of node " << (void*)node << " failed." 
                     << endl;
             success = false;
@@ -501,7 +504,10 @@ bool Config::_initPipes( const uint32_t initID )
                 continue;
 
             if( !pipe->syncInit( ))
+            {
+                _error += (' ' + pipe->getErrorMessage( ));
                 success = false;
+            }
         }
     }
     return success;

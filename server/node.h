@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_NODE_H
@@ -240,6 +240,12 @@ namespace eqs
             const uint32_t index ) const
             { return _connectionDescriptions[index]; }
 
+        /** @name Error information. */
+        //@{
+        /** @return the error message from the last operation. */
+        const std::string& getErrorMessage() const { return _error; }
+        //@}
+
     protected:
         virtual ~Node();
 
@@ -250,6 +256,9 @@ namespace eqs
 
         /** The vector of pipes belonging to this node. */
         std::vector<Pipe*> _pipes;
+
+        /** The reason for the last error. */
+        std::string            _error;
 
         /** Number of entitities actively using this node. */
         uint32_t _used;

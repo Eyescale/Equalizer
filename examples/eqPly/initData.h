@@ -18,7 +18,9 @@ public:
     virtual ~InitData();
 
     void setFrameData( eqBase::RefPtr<FrameData> frameData );
+
     eqBase::RefPtr<FrameData> getFrameData();
+    void releaseFrameData();
 
     const std::string& getFilename() const { return _filename; }
 

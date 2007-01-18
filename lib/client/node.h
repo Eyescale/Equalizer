@@ -67,11 +67,27 @@ namespace eq
         virtual bool exit(){ return true; }
         //@}
 
+        /** @name Error information. */
+        //@{
+        /** 
+         * Set a message why the last operation failed.
+         * 
+         * The message will be transmitted to the originator of the request, for
+         * example to Config::init when set from within the init method.
+         *
+         * @param message the error message.
+         */
+        void setErrorMessage( const std::string& message ) { _error = message; }
+        //@}
+ 
     private:
         friend class Config;
         Config*                _config;
 
         std::vector<Pipe*>     _pipes;
+
+        /** The reason for the last error. */
+        std::string            _error;
 
         /** The receiver->node thread command queue. */
         eqNet::CommandQueue    _commandQueue;

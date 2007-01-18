@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "channel.h"
@@ -181,7 +181,7 @@ bool Channel::syncInit()
     if( success )
         _state = STATE_RUNNING;
     else
-        EQWARN << "Channel initialisation failed" << endl;
+        EQWARN << "Channel initialisation failed: " << _error << endl;
     return success;
 }
 
@@ -245,8 +245,9 @@ eqNet::CommandResult Channel::_cmdInitReply( eqNet::Command& command )
         command.getPacket<eq::ChannelInitReplyPacket>();
     EQINFO << "handle channel init reply " << packet << endl;
 
-    _near = packet->near;
-    _far  = packet->far;
+    _near  = packet->near;
+    _far   = packet->far;
+    _error = packet->error;
 
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
     return eqNet::COMMAND_HANDLED;

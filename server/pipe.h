@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_PIPE_H
@@ -187,6 +187,12 @@ namespace eqs
             { _frameFinished.waitGE( frame ); }
         //*}
 
+        /** @name Error information. */
+        //@{
+        /** @return the error message from the last operation. */
+        const std::string& getErrorMessage() const { return _error; }
+        //@}
+
     protected:
         virtual ~Pipe();
 
@@ -199,6 +205,9 @@ namespace eqs
 
         /** Number of entitities actively using this pipe. */
         uint32_t _used;
+
+        /** The reason for the last error. */
+        std::string            _error;
 
         /** The parent node. */
         Node* _node;

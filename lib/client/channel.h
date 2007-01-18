@@ -72,6 +72,69 @@ namespace eq
         //*}
 
         /**
+         * @name Context-specific data access.
+         * 
+         * The data returned by these methods depends on the context (callback)
+         * they are called from, typically the data for the current rendering
+         * task.
+         */
+        //*{
+        /** @return the channel's current pixel viewport. */
+        const PixelViewport& getPixelViewport() const;
+
+        /** @return the view frustum for the current rendering task. */
+        const vmml::Frustumf& getFrustum() const;
+
+        /** @return the database range for the current rendering task. */
+        const Range& getRange() const;
+
+        /**
+         * @return the modelling transformation to position and orient the view
+         *         frustum.
+         */
+        const vmml::Matrix4f& getHeadTransform() const;
+
+        /** @return the list of input frames, used from assemble(). */
+        const std::vector<Frame*>& getInputFrames() { return _inputFrames; }
+
+        /** @return the list of output frames, used from readback(). */
+        const std::vector<Frame*>& getOutputFrames() { return _outputFrames; }
+        //*}
+
+        /**
+         * @name Attributes
+         */
+        //*{
+        // Note: also update string array initialization in channel.cpp
+        enum IAttribute
+        {
+            IATTR_HINT_STATISTICS,
+            IATTR_ALL
+        };
+        
+        int32_t  getIAttribute( const IAttribute attr ) const
+            { return _iAttributes[attr]; }
+        static const std::string&  getIAttributeString( const IAttribute attr )
+            { return _iAttributeStrings[attr]; }
+        //*}
+#if 0
+        /** @name Scene Object Access. */
+        //*{
+        SceneObject* getNextSceneObject();
+        SceneObject* checkNextSceneObject();
+        //void putSceneObject( SceneObject* object );
+        void passSceneObject( SceneObject* object );
+        void flushSceneObjects();
+        //*}
+#endif
+
+    protected:
+        /**
+         * Destructs the channel.
+         */
+        virtual ~Channel();
+
+        /**
          * @name Callbacks
          *
          * The callbacks are called by Equalizer during rendering to execute
@@ -164,69 +227,18 @@ namespace eq
         void applyHeadTransform() const;
         //*}
 
-        /**
-         * @name Context-specific data access.
+        /** @name Error information. */
+        //@{
+        /** 
+         * Set a message why the last operation failed.
          * 
-         * The data returned by these methods depends on the context (callback)
-         * they are called from, typically the data for the current rendering
-         * task.
+         * The message will be transmitted to the originator of the request, for
+         * example to Config::init when set from within the init method.
+         *
+         * @param message the error message.
          */
-        //*{
-        /** @return the channel's current pixel viewport. */
-        const PixelViewport& getPixelViewport() const;
-
-        /** @return the view frustum for the current rendering task. */
-        const vmml::Frustumf& getFrustum() const;
-
-        /** @return the database range for the current rendering task. */
-        const Range& getRange() const;
-
-        /**
-         * @return the modelling transformation to position and orient the view
-         *         frustum.
-         */
-        const vmml::Matrix4f& getHeadTransform() const;
-
-        /** @return the list of input frames, used from assemble(). */
-        const std::vector<Frame*>& getInputFrames() { return _inputFrames; }
-
-        /** @return the list of output frames, used from readback(). */
-        const std::vector<Frame*>& getOutputFrames() { return _outputFrames; }
-        //*}
-
-        /**
-         * @name Attributes
-         */
-        //*{
-        // Note: also update string array initialization in channel.cpp
-        enum IAttribute
-        {
-            IATTR_HINT_STATISTICS,
-            IATTR_ALL
-        };
-        
-        int32_t  getIAttribute( const IAttribute attr ) const
-            { return _iAttributes[attr]; }
-        static const std::string&  getIAttributeString( const IAttribute attr )
-            { return _iAttributeStrings[attr]; }
-        //*}
-#if 0
-        /** @name Scene Object Access. */
-        //*{
-        SceneObject* getNextSceneObject();
-        SceneObject* checkNextSceneObject();
-        //void putSceneObject( SceneObject* object );
-        void passSceneObject( SceneObject* object );
-        void flushSceneObjects();
-        //*}
-#endif
-
-    protected:
-        /**
-         * Destructs the channel.
-         */
-        virtual ~Channel();
-
+        void setErrorMessage( const std::string& message ) { _error = message; }
+        //@}
     private:
         /** The parent node. */
         friend class   Window;
@@ -234,6 +246,9 @@ namespace eq
 
         /** The name. */
         std::string    _name;
+
+        /** The reason for the last error. */
+        std::string            _error;
 
         /** Integer attributes. */
         int32_t _iAttributes[IATTR_ALL];

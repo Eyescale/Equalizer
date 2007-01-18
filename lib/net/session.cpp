@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "session.h"
@@ -23,7 +23,7 @@ using namespace std;
 Session::Session( const bool threadSafe )
         : Base( threadSafe ),
           _id(EQ_ID_INVALID),
-          _server(NULL),
+          _server(0),
           _isMaster(false),
           _masterPool( IDPool::MAX_CAPACITY ),
           _localPool( 0 ),
@@ -331,7 +331,7 @@ void Session::removeRegisteredObject( Object* object,
     object->_id         = EQ_ID_INVALID;
     object->_instanceID = EQ_ID_INVALID;
     object->_policy     = Object::SHARE_UNDEFINED;
-    object->_session    = NULL;
+    object->_session    = 0;
     object->unref();
 }
 
@@ -379,7 +379,7 @@ void Session::registerObject( Object* object, RefPtr<Node> master,
                                        threadSafe );
             // reset pre-staged data to avoid safety asserts during registration
             object->_id      = EQ_ID_INVALID;
-            object->_session = NULL;
+            object->_session = 0;
         }
     }
 
@@ -451,13 +451,13 @@ Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy,
     _sendLocal( packet );
 
     const void* result = _requestHandler.waitRequest( packet.requestID );
-    EQASSERT( result == NULL );
+    EQASSERT( result == 0 );
     EQASSERT( state.nodeConnectRequestID == EQ_ID_INVALID );
 
     if( !state.object )
     {
         EQWARN << "Could not instanciate object" << endl;
-        return NULL;
+        return 0;
     }
 
     EQLOG( LOG_OBJECTS ) << "getObject request ok, id " << id << " v" 
@@ -506,7 +506,7 @@ Object* Session::pollObject( const uint32_t id,
         default:
             EQUNREACHABLE;
     }
-    return NULL;
+    return 0;
 }
 
 Object* Session::instanciateObject( const uint32_t type, const void* data, 
@@ -518,7 +518,7 @@ Object* Session::instanciateObject( const uint32_t type, const void* data,
             return new Barrier( data );
 
         default:
-            return NULL;
+            return 0;
     }
 }
 
@@ -785,7 +785,7 @@ CommandResult Session::_cmdGetIDMasterReply( Command& command )
 
     if( packet->start == 0 ) // not found
     {
-        _requestHandler.serveRequest( packet->requestID, NULL );
+        _requestHandler.serveRequest( packet->requestID, 0 );
         return COMMAND_HANDLED;
     }
 
@@ -793,7 +793,7 @@ CommandResult Session::_cmdGetIDMasterReply( Command& command )
     IDMasterInfo info = { packet->start, packet->end, packet->masterID };
     _idMasterInfos.push_back( info );
 
-    _requestHandler.serveRequest( packet->requestID, NULL );
+    _requestHandler.serveRequest( packet->requestID, 0 );
     return COMMAND_HANDLED;
 }
 
@@ -913,7 +913,7 @@ CommandResult Session::_cmdRegisterObject( Command& command )
     EQASSERT( object );
 
     addRegisteredObject( packet->objectID, object, packet->policy );
-    _requestHandler.serveRequest( packet->requestID, NULL );
+    _requestHandler.serveRequest( packet->requestID, 0 );
     
     return COMMAND_HANDLED;
 }
@@ -930,7 +930,7 @@ CommandResult Session::_cmdUnregisterObject( Command& command )
     EQASSERT( object );
 
     removeRegisteredObject( object, packet->policy );
-    _requestHandler.serveRequest( packet->requestID, NULL );
+    _requestHandler.serveRequest( packet->requestID, 0 );
     
     return COMMAND_HANDLED;
 }
@@ -959,7 +959,7 @@ CommandResult Session::_cmdGetObject( Command& command )
         EQASSERTINFO( !state->threadSafe || state->object->isThreadSafe(), 
                       "Can't make existing object thread safe." );
         _objectInstStates.erase( id );
-        _requestHandler.serveRequest( packet->requestID, NULL );
+        _requestHandler.serveRequest( packet->requestID, 0 );
         return COMMAND_HANDLED;
     }
 
@@ -973,14 +973,14 @@ CommandResult Session::_cmdGetObject( Command& command )
                                  << (void*)object << " ref " 
                                  << object->getRefCount() << endl;
             state->object = object;
-            _requestHandler.serveRequest( packet->requestID, NULL );
+            _requestHandler.serveRequest( packet->requestID, 0 );
             return COMMAND_HANDLED;
         }
     }
 
     if( !state->pending ) // first iteration of instantiation
     {
-        if( _objectInstStates[id] != NULL ) // instantion with same ID pending
+        if( _objectInstStates[id] != 0 ) // instantion with same ID pending
             return COMMAND_REDISPATCH;
 
         EQLOG( LOG_OBJECTS ) << "start object instanciation, id " << id << endl;
@@ -993,7 +993,7 @@ CommandResult Session::_cmdGetObject( Command& command )
     {
         EQLOG( LOG_OBJECTS ) << "error during object instanciation, id " 
                              << id << endl;
-        _requestHandler.serveRequest( packet->requestID, NULL );
+        _requestHandler.serveRequest( packet->requestID, 0 );
         return COMMAND_HANDLED;
     }
     return COMMAND_REDISPATCH;

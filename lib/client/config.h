@@ -139,6 +139,12 @@ namespace eq
          */
         void setHeadMatrix( const vmml::Matrix4f& matrix );
 
+        /** @name Error information. */
+        //@{
+        /** @return the error message from the last operation. */
+        const std::string& getErrorMessage() const { return _error; }
+        //@}
+
     protected:
         virtual eqNet::Object* instanciateObject( const uint32_t type,
                                     const void* data, const uint64_t dataSize );
@@ -154,6 +160,9 @@ namespace eq
 
         /** The Matrix for the movement. */
         Matrix4f* _headMatrix;
+
+        /** The reason for the last error. */
+        std::string            _error;
 
         /** Registers pending commands waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
