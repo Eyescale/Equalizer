@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "client.h"
@@ -44,8 +44,8 @@ eqNet::Session* Client::createSession()
 
 void Client::clientLoop()
 {
-    _used.waitGE( 1 );  // Wait to be used at least once (see Node::_reqInit)
-    _used.waitEQ( 0 );  // Wait to become unused (see Node::_reqExit)
+    _used.waitGE( 1 );  // Wait to be used once (see Server::_cmdCreateConfig)
+    _used.waitEQ( 0 );  // Wait to become unused (see Server::_cmdDestroyConfig)
 
     EQINFO << "Stopping client node" << endl;
     eqNet::NodeStopPacket packet;

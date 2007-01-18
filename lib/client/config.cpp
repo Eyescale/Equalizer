@@ -26,6 +26,8 @@ Config::Config()
 {
     registerCommand( CMD_CONFIG_CREATE_NODE,
                    eqNet::CommandFunc<Config>( this, &Config::_cmdCreateNode ));
+    registerCommand( CMD_CONFIG_DESTROY_NODE,
+                  eqNet::CommandFunc<Config>( this, &Config::_cmdDestroyNode ));
     registerCommand( CMD_CONFIG_INIT_REPLY, 
                     eqNet::CommandFunc<Config>( this, &Config::_cmdInitReply ));
     registerCommand( CMD_CONFIG_EXIT_REPLY, 
@@ -178,6 +180,24 @@ eqNet::CommandResult Config::_cmdCreateNode( eqNet::Command& command )
     
     addRegisteredObject( packet->nodeID, newNode, eqNet::Object::SHARE_NODE );
     _addNode( newNode );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Config::_cmdDestroyNode( eqNet::Command& command ) 
+{
+    const ConfigDestroyNodePacket* packet =
+        command.getPacket<ConfigDestroyNodePacket>();
+    EQINFO << "Handle destroy node " << packet << endl;
+
+    Node* node = static_cast<Node*>( pollObject( packet->nodeID ));
+    if( !node )
+        return eqNet::COMMAND_HANDLED;
+
+    node->_thread->join(); // TODO: Move to node?
+    _removeNode( node );
+    EQASSERT( node->getRefCount() == 1 );
+    removeRegisteredObject( node, eqNet::Object::SHARE_NODE );
+    
     return eqNet::COMMAND_HANDLED;
 }
 

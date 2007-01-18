@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_COMMANDS_H
@@ -15,6 +15,7 @@ namespace eq
         REQ_SERVER_CHOOSE_CONFIG,
         CMD_SERVER_CHOOSE_CONFIG_REPLY,
         CMD_SERVER_CREATE_CONFIG,
+        CMD_SERVER_DESTROY_CONFIG,
         CMD_SERVER_RELEASE_CONFIG,
         REQ_SERVER_RELEASE_CONFIG,
         CMD_SERVER_INIT_CONFIG,
@@ -37,6 +38,7 @@ namespace eq
         REQ_CONFIG_EXIT, // REQ must always follow CMD
         CMD_CONFIG_EXIT_REPLY,
         CMD_CONFIG_CREATE_NODE,
+        CMD_CONFIG_DESTROY_NODE,
         CMD_CONFIG_BEGIN_FRAME,
         REQ_CONFIG_BEGIN_FRAME, // REQ must always follow CMD
         CMD_CONFIG_BEGIN_FRAME_REPLY,

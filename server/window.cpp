@@ -259,7 +259,7 @@ bool eqs::Window::syncInit()
         if( channel->isUsed( ))
             if( !channel->syncInit( ))
             {
-                error += (channel->getErrorMessage() + ' ');
+                error += (' ' + channel->getErrorMessage());
                 success = false;
             }
     }
@@ -270,7 +270,7 @@ bool eqs::Window::syncInit()
         success = false;
 
     _pendingRequestID = EQ_ID_INVALID;
-    _error += (error + ' ');
+    _error += (' ' + error);
 
     if( success )
         _state = STATE_RUNNING;

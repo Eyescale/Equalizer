@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PACKETS_H
@@ -64,6 +64,17 @@ namespace eq
         char          name[8] EQ_ALIGN8;
     };
 
+    struct ServerDestroyConfigPacket : public ServerPacket
+    {
+        ServerDestroyConfigPacket()
+            {
+                command = CMD_SERVER_DESTROY_CONFIG;
+                size    = sizeof( ServerDestroyConfigPacket );
+            }
+
+        uint32_t      configID;
+    };
+
     struct ServerChooseConfigReplyPacket : public ServerPacket
     {
         ServerChooseConfigReplyPacket( const ServerChooseConfigPacket*
@@ -101,6 +112,17 @@ namespace eq
             {
                 command = CMD_CONFIG_CREATE_NODE;
                 size    = sizeof( ConfigCreateNodePacket );
+            }
+
+        uint32_t nodeID;
+    };
+
+    struct ConfigDestroyNodePacket : public ConfigPacket
+    {
+        ConfigDestroyNodePacket()
+            {
+                command = CMD_CONFIG_DESTROY_NODE;
+                size    = sizeof( ConfigDestroyNodePacket );
             }
 
         uint32_t nodeID;

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "config.h"
@@ -615,6 +615,11 @@ bool Config::_exitNodes()
         node->startExit();
     }
 
+    eq::ServerDestroyConfigPacket destroyConfigPacket;
+    destroyConfigPacket.configID  = _id;
+
+    eq::ConfigDestroyNodePacket destroyNodePacket;
+
     bool success = true;
     for( vector<Node*>::const_iterator i = exitingNodes.begin();
          i != exitingNodes.end(); ++i )
@@ -627,6 +632,12 @@ bool Config::_exitNodes()
             EQERROR << "Could not exit cleanly: " << node << endl;
             success = false;
         }
+        
+        destroyNodePacket.nodeID = node->getID();
+        send( netNode, destroyNodePacket );
+
+        if( node != _appNode )
+            netNode->send( destroyConfigPacket );
 
         if( netNode->getState() != eqNet::Node::STATE_STOPPED &&
             node != _appNode )

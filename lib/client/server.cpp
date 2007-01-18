@@ -1,9 +1,10 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "server.h"
 
+#include "client.h"
 #include "config.h"
 #include "configParams.h"
 #include "global.h"
@@ -24,6 +25,8 @@ Server::Server()
 {
     registerCommand( CMD_SERVER_CREATE_CONFIG, 
                eqNet::CommandFunc<Server>( this, &Server::_cmdCreateConfig ));
+    registerCommand( CMD_SERVER_DESTROY_CONFIG, 
+               eqNet::CommandFunc<Server>( this, &Server::_cmdDestroyConfig ));
     registerCommand( CMD_SERVER_CHOOSE_CONFIG_REPLY, 
           eqNet::CommandFunc<Server>( this, &Server::_cmdChooseConfigReply ));
 
@@ -141,7 +144,7 @@ eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Command& command )
     {
         EQASSERT( dynamic_cast<Config*>( session ));
 
-        Config* config = (Config*)session;
+        Config* config = static_cast<Config*>( session );
         config->_appNodeID = packet->appNodeID;
         return eqNet::COMMAND_HANDLED;
     }
@@ -150,6 +153,33 @@ eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Command& command )
     config->_appNodeID = packet->appNodeID;
     localNode->addSession( config, command.getNode(), packet->configID,
                            packet->name );
+
+    EQASSERT( dynamic_cast<Client*>( localNode.get( )));
+    Client* client = static_cast<Client*>( localNode.get( ));
+    client->refUsed();
+
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Server::_cmdDestroyConfig( eqNet::Command& command )
+{
+    const ServerDestroyConfigPacket* packet = 
+        command.getPacket<ServerDestroyConfigPacket>();
+    EQINFO << "Handle destroy config " << packet << endl;
+    
+    RefPtr<Node>    localNode  = Node::getLocalNode();
+    eqNet::Session* session    = localNode->getSession( packet->configID );
+    EQASSERT( session );
+    EQASSERT( dynamic_cast<Config*>( session ));
+
+    Config* config = static_cast<Config*>( session );
+
+    localNode->removeSession( config );
+    delete config;
+
+    EQASSERT( dynamic_cast<Client*>( localNode.get( )));
+    Client* client = static_cast<Client*>( localNode.get( ));
+    client->unrefUsed();
 
     return eqNet::COMMAND_HANDLED;
 }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_SERVER_H
@@ -85,6 +85,7 @@ namespace eq
 
         /* The command handler functions. */
         eqNet::CommandResult _cmdCreateConfig( eqNet::Command& command );
+        eqNet::CommandResult _cmdDestroyConfig( eqNet::Command& command );
         eqNet::CommandResult _cmdChooseConfigReply( eqNet::Command& command );
     };
 

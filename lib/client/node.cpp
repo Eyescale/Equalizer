@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "node.h"
@@ -140,7 +140,6 @@ eqNet::CommandResult Node::_cmdInit( eqNet::Command& command )
     EQINFO << "handle node init (recv) " << command.getPacket<NodeInitPacket>()
            << endl;
 
-    ((eq::Client*)_config->getLocalNode().get())->refUsed();
     _thread->start();
     _pushCommand( command );
     return eqNet::COMMAND_HANDLED;
@@ -169,8 +168,8 @@ eqNet::CommandResult Node::_reqExit( eqNet::Command& command )
     NodeExitReplyPacket reply( packet );
     send( command.getNode(), reply );
 
-    ((eq::Client*)_config->getLocalNode().get())->unrefUsed();
     _thread->exit();
+    EQUNREACHABLE;
     return eqNet::COMMAND_HANDLED;
 }
 
