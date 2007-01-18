@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "config.h"
@@ -39,13 +39,13 @@ Config::Config()
     registerCommand( CMD_CONFIG_EVENT, 
                      eqNet::CommandFunc<Config>( this, &Config::_cmdEvent ));
 
-    _headMatrix = NULL;
+    _headMatrix = 0;
 }
 
 Config::~Config()
 {
     _appNodeID = eqNet::NodeID::ZERO;
-    _appNode   = NULL;
+    _appNode   = 0;
 }
 void Config::_addNode( Node* node )
 {
@@ -54,7 +54,7 @@ void Config::_addNode( Node* node )
 
 void Config::_removeNode( Node* node )
 {
-    node->_config = NULL;
+    node->_config = 0;
 }
 
 bool Config::init( const uint32_t initID )
@@ -189,7 +189,7 @@ eqNet::CommandResult Config::_cmdInitReply( eqNet::Command& command )
 
     if( packet->result )
     {
-        _headMatrix = (Matrix4f*)pollObject( packet->headMatrixID );
+        _headMatrix = static_cast<Matrix4f*>(pollObject( packet->headMatrixID));
         EQASSERT( _headMatrix );
     }
 
@@ -203,8 +203,14 @@ eqNet::CommandResult Config::_cmdExitReply( eqNet::Command& command )
         command.getPacket<ConfigExitReplyPacket>();
     EQINFO << "handle exit reply " << packet << endl;
 
-    _headMatrix = NULL;
+    if( _headMatrix )
+    {
+        EQASSERTINFO( _headMatrix->getRefCount() == 1, 
+                      _headMatrix->getRefCount( ));
 
+        removeRegisteredObject( _headMatrix );  // will delete _headMatrix
+        _headMatrix = 0;
+    }
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;
 }
