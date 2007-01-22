@@ -17,7 +17,8 @@ using namespace eqBase;
 using namespace std;
 
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_CONFIG_") + #attr )
-std::string Config::_fAttributeStrings[FATTR_ALL] = {
+std::string Config::_fAttributeStrings[FATTR_ALL] = 
+{
     MAKE_ATTR_STRING( FATTR_EYE_BASE )
 };
 

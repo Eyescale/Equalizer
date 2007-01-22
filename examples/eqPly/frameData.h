@@ -32,6 +32,7 @@ public:
 
     void reset()
         {
+            _data.translation   = vmml::Vector3f::ZERO;
             _data.translation.z = -1.f;
             _data.rotation = vmml::Matrix4f::IDENTITY;
             _data.rotation.rotateX( -M_PI_2 );
