@@ -72,9 +72,7 @@ bool Server::open( const OpenParams& params )
         return true;
     }
 
-    //if( params.address.size()>0 || getenv("EQ_SERVER"))
     return false;
-
     // TODO: Use app-local server if no server was requested explicitly
 }
 

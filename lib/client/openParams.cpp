@@ -11,9 +11,9 @@ using namespace eq;
 using namespace std;
 
 OpenParams::OpenParams()
-        : address( Global::getServer( ))
+        : address( Global::getServer( )),
+          appName( eqNet::Global::getProgramName( ))
 {
-    appName      = eqNet::Global::getProgramName();
 }
 
 OpenParams& OpenParams::operator = ( const OpenParams& rhs )
@@ -21,6 +21,7 @@ OpenParams& OpenParams::operator = ( const OpenParams& rhs )
     if( this == &rhs )
         return *this;
  
-    appName       = rhs.appName;
+    address = rhs.address;
+    appName = rhs.appName;
     return *this;
 }

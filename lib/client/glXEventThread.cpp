@@ -250,7 +250,7 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
                 break;
             }
 
-            // TODO: create channel event
+            // TODO: create channel event?
             case MotionNotify:
                 event.type = WindowEvent::TYPE_POINTER_MOTION;
                 event.pointerMotion.x = xEvent.xmotion.x;
@@ -295,8 +295,9 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
                 break;
                 
             default:
+                event.type = WindowEvent::TYPE_UNHANDLED;
                 EQWARN << "Unhandled X event" << endl;
-                continue;
+                break;
         }
         event.window->processEvent( event );
     }

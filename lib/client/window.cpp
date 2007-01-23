@@ -822,6 +822,10 @@ void eq::Window::processEvent( const WindowEvent& event )
             configEvent.keyRelease.key = event.keyRelease.key;
             break;
 
+        case WindowEvent::TYPE_UNHANDLED:
+            // Handle window-system native event here
+            return;
+
         default:
             EQWARN << "Unhandled window event of type " << event.type << endl;
             EQUNIMPLEMENTED;

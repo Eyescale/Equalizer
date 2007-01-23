@@ -1,4 +1,4 @@
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_WINDOWEVENT_H
@@ -21,7 +21,8 @@ namespace eq
             TYPE_POINTER_BUTTON_PRESS,
             TYPE_POINTER_BUTTON_RELEASE,
             TYPE_KEY_PRESS,
-            TYPE_KEY_RELEASE
+            TYPE_KEY_RELEASE,
+            TYPE_UNHANDLED
         };
 
         Type    type;
