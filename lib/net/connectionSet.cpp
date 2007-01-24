@@ -219,14 +219,13 @@ ConnectionSet::Event ConnectionSet::_handleSelfCommand()
             // TODO: decrease timeout accordingly.
             EQINFO << "FD set modified, restarting select" << endl;
             return EVENT_NONE; // handled
-            break;
 
         case SELF_INTERRUPT:
             return EVENT_INTERRUPT;
-            break;
 
         default:
             EQUNIMPLEMENTED;
+            return EVENT_NONE;
     }
 }
 
