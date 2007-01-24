@@ -1,10 +1,11 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_RENDERCONTEXT_H
 #define EQ_RENDERCONTEXT_H
 
+#include <eq/base/base.h>
 #include <eq/client/pixelViewport.h>
 #include <eq/client/range.h>
 #include <eq/vmmlib/VMMLib.h>
@@ -25,7 +26,8 @@ namespace eq
         vmml::Matrix4f headTransform; //<! frustum transform for modelview
     };
 
-    std::ostream& operator << ( std::ostream& os, const RenderContext& ctx );
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+                                          const RenderContext& ctx );
 }
 
 #endif // EQ_RENDERCONTEXT_H

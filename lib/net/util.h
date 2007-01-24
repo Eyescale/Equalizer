@@ -1,17 +1,22 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_UTIL_H
 #define EQNET_UTIL_H
 
-#include <sys/param.h>
+#include <eq/base/base.h>
+
+#ifdef WIN32
+#  define MAXHOSTNAMELEN 255
+#else
+#  include <sys/param.h>
+#endif
 
 namespace eqNet
 {
     namespace priv
     {
-
         /** 
          * Utility functions for the networking layer.
          */
@@ -28,7 +33,7 @@ namespace eqNet
              */
             static void parseAddress( const char* address, 
                                       char hostname[MAXHOSTNAMELEN], 
-                                      ushort &port );
+                                      uint16_t &port );
         };
     }
 }

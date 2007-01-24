@@ -10,6 +10,7 @@
 #include <eq/client/node.h>
 #include <eq/client/pixelViewport.h>
 #include <eq/client/statEvent.h>
+#include <eq/client/x11Connection.h>
 #include <eq/client/windowSystem.h>
 
 #include <eq/base/refPtr.h>
@@ -23,7 +24,7 @@ namespace eq
     class Window;
     class X11Connection;
 
-    class Pipe : public eqNet::Object
+    class EQ_EXPORT Pipe : public eqNet::Object
     {
     public:
         /** 
@@ -106,7 +107,7 @@ namespace eq
         void setXDisplay( Display* display );
 
         /** @return the X display connection for this pipe. */
-        Display* getXDisplay() const;
+        Display* getXDisplay() const { return _xDisplay; }
 
         /** 
          * Set the X display connection for event processing
@@ -118,7 +119,8 @@ namespace eq
         void setXEventConnection( eqBase::RefPtr<X11Connection> connection );
 
         /** @return the X event display connection for this pipe. */
-        eqBase::RefPtr<X11Connection> getXEventConnection() const;
+        eqBase::RefPtr<X11Connection> getXEventConnection() const
+            { return _xEventConnection; }
 
         /** 
          * Set the CGL display ID for this pipe.
@@ -133,7 +135,24 @@ namespace eq
          * Returns the CGL display ID for this pipe.
          * @return the CGL display ID for this pipe.
          */
-        CGDirectDisplayID getCGLDisplayID() const;
+        CGDirectDisplayID getCGLDisplayID() const { return _cglDisplayID; }
+
+        /** 
+         * Set the Win32 device context for this pipe.
+         * 
+         * This function should only be called from init() or exit(). Updates
+         * the pixel viewport.
+         *
+         * @param dc the device context for this pipe.
+         * @param deleteDC true if the dc has to be deleted using DeleteDC().
+         */
+        void setDC( HDC dc, bool deleteDC );
+
+        /** @return the Win32 device context for this pipe. */
+        HDC getDC() const { return _dc; }
+
+        /** @return the Win32 device context for this pipe. */
+        bool needsDCDelete() const { return _dcDelete; }
 
         /** @return the time in ms elapsed since the frame started. */
         float getFrameTime() const { return _frameClock.getTimef(); }
@@ -198,6 +217,7 @@ namespace eq
         virtual bool init( const uint32_t initID );
         virtual bool initGLX();
         virtual bool initCGL();
+        virtual bool initWGL();
 
         /** 
          * Exit this pipe.
@@ -205,6 +225,7 @@ namespace eq
         virtual bool exit();
         virtual void exitGLX();
         virtual void exitCGL();
+        virtual void exitWGL();
 
         /**
          * Start rendering a frame.
@@ -262,15 +283,16 @@ namespace eq
         {
             Display* _xDisplay;
             CGDirectDisplayID _cglDisplayID;
-            char _displayFill[8];
+            struct
+            {
+                HDC  _dc;
+                bool _dcDelete;
+            };
+            char _displayFill[16];
         };
 
-#ifdef GLX
         /** The X event display connection. */
         eqBase::RefPtr<X11Connection>     _xEventConnection;
-#else
-        eqBase::RefPtr<eqNet::Connection> _xEventConnection;        
-#endif
 
         /** The display (GLX, CGL) or ignored (Win32). */
         uint32_t _display;

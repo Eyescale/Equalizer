@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 %{
@@ -131,7 +131,7 @@
     int                     _int;
     unsigned                _unsigned;
     float                   _float;
-    eqNet::Connection::Type _connectionType;
+    eqNet::ConnectionType   _connectionType;
     float                   _viewport[4];
 }
 
@@ -229,7 +229,7 @@ global:
              eq::Channel::IATTR_HINT_STATISTICS, $2 );
      }
 
-connectionType: EQTOKEN_TCPIP { $$ = eqNet::Connection::TYPE_TCPIP; };
+connectionType: EQTOKEN_TCPIP { $$ = eqNet::CONNECTIONTYPE_TCPIP; };
 
 server: EQTOKEN_SERVER '{' { server = loader->createServer(); }
         configs '}'
@@ -526,6 +526,7 @@ eqs::Server* eqs::Loader::loadConfig( const string& filename )
 
     server      = 0;
     bool retval = true;
+
     if( eqLoader_parse() )
         retval = false;
 

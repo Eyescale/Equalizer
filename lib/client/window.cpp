@@ -15,6 +15,9 @@
 #include "object.h"
 #include "packets.h"
 #include "windowEvent.h"
+#ifdef WIN32
+#  include "wglEventHandler.h"
+#endif
 
 #include <eq/net/barrier.h>
 #include <eq/net/command.h>
@@ -24,7 +27,7 @@ using namespace eqBase;
 using namespace std;
 
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_WINDOW_") + #attr )
-std::string eq::Window::_iAttributeStrings[IATTR_ALL] = {
+EQ_EXPORT std::string eq::Window::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_HINT_STEREO ),
     MAKE_ATTR_STRING( IATTR_HINT_DOUBLEBUFFER ),
     MAKE_ATTR_STRING( IATTR_HINT_FULLSCREEN ),
@@ -74,11 +77,15 @@ eq::Window::Window()
                      eqNet::CommandFunc<Window>( this, &Window::_reqEndFrame));
 
 #ifdef GLX
-    _xDrawable = 0;
+    _xDrawable  = 0;
     _glXContext = 0;
 #endif
 #ifdef CGL
     _cglContext = 0;
+#endif
+#ifdef WGL
+    _wglWindowHandle = 0;
+    _wglContext      = 0;
 #endif
 }
 
@@ -168,10 +175,9 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Command& command )
         return eqNet::COMMAND_HANDLED;
     }
 
-    const WindowSystem windowSystem =  _pipe->getWindowSystem();
+    const WindowSystem windowSystem = _pipe->getWindowSystem();
     switch( windowSystem )
     {
-#ifdef GLX
         case WINDOW_SYSTEM_GLX:
             if( !_xDrawable || !_glXContext )
             {
@@ -182,8 +188,7 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Command& command )
                 return eqNet::COMMAND_HANDLED;
             }
             break;
-#endif
-#ifdef CGL
+
         case WINDOW_SYSTEM_CGL:
             if( !_cglContext )
             {
@@ -194,7 +199,17 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Command& command )
             }
             // TODO: pvp
             break;
-#endif
+
+        case WINDOW_SYSTEM_WGL:
+            if( !_wglWindowHandle || !_wglContext )
+            {
+                EQERROR << "init() did not provide a window handle and context" 
+                        << endl;
+                reply.result = false;
+                send( node, reply );
+                return eqNet::COMMAND_HANDLED;
+            }
+            break;
 
         default: EQUNIMPLEMENTED;
     }
@@ -359,6 +374,12 @@ bool eq::Window::init( const uint32_t initID )
         case WINDOW_SYSTEM_CGL:
             if( !initCGL( ))
                 return false;
+            break;
+
+        case WINDOW_SYSTEM_WGL:
+            if( !initWGL( ))
+                return false;
+            break;
 
         default:
             EQERROR << "Unknown windowing system: " << windowSystem << endl;
@@ -405,7 +426,6 @@ bool eq::Window::initGLX()
     }
 
     int screen = DefaultScreen( display );
-    XID parent = RootWindow( display, screen );
 
     vector<int> attributes;
     attributes.push_back( GLX_RGBA );
@@ -449,6 +469,7 @@ bool eq::Window::initGLX()
 
     if( !visInfo && getIAttribute( IATTR_HINT_STEREO ) == AUTO )
     {        
+        EQINFO << "Stereo not available, requesting mono visual" << endl;
         vector<int>::iterator iter = find( attributes.begin(), attributes.end(),
                                            GLX_STEREO );
         attributes.erase( iter );
@@ -456,6 +477,8 @@ bool eq::Window::initGLX()
     }
     if( !visInfo && getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
     {        
+        EQINFO << "Doublebuffer not available, requesting singlebuffered visual" 
+               << endl;
         vector<int>::iterator iter = find( attributes.begin(), attributes.end(),
                                            GLX_DOUBLEBUFFER );
         attributes.erase( iter );
@@ -501,16 +524,17 @@ bool eq::Window::initGLX()
         return false;
     }   
    
-    XStoreName( display, drawable, 
-                _name.size() > 0 ? _name.c_str() : "Equalizer" );
+    XStoreName( display, drawable,_name.empty() ? "Equalizer" : _name.c_str( ));
 
     // map and wait for MapNotify event
     XMapWindow( display, drawable );
-    XEvent event;
 
+    XEvent event;
     XIfEvent( display, &event, WaitForNotify, (XPointer)(drawable) );
+
     XMoveResizeWindow( display, drawable, _pvp.x, _pvp.y, _pvp.w, _pvp.h );
     XFlush( display );
+    setXDrawable( drawable );
 
     // create context
     Pipe*      pipe        = getPipe();
@@ -526,7 +550,6 @@ bool eq::Window::initGLX()
 
     glXMakeCurrent( display, drawable, context );
 
-    setXDrawable( drawable );
     setGLXContext( context );
     EQINFO << "Created X11 drawable " << drawable << ", glX context "
            << context << endl;
@@ -634,6 +657,164 @@ bool eq::Window::initCGL()
 #endif
 }
 
+bool eq::Window::initWGL()
+{
+#ifdef WGL
+    // window class
+    HINSTANCE instance = GetModuleHandle( 0 );
+    WNDCLASS  wc;
+    wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;                          
+    wc.lpfnWndProc   = WGLEventHandler::wndProc;    
+    wc.cbClsExtra    = 0;                     
+    wc.cbWndExtra    = 0;                  
+    wc.hInstance     = instance; 
+    wc.hIcon         = LoadIcon( NULL, IDI_WINLOGO );
+    wc.hCursor       = LoadCursor( NULL, IDC_ARROW );
+    wc.hbrBackground = NULL;                       
+    wc.lpszMenuName  = NULL;             
+    wc.lpszClassName =  _name.empty() ? "Equalizer" : _name.c_str();       
+
+    if( !RegisterClass( &wc ))
+    {
+        setErrorMessage( "Can't register window class" );
+	    return false;
+    }
+
+    if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON )
+    {
+        DEVMODE deviceMode = {0};
+        deviceMode.dmSize = sizeof( DEVMODE );
+        EnumDisplaySettings( 0, ENUM_CURRENT_SETTINGS, &deviceMode );
+
+        if( ChangeDisplaySettings( &deviceMode, CDS_FULLSCREEN ) != 
+            DISP_CHANGE_SUCCESSFUL )
+        {
+            setErrorMessage( "Can't switch to fullscreen mode" );
+	        return false;
+        }
+    }
+#if 0
+        if( getIAttribute( IATTR_HINT_DECORATION ) != OFF )
+        wa.override_redirect = False;
+    else
+        wa.override_redirect = True;
+        
+        wa.override_redirect = True;
+        _pvp.h = DisplayHeight( display, screen );
+        _pvp.w = DisplayWidth( display, screen );
+        _pvp.x = 0;
+        _pvp.y = 0;
+    }
+#endif
+
+    // window
+    DWORD windowStyleEx = WS_EX_APPWINDOW;
+    DWORD windowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW;
+    HWND hWnd = CreateWindowEx( windowStyleEx,
+                                wc.lpszClassName, wc.lpszClassName, // title
+                  	            windowStyle, _pvp.x, _pvp.y, _pvp.w, _pvp.h,
+                                0, 0, // parent, menu
+                                instance, 0 );
+
+    if( !hWnd )
+    {
+        setErrorMessage( "Can't create window" );
+	    return false;
+    }
+
+    setWGLWindowHandle( hWnd );
+    ShowWindow( hWnd, SW_SHOW );
+    UpdateWindow( hWnd );
+
+    // pixel format
+    HDC                   dc  = GetDC( hWnd );
+    PIXELFORMATDESCRIPTOR pfd = {0};
+    pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
+    pfd.nVersion     = 1;
+    pfd.dwFlags      = PFD_DRAW_TO_WINDOW |
+                       PFD_SUPPORT_OPENGL;
+    pfd.iPixelType   = PFD_TYPE_RGBA;
+
+    const int colorSize = getIAttribute( IATTR_PLANES_COLOR );
+    if( colorSize > 0 || colorSize == AUTO )
+        pfd.cColorBits = colorSize>0 ? colorSize : 1;
+
+    const int alphaSize = getIAttribute( IATTR_PLANES_ALPHA );
+    if( alphaSize > 0 || alphaSize == AUTO )
+        pfd.cAlphaBits = alphaSize>0 ? alphaSize : 1;
+
+    const int depthSize = getIAttribute( IATTR_PLANES_DEPTH );
+    if( depthSize > 0  || depthSize == AUTO )
+        pfd.cDepthBits = depthSize>0 ? depthSize : 1;
+
+    const int stencilSize = getIAttribute( IATTR_PLANES_STENCIL );
+    if( stencilSize >0 || depthSize == AUTO )
+        pfd.cStencilBits = stencilSize>0 ? stencilSize : 1;
+
+    if( getIAttribute( IATTR_HINT_STEREO ) != OFF )
+        pfd.dwFlags |= PFD_STEREO;
+    if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) != OFF )
+        pfd.dwFlags |= PFD_DOUBLEBUFFER;
+
+    int pf = ChoosePixelFormat( dc, &pfd );
+
+    if( pf == 0 && getIAttribute( IATTR_HINT_STEREO ) == AUTO )
+    {        
+        EQINFO << "Stereo not available, requesting mono visual" << endl;
+        pfd.dwFlags |= PFD_STEREO_DONTCARE;
+        pf = ChoosePixelFormat( dc, &pfd );
+    }
+
+    if( pf == 0 && getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
+    {        
+        EQINFO << "Doublebuffer not available, requesting singlebuffered visual" 
+               << endl;
+        pfd.dwFlags |= PFD_DOUBLEBUFFER_DONTCARE;
+        pf = ChoosePixelFormat( dc, &pfd );
+    }
+
+    if( pf == 0 )
+    {
+        setErrorMessage( "Can't find matching pixel format" );
+        ReleaseDC( hWnd, dc );
+	    return false;
+    }
+ 
+    if( !SetPixelFormat( dc, pf, &pfd ))
+    {
+        setErrorMessage( "Can't set pixel format" );
+        ReleaseDC( hWnd, dc );
+	    return false;
+    }
+
+    // context
+    HGLRC context = wglCreateContext( dc );
+    if( !context )
+    {
+        setErrorMessage( "Can't create OpenGL context" );
+	    return false;
+    }
+
+    wglMakeCurrent( dc, context );
+
+    Pipe*    pipe        = getPipe();
+    Window*  firstWindow = pipe->getWindow(0);
+    HGLRC    shareCtx    = firstWindow->getWGLContext();
+
+    if( shareCtx && !wglShareLists( shareCtx, context ))
+        EQWARN << "Context sharing faile: " << getErrorString( GetLastError( ))
+               << endl;
+
+    setWGLContext( context );
+    ReleaseDC( hWnd, dc );
+
+    EQINFO << "Created WGL context " << context << endl;
+    return true;
+#else
+    return false;
+#endif
+}
+
 //----------------------------------------------------------------------
 // exit
 //----------------------------------------------------------------------
@@ -648,6 +829,10 @@ bool eq::Window::exit()
 
         case WINDOW_SYSTEM_CGL:
             exitCGL();
+            return false;
+
+        case WINDOW_SYSTEM_WGL:
+            exitWGL();
             return false;
 
         default:
@@ -672,8 +857,7 @@ void eq::Window::exitGLX()
     if( drawable )
         XDestroyWindow( display, drawable );
     setXDrawable( 0 );
-    EQINFO << "Destroyed GLX context " << context << " and X drawable "
-           << drawable << endl;
+    EQINFO << "Destroyed GLX context and X drawable " << endl;
 #endif
 }
 
@@ -689,10 +873,33 @@ void eq::Window::exitCGL()
     CGLSetCurrentContext( 0 );
     CGLClearDrawable( context );
     CGLDestroyContext ( context );       
-    EQINFO << "Destroyed CGL context " << context << endl;
+    EQINFO << "Destroyed CGL context" << endl;
 #endif
 }
 
+void eq::Window::exitWGL()
+{
+#ifdef WGL
+    wglMakeCurrent( 0, 0 );
+
+    HGLRC context = getWGLContext();
+    if( context )
+        wglDeleteContext( context );
+
+    setWGLContext( 0 );
+
+    HWND hWnd = getWGLWindowHandle();
+    if( hWnd )
+        DestroyWindow( hWnd );
+
+    setWGLWindowHandle( 0 );
+
+    if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON )
+        ChangeDisplaySettings( 0, 0 );
+
+    EQINFO << "Destroyed WGL context and window" << endl;
+#endif
+}
 
 void eq::Window::setXDrawable( XID drawable )
 {
@@ -739,19 +946,53 @@ void eq::Window::setCGLContext( CGLContextObj context )
 #endif // CGL
 }
 
+
+void eq::Window::setWGLWindowHandle( HWND handle )
+{
+#ifdef WGL
+    _wglWindowHandle = handle;
+
+    if( !handle )
+    {
+        _pvp.reset();
+        return;
+    }
+
+    // query pixel viewport of window
+    WINDOWINFO windowInfo;
+    windowInfo.cbSize = sizeof( windowInfo );
+
+    GetWindowInfo( handle, &windowInfo );
+
+    _pvp.x = windowInfo.rcWindow.left;
+    _pvp.y = windowInfo.rcWindow.top;
+    _pvp.w = windowInfo.rcWindow.right  - windowInfo.rcWindow.left;
+    _pvp.h = windowInfo.rcWindow.bottom - windowInfo.rcWindow.top;
+#endif // WGL
+}
+
 void eq::Window::makeCurrent()
 {
     switch( _pipe->getWindowSystem( ))
     {
-        case WINDOW_SYSTEM_GLX:
 #ifdef GLX
+        case WINDOW_SYSTEM_GLX:
             glXMakeCurrent( _pipe->getXDisplay(), _xDrawable, _glXContext );
-#endif
             break;
-
+#endif
+#ifdef CGL
         case WINDOW_SYSTEM_CGL:
             EQUNIMPLEMENTED;
             break;
+#endif
+#ifdef WGL
+        case WINDOW_SYSTEM_WGL:
+        {
+            HDC dc = GetDC( _wglWindowHandle );
+            wglMakeCurrent( dc, _wglContext );
+            ReleaseDC( _wglWindowHandle, dc );
+        } break;
+#endif
 
         default: EQUNIMPLEMENTED;
     }
@@ -761,16 +1002,25 @@ void eq::Window::swapBuffers()
 {
     switch( _pipe->getWindowSystem( ))
     {
-        case WINDOW_SYSTEM_GLX:
 #ifdef GLX
+        case WINDOW_SYSTEM_GLX:
             glXSwapBuffers( _pipe->getXDisplay(), _xDrawable );
-#endif
             break;
-        case WINDOW_SYSTEM_CGL:
+#endif
 #ifdef CGL
+        case WINDOW_SYSTEM_CGL:
             CGLFlushDrawable( _cglContext );
-#endif
             break;
+#endif
+#ifdef WGL
+        case WINDOW_SYSTEM_WGL:
+        {
+            HDC dc = GetDC( _wglWindowHandle );
+            SwapBuffers( dc );
+            ReleaseDC( _wglWindowHandle, dc );
+        } break;
+#endif
+
         default: EQUNIMPLEMENTED;
     }
     EQVERB << "----- SWAP -----" << endl;
@@ -780,18 +1030,18 @@ void eq::Window::swapBuffers()
 // event-thread methods
 //======================================================================
 
-void eq::Window::processEvent( const WindowEvent& event )
+bool eq::Window::processEvent( const WindowEvent& event )
 {
     ConfigEvent configEvent;
     switch( event.type )
     {
         case WindowEvent::TYPE_EXPOSE:
-            return;
+            return true;
 
         case WindowEvent::TYPE_RESIZE:
             setPixelViewport( PixelViewport( event.resize.x, event.resize.y, 
                                              event.resize.w, event.resize.h ));
-            return;
+            return true;
 
         case WindowEvent::TYPE_POINTER_MOTION:
             configEvent.type          = ConfigEvent::TYPE_POINTER_MOTION;
@@ -810,21 +1060,21 @@ void eq::Window::processEvent( const WindowEvent& event )
 
         case WindowEvent::TYPE_KEY_PRESS:
             if( event.keyPress.key == KC_VOID )
-                return;
+                return true; //ignore
             configEvent.type         = ConfigEvent::TYPE_KEY_PRESS;
             configEvent.keyPress.key = event.keyPress.key;
             break;
                 
         case WindowEvent::TYPE_KEY_RELEASE:
             if( event.keyPress.key == KC_VOID )
-                return;
+                return true; // ignore
             configEvent.type           = ConfigEvent::TYPE_KEY_RELEASE;
             configEvent.keyRelease.key = event.keyRelease.key;
             break;
 
         case WindowEvent::TYPE_UNHANDLED:
             // Handle window-system native event here
-            return;
+            return false;
 
         default:
             EQWARN << "Unhandled window event of type " << event.type << endl;
@@ -833,4 +1083,5 @@ void eq::Window::processEvent( const WindowEvent& event )
     
     Config* config = getConfig();
     config->sendEvent( configEvent );
+    return true;
 }

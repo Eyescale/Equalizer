@@ -14,12 +14,12 @@
 
 namespace eq
 {
-    class ConfigEvent;
     class Node;
     class SceneObject;
     class Server;
+    struct ConfigEvent;
 
-    class Config : public eqNet::Session
+    class EQ_EXPORT Config : public eqNet::Session
     {
     public:
         /** 

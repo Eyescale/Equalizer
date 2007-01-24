@@ -5,14 +5,11 @@
 #ifndef EQ_WINDOWSYSTEM_H
 #define EQ_WINDOWSYSTEM_H
 
+#include <eq/base/base.h>
+
 #ifdef GLX
-#ifdef WIN32
-#  include "win32_x11.h"
-#  include "win32_glx.h"
-#else
 #  include <X11/Xlib.h>
 #  include <GL/glx.h>
-#endif
 #endif
 #ifdef CGL
 #  if defined(__i386__) // WAR compile error
@@ -23,6 +20,14 @@
 #  include <OpenGL/OpenGL.h>
 #  include <OpenGL/gl.h>
 #  undef Cursor
+#endif
+#ifdef WGL
+#  include <wingdi.h>
+#  include <gl/GL.h>
+#endif
+
+#ifndef GL_TEXTURE_3D
+#  define 	GL_TEXTURE_3D   0x806F
 #endif
 
 #ifndef GLX
@@ -35,7 +40,11 @@ typedef void* GLXContext;
 typedef int32_t CGDirectDisplayID;
 typedef void*   CGLContextObj;
 #endif
-
+#ifndef WGL
+typedef void* HDC
+typedef void* HWND
+typedef void* HGLRC
+#endif
 
 namespace eq
 {
@@ -44,6 +53,7 @@ namespace eq
         WINDOW_SYSTEM_NONE = 0, // must be first
         WINDOW_SYSTEM_GLX,
         WINDOW_SYSTEM_CGL,
+        WINDOW_SYSTEM_WGL,
         WINDOW_SYSTEM_ALL      // must be last
     };
 }

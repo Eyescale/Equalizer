@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_BASE_H
@@ -7,12 +7,35 @@
 
 #include <eq/base/defines.h>
 
-#include <eq/base/log.h>
+#ifdef WIN32
+#  define _USE_MATH_DEFINES
+#  define _WIN32_WINNT 0x500
+#  include <Winsock2.h>
+#  include <Windows.h>
+#  define MAX __max
+#  define MIN __min
+#  define EQ_DLLEXPORT __declspec(dllexport) 
+#  define EQ_DLLIMPORT __declspec(dllimport)
+#  ifdef EQUALIZER_EXPORTS
+#    define EQ_EXPORT EQ_DLLEXPORT
+#    define EQ_STLEXTERN 
+#  else
+#    define EQ_EXPORT EQ_DLLIMPORT
+#    define EQ_STLEXTERN extern
+#  endif
+#else
+#  define EQ_DLLEXPORT
+#  define EQ_DLLIMPORT
+#  define EQ_EXPORT
+#endif
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include <sys/types.h>
+#ifndef WIN32
+#  include <cstdint>
+#endif
 
 // type definitions
 #ifdef sgi
@@ -26,97 +49,20 @@ typedef int socklen_t;
 extern char **environ;
 #endif
 
+#ifdef WIN32
+typedef UINT64     uint64_t;
+typedef INT64      int64_t;
+typedef UINT32     uint32_t;
+typedef INT32      int32_t;
+typedef UINT16     uint16_t;
+typedef UINT8      uint8_t;
+typedef int        socklen_t;
+typedef SSIZE_T    ssize_t;
+#endif
+
 // defines
 #define EQ_UNDEFINED_UINT32   (0xffffffff)
 //#define EQ_UNDEFINED_INT32    (0x7fffffff)
-#define EQ_TIMEOUT_INDEFINITE (0)
+#define EQ_TIMEOUT_INDEFINITE 0
 
-// assertions
-#ifdef NDEBUG
-
-#  define EQASSERT(x) { if( !(x) )                                 \
-        EQERROR << "##### Assert: " << #x << " #####" << std::endl \
-                << eqBase::forceFlush; }
-#  define EQASSERTINFO(x, info) { if( !(x) )                            \
-            EQERROR << "##### Assert: " << #x << " [" << info << "] #####" \
-                    << std::endl << eqBase::forceFlush; }
-#  define EQUNIMPLEMENTED { EQERROR << "Unimplemented code for "        \
-                                    << typeid(*this).name() << std::endl \
-                                    << eqBase::forceFlush; }
-#  define EQUNREACHABLE   { EQERROR << "Unreachable code for "          \
-                                    << typeid(*this).name() << std::endl \
-                                    << eqBase::forceFlush; }
-
-#else
-
-#  define EQASSERT(x) { if( !(x) )                                      \
-    { EQERROR << "Assert: " << #x << std::endl << eqBase::forceFlush;   \
-        ::abort(); }}
-#  define EQASSERTINFO(x, info) { if( !(x) )                            \
-        {                                                               \
-            EQERROR << "Assert: " << #x << " [" << info << "]" << std::endl \
-                    << eqBase::forceFlush;                              \
-            ::abort();                                                  \
-        }}
-#  define EQUNIMPLEMENTED                                               \
-    { EQERROR << "Unimplemented code in " << typeid(*this).name()       \
-              << std::endl << eqBase::forceFlush;                       \
-        ::abort(); }
-#  define EQUNREACHABLE                                          \
-    { EQERROR << "Unreachable code in " << typeid(*this).name()  \
-              << std::endl << eqBase::forceFlush;                \
-        ::abort(); }
-
-#endif
-
-// thread-safety checks
-// These checks are for development purposes, to check that certain objects are
-// properly used within the framework. Leaving them enabled during application
-// developement may cause false positives, e.g. when threadsafety is ensured
-// outside of the objects by the application.
-
-#ifdef EQ_CHECK_THREADSAFETY
-#  define CHECK_THREAD_DECLARE( NAME )                    \
-    struct NAME ## Struct                                 \
-    {                                                     \
-        NAME ## Struct () : id( 0 ), extMutex( false ) {} \
-        mutable pthread_t id;                             \
-        bool extMutex;                                    \
-    } NAME;
-#  define CHECK_THREAD( NAME )                                          \
-    {                                                                   \
-        if( NAME.id==0 )                                                \
-        {                                                               \
-            NAME.id = pthread_self();                                   \
-            EQVERB << "Functions for " << #NAME                         \
-                   << " locked to this thread" << std::endl;            \
-        }                                                               \
-        if( !NAME.extMutex && !pthread_equal( NAME.id, pthread_self( ))) \
-        {                                                               \
-            EQERROR << "Threadsafety check for " << #NAME               \
-                    << " failed on object of type "                     \
-                    << typeid(*this).name() << endl;                    \
-            EQASSERTINFO( 0, "Non-threadsave code called from two threads" ); \
-        }                                                               \
-    }
-
-#  define CHECK_NOT_THREAD( NAME )                                      \
-    {                                                                   \
-        if( !NAME.extMutex && NAME.id )                                 \
-        {                                                               \
-            if( pthread_equal( NAME.id, pthread_self( )))               \
-            {                                                           \
-                EQERROR << "Threadsafety check for not " << #NAME       \
-                        << " failed on object of type "                 \
-                        << typeid(*this).name() << endl;                \
-                EQASSERTINFO( 0, "Code called from wrong thread" );     \
-            }                                                           \
-        }                                                               \
-    }
-#else
-#  define CHECK_THREAD_DECLARE( NAME )
-#  define CHECK_THREAD( NAME )
-#  define CHECK_NOT_THREAD( NAME )
-#endif
-    
 #endif //EQBASE_BASE_H

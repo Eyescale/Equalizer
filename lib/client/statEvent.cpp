@@ -1,10 +1,11 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "statEvent.h"
+#include "node.h"
 
-std::string eq::StatEvent::typeNames[TYPE_ALL] = 
+EQ_EXPORT std::string eq::StatEvent::typeNames[TYPE_ALL] = 
 {
     std::string( "channel clear     " ),
     std::string( "channel draw      " ),

@@ -2,10 +2,10 @@
 /* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQNET_CONNECTION_DESCRIPTION_H
-#define EQNET_CONNECTION_DESCRIPTION_H
+#ifndef EQNET_CONNECTIONDESCRIPTION_H
+#define EQNET_CONNECTIONDESCRIPTION_H
 
-#include <eq/net/connection.h>
+#include <eq/net/connectionType.h>
 
 #include <eq/base/base.h>
 #include <eq/base/referenced.h>
@@ -17,11 +17,11 @@ namespace eqNet
      *
      * @sa Node
      */
-    class ConnectionDescription : public eqBase::Referenced
+    class EQ_EXPORT ConnectionDescription : public eqBase::Referenced
     {
     public:
         ConnectionDescription() 
-                : type( Connection::TYPE_TCPIP ),
+                : type( CONNECTIONTYPE_TCPIP ),
                   bandwidthKBS( 0 ),
                   launchTimeout( 10000 )
             {
@@ -29,7 +29,7 @@ namespace eqNet
             }
 
         /** The network protocol for the connection. */
-        Connection::Type type;
+        ConnectionType type;
 
         ///** The bandwidth in kilobyte per second for this connection. */
         uint64_t bandwidthKBS;
@@ -60,7 +60,7 @@ namespace eqNet
             struct
             {
                 /** The listening port. */
-                ushort port;
+                uint16_t port;
 
             } TCPIP;
             

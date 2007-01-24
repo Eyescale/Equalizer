@@ -177,31 +177,6 @@ namespace eqs
         void releaseBarrier( eqNet::Barrier* barrier );
         //*}
 
-        /**
-         * @name Attributes
-         */
-        //*{
-        enum SAttribute
-        {
-            SATTR_ALL
-        };
-
-        enum IAttribute
-        {
-            IATTR_ALL
-        };
-
-        void setSAttribute( const SAttribute attr, const std::string& value )
-            { _sAttributes[attr] = value; }
-        const std::string& getSAttribute( const SAttribute attr ) const
-            { return _sAttributes[attr]; }
-
-        void setIAttribute( const IAttribute attr, const int32_t value )
-            { _iAttributes[attr] = value; }
-        int32_t  getIAttribute( const IAttribute attr ) const
-            { return _iAttributes[attr]; }
-        //*}
-
         /** @sa eqNet::Object::send */
         bool send( eqNet::ObjectPacket& packet )
             { return eqNet::Object::send( _node, packet ); }
@@ -265,12 +240,6 @@ namespace eqs
 
         /** The network node on which this Equalizer node is running. */
         eqBase::RefPtr<eqNet::Node> _node;
-
-        /** String attributes. */
-        std::string _sAttributes[SATTR_ALL];
-
-        /** Int attributes. */
-        int32_t _iAttributes[IATTR_ALL];
 
         /** The list of descriptions on how this node is reachable. */
         std::vector< eqBase::RefPtr<eqNet::ConnectionDescription> >

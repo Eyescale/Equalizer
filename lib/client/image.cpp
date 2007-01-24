@@ -1,12 +1,14 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "image.h"
+
+#include "frame.h"
 #include "log.h"
+#include "windowSystem.h"
 
-#include <eq/client/windowSystem.h>
-
+#include <eq/net/node.h>
 #include <fstream>
 
 using namespace eq;
@@ -378,6 +380,9 @@ void Image::writeImages( const std::string& filenameTemplate ) const
 #define SWAP_INT(v)   ( v = (v&0xff) << 24 | (v&0xff00) << 8 |      \
                         (v&0xff0000) >> 8 | (v&0xff000000) >> 24)
 
+#ifdef WIN32
+#  pragma pack(1)
+#endif
 struct RGBHeader
 {
     RGBHeader()
@@ -401,7 +406,7 @@ struct RGBHeader
          */
         void convert()
         {
-#if defined(__i386__) || defined(__amd64__) || defined (__ia64)
+#if defined(__i386__) || defined(__amd64__) || defined (__ia64) || defined(WIN32)
             SWAP_SHORT(magic);
             SWAP_SHORT(nDimensions);
             SWAP_SHORT(width);
@@ -426,7 +431,11 @@ struct RGBHeader
     char filename[80];
     unsigned colorMode;
     char fill[404];
-} __attribute__((packed));
+} 
+#ifndef WIN32
+  __attribute__((packed))
+#endif
+;
 
 void Image::writeImage( const std::string& filename, 
                         const Frame::Buffer buffer ) const

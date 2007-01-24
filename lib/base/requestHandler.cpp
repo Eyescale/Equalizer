@@ -7,6 +7,8 @@
 #include "lock.h"
 #include "scopedMutex.h"
 
+#include <eq/base/debug.h>
+
 using namespace eqBase;
 using namespace std;
 

@@ -51,6 +51,10 @@ namespace eq
         KC_F18,
         KC_F19,
         KC_F20,
+        KC_F21,
+        KC_F22,
+        KC_F23,
+        KC_F24,
         KC_SHIFT_L,
         KC_SHIFT_R,
         KC_CONTROL_L,
@@ -88,12 +92,12 @@ namespace eq
         int32_t y;
         int32_t dx;
         int32_t dy;
-        int32_t buttons; // current state of all buttons
-        int32_t button;  // fired button
+        uint32_t buttons; // current state of all buttons
+        uint32_t button;  // fired button
     };
     struct KeyEvent
     {
-        int32_t key; // KC_? for special keys, ascii code otherwise
+        uint32_t key; // KC_? for special keys, ascii code otherwise
         // TODO modifier state
     };
 }

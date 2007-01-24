@@ -5,6 +5,7 @@
 #ifndef EQNET_CONNECTION_H
 #define EQNET_CONNECTION_H
 
+#include <eq/net/connectionDescription.h>
 #include <eq/net/packets.h>
 
 #include <eq/base/base.h>
@@ -15,29 +16,30 @@
 
 #include <stdexcept>
 #include <sys/types.h>
-#include <sys/param.h>  // for MAX()
 #include <vector>
+
+#ifdef WIN32
+#  include <malloc.h>     // for alloca()
+#else
+#  include <sys/param.h>  // for MAX()
+#endif
+
+#ifdef WIN32
+#  define EQ_DEFAULT_PORT (4242)
+#else
+#  define EQ_DEFAULT_PORT (4242 + getuid())
+#endif
 
 namespace eqNet
 {
-    class ConnectionDescription;
-
-#   define EQ_DEFAULT_PORT (4242 + getuid())
+    enum ConnectionType;
 
     /**
      * A base class to provide communication to other hosts.
      */
-    class Connection : public eqBase::Referenced
+    class EQ_EXPORT Connection : public eqBase::Referenced
     {
     public:
-
-        /** The supported network protocols. */
-        enum Type
-        {
-            TYPE_TCPIP,   //!< TCP/IP networking.
-            TYPE_PIPE     //!< pipe() based uni-directional connection
-        };
-
         enum State {
             STATE_CLOSED,
             STATE_CONNECTING,
@@ -55,7 +57,7 @@ namespace eqNet
          * @param type the connection type.
          * @return the connection.
          */
-        static eqBase::RefPtr<Connection> create( const Type type );
+        static eqBase::RefPtr<Connection> create( const ConnectionType type );
         
         /** @name Connection Management */
         //@{
@@ -102,15 +104,41 @@ namespace eqNet
         virtual void close(){};
         //@}
 
+
         /** @name Messaging API */
         //@{
+        /** 
+         * Read data from the connection.
+         * 
+         * @param buffer the buffer for saving the message.
+         * @param bytes the number of bytes to read.
+         * @return true if all data has been read, false if not.
+         */
+        bool recv( void* buffer, const uint64_t bytes );
+
+        /** Lock the connection, no other thread can send data. */
+        void lockSend()   { _sendLock.set(); }
+        /** Unlock the connection. */
+        void unlockSend() { _sendLock.unset(); }
+            
+        /** 
+         * Sends data using the connection.
+         * 
+         * @param buffer the buffer containing the message.
+         * @param bytes the number of bytes to send.
+         * @param isLocked true if the connection is locked externally.
+         * @return true if all data has been read, false if not.
+         */
+        bool send( const void* buffer, const uint64_t bytes, 
+                       bool isLocked = false ) const;
+
         /** 
          * Sends a packaged message using the connection.
          * 
          * @param packet the message packet.
-         * @return the number of bytes send.
+         * @return true if all data has been read, false if not.
          */
-        uint64_t send( const Packet &packet ) const
+        bool send( const Packet &packet ) const
             {return send( &packet, packet.size); }
 
         /** 
@@ -118,9 +146,9 @@ namespace eqNet
          * 
          * @param packet the message packet.
          * @param string the string.
-         * @return the number of bytes send.
+         * @return true if all data has been read, false if not.
          */
-        uint64_t send( Packet &packet, const std::string& string ) const
+        bool send( Packet &packet, const std::string& string ) const
             { return send( packet, string.c_str(), string.size()+1 ); }
 
         /** 
@@ -131,10 +159,10 @@ namespace eqNet
          * 
          * @param packet the message packet.
          * @param data the vector containing the data.
-         * @return the number of bytes send.
+         * @return true if all data has been read, false if not.
          */
         template< typename T >
-        uint64_t send( Packet &packet, const std::vector<T>& data ) const;
+        bool send( Packet &packet, const std::vector<T>& data ) const;
 
         /** 
          * Sends a packaged message including additional data using the
@@ -143,9 +171,9 @@ namespace eqNet
          * @param packet the message packet.
          * @param data the data.
          * @param size the data size in bytes.
-         * @return the number of bytes send.
+         * @return true if all data has been read, false if not.
          */
-        uint64_t send( Packet& packet, const void* data, const uint64_t size )
+        bool send( Packet& packet, const void* data, const uint64_t size )
             const;
 
         /** 
@@ -174,32 +202,6 @@ namespace eqNet
         template< typename T >
         static bool send( const std::vector<T>& receivers, Packet& packet,
                           const void* data, const uint64_t size );
-
-        /** 
-         * Sends data using the connection.
-         * 
-         * @param buffer the buffer containing the message.
-         * @param bytes the number of bytes to send.
-         * @return the number of bytes send.
-         */
-        virtual uint64_t send( const void* buffer, const uint64_t bytes, 
-                               bool isLocked = false  ) const
-            {return 0;}
-
-        /** Lock the connection, no other thread can send data. */
-        void lockSend()   { _sendLock.set(); }
-        /** Unlock the connection. */
-        void unlockSend() { _sendLock.unset(); }
-
-        /** 
-         * Reads data from the connection.
-         * 
-         * @param buffer the buffer for saving the message.
-         * @param bytes the number of bytes to read.
-         * @return the number of bytes received.
-         */
-        virtual uint64_t recv( void* buffer, const uint64_t bytes )
-            {return 0;}
         //@}
 
         /** 
@@ -219,12 +221,54 @@ namespace eqNet
         /** @return the description for this connection. */
         eqBase::RefPtr<ConnectionDescription> getDescription();
 
-        virtual int getReadFD() const { return -1; }
+
+        /** @return the notifier handle to signal that data can be read. */
+#ifdef WIN32
+        typedef HANDLE ReadNotifier;
+        enum SelectResult
+        {
+            SELECT_TIMEOUT = WAIT_TIMEOUT,
+            SELECT_ERROR   = WAIT_FAILED,
+        };
+#else
+        typedef int ReadNotifier;
+        enum SelectResult
+        {
+            SELECT_TIMEOUT = 0,
+            SELECT_ERROR   = -1,
+        };
+#endif
+        virtual ReadNotifier getReadNotifier() const { return 0; }
 
     protected:
         Connection();
         Connection(const Connection& conn);
         virtual ~Connection();
+
+        /** @name Input/Output */
+        //@{
+        /** 
+         * Read data from the connection.
+         *
+         * Note the the a return value of 0 is not an error condition, it means
+         * that no data was pending on a non-blocking connection.
+         * 
+         * @param buffer the buffer for saving the message.
+         * @param bytes the number of bytes to read.
+         * @return the number of bytes read, or -1 upon error.
+         */
+        virtual int64_t read( void* buffer, const uint64_t bytes ) = 0;
+
+        /** 
+         * Write data to the connection.
+         * 
+         * @param buffer the buffer containing the message.
+         * @param bytes the number of bytes to write.
+         * @return the number of bytes written, or -1 upon error.
+         */
+        virtual int64_t write( const void* buffer, const uint64_t bytes )
+            const = 0;
+        //@}
 
         State                                 _state; //!< The connection state
         eqBase::RefPtr<ConnectionDescription> _description;

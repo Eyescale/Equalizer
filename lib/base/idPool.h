@@ -6,6 +6,7 @@
 #define EQBASE_IDPOOL_H
 
 #include <eq/base/base.h>
+#include <eq/base/thread.h>
 
 #include <list>
 

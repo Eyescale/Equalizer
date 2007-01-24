@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_OBJECT_H
@@ -7,8 +7,8 @@
 
 #include <eq/net/base.h>
 #include <eq/net/commands.h>
-#include <eq/net/global.h>
 #include <eq/net/commandQueue.h>
+#include <eq/net/global.h>
 #include <eq/net/types.h>
 
 #include <eq/base/idPool.h>
@@ -16,12 +16,11 @@
 
 namespace eqNet
 {
-    class Node;
-    class Session;
+    class Node;    class Session;
     struct ObjectPacket;
 
     /** A generic, distributed object. */
-    class Object : public Base, public eqBase::Referenced
+    class EQ_EXPORT Object : public Base, public eqBase::Referenced
     {
     public:
         /**

@@ -157,6 +157,62 @@ namespace eqBase
         static void _notifyStarted();
         static void _notifyStopping( void* arg );
     };
-}
 
+// thread-safety checks
+// These checks are for development purposes, to check that certain objects are
+// properly used within the framework. Leaving them enabled during application
+// developement may cause false positives, e.g. when threadsafety is ensured
+// outside of the objects by the application.
+
+#ifdef EQ_CHECK_THREADSAFETY
+    extern pthread_t threadIdZero;
+
+#  define CHECK_THREAD_DECLARE( NAME )                      \
+    struct EQ_EXPORT NAME ## Struct                         \
+    {                                                       \
+        NAME ## Struct ()                                   \
+            : id( eqBase::threadIdZero ), extMutex( false ) \
+            {}                                              \
+        mutable pthread_t id;                               \
+        bool extMutex;                                      \
+    } NAME;                                                 \
+
+#  define CHECK_THREAD( NAME )                                          \
+    {                                                                   \
+        if( pthread_equal( NAME.id, eqBase::threadIdZero ))             \
+        {                                                               \
+            NAME.id = pthread_self();                                   \
+            EQVERB << "Functions for " << #NAME                         \
+                   << " locked to this thread" << std::endl;            \
+        }                                                               \
+        if( !NAME.extMutex && !pthread_equal( NAME.id, pthread_self( ))) \
+        {                                                               \
+            EQERROR << "Threadsafety check for " << #NAME               \
+                    << " failed on object of type "                     \
+                    << typeid(*this).name() << endl;                    \
+            EQASSERTINFO( 0, "Non-threadsave code called from two threads" ); \
+        }                                                               \
+    }
+
+#  define CHECK_NOT_THREAD( NAME )                                      \
+    {                                                                   \
+        if( !NAME.extMutex &&                                           \
+            !pthread_equal( NAME.id, eqBase::threadIdZero ))            \
+        {                                                               \
+            if( pthread_equal( NAME.id, pthread_self( )))               \
+            {                                                           \
+                EQERROR << "Threadsafety check for not " << #NAME       \
+                        << " failed on object of type "                 \
+                        << typeid(*this).name() << endl;                \
+                EQASSERTINFO( 0, "Code called from wrong thread" );     \
+            }                                                           \
+        }                                                               \
+    }
+#else
+#  define CHECK_THREAD_DECLARE( NAME )
+#  define CHECK_THREAD( NAME )
+#  define CHECK_NOT_THREAD( NAME )
+#endif
+
+}
 #endif //EQBASE_THREAD_H

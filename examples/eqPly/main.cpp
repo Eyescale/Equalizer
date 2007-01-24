@@ -8,9 +8,9 @@
 #include "config.h"
 #include "node.h"
 #include "pipe.h"
+#include "tracker.h"
 
 #include <stdlib.h>
-#include "tracker.h"
 
 using namespace std;
 using namespace eqBase;
@@ -24,15 +24,11 @@ public:
     virtual eq::Channel* createChannel() { return new ::Channel; }
 };
 
-eq::NodeFactory* eq::createNodeFactory()
-{
-    return new ::NodeFactory;
-}
-
 int main( int argc, char** argv )
 {
     // 1. initialisation
-    if( !eq::init( argc, argv ))
+	NodeFactory nodeFactory;
+	if( !eq::init( argc, argv, &nodeFactory ))
     {
         EQERROR << "Equalizer init failed" << endl;
         return EXIT_FAILURE;

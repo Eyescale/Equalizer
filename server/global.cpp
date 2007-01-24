@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "global.h"
@@ -26,14 +26,11 @@ Global::Global()
 
 void Global::_setupDefaults()
 {
-    for( int i=0; i<Node::IATTR_ALL; ++i )
-        _nodeIAttributes[i] = eq::UNDEFINED;
-
     for( int i=0; i<ConnectionDescription::IATTR_ALL; ++i )
         _connectionIAttributes[i] = eq::UNDEFINED;
 
     _connectionIAttributes[ConnectionDescription::IATTR_TYPE] = 
-        eqNet::Connection::TYPE_TCPIP;
+        eqNet::CONNECTIONTYPE_TCPIP;
     _connectionIAttributes[ConnectionDescription::IATTR_TCPIP_PORT] = 0;
     
     _connectionSAttributes[ConnectionDescription::SATTR_HOSTNAME] = "localhost";
@@ -130,7 +127,7 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
         switch( i )
         { 
             case ConnectionDescription::IATTR_TYPE:
-                os << ( value == eqNet::Connection::TYPE_TCPIP ? "TCPIP" : 
+                os << ( value == eqNet::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
                         "PIPE" );
                 break;
             case ConnectionDescription::IATTR_LAUNCH_TIMEOUT:

@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_COMMANDCACHE_H
 #define EQNET_COMMANDCACHE_H
 
+#include <eq/base/base.h>
 #include <list>
 
 namespace eqNet
 {
     class Command;
-    class Node;
     
     /**
      * A CommandCache handles the creation of commands for the CommandQueue and
@@ -18,7 +18,7 @@ namespace eqNet
      *
      * The packets are copied and can therefore be retained in the queues.
      */
-    class CommandCache
+    class EQ_EXPORT CommandCache
     {
     public:
         CommandCache();
@@ -27,11 +27,10 @@ namespace eqNet
         /** 
          * Create a new command.
          *
-         * @param node the node sending the packet.
-         * @param packet the command packet.
+         * @param command the input command.
          * @return the command.
          */
-        Command *alloc( Command& packet );
+        Command *alloc( Command& command );
 
         /** 
          * Release a command.
@@ -41,8 +40,11 @@ namespace eqNet
         void release( Command* command );
 
     private:
+#pragma warning(push)
+#pragma warning(disable: 4251)
         /** The free command cache. */
         std::list<Command*>       _freeCommands;
+#pragma warning(pop)
     };
 };
 

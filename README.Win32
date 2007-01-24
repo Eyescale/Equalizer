@@ -1,0 +1,7 @@
+
+                         Windows-Specific Notes
+
+ MS Windows support is not yet fully implemented. The initial port will support
+ Visual Studio 2005 and Windows XP.
+ 
+ 

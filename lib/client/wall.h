@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_WALL_H
@@ -43,7 +43,7 @@ namespace eq
         float topLeft[3];
     };
 
-    std::ostream& operator << ( std::ostream& os, const Wall& wall );
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Wall& wall );
 }
 
 #endif // EQ_WALL_H

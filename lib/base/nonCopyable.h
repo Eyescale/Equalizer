@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_NONCOPYABLE_H
@@ -15,7 +15,7 @@ namespace eqBase
      * Base class for nonCopyable objects.
      * @sa RefPtr
      */
-    class NonCopyable 
+    class EQ_EXPORT NonCopyable 
     {
     protected:
         NonCopyable() {}
@@ -23,9 +23,10 @@ namespace eqBase
 
     private:
         /** Disable copy constructor. */
-        NonCopyable( const NonCopyable& from );
+        NonCopyable( const NonCopyable& from ) {}
         /** Disable assignment operator. */
-        const NonCopyable& operator = ( const NonCopyable& from );
+        const NonCopyable& operator = ( const NonCopyable& from ) 
+            { return *this; }
     };
 }
 

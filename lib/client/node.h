@@ -1,12 +1,14 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_NODE_H
 #define EQ_NODE_H
 
-#include "commands.h"
-#include "config.h"
+#include <eq/client/commands.h>
+#include <eq/client/config.h>
+
+#include <eq/base/base.h>
 
 namespace eq
 {
@@ -14,7 +16,7 @@ namespace eq
     class Pipe;
     class Server;
 
-    class Node : public eqNet::Object
+    class EQ_EXPORT Node : public eqNet::Object
     {
     public:
         /** 
@@ -117,7 +119,7 @@ namespace eq
          * @param packet the command packet.
          */
         eqNet::CommandResult _pushCommand( eqNet::Command& command )
-            {_commandQueue.push( command ); return eqNet::COMMAND_HANDLED;}
+            { _commandQueue.push( command ); return eqNet::COMMAND_HANDLED; }
 
         /** The command functions. */
         eqNet::CommandResult _cmdCreatePipe( eqNet::Command& command );

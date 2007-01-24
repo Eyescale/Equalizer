@@ -15,8 +15,9 @@ namespace eq
      * wall at the given distance. The fov defines the horizontal and
      * vertical field of view of the projector.
      */
-    struct Projection
+    class Projection
     {
+    public:
         float origin[3];
         float distance;
         float fov[2];

@@ -13,7 +13,12 @@ namespace eqNet
     /**
      * A uni-directional pipe connection.
      */
-    class PipeConnection : public FDConnection
+    class PipeConnection 
+#ifdef WIN32
+        : public Connection
+#else
+        : public FDConnection
+#endif
     {
     public:
         PipeConnection();
@@ -22,13 +27,28 @@ namespace eqNet
         virtual bool connect();
         virtual void close();
 
+#ifdef WIN32
+        virtual ReadNotifier getReadNotifier() const { return _dataPending; }
+#endif
+
     protected:
         PipeConnection( const PipeConnection& conn );
+
+#ifdef WIN32
+        virtual int64_t read( void* buffer, const uint64_t bytes );
+        virtual int64_t write( const void* buffer, const uint64_t bytes ) const;
+#endif
 
     private:
         bool _createPipe();
 
-        int  _pipe[2];
+#ifdef WIN32
+        HANDLE _readHandle;
+        HANDLE _writeHandle;
+        mutable eqBase::Lock _mutex;
+        mutable uint64_t     _size;
+        mutable HANDLE       _dataPending;
+#endif
     };
 }
 

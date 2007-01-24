@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_BASE_H
@@ -8,13 +8,13 @@
 #include <eq/net/commandFunc.h>
 
 #include <eq/base/base.h>
+#include <eq/base/debug.h>
 #include <eq/base/nonCopyable.h>
 #include <eq/base/requestHandler.h>
 
 namespace eqNet
 {
     class Connection;
-    class Node;
     class Command;
     enum  CommandResult;
 
@@ -24,10 +24,11 @@ namespace eqNet
      * Provides packet dispatch for an object using a command handler
      * table. Handles the result of the command handlers.
      */
-    class Base : public virtual eqBase::NonCopyable
+    class EQ_EXPORT Base
     {
     public:
         Base( const bool threadSafe = false );
+		Base( const Base& from );
         virtual ~Base();        
 
         /** 
@@ -58,42 +59,42 @@ namespace eqNet
         /** 
          * The default handler for handling commands.
          * 
-         * @param node the originating node.
-         * @param packet the packet.
+         * @param command the command
          * @return the result of the operation.
          */
-        CommandResult _cmdUnknown( Command& packet );
+        CommandResult _cmdUnknown( Command& command );
 
         /**
          * The command handler which requests the command to be pushed to
          * another entity.
          */
-        CommandResult _cmdPush( Command& packet )
+        CommandResult _cmdPush( Command& command )
             { return eqNet::COMMAND_PUSH; }
 
         /**
          * The command handler which requests the command to be pushed to
          * another entity with high priority.
          */
-        CommandResult _cmdPushFront( Command& packet )
+        CommandResult _cmdPushFront( Command& command )
             { return eqNet::COMMAND_PUSH_FRONT; }
 
     private:
+        void _registerCommand( const uint32_t command, 
+                               const CommandFunc<Base>& func);
+
+#pragma warning(push)
+#pragma warning(disable: 4251)
         /** The command handler function table. */
         std::vector< CommandFunc<Base> > _vTable;
+#pragma warning(pop)
     };
 
     template< typename T >
     void Base::registerCommand( const uint32_t command,
                                 const CommandFunc<T>& func)
     {
-        if( command >= _vTable.size( ))
-            _vTable.resize( command+1, 
-                            CommandFunc<Base>( this, &Base::_cmdUnknown ));
-        
-        _vTable[command] = static_cast< CommandFunc<Base> >(func);
+        _registerCommand( command, static_cast< CommandFunc<Base> >( func ));
     }
-
 }
 
 #endif // EQNET_BASE_H

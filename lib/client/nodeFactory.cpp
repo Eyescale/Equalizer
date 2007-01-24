@@ -4,5 +4,5 @@
 
 #include "nodeFactory.h"
 
-eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
+EQ_EXPORT eq::NodeFactory* eq::createNodeFactory() { return new eq::NodeFactory; }
 

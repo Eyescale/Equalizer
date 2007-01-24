@@ -10,13 +10,19 @@
 #include "session.h"
 #include "pipeConnection.h"
 
+#include <eq/base/base.h>
 #include <eq/base/launcher.h>
 
+#include <errno.h>
 #include <fcntl.h>
 #include <sstream>
-#include <sys/errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+
+#ifdef WIN32
+#  include <direct.h>  // for chdir
+#  define chdir _chdir
+#endif
 
 using namespace eqBase;
 using namespace eqNet;
@@ -154,7 +160,7 @@ bool Node::_listenToSelf()
     _connection = new PipeConnection;
     if( !_connection->connect())
     {
-        EQERROR << "Could not create pipe() connection to receiver thread."
+        EQERROR << "Could not create local connection to receiver thread."
                 << endl;
         _connection = 0;
         return false;
@@ -394,6 +400,13 @@ uint32_t Node::_generateSessionID()
         int read = ::read( fd, &id, sizeof( id ));
         EQASSERT( read == sizeof( id ));
         close( fd );
+#elif defined (WIN32)
+        LARGE_INTEGER seed;
+        QueryPerformanceCounter( &seed );
+        srand( seed.LowPart );
+
+        EQASSERT( RAND_MAX == 32767 );
+        id = rand() | (rand() << 15) | (rand() << 30);
 #else
         srandomdev();
         id = random();
@@ -416,7 +429,7 @@ void* Node::_runReceiver()
     int nErrors = 0;
     while( _state == STATE_LISTENING )
     {
-        const int result = _connectionSet.select( );
+        const int result = _connectionSet.select();
         switch( result )
         {
             case ConnectionSet::EVENT_CONNECT:
@@ -428,6 +441,7 @@ void* Node::_runReceiver()
                 break;
 
             case ConnectionSet::EVENT_DISCONNECT:
+            case ConnectionSet::EVENT_INVALID_HANDLE:
             {
                 _handleDisconnect();
                 EQVERB << &_connectionSet << endl;
@@ -440,12 +454,22 @@ void* Node::_runReceiver()
 
             case ConnectionSet::EVENT_ERROR:      
                 ++nErrors;
-                EQWARN << "Error during select" << endl;
+                EQWARN << "Connection signalled error during select" << endl;
                 if( nErrors > 100 )
                 {
                     EQWARN << "Too many errors in a row, capping connection" 
                            << endl;
                     _handleDisconnect();
+                }
+                break;
+
+            case ConnectionSet::EVENT_SELECT_ERROR:      
+                EQWARN << "Error during select" << endl;
+                ++nErrors;
+                if( nErrors > 10 )
+                {
+                    EQWARN << "Too many errors in a row" << endl;
+                    EQUNIMPLEMENTED;
                 }
                 break;
 
@@ -456,7 +480,9 @@ void* Node::_runReceiver()
             default:
                 EQUNIMPLEMENTED;
         }
-        if( result != ConnectionSet::EVENT_ERROR )
+        if( result != ConnectionSet::EVENT_ERROR && 
+            result != ConnectionSet::EVENT_SELECT_ERROR )
+
             nErrors = 0;
     }
 
@@ -467,6 +493,12 @@ void Node::_handleConnect()
 {
     RefPtr<Connection> connection = _connectionSet.getConnection();
     RefPtr<Connection> newConn    = connection->accept();
+
+    if( !newConn )
+    {
+        EQERROR << "Received connect event, but accept() failed" << endl;
+        return;
+    }
 
     _connectionSet.addConnection( newConn );
     // Node will be created when receiving NodeConnectPacket from other side
@@ -505,17 +537,16 @@ bool Node::_handleData()
     if( _connectionNodes.find( connection.get( )) != _connectionNodes.end( ))
         node = _connectionNodes[ connection.get() ];
 
+    EQASSERT( connection.isValid( ));
     EQASSERT( !node || node->_connection == connection );
     EQVERB << "Handle data from " << node << endl;
 
-    uint64_t       size;
-    const uint64_t read = connection->recv( &size, sizeof( size ));
-    if( read == 0 ) // Some systems signal data on dead connections.
+    uint64_t size;
+    const bool gotSize = connection->recv( &size, sizeof( size ));
+    if( !gotSize ) // Some systems signal data on dead connections.
         return false;
 
-    EQASSERT( read == sizeof( size ));
     EQASSERT( size );
-
     _receivedCommand->allocate( node, size );
     size -= sizeof( size );
 
@@ -585,19 +616,18 @@ void Node::_redispatchCommands()
     while( changes )
     {
         changes = false;
-        for( list<Command*>::iterator iter = _pendingCommands.begin(); 
-             iter != _pendingCommands.end(); ++iter )
+
+        list<Command*>::iterator i = _pendingCommands.begin();
+        while( !changes && i != _pendingCommands.end( ))
         {
-            Command* command = (*iter);
+            Command* command = (*i);
         
             switch( dispatchCommand( *command ))
             {
                 case COMMAND_HANDLED:
                 case COMMAND_DISCARD:
                 {
-                    list<Command*>::iterator handledIter = iter;
-                    ++iter;
-                    _pendingCommands.erase( handledIter );
+                    _pendingCommands.erase( i );
                     _commandCache.release( command );
                     changes = true;
                 }
@@ -608,7 +638,7 @@ void Node::_redispatchCommands()
                     EQASSERT(0);
                     break;
                 
-                    // Already a pushed packet?!
+                // Already a pushed packet?!
                 case COMMAND_PUSH:
                     EQUNIMPLEMENTED;
                 case COMMAND_PUSH_FRONT:
@@ -616,14 +646,19 @@ void Node::_redispatchCommands()
                     
                 case COMMAND_REDISPATCH:
                     break;
+
+                default:
+                    EQUNIMPLEMENTED;
             }
+            if( !changes )
+                ++i;
         }
     }
 }
 
 CommandResult Node::dispatchCommand( Command& command )
 {
-    EQVERB << "dispatch " << command << " by " << (void*)this << endl;
+    EQVERB << "dispatch " << command << " by " << _id << endl;
     EQASSERT( command.isValid( ));
 
     const uint32_t datatype = command->datatype;

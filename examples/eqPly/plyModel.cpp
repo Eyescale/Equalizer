@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved.
    Adapted code for Equalizer usage.
  */
@@ -556,7 +556,7 @@ void PlyModel<FaceType>::scaleModel( const float scale,
 }
 
 template<class FaceType>
-void PlyModel<FaceType>::scaleBBoxCB( PlyModel< FaceType >::BBox *bbox,
+void PlyModel<FaceType>::scaleBBoxCB( typename PlyModel< FaceType >::BBox *bbox,
     void *data )
 {
     const ScaleData*      scaleData = (const ScaleData*)data;

@@ -1,13 +1,13 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_REFERENCED_H
 #define EQBASE_REFERENCED_H
 
 #include <eq/base/base.h>
+#include <eq/base/debug.h>
 #include <eq/base/lock.h>
-#include <eq/base/log.h>
 
 namespace eqBase
 {
@@ -15,7 +15,7 @@ namespace eqBase
      * Base class for referenced objects.
      * @sa RefPtr
      */
-    class Referenced 
+    class EQ_EXPORT Referenced 
     {
     public:
         // TODO: optional thread-safety

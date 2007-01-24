@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "channel.h"
@@ -108,23 +108,23 @@ void eq::Channel::_setViewport( const Viewport& vp )
     EQVERB << "Channel vp set: " << _pvp << ":" << _vp << endl;
 }
 
-void eq::Channel::setNearFar( const float near, const float far )
+void eq::Channel::setNearFar( const float nearPlane, const float farPlane )
 {
-    if( _frustum.near == near && _frustum.far == far )
+    if( _frustum.nearPlane == nearPlane && _frustum.farPlane == farPlane )
         return;
 
-    _frustum.adjustNear( near );
-    _frustum.far = far;
+    _frustum.adjustNear( nearPlane );
+    _frustum.farPlane = farPlane;
 
     if( _context )
     {
-        _context->frustum.adjustNear( near );
-        _context->frustum.far = far;
+        _context->frustum.adjustNear( nearPlane );
+        _context->frustum.farPlane = farPlane;
     }
 
     ChannelSetNearFarPacket packet;
-    packet.near = near;
-    packet.far  = far;
+    packet.nearPlane = nearPlane;
+    packet.farPlane  = farPlane;
     
     send( getServer(), packet );
 }
@@ -138,8 +138,13 @@ void Channel::clear( const uint32_t frameID )
     applyViewport();
     if( getenv( "EQ_TAINT_CHANNELS" ))
     {
+#ifdef WIN32
+        const size_t hashValue = stde::hash_value( getName().c_str( ));
+#else
         stde::hash<const char*> hasher;
-        unsigned  seed  = (unsigned)(long long)this + hasher(getName().c_str());
+        const size_t hashValue = hasher( getName().c_str( ));
+#endif
+        unsigned  seed  = (unsigned)(long long)this + hashValue;
         const int color = rand_r( &seed );
 
         glClearColor( (color&0xff) / 255., ((color>>8) & 0xff) / 255.,
@@ -330,7 +335,7 @@ void Channel::applyFrustum() const
 {
     const vmml::Frustumf& frustum = getFrustum();
     glFrustum( frustum.left, frustum.right, frustum.bottom, frustum.top,
-               frustum.near, frustum.far ); 
+               frustum.nearPlane, frustum.farPlane ); 
     EQVERB << "Apply " << frustum << endl;
 }
 
@@ -372,8 +377,8 @@ eqNet::CommandResult Channel::_reqInit( eqNet::Command& command )
     _error.clear();
     ChannelInitReplyPacket reply( packet );
     reply.result = init( packet->initID );
-    reply.near   = _frustum.near;
-    reply.far    = _frustum.far;
+    reply.nearPlane   = _frustum.nearPlane;
+    reply.farPlane    = _frustum.farPlane;
     send( command.getNode(), reply, _error );
     return eqNet::COMMAND_HANDLED;
 }
@@ -419,7 +424,15 @@ eqNet::CommandResult Channel::_reqDraw( eqNet::Command& command )
     StatEvent event( StatEvent::CHANNEL_DRAW, this, pipe->getFrameTime( ));
 
     _context = &packet->context;
+
+    Window* window = getWindow();
+    HWND win = window->getWGLWindowHandle();
+    HDC dc = GetDC( win );
+    wglMakeCurrent( dc, window->getWGLContext() );
+
     draw( packet->context.frameID );
+
+     ReleaseDC( win, dc );
     _context = NULL;
 
     if( getIAttribute( IATTR_HINT_STATISTICS ))

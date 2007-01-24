@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "init.h"
@@ -8,6 +8,11 @@
 #include "node.h"
 #include "socketConnection.h"
 
+#ifdef WIN32
+#  include <direct.h>
+#  define getcwd _getcwd
+#endif
+
 using namespace eqNet;
 using namespace eqBase;
 using namespace std;
@@ -15,12 +20,23 @@ using namespace std;
 static bool initLocalNode( int argc, char** argv );
 static bool exitLocalNode();
 
-bool eqNet::init( int argc, char** argv )
+EQ_EXPORT bool eqNet::init( int argc, char** argv )
 {
     EQINFO << "Log level " << Log::getLogLevelString() << " topics " 
            << Log::topics << endl;
 
     EQASSERT( argc > 0 );
+
+#ifdef WIN32
+    WORD    wsVersion = MAKEWORD( 2, 0 );
+    WSADATA wsData;
+    if( WSAStartup( wsVersion, &wsData ) != 0 )
+    {
+        EQERROR << "Initialization of Windows Sockets failed" 
+                << getErrorString( GetLastError( )) << endl;
+        return false;
+    }
+#endif
 
     const string programName = Global::getProgramName();
     if( programName.size() == 0  )
@@ -67,7 +83,9 @@ bool initLocalNode( int argc, char** argv )
             listen = true;
             ++i;
             if( i<argc && argv[i][0] != '-' )
-                listenOpts = optarg;
+                listenOpts = argv[i];
+            else
+                --i;
         }
         else if( strcmp( "--eq-client", argv[i] ) == 0 )
         {
@@ -130,10 +148,19 @@ bool initLocalNode( int argc, char** argv )
     return true;
 }
 
-bool eqNet::exit()
+EQ_EXPORT bool eqNet::exit()
 {
     if( !exitLocalNode( ))
         return false;
+
+#ifdef WIN32
+    if( WSACleanup() != 0 )
+    {
+        EQERROR << "Cleanup of Windows Sockets failed" 
+                << getErrorString( GetLastError( )) << endl;
+        return false;
+    }
+#endif
 
     return true;
 }

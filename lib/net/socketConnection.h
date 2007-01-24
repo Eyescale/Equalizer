@@ -1,20 +1,32 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_SOCKET_CONNECTION_H
 #define EQNET_SOCKET_CONNECTION_H
 
-#include "fdConnection.h"
+#include <eq/base/base.h>
+#include <eq/net/fdConnection.h>
 
-#include <netinet/in.h>
+#ifdef WIN32
+#  ifndef MAXPATHLEN
+#    define MAXPATHLEN 1024
+#  endif
+#else
+#  include <netinet/in.h>
+#endif
 
 namespace eqNet
 {
     /**
      * A TCP/IP-based socket connection.
      */
-    class SocketConnection : public FDConnection
+    class SocketConnection
+#ifdef WIN32
+        : public Connection
+#else
+        : public FDConnection
+#endif
     {
     public:
         SocketConnection();
@@ -25,15 +37,43 @@ namespace eqNet
 
         virtual void close();
 
-        ushort getPort() const;
+        uint16_t getPort() const;
+
+#ifdef WIN32
+        virtual ReadNotifier getReadNotifier() const { return _event; }
+#endif
 
     protected:
         virtual ~SocketConnection();
 
+#ifdef WIN32
+        virtual int64_t read( void* buffer, const uint64_t bytes );
+        virtual int64_t write( const void* buffer, const uint64_t bytes ) const;
+
+        typedef SOCKET Socket;
+#else
+        typedef int    Socket;
+        enum
+        {
+            INVALID_SOCKET = -1;
+        };
+#endif
+
     private:
         bool _createSocket();
-        void _tuneSocket( const int fd );
+        void _tuneSocket( const Socket fd );
         void _parseAddress( sockaddr_in& socketAddress );
+
+#ifdef WIN32
+        bool _createReadEvent();
+
+        HANDLE _event;
+        union
+        {
+            SOCKET _readFD;
+            SOCKET _writeFD;
+        };
+#endif
     };
 }
 

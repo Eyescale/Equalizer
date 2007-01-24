@@ -1,32 +1,44 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 
 #ifndef EQBASE_CLOCK_H
-#define	EQBASE_CLOCK_H
+#define EQBASE_CLOCK_H
 
-#include "defines.h"
+#include <eq/base/base.h>
 
 #ifdef Darwin
 // http://developer.apple.com/qa/qa2004/qa1398.html
 #  include <mach/mach_time.h>
 #endif
 
-#include <sys/time.h>
+#ifdef WIN32
+#  include <Windows.h>
+#else
+#  include <sys/time.h>
+#endif
 
 namespace eqBase
 {
 /** 
  * A class for time measurements.
  */
-    class Clock
+    class EQ_EXPORT Clock
     {
     public :
         /** 
          * Constructs a new clock.
          */
-        Clock() { reset(); }
+        Clock() 
+            {
+                reset();
+#ifdef Darwin
+                mach_timebase_info( &_timebaseInfo );
+#elif defined (WIN32)
+                QueryPerformanceFrequency( &_frequency );
+#endif
+            }
 
         /** 
          * Destroys the clock.
@@ -37,13 +49,14 @@ namespace eqBase
          * Resets the base time of the clock to the current time.
          */
         void reset()   
-            { 
+            {
 #ifdef Darwin
-                mach_timebase_info( &_timebaseInfo );
                 _start = mach_absolute_time();
-#else // Darwin
+#elif defined (WIN32)
+                QueryPerformanceCounter( &_start );
+#else
                 clock_gettime( CLOCK_REALTIME, &_start );
-#endif // Darwin
+#endif
             }
 
         /** 
@@ -57,11 +70,13 @@ namespace eqBase
 #ifdef Darwin
                 _start += time / _timebaseInfo.numer * _timebaseInfo.denom *
                     1000000.f;
-#else // Darwin
+#elif defined (WIN32)
+                _start.QuadPart += static_cast<long long>(time * 0.001f);
+#else
                 const int sec   = static_cast<int>( time * 0.001f );
                 _start.tv_sec  += sec;
                 _start.tv_nsec += (static_cast<int>(time) - sec) * 1000000;
-#endif // Darwin
+#endif
             }
 
         /** 
@@ -75,12 +90,16 @@ namespace eqBase
                 const uint64_t elapsed = mach_absolute_time() - _start;
                 return ( elapsed * _timebaseInfo.numer / _timebaseInfo.denom /
                          1000000.f );
-#else // Darwin
+#elif defined (WIN32)
+                LARGE_INTEGER now;
+                QueryPerformanceCounter( &now );
+                return 1000.0f * (now.QuadPart - _start.QuadPart) / _frequency.QuadPart;
+#else
                 struct timespec now;
                 clock_gettime( CLOCK_REALTIME, &now );
                 return ( 1000.0f * (now.tv_sec - _start.tv_sec) +
                          0.000001f * (now.tv_nsec - _start.tv_nsec));
-#endif // Darwin
+#endif
             }
 
         /** 
@@ -94,12 +113,16 @@ namespace eqBase
                 const uint64_t elapsed = mach_absolute_time() - _start;
                 return ( elapsed * _timebaseInfo.numer / _timebaseInfo.denom /
                          1000000. );
-#else // Darwin
+#elif defined (WIN32)
+                LARGE_INTEGER now;
+                QueryPerformanceCounter( &now );
+                return 1000.0 * (now.QuadPart - _start.QuadPart) / _frequency.QuadPart;
+#else
                 struct timespec now;
                 clock_gettime( CLOCK_REALTIME, &now );
                 return ( 1000.0 * (now.tv_sec - _start.tv_sec) +
                          0.000001 * (now.tv_nsec - _start.tv_nsec));
-#endif // Darwin
+#endif
             }
 
         /** 
@@ -112,10 +135,11 @@ namespace eqBase
          */
         float getMSf() const
             {
-#ifdef Darwin
+#if defined (Darwin) || defined (WIN32)
                 double time = getTimed();
-                return (time - (uint64_t)(time/1000.) * 1000);
-#else // Darwin
+                return static_cast<float>
+                    (time - static_cast<unsigned>(time/1000.) * 1000);
+#else
                 struct timespec now;
                 clock_gettime( CLOCK_REALTIME, &now );
 
@@ -123,16 +147,19 @@ namespace eqBase
                     return ( 1000.f + 0.000001f*(now.tv_nsec - _start.tv_nsec));
                 
                 return ( 0.000001f * ( now.tv_nsec - _start.tv_nsec ));
-#endif // Darwin
+#endif
             }
 
     private:
-#  ifdef Darwin
+#ifdef Darwin
         uint64_t                  _start;
         mach_timebase_info_data_t _timebaseInfo;
-#  else // Darwin
+#elif defined (WIN32)
+        LARGE_INTEGER             _start;
+        LARGE_INTEGER             _frequency;
+#else
         struct timespec _start;
-#endif // Darwin
+#endif
     };
 }
-#endif	// EQBASE_CLOCK_H
+#endif  // EQBASE_CLOCK_H

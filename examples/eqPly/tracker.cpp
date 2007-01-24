@@ -1,12 +1,16 @@
 /* Copyright (c) 2006, Dustin Wueest <wueest@dustin.ch> 
+   Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com>
    All rights reserved. */
 
 #include "tracker.h"
 #include <iostream>
 #include <fcntl.h>
 #include <errno.h>
-#include <sys/termios.h>
-#include <sys/select.h>
+
+#ifndef WIN32
+#  include <sys/select.h>
+#  include <sys/termios.h>
+#endif
 
 #define COMMAND_POS_ANG "Y"
 #define COMMAND_POINT "B"
@@ -22,6 +26,9 @@ Tracker::Tracker()
 
 bool Tracker::init( const string& port )
 {
+#ifdef WIN32
+    return false;
+#else
    if( _running )
    {
       EQERROR << "Duplicate tracker initialisation" << endl;
@@ -86,6 +93,7 @@ bool Tracker::init( const string& port )
        _running = true;
 
    return _running;
+#endif
 }
 
 bool Tracker::update()
@@ -104,7 +112,10 @@ bool Tracker::update()
 
 bool Tracker::_update()
 {
-   const ssize_t wrote = write( _fd, COMMAND_POINT, 1 ); // send data
+#ifdef WIN32
+    return false;
+#else
+    const ssize_t wrote = write( _fd, COMMAND_POINT, 1 ); // send data
    if( wrote==-1 )
    {
       EQERROR << "Write error: " << strerror( errno ) << endl;
@@ -163,12 +174,16 @@ bool Tracker::_update()
    EQINFO << "Tracker matrix " << _matrix;
 
    return true;
+#endif
 }
 
 bool Tracker::_read( unsigned char* buffer, const size_t size,
                                             const unsigned long int timeout )
 {
-   size_t remaining = size;
+#ifdef WIN32
+    return false;
+#else
+    size_t remaining = size;
    struct timeval tv;
 
    tv.tv_sec = timeout / 1000000;
@@ -205,4 +220,5 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
       remaining -= received;
    }
    return true;
+#endif
 }

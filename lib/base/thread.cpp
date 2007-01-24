@@ -1,11 +1,13 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "thread.h"
 
 #include "base.h"
+#include "debug.h"
 #include "lock.h"
+#include "log.h"
 #include "scopedMutex.h"
 #include "executionListener.h"
 
@@ -18,6 +20,17 @@ using namespace std;
 Lock                            Thread::_listenerLock;
 std::vector<ExecutionListener*> Thread::_listeners;
 pthread_key_t                   Thread::_cleanupKey=Thread::_createCleanupKey();
+
+#ifdef EQ_CHECK_THREADSAFETY
+static pthread_t getThreadIdZero()
+{
+    pthread_t id;
+    memset( &id, 0, sizeof( pthread_t ));
+    return id;
+}
+
+pthread_t                       eqBase::threadIdZero = getThreadIdZero();
+#endif
 
 pthread_key_t Thread::_createCleanupKey()
 {
@@ -35,7 +48,7 @@ pthread_key_t Thread::_createCleanupKey()
 Thread::Thread()
         : _state(STATE_STOPPED)
 {
-    bzero( &_threadID, sizeof( pthread_t ));
+    memset( &_threadID, 0, sizeof( pthread_t ));
     _syncChild.set();
 }
 
@@ -117,7 +130,11 @@ bool Thread::start()
 
         if( error == 0 ) // succeeded
         {
+#ifdef WIN32
+            EQVERB << "Created pthread " << _threadID.p << endl;
+#else
             EQVERB << "Created pthread " << _threadID << endl;
+#endif
             break;
         }
         if( error != EAGAIN || nTries==0 )

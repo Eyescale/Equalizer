@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "init.h"
@@ -16,7 +16,9 @@ using namespace eq;
 using namespace eqBase;
 using namespace std;
 
-bool eq::init( int argc, char** argv )
+static NodeFactory* _allocatedNodeFactory = 0;
+
+EQ_EXPORT bool eq::init( int argc, char** argv, NodeFactory* nodeFactory )
 {
     EQINFO << "Equalizer v" << Version::getString() << " initializing" << endl;
 
@@ -35,10 +37,18 @@ bool eq::init( int argc, char** argv )
         }
     }
     
+	if( nodeFactory )
+		Global::_nodeFactory = nodeFactory;
+	else
+	{
+		_allocatedNodeFactory = new NodeFactory();
+		Global::_nodeFactory = _allocatedNodeFactory;
+	}
+
     RefPtr<eqNet::Node> node = new Client;
     eqNet::Node::setLocalNode( node );
 
-    char* argvListen[argc+1];
+    char** argvListen = static_cast<char**>( alloca( (argc+1)*sizeof( char* )));
     
     for( int i=0; i<argc; i++ )
         argvListen[i] = argv[i];
@@ -55,7 +65,11 @@ bool eq::init( int argc, char** argv )
     return true;
 }
 
-bool eq::exit()
+EQ_EXPORT bool eq::exit()
 {
     return eqNet::exit();
+
+    Global::_nodeFactory = 0;
+	delete _allocatedNodeFactory;
+	_allocatedNodeFactory = 0;
 }

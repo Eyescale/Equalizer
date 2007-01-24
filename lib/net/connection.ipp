@@ -3,7 +3,7 @@
    All rights reserved. */
 
 template< typename T >
-uint64_t Connection::send( Packet &packet, const std::vector<T>& data ) const
+bool Connection::send( Packet &packet, const std::vector<T>& data ) const
 { 
     if( data.size() == 0 )
         return send( packet );

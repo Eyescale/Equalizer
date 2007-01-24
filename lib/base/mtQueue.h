@@ -1,12 +1,12 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_MTQUEUE_H
 #define EQBASE_MTQUEUE_H
 
 #include <eq/base/base.h>
-#include <eq/base/log.h>
+#include <eq/base/debug.h>
 #include <pthread.h>
 #include <queue>
 

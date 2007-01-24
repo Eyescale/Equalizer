@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_STATEVENT_H
@@ -39,7 +39,7 @@ namespace eq
         float    startTime;
         float    endTime;
 
-        static std::string typeNames[TYPE_ALL];
+        static EQ_EXPORT std::string typeNames[TYPE_ALL];
     };
 
     inline std::ostream& operator << ( std::ostream& os, const StatEvent& event)

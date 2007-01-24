@@ -12,9 +12,9 @@ Application Structure
   and the rendering clients. In this simple example, they are both
   contained in the same executable.
 
- Application Loop
+ Application Main Loop
 
-  The main application is driving the application, that is, it controls
+  The main application is driving the rendering, that is, it controls
   the execution flow by receiving events from the render nodes, acting
   on these events and by issuing the rendering of new frames. It does
   not execute any rendering code.

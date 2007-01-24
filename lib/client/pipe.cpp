@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "pipe.h"
@@ -23,7 +23,7 @@ using namespace std;
 
 Pipe::Pipe()
         : eqNet::Object( eq::Object::TYPE_PIPE ),
-          _node(NULL),
+          _node(0),
           _windowSystem( WINDOW_SYSTEM_NONE ),
           _display( EQ_UNDEFINED_UINT32 ),
           _screen( EQ_UNDEFINED_UINT32 )
@@ -52,18 +52,22 @@ Pipe::Pipe()
     _thread = new PipeThread( this );
 
 #ifdef GLX
-    _xDisplay         = NULL;
-    _xEventConnection = NULL;
+    _xDisplay         = 0;
+    _xEventConnection = 0;
 #endif
 #ifdef CGL
-    _cglDisplayID = NULL;
+    _cglDisplayID = 0;
+#endif
+#ifdef WGL
+    _dc       = 0;
+    _dcDelete = false;
 #endif
 }
 
 Pipe::~Pipe()
 {
     delete _thread;
-    _thread = NULL;
+    _thread = 0;
 }
 
 void Pipe::_addWindow( Window* window )
@@ -80,7 +84,7 @@ void Pipe::_removeWindow( Window* window )
         return;
     
     _windows.erase( iter );
-    window->_pipe = NULL;
+    window->_pipe = 0;
 }
 
 bool Pipe::supportsWindowSystem( const WindowSystem windowSystem ) const
@@ -91,6 +95,10 @@ bool Pipe::supportsWindowSystem( const WindowSystem windowSystem ) const
 #endif
 #ifdef CGL
     if( windowSystem == WINDOW_SYSTEM_CGL )
+        return true;
+#endif
+#ifdef WGL
+    if( windowSystem == WINDOW_SYSTEM_WGL )
         return true;
 #endif
     return false;
@@ -148,44 +156,21 @@ void Pipe::setXDisplay( Display* display )
     if( _pvp.isValid( ))
         return;
 
-    _pvp.x    = 0;
-    _pvp.y    = 0;
     if( display )
     {
+        _pvp.x    = 0;
+        _pvp.y    = 0;
         _pvp.w = DisplayWidth(  display, DefaultScreen( display ));
         _pvp.h = DisplayHeight( display, DefaultScreen( display ));
     }
     else
-    {
-        _pvp.w = 0;
-        _pvp.h = 0;
-    }
-#endif
-}
-
-Display* Pipe::getXDisplay() const
-{
-#ifdef GLX
-    return _xDisplay;
-#else
-    return NULL;
+        _pvp.reset();
 #endif
 }
 
 void Pipe::setXEventConnection( RefPtr<X11Connection> display )
 {
-#ifdef GLX
     _xEventConnection = display; 
-#endif
-}
-
-RefPtr<X11Connection> Pipe::getXEventConnection() const
-{
-#ifdef GLX
-    return _xEventConnection;
-#else
-    return NULL;
-#endif
 }
 
 int Pipe::XErrorHandler( Display* display, XErrorEvent* event )
@@ -245,12 +230,24 @@ void Pipe::setCGLDisplayID( CGDirectDisplayID id )
 #endif
 }
 
-CGDirectDisplayID Pipe::getCGLDisplayID() const
+void Pipe::setDC( HDC dc, const bool deleteDC )
 {
-#ifdef CGL
-    return _cglDisplayID;
-#else
-    return 0;
+#ifdef WGL
+    _dc       = dc; 
+    _dcDelete = deleteDC;
+
+    if( _pvp.isValid( ))
+        return;
+
+    if( dc )
+    {
+        _pvp.x = 0;
+        _pvp.y = 0;
+        _pvp.w = GetDeviceCaps( dc, HORZRES );
+        _pvp.h = GetDeviceCaps( dc, VERTRES );
+    }
+    else
+        _pvp.reset();
 #endif
 }
 
@@ -383,6 +380,20 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Command& command )
             EQINFO << "Using display " << _display << endl;
             break;
 #endif
+#ifdef WGL
+        case WINDOW_SYSTEM_WGL:
+            if( !_dc )
+            {
+                EQERROR << "init() did not set a valid device context" << endl;
+                reply.result = false;
+                send( node, reply );
+                return eqNet::COMMAND_HANDLED;
+            }
+                
+            // TODO: gather and send back display information
+            EQINFO << "Using dc " << _dc << endl;
+            break;
+#endif
 
         default: EQUNIMPLEMENTED;
     }
@@ -462,6 +473,9 @@ bool Pipe::init( const uint32_t initID )
         case WINDOW_SYSTEM_CGL:
             return initCGL();
 
+        case WINDOW_SYSTEM_WGL:
+            return initWGL();
+
         default:
             EQERROR << "Unknown windowing system: " << _windowSystem << endl;
             setErrorMessage( "Unknown windowing system" );
@@ -474,7 +488,7 @@ bool Pipe::initGLX()
 #ifdef GLX
     const std::string displayName  = getXDisplayString();
     const char*       cDisplayName = ( displayName.length() == 0 ? 
-                                       NULL : displayName.c_str( ));
+                                       0 : displayName.c_str( ));
     Display*          xDisplay     = XOpenDisplay( cDisplayName );
             
     if( !xDisplay )
@@ -553,6 +567,57 @@ bool Pipe::initCGL()
 #endif
 }
 
+#ifdef WGL
+struct MonitorEnumCBData
+{
+    uint32_t num;
+    Pipe*    pipe;
+};
+
+static BOOL CALLBACK monitorEnumCB( HMONITOR hMonitor, HDC hdcMonitor,
+                                    LPRECT lprcMonitor, LPARAM dwData )
+{
+    MonitorEnumCBData* data = reinterpret_cast<MonitorEnumCBData*>( dwData );
+    Pipe*              pipe = data->pipe;
+
+    if( data->num < pipe->getScreen( ))
+    {
+        ++data->num;
+        return TRUE; // continue
+    }
+
+    MONITORINFOEX monitorInfo;
+    monitorInfo.cbSize = sizeof( MONITORINFOEX );
+    if( !GetMonitorInfo( hMonitor, &monitorInfo ))
+        return FALSE;
+
+    HDC dc = CreateDC( monitorInfo.szDevice, 0, 0, 0 );
+    pipe->setDC( dc, true );
+    return FALSE;
+}
+#endif
+
+bool Pipe::initWGL()
+{
+#ifdef WGL
+    const uint32_t screen = getScreen();
+
+    if( screen == EQ_UNDEFINED_UINT32 )
+    {
+        HDC dc = GetDC( 0 );
+        setDC( dc, false );
+        return ( dc != 0 );
+    }
+
+    // find monitor
+    MonitorEnumCBData data = { 0, this };
+    EnumDisplayMonitors( 0, 0, monitorEnumCB,reinterpret_cast<LPARAM>( &data ));
+    return ( getDC() != 0 );
+#else
+    return false;
+#endif
+}
+
 bool Pipe::exit()
 {
     switch( _windowSystem )
@@ -563,6 +628,10 @@ bool Pipe::exit()
 
         case WINDOW_SYSTEM_CGL:
             exitCGL();
+            return true;
+
+        case WINDOW_SYSTEM_WGL:
+            exitWGL();
             return true;
 
         default:
@@ -578,7 +647,7 @@ void Pipe::exitGLX()
     if( !xDisplay )
         return;
 
-    setXDisplay( NULL );
+    setXDisplay( 0 );
     XCloseDisplay( xDisplay );
     EQINFO << "Closed X display " << xDisplay << endl;
 #endif
@@ -587,7 +656,19 @@ void Pipe::exitGLX()
 void Pipe::exitCGL()
 {
 #ifdef CGL
-    setCGLDisplayID( NULL );
+    setCGLDisplayID( 0 );
     EQINFO << "Reset X CGL displayID " << endl;
+#endif
+}
+
+void Pipe::exitWGL()
+{
+#ifdef WGL
+    HDC dc = getDC();
+    if( needsDCDelete( ))
+        DeleteDC( dc );
+
+    setDC( 0, false );
+    EQINFO << "Reset Win32 device context " << endl;
 #endif
 }

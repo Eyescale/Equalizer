@@ -47,7 +47,7 @@ namespace eq
 
         uint32_t requestID;
         uint32_t compoundModes;
-        char     rendererInfo[8] EQ_ALIGN8;
+        EQ_ALIGN8( char     rendererInfo[8] );
     };
 
     struct ServerCreateConfigPacket : public ServerPacket
@@ -61,7 +61,7 @@ namespace eq
 
         uint32_t      configID;
         eqNet::NodeID appNodeID;
-        char          name[8] EQ_ALIGN8;
+        EQ_ALIGN8( char          name[8] );
     };
 
     struct ServerDestroyConfigPacket : public ServerPacket
@@ -88,7 +88,7 @@ namespace eq
 
         uint32_t requestID;
         uint32_t configID;
-        char     sessionName[8] EQ_ALIGN8;
+        EQ_ALIGN8( char     sessionName[8] );
     };
 
     struct ServerReleaseConfigPacket : public ServerPacket
@@ -153,7 +153,7 @@ namespace eq
         uint32_t requestID;
         uint32_t headMatrixID;
         bool     result;
-        char     error[8] EQ_ALIGN8;
+        EQ_ALIGN8( char error[8] );
     };
 
     struct ConfigExitPacket : public ConfigPacket
@@ -201,7 +201,7 @@ namespace eq
         uint32_t requestID;
         uint32_t frameNumber;
         uint32_t nNodeIDs;
-        eqNet::NodeID nodeIDs[1] EQ_ALIGN8;
+        EQ_ALIGN8( eqNet::NodeID nodeIDs[1] );
     };
 
     struct ConfigEndFramePacket : public ConfigPacket
@@ -276,7 +276,7 @@ namespace eq
 
         uint32_t requestID;
         bool     result;
-        char     error[8] EQ_ALIGN8;
+        EQ_ALIGN8( char error[8] );
     };
 
     struct NodeExitPacket : public eqNet::ObjectPacket
@@ -377,7 +377,7 @@ namespace eq
 
         uint32_t requestID;
         bool     result;
-        char     error[8] EQ_ALIGN8;
+        EQ_ALIGN8( char     error[8] );
     };
 
     struct PipeExitPacket : public eqNet::ObjectPacket
@@ -437,7 +437,7 @@ namespace eq
 
         uint32_t  frameNumber;
         uint32_t  nStatEvents;
-        StatEvent statEvents[1] EQ_ALIGN8;
+        EQ_ALIGN8( StatEvent statEvents[1] );
     };
 
     //------------------------------------------------------------
@@ -457,7 +457,7 @@ namespace eq
         int32_t        iattr[eq::Window::IATTR_ALL];
         PixelViewport  pvp;
         Viewport       vp;
-        char           name[8] EQ_ALIGN8;
+        EQ_ALIGN8( char name[8] );
     };
 
     struct WindowInitReplyPacket : public eqNet::ObjectPacket
@@ -474,7 +474,7 @@ namespace eq
         bool                    result;
         PixelViewport           pvp;
         Window::DrawableConfig  drawableConfig;
-        char                    error[8] EQ_ALIGN8;
+        EQ_ALIGN8( char error[8] );
     };
 
     struct WindowExitPacket : public eqNet::ObjectPacket
@@ -600,7 +600,7 @@ namespace eq
         int32_t       iattr[eq::Channel::IATTR_ALL];
         PixelViewport pvp;
         Viewport      vp;
-        char          name[8] EQ_ALIGN8;
+        EQ_ALIGN8( char          name[8] );
     };
 
     struct ChannelInitReplyPacket : public eqNet::ObjectPacket
@@ -614,10 +614,10 @@ namespace eq
             }
 
         uint32_t requestID;
-        float    near;
-        float    far;
+        float    nearPlane;
+        float    farPlane;
         bool     result;
-        char     error[8] EQ_ALIGN8;
+        EQ_ALIGN8( char error[8] );
     };
 
     struct ChannelExitPacket : public eqNet::ObjectPacket
@@ -652,8 +652,8 @@ namespace eq
                 size      = sizeof( ChannelSetNearFarPacket );
             }
 
-        float    near;
-        float    far;
+        float    nearPlane;
+        float    farPlane;
     };
 
     struct ChannelTaskPacket : public eqNet::ObjectPacket
@@ -688,7 +688,7 @@ namespace eq
             }
 
         uint32_t             nFrames;
-        eqNet::ObjectVersion frames[1] EQ_ALIGN8;
+        EQ_ALIGN8( eqNet::ObjectVersion frames[1] );
     };
         
     struct ChannelReadbackPacket : public ChannelTaskPacket
@@ -700,7 +700,7 @@ namespace eq
             }
 
         uint32_t             nFrames;
-        eqNet::ObjectVersion frames[1] EQ_ALIGN8;
+        EQ_ALIGN8( eqNet::ObjectVersion frames[1] );
     };
         
     struct ChannelTransmitPacket : public eqNet::ObjectPacket
@@ -714,7 +714,7 @@ namespace eq
         
         eqNet::ObjectVersion frame;
         uint32_t             nNodes;
-        eqNet::NodeID        nodes[1] EQ_ALIGN8;
+        EQ_ALIGN8( eqNet::NodeID        nodes[1] );
     };
 
     //------------------------------------------------------------
@@ -731,7 +731,7 @@ namespace eq
         uint32_t      version;
         uint32_t      buffers;
         PixelViewport pvp;
-        uint8_t       data[8] EQ_ALIGN8; // size is pvp.w * pvp.h * depth
+        EQ_ALIGN8( uint8_t       data[8] ); // size is pvp.w * pvp.h * depth
     };
 
     struct FrameDataReadyPacket : public eqNet::ObjectPacket

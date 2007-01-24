@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "compound.h"
@@ -576,11 +576,11 @@ void Compound::_updateInput( UpdateData* data )
     if( !testInheritTask( TASK_ASSEMBLE ) || _inputFrames.empty( ) || !channel )
         return;
 
-    for( vector<Frame*>::const_iterator iter = _inputFrames.begin(); 
-         iter != _inputFrames.end(); ++iter )
+    for( vector<Frame*>::const_iterator i = _inputFrames.begin(); 
+         i != _inputFrames.end(); ++i )
     {
-        Frame*                             frame = *iter;
-        const std::string&                 name  = frame->getName();
+        Frame*                            frame = *i;
+        const std::string&                 name = frame->getName();
         hash_map<string, Frame*>::iterator iter = data->outputFrames.find(name);
 
         if( iter == data->outputFrames.end())
@@ -607,8 +607,8 @@ void Compound::_updateInput( UpdateData* data )
 
         // input frames are moved using the offset. The pvp signifies the pixels
         // to be used from the frame data.
-        framePVP.x = (int32_t)(frameVP.x * _inherit.pvp.w);
-        framePVP.y = (int32_t)(frameVP.y * _inherit.pvp.h);
+        framePVP.x = static_cast<int32_t>( frameVP.x * _inherit.pvp.w );
+        framePVP.y = static_cast<int32_t>( frameVP.y * _inherit.pvp.h );
 
         frame->setOffset( frameOffset );
         //frame->setPixelViewport( framePVP );
@@ -768,7 +768,7 @@ void Compound::_computeFrustum( eq::RenderContext& context, const Eye whichEye )
     const Channel*  destination = _inherit.channel;
     const eq::View& view        = _inherit.view;
     Config*         config      = getConfig();
-    destination->getNearFar( &context.frustum.near, &context.frustum.far );
+    destination->getNearFar( &context.frustum.nearPlane, &context.frustum.farPlane );
 
     // compute eye position in screen space
     const vmml::Vector3f& eyeW = config->getEyePosition( whichEye );
@@ -787,20 +787,20 @@ void Compound::_computeFrustum( eq::RenderContext& context, const Eye whichEye )
 
     // compute frustum from size and eye position
     vmml::Frustumf& frustum = context.frustum;
-    const float     ratio   = frustum.near / eye[2];
+    const float     ratio   = frustum.nearPlane / eye[2];
     if( eye[2] > 0 )
     {
-        frustum.left   =  ( -view.width/2.  - eye[0] ) * ratio;
-        frustum.right  =  (  view.width/2.  - eye[0] ) * ratio;
-        frustum.bottom =  ( -view.height/2. - eye[1] ) * ratio;
-        frustum.top    =  (  view.height/2. - eye[1] ) * ratio;
+        frustum.left   =  ( -view.width*0.5f  - eye[0] ) * ratio;
+        frustum.right  =  (  view.width*0.5f  - eye[0] ) * ratio;
+        frustum.bottom =  ( -view.height*0.5f - eye[1] ) * ratio;
+        frustum.top    =  (  view.height*0.5f - eye[1] ) * ratio;
     }
     else // eye behind near plane - 'mirror' x
     {
-        frustum.left   =  (  view.width/2.  - eye[0] ) * ratio;
-        frustum.right  =  ( -view.width/2.  - eye[0] ) * ratio;
-        frustum.bottom =  (  view.height/2. + eye[1] ) * ratio;
-        frustum.top    =  ( -view.height/2. + eye[1] ) * ratio;
+        frustum.left   =  (  view.width*0.5f  - eye[0] ) * ratio;
+        frustum.right  =  ( -view.width*0.5f  - eye[0] ) * ratio;
+        frustum.bottom =  (  view.height*0.5f + eye[1] ) * ratio;
+        frustum.top    =  ( -view.height*0.5f + eye[1] ) * ratio;
     }
 
     // adjust to viewport (screen-space decomposition)

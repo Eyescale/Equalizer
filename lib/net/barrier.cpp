@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "barrier.h"
@@ -25,7 +25,7 @@ void Barrier::_construct()
                      CommandFunc<Barrier>( this, &Barrier::_cmdEnterReply ));
 }
 
-Barrier::Barrier( eqBase::RefPtr<Node> master, const uint32_t height )
+EQ_EXPORT Barrier::Barrier( eqBase::RefPtr<Node> master, const uint32_t height )
         : Object( TYPE_BARRIER ),
           _master( master )
 {
@@ -45,7 +45,7 @@ Barrier::Barrier( const void* instanceData )
     EQINFO << "Barrier of height " << _data.height << " instanciated" << endl;
 }
 
-void Barrier::enter()
+EQ_EXPORT void Barrier::enter()
 {
     EQASSERT( _data.height > 1 );
     EQASSERT( _data.master != NodeID::ZERO );

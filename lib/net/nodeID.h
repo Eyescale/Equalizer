@@ -6,8 +6,11 @@
 #define EQNET_NODEID_H
 
 #include <eq/base/hash.h>
+#include <eq/base/log.h>
 
-#if defined (NetBSD) || defined (FreeBSD)
+#ifdef WIN32
+#  include <rpc.h>
+#elif defined (NetBSD) || defined (FreeBSD)
 #  include <uuid.h>
 #else
 #  include <uuid/uuid.h>
@@ -24,6 +27,56 @@ namespace eqNet
     class NodeID
     {
     public:
+#ifdef WIN32
+        NodeID( const bool generate = false )
+            { generate ? UuidCreate( &_id ) : UuidCreateNil( &_id ); }
+        NodeID( const NodeID& from ) { _id = from._id; }
+
+        NodeID& operator = ( const NodeID& from )
+            {
+                _id = from._id;
+                return *this;
+            }
+        
+        bool operator == ( const NodeID& rhs ) const
+            { 
+                RPC_STATUS status; 
+                return ( UuidEqual( const_cast<UUID*>( &_id ), 
+                                    const_cast<UUID*>( &rhs._id ),
+                                    &status ) == TRUE );
+            }
+        bool operator != ( const NodeID& rhs ) const
+            { 
+                RPC_STATUS status; 
+                return ( UuidEqual( const_cast<UUID*>( &_id ), 
+                                    const_cast<UUID*>( &rhs._id ),
+                                    &status ) == FALSE );
+            }
+
+        bool operator <  ( const NodeID& rhs ) const
+            { 
+                RPC_STATUS status; 
+                return UuidCompare( const_cast<UUID*>( &_id ), 
+                                    const_cast<UUID*>( &rhs._id ),
+                                    &status ) < 0;
+            }
+        bool operator >  ( const NodeID& rhs ) const
+            { 
+                RPC_STATUS status; 
+                return UuidCompare( const_cast<UUID*>( &_id ), 
+                                    const_cast<UUID*>( &rhs._id ),
+                                    &status ) > 0;
+            }
+
+        bool operator ! () const 
+            {
+                RPC_STATUS status; 
+                return ( UuidIsNil( const_cast<UUID*>( &_id ), &status )==TRUE);
+            }
+
+    private:
+        UUID _id;
+#else
         NodeID( const bool generate = false )
             { generate ? uuid_generate( _id ) : uuid_clear( _id ); }
         NodeID( const NodeID& from ) { uuid_copy( _id, from._id ); }
@@ -46,35 +99,57 @@ namespace eqNet
 
         bool operator ! () const { return uuid_is_null( _id ); }
 
+    private:
+        uuid_t _id;
+#endif
+
+    public:
         static const NodeID ZERO;
 
     private:
-        uuid_t _id;
         friend std::ostream& operator << ( std::ostream& os, const NodeID& id );
-        friend struct hashNodeID;
-    };
-
-    struct hashNodeID
-    {
-    public:
-        size_t operator() (const NodeID& key) const
-            {
-                return (size_t)(*key._id);
-            }
+        friend class stde::hash_compare< eqNet::NodeID >;
     };
 
     /** A hash for NodeID keys. */
     template<class T> class NodeIDHash 
-        : public stde::hash_map<const NodeID, T, hashNodeID >
+        : public stde::hash_map< const NodeID, T >
     {};
 
     inline std::ostream& operator << ( std::ostream& os, const NodeID& id )
     {
+#ifdef WIN32
+        unsigned char* uuid;
+        UuidToString( const_cast<UUID*>( &id._id ), &uuid );
+        os << uuid;
+        RpcStringFree( &uuid );
+#else
         char string[40];
         uuid_unparse( id._id, string );
-
         os << string;
+#endif
         return os;
     }
-};
+}
+
+template<>
+inline size_t stde::hash_compare< eqNet::NodeID >::operator() 
+    ( const eqNet::NodeID& key ) const
+{
+#ifdef WIN32
+    return key._id.Data1;
+#else
+    return (size_t)(*key._id);
+#endif
+}
+
+#ifdef WIN32
+template<> inline
+size_t stde::hash_value(const eqNet::NodeID& key )
+{
+    stde::hash_compare< eqNet::NodeID > hash;
+    return hash( key );
+}
+#endif
+
 #endif // EQNET_NODE_H

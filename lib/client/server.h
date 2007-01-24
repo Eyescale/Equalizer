@@ -17,7 +17,7 @@ namespace eq
     class OpenParams;
     struct ServerPacket;
 
-    class Server : public eqNet::Node
+    class EQ_EXPORT Server : public eqNet::Node
     {
     public:
         /** 
@@ -67,7 +67,7 @@ namespace eq
         /**
          * Destructs this server.
          */
-        virtual ~Server(){}
+        virtual ~Server();
 
     private:
 

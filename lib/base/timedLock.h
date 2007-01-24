@@ -5,7 +5,7 @@
 #ifndef EQBASE_TIMEDLOCK_H
 #define EQBASE_TIMEDLOCK_H
 
-#include "thread.h"
+#include <eq/base/thread.h>
 
 #include <pthread.h>
 

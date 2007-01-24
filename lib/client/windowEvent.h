@@ -9,8 +9,10 @@
 
 namespace eq
 {
+    class Window;
+
     /** A window-system event for an eq::Window */
-    class WindowEvent
+    class EQ_EXPORT WindowEvent
     {
     public:
         enum Type
@@ -49,6 +51,15 @@ namespace eq
 #endif
 #ifdef CGL
             // TODO
+#endif
+#ifdef WGL
+            struct
+            {
+                HWND hWnd;
+                UINT uMsg;
+                WPARAM wParam;
+                LPARAM lParam;
+            };
 #endif
             char fill[128];
         };

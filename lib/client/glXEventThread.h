@@ -1,4 +1,4 @@
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_GLXEVENTTHREAD_H
@@ -7,7 +7,6 @@
 #include <eq/client/eventThread.h>
 
 #include <eq/client/event.h>
-#include <eq/client/windowEvent.h>
 #include <eq/net/command.h>
 #include <eq/net/connectionSet.h>
 
@@ -18,7 +17,8 @@ namespace eq
     /**
      * The per-node event processing thread for glx pipes.
      */
-    class GLXEventThread : public EventThread, public eqNet::Base
+    class GLXEventThread : public EventThread, public eqBase::Thread, 
+                           public eqNet::Base
     {
     public:
         /** Constructs a new glX event thread. */
@@ -55,18 +55,15 @@ namespace eq
         /** The cache to store the last received command, stored for reuse */
         eqNet::Command _receivedCommand;
 
-        WindowEvent _lastPointerEvent;
-
         /** Application->Event thread command connection. */
         eqBase::RefPtr<eqNet::Connection> _commandConnection;
 
         void _handleEvent();
         void   _handleCommand();
         void   _handleEvent( eqBase::RefPtr<X11Connection> connection );
-        int32_t  _getButtonState( XEvent& event );
-        int32_t  _getButtonAction( XEvent& event );
-        void     _computePointerDelta( WindowEvent &event );
-        int32_t  _getKey( XEvent& event );
+        uint32_t  _getButtonState( XEvent& event );
+        uint32_t  _getButtonAction( XEvent& event );
+        uint32_t  _getKey( XEvent& event );
 
         /** The command functions. */
         eqNet::CommandResult _cmdAddPipe( eqNet::Command& command );

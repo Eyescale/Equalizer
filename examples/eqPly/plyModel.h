@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved.
    Adapted code for Equalizer usage.
  */
@@ -134,12 +134,12 @@ private:
 
     static float _getScaleFactor( const Vertex bbox[2] );
     void         scaleModel( const float scale, const vmml::Vector3f& offset );
-    static void  scaleBBoxCB( PlyModel< FaceType >::BBox *bbox, void *data );
+    static void  scaleBBoxCB( typename PlyModel< FaceType >::BBox *bbox, void *data );
 
     void freeBBoxes( BBox &bbox );
 };
 
-#ifdef __GNUC__
+#if defined (__GNUC__) || defined (WIN32)
    // including the entire templated implementation for template instantation
 #  include "plyModel.cpp"
 #endif

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "connectionDescription.h"
@@ -31,12 +31,12 @@ ConnectionDescription::ConnectionDescription()
     launchCommand = global->getConnectionSAttribute( SATTR_LAUNCH_COMMAND );
 
     launchTimeout = global->getConnectionIAttribute( IATTR_LAUNCH_TIMEOUT );
-    type          = (eqNet::Connection::Type)global->
+    type          = (eqNet::ConnectionType)global->
         getConnectionIAttribute( IATTR_TYPE );
 
     switch( type )
     {
-        case eqNet::Connection::TYPE_TCPIP:
+        case eqNet::CONNECTIONTYPE_TCPIP:
             TCPIP.port = global->getConnectionIAttribute( IATTR_TCPIP_PORT );
             break;
         default:
@@ -55,8 +55,8 @@ std::ostream& eqs::operator << ( std::ostream& os,
     if( desc->type != global->getConnectionIAttribute( 
             eqs::ConnectionDescription::IATTR_TYPE ))
         os << "type " 
-           << ( desc->type == eqNet::Connection::TYPE_TCPIP ? "TCPIP" : 
-                desc->type == eqNet::Connection::TYPE_PIPE ?  "PIPE" :
+           << ( desc->type == eqNet::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
+                desc->type == eqNet::CONNECTIONTYPE_PIPE ?  "PIPE" :
                 "UNIPIPE" ) << endl;
     
     if( desc->TCPIP.port != global->getConnectionIAttribute( 

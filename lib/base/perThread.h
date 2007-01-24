@@ -1,11 +1,12 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_PERTHREAD_H
 #define EQBASE_PERTHREAD_H
 
-#include "base.h"
+#include <eq/base/base.h>
+#include <eq/base/debug.h>
 
 namespace eqBase
 {
@@ -23,7 +24,7 @@ namespace eqBase
                 EQASSERTINFO( sizeof(T) <= sizeof(void*), 
                               "Data too large for thread-specific storage" );
 
-                const int error = pthread_key_create( &_key, NULL );
+                const int error = pthread_key_create( &_key, 0 );
                 if( error )
                 {
                     EQERROR << "Can't create thread-specific key: " 

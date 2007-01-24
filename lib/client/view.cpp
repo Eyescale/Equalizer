@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "view.h"
@@ -7,11 +7,9 @@
 #include "projection.h"
 #include "wall.h"
 
-#include <math.h>
-
 using namespace eq;
 
-#define DEG2RAD( angle ) ( (angle) * M_PI / 180.f )
+#define DEG2RAD( angle ) ( (angle) * static_cast<float>(M_PI) / 180.f )
 
 void View::applyWall( const Wall& wall )
 {
@@ -59,9 +57,9 @@ void View::applyWall( const Wall& wall )
     xfm.ml[10] = w[2];
     xfm.ml[11] = 0.;
 
-    const float center[3] = { (wall.bottomRight[0] + wall.topLeft[0]) / 2.,
-                              (wall.bottomRight[1] + wall.topLeft[1]) / 2.,
-                              (wall.bottomRight[2] + wall.topLeft[2]) / 2. };
+    const float center[3] = { (wall.bottomRight[0] + wall.topLeft[0]) * 0.5f,
+                              (wall.bottomRight[1] + wall.topLeft[1]) * 0.5f,
+                              (wall.bottomRight[2] + wall.topLeft[2]) * 0.5f };
 
     xfm.ml[12] = -(u[0]*center[0] + u[1]*center[1] + u[2]*center[2]);
     xfm.ml[13] = -(v[0]*center[0] + v[1]*center[1] + v[2]*center[2]);

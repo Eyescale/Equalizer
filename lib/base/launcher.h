@@ -18,9 +18,10 @@ namespace eqBase
 
     private:
         Launcher(){}
-
+#ifndef WIN32
         static void _buildCommandLine( const std::string& command,
                                        std::vector<std::string>& commandLine );
+#endif
     };
 }
 

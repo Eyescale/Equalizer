@@ -8,6 +8,7 @@ HEADER_SRC = \
 	base/barrier.h \
 	base/base.h \
 	base/clock.h \
+	base/debug.h \
 	base/defines.h \
 	base/executionListener.h \
 	base/hash.h \
@@ -130,9 +131,7 @@ SOURCES = \
 	client/global.cpp \
 	client/image.cpp \
 	client/init.cpp \
-	client/matrix4.cpp \
 	client/node.cpp \
-	client/nodeFactory.cpp \
 	client/openParams.cpp \
 	client/pipe.cpp \
 	client/range.cpp \

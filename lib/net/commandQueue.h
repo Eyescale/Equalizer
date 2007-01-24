@@ -1,14 +1,15 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_COMMANDQUEUE_H
 #define EQNET_COMMANDQUEUE_H
 
-#include "commandCache.h"
+#include <eq/net/commandCache.h>
 
 #include <eq/base/lock.h>
 #include <eq/base/mtQueue.h>
+#include <eq/base/thread.h>
 
 namespace eqNet
 {
@@ -17,7 +18,7 @@ namespace eqNet
     /**
      * A CommandQueue is a thread-safe queue for command packets.
      */
-    class CommandQueue
+    class EQ_EXPORT CommandQueue
     {
     public:
         CommandQueue();
@@ -81,7 +82,6 @@ namespace eqNet
 
         CHECK_THREAD_DECLARE( _thread );
     private:
-
         /** Thread-safe command queue. */
         eqBase::MTQueue<Command>  _commands;
         
@@ -92,6 +92,10 @@ namespace eqNet
         CommandCache              _commandCache;
         eqBase::Lock              _commandCacheLock;
 
+#ifdef WIN32
+        /** Thread ID of the receiver. */
+        DWORD _win32ThreadID;
+#endif
     };
 };
 

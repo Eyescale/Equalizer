@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_COMMANDFUNC_H
@@ -15,7 +15,7 @@ namespace eqNet
     {
     public:
         CommandFunc( T* object, 
-                    CommandResult (T::*func)( Command& ))
+                     CommandResult (T::*func)( Command& ))
             : _object( object ), _func( func ) {}
 
         template< typename O > CommandFunc( const O& from )

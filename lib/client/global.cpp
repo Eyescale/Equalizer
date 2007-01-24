@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "global.h"
@@ -8,10 +8,10 @@
 using namespace eq;
 using namespace std;
 
-NodeFactory* Global::_nodeFactory = createNodeFactory();
-string       Global::_server;
+EQ_EXPORT eq::NodeFactory* eq::Global::_nodeFactory = 0;
+string eq::Global::_server;
 
-std::ostream& eq::operator << ( std::ostream& os, const IAttrValue value )
+EQ_EXPORT std::ostream& eq::operator << ( std::ostream& os, const IAttrValue value )
 {
     if( value > ON ) // ugh
         os << static_cast<int>( value );

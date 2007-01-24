@@ -11,8 +11,9 @@
 #include "packets.h"
 #include "session.h"
 
-
-#include <alloca.h>
+#ifndef WIN32
+#  include <alloca.h>
+#endif
 
 using namespace eqBase;
 using namespace eqNet;
@@ -287,8 +288,7 @@ void Session::removeRegisteredObject( Object* object,
         return;
     }
 
-    const uint32_t            id      = object->getID();
-
+    const uint32_t id = object->getID();
     if( _registeredObjects.find( id ) == _registeredObjects.end( ))
         return;
 

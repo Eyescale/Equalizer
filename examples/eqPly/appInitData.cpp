@@ -6,33 +6,30 @@
 
 #include "appInitData.h"
 
-#include <getopt.h>
+#include <tclap/CmdLine.h>
 
 void AppInitData::parseArguments( int argc, char** argv )
 {
-    int      result;
-    int      index;
-    struct option options[] = 
-        {
-            { "model",          required_argument, 0, 'm' },
-            { "port",           required_argument, 0, 'p' },
-            { 0,                0,                 0,  0 }
-        };
-
-    while( (result = getopt_long( argc, argv, "", options, &index )) != -1 )
+    try
     {
-        switch( result )
-        {
-            case 'm':
-                setFilename( optarg );
-                break;
+        TCLAP::CmdLine command("eqPly - Equalizer polygonal rendering example");
+        TCLAP::ValueArg<string> modelArg( "m", "model", "ply model file name", 
+                                          false, "rockerArm.ply", "string", 
+                                          command );
+        TCLAP::ValueArg<string> portArg( "p", "port", "tracking device port",
+                                         false, "/dev/ttyS0", "string", 
+                                         command );
+                                
+        command.parse( argc, argv );
 
-            case 'p':
-                _trackerPort = optarg;
-
-            default:
-                EQWARN << "unhandled option: " << options[index].name << endl;
-                break;
-        }
+        if( modelArg.isSet( ))
+            setFilename( modelArg.getValue( ));
+        if( portArg.isSet( ))
+            _trackerPort = portArg.getValue();
+    }
+    catch( TCLAP::ArgException& exception )
+    {
+        EQERROR << "Command line parse error: " << exception.error() 
+                << " for argument " << exception.argId() << endl;
     }
 }

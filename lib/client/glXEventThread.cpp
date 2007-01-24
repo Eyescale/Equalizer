@@ -255,11 +255,10 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
                 event.type = WindowEvent::TYPE_POINTER_MOTION;
                 event.pointerMotion.x = xEvent.xmotion.x;
                 event.pointerMotion.y = xEvent.xmotion.y;
-                event.pointerButtonRelease.buttons = _getButtonState( xEvent );
-                event.pointerButtonRelease.button  = PTR_BUTTON_NONE;
+                event.pointerMotion.buttons = _getButtonState( xEvent );
+                event.pointerMotion.button  = PTR_BUTTON_NONE;
 
                 _computePointerDelta( event );
-                _lastPointerEvent = event;
                 break;
 
             case ButtonPress:
@@ -270,7 +269,6 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
                 event.pointerButtonPress.button  = _getButtonAction( xEvent );
 
                 _computePointerDelta( event );
-                _lastPointerEvent = event;
                 break;
                 
             case ButtonRelease:
@@ -281,7 +279,6 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
                 event.pointerButtonRelease.button  = _getButtonAction( xEvent );
 
                 _computePointerDelta( event );
-                _lastPointerEvent = event;
                 break;
             
             case KeyPress:
@@ -303,10 +300,10 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
     }
 }
 
-int32_t GLXEventThread::_getButtonState( XEvent& event )
+uint32_t GLXEventThread::_getButtonState( XEvent& event )
 {
     const int xState = event.xbutton.state;
-    int32_t   state  = 0;
+    uint32_t   state  = 0;
     
     if( xState & Button1Mask ) state |= PTR_BUTTON1;
     if( xState & Button2Mask ) state |= PTR_BUTTON2;
@@ -330,7 +327,7 @@ int32_t GLXEventThread::_getButtonState( XEvent& event )
     return state;
 }
 
-int32_t GLXEventThread::_getButtonAction( XEvent& event )
+uint32_t GLXEventThread::_getButtonAction( XEvent& event )
 {
     switch( event.xbutton.button )
     {    
@@ -343,37 +340,8 @@ int32_t GLXEventThread::_getButtonAction( XEvent& event )
     }
 }
 
-void GLXEventThread::_computePointerDelta( WindowEvent &event )
-{
-    if( _lastPointerEvent.window != event.window )
-    {
-        event.pointerEvent.dx = 0;
-        event.pointerEvent.dy = 0;
-        return;
-    }
 
-    switch( event.type )
-    {
-        case WindowEvent::TYPE_POINTER_BUTTON_PRESS:
-        case WindowEvent::TYPE_POINTER_BUTTON_RELEASE:
-            if( _lastPointerEvent.type == WindowEvent::TYPE_POINTER_MOTION )
-            {
-                event.pointerEvent.dx = _lastPointerEvent.pointerEvent.dx;
-                event.pointerEvent.dy = _lastPointerEvent.pointerEvent.dy;
-                break;
-            }
-            // fall through
-
-        default:
-            event.pointerEvent.dx = 
-                event.pointerEvent.x - _lastPointerEvent.pointerEvent.x;
-            event.pointerEvent.dy = 
-                event.pointerEvent.y - _lastPointerEvent.pointerEvent.y;
-    }
-    _lastPointerEvent = event;
-}
-
-int32_t GLXEventThread::_getKey( XEvent& event )
+uint32_t GLXEventThread::_getKey( XEvent& event )
 {
     const KeySym key = XKeycodeToKeysym( event.xany.display, 
                                          event.xkey.keycode, 0);

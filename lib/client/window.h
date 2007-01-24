@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_WINDOW_H
@@ -60,10 +60,7 @@ namespace eq
          */
         void setXDrawable( XID drawable );
 
-        /** 
-         * Returns the X11 drawable ID. 
-         * @return  the X11 drawable ID. 
-         */
+        /**  @return  the X11 drawable ID. */
         XID getXDrawable() const { return _xDrawable; }
         
         /** 
@@ -75,10 +72,7 @@ namespace eq
          */
         void setGLXContext( GLXContext context ) { _glXContext = context; }
 
-        /** 
-         * Returns the GLX rendering context.
-         * @return the GLX rendering context. 
-         */
+        /** @return the GLX rendering context. */
         GLXContext getGLXContext() const { return _glXContext; }
 
         /** 
@@ -95,6 +89,30 @@ namespace eq
          * @return the CGL rendering context. 
          */
         CGLContextObj getCGLContext() const { return _cglContext; }
+
+        /** 
+         * Set the Win32 window handle for this window.
+         * 
+         * This function should only be called from init() or exit().
+         *
+         * @param drawable the window handle.
+         */
+        void setWGLWindowHandle( HWND handle );
+
+        /** @return the Win32 window handle. */
+        HWND getWGLWindowHandle() const { return _wglWindowHandle; }
+        
+        /** 
+         * Set the WGL rendering context for this window.
+         * 
+         * This function should only be called from init() or exit().
+         *
+         * @param drawable the WGL rendering context.
+         */
+        void setWGLContext( HGLRC context ) { _wglContext = context; }
+
+        /** @return the WGL rendering context. */
+        HGLRC getWGLContext() const { return _wglContext; }
 
         /** 
          * Returns the config of this window.
@@ -171,6 +189,7 @@ namespace eq
         virtual bool init( const uint32_t initID );
         virtual bool initGLX();
         virtual bool initCGL();
+        virtual bool initWGL();
 
         /** 
          * Initialize the OpenGL state for this window.
@@ -185,8 +204,9 @@ namespace eq
          * Exit this window.
          */
         virtual bool exit();
-        void exitGLX();
-        void exitCGL();
+        virtual void exitGLX();
+        virtual void exitCGL();
+        virtual void exitWGL();
 
         /**
          * Start rendering a frame.
@@ -227,9 +247,11 @@ namespace eq
          * Config::sendEvent().
          * 
          * @param event the received window system event.
+         * @param true when the event was handled, false if not.
          */
-        virtual void processEvent( const WindowEvent& event );
+        virtual bool processEvent( const WindowEvent& event );
         friend class GLXEventThread;
+        friend class WGLEventHandler;
         //*}
 
         /** @name Error information. */
@@ -265,6 +287,11 @@ namespace eq
             /** The CGL context. */
             CGLContextObj _cglContext;
 
+            struct
+            {
+                HWND  _wglWindowHandle;
+                HGLRC _wglContext;
+            };
             char _windowFill[32];
         };
 
@@ -278,7 +305,7 @@ namespace eq
         /** Integer attributes. */
         int32_t _iAttributes[IATTR_ALL];
         /** String representation of integer attributes. */
-        static std::string _iAttributeStrings[IATTR_ALL];
+        static EQ_EXPORT std::string _iAttributeStrings[IATTR_ALL];
 
         /** The channels of this window. */
         std::vector<Channel*>     _channels;

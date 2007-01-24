@@ -19,6 +19,11 @@ Base::Base( const bool threadSafe )
 {
 }
 
+Base::Base( const Base& from )
+        : _requestHandler( from._requestHandler.isThreadSafe( ))
+{
+}
+
 Base::~Base()
 {
 }
@@ -26,6 +31,22 @@ Base::~Base()
 //===========================================================================
 // command handling
 //===========================================================================
+void Base::_registerCommand( const uint32_t command,
+                             const CommandFunc<Base>& func)
+{
+    if( _vTable.size() <= command )
+    {
+        while( _vTable.size() < command )
+            _vTable.push_back( CommandFunc<Base>( this, &Base::_cmdUnknown ));
+
+        _vTable.push_back( func );
+        EQASSERT( _vTable.size() == command + 1 );
+    }
+    else
+        _vTable[command] = func;
+}
+
+
 CommandResult Base::invokeCommand( Command& command )
 {
     const uint32_t which = command->command;

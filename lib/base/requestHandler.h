@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_REQUESTHANDLER_H
@@ -29,7 +29,7 @@ namespace eqBase
      * serveRequest() and deleteRequest() are supposed to be called only from
      * one 'serving' thread.
      */
-    class RequestHandler
+    class EQ_EXPORT RequestHandler
     {
 
     public:
@@ -100,13 +100,14 @@ namespace eqBase
         void* getRequestData( const uint32_t requestID );
 
         /** 
-         * Server a request.
+         * Serve a request.
          * 
          * @param requestID the request identifier.
          * @param result the result of the request.
          */
         void serveRequest( const uint32_t requestID, void* result );
 
+		bool isThreadSafe() const { return ( _mutex != 0 ); }
     private:
         Lock*        _mutex;
 
@@ -126,10 +127,13 @@ namespace eqBase
         typedef stde::hash_map<uint32_t, Request*> RequestHash;
 
         uint32_t            _requestID;
+#pragma warning(push)
+#pragma warning(disable: 4251)
         RequestHash         _requests;
         std::list<Request*> _freeRequests;
 
         CHECK_THREAD_DECLARE( _thread );
+#pragma warning(pop)
     };
 }
 

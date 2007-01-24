@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_NODEFACTORY_H
@@ -17,7 +17,7 @@ namespace eq
     class NodeFactory;
     class Server;
 
-    class NodeFactory
+    class EQ_EXPORT NodeFactory
     {
     public:
         /**
@@ -65,8 +65,6 @@ namespace eq
         
         virtual ~NodeFactory(){}
     };
-
-    NodeFactory* createNodeFactory() __attribute__ ((weak));
 }
 
 #endif // EQ_NODEFACTORY_H

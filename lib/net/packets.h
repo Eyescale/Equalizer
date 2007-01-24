@@ -11,7 +11,11 @@
 
 #include <eq/base/idPool.h> // for EQ_ID_*
 
-#define EQ_ALIGN8  __attribute__ ((aligned (8)))
+#ifdef WIN32
+#  define EQ_ALIGN8( var ) __declspec (align (8)) var;
+#else
+#  define EQ_ALIGN8( var ) var __attribute__ ((aligned (8)));
+#endif
 
 namespace eqNet
 {
@@ -70,7 +74,7 @@ namespace eqNet
 
         uint32_t requestID;
         uint32_t sessionID;
-        char     name[8] EQ_ALIGN8;
+        EQ_ALIGN8( char name[8] );
     };
 
     struct NodeMapSessionReplyPacket : public NodePacket
@@ -85,7 +89,7 @@ namespace eqNet
             
         uint32_t requestID;
         uint32_t sessionID;
-        char     name[8] EQ_ALIGN8;
+        EQ_ALIGN8( char     name[8] );
     };
 
     struct NodeUnmapSessionPacket : public NodePacket
@@ -126,7 +130,7 @@ namespace eqNet
 
         NodeID   nodeID;
         uint32_t requestID;
-        char     connectionDescription[8] EQ_ALIGN8;
+        EQ_ALIGN8( char     connectionDescription[8] );
     };
 
     struct NodeLaunchedPacket : public NodePacket
@@ -142,7 +146,7 @@ namespace eqNet
         NodeID   nodeID;
         uint32_t launchID;
         uint32_t requestID;
-        char     connectionDescription[8] EQ_ALIGN8;
+        EQ_ALIGN8( char     connectionDescription[8] );
     };
     
     struct NodeConnectReplyPacket : public NodePacket
@@ -164,7 +168,7 @@ namespace eqNet
 
         NodeID   nodeID;
         uint32_t requestID;
-        char     connectionDescription[8] EQ_ALIGN8;
+        EQ_ALIGN8( char     connectionDescription[8] );
     };
 
     struct NodeGetConnectionDescriptionPacket : public NodePacket
@@ -198,7 +202,7 @@ namespace eqNet
         uint32_t requestID;
         uint32_t nextIndex;
         bool     appRequest;
-        char     connectionDescription[8] EQ_ALIGN8;
+        EQ_ALIGN8( char     connectionDescription[8] );
     };
 
     //------------------------------------------------------------
@@ -371,7 +375,7 @@ namespace eqNet
         bool     isMaster;
         bool     error;
         bool     threadSafe;
-        char     objectData[8] EQ_ALIGN8;
+        EQ_ALIGN8( char     objectData[8] );
     };
 
     //------------------------------------------------------------
@@ -410,7 +414,7 @@ namespace eqNet
         
         uint32_t version;
         uint64_t deltaSize;
-        char     delta[8] EQ_ALIGN8;
+        EQ_ALIGN8( char     delta[8] );
     };
 
     //------------------------------------------------------------

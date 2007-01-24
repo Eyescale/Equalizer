@@ -1,10 +1,11 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_GLOBAL_H
 #define EQ_GLOBAL_H
 
+#include <eq/base/base.h>
 #include <string>
 
 namespace eq
@@ -25,37 +26,32 @@ namespace eq
     /** 
      * Global parameter handling for the Equalizer client library. 
      */
-    class Global
+    class EQ_EXPORT Global
     {
     public:
-        /** 
-         * Gets the node factory.
-         * 
-         * @return the node factory.
-         */
+        /** @return the node factory. */
         static NodeFactory* getNodeFactory() { return _nodeFactory; }
 
         /** 
-         * Sets the default Equalizer server.
+         * Set the default Equalizer server.
          * 
          * @param server the default server.
          */
         static void setServer( const std::string& server )
             { _server = server; }
 
-        /** 
-         * Gets the default Equalizer server.
-         * 
-         * @return the default server.
-         */
+        /** @return the default Equalizer server. */
         static const std::string& getServer() { return _server; }
 
     private:
+		friend EQ_EXPORT bool init( int argc, char** argv, NodeFactory* nodeFactory );
+		friend EQ_EXPORT bool exit();
         static NodeFactory* _nodeFactory;
+
         static std::string  _server;
     };
 
-    std::ostream& operator << ( std::ostream& os, const IAttrValue value );
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const IAttrValue value );
 }
 
 #endif // EQ_GLOBAL_H

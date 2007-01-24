@@ -1,16 +1,15 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "log.h"
-
 #include "perThread.h"
 
 using namespace eqBase;
 using namespace std;
 
-#ifndef NDEBUG
-Clock eqLogClock;
+#ifdef WIN32
+#  define atoll _atoi64
 #endif
 
 static int      getLogLevel();
@@ -40,9 +39,9 @@ namespace eqBase
     };
 }
 
-int      eqBase::Log::level  = getLogLevel();
-unsigned eqBase::Log::topics = getLogTopics();
-Clock    eqBase::LogBuffer::_clock;
+EQ_EXPORT int           eqBase::Log::level  = getLogLevel();
+EQ_EXPORT unsigned      eqBase::Log::topics = getLogTopics();
+EQ_EXPORT eqBase::Clock eqBase::LogBuffer::_clock;
 
 static PerThread<Log*> _logInstance;
 
@@ -81,12 +80,12 @@ unsigned getLogTopics()
 {
     const char *env = getenv("EQ_LOG_TOPICS");
     if( env )
-        return (unsigned)atoll(env);
+        return atoll(env);
 
     return 0;
 }
 
-Log& Log::instance( const char* subdir, const char* file, const int line )
+EQ_EXPORT Log& Log::instance( const char* subdir, const char* file, const int line )
 {
     if( !_logInstance.get( ))
         _logInstance = new Log();
@@ -95,14 +94,14 @@ Log& Log::instance( const char* subdir, const char* file, const int line )
     return *_logInstance.get();
 }
 
-std::ostream& eqBase::indent( std::ostream& os )
+EQ_EXPORT std::ostream& eqBase::indent( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
         log->indent();
     return os;
 }
-std::ostream& eqBase::exdent( std::ostream& os )
+EQ_EXPORT std::ostream& eqBase::exdent( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
@@ -110,21 +109,21 @@ std::ostream& eqBase::exdent( std::ostream& os )
         return os;
 }
 
-std::ostream& eqBase::disableFlush( std::ostream& os )
+EQ_EXPORT std::ostream& eqBase::disableFlush( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
         log->disableFlush();
     return os;
 }
-std::ostream& eqBase::enableFlush( std::ostream& os )
+EQ_EXPORT std::ostream& eqBase::enableFlush( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
         log->enableFlush();
     return os;
 }
-std::ostream& eqBase::forceFlush( std::ostream& os )
+EQ_EXPORT std::ostream& eqBase::forceFlush( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
@@ -132,14 +131,14 @@ std::ostream& eqBase::forceFlush( std::ostream& os )
     return os;
 }
 
-std::ostream& eqBase::disableHeader( std::ostream& os )
+EQ_EXPORT std::ostream& eqBase::disableHeader( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
         log->disableHeader();
     return os;
 }
-std::ostream& eqBase::enableHeader( std::ostream& os )
+EQ_EXPORT std::ostream& eqBase::enableHeader( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )

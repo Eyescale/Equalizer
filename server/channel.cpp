@@ -245,8 +245,8 @@ eqNet::CommandResult Channel::_cmdInitReply( eqNet::Command& command )
         command.getPacket<eq::ChannelInitReplyPacket>();
     EQINFO << "handle channel init reply " << packet << endl;
 
-    _near  = packet->near;
-    _far   = packet->far;
+    _near  = packet->nearPlane;
+    _far   = packet->farPlane;
     _error = packet->error;
 
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
@@ -267,8 +267,8 @@ eqNet::CommandResult Channel::_reqSetNearFar( eqNet::Command& command )
 {
     const eq::ChannelSetNearFarPacket* packet = 
         command.getPacket<eq::ChannelSetNearFarPacket>();
-    _near = packet->near;
-    _far  = packet->far;
+    _near = packet->nearPlane;
+    _far  = packet->farPlane;
     return eqNet::COMMAND_HANDLED;
 }
 

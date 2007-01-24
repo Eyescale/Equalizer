@@ -7,14 +7,16 @@
 
 #include <eq/net/connection.h>
 
+#include <eq/base/base.h>
 #include <eq/base/hash.h>
 #include <eq/base/refPtr.h>
 
-#include <poll.h>
+#ifndef WIN32
+#  include <poll.h>
+#endif
 
 namespace eqNet
 {
-    class Connection;
     class Message;
     class Network;
         
@@ -23,7 +25,7 @@ namespace eqNet
      *
      * From the set, a connection with pending events can be selected.
      */
-    class ConnectionSet
+    class EQ_EXPORT ConnectionSet
     {
     public:
         enum Event
@@ -34,7 +36,9 @@ namespace eqNet
             EVENT_DATA,            //!< Data can be read
             EVENT_TIMEOUT,         //!< The selection request timed out
             EVENT_INTERRUPT,       //!< ConnectionSet::interrupt was called
-            EVENT_ERROR            //!< An error occured during selection
+            EVENT_ERROR,           //!< A connection signalled an error
+            EVENT_SELECT_ERROR,    //!< An error occured during select()
+            EVENT_INVALID_HANDLE   //!< A connection is not select'able
         };
 
         ConnectionSet();
@@ -64,19 +68,19 @@ namespace eqNet
          */
         void interrupt();
 
-        int                        getErrno()     { return _errno; }
+        int                        getError()     { return _error; }
         eqBase::RefPtr<Connection> getConnection(){ return _connection; }
 
     private:
-        std::vector<pollfd> _fdSet;
-        bool                _fdSetDirty;
-        stde::hash_map<int, Connection*> _fdSetConnections;
+        /** The connections to handle */
+        std::vector< eqBase::RefPtr<Connection> > _connections;
 
-        enum SelfFD
-        {
-            SIDE_SELECT = 0,
-            SIDE_APP    = 1
-        };
+#ifdef WIN32
+        std::vector<HANDLE> _fdSet;
+#else
+        std::vector<pollfd> _fdSet;
+#endif
+        stde::hash_map<Connection::ReadNotifier, Connection*> _fdSetConnections;
 
         enum SelfCommands
         {
@@ -84,22 +88,20 @@ namespace eqNet
             SELF_INTERRUPT
         };
 
-        /** The fd to reset a running select, see comment in constructor. */
-        int      _selfFD[2];
-
-        /** True if the connection set is in select(). */
-        bool     _inSelect;
-
-        int      _errno;
-
-        std::vector< eqBase::RefPtr<Connection> > _connections;
+        /** The connection to reset a running select, see constructor. */
+        eqBase::RefPtr<Connection> _selfConnection;
 
         // result values
         eqBase::RefPtr<Connection> _connection;
+        int                        _error;
 
+        bool _getEvent( Event& event, Connection::ReadNotifier& fd );
         void _dirtyFDSet();
-        void _setupFDSet();
-        void _buildFDSet();
+        bool _setupFDSet();
+        bool _buildFDSet();
+
+        Event _handleSelfCommand();
+        Event _getSelectResult( const uint32_t index );
     };
 
     /** 

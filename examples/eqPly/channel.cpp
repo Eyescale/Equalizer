@@ -73,8 +73,13 @@ void Channel::draw( const uint32_t frameID )
 
     if( !range.isFull( )) // Color DB-patches
     {
+#ifdef WIN32
+        const unsigned hashValue = stde::hash_value( getName().c_str( ));
+#else
         stde::hash<const char*> hasher;
-        unsigned  seed  = (unsigned)(long long)this + hasher(getName().c_str());
+        const unsigned hashValue = hasher( getName().c_str( ));
+#endif
+        unsigned  seed  = (unsigned)(long long)this + hashValue;
         const int color = rand_r( &seed );
     
         glColor3f( (color&0xff) / 255., ((color>>8) & 0xff) / 255.,

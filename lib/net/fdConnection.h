@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_FD_CONNECTION_H
@@ -13,14 +13,15 @@ namespace eqNet
     /**
      * A generic file descriptor-based connection, to be subclassed.
      */
-    class FDConnection : public Connection
+    class EQ_EXPORT FDConnection : public Connection
     {
     public:
-        virtual uint64_t recv( void* buffer, const uint64_t bytes );
-        virtual uint64_t send( const void* buffer, const uint64_t bytes, 
-                               bool isLocked = false ) const;
+        virtual int64_t read( void* buffer, const uint64_t bytes );
+        virtual int64_t write( const void* buffer, const uint64_t bytes ) const;
 
-        virtual int getReadFD() const { return _readFD; }
+#ifndef WIN32
+        virtual ReadNotifier getReadNotifier() const { return _readFD; }
+#endif
 
     protected:
         FDConnection();

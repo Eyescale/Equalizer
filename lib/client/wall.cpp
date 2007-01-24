@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "wall.h"
@@ -21,7 +21,7 @@ void Wall::translate( float x, float y, float z )
     topLeft[2]     += z;
 }
 
-ostream& eq::operator << ( ostream& os, const Wall& wall )
+EQ_EXPORT ostream& eq::operator << ( ostream& os, const Wall& wall )
 {
     os << "wall" << endl;
     os << "{" << endl << indent;

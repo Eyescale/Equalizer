@@ -1,5 +1,8 @@
 
 %{
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+   All rights reserved. */
+
 #include "compound.h"
 #include "parser.hpp"
 #include <stdlib.h>
@@ -7,6 +10,11 @@
 #define yyerror eqLoader_error
 #define yylineno eqLoader_lineno
 #define yylex eqLoader_lex
+
+#ifdef WIN32
+#  include <io.h>
+#  define isatty _isatty
+#endif
 
 void yyerror(char *);
 int yylineno = 0;

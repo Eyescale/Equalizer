@@ -33,6 +33,9 @@ Server::Server()
     EQINFO << "New server at " << (void*)this << endl;
 }
 
+Server::~Server()
+{}
+
 bool Server::open( const OpenParams& params )
 {
     if( _state != STATE_STOPPED )
@@ -43,7 +46,7 @@ bool Server::open( const OpenParams& params )
         RefPtr<eqNet::ConnectionDescription> connDesc = 
             new eqNet::ConnectionDescription;
     
-        connDesc->type = eqNet::Connection::TYPE_TCPIP;
+        connDesc->type = eqNet::CONNECTIONTYPE_TCPIP;
         
         const char*  envServer = getenv( "EQ_SERVER" );
         const string address   = params.address.size() > 0 ? params.address :
@@ -134,7 +137,7 @@ eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Command& command )
     const ServerCreateConfigPacket* packet = 
         command.getPacket<ServerCreateConfigPacket>();
     EQINFO << "Handle create config " << packet << ", name " << packet->name 
-         << endl;
+           << endl;
     
     RefPtr<Node>    localNode  = Node::getLocalNode();
     eqNet::Session* session    = localNode->getSession( packet->configID );

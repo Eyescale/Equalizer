@@ -1,9 +1,12 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_LOG_H
 #define EQBASE_LOG_H
+
+#include <eq/base/base.h>
+#include <eq/base/clock.h>
 
 #include <assert.h>
 #include <iomanip>
@@ -12,7 +15,10 @@
 #include <sstream>
 #include <time.h>
 
-#include "clock.h"
+#ifdef WIN32
+#  include <process.h>
+#  define getpid _getpid
+#endif
 
 /**
  * @namespace eqBase
@@ -73,8 +79,13 @@ namespace eqBase
                 {
                     if( !_noHeader )
                     {
+#                   ifdef WIN32
+                        _stringStream << getpid()  << "." << pthread_self().p <<" "
+                                      << _file << ":" << _line << " ";
+#                   else
                         _stringStream << getpid()  << "." << pthread_self()<<" "
                                       << _file << ":" << _line << " ";
+#                   endif
 #                   ifndef NDEBUG
                         const int prec  = _stringStream.precision();
 
@@ -116,7 +127,7 @@ namespace eqBase
         int _line;
 
         /** Clock for time stamps */
-        static Clock _clock;
+        static EQ_EXPORT Clock _clock;
 
         /** The current indentation level. */
         int _indent;
@@ -141,9 +152,9 @@ namespace eqBase
     class Log : public std::ostream 
     {
     public: 
-        Log() : std::ostream( &_logBuffer ), _logBuffer(std::cout)
+        EQ_EXPORT Log() : std::ostream( &_logBuffer ), _logBuffer(std::cout)
             {}
-        virtual ~Log() { _logBuffer.pubsync(); }
+        virtual EQ_EXPORT ~Log() { _logBuffer.pubsync(); }
 
         void indent() { _logBuffer.indent(); }
         void exdent() { _logBuffer.exdent(); }
@@ -154,14 +165,14 @@ namespace eqBase
         void enableHeader()  { _logBuffer.enableHeader();  }
 
         /** The current log level. */
-        static int level;
+        static EQ_EXPORT int level;
 
         /** The current log topics. */
-        static unsigned topics;
+        static EQ_EXPORT unsigned topics;
 
         /** The per-thread logger. */
-        static Log& instance( const char* subdir, const char* file,
-                              const int line );
+        static EQ_EXPORT Log& instance( const char* subdir, const char* file,
+                                        const int line );
 
         /** The string representation of the current log level. */
         static std::string& getLogLevelString();
@@ -177,19 +188,19 @@ namespace eqBase
     };
 
     /** The ostream indent manipulator. */
-    std::ostream& indent( std::ostream& os );
+    EQ_EXPORT std::ostream& indent( std::ostream& os );
     /** The ostream exdent manipulator. */
-    std::ostream& exdent( std::ostream& os );
+    EQ_EXPORT std::ostream& exdent( std::ostream& os );
     /** The ostream flush disable manipulator. */
-    std::ostream& disableFlush( std::ostream& os );
+    EQ_EXPORT std::ostream& disableFlush( std::ostream& os );
     /** The ostream flush enable manipulator. */
-    std::ostream& enableFlush( std::ostream& os );
+    EQ_EXPORT std::ostream& enableFlush( std::ostream& os );
     /** The ostream forced flush manipulator. */
-    std::ostream& forceFlush( std::ostream& os );
+    EQ_EXPORT std::ostream& forceFlush( std::ostream& os );
     /** The ostream header disable manipulator. */
-    std::ostream& disableHeader( std::ostream& os );
+    EQ_EXPORT std::ostream& disableHeader( std::ostream& os );
     /** The ostream header enable manipulator. */
-    std::ostream& enableHeader( std::ostream& os );
+    EQ_EXPORT std::ostream& enableHeader( std::ostream& os );
 
     inline void dumpStack( std::ostream& os )
     {
@@ -208,6 +219,17 @@ namespace eqBase
 #   else // backtrace
 #   endif // backtrace
     }
+#ifdef WIN32
+    inline std::string getErrorString( const DWORD error )
+    {
+        char text[512] = "";
+        FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, 0, error, 0, text, 511, 0 );
+        const size_t length = strlen( text );
+        if( length>2 && text[length-2] == '\r' )
+            text[length-2] = '\0';
+        return std::string( text );
+    }
+#endif
 }
 
 #ifndef SUBDIR

@@ -120,8 +120,8 @@ namespace eqs
          * @param near a pointer to store the near plane.
          * @param far a pointer to store the far plane.
          */
-        void getNearFar( float* near, float* far ) const 
-            { *near = _near; *far = _far; }
+        void getNearFar( float* nearPlane, float* farPlane ) const 
+            { *nearPlane = _near; *farPlane = _far; }
         //*}
 
         /**

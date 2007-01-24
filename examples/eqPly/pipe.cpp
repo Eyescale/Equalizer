@@ -25,7 +25,7 @@ bool Pipe::init( const uint32_t initID )
     _initData  = static_cast<InitData*>( config->getObject( initID ));
     _frameData = _initData->getFrameData();
 
-    EQASSERT( _frameData );
+    EQASSERT( _frameData.isValid( ));
 
     return eq::Pipe::init( initID );
 }

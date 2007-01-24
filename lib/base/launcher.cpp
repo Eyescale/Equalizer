@@ -12,6 +12,7 @@
 using namespace eqBase;
 using namespace std;
 
+#ifndef WIN32
 // the signal handler for SIGCHILD
 static void sigChildHandler( int /*signal*/ )
 {
@@ -20,12 +21,36 @@ static void sigChildHandler( int /*signal*/ )
     EQINFO << "Received SIGCHILD" << endl;
     signal( SIGCHLD, sigChildHandler );
 }
+#endif
 
 bool Launcher::run( const string& command )
 {
-    if( command.size() == 0 )
+    if( command.empty( ))
         return false;
 
+#ifdef WIN32
+    PROCESS_INFORMATION procInfo;
+    const bool success = 
+        CreateProcess( 0, LPSTR( command.c_str( )), // program, command line
+                       0, 0,               // process, thread attributes
+                       FALSE,              // inherit handles
+                       0,                  // creation flags
+                       0,                  // environment
+                       0,                  // current directory
+                       0,                  // startup info
+                       &procInfo );
+
+    if( !success )
+    {
+        EQERROR << "CreateProcess failed: " << GetLastError() << endl;
+        return false;
+    }
+
+    //WaitForInputIdle( procInfo.hProcess, 1000 );
+    CloseHandle( procInfo.hProcess );
+    CloseHandle( procInfo.hThread );
+    return true;
+#else
     std::vector<std::string> commandLine;
     _buildCommandLine( command, commandLine );
 
@@ -72,8 +97,10 @@ bool Launcher::run( const string& command )
 
     ::exit( EXIT_FAILURE );
     return true; // not reached
+#endif
 }
 
+#ifndef WIN32
 void Launcher::_buildCommandLine( const string& command, 
                                   std::vector<std::string>& commandLine )
 {
@@ -123,3 +150,4 @@ void Launcher::_buildCommandLine( const string& command,
         commandLine.push_back( buffer );
     }
 }
+#endif

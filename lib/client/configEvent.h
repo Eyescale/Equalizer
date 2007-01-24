@@ -22,7 +22,7 @@ namespace eq
      *
      * When subclassing, make sure to set the packet size.
      */
-    struct ConfigEvent : public ConfigPacket
+    struct EQ_EXPORT ConfigEvent : public ConfigPacket
     {
     public:
         enum Type

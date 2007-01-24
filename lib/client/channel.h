@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_CHANNEL_H
@@ -18,10 +18,10 @@ namespace eq
     class Frame;
     class Node;
     class Range;
-    class RenderContext;
     class SceneObject;
+    struct RenderContext;
 
-    class Channel : public eqNet::Object
+    class EQ_EXPORT Channel : public eqNet::Object
     {
     public:
         /** 
@@ -54,10 +54,10 @@ namespace eq
          * channel. Dynamic near and far planes can be applied using
          * applyNearFar.
          *
-         * @param near the near plane.
-         * @param far the far plane.
+         * @param nearPlane the near plane.
+         * @param farPlane the far plane.
          */
-        void setNearFar( const float near, const float far );
+        void setNearFar( const float nearPlane, const float farPlane );
 
         /** 
          * Returns the current near and far planes for this channel.
@@ -65,10 +65,10 @@ namespace eq
          * The current near and far plane depends on the context from which this
          * function is called.
          * 
-         * @param near a pointer to store the near plane.
-         * @param far a pointer to store the far plane.
+         * @param nearPlane a pointer to store the near plane.
+         * @param farPlane a pointer to store the far plane.
          */
-        void getNearFar( float *near, float *far );
+        void getNearFar( float *nearPlane, float *farPlane );
         //*}
 
         /**

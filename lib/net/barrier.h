@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_BARRIER_H
@@ -22,7 +22,7 @@ namespace eqNet
         /** 
          * Constructs a new barrier.
          */
-        Barrier( eqBase::RefPtr<Node> master, const uint32_t height=0 );
+        EQ_EXPORT Barrier( eqBase::RefPtr<Node> master, const uint32_t height=0);
 
         /** 
          * Constructs a new barrier.
@@ -32,7 +32,7 @@ namespace eqNet
         /**
          * Destructs the barrier.
          */
-        virtual ~Barrier(){}
+        virtual EQ_EXPORT ~Barrier(){}
 
         /** 
          * @name Data Access
@@ -41,10 +41,11 @@ namespace eqNet
          * same version on all nodes entering the barrier.
          */
         //*{
-        void setHeight( const uint32_t height ){ _data.height = height; }
-        void increase() { ++_data.height; }
+        EQ_EXPORT void setHeight( const uint32_t height )
+            { _data.height = height; }
+        EQ_EXPORT void increase() { ++_data.height; }
 
-        const uint32_t getHeight() const { return _data.height; }
+        EQ_EXPORT const uint32_t getHeight() const { return _data.height; }
         //*}
 
         /** @name Operations */
@@ -55,7 +56,7 @@ namespace eqNet
          * The implementation assumes that the master node instance also enters
          * the barrier.
          */
-        void enter();
+        EQ_EXPORT void enter();
         //*}
 
     private:

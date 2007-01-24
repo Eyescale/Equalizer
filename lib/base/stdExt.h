@@ -1,11 +1,12 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_STDEXT_H
 #define EQBASE_STDEXT_H
 
 #include <algorithm>
+#include <string>
 
 //----- Common extensions of the STL
 #ifdef __GNUC__              // GCC 3.1 and later
@@ -15,7 +16,11 @@ namespace stde = __gnu_cxx;
 #else                        //  other compilers
 #  include <hash_map>
 #  include <hash_set>
+#  ifdef WIN32
+namespace stde = stdext;
+#  else
 namespace stde = std;
+#  endif
 #endif
 
 
@@ -23,10 +28,13 @@ namespace stde = std;
 /** Gathers some functionality extending the STL. */
 #ifdef __GNUC__              // GCC 3.1 and later
 namespace __gnu_cxx
-#else                        //  other compilers
+#elif defined (WIN32)
+namespace stdext
+#else //  other compilers
 namespace std
 #endif
 {
+#  ifdef __GNUC__
     /** std::string hash function. */
     template<> 
     struct hash< std::string >
@@ -36,6 +44,14 @@ namespace std
             return hash< const char* >()( str.c_str() );
         }
     };
+#  else // WIN32
+    template<>
+    inline size_t hash_compare< std::string >::operator()
+        ( const std::string& key ) const
+    {
+        return hash_value( key.c_str( ));
+    }
+#  endif
 
     /** Uniquely sorts and truncates a STL container. */
     template< typename C >

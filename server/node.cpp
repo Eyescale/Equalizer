@@ -32,11 +32,6 @@ void Node::_construct()
 
     const Global* global = Global::instance();
 
-    for( int i=0; i<SATTR_ALL; ++i )
-        _sAttributes[i] = global->getNodeSAttribute( (SAttribute)i );
-    for( int i=0; i<IATTR_ALL; ++i )
-        _iAttributes[i] = global->getNodeIAttribute( (IAttribute)i );
-
     ref(); // We don't use RefPtr so far
     EQINFO << "Add node @" << (void*)this << endl;
 }
@@ -52,11 +47,6 @@ Node::Node( const Node& from )
 {
     _construct();
     _node = from._node;
-
-    for( int i=0; i<SATTR_ALL; ++i )
-        _sAttributes[i] = from._sAttributes[i];
-    for( int i=0; i<IATTR_ALL; ++i )
-        _iAttributes[i] = from._iAttributes[i];
 
     const uint32_t nConnectionDescriptions = from.nConnectionDescriptions();
     for( uint32_t i=0; i<nConnectionDescriptions; i++ )

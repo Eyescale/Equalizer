@@ -3,18 +3,27 @@
    All rights reserved. */
 
 #include "socketConnection.h"
-#include "connectionDescription.h"
 
+#include "connectionDescription.h"
+#include "node.h"
+
+#include <eq/base/base.h>
 #include <eq/base/log.h>
 
-#include <arpa/inet.h>
 #include <errno.h>
-#include <netdb.h>
-#include <netinet/tcp.h>
 #include <sstream>
 #include <string.h>
-#include <sys/socket.h>
 #include <sys/types.h>
+
+#ifdef WIN32
+#  define EQ_SOCKET_ERROR getErrorString( GetLastError( ))
+#else
+#  define EQ_SOCKET_ERROR strerror( errno )
+#  include <arpa/inet.h>
+#  include <netdb.h>
+#  include <netinet/tcp.h>
+#  include <sys/socket.h>
+#endif
 
 using namespace eqNet;
 using namespace eqBase;
@@ -22,9 +31,12 @@ using namespace std;
 
 
 SocketConnection::SocketConnection()
+#ifdef WIN32
+        : _event( 0 )
+#endif
 {
-    _description = new ConnectionDescription;
-    _description->type = Connection::TYPE_TCPIP;
+    _description =  new ConnectionDescription;
+    _description->type = CONNECTIONTYPE_TCPIP;
 }
 
 SocketConnection::~SocketConnection()
@@ -37,7 +49,7 @@ SocketConnection::~SocketConnection()
 //----------------------------------------------------------------------
 bool SocketConnection::connect()
 {
-    EQASSERT( _description->type == Connection::TYPE_TCPIP );
+    EQASSERT( _description->type == CONNECTIONTYPE_TCPIP );
     if( _state != STATE_CLOSED )
         return false;
 
@@ -60,22 +72,29 @@ bool SocketConnection::connect()
     if( !connected )
     {
         EQWARN << "Could not connect to '" << _description->hostname << ":"
-             << _description->TCPIP.port << "': " << strerror( errno ) << endl;
+             << _description->TCPIP.port << "': " << EQ_SOCKET_ERROR << endl;
         close();
         return false;
     }
-    
+ 
+#ifdef WIN32
+    if( !_createReadEvent( ))
+    {
+        close();
+        return false;
+    }
+#endif
+
     _state = STATE_CONNECTED;
     return true;
 }
 
 bool SocketConnection::_createSocket()
 {
-    const int fd = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
-
-    if( fd == -1 )
+    const Socket fd = ::socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
+    if( fd == INVALID_SOCKET )
     {
-        EQERROR << "Could not create socket: " << strerror( errno ) << endl;
+        EQERROR << "Could not create socket: " << EQ_SOCKET_ERROR << endl;
         return false;
     }
 
@@ -86,11 +105,19 @@ bool SocketConnection::_createSocket()
     return true;
 }
 
-void SocketConnection::_tuneSocket( const int fd )
+void SocketConnection::_tuneSocket( const Socket fd )
 {
     const int on         = 1;
+#ifdef WIN32
+    setsockopt( fd, IPPROTO_TCP, TCP_NODELAY, 
+                reinterpret_cast<const char*>( &on ), sizeof( on ));
+    setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, 
+                reinterpret_cast<const char*>( &on ), sizeof( on ));
+#else
     setsockopt( fd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof( on ));
     setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof( on ));
+#endif
+
 #if 0
     const int bufferSize = 256*1024;
     setsockopt( fd, SOL_SOCKET, SO_SNDBUF, &bufferSize, sizeof( bufferSize ));
@@ -106,12 +133,22 @@ void SocketConnection::close()
     _state   = STATE_CLOSED;
     EQASSERT( _readFD > 0 ); 
 
-    const bool closed = ( ::close(_readFD) == 0 );
-    if( !closed )
-        EQWARN << "Could not close socket: " << strerror( errno ) << endl;
+#ifdef WIN32
+    if( _event )
+    {
+        CloseHandle( _event );
+        _event = 0;
+    }
 
-    _readFD  = -1;
-    _writeFD = -1;
+    const bool closed = ( ::closesocket(_readFD) == 0 );
+#else
+    const bool closed = ( ::close(_readFD) == 0 );
+#endif
+    if( !closed )
+        EQWARN << "Could not close socket: " << EQ_SOCKET_ERROR << endl;
+
+    _readFD  = INVALID_SOCKET;
+    _writeFD = INVALID_SOCKET;
 }
 
 void SocketConnection::_parseAddress( sockaddr_in& socketAddress )
@@ -137,7 +174,7 @@ void SocketConnection::_parseAddress( sockaddr_in& socketAddress )
 //----------------------------------------------------------------------
 bool SocketConnection::listen()
 {
-    EQASSERT( _description->type == Connection::TYPE_TCPIP );
+    EQASSERT( _description->type == CONNECTIONTYPE_TCPIP );
 
     if( _state != STATE_CLOSED )
         return false;
@@ -157,7 +194,7 @@ bool SocketConnection::listen()
     if( !bound )
     {
         EQWARN << "Could not bind socket " << _readFD << ": " 
-               << strerror( errno ) << " (" << errno << ") to "
+               << EQ_SOCKET_ERROR << " (" << errno << ") to "
                << inet_ntoa( socketAddress.sin_addr )
                << ":" << socketAddress.sin_port << " AF " 
                << (int)socketAddress.sin_family << endl;
@@ -172,10 +209,18 @@ bool SocketConnection::listen()
         
     if( !listening )
     {
-        EQWARN << "Could not listen on socket: " << strerror( errno ) << endl;
+        EQWARN << "Could not listen on socket: " << EQ_SOCKET_ERROR << endl;
         close();
         return false;
     }
+
+#ifdef WIN32
+    if( !_createReadEvent( ))
+    {
+        close();
+        return false;
+    }
+#endif
 
     // get socket parameters
     sockaddr_in address; // must use new sockaddr_in variable !?!
@@ -215,16 +260,24 @@ RefPtr<Connection> SocketConnection::accept()
 
     sockaddr_in newAddress;
     socklen_t   newAddressLen = sizeof( newAddress );
-    int         fd;
+    Socket      fd;
 
+    unsigned    nTries = 1000;
     do
-        fd = ::accept( _readFD, (sockaddr*)&newAddress, &newAddressLen );
-    while( fd == -1 && errno == EINTR );
-
-    if( fd == -1 )
     {
-        EQWARN << "accept failed: " << strerror( errno ) << endl;
-        return NULL;
+        fd = ::accept( _readFD, (sockaddr*)&newAddress, &newAddressLen );
+    }
+#ifdef WIN32
+    while( fd == INVALID_SOCKET && GetLastError() == WSAEWOULDBLOCK && --nTries );
+    ResetEvent( _event );
+#else
+    while( fd == INVALID_SOCKET && errno == EINTR && --nTries );
+#endif
+
+    if( fd == INVALID_SOCKET )
+    {
+        EQWARN << "accept failed: " << EQ_SOCKET_ERROR << endl;
+        return 0;
     }
 
     _tuneSocket( fd );
@@ -234,21 +287,120 @@ RefPtr<Connection> SocketConnection::accept()
     newConnection->_readFD      = fd;
     newConnection->_writeFD     = fd;
     newConnection->_state       = STATE_CONNECTED;
-    newConnection->_description->type         = Connection::TYPE_TCPIP;
+    newConnection->_description->type         = CONNECTIONTYPE_TCPIP;
     newConnection->_description->bandwidthKBS = _description->bandwidthKBS;
     newConnection->_description->hostname     = inet_ntoa( newAddress.sin_addr);
     newConnection->_description->TCPIP.port   = ntohs( newAddress.sin_port );
 
-    EQINFO << "accepted connection from "
-         << inet_ntoa(newAddress.sin_addr) << ":" << newAddress.sin_port <<endl;
+#ifdef WIN32
+    if( !newConnection->_createReadEvent( ))
+    {
+        newConnection->close();
+        return 0;
+    }
+#endif
+
+    EQINFO << "accepted connection from " << inet_ntoa(newAddress.sin_addr) 
+           << ":" << newAddress.sin_port <<endl;
 
     return newConnection;
 }
 
-ushort SocketConnection::getPort() const
+uint16_t SocketConnection::getPort() const
 {
     sockaddr_in address;
     socklen_t used = sizeof(address);
     getsockname( _readFD, (struct sockaddr *) &address, &used ); 
     return ntohs(address.sin_port);
 }
+
+#ifdef WIN32
+bool SocketConnection::_createReadEvent()
+{
+    // On WIN32, the event is set into signaled state when data arrives. Note 
+    // that this notion is different from the Unix select() which returns when
+    // data is pending. To emulate the same behaviour race-condition-free, 
+    // we do:
+    // - create an auto-reset event
+    // - WaitForMultipleObjectsEx (select) will reset the event
+    // - arriving data will set the event
+    // - read (see below) will set the event if there is still data
+    //
+    // The unavoidable consequence is that read() might fail because pending
+    // data was wrongly signaled when a subsequent read reads all remaining 
+    // data. This has to be handled by the callee.
+
+    _event = CreateEvent( 0, FALSE, FALSE, 0 );
+    if( !_event )
+    {
+        EQERROR << "Can't create event for read notification" << EQ_SOCKET_ERROR
+                << endl;
+        return false;
+    }
+
+    if( WSAEventSelect( _readFD, _event, FD_READ | FD_ACCEPT | FD_CLOSE ) ==
+        SOCKET_ERROR )
+    {
+        EQERROR << "Can't select events for read notification" 
+                << EQ_SOCKET_ERROR << endl;
+        return false;
+    }
+    return true;
+}
+
+int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
+{
+    if( _readFD == INVALID_SOCKET )
+    {
+        EQERROR << "Invalid read handle" << endl;
+        return -1;
+    }
+
+    const ssize_t bytesRead = ::recv( _readFD, static_cast<char*>(buffer), 
+                                      bytes, 0 );
+    const int     error     = (bytesRead == SOCKET_ERROR) ? GetLastError() : 0;
+
+    if( error == WSAEWOULDBLOCK )
+        return 0;
+
+    if( error == WSAESHUTDOWN || error == WSAECONNRESET || bytesRead == 0 )//EOF
+    {
+        EQWARN << "Read failed, socket closed" << endl;
+        close();
+        return -1;
+    }
+
+    if( error )
+    {
+        EQWARN << "Error during read: " << EQ_SOCKET_ERROR << endl;
+        return -1;
+    }
+
+    // Set event if there is still data on the socket
+    unsigned long nBytesPending = 0;
+    ioctlsocket( _readFD, FIONREAD, &nBytesPending );
+    if( nBytesPending > 0 )
+        if( SetEvent( _event ) == 0 ) // error
+            EQWARN << "SetEvent failed: " << EQ_SOCKET_ERROR << endl;
+
+    EQASSERT( bytesRead > 0 );
+    return bytesRead;
+}
+
+int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
+{
+    if( _writeFD == INVALID_SOCKET )
+        return -1;
+
+    const ssize_t bytesWritten = ::send( _writeFD, 
+                                         static_cast<const char*>(buffer), 
+                                         bytes, 0 );
+    if( bytesWritten == SOCKET_ERROR ) // error
+    {
+        EQWARN << "Error during write: " << EQ_SOCKET_ERROR << endl;
+        return -1;
+    }
+
+    return bytesWritten;
+}
+#endif

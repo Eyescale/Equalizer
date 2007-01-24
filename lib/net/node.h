@@ -33,7 +33,7 @@ namespace eqNet
      * has at least one Connection through which is reachable. A Node provides
      * the basic communication facilities through message passing.
      */
-    class Node : public Base, public eqBase::Referenced
+    class EQ_EXPORT Node : public Base, public eqBase::Referenced
     {
     public:
         enum State 
@@ -307,7 +307,7 @@ namespace eqNet
             {
                 if( !checkConnection() )
                     return false;
-                return ( _connection->send( packet ) == packet.size );
+                return _connection->send( packet );
             }
 
         /** 
@@ -329,7 +329,7 @@ namespace eqNet
             {
                 if( !checkConnection() )
                     return false;
-                return ( _connection->send( packet, string ) >= packet.size );
+                return _connection->send( packet, string );
             }
 
         /** 
@@ -350,7 +350,7 @@ namespace eqNet
             {
                 if( !checkConnection() )
                     return false;
-                return ( _connection->send( packet, data ) >= packet.size );
+                return _connection->send( packet, data );
             }
 
         /** 
@@ -373,7 +373,7 @@ namespace eqNet
             {
                 if( !checkConnection() )
                     return false;
-                return ( _connection->send( packet, data, size )>=packet.size );
+                return _connection->send( packet, data, size );
             }
 
         /**

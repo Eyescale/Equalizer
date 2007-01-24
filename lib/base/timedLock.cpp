@@ -4,7 +4,15 @@
 
 #include "timedLock.h"
 
+#include <eq/base/debug.h>
+
 #include <errno.h>
+
+#ifdef WIN32
+#  include <sys/timeb.h>
+#  define timeb _timeb
+#  define ftime _ftime
+#endif
 
 using namespace eqBase;
 using namespace std;
@@ -46,14 +54,14 @@ bool TimedLock::set( const uint32_t timeout )
             timespec ts = {0};
             if( timeout > 0 )
             {
-                ts.tv_sec  = (int)(timeout/1000);
+                ts.tv_sec  = static_cast<int>( timeout / 1000 );
                 ts.tv_nsec = (timeout - ts.tv_sec*1000) * 1000000;
             }
 
-            timeval tv;
-            gettimeofday( &tv, 0 );
-            ts.tv_sec  += tv.tv_sec;
-            ts.tv_nsec += tv.tv_usec * 1000;
+            timeb tb;
+            ftime( &tb );
+            ts.tv_sec  += tb.time;
+            ts.tv_nsec += tb.millitm * 1000000;
             
             int error = pthread_cond_timedwait( &_cond, &_mutex, &ts );
             if( error == ETIMEDOUT )

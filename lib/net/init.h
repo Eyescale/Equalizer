@@ -1,9 +1,11 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_INIT_H
 #define EQNET_INIT_H
+
+#include <eq/base/base.h>
 
 /** 
  * @namespace eqNet
@@ -24,7 +26,7 @@ namespace eqNet
      * @return <code>true</code> if the library was successfully initialised,
      *         <code>false</code> otherwise.
      */
-    bool init( int argc, char** argv );
+    EQ_EXPORT bool init( int argc, char** argv );
 
     /**
      * De-initialises the Equalizer client library.
@@ -32,7 +34,7 @@ namespace eqNet
      * @return <code>true</code> if the library was successfully de-initialised,
      *         <code>false</code> otherwise.
      */
-    bool exit();
+    EQ_EXPORT bool exit();
 }
 
 #endif // EQNET_INIT_H

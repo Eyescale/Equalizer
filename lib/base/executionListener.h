@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_EXECUTIONLISTENER_H
@@ -13,7 +13,7 @@ namespace eqBase
      * A listener interface to monitor execution unit (Thread, Process) state
      * changes.
      */
-    class ExecutionListener
+    class EQ_EXPORT ExecutionListener
     {
     public:
         virtual ~ExecutionListener() {}

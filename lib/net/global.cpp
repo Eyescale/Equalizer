@@ -4,13 +4,8 @@
 
 #include "global.h"
 
-#include <eq/base/base.h>
-#include <eq/base/log.h>
-#include <alloca.h>
-
 using namespace eqNet;
-using namespace std;
 
-string Global::_programName;
-string Global::_workDir;
+std::string Global::_programName;
+std::string Global::_workDir;
 

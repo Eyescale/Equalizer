@@ -15,11 +15,11 @@ string ConnectionDescription::toString()
 
     switch( type )
     {
-        case Connection::TYPE_TCPIP:
+        case CONNECTIONTYPE_TCPIP:
             stringStream << "TCPIP";
             break;
 
-        case Connection::TYPE_PIPE:
+        case CONNECTIONTYPE_PIPE:
             stringStream << "PIPE";
             break;
     }        
@@ -29,7 +29,7 @@ string ConnectionDescription::toString()
     
     switch( type )
     {
-        case Connection::TYPE_TCPIP:
+        case CONNECTIONTYPE_TCPIP:
             stringStream << ":" << TCPIP.port;
             break;
 
@@ -49,9 +49,9 @@ bool ConnectionDescription::fromString( const string& data )
         const string type = data.substr( 0, colonPos );
 
         if( type == "TCPIP" )
-            this->type = Connection::TYPE_TCPIP;
+            this->type = CONNECTIONTYPE_TCPIP;
         else if( type == "PIPE" )
-            this->type = Connection::TYPE_PIPE;
+            this->type = CONNECTIONTYPE_PIPE;
         else
             goto error;
 
@@ -82,7 +82,7 @@ bool ConnectionDescription::fromString( const string& data )
 
         switch( this->type )
         {
-            case Connection::TYPE_TCPIP:
+            case CONNECTIONTYPE_TCPIP:
             {
                 nextPos  = colonPos+1;
                 colonPos = data.find( ':', nextPos );

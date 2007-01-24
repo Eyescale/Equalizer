@@ -1,15 +1,16 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_OPEN_PARAMS_H
 #define EQ_OPEN_PARAMS_H
 
+#include <eq/base/base.h>
 #include <string>
 
 namespace eq
 {
-    class OpenParams
+    class EQ_EXPORT OpenParams
     {
     public:
         OpenParams();

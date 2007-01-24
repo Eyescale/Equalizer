@@ -1,17 +1,18 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "util.h"
-#include "connection.h"
 
 #include <eq/base/base.h>
+#include <eq/base/debug.h>
+
 #include <string.h>
 
 using namespace eqNet::priv;
 
 void Util::parseAddress( const char* address, char hostname[MAXHOSTNAMELEN], 
-                         ushort &port )
+                         uint16_t &port )
 {
     EQASSERT( address );
 
@@ -24,7 +25,7 @@ void Util::parseAddress( const char* address, char hostname[MAXHOSTNAMELEN],
             hostname[i] = '\0';
 
             const char *portName = &address[i+1];
-            port = (ushort)atoi( portName );
+            port = static_cast<uint16_t>( atoi( portName ));
 
             return;
         }

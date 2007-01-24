@@ -74,7 +74,6 @@ private:
     PlyFileIO( void ){}
     ~PlyFileIO(){}
 
-    static PlyModel< NormalFace<ColorVertex> > *readDir( const char *dirname );
     static PlyModel< NormalFace<ColorVertex> > *readPly( const char *filename );
     static PlyModel< NormalFace<ColorVertex> > *readBin( const char *filename );
 
@@ -89,13 +88,7 @@ private:
                            ColorVertex *vertices, const int nVertices, 
                            NormalFace<ColorVertex> *faces, const int nFaces );
 
-    static void readDirRec( const char *dirname, 
-                            std::vector<NormalFace<ColorVertex> *> &faces, 
-                            std::vector<size_t> &nFaces );
-
     static bool calculateNormal( NormalFace<ColorVertex> &face );
-
-    static bool isPlyFile( const char *filename );
 };
 
 #endif // __PLYFILEIO_H
