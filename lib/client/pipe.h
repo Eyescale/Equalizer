@@ -10,7 +10,7 @@
 #include <eq/client/node.h>
 #include <eq/client/pixelViewport.h>
 #include <eq/client/statEvent.h>
-#include <eq/client/x11Connection.h>
+#include <eq/client/X11Connection.h>
 #include <eq/client/windowSystem.h>
 
 #include <eq/base/refPtr.h>

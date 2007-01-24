@@ -16,7 +16,7 @@
 #ifdef WIN32
 #  include <Windows.h>
 #else
-#  include <sys/time.h>
+#  include <time.h>
 #endif
 
 namespace eqBase
