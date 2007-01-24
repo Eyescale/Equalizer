@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "config.h"
@@ -44,14 +44,14 @@ bool Config::exit()
     return ret;
 }
 
-uint32_t Config::beginFrame()
+uint32_t Config::startFrame()
 {
     // update database
     _frameData->_data.rotation.preRotateX( -0.001 * _spinX );
     _frameData->_data.rotation.preRotateY( -0.001 * _spinY );
     const uint32_t version = _frameData->commit();
 
-    return eq::Config::beginFrame( version );
+    return eq::Config::startFrame( version );
 }
 
 bool Config::handleEvent( const eq::ConfigEvent* event )

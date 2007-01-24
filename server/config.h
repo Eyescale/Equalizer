@@ -123,8 +123,9 @@ namespace eqs
         /** 
          * Set the maximum accepted latency for this config.
          * 
-         * The latency is defined as the maximum number of frames between frame
-         * begin and swap.
+         * The latency is defined as the maximum number of frames between the
+         * start of a frame and the finish of the last rendering task for that
+         * frame.
          *
          * @param latency the latency.
          */
@@ -249,7 +250,7 @@ namespace eqs
         /** The working directory of the render client. */
         std::string _workDir;
 
-        /** The maximum latency between frame begin and swap, in frames. */
+        /** The maximum latency between frame start and end frame, in frames. */
         uint32_t _latency;
 
         /** The last started frame, or 0. */
@@ -271,7 +272,7 @@ namespace eqs
         /** The command functions. */
         eqNet::CommandResult _reqInit( eqNet::Command& command );
         eqNet::CommandResult _reqExit( eqNet::Command& command );
-        eqNet::CommandResult _reqBeginFrame( eqNet::Command& command );
+        eqNet::CommandResult _reqStartFrame( eqNet::Command& command );
         eqNet::CommandResult _reqEndFrame( eqNet::Command& command ); 
         eqNet::CommandResult _reqFinishFrames( eqNet::Command& command ); 
 
@@ -291,7 +292,7 @@ namespace eqs
 
         void _updateHead();
 
-        uint32_t _beginFrame( const uint32_t frameID, 
+        uint32_t _startFrame( const uint32_t frameID, 
                               std::vector<Node*>& nodes );
         uint32_t _endFrame();
         uint32_t _finishFrames();

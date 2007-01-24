@@ -139,26 +139,6 @@ namespace eq
         float getFrameTime() const { return _frameClock.getTimef(); }
         //*}
 
-        /** 
-         * Tests wether a particular windowing system is supported by this pipe
-         * and all its windows.
-         * 
-         * @param system the window system to test.
-         * @return <code>true</code> if the window system is supported,
-         *         <code>false</code> if not.
-         */
-        virtual bool supportsWindowSystem( const WindowSystem system ) const;
-
-        /** 
-         * Return the window system to be used by this pipe.
-         * 
-         * This function determines which of the supported windowing systems is
-         * used by this pipe instance. 
-         * 
-         * @return the window system currently used by this pipe.
-         */
-        virtual WindowSystem selectWindowSystem() const;
-
         /**
          * @name Operations
          */
@@ -190,6 +170,25 @@ namespace eq
          * various actions.
          */
         //@{
+        /** 
+         * Tests wether a particular windowing system is supported by this pipe
+         * and all its windows.
+         * 
+         * @param system the window system to test.
+         * @return <code>true</code> if the window system is supported,
+         *         <code>false</code> if not.
+         */
+        virtual bool supportsWindowSystem( const WindowSystem system ) const;
+
+        /** 
+         * Return the window system to be used by this pipe.
+         * 
+         * This function determines which of the supported windowing systems is
+         * used by this pipe instance. 
+         * 
+         * @return the window system currently used by this pipe.
+         */
+        virtual WindowSystem selectWindowSystem() const;
 
         /** 
          * Initialises this pipe.
@@ -197,15 +196,15 @@ namespace eq
          * @param initID the init identifier.
          */
         virtual bool init( const uint32_t initID );
-        bool initGLX();
-        bool initCGL();
+        virtual bool initGLX();
+        virtual bool initCGL();
 
         /** 
          * Exit this pipe.
          */
         virtual bool exit();
-        void exitGLX();
-        void exitCGL();
+        virtual void exitGLX();
+        virtual void exitCGL();
 
         /**
          * Start rendering a frame.

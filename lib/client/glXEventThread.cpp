@@ -1,4 +1,4 @@
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "glXEventThread.h"
@@ -422,6 +422,7 @@ int32_t GLXEventThread::_getKey( XEvent& event )
             // 'Useful' Latin1 characters
             if( (key >= XK_space && key <= XK_asciitilde ) ||
                 (key >= XK_nobreakspace && key <= XK_ydiaeresis))
+
                 return key;
 
             EQWARN << "Unrecognized X11 key code " << key << endl;

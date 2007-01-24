@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PLY_CONFIG_H
@@ -22,8 +22,8 @@ public:
     /** @sa eq::Config::exit. */
     virtual bool exit();
 
-    /** @sa eq::Config::beginFrame. */
-    virtual uint32_t beginFrame();
+    /** @sa eq::Config::startFrame. */
+    virtual uint32_t startFrame();
 
     eqBase::RefPtr<AppInitData> getInitData() { return _initData; }
 

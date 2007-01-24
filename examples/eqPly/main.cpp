@@ -116,7 +116,7 @@ int main( int argc, char** argv )
             config->setHeadMatrix( headMatrix );
         }
 
-        config->beginFrame();
+        config->startFrame();
         // config->renderData(...);
         config->endFrame();
     }

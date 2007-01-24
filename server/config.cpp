@@ -37,10 +37,10 @@ void Config::_construct()
                      eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
     registerCommand( eq::REQ_CONFIG_EXIT, 
                      eqNet::CommandFunc<Config>( this, &Config::_reqExit ));
-    registerCommand( eq::CMD_CONFIG_BEGIN_FRAME, 
+    registerCommand( eq::CMD_CONFIG_START_FRAME, 
                      eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
-    registerCommand( eq::REQ_CONFIG_BEGIN_FRAME,
-                   eqNet::CommandFunc<Config>( this, &Config::_reqBeginFrame ));
+    registerCommand( eq::REQ_CONFIG_START_FRAME,
+                   eqNet::CommandFunc<Config>( this, &Config::_reqStartFrame ));
     registerCommand( eq::CMD_CONFIG_END_FRAME, 
                      eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
     registerCommand( eq::REQ_CONFIG_END_FRAME, 
@@ -283,15 +283,15 @@ eqNet::CommandResult Config::_reqExit( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_reqBeginFrame( eqNet::Command& command ) 
+eqNet::CommandResult Config::_reqStartFrame( eqNet::Command& command ) 
 {
-    const eq::ConfigBeginFramePacket* packet = 
-        command.getPacket<eq::ConfigBeginFramePacket>();
-    eq::ConfigBeginFrameReplyPacket   reply( packet );
-    EQVERB << "handle config frame begin " << packet << endl;
+    const eq::ConfigStartFramePacket* packet = 
+        command.getPacket<eq::ConfigStartFramePacket>();
+    eq::ConfigStartFrameReplyPacket   reply( packet );
+    EQVERB << "handle config frame start " << packet << endl;
 
     vector<Node*> nodes;
-    reply.frameNumber = _beginFrame( packet->frameID, nodes );
+    reply.frameNumber = _startFrame( packet->frameID, nodes );
     reply.nNodeIDs    = nodes.size();
     
     command.getNode()->send( reply, nodes );
@@ -692,11 +692,11 @@ const vmml::Vector3f& Config::getEyePosition( const uint32_t eye )
     }
 }
 
-uint32_t Config::_beginFrame( const uint32_t frameID, vector<Node*>& nodes )
+uint32_t Config::_startFrame( const uint32_t frameID, vector<Node*>& nodes )
 {
     EQASSERT( _state == STATE_INITIALIZED );
     ++_frameNumber;
-    EQLOG( LOG_ANY ) << "----- Begin Frame ----- " << _frameNumber << endl;
+    EQLOG( LOG_ANY ) << "----- Start Frame ----- " << _frameNumber << endl;
 
     _updateHead();
 

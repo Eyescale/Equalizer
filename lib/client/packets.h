@@ -178,23 +178,23 @@ namespace eq
         bool     result;
     };
 
-    struct ConfigBeginFramePacket : public ConfigPacket
+    struct ConfigStartFramePacket : public ConfigPacket
     {
-        ConfigBeginFramePacket()
+        ConfigStartFramePacket()
             {
-                command   = CMD_CONFIG_BEGIN_FRAME;
-                size      = sizeof( ConfigBeginFramePacket );
+                command   = CMD_CONFIG_START_FRAME;
+                size      = sizeof( ConfigStartFramePacket );
             }
         uint32_t requestID;
         uint32_t frameID;
     };
 
-    struct ConfigBeginFrameReplyPacket : public ConfigPacket
+    struct ConfigStartFrameReplyPacket : public ConfigPacket
     {
-        ConfigBeginFrameReplyPacket(const ConfigBeginFramePacket* requestPacket)
+        ConfigStartFrameReplyPacket(const ConfigStartFramePacket* requestPacket)
             {
-                command   = CMD_CONFIG_BEGIN_FRAME_REPLY;
-                size      = sizeof( ConfigBeginFrameReplyPacket );
+                command   = CMD_CONFIG_START_FRAME_REPLY;
+                size      = sizeof( ConfigStartFrameReplyPacket );
                 sessionID = requestPacket->sessionID;
                 requestID = requestPacket->requestID;
             }
@@ -826,7 +826,7 @@ namespace eq
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                     const ConfigBeginFrameReplyPacket* packet )
+                                     const ConfigStartFrameReplyPacket* packet )
     {
         os << (ConfigPacket*)packet << " frame #" 
            << packet->frameNumber << ", " << packet->nNodeIDs << " nodes";

@@ -67,7 +67,7 @@ namespace eq
          *                methods.
          * @return the frame number of the new frame.
          */
-        virtual uint32_t beginFrame( const uint32_t frameID );
+        virtual uint32_t startFrame( const uint32_t frameID );
 
         /** 
          * Sends frame data to 
@@ -175,7 +175,7 @@ namespace eq
         eqNet::CommandResult _cmdDestroyNode( eqNet::Command& command );
         eqNet::CommandResult _cmdInitReply( eqNet::Command& command );
         eqNet::CommandResult _cmdExitReply( eqNet::Command& command );
-        eqNet::CommandResult _cmdBeginFrameReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdStartFrameReply( eqNet::Command& command );
         eqNet::CommandResult _cmdEndFrameReply( eqNet::Command& command );
         eqNet::CommandResult _cmdFinishFramesReply( eqNet::Command& command );
         eqNet::CommandResult _cmdEvent( eqNet::Command& command );
