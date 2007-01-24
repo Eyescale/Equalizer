@@ -108,7 +108,12 @@ namespace eqNet
 
     private:
         friend std::ostream& operator << ( std::ostream& os, const NodeID& id );
-        friend class stde::hash_compare< eqNet::NodeID >;
+#ifdef WIN32
+        friend size_t stde::hash_compare< const eqNet::NodeID& >::operator() 
+            ( const eqNet::NodeID& key ) const;
+#else
+        friend struct stde::hash< const eqNet::NodeID >;
+#endif
     };
 
     /** A hash for NodeID keys. */
@@ -116,6 +121,7 @@ namespace eqNet
         : public stde::hash_map< const NodeID, T >
     {};
 
+    /** NodeID& ostream operator. */
     inline std::ostream& operator << ( std::ostream& os, const NodeID& id )
     {
 #ifdef WIN32
@@ -132,24 +138,38 @@ namespace eqNet
     }
 }
 
+#ifdef WIN32
 template<>
-inline size_t stde::hash_compare< eqNet::NodeID >::operator() 
+inline size_t stde::hash_compare< const eqNet::NodeID& >::operator() 
     ( const eqNet::NodeID& key ) const
 {
-#ifdef WIN32
     return key._id.Data1;
-#else
-    return (size_t)(*key._id);
-#endif
 }
 
-#ifdef WIN32
-template<> inline
-size_t stde::hash_value(const eqNet::NodeID& key )
+template<>
+inline size_t stde::hash_value( const eqNet::NodeID& key )
 {
-    stde::hash_compare< eqNet::NodeID > hash;
+    stde::hash_compare< const eqNet::NodeID& > hash;
     return hash( key );
 }
-#endif
 
+#else // WIN32
+
+#  ifdef __GNUC__              // GCC 3.1 and later
+namespace __gnu_cxx
+#  else //  other compilers
+namespace std
+#  endif
+{
+    template<> 
+    struct hash< const eqNet::NodeID >
+    {
+        size_t operator()( const eqNet::NodeID& key ) const
+        {
+            return (size_t)(*key._id);
+        }
+    };
+}
+
+#endif // WIN32
 #endif // EQNET_NODE_H

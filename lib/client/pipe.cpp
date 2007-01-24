@@ -89,19 +89,19 @@ void Pipe::_removeWindow( Window* window )
 
 bool Pipe::supportsWindowSystem( const WindowSystem windowSystem ) const
 {
+    switch( windowSystem )
+    {
 #ifdef GLX
-    if( windowSystem == WINDOW_SYSTEM_GLX )
-        return true;
+        case WINDOW_SYSTEM_GLX: return true;
 #endif
 #ifdef CGL
-    if( windowSystem == WINDOW_SYSTEM_CGL )
-        return true;
+        case WINDOW_SYSTEM_CGL: return true;
 #endif
 #ifdef WGL
-    if( windowSystem == WINDOW_SYSTEM_WGL )
-        return true;
+        case WINDOW_SYSTEM_WGL: return true;
 #endif
-    return false;
+        default:                return false;
+    }
 }
 
 WindowSystem Pipe::selectWindowSystem() const

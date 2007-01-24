@@ -425,15 +425,7 @@ eqNet::CommandResult Channel::_reqDraw( eqNet::Command& command )
 
     _context = &packet->context;
 
-    Window* window = getWindow();
-    HWND win = window->getWGLWindowHandle();
-    HDC dc = GetDC( win );
-    wglMakeCurrent( dc, window->getWGLContext() );
-
     draw( packet->context.frameID );
-
-     ReleaseDC( win, dc );
-    _context = NULL;
 
     if( getIAttribute( IATTR_HINT_STATISTICS ))
     {

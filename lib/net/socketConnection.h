@@ -55,7 +55,7 @@ namespace eqNet
         typedef int    Socket;
         enum
         {
-            INVALID_SOCKET = -1;
+            INVALID_SOCKET = -1
         };
 #endif
 

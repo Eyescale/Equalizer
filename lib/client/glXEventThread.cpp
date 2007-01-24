@@ -51,7 +51,7 @@ void GLXEventThread::exit()
 
     _commandConnection->close();
     _commandConnection = 0;
-    EventThread::exit();
+    Thread::exit();
 }
 
 void GLXEventThread::addPipe( Pipe* pipe )
@@ -171,11 +171,10 @@ void GLXEventThread::_handleEvent()
 void GLXEventThread::_handleCommand()
 {
     uint64_t size;
-    const uint64_t read = _commandConnection->recv( &size, sizeof( size ));
-    if( read == 0 ) // Some systems signal data on dead connections.
+    const bool read = _commandConnection->recv( &size, sizeof( size ));
+    if( !read ) // Some systems signal data on dead connections.
         return;
 
-    EQASSERT( read == sizeof( size ));
     EQASSERT( size );
     EQASSERT( size < 4096 ); // not a hard error, just sanity check
 

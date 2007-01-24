@@ -1,10 +1,11 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include <eq/base/idPool.h>
 
 #include <stdlib.h>
+#include <iostream>
 
 using namespace eqBase;
 using namespace std;

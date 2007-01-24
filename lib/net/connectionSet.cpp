@@ -178,6 +178,7 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
 
         EQASSERT( fd > 0 );
         _connection = _fdSetConnections[ fd ];
+        EQASSERT( _connection.isValid( ));
 
         if( pollEvents & POLLERR )
         {
@@ -268,8 +269,9 @@ bool ConnectionSet::_setupFDSet()
     fd.events = POLLIN; // | POLLPRI;
 
     // add self 'connection'
-    fd.fd      = _selfFD[SIDE_SELECT];
+    fd.fd      = _selfConnection->getReadNotifier();
     fd.revents = 0;
+    _fdSetConnections[fd.fd] = _selfConnection.get();
     _fdSet.push_back( fd );
 
     // add regular connections
@@ -277,11 +279,11 @@ bool ConnectionSet::_setupFDSet()
          i != _connections.end(); ++i )
     {
         eqBase::RefPtr<Connection> connection = *i;
-        fd.fd = connection->getReadFD();
+        fd.fd = connection->getReadNotifier();
 
         if( fd.fd == -1 )
         {
-            EQWARN << "Cannot select connection " << i
+            EQWARN << "Cannot select connection " << connection
                  << ", connection does not use a file descriptor" << endl;
             _connection = connection;
             return false;

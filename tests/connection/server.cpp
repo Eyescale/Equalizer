@@ -16,7 +16,7 @@ int main( int argc, char **argv )
     eqNet::init( argc, argv );
 
     RefPtr<Connection>            connection = 
-        Connection::create( Connection::TYPE_TCPIP );
+        Connection::create( CONNECTIONTYPE_TCPIP );
     RefPtr<ConnectionDescription> connDesc   = connection->getDescription();
 
     connDesc->hostname = "localhost";

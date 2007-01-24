@@ -41,6 +41,7 @@ HEADER_SRC = \
 	net/connection.h \
 	net/connection.ipp \
 	net/connectionSet.h \
+	net/connectionType.h \
 	net/connectionDescription.h \
 	net/fdConnection.h \
 	net/global.h \
@@ -119,7 +120,6 @@ SOURCES = \
 	net/pipeConnection.cpp \
 	net/session.cpp \
 	net/socketConnection.cpp \
-	net/util.cpp \
 	client/channel.cpp \
 	client/client.cpp \
 	client/config.cpp \

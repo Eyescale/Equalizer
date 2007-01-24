@@ -425,8 +425,6 @@ bool eq::Window::initGLX()
         return false;
     }
 
-    int screen = DefaultScreen( display );
-
     vector<int> attributes;
     attributes.push_back( GLX_RGBA );
 
@@ -465,6 +463,7 @@ bool eq::Window::initGLX()
         attributes.push_back( GLX_DOUBLEBUFFER );
     attributes.push_back( None );
 
+    const int    screen  = DefaultScreen( display );
     XVisualInfo *visInfo = glXChooseVisual( display, screen, &attributes[0] );
 
     if( !visInfo && getIAttribute( IATTR_HINT_STEREO ) == AUTO )
@@ -491,6 +490,7 @@ bool eq::Window::initGLX()
         return false;
     }
 
+    XID                  parent = RootWindow( display, screen );
     XSetWindowAttributes wa;
     wa.colormap          = XCreateColormap( display, parent, visInfo->visual,
                                             AllocNone );

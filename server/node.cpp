@@ -30,8 +30,6 @@ void Node::_construct()
     registerCommand( eq::CMD_NODE_EXIT_REPLY, 
                      eqNet::CommandFunc<Node>( this, &Node::_cmdExitReply ));
 
-    const Global* global = Global::instance();
-
     ref(); // We don't use RefPtr so far
     EQINFO << "Add node @" << (void*)this << endl;
 }

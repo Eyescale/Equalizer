@@ -1,9 +1,11 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_X11_CONNECTION_H
 #define EQ_X11_CONNECTION_H
+
+#include <eq/client/windowSystem.h>
 
 #include <eq/base/userdata.h>
 #include <eq/net/connection.h>
@@ -25,7 +27,14 @@ namespace eq
             }
 
         Display* getDisplay() const   { return _display; }
-        virtual int getReadFD() const { return ConnectionNumber( _display ); }
+        virtual ReadNotifier getReadNotifier() const
+            { return ConnectionNumber( _display ); }
+
+    protected:
+        virtual int64_t read( void* buffer, const uint64_t bytes )
+            { return -1; }
+        virtual int64_t write( const void* buffer, const uint64_t bytes ) const
+            { return -1; }
 
     private:
         Display* _display;

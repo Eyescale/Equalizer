@@ -390,8 +390,8 @@ PlyModel< NormalFace<ColorVertex> > *PlyFileIO::readBin( const char *filename )
     struct stat status;
 
     fstat( fd, &status );
-    char *addr = static_cast<char *>{ mmap( 0, (size_t) status.st_size, 
-                                      PROT_READ, MAP_SHARED, fd, 0 ));
+    char *addr = static_cast<char *>( mmap( 0, (size_t) status.st_size, 
+                                            PROT_READ, MAP_SHARED, fd, 0 ));
 
     if( addr == MAP_FAILED )
     {

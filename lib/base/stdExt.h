@@ -44,7 +44,21 @@ namespace std
             return hash< const char* >()( str.c_str() );
         }
     };
+
+    /** void* hash function. */
+    template<> 
+    struct hash< const void* >
+    {
+        template< typename P >
+        size_t operator()( const P& key ) const
+        {
+            return reinterpret_cast<size_t>(key);	 
+        }
+    };
+
 #  else // WIN32
+
+    /** std::string hash function. */
     template<>
     inline size_t hash_compare< std::string >::operator()
         ( const std::string& key ) const

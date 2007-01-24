@@ -58,7 +58,7 @@ int main( int argc, char **argv )
     Server server;
 
     RefPtr<Connection>            connection = 
-        Connection::create( Connection::TYPE_TCPIP );
+        Connection::create( CONNECTIONTYPE_TCPIP );
     RefPtr<ConnectionDescription> connDesc   = connection->getDescription();
 
     connDesc->TCPIP.port = 4242;

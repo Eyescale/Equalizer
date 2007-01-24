@@ -11,7 +11,11 @@ namespace eqBase
 {
     /** A hash for pointer keys. */
     template<class K, class T> class PtrHash 
-        : public stde::hash_map<K, T, stde::hash_compare<const void*> >
+#ifdef WIN32
+        : public stde::hash_map< K, T, stde::hash_compare< const void* > >
+#else
+        : public stde::hash_map< K, T, stde::hash< const void* > >
+#endif
     {};
 }
 

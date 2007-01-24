@@ -43,6 +43,10 @@
 #error "Need a stringstream (sstream or strstream) to compile!"
 #endif
 
+#ifdef check
+#  undef check
+#endif
+
 namespace TCLAP {
 
 template<class T> class ValueArg;

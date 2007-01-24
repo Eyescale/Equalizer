@@ -34,7 +34,7 @@
 #include <cstdlib>
 #include <sys/types.h>
 #ifndef WIN32
-#  include <cstdint>
+#  include <stdint.h>
 #endif
 
 // type definitions

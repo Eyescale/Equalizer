@@ -79,9 +79,10 @@ RefPtr<Connection> Connection::accept( const int timeout )
     const DWORD waitTime = timeout > 0 ? timeout : INFINITE;
     const DWORD ret = WaitForSingleObject( notifier, waitTime );
 #else
+    const ReadNotifier fd = getReadNotifier();
     fd_set fdSet;
     FD_ZERO( &fdSet );
-    FD_SET( getReadFD(), &fdSet );
+    FD_SET( fd, &fdSet );
 
     // wait for a connection
     timeval tv;

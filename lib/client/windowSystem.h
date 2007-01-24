@@ -41,9 +41,9 @@ typedef int32_t CGDirectDisplayID;
 typedef void*   CGLContextObj;
 #endif
 #ifndef WGL
-typedef void* HDC
-typedef void* HWND
-typedef void* HGLRC
+typedef void* HDC;
+typedef void* HWND;
+typedef void* HGLRC;
 #endif
 
 namespace eq

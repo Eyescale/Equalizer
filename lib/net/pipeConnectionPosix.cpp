@@ -14,8 +14,8 @@ using namespace eqNet;
 using namespace std;
 
 PipeConnection::PipeConnection()
-        : _description( new ConnectionDescription )
 {
+    _description = new ConnectionDescription;
     _description->type = CONNECTIONTYPE_PIPE;
 }
 

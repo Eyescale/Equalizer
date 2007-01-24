@@ -7,9 +7,9 @@
 #include <eq/base/debug.h>
 
 #include <errno.h>
+#include <sys/timeb.h>
 
 #ifdef WIN32
-#  include <sys/timeb.h>
 #  define timeb _timeb
 #  define ftime _ftime
 #endif

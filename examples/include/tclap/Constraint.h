@@ -29,6 +29,10 @@
 #include <iomanip>
 #include <algorithm>
 
+#ifdef check
+#  undef check
+#endif
+
 namespace TCLAP {
 
 /**
