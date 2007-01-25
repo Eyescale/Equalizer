@@ -109,7 +109,7 @@ namespace eqNet
     private:
         friend std::ostream& operator << ( std::ostream& os, const NodeID& id );
 #ifdef WIN32
-        friend size_t stde::hash_compare< const eqNet::NodeID& >::operator() 
+        friend size_t stde::hash_compare< eqNet::NodeID >::operator() 
             ( const eqNet::NodeID& key ) const;
 #else
         friend struct stde::hash< const eqNet::NodeID >;
@@ -140,7 +140,7 @@ namespace eqNet
 
 #ifdef WIN32
 template<>
-inline size_t stde::hash_compare< const eqNet::NodeID& >::operator() 
+inline size_t stde::hash_compare< eqNet::NodeID >::operator() 
     ( const eqNet::NodeID& key ) const
 {
     return key._id.Data1;
@@ -149,7 +149,7 @@ inline size_t stde::hash_compare< const eqNet::NodeID& >::operator()
 template<>
 inline size_t stde::hash_value( const eqNet::NodeID& key )
 {
-    stde::hash_compare< const eqNet::NodeID& > hash;
+    stde::hash_compare< eqNet::NodeID > hash;
     return hash( key );
 }
 
