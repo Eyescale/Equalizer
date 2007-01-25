@@ -361,11 +361,11 @@ template<class FaceType>
 void PlyModel<FaceType>::calculateCullSphere( BBox &bbox )
 {
     bbox.cullSphere.center.pos[0] = 
-        (bbox.cullBox[0].pos[0] + bbox.cullBox[1].pos[0])/2.;
+        (bbox.cullBox[0].pos[0] + bbox.cullBox[1].pos[0]) * 0.5f;
     bbox.cullSphere.center.pos[1] =
-        (bbox.cullBox[0].pos[1] + bbox.cullBox[1].pos[1])/2.;
+        (bbox.cullBox[0].pos[1] + bbox.cullBox[1].pos[1]) * 0.5f;
     bbox.cullSphere.center.pos[2] =
-        (bbox.cullBox[0].pos[2] + bbox.cullBox[1].pos[2])/2.;
+        (bbox.cullBox[0].pos[2] + bbox.cullBox[1].pos[2]) * 0.5f;
 
     float v[3];
     v[0] = bbox.cullSphere.center.pos[0] - bbox.cullBox[0].pos[0];
@@ -679,8 +679,8 @@ void PlyModel< FaceType >::toStream(ostream& os)
     os.write( (char *)&version, sizeof(int) );
 
     os.write( (char *)&_nFaces, sizeof(size_t) );
-    if( _nFaces > 0)
-        os.write( (char *)_faces, (ssize_t)(_nFaces*sizeof( FaceType )) );
+    if( _nFaces > 0 )
+        os.write( (char *)_faces, (ssize_t)( _nFaces * sizeof( FaceType )) );
 
     writeBBox( os, _bbox );
 }

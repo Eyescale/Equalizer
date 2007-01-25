@@ -16,4 +16,7 @@
 #ifndef EQ_USE_COMPRESSION
 #  define EQ_USE_COMPRESSION
 #endif
+#ifndef LITTLE_ENDIAN
+#  define LITTLE_ENDIAN
+#endif
 #endif // EQ_DEFINES_H

@@ -82,8 +82,12 @@ namespace eqNet
 
         CHECK_THREAD_DECLARE( _thread );
     private:
+
+#pragma warning(push)
+#pragma warning(disable: 4251)
         /** Thread-safe command queue. */
         eqBase::MTQueue<Command>  _commands;
+#pragma warning(pop)
         
         /** The last popped command, to be released upon the next pop. */
         Command*                  _lastCommand;

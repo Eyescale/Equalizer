@@ -204,8 +204,8 @@ void PlyFileIO::readVertices( PlyFile *file, int num, bool color,
     // pointer voodoo knowing that our non-POD ColorVertex is 'well-behaved'
     ColorVertex dummy;
     const int xOffset = ((char*)&dummy.pos[0] - (char*)&dummy );
-    const int yOffset = xOffset + (int)sizeof(int);
-    const int zOffset = yOffset + (int)sizeof(int);
+    const int yOffset = ((char*)&dummy.pos[1] - (char*)&dummy );
+    const int zOffset = ((char*)&dummy.pos[2] - (char*)&dummy );
 
     PlyProperty vProps[6] = { 
         {"x",PLY_FLOAT,PLY_FLOAT, xOffset, 0,0,0,0},
@@ -215,23 +215,20 @@ void PlyFileIO::readVertices( PlyFile *file, int num, bool color,
 
     if( color )
     {
+        char names[3][6] = { "red", "green", "blue" };
         for( int i=3; i<6; i++ )
         {
-            vProps[i].name = (char *)alloca( 32 );
+            vProps[i].name = names[i-3];
             vProps[i].external_type = PLY_UCHAR;   
             vProps[i].internal_type = PLY_FLOAT;   
             
             vProps[i].is_list = 0;         
         }
 
-        sprintf( vProps[3].name, "red" );
-        sprintf( vProps[4].name, "green" );
-        sprintf( vProps[5].name, "blue" );
-
         // non-POD offsets: see comment above
         const int rOffset = ((char*)&dummy.color[0] - (char*)&dummy );
-        const int gOffset = rOffset + (int)sizeof(float);
-        const int bOffset = gOffset + (int)sizeof(float);
+        const int gOffset = ((char*)&dummy.color[1] - (char*)&dummy );
+        const int bOffset = ((char*)&dummy.color[2] - (char*)&dummy );
         
         vProps[3].offset = rOffset;
         vProps[4].offset = gOffset;
@@ -278,8 +275,8 @@ void PlyFileIO::readFaces( PlyFile *file,
     int nFProps = 1;
 
     struct IndexFace {
-        int nVertices;
-        int *vertices;
+        int  nVertices;
+        int* vertices;
     } face;
 
     PlyProperty fProps[] = { 
@@ -291,7 +288,7 @@ void PlyFileIO::readFaces( PlyFile *file,
     ply_get_element_setup( file, "face", nFProps, fProps );
             
     // read faces
-    int wrongNormals = 0;
+    unsigned wrongNormals = 0;
     for( int i=0; i<nFaces; i++ )
     {
         if( i%10000 == 0 )
@@ -304,7 +301,8 @@ void PlyFileIO::readFaces( PlyFile *file,
         // dereference face indices
         for( int j=0; j<3; j++ )
         {
-            assert( face.vertices[j] < nVertices );
+            EQASSERT( face.vertices[j] < nVertices );
+            EQASSERT( face.vertices[j] >= 0 );
             faces[i].vertices[j] = vertices[face.vertices[j]]; 
         }
         
@@ -334,25 +332,26 @@ bool PlyFileIO::calculateNormal( NormalFace<ColorVertex> &face )
     double by = 1000.*face.vertices[0].pos[1] - 1000.*face.vertices[2].pos[1];
     double bz = 1000.*face.vertices[0].pos[2] - 1000.*face.vertices[2].pos[2];
     
-    face.normal[0] = ay*bz - az*by;
-    face.normal[1] = az*bx - ax*bz;
-    face.normal[2] = ax*by - ay*bx;
+    face.normal[0] = static_cast<float>( ay*bz - az*by );
+    face.normal[1] = static_cast<float>( az*bx - ax*bz );
+    face.normal[2] = static_cast<float>( ax*by - ay*bx );
                     
-    double n = sqrt( face.normal[0] * face.normal[0] + 
-                     face.normal[1] * face.normal[1] + 
-                     face.normal[2] * face.normal[2] );
+    const float n = sqrtf( face.normal[0] * face.normal[0] + 
+                           face.normal[1] * face.normal[1] + 
+                           face.normal[2] * face.normal[2] );
     
-    if( n==0. )
+    if( n==0.0f )
     {
-        face.normal[0] = 0.;
-        face.normal[1] = 0.;
-        face.normal[2] = 1.;
+        face.normal[0] = 0.0f;
+        face.normal[1] = 0.0f;
+        face.normal[2] = 1.0f;
         return false;
     }
 
-    face.normal[0] /= n;
-    face.normal[1] /= n;
-    face.normal[2] /= n;
+    const float nInv = 1.0f / n;
+    face.normal[0] *= nInv;
+    face.normal[1] *= nInv;
+    face.normal[2] *= nInv;
     return true;
 }
 
@@ -426,7 +425,7 @@ PlyModel< NormalFace<ColorVertex> > *PlyFileIO::readBin( const char *filename )
 void PlyFileIO::writeBin( PlyModel< NormalFace<ColorVertex> > *model, 
     const char *filename )
 {
-    ofstream fout( filename, ios::out );
+    ofstream fout( filename, ios::out | ios::binary );
     if( !fout )
         return;
 

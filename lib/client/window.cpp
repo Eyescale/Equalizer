@@ -221,8 +221,8 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Command& command )
     glGetBooleanv( GL_STEREO, &glStereo );
     glGetBooleanv( GL_DOUBLEBUFFER, &dBuffer );
     _drawableConfig.doublebuffered = dBuffer;
-    _drawableConfig.stereo = glStereo;
-    reply.drawableConfig = getDrawableConfig();
+    _drawableConfig.stereo         = glStereo;
+    reply.drawableConfig           = _drawableConfig;
 
     send( node, reply );
 
@@ -392,7 +392,7 @@ bool eq::Window::initGL( const uint32_t initID )
 {
     glEnable( GL_SCISSOR_TEST ); // needed to constrain channel viewport
     glEnable( GL_DEPTH_TEST );
-    glDepthFunc (GL_LESS);
+    glDepthFunc( GL_LESS );
 
     glEnable( GL_LIGHTING );
     glEnable( GL_LIGHT0 );
@@ -748,7 +748,7 @@ bool eq::Window::initWGL()
         pfd.cDepthBits = depthSize>0 ? depthSize : 1;
 
     const int stencilSize = getIAttribute( IATTR_PLANES_STENCIL );
-    if( stencilSize >0 || depthSize == AUTO )
+    if( stencilSize >0 || stencilSize == AUTO )
         pfd.cStencilBits = stencilSize>0 ? stencilSize : 1;
 
     if( getIAttribute( IATTR_HINT_STEREO ) != OFF )

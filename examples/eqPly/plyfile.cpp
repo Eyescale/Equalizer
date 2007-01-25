@@ -144,7 +144,7 @@ void swap8Bytes( void* ptr )
 
 
 }
-   
+
 #ifdef LITTLE_ENDIAN
 void swap2LE( void* ) {}
 void swap2LE( short* ) {}
