@@ -144,6 +144,13 @@ namespace eqs
         const eq::Viewport& getViewport() const { return _vp; }
 
         /**
+         * Notify this window that the viewport has changed. 
+         *
+         * The window updates the viewport or pixel viewport accordingly. 
+         */
+        void notifyViewportChanged();
+
+        /**
          * Create a new swap barrier and join it for the next update.
          *
          * @return the created swap barrier.

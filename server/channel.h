@@ -93,12 +93,11 @@ namespace eqs
         const eq::PixelViewport& getPixelViewport() const { return _pvp; }
 
         /**
-         * Notify this channel that it's parent window pixel viewport has
-         * changed. 
+         * Notify this channel that the viewport has changed.
          *
          * The channel updates the viewport or pixel viewport accordingly. 
          */
-        void notifyWindowPVPChanged();
+        void notifyViewportChanged();
 
         /** 
          * Set the channel's viewport wrt its parent pipe.

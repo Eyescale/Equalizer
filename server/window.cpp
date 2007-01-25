@@ -126,7 +126,7 @@ void eqs::Window::unrefUsed()
 //----------------------------------------------------------------------
 void eqs::Window::setPixelViewport( const eq::PixelViewport& pvp )
 {
-    if( !pvp.hasArea( ))
+    if( pvp == _pvp || !pvp.hasArea( ))
         return;
 
     _pvp = pvp;
@@ -144,7 +144,7 @@ void eqs::Window::setPixelViewport( const eq::PixelViewport& pvp )
     for( std::vector<Channel*>::iterator iter = _channels.begin(); 
          iter != _channels.end(); ++iter )
 
-        (*iter)->notifyWindowPVPChanged();
+        (*iter)->notifyViewportChanged();
 }
 
 void eqs::Window::setViewport( const eq::Viewport& vp )
@@ -164,6 +164,20 @@ void eqs::Window::setViewport( const eq::Viewport& vp )
         pipePVP.y = 0;
         _pvp = pipePVP * vp;
     }
+}
+
+void eqs::Window::notifyViewportChanged()
+{
+    if( !_pipe || !_pvp.hasArea( ))
+        return;
+
+    const eq::PixelViewport& pipePVP = _pipe->getPixelViewport();
+    if( !pipePVP.hasArea( ))
+        return;
+
+    // We always assume that the window's pvp is fixed
+    _vp = _pvp / pipePVP;
+    EQINFO << "Window viewport update: " << _pvp << ":" << _vp << endl;
 }
 
 //---------------------------------------------------------------------------

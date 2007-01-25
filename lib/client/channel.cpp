@@ -70,7 +70,7 @@ Channel::~Channel()
 //----------------------------------------------------------------------
 void eq::Channel::_setPixelViewport( const PixelViewport& pvp )
 {
-    if( !pvp.hasArea( ))
+    if( _pvp == pvp || !pvp.hasArea( ))
         return;
 
     _pvp = pvp;
@@ -136,6 +136,7 @@ void Channel::clear( const uint32_t frameID )
 {
     applyBuffer();
     applyViewport();
+
     if( getenv( "EQ_TAINT_CHANNELS" ))
     {
 #ifdef WIN32

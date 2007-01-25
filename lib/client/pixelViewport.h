@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PIXELVIEWPORT_H
@@ -8,6 +8,7 @@
 #include "viewport.h"
 
 #include <eq/base/base.h>
+#include <eq/base/debug.h>
 #include <eq/vmmlib/Vector2.h>
 
 namespace eq
@@ -105,6 +106,7 @@ namespace eq
 
         const Viewport operator / ( const PixelViewport& rhs ) const
             {
+                EQASSERT( rhs.hasArea( ));
                 return Viewport(  x / (float)rhs.w,  y / (float)rhs.w,
                                   w / (float)rhs.w,  h / (float)rhs.h );
             }

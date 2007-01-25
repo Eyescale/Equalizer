@@ -280,6 +280,23 @@ void Pipe::update( const uint32_t frameID )
     _send( syncPacket );
 }
 
+//----------------------------------------------------------------------
+// viewport
+//----------------------------------------------------------------------
+void Pipe::setPixelViewport( const eq::PixelViewport& pvp )
+{
+    if( pvp == _pvp || !pvp.hasArea( ))
+        return;
+
+    _pvp = pvp;
+    EQINFO << "Pipe pvp set: " << _pvp << endl;
+
+    for( std::vector<Window*>::iterator iter = _windows.begin(); 
+         iter != _windows.end(); ++iter )
+
+        (*iter)->notifyViewportChanged();
+}
+
 //===========================================================================
 // command handling
 //===========================================================================
@@ -290,6 +307,8 @@ eqNet::CommandResult Pipe::_cmdInitReply( eqNet::Command& command )
     EQINFO << "handle pipe init reply " << packet << endl;
 
     _error = packet->error;
+    setPixelViewport( packet->pvp );
+
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
     return eqNet::COMMAND_HANDLED;
 }

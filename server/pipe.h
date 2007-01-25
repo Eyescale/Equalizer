@@ -132,7 +132,7 @@ namespace eqs
          * 
          * @param pvp the pixel viewport.
          */
-        void setPixelViewport( const eq::PixelViewport& pvp ) { _pvp = pvp; }
+        void setPixelViewport( const eq::PixelViewport& pvp );
 
         /** @return the pixel viewport. */
         const eq::PixelViewport& getPixelViewport() const { return _pvp; }

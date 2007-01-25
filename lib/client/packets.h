@@ -375,9 +375,10 @@ namespace eq
                 error[0]  = '\0';
             }
 
-        uint32_t requestID;
-        bool     result;
-        EQ_ALIGN8( char     error[8] );
+        uint32_t      requestID;
+        bool          result;
+        PixelViewport pvp;
+        EQ_ALIGN8( char error[8] );
     };
 
     struct PipeExitPacket : public eqNet::ObjectPacket

@@ -398,6 +398,7 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Command& command )
         default: EQUNIMPLEMENTED;
     }
 
+    reply.pvp = _pvp;
     send( node, reply );
 
     EventThread* thread = EventThread::get( _windowSystem );

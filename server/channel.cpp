@@ -10,6 +10,7 @@
 #include "window.h"
 
 #include <eq/base/base.h>
+#include <eq/base/debug.h>
 #include <eq/net/command.h>
 #include <eq/client/commands.h>
 #include <eq/client/global.h>
@@ -103,7 +104,7 @@ void Channel::setPixelViewport( const eq::PixelViewport& pvp )
 
     _pvp = pvp;
     _vp.invalidate();
-    notifyWindowPVPChanged();
+    notifyViewportChanged();
 }
 
 void Channel::setViewport( const eq::Viewport& vp )
@@ -118,23 +119,21 @@ void Channel::setViewport( const eq::Viewport& vp )
 
     _vp = vp;
     _pvp.invalidate();
-    notifyWindowPVPChanged();
+    notifyViewportChanged();
 }
 
-void Channel::notifyWindowPVPChanged()
+void Channel::notifyViewportChanged()
 {
     if( !_window )
         return;
 
     const eq::PixelViewport& windowPVP = _window->getPixelViewport();
-    if( !windowPVP.isValid( ))
+    if( !windowPVP.hasArea( ))
         return;
 
-    if( _fixedPVP )
-    {
+    if( _fixedPVP ) // update viewport
         _vp = _pvp / windowPVP;
-    }
-    else
+    else            // update pixel viewport
     {
         eq::PixelViewport relWindowPVP = windowPVP;
         relWindowPVP.x = 0;
