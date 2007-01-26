@@ -64,5 +64,9 @@ typedef SSIZE_T    ssize_t;
 #define EQ_UNDEFINED_UINT32   (0xffffffff)
 //#define EQ_UNDEFINED_INT32    (0x7fffffff)
 #define EQ_TIMEOUT_INDEFINITE 0
+#define EQ_OBJECT_CAST( type, object )                 \
+    static_cast<type>( object );                       \
+    EQASSERTINFO( dynamic_cast<type>( object ),        \
+                  "Object is not of type " << #type ); 
 
 #endif //EQBASE_BASE_H

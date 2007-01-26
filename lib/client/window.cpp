@@ -27,7 +27,7 @@ using namespace eqBase;
 using namespace std;
 
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_WINDOW_") + #attr )
-EQ_EXPORT std::string eq::Window::_iAttributeStrings[IATTR_ALL] = {
+std::string eq::Window::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_HINT_STEREO ),
     MAKE_ATTR_STRING( IATTR_HINT_DOUBLEBUFFER ),
     MAKE_ATTR_STRING( IATTR_HINT_FULLSCREEN ),

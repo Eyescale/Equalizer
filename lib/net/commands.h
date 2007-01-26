@@ -5,6 +5,8 @@
 #ifndef EQNET_COMMANDS_H
 #define EQNET_COMMANDS_H
 
+#include <eq/base/base.h>
+
 namespace eqNet
 {
     enum ObjectCommand

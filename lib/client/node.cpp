@@ -122,9 +122,8 @@ eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Command& command )
         command.getPacket<NodeDestroyPipePacket>();
     EQINFO << "Handle destroy pipe " << packet << endl;
 
-    Pipe* pipe = (Pipe*)_config->pollObject( packet->pipeID );
-    if( !pipe )
-        return eqNet::COMMAND_HANDLED;
+    Object* object = _config->pollObject( packet->pipeID );
+    Pipe*   pipe   = EQ_OBJECT_CAST( Pipe*, object );
 
     pipe->_thread->join(); // wait for pipe thread termination. move to pipe
 

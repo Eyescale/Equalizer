@@ -21,7 +21,7 @@ namespace eq
     class Channel;
     class WindowEvent;
 
-    class Window : public eqNet::Object
+    class EQ_EXPORT Window : public eqNet::Object
     {
     public:
         /** Stores current drawable characteristics. */
@@ -305,7 +305,7 @@ namespace eq
         /** Integer attributes. */
         int32_t _iAttributes[IATTR_ALL];
         /** String representation of integer attributes. */
-        static EQ_EXPORT std::string _iAttributeStrings[IATTR_ALL];
+        static std::string _iAttributeStrings[IATTR_ALL];
 
         /** The channels of this window. */
         std::vector<Channel*>     _channels;

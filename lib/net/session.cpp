@@ -166,10 +166,10 @@ void Session::setIDMaster( const uint32_t start, const uint32_t range,
 
 const NodeID& Session::_pollIDMaster( const uint32_t id ) const 
 {
-    for( vector<IDMasterInfo>::const_iterator iter = _idMasterInfos.begin();
-         iter != _idMasterInfos.end(); ++iter )
+    for( vector<IDMasterInfo>::const_iterator i = _idMasterInfos.begin();
+         i != _idMasterInfos.end(); ++i )
     {
-        const IDMasterInfo& info = *iter;
+        const IDMasterInfo& info = *i;
         if( id >= info.start && id < info.end )
             return info.master;
     }
@@ -300,7 +300,7 @@ void Session::removeRegisteredObject( Object* object,
 
     EQLOG( LOG_OBJECTS ) << "removeRegisteredObject id " << id << " @" 
                          << (void*)object << " ref " << object->getRefCount()
-                         << endl;
+                         << " type " << typeid(*object).name() << endl;
     objects.erase( iter );
 
     if( objects.empty( ))
@@ -484,7 +484,7 @@ Object* Session::getObject( const uint32_t id, const Object::SharePolicy policy,
 }
 
 Object* Session::pollObject( const uint32_t id, 
-                             const Object::SharePolicy policy)
+                             const Object::SharePolicy policy )
 {
     switch( policy )
     {
@@ -558,20 +558,13 @@ CommandResult Session::_handleObjectCommand( Command& command )
         return COMMAND_REDISPATCH;
     }
 
-    vector<Object*>&    objects   = _registeredObjects[id];
-
-    if( objects.empty( ))
-    {
-        EQWARN << "no objects to handle command, redispatching " << objPacket
-               << endl;
-        return COMMAND_REDISPATCH;
-    }
-
+    vector<Object*>& objects = _registeredObjects[id];
     EQASSERT( !objects.empty( ));
-    for( vector<Object*>::iterator iter = objects.begin(); 
-         iter != objects.end(); ++iter )
+
+    for( vector<Object*>::const_iterator i = objects.begin(); 
+        i != objects.end(); ++i )
     {
-        Object* object = *iter;
+        Object* object = *i;
         if( objPacket->instanceID == EQ_ID_ANY ||
             objPacket->instanceID == object->getInstanceID( ))
         {
@@ -605,7 +598,7 @@ CommandResult Session::_handleObjectCommand( Command& command )
                     // packets which are sent to all object instances
                     // Note: if the first object returns one of these results,
                     // we assume for now that it applies to all.
-                    if( iter != objects.begin() &&
+                    if( i != objects.begin() &&
                         objPacket->instanceID == EQ_ID_ANY )
 
                         EQUNIMPLEMENTED;
@@ -1006,13 +999,17 @@ CommandResult Session::_cmdInitObject( Command& command )
     EQLOG( LOG_OBJECTS ) << "Cmd init object " << packet << endl;
 
     const uint32_t   id      = packet->objectID;
-    vector<Object*>& objects = _registeredObjects[id];
+    EQASSERT( _registeredObjects.find( id ) != _registeredObjects.end( ));
 
-    for( vector<Object*>::const_iterator iter = objects.begin();
-         iter != objects.end(); ++iter )
+    vector<Object*>& objects = _registeredObjects[id];
+    EQASSERT( !objects.empty( ));
+
+    for( vector<Object*>::const_iterator i = objects.begin();
+         i != objects.end(); ++i )
     {
-        Object* object = *iter;
-        if( object->getID() != id || !object->isMaster( ))
+        Object* object = *i;
+        EQASSERT( object->getID() == id );
+        if( !object->isMaster( ))
             continue;
 
         RefPtr<Node>   node   = command.getNode();
