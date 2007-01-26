@@ -137,6 +137,7 @@ void Channel::clear( const uint32_t frameID )
     applyBuffer();
     applyViewport();
 
+#ifndef NDEBUG
     if( getenv( "EQ_TAINT_CHANNELS" ))
     {
 #ifdef WIN32
@@ -151,6 +152,7 @@ void Channel::clear( const uint32_t frameID )
         glClearColor( (color&0xff) / 255., ((color>>8) & 0xff) / 255.,
                       ((color>>16) & 0xff) / 255., 1. );
     }
+#endif // DEBUG
 
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
@@ -253,11 +255,8 @@ void Channel::readback( const uint32_t frameID )
 
 void Channel::applyBuffer()
 {
-    if( !_context )
-        return;
-
-    glReadBuffer( _context->buffer );
-    glDrawBuffer( _context->buffer );
+    glReadBuffer( getReadBuffer( ));
+    glDrawBuffer( getDrawBuffer( ));
 }
 
 void Channel::setupAssemblyState()
@@ -320,6 +319,16 @@ void Channel::applyViewport()
 
     glViewport( pvp.x, pvp.y, pvp.w, pvp.h );
     glScissor( pvp.x, pvp.y, pvp.w, pvp.h );
+}
+
+const uint32_t Channel::getDrawBuffer() const
+{
+    return _context ? _context->buffer : GL_BACK;
+}
+
+const uint32_t Channel::getReadBuffer() const
+{
+    return _context ? _context->buffer : GL_BACK;
 }
 
 const vmml::Frustumf& Channel::getFrustum() const

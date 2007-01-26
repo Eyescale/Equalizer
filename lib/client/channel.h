@@ -79,6 +79,12 @@ namespace eq
          * task.
          */
         //*{
+        /** @return the channel's current draw buffer. */
+        const uint32_t getDrawBuffer() const;
+
+        /** @return the channel's current read buffer. */
+        const uint32_t getReadBuffer() const;
+
         /** @return the channel's current pixel viewport. */
         const PixelViewport& getPixelViewport() const;
 
