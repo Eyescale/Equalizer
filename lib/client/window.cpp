@@ -661,6 +661,10 @@ bool eq::Window::initWGL()
 {
 #ifdef WGL
     // window class
+    ostringstream className;
+    className << (_name.empty() ? string("Equalizer") : _name) << (void*)this;
+    const string& classStr = className.str();
+                                  
     HINSTANCE instance = GetModuleHandle( 0 );
     WNDCLASS  wc;
     wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;                          
@@ -672,11 +676,12 @@ bool eq::Window::initWGL()
     wc.hCursor       = LoadCursor( NULL, IDC_ARROW );
     wc.hbrBackground = NULL;                       
     wc.lpszMenuName  = NULL;             
-    wc.lpszClassName =  _name.empty() ? "Equalizer" : _name.c_str();       
+    wc.lpszClassName = classStr.c_str();       
 
     if( !RegisterClass( &wc ))
     {
-        setErrorMessage( "Can't register window class" );
+        setErrorMessage( "Can't register window class: " + 
+                         getErrorString( GetLastError( )));
 	    return false;
     }
 
@@ -689,7 +694,8 @@ bool eq::Window::initWGL()
         if( ChangeDisplaySettings( &deviceMode, CDS_FULLSCREEN ) != 
             DISP_CHANGE_SUCCESSFUL )
         {
-            setErrorMessage( "Can't switch to fullscreen mode" );
+            setErrorMessage( "Can't switch to fullscreen mode: " + 
+                         getErrorString( GetLastError( )));
 	        return false;
         }
     }
@@ -718,7 +724,8 @@ bool eq::Window::initWGL()
 
     if( !hWnd )
     {
-        setErrorMessage( "Can't create window" );
+        setErrorMessage( "Can't create window: " + 
+                         getErrorString( GetLastError( )));
 	    return false;
     }
 
@@ -775,14 +782,16 @@ bool eq::Window::initWGL()
 
     if( pf == 0 )
     {
-        setErrorMessage( "Can't find matching pixel format" );
+        setErrorMessage( "Can't find matching pixel format: " + 
+                         getErrorString( GetLastError( )));
         ReleaseDC( hWnd, dc );
 	    return false;
     }
  
     if( !SetPixelFormat( dc, pf, &pfd ))
     {
-        setErrorMessage( "Can't set pixel format" );
+        setErrorMessage( "Can't set pixel format: " + 
+                         getErrorString( GetLastError( )));
         ReleaseDC( hWnd, dc );
 	    return false;
     }
@@ -791,7 +800,8 @@ bool eq::Window::initWGL()
     HGLRC context = wglCreateContext( dc );
     if( !context )
     {
-        setErrorMessage( "Can't create OpenGL context" );
+        setErrorMessage( "Can't create OpenGL context: " + 
+                         getErrorString( GetLastError( )));
 	    return false;
     }
 
@@ -802,7 +812,7 @@ bool eq::Window::initWGL()
     HGLRC    shareCtx    = firstWindow->getWGLContext();
 
     if( shareCtx && !wglShareLists( shareCtx, context ))
-        EQWARN << "Context sharing faile: " << getErrorString( GetLastError( ))
+        EQWARN << "Context sharing failed: " << getErrorString( GetLastError( ))
                << endl;
 
     setWGLContext( context );

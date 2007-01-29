@@ -4,4 +4,12 @@
  MS Windows support is not yet fully implemented. The initial port will support
  Visual Studio 2005 and Windows XP.
  
+ The Visual Studio project files are in VS2005. The solution file inlcudes the
+ following projects:
  
+ o Equalizer: The client library (DLL)
+ o Equalizer Server: The server executable
+ o eqPly Example: The polygonal viewer example code
+
+ The provided VS2003 files are out of date, and kept as a starting point for a
+ Visual Studio 2003 port.

@@ -237,7 +237,7 @@ namespace eqNet
             }
 
         void send( eqBase::RefPtr<Node> node, SessionPacket& packet, 
-                   const std::string text )
+                   const std::string& text )
             {
                 packet.sessionID = _id;
                 node->send( packet, text );

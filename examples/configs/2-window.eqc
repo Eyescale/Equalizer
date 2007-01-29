@@ -3,7 +3,7 @@ server
 {
     config
     {
-        node
+        appNode
         {
 #            connection{ hostname "hactar1" }
             pipe

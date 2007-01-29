@@ -58,7 +58,7 @@ typedef UINT16     uint16_t;
 typedef UINT8      uint8_t;
 typedef int        socklen_t;
 typedef SSIZE_T    ssize_t;
-#endif
+#endif // Win32
 
 // defines
 #define EQ_UNDEFINED_UINT32   (0xffffffff)
