@@ -6,6 +6,7 @@
 #define EQS_GLOBAL_H
 
 #include "channel.h"
+#include "compound.h"
 #include "connectionDescription.h"
 #include "node.h"
 #include "window.h"
@@ -52,7 +53,7 @@ namespace eqs
          * @name Window Attributes.
          */
         void setWindowIAttribute( const eq::Window::IAttribute attr,
-                                  const uint32_t value )
+                                  const int32_t value )
             { _windowIAttributes[attr] = value; }
         int32_t getWindowIAttribute( const eq::Window::IAttribute attr ) const
             { return _windowIAttributes[attr]; }
@@ -61,10 +62,19 @@ namespace eqs
          * @name Channel Attributes.
          */
         void setChannelIAttribute( const eq::Channel::IAttribute attr,
-                                  const uint32_t value )
+                                  const int32_t value )
             { _channelIAttributes[attr] = value; }
         int32_t getChannelIAttribute( const eq::Channel::IAttribute attr ) const
             { return _channelIAttributes[attr]; }
+
+        /**
+         * @name Compound Attributes.
+         */  
+        void setCompoundIAttribute( const Compound::IAttribute attr,
+                                    const int32_t value )
+            { _compoundIAttributes[attr] = value; }
+        int32_t getCompoundIAttribute( const Compound::IAttribute attr ) const
+            { return _compoundIAttributes[attr]; }
 
     private:
         Global();
@@ -78,6 +88,8 @@ namespace eqs
 
         int32_t     _channelIAttributes[eq::Channel::IATTR_ALL];
         
+        int32_t     _compoundIAttributes[Compound::IATTR_ALL];
+
         void _setupDefaults();
         void _readEnvironment();
 

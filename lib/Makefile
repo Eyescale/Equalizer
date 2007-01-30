@@ -59,6 +59,7 @@ HEADER_SRC = \
 	net/types.h \
 	client/channel.h \
 	client/client.h \
+	client/colorMask.h \
 	client/commands.h \
 	client/config.h \
 	client/configEvent.h \
@@ -122,6 +123,7 @@ SOURCES = \
 	net/socketConnection.cpp \
 	client/channel.cpp \
 	client/client.cpp \
+	client/colorMask.cpp \
 	client/config.cpp \
 	client/configEvent.cpp \
 	client/configParams.cpp \

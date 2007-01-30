@@ -4,6 +4,7 @@
 #ifndef EQ_CHANNEL_H
 #define EQ_CHANNEL_H
 
+#include <eq/client/colorMask.h>
 #include <eq/client/commands.h>
 #include <eq/client/pixelViewport.h>
 #include <eq/client/window.h>
@@ -84,6 +85,9 @@ namespace eq
 
         /** @return the channel's current read buffer. */
         const uint32_t getReadBuffer() const;
+
+        /** @return the channel's current color mask for drawing. */
+        const ColorMask& Channel::getDrawBufferMask() const;
 
         /** @return the channel's current pixel viewport. */
         const PixelViewport& getPixelViewport() const;

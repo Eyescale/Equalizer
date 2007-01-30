@@ -1,0 +1,39 @@
+# one pipe config rendering on stereo on a 1x1 meter wall
+# Note: requires quad-buffered stereo. Config initialization will fail on 
+# consumer-grade graphic cards which do not support quad-buffered stereo.
+
+global
+{
+    EQ_CONFIG_FATTR_EYE_BASE        0.025
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN on
+    EQ_COMPOUND_IATTR_STEREO_MODE   anaglyph
+}
+
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 100 100 500 500 ]
+                    channel { name "channel" }
+                }
+            }
+        }
+        compound 
+        {
+            eye [ LEFT RIGHT ]
+            channel "channel"
+            wall
+            {
+                bottom_left  [ -.5 -.5 -1 ]
+                bottom_right [  .5 -.5 -1 ]
+                top_left     [ -.5  .5 -1 ]
+            }
+        }
+    }    
+}

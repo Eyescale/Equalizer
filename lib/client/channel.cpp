@@ -257,6 +257,9 @@ void Channel::applyBuffer()
 {
     glReadBuffer( getReadBuffer( ));
     glDrawBuffer( getDrawBuffer( ));
+    
+    const ColorMask& colorMask = getDrawBufferMask();
+    glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
 }
 
 void Channel::setupAssemblyState()
@@ -329,6 +332,11 @@ const uint32_t Channel::getDrawBuffer() const
 const uint32_t Channel::getReadBuffer() const
 {
     return _context ? _context->buffer : GL_BACK;
+}
+
+const ColorMask& Channel::getDrawBufferMask() const
+{
+    return _context ? _context->drawBufferMask : ColorMask::ALL;
 }
 
 const vmml::Frustumf& Channel::getFrustum() const

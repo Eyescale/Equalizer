@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_COMPOUND_H
@@ -7,6 +7,7 @@
 
 #include "channel.h"
 
+#include <eq/client/colorMask.h>
 #include <eq/client/frame.h>
 #include <eq/client/frameData.h>
 #include <eq/client/projection.h>
@@ -75,10 +76,33 @@ namespace eqs
          */
         enum Eye
         {
-            EYE_UNDEFINED = 0,
-            EYE_CYCLOP    = 0x01,    //default monoscopic rendering
-            EYE_LEFT      = 0x02,    //for active stereo buffering
-            EYE_RIGHT     = 0x04     //for active stereo buffering
+            EYE_UNDEFINED = 0,       //!< use inherited default eye(s)
+            EYE_CYCLOP    = 0x01,    //!< render monoscopic 'middle' eye
+            EYE_LEFT      = 0x02,    //!< render left eye
+            EYE_RIGHT     = 0x04     //!< render right eye
+        };
+
+        /** The color mask bits, used for anaglyphic stereo. */
+        enum ColorMask
+        {
+            COLOR_MASK_NONE      = 0,
+            COLOR_MASK_RED       = 0x02,
+            COLOR_MASK_GREEN     = 0x04,
+            COLOR_MASK_BLUE      = 0x08,
+            COLOR_MASK_ALL       = 0xff
+        };
+
+        /**
+         * @name Attributes
+         */
+        //*{
+        // Note: also update string array initialization in compound.cpp
+        enum IAttribute
+        {
+            IATTR_STEREO_MODE,
+            IATTR_STEREO_ANAGLYPH_LEFT_MASK,
+            IATTR_STEREO_ANAGLYPH_RIGHT_MASK,
+            IATTR_ALL
         };
 
         /**
@@ -352,6 +376,18 @@ namespace eqs
         void updateChannel( Channel* channel, const uint32_t frameID );
         //*}
 
+        /**
+         * @name Attributes
+         */
+        //*{
+        void setIAttribute( const IAttribute attr, const int32_t value )
+            { _data.iAttributes[attr] = value; }
+        int32_t  getIAttribute( const IAttribute attr ) const
+            { return _data.iAttributes[attr]; }
+        static const std::string&  getIAttributeString( const IAttribute attr )
+            { return _iAttributeStrings[attr]; }
+        //*}
+
         /** 
          * @name Inherit Data Access.
          * 
@@ -385,6 +421,9 @@ namespace eqs
         
         Compound* _getNext() const;
 
+        /** String representation of integer attributes. */
+        static std::string _iAttributeStrings[IATTR_ALL];
+
         struct View
         {
             enum Type
@@ -409,13 +448,14 @@ namespace eqs
             InheritData();
 
             Channel*          channel;
-            uint32_t          tasks;            
             eq::Viewport      vp;
             eq::PixelViewport pvp;
             eq::Range         range;
             eq::View          view;
             uint32_t          buffers;
             uint32_t          eyes;
+            uint32_t          tasks;            
+            int32_t           iAttributes[IATTR_ALL];
         };
 
         InheritData _data;
@@ -462,7 +502,8 @@ namespace eqs
         void   _updateReadback( const eq::RenderContext& context );
         void _setupRenderContext( eq::RenderContext& context, 
                                   const UpdateChannelData* data );
-        GLenum _getGLBuffer( const UpdateChannelData* data );
+        GLenum _getDrawBuffer( const UpdateChannelData* data );
+        eq::ColorMask _getDrawBufferMask( const UpdateChannelData* data );
         void _computeFrustum( eq::RenderContext& context, const Eye whichEye );
 
         friend std::ostream& operator << ( std::ostream& os,

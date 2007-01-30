@@ -29,16 +29,19 @@ EQ_CONNECTION_SATTR_LAUNCH_COMMAND { return EQTOKEN_CONNECTION_SATTR_LAUNCH_COMM
 EQ_CONNECTION_IATTR_TYPE         { return EQTOKEN_CONNECTION_IATTR_TYPE; }
 EQ_CONNECTION_IATTR_TCPIP_PORT   { return EQTOKEN_CONNECTION_IATTR_TCPIP_PORT; }
 EQ_CONNECTION_IATTR_LAUNCH_TIMEOUT { return EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT; }
-EQ_CONFIG_FATTR_EYE_BASE          { return EQTOKEN_CONFIG_FATTR_EYE_BASE; }
-EQ_WINDOW_IATTR_HINT_STEREO       { return EQTOKEN_WINDOW_IATTR_HINT_STEREO; }
+EQ_CONFIG_FATTR_EYE_BASE         { return EQTOKEN_CONFIG_FATTR_EYE_BASE; }
+EQ_WINDOW_IATTR_HINT_STEREO      { return EQTOKEN_WINDOW_IATTR_HINT_STEREO; }
 EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER { return EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER; }
-EQ_WINDOW_IATTR_HINT_FULLSCREEN   { return EQTOKEN_WINDOW_IATTR_HINT_FULLSCREEN; }
-EQ_WINDOW_IATTR_HINT_DECORATION   { return EQTOKEN_WINDOW_IATTR_HINT_DECORATION; }
-EQ_WINDOW_IATTR_PLANES_COLOR    { return EQTOKEN_WINDOW_IATTR_PLANES_COLOR; }
-EQ_WINDOW_IATTR_PLANES_ALPHA    { return EQTOKEN_WINDOW_IATTR_PLANES_ALPHA; }
-EQ_WINDOW_IATTR_PLANES_DEPTH    { return EQTOKEN_WINDOW_IATTR_PLANES_DEPTH; }
-EQ_WINDOW_IATTR_PLANES_STENCIL  { return EQTOKEN_WINDOW_IATTR_PLANES_STENCIL; }
+EQ_WINDOW_IATTR_HINT_FULLSCREEN  { return EQTOKEN_WINDOW_IATTR_HINT_FULLSCREEN;}
+EQ_WINDOW_IATTR_HINT_DECORATION  { return EQTOKEN_WINDOW_IATTR_HINT_DECORATION;}
+EQ_WINDOW_IATTR_PLANES_COLOR     { return EQTOKEN_WINDOW_IATTR_PLANES_COLOR; }
+EQ_WINDOW_IATTR_PLANES_ALPHA     { return EQTOKEN_WINDOW_IATTR_PLANES_ALPHA; }
+EQ_WINDOW_IATTR_PLANES_DEPTH     { return EQTOKEN_WINDOW_IATTR_PLANES_DEPTH; }
+EQ_WINDOW_IATTR_PLANES_STENCIL   { return EQTOKEN_WINDOW_IATTR_PLANES_STENCIL; }
 EQ_CHANNEL_IATTR_HINT_STATISTICS { return EQTOKEN_CHANNEL_IATTR_HINT_STATISTICS; }
+EQ_COMPOUND_IATTR_STEREO_MODE    { return EQTOKEN_COMPOUND_IATTR_STEREO_MODE; } 
+EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK  { return EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK; }
+EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK { return EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK; }
 server                          { return EQTOKEN_SERVER; }
 config                          { return EQTOKEN_CONFIG; }
 appNode                         { return EQTOKEN_APPNODE; }
@@ -60,6 +63,11 @@ off                             { return EQTOKEN_OFF; }
 auto                            { return EQTOKEN_AUTO; }
 fastest                         { return EQTOKEN_FASTEST; }
 nicest                          { return EQTOKEN_NICEST; }
+quad                            { return EQTOKEN_QUAD; }
+anaglyph                        { return EQTOKEN_ANAGLYPH; }
+red                             { return EQTOKEN_RED; }
+green                           { return EQTOKEN_GREEN; }
+blue                            { return EQTOKEN_BLUE; }
 channel                         { return EQTOKEN_CHANNEL; }
 compound                        { return EQTOKEN_COMPOUND; }
 connection                      { return EQTOKEN_CONNECTION; }
@@ -94,6 +102,9 @@ latency                         { return EQTOKEN_LATENCY; }
 swapbarrier                     { return EQTOKEN_SWAPBARRIER; }
 outputframe                     { return EQTOKEN_OUTPUTFRAME; }
 inputframe                      { return EQTOKEN_INPUTFRAME; }
+stereo_mode                     { return EQTOKEN_STEREO_MODE; }
+stereo_anaglyph_left_mask       { return EQTOKEN_STEREO_ANAGLYPH_LEFT_MASK; }
+stereo_anaglyph_right_mask      { return EQTOKEN_STEREO_ANAGLYPH_RIGHT_MASK; }
 [+-]?[0-9]+[\.][0-9]*           { return EQTOKEN_FLOAT; }
 [+-]?[0-9]*[\.][0-9]+           { return EQTOKEN_FLOAT; }
 [+]?[0-9]+                      { return EQTOKEN_UNSIGNED; }

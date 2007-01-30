@@ -5,14 +5,17 @@
 #include "compound.h"
 
 #include "channel.h"
+#include "colorMask.h"
 #include "config.h"
 #include "log.h"
 #include "frame.h"
 #include "frameData.h"
+#include "global.h"
 #include "swapBarrier.h"
 
 #include <eq/base/base.h>
 #include <eq/base/stdExt.h>
+#include <eq/client/colorMask.h>
 #include <eq/client/packets.h>
 #include <eq/client/wall.h>
 #include <eq/client/windowSystem.h>
@@ -26,6 +29,13 @@ using namespace eqs;
 using namespace eqBase;
 using namespace std;
 using namespace stde;
+
+#define MAKE_ATTR_STRING( attr ) ( string("EQ_COMPOUND_") + #attr )
+std::string Compound::_iAttributeStrings[IATTR_ALL] = {
+    MAKE_ATTR_STRING( IATTR_STEREO_MODE ),
+    MAKE_ATTR_STRING( IATTR_STEREO_ANAGLYPH_LEFT_MASK ),
+    MAKE_ATTR_STRING( IATTR_STEREO_ANAGLYPH_RIGHT_MASK )
+};
 
 Compound::Compound()
         : _config( 0 ),
@@ -102,10 +112,15 @@ Compound::~Compound()
 
 Compound::InheritData::InheritData()
         : channel( NULL ),
-          tasks( TASK_DEFAULT ),
           buffers( eq::Frame::BUFFER_UNDEFINED ),
-          eyes( EYE_UNDEFINED )
-{}
+          eyes( EYE_UNDEFINED ),
+          tasks( TASK_DEFAULT )
+{
+    const Global* global = Global::instance();
+    for( int i=0; i<IATTR_ALL; ++i )
+        iAttributes[i] =
+            global->getCompoundIAttribute( static_cast< IAttribute >( i ));
+}
 
 void Compound::addChild( Compound* child )
 {
@@ -431,6 +446,21 @@ void Compound::_updateInheritData()
 
         if( _inherit.buffers == eq::Frame::BUFFER_UNDEFINED )
             _inherit.buffers = eq::Frame::BUFFER_COLOR;
+
+        if( _inherit.iAttributes[IATTR_STEREO_MODE] == eq::UNDEFINED )
+            _inherit.iAttributes[IATTR_STEREO_MODE] = eq::QUAD;
+
+        if( _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] == 
+            eq::UNDEFINED )
+
+            _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] = 
+                COLOR_MASK_GREEN | COLOR_MASK_BLUE;
+
+        if( _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] == 
+            eq::UNDEFINED )
+            
+            _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] =
+                COLOR_MASK_RED;
     }
     else
     {
@@ -455,6 +485,18 @@ void Compound::_updateInheritData()
 
         if( _data.buffers != eq::Frame::BUFFER_UNDEFINED )
             _inherit.buffers = _data.buffers;
+        
+        if( _data.iAttributes[IATTR_STEREO_MODE] != eq::UNDEFINED )
+            _inherit.iAttributes[IATTR_STEREO_MODE] =
+                _data.iAttributes[IATTR_STEREO_MODE];
+
+        if( _data.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] != eq::UNDEFINED)
+            _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] = 
+                _data.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK];
+
+        if( _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] !=eq::UNDEFINED)
+            _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] = 
+                _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK];
     }
 
     if( _data.tasks == TASK_DEFAULT )
@@ -706,7 +748,8 @@ void Compound::_setupRenderContext( eq::RenderContext& context,
     context.frameID        = data->frameID;
     context.pvp            = _inherit.pvp;
     context.range          = _inherit.range;
-    context.buffer         = _getGLBuffer( data );
+    context.buffer         = _getDrawBuffer( data );
+    context.drawBufferMask = _getDrawBufferMask( data );
     const Channel* channel = data->channel;
 
     if( channel != _inherit.channel /* || !use dest channel origin hint set */ )
@@ -718,7 +761,7 @@ void Compound::_setupRenderContext( eq::RenderContext& context,
     // TODO: pvp size overcommit check?
 }
 
-GLenum Compound::_getGLBuffer( const UpdateChannelData* data )
+GLenum Compound::_getDrawBuffer( const UpdateChannelData* data )
 {
     eq::Window::DrawableConfig drawableConfig = 
         data->channel->getWindow()->getDrawableConfig();
@@ -736,10 +779,10 @@ GLenum Compound::_getGLBuffer( const UpdateChannelData* data )
         {
             switch( data->eye )
             {
-                case Compound::EYE_LEFT:
+                case EYE_LEFT:
                     return GL_BACK_LEFT;
                     break;
-                case Compound::EYE_RIGHT:
+                case EYE_RIGHT:
                     return GL_BACK_RIGHT;
                     break;
                 default:
@@ -750,16 +793,34 @@ GLenum Compound::_getGLBuffer( const UpdateChannelData* data )
         // else singlebuffered
         switch( data->eye )
         {
-            case Compound::EYE_LEFT:
+            case EYE_LEFT:
                 return GL_FRONT_LEFT;
                 break;
-            case Compound::EYE_RIGHT:
+            case EYE_RIGHT:
                 return GL_FRONT_RIGHT;
                 break;
             default:
                 return GL_FRONT;
                 break;
         }
+    }
+}
+
+eq::ColorMask Compound::_getDrawBufferMask( const UpdateChannelData* data )
+{
+    if( _inherit.iAttributes[IATTR_STEREO_MODE] != eq::ANAGLYPH )
+        return eq::ColorMask::ALL;
+
+    switch( data->eye )
+    {
+        case EYE_LEFT:
+            return eqs::ColorMask( 
+                _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] );
+        case EYE_RIGHT:
+            return eqs::ColorMask( 
+                _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] );
+        default:
+            return eq::ColorMask::ALL;
     }
 }
 
@@ -1041,6 +1102,50 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
             os << "RIGHT ";
         os << "]" << endl;
     }
+
+    // attributes
+    bool attrPrinted = false;
+    
+    for( Compound::IAttribute i = static_cast< Compound::IAttribute >( 0 );
+         i<Compound::IATTR_ALL; 
+         i = static_cast< Compound::IAttribute >( static_cast<uint32_t>( i )+1))
+    {
+        const int value = compound->getIAttribute( i );
+        if( value == Global::instance()->getCompoundIAttribute( i ))
+            continue;
+
+        if( !attrPrinted )
+        {
+            os << endl << "attributes" << endl;
+            os << "{" << endl << indent;
+            attrPrinted = true;
+        }
+        
+        os << ( i==Compound::IATTR_STEREO_MODE ?
+                    "stereo_mode                " :
+                i==Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK ?
+                    "stereo_anaglyph_left_mask  " :
+                i==Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK ?
+                    "stereo_anaglyph_right_mask " : "ERROR" );
+        
+        switch( i )
+        {
+            case Compound::IATTR_STEREO_MODE:
+                os << static_cast<eq::IAttrValue>( value ) << endl;
+                break;
+
+            case Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK:
+            case Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK:
+                os << ColorMask( value ) << endl;
+                break;
+
+            default:
+                EQASSERTINFO( 0, "unimplemented" );
+        }
+    }
+    
+    if( attrPrinted )
+        os << exdent << "}" << endl << endl;
 
     switch( compound->_view.latest )
     {

@@ -32,12 +32,6 @@ void eqs::Window::_construct()
     registerCommand( eq::REQ_WINDOW_SET_PVP,
              eqNet::CommandFunc<Window>( this, &Window::_reqSetPixelViewport ));
                          
-    const Global* global = Global::instance();
-    
-    for( int i=0; i<eq::Window::IATTR_ALL; ++i )
-        _iAttributes[i] = global->getWindowIAttribute(
-            static_cast<eq::Window::IAttribute>( i ));
-
     ref(); // We don't use RefPtr so far
     EQINFO << "New window @" << (void*)this << endl;
 }
@@ -46,6 +40,12 @@ eqs::Window::Window()
         : eqNet::Object( eq::Object::TYPE_WINDOW )
 {
     _construct();
+    
+    const Global* global = Global::instance();
+    for( int i=0; i<eq::Window::IATTR_ALL; ++i )
+        _iAttributes[i] = global->getWindowIAttribute(
+            static_cast<eq::Window::IAttribute>( i ));
+
 }
 
 eqs::Window::Window( const Window& from )

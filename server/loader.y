@@ -63,6 +63,9 @@
 %token EQTOKEN_WINDOW_IATTR_PLANES_ALPHA
 %token EQTOKEN_WINDOW_IATTR_PLANES_DEPTH
 %token EQTOKEN_WINDOW_IATTR_PLANES_STENCIL
+%token EQTOKEN_COMPOUND_IATTR_STEREO_MODE
+%token EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK
+%token EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK
 %token EQTOKEN_CHANNEL_IATTR_HINT_STATISTICS
 %token EQTOKEN_SERVER
 %token EQTOKEN_CONFIG
@@ -85,6 +88,11 @@
 %token EQTOKEN_AUTO
 %token EQTOKEN_FASTEST
 %token EQTOKEN_NICEST
+%token EQTOKEN_QUAD
+%token EQTOKEN_ANAGLYPH
+%token EQTOKEN_RED
+%token EQTOKEN_GREEN
+%token EQTOKEN_BLUE
 %token EQTOKEN_CHANNEL
 %token EQTOKEN_COMPOUND
 %token EQTOKEN_CONNECTION
@@ -120,6 +128,9 @@
 %token EQTOKEN_SWAPBARRIER
 %token EQTOKEN_OUTPUTFRAME
 %token EQTOKEN_INPUTFRAME
+%token EQTOKEN_STEREO_MODE
+%token EQTOKEN_STEREO_ANAGLYPH_LEFT_MASK
+%token EQTOKEN_STEREO_ANAGLYPH_RIGHT_MASK
 
 %token EQTOKEN_STRING
 %token EQTOKEN_FLOAT
@@ -137,7 +148,7 @@
 
 %type <_string>         STRING;
 %type <_int>            INTEGER IATTR;
-%type <_unsigned>       UNSIGNED;
+%type <_unsigned>       UNSIGNED colorMask colorMaskBit colorMaskBits;
 %type <_connectionType> connectionType;
 %type <_viewport>       viewport;
 %type <_float>          FLOAT;
@@ -227,6 +238,21 @@ global:
      {
          eqs::Global::instance()->setChannelIAttribute(
              eq::Channel::IATTR_HINT_STATISTICS, $2 );
+     }
+     | EQTOKEN_COMPOUND_IATTR_STEREO_MODE IATTR 
+     { 
+         eqs::Global::instance()->setCompoundIAttribute( 
+             eqs::Compound::IATTR_STEREO_MODE, $2 ); 
+     }
+     | EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK colorMask 
+     { 
+         eqs::Global::instance()->setCompoundIAttribute( 
+             eqs::Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK, $2 ); 
+     }
+     | EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK colorMask 
+     { 
+         eqs::Global::instance()->setCompoundIAttribute( 
+             eqs::Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK, $2 ); 
      }
 
 connectionType: EQTOKEN_TCPIP { $$ = eqNet::CONNECTIONTYPE_TCPIP; };
@@ -401,6 +427,7 @@ compoundField:
     | swapBarrier
     | outputFrame
     | inputFrame
+    | EQTOKEN_ATTRIBUTES '{' compoundAttributes '}'
 
 compoundTasks: /*null*/ | compoundTask | compoundTasks compoundTask
 compoundTask:
@@ -472,6 +499,17 @@ frameField:
     | EQTOKEN_BUFFER '[' { flags = eq::Frame::BUFFER_NONE; }
         buffers ']' { frame->setBuffers( flags ); flags = 0; }
 
+compoundAttributes: /*null*/ | compoundAttribute | compoundAttributes compoundAttribute
+compoundAttribute:
+    EQTOKEN_STEREO_MODE IATTR 
+        { eqCompound->setIAttribute( eqs::Compound::IATTR_STEREO_MODE, $2 ); }
+    | EQTOKEN_STEREO_ANAGLYPH_LEFT_MASK colorMask
+        { eqCompound->setIAttribute( 
+                eqs::Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK, $2 ); }
+    | EQTOKEN_STEREO_ANAGLYPH_RIGHT_MASK colorMask
+        { eqCompound->setIAttribute( 
+                eqs::Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK, $2 ); }
+
 viewport: '[' FLOAT FLOAT FLOAT FLOAT ']'
      { 
          $$[0] = $2;
@@ -480,13 +518,25 @@ viewport: '[' FLOAT FLOAT FLOAT FLOAT ']'
          $$[3] = $5;
      }
 
+colorMask: '[' colorMaskBits ']' { $$ = $2; }
+colorMaskBits: 
+    /*null*/ { $$ =eqs::Compound::COLOR_MASK_NONE; }
+    | colorMaskBit { $$ = $1; }
+    | colorMaskBits colorMaskBit { $$ = ($1 | $2);}
+colorMaskBit:
+    EQTOKEN_RED     { $$ = eqs::Compound::COLOR_MASK_RED; }
+    | EQTOKEN_GREEN { $$ = eqs::Compound::COLOR_MASK_GREEN; }
+    | EQTOKEN_BLUE  { $$ = eqs::Compound::COLOR_MASK_BLUE; }
+
 IATTR:
-    EQTOKEN_ON        { $$ = eq::ON; }
-    | EQTOKEN_OFF     { $$ = eq::OFF; }
-    | EQTOKEN_AUTO    { $$ = eq::AUTO; }
-    | EQTOKEN_FASTEST { $$ = eq::FASTEST; }
-    | EQTOKEN_NICEST  { $$ = eq::NICEST; }
-    | INTEGER         { $$ = $1; }
+    EQTOKEN_ON         { $$ = eq::ON; }
+    | EQTOKEN_OFF      { $$ = eq::OFF; }
+    | EQTOKEN_AUTO     { $$ = eq::AUTO; }
+    | EQTOKEN_FASTEST  { $$ = eq::FASTEST; }
+    | EQTOKEN_NICEST   { $$ = eq::NICEST; }
+    | EQTOKEN_QUAD     { $$ = eq::QUAD; }
+    | EQTOKEN_ANAGLYPH { $$ = eq::ANAGLYPH; } 
+    | INTEGER          { $$ = $1; }
 
 STRING: EQTOKEN_STRING
      {

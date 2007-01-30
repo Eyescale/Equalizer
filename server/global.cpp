@@ -4,6 +4,8 @@
 
 #include "global.h"
 
+#include "colorMask.h"
+
 using namespace eqs;
 using namespace eqBase;
 using namespace std;
@@ -53,6 +55,9 @@ void Global::_setupDefaults()
         _channelIAttributes[i] = eq::UNDEFINED;
 
     _channelIAttributes[eq::Channel::IATTR_HINT_STATISTICS] = eq::FASTEST;
+
+    for( int i=0; i<Compound::IATTR_ALL; ++i )
+        _compoundIAttributes[i] = eq::UNDEFINED;
 }
 
 void Global::_readEnvironment()
@@ -102,7 +107,18 @@ void Global::_readEnvironment()
         if( envValue )
             _channelIAttributes[i] = atol( envValue );
     }
+    for( int i=0; i<Compound::IATTR_ALL; ++i )
+    {
+        const string& name     = Compound::getIAttributeString(
+            (Compound::IAttribute)i);
+        const char*   envValue = getenv( name.c_str( ));
+        
+        if( envValue )
+            _compoundIAttributes[i] = atol( envValue );
+    }
 }
+
+#define GLOBAL_ATTR_LENGTH 50
 
 std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
 {
@@ -118,11 +134,9 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
         if( value == reference._connectionIAttributes[i] )
             continue;
 
-        os << ( i==ConnectionDescription::IATTR_TYPE ?
-                "EQ_CONNECTION_TYPE           " :
-                i==ConnectionDescription::IATTR_TCPIP_PORT ?
-                "EQ_CONNECTION_TCPIP_PORT     " :
-                "EQ_CONNECTION_LAUNCH_TIMEOUT " );
+        const string& name = ConnectionDescription::getIAttributeString( 
+            static_cast<ConnectionDescription::IAttribute>( i ));
+        os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' );
                 
         switch( i )
         { 
@@ -145,9 +159,9 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
         if( value == reference._connectionSAttributes[i] )
             continue;
 
-        os << ( i==ConnectionDescription::SATTR_HOSTNAME ?
-                "EQ_CONNECTION_HOSTNAME       " :
-                "EQ_CONNECTION_LAUNCH_COMMAND " )
+        const string& name = ConnectionDescription::getSAttributeString( 
+            static_cast<ConnectionDescription::SAttribute>( i ));
+        os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << "\"" << value << "\"" << endl;
     }
 
@@ -157,8 +171,9 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
         if( value == reference._configFAttributes[i] )
             continue;
 
-        os << ( i==Config::FATTR_EYE_BASE ?
-                    "EQ_CONFIG_FATTR_EYE_BASE           " : "ERROR" )
+        const string& name = Config::getFAttributeString( 
+            static_cast<Config::FAttribute>( i ));
+        os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << value << endl;
     }
 
@@ -168,22 +183,9 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
         if( value == reference._windowIAttributes[i] )
             continue;
 
-        os << ( i==eq::Window::IATTR_HINT_STEREO ?
-                    "EQ_WINDOW_IATTR_HINT_STEREO       " :
-                i==eq::Window::IATTR_HINT_DOUBLEBUFFER ?
-                    "EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER " :
-                i==eq::Window::IATTR_HINT_FULLSCREEN ?
-                    "EQ_WINDOW_IATTR_HINT_FULLSCREEN   " :
-                i==eq::Window::IATTR_HINT_DECORATION ?
-                    "EQ_WINDOW_IATTR_HINT_DECORATION   " :
-                i==eq::Window::IATTR_PLANES_COLOR ? 
-                    "EQ_WINDOW_IATTR_PLANES_COLOR       " :
-                i==eq::Window::IATTR_PLANES_ALPHA ?
-                    "EQ_WINDOW_IATTR_PLANES_ALPHA       " :
-                i==eq::Window::IATTR_PLANES_DEPTH ?
-                    "EQ_WINDOW_IATTR_PLANES_DEPTH       " :
-                i==eq::Window::IATTR_PLANES_STENCIL ?
-                    "EQ_WINDOW_IATTR_PLANES_STENCIL     " : "ERROR" )
+        const string& name = eq::Window::getIAttributeString( 
+            static_cast<eq::Window::IAttribute>( i ));
+        os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << static_cast<eq::IAttrValue>( value ) << endl;
     }
 
@@ -193,9 +195,36 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
         if( value == reference._channelIAttributes[i] )
             continue;
 
-        os << ( i==eq::Channel::IATTR_HINT_STATISTICS ?
-                    "EQ_CHANNEL_IATTR_HINT_STATISTICS   " : "ERROR" )
+        const string& name = eq::Channel::getIAttributeString(
+            static_cast<eq::Channel::IAttribute>( i ));
+        os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << static_cast<eq::IAttrValue>( value ) << endl;
+    }
+
+    for( int i=0; i<Compound::IATTR_ALL; ++i )
+    {
+        const int value = global->_compoundIAttributes[i];
+        if( value == reference._compoundIAttributes[i] )
+            continue;
+
+        const string& name = Compound::getIAttributeString(
+            static_cast<Compound::IAttribute>( i ));
+        os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' );
+
+        switch( i )
+        {
+            case Compound::IATTR_STEREO_MODE:
+                os << static_cast<eq::IAttrValue>( value ) << endl;
+                break;
+
+            case Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK:
+            case Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK:
+                os << ColorMask( value ) << endl;
+                break;
+
+            default:
+                EQASSERTINFO( 0, "unimplemented" );
+        }
     }
 
     os << exdent << '}' << endl << enableHeader << enableFlush;

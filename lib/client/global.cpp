@@ -11,7 +11,8 @@ using namespace std;
 EQ_EXPORT eq::NodeFactory* eq::Global::_nodeFactory = 0;
 string eq::Global::_server;
 
-EQ_EXPORT std::ostream& eq::operator << ( std::ostream& os, const IAttrValue value )
+EQ_EXPORT std::ostream& eq::operator << ( std::ostream& os, 
+                                          const IAttrValue value )
 {
     if( value > ON ) // ugh
         os << static_cast<int>( value );
@@ -20,6 +21,9 @@ EQ_EXPORT std::ostream& eq::operator << ( std::ostream& os, const IAttrValue val
                 value == OFF       ? "off" :
                 value == ON        ? "on" : 
                 value == AUTO      ? "auto" :
-                value == NICEST    ? "nicest" : "ERROR"  );
+                value == NICEST    ? "nicest" :
+                value == QUAD      ? "quad" :
+                value == ANAGLYPH  ? "anaglyph"
+                : "ERROR"  );
     return os;
 }
