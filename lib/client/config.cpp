@@ -197,7 +197,7 @@ eqNet::CommandResult Config::_cmdDestroyNode( eqNet::Command& command )
     _removeNode( node );
     EQASSERT( node->getRefCount() == 1 );
     removeRegisteredObject( node, eqNet::Object::SHARE_NODE );
-    
+
     return eqNet::COMMAND_HANDLED;
 }
 

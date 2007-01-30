@@ -29,15 +29,19 @@ bool Launcher::run( const string& command )
         return false;
 
 #ifdef WIN32
-    PROCESS_INFORMATION procInfo;
+    STARTUPINFO         startupInfo = {0};
+    PROCESS_INFORMATION procInfo    = {0};
+    const char*         cmdLine     = command.c_str();
+    
+    startupInfo.cb = sizeof(STARTUPINFO );
     const bool success = 
-        CreateProcess( 0, LPSTR( command.c_str( )), // program, command line
-                       0, 0,               // process, thread attributes
-                       FALSE,              // inherit handles
-                       0,                  // creation flags
-                       0,                  // environment
-                       0,                  // current directory
-                       0,                  // startup info
+        CreateProcess( 0, LPSTR( cmdLine ), // program, command line
+                       0, 0,                // process, thread attributes
+                       FALSE,               // inherit handles
+                       0,                   // creation flags
+                       0,                   // environment
+                       0,                   // current directory
+                       &startupInfo,
                        &procInfo );
 
     if( !success )

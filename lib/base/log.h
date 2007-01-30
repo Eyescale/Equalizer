@@ -66,8 +66,13 @@ namespace eqBase
         void disableHeader() { ++_noHeader; } // use counted variable to allow
         void enableHeader()  { --_noHeader; } //   nested enable/disable calls
 
+#ifdef WIN32
+        void setLogInfo( const char* subdir, const char* file, const int line )
+            { _file = file; _line = line; } // SUBDIR not needed on WIN32
+#else
         void setLogInfo( const char* subdir, const char* file, const int line )
             { _file = std::string( subdir ) + '/' + file; _line = line; }
+#endif
 
 	protected:
         virtual int_type overflow (int_type c) 

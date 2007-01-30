@@ -124,7 +124,8 @@ bool Node::syncInit()
 {
     EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
-    const bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
+    const bool success = static_cast<bool>(
+        _requestHandler.waitRequest( _pendingRequestID ));
     _pendingRequestID = EQ_ID_INVALID;
 
     if( !success )
@@ -149,7 +150,8 @@ bool Node::syncExit()
 {
     EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
-    const bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
+    const bool success = static_cast<bool>(
+                             _requestHandler.waitRequest( _pendingRequestID ));
     _pendingRequestID = EQ_ID_INVALID;
 
     return success;
@@ -173,7 +175,7 @@ void Node::update( const uint32_t frameID )
 void Node::syncUpdate( const uint32_t frame ) const
 {
     const uint32_t nPipes = this->nPipes();
-    for( uint32_t i=0; i<nPipes; i++ )
+    for( uint32_t i=0; i<nPipes; ++i )
     {
         Pipe* pipe = getPipe( i );
         if( pipe->isUsed( ))

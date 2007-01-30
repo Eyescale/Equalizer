@@ -137,7 +137,7 @@ eqNet::CommandResult Server::_reqChooseConfig( eqNet::Command& command )
     eq::ServerChooseConfigReplyPacket reply( packet );
     RefPtr<eqNet::Node>               node = command.getNode();
 
-    if( config==NULL )
+    if( !config )
     {
         reply.configID = EQ_ID_INVALID;
         node->send( reply );
@@ -151,7 +151,7 @@ eqNet::CommandResult Server::_reqChooseConfig( eqNet::Command& command )
 
     // TODO: move to open: appConfig->setAppName( appName );
     const string rendererInfo = packet->rendererInfo;
-    const size_t colonPos     = rendererInfo.find( ':' );
+    const size_t colonPos     = rendererInfo.find( '#' );
     const string workDir      = rendererInfo.substr( 0, colonPos );
     const string renderClient = rendererInfo.substr( colonPos + 1 );
  

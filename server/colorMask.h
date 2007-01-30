@@ -15,7 +15,7 @@ namespace eqs
     /**
      * Extends eq::Colormask with functionality needed only by the server.
      */
-    class EQ_EXPORT ColorMask : public eq::ColorMask
+    class ColorMask : public eq::ColorMask
     {
     public:
         ColorMask(){}

@@ -233,7 +233,7 @@ namespace eqs
         std::vector<Pipe*> _pipes;
 
         /** The reason for the last error. */
-        std::string            _error;
+        std::string        _error;
 
         /** Number of entitities actively using this node. */
         uint32_t _used;

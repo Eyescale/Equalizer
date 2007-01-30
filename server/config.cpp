@@ -448,8 +448,9 @@ bool Config::_initNodes( const uint32_t initID )
 
     for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
-        Node* node = *iter;
-        if( !node->isUsed( ))
+        Node*               node    = *iter;
+        RefPtr<eqNet::Node> netNode = node->getNode();
+        if( !node->isUsed() || !netNode->isConnected( ))
             continue;
         
         if( !node->syncInit( ))

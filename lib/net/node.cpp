@@ -34,6 +34,8 @@ PerThread<Node*> Node::_localNode;
 #define NEXT_INDEX_NONE       0xffffffffu
 #define NEXT_INDEX_CONNECTING 0xfffffffeu
 
+#define SEPARATOR '#'
+
 //----------------------------------------------------------------------
 // State management
 //----------------------------------------------------------------------
@@ -1177,7 +1179,6 @@ bool Node::syncConnect()
     const uint32_t time = static_cast<uint32_t>( _launchTimeout.getTimef( ));
     localNode->_requestHandler.waitRequest( _launchID, &success, time );
                       
-    
     if( success )
     {
         EQASSERT( _state == STATE_CONNECTED );
@@ -1314,11 +1315,12 @@ string Node::_createRemoteCommand()
     ostringstream stringStream;
 
     //----- environment
-#ifdef Darwin
+#ifndef WIN32
+#  ifdef Darwin
     const char libPath[] = "DYLD_LIBRARY_PATH";
-#else
+#  else
     const char libPath[] = "LD_LIBRARY_PATH";
-#endif
+#  endif
 
     stringStream << "env "; // XXX
     char* env = getenv( libPath );
@@ -1332,15 +1334,26 @@ string Node::_createRemoteCommand()
     stringStream << "EQ_LOG_LEVEL=" << eqBase::Log::getLogLevelString() << " ";
     if( eqBase::Log::topics != 0 )
         stringStream << "EQ_LOG_TOPICS=" << eqBase::Log::topics << " ";
+#endif // WIN32
 
     //----- program + args
     string program = _programName;
+#ifdef WIN32
+    EQASSERT( program.length() > 2 );
+    if( !( program[1] == ':' && (program[2] == '/' || program[2] == '\\' )) &&
+        // !( drive letter and full path present )
+        !( program[0] == '/' || program[0] == '\\' ))
+        // !full path without drive letter
+
+        program = _workDir + '/' + program;
+#else
     if( program[0] != '/' )
         program = _workDir + '/' + program;
+#endif
 
-    stringStream << '\"' << program << " --eq-listen='" 
+    stringStream << "\"'" << program << "' --eq-listen='" 
                  << nodeDesc->toString() << "' --eq-client '"
-                 << _launchID << ":" << _workDir << ":"
+                 << _launchID << SEPARATOR << _workDir << SEPARATOR
                  << listenerDesc->toString() << "'\"";
 
     return stringStream.str();
@@ -1350,7 +1363,7 @@ bool Node::runClient( const string& clientArgs )
 {
     EQASSERT( _state == STATE_LISTENING );
 
-    size_t colonPos = clientArgs.find( ':' );
+    size_t colonPos = clientArgs.find( SEPARATOR );
     if( colonPos == string::npos )
     {
         EQERROR << "Could not parse request identifier" << endl;
@@ -1361,7 +1374,7 @@ bool Node::runClient( const string& clientArgs )
     const uint32_t launchID    = strtoul( request.c_str(), 0, 10 );
     string         description = clientArgs.substr( colonPos + 1 );
 
-    colonPos = description.find( ':' );
+    colonPos = description.find( SEPARATOR );
     if( colonPos == string::npos )
     {
         EQERROR << "Could not parse working directory" << endl;

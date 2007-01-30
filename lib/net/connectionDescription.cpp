@@ -9,40 +9,42 @@
 using namespace eqNet;
 using namespace std;
 
+#define SEPARATOR '#'
+
 string ConnectionDescription::toString()
 {
-    ostringstream stringStream;
+    ostringstream description;
 
     switch( type )
     {
         case CONNECTIONTYPE_TCPIP:
-            stringStream << "TCPIP";
+            description << "TCPIP";
             break;
 
         case CONNECTIONTYPE_PIPE:
-            stringStream << "PIPE";
+            description << "PIPE";
             break;
     }        
 
-    stringStream << ":" << bandwidthKBS << ":" << launchCommand << ":" 
-                 << launchTimeout << ":" << hostname ;
+    description << SEPARATOR << bandwidthKBS << SEPARATOR << launchCommand 
+                << SEPARATOR << launchTimeout << SEPARATOR << hostname ;
     
     switch( type )
     {
         case CONNECTIONTYPE_TCPIP:
-            stringStream << ":" << TCPIP.port;
+            description << SEPARATOR << TCPIP.port;
             break;
 
         default:
             break;
     }
-    return stringStream.str();
+    return description.str();
 }
 
 bool ConnectionDescription::fromString( const string& data )
 {
     {
-        size_t colonPos = data.find( ':' );
+        size_t colonPos = data.find( SEPARATOR );
         if( colonPos == string::npos )
             goto error;
 
@@ -56,20 +58,20 @@ bool ConnectionDescription::fromString( const string& data )
             goto error;
 
         size_t nextPos = colonPos+1;
-        colonPos       = data.find( ':', nextPos );
+        colonPos       = data.find( SEPARATOR, nextPos );
         if( colonPos == string::npos )
             goto error;
         const string bandwidth = data.substr( nextPos, colonPos-nextPos );
         bandwidthKBS = atoi( bandwidth.c_str( ));
     
         nextPos  = colonPos+1;
-        colonPos = data.find( ':', nextPos );
+        colonPos = data.find( SEPARATOR, nextPos );
         if( colonPos == string::npos )
             goto error;
         launchCommand = data.substr( nextPos, colonPos-nextPos );
 
         nextPos  = colonPos+1;
-        colonPos = data.find( ':', nextPos );
+        colonPos = data.find( SEPARATOR, nextPos );
         if( colonPos == string::npos )
             goto error;
 
@@ -77,7 +79,7 @@ bool ConnectionDescription::fromString( const string& data )
         this->launchTimeout = atoi( launchTimeout.c_str( ));
 
         nextPos  = colonPos+1;
-        colonPos = data.find( ':', nextPos );
+        colonPos = data.find( SEPARATOR, nextPos );
         hostname = data.substr( nextPos, colonPos-nextPos );
 
         switch( this->type )
@@ -85,7 +87,7 @@ bool ConnectionDescription::fromString( const string& data )
             case CONNECTIONTYPE_TCPIP:
             {
                 nextPos  = colonPos+1;
-                colonPos = data.find( ':', nextPos );
+                colonPos = data.find( SEPARATOR, nextPos );
                 if( colonPos != string::npos )
                     goto error;
             

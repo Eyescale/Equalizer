@@ -421,6 +421,7 @@ eqNet::CommandResult Pipe::_reqExit( eqNet::Command& command )
     send( command.getNode(), reply );
 
     _thread->exit( EXIT_SUCCESS );
+    EQUNREACHABLE;
     return eqNet::COMMAND_HANDLED;
 }
 

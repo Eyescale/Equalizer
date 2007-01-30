@@ -34,11 +34,17 @@ void Global::_setupDefaults()
     _connectionIAttributes[ConnectionDescription::IATTR_TYPE] = 
         eqNet::CONNECTIONTYPE_TCPIP;
     _connectionIAttributes[ConnectionDescription::IATTR_TCPIP_PORT] = 0;
+    _connectionIAttributes[ConnectionDescription::IATTR_LAUNCH_TIMEOUT] = 
+        10000; // ms
     
     _connectionSAttributes[ConnectionDescription::SATTR_HOSTNAME] = "localhost";
+#ifdef WIN32
+    _connectionSAttributes[ConnectionDescription::SATTR_LAUNCH_COMMAND] = 
+        "ssh -n %h %c";
+#else
     _connectionSAttributes[ConnectionDescription::SATTR_LAUNCH_COMMAND] = 
         "ssh -n %h %c >& %h.%n.log";
-        
+#endif        
     _configFAttributes[Config::FATTR_EYE_BASE] = 0.05f;
 
     for( int i=0; i<eq::Window::IATTR_ALL; ++i )

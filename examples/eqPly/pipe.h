@@ -17,9 +17,9 @@ public:
     GLuint newDisplayList( const void* key );
 
 protected:
-    bool init( const uint32_t initID );
-    bool exit();
-    void startFrame( const uint32_t frameID );
+    virtual bool init( const uint32_t initID );
+    virtual bool exit();
+    virtual void startFrame( const uint32_t frameID );
 
 private:
     eqBase::RefPtr<InitData>  _initData;
