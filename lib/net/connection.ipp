@@ -43,8 +43,7 @@ bool Connection::send( const std::vector<T>& receivers, const Packet& packet )
 
     const int nReceivers = receivers.size();
     for( int i=0; i<nReceivers; ++i )
-        if( receivers[i]->getConnection()->send( &packet, packet.size ) != 
-            packet.size )
+        if( !receivers[i]->getConnection()->send( &packet, packet.size ))
 
             return false;
 
@@ -76,7 +75,7 @@ bool Connection::send( const std::vector<T>& receivers, Packet& packet,
 
     const int nReceivers = receivers.size();
     for( int i=0; i<nReceivers; ++i )
-        if( receivers[i]->getConnection()->send( buffer, size ) != size )
+        if( !receivers[i]->getConnection()->send( buffer, size ))
             return false;
 
     return true;

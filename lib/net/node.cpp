@@ -1338,10 +1338,10 @@ string Node::_createRemoteCommand()
     if( program[0] != '/' )
         program = _workDir + '/' + program;
 
-    stringStream << "'" << program << " --eq-listen=\"" 
-                 << nodeDesc->toString() << "\" --eq-client \""
+    stringStream << '\"' << program << " --eq-listen='" 
+                 << nodeDesc->toString() << "' --eq-client '"
                  << _launchID << ":" << _workDir << ":"
-                 << listenerDesc->toString() << "\"'";
+                 << listenerDesc->toString() << "'\"";
 
     return stringStream.str();
 }

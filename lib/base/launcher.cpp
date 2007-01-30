@@ -129,7 +129,7 @@ void Launcher::_buildCommandLine( const string& command,
                 }
                 break;
 
-            case '\'':
+            case '"':
                 inTicks = !inTicks;
                 break;
 
