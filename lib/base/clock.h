@@ -71,7 +71,8 @@ namespace eqBase
                 _start += time / _timebaseInfo.numer * _timebaseInfo.denom *
                     1000000.f;
 #elif defined (WIN32)
-                _start.QuadPart += static_cast<long long>(time * 0.001f);
+                _start.QuadPart += static_cast<long long>( 0.001f * time * 
+                                                           _frequency.QuadPart);
 #else
                 const int sec   = static_cast<int>( time * 0.001f );
                 _start.tv_sec  += sec;
