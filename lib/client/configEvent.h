@@ -27,11 +27,12 @@ namespace eq
     public:
         enum Type
         {
-            TYPE_POINTER_MOTION,
-            TYPE_POINTER_BUTTON_PRESS,
-            TYPE_POINTER_BUTTON_RELEASE,
-            TYPE_KEY_PRESS,
-            TYPE_KEY_RELEASE
+            POINTER_MOTION,
+            POINTER_BUTTON_PRESS,
+            POINTER_BUTTON_RELEASE,
+            KEY_PRESS,
+            KEY_RELEASE,
+            WINDOW_CLOSE
         };
 
         ConfigEvent()

@@ -225,7 +225,7 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
                 if( xEvent.xexpose.count ) // Only report last expose event
                     continue;
                 
-                event.type = WindowEvent::TYPE_EXPOSE;
+                event.type = WindowEvent::EXPOSE;
                 break;
 
             case ConfigureNotify:
@@ -243,7 +243,7 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
                                        &event.resize.x, &event.resize.y,
                                        &child );
 
-                event.type = WindowEvent::TYPE_RESIZE;
+                event.type = WindowEvent::RESIZE;
                 event.resize.w = windowAttrs.width;
                 event.resize.h = windowAttrs.height;
                 break;
@@ -251,7 +251,7 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
 
             // TODO: create channel event?
             case MotionNotify:
-                event.type = WindowEvent::TYPE_POINTER_MOTION;
+                event.type = WindowEvent::POINTER_MOTION;
                 event.pointerMotion.x = xEvent.xmotion.x;
                 event.pointerMotion.y = xEvent.xmotion.y;
                 event.pointerMotion.buttons = _getButtonState( xEvent );
@@ -261,7 +261,7 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
                 break;
 
             case ButtonPress:
-                event.type = WindowEvent::TYPE_POINTER_BUTTON_PRESS;
+                event.type = WindowEvent::POINTER_BUTTON_PRESS;
                 event.pointerButtonPress.x = xEvent.xbutton.x;
                 event.pointerButtonPress.y = xEvent.xbutton.y;
                 event.pointerButtonPress.buttons = _getButtonState( xEvent );
@@ -271,7 +271,7 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
                 break;
                 
             case ButtonRelease:
-                event.type = WindowEvent::TYPE_POINTER_BUTTON_RELEASE;
+                event.type = WindowEvent::POINTER_BUTTON_RELEASE;
                 event.pointerButtonRelease.x = xEvent.xbutton.x;
                 event.pointerButtonRelease.y = xEvent.xbutton.y;
                 event.pointerButtonRelease.buttons = _getButtonState( xEvent );
@@ -281,17 +281,17 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
                 break;
             
             case KeyPress:
-                event.type = WindowEvent::TYPE_KEY_PRESS;
+                event.type = WindowEvent::KEY_PRESS;
                 event.keyPress.key = _getKey( xEvent );
                 break;
                 
             case KeyRelease:
-                event.type = WindowEvent::TYPE_KEY_RELEASE;
+                event.type = WindowEvent::KEY_RELEASE;
                 event.keyPress.key = _getKey( xEvent );
                 break;
                 
             default:
-                event.type = WindowEvent::TYPE_UNHANDLED;
+                event.type = WindowEvent::UNHANDLED;
                 EQWARN << "Unhandled X event" << endl;
                 break;
         }

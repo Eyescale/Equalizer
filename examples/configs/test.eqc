@@ -1,16 +1,26 @@
+# one-pipe fullscreen config, covering a 30" LCD one meter in front
+# of the viewer
+global
+{
+    EQ_WINDOW_IATTR_HINT_DECORATION on
+}
+
 server
 {
     config
     {
-        node
+        appNode
         {
             pipe
             {
                 window
                 {
-                    viewport [ 0.25 0.25 0.5 0.5 ]
-                    
-                    channel { name "channel" }
+                    name "foo"
+                    viewport [ 100 100 500 500 ]
+                    channel
+                    {
+                        name "channel"
+                    }
                 }
             }
         }
@@ -19,9 +29,9 @@ server
             channel "channel"
             wall
             {
-                bottom_left  [ -.8 -.5 -1 ]
-                bottom_right [  .8 -.5 -1 ]
-                top_left     [ -.8  .5 -1 ]
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
             }
         }
     }    

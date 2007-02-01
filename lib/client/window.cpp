@@ -685,6 +685,13 @@ bool eq::Window::initWGL()
 	    return false;
     }
 
+    // window
+    DWORD windowStyleEx = WS_EX_APPWINDOW;
+    DWORD windowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW;
+
+    if( getIAttribute( IATTR_HINT_DECORATION ) == OFF )
+        windowStyle = WS_POPUP;
+
     if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON )
     {
         DEVMODE deviceMode = {0};
@@ -698,26 +705,12 @@ bool eq::Window::initWGL()
                          getErrorString( GetLastError( )));
 	        return false;
         }
+        windowStyle = WS_POPUP | WS_MAXIMIZE;
     }
-#if 0
-        if( getIAttribute( IATTR_HINT_DECORATION ) != OFF )
-        wa.override_redirect = False;
-    else
-        wa.override_redirect = True;
-        
-        wa.override_redirect = True;
-        _pvp.h = DisplayHeight( display, screen );
-        _pvp.w = DisplayWidth( display, screen );
-        _pvp.x = 0;
-        _pvp.y = 0;
-    }
-#endif
 
-    // window
-    DWORD windowStyleEx = WS_EX_APPWINDOW;
-    DWORD windowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW;
     HWND hWnd = CreateWindowEx( windowStyleEx,
-                                wc.lpszClassName, wc.lpszClassName, // title
+                                wc.lpszClassName, 
+                                _name.empty() ? "Equalizer" : _name.c_str(),
                   	            windowStyle, _pvp.x, _pvp.y, _pvp.w, _pvp.h,
                                 0, 0, // parent, menu
                                 instance, 0 );
@@ -1045,44 +1038,48 @@ bool eq::Window::processEvent( const WindowEvent& event )
     ConfigEvent configEvent;
     switch( event.type )
     {
-        case WindowEvent::TYPE_EXPOSE:
+        case WindowEvent::EXPOSE:
             return true;
 
-        case WindowEvent::TYPE_RESIZE:
+        case WindowEvent::RESIZE:
             setPixelViewport( PixelViewport( event.resize.x, event.resize.y, 
                                              event.resize.w, event.resize.h ));
             return true;
 
-        case WindowEvent::TYPE_POINTER_MOTION:
-            configEvent.type          = ConfigEvent::TYPE_POINTER_MOTION;
+        case WindowEvent::CLOSE:
+            configEvent.type = ConfigEvent::WINDOW_CLOSE;
+            break;
+
+        case WindowEvent::POINTER_MOTION:
+            configEvent.type          = ConfigEvent::POINTER_MOTION;
             configEvent.pointerMotion = event.pointerMotion;
             break;
             
-        case WindowEvent::TYPE_POINTER_BUTTON_PRESS:
-            configEvent.type = ConfigEvent::TYPE_POINTER_BUTTON_PRESS;
+        case WindowEvent::POINTER_BUTTON_PRESS:
+            configEvent.type = ConfigEvent::POINTER_BUTTON_PRESS;
             configEvent.pointerButtonPress = event.pointerButtonPress;
             break;
 
-        case WindowEvent::TYPE_POINTER_BUTTON_RELEASE:
-            configEvent.type = ConfigEvent::TYPE_POINTER_BUTTON_RELEASE;
+        case WindowEvent::POINTER_BUTTON_RELEASE:
+            configEvent.type = ConfigEvent::POINTER_BUTTON_RELEASE;
             configEvent.pointerButtonRelease = event.pointerButtonRelease;
             break;
 
-        case WindowEvent::TYPE_KEY_PRESS:
+        case WindowEvent::KEY_PRESS:
             if( event.keyPress.key == KC_VOID )
                 return true; //ignore
-            configEvent.type         = ConfigEvent::TYPE_KEY_PRESS;
+            configEvent.type         = ConfigEvent::KEY_PRESS;
             configEvent.keyPress.key = event.keyPress.key;
             break;
                 
-        case WindowEvent::TYPE_KEY_RELEASE:
+        case WindowEvent::KEY_RELEASE:
             if( event.keyPress.key == KC_VOID )
                 return true; // ignore
-            configEvent.type           = ConfigEvent::TYPE_KEY_RELEASE;
+            configEvent.type           = ConfigEvent::KEY_RELEASE;
             configEvent.keyRelease.key = event.keyRelease.key;
             break;
 
-        case WindowEvent::TYPE_UNHANDLED:
+        case WindowEvent::UNHANDLED:
             // Handle window-system native event here
             return false;
 

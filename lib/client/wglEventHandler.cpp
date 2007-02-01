@@ -149,7 +149,7 @@ LONG WINAPI WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
         case WM_MOVE:
         case WM_SHOWWINDOW:
         {
-            event.type = WindowEvent::TYPE_RESIZE;
+            event.type = WindowEvent::RESIZE;
 
             RECT rect;
             GetClientRect( hWnd, &rect );
@@ -168,6 +168,10 @@ LONG WINAPI WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             break;
         }
 
+        case WM_CLOSE:
+            event.type = WindowEvent::CLOSE;
+            break;
+
         case WM_PAINT:
         {
             if( GetUpdateRect( hWnd, 0, false ) == 0 ) // No 'expose'
@@ -177,7 +181,7 @@ LONG WINAPI WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             BeginPaint(hWnd, &ps);
             EndPaint(hWnd, &ps);
 
-            event.type = WindowEvent::TYPE_EXPOSE;
+            event.type = WindowEvent::EXPOSE;
             break;
         }
 
@@ -185,7 +189,7 @@ LONG WINAPI WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
         {
             _syncButtonState( event.window, wParam );
 
-            event.type = WindowEvent::TYPE_POINTER_MOTION;
+            event.type = WindowEvent::POINTER_MOTION;
             event.pointerMotion.x = GET_X_LPARAM( lParam );
             event.pointerMotion.y = GET_Y_LPARAM( lParam );
             event.pointerMotion.buttons = _buttonStates[ event.window ];
@@ -196,7 +200,7 @@ LONG WINAPI WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
         case WM_LBUTTONDOWN:
             _buttonStates[event.window] |= PTR_BUTTON1;
-            event.type = WindowEvent::TYPE_POINTER_BUTTON_PRESS;
+            event.type = WindowEvent::POINTER_BUTTON_PRESS;
             event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
             event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
             event.pointerButtonPress.buttons = _buttonStates[event.window];
@@ -207,7 +211,7 @@ LONG WINAPI WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
         case WM_MBUTTONDOWN:
             _buttonStates[event.window] |= PTR_BUTTON2;
-            event.type = WindowEvent::TYPE_POINTER_BUTTON_PRESS;
+            event.type = WindowEvent::POINTER_BUTTON_PRESS;
             event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
             event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
             event.pointerButtonPress.buttons = _buttonStates[event.window];
@@ -218,7 +222,7 @@ LONG WINAPI WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
         case WM_RBUTTONDOWN:
             _buttonStates[event.window] |= PTR_BUTTON3;
-            event.type = WindowEvent::TYPE_POINTER_BUTTON_PRESS;
+            event.type = WindowEvent::POINTER_BUTTON_PRESS;
             event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
             event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
             event.pointerButtonPress.buttons = _buttonStates[event.window];
@@ -228,7 +232,7 @@ LONG WINAPI WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             break;
 
         case WM_XBUTTONDOWN:
-            event.type = WindowEvent::TYPE_POINTER_BUTTON_PRESS;
+            event.type = WindowEvent::POINTER_BUTTON_PRESS;
             event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
             event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
 
@@ -247,7 +251,7 @@ LONG WINAPI WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
         case WM_LBUTTONUP:
             _buttonStates[event.window] &= ~PTR_BUTTON1;
-            event.type = WindowEvent::TYPE_POINTER_BUTTON_RELEASE;
+            event.type = WindowEvent::POINTER_BUTTON_RELEASE;
             event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
             event.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
             event.pointerButtonRelease.buttons = _buttonStates[event.window];
@@ -258,7 +262,7 @@ LONG WINAPI WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
         case WM_MBUTTONUP:
             _buttonStates[event.window] &= ~PTR_BUTTON2;
-            event.type = WindowEvent::TYPE_POINTER_BUTTON_RELEASE;
+            event.type = WindowEvent::POINTER_BUTTON_RELEASE;
             event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
             event.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
             event.pointerButtonRelease.buttons = _buttonStates[event.window];
@@ -269,7 +273,7 @@ LONG WINAPI WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
         case WM_RBUTTONUP:
             _buttonStates[event.window] &= ~PTR_BUTTON3;
-            event.type = WindowEvent::TYPE_POINTER_BUTTON_RELEASE;
+            event.type = WindowEvent::POINTER_BUTTON_RELEASE;
             event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
             event.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
             event.pointerButtonRelease.buttons = _buttonStates[event.window];
@@ -279,7 +283,7 @@ LONG WINAPI WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             break;
 
         case WM_XBUTTONUP:
-            event.type = WindowEvent::TYPE_POINTER_BUTTON_RELEASE;
+            event.type = WindowEvent::POINTER_BUTTON_RELEASE;
             event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
             event.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
 
@@ -298,18 +302,18 @@ LONG WINAPI WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
         case WM_SYSKEYDOWN:
         case WM_KEYDOWN:
-            event.type = WindowEvent::TYPE_KEY_PRESS;
+            event.type = WindowEvent::KEY_PRESS;
             event.keyPress.key = _getKey( lParam, wParam );
             break;
 
         case WM_SYSKEYUP:
         case WM_KEYUP:
-            event.type = WindowEvent::TYPE_KEY_RELEASE;
+            event.type = WindowEvent::KEY_RELEASE;
             event.keyRelease.key = _getKey( lParam, wParam );
             break;
 
         default:
-            event.type = WindowEvent::TYPE_UNHANDLED;
+            event.type = WindowEvent::UNHANDLED;
             EQWARN << "Unhandled message " << uMsg << endl;
             result = !0;
             break;

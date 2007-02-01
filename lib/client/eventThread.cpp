@@ -65,9 +65,9 @@ void EventThread::_computePointerDelta( WindowEvent &event )
 
     switch( event.type )
     {
-        case WindowEvent::TYPE_POINTER_BUTTON_PRESS:
-        case WindowEvent::TYPE_POINTER_BUTTON_RELEASE:
-            if( _lastPointerEvent.type == WindowEvent::TYPE_POINTER_MOTION )
+        case WindowEvent::POINTER_BUTTON_PRESS:
+        case WindowEvent::POINTER_BUTTON_RELEASE:
+            if( _lastPointerEvent.type == WindowEvent::POINTER_MOTION )
             {
                 event.pointerEvent.dx = _lastPointerEvent.pointerEvent.dx;
                 event.pointerEvent.dy = _lastPointerEvent.pointerEvent.dy;
