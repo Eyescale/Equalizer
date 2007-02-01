@@ -4,7 +4,7 @@
 #ifndef EQ_GLXEVENTTHREAD_H
 #define EQ_GLXEVENTTHREAD_H
 
-#include <eq/client/eventThread.h>
+#include <eq/client/eventHandler.h>
 
 #include <eq/client/event.h>
 #include <eq/net/command.h>
@@ -17,7 +17,7 @@ namespace eq
     /**
      * The per-node event processing thread for glx pipes.
      */
-    class GLXEventThread : public EventThread, public eqBase::Thread, 
+    class GLXEventThread : public EventHandler, public eqBase::Thread, 
                            public eqNet::Base
     {
     public:
@@ -36,14 +36,14 @@ namespace eq
         /** @sa eqBase::Thread::run. */
         virtual void* run();
 
-        /** @sa EventThread::addPipe. */
+        /** @sa EventHandler::addPipe. */
         virtual void addPipe( Pipe* pipe );
-        /** @sa EventThread::removePipe. */
+        /** @sa EventHandler::removePipe. */
         virtual void removePipe( Pipe* pipe );
 
-        /** @sa EventThread::addWindow. */
+        /** @sa EventHandler::addWindow. */
         virtual void addWindow( Window* window );
-        /** @sa EventThread::removeWindow. */
+        /** @sa EventHandler::removeWindow. */
         virtual void removeWindow( Window* window );
 
     private:

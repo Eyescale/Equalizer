@@ -1,8 +1,8 @@
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_EVENTTHREAD_H
-#define EQ_EVENTTHREAD_H
+#ifndef EQ_EVENTHANDLER_H
+#define EQ_EVENTHANDLER_H
 
 #include <eq/client/windowEvent.h>
 #include <eq/client/windowSystem.h>
@@ -19,10 +19,10 @@ namespace eq
      * The per-node event processing thread.
      * TODO: rename to EventHandler since WGL does not use a thread
      */
-    class EQ_EXPORT EventThread
+    class EQ_EXPORT EventHandler
     {
     public:
-        static EventThread* get( const WindowSystem windowSystem );
+        static EventHandler* get( const WindowSystem windowSystem );
 
         virtual void addPipe( Pipe* pipe ) = 0;
         virtual void removePipe( Pipe* pipe ) = 0;
@@ -32,10 +32,10 @@ namespace eq
 
     protected:
         /** Constructs a new event thread. */
-        EventThread(){}
+        EventHandler(){}
 
         /** Destructs the event thread. */
-        virtual ~EventThread(){}
+        virtual ~EventHandler(){}
 
         /** Compute the mouse move delta from the previous pointer event. */
         void _computePointerDelta( WindowEvent &event );
@@ -43,9 +43,9 @@ namespace eq
         /** The previous pointer event to compute mouse movement deltas. */
         WindowEvent _lastPointerEvent;
     private:
-        static EventThread* _handlers[WINDOW_SYSTEM_ALL];
+        static EventHandler* _handlers[WINDOW_SYSTEM_ALL];
     };
 }
 
-#endif // EQ_EVENTTHREAD_H
+#endif // EQ_EVENTHANDLER_H
 

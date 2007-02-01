@@ -8,7 +8,7 @@
 #include "commands.h"
 #include "configEvent.h"
 #include "event.h"
-#include "eventThread.h"
+#include "eventHandler.h"
 #include "global.h"
 #include "log.h"
 #include "nodeFactory.h"
@@ -226,7 +226,7 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Command& command )
 
     send( node, reply );
 
-    EventThread* thread = EventThread::get( windowSystem );
+    EventHandler* thread = EventHandler::get( windowSystem );
     thread->addWindow( this );
 
     return eqNet::COMMAND_HANDLED;
@@ -237,7 +237,7 @@ eqNet::CommandResult eq::Window::_reqExit( eqNet::Command& command )
     const WindowExitPacket* packet = command.getPacket<WindowExitPacket>();
     EQINFO << "handle window exit " << packet << endl;
 
-    EventThread* thread = EventThread::get( _pipe->getWindowSystem( ));
+    EventHandler* thread = EventHandler::get( _pipe->getWindowSystem( ));
     thread->removeWindow( this );
 
     exit();

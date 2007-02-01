@@ -65,7 +65,7 @@ HEADER_SRC = \
 	client/configEvent.h \
 	client/configParams.h \
 	client/event.h \
-	client/eventThread.h \
+	client/eventHandler.h \
 	client/frame.h \
 	client/frameData.h \
 	client/global.h \
@@ -127,7 +127,7 @@ SOURCES = \
 	client/config.cpp \
 	client/configEvent.cpp \
 	client/configParams.cpp \
-	client/eventThread.cpp \
+	client/eventHandler.cpp \
 	client/frame.cpp \
 	client/frameData.cpp \
 	client/global.cpp \

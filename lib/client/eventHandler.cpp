@@ -1,7 +1,7 @@
 /* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#include "eventThread.h"
+#include "eventHandler.h"
 
 #ifdef GLX
 #  include "glXEventThread.h"
@@ -17,11 +17,11 @@ using namespace eq;
 using namespace eqBase;
 using namespace std;
 
-EventThread* EventThread::_handlers[WINDOW_SYSTEM_ALL] = { NULL };
+EventHandler* EventHandler::_handlers[WINDOW_SYSTEM_ALL] = { NULL };
 
 static Lock _handlersLock;
 
-EventThread* EventThread::get( const WindowSystem windowSystem )
+EventHandler* EventHandler::get( const WindowSystem windowSystem )
 {
     _handlersLock.set();
     if( !_handlers[windowSystem] )
@@ -53,7 +53,7 @@ EventThread* EventThread::get( const WindowSystem windowSystem )
     return _handlers[windowSystem];
 }
 
-void EventThread::_computePointerDelta( WindowEvent &event )
+void EventHandler::_computePointerDelta( WindowEvent &event )
 {
     if( _lastPointerEvent.window != event.window )
     {

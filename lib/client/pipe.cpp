@@ -5,7 +5,7 @@
 #include "pipe.h"
 
 #include "commands.h"
-#include "eventThread.h"
+#include "eventHandler.h"
 #include "global.h"
 #include "nodeFactory.h"
 #include "packets.h"
@@ -401,7 +401,7 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Command& command )
     reply.pvp = _pvp;
     send( node, reply );
 
-    EventThread* thread = EventThread::get( _windowSystem );
+    EventHandler* thread = EventHandler::get( _windowSystem );
     thread->addPipe( this );
 
     return eqNet::COMMAND_HANDLED;
@@ -409,7 +409,7 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Command& command )
 
 eqNet::CommandResult Pipe::_reqExit( eqNet::Command& command )
 {
-    EventThread* thread = EventThread::get( _windowSystem );
+    EventHandler* thread = EventHandler::get( _windowSystem );
     thread->removePipe( this );
 
     const PipeExitPacket* packet = command.getPacket<PipeExitPacket>();

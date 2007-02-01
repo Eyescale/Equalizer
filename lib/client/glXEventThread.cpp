@@ -260,6 +260,10 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
                 _computePointerDelta( event );
                 break;
 
+            case DestroyNotify:
+                event.type = WindowEvent::CLOSE;
+                break;
+
             case ButtonPress:
                 event.type = WindowEvent::POINTER_BUTTON_PRESS;
                 event.pointerButtonPress.x = xEvent.xbutton.x;
@@ -292,7 +296,7 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
                 
             default:
                 event.type = WindowEvent::UNHANDLED;
-                EQWARN << "Unhandled X event" << endl;
+                EQWARN << "Unhandled X event, type " << xEvent.type << endl;
                 break;
         }
         event.window->processEvent( event );

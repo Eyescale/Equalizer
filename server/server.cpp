@@ -149,7 +149,7 @@ eqNet::CommandResult Server::_reqChooseConfig( eqNet::Command& command )
 
     mapConfig( appConfig );
 
-    // TODO: move to open: appConfig->setAppName( appName );
+    // TODO: move to open?: appConfig->setAppName( appName );
     const string rendererInfo = packet->rendererInfo;
     const size_t colonPos     = rendererInfo.find( '#' );
     const string workDir      = rendererInfo.substr( 0, colonPos );
