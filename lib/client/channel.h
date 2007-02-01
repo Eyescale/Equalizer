@@ -87,7 +87,7 @@ namespace eq
         const uint32_t getReadBuffer() const;
 
         /** @return the channel's current color mask for drawing. */
-        const ColorMask& Channel::getDrawBufferMask() const;
+        const ColorMask& getDrawBufferMask() const;
 
         /** @return the channel's current pixel viewport. */
         const PixelViewport& getPixelViewport() const;
