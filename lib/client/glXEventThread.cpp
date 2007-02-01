@@ -475,6 +475,7 @@ eqNet::CommandResult GLXEventThread::_cmdAddWindow( eqNet::Command& command )
            << window->getName() << "')" << endl;
     
     XSelectInput( display, drawable, eventMask );
+
     XFlush( display );
 
     return eqNet::COMMAND_HANDLED;    

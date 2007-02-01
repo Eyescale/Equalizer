@@ -22,7 +22,6 @@ void Object::_construct()
     _session       = NULL;
     _id            = EQ_ID_INVALID;
     _instanceID    = EQ_ID_INVALID;
-    _policy        = SHARE_UNDEFINED;
     _version       = VERSION_NONE;
     _commitCount   = 0;
     _nVersions     = 0;

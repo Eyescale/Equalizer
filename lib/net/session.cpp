@@ -220,17 +220,13 @@ void Session::addRegisteredObject( const uint32_t id, Object* object,
         _requestHandler.waitRequest( packet.requestID );
 
         if( policy == Object::SHARE_THREAD )
-        {
-            object->_policy  = policy;
             _registerThreadObject( object, id );
-        }
 
         return;
     }
 
     object->_id         = id;
     object->_instanceID = _instanceIDs.genIDs(1);
-    object->_policy     = policy;
     object->_session    = this;
     object->ref();
 
@@ -261,30 +257,26 @@ void Session::addRegisteredObject( const uint32_t id, Object* object,
                          << endl;
 }
 
-void Session::removeRegisteredObject( Object* object, 
-                                      Object::SharePolicy policy )
+void Session::removeRegisteredObject( Object* object )
 {
     EQASSERT( object->_id != EQ_ID_INVALID );
-    if( policy == Object::SHARE_UNDEFINED )
-        policy = object->_policy;
 
     if( !_localNode->inReceiverThread( ))
     {
         SessionUnregisterObjectPacket packet;
         packet.requestID = _requestHandler.registerRequest( object );
-        packet.policy    = ( policy == Object::SHARE_THREAD ?
-                             Object::SHARE_NEVER : policy );
 
         _sendLocal( packet );
         _requestHandler.waitRequest( packet.requestID );
 
-        if( policy == Object::SHARE_THREAD )
-        {
-            const uint32_t id = object->getID();
-            EQASSERT( _threadObjects.get( ));
-            EQASSERT( _threadObjects->find( id ) != _threadObjects->end() );
+        const uint32_t   id            = object->getID();
+        IDHash<Object*>* threadObjects = _threadObjects.get();
+        if( threadObjects && 
+            threadObjects->find( id ) != threadObjects->end() &&
+            (*threadObjects)[id] == object )
+
             _threadObjects->erase( id );
-        }
+
         return;
     }
 
@@ -306,31 +298,23 @@ void Session::removeRegisteredObject( Object* object,
     if( objects.empty( ))
         _registeredObjects.erase( id );
 
-    switch( policy )
-    {
-        case Object::SHARE_NODE:
-            EQASSERT( _nodeObjects.find( id ) != _nodeObjects.end( ));
-            _nodeObjects.erase( id );
-            break;
+    if( _nodeObjects.find( id ) != _nodeObjects.end( ) &&
+        _nodeObjects[id] == object )
 
-        case Object::SHARE_THREAD:
-            EQASSERT( _threadObjects.get( ))
-            EQASSERT( _threadObjects->find( id ) != _threadObjects->end() );
-            _threadObjects->erase( id );
-            break;
+        _nodeObjects.erase( id );
 
-        case Object::SHARE_NEVER:
-            break;
-        default:
-            EQUNREACHABLE;
-    }
+    IDHash<Object*>* threadObjects = _threadObjects.get();
+    if( threadObjects && 
+        threadObjects->find( id ) != threadObjects->end() &&
+        (*threadObjects)[id] == object )
+        
+        _threadObjects->erase( id );
 
     EQASSERT( object->_instanceID != EQ_ID_INVALID );
     _instanceIDs.freeIDs( object->_instanceID, 1 );
     // TODO: unsetIDMaster( object->_id );
     object->_id         = EQ_ID_INVALID;
     object->_instanceID = EQ_ID_INVALID;
-    object->_policy     = Object::SHARE_UNDEFINED;
     object->_session    = 0;
     object->unref();
 }
@@ -373,7 +357,6 @@ void Session::registerObject( Object* object, RefPtr<Node> master,
             // with other requests in the recv thread. Pre-stage object fields
             // needed for sending out instancation. Ugly.
             object->_id      = id;
-            object->_policy  = policy;
             object->_session = this;
             object->instanciateOnNode( master, policy, Object::VERSION_HEAD, 
                                        threadSafe );
@@ -922,7 +905,7 @@ CommandResult Session::_cmdUnregisterObject( Command& command )
     Object* object = (Object*)_requestHandler.getRequestData(packet->requestID);
     EQASSERT( object );
 
-    removeRegisteredObject( object, packet->policy );
+    removeRegisteredObject( object );
     _requestHandler.serveRequest( packet->requestID, 0 );
     
     return COMMAND_HANDLED;

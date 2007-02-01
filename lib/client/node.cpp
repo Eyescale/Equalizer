@@ -129,7 +129,7 @@ eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Command& command )
 
     _removePipe( pipe );
     EQASSERT( pipe->getRefCount() == 1 );
-    _config->removeRegisteredObject( pipe, eqNet::Object::SHARE_NODE );
+    _config->removeRegisteredObject( pipe );
 
     return eqNet::COMMAND_HANDLED;
 }

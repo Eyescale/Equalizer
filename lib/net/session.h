@@ -148,8 +148,7 @@ namespace eqNet
 
         void addRegisteredObject( const uint32_t id, Object* object,
                                   const  Object::SharePolicy policy );
-        void removeRegisteredObject( Object* object, Object::SharePolicy
-                                     policy = Object::SHARE_UNDEFINED );
+        void removeRegisteredObject( Object* object );
 
         /** 
          * Access a distributed object.

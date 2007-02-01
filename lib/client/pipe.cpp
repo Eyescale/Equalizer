@@ -302,7 +302,8 @@ eqNet::CommandResult Pipe::_cmdCreateWindow(  eqNet::Command& command  )
 
 eqNet::CommandResult Pipe::_cmdDestroyWindow(  eqNet::Command& command  )
 {
-    const PipeDestroyWindowPacket* packet = command.getPacket<PipeDestroyWindowPacket>();
+    const PipeDestroyWindowPacket* packet =
+        command.getPacket<PipeDestroyWindowPacket>();
     EQINFO << "Handle destroy window " << packet << endl;
 
     Config* config = getConfig();
@@ -312,7 +313,7 @@ eqNet::CommandResult Pipe::_cmdDestroyWindow(  eqNet::Command& command  )
 
     _removeWindow( window );
     EQASSERT( window->getRefCount() == 1 );
-    config->removeRegisteredObject( window, eqNet::Object::SHARE_NODE );
+    config->removeRegisteredObject( window );
 
     return eqNet::COMMAND_HANDLED;
 }

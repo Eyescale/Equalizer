@@ -196,7 +196,7 @@ eqNet::CommandResult Config::_cmdDestroyNode( eqNet::Command& command )
     node->_thread->join(); // TODO: Move to node?
     _removeNode( node );
     EQASSERT( node->getRefCount() == 1 );
-    removeRegisteredObject( node, eqNet::Object::SHARE_NODE );
+    removeRegisteredObject( node );
 
     return eqNet::COMMAND_HANDLED;
 }

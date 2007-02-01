@@ -1,4 +1,5 @@
-# stress-test config using multiple windows and a swap barrier
+# stress-test config using multiple windows and a swap barrier, using a mixture
+# of singlepipe and multipipe nodes.
 server
 {
     config
@@ -47,9 +48,6 @@ server
                     channel { name "channel4" }
                 }
             }
-        }
-        node
-        {
             pipe
             {
                 window
@@ -58,9 +56,6 @@ server
                     channel { name "channel5" }
                 }
             }
-        }
-        node
-        {
             pipe
             {
                 window
@@ -80,9 +75,6 @@ server
                     channel { name "channel7" }
                 }
             }
-        }
-        node
-        {
             pipe
             {
                 window
@@ -90,12 +82,6 @@ server
                     viewport [ .35 .675 .3 .3 ]
                     channel { name "channel8" }
                 }
-            }
-        }
-        node
-        {
-            pipe
-            {
                 window
                 {
                     viewport [ .675 .675 .3 .3 ]
@@ -193,7 +179,7 @@ server
                     bottom_right [  0.6 -2.5 -2 ]
                     top_left     [ -0.6 -0.6 -2 ]
                 }
-                swapbarrier {}
+                // no swapbarrier {} - same pipe thread as channel9
             }
             compound
             { 

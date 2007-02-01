@@ -145,7 +145,7 @@ eqNet::CommandResult eq::Window::_cmdDestroyChannel(eqNet::Command& command )
 
     _removeChannel( channel );
     EQASSERT( channel->getRefCount() == 1 );
-    config->removeRegisteredObject( channel, eqNet::Object::SHARE_NODE );
+    config->removeRegisteredObject( channel );
     
     return eqNet::COMMAND_HANDLED;
 }
@@ -297,7 +297,8 @@ eqNet::CommandResult eq::Window::_reqStartFrame(eqNet::Command& command )
         while( XCheckTypedEvent( display, ClientMessage, &xEvent ))
         {
             if( xEvent.xany.window == _xDrawable &&
-                xEvent.xclient.data.l[0] == deleteAtom )
+                static_cast<Atom>( xEvent.xclient.data.l[0] ) == 
+                    deleteAtom )
             {
                 event.window = this;
                 event.type   = WindowEvent::CLOSE;

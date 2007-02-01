@@ -340,7 +340,6 @@ namespace eqNet
         
         uint32_t            requestID;
         uint32_t            objectID;
-        Object::SharePolicy policy;
     };
 
     struct SessionInitObjectPacket : public SessionPacket

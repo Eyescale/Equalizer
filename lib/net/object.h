@@ -378,9 +378,6 @@ namespace eqNet
         /** A node-unique identifier of the concrete instance. */
         uint32_t     _instanceID;
 
-        /** The share policy, set during registration by the session. */
-        SharePolicy  _policy;
-
         /** Master (writable) instance if <code>true</code>. */
         bool         _master;
         
