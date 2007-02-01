@@ -287,6 +287,26 @@ eqNet::CommandResult eq::Window::_reqStartFrame(eqNet::Command& command )
     if( packet->makeCurrent )
         makeCurrent();
 
+#ifdef GLX // handle window close request - see comment in initGLX
+    if( _pipe->getWindowSystem() == WINDOW_SYSTEM_GLX )
+    {
+        Display*  display = _pipe->getXDisplay();
+        Atom   deleteAtom = XInternAtom( display, "WM_DELETE_WINDOW", False );
+        WindowEvent event;
+        XEvent&     xEvent = event.xEvent;
+        while( XCheckTypedEvent( display, ClientMessage, &xEvent ))
+        {
+            if( xEvent.xany.window == _xDrawable &&
+                xEvent.xclient.data.l[0] == deleteAtom )
+            {
+                event.window = this;
+                event.type   = WindowEvent::CLOSE;
+                processEvent( event );
+            }
+        }
+    }
+#endif
+
     startFrame( packet->frameID );
     return eqNet::COMMAND_HANDLED;
 }
@@ -411,7 +431,7 @@ bool eq::Window::initGL( const uint32_t initID )
 }
 
 #ifdef GLX
-static Bool WaitForNotify(Display *, XEvent *e, char *arg)
+static Bool WaitForNotify( Display*, XEvent *e, char *arg )
 { return (e->type == MapNotify) && (e->xmap.window == (::Window)arg); }
 #endif
 
@@ -525,6 +545,14 @@ bool eq::Window::initGLX()
     }   
    
     XStoreName( display, drawable,_name.empty() ? "Equalizer" : _name.c_str( ));
+
+    // Register for close window request from the window manager
+    //  The WM sends a ClientMessage with the delete atom directly to the
+    //  window. Therefore we can not request these events with XSelectInput, we
+    //  have to handle them from the pipe thread. We'll check during startFrame
+    //  for the event and issue a WindowEvent::CLOSE.
+    Atom deleteAtom = XInternAtom( display, "WM_DELETE_WINDOW", False );
+    XSetWMProtocols( display, drawable, &deleteAtom, 1 );
 
     // map and wait for MapNotify event
     XMapWindow( display, drawable );
