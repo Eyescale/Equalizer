@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_FRAMEDATA_H
@@ -19,6 +19,8 @@ namespace eqs
          * Constructs a new FrameData.
          */
         FrameData();
+
+        virtual uint32_t getTypeID() const { return eq::Object::TYPE_FRAMEDATA;}
 
         /**
          * @name Data Access
@@ -40,6 +42,10 @@ namespace eqs
             { _data.buffers = buffers; }
         uint32_t getBuffers() const { return _data.buffers; }
         //*}
+
+    protected:
+        virtual ~FrameData(){}
+        virtual bool isStatic() const { return false; }
 
     private:
         eq::FrameData::Data _data;

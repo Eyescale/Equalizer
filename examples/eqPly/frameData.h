@@ -13,7 +13,7 @@ class FrameData : public eqNet::Object
 {
 public:
 
-    FrameData() : Object( TYPE_FRAMEDATA )
+    FrameData()
         {
             reset();
             setInstanceData( &_data, sizeof( Data ));
@@ -21,7 +21,6 @@ public:
         }
 
     FrameData( const void* data, const uint64_t size ) 
-            : Object( TYPE_FRAMEDATA )
         {
             EQASSERT( size == sizeof( Data ));
 
@@ -29,6 +28,8 @@ public:
             setInstanceData( &_data, sizeof( Data ));
             EQINFO << "New FrameData instance" << std::endl;
         }
+
+    virtual uint32_t getTypeID() const { return TYPE_FRAMEDATA; }
 
     void reset()
         {
@@ -44,7 +45,9 @@ public:
         vmml::Matrix4f rotation;
         vmml::Vector3f translation;
     } _data;
-
+    
+protected:
+    virtual bool isStatic() const { return false; }
 };
 
 

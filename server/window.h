@@ -43,6 +43,8 @@ namespace eqs
          */
         Window( const Window& from );
 
+        virtual uint32_t getTypeID() const { return eq::Object::TYPE_WINDOW; }
+
         Server* getServer() const
             { return _pipe ? _pipe ->getServer() : NULL; }
 

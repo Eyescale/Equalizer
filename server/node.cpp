@@ -35,13 +35,11 @@ void Node::_construct()
 }
 
 Node::Node()
-        : eqNet::Object( eq::Object::TYPE_NODE )
 {
     _construct();
 }
 
 Node::Node( const Node& from )
-        : eqNet::Object( eq::Object::TYPE_NODE )
 {
     _construct();
     _node = from._node;

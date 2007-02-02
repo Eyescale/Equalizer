@@ -36,6 +36,8 @@ namespace eq
          */
         Window();
 
+        virtual uint32_t getTypeID() const { return eq::Object::TYPE_WINDOW; }
+
         /** @name Data Access */
         //*{
         /** 

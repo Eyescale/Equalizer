@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
  * All rights reserved. 
  *
  * The init data manages static, per-instance application data. In this
@@ -17,15 +17,13 @@ using namespace std;
 using namespace eqBase;
 
 InitData::InitData()
-        : Object( TYPE_INITDATA ),
-          _frameDataID( EQ_ID_INVALID ),
+        : _frameDataID( EQ_ID_INVALID ),
           _filename( "rockerArm.ply" ),
-          _instanceData( NULL )
+          _instanceData( 0 )
 {}
 
 InitData::InitData( const void* data, const uint64_t size )
-        : Object( TYPE_INITDATA ),
-          _instanceData( NULL )
+        : _instanceData( 0 )
 {
     EQASSERT( size > sizeof( _frameDataID ));
 
@@ -36,7 +34,7 @@ InitData::InitData( const void* data, const uint64_t size )
 
 InitData::~InitData()
 {
-    setFrameData( NULL );
+    setFrameData( 0 );
 }
 
 const void* InitData::getInstanceData( uint64_t* size )
@@ -61,7 +59,7 @@ void InitData::_clearInstanceData()
         return;
 
     free( _instanceData );
-    _instanceData = NULL;
+    _instanceData = 0;
 }
 
 void InitData::setFrameData( RefPtr<FrameData> frameData )
@@ -80,7 +78,7 @@ RefPtr<FrameData> InitData::getFrameData()
     if( _frameData.get( ))
         return _frameData.get();
     if( _frameDataID == EQ_ID_INVALID )
-        return NULL;
+        return 0;
 
     eqNet::Session* session = getSession();
     EQASSERT( session );

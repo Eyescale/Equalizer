@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "frame.h"
@@ -15,18 +15,16 @@ using namespace eqBase;
 using namespace std;
 
 Frame::Frame()
-        : eqNet::Object( eq::Object::TYPE_FRAME ),
-          _compound( NULL ),
-          _frameData( NULL )
+        : _compound( 0 ),
+          _frameData( 0 )
 {
     _data.buffers = eq::Frame::BUFFER_UNDEFINED;
     setInstanceData( &_inherit, sizeof( eq::Frame::Data ));
 }
 
 Frame::Frame( const Frame& from )
-        : eqNet::Object( eq::Object::TYPE_FRAME ),
-          _compound( NULL ),
-          _frameData( NULL )
+        : _compound( 0 ),
+          _frameData( 0 )
 {
     _data = from._data;
     _name = from._name;
@@ -49,7 +47,7 @@ void Frame::flush()
         session->deregisterObject( data );
         _datas.pop_front();
     }
-    _frameData = NULL;
+    _frameData = 0;
     _inputFrames.clear();
 }
 

@@ -21,8 +21,7 @@ using namespace eqBase;
 using namespace std;
 
 Node::Node()
-        : eqNet::Object( eq::Object::TYPE_NODE ),
-          _config(NULL)
+        : _config(NULL)
 {
     registerCommand( CMD_NODE_CREATE_PIPE, 
                      eqNet::CommandFunc<Node>( this, &Node::_cmdCreatePipe ));

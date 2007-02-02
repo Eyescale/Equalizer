@@ -157,6 +157,8 @@ eqNet::Object* Config::instanciateObject( const uint32_t type, const void* data,
     {
         case Object::TYPE_MATRIX4F:
             return new Matrix4f( data, dataSize );
+        case Object::TYPE_MATRIX4D:
+            return new Matrix4d( data, dataSize );
         case Object::TYPE_FRAME:
             return new Frame( data, dataSize );
         case Object::TYPE_FRAMEDATA:

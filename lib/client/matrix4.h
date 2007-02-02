@@ -19,51 +19,61 @@ namespace eq
         Matrix4( const vmml::Matrix4<T>& matrix );
         Matrix4( const void* data, uint64_t dataSize );
 
+        virtual uint32_t getTypeID() const;
+
         Matrix4& operator= ( const Matrix4<T>& matrix )
             { vmml::Matrix4<T>::operator= (matrix); return *this; }
         Matrix4& operator= ( const vmml::Matrix4<T>& matrix )
             { vmml::Matrix4<T>::operator= (matrix); return *this; }
+
+    protected:
+        virtual ~Matrix4(){}
+
+        virtual bool isStatic() const { return false; }
     };
 
     typedef Matrix4<float> Matrix4f;
+    typedef Matrix4<double> Matrix4d;
+
+    // Implementation
 
     template< class T >
     inline std::ostream& operator << ( std::ostream& os,
                                        const Matrix4<T>& matrix )
     {
         os << eqBase::disableFlush << eqBase::disableHeader << eqBase::indent
-           << (const vmml::Matrix4<T>&) matrix;
-        os << eqBase::exdent << eqBase::enableHeader << eqBase::enableFlush;
+           << static_cast< const vmml::Matrix4<T>& >( matrix )
+           << eqBase::exdent << eqBase::enableHeader << eqBase::enableFlush;
         return os;
     }
 
-    // Specialized Constructors
-    //   We need a new eq::Object type for each specialization. Below are the
-    //   specialized constructors for all used template types.
+    template<>
+    inline uint32_t Matrix4<float>::getTypeID() const 
+    { return eq::Object::TYPE_MATRIX4F; }
 
     template<>
-    inline Matrix4<float>::Matrix4() 
-            : vmml::Matrix4f(),
-              Object( eq::Object::TYPE_MATRIX4F )
+    inline uint32_t Matrix4<double>::getTypeID() const 
+    { return eq::Object::TYPE_MATRIX4D; }
+
+    template< class T >
+    Matrix4<T>::Matrix4() 
     {
-        vmml::Matrix4f::operator= ( vmml::Matrix4f::IDENTITY );
-        setInstanceData( &ml, 16 * sizeof( float ));
+        vmml::Matrix4<T>::operator= ( vmml::Matrix4<T>::IDENTITY );
+        setInstanceData( &(this->ml), 16 * sizeof( T ));
     }
 
-    template<>
-    inline Matrix4<float>::Matrix4( const vmml::Matrix4f& matrix )
-            : vmml::Matrix4f( matrix ),
-              Object( eq::Object::TYPE_MATRIX4F )
+    template< class T >
+    Matrix4<T>::Matrix4( const vmml::Matrix4<T>& matrix )
+            : vmml::Matrix4<T>( matrix )
     {
-        setInstanceData( &ml, 16 * sizeof( float ));
+        setInstanceData( &(this->ml), 16 * sizeof( T ));
     }
 
-    template<>
-    inline Matrix4<float>::Matrix4( const void* data, uint64_t dataSize )
-            : vmml::Matrix4f( (float*)data ),
-              Object( eq::Object::TYPE_MATRIX4F )
+    template< class T >
+    Matrix4<T>::Matrix4( const void* data, uint64_t dataSize )
+            : vmml::Matrix4<T>( static_cast<const T*>( data ))
     {
-        setInstanceData( &ml, 16 * sizeof( float ));
+        setInstanceData( &(this->ml), 16 * sizeof( T ));
     }
 }
 

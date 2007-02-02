@@ -32,6 +32,8 @@ namespace eq
          */
         Pipe();
 
+        virtual uint32_t getTypeID() const { return eq::Object::TYPE_PIPE; }
+
         /** @name Data Access. */
         //*{
         Node* getNode() const { return _node; }

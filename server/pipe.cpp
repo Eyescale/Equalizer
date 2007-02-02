@@ -39,13 +39,11 @@ void Pipe::_construct()
 }
 
 Pipe::Pipe()
-        : eqNet::Object( eq::Object::TYPE_PIPE )
 {
     _construct();
 }
 
 Pipe::Pipe( const Pipe& from )
-        : eqNet::Object( eq::Object::TYPE_PIPE )
 {
     _construct();
     _display = from._display;

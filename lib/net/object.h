@@ -41,12 +41,9 @@ namespace eqNet
          */
         enum Type
         {
-            TYPE_UNMANAGED,                     // A unmanaged object
-            TYPE_MANAGED,                       // A managed object
-            TYPE_MANAGED_CUSTOM,                // managed objects up to:
-            TYPE_VERSIONED        = 0x40000000, // A versioned object
-            TYPE_BARRIER,                       // eqNet::Barrier
-            TYPE_VERSIONED_CUSTOM               // user versioned objects
+            TYPE_BARRIER,              //!< eqNet::Barrier
+            TYPE_INTERNAL = 0x100,     //!< internal eq object types
+            TYPE_CUSTOM   = 0x200      //!< app-space versioned objects
         };
 
         /**
@@ -56,10 +53,10 @@ namespace eqNet
          */
         enum SharePolicy
         {
-            SHARE_UNDEFINED,//*< Not registered with the session
-            SHARE_NODE,     //*< All threads on the a node share the same object
-            SHARE_THREAD,   //*< One instance per thread
-            SHARE_NEVER     //*< A new instance is created for the caller
+            SHARE_UNDEFINED,//!< Not registered with the session
+            SHARE_NODE,     //!< All threads on the a node share the same object
+            SHARE_THREAD,   //!< One instance per thread
+            SHARE_NEVER     //!< A new instance is created for the caller
         };
 
         /** 
@@ -98,11 +95,8 @@ namespace eqNet
 
         /** 
          * Construct a new object.
-         * 
-         * @param typeID the type (class) identifier of the object.
          */
-        Object( const uint32_t typeID );
-        Object( const Object& from );
+        Object();
 
         virtual ~Object();
 
@@ -115,7 +109,6 @@ namespace eqNet
          * @sa Session::getObject().
          */
         virtual void makeThreadSafe();
-
         bool isThreadSafe() const      { return ( _mutex!=NULL ); }
 
         eqBase::RefPtr<Node> getLocalNode();
@@ -124,13 +117,12 @@ namespace eqNet
         uint32_t getID() const         { return _id; }
         /** @return the node-wide unique object instance identifier. */
         uint32_t getInstanceID() const { return _instanceID; }
-        /** @return the object class type identifier. */
-        uint32_t getTypeID() const     { return _typeID; }
 
         /**
          * @name Versioning
          */
         //*{
+
         /** 
          * Commit a new version of this object.
          * 
@@ -223,11 +215,29 @@ namespace eqNet
 
         //*}
 
+        /**
+         * Get the unique type identifier.
+         *
+         * Each object type (class) has a unique identifier for instanciation
+         * and registration in the session. When subclassing, create a new enum
+         * for each class and return it from this function, starting at
+         * Object::TYPE_CUSTOM.
+         *
+         * @return the unique type identifier.
+         * @sa Session::instanciateObject, Object::Type
+         */
+        virtual uint32_t getTypeID() const = 0;
+
     protected:
+        Object( const Object& from );
+
         /**
          * @name Automatic Instanciation and Versioning
          */
         //*{
+        /** @return if the object is static (true) or versioned (false). */
+        virtual bool isStatic() const { return true; }
+
         /** 
          * Return the instance information about this managed object.
          *
@@ -370,9 +380,6 @@ namespace eqNet
         
         /** The list of subsribed slaves, kept on the master only. */
         NodeVector _slaves;
-
-        /** The type identifier of the object class. */
-        uint32_t _typeID;
 
         /** The current version. */
         uint32_t _version;

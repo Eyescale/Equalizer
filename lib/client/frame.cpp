@@ -1,4 +1,4 @@
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "frame.h"
@@ -13,8 +13,7 @@ using namespace eq;
 using namespace std;
 
 Frame::Frame( const void* data, uint64_t dataSize )
-        : eqNet::Object( eq::Object::TYPE_FRAME ),
-          _frameData( 0 )
+        : _frameData( 0 )
 {
     EQASSERT( dataSize == sizeof( Data ));
     _data = *(Data*)data;

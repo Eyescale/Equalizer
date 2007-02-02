@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "frameData.h"
@@ -19,8 +19,7 @@ using namespace eqBase;
 using namespace std;
 
 FrameData::FrameData( const void* data, const uint64_t size )
-        : Object( eq::Object::TYPE_FRAMEDATA ),
-          _data( *(Data*)data ) 
+        : _data( *(Data*)data ) 
 {
     EQASSERT( size == sizeof( Data ));
     setInstanceData( &_data, sizeof( Data ));

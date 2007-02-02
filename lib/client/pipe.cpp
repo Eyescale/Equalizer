@@ -22,8 +22,7 @@ using namespace eqBase;
 using namespace std;
 
 Pipe::Pipe()
-        : eqNet::Object( eq::Object::TYPE_PIPE ),
-          _node(0),
+        : _node(0),
           _windowSystem( WINDOW_SYSTEM_NONE ),
           _display( EQ_UNDEFINED_UINT32 ),
           _screen( EQ_UNDEFINED_UINT32 )

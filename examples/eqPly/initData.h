@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PLY_INITDATA_H
@@ -17,6 +17,8 @@ public:
     InitData( const void* data, const uint64_t size );
     virtual ~InitData();
 
+    virtual uint32_t getTypeID() const { return TYPE_INITDATA; }
+
     void setFrameData( eqBase::RefPtr<FrameData> frameData );
 
     eqBase::RefPtr<FrameData> getFrameData();
@@ -25,9 +27,10 @@ public:
     const std::string& getFilename() const { return _filename; }
 
 protected:
+    const void* getInstanceData( uint64_t* size );
+
     void setFilename( const std::string& filename );
 
-    const void* getInstanceData( uint64_t* size );
 
 private:
     uint32_t _frameDataID;

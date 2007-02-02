@@ -5,10 +5,11 @@
 #ifndef EQ_FRAME_H
 #define EQ_FRAME_H
 
-#include <eq/base/monitor.h>
-#include <eq/net/object.h>
-#include <eq/vmmlib/Vector2.h>
+#include <eq/client/object.h>
 #include <eq/client/pixelViewport.h>
+
+#include <eq/base/monitor.h>
+#include <eq/vmmlib/Vector2.h>
 
 namespace eqs
 {
@@ -42,6 +43,8 @@ namespace eq
          * Constructs a new Frame.
          */
         Frame( const void* data, uint64_t dataSize );
+
+        virtual uint32_t getTypeID() const { return eq::Object::TYPE_FRAME; }
 
         /**
          * @name Data Access
@@ -112,9 +115,13 @@ namespace eq
         //*}
 
     protected:
+        virtual ~Frame(){}
+        virtual bool isStatic() const { return false; }
+
         /** @sa eqNet::Object::unpack */
         virtual void unpack( const void* data, const uint64_t size )
             { eqNet::Object::unpack( data, size ); _frameData = 0; }
+
 
     private:
         std::string _name;

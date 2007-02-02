@@ -328,11 +328,8 @@ void Session::registerObject( Object* object, RefPtr<Node> master,
     const uint32_t id = genIDs( 1 );
     EQASSERT( id != EQ_ID_INVALID );
 
-    if( object->getTypeID() != Object::TYPE_UNMANAGED )
-    {
-        EQASSERT( master.isValid( ));
-        setIDMaster( id, 1, master->getNodeID( ));
-    }
+    EQASSERT( master.isValid( ));
+    setIDMaster( id, 1, master->getNodeID( ));
 
     const bool threadSafe = ( ts==Object::CS_SAFE || 
                          ( ts==Object::CS_AUTO && policy==Object::SHARE_NODE ));
@@ -351,19 +348,16 @@ void Session::registerObject( Object* object, RefPtr<Node> master,
     {
         object->_master = false;
 
-        if( object->getTypeID() != Object::TYPE_UNMANAGED )
-        {
-            // Do initial instanciation before registration to be thread-safe
-            // with other requests in the recv thread. Pre-stage object fields
-            // needed for sending out instancation. Ugly.
-            object->_id      = id;
-            object->_session = this;
-            object->instanciateOnNode( master, policy, Object::VERSION_HEAD, 
-                                       threadSafe );
-            // reset pre-staged data to avoid safety asserts during registration
-            object->_id      = EQ_ID_INVALID;
-            object->_session = 0;
-        }
+        // Do initial instanciation before registration to be thread-safe
+        // with other requests in the recv thread. Pre-stage object fields
+        // needed for sending out instancation. Ugly.
+        object->_id      = id;
+        object->_session = this;
+        object->instanciateOnNode( master, policy, Object::VERSION_HEAD, 
+                                   threadSafe );
+        // reset pre-staged data to avoid safety asserts during registration
+        object->_id      = EQ_ID_INVALID;
+        object->_session = 0;
     }
 
     addRegisteredObject( id, object, policy );
@@ -1024,9 +1018,6 @@ CommandResult Session::_cmdInstanciateObject( Command& command )
             state->instState = INST_ERROR;
         return COMMAND_HANDLED;
     }
-    EQASSERTINFO( packet->objectType < Object::TYPE_VERSIONED ||
-                  packet->version > Object::VERSION_NONE, 
-                  "can't instanciate versioned object with no version"  );
 
     Object* object = instanciateObject( packet->objectType, packet->objectData, 
                                         packet->objectDataSize );

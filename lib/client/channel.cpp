@@ -26,8 +26,7 @@ std::string eq::Channel::_iAttributeStrings[IATTR_ALL] = {
 };
 
 Channel::Channel()
-        : eqNet::Object( eq::Object::TYPE_CHANNEL ),
-          _window(NULL),
+        : _window(NULL),
           _context( NULL ),
           _frustum( vmml::Frustumf::DEFAULT )
 {

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "object.h"
@@ -39,14 +39,12 @@ void Object::_construct()
                      CommandFunc<Object>( this, &Object::_cmdCommit ));
 }
 
-Object::Object( const uint32_t typeID )
-        : _typeID( typeID )
+Object::Object()
 {
     _construct();
 }
 
 Object::Object( const Object& from )
-        : _typeID( from._typeID )
 {
     _construct();
     _instanceData     = from._instanceData;
@@ -147,13 +145,13 @@ void Object::instanciateOnNode( RefPtr<Node> node, const SharePolicy policy,
     SessionInstanciateObjectPacket initPacket;
     initPacket.sessionID      =  _session->getID();
     initPacket.objectID       = _id;
-    initPacket.objectType     = _typeID;
+    initPacket.objectType     = getTypeID();
     initPacket.objectDataSize = 0;
     initPacket.isMaster       = !_master;
     initPacket.policy         = policy;
     initPacket.threadSafe     = threadSafe;
 
-    if( _typeID < TYPE_VERSIONED )
+    if( isStatic( ))
     {
         const void* data   = getInstanceData( &initPacket.objectDataSize );
         initPacket.version = _version;
@@ -224,7 +222,7 @@ uint32_t Object::commit()
 uint32_t Object::commitNB()
 {
     EQASSERT( isMaster( ));
-    EQASSERT( _typeID >= TYPE_VERSIONED );
+    EQASSERTINFO( !isStatic( ), "Object type " << typeid(*this).name( ));
 
     ObjectCommitPacket packet;
     packet.instanceID = _instanceID;
@@ -397,7 +395,7 @@ void Object::addSlave( RefPtr<Node> slave )
 void Object::_checkConsistency() const
 {
 #ifndef NDEBUG
-    if( _typeID < TYPE_VERSIONED || _version == VERSION_NONE )
+    if( isStatic() || _version == VERSION_NONE )
         return;
 
     EQASSERT( _instanceDatas.size() == _changeDatas.size() + 1 );

@@ -26,8 +26,7 @@ void Barrier::_construct()
 }
 
 EQ_EXPORT Barrier::Barrier( eqBase::RefPtr<Node> master, const uint32_t height )
-        : Object( TYPE_BARRIER ),
-          _master( master )
+        : _master( master )
 {
     _data.master = master->getNodeID();
     _data.height = height;
@@ -38,8 +37,7 @@ EQ_EXPORT Barrier::Barrier( eqBase::RefPtr<Node> master, const uint32_t height )
 }
 
 Barrier::Barrier( const void* instanceData )
-        : Object( TYPE_BARRIER ),
-          _data( *(Data*)instanceData ) 
+        : _data( *(Data*)instanceData ) 
 {
     _construct();
     EQINFO << "Barrier of height " << _data.height << " instanciated" << endl;

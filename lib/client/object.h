@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_OBJECT_H
@@ -15,15 +15,14 @@ namespace eq
     public:
         enum Type
         {
-            TYPE_CHANNEL          = eqNet::Object::TYPE_MANAGED_CUSTOM,
+            TYPE_CHANNEL = eqNet::Object::TYPE_INTERNAL, // 256
             TYPE_WINDOW,
             TYPE_PIPE,
             TYPE_NODE,
-            TYPE_MANAGED_CUSTOM,  // 6
-            TYPE_MATRIX4F         = eqNet::Object::TYPE_VERSIONED_CUSTOM,
+            TYPE_MATRIX4F,
+            TYPE_MATRIX4D,
             TYPE_FRAME,
-            TYPE_FRAMEDATA,
-            TYPE_VERSIONED_CUSTOM
+            TYPE_FRAMEDATA
         };
     };
 }

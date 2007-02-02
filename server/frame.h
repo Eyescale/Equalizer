@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_FRAME_H
@@ -27,6 +27,8 @@ namespace eqs
          */
         Frame();
         Frame( const Frame& from );
+
+        virtual uint32_t getTypeID() const { return eq::Object::TYPE_FRAME; }
 
         /**
          * @name Data Access
@@ -118,6 +120,7 @@ namespace eqs
 
     protected:
         virtual ~Frame();
+        virtual bool isStatic() const { return false; }
 
     private:
         /** The parent compound. */

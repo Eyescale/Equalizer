@@ -44,6 +44,8 @@ namespace eqs
          */
         Channel( const Channel& from );
 
+        virtual uint32_t getTypeID() const { return eq::Object::TYPE_CHANNEL; }
+
         /** 
          * @return the state of this pipe.
          */

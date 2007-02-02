@@ -27,7 +27,7 @@ server
                 }
             }
         }
-        node
+        appNode
         {
             pipe
             {

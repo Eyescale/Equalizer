@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_FRAMEDATA_H
@@ -29,6 +29,8 @@ namespace eq
     public:
         /** Instanciates a frame data. */
         FrameData( const void* data, const uint64_t size );
+
+        virtual uint32_t getTypeID() const { return eq::Object::TYPE_FRAMEDATA;}
 
         /** 
          * @name Data Access
@@ -107,8 +109,11 @@ namespace eq
     protected:
 
         virtual ~FrameData();
+        virtual bool isStatic() const { return false; }
+
         /** @sa eqNet::Object::unpack */
         virtual void unpack( const void* data, const uint64_t size );
+
 
     private:
         struct Data

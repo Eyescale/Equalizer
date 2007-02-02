@@ -22,12 +22,14 @@ namespace eqNet
         /** 
          * Constructs a new barrier.
          */
-        EQ_EXPORT Barrier( eqBase::RefPtr<Node> master, const uint32_t height=0);
+        EQ_EXPORT Barrier(eqBase::RefPtr<Node> master, const uint32_t height=0);
 
         /** 
          * Constructs a new barrier.
          */
         Barrier( const void* instanceData );
+
+        virtual uint32_t getTypeID() const { return TYPE_BARRIER; }
 
         /**
          * Destructs the barrier.
@@ -58,6 +60,9 @@ namespace eqNet
          */
         EQ_EXPORT void enter();
         //*}
+
+    protected:
+        virtual bool isStatic() const { return false; }
 
     private:
         struct Data

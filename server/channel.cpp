@@ -48,13 +48,11 @@ void Channel::_construct()
 }
 
 Channel::Channel()
-        : eqNet::Object( eq::Object::TYPE_CHANNEL )
 {
     _construct();
 }
 
 Channel::Channel( const Channel& from )
-        : eqNet::Object( eq::Object::TYPE_CHANNEL )
 {
     _construct();
     _name     = from._name;

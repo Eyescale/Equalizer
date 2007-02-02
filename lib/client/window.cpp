@@ -40,8 +40,7 @@ std::string eq::Window::_iAttributeStrings[IATTR_ALL] = {
 
 
 eq::Window::Window()
-        : eqNet::Object( eq::Object::TYPE_WINDOW ),
-          _pipe( 0 )
+        : _pipe( 0 )
 {
     registerCommand( CMD_WINDOW_CREATE_CHANNEL, 
                 eqNet::CommandFunc<Window>( this, &Window::_cmdCreateChannel ));
