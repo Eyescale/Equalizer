@@ -286,13 +286,23 @@ namespace eqNet
         /** All registered objects - unshared, thread and node objects. */
         IDHash< std::vector<Object*> > _registeredObjects;
 
+        /** The instanciation state for managed objects. */
+        enum ObjectInstState
+        {
+            INST_UNKNOWN = 0,
+            INST_GETMASTERID,
+            INST_GOTMASTER,
+            INST_INIT,
+            INST_ERROR
+        };
+
         /** The current state of pending object instanciations. */
         struct GetObjectState
         {
             GetObjectState()
                     : object( NULL ),
                       nodeConnectRequestID( EQ_ID_INVALID ),
-                      instState( Object::INST_UNKNOWN ), 
+                      instState( INST_UNKNOWN ), 
                       pending( false )
                 {}
 
@@ -301,7 +311,7 @@ namespace eqNet
             uint32_t            version;
             uint32_t            nodeConnectRequestID;
             Object::SharePolicy policy;
-            Object::InstState   instState;
+            ObjectInstState     instState;
             bool                threadSafe;
             bool                pending;
         };

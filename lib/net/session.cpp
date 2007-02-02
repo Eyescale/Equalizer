@@ -102,7 +102,7 @@ Session::~Session()
                      j != objects.end(); ++j )
                 {
                     const Object* object = *j;
-                    EQINFO << "    Object of class " << typeid(*object).name() 
+                    EQINFO << "    Object of type " << typeid(*object).name() 
                            << ", type " << object->getTypeID() << endl;
                 }
             }
@@ -612,14 +612,14 @@ CommandResult Session::_instObject( GetObjectState* state )
 
     switch( state->instState )
     {
-        case Object::INST_UNKNOWN:
+        case INST_UNKNOWN:
         {
             RefPtr<Node> master = _pollIDMasterNode( objectID );
             if( master.isValid( ))
             {
                 EQLOG( LOG_OBJECTS ) << "instObject id " << objectID
                                      << " send init req to master" << endl;
-                state->instState = Object::INST_GOTMASTER;
+                state->instState = INST_GOTMASTER;
                 _sendInitObject( state, master );
                 return COMMAND_REDISPATCH;
             }
@@ -637,18 +637,18 @@ CommandResult Session::_instObject( GetObjectState* state )
             SessionGetObjectMasterPacket packet;
             packet.objectID = objectID;
             send( packet );
-            state->instState = Object::INST_GETMASTERID;
+            state->instState = INST_GETMASTERID;
             return COMMAND_REDISPATCH;
         }
         
-        case Object::INST_GOTMASTER:
+        case INST_GOTMASTER:
         {
             RefPtr<Node> master = _pollIDMasterNode( objectID );
             if( !master )
             {
                 EQLOG( LOG_OBJECTS ) << "instObject id " << objectID
                                      << " failure in get master req" << endl;
-                state->instState = Object::INST_UNKNOWN;
+                state->instState = INST_UNKNOWN;
                 return COMMAND_ERROR;
             }
 
@@ -658,13 +658,13 @@ CommandResult Session::_instObject( GetObjectState* state )
             return COMMAND_REDISPATCH;
         }
             
-        case Object::INST_ERROR:
+        case INST_ERROR:
             EQLOG( LOG_OBJECTS ) << "instObject id " << objectID
                                  << " failure" << endl;
             return COMMAND_ERROR;
 
-        case Object::INST_GETMASTERID:
-        case Object::INST_INIT:
+        case INST_GETMASTERID:
+        case INST_INIT:
             return COMMAND_REDISPATCH;
 
         default:
@@ -682,7 +682,7 @@ void Session::_sendInitObject( GetObjectState* state, RefPtr<Node> master )
 
     EQLOG( LOG_OBJECTS ) << "send init obj " << &packet << endl;
     send( master.get(), packet );
-    state->instState = Object::INST_INIT;
+    state->instState = INST_INIT;
 }
             
 CommandResult Session::_cmdGenIDs( Command& command )
@@ -819,7 +819,7 @@ CommandResult Session::_cmdGetObjectMasterReply( Command& command)
     if( packet->start == 0 ) // not found
     {
         EQLOG( LOG_OBJECTS ) << "Master for id " << id << " not found" << endl;
-        state->instState = Object::INST_ERROR;
+        state->instState = INST_ERROR;
         return COMMAND_HANDLED;
     }
 
@@ -857,7 +857,7 @@ CommandResult Session::_cmdGetObjectMasterReply( Command& command)
                 EQWARN 
                     << "Can't connect master node during object instantiation"
                     << endl;
-                state->instState            = Object::INST_ERROR;
+                state->instState            = INST_ERROR;
                 state->nodeConnectRequestID = EQ_ID_INVALID;
                 return COMMAND_HANDLED;
 
@@ -872,7 +872,7 @@ CommandResult Session::_cmdGetObjectMasterReply( Command& command)
     IDMasterInfo info = { packet->start, packet->end, packet->masterID };
     _idMasterInfos.push_back( info );
     
-    state->instState = Object::INST_GOTMASTER;
+    state->instState = INST_GOTMASTER;
     return COMMAND_HANDLED;
 }
 
@@ -1021,7 +1021,7 @@ CommandResult Session::_cmdInstanciateObject( Command& command )
                << endl;
         GetObjectState* state = _objectInstStates[id];
         if( state )
-            state->instState = Object::INST_ERROR;
+            state->instState = INST_ERROR;
         return COMMAND_HANDLED;
     }
     EQASSERTINFO( packet->objectType < Object::TYPE_VERSIONED ||

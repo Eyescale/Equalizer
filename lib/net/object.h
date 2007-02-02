@@ -89,18 +89,6 @@ namespace eqNet
             AUTO_OBSOLETE_COUNT_COMMITS  = 1
         };
 
-        /**
-         * The instanciation state for managed objects, used by the session.
-         */
-        enum InstState
-        {
-            INST_UNKNOWN = 0,
-            INST_GETMASTERID,
-            INST_GOTMASTER,
-            INST_INIT,
-            INST_ERROR
-        };
-
         /** Special version enums */
         enum Version
         {
@@ -112,7 +100,6 @@ namespace eqNet
          * Construct a new object.
          * 
          * @param typeID the type (class) identifier of the object.
-         * @param nCommands the number of commands handled by the object.
          */
         Object( const uint32_t typeID );
         Object( const Object& from );

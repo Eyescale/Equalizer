@@ -18,17 +18,17 @@ using namespace std;
 
 void Object::_construct()
 {
-    _mutex         = NULL;
-    _session       = NULL;
+    _mutex         = 0;
+    _session       = 0;
     _id            = EQ_ID_INVALID;
     _instanceID    = EQ_ID_INVALID;
     _version       = VERSION_NONE;
     _commitCount   = 0;
     _nVersions     = 0;
     _obsoleteFlags = AUTO_OBSOLETE_COUNT_VERSIONS;
-    _instanceData     = NULL;
+    _instanceData     = 0;
     _instanceDataSize = 0;
-    _deltaData     = NULL;
+    _deltaData     = 0;
     _deltaDataSize = 0;
 
     registerCommand( CMD_OBJECT_SYNC, 
