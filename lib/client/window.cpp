@@ -497,7 +497,7 @@ bool eq::Window::initGLX()
     }
     if( !visInfo && getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
     {        
-        EQINFO << "Doublebuffer not available, requesting singlebuffered visual" 
+        EQINFO << "Doublebuffer not available, requesting singlebuffer visual" 
                << endl;
         vector<int>::iterator iter = find( attributes.begin(), attributes.end(),
                                            GLX_DOUBLEBUFFER );
@@ -510,6 +510,9 @@ bool eq::Window::initGLX()
         setErrorMessage( "Could not find a matching visual" );
         return false;
     }
+
+    EQINFO << "Using visual 0x" << std::hex << visInfo->visualid << std::dec 
+           << endl;
 
     XID                  parent = RootWindow( display, screen );
     XSetWindowAttributes wa;
