@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "channel.h"
@@ -12,7 +12,7 @@
 using namespace std;
 using namespace eqBase;
 
-static float lightpos[] = { 0., 0., 1., 0. };
+static float lightpos[] = { 0.0f, 0.0f, 1.0f, 0.0f };
 
 //#define DYNAMIC_NEAR_FAR 
 #ifndef M_SQRT3

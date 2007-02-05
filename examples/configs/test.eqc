@@ -1,8 +1,12 @@
-# one-pipe fullscreen config, covering a 30" LCD one meter in front
-# of the viewer
+# one pipe config rendering on stereo on a 1x1 meter wall
+# Note: requires quad-buffered stereo. Config initialization will fail on 
+# consumer-grade graphic cards which do not support quad-buffered stereo.
+
 global
 {
-    EQ_WINDOW_IATTR_HINT_DECORATION on
+    EQ_CONFIG_FATTR_EYE_BASE        0.025
+    #EQ_WINDOW_IATTR_HINT_FULLSCREEN on
+    EQ_COMPOUND_IATTR_STEREO_MODE   anaglyph
 }
 
 server
@@ -15,23 +19,20 @@ server
             {
                 window
                 {
-                    name "foo"
-                    viewport [ 100 100 500 500 ]
-                    channel
-                    {
-                        name "channel"
-                    }
+                    viewport [ 0 0 1000 1000 ]
+                    channel { name "channel" }
                 }
             }
         }
-        compound
-        { 
+        compound 
+        {
+            eye [ LEFT RIGHT ]
             channel "channel"
             wall
             {
-                bottom_left  [ -.32 -.20 -.75 ]
-                bottom_right [  .32 -.20 -.75 ]
-                top_left     [ -.32  .20 -.75 ]
+                bottom_left  [ -.5 -.5 -1 ]
+                bottom_right [  .5 -.5 -1 ]
+                top_left     [ -.5  .5 -1 ]
             }
         }
     }    

@@ -164,7 +164,7 @@ namespace eqNet
         void obsolete( const uint32_t version );
 
         /** 
-         * Automatically obsoletes old versions.
+         * Automatically obsolete old versions.
          *
          * Flags are a bitwise combination of the following values:
          *
