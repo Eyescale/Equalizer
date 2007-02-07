@@ -145,9 +145,6 @@ namespace eq
         const std::string& getErrorMessage() const { return _error; }
         //@}
 
-    protected:
-        virtual eqNet::Object* instanciateObject( const uint32_t type,
-                                    const void* data, const uint64_t dataSize );
     private:
         friend class Server;
         /** The node identifier of the node running the application thread. */
@@ -155,11 +152,14 @@ namespace eq
         /** The node running the application thread. */
         eqBase::RefPtr<eqNet::Node> _appNode;
 
+        std::vector<Node*> _nodes;
+
         void _addNode( Node* node );
         void _removeNode( Node* node );
+        Node* _findNode( const uint32_t id );
 
-        /** The Matrix for the movement. */
-        Matrix4f* _headMatrix;
+        /** The matrix describing the head position and orientation. */
+        Matrix4f _headMatrix;
 
         /** The reason for the last error. */
         std::string            _error;

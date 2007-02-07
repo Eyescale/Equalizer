@@ -6,6 +6,7 @@
 
 #include "client.h"
 #include "commands.h"
+#include "frameData.h"
 #include "global.h"
 #include "nodeFactory.h"
 #include "object.h"
@@ -56,12 +57,95 @@ void Node::_addPipe( Pipe* pipe )
 void Node::_removePipe( Pipe* pipe )
 {
     vector<Pipe*>::iterator iter = find( _pipes.begin(), _pipes.end(), pipe );
-    if( iter == _pipes.end( ))
-        return;
+    EQASSERT( iter != _pipes.end( ))
     
     _pipes.erase( iter );
     pipe->_node = NULL;
 }
+
+Pipe* Node::_findPipe( const uint32_t id )
+{
+    for( vector<Pipe*>::const_iterator i = _pipes.begin(); i != _pipes.end(); 
+         ++i )
+    {
+        Pipe* pipe = *i;
+        if( pipe->getID() == id )
+            return pipe;
+    }
+    return 0;
+}
+
+eqNet::Barrier* Node::getBarrier( const uint32_t id, const uint32_t version )
+{
+    _barriersMutex.set();
+    eqNet::Barrier* barrier = _barriers[ id ];
+
+    if( !barrier )
+    {
+        eqNet::Session* session = getSession();
+
+        barrier = new eqNet::Barrier;
+        barrier->makeThreadSafe();
+        const bool mapped = session->mapObject( barrier, id );
+        EQASSERT( mapped );
+
+        _barriers[ id ] = barrier;
+    }
+    _barriersMutex.unset();
+
+    barrier->sync( version );
+    return barrier;
+}
+
+FrameData* Node::getFrameData( const uint32_t id, const uint32_t version )
+{
+    _frameDatasMutex.set();
+    FrameData* frameData = _frameDatas[ id ];
+
+    if( !frameData )
+    {
+        eqNet::Session* session = getSession();
+        
+        frameData = new FrameData;
+        frameData->makeThreadSafe();
+        const bool mapped = session->mapObject( frameData, id );
+        EQASSERT( mapped );
+
+        _frameDatas[ id ] = frameData;
+    }
+    _frameDatasMutex.unset();
+
+    frameData->sync( version );
+    return frameData;
+}
+
+void Node::_flushObjects()
+{
+    eqNet::Session* session = getSession();
+
+    _barriersMutex.set();
+    for( eqNet::IDHash< eqNet::Barrier* >::const_iterator i =_barriers.begin(); 
+         i != _barriers.end(); ++ i )
+    {
+        eqNet::Barrier* barrier = i->second;
+        session->unmapObject( barrier );
+        delete barrier;
+    }
+    _barriers.clear();
+    _barriersMutex.unset();
+
+    _frameDatasMutex.set();
+    for( eqNet::IDHash< FrameData* >::const_iterator i = _frameDatas.begin(); 
+         i != _frameDatas.end(); ++ i )
+    {
+        FrameData* frameData = i->second;
+        session->unmapObject( frameData );
+        delete frameData;
+    }
+    _frameDatas.clear();
+    _frameDatasMutex.unset();
+}
+
 
 void* Node::_runThread()
 {
@@ -109,8 +193,7 @@ eqNet::CommandResult Node::_cmdCreatePipe( eqNet::Command& command )
 
     Pipe* pipe = Global::getNodeFactory()->createPipe();
     
-    _config->addRegisteredObject( packet->pipeID, pipe, 
-                                   eqNet::Object::SHARE_NODE );
+    _config->attachObject( pipe, packet->pipeID );
     _addPipe( pipe );
     return eqNet::COMMAND_HANDLED;
 }
@@ -121,14 +204,12 @@ eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Command& command )
         command.getPacket<NodeDestroyPipePacket>();
     EQINFO << "Handle destroy pipe " << packet << endl;
 
-    Object* object = _config->pollObject( packet->pipeID );
-    Pipe*   pipe   = EQ_OBJECT_CAST( Pipe*, object );
-
+    Pipe* pipe = _findPipe( packet->pipeID );
     pipe->_thread->join(); // wait for pipe thread termination. move to pipe
 
     _removePipe( pipe );
-    EQASSERT( pipe->getRefCount() == 1 );
-    _config->removeRegisteredObject( pipe );
+    _config->detachObject( pipe );
+    delete pipe;
 
     return eqNet::COMMAND_HANDLED;
 }
@@ -162,6 +243,7 @@ eqNet::CommandResult Node::_reqExit( eqNet::Command& command )
     EQINFO << "handle node exit " << packet << endl;
 
     exit();
+    _flushObjects();
 
     NodeExitReplyPacket reply( packet );
     send( command.getNode(), reply );

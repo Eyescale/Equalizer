@@ -7,7 +7,6 @@
 
 #include <eq/net/commands.h>
 #include <eq/net/nodeID.h>
-#include <eq/net/object.h> // for Object::SharePolicy
 
 #include <eq/base/idPool.h> // for EQ_ID_*
 
@@ -279,33 +278,6 @@ namespace eqNet
         NodeID   masterID;
     };
 
-    struct SessionGetObjectMasterPacket : public SessionPacket
-    {
-        SessionGetObjectMasterPacket()
-            {
-                command = CMD_SESSION_GET_OBJECT_MASTER;
-                size    = sizeof( SessionGetObjectMasterPacket ); 
-            }
-
-        uint32_t objectID;
-    };
-
-    struct SessionGetObjectMasterReplyPacket : public SessionPacket
-    {
-        SessionGetObjectMasterReplyPacket( const SessionGetObjectMasterPacket*
-                                           request ) 
-            {
-                command  = CMD_SESSION_GET_OBJECT_MASTER_REPLY;
-                size     = sizeof( SessionGetObjectMasterReplyPacket );
-                objectID = request->objectID;
-            }
-
-        uint32_t objectID;
-        uint32_t start;
-        uint32_t end;
-        NodeID   masterID;
-    };
-
     struct SessionGetObjectPacket : public SessionPacket
     {
         SessionGetObjectPacket()
@@ -317,64 +289,115 @@ namespace eqNet
         uint32_t requestID;
     };
 
-    struct SessionRegisterObjectPacket : public SessionPacket
+    struct SessionAttachObjectPacket : public SessionPacket
     {
-        SessionRegisterObjectPacket()
+        SessionAttachObjectPacket()
             {
-                command = CMD_SESSION_REGISTER_OBJECT;
-                size    = sizeof( SessionRegisterObjectPacket ); 
-            }
-        
-        uint32_t            requestID;
-        uint32_t            objectID;
-        Object::SharePolicy policy;
-    };
-
-    struct SessionUnregisterObjectPacket : public SessionPacket
-    {
-        SessionUnregisterObjectPacket()
-            {
-                command = CMD_SESSION_UNREGISTER_OBJECT;
-                size    = sizeof( SessionUnregisterObjectPacket ); 
+                command = CMD_SESSION_ATTACH_OBJECT;
+                size    = sizeof( SessionAttachObjectPacket ); 
             }
         
         uint32_t            requestID;
         uint32_t            objectID;
     };
 
-    struct SessionInitObjectPacket : public SessionPacket
+    struct SessionDetachObjectPacket : public SessionPacket
     {
-        SessionInitObjectPacket()
+        SessionDetachObjectPacket()
             {
-                command = CMD_SESSION_INIT_OBJECT;
-                size    = sizeof( SessionInitObjectPacket ); 
+                command = CMD_SESSION_DETACH_OBJECT;
+                size    = sizeof( SessionDetachObjectPacket ); 
             }
-
-        uint32_t            objectID;
-        uint32_t            version;
-        Object::SharePolicy policy;
-        bool                threadSafe;
+        
+        uint32_t            requestID;
     };
 
-    struct SessionInstanciateObjectPacket : public SessionPacket
+    struct SessionMapObjectPacket : public SessionPacket
     {
-        SessionInstanciateObjectPacket()
+        SessionMapObjectPacket()
             {
-                command       = CMD_SESSION_INSTANCIATE_OBJECT;
-                size          = sizeof( SessionInstanciateObjectPacket ); 
-                objectData[0] = '\0';
-                error         = false;
+                command = CMD_SESSION_MAP_OBJECT;
+                size    = sizeof( SessionMapObjectPacket ); 
             }
+        
+        uint32_t            requestID;
+    };
 
-        uint64_t objectDataSize;
-        uint32_t objectID;
-        uint32_t objectType;
-        uint32_t version;
-        Object::SharePolicy policy;
-        bool     isMaster;
-        bool     error;
-        bool     threadSafe;
-        EQ_ALIGN8( char     objectData[8] );
+    struct SessionUnmapObjectPacket : public SessionPacket
+    {
+        SessionUnmapObjectPacket()
+            {
+                command = CMD_SESSION_UNMAP_OBJECT;
+                size    = sizeof( SessionUnmapObjectPacket ); 
+            }
+        
+        uint32_t            requestID;
+    };
+
+    struct SessionSubscribeObjectPacket : public SessionPacket
+    {
+        SessionSubscribeObjectPacket()
+            {
+                command = CMD_SESSION_SUBSCRIBE_OBJECT;
+                size    = sizeof( SessionSubscribeObjectPacket ); 
+            }
+        
+        uint32_t            requestID;
+        uint32_t            objectID;
+        uint32_t            instanceID;
+    };
+
+    struct SessionSubscribeObjectSuccessPacket : public SessionPacket
+    {
+        SessionSubscribeObjectSuccessPacket( 
+            const SessionSubscribeObjectPacket* request )
+            {
+                command    = CMD_SESSION_SUBSCRIBE_OBJECT_SUCCESS;
+                size       = sizeof( SessionSubscribeObjectSuccessPacket ); 
+                requestID  = request->requestID;
+                instanceID = request->instanceID;
+            }
+        
+        uint32_t            requestID;
+        uint32_t            instanceID;
+    };
+
+    struct SessionSubscribeObjectReplyPacket : public SessionPacket
+    {
+        SessionSubscribeObjectReplyPacket( 
+            const SessionSubscribeObjectPacket* request )
+            {
+                command   = CMD_SESSION_SUBSCRIBE_OBJECT_REPLY;
+                size      = sizeof( SessionSubscribeObjectReplyPacket ); 
+                requestID = request->requestID;
+            }
+        
+        uint32_t            requestID;
+    };
+
+    struct SessionUnsubscribeObjectPacket : public SessionPacket
+    {
+        SessionUnsubscribeObjectPacket()
+            {
+                command = CMD_SESSION_UNSUBSCRIBE_OBJECT;
+                size    = sizeof( SessionUnsubscribeObjectPacket ); 
+            }
+        
+        uint32_t            requestID;
+        uint32_t            objectID;
+    };
+
+    struct SessionUnsubscribeObjectReplyPacket : public SessionPacket
+    {
+        SessionUnsubscribeObjectReplyPacket( 
+            const SessionUnsubscribeObjectPacket* request )
+            {
+                command   = CMD_SESSION_UNSUBSCRIBE_OBJECT_REPLY;
+                size      = sizeof( SessionUnsubscribeObjectReplyPacket ); 
+                requestID = request->requestID;
+            }
+        
+        uint32_t            requestID;
     };
 
     //------------------------------------------------------------
@@ -389,6 +412,20 @@ namespace eqNet
             }
         uint32_t objectID;
         uint32_t instanceID;
+    };
+
+    struct ObjectInitPacket : public ObjectPacket
+    {
+        ObjectInitPacket()
+            {
+                command = CMD_OBJECT_INIT;
+                size    = sizeof( ObjectInitPacket ); 
+                data[0] = '\0';
+            }
+
+        uint64_t dataSize;
+        uint32_t version;
+        EQ_ALIGN8( char data[8] );
     };
 
     struct ObjectCommitPacket : public ObjectPacket
@@ -521,19 +558,6 @@ namespace eqNet
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                    const SessionGetObjectMasterPacket* packet )
-    {
-        os << (SessionPacket*)packet << " id " << packet->objectID;
-        return os;
-    }
-    inline std::ostream& operator << ( std::ostream& os, 
-                             const SessionGetObjectMasterReplyPacket* packet )
-    {
-        os << (SessionPacket*)packet << " id " << packet->objectID
-           << " master " << packet->masterID;
-        return os;
-    }
-    inline std::ostream& operator << ( std::ostream& os, 
                                    const SessionGetIDMasterPacket* packet )
     {
         os << (SessionPacket*)packet << " id " << packet->id;
@@ -547,26 +571,9 @@ namespace eqNet
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                 const SessionInitObjectPacket* packet )
+                                 const SessionMapObjectPacket* packet )
     {
-        os << (SessionPacket*)packet << " id " << packet->objectID 
-           << " v" << packet->version << " ts " << packet->threadSafe;
-        return os;
-    }
-    inline std::ostream& operator << ( std::ostream& os, 
-                                 const SessionInstanciateObjectPacket* packet )
-    {
-        os << (SessionPacket*)packet << " id " << packet->objectID 
-           << " err " << packet->error << " v" << packet->version << " type "
-           << packet->objectType << " master " << packet->isMaster;
-        return os;
-    }
-
-    inline std::ostream& operator << ( std::ostream& os, 
-                                 const SessionRegisterObjectPacket* packet )
-    {
-        os << (SessionPacket*)packet << " objectID " << packet->objectID 
-           << " policy " << packet->policy;
+        os << (SessionPacket*)packet << " requestID " << packet->requestID;
         return os;
     }
 

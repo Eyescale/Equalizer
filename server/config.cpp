@@ -73,10 +73,9 @@ Config::~Config()
          ++i )
     {
         Node* node = *i;
-        EQASSERT( node->getRefCount() == 1 );
 
         node->_config = 0;
-        node->unref(); // a.k.a delete
+        delete node;
     }
     _nodes.clear();
 
@@ -261,8 +260,10 @@ eqNet::CommandResult Config::_reqInit( eqNet::Command& command )
     EQINFO << "handle config init " << packet << endl;
 
     _error.clear();
-    reply.result       = _init( packet->initID );
-    reply.headMatrixID = reply.result ? _headMatrix->getID() : EQ_ID_INVALID;
+    reply.result = _init( packet->initID );
+
+    if( reply.result )
+        mapObject( &_headMatrix, packet->headMatrixID );
 
     EQINFO << "Config init " << (reply.result ? "successful":"failed: ") 
            << _error << endl;
@@ -351,9 +352,6 @@ bool Config::_init( const uint32_t initID )
         return false;
     }
 
-    _headMatrix = new eq::Matrix4f;
-    registerObject( _headMatrix.get(), _appNetNode );
-
     _state = STATE_INITIALIZED;
     return true;
 }
@@ -439,7 +437,7 @@ bool Config::_initNodes( const uint32_t initID )
         // initialize nodes
         netNode->send( createConfigPacket, name );
 
-        registerObject( node, _server.get( ));
+        registerObject( node );
         createNodePacket.nodeID = node->getID();
         send( netNode, createNodePacket );
 
@@ -483,7 +481,7 @@ bool Config::_initPipes( const uint32_t initID )
             if( !pipe->isUsed( ))
                 continue;
             
-            registerObject( pipe, _server.get( ));
+            registerObject( pipe );
             createPipePacket.pipeID = pipe->getID();
             node->send( createPipePacket );
             pipe->startInit( initID ); // recurses down
@@ -541,9 +539,8 @@ bool Config::exit()
         compound->exit();
     }
 
-    deregisterObject( _headMatrix.get( ));
-    EQASSERT( _headMatrix->getRefCount( ) == 1 );
-    _headMatrix  = NULL;
+    if( _headMatrix.getID() != EQ_ID_INVALID )
+        deregisterObject( &_headMatrix );
 
     _frameNumber = 0;
     _state       = STATE_STOPPED;
@@ -654,27 +651,27 @@ bool Config::_exitNodes()
 
 void Config::_updateHead()
 {
-    _headMatrix->sync();
+    _headMatrix.sync();
     const float         eyeBase_2 = .5f * getFAttribute(Config::FATTR_EYE_BASE);
-    const eq::Matrix4f* head      = _headMatrix.get();
+    const eq::Matrix4f& head      = _headMatrix;
 
     // eye_world = (+-eye_base/2., 0, 0 ) x head_matrix
     // Don't use vector operator due to possible simplification
 
-    _eyePosition[EYE_INDEX_CYCLOP].x = head->m03;
-    _eyePosition[EYE_INDEX_CYCLOP].y = head->m13;
-    _eyePosition[EYE_INDEX_CYCLOP].z = head->m23;
-    _eyePosition[EYE_INDEX_CYCLOP]  /= head->m33;
+    _eyePosition[EYE_INDEX_CYCLOP].x = head.m03;
+    _eyePosition[EYE_INDEX_CYCLOP].y = head.m13;
+    _eyePosition[EYE_INDEX_CYCLOP].z = head.m23;
+    _eyePosition[EYE_INDEX_CYCLOP]  /= head.m33;
 
-    _eyePosition[EYE_INDEX_LEFT].x = (-eyeBase_2 * head->m00 + head->m03);
-    _eyePosition[EYE_INDEX_LEFT].y = (-eyeBase_2 * head->m10 + head->m13);
-    _eyePosition[EYE_INDEX_LEFT].z = (-eyeBase_2 * head->m20 + head->m23);
-    _eyePosition[EYE_INDEX_LEFT]  /= (-eyeBase_2 * head->m30 + head->m33); // w
+    _eyePosition[EYE_INDEX_LEFT].x = ( -eyeBase_2 * head.m00 + head.m03 );
+    _eyePosition[EYE_INDEX_LEFT].y = ( -eyeBase_2 * head.m10 + head.m13 );
+    _eyePosition[EYE_INDEX_LEFT].z = ( -eyeBase_2 * head.m20 + head.m23 );
+    _eyePosition[EYE_INDEX_LEFT]  /= ( -eyeBase_2 * head.m30 + head.m33 ); // w
 
-    _eyePosition[EYE_INDEX_RIGHT].x = (eyeBase_2 * head->m00 + head->m03);
-    _eyePosition[EYE_INDEX_RIGHT].y = (eyeBase_2 * head->m10 + head->m13);
-    _eyePosition[EYE_INDEX_RIGHT].z = (eyeBase_2 * head->m20 + head->m23);
-    _eyePosition[EYE_INDEX_RIGHT]  /= (eyeBase_2 * head->m30 + head->m33); // w
+    _eyePosition[EYE_INDEX_RIGHT].x = ( eyeBase_2 * head.m00 + head.m03 );
+    _eyePosition[EYE_INDEX_RIGHT].y = ( eyeBase_2 * head.m10 + head.m13 );
+    _eyePosition[EYE_INDEX_RIGHT].z = ( eyeBase_2 * head.m20 + head.m23 );
+    _eyePosition[EYE_INDEX_RIGHT]  /= ( eyeBase_2 * head.m30 + head.m33 ); // w
 }
 
 const vmml::Vector3f& Config::getEyePosition( const uint32_t eye )

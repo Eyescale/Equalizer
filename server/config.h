@@ -257,7 +257,7 @@ namespace eqs
         uint32_t _frameNumber;
 
         /** The matrix defining the head's position for head tracking. */
-        eqBase::RefPtr<eq::Matrix4f> _headMatrix;
+        eq::Matrix4f _headMatrix;
 
         /** The vectors defining the eye positions. */
         vmml::Vector3f _eyePosition[EYE_INDEX_ALL];

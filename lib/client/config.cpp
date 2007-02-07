@@ -40,8 +40,6 @@ Config::Config()
             eqNet::CommandFunc<Config>( this, &Config::_cmdFinishFramesReply ));
     registerCommand( CMD_CONFIG_EVENT, 
                      eqNet::CommandFunc<Config>( this, &Config::_cmdEvent ));
-
-    _headMatrix = 0;
 }
 
 Config::~Config()
@@ -52,21 +50,45 @@ Config::~Config()
 void Config::_addNode( Node* node )
 {
     node->_config = this;
+    _nodes.push_back( node );
 }
 
 void Config::_removeNode( Node* node )
 {
+    vector<Node*>::iterator i = find( _nodes.begin(), _nodes.end(), node );
+    EQASSERT( i != _nodes.end( ));
+    _nodes.erase( i );
+
     node->_config = 0;
+}
+
+Node* Config::_findNode( const uint32_t id )
+{
+    for( vector<Node*>::const_iterator i = _nodes.begin(); i != _nodes.end(); 
+         ++i )
+    {
+        Node* node = *i;
+        if( node->getID() == id )
+            return node;
+    }
+    return 0;
 }
 
 bool Config::init( const uint32_t initID )
 {
+    registerObject( &_headMatrix );
+
     ConfigInitPacket packet;
-    packet.requestID = _requestHandler.registerRequest();
-    packet.initID    = initID;
+    packet.requestID    = _requestHandler.registerRequest();
+    packet.initID       = initID;
+    packet.headMatrixID = _headMatrix.getID();
 
     send( packet );
-    return ( _requestHandler.waitRequest( packet.requestID ) != 0 );
+    const bool ret = ( _requestHandler.waitRequest( packet.requestID ) != 0 );
+
+    if( !ret )
+        deregisterObject( &_headMatrix );
+    return ret;
 }
 
 bool Config::exit()
@@ -74,7 +96,10 @@ bool Config::exit()
     ConfigExitPacket packet;
     packet.requestID = _requestHandler.registerRequest();
     send( packet );
-    return ( _requestHandler.waitRequest( packet.requestID ) != 0 );
+
+    const bool ret = ( _requestHandler.waitRequest( packet.requestID ) != 0 );
+    deregisterObject( &_headMatrix );
+    return ret;
 }
 
 uint32_t Config::startFrame( const uint32_t frameID )
@@ -145,27 +170,8 @@ void Config::handleEvents()
 
 void Config::setHeadMatrix( const vmml::Matrix4f& matrix )
 {
-    EQASSERT( _headMatrix );
-    *_headMatrix = matrix;
-    _headMatrix->commit();
-}
-
-eqNet::Object* Config::instanciateObject( const uint32_t type, const void* data,
-                                          const uint64_t dataSize )
-{
-    switch( type )
-    {
-        case Object::TYPE_MATRIX4F:
-            return new Matrix4f( data, dataSize );
-        case Object::TYPE_MATRIX4D:
-            return new Matrix4d( data, dataSize );
-        case Object::TYPE_FRAME:
-            return new Frame( data, dataSize );
-        case Object::TYPE_FRAMEDATA:
-            return new FrameData( data, dataSize );
-        default:
-            return eqNet::Session::instanciateObject( type, data, dataSize );
-    }
+    _headMatrix = matrix;
+    _headMatrix.commit();
 }
 
 //---------------------------------------------------------------------------
@@ -180,7 +186,7 @@ eqNet::CommandResult Config::_cmdCreateNode( eqNet::Command& command )
 
     Node* newNode = Global::getNodeFactory()->createNode();
     
-    addRegisteredObject( packet->nodeID, newNode, eqNet::Object::SHARE_NODE );
+    attachObject( newNode, packet->nodeID );
     _addNode( newNode );
     return eqNet::COMMAND_HANDLED;
 }
@@ -191,14 +197,15 @@ eqNet::CommandResult Config::_cmdDestroyNode( eqNet::Command& command )
         command.getPacket<ConfigDestroyNodePacket>();
     EQINFO << "Handle destroy node " << packet << endl;
 
-    Node* node = static_cast<Node*>( pollObject( packet->nodeID ));
+    Node* node = _findNode( packet->nodeID );
     if( !node )
         return eqNet::COMMAND_HANDLED;
 
     node->_thread->join(); // TODO: Move to node?
+
     _removeNode( node );
-    EQASSERT( node->getRefCount() == 1 );
-    removeRegisteredObject( node );
+    detachObject( node );
+    delete node;
 
     return eqNet::COMMAND_HANDLED;
 }
@@ -208,12 +215,6 @@ eqNet::CommandResult Config::_cmdInitReply( eqNet::Command& command )
     const ConfigInitReplyPacket* packet = 
         command.getPacket<ConfigInitReplyPacket>();
     EQINFO << "handle init reply " << packet << endl;
-
-    if( packet->result )
-    {
-        _headMatrix = static_cast<Matrix4f*>(pollObject( packet->headMatrixID));
-        EQASSERT( _headMatrix );
-    }
 
     _error = packet->error;
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
@@ -225,14 +226,6 @@ eqNet::CommandResult Config::_cmdExitReply( eqNet::Command& command )
         command.getPacket<ConfigExitReplyPacket>();
     EQINFO << "handle exit reply " << packet << endl;
 
-    if( _headMatrix )
-    {
-        EQASSERTINFO( _headMatrix->getRefCount() == 1, 
-                      _headMatrix->getRefCount( ));
-
-        removeRegisteredObject( _headMatrix );  // will delete _headMatrix
-        _headMatrix = 0;
-    }
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;
 }

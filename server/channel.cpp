@@ -43,7 +43,6 @@ void Channel::_construct()
         _iAttributes[i] = global->getChannelIAttribute(
             static_cast<eq::Channel::IAttribute>( i ));
 
-    ref(); // We don't use RefPtr so far
     EQINFO << "New channel @" << (void*)this << endl;
 }
 

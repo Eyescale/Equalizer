@@ -61,8 +61,8 @@ int main( int argc, char** argv )
     // 4. init config
     eqBase::Clock clock;
 
-    RefPtr<AppInitData> initData = config->getInitData();
-    initData->parseArguments( argc, argv );
+    AppInitData& initData = config->getInitData();
+    initData.parseArguments( argc, argv );
     
     if( !config->init( ))
     {
@@ -78,9 +78,9 @@ int main( int argc, char** argv )
                             << endl;
     // 5. init tracker
     Tracker tracker;
-    if( !initData->getTrackerPort().empty( ))
+    if( !initData.getTrackerPort().empty( ))
     {
-        if( !tracker.init( initData->getTrackerPort() ))
+        if( !tracker.init( initData.getTrackerPort() ))
             EQWARN << "Failed to initialise tracker" << endl;
         else
         {
@@ -97,7 +97,6 @@ int main( int argc, char** argv )
             EQLOG( eq::LOG_CUSTOM ) << "Tracker initialised" << endl;
         }
     }
-    initData = 0;
 
     // 6. run main loop
     uint32_t maxFrames = 0; // set to 0 for 'endless'

@@ -9,10 +9,10 @@
 #include <eq/net/commands.h>
 #include <eq/net/commandQueue.h>
 #include <eq/net/global.h>
+#include <eq/net/nodeID.h>
 #include <eq/net/types.h>
 
 #include <eq/base/idPool.h>
-#include <eq/base/referenced.h>
 
 namespace eqNet
 {
@@ -20,7 +20,7 @@ namespace eqNet
     struct ObjectPacket;
 
     /** A generic, distributed object. */
-    class EQ_EXPORT Object : public Base, public eqBase::Referenced
+    class EQ_EXPORT Object : public Base
     {
     public:
         /**
@@ -44,37 +44,6 @@ namespace eqNet
             TYPE_BARRIER,              //!< eqNet::Barrier
             TYPE_INTERNAL = 0x100,     //!< internal eq object types
             TYPE_CUSTOM   = 0x200      //!< app-space versioned objects
-        };
-
-        /**
-         * The share policy defines the scope of the object during
-         * instanciation.
-         * @sa Session::getObject()
-         */
-        enum SharePolicy
-        {
-            SHARE_UNDEFINED,//!< Not registered with the session
-            SHARE_NODE,     //!< All threads on the a node share the same object
-            SHARE_THREAD,   //!< One instance per thread
-            SHARE_NEVER     //!< A new instance is created for the caller
-        };
-
-        /** 
-         * The thread safety defines if critical sections are protected by the
-         * object.
-         *
-         * Note that thread-safety will only be enabled during object
-         * instanciation. There is no safe way to automatically enable thread
-         * safety for an existing object, since the object may be in a cs in
-         * another thread. An assertion will be generated if this condition is
-         * encountered.
-         * @sa makeThreadSafe(), Session::getObject()
-         */
-        enum ThreadSafety
-        {
-            CS_AUTO,   //*< Safe if SHARE_NODE, otherwise unsafe
-            CS_SAFE,   //*< Protect critical sections
-            CS_UNSAFE  //*< Do not protect critical sections
         };
 
         /**
@@ -122,7 +91,6 @@ namespace eqNet
          * @name Versioning
          */
         //*{
-
         /** 
          * Commit a new version of this object.
          * 
@@ -261,16 +229,19 @@ namespace eqNet
          */
         virtual void releaseInstanceData( const void* data ){}
 
-        /** 
-         * Instanciates this object on a remote node.
+        /**
+         * Apply instance data.
+         *
+         * This method is called during object mapping to populate slave
+         * instances with the master object's data.
          * 
-         * @param node the remote node.
-         * @param policy the share policy for the remote node instance.
-         * @param version the version to instanciate.
+         * @param data the instance data. 
          */
-        void instanciateOnNode( eqBase::RefPtr<Node> node,
-                                const SharePolicy policy, 
-                                const uint32_t version, const bool threadSafe );
+        virtual void applyInstanceData( const void* data, const uint64_t size )
+            { 
+                EQASSERT( size == _instanceDataSize );
+                memcpy( _instanceData, data, size );
+            }
 
         /** 
          * Pack the changes since the last call to commit().
@@ -339,11 +310,19 @@ namespace eqNet
         bool isMaster() const { return _master; }
 
         /** 
-         * Add a subscribed slave to the managed object.
+         * Add a slave subscriber.
          * 
-         * @param slave the slave.
+         * @param node the slave node.
+         * @param instanceID the object instance identifier on the slave node.
          */
-        void addSlave( eqBase::RefPtr<Node> slave );
+        void addSlave( eqBase::RefPtr<Node> node, const uint32_t instanceID );
+
+        /** 
+         * Remove a subscribed slave.
+         * 
+         * @param node the slave node. 
+         */
+        void removeSlave( eqBase::RefPtr<Node> node );
 
         /** 
          * @return the vector of registered slaves.
@@ -378,8 +357,11 @@ namespace eqNet
         /** Master (writable) instance if <code>true</code>. */
         bool         _master;
         
-        /** The list of subsribed slaves, kept on the master only. */
+        /** The list of subsribed slave nodes, kept on the master only. */
         NodeVector _slaves;
+
+        /** The number of object instances subscribed per slave node. */
+        NodeIDHash< uint32_t > _slavesCount;
 
         /** The current version. */
         uint32_t _version;
@@ -434,6 +416,7 @@ namespace eqNet
         /** Common constructor code. */
         void _construct();
 
+        bool _syncInitial();
         void _syncToHead();
 
         uint32_t _commitInitial();
@@ -442,7 +425,8 @@ namespace eqNet
         void _checkConsistency() const;
 
         /* The command handlers. */
-        CommandResult _cmdSync( Command& command );
+        CommandResult _cmdPushData( Command& command );
+        CommandResult _reqInit( Command& command );
         CommandResult _reqSync( Command& pkg );
         CommandResult _cmdCommit( Command& pkg );
 

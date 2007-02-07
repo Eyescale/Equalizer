@@ -17,7 +17,7 @@ namespace eq
     public:
         Matrix4();
         Matrix4( const vmml::Matrix4<T>& matrix );
-        Matrix4( const void* data, uint64_t dataSize );
+        virtual ~Matrix4(){}
 
         virtual uint32_t getTypeID() const;
 
@@ -27,7 +27,6 @@ namespace eq
             { vmml::Matrix4<T>::operator= (matrix); return *this; }
 
     protected:
-        virtual ~Matrix4(){}
 
         virtual bool isStatic() const { return false; }
     };
@@ -65,13 +64,6 @@ namespace eq
     template< class T >
     Matrix4<T>::Matrix4( const vmml::Matrix4<T>& matrix )
             : vmml::Matrix4<T>( matrix )
-    {
-        setInstanceData( &(this->ml), 16 * sizeof( T ));
-    }
-
-    template< class T >
-    Matrix4<T>::Matrix4( const void* data, uint64_t dataSize )
-            : vmml::Matrix4<T>( static_cast<const T*>( data ))
     {
         setInstanceData( &(this->ml), 16 * sizeof( T ));
     }

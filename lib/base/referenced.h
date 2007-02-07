@@ -48,8 +48,8 @@ namespace eqBase
                 EQASSERT( _refCount == 0 );
             }
 
-        uint32_t  _refCount;
-        Lock _mutex;
+        uint32_t _refCount;
+        Lock     _mutex;
     };
 }
 

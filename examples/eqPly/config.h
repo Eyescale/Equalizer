@@ -25,25 +25,10 @@ public:
     /** @sa eq::Config::startFrame. */
     virtual uint32_t startFrame();
 
-    eqBase::RefPtr<AppInitData> getInitData() { return _initData; }
+    AppInitData& getInitData() { return _initData; }
 
 protected:
     virtual ~Config();
-
-    eqNet::Object* instanciateObject( const uint32_t type, const void* data, 
-                                       const uint64_t dataSize )
-        {
-            switch( type )
-            {
-                case TYPE_INITDATA:
-                    return new InitData( data, dataSize );
-                case TYPE_FRAMEDATA:
-                    return new FrameData( data, dataSize );
-                default:
-                    return eq::Config::instanciateObject( type, data,
-                                                          dataSize );
-            }
-        }
 
     /** @sa eq::Config::handleEvent */
     virtual bool handleEvent( const eq::ConfigEvent* event );
@@ -51,8 +36,8 @@ protected:
     bool       _running;
     int        _spinX, _spinY;
 
-    eqBase::RefPtr<AppInitData> _initData;
-    eqBase::RefPtr<FrameData>   _frameData;
+    AppInitData _initData;
+    FrameData   _frameData;
 
 private:
     static void _applyRotation( float m[16], const float dx, const float dy );

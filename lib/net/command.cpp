@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "command.h"
@@ -68,10 +68,10 @@ std::ostream& eqNet::operator << ( std::ostream& os,
                                    const Command& command )
 {
     if( command.isValid( ))
-        os << "command<" << command.getPacket() << ", " 
-           << command.getNode() << ">";
+        os << "command< " << command.getPacket() << ", " 
+           << command.getNode() << " >";
     else
-        os << "command<empty>";
+        os << "command< empty >";
     
     return os;
 }

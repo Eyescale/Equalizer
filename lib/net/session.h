@@ -133,83 +133,64 @@ namespace eqNet
          */
         //*{
         /** 
-         * Registers a new distributed object.
+         * Register a distributed object.
          *
-         * The assigned identifier is unique across all registered objects. The
-         * object gets referenced.
+         * The assigned identifier is unique across all registered objects in
+         * the session.
          *
          * @param object the object instance.
-         * @param master the master node for the object, can be
-         *               <code>NULL</code> for unmanaged objects.
          */
-        void registerObject( Object* object, eqBase::RefPtr<Node> master,
-                          const Object::SharePolicy policy = Object::SHARE_NODE,
-                             const Object::ThreadSafety ts = Object::CS_AUTO );
-
-        void addRegisteredObject( const uint32_t id, Object* object,
-                                  const  Object::SharePolicy policy );
-        void removeRegisteredObject( Object* object );
+        void registerObject( Object* object );
 
         /** 
-         * Access a distributed object.
-         * 
-         * The object will be instanciated locally, if necessary. During
-         * instanciation, it gets referenced. Versioned objects need to have at
-         * least one committed version. This function can not be called from the
-         * receiver thread, that is, from any command handling function. The
-         * object can be deregistered when it is no longer needed.
-         * If a version other than the head version is specified, the function
-         * will block until the version has been committed. It may fail if the
-         * version has already been obsoleted.
+         * Deregister a distributed object.
          *
-         * @param id the object's identifier.
-         * @param policy the object's instanciation scope.
-         * @param version the initial version.
-         * @param ts the thread-safety needed for the object.
-         * @return the object, or <code>NULL</code> if the object is not known
-         *         or could not be instanciated.
-         */
-        Object* getObject( const uint32_t id,
-                           const Object::SharePolicy policy =Object::SHARE_NODE,
-                           const uint32_t version = Object::VERSION_HEAD,
-                           const Object::ThreadSafety ts = Object::CS_AUTO );
-
-        /** 
-         * Access a registered, distributed object.
-         * 
-         * Note that objects with the share policy SHARE_NEVER are not tracked
-         * and can therefore not be accessed using pollObject().
-         *
-         * @param id the object's identifier.
-         * @param scope the object's instanciation scope.
-         * @return the object, or <code>NULL</code> if the object is not known.
-         */
-        Object* pollObject( const uint32_t id,
-                        const Object::SharePolicy policy = Object::SHARE_NODE );
-
-        /** 
-         * Deregisters a distributed object.
-         *
-         * The object gets dereferenced.
-         * 
          * @param object the object instance.
          */
         void deregisterObject( Object* object );
+
+        /** 
+         * Map a distributed object.
+         *
+         * The mapped object becomes a slave instance of the master version
+         * registered to the provided identifier.
+         * 
+         * @param object the object.
+         * @param id the master object identifier.
+         * @return true if the object was mapped, false if the master of the
+         *         object is no longer mapped.
+         * @sa registerObject
+         */
+        bool mapObject( Object* object, const uint32_t id );
+
+        /** 
+         * Unmap a mapped object.
+         * 
+         * @param object the mapped object.
+         */
+        void unmapObject( Object* object );
+
+        /** 
+         * Attach an object to an identifier.
+         *
+         * Attaching an object to an identifier enables it to receive object
+         * commands through this session. It does not establish any mapping to
+         * other object instances with the same identifier.
+         * 
+         * @param object the object.
+         * @param id the object identifier.
+         */
+        void attachObject( Object* object, const uint32_t id );
+
+        /** 
+         * Detach an object..
+         * 
+         * @param object the attached object.
+         */
+        void detachObject( Object* object );
         //*}
         
     protected:
-        /** 
-         * Instanciate the slave(proxy) instance of a object on this session.
-         * 
-         * @param type the type identifier of the object.
-         * @param data the instance data of the object.
-         * @param dataSize the data size.
-         * @return the object, or <code>NULL</code> upon error.
-         * @sa Object::getInstanceInfo
-         */
-        virtual Object* instanciateObject( const uint32_t type,
-                                           const void* data, 
-                                           const uint64_t dataSize );
         /** 
          * Send a packet to the session's server node.
          * 
@@ -271,51 +252,16 @@ namespace eqNet
         /** Stores a mapping from a block of identifiers to a master node. */
         struct IDMasterInfo
         {
-            uint32_t                            start;
-            uint32_t                            end;
-            NodeID                              master;
-            std::vector< eqBase::RefPtr<Node> > slaves;
+            uint32_t start;
+            uint32_t end;
+            NodeID   master;
         };
+
         /** The id->master mapping table. */
         std::vector<IDMasterInfo> _idMasterInfos;
         
-        /** All SCOPE_THREAD objects, indexed by identifier. */
-        eqBase::PerThread< IDHash<Object*>* > _threadObjects;
-        /** All SCOPE_NODE objects, indexed by identifier. */
-        IDHash<Object*> _nodeObjects;
-        /** All registered objects - unshared, thread and node objects. */
-        IDHash< std::vector<Object*> > _registeredObjects;
-
-        /** The instanciation state for managed objects. */
-        enum ObjectInstState
-        {
-            INST_UNKNOWN = 0,
-            INST_GETMASTERID,
-            INST_GOTMASTER,
-            INST_INIT,
-            INST_ERROR
-        };
-
-        /** The current state of pending object instanciations. */
-        struct GetObjectState
-        {
-            GetObjectState()
-                    : object( NULL ),
-                      nodeConnectRequestID( EQ_ID_INVALID ),
-                      instState( INST_UNKNOWN ), 
-                      pending( false )
-                {}
-
-            Object*             object;
-            uint32_t            objectID;
-            uint32_t            version;
-            uint32_t            nodeConnectRequestID;
-            Object::SharePolicy policy;
-            ObjectInstState     instState;
-            bool                threadSafe;
-            bool                pending;
-        };
-        IDHash<GetObjectState*> _objectInstStates;
+        /** All registered and mapped objects. */
+        IDHash< std::vector<Object*> > _objects;
 
         const NodeID& _pollIDMaster( const uint32_t id ) const;
         eqBase::RefPtr<Node> _pollIDMasterNode( const uint32_t id ) const;
@@ -330,9 +276,6 @@ namespace eqNet
             }
 
         CommandResult _handleObjectCommand( Command& packet );
-        CommandResult   _instObject( GetObjectState* state );
-        void              _sendInitObject( GetObjectState* state, 
-                                           eqBase::RefPtr<Node> master );
 
         /** The command handler functions. */
         CommandResult _cmdGenIDs( Command& packet );
@@ -340,14 +283,15 @@ namespace eqNet
         CommandResult _cmdSetIDMaster( Command& packet );
         CommandResult _cmdGetIDMaster( Command& packet );
         CommandResult _cmdGetIDMasterReply( Command& packet );
-        CommandResult _cmdGetObjectMaster( Command& packet );
-        CommandResult _cmdGetObjectMasterReply( Command& pkg);
-        CommandResult _cmdRegisterObject( Command& packet );
-        CommandResult _cmdUnregisterObject( Command& packet );
-        CommandResult _cmdGetObject( Command& packet );
-        CommandResult _cmdInitObject( Command& packet );
-        CommandResult _cmdInstanciateObject( Command& packet);
-        CommandResult _cmdInitObjectReply( Command& packet );
+        CommandResult _cmdAttachObject( Command& command );
+        CommandResult _cmdDetachObject( Command& command );
+        CommandResult _cmdMapObject( Command& command );
+        CommandResult _cmdSubscribeObject( Command& command );
+        CommandResult _cmdSubscribeObjectSuccess( Command& command );
+        CommandResult _cmdSubscribeObjectReply( Command& command );
+        CommandResult _cmdUnmapObject( Command& command );
+        CommandResult _cmdUnsubscribeObject( Command& command );
+        CommandResult _cmdUnsubscribeObjectReply( Command& command );
 
         CHECK_THREAD_DECLARE( _receiverThread );
     };

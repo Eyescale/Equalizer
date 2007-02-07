@@ -14,28 +14,25 @@ class InitData : public eqNet::Object
 {
 public:
     InitData();
-    InitData( const void* data, const uint64_t size );
     virtual ~InitData();
+
+    void setFrameDataID( const uint32_t id )  
+        { _clearInstanceData(); _frameDataID = id; }
+
+    uint32_t           getFrameDataID() const { return _frameDataID; }
+    const std::string& getFilename()    const { return _filename; }
 
     virtual uint32_t getTypeID() const { return TYPE_INITDATA; }
 
-    void setFrameData( eqBase::RefPtr<FrameData> frameData );
-
-    eqBase::RefPtr<FrameData> getFrameData();
-    void releaseFrameData();
-
-    const std::string& getFilename() const { return _filename; }
-
 protected:
-    const void* getInstanceData( uint64_t* size );
+    virtual const void* getInstanceData( uint64_t* size );
+    virtual void applyInstanceData( const void* data, const uint64_t size );
 
-    void setFilename( const std::string& filename );
-
+    void setFilename( const std::string& filename )
+        { _clearInstanceData(); _filename = filename; }
 
 private:
-    uint32_t _frameDataID;
-    eqBase::PerThread< FrameData* > _frameData;
-
+    uint32_t    _frameDataID;
     std::string _filename;
 
     char* _instanceData;

@@ -320,6 +320,7 @@ namespace eq
 
         void _addChannel( Channel* channel );
         void _removeChannel( Channel* channel );
+        Channel* _findChannel( const uint32_t id );
 
         bool _setPixelViewport( const PixelViewport& pvp );
         void _setViewport( const Viewport& vp );

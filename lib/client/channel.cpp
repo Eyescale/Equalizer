@@ -463,14 +463,10 @@ eqNet::CommandResult Channel::_reqAssemble( eqNet::Command& command )
 
     _context = &packet->context;
 
-    eqNet::Session* session = getSession();
     for( uint32_t i=0; i<packet->nFrames; ++i )
     {
-        eqNet::Object* object = session->getObject( packet->frames[i].objectID, 
-                                                    Object::SHARE_THREAD,
-                                                    packet->frames[i].version );
-        EQASSERT( dynamic_cast<Frame*>( object ));
-        Frame* frame = static_cast<Frame*>( object );
+        Frame* frame = pipe->getFrame( packet->frames[i].objectID, 
+                                       packet->frames[i].version );
         _inputFrames.push_back( frame );
     }
 
@@ -498,14 +494,10 @@ eqNet::CommandResult Channel::_reqReadback( eqNet::Command& command )
 
     _context = &packet->context;
 
-    eqNet::Session* session = getSession();
     for( uint32_t i=0; i<packet->nFrames; ++i )
     {
-        eqNet::Object* object = session->getObject( packet->frames[i].objectID, 
-                                                    Object::SHARE_THREAD,
-                                                    packet->frames[i].version );
-        EQASSERT( dynamic_cast<Frame*>( object ));
-        Frame* frame = static_cast<Frame*>( object );
+        Frame* frame = pipe->getFrame( packet->frames[i].objectID, 
+                                       packet->frames[i].version );
         _outputFrames.push_back( frame );
     }
 
@@ -542,12 +534,8 @@ eqNet::CommandResult Channel::_reqTransmit( eqNet::Command& command )
     eqNet::Session*     session   = getSession();
     RefPtr<eqNet::Node> localNode = session->getLocalNode();
     RefPtr<eqNet::Node> server    = session->getServer();
-    eqNet::Object*      object    = session->getObject( packet->frame.objectID,
-                                                        Object::SHARE_THREAD,
-                                                        packet->frame.version );
-    EQASSERT( dynamic_cast<Frame*>( object ));
-    Frame* frame = static_cast<Frame*>( object );
-
+    Frame*              frame     = pipe->getFrame( packet->frame.objectID, 
+                                                    packet->frame.version );
     for( uint32_t i=0; i<packet->nNodes; ++i )
     {
         const eqNet::NodeID& nodeID = packet->nodes[i];

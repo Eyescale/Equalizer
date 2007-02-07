@@ -30,7 +30,6 @@ void Node::_construct()
     registerCommand( eq::CMD_NODE_EXIT_REPLY, 
                      eqNet::CommandFunc<Node>( this, &Node::_cmdExitReply ));
 
-    ref(); // We don't use RefPtr so far
     EQINFO << "Add node @" << (void*)this << endl;
 }
 
@@ -74,10 +73,9 @@ Node::~Node()
          ++i )
     {
         Pipe* pipe = *i;
-        EQASSERT( pipe->getRefCount() == 1 );
 
-        pipe->_node = NULL;
-        pipe->unref(); // a.k.a delete
+        pipe->_node = 0;
+        delete pipe;
     }
     _pipes.clear();
 }
@@ -191,8 +189,7 @@ eqNet::Barrier* Node::getBarrier()
         eqNet::Barrier* barrier = new eqNet::Barrier( _node );
         barrier->setAutoObsolete( getConfig()->getLatency()+1, 
                                   Object::AUTO_OBSOLETE_COUNT_VERSIONS );
-        _config->registerObject( barrier, 
-                        RefPtr_static_cast<Server, eqNet::Node>(getServer( )) );
+        _config->registerObject( barrier );
         
         return barrier;
     }

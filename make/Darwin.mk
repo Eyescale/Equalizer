@@ -12,9 +12,6 @@ ifdef VARIANT
   DSO_LDFLAGS += -arch $(VARIANT)
 endif
 
-# needed for '-undefined dynamic_lookup'
-export MACOSX_DEPLOYMENT_TARGET=10.3
-
 DSO_LDFLAGS        += -dynamiclib
 DSO_SUFFIX          = dylib
 WINDOW_SYSTEM      ?= GLX CGL

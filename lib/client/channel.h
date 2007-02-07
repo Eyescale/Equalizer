@@ -6,6 +6,7 @@
 
 #include <eq/client/colorMask.h>
 #include <eq/client/commands.h>
+#include <eq/client/frame.h>
 #include <eq/client/pixelViewport.h>
 #include <eq/client/window.h>
 
@@ -260,7 +261,7 @@ namespace eq
         std::string    _name;
 
         /** The reason for the last error. */
-        std::string            _error;
+        std::string     _error;
 
         /** Integer attributes. */
         int32_t _iAttributes[IATTR_ALL];
@@ -302,7 +303,7 @@ namespace eq
          * @param pvp the viewport in pixels.
          */
         void _setPixelViewport( const PixelViewport& pvp );
-        
+
         /* The command handler functions. */
         eqNet::CommandResult _pushCommand( eqNet::Command& command );
         eqNet::CommandResult _reqInit( eqNet::Command& command );

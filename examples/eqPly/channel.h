@@ -18,17 +18,13 @@ class InitData;
 class Channel : public eq::Channel
 {
 public:
-    Channel() : _initData(NULL), _frameData(NULL) {}
+    Channel(){}
 
 protected:
     virtual bool init( const uint32_t initID );
-    virtual bool exit();
     virtual void draw( const uint32_t frameID );
 
 private:
-    eqBase::RefPtr<InitData>  _initData;
-    eqBase::RefPtr<FrameData> _frameData;
-
     static void _drawBBoxCB( Model::BBox *bbox, void *userData );
     void _drawBBox( const Model::BBox* bbox );
     void _initFrustum( Frustumf& frustum );

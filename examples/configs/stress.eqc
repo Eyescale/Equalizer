@@ -4,7 +4,7 @@ server
 {
     config
     {
-#        latency 10
+        latency 10
         node
         {
             pipe

@@ -27,8 +27,8 @@ namespace eq
     class FrameData : public eqNet::Object
     {
     public:
-        /** Instanciates a frame data. */
-        FrameData( const void* data, const uint64_t size );
+        FrameData();
+        virtual ~FrameData();
 
         virtual uint32_t getTypeID() const { return eq::Object::TYPE_FRAMEDATA;}
 
@@ -107,8 +107,6 @@ namespace eq
         //*}
 
     protected:
-
-        virtual ~FrameData();
         virtual bool isStatic() const { return false; }
 
         /** @sa eqNet::Object::unpack */

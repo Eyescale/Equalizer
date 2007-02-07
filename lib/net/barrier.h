@@ -27,7 +27,7 @@ namespace eqNet
         /** 
          * Constructs a new barrier.
          */
-        Barrier( const void* instanceData );
+        Barrier();
 
         virtual uint32_t getTypeID() const { return TYPE_BARRIER; }
 
@@ -67,6 +67,8 @@ namespace eqNet
     private:
         struct Data
         {
+            Data() : height( 0 ) {}
+
             /** The master barrier node. */
             NodeID   master;
             /** The height of the barrier, only set on the master. */

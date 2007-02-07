@@ -79,11 +79,22 @@ void Pipe::_removeWindow( Window* window )
 {
     vector<Window*>::iterator iter = find( _windows.begin(), _windows.end(),
                                            window );
-    if( iter == _windows.end( ))
-        return;
+    EQASSERT( iter != _windows.end( ))
     
     _windows.erase( iter );
     window->_pipe = 0;
+}
+
+eq::Window* Pipe::_findWindow( const uint32_t id )
+{
+    for( vector<Window*>::const_iterator i = _windows.begin(); 
+         i != _windows.end(); ++i )
+    {
+        Window* window = *i;
+        if( window->getID() == id )
+            return window;
+    }
+    return 0;
 }
 
 bool Pipe::supportsWindowSystem( const WindowSystem windowSystem ) const
@@ -283,18 +294,50 @@ void* Pipe::_runThread()
     return EXIT_SUCCESS;
 }
 
+Frame* Pipe::getFrame( const uint32_t id, const uint32_t version )
+{
+    Frame* frame = _frames[id];
+
+    if( !frame )
+    {
+        eqNet::Session* session = getSession();
+        frame = new Frame( this );
+
+        const bool mapped = session->mapObject( frame, id );
+        EQASSERT( mapped );
+        _frames[id] = frame;
+    }
+    
+    frame->sync( version );
+    return frame;
+}
+
+void Pipe::_flushFrames()
+{
+    eqNet::Session* session = getSession();
+
+    for( eqNet::IDHash< Frame* >::const_iterator i = _frames.begin(); 
+         i != _frames.end(); ++ i )
+    {
+        Frame* frame = i->second;
+        session->unmapObject( frame );
+        delete frame;
+    }
+    _frames.clear();
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
 eqNet::CommandResult Pipe::_cmdCreateWindow(  eqNet::Command& command  )
 {
-    const PipeCreateWindowPacket* packet = command.getPacket<PipeCreateWindowPacket>();
+    const PipeCreateWindowPacket* packet = 
+        command.getPacket<PipeCreateWindowPacket>();
     EQINFO << "Handle create window " << packet << endl;
 
     Window* window = Global::getNodeFactory()->createWindow();
     
-    getConfig()->addRegisteredObject( packet->windowID, window, 
-                                      eqNet::Object::SHARE_NODE );
+    getConfig()->attachObject( window, packet->windowID );
     _addWindow( window );
     return eqNet::COMMAND_HANDLED;
 }
@@ -305,14 +348,14 @@ eqNet::CommandResult Pipe::_cmdDestroyWindow(  eqNet::Command& command  )
         command.getPacket<PipeDestroyWindowPacket>();
     EQINFO << "Handle destroy window " << packet << endl;
 
-    Config* config = getConfig();
-    Window* window = (Window*)config->pollObject( packet->windowID );
-    if( !window )
-        return eqNet::COMMAND_HANDLED;
+    Window* window = _findWindow( packet->windowID );
+    EQASSERT( window );
 
     _removeWindow( window );
-    EQASSERT( window->getRefCount() == 1 );
-    config->removeRegisteredObject( window );
+
+    Config* config = getConfig();
+    config->detachObject( window );
+    delete window;
 
     return eqNet::COMMAND_HANDLED;
 }
@@ -416,7 +459,8 @@ eqNet::CommandResult Pipe::_reqExit( eqNet::Command& command )
     EQINFO << "handle pipe exit " << packet << endl;
 
     exit();
-    
+    _flushFrames();
+
     PipeExitReplyPacket reply( packet );
     send( command.getNode(), reply );
 

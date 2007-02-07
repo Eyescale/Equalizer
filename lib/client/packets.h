@@ -138,6 +138,7 @@ namespace eq
 
         uint32_t requestID;
         uint32_t initID;
+        uint32_t headMatrixID;
     };
 
     struct ConfigInitReplyPacket : public ConfigPacket
@@ -151,7 +152,6 @@ namespace eq
             }
 
         uint32_t requestID;
-        uint32_t headMatrixID;
         bool     result;
         EQ_ALIGN8( char error[8] );
     };
@@ -822,15 +822,15 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os,
                                        const ConfigInitReplyPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " requestID " << packet->requestID
-           << " headMatrixID " << packet->headMatrixID;
+        os << (eqNet::ObjectPacket*)packet << " requestID " <<packet->requestID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                      const ConfigStartFrameReplyPacket* packet )
     {
-        os << (ConfigPacket*)packet << " frame #" 
-           << packet->frameNumber << ", " << packet->nNodeIDs << " nodes";
+        os << (ConfigPacket*)packet << " frame #" << packet->frameNumber
+           << ", " << packet->nNodeIDs << " nodes";
+
         for( uint32_t i=0 ; i<4 && i<packet->nNodeIDs; ++i )
             os << " " << i << ":" << packet->nodeIDs[i];
 

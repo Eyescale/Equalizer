@@ -32,7 +32,6 @@ void eqs::Window::_construct()
     registerCommand( eq::REQ_WINDOW_SET_PVP,
              eqNet::CommandFunc<Window>( this, &Window::_reqSetPixelViewport ));
                          
-    ref(); // We don't use RefPtr so far
     EQINFO << "New window @" << (void*)this << endl;
 }
 
@@ -79,10 +78,9 @@ eqs::Window::~Window()
          i != _channels.end(); ++i )
     {
         Channel* channel = *i;
-        EQASSERT( channel->getRefCount() == 1 );
 
         channel->_window = NULL;
-        channel->unref(); // a.k.a delete
+        delete channel;
     }
     _channels.clear();
 }
@@ -231,7 +229,7 @@ void eqs::Window::startInit( const uint32_t initID )
         Channel* channel = *iter;
         if( channel->isUsed( ))
         {
-            config->registerObject( channel, (eqNet::Node*)getServer( ));
+            config->registerObject( channel );
             createChannelPacket.channelID = channel->getID();
             _send( createChannelPacket );
 

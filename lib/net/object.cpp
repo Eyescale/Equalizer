@@ -22,6 +22,7 @@ void Object::_construct()
     _session       = 0;
     _id            = EQ_ID_INVALID;
     _instanceID    = EQ_ID_INVALID;
+    _master        = false;
     _version       = VERSION_NONE;
     _commitCount   = 0;
     _nVersions     = 0;
@@ -31,8 +32,12 @@ void Object::_construct()
     _deltaData     = 0;
     _deltaDataSize = 0;
 
+    registerCommand( CMD_OBJECT_INIT,
+                     CommandFunc<Object>( this, &Object::_cmdPushData ));
+    registerCommand( REQ_OBJECT_INIT,
+                     CommandFunc<Object>( this, &Object::_reqInit ));
     registerCommand( CMD_OBJECT_SYNC, 
-                     CommandFunc<Object>( this, &Object::_cmdSync ));
+                     CommandFunc<Object>( this, &Object::_cmdPushData ));
     registerCommand( REQ_OBJECT_SYNC,
                      CommandFunc<Object>( this, &Object::_reqSync ));
     registerCommand( CMD_OBJECT_COMMIT, 
@@ -55,6 +60,10 @@ Object::Object( const Object& from )
 
 Object::~Object()
 {
+    if( _session ) // Still registered
+        EQERROR << "Object is still registered in session " << _session->getID()
+                << " in destructor" << endl;
+
     for( deque<InstanceData>::const_iterator iter = _instanceDatas.begin(); 
          iter != _instanceDatas.end(); ++iter )
     {
@@ -75,6 +84,8 @@ Object::~Object()
 
 void Object::makeThreadSafe()
 {
+    EQASSERT( _id == EQ_ID_INVALID );
+
     if( _mutex ) return;
     _mutex = new eqBase::Lock;
 #ifdef EQ_CHECK_THREADSAFETY
@@ -127,90 +138,6 @@ bool Object::send( NodeVector nodes, ObjectPacket& packet, const void* data,
     packet.sessionID = _session->getID();
     packet.objectID  = _id;
     return Connection::send( nodes, packet, data, size );
-}
-
-void Object::instanciateOnNode( RefPtr<Node> node, const SharePolicy policy, 
-                                const uint32_t version, const bool threadSafe )
-{
-    EQASSERT( _session );
-    EQASSERT( _id != EQ_ID_INVALID );
-    _checkConsistency();
-
-    EQLOG( LOG_OBJECTS ) << "Object id " << _id << " v" << _version
-                         << ", instanciate v" << version << " on " 
-                         << node->getNodeID() << endl;
-
-    addSlave( node );
-
-    SessionInstanciateObjectPacket initPacket;
-    initPacket.sessionID      =  _session->getID();
-    initPacket.objectID       = _id;
-    initPacket.objectType     = getTypeID();
-    initPacket.objectDataSize = 0;
-    initPacket.isMaster       = !_master;
-    initPacket.policy         = policy;
-    initPacket.threadSafe     = threadSafe;
-
-    if( isStatic( ))
-    {
-        const void* data   = getInstanceData( &initPacket.objectDataSize );
-        initPacket.version = _version;
-        EQLOG( LOG_OBJECTS ) << "send " << &initPacket << endl;
-        node->send( initPacket, data, initPacket.objectDataSize );
-        releaseInstanceData( data );
-        return;
-    }
-
-    if( _version == VERSION_NONE )
-        _commitInitial();
-
-    if( version == VERSION_HEAD || version == _version )
-    {
-        InstanceData& data    = _instanceDatas.front();
-        initPacket.objectDataSize = data.size;
-        initPacket.version        = _version;
-        EQLOG( LOG_OBJECTS ) << "send " << &initPacket << endl;
-        node->send( initPacket, data.data, initPacket.objectDataSize );
-        return;
-    }
-
-    EQASSERT( _version >= version );
-    initPacket.version     = version;
-    const uint32_t age = _version - version;
-
-    if( age >= _instanceDatas.size( ))
-    {
-        EQWARN << "Instanciation request for obsolete version " << version
-               << " of object of type " << typeid(*this).name() << " id "
-               << _id << " v" << _version << endl;
-        initPacket.error = true;
-        EQLOG( LOG_OBJECTS ) << "send " << &initPacket << endl;
-        node->send( initPacket );
-        return;
-    }
-
-    const InstanceData& data = _instanceDatas[age];
-
-    initPacket.objectDataSize = data.size;
-    EQLOG( LOG_OBJECTS ) << "send " << &initPacket << endl;
-    node->send( initPacket, data.data, initPacket.objectDataSize );    
-
-    // send deltas since version
-    for( deque<ChangeData>::reverse_iterator i = _changeDatas.rbegin();
-         i != _changeDatas.rend(); ++i )
-    {
-        const ChangeData& data = *i;
-        if( data.version < version )
-            continue;
-
-        ObjectSyncPacket deltaPacket;
-
-        deltaPacket.version   = data.version;
-        deltaPacket.deltaSize = data.size;
-        
-        EQLOG( LOG_OBJECTS ) << "send " << &deltaPacket << endl;
-        send( node, deltaPacket, data.data, data.size );
-    }
 }
 
 uint32_t Object::commit()
@@ -319,7 +246,7 @@ bool Object::sync( const uint32_t version )
 
     ScopedMutex mutex( _mutex );
 
-    if( version == VERSION_HEAD )
+    if( version ==  VERSION_HEAD )
     {
         _syncToHead();
         return true;
@@ -341,6 +268,19 @@ bool Object::sync( const uint32_t version )
     EQVERB << "Sync'ed to v" << version << ", id " << getID() << endl;
     return true;
 }
+
+bool Object::_syncInitial()
+{
+    if( _version != VERSION_NONE )
+        return false;
+
+    Command* command = _syncQueue.pop();
+
+    // OPT shortcut around invokeCommand()
+    EQASSERT( (*command)->command == REQ_OBJECT_INIT );
+    return( _reqInit( *command ) == COMMAND_HANDLED );
+}    
+
 
 void Object::_syncToHead()
 {
@@ -386,10 +326,80 @@ void Object::setInstanceData( void* data, const uint64_t size )
     _deltaDataSize = size;
 }
 
-void Object::addSlave( RefPtr<Node> slave )
+void Object::addSlave( RefPtr<Node> node, const uint32_t instanceID )
 {
-    _slaves.push_back( slave ); 
+    EQASSERT( _session );
+    EQASSERT( _id != EQ_ID_INVALID );
+    _checkConsistency();
+
+    // add to subscribers
+    ++_slavesCount[ node->getNodeID() ];
+    _slaves.push_back( node );
     stde::usort( _slaves );
+
+    EQLOG( LOG_OBJECTS ) << "Object id " << _id << " v" << _version
+                         << ", instanciate on " << node->getNodeID() << endl;
+
+    ObjectInitPacket initPacket;
+    initPacket.instanceID     = instanceID;
+    initPacket.dataSize = 0;
+
+    if( isStatic( ))
+    {
+        const void* data   = getInstanceData( &initPacket.dataSize );
+        initPacket.version = _version;
+        EQLOG( LOG_OBJECTS ) << "send " << &initPacket << endl;
+        send( node, initPacket, data, initPacket.dataSize );
+        releaseInstanceData( data );
+        return;
+    }
+
+    if( _version == VERSION_NONE )
+        _commitInitial();
+
+    const uint32_t      age  = _instanceDatas.size() - 1;
+    const InstanceData& data = _instanceDatas.back();
+
+    initPacket.version  = _version - age;
+    initPacket.dataSize = data.size;
+
+    EQLOG( LOG_OBJECTS ) << "send " << &initPacket << endl;
+    send( node, initPacket, data.data, initPacket.dataSize );    
+
+    // send all deltas
+    for( deque<ChangeData>::reverse_iterator i = _changeDatas.rbegin();
+         i != _changeDatas.rend(); ++i )
+    {
+        const ChangeData& data = *i;
+
+        ObjectSyncPacket deltaPacket;
+
+        deltaPacket.version   = data.version;
+        deltaPacket.deltaSize = data.size;
+        
+        EQLOG( LOG_OBJECTS ) << "send " << &deltaPacket << endl;
+        send( node, deltaPacket, data.data, data.size );
+    }
+}
+
+void Object::removeSlave( RefPtr<Node> node )
+{
+    EQASSERT( _session );
+    EQASSERT( _id != EQ_ID_INVALID );
+    _checkConsistency();
+
+    // remove from subscribers
+    const NodeID& nodeID = node->getNodeID();
+    EQASSERT( _slavesCount[ nodeID ] != 0 );
+
+    --_slavesCount[ nodeID ];
+    if( _slavesCount[ nodeID ] == 0 )
+    {
+        NodeVector::iterator i = find( _slaves.begin(), _slaves.end(), node );
+        EQASSERT( i != _slaves.end( ));
+        _slaves.erase( i );
+        _slavesCount.erase( nodeID );
+    }
 }
 
 void Object::_checkConsistency() const
@@ -427,10 +437,27 @@ void Object::_checkConsistency() const
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-CommandResult Object::_cmdSync( Command& command )
+CommandResult Object::_cmdPushData( Command& command )
 {
-    Command copy( command ); // sync is sent to all instances: make copy
-    _syncQueue.push( copy ); 
+    if( command->command == CMD_OBJECT_SYNC )
+    {
+        // sync sent to all instances: make copy
+        Command copy( command );
+        _syncQueue.push( copy );
+    }
+    else
+        _syncQueue.push( command );
+
+    return eqNet::COMMAND_HANDLED;
+}
+
+CommandResult Object::_reqInit( Command& command )
+{
+    const ObjectInitPacket* packet = command.getPacket<ObjectInitPacket>();
+    EQLOG( LOG_OBJECTS ) << "cmd init " << command << endl;
+
+    applyInstanceData( packet->data, packet->dataSize );
+    _version = packet->version;
     return eqNet::COMMAND_HANDLED;
 }
 

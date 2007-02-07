@@ -7,12 +7,14 @@
 
 #include <eq/eq.h>
 
-#include "initData.h"
+#include "frameData.h"
 
 class Pipe : public eq::Pipe
 {
 public:
-    // per-pipe display list cache (windows share context)
+    const FrameData& getFrameData() const { return _frameData; }
+
+    // per-pipe display list cache (all windows share the context)
     GLuint getDisplayList( const void* key );
     GLuint newDisplayList( const void* key );
 
@@ -22,8 +24,7 @@ protected:
     virtual void startFrame( const uint32_t frameID );
 
 private:
-    eqBase::RefPtr<InitData>  _initData;
-    eqBase::RefPtr<FrameData> _frameData;
+    FrameData _frameData;
 
     eqBase::PtrHash< const void *, GLuint > _displayLists;
 };

@@ -19,6 +19,7 @@ namespace eqs
 namespace eq
 {
     class FrameData;
+    class Pipe;
 
     /**
      * A holder for a frame data and parameters.
@@ -42,7 +43,8 @@ namespace eq
         /** 
          * Constructs a new Frame.
          */
-        Frame( const void* data, uint64_t dataSize );
+        Frame( Pipe* pipe );
+        virtual ~Frame(){}
 
         virtual uint32_t getTypeID() const { return eq::Object::TYPE_FRAME; }
 
@@ -115,16 +117,11 @@ namespace eq
         //*}
 
     protected:
-        virtual ~Frame(){}
         virtual bool isStatic() const { return false; }
 
-        /** @sa eqNet::Object::unpack */
-        virtual void unpack( const void* data, const uint64_t size )
-            { eqNet::Object::unpack( data, size ); _frameData = 0; }
-
-
-    private:
+     private:
         std::string _name;
+        Pipe*       _pipe;
 
         /** All distributed Data shared between eq::Frame and eqs::Frame. */
         struct Data
@@ -135,8 +132,6 @@ namespace eq
         }
             _data;
         friend class eqs::Frame;
-
-        FrameData* _frameData;
 
         FrameData* _getData();
     };

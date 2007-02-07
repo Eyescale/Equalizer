@@ -21,6 +21,7 @@
 
 namespace eq
 {
+    class Frame;
     class Window;
     class X11Connection;
 
@@ -176,6 +177,15 @@ namespace eq
          */
         eqNet::CommandResult pushCommand( eqNet::Command& command )
             {_commandQueue.push( command ); return eqNet::COMMAND_HANDLED;}
+        
+        /** 
+         * Get an assembly frame.
+         * 
+         * @param id the frame identifier.
+         * @param version the frame's version.
+         * @return the frame.
+         */
+        Frame* getFrame( const uint32_t id, const uint32_t version );
         //*}
 
     protected:
@@ -311,10 +321,16 @@ namespace eq
         /** The statistics events gathered during the current frame. */
         std::vector<StatEvent> _statEvents;
 
+        /** All assembly frames used by the pipe during rendering. */
+        eqNet::IDHash< Frame* > _frames;
+
         static int XErrorHandler( Display* display, XErrorEvent* event );
 
         void _addWindow( Window* window );
         void _removeWindow( Window* window );
+        Window* _findWindow( const uint32_t id );
+
+        void _flushFrames();
 
         /** The pipe thread. */
         class PipeThread : public eqBase::Thread

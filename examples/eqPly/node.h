@@ -6,20 +6,23 @@
 #define EQ_PLY_NODE_H
 
 #include "eqPly.h"
+#include "initData.h"
 
 #include <eq/eq.h>
 
 class Node : public eq::Node
 {
 public:
-    const Model* getModel() const { return _model; }
+    const InitData& getInitData() const { return _initData; }
+    const Model*    getModel() const    { return _model; }
 
 protected:
     virtual bool init( const uint32_t initID );
     virtual bool exit();
 
 private:
-    Model* _model;    
+    InitData _initData;
+    Model*   _model;
 };
 
 #endif // EQ_PLY_NODE_H

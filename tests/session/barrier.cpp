@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include <test.h>
@@ -42,7 +42,7 @@ public:
                 TEST( node->mapSession( node, &session, "foo" ));
                 
                 Barrier barrier( node, 2 );
-                session.registerObject( &barrier, node );
+                session.registerObject( &barrier );
                 TEST( barrier.getID() != EQ_ID_INVALID );
                 
                 barrierID = barrier.getID();

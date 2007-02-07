@@ -4,44 +4,43 @@
  * All rights reserved.
  *
  * The pipe object is responsible for maintaining the frame-specific data. The
- * identifier passed by the application contains the version of the frame
- * data corresponding to the rendered frame. The pipe's start frame
- * callback synchronizes the thread-local instance of the frame data to this
- * version.
+ * identifier passed by the application contains the version of the frame data
+ * corresponding to the rendered frame. The pipe's start frame callback
+ * synchronizes the thread-local instance of the frame data to this version.
  */
 
 #include "pipe.h"
 
+#include "node.h"
+#include <eq/eq.h>
+
 using namespace std;
 using namespace eqBase;
-using namespace eqNet;
 
-/*
- */
 bool Pipe::init( const uint32_t initID )
 {
-    eq::Config*      config   = getConfig();
+    const Node*     node        = static_cast<Node*>( getNode( ));
+    const InitData& initData    = node->getInitData();
+    const uint32_t  frameDataID = initData.getFrameDataID();
+    eq::Config*     config      = getConfig();
 
-    _initData  = static_cast<InitData*>( config->getObject( initID ));
-    _frameData = _initData->getFrameData();
-
-    EQASSERT( _frameData.isValid( ));
+    const bool mapped = config->mapObject( &_frameData, frameDataID );
+    EQASSERT( mapped );
 
     return eq::Pipe::init( initID );
 }
 
 bool Pipe::exit()
 {
-    _initData->releaseFrameData();
-    _initData  = 0;
-    _frameData = 0;
+    eq::Config* config = getConfig();
+    config->unmapObject( &_frameData );
 
     return eq::Pipe::exit();
 }
 
 void Pipe::startFrame( const uint32_t frameID )
 {
-    _frameData->sync( frameID );
+    _frameData.sync( frameID );
 }
 
 GLuint Pipe::getDisplayList( const void* key )

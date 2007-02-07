@@ -175,7 +175,7 @@ namespace eqNet
         bool syncConnect();
 
         /** 
-         * Create and connect a node given be an identifier.
+         * Create and connect a node given by an identifier.
          * 
          * @param nodeID the identifier of the node to connect.
          * @param server a node holding connection information to the

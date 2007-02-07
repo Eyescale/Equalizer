@@ -83,7 +83,7 @@ void Frame::cycleData( const uint32_t frameNumber )
         eqNet::Session* session = getSession();
         EQASSERT( session );
 
-        session->registerObject( data, session->getLocalNode( ));
+        session->registerObject( data );
         data->setAutoObsolete( 1 ); // current + in use by render nodes
     }
 

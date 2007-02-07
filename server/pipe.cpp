@@ -34,7 +34,6 @@ void Pipe::_construct()
     registerCommand( eq::CMD_PIPE_FRAME_SYNC_REPLY, 
                      eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdFrameSync ));
 
-    ref(); // We don't use RefPtr so far
     EQINFO << "New pipe @" << (void*)this << endl;
 }
 
@@ -71,10 +70,9 @@ Pipe::~Pipe()
          i != _windows.end(); ++i )
     {
         Window* window = *i;
-        EQASSERT( window->getRefCount() == 1 );
 
         window->_pipe = NULL;
-        window->unref(); // a.k.a delete
+        delete window;
     }
     _windows.clear();
 }
@@ -139,7 +137,7 @@ void Pipe::startInit( const uint32_t initID )
         Window* window = _windows[i];
         if( window->isUsed( ))
         {
-            config->registerObject( window, (eqNet::Node*)getServer( ));
+            config->registerObject( window );
             createWindowPacket.windowID = window->getID();
             _send( createWindowPacket );
 

@@ -25,22 +25,11 @@ static float lightpos[] = { 0.0f, 0.0f, 1.0f, 0.0f };
 bool Channel::init( const uint32_t initID )
 {
     EQINFO << "Init channel initID " << initID << " ptr " << this << endl;
-    eq::Config* config = getConfig();
 
-    _initData  = (InitData*)config->getObject( initID );
-    _frameData = _initData->getFrameData();
 #ifndef DYNAMIC_NEAR_FAR
     setNearFar( 0.0001f, 10.0f );
 #endif
     return true;
-}
-
-bool Channel::exit()
-{
-    _initData  = NULL;
-    _frameData = NULL;
-    EQINFO << "Exit " << this << endl;
-    return eq::Channel::exit();
 }
 
 void Channel::draw( const uint32_t frameID )
@@ -62,10 +51,13 @@ void Channel::draw( const uint32_t frameID )
 
     glLightfv( GL_LIGHT0, GL_POSITION, lightpos );
 
-    glTranslatef( _frameData->_data.translation.x,
-                  _frameData->_data.translation.y,
-                  _frameData->_data.translation.z );
-    glMultMatrixf( _frameData->_data.rotation.ml );
+    const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
+    const FrameData& frameData = pipe->getFrameData();
+
+    glTranslatef( frameData._data.translation.x,
+                  frameData._data.translation.y,
+                  frameData._data.translation.z );
+    glMultMatrixf( frameData._data.rotation.ml );
 
     Node*            node  = (Node*)getNode();
     const Model*     model = node->getModel();
@@ -213,8 +205,11 @@ void Channel::_drawBBox( const Model::BBox *bbox )
 
 void Channel::_initFrustum( Frustumf& frustum )
 {
-    vmml::Matrix4f view( _frameData->_data.rotation );
-    view.setTranslation( _frameData->_data.translation );
+    const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
+    const FrameData& frameData = pipe->getFrameData();
+
+    vmml::Matrix4f view( frameData._data.rotation );
+    view.setTranslation( frameData._data.translation );
 
     const vmml::Frustumf&  eqFrustum     = getFrustum();
     const vmml::Matrix4f&  headTransform = getHeadTransform();
@@ -231,7 +226,7 @@ void Channel::_initFrustum( Frustumf& frustum )
     EQINFO << getName()  << " front " << front << endl;
     front.scale( M_SQRT3_2 ); // bounding sphere size of unit-sized cube
 
-    const vmml::Vector3f center( _frameData->_data.translation );
+    const vmml::Vector3f center( frameData._data.translation );
     const vmml::Vector3f near  = headTransform * ( center - front );
     const vmml::Vector3f far   = headTransform * ( center + front );
     const float          zNear = MAX( 0.0001f, -near.z );

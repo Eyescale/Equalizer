@@ -18,10 +18,8 @@ using namespace eq;
 using namespace eqBase;
 using namespace std;
 
-FrameData::FrameData( const void* data, const uint64_t size )
-        : _data( *(Data*)data ) 
+FrameData::FrameData()
 {
-    EQASSERT( size == sizeof( Data ));
     setInstanceData( &_data, sizeof( Data ));
 
     registerCommand( CMD_FRAMEDATA_TRANSMIT,
@@ -119,6 +117,7 @@ void FrameData::_setReady()
 
     _listenersMutex.set();
     _readyVersion = getVersion(); 
+    EQLOG( LOG_ASSEMBLY ) << "set ready " << this << endl;
 
     for( vector< Monitor<uint32_t>* >::iterator i = _listeners.begin();
          i != _listeners.end(); ++i )

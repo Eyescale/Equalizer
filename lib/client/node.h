@@ -9,12 +9,16 @@
 #include <eq/client/config.h>
 
 #include <eq/base/base.h>
+#include <eq/net/barrier.h>
 
 namespace eq
 {
     class Config;
+    class FrameData;
     class Pipe;
     class Server;
+
+    typedef stde::hash_map< uint32_t, FrameData* > FrameDataCache;
 
     class EQ_EXPORT Node : public eqNet::Object
     {
@@ -43,6 +47,24 @@ namespace eq
          */
         Pipe* getPipe( const uint32_t index ) const
             { return _pipes[index]; }
+
+        /** 
+         * Get a network barrier. 
+         * 
+         * @param id the barrier identifier.
+         * @param version the barrier version.
+         * @return the barrier.
+         */
+        eqNet::Barrier* getBarrier( const uint32_t id, const uint32_t version );
+
+        /** 
+         * Get a frame data instance.
+         * 
+         * @param id the frame identifier.
+         * @param version the frame's version.
+         * @return the frame.
+         */
+        FrameData* getFrameData( const uint32_t id, const uint32_t version );
 
     protected:
         /**
@@ -96,6 +118,14 @@ namespace eq
         /** The receiver->node thread command queue. */
         eqNet::CommandQueue    _commandQueue;
 
+        /** All barriers mapped by the node. */
+        eqNet::IDHash< eqNet::Barrier* > _barriers;
+        eqBase::Lock                     _barriersMutex;
+
+        /** All frame datas used by the node during rendering. */
+        FrameDataCache _frameDatas;
+        eqBase::Lock   _frameDatasMutex;
+
         /** The node thread. */
         class NodeThread : public eqBase::Thread
         {
@@ -112,6 +142,9 @@ namespace eq
 
         void _addPipe( Pipe* pipe );
         void _removePipe( Pipe* pipe );
+        Pipe* _findPipe( const uint32_t id );
+
+        void _flushObjects();
 
         /** 
          * Push a command from the receiver to the node thread to be handled

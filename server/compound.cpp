@@ -326,16 +326,14 @@ TraverseResult Compound::_initCB( Compound* compound, void* userData )
         channel->refUsed();
 
     Config*             config  = compound->getConfig();
-    RefPtr<eqNet::Node> node    = config->getLocalNode();
     const uint32_t      latency = config->getLatency();
     EQASSERT( config );
-    EQASSERT( node );
     
     for( vector<Frame*>::iterator iter = compound->_outputFrames.begin(); 
          iter != compound->_outputFrames.end(); ++iter )
     {
         Frame* frame = *iter;
-        config->registerObject( frame, node );
+        config->registerObject( frame );
         frame->setAutoObsolete( latency );
         EQLOG( eq::LOG_ASSEMBLY ) 
             << "Output frame \"" << frame->getName() << "\" id " 
@@ -346,7 +344,7 @@ TraverseResult Compound::_initCB( Compound* compound, void* userData )
          iter != compound->_inputFrames.end(); ++iter )
     {
         Frame* frame = *iter;
-        config->registerObject( frame, node );
+        config->registerObject( frame );
         frame->setAutoObsolete( latency );
         EQLOG( eq::LOG_ASSEMBLY ) 
             << "Input frame \"" << frame->getName() << "\" id " 

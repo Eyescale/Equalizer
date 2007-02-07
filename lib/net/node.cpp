@@ -676,7 +676,7 @@ CommandResult Node::dispatchCommand( Command& command )
                 static_cast<SessionPacket*>( command.getPacket( ));
             const uint32_t       id            = sessionPacket->sessionID;
             Session*             session       = _sessions[id];
-            EQASSERTINFO( session, id );
+            EQASSERTINFO( session, sessionPacket );
             
             return session->dispatchCommand( command );
         }
@@ -1195,6 +1195,8 @@ bool Node::syncConnect()
 
 RefPtr<Node> Node::connect( const NodeID& nodeID, RefPtr<Node> server)
 {
+    EQASSERT( nodeID != NodeID::ZERO );
+
     NodeIDHash< eqBase::RefPtr<Node> >::const_iterator iter = 
         _nodes.find( nodeID );
     if( iter != _nodes.end( ))

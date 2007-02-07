@@ -102,11 +102,22 @@ void eq::Window::_removeChannel( Channel* channel )
 {
     vector<Channel*>::iterator iter = find( _channels.begin(), _channels.end(), 
                                             channel );
-    if( iter == _channels.end( ))
-        return;
+    EQASSERT( iter != _channels.end( ))
     
     _channels.erase( iter );
     channel->_window = 0;
+}
+
+Channel* eq::Window::_findChannel( const uint32_t id )
+{
+    for( vector<Channel*>::const_iterator i = _channels.begin(); 
+         i != _channels.end(); ++i )
+    {
+        Channel* channel = *i;
+        if( channel->getID() == id )
+            return channel;
+    }
+    return 0;
 }
 
 //---------------------------------------------------------------------------
@@ -125,8 +136,7 @@ eqNet::CommandResult eq::Window::_cmdCreateChannel( eqNet::Command& command )
 
     Channel* channel = Global::getNodeFactory()->createChannel();
     
-    getConfig()->addRegisteredObject( packet->channelID, channel, 
-                                      eqNet::Object::SHARE_NODE );
+    getConfig()->attachObject( channel, packet->channelID );
     _addChannel( channel );
     return eqNet::COMMAND_HANDLED;
 }
@@ -137,14 +147,12 @@ eqNet::CommandResult eq::Window::_cmdDestroyChannel(eqNet::Command& command )
         command.getPacket<WindowDestroyChannelPacket>();
     EQINFO << "Handle destroy channel " << packet << endl;
 
-    Config*  config  = getConfig();
-    Channel* channel = (Channel*)config->pollObject(packet->channelID);
-    if( !channel )
-        return eqNet::COMMAND_HANDLED;
+    Channel* channel = _findChannel( packet->channelID );
+    EQASSERT( channel )
 
     _removeChannel( channel );
-    EQASSERT( channel->getRefCount() == 1 );
-    config->removeRegisteredObject( channel );
+    Config*  config  = getConfig();
+    config->detachObject( channel );
     
     return eqNet::COMMAND_HANDLED;
 }
@@ -260,13 +268,10 @@ eqNet::CommandResult eq::Window::_reqBarrier( eqNet::Command& command )
     EQLOG( eqNet::LOG_BARRIER ) << "swap barrier " << packet->barrierID
                                 << " v" << packet->barrierVersion <<endl;
     
-    eqNet::Session* session = getSession();
-    eqNet::Object*  object  = session->getObject( packet->barrierID, 
-                                                  Object::SHARE_NODE,
-                                                  packet->barrierVersion );
-    EQASSERT( dynamic_cast<eqNet::Barrier*>( object ) );
+    Node*           node    = getNode();
+    eqNet::Barrier* barrier = node->getBarrier( packet->barrierID, 
+                                                packet->barrierVersion );
 
-    eqNet::Barrier* barrier = (eqNet::Barrier*)object;
     barrier->enter();
     return eqNet::COMMAND_HANDLED;
 }
