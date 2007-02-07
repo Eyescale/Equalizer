@@ -115,12 +115,9 @@ void* RequestHandler::getRequestData( const uint32_t requestID )
 
 void RequestHandler::serveRequest( const uint32_t requestID, void* result )
 {
-    RequestHash::iterator iter = _requests.find( requestID );
-    if( iter == _requests.end( ))
-    {
-        EQWARN << "Attempt to serve unregistered request" << endl;
-        return;
-    }
+    RequestHash::const_iterator iter = _requests.find( requestID );
+    EQASSERTINFO( iter != _requests.end(),
+                  "Attempt to serve unregistered request " << requestID );
 
     Request* request = iter->second;
     request->result = result;

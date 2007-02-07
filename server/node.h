@@ -251,10 +251,13 @@ namespace eqs
         uint32_t _pendingRequestID;
 
         /** The cached barriers. */
-        std::vector<eqNet::Barrier*> _barrierCache;
+        std::vector<eqNet::Barrier*> _barriers;
 
         /** common code for all constructors */
         void _construct();
+
+        /** flush cached barriers. */
+        void _flushBarriers();
 
         /* Command handler functions. */
         eqNet::CommandResult _cmdInitReply( eqNet::Command& command );

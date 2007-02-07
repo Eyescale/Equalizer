@@ -150,6 +150,7 @@ bool Node::syncExit()
                              _requestHandler.waitRequest( _pendingRequestID ));
     _pendingRequestID = EQ_ID_INVALID;
 
+    _flushBarriers();
     return success;
 }
 
@@ -184,7 +185,7 @@ void Node::syncUpdate( const uint32_t frame ) const
 //---------------------------------------------------------------------------
 eqNet::Barrier* Node::getBarrier()
 {
-    if( _barrierCache.empty() )
+    if( _barriers.empty() )
     {
         eqNet::Barrier* barrier = new eqNet::Barrier( _node );
         barrier->setAutoObsolete( getConfig()->getLatency()+1, 
@@ -194,15 +195,27 @@ eqNet::Barrier* Node::getBarrier()
         return barrier;
     }
 
-    eqNet::Barrier* barrier = _barrierCache.back();
-    _barrierCache.pop_back();
+    eqNet::Barrier* barrier = _barriers.back();
+    _barriers.pop_back();
     barrier->setHeight(0);
     return barrier;
 }
 
 void Node::releaseBarrier( eqNet::Barrier* barrier )
 {
-    _barrierCache.push_back( barrier );
+    _barriers.push_back( barrier );
+}
+
+void Node::_flushBarriers()
+{
+    for( vector< eqNet::Barrier* >::const_iterator i =_barriers.begin(); 
+         i != _barriers.end(); ++ i )
+    {
+        eqNet::Barrier* barrier = *i;
+        _config->deregisterObject( barrier );
+        delete barrier;
+    }
+    _barriers.clear();
 }
 
 //===========================================================================

@@ -623,8 +623,6 @@ namespace eqNet
 
         bool _listenToSelf();
         void _cleanup();
-        uint32_t _initiateConnection( eqBase::RefPtr<Node> node, 
-                                      eqBase::RefPtr<Connection> connection );
 
         /** 
          * Launches the node using the parameters from the connection

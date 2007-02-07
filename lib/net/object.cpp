@@ -557,8 +557,7 @@ CommandResult Object::_cmdCommit( Command& command )
     _obsolete();
 
     // send delta to subscribed slaves
-    const NodeVector& slaves = getSlaves();
-    if( !slaves.empty( ))
+    if( !_slaves.empty( ))
     {
         ObjectSyncPacket  deltaPacket;
 
@@ -566,8 +565,8 @@ CommandResult Object::_cmdCommit( Command& command )
         deltaPacket.deltaSize = deltaSize;
         
         EQLOG( LOG_OBJECTS ) << "send " << &deltaPacket << " to " 
-                             << slaves.size() << " nodes " << endl;
-        send( slaves, deltaPacket, delta, deltaSize );
+                             << _slaves.size() << " nodes " << endl;
+        send( _slaves, deltaPacket, delta, deltaSize );
     }
 
     releasePackData( delta );

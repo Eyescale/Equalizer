@@ -324,12 +324,6 @@ namespace eqNet
          */
         void removeSlave( eqBase::RefPtr<Node> node );
 
-        /** 
-         * @return the vector of registered slaves.
-         */
-        const NodeVector& getSlaves() const
-            { return _slaves; }
-
         /** @name Packet Transmission */
         //*{
         bool send( eqBase::RefPtr<Node> node, ObjectPacket& packet );

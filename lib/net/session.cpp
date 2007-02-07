@@ -328,6 +328,10 @@ void Session::deregisterObject( Object* object )
     EQLOG( LOG_OBJECTS ) 
         << "deregisterObject id " << id << " @" << (void*)object << endl;
 
+    if( !object->_slaves.empty( ))
+        EQWARN << object->_slaves.size() 
+               << " slave nodes subscribed during deregisterObject" << endl;
+
     unmapObject( object );
     freeIDs( id, 1 );
 }

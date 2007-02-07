@@ -236,22 +236,11 @@ bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
         return false;
 
     // send connect packet to peer
-    const uint32_t requestID = _initiateConnection( node, connection );
-    _requestHandler.waitRequest( requestID );
-
-    EQASSERT( node->_id != EQ_ID_INVALID );
-    EQINFO << node.get() << " connected to " << this << endl;
-    return true;
-}
-
-uint32_t Node::_initiateConnection( RefPtr<Node> node, 
-                                    RefPtr<Connection> connection )
-{
     eqNet::NodeConnectPacket packet;
-    packet.nodeID    = _id;
 
     node->ref();
     packet.requestID = _requestHandler.registerRequest( node.get( ));
+    packet.nodeID    = _id;
     
     _connectionSet.addConnection( connection );
     if( _listener.isValid( ))
@@ -259,7 +248,10 @@ uint32_t Node::_initiateConnection( RefPtr<Node> node,
     else
         connection->send( packet );
 
-    return packet.requestID;
+    _requestHandler.waitRequest( packet.requestID );
+    EQASSERT( node->_id != EQ_ID_INVALID );
+    EQINFO << node.get() << " connected to " << this << endl;
+    return true;
 }
 
 eqBase::RefPtr<Node> Node::getNode( const NodeID& id ) const
@@ -950,7 +942,8 @@ CommandResult Node::_cmdConnectReply( Command& command )
     _connectionNodes[ connection.get() ] = remoteNode;
     _nodes[ packet->nodeID ]             = remoteNode;
 
-    _requestHandler.serveRequest( packet->requestID, 0 );
+    if( packet->requestID != EQ_ID_INVALID )
+        _requestHandler.serveRequest( packet->requestID, 0 );
     return COMMAND_HANDLED;
 }
 

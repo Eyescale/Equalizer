@@ -173,8 +173,7 @@ eqNet::CommandResult Server::_cmdDestroyConfig( eqNet::Command& command )
     
     RefPtr<Node>    localNode  = Node::getLocalNode();
     eqNet::Session* session    = localNode->getSession( packet->configID );
-    EQASSERT( session );
-    EQASSERT( dynamic_cast<Config*>( session ));
+    EQASSERTINFO( dynamic_cast<Config*>( session ), typeid(*session).name( ));
 
     Config* config = static_cast<Config*>( session );
 
