@@ -426,7 +426,7 @@ bool eq::Window::initGL( const uint32_t initID )
     glEnable( GL_COLOR_MATERIAL );
 
     glClearDepth( 1.f );
-    glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
+    //glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 
     glClear( GL_COLOR_BUFFER_BIT );
     swapBuffers();
@@ -886,6 +886,8 @@ void eq::Window::exitGLX()
     Display *display = _pipe->getXDisplay();
     if( !display ) 
         return;
+
+    glXMakeCurrent( display, None, NULL );
 
     GLXContext context = getGLXContext();
     if( context )
