@@ -7,6 +7,8 @@
 #include "command.h"
 #include "connection.h"
 #include "connectionDescription.h"
+#include "deltaMasterCM.h"
+#include "deltaSlaveCM.h"
 #include "log.h"
 #include "packets.h"
 #include "session.h"
@@ -22,10 +24,10 @@ using namespace std;
 #define MIN_ID_RANGE 1024
 
 Session::Session( const bool threadSafe )
-        : Base( threadSafe ),
-          _id(EQ_ID_INVALID),
+        : _id(EQ_ID_INVALID),
           _server(0),
           _isMaster(false),
+          _requestHandler( threadSafe ),
           _masterPool( IDPool::MAX_CAPACITY ),
           _localPool( 0 ),
           _instanceIDs( IDPool::MAX_CAPACITY ) 
@@ -237,11 +239,11 @@ void Session::detachObject( Object* object )
 
         EQASSERT( object->_instanceID != EQ_ID_INVALID );
         _instanceIDs.freeIDs( object->_instanceID, 1 );
-    
+
         object->_id         = EQ_ID_INVALID;
         object->_instanceID = EQ_ID_INVALID;
         object->_session    = 0;
-        object->_master     = false;
+        object->_setChangeManager( ObjectCM::ZERO );
         return;
     }
     // else
@@ -259,7 +261,7 @@ bool Session::mapObject( Object* object, const uint32_t id )
     EQASSERT( !_localNode->inReceiverThread( ));
         
     RefPtr<Node> master;
-    if( !object->isMaster( ))
+    if( object->_cm == ObjectCM::ZERO )
     {
         const NodeID& masterID = getIDMaster( id );
         if( masterID == NodeID::ZERO )
@@ -275,6 +277,8 @@ bool Session::mapObject( Object* object, const uint32_t id )
                    << " for object id " << id << endl;
             return false;
         }
+
+        object->_setChangeManager( new DeltaSlaveCM( object ));
     }
 
     MapObjectData data = { object, id, master };
@@ -317,7 +321,7 @@ void Session::registerObject( Object* object )
     EQLOG( LOG_OBJECTS ) << "registerObject type " << typeid(*object).name()
                          << " id " << id << " @" << (void*)object << endl;
 
-    object->_master = true;
+    object->_setChangeManager( new DeltaMasterCM( object ));
     mapObject( object, id );
 }
 
@@ -327,10 +331,6 @@ void Session::deregisterObject( Object* object )
 
     EQLOG( LOG_OBJECTS ) 
         << "deregisterObject id " << id << " @" << (void*)object << endl;
-
-    if( !object->_slaves.empty( ))
-        EQWARN << object->_slaves.size() 
-               << " slave nodes subscribed during deregisterObject" << endl;
 
     unmapObject( object );
     freeIDs( id, 1 );
@@ -636,6 +636,7 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
     object->_id         = data->objectID;
     object->_instanceID = packet->instanceID;
     object->_session    = this;
+    EQASSERT( object->_cm != ObjectCM::ZERO );
 
     vector<Object*>& objects = _objects[ data->objectID ];
     objects.push_back( object );
@@ -760,7 +761,7 @@ CommandResult Session::_cmdUnsubscribeObjectReply( Command& command )
     object->_id         = EQ_ID_INVALID;
     object->_instanceID = EQ_ID_INVALID;
     object->_session    = 0;
-    object->_master     = false;
+    object->_setChangeManager( ObjectCM::ZERO );
     
     EQLOG( LOG_OBJECTS )
         << "unmapped object id " << id << " @" << (void*)object

@@ -5,18 +5,15 @@
 #ifndef EQNET_OBJECT_H
 #define EQNET_OBJECT_H
 
-#include <eq/net/base.h>
-#include <eq/net/commands.h>
-#include <eq/net/commandQueue.h>
-#include <eq/net/global.h>
-#include <eq/net/nodeID.h>
-#include <eq/net/types.h>
-
-#include <eq/base/idPool.h>
+#include <eq/net/base.h>     // base class
+#include <eq/net/node.h>     // used in RefPtr
+#include <eq/net/objectCM.h> // called inline
+#include <eq/net/types.h>    // for NodeVector
 
 namespace eqNet
 {
-    class Node;    class Session;
+    class Node;
+    class Session;
     struct ObjectPacket;
 
     /** A generic, distributed object. */
@@ -77,8 +74,8 @@ namespace eqNet
          * during object instanciation.
          * @sa Session::getObject().
          */
-        virtual void makeThreadSafe();
-        bool isThreadSafe() const      { return ( _mutex!=NULL ); }
+        virtual void makeThreadSafe();  
+        bool isThreadSafe() const      { return _threadSafe; }
 
         eqBase::RefPtr<Node> getLocalNode();
         Session* getSession() const    { return _session; }
@@ -112,7 +109,7 @@ namespace eqNet
          * @return the commit identifier to be passed to commitSync
          * @sa commitSync
          */
-        uint32_t commitNB();
+        uint32_t commitNB() { return _cm->commitNB(); }
         
         /** 
          * Finalizes a commit transaction.
@@ -120,7 +117,8 @@ namespace eqNet
          * @param commitID the commit identifier returned from commitNB
          * @return the new head version.
          */
-        uint32_t commitSync( const uint32_t commitID );
+        uint32_t commitSync( const uint32_t commitID ) 
+        { return _cm->commitSync( commitID ); }
 
         /** 
          * Explicitily obsoletes all versions including version.
@@ -129,7 +127,7 @@ namespace eqNet
          * 
          * @param version the version to obsolete
          */
-        void obsolete( const uint32_t version );
+        void obsolete( const uint32_t version ) { _cm->obsolete( version ); }
 
         /** 
          * Automatically obsolete old versions.
@@ -148,10 +146,11 @@ namespace eqNet
          */
         void setAutoObsolete( const uint32_t count, 
                            const uint32_t flags = AUTO_OBSOLETE_COUNT_VERSIONS )
-            { _nVersions = count; _obsoleteFlags = flags; }
+        { _cm->setAutoObsolete( count, flags ); }
 
         /** @return get the number of versions this object retains. */
-        uint32_t getAutoObsoleteCount() const { return _nVersions; }
+        uint32_t getAutoObsoleteCount() const 
+        { return _cm->getAutoObsoleteCount(); }
 
         /** 
          * Sync to a given version.
@@ -165,22 +164,22 @@ namespace eqNet
          *         <code>false</code> if not.
          */
         bool sync( const uint32_t version = VERSION_HEAD
-                   /*, const float timeout = EQ_TIMEOUT_INDEFINITE*/ );
+                   /*, const float timeout = EQ_TIMEOUT_INDEFINITE*/ )
+        { return _cm->sync( version ); }
 
         /** 
          * Get the latest available version.
          * 
          * @return the head version.
          */
-        uint32_t getHeadVersion() const;
+        uint32_t getHeadVersion() const { return _cm->getHeadVersion(); }
 
         /** 
          * Get the currently synchronized version.
          * 
          * @return the current version.
          */
-        uint32_t getVersion() const { return _version; }
-
+        uint32_t getVersion() const { return _cm->getVersion(); }
         //*}
 
         /**
@@ -227,7 +226,7 @@ namespace eqNet
          * 
          * @param data the data.
          */
-        virtual void releaseInstanceData( const void* data ){}
+        virtual void releaseInstanceData( const void* data ) {}
 
         /**
          * Apply instance data.
@@ -304,10 +303,8 @@ namespace eqNet
             { _deltaData = data; _deltaDataSize = size; }
         //*}
 
-        /** 
-         * @return if this instance is the master version.
-         */
-        bool isMaster() const { return _master; }
+        /** @return if this instance is the master version. */
+        bool isMaster() const { return _cm->isMaster(); }
 
         /** 
          * Add a slave subscriber.
@@ -315,14 +312,16 @@ namespace eqNet
          * @param node the slave node.
          * @param instanceID the object instance identifier on the slave node.
          */
-        void addSlave( eqBase::RefPtr<Node> node, const uint32_t instanceID );
+        void addSlave( eqBase::RefPtr<Node> node, const uint32_t instanceID )
+        { _cm->addSlave( node, instanceID ); }
 
         /** 
          * Remove a subscribed slave.
          * 
          * @param node the slave node. 
          */
-        void removeSlave( eqBase::RefPtr<Node> node );
+        void removeSlave( eqBase::RefPtr<Node> node )
+        { _cm->removeSlave( node ); }
 
         /** @name Packet Transmission */
         //*{
@@ -342,35 +341,14 @@ namespace eqNet
         friend class Session;
         Session*     _session;
 
+        friend class DeltaMasterCM;
+        friend class DeltaSlaveCM;
+
         /** The session-unique object identifier. */
         uint32_t     _id;
 
         /** A node-unique identifier of the concrete instance. */
         uint32_t     _instanceID;
-
-        /** Master (writable) instance if <code>true</code>. */
-        bool         _master;
-        
-        /** The list of subsribed slave nodes, kept on the master only. */
-        NodeVector _slaves;
-
-        /** The number of object instances subscribed per slave node. */
-        NodeIDHash< uint32_t > _slavesCount;
-
-        /** The current version. */
-        uint32_t _version;
-
-        /** The number of commits, needed for auto-obsoletion. */
-        uint32_t _commitCount;
-
-        /** The number of old versions to retain. */
-        uint32_t _nVersions;
-
-        /** The flags for automatic version obsoletion. */
-        uint32_t _obsoleteFlags;
-
-        /** The mutex, if thread safety is enabled. */
-        eqBase::Lock* _mutex;
 
         /** A pointer to the object's instance data. */
         void*    _instanceData;
@@ -380,49 +358,22 @@ namespace eqNet
         void*    _deltaData;
         uint64_t _deltaDataSize;
 
-        struct InstanceData
-        {
-            InstanceData() : data(NULL), size(0), maxSize(0), commitCount(0) {}
-            void*    data;
-            uint64_t size;
-            uint64_t maxSize;
+        /** The object's change manager. */
+        ObjectCM* _cm;
 
-            uint32_t commitCount;
-        };
-        struct ChangeData : public InstanceData
-        {
-            ChangeData() : version(0) {}
-            uint32_t version;
-        };
-        
-        /** The list of full instance datas, head version first. */
-        std::deque<InstanceData> _instanceDatas;
-
-        /** The list of change datas, (head-1):head change first. */
-        std::deque<ChangeData> _changeDatas;
-        
-        std::vector<InstanceData> _instanceDataCache;
-        std::vector<ChangeData>   _changeDataCache;
-
-        /** The slave queue for changes. */
-        CommandQueue _syncQueue;
+        /** Make synchronization thread safe. */
+        bool _threadSafe;
 
         /** Common constructor code. */
         void _construct();
 
-        bool _syncInitial();
-        void _syncToHead();
+        void _setChangeManager( ObjectCM* cm );
 
-        uint32_t _commitInitial();
-        void _setInitialVersion( const void* ptr, const uint64_t size );
-        void _obsolete();
-        void _checkConsistency() const;
+        bool _syncInitial(){ return _cm->syncInitial(); }
 
         /* The command handlers. */
-        CommandResult _cmdPushData( Command& command );
-        CommandResult _reqInit( Command& command );
-        CommandResult _reqSync( Command& pkg );
-        CommandResult _cmdCommit( Command& pkg );
+        CommandResult _cmdForward( Command& command )
+        { return _cm->invokeCommand( command ); }
 
         CHECK_THREAD_DECLARE( _thread );
     };

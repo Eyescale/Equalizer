@@ -40,16 +40,16 @@ PerThread<Node*> Node::_localNode;
 // State management
 //----------------------------------------------------------------------
 Node::Node()
-        : Base( true ),
-          _autoLaunch(false),
-          _autoLaunched(false),
-          _id(true),
-          _state(STATE_STOPPED),
-          _launchID(EQ_ID_INVALID),
+        : _requestHandler( true ),
+          _autoLaunch( false ),
+          _autoLaunched( false ),
+          _id( true ),
+          _state( STATE_STOPPED ),
+          _launchID( EQ_ID_INVALID ),
           _programName( Global::getProgramName( )),
           _workDir( Global::getWorkDir( )),
-          _clientRunning(false),
-          _nextConnectionRequestID(1)
+          _clientRunning( false ),
+          _nextConnectionRequestID( 1 )
 {
     registerCommand( CMD_NODE_STOP, 
                      CommandFunc<Node>( this, &Node::_cmdStop ));
@@ -562,7 +562,7 @@ bool Node::_handleData()
     switch( result )
     {
         case COMMAND_ERROR:
-            EQASSERTINFO( 0, "Error handling command " << *_receivedCommand );
+            EQASSERTINFO( 0, "Error handling " << *_receivedCommand );
             break;
         
         case COMMAND_REDISPATCH:

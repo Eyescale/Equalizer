@@ -190,6 +190,9 @@ namespace eqs
     protected:
         virtual ~Channel();
 
+        /** Registers request packets waiting for a return value. */
+        eqBase::RequestHandler _requestHandler;
+
     private:
         /** The current operational state. */
         State _state;

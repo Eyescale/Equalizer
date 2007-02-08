@@ -188,9 +188,9 @@ eqNet::Barrier* Node::getBarrier()
     if( _barriers.empty() )
     {
         eqNet::Barrier* barrier = new eqNet::Barrier( _node );
+        _config->registerObject( barrier );
         barrier->setAutoObsolete( getConfig()->getLatency()+1, 
                                   Object::AUTO_OBSOLETE_COUNT_VERSIONS );
-        _config->registerObject( barrier );
         
         return barrier;
     }

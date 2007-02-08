@@ -27,7 +27,7 @@ namespace eqNet
     class EQ_EXPORT Base
     {
     public:
-        Base( const bool threadSafe = false );
+        Base();
 		Base( const Base& from );
         virtual ~Base();        
 
@@ -53,9 +53,6 @@ namespace eqNet
                               const CommandFunc<T>& func);
 
         
-        /** Registers request packets waiting for a return value. */
-        eqBase::RequestHandler _requestHandler;
-
         /** 
          * The default handler for handling commands.
          * 

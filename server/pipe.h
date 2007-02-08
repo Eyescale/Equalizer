@@ -198,6 +198,9 @@ namespace eqs
     protected:
         virtual ~Pipe();
 
+        /** Registers request packets waiting for a return value. */
+        eqBase::RequestHandler _requestHandler;
+
     private:
         /** The current operational state. */
         State _state;

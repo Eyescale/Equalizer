@@ -14,13 +14,11 @@ using namespace eqNet;
 using namespace eqBase;
 using namespace std;
 
-Base::Base( const bool threadSafe )
-        : _requestHandler( threadSafe )
+Base::Base()
 {
 }
 
 Base::Base( const Base& from )
-        : _requestHandler( from._requestHandler.isThreadSafe( ))
 {
 }
 
@@ -61,9 +59,9 @@ CommandResult Base::invokeCommand( Command& command )
     return _vTable[which]( command );
 }
 
-CommandResult Base::_cmdUnknown( Command& packet )
+CommandResult Base::_cmdUnknown( Command& command )
 {
-    EQERROR << "Unknown command " << packet << " class " << typeid(*this).name()
+    EQERROR << "Unknown " << command << ", type " << typeid(*this).name()
             << endl;
     return COMMAND_ERROR;
 }

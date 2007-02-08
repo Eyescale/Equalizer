@@ -226,6 +226,9 @@ namespace eqs
     protected:
         virtual ~Node();
 
+        /** Registers request packets waiting for a return value. */
+        eqBase::RequestHandler _requestHandler;
+
     private:
         /** The parent config. */
         Config* _config;

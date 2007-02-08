@@ -5,12 +5,10 @@
 #ifndef EQ_CONFIG_H
 #define EQ_CONFIG_H
 
-#include <eq/base/base.h>
-#include <eq/base/requestHandler.h>
-#include <eq/client/commands.h>
-#include <eq/net/packets.h>
-#include <eq/net/session.h>
-#include <eq/client/matrix4.h>
+#include <eq/client/matrix4.h>   // member
+#include <eq/net/session.h>      // base class
+#include <eq/net/commandQueue.h> // member
+
 
 namespace eq
 {

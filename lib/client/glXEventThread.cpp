@@ -19,7 +19,7 @@ using namespace eqBase;
 using namespace std;
 
 GLXEventThread::GLXEventThread()
-        : eqNet::Base( true )
+        : _requestHandler( true )
 {
     registerCommand( CMD_GLXEVENTTHREAD_ADD_PIPE,
       eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdAddPipe ));

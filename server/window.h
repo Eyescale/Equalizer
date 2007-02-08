@@ -228,6 +228,9 @@ namespace eqs
     protected:
         virtual ~Window();
 
+        /** Registers request packets waiting for a return value. */
+        eqBase::RequestHandler _requestHandler;
+
     private:
         eq::Window::DrawableConfig _drawableConfig;
 

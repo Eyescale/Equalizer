@@ -52,6 +52,9 @@ namespace eq
         eqNet::ConnectionSet        _connections;
         eqBase::RefPtr<eqNet::Node> _localNode;
 
+        /** Registers request packets waiting for a return value. */
+        eqBase::RequestHandler _requestHandler;
+
         /** The cache to store the last received command, stored for reuse */
         eqNet::Command _receivedCommand;
 

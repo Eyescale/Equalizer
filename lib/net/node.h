@@ -497,12 +497,6 @@ namespace eqNet
         /** Destructs this node. */
         virtual ~Node();
 
-        /** Determines if the node should be launched automatically. */
-        bool _autoLaunch;
-
-        /** true if this node was launched automatically. */
-        bool _autoLaunched;
-
         /** 
          * Dispatches a packet to the appropriate object or to handleCommand.
          * 
@@ -562,6 +556,15 @@ namespace eqNet
          */
         virtual eqBase::RefPtr<Node> createNode( const CreateReason reason )
             { return new Node(); }
+
+        /** Registers request packets waiting for a return value. */
+        eqBase::RequestHandler _requestHandler;
+
+        /** Determines if the node should be launched automatically. */
+        bool _autoLaunch;
+
+        /** true if this node was launched automatically. */
+        bool _autoLaunched;
 
     private:
         /** per-thread local node */

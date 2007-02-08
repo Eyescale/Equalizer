@@ -33,16 +33,16 @@ HEADER_SRC = \
 	net/barrier.h \
 	net/base.h \
 	net/command.h \
-	net/commandResult.h \
-	net/commands.h \
 	net/commandCache.h \
 	net/commandFunc.h \
 	net/commandQueue.h \
+	net/commandResult.h \
+	net/commands.h \
 	net/connection.h \
 	net/connection.ipp \
+	net/connectionDescription.h \
 	net/connectionSet.h \
 	net/connectionType.h \
-	net/connectionDescription.h \
 	net/fdConnection.h \
 	net/global.h \
 	net/group.h \
@@ -53,6 +53,7 @@ HEADER_SRC = \
 	net/node.h \
 	net/nodeID.h \
 	net/object.h \
+	net/objectCM.h\
 	net/packets.h \
 	net/pipeConnection.h \
 	net/session.h \
@@ -111,12 +112,15 @@ SOURCES = \
 	net/connection.cpp \
 	net/connectionDescription.cpp \
 	net/connectionSet.cpp \
+	net/deltaMasterCM.cpp \
+	net/deltaSlaveCM.cpp \
 	net/fdConnection.cpp \
 	net/global.cpp \
 	net/init.cpp \
 	net/node.cpp \
 	net/nodeID.cpp \
 	net/object.cpp \
+	net/objectCM.cpp \
 	net/packets.cpp \
 	net/pipeConnection.cpp \
 	net/session.cpp \
