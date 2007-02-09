@@ -47,7 +47,7 @@ namespace eqNet
         virtual uint32_t getVersion() const     { return Object::VERSION_NONE; }
         //*}
 
-        virtual bool isMaster() const { EQDONTCALL; return false; }
+        virtual bool isMaster() const { return false; }
 
         virtual void addSlave( eqBase::RefPtr<Node> slave, 
                                const uint32_t instanceID )    { EQDONTCALL; }

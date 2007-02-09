@@ -27,15 +27,12 @@ Command& Command::operator = ( Command& rhs )
     if( this == &rhs )
         return *this;
 
+    release();
+
     if( !rhs._packet )   // empty holder
-    {
-        _packet = 0;
-        _node   = 0;
         return *this;
-    }
 
     // transfer packet to avoid copy
-    release();
     _packet     = rhs._packet;
     _node       = rhs._node;
     rhs._packet = 0;

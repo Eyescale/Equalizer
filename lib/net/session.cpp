@@ -9,6 +9,10 @@
 #include "connectionDescription.h"
 #include "deltaMasterCM.h"
 #include "deltaSlaveCM.h"
+#include "fullMasterCM.h"
+#include "fullSlaveCM.h"
+#include "staticMasterCM.h"
+#include "staticSlaveCM.h"
 #include "log.h"
 #include "packets.h"
 #include "session.h"
@@ -261,8 +265,10 @@ bool Session::mapObject( Object* object, const uint32_t id )
     EQASSERT( !_localNode->inReceiverThread( ));
         
     RefPtr<Node> master;
-    if( object->_cm == ObjectCM::ZERO )
+    if( !object->isMaster( ))
     {
+        EQASSERTINFO( object->_cm == ObjectCM::ZERO, typeid( *object ).name( ));
+
         const NodeID& masterID = getIDMaster( id );
         if( masterID == NodeID::ZERO )
         {
@@ -277,8 +283,6 @@ bool Session::mapObject( Object* object, const uint32_t id )
                    << " for object id " << id << endl;
             return false;
         }
-
-        object->_setChangeManager( new DeltaSlaveCM( object ));
     }
 
     MapObjectData data = { object, id, master };
@@ -321,7 +325,7 @@ void Session::registerObject( Object* object )
     EQLOG( LOG_OBJECTS ) << "registerObject type " << typeid(*object).name()
                          << " id " << id << " @" << (void*)object << endl;
 
-    object->_setChangeManager( new DeltaMasterCM( object ));
+    object->setupChangeManager( object->getChangeManagerType(), true );
     mapObject( object, id );
 }
 
@@ -602,6 +606,8 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
             if( object->isMaster( ))
             {
                 SessionSubscribeObjectSuccessPacket successPacket( packet );
+                successPacket.cmType = object->getChangeManagerType();
+
                 send( node, successPacket );
 
                 object->addSlave( node, packet->instanceID );
@@ -636,7 +642,7 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
     object->_id         = data->objectID;
     object->_instanceID = packet->instanceID;
     object->_session    = this;
-    EQASSERT( object->_cm != ObjectCM::ZERO );
+    object->setupChangeManager( packet->cmType, false );
 
     vector<Object*>& objects = _objects[ data->objectID ];
     objects.push_back( object );

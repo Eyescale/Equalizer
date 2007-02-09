@@ -115,6 +115,8 @@ SOURCES = \
 	net/deltaMasterCM.cpp \
 	net/deltaSlaveCM.cpp \
 	net/fdConnection.cpp \
+	net/fullMasterCM.cpp \
+	net/fullSlaveCM.cpp \
 	net/global.cpp \
 	net/init.cpp \
 	net/node.cpp \
@@ -125,6 +127,8 @@ SOURCES = \
 	net/pipeConnection.cpp \
 	net/session.cpp \
 	net/socketConnection.cpp \
+	net/staticMasterCM.cpp \
+	net/staticSlaveCM.cpp \
 	client/channel.cpp \
 	client/client.cpp \
 	client/colorMask.cpp \

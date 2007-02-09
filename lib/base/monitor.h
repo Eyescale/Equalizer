@@ -22,11 +22,11 @@ namespace eqBase
     public:
         /** 
          * Constructs a new monitor for the given thread type.
-         * 
-         * @param type the type of threads accessing the monitor.
          */
-        Monitor()
-                : _value( 0 )
+        Monitor()                 : _value( 0 )     { _construct(); }
+        Monitor( const T& value ) : _value( value ) { _construct(); }
+
+        void _construct()
             {
                 int error = pthread_cond_init( &_cond, NULL );
                 if( error )

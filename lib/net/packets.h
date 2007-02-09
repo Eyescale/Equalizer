@@ -5,8 +5,9 @@
 #ifndef EQNET_PACKETS_H
 #define EQNET_PACKETS_H
 
-#include <eq/net/commands.h>
-#include <eq/net/nodeID.h>
+#include <eq/net/commands.h> // used for CMD_ enums
+#include <eq/net/nodeID.h>   // member
+#include <eq/net/objectCM.h> // for ObjectCM::Type enum
 
 #include <eq/base/idPool.h> // for EQ_ID_*
 
@@ -360,6 +361,7 @@ namespace eqNet
         
         uint32_t            requestID;
         uint32_t            instanceID;
+        ObjectCM::Type      cmType;
     };
 
     struct SessionSubscribeObjectReplyPacket : public SessionPacket

@@ -5,10 +5,16 @@
 #include "object.h"
 
 #include "command.h"
+#include "deltaMasterCM.h"
+#include "deltaSlaveCM.h"
+#include "fullMasterCM.h"
+#include "fullSlaveCM.h"
 #include "log.h"
 #include "nullCM.h"
 #include "packets.h"
 #include "session.h"
+#include "staticMasterCM.h"
+#include "staticSlaveCM.h"
 
 #include <eq/base/scopedMutex.h>
 #include <iostream>
@@ -68,7 +74,9 @@ void Object::_setChangeManager( ObjectCM* cm )
     if( _cm != ObjectCM::ZERO )
     {
         EQASSERTINFO( cm == ObjectCM::ZERO, 
-                      "Overriding existing object change manager" );
+                      "Overriding existing object change manager, obj "
+                      << typeid( *this ).name() << ", old cm " 
+                      << typeid( *_cm ).name( ));
         delete _cm;
     }
 
@@ -140,6 +148,44 @@ uint32_t Object::commit()
     return commitSync( requestID );
 }
 
+ObjectCM::Type Object::getChangeManagerType() const
+{
+    if( isStatic( ))
+        return ObjectCM::STATIC;
+
+    if ( _instanceData == _deltaData && _instanceDataSize == _deltaDataSize )
+        return ObjectCM::FULL;
+
+    return ObjectCM::DELTA;
+}
+
+void Object::setupChangeManager( const ObjectCM::Type type, const bool master )
+{
+    switch( type )
+    {
+        case ObjectCM::STATIC:
+            if( master )
+                _setChangeManager( new StaticMasterCM( this ));
+            else
+                _setChangeManager( new StaticSlaveCM( this ));
+            break;
+        case ObjectCM::FULL:
+            if( master )
+                _setChangeManager( new FullMasterCM( this ));
+            else
+                _setChangeManager( new FullSlaveCM( this ));
+            break;
+        case ObjectCM::DELTA:
+            if( master )
+                _setChangeManager( new DeltaMasterCM( this ));
+            else
+                _setChangeManager( new DeltaSlaveCM( this ));
+            break;
+
+        default: EQUNIMPLEMENTED;
+    }
+}
+
 void Object::setInstanceData( void* data, const uint64_t size )
 {
     _instanceData     = data;
@@ -147,6 +193,7 @@ void Object::setInstanceData( void* data, const uint64_t size )
 
     if( _deltaData )
         return;
+
     _deltaData     = data;
     _deltaDataSize = size;
 }

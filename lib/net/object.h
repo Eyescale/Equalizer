@@ -205,6 +205,17 @@ namespace eqNet
         /** @return if the object is static (true) or versioned (false). */
         virtual bool isStatic() const { return true; }
 
+        /** @return the type of the change manager to be used. */
+        virtual ObjectCM::Type getChangeManagerType() const;
+
+        /** 
+         * Used by the session to setup the change manager.
+         * 
+         * @param type the type of the change manager.
+         * @param master true if this object is the master. 
+         */
+        void setupChangeManager( const ObjectCM::Type type, const bool master );
+
         /** 
          * Return the instance information about this managed object.
          *
@@ -271,10 +282,7 @@ namespace eqNet
          * @param data the change delta. 
          */
         virtual void unpack( const void* data, const uint64_t size ) 
-            { 
-                EQASSERT( size == _deltaDataSize );
-                memcpy( _deltaData, data, size );
-            }
+        { EQASSERT( size == _deltaDataSize ); memcpy( _deltaData, data, size );}
 
         /** 
          * Set the instance data of this object.
@@ -343,6 +351,10 @@ namespace eqNet
 
         friend class DeltaMasterCM;
         friend class DeltaSlaveCM;
+        friend class FullMasterCM;
+        friend class FullSlaveCM;
+        friend class StaticMasterCM;
+        friend class StaticSlaveCM;
 
         /** The session-unique object identifier. */
         uint32_t     _id;

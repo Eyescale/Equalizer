@@ -22,12 +22,8 @@ DeltaSlaveCM::DeltaSlaveCM( Object* object )
 {
     registerCommand( CMD_OBJECT_INIT,
                 CommandFunc<DeltaSlaveCM>( this, &DeltaSlaveCM::_cmdPushData ));
-    registerCommand( REQ_OBJECT_INIT,
-                    CommandFunc<DeltaSlaveCM>( this, &DeltaSlaveCM::_reqInit ));
     registerCommand( CMD_OBJECT_SYNC, 
                 CommandFunc<DeltaSlaveCM>( this, &DeltaSlaveCM::_cmdPushData ));
-    registerCommand( REQ_OBJECT_SYNC,
-                    CommandFunc<DeltaSlaveCM>( this, &DeltaSlaveCM::_reqSync ));
 }
 
 DeltaSlaveCM::~DeltaSlaveCM()

@@ -35,7 +35,7 @@ namespace eqNet
         virtual uint32_t commitSync( const uint32_t commitID )
             { EQDONTCALL; return Object::VERSION_NONE; }
 
-        virtual void obsolete( const uint32_t version ) { EQUNIMPLEMENTED; }
+        virtual void obsolete( const uint32_t version ) { EQDONTCALL; }
 
         virtual void setAutoObsolete( const uint32_t count,
                                       const uint32_t flags ) { EQDONTCALL; }

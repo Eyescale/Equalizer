@@ -157,16 +157,6 @@ void DeltaMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
     initPacket.instanceID = instanceID;
     initPacket.dataSize   = 0;
 
-    if( _object->isStatic( ))
-    {
-        const void* data   = _object->getInstanceData( &initPacket.dataSize );
-        initPacket.version = _version;
-        EQLOG( LOG_OBJECTS ) << "send " << &initPacket << endl;
-        _object->send( node, initPacket, data, initPacket.dataSize );
-        _object->releaseInstanceData( data );
-        return;
-    }
-
     if( _version == Object::VERSION_NONE )
         _commitInitial();
 
@@ -217,8 +207,8 @@ void DeltaMasterCM::_checkConsistency() const
 {
 #ifndef NDEBUG
     EQASSERT( _object->_id != EQ_ID_INVALID );
-
-    if( _object->isStatic() || _version == Object::VERSION_NONE )
+    EQASSERT( !_object->isStatic( ));
+    if( _version == Object::VERSION_NONE )
         return;
 
     EQASSERT( _instanceDatas.size() == _changeDatas.size() + 1 );
@@ -318,7 +308,9 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
         _instanceDataCache.pop_back();
     }
 
+    instanceData.size = 0;
     const void* ptr = _object->getInstanceData( &instanceData.size );
+
     if( instanceData.size > instanceData.maxSize )
     {
         if( instanceData.data )
