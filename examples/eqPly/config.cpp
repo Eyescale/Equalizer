@@ -17,13 +17,39 @@ Config::~Config()
 
 bool Config::init()
 {
+    // init distributed objects
     registerObject( &_frameData );
     _initData.setFrameDataID( _frameData.getID( ));
 
     registerObject( &_initData );
 
+    // init config
     _running = eq::Config::init( _initData.getID( ));
-    return _running;
+    if( !_running )
+        return false;
+    
+    // init tracker
+    if( !_initData.getTrackerPort().empty( ))
+    {
+        if( !_tracker.init( _initData.getTrackerPort() ))
+            EQWARN << "Failed to initialise tracker" << endl;
+        else
+        {
+            // Set up position of tracking system in world space
+            // Note: this depends on the physical installation.
+            vmml::Matrix4f m( vmml::Matrix4f::IDENTITY );
+            m.scale( 1.f, 1.f, -1.f );
+            //m.x = .5;
+            _tracker.setWorldToEmitter( m );
+
+            m = vmml::Matrix4f::IDENTITY;
+            m.rotateZ( -M_PI_2 );
+            _tracker.setSensorToObject( m );
+            EQLOG( eq::LOG_CUSTOM ) << "Tracker initialised" << endl;
+        }
+    }
+
+    return true;
 }
 
 bool Config::exit()
@@ -40,9 +66,17 @@ bool Config::exit()
 
 uint32_t Config::startFrame()
 {
+    // update head position
+    if( _tracker.isRunning() )
+    {
+        _tracker.update();
+        const vmml::Matrix4f& headMatrix = _tracker.getMatrix();
+        setHeadMatrix( headMatrix );
+    }
+
     // update database
-    _frameData._data.rotation.preRotateX( -0.001f * _spinX );
-    _frameData._data.rotation.preRotateY( -0.001f * _spinY );
+    _frameData.data.rotation.preRotateX( -0.001f * _spinX );
+    _frameData.data.rotation.preRotateY( -0.001f * _spinY );
     const uint32_t version = _frameData.commit();
 
     return eq::Config::startFrame( version );
@@ -100,23 +134,23 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                 _spinX = 0;
                 _spinY = 0;
 
-                _frameData._data.rotation.preRotateX( 
+                _frameData.data.rotation.preRotateX( 
                     -0.005f * event->pointerMotion.dx );
-                _frameData._data.rotation.preRotateY(
+                _frameData.data.rotation.preRotateY(
                     -0.005f * event->pointerMotion.dy );
             }
             else if( event->pointerMotion.buttons == eq::PTR_BUTTON2 ||
                      event->pointerMotion.buttons == ( eq::PTR_BUTTON1 |
                                                        eq::PTR_BUTTON3 ))
             {
-                _frameData._data.translation.z +=
+                _frameData.data.translation.z +=
                     .005f * event->pointerMotion.dy;
             }
             else if( event->pointerMotion.buttons == eq::PTR_BUTTON3 )
             {
-                _frameData._data.translation.x += 
+                _frameData.data.translation.x += 
                     .0005f * event->pointerMotion.dx;
-                _frameData._data.translation.y -= 
+                _frameData.data.translation.y -= 
                     .0005f * event->pointerMotion.dy;
             }
             return true;

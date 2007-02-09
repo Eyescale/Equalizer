@@ -16,35 +16,27 @@ public:
     FrameData()
         {
             reset();
-            setInstanceData( &_data, sizeof( Data ));
+            setInstanceData( &data, sizeof( Data ));
             EQINFO << "New FrameData " << std::endl;
-        }
-
-    FrameData( const void* data, const uint64_t size ) 
-        {
-            EQASSERT( size == sizeof( Data ));
-
-            memcpy( &_data, data, sizeof( Data ));
-            setInstanceData( &_data, sizeof( Data ));
-            EQINFO << "New FrameData instance" << std::endl;
         }
 
     virtual uint32_t getTypeID() const { return TYPE_FRAMEDATA; }
 
     void reset()
         {
-            _data.translation   = vmml::Vector3f::ZERO;
-            _data.translation.z = -1.f;
-            _data.rotation = vmml::Matrix4f::IDENTITY;
-            _data.rotation.rotateX( -M_PI_2 );
-            _data.rotation.rotateY( -M_PI_2 );
+            data.translation   = vmml::Vector3f::ZERO;
+            data.translation.z = -1.f;
+            data.rotation = vmml::Matrix4f::IDENTITY;
+            data.rotation.rotateX( -M_PI_2 );
+            data.rotation.rotateY( -M_PI_2 );
         }
 
     struct Data
     {
         vmml::Matrix4f rotation;
         vmml::Vector3f translation;
-    } _data;
+        bool           color;
+    } data;
     
 protected:
     virtual bool isStatic() const { return false; }

@@ -54,16 +54,20 @@ void Channel::draw( const uint32_t frameID )
     const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
     const FrameData& frameData = pipe->getFrameData();
 
-    glTranslatef( frameData._data.translation.x,
-                  frameData._data.translation.y,
-                  frameData._data.translation.z );
-    glMultMatrixf( frameData._data.rotation.ml );
+    glTranslatef( frameData.data.translation.x,
+                  frameData.data.translation.y,
+                  frameData.data.translation.z );
+    glMultMatrixf( frameData.data.rotation.ml );
 
     Node*            node  = (Node*)getNode();
     const Model*     model = node->getModel();
     const eq::Range& range = getRange();
 
-    if( !range.isFull( )) // Color DB-patches
+    if( !frameData.data.color )
+    {
+        glColor3f( 1.0f, 1.0f, 1.0f );
+    }
+    else if( !range.isFull( )) // Color DB-patches
     {
 #ifdef WIN32
         const unsigned hashValue = stde::hash_value( getName().c_str( ));
@@ -74,8 +78,8 @@ void Channel::draw( const uint32_t frameID )
         unsigned  seed  = (unsigned)(long long)this + hashValue;
         const int color = rand_r( &seed );
     
-        glColor3f( (color&0xff) / 255., ((color>>8) & 0xff) / 255.,
-                   ((color>>16) & 0xff) / 255. );
+        glColor3f( (color&0xff) / 255.0f, ((color>>8) & 0xff) / 255.0f,
+                   ((color>>16) & 0xff) / 255.0f );
     }
 
     if( model )
@@ -146,8 +150,9 @@ void Channel::_drawBBoxCB( Model::BBox *bbox, void *userData )
 
 void Channel::_drawBBox( const Model::BBox *bbox )
 {
-    Pipe*  pipe        = static_cast<Pipe*>( getPipe( ));
-    GLuint displayList = pipe->getDisplayList( bbox );
+    Pipe*            pipe        = static_cast<Pipe*>( getPipe( ));
+    const FrameData& frameData   = pipe->getFrameData();
+    GLuint           displayList = pipe->getDisplayList( bbox );
 
     if( displayList != 0 )
     {
@@ -160,7 +165,7 @@ void Channel::_drawBBox( const Model::BBox *bbox )
 
     const size_t     nFaces = bbox->nFaces;
     const eq::Range& range  = getRange();
-    const bool       color  = range.isFull(); // Use color only if not DB
+    const bool       color  = frameData.data.color && range.isFull();
 
     glNewList( displayList, GL_COMPILE );
     glBegin( GL_TRIANGLES );
@@ -208,8 +213,8 @@ void Channel::_initFrustum( Frustumf& frustum )
     const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
     const FrameData& frameData = pipe->getFrameData();
 
-    vmml::Matrix4f view( frameData._data.rotation );
-    view.setTranslation( frameData._data.translation );
+    vmml::Matrix4f view( frameData.data.rotation );
+    view.setTranslation( frameData.data.translation );
 
     const vmml::Frustumf&  eqFrustum     = getFrustum();
     const vmml::Matrix4f&  headTransform = getHeadTransform();
@@ -226,7 +231,7 @@ void Channel::_initFrustum( Frustumf& frustum )
     EQINFO << getName()  << " front " << front << endl;
     front.scale( M_SQRT3_2 ); // bounding sphere size of unit-sized cube
 
-    const vmml::Vector3f center( frameData._data.translation );
+    const vmml::Vector3f center( frameData.data.translation );
     const vmml::Vector3f near  = headTransform * ( center - front );
     const vmml::Vector3f far   = headTransform * ( center + front );
     const float          zNear = MAX( 0.0001f, -near.z );

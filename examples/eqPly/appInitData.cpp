@@ -5,10 +5,11 @@
  */
 
 #include "appInitData.h"
+#include "frameData.h"
 
 #include <tclap/CmdLine.h>
 
-void AppInitData::parseArguments( int argc, char** argv )
+void AppInitData::parseArguments( int argc, char** argv, FrameData& frameData )
 {
     try
     {
@@ -19,6 +20,8 @@ void AppInitData::parseArguments( int argc, char** argv )
         TCLAP::ValueArg<string> portArg( "p", "port", "tracking device port",
                                          false, "/dev/ttyS0", "string", 
                                          command );
+        TCLAP::SwitchArg colorArg( "b", "bw", "Don't use colors from ply file", 
+                                   command, false );
                                 
         command.parse( argc, argv );
 
@@ -26,6 +29,8 @@ void AppInitData::parseArguments( int argc, char** argv )
             setFilename( modelArg.getValue( ));
         if( portArg.isSet( ))
             _trackerPort = portArg.getValue();
+
+        frameData.data.color = !colorArg.isSet();
     }
     catch( TCLAP::ArgException& exception )
     {

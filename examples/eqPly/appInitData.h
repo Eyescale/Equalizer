@@ -7,12 +7,14 @@
 
 #include "initData.h"
 
+class FrameData;
+
 class AppInitData : public InitData
 {
 public:
     const std::string& getTrackerPort() const { return _trackerPort; }
 
-    void parseArguments( int argc, char** argv );
+    void parseArguments( int argc, char** argv, FrameData& frameData );
 
 private:
     std::string _trackerPort;
