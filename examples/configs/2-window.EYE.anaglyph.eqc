@@ -1,0 +1,57 @@
+# single pipe eye (active stereo) demo configuration
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                viewport [ 0 0 1600 1024 ]
+                window
+                {
+                    viewport [ .05 .3 .4 .3 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+                window
+                {
+                    viewport [ .55 .3 .4 .3 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
+                }
+            }
+        }
+        compound
+        {
+            channel "channel2"
+            eye     [ LEFT ]
+            attributes{ stereo_mode anaglyph }
+
+            wall
+            {
+                bottom_left  [ -.32 -.2 -1 ]
+                bottom_right [  .32 -.2 -1 ]
+                top_left     [ -.32  .2 -1 ]
+            }
+
+            compound {} // left eye draw operation on channel2
+            compound    // right eye draw operation on channel1
+            { 
+                channel "channel1"
+                eye     [ RIGHT ]
+                outputframe {}
+            }
+            compound    // right eye 'copy' operation on channel2
+            {
+                task [ ASSEMBLE ]
+                eye  [ RIGHT ]
+                inputframe { name "frame.channel1" }
+            }
+        }
+    }    
+}
