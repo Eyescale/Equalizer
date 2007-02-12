@@ -33,10 +33,10 @@ FrameData::~FrameData()
     flush();
 }
 
-void FrameData::unpack( const void* data, const uint64_t size )
+void FrameData::applyInstanceData( const void* data, const uint64_t size )
 { 
     _clear();
-    eqNet::Object::unpack( data, size ); 
+    eqNet::Object::applyInstanceData( data, size ); 
     getLocalNode()->flushCommands(); // process rescheduled transmit packets
 }
 

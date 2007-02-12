@@ -110,7 +110,7 @@ namespace eq
         virtual bool isStatic() const { return false; }
 
         /** @sa eqNet::Object::unpack */
-        virtual void unpack( const void* data, const uint64_t size );
+        virtual void applyInstanceData( const void* data, const uint64_t size );
 
 
     private:
