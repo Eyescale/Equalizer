@@ -153,7 +153,9 @@ ObjectCM::Type Object::getChangeManagerType() const
     if( isStatic( ))
         return ObjectCM::STATIC;
 
-    if ( _instanceData == _deltaData && _instanceDataSize == _deltaDataSize )
+    if ( _instanceData && 
+         _instanceData == _deltaData && _instanceDataSize == _deltaDataSize )
+
         return ObjectCM::FULL;
 
     return ObjectCM::DELTA;
