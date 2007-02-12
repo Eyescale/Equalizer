@@ -101,11 +101,14 @@ void FrameData::syncReadback()
         Image* image = *iter;
         image->syncReadback();
 
-#if 0
-        static uint32_t counter = 0;
-        ostringstream stringstream;
-        stringstream << "Image_" << ++counter;
-        image->writeImages( stringstream.str( ));
+#ifndef NDEBUG
+        if( getenv( "EQ_DUMP_IMAGES" ))
+        {
+            static uint32_t counter = 0;
+            ostringstream stringstream;
+            stringstream << "Image_" << ++counter;
+            image->writeImages( stringstream.str( ));
+        }
 #endif
     }
     _setReady();
