@@ -353,7 +353,6 @@ bool eqs::Window::syncExit()
 //---------------------------------------------------------------------------
 void eqs::Window::update( const uint32_t frameID )
 {
-    // TODO: make current window
     eq::WindowStartFramePacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.makeCurrent = _pipe->testMakeCurrentWindow( this );
@@ -396,6 +395,9 @@ void eqs::Window::_updateSwap()
         _send( packet );
         EQLOG( eq::LOG_TASKS ) << "TASK barrier  " << &packet << endl;
     }
+
+    if( !_drawableConfig.doublebuffered )
+        return;
 
     eq::WindowSwapPacket packet;
     _send( packet );
