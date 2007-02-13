@@ -21,7 +21,6 @@ void Pipe::_construct()
 {
     _used             = 0;
     _node             = 0;
-    _currentWindow    = 0;
     _pendingRequestID = EQ_ID_INVALID;
     _display          = EQ_UNDEFINED_UINT32;
     _screen           = EQ_UNDEFINED_UINT32;
@@ -92,15 +91,6 @@ bool Pipe::removeWindow( Window* window )
 
     _windows.erase( i );
     window->_pipe = 0;
-    return true;
-}
-
-bool Pipe::testMakeCurrentWindow( const Window* window )
-{
-    if( _currentWindow == window )
-        return false;
-
-    _currentWindow = window;
     return true;
 }
 
@@ -267,7 +257,14 @@ void Pipe::update( const uint32_t frameID )
     {
         Window* window = getWindow( i );
         if( window->isUsed( ))
-            window->update( frameID );
+            window->updateDraw( frameID );
+    }
+
+    for( uint32_t i=0; i<nWindows; i++ )
+    {
+        Window* window = getWindow( i );
+        if( window->isUsed( ))
+            window->updatePost( frameID );
     }
 
     eq::PipeFrameSyncPacket syncPacket;

@@ -200,12 +200,20 @@ namespace eqs
         bool syncExit();
         
         /** 
-         * Update the per-frame data of this window.
+         * Update one frame.
          *
          * @param frameID a per-frame identifier passed to all rendering
          *                methods.
          */
-        void update( const uint32_t frameID );
+        void updateDraw( const uint32_t frameID );
+
+        /** 
+         * Trigger the post-draw operations.
+         *
+         * @param frameID a per-frame identifier passed to all rendering
+         *                methods.
+         */
+        void updatePost( const uint32_t frameID );
         //*}
 
         /**

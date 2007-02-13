@@ -351,11 +351,10 @@ bool eqs::Window::syncExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void eqs::Window::update( const uint32_t frameID )
+void eqs::Window::updateDraw( const uint32_t frameID )
 {
     eq::WindowStartFramePacket startPacket;
     startPacket.frameID     = frameID;
-    startPacket.makeCurrent = _pipe->testMakeCurrentWindow( this );
     _send( startPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK start frame  " << &startPacket << endl;
 
@@ -364,7 +363,18 @@ void eqs::Window::update( const uint32_t frameID )
     {
         Channel* channel = getChannel( i );
         if( channel->isUsed( ))
-            channel->update( frameID );
+            channel->updateDraw( frameID );
+    }
+}
+
+void eqs::Window::updatePost( const uint32_t frameID )
+{
+    const uint32_t nChannels = this->nChannels();
+    for( uint32_t i=0; i<nChannels; i++ )
+    {
+        Channel* channel = getChannel( i );
+        if( channel->isUsed( ))
+            channel->updatePost( frameID );
     }
 
     _updateSwap();

@@ -5,12 +5,11 @@ server
     {
         appNode
         {
-#            connection{ hostname "hactar1" }
             pipe
             {
                 window
                 {
-                    viewport [ .05 .3 .4 .3 ]
+                    viewport [ 100 100 480 300 ]
                     channel
                     {
                         name "channel1"
@@ -18,7 +17,7 @@ server
                 }
                 window
                 {
-                    viewport [ .55 .3 .4 .3 ]
+                    viewport [ 580 100 480 300 ]
                     channel
                     {
                         name "channel2"

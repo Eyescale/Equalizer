@@ -247,6 +247,7 @@ eqNet::CommandResult eq::Window::_reqExit( eqNet::Command& command )
     EventHandler* thread = EventHandler::get( _pipe->getWindowSystem( ));
     thread->removeWindow( this );
 
+    _pipe->testMakeCurrentWindow( this );
     exit();
 
     WindowExitReplyPacket reply( packet );
@@ -256,6 +257,7 @@ eqNet::CommandResult eq::Window::_reqExit( eqNet::Command& command )
 
 eqNet::CommandResult eq::Window::_reqFinish(eqNet::Command& command ) 
 {
+    _pipe->testMakeCurrentWindow( this );
     finish();
     return eqNet::COMMAND_HANDLED;
 }
@@ -278,6 +280,7 @@ eqNet::CommandResult eq::Window::_reqBarrier( eqNet::Command& command )
 
 eqNet::CommandResult eq::Window::_reqSwap(eqNet::Command& command ) 
 {
+    _pipe->testMakeCurrentWindow( this );
     swapBuffers();
     return eqNet::COMMAND_HANDLED;
 }
@@ -288,8 +291,7 @@ eqNet::CommandResult eq::Window::_reqStartFrame(eqNet::Command& command )
         command.getPacket<WindowStartFramePacket>();
     EQVERB << "handle startFrame " << packet << endl;
 
-    if( packet->makeCurrent )
-        makeCurrent();
+    _pipe->testMakeCurrentWindow( this );
 
 #ifdef GLX // handle window close request - see comment in initGLX
     if( _pipe->getWindowSystem() == WINDOW_SYSTEM_GLX )
@@ -322,6 +324,7 @@ eqNet::CommandResult eq::Window::_reqEndFrame(eqNet::Command& command )
         command.getPacket<WindowEndFramePacket>();
     EQVERB << "handle endFrame " << packet << endl;
 
+    _pipe->testMakeCurrentWindow( this );
     endFrame( packet->frameID );
     return eqNet::COMMAND_HANDLED;
 }
@@ -1012,7 +1015,7 @@ void eq::Window::setWGLWindowHandle( HWND handle )
 #endif // WGL
 }
 
-void eq::Window::makeCurrent()
+void eq::Window::makeCurrent() const
 {
     switch( _pipe->getWindowSystem( ))
     {
@@ -1039,7 +1042,7 @@ void eq::Window::makeCurrent()
     }
 }
 
-void eq::Window::swapBuffers()
+void eq::Window::swapBuffers() const
 {
     switch( _pipe->getWindowSystem( ))
     {

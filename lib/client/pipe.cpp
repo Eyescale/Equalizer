@@ -22,7 +22,8 @@ using namespace eqBase;
 using namespace std;
 
 Pipe::Pipe()
-        : _node(0),
+        : _node( 0 ),
+          _currentWindow( 0 ),
           _windowSystem( WINDOW_SYSTEM_NONE ),
           _display( EQ_UNDEFINED_UINT32 ),
           _screen( EQ_UNDEFINED_UINT32 )
@@ -292,6 +293,16 @@ void* Pipe::_runThread()
     }
 
     return EXIT_SUCCESS;
+}
+
+void Pipe::testMakeCurrentWindow( const Window* window )
+{
+    if( _currentWindow == window )
+        return;
+
+    _currentWindow = window;
+    window->makeCurrent();
+    return;
 }
 
 Frame* Pipe::getFrame( const uint32_t id, const uint32_t version )

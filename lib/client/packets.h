@@ -572,7 +572,6 @@ namespace eq
                 size    = sizeof( WindowStartFramePacket );
             }
         uint32_t frameID;
-        bool     makeCurrent;
     };
     struct WindowEndFramePacket : public eqNet::ObjectPacket
     {

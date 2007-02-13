@@ -87,18 +87,6 @@ namespace eqs
         Config* getConfig() const { return (_node ? _node->getConfig() : NULL);}
 
         /** 
-         * Test and sets the currently attached window.
-         * 
-         * The pipe maintains which window is current, in order to optimize make
-         * current calls on the client.
-         *
-         * @param window The new current window.
-         * @return true if the new window needs to be made current, false if
-         *         not.
-         */
-        bool testMakeCurrentWindow( const Window* window );
-
-        /** 
          * References this pipe as being actively used.
          */
         void refUsed();
@@ -173,7 +161,7 @@ namespace eqs
         bool syncExit();
 
         /** 
-         * Update one frame.
+         * Trigger the rendering of a new frame.
          *
          * @param frameID a per-frame identifier passed to all rendering
          *                methods.
@@ -217,9 +205,6 @@ namespace eqs
         /** The parent node. */
         Node* _node;
         friend class Node;
-
-        /** The current attached window on the client. */
-        const Window* _currentWindow;
 
         /** The request id for pending asynchronous operations. */
         uint32_t _pendingRequestID;

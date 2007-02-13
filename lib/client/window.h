@@ -232,13 +232,13 @@ namespace eq
         virtual void endFrame( const uint32_t frameID ) {}
 
         /** Make the window's drawable and context current. */
-        virtual void makeCurrent();
+        virtual void makeCurrent() const;
 
         /** Swap the front and back buffer of the window. */
-        virtual void swapBuffers();
+        virtual void swapBuffers() const;
 
         /** Finish outstanding rendering requests. */
-        virtual void finish() { glFinish(); }
+        virtual void finish() const { glFinish(); }
 
         /** 
          * Process a received event.

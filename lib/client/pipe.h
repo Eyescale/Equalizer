@@ -179,6 +179,18 @@ namespace eq
             {_commandQueue.push( command ); return eqNet::COMMAND_HANDLED;}
         
         /** 
+         * Test and sets the currently attached window.
+         * 
+         * The pipe maintains which window is current, in order to optimize make
+         * current calls.
+         *
+         * @param window The new current window.
+         * @return true if the new window needs to be made current, false if
+         *         not.
+         */
+        void testMakeCurrentWindow( const Window* window );
+
+        /** 
          * Get an assembly frame.
          * 
          * @param id the frame identifier.
@@ -280,6 +292,9 @@ namespace eq
 
         /** The windows of this pipe. */
         std::vector<Window*>     _windows;
+
+        /** The currently attached window. */
+        const Window* _currentWindow;
 
         /** The current window system. */
         WindowSystem _windowSystem;

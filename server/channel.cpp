@@ -215,7 +215,7 @@ bool Channel::syncExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Channel::update( const uint32_t frameID )
+void Channel::updateDraw( const uint32_t frameID )
 {
     _pvp = _window->getPixelViewport();
 
