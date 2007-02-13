@@ -1,0 +1,134 @@
+# single pipe multilevel Eye / 2D configuration
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 28 560 200 250 ]
+                    name "Left Half"
+
+                    channel { name "channel-left-1" }
+                }
+                window
+                {
+                    viewport [ 284 560 200 250 ]
+                    name "Right Half"
+
+                    channel { name "channel-left-2" }
+                }
+                window
+                {
+                    viewport [ 540 560 200 250 ]
+                    name "Left Half"
+
+                    channel { name "channel-right-1" }
+                }
+                window
+                {
+                    viewport [ 796 560 200 250 ]
+                    name "Right Half"
+
+                    channel { name "channel-right-2" }
+                }
+
+                window
+                {
+                    viewport [ 56 290 400 250 ]
+                    name "Left Eye"
+
+                    channel { name "channel-left" }
+                }
+                window
+                {
+                    viewport [ 568 290 400 250 ]
+                    name "Right Eye"
+
+                    channel { name "channel-right" }
+                }
+
+                window
+                {
+                    viewport [ 312 20 400 250 ]
+                    name "Result"
+
+                    channel { name "channel-all" }
+                }
+            }
+        }
+        compound
+        {
+            channel "channel-all"
+            attributes{ stereo_mode anaglyph }
+
+            wall
+            {
+                bottom_left  [ -.64 -.4 -1 ]
+                bottom_right [  .64 -.4 -1 ]
+                top_left     [ -.64  .4 -1 ]
+            }
+
+            compound
+            {
+                channel "channel-left"
+                eye     [ LEFT ]
+
+                compound
+                {
+                    channel  "channel-left-1"
+                    viewport [ 0 0 .5 1 ]
+                    outputframe {}
+                }
+                compound
+                {
+                    channel  "channel-left-2"
+                    viewport [ .5 0 .5 1 ]
+                    outputframe {}
+                }
+
+                inputframe{ name "frame.channel-left-1" }
+                inputframe{ name "frame.channel-left-2" }
+            }
+            compound
+            {
+                channel "channel-right"
+                eye     [ RIGHT ]
+
+                compound
+                {
+                    channel  "channel-right-1"
+                    viewport [ 0 0 .5 1 ]
+                    outputframe {}
+                }
+                compound
+                {
+                    channel  "channel-right-2"
+                    viewport [ .5 0 .5 1 ]
+                    outputframe {}
+                }
+
+                inputframe{ name "frame.channel-right-1" }
+                inputframe{ name "frame.channel-right-2" }
+            }
+
+            compound
+            {
+                task      [ ASSEMBLE ]
+                eye       [ LEFT ]
+                inputframe{ name "frame.channel-left-1" }
+                inputframe{ name "frame.channel-left-2" }
+            }
+            compound
+            {
+                task      [ ASSEMBLE ]
+                eye       [ RIGHT ]
+                inputframe{ name "frame.channel-right-1" }
+                inputframe{ name "frame.channel-right-2" }
+            }
+        }
+    }    
+}
