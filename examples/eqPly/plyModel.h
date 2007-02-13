@@ -75,10 +75,7 @@ public:
         Vertex  pos[2];
         Vertex  cullBox[2];
 
-        struct {
-            Vertex center;
-            float  radius;
-        } cullSphere;
+        vmml::Vector4f cullSphere;
 
         size_t     nFaces;
         FaceType  *faces;

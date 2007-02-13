@@ -34,8 +34,8 @@ bool Channel::init( const uint32_t initID )
 
 void Channel::draw( const uint32_t frameID )
 {
-    Frustumf frustum;
-    _initFrustum( frustum );
+    vmml::FrustumCullerf culler;
+    _initFrustum( culler );
 
     applyBuffer();
     applyViewport();
@@ -96,12 +96,12 @@ void Channel::draw( const uint32_t frameID )
             if( bbox->range[0] >= range.end || bbox->range[1] < range.start )
                 continue;
 
-            const FrustumVisibility visibility = frustum.sphereVisibility(
-                bbox->cullSphere.center.pos, bbox->cullSphere.radius );
+            const vmml::Visibility visibility = culler.testSphere( 
+                bbox->cullSphere );
 
             switch( visibility )
             {
-                case FRUSTUM_VISIBILITY_FULL:
+                case vmml::VISIBILITY_FULL:
                 {
                     const bool fullyInRange = (bbox->range[0] >= range.start && 
                                                bbox->range[1] <  range.end );
@@ -112,7 +112,7 @@ void Channel::draw( const uint32_t frameID )
                     }
                     // partial range, fall through
                 }
-                case FRUSTUM_VISIBILITY_PARTIAL:
+                case vmml::VISIBILITY_PARTIAL:
                     if( !bbox->children )
                     {
                         if( bbox->range[0] >= range.start )
@@ -123,7 +123,7 @@ void Channel::draw( const uint32_t frameID )
                         for( int i=0; i<8; i++ )
                             candidates.push_back( &bbox->children[i] );
                     break;
-                case FRUSTUM_VISIBILITY_NULL:
+                case vmml::VISIBILITY_NONE:
                     break;
             }
         }
@@ -208,7 +208,7 @@ void Channel::_drawBBox( const Model::BBox *bbox )
     glCallList( displayList );
 }
 
-void Channel::_initFrustum( Frustumf& frustum )
+void Channel::_initFrustum( vmml::FrustumCullerf& culler )
 {
     const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
     const FrameData& frameData = pipe->getFrameData();
@@ -216,7 +216,7 @@ void Channel::_initFrustum( Frustumf& frustum )
     vmml::Matrix4f view( frameData.data.rotation );
     view.setTranslation( frameData.data.translation );
 
-    const vmml::Frustumf&  eqFrustum     = getFrustum();
+    const vmml::Frustumf&  frustum       = getFrustum();
     const vmml::Matrix4f&  headTransform = getHeadTransform();
     const vmml::Matrix4f   modelView     = headTransform * view;
 
@@ -243,8 +243,8 @@ void Channel::_initFrustum( Frustumf& frustum )
     setNearFar( zNear, zFar );
 #endif
 
-    const vmml::Matrix4f     projection = eqFrustum.computeMatrix();
-    const eq::PixelViewport& pvp        = getPixelViewport();
+    const vmml::Matrix4f     projection = frustum.computeMatrix();
+    //const eq::PixelViewport& pvp        = getPixelViewport();
 
-    frustum.initView( projection, modelView, pvp);
+    culler.setup( projection * modelView );
 }

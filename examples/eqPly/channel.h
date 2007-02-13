@@ -8,7 +8,6 @@
 #include "eqPly.h"
 
 #include "plyModel.h"
-#include "frustum.h"
 
 #include <eq/eq.h>
 
@@ -27,7 +26,7 @@ protected:
 private:
     static void _drawBBoxCB( Model::BBox *bbox, void *userData );
     void _drawBBox( const Model::BBox* bbox );
-    void _initFrustum( Frustumf& frustum );
+    void _initFrustum( vmml::FrustumCullerf& frustum );
 };
 
 

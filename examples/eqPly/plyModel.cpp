@@ -57,7 +57,7 @@
 #define CHUNKSIZE 4096
 #define MAXDEPTH  256
 
-#define PLYFILEVERSION   19
+#define PLYFILEVERSION 20
 
 using namespace std;
 
@@ -360,19 +360,19 @@ void PlyModel<FaceType>::createBBoxChildren( BBox &bbox )
 template<class FaceType>
 void PlyModel<FaceType>::calculateCullSphere( BBox &bbox )
 {
-    bbox.cullSphere.center.pos[0] = 
+    bbox.cullSphere.center.x = 
         (bbox.cullBox[0].pos[0] + bbox.cullBox[1].pos[0]) * 0.5f;
-    bbox.cullSphere.center.pos[1] =
+    bbox.cullSphere.center.y =
         (bbox.cullBox[0].pos[1] + bbox.cullBox[1].pos[1]) * 0.5f;
-    bbox.cullSphere.center.pos[2] =
+    bbox.cullSphere.center.z =
         (bbox.cullBox[0].pos[2] + bbox.cullBox[1].pos[2]) * 0.5f;
 
     float v[3];
-    v[0] = bbox.cullSphere.center.pos[0] - bbox.cullBox[0].pos[0];
-    v[1] = bbox.cullSphere.center.pos[1] - bbox.cullBox[0].pos[1];
-    v[2] = bbox.cullSphere.center.pos[2] - bbox.cullBox[0].pos[2];
+    v[0] = bbox.cullSphere.center.x - bbox.cullBox[0].pos[0];
+    v[1] = bbox.cullSphere.center.y - bbox.cullBox[0].pos[1];
+    v[2] = bbox.cullSphere.center.z - bbox.cullBox[0].pos[2];
 
-    bbox.cullSphere.radius = sqrt( v[0]*v[0] + v[1]*v[1] + v[2]*v[2] );
+    bbox.cullSphere.radius = sqrtf( v[0]*v[0] + v[1]*v[1] + v[2]*v[2] );
 }   
 
 //---------------------------------------------------------------------------
@@ -563,15 +563,11 @@ void PlyModel<FaceType>::scaleBBoxCB( typename PlyModel< FaceType >::BBox *bbox,
     const vmml::Vector3f& offset    = scaleData->offset;
     const float           scale     = scaleData->scale;
 
-    bbox->cullSphere.center.pos[0] -= offset.x;
-    bbox->cullSphere.center.pos[1] -= offset.y;
-    bbox->cullSphere.center.pos[2] -= offset.z;
+    bbox->cullSphere.center.x -= offset.x;
+    bbox->cullSphere.center.y -= offset.y;
+    bbox->cullSphere.center.z -= offset.z;
 
-    bbox->cullSphere.center.pos[0] *= scale;
-    bbox->cullSphere.center.pos[1] *= scale; 
-    bbox->cullSphere.center.pos[2] *= scale;
-
-    bbox->cullSphere.radius *= scale;
+    bbox->cullSphere *= scale;
 
     bbox->cullBox[0].pos[0] -= offset.x;
     bbox->cullBox[0].pos[1] -= offset.y;
