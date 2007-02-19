@@ -149,7 +149,7 @@ void Config::sendEvent( ConfigEvent& event )
 
     if( !_appNode )
     {
-        RefPtr<eqNet::Node> localNode = eqNet::Node::getLocalNode();
+        RefPtr<eqNet::Node> localNode = getLocalNode();
         RefPtr<eqNet::Node> server    = getServer();
         _appNode = localNode->connect( _appNodeID, server );
     }
@@ -191,10 +191,10 @@ eqNet::CommandResult Config::_cmdCreateNode( eqNet::Command& command )
     EQINFO << "Handle create node " << packet << endl;
     EQASSERT( packet->nodeID != EQ_ID_INVALID );
 
-    Node* newNode = Global::getNodeFactory()->createNode();
+    Node* node = Global::getNodeFactory()->createNode();
     
-    attachObject( newNode, packet->nodeID );
-    _addNode( newNode );
+    attachObject( node, packet->nodeID );
+    _addNode( node );
     return eqNet::COMMAND_HANDLED;
 }
 

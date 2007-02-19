@@ -435,7 +435,8 @@ bool Config::_initNodes( const uint32_t initID )
             continue;
 
         // initialize nodes
-        netNode->send( createConfigPacket, name );
+        if( node != _appNode )
+            netNode->send( createConfigPacket, name );
 
         registerObject( node );
         createNodePacket.nodeID = node->getID();

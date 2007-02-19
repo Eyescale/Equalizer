@@ -44,8 +44,16 @@ eqNet::Session* Client::createSession()
 
 void Client::clientLoop()
 {
+#if 0
+    while( config->isRunning( ))
+    {
+        config->unlockFrame();
+        config->lockFrame();
+    }
+#else
     _used.waitGE( 1 );  // Wait to be used once (see Server::_cmdCreateConfig)
     _used.waitEQ( 0 );  // Wait to become unused (see Server::_cmdDestroyConfig)
+#endif
 }
 
 bool Client::runClient( const std::string& clientArgs )

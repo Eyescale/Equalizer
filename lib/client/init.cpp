@@ -57,7 +57,7 @@ EQ_EXPORT bool eq::init( int argc, char** argv, NodeFactory* nodeFactory )
 
     if( !eqNet::init( argc+1, argvListen ))
     {
-        EQERROR << "Failed to initialise Equalizer network layer" << endl;
+        EQERROR << "Failed to initialize Equalizer network layer" << endl;
         eqNet::Node::setLocalNode( NULL );
         return false;
     }

@@ -78,11 +78,6 @@ namespace eq
         };
         State _state;
 
-        /** The allocated configurations, mapped by identifier. */
-        eqNet::IDHash<Config*> _configs;
-
-        void _addConfig( Config* config );
-
         /* The command handler functions. */
         eqNet::CommandResult _cmdCreateConfig( eqNet::Command& command );
         eqNet::CommandResult _cmdDestroyConfig( eqNet::Command& command );

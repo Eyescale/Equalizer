@@ -94,7 +94,7 @@ bool Server::close()
 Config* Server::chooseConfig( const ConfigParams& parameters )
 {
     if( _state != STATE_OPENED )
-        return NULL;
+        return 0;
 
     ServerChooseConfigPacket packet;
 
@@ -108,9 +108,10 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
 #endif
     send( packet, rendererInfo );
 
-    Config* config = (Config*)_requestHandler.waitRequest( packet.requestID );
+    Config* config = static_cast<Config*>(
+        _requestHandler.waitRequest( packet.requestID ));
     if( !config )
-        return NULL;
+        return 0;
 
     return config;
 }
@@ -126,12 +127,6 @@ void Server::releaseConfig( Config* config )
     delete config;
 }
 
-void Server::_addConfig( Config* config )
-{
-    EQASSERT( config->getID() != EQ_ID_INVALID );
-    _configs[config->getID()] = config;
-}
-
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
@@ -142,18 +137,10 @@ eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Command& command )
     EQINFO << "Handle create config " << packet << ", name " << packet->name 
            << endl;
     
-    RefPtr<Node>    localNode  = Node::getLocalNode();
-    eqNet::Session* session    = localNode->getSession( packet->configID );
-    if( session )
-    {
-        EQASSERT( dynamic_cast<Config*>( session ));
+    RefPtr<Node> localNode = Node::getLocalNode();
+    Config*      config    = Global::getNodeFactory()->createConfig();
 
-        Config* config = static_cast<Config*>( session );
-        config->_appNodeID = packet->appNodeID;
-        return eqNet::COMMAND_HANDLED;
-    }
- 
-    Config* config = Global::getNodeFactory()->createConfig();
+    EQASSERT( localNode->getSession( packet->configID ) == 0 );
     config->_appNodeID = packet->appNodeID;
     localNode->addSession( config, command.getNode(), packet->configID,
                            packet->name );
@@ -195,16 +182,17 @@ eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Command& command )
 
     if( packet->configID == EQ_ID_INVALID )
     {
-        _requestHandler.serveRequest( packet->requestID, NULL );
+        _requestHandler.serveRequest( packet->requestID, 0 );
         return eqNet::COMMAND_HANDLED;
     }
 
     Config*      config    = Global::getNodeFactory()->createConfig();
     RefPtr<Node> localNode = Node::getLocalNode();
-
+ 
+    EQASSERT( localNode->getSession( packet->configID ) == 0 );
+    config->_appNodeID = localNode->getNodeID();
     localNode->addSession( config, command.getNode(), packet->configID, 
                            packet->sessionName);
-    _addConfig( config );
 
     _requestHandler.serveRequest( packet->requestID, config );
     return eqNet::COMMAND_HANDLED;
