@@ -31,13 +31,14 @@ namespace eq
         void unrefUsed() { --_used; }
         //*}
 
+        /** @sa eqNet::Node::runClient */
+        virtual bool runClient( const std::string& clientArgs );
+
     protected:
         /** @sa eqNet::Node::clientLoop */
         virtual void clientLoop();
 
-        /** 
-         * @sa eqNet::Node::handleCommand
-         */
+        /** @sa eqNet::Node::handleCommand */
         virtual eqNet::CommandResult handleCommand( eqNet::Command& command );
 
         /** @sa eqNet::Node::createNode */

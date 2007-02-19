@@ -24,11 +24,11 @@ Server::Server()
         : _state( STATE_STOPPED )
 {
     registerCommand( CMD_SERVER_CREATE_CONFIG, 
-               eqNet::CommandFunc<Server>( this, &Server::_cmdCreateConfig ));
+                 eqNet::CommandFunc<Server>( this, &Server::_cmdCreateConfig ));
     registerCommand( CMD_SERVER_DESTROY_CONFIG, 
-               eqNet::CommandFunc<Server>( this, &Server::_cmdDestroyConfig ));
+                eqNet::CommandFunc<Server>( this, &Server::_cmdDestroyConfig ));
     registerCommand( CMD_SERVER_CHOOSE_CONFIG_REPLY, 
-          eqNet::CommandFunc<Server>( this, &Server::_cmdChooseConfigReply ));
+            eqNet::CommandFunc<Server>( this, &Server::_cmdChooseConfigReply ));
 
     EQINFO << "New server at " << (void*)this << endl;
 }

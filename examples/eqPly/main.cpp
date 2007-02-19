@@ -51,7 +51,7 @@ int main( int argc, char** argv )
 
     if( !config )
     {
-        EQERROR <<"No matching config on server." << endl;
+        EQERROR << "No matching config on server" << endl;
         server->close();
         eq::exit();
         return EXIT_FAILURE;

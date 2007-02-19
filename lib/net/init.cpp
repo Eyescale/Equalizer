@@ -113,8 +113,6 @@ bool initLocalNode( int argc, char** argv )
         if( !connection->listen( ))
         {
             EQWARN << "Can't create listening connection" << endl; 
-            if( isClient )
-                exit( EXIT_FAILURE );
             return false;
         }
 
@@ -128,8 +126,6 @@ bool initLocalNode( int argc, char** argv )
         if( !localNode->listen( connection ))
         {
             EQWARN << "Can't create listener node" << endl; 
-            if( isClient )
-                exit( EXIT_FAILURE );
             return false;
         }
     }
@@ -141,8 +137,7 @@ bool initLocalNode( int argc, char** argv )
         RefPtr<Node> localNode = Node::getLocalNode();
         EQASSERT( localNode );
 
-        const bool ret = localNode->runClient( clientOpts );
-        exit( ret ? EXIT_SUCCESS : EXIT_FAILURE );
+        return localNode->runClient( clientOpts );
     }
 
     return true;

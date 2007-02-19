@@ -124,19 +124,16 @@ void RequestHandler::serveRequest( const uint32_t requestID, void* result )
     request->lock.unset();
 }
     
-void* RequestHandler::peekRequest( const uint32_t requestID, bool* success )
+bool RequestHandler::isServed( const uint32_t requestID ) const
 {
-    RequestHash::iterator iter = _requests.find( requestID );
-    if( iter != _requests.end( ))
-    {
-        Request* request = iter->second;
-        if( !request->lock.test( ))
-        {
-            if( success ) *success = true;
-            return request->result;
-        }
-    }
-    if( success ) *success = false;
+    RequestHash::const_iterator iter = _requests.find( requestID );
+    if( iter == _requests.end( ))
+        return false;
+
+    Request* request = iter->second;
+    if( !request->lock.test( ))
+        return true;
+
     return false;
 }
     

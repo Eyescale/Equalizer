@@ -179,7 +179,7 @@ server
                     bottom_right [  0.6 -2.5 -2 ]
                     top_left     [ -0.6 -0.6 -2 ]
                 }
-                // no swapbarrier {} - same pipe thread as channel9
+                swapbarrier {}
             }
             compound
             { 
@@ -190,7 +190,7 @@ server
                     bottom_right [  2   -2.5 -2 ]
                     top_left     [  0.8 -0.6 -2 ]
                 }
-                swapbarrier {}
+                // no swapbarrier {} - same pipe thread as channel8
             }
         }
     }    

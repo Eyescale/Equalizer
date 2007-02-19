@@ -48,7 +48,6 @@ Node::Node()
           _launchID( EQ_ID_INVALID ),
           _programName( Global::getProgramName( )),
           _workDir( Global::getWorkDir( )),
-          _clientRunning( false ),
           _nextConnectionRequestID( 1 )
 {
     registerCommand( CMD_NODE_STOP, 
@@ -688,10 +687,6 @@ CommandResult Node::_cmdStop( Command& command )
 {
     EQINFO << "Cmd stop " << this << endl;
     EQASSERT( _state == STATE_LISTENING );
-
-    if( _clientRunning ) // subclass may override _cmdStop to exit clientLoop
-        EQWARN << "Stopping receiver thread while client loop is still running"
-               << endl;
 
     // TODO: Process pending packets on all other connections?
 
@@ -1415,12 +1410,6 @@ bool Node::runClient( const string& clientArgs )
 
     _requestHandler.waitRequest( packet.requestID );
 
-    _clientRunning = true;
     clientLoop();
-    _clientRunning = false;
-
-    const bool joined = _receiverThread->join();
-    EQASSERT( joined );
-    _cleanup();
     return true;
 }

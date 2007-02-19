@@ -156,6 +156,13 @@ void* Node::_runThread()
 
     eqNet::Node::setLocalNode( config->getLocalNode( ));
 
+#if 0
+    while( node->isRunning( ))
+    {
+        node->startFrame();
+        node->endFrame();
+    }
+#else
     while( _thread->isRunning( ))
     {
         eqNet::Command* command = _commandQueue.pop();
@@ -177,7 +184,7 @@ void* Node::_runThread()
                 EQUNIMPLEMENTED;
         }
     }
-
+#endif
     return EXIT_SUCCESS;
 }
 

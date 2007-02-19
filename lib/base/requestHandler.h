@@ -85,11 +85,9 @@ namespace eqBase
          * The request is never unregistered.
          * 
          * @param requestID the request identifier.
-         * @param success return value to indicate if the request was served.
-         * @return the result of the request, or <code>NULL</code> if the
-         *         request was not served.
+         * @return true if the request has been served, false if it is pending.
          */
-        void* peekRequest( const uint32_t requestID, bool* success = NULL );
+        bool isServed( const uint32_t requestID ) const;
 
         /** 
          * Retrieves the user-specific data for a request.

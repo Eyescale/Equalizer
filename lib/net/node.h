@@ -483,7 +483,7 @@ namespace eqNet
          * @param clientArgs the client arguments as specified by the server.
          * @return the success value of the run.
          */
-        bool runClient( const std::string& clientArgs );
+        virtual bool runClient( const std::string& clientArgs );
 
         /** 
          * @return <code>true</code> if executed from the receiver thread,
@@ -615,9 +615,6 @@ namespace eqNet
         std::string _programName;
         /** The directory of the program to autolaunch. */
         std::string _workDir;
-
-        /** true as long as the client loop is active. */
-        bool _clientRunning;
 
         /** The pending connection requests from startNodeConnect(). */
         IDHash<NodeID> _connectionRequests;

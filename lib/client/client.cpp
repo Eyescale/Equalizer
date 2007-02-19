@@ -46,10 +46,14 @@ void Client::clientLoop()
 {
     _used.waitGE( 1 );  // Wait to be used once (see Server::_cmdCreateConfig)
     _used.waitEQ( 0 );  // Wait to become unused (see Server::_cmdDestroyConfig)
+}
 
-    EQINFO << "Stopping client node" << endl;
-    eqNet::NodeStopPacket packet;
-    send( packet );
+bool Client::runClient( const std::string& clientArgs )
+{
+    const bool ret = eqNet::Node::runClient( clientArgs );
+    eq::exit();
+    ::exit( ret ? EXIT_SUCCESS : EXIT_FAILURE ); // never return from eq::init
+    return ret;
 }
 
 eqNet::CommandResult Client::handleCommand( eqNet::Command& command )

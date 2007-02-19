@@ -84,6 +84,10 @@ bool Config::init( const uint32_t initID )
     packet.headMatrixID = _headMatrix.getID();
 
     send( packet );
+#if 0
+    while( !_requestHandler.isServed( packet.requestID ))
+        _processRequest();
+#endif
     const bool ret = ( _requestHandler.waitRequest( packet.requestID ) != 0 );
 
     if( !ret )
@@ -96,7 +100,10 @@ bool Config::exit()
     ConfigExitPacket packet;
     packet.requestID = _requestHandler.registerRequest();
     send( packet );
-
+#if 0
+    while( !_requestHandler.isServed( packet.requestID ))
+        _processRequest();
+#endif
     const bool ret = ( _requestHandler.waitRequest( packet.requestID ) != 0 );
     deregisterObject( &_headMatrix );
     return ret;
