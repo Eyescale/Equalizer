@@ -77,7 +77,6 @@ HEADER_SRC = \
 	client/node.h \
 	client/nodeFactory.h \
 	client/object.h \
-	client/openParams.h \
 	client/packets.h \
 	client/pipe.h \
 	client/pixelViewport.h \
@@ -142,7 +141,6 @@ SOURCES = \
 	client/image.cpp \
 	client/init.cpp \
 	client/node.cpp \
-	client/openParams.cpp \
 	client/pipe.cpp \
 	client/range.cpp \
 	client/renderContext.cpp \

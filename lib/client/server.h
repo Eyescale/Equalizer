@@ -14,7 +14,6 @@ namespace eq
     class Config;
     class ConfigParams;
     class Node;
-    class OpenParams;
     struct ServerPacket;
 
     class EQ_EXPORT Server : public eqNet::Node
@@ -24,24 +23,6 @@ namespace eq
          * Constructs a new server.
          */
         Server();
-
-        /** 
-         * Opens the connection to an Equalizer server.
-         * 
-         * @param params parameters for the server connection.
-         * @return <code>true</code> if the server was opened correctly,
-         *         <code>false</code> otherwise.
-         * @sa OpenParams
-         */
-        bool open( const OpenParams& params );
-
-        /** 
-         * Closes the connection to the server.
-         * 
-         * @return <code>true</code> if the server was closed correctly,
-         *         <code>false</code> otherwise.
-         */
-        bool close();
 
         /** 
          * Chooses a configuration on the server.
@@ -70,14 +51,6 @@ namespace eq
         virtual ~Server();
 
     private:
-
-        enum State 
-        {
-            STATE_STOPPED,
-            STATE_OPENED
-        };
-        State _state;
-
         /* The command handler functions. */
         eqNet::CommandResult _cmdCreateConfig( eqNet::Command& command );
         eqNet::CommandResult _cmdDestroyConfig( eqNet::Command& command );

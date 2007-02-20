@@ -10,7 +10,6 @@
 #include "global.h"
 #include "node.h"
 #include "nodeFactory.h"
-#include "openParams.h"
 #include "packets.h"
 
 #include <eq/net/command.h>
@@ -21,7 +20,6 @@ using namespace eqBase;
 using namespace std;
 
 Server::Server()
-        : _state( STATE_STOPPED )
 {
     registerCommand( CMD_SERVER_CREATE_CONFIG, 
                  eqNet::CommandFunc<Server>( this, &Server::_cmdCreateConfig ));
@@ -34,66 +32,14 @@ Server::Server()
 }
 
 Server::~Server()
-{}
-
-bool Server::open( const OpenParams& params )
 {
-    if( _state != STATE_STOPPED )
-        return false;
-
-    if( nConnectionDescriptions() == 0 )
-    {
-        RefPtr<eqNet::ConnectionDescription> connDesc = 
-            new eqNet::ConnectionDescription;
-    
-        connDesc->type = eqNet::CONNECTIONTYPE_TCPIP;
-        
-        const char*  envServer = getenv( "EQ_SERVER" );
-        const string address   = params.address.size() > 0 ? params.address :
-                             envServer ? envServer : "localhost";
-        const size_t colonPos  = address.rfind( ':' );
-
-        if( colonPos == string::npos )
-            connDesc->hostname = address;
-        else
-        {
-            connDesc->hostname   = address.substr( 0, colonPos );
-            string port          = address.substr( colonPos+1 );
-            connDesc->TCPIP.port = atoi( port.c_str( ));
-        }
-
-        if( !connDesc->TCPIP.port )
-            connDesc->TCPIP.port = EQ_DEFAULT_PORT;
-
-        addConnectionDescription( connDesc );
-    }
-
-    if( connect( ))
-    {
-        // TODO?: send open packet (appName)
-        _state = STATE_OPENED;
-        return true;
-    }
-
-    return false;
-    // TODO: Use app-local server if no server was requested explicitly
+    EQINFO << "Delete server at " << (void*)this << endl;
 }
 
-bool Server::close()
-{
-    if( _state != STATE_OPENED )
-        return false;
-
-    if( !disconnect( ))
-        return false;
-
-    _state = STATE_STOPPED;
-    return true;
-}
 
 Config* Server::chooseConfig( const ConfigParams& parameters )
 {
-    if( _state != STATE_OPENED )
+    if( !isConnected( ))
         return 0;
 
     ServerChooseConfigPacket packet;
@@ -118,7 +64,7 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
 
 void Server::releaseConfig( Config* config )
 {
-    if( _state != STATE_OPENED )
+    if( !isConnected( ))
         return;
 
     ServerReleaseConfigPacket packet;
@@ -137,7 +83,7 @@ eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Command& command )
     EQINFO << "Handle create config " << packet << ", name " << packet->name 
            << endl;
     
-    RefPtr<Node> localNode = Node::getLocalNode();
+    RefPtr<Node> localNode = command.getLocalNode();
     Config*      config    = Global::getNodeFactory()->createConfig();
 
     EQASSERT( localNode->getSession( packet->configID ) == 0 );
@@ -158,10 +104,10 @@ eqNet::CommandResult Server::_cmdDestroyConfig( eqNet::Command& command )
         command.getPacket<ServerDestroyConfigPacket>();
     EQINFO << "Handle destroy config " << packet << endl;
     
-    RefPtr<Node>    localNode  = Node::getLocalNode();
+    RefPtr<Node>    localNode  = command.getLocalNode();
     eqNet::Session* session    = localNode->getSession( packet->configID );
-    EQASSERTINFO( dynamic_cast<Config*>( session ), typeid(*session).name( ));
 
+    EQASSERTINFO( dynamic_cast<Config*>( session ), typeid(*session).name( ));
     Config* config = static_cast<Config*>( session );
 
     localNode->removeSession( config );
@@ -187,7 +133,7 @@ eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Command& command )
     }
 
     Config*      config    = Global::getNodeFactory()->createConfig();
-    RefPtr<Node> localNode = Node::getLocalNode();
+    RefPtr<Node> localNode = command.getLocalNode();
  
     EQASSERT( localNode->getSession( packet->configID ) == 0 );
     config->_appNodeID = localNode->getNodeID();

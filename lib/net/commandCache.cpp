@@ -15,6 +15,11 @@ CommandCache::CommandCache()
 
 CommandCache::~CommandCache()
 {
+    flush();
+}
+
+void CommandCache::flush()
+{
     while( !_freeCommands.empty( ))
     {
         Command* command = _freeCommands.front();

@@ -80,6 +80,9 @@ namespace eqNet
          */
         bool empty() const { return _commands.empty(); }
 
+        /** Flush all cached commands. */
+        void flush();
+
         CHECK_THREAD_DECLARE( _thread );
     private:
 

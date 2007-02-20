@@ -19,11 +19,8 @@ namespace eq
 	class NodeFactory;
 
     /** 
-     * Initialises the Equalizer client library.
+     * Initialize the Equalizer client library.
      *
-     * This function may not return. This is used for remote render client nodes
-     * which execute incoming commands from the server.
-     * 
      * @param argc the command line argument count.
      * @param argv the command line argument values.
 	 * @param nodeFactory the factory for allocating Equalizer objects.
@@ -34,7 +31,7 @@ namespace eq
     EQ_EXPORT bool init( int argc, char** argv, NodeFactory* nodeFactory = 0 );
     
     /**
-     * De-initialises the Equalizer client library.
+     * Deinitialize the Equalizer client library.
      *
      * @return <code>true</code> if the library was successfully de-initialised,
      *         <code>false</code> otherwise.

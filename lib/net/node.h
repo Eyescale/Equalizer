@@ -91,6 +91,22 @@ namespace eqNet
          */
         //*{
         /** 
+         * Initialize a local listening node.
+         *
+         * This function may not return. This is used for remote render client
+         * nodes which only execute incoming commands from the server.
+         *
+         * @param argc the command line argument count.
+         * @param argv the command line argument values.
+         * @return <code>true</code> if the client was successfully initialized,
+         *         <code>false</code> otherwise.
+         */
+        virtual bool initLocal( int argc, char** argv );
+
+        /** Exit a local, listening node. */
+        virtual bool exitLocal() { return stopListening(); }
+
+        /** 
          * Initializes this node.
          *
          * The node will spawn a thread locally and listen on the connection for
@@ -137,42 +153,45 @@ namespace eqNet
         eqBase::RefPtr<Node> getNode( const NodeID& id ) const;
 
         /** 
-         * Connect and potentially launch this node using to the available
-         * connection descriptions.
+         * Connect and potentially launch a node to this listening node, using
+         * the available connection descriptions.
          *
-         * On success, the node is in the connected state, otherwise it's state
+         * On success, the node is in the connected state, otherwise its state
          * is unchanged.
          *
-         * @return <code>true</code> if this node is connected,
+         * @param node the remote node.
+         * @return <code>true</code> if this node was connected,
          *         <code>false</code> otherwise.
          * @sa initConnect, syncConnect
          */
-        bool connect();
+        bool connect( eqBase::RefPtr<Node> node );
 
         /** 
-         * Start connecting and potentially launching this node using to the
+         * Start connecting and potentially launching a node using the
          * available connection descriptions.
          *
          * On success, the node is in the launched or connected state, otherwise
-         * it's state is unchanged.
+         * its state is unchanged.
          *
+         * @param node the remote node.
          * @return <code>true</code> if this node is connecting,
          *         <code>false</code> otherwise.
          * @sa syncConnect
          */
-        bool initConnect();
+        bool initConnect( eqBase::RefPtr<Node> node );
 
         /** 
          * Synchronize the connection initiated by initConnect().
          *
-         * On success, the node is in the connected state, otherwise it's state
+         * On success, the node is in the connected state, otherwise its state
          * is unchanged.
          *
+         * @param node the remote node.
          * @return <code>true</code> if this node is connected,
          *         <code>false</code> otherwise.
          * @sa initConnect
          */
-        bool syncConnect();
+        bool syncConnect( eqBase::RefPtr<Node> node );
 
         /** 
          * Create and connect a node given by an identifier.
@@ -187,11 +206,6 @@ namespace eqNet
                                       eqBase::RefPtr<Node> server );
 
         /** 
-         * Disconnect this node.
-         */
-        bool disconnect();
-
-        /** 
          * Disconnects a connected node.
          *
          * @param node the remote node.
@@ -202,9 +216,6 @@ namespace eqNet
 
         /** 
          * Ensures the connectivity of this node.
-         * 
-         * If the node is not connected, the available connection descriptions
-         * are used to connect the node. 
          *
          * @return <code>true</code> if this node is connected,
          *         <code>false</code> otherwise.
@@ -213,8 +224,6 @@ namespace eqNet
             {
                 if( _state == STATE_CONNECTED || _state == STATE_LISTENING )
                     return true;
-                if( _state == STATE_STOPPED )
-                    return connect();
                 return false;
             }
         //*}
@@ -224,26 +233,6 @@ namespace eqNet
          * @name Connectivity information. 
          */
         //*{
-        /** 
-         * Sets the local node for this execution thread.
-         * 
-         * The local node is the listening node to which newly opened nodes
-         * will be connected. It is thread-specific and will be set by default
-         * the first listening node of this thread.
-         *
-         * @param node the local node for this thread.
-         * @sa addConnectionDescription, send
-         */
-        static void setLocalNode( eqBase::RefPtr<Node> node );
-
-        /** 
-         * Returns the local node for this thread.
-         *
-         * @return the local node for this thread.
-         * @sa setLocalNode
-         */
-        static eqBase::RefPtr<Node> getLocalNode() { return _localNode.get(); }
-
         /** 
          * Returns if the node is local.
          * 
@@ -567,9 +556,6 @@ namespace eqNet
         bool _autoLaunched;
 
     private:
-        /** per-thread local node */
-        static eqBase::PerThread<Node*> _localNode;
-
         /** Globally unique node identifier. */
         NodeID _id;
 
@@ -625,14 +611,15 @@ namespace eqNet
         void _cleanup();
 
         /** 
-         * Launches the node using the parameters from the connection
+         * Launch a node using the parameters from the connection
          * description.
          * 
          * @param description the connection description.
          * @return <code>true</code> if the node was launched,
          *         <code>false</code> otherwise.
          */
-        bool _launch( eqBase::RefPtr<ConnectionDescription> description );
+        bool _launch( eqBase::RefPtr<Node> node, 
+                      eqBase::RefPtr<ConnectionDescription> description );
 
         /** 
          * Composes the launch command by expanding the variables in the
@@ -643,9 +630,9 @@ namespace eqNet
          *                  node when connecting to this node.
          * @return the expanded launch command.
          */
-        std::string _createLaunchCommand( eqBase::RefPtr<ConnectionDescription> 
-                                          description );
-        std::string   _createRemoteCommand();
+        std::string _createLaunchCommand( eqBase::RefPtr<Node> node,
+                            eqBase::RefPtr<ConnectionDescription> description );
+        std::string   _createRemoteCommand( eqBase::RefPtr<Node> node );
 
         /** 
          * Find a connected node using a connection description

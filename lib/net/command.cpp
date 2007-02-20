@@ -19,7 +19,8 @@ Command::Command( const Command& from )
     _packet = static_cast<Packet*>( malloc( MAX( Packet::minSize,
                                                  from._packet->size )));
     memcpy( _packet, from._packet, from._packet->size );
-    _node = from._node;
+    _node      = from._node;
+    _localNode = from._localNode;
 }
 
 Command& Command::operator = ( Command& rhs )
@@ -33,15 +34,19 @@ Command& Command::operator = ( Command& rhs )
         return *this;
 
     // transfer packet to avoid copy
-    _packet     = rhs._packet;
-    _node       = rhs._node;
-    rhs._packet = 0;
-    rhs._node   = 0;
+    _packet        = rhs._packet;
+    _node          = rhs._node;
+    _localNode     = rhs._localNode;
+    rhs._packet    = 0;
+    rhs._node      = 0;
+    rhs._localNode = 0;
 
     return *this;
 }
 
-void Command::allocate( eqBase::RefPtr<Node> node, const uint64_t packetSize )
+void Command::allocate( eqBase::RefPtr<Node> node, 
+                        eqBase::RefPtr<Node> localNode, 
+                        const uint64_t packetSize )
 {
     if( _packet && packetSize > Packet::minSize && _packet->size < packetSize )
         release();
@@ -51,14 +56,16 @@ void Command::allocate( eqBase::RefPtr<Node> node, const uint64_t packetSize )
                                                      packetSize      )));
 
     _node         = node;
+    _localNode    = localNode;
     _packet->size = packetSize;
 }
 
 void Command::release()
 {
     free( _packet );
-    _packet = 0;
-    _node   = 0;
+    _packet    = 0;
+    _node      = 0;
+    _localNode = 0;
 }        
 
 std::ostream& eqNet::operator << ( std::ostream& os, 

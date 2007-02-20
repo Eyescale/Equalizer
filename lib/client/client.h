@@ -1,18 +1,20 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_CLIENT_H
 #define EQ_CLIENT_H
 
-#include "commands.h"
+#include <eq/client/commands.h>
 
 #include <eq/base/monitor.h>
 #include <eq/net/node.h>
 
 namespace eq
 {
-    class Client : public eqNet::Node
+    class Server;
+
+    class EQ_EXPORT Client : public eqNet::Node
     {
     public:
         /** 
@@ -24,6 +26,23 @@ namespace eq
          * Destructs the client.
          */
         virtual ~Client();
+
+        /** 
+         * Open and connect an Equalizer server to the local client.
+         * 
+         * @param server the server.
+         * @return true if the server was connected, false if not.
+         */
+        bool connectServer( eqBase::RefPtr<Server> server );
+
+        /** 
+         * Disconnect and close the connection of an Equalizer server to the
+         * local client.
+         * 
+         * @param server the server.
+         * @return true if the server was disconnected, false if not.
+         */
+        bool disconnectServer( eqBase::RefPtr<Server> server );
 
         /** @name Referenced by node threads. */
         //*{

@@ -21,8 +21,20 @@ CommandQueue::CommandQueue()
 
 CommandQueue::~CommandQueue()
 {
+    flush();
+}
+
+void CommandQueue::flush()
+{
+    EQASSERT( empty( ));
+
+    _commandCacheLock.set();
     if( _lastCommand )
         _commandCache.release( _lastCommand );
+    _lastCommand = 0;
+
+    _commandCache.flush();
+    _commandCacheLock.unset();
 }
 
 void CommandQueue::push( Command& inCommand )

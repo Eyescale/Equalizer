@@ -25,7 +25,7 @@ public:
 
 int main( int argc, char** argv )
 {
-    // 1. initialisation
+    // 1. initialisation of local node
 	NodeFactory nodeFactory;
 	if( !eq::init( argc, argv, &nodeFactory ))
     {
@@ -33,14 +33,20 @@ int main( int argc, char** argv )
         return EXIT_FAILURE;
     }
 
+    RefPtr<eq::Client> client = new eq::Client;
+    if( !client->initLocal( argc, argv ))
+    {
+        EQERROR << "Can't init client" << endl;
+        eq::exit();
+        return EXIT_FAILURE;
+    }
+
     // 2. connect to server
     RefPtr<eq::Server> server = new eq::Server;
-    eq::OpenParams     openParams;
-    openParams.appName = argv[0];
-
-    if( !server->open( openParams ))
+    if( !client->connectServer( server ))
     {
-        EQERROR << "Can't open server." << endl;
+        EQERROR << "Can't open server" << endl;
+        client->exitLocal();
         eq::exit();
         return EXIT_FAILURE;
     }
@@ -52,7 +58,8 @@ int main( int argc, char** argv )
     if( !config )
     {
         EQERROR << "No matching config on server" << endl;
-        server->close();
+        client->disconnectServer( server );
+        client->exitLocal();
         eq::exit();
         return EXIT_FAILURE;
     }
@@ -67,7 +74,8 @@ int main( int argc, char** argv )
         EQERROR << "Config initialisation failed: " 
                 << config->getErrorMessage() << endl;
         server->releaseConfig( config );
-        server->close();
+        client->disconnectServer( server );
+        client->exitLocal();
         eq::exit();
         return EXIT_FAILURE;
     }
@@ -97,8 +105,12 @@ int main( int argc, char** argv )
 
     // 7. cleanup and exit
     server->releaseConfig( config );
-    server->close();
+    client->disconnectServer( server );
     server = 0;
+
+    client->exitLocal();
+    client = 0;
+
     eq::exit();
     return EXIT_SUCCESS;
 }

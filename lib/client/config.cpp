@@ -47,6 +47,7 @@ Config::~Config()
     _appNodeID = eqNet::NodeID::ZERO;
     _appNode   = 0;
 }
+
 void Config::_addNode( Node* node )
 {
     node->_config = this;
@@ -105,7 +106,10 @@ bool Config::exit()
         _processRequest();
 #endif
     const bool ret = ( _requestHandler.waitRequest( packet.requestID ) != 0 );
+
     deregisterObject( &_headMatrix );
+    while( _eventQueue.tryPop( )); // flush all pending events
+
     return ret;
 }
 

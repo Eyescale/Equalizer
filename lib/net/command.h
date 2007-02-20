@@ -38,7 +38,8 @@ namespace eqNet
         template< class P > const P* getPacket() const
             { EQASSERT( _packet ); return reinterpret_cast<P*>( _packet ); }
 
-        eqBase::RefPtr<Node> getNode() const { return _node; }
+        eqBase::RefPtr<Node> getNode()      const { return _node; }
+        eqBase::RefPtr<Node> getLocalNode() const { return _localNode; }
 
         Command& operator = ( Command& rhs ); // transfers _packet
         bool     operator ! () const     { return ( _packet==0 ); }
@@ -46,12 +47,15 @@ namespace eqNet
         Packet*       operator->()       { EQASSERT(_packet); return _packet; }
         const Packet* operator->() const { EQASSERT(_packet); return _packet; }
 
-        void allocate( eqBase::RefPtr<Node> node, const uint64_t packetSize );
+        void allocate( eqBase::RefPtr<Node> node, 
+                       eqBase::RefPtr<Node> localNode, 
+                       const uint64_t packetSize );
         void release();
         bool isValid() const { return ( _packet!=0 ); }
 
     private:
         eqBase::RefPtr<Node> _node;
+        eqBase::RefPtr<Node> _localNode;
         Packet*              _packet;
 
     };

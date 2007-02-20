@@ -268,8 +268,6 @@ void* Pipe::_runThread()
     Config* config = getConfig();
     EQASSERT( config );
 
-    eqNet::Node::setLocalNode( config->getLocalNode( ));
-
     while( _thread->isRunning( ))
     {
         eqNet::Command* command = _commandQueue.pop();
@@ -292,6 +290,7 @@ void* Pipe::_runThread()
         }
     }
 
+    EQUNREACHABLE; // exited from _reqExit
     return EXIT_SUCCESS;
 }
 
@@ -475,6 +474,11 @@ eqNet::CommandResult Pipe::_reqExit( eqNet::Command& command )
     PipeExitReplyPacket reply( packet );
     send( command.getNode(), reply );
 
+    // cleanup
+    _commandQueue.flush();
+    
+    // exit thread
+    EQINFO << "Leaving pipe thread" << endl;
     _thread->exit( EXIT_SUCCESS );
     EQUNREACHABLE;
     return eqNet::COMMAND_HANDLED;

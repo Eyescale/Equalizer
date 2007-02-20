@@ -45,24 +45,7 @@ EQ_EXPORT bool eq::init( int argc, char** argv, NodeFactory* nodeFactory )
 		Global::_nodeFactory = _allocatedNodeFactory;
 	}
 
-    RefPtr<eqNet::Node> node = new Client;
-    eqNet::Node::setLocalNode( node );
-
-    char** argvListen = static_cast<char**>( alloca( (argc+1)*sizeof( char* )));
-    
-    for( int i=0; i<argc; i++ )
-        argvListen[i] = argv[i];
-
-    argvListen[argc] = "--eq-listen";
-
-    if( !eqNet::init( argc+1, argvListen ))
-    {
-        EQERROR << "Failed to initialize Equalizer network layer" << endl;
-        eqNet::Node::setLocalNode( NULL );
-        return false;
-    }
-
-    return true;
+    return eqNet::init( argc, argv );
 }
 
 EQ_EXPORT bool eq::exit()

@@ -57,12 +57,10 @@ void GLXEventThread::exit()
 void GLXEventThread::addPipe( Pipe* pipe )
 {
     CHECK_NOT_THREAD( _thread );
+
     _startMutex.set();
     if( isStopped( ))
-    {
-        _localNode = eqNet::Node::getLocalNode();
         start();
-    }
     _startMutex.unset();
 
     GLXEventThreadAddPipePacket packet;
@@ -81,10 +79,8 @@ void GLXEventThread::removePipe( Pipe* pipe )
     
     const bool stop = _requestHandler.waitRequest( packet.requestID );
     if( stop )
-    {
         join();
-        _localNode = 0;
-    }
+
     _startMutex.unset();
 }
 
@@ -120,7 +116,6 @@ void* GLXEventThread::run()
     CHECK_THREAD( _thread );
     EQINFO << "GLXEventThread running" << endl;
 
-    eqNet::Node::setLocalNode( _localNode );
     while( true )
     {
         const eqNet::ConnectionSet::Event event = _connections.select( );
@@ -178,7 +173,7 @@ void GLXEventThread::_handleCommand()
     EQASSERT( size );
     EQASSERT( size < 4096 ); // not a hard error, just sanity check
 
-    _receivedCommand.allocate( 0, size );
+    _receivedCommand.allocate( 0, 0, size );
     size -= sizeof( size );
 
     char*      ptr     = (char*)_receivedCommand.getPacket() + sizeof(size);

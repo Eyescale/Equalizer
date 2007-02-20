@@ -39,6 +39,9 @@ namespace eqNet
          */
         void release( Command* command );
 
+        /** Flush all released commands. */
+        void flush();
+
     private:
 #pragma warning(push)
 #pragma warning(disable: 4251)

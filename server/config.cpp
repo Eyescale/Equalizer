@@ -163,7 +163,7 @@ Config::Config( const Config& from )
                         Compound* compound = getCompound(m);
 
                         Compound::traverse( compound, replaceChannelCB, 
-                                            replaceChannelCB, NULL, &data );
+                                            replaceChannelCB, 0, &data );
                     }
                 }
             }
@@ -232,7 +232,7 @@ Channel* Config::findChannel( const std::string& name ) const
             }
         }
     }
-    return NULL;
+    return 0;
 }
 
 void Config::addApplicationNode( Node* node )
@@ -375,6 +375,9 @@ static RefPtr<eqNet::Node> _createNode( Node* node )
 
 bool Config::_connectNodes()
 {
+    RefPtr< eqNet::Node > localNode = getLocalNode();
+    EQASSERT( localNode.isValid( ));
+
     for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
     {
         Node* node = *iter;
@@ -393,7 +396,7 @@ bool Config::_connectNodes()
             netNode->setWorkDir( _workDir );
         }
 
-        if( !netNode->initConnect( ))
+        if( !localNode->initConnect( netNode ))
         {
             EQERROR << "Connection to " << netNode->getNodeID() << " failed." 
                     << endl;
@@ -410,6 +413,9 @@ bool Config::_initNodes( const uint32_t initID )
     const string& name    = getName();
     bool          success = true;
 
+    RefPtr< eqNet::Node > localNode = getLocalNode();
+    EQASSERT( localNode.isValid( ));
+
     eq::ServerCreateConfigPacket createConfigPacket;
     createConfigPacket.configID  = _id;
     createConfigPacket.appNodeID = _appNetNode->getNodeID();
@@ -424,7 +430,7 @@ bool Config::_initNodes( const uint32_t initID )
         
         RefPtr<eqNet::Node> netNode = node->getNode();
 
-        if( !netNode->syncConnect( ))
+        if( !localNode->syncConnect( netNode ))
         {
             EQERROR << "Connection of node " << netNode->getNodeID() 
                     << " failed." << endl;
@@ -644,7 +650,7 @@ bool Config::_exitNodes()
 
             EQWARN << "Config::exit: Node should have exited by now" << endl;
 
-        node->setNode( NULL );
+        node->setNode( 0 );
         deregisterObject( node );
     }
     return success;
@@ -657,7 +663,7 @@ void Config::_updateHead()
     const eq::Matrix4f& head      = _headMatrix;
 
     // eye_world = (+-eye_base/2., 0, 0 ) x head_matrix
-    // Don't use vector operator due to possible simplification
+    // Don't use vector operator* due to possible simplification
 
     _eyePosition[EYE_INDEX_CYCLOP].x = head.m03;
     _eyePosition[EYE_INDEX_CYCLOP].y = head.m13;

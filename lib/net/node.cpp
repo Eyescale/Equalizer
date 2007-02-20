@@ -7,8 +7,9 @@
 #include "command.h"
 #include "connectionSet.h"
 #include "global.h"
-#include "session.h"
 #include "pipeConnection.h"
+#include "session.h"
+#include "socketConnection.h"
 
 #include <eq/base/base.h>
 #include <eq/base/launcher.h>
@@ -27,8 +28,6 @@
 using namespace eqBase;
 using namespace eqNet;
 using namespace std;
-
-PerThread<Node*> Node::_localNode;
 
 // node get connection description magic numbers
 #define NEXT_INDEX_NONE       0xffffffffu
@@ -72,15 +71,78 @@ Node::Node()
            CommandFunc<Node>( this, &Node::_cmdGetConnectionDescriptionReply ));
 
     _receiverThread  = new ReceiverThread( this );
-    _receivedCommand = new Command;
     EQINFO << "New Node @" << (void*)this << " " << _id << endl;
 }
 
 Node::~Node()
 {
-    delete _receivedCommand;
     delete _receiverThread;
     EQINFO << "Delete Node @" << (void*)this << " " << _id << endl;
+}
+
+bool Node::initLocal( int argc, char** argv )
+{
+    EQINFO << "args: ";
+    for( int i=0; i<argc; i++ )
+         EQINFO << argv[i] << ", ";
+    EQINFO << endl;
+
+    // We do not use getopt_long because it really does not work due to the
+    // following aspects:
+    // - reordering of arguments
+    // - different behaviour of GNU and BSD implementations
+    // - incomplete man pages
+    bool   isClient = false;
+    string listenOpts;
+    string clientOpts;
+
+    for( int i=1; i<argc; ++i )
+    {
+        if( strcmp( "--eq-listen", argv[i] ) == 0 )
+        {
+            if( i<argc && argv[i+1][0] != '-' )
+                listenOpts = argv[++i];
+        }
+        else if( strcmp( "--eq-client", argv[i] ) == 0 )
+        {
+            ++i;
+            if( i<argc && argv[i][0] != '-' )
+            {
+                isClient   = true;
+                clientOpts = argv[i];
+            }
+        }
+    }
+
+    RefPtr<Connection>            connection = new SocketConnection();
+    RefPtr<ConnectionDescription> connDesc   = connection->getDescription();
+
+    if( !listenOpts.empty() && !connDesc->fromString( listenOpts ))
+        EQWARN << "Listening port parameters '" << listenOpts 
+               << "' on command line invalid" << endl;
+    EQINFO << "Listener connection description: " << connDesc->toString()
+           << endl;
+
+    if( !connection->listen( ))
+    {
+        EQWARN << "Can't create listening connection" << endl; 
+        return false;
+    }
+
+    if( !listen( connection ))
+    {
+        EQWARN << "Can't setup listener" << endl; 
+        return false;
+    }
+    
+    if( isClient )
+    {
+        EQINFO << "Client node started from command line with option " 
+               << clientOpts << endl;
+        return runClient( clientOpts );
+    }
+
+    return true;
 }
 
 bool Node::listen( RefPtr<Connection> connection )
@@ -109,9 +171,6 @@ bool Node::listen( RefPtr<Connection> connection )
 
     _state = STATE_LISTENING;
     _receiverThread->start();
-
-    if( !getLocalNode( ))
-        setLocalNode( this );
 
     EQINFO << this << " listening." << endl;
     return true;
@@ -261,35 +320,18 @@ eqBase::RefPtr<Node> Node::getNode( const NodeID& id ) const
     return iter->second;
 }
 
-void Node::setLocalNode( RefPtr<Node> node )
-{
-    // manual ref/unref to keep correct reference count
-    if( _localNode.get( ))
-        _localNode->unref();
-    node->ref();
-    _localNode = node.get();
-}
-
-bool Node::disconnect()
-{
-    if( _state != STATE_CONNECTED )
-        return false;
-
-    if( _autoLaunched )
-    {
-        EQINFO << "Stopping autoaunched node" << endl;
-        NodeStopPacket packet;
-        send( packet );
-    }
-
-    return getLocalNode()->disconnect( this );
-}
-
 bool Node::disconnect( RefPtr<Node> node )
 {
     if( !node || _state != STATE_LISTENING || 
         !node->_state == STATE_CONNECTED || !node->_connection )
         return false;
+
+    if( node->_autoLaunched )
+    {
+        EQINFO << "Stopping autoaunched node" << endl;
+        NodeStopPacket packet;
+        node->send( packet );
+    }
 
     node->_state      = STATE_STOPPED;
 
@@ -416,8 +458,7 @@ void* Node::_runReceiver()
 {
     EQINFO << "Entered receiver thread" << endl;
 
-    if( !getLocalNode( ))
-        setLocalNode( this );
+    _receivedCommand = new Command;
 
     int nErrors = 0;
     while( _state == STATE_LISTENING )
@@ -479,6 +520,25 @@ void* Node::_runReceiver()
             nErrors = 0;
     }
 
+    if( !_pendingCommands.empty( ))
+    {
+        EQWARN << _pendingCommands.size() 
+               << " commands rescheduled while leaving receiver thread" << endl;
+
+        for( list<Command*>::const_iterator i = _pendingCommands.begin();
+             i != _pendingCommands.end(); ++i )
+            
+            _commandCache.release( *i );
+
+        _pendingCommands.clear();
+    }
+
+    _commandCache.flush();
+
+    delete _receivedCommand;
+    _receivedCommand = 0;
+
+    EQINFO << "Leaving receiver thread" << endl;
     return EXIT_SUCCESS;
 }
 
@@ -540,7 +600,7 @@ bool Node::_handleData()
         return false;
 
     EQASSERT( size );
-    _receivedCommand->allocate( node, size );
+    _receivedCommand->allocate( node, this, size );
     size -= sizeof( size );
 
     char*      ptr     = (char*)_receivedCommand->getPacket() + sizeof(size);
@@ -688,10 +748,7 @@ CommandResult Node::_cmdStop( Command& command )
     EQINFO << "Cmd stop " << this << endl;
     EQASSERT( _state == STATE_LISTENING );
 
-    // TODO: Process pending packets on all other connections?
-
     _state = STATE_STOPPED;
-    _receiverThread->exit( EXIT_SUCCESS );
     return COMMAND_HANDLED;
 }
 
@@ -1098,86 +1155,89 @@ Session* Node::_findSession( const std::string& name ) const
 //----------------------------------------------------------------------
 // Connecting and launching a node
 //----------------------------------------------------------------------
-bool Node::connect()
+bool Node::connect( eqBase::RefPtr<Node> node )
 {
-    if( _state == STATE_CONNECTED || _state == STATE_LISTENING )
+    if( node->getState() == STATE_CONNECTED ||
+        node->getState() == STATE_LISTENING )
+
         return true;
 
-    if( !initConnect( ))
+    if( !initConnect( node ))
     {
         EQERROR << "Connection initialisation failed." << endl;
         return false;
     }
 
-    return syncConnect();
+    return syncConnect( node );
 }
 
-bool Node::initConnect()
+bool Node::initConnect( eqBase::RefPtr<Node> node )
 {
-    if( _state == STATE_CONNECTED || _state == STATE_LISTENING )
+    EQASSERT( _state == STATE_LISTENING );
+    if( node->getState() == STATE_CONNECTED ||
+        node->getState() == STATE_LISTENING )
+
         return true;
 
-    EQASSERT( _state == STATE_STOPPED );
+    EQASSERT( node->getState() == STATE_STOPPED );
 
-    RefPtr<Node> localNode = Node::getLocalNode();
-    if( !localNode )
-        return false;
-
-    // try connection first
-    const size_t nDescriptions = nConnectionDescriptions();
+    // try connecting first
+    const size_t nDescriptions = node->nConnectionDescriptions();
     for( size_t i=0; i<nDescriptions; i++ )
     {
-        RefPtr<ConnectionDescription> description = getConnectionDescription(i);
+        RefPtr<ConnectionDescription> description = 
+            node->getConnectionDescription(i);
         RefPtr<Connection> connection = Connection::create( description->type );
         connection->setDescription( description );
+
         if( !connection->connect( ))
             continue;
 
-        if( !localNode->connect( this, connection ))
+        if( !connect( node, connection ))
             return false;
 
         return true;
     }
 
     EQINFO << "Node could not be connected." << endl;
-    if( !_autoLaunch )
+    if( !node->_autoLaunch )
         return false;
     
     EQINFO << "Attempting to launch node." << endl;
     for( size_t i=0; i<nDescriptions; i++ )
     {
-        RefPtr<ConnectionDescription> description = getConnectionDescription(i);
+        RefPtr<ConnectionDescription> description = 
+            node->getConnectionDescription(i);
 
-        if( _launch( description ))
+        if( _launch( node, description ))
             return true;
     }
 
     return false;
 }
 
-bool Node::syncConnect()
+bool Node::syncConnect( eqBase::RefPtr<Node> node )
 {
-    RefPtr<Node> localNode = Node::getLocalNode();
-    EQASSERT( localNode )
+    if( node->_launchID == EQ_ID_INVALID )
+        return ( node->getState() == STATE_CONNECTED );
 
-    if( _launchID == EQ_ID_INVALID )
-        return ( _state == STATE_CONNECTED );
-
-    bool success;
-    const uint32_t time = static_cast<uint32_t>( _launchTimeout.getTimef( ));
-    localNode->_requestHandler.waitRequest( _launchID, &success, time );
+    bool           success;
+    const uint32_t time    = static_cast<uint32_t>( 
+        node->_launchTimeout.getTimef( ));
+    _requestHandler.waitRequest( node->_launchID, &success, time );
                       
     if( success )
     {
-        EQASSERT( _state == STATE_CONNECTED );
+        EQASSERT( node->getState() == STATE_CONNECTED );
     }
     else
     {
-        _state = STATE_STOPPED;
-        localNode->_requestHandler.unregisterRequest( _launchID );
+        node->_state = STATE_STOPPED;
+        _requestHandler.unregisterRequest( _launchID );
+        node->unref();
     }
 
-    _launchID = EQ_ID_INVALID;
+    node->_launchID = EQ_ID_INVALID;
     return success;
 }
 
@@ -1202,41 +1262,34 @@ RefPtr<Node> Node::connect( const NodeID& nodeID, RefPtr<Node> server)
     return getNode( nodeID );
 }
 
-bool Node::_launch( RefPtr<ConnectionDescription> description )
+bool Node::_launch( RefPtr<Node> node,
+                    RefPtr<ConnectionDescription> description )
 {
-    EQASSERT( _state == STATE_STOPPED );
+    EQASSERT( node->getState() == STATE_STOPPED );
 
-    RefPtr<Node> localNode = Node::getLocalNode();
-    EQASSERT( localNode );
+    node->ref();
+    node->_launchID = _requestHandler.registerRequest( node.get() );
+    node->_launchTimeout.setAlarm( description->launchTimeout );
 
-    this->ref();
-    _launchID = localNode->_requestHandler.registerRequest( this );
-    _launchTimeout.setAlarm( description->launchTimeout );
-
-    const string launchCommand = _createLaunchCommand( description );
+    const string launchCommand = _createLaunchCommand( node, description );
 
     if( !eqBase::Launcher::run( launchCommand ))
     {
         EQWARN << "Could not launch node using '" << launchCommand << "'" 
                << endl;
-        localNode->_requestHandler.unregisterRequest( _launchID );
-        _launchID = EQ_ID_INVALID;
+        _requestHandler.unregisterRequest( node->_launchID );
+        node->_launchID = EQ_ID_INVALID;
+        node->unref();
         return false;
     }
     
-    _state    = STATE_LAUNCHED;
+    node->_state = STATE_LAUNCHED;
     return true;
 }
 
-string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description )
+string Node::_createLaunchCommand( RefPtr<Node> node,
+                                   RefPtr<ConnectionDescription> description )
 {
-    RefPtr<Node> localNode = Node::getLocalNode();
-    if( !localNode )
-    {
-        EQERROR << "No local node, can't launch " << this << endl;
-        return "";
-    }
-
     const string& launchCommand    = description->launchCommand;
     const size_t  launchCommandLen = launchCommand.size();
     bool          commandFound     = false;
@@ -1252,7 +1305,7 @@ string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description )
         {
             case 'c':
             {
-                replacement << _createRemoteCommand();
+                replacement << _createRemoteCommand( node );
                 commandFound = true;
                 break;
             }
@@ -1261,7 +1314,7 @@ string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description )
                 break;
 
             case 'n':
-                replacement << getNodeID();
+                replacement << node->getNodeID();
                 break;
 
             default:
@@ -1279,27 +1332,25 @@ string Node::_createLaunchCommand( RefPtr<ConnectionDescription> description )
     result += launchCommand.substr( lastPos, launchCommandLen-lastPos );
 
     if( !commandFound )
-        result += " " + _createRemoteCommand();
+        result += " " + _createRemoteCommand( node );
 
     EQINFO << "Launch command: " << result << endl;
     return result;
 }
 
-string Node::_createRemoteCommand()
+string Node::_createRemoteCommand( RefPtr<Node> node )
 {
-    RefPtr<Node>       localNode = Node::getLocalNode();
-    RefPtr<Connection> listener = localNode->_listener;
-    if( !listener.isValid() || 
-        listener->getState() != Connection::STATE_LISTENING )
+    if( !_listener.isValid() || 
+        _listener->getState() != Connection::STATE_LISTENING )
     {
-        EQERROR << "local node is not listening, can't launch " << this << endl;
+        EQERROR << "Node is not listening, can't launch " << this << endl;
         return "";
     }
 
-    RefPtr<ConnectionDescription> listenerDesc = listener->getDescription();
+    RefPtr<ConnectionDescription> listenerDesc = _listener->getDescription();
     EQASSERT( listenerDesc.isValid( ));
 
-    RefPtr<ConnectionDescription> nodeDesc = getConnectionDescription(0);
+    RefPtr<ConnectionDescription> nodeDesc = node->getConnectionDescription(0);
     EQASSERT( nodeDesc.isValid( ));
 
     ostringstream stringStream;
@@ -1327,7 +1378,7 @@ string Node::_createRemoteCommand()
 #endif // WIN32
 
     //----- program + args
-    string program = _programName;
+    string program = node->_programName;
 #ifdef WIN32
     EQASSERT( program.length() > 2 );
     if( !( program[1] == ':' && (program[2] == '/' || program[2] == '\\' )) &&
@@ -1343,7 +1394,7 @@ string Node::_createRemoteCommand()
 
     stringStream << "\"'" << program << "' --eq-listen='" 
                  << nodeDesc->toString() << "' --eq-client '"
-                 << _launchID << SEPARATOR << _workDir << SEPARATOR
+                 << node->_launchID << SEPARATOR << node->_workDir << SEPARATOR
                  << listenerDesc->toString() << "'\"";
 
     return stringStream.str();

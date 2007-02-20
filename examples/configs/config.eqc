@@ -2,7 +2,7 @@ server
 {
     config
     {
-        appNode
+        node
         {
             pipe
             {

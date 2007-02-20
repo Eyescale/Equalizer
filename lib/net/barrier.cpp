@@ -48,8 +48,11 @@ EQ_EXPORT void Barrier::enter()
     EQASSERT( _data.master != NodeID::ZERO );
 
     if( !_master )
-        _master = eqNet::Node::getLocalNode()->
-            connect( _data.master, getSession()->getServer( ));
+    {
+        Session*     session   = getSession();
+        RefPtr<Node> localNode = session->getLocalNode();
+        _master = localNode->connect( _data.master, session->getServer( ));
+    }
 
     EQASSERT( _master.isValid( ));
     EQLOG( LOG_BARRIER ) << "enter barrier " << getID() << " v" << getVersion()
@@ -70,7 +73,7 @@ EQ_EXPORT void Barrier::enter()
 CommandResult Barrier::_cmdEnter( Command& command )
 {
     CHECK_THREAD( _thread );
-    EQASSERT( !_master || _master == eqNet::Node::getLocalNode( ));
+    EQASSERT( !_master || _master == getSession()->getLocalNode( ));
 
     const BarrierEnterPacket* packet = command.getPacket<BarrierEnterPacket>();
 
