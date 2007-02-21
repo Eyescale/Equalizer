@@ -6,7 +6,7 @@
 #ifndef CLIENT_MATRIX4_H
 #define CLIENT_MATRIX4_H
 
-#include <eq/client/object.h>
+#include <eq/net/object.h>
 #include <eq/vmmlib/Matrix4.h>
 
 namespace eq
@@ -18,8 +18,6 @@ namespace eq
         Matrix4();
         Matrix4( const vmml::Matrix4<T>& matrix );
         virtual ~Matrix4(){}
-
-        virtual uint32_t getTypeID() const;
 
         Matrix4& operator= ( const Matrix4<T>& matrix )
             { vmml::Matrix4<T>::operator= (matrix); return *this; }
@@ -45,14 +43,6 @@ namespace eq
            << eqBase::exdent << eqBase::enableHeader << eqBase::enableFlush;
         return os;
     }
-
-    template<>
-    inline uint32_t Matrix4<float>::getTypeID() const 
-    { return eq::Object::TYPE_MATRIX4F; }
-
-    template<>
-    inline uint32_t Matrix4<double>::getTypeID() const 
-    { return eq::Object::TYPE_MATRIX4D; }
 
     template< class T >
     Matrix4<T>::Matrix4() 

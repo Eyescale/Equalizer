@@ -4,8 +4,6 @@
 
 #include "frameData.h"
 
-#include <eq/client/object.h>
-
 using namespace eqs;
 
 FrameData::FrameData()

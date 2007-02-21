@@ -300,5 +300,5 @@ namespace eqNet
     };
     std::ostream& operator << ( std::ostream& os, Session* session );
 }
-#endif // EQNET_SESSION_PRIV_H
+#endif // EQNET_SESSION_H
 

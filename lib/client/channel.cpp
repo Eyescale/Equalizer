@@ -5,7 +5,6 @@
 #include "channel.h"
 
 #include "commands.h"
-#include "object.h"
 #include "frame.h"
 #include "global.h"
 #include "log.h"

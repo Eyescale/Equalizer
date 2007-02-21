@@ -11,12 +11,6 @@
 
 #include <eq/eq.h>
 
-enum ObjectType
-{
-    TYPE_INITDATA  = eqNet::Object::TYPE_CUSTOM,
-    TYPE_FRAMEDATA
-};
-
 typedef PlyModel< NormalFace<ColorVertex> > Model;
 
 

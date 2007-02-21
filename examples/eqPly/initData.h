@@ -22,8 +22,6 @@ public:
     uint32_t           getFrameDataID() const { return _frameDataID; }
     const std::string& getFilename()    const { return _filename; }
 
-    virtual uint32_t getTypeID() const { return TYPE_INITDATA; }
-
 protected:
     virtual const void* getInstanceData( uint64_t* size );
     virtual void applyInstanceData( const void* data, const uint64_t size );

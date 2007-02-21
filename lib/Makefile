@@ -76,7 +76,6 @@ HEADER_SRC = \
 	client/matrix4.h \
 	client/node.h \
 	client/nodeFactory.h \
-	client/object.h \
 	client/packets.h \
 	client/pipe.h \
 	client/pixelViewport.h \

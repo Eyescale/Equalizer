@@ -21,29 +21,6 @@ namespace eqNet
     {
     public:
         /**
-         * The type (class) identifier of the object
-         *
-         * The type classifies two things: the concrete type of the object for
-         * instantiation, and the level of functionality (unmanaged, managed,
-         * versioned) the object supports.
-         *
-         * Unmanaged objects have to provide command handlers for the commands
-         * they will receive, see Base::registerCommand().
-         *
-         * Managed objects have to implement in addition getInstanceData() and
-         * potentially releaseInstanceData() to enable object instanciation.
-         * 
-         * Versioned objects have additionally to implement pack(), unpack() and
-         * potentially releasePackData() for version management.
-         */
-        enum Type
-        {
-            TYPE_BARRIER,              //!< eqNet::Barrier
-            TYPE_INTERNAL = 0x100,     //!< internal eq object types
-            TYPE_CUSTOM   = 0x200      //!< app-space versioned objects
-        };
-
-        /**
          * Flags for auto obsoletion.
          */
         enum ObsoleteFlags
@@ -181,19 +158,6 @@ namespace eqNet
          */
         uint32_t getVersion() const { return _cm->getVersion(); }
         //*}
-
-        /**
-         * Get the unique type identifier.
-         *
-         * Each object type (class) has a unique identifier for instanciation
-         * and registration in the session. When subclassing, create a new enum
-         * for each class and return it from this function, starting at
-         * Object::TYPE_CUSTOM.
-         *
-         * @return the unique type identifier.
-         * @sa Session::instanciateObject, Object::Type
-         */
-        virtual uint32_t getTypeID() const = 0;
 
     protected:
         Object( const Object& from );

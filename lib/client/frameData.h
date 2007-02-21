@@ -30,8 +30,6 @@ namespace eq
         FrameData();
         virtual ~FrameData();
 
-        virtual uint32_t getTypeID() const { return eq::Object::TYPE_FRAMEDATA;}
-
         /** 
          * @name Data Access
          */

@@ -12,7 +12,6 @@
 #include "global.h"
 #include "log.h"
 #include "nodeFactory.h"
-#include "object.h"
 #include "packets.h"
 #include "windowEvent.h"
 #ifdef WIN32

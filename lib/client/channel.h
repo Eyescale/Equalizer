@@ -31,8 +31,6 @@ namespace eq
          */
         Channel();
 
-        virtual uint32_t getTypeID() const { return eq::Object::TYPE_CHANNEL; }
-
         /**
          * @name Data Access
          */

@@ -28,8 +28,6 @@ namespace eq
          */
         Node();
 
-        virtual uint32_t getTypeID() const { return eq::Object::TYPE_NODE; }
-
         /** 
          * Returns the config of this node.
          * 

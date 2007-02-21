@@ -4,7 +4,6 @@
 #include "frame.h"
 
 #include "frameData.h"
-#include "object.h"
 #include "packets.h"
 
 #include <eq/net/session.h>

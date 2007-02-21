@@ -91,7 +91,7 @@ Session::~Session()
                 {
                     const Object* object = *j;
                     EQINFO << "    Object of type " << typeid(*object).name() 
-                           << ", type " << object->getTypeID() << endl;
+                           << endl;
                 }
             }
         }

@@ -5,10 +5,10 @@
 #ifndef EQ_FRAME_H
 #define EQ_FRAME_H
 
-#include <eq/client/object.h>
 #include <eq/client/pixelViewport.h>
 
 #include <eq/base/monitor.h>
+#include <eq/net/object.h>
 #include <eq/vmmlib/Vector2.h>
 
 namespace eqs
@@ -45,8 +45,6 @@ namespace eq
          */
         Frame( Pipe* pipe );
         virtual ~Frame(){}
-
-        virtual uint32_t getTypeID() const { return eq::Object::TYPE_FRAME; }
 
         /**
          * @name Data Access

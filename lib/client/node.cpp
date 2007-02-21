@@ -9,7 +9,6 @@
 #include "frameData.h"
 #include "global.h"
 #include "nodeFactory.h"
-#include "object.h"
 #include "packets.h"
 #include "pipe.h"
 #include "server.h"

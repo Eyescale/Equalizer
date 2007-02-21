@@ -41,8 +41,6 @@ namespace eqs
          */
         Pipe( const Pipe& from );
 
-        virtual uint32_t getTypeID() const { return eq::Object::TYPE_PIPE; }
-
         Server* getServer() const
             { return _node ? _node->getServer() : NULL; }
 

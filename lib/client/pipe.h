@@ -33,8 +33,6 @@ namespace eq
          */
         Pipe();
 
-        virtual uint32_t getTypeID() const { return eq::Object::TYPE_PIPE; }
-
         /** @name Data Access. */
         //*{
         Node* getNode() const { return _node; }
@@ -154,7 +152,7 @@ namespace eq
         /** @return the Win32 device context for this pipe. */
         HDC getDC() const { return _dc; }
 
-        /** @return the Win32 device context for this pipe. */
+        /** @return true if the dc has to be deleted. */
         bool needsDCDelete() const { return _dcDelete; }
 
         /** @return the time in ms elapsed since the frame started. */

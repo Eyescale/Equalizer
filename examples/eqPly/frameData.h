@@ -20,8 +20,6 @@ public:
             EQINFO << "New FrameData " << std::endl;
         }
 
-    virtual uint32_t getTypeID() const { return TYPE_FRAMEDATA; }
-
     void reset()
         {
             data.translation   = vmml::Vector3f::ZERO;

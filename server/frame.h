@@ -28,8 +28,6 @@ namespace eqs
         Frame();
         Frame( const Frame& from );
 
-        virtual uint32_t getTypeID() const { return eq::Object::TYPE_FRAME; }
-
         /**
          * @name Data Access
          */

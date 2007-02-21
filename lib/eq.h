@@ -17,7 +17,6 @@
 #include <eq/client/matrix4.h>
 #include <eq/client/node.h>
 #include <eq/client/nodeFactory.h>
-#include <eq/client/object.h>
 #include <eq/client/packets.h>
 #include <eq/client/pipe.h>
 #include <eq/client/server.h>

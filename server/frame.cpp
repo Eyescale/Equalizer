@@ -7,7 +7,6 @@
 #include "compound.h"
 #include "frameData.h"
 
-#include <eq/client/object.h>
 #include <eq/net/session.h>
 
 using namespace eqs;

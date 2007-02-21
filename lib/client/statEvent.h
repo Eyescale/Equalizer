@@ -30,11 +30,11 @@ namespace eq
         StatEvent(){}
         StatEvent( const Type _type, const eqNet::Object* object, 
                    const float _startTime )
-                : type( _type ), objectType( object->getTypeID( )),
-                  objectID( object->getID( )), startTime( _startTime ) {}
+                : type( _type ), 
+                  objectID( object->getID( )),
+                  startTime( _startTime ) {}
 
         Type     type;
-        uint32_t objectType;
         uint32_t objectID;
         float    startTime;
         float    endTime;
@@ -44,9 +44,9 @@ namespace eq
 
     inline std::ostream& operator << ( std::ostream& os, const StatEvent& event)
     {
-        os << " event " << StatEvent::typeNames[ event.type ] << " object "
-           << event.objectType << ":" << event.objectID << " " 
-           << event.startTime << " - " << event.endTime;
+        os << " event " << StatEvent::typeNames[ event.type ] << ":" 
+           << event.objectID << " " << event.startTime << " - " 
+           << event.endTime;
         return os;
     }
 }

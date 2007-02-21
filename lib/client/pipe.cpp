@@ -9,7 +9,6 @@
 #include "global.h"
 #include "nodeFactory.h"
 #include "packets.h"
-#include "object.h"
 #include "X11Connection.h"
 #include "window.h"
 

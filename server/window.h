@@ -7,9 +7,9 @@
 
 #include "pipe.h"
 
-#include <eq/client/object.h>
 #include <eq/client/pixelViewport.h>
 #include <eq/client/window.h>
+#include <eq/net/object.h>
 
 #include <iostream>
 #include <vector>
@@ -42,8 +42,6 @@ namespace eqs
          * Constructs a new deep copy of a window.
          */
         Window( const Window& from );
-
-        virtual uint32_t getTypeID() const { return eq::Object::TYPE_WINDOW; }
 
         Server* getServer() const
             { return _pipe ? _pipe ->getServer() : NULL; }

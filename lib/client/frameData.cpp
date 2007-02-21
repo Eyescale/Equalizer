@@ -7,7 +7,6 @@
 #include "commands.h"
 #include "image.h"
 #include "log.h"
-#include "object.h"
 #include "packets.h"
 
 #include <eq/net/command.h>

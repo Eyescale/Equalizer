@@ -36,8 +36,6 @@ namespace eqs
          */
         Node( const Node& from );
 
-        virtual uint32_t getTypeID() const { return eq::Object::TYPE_NODE; }
-
         /** @name Data Access. */
         //*{
         Config* getConfig() const { return _config; }

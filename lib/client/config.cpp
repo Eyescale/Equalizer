@@ -10,7 +10,6 @@
 #include "global.h"
 #include "node.h"
 #include "nodeFactory.h"
-#include "object.h"
 #include "packets.h"
 #include "server.h"
 

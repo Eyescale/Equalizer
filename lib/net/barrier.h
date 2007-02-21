@@ -29,8 +29,6 @@ namespace eqNet
          */
         Barrier();
 
-        virtual uint32_t getTypeID() const { return TYPE_BARRIER; }
-
         /**
          * Destructs the barrier.
          */

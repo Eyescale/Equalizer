@@ -9,8 +9,8 @@
 #include "window.h"
 
 #include <eq/client/commands.h>
-#include <eq/client/object.h>
 #include <eq/client/viewport.h>
+#include <eq/net/object.h>
 #include <eq/net/packets.h>
 
 #include <iostream>
@@ -43,8 +43,6 @@ namespace eqs
          * Constructs a new deep copy of a channel.
          */
         Channel( const Channel& from );
-
-        virtual uint32_t getTypeID() const { return eq::Object::TYPE_CHANNEL; }
 
         /** 
          * @return the state of this pipe.
