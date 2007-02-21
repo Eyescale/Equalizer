@@ -327,6 +327,7 @@ namespace eq
         
         /** The running per-frame statistic clocks. */
         std::deque<eqBase::Clock> _frameClocks;
+		eqBase::Lock              _frameClockMutex;
 
         /** The clock for the currently active frame. */
         eqBase::Clock _frameClock;

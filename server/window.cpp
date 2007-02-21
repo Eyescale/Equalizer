@@ -28,7 +28,7 @@ void eqs::Window::_construct()
     registerCommand( eq::CMD_WINDOW_EXIT_REPLY, 
                      eqNet::CommandFunc<Window>( this, &Window::_cmdExitReply));
     registerCommand( eq::CMD_WINDOW_SET_PVP, 
-                     eqNet::CommandFunc<Window>( this, &Window::_cmdPushFront));
+                     eqNet::CommandFunc<Window>( this, &Window::_cmdPush ));
     registerCommand( eq::REQ_WINDOW_SET_PVP,
              eqNet::CommandFunc<Window>( this, &Window::_reqSetPixelViewport ));
                          

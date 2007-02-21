@@ -485,7 +485,9 @@ eqNet::CommandResult Pipe::_reqExit( eqNet::Command& command )
 
 eqNet::CommandResult Pipe::_cmdUpdate( eqNet::Command& command )
 {
+	_frameClockMutex.set();
     _frameClocks.push_back( Clock( ));
+	_frameClockMutex.unset();
     return pushCommand( command );
 }
 
@@ -493,10 +495,13 @@ eqNet::CommandResult Pipe::_reqUpdate( eqNet::Command& command )
 {
     const PipeUpdatePacket* packet = command.getPacket<PipeUpdatePacket>();
     EQVERB << "handle pipe update " << packet << endl;
+
+	_frameClockMutex.set();
     EQASSERT( !_frameClocks.empty( ));
-    
-    _frameClock = _frameClocks.front();
+
+	_frameClock = _frameClocks.front();
     _frameClocks.pop_front();
+	_frameClockMutex.unset();
 
     startFrame( packet->frameID );
     return eqNet::COMMAND_HANDLED;

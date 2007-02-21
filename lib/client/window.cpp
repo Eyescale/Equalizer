@@ -1070,9 +1070,8 @@ void eq::Window::swapBuffers() const
 }
 
 //======================================================================
-// event-thread methods
+// event-handler methods
 //======================================================================
-
 bool eq::Window::processEvent( const WindowEvent& event )
 {
     ConfigEvent configEvent;
@@ -1120,7 +1119,7 @@ bool eq::Window::processEvent( const WindowEvent& event )
             break;
 
         case WindowEvent::UNHANDLED:
-            // Handle window-system native event here
+            // Handle other window-system native events here
             return false;
 
         default:
