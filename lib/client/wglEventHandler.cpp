@@ -148,6 +148,7 @@ LONG WINAPI WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
         case WM_SIZE:
         case WM_MOVE:
         case WM_SHOWWINDOW:
+        case WM_WINDOWPOSCHANGED:
         {
             event.type = WindowEvent::RESIZE;
 
