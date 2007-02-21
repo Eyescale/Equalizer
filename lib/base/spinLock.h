@@ -59,7 +59,7 @@ namespace eqBase
 
     private:
 #ifdef EQ_USE_PTHREAD_SPINLOCK
-        phtread_spinlock_t _mutex;
+        pthread_spinlock_t _mutex;
 #else
         pthread_mutex_t _mutex;
 #endif
