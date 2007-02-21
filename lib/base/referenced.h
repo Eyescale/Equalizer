@@ -5,9 +5,9 @@
 #ifndef EQBASE_REFERENCED_H
 #define EQBASE_REFERENCED_H
 
-#include <eq/base/base.h>
-#include <eq/base/debug.h>
-#include <eq/base/lock.h>
+#include <eq/base/base.h>     // for EQ_EXPORT
+#include <eq/base/debug.h>    // for EQ_ERROR
+#include <eq/base/spinLock.h> // member
 
 namespace eqBase
 {
@@ -49,7 +49,7 @@ namespace eqBase
             }
 
         uint32_t _refCount;
-        Lock     _mutex;
+        SpinLock _mutex;
     };
 }
 

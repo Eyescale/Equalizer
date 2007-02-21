@@ -5,8 +5,6 @@
 #ifndef EQ_PIPE_H
 #define EQ_PIPE_H
 
-#include "commands.h"
-
 #include <eq/client/node.h>
 #include <eq/client/pixelViewport.h>
 #include <eq/client/statEvent.h>
@@ -14,6 +12,7 @@
 #include <eq/client/windowSystem.h>
 
 #include <eq/base/refPtr.h>
+#include <eq/base/spinLock.h>
 #include <eq/base/thread.h>
 #include <eq/net/base.h>
 #include <eq/net/object.h>
@@ -327,7 +326,7 @@ namespace eq
         
         /** The running per-frame statistic clocks. */
         std::deque<eqBase::Clock> _frameClocks;
-		eqBase::Lock              _frameClockMutex;
+		eqBase::SpinLock          _frameClockMutex;
 
         /** The clock for the currently active frame. */
         eqBase::Clock _frameClock;

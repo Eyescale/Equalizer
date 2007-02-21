@@ -25,7 +25,7 @@ HEADER_SRC = \
 	base/requestHandler.h \
 	base/scopedMutex.h \
 	base/sema.h \
-	base/shm.h \
+	base/spinLock.h \
 	base/stdExt.h \
 	base/thread.h \
 	base/timedLock.h \
@@ -100,6 +100,7 @@ SOURCES = \
 	base/log.cpp \
 	base/requestHandler.cpp \
 	base/sema.cpp \
+	base/spinLock.cpp \
 	base/thread.cpp \
 	base/timedLock.cpp \
 	net/barrier.cpp \
