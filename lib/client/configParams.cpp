@@ -28,6 +28,6 @@ ConfigParams& ConfigParams::operator = ( const ConfigParams& rhs )
  
     renderClient  = rhs.renderClient;
     workDir       = rhs.workDir;
-    compoundModes = rhs.compoundModes;
+//    compoundModes = rhs.compoundModes;
     return *this;
 }

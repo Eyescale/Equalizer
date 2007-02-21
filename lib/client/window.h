@@ -46,6 +46,7 @@ namespace eq
         Pipe* getPipe() const { return _pipe; }
         Node* getNode() const 
             { return ( _pipe ? _pipe->getNode() : NULL );}
+        Config* getConfig() const { return (_pipe ? _pipe->getConfig() : NULL);}
         eqBase::RefPtr<eqNet::Node> getServer() const 
             { return ( _pipe ? _pipe->getServer() : NULL );}
 
@@ -113,13 +114,6 @@ namespace eq
 
         /** @return the WGL rendering context. */
         HGLRC getWGLContext() const { return _wglContext; }
-
-        /** 
-         * Returns the config of this window.
-         * 
-         * @return the config of this window. 
-         */
-        Config* getConfig() const { return (_pipe ? _pipe->getConfig() : NULL);}
 
         /** 
          * Set the window's pixel viewport wrt its parent pipe.

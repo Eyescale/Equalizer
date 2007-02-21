@@ -20,7 +20,6 @@ namespace eq
 
         std::string renderClient;
         std::string workDir;
-        uint32_t    compoundModes;
     private:
     };
 }

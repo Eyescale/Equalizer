@@ -31,7 +31,7 @@ namespace eq
          * 
          * @return the config.
          */
-        virtual Config* createConfig(){ return new eq::Config(); }
+        virtual Config* createConfig(){ return new eq::Config; }
 
         /** 
          * Creates a new node.

@@ -46,7 +46,6 @@ namespace eq
             }
 
         uint32_t requestID;
-        uint32_t compoundModes;
         EQ_ALIGN8( char     rendererInfo[8] );
     };
 
@@ -791,7 +790,6 @@ namespace eq
                                        const ServerChooseConfigPacket* packet )
     {
         os << (ServerPacket*)packet << " req " << packet->requestID
-           << " cmp modes " << packet->compoundModes
            << " renderer " << packet->rendererInfo;
         return os;
     }

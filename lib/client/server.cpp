@@ -45,7 +45,6 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
     ServerChooseConfigPacket packet;
 
     packet.requestID      = _requestHandler.registerRequest();
-    packet.compoundModes  = parameters.compoundModes;
     string rendererInfo   = parameters.workDir + '#' + parameters.renderClient;
 #ifdef WIN32 // replace dir delimeters since '\' is often used as escape char
     for( size_t i=0; i<rendererInfo.length(); ++i )
