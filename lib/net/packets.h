@@ -182,7 +182,6 @@ namespace eqNet
         NodeID   nodeID;
         uint32_t requestID;
         uint32_t index;
-        bool     appRequest;
     };
 
     struct NodeGetConnectionDescriptionReplyPacket : public NodePacket
@@ -194,14 +193,12 @@ namespace eqNet
                 size       = sizeof( NodeGetConnectionDescriptionReplyPacket );
                 nodeID     = request->nodeID;
                 requestID  = request->requestID;
-                appRequest = request->appRequest;
                 connectionDescription[0] = '\0';
             } 
 
         NodeID   nodeID;
         uint32_t requestID;
         uint32_t nextIndex;
-        bool     appRequest;
         EQ_ALIGN8( char     connectionDescription[8] );
     };
 
@@ -540,8 +537,7 @@ namespace eqNet
                          const NodeGetConnectionDescriptionReplyPacket* packet )
     {
         os << (NodePacket*)packet << " req " << packet->requestID << " ni "  
-           << packet->nextIndex << " app? " << packet->appRequest << " desc " 
-           << packet->connectionDescription;
+           << packet->nextIndex << " desc " << packet->connectionDescription;
         return os;
     }
 

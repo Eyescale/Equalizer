@@ -375,40 +375,6 @@ namespace eqNet
         //@}
 
         /**
-         * @name Receiver-thread node connect
-         */
-        //@{
-        /** 
-         * Requests the connection of a node.
-         * 
-         * @param nodeID the identifier of the node to connect.
-         * @param server another node holding connection information to the
-         *               destination node.
-         * @return an identifier for the request for subsequent commands.
-         */
-        uint32_t startNodeConnect( const NodeID& nodeID, 
-                                   eqBase::RefPtr<Node> server );
-
-        enum ConnectState
-        {
-            CONNECT_PENDING,
-            CONNECT_SUCCESS,
-            CONNECT_FAILURE
-        };
-
-        /** 
-         * Polls the state of a connection request.
-         * 
-         * If the return value is CONNECT_SUCCESS or CONNECT_FAILURE, the
-         * requestID becomes invalid.
-         *
-         * @param requestID the request identifier.
-         * @return the current state of the connection request.
-         */
-        ConnectState pollNodeConnect( const uint32_t requestID );
-        //@}
-
-        /**
          * @name Session management
          */
         //*{
@@ -465,7 +431,10 @@ namespace eqNet
          * @param session the session.
          */
         void removeSession( Session* session );
+
+        bool hasSessions() const { return !_sessions.empty(); }
         //*}
+
         /** 
          * Runs this node as a client to a server.
          * 
@@ -506,35 +475,32 @@ namespace eqNet
          * Handles a packet which has been received by this node for a custom
          * data type.
          * 
-         * @param node the node which send the packet.
-         * @param packet the packet.
+         * @param command the command.
          * @return the result of the operation.
          * @sa dispatchCommand
          */
-        virtual CommandResult handleCommand( Command& holder )
+        virtual CommandResult handleCommand( Command& comman )
             { return COMMAND_ERROR; }
 
         /** 
          * Push a command to be handled by another entity, typically a thread.
          * 
-         * @param node the node which send the packet.
-         * @param packet the packet.
+         * @param command the command.
          * @return <code>true</code> if the command was pushed,
          *         <code>false</code> if not.
          */
-        virtual bool pushCommand( Command& holder )
+        virtual bool pushCommand( Command& command )
             { return false; }
 
         /** 
          * Push a command to be handled immediately by another entity, typically
          * a thread. 
          * 
-         * @param node the node which send the packet.
-         * @param packet the packet.
+         * @param command the command.
          * @return <code>true</code> if the command was pushed,
          *         <code>false</code> if not.
          */
-        virtual bool pushCommandFront( Command& holder )
+        virtual bool pushCommandFront( Command& command )
             { return false; }
 
         /** 
@@ -601,11 +567,6 @@ namespace eqNet
         std::string _programName;
         /** The directory of the program to autolaunch. */
         std::string _workDir;
-
-        /** The pending connection requests from startNodeConnect(). */
-        IDHash<NodeID> _connectionRequests;
-        /** The identifier for the next connection request. */
-        uint32_t       _nextConnectionRequestID;
 
         bool _listenToSelf();
         void _cleanup();
@@ -679,16 +640,16 @@ namespace eqNet
         void    _redispatchCommands();
 
         /** The command functions. */
-        CommandResult _cmdStop( Command& holder );
-        CommandResult _cmdMapSession( Command& holder );
-        CommandResult _cmdMapSessionReply( Command& holder );
-        CommandResult _cmdUnmapSession( Command& holder );
-        CommandResult _cmdUnmapSessionReply( Command& holder );
-        CommandResult _cmdLaunched( Command& holder );
-        CommandResult _cmdConnect( Command& holder );
-        CommandResult _cmdConnectReply( Command& holder );
-        CommandResult _cmdGetConnectionDescription( Command& holder );
-        CommandResult _cmdGetConnectionDescriptionReply( Command& holder );
+        CommandResult _cmdStop( Command& command );
+        CommandResult _cmdMapSession( Command& command );
+        CommandResult _cmdMapSessionReply( Command& command );
+        CommandResult _cmdUnmapSession( Command& command );
+        CommandResult _cmdUnmapSessionReply( Command& command );
+        CommandResult _cmdLaunched( Command& command );
+        CommandResult _cmdConnect( Command& command );
+        CommandResult _cmdConnectReply( Command& command );
+        CommandResult _cmdGetConnectionDescription( Command& command );
+        CommandResult _cmdGetConnectionDescriptionReply( Command& command );
 
         CHECK_THREAD_DECLARE( _thread );
     };

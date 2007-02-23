@@ -46,8 +46,7 @@ Node::Node()
           _state( STATE_STOPPED ),
           _launchID( EQ_ID_INVALID ),
           _programName( Global::getProgramName( )),
-          _workDir( Global::getWorkDir( )),
-          _nextConnectionRequestID( 1 )
+          _workDir( Global::getWorkDir( ))
 {
     registerCommand( CMD_NODE_STOP, 
                      CommandFunc<Node>( this, &Node::_cmdStop ));
@@ -234,36 +233,6 @@ bool Node::_listenToSelf()
     _connectionSet.addConnection( _connection );
     _nodes[ _id ] = this;
     return true;
-}
-
-uint32_t Node::startNodeConnect( const NodeID& nodeID, RefPtr<Node> server )
-{
-    NodeGetConnectionDescriptionPacket packet;
-    packet.requestID  = _nextConnectionRequestID++;
-    packet.appRequest = false;
-    packet.nodeID     = nodeID;
-    packet.index      = 0;
-
-    _connectionRequests[ packet.requestID ] = nodeID;
-
-    server->send( packet );
-    return packet.requestID;
-}   
-
-Node::ConnectState Node::pollNodeConnect( uint32_t requestID )
-{
-    IDHash<NodeID>::iterator iter = _connectionRequests.find( requestID );
-    if( iter == _connectionRequests.end( ))
-        return CONNECT_FAILURE;
-
-    NodeID& nodeID = iter->second;
-    if( _nodes.find( nodeID ) != _nodes.end( ))
-    {
-        _connectionRequests.erase( requestID );
-        return CONNECT_SUCCESS;
-    }
-
-    return CONNECT_PENDING;
 }
 
 void Node::_addConnectedNode( RefPtr<Node> node, RefPtr<Connection> connection )
@@ -1083,9 +1052,7 @@ CommandResult Node::_cmdGetConnectionDescriptionReply( Command& command )
 
     if( node.isValid( )) // already connected
     {
-        if( packet->appRequest )
-            _requestHandler.serveRequest( requestID, 0 );
-
+        _requestHandler.serveRequest( requestID, 0 );
         return COMMAND_HANDLED;
     }
 
@@ -1118,10 +1085,7 @@ CommandResult Node::_cmdGetConnectionDescriptionReply( Command& command )
     if( packet->nextIndex == NEXT_INDEX_NONE )
     {
         EQWARN << "Connection to node " << nodeID << " failed" << endl;
-        if( packet->appRequest )
-            _requestHandler.serveRequest( requestID, 0 );
-        else
-            _connectionRequests.erase( requestID );
+        _requestHandler.serveRequest( requestID, 0 );
         return COMMAND_HANDLED;
     }
 
@@ -1129,7 +1093,6 @@ CommandResult Node::_cmdGetConnectionDescriptionReply( Command& command )
     NodeGetConnectionDescriptionPacket reply;
     reply.requestID  = requestID;
     reply.nodeID     = nodeID;
-    reply.appRequest = packet->appRequest;
     reply.index      = packet->nextIndex;
     command.getNode()->send( reply );
     
@@ -1252,7 +1215,6 @@ RefPtr<Node> Node::connect( const NodeID& nodeID, RefPtr<Node> server)
 
     NodeGetConnectionDescriptionPacket packet;
     packet.requestID  = _requestHandler.registerRequest();
-    packet.appRequest = true;
     packet.nodeID     = nodeID;
     packet.index      = 0;
 
