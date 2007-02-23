@@ -207,6 +207,8 @@ void Session::attachObject( Object* object, const uint32_t id )
 
         vector<Object*>& objects = _objects[ id ];
         objects.push_back( object );
+        EQINFO << "Attached " << typeid( *object ).name() << " to id " << id
+               << endl;
         return;
     }
     // else
@@ -225,6 +227,9 @@ void Session::detachObject( Object* object )
         const uint32_t            id      = object->getID();
         EQASSERT( id != EQ_ID_INVALID );
         EQASSERT( _objects.find( id ) != _objects.end( ));
+
+        EQINFO << "Detach " << typeid( *object ).name() << " from id " << id
+               << endl;
 
         vector<Object*>&          objects = _objects[ id ];
         vector<Object*>::iterator iter    = find( objects.begin(),objects.end(),
@@ -292,17 +297,20 @@ bool Session::mapObject( Object* object, const uint32_t id )
         EQASSERT( synced );
     }
 
+    EQINFO << "Mapped " << typeid( *object ).name() << " to id " << id << endl;
     return( object->getID() != EQ_ID_INVALID );
 }
 
 void Session::unmapObject( Object* object )
 {
-    EQASSERT( object->_id != EQ_ID_INVALID );
+    EQASSERT( object->getID() != EQ_ID_INVALID );
     EQASSERT( !_localNode->inReceiverThread( ));
 
     SessionUnmapObjectPacket packet;
     packet.requestID = _requestHandler.registerRequest( object );
 
+    EQINFO << "Unmap " << typeid( *object ).name() << " from id "
+           << object->getID() << endl;
     _sendLocal( packet );
     _requestHandler.waitRequest( packet.requestID );
 }
@@ -316,20 +324,20 @@ void Session::registerObject( Object* object )
 
     setIDMaster( id, 1, _localNode->getNodeID( ));
 
-    EQLOG( LOG_OBJECTS ) << "registerObject type " << typeid(*object).name()
-                         << " id " << id << " @" << (void*)object << endl;
-
     object->setupChangeManager( object->getChangeManagerType(), true );
     mapObject( object, id );
+    EQINFO << "Registered " << typeid( *object ).name() << " to id " << id 
+           << endl;
 }
 
 void Session::deregisterObject( Object* object )
 {
     const uint32_t id = object->getID();
 
-    EQLOG( LOG_OBJECTS ) 
-        << "deregisterObject id " << id << " @" << (void*)object << endl;
+    EQINFO << "Deregister " << typeid( *object ).name() << " from id " << id
+           << endl;
 
+    // TODO unsetIDMaster ?
     unmapObject( object );
     freeIDs( id, 1 );
 }
