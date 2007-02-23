@@ -121,6 +121,19 @@ void FullMasterCM::_obsolete()
     }
 }
 
+const void* FullMasterCM::getInitialData( uint64_t* size, uint32_t* version )
+{
+    if( _version == Object::VERSION_NONE )
+        _commitInitial();
+
+    const uint32_t      age  = _instanceDatas.size() - 1;
+    const InstanceData& data = _instanceDatas.back();
+
+    *version = _version - age;
+    *size    = data.size;
+    return data.data;
+}
+
 void FullMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
 {
     _checkConsistency();
@@ -135,19 +148,16 @@ void FullMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
 
     EQASSERT( !_object->isStatic( ))
 
-    if( _version == Object::VERSION_NONE )
-        _commitInitial();
-
-    const uint32_t      age  = _instanceDatas.size() - 1;
-
+    const uint32_t           age        = _instanceDatas.size() - 1;
     ObjectInstanceDataPacket initPacket;
     initPacket.instanceID = instanceID;
     initPacket.dataSize   = 0;
-    initPacket.version    = _version - age;
+    initPacket.version    = _version - age + 1;
 
-    // send all versions oldest..newest
-    for( deque<InstanceData>::reverse_iterator i = _instanceDatas.rbegin();
-         i != _instanceDatas.rend(); ++i )
+    // send versions oldest-1..newest
+    deque<InstanceData>::reverse_iterator i = _instanceDatas.rbegin();
+    ++i; // oldest was sent by session using getInitialData()
+    for( ; i != _instanceDatas.rend(); ++i )
     {
         const InstanceData& data = *i;
 

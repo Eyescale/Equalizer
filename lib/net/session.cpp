@@ -291,12 +291,6 @@ bool Session::mapObject( Object* object, const uint32_t id )
     _sendLocal( packet );
     _requestHandler.waitRequest( packet.requestID );
 
-    if( !object->isMaster( ))
-    {
-        const bool synced = object->_syncInitial();
-        EQASSERT( synced );
-    }
-
     EQINFO << "Mapped " << typeid( *object ).name() << " to id " << id << endl;
     return( object->getID() != EQ_ID_INVALID );
 }
@@ -324,7 +318,7 @@ void Session::registerObject( Object* object )
 
     setIDMaster( id, 1, _localNode->getNodeID( ));
 
-    object->setupChangeManager( object->getChangeManagerType(), true );
+    object->_setupChangeManager( object->_getChangeManagerType(), true );
     mapObject( object, id );
     EQINFO << "Registered " << typeid( *object ).name() << " to id " << id 
            << endl;
@@ -607,10 +601,12 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
             if( object->isMaster( ))
             {
                 SessionSubscribeObjectSuccessPacket successPacket( packet );
-                successPacket.cmType = object->getChangeManagerType();
+                successPacket.cmType = object->_getChangeManagerType();
 
-                send( node, successPacket );
+                const void* data = object->_cm->getInitialData( 
+                    &successPacket.dataSize, &successPacket.version  );
 
+                send( node, successPacket, data, successPacket.dataSize );
                 object->addSlave( node, packet->instanceID );
                 send( node, reply );
                 return COMMAND_HANDLED;
@@ -643,7 +639,10 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
     object->_id         = data->objectID;
     object->_instanceID = packet->instanceID;
     object->_session    = this;
-    object->setupChangeManager( packet->cmType, false );
+
+    object->_setupChangeManager( packet->cmType, false );
+    object->_cm->applyInitialData( packet->data, packet->dataSize,
+                                   packet->version );
 
     vector<Object*>& objects = _objects[ data->objectID ];
     objects.push_back( object );

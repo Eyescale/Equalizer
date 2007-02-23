@@ -43,7 +43,10 @@ namespace eqNet
         virtual uint32_t getAutoObsoleteCount() const { return _nVersions; }
 
         virtual bool sync( const uint32_t version ){ EQDONTCALL; return false; }
-        virtual bool syncInitial()                 { EQDONTCALL; return false; }
+
+        virtual const void* getInitialData( uint64_t* size, uint32_t* version );
+        virtual void applyInitialData( const void* data, const uint64_t size,
+                                       const uint32_t version ) { EQDONTCALL; }
 
         virtual uint32_t getHeadVersion() const { return _version; }
         virtual uint32_t getVersion() const     { return _version; }

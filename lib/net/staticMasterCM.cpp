@@ -22,16 +22,8 @@ StaticMasterCM::StaticMasterCM( Object* object )
 StaticMasterCM::~StaticMasterCM()
 {}
 
-void StaticMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
+const void* StaticMasterCM::getInitialData( uint64_t* size, uint32_t* version )
 {
-    ObjectInstanceDataPacket initPacket;
-    initPacket.instanceID = instanceID;
-    initPacket.dataSize   = 0;
-    initPacket.version    = Object::VERSION_NONE;
-
-    const void* data   = _object->getInstanceData( &initPacket.dataSize );
-
-    EQLOG( LOG_OBJECTS ) << "send " << &initPacket << endl;
-    _object->send( node, initPacket, data, initPacket.dataSize );
-    _object->releaseInstanceData( data );
+    *version = Object::VERSION_NONE;
+    return _object->getInstanceData( size );
 }

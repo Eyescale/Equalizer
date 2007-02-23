@@ -223,6 +223,13 @@ namespace eqNet
                 node->send( packet, text );
             }
 
+        void send( eqBase::RefPtr<Node> node, SessionPacket& packet, 
+                   const void* data, const uint64_t size )
+            {
+                packet.sessionID = _id;
+                node->send( packet, data, size );
+            }
+
         /** The session's identifier. */
         uint32_t _id;
         

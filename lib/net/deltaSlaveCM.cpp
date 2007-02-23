@@ -20,8 +20,6 @@ DeltaSlaveCM::DeltaSlaveCM( Object* object )
           _version( Object::VERSION_NONE ),
           _mutex( 0 )
 {
-    registerCommand( CMD_OBJECT_INSTANCE_DATA,
-                CommandFunc<DeltaSlaveCM>( this, &DeltaSlaveCM::_cmdPushData ));
     registerCommand( CMD_OBJECT_DELTA_DATA, 
                 CommandFunc<DeltaSlaveCM>( this, &DeltaSlaveCM::_cmdPushData ));
 }
@@ -75,19 +73,6 @@ bool DeltaSlaveCM::sync( const uint32_t version )
     return true;
 }
 
-bool DeltaSlaveCM::syncInitial()
-{
-    if( _version != Object::VERSION_NONE )
-        return false;
-
-    Command* command = _syncQueue.pop();
-
-    // OPT shortcut around invokeCommand()
-    EQASSERT( (*command)->command == REQ_OBJECT_INSTANCE_DATA );
-    return( _reqInit( *command ) == COMMAND_HANDLED );
-}    
-
-
 void DeltaSlaveCM::_syncToHead()
 {
     if( _syncQueue.empty( ))
@@ -103,6 +88,15 @@ void DeltaSlaveCM::_syncToHead()
     _object->getLocalNode()->flushCommands();
     EQVERB << "Sync'ed to head v" << _version << ", id " << _object->getID() 
            << endl;
+}
+
+void DeltaSlaveCM::applyInitialData( const void* data, const uint64_t size,
+                                     const uint32_t version )
+{
+    EQASSERT( _version == Object::VERSION_NONE );
+
+    _object->applyInstanceData( data, size );
+    _version = version;
 }
 
 uint32_t DeltaSlaveCM::getHeadVersion() const
@@ -132,17 +126,6 @@ CommandResult DeltaSlaveCM::_cmdPushData( Command& command )
     else
         _syncQueue.push( command );
 
-    return eqNet::COMMAND_HANDLED;
-}
-
-CommandResult DeltaSlaveCM::_reqInit( Command& command )
-{
-    const ObjectInstanceDataPacket* packet = 
-        command.getPacket<ObjectInstanceDataPacket>();
-    EQLOG( LOG_OBJECTS ) << "cmd init " << command << endl;
-
-    _object->applyInstanceData( packet->data, packet->dataSize );
-    _version = packet->version;
     return eqNet::COMMAND_HANDLED;
 }
 

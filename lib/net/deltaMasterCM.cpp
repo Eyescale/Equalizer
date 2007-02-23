@@ -141,6 +141,19 @@ void DeltaMasterCM::_obsolete()
     }
 }
 
+const void* DeltaMasterCM::getInitialData( uint64_t* size, uint32_t* version )
+{
+    if( _version == Object::VERSION_NONE )
+        _commitInitial();
+
+    const uint32_t      age  = _instanceDatas.size() - 1;
+    const InstanceData& data = _instanceDatas.back();
+
+    *version = _version - age;
+    *size    = data.size;
+    return data.data;
+}
+
 void DeltaMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
 {
     _checkConsistency();
@@ -152,22 +165,6 @@ void DeltaMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
 
     EQLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
                          << ", instanciate on " << node->getNodeID() << endl;
-
-    ObjectInstanceDataPacket initPacket;
-    initPacket.instanceID = instanceID;
-    initPacket.dataSize   = 0;
-
-    if( _version == Object::VERSION_NONE )
-        _commitInitial();
-
-    const uint32_t      age  = _instanceDatas.size() - 1;
-    const InstanceData& data = _instanceDatas.back();
-
-    initPacket.version  = _version - age;
-    initPacket.dataSize = data.size;
-
-    EQLOG( LOG_OBJECTS ) << "send " << &initPacket << endl;
-    _object->send( node, initPacket, data.data, initPacket.dataSize );    
 
     // send all deltas
     for( deque<ChangeData>::reverse_iterator i = _changeDatas.rbegin();

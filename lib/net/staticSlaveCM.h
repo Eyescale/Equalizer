@@ -43,7 +43,11 @@ namespace eqNet
             { EQDONTCALL; return 0; }
 
         virtual bool sync( const uint32_t version ) { EQDONTCALL; return false;}
-        virtual bool syncInitial();
+
+        virtual const void* getInitialData( uint64_t* size, uint32_t* version )
+            { EQDONTCALL; return 0; }
+        virtual void applyInitialData( const void* data, const uint64_t size,
+                                       const uint32_t version );
 
         virtual uint32_t getHeadVersion() const { return Object::VERSION_NONE; }
         virtual uint32_t getVersion() const     { return Object::VERSION_NONE; }
@@ -58,14 +62,6 @@ namespace eqNet
     private:
         /** The managed object. */
         Object* _object;
-
-        /** The command with the init data. */
-        Command               _initCommand;
-        eqBase::Monitor<bool> _ready;
-
-        /* The command handlers. */
-        CommandResult _cmdInit( Command& command );
-        CommandResult _reqInit( Command& command );
     };
 }
 

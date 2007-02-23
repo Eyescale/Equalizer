@@ -169,17 +169,6 @@ namespace eqNet
         /** @return if the object is static (true) or versioned (false). */
         virtual bool isStatic() const { return true; }
 
-        /** @return the type of the change manager to be used. */
-        virtual ObjectCM::Type getChangeManagerType() const;
-
-        /** 
-         * Used by the session to setup the change manager.
-         * 
-         * @param type the type of the change manager.
-         * @param master true if this object is the master. 
-         */
-        void setupChangeManager( const ObjectCM::Type type, const bool master );
-
         /** 
          * Return the instance information about this managed object.
          *
@@ -285,7 +274,7 @@ namespace eqNet
          * @param instanceID the object instance identifier on the slave node.
          */
         void addSlave( eqBase::RefPtr<Node> node, const uint32_t instanceID )
-        { _cm->addSlave( node, instanceID ); }
+            { _cm->addSlave( node, instanceID ); }
 
         /** 
          * Remove a subscribed slave.
@@ -293,7 +282,7 @@ namespace eqNet
          * @param node the slave node. 
          */
         void removeSlave( eqBase::RefPtr<Node> node )
-        { _cm->removeSlave( node ); }
+            { _cm->removeSlave( node ); }
 
         /** @name Packet Transmission */
         //*{
@@ -340,12 +329,24 @@ namespace eqNet
         /** Make synchronization thread safe. */
         bool _threadSafe;
 
+        /** @name Methods used by session during mapping. */
+        //*{
+        /** @return the type of the change manager to be used. */
+        virtual ObjectCM::Type _getChangeManagerType() const;
+        
+        /** 
+         * Setup the change manager.
+         * 
+         * @param type the type of the change manager.
+         * @param master true if this object is the master. 
+         */
+        void _setupChangeManager( const ObjectCM::Type type, const bool master);
+        //*}
+
         /** Common constructor code. */
         void _construct();
 
         void _setChangeManager( ObjectCM* cm );
-
-        bool _syncInitial(){ return _cm->syncInitial(); }
 
         /* The command handlers. */
         CommandResult _cmdForward( Command& command )

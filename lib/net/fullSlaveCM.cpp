@@ -73,19 +73,6 @@ bool FullSlaveCM::sync( const uint32_t version )
     return true;
 }
 
-bool FullSlaveCM::syncInitial()
-{
-    if( _version != Object::VERSION_NONE )
-        return false;
-
-    Command* command = _syncQueue.pop();
-
-    // OPT shortcut around invokeCommand()
-    EQASSERT( (*command)->command == REQ_OBJECT_INSTANCE_DATA );
-    return( _reqInit( *command ) == COMMAND_HANDLED );
-}    
-
-
 void FullSlaveCM::_syncToHead()
 {
     if( _syncQueue.empty( ))
@@ -101,6 +88,15 @@ void FullSlaveCM::_syncToHead()
     _object->getLocalNode()->flushCommands();
     EQVERB << "Sync'ed to head v" << _version << ", id " << _object->getID() 
            << endl;
+}
+
+void FullSlaveCM::applyInitialData( const void* data, const uint64_t size,
+                                     const uint32_t version )
+{
+    EQASSERT( _version == Object::VERSION_NONE );
+
+    _object->applyInstanceData( data, size );
+    _version = version;
 }
 
 uint32_t FullSlaveCM::getHeadVersion() const

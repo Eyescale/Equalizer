@@ -43,7 +43,10 @@ namespace eqNet
             { EQDONTCALL; return 0; }
 
         virtual bool sync( const uint32_t version ){ EQDONTCALL; return false; }
-        virtual bool syncInitial()                 { EQDONTCALL; return false; }
+
+        virtual const void* getInitialData( uint64_t* size, uint32_t* version );
+        virtual void applyInitialData( const void* data, const uint64_t size,
+                                       const uint32_t version ) { EQDONTCALL; }
 
         virtual uint32_t getHeadVersion() const { return Object::VERSION_NONE; }
         virtual uint32_t getVersion() const     { return Object::VERSION_NONE; }
@@ -51,7 +54,7 @@ namespace eqNet
 
         virtual bool isMaster() const { return true; }
         virtual void addSlave( eqBase::RefPtr<Node> node, 
-                               const uint32_t instanceID );
+                               const uint32_t instanceID ){}
         virtual void removeSlave( eqBase::RefPtr<Node> node ) {}
 
     private:

@@ -148,7 +148,7 @@ uint32_t Object::commit()
     return commitSync( requestID );
 }
 
-ObjectCM::Type Object::getChangeManagerType() const
+ObjectCM::Type Object::_getChangeManagerType() const
 {
     if( isStatic( ))
         return ObjectCM::STATIC;
@@ -161,7 +161,7 @@ ObjectCM::Type Object::getChangeManagerType() const
     return ObjectCM::DELTA;
 }
 
-void Object::setupChangeManager( const ObjectCM::Type type, const bool master )
+void Object::_setupChangeManager( const ObjectCM::Type type, const bool master )
 {
     switch( type )
     {
