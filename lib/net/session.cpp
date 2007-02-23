@@ -405,7 +405,6 @@ CommandResult Session::_handleObjectCommand( Command& command )
 
                 case COMMAND_REDISPATCH:
                 case COMMAND_PUSH:
-                case COMMAND_PUSH_FRONT:
                     // Not sure if we should ever allow these functions on
                     // packets which are sent to all object instances
                     // Note: if the first object returns one of these results,

@@ -68,13 +68,6 @@ namespace eqNet
         CommandResult _cmdPush( Command& command )
             { return eqNet::COMMAND_PUSH; }
 
-        /**
-         * The command handler which requests the command to be pushed to
-         * another entity with high priority.
-         */
-        CommandResult _cmdPushFront( Command& command )
-            { return eqNet::COMMAND_PUSH_FRONT; }
-
     private:
         void _registerCommand( const uint32_t command, 
                                const CommandFunc<Base>& func);

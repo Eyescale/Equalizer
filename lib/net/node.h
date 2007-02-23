@@ -493,17 +493,6 @@ namespace eqNet
             { return false; }
 
         /** 
-         * Push a command to be handled immediately by another entity, typically
-         * a thread. 
-         * 
-         * @param command the command.
-         * @return <code>true</code> if the command was pushed,
-         *         <code>false</code> if not.
-         */
-        virtual bool pushCommandFront( Command& command )
-            { return false; }
-
-        /** 
          * Factory method to create a new node.
          * 
          * @param the reason for the node creation.

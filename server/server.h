@@ -93,12 +93,7 @@ namespace eqs
         virtual bool pushCommand( eqNet::Command& command )
             { _commandQueue.push( command ); return true; }
 
-        /** @sa eqNet::Node::pushCommandFront */
-        virtual bool pushCommandFront( eqNet::Command& command )
-            { _commandQueue.pushFront( command ); return true; }
-
     private:
-        
         /** The unique config identifier. */
         uint32_t _configID;
 

@@ -604,13 +604,6 @@ bool Node::_handleData()
                               << "failed for " << *_receivedCommand << endl );
             break;
 
-        case COMMAND_PUSH_FRONT:
-            if( !pushCommandFront( *_receivedCommand ))
-                EQASSERTINFO( 0, "Error handling command packet: "
-                              << "pushCommandFront failed for "
-                              << *_receivedCommand << endl );
-            break;
-
         default:
             EQUNIMPLEMENTED;
     }
@@ -662,8 +655,6 @@ void Node::_redispatchCommands()
                 
                 // Already a pushed packet?!
                 case COMMAND_PUSH:
-                    EQUNIMPLEMENTED;
-                case COMMAND_PUSH_FRONT:
                     EQUNIMPLEMENTED;
                     
                 case COMMAND_REDISPATCH:

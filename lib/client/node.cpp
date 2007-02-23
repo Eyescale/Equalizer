@@ -175,8 +175,6 @@ void* Node::_runThread()
 
             case eqNet::COMMAND_PUSH:
                 EQUNIMPLEMENTED;
-            case eqNet::COMMAND_PUSH_FRONT:
-                EQUNIMPLEMENTED;
             case eqNet::COMMAND_REDISPATCH:
                 EQUNIMPLEMENTED;
         }
