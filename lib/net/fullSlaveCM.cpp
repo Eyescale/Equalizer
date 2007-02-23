@@ -20,7 +20,7 @@ FullSlaveCM::FullSlaveCM( Object* object )
           _version( Object::VERSION_NONE ),
           _mutex( 0 )
 {
-    registerCommand( CMD_OBJECT_INIT,
+    registerCommand( CMD_OBJECT_INSTANCE_DATA,
                  CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdPushData ));
 }
 
@@ -64,7 +64,7 @@ bool FullSlaveCM::sync( const uint32_t version )
         Command* command = _syncQueue.pop();
 
          // OPT shortcut around invokeCommand()
-        EQASSERT( (*command)->command == REQ_OBJECT_INIT );
+        EQASSERT( (*command)->command == REQ_OBJECT_INSTANCE_DATA );
         _reqInit( *command );
     }
     _object->getLocalNode()->flushCommands();
@@ -81,7 +81,7 @@ bool FullSlaveCM::syncInitial()
     Command* command = _syncQueue.pop();
 
     // OPT shortcut around invokeCommand()
-    EQASSERT( (*command)->command == REQ_OBJECT_INIT );
+    EQASSERT( (*command)->command == REQ_OBJECT_INSTANCE_DATA );
     return( _reqInit( *command ) == COMMAND_HANDLED );
 }    
 
@@ -94,7 +94,7 @@ void FullSlaveCM::_syncToHead()
     for( Command* command = _syncQueue.tryPop(); command; 
          command = _syncQueue.tryPop( ))
     {
-        EQASSERT( (*command)->command == REQ_OBJECT_INIT );
+        EQASSERT( (*command)->command == REQ_OBJECT_INSTANCE_DATA );
         _reqInit( *command ); // XXX shortcut around invokeCommand()
     }
 
@@ -106,9 +106,10 @@ void FullSlaveCM::_syncToHead()
 uint32_t FullSlaveCM::getHeadVersion() const
 {
     Command* command = _syncQueue.back();
-    if( command && (*command)->command == REQ_OBJECT_INIT )
+    if( command && (*command)->command == REQ_OBJECT_INSTANCE_DATA )
     {
-        const ObjectInitPacket* packet = command->getPacket<ObjectInitPacket>();
+        const ObjectInstanceDataPacket* packet = 
+            command->getPacket<ObjectInstanceDataPacket>();
         return packet->version;
     }
 
@@ -129,7 +130,8 @@ CommandResult FullSlaveCM::_cmdPushData( Command& command )
 
 CommandResult FullSlaveCM::_reqInit( Command& command )
 {
-    const ObjectInitPacket* packet = command.getPacket<ObjectInitPacket>();
+    const ObjectInstanceDataPacket* packet = 
+        command.getPacket<ObjectInstanceDataPacket>();
     EQLOG( LOG_OBJECTS ) << "cmd init " << command << endl;
 
     _object->applyInstanceData( packet->data, packet->dataSize );

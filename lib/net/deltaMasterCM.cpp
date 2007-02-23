@@ -25,7 +25,7 @@ DeltaMasterCM::DeltaMasterCM( Object* object )
     registerCommand( CMD_OBJECT_COMMIT, 
                 CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdCommit ));
     // sync commands are send to any instance, even the master gets the command
-    registerCommand( CMD_OBJECT_SYNC, 
+    registerCommand( CMD_OBJECT_DELTA_DATA, 
                CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdDiscard ));
 }
 
@@ -153,7 +153,7 @@ void DeltaMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
     EQLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
                          << ", instanciate on " << node->getNodeID() << endl;
 
-    ObjectInitPacket initPacket;
+    ObjectInstanceDataPacket initPacket;
     initPacket.instanceID = instanceID;
     initPacket.dataSize   = 0;
 
@@ -175,7 +175,7 @@ void DeltaMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
     {
         const ChangeData& data = *i;
 
-        ObjectSyncPacket deltaPacket;
+        ObjectDeltaDataPacket deltaPacket;
 
         deltaPacket.version   = data.version;
         deltaPacket.deltaSize = data.size;
@@ -330,7 +330,7 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
     // send delta to subscribed slaves
     if( !_slaves.empty( ))
     {
-        ObjectSyncPacket  deltaPacket;
+        ObjectDeltaDataPacket deltaPacket;
 
         deltaPacket.version   = _version;
         deltaPacket.deltaSize = deltaSize;

@@ -19,7 +19,7 @@ StaticSlaveCM::StaticSlaveCM( Object* object )
         : _object( object ),
           _ready( false )
 {
-    registerCommand( CMD_OBJECT_INIT,
+    registerCommand( CMD_OBJECT_INSTANCE_DATA,
                   CommandFunc<StaticSlaveCM>( this, &StaticSlaveCM::_cmdInit ));
 }
 
@@ -33,7 +33,7 @@ bool StaticSlaveCM::syncInitial()
     EQASSERT( _initCommand.isValid( ));
 
     // OPT shortcut around invokeCommand()
-    EQASSERT( _initCommand->command == CMD_OBJECT_INIT );
+    EQASSERT( _initCommand->command == CMD_OBJECT_INSTANCE_DATA );
 
     _reqInit( _initCommand );
     _initCommand.release();
@@ -52,7 +52,8 @@ CommandResult StaticSlaveCM::_cmdInit( Command& command )
 
 CommandResult StaticSlaveCM::_reqInit( Command& command )
 {
-    const ObjectInitPacket* packet = command.getPacket<ObjectInitPacket>();
+    const ObjectInstanceDataPacket* packet = 
+        command.getPacket<ObjectInstanceDataPacket>();
     EQLOG( LOG_OBJECTS ) << "cmd init " << command << endl;
     EQASSERT( packet->version == Object::VERSION_NONE );
 

@@ -34,9 +34,9 @@ void Object::_construct()
     _deltaData     = 0;
     _deltaDataSize = 0;
 
-    registerCommand( CMD_OBJECT_INIT,
+    registerCommand( CMD_OBJECT_INSTANCE_DATA,
                      CommandFunc<Object>( this, &Object::_cmdForward ));
-    registerCommand( CMD_OBJECT_SYNC, 
+    registerCommand( CMD_OBJECT_DELTA_DATA, 
                      CommandFunc<Object>( this, &Object::_cmdForward ));
     registerCommand( CMD_OBJECT_COMMIT, 
                      CommandFunc<Object>( this, &Object::_cmdForward ));

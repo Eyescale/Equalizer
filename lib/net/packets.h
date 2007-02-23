@@ -413,12 +413,12 @@ namespace eqNet
         uint32_t instanceID;
     };
 
-    struct ObjectInitPacket : public ObjectPacket
+    struct ObjectInstanceDataPacket : public ObjectPacket
     {
-        ObjectInitPacket()
+        ObjectInstanceDataPacket()
             {
-                command = CMD_OBJECT_INIT;
-                size    = sizeof( ObjectInitPacket ); 
+                command = CMD_OBJECT_INSTANCE_DATA;
+                size    = sizeof( ObjectInstanceDataPacket ); 
                 data[0] = '\0';
             }
 
@@ -438,12 +438,12 @@ namespace eqNet
         uint32_t requestID;
     };
 
-    struct ObjectSyncPacket : public ObjectPacket
+    struct ObjectDeltaDataPacket : public ObjectPacket
     {
-        ObjectSyncPacket()
+        ObjectDeltaDataPacket()
             {
-                command        = CMD_OBJECT_SYNC;
-                size           = sizeof( ObjectSyncPacket ); 
+                command        = CMD_OBJECT_DELTA_DATA;
+                size           = sizeof( ObjectDeltaDataPacket ); 
                 delta[0]       = '\0';
             }
         
@@ -585,7 +585,7 @@ namespace eqNet
     }
 
     inline std::ostream& operator << ( std::ostream& os, 
-                                       const ObjectSyncPacket* packet )
+                                       const ObjectDeltaDataPacket* packet )
     {
         os << (ObjectPacket*)packet << " v" << packet->version
            << " size " << packet->deltaSize;

@@ -20,9 +20,9 @@ DeltaSlaveCM::DeltaSlaveCM( Object* object )
           _version( Object::VERSION_NONE ),
           _mutex( 0 )
 {
-    registerCommand( CMD_OBJECT_INIT,
+    registerCommand( CMD_OBJECT_INSTANCE_DATA,
                 CommandFunc<DeltaSlaveCM>( this, &DeltaSlaveCM::_cmdPushData ));
-    registerCommand( CMD_OBJECT_SYNC, 
+    registerCommand( CMD_OBJECT_DELTA_DATA, 
                 CommandFunc<DeltaSlaveCM>( this, &DeltaSlaveCM::_cmdPushData ));
 }
 
@@ -66,7 +66,7 @@ bool DeltaSlaveCM::sync( const uint32_t version )
         Command* command = _syncQueue.pop();
 
          // OPT shortcut around invokeCommand()
-        EQASSERT( (*command)->command == REQ_OBJECT_SYNC );
+        EQASSERT( (*command)->command == REQ_OBJECT_DELTA_DATA );
         _reqSync( *command );
     }
     _object->getLocalNode()->flushCommands();
@@ -83,7 +83,7 @@ bool DeltaSlaveCM::syncInitial()
     Command* command = _syncQueue.pop();
 
     // OPT shortcut around invokeCommand()
-    EQASSERT( (*command)->command == REQ_OBJECT_INIT );
+    EQASSERT( (*command)->command == REQ_OBJECT_INSTANCE_DATA );
     return( _reqInit( *command ) == COMMAND_HANDLED );
 }    
 
@@ -96,7 +96,7 @@ void DeltaSlaveCM::_syncToHead()
     for( Command* command = _syncQueue.tryPop(); command; 
          command = _syncQueue.tryPop( ))
     {
-        EQASSERT( (*command)->command == REQ_OBJECT_SYNC );
+        EQASSERT( (*command)->command == REQ_OBJECT_DELTA_DATA );
         _reqSync( *command ); // XXX shortcut around invokeCommand()
     }
 
@@ -108,9 +108,10 @@ void DeltaSlaveCM::_syncToHead()
 uint32_t DeltaSlaveCM::getHeadVersion() const
 {
     Command* command = _syncQueue.back();
-    if( command && (*command)->command == REQ_OBJECT_SYNC )
+    if( command && (*command)->command == REQ_OBJECT_DELTA_DATA )
     {
-        const ObjectSyncPacket* packet = command->getPacket<ObjectSyncPacket>();
+        const ObjectDeltaDataPacket* packet = 
+            command->getPacket<ObjectDeltaDataPacket>();
         return packet->version;
     }
 
@@ -122,7 +123,7 @@ uint32_t DeltaSlaveCM::getHeadVersion() const
 //---------------------------------------------------------------------------
 CommandResult DeltaSlaveCM::_cmdPushData( Command& command )
 {
-    if( command->command == CMD_OBJECT_SYNC )
+    if( command->command == CMD_OBJECT_DELTA_DATA )
     {
         // sync sent to all instances: make copy
         Command copy( command );
@@ -136,7 +137,8 @@ CommandResult DeltaSlaveCM::_cmdPushData( Command& command )
 
 CommandResult DeltaSlaveCM::_reqInit( Command& command )
 {
-    const ObjectInitPacket* packet = command.getPacket<ObjectInitPacket>();
+    const ObjectInstanceDataPacket* packet = 
+        command.getPacket<ObjectInstanceDataPacket>();
     EQLOG( LOG_OBJECTS ) << "cmd init " << command << endl;
 
     _object->applyInstanceData( packet->data, packet->dataSize );
@@ -146,7 +148,8 @@ CommandResult DeltaSlaveCM::_reqInit( Command& command )
 
 CommandResult DeltaSlaveCM::_reqSync( Command& command )
 {
-    const ObjectSyncPacket* packet = command.getPacket<ObjectSyncPacket>();
+    const ObjectDeltaDataPacket* packet = 
+        command.getPacket<ObjectDeltaDataPacket>();
     EQLOG( LOG_OBJECTS ) << "req sync v" << _version << " " << command << endl;
     EQASSERT( _version == packet->version-1 );
 

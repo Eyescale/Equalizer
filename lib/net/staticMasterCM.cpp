@@ -24,7 +24,7 @@ StaticMasterCM::~StaticMasterCM()
 
 void StaticMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
 {
-    ObjectInitPacket initPacket;
+    ObjectInstanceDataPacket initPacket;
     initPacket.instanceID = instanceID;
     initPacket.dataSize   = 0;
     initPacket.version    = Object::VERSION_NONE;

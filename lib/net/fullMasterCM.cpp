@@ -25,7 +25,7 @@ FullMasterCM::FullMasterCM( Object* object )
     registerCommand( CMD_OBJECT_COMMIT, 
                 CommandFunc<FullMasterCM>( this, &FullMasterCM::_cmdCommit ));
     // sync commands are send to any instance, even the master gets the command
-    registerCommand( CMD_OBJECT_INIT, 
+    registerCommand( CMD_OBJECT_INSTANCE_DATA,
                CommandFunc<FullMasterCM>( this, &FullMasterCM::_cmdDiscard ));
 }
 
@@ -140,12 +140,12 @@ void FullMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
 
     const uint32_t      age  = _instanceDatas.size() - 1;
 
-    ObjectInitPacket initPacket;
+    ObjectInstanceDataPacket initPacket;
     initPacket.instanceID = instanceID;
     initPacket.dataSize   = 0;
     initPacket.version    = _version - age;
 
-    // send all versions
+    // send all versions oldest..newest
     for( deque<InstanceData>::reverse_iterator i = _instanceDatas.rbegin();
          i != _instanceDatas.rend(); ++i )
     {
@@ -248,7 +248,7 @@ CommandResult FullMasterCM::_cmdCommit( Command& command )
     // send new version to subscribed slaves
     if( !_slaves.empty( ))
     {
-        ObjectInitPacket  initPacket;
+        ObjectInstanceDataPacket initPacket;
 
         initPacket.dataSize = instanceData.size;
         initPacket.version  = _version;
