@@ -6,6 +6,7 @@
 
 #include "commands.h"
 #include "global.h"
+#include "init.h"
 #include "nodeFactory.h"
 #include "packets.h"
 #include "server.h"
