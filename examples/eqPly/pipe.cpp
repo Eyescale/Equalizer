@@ -38,9 +38,10 @@ bool Pipe::exit()
     return eq::Pipe::exit();
 }
 
-void Pipe::startFrame( const uint32_t frameID )
+void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber )
 {
     _frameData.sync( frameID );
+    startFrame( frameNumber );
 }
 
 GLuint Pipe::getDisplayList( const void* key )

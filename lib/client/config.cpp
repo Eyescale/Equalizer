@@ -39,9 +39,13 @@ Config::Config()
     registerCommand( CMD_CONFIG_START_FRAME_REPLY, 
               eqNet::CommandFunc<Config>( this, &Config::_cmdStartFrameReply ));
     registerCommand( CMD_CONFIG_FINISH_FRAME_REPLY, 
-             eqNet::CommandFunc<Config>( this, &Config::_cmdFinishFrameReply ));
+                     eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
+    registerCommand( REQ_CONFIG_FINISH_FRAME_REPLY, 
+             eqNet::CommandFunc<Config>( this, &Config::_reqFinishFrameReply ));
     registerCommand( CMD_CONFIG_FINISH_ALL_FRAMES_REPLY, 
-         eqNet::CommandFunc<Config>( this, &Config::_cmdFinishAllFramesReply ));
+                     eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
+    registerCommand( REQ_CONFIG_FINISH_ALL_FRAMES_REPLY, 
+         eqNet::CommandFunc<Config>( this, &Config::_reqFinishAllFramesReply ));
     registerCommand( CMD_CONFIG_EVENT, 
                      eqNet::CommandFunc<Config>( this, &Config::_cmdEvent ));
 }
@@ -102,6 +106,7 @@ bool Config::init( const uint32_t initID )
     RefPtr< Client > client = getClient();
     while( !_requestHandler.isServed( packet.requestID ))
         client->processCommand();
+
     const bool ret = ( _requestHandler.waitRequest( packet.requestID ) != 0 );
 
     if( !ret )
@@ -143,6 +148,10 @@ uint32_t Config::finishFrame()
     packet.requestID = _requestHandler.registerRequest();
 
     send( packet );
+
+    RefPtr< Client > client = getClient();
+    while( !_requestHandler.isServed( packet.requestID ))
+        client->processCommand();
     const int frameNumber = 
         (uint32_t)(long long)(_requestHandler.waitRequest(packet.requestID));
 
@@ -157,6 +166,9 @@ uint32_t Config::finishAllFrames()
     packet.requestID = _requestHandler.registerRequest();
     send( packet );
 
+    RefPtr< Client > client = getClient();
+    while( !_requestHandler.isServed( packet.requestID ))
+        client->processCommand();
     const int framesNumber = 
         (uint32_t)(long long)(_requestHandler.waitRequest(packet.requestID));
     handleEvents();
@@ -268,7 +280,7 @@ eqNet::CommandResult Config::_cmdStartFrameReply( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_cmdFinishFrameReply( eqNet::Command& command )
+eqNet::CommandResult Config::_reqFinishFrameReply( eqNet::Command& command )
 {
     const ConfigFinishFrameReplyPacket* packet = 
         command.getPacket<ConfigFinishFrameReplyPacket>();
@@ -279,7 +291,7 @@ eqNet::CommandResult Config::_cmdFinishFrameReply( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_cmdFinishAllFramesReply( eqNet::Command& command )
+eqNet::CommandResult Config::_reqFinishAllFramesReply( eqNet::Command& command )
 {
     const ConfigFinishAllFramesReplyPacket* packet = 
         command.getPacket<ConfigFinishAllFramesReplyPacket>();

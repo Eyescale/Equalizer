@@ -22,7 +22,7 @@ using namespace std;
 
 Pipe::Pipe()
         : _node( 0 ),
-          _currentWindow( 0 ),
+          _currentGLWindow( 0 ),
           _windowSystem( WINDOW_SYSTEM_NONE ),
           _display( EQ_UNDEFINED_UINT32 ),
           _screen( EQ_UNDEFINED_UINT32 )
@@ -39,14 +39,14 @@ Pipe::Pipe()
                      eqNet::CommandFunc<Pipe>( this, &Pipe::pushCommand ));
     registerCommand( REQ_PIPE_EXIT,
                      eqNet::CommandFunc<Pipe>( this, &Pipe::_reqExit ));
-    registerCommand( CMD_PIPE_UPDATE,
-                     eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdUpdate ));
-    registerCommand( REQ_PIPE_UPDATE,
-                     eqNet::CommandFunc<Pipe>( this, &Pipe::_reqUpdate ));
-    registerCommand( CMD_PIPE_FRAME_SYNC,
+    registerCommand( CMD_PIPE_FRAME_START,
+                     eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdFrameStart ));
+    registerCommand( REQ_PIPE_FRAME_START,
+                     eqNet::CommandFunc<Pipe>( this, &Pipe::_reqFrameStart ));
+    registerCommand( CMD_PIPE_FRAME_FINISH,
                      eqNet::CommandFunc<Pipe>( this, &Pipe::pushCommand ));
-    registerCommand( REQ_PIPE_FRAME_SYNC,
-                     eqNet::CommandFunc<Pipe>( this, &Pipe::_reqFrameSync ));
+    registerCommand( REQ_PIPE_FRAME_FINISH,
+                     eqNet::CommandFunc<Pipe>( this, &Pipe::_reqFrameFinish ));
 
     _thread = new PipeThread( this );
 
@@ -293,10 +293,10 @@ void* Pipe::_runThread()
 
 void Pipe::testMakeCurrentWindow( const Window* window )
 {
-    if( _currentWindow == window )
+    if( _currentGLWindow == window )
         return;
 
-    _currentWindow = window;
+    _currentGLWindow = window;
     window->makeCurrent();
     return;
 }
@@ -331,196 +331,6 @@ void Pipe::_flushFrames()
         delete frame;
     }
     _frames.clear();
-}
-
-//---------------------------------------------------------------------------
-// command handlers
-//---------------------------------------------------------------------------
-eqNet::CommandResult Pipe::_cmdCreateWindow(  eqNet::Command& command  )
-{
-    const PipeCreateWindowPacket* packet = 
-        command.getPacket<PipeCreateWindowPacket>();
-    EQINFO << "Handle create window " << packet << endl;
-
-    Window* window = Global::getNodeFactory()->createWindow();
-    
-    getConfig()->attachObject( window, packet->windowID );
-    _addWindow( window );
-    return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult Pipe::_cmdDestroyWindow(  eqNet::Command& command  )
-{
-    const PipeDestroyWindowPacket* packet =
-        command.getPacket<PipeDestroyWindowPacket>();
-    EQINFO << "Handle destroy window " << packet << endl;
-
-    Window* window = _findWindow( packet->windowID );
-    EQASSERT( window );
-
-    _removeWindow( window );
-
-    Config* config = getConfig();
-    config->detachObject( window );
-    delete window;
-
-    return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult Pipe::_cmdInit( eqNet::Command& command )
-{
-    const PipeInitPacket* packet = command.getPacket<PipeInitPacket>();
-    EQINFO << "handle pipe init (recv) " << packet << endl;
-
-    EQASSERT( _thread->isStopped( ));
-    _thread->start();
-
-    return pushCommand( command );
-}
-
-eqNet::CommandResult Pipe::_reqInit( eqNet::Command& command )
-{
-    const PipeInitPacket* packet = command.getPacket<PipeInitPacket>();
-    EQINFO << "handle pipe init (pipe) " << packet << endl;
-    
-    _display      = packet->display;
-    _screen       = packet->screen;
-    _pvp          = packet->pvp;
-    _windowSystem = selectWindowSystem();
-    _error.clear();
-
-    PipeInitReplyPacket reply( packet );
-    reply.result  = init( packet->initID );
-
-    RefPtr<eqNet::Node> node = command.getNode();
-    if( !reply.result )
-    {
-        send( node, reply, _error );
-        return eqNet::COMMAND_HANDLED;
-    }
-
-    switch( _windowSystem )
-    {
-#ifdef GLX
-        case WINDOW_SYSTEM_GLX:
-            if( !_xDisplay )
-            {
-                EQERROR << "init() did not set a valid display connection" 
-                        << endl;
-                reply.result = false;
-                send( node, reply );
-                return eqNet::COMMAND_HANDLED;
-            }
-
-            // TODO: gather and send back display information
-            EQINFO << "Using display " << DisplayString( _xDisplay ) << endl;
-            break;
-#endif
-#ifdef CGL
-        case WINDOW_SYSTEM_CGL:
-            if( !_cglDisplayID )
-            {
-                EQERROR << "init() did not set a valid display id" << endl;
-                reply.result = false;
-                send( node, reply );
-                return eqNet::COMMAND_HANDLED;
-            }
-                
-            // TODO: gather and send back display information
-            EQINFO << "Using display " << _display << endl;
-            break;
-#endif
-#ifdef WGL
-        case WINDOW_SYSTEM_WGL:
-            if( !_dc )
-            {
-                EQERROR << "init() did not set a valid device context" << endl;
-                reply.result = false;
-                send( node, reply );
-                return eqNet::COMMAND_HANDLED;
-            }
-                
-            // TODO: gather and send back display information
-            EQINFO << "Using dc " << _dc << endl;
-            break;
-#endif
-
-        default: EQUNIMPLEMENTED;
-    }
-
-    reply.pvp = _pvp;
-    send( node, reply );
-
-    EventHandler* thread = EventHandler::get( _windowSystem );
-    thread->addPipe( this );
-
-    return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult Pipe::_reqExit( eqNet::Command& command )
-{
-    EventHandler* thread = EventHandler::get( _windowSystem );
-    thread->removePipe( this );
-
-    const PipeExitPacket* packet = command.getPacket<PipeExitPacket>();
-    EQINFO << "handle pipe exit " << packet << endl;
-
-    exit();
-    _flushFrames();
-
-    PipeExitReplyPacket reply( packet );
-    send( command.getNode(), reply );
-
-    // cleanup
-    _commandQueue.flush();
-    
-    // exit thread
-    EQINFO << "Leaving pipe thread" << endl;
-    _thread->exit( EXIT_SUCCESS );
-    EQUNREACHABLE;
-    return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult Pipe::_cmdUpdate( eqNet::Command& command )
-{
-	_frameClockMutex.set();
-    _frameClocks.push_back( Clock( ));
-	_frameClockMutex.unset();
-    return pushCommand( command );
-}
-
-eqNet::CommandResult Pipe::_reqUpdate( eqNet::Command& command )
-{
-    const PipeUpdatePacket* packet = command.getPacket<PipeUpdatePacket>();
-    EQVERB << "handle pipe update " << packet << endl;
-
-	_frameClockMutex.set();
-    EQASSERT( !_frameClocks.empty( ));
-
-	_frameClock = _frameClocks.front();
-    _frameClocks.pop_front();
-	_frameClockMutex.unset();
-
-    startFrame( packet->frameID );
-    return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult Pipe::_reqFrameSync( eqNet::Command& command )
-{
-    const PipeFrameSyncPacket* packet =command.getPacket<PipeFrameSyncPacket>();
-    EQVERB << "handle pipe frame sync " << packet << endl;
-
-    endFrame( packet->frameID );
-    
-    PipeFrameSyncReplyPacket reply;
-    reply.nStatEvents = _statEvents.size();
-    reply.sessionID   = getSession()->getID();
-    reply.objectID    = getID();
-    reply.frameNumber = packet->frameNumber;
-
-    command.getNode()->send( reply, _statEvents );
-    _statEvents.clear();
-    return eqNet::COMMAND_HANDLED;
 }
 
 //---------------------------------------------------------------------------
@@ -734,4 +544,200 @@ void Pipe::exitWGL()
     setDC( 0, false );
     EQINFO << "Reset Win32 device context " << endl;
 #endif
+}
+
+void Pipe::releaseFrame( const uint32_t frameNumber )
+{ 
+    _node->addStatEvents( frameNumber, _statEvents );
+    _statEvents.clear();
+    _finishedFrame = frameNumber; 
+}
+
+//---------------------------------------------------------------------------
+// command handlers
+//---------------------------------------------------------------------------
+eqNet::CommandResult Pipe::_cmdCreateWindow(  eqNet::Command& command  )
+{
+    const PipeCreateWindowPacket* packet = 
+        command.getPacket<PipeCreateWindowPacket>();
+    EQINFO << "Handle create window " << packet << endl;
+
+    Window* window = Global::getNodeFactory()->createWindow();
+    
+    getConfig()->attachObject( window, packet->windowID );
+    _addWindow( window );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Pipe::_cmdDestroyWindow(  eqNet::Command& command  )
+{
+    const PipeDestroyWindowPacket* packet =
+        command.getPacket<PipeDestroyWindowPacket>();
+    EQINFO << "Handle destroy window " << packet << endl;
+
+    Window* window = _findWindow( packet->windowID );
+    EQASSERT( window );
+
+    _removeWindow( window );
+
+    Config* config = getConfig();
+    config->detachObject( window );
+    delete window;
+
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Pipe::_cmdInit( eqNet::Command& command )
+{
+    const PipeInitPacket* packet = command.getPacket<PipeInitPacket>();
+    EQINFO << "handle pipe init (recv) " << packet << endl;
+
+    EQASSERT( _thread->isStopped( ));
+    _thread->start();
+
+    return pushCommand( command );
+}
+
+eqNet::CommandResult Pipe::_reqInit( eqNet::Command& command )
+{
+    const PipeInitPacket* packet = command.getPacket<PipeInitPacket>();
+    EQINFO << "handle pipe init (pipe) " << packet << endl;
+    
+    _display      = packet->display;
+    _screen       = packet->screen;
+    _pvp          = packet->pvp;
+    _windowSystem = selectWindowSystem();
+    _error.clear();
+
+    PipeInitReplyPacket reply( packet );
+    reply.result  = init( packet->initID );
+
+    RefPtr<eqNet::Node> node = command.getNode();
+    if( !reply.result )
+    {
+        send( node, reply, _error );
+        return eqNet::COMMAND_HANDLED;
+    }
+
+    switch( _windowSystem )
+    {
+#ifdef GLX
+        case WINDOW_SYSTEM_GLX:
+            if( !_xDisplay )
+            {
+                EQERROR << "init() did not set a valid display connection" 
+                        << endl;
+                reply.result = false;
+                send( node, reply );
+                return eqNet::COMMAND_HANDLED;
+            }
+
+            // TODO: gather and send back display information
+            EQINFO << "Using display " << DisplayString( _xDisplay ) << endl;
+            break;
+#endif
+#ifdef CGL
+        case WINDOW_SYSTEM_CGL:
+            if( !_cglDisplayID )
+            {
+                EQERROR << "init() did not set a valid display id" << endl;
+                reply.result = false;
+                send( node, reply );
+                return eqNet::COMMAND_HANDLED;
+            }
+                
+            // TODO: gather and send back display information
+            EQINFO << "Using display " << _display << endl;
+            break;
+#endif
+#ifdef WGL
+        case WINDOW_SYSTEM_WGL:
+            if( !_dc )
+            {
+                EQERROR << "init() did not set a valid device context" << endl;
+                reply.result = false;
+                send( node, reply );
+                return eqNet::COMMAND_HANDLED;
+            }
+                
+            // TODO: gather and send back display information
+            EQINFO << "Using dc " << _dc << endl;
+            break;
+#endif
+
+        default: EQUNIMPLEMENTED;
+    }
+
+    reply.pvp = _pvp;
+    send( node, reply );
+
+    EventHandler* thread = EventHandler::get( _windowSystem );
+    thread->addPipe( this );
+
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Pipe::_reqExit( eqNet::Command& command )
+{
+    EventHandler* thread = EventHandler::get( _windowSystem );
+    thread->removePipe( this );
+
+    const PipeExitPacket* packet = command.getPacket<PipeExitPacket>();
+    EQINFO << "handle pipe exit " << packet << endl;
+
+    exit();
+    _flushFrames();
+
+    PipeExitReplyPacket reply( packet );
+    send( command.getNode(), reply );
+
+    // cleanup
+    _commandQueue.flush();
+    
+    // exit thread
+    EQINFO << "Leaving pipe thread" << endl;
+    _thread->exit( EXIT_SUCCESS );
+    EQUNREACHABLE;
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Pipe::_cmdFrameStart( eqNet::Command& command )
+{
+	_frameClockMutex.set();
+    _frameClocks.push_back( Clock( ));
+	_frameClockMutex.unset();
+    return pushCommand( command );
+}
+
+eqNet::CommandResult Pipe::_reqFrameStart( eqNet::Command& command )
+{
+    const PipeFrameStartPacket* packet = 
+        command.getPacket<PipeFrameStartPacket>();
+    EQVERB << "handle pipe frame start " << packet << endl;
+
+	_frameClockMutex.set();
+    EQASSERT( !_frameClocks.empty( ));
+
+	_frameClock = _frameClocks.front();
+    _frameClocks.pop_front();
+	_frameClockMutex.unset();
+
+    _grabFrame( packet->frameNumber );
+    frameStart( packet->frameID, packet->frameNumber );
+
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Pipe::_reqFrameFinish( eqNet::Command& command )
+{
+    const PipeFrameFinishPacket* packet =
+        command.getPacket<PipeFrameFinishPacket>();
+    EQVERB << "handle pipe frame sync " << packet << endl;
+
+    frameFinish( packet->frameID, packet->frameNumber );
+    EQASSERTINFO( _finishedFrame >= packet->frameNumber, 
+                  "Pipe::frameFinish() did not release frame " 
+                  << packet->frameNumber );
+
+    return eqNet::COMMAND_HANDLED;
 }

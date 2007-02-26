@@ -44,7 +44,6 @@ namespace eqs
          */
         //*{
         Server* getServer() { return _server.get(); }
-        uint32_t getFrameNumber() const { return _frameNumber; }
         
         /** 
          * Adds a new node to this config.

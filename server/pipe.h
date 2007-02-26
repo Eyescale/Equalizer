@@ -163,16 +163,9 @@ namespace eqs
          *
          * @param frameID a per-frame identifier passed to all rendering
          *                methods.
+         * @param frameNumber the number of the frame.
          */
-        void update( const uint32_t frameID );
-
-        /**
-         * Finish one frame.
-         *
-         * @param frame the number of the frame to complete.
-         */
-        void syncUpdate( const uint32_t frame ) const 
-            { _frameFinished.waitGE( frame ); }
+        void startFrame( const uint32_t frameID, const uint32_t frameNumber );
         //*}
 
         /** @name Error information. */
@@ -219,10 +212,6 @@ namespace eqs
         /** The absolute size and position of the pipe. */
         eq::PixelViewport _pvp;
         
-        /** A counter for the number of allowed pending frames. */
-        eqBase::Monitor<uint32_t> _frameFinished;
-
-
         /** common code for all constructors */
         void _construct();
 
@@ -235,7 +224,6 @@ namespace eqs
         /* command handler functions. */
         eqNet::CommandResult _cmdInitReply(eqNet::Command& command );
         eqNet::CommandResult _cmdExitReply(eqNet::Command& command );
-        eqNet::CommandResult _cmdFrameSync( eqNet::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Pipe* pipe );

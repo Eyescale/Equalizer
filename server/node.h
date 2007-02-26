@@ -139,16 +139,17 @@ namespace eqs
          *
          * @param frameID a per-frame identifier passed to all rendering
          *                methods.
+         * @param frameNumber the number of the frame.
          */
-        void update( const uint32_t frameID );
+        void startFrame( const uint32_t frameID, const uint32_t frameNumber );
 
         /**
          * Finish one frame.
          *
          * @param frame the number of the frame to complete.
          */
-        void syncUpdate( const uint32_t frame ) const;
-
+        void syncUpdate( const uint32_t frame ) const 
+            { _finishedFrame.waitGE( frame ); }
         //*}
 
         /**
@@ -173,8 +174,11 @@ namespace eqs
         //*}
 
         /** @sa eqNet::Object::send */
-        bool send( eqNet::ObjectPacket& packet )
-            { return eqNet::Object::send( _node, packet ); }
+        void send( eqNet::ObjectPacket& packet )
+            { 
+                const bool sent = eqNet::Object::send( _node, packet ); 
+                EQASSERT( sent );
+            }
 
         /** 
          * Adds a new description how this node can be reached.
@@ -243,6 +247,9 @@ namespace eqs
         std::vector< eqBase::RefPtr<eqNet::ConnectionDescription> >
             _connectionDescriptions;
 
+        /** The number of the last finished frame. */
+        eqBase::Monitor<uint32_t> _finishedFrame;
+
         /** The request identifier for pending asynchronous operations. */
         uint32_t _pendingRequestID;
 
@@ -258,6 +265,7 @@ namespace eqs
         /* Command handler functions. */
         eqNet::CommandResult _cmdConfigInitReply( eqNet::Command& command );
         eqNet::CommandResult _cmdConfigExitReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameFinishReply( eqNet::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Node* node );

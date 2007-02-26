@@ -5,11 +5,11 @@
 #ifndef EQ_PIPE_H
 #define EQ_PIPE_H
 
-#include <eq/client/node.h>
-#include <eq/client/pixelViewport.h>
-#include <eq/client/statEvent.h>
-#include <eq/client/X11Connection.h>
-#include <eq/client/windowSystem.h>
+#include <eq/client/node.h>           // used in inline methods
+#include <eq/client/pixelViewport.h>  // member
+#include <eq/client/statEvent.h>      // member
+#include <eq/client/X11Connection.h>  // member
+#include <eq/client/windowSystem.h>   // member
 
 #include <eq/base/refPtr.h>
 #include <eq/base/spinLock.h>
@@ -22,7 +22,6 @@ namespace eq
 {
     class Frame;
     class Window;
-    class X11Connection;
 
     class EQ_EXPORT Pipe : public eqNet::Object
     {
@@ -166,7 +165,7 @@ namespace eq
         void addStatEvent( const StatEvent& event )
             { _statEvents.push_back( event ); }
 
-        /** 
+        /**
          * Push a command to the pipe thread to be handled from there.
          * 
          * @param node the node sending the packet.
@@ -197,11 +196,36 @@ namespace eq
         Frame* getFrame( const uint32_t id, const uint32_t version );
         //*}
 
+        /** 
+         * Wait for a frame to be finished.
+         * 
+         * @param frameNumber the frame number.
+         * @sa releaseFrame()
+         */
+        void waitFrameFinished( const uint32_t frameNumber ) const
+            { _finishedFrame.waitGE( frameNumber ); }
     protected:
         /**
          * Destructs the pipe.
          */
         virtual ~Pipe();
+
+        /** @name Actions */
+        //*{
+        /** 
+         * Start a frame by unlocking all child resources.
+         * 
+         * @param frameNumber the frame to start.
+         */
+        void startFrame( const uint32_t frameNumber ) { /* currently nop */ }
+
+        /** 
+         * Signal the completion of a frame to the parent.
+         * 
+         * @param frameNumber the frame to end.
+         */
+        void releaseFrame( const uint32_t frameNumber );
+        //*}
 
         /**
          * @name Callbacks
@@ -252,22 +276,30 @@ namespace eq
          * Start rendering a frame.
          *
          * Called once at the beginning of each frame, to do per-frame updates
-         * of pipe-specific data, for example updating the rendering engine.
+         * of pipe-specific data, for example updating the rendering
+         * engine. This method has to call startFrame().
          *
          * @param frameID the per-frame identifier.
+         * @param frameNumber the frame to start.
          * @sa Config::beginFrame()
          */
-        virtual void startFrame( const uint32_t frameID ) {}
+        virtual void frameStart( const uint32_t frameID, 
+                                 const uint32_t frameNumber ) 
+            { startFrame( frameNumber ); }
 
         /**
-         * End rendering a frame.
+         * Finish rendering a frame.
          *
-         * Called once at the end of each frame, to do per-frame updates
-         * of pipe-specific data, for example updating the rendering engine.
+         * Called once at the end of each frame, to do per-frame updates of
+         * pipe-specific data, for example updating the rendering engine.  This
+         * method has to call releaseFrame().
          *
          * @param frameID the per-frame identifier.
+         * @param frameNumber the frame to finish.
          */
-        virtual void endFrame( const uint32_t frameID ) {}
+        virtual void frameFinish( const uint32_t frameID, 
+                                  const uint32_t frameNumber ) 
+            { releaseFrame( frameNumber ); }
         //@}
 
         /** @name Error information. */
@@ -291,7 +323,7 @@ namespace eq
         std::vector<Window*>     _windows;
 
         /** The currently attached window. */
-        const Window* _currentWindow;
+        const Window* _currentGLWindow;
 
         /** The current window system. */
         WindowSystem _windowSystem;
@@ -324,6 +356,9 @@ namespace eq
         /** The screen (GLX), adapter (Win32) or ignored (CGL). */
         uint32_t _screen;
         
+        /** The number of the last finished frame. */
+        eqBase::Monitor<uint32_t> _finishedFrame;
+
         /** The running per-frame statistic clocks. */
         std::deque<eqBase::Clock> _frameClocks;
 		eqBase::SpinLock          _frameClockMutex;
@@ -344,6 +379,9 @@ namespace eq
         Window* _findWindow( const uint32_t id );
 
         void _flushFrames();
+
+        void _grabFrame( const uint32_t frameNumber ) const
+            { _node->waitFrameStarted( frameNumber ); }
 
         /** The pipe thread. */
         class PipeThread : public eqBase::Thread
@@ -372,9 +410,9 @@ namespace eq
         eqNet::CommandResult _reqInit( eqNet::Command& command );
         eqNet::CommandResult _cmdExit( eqNet::Command& command );
         eqNet::CommandResult _reqExit( eqNet::Command& command );
-        eqNet::CommandResult _reqUpdate( eqNet::Command& command );
-        eqNet::CommandResult _cmdUpdate( eqNet::Command& command );
-        eqNet::CommandResult _reqFrameSync( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameStart( eqNet::Command& command );
+        eqNet::CommandResult _reqFrameStart( eqNet::Command& command );
+        eqNet::CommandResult _reqFrameFinish( eqNet::Command& command );
     };
 }
 

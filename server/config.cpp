@@ -708,7 +708,7 @@ uint32_t Config::_startFrame( const uint32_t frameID, vector<Node*>& nodes )
     for( uint32_t i=0; i<nCompounds; ++i )
     {
         Compound* compound = getCompound( i );
-        compound->update();
+        compound->update( _frameNumber );
     }
 
     const uint32_t nNodes = this->nNodes();
@@ -717,7 +717,7 @@ uint32_t Config::_startFrame( const uint32_t frameID, vector<Node*>& nodes )
         Node* node = getNode( i );
         if( node->isUsed( ))
         {
-            node->update( frameID );
+            node->startFrame( frameID, _frameNumber );
             nodes.push_back( node );
         }
     }

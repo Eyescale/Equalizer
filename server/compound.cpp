@@ -391,9 +391,11 @@ void Compound::exit()
 //---------------------------------------------------------------------------
 // pre-render compound state update
 //---------------------------------------------------------------------------
-void Compound::update()
+void Compound::update( const uint32_t frameNumber )
 {
     UpdateData data;
+    data.frameNumber = frameNumber;
+
     traverse( this, _updatePreCB, _updateCB, _updatePostCB, &data );
     traverse( this, _updateInputCB, _updateInputCB, NULL, &data );
     
@@ -516,8 +518,7 @@ void Compound::_updateOutput( UpdateData* data )
 
         return;
 
-    const Config*  config      = getConfig();
-    const uint32_t frameNumber = config->getFrameNumber();
+    const uint32_t frameNumber = data->frameNumber;
 
     for( vector<Frame*>::iterator iter = _outputFrames.begin(); 
          iter != _outputFrames.end(); ++iter )

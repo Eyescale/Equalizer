@@ -5,8 +5,9 @@
 #ifndef EQ_NODE_H
 #define EQ_NODE_H
 
-#include <eq/client/commands.h>
-#include <eq/client/config.h>
+//#include <eq/client/commands.h>
+#include <eq/client/config.h>         // called in inline method
+#include <eq/client/statEvent.h>      // member
 
 #include <eq/base/base.h>
 #include <eq/net/barrier.h>
@@ -64,11 +65,47 @@ namespace eq
          */
         FrameData* getFrameData( const uint32_t id, const uint32_t version );
 
+        /** 
+         * Add stat events to a frame. Used by Pipe::releaseFrame().
+         * 
+         * @param frameNumber the frame number.
+         * @param events the list of events.
+         */
+        void addStatEvents( const uint32_t frameNumber,
+                            std::vector<StatEvent> events );
+
+        /** 
+         * Wait for a frame to be started.
+         * 
+         * @param frameNumber the frame number.
+         * @sa releaseFrame()
+         */
+        void waitFrameStarted( const uint32_t frameNumber ) const
+            { _currentFrame.waitGE( frameNumber ); }
+
     protected:
         /**
          * Destructs the node.
          */
         virtual ~Node();
+
+        /** @name Actions */
+        //*{
+        /** 
+         * Start a frame by unlocking all child resources.
+         * 
+         * @param frameNumber the frame to start.
+         */
+        void startFrame( const uint32_t frameNumber ) 
+            { _currentFrame = frameNumber; }
+
+        /** 
+         * Signal the completion of a frame to the parent.
+         * 
+         * @param frameNumber the frame to end.
+         */
+        void releaseFrame( const uint32_t frameNumber );
+        //*}
 
         /**
          * @name Callbacks
@@ -76,7 +113,7 @@ namespace eq
          * The callbacks are called by Equalizer during rendering to execute
          * various actions.
          */
-        //@{
+        //*{
 
         /** 
          * Initialises this node.
@@ -90,7 +127,6 @@ namespace eq
          */
         virtual bool configExit(){ return true; }
 
-#if 0
         /**
          * Start rendering a frame.
          *
@@ -99,26 +135,31 @@ namespace eq
          * call startFrame().
          *
          * @param frameID the per-frame identifier.
+         * @param frameNumber the frame to start.
          * @sa startFrame(), Config::beginFrame()
          */
-        virtual void frameStart( const uint32_t frameID ) { startFrame(); }
+        virtual void frameStart( const uint32_t frameID, 
+                                 const uint32_t frameNumber ) 
+            { startFrame( frameNumber ); }
 
         /**
          * Finish rendering a frame.
          *
          * Called once at the end of each frame, to end the frame and to do
          * per-frame updates of node-specific data. This method has to call
-         * endFrame().
+         * releaseFrame().
          *
          * @param frameID the per-frame identifier.
+         * @param frameNumber the frame to finish.
          * @sa endFrame(), Config::finishFrame()
          */
-        virtual void endFrame( const uint32_t frameID ) { endFrame(); }
-#endif
-        //@}
+        virtual void frameFinish( const uint32_t frameID, 
+                                  const uint32_t frameNumber ) 
+            { releaseFrame( frameNumber ); }
+        //*}
 
         /** @name Error information. */
-        //@{
+        //*{
         /** 
          * Set a message why the last operation failed.
          * 
@@ -128,7 +169,7 @@ namespace eq
          * @param message the error message.
          */
         void setErrorMessage( const std::string& message ) { _error = message; }
-        //@}
+        //*}
  
     private:
         friend class Config;
@@ -139,6 +180,9 @@ namespace eq
         /** The reason for the last error. */
         std::string            _error;
 
+        /** The number of the last started frame. */
+        eqBase::Monitor<uint32_t> _currentFrame;
+
         /** All barriers mapped by the node. */
         eqNet::IDHash< eqNet::Barrier* > _barriers;
         eqBase::Lock                     _barriersMutex;
@@ -147,9 +191,22 @@ namespace eq
         FrameDataCache _frameDatas;
         eqBase::Lock   _frameDatasMutex;
 
+        struct FrameStatEvents
+        {
+            uint32_t               frameNumber;
+            std::vector<StatEvent> events;
+        };
+        std::vector<FrameStatEvents> _statEvents;
+        eqBase::SpinLock             _statEventsLock;
+
         void _addPipe( Pipe* pipe );
         void _removePipe( Pipe* pipe );
         Pipe* _findPipe( const uint32_t id );
+
+        void _finishFrame( const uint32_t frameNumber );
+
+        std::vector<StatEvent>& _getStatEvents( const uint32_t frameNumber );
+        void _recycleStatEvents( const uint32_t frameNumber );
 
         void _flushObjects();
 
@@ -158,6 +215,10 @@ namespace eq
         eqNet::CommandResult _cmdDestroyPipe( eqNet::Command& command );
         eqNet::CommandResult _reqConfigInit( eqNet::Command& command );
         eqNet::CommandResult _reqConfigExit( eqNet::Command& command );
+        eqNet::CommandResult _reqFrameStart( eqNet::Command& command );
+        eqNet::CommandResult _reqFrameFinish( eqNet::Command& command );
+
+        CHECK_THREAD_DECLARE( _recvThread );
     };
 }
 

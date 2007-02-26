@@ -21,7 +21,8 @@ public:
 protected:
     virtual bool init( const uint32_t initID );
     virtual bool exit();
-    virtual void startFrame( const uint32_t frameID );
+    virtual void frameStart( const uint32_t frameID, 
+                             const uint32_t frameNumber );
 
 private:
     FrameData _frameData;

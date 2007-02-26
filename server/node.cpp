@@ -7,6 +7,7 @@
 #include "channel.h"
 #include "config.h"
 #include "global.h"
+#include "log.h"
 #include "pipe.h"
 #include "server.h"
 #include "window.h"
@@ -26,9 +27,11 @@ void Node::_construct()
     _pendingRequestID = EQ_ID_INVALID;
 
     registerCommand( eq::CMD_NODE_CONFIG_INIT_REPLY, 
-                     eqNet::CommandFunc<Node>( this, &Node::_cmdConfigInitReply ));
+                  eqNet::CommandFunc<Node>( this, &Node::_cmdConfigInitReply ));
     registerCommand( eq::CMD_NODE_CONFIG_EXIT_REPLY, 
-                     eqNet::CommandFunc<Node>( this, &Node::_cmdConfigExitReply ));
+                  eqNet::CommandFunc<Node>( this, &Node::_cmdConfigExitReply ));
+    registerCommand( eq::CMD_NODE_FRAME_FINISH_REPLY,
+                 eqNet::CommandFunc<Node>( this, &Node::_cmdFrameFinishReply ));
 
     EQINFO << "Add node @" << (void*)this << endl;
 }
@@ -113,7 +116,7 @@ void Node::startConfigInit( const uint32_t initID )
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     packet.initID     = initID;
-    Object::send( _node, packet );
+    send( packet );
 }
 
 bool Node::syncConfigInit()
@@ -139,7 +142,7 @@ void Node::startConfigExit()
     eq::NodeConfigExitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
-    Object::send( _node, packet );
+    send( packet );
 }
 
 bool Node::syncConfigExit()
@@ -157,27 +160,28 @@ bool Node::syncConfigExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Node::update( const uint32_t frameID )
+void Node::startFrame( const uint32_t frameID, const uint32_t frameNumber )
 {
     EQVERB << "Start frame" << endl;
+
+    eq::NodeFrameStartPacket startPacket;
+    startPacket.frameID     = frameID;
+    startPacket.frameNumber = frameNumber;
+    send( startPacket );
+
     const uint32_t nPipes = this->nPipes();
     for( uint32_t i=0; i<nPipes; i++ )
     {
         Pipe* pipe = getPipe( i );
         if( pipe->isUsed( ))
-            pipe->update( frameID );
+            pipe->startFrame( frameID, frameNumber );
     }
-}
 
-void Node::syncUpdate( const uint32_t frame ) const
-{
-    const uint32_t nPipes = this->nPipes();
-    for( uint32_t i=0; i<nPipes; ++i )
-    {
-        Pipe* pipe = getPipe( i );
-        if( pipe->isUsed( ))
-            pipe->syncUpdate( frame );
-    }
+
+    eq::NodeFrameFinishPacket finishPacket;
+    finishPacket.frameID     = frameID;
+    finishPacket.frameNumber = frameNumber;
+    send( finishPacket );
 }
 
 //---------------------------------------------------------------------------
@@ -239,6 +243,23 @@ eqNet::CommandResult Node::_cmdConfigExitReply( eqNet::Command& command )
     EQINFO << "handle configExit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Node::_cmdFrameFinishReply( eqNet::Command& command )
+{
+    const eq::NodeFrameFinishReplyPacket* packet = 
+        command.getPacket<eq::NodeFrameFinishReplyPacket>();
+    EQVERB << "handle frame finish reply " << packet << endl;
+    
+    // Move me
+    for( uint32_t i =0; i<packet->nStatEvents; ++i )
+    {
+        const eq::StatEvent& event = packet->statEvents[i];
+        EQLOG( LOG_STATS ) << event << endl;
+    }
+
+    _finishedFrame = packet->frameNumber;
     return eqNet::COMMAND_HANDLED;
 }
 

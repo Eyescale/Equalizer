@@ -364,7 +364,7 @@ namespace eqs
          * 
          * The compound's parameters for the next frame are computed.
          */
-        void update();
+        void update( const uint32_t frameNumber );
 
         /** 
          * Update a channel by generating all rendering tasks for this frame.
@@ -473,6 +473,7 @@ namespace eqs
         //----- pre-render compound setup
         struct UpdateData
         {
+            uint32_t                                     frameNumber;
             stde::hash_map<std::string, eqNet::Barrier*> swapBarriers;
             stde::hash_map<std::string, Frame*>          outputFrames;
         };

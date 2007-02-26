@@ -30,8 +30,6 @@ void Pipe::_construct()
                      eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdInitReply ));
     registerCommand( eq::CMD_PIPE_EXIT_REPLY, 
                      eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdExitReply ));
-    registerCommand( eq::CMD_PIPE_FRAME_SYNC_REPLY, 
-                     eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdFrameSync ));
 
     EQINFO << "New pipe @" << (void*)this << endl;
 }
@@ -245,12 +243,13 @@ bool Pipe::syncExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Pipe::update( const uint32_t frameID )
+void Pipe::startFrame( const uint32_t frameID, const uint32_t frameNumber )
 {
-    eq::PipeUpdatePacket updatePacket;
-    updatePacket.frameID     = frameID;
+    eq::PipeFrameStartPacket startPacket;
+    startPacket.frameID     = frameID;
+    startPacket.frameNumber = frameNumber;
 
-    _send( updatePacket );
+    _send( startPacket );
 
     const uint32_t nWindows = this->nWindows();
     for( uint32_t i=0; i<nWindows; i++ )
@@ -267,10 +266,10 @@ void Pipe::update( const uint32_t frameID )
             window->updatePost( frameID );
     }
 
-    eq::PipeFrameSyncPacket syncPacket;
-    syncPacket.frameID     = frameID;
-    syncPacket.frameNumber = getConfig()->getFrameNumber();
-    _send( syncPacket );
+    eq::PipeFrameFinishPacket finishPacket;
+    finishPacket.frameID     = frameID;
+    finishPacket.frameNumber = frameNumber;
+    _send( finishPacket );
 }
 
 //----------------------------------------------------------------------
@@ -313,24 +312,6 @@ eqNet::CommandResult Pipe::_cmdExitReply( eqNet::Command& command )
     EQINFO << "handle pipe exit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );
-    return eqNet::COMMAND_HANDLED;
-}
-
-
-eqNet::CommandResult Pipe::_cmdFrameSync( eqNet::Command& command )
-{
-    const eq::PipeFrameSyncReplyPacket* packet = 
-        command.getPacket<eq::PipeFrameSyncReplyPacket>();
-    EQVERB << "handle frame sync " << packet << endl;
-    
-    // Move me
-    for( uint32_t i =0; i<packet->nStatEvents; ++i )
-    {
-        const eq::StatEvent& event = packet->statEvents[i];
-        EQLOG( LOG_STATS ) << event << endl;
-    }
-
-    _frameFinished = packet->frameNumber;
     return eqNet::COMMAND_HANDLED;
 }
 

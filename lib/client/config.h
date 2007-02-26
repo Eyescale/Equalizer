@@ -182,8 +182,8 @@ namespace eq
         eqNet::CommandResult _reqInitReply( eqNet::Command& command );
         eqNet::CommandResult _reqExitReply( eqNet::Command& command );
         eqNet::CommandResult _cmdStartFrameReply( eqNet::Command& command );
-        eqNet::CommandResult _cmdFinishFrameReply( eqNet::Command& command );
-        eqNet::CommandResult _cmdFinishAllFramesReply( eqNet::Command& command);
+        eqNet::CommandResult _reqFinishFrameReply( eqNet::Command& command );
+        eqNet::CommandResult _reqFinishAllFramesReply( eqNet::Command& command);
         eqNet::CommandResult _cmdEvent( eqNet::Command& command );
     };
 }

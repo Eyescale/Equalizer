@@ -356,6 +356,43 @@ namespace eq
         uint32_t pipeID;
     };
     
+    struct NodeFrameStartPacket : public eqNet::ObjectPacket
+    {
+        NodeFrameStartPacket()
+            {
+                command        = CMD_NODE_FRAME_START;
+                size           = sizeof( NodeFrameStartPacket );
+            }
+
+        uint32_t frameID;
+        uint32_t frameNumber;
+    };
+
+    struct NodeFrameFinishPacket : public eqNet::ObjectPacket
+    {
+        NodeFrameFinishPacket()
+            {
+                command        = CMD_NODE_FRAME_FINISH;
+                size           = sizeof( NodeFrameFinishPacket );
+            }
+
+        uint32_t frameID;
+        uint32_t frameNumber;
+    };
+
+    struct NodeFrameFinishReplyPacket : public eqNet::ObjectPacket
+    {
+        NodeFrameFinishReplyPacket()
+            {
+                command        = CMD_NODE_FRAME_FINISH_REPLY;
+                size           = sizeof( NodeFrameFinishReplyPacket );
+            }
+
+        uint32_t frameNumber;
+        uint32_t nStatEvents;
+        EQ_ALIGN8( StatEvent statEvents[1] );
+    };
+
     //------------------------------------------------------------
     // Pipe
     //------------------------------------------------------------
@@ -436,40 +473,28 @@ namespace eq
         bool     result;
     };
 
-    struct PipeUpdatePacket : public eqNet::ObjectPacket
+    struct PipeFrameStartPacket : public eqNet::ObjectPacket
     {
-        PipeUpdatePacket()
+        PipeFrameStartPacket()
             {
-                command = CMD_PIPE_UPDATE;
-                size    = sizeof( PipeInitPacket );
-            }
-
-        uint32_t frameID;
-    };
-
-    struct PipeFrameSyncPacket : public eqNet::ObjectPacket
-    {
-        PipeFrameSyncPacket()
-            {
-                command = CMD_PIPE_FRAME_SYNC;
-                size    = sizeof( PipeFrameSyncPacket );
+                command        = CMD_PIPE_FRAME_START;
+                size           = sizeof( PipeFrameStartPacket );
             }
 
         uint32_t frameID;
         uint32_t frameNumber;
     };
 
-    struct PipeFrameSyncReplyPacket : public eqNet::ObjectPacket
+    struct PipeFrameFinishPacket : public eqNet::ObjectPacket
     {
-        PipeFrameSyncReplyPacket()
+        PipeFrameFinishPacket()
             {
-                command = CMD_PIPE_FRAME_SYNC_REPLY;
-                size    = sizeof( PipeFrameSyncReplyPacket );
+                command        = CMD_PIPE_FRAME_FINISH;
+                size           = sizeof( PipeFrameFinishPacket );
             }
 
-        uint32_t  frameNumber;
-        uint32_t  nStatEvents;
-        EQ_ALIGN8( StatEvent statEvents[1] );
+        uint32_t frameID;
+        uint32_t frameNumber;
     };
 
     //------------------------------------------------------------
