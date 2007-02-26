@@ -19,13 +19,20 @@ namespace eqBase
     {
     public:
         // TODO: optional thread-safety
-        // TODO: use fast mutex (futex, atomic-op based spinlock or similar)
-
-        void ref()   { _mutex.set(); ++_refCount; _mutex.unset(); }
+        void ref()   
+        { 
+#ifndef NDEBUG
+            EQASSERT( !_hasBeenDeleted );
+#endif
+            _mutex.set(); ++_refCount; _mutex.unset();
+        }
         void unref() 
             { 
-                _mutex.set();
+#ifndef NDEBUG
+                EQASSERT( !_hasBeenDeleted );
+#endif
                 EQASSERT( _refCount > 0 ); 
+                _mutex.set();
                 --_refCount;
                 const bool deleteMe = (_refCount==0);
                 _mutex.unset();
@@ -36,10 +43,25 @@ namespace eqBase
         int  getRefCount() const { return _refCount; }
 
     protected:
-        Referenced() : _refCount(0) {}
-        Referenced( const Referenced& from ) : _refCount(0) {}
+        Referenced()
+            : _refCount(0)
+#ifndef NDEBUG
+            , _hasBeenDeleted( false )
+#endif
+            {}
+
+        Referenced( const Referenced& from ) 
+            : _refCount(0)
+#ifndef NDEBUG
+            , _hasBeenDeleted( false )
+#endif
+            {}
+
         virtual ~Referenced() 
             {
+#ifndef NDEBUG
+                _hasBeenDeleted = true;
+#endif
                 if( _refCount!=0 ) 
                 {
                     EQERROR << "Deleting object with ref count " << _refCount
@@ -50,6 +72,9 @@ namespace eqBase
 
         uint32_t _refCount;
         SpinLock _mutex;
+#ifndef NDEBUG
+        bool _hasBeenDeleted;
+#endif
     };
 }
 
