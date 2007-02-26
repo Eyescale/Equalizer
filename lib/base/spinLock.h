@@ -6,10 +6,10 @@
 #define EQBASE_SPINLOCK_H
 
 #include <eq/base/base.h>
-#include <pthread.h>
 
-#if _POSIX_SPIN_LOCKS > 0
-#  define EQ_USE_PTHREAD_SPINLOCK
+#include <pthread.h>
+#ifndef WIN32
+#  include <unistd.h> // for _POSIX_SPIN_LOCKS on some systems
 #endif
 
 namespace eqBase
@@ -58,7 +58,7 @@ namespace eqBase
         bool test(); 
 
     private:
-#ifdef EQ_USE_PTHREAD_SPINLOCK
+#if _POSIX_SPIN_LOCKS > 0
         pthread_spinlock_t _mutex;
 #else
         pthread_mutex_t _mutex;

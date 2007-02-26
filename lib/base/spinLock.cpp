@@ -11,7 +11,7 @@
 using namespace eqBase;
 using namespace std;
 
-#ifdef EQ_USE_PTHREAD_SPINLOCK
+#if _POSIX_SPIN_LOCKS > 0
 #  define pthread_mutex_init     pthread_spin_init     
 #  define pthread_mutex_destroy  pthread_spin_destroy  
 #  define pthread_mutex_lock     pthread_spin_lock     
