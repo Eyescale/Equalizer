@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_MONITOR_H
@@ -85,7 +85,7 @@ namespace eqBase
             }
         //*}
 
-        /** Monitor the value. */
+        /** @name Monitor the value. */
         //*{
         void waitEQ( const T& val ) const
             {
@@ -103,10 +103,15 @@ namespace eqBase
             }
         //*}
 
-        /** Data Access. */
+        /** @name Comparision Operators. */
+        //*{
         bool operator == ( const T& val ) const { return _value == val; }
+        bool operator != ( const T& val ) const { return _value != val; }
         bool operator < ( const T& val ) const { return _value < val; }
         bool operator > ( const T& val ) const { return _value > val; }
+        bool operator <= ( const T& val ) const { return _value <= val; }
+        bool operator >= ( const T& val ) const { return _value >= val; }
+        //*}
 
         const T& get() const { return _value; }
 
