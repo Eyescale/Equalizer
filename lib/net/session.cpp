@@ -201,12 +201,17 @@ void Session::attachObject( Object* object, const uint32_t id )
 {
     if( _localNode->inReceiverThread( ))
     {
+        CHECK_THREAD( _receiverThread );
+
         object->_id         = id;
         object->_instanceID = _instanceIDs.genIDs(1);
         object->_session    = this;
 
+        _objectsMutex.set();
         vector<Object*>& objects = _objects[ id ];
+        _objectsMutex.unset();
         objects.push_back( object );
+
         EQINFO << "Attached " << typeid( *object ).name() << " to id " << id
                << endl;
         return;
@@ -241,7 +246,11 @@ void Session::detachObject( Object* object )
         objects.erase( iter );
 
         if( objects.empty( ))
+        {
+            _objectsMutex.set();
             _objects.erase( id );
+            _objectsMutex.unset();
+        }
 
         EQASSERT( object->_instanceID != EQ_ID_INVALID );
         _instanceIDs.freeIDs( object->_instanceID, 1 );
@@ -374,7 +383,10 @@ CommandResult Session::_handleObjectCommand( Command& command )
         return COMMAND_REDISPATCH;
     }
 
+    _objectsMutex.set();
     vector<Object*>& objects = _objects[id];
+    _objectsMutex.unset();
+
     EQASSERT( !objects.empty( ));
 
     for( vector<Object*>::const_iterator i = objects.begin(); 
@@ -653,7 +665,9 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
     object->_cm->applyInitialData( packet->data, packet->dataSize,
                                    packet->version );
 
+    _objectsMutex.set();
     vector<Object*>& objects = _objects[ data->objectID ];
+    _objectsMutex.unset();
     objects.push_back( object );
     
     EQLOG( LOG_OBJECTS ) << "subscribed object id " << object->getID() << " @" 
@@ -756,30 +770,11 @@ CommandResult Session::_cmdUnsubscribeObjectReply( Command& command )
         _requestHandler.getRequestData( packet->requestID ));
     EQASSERT( object );
 
-    const uint32_t id = object->getID();
-    EQASSERT( _objects.find( id ) != _objects.end( ))
-
-    vector<Object*>&          objects = _objects[id];
-    vector<Object*>::iterator iter    = find( objects.begin(), objects.end(),
-                                              object );
-    EQASSERT( iter != objects.end( ));
     EQASSERT( !object->isMaster( ));
-    EQASSERT( object->_instanceID != EQ_ID_INVALID );
+    detachObject( object );
 
-    objects.erase( iter );
-    if( objects.empty( ))
-        _objects.erase( id );
-
-    _instanceIDs.freeIDs( object->_instanceID, 1 );
-        
-    object->_id         = EQ_ID_INVALID;
-    object->_instanceID = EQ_ID_INVALID;
-    object->_session    = 0;
-    object->_setChangeManager( ObjectCM::ZERO );
-    
-    EQLOG( LOG_OBJECTS )
-        << "unmapped object id " << id << " @" << (void*)object
-        << " type " << typeid(*object).name() << endl;
+    EQLOG( LOG_OBJECTS ) << "unmapped object @" << (void*)object << " type "
+                         << typeid(*object).name() << endl;
 
     _requestHandler.serveRequest( packet->requestID, 0 );
     return COMMAND_HANDLED;

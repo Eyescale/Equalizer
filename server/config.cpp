@@ -41,14 +41,14 @@ void Config::_construct()
                      eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
     registerCommand( eq::REQ_CONFIG_START_FRAME,
                    eqNet::CommandFunc<Config>( this, &Config::_reqStartFrame ));
-    registerCommand( eq::CMD_CONFIG_END_FRAME, 
+    registerCommand( eq::CMD_CONFIG_FINISH_FRAME, 
                      eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
-    registerCommand( eq::REQ_CONFIG_END_FRAME, 
-                     eqNet::CommandFunc<Config>( this, &Config::_reqEndFrame ));
-    registerCommand( eq::CMD_CONFIG_FINISH_FRAMES, 
+    registerCommand( eq::REQ_CONFIG_FINISH_FRAME, 
+                  eqNet::CommandFunc<Config>( this, &Config::_reqFinishFrame ));
+    registerCommand( eq::CMD_CONFIG_FINISH_ALL_FRAMES, 
                      eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
-    registerCommand( eq::REQ_CONFIG_FINISH_FRAMES, 
-                 eqNet::CommandFunc<Config>( this, &Config::_reqFinishFrames ));
+    registerCommand( eq::REQ_CONFIG_FINISH_ALL_FRAMES, 
+              eqNet::CommandFunc<Config>( this, &Config::_reqFinishAllFrames ));
 
     const Global* global = Global::instance();
     
@@ -300,26 +300,26 @@ eqNet::CommandResult Config::_reqStartFrame( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_reqEndFrame( eqNet::Command& command ) 
+eqNet::CommandResult Config::_reqFinishFrame( eqNet::Command& command ) 
 {
-    const eq::ConfigEndFramePacket* packet = 
-        command.getPacket<eq::ConfigEndFramePacket>();
-    eq::ConfigEndFrameReplyPacket   reply( packet );
-    EQVERB << "handle config frame end " << packet << endl;
+    const eq::ConfigFinishFramePacket* packet = 
+        command.getPacket<eq::ConfigFinishFramePacket>();
+    eq::ConfigFinishFrameReplyPacket   reply( packet );
+    EQVERB << "handle config frame finish " << packet << endl;
 
-    reply.result = _endFrame();
+    reply.result = _finishFrame();
     send( command.getNode(), reply );
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_reqFinishFrames( eqNet::Command& command ) 
+eqNet::CommandResult Config::_reqFinishAllFrames( eqNet::Command& command ) 
 {
-    const eq::ConfigFinishFramesPacket* packet = 
-        command.getPacket<eq::ConfigFinishFramesPacket>();
-    eq::ConfigFinishFramesReplyPacket   reply( packet );
-    EQVERB << "handle config frames finish " << packet << endl;
+    const eq::ConfigFinishAllFramesPacket* packet = 
+        command.getPacket<eq::ConfigFinishAllFramesPacket>();
+    eq::ConfigFinishAllFramesReplyPacket   reply( packet );
+    EQVERB << "handle config all frames finish " << packet << endl;
 
-    reply.result = _finishFrames();
+    reply.result = _finishAllFrames();
     send( command.getNode(), reply );
     return eqNet::COMMAND_HANDLED;
 }
@@ -448,7 +448,7 @@ bool Config::_initNodes( const uint32_t initID )
         createNodePacket.nodeID = node->getID();
         send( netNode, createNodePacket );
 
-        node->startInit( initID );
+        node->startConfigInit( initID );
     }
 
     for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
@@ -458,7 +458,7 @@ bool Config::_initNodes( const uint32_t initID )
         if( !node->isUsed() || !netNode->isConnected( ))
             continue;
         
-        if( !node->syncInit( ))
+        if( !node->syncConfigInit( ))
         {
             _error += ( ' ' + node->getErrorMessage( ));
             EQERROR << "Init of node " << (void*)node << " failed." 
@@ -618,7 +618,7 @@ bool Config::_exitNodes()
             continue;
 
         exitingNodes.push_back( node );
-        node->startExit();
+        node->startConfigExit();
     }
 
     eq::ServerDestroyConfigPacket destroyConfigPacket;
@@ -634,7 +634,7 @@ bool Config::_exitNodes()
         Node*               node    = *i;
         RefPtr<eqNet::Node> netNode = node->getNode();
 
-        if( !node->syncExit( ))
+        if( !node->syncConfigExit( ))
         {
             EQERROR << "Could not exit cleanly: " << node << endl;
             success = false;
@@ -725,7 +725,7 @@ uint32_t Config::_startFrame( const uint32_t frameID, vector<Node*>& nodes )
     return _frameNumber;
 }
 
-uint32_t Config::_endFrame()
+uint32_t Config::_finishFrame()
 {
     if( _frameNumber <= _latency )
         return 0;
@@ -739,11 +739,11 @@ uint32_t Config::_endFrame()
             node->syncUpdate( finishFrame );
     }
 
-    EQLOG( LOG_ANY ) << "------ End Frame ------ " << finishFrame << endl;
+    EQLOG( LOG_ANY ) << "----- Finish Frame ---- " << finishFrame << endl;
     return finishFrame;
 }
 
-uint32_t Config::_finishFrames()
+uint32_t Config::_finishAllFrames()
 {
     const uint32_t nNodes = this->nNodes();
     for( uint32_t i=0; i<nNodes; ++i )
@@ -753,7 +753,7 @@ uint32_t Config::_finishFrames()
             node->syncUpdate( _frameNumber );
     }
 
-    EQLOG( LOG_ANY ) << "---- Finish Frames ---- " << _frameNumber << endl;
+    EQLOG( LOG_ANY ) << "-- Finish All Frames -- " << _frameNumber << endl;
     return _frameNumber;
 }
 

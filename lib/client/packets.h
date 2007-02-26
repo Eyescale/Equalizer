@@ -234,45 +234,46 @@ namespace eq
         EQ_ALIGN8( eqNet::NodeID nodeIDs[1] );
     };
 
-    struct ConfigEndFramePacket : public ConfigPacket
+    struct ConfigFinishFramePacket : public ConfigPacket
     {
-        ConfigEndFramePacket()
+        ConfigFinishFramePacket()
             {
-                command   = CMD_CONFIG_END_FRAME;
-                size      = sizeof( ConfigEndFramePacket );
+                command   = CMD_CONFIG_FINISH_FRAME;
+                size      = sizeof( ConfigFinishFramePacket );
             }
         uint32_t requestID;
     };
 
-    struct ConfigEndFrameReplyPacket : public ConfigPacket
+    struct ConfigFinishFrameReplyPacket : public ConfigPacket
     {
-        ConfigEndFrameReplyPacket(const ConfigEndFramePacket* requestPacket)
+        ConfigFinishFrameReplyPacket( const ConfigFinishFramePacket* 
+                                      requestPacket )
             {
-                command   = CMD_CONFIG_END_FRAME_REPLY;
-                size      = sizeof( ConfigEndFrameReplyPacket );
+                command   = CMD_CONFIG_FINISH_FRAME_REPLY;
+                size      = sizeof( ConfigFinishFrameReplyPacket );
                 requestID = requestPacket->requestID;
             }
         uint32_t requestID;
         uint32_t result;
     };
 
-    struct ConfigFinishFramesPacket : public ConfigPacket
+    struct ConfigFinishAllFramesPacket : public ConfigPacket
     {
-        ConfigFinishFramesPacket()
+        ConfigFinishAllFramesPacket()
             {
-                command   = CMD_CONFIG_FINISH_FRAMES;
-                size      = sizeof( ConfigFinishFramesPacket );
+                command   = CMD_CONFIG_FINISH_ALL_FRAMES;
+                size      = sizeof( ConfigFinishAllFramesPacket );
             }
         uint32_t requestID;
     };
 
-    struct ConfigFinishFramesReplyPacket : public ConfigPacket
+    struct ConfigFinishAllFramesReplyPacket : public ConfigPacket
     {
-        ConfigFinishFramesReplyPacket( const ConfigFinishFramesPacket* 
+        ConfigFinishAllFramesReplyPacket( const ConfigFinishAllFramesPacket* 
                                        requestPacket )
             {
-                command   = CMD_CONFIG_FINISH_FRAMES_REPLY;
-                size      = sizeof( ConfigFinishFramesReplyPacket );
+                command   = CMD_CONFIG_FINISH_ALL_FRAMES_REPLY;
+                size      = sizeof( ConfigFinishAllFramesReplyPacket );
                 requestID = requestPacket->requestID;
             }
         uint32_t requestID;
@@ -282,25 +283,25 @@ namespace eq
     //------------------------------------------------------------
     // Node
     //------------------------------------------------------------
-    struct NodeInitPacket : public eqNet::ObjectPacket
+    struct NodeConfigInitPacket : public eqNet::ObjectPacket
     {
-        NodeInitPacket()
+        NodeConfigInitPacket()
             {
-                command        = CMD_NODE_INIT;
-                size           = sizeof( NodeInitPacket );
+                command        = CMD_NODE_CONFIG_INIT;
+                size           = sizeof( NodeConfigInitPacket );
             }
 
         uint32_t requestID;
         uint32_t initID;
     };
 
-    struct NodeInitReplyPacket : public eqNet::ObjectPacket
+    struct NodeConfigInitReplyPacket : public eqNet::ObjectPacket
     {
-        NodeInitReplyPacket( const NodeInitPacket* requestPacket )
+        NodeConfigInitReplyPacket( const NodeConfigInitPacket* requestPacket )
             {
-                command   = CMD_NODE_INIT_REPLY;
+                command   = CMD_NODE_CONFIG_INIT_REPLY;
                 requestID = requestPacket->requestID;
-                size      = sizeof( NodeInitReplyPacket );
+                size      = sizeof( NodeConfigInitReplyPacket );
                 error[0]  = '\0';
             }
 
@@ -309,24 +310,24 @@ namespace eq
         EQ_ALIGN8( char error[8] );
     };
 
-    struct NodeExitPacket : public eqNet::ObjectPacket
+    struct NodeConfigExitPacket : public eqNet::ObjectPacket
     {
-        NodeExitPacket()
+        NodeConfigExitPacket()
             {
-                command = CMD_NODE_EXIT;
-                size    = sizeof( NodeExitPacket );
+                command = CMD_NODE_CONFIG_EXIT;
+                size    = sizeof( NodeConfigExitPacket );
             }
 
         uint32_t requestID;
     };
 
-    struct NodeExitReplyPacket : public eqNet::ObjectPacket
+    struct NodeConfigExitReplyPacket : public eqNet::ObjectPacket
     {
-        NodeExitReplyPacket( const NodeExitPacket* requestPacket )
+        NodeConfigExitReplyPacket( const NodeConfigExitPacket* requestPacket )
             {
-                command   = CMD_NODE_EXIT_REPLY;
+                command   = CMD_NODE_CONFIG_EXIT_REPLY;
                 requestID = requestPacket->requestID;
-                size      = sizeof( NodeExitReplyPacket );
+                size      = sizeof( NodeConfigExitReplyPacket );
             }
 
         uint32_t requestID;

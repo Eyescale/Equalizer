@@ -91,9 +91,9 @@ int main( int argc, char** argv )
     {
         config->startFrame();
         // config->renderData(...);
-        config->endFrame();
+        config->finishFrame();
     }
-    const uint32_t frame = config->finishFrames();
+    const uint32_t frame = config->finishAllFrames();
     EQLOG( eq::LOG_CUSTOM ) << "Rendering took " << clock.getTimef() << " ms ("
                             << ( frame / clock.getTimef() * 1000.f) << " FPS)"
                             << endl;

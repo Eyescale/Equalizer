@@ -25,10 +25,10 @@ void Node::_construct()
     _config           = NULL;
     _pendingRequestID = EQ_ID_INVALID;
 
-    registerCommand( eq::CMD_NODE_INIT_REPLY, 
-                     eqNet::CommandFunc<Node>( this, &Node::_cmdInitReply ));
-    registerCommand( eq::CMD_NODE_EXIT_REPLY, 
-                     eqNet::CommandFunc<Node>( this, &Node::_cmdExitReply ));
+    registerCommand( eq::CMD_NODE_CONFIG_INIT_REPLY, 
+                     eqNet::CommandFunc<Node>( this, &Node::_cmdConfigInitReply ));
+    registerCommand( eq::CMD_NODE_CONFIG_EXIT_REPLY, 
+                     eqNet::CommandFunc<Node>( this, &Node::_cmdConfigExitReply ));
 
     EQINFO << "Add node @" << (void*)this << endl;
 }
@@ -105,18 +105,18 @@ bool Node::removePipe( Pipe* pipe )
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-void Node::startInit( const uint32_t initID )
+void Node::startConfigInit( const uint32_t initID )
 {
     EQASSERT( _pendingRequestID == EQ_ID_INVALID );
 
-    eq::NodeInitPacket packet;
+    eq::NodeConfigInitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     packet.initID     = initID;
     Object::send( _node, packet );
 }
 
-bool Node::syncInit()
+bool Node::syncConfigInit()
 {
     EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
@@ -132,17 +132,17 @@ bool Node::syncInit()
 //---------------------------------------------------------------------------
 // exit
 //---------------------------------------------------------------------------
-void Node::startExit()
+void Node::startConfigExit()
 {
     EQASSERT( _pendingRequestID == EQ_ID_INVALID );
 
-    eq::NodeExitPacket packet;
+    eq::NodeConfigExitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     Object::send( _node, packet );
 }
 
-bool Node::syncExit()
+bool Node::syncConfigExit()
 {
     EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
@@ -221,22 +221,22 @@ void Node::_flushBarriers()
 //===========================================================================
 // command handling
 //===========================================================================
-eqNet::CommandResult Node::_cmdInitReply( eqNet::Command& command )
+eqNet::CommandResult Node::_cmdConfigInitReply( eqNet::Command& command )
 {
-    const eq::NodeInitReplyPacket* packet = 
-        command.getPacket<eq::NodeInitReplyPacket>();
-    EQINFO << "handle init reply " << packet << endl;
+    const eq::NodeConfigInitReplyPacket* packet = 
+        command.getPacket<eq::NodeConfigInitReplyPacket>();
+    EQINFO << "handle configInit reply " << packet << endl;
 
     _error = packet->error;
     _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_cmdExitReply( eqNet::Command& command )
+eqNet::CommandResult Node::_cmdConfigExitReply( eqNet::Command& command )
 {
-    const eq::NodeExitReplyPacket* packet =
-        command.getPacket<eq::NodeExitReplyPacket>();
-    EQINFO << "handle exit reply " << packet << endl;
+    const eq::NodeConfigExitReplyPacket* packet =
+        command.getPacket<eq::NodeConfigExitReplyPacket>();
+    EQINFO << "handle configExit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );
     return eqNet::COMMAND_HANDLED;

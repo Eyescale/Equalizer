@@ -9,7 +9,7 @@
 using namespace std;
 using namespace eqBase;
 
-bool Node::init( const uint32_t initID )
+bool Node::configInit( const uint32_t initID )
 {
     eq::Config* config = getConfig();
     const bool  mapped = config->mapObject( &_initData, initID );
@@ -21,10 +21,10 @@ bool Node::init( const uint32_t initID )
     if( !_model)
         EQWARN << "Can't load model: " << _initData.getFilename() << endl;
 
-    return eq::Node::init( initID );
+    return eq::Node::configInit( initID );
 }
 
-bool Node::exit()
+bool Node::configExit()
 {
     if( _model )
         delete _model;
@@ -33,5 +33,5 @@ bool Node::exit()
     eq::Config* config = getConfig();
     config->unmapObject( &_initData );
 
-    return eq::Node::exit();
+    return eq::Node::configExit();
 }

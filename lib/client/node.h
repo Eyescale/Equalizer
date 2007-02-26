@@ -83,12 +83,38 @@ namespace eq
          * 
          * @param initID the init identifier.
          */
-        virtual bool init( const uint32_t initID ){ return true; }
+        virtual bool configInit( const uint32_t initID ){ return true; }
 
         /** 
          * Exit this node.
          */
-        virtual bool exit(){ return true; }
+        virtual bool configExit(){ return true; }
+
+#if 0
+        /**
+         * Start rendering a frame.
+         *
+         * Called once at the beginning of each frame, to start the node's frame
+         * and to do per-frame updates of node-specific data. This method has to
+         * call startFrame().
+         *
+         * @param frameID the per-frame identifier.
+         * @sa startFrame(), Config::beginFrame()
+         */
+        virtual void frameStart( const uint32_t frameID ) { startFrame(); }
+
+        /**
+         * Finish rendering a frame.
+         *
+         * Called once at the end of each frame, to end the frame and to do
+         * per-frame updates of node-specific data. This method has to call
+         * endFrame().
+         *
+         * @param frameID the per-frame identifier.
+         * @sa endFrame(), Config::finishFrame()
+         */
+        virtual void endFrame( const uint32_t frameID ) { endFrame(); }
+#endif
         //@}
 
         /** @name Error information. */
@@ -130,8 +156,8 @@ namespace eq
         /** The command functions. */
         eqNet::CommandResult _cmdCreatePipe( eqNet::Command& command );
         eqNet::CommandResult _cmdDestroyPipe( eqNet::Command& command );
-        eqNet::CommandResult _reqInit( eqNet::Command& command );
-        eqNet::CommandResult _reqExit( eqNet::Command& command );
+        eqNet::CommandResult _reqConfigInit( eqNet::Command& command );
+        eqNet::CommandResult _reqConfigExit( eqNet::Command& command );
     };
 }
 

@@ -80,19 +80,19 @@ namespace eq
         void flushSceneObjects();
 
         /** 
-         * Synchronizes the end of a frame.
+         * Finish the rendering of a frame.
          * 
          * @return the frame number of the finished frame, or <code>0</code> if
          *         no frame has been finished.
          */
-        virtual uint32_t endFrame();
+        virtual uint32_t finishFrame();
 
         /**
          * Finish rendering all pending frames.
          *
          * @return the frame number of the last finished frame.
          */
-        virtual uint32_t finishFrames();
+        virtual uint32_t finishAllFrames();
         //*}
 
         /** @name Event handling. */
@@ -182,8 +182,8 @@ namespace eq
         eqNet::CommandResult _reqInitReply( eqNet::Command& command );
         eqNet::CommandResult _reqExitReply( eqNet::Command& command );
         eqNet::CommandResult _cmdStartFrameReply( eqNet::Command& command );
-        eqNet::CommandResult _cmdEndFrameReply( eqNet::Command& command );
-        eqNet::CommandResult _cmdFinishFramesReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdFinishFrameReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdFinishAllFramesReply( eqNet::Command& command);
         eqNet::CommandResult _cmdEvent( eqNet::Command& command );
     };
 }

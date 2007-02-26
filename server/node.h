@@ -111,7 +111,7 @@ namespace eqs
          *
          * @param initID an identifier to be passed to all init methods.
          */
-        void startInit( const uint32_t initID);
+        void startConfigInit( const uint32_t initID);
 
         /** 
          * Synchronize the initialisation of the node.
@@ -119,12 +119,12 @@ namespace eqs
          * @return <code>true</code> if the node was initialised successfully,
          *         <code>false</code> if not.
          */
-        bool syncInit();
+        bool syncConfigInit();
         
         /** 
          * Starts exiting this node.
          */
-        void startExit();
+        void startConfigExit();
 
         /** 
          * Synchronize the exit of the node.
@@ -132,13 +132,8 @@ namespace eqs
          * @return <code>true</code> if the node exited cleanly,
          *         <code>false</code> if not.
          */
-        bool syncExit();
+        bool syncConfigExit();
         
-        /** 
-         * Send the node the command to stop its execution.
-         */
-        void stop();
-
         /** 
          * Trigger the rendering of a new frame for this node.
          *
@@ -261,8 +256,8 @@ namespace eqs
         void _flushBarriers();
 
         /* Command handler functions. */
-        eqNet::CommandResult _cmdInitReply( eqNet::Command& command );
-        eqNet::CommandResult _cmdExitReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdConfigInitReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdConfigExitReply( eqNet::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Node* node );

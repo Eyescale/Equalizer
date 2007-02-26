@@ -17,8 +17,8 @@ public:
     const Model*    getModel() const    { return _model; }
 
 protected:
-    virtual bool init( const uint32_t initID );
-    virtual bool exit();
+    virtual bool configInit( const uint32_t initID );
+    virtual bool configExit();
 
 private:
     InitData _initData;

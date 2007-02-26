@@ -27,14 +27,14 @@ Node::Node()
                      eqNet::CommandFunc<Node>( this, &Node::_cmdCreatePipe ));
     registerCommand( CMD_NODE_DESTROY_PIPE,
                     eqNet::CommandFunc<Node>( this, &Node::_cmdDestroyPipe ));
-    registerCommand( CMD_NODE_INIT, 
+    registerCommand( CMD_NODE_CONFIG_INIT, 
                      eqNet::CommandFunc<Node>( this, &Node::_cmdPush ));
-    registerCommand( REQ_NODE_INIT,
-                     eqNet::CommandFunc<Node>( this, &Node::_reqInit ));
-    registerCommand( CMD_NODE_EXIT,
+    registerCommand( REQ_NODE_CONFIG_INIT,
+                     eqNet::CommandFunc<Node>( this, &Node::_reqConfigInit ));
+    registerCommand( CMD_NODE_CONFIG_EXIT,
                      eqNet::CommandFunc<Node>( this, &Node::_cmdPush ));
-    registerCommand( REQ_NODE_EXIT,
-                     eqNet::CommandFunc<Node>( this, &Node::_reqExit ));
+    registerCommand( REQ_NODE_CONFIG_EXIT,
+                     eqNet::CommandFunc<Node>( this, &Node::_reqConfigExit ));
 
     EQINFO << " New eq::Node @" << (void*)this << endl;
 }
@@ -175,28 +175,28 @@ eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_reqInit( eqNet::Command& command )
+eqNet::CommandResult Node::_reqConfigInit( eqNet::Command& command )
 {
-    const NodeInitPacket* packet = command.getPacket<NodeInitPacket>();
-    EQINFO << "handle node init (node) " << packet << endl;
+    const NodeConfigInitPacket* packet = command.getPacket<NodeConfigInitPacket>();
+    EQINFO << "handle node configInit (node) " << packet << endl;
 
     _error.clear();
-    NodeInitReplyPacket reply( packet );
-    reply.result = init( packet->initID );
+    NodeConfigInitReplyPacket reply( packet );
+    reply.result = configInit( packet->initID );
 
     send( command.getNode(), reply, _error );
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_reqExit( eqNet::Command& command )
+eqNet::CommandResult Node::_reqConfigExit( eqNet::Command& command )
 {
-    const NodeExitPacket* packet = command.getPacket<NodeExitPacket>();
-    EQINFO << "handle node exit " << packet << endl;
+    const NodeConfigExitPacket* packet = command.getPacket<NodeConfigExitPacket>();
+    EQINFO << "handle node configExit " << packet << endl;
 
-    exit();
+    configExit();
     _flushObjects();
 
-    NodeExitReplyPacket reply( packet );
+    NodeConfigExitReplyPacket reply( packet );
     send( command.getNode(), reply );
 
     return eqNet::COMMAND_HANDLED;
