@@ -9,19 +9,9 @@
 
 namespace eqNet
 {
-    enum ObjectCommand
-    {
-        CMD_OBJECT_INSTANCE_DATA,
-        REQ_OBJECT_INSTANCE_DATA,
-        CMD_OBJECT_DELTA_DATA,
-        REQ_OBJECT_DELTA_DATA,
-        CMD_OBJECT_COMMIT,
-        CMD_OBJECT_CUSTOM // must be last
-    };
-
     enum NodeCommand
     {
-        CMD_NODE_STOP = CMD_OBJECT_CUSTOM,
+        CMD_NODE_STOP,
         REQ_NODE_STOP,
         CMD_NODE_MESSAGE,
         CMD_NODE_MAP_SESSION,
@@ -39,7 +29,7 @@ namespace eqNet
 
     enum SessionCommand
     {
-        CMD_SESSION_GEN_IDS = CMD_OBJECT_CUSTOM,
+        CMD_SESSION_GEN_IDS,
         CMD_SESSION_GEN_IDS_REPLY,
         CMD_SESSION_SET_ID_MASTER,
         CMD_SESSION_GET_ID_MASTER,
@@ -57,16 +47,21 @@ namespace eqNet
         CMD_SESSION_CUSTOM // must be last
     };
 
+    enum ObjectCommand
+    {
+        CMD_OBJECT_INSTANCE_DATA,
+        REQ_OBJECT_INSTANCE_DATA,
+        CMD_OBJECT_DELTA_DATA,
+        REQ_OBJECT_DELTA_DATA,
+        CMD_OBJECT_COMMIT,
+        CMD_OBJECT_CUSTOM // must be last
+    };
+
     enum BarrierCommand
     {
         CMD_BARRIER_ENTER = CMD_OBJECT_CUSTOM,
         CMD_BARRIER_ENTER_REPLY,
         CMD_BARRIER_ALL
-    };
-
-    enum UserCommand
-    {
-        CMD_USER_CUSTOM // must be last
     };
 };
 

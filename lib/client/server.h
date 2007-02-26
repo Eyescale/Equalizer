@@ -5,12 +5,11 @@
 #ifndef EQ_SERVER_H
 #define EQ_SERVER_H
 
-#include <eq/net/node.h>
-
-#include "commands.h"
+#include <eq/net/node.h> // base class
 
 namespace eq
 {
+    class Client;
     class Config;
     class ConfigParams;
     class Node;
@@ -23,6 +22,11 @@ namespace eq
          * Constructs a new server.
          */
         Server();
+
+        /** @name Data Access */
+        //*{
+        eqBase::RefPtr<Client> getClient(){ return _client; }
+        //*}
 
         /** 
          * Chooses a configuration on the server.
@@ -42,7 +46,7 @@ namespace eq
          *
          * @param config the configuration.
          */
-        void    releaseConfig( Config* config );
+        void releaseConfig( Config* config );
 
     protected:
         /**
@@ -51,10 +55,15 @@ namespace eq
         virtual ~Server();
 
     private:
+        /** The local client connected to the server */
+        eqBase::RefPtr<Client> _client;
+        friend class Client;
+
         /* The command handler functions. */
         eqNet::CommandResult _cmdCreateConfig( eqNet::Command& command );
         eqNet::CommandResult _cmdDestroyConfig( eqNet::Command& command );
         eqNet::CommandResult _cmdChooseConfigReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdReleaseConfigReply( eqNet::Command& command );
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Server* server )

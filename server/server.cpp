@@ -171,10 +171,14 @@ eqNet::CommandResult Server::_reqReleaseConfig( eqNet::Command& command )
         command.getPacket<eq::ServerReleaseConfigPacket>();
     EQINFO << "Handle release config " << packet << endl;
 
-    Config* config = _appConfigs[packet->configID];
+    eq::ServerReleaseConfigReplyPacket reply( packet );
+    RefPtr<eqNet::Node>                node   = command.getNode();
+    Config*                            config = _appConfigs[packet->configID];
+
     if( !config )
     {
         EQWARN << "Release request for unknown config" << endl;
+        node->send( reply );
         return eqNet::COMMAND_HANDLED;
     }
 
@@ -184,6 +188,8 @@ eqNet::CommandResult Server::_reqReleaseConfig( eqNet::Command& command )
 
     _appConfigs.erase( packet->configID );
     delete config;
+
+    node->send( reply );
     return eqNet::COMMAND_HANDLED;
 }
 

@@ -12,6 +12,7 @@
 
 namespace eq
 {
+    class Client;
     class Node;
     class SceneObject;
     class Server;
@@ -29,7 +30,10 @@ namespace eq
          */
         Config();
 
-        virtual ~Config();
+        /** @name Data Access */
+        //*{
+        eqBase::RefPtr< Client > getClient();
+        //*}
 
         /** 
          * Initialises this configuration.
@@ -143,10 +147,14 @@ namespace eq
         const std::string& getErrorMessage() const { return _error; }
         //@}
 
+    protected:
+        virtual ~Config();
+
     private:
-        friend class Server;
         /** The node identifier of the node running the application thread. */
         eqNet::NodeID _appNodeID;
+        friend class Server;
+
         /** The node running the application thread. */
         eqBase::RefPtr<eqNet::Node> _appNode;
 
@@ -171,8 +179,8 @@ namespace eq
         /** The command functions. */
         eqNet::CommandResult _cmdCreateNode( eqNet::Command& command );
         eqNet::CommandResult _cmdDestroyNode( eqNet::Command& command );
-        eqNet::CommandResult _cmdInitReply( eqNet::Command& command );
-        eqNet::CommandResult _cmdExitReply( eqNet::Command& command );
+        eqNet::CommandResult _reqInitReply( eqNet::Command& command );
+        eqNet::CommandResult _reqExitReply( eqNet::Command& command );
         eqNet::CommandResult _cmdStartFrameReply( eqNet::Command& command );
         eqNet::CommandResult _cmdEndFrameReply( eqNet::Command& command );
         eqNet::CommandResult _cmdFinishFramesReply( eqNet::Command& command );

@@ -625,6 +625,7 @@ bool Config::_exitNodes()
     destroyConfigPacket.configID  = _id;
 
     eq::ConfigDestroyNodePacket destroyNodePacket;
+    eq::ClientExitPacket        clientExitPacket;
 
     bool success = true;
     for( vector<Node*>::const_iterator i = exitingNodes.begin();
@@ -643,12 +644,10 @@ bool Config::_exitNodes()
         send( netNode, destroyNodePacket );
 
         if( node != _appNode )
+        {
             netNode->send( destroyConfigPacket );
-
-        if( netNode->getState() != eqNet::Node::STATE_STOPPED &&
-            node != _appNode )
-
-            EQWARN << "Config::exit: Node should have exited by now" << endl;
+            netNode->send( clientExitPacket );
+        }
 
         node->setNode( 0 );
         deregisterObject( node );

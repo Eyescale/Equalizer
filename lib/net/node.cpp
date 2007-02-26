@@ -81,10 +81,12 @@ Node::~Node()
 
 bool Node::initLocal( int argc, char** argv )
 {
+#ifndef NDEBUG
     EQINFO << "args: ";
     for( int i=0; i<argc; i++ )
          EQINFO << argv[i] << ", ";
     EQINFO << endl;
+#endif
 
     // We do not use getopt_long because it really does not work due to the
     // following aspects:
@@ -641,22 +643,28 @@ void Node::_redispatchCommands()
             {
                 case COMMAND_HANDLED:
                 case COMMAND_DISCARD:
-                {
                     _pendingCommands.erase( i );
                     _commandCache.release( command );
                     changes = true;
-                }
-                break;
+                    break;
 
                 case COMMAND_ERROR:
                     EQERROR << "Error handling command " << command << endl;
                     EQASSERT(0);
                     break;
                 
-                // Already a pushed packet?!
                 case COMMAND_PUSH:
-                    EQUNIMPLEMENTED;
-                    
+                {
+                    const bool pushed = pushCommand( *command );
+                    EQASSERTINFO( pushed, "Error handling command packet: "
+                                  << " pushCommand failed for " << *command
+                                  << endl );                    
+
+                    _pendingCommands.erase( i );
+                    _commandCache.release( command );
+                    changes = true;
+                    break;
+                }
                 case COMMAND_REDISPATCH:
                     break;
 
@@ -687,9 +695,10 @@ CommandResult Node::dispatchCommand( Command& command )
                 static_cast<SessionPacket*>( command.getPacket( ));
             const uint32_t       id            = sessionPacket->sessionID;
             Session*             session       = _sessions[id];
-            EQASSERTINFO( session, sessionPacket );
+            EQASSERTINFO( session, "Can't find session for " << sessionPacket );
             
-            return session->dispatchCommand( command );
+            const CommandResult result = session->dispatchCommand( command );
+            return result;
         }
 
         default:

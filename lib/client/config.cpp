@@ -4,6 +4,7 @@
 
 #include "config.h"
 
+#include "client.h"
 #include "configEvent.h"
 #include "frame.h"
 #include "frameData.h"
@@ -28,9 +29,13 @@ Config::Config()
     registerCommand( CMD_CONFIG_DESTROY_NODE,
                   eqNet::CommandFunc<Config>( this, &Config::_cmdDestroyNode ));
     registerCommand( CMD_CONFIG_INIT_REPLY, 
-                    eqNet::CommandFunc<Config>( this, &Config::_cmdInitReply ));
+                    eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
+    registerCommand( REQ_CONFIG_INIT_REPLY, 
+                    eqNet::CommandFunc<Config>( this, &Config::_reqInitReply ));
     registerCommand( CMD_CONFIG_EXIT_REPLY, 
-                    eqNet::CommandFunc<Config>( this, &Config::_cmdExitReply ));
+                    eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
+    registerCommand( REQ_CONFIG_EXIT_REPLY, 
+                    eqNet::CommandFunc<Config>( this, &Config::_reqExitReply ));
     registerCommand( CMD_CONFIG_START_FRAME_REPLY, 
               eqNet::CommandFunc<Config>( this, &Config::_cmdStartFrameReply ));
     registerCommand( CMD_CONFIG_END_FRAME_REPLY, 
@@ -45,6 +50,15 @@ Config::~Config()
 {
     _appNodeID = eqNet::NodeID::ZERO;
     _appNode   = 0;
+}
+
+eqBase::RefPtr<Client> Config::getClient()
+{ 
+    RefPtr<eqNet::Node> node = getServer();
+    EQASSERT( dynamic_cast< Server* >( node.get( )));
+
+    RefPtr< Server > server = RefPtr_static_cast< eqNet::Node, Server >( node );
+    return server->getClient(); 
 }
 
 void Config::_addNode( Node* node )
@@ -84,10 +98,10 @@ bool Config::init( const uint32_t initID )
     packet.headMatrixID = _headMatrix.getID();
 
     send( packet );
-#if 0
+    
+    RefPtr< Client > client = getClient();
     while( !_requestHandler.isServed( packet.requestID ))
-        _processRequest();
-#endif
+        client->processCommand();
     const bool ret = ( _requestHandler.waitRequest( packet.requestID ) != 0 );
 
     if( !ret )
@@ -100,10 +114,10 @@ bool Config::exit()
     ConfigExitPacket packet;
     packet.requestID = _requestHandler.registerRequest();
     send( packet );
-#if 0
+
+    RefPtr< Client > client = getClient();
     while( !_requestHandler.isServed( packet.requestID ))
-        _processRequest();
-#endif
+        client->processCommand();
     const bool ret = ( _requestHandler.waitRequest( packet.requestID ) != 0 );
 
     deregisterObject( &_headMatrix );
@@ -127,9 +141,11 @@ uint32_t Config::endFrame()
 {
     ConfigEndFramePacket packet;
     packet.requestID = _requestHandler.registerRequest();
+
     send( packet );
     const int frameNumber = 
         (uint32_t)(long long)(_requestHandler.waitRequest(packet.requestID));
+
     handleEvents();
     EQLOG( LOG_ANY ) << "------ End Frame ------" << endl;
     return frameNumber;
@@ -140,8 +156,10 @@ uint32_t Config::finishFrames()
     ConfigFinishFramesPacket packet;
     packet.requestID = _requestHandler.registerRequest();
     send( packet );
+
     const int framesNumber = 
         (uint32_t)(long long)(_requestHandler.waitRequest(packet.requestID));
+    handleEvents();
     EQLOG( LOG_ANY ) << "---- Finish Frames ----" << endl;
     return framesNumber;
 }
@@ -211,8 +229,6 @@ eqNet::CommandResult Config::_cmdDestroyNode( eqNet::Command& command )
     if( !node )
         return eqNet::COMMAND_HANDLED;
 
-    node->_thread->join(); // TODO: Move to node?
-
     _removeNode( node );
     detachObject( node );
     delete node;
@@ -220,7 +236,7 @@ eqNet::CommandResult Config::_cmdDestroyNode( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_cmdInitReply( eqNet::Command& command )
+eqNet::CommandResult Config::_reqInitReply( eqNet::Command& command )
 {
     const ConfigInitReplyPacket* packet = 
         command.getPacket<ConfigInitReplyPacket>();
@@ -230,7 +246,8 @@ eqNet::CommandResult Config::_cmdInitReply( eqNet::Command& command )
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;
 }
-eqNet::CommandResult Config::_cmdExitReply( eqNet::Command& command )
+
+eqNet::CommandResult Config::_reqExitReply( eqNet::Command& command )
 {
     const ConfigExitReplyPacket* packet = 
         command.getPacket<ConfigExitReplyPacket>();

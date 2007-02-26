@@ -26,9 +26,11 @@ CommandQueue::~CommandQueue()
 
 void CommandQueue::flush()
 {
-    EQASSERT( empty( ));
-
     _commandCacheLock.set();
+
+    if( !empty( ))
+        EQWARN << "Flushing non-empty command queue" << endl;
+
     if( _lastCommand )
         _commandCache.release( _lastCommand );
     _lastCommand = 0;

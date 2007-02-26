@@ -46,9 +46,8 @@ Command* CommandCache::alloc( Command& inCommand )
 
 void CommandCache::release( Command* command )
 {
-    EQASSERT( command->isValid( ));
-
-    if( (*command)->exceedsMinSize( )) // old packet was 'big', release
+    if( command->isValid() && (*command)->exceedsMinSize( ))
+        // old packet was 'big', release
         command->release();
     
     _freeCommands.push_back( command );

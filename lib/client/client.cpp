@@ -18,7 +18,12 @@ using namespace eqBase;
 using namespace std;
 
 Client::Client()
+        : _running( false )
 {
+    registerCommand( CMD_CLIENT_EXIT,
+                     eqNet::CommandFunc<Client>( this, &Client::_cmdPush ));
+    registerCommand( REQ_CLIENT_EXIT,
+                     eqNet::CommandFunc<Client>( this, &Client::_reqExit ));
     EQINFO << "New client at " << (void*)this << endl;
 }
 
@@ -60,19 +65,32 @@ bool Client::connectServer( RefPtr<Server> server )
         server->addConnectionDescription( connDesc );
     }
 
-    return connect( RefPtr_static_cast< Server, eqNet::Node >( server ));
+    if( connect( RefPtr_static_cast< Server, eqNet::Node >( server )))
+    {
+        server->_client = this;
+        return true;
+    }
+    return false;
     // TODO: Use app-local server if failed
 }
 
 bool Client::disconnectServer( RefPtr<Server> server )
 {
     if( !server->isConnected( ))
+    {
+        EQWARN << "Trying to disconnect unconnected server" << endl;
         return false;
+    }
 
-    if( !disconnect( RefPtr_static_cast< Server, eqNet::Node >( server )))
-        return false;
+    server->_client = 0;
+    const int success = disconnect( 
+        RefPtr_static_cast< Server, eqNet::Node >( server ));
+    if( !success )
+        EQWARN << "Server disconnect failed" << endl;
 
-    return true;
+    // cleanup
+    _commandQueue.flush();
+    return success;
 }
 
 
@@ -95,16 +113,37 @@ eqNet::Session* Client::createSession()
 
 void Client::clientLoop()
 {
-#if 0
-    while( config->isRunning( ))
+    EQINFO << "Entered client loop" << endl;
+
+    _running = true;
+    while( _running )
+        processCommand();
+
+    // cleanup
+    _commandQueue.flush();
+    EQASSERT( !hasSessions( ));
+
+    return;
+}
+
+void Client::processCommand()
+{
+    eqNet::Command* command = _commandQueue.pop();
+    switch( dispatchCommand( *command ))
     {
-        config->unlockFrame();
-        config->lockFrame();
+        case eqNet::COMMAND_HANDLED:
+        case eqNet::COMMAND_DISCARD:
+            break;
+            
+        case eqNet::COMMAND_ERROR:
+            EQERROR << "Error handling command packet" << endl;
+            abort();
+            
+        case eqNet::COMMAND_PUSH:
+            EQUNIMPLEMENTED;
+        case eqNet::COMMAND_REDISPATCH:
+            EQUNIMPLEMENTED;
     }
-#else
-    _used.waitGE( 1 );  // Wait to be used once (see Server::_cmdCreateConfig)
-    _used.waitEQ( 0 );  // Wait to become unused (see Server::_cmdDestroyConfig)
-#endif
 }
 
 bool Client::runClient( const std::string& clientArgs )
@@ -125,6 +164,9 @@ eqNet::CommandResult Client::handleCommand( eqNet::Command& command )
 
     switch( command->datatype )
     {
+        case DATATYPE_EQ_CLIENT:
+            return invokeCommand( command );
+
         case DATATYPE_EQ_SERVER:
         {
             RefPtr<eqNet::Node> node = command.getNode();
@@ -138,4 +180,10 @@ eqNet::CommandResult Client::handleCommand( eqNet::Command& command )
         default:
             return eqNet::COMMAND_ERROR;
     }
+}
+
+eqNet::CommandResult Client::_reqExit( eqNet::Command& command )
+{
+    _running = false;
+    return eqNet::COMMAND_HANDLED;
 }

@@ -222,8 +222,11 @@ void Session::attachObject( Object* object, const uint32_t id )
 
 void Session::detachObject( Object* object )
 {
+    EQASSERT( object );
     if( _localNode->inReceiverThread( ));
     {
+        CHECK_THREAD( _receiverThread );
+
         const uint32_t            id      = object->getID();
         EQASSERT( id != EQ_ID_INVALID );
         EQASSERT( _objects.find( id ) != _objects.end( ));
@@ -339,7 +342,6 @@ void Session::deregisterObject( Object* object )
 //===========================================================================
 // Packet handling
 //===========================================================================
-
 CommandResult Session::dispatchCommand( Command& command )
 {
     EQVERB << "dispatch " << command << endl;
@@ -437,6 +439,7 @@ CommandResult Session::_handleObjectCommand( Command& command )
 
 CommandResult Session::_cmdGenIDs( Command& command )
 {
+    CHECK_THREAD( _receiverThread );
     const SessionGenIDsPacket* packet =command.getPacket<SessionGenIDsPacket>();
     EQINFO << "Cmd gen IDs: " << packet << endl;
 
@@ -449,6 +452,7 @@ CommandResult Session::_cmdGenIDs( Command& command )
 
 CommandResult Session::_cmdGenIDsReply( Command& command )
 {
+    CHECK_THREAD( _receiverThread );
     const SessionGenIDsReplyPacket* packet =
         command.getPacket<SessionGenIDsReplyPacket>();
     EQINFO << "Cmd gen IDs reply: " << packet << endl;
@@ -459,6 +463,7 @@ CommandResult Session::_cmdGenIDsReply( Command& command )
 
 CommandResult Session::_cmdSetIDMaster( Command& command )
 {
+    CHECK_THREAD( _receiverThread );
     const SessionSetIDMasterPacket* packet = 
         command.getPacket<SessionSetIDMasterPacket>();
     EQINFO << "Cmd set ID master: " << packet << endl;
@@ -473,6 +478,7 @@ CommandResult Session::_cmdSetIDMaster( Command& command )
 
 CommandResult Session::_cmdGetIDMaster( Command& command )
 {
+    CHECK_THREAD( _receiverThread );
     const SessionGetIDMasterPacket* packet =
         command.getPacket<SessionGetIDMasterPacket>();
     EQINFO << "handle get idMaster " << packet << endl;
@@ -502,6 +508,7 @@ CommandResult Session::_cmdGetIDMaster( Command& command )
 
 CommandResult Session::_cmdGetIDMasterReply( Command& command )
 {
+    CHECK_THREAD( _receiverThread );
     const SessionGetIDMasterReplyPacket* packet = 
         command.getPacket<SessionGetIDMasterReplyPacket>();
     EQINFO << "handle get idMaster reply " << packet << endl;
@@ -522,6 +529,7 @@ CommandResult Session::_cmdGetIDMasterReply( Command& command )
 
 CommandResult Session::_cmdAttachObject( Command& command )
 {
+    CHECK_THREAD( _receiverThread );
     const SessionAttachObjectPacket* packet = 
         command.getPacket<SessionAttachObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd attach object " << packet << endl;
@@ -535,6 +543,7 @@ CommandResult Session::_cmdAttachObject( Command& command )
 
 CommandResult Session::_cmdDetachObject( Command& command )
 {
+    CHECK_THREAD( _receiverThread );
     const SessionDetachObjectPacket* packet = 
         command.getPacket<SessionDetachObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd detach object " << packet << endl;
@@ -548,6 +557,7 @@ CommandResult Session::_cmdDetachObject( Command& command )
 
 CommandResult Session::_cmdMapObject( Command& command )
 {
+    CHECK_THREAD( _receiverThread );
     const SessionMapObjectPacket* packet = 
         command.getPacket<SessionMapObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd map object " << packet << endl;
@@ -622,7 +632,6 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
 CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
 {
     CHECK_THREAD( _receiverThread );
-
     const SessionSubscribeObjectSuccessPacket* packet = 
         command.getPacket<SessionSubscribeObjectSuccessPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd object subscribe success " << packet << endl;
@@ -656,7 +665,6 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
 CommandResult Session::_cmdSubscribeObjectReply( Command& command )
 {
     CHECK_THREAD( _receiverThread );
-
     const SessionSubscribeObjectReplyPacket* packet = 
         command.getPacket<SessionSubscribeObjectReplyPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd object subscribe reply " << packet << endl;

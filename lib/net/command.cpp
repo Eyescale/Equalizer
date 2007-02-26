@@ -33,7 +33,7 @@ Command& Command::operator = ( Command& rhs )
     if( !rhs._packet )   // empty holder
         return *this;
 
-    // transfer packet to avoid copy
+    // transfer packet avoiding copy
     _packet        = rhs._packet;
     _node          = rhs._node;
     _localNode     = rhs._localNode;

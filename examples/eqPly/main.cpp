@@ -105,7 +105,8 @@ int main( int argc, char** argv )
 
     // 7. cleanup and exit
     server->releaseConfig( config );
-    client->disconnectServer( server );
+    if( !client->disconnectServer( server ))
+        EQERROR << "Client::disconnectServer failed" << endl;
     server = 0;
 
     client->exitLocal();

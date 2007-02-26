@@ -29,6 +29,23 @@ namespace eq
     };
 
     //------------------------------------------------------------
+    // Client
+    //------------------------------------------------------------
+    struct ClientPacket : public eqNet::Packet
+    {
+        ClientPacket(){ datatype = DATATYPE_EQ_CLIENT; }
+    };
+
+    struct ClientExitPacket : public ClientPacket
+    {
+        ClientExitPacket()
+            {
+                command = CMD_CLIENT_EXIT;
+                size    = sizeof( ClientExitPacket );
+            }
+    };
+
+    //------------------------------------------------------------
     // Server
     //------------------------------------------------------------
     struct ServerPacket : public eqNet::Packet
@@ -99,6 +116,20 @@ namespace eq
             }
 
         uint32_t configID;
+        uint32_t requestID;
+    };
+
+    struct ServerReleaseConfigReplyPacket : public ServerPacket
+    {
+        ServerReleaseConfigReplyPacket( const ServerReleaseConfigPacket*
+                                        requestPacket )
+            {
+                command   = CMD_SERVER_RELEASE_CONFIG_REPLY;
+                size      = sizeof( ServerReleaseConfigReplyPacket );
+                requestID = requestPacket->requestID;
+            }
+
+        uint32_t requestID;
     };
 
     //------------------------------------------------------------

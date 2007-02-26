@@ -13,10 +13,9 @@ using namespace eqBase;
 using namespace std;
 
 RequestHandler::RequestHandler( const bool threadSafe )
-        : _requestID(1)
-{
-    _mutex               = threadSafe ? new Lock() : 0;
-}
+        : _mutex( threadSafe ? new Lock() : 0 ),
+          _requestID( 1 ) 
+{}
 
 RequestHandler::~RequestHandler()
 {

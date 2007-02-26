@@ -27,6 +27,8 @@ Server::Server()
                 eqNet::CommandFunc<Server>( this, &Server::_cmdDestroyConfig ));
     registerCommand( CMD_SERVER_CHOOSE_CONFIG_REPLY, 
             eqNet::CommandFunc<Server>( this, &Server::_cmdChooseConfigReply ));
+    registerCommand( CMD_SERVER_RELEASE_CONFIG_REPLY, 
+           eqNet::CommandFunc<Server>( this, &Server::_cmdReleaseConfigReply ));
 
     EQINFO << "New server at " << (void*)this << endl;
 }
@@ -53,8 +55,8 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
 #endif
     send( packet, rendererInfo );
 
-    Config* config = static_cast<Config*>(
-        _requestHandler.waitRequest( packet.requestID ));
+    Config* config = static_cast<Config*>(_requestHandler.waitRequest( 
+                                              packet.requestID ));
     if( !config )
         return 0;
 
@@ -63,13 +65,14 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
 
 void Server::releaseConfig( Config* config )
 {
-    if( !isConnected( ))
-        return;
+    EQASSERT( isConnected( ));
 
     ServerReleaseConfigPacket packet;
-    packet.configID = config->getID();
+    packet.requestID = _requestHandler.registerRequest( config );
+    packet.configID  = config->getID();
     send( packet );
-    delete config;
+
+    _requestHandler.waitRequest( packet.requestID );
 }
 
 //---------------------------------------------------------------------------
@@ -90,10 +93,6 @@ eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Command& command )
     localNode->addSession( config, command.getNode(), packet->configID,
                            packet->name );
 
-    EQASSERT( dynamic_cast<Client*>( localNode.get( )));
-    Client* client = static_cast<Client*>( localNode.get( ));
-    client->refUsed();
-
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -111,10 +110,6 @@ eqNet::CommandResult Server::_cmdDestroyConfig( eqNet::Command& command )
 
     localNode->removeSession( config );
     delete config;
-
-    EQASSERT( dynamic_cast<Client*>( localNode.get( )));
-    Client* client = static_cast<Client*>( localNode.get( ));
-    client->unrefUsed();
 
     return eqNet::COMMAND_HANDLED;
 }
@@ -140,5 +135,22 @@ eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Command& command )
                            packet->sessionName);
 
     _requestHandler.serveRequest( packet->requestID, config );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Server::_cmdReleaseConfigReply( eqNet::Command& command )
+{
+    const ServerReleaseConfigReplyPacket* packet = 
+        command.getPacket<ServerReleaseConfigReplyPacket>();
+
+    RefPtr<Node> localNode = command.getLocalNode();
+    Config*      config    = static_cast<Config*>
+        ( _requestHandler.getRequestData( packet->requestID ));
+    EQASSERT( config );
+    
+    localNode->removeSession( config );
+    delete config;
+    _requestHandler.serveRequest( packet->requestID, 0 );
+    
     return eqNet::COMMAND_HANDLED;
 }

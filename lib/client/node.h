@@ -113,9 +113,6 @@ namespace eq
         /** The reason for the last error. */
         std::string            _error;
 
-        /** The receiver->node thread command queue. */
-        eqNet::CommandQueue    _commandQueue;
-
         /** All barriers mapped by the node. */
         eqNet::IDHash< eqNet::Barrier* > _barriers;
         eqBase::Lock                     _barriersMutex;
@@ -124,40 +121,15 @@ namespace eq
         FrameDataCache _frameDatas;
         eqBase::Lock   _frameDatasMutex;
 
-        /** The node thread. */
-        class NodeThread : public eqBase::Thread
-        {
-        public:
-            NodeThread( Node* node ) 
-                    : _node( node ) {}
-            virtual void* run(){ return _node->_runThread(); }
-        private:
-            Node* _node;
-        };
-        NodeThread* _thread;
-
-        void* _runThread();
-
         void _addPipe( Pipe* pipe );
         void _removePipe( Pipe* pipe );
         Pipe* _findPipe( const uint32_t id );
 
         void _flushObjects();
 
-        /** 
-         * Push a command from the receiver to the node thread to be handled
-         * asynchronously.
-         * 
-         * @param node the node sending the packet.
-         * @param packet the command packet.
-         */
-        eqNet::CommandResult _pushCommand( eqNet::Command& command )
-            { _commandQueue.push( command ); return eqNet::COMMAND_HANDLED; }
-
         /** The command functions. */
         eqNet::CommandResult _cmdCreatePipe( eqNet::Command& command );
         eqNet::CommandResult _cmdDestroyPipe( eqNet::Command& command );
-        eqNet::CommandResult _cmdInit( eqNet::Command& command );
         eqNet::CommandResult _reqInit( eqNet::Command& command );
         eqNet::CommandResult _reqExit( eqNet::Command& command );
     };

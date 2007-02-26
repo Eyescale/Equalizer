@@ -21,30 +21,27 @@ using namespace eqBase;
 using namespace std;
 
 Node::Node()
-        : _config(NULL)
+        : _config(0)
 {
     registerCommand( CMD_NODE_CREATE_PIPE, 
                      eqNet::CommandFunc<Node>( this, &Node::_cmdCreatePipe ));
     registerCommand( CMD_NODE_DESTROY_PIPE,
                     eqNet::CommandFunc<Node>( this, &Node::_cmdDestroyPipe ));
     registerCommand( CMD_NODE_INIT, 
-                     eqNet::CommandFunc<Node>( this, &Node::_cmdInit ));
+                     eqNet::CommandFunc<Node>( this, &Node::_cmdPush ));
     registerCommand( REQ_NODE_INIT,
                      eqNet::CommandFunc<Node>( this, &Node::_reqInit ));
     registerCommand( CMD_NODE_EXIT,
-                     eqNet::CommandFunc<Node>( this, &Node::_pushCommand ));
+                     eqNet::CommandFunc<Node>( this, &Node::_cmdPush ));
     registerCommand( REQ_NODE_EXIT,
                      eqNet::CommandFunc<Node>( this, &Node::_reqExit ));
 
-    _thread = new NodeThread( this );
     EQINFO << " New eq::Node @" << (void*)this << endl;
 }
 
 Node::~Node()
 {
     EQINFO << " Delete eq::Node @" << (void*)this << endl;
-    delete _thread;
-    _thread = NULL;
 }
 
 void Node::_addPipe( Pipe* pipe )
@@ -59,7 +56,7 @@ void Node::_removePipe( Pipe* pipe )
     EQASSERT( iter != _pipes.end( ))
     
     _pipes.erase( iter );
-    pipe->_node = NULL;
+    pipe->_node = 0;
 }
 
 Pipe* Node::_findPipe( const uint32_t id )
@@ -145,45 +142,6 @@ void Node::_flushObjects()
     _frameDatasMutex.unset();
 }
 
-
-void* Node::_runThread()
-{
-    EQINFO << "Entered node thread" << endl;
-
-    Config* config = getConfig();
-    EQASSERT( config );
-
-#if 0
-    while( node->isRunning( ))
-    {
-        node->startFrame();
-        node->endFrame();
-    }
-#else
-    while( _thread->isRunning( ))
-    {
-        eqNet::Command* command = _commandQueue.pop();
-        switch( config->dispatchCommand( *command ))
-        {
-            case eqNet::COMMAND_HANDLED:
-            case eqNet::COMMAND_DISCARD:
-                break;
-
-            case eqNet::COMMAND_ERROR:
-                EQERROR << "Error handling command packet" << endl;
-                abort();
-
-            case eqNet::COMMAND_PUSH:
-                EQUNIMPLEMENTED;
-            case eqNet::COMMAND_REDISPATCH:
-                EQUNIMPLEMENTED;
-        }
-    }
-#endif
-    EQUNREACHABLE; // thread exits from _reqExit
-    return EXIT_SUCCESS;
-}
-
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
@@ -208,22 +166,12 @@ eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Command& command )
     EQINFO << "Handle destroy pipe " << packet << endl;
 
     Pipe* pipe = _findPipe( packet->pipeID );
-    pipe->_thread->join(); // wait for pipe thread termination. move to pipe
+    pipe->_thread->join(); // wait for pipe thread termination. move to pipe?
 
     _removePipe( pipe );
     _config->detachObject( pipe );
     delete pipe;
 
-    return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult Node::_cmdInit( eqNet::Command& command )
-{
-    EQINFO << "handle node init (recv) " << command.getPacket<NodeInitPacket>()
-           << endl;
-
-    _thread->start();
-    _pushCommand( command );
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -251,13 +199,6 @@ eqNet::CommandResult Node::_reqExit( eqNet::Command& command )
     NodeExitReplyPacket reply( packet );
     send( command.getNode(), reply );
 
-    // cleanup
-    _commandQueue.flush();
-
-    // exit
-    EQINFO << "Leaving node thread" << endl;
-    _thread->exit();
-    EQUNREACHABLE;
     return eqNet::COMMAND_HANDLED;
 }
 

@@ -18,6 +18,7 @@ namespace eq
         CMD_SERVER_DESTROY_CONFIG,
         CMD_SERVER_RELEASE_CONFIG,
         REQ_SERVER_RELEASE_CONFIG,
+        CMD_SERVER_RELEASE_CONFIG_REPLY,
         CMD_SERVER_INIT_CONFIG,
         REQ_SERVER_INIT_CONFIG, // REQ must follow CMD
         CMD_SERVER_CUSTOM
@@ -25,7 +26,8 @@ namespace eq
 
     enum ClientCommand
     {
-        CMD_CLIENT_UNUSED               = CMD_SERVER_CUSTOM,
+        CMD_CLIENT_EXIT               = CMD_SERVER_CUSTOM,
+        REQ_CLIENT_EXIT,
         CMD_CLIENT_CUSTOM
     };
 
@@ -34,9 +36,11 @@ namespace eq
         CMD_CONFIG_INIT                 = eqNet::CMD_SESSION_CUSTOM,
         REQ_CONFIG_INIT, // REQ must always follow CMD
         CMD_CONFIG_INIT_REPLY,
+        REQ_CONFIG_INIT_REPLY,
         CMD_CONFIG_EXIT,
         REQ_CONFIG_EXIT, // REQ must always follow CMD
         CMD_CONFIG_EXIT_REPLY,
+        REQ_CONFIG_EXIT_REPLY,
         CMD_CONFIG_CREATE_NODE,
         CMD_CONFIG_DESTROY_NODE,
         CMD_CONFIG_START_FRAME,
@@ -54,10 +58,10 @@ namespace eq
 
     enum NodeCommand
     {
-        CMD_NODE_INIT = eqNet::CMD_NODE_CUSTOM,
+        CMD_NODE_INIT = eqNet::CMD_OBJECT_CUSTOM,
         REQ_NODE_INIT,
         CMD_NODE_INIT_REPLY,
-        CMD_NODE_EXIT,         // Node used as object from here on
+        CMD_NODE_EXIT,
         REQ_NODE_EXIT,
         CMD_NODE_EXIT_REPLY,
         CMD_NODE_CREATE_PIPE,

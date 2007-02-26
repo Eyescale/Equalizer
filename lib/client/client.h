@@ -5,10 +5,8 @@
 #ifndef EQ_CLIENT_H
 #define EQ_CLIENT_H
 
-#include <eq/client/commands.h>
-
-#include <eq/base/monitor.h>
-#include <eq/net/node.h>
+#include <eq/net/commandQueue.h> // member
+#include <eq/net/node.h>         // base class
 
 namespace eq
 {
@@ -44,21 +42,23 @@ namespace eq
          */
         bool disconnectServer( eqBase::RefPtr<Server> server );
 
-        /** @name Referenced by node threads. */
-        //*{
-        void refUsed() { ++_used; }
-        void unrefUsed() { --_used; }
-        //*}
+        /** 
+         * Get and process one command from the node command queue. Used
+         * internally to run nonthreaded commands.
+         */
+        void processCommand();
+
+    private:
+        /** The receiver->node command queue. */
+        eqNet::CommandQueue    _commandQueue;
+        
+        bool _running;
 
         /** @sa eqNet::Node::runClient */
         virtual bool runClient( const std::string& clientArgs );
 
-    protected:
         /** @sa eqNet::Node::clientLoop */
         virtual void clientLoop();
-
-        /** @sa eqNet::Node::handleCommand */
-        virtual eqNet::CommandResult handleCommand( eqNet::Command& command );
 
         /** @sa eqNet::Node::createNode */
         virtual eqBase::RefPtr<eqNet::Node> createNode( const CreateReason
@@ -67,8 +67,15 @@ namespace eq
         /** @sa eqNet::Node::createSession */
         virtual eqNet::Session* createSession();
 
-    private:
-        eqBase::Monitor<uint32_t> _used;
+        /** @sa eqNet::Node::handleCommand */
+        virtual eqNet::CommandResult handleCommand( eqNet::Command& command );
+
+        /** @sa eqNet::Node::pushCommand */
+        virtual bool pushCommand( eqNet::Command& command )
+        { _commandQueue.push( command ); return true; }
+
+        /** The command functions. */
+        eqNet::CommandResult _reqExit( eqNet::Command& command );
     };
 }
 
