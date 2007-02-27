@@ -256,14 +256,14 @@ void Pipe::startFrame( const uint32_t frameID, const uint32_t frameNumber )
     {
         Window* window = getWindow( i );
         if( window->isUsed( ))
-            window->updateDraw( frameID );
+            window->updateDraw( frameID, frameNumber );
     }
 
     for( uint32_t i=0; i<nWindows; i++ )
     {
         Window* window = getWindow( i );
         if( window->isUsed( ))
-            window->updatePost( frameID );
+            window->updatePost( frameID, frameNumber );
     }
 
     eq::PipeFrameFinishPacket finishPacket;

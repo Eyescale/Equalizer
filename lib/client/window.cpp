@@ -53,6 +53,14 @@ eq::Window::Window()
                      eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
     registerCommand( REQ_WINDOW_CONFIG_EXIT, 
                    eqNet::CommandFunc<Window>( this, &Window::_reqConfigExit ));
+    registerCommand( CMD_WINDOW_FRAME_START,
+                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
+    registerCommand( REQ_WINDOW_FRAME_START,
+                   eqNet::CommandFunc<Window>( this, &Window::_reqFrameStart ));
+    registerCommand( CMD_WINDOW_FRAME_FINISH,
+                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
+    registerCommand( REQ_WINDOW_FRAME_FINISH,
+                  eqNet::CommandFunc<Window>( this, &Window::_reqFrameFinish ));
     registerCommand( CMD_WINDOW_FINISH, 
                      eqNet::CommandFunc<Window>( this, &Window::_pushCommand));
     registerCommand( REQ_WINDOW_FINISH, 
@@ -65,14 +73,6 @@ eq::Window::Window()
                      eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
     registerCommand( REQ_WINDOW_SWAP, 
                      eqNet::CommandFunc<Window>( this, &Window::_reqSwap));
-    registerCommand( CMD_WINDOW_STARTFRAME,
-                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
-    registerCommand( REQ_WINDOW_STARTFRAME,
-                    eqNet::CommandFunc<Window>( this, &Window::_reqStartFrame));
-    registerCommand( CMD_WINDOW_ENDFRAME, 
-                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
-    registerCommand( REQ_WINDOW_ENDFRAME, 
-                     eqNet::CommandFunc<Window>( this, &Window::_reqEndFrame));
 
 #ifdef GLX
     _xDrawable  = 0;
@@ -117,217 +117,6 @@ Channel* eq::Window::_findChannel( const uint32_t id )
             return channel;
     }
     return 0;
-}
-
-//---------------------------------------------------------------------------
-// command handlers
-//---------------------------------------------------------------------------
-eqNet::CommandResult eq::Window::_pushCommand( eqNet::Command& command )
-{
-    return ( _pipe ? _pipe->pushCommand( command ) : _cmdUnknown( command ));
-}
-
-eqNet::CommandResult eq::Window::_cmdCreateChannel( eqNet::Command& command )
-{
-    const WindowCreateChannelPacket* packet = 
-        command.getPacket<WindowCreateChannelPacket>();
-    EQINFO << "Handle create channel " << packet << endl;
-
-    Channel* channel = Global::getNodeFactory()->createChannel();
-    
-    getConfig()->attachObject( channel, packet->channelID );
-    _addChannel( channel );
-    return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult eq::Window::_cmdDestroyChannel(eqNet::Command& command ) 
-{
-    const WindowDestroyChannelPacket* packet =
-        command.getPacket<WindowDestroyChannelPacket>();
-    EQINFO << "Handle destroy channel " << packet << endl;
-
-    Channel* channel = _findChannel( packet->channelID );
-    EQASSERT( channel )
-
-    _removeChannel( channel );
-    Config*  config  = getConfig();
-    config->detachObject( channel );
-    
-    return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
-{
-    const WindowConfigInitPacket* packet = command.getPacket<WindowConfigInitPacket>();
-    EQINFO << "handle window configInit " << packet << endl;
-
-    if( packet->pvp.isValid( ))
-        _setPixelViewport( packet->pvp );
-    else
-        _setViewport( packet->vp );
-
-    _name = packet->name;
-    for( uint32_t i=0; i<IATTR_ALL; ++i )
-        _iAttributes[i] = packet->iattr[i];
-
-    _error.clear();
-    WindowConfigInitReplyPacket reply( packet );
-    reply.result = configInit( packet->initID );
-
-    RefPtr<eqNet::Node> node = command.getNode();
-    if( !reply.result )
-    {
-        send( node, reply, _error );
-        return eqNet::COMMAND_HANDLED;
-    }
-
-    const WindowSystem windowSystem = _pipe->getWindowSystem();
-    switch( windowSystem )
-    {
-        case WINDOW_SYSTEM_GLX:
-            if( !_xDrawable || !_glXContext )
-            {
-                EQERROR << "configInit() did not provide a drawable and context" 
-                        << endl;
-                reply.result = false;
-                send( node, reply );
-                return eqNet::COMMAND_HANDLED;
-            }
-            break;
-
-        case WINDOW_SYSTEM_CGL:
-            if( !_cglContext )
-            {
-                EQERROR << "configInit() did not provide an OpenGL context" 
-                        << endl;
-                reply.result = false;
-                send( node, reply );
-                return eqNet::COMMAND_HANDLED;
-            }
-            // TODO: pvp
-            break;
-
-        case WINDOW_SYSTEM_WGL:
-            if( !_wglWindowHandle || !_wglContext )
-            {
-                EQERROR << "configInit() did not provide a window handle and"
-                        << " context" << endl;
-                reply.result = false;
-                send( node, reply );
-                return eqNet::COMMAND_HANDLED;
-            }
-            break;
-
-        default: EQUNIMPLEMENTED;
-    }
-
-    reply.pvp = _pvp;
-
-    GLboolean glStereo;
-    GLboolean dBuffer;
-    glGetBooleanv( GL_STEREO, &glStereo );
-    glGetBooleanv( GL_DOUBLEBUFFER, &dBuffer );
-    _drawableConfig.doublebuffered = dBuffer;
-    _drawableConfig.stereo         = glStereo;
-    reply.drawableConfig           = _drawableConfig;
-
-    send( node, reply );
-
-    EventHandler* thread = EventHandler::get( windowSystem );
-    thread->addWindow( this );
-
-    return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult eq::Window::_reqConfigExit( eqNet::Command& command )
-{
-    const WindowConfigExitPacket* packet =
-        command.getPacket<WindowConfigExitPacket>();
-    EQINFO << "handle window configExit " << packet << endl;
-
-    EventHandler* thread = EventHandler::get( _pipe->getWindowSystem( ));
-    thread->removeWindow( this );
-
-    _pipe->testMakeCurrentWindow( this );
-    configExit();
-
-    WindowConfigExitReplyPacket reply( packet );
-    send( command.getNode(), reply );
-    return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult eq::Window::_reqFinish(eqNet::Command& command ) 
-{
-    _pipe->testMakeCurrentWindow( this );
-    finish();
-    return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult eq::Window::_reqBarrier( eqNet::Command& command )
-{
-    const WindowBarrierPacket* packet = 
-        command.getPacket<WindowBarrierPacket>();
-    EQVERB << "handle barrier " << packet << endl;
-    EQLOG( eqNet::LOG_BARRIER ) << "swap barrier " << packet->barrierID
-                                << " v" << packet->barrierVersion <<endl;
-    
-    Node*           node    = getNode();
-    eqNet::Barrier* barrier = node->getBarrier( packet->barrierID, 
-                                                packet->barrierVersion );
-
-    barrier->enter();
-    return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult eq::Window::_reqSwap(eqNet::Command& command ) 
-{
-    _pipe->testMakeCurrentWindow( this );
-    swapBuffers();
-    return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult eq::Window::_reqStartFrame(eqNet::Command& command ) 
-{
-    const WindowStartFramePacket* packet = 
-        command.getPacket<WindowStartFramePacket>();
-    EQVERB << "handle startFrame " << packet << endl;
-
-    _pipe->testMakeCurrentWindow( this );
-
-#ifdef GLX // handle window close request - see comment in configInitGLX
-    if( _pipe->getWindowSystem() == WINDOW_SYSTEM_GLX )
-    {
-        Display*  display = _pipe->getXDisplay();
-        Atom   deleteAtom = XInternAtom( display, "WM_DELETE_WINDOW", False );
-        WindowEvent event;
-        XEvent&     xEvent = event.xEvent;
-        while( XCheckTypedEvent( display, ClientMessage, &xEvent ))
-        {
-            if( xEvent.xany.window == _xDrawable &&
-                static_cast<Atom>( xEvent.xclient.data.l[0] ) == 
-                    deleteAtom )
-            {
-                event.window = this;
-                event.type   = WindowEvent::CLOSE;
-                processEvent( event );
-            }
-        }
-    }
-#endif
-
-    startFrame( packet->frameID );
-    return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult eq::Window::_reqEndFrame(eqNet::Command& command ) 
-{
-    const WindowEndFramePacket* packet =
-        command.getPacket<WindowEndFramePacket>();
-    EQVERB << "handle endFrame " << packet << endl;
-
-    _pipe->testMakeCurrentWindow( this );
-    endFrame( packet->frameID );
-    return eqNet::COMMAND_HANDLED;
 }
 
 //======================================================================
@@ -1132,4 +921,218 @@ bool eq::Window::processEvent( const WindowEvent& event )
     Config* config = getConfig();
     config->sendEvent( configEvent );
     return true;
+}
+
+//---------------------------------------------------------------------------
+// command handlers
+//---------------------------------------------------------------------------
+eqNet::CommandResult eq::Window::_pushCommand( eqNet::Command& command )
+{
+    return ( _pipe ? _pipe->pushCommand( command ) : _cmdUnknown( command ));
+}
+
+eqNet::CommandResult eq::Window::_cmdCreateChannel( eqNet::Command& command )
+{
+    const WindowCreateChannelPacket* packet = 
+        command.getPacket<WindowCreateChannelPacket>();
+    EQINFO << "Handle create channel " << packet << endl;
+
+    Channel* channel = Global::getNodeFactory()->createChannel();
+    
+    getConfig()->attachObject( channel, packet->channelID );
+    _addChannel( channel );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult eq::Window::_cmdDestroyChannel(eqNet::Command& command ) 
+{
+    const WindowDestroyChannelPacket* packet =
+        command.getPacket<WindowDestroyChannelPacket>();
+    EQINFO << "Handle destroy channel " << packet << endl;
+
+    Channel* channel = _findChannel( packet->channelID );
+    EQASSERT( channel )
+
+    _removeChannel( channel );
+    Config*  config  = getConfig();
+    config->detachObject( channel );
+    
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
+{
+    const WindowConfigInitPacket* packet = command.getPacket<WindowConfigInitPacket>();
+    EQINFO << "handle window configInit " << packet << endl;
+
+    if( packet->pvp.isValid( ))
+        _setPixelViewport( packet->pvp );
+    else
+        _setViewport( packet->vp );
+
+    _name = packet->name;
+    for( uint32_t i=0; i<IATTR_ALL; ++i )
+        _iAttributes[i] = packet->iattr[i];
+
+    _error.clear();
+    WindowConfigInitReplyPacket reply( packet );
+    reply.result = configInit( packet->initID );
+
+    RefPtr<eqNet::Node> node = command.getNode();
+    if( !reply.result )
+    {
+        send( node, reply, _error );
+        return eqNet::COMMAND_HANDLED;
+    }
+
+    const WindowSystem windowSystem = _pipe->getWindowSystem();
+    switch( windowSystem )
+    {
+        case WINDOW_SYSTEM_GLX:
+            if( !_xDrawable || !_glXContext )
+            {
+                EQERROR
+                    << "configInit() did not provide a drawable and context" 
+                    << endl;
+                reply.result = false;
+                send( node, reply );
+                return eqNet::COMMAND_HANDLED;
+            }
+            break;
+
+        case WINDOW_SYSTEM_CGL:
+            if( !_cglContext )
+            {
+                EQERROR << "configInit() did not provide an OpenGL context" 
+                        << endl;
+                reply.result = false;
+                send( node, reply );
+                return eqNet::COMMAND_HANDLED;
+            }
+            // TODO: pvp
+            break;
+
+        case WINDOW_SYSTEM_WGL:
+            if( !_wglWindowHandle || !_wglContext )
+            {
+                EQERROR << "configInit() did not provide a window handle and"
+                        << " context" << endl;
+                reply.result = false;
+                send( node, reply );
+                return eqNet::COMMAND_HANDLED;
+            }
+            break;
+
+        default: EQUNIMPLEMENTED;
+    }
+
+    reply.pvp = _pvp;
+
+    GLboolean glStereo;
+    GLboolean dBuffer;
+    glGetBooleanv( GL_STEREO, &glStereo );
+    glGetBooleanv( GL_DOUBLEBUFFER, &dBuffer );
+    _drawableConfig.doublebuffered = dBuffer;
+    _drawableConfig.stereo         = glStereo;
+    reply.drawableConfig           = _drawableConfig;
+
+    send( node, reply );
+
+    EventHandler* thread = EventHandler::get( windowSystem );
+    thread->addWindow( this );
+
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult eq::Window::_reqConfigExit( eqNet::Command& command )
+{
+    const WindowConfigExitPacket* packet =
+        command.getPacket<WindowConfigExitPacket>();
+    EQINFO << "handle window configExit " << packet << endl;
+
+    EventHandler* thread = EventHandler::get( _pipe->getWindowSystem( ));
+    thread->removeWindow( this );
+
+    _pipe->testMakeCurrentWindow( this );
+    configExit();
+
+    WindowConfigExitReplyPacket reply( packet );
+    send( command.getNode(), reply );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult eq::Window::_reqFrameStart( eqNet::Command& command )
+{
+    const WindowFrameStartPacket* packet = 
+        command.getPacket<WindowFrameStartPacket>();
+    EQVERB << "handle window frame start " << packet << endl;
+
+    //_grabFrame( packet->frameNumber ); single-threaded
+    _pipe->testMakeCurrentWindow( this );
+
+#ifdef GLX // handle window close request - see comment in configInitGLX
+    if( _pipe->getWindowSystem() == WINDOW_SYSTEM_GLX )
+    {
+        Display*  display = _pipe->getXDisplay();
+        Atom   deleteAtom = XInternAtom( display, "WM_DELETE_WINDOW", False );
+        WindowEvent event;
+        XEvent&     xEvent = event.xEvent;
+        while( XCheckTypedEvent( display, ClientMessage, &xEvent ))
+        {
+            if( xEvent.xany.window == _xDrawable &&
+                static_cast<Atom>( xEvent.xclient.data.l[0] ) == 
+                    deleteAtom )
+            {
+                event.window = this;
+                event.type   = WindowEvent::CLOSE;
+                processEvent( event );
+            }
+        }
+    }
+#endif
+
+    frameStart( packet->frameID, packet->frameNumber );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult eq::Window::_reqFrameFinish( eqNet::Command& command )
+{
+    const WindowFrameFinishPacket* packet =
+        command.getPacket<WindowFrameFinishPacket>();
+    EQVERB << "handle window frame sync " << packet << endl;
+
+    _pipe->testMakeCurrentWindow( this );
+    frameFinish( packet->frameID, packet->frameNumber );
+
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult eq::Window::_reqFinish(eqNet::Command& command ) 
+{
+    _pipe->testMakeCurrentWindow( this );
+    finish();
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult eq::Window::_reqBarrier( eqNet::Command& command )
+{
+    const WindowBarrierPacket* packet = 
+        command.getPacket<WindowBarrierPacket>();
+    EQVERB << "handle barrier " << packet << endl;
+    EQLOG( eqNet::LOG_BARRIER ) << "swap barrier " << packet->barrierID
+                                << " v" << packet->barrierVersion <<endl;
+    
+    Node*           node    = getNode();
+    eqNet::Barrier* barrier = node->getBarrier( packet->barrierID, 
+                                                packet->barrierVersion );
+
+    barrier->enter();
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult eq::Window::_reqSwap(eqNet::Command& command ) 
+{
+    _pipe->testMakeCurrentWindow( this );
+    swapBuffers();
+    return eqNet::COMMAND_HANDLED;
 }

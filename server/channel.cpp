@@ -165,7 +165,7 @@ void Channel::_sendConfigInit( const uint32_t initID )
     for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
         packet.iattr[i] = _iAttributes[i];
     
-    Object::send( _getNetNode(), packet, _name );
+    send( packet, _name );
     _state = STATE_INITIALIZING;
 }
 
@@ -197,7 +197,7 @@ void Channel::_sendConfigExit()
     eq::ChannelConfigExitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
-    Object::send( _getNetNode(), packet );
+    send( packet );
 }
 
 bool Channel::syncConfigExit()
@@ -215,8 +215,13 @@ bool Channel::syncConfigExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Channel::updateDraw( const uint32_t frameID )
+void Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
 {
+    eq::ChannelFrameStartPacket startPacket;
+    startPacket.frameID     = frameID;
+    startPacket.frameNumber = frameNumber;
+    send( startPacket );
+
     _pvp = _window->getPixelViewport();
 
     _pvp.x = 0;
@@ -230,6 +235,14 @@ void Channel::updateDraw( const uint32_t frameID )
         Compound* compound = config->getCompound( i );
         compound->updateChannel( this, frameID );
     }
+}
+
+void Channel::updatePost( const uint32_t frameID, const uint32_t frameNumber )
+{
+    eq::ChannelFrameFinishPacket finishPacket;
+    finishPacket.frameID     = frameID;
+    finishPacket.frameNumber = frameNumber;
+    send( finishPacket );
 }
 
 //===========================================================================

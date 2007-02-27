@@ -351,10 +351,12 @@ bool eqs::Window::syncConfigExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void eqs::Window::updateDraw( const uint32_t frameID )
+void eqs::Window::updateDraw( const uint32_t frameID, 
+                              const uint32_t frameNumber )
 {
-    eq::WindowStartFramePacket startPacket;
+    eq::WindowFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
+    startPacket.frameNumber = frameNumber;
     _send( startPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK start frame  " << &startPacket << endl;
 
@@ -363,26 +365,28 @@ void eqs::Window::updateDraw( const uint32_t frameID )
     {
         Channel* channel = getChannel( i );
         if( channel->isUsed( ))
-            channel->updateDraw( frameID );
+            channel->updateDraw( frameID, frameNumber );
     }
 }
 
-void eqs::Window::updatePost( const uint32_t frameID )
+void eqs::Window::updatePost( const uint32_t frameID, 
+                              const uint32_t frameNumber )
 {
     const uint32_t nChannels = this->nChannels();
     for( uint32_t i=0; i<nChannels; i++ )
     {
         Channel* channel = getChannel( i );
         if( channel->isUsed( ))
-            channel->updatePost( frameID );
+            channel->updatePost( frameID, frameNumber );
     }
 
     _updateSwap();
 
-    eq::WindowEndFramePacket endPacket;
-    endPacket.frameID = frameID;
-    _send( endPacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK end frame  " << &endPacket << endl;
+    eq::WindowFrameFinishPacket finishPacket;
+    finishPacket.frameID     = frameID;
+    finishPacket.frameNumber = frameNumber;
+    _send( finishPacket );
+    EQLOG( eq::LOG_TASKS ) << "TASK end frame  " << &finishPacket << endl;
 }
 
 void eqs::Window::_updateSwap()

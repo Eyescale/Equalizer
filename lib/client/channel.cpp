@@ -37,6 +37,14 @@ Channel::Channel()
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_CONFIG_EXIT, 
                  eqNet::CommandFunc<Channel>( this, &Channel::_reqConfigExit ));
+    registerCommand( CMD_CHANNEL_FRAME_START,
+                   eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
+    registerCommand( REQ_CHANNEL_FRAME_START,
+                 eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameStart ));
+    registerCommand( CMD_CHANNEL_FRAME_FINISH,
+                   eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
+    registerCommand( REQ_CHANNEL_FRAME_FINISH,
+                eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameFinish ));
     registerCommand( CMD_CHANNEL_CLEAR, 
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_CLEAR, 
@@ -412,6 +420,28 @@ eqNet::CommandResult Channel::_reqConfigExit( eqNet::Command& command )
 
     ChannelConfigExitReplyPacket reply( packet );
     send( command.getNode(), reply );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Channel::_reqFrameStart( eqNet::Command& command )
+{
+    const ChannelFrameStartPacket* packet = 
+        command.getPacket<ChannelFrameStartPacket>();
+    EQVERB << "handle channel frame start " << packet << endl;
+
+    //_grabFrame( packet->frameNumber ); single-threaded
+    frameStart( packet->frameID, packet->frameNumber );
+
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Channel::_reqFrameFinish( eqNet::Command& command )
+{
+    const ChannelFrameFinishPacket* packet =
+        command.getPacket<ChannelFrameFinishPacket>();
+    EQVERB << "handle channel frame sync " << packet << endl;
+
+    frameFinish( packet->frameID, packet->frameNumber );
     return eqNet::COMMAND_HANDLED;
 }
 

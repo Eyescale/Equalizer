@@ -98,8 +98,8 @@ namespace eq
         /** 
          * Set the X display connection for this pipe.
          * 
-         * This function should only be called from configInit() or configExit(). Updates
-         * the pixel viewport.
+         * This function should only be called from configInit() or
+         * configExit(). Updates the pixel viewport.
          *
          * @param display the X display connection for this pipe.
          */
@@ -124,7 +124,8 @@ namespace eq
         /** 
          * Set the CGL display ID for this pipe.
          * 
-         * This function should only be called from configInit() or configExit().
+         * This function should only be called from configInit() or
+         * configExit().
          *
          * @param id the CGL display ID for this pipe.
          */
@@ -139,8 +140,8 @@ namespace eq
         /** 
          * Set the Win32 device context for this pipe.
          * 
-         * This function should only be called from configInit() or configExit(). Updates
-         * the pixel viewport.
+         * This function should only be called from configInit() or
+         * configExit(). Updates the pixel viewport.
          *
          * @param dc the device context for this pipe.
          * @param deleteDC true if the dc has to be deleted using DeleteDC().

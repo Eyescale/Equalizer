@@ -167,6 +167,23 @@ namespace eq
          */
         virtual ~Window();
 
+        /** @name Actions */
+        //*{
+        /** 
+         * Start a frame by unlocking all child resources.
+         * 
+         * @param frameNumber the frame to start.
+         */
+        void startFrame( const uint32_t frameNumber ) { /* currently nop */ }
+
+        /** 
+         * Signal the completion of a frame to the parent.
+         * 
+         * @param frameNumber the frame to end.
+         */
+        void releaseFrame( const uint32_t frameNumber ) { /* currently nop */ }
+        //*}
+
         /**
          * @name Callbacks
          *
@@ -206,22 +223,28 @@ namespace eq
          * Start rendering a frame.
          *
          * Called once at the beginning of each frame, to do per-frame updates
-         * of window-specific data.
+         * of window-specific data. This method has to call startFrame().
          *
          * @param frameID the per-frame identifier.
+         * @param frameNumber the frame to start.
          * @sa Config::beginFrame()
          */
-        virtual void startFrame( const uint32_t frameID ) {}
+        virtual void frameStart( const uint32_t frameID, 
+                                 const uint32_t frameNumber ) 
+            { startFrame( frameNumber ); }
 
         /**
-         * End rendering a frame.
+         * Finish rendering a frame.
          *
-         * Called once at the end of each frame, to do per-frame updates
-         * of window-specific data.
+         * Called once at the end of each frame, to do per-frame updates of
+         * window-specific data.  This method has to call releaseFrame().
          *
          * @param frameID the per-frame identifier.
+         * @param frameNumber the frame to finish.
          */
-        virtual void endFrame( const uint32_t frameID ) {}
+        virtual void frameFinish( const uint32_t frameID, 
+                                  const uint32_t frameNumber ) 
+            { releaseFrame( frameNumber ); }
 
         /** Make the window's drawable and context current. */
         virtual void makeCurrent() const;
@@ -326,11 +349,11 @@ namespace eq
         eqNet::CommandResult _cmdDestroyChannel(eqNet::Command& command );
         eqNet::CommandResult _reqConfigInit( eqNet::Command& command );
         eqNet::CommandResult _reqConfigExit( eqNet::Command& command );
+        eqNet::CommandResult _reqFrameStart( eqNet::Command& command );
+        eqNet::CommandResult _reqFrameFinish( eqNet::Command& command );
         eqNet::CommandResult _reqBarrier( eqNet::Command& command );
         eqNet::CommandResult _reqFinish( eqNet::Command& command );
         eqNet::CommandResult _reqSwap( eqNet::Command& command );
-        eqNet::CommandResult _reqStartFrame( eqNet::Command& command );
-        eqNet::CommandResult _reqEndFrame( eqNet::Command& command );
     };
 }
 

@@ -202,16 +202,18 @@ namespace eqs
          *
          * @param frameID a per-frame identifier passed to all rendering
          *                methods.
+         * @param frameNumber the number of the frame.
          */
-        void updateDraw( const uint32_t frameID );
+        void updateDraw( const uint32_t frameID, const uint32_t frameNumber );
 
         /** 
          * Trigger the post-draw operations.
          *
          * @param frameID a per-frame identifier passed to all rendering
          *                methods.
+         * @param frameNumber the number of the frame.
          */
-        void updatePost( const uint32_t frameID );
+        void updatePost( const uint32_t frameID, const uint32_t frameNumber );
         //*}
 
         /**

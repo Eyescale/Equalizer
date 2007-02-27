@@ -145,6 +145,23 @@ namespace eq
          */
         virtual ~Channel();
 
+        /** @name Actions */
+        //*{
+        /** 
+         * Start a frame by unlocking all child resources.
+         * 
+         * @param frameNumber the frame to start.
+         */
+        void startFrame( const uint32_t frameNumber ) { /* currently nop */ }
+
+        /** 
+         * Signal the completion of a frame to the parent.
+         * 
+         * @param frameNumber the frame to end.
+         */
+        void releaseFrame( const uint32_t frameNumber ) { /* currently nop */ }
+        //*}
+
         /**
          * @name Callbacks
          *
@@ -152,7 +169,6 @@ namespace eq
          * various actions.
          */
         //*{
-
         /** 
          * Initialise this channel.
          * 
@@ -164,6 +180,33 @@ namespace eq
          * Exit this channel.
          */
         virtual bool configExit(){ return true; }
+
+        /**
+         * Start rendering a frame.
+         *
+         * Called once at the beginning of each frame, to do per-frame updates
+         * of channel-specific data. This method has to call startFrame().
+         *
+         * @param frameID the per-frame identifier.
+         * @param frameNumber the frame to start.
+         * @sa Config::beginFrame()
+         */
+        virtual void frameStart( const uint32_t frameID, 
+                                 const uint32_t frameNumber ) 
+            { startFrame( frameNumber ); }
+
+        /**
+         * Finish rendering a frame.
+         *
+         * Called once at the end of each frame, to do per-frame updates of
+         * channel-specific data.  This method has to call releaseFrame().
+         *
+         * @param frameID the per-frame identifier.
+         * @param frameNumber the frame to finish.
+         */
+        virtual void frameFinish( const uint32_t frameID, 
+                                  const uint32_t frameNumber ) 
+            { releaseFrame( frameNumber ); }
 
         /** 
          * Clear the frame buffer.
@@ -306,6 +349,8 @@ namespace eq
         eqNet::CommandResult _pushCommand( eqNet::Command& command );
         eqNet::CommandResult _reqConfigInit( eqNet::Command& command );
         eqNet::CommandResult _reqConfigExit( eqNet::Command& command );
+        eqNet::CommandResult _reqFrameStart( eqNet::Command& command );
+        eqNet::CommandResult _reqFrameFinish( eqNet::Command& command );
         eqNet::CommandResult _reqClear( eqNet::Command& command );
         eqNet::CommandResult _reqDraw( eqNet::Command& command );
         eqNet::CommandResult _reqAssemble( eqNet::Command& command );

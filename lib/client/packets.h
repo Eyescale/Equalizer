@@ -620,23 +620,28 @@ namespace eq
             }
     };
 
-    struct WindowStartFramePacket : public eqNet::ObjectPacket
+    struct WindowFrameStartPacket : public eqNet::ObjectPacket
     {
-        WindowStartFramePacket()
+        WindowFrameStartPacket()
             {
-                command = CMD_WINDOW_STARTFRAME;
-                size    = sizeof( WindowStartFramePacket );
+                command        = CMD_WINDOW_FRAME_START;
+                size           = sizeof( WindowFrameStartPacket );
             }
+
         uint32_t frameID;
+        uint32_t frameNumber;
     };
-    struct WindowEndFramePacket : public eqNet::ObjectPacket
+
+    struct WindowFrameFinishPacket : public eqNet::ObjectPacket
     {
-        WindowEndFramePacket()
+        WindowFrameFinishPacket()
             {
-                command = CMD_WINDOW_ENDFRAME;
-                size    = sizeof( WindowEndFramePacket );
+                command        = CMD_WINDOW_FRAME_FINISH;
+                size           = sizeof( WindowFrameFinishPacket );
             }
+
         uint32_t frameID;
+        uint32_t frameNumber;
     };
 
     //------------------------------------------------------------
@@ -712,6 +717,30 @@ namespace eq
 
         float    nearPlane;
         float    farPlane;
+    };
+
+    struct ChannelFrameStartPacket : public eqNet::ObjectPacket
+    {
+        ChannelFrameStartPacket()
+            {
+                command        = CMD_CHANNEL_FRAME_START;
+                size           = sizeof( ChannelFrameStartPacket );
+            }
+
+        uint32_t frameID;
+        uint32_t frameNumber;
+    };
+
+    struct ChannelFrameFinishPacket : public eqNet::ObjectPacket
+    {
+        ChannelFrameFinishPacket()
+            {
+                command        = CMD_CHANNEL_FRAME_FINISH;
+                size           = sizeof( ChannelFrameFinishPacket );
+            }
+
+        uint32_t frameID;
+        uint32_t frameNumber;
     };
 
     struct ChannelTaskPacket : public eqNet::ObjectPacket
@@ -920,18 +949,6 @@ namespace eq
     {
         os << (eqNet::ObjectPacket*)packet << " barrier " << packet->barrierID
            << " version " << packet->barrierVersion;
-        return os;
-    }
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const WindowStartFramePacket* packet )
-    {
-        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameID;
-        return os;
-    }
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const WindowEndFramePacket* packet )
-    {
-        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameID;
         return os;
     }
 
