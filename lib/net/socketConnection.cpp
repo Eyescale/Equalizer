@@ -397,10 +397,19 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
                                          bytes, 0 );
     if( bytesWritten == SOCKET_ERROR ) // error
     {
+		if( GetLastError( ) == WSAEWOULDBLOCK ) // Buffer full - wait
+		{
+			fd_set set;
+			FD_ZERO( &set );
+			FD_SET( _writeFD, &set );
+			const int result = select( _writeFD+1, 0, &set, 0, 0 );
+			if( result > 0 )
+				return 0;
+		}
         EQWARN << "Error during write: " << EQ_SOCKET_ERROR << endl;
         return -1;
     }
 
     return bytesWritten;
 }
-#endif
+#endif // WIN32

@@ -32,7 +32,6 @@
 			}
 			compound
 			{
-
 				compound
 				{
 					channel "channel1"
@@ -42,10 +41,11 @@
 						bottom_right [  .0  -.2 -.75 ]
 						top_left     [ -.64  .2 -.75 ]
 					}
-					swapbarrier{}
+					outputframe{ name "frame" }
 				}
 				compound
 				{
+					task [ CLEAR ASSEMBLE ]
 					channel "channel2"
 					wall
 					{
@@ -53,7 +53,7 @@
 						bottom_right [ .64 -.2 -.75 ]
 						top_left     [ .0  .2 -.75 ]
 					}
-					swapbarrier{}
+					inputframe{ name "frame" }
 				}
 			}
 		}    
