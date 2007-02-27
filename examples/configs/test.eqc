@@ -1,52 +1,52 @@
-# 2-window sort-first config running on a single pipe.
+# two-to-one sort-first config for cluster at unizh
+global
+{
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN off
+}
+
 server
 {
     config
     {
+        latency 2
         appNode
         {
-            pipe
+            pipe 
             {
                 window
                 {
-                    viewport [ .05 .3 .4 .3 ]
-                    channel
-                    {
-                        name "channel2"
-                    }
-                }
-                window
-                {
-                    viewport [ .55 .3 .4 .3 ]
-                    channel
-                    {
-                        name "channel1"
-                    }
+                    channel { name "channel1" }
                 }
             }
+        }
+        node
+        {
+            connection { hostname "wolf1" }
+            pipe { window { channel { name "channel2" }}}
         }
         compound
         {
             channel "channel1"
-
             wall
             {
-                bottom_left  [ -.32 -.2 -1 ]
-                bottom_right [  .32 -.2 -1 ]
-                top_left     [ -.32  .2 -1 ]
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
             }
-            
+
             compound
             {
-                viewport [ 0 0 .5 1 ]
+                viewport [ 0 0 1 .5 ]
             }
             compound
-            { 
+            {
                 channel "channel2"
-                viewport [ .5 0 .5 1 ]
-                outputframe {}
+                viewport [ 0 .5 1 .5 ]
+                #outputframe {}
+                #swapbarrier{}
             }
-            inputframe { name "frame.channel2" }
+            #inputframe { name "frame.channel2" }
+            #swapbarrier{}
         }
     }    
 }
