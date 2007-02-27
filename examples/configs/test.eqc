@@ -1,52 +1,60 @@
-# two-to-one sort-first config for cluster at unizh
-global
-{
-    EQ_WINDOW_IATTR_HINT_FULLSCREEN off
-}
+	# two-to-one sort-first config for cluster at unizh
+	global
+	{
+		EQ_WINDOW_IATTR_HINT_FULLSCREEN off
+	}
 
-server
-{
-    config
-    {
-        latency 2
-        appNode
-        {
-            pipe 
-            {
-                window
-                {
-                    channel { name "channel1" }
-                }
-            }
-        }
-        node
-        {
-            connection { hostname "wolf1" }
-            pipe { window { channel { name "channel2" }}}
-        }
-        compound
-        {
-            channel "channel1"
-            wall
-            {
-                bottom_left  [ -.32 -.20 -.75 ]
-                bottom_right [  .32 -.20 -.75 ]
-                top_left     [ -.32  .20 -.75 ]
-            }
+	server
+	{
+		config
+		{
+			latency 2
+			appNode
+			{
+				pipe 
+				{
+					window
+					{
+						viewport [ 80 200 480 300 ]
+						channel { name "channel1" }
+					}
+				}
+			}
+			node
+			{
+				connection { hostname "wolf1" }
+				pipe { 
+					window { 
+						viewport [ 720 200 480 300 ]
+						channel { name "channel2" }
+					}
+				}
+			}
+			compound
+			{
 
-            compound
-            {
-                viewport [ 0 0 1 .5 ]
-            }
-            compound
-            {
-                channel "channel2"
-                viewport [ 0 .5 1 .5 ]
-                #outputframe {}
-                #swapbarrier{}
-            }
-            #inputframe { name "frame.channel2" }
-            #swapbarrier{}
-        }
-    }    
-}
+				compound
+				{
+					channel "channel1"
+					wall
+					{
+						bottom_left  [ -.64 -.2 -.75 ]
+						bottom_right [  .0  -.2 -.75 ]
+						top_left     [ -.64  .2 -.75 ]
+					}
+					swapbarrier{}
+				}
+				compound
+				{
+					channel "channel2"
+					wall
+					{
+						bottom_left  [ .0 -.2 -.75 ]
+						bottom_right [ .64 -.2 -.75 ]
+						top_left     [ .0  .2 -.75 ]
+					}
+					swapbarrier{}
+				}
+			}
+		}    
+	}

@@ -25,7 +25,7 @@ void Barrier::_construct()
                      CommandFunc<Barrier>( this, &Barrier::_cmdEnterReply ));
 }
 
-EQ_EXPORT Barrier::Barrier( eqBase::RefPtr<Node> master, const uint32_t height )
+Barrier::Barrier( eqBase::RefPtr<Node> master, const uint32_t height )
         : _master( master )
 {
     _data.master = master->getNodeID();
@@ -42,7 +42,11 @@ Barrier::Barrier()
     EQINFO << "Barrier instanciated" << endl;
 }
 
-EQ_EXPORT void Barrier::enter()
+Barrier::~Barrier()
+{
+}
+
+void Barrier::enter()
 {
     EQASSERT( _data.height > 1 );
     EQASSERT( _data.master != NodeID::ZERO );
