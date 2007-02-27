@@ -4,6 +4,7 @@
  MS Windows support is not yet fully implemented. The initial port will support
  Visual Studio 2005 and Windows XP.
  
+ The Visual Studio project files are in VS2005. The solution file includes the
  following projects:
  
  o Equalizer: The client library (DLL)
