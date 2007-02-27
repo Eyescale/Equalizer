@@ -213,14 +213,14 @@ namespace eq
          * 
          * @param frameID the per-frame identifier.
          */
-        virtual void clear( const uint32_t frameID );
+        virtual void frameClear( const uint32_t frameID );
 
         /** 
          * Draw the scene.
          * 
          * @param frameID the per-frame identifier.
          */
-        virtual void draw( const uint32_t frameID );
+        virtual void frameDraw( const uint32_t frameID );
 
         /** 
          * Assemble input frames.
@@ -228,7 +228,7 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @sa getInputFrames
          */
-        virtual void assemble( const uint32_t frameID );
+        virtual void frameAssemble( const uint32_t frameID );
 
         /** 
          * Read back the rendered scene.
@@ -236,7 +236,7 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @sa getOutputFrames
          */
-        virtual void readback( const uint32_t frameID );
+        virtual void frameReadback( const uint32_t frameID );
 
         /**
          * Setup the OpenGL state for a readback or assemble operation.
@@ -351,11 +351,11 @@ namespace eq
         eqNet::CommandResult _reqConfigExit( eqNet::Command& command );
         eqNet::CommandResult _reqFrameStart( eqNet::Command& command );
         eqNet::CommandResult _reqFrameFinish( eqNet::Command& command );
-        eqNet::CommandResult _reqClear( eqNet::Command& command );
-        eqNet::CommandResult _reqDraw( eqNet::Command& command );
-        eqNet::CommandResult _reqAssemble( eqNet::Command& command );
-        eqNet::CommandResult _reqReadback( eqNet::Command& command );
-        eqNet::CommandResult _reqTransmit( eqNet::Command& command );
+        eqNet::CommandResult _reqFrameClear( eqNet::Command& command );
+        eqNet::CommandResult _reqFrameDraw( eqNet::Command& command );
+        eqNet::CommandResult _reqFrameAssemble( eqNet::Command& command );
+        eqNet::CommandResult _reqFrameReadback( eqNet::Command& command );
+        eqNet::CommandResult _reqFrameTransmit( eqNet::Command& command );
     };
 }
 

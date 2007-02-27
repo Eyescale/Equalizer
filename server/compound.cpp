@@ -694,7 +694,7 @@ TraverseResult Compound::_updatePreDrawCB( Compound* compound, void* userData )
         return TRAVERSE_CONTINUE;
 
     // clear task tested above
-    eq::ChannelClearPacket clearPacket;        
+    eq::ChannelFrameClearPacket clearPacket;        
 
     compound->_setupRenderContext( clearPacket.context, data );
     channel->send( clearPacket );
@@ -720,7 +720,7 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
 
     if( compound->testInheritTask( TASK_CLEAR ))
     {
-        eq::ChannelClearPacket clearPacket;        
+        eq::ChannelFrameClearPacket clearPacket;        
         clearPacket.context = context;
         channel->send( clearPacket );
         EQLOG( eq::LOG_TASKS ) << "TASK clear " << channel->getName() <<  " "
@@ -728,7 +728,7 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
     }
     if( compound->testInheritTask( TASK_DRAW ))
     {
-        eq::ChannelDrawPacket drawPacket;
+        eq::ChannelFrameDrawPacket drawPacket;
 
         drawPacket.context = context;
         compound->_computeFrustum( drawPacket.context, data->eye );
@@ -938,7 +938,7 @@ void Compound::_updateAssemble( const eq::RenderContext& context )
     Channel*                  channel = getChannel();
     Node*                     node    = channel->getNode();
     RefPtr<eqNet::Node>       netNode = node->getNode();
-    eq::ChannelAssemblePacket packet;
+    eq::ChannelFrameAssemblePacket packet;
     
     packet.sessionID = channel->getSession()->getID();
     packet.objectID  = channel->getID();
@@ -976,7 +976,7 @@ void Compound::_updateReadback( const eq::RenderContext& context )
     Channel*                  channel = getChannel();
     Node*                     node    = channel->getNode();
     RefPtr<eqNet::Node>       netNode = node->getNode();
-    eq::ChannelReadbackPacket packet;
+    eq::ChannelFrameReadbackPacket packet;
     
     packet.sessionID = channel->getSession()->getID();
     packet.objectID  = channel->getID();
@@ -1019,7 +1019,7 @@ void Compound::_updateReadback( const eq::RenderContext& context )
             continue;
 
         // send
-        eq::ChannelTransmitPacket transmitPacket;
+        eq::ChannelFrameTransmitPacket transmitPacket;
         transmitPacket.sessionID = packet.sessionID;
         transmitPacket.objectID  = packet.objectID;
         transmitPacket.frame     = eqNet::ObjectVersion( frame );

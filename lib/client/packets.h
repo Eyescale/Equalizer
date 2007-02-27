@@ -748,54 +748,54 @@ namespace eq
         RenderContext context;
     };
 
-    struct ChannelClearPacket : public ChannelTaskPacket
+    struct ChannelFrameClearPacket : public ChannelTaskPacket
     {
-        ChannelClearPacket()
+        ChannelFrameClearPacket()
             {
-                command       = CMD_CHANNEL_CLEAR;
-                size          = sizeof( ChannelClearPacket );
+                command       = CMD_CHANNEL_FRAME_CLEAR;
+                size          = sizeof( ChannelFrameClearPacket );
             }
     };
         
-    struct ChannelDrawPacket : public ChannelTaskPacket
+    struct ChannelFrameDrawPacket : public ChannelTaskPacket
     {
-        ChannelDrawPacket()
+        ChannelFrameDrawPacket()
             {
-                command       = CMD_CHANNEL_DRAW;
-                size          = sizeof( ChannelDrawPacket );
+                command       = CMD_CHANNEL_FRAME_DRAW;
+                size          = sizeof( ChannelFrameDrawPacket );
             }
     };
         
-    struct ChannelAssemblePacket : public ChannelTaskPacket
+    struct ChannelFrameAssemblePacket : public ChannelTaskPacket
     {
-        ChannelAssemblePacket()
+        ChannelFrameAssemblePacket()
             {
-                command       = CMD_CHANNEL_ASSEMBLE;
-                size          = sizeof( ChannelAssemblePacket );
-            }
-
-        uint32_t             nFrames;
-        EQ_ALIGN8( eqNet::ObjectVersion frames[1] );
-    };
-        
-    struct ChannelReadbackPacket : public ChannelTaskPacket
-    {
-        ChannelReadbackPacket()
-            {
-                command       = CMD_CHANNEL_READBACK;
-                size          = sizeof( ChannelReadbackPacket );
+                command       = CMD_CHANNEL_FRAME_ASSEMBLE;
+                size          = sizeof( ChannelFrameAssemblePacket );
             }
 
         uint32_t             nFrames;
         EQ_ALIGN8( eqNet::ObjectVersion frames[1] );
     };
         
-    struct ChannelTransmitPacket : public eqNet::ObjectPacket
+    struct ChannelFrameReadbackPacket : public ChannelTaskPacket
     {
-        ChannelTransmitPacket()
+        ChannelFrameReadbackPacket()
             {
-                command       = CMD_CHANNEL_TRANSMIT;
-                size          = sizeof( ChannelTransmitPacket );
+                command       = CMD_CHANNEL_FRAME_READBACK;
+                size          = sizeof( ChannelFrameReadbackPacket );
+            }
+
+        uint32_t             nFrames;
+        EQ_ALIGN8( eqNet::ObjectVersion frames[1] );
+    };
+        
+    struct ChannelFrameTransmitPacket : public eqNet::ObjectPacket
+    {
+        ChannelFrameTransmitPacket()
+            {
+                command       = CMD_CHANNEL_FRAME_TRANSMIT;
+                size          = sizeof( ChannelFrameTransmitPacket );
             }
 
         
@@ -965,20 +965,20 @@ namespace eq
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                       const ChannelReadbackPacket* packet )
+                                      const ChannelFrameReadbackPacket* packet )
     {
         os << (ChannelTaskPacket*)packet << " nFrames " << packet->nFrames;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                       const ChannelTransmitPacket* packet )
+                                      const ChannelFrameTransmitPacket* packet )
     {
         os << (eqNet::ObjectPacket*)packet << " frame " << packet->frame
            << " nNodes " << packet->nNodes;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                       const ChannelAssemblePacket* packet )
+                                      const ChannelFrameAssemblePacket* packet )
     {
         os << (ChannelTaskPacket*)packet << " nFrames " << packet->nFrames;
         return os;

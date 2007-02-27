@@ -32,7 +32,7 @@ bool Channel::configInit( const uint32_t initID )
     return true;
 }
 
-void Channel::draw( const uint32_t frameID )
+void Channel::frameDraw( const uint32_t frameID )
 {
     vmml::FrustumCullerf culler;
     _initFrustum( culler );

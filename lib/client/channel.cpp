@@ -45,26 +45,26 @@ Channel::Channel()
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_FRAME_FINISH,
                 eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameFinish ));
-    registerCommand( CMD_CHANNEL_CLEAR, 
+    registerCommand( CMD_CHANNEL_FRAME_CLEAR, 
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
-    registerCommand( REQ_CHANNEL_CLEAR, 
-                     eqNet::CommandFunc<Channel>( this, &Channel::_reqClear));
-    registerCommand( CMD_CHANNEL_DRAW, 
+    registerCommand( REQ_CHANNEL_FRAME_CLEAR, 
+                     eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameClear));
+    registerCommand( CMD_CHANNEL_FRAME_DRAW, 
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
-    registerCommand( REQ_CHANNEL_DRAW, 
-                     eqNet::CommandFunc<Channel>( this, &Channel::_reqDraw ));
-    registerCommand( CMD_CHANNEL_ASSEMBLE, 
+    registerCommand( REQ_CHANNEL_FRAME_DRAW, 
+                     eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameDraw ));
+    registerCommand( CMD_CHANNEL_FRAME_ASSEMBLE, 
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
-    registerCommand( REQ_CHANNEL_ASSEMBLE, 
-                   eqNet::CommandFunc<Channel>( this, &Channel::_reqAssemble ));
-    registerCommand( CMD_CHANNEL_READBACK, 
+    registerCommand( REQ_CHANNEL_FRAME_ASSEMBLE, 
+                   eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameAssemble ));
+    registerCommand( CMD_CHANNEL_FRAME_READBACK, 
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
-    registerCommand( REQ_CHANNEL_READBACK, 
-                   eqNet::CommandFunc<Channel>( this, &Channel::_reqReadback ));
-    registerCommand( CMD_CHANNEL_TRANSMIT, 
+    registerCommand( REQ_CHANNEL_FRAME_READBACK, 
+                   eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameReadback ));
+    registerCommand( CMD_CHANNEL_FRAME_TRANSMIT, 
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
-    registerCommand( REQ_CHANNEL_TRANSMIT, 
-                   eqNet::CommandFunc<Channel>( this, &Channel::_reqTransmit ));
+    registerCommand( REQ_CHANNEL_FRAME_TRANSMIT, 
+                   eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameTransmit ));
 }
 
 Channel::~Channel()
@@ -138,7 +138,7 @@ void eq::Channel::setNearFar( const float nearPlane, const float farPlane )
 //---------------------------------------------------------------------------
 // operations
 //---------------------------------------------------------------------------
-void Channel::clear( const uint32_t frameID )
+void Channel::frameClear( const uint32_t frameID )
 {
     applyBuffer();
     applyViewport();
@@ -163,7 +163,7 @@ void Channel::clear( const uint32_t frameID )
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
-void Channel::draw( const uint32_t frameID )
+void Channel::frameDraw( const uint32_t frameID )
 {
     applyBuffer();
     applyViewport();
@@ -187,7 +187,7 @@ void Channel::draw( const uint32_t frameID )
     glFinish();
 }
 
-void Channel::assemble( const uint32_t frameID )
+void Channel::frameAssemble( const uint32_t frameID )
 {
     applyBuffer();
     applyViewport();
@@ -244,7 +244,7 @@ void Channel::assemble( const uint32_t frameID )
     resetAssemblyState();
 }
 
-void Channel::readback( const uint32_t frameID )
+void Channel::frameReadback( const uint32_t frameID )
 {
     applyBuffer();
     applyViewport();
@@ -445,16 +445,17 @@ eqNet::CommandResult Channel::_reqFrameFinish( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_reqClear( eqNet::Command& command )
+eqNet::CommandResult Channel::_reqFrameClear( eqNet::Command& command )
 {
-    ChannelClearPacket* packet = command.getPacket<ChannelClearPacket>();
+    ChannelFrameClearPacket* packet = 
+        command.getPacket<ChannelFrameClearPacket>();
     EQLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet << endl;
 
     Pipe* pipe = getPipe();
     StatEvent event( StatEvent::CHANNEL_CLEAR, this, pipe->getFrameTime( ));
 
     _context = &packet->context;
-    clear( packet->context.frameID );
+    frameClear( packet->context.frameID );
     _context = NULL;
 
     if( getIAttribute( IATTR_HINT_STATISTICS ))
@@ -465,9 +466,10 @@ eqNet::CommandResult Channel::_reqClear( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_reqDraw( eqNet::Command& command )
+eqNet::CommandResult Channel::_reqFrameDraw( eqNet::Command& command )
 {
-    ChannelDrawPacket* packet = command.getPacket<ChannelDrawPacket>();
+    ChannelFrameDrawPacket* packet = 
+        command.getPacket<ChannelFrameDrawPacket>();
     EQLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << packet << endl;
 
     Pipe* pipe = getPipe();
@@ -475,7 +477,7 @@ eqNet::CommandResult Channel::_reqDraw( eqNet::Command& command )
 
     _context = &packet->context;
 
-    draw( packet->context.frameID );
+    frameDraw( packet->context.frameID );
 
     if( getIAttribute( IATTR_HINT_STATISTICS ))
     {
@@ -485,9 +487,10 @@ eqNet::CommandResult Channel::_reqDraw( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_reqAssemble( eqNet::Command& command )
+eqNet::CommandResult Channel::_reqFrameAssemble( eqNet::Command& command )
 {
-    ChannelAssemblePacket* packet = command.getPacket<ChannelAssemblePacket>();
+    ChannelFrameAssemblePacket* packet = 
+        command.getPacket<ChannelFrameAssemblePacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK assemble " << getName() <<  " " 
                                        << packet << endl;
 
@@ -503,7 +506,7 @@ eqNet::CommandResult Channel::_reqAssemble( eqNet::Command& command )
         _inputFrames.push_back( frame );
     }
 
-    assemble( packet->context.frameID );
+    frameAssemble( packet->context.frameID );
 
     _inputFrames.clear();
     _context = NULL;
@@ -516,9 +519,10 @@ eqNet::CommandResult Channel::_reqAssemble( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_reqReadback( eqNet::Command& command )
+eqNet::CommandResult Channel::_reqFrameReadback( eqNet::Command& command )
 {
-    ChannelReadbackPacket* packet = command.getPacket<ChannelReadbackPacket>();
+    ChannelFrameReadbackPacket* packet = 
+        command.getPacket<ChannelFrameReadbackPacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " " 
                                        << packet << endl;
 
@@ -534,7 +538,7 @@ eqNet::CommandResult Channel::_reqReadback( eqNet::Command& command )
         _outputFrames.push_back( frame );
     }
 
-    readback( packet->context.frameID );
+    frameReadback( packet->context.frameID );
 
     for( vector<Frame*>::const_iterator i = _outputFrames.begin();
          i != _outputFrames.end(); ++i )
@@ -554,10 +558,10 @@ eqNet::CommandResult Channel::_reqReadback( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_reqTransmit( eqNet::Command& command )
+eqNet::CommandResult Channel::_reqFrameTransmit( eqNet::Command& command )
 {
-    const ChannelTransmitPacket* packet = 
-        command.getPacket<ChannelTransmitPacket>();
+    const ChannelFrameTransmitPacket* packet = 
+        command.getPacket<ChannelFrameTransmitPacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK transmit " << getName() <<  " " 
                                       << packet << endl;
 

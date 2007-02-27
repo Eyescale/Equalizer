@@ -21,7 +21,7 @@ public:
 
 protected:
     virtual bool configInit( const uint32_t initID );
-    virtual void draw( const uint32_t frameID );
+    virtual void frameDraw( const uint32_t frameID );
 
 private:
     static void _drawBBoxCB( Model::BBox *bbox, void *userData );
