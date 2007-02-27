@@ -418,12 +418,12 @@ namespace eq
         uint32_t windowID;
     };
 
-    struct PipeInitPacket : public eqNet::ObjectPacket
+    struct PipeConfigInitPacket : public eqNet::ObjectPacket
     {
-        PipeInitPacket()
+        PipeConfigInitPacket()
             {
-                command = CMD_PIPE_INIT;
-                size    = sizeof( PipeInitPacket );
+                command = CMD_PIPE_CONFIG_INIT;
+                size    = sizeof( PipeConfigInitPacket );
             }
 
         uint32_t      requestID;
@@ -433,13 +433,13 @@ namespace eq
         PixelViewport pvp;
     };
 
-    struct PipeInitReplyPacket : public eqNet::ObjectPacket
+    struct PipeConfigInitReplyPacket : public eqNet::ObjectPacket
     {
-        PipeInitReplyPacket( const PipeInitPacket* requestPacket )
+        PipeConfigInitReplyPacket( const PipeConfigInitPacket* requestPacket )
             {
-                command   = CMD_PIPE_INIT_REPLY;
+                command   = CMD_PIPE_CONFIG_INIT_REPLY;
                 requestID = requestPacket->requestID;
-                size      = sizeof( PipeInitReplyPacket );
+                size      = sizeof( PipeConfigInitReplyPacket );
                 error[0]  = '\0';
             }
 
@@ -449,24 +449,24 @@ namespace eq
         EQ_ALIGN8( char error[8] );
     };
 
-    struct PipeExitPacket : public eqNet::ObjectPacket
+    struct PipeConfigExitPacket : public eqNet::ObjectPacket
     {
-        PipeExitPacket()
+        PipeConfigExitPacket()
             {
-                command = CMD_PIPE_EXIT;
-                size    = sizeof( PipeExitPacket );
+                command = CMD_PIPE_CONFIG_EXIT;
+                size    = sizeof( PipeConfigExitPacket );
             }
 
         uint32_t requestID;
     };
 
-    struct PipeExitReplyPacket : public eqNet::ObjectPacket
+    struct PipeConfigExitReplyPacket : public eqNet::ObjectPacket
     {
-        PipeExitReplyPacket( const PipeExitPacket* requestPacket )
+        PipeConfigExitReplyPacket( const PipeConfigExitPacket* requestPacket )
             {
-                command   = CMD_PIPE_EXIT_REPLY;
+                command   = CMD_PIPE_CONFIG_EXIT_REPLY;
                 requestID = requestPacket->requestID;
-                size      = sizeof( PipeExitReplyPacket );
+                size      = sizeof( PipeConfigExitReplyPacket );
             }
 
         uint32_t requestID;
@@ -500,12 +500,12 @@ namespace eq
     //------------------------------------------------------------
     // Window
     //------------------------------------------------------------
-    struct WindowInitPacket : public eqNet::ObjectPacket
+    struct WindowConfigInitPacket : public eqNet::ObjectPacket
     {
-        WindowInitPacket()
+        WindowConfigInitPacket()
             {
-                command = CMD_WINDOW_INIT;
-                size    = sizeof( WindowInitPacket );
+                command = CMD_WINDOW_CONFIG_INIT;
+                size    = sizeof( WindowConfigInitPacket );
                 name[0]   = '\0';
             }
 
@@ -517,13 +517,13 @@ namespace eq
         EQ_ALIGN8( char name[8] );
     };
 
-    struct WindowInitReplyPacket : public eqNet::ObjectPacket
+    struct WindowConfigInitReplyPacket : public eqNet::ObjectPacket
     {
-        WindowInitReplyPacket( const WindowInitPacket* requestPacket )
+        WindowConfigInitReplyPacket( const WindowConfigInitPacket* request )
             {
-                command   = CMD_WINDOW_INIT_REPLY;
-                requestID = requestPacket->requestID;
-                size      = sizeof( WindowInitReplyPacket );
+                command   = CMD_WINDOW_CONFIG_INIT_REPLY;
+                size      = sizeof( WindowConfigInitReplyPacket );
+                requestID = request->requestID;
                 error[0]  = '\0';
             }
 
@@ -534,24 +534,24 @@ namespace eq
         EQ_ALIGN8( char error[8] );
     };
 
-    struct WindowExitPacket : public eqNet::ObjectPacket
+    struct WindowConfigExitPacket : public eqNet::ObjectPacket
     {
-        WindowExitPacket()
+        WindowConfigExitPacket()
             {
-                command = CMD_WINDOW_EXIT;
-                size    = sizeof( WindowExitPacket );
+                command = CMD_WINDOW_CONFIG_EXIT;
+                size    = sizeof( WindowConfigExitPacket );
             }
 
         uint32_t requestID;
     };
 
-    struct WindowExitReplyPacket : public eqNet::ObjectPacket
+    struct WindowConfigExitReplyPacket : public eqNet::ObjectPacket
     {
-        WindowExitReplyPacket( const WindowExitPacket* requestPacket )
+        WindowConfigExitReplyPacket( const WindowConfigExitPacket* request )
             {
-                command   = CMD_WINDOW_EXIT_REPLY;
-                requestID = requestPacket->requestID;
-                size      = sizeof( WindowExitReplyPacket );
+                command   = CMD_WINDOW_CONFIG_EXIT_REPLY;
+                size      = sizeof( WindowConfigExitReplyPacket );
+                requestID = request->requestID;
             }
 
         uint32_t requestID;
@@ -642,12 +642,12 @@ namespace eq
     //------------------------------------------------------------
     // Channel
     //------------------------------------------------------------
-    struct ChannelInitPacket : public eqNet::ObjectPacket
+    struct ChannelConfigInitPacket : public eqNet::ObjectPacket
     {
-        ChannelInitPacket()
+        ChannelConfigInitPacket()
             {
-                command = CMD_CHANNEL_INIT;
-                size    = sizeof( ChannelInitPacket );
+                command = CMD_CHANNEL_CONFIG_INIT;
+                size    = sizeof( ChannelConfigInitPacket );
                 name[0] = '\0';
             }
 
@@ -659,13 +659,14 @@ namespace eq
         EQ_ALIGN8( char          name[8] );
     };
 
-    struct ChannelInitReplyPacket : public eqNet::ObjectPacket
+    struct ChannelConfigInitReplyPacket : public eqNet::ObjectPacket
     {
-        ChannelInitReplyPacket( const ChannelInitPacket* requestPacket )
+        ChannelConfigInitReplyPacket( const ChannelConfigInitPacket* 
+                                      requestPacket )
             {
-                command   = CMD_CHANNEL_INIT_REPLY;
+                command   = CMD_CHANNEL_CONFIG_INIT_REPLY;
                 requestID = requestPacket->requestID;
-                size      = sizeof( ChannelInitReplyPacket );
+                size      = sizeof( ChannelConfigInitReplyPacket );
                 error[0]  = '\0';
             }
 
@@ -676,24 +677,25 @@ namespace eq
         EQ_ALIGN8( char error[8] );
     };
 
-    struct ChannelExitPacket : public eqNet::ObjectPacket
+    struct ChannelConfigExitPacket : public eqNet::ObjectPacket
     {
-        ChannelExitPacket()
+        ChannelConfigExitPacket()
             {
-                command = CMD_CHANNEL_EXIT;
-                size    = sizeof( ChannelExitPacket );
+                command = CMD_CHANNEL_CONFIG_EXIT;
+                size    = sizeof( ChannelConfigExitPacket );
             }
 
         uint32_t requestID;
     };
 
-    struct ChannelExitReplyPacket : public eqNet::ObjectPacket
+    struct ChannelConfigExitReplyPacket : public eqNet::ObjectPacket
     {
-        ChannelExitReplyPacket( const ChannelExitPacket* requestPacket )
+        ChannelConfigExitReplyPacket( const ChannelConfigExitPacket* 
+                                      requestPacket )
             {
-                command   = CMD_CHANNEL_EXIT_REPLY;
+                command   = CMD_CHANNEL_CONFIG_EXIT_REPLY;
                 requestID = requestPacket->requestID;
-                size      = sizeof( ChannelExitReplyPacket );
+                size      = sizeof( ChannelConfigExitReplyPacket );
             }
 
         uint32_t requestID;
@@ -892,21 +894,21 @@ namespace eq
     }
 
     inline std::ostream& operator << ( std::ostream& os, 
-                                       const PipeInitPacket* packet )
+                                       const PipeConfigInitPacket* packet )
     {
         os << (eqNet::ObjectPacket*)packet << " init id " << packet->initID
            << " display " << packet->display << " screen " << packet->screen;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                       const PipeInitReplyPacket* packet )
+                                       const PipeConfigInitReplyPacket* packet )
     {
         os << (eqNet::ObjectPacket*)packet << " result " << packet->result;
         return os;
     }
 
     inline std::ostream& operator << ( std::ostream& os, 
-                                       const WindowInitReplyPacket* packet )
+                                     const WindowConfigInitReplyPacket* packet )
     {
         os << (eqNet::ObjectPacket*)packet << " result " << packet->result
            << " pvp " << packet->pvp;
@@ -934,7 +936,7 @@ namespace eq
     }
 
     inline std::ostream& operator << ( std::ostream& os, 
-                                       const ChannelInitReplyPacket* packet )
+                                    const ChannelConfigInitReplyPacket* packet )
     {
         os << (eqNet::ObjectPacket*)packet << " result " << packet->result;
         return os;

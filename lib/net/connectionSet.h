@@ -72,6 +72,9 @@ namespace eqNet
         eqBase::RefPtr<Connection> getConnection(){ return _connection; }
 
     private:
+        /** Mutex protecting changes to the set. */
+        eqBase::SpinLock _mutex;
+
         /** The connections to handle */
         std::vector< eqBase::RefPtr<Connection> > _connections;
 

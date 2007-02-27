@@ -158,12 +158,12 @@ namespace eq
          * 
          * @param initID the init identifier.
          */
-        virtual bool init( const uint32_t initID ){ return true; }
+        virtual bool configInit( const uint32_t initID ){ return true; }
 
         /** 
          * Exit this channel.
          */
-        virtual bool exit(){ return true; }
+        virtual bool configExit(){ return true; }
 
         /** 
          * Clear the frame buffer.
@@ -244,7 +244,7 @@ namespace eq
          * Set a message why the last operation failed.
          * 
          * The message will be transmitted to the originator of the request, for
-         * example to Config::init when set from within the init method.
+         * example to Config::init when set from within the configInit method.
          *
          * @param message the error message.
          */
@@ -304,8 +304,8 @@ namespace eq
 
         /* The command handler functions. */
         eqNet::CommandResult _pushCommand( eqNet::Command& command );
-        eqNet::CommandResult _reqInit( eqNet::Command& command );
-        eqNet::CommandResult _reqExit( eqNet::Command& command );
+        eqNet::CommandResult _reqConfigInit( eqNet::Command& command );
+        eqNet::CommandResult _reqConfigExit( eqNet::Command& command );
         eqNet::CommandResult _reqClear( eqNet::Command& command );
         eqNet::CommandResult _reqDraw( eqNet::Command& command );
         eqNet::CommandResult _reqAssemble( eqNet::Command& command );

@@ -26,10 +26,10 @@ void Pipe::_construct()
     _screen           = EQ_UNDEFINED_UINT32;
     _state            = STATE_STOPPED;
 
-    registerCommand( eq::CMD_PIPE_INIT_REPLY,
-                     eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdInitReply ));
-    registerCommand( eq::CMD_PIPE_EXIT_REPLY, 
-                     eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdExitReply ));
+    registerCommand( eq::CMD_PIPE_CONFIG_INIT_REPLY,
+                  eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdConfigInitReply ));
+    registerCommand( eq::CMD_PIPE_CONFIG_EXIT_REPLY, 
+                  eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdConfigExitReply ));
 
     EQINFO << "New pipe @" << (void*)this << endl;
 }
@@ -110,11 +110,11 @@ void Pipe::unrefUsed()
 //===========================================================================
 
 //---------------------------------------------------------------------------
-// init
+// configInit
 //---------------------------------------------------------------------------
-void Pipe::startInit( const uint32_t initID )
+void Pipe::startConfigInit( const uint32_t initID )
 {
-    _sendInit( initID );
+    _sendConfigInit( initID );
 
     Config*                    config = getConfig();
     eq::PipeCreateWindowPacket createWindowPacket;
@@ -129,17 +129,17 @@ void Pipe::startInit( const uint32_t initID )
             createWindowPacket.windowID = window->getID();
             _send( createWindowPacket );
 
-            window->startInit( initID );
+            window->startConfigInit( initID );
         }
     }
     _state = STATE_INITIALISING;
 }
 
-void Pipe::_sendInit( const uint32_t initID )
+void Pipe::_sendConfigInit( const uint32_t initID )
 {
     EQASSERT( _pendingRequestID == EQ_ID_INVALID );
 
-    eq::PipeInitPacket packet;
+    eq::PipeConfigInitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     packet.initID     = initID;
@@ -150,7 +150,7 @@ void Pipe::_sendInit( const uint32_t initID )
     _send( packet );
 }
 
-bool Pipe::syncInit()
+bool Pipe::syncConfigInit()
 {
     bool      success  = true;
     string    error;
@@ -160,7 +160,7 @@ bool Pipe::syncInit()
     {
         Window* window = _windows[i];
         if( window->isUsed( ))
-            if( !window->syncInit( ))
+            if( !window->syncConfigInit( ))
             {
                 error += (' ' + window->getErrorMessage( ));
                 success = false;
@@ -183,9 +183,9 @@ bool Pipe::syncInit()
 }
 
 //---------------------------------------------------------------------------
-// exit
+// configExit
 //---------------------------------------------------------------------------
-void Pipe::startExit()
+void Pipe::startConfigExit()
 {
     _state = STATE_STOPPING;
     const int nWindows = _windows.size();
@@ -195,23 +195,23 @@ void Pipe::startExit()
         if( window->getState() == Window::STATE_STOPPED )
             continue;
 
-        window->startExit();
+        window->startConfigExit();
     }
 
-    _sendExit();
+    _sendConfigExit();
 }
 
-void Pipe::_sendExit()
+void Pipe::_sendConfigExit()
 {
     EQASSERT( _pendingRequestID == EQ_ID_INVALID );
 
-    eq::PipeExitPacket packet;
+    eq::PipeConfigExitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     _send( packet );
 }
 
-bool Pipe::syncExit()
+bool Pipe::syncConfigExit()
 {
     EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
@@ -228,7 +228,7 @@ bool Pipe::syncExit()
         if( window->getState() != Window::STATE_STOPPING )
             continue;
 
-        if( !window->syncExit( ))
+        if( !window->syncConfigExit( ))
             success = false;
 
         destroyWindowPacket.windowID = window->getID();
@@ -292,11 +292,11 @@ void Pipe::setPixelViewport( const eq::PixelViewport& pvp )
 //===========================================================================
 // command handling
 //===========================================================================
-eqNet::CommandResult Pipe::_cmdInitReply( eqNet::Command& command ) 
+eqNet::CommandResult Pipe::_cmdConfigInitReply( eqNet::Command& command ) 
 {
-    const eq::PipeInitReplyPacket* packet = 
-        command.getPacket<eq::PipeInitReplyPacket>();
-    EQINFO << "handle pipe init reply " << packet << endl;
+    const eq::PipeConfigInitReplyPacket* packet = 
+        command.getPacket<eq::PipeConfigInitReplyPacket>();
+    EQINFO << "handle pipe configInit reply " << packet << endl;
 
     _error = packet->error;
     setPixelViewport( packet->pvp );
@@ -305,11 +305,11 @@ eqNet::CommandResult Pipe::_cmdInitReply( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_cmdExitReply( eqNet::Command& command ) 
+eqNet::CommandResult Pipe::_cmdConfigExitReply( eqNet::Command& command ) 
 {
-    const eq::PipeExitReplyPacket* packet = 
-        command.getPacket<eq::PipeExitReplyPacket>();
-    EQINFO << "handle pipe exit reply " << packet << endl;
+    const eq::PipeConfigExitReplyPacket* packet = 
+        command.getPacket<eq::PipeConfigExitReplyPacket>();
+    EQINFO << "handle pipe configExit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );
     return eqNet::COMMAND_HANDLED;

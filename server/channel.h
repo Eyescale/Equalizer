@@ -132,7 +132,7 @@ namespace eqs
          *
          * @param initID an identifier to be passed to all init methods.
          */
-        void startInit( const uint32_t initID );
+        void startConfigInit( const uint32_t initID );
 
         /** 
          * Synchronize the initialisation of the node.
@@ -140,12 +140,12 @@ namespace eqs
          * @return <code>true</code> if the node was initialised successfully,
          *         <code>false</code> if not.
          */
-        bool syncInit();
+        bool syncConfigInit();
         
         /** 
          * Starts exiting this node.
          */
-        void startExit();
+        void startConfigExit();
 
         /** 
          * Synchronize the exit of the node.
@@ -153,7 +153,7 @@ namespace eqs
          * @return <code>true</code> if the node exited cleanly,
          *         <code>false</code> if not.
          */
-        bool syncExit();
+        bool syncConfigExit();
 
         /** 
          * Update one frame.
@@ -241,15 +241,15 @@ namespace eqs
         /** common code for all constructors */
         void _construct();
 
-        void _sendInit( const uint32_t initID );
-        void _sendExit();
+        void _sendConfigInit( const uint32_t initID );
+        void _sendConfigExit();
 
         eqBase::RefPtr<eqNet::Node> _getNetNode() const 
             { return getNode()->getNode(); }
 
         /* command handler functions. */
-        eqNet::CommandResult _cmdInitReply( eqNet::Command& command );
-        eqNet::CommandResult _cmdExitReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdConfigInitReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdConfigExitReply( eqNet::Command& command );
         eqNet::CommandResult _reqSetNearFar( eqNet::Command& command );
     };
 

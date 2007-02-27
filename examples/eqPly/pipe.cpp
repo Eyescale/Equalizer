@@ -17,7 +17,7 @@
 using namespace std;
 using namespace eqBase;
 
-bool Pipe::init( const uint32_t initID )
+bool Pipe::configInit( const uint32_t initID )
 {
     const Node*     node        = static_cast<Node*>( getNode( ));
     const InitData& initData    = node->getInitData();
@@ -27,15 +27,15 @@ bool Pipe::init( const uint32_t initID )
     const bool mapped = config->mapObject( &_frameData, frameDataID );
     EQASSERT( mapped );
 
-    return eq::Pipe::init( initID );
+    return eq::Pipe::configInit( initID );
 }
 
-bool Pipe::exit()
+bool Pipe::configExit()
 {
     eq::Config* config = getConfig();
     config->unmapObject( &_frameData );
 
-    return eq::Pipe::exit();
+    return eq::Pipe::configExit();
 }
 
 void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber )

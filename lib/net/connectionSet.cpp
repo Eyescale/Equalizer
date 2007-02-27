@@ -64,20 +64,29 @@ void ConnectionSet::addConnection( RefPtr<Connection> connection )
     EQASSERT( connection->getState() == Connection::STATE_CONNECTED ||
             connection->getState() == Connection::STATE_LISTENING );
 
+    _mutex.set();
     _connections.push_back( connection );
+    _mutex.unset();
     _dirtyFDSet();
 }
 
 bool ConnectionSet::removeConnection( eqBase::RefPtr<Connection> connection )
 {
+    _mutex.set();
     vector< eqBase::RefPtr<Connection> >::iterator eraseIter =
         find( _connections.begin(), _connections.end(), connection );
+
     if( eraseIter == _connections.end( ))
+    {
+        _mutex.unset();
         return false;
+    }
 
     _connections.erase( eraseIter );
+    _mutex.unset();
+
     if( _connection == connection )
-        _connection = NULL;
+        _connection = 0;
 
     _dirtyFDSet();
     return true;
@@ -244,6 +253,7 @@ bool ConnectionSet::_setupFDSet()
     _fdSet.push_back( readHandle );
 
     // add regular connections
+    _mutex.set();
     for( vector< RefPtr<Connection> >::const_iterator i = _connections.begin();
          i != _connections.end(); ++i )
     {
@@ -261,6 +271,7 @@ bool ConnectionSet::_setupFDSet()
         _fdSetConnections[readHandle] = connection.get();
         _fdSet.push_back( readHandle );
     }
+    _mutex.unset();
 #else
     _fdSet.clear();
 
@@ -274,6 +285,7 @@ bool ConnectionSet::_setupFDSet()
     _fdSet.push_back( fd );
 
     // add regular connections
+    _mutex.set();
     for( vector< RefPtr<Connection> >::const_iterator i = _connections.begin();
          i != _connections.end(); ++i )
     {
@@ -292,6 +304,7 @@ bool ConnectionSet::_setupFDSet()
         fd.revents = 0;
         _fdSet.push_back( fd );
     }
+    _mutex.unset();
 #endif
     return true;
 }   

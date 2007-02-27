@@ -20,7 +20,7 @@ public:
     Channel(){}
 
 protected:
-    virtual bool init( const uint32_t initID );
+    virtual bool configInit( const uint32_t initID );
     virtual void draw( const uint32_t frameID );
 
 private:

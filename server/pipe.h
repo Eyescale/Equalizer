@@ -135,7 +135,7 @@ namespace eqs
          *
          * @param initID an identifier to be passed to all init methods.
          */
-        void startInit( const uint32_t initID );
+        void startConfigInit( const uint32_t initID );
 
         /** 
          * Synchronize the initialisation of the pipe.
@@ -143,12 +143,12 @@ namespace eqs
          * @return <code>true</code> if the pipe was initialised successfully,
          *         <code>false</code> if not.
          */
-        bool syncInit();
+        bool syncConfigInit();
         
         /** 
          * Starts exiting this pipe.
          */
-        void startExit();
+        void startConfigExit();
 
         /** 
          * Synchronize the exit of the pipe.
@@ -156,7 +156,7 @@ namespace eqs
          * @return <code>true</code> if the pipe exited cleanly,
          *         <code>false</code> if not.
          */
-        bool syncExit();
+        bool syncConfigExit();
 
         /** 
          * Trigger the rendering of a new frame.
@@ -218,12 +218,12 @@ namespace eqs
         void _send( eqNet::ObjectPacket& packet )
             { send( _node->getNode(), packet ); }
 
-        void _sendInit( const uint32_t initID );
-        void _sendExit();
+        void _sendConfigInit( const uint32_t initID );
+        void _sendConfigExit();
 
         /* command handler functions. */
-        eqNet::CommandResult _cmdInitReply(eqNet::Command& command );
-        eqNet::CommandResult _cmdExitReply(eqNet::Command& command );
+        eqNet::CommandResult _cmdConfigInitReply(eqNet::Command& command );
+        eqNet::CommandResult _cmdConfigExitReply(eqNet::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Pipe* pipe );

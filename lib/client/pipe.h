@@ -98,7 +98,7 @@ namespace eq
         /** 
          * Set the X display connection for this pipe.
          * 
-         * This function should only be called from init() or exit(). Updates
+         * This function should only be called from configInit() or configExit(). Updates
          * the pixel viewport.
          *
          * @param display the X display connection for this pipe.
@@ -124,7 +124,7 @@ namespace eq
         /** 
          * Set the CGL display ID for this pipe.
          * 
-         * This function should only be called from init() or exit().
+         * This function should only be called from configInit() or configExit().
          *
          * @param id the CGL display ID for this pipe.
          */
@@ -139,7 +139,7 @@ namespace eq
         /** 
          * Set the Win32 device context for this pipe.
          * 
-         * This function should only be called from init() or exit(). Updates
+         * This function should only be called from configInit() or configExit(). Updates
          * the pixel viewport.
          *
          * @param dc the device context for this pipe.
@@ -259,18 +259,18 @@ namespace eq
          * 
          * @param initID the init identifier.
          */
-        virtual bool init( const uint32_t initID );
-        virtual bool initGLX();
-        virtual bool initCGL();
-        virtual bool initWGL();
+        virtual bool configInit( const uint32_t initID );
+        virtual bool configInitGLX();
+        virtual bool configInitCGL();
+        virtual bool configInitWGL();
 
         /** 
          * Exit this pipe.
          */
-        virtual bool exit();
-        virtual void exitGLX();
-        virtual void exitCGL();
-        virtual void exitWGL();
+        virtual bool configExit();
+        virtual void configExitGLX();
+        virtual void configExitCGL();
+        virtual void configExitWGL();
 
         /**
          * Start rendering a frame.
@@ -308,7 +308,7 @@ namespace eq
          * Set a message why the last operation failed.
          * 
          * The message will be transmitted to the originator of the request, for
-         * example to Config::init when set from within the init method.
+         * example to Config::init when set from within the configInit method.
          *
          * @param message the error message.
          */
@@ -406,10 +406,10 @@ namespace eq
         /* The command functions. */
         eqNet::CommandResult _cmdCreateWindow( eqNet::Command& command );
         eqNet::CommandResult _cmdDestroyWindow( eqNet::Command& command );
-        eqNet::CommandResult _cmdInit( eqNet::Command& command );
-        eqNet::CommandResult _reqInit( eqNet::Command& command );
-        eqNet::CommandResult _cmdExit( eqNet::Command& command );
-        eqNet::CommandResult _reqExit( eqNet::Command& command );
+        eqNet::CommandResult _cmdConfigInit( eqNet::Command& command );
+        eqNet::CommandResult _reqConfigInit( eqNet::Command& command );
+        eqNet::CommandResult _cmdConfigExit( eqNet::Command& command );
+        eqNet::CommandResult _reqConfigExit( eqNet::Command& command );
         eqNet::CommandResult _cmdFrameStart( eqNet::Command& command );
         eqNet::CommandResult _reqFrameStart( eqNet::Command& command );
         eqNet::CommandResult _reqFrameFinish( eqNet::Command& command );

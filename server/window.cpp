@@ -23,10 +23,10 @@ void eqs::Window::_construct()
     _pendingRequestID = EQ_ID_INVALID;
     _state            = STATE_STOPPED;
 
-    registerCommand( eq::CMD_WINDOW_INIT_REPLY, 
-                     eqNet::CommandFunc<Window>( this, &Window::_cmdInitReply));
-    registerCommand( eq::CMD_WINDOW_EXIT_REPLY, 
-                     eqNet::CommandFunc<Window>( this, &Window::_cmdExitReply));
+    registerCommand( eq::CMD_WINDOW_CONFIG_INIT_REPLY, 
+               eqNet::CommandFunc<Window>( this, &Window::_cmdConfigInitReply));
+    registerCommand( eq::CMD_WINDOW_CONFIG_EXIT_REPLY, 
+               eqNet::CommandFunc<Window>( this, &Window::_cmdConfigExitReply));
     registerCommand( eq::CMD_WINDOW_SET_PVP, 
                      eqNet::CommandFunc<Window>( this, &Window::_cmdPush ));
     registerCommand( eq::REQ_WINDOW_SET_PVP,
@@ -214,11 +214,11 @@ void eqs::Window::joinSwapBarrier( eqNet::Barrier* barrier )
 //===========================================================================
 
 //---------------------------------------------------------------------------
-// init
+// configInit
 //---------------------------------------------------------------------------
-void eqs::Window::startInit( const uint32_t initID )
+void eqs::Window::startConfigInit( const uint32_t initID )
 {
-    _sendInit( initID );
+    _sendConfigInit( initID );
 
     Config* config = getConfig();
     eq::WindowCreateChannelPacket createChannelPacket;
@@ -233,17 +233,17 @@ void eqs::Window::startInit( const uint32_t initID )
             createChannelPacket.channelID = channel->getID();
             _send( createChannelPacket );
 
-            channel->startInit( initID );
+            channel->startConfigInit( initID );
         }
     }
     _state = STATE_INITIALISING;
 }
 
-void eqs::Window::_sendInit( const uint32_t initID )
+void eqs::Window::_sendConfigInit( const uint32_t initID )
 {
     EQASSERT( _pendingRequestID == EQ_ID_INVALID );
 
-    eq::WindowInitPacket packet;
+    eq::WindowConfigInitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
 
     packet.requestID = _pendingRequestID;
@@ -254,10 +254,10 @@ void eqs::Window::_sendInit( const uint32_t initID )
         packet.iattr[i] = _iAttributes[i];
     
     _send( packet, getName( ));
-    EQLOG( eq::LOG_TASKS ) << "TASK init  " << &packet << endl;
+    EQLOG( eq::LOG_TASKS ) << "TASK configInit  " << &packet << endl;
 }
 
-bool eqs::Window::syncInit()
+bool eqs::Window::syncConfigInit()
 {
     bool success = true;
     string error;
@@ -267,7 +267,7 @@ bool eqs::Window::syncInit()
     {
         Channel* channel = *iter;
         if( channel->isUsed( ))
-            if( !channel->syncInit( ))
+            if( !channel->syncConfigInit( ))
             {
                 error += (' ' + channel->getErrorMessage());
                 success = false;
@@ -290,9 +290,9 @@ bool eqs::Window::syncInit()
 }
 
 //---------------------------------------------------------------------------
-// exit
+// configExit
 //---------------------------------------------------------------------------
-void eqs::Window::startExit()
+void eqs::Window::startConfigExit()
 {
     _state = STATE_STOPPING;
     for( std::vector<Channel*>::iterator iter = _channels.begin(); 
@@ -302,24 +302,24 @@ void eqs::Window::startExit()
         if( channel->getState() == Channel::STATE_STOPPED )
             continue;
 
-        channel->startExit();
+        channel->startConfigExit();
     }
 
-    _sendExit();
+    _sendConfigExit();
 }
 
-void eqs::Window::_sendExit()
+void eqs::Window::_sendConfigExit()
 {
     EQASSERT( _pendingRequestID == EQ_ID_INVALID );
 
-    eq::WindowExitPacket packet;
+    eq::WindowConfigExitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     _send( packet );
-    EQLOG( eq::LOG_TASKS ) << "TASK exit  " << &packet << endl;
+    EQLOG( eq::LOG_TASKS ) << "TASK configExit  " << &packet << endl;
 }
 
-bool eqs::Window::syncExit()
+bool eqs::Window::syncConfigExit()
 {
     EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
@@ -336,7 +336,7 @@ bool eqs::Window::syncExit()
         if( channel->getState() != Channel::STATE_STOPPING )
             continue;
 
-        if( !channel->syncExit( ))
+        if( !channel->syncConfigExit( ))
             success = false;
 
         destroyChannelPacket.channelID = channel->getID();
@@ -419,11 +419,11 @@ void eqs::Window::_updateSwap()
 //===========================================================================
 // command handling
 //===========================================================================
-eqNet::CommandResult eqs::Window::_cmdInitReply( eqNet::Command& command )
+eqNet::CommandResult eqs::Window::_cmdConfigInitReply( eqNet::Command& command )
 {
-    const eq::WindowInitReplyPacket* packet =
-        command.getPacket<eq::WindowInitReplyPacket>();
-    EQINFO << "handle window init reply " << packet << endl;
+    const eq::WindowConfigInitReplyPacket* packet =
+        command.getPacket<eq::WindowConfigInitReplyPacket>();
+    EQINFO << "handle window configInit reply " << packet << endl;
 
     if( packet->result )
         _drawableConfig = packet->drawableConfig;
@@ -436,11 +436,11 @@ eqNet::CommandResult eqs::Window::_cmdInitReply( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eqs::Window::_cmdExitReply( eqNet::Command& command )
+eqNet::CommandResult eqs::Window::_cmdConfigExitReply( eqNet::Command& command )
 {
-    const eq::WindowExitReplyPacket* packet =
-        command.getPacket<eq::WindowExitReplyPacket>();
-    EQINFO << "handle window exit reply " << packet << endl;
+    const eq::WindowConfigExitReplyPacket* packet =
+        command.getPacket<eq::WindowConfigExitReplyPacket>();
+    EQINFO << "handle window configExit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );
     return eqNet::COMMAND_HANDLED;

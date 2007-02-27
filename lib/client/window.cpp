@@ -45,14 +45,14 @@ eq::Window::Window()
                 eqNet::CommandFunc<Window>( this, &Window::_cmdCreateChannel ));
     registerCommand( CMD_WINDOW_DESTROY_CHANNEL,
                eqNet::CommandFunc<Window>( this, &Window::_cmdDestroyChannel ));
-    registerCommand( CMD_WINDOW_INIT,
+    registerCommand( CMD_WINDOW_CONFIG_INIT,
                      eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
-    registerCommand( REQ_WINDOW_INIT, 
-                     eqNet::CommandFunc<Window>( this, &Window::_reqInit ));
-    registerCommand( CMD_WINDOW_EXIT, 
+    registerCommand( REQ_WINDOW_CONFIG_INIT, 
+                   eqNet::CommandFunc<Window>( this, &Window::_reqConfigInit ));
+    registerCommand( CMD_WINDOW_CONFIG_EXIT, 
                      eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
-    registerCommand( REQ_WINDOW_EXIT, 
-                     eqNet::CommandFunc<Window>( this, &Window::_reqExit ));
+    registerCommand( REQ_WINDOW_CONFIG_EXIT, 
+                   eqNet::CommandFunc<Window>( this, &Window::_reqConfigExit ));
     registerCommand( CMD_WINDOW_FINISH, 
                      eqNet::CommandFunc<Window>( this, &Window::_pushCommand));
     registerCommand( REQ_WINDOW_FINISH, 
@@ -156,10 +156,10 @@ eqNet::CommandResult eq::Window::_cmdDestroyChannel(eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_reqInit( eqNet::Command& command )
+eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
 {
-    const WindowInitPacket* packet = command.getPacket<WindowInitPacket>();
-    EQINFO << "handle window init " << packet << endl;
+    const WindowConfigInitPacket* packet = command.getPacket<WindowConfigInitPacket>();
+    EQINFO << "handle window configInit " << packet << endl;
 
     if( packet->pvp.isValid( ))
         _setPixelViewport( packet->pvp );
@@ -171,8 +171,8 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Command& command )
         _iAttributes[i] = packet->iattr[i];
 
     _error.clear();
-    WindowInitReplyPacket reply( packet );
-    reply.result = init( packet->initID );
+    WindowConfigInitReplyPacket reply( packet );
+    reply.result = configInit( packet->initID );
 
     RefPtr<eqNet::Node> node = command.getNode();
     if( !reply.result )
@@ -187,7 +187,7 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Command& command )
         case WINDOW_SYSTEM_GLX:
             if( !_xDrawable || !_glXContext )
             {
-                EQERROR << "init() did not provide a drawable and context" 
+                EQERROR << "configInit() did not provide a drawable and context" 
                         << endl;
                 reply.result = false;
                 send( node, reply );
@@ -198,7 +198,8 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Command& command )
         case WINDOW_SYSTEM_CGL:
             if( !_cglContext )
             {
-                EQERROR << "init() did not provide an OpenGL context" << endl;
+                EQERROR << "configInit() did not provide an OpenGL context" 
+                        << endl;
                 reply.result = false;
                 send( node, reply );
                 return eqNet::COMMAND_HANDLED;
@@ -209,8 +210,8 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Command& command )
         case WINDOW_SYSTEM_WGL:
             if( !_wglWindowHandle || !_wglContext )
             {
-                EQERROR << "init() did not provide a window handle and context" 
-                        << endl;
+                EQERROR << "configInit() did not provide a window handle and"
+                        << " context" << endl;
                 reply.result = false;
                 send( node, reply );
                 return eqNet::COMMAND_HANDLED;
@@ -238,18 +239,19 @@ eqNet::CommandResult eq::Window::_reqInit( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_reqExit( eqNet::Command& command )
+eqNet::CommandResult eq::Window::_reqConfigExit( eqNet::Command& command )
 {
-    const WindowExitPacket* packet = command.getPacket<WindowExitPacket>();
-    EQINFO << "handle window exit " << packet << endl;
+    const WindowConfigExitPacket* packet =
+        command.getPacket<WindowConfigExitPacket>();
+    EQINFO << "handle window configExit " << packet << endl;
 
     EventHandler* thread = EventHandler::get( _pipe->getWindowSystem( ));
     thread->removeWindow( this );
 
     _pipe->testMakeCurrentWindow( this );
-    exit();
+    configExit();
 
-    WindowExitReplyPacket reply( packet );
+    WindowConfigExitReplyPacket reply( packet );
     send( command.getNode(), reply );
     return eqNet::COMMAND_HANDLED;
 }
@@ -292,7 +294,7 @@ eqNet::CommandResult eq::Window::_reqStartFrame(eqNet::Command& command )
 
     _pipe->testMakeCurrentWindow( this );
 
-#ifdef GLX // handle window close request - see comment in initGLX
+#ifdef GLX // handle window close request - see comment in configInitGLX
     if( _pipe->getWindowSystem() == WINDOW_SYSTEM_GLX )
     {
         Display*  display = _pipe->getXDisplay();
@@ -386,25 +388,25 @@ void eq::Window::_setViewport( const Viewport& vp )
 
 
 //----------------------------------------------------------------------
-// init
+// configInit
 //----------------------------------------------------------------------
-bool eq::Window::init( const uint32_t initID )
+bool eq::Window::configInit( const uint32_t initID )
 {
     const WindowSystem windowSystem = _pipe->getWindowSystem();
     switch( windowSystem )
     {
         case WINDOW_SYSTEM_GLX:
-            if( !initGLX( ))
+            if( !configInitGLX( ))
                 return false;
             break;
 
         case WINDOW_SYSTEM_CGL:
-            if( !initCGL( ))
+            if( !configInitCGL( ))
                 return false;
             break;
 
         case WINDOW_SYSTEM_WGL:
-            if( !initWGL( ))
+            if( !configInitWGL( ))
                 return false;
             break;
 
@@ -412,10 +414,10 @@ bool eq::Window::init( const uint32_t initID )
             EQERROR << "Unknown windowing system: " << windowSystem << endl;
             return false;
     }
-    return initGL( initID );
+    return configInitGL( initID );
 }
 
-bool eq::Window::initGL( const uint32_t initID )
+bool eq::Window::configInitGL( const uint32_t initID )
 {
     glEnable( GL_SCISSOR_TEST ); // needed to constrain channel viewport
     glEnable( GL_DEPTH_TEST );
@@ -442,7 +444,7 @@ static Bool WaitForNotify( Display*, XEvent *e, char *arg )
 { return (e->type == MapNotify) && (e->xmap.window == (::Window)arg); }
 #endif
 
-bool eq::Window::initGLX()
+bool eq::Window::configInitGLX()
 {
 #ifdef GLX
     Display* display = _pipe->getXDisplay();
@@ -597,7 +599,7 @@ bool eq::Window::initGLX()
 #endif
 }
 
-bool eq::Window::initCGL()
+bool eq::Window::configInitCGL()
 {
 #ifdef CGL
     CGDirectDisplayID displayID = _pipe->getCGLDisplayID();
@@ -695,7 +697,7 @@ bool eq::Window::initCGL()
 #endif
 }
 
-bool eq::Window::initWGL()
+bool eq::Window::configInitWGL()
 {
 #ifdef WGL
     // window class
@@ -705,7 +707,7 @@ bool eq::Window::initWGL()
                                   
     HINSTANCE instance = GetModuleHandle( 0 );
     WNDCLASS  wc;
-    wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;                          
+    wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC; 
     wc.lpfnWndProc   = WGLEventHandler::wndProc;    
     wc.cbClsExtra    = 0;                     
     wc.cbWndExtra    = 0;                  
@@ -805,7 +807,7 @@ bool eq::Window::initWGL()
 
     if( pf == 0 && getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
     {        
-        EQINFO << "Doublebuffer not available, requesting singlebuffered visual" 
+        EQINFO << "Doublebuffer not available, requesting singlebuffer visual" 
                << endl;
         pfd.dwFlags |= PFD_DOUBLEBUFFER_DONTCARE;
         pf = ChoosePixelFormat( dc, &pfd );
@@ -857,23 +859,23 @@ bool eq::Window::initWGL()
 }
 
 //----------------------------------------------------------------------
-// exit
+// configExit
 //----------------------------------------------------------------------
-bool eq::Window::exit()
+bool eq::Window::configExit()
 {
     const WindowSystem windowSystem = _pipe->getWindowSystem();
     switch( windowSystem )
     {
         case WINDOW_SYSTEM_GLX:
-            exitGLX();
+            configExitGLX();
             return true;
 
         case WINDOW_SYSTEM_CGL:
-            exitCGL();
+            configExitCGL();
             return false;
 
         case WINDOW_SYSTEM_WGL:
-            exitWGL();
+            configExitWGL();
             return false;
 
         default:
@@ -882,7 +884,7 @@ bool eq::Window::exit()
     }
 }
 
-void eq::Window::exitGLX()
+void eq::Window::configExitGLX()
 {
 #ifdef GLX
     Display *display = _pipe->getXDisplay();
@@ -904,7 +906,7 @@ void eq::Window::exitGLX()
 #endif
 }
 
-void eq::Window::exitCGL()
+void eq::Window::configExitCGL()
 {
 #ifdef CGL
     CGLContextObj context = getCGLContext();
@@ -920,7 +922,7 @@ void eq::Window::exitCGL()
 #endif
 }
 
-void eq::Window::exitWGL()
+void eq::Window::configExitWGL()
 {
 #ifdef WGL
     wglMakeCurrent( 0, 0 );

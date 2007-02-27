@@ -491,7 +491,7 @@ bool Config::_initPipes( const uint32_t initID )
             registerObject( pipe );
             createPipePacket.pipeID = pipe->getID();
             node->send( createPipePacket );
-            pipe->startInit( initID ); // recurses down
+            pipe->startConfigInit( initID ); // recurses down
         }
     }
 
@@ -510,7 +510,7 @@ bool Config::_initPipes( const uint32_t initID )
             if( !pipe->isUsed( ))
                 continue;
 
-            if( !pipe->syncInit( ))
+            if( !pipe->syncConfigInit( ))
             {
                 _error += (' ' + pipe->getErrorMessage( ));
                 success = false;
@@ -571,7 +571,7 @@ bool Config::_exitPipes()
             if( pipe->getState() == Pipe::STATE_STOPPED )
                 continue;
 
-            pipe->startExit();
+            pipe->startConfigExit();
         }
     }
 
@@ -592,7 +592,7 @@ bool Config::_exitPipes()
             if( pipe->getState() != Pipe::STATE_STOPPING )
                 continue;
 
-            if( !pipe->syncExit( ))
+            if( !pipe->syncConfigExit( ))
             {
                 EQWARN << "Could not exit cleanly: " << pipe << endl;
                 success = false;

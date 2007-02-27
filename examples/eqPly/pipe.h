@@ -19,8 +19,8 @@ public:
     GLuint newDisplayList( const void* key );
 
 protected:
-    virtual bool init( const uint32_t initID );
-    virtual bool exit();
+    virtual bool configInit( const uint32_t initID );
+    virtual bool configExit();
     virtual void frameStart( const uint32_t frameID, 
                              const uint32_t frameNumber );
 

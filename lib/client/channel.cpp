@@ -29,14 +29,14 @@ Channel::Channel()
           _context( NULL ),
           _frustum( vmml::Frustumf::DEFAULT )
 {
-    registerCommand( CMD_CHANNEL_INIT,
+    registerCommand( CMD_CHANNEL_CONFIG_INIT,
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
-    registerCommand( REQ_CHANNEL_INIT, 
-                     eqNet::CommandFunc<Channel>( this, &Channel::_reqInit ));
-    registerCommand( CMD_CHANNEL_EXIT, 
+    registerCommand( REQ_CHANNEL_CONFIG_INIT, 
+                 eqNet::CommandFunc<Channel>( this, &Channel::_reqConfigInit ));
+    registerCommand( CMD_CHANNEL_CONFIG_EXIT, 
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
-    registerCommand( REQ_CHANNEL_EXIT, 
-                     eqNet::CommandFunc<Channel>( this, &Channel::_reqExit ));
+    registerCommand( REQ_CHANNEL_CONFIG_EXIT, 
+                 eqNet::CommandFunc<Channel>( this, &Channel::_reqConfigExit ));
     registerCommand( CMD_CHANNEL_CLEAR, 
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_CLEAR, 
@@ -376,10 +376,12 @@ eqNet::CommandResult Channel::_pushCommand( eqNet::Command& command )
     return ( pipe ? pipe->pushCommand( command ) : _cmdUnknown( command ));
 }
 
-eqNet::CommandResult Channel::_reqInit( eqNet::Command& command )
+eqNet::CommandResult Channel::_reqConfigInit( eqNet::Command& command )
 {
-    const ChannelInitPacket* packet = command.getPacket<ChannelInitPacket>();
-    EQLOG( LOG_TASKS ) << "TASK init " << packet->name <<  " " << packet <<endl;
+    const ChannelConfigInitPacket* packet = 
+        command.getPacket<ChannelConfigInitPacket>();
+    EQLOG( LOG_TASKS ) << "TASK configInit " << packet->name <<  " " << packet
+                       << endl;
 
     if( packet->pvp.isValid( ))
         _setPixelViewport( packet->pvp );
@@ -391,22 +393,24 @@ eqNet::CommandResult Channel::_reqInit( eqNet::Command& command )
         _iAttributes[i] = packet->iattr[i];
 
     _error.clear();
-    ChannelInitReplyPacket reply( packet );
-    reply.result = init( packet->initID );
+    ChannelConfigInitReplyPacket reply( packet );
+    reply.result = configInit( packet->initID );
     reply.nearPlane   = _frustum.nearPlane;
     reply.farPlane    = _frustum.farPlane;
     send( command.getNode(), reply, _error );
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_reqExit( eqNet::Command& command )
+eqNet::CommandResult Channel::_reqConfigExit( eqNet::Command& command )
 {
-    const ChannelExitPacket* packet = command.getPacket<ChannelExitPacket>();
-    EQLOG( LOG_TASKS ) << "TASK exit " << getName() <<  " " << packet << endl;
+    const ChannelConfigExitPacket* packet =
+        command.getPacket<ChannelConfigExitPacket>();
+    EQLOG( LOG_TASKS ) << "TASK configExit " << getName() <<  " " << packet 
+                       << endl;
 
-    exit();
+    configExit();
 
-    ChannelExitReplyPacket reply( packet );
+    ChannelConfigExitReplyPacket reply( packet );
     send( command.getNode(), reply );
     return eqNet::COMMAND_HANDLED;
 }

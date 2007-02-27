@@ -28,10 +28,10 @@ void Channel::_construct()
     _state            = STATE_STOPPED;
     _fixedPVP         = false;
 
-    registerCommand( eq::CMD_CHANNEL_INIT_REPLY, 
-                  eqNet::CommandFunc<Channel>( this, &Channel::_cmdInitReply ));
-    registerCommand( eq::CMD_CHANNEL_EXIT_REPLY,
-                  eqNet::CommandFunc<Channel>( this, &Channel::_cmdExitReply ));
+    registerCommand( eq::CMD_CHANNEL_CONFIG_INIT_REPLY, 
+            eqNet::CommandFunc<Channel>( this, &Channel::_cmdConfigInitReply ));
+    registerCommand( eq::CMD_CHANNEL_CONFIG_EXIT_REPLY,
+            eqNet::CommandFunc<Channel>( this, &Channel::_cmdConfigExitReply ));
     registerCommand( eq::CMD_CHANNEL_SET_NEARFAR,
                      eqNet::CommandFunc<Channel>( this, &Channel::_cmdPush ));
     registerCommand( eq::REQ_CHANNEL_SET_NEARFAR,
@@ -145,18 +145,18 @@ void Channel::notifyViewportChanged()
 //===========================================================================
 
 //---------------------------------------------------------------------------
-// init
+// configInit
 //---------------------------------------------------------------------------
-void Channel::startInit( const uint32_t initID )
+void Channel::startConfigInit( const uint32_t initID )
 {
-    _sendInit( initID );
+    _sendConfigInit( initID );
 }
 
-void Channel::_sendInit( const uint32_t initID )
+void Channel::_sendConfigInit( const uint32_t initID )
 {
     EQASSERT( _pendingRequestID == EQ_ID_INVALID );
 
-    eq::ChannelInitPacket packet;
+    eq::ChannelConfigInitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     packet.initID     = initID;
@@ -169,7 +169,7 @@ void Channel::_sendInit( const uint32_t initID )
     _state = STATE_INITIALIZING;
 }
 
-bool Channel::syncInit()
+bool Channel::syncConfigInit()
 {
     const bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
     _pendingRequestID = EQ_ID_INVALID;
@@ -182,25 +182,25 @@ bool Channel::syncInit()
 }
 
 //---------------------------------------------------------------------------
-// exit
+// configExit
 //---------------------------------------------------------------------------
-void Channel::startExit()
+void Channel::startConfigExit()
 {
     _state = STATE_STOPPING;
-    _sendExit();
+    _sendConfigExit();
 }
 
-void Channel::_sendExit()
+void Channel::_sendConfigExit()
 {
     EQASSERT( _pendingRequestID == EQ_ID_INVALID );
 
-    eq::ChannelExitPacket packet;
+    eq::ChannelConfigExitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     Object::send( _getNetNode(), packet );
 }
 
-bool Channel::syncExit()
+bool Channel::syncConfigExit()
 {
     EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
@@ -235,11 +235,11 @@ void Channel::updateDraw( const uint32_t frameID )
 //===========================================================================
 // command handling
 //===========================================================================
-eqNet::CommandResult Channel::_cmdInitReply( eqNet::Command& command ) 
+eqNet::CommandResult Channel::_cmdConfigInitReply( eqNet::Command& command ) 
 {
-    const eq::ChannelInitReplyPacket* packet = 
-        command.getPacket<eq::ChannelInitReplyPacket>();
-    EQINFO << "handle channel init reply " << packet << endl;
+    const eq::ChannelConfigInitReplyPacket* packet = 
+        command.getPacket<eq::ChannelConfigInitReplyPacket>();
+    EQINFO << "handle channel configInit reply " << packet << endl;
 
     _near  = packet->nearPlane;
     _far   = packet->farPlane;
@@ -249,11 +249,11 @@ eqNet::CommandResult Channel::_cmdInitReply( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_cmdExitReply( eqNet::Command& command ) 
+eqNet::CommandResult Channel::_cmdConfigExitReply( eqNet::Command& command ) 
 {
-    const eq::ChannelExitReplyPacket* packet = 
-        command.getPacket<eq::ChannelExitReplyPacket>();
-    EQINFO << "handle channel exit reply " << packet << endl;
+    const eq::ChannelConfigExitReplyPacket* packet = 
+        command.getPacket<eq::ChannelConfigExitReplyPacket>();
+    EQINFO << "handle channel configExit reply " << packet << endl;
 
     _requestHandler.serveRequest( packet->requestID, (void*)true );
     return eqNet::COMMAND_HANDLED;

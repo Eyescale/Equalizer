@@ -22,7 +22,7 @@ static float lightpos[] = { 0.0f, 0.0f, 1.0f, 0.0f };
 #  define M_SQRT3_2  0.86603f  /* sqrt(3)/2 */
 #endif
 
-bool Channel::init( const uint32_t initID )
+bool Channel::configInit( const uint32_t initID )
 {
     EQINFO << "Init channel initID " << initID << " ptr " << this << endl;
 

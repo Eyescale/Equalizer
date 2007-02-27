@@ -55,7 +55,7 @@ namespace eq
         /** 
          * Set the X11 drawable ID for this window.
          * 
-         * This function should only be called from init() or exit().
+         * This function should only be called from configInit() or configExit().
          *
          * @param drawable the X11 drawable ID.
          */
@@ -67,7 +67,7 @@ namespace eq
         /** 
          * Set the GLX rendering context for this window.
          * 
-         * This function should only be called from init() or exit().
+         * This function should only be called from configInit() or configExit().
          *
          * @param drawable the GLX rendering context.
          */
@@ -79,7 +79,7 @@ namespace eq
         /** 
          * Set the CGL rendering context for this window.
          * 
-         * This function should only be called from init() or exit().
+         * This function should only be called from configInit() or configExit().
          *
          * @param drawable the CGL rendering context.
          */
@@ -94,7 +94,7 @@ namespace eq
         /** 
          * Set the Win32 window handle for this window.
          * 
-         * This function should only be called from init() or exit().
+         * This function should only be called from configInit() or configExit().
          *
          * @param drawable the window handle.
          */
@@ -106,7 +106,7 @@ namespace eq
         /** 
          * Set the WGL rendering context for this window.
          * 
-         * This function should only be called from init() or exit().
+         * This function should only be called from configInit() or configExit().
          *
          * @param drawable the WGL rendering context.
          */
@@ -180,10 +180,10 @@ namespace eq
          * 
          * @param initID the init identifier.
          */
-        virtual bool init( const uint32_t initID );
-        virtual bool initGLX();
-        virtual bool initCGL();
-        virtual bool initWGL();
+        virtual bool configInit( const uint32_t initID );
+        virtual bool configInitGLX();
+        virtual bool configInitCGL();
+        virtual bool configInitWGL();
 
         /** 
          * Initialize the OpenGL state for this window.
@@ -192,15 +192,15 @@ namespace eq
          * @return <code>true</code> if the initialization was successful,
          *         <code>false</code> if not.
          */
-        virtual bool initGL( const uint32_t initID );
+        virtual bool configInitGL( const uint32_t initID );
 
         /** 
          * Exit this window.
          */
-        virtual bool exit();
-        virtual void exitGLX();
-        virtual void exitCGL();
-        virtual void exitWGL();
+        virtual bool configExit();
+        virtual void configExitGLX();
+        virtual void configExitCGL();
+        virtual void configExitWGL();
 
         /**
          * Start rendering a frame.
@@ -254,7 +254,7 @@ namespace eq
          * Set a message why the last operation failed.
          * 
          * The message will be transmitted to the originator of the request, for
-         * example to Config::init when set from within the init method.
+         * example to Config::init when set from within the configInit method.
          *
          * @param message the error message.
          */
@@ -324,8 +324,8 @@ namespace eq
         eqNet::CommandResult _pushCommand( eqNet::Command& command );
         eqNet::CommandResult _cmdCreateChannel( eqNet::Command& command );
         eqNet::CommandResult _cmdDestroyChannel(eqNet::Command& command );
-        eqNet::CommandResult _reqInit( eqNet::Command& command );
-        eqNet::CommandResult _reqExit( eqNet::Command& command );
+        eqNet::CommandResult _reqConfigInit( eqNet::Command& command );
+        eqNet::CommandResult _reqConfigExit( eqNet::Command& command );
         eqNet::CommandResult _reqBarrier( eqNet::Command& command );
         eqNet::CommandResult _reqFinish( eqNet::Command& command );
         eqNet::CommandResult _reqSwap( eqNet::Command& command );

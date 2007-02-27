@@ -31,14 +31,14 @@ Pipe::Pipe()
                    eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdCreateWindow ));
     registerCommand( CMD_PIPE_DESTROY_WINDOW, 
                   eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdDestroyWindow ));
-    registerCommand( CMD_PIPE_INIT, 
-                     eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdInit ));
-    registerCommand( REQ_PIPE_INIT,
-                     eqNet::CommandFunc<Pipe>( this, &Pipe::_reqInit ));
-    registerCommand( CMD_PIPE_EXIT, 
+    registerCommand( CMD_PIPE_CONFIG_INIT, 
+                     eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdConfigInit ));
+    registerCommand( REQ_PIPE_CONFIG_INIT,
+                     eqNet::CommandFunc<Pipe>( this, &Pipe::_reqConfigInit ));
+    registerCommand( CMD_PIPE_CONFIG_EXIT, 
                      eqNet::CommandFunc<Pipe>( this, &Pipe::pushCommand ));
-    registerCommand( REQ_PIPE_EXIT,
-                     eqNet::CommandFunc<Pipe>( this, &Pipe::_reqExit ));
+    registerCommand( REQ_PIPE_CONFIG_EXIT,
+                     eqNet::CommandFunc<Pipe>( this, &Pipe::_reqConfigExit ));
     registerCommand( CMD_PIPE_FRAME_START,
                      eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdFrameStart ));
     registerCommand( REQ_PIPE_FRAME_START,
@@ -287,7 +287,7 @@ void* Pipe::_runThread()
         }
     }
 
-    EQUNREACHABLE; // exited from _reqExit
+    EQUNREACHABLE; // exited from _reqConfigExit
     return EXIT_SUCCESS;
 }
 
@@ -336,18 +336,18 @@ void Pipe::_flushFrames()
 //---------------------------------------------------------------------------
 // pipe-thread methods
 //---------------------------------------------------------------------------
-bool Pipe::init( const uint32_t initID )
+bool Pipe::configInit( const uint32_t initID )
 {
     switch( _windowSystem )
     {
         case WINDOW_SYSTEM_GLX:
-            return initGLX();
+            return configInitGLX();
 
         case WINDOW_SYSTEM_CGL:
-            return initCGL();
+            return configInitCGL();
 
         case WINDOW_SYSTEM_WGL:
-            return initWGL();
+            return configInitWGL();
 
         default:
             EQERROR << "Unknown windowing system: " << _windowSystem << endl;
@@ -356,7 +356,7 @@ bool Pipe::init( const uint32_t initID )
     }
 }
 
-bool Pipe::initGLX()
+bool Pipe::configInitGLX()
 {
 #ifdef GLX
     const std::string displayName  = getXDisplayString();
@@ -400,7 +400,7 @@ std::string Pipe::getXDisplayString()
     return stringStream.str();
 }
 
-bool Pipe::initCGL()
+bool Pipe::configInitCGL()
 {
 #ifdef CGL
     const uint32_t    display   = getScreen();
@@ -470,7 +470,7 @@ static BOOL CALLBACK monitorEnumCB( HMONITOR hMonitor, HDC hdcMonitor,
 }
 #endif
 
-bool Pipe::initWGL()
+bool Pipe::configInitWGL()
 {
 #ifdef WGL
     const uint32_t screen = getScreen();
@@ -491,20 +491,20 @@ bool Pipe::initWGL()
 #endif
 }
 
-bool Pipe::exit()
+bool Pipe::configExit()
 {
     switch( _windowSystem )
     {
         case WINDOW_SYSTEM_GLX:
-            exitGLX();
+            configExitGLX();
             return true;
 
         case WINDOW_SYSTEM_CGL:
-            exitCGL();
+            configExitCGL();
             return true;
 
         case WINDOW_SYSTEM_WGL:
-            exitWGL();
+            configExitWGL();
             return true;
 
         default:
@@ -513,7 +513,7 @@ bool Pipe::exit()
     }
 }
 
-void Pipe::exitGLX()
+void Pipe::configExitGLX()
 {
 #ifdef GLX
     Display* xDisplay = getXDisplay();
@@ -526,7 +526,7 @@ void Pipe::exitGLX()
 #endif
 }
 
-void Pipe::exitCGL()
+void Pipe::configExitCGL()
 {
 #ifdef CGL
     setCGLDisplayID( 0 );
@@ -534,7 +534,7 @@ void Pipe::exitCGL()
 #endif
 }
 
-void Pipe::exitWGL()
+void Pipe::configExitWGL()
 {
 #ifdef WGL
     HDC dc = getDC();
@@ -587,10 +587,10 @@ eqNet::CommandResult Pipe::_cmdDestroyWindow(  eqNet::Command& command  )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_cmdInit( eqNet::Command& command )
+eqNet::CommandResult Pipe::_cmdConfigInit( eqNet::Command& command )
 {
-    const PipeInitPacket* packet = command.getPacket<PipeInitPacket>();
-    EQINFO << "handle pipe init (recv) " << packet << endl;
+    const PipeConfigInitPacket* packet = command.getPacket<PipeConfigInitPacket>();
+    EQINFO << "handle pipe configInit (recv) " << packet << endl;
 
     EQASSERT( _thread->isStopped( ));
     _thread->start();
@@ -598,10 +598,11 @@ eqNet::CommandResult Pipe::_cmdInit( eqNet::Command& command )
     return pushCommand( command );
 }
 
-eqNet::CommandResult Pipe::_reqInit( eqNet::Command& command )
+eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
 {
-    const PipeInitPacket* packet = command.getPacket<PipeInitPacket>();
-    EQINFO << "handle pipe init (pipe) " << packet << endl;
+    const PipeConfigInitPacket* packet = 
+        command.getPacket<PipeConfigInitPacket>();
+    EQINFO << "handle pipe configInit (pipe) " << packet << endl;
     
     _display      = packet->display;
     _screen       = packet->screen;
@@ -609,8 +610,8 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Command& command )
     _windowSystem = selectWindowSystem();
     _error.clear();
 
-    PipeInitReplyPacket reply( packet );
-    reply.result  = init( packet->initID );
+    PipeConfigInitReplyPacket reply( packet );
+    reply.result  = configInit( packet->initID );
 
     RefPtr<eqNet::Node> node = command.getNode();
     if( !reply.result )
@@ -625,7 +626,7 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Command& command )
         case WINDOW_SYSTEM_GLX:
             if( !_xDisplay )
             {
-                EQERROR << "init() did not set a valid display connection" 
+                EQERROR << "configInit() did not set a display connection" 
                         << endl;
                 reply.result = false;
                 send( node, reply );
@@ -640,7 +641,7 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Command& command )
         case WINDOW_SYSTEM_CGL:
             if( !_cglDisplayID )
             {
-                EQERROR << "init() did not set a valid display id" << endl;
+                EQERROR << "configInit() did not set a display id" << endl;
                 reply.result = false;
                 send( node, reply );
                 return eqNet::COMMAND_HANDLED;
@@ -654,7 +655,7 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Command& command )
         case WINDOW_SYSTEM_WGL:
             if( !_dc )
             {
-                EQERROR << "init() did not set a valid device context" << endl;
+                EQERROR << "configInit() did not set a device context" << endl;
                 reply.result = false;
                 send( node, reply );
                 return eqNet::COMMAND_HANDLED;
@@ -677,18 +678,19 @@ eqNet::CommandResult Pipe::_reqInit( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Pipe::_reqExit( eqNet::Command& command )
+eqNet::CommandResult Pipe::_reqConfigExit( eqNet::Command& command )
 {
     EventHandler* thread = EventHandler::get( _windowSystem );
     thread->removePipe( this );
 
-    const PipeExitPacket* packet = command.getPacket<PipeExitPacket>();
-    EQINFO << "handle pipe exit " << packet << endl;
+    const PipeConfigExitPacket* packet = 
+        command.getPacket<PipeConfigExitPacket>();
+    EQINFO << "handle pipe configExit " << packet << endl;
 
-    exit();
+    configExit();
     _flushFrames();
 
-    PipeExitReplyPacket reply( packet );
+    PipeConfigExitReplyPacket reply( packet );
     send( command.getNode(), reply );
 
     // cleanup
