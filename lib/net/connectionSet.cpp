@@ -265,6 +265,7 @@ bool ConnectionSet::_setupFDSet()
             EQWARN << "Cannot select connection " << connection
                  << ", connection does not provide a read handle" << endl;
             _connection = connection;
+		    _mutex.unset();
             return false;
         }
         
@@ -297,6 +298,7 @@ bool ConnectionSet::_setupFDSet()
             EQWARN << "Cannot select connection " << connection
                  << ", connection does not use a file descriptor" << endl;
             _connection = connection;
+		    _mutex.unset();
             return false;
         }
 
