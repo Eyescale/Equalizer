@@ -168,6 +168,25 @@ namespace eqs
         void startFrame( const uint32_t frameID, const uint32_t frameNumber );
         //*}
 
+        /**
+         * @name Attributes
+         */
+        //*{
+        // Note: also update string array initialization in pipe.cpp
+        enum IAttribute
+        {
+            IATTR_HINT_THREAD,
+            IATTR_ALL
+        };
+
+        void setIAttribute( const IAttribute attr, const int32_t value )
+            { _iAttributes[attr] = value; }
+        int32_t  getIAttribute( const IAttribute attr ) const
+            { return _iAttributes[attr]; }
+        static const std::string&  getIAttributeString( const IAttribute attr )
+            { return _iAttributeStrings[attr]; }
+        //*}
+
         /** @name Error information. */
         //@{
         /** @return the error message from the last operation. */
@@ -184,14 +203,19 @@ namespace eqs
         /** The current operational state. */
         State _state;
 
+        /** Integer attributes. */
+        int32_t _iAttributes[IATTR_ALL];
+        /** String representation of integer attributes. */
+        static std::string _iAttributeStrings[IATTR_ALL];
+
         /** The list of windows. */
-        std::vector<Window*>   _windows;
+        std::vector<Window*> _windows;
 
         /** Number of entitities actively using this pipe. */
         uint32_t _used;
 
         /** The reason for the last error. */
-        std::string            _error;
+        std::string _error;
 
         /** The parent node. */
         Node* _node;

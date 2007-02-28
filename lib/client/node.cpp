@@ -8,6 +8,7 @@
 #include "commands.h"
 #include "frameData.h"
 #include "global.h"
+#include "log.h"
 #include "nodeFactory.h"
 #include "packets.h"
 #include "pipe.h"
@@ -260,7 +261,7 @@ eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Command& command )
     EQINFO << "Handle destroy pipe " << packet << endl;
 
     Pipe* pipe = _findPipe( packet->pipeID );
-    pipe->_thread->join(); // wait for pipe thread termination. move to pipe?
+    pipe->waitExit();
 
     _removePipe( pipe );
     _config->detachObject( pipe );
@@ -307,6 +308,8 @@ eqNet::CommandResult Node::_reqFrameStart( eqNet::Command& command )
         command.getPacket<NodeFrameStartPacket>();
     EQVERB << "handle node frame start " << packet << endl;
 
+    EQLOG( LOG_TASKS ) << "----- Begin Frame ----- " << packet->frameNumber
+                       << endl;
     frameStart( packet->frameID, packet->frameNumber );
     EQASSERTINFO( _currentFrame >= packet->frameNumber, 
                   "Node::frameStart() did not start frame " 
@@ -324,6 +327,8 @@ eqNet::CommandResult Node::_reqFrameFinish( eqNet::Command& command )
 
     _finishFrame( packet->frameNumber );
     frameFinish( packet->frameID, packet->frameNumber );
+    EQLOG( LOG_TASKS ) << "----- Finish Frame ---- " << packet->frameNumber
+                       << endl;
 
     return eqNet::COMMAND_HANDLED;
 }

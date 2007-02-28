@@ -32,6 +32,7 @@ HEADER_SRC = \
 	base/userdata.h \
 	net/barrier.h \
 	net/base.h \
+	net/bufferConnection.h \
 	net/command.h \
 	net/commandCache.h \
 	net/commandFunc.h \
@@ -105,6 +106,7 @@ SOURCES = \
 	base/timedLock.cpp \
 	net/barrier.cpp \
 	net/base.cpp \
+	net/bufferConnection.cpp \
 	net/command.cpp \
 	net/commandCache.cpp \
 	net/commandQueue.cpp \

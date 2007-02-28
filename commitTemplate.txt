@@ -1,0 +1,8 @@
+
+[ ] Bugfix
+[ ] New Feature
+[ ] Cleanup
+[ ] Documentation
+[ ] Breaks existing applications
+
+Description: 

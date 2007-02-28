@@ -935,9 +935,9 @@ void Compound::_updateAssemble( const eq::RenderContext& context )
         return;
 
     // assemble task
-    Channel*                  channel = getChannel();
-    Node*                     node    = channel->getNode();
-    RefPtr<eqNet::Node>       netNode = node->getNode();
+    Channel*                       channel = getChannel();
+    Node*                          node    = channel->getNode();
+    RefPtr<eqNet::Node>            netNode = node->getNode();
     eq::ChannelFrameAssemblePacket packet;
     
     packet.sessionID = channel->getSession()->getID();

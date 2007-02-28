@@ -166,14 +166,13 @@ namespace eq
         void addStatEvent( const StatEvent& event )
             { _statEvents.push_back( event ); }
 
-        /**
+        /**'
          * Push a command to the pipe thread to be handled from there.
          * 
          * @param node the node sending the packet.
          * @param packet the command packet.
          */
-        eqNet::CommandResult pushCommand( eqNet::Command& command )
-            {_commandQueue.push( command ); return eqNet::COMMAND_HANDLED;}
+        eqNet::CommandResult pushCommand( eqNet::Command& command );
         
         /** 
          * Test and sets the currently attached window.
@@ -205,6 +204,10 @@ namespace eq
          */
         void waitFrameFinished( const uint32_t frameNumber ) const
             { _finishedFrame.waitGE( frameNumber ); }
+
+        /** Wait for the pipe to exit. */
+        void waitExit();
+
     protected:
         /**
          * Destructs the pipe.
@@ -373,17 +376,6 @@ namespace eq
         /** All assembly frames used by the pipe during rendering. */
         eqNet::IDHash< Frame* > _frames;
 
-        static int XErrorHandler( Display* display, XErrorEvent* event );
-
-        void _addWindow( Window* window );
-        void _removeWindow( Window* window );
-        Window* _findWindow( const uint32_t id );
-
-        void _flushFrames();
-
-        void _grabFrame( const uint32_t frameNumber ) const
-            { _node->waitFrameStarted( frameNumber ); }
-
         /** The pipe thread. */
         class PipeThread : public eqBase::Thread
         {
@@ -399,10 +391,21 @@ namespace eq
         };
         PipeThread* _thread;
 
-        void* _runThread();
-
         /** The receiver->pipe thread command queue. */
         eqNet::CommandQueue    _commandQueue;
+
+        void* _runThread();
+
+        static int XErrorHandler( Display* display, XErrorEvent* event );
+
+        void _addWindow( Window* window );
+        void _removeWindow( Window* window );
+        Window* _findWindow( const uint32_t id );
+
+        void _flushFrames();
+
+        void _grabFrame( const uint32_t frameNumber ) const
+            { _node->waitFrameStarted( frameNumber ); }
 
         /* The command functions. */
         eqNet::CommandResult _cmdCreateWindow( eqNet::Command& command );

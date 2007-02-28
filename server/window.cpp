@@ -43,7 +43,6 @@ eqs::Window::Window()
     for( int i=0; i<eq::Window::IATTR_ALL; ++i )
         _iAttributes[i] = global->getWindowIAttribute(
             static_cast<eq::Window::IAttribute>( i ));
-
 }
 
 eqs::Window::Window( const Window& from )

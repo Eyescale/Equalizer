@@ -7,6 +7,7 @@
 #include "commands.h"
 #include "eventHandler.h"
 #include "global.h"
+#include "log.h"
 #include "nodeFactory.h"
 #include "packets.h"
 #include "X11Connection.h"
@@ -25,7 +26,8 @@ Pipe::Pipe()
           _currentGLWindow( 0 ),
           _windowSystem( WINDOW_SYSTEM_NONE ),
           _display( EQ_UNDEFINED_UINT32 ),
-          _screen( EQ_UNDEFINED_UINT32 )
+          _screen( EQ_UNDEFINED_UINT32 ),
+          _thread( 0 )
 {
     registerCommand( CMD_PIPE_CREATE_WINDOW,
                    eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdCreateWindow ));
@@ -47,8 +49,6 @@ Pipe::Pipe()
                      eqNet::CommandFunc<Pipe>( this, &Pipe::pushCommand ));
     registerCommand( REQ_PIPE_FRAME_FINISH,
                      eqNet::CommandFunc<Pipe>( this, &Pipe::_reqFrameFinish ));
-
-    _thread = new PipeThread( this );
 
 #ifdef GLX
     _xDisplay         = 0;
@@ -291,6 +291,16 @@ void* Pipe::_runThread()
     return EXIT_SUCCESS;
 }
 
+eqNet::CommandResult Pipe::pushCommand( eqNet::Command& command )
+{
+    if( !_thread )
+        return eqNet::COMMAND_PUSH; // handled by main thread
+
+    // else
+    _commandQueue.push( command ); 
+    return eqNet::COMMAND_HANDLED;
+}
+
 void Pipe::testMakeCurrentWindow( const Window* window )
 {
     if( _currentGLWindow == window )
@@ -331,6 +341,16 @@ void Pipe::_flushFrames()
         delete frame;
     }
     _frames.clear();
+}
+
+void Pipe::waitExit()
+{
+    if( !_thread )
+        return;
+
+    _thread->join();
+    delete _thread;
+    _thread = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -589,11 +609,17 @@ eqNet::CommandResult Pipe::_cmdDestroyWindow(  eqNet::Command& command  )
 
 eqNet::CommandResult Pipe::_cmdConfigInit( eqNet::Command& command )
 {
-    const PipeConfigInitPacket* packet = command.getPacket<PipeConfigInitPacket>();
+    const PipeConfigInitPacket* packet = 
+        command.getPacket<PipeConfigInitPacket>();
     EQINFO << "handle pipe configInit (recv) " << packet << endl;
 
-    EQASSERT( _thread->isStopped( ));
-    _thread->start();
+    EQASSERT( !_thread );
+    if( packet->threaded )
+    {
+        _thread = new PipeThread( this );
+        _thread->start();
+    }
+    // else TODO OPT dynamically allocate _commandQueue ?
 
     return pushCommand( command );
 }
@@ -697,9 +723,12 @@ eqNet::CommandResult Pipe::_reqConfigExit( eqNet::Command& command )
     _commandQueue.flush();
     
     // exit thread
-    EQINFO << "Leaving pipe thread" << endl;
-    _thread->exit( EXIT_SUCCESS );
-    EQUNREACHABLE;
+    if( _thread )
+    {
+        EQINFO << "Leaving pipe thread" << endl;
+        _thread->exit( EXIT_SUCCESS );
+        EQUNREACHABLE;
+    }
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -725,6 +754,8 @@ eqNet::CommandResult Pipe::_reqFrameStart( eqNet::Command& command )
 	_frameClockMutex.unset();
 
     _grabFrame( packet->frameNumber );
+    EQLOG( LOG_TASKS ) << "---- Grabbed Frame ---- " << packet->frameNumber
+                     << endl;
     frameStart( packet->frameID, packet->frameNumber );
 
     return eqNet::COMMAND_HANDLED;
@@ -737,6 +768,8 @@ eqNet::CommandResult Pipe::_reqFrameFinish( eqNet::Command& command )
     EQVERB << "handle pipe frame sync " << packet << endl;
 
     frameFinish( packet->frameID, packet->frameNumber );
+    EQLOG( LOG_TASKS ) << "----- Finish Frame ---- " << _finishedFrame.get()
+                       << endl;
     EQASSERTINFO( _finishedFrame >= packet->frameNumber, 
                   "Pipe::frameFinish() did not release frame " 
                   << packet->frameNumber );

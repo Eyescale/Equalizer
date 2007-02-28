@@ -431,6 +431,7 @@ namespace eq
         uint32_t      display;
         uint32_t      screen;
         PixelViewport pvp;
+        bool          threaded;
     };
 
     struct PipeConfigInitReplyPacket : public eqNet::ObjectPacket

@@ -55,6 +55,7 @@
 %token EQTOKEN_CONNECTION_IATTR_TCPIP_PORT
 %token EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT
 %token EQTOKEN_CONFIG_FATTR_EYE_BASE
+%token EQTOKEN_PIPE_IATTR_HINT_THREAD
 %token EQTOKEN_WINDOW_IATTR_HINT_STEREO
 %token EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER
 %token EQTOKEN_WINDOW_IATTR_HINT_FULLSCREEN
@@ -79,6 +80,7 @@
 %token EQTOKEN_HINT_FULLSCREEN
 %token EQTOKEN_HINT_DECORATION
 %token EQTOKEN_HINT_STATISTICS
+%token EQTOKEN_HINT_THREAD
 %token EQTOKEN_PLANES_COLOR
 %token EQTOKEN_PLANES_ALPHA
 %token EQTOKEN_PLANES_DEPTH
@@ -193,6 +195,11 @@ global:
      {
          eqs::Global::instance()->setConfigFAttribute(
              eqs::Config::FATTR_EYE_BASE, $2 );
+     }
+     | EQTOKEN_PIPE_IATTR_HINT_THREAD IATTR
+     {
+         eqs::Global::instance()->setPipeIAttribute(
+             eqs::Pipe::IATTR_HINT_THREAD, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_HINT_STEREO IATTR
      {
@@ -319,6 +326,7 @@ pipe: EQTOKEN_PIPE '{' { eqPipe = loader->createPipe(); }
 pipeFields: /*null*/ | pipeField | pipeFields pipeField
 pipeField:
     windows   
+    | EQTOKEN_ATTRIBUTES '{' pipeAttributes '}'
     | EQTOKEN_DISPLAY UNSIGNED       { eqPipe->setDisplay( $2 ); }
     | EQTOKEN_SCREEN UNSIGNED        { eqPipe->setScreen( $2 ); }
     | EQTOKEN_VIEWPORT viewport 
@@ -326,6 +334,10 @@ pipeField:
             eqPipe->setPixelViewport( eq::PixelViewport( (int)$2[0], (int)$2[1],
                                                       (int)$2[2], (int)$2[3] ));
         }
+pipeAttributes: /*null*/ | pipeAttribute | pipeAttributes pipeAttribute
+pipeAttribute:
+    EQTOKEN_HINT_THREAD IATTR
+        { eqPipe->setIAttribute( eqs::Pipe::IATTR_HINT_THREAD, $2 ); }
 
 windows: window | windows window
 window: EQTOKEN_WINDOW '{' { window = loader->createWindow(); }

@@ -50,6 +50,15 @@ namespace eqs
             { return _configFAttributes[attr]; }
 
         /**
+         * @name Pipe Attributes.
+         */
+        void setPipeIAttribute( const Pipe::IAttribute attr,
+                                  const int32_t value )
+            { _pipeIAttributes[attr] = value; }
+        int32_t getPipeIAttribute( const Pipe::IAttribute attr ) const
+            { return _pipeIAttributes[attr]; }
+
+        /**
          * @name Window Attributes.
          */
         void setWindowIAttribute( const eq::Window::IAttribute attr,
@@ -83,6 +92,8 @@ namespace eqs
         int32_t     _connectionIAttributes[ConnectionDescription::IATTR_ALL];
         
         float       _configFAttributes[Config::FATTR_ALL];
+
+        int32_t     _pipeIAttributes[Pipe::IATTR_ALL];
 
         int32_t     _windowIAttributes[eq::Window::IATTR_ALL];
 

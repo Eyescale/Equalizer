@@ -6,6 +6,7 @@
 
 #include "channel.h"
 #include "config.h"
+#include "global.h"
 #include "log.h"
 #include "node.h"
 #include "window.h"
@@ -16,6 +17,12 @@
 using namespace eqs;
 using namespace eqBase;
 using namespace std;
+
+#define MAKE_ATTR_STRING( attr ) ( string("EQ_PIPE_") + #attr )
+std::string Pipe::_iAttributeStrings[IATTR_ALL] = 
+{
+    MAKE_ATTR_STRING( IATTR_HINT_THREAD )
+};
 
 void Pipe::_construct()
 {
@@ -37,6 +44,11 @@ void Pipe::_construct()
 Pipe::Pipe()
 {
     _construct();
+
+    const Global* global = Global::instance();
+    for( int i=0; i<IATTR_ALL; ++i )
+        _iAttributes[i] = global->getPipeIAttribute(
+            static_cast<IAttribute>( i ));
 }
 
 Pipe::Pipe( const Pipe& from )
@@ -45,6 +57,9 @@ Pipe::Pipe( const Pipe& from )
     _display = from._display;
     _screen  = from._screen;
     _pvp     = from._pvp;
+
+    for( int i=0; i<IATTR_ALL; ++i )
+        _iAttributes[i] = from._iAttributes[i];
 
     const uint32_t nWindows = from.nWindows();
     for( uint32_t i=0; i<nWindows; i++ )
@@ -146,6 +161,7 @@ void Pipe::_sendConfigInit( const uint32_t initID )
     packet.display    = _display;
     packet.screen     = _screen;
     packet.pvp        = _pvp;
+    packet.threaded   = getIAttribute( IATTR_HINT_THREAD );
 
     _send( packet );
 }
@@ -333,6 +349,29 @@ std::ostream& eqs::operator << ( std::ostream& os, const Pipe* pipe )
     const eq::PixelViewport& pvp = pipe->getPixelViewport();
     if( pvp.isValid( ))
         os << "viewport " << pvp << endl;
+
+    bool attrPrinted   = false;
+    for( Pipe::IAttribute i = static_cast<Pipe::IAttribute>( 0 ); 
+         i < Pipe::IATTR_ALL; 
+         i = static_cast<Pipe::IAttribute>( static_cast<uint32_t>( i )+1))
+    {
+        const int value = pipe->getIAttribute( i );
+        if( value == Global::instance()->getPipeIAttribute( i ))
+            continue;
+
+        if( !attrPrinted )
+        {
+            os << endl << "attributes" << endl;
+            os << "{" << endl << indent;
+            attrPrinted = true;
+        }
+        
+        os << ( i==Pipe::IATTR_HINT_THREAD ? "hint_thread       " : "ERROR" )
+           << static_cast<eq::IAttrValue>( value ) << endl;
+    }
+    
+    if( attrPrinted )
+        os << exdent << "}" << endl << endl;
 
     os << endl;
     const uint32_t nWindows = pipe->nWindows();

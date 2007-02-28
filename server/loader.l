@@ -30,6 +30,7 @@ EQ_CONNECTION_IATTR_TYPE         { return EQTOKEN_CONNECTION_IATTR_TYPE; }
 EQ_CONNECTION_IATTR_TCPIP_PORT   { return EQTOKEN_CONNECTION_IATTR_TCPIP_PORT; }
 EQ_CONNECTION_IATTR_LAUNCH_TIMEOUT { return EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT; }
 EQ_CONFIG_FATTR_EYE_BASE         { return EQTOKEN_CONFIG_FATTR_EYE_BASE; }
+EQ_PIPE_IATTR_HINT_THREAD        { return EQTOKEN_PIPE_IATTR_HINT_THREAD; }
 EQ_WINDOW_IATTR_HINT_STEREO      { return EQTOKEN_WINDOW_IATTR_HINT_STEREO; }
 EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER { return EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER; }
 EQ_WINDOW_IATTR_HINT_FULLSCREEN  { return EQTOKEN_WINDOW_IATTR_HINT_FULLSCREEN;}
@@ -49,13 +50,14 @@ node                            { return EQTOKEN_NODE; }
 pipe                            { return EQTOKEN_PIPE; }
 window                          { return EQTOKEN_WINDOW; }
 attributes                      { return EQTOKEN_ATTRIBUTES; }
-hint_stereo                     { return EQTOKEN_HINT_STEREO; }
+hint_decoration                 { return EQTOKEN_HINT_DECORATION; }
 hint_doublebuffer               { return EQTOKEN_HINT_DOUBLEBUFFER; }
 hint_fullscreen                 { return EQTOKEN_HINT_FULLSCREEN; }
-hint_decoration                 { return EQTOKEN_HINT_DECORATION; }
 hint_statistics                 { return EQTOKEN_HINT_STATISTICS; }
-planes_color                    { return EQTOKEN_PLANES_COLOR; }
+hint_stereo                     { return EQTOKEN_HINT_STEREO; }
+hint_thread                     { return EQTOKEN_HINT_THREAD; }
 planes_alpha                    { return EQTOKEN_PLANES_ALPHA; }
+planes_color                    { return EQTOKEN_PLANES_COLOR; }
 planes_depth                    { return EQTOKEN_PLANES_DEPTH; }
 planes_stencil                  { return EQTOKEN_PLANES_STENCIL; }
 on                              { return EQTOKEN_ON; }

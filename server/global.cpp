@@ -28,6 +28,7 @@ Global::Global()
 
 void Global::_setupDefaults()
 {
+    // connection
     for( int i=0; i<ConnectionDescription::IATTR_ALL; ++i )
         _connectionIAttributes[i] = eq::UNDEFINED;
 
@@ -44,9 +45,18 @@ void Global::_setupDefaults()
 #else
     _connectionSAttributes[ConnectionDescription::SATTR_LAUNCH_COMMAND] = 
         "ssh -n %h %c >& %h.%n.log";
-#endif        
+#endif
+
+    // config
     _configFAttributes[Config::FATTR_EYE_BASE] = 0.05f;
 
+    // pipe
+    for( int i=0; i<Pipe::IATTR_ALL; ++i )
+        _pipeIAttributes[i] = eq::UNDEFINED;
+
+    _pipeIAttributes[Pipe::IATTR_HINT_THREAD] = eq::ON;
+
+    // window
     for( int i=0; i<eq::Window::IATTR_ALL; ++i )
         _windowIAttributes[i] = eq::UNDEFINED;
 
@@ -57,11 +67,13 @@ void Global::_setupDefaults()
     _windowIAttributes[eq::Window::IATTR_PLANES_COLOR]       = 1;
     _windowIAttributes[eq::Window::IATTR_PLANES_DEPTH]       = 1;
     
+    // channel
     for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
         _channelIAttributes[i] = eq::UNDEFINED;
 
     _channelIAttributes[eq::Channel::IATTR_HINT_STATISTICS] = eq::FASTEST;
 
+    // compound
     for( int i=0; i<Compound::IATTR_ALL; ++i )
         _compoundIAttributes[i] = eq::UNDEFINED;
 }
@@ -94,6 +106,15 @@ void Global::_readEnvironment()
         
         if( envValue )
             _configFAttributes[i] = atof( envValue );
+    }
+    for( int i=0; i<Pipe::IATTR_ALL; ++i )
+    {
+        const string& name     = Pipe::getIAttributeString(
+            (Pipe::IAttribute)i);
+        const char*   envValue = getenv( name.c_str( ));
+        
+        if( envValue )
+            _pipeIAttributes[i] = atol( envValue );
     }
     for( int i=0; i<eq::Window::IATTR_ALL; ++i )
     {
@@ -181,6 +202,18 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
             static_cast<Config::FAttribute>( i ));
         os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << value << endl;
+    }
+
+    for( int i=0; i<Pipe::IATTR_ALL; ++i )
+    {
+        const int value = global->_pipeIAttributes[i];
+        if( value == reference._pipeIAttributes[i] )
+            continue;
+
+        const string& name = Pipe::getIAttributeString( 
+            static_cast<Pipe::IAttribute>( i ));
+        os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
+           << static_cast<eq::IAttrValue>( value ) << endl;
     }
 
     for( int i=0; i<eq::Window::IATTR_ALL; ++i )

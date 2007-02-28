@@ -133,13 +133,15 @@ bool Config::exit()
 
 uint32_t Config::startFrame( const uint32_t frameID )
 {
-    EQLOG( LOG_ANY ) << "----- Start Frame -----" << endl;
     ConfigStartFramePacket packet;
     packet.requestID = _requestHandler.registerRequest();
     packet.frameID   = frameID;
 
     send( packet );
-    return (uint32_t)(long long)(_requestHandler.waitRequest(packet.requestID));
+    const uint32_t frameNumber = 
+        (uint32_t)(long long)(_requestHandler.waitRequest(packet.requestID));
+    EQLOG( LOG_ANY ) << "---- Started Frame ---- " << frameNumber << endl;
+    return frameNumber;
 }
 
 uint32_t Config::finishFrame()
@@ -156,7 +158,7 @@ uint32_t Config::finishFrame()
         (uint32_t)(long long)(_requestHandler.waitRequest(packet.requestID));
 
     handleEvents();
-    EQLOG( LOG_ANY ) << "----- Finish Frame ----" << endl;
+    EQLOG( LOG_ANY ) << "----- Finish Frame ---- " << frameNumber << endl;
     return frameNumber;
 }
 

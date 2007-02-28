@@ -291,8 +291,8 @@ namespace eqs
 
         void _updateHead();
 
-        uint32_t _startFrame( const uint32_t frameID, 
-                              std::vector<Node*>& nodes );
+        uint32_t _prepareFrame( std::vector<Node*>& nodes );
+        void     _startFrame( const uint32_t frameID );
         uint32_t _finishFrame();
         uint32_t _finishAllFrames();
 

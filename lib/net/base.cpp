@@ -48,6 +48,7 @@ void Base::_registerCommand( const uint32_t command,
 CommandResult Base::invokeCommand( Command& command )
 {
     const uint32_t which = command->command;
+#ifndef NDEBUG
     if( which >= _vTable.size( ))
     {
         EQERROR << "Command " << which
@@ -56,6 +57,7 @@ CommandResult Base::invokeCommand( Command& command )
                 << typeid(*this).name() << endl;
         return COMMAND_ERROR;
     }
+#endif
     return _vTable[which]( command );
 }
 
