@@ -16,12 +16,15 @@ namespace eqNet
     {
     public:
         BufferConnection();
-
-    protected:
+        BufferConnection( const BufferConnection& from );
         virtual ~BufferConnection();
 
-        virtual int64_t write( const void* buffer, const uint64_t bytes ) const;
         void sendBuffer( eqBase::RefPtr<Connection> connection );
+
+    protected:
+        virtual int64_t read( void* buffer, const uint64_t bytes )
+            { EQDONTCALL; return -1; }
+        virtual int64_t write( const void* buffer, const uint64_t bytes ) const;
 
     private:
         mutable uint8_t* _buffer;

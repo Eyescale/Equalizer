@@ -11,7 +11,18 @@ BufferConnection::BufferConnection()
         : _buffer(0),
           _size(0),
           _maxSize(0)
-{}
+{
+    _state = STATE_CONNECTED;
+}
+
+BufferConnection::BufferConnection( const BufferConnection& from )
+        : _buffer(0),
+          _size(0),
+          _maxSize(0)
+{
+    EQASSERT( from._size == 0 );
+    _state = STATE_CONNECTED;
+}
 
 BufferConnection::~BufferConnection()
 {
@@ -45,7 +56,7 @@ int64_t BufferConnection::write( const void* buffer, const uint64_t bytes) const
 
 void BufferConnection::sendBuffer( eqBase::RefPtr<Connection> connection )
 {
-    if( !_size )
+    if( _size == 0 )
         return;
 
     const bool sent = connection->send( _buffer, _size );

@@ -5,8 +5,9 @@
 #ifndef EQS_PIPE_H
 #define EQS_PIPE_H
 
-#include "node.h"
-#include <eq/net/object.h>
+#include "node.h"                       // used in inline method
+#include <eq/net/object.h>              // base class
+#include <eq/net/bufferConnection.h>    // member
 
 #include <ostream>
 #include <vector>
@@ -193,6 +194,23 @@ namespace eqs
         const std::string& getErrorMessage() const { return _error; }
         //@}
 
+        void send( eqNet::SessionPacket& packet ) 
+            { 
+                packet.sessionID = getConfig()->getID(); 
+                _bufferedTasks.send( packet );
+            }
+        void send( eqNet::SessionPacket& packet, const std::string& string ) 
+            {
+                packet.sessionID = getConfig()->getID(); 
+                _bufferedTasks.send( packet, string );
+            }
+        template< typename T >
+        void send( eqNet::ObjectPacket &packet, const std::vector<T>& data )
+            {
+                packet.sessionID = getConfig()->getID(); 
+                _bufferedTasks.send( packet, data );
+            }
+
     protected:
         virtual ~Pipe();
 
@@ -235,12 +253,15 @@ namespace eqs
 
         /** The absolute size and position of the pipe. */
         eq::PixelViewport _pvp;
-        
+
+        /** Task packets for the current operation. */
+        eqNet::BufferConnection _bufferedTasks;
+
         /** common code for all constructors */
         void _construct();
 
         void _send( eqNet::ObjectPacket& packet )
-            { send( _node->getNode(), packet ); }
+            { packet.objectID = getID(); send( packet ); }
 
         void _sendConfigInit( const uint32_t initID );
         void _sendConfigExit();

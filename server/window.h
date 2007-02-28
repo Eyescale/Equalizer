@@ -43,8 +43,9 @@ namespace eqs
          */
         Window( const Window& from );
 
-        Server* getServer() const
-            { return _pipe ? _pipe ->getServer() : NULL; }
+//        Server* getServer() const
+//            { return _pipe ? _pipe->getServer() : NULL; }
+        Pipe* getPipe() const { return _pipe; }
 
         /** 
          * @return the state of this pipe.
@@ -284,9 +285,9 @@ namespace eqs
         void _resetSwapBarriers();
 
         void _send( eqNet::ObjectPacket& packet ) 
-            { send( getNode()->getNode(), packet ); }
+            { packet.objectID = getID(); _pipe->send( packet ); }
         void _send( eqNet::ObjectPacket& packet, const std::string& string ) 
-            { send( getNode()->getNode(), packet, string ); }
+            { packet.objectID = getID(); _pipe->send( packet, string ); }
 
         void _sendConfigInit( const uint32_t initID );
         void _sendConfigExit();

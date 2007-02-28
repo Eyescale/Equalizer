@@ -54,6 +54,7 @@ namespace eqs
          */
         //*{
         Node* getNode() const { return (_window ? _window->getNode() : NULL); }
+        Pipe* getPipe() const { return (_window ? _window->getPipe() : NULL); }
         Window* getWindow() const { return _window; }
         Config* getConfig() const { return _window ? _window->getConfig():NULL;}
 
@@ -174,9 +175,12 @@ namespace eqs
         void updatePost( const uint32_t frameID, const uint32_t frameNumber );
 
         void send( eqNet::ObjectPacket& packet ) 
-            { eqNet::Object::send( getNode()->getNode(), packet ); }
+            { packet.objectID = getID(); getPipe()->send( packet ); }
         void send( eqNet::ObjectPacket& packet, const std::string& string ) 
-            { eqNet::Object::send( getNode()->getNode(), packet, string ); }
+            { packet.objectID = getID(); getPipe()->send( packet, string ); }
+        template< typename T >
+        void send( eqNet::ObjectPacket &packet, const std::vector<T>& data )
+            { packet.objectID = getID(); getPipe()->send( packet, data ); }
         //*}
 
         /**

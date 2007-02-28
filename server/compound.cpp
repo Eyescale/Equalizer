@@ -936,18 +936,14 @@ void Compound::_updateAssemble( const eq::RenderContext& context )
 
     // assemble task
     Channel*                       channel = getChannel();
-    Node*                          node    = channel->getNode();
-    RefPtr<eqNet::Node>            netNode = node->getNode();
     eq::ChannelFrameAssemblePacket packet;
     
-    packet.sessionID = channel->getSession()->getID();
-    packet.objectID  = channel->getID();
     packet.context   = context;
     packet.nFrames   = frames.size();
 
     EQLOG( eq::LOG_ASSEMBLY | eq::LOG_TASKS ) 
         << "TASK assemble " << channel->getName() <<  " " << &packet << endl;
-    netNode->send<eqNet::ObjectVersion>( packet, frameIDs );
+    channel->send<eqNet::ObjectVersion>( packet, frameIDs );
 }
     
 void Compound::_updateReadback( const eq::RenderContext& context )
@@ -973,22 +969,20 @@ void Compound::_updateReadback( const eq::RenderContext& context )
         return;
 
     // readback task
-    Channel*                  channel = getChannel();
-    Node*                     node    = channel->getNode();
-    RefPtr<eqNet::Node>       netNode = node->getNode();
+    Channel*                       channel = getChannel();
     eq::ChannelFrameReadbackPacket packet;
     
-    packet.sessionID = channel->getSession()->getID();
-    packet.objectID  = channel->getID();
     packet.context   = context;
     packet.nFrames   = frames.size();
 
     EQLOG( eq::LOG_ASSEMBLY | eq::LOG_TASKS ) 
         << "TASK readback channel " << channel->getName() <<  " "
         << &packet << endl;
-    netNode->send<eqNet::ObjectVersion>( packet, frameIDs );
+    channel->send<eqNet::ObjectVersion>( packet, frameIDs );
     
     // transmit tasks
+    Node*                 node         = channel->getNode();
+    RefPtr<eqNet::Node>   netNode      = node->getNode();
     const eqNet::NodeID&  outputNodeID = netNode->getNodeID();
     for( vector<Frame*>::const_iterator iter = frames.begin();
          iter != frames.end(); ++iter )
@@ -1029,7 +1023,7 @@ void Compound::_updateReadback( const eq::RenderContext& context )
             << "TASK transmit channel " << channel->getName() <<  " " << 
             &transmitPacket << " first " << nodeIDs[0] << endl;
 
-        netNode->send<eqNet::NodeID>( transmitPacket, nodeIDs );
+        channel->send<eqNet::NodeID>( transmitPacket, nodeIDs );
     }        
 }
 
