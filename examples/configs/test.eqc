@@ -1,7 +1,6 @@
-# two-to-one sort-first config for cluster at unizh
 global
 {
-    EQ_WINDOW_IATTR_HINT_FULLSCREEN off
+    EQ_PIPE_IATTR_HINT_THREAD off
 }
 
 server
@@ -9,51 +8,26 @@ server
     config
     {
         latency 20
-        node
-        {
-            pipe 
-            {
-#                attributes{ hint_thread off }
-                window
-                {
-                    viewport [ 80 200 480 300 ]
-                    channel { name "channel1" }
-                }
-            }
-        }
         appNode
         {
-            pipe { 
-                attributes{ hint_thread off }
-                window { 
-                    viewport [ 720 200 480 300 ]
-                    channel { name "channel2" }
+            pipe
+            {
+                window
+                {
+                    viewport [ 0.25 0.25 0.5 0.5 ]
+                    
+                    channel { name "channel" }
                 }
             }
         }
         compound
-        {
-            compound
+        { 
+            channel "channel"
+            wall
             {
-                channel "channel1"
-                wall
-                {
-                    bottom_left  [ -.64 -.2 -.75 ]
-                    bottom_right [  .0  -.2 -.75 ]
-                    top_left     [ -.64  .2 -.75 ]
-                }
-                swapbarrier{}
-            }
-            compound
-            {
-                channel "channel2"
-                wall
-                {
-                    bottom_left  [ .0 -.2 -.75 ]
-                    bottom_right [ .64 -.2 -.75 ]
-                    top_left     [ .0  .2 -.75 ]
-                }
-                swapbarrier{}
+                bottom_left  [ -.8 -.5 -1 ]
+                bottom_right [  .8 -.5 -1 ]
+                top_left     [ -.8  .5 -1 ]
             }
         }
     }    

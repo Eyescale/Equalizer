@@ -12,7 +12,7 @@ namespace eqNet
     /**
      * A proxy connection buffering outgoing data into a memory region.
      */
-    class BufferConnection : public Connection
+    class EQ_EXPORT BufferConnection : public Connection
     {
     public:
         BufferConnection();
