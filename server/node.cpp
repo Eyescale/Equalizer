@@ -20,6 +20,8 @@ using namespace eqs;
 using namespace eqBase;
 using namespace std;
 
+typedef std::vector<Pipe*>::const_iterator PipeIter;
+
 void Node::_construct()
 {
     _used             = 0;
@@ -116,15 +118,45 @@ void Node::startConfigInit( const uint32_t initID )
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     packet.initID     = initID;
-    send( packet );
+
+    _send( packet );
+
+    eq::NodeCreatePipePacket createPipePacket;
+    for( PipeIter i = _pipes.begin(); i != _pipes.end(); ++i )
+    {
+        Pipe* pipe = *i;
+        if( !pipe->isUsed( ))
+            continue;
+        
+        _config->registerObject( pipe );
+        createPipePacket.pipeID = pipe->getID();
+        _send( createPipePacket );
+        pipe->startConfigInit( initID );
+    }
+
+    _bufferedTasks.sendBuffer( _node->getConnection( ));
 }
 
 bool Node::syncConfigInit()
 {
     EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
-    const bool success = static_cast<bool>(
-        _requestHandler.waitRequest( _pendingRequestID ));
+    bool success = true;
+    for( PipeIter i = _pipes.begin(); i != _pipes.end(); ++i )
+    {
+        Pipe* pipe = *i;
+        if( !pipe->isUsed( ))
+            continue;
+
+        if( !pipe->syncConfigInit( ))
+        {
+            _error += (' ' + pipe->getErrorMessage( ));
+            success = false;
+        }
+    }
+
+    if( !_requestHandler.waitRequest( _pendingRequestID ))
+        success = false;
     _pendingRequestID = EQ_ID_INVALID;
 
     if( !success )
@@ -139,20 +171,51 @@ void Node::startConfigExit()
 {
     EQASSERT( _pendingRequestID == EQ_ID_INVALID );
 
+    for( PipeIter i = _pipes.begin(); i != _pipes.end(); ++i )
+    {
+        Pipe* pipe = *i;
+
+        if( pipe->getState() != Pipe::STATE_STOPPED )
+            pipe->startConfigExit();
+    }
+
     eq::NodeConfigExitPacket packet;
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
-    send( packet );
+
+    _send( packet );
+    _bufferedTasks.sendBuffer( _node->getConnection( ));
 }
 
 bool Node::syncConfigExit()
 {
     EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
-    const bool success = static_cast<bool>(
-                             _requestHandler.waitRequest( _pendingRequestID ));
-    _pendingRequestID = EQ_ID_INVALID;
+    bool success = true;
+    eq::NodeDestroyPipePacket destroyPipePacket;
 
+    for( PipeIter i = _pipes.begin(); i != _pipes.end(); ++i )
+    {
+        Pipe* pipe = *i;
+        if( pipe->getState() != Pipe::STATE_STOPPING )
+            continue;
+
+        if( !pipe->syncConfigExit( ))
+        {
+            EQWARN << "Could not exit cleanly: " << pipe << endl;
+            success = false;
+        }
+        
+        destroyPipePacket.pipeID = pipe->getID();
+        _send( destroyPipePacket );
+        _config->deregisterObject( pipe );
+    }
+    _bufferedTasks.sendBuffer( _node->getConnection( ));
+
+    if( !_requestHandler.waitRequest( _pendingRequestID ))
+        success = false;
+
+    _pendingRequestID = EQ_ID_INVALID;
     _flushBarriers();
     return success;
 }
@@ -167,22 +230,86 @@ void Node::startFrame( const uint32_t frameID, const uint32_t frameNumber )
     eq::NodeFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
-    send( startPacket );
+    _send( startPacket );
 
+    // Threaded pipes update
     const uint32_t nPipes = this->nPipes();
     for( uint32_t i=0; i<nPipes; i++ )
     {
         Pipe* pipe = getPipe( i );
-        if( pipe->isUsed( ))
-            pipe->startFrame( frameID, frameNumber );
+        if( pipe->isUsed() && pipe->getIAttribute( Pipe::IATTR_HINT_THREAD ))
+            pipe->update( frameID, frameNumber );
     }
 
+    _bufferedTasks.sendBuffer( _node->getConnection( ));
+
+    // Nonthreaded pipes update
+    for( uint32_t i=0; i<nPipes; i++ )
+    {
+        Pipe* pipe = getPipe( i );
+        if( pipe->isUsed() && !pipe->getIAttribute( Pipe::IATTR_HINT_THREAD ))
+            pipe->update( frameID, frameNumber );
+    }
 
     eq::NodeFrameFinishPacket finishPacket;
     finishPacket.frameID     = frameID;
     finishPacket.frameNumber = frameNumber;
-    send( finishPacket );
+    _send( finishPacket );
+
+    _storeFrameTasks( frameNumber, _bufferedTasks );
 }
+
+void Node::_storeFrameTasks( const uint32_t frame, 
+                             eqNet::BufferConnection& tasks )
+{
+#ifndef NDEBUG
+    // check that we haven't already saved a buffer for frame
+    for( vector<FrameTasks>::const_iterator i = _frameTasks.begin(); 
+         i != _frameTasks.end(); ++i )
+    {
+        const FrameTasks& frameTasks = *i;
+        EQASSERT( frameTasks.frame != frame );
+    }
+#endif
+
+    // look for free container
+    for( vector<FrameTasks>::iterator i = _frameTasks.begin(); 
+         i != _frameTasks.end(); ++i )
+    {
+        FrameTasks& frameTasks = *i;
+        if( frameTasks.frame == 0 )
+        {
+            frameTasks.tasks.swap( tasks );
+            frameTasks.frame = frame;
+            return;
+        }
+    }
+    // else no free container - alloc new.
+
+    _frameTasks.push_back( FrameTasks( ));
+    FrameTasks& frameTasks = _frameTasks.back();
+    frameTasks.tasks.swap( tasks );
+    frameTasks.frame = frame;
+}
+
+void Node::_sendFrameTasks( const uint32_t frame, 
+                            RefPtr<eqNet::Connection> connection )
+{
+    // look for container with frame
+    for( vector<FrameTasks>::iterator i = _frameTasks.begin(); 
+         i != _frameTasks.end(); ++i )
+    {
+        FrameTasks& frameTasks = *i;
+        if( frameTasks.frame == frame )
+        {
+            frameTasks.tasks.sendBuffer( connection );
+            frameTasks.frame = 0;
+            return;
+        }
+    }
+    EQUNREACHABLE;
+}
+
 
 //---------------------------------------------------------------------------
 // Barrier cache

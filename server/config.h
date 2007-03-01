@@ -253,7 +253,10 @@ namespace eqs
         uint32_t _latency;
 
         /** The last started frame, or 0. */
-        uint32_t _frameNumber;
+        uint32_t _currentFrame;
+
+        /** The last finished frame, or 0. */
+        uint32_t _finishedFrame;
 
         /** The matrix defining the head's position for head tracking. */
         eq::Matrix4f _headMatrix;
@@ -285,8 +288,6 @@ namespace eqs
         bool _init( const uint32_t initID );
         bool   _connectNodes();
         bool   _initNodes( const uint32_t initID );
-        bool   _initPipes( const uint32_t initID );
-        bool   _exitPipes();
         bool   _exitNodes();
 
         void _updateHead();
@@ -295,6 +296,7 @@ namespace eqs
         void     _startFrame( const uint32_t frameID );
         uint32_t _finishFrame();
         uint32_t _finishAllFrames();
+        void       _finishFrame( const uint32_t frame );
 
         //*}
     };

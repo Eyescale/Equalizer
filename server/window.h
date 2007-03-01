@@ -285,9 +285,9 @@ namespace eqs
         void _resetSwapBarriers();
 
         void _send( eqNet::ObjectPacket& packet ) 
-            { packet.objectID = getID(); _pipe->send( packet ); }
+            { packet.objectID = getID(); getNode()->send( packet ); }
         void _send( eqNet::ObjectPacket& packet, const std::string& string ) 
-            { packet.objectID = getID(); _pipe->send( packet, string ); }
+            { packet.objectID = getID(); getNode()->send( packet, string ); }
 
         void _sendConfigInit( const uint32_t initID );
         void _sendConfigExit();

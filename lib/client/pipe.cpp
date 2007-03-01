@@ -637,6 +637,7 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
     _error.clear();
 
     PipeConfigInitReplyPacket reply( packet );
+    _node->waitInitialized();
     reply.result  = configInit( packet->initID );
 
     RefPtr<eqNet::Node> node = command.getNode();
@@ -714,6 +715,7 @@ eqNet::CommandResult Pipe::_reqConfigExit( eqNet::Command& command )
     EQINFO << "handle pipe configExit " << packet << endl;
 
     configExit();
+    _initialized = false;
     _flushFrames();
 
     PipeConfigExitReplyPacket reply( packet );

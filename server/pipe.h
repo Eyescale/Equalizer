@@ -7,7 +7,6 @@
 
 #include "node.h"                       // used in inline method
 #include <eq/net/object.h>              // base class
-#include <eq/net/bufferConnection.h>    // member
 
 #include <ostream>
 #include <vector>
@@ -166,7 +165,7 @@ namespace eqs
          *                methods.
          * @param frameNumber the number of the frame.
          */
-        void startFrame( const uint32_t frameID, const uint32_t frameNumber );
+        void update( const uint32_t frameID, const uint32_t frameNumber );
         //*}
 
         /**
@@ -193,23 +192,6 @@ namespace eqs
         /** @return the error message from the last operation. */
         const std::string& getErrorMessage() const { return _error; }
         //@}
-
-        void send( eqNet::SessionPacket& packet ) 
-            { 
-                packet.sessionID = getConfig()->getID(); 
-                _bufferedTasks.send( packet );
-            }
-        void send( eqNet::SessionPacket& packet, const std::string& string ) 
-            {
-                packet.sessionID = getConfig()->getID(); 
-                _bufferedTasks.send( packet, string );
-            }
-        template< typename T >
-        void send( eqNet::ObjectPacket &packet, const std::vector<T>& data )
-            {
-                packet.sessionID = getConfig()->getID(); 
-                _bufferedTasks.send( packet, data );
-            }
 
     protected:
         virtual ~Pipe();
@@ -254,14 +236,11 @@ namespace eqs
         /** The absolute size and position of the pipe. */
         eq::PixelViewport _pvp;
 
-        /** Task packets for the current operation. */
-        eqNet::BufferConnection _bufferedTasks;
-
         /** common code for all constructors */
         void _construct();
 
         void _send( eqNet::ObjectPacket& packet )
-            { packet.objectID = getID(); send( packet ); }
+            { packet.objectID = getID(); _node->send( packet ); }
 
         void _sendConfigInit( const uint32_t initID );
         void _sendConfigExit();

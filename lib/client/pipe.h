@@ -196,6 +196,9 @@ namespace eq
         Frame* getFrame( const uint32_t id, const uint32_t version );
         //*}
 
+        /** Wait for the pipe to be exited. */
+        void waitExited() const { _initialized.waitEQ( false ); }
+
         /** 
          * Wait for a frame to be finished.
          * 
@@ -360,6 +363,9 @@ namespace eq
         /** The screen (GLX), adapter (Win32) or ignored (CGL). */
         uint32_t _screen;
         
+        /** The configInit/configExit state. */
+        eqBase::Monitor<bool> _initialized;
+
         /** The number of the last finished frame. */
         eqBase::Monitor<uint32_t> _finishedFrame;
 

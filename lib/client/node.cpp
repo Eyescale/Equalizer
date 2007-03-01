@@ -195,7 +195,8 @@ void Node::_finishFrame( const uint32_t frameNumber )
 
 void Node::releaseFrame( const uint32_t frameNumber )
 {
-    EQASSERT( _currentFrame <= frameNumber );
+    EQASSERT( _currentFrame >= frameNumber );
+
     NodeFrameFinishReplyPacket packet;
     vector<StatEvent>&     statEvents = _getStatEvents( frameNumber );
 
@@ -280,6 +281,7 @@ eqNet::CommandResult Node::_reqConfigInit( eqNet::Command& command )
     _error.clear();
     NodeConfigInitReplyPacket reply( packet );
     reply.result = configInit( packet->initID );
+    _initialized = true; // even if init failed we need to unlock the pipes
 
     send( command.getNode(), reply, _error );
     return eqNet::COMMAND_HANDLED;
@@ -292,7 +294,15 @@ eqNet::CommandResult Node::_reqConfigExit( eqNet::Command& command )
         command.getPacket<NodeConfigExitPacket>();
     EQINFO << "handle node config exit " << packet << endl;
 
+    for( vector<Pipe*>::const_iterator i = _pipes.begin(); i != _pipes.end(); 
+         ++i )
+    {
+        Pipe* pipe = *i;
+        pipe->waitExited();
+    }
+    
     configExit();
+    _initialized = false;
     _flushObjects();
 
     NodeConfigExitReplyPacket reply( packet );

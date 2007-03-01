@@ -24,10 +24,11 @@ std::string Config::_fAttributeStrings[FATTR_ALL] =
 
 void Config::_construct()
 {
-    _latency     = 1;
-    _frameNumber = 0;
-    _state       = STATE_STOPPED;
-    _appNode     = 0;
+    _latency       = 1;
+    _currentFrame  = 0;
+    _finishedFrame = 0;
+    _state         = STATE_STOPPED;
+    _appNode       = 0;
 
     registerCommand( eq::CMD_CONFIG_INIT,
                      eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
@@ -180,11 +181,11 @@ void Config::addNode( Node* node )
 
 bool Config::removeNode( Node* node )
 {
-    vector<Node*>::iterator iter = find( _nodes.begin(), _nodes.end(), node );
-    if( iter == _nodes.end( ))
+    vector<Node*>::iterator i = find( _nodes.begin(), _nodes.end(), node );
+    if( i == _nodes.end( ))
         return false;
 
-    _nodes.erase( iter );
+    _nodes.erase( i );
     node->_config = 0; 
 
     return true;
@@ -262,7 +263,8 @@ void Config::setApplicationNode( eqBase::RefPtr<eqNet::Node> node )
 bool Config::_init( const uint32_t initID )
 {
     EQASSERT( _state == STATE_STOPPED );
-    _frameNumber = 0;
+    _currentFrame  = 0;
+    _finishedFrame = 0;
 
     const uint32_t nCompounds = this->nCompounds();
     for( uint32_t i=0; i<nCompounds; ++i )
@@ -271,9 +273,7 @@ bool Config::_init( const uint32_t initID )
         compound->init();
     }
 
-    if( !_connectNodes()  ||
-        !_initNodes( initID ) ||
-        !_initPipes( initID ) )
+    if( !_connectNodes()  || !_initNodes( initID ))
     {
         exit();
         return false;
@@ -305,9 +305,9 @@ bool Config::_connectNodes()
     RefPtr< eqNet::Node > localNode = getLocalNode();
     EQASSERT( localNode.isValid( ));
 
-    for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    for( NodeHashIter i = _nodes.begin(); i != _nodes.end(); ++i )
     {
-        Node* node = *iter;
+        Node* node = *i;
         if( !node->isUsed( ))
             continue;
 
@@ -349,9 +349,9 @@ bool Config::_initNodes( const uint32_t initID )
 
     eq::ConfigCreateNodePacket createNodePacket;
     
-    for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    for( NodeHashIter i = _nodes.begin(); i != _nodes.end(); ++i )
     {
-        Node* node = *iter;
+        Node* node = *i;
         if( !node->isUsed( ))
             continue;
         
@@ -375,12 +375,13 @@ bool Config::_initNodes( const uint32_t initID )
         createNodePacket.nodeID = node->getID();
         send( netNode, createNodePacket );
 
+        // start node-pipe-window-channel init in parallel on all nodes
         node->startConfigInit( initID );
     }
 
-    for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    for( NodeHashIter i = _nodes.begin(); i != _nodes.end(); ++i )
     {
-        Node*               node    = *iter;
+        Node*               node    = *i;
         RefPtr<eqNet::Node> netNode = node->getNode();
         if( !node->isUsed() || !netNode->isConnected( ))
             continue;
@@ -396,75 +397,16 @@ bool Config::_initNodes( const uint32_t initID )
     return success;
 }
 
-bool Config::_initPipes( const uint32_t initID )
-{
-    // start pipe-window-channel init in parallel on all nodes
-    for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
-    {
-        Node* node = *iter;
-        if( !node->isUsed( ))
-            continue;
-
-        // XXX move to node?
-        eq::NodeCreatePipePacket createPipePacket;
-
-        const vector<Pipe*>& pipes = node->getPipes();
-        for( PipeIter iter = pipes.begin(); iter != pipes.end(); ++iter )
-        {
-            Pipe* pipe = *iter;
-            if( !pipe->isUsed( ))
-                continue;
-            
-            registerObject( pipe );
-            createPipePacket.pipeID = pipe->getID();
-            node->send( createPipePacket );
-            pipe->startConfigInit( initID ); // recurses down
-        }
-    }
-
-    // sync init of all pipe-window-channel entities
-    bool success = true;
-    for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
-    {
-        Node* node = *iter;
-        if( !node->isUsed( ))
-            continue;
-        
-        const vector<Pipe*>& pipes = node->getPipes();
-        for( PipeIter iter = pipes.begin(); iter != pipes.end(); ++iter )
-        {
-            Pipe* pipe = *iter;
-            if( !pipe->isUsed( ))
-                continue;
-
-            if( !pipe->syncConfigInit( ))
-            {
-                _error += (' ' + pipe->getErrorMessage( ));
-                success = false;
-            }
-        }
-    }
-    return success;
-}
-
 bool Config::exit()
 {
     if( _state != STATE_INITIALIZED )
         return false;
-//     foreach compound
-//         call exit compound cb's
-//     foreach compound
-//         sync exit
 
-    bool cleanExit = _exitPipes();
+    _finishAllFrames();
+
+    bool cleanExit = _exitNodes();
     if( !cleanExit )
-        EQERROR << "pipes exit failed" << endl;
-
-    if( !_exitNodes( ))
-    {
         EQERROR << "nodes exit failed" << endl;
-        cleanExit = false;
-    }
 
     const uint32_t nCompounds = this->nCompounds();
     for( uint32_t i=0; i<nCompounds; ++i )
@@ -476,72 +418,21 @@ bool Config::exit()
     if( _headMatrix.getID() != EQ_ID_INVALID )
         deregisterObject( &_headMatrix );
 
-    _frameNumber = 0;
-    _state       = STATE_STOPPED;
+    _currentFrame  = 0;
+    _finishedFrame = 0;
+    _state         = STATE_STOPPED;
     return cleanExit;
-}
-
-bool Config::_exitPipes()
-{
-    // start pipe-window-channel exit in parallel
-    for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
-    {
-        Node* node = *iter;
-
-        if( !node->isUsed( ))
-            continue;
-            
-        const vector<Pipe*>& pipes = node->getPipes();
-        for( PipeIter iter = pipes.begin(); iter != pipes.end(); ++iter )
-        {
-            Pipe* pipe = *iter;
-            if( pipe->getState() == Pipe::STATE_STOPPED )
-                continue;
-
-            pipe->startConfigExit();
-        }
-    }
-
-    // sync exit of all pipe-window-channel entities
-    bool success = true;
-    for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
-    {
-        Node* node = *iter;
-        if( !node->isUsed( ))
-            continue;
-        
-        eq::NodeDestroyPipePacket destroyPipePacket;
-
-        const vector<Pipe*>& pipes = node->getPipes();
-        for( PipeIter iter = pipes.begin(); iter != pipes.end(); ++iter )
-        {
-            Pipe* pipe = *iter;
-            if( pipe->getState() != Pipe::STATE_STOPPING )
-                continue;
-
-            if( !pipe->syncConfigExit( ))
-            {
-                EQWARN << "Could not exit cleanly: " << pipe << endl;
-                success = false;
-            }
-
-            destroyPipePacket.pipeID = pipe->getID();
-            node->send( destroyPipePacket );
-            deregisterObject( pipe );
-        }
-    }
-
-    return success;
 }
 
 bool Config::_exitNodes()
 {
     vector<Node*> exitingNodes;
-    for( NodeHashIter iter = _nodes.begin(); iter != _nodes.end(); ++iter )
+    for( NodeHashIter i = _nodes.begin(); i != _nodes.end(); ++i )
     {
-        Node* node = *iter;
+        Node* node = *i;
         if( !node->isUsed() || 
             node->getNode()->getState() == eqNet::Node::STATE_STOPPED )
+
             continue;
 
         exitingNodes.push_back( node );
@@ -626,8 +517,8 @@ const vmml::Vector3f& Config::getEyePosition( const uint32_t eye )
 uint32_t Config::_prepareFrame( vector<Node*>& nodes )
 {
     EQASSERT( _state == STATE_INITIALIZED );
-    ++_frameNumber;
-    EQLOG( LOG_ANY ) << "----- Start Frame ----- " << _frameNumber << endl;
+    ++_currentFrame;
+    EQLOG( LOG_ANY ) << "----- Start Frame ----- " << _currentFrame << endl;
 
     _updateHead();
 
@@ -639,7 +530,7 @@ uint32_t Config::_prepareFrame( vector<Node*>& nodes )
             nodes.push_back( node );
     }
     
-    return _frameNumber;
+    return _currentFrame;
 }
 
 void Config::_startFrame( const uint32_t frameID )
@@ -650,7 +541,7 @@ void Config::_startFrame( const uint32_t frameID )
     for( uint32_t i=0; i<nCompounds; ++i )
     {
         Compound* compound = getCompound( i );
-        compound->update( _frameNumber );
+        compound->update( _currentFrame );
     }
 
     const uint32_t nNodes = this->nNodes();
@@ -658,40 +549,56 @@ void Config::_startFrame( const uint32_t frameID )
     {
         Node* node = getNode( i );
         if( node->isUsed( ))
-            node->startFrame( frameID, _frameNumber );
+            node->startFrame( frameID, _currentFrame );
     }
 }
 
 uint32_t Config::_finishFrame()
 {
-    if( _frameNumber <= _latency )
+    if( _currentFrame <= _latency )
         return 0;
 
-    const uint32_t finishFrame = _frameNumber - _latency;
-    const uint32_t nNodes = this->nNodes();
-    for( uint32_t i=0; i<nNodes; ++i )
+    const uint32_t finishFrame = _currentFrame - _latency;
+    if( _finishedFrame == finishFrame ) // already called?
+        return finishFrame;
+
+    _finishFrame( finishFrame );
+    return finishFrame;
+}
+
+void Config::_finishFrame( const uint32_t frame )
+{
+    EQASSERT( _finishedFrame+1 == frame ); // otherwise app skipped finishFrame
+
+    for( vector<Node*>::const_iterator i = _nodes.begin(); i != _nodes.end();
+         ++i )
     {
-        Node* node = getNode( i );
+        Node* node = *i;
         if( node->isUsed( ))
-            node->syncUpdate( finishFrame );
+            node->finishFrame( frame );
+    }
+    for( vector<Node*>::const_iterator i = _nodes.begin(); i != _nodes.end();
+         ++i )
+    {
+        Node* node = *i;
+        if( node->isUsed( ))
+            node->syncFrame( frame );
     }
 
-    EQLOG( LOG_ANY ) << "----- Finish Frame ---- " << finishFrame << endl;
-    return finishFrame;
+    _finishedFrame = frame;
+    EQLOG( LOG_ANY ) << "----- Finish Frame ---- " << frame << endl;
 }
 
 uint32_t Config::_finishAllFrames()
 {
-    const uint32_t nNodes = this->nNodes();
-    for( uint32_t i=0; i<nNodes; ++i )
-    {
-        Node* node = getNode( i );
-        if( node->isUsed( ))
-            node->syncUpdate( _frameNumber );
-    }
+    if( _currentFrame == 0 )
+        return 0;
 
-    EQLOG( LOG_ANY ) << "-- Finish All Frames -- " << _frameNumber << endl;
-    return _frameNumber;
+    while( _finishedFrame < _currentFrame )
+        _finishFrame( _finishedFrame + 1 );
+
+    EQLOG( LOG_ANY ) << "-- Finish All Frames -- " << endl;
+    return _currentFrame;
 }
 
 //---------------------------------------------------------------------------
@@ -724,6 +631,7 @@ eqNet::CommandResult Config::_reqExit( eqNet::Command& command )
     EQINFO << "handle config exit " << packet << endl;
 
     reply.result = exit();
+
     EQINFO << "config exit result: " << reply.result << endl;
     send( command.getNode(), reply );
     return eqNet::COMMAND_HANDLED;

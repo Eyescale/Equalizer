@@ -20,6 +20,9 @@ namespace eqNet
         virtual ~BufferConnection();
 
         void sendBuffer( eqBase::RefPtr<Connection> connection );
+        void swap( BufferConnection& connection );
+
+        uint64_t getSize() const { return _size; }
 
     protected:
         virtual int64_t read( void* buffer, const uint64_t bytes )

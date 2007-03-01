@@ -175,12 +175,12 @@ namespace eqs
         void updatePost( const uint32_t frameID, const uint32_t frameNumber );
 
         void send( eqNet::ObjectPacket& packet ) 
-            { packet.objectID = getID(); getPipe()->send( packet ); }
+            { packet.objectID = getID(); getNode()->send( packet ); }
         void send( eqNet::ObjectPacket& packet, const std::string& string ) 
-            { packet.objectID = getID(); getPipe()->send( packet, string ); }
+            { packet.objectID = getID(); getNode()->send( packet, string ); }
         template< typename T >
         void send( eqNet::ObjectPacket &packet, const std::vector<T>& data )
-            { packet.objectID = getID(); getPipe()->send( packet, data ); }
+            { packet.objectID = getID(); getNode()->send( packet, data ); }
         //*}
 
         /**

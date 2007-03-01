@@ -7,8 +7,8 @@
 
 #include "config.h"
 
-#include <eq/base/sema.h>
 #include <eq/net/barrier.h>
+#include <eq/net/bufferConnection.h>
 #include <eq/net/node.h>
 
 #include <vector>
@@ -17,8 +17,6 @@ namespace eqs
 {
     class Pipe;
     class Server;
-
-    typedef std::vector<Pipe*>::const_iterator PipeIter;
 
     /**
      * The node.
@@ -144,11 +142,19 @@ namespace eqs
         void startFrame( const uint32_t frameID, const uint32_t frameNumber );
 
         /**
-         * Finish one frame.
+         * Trigger the finish rendering of a frame.
          *
          * @param frame the number of the frame to complete.
          */
-        void syncUpdate( const uint32_t frame ) const 
+        void finishFrame( const uint32_t frame )
+            { _sendFrameTasks( frame, _node->getConnection( )); }
+
+        /** 
+         * Synchronize the completion of the rendering of a frame.
+         * 
+         * @param frame 
+         */
+        void syncFrame( const uint32_t frame )
             { _finishedFrame.waitGE( frame ); }
         //*}
 
@@ -173,11 +179,21 @@ namespace eqs
         void releaseBarrier( eqNet::Barrier* barrier );
         //*}
 
-        /** @sa eqNet::Object::send */
-        void send( eqNet::ObjectPacket& packet )
+        void send( eqNet::SessionPacket& packet ) 
             { 
-                const bool sent = eqNet::Object::send( _node, packet ); 
-                EQASSERT( sent );
+                packet.sessionID = getConfig()->getID(); 
+                _bufferedTasks.send( packet );
+            }
+        void send( eqNet::SessionPacket& packet, const std::string& string ) 
+            {
+                packet.sessionID = getConfig()->getID(); 
+                _bufferedTasks.send( packet, string );
+            }
+        template< typename T >
+        void send( eqNet::ObjectPacket &packet, const std::vector<T>& data )
+            {
+                packet.sessionID = getConfig()->getID(); 
+                _bufferedTasks.send( packet, data );
             }
 
         /** 
@@ -256,11 +272,31 @@ namespace eqs
         /** The cached barriers. */
         std::vector<eqNet::Barrier*> _barriers;
 
+        /** Task packets for the current operation. */
+        eqNet::BufferConnection _bufferedTasks;
+
+        /** Stored tasks for a given frame. */
+        struct FrameTasks
+        {
+            uint32_t                frame;
+            eqNet::BufferConnection tasks;
+        };
+        /** The list of store frame tasks. */
+        std::vector<FrameTasks> _frameTasks;
+
         /** common code for all constructors */
         void _construct();
 
         /** flush cached barriers. */
         void _flushBarriers();
+
+        void _storeFrameTasks( const uint32_t frame, 
+                               eqNet::BufferConnection& tasks );
+        void _sendFrameTasks( const uint32_t frame, 
+                              eqBase::RefPtr<eqNet::Connection> connection );
+
+        void _send( eqNet::ObjectPacket& packet ) 
+            { packet.objectID = getID(); send( packet ); }
 
         /* Command handler functions. */
         eqNet::CommandResult _cmdConfigInitReply( eqNet::Command& command );

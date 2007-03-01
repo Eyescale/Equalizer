@@ -30,15 +30,13 @@ server
         {
             pipe
             {
+                attributes{ hint_thread off }
                 window
                 {
                     viewport [ .675 .025 .3 .3 ]
                     channel { name "channel3" }
                 }
             }
-        }
-        node
-        {
             pipe
             {
                 window
@@ -55,6 +53,9 @@ server
                     channel { name "channel5" }
                 }
             }
+        }
+        node
+        {
             pipe
             {
                 window

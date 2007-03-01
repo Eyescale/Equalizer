@@ -16,17 +16,21 @@ BufferConnection::BufferConnection()
 }
 
 BufferConnection::BufferConnection( const BufferConnection& from )
-        : _buffer(0),
-          _size(0),
-          _maxSize(0)
+        : _buffer( from._buffer ),
+          _size( from._size ),
+          _maxSize( from._maxSize )
 {
-    EQASSERT( from._size == 0 );
-    _state = STATE_CONNECTED;
+    // More a 'move' constructor. Used primarily when resizing STL containers
+    _state   = STATE_CONNECTED;
+    
+    from._buffer  = 0;
+    from._size    = 0;
+    from._maxSize = 0;
 }
 
 BufferConnection::~BufferConnection()
 {
-    if( _buffer )
+    if( _size )
     {
         EQWARN << "Deleting BufferConnection with buffered data" << endl;
         free( _buffer );
@@ -62,4 +66,19 @@ void BufferConnection::sendBuffer( eqBase::RefPtr<Connection> connection )
     const bool sent = connection->send( _buffer, _size );
     EQASSERT( sent );
     _size = 0;
+}
+
+void BufferConnection::swap( BufferConnection& connection )
+{
+    uint8_t*    buffer = _buffer;
+    _buffer            = connection._buffer;
+    connection._buffer = buffer;
+
+    uint64_t    size = _size;
+    _size            = connection._size;
+    connection._size = size;
+
+    uint64_t    maxSize = _maxSize;
+    _maxSize            = connection._maxSize;
+    connection._maxSize = maxSize;
 }

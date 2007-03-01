@@ -147,8 +147,6 @@ void Pipe::startConfigInit( const uint32_t initID )
             window->startConfigInit( initID );
         }
     }
-
-    _bufferedTasks.sendBuffer( getNode()->getNode()->getConnection( ));
     _state = STATE_INITIALISING;
 }
 
@@ -217,7 +215,6 @@ void Pipe::startConfigExit()
     }
 
     _sendConfigExit();
-    _bufferedTasks.sendBuffer( getNode()->getNode()->getConnection( ));
 }
 
 void Pipe::_sendConfigExit()
@@ -256,14 +253,13 @@ bool Pipe::syncConfigExit()
     }
 
     _state = STATE_STOPPED;
-    _bufferedTasks.sendBuffer( getNode()->getNode()->getConnection( ));
     return success;
 }
 
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Pipe::startFrame( const uint32_t frameID, const uint32_t frameNumber )
+void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
 {
     eq::PipeFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
@@ -290,7 +286,6 @@ void Pipe::startFrame( const uint32_t frameID, const uint32_t frameNumber )
     finishPacket.frameID     = frameID;
     finishPacket.frameNumber = frameNumber;
     _send( finishPacket );
-    _bufferedTasks.sendBuffer( getNode()->getNode()->getConnection( ));
 }
 
 //----------------------------------------------------------------------

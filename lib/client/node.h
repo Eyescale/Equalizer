@@ -5,7 +5,6 @@
 #ifndef EQ_NODE_H
 #define EQ_NODE_H
 
-//#include <eq/client/commands.h>
 #include <eq/client/config.h>         // called in inline method
 #include <eq/client/statEvent.h>      // member
 
@@ -73,6 +72,9 @@ namespace eq
          */
         void addStatEvents( const uint32_t frameNumber,
                             std::vector<StatEvent> events );
+
+        /** Wait for the node to be initialized. */
+        void waitInitialized() const { _initialized.waitEQ( true ); }
 
         /** 
          * Wait for a frame to be started.
@@ -179,6 +181,9 @@ namespace eq
 
         /** The reason for the last error. */
         std::string            _error;
+
+        /** The configInit/configExit state. */
+        eqBase::Monitor<bool> _initialized;
 
         /** The number of the last started frame. */
         eqBase::Monitor<uint32_t> _currentFrame;
