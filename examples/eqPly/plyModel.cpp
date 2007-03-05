@@ -1,7 +1,8 @@
 
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved.
-   Adapted code for Equalizer usage.
+   - Adapted code for Equalizer usage.
+   - Improved malloc fragmentation behaviour
  */
 
 /******************************************************************************
@@ -54,7 +55,6 @@
 #include <float.h>
 #include <math.h>
 
-#define CHUNKSIZE 4096
 #define MAXDEPTH  256
 
 #define PLYFILEVERSION 20
@@ -67,12 +67,12 @@ using namespace std;
 template<class FaceType>
 PlyModel<FaceType>::PlyModel( void )
         : _nFaces(0),
-          _faces(NULL)
+          _faces(0)
 {
-    _bbox.parent   = NULL;
-    _bbox.next     = NULL;
-    _bbox.children = NULL;
-    _bbox.faces    = NULL;
+    _bbox.parent   = 0;
+    _bbox.next     = 0;
+    _bbox.children = 0;
+    _bbox.faces    = 0;
     _bbox.nFaces   = 0;
 }
 
@@ -82,9 +82,9 @@ PlyModel<FaceType>::PlyModel( void )
 template<class FaceType>
 PlyModel<FaceType>::~PlyModel()
 {
-    if( _faces != NULL )
+    if( _faces != 0 )
         free( _faces );
-    _faces = NULL;
+    _faces = 0;
 
     freeBBoxes( _bbox );
 }
@@ -96,7 +96,7 @@ template<class FaceType>
 void PlyModel<FaceType>::setFaces( size_t nFaces, FaceType *faces, 
     size_t bboxFaceThreshold )
 {
-    if( _faces != NULL )
+    if( _faces != 0 )
         free( _faces );
 
     if( nFaces == 0 )
@@ -115,9 +115,9 @@ void PlyModel<FaceType>::setFaces( size_t nFaces, FaceType *faces,
 
     EQINFO << eqBase::disableHeader << "Filling bounding boxes";
 
-    _bbox.children = NULL;
-    _bbox.parent   = NULL;
-    _bbox.next     = NULL;
+    _bbox.children = 0;
+    _bbox.parent   = 0;
+    _bbox.next     = 0;
     _bbox.range[0] = 0.0f;
     _bbox.range[1] = 1.0f - numeric_limits<float>::epsilon();
 
@@ -195,8 +195,7 @@ void PlyModel<FaceType>::fillBBox( size_t nFaces, FaceType *faces, BBox &bbox,
     ++filled;
 #endif
 
-    bbox.nFaces   = 0;
-    bbox.faces    = NULL;
+    vector<FaceType> bboxFaces;
 
     for( size_t i=0; i<nFaces; i++ )
     {
@@ -207,34 +206,37 @@ void PlyModel<FaceType>::fillBBox( size_t nFaces, FaceType *faces, BBox &bbox,
         if( faceInBBox( bbox.pos, faceBBox ))
         {
             expandBox( bbox.cullBox, faceBBox );
-            addFaceToBBox( bbox, face );
+            bboxFaces.push_back( face );
         }
     }
 
     calculateCullSphere( bbox );
 
     // update range
-    if( nFaces == 0 ) // end pos
+    if( bboxFaces.empty( )) // end pos
         bbox.range[1] = bbox.range[0];
     else
     {
         const float start = bbox.range[0]; // start pos set by previous or init
         const float range = bbox.range[1]; // parents range span set in init
 
-        bbox.range[1] = start + range * bbox.nFaces / nFaces;
+        bbox.range[1] = start + range * bboxFaces.size() / nFaces;
     }
     
-    if( bbox.next != NULL ) // start range position of next child
+    if( bbox.next != 0 ) // start range position of next child
         bbox.next->range[0] = bbox.range[1];
+
+    bbox.faces  = &_faces[_nFaces];
+    bbox.nFaces = bboxFaces.size();
 
     if( bbox.nFaces < bboxFaceThreshold || depth > MAXDEPTH )
     {
-        if( bbox.nFaces == 0 )
+        if( bboxFaces.empty( ))
             return;
 
-        memcpy( &_faces[_nFaces], bbox.faces, bbox.nFaces * sizeof(FaceType) );
-        free( bbox.faces );
-        bbox.faces = &_faces[_nFaces];
+        memcpy( &_faces[_nFaces], &bboxFaces.front(), 
+                bbox.nFaces * sizeof( FaceType ));
+
         _nFaces += bbox.nFaces;
     }
     else
@@ -242,22 +244,14 @@ void PlyModel<FaceType>::fillBBox( size_t nFaces, FaceType *faces, BBox &bbox,
         // recursive-fill children bboxes
         createBBoxChildren( bbox );
         
-        FaceType *faces = bbox.faces;
-        bbox.faces = &_faces[_nFaces];
-        
         size_t cnf = 0;
-
         for( int j=0; j<8; j++ )
         {
-            fillBBox( bbox.nFaces, faces, bbox.children[j], bboxFaceThreshold,
-                      depth+1 );
+            fillBBox( bboxFaces.size(), &bboxFaces.front(), bbox.children[j],
+                      bboxFaceThreshold, depth+1 );
             cnf +=  bbox.children[j].nFaces;
         }
-
         EQASSERT( cnf == bbox.nFaces );
-        bbox.nFaces = cnf;
-
-        free( faces );
     }
 }
 
@@ -278,7 +272,7 @@ void PlyModel<FaceType>::createBBoxChildren( BBox &bbox )
         if( i<7 )
             bbox.children[i].next = &bbox.children[i+1];
         else
-            bbox.children[i].next = NULL;
+            bbox.children[i].next = 0;
     }
 
     // range start (child updates next child when filling bbox)
@@ -463,29 +457,6 @@ void PlyModel<FaceType>::expandBox( Vertex bbox[2], Vertex faceBBox[2])
 }
 
 //---------------------------------------------------------------------------
-// addFaceToBBox
-//---------------------------------------------------------------------------
-template<class FaceType>
-void PlyModel<FaceType>::addFaceToBBox( BBox &bbox, FaceType &face )
-{
-    if( bbox.nFaces%CHUNKSIZE == 0 )
-    {
-        if( bbox.faces == NULL )
-            bbox.faces = (FaceType *)malloc( CHUNKSIZE*sizeof(FaceType) );
-        else
-        {
-            size_t newSize = (bbox.nFaces/CHUNKSIZE + 1) * 
-                CHUNKSIZE*sizeof(FaceType);
-
-            bbox.faces = (FaceType *)realloc( bbox.faces, newSize );
-        }
-    }
-
-    memcpy( &bbox.faces[bbox.nFaces], &face, sizeof( FaceType ));
-    bbox.nFaces++;
-}
-
-//---------------------------------------------------------------------------
 // scale
 //---------------------------------------------------------------------------
 struct ScaleData
@@ -505,7 +476,7 @@ void PlyModel<FaceType>::normalize( void )
     };
 
     scaleModel( data.scale, data.offset );
-    traverseBBox( &_bbox, scaleBBoxCB, scaleBBoxCB, NULL, &data );
+    traverseBBox( &_bbox, scaleBBoxCB, scaleBBoxCB, 0, &data );
 }
 
 template<class FaceType>
@@ -590,16 +561,16 @@ void PlyModel<FaceType>::scaleBBoxCB( typename PlyModel< FaceType >::BBox *bbox,
 template<class FaceType>
 void PlyModel<FaceType>::freeBBoxes( BBox &bbox )
 {
-    bbox.faces = NULL;
+    bbox.faces = 0;
 
-    if( bbox.children == NULL )
+    if( bbox.children == 0 )
         return;
 
     for( int i=0; i<8; i++ )
         freeBBoxes( bbox.children[i] );
 
     free( bbox.children );
-    bbox.children = NULL;
+    bbox.children = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -617,7 +588,7 @@ template<class FaceType>
 void PlyModel<FaceType>::traverseBBox( BBox *top, TraverseCB preCB, 
     TraverseCB leafCB, TraverseCB postCB, void *userData )
 {
-    if ( top->children == NULL ) 
+    if ( top->children == 0 ) 
     {
         if ( leafCB ) leafCB( top, userData );
         return;
@@ -630,10 +601,10 @@ void PlyModel<FaceType>::traverseBBox( BBox *top, TraverseCB preCB,
     {
         parent = bbox->parent;
         next   = bbox->next;
-        child  = (bbox->children==NULL) ? NULL : &bbox->children[0];
+        child  = (bbox->children==0) ? 0 : &bbox->children[0];
 
         //---------- down-right traversal
-        if ( child == NULL ) // leaf
+        if ( child == 0 ) // leaf
         {
             if ( leafCB ) leafCB( bbox, userData );
 
@@ -641,15 +612,15 @@ void PlyModel<FaceType>::traverseBBox( BBox *top, TraverseCB preCB,
         } 
         else // node
         {
-            if( preCB != NULL ) preCB( bbox, userData );
+            if( preCB != 0 ) preCB( bbox, userData );
 
             bbox = child;
         }
 
         //---------- up-right traversal
-	if( bbox == NULL && parent == NULL ) return;
+	if( bbox == 0 && parent == 0 ) return;
 
-        while ( bbox == NULL )
+        while ( bbox == 0 )
         {
             bbox   = parent;
             parent = bbox->parent;
@@ -740,7 +711,7 @@ void PlyModel<FaceType>::writeBBox( ostream& os, BBox &bbox )
     os.write( (char *)bbox.range, 2*sizeof(float) );
 
     int nChildren = 8;
-    if( bbox.children == NULL )
+    if( bbox.children == 0 )
         nChildren = 0;
 
     os.write( (char *)&nChildren, sizeof(int) );

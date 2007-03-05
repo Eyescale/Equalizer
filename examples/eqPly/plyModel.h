@@ -77,8 +77,8 @@ public:
 
         vmml::Vector4f cullSphere;
 
-        size_t     nFaces;
-        FaceType  *faces;
+        size_t         nFaces;
+        FaceType*      faces;
 
         float      range[2];
 
@@ -127,7 +127,6 @@ private:
 
     bool faceInBBox( Vertex bbox[2], Vertex faceBBox[2] );
     void expandBox( Vertex bbox[2], Vertex faceBBox[2] );
-    void addFaceToBBox( BBox &bbox, FaceType &face );
 
     static float _getScaleFactor( const Vertex bbox[2] );
     void         scaleModel( const float scale, const vmml::Vector3f& offset );
