@@ -212,13 +212,13 @@ void PlyFileIO::readVertices( PlyFile *file, int num, bool color,
         {"y",PLY_FLOAT,PLY_FLOAT, yOffset, 0,0,0,0},
         {"z",PLY_FLOAT,PLY_FLOAT, zOffset, 0,0,0,0},
     };
+    char colors[3][6] = { "red", "green", "blue" };
 
     if( color )
     {
-        char names[3][6] = { "red", "green", "blue" };
         for( int i=3; i<6; i++ )
         {
-            vProps[i].name = names[i-3];
+            vProps[i].name = colors[i-3];
             vProps[i].external_type = PLY_UCHAR;   
             vProps[i].internal_type = PLY_FLOAT;   
             
