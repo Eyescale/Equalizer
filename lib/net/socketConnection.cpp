@@ -357,7 +357,7 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
     }
 
     const ssize_t bytesRead = ::recv( _readFD, static_cast<char*>(buffer), 
-                                      bytes, 0 );
+                                bytes, 0 );
     const int     error     = (bytesRead == SOCKET_ERROR) ? GetLastError() : 0;
 
     if( error == WSAEWOULDBLOCK )
@@ -392,24 +392,36 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
     if( _writeFD == INVALID_SOCKET )
         return -1;
 
-    const ssize_t bytesWritten = ::send( _writeFD, 
-                                         static_cast<const char*>(buffer), 
-                                         bytes, 0 );
-    if( bytesWritten == SOCKET_ERROR ) // error
+    ssize_t bytesWritten = ::send( _writeFD, static_cast<const char*>(buffer), 
+                                   bytes, 0 );
+    if( bytesWritten > 0 ) // success
+        return bytesWritten;
+
+    // error
+    if( GetLastError( ) != WSAEWOULDBLOCK )
     {
-		if( GetLastError( ) == WSAEWOULDBLOCK ) // Buffer full - wait
-		{
-			fd_set set;
-			FD_ZERO( &set );
-			FD_SET( _writeFD, &set );
-			const int result = select( _writeFD+1, 0, &set, 0, 0 );
-			if( result > 0 )
-				return 0;
-		}
         EQWARN << "Error during write: " << EQ_SOCKET_ERROR << endl;
         return -1;
-    }
+	}
 
-    return bytesWritten;
+	// Buffer full - wait and try again
+	fd_set set;
+	FD_ZERO( &set );
+	FD_SET( _writeFD, &set );
+
+	const int result = select( _writeFD+1, 0, &set, 0, 0 );
+	if( result <= 0 )
+	{
+		EQWARN << "Error during select: " << EQ_SOCKET_ERROR <<endl;
+		return -1;
+	}
+
+    bytesWritten = ::send( _writeFD, static_cast<const char*>(buffer), 
+						   bytes, 0 );
+    if( bytesWritten > 0 ) // success
+        return bytesWritten;
+
+    EQWARN << "Error during write: " << EQ_SOCKET_ERROR << endl;
+    return -1;
 }
 #endif // WIN32

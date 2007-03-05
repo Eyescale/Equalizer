@@ -36,8 +36,8 @@ namespace eq
         /** @sa EventHandler::removeWindow. */
         virtual void removeWindow( Window* window );
 
-        static LONG WINAPI wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
-                                    LPARAM lParam );
+        static LRESULT CALLBACK wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
+                                         LPARAM lParam );
     private:
 #pragma warning(push)
 #pragma warning(disable: 4251)
@@ -45,8 +45,8 @@ namespace eq
         eqBase::PtrHash< const Window*, uint32_t > _buttonStates;
 #pragma warning(pop)
 
-        LONG WINAPI _wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
-                              LPARAM lParam );
+        LRESULT CALLBACK _wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
+                                   LPARAM lParam );
 
         Window*   _findWindow( HWND hWnd );
         void      _syncButtonState( const Window* window, WPARAM wParam );

@@ -74,8 +74,8 @@ void WGLEventHandler::removeWindow( Window* window )
     _buttonStates.erase( window );
 }
 
-LONG WINAPI WGLEventHandler::wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
-                                      LPARAM lParam )
+LRESULT CALLBACK WGLEventHandler::wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
+                                           LPARAM lParam )
 {
     WGLEventHandler* handler = _handler.get();
     if( !handler )
@@ -125,8 +125,8 @@ void WGLEventHandler::_syncButtonState( const Window* window, WPARAM wParam )
     _buttonStates[window] = buttons;
 }
 
-LONG WINAPI WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
-                                       LPARAM lParam )
+LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
+                                            LPARAM lParam )
 {
     WindowEvent event;
     event.hWnd   = hWnd;
