@@ -177,6 +177,8 @@ namespace eqBase
         bool extMutex;                                      \
     } NAME;                                                 \
 
+#  define CHECK_THREAD_RESET( NAME ) NAME.id = eqBase::threadIdZero;
+
 #  define CHECK_THREAD( NAME )                                          \
     {                                                                   \
         if( pthread_equal( NAME.id, eqBase::threadIdZero ))             \
@@ -210,6 +212,7 @@ namespace eqBase
     }
 #else
 #  define CHECK_THREAD_DECLARE( NAME )
+#  define CHECK_THREAD_RESET( NAME )
 #  define CHECK_THREAD( NAME )
 #  define CHECK_NOT_THREAD( NAME )
 #endif

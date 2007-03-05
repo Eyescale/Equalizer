@@ -162,6 +162,8 @@ namespace eq
         /* The command handlers. */
         eqNet::CommandResult _cmdTransmit( eqNet::Command& command );
         eqNet::CommandResult _cmdReady( eqNet::Command& command );
+
+        CHECK_THREAD_DECLARE( _thread );
     };
     std::ostream& operator << ( std::ostream& os, const FrameData* data );
 }

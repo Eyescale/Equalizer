@@ -34,13 +34,16 @@ FrameData::~FrameData()
 
 void FrameData::applyInstanceData( const void* data, const uint64_t size )
 { 
+    CHECK_THREAD( _thread );
     _clear();
     eqNet::Object::applyInstanceData( data, size ); 
     getLocalNode()->flushCommands(); // process rescheduled transmit packets
+    CHECK_THREAD( _thread );
 }
 
 void FrameData::_clear()
 {
+    CHECK_THREAD( _thread );
     EQASSERT( _listeners.empty( ));
     copy( _images.begin(), _images.end(), 
           inserter( _imageCache, _imageCache.end( )));
@@ -283,6 +286,9 @@ void FrameData::removeListener( eqBase::Monitor<uint32_t>& listener )
                                                      &listener );
     EQASSERT( i != _listeners.end( ));
     _listeners.erase( i );
+
+    if( _listeners.empty( ))
+        CHECK_THREAD_RESET( _thread );
 
     _listenersMutex.unset();
 }

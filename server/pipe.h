@@ -227,7 +227,7 @@ namespace eqs
         /** The display (X11) or ignored (Win32, CGL). */
         uint32_t _display;
 
-        /** The screen (X11), adapter (Win32) or virtual screen (CGL). */
+        /** The screen (X11), GPU (Win32) or virtual screen (CGL). */
         uint32_t _screen;
 
         /* The display (CGL) or output channel (X11, Win32). */
