@@ -1,3 +1,9 @@
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+   All rights reserved.
+   - Cleaned up code for 64 bit, little and big endian support
+   - Added new ply data types (uint8, float32, int32)
+ */
+
 /*
 
 The interface routines for reading and writing PLY polygon files.
@@ -39,14 +45,14 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #include <string.h>
 
 const char *type_names[] = {
-"invalid",
-"char", "short", "int",
-"uchar", "ushort", "uint",
-"float", "double",
+    "invalid",
+    "char", "short", "int",
+    "uchar", "ushort", "uint",
+    "float", "double", "float32", "uint8", "int32"
 };
 
 int ply_type_size[] = {
-  0, 1, 2, 4, 1, 2, 4, 4, 8
+    0, 1, 2, 4, 1, 2, 4, 4, 8, 4, 1, 4
 };
 
 #define NO_OTHER_PROPS  -1
@@ -72,12 +78,10 @@ void write_scalar_type (FILE *, int);
 
 /* read a line from a file and break it up into separate words */
 char **get_words(FILE *, int *, char **);
-char **old_get_words(FILE *, int *);
 
 /* write an item to a file */
 void write_binary_item(PlyFile *, int, unsigned int, double, int);
 void write_ascii_item(FILE *, int, unsigned int, double, int);
-double old_write_ascii_item(FILE *, const char *, int);
 
 /* add information to a PLY file descriptor */
 void add_element(PlyFile *, char **, int);
@@ -998,42 +1002,40 @@ Entry:
   prop_list - list of properties
 ******************************************************************************/
 
-void ply_get_element_setup(
-  PlyFile *plyfile,
-  char *elem_name,
-  int nprops,
-  PlyProperty *prop_list
-)
+void ply_get_element_setup( PlyFile *plyfile, char *elem_name, int nprops,
+                            PlyProperty *prop_list )
 {
-  int i;
-  PlyElement *elem;
-  PlyProperty *prop;
-  int index;
+    int i;
+    PlyElement *elem;
+    PlyProperty *prop;
+    int index;
 
-  /* find information about the element */
-  elem = find_element (plyfile, elem_name);
-  plyfile->which_elem = elem;
+    /* find information about the element */
+    elem = find_element (plyfile, elem_name);
+    plyfile->which_elem = elem;
 
-  /* deposit the property information into the element's description */
-  for (i = 0; i < nprops; i++) {
+    /* deposit the property information into the element's description */
+    for (i = 0; i < nprops; i++) 
+    {
+        /* look for actual property */
+        prop = find_property (elem, prop_list[i].name, &index);
+        if (prop == NULL) 
+        {
+            fprintf ( stderr, 
+                      "Warning:  Can't find property '%s' in element '%s'\n",
+                      prop_list[i].name, elem_name );
+            continue;
+        }
 
-    /* look for actual property */
-    prop = find_property (elem, prop_list[i].name, &index);
-    if (prop == NULL) {
-      fprintf (stderr, "Warning:  Can't find property '%s' in element '%s'\n",
-               prop_list[i].name, elem_name);
-      continue;
+        /* store its description */
+        prop->internal_type = prop_list[i].internal_type;
+        prop->offset = prop_list[i].offset;
+        prop->count_internal = prop_list[i].count_internal;
+        prop->count_offset = prop_list[i].count_offset;
+
+        /* specify that the user wants this property */
+        elem->store_prop[index] = STORE_PROP;
     }
-
-    /* store its description */
-    prop->internal_type = prop_list[i].internal_type;
-    prop->offset = prop_list[i].offset;
-    prop->count_internal = prop_list[i].count_internal;
-    prop->count_offset = prop_list[i].count_offset;
-
-    /* specify that the user wants this property */
-    elem->store_prop[index] = STORE_PROP;
-  }
 }
 
 
@@ -1554,13 +1556,13 @@ Exit:
 
 PlyElement *find_element(PlyFile *plyfile, const char *element)
 {
-  int i;
+    int i;
 
-  for (i = 0; i < plyfile->nelems; i++)
-    if (equal_strings (element, plyfile->elems[i]->name))
-      return (plyfile->elems[i]);
-
-  return (NULL);
+    for (i = 0; i < plyfile->nelems; i++)
+        if (equal_strings (element, plyfile->elems[i]->name))
+            return (plyfile->elems[i]);
+    
+    return (NULL);
 }
 
 
@@ -1578,16 +1580,17 @@ Exit:
 
 PlyProperty *find_property(PlyElement *elem, const char *prop_name, int *index)
 {
-  int i;
-
-  for (i = 0; i < elem->nprops; i++)
-    if (equal_strings (prop_name, elem->props[i]->name)) {
-      *index = i;
-      return (elem->props[i]);
-    }
-
-  *index = -1;
-  return (NULL);
+    int i;
+    
+    for( i = 0; i < elem->nprops; i++)
+        if (equal_strings (prop_name, elem->props[i]->name))
+        {
+            *index = i;
+            return (elem->props[i]);
+        }
+    
+    *index = -1;
+    return (NULL);
 }
 
 
@@ -1970,6 +1973,7 @@ double get_item_value(char *item, int type)
       int_value = *pchar;
       return ((double) int_value);
     case PLY_UCHAR:
+    case PLY_UINT8:
       puchar = (unsigned char *) item;
       int_value = *puchar;
       return ((double) int_value);
@@ -1982,6 +1986,7 @@ double get_item_value(char *item, int type)
       int_value = *pushort;
       return ((double) int_value);
     case PLY_INT:
+    case PLY_INT32:
       pint = (int *) item;
       int_value = *pint;
       return ((double) int_value);
@@ -1990,6 +1995,7 @@ double get_item_value(char *item, int type)
       uint_value = *puint;
       return ((double) uint_value);
     case PLY_FLOAT:
+    case PLY_FLOAT32:
       pfloat = (float *) item;
       double_value = *pfloat;
       return (double_value);
@@ -2042,6 +2048,7 @@ void write_binary_item(PlyFile *plyfile,
       fwrite (&short_val, 2, 1, fp);
       break;
       case PLY_INT:
+      case PLY_INT32:
           if( plyfile->file_type == PLY_BINARY_BE )
           {
               swap4BE(&int_val);
@@ -2053,6 +2060,7 @@ void write_binary_item(PlyFile *plyfile,
           fwrite (&int_val, 4, 1, fp);
           break;
       case PLY_UCHAR:
+      case PLY_UINT8:
           uchar_val = uint_val;
           fwrite (&uchar_val, 1, 1, fp);
           break;
@@ -2080,6 +2088,7 @@ void write_binary_item(PlyFile *plyfile,
           fwrite (&uint_val, 4, 1, fp);
           break;
       case PLY_FLOAT:
+      case PLY_FLOAT32:
           float_val = double_val;
           if( plyfile->file_type == PLY_BINARY_BE )
           {
@@ -2132,14 +2141,17 @@ void write_ascii_item(
     case PLY_CHAR:
     case PLY_SHORT:
     case PLY_INT:
+    case PLY_INT32:
       fprintf (fp, "%d ", int_val);
       break;
     case PLY_UCHAR:
+    case PLY_UINT8:
     case PLY_USHORT:
     case PLY_UINT:
       fprintf (fp, "%u ", uint_val);
       break;
     case PLY_FLOAT:
+    case PLY_FLOAT32:
     case PLY_DOUBLE:
       fprintf (fp, "%g ", double_val);
       break;
@@ -2148,80 +2160,6 @@ void write_ascii_item(
       exit (-1);
   }
 }
-
-
-/******************************************************************************
-Write out an item to a file as ascii characters.
-
-Entry:
-  fp   - file to write to
-  item - pointer to item to write
-  type - data type that "item" points to
-
-Exit:
-  returns a double-precision float that contains the value of the written item
-******************************************************************************/
-
-double old_write_ascii_item(FILE *fp, char *item, int type)
-{
-  unsigned char *puchar;
-  char *pchar;
-  short int *pshort;
-  unsigned short int *pushort;
-  int *pint;
-  unsigned int *puint;
-  float *pfloat;
-  double *pdouble;
-  int int_value;
-  unsigned int uint_value;
-  double double_value;
-
-  switch (type) {
-    case PLY_CHAR:
-      pchar = (char *) item;
-      int_value = *pchar;
-      fprintf (fp, "%d ", int_value);
-      return ((double) int_value);
-    case PLY_UCHAR:
-      puchar = (unsigned char *) item;
-      int_value = *puchar;
-      fprintf (fp, "%d ", int_value);
-      return ((double) int_value);
-    case PLY_SHORT:
-      pshort = (short int *) item;
-      int_value = *pshort;
-      fprintf (fp, "%d ", int_value);
-      return ((double) int_value);
-    case PLY_USHORT:
-      pushort = (unsigned short int *) item;
-      int_value = *pushort;
-      fprintf (fp, "%d ", int_value);
-      return ((double) int_value);
-    case PLY_INT:
-      pint = (int *) item;
-      int_value = *pint;
-      fprintf (fp, "%d ", int_value);
-      return ((double) int_value);
-    case PLY_UINT:
-      puint = (unsigned int *) item;
-      uint_value = *puint;
-      fprintf (fp, "%u ", uint_value);
-      return ((double) uint_value);
-    case PLY_FLOAT:
-      pfloat = (float *) item;
-      double_value = *pfloat;
-      fprintf (fp, "%g ", double_value);
-      return (double_value);
-    case PLY_DOUBLE:
-      pdouble = (double *) item;
-      double_value = *pdouble;
-      fprintf (fp, "%g ", double_value);
-      return (double_value);
-  }
-  fprintf (stderr, "old_write_ascii_item: bad type = %d\n", type);
-  return 0;
-}
-
 
 /******************************************************************************
 Get the value of an item that is in memory, and place the result
@@ -2252,6 +2190,7 @@ void get_stored_item(
       *double_val = *int_val;
       break;
     case PLY_UCHAR:
+    case PLY_UINT8:
       *uint_val = *((unsigned char *) ptr);
       *int_val = *uint_val;
       *double_val = *uint_val;
@@ -2267,6 +2206,7 @@ void get_stored_item(
       *double_val = *uint_val;
       break;
     case PLY_INT:
+    case PLY_INT32:
       *int_val = *((int *) ptr);
       *uint_val = *int_val;
       *double_val = *int_val;
@@ -2277,6 +2217,7 @@ void get_stored_item(
       *double_val = *uint_val;
       break;
     case PLY_FLOAT:
+    case PLY_FLOAT32:
       *double_val = *((float *) ptr);
       *int_val = (int) *double_val;
       *uint_val = (unsigned int) *double_val;
@@ -2328,6 +2269,7 @@ void get_binary_item(
       *double_val = *int_val;
       break;
       case PLY_UCHAR:
+      case PLY_UINT8:
           fread (ptr, 1, 1, plyfile->fp);
           *uint_val = *((unsigned char *) ptr);
           *int_val = *uint_val;
@@ -2362,6 +2304,7 @@ void get_binary_item(
           *double_val = *uint_val;
           break;
       case PLY_INT:
+      case PLY_INT32:
           fread (ptr, 4, 1, plyfile->fp);
           if( plyfile->file_type == PLY_BINARY_BE )
           {
@@ -2390,6 +2333,7 @@ void get_binary_item(
           *double_val = *uint_val;
           break;
       case PLY_FLOAT:
+      case PLY_FLOAT32:
           fread (ptr, 4, 1, plyfile->fp);
           if( plyfile->file_type == PLY_BINARY_BE )
           {
@@ -2449,9 +2393,11 @@ void get_ascii_item(
   switch (type) {
     case PLY_CHAR:
     case PLY_UCHAR:
+    case PLY_UINT8:
     case PLY_SHORT:
     case PLY_USHORT:
     case PLY_INT:
+    case PLY_INT32:
       *int_val = atoi (word);
       *uint_val = *int_val;
       *double_val = *int_val;
@@ -2464,6 +2410,7 @@ void get_ascii_item(
       break;
 
     case PLY_FLOAT:
+    case PLY_FLOAT32:
     case PLY_DOUBLE:
       *double_val = atof (word);
       *int_val = (int) *double_val;
@@ -2512,6 +2459,7 @@ void store_item (
       *item = int_val;
       break;
     case PLY_UCHAR:
+    case PLY_UINT8:
       puchar = (unsigned char *) item;
       *puchar = uint_val;
       break;
@@ -2524,6 +2472,7 @@ void store_item (
       *pushort = uint_val;
       break;
     case PLY_INT:
+    case PLY_INT32:
       pint = (int *) item;
       *pint = int_val;
       break;
@@ -2532,6 +2481,7 @@ void store_item (
       *puint = uint_val;
       break;
     case PLY_FLOAT:
+    case PLY_FLOAT32:
       pfloat = (float *) item;
       *pfloat = double_val;
       break;

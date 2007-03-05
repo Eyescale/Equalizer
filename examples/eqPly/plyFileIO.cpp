@@ -207,11 +207,12 @@ void PlyFileIO::readVertices( PlyFile *file, int num, bool color,
     const int yOffset = ((char*)&dummy.pos[1] - (char*)&dummy );
     const int zOffset = ((char*)&dummy.pos[2] - (char*)&dummy );
 
-    PlyProperty vProps[6] = { 
-        {"x",PLY_FLOAT,PLY_FLOAT, xOffset, 0,0,0,0},
-        {"y",PLY_FLOAT,PLY_FLOAT, yOffset, 0,0,0,0},
-        {"z",PLY_FLOAT,PLY_FLOAT, zOffset, 0,0,0,0},
-    };
+    PlyProperty vProps[6] =
+        { 
+            { "x", PLY_FLOAT, PLY_FLOAT, xOffset, 0, 0, 0, 0 },
+            { "y", PLY_FLOAT, PLY_FLOAT, yOffset, 0, 0, 0, 0 },
+            { "z", PLY_FLOAT, PLY_FLOAT, zOffset, 0, 0, 0, 0 }
+        };
     char colors[3][6] = { "red", "green", "blue" };
 
     if( color )
@@ -235,11 +236,13 @@ void PlyFileIO::readVertices( PlyFile *file, int num, bool color,
         vProps[5].offset = bOffset;        
         nVProps = 6;
     }
-        
+    else
+        nVProps = 3;
+
     EQINFO << disableHeader << "Reading " << num << " vertices";
 
     ply_get_element_setup( file, "vertex", nVProps, vProps );
-            
+
     // read vertices
     for( int i=0; i<num; i++ )
     {
