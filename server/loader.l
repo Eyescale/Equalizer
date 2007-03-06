@@ -19,7 +19,9 @@
 void yyerror(char *);
 int yylineno = 0;
 %}
+
 %option noyywrap
+%option nounput
 
 %%
 

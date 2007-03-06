@@ -27,7 +27,7 @@ CLEAN_EXTRA = \
 
 MODULE  = server
 
-CXXFLAGS    += $(WINDOW_SYSTEM_INCS) -Wno-unused-function
+CXXFLAGS    += $(WINDOW_SYSTEM_INCS)
 LDFLAGS     += -leq
 SA_LDFLAGS  += -leq -leqserver
 
