@@ -113,15 +113,15 @@ void SocketConnection::_tuneSocket( const Socket fd )
                 reinterpret_cast<const char*>( &on ), sizeof( on ));
     setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, 
                 reinterpret_cast<const char*>( &on ), sizeof( on ));
+
+    const int bufferSize = 4*1024*1024;
+    setsockopt( fd, SOL_SOCKET, SO_SNDBUF, 
+        reinterpret_cast<const char*>( &bufferSize ), sizeof( bufferSize ));
+    setsockopt( fd, SOL_SOCKET, SO_RCVBUF, 
+        reinterpret_cast<const char*>( &bufferSize ), sizeof( bufferSize ));
 #else
     setsockopt( fd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof( on ));
     setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof( on ));
-#endif
-
-#if 0
-    const int bufferSize = 256*1024;
-    setsockopt( fd, SOL_SOCKET, SO_SNDBUF, &bufferSize, sizeof( bufferSize ));
-    setsockopt( fd, SOL_SOCKET, SO_RCVBUF, &bufferSize, sizeof( bufferSize ));
 #endif
 }
 

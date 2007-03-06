@@ -25,8 +25,8 @@ public:
             data.translation   = vmml::Vector3f::ZERO;
             data.translation.z = -1.f;
             data.rotation = vmml::Matrix4f::IDENTITY;
-            data.rotation.rotateX( -M_PI_2 );
-            data.rotation.rotateY( -M_PI_2 );
+            data.rotation.rotateX( static_cast<float>( -M_PI_2 ));
+            data.rotation.rotateY( static_cast<float>( -M_PI_2 ));
         }
 
     struct Data

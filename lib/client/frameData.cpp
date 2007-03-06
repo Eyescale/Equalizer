@@ -46,8 +46,7 @@ void FrameData::_clear()
 {
     CHECK_THREAD( _thread );
     EQASSERT( _listeners.empty( ));
-    copy( _images.begin(), _images.end(), 
-          inserter( _imageCache, _imageCache.end( )));
+    _imageCache.insert( _imageCache.end(), _images.begin(), _images.end( ));
     _images.clear();
     CHECK_THREAD( _thread );
 }
@@ -56,10 +55,10 @@ void FrameData::flush()
 {
     _clear();
 
-    for( vector<Image*>::const_iterator iter = _imageCache.begin();
-         iter != _imageCache.end(); ++iter )
+    for( vector<Image*>::const_iterator i = _imageCache.begin();
+         i != _imageCache.end(); ++i )
 
-        delete *iter;
+        delete *i;
 
     _imageCache.clear();
 }

@@ -7,6 +7,7 @@
 #include "window.h"
 
 #include <eq/base/debug.h>
+#include <eq/base/executionListener.h>
 #include <eq/base/perThread.h>
 
 #include <algorithm>
@@ -15,8 +16,9 @@
 using namespace eq;
 using namespace eqBase;
 using namespace std;
+using namespace stde;
 
-typedef hash_map< HWND, WGLEventHandler* > HandlerMap
+typedef hash_map< HWND, WGLEventHandler* > HandlerMap;
 static PerThread< HandlerMap* > _handlers;
 
 // Win32 defines to indentify special keys
@@ -34,6 +36,7 @@ static PerThread< HandlerMap* > _handlers;
 
 class HandlerMapCleaner : public ExecutionListener
 {
+public:
     HandlerMapCleaner()
         {
             Thread::addListener( this );
@@ -102,7 +105,7 @@ WGLEventHandler::WGLEventHandler( Window* window )
     SetWindowLongPtr( _hWnd, GWLP_WNDPROC, (LONG_PTR)wndProc );
 }
 
-WGLEventHandler::~WGLEventHandler
+WGLEventHandler::~WGLEventHandler()
 {
     deregisterHandler( _hWnd );
 }
@@ -130,13 +133,13 @@ void WGLEventHandler::_syncButtonState( WPARAM wParam )
     if( wParam & MK_XBUTTON2 ) buttons |= PTR_BUTTON5;
 
 #ifndef NDEBUG
-    if( _buttonStates != buttons )
+    if( _buttonState != buttons )
 
         EQWARN << "WM_MOUSEMOVE reports button state " << buttons
-               << ", but internal state is " << _buttonStates << endl;
+               << ", but internal state is " << _buttonState << endl;
 #endif
 
-    _buttonStates = buttons;
+    _buttonState = buttons;
 }
 
 LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
@@ -147,7 +150,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
     event.uMsg   = uMsg;
     event.wParam = wParam;
     event.lParam = lParam;
-    event.window = _window
+    event.window = _window;
 
     LONG result = 0;
     switch( uMsg )
@@ -196,45 +199,45 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
         case WM_MOUSEMOVE:
         {
-            _syncButtonState( event.window, wParam );
+            _syncButtonState( wParam );
 
             event.type = WindowEvent::POINTER_MOTION;
             event.pointerMotion.x = GET_X_LPARAM( lParam );
             event.pointerMotion.y = GET_Y_LPARAM( lParam );
-            event.pointerMotion.buttons = _buttonStates[ event.window ];
+            event.pointerMotion.buttons = _buttonState;
 
             _computePointerDelta( event );
             break;
         }
 
         case WM_LBUTTONDOWN:
-            _buttonStates[event.window] |= PTR_BUTTON1;
+            _buttonState |= PTR_BUTTON1;
             event.type = WindowEvent::POINTER_BUTTON_PRESS;
             event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
             event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
-            event.pointerButtonPress.buttons = _buttonStates[event.window];
+            event.pointerButtonPress.buttons = _buttonState;
             event.pointerButtonPress.button  = PTR_BUTTON1;
 
             _computePointerDelta( event );
             break;
 
         case WM_MBUTTONDOWN:
-            _buttonStates[event.window] |= PTR_BUTTON2;
+            _buttonState |= PTR_BUTTON2;
             event.type = WindowEvent::POINTER_BUTTON_PRESS;
             event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
             event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
-            event.pointerButtonPress.buttons = _buttonStates[event.window];
+            event.pointerButtonPress.buttons = _buttonState;
             event.pointerButtonPress.button  = PTR_BUTTON2;
 
             _computePointerDelta( event );
             break;
 
         case WM_RBUTTONDOWN:
-            _buttonStates[event.window] |= PTR_BUTTON3;
+            _buttonState |= PTR_BUTTON3;
             event.type = WindowEvent::POINTER_BUTTON_PRESS;
             event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
             event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
-            event.pointerButtonPress.buttons = _buttonStates[event.window];
+            event.pointerButtonPress.buttons = _buttonState;
             event.pointerButtonPress.button  = PTR_BUTTON3;
 
             _computePointerDelta( event );
@@ -250,42 +253,42 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             else
                 event.pointerButtonPress.button = PTR_BUTTON5;
 
-            _buttonStates[event.window] |= event.pointerButtonPress.button;
-            _syncButtonState( event.window, GET_KEYSTATE_WPARAM( wParam ));
-            event.pointerButtonPress.buttons = _buttonStates[event.window];
+            _buttonState |= event.pointerButtonPress.button;
+            _syncButtonState( GET_KEYSTATE_WPARAM( wParam ));
+            event.pointerButtonPress.buttons = _buttonState;
 
             _computePointerDelta( event );
             result = TRUE;
             break;
 
         case WM_LBUTTONUP:
-            _buttonStates[event.window] &= ~PTR_BUTTON1;
+            _buttonState &= ~PTR_BUTTON1;
             event.type = WindowEvent::POINTER_BUTTON_RELEASE;
             event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
             event.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
-            event.pointerButtonRelease.buttons = _buttonStates[event.window];
+            event.pointerButtonRelease.buttons = _buttonState;
             event.pointerButtonRelease.button  = PTR_BUTTON1;
 
             _computePointerDelta( event );
             break;
 
         case WM_MBUTTONUP:
-            _buttonStates[event.window] &= ~PTR_BUTTON2;
+            _buttonState &= ~PTR_BUTTON2;
             event.type = WindowEvent::POINTER_BUTTON_RELEASE;
             event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
             event.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
-            event.pointerButtonRelease.buttons = _buttonStates[event.window];
+            event.pointerButtonRelease.buttons = _buttonState;
             event.pointerButtonRelease.button  = PTR_BUTTON2;
 
             _computePointerDelta( event );
             break;
 
         case WM_RBUTTONUP:
-            _buttonStates[event.window] &= ~PTR_BUTTON3;
+            _buttonState &= ~PTR_BUTTON3;
             event.type = WindowEvent::POINTER_BUTTON_RELEASE;
             event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
             event.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
-            event.pointerButtonRelease.buttons = _buttonStates[event.window];
+            event.pointerButtonRelease.buttons = _buttonState;
             event.pointerButtonRelease.button  = PTR_BUTTON3;
 
             _computePointerDelta( event );
@@ -301,9 +304,9 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             else
                 event.pointerButtonRelease.button = PTR_BUTTON5;
 
-            _buttonStates[event.window]&=~event.pointerButtonRelease.button;
-            _syncButtonState( event.window, GET_KEYSTATE_WPARAM( wParam ));
-            event.pointerButtonRelease.buttons =_buttonStates[event.window];
+            _buttonState &= ~event.pointerButtonRelease.button;
+            _syncButtonState( GET_KEYSTATE_WPARAM( wParam ));
+            event.pointerButtonRelease.buttons =_buttonState;
 
             _computePointerDelta( event );
             result = TRUE;

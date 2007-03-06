@@ -3,6 +3,7 @@
 [ ] Bugfix
 [ ] New Feature
 [ ] Cleanup
+[ ] Optimization
 [ ] Documentation
 
 Description: 

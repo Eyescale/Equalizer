@@ -25,14 +25,14 @@ namespace eq
         WGLEventHandler( Window* window );
 
         /** Destructs the wgl event thread. */
-        virtual ~WGLEventHandler(){}
+        virtual ~WGLEventHandler();
         
         static LRESULT CALLBACK wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
                                          LPARAM lParam );
     private:
-        const Window* _window;
-        const HWND    _hWnd;
-        uint32_t      _buttonStates;
+        Window*  _window;
+        HWND     _hWnd;
+        uint32_t _buttonState;
 
         LRESULT CALLBACK _wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
                                    LPARAM lParam );
