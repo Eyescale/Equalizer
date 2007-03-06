@@ -103,7 +103,7 @@ namespace eqBase
          * @param requestID the request identifier.
          * @param result the result of the request.
          */
-        void serveRequest( const uint32_t requestID, void* result );
+        void serveRequest( const uint32_t requestID, void* result = 0 );
 
 		bool isThreadSafe() const { return ( _mutex != 0 ); }
     private:

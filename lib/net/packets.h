@@ -118,21 +118,6 @@ namespace eqNet
         bool     result;
     };
 
-    struct NodeConnectPacket : public NodePacket
-    {
-        NodeConnectPacket() 
-            {
-                command                  = CMD_NODE_CONNECT;
-                size                     = sizeof( NodeConnectPacket ); 
-                requestID                = EQ_ID_INVALID;
-                connectionDescription[0] = '\0';
-            }
-
-        NodeID   nodeID;
-        uint32_t requestID;
-        EQ_ALIGN8( char     connectionDescription[8] );
-    };
-
     struct NodeLaunchedPacket : public NodePacket
     {
         NodeLaunchedPacket() 
@@ -149,6 +134,21 @@ namespace eqNet
         EQ_ALIGN8( char     connectionDescription[8] );
     };
     
+    struct NodeConnectPacket : public NodePacket
+    {
+        NodeConnectPacket() 
+            {
+                command                  = CMD_NODE_CONNECT;
+                size                     = sizeof( NodeConnectPacket ); 
+                requestID                = EQ_ID_INVALID;
+                connectionDescription[0] = '\0';
+            }
+
+        NodeID   nodeID;
+        uint32_t requestID;
+        EQ_ALIGN8( char     connectionDescription[8] );
+    };
+
     struct NodeConnectReplyPacket : public NodePacket
     {
         NodeConnectReplyPacket( const NodeConnectPacket* request ) 
@@ -169,6 +169,17 @@ namespace eqNet
         NodeID   nodeID;
         uint32_t requestID;
         EQ_ALIGN8( char     connectionDescription[8] );
+    };
+
+    struct NodeDisconnectPacket : public NodePacket
+    {
+        NodeDisconnectPacket() 
+            {
+                command                  = CMD_NODE_DISCONNECT;
+                size                     = sizeof( NodeDisconnectPacket ); 
+            }
+
+        uint32_t requestID;
     };
 
     struct NodeGetConnectionDescriptionPacket : public NodePacket

@@ -64,6 +64,8 @@ Node::Node()
                      CommandFunc<Node>( this, &Node::_cmdConnect ));
     registerCommand( CMD_NODE_CONNECT_REPLY,
                      CommandFunc<Node>( this, &Node::_cmdConnectReply ));
+    registerCommand( CMD_NODE_DISCONNECT,
+                     CommandFunc<Node>( this, &Node::_cmdDisconnect ));
     registerCommand( CMD_NODE_GET_CONNECTION_DESCRIPTION,
                  CommandFunc<Node>( this, &Node::_cmdGetConnectionDescription));
     registerCommand( CMD_NODE_GET_CONNECTION_DESCRIPTION_REPLY,
@@ -296,29 +298,12 @@ bool Node::disconnect( RefPtr<Node> node )
     if( !node || _state != STATE_LISTENING || 
         !node->_state == STATE_CONNECTED || !node->_connection )
         return false;
+    EQASSERT( !inReceiverThread( ));
 
-    if( node->_autoLaunched )
-    {
-        EQINFO << "Stopping autoaunched node" << endl;
-        NodeStopPacket packet;
-        node->send( packet );
-    }
-
-    node->_state      = STATE_STOPPED;
-
-    RefPtr<Connection> connection = node->_connection;
-    node->_connection = 0;
-
-    if( !_connectionSet.removeConnection( connection ))
-        return false;
-
-    EQINFO << node << " disconnecting from " << this << endl;
-    EQASSERT( _connectionNodes.find( connection.get( )) !=
-              _connectionNodes.end( ));
-
-    _connectionNodes.erase( connection.get( ));
-    _nodes.erase( node->_id );
-
+    NodeDisconnectPacket packet;
+    packet.requestID = _requestHandler.registerRequest( node.get( ));
+    send( packet );
+    _requestHandler.waitRequest( packet.requestID );
     return true;
 }
 
@@ -549,8 +534,9 @@ void Node::_handleDisconnect()
 
     _connectionSet.removeConnection( connection );
 
-    EQINFO << node << " disconnected from " << this << endl;
-    connection->close();
+    EQINFO << node << " disconnected from " << this << " connection used " 
+           << connection->getRefCount() << endl;
+    //connection->close();
 }
 
 bool Node::_handleData()
@@ -965,6 +951,43 @@ CommandResult Node::_cmdConnectReply( Command& command )
 
     if( packet->requestID != EQ_ID_INVALID )
         _requestHandler.serveRequest( packet->requestID, 0 );
+    return COMMAND_HANDLED;
+}
+
+CommandResult Node::_cmdDisconnect( Command& command )
+{
+    EQASSERT( inReceiverThread( ));
+
+    const NodeDisconnectPacket* packet = 
+        command.getPacket<NodeDisconnectPacket>();
+
+    RefPtr<Node> node = static_cast<Node*>( 
+        _requestHandler.getRequestData( packet->requestID ));
+    EQASSERT( node.isValid( ));
+
+    if( node->_autoLaunched )
+    {
+        EQINFO << "Stopping autoaunched node" << endl;
+        NodeStopPacket packet;
+        node->send( packet );
+    }
+
+    node->_state      = STATE_STOPPED;
+
+    RefPtr<Connection> connection = node->_connection;
+    node->_connection = 0;
+
+    const bool connectionRemoved = _connectionSet.removeConnection( connection);
+    EQASSERT( connectionRemoved );
+
+    EQINFO << node << " disconnecting from " << this << endl;
+    EQASSERT( _connectionNodes.find( connection.get( )) !=
+              _connectionNodes.end( ));
+
+    _connectionNodes.erase( connection.get( ));
+    _nodes.erase( node->_id );
+
+    _requestHandler.serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }
 

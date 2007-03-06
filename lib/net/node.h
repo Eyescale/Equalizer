@@ -637,6 +637,7 @@ namespace eqNet
         CommandResult _cmdLaunched( Command& command );
         CommandResult _cmdConnect( Command& command );
         CommandResult _cmdConnectReply( Command& command );
+        CommandResult _cmdDisconnect( Command& command );
         CommandResult _cmdGetConnectionDescription( Command& command );
         CommandResult _cmdGetConnectionDescriptionReply( Command& command );
 
