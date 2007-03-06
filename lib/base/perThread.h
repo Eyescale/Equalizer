@@ -58,6 +58,7 @@ namespace eqBase
         bool operator == ( const PerThread& rhs ) const 
             { return ( get() == rhs.get( )); }
         bool operator == ( const T& rhs ) const { return ( get()==rhs ); }
+        bool operator != ( const T& rhs ) const { return ( get()!=rhs ); }
 
     private:
         pthread_key_t _key;

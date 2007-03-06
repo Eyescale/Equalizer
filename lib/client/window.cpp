@@ -14,6 +14,9 @@
 #include "nodeFactory.h"
 #include "packets.h"
 #include "windowEvent.h"
+#ifdef GLX
+#  include "glXEventThread.h"
+#endif
 #ifdef WIN32
 #  include "wglEventHandler.h"
 #endif
@@ -39,7 +42,13 @@ std::string eq::Window::_iAttributeStrings[IATTR_ALL] = {
 
 
 eq::Window::Window()
-        : _pipe( 0 )
+        : _xDrawable ( 0 ),
+          _glXContext( 0 ),
+          _cglContext( 0 ),
+          _wglWindowHandle( 0 ),
+          _wglContext     ( 0 ),
+          _wglEventHandler( 0 ),
+          _pipe( 0 )
 {
     registerCommand( CMD_WINDOW_CREATE_CHANNEL, 
                 eqNet::CommandFunc<Window>( this, &Window::_cmdCreateChannel ));
@@ -73,22 +82,17 @@ eq::Window::Window()
                      eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
     registerCommand( REQ_WINDOW_SWAP, 
                      eqNet::CommandFunc<Window>( this, &Window::_reqSwap));
-
-#ifdef GLX
-    _xDrawable  = 0;
-    _glXContext = 0;
-#endif
-#ifdef CGL
-    _cglContext = 0;
-#endif
-#ifdef WGL
-    _wglWindowHandle = 0;
-    _wglContext      = 0;
-#endif
 }
 
 eq::Window::~Window()
 {
+    if( _wglEventHandler )
+        EQWARN << "WGL event handler present in destructor" << endl;
+
+#ifdef WGL
+    delete _wglEventHandler;
+    _wglEventHandler = 0;
+#endif
 }
 
 void eq::Window::_addChannel( Channel* channel )
@@ -174,7 +178,6 @@ void eq::Window::_setViewport( const Viewport& vp )
     }
     EQINFO << "Window vp set: " << _pvp << ":" << _vp << endl;
 }
-
 
 //----------------------------------------------------------------------
 // configInit
@@ -735,6 +738,55 @@ void eq::Window::configExitWGL()
 #endif
 }
 
+void eq::Window::_initEventHandling()
+{
+    switch( _pipe->getWindowSystem( ))
+    {
+        case WINDOW_SYSTEM_GLX:
+#ifdef GLX
+            GLXEventThread* thread = GLXEventThread::get();
+            thread->addWindow( this );
+#endif
+            break;
+
+        case WINDOW_SYSTEM_WGL:
+#ifdef WGL
+            _wglEventHandler = new WGLEventHandler( this );
+#endif
+            break;
+
+        default:
+            EQERROR << "event handling not implemented for window system " 
+                    << _pipe->getWindowSystem() << endl;
+            break;
+    }
+}
+
+void eq::Window::_exitEventHandling()
+{
+    switch( _pipe->getWindowSystem( ))
+    {
+        case WINDOW_SYSTEM_GLX:
+#ifdef GLX
+            GLXEventThread* thread = GLXEventThread::get();
+            thread->removeWindow( this );
+#endif
+            break;
+
+        case WINDOW_SYSTEM_WGL:
+#ifdef WGL
+            delete _wglEventHandler;
+            _wglEventHandler = 0;
+#endif
+            break;
+
+        default:
+            EQERROR << "event handling not implemented for window system " 
+                    << _pipe->getWindowSystem() << endl;
+            break;
+    }
+}
+
 void eq::Window::setXDrawable( XID drawable )
 {
 #ifdef GLX
@@ -995,7 +1047,7 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
                     << "configInit() did not provide a drawable and context" 
                     << endl;
                 reply.result = false;
-                send( node, reply );
+                send( node, reply, _error );
                 return eqNet::COMMAND_HANDLED;
             }
             break;
@@ -1006,7 +1058,7 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
                 EQERROR << "configInit() did not provide an OpenGL context" 
                         << endl;
                 reply.result = false;
-                send( node, reply );
+                send( node, reply, _error );
                 return eqNet::COMMAND_HANDLED;
             }
             // TODO: pvp
@@ -1018,7 +1070,7 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
                 EQERROR << "configInit() did not provide a window handle and"
                         << " context" << endl;
                 reply.result = false;
-                send( node, reply );
+                send( node, reply, _error );
                 return eqNet::COMMAND_HANDLED;
             }
             break;
@@ -1026,21 +1078,18 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
         default: EQUNIMPLEMENTED;
     }
 
-    reply.pvp = _pvp;
-
     GLboolean glStereo;
     GLboolean dBuffer;
     glGetBooleanv( GL_STEREO, &glStereo );
     glGetBooleanv( GL_DOUBLEBUFFER, &dBuffer );
     _drawableConfig.doublebuffered = dBuffer;
     _drawableConfig.stereo         = glStereo;
+
+    _initEventHandling();
+
+    reply.pvp = _pvp;
     reply.drawableConfig           = _drawableConfig;
-
     send( node, reply );
-
-    EventHandler* thread = EventHandler::get( windowSystem );
-    thread->addWindow( this );
-
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -1050,9 +1099,7 @@ eqNet::CommandResult eq::Window::_reqConfigExit( eqNet::Command& command )
         command.getPacket<WindowConfigExitPacket>();
     EQINFO << "handle window configExit " << packet << endl;
 
-    EventHandler* thread = EventHandler::get( _pipe->getWindowSystem( ));
-    thread->removeWindow( this );
-
+    _exitEventHandling();
     _pipe->testMakeCurrentWindow( this );
     configExit();
 

@@ -18,6 +18,13 @@ using namespace eq;
 using namespace eqBase;
 using namespace std;
 
+GLXEventThread GLXEventThread::_thread;
+
+GLXEventThread* GLXEventThread::get()
+{
+    return &_thread;
+}
+
 GLXEventThread::GLXEventThread()
         : _requestHandler( true )
 {
@@ -33,7 +40,7 @@ GLXEventThread::GLXEventThread()
 
 bool GLXEventThread::init()
 {
-    CHECK_THREAD( _thread );
+    CHECK_THREAD( _eventThread );
     _commandConnection   = new eqNet::PipeConnection();
 
     if( !_commandConnection->connect( ))
@@ -47,7 +54,7 @@ bool GLXEventThread::init()
 void GLXEventThread::exit()
 {
     EQINFO << "Exiting glX event thread" << endl;
-    CHECK_THREAD( _thread );
+    CHECK_THREAD( _eventThread );
 
     _commandConnection->close();
     _commandConnection = 0;
@@ -56,7 +63,7 @@ void GLXEventThread::exit()
 
 void GLXEventThread::addPipe( Pipe* pipe )
 {
-    CHECK_NOT_THREAD( _thread );
+    CHECK_NOT_THREAD( _eventThread );
 
     _startMutex.set();
     if( isStopped( ))
@@ -70,7 +77,7 @@ void GLXEventThread::addPipe( Pipe* pipe )
 
 void GLXEventThread::removePipe( Pipe* pipe )
 {
-    CHECK_NOT_THREAD( _thread );
+    CHECK_NOT_THREAD( _eventThread );
     GLXEventThreadRemovePipePacket packet;
     packet.pipe      = pipe;
     packet.requestID = _requestHandler.registerRequest();
@@ -86,7 +93,7 @@ void GLXEventThread::removePipe( Pipe* pipe )
 
 void GLXEventThread::addWindow( Window* window )
 {
-    CHECK_NOT_THREAD( _thread );
+    CHECK_NOT_THREAD( _eventThread );
     EQASSERT( isRunning( ));
 
     GLXEventThreadAddWindowPacket packet;
@@ -96,7 +103,7 @@ void GLXEventThread::addWindow( Window* window )
 
 void GLXEventThread::removeWindow( Window* window )
 {
-    CHECK_NOT_THREAD( _thread );
+    CHECK_NOT_THREAD( _eventThread );
     EQASSERT( isRunning( ));
 
     GLXEventThreadRemoveWindowPacket packet;
@@ -113,7 +120,7 @@ void GLXEventThread::removeWindow( Window* window )
 
 void* GLXEventThread::run()
 {
-    CHECK_THREAD( _thread );
+    CHECK_THREAD( _eventThread );
     EQINFO << "GLXEventThread running" << endl;
 
     while( true )
@@ -151,7 +158,7 @@ void* GLXEventThread::run()
 
 void GLXEventThread::_handleEvent()
 {
-    CHECK_THREAD( _thread );
+    CHECK_THREAD( _eventThread );
     RefPtr<eqNet::Connection> connection = _connections.getConnection();
 
     if( connection == _commandConnection )
@@ -186,7 +193,7 @@ void GLXEventThread::_handleCommand()
 
 void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
 {
-    CHECK_THREAD( _thread );
+    CHECK_THREAD( _eventThread );
     Display*    display = connection->getDisplay();
     const Pipe* pipe    = connection->getUserdata();
 
@@ -398,7 +405,7 @@ uint32_t GLXEventThread::_getKey( XEvent& event )
 
 eqNet::CommandResult GLXEventThread::_cmdAddPipe( eqNet::Command& command )
 {
-    CHECK_THREAD( _thread );
+    CHECK_THREAD( _eventThread );
     const GLXEventThreadAddPipePacket* packet = 
         command.getPacket<GLXEventThreadAddPipePacket>();
 

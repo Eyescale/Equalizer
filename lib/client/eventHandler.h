@@ -16,20 +16,10 @@ namespace eq
     class Window;
 
     /**
-     * The per-node event processing thread.
-     * TODO: rename to EventHandler since WGL does not use a thread
+     * Base class for window system-specific event handlers
      */
     class EQ_EXPORT EventHandler
     {
-    public:
-        static EventHandler* get( const WindowSystem windowSystem );
-
-        virtual void addPipe( Pipe* pipe ) = 0;
-        virtual void removePipe( Pipe* pipe ) = 0;
-
-        virtual void addWindow( Window* window ) = 0;
-        virtual void removeWindow( Window* window ) = 0;
-
     protected:
         /** Constructs a new event thread. */
         EventHandler(){}
@@ -43,7 +33,6 @@ namespace eq
         /** The previous pointer event to compute mouse movement deltas. */
         WindowEvent _lastPointerEvent;
     private:
-        static EventHandler* _handlers[WINDOW_SYSTEM_ALL];
     };
 }
 

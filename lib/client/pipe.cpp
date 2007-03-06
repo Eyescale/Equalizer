@@ -12,8 +12,12 @@
 #include "packets.h"
 #include "X11Connection.h"
 #include "window.h"
+#ifdef GLX
+#  include "glXEventThread.h"
+#endif
 
 #include <eq/net/command.h>
+
 
 #include <sstream>
 
@@ -566,6 +570,50 @@ void Pipe::configExitWGL()
 #endif
 }
 
+void Pipe::_initEventHandling()
+{
+    switch( getWindowSystem( ))
+    {
+        case WINDOW_SYSTEM_GLX:
+#ifdef GLX
+            GLXEventThread* thread = GLXEventThread::get();
+            thread->addPipe( this );
+#endif
+            break;
+
+        case WINDOW_SYSTEM_WGL:
+            // NOP
+            break;
+
+        default:
+            EQERROR << "event handling not implemented for window system " 
+                    << getWindowSystem() << endl;
+            break;
+    }
+}
+
+void Pipe::_exitEventHandling()
+{
+    switch( getWindowSystem( ))
+    {
+        case WINDOW_SYSTEM_GLX:
+#ifdef GLX
+            GLXEventThread* thread = GLXEventThread::get();
+            thread->removePipe( this );
+#endif
+            break;
+
+        case WINDOW_SYSTEM_WGL:
+            // NOP
+            break;
+
+        default:
+            EQERROR << "event handling not implemented for window system " 
+                    << getWindowSystem() << endl;
+            break;
+    }
+}
+
 void Pipe::releaseFrame( const uint32_t frameNumber )
 { 
     _node->addStatEvents( frameNumber, _statEvents );
@@ -656,7 +704,7 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
                 EQERROR << "configInit() did not set a display connection" 
                         << endl;
                 reply.result = false;
-                send( node, reply );
+                send( node, reply, _error );
                 return eqNet::COMMAND_HANDLED;
             }
 
@@ -670,7 +718,7 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
             {
                 EQERROR << "configInit() did not set a display id" << endl;
                 reply.result = false;
-                send( node, reply );
+                send( node, reply, _error );
                 return eqNet::COMMAND_HANDLED;
             }
                 
@@ -684,7 +732,7 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
             {
                 EQERROR << "configInit() did not set a device context" << endl;
                 reply.result = false;
-                send( node, reply );
+                send( node, reply, _error );
                 return eqNet::COMMAND_HANDLED;
             }
                 
@@ -696,25 +744,22 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
         default: EQUNIMPLEMENTED;
     }
 
+    _initEventHandling();
+
     reply.pvp = _pvp;
     send( node, reply );
-
-    EventHandler* thread = EventHandler::get( _windowSystem );
-    thread->addPipe( this );
-
     return eqNet::COMMAND_HANDLED;
 }
 
 eqNet::CommandResult Pipe::_reqConfigExit( eqNet::Command& command )
 {
-    EventHandler* thread = EventHandler::get( _windowSystem );
-    thread->removePipe( this );
-
     const PipeConfigExitPacket* packet = 
         command.getPacket<PipeConfigExitPacket>();
     EQINFO << "handle pipe configExit " << packet << endl;
 
+    _exitEventHandling();
     configExit();
+
     _initialized = false;
     _flushFrames();
 

@@ -1,8 +1,8 @@
-
+[ ] May break build
+[ ] Breaks existing applications
 [ ] Bugfix
 [ ] New Feature
 [ ] Cleanup
 [ ] Documentation
-[ ] Breaks existing applications
 
 Description: 

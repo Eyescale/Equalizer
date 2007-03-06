@@ -16,7 +16,8 @@ using namespace eq;
 using namespace eqBase;
 using namespace std;
 
-static PerThread<WGLEventHandler*> _handler;
+typedef hash_map< HWND, WGLEventHandler* > HandlerMap
+static PerThread< HandlerMap* > _handlers;
 
 // Win32 defines to indentify special keys
 #define SCANCODE_MASK     0xff0000
@@ -31,80 +32,95 @@ static PerThread<WGLEventHandler*> _handler;
 #  define MK_XBUTTON2  0x40
 #endif
 
-WGLEventHandler::WGLEventHandler()
+class HandlerMapCleaner : public ExecutionListener
 {
+    HandlerMapCleaner()
+        {
+            Thread::addListener( this );
+        }
+
+    void notifyExecutionStopping()
+        {
+            HandlerMap* map = _handlers.get();
+            if( map ) 
+            {
+                EQWARN << map->size() 
+                       << " WGL event handlers registered during thread exit"
+                       << endl;
+                map->clear();
+                delete map;
+            }
+        }
+};
+static HandlerMapCleaner _cleaner;
+
+static void registerHandler( HWND hWnd, WGLEventHandler* handler )
+{
+    if( _handlers == 0 )
+        _handlers = new HandlerMap;
+
+    HandlerMap* map = _handlers.get();
+    EQASSERT( map->find( hWnd ) == map->end( ));
+
+    (*map)[hWnd] = handler;
 }
 
-void WGLEventHandler::addPipe( Pipe* pipe )
+static void deregisterHandler( HWND hWnd )
 {
-    if( !_handler.get( ))
-        _handler = this;
-    EQASSERTINFO( _handler == this, "More than one event handler per process" );
+    HandlerMap* map = _handlers.get();
+    EQASSERT( map )
+    EQASSERT( map->find( hWnd ) != map->end( ));
 
-    _pipes.push_back( pipe );
-}
-
-void WGLEventHandler::removePipe( Pipe* pipe )
-{
-    vector<Pipe*>::iterator i = find( _pipes.begin(), _pipes.end(), pipe );
-    if( i == _pipes.end( ))
+    map->erase( hWnd );
+    if( map->empty( ))
     {
-        EQERROR << "remove of unregistered pipe" << endl;
-        return;
+        delete map;
+        _handlers = 0;
     }
-
-    _pipes.erase( i );
 }
 
-void WGLEventHandler::addWindow( Window* window )
+static WGLEventHandler* getEventHandler( HWND hWnd )
 {
-    // Retain old wndproc?
-    HWND hWnd = window->getWGLWindowHandle();
-    if( !hWnd )
+    HandlerMap* map = _handlers.get();
+    if( !map || map->find( hWnd ) == map->end( ))
+        return 0;
+
+    return (*map)[hWnd];
+}
+
+WGLEventHandler::WGLEventHandler( Window* window )
+        : _window( window ),
+          _hWnd( window->getWGLWindowHandle( ))
+{
+    if( !_hWnd )
     {
         EQWARN << "Window has no window handle" << endl;
         return;
     }
 
-    SetWindowLongPtr( hWnd, GWLP_WNDPROC, (LONG_PTR)wndProc );
+    registerHandler( _hWnd, this );
+    SetWindowLongPtr( _hWnd, GWLP_WNDPROC, (LONG_PTR)wndProc );
 }
 
-void WGLEventHandler::removeWindow( Window* window )
+WGLEventHandler::~WGLEventHandler
 {
-    _buttonStates.erase( window );
+    deregisterHandler( _hWnd );
 }
 
 LRESULT CALLBACK WGLEventHandler::wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
                                            LPARAM lParam )
 {
-    WGLEventHandler* handler = _handler.get();
+    WGLEventHandler* handler = getEventHandler( hWnd );
     if( !handler )
     {
-        EQERROR << "Message arrived before a pipe was registered" << endl;
+        EQERROR << "Message arrived before window was registered" << endl;
         return DefWindowProc( hWnd, uMsg, wParam, lParam );
     }
 
     return handler->_wndProc( hWnd, uMsg, wParam, lParam );
 }
 
-eq::Window* WGLEventHandler::_findWindow( HWND hWnd )
-{
-    for( vector<Pipe*>::const_iterator i = _pipes.begin(); i != _pipes.end();
-         ++i )
-    {
-        const Pipe* pipe = *i;
-        const uint32_t nWindows = pipe->nWindows();
-        for( uint32_t j=0; j<nWindows; ++j )
-        {
-            Window* window = pipe->getWindow( j );
-            if( window->getWGLWindowHandle() == hWnd )
-                return window;
-        }
-    }
-    return 0;
-}
-
-void WGLEventHandler::_syncButtonState( const Window* window, WPARAM wParam )
+void WGLEventHandler::_syncButtonState( WPARAM wParam )
 {
     uint32_t buttons = PTR_BUTTON_NONE;
     if( wParam & MK_LBUTTON )  buttons |= PTR_BUTTON1;
@@ -114,18 +130,16 @@ void WGLEventHandler::_syncButtonState( const Window* window, WPARAM wParam )
     if( wParam & MK_XBUTTON2 ) buttons |= PTR_BUTTON5;
 
 #ifndef NDEBUG
-    if( _buttonStates.find( window ) != _buttonStates.end() &&
-        _buttonStates[window] != buttons )
+    if( _buttonStates != buttons )
 
-        EQWARN << "WM_MOUSEMOVE reports button state " 
-        << buttons << ", but internal state is " 
-        << _buttonStates[window] << endl;
+        EQWARN << "WM_MOUSEMOVE reports button state " << buttons
+               << ", but internal state is " << _buttonStates << endl;
 #endif
 
-    _buttonStates[window] = buttons;
+    _buttonStates = buttons;
 }
 
-LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
+LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
                                             LPARAM lParam )
 {
     WindowEvent event;
@@ -133,13 +147,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
     event.uMsg   = uMsg;
     event.wParam = wParam;
     event.lParam = lParam;
-    event.window = _findWindow( hWnd );
-
-    if( !event.window )
-    {
-        EQWARN << "Can't match window to received message" << endl;
-        return DefWindowProc( hWnd, uMsg, wParam, lParam );
-    }
+    event.window = _window
 
     LONG result = 0;
     switch( uMsg )

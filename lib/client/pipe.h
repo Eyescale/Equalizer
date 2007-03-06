@@ -408,6 +408,18 @@ namespace eq
         void _removeWindow( Window* window );
         Window* _findWindow( const uint32_t id );
 
+        /**
+         * Initialize the event handling for this pipe. 
+         * @todo make official task method?
+         */
+        void _initEventHandling();
+
+        /**
+         * De-initialize the event handling for this pipe. 
+         * @todo make official task method?
+         */
+        void _exitEventHandling();
+
         void _flushFrames();
 
         void _grabFrame( const uint32_t frameNumber ) const

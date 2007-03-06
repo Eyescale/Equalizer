@@ -94,7 +94,8 @@ namespace eq
         /** 
          * Set the Win32 window handle for this window.
          * 
-         * This function should only be called from configInit() or configExit().
+         * This function should only be called from configInit() or
+         * configExit().
          *
          * @param drawable the window handle.
          */
@@ -106,7 +107,8 @@ namespace eq
         /** 
          * Set the WGL rendering context for this window.
          * 
-         * This function should only be called from configInit() or configExit().
+         * This function should only be called from configInit() or
+         * configExit().
          *
          * @param drawable the WGL rendering context.
          */
@@ -290,7 +292,7 @@ namespace eq
         /** The reason for the last error. */
         std::string            _error;
 
-        /** Window-system specific drawable information. */
+        /** Window-system specific information. */
         union
         {
             struct
@@ -306,8 +308,9 @@ namespace eq
 
             struct
             {
-                HWND  _wglWindowHandle;
-                HGLRC _wglContext;
+                HWND             _wglWindowHandle;
+                HGLRC            _wglContext;
+                WGLEventHandler* _wglEventHandler;
             };
             char _windowFill[32];
         };
@@ -342,6 +345,18 @@ namespace eq
 
         void _send( eqNet::ObjectPacket& packet )
             { eqNet::Object::send( getServer(), packet ); }
+
+        /**
+         * Initialize the event handling for this window. 
+         * @todo make official task method?
+         */
+        void _initEventHandling();
+
+        /**
+         * De-initialize the event handling for this window. 
+         * @todo make official task method?
+         */
+        void _exitEventHandling();
 
         /* The command functions. */
         eqNet::CommandResult _pushCommand( eqNet::Command& command );

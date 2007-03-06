@@ -17,42 +17,6 @@ using namespace eq;
 using namespace eqBase;
 using namespace std;
 
-EventHandler* EventHandler::_handlers[WINDOW_SYSTEM_ALL] = { NULL };
-
-static Lock _handlersLock;
-
-EventHandler* EventHandler::get( const WindowSystem windowSystem )
-{
-    _handlersLock.set();
-    if( !_handlers[windowSystem] )
-    {
-        switch( windowSystem )
-        {
-            case WINDOW_SYSTEM_GLX:
-#ifdef GLX
-                _handlers[windowSystem] = new GLXEventThread;
-#endif
-                break;
-
-            case WINDOW_SYSTEM_WGL:
-#ifdef WGL
-                _handlers[windowSystem] = new WGLEventHandler;
-#endif
-                break;
-
-            default:
-                break;
-        }
-    }
-    _handlersLock.unset();
-    
-    if( !_handlers[windowSystem] )
-        EQERROR << "Event thread unimplemented for window system "
-                << windowSystem << endl;
-
-    return _handlers[windowSystem];
-}
-
 void EventHandler::_computePointerDelta( WindowEvent &event )
 {
     if( _lastPointerEvent.window != event.window )

@@ -21,12 +21,8 @@ namespace eq
                            public eqNet::Base
     {
     public:
-        /** Constructs a new glX event thread. */
-        GLXEventThread();
+        static GLXEventThread* get();
 
-        /** Destructs the glX event thread. */
-        virtual ~GLXEventThread(){}
-        
         /** @sa eqBase::Thread::init. */
         virtual bool init();
 
@@ -47,6 +43,8 @@ namespace eq
         virtual void removeWindow( Window* window );
 
     private:
+        static GLXEventThread _thread;
+
         eqBase::Lock _startMutex;
 
         eqNet::ConnectionSet        _connections;
@@ -61,6 +59,12 @@ namespace eq
         /** Application->Event thread command connection. */
         eqBase::RefPtr<eqNet::Connection> _commandConnection;
 
+        /** Constructs a new glX event thread. */
+        GLXEventThread();
+
+        /** Destructs the glX event thread. */
+        virtual ~GLXEventThread(){}
+        
         void _handleEvent();
         void   _handleCommand();
         void   _handleEvent( eqBase::RefPtr<X11Connection> connection );
@@ -74,7 +78,7 @@ namespace eq
         eqNet::CommandResult _cmdAddWindow( eqNet::Command& command );
         eqNet::CommandResult _cmdRemoveWindow( eqNet::Command& command );
 
-        CHECK_THREAD_DECLARE( _thread );
+        CHECK_THREAD_DECLARE( _eventThread );
     };
 }
 

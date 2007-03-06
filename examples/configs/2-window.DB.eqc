@@ -12,7 +12,7 @@ server
                     viewport [ .05 .3 .4 .3 ]
                     channel
                     {
-                        name "channel1"
+                        name "channel2"
                     }
                 }
                 window
@@ -22,14 +22,14 @@ server
 
                     channel
                     {
-                        name "channel2"
+                        name "channel1"
                     }
                 }
             }
         }
         compound
         {
-            channel "channel2"
+            channel "channel1"
             buffer  [ COLOR DEPTH ]
 
             wall
@@ -45,11 +45,11 @@ server
             }
             compound
             { 
-                channel "channel1"
+                channel "channel2"
                 range   [ .5 1 ]
-                outputframe {}
+                outputframe { name "frame.channel2" }
             }
-            inputframe { name "frame.channel1" }
+            inputframe { name "frame.channel2" }
         }
     }    
 }

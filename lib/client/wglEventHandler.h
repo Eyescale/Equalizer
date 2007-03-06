@@ -12,44 +12,32 @@
 namespace eq
 {
     /**
-     * The event processing for wgl pipes.
+     * The event processing for WGL.
      *
      * The WGL implementation does not use a thread, since messages are handled
-     * by a 'wndproc' callback in the thread which created the window.
+     * by a 'wndproc' callback in the thread which created the window. Each
+     * window has its own WGLEventHandler
      */
     class EQ_EXPORT WGLEventHandler : public EventHandler
     {
     public:
         /** Constructs a new wgl event thread. */
-        WGLEventHandler();
+        WGLEventHandler( Window* window );
 
         /** Destructs the wgl event thread. */
         virtual ~WGLEventHandler(){}
         
-        /** @sa EventHandler::addPipe. */
-        virtual void addPipe( Pipe* pipe );
-        /** @sa EventHandler::removePipe. */
-        virtual void removePipe( Pipe* pipe );
-
-        /** @sa EventHandler::addWindow. */
-        virtual void addWindow( Window* window );
-        /** @sa EventHandler::removeWindow. */
-        virtual void removeWindow( Window* window );
-
         static LRESULT CALLBACK wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
                                          LPARAM lParam );
     private:
-#pragma warning(push)
-#pragma warning(disable: 4251)
-        std::vector<Pipe*> _pipes;
-        eqBase::PtrHash< const Window*, uint32_t > _buttonStates;
-#pragma warning(pop)
+        const Window* _window;
+        const HWND    _hWnd;
+        uint32_t      _buttonStates;
 
         LRESULT CALLBACK _wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
                                    LPARAM lParam );
 
-        Window*   _findWindow( HWND hWnd );
-        void      _syncButtonState( const Window* window, WPARAM wParam );
+        void      _syncButtonState( WPARAM wParam );
         uint32_t  _getKey( LPARAM lParam, WPARAM wParam );
     };
 }
