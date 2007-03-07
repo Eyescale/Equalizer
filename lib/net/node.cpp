@@ -13,6 +13,7 @@
 
 #include <eq/base/base.h>
 #include <eq/base/launcher.h>
+#include <eq/base/rng.h>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -381,28 +382,11 @@ bool Node::unmapSession( Session* session )
 uint32_t Node::_generateSessionID()
 {
     CHECK_THREAD( _thread );
-    uint32_t id = EQ_ID_INVALID;
+    RNG      rng;
+    uint32_t id  = rng.get<uint32_t>();
 
     while( id == EQ_ID_INVALID || _sessions.find( id ) != _sessions.end( ))
-    {
-#ifdef __linux__
-        int fd = ::open( "/dev/random", O_RDONLY );
-        EQASSERT( fd != -1 );
-        int read = ::read( fd, &id, sizeof( id ));
-        EQASSERT( read == sizeof( id ));
-        close( fd );
-#elif defined (WIN32)
-        LARGE_INTEGER seed;
-        QueryPerformanceCounter( &seed );
-        srand( seed.LowPart );
-
-        EQASSERT( RAND_MAX == 32767 );
-        id = rand() | (rand() << 15) | (rand() << 30);
-#else
-        srandomdev();
-        id = random();
-#endif
-    }
+        id = rng.get<uint32_t>();
 
     return id;  
 }

@@ -91,7 +91,7 @@ FAT_PROGRAM       = $(PROGRAM)
 
 FAT_SIMPLE_PROGRAMS  = $(CXXFILES:%.cpp=%)
 THIN_SIMPLE_PROGRAMS = $(foreach V,$(VARIANTS),$(foreach P,$(FAT_SIMPLE_PROGRAMS),$(P).$(V)))
-TESTS                = $(THIN_SIMPLE_PROGRAMS:%=testRun.%)
+TESTS               ?= $(THIN_SIMPLE_PROGRAMS:%=testRun.%)
 
 DYNAMIC_LIB       = $(THIN_DYNAMIC_LIBS)
 STATIC_LIB        = $(THIN_STATIC_LIBS)

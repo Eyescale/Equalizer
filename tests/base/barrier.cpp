@@ -1,4 +1,6 @@
 
+#include <test.h>
+
 #include <eq/base/barrier.h>
 #include <eq/base/thread.h>
 #include <iostream>
@@ -17,7 +19,7 @@ public:
     virtual void* run()
         {
             const size_t num = barrier->enter( nThreads );
-            cerr << " " << num;
+            TEST( num < nThreads );
             return EXIT_SUCCESS;
         }
 };
@@ -29,8 +31,6 @@ int main( int argc, char **argv )
 
     for( nThreads = MAXTHREADS; nThreads>1; nThreads = nThreads>>1 )
     {
-        cerr << endl << nThreads << " threads";
-
         for( size_t i=0; i<nThreads; i++ )
             threads[i].start();
 

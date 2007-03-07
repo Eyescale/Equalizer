@@ -30,7 +30,6 @@ int main( int argc, char **argv )
     Test threads[MAXTHREADS];
     for( nThreads = MAXTHREADS; nThreads>1; nThreads = nThreads>>1 )
     {
-        cerr << nThreads << " threads" << endl;
         for( size_t i=0; i<nThreads; i++ )
             threads[i].start();
 

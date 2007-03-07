@@ -7,11 +7,18 @@
 
 #include <eq/base/log.h>
 
-#define TEST( x ) \
-    if( !(x) ) \
-    { \
+#define TEST( x )                                 \
+    if( !(x) )                                    \
+    {                                             \
         EQERROR << #x << " failed." << std::endl; \
         ::exit( EXIT_FAILURE );                   \
+    }
+
+#define TESTINFO( x, info )                                 \
+    if( !(x) )                                              \
+    {                                                       \
+        EQERROR << #x << " failed: " << info << std::endl;  \
+        ::exit( EXIT_FAILURE );                             \
     }
 
 #endif // EQTEST_TEST_H

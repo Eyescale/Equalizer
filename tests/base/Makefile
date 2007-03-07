@@ -8,6 +8,8 @@ ifeq "${ARCH}" "Linux"
 LDFLAGS += -lrt -luuid
 endif
 
-TARGETS = $(SIMPLE_PROGRAMS)
+TARGETS = $(SIMPLE_PROGRAMS) $(TESTS)
 
 include $(TOP)/make/rules.mk
+
+$(SIMPLE_PROGRAMS): $(wildcard $(TOP)/lib/base/*)

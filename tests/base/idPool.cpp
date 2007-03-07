@@ -2,7 +2,9 @@
 /* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
+#include <test.h>
 #include <eq/base/idPool.h>
+#include <eq/base/rng.h>
 
 #include <stdlib.h>
 #include <iostream>
@@ -13,27 +15,17 @@ using namespace std;
 int main( int argc, char **argv )
 {
     IDPool pool( IDPool::MAX_CAPACITY );
-    size_t nLoops = 1000000;
+    size_t nLoops = 10000;
 
     while( nLoops-- )
     {
-#ifdef __linux__
-        srandom( getpid( ));
-#else
-        srandomdev();
-#endif
-        uint range = (uint)(random() * .0001);
+        RNG rng;
+        uint range = static_cast<uint>( rng.get<uint>() * .0001f );
         uint id    = pool.genIDs( range );
         
-        //cout << "id: " << id << " range " << range << endl;
-
-        if( id == EQ_ID_INVALID ) 
-        {
-            cout << "Failed to allocate identifiers after " << nLoops
-                 << " allocations" << endl;
-            return EXIT_FAILURE;
-        }
-
+        TESTINFO( id != EQ_ID_INVALID,
+                  "Failed to allocate after " << nLoops << " allocations" );
+        
         pool.freeIDs( id, range );
     }
 

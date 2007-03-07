@@ -16,18 +16,18 @@ int main( int argc, char **argv )
     TEST( lock.set( ));
 
     Clock clock;
-    TEST( !lock.set( 1000 ));
+    TEST( !lock.set( 1000.0f ));
     float time = clock.getTimef();
 
-    TEST( time > 1000. );
-    TEST( time < 1100. );
+    TESTINFO( time > 999.0f, "was: " << time );
+    TESTINFO( time < 1100.0f, "was: " << time );
 
     clock.reset();
-    TEST( !lock.set( 100 ));
+    TEST( !lock.set( 100.0f ));
     time = clock.getTimef();
 
-    TEST( time > 100. );
-    TEST( time < 200. );
+    TESTINFO( time > 99.0f, "was: " << time );
+    TESTINFO( time < 200.0f, "was: " << time );
 
     return EXIT_SUCCESS;
 }
