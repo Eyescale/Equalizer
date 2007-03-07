@@ -420,7 +420,9 @@ std::string Pipe::getXDisplayString()
     }
     else if( screen != EQ_UNDEFINED_UINT32 )
         stringStream << ":0." << screen;
-    
+    else if( !getenv( "DISPLAY" ))
+        stringStream <<  ":0";
+
     return stringStream.str();
 }
 
