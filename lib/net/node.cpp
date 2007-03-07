@@ -16,7 +16,6 @@
 #include <eq/base/rng.h>
 
 #include <errno.h>
-#include <fcntl.h>
 #include <sstream>
 #include <sys/stat.h>
 #include <sys/types.h>

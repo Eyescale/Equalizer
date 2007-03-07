@@ -19,6 +19,7 @@
 namespace eq
 {
     class Channel;
+    class WGLEventHandler;
     class WindowEvent;
 
     class EQ_EXPORT Window : public eqNet::Object

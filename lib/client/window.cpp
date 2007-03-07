@@ -744,8 +744,10 @@ void eq::Window::_initEventHandling()
     {
         case WINDOW_SYSTEM_GLX:
 #ifdef GLX
+	{
             GLXEventThread* thread = GLXEventThread::get();
             thread->addWindow( this );
+	}
 #endif
             break;
 
@@ -768,8 +770,10 @@ void eq::Window::_exitEventHandling()
     {
         case WINDOW_SYSTEM_GLX:
 #ifdef GLX
+	{
             GLXEventThread* thread = GLXEventThread::get();
             thread->removeWindow( this );
+	}
 #endif
             break;
 

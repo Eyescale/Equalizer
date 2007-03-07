@@ -6,6 +6,7 @@
 #define EQBASE_RNG_H
 
 #include <eq/base/debug.h> // for EQASSERT
+#include <fcntl.h>
 
 namespace eqBase
 {
@@ -16,7 +17,7 @@ namespace eqBase
         RNG()
         {
 #ifdef Linux
-            _fd = ::open( "/dev/random", O_RDONLY );
+            _fd = ::open( "/dev/urandom", O_RDONLY );
             EQASSERT( _fd != -1 );
 #endif
             reseed();

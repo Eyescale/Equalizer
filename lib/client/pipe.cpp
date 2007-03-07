@@ -576,8 +576,10 @@ void Pipe::_initEventHandling()
     {
         case WINDOW_SYSTEM_GLX:
 #ifdef GLX
+	{
             GLXEventThread* thread = GLXEventThread::get();
             thread->addPipe( this );
+	}
 #endif
             break;
 
@@ -598,8 +600,10 @@ void Pipe::_exitEventHandling()
     {
         case WINDOW_SYSTEM_GLX:
 #ifdef GLX
+	{
             GLXEventThread* thread = GLXEventThread::get();
             thread->removePipe( this );
+	}
 #endif
             break;
 
