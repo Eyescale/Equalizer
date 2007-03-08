@@ -107,7 +107,7 @@ namespace eqs
          */
         void addInputFrame( Frame* frame );
         /** @return the vector of current input frames. */
-        const std::vector<Frame*> getInputFrames() const { return _inputFrames;}
+        const std::vector<Frame*>& getInputFrames() const {return _inputFrames;}
 
         /** Unset the frame data. */
         void unsetData() { _frameData = NULL; }

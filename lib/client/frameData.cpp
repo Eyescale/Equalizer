@@ -34,21 +34,20 @@ FrameData::~FrameData()
 
 void FrameData::applyInstanceData( const void* data, const uint64_t size )
 { 
-    CHECK_THREAD( _thread );
     _clear();
     eqNet::Object::applyInstanceData( data, size ); 
     getLocalNode()->flushCommands(); // process rescheduled transmit packets
-    CHECK_THREAD( _thread );
-    CHECK_THREAD_RESET( _thread );
 }
 
 void FrameData::_clear()
 {
-    CHECK_THREAD( _thread );
     EQASSERT( _listeners.empty( ));
+
+    _imageCacheLock.set();
     _imageCache.insert( _imageCache.end(), _images.begin(), _images.end( ));
+    _imageCacheLock.unset();
+
     _images.clear();
-    CHECK_THREAD( _thread );
 }
 
 void FrameData::flush()
@@ -73,6 +72,8 @@ Image* FrameData::newImage()
 Image* FrameData::_allocImage()
 {
     Image* image;
+    _imageCacheLock.set();
+
     if( _imageCache.empty( ))
         image = new Image();
     else
@@ -80,6 +81,8 @@ Image* FrameData::_allocImage()
         image = _imageCache.back();
         _imageCache.pop_back();
     }
+
+    _imageCacheLock.unset();
     return image;
 }
 
@@ -349,7 +352,7 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
     }
     else
     {
-        EQASSERT( getVersion() < packet->version );
+        EQASSERT( version < packet->version );
         _pendingImages.push_back( ImageVersion( image, packet->version ));
     }
     return eqNet::COMMAND_HANDLED;
