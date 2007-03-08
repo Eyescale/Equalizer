@@ -76,9 +76,9 @@ void Channel::frameDraw( const uint32_t frameID )
 
         for( unsigned i=0; i<8; ++i )
         {
-            red   |= ( value&1 << i ); value >>= 1;
-            green |= ( value&1 << i ); value >>= 1;
-            blue  |= ( value&1 << i ); value >>= 1;
+            red   |= ( value&1 << (7-i) ); value >>= 1;
+            green |= ( value&1 << (7-i) ); value >>= 1;
+            blue  |= ( value&1 << (7-i) ); value >>= 1;
         }
 
         glColor3ub( red, green, blue );
