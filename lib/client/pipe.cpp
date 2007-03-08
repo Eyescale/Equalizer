@@ -684,6 +684,7 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
         command.getPacket<PipeConfigInitPacket>();
     EQINFO << "handle pipe configInit (pipe) " << packet << endl;
     
+    _name         = packet->name;
     _display      = packet->display;
     _screen       = packet->screen;
     _pvp          = packet->pvp;

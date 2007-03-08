@@ -54,6 +54,7 @@ Channel::Channel()
 Channel::Channel( const Channel& from )
 {
     _construct();
+
     _name     = from._name;
     _vp       = from._vp;
     _pvp      = from._pvp;
@@ -285,9 +286,9 @@ std::ostream& eqs::operator << ( std::ostream& os, const Channel* channel)
     
     const std::string& name = channel->getName();
     if( name.empty( ))
-        os << "name \"channel_" << (void*)channel << "\"" << endl;
+        os << "name     \"channel_" << (void*)channel << "\"" << endl;
     else
-        os << "name \"" << name << "\"" << endl;
+        os << "name     \"" << name << "\"" << endl;
 
     const eq::Viewport& vp  = channel->getViewport();
     if( vp.isValid( ))

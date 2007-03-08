@@ -289,10 +289,12 @@ namespace eq
             {
                 command        = CMD_NODE_CONFIG_INIT;
                 size           = sizeof( NodeConfigInitPacket );
+                name[0]        = '\0';
             }
 
         uint32_t requestID;
         uint32_t initID;
+        EQ_ALIGN8( char name[8] );
     };
 
     struct NodeConfigInitReplyPacket : public eqNet::ObjectPacket
@@ -424,6 +426,7 @@ namespace eq
             {
                 command = CMD_PIPE_CONFIG_INIT;
                 size    = sizeof( PipeConfigInitPacket );
+                name[0] = '\0';
             }
 
         uint32_t      requestID;
@@ -432,6 +435,7 @@ namespace eq
         uint32_t      screen;
         PixelViewport pvp;
         bool          threaded;
+        EQ_ALIGN8( char name[8] );
     };
 
     struct PipeConfigInitReplyPacket : public eqNet::ObjectPacket
@@ -507,7 +511,7 @@ namespace eq
             {
                 command = CMD_WINDOW_CONFIG_INIT;
                 size    = sizeof( WindowConfigInitPacket );
-                name[0]   = '\0';
+                name[0] = '\0';
             }
 
         uint32_t       requestID;
@@ -662,7 +666,7 @@ namespace eq
         int32_t       iattr[eq::Channel::IATTR_ALL];
         PixelViewport pvp;
         Viewport      vp;
-        EQ_ALIGN8( char          name[8] );
+        EQ_ALIGN8( char name[8] );
     };
 
     struct ChannelConfigInitReplyPacket : public eqNet::ObjectPacket

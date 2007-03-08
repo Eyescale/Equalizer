@@ -246,6 +246,7 @@ namespace eqs
         /** The current operational state. */
         State _state;
 
+        /** The window's name */
         std::string _name;
 
         /** The reason for the last error. */

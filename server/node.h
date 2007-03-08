@@ -98,6 +98,9 @@ namespace eqs
          *         <code>false</code> if not.
          */
         bool isUsed() const { return (_used!=0); }
+
+        void setName( const std::string& name ) { _name = name; }
+        const std::string& getName() const      { return _name; }
         //*}
 
         /**
@@ -243,6 +246,9 @@ namespace eqs
         eqBase::RequestHandler _requestHandler;
 
     private:
+        /** The pipe's name */
+        std::string _name;
+
         /** The parent config. */
         Config* _config;
         friend class Config;
@@ -297,6 +303,8 @@ namespace eqs
 
         void _send( eqNet::ObjectPacket& packet ) 
             { packet.objectID = getID(); send( packet ); }
+        void _send( eqNet::ObjectPacket& packet, const std::string& string ) 
+            { packet.objectID = getID(); send( packet, string ); }
 
         /* Command handler functions. */
         eqNet::CommandResult _cmdConfigInitReply( eqNet::Command& command );

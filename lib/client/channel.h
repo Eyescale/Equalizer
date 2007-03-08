@@ -297,7 +297,7 @@ namespace eq
         void setErrorMessage( const std::string& message ) { _error = message; }
         //@}
     private:
-        /** The parent node. */
+        /** The parent window. */
         friend class   Window;
         Window*        _window;
 

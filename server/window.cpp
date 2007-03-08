@@ -253,7 +253,7 @@ void eqs::Window::_sendConfigInit( const uint32_t initID )
     for( int i=0; i<eq::Window::IATTR_ALL; ++i )
         packet.iattr[i] = _iAttributes[i];
     
-    _send( packet, getName( ));
+    _send( packet, _name );
     EQLOG( eq::LOG_TASKS ) << "TASK configInit  " << &packet << endl;
 }
 
@@ -469,10 +469,8 @@ std::ostream& eqs::operator << ( std::ostream& os, const eqs::Window* window )
     os << "{" << endl << indent; 
 
     const std::string& name = window->getName();
-    if( name.empty( ))
-        os << "name \"window_" << (void*)window << "\"" << endl;
-    else
-        os << "name \"" << name << "\"" << endl;
+    if( !name.empty( ))
+        os << "name     \"" << name << "\"" << endl;
 
     const eq::Viewport& vp  = window->getViewport();
     if( vp.isValid( ))

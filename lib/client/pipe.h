@@ -38,6 +38,8 @@ namespace eq
         eqBase::RefPtr<eqNet::Node> getServer() const
             { return (_node ? _node->getServer() : NULL);}
 
+        const std::string& getName() const { return _name; }
+
         /** @return the number of windows. */
         uint32_t nWindows() const { return _windows.size(); }
         /** 
@@ -325,6 +327,9 @@ namespace eq
         /** The parent node. */
         friend class Node;
         Node*       _node;
+
+        /** The name. */
+        std::string    _name;
 
         /** The windows of this pipe. */
         std::vector<Window*>     _windows;

@@ -37,6 +37,8 @@ namespace eq
         eqBase::RefPtr<eqNet::Node> getServer() const
             { return (_config ? _config->getServer() : NULL); }
 
+        const std::string& getName() const { return _name; }
+
         /** 
          * Gets a pipe.
          * 
@@ -174,8 +176,12 @@ namespace eq
         //*}
  
     private:
+        /** The parent config */
         friend class Config;
         Config*                _config;
+
+        /** The name. */
+        std::string            _name;
 
         std::vector<Pipe*>     _pipes;
 

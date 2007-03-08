@@ -283,8 +283,8 @@ configAttribute:
                              eqs::Config::FATTR_EYE_BASE, $2 ); }
 
 nodes: node | nodes node
-node: appNode | otherNode
-otherNode: EQTOKEN_NODE '{' { node = loader->createNode(); }
+node: appNode | renderNode
+renderNode: EQTOKEN_NODE '{' { node = loader->createNode(); }
                nodeFields
                '}' { 
                         if( node->nConnectionDescriptions() == 0 )
@@ -299,7 +299,8 @@ appNode: EQTOKEN_APPNODE '{' { node = loader->createNode(); }
             '}' { config->addApplicationNode( node ); node = 0; }
 nodeFields: /*null*/ | nodeField | nodeFields nodeField
 nodeField: /*TODO*/
-    connections
+    EQTOKEN_NAME STRING            { node->setName( $2 ); }
+    | connections
     | pipes                
 connections: /*null*/ 
              | connection | connections connection
@@ -327,6 +328,7 @@ pipeFields: /*null*/ | pipeField | pipeFields pipeField
 pipeField:
     windows   
     | EQTOKEN_ATTRIBUTES '{' pipeAttributes '}'
+    | EQTOKEN_NAME STRING            { eqPipe->setName( $2 ); }
     | EQTOKEN_DISPLAY UNSIGNED       { eqPipe->setDisplay( $2 ); }
     | EQTOKEN_SCREEN UNSIGNED        { eqPipe->setScreen( $2 ); }
     | EQTOKEN_VIEWPORT viewport 

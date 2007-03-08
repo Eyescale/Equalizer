@@ -46,6 +46,8 @@ Node::Node()
 Node::Node( const Node& from )
 {
     _construct();
+
+    _name = from._name;
     _node = from._node;
 
     const uint32_t nConnectionDescriptions = from.nConnectionDescriptions();
@@ -119,7 +121,7 @@ void Node::startConfigInit( const uint32_t initID )
     packet.requestID  = _pendingRequestID;
     packet.initID     = initID;
 
-    _send( packet );
+    _send( packet, _name );
 
     eq::NodeCreatePipePacket createPipePacket;
     for( PipeIter i = _pipes.begin(); i != _pipes.end(); ++i )
@@ -403,6 +405,10 @@ ostream& eqs::operator << ( ostream& os, const Node* node )
         os << "node" << endl;
 
     os << "{" << endl << indent;
+
+    const std::string& name = node->getName();
+    if( !name.empty( ))
+        os << "name     \"" << name << "\"" << endl;
 
     const uint32_t nConnectionDescriptions = node->nConnectionDescriptions();
     for( uint32_t i=0; i<nConnectionDescriptions; i++ )

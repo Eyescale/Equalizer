@@ -1025,8 +1025,8 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
         _setPixelViewport( packet->pvp );
     else
         _setViewport( packet->vp );
-
     _name = packet->name;
+
     for( uint32_t i=0; i<IATTR_ALL; ++i )
         _iAttributes[i] = packet->iattr[i];
 

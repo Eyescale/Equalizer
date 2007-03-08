@@ -102,6 +102,9 @@ namespace eqs
          */
         bool isUsed() const { return (_used!=0); }
 
+        void setName( const std::string& name ) { _name = name; }
+        const std::string& getName() const      { return _name; }
+
         /**
          * @name Data Access
          */
@@ -203,6 +206,9 @@ namespace eqs
         /** The current operational state. */
         State _state;
 
+        /** The pipe's name */
+        std::string _name;
+
         /** Integer attributes. */
         int32_t _iAttributes[IATTR_ALL];
         /** String representation of integer attributes. */
@@ -241,6 +247,8 @@ namespace eqs
 
         void _send( eqNet::ObjectPacket& packet )
             { packet.objectID = getID(); _node->send( packet ); }
+        void _send( eqNet::ObjectPacket& packet, const std::string& string ) 
+            { packet.objectID = getID(); _node->send( packet, string ); }
 
         void _sendConfigInit( const uint32_t initID );
         void _sendConfigExit();

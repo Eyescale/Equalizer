@@ -278,6 +278,8 @@ eqNet::CommandResult Node::_reqConfigInit( eqNet::Command& command )
         command.getPacket<NodeConfigInitPacket>();
     EQINFO << "handle node config init " << packet << endl;
 
+    _name = packet->name;
+
     _error.clear();
     NodeConfigInitReplyPacket reply( packet );
     reply.result = configInit( packet->initID );

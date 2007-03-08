@@ -316,7 +316,7 @@ namespace eq
             char _windowFill[32];
         };
 
-        /** The parent node. */
+        /** The parent pipe. */
         friend class Pipe;
         Pipe*        _pipe;
 

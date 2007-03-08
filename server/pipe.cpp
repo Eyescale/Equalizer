@@ -54,6 +54,8 @@ Pipe::Pipe()
 Pipe::Pipe( const Pipe& from )
 {
     _construct();
+
+    _name = from._name;
     _display = from._display;
     _screen  = from._screen;
     _pvp     = from._pvp;
@@ -164,7 +166,7 @@ void Pipe::_sendConfigInit( const uint32_t initID )
     packet.pvp        = _pvp;
     packet.threaded   = getIAttribute( IATTR_HINT_THREAD );
 
-    _send( packet );
+    _send( packet, _name );
 }
 
 bool Pipe::syncConfigInit()
@@ -340,6 +342,10 @@ std::ostream& eqs::operator << ( std::ostream& os, const Pipe* pipe )
     
     os << disableFlush << disableHeader << "pipe" << endl;
     os << "{" << endl << indent;
+
+    const std::string& name = pipe->getName();
+    if( !name.empty( ))
+        os << "name     \"" << name << "\"" << endl;
 
     if( pipe->getDisplay() != EQ_UNDEFINED_UINT32 )
         os << "display  " << pipe->getDisplay() << endl;

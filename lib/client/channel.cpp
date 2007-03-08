@@ -146,17 +146,19 @@ void Channel::frameClear( const uint32_t frameID )
 #ifndef NDEBUG
     if( getenv( "EQ_TAINT_CHANNELS" ))
     {
-#ifdef WIN32
-        const size_t hashValue = stde::hash_value( getName().c_str( ));
-#else
-        stde::hash<const char*> hasher;
-        const size_t hashValue = hasher( getName().c_str( ));
-#endif
-        unsigned  seed  = (unsigned)(long long)this + hashValue;
-        const int color = rand_r( &seed );
+        uint32_t value = reinterpret_cast< size_t >( this ) & 0xffffffffu;
+        uint8_t  red   = 0;
+        uint8_t  green = 0;
+        uint8_t  blue  = 0;
 
-        glClearColor( (color&0xff) / 255., ((color>>8) & 0xff) / 255.,
-                      ((color>>16) & 0xff) / 255., 1. );
+        for( unsigned i=0; i<8; ++i )
+        {
+            red   |= ( value&1 << (7-i) ); value >>= 1;
+            green |= ( value&1 << (7-i) ); value >>= 1;
+            blue  |= ( value&1 << (7-i) ); value >>= 1;
+        }
+
+        glClearColor( red / 255.0f, green / 255.0f, blue / 255.0f, 1.0f );
     }
 #endif // DEBUG
 
