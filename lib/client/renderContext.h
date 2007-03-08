@@ -22,7 +22,8 @@ namespace eq
         uint32_t       frameID;        //<! identifier from Config::beginFrame
         uint32_t       buffer;         //<! buffer as passed to glDrawBuffer() 
         PixelViewport  pvp;            //<! pixel viewport of channel wrt window
-        Range          range;          //<! database-range to be rendered
+        Viewport       vp;             //<! fractional viewport wrt dest channel
+        Range          range;          //<! database-range wrt to dest channel
         vmml::Frustumf frustum;        //<! frustum for projection matrix
         vmml::Matrix4f headTransform;  //<! frustum transform for modelview
         ColorMask      drawBufferMask; //<! draw color mask for anaglyph stereo

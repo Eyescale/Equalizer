@@ -96,6 +96,9 @@ namespace eq
         /** @return the view frustum for the current rendering task. */
         const vmml::Frustumf& getFrustum() const;
 
+        /** @return the fractional viewport wrt the destination. */
+        const Viewport& getViewport() const;
+
         /** @return the database range for the current rendering task. */
         const Range& getRange() const;
 

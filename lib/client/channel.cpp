@@ -310,6 +310,11 @@ void Channel::resetAssemblyState()
     glPopAttrib();
 }
 
+const Viewport& Channel::getViewport() const
+{
+    return _context ? _context->vp : _vp;
+}
+
 const PixelViewport& Channel::getPixelViewport() const
 {
     return _context ? _context->pvp : _pvp;

@@ -746,6 +746,7 @@ void Compound::_setupRenderContext( eq::RenderContext& context,
 {
     context.frameID        = data->frameID;
     context.pvp            = _inherit.pvp;
+    context.vp             = _inherit.vp;
     context.range          = _inherit.range;
     context.buffer         = _getDrawBuffer( data );
     context.drawBufferMask = _getDrawBufferMask( data );
