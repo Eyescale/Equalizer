@@ -228,7 +228,7 @@ void Session::attachObject( Object* object, const uint32_t id )
 void Session::detachObject( Object* object )
 {
     EQASSERT( object );
-    if( _localNode->inReceiverThread( ));
+    if( _localNode->inReceiverThread( ))
     {
         CHECK_THREAD( _receiverThread );
 
