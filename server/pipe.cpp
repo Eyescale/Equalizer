@@ -92,7 +92,8 @@ Pipe::~Pipe()
 void Pipe::addWindow( Window* window )
 {
     _windows.push_back( window ); 
-    window->_pipe = this; 
+    window->_pipe = this;
+    window->notifyViewportChanged();
 }
 
 bool Pipe::removeWindow( Window* window )

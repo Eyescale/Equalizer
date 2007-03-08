@@ -88,7 +88,8 @@ eqs::Window::~Window()
 void eqs::Window::addChannel( Channel* channel )
 {
     _channels.push_back( channel ); 
-    channel->_window = this; 
+    channel->_window = this;
+    channel->notifyViewportChanged();
 }
 
 bool eqs::Window::removeChannel( Channel* channel )

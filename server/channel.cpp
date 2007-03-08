@@ -222,12 +222,6 @@ void Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     startPacket.frameNumber = frameNumber;
     send( startPacket );
 
-    _pvp = _window->getPixelViewport();
-
-    _pvp.x = 0;
-    _pvp.y = 0;
-    _pvp.applyViewport( _vp );
-
     Config*        config     = getConfig();
     const uint32_t nCompounds = config->nCompounds();
     for( uint32_t i=0; i<nCompounds; i++ )
