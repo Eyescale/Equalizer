@@ -269,7 +269,7 @@ bool eqs::Window::syncConfigInit()
         if( channel->isUsed( ))
             if( !channel->syncConfigInit( ))
             {
-                error += (' ' + channel->getErrorMessage());
+                error += "channel: '"  + channel->getErrorMessage() + '\'';
                 success = false;
             }
     }
