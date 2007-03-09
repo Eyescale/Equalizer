@@ -17,7 +17,7 @@
 #ifdef GLX
 #  include "glXEventThread.h"
 #endif
-#ifdef WIN32
+#ifdef WGL
 #  include "wglEventHandler.h"
 #endif
 
@@ -498,16 +498,12 @@ bool eq::Window::configInitWGL()
     const string& classStr = className.str();
                                   
     HINSTANCE instance = GetModuleHandle( 0 );
-    WNDCLASS  wc;
+    WNDCLASS  wc = { 0 };
     wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC; 
     wc.lpfnWndProc   = WGLEventHandler::wndProc;    
-    wc.cbClsExtra    = 0;                     
-    wc.cbWndExtra    = 0;                  
     wc.hInstance     = instance; 
     wc.hIcon         = LoadIcon( NULL, IDI_WINLOGO );
     wc.hCursor       = LoadCursor( NULL, IDC_ARROW );
-    wc.hbrBackground = NULL;                       
-    wc.lpszMenuName  = NULL;             
     wc.lpszClassName = classStr.c_str();       
 
     if( !RegisterClass( &wc ))
@@ -558,8 +554,22 @@ bool eq::Window::configInitWGL()
     ShowWindow( hWnd, SW_SHOW );
     UpdateWindow( hWnd );
 
+    // per-GPU affinity DC
+    // We need to create one DC per window, since the window DC pixel format and
+    // the affinity RC pixel format have to match, and each window has
+    // potentially a different pixel format.
+    HDC                  affinityDC;
+    PFNWGLDELETEDCNVPROC deleteDC;
+    if( !_pipe->createAffinityDC( affinityDC, deleteDC ))
+    {
+        setErrorMessage( "Can't create affinity dc" );
+        return false;
+    }
+
     // pixel format
-    HDC                   dc  = GetDC( hWnd );
+    HDC windowDC   = GetDC( hWnd );
+    HDC dc         = affinityDC ? affinityDC : windowDC;
+
     PIXELFORMATDESCRIPTOR pfd = {0};
     pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
     pfd.nVersion     = 1;
@@ -587,7 +597,6 @@ bool eq::Window::configInitWGL()
         pfd.dwFlags |= PFD_STEREO;
     if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) != OFF )
         pfd.dwFlags |= PFD_DOUBLEBUFFER;
-
     int pf = ChoosePixelFormat( dc, &pfd );
 
     if( pf == 0 && getIAttribute( IATTR_HINT_STEREO ) == AUTO )
@@ -609,7 +618,7 @@ bool eq::Window::configInitWGL()
     {
         setErrorMessage( "Can't find matching pixel format: " + 
                          getErrorString( GetLastError( )));
-        ReleaseDC( hWnd, dc );
+        ReleaseDC( hWnd, windowDC );
 	    return false;
     }
  
@@ -617,8 +626,21 @@ bool eq::Window::configInitWGL()
     {
         setErrorMessage( "Can't set pixel format: " + 
                          getErrorString( GetLastError( )));
-        ReleaseDC( hWnd, dc );
+        ReleaseDC( hWnd, windowDC );
 	    return false;
+    }
+
+    // set the same pixel format on the window DC
+    if( affinityDC )
+    {
+        DescribePixelFormat( dc, pf, sizeof( pfd ), &pfd );
+        if( !SetPixelFormat( windowDC, pf, &pfd ))
+        {
+            setErrorMessage( "Can't set pixel format: " + 
+                             getErrorString( GetLastError( )));
+            ReleaseDC( hWnd, windowDC );
+	        return false;
+        }
     }
 
     // context
@@ -630,7 +652,12 @@ bool eq::Window::configInitWGL()
 	    return false;
     }
 
-    wglMakeCurrent( dc, context );
+    if( !wglMakeCurrent( dc, context ))
+    {
+        setErrorMessage( "Can't make OpenGL context current: " + 
+                         getErrorString( GetLastError( )));
+	    return false;
+    }
 
     Pipe*    pipe        = getPipe();
     Window*  firstWindow = pipe->getWindow(0);
@@ -641,7 +668,9 @@ bool eq::Window::configInitWGL()
                << endl;
 
     setWGLContext( context );
-    ReleaseDC( hWnd, dc );
+    ReleaseDC( hWnd, windowDC );
+    if( affinityDC )
+        deleteDC( affinityDC );
 
     EQINFO << "Created WGL context " << context << endl;
     return true;
@@ -1091,8 +1120,8 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
 
     _initEventHandling();
 
-    reply.pvp = _pvp;
-    reply.drawableConfig           = _drawableConfig;
+    reply.pvp            = _pvp;
+    reply.drawableConfig = _drawableConfig;
     send( node, reply );
     return eqNet::COMMAND_HANDLED;
 }

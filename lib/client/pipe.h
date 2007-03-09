@@ -18,6 +18,14 @@
 #include <eq/net/object.h>
 #include <eq/net/commandQueue.h>
 
+#ifdef WGL
+#  include "wglext.h"
+#else
+#  ifndef PFNWGLDELETEDCNVPROC
+#    define PFNWGLDELETEDCNVPROC void*
+#  endif
+#endif
+
 namespace eq
 {
     class Frame;
@@ -164,6 +172,19 @@ namespace eq
          * @name Operations
          */
         //*{
+        /**
+         * Create a device context bound only to the display of this pipe.
+         *
+         * If the dc return parameter is set to 0, and the return value is true,
+         * an affinitiy dc is not needed.
+         *
+         * @param affinityDC the affinity device context output parameter.
+         * @param deleteProc the deleteDC function pointer output parameter.
+         * @return the success status.
+         */
+        bool createAffinityDC( HDC& affinityDC, 
+                               PFNWGLDELETEDCNVPROC& deleteProc );
+
         /** Add a new statistics event to the current frame. */
         void addStatEvent( const StatEvent& event )
             { _statEvents.push_back( event ); }

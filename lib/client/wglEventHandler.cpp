@@ -116,7 +116,7 @@ LRESULT CALLBACK WGLEventHandler::wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
     WGLEventHandler* handler = getEventHandler( hWnd );
     if( !handler )
     {
-        EQERROR << "Message arrived before window was registered" << endl;
+        EQERROR << "Message arrived for unregistered window" << endl;
         return DefWindowProc( hWnd, uMsg, wParam, lParam );
     }
 

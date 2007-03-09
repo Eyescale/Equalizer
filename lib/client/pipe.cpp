@@ -15,6 +15,9 @@
 #ifdef GLX
 #  include "glXEventThread.h"
 #endif
+#ifdef WGL
+#  include "wglEventHandler.h"
+#endif
 
 #include <eq/net/command.h>
 
@@ -31,7 +34,12 @@ Pipe::Pipe()
           _windowSystem( WINDOW_SYSTEM_NONE ),
           _display( EQ_UNDEFINED_UINT32 ),
           _screen( EQ_UNDEFINED_UINT32 ),
-          _thread( 0 )
+          _thread( 0 ),
+         _xDisplay( 0 ),
+         _xEventConnection( 0 ),
+         _cglDisplayID( 0 ),
+         _dc( 0 ),
+         _dcDelete( false )
 {
     registerCommand( CMD_PIPE_CREATE_WINDOW,
                    eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdCreateWindow ));
@@ -53,18 +61,6 @@ Pipe::Pipe()
                      eqNet::CommandFunc<Pipe>( this, &Pipe::pushCommand ));
     registerCommand( REQ_PIPE_FRAME_FINISH,
                      eqNet::CommandFunc<Pipe>( this, &Pipe::_reqFrameFinish ));
-
-#ifdef GLX
-    _xDisplay         = 0;
-    _xEventConnection = 0;
-#endif
-#ifdef CGL
-    _cglDisplayID = 0;
-#endif
-#ifdef WGL
-    _dc       = 0;
-    _dcDelete = false;
-#endif
 }
 
 Pipe::~Pipe()
@@ -625,6 +621,136 @@ void Pipe::releaseFrame( const uint32_t frameNumber )
     _node->addStatEvents( frameNumber, _statEvents );
     _statEvents.clear();
     _finishedFrame = frameNumber; 
+}
+
+bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
+{
+#ifdef WGL
+    affinityDC = 0;
+    if( _display == EQ_UNDEFINED_UINT32 )
+        return true;
+
+    //----- Create and make current a temporary GL context to get proc address
+    //      of WGL_NV_gpu_affinity functions.
+
+    // window class
+    ostringstream className;
+    className << "TMP" << (void*)this;
+    const string& classStr = className.str();
+                                  
+    HINSTANCE instance = GetModuleHandle( 0 );
+    WNDCLASS  wc       = { 0 };
+    wc.lpfnWndProc   = WGLEventHandler::wndProc;    
+    wc.hInstance     = instance; 
+    wc.hIcon         = LoadIcon( NULL, IDI_WINLOGO );
+    wc.hCursor       = LoadCursor( NULL, IDC_ARROW );
+    wc.lpszClassName = classStr.c_str();       
+
+    if( !RegisterClass( &wc ))
+    {
+        setErrorMessage( "Can't register temporary window class: " +
+                         getErrorString( GetLastError( )));
+	    return false;
+    }
+
+    // window
+    DWORD windowStyleEx = WS_EX_APPWINDOW;
+    DWORD windowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW;
+
+    HWND hWnd = CreateWindowEx( windowStyleEx,
+                                wc.lpszClassName, "TMP",
+                  	            windowStyle, 0, 0, 1, 1,
+                                0, 0, // parent, menu
+                                instance, 0 );
+
+    if( !hWnd )
+    {
+        setErrorMessage( "Can't create temporary window: " +
+                         getErrorString( GetLastError( )));
+        UnregisterClass( classStr.c_str(),  instance );
+	    return false;
+    }
+
+    HDC                   dc  = GetDC( hWnd );
+    PIXELFORMATDESCRIPTOR pfd = {0};
+    pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
+    pfd.nVersion     = 1;
+    pfd.dwFlags      = PFD_DRAW_TO_WINDOW |
+                       PFD_SUPPORT_OPENGL;
+
+    int pf = ChoosePixelFormat( dc, &pfd );
+    if( pf == 0 )
+    {
+        setErrorMessage( "Can't find temporary pixel format: " +
+                         getErrorString( GetLastError( )));
+        DestroyWindow( hWnd );
+        UnregisterClass( classStr.c_str(),  instance );
+	    return false;
+    }
+ 
+    if( !SetPixelFormat( dc, pf, &pfd ))
+    {
+        setErrorMessage( "Can't set pixel format: " + 
+                        getErrorString( GetLastError( )));
+        ReleaseDC( hWnd, dc );
+        DestroyWindow( hWnd );
+        UnregisterClass( classStr.c_str(),  instance );
+	    return false;
+    }
+
+    // context
+    HGLRC context = wglCreateContext( dc );
+    if( !context )
+    {
+         setErrorMessage( "Can't create temporary OpenGL context: " + 
+                          getErrorString( GetLastError( )));
+        ReleaseDC( hWnd, dc );
+        DestroyWindow( hWnd );
+        UnregisterClass( classStr.c_str(),  instance );
+	    return false;
+    }
+
+    wglMakeCurrent( dc, context );
+
+	PFNWGLENUMGPUSNVPROC enumGPUs = (PFNWGLENUMGPUSNVPROC)
+        ( wglGetProcAddress( "wglEnumGpusNV" ));
+    PFNWGLCREATEAFFINITYDCNVPROC createAffinityDC = 
+        (PFNWGLCREATEAFFINITYDCNVPROC)
+            ( wglGetProcAddress( "wglCreateAffinityDCNV" ));
+    deleteProc = (PFNWGLDELETEDCNVPROC)
+        ( wglGetProcAddress( "wglDeleteDCNV" ));
+
+    wglDeleteContext( context );
+    ReleaseDC( hWnd, dc );
+    DestroyWindow( hWnd );
+    UnregisterClass( classStr.c_str(),  instance );
+
+    if( !enumGPUs || !createAffinityDC || !deleteProc )
+    {
+        EQWARN << "WGL_NV_gpu_affinity unsupported, ignoring display setting"
+               << endl;
+        return true;
+    }
+
+    HGPUNV hGPU[2] = { 0 };
+    hGPU[1] = 0;
+    if( !enumGPUs( _display, hGPU ))
+    {
+        setErrorMessage( "Can't enumerate GPU #" + _display );
+        return false;
+    }
+
+    affinityDC = createAffinityDC( hGPU );
+    if( !affinityDC )
+    {
+        setErrorMessage( "Can't create affinity DC: " +
+                         getErrorString( GetLastError( )));
+        return false;
+    }
+    return true;
+#else
+    return 0;
+#endif
 }
 
 //---------------------------------------------------------------------------
