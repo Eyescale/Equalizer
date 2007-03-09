@@ -431,8 +431,8 @@ namespace eq
 
         uint32_t      requestID;
         uint32_t      initID;
-        uint32_t      display;
-        uint32_t      screen;
+        uint32_t      port;
+        uint32_t      device;
         PixelViewport pvp;
         bool          threaded;
         EQ_ALIGN8( char name[8] );
@@ -931,7 +931,7 @@ namespace eq
                                        const PipeConfigInitPacket* packet )
     {
         os << (eqNet::ObjectPacket*)packet << " init id " << packet->initID
-           << " display " << packet->display << " screen " << packet->screen;
+           << " port " << packet->port << " device " << packet->device;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

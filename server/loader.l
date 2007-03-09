@@ -96,8 +96,8 @@ COLOR                           { return EQTOKEN_COLOR; }
 DEPTH                           { return EQTOKEN_DEPTH; }
 viewport                        { return EQTOKEN_VIEWPORT; }
 range                           { return EQTOKEN_RANGE; }
-display                         { return EQTOKEN_DISPLAY; }
-screen                          { return EQTOKEN_SCREEN; }
+port                            { return EQTOKEN_PORT; }
+device                          { return EQTOKEN_DEVICE; }
 wall                            { return EQTOKEN_WALL; }
 bottom_left                     { return EQTOKEN_BOTTOM_LEFT; }
 bottom_right                    { return EQTOKEN_BOTTOM_RIGHT; }

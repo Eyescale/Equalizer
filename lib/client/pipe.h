@@ -65,31 +65,31 @@ namespace eq
         const PixelViewport& getPixelViewport() const { return _pvp; }
 
         /** 
-         * Returns the display number of this pipe.
+         * Returns the port number of this pipe.
          * 
-         * The display number identifies the X server for systems using the
+         * The port number identifies the X server for systems using the
          * X11/GLX window system. It currently has no meaning on other systems.
          *
-         * @return the display number of this pipe, or 
-         *         <code>EQ_UNDEFINED_UINT</code>.
+         * @return the port number of this pipe, or
+         *         <code>EQ_UNDEFINED_UINT32</code>.
          */
-        uint32_t getDisplay() const { return _display; }
+        uint32_t getPort() const { return _port; }
 
         /** 
-         * Returns the screen number of this pipe.
+         * Returns the device number of this pipe.
          * 
-         * The screen number identifies the X screen for systems using the
-         * X11/GLX window system, or the number of the display for the CGL
-         * window system. On Windows systems it identifies the graphics adapter.
-         * Normally the screen identifies a graphics adapter.
+         * The device number identifies the X screen for systems using the
+         * X11/GLX window system, or the number of the virtual screen for the
+         * CGL window system. On Windows systems it identifies the graphics
+         * adapter. Normally the device identifies a GPU.
          *
-         * @return the screen number of this pipe, or 
-         *         <code>EQ_UNDEFINED_UINT</code>.
+         * @return the device number of this pipe, or 
+         *         <code>EQ_UNDEFINED_UINT32</code>.
          */
-        uint32_t getScreen() const { return _screen; }
+        uint32_t getDevice() const { return _device; }
 
         /** 
-         * @return The string representation of this pipe's display and screen
+         * @return The string representation of this pipe's port and device
          *         setting, in the form used by XOpenDisplay().
          */
         std::string getXDisplayString();
@@ -383,11 +383,11 @@ namespace eq
         /** The X event display connection. */
         eqBase::RefPtr<X11Connection>     _xEventConnection;
 
-        /** The display (GLX, CGL) or ignored (Win32). */
-        uint32_t _display;
+        /** The display (GLX) or ignored (Win32, CGL). */
+        uint32_t _port;
 
-        /** The screen (GLX), adapter (Win32) or ignored (CGL). */
-        uint32_t _screen;
+        /** The screen (GLX), GPU (Win32) or virtual screen (CGL). */
+        uint32_t _device;
         
         /** The configInit/configExit state. */
         eqBase::Monitor<bool> _initialized;

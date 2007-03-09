@@ -119,8 +119,8 @@
 %token EQTOKEN_RIGHT
 %token EQTOKEN_VIEWPORT
 %token EQTOKEN_RANGE
-%token EQTOKEN_DISPLAY
-%token EQTOKEN_SCREEN
+%token EQTOKEN_PORT
+%token EQTOKEN_DEVICE
 %token EQTOKEN_WALL
 %token EQTOKEN_BOTTOM_LEFT
 %token EQTOKEN_BOTTOM_RIGHT
@@ -329,8 +329,8 @@ pipeField:
     windows   
     | EQTOKEN_ATTRIBUTES '{' pipeAttributes '}'
     | EQTOKEN_NAME STRING            { eqPipe->setName( $2 ); }
-    | EQTOKEN_DISPLAY UNSIGNED       { eqPipe->setDisplay( $2 ); }
-    | EQTOKEN_SCREEN UNSIGNED        { eqPipe->setScreen( $2 ); }
+    | EQTOKEN_PORT UNSIGNED          { eqPipe->setPort( $2 ); }
+    | EQTOKEN_DEVICE UNSIGNED        { eqPipe->setDevice( $2 ); }
     | EQTOKEN_VIEWPORT viewport 
         {
             eqPipe->setPixelViewport( eq::PixelViewport( (int)$2[0], (int)$2[1],

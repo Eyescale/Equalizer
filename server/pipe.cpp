@@ -29,8 +29,8 @@ void Pipe::_construct()
     _used             = 0;
     _node             = 0;
     _pendingRequestID = EQ_ID_INVALID;
-    _display          = EQ_UNDEFINED_UINT32;
-    _screen           = EQ_UNDEFINED_UINT32;
+    _port             = EQ_UNDEFINED_UINT32;
+    _device           = EQ_UNDEFINED_UINT32;
     _state            = STATE_STOPPED;
 
     registerCommand( eq::CMD_PIPE_CONFIG_INIT_REPLY,
@@ -55,10 +55,10 @@ Pipe::Pipe( const Pipe& from )
 {
     _construct();
 
-    _name = from._name;
-    _display = from._display;
-    _screen  = from._screen;
-    _pvp     = from._pvp;
+    _name   = from._name;
+    _port   = from._port;
+    _device = from._device;
+    _pvp    = from._pvp;
 
     for( int i=0; i<IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
@@ -161,8 +161,8 @@ void Pipe::_sendConfigInit( const uint32_t initID )
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     packet.initID     = initID;
-    packet.display    = _display;
-    packet.screen     = _screen;
+    packet.port       = _port;
+    packet.device     = _device;
     packet.pvp        = _pvp;
     packet.threaded   = getIAttribute( IATTR_HINT_THREAD );
 
@@ -347,11 +347,11 @@ std::ostream& eqs::operator << ( std::ostream& os, const Pipe* pipe )
     if( !name.empty( ))
         os << "name     \"" << name << "\"" << endl;
 
-    if( pipe->getDisplay() != EQ_UNDEFINED_UINT32 )
-        os << "display  " << pipe->getDisplay() << endl;
+    if( pipe->getPort() != EQ_UNDEFINED_UINT32 )
+        os << "port     " << pipe->getPort() << endl;
         
-    if( pipe->getScreen() != EQ_UNDEFINED_UINT32 )
-        os << "screen   " << pipe->getScreen() << endl;
+    if( pipe->getDevice() != EQ_UNDEFINED_UINT32 )
+        os << "device   " << pipe->getDevice() << endl;
     
     const eq::PixelViewport& pvp = pipe->getPixelViewport();
     if( pvp.isValid( ))

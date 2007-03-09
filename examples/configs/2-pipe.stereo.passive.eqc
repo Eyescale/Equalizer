@@ -9,7 +9,7 @@ server
         {
             pipe
             {
-                screen 0
+                device 0
                 window
                 {
                     channel { name "channel-left" }
@@ -17,7 +17,7 @@ server
             }
             pipe
             {
-                screen 1
+                device 1
                 window
                 {
                     channel { name "channel-right" }

@@ -901,7 +901,7 @@ void eq::Window::makeCurrent() const
 #endif
 #ifdef CGL
         case WINDOW_SYSTEM_CGL:
-            EQUNIMPLEMENTED;
+            CGLSetCurrentContext( _cglContext );
             break;
 #endif
 #ifdef WGL

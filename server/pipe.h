@@ -109,10 +109,10 @@ namespace eqs
          * @name Data Access
          */
         //*{
-        void setDisplay( const uint32_t display ){ _display = display; }
-        uint32_t getDisplay() const              { return _display; }
-        void setScreen( const uint32_t screen )  { _screen = screen; }
-        uint32_t getScreen() const               { return _screen; }
+        void setPort( const uint32_t port )      { _port = port; }
+        uint32_t getPort() const                 { return _port; }
+        void setDevice( const uint32_t device )  { _device = device; }
+        uint32_t getDevice() const               { return _device; }
 
         /** 
          * Set (force) the pixel viewport.
@@ -231,13 +231,13 @@ namespace eqs
         uint32_t _pendingRequestID;
 
         /** The display (X11) or ignored (Win32, CGL). */
-        uint32_t _display;
+        uint32_t _port;
 
         /** The screen (X11), GPU (Win32) or virtual screen (CGL). */
-        uint32_t _screen;
+        uint32_t _device;
 
-        /* The display (CGL) or output channel (X11, Win32). */
-        //uint32_t _channel;
+        /* The display (CGL) or output channel (X11?, Win32). */
+        //uint32_t _monitor;
 
         /** The absolute size and position of the pipe. */
         eq::PixelViewport _pvp;

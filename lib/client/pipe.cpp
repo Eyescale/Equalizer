@@ -37,8 +37,8 @@ Pipe::Pipe()
           _dc( 0 ),
           _dcDelete( false ),
           _xEventConnection( 0 ),
-          _display( EQ_UNDEFINED_UINT32 ),
-          _screen( EQ_UNDEFINED_UINT32 ),
+          _port( EQ_UNDEFINED_UINT32 ),
+          _device( EQ_UNDEFINED_UINT32 ),
           _thread( 0 )
 {
     registerCommand( CMD_PIPE_CREATE_WINDOW,
@@ -145,21 +145,21 @@ void Pipe::setXDisplay( Display* display )
             const string displayNumberString = displayString.substr(colonPos+1);
             const uint32_t displayNumber = atoi( displayNumberString.c_str( ));
             
-            if( _display != EQ_UNDEFINED_UINT32 && displayNumber != _display )
+            if( _port != EQ_UNDEFINED_UINT32 && displayNumber != _port )
                 EQWARN << "Display mismatch: provided display connection uses"
                    << " display " << displayNumber
-                   << ", but pipe has display " << _display << endl;
+                   << ", but pipe has port " << _port << endl;
 
-            _display = displayNumber;
+            _port = displayNumber;
         
-            if( _screen != EQ_UNDEFINED_UINT32 &&
-                DefaultScreen( display ) != (int)_screen )
+            if( _device != EQ_UNDEFINED_UINT32 &&
+                DefaultScreen( display ) != (int)_device )
                 
                 EQWARN << "Screen mismatch: provided display connection uses"
                        << " default screen " << DefaultScreen( display ) 
-                       << ", but pipe has screen " << _screen << endl;
+                       << ", but pipe has screen " << _device << endl;
             
-            _screen  = DefaultScreen( display );
+            _device  = DefaultScreen( display );
         }
     }
 
@@ -393,7 +393,7 @@ bool Pipe::configInitGLX()
     }
     
     setXDisplay( xDisplay );
-    EQINFO << "Opened X display " << xDisplay << ", screen " << _screen << endl;
+    EQINFO << "Opened X display " << xDisplay << ", device " << _device << endl;
     return true;
 #else
     setErrorMessage( "Library compiled without GLX support" );
@@ -404,18 +404,16 @@ bool Pipe::configInitGLX()
 std::string Pipe::getXDisplayString()
 {
     ostringstream  stringStream;
-    const uint32_t display = getDisplay();
-    const uint32_t screen  = getScreen();
     
-    if( display != EQ_UNDEFINED_UINT32 )
+    if( _port != EQ_UNDEFINED_UINT32 )
     { 
-        if( screen == EQ_UNDEFINED_UINT32 )
-            stringStream << ":" << display;
+        if( _device == EQ_UNDEFINED_UINT32 )
+            stringStream << ":" << _port;
         else
-            stringStream << ":" << display << "." << screen;
+            stringStream << ":" << _port << "." << _device;
     }
-    else if( screen != EQ_UNDEFINED_UINT32 )
-        stringStream << ":0." << screen;
+    else if( _device != EQ_UNDEFINED_UINT32 )
+        stringStream << ":0." << _device;
     else if( !getenv( "DISPLAY" ))
         stringStream <<  ":0";
 
@@ -425,33 +423,32 @@ std::string Pipe::getXDisplayString()
 bool Pipe::configInitCGL()
 {
 #ifdef CGL
-    const uint32_t    display   = getScreen();
     CGDirectDisplayID displayID = CGMainDisplayID();
 
-    if( display != EQ_UNDEFINED_UINT32 )
+    if( _device != EQ_UNDEFINED_UINT32 )
     {
-        CGDirectDisplayID displayIDs[display+1];
+        CGDirectDisplayID displayIDs[_device+1];
         CGDisplayCount    nDisplays;
 
-        if( CGGetOnlineDisplayList( display+1, displayIDs, &nDisplays ) !=
+        if( CGGetOnlineDisplayList( _device+1, displayIDs, &nDisplays ) !=
             kCGErrorSuccess )
         {
             ostringstream msg;
-            msg << "Can't get display identifier for display " << display;
+            msg << "Can't get display identifier for display " << _device;
             setErrorMessage( msg.str( ));
             return false;
         }
 
-        if( nDisplays <= display )
+        if( nDisplays <= _device )
         {
             ostringstream msg;
-            msg << "Can't get display identifier for display " << display 
-                << ", not enough displays for this system";
+            msg << "Can't get display identifier for display " << _device
+                << ", not enough displays in this system";
             setErrorMessage( msg.str( ));
             return false;
         }
 
-        displayID = displayIDs[display];
+        displayID = displayIDs[_device];
     }
 
     setCGLDisplayID( displayID );
@@ -475,7 +472,7 @@ static BOOL CALLBACK monitorEnumCB( HMONITOR hMonitor, HDC hdcMonitor,
     MonitorEnumCBData* data = reinterpret_cast<MonitorEnumCBData*>( dwData );
     Pipe*              pipe = data->pipe;
 
-    if( data->num < pipe->getScreen( ))
+    if( data->num < pipe->getDevice( ))
     {
         ++data->num;
         return TRUE; // continue
@@ -495,9 +492,7 @@ static BOOL CALLBACK monitorEnumCB( HMONITOR hMonitor, HDC hdcMonitor,
 bool Pipe::configInitWGL()
 {
 #ifdef WGL
-    const uint32_t screen = getScreen();
-
-    if( screen == EQ_UNDEFINED_UINT32 )
+    if( _device == EQ_UNDEFINED_UINT32 )
     {
         HDC dc = GetDC( 0 );
         setDC( dc, false );
@@ -627,7 +622,7 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
 {
 #ifdef WGL
     affinityDC = 0;
-    if( _display == EQ_UNDEFINED_UINT32 )
+    if( _device == EQ_UNDEFINED_UINT32 )
         return true;
 
     //----- Create and make current a temporary GL context to get proc address
@@ -734,9 +729,9 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
 
     HGPUNV hGPU[2] = { 0 };
     hGPU[1] = 0;
-    if( !enumGPUs( _display, hGPU ))
+    if( !enumGPUs( _device, hGPU ))
     {
-        setErrorMessage( "Can't enumerate GPU #" + _display );
+        setErrorMessage( "Can't enumerate GPU #" + _device );
         return false;
     }
 
@@ -811,8 +806,8 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
     EQINFO << "handle pipe configInit (pipe) " << packet << endl;
     
     _name         = packet->name;
-    _display      = packet->display;
-    _screen       = packet->screen;
+    _port         = packet->port;
+    _device       = packet->device;
     _pvp          = packet->pvp;
     _windowSystem = selectWindowSystem();
     _error.clear();
@@ -856,7 +851,7 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
             }
                 
             // TODO: gather and send back display information
-            EQINFO << "Using display " << _display << endl;
+            EQINFO << "Using port " << _port << endl;
             break;
 #endif
 #ifdef WGL
