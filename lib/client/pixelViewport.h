@@ -45,13 +45,7 @@ namespace eq
          * 
          * @param vp the fractional viewport.
          */
-        void applyViewport( const Viewport& vp )
-            {
-                x += (uint32_t)(vp.x * w);
-                y += (uint32_t)(vp.y * h);
-                w  = (uint32_t)(w*vp.w);
-                h  = (uint32_t)(h*vp.h);
-            }
+        void applyViewport( const Viewport& vp ) { (*this) *= vp; }
         
         /** 
          * @return true if the pixel viewport has a non-negative, but

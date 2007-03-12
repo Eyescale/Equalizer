@@ -3,6 +3,7 @@ include $(TOP)/make/system.mk
 
 SUBDIRS = \
 	base \
+	client \
 	connection \
 	image \
 	node \
