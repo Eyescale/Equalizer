@@ -32,13 +32,11 @@ Pipe::Pipe()
         : _node( 0 ),
           _currentGLWindow( 0 ),
           _windowSystem( WINDOW_SYSTEM_NONE ),
-          _xDisplay( 0 ),
-          _cglDisplayID( 0 ),
-          _xEventConnection( 0 ),
           _port( EQ_UNDEFINED_UINT32 ),
           _device( EQ_UNDEFINED_UINT32 ),
           _thread( 0 )
 {
+    bzero( _displayFill, sizeof( _displayFill ));
     registerCommand( CMD_PIPE_CREATE_WINDOW,
                    eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdCreateWindow ));
     registerCommand( CMD_PIPE_DESTROY_WINDOW, 
