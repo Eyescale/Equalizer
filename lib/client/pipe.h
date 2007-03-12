@@ -147,23 +147,6 @@ namespace eq
          */
         CGDirectDisplayID getCGLDisplayID() const { return _cglDisplayID; }
 
-        /** 
-         * Set the Win32 device context for this pipe.
-         * 
-         * This function should only be called from configInit() or
-         * configExit(). Updates the pixel viewport.
-         *
-         * @param dc the device context for this pipe.
-         * @param deleteDC true if the dc has to be deleted using DeleteDC().
-         */
-        void setDC( HDC dc, bool deleteDC );
-
-        /** @return the Win32 device context for this pipe. */
-        HDC getDC() const { return _dc; }
-
-        /** @return true if the dc has to be deleted. */
-        bool needsDCDelete() const { return _dcDelete; }
-
         /** @return the time in ms elapsed since the frame started. */
         float getFrameTime() const { return _frameClock.getTimef(); }
         //*}
@@ -372,11 +355,6 @@ namespace eq
         {
             Display* _xDisplay;
             CGDirectDisplayID _cglDisplayID;
-            struct
-            {
-                HDC  _dc;
-                bool _dcDelete;
-            };
             char _displayFill[16];
         };
 

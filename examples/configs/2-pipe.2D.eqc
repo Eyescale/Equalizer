@@ -1,0 +1,50 @@
+# two-pipe sort-first config for dual-GPU machines
+server
+{
+    config
+    {
+        latency 2
+        appNode
+        {
+            pipe 
+            {
+				device 0
+                window
+                {
+					viewport [ .25 .25 .5 .5 ]
+                    channel { name "channel1" }
+                }
+            }
+            pipe 
+            {
+                device 1
+                window
+                {
+                    channel { name "channel2" }
+                }
+            }
+        }
+        compound
+        {
+            channel "channel1"
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+            }
+
+            compound
+            {
+                viewport [ 0 0 1 .5 ]
+            }
+            compound
+            {
+                channel "channel2"
+                viewport [ 0 .5 1 .5 ]
+                outputframe {}
+            }
+            inputframe { name "frame.channel2" }
+        }
+    }    
+}

@@ -171,11 +171,7 @@ void eq::Window::_setViewport( const Viewport& vp )
 
     PixelViewport pipePVP = _pipe->getPixelViewport();
     if( pipePVP.isValid( ))
-    {
-        pipePVP.x = 0;
-        pipePVP.y = 0;
         _pvp = pipePVP * vp;
-    }
     EQINFO << "Window vp set: " << _pvp << ":" << _vp << endl;
 }
 

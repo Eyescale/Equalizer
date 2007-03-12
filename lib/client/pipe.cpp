@@ -34,8 +34,6 @@ Pipe::Pipe()
           _windowSystem( WINDOW_SYSTEM_NONE ),
           _xDisplay( 0 ),
           _cglDisplayID( 0 ),
-          _dc( 0 ),
-          _dcDelete( false ),
           _xEventConnection( 0 ),
           _port( EQ_UNDEFINED_UINT32 ),
           _device( EQ_UNDEFINED_UINT32 ),
@@ -240,27 +238,6 @@ void Pipe::setCGLDisplayID( CGDirectDisplayID id )
 #endif
 }
 
-void Pipe::setDC( HDC dc, const bool deleteDC )
-{
-#ifdef WGL
-    _dc       = dc; 
-    _dcDelete = deleteDC;
-
-    if( _pvp.isValid( ))
-        return;
-
-    if( dc )
-    {
-        _pvp.x = 0;
-        _pvp.y = 0;
-        _pvp.w = GetDeviceCaps( dc, HORZRES );
-        _pvp.h = GetDeviceCaps( dc, VERTRES );
-    }
-    else
-        _pvp.reset();
-#endif
-}
-
 void* Pipe::_runThread()
 {
     EQINFO << "Entered pipe thread" << endl;
@@ -459,50 +436,31 @@ bool Pipe::configInitCGL()
 #endif
 }
 
-#ifdef WGL
-struct MonitorEnumCBData
-{
-    uint32_t num;
-    Pipe*    pipe;
-};
-
-static BOOL CALLBACK monitorEnumCB( HMONITOR hMonitor, HDC hdcMonitor,
-                                    LPRECT lprcMonitor, LPARAM dwData )
-{
-    MonitorEnumCBData* data = reinterpret_cast<MonitorEnumCBData*>( dwData );
-    Pipe*              pipe = data->pipe;
-
-    if( data->num < pipe->getDevice( ))
-    {
-        ++data->num;
-        return TRUE; // continue
-    }
-
-    MONITORINFOEX monitorInfo;
-    monitorInfo.cbSize = sizeof( MONITORINFOEX );
-    if( !GetMonitorInfo( hMonitor, &monitorInfo ))
-        return FALSE;
-
-    HDC dc = CreateDC( monitorInfo.szDevice, 0, 0, 0 );
-    pipe->setDC( dc, true );
-    return FALSE;
-}
-#endif
-
 bool Pipe::configInitWGL()
 {
 #ifdef WGL
-    if( _device == EQ_UNDEFINED_UINT32 )
-    {
-        HDC dc = GetDC( 0 );
-        setDC( dc, false );
-        return ( dc != 0 );
-    }
+    if( _pvp.isValid( ))
+        return true;
 
-    // find monitor
-    MonitorEnumCBData data = { 0, this };
-    EnumDisplayMonitors( 0, 0, monitorEnumCB,reinterpret_cast<LPARAM>( &data ));
-    return ( getDC() != 0 );
+    HDC                  dc;
+    PFNWGLDELETEDCNVPROC deleteDC;
+    if( !createAffinityDC( dc, deleteDC ))
+        return false;
+    
+    if( dc ) // createAffinityDC did set up pvp
+    {
+        deleteDC( dc );
+        return true;
+    }
+    // else don't use affinity dc
+    dc = GetDC( 0 );
+    EQASSERT( dc );
+
+    _pvp.x = 0;
+    _pvp.y = 0;
+    _pvp.w = GetDeviceCaps( dc, HORZRES );
+    _pvp.h = GetDeviceCaps( dc, VERTRES );
+    return true;
 #else
     return false;
 #endif
@@ -554,12 +512,7 @@ void Pipe::configExitCGL()
 void Pipe::configExitWGL()
 {
 #ifdef WGL
-    HDC dc = getDC();
-    if( needsDCDelete( ))
-        DeleteDC( dc );
-
-    setDC( 0, false );
-    EQINFO << "Reset Win32 device context " << endl;
+    _pvp.invalidate();
 #endif
 }
 
@@ -712,6 +665,9 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
     PFNWGLCREATEAFFINITYDCNVPROC createAffinityDC = 
         (PFNWGLCREATEAFFINITYDCNVPROC)
             ( wglGetProcAddress( "wglCreateAffinityDCNV" ));
+    PFNWGLENUMGPUDEVICESNVPROC enumGPUDevices = 
+        (PFNWGLENUMGPUDEVICESNVPROC)
+            ( wglGetProcAddress( "wglEnumGpuDevicesNV" ));
     deleteProc = (PFNWGLDELETEDCNVPROC)
         ( wglGetProcAddress( "wglDeleteDCNV" ));
 
@@ -733,6 +689,20 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
     {
         setErrorMessage( "Can't enumerate GPU #" + _device );
         return false;
+    }
+
+    // setup pvp
+    if( !_pvp.isValid() && enumGPUDevices )
+    {
+        GPU_DEVICE device;
+        const bool found = enumGPUDevices( hGPU[0], 0, &device );
+        EQASSERT( found );
+
+        const RECT& rect = device.rcVirtualScreen;
+        _pvp.x = rect.left;
+        _pvp.y = rect.top;
+        _pvp.w = rect.right  - rect.left;
+        _pvp.h = rect.bottom - rect.top; 
     }
 
     affinityDC = createAffinityDC( hGPU );
@@ -856,16 +826,13 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
 #endif
 #ifdef WGL
         case WINDOW_SYSTEM_WGL:
-            if( !_dc )
+            if( !_pvp.isValid( ))
             {
-                EQERROR << "configInit() did not set a device context" << endl;
+                EQERROR << "configInit() did not setup pixel viewport" << endl;
                 reply.result = false;
                 send( node, reply, _error );
                 return eqNet::COMMAND_HANDLED;
             }
-                
-            // TODO: gather and send back display information
-            EQINFO << "Using dc " << _dc << endl;
             break;
 #endif
 
