@@ -12,4 +12,4 @@ TARGETS = $(SIMPLE_PROGRAMS) $(TESTS)
 
 include $(TOP)/make/rules.mk
 
-$(SIMPLE_PROGRAMS): $(wildcard $(TOP)/lib/base/*)
+$(SIMPLE_PROGRAMS): $(wildcard $(TOP)/lib/client/*)

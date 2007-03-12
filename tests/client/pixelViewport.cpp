@@ -27,4 +27,7 @@ int main( int argc, char **argv )
     
     pvp *= vp;
     TESTINFO( pvp == PixelViewport( -750, 1250, 500, 500 ), pvp );
+
+    const Viewport vp2 = pvp / PixelViewport( -1000, 1000, 1000, 1000 );
+    TESTINFO( vp == vp2, vp2 );
 }

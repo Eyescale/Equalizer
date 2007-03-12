@@ -93,16 +93,18 @@ namespace eq
                 return result;
             }
 
-        const PixelViewport operator + ( const vmml::Vector2i& offset ) const
-            {
-                return PixelViewport( x+offset.x, y+offset.y, w, h );
-            }
-
         const Viewport operator / ( const PixelViewport& rhs ) const
             {
                 EQASSERT( rhs.hasArea( ));
-                return Viewport(  x / (float)rhs.w,  y / (float)rhs.w,
-                                  w / (float)rhs.w,  h / (float)rhs.h );
+                return Viewport(  ( x - rhs.x )/ static_cast<float>( rhs.w ),
+                                  ( y - rhs.y )/ static_cast<float>( rhs.h ),
+                                  ( w )/ static_cast<float>( rhs.w ),
+                                  ( h )/ static_cast<float>( rhs.h ));
+            }
+
+        const PixelViewport operator + ( const vmml::Vector2i& offset ) const
+            {
+                return PixelViewport( x+offset.x, y+offset.y, w, h );
             }
 
         bool operator == ( const PixelViewport& rhs ) const 

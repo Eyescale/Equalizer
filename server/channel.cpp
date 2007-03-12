@@ -125,19 +125,18 @@ void Channel::notifyViewportChanged()
     if( !_window )
         return;
 
-    const eq::PixelViewport& windowPVP = _window->getPixelViewport();
+    eq::PixelViewport windowPVP = _window->getPixelViewport();
     if( !windowPVP.hasArea( ))
         return;
+
+    windowPVP.x = 0;
+    windowPVP.y = 0;
 
     if( _fixedPVP ) // update viewport
         _vp = _pvp / windowPVP;
     else            // update pixel viewport
-    {
-        eq::PixelViewport relWindowPVP = windowPVP;
-        relWindowPVP.x = 0;
-        relWindowPVP.y = 0;
-        _pvp = relWindowPVP * _vp;
-    }
+        _pvp = windowPVP * _vp;
+
     EQINFO << "Channel viewport update: " << _pvp << ":" << _vp << endl;
 }
 
@@ -291,7 +290,7 @@ std::ostream& eqs::operator << ( std::ostream& os, const Channel* channel)
         os << "name     \"" << name << "\"" << endl;
 
     const eq::Viewport& vp  = channel->getViewport();
-    if( vp.isValid( ))
+    if( vp.isValid( ) && !channel->_fixedPVP )
     {
         if( !vp.isFullScreen( ))
             os << "viewport " << vp << endl;

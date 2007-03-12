@@ -255,6 +255,9 @@ namespace eqs
         eqNet::CommandResult _cmdConfigInitReply( eqNet::Command& command );
         eqNet::CommandResult _cmdConfigExitReply( eqNet::Command& command );
         eqNet::CommandResult _reqSetNearFar( eqNet::Command& command );
+
+        // For access to _fixedPVP
+        friend std::ostream& operator << ( std::ostream&, const Channel*);
     };
 
     std::ostream& operator << ( std::ostream& os, const Channel* channel);
