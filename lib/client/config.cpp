@@ -173,6 +173,7 @@ uint32_t Config::finishAllFrames()
         client->processCommand();
     const int framesNumber = 
         (uint32_t)(long long)(_requestHandler.waitRequest(packet.requestID));
+
     handleEvents();
     EQLOG( LOG_ANY ) << "-- Finish All Frames --" << endl;
     return framesNumber;

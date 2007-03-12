@@ -1,5 +1,5 @@
 
-VARIANTS    ?= 64 32
+VARIANTS    ?= 64
 
 ifdef VARIANT
   CXXFLAGS    += -m$(VARIANT) -fPIC

@@ -100,6 +100,12 @@ namespace eq
         uint32_t key; // KC_? for special keys, ascii code otherwise
         // TODO modifier state
     };
+
+#   define EQ_USER_EVENT_SIZE 32
+    struct UserEvent
+    {
+        char data[ EQ_USER_EVENT_SIZE ];
+    };
 }
 
 #endif // EQ_EVENT_H

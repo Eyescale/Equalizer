@@ -6,6 +6,7 @@ OPTIONAL = $(wildcard WorldSkin*)
 SUBDIRS = \
 	eqPly \
 	libmesh \
+	pixelBench \
 	$(OPTIONAL)
 
 TARGETS = subdirs

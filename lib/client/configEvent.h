@@ -32,7 +32,8 @@ namespace eq
             POINTER_BUTTON_RELEASE,
             KEY_PRESS,
             KEY_RELEASE,
-            WINDOW_CLOSE
+            WINDOW_CLOSE,
+            USER         = 0x100
         };
 
         ConfigEvent()
@@ -41,7 +42,7 @@ namespace eq
                 size    = sizeof( ConfigEvent );
             }
 
-        Type type;
+        uint32_t type;
 
         union // event data: Move into subclass?
         {
@@ -53,6 +54,8 @@ namespace eq
 
             KeyEvent     keyPress;
             KeyEvent     keyRelease;
+
+            UserEvent    user;
         };
     };
 

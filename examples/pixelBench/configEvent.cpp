@@ -1,0 +1,36 @@
+
+/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+   All rights reserved. */
+
+#include "configEvent.h"
+
+using namespace std;
+
+std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
+{
+    switch( event->type )
+    {
+        case ConfigEvent::READBACK:
+            os  << "readback";
+            break;
+
+        case ConfigEvent::ASSEMBLE:
+            os  << "assemble";
+            break;
+
+        default:
+            os << static_cast< const eq::ConfigEvent* >( event );
+            return os;
+    }
+
+    os << " \"" << event->user.data << "\" " << event->formatType
+       << string( 40-strlen( event->formatType ), ' ' ) << event->area << ": ";
+
+    if( event->msec < 0.0f )
+        os << "error " << -event->msec;
+    else
+        os << static_cast< uint32_t >( event->area.getArea() / event->msec
+                                       / 1048.576f )
+           << "MPix/sec (" << event->msec << "ms)";
+    return os;
+}

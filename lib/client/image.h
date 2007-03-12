@@ -1,12 +1,13 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_IMAGE_H
 #define EQ_IMAGE_H
 
-#include <eq/client/frame.h>
-#include <eq/client/viewport.h>
+#include <eq/client/frame.h>        // for Frame::Buffer enum
+#include <eq/client/viewport.h>     // member
+#include <eq/client/windowSystem.h> // for OpenGL types
 
 namespace eq
 {
@@ -19,8 +20,7 @@ namespace eq
     {
     public:
         /** Constructs a new Image. */
-        Image(){}
-        
+        Image();
         virtual ~Image();
         
         /**
@@ -30,10 +30,28 @@ namespace eq
         /** @return the fractional viewport of the image. */
         const eq::Viewport& getViewport() const { return _data.vp; }
 
-        /** @return the format of the pixel data. */
+        /** 
+         * Set the (OpenGL) format of the pixel data for a buffer.
+         * Invalidates the pixel data.
+         *
+         * @param buffer the buffer type.
+         * @param format the format.
+         */
+        void setFormat( const Frame::Buffer buffer, const uint32_t format );
+
+        /** 
+         * Set the (OpenGL) type of the pixel data for a buffer.
+         * Invalidates the pixel data.
+         *
+         * @param buffer the buffer type.
+         * @param type the type.
+         */
+        void setType( const Frame::Buffer buffer, const uint32_t type );
+
+        /** @return the (OpenGL) format of the pixel data. */
         uint32_t getFormat( const Frame::Buffer buffer ) const;
 
-        /** @return the type of the pixel data. */
+        /** @return the (OpenGL) type of the pixel data. */
         uint32_t getType( const Frame::Buffer buffer ) const;
 
         /** @return the size of a single image pixel in bytes. */
@@ -99,10 +117,10 @@ namespace eq
         /** 
          * Start reading back an image from the frame buffer.
          *
-         * @param pvp the area of the frame buffer to read back.
          * @param buffers bit-wise combination of the frame buffer components.
+         * @param pvp the area of the frame buffer wrt the drawable.
          */
-        void startReadback( const PixelViewport& pvp, const uint32_t buffers );
+        void startReadback( const uint32_t buffers, const PixelViewport& pvp );
 
         /** Make sure that the last readback operation is complete. */
         void syncReadback() {}
@@ -110,11 +128,11 @@ namespace eq
         /** 
          * Start assemble the image into the frame buffer.
          *
-         * @param offset the x,y offset wrt the current drawable.
          * @param buffers bit-wise combination of the frame buffer components.
+         * @param offset the x,y offset wrt the current drawable.
          */
-        void startAssemble( const vmml::Vector2i& offset,
-                            const uint32_t buffers );
+        void startAssemble( const uint32_t buffers,
+                            const vmml::Vector2i& offset);
 
         /** Make sure that the last assemble operation is complete. */
         void syncAssemble() {}
@@ -129,7 +147,7 @@ namespace eq
         /** Read pixel data from an uncompressed rgb image file. */
         bool readImage(const std::string& filename, const Frame::Buffer buffer);
         //*}
-
+        
     private:
         enum BufferIndex
         {
@@ -141,7 +159,7 @@ namespace eq
         /** All distributed data. */
         struct Data
         {
-            Viewport             vp;
+            Viewport vp;
         }
             _data;
 
@@ -155,13 +173,17 @@ namespace eq
          */
         struct Pixels
         {
-            Pixels() : data(0), maxSize(0), valid( false ) {}
+            Pixels() : data(0), maxSize(0), format( GL_FALSE ),
+                       type( GL_FALSE ), valid( false )
+                {}
             ~Pixels() { delete [] data; }
 
             void resize( const uint32_t size );
 
             uint8_t* data;    // allocated (and cached data)
             uint32_t maxSize; // the size of the allocation
+            uint32_t format;
+            uint32_t type;
             bool     valid;   // data is currently valid
         };
         Pixels _pixels[INDEX_ALL];

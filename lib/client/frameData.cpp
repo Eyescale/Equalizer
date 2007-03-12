@@ -96,7 +96,7 @@ void FrameData::startReadback( const Frame& frame )
         return;
     
     Image* image = newImage();
-    image->startReadback( absPVP, _data.buffers );
+    image->startReadback( _data.buffers, absPVP );
 }
 
 void FrameData::syncReadback()
@@ -152,7 +152,7 @@ void FrameData::startAssemble( const Frame& frame )
          i != _images.end(); ++i )
     {
         Image* image = *i;
-        image->startAssemble( _data.offset, _data.buffers );
+        image->startAssemble( _data.buffers, _data.offset );
     }
 }
 

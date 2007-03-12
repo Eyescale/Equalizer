@@ -14,48 +14,84 @@
 using namespace eq;
 using namespace std;
 
+Image::Image()
+{
+    _pixels[INDEX_COLOR].format = GL_RGBA;
+    _pixels[INDEX_COLOR].type   = GL_UNSIGNED_BYTE;
+    _pixels[INDEX_DEPTH].format = GL_DEPTH_COMPONENT;
+    _pixels[INDEX_DEPTH].type   = GL_FLOAT;
+}
+
 Image::~Image()
 {
 }
 
 uint32_t Image::getDepth( const Frame::Buffer buffer ) const
 {
-    // TODO: OpenGL format/type
-    switch( buffer )
+    uint32_t depth;
+    switch( getFormat( buffer ))
     {
-        case Frame::BUFFER_COLOR: return 4; // assume GL_RGBA/GL_UNSIGNED_BYTE
-        case Frame::BUFFER_DEPTH: return 4; //assume GL_DEPTH_COMPONENT/GL_FLOAT
-        default:
+        case GL_RGBA:
+        case GL_RGBA8:
+        case GL_BGRA:
+            depth = 4;
+            break;
+
+        case GL_RGB:
+        case GL_BGR:
+            depth = 3;
+            break;
+
+        case GL_DEPTH_COMPONENT:
+            depth = 1;
+            break;
+        
+        default :
             EQUNIMPLEMENTED;
-            return 0;
     }
+
+    switch( getType( buffer ))
+    {
+        case GL_UNSIGNED_BYTE:
+        case GL_UNSIGNED_INT_8_8_8_8_REV:
+            return depth; // depth *= 1;
+
+        case GL_FLOAT:
+            return depth * 4;
+
+        default :
+            EQUNIMPLEMENTED;
+    }
+    return 0;
+}
+
+void Image::setFormat( const Frame::Buffer buffer, const uint32_t format )
+{
+    const uint32_t index  = _getIndexForBuffer( buffer );
+    _pixels[index].format = format;
+    _pixels[index].valid  = false;
+}
+
+void Image::setType( const Frame::Buffer buffer, const uint32_t type )
+{
+    const uint32_t index = _getIndexForBuffer( buffer );
+    _pixels[index].type  = type;
+    _pixels[index].valid = false;
 }
 
 uint32_t Image::getFormat( const Frame::Buffer buffer ) const
 {
-    switch( buffer )
-    {
-        case Frame::BUFFER_COLOR: return GL_RGBA;
-        case Frame::BUFFER_DEPTH: return GL_DEPTH_COMPONENT;
-        default:
-            EQUNIMPLEMENTED;
-            return 0;
-    }
+    const uint32_t index = _getIndexForBuffer( buffer );
+    return _pixels[index].format;
 }
 
 uint32_t Image::getType( const Frame::Buffer buffer ) const
 {
-    switch( buffer )
-    {
-        case Frame::BUFFER_COLOR: return GL_UNSIGNED_BYTE;
-        case Frame::BUFFER_DEPTH: return GL_FLOAT;
-        default:
-            EQUNIMPLEMENTED;
-            return 0;
-    }
+    const uint32_t index = _getIndexForBuffer( buffer );
+    return _pixels[index].type;
 }
 
-void Image::startReadback(const PixelViewport& pvp, const uint32_t buffers )
+void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp )
 {
     EQLOG( LOG_ASSEMBLY ) << "startReadback " << pvp << ", buffers " << buffers 
                           << endl;
@@ -100,7 +136,7 @@ void Image::_startReadback( const Frame::Buffer buffer )
                   getType( buffer ), _pixels[index].data );
 }
 
-void Image::startAssemble( const vmml::Vector2i& offset, const uint32_t buffers)
+void Image::startAssemble( const uint32_t buffers, const vmml::Vector2i& offset)
 {
     uint32_t useBuffers = Frame::BUFFER_NONE;
 
@@ -194,7 +230,7 @@ uint32_t Image::decompressPixelData( const Frame::Buffer buffer,
     if( size == 0 )
         return 0;
     
-    EQASSERT( (size % 4) == 0 )             // may change with RGB format
+    EQASSERT( getDepth( buffer ) == 4 )     // may change with RGB format
     EQASSERT( size < (100 * 1024 * 1024 )); // < 100MB
 
     const uint32_t index = _getIndexForBuffer( buffer );
@@ -243,7 +279,7 @@ const uint8_t* Image::compressPixelData( const Frame::Buffer buffer,
         return _compressedPixels[index].data;
     }
 
-    EQASSERT( (size % 4) == 0 )             // may change with RGB format
+    EQASSERT( getDepth( buffer ) == 4 )     // may change with RGB format
     EQASSERT( size < (100 * 1024 * 1024 )); // < 100MB
 
     const uint32_t* data     = reinterpret_cast<const uint32_t*>

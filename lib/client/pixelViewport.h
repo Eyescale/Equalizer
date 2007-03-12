@@ -59,6 +59,9 @@ namespace eq
          */
         bool hasArea() const { return (w>0 && h>0); }
 
+        /** @return the area in pixels. */
+        uint32_t getArea() const { return w * h; }
+
         /**
          * @name Operators
          */
