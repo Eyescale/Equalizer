@@ -24,6 +24,8 @@
 #ifdef WGL
 #  include <wingdi.h>
 #  include <gl/GL.h>
+#  include <eq/client/glext.h>
+#  include <eq/client/wglext.h>
 #endif
 
 #ifndef GL_TEXTURE_3D
