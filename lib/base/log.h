@@ -39,7 +39,7 @@ namespace eqBase
     enum LogTopic
     {
         LOG_CUSTOM = 0x10,       // 16
-        LOG_ANY    = 0xffffffffu
+        LOG_ANY    = 0xfffu      // Does not include user-level events.
     };
 
     /** The string buffer used for logging. */

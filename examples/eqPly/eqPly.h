@@ -13,6 +13,5 @@
 
 typedef PlyModel< NormalFace<ColorVertex> > Model;
 
-
 #endif // EQ_PLY_H
 
