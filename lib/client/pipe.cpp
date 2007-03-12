@@ -20,13 +20,15 @@
 #endif
 
 #include <eq/net/command.h>
-
-
 #include <sstream>
 
 using namespace eq;
 using namespace eqBase;
 using namespace std;
+
+#ifdef WIN32
+#  define bzero( ptr, size ) memset( ptr, 0, size );
+#endif
 
 Pipe::Pipe()
         : _node( 0 ),
