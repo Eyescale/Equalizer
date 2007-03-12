@@ -1,0 +1,62 @@
+
+                            WORK IN PROGRESS
+
+Re-implementation of the eqPly data structure and rendering code:
+ o kd-Tree
+ o VBO's
+
+
+- Input: List of vertices, list of faces (three vertex indices)
+  + Compute vertex normals?
+- sort list of faces
+  + along one dimension
+  + cut list in half % VBO size
+  + sort each sub-list along next dimension
+- if list size <= VBO size
+  + generate leaf list of vertices, list of faces
+  + re-index using short indices
+  + append to global list
+
+class VertexBufferData
+{
+    std::vector< vmml::Vector3f >   _vertices;
+    std::vector< vmml::Vector3f >   _normals;
+    std::vector< vmml::Vector4ub >  _color;
+    std::vector< ushort >           _indices;
+}
+
+class VertexData
+{
+    std::vector< vmml::Vector3f >  _vertices;
+    std::vector< vmml::Vector3f >  _normals;
+    std::vector< vmml::Vector4ub > _color;
+    std::vector< size_t >          _indices;
+
+    void sort( const size_t start, const size_t length, const Axis axis );
+}
+
+class VertexBufferBase; // see .h
+
+class VertexBufferNode : public VertexBufferBase
+{
+    VertexBuffer* _left;
+    VertexBuffer* _right;
+}
+
+class VertexBufferRoot : public VertexBufferNode
+{
+    VertexBufferData _data;
+
+    void setupTree( VertexData& data );
+}
+
+class VertexBufferLeaf : public VertexBufferBase
+{
+    VertexBufferLeaf( VertexBufferData& data );
+
+    void render();
+
+    VertexBufferData& globalData;
+    uint64_t    start;
+    uint16_t    length;
+}

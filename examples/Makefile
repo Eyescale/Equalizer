@@ -5,9 +5,8 @@ OPTIONAL = $(wildcard WorldSkin*)
 
 SUBDIRS = \
 	eqPly \
+	libmesh \
 	$(OPTIONAL)
-
-
 
 TARGETS = subdirs
 
