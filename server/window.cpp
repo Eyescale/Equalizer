@@ -22,6 +22,7 @@ void eqs::Window::_construct()
     _pipe             = NULL;
     _pendingRequestID = EQ_ID_INVALID;
     _state            = STATE_STOPPED;
+    _fixedPVP         = false;
 
     registerCommand( eq::CMD_WINDOW_CONFIG_INIT_REPLY, 
                eqNet::CommandFunc<Window>( this, &Window::_cmdConfigInitReply));
@@ -49,9 +50,10 @@ eqs::Window::Window( const Window& from )
 {
     _construct();
 
-    _name = from._name;
-    _pvp  = from._pvp;
-    _vp   = from._vp;
+    _name     = from._name;
+    _pvp      = from._pvp;
+    _vp       = from._vp;
+    _fixedPVP = from._fixedPVP;
     
     for( int i=0; i<eq::Window::IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
@@ -122,58 +124,53 @@ void eqs::Window::unrefUsed()
 //----------------------------------------------------------------------
 void eqs::Window::setPixelViewport( const eq::PixelViewport& pvp )
 {
-    if( pvp == _pvp || !pvp.hasArea( ))
+    if( !pvp.hasArea( ))
         return;
 
-    _pvp = pvp;
+    _fixedPVP = true;
+
+    if( pvp == _pvp )
+        return;
+
+    _pvp      = pvp;
     _vp.invalidate();
-
-    if( _pipe )
-    {
-        const eq::PixelViewport& pipePVP = _pipe->getPixelViewport();
-        if( pipePVP.isValid( ))
-            _vp = pvp / pipePVP;
-    }
-
-    EQINFO << "Window pvp set: " << _pvp << ":" << _vp << endl;
-
-    for( std::vector<Channel*>::iterator iter = _channels.begin(); 
-         iter != _channels.end(); ++iter )
-
-        (*iter)->notifyViewportChanged();
+    notifyViewportChanged();
 }
 
 void eqs::Window::setViewport( const eq::Viewport& vp )
 {
     if( !vp.hasArea( ))
         return;
+
+    _fixedPVP = false;
+
+    if( vp == _vp )
+        return;
     
     _vp = vp;
-
-    if( !_pipe )
-        return;
-
-    eq::PixelViewport pipePVP = _pipe->getPixelViewport();
-    if( pipePVP.isValid( ))
-    {
-        pipePVP.x = 0;
-        pipePVP.y = 0;
-        _pvp = pipePVP * vp;
-    }
+    _pvp.invalidate();
+    notifyViewportChanged();
 }
 
 void eqs::Window::notifyViewportChanged()
 {
-    if( !_pipe || !_pvp.hasArea( ))
-        return;
-
-    const eq::PixelViewport& pipePVP = _pipe->getPixelViewport();
-    if( !pipePVP.hasArea( ))
-        return;
-
-    // We always assume that the window's pvp is fixed
-    _vp = _pvp / pipePVP;
+    if( _pipe )
+    {
+        eq::PixelViewport pipePVP = _pipe->getPixelViewport();
+        if( pipePVP.hasArea( ))
+        {
+            if( _fixedPVP ) // update viewport
+                _vp = _pvp / pipePVP;
+            else            // update pixel viewport
+                _pvp = pipePVP * _vp;
+        }
+    }
     EQINFO << "Window viewport update: " << _pvp << ":" << _vp << endl;
+
+    for( std::vector<Channel*>::iterator iter = _channels.begin(); 
+         iter != _channels.end(); ++iter )
+
+        (*iter)->notifyViewportChanged();
 }
 
 //---------------------------------------------------------------------------
@@ -248,8 +245,11 @@ void eqs::Window::_sendConfigInit( const uint32_t initID )
 
     packet.requestID = _pendingRequestID;
     packet.initID    = initID;
-    packet.pvp       = _pvp; 
-    packet.vp        = _vp;
+    if( _fixedPVP )
+        packet.pvp    = _pvp; 
+    else
+        packet.vp     = _vp;
+
     for( int i=0; i<eq::Window::IATTR_ALL; ++i )
         packet.iattr[i] = _iAttributes[i];
     
@@ -473,7 +473,7 @@ std::ostream& eqs::operator << ( std::ostream& os, const eqs::Window* window )
         os << "name     \"" << name << "\"" << endl;
 
     const eq::Viewport& vp  = window->getViewport();
-    if( vp.isValid( ))
+    if( vp.isValid( ) && !window->_fixedPVP )
     {
         if( !vp.isFullScreen( ))
             os << "viewport " << vp << endl;

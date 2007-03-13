@@ -160,8 +160,11 @@ void Channel::_sendConfigInit( const uint32_t initID )
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     packet.initID     = initID;
-    packet.pvp        = _pvp; 
-    packet.vp         = _vp;
+    if( _fixedPVP )
+        packet.pvp    = _pvp; 
+    else
+        packet.vp     = _vp;
+
     for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
         packet.iattr[i] = _iAttributes[i];
     

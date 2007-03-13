@@ -274,6 +274,12 @@ namespace eqs
         /** The fractional size and position of the window. */
         eq::Viewport _vp;
         
+        /** 
+         * true if the pixel viewport is immutable, false if the viewport is
+         * immutable
+         */
+        bool _fixedPVP;
+
         /** The list of master swap barriers for the current frame. */
         std::vector<eqNet::Barrier*> _masterSwapBarriers;
         /** The list of slave swap barriers for the current frame. */
@@ -299,6 +305,9 @@ namespace eqs
         eqNet::CommandResult _cmdConfigInitReply( eqNet::Command& command ); 
         eqNet::CommandResult _cmdConfigExitReply( eqNet::Command& command ); 
         eqNet::CommandResult _reqSetPixelViewport( eqNet::Command& command );
+
+        // For access to _fixedPVP
+        friend std::ostream& operator << ( std::ostream&, const Window*);
     };
 
     std::ostream& operator << ( std::ostream& os, const Window* window );
