@@ -172,7 +172,7 @@ void Pipe::setXDisplay( Display* display )
         _pvp.h = DisplayHeight( display, DefaultScreen( display ));
     }
     else
-        _pvp.reset();
+        _pvp.invalidate();
 #endif
 }
 
@@ -234,7 +234,7 @@ void Pipe::setCGLDisplayID( CGDirectDisplayID id )
         _pvp.h = (int32_t)displayRect.size.height;
     }
     else
-        _pvp.reset();
+        _pvp.invalidate();
 #endif
 }
 
