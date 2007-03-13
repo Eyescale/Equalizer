@@ -823,7 +823,7 @@ void eq::Window::setXDrawable( XID drawable )
 
     if( !drawable )
     {
-        _pvp.reset();
+        _pvp.invalidate();
         return;
     }
 
@@ -869,7 +869,7 @@ void eq::Window::setWGLWindowHandle( HWND handle )
 
     if( !handle )
     {
-        _pvp.reset();
+        _pvp.invalidate();
         return;
     }
 
@@ -879,10 +879,10 @@ void eq::Window::setWGLWindowHandle( HWND handle )
 
     GetWindowInfo( handle, &windowInfo );
 
-    _pvp.x = windowInfo.rcWindow.left;
-    _pvp.y = windowInfo.rcWindow.top;
-    _pvp.w = windowInfo.rcWindow.right  - windowInfo.rcWindow.left;
-    _pvp.h = windowInfo.rcWindow.bottom - windowInfo.rcWindow.top;
+    _pvp.x = windowInfo.rcClient.left;
+    _pvp.y = windowInfo.rcClient.top;
+    _pvp.w = windowInfo.rcClient.right  - windowInfo.rcClient.left;
+    _pvp.h = windowInfo.rcClient.bottom - windowInfo.rcClient.top;
 #endif // WGL
 }
 

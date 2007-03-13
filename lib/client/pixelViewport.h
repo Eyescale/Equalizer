@@ -31,14 +31,9 @@ namespace eq
         //*}
 
         /** 
-         * Reset the pixel viewport to be empty.
-         */
-        void reset() { x = 0; y = 0; w = -1; h = -1; }
-
-        /** 
          * Invalidates the pixel viewport.
          */
-        void invalidate() { reset(); }
+        void invalidate() { x = 0; y = 0; w = -1; h = -1; }
 
         /** 
          * Apply a fractional viewport to the current pvp.
