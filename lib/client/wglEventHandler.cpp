@@ -93,7 +93,8 @@ static WGLEventHandler* getEventHandler( HWND hWnd )
 
 WGLEventHandler::WGLEventHandler( Window* window )
         : _window( window ),
-          _hWnd( window->getWGLWindowHandle( ))
+          _hWnd( window->getWGLWindowHandle( )),
+          _buttonState( PTR_BUTTON_NONE )
 {
     if( !_hWnd )
     {

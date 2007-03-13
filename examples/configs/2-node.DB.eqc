@@ -1,21 +1,20 @@
 # two-to-one sort-last config for cluster at unizh
 global
 {
-    EQ_WINDOW_IATTR_HINT_FULLSCREEN on
 }
 
 server
 {
     config
     {
-        latency 2
-        node
+        latency 0
+        appNode
         {
-            connection { hostname "10.42.42.1" }
             pipe 
             {
                 window
                 {
+					viewport [ 100 100 1280 800 ]
                     attributes { planes_stencil on }
                     channel { name "channel1" }
                 }
@@ -23,8 +22,8 @@ server
         }
         node
         {
-            connection { hostname "10.42.42.4" }
-            pipe { window { channel { name "channel2" }}}
+            connection { hostname "10.2.1.2" }
+            pipe { window { attributes{ hint_fullscreen on } channel { name "channel2" }}}
         }
         compound
         {

@@ -16,7 +16,7 @@ using namespace std;
 
 Image::Image()
 {
-    _pixels[INDEX_COLOR].format = GL_RGBA;
+    _pixels[INDEX_COLOR].format = GL_BGRA;
     _pixels[INDEX_COLOR].type   = GL_UNSIGNED_BYTE;
     _pixels[INDEX_DEPTH].format = GL_DEPTH_COMPONENT;
     _pixels[INDEX_DEPTH].type   = GL_FLOAT;

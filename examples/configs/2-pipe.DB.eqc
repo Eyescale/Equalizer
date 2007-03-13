@@ -1,23 +1,23 @@
-# two-pipe sort-first config for dual-GPU machines
+# two-pipe sort-last config for dual-GPU machines
 server
 {
     config
     {
-        latency 2
         appNode
         {
             pipe 
             {
-				device 0
+                device 0
                 window
                 {
-					viewport [ .25 .25 .5 .5 ]
+                    viewport [ .25 .25 .5 .5 ]
+                    attributes { planes_stencil on }
                     channel { name "channel1" }
                 }
             }
             pipe 
             {
-                device 1
+                device 0
                 window
                 {
                     attributes { hint_fullscreen on }
@@ -28,6 +28,7 @@ server
         compound
         {
             channel "channel1"
+            buffer [ COLOR DEPTH ]
             wall
             {
                 bottom_left  [ -.32 -.20 -.75 ]
@@ -37,12 +38,12 @@ server
 
             compound
             {
-                viewport [ 0 0 1 .5 ]
+                range [ 0 .5 ]
             }
             compound
             {
                 channel "channel2"
-                viewport [ 0 .5 1 .5 ]
+                range [ .5 1 ]
                 outputframe {}
             }
             inputframe { name "frame.channel2" }

@@ -678,7 +678,7 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
 
     if( !enumGPUs || !createAffinityDC || !deleteProc )
     {
-        EQWARN << "WGL_NV_gpu_affinity unsupported, ignoring display setting"
+        EQWARN << "WGL_NV_gpu_affinity unsupported, ignoring device setting"
                << endl;
         return true;
     }
