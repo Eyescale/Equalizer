@@ -1,16 +1,22 @@
+global
+{
+    EQ_CONNECTION_SATTR_LAUNCH_COMMAND "ssh -n %h %c"
+}
+
 server
 {
     config
     {
-        appNode
+        node
         {
+			connection { hostname "wolf2" }
             pipe
             {
                 window
                 {
-                    viewport [ 312 105 624 210 ]
+                    viewport [ .25 .25 .5 .5 ]
                     
-                    channel { viewport [ .25 .25 .5 .5 ] name "channel" }
+                    channel { name "channel" }
                 }
             }
         }
