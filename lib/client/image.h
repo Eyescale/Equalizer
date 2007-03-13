@@ -16,7 +16,7 @@ namespace eq
      * 
      * An image holds color and depth information for a rectangular region.
      */
-    class Image
+    class EQ_EXPORT Image
     {
     public:
         /** Constructs a new Image. */

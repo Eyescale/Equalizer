@@ -59,7 +59,7 @@ namespace eq
         };
     };
 
-    std::ostream& operator << ( std::ostream& os, const ConfigEvent* event );
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const ConfigEvent* event );
 }
 
 #endif // EQ_CONFIGEVENT_H

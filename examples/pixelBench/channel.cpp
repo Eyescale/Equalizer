@@ -8,6 +8,10 @@
 using namespace std;
 using namespace eqBase;
 
+#ifdef WIN32
+#  define snprintf _snprintf
+#endif
+
 struct EnumMap
 {
     const char*    formatString;
