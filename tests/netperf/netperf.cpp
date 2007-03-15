@@ -6,6 +6,7 @@
 #include <test.h>
 #include <eq/net/connection.h>
 #include <eq/net/connectionDescription.h>
+#include <eq/net/connectionSet.h>
 #include <eq/net/init.h>
 
 #include <iostream>
@@ -14,7 +15,7 @@ using namespace eqNet;
 using namespace eqBase;
 using namespace std;
 
-#define PACKETSIZE (16* 1048576)
+#define PACKETSIZE (16 * 1048576)
 
 class Sender : public Thread
 {
@@ -63,8 +64,12 @@ int main( int argc, char **argv )
     }
     else
     {
-        connDesc->hostname = "localhost";
+        //connDesc->hostname = "localhost";
         TEST( connection->listen( ));
+
+        ConnectionSet set;
+        set.addConnection( connection );
+        set.select();
 
         RefPtr<Connection> client = connection->accept();
         EQINFO << "accepted connection" << endl;

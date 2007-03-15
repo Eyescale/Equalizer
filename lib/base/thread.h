@@ -20,7 +20,7 @@ namespace eqBase
      * Depending on the type, a different implementation is used to create the
      * thread.
      */
-    class Thread 
+    class EQ_EXPORT Thread 
     {
     public:
         /** 

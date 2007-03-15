@@ -488,7 +488,7 @@ void Node::_handleConnect()
 
     if( !newConn )
     {
-        EQERROR << "Received connect event, but accept() failed" << endl;
+        EQINFO << "Received connect event, but accept() failed" << endl;
         return;
     }
 
