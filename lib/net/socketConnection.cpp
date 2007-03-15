@@ -370,12 +370,30 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
     DWORD got   = 0;
     DWORD flags = 0;
 
-    const int ret = WSARecv( _writeFD, &wsaBuffer, 1, &got, &flags, 0, 0 );
+    int ret = WSARecv( _readFD, &wsaBuffer, 1, &got, &flags, 0, 0 );
+    int error = (ret==0) ? 0 : GetLastError();
 
-    const int error = (ret==0) ? 0 : GetLastError();
+    if( error == WSAEWOULDBLOCK )
+    {
+	    // Buffer empty - wait and try again
+	    fd_set set;
+	    FD_ZERO( &set );
+	    FD_SET( _readFD, &set );
 
-    if( error == WSAEWOULDBLOCK ) // TODO: select and retry?
-        return got;
+        const int result = select( _readFD+1, &set, 0, &set, 0 );
+	    if( result <= 0 )
+	    {
+		    EQWARN << "Error during select: " << EQ_SOCKET_ERROR <<endl;
+		    return -1;
+	    }
+    
+        flags = 0;
+        ret   = WSARecv( _readFD, &wsaBuffer, 1, &got, &flags, 0, 0 );
+        error = (ret==0) ? 0 : GetLastError();
+    }
+
+    if( error == WSAEWOULDBLOCK )
+        return 0;
 
     if( error == WSAESHUTDOWN || error == WSAECONNRESET || got == 0 )//EOF
     {
@@ -416,7 +434,8 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
     // error
     if( GetLastError( ) != WSAEWOULDBLOCK )
     {
-        EQWARN << "Error during write: " << EQ_SOCKET_ERROR << endl;
+        EQWARN << "Error during write: " << EQ_SOCKET_ERROR << "(" 
+               << GetLastError() << ")" << endl;
         return -1;
 	}
 
