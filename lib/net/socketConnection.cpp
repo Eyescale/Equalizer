@@ -265,20 +265,17 @@ bool SocketConnection::listen()
 RefPtr<Connection> SocketConnection::accept()
 {
     if( _state != STATE_LISTENING )
-        return NULL;
+        return 0;
 
     sockaddr_in newAddress;
     socklen_t   newAddressLen = sizeof( newAddress );
-    Socket      fd;
 
-    unsigned    nTries = 1000;
 #ifdef WIN32
-    do
-        fd = WSAAccept( _readFD, (sockaddr*)&newAddress, &newAddressLen, 0, 0 );
-    while( fd == INVALID_SOCKET && GetLastError() == WSAEWOULDBLOCK && 
-           --nTries );
-    ResetEvent( _event );
+    Socket fd = WSAAccept( _readFD, (sockaddr*)&newAddress, &newAddressLen,0,0);
+    if( fd != INVALID_SOCKET || GetLastError() != WSAEWOULDBLOCK )
+        SetEvent( _event );
 #else
+    unsigned    nTries = 1000;
     do
         fd = ::accept( _readFD, (sockaddr*)&newAddress, &newAddressLen );
     while( fd == INVALID_SOCKET && errno == EINTR && --nTries );
@@ -332,13 +329,15 @@ bool SocketConnection::_createReadEvent()
     // data is pending. To emulate the same behaviour race-condition-free, 
     // we do:
     // - create an auto-reset event
-    // - WaitForMultipleObjectsEx (select) will reset the event
+    // - WaitForMultipleObjectsEx (select) will auto-reset the event
     // - arriving data will set the event
     // - read (see below) will set the event if there is still data
     //
     // The unavoidable consequence is that read() might fail because pending
     // data was wrongly signaled when a subsequent read reads all remaining 
     // data. This has to be handled by the callee.
+    //
+    // Note that on listening sockets, data arrived means an incoming connect.
 
     _event = CreateEvent( 0, FALSE, FALSE, 0 );
     if( !_event )
