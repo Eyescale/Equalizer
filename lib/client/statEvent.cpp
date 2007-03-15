@@ -12,5 +12,6 @@ EQ_EXPORT std::string eq::StatEvent::typeNames[TYPE_ALL] =
     std::string( "channel assemble  " ),
     std::string( "channel readback  " ),
     std::string( "channel transmit  " ),
+    std::string( "channel transmit n" ),
     std::string( "channel wait frame" )
 };

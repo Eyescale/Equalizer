@@ -215,12 +215,8 @@ void Channel::frameAssemble( const uint32_t frameID )
                          pipe->getFrameTime( ));
 
         monitor.waitGE( ++nUsedFrames );
-        
         if( getIAttribute( IATTR_HINT_STATISTICS ))
-        {
-            event.endTime = pipe->getFrameTime();
             pipe->addStatEvent( event );
-        }
 
         for( vector<Frame*>::iterator i = unusedFrames.begin();
              i != unusedFrames.end(); ++i )
@@ -466,10 +462,7 @@ eqNet::CommandResult Channel::_reqFrameClear( eqNet::Command& command )
     _context = NULL;
 
     if( getIAttribute( IATTR_HINT_STATISTICS ))
-    {
-        event.endTime = pipe->getFrameTime();
         pipe->addStatEvent( event );
-    }
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -487,10 +480,7 @@ eqNet::CommandResult Channel::_reqFrameDraw( eqNet::Command& command )
     frameDraw( packet->context.frameID );
 
     if( getIAttribute( IATTR_HINT_STATISTICS ))
-    {
-        event.endTime = pipe->getFrameTime();
         pipe->addStatEvent( event );
-    }
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -558,10 +548,7 @@ eqNet::CommandResult Channel::_reqFrameReadback( eqNet::Command& command )
     _context = NULL;
 
     if( getIAttribute( IATTR_HINT_STATISTICS ))
-    {
-        event.endTime = pipe->getFrameTime();
         pipe->addStatEvent( event );
-    }
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -587,13 +574,16 @@ eqNet::CommandResult Channel::_reqFrameTransmit( eqNet::Command& command )
         RefPtr<eqNet::Node>  toNode = localNode->connect( nodeID, node );
         EQLOG( LOG_ASSEMBLY ) << "channel \"" << getName() << "\" transmit " 
                               << frame << " to " << nodeID << endl;
+
+        StatEvent nodeEvent( StatEvent::CHANNEL_TRANSMIT_NODE, this,
+                             pipe->getFrameTime( ));
         frame->transmit( toNode );
+        if( getIAttribute( IATTR_HINT_STATISTICS ))
+            pipe->addStatEvent( nodeEvent );
     }
 
     if( getIAttribute( IATTR_HINT_STATISTICS ))
-    {
-        event.endTime = pipe->getFrameTime();
         pipe->addStatEvent( event );
-    }
+
     return eqNet::COMMAND_HANDLED;
 }

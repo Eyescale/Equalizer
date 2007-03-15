@@ -718,6 +718,12 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
 #endif
 }
 
+void Pipe::addStatEvent( StatEvent& event )
+{
+    event.endTime = _frameClock.getTimef();
+    _statEvents.push_back( event );
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------

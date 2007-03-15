@@ -23,6 +23,7 @@ namespace eq
             CHANNEL_ASSEMBLE,
             CHANNEL_READBACK,
             CHANNEL_TRANSMIT,
+            CHANNEL_TRANSMIT_NODE,
             CHANNEL_WAIT_FRAME,
             TYPE_ALL          // must be last
         };

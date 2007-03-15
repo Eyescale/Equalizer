@@ -169,8 +169,7 @@ namespace eq
                                PFNWGLDELETEDCNVPROC& deleteProc );
 
         /** Add a new statistics event to the current frame. */
-        void addStatEvent( const StatEvent& event )
-            { _statEvents.push_back( event ); }
+        void addStatEvent( StatEvent& event );
 
         /**'
          * Push a command to the pipe thread to be handled from there.
