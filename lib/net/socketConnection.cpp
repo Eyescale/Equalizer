@@ -66,8 +66,13 @@ bool SocketConnection::connect()
     sockaddr_in socketAddress;
     _parseAddress( socketAddress );
 
+#ifdef WIN32
+    const bool connected = WSAConnect( _readFD, (sockaddr*)&socketAddress, 
+                                       sizeof(socketAddress), 0, 0, 0, 0 ) == 0;
+#else
     const bool connected = (::connect( _readFD, (sockaddr*)&socketAddress, 
             sizeof(socketAddress)) == 0);
+#endif
 
     if( !connected )
     {
@@ -91,7 +96,11 @@ bool SocketConnection::connect()
 
 bool SocketConnection::_createSocket()
 {
+#ifdef WIN32
+    const Socket fd = WSASocket( AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, 0 );
+#else
     const Socket fd = ::socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
+#endif
     if( fd == INVALID_SOCKET )
     {
         EQERROR << "Could not create socket: " << EQ_SOCKET_ERROR << endl;
@@ -263,14 +272,15 @@ RefPtr<Connection> SocketConnection::accept()
     Socket      fd;
 
     unsigned    nTries = 1000;
-    do
-    {
-        fd = ::accept( _readFD, (sockaddr*)&newAddress, &newAddressLen );
-    }
 #ifdef WIN32
-    while( fd == INVALID_SOCKET && GetLastError() == WSAEWOULDBLOCK && --nTries );
+    do
+        fd = WSAAccept( _readFD, (sockaddr*)&newAddress, &newAddressLen, 0, 0 );
+    while( fd == INVALID_SOCKET && GetLastError() == WSAEWOULDBLOCK && 
+           --nTries );
     ResetEvent( _event );
 #else
+    do
+        fd = ::accept( _readFD, (sockaddr*)&newAddress, &newAddressLen );
     while( fd == INVALID_SOCKET && errno == EINTR && --nTries );
 #endif
 
@@ -356,14 +366,18 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
         return -1;
     }
 
-    const ssize_t bytesRead = ::recv( _readFD, static_cast<char*>(buffer), 
-                                bytes, 0 );
-    const int     error     = (bytesRead == SOCKET_ERROR) ? GetLastError() : 0;
+    WSABUF wsaBuffer = { bytes, static_cast<char*>( buffer )};
+    DWORD got   = 0;
+    DWORD flags = 0;
 
-    if( error == WSAEWOULDBLOCK )
-        return 0;
+    const int ret = WSARecv( _writeFD, &wsaBuffer, 1, &got, &flags, 0, 0 );
 
-    if( error == WSAESHUTDOWN || error == WSAECONNRESET || bytesRead == 0 )//EOF
+    const int error = (ret==0) ? 0 : GetLastError();
+
+    if( error == WSAEWOULDBLOCK ) // TODO: select and retry?
+        return got;
+
+    if( error == WSAESHUTDOWN || error == WSAECONNRESET || got == 0 )//EOF
     {
         EQWARN << "Read failed, socket closed" << endl;
         close();
@@ -383,8 +397,8 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
         if( SetEvent( _event ) == 0 ) // error
             EQWARN << "SetEvent failed: " << EQ_SOCKET_ERROR << endl;
 
-    EQASSERT( bytesRead > 0 );
-    return bytesRead;
+    EQASSERT( got > 0 );
+    return got;
 }
 
 int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
@@ -392,10 +406,12 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
     if( _writeFD == INVALID_SOCKET )
         return -1;
 
-    ssize_t bytesWritten = ::send( _writeFD, static_cast<const char*>(buffer), 
-                                   bytes, 0 );
-    if( bytesWritten > 0 ) // success
-        return bytesWritten;
+    WSABUF wsaBuffer = { bytes, const_cast<char*>( 
+                                    static_cast< const char* >( buffer ))};
+    DWORD wrote;
+
+    if( WSASend( _writeFD, &wsaBuffer, 1, &wrote, 0, 0, 0 ) ==  0 ) // success
+        return wrote;
 
     // error
     if( GetLastError( ) != WSAEWOULDBLOCK )
@@ -416,10 +432,8 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
 		return -1;
 	}
 
-    bytesWritten = ::send( _writeFD, static_cast<const char*>(buffer), 
-						   bytes, 0 );
-    if( bytesWritten > 0 ) // success
-        return bytesWritten;
+    if( WSASend( _writeFD, &wsaBuffer, 1, &wrote, 0, 0, 0 ) ==  0 ) // success
+        return wrote;
 
     EQWARN << "Error during write: " << EQ_SOCKET_ERROR << endl;
     return -1;
