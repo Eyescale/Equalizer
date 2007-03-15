@@ -50,7 +50,7 @@ server
                     bottom_right [ -.36 .0285 -2 ]
                     top_left     [ -1.  .4285 -2 ]
                 }
-//                swapbarrier {}
+                swapbarrier {}
             }
             compound
             { 
@@ -61,7 +61,7 @@ server
                     bottom_right [  .32 .0285 -2 ]
                     top_left     [ -.32 .4285 -2 ]
                 }
-//                swapbarrier {}
+                swapbarrier {}
             }
             compound
             { 
@@ -72,7 +72,7 @@ server
                     bottom_right [ 1.   .0285 -2 ]
                     top_left     [  .36 .4285 -2 ]
                 }
-//                swapbarrier {}
+                swapbarrier {}
             }
             compound
             { 
@@ -83,7 +83,7 @@ server
                     bottom_right [ -.36 -.4285 -2 ]
                     top_left     [ -1.  -.0285 -2 ]
                 }
-//                swapbarrier {}
+                swapbarrier {}
             }
             compound
             { 
@@ -94,7 +94,7 @@ server
                     bottom_right [  .32 -.4285 -2 ]
                     top_left     [ -.32 -.0285 -2 ]
                 }
-//                swapbarrier {}
+                swapbarrier {}
             }
             compound
             { 
@@ -105,7 +105,7 @@ server
                     bottom_right [ 1.   -.4285 -2 ]
                     top_left     [  .36 -.0285 -2 ]
                 }
-//                swapbarrier {}
+                swapbarrier {}
             }
         }
     }    
