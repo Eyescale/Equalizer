@@ -114,20 +114,23 @@ bool Connection::recv( void* buffer, const uint64_t bytes )
     if( _state != STATE_CONNECTED )
         return false;
 
+    if( bytes > 1048576 )
+        EQLOG( LOG_NETPERF ) << "Start receive " << bytes << " bytes" << endl;
+
     unsigned char* ptr       = static_cast<unsigned char*>(buffer);
     uint64_t       bytesLeft = bytes;
 
     while( bytesLeft )
     {
-        int64_t bytesRead = this->read( ptr, bytesLeft );
-        
-        if( bytesRead == -1 ) // error
+        int64_t got = this->read( ptr, bytesLeft );
+
+        if( got == -1 ) // error
         {
             EQERROR << "Error during read after " << bytes - bytesLeft
                     << " bytes on " << typeid(*this).name() << endl;
             return false;
         }
-        else if( bytesRead == 0 )
+        else if( got == 0 )
         {
             // ConnectionSet::select may report data on an 'empty' connection.
             // Since we have nothing read yet, we have hit this case.
@@ -137,9 +140,15 @@ bool Connection::recv( void* buffer, const uint64_t bytes )
             EQINFO << "Zero bytes read" << endl;
         }
 
-        bytesLeft -= bytesRead;
-        ptr += bytesRead;
+        if( bytes > 1048576 )
+            EQLOG( LOG_NETPERF ) << "Got " << bytes << " bytes" << endl;
+
+        bytesLeft -= got;
+        ptr += got;
     }
+
+    if( bytes > 1048576 )
+        EQLOG( LOG_NETPERF ) << "End receive   " << bytes << " bytes" << endl;
 
     if( eqBase::Log::topics & LOG_WIRE ) // OPT
     {
@@ -203,24 +212,31 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
         EQLOG( LOG_WIRE ) << endl << enableFlush;
     }
 
+    if( bytes > 1048576 )
+        EQLOG( LOG_NETPERF ) << "Start transmit " << bytes << " bytes" << endl;
+
     uint64_t bytesLeft = bytes;
     while( bytesLeft )
     {
-        const int64_t bytesWritten = this->write( ptr, bytesLeft );
+        const int64_t wrote = this->write( ptr, bytesLeft );
+        if( bytes > 1048576 )
+            EQLOG( LOG_NETPERF ) << "Wrote " << wrote << " bytes" << endl;
 
-        if( bytesWritten == -1 ) // error
+        if( wrote == -1 ) // error
         {
             EQERROR << "Error during write after " << bytes - bytesLeft 
                     << " bytes" << endl;
             return false;
         }
-        else if( bytesWritten == 0 )
+        else if( wrote == 0 )
             EQWARN << "Zero bytes write" << endl;
 
-        bytesLeft -= bytesWritten;
-        ptr += bytesWritten;
+        bytesLeft -= wrote;
+        ptr += wrote;
     }
 
+    if( bytes > 1048576 )
+        EQLOG( LOG_NETPERF ) << "End transmit   " << bytes << " bytes" << endl;
     return true;
 }
 
