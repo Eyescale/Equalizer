@@ -275,7 +275,8 @@ RefPtr<Connection> SocketConnection::accept()
     if( fd != INVALID_SOCKET || GetLastError() != WSAEWOULDBLOCK )
         SetEvent( _event );
 #else
-    unsigned    nTries = 1000;
+    Socket    fd;
+    unsigned  nTries = 1000;
     do
         fd = ::accept( _readFD, (sockaddr*)&newAddress, &newAddressLen );
     while( fd == INVALID_SOCKET && errno == EINTR && --nTries );
