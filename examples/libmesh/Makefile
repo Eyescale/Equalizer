@@ -13,7 +13,7 @@ CXXFLAGS    += -I../../tests $(WINDOW_SYSTEM_INCS)
 SA_LDFLAGS += -lpthread -leq
 
 ifeq "${ARCH}" "Linux"
-SA_CXXFLAGS += -lrt -luuid
+SA_LDFLAGS += -lrt -luuid
 endif
 
 TARGETS = $(PROGRAMS) $(TESTS)
