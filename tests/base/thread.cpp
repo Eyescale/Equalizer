@@ -1,14 +1,12 @@
 
+#include <test.h>
 #include <eq/base/thread.h>
 #include <iostream>
 
 using namespace eqBase;
 using namespace std;
 
-#define MAXTHREADS 256
-
-volatile size_t nThreads;
-Thread*         thread;
+#define NTHREADS 256
 
 class TestThread : public Thread
 {
@@ -21,21 +19,13 @@ public:
 
 int main( int argc, char **argv )
 {
-    TestThread threads[MAXTHREADS];
+    TestThread threads[NTHREADS];
 
-    for( size_t i=0; i<nThreads; i++ )
-    {
-        threads[i].start();
-    }
+    for( size_t i=0; i<NTHREADS; ++i )
+        TEST( threads[i].start( ));
 
-    for( size_t i=0; i<nThreads; i++ )
-    {
-        if( !threads[i].join( ))
-        {
-            cerr << "Could not join thread " << i << endl;
-            return EXIT_FAILURE;
-        }
-    }
+    for( size_t i=0; i<NTHREADS; ++i )
+        TEST( threads[i].join( ));
 
     return EXIT_SUCCESS;
 }

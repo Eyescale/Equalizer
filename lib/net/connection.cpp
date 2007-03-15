@@ -141,7 +141,7 @@ bool Connection::recv( void* buffer, const uint64_t bytes )
         }
 
         if( bytes > 1048576 )
-            EQLOG( LOG_NETPERF ) << "Got " << bytes << " bytes" << endl;
+            EQLOG( LOG_NETPERF ) << "Got " << got << " bytes" << endl;
 
         bytesLeft -= got;
         ptr += got;

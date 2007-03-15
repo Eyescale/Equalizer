@@ -6,6 +6,7 @@ SUBDIRS = \
 	client \
 	connection \
 	image \
+	netperf \
 	node \
 	session
 
