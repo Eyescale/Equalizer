@@ -4,6 +4,7 @@
 //   Client: ./netperf <serverName>
 
 #include <test.h>
+#include <eq/base/monitor.h>
 #include <eq/net/connection.h>
 #include <eq/net/connectionDescription.h>
 #include <eq/net/connectionSet.h>
@@ -16,6 +17,9 @@ using namespace eqBase;
 using namespace std;
 
 #define PACKETSIZE (16 * 1048576)
+#define NPACKETS   10
+
+static Monitor<unsigned> _packet;
 
 class Sender : public Thread
 {
@@ -32,12 +36,15 @@ protected:
             void* buffer = calloc( 1, PACKETSIZE );
             const float mBytesSec = PACKETSIZE / 1024.0f / 1024.0f * 1000.0f;
 
-            Clock clock;
-            while( _connection->send( buffer, PACKETSIZE ))
+            Clock    clock;
+            unsigned i = 0;
+            while( _packet < NPACKETS )
             {
+                clock.reset();
+                TEST( _connection->send( buffer, PACKETSIZE ));
                 EQINFO << "Send perf: " << mBytesSec / clock.getTimef() 
                        << "MB/s" << endl;
-                clock.reset();
+                _packet.waitGE( ++i );
             }
 
             free( buffer );
@@ -76,28 +83,24 @@ int main( int argc, char **argv )
         connection->close();
         connection = client;
     }
-
+    
     Sender sender( connection );
     TEST( sender.start( ));
 
     void* buffer = calloc( 1, PACKETSIZE );
     const float mBytesSec = PACKETSIZE / 1024.0f / 1024.0f * 1000.0f;
 
-    unsigned nLoops = 10;
-
     Clock clock;
-    while( nLoops-- )
+    for( ; _packet < NPACKETS; ++_packet )
     {
-        TEST( connection->recv( buffer, PACKETSIZE ))
-        {
-            EQINFO << "Recv perf: " << mBytesSec / clock.getTimef() << "MB/s"
-                   << endl;
-                clock.reset();
-        }
+        clock.reset();
+        TEST( connection->recv( buffer, PACKETSIZE ));
+        EQINFO << "Recv perf: " << mBytesSec / clock.getTimef() << "MB/s"
+               << endl;
     }
 
-    connection->close();
     TEST( sender.join( ));
+    connection->close();
     free( buffer );
     return EXIT_SUCCESS;
 }
