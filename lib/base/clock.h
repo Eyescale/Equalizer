@@ -68,8 +68,9 @@ namespace eqBase
             {
                 reset();
 #ifdef Darwin
-                _start += time / _timebaseInfo.numer * _timebaseInfo.denom *
-                    1000000.f;
+                _start += static_cast<uint64_t>(
+                              time / _timebaseInfo.numer * _timebaseInfo.denom *
+                                     1000000.f );
 #elif defined (WIN32)
                 _start.QuadPart += static_cast<long long>( 0.001f * time * 
                                                            _frequency.QuadPart);
