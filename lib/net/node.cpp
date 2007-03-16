@@ -1360,7 +1360,7 @@ string Node::_createRemoteCommand( RefPtr<Node> node )
         program = _workDir + '/' + program;
 #endif
 
-    stringStream << "\"'" << program << "' --eq-listen='" 
+    stringStream << "\"'" << program << "' --eq-listen '" 
                  << nodeDesc->toString() << "' --eq-client '"
                  << node->_launchID << SEPARATOR << node->_workDir << SEPARATOR
                  << listenerDesc->toString() << "'\"";
