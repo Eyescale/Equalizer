@@ -76,6 +76,8 @@ int main( int argc, char** argv )
     // 5. render one frame
     clock.reset();
     config->startFrame( 0 );
+    config->finishFrame();
+    config->startFrame( 0 );
     config->finishAllFrames();
     EQLOG( eq::LOG_CUSTOM ) << "Rendering took " << clock.getTimef() << " ms ("
                             << ( 1.0f / clock.getTimef() * 1000.f) << " FPS)"
