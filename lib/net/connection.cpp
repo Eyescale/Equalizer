@@ -122,7 +122,7 @@ bool Connection::recv( void* buffer, const uint64_t bytes )
 
     while( bytesLeft )
     {
-        int64_t got = this->read( ptr, bytesLeft );
+        int64_t got = this->read( ptr, MIN( 1048576, bytesLeft ));
 
         if( got == -1 ) // error
         {
@@ -136,8 +136,10 @@ bool Connection::recv( void* buffer, const uint64_t bytes )
             // Since we have nothing read yet, we have hit this case.
             if( bytesLeft == bytes )
                 return false;
+            else
+                waitForData();
 
-            EQINFO << "Zero bytes read" << endl;
+            EQVERB << "Zero bytes read" << endl;
         }
 
         if( bytes > 1048576 )
@@ -218,7 +220,7 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
     uint64_t bytesLeft = bytes;
     while( bytesLeft )
     {
-        const int64_t wrote = this->write( ptr, bytesLeft );
+        const int64_t wrote = this->write( ptr, MIN( 1048576, bytesLeft ));
         if( bytes > 1048576 )
             EQLOG( LOG_NETPERF ) << "Wrote " << wrote << " bytes" << endl;
 

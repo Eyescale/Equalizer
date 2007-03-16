@@ -373,26 +373,7 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
     int ret = WSARecv( _readFD, &wsaBuffer, 1, &got, &flags, 0, 0 );
     int error = (ret==0) ? 0 : GetLastError();
 
-    if( error == WSAEWOULDBLOCK )
-    {
-	    // Buffer empty - wait and try again
-	    fd_set set;
-	    FD_ZERO( &set );
-	    FD_SET( _readFD, &set );
-
-        const int result = select( _readFD+1, &set, 0, &set, 0 );
-	    if( result <= 0 )
-	    {
-		    EQWARN << "Error during select: " << EQ_SOCKET_ERROR <<endl;
-		    return -1;
-	    }
-    
-        flags = 0;
-        ret   = WSARecv( _readFD, &wsaBuffer, 1, &got, &flags, 0, 0 );
-        error = (ret==0) ? 0 : GetLastError();
-    }
-
-    if( error == WSAEWOULDBLOCK )
+    if( error == WSAEWOULDBLOCK ) // buffer empty
         return 0;
 
     if( error == WSAESHUTDOWN || error == WSAECONNRESET || got == 0 )//EOF
@@ -417,6 +398,18 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
 
     EQASSERT( got > 0 );
     return got;
+}
+
+void SocketConnection::waitForData()
+{
+    EQASSERT( _readFD != INVALID_SOCKET );
+
+    fd_set set;
+    FD_ZERO( &set );
+    FD_SET( _readFD, &set );
+
+    if( select( _readFD+1, &set, 0, 0, 0 ) <= 0 )
+        EQWARN << "Error during select: " << EQ_SOCKET_ERROR << endl;
 }
 
 int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const

@@ -87,12 +87,16 @@ int main( int argc, char **argv )
     const float mBytesSec = PACKETSIZE / 1024.0f / 1024.0f * 1000.0f;
 
     Clock clock;
+    ConnectionSet set;
+    set.addConnection( connection );
+
     for( unsigned i=0; i<NPACKETS; ++i )
     {
+        set.select();
         clock.reset();
-        TEST( connection->recv( buffer, PACKETSIZE ));
-        EQINFO << "Recv perf: " << mBytesSec / clock.getTimef() << "MB/s"
-               << endl;
+        if( connection->recv( buffer, PACKETSIZE ))
+            EQINFO << "Recv perf: " << mBytesSec / clock.getTimef() << "MB/s"
+                   << endl;
     }
 
     TEST( sender.join( ));

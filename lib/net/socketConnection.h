@@ -48,6 +48,8 @@ namespace eqNet
 
 #ifdef WIN32
         virtual int64_t read( void* buffer, const uint64_t bytes );
+        virtual void waitForData();
+
         virtual int64_t write( const void* buffer, const uint64_t bytes ) const;
 
         typedef SOCKET Socket;

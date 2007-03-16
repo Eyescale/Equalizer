@@ -259,6 +259,9 @@ namespace eqNet
          */
         virtual int64_t read( void* buffer, const uint64_t bytes ) = 0;
 
+        /** Wait for incoming data. */
+        virtual void waitForData() {};
+
         /** 
          * Write data to the connection.
          * 
