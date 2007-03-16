@@ -16,16 +16,14 @@ using namespace eqNet;
 using namespace eqBase;
 using namespace std;
 
-#define PACKETSIZE (16 * 1048576)
+#define PACKETSIZE (400 * 1048576)
 #define NPACKETS   10
-
-static Monitor<unsigned> _packet;
 
 class Sender : public Thread
 {
 public:
     Sender( RefPtr<Connection> connection )
-            : Thread(), 
+            : Thread(),
               _connection( connection )
         {}
     virtual ~Sender(){}
@@ -37,14 +35,12 @@ protected:
             const float mBytesSec = PACKETSIZE / 1024.0f / 1024.0f * 1000.0f;
 
             Clock    clock;
-            unsigned i = 0;
-            while( _packet < NPACKETS )
+            for( unsigned i=0; i<NPACKETS; ++i )
             {
                 clock.reset();
                 TEST( _connection->send( buffer, PACKETSIZE ));
                 EQINFO << "Send perf: " << mBytesSec / clock.getTimef() 
                        << "MB/s" << endl;
-                _packet.waitGE( ++i );
             }
 
             free( buffer );
@@ -71,7 +67,7 @@ int main( int argc, char **argv )
     }
     else
     {
-        //connDesc->hostname = "localhost";
+        //connDesc->hostname = "10.1.1.40";
         TEST( connection->listen( ));
 
         ConnectionSet set;
@@ -91,7 +87,7 @@ int main( int argc, char **argv )
     const float mBytesSec = PACKETSIZE / 1024.0f / 1024.0f * 1000.0f;
 
     Clock clock;
-    for( ; _packet < NPACKETS; ++_packet )
+    for( unsigned i=0; i<NPACKETS; ++i )
     {
         clock.reset();
         TEST( connection->recv( buffer, PACKETSIZE ));
