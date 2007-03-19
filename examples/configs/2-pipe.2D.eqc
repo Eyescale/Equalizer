@@ -8,10 +8,10 @@ server
         {
             pipe 
             {
-				device 0
+                device 0
                 window
                 {
-					viewport [ .25 .25 .5 .5 ]
+                    viewport [ .25 .25 .5 .5 ]
                     channel { name "channel1" }
                 }
             }

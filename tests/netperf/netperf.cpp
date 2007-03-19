@@ -16,7 +16,7 @@ using namespace eqNet;
 using namespace eqBase;
 using namespace std;
 
-#define PACKETSIZE (400 * 1048576)
+#define PACKETSIZE (100 * 1048576)
 #define NPACKETS   10
 
 class Sender : public Thread

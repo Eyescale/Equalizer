@@ -1,6 +1,7 @@
 # two-to-one sort-last config for cluster at unizh
 global
 {
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
 }
 
 server
@@ -14,8 +15,8 @@ server
             {
                 window
                 {
-					viewport [ 100 100 1280 800 ]
-                    attributes { planes_stencil on }
+                    viewport [ 100 100 1280 800 ]
+                    attributes { planes_stencil ON }
                     channel { name "channel1" }
                 }
             }
@@ -23,7 +24,7 @@ server
         node
         {
             connection { hostname "10.2.1.2" }
-            pipe { window { attributes{ hint_fullscreen on } channel { name "channel2" }}}
+            pipe { window { channel { name "channel2" }}}
         }
         compound
         {

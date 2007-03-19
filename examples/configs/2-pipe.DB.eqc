@@ -11,7 +11,7 @@ server
                 window
                 {
                     viewport [ .25 .25 .5 .5 ]
-                    attributes { planes_stencil on }
+                    attributes { planes_stencil ON }
                     channel { name "channel1" }
                 }
             }
@@ -20,7 +20,7 @@ server
                 device 0
                 window
                 {
-                    attributes { hint_fullscreen on }
+                    attributes { hint_fullscreen ON }
                     channel { name "channel2" }
                 }
             }

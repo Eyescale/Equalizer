@@ -1,7 +1,7 @@
 # two-pipe sort-last config for dual-GPU machines
 global
 {
-    EQ_WINDOW_IATTR_PLANES_STENCIL  on
+    EQ_WINDOW_IATTR_PLANES_STENCIL  ON
 }
 
 server
@@ -24,7 +24,7 @@ server
                 device 1
                 window
                 {
-                    attributes { hint_fullscreen on }
+                    attributes { hint_fullscreen ON }
                     channel { name "channel2" }
                 }
             }
@@ -45,9 +45,10 @@ server
             {
                 channel "channel2"
 
-                compound {
+                compound 
+                {
                     range [ 0 .5 ]
-                    outputframe { name "stripe1.c2" viewport [ 0 0   1  .5 ] }
+                    outputframe { name "stripe1.c2" viewport [ 0 0 1 .5 ] }
                 }
                 inputframe { name "stripe2.c1" }
                 outputframe { buffer [ COLOR ] viewport [ 0 .5 1 .5 ] }

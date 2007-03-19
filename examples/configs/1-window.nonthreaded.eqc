@@ -1,13 +1,13 @@
 global
 {
-    EQ_PIPE_IATTR_HINT_THREAD off
+    EQ_PIPE_IATTR_HINT_THREAD OFF
 }
 
 server
 {
     config
     {
-        latency 20
+        latency 2
         appNode
         {
             pipe

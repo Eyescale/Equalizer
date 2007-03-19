@@ -1,7 +1,7 @@
 # eight-to-one sort-last, direct-send config for cluster at unizh
 global
 {
-    EQ_WINDOW_IATTR_PLANES_STENCIL  on
+    EQ_WINDOW_IATTR_PLANES_STENCIL  ON
 }
 
 server
@@ -17,7 +17,7 @@ server
                 window
                 {
                     viewport [ 640 400 1280 800 ]
-                    attributes { planes_stencil on }
+                    attributes { planes_stencil ON }
                     channel { name "channel1" }
                 }
             }

@@ -1,7 +1,7 @@
 # four-to-one sort-last, binary-swap single-pipe demo configuration
 global
 {
-    EQ_WINDOW_IATTR_PLANES_STENCIL on
+    EQ_WINDOW_IATTR_PLANES_STENCIL ON
 }
 
 server

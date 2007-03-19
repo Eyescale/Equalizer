@@ -40,7 +40,7 @@ server
                 window
                 {
                     viewport [ .55 .5 .4 .3 ]
-                    attributes{ planes_stencil on }
+                    attributes{ planes_stencil ON }
                     name "window4"
 
                     channel

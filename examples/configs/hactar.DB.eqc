@@ -1,7 +1,7 @@
 # six-to-one sort-last config for cluster at unizh
 global
 {
-    EQ_WINDOW_IATTR_HINT_FULLSCREEN on
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
 }
 
 server
@@ -18,8 +18,8 @@ server
                     viewport [ 640 512 1280 800 ]
                     attributes
                     {
-                        hint_fullscreen off
-                        planes_stencil  on
+                        hint_fullscreen OFF
+                        planes_stencil  ON
                     }
                     channel { name "channel1" }
                 }

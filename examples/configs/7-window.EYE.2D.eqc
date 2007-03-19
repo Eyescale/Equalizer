@@ -63,7 +63,7 @@ server
         compound
         {
             channel "channel-all"
-            attributes{ stereo_mode anaglyph }
+            attributes{ stereo_mode ANAGLYPH }
 
             wall
             {

@@ -30,7 +30,7 @@ server
         {
             channel "channel2"
             eye     [ LEFT ]
-            attributes{ stereo_mode anaglyph }
+            attributes{ stereo_mode ANAGLYPH }
 
             wall
             {

@@ -12,7 +12,7 @@ server
                 window
                 {
                     viewport [ 640 400 1280 800 ]
-                    attributes { planes_stencil on }
+                    attributes { planes_stencil ON }
                     channel { name "channel1" }
                 }
             }
@@ -92,43 +92,43 @@ server
             {
                 channel "channel2"
                 range   [ .15 .3 ]
-                #outputframe {}
+                outputframe {}
             }
             compound
             {
                 channel "channel3"
                 range   [ .3 .45 ]
-                #outputframe {}
+                outputframe {}
             }
             compound
             {
                 channel "channel4"
                 range   [ .45 .6 ]
-                #outputframe {}
+                outputframe {}
             }
             compound
             {
                 channel "channel5"
                 range   [ .6 .7 ]
-                #outputframe {}
+                outputframe {}
             }
             compound
             {
                 channel "channel6"
                 range   [ .7 .8 ]
-                #outputframe {}
+                outputframe {}
             }
             compound
             {
                 channel "channel7"
                 range   [ .8 .9 ]
-                #outputframe {}
+                outputframe {}
             }
             compound
             {
                 channel "channel8"
                 range   [ .9 1 ]
-                #outputframe {}
+                outputframe {}
             }
             inputframe { name "frame.channel2" }
             inputframe { name "frame.channel3" }

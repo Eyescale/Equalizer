@@ -1,7 +1,7 @@
 # eight-to-one sort-last, binary-swap config for cluster at unizh
 global
 {
-    EQ_WINDOW_IATTR_PLANES_STENCIL  on
+    EQ_WINDOW_IATTR_PLANES_STENCIL  ON
 }
 
 server
