@@ -196,6 +196,7 @@ void PlyModel<FaceType>::fillBBox( size_t nFaces, FaceType *faces, BBox &bbox,
 #endif
 
     vector<FaceType> bboxFaces;
+    bboxFaces.reserve( nFaces>>1 );
 
     for( size_t i=0; i<nFaces; i++ )
     {
@@ -261,12 +262,13 @@ void PlyModel<FaceType>::fillBBox( size_t nFaces, FaceType *faces, BBox &bbox,
 template<class FaceType>
 void PlyModel<FaceType>::createBBoxChildren( BBox &bbox )
 {
-    bbox.children = (BBox *)calloc( 1, 8*sizeof(BBox) );
+    bbox.children = (BBox *)calloc( 8, sizeof(BBox) );
+    EQASSERTINFO( bbox.children, "calloc failed" );
     const float range = bbox.range[1] - bbox.range[0];
 
     for( int i=0; i<8; i++ ) 
     {
-        bbox.children[i].parent = &bbox;
+        bbox.children[i].parent   = &bbox;
         bbox.children[i].range[1] = range;
 
         if( i<7 )

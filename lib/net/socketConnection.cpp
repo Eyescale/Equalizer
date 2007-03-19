@@ -16,9 +16,10 @@
 #include <sys/types.h>
 
 #ifdef WIN32
-#  define EQ_SOCKET_ERROR getErrorString( GetLastError( ))
+#  define EQ_SOCKET_ERROR getErrorString( GetLastError( )) << "(" \
+    << GetLastError() << ")"
 #else
-#  define EQ_SOCKET_ERROR strerror( errno )
+#  define EQ_SOCKET_ERROR strerror( errno ) << "(" << errno << ")"
 #  include <arpa/inet.h>
 #  include <netdb.h>
 #  include <netinet/tcp.h>
@@ -123,11 +124,13 @@ void SocketConnection::_tuneSocket( const Socket fd )
     setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, 
                 reinterpret_cast<const char*>( &on ), sizeof( on ));
 
+#if 1
     const int bufferSize = 4*1024*1024;
     setsockopt( fd, SOL_SOCKET, SO_SNDBUF, 
         reinterpret_cast<const char*>( &bufferSize ), sizeof( bufferSize ));
     setsockopt( fd, SOL_SOCKET, SO_RCVBUF, 
         reinterpret_cast<const char*>( &bufferSize ), sizeof( bufferSize ));
+#endif
 #else
     setsockopt( fd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof( on ));
     setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof( on ));
@@ -203,7 +206,7 @@ bool SocketConnection::listen()
     if( !bound )
     {
         EQWARN << "Could not bind socket " << _readFD << ": " 
-               << EQ_SOCKET_ERROR << " (" << errno << ") to "
+               << EQ_SOCKET_ERROR << " to "
                << inet_ntoa( socketAddress.sin_addr )
                << ":" << socketAddress.sin_port << " AF " 
                << (int)socketAddress.sin_family << endl;
@@ -378,7 +381,8 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
 
     if( error == WSAESHUTDOWN || error == WSAECONNRESET || got == 0 )//EOF
     {
-        EQWARN << "Read failed, socket closed" << endl;
+        EQWARN << "Read failed: " << EQ_SOCKET_ERROR << ", socket closed"
+               << endl;
         close();
         return -1;
     }
@@ -427,8 +431,7 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
     // error
     if( GetLastError( ) != WSAEWOULDBLOCK )
     {
-        EQWARN << "Error during write: " << EQ_SOCKET_ERROR << "(" 
-               << GetLastError() << ")" << endl;
+        EQWARN << "Error during write: " << EQ_SOCKET_ERROR << endl;
         return -1;
 	}
 
