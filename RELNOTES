@@ -1,12 +1,13 @@
 
-Release Notes for Equalizer 0.2
+                      Release Notes for Equalizer 0.3 Beta
 
-   Welcome to Equalizer 0.2, a framework for the development and deployment
-   of scalable multipipe applications, based on C++ and OpenGL. The major new
-   feature in Equalizer 0.2 is support for scalable rendering.
+   Welcome to Equalizer 0.3 beta, a framework for the development and
+   deployment of scalable multipipe applications, based on C++ and OpenGL.
+   The major new feature in Equalizer 0.3 beta is support for the Windows
+   operating system.
 
-   Equalizer 0.2 is a beta release, and therefore intended as preview and
-   evaluation snapshot for application developers and early adopters.
+   Equalizer 0.3 beta is an beta release, and therefore intended as preview
+   and evaluation snapshot for application developers and early adopters.
 
   Features
 
@@ -25,8 +26,8 @@ Release Notes for Equalizer 0.2
        application data is facilitated by support for versioned, distributed
        objects.
      * Support for Stereo and Immersive Environments: Equalizer supports both
-       active and passive stereo rendering, as well as the head tracking
-       needed for immersive installations.
+       active and passive stereo rendering, as well as the head tracking,
+       which is required for immersive installations.
 
   New in this release
 
@@ -35,41 +36,48 @@ Release Notes for Equalizer 0.2
 
     New Features
 
-     * Sort-first (2D), sort-last (DB) and eye task decomposition.
-     * Tile-based reassembly for sort-first and eye recomposition.
-     * Flexible recomposition engine for parallel compositing, including, but
-       not limited to, direct send and binary swap sort-last compositing.
-     * Fast image compression for network transfers based on a modified RLE
-       algorithm.
-     * Z-based sort-last compositing of polygonal data.
-     * Support for ordered alpha-based compositing of volumetric data.
-     * Support for dynamic near and far planes.
-     * Initial implementation of a statistics API.
+     * Support for Windows XP (i386, x64) and Visual Studio 2005
+     * Anaglyphic stereo rendering
+     * Improved distributed object support
+     * Nonthreaded rendering from the main application thread
+     * Addressing of indidual graphic cards on Windows using the
+       WGL_NV_gpu_affinity extension
+     * New Equalizer-based benchmark tool for pixel readback and draw
+       operations
+     * New Equalizer-based benchmark tool for network bandwidth
+     * Support for application-specific config events
 
     Bug Fixes
 
-   Equalizer 0.2 includes various minor bugfixes over the previous release.
+   Equalizer 0.3 beta includes various bugfixes over the previous release.
 
     New Documentation
 
-     * Statistics specification
+     * Anaglyphic Stereo Specification
+     * Nonthreaded Rendering
+     * Infiniband Setup
+
+    Known Bugs
+
+     * Infiniband network performance is too slow.
 
   Supported Platforms
 
    The platforms supported below are the primary development platforms.
    Equalizer is designed to run on a variety of platforms, including all Unix
-   variants and the Windows operating system. Equalizer 0.2 supports:
+   variants and the Windows operating system. Equalizer 0.3 beta supports:
 
     Operating System Support
 
-     * Linux: SuSE Linux 10 (x86_64, i386), SLES 9.0 (ia64), Ubuntu 6.06
-       (i386)
+     * Linux: SuSE Linux 10 (x64, i386), Ubuntu 6.10 (i386)
+     * Windows: XP with Visual Studio 2005 (i386, x64)
      * Mac OS X: 10.4 (PowerPC, i386)
 
     Window System Support
 
-     * X11: Full support for all implemented features.
-     * CGL: Preliminary fullscreen support, no event handling support
+     * X11: Full support for all documented features.
+     * WGL: Full support for all documented features.
+     * CGL: Preliminary fullscreen support, no event handling
 
   Documentation
 
@@ -87,3 +95,4 @@ Release Notes for Equalizer 0.2
    Commercial support, feature requests, as well as software development and
    porting services are available. Please contact info@equalizergraphics.com
    for further information.
+
