@@ -125,7 +125,7 @@ void SocketConnection::_tuneSocket( const Socket fd )
                 reinterpret_cast<const char*>( &on ), sizeof( on ));
 
 #if 1
-    const int bufferSize = 4*1024*1024;
+    const int bufferSize = 1*1024*1024;
     setsockopt( fd, SOL_SOCKET, SO_SNDBUF, 
         reinterpret_cast<const char*>( &bufferSize ), sizeof( bufferSize ));
     setsockopt( fd, SOL_SOCKET, SO_RCVBUF, 
@@ -421,8 +421,8 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
     if( _writeFD == INVALID_SOCKET )
         return -1;
 
-    WSABUF wsaBuffer = { bytes, const_cast<char*>( 
-                                    static_cast< const char* >( buffer ))};
+    WSABUF wsaBuffer = { MIN( 128*1024, bytes ),
+        const_cast<char*>( static_cast< const char* >( buffer ))};
     DWORD wrote;
 
     if( WSASend( _writeFD, &wsaBuffer, 1, &wrote, 0, 0, 0 ) ==  0 ) // success
