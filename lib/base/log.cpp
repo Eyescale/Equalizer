@@ -87,11 +87,15 @@ unsigned getLogTopics()
 
 EQ_EXPORT Log& Log::instance( const char* subdir, const char* file, const int line )
 {
-    if( !_logInstance.get( ))
-        _logInstance = new Log();
+    Log* log = _logInstance.get();
+    if( !log )
+    {
+        log = new Log();
+        _logInstance = log;
+    }
 
-    _logInstance->setLogInfo( subdir, file, line );
-    return *_logInstance.get();
+    log->setLogInfo( subdir, file, line );
+    return *log;
 }
 
 EQ_EXPORT std::ostream& eqBase::indent( std::ostream& os )
