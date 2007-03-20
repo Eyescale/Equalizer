@@ -24,7 +24,11 @@ namespace eq
                 : _display( display )
             {
                 _state = STATE_CONNECTED;
+                EQINFO << "New X11 connection @" << (void*)this << std::endl;
             }
+        
+        virtual ~X11Connection() 
+            { EQINFO << "Delete X11 connection @" << (void*)this << std::endl; }
 
         Display* getDisplay() const   { return _display; }
         virtual ReadNotifier getReadNotifier() const

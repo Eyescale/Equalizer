@@ -5,12 +5,12 @@
 #ifndef EQNET_NODE_H
 #define EQNET_NODE_H
 
-#include <eq/net/base.h>
-#include <eq/net/connectionDescription.h>
-#include <eq/net/connectionSet.h>
-#include <eq/net/idHash.h>
-#include <eq/net/nodeID.h>
-#include <eq/net/commandCache.h>
+#include <eq/net/base.h>                     // base class
+#include <eq/net/commandCache.h>             // member
+#include <eq/net/connectionSet.h>            // member
+#include <eq/net/idHash.h>                   // member
+#include <eq/net/nodeID.h>                   // member
+#include <eq/net/nodeType.h>                 // for TYPE_EQNET_NODE enum
 
 #include <eq/base/base.h>
 #include <eq/base/perThread.h>
@@ -42,13 +42,6 @@ namespace eqNet
             STATE_LAUNCHED,  // remote node, launched
             STATE_CONNECTED, // remote node, connected  
             STATE_LISTENING  // local node, listening
-        };
-
-        enum CreateReason 
-        {
-            REASON_CLIENT_LAUNCH,
-            REASON_INCOMING_CONNECT,
-            REASON_OUTGOING_CONNECT
         };
 
         /** 
@@ -246,8 +239,7 @@ namespace eqNet
          * 
          * @param cd the connection description.
          */
-        void addConnectionDescription(eqBase::RefPtr<ConnectionDescription> cd)
-            { _connectionDescriptions.push_back( cd ); }
+        void addConnectionDescription(eqBase::RefPtr<ConnectionDescription> cd);
         
         /** 
          * Removes a connection description.
@@ -492,14 +484,18 @@ namespace eqNet
         virtual bool pushCommand( Command& command )
             { return false; }
 
+        /** @return the type of the node, used during connect(). */
+        virtual uint32_t getType() const { return TYPE_EQNET_NODE; }
+
         /** 
          * Factory method to create a new node.
          * 
-         * @param the reason for the node creation.
+         * @param the type the node type
          * @return the node.
+         * @sa getType()
          */
-        virtual eqBase::RefPtr<Node> createNode( const CreateReason reason )
-            { return new Node(); }
+        virtual eqBase::RefPtr<Node> createNode( const uint32_t type )
+        { EQASSERTINFO( type == TYPE_EQNET_NODE, type ); return new Node(); }
 
         /** Registers request packets waiting for a return value. */
         eqBase::RequestHandler _requestHandler;

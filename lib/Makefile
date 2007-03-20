@@ -54,6 +54,7 @@ HEADER_SRC = \
 	net/net.h \
 	net/node.h \
 	net/nodeID.h \
+	net/nodeType.h \
 	net/object.h \
 	net/objectCM.h\
 	net/packets.h \
@@ -78,6 +79,7 @@ HEADER_SRC = \
 	client/matrix4.h \
 	client/node.h \
 	client/nodeFactory.h \
+	client/nodeType.h \
 	client/packets.h \
 	client/pipe.h \
 	client/pixelViewport.h \

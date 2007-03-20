@@ -5,6 +5,7 @@
 #ifndef EQ_CLIENT_H
 #define EQ_CLIENT_H
 
+#include <eq/client/nodeType.h>  // for TYPE_EQ_CLIENT enum
 #include <eq/net/commandQueue.h> // member
 #include <eq/net/node.h>         // base class
 
@@ -48,6 +49,10 @@ namespace eq
          */
         void processCommand();
 
+    protected:
+        /** @sa eqNet::Node::clientLoop */
+        virtual void clientLoop();
+
     private:
         /** The receiver->node command queue. */
         eqNet::CommandQueue    _commandQueue;
@@ -57,12 +62,8 @@ namespace eq
         /** @sa eqNet::Node::runClient */
         virtual bool runClient( const std::string& clientArgs );
 
-        /** @sa eqNet::Node::clientLoop */
-        virtual void clientLoop();
-
         /** @sa eqNet::Node::createNode */
-        virtual eqBase::RefPtr<eqNet::Node> createNode( const CreateReason
-                                                        reason );
+        virtual eqBase::RefPtr<eqNet::Node> createNode( const uint32_t type );
         
         /** @sa eqNet::Node::createSession */
         virtual eqNet::Session* createSession();

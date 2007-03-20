@@ -25,7 +25,11 @@ public:
 
 int main( int argc, char** argv )
 {
-    // 1. initialisation of local node
+    // 1. parse arguments
+    LocalInitData initData;
+    initData.parseArguments( argc, argv );
+
+    // 2. initialisation of local client node
 	NodeFactory nodeFactory;
 	if( !eq::init( argc, argv, &nodeFactory ))
     {
@@ -33,7 +37,7 @@ int main( int argc, char** argv )
         return EXIT_FAILURE;
     }
 
-    RefPtr<eq::Client> client = new eq::Client;
+    RefPtr<EqPly> client = new EqPly( initData );
     if( !client->initLocal( argc, argv ))
     {
         EQERROR << "Can't init client" << endl;
@@ -41,77 +45,13 @@ int main( int argc, char** argv )
         return EXIT_FAILURE;
     }
 
-    // 2. connect to server
-    RefPtr<eq::Server> server = new eq::Server;
-    if( !client->connectServer( server ))
-    {
-        EQERROR << "Can't open server" << endl;
-        client->exitLocal();
-        eq::exit();
-        return EXIT_FAILURE;
-    }
+    // 3. run client
+    const int ret = client->run();
 
-    // 3. choose config
-    eq::ConfigParams configParams;
-    Config*          config = (Config*)server->chooseConfig( configParams );
-
-    if( !config )
-    {
-        EQERROR << "No matching config on server" << endl;
-        client->disconnectServer( server );
-        client->exitLocal();
-        eq::exit();
-        return EXIT_FAILURE;
-    }
-
-    // 4. init config
-    eqBase::Clock clock;
-
-    config->parseArguments( argc, argv );
-    
-    if( !config->init( ))
-    {
-        EQERROR << "Config initialisation failed: " 
-                << config->getErrorMessage() << endl;
-        server->releaseConfig( config );
-        client->disconnectServer( server );
-        client->exitLocal();
-        eq::exit();
-        return EXIT_FAILURE;
-    }
-
-    EQLOG( eq::LOG_CUSTOM ) << "Config init took " << clock.getTimef() << " ms"
-                            << endl;
-
-    // 5. run main loop
-    uint32_t maxFrames = 0; // set to 0 for 'endless'
-    
-    clock.reset();
-    while( config->isRunning( ) && --maxFrames )
-    {
-        config->startFrame();
-        // config->renderData(...);
-        config->finishFrame();
-    }
-    const uint32_t frame = config->finishAllFrames();
-    EQLOG( eq::LOG_CUSTOM ) << "Rendering took " << clock.getTimef() << " ms ("
-                            << ( frame / clock.getTimef() * 1000.f) << " FPS)"
-                            << endl;
-
-    // 6. exit config
-    clock.reset();
-    config->exit();
-    EQLOG( eq::LOG_CUSTOM ) << "Exit took " << clock.getTimef() << " ms" <<endl;
-
-    // 7. cleanup and exit
-    server->releaseConfig( config );
-    if( !client->disconnectServer( server ))
-        EQERROR << "Client::disconnectServer failed" << endl;
-    server = 0;
-
+    // 4. cleanup and exit
     client->exitLocal();
     client = 0;
 
     eq::exit();
-    return EXIT_SUCCESS;
+    return ret;
 }

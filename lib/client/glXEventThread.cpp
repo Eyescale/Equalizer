@@ -26,7 +26,8 @@ GLXEventThread* GLXEventThread::get()
 }
 
 GLXEventThread::GLXEventThread()
-        : _requestHandler( true )
+        : _running( false ),
+          _requestHandler( true )
 {
     registerCommand( CMD_GLXEVENTTHREAD_ADD_PIPE,
       eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdAddPipe ));
@@ -55,6 +56,9 @@ void GLXEventThread::exit()
 {
     EQINFO << "Exiting glX event thread" << endl;
     CHECK_THREAD( _eventThread );
+
+    _connections.removeConnection( _commandConnection );
+    EQASSERT( _commandConnection->getRefCount() == 1 );
 
     _commandConnection->close();
     _commandConnection = 0;
@@ -87,6 +91,7 @@ void GLXEventThread::removePipe( Pipe* pipe )
     const bool stop = _requestHandler.waitRequest( packet.requestID );
     if( stop )
         join();
+    CHECK_THREAD_RESET( _eventThread );
 
     _startMutex.unset();
 }
@@ -123,7 +128,8 @@ void* GLXEventThread::run()
     CHECK_THREAD( _eventThread );
     EQINFO << "GLXEventThread running" << endl;
 
-    while( true )
+    _running = true;
+    while( _running )
     {
         const eqNet::ConnectionSet::Event event = _connections.select( );
         switch( event )
@@ -154,6 +160,7 @@ void* GLXEventThread::run()
                 EQUNIMPLEMENTED;
         }
     }
+    return 0;
 }
 
 void GLXEventThread::_handleEvent()
@@ -438,11 +445,15 @@ eqNet::CommandResult GLXEventThread::_cmdRemovePipe( eqNet::Command& command )
 
     Pipe*                     pipe          = packet->pipe;
     RefPtr<X11Connection>     x11Connection = pipe->getXEventConnection();
+    RefPtr<eqNet::Connection> connection    = 
+        RefPtr_static_cast<X11Connection, eqNet::Connection>( x11Connection );
     
-    _connections.removeConnection(
-        RefPtr_static_cast<X11Connection, eqNet::Connection>( x11Connection ));
+    const bool removed = _connections.removeConnection( connection );
+    EQASSERT( removed )
     pipe->setXEventConnection( 0 );
     XCloseDisplay( x11Connection->getDisplay( ));
+
+    EQASSERT( x11Connection->getRefCount() == 2 ); // two local ref ptr's
 
     EQINFO << "Stopped processing events on display "
            << pipe->getXDisplayString() << endl;
@@ -453,7 +464,9 @@ eqNet::CommandResult GLXEventThread::_cmdRemovePipe( eqNet::Command& command )
     {
         _requestHandler.serveRequest( packet->requestID, (void*)true );
         EQINFO << "GLXEventThread finished" << endl;
-        exit();
+        EQASSERT( _connections.nConnections() == 1 );
+
+        _running = false;
     }
 
     return eqNet::COMMAND_HANDLED;    

@@ -81,6 +81,7 @@ TCPIP                           { return EQTOKEN_TCPIP; }
 hostname                        { return EQTOKEN_HOSTNAME; }
 command                         { return EQTOKEN_COMMAND; }
 timeout                         { return EQTOKEN_TIMEOUT; }
+TCPIP_port                      { return EQTOKEN_TCPIP_PORT; }
 task                            { return EQTOKEN_TASK; }
 eye                             { return EQTOKEN_EYE; }
 eyeBase                         { return EQTOKEN_EYE_BASE; }

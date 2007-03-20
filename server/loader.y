@@ -104,6 +104,7 @@
 %token EQTOKEN_HOSTNAME
 %token EQTOKEN_COMMAND
 %token EQTOKEN_TIMEOUT
+%token EQTOKEN_TCPIP_PORT
 %token EQTOKEN_TASK
 %token EQTOKEN_EYE
 %token EQTOKEN_EYE_BASE
@@ -315,9 +316,10 @@ connectionFields: /*null*/ | connectionField |
                       connectionFields connectionField
 connectionField:
     EQTOKEN_TYPE connectionType  { connectionDescription->type = $2; }
-    | EQTOKEN_HOSTNAME STRING    { connectionDescription->hostname = $2; }
-    | EQTOKEN_COMMAND  STRING    { connectionDescription->launchCommand = $2; }
-    | EQTOKEN_TIMEOUT  UNSIGNED  { connectionDescription->launchTimeout = $2; }
+    | EQTOKEN_HOSTNAME  STRING    { connectionDescription->hostname = $2; }
+    | EQTOKEN_COMMAND   STRING    { connectionDescription->launchCommand = $2; }
+    | EQTOKEN_TIMEOUT   UNSIGNED  { connectionDescription->launchTimeout = $2; }
+    | EQTOKEN_TCPIP_PORT UNSIGNED  { connectionDescription->TCPIP.port = $2; }
 
 
 pipes: pipe | pipes pipe
@@ -328,9 +330,9 @@ pipeFields: /*null*/ | pipeField | pipeFields pipeField
 pipeField:
     windows   
     | EQTOKEN_ATTRIBUTES '{' pipeAttributes '}'
-    | EQTOKEN_NAME STRING            { eqPipe->setName( $2 ); }
-    | EQTOKEN_PORT UNSIGNED          { eqPipe->setPort( $2 ); }
-    | EQTOKEN_DEVICE UNSIGNED        { eqPipe->setDevice( $2 ); }
+    | EQTOKEN_NAME     STRING          { eqPipe->setName( $2 ); }
+    | EQTOKEN_PORT     UNSIGNED        { eqPipe->setPort( $2 ); }
+    | EQTOKEN_DEVICE   UNSIGNED        { eqPipe->setDevice( $2 ); }
     | EQTOKEN_VIEWPORT viewport 
         {
             eqPipe->setPixelViewport( eq::PixelViewport( (int)$2[0], (int)$2[1],

@@ -46,6 +46,7 @@ namespace eq
         static GLXEventThread _thread;
 
         eqBase::Lock _startMutex;
+        bool         _running;
 
         eqNet::ConnectionSet        _connections;
         eqBase::RefPtr<eqNet::Node> _localNode;

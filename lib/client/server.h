@@ -5,7 +5,8 @@
 #ifndef EQ_SERVER_H
 #define EQ_SERVER_H
 
-#include <eq/net/node.h> // base class
+#include <eq/client/nodeType.h>  // for TYPE_EQ_SERVER enum
+#include <eq/net/node.h>         // base class
 
 namespace eq
 {
@@ -58,6 +59,9 @@ namespace eq
         /** The local client connected to the server */
         eqBase::RefPtr<Client> _client;
         friend class Client;
+
+        /** @sa eqNet::Node::getType */
+        virtual uint32_t getType() const { return TYPE_EQ_SERVER; }
 
         /* The command handler functions. */
         eqNet::CommandResult _cmdCreateConfig( eqNet::Command& command );

@@ -129,8 +129,8 @@ namespace eqNet
             }
 
         NodeID   nodeID;
-        uint32_t launchID;
         uint32_t requestID;
+        uint32_t launchID;
         EQ_ALIGN8( char     connectionDescription[8] );
     };
     
@@ -146,6 +146,7 @@ namespace eqNet
 
         NodeID   nodeID;
         uint32_t requestID;
+        uint32_t type;
         EQ_ALIGN8( char     connectionDescription[8] );
     };
 
@@ -168,6 +169,7 @@ namespace eqNet
 
         NodeID   nodeID;
         uint32_t requestID;
+        uint32_t type;
         EQ_ALIGN8( char     connectionDescription[8] );
     };
 
@@ -522,14 +524,16 @@ namespace eqNet
                                        const NodeConnectPacket* packet )
     {
         os << (NodePacket*)packet << " req " << packet->requestID << " node "
-           << packet->nodeID << " cd " << packet->connectionDescription;
+           << packet->nodeID << " type " << packet->type << " cd "
+           << packet->connectionDescription;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeConnectReplyPacket* packet )
     {
         os << (NodePacket*)packet << " req " << packet->requestID << " node "
-           << packet->nodeID << " cd " << packet->connectionDescription;
+           << packet->nodeID << " type " << packet->type << " cd "
+           << packet->connectionDescription;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

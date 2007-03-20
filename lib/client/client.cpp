@@ -95,15 +95,15 @@ bool Client::disconnectServer( RefPtr<Server> server )
 }
 
 
-eqBase::RefPtr<eqNet::Node> Client::createNode( const CreateReason reason )
+eqBase::RefPtr<eqNet::Node> Client::createNode( const uint32_t type )
 { 
-    switch( reason )
+    switch( type )
     {
-        case REASON_CLIENT_LAUNCH:
+        case TYPE_EQ_SERVER:
             return new Server;
 
         default:
-            return new eqNet::Node;
+            return eqNet::Node::createNode( type );
     }
 }
 

@@ -30,7 +30,7 @@ server
         {
             pipe
             {
-                attributes{ hint_thread off }
+                attributes{ hint_thread OFF }
                 window
                 {
                     viewport [ .675 .025 .3 .3 ]
@@ -58,6 +58,7 @@ server
         {
             pipe
             {
+                attributes{ hint_thread OFF }
                 window
                 {
                     viewport [ .675 .35 .3 .3 ]

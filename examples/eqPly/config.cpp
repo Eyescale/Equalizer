@@ -18,6 +18,7 @@ Config::~Config()
 bool Config::init()
 {
     // init distributed objects
+    _frameData.data.color = _initData.useColor();
     registerObject( &_frameData );
     _initData.setFrameDataID( _frameData.getID( ));
 

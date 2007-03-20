@@ -5,11 +5,10 @@
 #ifndef EQS_SERVER_H
 #define EQS_SERVER_H
 
-#include <eq/client/packets.h>
-#include <eq/base/lock.h>
-#include <eq/net/idHash.h>
-#include <eq/net/node.h>
-#include <eq/net/commandQueue.h>
+#include <eq/client/nodeType.h>  // for TYPE_EQ_SERVER enum
+#include <eq/net/commandQueue.h> // member
+#include <eq/net/idHash.h>       // member
+#include <eq/net/node.h>         // base class
 
 /** 
  * @namespace eqs
@@ -62,8 +61,8 @@ namespace eqs
          * Remove a config from this config.
          * 
          * @param config the config
-         * @return <code>true</code> if the config was removed, <code>false</code>
-         *         otherwise.
+         * @return <code>true</code> if the config was removed,
+         *         <code>false</code> otherwise.
          */
         bool removeConfig( Config* config );
 
@@ -108,6 +107,9 @@ namespace eqs
 
         /** The receiver->main command queue. */
         eqNet::CommandQueue    _commandQueue;
+
+        /** @sa eqNet::Node::getType */
+        virtual uint32_t getType() const { return eq::TYPE_EQ_SERVER; }
 
         void        _handleCommands(); 
 

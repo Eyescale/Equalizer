@@ -5,9 +5,6 @@
 #ifndef EQNET_CONNECTIONTYPE_H
 #define EQNET_CONNECTIONTYPE_H
 
-#include <eq/base/base.h>
-#include <eq/base/referenced.h>
-
 namespace eqNet
 {
     /** The supported network protocols. */

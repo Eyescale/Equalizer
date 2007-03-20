@@ -4,12 +4,18 @@
  * All rights reserved. 
  */
 
-#include "appInitData.h"
+#include "localInitData.h"
 #include "frameData.h"
 
 #include <tclap/CmdLine.h>
 
-void AppInitData::parseArguments( int argc, char** argv, FrameData& frameData )
+LocalInitData::LocalInitData()
+        : _clientPort( 0 ),
+          _color( true ),
+          _isApplication( true )
+{}
+
+void LocalInitData::parseArguments( int argc, char** argv )
 {
     try
     {
@@ -22,6 +28,10 @@ void AppInitData::parseArguments( int argc, char** argv, FrameData& frameData )
                                          command );
         TCLAP::SwitchArg colorArg( "b", "bw", "Don't use colors from ply file", 
                                    command, false );
+        TCLAP::ValueArg<uint16_t> clientArg( "c", "client", 
+                                             "Run as resident render client", 
+                                             false, 4243, "unsigned short",
+                                             command );
                                 
         command.parse( argc, argv );
 
@@ -30,7 +40,13 @@ void AppInitData::parseArguments( int argc, char** argv, FrameData& frameData )
         if( portArg.isSet( ))
             _trackerPort = portArg.getValue();
 
-        frameData.data.color = !colorArg.isSet();
+        _color         = !colorArg.isSet();
+
+        if( clientArg.isSet( ))
+        {
+            _isApplication = false;
+            _clientPort    = clientArg.getValue();
+        }
     }
     catch( TCLAP::ArgException& exception )
     {

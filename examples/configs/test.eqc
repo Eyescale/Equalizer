@@ -5,7 +5,7 @@ server
     {
         node
         {
-	    connection { hostname "10.0.0.4" }
+            connection { TCPIP_port 4243 }
             pipe
             {
                 window

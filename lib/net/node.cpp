@@ -272,7 +272,8 @@ bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
     node->ref();
     packet.requestID = _requestHandler.registerRequest( node.get( ));
     packet.nodeID    = _id;
-    
+    packet.type      = getType();
+
     _connectionSet.addConnection( connection );
     if( _listener.isValid( ))
         connection->send( packet, _listener->getDescription()->toString( ));
@@ -305,6 +306,11 @@ bool Node::disconnect( RefPtr<Node> node )
     send( packet );
     _requestHandler.waitRequest( packet.requestID );
     return true;
+}
+
+void Node::addConnectionDescription(eqBase::RefPtr<ConnectionDescription> cd)
+{
+    _connectionDescriptions.push_back( cd ); 
 }
 
 //----------------------------------------------------------------------
@@ -854,7 +860,7 @@ CommandResult Node::_cmdConnect( Command& command )
     }
 
     // create and add connected node
-    RefPtr<Node>            remoteNode = createNode( REASON_INCOMING_CONNECT );
+    RefPtr<Node>            remoteNode = createNode( packet->type );
     RefPtr<ConnectionDescription> desc = new ConnectionDescription;
 
     if( desc->fromString( packet->connectionDescription ))
@@ -870,7 +876,8 @@ CommandResult Node::_cmdConnect( Command& command )
     // send our information as reply
     NodeConnectReplyPacket reply( packet );
     reply.nodeID    = _id;
-        
+    reply.type      = getType();
+
     if( _listener.isValid( ))
         connection->send( reply, _listener->getDescription()->toString( ));
     else
@@ -890,18 +897,6 @@ CommandResult Node::_cmdConnectReply( Command& command )
 
     EQINFO << "handle connect reply " << packet << endl;
 
-    RefPtr<Node> remoteNode;
-    if( packet->requestID == EQ_ID_INVALID )
-        remoteNode = createNode( REASON_OUTGOING_CONNECT );
-    else
-    {
-        remoteNode = static_cast<Node*>
-            ( _requestHandler.getRequestData( packet->requestID ));
-
-        EQASSERT( remoteNode.isValid( ));
-        remoteNode->unref();
-    }
-
     // disconnect this connection if already in _connectionNodes
     if( _connectionNodes.find( connection.get( )) != _connectionNodes.end( ))
     {
@@ -912,14 +907,24 @@ CommandResult Node::_cmdConnectReply( Command& command )
         const bool removed = _connectionSet.removeConnection( connection );
         EQASSERT( removed );
         EQASSERT( connection->getRefCount() == 1 );
-        EQASSERT( remoteNode->_id == EQ_ID_INVALID );
+        EQASSERT( packet->requestID == EQ_ID_INVALID );
 
         connection->close();
         _requestHandler.serveRequest( packet->requestID, 0 );
         return COMMAND_HANDLED;
     }
 
-    // add connected node
+    // create and add node
+    RefPtr<Node> remoteNode;
+    if( packet->requestID != EQ_ID_INVALID )
+        remoteNode = static_cast<Node*>
+            ( _requestHandler.getRequestData( packet->requestID ));
+
+    if( !remoteNode.isValid( ))
+        remoteNode = createNode( packet->type );
+
+    EQASSERT( remoteNode->getType() == packet->type );
+
     RefPtr<ConnectionDescription> desc = new ConnectionDescription;
 
     if( desc->fromString( packet->connectionDescription ))
@@ -1007,7 +1012,8 @@ CommandResult Node::_cmdLaunched( Command& command )
     // send our information as reply
     NodeConnectReplyPacket reply( packet );
     reply.nodeID    = _id;
-        
+    reply.type      = getType();
+
     if( _listener.isValid( ))
         connection->send( reply, _listener->getDescription()->toString( ));
     else
@@ -1075,6 +1081,7 @@ CommandResult Node::_cmdGetConnectionDescriptionReply( Command& command )
             // send connect packet to peer
             eqNet::NodeConnectPacket connectPacket;
             connectPacket.nodeID    = _id;
+            connectPacket.type      = getType();
 
             _connectionSet.addConnection( connection );
             if( _listener.isValid( ))
@@ -1360,7 +1367,7 @@ string Node::_createRemoteCommand( RefPtr<Node> node )
         program = _workDir + '/' + program;
 #endif
 
-    stringStream << "\"'" << program << "' --eq-listen '" 
+    stringStream << "\"'" << program << "' -- --eq-listen '" 
                  << nodeDesc->toString() << "' --eq-client '"
                  << node->_launchID << SEPARATOR << node->_workDir << SEPARATOR
                  << listenerDesc->toString() << "'\"";
@@ -1416,17 +1423,16 @@ bool Node::runClient( const string& clientArgs )
         return false;
     }
 
-    RefPtr<Node>       server = createNode( REASON_CLIENT_LAUNCH );
     NodeLaunchedPacket packet;
     packet.nodeID    = _id;
     packet.launchID  = launchID;
-
-    server->ref();
-    packet.requestID = _requestHandler.registerRequest( server.get( ));
+    packet.requestID = _requestHandler.registerRequest();
 
     _connectionSet.addConnection( connection );
-    connection->send( packet, _listener->getDescription()->toString( ));
+    // Server will be created when receiving NodeConnectReplyPacket from other
+    // side
 
+    connection->send( packet, _listener->getDescription()->toString( ));
     _requestHandler.waitRequest( packet.requestID );
 
     clientLoop();

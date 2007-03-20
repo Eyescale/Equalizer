@@ -4,9 +4,10 @@ include $(TOP)/make/system.mk
 PROGRAM = eqPly
 
 SOURCES = \
-	appInitData.cpp \
+	localInitData.cpp \
 	channel.cpp \
 	config.cpp \
+	eqPly.cpp \
 	initData.cpp \
 	main.cpp \
 	node.cpp \

@@ -7,9 +7,9 @@
 
 #include <eq/eq.h>
 
-#include "appInitData.h"  // member
-#include "frameData.h"    // member
-#include "tracker.h"      // member
+#include "localInitData.h" // member
+#include "frameData.h"     // member
+#include "tracker.h"       // member
 
 class Config : public eq::Config
 {
@@ -26,10 +26,7 @@ public:
     /** @sa eq::Config::startFrame. */
     virtual uint32_t startFrame();
 
-    void parseArguments( int argc, char** argv )
-        { _initData.parseArguments( argc, argv, _frameData ); }
-
-    //AppInitData& getInitData() { return _initData; }
+    void setInitData( const LocalInitData& data ) { _initData = data; }
 
 protected:
     virtual ~Config();
@@ -40,8 +37,8 @@ protected:
     bool       _running;
     int        _spinX, _spinY;
 
-    AppInitData _initData;
-    FrameData   _frameData;
+    LocalInitData _initData;
+    FrameData     _frameData;
 
     Tracker _tracker;
 

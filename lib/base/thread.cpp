@@ -82,8 +82,8 @@ void Thread::_runChild()
     _syncChild.unset(); // sync w/ parent
 
     void* result = run();
-    _state = STATE_STOPPING;
-    pthread_exit( result );
+    this->exit( result );
+    EQUNREACHABLE;
 }
 
 void Thread::_notifyStarted()
