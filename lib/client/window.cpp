@@ -752,7 +752,14 @@ void eq::Window::configExitWGL()
 
     HWND hWnd = getWGLWindowHandle();
     if( hWnd )
+    {
+        char className[256] = {0};
+        GetClassName( hWnd, className, 255 );
         DestroyWindow( hWnd );
+
+        if( strlen( className ) > 0 )
+            UnregisterClass( className, GetModuleHandle( 0 ));
+    }
 
     setWGLWindowHandle( 0 );
 
