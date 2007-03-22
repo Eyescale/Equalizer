@@ -1361,10 +1361,10 @@ string Node::_createRemoteCommand( RefPtr<Node> node )
         !( program[0] == '/' || program[0] == '\\' ))
         // !full path without drive letter
 
-        program = _workDir + '/' + program; // add _workDir to relative path
+        program = node->_workDir + '/' + program; // add _workDir to relative path
 #else
     if( program[0] != '/' )
-        program = _workDir + '/' + program;
+        program = node->_workDir + '/' + program;
 #endif
 
     stringStream << "\"'" << program << "' -- --eq-listen '" 
