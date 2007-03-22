@@ -6,6 +6,7 @@
 #include "X11Connection.h"
 #include "commands.h"
 #include "event.h"
+#include "global.h"
 #include "packets.h"
 #include "pipe.h"
 #include "window.h"
@@ -490,6 +491,11 @@ eqNet::CommandResult GLXEventThread::_cmdAddWindow( eqNet::Command& command )
            << window->getName() << "')" << endl;
     
     XSelectInput( display, drawable, eventMask );
+
+    // Grab keyboard focus in fullscreen mode
+    if( window->getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
+        XGrabKeyboard( display, drawable, True, GrabModeAsync, GrabModeAsync, 
+                       CurrentTime );
 
     XFlush( display );
 
