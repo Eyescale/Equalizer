@@ -117,6 +117,10 @@ int64_t PipeConnection::write( const void* buffer, const uint64_t bytes ) const
     if( !_writeHandle )
         return -1;
 
+    _mutex.set();
+    _size += bytes; // speculatively 'write' everything
+    _mutex.unset();
+
     DWORD bytesWritten = 0;
     const BOOL ret = WriteFile( _writeHandle, buffer, bytes, &bytesWritten, 0 );
 
@@ -128,10 +132,16 @@ int64_t PipeConnection::write( const void* buffer, const uint64_t bytes ) const
     }
 
     _mutex.set();
-    if( _size == 0 )
-        SetEvent( _dataPending );
+    EQASSERT( _size >= bytes - bytesWritten );
+    _size -= (bytes - bytesWritten); // correct size
 
-    _size += bytesWritten;
+    if( _size > 0 )
+        SetEvent( _dataPending );
+    else
+    {
+        EQASSERT( _size == 0 );
+        ResetEvent( _dataPending );
+    }
     _mutex.unset();
 
     return bytesWritten;
