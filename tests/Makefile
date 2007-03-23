@@ -8,6 +8,7 @@ SUBDIRS = \
 	image \
 	netperf \
 	node \
+	pipeperf \
 	session
 
 TARGETS = subdirs
