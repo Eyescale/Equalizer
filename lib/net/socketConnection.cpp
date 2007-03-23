@@ -346,15 +346,15 @@ bool SocketConnection::_createReadEvent()
     _event = CreateEvent( 0, FALSE, FALSE, 0 );
     if( !_event )
     {
-        EQERROR << "Can't create event for read notification" << EQ_SOCKET_ERROR
-                << endl;
+        EQERROR << "Can't create event for read notification: " 
+                << EQ_SOCKET_ERROR << endl;
         return false;
     }
 
     if( WSAEventSelect( _readFD, _event, FD_READ | FD_ACCEPT | FD_CLOSE ) ==
         SOCKET_ERROR )
     {
-        EQERROR << "Can't select events for read notification" 
+        EQERROR << "Can't select events for read notification: " 
                 << EQ_SOCKET_ERROR << endl;
         return false;
     }
@@ -369,7 +369,7 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
         return -1;
     }
 
-    WSABUF wsaBuffer = { bytes, static_cast<char*>( buffer )};
+    WSABUF wsaBuffer = { MIN( 512*1024, bytes ), static_cast<char*>( buffer )};
     DWORD got   = 0;
     DWORD flags = 0;
 
@@ -393,12 +393,14 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
         return -1;
     }
 
+#if 1
     // Set event if there is still data on the socket
     unsigned long nBytesPending = 0;
     ioctlsocket( _readFD, FIONREAD, &nBytesPending );
     if( nBytesPending > 0 )
         if( SetEvent( _event ) == 0 ) // error
             EQWARN << "SetEvent failed: " << EQ_SOCKET_ERROR << endl;
+#endif
 
     EQASSERT( got > 0 );
     return got;
@@ -421,7 +423,7 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
     if( _writeFD == INVALID_SOCKET )
         return -1;
 
-    WSABUF wsaBuffer = { MIN( 128*1024, bytes ),
+    WSABUF wsaBuffer = { MIN( 512*1024, bytes ),
         const_cast<char*>( static_cast< const char* >( buffer ))};
     DWORD wrote;
 

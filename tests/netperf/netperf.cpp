@@ -19,38 +19,6 @@ using namespace std;
 #define PACKETSIZE (100 * 1048576)
 #define NPACKETS   10
 
-class Sender : public Thread
-{
-public:
-    Sender( RefPtr<Connection> connection )
-            : Thread(),
-              _connection( connection )
-        {}
-    virtual ~Sender(){}
-
-protected:
-    virtual void* run()
-        {
-            void* buffer = calloc( 1, PACKETSIZE );
-            const float mBytesSec = PACKETSIZE / 1024.0f / 1024.0f * 1000.0f;
-
-            Clock    clock;
-            for( unsigned i=0; i<NPACKETS; ++i )
-            {
-                clock.reset();
-                TEST( _connection->send( buffer, PACKETSIZE ));
-                EQINFO << "Send perf: " << mBytesSec / clock.getTimef() 
-                       << "MB/s" << endl;
-            }
-
-            free( buffer );
-            return EXIT_SUCCESS;
-        }
-
-private:
-    RefPtr<Connection> _connection;
-};
-
 int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
@@ -60,47 +28,48 @@ int main( int argc, char **argv )
     RefPtr<ConnectionDescription> connDesc   = connection->getDescription();
     connDesc->TCPIP.port = 4242;
 
+    void*         buffer    = calloc( 1, PACKETSIZE );
+    const float   mBytesSec = PACKETSIZE / 1024.0f / 1024.0f * 1000.0f;
+    Clock         clock;
+
     if( argc == 2 )
     {
         connDesc->hostname = argv[1];
         TEST( connection->connect( ));
+
+        for( unsigned i=0; i<NPACKETS; )
+        {
+            connection->waitForData();
+            clock.reset();
+            if( connection->recv( buffer, PACKETSIZE ))
+            {
+                EQINFO << "Recv perf: " << mBytesSec / clock.getTimef()
+                       << "MB/s" << endl;
+                ++i;
+            }
+        }
     }
     else
     {
-        //connDesc->hostname = "10.1.1.40";
+        connDesc->hostname = "10.1.1.40";
         TEST( connection->listen( ));
-
-        ConnectionSet set;
-        set.addConnection( connection );
-        set.select();
+        connection->waitForData();
 
         RefPtr<Connection> client = connection->accept();
         EQINFO << "accepted connection" << endl;
         connection->close();
         connection = client;
-    }
-    
-    Sender sender( connection );
-    TEST( sender.start( ));
 
-    void* buffer = calloc( 1, PACKETSIZE );
-    const float mBytesSec = PACKETSIZE / 1024.0f / 1024.0f * 1000.0f;
-
-    Clock clock;
-    ConnectionSet set;
-    set.addConnection( connection );
-
-    for( unsigned i=0; i<NPACKETS; ++i )
-    {
-        set.select();
-        clock.reset();
-        if( connection->recv( buffer, PACKETSIZE ))
-            EQINFO << "Recv perf: " << mBytesSec / clock.getTimef() << "MB/s"
-                   << endl;
+        for( unsigned i=0; i<NPACKETS; ++i )
+        {
+            clock.reset();
+            TEST( connection->send( buffer, PACKETSIZE ));
+            EQINFO << "Send perf: " << mBytesSec / clock.getTimef() 
+                   << "MB/s" << endl;
+        }
     }
 
-    TEST( sender.join( ));
-    connection->close();
     free( buffer );
+    connection->close();
     return EXIT_SUCCESS;
 }
