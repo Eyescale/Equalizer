@@ -51,7 +51,7 @@ int main( int argc, char **argv )
     }
     else
     {
-        connDesc->hostname = "10.1.1.40";
+        //connDesc->hostname = "10.1.1.40";
         TEST( connection->listen( ));
         connection->waitForData();
 
