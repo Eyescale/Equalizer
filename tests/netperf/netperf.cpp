@@ -39,7 +39,6 @@ int main( int argc, char **argv )
 
         for( unsigned i=0; i<NPACKETS; )
         {
-            connection->waitForData();
             clock.reset();
             if( connection->recv( buffer, PACKETSIZE ))
             {
@@ -51,9 +50,8 @@ int main( int argc, char **argv )
     }
     else
     {
-        //connDesc->hostname = "10.1.1.40";
+        //connDesc->hostname = "10.2.1.2";
         TEST( connection->listen( ));
-        connection->waitForData();
 
         RefPtr<Connection> client = connection->accept();
         EQINFO << "accepted connection" << endl;

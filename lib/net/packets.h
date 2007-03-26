@@ -206,6 +206,7 @@ namespace eqNet
                 size       = sizeof( NodeGetConnectionDescriptionReplyPacket );
                 nodeID     = request->nodeID;
                 requestID  = request->requestID;
+                nextIndex  = request->index + 1;
                 connectionDescription[0] = '\0';
             } 
 

@@ -25,9 +25,19 @@ int main( int argc, char **argv )
         return EXIT_FAILURE;
     }
 
-    const bool result = server->run();
-    if( !result )
-        EQERROR << "Server did not run correctly, please consult log." << endl;
+    eqNet::Global::setDefaultPort( EQ_DEFAULT_PORT );
+    if( !server->initLocal( argc, argv ))
+    {
+        EQERROR << "Can't create listener for server, please consult log" 
+                << endl;
+        return EXIT_FAILURE;
+    }
+
+    if( !server->run( ))
+    {
+        EQERROR << "Server did not run correctly, please consult log" << endl;
+        return EXIT_FAILURE;
+    }
 
     EQINFO << "Server ref count: " << server->getRefCount() << endl;
     return EXIT_SUCCESS;

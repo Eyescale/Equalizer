@@ -248,6 +248,7 @@ bool ConnectionSet::_setupFDSet()
     _fdSet.clear();
     // add self connection
     HANDLE readHandle = _selfConnection->getReadNotifier();
+    EQASSERT( readHandle );
 
     _fdSetConnections[readHandle] = _selfConnection.get();
     _fdSet.push_back( readHandle );

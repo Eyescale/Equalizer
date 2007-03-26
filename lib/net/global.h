@@ -1,10 +1,11 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_GLOBAL_H
 #define EQNET_GLOBAL_H
 
+#include <eq/base/base.h>
 #include <string>
 
 namespace eqNet
@@ -14,7 +15,7 @@ namespace eqNet
     /** 
      * Global parameter handling for the Equalizer network implementation. 
      */
-    class Global
+    class EQ_EXPORT Global
     {
     public:
         /** 
@@ -22,14 +23,9 @@ namespace eqNet
          * 
          * @param programName the program name.
          */
-        static void setProgramName( const std::string& programName )
-            { _programName = programName; }
+        static void setProgramName( const std::string& programName );
 
-        /** 
-         * Gets the name of the program.
-         * 
-         * @return the program name.
-         */
+        /** @return the program name. */
         static const std::string& getProgramName() { return _programName; }
 
         /** 
@@ -37,19 +33,27 @@ namespace eqNet
          * 
          * @param workDir the working directory.
          */
-        static void setWorkDir( const std::string& workDir )
-            { _workDir = workDir; }
+        static void setWorkDir( const std::string& workDir );
+
+        /** @return the working directory of the program. */
+        static const std::string& getWorkDir() { return _workDir; }
+
 
         /** 
-         * Gets the working directory of the program.
+         * Sets the default listening port.
          * 
-         * @return the working directory.
+         * @param port the default port.
          */
-        static const std::string& getWorkDir() { return _workDir; }
+        static void setDefaultPort( const uint16_t port ) 
+            { _defaultPort = port; }
+
+        /** @return the default listening port. */
+        static uint16_t getDefaultPort() { return _defaultPort; }
 
     private:
         static std::string _programName;
         static std::string _workDir;
+        static uint16_t    _defaultPort;
     };
 }
 

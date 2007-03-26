@@ -128,7 +128,7 @@ int64_t PipeConnection::write( const void* buffer, const uint64_t bytes ) const
     {
         EQWARN << "Error during write: " << getErrorString( GetLastError( ))
                << endl;
-        return -1;
+        bytesWritten = 0;
     }
 
     _mutex.set();
@@ -144,5 +144,5 @@ int64_t PipeConnection::write( const void* buffer, const uint64_t bytes ) const
     }
     _mutex.unset();
 
-    return bytesWritten;
+    return (ret==0) ? -1 : bytesWritten;
 }

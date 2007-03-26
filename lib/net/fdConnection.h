@@ -2,8 +2,8 @@
 /* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQNET_FD_CONNECTION_H
-#define EQNET_FD_CONNECTION_H
+#ifndef EQNET_FDCONNECTION_H
+#define EQNET_FDCONNECTION_H
 
 #include <eq/net/connection.h>
 
@@ -20,7 +20,7 @@ namespace eqNet
         virtual int64_t write( const void* buffer, const uint64_t bytes ) const;
 
 #ifndef WIN32
-        virtual ReadNotifier getReadNotifier() const { return _readFD; }
+        virtual ReadNotifier getReadNotifier() { return _readFD; }
 #endif
 
     protected:
@@ -43,4 +43,4 @@ namespace eqNet
     }
 }
 
-#endif //EQNET_FD_CONNECTION_H
+#endif //EQNET_FDCONNECTION_H

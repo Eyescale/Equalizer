@@ -45,8 +45,22 @@ bool ConnectionDescription::fromString( const string& data )
 {
     {
         size_t colonPos = data.find( SEPARATOR );
-        if( colonPos == string::npos )
-            goto error;
+        if( colonPos == string::npos ) // assume hostname:port format
+        {
+            type     = CONNECTIONTYPE_TCPIP;
+            colonPos = data.find( ':' );
+            if( colonPos == string::npos ) // assume hostname
+            {
+                hostname = data;
+                return true;
+            }
+
+            hostname   = data.substr( 0, colonPos );
+            ++colonPos;
+            const string port = data.substr( colonPos, data.length()-colonPos );
+            TCPIP.port = atoi( port.c_str( ));
+            return true;
+        }
 
         const string type = data.substr( 0, colonPos );
 

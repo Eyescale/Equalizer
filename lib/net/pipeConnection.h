@@ -28,7 +28,7 @@ namespace eqNet
         virtual void close();
 
 #ifdef WIN32
-        virtual ReadNotifier getReadNotifier() const { return _dataPending; }
+        virtual ReadNotifier getReadNotifier() { return _dataPending; }
 #endif
 
     protected:

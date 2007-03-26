@@ -107,9 +107,6 @@ namespace eqNet
 
         /** @name Messaging API */
         //@{
-        /** Wait for incoming data. */
-        virtual void waitForData() {};
-
         /** 
          * Read data from the connection.
          * 
@@ -241,7 +238,7 @@ namespace eqNet
             SELECT_ERROR   = -1,
         };
 #endif
-        virtual ReadNotifier getReadNotifier() const { return 0; }
+        virtual ReadNotifier getReadNotifier() { return 0; }
 
     protected:
         Connection();

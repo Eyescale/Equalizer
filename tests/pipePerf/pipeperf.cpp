@@ -66,7 +66,6 @@ int main( int argc, char **argv )
     Clock clock;
     for( unsigned i=0; i<NPACKETS; )
     {
-        connection->waitForData();
         clock.reset();
         if( connection->recv( buffer, PACKETSIZE ))
         {

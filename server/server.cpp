@@ -41,19 +41,7 @@ Server::Server()
 
 bool Server::run()
 {
-    RefPtr<eqNet::Connection> connection =
-        eqNet::Connection::create( eqNet::CONNECTIONTYPE_TCPIP );
-    RefPtr<eqNet::ConnectionDescription> connDesc = 
-        connection->getDescription();
-
-    connDesc->TCPIP.port = EQ_DEFAULT_PORT;
-    if( !connection->listen( ))
-    {
-        EQERROR << "Could not create listening socket" << endl;
-        return false;
-    }
-    if( !listen( connection ))
-        return false;
+    EQASSERT( getState() == eqNet::Node::STATE_LISTENING );
 
     if( nConfigs() == 0 )
     {

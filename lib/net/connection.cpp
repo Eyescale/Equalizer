@@ -136,8 +136,6 @@ bool Connection::recv( void* buffer, const uint64_t bytes )
             // Since we have nothing read yet, we have hit this case.
             if( bytesLeft == bytes )
                 return false;
-            else
-                waitForData();
 
             EQVERB << "Zero bytes read" << endl;
         }

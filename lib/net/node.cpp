@@ -119,10 +119,12 @@ bool Node::initLocal( int argc, char** argv )
 
     RefPtr<Connection>            connection = new SocketConnection();
     RefPtr<ConnectionDescription> connDesc   = connection->getDescription();
+    connDesc->TCPIP.port = Global::getDefaultPort();
 
-    if( !listenOpts.empty() && !connDesc->fromString( listenOpts ))
+    if( !listenOpts.empty( ) && connDesc->fromString( listenOpts ))
         EQWARN << "Listening port parameters '" << listenOpts 
                << "' on command line invalid" << endl;
+
     EQINFO << "Listener connection description: " << connDesc->toString()
            << endl;
 
@@ -1037,8 +1039,6 @@ CommandResult Node::_cmdGetConnectionDescription( Command& command)
         descNode->nConnectionDescriptions() >= reply.nextIndex )
         
         reply.nextIndex = NEXT_INDEX_NONE;
-    else
-        reply.nextIndex = packet->index + 1;
 
     RefPtr<ConnectionDescription> desc = descNode.isValid() ?
         descNode->getConnectionDescription( packet->index ) : 0;
@@ -1400,7 +1400,7 @@ bool Node::runClient( const string& clientArgs )
     const string workDir = description.substr( 0, colonPos );
     Global::setWorkDir( workDir );
 
-    if( chdir( workDir.c_str( )) == -1 )
+    if( !workDir.empty() && chdir( workDir.c_str( )) == -1 )
         EQWARN << "Can't change working directory to " << workDir << ": "
                << strerror( errno ) << endl;
     
