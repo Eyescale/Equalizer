@@ -77,24 +77,6 @@ void SocketConnection::close()
     _writeFD = INVALID_SOCKET;
 }
 
-void SocketConnection::_parseAddress( sockaddr_in& socketAddress )
-{
-    socketAddress.sin_family      = AF_INET;
-    socketAddress.sin_addr.s_addr = htonl( INADDR_ANY );
-    socketAddress.sin_port        = htons( _description->TCPIP.port );
-    memset( &(socketAddress.sin_zero), 0, 8 ); // zero the rest
-
-    if( !_description->hostname.empty( ))
-    {
-        hostent *hptr = gethostbyname( _description->hostname.c_str() );
-        if( hptr )
-            memcpy(&socketAddress.sin_addr.s_addr, hptr->h_addr,hptr->h_length);
-    }
-
-    EQINFO << "Address " << inet_ntoa( socketAddress.sin_addr )
-           << ":" << socketAddress.sin_port << endl;
-}
-
 //----------------------------------------------------------------------
 // accept
 //----------------------------------------------------------------------

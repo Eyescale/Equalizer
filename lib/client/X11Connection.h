@@ -31,7 +31,7 @@ namespace eq
             { EQINFO << "Delete X11 connection @" << (void*)this << std::endl; }
 
         Display* getDisplay() const   { return _display; }
-        virtual ReadNotifier getReadNotifier() const
+        virtual ReadNotifier getReadNotifier()
             { return ConnectionNumber( _display ); }
 
     protected:

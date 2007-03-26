@@ -282,6 +282,7 @@ bool ConnectionSet::_setupFDSet()
 
     // add self 'connection'
     fd.fd      = _selfConnection->getReadNotifier();
+    EQASSERT( fd.fd > 0 );
     fd.revents = 0;
     _fdSetConnections[fd.fd] = _selfConnection.get();
     _fdSet.push_back( fd );
@@ -294,10 +295,11 @@ bool ConnectionSet::_setupFDSet()
         eqBase::RefPtr<Connection> connection = *i;
         fd.fd = connection->getReadNotifier();
 
-        if( fd.fd == -1 )
+        if( fd.fd <= 0 )
         {
             EQWARN << "Cannot select connection " << connection
-                 << ", connection does not use a file descriptor" << endl;
+                   << ", connection " << typeid( *connection.get( )).name() 
+                   << " does not use a file descriptor" << endl;
             _connection = connection;
 		    _mutex.unset();
             return false;
