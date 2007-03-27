@@ -115,6 +115,7 @@ namespace eqs
 
         /** The command functions. */
         eqNet::CommandResult _reqChooseConfig( eqNet::Command& command );
+        eqNet::CommandResult _reqUseConfig( eqNet::Command& command );
         eqNet::CommandResult _reqReleaseConfig( eqNet::Command& command );
     };
 

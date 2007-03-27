@@ -8,6 +8,7 @@
 #include "compound.h"
 #include "config.h"
 #include "global.h"
+#include "loader.h"
 #include "node.h"
 #include "pipe.h"
 #include "window.h"
@@ -32,6 +33,10 @@ Server::Server()
                      eqNet::CommandFunc<Server>( this, &Server::_cmdPush ));
     registerCommand( eq::REQ_SERVER_CHOOSE_CONFIG, 
                  eqNet::CommandFunc<Server>( this, &Server::_reqChooseConfig ));
+    registerCommand( eq::CMD_SERVER_USE_CONFIG,
+                     eqNet::CommandFunc<Server>( this, &Server::_cmdPush ));
+    registerCommand( eq::REQ_SERVER_USE_CONFIG, 
+                    eqNet::CommandFunc<Server>( this, &Server::_reqUseConfig ));
     registerCommand( eq::CMD_SERVER_RELEASE_CONFIG,
                      eqNet::CommandFunc<Server>( this, &Server::_cmdPush ));
     registerCommand( eq::REQ_SERVER_RELEASE_CONFIG,
@@ -148,6 +153,49 @@ eqNet::CommandResult Server::_reqChooseConfig( eqNet::Command& command )
     _appConfigs[reply.configID] = appConfig;
 
     const string& name = appConfig->getName();
+
+    node->send( reply, name );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Server::_reqUseConfig( eqNet::Command& command ) 
+{
+    const eq::ServerUseConfigPacket* packet = 
+        command.getPacket<eq::ServerUseConfigPacket>();
+    EQINFO << "Handle use config " << packet << endl;
+
+    string       configInfo   = packet->configInfo;
+    size_t       colonPos     = configInfo.find( '#' );
+    const string workDir      = configInfo.substr( 0, colonPos );
+    
+    configInfo                = configInfo.substr( colonPos + 1 );
+    colonPos                  = configInfo.find( '#' );
+    const string renderClient = configInfo.substr( 0, colonPos );
+    const string configData   = configInfo.substr( colonPos + 1 );
+ 
+    Loader loader;
+    Config* config = loader.parseConfig( configData.c_str( ));
+
+    eq::ServerChooseConfigReplyPacket reply( packet );
+    RefPtr<eqNet::Node>               node = command.getNode();
+
+    if( !config )
+    {
+        reply.configID = EQ_ID_INVALID;
+        node->send( reply );
+        return eqNet::COMMAND_HANDLED;
+    }
+
+    config->setApplicationNode( node );
+    mapConfig( config );
+
+    config->setWorkDir( workDir );
+    config->setRenderClient( renderClient );
+
+    reply.configID = config->getID();
+    _appConfigs[reply.configID] = config;
+
+    const string& name = config->getName();
 
     node->send( reply, name );
     return eqNet::COMMAND_HANDLED;

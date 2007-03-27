@@ -17,8 +17,8 @@ int main( int argc, char **argv )
     eqNet::init( argc, argv );
 
     Loader loader;
-    RefPtr<Server> server = loader.loadConfig( argc > 1 ? argv[1] :
-                                               "examples/configs/config.eqc" );
+    RefPtr<Server> server = loader.loadFile( argc > 1 ? argv[1] :
+                                             "examples/configs/config.eqc" );
     if( !server.isValid( ))
     {
         EQERROR << "Server load failed" << endl;

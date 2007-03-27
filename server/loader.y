@@ -44,7 +44,8 @@
     #define yylineno eqLoader_lineno
     void yyerror( char *errmsg );
     extern char* yytext;
-    extern FILE* yyin;
+    extern FILE*       yyin;
+    extern const char* yyinString;
     extern int yylineno;
 %}
 
@@ -158,7 +159,7 @@
 
 %%
 
-file:   global server;
+file:   global server | global config;
 
 global: EQTOKEN_GLOBAL '{' globals '}' 
         |
@@ -271,7 +272,13 @@ server: EQTOKEN_SERVER '{' { server = loader->createServer(); }
 configs: config | configs config
 config: EQTOKEN_CONFIG '{' { config = loader->createConfig(); }
         configFields
-        '}' { server->addConfig( config ); config = NULL; }
+        '}' {
+                if( server ) 
+                {
+                    server->addConfig( config ); 
+                    config = 0;
+                } // else leave config for Loader::parseConfig()
+        }
 configFields: /*null*/ | configField | configFields configField
 configField:
     nodes
@@ -578,25 +585,41 @@ void yyerror( char *errmsg )
 //---------------------------------------------------------------------------
 // loader
 //---------------------------------------------------------------------------
-eqs::Server* eqs::Loader::loadConfig( const string& filename )
+eqs::Server* eqs::Loader::loadFile( const string& filename )
 {
     EQASSERTINFO( !loader, "Config file loader is not reentrant" );
     loader = this;
 
-    yyin = fopen( filename.c_str(), "r" );
+    yyin       = fopen( filename.c_str(), "r" );
+    yyinString = 0;
+
     if( !yyin )
     {
         EQERROR << "Can't open config file " << filename << endl;
         return 0;
     }
 
-    server      = 0;
-    bool retval = true;
-
-    if( eqLoader_parse() )
-        retval = false;
+    server = 0;
+    config = 0;
+    eqLoader_parse();
 
     fclose( yyin );
     loader = 0;
     return server;
+}
+
+eqs::Config* eqs::Loader::parseConfig( const char* data )
+{
+    EQASSERTINFO( !loader, "Config file loader is not reentrant" );
+    loader = this;
+
+    yyin       = 0;
+    yyinString = data;
+
+    server = 0;
+    config = 0;
+    eqLoader_parse();
+
+    loader = 0;
+    return config;
 }

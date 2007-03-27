@@ -55,12 +55,29 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
 #endif
     send( packet, rendererInfo );
 
-    Config* config = static_cast<Config*>(_requestHandler.waitRequest( 
-                                              packet.requestID ));
-    if( !config )
+    return static_cast<Config*>(_requestHandler.waitRequest( packet.requestID));
+}
+
+Config* Server::useConfig( const ConfigParams& parameters, 
+                           const std::string& config )
+{
+    if( !isConnected( ))
         return 0;
 
-    return config;
+    ServerUseConfigPacket packet;
+
+    packet.requestID  = _requestHandler.registerRequest();
+    string configInfo = parameters.workDir + '#' + parameters.renderClient;
+#ifdef WIN32 // replace dir delimeters since '\' is often used as escape char
+    for( size_t i=0; i<rendererInfo.length(); ++i )
+        if( rendererInfo[i] == '\\' )
+            rendererInfo[i] = '/';
+#endif
+
+    configInfo += '#' + config;
+    send( packet, configInfo );
+
+    return static_cast<Config*>(_requestHandler.waitRequest( packet.requestID));
 }
 
 void Server::releaseConfig( Config* config )

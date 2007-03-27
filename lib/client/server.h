@@ -39,6 +39,9 @@ namespace eq
          */
         Config* chooseConfig( const ConfigParams& parameters );
 
+        Config* useConfig( const ConfigParams& parameters, 
+                           const std::string& config );
+
         /** 
          * Releases the configuration.
          * 

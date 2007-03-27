@@ -63,7 +63,20 @@ namespace eq
             }
 
         uint32_t requestID;
-        EQ_ALIGN8( char     rendererInfo[8] );
+        EQ_ALIGN8( char rendererInfo[8] );
+    };
+
+    struct ServerUseConfigPacket : public ServerPacket
+    {
+        ServerUseConfigPacket()
+            {
+                command = CMD_SERVER_USE_CONFIG;
+                size    = sizeof( ServerChooseConfigPacket );
+                configInfo[0] = '\0';
+            }
+
+        uint32_t requestID;
+        EQ_ALIGN8( char configInfo[8] );
     };
 
     struct ServerCreateConfigPacket : public ServerPacket
@@ -94,6 +107,14 @@ namespace eq
     struct ServerChooseConfigReplyPacket : public ServerPacket
     {
         ServerChooseConfigReplyPacket( const ServerChooseConfigPacket*
+                                       requestPacket )
+            {
+                command   = CMD_SERVER_CHOOSE_CONFIG_REPLY;
+                size      = sizeof( ServerChooseConfigReplyPacket );
+                requestID = requestPacket->requestID;
+                sessionName[0] = '\0';
+            }
+        ServerChooseConfigReplyPacket( const ServerUseConfigPacket*
                                        requestPacket )
             {
                 command   = CMD_SERVER_CHOOSE_CONFIG_REPLY;
@@ -884,6 +905,14 @@ namespace eq
     {
         os << (ServerPacket*)packet << " req " << packet->requestID
            << " renderer " << packet->rendererInfo;
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const ServerUseConfigPacket* packet )
+    {
+        os << (ServerPacket*)packet << " req " << packet->requestID
+           << " params " << packet->configInfo;
         return os;
     }
 

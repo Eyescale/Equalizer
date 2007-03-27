@@ -38,7 +38,15 @@ namespace eqs
          * @param filename the name of the config file.
          * @return The parsed config, or <code>NULL</code> upon error.
          */
-        Server* loadConfig( const std::string& filename );
+        Server* loadFile( const std::string& filename );
+
+        /** 
+         * Parse a config given as a parameter.
+         * 
+         * @param config the config.
+         * @return the parsed config.
+         */
+        Config* parseConfig( const char* config );
 
         /**
          * @name Factory Methods.

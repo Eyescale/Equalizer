@@ -90,10 +90,10 @@ int EqPly::runApplication()
                             << endl;
 
     // 4. run main loop
-    uint32_t maxFrames = 0; // set to 0 for 'endless'
+    uint32_t maxFrames = -1; // set to -1 for 'endless'
     
     clock.reset();
-    while( config->isRunning( ) && --maxFrames )
+    while( config->isRunning( ) && maxFrames-- )
     {
         config->startFrame();
         // config->renderData(...);
