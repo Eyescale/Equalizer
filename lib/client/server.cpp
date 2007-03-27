@@ -69,9 +69,9 @@ Config* Server::useConfig( const ConfigParams& parameters,
     packet.requestID  = _requestHandler.registerRequest();
     string configInfo = parameters.workDir + '#' + parameters.renderClient;
 #ifdef WIN32 // replace dir delimeters since '\' is often used as escape char
-    for( size_t i=0; i<rendererInfo.length(); ++i )
-        if( rendererInfo[i] == '\\' )
-            rendererInfo[i] = '/';
+    for( size_t i=0; i<configInfo.length(); ++i )
+        if( configInfo[i] == '\\' )
+            configInfo[i] = '/';
 #endif
 
     configInfo += '#' + config;
