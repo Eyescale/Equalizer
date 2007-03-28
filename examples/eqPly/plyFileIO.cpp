@@ -282,9 +282,9 @@ void PlyFileIO::readFaces( PlyFile *file,
         int* vertices;
     } face;
 
-    PlyProperty fProps[] = { 
+    PlyProperty fProps[] = {{
         "vertex_indices", PLY_INT, PLY_INT, offsetof( IndexFace, vertices ),
-        1, PLY_INT, PLY_INT, offsetof( IndexFace, nVertices ) };
+        1, PLY_INT, PLY_INT, offsetof( IndexFace, nVertices ) }};
 
     EQINFO << "Reading " << nFaces << " faces" << disableHeader;
 

@@ -1,7 +1,8 @@
 
 Q:  I am getting the compile error '/usr/bin/ld: cannot find -luuid'
 A1: Install libuuid, which is part of e2fsprogs. Depending on your
-    distribution, it might be in a separate package.
+    distribution, it might be in a separate package. On Ubuntu and
+    Debian use 'apt-get install uuid-dev'
 A2: Some distributions, e.g., RHEL do not create the symlink to
     libuuid.so. You can fix this by setting the correct symlink as
     root, e.g.: 'cd /usr/lib; ln -s /lib/libuuid.so.1 libuuid.so'
