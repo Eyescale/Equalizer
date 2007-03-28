@@ -22,22 +22,10 @@ const char* yyinString = 0;
 
 /* Override YY_INPUT to read from a char* if specified. YY_INPUT_FILE is C&P 
  * from the generated YY_INPUT */
-#define YY_INPUT_FILE( buf, result, max_size )  \
-	if ( yy_current_buffer->yy_is_interactive ) \
-    {                                           \
-		int c = '*', n;                         \
-		for ( n = 0; n < max_size &&                           \
-                  (c = getc( yyin )) != EOF && c != '\n'; ++n ) \
-			buf[n] = (char) c;                                  \
-		if ( c == '\n' )                                        \
-			buf[n++] = (char) c;                                \
-		if ( c == EOF && ferror( yyin ) )                       \
-			YY_FATAL_ERROR( "input in flex scanner failed" );   \
-		result = n;                                             \
-    }                                                           \
-	else if ( ((result = fread( buf, 1, max_size, yyin )) == 0) \
-              && ferror( yyin ) )                               \
-		YY_FATAL_ERROR( "input in flex scanner failed" );
+#define YY_INPUT_FILE( buf, result, max_size )              \
+    if ( ((result = fread( buf, 1, max_size, yyin )) == 0)  \
+           && ferror( yyin ) )                              \
+        YY_FATAL_ERROR( "input in flex scanner failed" );
 
 #define YY_INPUT( buf, result, max_size )                   \
     if( yyinString )                                        \
