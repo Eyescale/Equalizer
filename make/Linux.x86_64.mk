@@ -9,9 +9,9 @@ endif
 ifeq ($(findstring 32, $(VARIANT)),32)
   LDFLAGS            += -m32
   WINDOW_SYSTEM_LIBS += -L/usr/X11R6/lib -lX11 -lGL
-  INSTALL_LIBDIR      = $(INSTALL_DIR)/lib
+  INSTALL_LIB_DIR     = $(INSTALL_DIR)/lib
 else
   WINDOW_SYSTEM_LIBS += -L/usr/X11R6/lib64 -lX11 -lGL
-  INSTALL_LIBDIR      = $(INSTALL_DIR)/lib64
+  INSTALL_LIB_DIR     = $(INSTALL_DIR)/lib64
 endif
 

@@ -11,7 +11,8 @@ SUBDIRS = \
 
 .PHONY: docs
 
-TARGETS = precompile subdirs postcompile # docs
+TARGETS     = precompile subdirs postcompile # docs
+CLEAN_EXTRA = $(INSTALL_MAP)
 
 include make/rules.mk
 
@@ -24,10 +25,13 @@ tests: lib
 examples: lib
 server: lib
 
-postcompile: subdirs
+postcompile: $(INSTALL_MAP) subdirs
 	@echo "----- Compilation successful -----"
 ifeq (Darwin,$(ARCH))
 	@echo "Set DYLD_LIBRARY_PATH to $(PWD)/$(LIBRARY_DIR)"
 else
 	@echo "Set LD_LIBRARY_PATH to $(PWD)/$(BUILD_DIR)/$(word 1, $(VARIANTS))/lib"
 endif
+
+$(INSTALL_MAP): subdirs
+	@sort $@ | sort -u > .$@.tmp && mv .$@.tmp $@

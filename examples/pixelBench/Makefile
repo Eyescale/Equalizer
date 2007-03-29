@@ -1,7 +1,7 @@
 
 include $(TOP)/make/system.mk
 
-PROGRAM = pixelBench
+PROGRAM = eqPixelBench
 
 SOURCES = \
 	channel.cpp \

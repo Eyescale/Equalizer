@@ -1,48 +1,11 @@
 
-.PHONY: subdirs $(SUBDIRS) $(DEPENDENCIES) install uninstall
-.SUFFIXES: .d
+.PHONY: subdirs clean $(SUBDIRS) install build_variants
+.SECONDARY: $(OBJECT_DIR)/%.o %.o %.d $(OBJECT_DIR)/%.d $(DEPENDENCIES)
 
 all: $(TARGETS)
 
-ifdef BUILD_FAT
-install: all
-	@mkdir -p $(INSTALL_DIR)/include
-	@cp -vr $(BUILD_DIR)/include $(INSTALL_DIR)
-
-	@mkdir -p $(INSTALL_LIBDIR)
-	@cp -v $(INSTALL_LIBS) $(INSTALL_LIBDIR)
-
-uninstall:
-	rm -rf $(INSTALL_DIR)/include/eq
-	@rm -i $(INSTALL_LIBDIR)/libeq*
-
-else # BUILD_FAT
-
-ifndef VARIANT
-install: all
-	@mkdir -p $(INSTALL_DIR)/include
-	@cp -vr $(BUILD_DIR)/include $(INSTALL_DIR)
-	@for variant in $(VARIANTS); do \
-		$(MAKE) TOP=$(TOP) VARIANT=$$variant install ;\
-	done
-
-uninstall:
-	rm -rf $(INSTALL_DIR)/include/eq
-	@for variant in $(VARIANTS); do \
-		$(MAKE) TOP=$(TOP) VARIANT=$$variant uninstall ;\
-	done
-
-else  # VARIANT
 install:
-	@mkdir -p $(INSTALL_LIBDIR)
-	@cp -v $(INSTALL_LIBS) $(INSTALL_LIBDIR)
-
-uninstall:
-	@rm -i $(INSTALL_LIBDIR)/libeq*
-
-endif # VARIANT
-
-endif # BUILD_FAT
+	/bin/sh $(INSTALL_MAP)
 
 # top level precompile command(s)
 precompile: $(CXX_DEFINES_FILE)
@@ -72,28 +35,24 @@ $(SUBDIRS):
 $(HEADER_DIR)/%: %
 	@mkdir -p $(@D)
 	@echo 'Header file $@'
+	@echo cp $(SUBDIR)/$@ $(INSTALL_HEADER_DIR)$< >> $(INSTALL_MAP) 
 	@cp $< $@
-
-# generated source code: defunct
-%Dist.cpp %Packets.h: %.h $(TOP)/make/codegen.pl
-	$(TOP)/make/codegen.pl $<
-
-ifdef HEADER_GEN
-  SOURCES_GEN  = $(HEADER_GEN:%.h=%Dist.cpp)
-  SOURCES     += $(SOURCES_GEN)
-endif
 
 # libraries
 $(FAT_DYNAMIC_LIB): $(THIN_DYNAMIC_LIBS)
 ifndef VARIANT
 	@mkdir -p $(@D)
 	lipo -create $(THIN_DYNAMIC_LIBS) -output $@
+	@echo cp $(SUBDIR)/$@ $(INSTALL_LIB_DIR)/$(@F) >> $(INSTALL_MAP) 
 endif
 
 $(THIN_DYNAMIC_LIBS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
 	@mkdir -p $(@D)
 	$(CXX) $(LINKDIRS) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
+ifndef BUILD_FAT
+	@echo cp $(SUBDIR)/$@ $(INSTALL_LIB_DIR)/$(@F) >> $(INSTALL_MAP) 
+endif
 else
 	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).$(DSO_SUFFIX)=%) TOP=$(TOP) $@
 endif
@@ -102,6 +61,7 @@ $(FAT_STATIC_LIB): $(THIN_STATIC_LIBS)
 ifndef VARIANT
 	@mkdir -p $(@D)
 	lipo -create $(THIN_STATIC_LIBS) -output $@
+	@echo cp $(SUBDIR)/$@ $(INSTALL_LIB_DIR)/$(@F) >> $(INSTALL_MAP) 
 endif
 
 $(THIN_STATIC_LIBS): $(PCHEADERS) $(OBJECTS)
@@ -109,11 +69,12 @@ ifdef VARIANT
 	@mkdir -p $(@D)
 	@rm -f $@
 	$(AR) $(LINKDIRS) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
+ifndef BUILD_FAT
+	@echo cp $(SUBDIR)/$@ $(INSTALL_LIB_DIR)/$(@F) >> $(INSTALL_MAP) 
+endif
 else
 	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).a=%) TOP=$(TOP) $@
 endif
-
-OBJECT_DIR_ESCAPED = $(subst /,\/,$(OBJECT_DIR))
 
 $(OBJECT_DIR)/%.h.gch: %.h
 	@mkdir -p $(@D)
@@ -121,23 +82,25 @@ $(OBJECT_DIR)/%.h.gch: %.h
 
 $(OBJECT_DIR)/%.o: %.cpp
 	@mkdir -p $(@D)
-	@echo -n "$(@D)/" > $(OBJECT_DIR)/$*.d
-	@($(DEP_CXX) $(INCLUDEDIRS) $(CXXFLAGS) -M -E $< >> \
-		$(OBJECT_DIR)/$*.d ) || rm $(OBJECT_DIR)/$*.d
-	$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
-
-%.cpp: $(OBJECT_DIR)/%d
-
+	$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MD -MF $@.d -c $< -o $@
 
 # executables
 $(FAT_PROGRAM): $(THIN_PROGRAMS)
 ifndef VARIANT
 	lipo -create $(THIN_PROGRAMS) -output $@
+ifndef NOINSTALL
+	@echo cp $(SUBDIR)/$@ $(INSTALL_BIN_DIR)/$(@F) >> $(INSTALL_MAP) 
+endif
 endif
 
 $(THIN_PROGRAMS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
 	$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) $(LINKDIRS) $(SA_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
+ifndef BUILD_FAT
+ifndef NOINSTALL
+	@echo cp $(SUBDIR)/$@ $(INSTALL_BIN_DIR)/$(@F) >> $(INSTALL_MAP)
+endif
+endif
 else
 	@$(MAKE) VARIANT=$(subst .,,$(suffix $@)) TOP=$(TOP) $@
 endif
@@ -145,7 +108,7 @@ endif
 ifndef PROGRAM
 ifdef VARIANT
 %.$(VARIANT): %.cpp
-	$(CXX) $< $(INCLUDEDIRS) $(CXXFLAGS) $(LINKDIRS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -o $@ 
+	$(CXX) $< $(INCLUDEDIRS) $(CXXFLAGS) $(LINKDIRS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -MD -MF $@.d -o $@ 
 
 else # VARIANT
 
@@ -163,7 +126,7 @@ testRun.%: %
 # cleaning targets
 clean:
 ifdef VARIANT
-	rm -f *~ .*~ $(TARGETS) $(CLEAN_EXTRA)
+	rm -f *~ .*~ $(TARGETS) $(CLEAN_EXTRA) $(DEPENDENCIES)
 	rm -rf $(OBJECT_DIR) $(BUILD_DIR)
 ifdef SUBDIRS
 	@for dir in $(SUBDIRS); do \
@@ -178,4 +141,6 @@ else # VARIANT
 endif
 
 # dependencies
--include dummy $(DEPENDENCIES)
+ifdef DEPENDENCIES
+-include $(DEPENDENCIES)
+endif

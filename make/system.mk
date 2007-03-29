@@ -4,7 +4,7 @@ ifndef TOP
   TOP := .
 endif
 
-SUBDIR    ?= "src"
+SUBDIR    ?= "."
 SUBDIRTOP := ../$(TOP)
 DEPTH     := $(subst ../,--,$(TOP))
 DEPTH     := $(subst .,-->,$(DEPTH))
@@ -17,9 +17,14 @@ include $(TOP)/make/$(ARCH).mk
 
 # general variables, targets, etc.
 VARIANTS       ?= $(SUBARCH)
+
 INSTALL_DIR    ?= /usr/local
-INSTALL_LIBDIR ?= $(INSTALL_DIR)/lib$(VARIANT)
-BUILD_DIR       = $(TOP)/build/$(ARCH)
+INSTALL_LIB_DIR    ?= $(INSTALL_DIR)/lib$(VARIANT)
+INSTALL_BIN_DIR    ?= $(INSTALL_DIR)/bin
+INSTALL_HEADER_DIR  = $(INSTALL_DIR)/$(HEADER_BASE)
+
+BUILD_DIR_BASE  = build/$(ARCH)
+BUILD_DIR       = $(TOP)/$(BUILD_DIR_BASE)
 EXTRAS_DIR      = $(TOP)/extras
 LIBRARY_DIR     = $(BUILD_DIR)/$(VARIANT)/lib
 INCLUDEDIRS     = -I$(BUILD_DIR)/include -I$(EXTRAS_DIR)
@@ -54,7 +59,9 @@ CXX_DEFINES_FILE = lib/base/defines.h
 CXX_DEFINES_TXT  = $(CXX_DEFINES:-D%= %)
 
 # header file variables
-HEADER_DIR      = $(BUILD_DIR)/include/eq/$(MODULE)
+HEADER_BASE     = include/eq/$(MODULE)
+HEADER_DIR_BASE = $(BUILD_DIR_BASE)/$(HEADER_BASE)
+HEADER_DIR      = $(TOP)/$(HEADER_DIR_BASE)
 HEADERS         = $(HEADER_SRC:%=$(HEADER_DIR)/%)
 
 # source code variables
@@ -62,9 +69,10 @@ CXXFILES        = $(wildcard *.cpp)
 OBJECT_DIR      = obj/$(ARCH)/$(VARIANT)
 
 ifndef VARIANT
-  OBJECTS       = foo
+  OBJECTS       = build_variants
 else
   OBJECTS       = $(SOURCES:%.cpp=$(OBJECT_DIR)/%.o)
+  DEPENDENCIES  = $(OBJECTS:%=%.d) $(THIN_SIMPLE_PROGRAMS:%=%.d)
 #  PCHEADERS     = $(HEADER_SRC:%=$(OBJECT_DIR)/%.gch)
 endif
 
@@ -105,5 +113,5 @@ PROGRAMS         += $(FAT_PROGRAM)
 SIMPLE_PROGRAMS  += $(FAT_SIMPLE_PROGRAMS)
 endif
 
-DEPENDENCIES   ?= $(OBJECTS:%.o=%.d)
-
+# install variables
+INSTALL_MAP       = $(TOP)/install.map

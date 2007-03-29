@@ -9,3 +9,9 @@ A: Equalizer uses the libuuid to generate unique node identifiers.
    separate package, or may be part of DCE, from which it originates.
 
 
+Q: Debian/Ubuntu: As soon as I am using scalable rendering or a swap
+   barrier, one of my nodes crashes.
+A: The node's hostname is mapped to a local IP address in /etc/hosts,
+   rather than a public one. Using another name for the node in the
+   configuration file, e.g., the fully qualified hostname or IP address,
+   solves the problem.

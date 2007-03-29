@@ -1,7 +1,8 @@
 
 include $(TOP)/make/system.mk
 
-PROGRAM = test
+PROGRAM   = test
+NOINSTALL = 1
 
 SOURCES = \
 	test.cpp \
