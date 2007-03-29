@@ -15,23 +15,25 @@ server
             {
                 window
                 {
+                    viewport [ 640 400 1280 800 ]
+                    attributes{ hint_fullscreen OFF }
                     channel { name "channel1" }
                 }
             }
         }
         node
         {
-            connection { hostname "10.42.42.2" }
+            connection { hostname "node2" }
             pipe { window { channel { name "channel2" }}}
         }
         node
         {
-            connection { hostname "10.42.42.3" }
+            connection { hostname "node3" }
             pipe { window { channel { name "channel3" }}}
         }
         node
         {
-            connection { hostname "10.42.42.4" }
+            connection { hostname "node4" }
             pipe { window { channel { name "channel4" }}}
         }
         compound

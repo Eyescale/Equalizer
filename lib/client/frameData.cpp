@@ -141,7 +141,8 @@ void FrameData::_setReady()
 void FrameData::startAssemble( const Frame& frame )
 {
     EQLOG( LOG_ASSEMBLY ) << "Assemble " << _images.size() <<" images, buffers "
-                          << _data.buffers << " offset " << _data.offset <<endl;
+                          << _data.buffers << " offset " << frame.getOffset()
+                          << endl;
     if( _data.buffers == Frame::BUFFER_NONE )
         return;
 
@@ -152,7 +153,7 @@ void FrameData::startAssemble( const Frame& frame )
          i != _images.end(); ++i )
     {
         Image* image = *i;
-        image->startAssemble( _data.buffers, _data.offset );
+        image->startAssemble( _data.buffers, frame.getOffset( ));
     }
 }
 

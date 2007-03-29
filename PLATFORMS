@@ -3,9 +3,10 @@
 
  Equalizer is developed and regularly tested on the following platforms:
 
-  - Mac OS X 10.4 (i386, ppc)
+  - Windows XP, VS2005 (i386, x64)
+  - Mac OS X 10.4 (i386)
      o glX/X11 fully supported
      o CGL partially implemented
-  - SuSE Linux 10.0 (x86_64)
-  - SLES 9 (IA64, SGI Prism)
+  - Ubuntu 6.10 (i386, x64)
+  - RHEL 4
 

@@ -8,14 +8,15 @@ server
 {
     config
     {
-        latency 0
+        latency 2
         appNode
         {
             pipe 
             {
                 window
                 {
-                    viewport [ 100 100 1280 800 ]
+                    viewport [ 640 400 1280 800 ]
+                    attributes{ hint_fullscreen OFF }
                     attributes { planes_stencil ON }
                     channel { name "channel1" }
                 }
@@ -23,7 +24,7 @@ server
         }
         node
         {
-            connection { hostname "10.2.1.2" }
+            connection { hostname "node2" }
             pipe { window { channel { name "channel2" }}}
         }
         compound

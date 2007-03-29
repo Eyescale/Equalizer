@@ -100,9 +100,10 @@ int EqPly::runApplication()
         config->finishFrame();
     }
     const uint32_t frame = config->finishAllFrames();
-    EQLOG( eq::LOG_CUSTOM ) << "Rendering took " << clock.getTimef() << " ms ("
-                            << ( frame / clock.getTimef() * 1000.f) << " FPS)"
-                            << endl;
+    const float    time  = clock.getTimef();
+    EQLOG( eq::LOG_CUSTOM ) << "Rendering took " << time << " ms (" << frame
+                            << " frames @ " << ( frame / time * 1000.f)
+                            << " FPS)" << endl;
 
     // 5. exit config
     clock.reset();

@@ -31,9 +31,12 @@ namespace eqs
         /** Set the datas area within the channel */
         void setPixelViewport( const eq::PixelViewport& pvp ) 
             { _data.pvp = pvp; }
+
         /** Set the position of the data relative to the window. */
         void setOffset( const vmml::Vector2i& offset ) 
             { _data.offset = offset; }
+        /** @return the position of the data relative to the window. */
+        const vmml::Vector2i& getOffset() const { return _data.offset; }
 
         /** Set the buffers of the source frame. */
         void setBuffers( const uint32_t buffers ) 

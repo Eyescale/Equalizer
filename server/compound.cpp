@@ -537,7 +537,7 @@ void Compound::_updateOutput( UpdateData* data )
         const eq::Viewport& frameVP  = frame->getViewport();
         eq::PixelViewport   framePVP = _inherit.pvp * frameVP;
 
-        // Data offset is position of data wrt destination view
+        // FrameData offset is position wrt destination view
         frame->cycleData( frameNumber );
         FrameData* frameData = frame->getData();
         EQASSERT( frameData );
@@ -558,7 +558,7 @@ void Compound::_updateOutput( UpdateData* data )
         frameData->setPixelViewport( framePVP );
 
         // Frame offset is position wrt window, i.e., the channel position
-        if( _inherit.channel == channel 
+        if( _inherit.channel == channel
             /* || use dest channel origin hint set */ )
 
             frame->setOffset( vmml::Vector2i( _inherit.pvp.x, _inherit.pvp.y));
@@ -613,7 +613,8 @@ TraverseResult Compound::_updateInputCB( Compound* compound, void* userData )
 
 void Compound::_updateInput( UpdateData* data )
 {
-    const Channel* channel     = getChannel();
+    const Channel* channel = getChannel();
+
     if( !testInheritTask( TASK_ASSEMBLE ) || _inputFrames.empty( ) || !channel )
         return;
 
@@ -635,10 +636,10 @@ void Compound::_updateInput( UpdateData* data )
         Frame*              outputFrame = iter->second;
         const eq::Viewport& frameVP     = frame->getViewport();
         eq::PixelViewport   framePVP    = _inherit.pvp * frameVP;
-        vmml::Vector2i      frameOffset = outputFrame->getOffset();
- 
-        if( channel != _inherit.channel 
-            /* || !use dest channel origin hint set */ )
+        vmml::Vector2i      frameOffset = outputFrame->getData()->getOffset();
+
+        if( channel != _inherit.channel
+            /* && !use dest channel origin hint set */ )
         {
             // compute delta offset between source and destination, since the
             // channel's native origin (as opposed to destination) is used.
@@ -752,7 +753,7 @@ void Compound::_setupRenderContext( eq::RenderContext& context,
     context.drawBufferMask = _getDrawBufferMask( data );
     const Channel* channel = data->channel;
 
-    if( channel != _inherit.channel /* || !use dest channel origin hint set */ )
+    if( channel != _inherit.channel /* && !use dest channel origin hint set */ )
     {
         const eq::PixelViewport& nativePVP = channel->getPixelViewport();
         context.pvp.x = nativePVP.x;
@@ -977,7 +978,7 @@ void Compound::_updateReadback( const eq::RenderContext& context )
     packet.nFrames   = frames.size();
 
     EQLOG( eq::LOG_ASSEMBLY | eq::LOG_TASKS ) 
-        << "TASK readback channel " << channel->getName() <<  " "
+        << "TASK readback " << channel->getName() <<  " "
         << &packet << endl;
     channel->send<eqNet::ObjectVersion>( packet, frameIDs );
     
@@ -1021,7 +1022,7 @@ void Compound::_updateReadback( const eq::RenderContext& context )
         transmitPacket.nNodes    = nodeIDs.size();
 
         EQLOG( eq::LOG_ASSEMBLY | eq::LOG_TASKS )
-            << "TASK transmit channel " << channel->getName() <<  " " << 
+            << "TASK transmit " << channel->getName() <<  " " << 
             &transmitPacket << " first " << nodeIDs[0] << endl;
 
         channel->send<eqNet::NodeID>( transmitPacket, nodeIDs );
