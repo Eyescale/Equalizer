@@ -89,7 +89,8 @@ void GLXEventThread::removePipe( Pipe* pipe )
     _startMutex.set();
     _commandConnection->send( packet );
     
-    const bool stop = _requestHandler.waitRequest( packet.requestID );
+    bool stop = false;
+    _requestHandler.waitRequest( packet.requestID, stop );
     if( stop )
         join();
     CHECK_THREAD_RESET( _eventThread );
@@ -519,6 +520,6 @@ eqNet::CommandResult GLXEventThread::_cmdRemoveWindow( eqNet::Command& command )
     XSelectInput( display, drawable, 0l );
     XFlush( display );
 
-    _requestHandler.serveRequest( packet->requestID, 0 );
+    _requestHandler.serveRequest( packet->requestID );
     return eqNet::COMMAND_HANDLED;    
 }

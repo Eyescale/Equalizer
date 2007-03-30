@@ -358,7 +358,9 @@ bool Node::mapSession( RefPtr<Node> server, Session* session,
     packet.requestID  = _requestHandler.registerRequest( session );
     server->send( packet, name );
 
-    return (bool)_requestHandler.waitRequest( packet.requestID );
+    bool ret = false;
+    _requestHandler.waitRequest( packet.requestID, ret );
+    return ret;
 }
 
 bool Node::mapSession( RefPtr<Node> server, Session* session, const uint32_t id)
@@ -371,7 +373,9 @@ bool Node::mapSession( RefPtr<Node> server, Session* session, const uint32_t id)
     packet.sessionID =  id;
     server->send( packet );
 
-    return (bool)_requestHandler.waitRequest( packet.requestID );
+    bool ret = false;
+    _requestHandler.waitRequest( packet.requestID, ret );
+    return ret;
 }
 
 bool Node::unmapSession( Session* session )
@@ -383,7 +387,9 @@ bool Node::unmapSession( Session* session )
     packet.sessionID =  session->getID();
     session->getServer()->send( packet );
 
-    return (bool)_requestHandler.waitRequest( packet.requestID );
+    bool ret = false;
+    _requestHandler.waitRequest( packet.requestID, ret );
+    return ret;
 }
 
 uint32_t Node::_generateSessionID()
@@ -912,7 +918,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
         EQASSERT( packet->requestID == EQ_ID_INVALID );
 
         connection->close();
-        _requestHandler.serveRequest( packet->requestID, 0 );
+        _requestHandler.serveRequest( packet->requestID );
         return COMMAND_HANDLED;
     }
 
@@ -940,7 +946,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
     _nodes[ packet->nodeID ]             = remoteNode;
 
     if( packet->requestID != EQ_ID_INVALID )
-        _requestHandler.serveRequest( packet->requestID, 0 );
+        _requestHandler.serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }
 
@@ -1021,7 +1027,7 @@ CommandResult Node::_cmdLaunched( Command& command )
     else
         connection->send( reply );
 
-    _requestHandler.serveRequest( packet->launchID, 0 );
+    _requestHandler.serveRequest( packet->launchID );
     return COMMAND_HANDLED;
 }
 
@@ -1064,7 +1070,7 @@ CommandResult Node::_cmdGetConnectionDescriptionReply( Command& command )
 
     if( node.isValid( )) // already connected
     {
-        _requestHandler.serveRequest( requestID, 0 );
+        _requestHandler.serveRequest( requestID );
         return COMMAND_HANDLED;
     }
 
@@ -1098,7 +1104,7 @@ CommandResult Node::_cmdGetConnectionDescriptionReply( Command& command )
     if( packet->nextIndex == NEXT_INDEX_NONE )
     {
         EQWARN << "Connection to node " << nodeID << " failed" << endl;
-        _requestHandler.serveRequest( requestID, 0 );
+        _requestHandler.serveRequest( requestID );
         return COMMAND_HANDLED;
     }
 
@@ -1197,24 +1203,22 @@ bool Node::syncConnect( eqBase::RefPtr<Node> node )
     if( node->_launchID == EQ_ID_INVALID )
         return ( node->getState() == STATE_CONNECTED );
 
-    bool           success;
+    void*          ret;
     const uint32_t time    = static_cast<uint32_t>( 
         node->_launchTimeout.getTimef( ));
-    _requestHandler.waitRequest( node->_launchID, &success, time );
-                      
-    if( success )
+    
+    if( _requestHandler.waitRequest( node->_launchID, ret, time ))
     {
         EQASSERT( node->getState() == STATE_CONNECTED );
-    }
-    else
-    {
-        node->_state = STATE_STOPPED;
-        _requestHandler.unregisterRequest( _launchID );
-        node->unref();
+        node->_launchID = EQ_ID_INVALID;
+        return true;
     }
 
+    node->_state = STATE_STOPPED;
+    _requestHandler.unregisterRequest( _launchID );
     node->_launchID = EQ_ID_INVALID;
-    return success;
+    node->unref();
+    return false;
 }
 
 RefPtr<Node> Node::connect( const NodeID& nodeID, RefPtr<Node> server)

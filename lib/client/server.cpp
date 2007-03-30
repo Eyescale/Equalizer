@@ -55,7 +55,9 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
 #endif
     send( packet, rendererInfo );
 
-    return static_cast<Config*>(_requestHandler.waitRequest( packet.requestID));
+    void* ptr = 0;
+    _requestHandler.waitRequest( packet.requestID, ptr );
+    return static_cast<Config*>( ptr );
 }
 
 Config* Server::useConfig( const ConfigParams& parameters, 
@@ -77,7 +79,9 @@ Config* Server::useConfig( const ConfigParams& parameters,
     configInfo += '#' + config;
     send( packet, configInfo );
 
-    return static_cast<Config*>(_requestHandler.waitRequest( packet.requestID));
+    void* ptr = 0;
+    _requestHandler.waitRequest( packet.requestID, ptr );
+    return static_cast<Config*>( ptr );
 }
 
 void Server::releaseConfig( Config* config )
@@ -139,7 +143,7 @@ eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Command& command )
 
     if( packet->configID == EQ_ID_INVALID )
     {
-        _requestHandler.serveRequest( packet->requestID, 0 );
+        _requestHandler.serveRequest( packet->requestID, (void*)0 );
         return eqNet::COMMAND_HANDLED;
     }
 
@@ -167,7 +171,7 @@ eqNet::CommandResult Server::_cmdReleaseConfigReply( eqNet::Command& command )
     
     localNode->removeSession( config );
     delete config;
-    _requestHandler.serveRequest( packet->requestID, 0 );
+    _requestHandler.serveRequest( packet->requestID );
     
     return eqNet::COMMAND_HANDLED;
 }

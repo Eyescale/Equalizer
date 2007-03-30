@@ -188,7 +188,9 @@ bool Pipe::syncConfigInit()
 
     EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
-    if( !(bool)_requestHandler.waitRequest( _pendingRequestID ))
+    bool requestSuccess = false;
+    _requestHandler.waitRequest( _pendingRequestID, requestSuccess );
+    if( !requestSuccess )
         success = false;
 
     _pendingRequestID = EQ_ID_INVALID;
@@ -234,7 +236,8 @@ bool Pipe::syncConfigExit()
 {
     EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
-    bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
+    bool success = false;
+    _requestHandler.waitRequest( _pendingRequestID, success );
     _pendingRequestID = EQ_ID_INVALID;
 
     Config* config = getConfig();

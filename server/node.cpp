@@ -157,7 +157,9 @@ bool Node::syncConfigInit()
         }
     }
 
-    if( !_requestHandler.waitRequest( _pendingRequestID ))
+    bool requestSuccess = false;
+    _requestHandler.waitRequest( _pendingRequestID, requestSuccess );
+    if( !requestSuccess )
         success = false;
     _pendingRequestID = EQ_ID_INVALID;
 
@@ -214,7 +216,9 @@ bool Node::syncConfigExit()
     }
     _bufferedTasks.sendBuffer( _node->getConnection( ));
 
-    if( !_requestHandler.waitRequest( _pendingRequestID ))
+    bool requestSuccess = false;
+    _requestHandler.waitRequest( _pendingRequestID, requestSuccess );
+    if( !requestSuccess )
         success = false;
 
     _pendingRequestID = EQ_ID_INVALID;

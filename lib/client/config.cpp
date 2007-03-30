@@ -107,7 +107,8 @@ bool Config::init( const uint32_t initID )
     while( !_requestHandler.isServed( packet.requestID ))
         client->processCommand();
 
-    const bool ret = ( _requestHandler.waitRequest( packet.requestID ) != 0 );
+    bool ret = false;
+    _requestHandler.waitRequest( packet.requestID, ret );
 
     if( !ret )
         deregisterObject( &_headMatrix );
@@ -123,7 +124,9 @@ bool Config::exit()
     RefPtr< Client > client = getClient();
     while( !_requestHandler.isServed( packet.requestID ))
         client->processCommand();
-    const bool ret = ( _requestHandler.waitRequest( packet.requestID ) != 0 );
+
+    bool ret = false;
+    _requestHandler.waitRequest( packet.requestID, ret );
 
     deregisterObject( &_headMatrix );
     while( _eventQueue.tryPop( )); // flush all pending events
@@ -138,8 +141,9 @@ uint32_t Config::startFrame( const uint32_t frameID )
     packet.frameID   = frameID;
 
     send( packet );
-    const uint32_t frameNumber = 
-        (uint32_t)(long long)(_requestHandler.waitRequest(packet.requestID));
+
+    uint32_t frameNumber = 0;
+    _requestHandler.waitRequest( packet.requestID, frameNumber );
     EQLOG( LOG_ANY ) << "---- Started Frame ---- " << frameNumber << endl;
     return frameNumber;
 }
@@ -154,8 +158,9 @@ uint32_t Config::finishFrame()
     RefPtr< Client > client = getClient();
     while( !_requestHandler.isServed( packet.requestID ))
         client->processCommand();
-    const int frameNumber = 
-        (uint32_t)(long long)(_requestHandler.waitRequest(packet.requestID));
+
+    uint32_t frameNumber = 0;
+    _requestHandler.waitRequest( packet.requestID, frameNumber );
 
     handleEvents();
     EQLOG( LOG_ANY ) << "----- Finish Frame ---- " << frameNumber << endl;
@@ -171,12 +176,13 @@ uint32_t Config::finishAllFrames()
     RefPtr< Client > client = getClient();
     while( !_requestHandler.isServed( packet.requestID ))
         client->processCommand();
-    const int framesNumber = 
-        (uint32_t)(long long)(_requestHandler.waitRequest(packet.requestID));
+
+    uint32_t frameNumber = 0;
+    _requestHandler.waitRequest( packet.requestID, frameNumber );
 
     handleEvents();
     EQLOG( LOG_ANY ) << "-- Finish All Frames --" << endl;
-    return framesNumber;
+    return frameNumber;
 }
 
 void Config::sendEvent( ConfigEvent& event )

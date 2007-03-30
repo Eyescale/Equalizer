@@ -67,7 +67,9 @@ uint32_t DeltaMasterCM::commitNB()
 
 uint32_t DeltaMasterCM::commitSync( const uint32_t commitID )
 {
-    return (uint32_t)(long long)_requestHandler.waitRequest( commitID );
+    uint32_t version = Object::VERSION_NONE;
+    _requestHandler.waitRequest( commitID, version );
+    return version;
 }
 
 uint32_t DeltaMasterCM::_commitInitial()
@@ -247,8 +249,7 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
         EQASSERT( _slaves.empty( ));
         _checkConsistency();
 
-        _requestHandler.serveRequest( packet->requestID, 
-                                      reinterpret_cast<void*>(_version) );
+        _requestHandler.serveRequest( packet->requestID, _version );
         return COMMAND_HANDLED;
     }
 
@@ -264,8 +265,7 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
         _obsolete();
         _checkConsistency();
 
-        _requestHandler.serveRequest( packet->requestID, 
-                                      reinterpret_cast<void*>(_version) );
+        _requestHandler.serveRequest( packet->requestID, _version );
         return COMMAND_HANDLED;
     }
 
@@ -342,7 +342,6 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
                          << _object->getID() << endl;
 
     _checkConsistency();
-    _requestHandler.serveRequest( packet->requestID, 
-                                  reinterpret_cast<void*>(_version) );
+    _requestHandler.serveRequest( packet->requestID, _version );
     return COMMAND_HANDLED;
 }

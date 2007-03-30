@@ -69,15 +69,19 @@ namespace eqBase
          * The request is unregistered.
          * 
          * @param requestID the request identifier.
-         * @param success return value to indicate if the request was served.
+         * @param resulte the result code of the operation.
          * @param timeout the timeout in milliseconds to wait for the request,
          *                or <code>EQ_TIMEOUT_INDEFINITE</code> to wait
          *                indefinitely.
-         * @return the result of the request, or <code>NULL</code> if the
-         *         request was not served.
+         * @return true if the request was served, false if not.
          */
-        void* waitRequest( const uint32_t requestID, bool* success = NULL,
-                           const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+        bool waitRequest( const uint32_t requestID, void*& result,
+                          const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+        bool waitRequest( const uint32_t requestID, uint32_t& result,
+                          const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+        bool waitRequest( const uint32_t requestID, bool& result,
+                          const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+        bool waitRequest( const uint32_t requestID );
 
         /** 
          * Polls for the completion of a request.
@@ -104,6 +108,7 @@ namespace eqBase
          * @param result the result of the request.
          */
         void serveRequest( const uint32_t requestID, void* result = 0 );
+        void serveRequest( const uint32_t requestID, uint32_t result );
 
 		bool isThreadSafe() const { return ( _mutex != 0 ); }
     private:
@@ -119,7 +124,12 @@ namespace eqBase
             
             TimedLock lock;
             void*     data;
-            void*     result;
+
+            union Result
+            {
+                void*    rPointer;
+                uint32_t rUint32;
+            } result;
         };
         
         typedef stde::hash_map<uint32_t, Request*> RequestHash;
@@ -129,6 +139,9 @@ namespace eqBase
 #pragma warning(disable: 4251)
         RequestHash         _requests;
         std::list<Request*> _freeRequests;
+
+        bool _waitRequest( const uint32_t requestID, Request::Result& result,
+                           const uint32_t timeout );
 
         CHECK_THREAD_DECLARE( _thread );
 #pragma warning(pop)

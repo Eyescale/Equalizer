@@ -174,7 +174,8 @@ void Channel::_sendConfigInit( const uint32_t initID )
 
 bool Channel::syncConfigInit()
 {
-    const bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
+    bool success = false;
+    _requestHandler.waitRequest( _pendingRequestID, success );
     _pendingRequestID = EQ_ID_INVALID;
 
     if( success )
@@ -207,7 +208,8 @@ bool Channel::syncConfigExit()
 {
     EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
-    const bool success = (bool)_requestHandler.waitRequest( _pendingRequestID );
+    bool success = false;
+    _requestHandler.waitRequest( _pendingRequestID, success );
     _pendingRequestID = EQ_ID_INVALID;
 
     _state = STATE_STOPPED;

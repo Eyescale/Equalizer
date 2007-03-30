@@ -116,7 +116,7 @@ uint32_t Session::genIDs( const uint32_t range )
     packet.range     = MAX(range, MIN_ID_RANGE);
 
     send( packet );
-    id = (uint32_t)(long long)_requestHandler.waitRequest( packet.requestID );
+    _requestHandler.waitRequest( packet.requestID, id );
 
     if( id == EQ_ID_INVALID || range >= MIN_ID_RANGE )
         return id;
@@ -527,7 +527,7 @@ CommandResult Session::_cmdGetIDMasterReply( Command& command )
 
     if( packet->start == 0 ) // not found
     {
-        _requestHandler.serveRequest( packet->requestID, 0 );
+        _requestHandler.serveRequest( packet->requestID );
         return COMMAND_HANDLED;
     }
 
@@ -535,7 +535,7 @@ CommandResult Session::_cmdGetIDMasterReply( Command& command )
     IDMasterInfo info = { packet->start, packet->end, packet->masterID };
     _idMasterInfos.push_back( info );
 
-    _requestHandler.serveRequest( packet->requestID, 0 );
+    _requestHandler.serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }
 
@@ -549,7 +549,7 @@ CommandResult Session::_cmdAttachObject( Command& command )
     Object* object =  static_cast<Object*>( _requestHandler.getRequestData( 
                                                 packet->requestID ));
     attachObject( object, packet->objectID );
-    _requestHandler.serveRequest( packet->requestID, 0 );
+    _requestHandler.serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }
 
@@ -563,7 +563,7 @@ CommandResult Session::_cmdDetachObject( Command& command )
     Object* object =  static_cast<Object*>( _requestHandler.getRequestData( 
                                                 packet->requestID ));
     detachObject( object );
-    _requestHandler.serveRequest( packet->requestID, 0 );
+    _requestHandler.serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }
 
@@ -597,7 +597,7 @@ CommandResult Session::_cmdMapObject( Command& command )
                          << (void*)object << " is " << typeid(*object).name()
                          << endl;
 
-    _requestHandler.serveRequest( packet->requestID, 0 );
+    _requestHandler.serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }
 
@@ -683,7 +683,7 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
         command.getPacket<SessionSubscribeObjectReplyPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd object subscribe reply " << packet << endl;
 
-    _requestHandler.serveRequest( packet->requestID, 0 );
+    _requestHandler.serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }
 
@@ -722,7 +722,7 @@ CommandResult Session::_cmdUnmapObject( Command& command )
 
     detachObject( object );
 
-    _requestHandler.serveRequest( packet->requestID, 0 );
+    _requestHandler.serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }
 
@@ -776,7 +776,7 @@ CommandResult Session::_cmdUnsubscribeObjectReply( Command& command )
     EQLOG( LOG_OBJECTS ) << "unmapped object @" << (void*)object << " type "
                          << typeid(*object).name() << endl;
 
-    _requestHandler.serveRequest( packet->requestID, 0 );
+    _requestHandler.serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }
 

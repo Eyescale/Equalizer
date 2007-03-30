@@ -74,7 +74,44 @@ void RequestHandler::unregisterRequest( const uint32_t requestID )
         _mutex->unset();
 }
 
-void* RequestHandler::waitRequest( const uint32_t requestID, bool* success,
+bool RequestHandler::waitRequest( const uint32_t requestID, void*& rPointer,
+                                  const uint32_t timeout )
+{
+    Request::Result result;
+    if( !_waitRequest( requestID, result, timeout ))
+        return false;
+
+    rPointer = result.rPointer;
+    return true;
+}
+bool RequestHandler::waitRequest( const uint32_t requestID, uint32_t& rUint32,
+                                  const uint32_t timeout )
+{
+    Request::Result result;
+    if( !_waitRequest( requestID, result, timeout ))
+        return false;
+
+    rUint32 = result.rUint32;
+    return true;
+}
+bool RequestHandler::waitRequest( const uint32_t requestID, bool& rBool,
+                                  const uint32_t timeout )
+{
+    Request::Result result;
+    if( !_waitRequest( requestID, result, timeout ))
+        return false;
+
+    rBool = static_cast<bool>( result.rUint32 );
+    return true;
+}
+bool RequestHandler::waitRequest( const uint32_t requestID )
+{
+    Request::Result result;
+    return _waitRequest( requestID, result, EQ_TIMEOUT_INDEFINITE );
+}
+
+bool RequestHandler::_waitRequest( const uint32_t requestID, 
+                                   Request::Result& result,
                                    const uint32_t timeout )
 {
     ScopedMutex mutex( _mutex );
@@ -84,23 +121,17 @@ void* RequestHandler::waitRequest( const uint32_t requestID, bool* success,
 
     RequestHash::iterator iter = _requests.find( requestID );
     if( iter == _requests.end( ))
-    {
-        if( success )
-            *success = false;
-        return 0;
-    }
+        return false;
 
-    Request* request = iter->second;
+    Request*   request       = iter->second;
     const bool requestServed = request->lock.set( timeout );
-    void*      result        = requestServed ? request->result : 0;
+    if( requestServed )
+        result = request->result;
 
     _requests.erase( iter );
     _freeRequests.push_front( request );
     
-    if( success )
-        *success = requestServed;
-
-    return result;
+    return requestServed;
 }
 
 void* RequestHandler::getRequestData( const uint32_t requestID )
@@ -119,7 +150,17 @@ void RequestHandler::serveRequest( const uint32_t requestID, void* result )
                   "Attempt to serve unregistered request " << requestID );
 
     Request* request = iter->second;
-    request->result = result;
+    request->result.rPointer = result;
+    request->lock.unset();
+}
+void RequestHandler::serveRequest( const uint32_t requestID, uint32_t result )
+{
+    RequestHash::const_iterator iter = _requests.find( requestID );
+    EQASSERTINFO( iter != _requests.end(),
+                  "Attempt to serve unregistered request " << requestID );
+
+    Request* request = iter->second;
+    request->result.rUint32 = result;
     request->lock.unset();
 }
     
