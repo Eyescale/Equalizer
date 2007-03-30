@@ -6,7 +6,6 @@ License: LGPL
 Group: System Environment/Libraries
 Source: http://www.equalizergraphics.com/downloads/Equalizer-0.3.0.tar.gz
 Buildroot: /var/tmp/%{name}-%{version}-buildroot
-Requires:
 URL: http://www.equalizergraphics.com
 Packager: Stefan Eilemann <eilemann@gmail.com>
 

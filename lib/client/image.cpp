@@ -28,7 +28,7 @@ Image::~Image()
 
 uint32_t Image::getDepth( const Frame::Buffer buffer ) const
 {
-    uint32_t depth;
+    uint32_t depth = 0;
     switch( getFormat( buffer ))
     {
         case GL_RGBA:
