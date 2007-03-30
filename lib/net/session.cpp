@@ -468,8 +468,7 @@ CommandResult Session::_cmdGenIDsReply( Command& command )
     const SessionGenIDsReplyPacket* packet =
         command.getPacket<SessionGenIDsReplyPacket>();
     EQINFO << "Cmd gen IDs reply: " << packet << endl;
-    _requestHandler.serveRequest( packet->requestID, 
-                                  (void*)(long long)(packet->id) );
+    _requestHandler.serveRequest( packet->requestID, packet->id );
     return COMMAND_HANDLED;
 }
 

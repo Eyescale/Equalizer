@@ -284,8 +284,7 @@ eqNet::CommandResult Config::_cmdStartFrameReply( eqNet::Command& command )
         command.getPacket<ConfigStartFrameReplyPacket>();
     EQVERB << "handle frame start reply " << packet << endl;
 
-    _requestHandler.serveRequest( packet->requestID, 
-                                  (void*)(long long)(packet->frameNumber) );
+    _requestHandler.serveRequest( packet->requestID, packet->frameNumber );
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -295,8 +294,7 @@ eqNet::CommandResult Config::_reqFinishFrameReply( eqNet::Command& command )
         command.getPacket<ConfigFinishFrameReplyPacket>();
     EQVERB << "handle frame finish reply " << packet << endl;
 
-    _requestHandler.serveRequest( packet->requestID,
-                                  (void*)(long long)(packet->result) );
+    _requestHandler.serveRequest( packet->requestID, packet->result );
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -306,8 +304,7 @@ eqNet::CommandResult Config::_reqFinishAllFramesReply( eqNet::Command& command )
         command.getPacket<ConfigFinishAllFramesReplyPacket>();
     EQVERB << "handle all frames finish reply " << packet << endl;
 
-    _requestHandler.serveRequest( packet->requestID,
-                                  (void*)(long long)(packet->result) );
+    _requestHandler.serveRequest( packet->requestID, packet->result );
     return eqNet::COMMAND_HANDLED;
 }
 
