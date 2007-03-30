@@ -4,15 +4,6 @@
 
 all: $(TARGETS)
 
-install:
-	/bin/sh $(INSTALL_CMD)
-
-rpm: $(INSTALL_FILES)
-	@echo "check $(INSTALL_FILES), run 'rpmbuild -ba make/Equalizer.spec' as root"
-
-$(INSTALL_FILES):
-	@cat $(INSTALL_CMD) | awk '{print $$3;}' | sed 's/.PREFIX//' > $@
-
 # top level precompile command(s)
 precompile: $(CXX_DEFINES_FILE)
 
@@ -37,12 +28,22 @@ $(SUBDIRS):
 	@$(MAKE) TOP=$(SUBDIRTOP) VARIANT=$(VARIANT) SUBDIR=$(SUBDIR)/$@ -C $@
 
 
+# installing and packaging
+install:
+	/bin/sh $(INSTALL_CMD)
+
+rpm: $(INSTALL_FILES)
+	@echo "check $(INSTALL_FILES), run 'rpmbuild -ba make/Equalizer.spec' as root"
+
+$(INSTALL_FILES):
+	@cat $(INSTALL_CMD) | awk '{print $$3;}' | sed 's/.PREFIX//' > $@
+
 # headers
 $(HEADER_DIR)/%: %
 	@mkdir -p $(@D)
 	@echo 'Header file $@'
-	@echo "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_HEADER_DIR)/$<" >> $(INSTALL_CMD)
 	@cp $< $@
+	@echo "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_HEADER_DIR)/$<" >> $(INSTALL_CMD)
 
 # libraries
 $(FAT_DYNAMIC_LIB): $(THIN_DYNAMIC_LIBS)
