@@ -114,4 +114,5 @@ SIMPLE_PROGRAMS  += $(FAT_SIMPLE_PROGRAMS)
 endif
 
 # install variables
-INSTALL_MAP       = $(TOP)/install.map
+INSTALL_CMD     = $(TOP)/install.sh
+INSTALL_FILES   = $(TOP)/install.files

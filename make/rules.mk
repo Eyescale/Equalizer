@@ -5,7 +5,13 @@
 all: $(TARGETS)
 
 install:
-	/bin/sh $(INSTALL_MAP)
+	/bin/sh $(INSTALL_CMD)
+
+rpm: $(INSTALL_FILES)
+	@echo "check $(INSTALL_FILES), run 'rpmbuild -ba make/Equalizer.spec' as root"
+
+$(INSTALL_FILES):
+	@cat $(INSTALL_CMD) | awk '{print $$3;}' | sed 's/.PREFIX//' > $@
 
 # top level precompile command(s)
 precompile: $(CXX_DEFINES_FILE)
@@ -35,7 +41,7 @@ $(SUBDIRS):
 $(HEADER_DIR)/%: %
 	@mkdir -p $(@D)
 	@echo 'Header file $@'
-	@echo cp $(SUBDIR)/$@ $(INSTALL_HEADER_DIR)$< >> $(INSTALL_MAP) 
+	@echo "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_HEADER_DIR)/$<" >> $(INSTALL_CMD)
 	@cp $< $@
 
 # libraries
@@ -43,7 +49,7 @@ $(FAT_DYNAMIC_LIB): $(THIN_DYNAMIC_LIBS)
 ifndef VARIANT
 	@mkdir -p $(@D)
 	lipo -create $(THIN_DYNAMIC_LIBS) -output $@
-	@echo cp $(SUBDIR)/$@ $(INSTALL_LIB_DIR)/$(@F) >> $(INSTALL_MAP) 
+	@echo "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_LIB_DIR)/$(@F)" >> $(INSTALL_CMD)
 endif
 
 $(THIN_DYNAMIC_LIBS): $(PCHEADERS) $(OBJECTS)
@@ -51,7 +57,7 @@ ifdef VARIANT
 	@mkdir -p $(@D)
 	$(CXX) $(LINKDIRS) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 ifndef BUILD_FAT
-	@echo cp $(SUBDIR)/$@ $(INSTALL_LIB_DIR)/$(@F) >> $(INSTALL_MAP) 
+	@echo "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_LIB_DIR)/$(@F)" >> $(INSTALL_CMD) 
 endif
 else
 	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).$(DSO_SUFFIX)=%) TOP=$(TOP) $@
@@ -61,7 +67,7 @@ $(FAT_STATIC_LIB): $(THIN_STATIC_LIBS)
 ifndef VARIANT
 	@mkdir -p $(@D)
 	lipo -create $(THIN_STATIC_LIBS) -output $@
-	@echo cp $(SUBDIR)/$@ $(INSTALL_LIB_DIR)/$(@F) >> $(INSTALL_MAP) 
+	@echo "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_LIB_DIR)/$(@F)" >> $(INSTALL_CMD) 
 endif
 
 $(THIN_STATIC_LIBS): $(PCHEADERS) $(OBJECTS)
@@ -70,7 +76,7 @@ ifdef VARIANT
 	@rm -f $@
 	$(AR) $(LINKDIRS) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 ifndef BUILD_FAT
-	@echo cp $(SUBDIR)/$@ $(INSTALL_LIB_DIR)/$(@F) >> $(INSTALL_MAP) 
+	@echo "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_LIB_DIR)/$(@F)" >> $(INSTALL_CMD) 
 endif
 else
 	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).a=%) TOP=$(TOP) $@
@@ -89,7 +95,7 @@ $(FAT_PROGRAM): $(THIN_PROGRAMS)
 ifndef VARIANT
 	lipo -create $(THIN_PROGRAMS) -output $@
 ifndef NOINSTALL
-	@echo cp $(SUBDIR)/$@ $(INSTALL_BIN_DIR)/$(@F) >> $(INSTALL_MAP) 
+	@echo "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_BIN_DIR)/$(@F)" >> $(INSTALL_CMD) 
 endif
 endif
 
@@ -98,7 +104,7 @@ ifdef VARIANT
 	$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) $(LINKDIRS) $(SA_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 ifndef BUILD_FAT
 ifndef NOINSTALL
-	@echo cp $(SUBDIR)/$@ $(INSTALL_BIN_DIR)/$(@F) >> $(INSTALL_MAP)
+	@echo "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_BIN_DIR)/$(@F)" >> $(INSTALL_CMD)
 endif
 endif
 else
