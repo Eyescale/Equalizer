@@ -107,7 +107,7 @@ Command* CommandQueue::pop()
         if( _lastCommand )
             return _lastCommand;
 
-        // Blocking windows message pump - push will send 'fake' message
+        // Blocking windows message pump - push() will send 'fake' message
         if( GetMessage( &msg, 0, 0, 0 ))
         {
             TranslateMessage( &msg );
