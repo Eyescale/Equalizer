@@ -1,0 +1,65 @@
+# Configuration to drive a three-sided 2x2m CAVE(tm)
+# Adapt wall descriptions in compound tree to match physical walls
+global
+{
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+    EQ_COMPOUND_IATTR_STEREO_MODE   ANAGLYPH # comment out for active stereo
+}
+
+server
+{
+    config
+    {
+        latency 0
+        appNode
+        {
+            pipe { window { channel { name "channel-front" }}}
+        }
+        node
+        {
+            connection { hostname "be-0sdp" }
+            pipe { window { channel { name "channel-left" }}}
+        }
+        node
+        {
+            connection { hostname "be-1sdp" }
+            pipe { window { channel { name "channel-right" }}}
+        }
+        compound
+        {
+            compound
+            { 
+                channel "channel-left"
+                wall
+                {
+                    bottom_left  [ -1 -1  1 ]
+                    bottom_right [ -1 -1 -1 ]
+                    top_left     [ -1  1  1 ]
+                }
+                swapbarrier{}
+            }
+            compound
+            {
+                channel "channel-front"
+                wall
+                {
+                    bottom_left  [ -1 -1 -1 ]
+                    bottom_right [  1 -1 -1 ]
+                    top_left     [ -1  1 -1 ]
+                }
+                swapbarrier{}
+            }
+            compound
+            { 
+                channel "channel-right"
+                wall
+                {
+                    bottom_left  [ 1 -1 -1 ]
+                    bottom_right [ 1 -1  1 ]
+                    top_left     [ 1  1 -1 ]
+                }
+                swapbarrier{}
+            }
+        }
+    }    
+}
