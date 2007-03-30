@@ -4,6 +4,7 @@ include $(TOP)/make/system.mk
 OPTIONAL = $(wildcard WorldSkin*)
 
 SUBDIRS = \
+	configs \
 	eqPly \
 	libmesh \
 	pixelBench \

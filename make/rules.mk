@@ -36,21 +36,25 @@ rpm: $(INSTALL_FILES)
 	@echo "check $(INSTALL_FILES), run 'rpmbuild -ba make/Equalizer.spec' as root"
 
 $(INSTALL_FILES):
-	@cat $(INSTALL_CMD) | awk '{print $$3;}' | sed 's/.PREFIX//' > $@
+	@cat $(INSTALL_CMD) | awk '{print $$6;}' | sed 's/.PREFIX//' > $@
 
-# headers
-$(HEADER_DIR)/%: %
+# includes
+$(INCLUDE_DIR)/%: %
 	@mkdir -p $(@D)
-	@echo 'Header file $@'
+	@echo 'Include file $@'
 	@cp $< $@
-	@echo "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_HEADER_DIR)/$<" >> $(INSTALL_CMD)
+	@echo "mkdir -p \$$PREFIX/$(dir $(INSTALL_INCLUDE_DIR)/$<);" \
+	      "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_INCLUDE_DIR)/$<" \
+	    >> $(INSTALL_CMD)
 
 # libraries
 $(FAT_DYNAMIC_LIB): $(THIN_DYNAMIC_LIBS)
 ifndef VARIANT
 	@mkdir -p $(@D)
 	lipo -create $(THIN_DYNAMIC_LIBS) -output $@
-	@echo "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_LIB_DIR)/$(@F)" >> $(INSTALL_CMD)
+	@echo "mkdir -p \$$PREFIX/$(INSTALL_LIB_DIR);" \
+	      "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_LIB_DIR)/$(@F)" \
+	    >> $(INSTALL_CMD)
 endif
 
 $(THIN_DYNAMIC_LIBS): $(PCHEADERS) $(OBJECTS)
@@ -58,7 +62,9 @@ ifdef VARIANT
 	@mkdir -p $(@D)
 	$(CXX) $(LINKDIRS) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 ifndef BUILD_FAT
-	@echo "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_LIB_DIR)/$(@F)" >> $(INSTALL_CMD) 
+	@echo "mkdir -p \$$PREFIX/$(INSTALL_LIB_DIR);" \
+	      "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_LIB_DIR)/$(@F)" \
+	    >> $(INSTALL_CMD) 
 endif
 else
 	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).$(DSO_SUFFIX)=%) TOP=$(TOP) $@
@@ -68,7 +74,9 @@ $(FAT_STATIC_LIB): $(THIN_STATIC_LIBS)
 ifndef VARIANT
 	@mkdir -p $(@D)
 	lipo -create $(THIN_STATIC_LIBS) -output $@
-	@echo "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_LIB_DIR)/$(@F)" >> $(INSTALL_CMD) 
+	@echo "mkdir -p \$$PREFIX/$(INSTALL_LIB_DIR);" \
+	      "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_LIB_DIR)/$(@F)" \
+	    >> $(INSTALL_CMD) 
 endif
 
 $(THIN_STATIC_LIBS): $(PCHEADERS) $(OBJECTS)
@@ -77,7 +85,9 @@ ifdef VARIANT
 	@rm -f $@
 	$(AR) $(LINKDIRS) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 ifndef BUILD_FAT
-	@echo "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_LIB_DIR)/$(@F)" >> $(INSTALL_CMD) 
+	@echo "mkdir -p \$$PREFIX/$(INSTALL_LIB_DIR);" \
+	      "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_LIB_DIR)/$(@F)" \
+	    >> $(INSTALL_CMD) 
 endif
 else
 	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).a=%) TOP=$(TOP) $@
@@ -96,7 +106,9 @@ $(FAT_PROGRAM): $(THIN_PROGRAMS)
 ifndef VARIANT
 	lipo -create $(THIN_PROGRAMS) -output $@
 ifndef NOINSTALL
-	@echo "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_BIN_DIR)/$(@F)" >> $(INSTALL_CMD) 
+	@echo "mkdir -p \$$PREFIX/$(INSTALL_BIN_DIR);" \
+	      "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_BIN_DIR)/$(@F)" \
+	    >> $(INSTALL_CMD) 
 endif
 endif
 
@@ -105,7 +117,9 @@ ifdef VARIANT
 	$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) $(LINKDIRS) $(SA_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 ifndef BUILD_FAT
 ifndef NOINSTALL
-	@echo "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_BIN_DIR)/$(@F)" >> $(INSTALL_CMD)
+	@echo "mkdir -p \$$PREFIX/$(INSTALL_BIN_DIR);" \
+	      "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_BIN_DIR)/$(@F)" \
+	    >> $(INSTALL_CMD)
 endif
 endif
 else

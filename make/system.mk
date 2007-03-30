@@ -21,7 +21,9 @@ VARIANTS       ?= $(SUBARCH)
 INSTALL_DIR    ?= /usr/local
 INSTALL_LIB_DIR    ?= $(INSTALL_DIR)/lib$(VARIANT)
 INSTALL_BIN_DIR    ?= $(INSTALL_DIR)/bin
-INSTALL_HEADER_DIR  = $(INSTALL_DIR)/$(HEADER_BASE)
+INSTALL_SHARE_DIR  ?= $(INSTALL_DIR)/share/Equalizer
+INCLUDE_BASE        = include/eq/$(MODULE)
+INSTALL_INCLUDE_DIR = $(INSTALL_DIR)/$(INCLUDE_BASE)
 
 BUILD_DIR_BASE  = build/$(ARCH)
 BUILD_DIR       = $(TOP)/$(BUILD_DIR_BASE)
@@ -58,11 +60,12 @@ CXX_DEFINES      = $(sort $(filter -D%,$(CXXFLAGS)))
 CXX_DEFINES_FILE = lib/base/defines.h
 CXX_DEFINES_TXT  = $(CXX_DEFINES:-D%= %)
 
-# header file variables
-HEADER_BASE     = include/eq/$(MODULE)
-HEADER_DIR_BASE = $(BUILD_DIR_BASE)/$(HEADER_BASE)
-HEADER_DIR      = $(TOP)/$(HEADER_DIR_BASE)
-HEADERS         = $(HEADER_SRC:%=$(HEADER_DIR)/%)
+# include file variables
+INCLUDE_DIR     = $(BUILD_DIR)/$(INCLUDE_BASE)
+HEADERS         = $(HEADER_SRC:%=$(INCLUDE_DIR)/%)
+
+# share files
+SHARE_DIR       = $(BUILD_DIR)/share
 
 # source code variables
 CXXFILES        = $(wildcard *.cpp)
