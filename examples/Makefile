@@ -1,7 +1,9 @@
 
 include $(TOP)/make/system.mk
 
-OPTIONAL = $(wildcard WorldSkin*)
+OPTIONAL = \
+	$(wildcard WorldSkin) \
+	$(wildcard god)
 
 SUBDIRS = \
 	configs \

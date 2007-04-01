@@ -1,8 +1,6 @@
 
 include $(TOP)/make/system.mk
 
-PROGRAM = eqServer
-
 SOURCES = \
 	channel.cpp \
 	config.cpp \
@@ -18,28 +16,35 @@ SOURCES = \
 	swapBarrier.cpp \
 	window.cpp \
 	lexer.cpp \
-	parser.cpp \
+	parser.cpp
+
+CXXFILES = \
 	eqServer.cpp
+INSTALL = 1
 
 CLEAN_EXTRA = \
 	lexer.cpp \
 	parser.cpp
 
+MODULE  = server
+
 CXXFLAGS    += $(WINDOW_SYSTEM_INCS)
-SA_LDFLAGS  += -leq
+LDFLAGS     += -leq
+SA_LDFLAGS  += -leq -leqserver
 
 ifeq "${ARCH}" "Linux"
-  SA_LDFLAGS += -lrt
+  SA_CXXFLAGS += -lrt
 ifeq "${SUBARCH}" "ia64"
     SA_LDFLAGS += -luuid
 endif
 endif
 
-TARGETS = $(PROGRAMS)
+TARGETS = $(DYNAMIC_LIB) $(SIMPLE_PROGRAMS)
 
 include $(TOP)/make/rules.mk
 
-$(PROGRAMS): lexer.cpp parser.cpp
+$(SIMPLE_PROGRAMS): $(DYNAMIC_LIB)
+$(DYNAMIC_LIB): lexer.cpp parser.cpp
 
 lexer.cpp: loader.l parser.cpp
 	$(FLEX) -o$@ $<

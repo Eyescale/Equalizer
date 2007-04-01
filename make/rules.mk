@@ -130,11 +130,23 @@ ifndef PROGRAM
 ifdef VARIANT
 %.$(VARIANT): %.cpp
 	$(CXX) $< $(INCLUDEDIRS) $(CXXFLAGS) $(LINKDIRS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -MD -MF $@.d -o $@ 
+ifndef BUILD_FAT
+ifdef INSTALL
+	@echo "mkdir -p \$$PREFIX/$(INSTALL_BIN_DIR);" \
+	      "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_BIN_DIR)/$(@F)" \
+	    >> $(INSTALL_CMD)
+endif
+endif
 
 else # VARIANT
 
 $(FAT_SIMPLE_PROGRAMS): $(THIN_SIMPLE_PROGRAMS)
 	lipo -create $(foreach V,$(VARIANTS),$@.$(V)) -output $@
+ifdef INSTALL
+	@echo "mkdir -p \$$PREFIX/$(INSTALL_BIN_DIR);" \
+	      "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_BIN_DIR)/$(@F)" \
+	    >> $(INSTALL_CMD)
+endif
 
 $(THIN_SIMPLE_PROGRAMS): $(CXXFILES)
 	@$(MAKE) VARIANT=$(subst .,,$(suffix $@)) TOP=$(TOP) $@
