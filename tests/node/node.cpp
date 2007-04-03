@@ -71,7 +71,7 @@ int main( int argc, char **argv )
 
     RefPtr<Node> serverProxy = new Node;
 
-    connDesc->hostname = "localhost";
+    connDesc->setHostname( "localhost" );
     serverProxy->addConnectionDescription( connDesc );
 
     const char message[] = "Don't Panic!";

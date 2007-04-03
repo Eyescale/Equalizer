@@ -19,7 +19,7 @@ int main( int argc, char **argv )
         Connection::create( CONNECTIONTYPE_TCPIP );
     RefPtr<ConnectionDescription> connDesc   = connection->getDescription();
 
-    connDesc->hostname = "localhost";
+    connDesc->setHostname( "localhost" );
     connDesc->TCPIP.port = 0;
     TEST( connection->listen( ));
 
