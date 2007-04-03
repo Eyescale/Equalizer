@@ -55,6 +55,9 @@ ifndef VARIANT
 	@echo "mkdir -p \$$PREFIX/$(INSTALL_LIB_DIR);" \
 	      "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_LIB_DIR)/$(@F)" \
 	    >> $(INSTALL_CMD)
+	@echo "echo \$$PREFIX/$(INSTALL_LIB_DIR) >> $(INSTALL_LDSO_CONF);" \
+	      " # $(INSTALL_LDSO_CONF) " \
+	    >> $(INSTALL_CMD)
 endif
 
 $(THIN_DYNAMIC_LIBS): $(PCHEADERS) $(OBJECTS)
@@ -65,6 +68,9 @@ ifndef BUILD_FAT
 	@echo "mkdir -p \$$PREFIX/$(INSTALL_LIB_DIR);" \
 	      "install $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_LIB_DIR)/$(@F)" \
 	    >> $(INSTALL_CMD) 
+	@echo "echo \$$PREFIX/$(INSTALL_LIB_DIR) >> $(INSTALL_LDSO_CONF);" \
+	      " # $(INSTALL_LDSO_CONF) " \
+	    >> $(INSTALL_CMD)
 endif
 else
 	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).$(DSO_SUFFIX)=%) TOP=$(TOP) $@

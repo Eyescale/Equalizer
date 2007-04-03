@@ -20,6 +20,7 @@ VARIANTS       ?= $(SUBARCH)
 
 INSTALL_DIR    ?= /usr/local
 INSTALL_LIB_DIR    ?= $(INSTALL_DIR)/lib$(VARIANT)
+INSTALL_LDSO_CONF  ?= /etc/ld.so.conf.d/Equalizer
 INSTALL_BIN_DIR    ?= $(INSTALL_DIR)/bin
 INSTALL_SHARE_DIR  ?= $(INSTALL_DIR)/share/Equalizer
 INCLUDE_BASE        = include/eq/$(MODULE)
