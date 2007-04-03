@@ -46,7 +46,7 @@ bool SocketConnection::connect()
 
     if( !connected )
     {
-        EQWARN << "Could not connect to '" << _description->hostname << ":"
+        EQWARN << "Could not connect to '" << _description->getHostname() << ":"
              << _description->TCPIP.port << "': " << EQ_SOCKET_ERROR << endl;
         close();
         return false;
@@ -110,7 +110,7 @@ RefPtr<Connection> SocketConnection::accept()
     newConnection->_writeFD     = fd;
     newConnection->_state       = STATE_CONNECTED;
     newConnection->_description->bandwidthKBS = _description->bandwidthKBS;
-    newConnection->_description->hostname     = inet_ntoa( newAddress.sin_addr);
+    newConnection->_description->setHostname( inet_ntoa( newAddress.sin_addr ));
     newConnection->_description->TCPIP.port   = ntohs( newAddress.sin_port );
 
     EQINFO << "accepted connection from " << inet_ntoa(newAddress.sin_addr) 
