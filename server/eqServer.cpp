@@ -21,8 +21,15 @@ int main( int argc, char **argv )
                                              "examples/configs/config.eqc" );
     if( !server.isValid( ))
     {
-        EQERROR << "Server load failed" << endl;
-        return EXIT_FAILURE;
+        if( argc == 1 )
+            server = loader.loadFile( 
+                "/usr/local/share/Equalizer/configs/config.eqc" );
+
+        if( !server.isValid( ))
+        {
+            EQERROR << "Server load failed" << endl;
+            return EXIT_FAILURE;
+        }
     }
 
     eqNet::Global::setDefaultPort( EQ_DEFAULT_PORT );
