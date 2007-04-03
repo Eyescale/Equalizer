@@ -1,7 +1,8 @@
 // Tests network throughput
 // Usage:
-//   Server: ./netperf
-//   Client: ./netperf <serverName>
+//   Server: ./netperf -s (<connectionDescription>)
+//   Client: ./netperf -c <connectionDescription>
+//     connectionDescription: hostname(:port)(:(SDP|TCPIP))
 
 #include <test.h>
 #include <eq/base/monitor.h>
