@@ -8,6 +8,9 @@ using namespace eqNet;
 using namespace eqBase;
 using namespace std;
 
+#ifndef WSA_FLAG_SDP
+#  define WSA_FLAG_SDP 0x40
+#endif
 
 SocketConnection::SocketConnection( const ConnectionType type )
     : _overlappedBuffer( 0 ),
@@ -142,12 +145,11 @@ RefPtr<Connection> SocketConnection::accept()
                           &localLen, (sockaddr**)&remote, &remoteLen );
     _tuneSocket( _overlappedSocket );
 
-    SocketConnection* newConnection = new SocketConnection;
+    SocketConnection* newConnection = new SocketConnection( _description->type);
 
     newConnection->_readFD      = _overlappedSocket;
     newConnection->_writeFD     = _overlappedSocket;
     newConnection->_state       = STATE_CONNECTED;
-    newConnection->_description->type         = _description->type;
     newConnection->_description->bandwidthKBS = _description->bandwidthKBS;
     newConnection->_description->hostname     = inet_ntoa( remote->sin_addr);
     newConnection->_description->TCPIP.port   = ntohs( remote->sin_port );
@@ -238,7 +240,12 @@ bool SocketConnection::_startAccept()
 
 bool SocketConnection::_createAcceptSocket()
 {
-    _overlappedSocket = WSASocket( AF_INET, SOCK_STREAM, IPPROTO_TCP,0,0,0);
+    const DWORD flags = _description->type == CONNECTIONTYPE_SDP ?
+                            WSA_FLAG_OVERLAPPED | WSA_FLAG_SDP :
+                            WSA_FLAG_OVERLAPPED;
+
+    _overlappedSocket = WSASocket( AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0,
+                                   flags );
     if( _overlappedSocket == INVALID_SOCKET )
     {
         EQERROR << "Could not create accept socket: " << EQ_SOCKET_ERROR <<endl;
