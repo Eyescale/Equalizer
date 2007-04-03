@@ -268,7 +268,7 @@ void Channel::applyBuffer()
 
 void Channel::setupAssemblyState()
 {
-    glPushAttrib( GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT );
+    glPushAttrib( GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_VIEWPORT_BIT );
 
     glDisable( GL_DEPTH_TEST );
     glDisable( GL_BLEND );
@@ -285,11 +285,14 @@ void Channel::setupAssemblyState()
     glDisable( GL_CLIP_PLANE4 );
     glDisable( GL_CLIP_PLANE5 );
 
+    EQASSERT( _window );    
+    const PixelViewport& pvp = _window->getPixelViewport();
+    glViewport( 0, 0, pvp.w, pvp.h );
+    glScissor( 0, 0, pvp.w, pvp.h );
+
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-
-    const PixelViewport& pvp = getPixelViewport();
     glOrtho( 0.0f, pvp.w, 0.0f, pvp.h, -1.0f, 1.0f );
    
     glMatrixMode( GL_MODELVIEW );
