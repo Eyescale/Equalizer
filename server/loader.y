@@ -599,6 +599,7 @@ eqs::Server* eqs::Loader::loadFile( const string& filename )
     if( !yyin )
     {
         EQERROR << "Can't open config file " << filename << endl;
+        loader = 0;
         return 0;
     }
 
