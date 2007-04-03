@@ -10,7 +10,8 @@
 #include <tclap/CmdLine.h>
 
 LocalInitData::LocalInitData()
-        : _clientPort( 0 ),
+        : _maxFrames( 0xffffffffu ),
+          _clientPort( 0 ),
           _color( true ),
           _isApplication( true )
 {}
@@ -28,6 +29,10 @@ void LocalInitData::parseArguments( int argc, char** argv )
                                          command );
         TCLAP::SwitchArg colorArg( "b", "bw", "Don't use colors from ply file", 
                                    command, false );
+        TCLAP::ValueArg<uint32_t> framesArg( "n", "numFrames", 
+                                           "Maximum number of rendered frames", 
+                                             false, 0xffffffffu, "unsigned",
+                                             command );
         TCLAP::ValueArg<uint16_t> clientArg( "c", "client", 
                                              "Run as resident render client", 
                                              false, 4243, "unsigned short",
@@ -41,6 +46,9 @@ void LocalInitData::parseArguments( int argc, char** argv )
             _trackerPort = portArg.getValue();
 
         _color         = !colorArg.isSet();
+
+        if( framesArg.isSet( ))
+            _maxFrames = framesArg.getValue();
 
         if( clientArg.isSet( ))
         {
