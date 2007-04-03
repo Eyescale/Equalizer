@@ -52,10 +52,10 @@ bool Client::connectServer( RefPtr<Server> server )
         const size_t colonPos  = address.rfind( ':' );
 
         if( colonPos == string::npos )
-            connDesc->hostname = address;
+            connDesc->setHostname( address );
         else
         {
-            connDesc->hostname   = address.substr( 0, colonPos );
+            connDesc->setHostname( address.substr( 0, colonPos ));
             string port          = address.substr( colonPos+1 );
             connDesc->TCPIP.port = atoi( port.c_str( ));
         }

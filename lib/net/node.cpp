@@ -1269,7 +1269,7 @@ bool Node::_launch( RefPtr<Node> node,
 string Node::_createLaunchCommand( RefPtr<Node> node,
                                    RefPtr<ConnectionDescription> description )
 {
-    const string& launchCommand    = description->launchCommand;
+    const string& launchCommand    = description->getLaunchCommand();
     const size_t  launchCommandLen = launchCommand.size();
     bool          commandFound     = false;
     size_t        lastPos          = 0;
@@ -1289,7 +1289,7 @@ string Node::_createLaunchCommand( RefPtr<Node> node,
                 break;
             }
             case 'h':
-                replacement << description->hostname;
+                replacement << description->getHostname();
                 break;
 
             case 'n':

@@ -21,20 +21,28 @@ using namespace std;
 
 int main( int argc, char **argv )
 {
+    if( argc != 2 && argc != 3 )
+    {
+        cout << "Usage: " << argv[0] << " (-s|-c) (connectionDescription)" 
+             << endl;
+        exit( EXIT_FAILURE );
+    }
+
     eqNet::init( argc, argv );
 
     RefPtr<Connection>            connection = 
         Connection::create( CONNECTIONTYPE_TCPIP );
     RefPtr<ConnectionDescription> connDesc   = connection->getDescription();
     connDesc->TCPIP.port = 4242;
+    if( argc == 3 )
+        connDesc->fromString( argv[2] );
 
     void*         buffer    = calloc( 1, PACKETSIZE );
     const float   mBytesSec = PACKETSIZE / 1024.0f / 1024.0f * 1000.0f;
     Clock         clock;
 
-    if( argc == 2 )
+    if( argv[1] == string( "-c" )) // client
     {
-        connDesc->hostname = argv[1];
         TEST( connection->connect( ));
 
         for( unsigned i=0; i<NPACKETS; )
@@ -50,7 +58,6 @@ int main( int argc, char **argv )
     }
     else
     {
-        //connDesc->hostname = "10.2.1.2";
         TEST( connection->listen( ));
 
         RefPtr<Connection> client = connection->accept();

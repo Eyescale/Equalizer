@@ -57,7 +57,7 @@ bool SocketConnection::connect()
                                        sizeof(socketAddress), 0, 0, 0, 0 ) == 0;
     if( !connected )
     {
-        EQWARN << "Could not connect to '" << _description->hostname << ":"
+        EQWARN << "Could not connect to '" << _description->getHostname() << ":"
              << _description->TCPIP.port << "': " << EQ_SOCKET_ERROR << endl;
         close();
         return false;
@@ -151,7 +151,7 @@ RefPtr<Connection> SocketConnection::accept()
     newConnection->_writeFD     = _overlappedSocket;
     newConnection->_state       = STATE_CONNECTED;
     newConnection->_description->bandwidthKBS = _description->bandwidthKBS;
-    newConnection->_description->hostname     = inet_ntoa( remote->sin_addr);
+    newConnection->_description->setHostname( inet_ntoa( remote->sin_addr ));
     newConnection->_description->TCPIP.port   = ntohs( remote->sin_port );
 
     _overlappedSocket  = INVALID_SOCKET;
@@ -246,6 +246,10 @@ bool SocketConnection::_createAcceptSocket()
 
     _overlappedSocket = WSASocket( AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0,
                                    flags );
+
+    if( _description->type == CONNECTIONTYPE_SDP )
+        EQINFO << "Created SDP accept socket" << endl;
+
     if( _overlappedSocket == INVALID_SOCKET )
     {
         EQERROR << "Could not create accept socket: " << EQ_SOCKET_ERROR <<endl;

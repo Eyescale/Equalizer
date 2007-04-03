@@ -30,8 +30,8 @@ string ConnectionDescription::toString()
             break;
     }        
 
-    description << SEPARATOR << bandwidthKBS << SEPARATOR << launchCommand 
-                << SEPARATOR << launchTimeout << SEPARATOR << hostname ;
+    description << SEPARATOR << bandwidthKBS << SEPARATOR << _launchCommand 
+                << SEPARATOR << launchTimeout << SEPARATOR << _hostname ;
     
     switch( type )
     {
@@ -57,11 +57,11 @@ bool ConnectionDescription::fromString( const string& data )
             colonPos = data.find( ':' );
             if( colonPos == string::npos ) // assume hostname format
             {
-                hostname = data;
+                _hostname = data;
                 return true;
             }
 
-            hostname       = data.substr( 0, colonPos );
+            _hostname       = data.substr( 0, colonPos );
 
             while( colonPos != string::npos )
             {
@@ -105,7 +105,7 @@ bool ConnectionDescription::fromString( const string& data )
         colonPos = data.find( SEPARATOR, nextPos );
         if( colonPos == string::npos )
             goto error;
-        launchCommand = data.substr( nextPos, colonPos-nextPos );
+        _launchCommand = data.substr( nextPos, colonPos-nextPos );
 
         nextPos  = colonPos+1;
         colonPos = data.find( SEPARATOR, nextPos );
@@ -117,7 +117,7 @@ bool ConnectionDescription::fromString( const string& data )
 
         nextPos  = colonPos+1;
         colonPos = data.find( SEPARATOR, nextPos );
-        hostname = data.substr( nextPos, colonPos-nextPos );
+        _hostname = data.substr( nextPos, colonPos-nextPos );
 
         switch( this->type )
         {
@@ -144,4 +144,24 @@ bool ConnectionDescription::fromString( const string& data )
   error:
     EQWARN << "Could not parse connection description: " << data << endl;
     return false;
+}
+
+void ConnectionDescription::setHostname( const std::string& hostname )
+{
+    _hostname = hostname;
+}
+
+const string& ConnectionDescription::getHostname() const
+{
+    return _hostname;
+}
+
+void ConnectionDescription::setLaunchCommand( const std::string& launchCommand )
+{
+    _launchCommand = launchCommand;
+}
+
+const string& ConnectionDescription::getLaunchCommand() const
+{
+    return _launchCommand;
 }

@@ -27,11 +27,11 @@ ConnectionDescription::ConnectionDescription()
 {
     const Global* global = Global::instance();
 
-    hostname      = global->getConnectionSAttribute( SATTR_HOSTNAME );
-    launchCommand = global->getConnectionSAttribute( SATTR_LAUNCH_COMMAND );
+    setHostname( global->getConnectionSAttribute( SATTR_HOSTNAME ));
+    setLaunchCommand( global->getConnectionSAttribute( SATTR_LAUNCH_COMMAND ));
 
-    launchTimeout = global->getConnectionIAttribute( IATTR_LAUNCH_TIMEOUT );
-    type          = (eqNet::ConnectionType)global->
+    launchTimeout  = global->getConnectionIAttribute( IATTR_LAUNCH_TIMEOUT );
+    type           = (eqNet::ConnectionType)global->
         getConnectionIAttribute( IATTR_TYPE );
 
     switch( type )
@@ -69,13 +69,13 @@ std::ostream& eqs::operator << ( std::ostream& os,
             eqs::ConnectionDescription::IATTR_LAUNCH_TIMEOUT ))
         os << "timeout " << desc->launchTimeout << endl;
 
-    if( desc->hostname != global->getConnectionSAttribute( 
+    if( desc->getHostname() != global->getConnectionSAttribute( 
             eqs::ConnectionDescription::SATTR_HOSTNAME ))
-        os << "hostname \"" << desc->hostname << "\"" << endl;
+        os << "hostname \"" << desc->getHostname() << "\"" << endl;
 
-    if( desc->launchCommand != global->getConnectionSAttribute( 
+    if( desc->getLaunchCommand() != global->getConnectionSAttribute( 
             eqs::ConnectionDescription::SATTR_LAUNCH_COMMAND ))
-        os << "command \"" << desc->launchCommand << "\"" << endl;
+        os << "command \"" << desc->getLaunchCommand() << "\"" << endl;
     
     os << exdent << "}" << enableFlush << endl;
 

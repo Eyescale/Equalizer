@@ -325,11 +325,11 @@ connection: EQTOKEN_CONNECTION
 connectionFields: /*null*/ | connectionField | 
                       connectionFields connectionField
 connectionField:
-    EQTOKEN_TYPE connectionType  { connectionDescription->type = $2; }
-    | EQTOKEN_HOSTNAME  STRING    { connectionDescription->hostname = $2; }
-    | EQTOKEN_COMMAND   STRING    { connectionDescription->launchCommand = $2; }
+    EQTOKEN_TYPE connectionType   { connectionDescription->type = $2; }
+    | EQTOKEN_HOSTNAME  STRING    { connectionDescription->setHostname($2); }
+    | EQTOKEN_COMMAND   STRING  { connectionDescription->setLaunchCommand($2); }
     | EQTOKEN_TIMEOUT   UNSIGNED  { connectionDescription->launchTimeout = $2; }
-    | EQTOKEN_TCPIP_PORT UNSIGNED  { connectionDescription->TCPIP.port = $2; }
+    | EQTOKEN_TCPIP_PORT UNSIGNED { connectionDescription->TCPIP.port = $2; }
 
 
 pipes: pipe | pipes pipe

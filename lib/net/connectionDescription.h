@@ -35,23 +35,10 @@ namespace eqNet
         uint64_t bandwidthKBS;
 
         /** 
-         * The command to spawn a new process on the node, e.g., 
-         * "ssh eile@node1", can be <code>NULL</code>.
-         * 
-         * %h - hostname
-         * %c - command
-         * %n - unique node identifier
-         */
-        std::string launchCommand; 
-
-        /** 
          * The amount of time in milliseconds to wait before a node is
          * considered unreachable during start.
          */
         int32_t launchTimeout;
-
-        /** The host name. */
-        std::string hostname;
 
         /** The individual parameters for the connection. */
         union
@@ -84,8 +71,31 @@ namespace eqNet
          */
         bool fromString( const std::string& data );
 
+        /** @name Data Access */
+        //*{
+        void setHostname( const std::string& hostname );
+        const std::string& getHostname() const;
+        void setLaunchCommand( const std::string& launchCommand );
+        const std::string& getLaunchCommand() const;
+        //*}
     protected:
         virtual ~ConnectionDescription() {}
+
+    private:
+        /** 
+         * The command to spawn a new process on the node, e.g., 
+         * "ssh eile@node1", can be <code>NULL</code>.
+         * 
+         * %h - hostname
+         * %c - command
+         * %n - unique node identifier
+         */
+        std::string _launchCommand; 
+
+        /** The host name. */
+        std::string _hostname;
+
+
     };
 };
 

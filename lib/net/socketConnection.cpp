@@ -16,6 +16,9 @@
 #include <sys/types.h>
 
 #ifdef WIN32
+#  ifndef WSA_FLAG_SDP
+#    define WSA_FLAG_SDP 0x40
+#  endif
 #  define EQ_SOCKET_ERROR getErrorString( GetLastError( )) << "(" << GetLastError() << ")"
 #  include "socketConnectionWin32.cpp"
 
@@ -33,7 +36,14 @@
 bool SocketConnection::_createSocket()
 {
 #ifdef WIN32
-    const Socket fd = WSASocket( AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, 0 );
+    const DWORD flags = _description->type == CONNECTIONTYPE_SDP ?
+                            WSA_FLAG_OVERLAPPED | WSA_FLAG_SDP :
+                            WSA_FLAG_OVERLAPPED;
+
+    const SOCKET fd = WSASocket( AF_INET, SOCK_STREAM, IPPROTO_TCP, 0,0,flags );
+
+    if( _description->type == CONNECTIONTYPE_SDP )
+        EQINFO << "Created SDP socket" << endl;
 #else
     const Socket fd = ::socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
 #endif
@@ -57,9 +67,10 @@ void SocketConnection::_parseAddress( sockaddr_in& socketAddress )
     socketAddress.sin_port        = htons( _description->TCPIP.port );
     memset( &(socketAddress.sin_zero), 0, 8 ); // zero the rest
 
-    if( !_description->hostname.empty( ))
+    const std::string& hostname = _description->getHostname();
+    if( !hostname.empty( ))
     {
-        hostent *hptr = gethostbyname( _description->hostname.c_str() );
+        hostent *hptr = gethostbyname( hostname.c_str( ));
         if( hptr )
             memcpy(&socketAddress.sin_addr.s_addr, hptr->h_addr,hptr->h_length);
     }
@@ -130,23 +141,25 @@ bool SocketConnection::listen()
 
     _description->TCPIP.port = ntohs( address.sin_port );
 
-    if( _description->hostname.empty( ))
+    const std::string& hostname = _description->getHostname();
+    if( hostname.empty( ))
     {
         if( address.sin_addr.s_addr == INADDR_ANY )
         {
-            char hostname[256];
-            gethostname( hostname, 256 );
-            _description->hostname = hostname;
+            char cHostname[256];
+            gethostname( cHostname, 256 );
+            _description->setHostname( cHostname );
         }
         else
-            _description->hostname = inet_ntoa( address.sin_addr );
+            _description->setHostname( inet_ntoa( address.sin_addr ));
     }
     
     _state       = STATE_LISTENING;
 
-    EQINFO << "Listening on " << _description->hostname << "["
-           << inet_ntoa( socketAddress.sin_addr )
-           << "]:" << _description->TCPIP.port << endl;
+    EQINFO << "Listening on " << _description->getHostname() << "["
+           << inet_ntoa( socketAddress.sin_addr ) << "]:" 
+           << _description->TCPIP.port << " (" << _description->toString()
+           << ")" << endl;
     
     return true;
 }
