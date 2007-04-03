@@ -62,12 +62,7 @@ namespace eqNet
                 /** The listening port. */
                 uint16_t port;
 
-            } TCPIP;
-            
-            /** MPI parameters */
-            struct
-            {
-            } MPI;
+            } TCPIP, SDP;
 
             /** pipe parameters */
             struct

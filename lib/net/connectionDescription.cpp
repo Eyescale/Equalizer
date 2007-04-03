@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "connectionDescription.h"
@@ -21,6 +21,10 @@ string ConnectionDescription::toString()
             description << "TCPIP";
             break;
 
+        case CONNECTIONTYPE_SDP:
+            description << "SDP";
+            break;
+
         case CONNECTIONTYPE_PIPE:
             description << "PIPE";
             break;
@@ -32,6 +36,7 @@ string ConnectionDescription::toString()
     switch( type )
     {
         case CONNECTIONTYPE_TCPIP:
+        case CONNECTIONTYPE_SDP:
             description << SEPARATOR << TCPIP.port;
             break;
 
@@ -45,20 +50,36 @@ bool ConnectionDescription::fromString( const string& data )
 {
     {
         size_t colonPos = data.find( SEPARATOR );
-        if( colonPos == string::npos ) // assume hostname:port format
+        // assume hostname[:port[:type]|:type] format
+        if( colonPos == string::npos )
         {
             type     = CONNECTIONTYPE_TCPIP;
             colonPos = data.find( ':' );
-            if( colonPos == string::npos ) // assume hostname
+            if( colonPos == string::npos ) // assume hostname format
             {
                 hostname = data;
                 return true;
             }
 
-            hostname   = data.substr( 0, colonPos );
-            ++colonPos;
-            const string port = data.substr( colonPos, data.length()-colonPos );
-            TCPIP.port = atoi( port.c_str( ));
+            hostname       = data.substr( 0, colonPos );
+
+            while( colonPos != string::npos )
+            {
+                size_t     nextPos = colonPos+1;
+                colonPos           = data.find( ':', nextPos );
+                const string token = data.substr( nextPos, colonPos - nextPos );
+
+                if( !token.empty() && isdigit( token[0] )) // port
+                    TCPIP.port = atoi( token.c_str( ));
+                else if( token == "TCPIP" )
+                    type = CONNECTIONTYPE_TCPIP;
+                else if( token == "SDP" )
+                    type = CONNECTIONTYPE_SDP;
+                else if( token == "PIPE" )
+                    type = CONNECTIONTYPE_PIPE;
+                else
+                    goto error;
+            }
             return true;
         }
 
@@ -66,6 +87,8 @@ bool ConnectionDescription::fromString( const string& data )
 
         if( type == "TCPIP" )
             this->type = CONNECTIONTYPE_TCPIP;
+        else if( type == "SDP" )
+            this->type = CONNECTIONTYPE_SDP;
         else if( type == "PIPE" )
             this->type = CONNECTIONTYPE_PIPE;
         else
@@ -99,6 +122,7 @@ bool ConnectionDescription::fromString( const string& data )
         switch( this->type )
         {
             case CONNECTIONTYPE_TCPIP:
+            case CONNECTIONTYPE_SDP:
             {
                 nextPos  = colonPos+1;
                 colonPos = data.find( SEPARATOR, nextPos );

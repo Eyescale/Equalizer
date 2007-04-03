@@ -102,6 +102,7 @@
 %token EQTOKEN_NAME
 %token EQTOKEN_TYPE
 %token EQTOKEN_TCPIP
+%token EQTOKEN_SDP
 %token EQTOKEN_HOSTNAME
 %token EQTOKEN_COMMAND
 %token EQTOKEN_TIMEOUT
@@ -264,7 +265,9 @@ global:
              eqs::Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK, $2 ); 
      }
 
-connectionType: EQTOKEN_TCPIP { $$ = eqNet::CONNECTIONTYPE_TCPIP; };
+connectionType: 
+    EQTOKEN_TCPIP { $$ = eqNet::CONNECTIONTYPE_TCPIP; };
+    | EQTOKEN_SDP { $$ = eqNet::CONNECTIONTYPE_SDP; };
 
 server: EQTOKEN_SERVER '{' { server = loader->createServer(); }
         configs '}'

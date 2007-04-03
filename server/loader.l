@@ -99,6 +99,7 @@ connection                      { return EQTOKEN_CONNECTION; }
 name                            { return EQTOKEN_NAME; }
 type                            { return EQTOKEN_TYPE; }
 TCPIP                           { return EQTOKEN_TCPIP; }
+SDP                             { return EQTOKEN_SDP; }
 hostname                        { return EQTOKEN_HOSTNAME; }
 command                         { return EQTOKEN_COMMAND; }
 timeout                         { return EQTOKEN_TIMEOUT; }

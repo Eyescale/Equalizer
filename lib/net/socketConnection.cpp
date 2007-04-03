@@ -72,7 +72,8 @@ void SocketConnection::_parseAddress( sockaddr_in& socketAddress )
 //----------------------------------------------------------------------
 bool SocketConnection::listen()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_TCPIP );
+    EQASSERT( _description->type == CONNECTIONTYPE_TCPIP || 
+              _description->type == CONNECTIONTYPE_SDP );
 
     if( _state != STATE_CLOSED )
         return false;

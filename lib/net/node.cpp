@@ -117,8 +117,8 @@ bool Node::initLocal( int argc, char** argv )
         }
     }
 
-    RefPtr<Connection>            connection = new SocketConnection();
-    RefPtr<ConnectionDescription> connDesc   = connection->getDescription();
+    RefPtr<Connection> connection = new SocketConnection( CONNECTIONTYPE_TCPIP);
+    RefPtr<ConnectionDescription> connDesc = connection->getDescription();
     connDesc->TCPIP.port = Global::getDefaultPort();
 
     if( !listenOpts.empty( ) && connDesc->fromString( listenOpts ))

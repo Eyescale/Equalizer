@@ -48,7 +48,8 @@ RefPtr<Connection> Connection::create( const ConnectionType type )
     switch( type )
     {
         case CONNECTIONTYPE_TCPIP:
-            return new SocketConnection();
+        case CONNECTIONTYPE_SDP:
+            return new SocketConnection( type );
 
         case CONNECTIONTYPE_PIPE:
             return new PipeConnection();

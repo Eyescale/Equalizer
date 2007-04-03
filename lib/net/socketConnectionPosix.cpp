@@ -6,10 +6,11 @@ using namespace eqNet;
 using namespace eqBase;
 using namespace std;
 
-SocketConnection::SocketConnection()
+SocketConnection::SocketConnection( const ConnectionType type )
 {
+    EQASSERT( type == CONNECTIONTYPE_TCPIP || type == CONNECTIONTYPE_SDP );
     _description =  new ConnectionDescription;
-    _description->type = CONNECTIONTYPE_TCPIP;
+    _description->type = type;
 }
 
 SocketConnection::~SocketConnection()
@@ -22,7 +23,8 @@ SocketConnection::~SocketConnection()
 //----------------------------------------------------------------------
 bool SocketConnection::connect()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_TCPIP );
+    EQASSERT( _description->type == CONNECTIONTYPE_TCPIP ||
+              _description->type == CONNECTIONTYPE_SDP );
     if( _state != STATE_CLOSED )
         return false;
 
@@ -102,12 +104,11 @@ RefPtr<Connection> SocketConnection::accept()
 
     _tuneSocket( fd );
 
-    SocketConnection* newConnection = new SocketConnection;
+    SocketConnection* newConnection = new SocketConnection( _description->type);
 
     newConnection->_readFD      = fd;
     newConnection->_writeFD     = fd;
     newConnection->_state       = STATE_CONNECTED;
-    newConnection->_description->type         = CONNECTIONTYPE_TCPIP;
     newConnection->_description->bandwidthKBS = _description->bandwidthKBS;
     newConnection->_description->hostname     = inet_ntoa( newAddress.sin_addr);
     newConnection->_description->TCPIP.port   = ntohs( newAddress.sin_port );

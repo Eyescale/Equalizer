@@ -169,6 +169,7 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
         { 
             case ConnectionDescription::IATTR_TYPE:
                 os << ( value == eqNet::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
+                        value == eqNet::CONNECTIONTYPE_SDP   ? "SDP" : 
                         "PIPE" );
                 break;
             case ConnectionDescription::IATTR_LAUNCH_TIMEOUT:

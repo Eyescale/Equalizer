@@ -37,6 +37,7 @@ ConnectionDescription::ConnectionDescription()
     switch( type )
     {
         case eqNet::CONNECTIONTYPE_TCPIP:
+        case eqNet::CONNECTIONTYPE_SDP:
             TCPIP.port = global->getConnectionIAttribute( IATTR_TCPIP_PORT );
             break;
         default:
@@ -56,7 +57,8 @@ std::ostream& eqs::operator << ( std::ostream& os,
             eqs::ConnectionDescription::IATTR_TYPE ))
         os << "type " 
            << ( desc->type == eqNet::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
-                desc->type == eqNet::CONNECTIONTYPE_PIPE ?  "PIPE" :
+                desc->type == eqNet::CONNECTIONTYPE_SDP   ? "SDP" : 
+                desc->type == eqNet::CONNECTIONTYPE_PIPE  ? "PIPE" :
                 "UNIPIPE" ) << endl;
     
     if( desc->TCPIP.port != global->getConnectionIAttribute( 

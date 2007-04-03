@@ -29,7 +29,7 @@ namespace eqNet
 #endif
     {
     public:
-        SocketConnection();
+        SocketConnection( const ConnectionType type );
 
         virtual bool connect();
         virtual bool listen();

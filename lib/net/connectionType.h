@@ -10,8 +10,9 @@ namespace eqNet
     /** The supported network protocols. */
     enum ConnectionType
     {
-        CONNECTIONTYPE_TCPIP,   //!< TCP/IP networking.
-        CONNECTIONTYPE_PIPE,    //!< pipe() based uni-directional connection
+        CONNECTIONTYPE_TCPIP,   //!< TCP/IP sockets
+        CONNECTIONTYPE_SDP,     //!< SDP sockets (InfiniBand)
+        CONNECTIONTYPE_PIPE     //!< pipe() based uni-directional connection
     };
 }
 

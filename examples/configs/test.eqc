@@ -5,7 +5,7 @@ server
     {
         node
         {
-            connection { TCPIP_port 4243 }
+            connection { type SDP }
             pipe
             {
                 window
