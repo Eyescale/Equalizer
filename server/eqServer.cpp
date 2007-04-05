@@ -15,6 +15,7 @@ using namespace std;
 int main( int argc, char **argv )
 {
     eqNet::init( argc, argv );
+    eqNet::Global::setDefaultPort( EQ_DEFAULT_PORT );
 
     Loader loader;
     RefPtr<Server> server = loader.loadFile( argc > 1 ? argv[1] :
@@ -32,7 +33,6 @@ int main( int argc, char **argv )
         }
     }
 
-    eqNet::Global::setDefaultPort( EQ_DEFAULT_PORT );
     if( !server->initLocal( argc, argv ))
     {
         EQERROR << "Can't create listener for server, please consult log" 

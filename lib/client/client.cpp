@@ -42,26 +42,16 @@ bool Client::connectServer( RefPtr<Server> server )
     {
         RefPtr<eqNet::ConnectionDescription> connDesc = 
             new eqNet::ConnectionDescription;
+        connDesc->TCPIP.port = EQ_DEFAULT_PORT;
     
-        connDesc->type = eqNet::CONNECTIONTYPE_TCPIP;
-        
         const string globalServer = Global::getServer();
         const char*  envServer = getenv( "EQ_SERVER" );
         const string address   = !globalServer.empty() ? globalServer :
                                      envServer ? envServer : "localhost";
-        const size_t colonPos  = address.rfind( ':' );
 
-        if( colonPos == string::npos )
-            connDesc->setHostname( address );
-        else
-        {
-            connDesc->setHostname( address.substr( 0, colonPos ));
-            string port          = address.substr( colonPos+1 );
-            connDesc->TCPIP.port = atoi( port.c_str( ));
-        }
-
-        if( !connDesc->TCPIP.port )
-            connDesc->TCPIP.port = EQ_DEFAULT_PORT;
+        if( !connDesc->fromString( address ))
+            EQWARN << "Can't parse server address " << address << endl;
+        EQINFO << "Connecting to " << connDesc->toString() << endl;
 
         server->addConnectionDescription( connDesc );
     }

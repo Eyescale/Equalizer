@@ -165,8 +165,8 @@ bool Node::listen( RefPtr<Connection> connection )
     if( connection.isValid( ))
     {
         EQASSERT( connection->getDescription().isValid( ));
-        EQASSERT( _connectionNodes.find( connection.get( ))
-                  == _connectionNodes.end( ));
+        EQASSERT( _connectionNodes.find( connection.get( )) ==
+                  _connectionNodes.end( ));
 
         _connectionNodes[ connection.get() ] = this;
         _connectionSet.addConnection( connection );
