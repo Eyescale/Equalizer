@@ -50,13 +50,6 @@ namespace eqNet
                 uint16_t port;
 
             } TCPIP, SDP;
-
-            /** pipe parameters */
-            struct
-            {
-                /** Read-only parameter to identify an open pipe connection. */
-                int fd;
-            } Pipe;
         };
 
         /** @return this description as a string. */
