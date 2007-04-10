@@ -17,13 +17,13 @@ EQ_EXPORT std::ostream& eq::operator << ( std::ostream& os,
     if( value > ON ) // ugh
         os << static_cast<int>( value );
     else
-        os << ( value == UNDEFINED ? "undefined" :
-                value == OFF       ? "off" :
-                value == ON        ? "on" : 
-                value == AUTO      ? "auto" :
-                value == NICEST    ? "nicest" :
-                value == QUAD      ? "quad" :
-                value == ANAGLYPH  ? "anaglyph"
+        os << ( value == UNDEFINED ? "UNDEFINED" :
+                value == OFF       ? "OFF" :
+                value == ON        ? "ON" : 
+                value == AUTO      ? "AUTO" :
+                value == NICEST    ? "NICEST" :
+                value == QUAD      ? "QUAD" :
+                value == ANAGLYPH  ? "ANAGLYPH"
                 : "ERROR"  );
     return os;
 }

@@ -186,6 +186,7 @@ eqNet::CommandResult Server::_reqUseConfig( eqNet::Command& command )
         return eqNet::COMMAND_HANDLED;
     }
 
+    EQINFO << "Using config: " << endl << Global::instance() << config << endl;
     config->setApplicationNode( node );
     mapConfig( config );
 
