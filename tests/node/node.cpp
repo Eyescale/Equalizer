@@ -57,14 +57,13 @@ int main( int argc, char **argv )
     lock.set();
     Server server;
 
-    RefPtr<Connection>            connection = 
-        Connection::create( CONNECTIONTYPE_TCPIP );
-    RefPtr<ConnectionDescription> connDesc   = connection->getDescription();
-
+    RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
+    
+    connDesc->type       = CONNECTIONTYPE_TCPIP;
     connDesc->TCPIP.port = 4242;
 
-    TEST( connection->listen( ));
-    TEST( server.listen( connection ));
+    server.addConnectionDescription( connDesc );
+    TEST( server.listen( ));
 
     RefPtr<eqNet::Node> client = new eqNet::Node;
     TEST( client->listen( ));

@@ -1,99 +1,28 @@
-
 server
 {
     config
     {
-        appNode
+        node
         {
+            connection { TCPIP_port 4243 }
             pipe
             {
                 window
                 {
-                    viewport [ 50 50 400 300 ]
-                    channel { 
-                        name "buffer1"
-                    }
-                    channel { 
-                        name "channel1A"
-                        viewport [ 0 0 .5 1 ]
-                    }
-                    channel { 
-                        name "channel1B"
-                        viewport [ .5 0 .5 1 ]
-                    }
-                }
-            }
-            pipe
-            {
-                window
-                {
-                    viewport [ 500 50 400 300 ]
-                    channel { 
-                        name "buffer2"
-                    }
-                    channel { 
-                        name "channel2A"
-                        viewport [ 0 0 .5 1 ]
-                    }
-                    channel { 
-                        name "channel2B"
-                        viewport [ .5 0 .5 1 ]
-                    }
+                    viewport [ 0.25 0.25 0.5 0.5 ]
+                    
+                    channel { name "channel" }
                 }
             }
         }
-
         compound
         { 
-            channel "channel1A"
+            channel "channel"
             wall
             {
                 bottom_left  [ -.8 -.5 -1 ]
                 bottom_right [  .8 -.5 -1 ]
                 top_left     [ -.8  .5 -1 ]
-            }
-        }
-        compound
-        { 
-            channel "channel1B"
-            wall
-            {
-                bottom_left  [ -.8 -.5 -2 ]
-                bottom_right [  .8 -.5 -2 ]
-                top_left     [ -.8  .5 -2 ]
-            }
-            compound
-            {
-                channel "buffer2"
-                outputframe {}
-            }
-            inputframe{ name "frame.buffer2" }
-        }
-
-        compound
-        { 
-            channel "channel2A"
-            wall
-            {
-                bottom_left  [ -.8 -.5 -1 ]
-                bottom_right [  .8 -.5 -1 ]
-                top_left     [ -.8  .5 -1 ]
-            }
-            compound
-            {
-                channel "buffer1"
-                outputframe {}
-            }
-            inputframe{ name "frame.buffer1" }
-        }
-        compound
-        { 
-            channel "channel2B"
-            wall
-            {
-                bottom_left  [ -.8 -.5 -2 ]
-                bottom_right [  .8 -.5 -2 ]
-                top_left     [ -.8  .5 -2 ]
             }
         }
     }    

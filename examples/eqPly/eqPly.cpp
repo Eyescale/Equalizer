@@ -22,21 +22,16 @@ bool EqPly::initLocal( int argc, char** argv )
         return eqNet::Node::initLocal( argc, argv );
 
     // else set up fixed client listener
-    EQASSERT( getState() != eqNet::Node::STATE_LISTENING );
+    EQASSERT( getState() == eqNet::Node::STATE_STOPPED );
+    EQASSERT( nConnectionDescriptions() == 0 );
 
-    RefPtr<eqNet::Connection>            connection = 
-        eqNet::Connection::create( eqNet::CONNECTIONTYPE_TCPIP );
-    RefPtr<eqNet::ConnectionDescription> connDesc   =
-        connection->getDescription();
-    
-    connDesc->TCPIP.port = _initData.getClientPort();
-    if( !connection->listen( ))
-    {
-        EQERROR << "Can't create listening connection" << endl; 
-        return false;
-    }
+    RefPtr<eqNet::ConnectionDescription> desc =new eqNet::ConnectionDescription;
 
-    if( !listen( connection ))
+    desc->type       = eqNet::CONNECTIONTYPE_TCPIP;
+    desc->TCPIP.port = _initData.getClientPort();
+    addConnectionDescription( desc );
+
+    if( !listen( ))
     {
         EQERROR << "Can't setup listener" << endl; 
         return false;

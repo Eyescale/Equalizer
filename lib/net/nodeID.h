@@ -38,6 +38,12 @@ namespace eqNet
                 return *this;
             }
         
+        NodeID& operator = ( const std::string& from )
+            {
+                UuidFromString( from.c_str(), &_id );
+                return *this;
+            }
+        
         bool operator == ( const NodeID& rhs ) const
             { 
                 RPC_STATUS status; 
@@ -84,6 +90,11 @@ namespace eqNet
         NodeID& operator = ( const NodeID& from )
             {
                 uuid_copy( _id, from._id );
+                return *this;
+            }
+        NodeID& operator = ( const std::string& from )
+            {
+                uuid_parse( from.c_str(), _id );
                 return *this;
             }
         

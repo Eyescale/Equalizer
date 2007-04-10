@@ -102,18 +102,16 @@ namespace eqNet
         /** 
          * Initializes this node.
          *
-         * The node will spawn a thread locally and listen on the connection for
-         * incoming commands. The node will be in the listening state if the
-         * method completed successfully. A listening node can connect to other
-         * nodes.
+         * The node will spawn a thread locally and listen on all connections
+         * described for incoming commands. The node will be in the listening
+         * state if the method completed successfully. A listening node can
+         * connect to other nodes.
          * 
-         * @param connection a listening connection for incoming command, can be
-         *                   <CODE>NULL</CODE>.
          * @return <code>true</code> if the node could be initialized,
          *         <code>false</code> if not.
          * @sa connect
          */
-        bool listen( eqBase::RefPtr<Connection> connection = NULL );
+        bool listen();
 
         /** 
          * Stops this node.
@@ -497,16 +495,18 @@ namespace eqNet
         virtual eqBase::RefPtr<Node> createNode( const uint32_t type )
         { EQASSERTINFO( type == TYPE_EQNET_NODE, type ); return new Node(); }
 
+        /** Serialize the node's information. */
+        std::string serialize() const;
+        /** Deserialize the node information, consumes data. */
+        bool deserialize( std::string& data );
+
         /** Registers request packets waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
 
+    private:
         /** Determines if the node should be launched automatically. */
         bool _autoLaunch;
 
-        /** true if this node was launched automatically. */
-        bool _autoLaunched;
-
-    private:
         /** Globally unique node identifier. */
         NodeID _id;
 
@@ -521,9 +521,6 @@ namespace eqNet
 
         /** The connection to this node, for remote nodes. */
         eqBase::RefPtr<Connection> _connection;
-
-        /** The listening connection. */
-        eqBase::RefPtr<Connection> _listener;
 
         /** The connection set of all connections from/to this node. */
         ConnectionSet _connectionSet;
@@ -619,8 +616,6 @@ namespace eqNet
         void* _runReceiver();
         void    _handleConnect();
         void    _handleDisconnect();
-        void      _addConnectedNode( eqBase::RefPtr<Node> node, 
-                                     eqBase::RefPtr<Connection> connection );
         bool    _handleData();
         void    _redispatchCommands();
 
@@ -630,12 +625,11 @@ namespace eqNet
         CommandResult _cmdMapSessionReply( Command& command );
         CommandResult _cmdUnmapSession( Command& command );
         CommandResult _cmdUnmapSessionReply( Command& command );
-        CommandResult _cmdLaunched( Command& command );
         CommandResult _cmdConnect( Command& command );
         CommandResult _cmdConnectReply( Command& command );
         CommandResult _cmdDisconnect( Command& command );
-        CommandResult _cmdGetConnectionDescription( Command& command );
-        CommandResult _cmdGetConnectionDescriptionReply( Command& command );
+        CommandResult _cmdGetNodeData( Command& command );
+        CommandResult _cmdGetNodeDataReply( Command& command );
 
         CHECK_THREAD_DECLARE( _thread );
     };

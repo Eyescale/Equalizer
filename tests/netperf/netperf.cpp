@@ -36,7 +36,10 @@ int main( int argc, char **argv )
     RefPtr<ConnectionDescription> connDesc   = connection->getDescription();
     connDesc->TCPIP.port = 4242;
     if( argc == 3 )
-        connDesc->fromString( argv[2] );
+    {
+        string desc = argv[2];
+        connDesc->fromString( desc );
+    }
 
     void*         buffer    = calloc( 1, PACKETSIZE );
     const float   mBytesSec = PACKETSIZE / 1024.0f / 1024.0f * 1000.0f;

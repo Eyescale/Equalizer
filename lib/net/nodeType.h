@@ -10,6 +10,7 @@ namespace eqNet
     /** Node types to identify connecting nodes. */
     enum NodeType
     {
+        TYPE_EQNET_INVALID,         //!< Invalid type
         TYPE_EQNET_NODE,            //!< A plain eqNet::Node
         TYPE_EQNET_USER = 0x100,    //!< Application-specific types
     };

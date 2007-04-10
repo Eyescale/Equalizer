@@ -184,6 +184,7 @@ const NodeID& Session::getIDMaster( const uint32_t id )
 
     send( packet );
     _requestHandler.waitRequest( packet.requestID );
+    EQINFO << "Master node for id " << id << ": " << _pollIDMaster( id ) <<endl;
     return _pollIDMaster( id );
 }
 
@@ -271,6 +272,8 @@ void Session::detachObject( Object* object )
 
 bool Session::mapObject( Object* object, const uint32_t id )
 {
+    EQINFO << "Mapping " << typeid( *object ).name() << " to id " << id << endl;
+
     EQASSERT( object->_id == EQ_ID_INVALID );
     EQASSERT( id != EQ_ID_INVALID );
     EQASSERT( !_localNode->inReceiverThread( ));
@@ -524,15 +527,13 @@ CommandResult Session::_cmdGetIDMasterReply( Command& command )
         command.getPacket<SessionGetIDMasterReplyPacket>();
     EQINFO << "handle get idMaster reply " << packet << endl;
 
-    if( packet->start == 0 ) // not found
+    if( packet->start != 0 )
     {
-        _requestHandler.serveRequest( packet->requestID );
-        return COMMAND_HANDLED;
+        // TODO thread-safety: _idMasterInfos is also read & written by app
+        IDMasterInfo info = { packet->start, packet->end, packet->masterID };
+        _idMasterInfos.push_back( info );
     }
-
-    // TODO thread-safety: _idMasterInfos is also read & written by app
-    IDMasterInfo info = { packet->start, packet->end, packet->masterID };
-    _idMasterInfos.push_back( info );
+    // else not found
 
     _requestHandler.serveRequest( packet->requestID );
     return COMMAND_HANDLED;

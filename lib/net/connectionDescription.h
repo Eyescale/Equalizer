@@ -53,16 +53,19 @@ namespace eqNet
         };
 
         /** @return this description as a string. */
-        std::string toString();
+        std::string toString() const;
+        void serialize( std::ostream& os ) const;
 
         /** 
          * Reads the connection description from a string.
          * 
+         * The string is consumed as the description is parsed.
+         *
          * @param data the string containing the connection description.
          * @return <code>true</code> if the information was read correctly, 
          *         <code>false</code> if not.
          */
-        bool fromString( const std::string& data );
+        bool fromString( std::string& data );
 
         /** @name Data Access */
         //*{

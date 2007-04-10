@@ -77,7 +77,8 @@ void Barrier::enter()
 CommandResult Barrier::_cmdEnter( Command& command )
 {
     CHECK_THREAD( _thread );
-    EQASSERT( !_master || _master == getSession()->getLocalNode( ));
+    EQASSERTINFO( !_master || _master == getSession()->getLocalNode( ),
+                  _master );
 
     const BarrierEnterPacket* packet = command.getPacket<BarrierEnterPacket>();
 

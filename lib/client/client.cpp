@@ -46,11 +46,12 @@ bool Client::connectServer( RefPtr<Server> server )
     
         const string globalServer = Global::getServer();
         const char*  envServer = getenv( "EQ_SERVER" );
-        const string address   = !globalServer.empty() ? globalServer :
+        string       address   = !globalServer.empty() ? globalServer :
                                      envServer ? envServer : "localhost";
 
         if( !connDesc->fromString( address ))
             EQWARN << "Can't parse server address " << address << endl;
+        EQASSERT( address.empty( ));
         EQINFO << "Connecting to " << connDesc->toString() << endl;
 
         server->addConnectionDescription( connDesc );
