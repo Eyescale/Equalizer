@@ -40,7 +40,7 @@ namespace eqNet
         
         NodeID& operator = ( const std::string& from )
             {
-                UuidFromString( from.c_str(), &_id );
+                UuidFromString( (unsigned char*)from.c_str(), &_id );
                 return *this;
             }
         
