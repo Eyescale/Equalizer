@@ -25,7 +25,7 @@ multipipe application.
 make VARIANTS="32 64"
 
 %install
-make PREFIX=$RPM_BUILD_ROOT install
+make DESTDIR=$RPM_BUILD_ROOT install
 make rpm
 
 %clean

@@ -36,15 +36,15 @@ rpm: $(INSTALL_FILES)
 	@echo "check $(INSTALL_FILES), run 'rpmbuild -ba make/Equalizer.spec' as root"
 
 $(INSTALL_FILES):
-	@cat $(INSTALL_CMD) | awk '{print $$7;}' | sed 's/.PREFIX//' | sort | sort -u > $@
+	@cat $(INSTALL_CMD) | awk '{print $$7;}' | sed 's/.DESTDIR//' | sort | sort -u > $@
 
 # includes
 $(INCLUDE_DIR)/%: %
 	@mkdir -p $(@D)
 	@echo 'Include file $@'
 	@cp $< $@
-	@echo "mkdir -p \$$PREFIX/$(dir $(INSTALL_INCLUDE_DIR)/$<);" \
-	      "install -c $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_INCLUDE_DIR)/$<" \
+	@echo "mkdir -p \$$DESTDIR/$(dir $(INSTALL_INCLUDE_DIR)/$<);" \
+	      "install -c $(SUBDIR)/$@ \$$DESTDIR/$(INSTALL_INCLUDE_DIR)/$<" \
 	    >> $(INSTALL_CMD)
 
 # libraries
@@ -52,11 +52,11 @@ $(FAT_DYNAMIC_LIB): $(THIN_DYNAMIC_LIBS)
 ifndef VARIANT
 	@mkdir -p $(@D)
 	lipo -create $(THIN_DYNAMIC_LIBS) -output $@
-	@echo "mkdir -p \$$PREFIX/$(INSTALL_LIB_DIR);" \
-	      "install -c $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_LIB_DIR)/$(@F)" \
+	@echo "mkdir -p \$$DESTDIR/$(INSTALL_LIB_DIR);" \
+	      "install -c $(SUBDIR)/$@ \$$DESTDIR/$(INSTALL_LIB_DIR)/$(@F)" \
 	    >> $(INSTALL_CMD)
-	@echo "mkdir -p \$$PREFIX/$(INSTALL_LDSO_DIR);" \
-	      "echo $(INSTALL_LIB_DIR) >> \$$PREFIX/$(INSTALL_LDSO_CONF)" \
+	@echo "mkdir -p \$$DESTDIR/$(INSTALL_LDSO_DIR);" \
+	      "echo $(INSTALL_LIB_DIR) >> \$$DESTDIR/$(INSTALL_LDSO_CONF)" \
 	    >> $(INSTALL_CMD)
 endif
 
@@ -65,11 +65,11 @@ ifdef VARIANT
 	@mkdir -p $(@D)
 	$(CXX) $(LINKDIRS) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 ifndef BUILD_FAT
-	@echo "mkdir -p \$$PREFIX/$(INSTALL_LIB_DIR);" \
-	      "install -c $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_LIB_DIR)/$(@F)" \
+	@echo "mkdir -p \$$DESTDIR/$(INSTALL_LIB_DIR);" \
+	      "install -c $(SUBDIR)/$@ \$$DESTDIR/$(INSTALL_LIB_DIR)/$(@F)" \
 	    >> $(INSTALL_CMD) 
-	@echo "mkdir -p \$$PREFIX/$(INSTALL_LDSO_DIR);" \
-	      "echo $(INSTALL_LIB_DIR) >> \$$PREFIX/$(INSTALL_LDSO_CONF)" \
+	@echo "mkdir -p \$$DESTDIR/$(INSTALL_LDSO_DIR);" \
+	      "echo $(INSTALL_LIB_DIR) >> \$$DESTDIR/$(INSTALL_LDSO_CONF)" \
 	    >> $(INSTALL_CMD)
 endif
 else
@@ -80,8 +80,8 @@ $(FAT_STATIC_LIB): $(THIN_STATIC_LIBS)
 ifndef VARIANT
 	@mkdir -p $(@D)
 	lipo -create $(THIN_STATIC_LIBS) -output $@
-	@echo "mkdir -p \$$PREFIX/$(INSTALL_LIB_DIR);" \
-	      "install -c $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_LIB_DIR)/$(@F)" \
+	@echo "mkdir -p \$$DESTDIR/$(INSTALL_LIB_DIR);" \
+	      "install -c $(SUBDIR)/$@ \$$DESTDIR/$(INSTALL_LIB_DIR)/$(@F)" \
 	    >> $(INSTALL_CMD) 
 endif
 
@@ -91,8 +91,8 @@ ifdef VARIANT
 	@rm -f $@
 	$(AR) $(LINKDIRS) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 ifndef BUILD_FAT
-	@echo "mkdir -p \$$PREFIX/$(INSTALL_LIB_DIR);" \
-	      "install -c $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_LIB_DIR)/$(@F)" \
+	@echo "mkdir -p \$$DESTDIR/$(INSTALL_LIB_DIR);" \
+	      "install -c $(SUBDIR)/$@ \$$DESTDIR/$(INSTALL_LIB_DIR)/$(@F)" \
 	    >> $(INSTALL_CMD) 
 endif
 else
@@ -112,8 +112,8 @@ $(FAT_PROGRAM): $(THIN_PROGRAMS)
 ifndef VARIANT
 	lipo -create $(THIN_PROGRAMS) -output $@
 ifndef NOINSTALL
-	@echo "mkdir -p \$$PREFIX/$(INSTALL_BIN_DIR);" \
-	      "install -c $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_BIN_DIR)/$(@F)" \
+	@echo "mkdir -p \$$DESTDIR/$(INSTALL_BIN_DIR);" \
+	      "install -c $(SUBDIR)/$@ \$$DESTDIR/$(INSTALL_BIN_DIR)/$(@F)" \
 	    >> $(INSTALL_CMD) 
 endif
 endif
@@ -123,8 +123,8 @@ ifdef VARIANT
 	$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) $(LINKDIRS) $(SA_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 ifndef BUILD_FAT
 ifndef NOINSTALL
-	@echo "mkdir -p \$$PREFIX/$(INSTALL_BIN_DIR);" \
-	      "install -c $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_BIN_DIR)/$(@F)" \
+	@echo "mkdir -p \$$DESTDIR/$(INSTALL_BIN_DIR);" \
+	      "install -c $(SUBDIR)/$@ \$$DESTDIR/$(INSTALL_BIN_DIR)/$(@F)" \
 	    >> $(INSTALL_CMD)
 endif
 endif
@@ -138,8 +138,8 @@ ifdef VARIANT
 	$(CXX) $< $(INCLUDEDIRS) $(CXXFLAGS) $(LINKDIRS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -MD -MF $@.d -o $@ 
 ifndef BUILD_FAT
 ifdef INSTALL
-	@echo "mkdir -p \$$PREFIX/$(INSTALL_BIN_DIR);" \
-	      "install -c $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_BIN_DIR)/$(@F)" \
+	@echo "mkdir -p \$$DESTDIR/$(INSTALL_BIN_DIR);" \
+	      "install -c $(SUBDIR)/$@ \$$DESTDIR/$(INSTALL_BIN_DIR)/$(@F)" \
 	    >> $(INSTALL_CMD)
 endif
 endif
@@ -149,8 +149,8 @@ else # VARIANT
 $(FAT_SIMPLE_PROGRAMS): $(THIN_SIMPLE_PROGRAMS)
 	lipo -create $(foreach V,$(VARIANTS),$@.$(V)) -output $@
 ifdef INSTALL
-	@echo "mkdir -p \$$PREFIX/$(INSTALL_BIN_DIR);" \
-	      "install -c $(SUBDIR)/$@ \$$PREFIX/$(INSTALL_BIN_DIR)/$(@F)" \
+	@echo "mkdir -p \$$DESTDIR/$(INSTALL_BIN_DIR);" \
+	      "install -c $(SUBDIR)/$@ \$$DESTDIR/$(INSTALL_BIN_DIR)/$(@F)" \
 	    >> $(INSTALL_CMD)
 endif
 
