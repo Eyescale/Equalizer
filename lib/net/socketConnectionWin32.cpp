@@ -308,7 +308,7 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
 
     if( _overlappedPending ) // get data from internal buffer
     {
-        EQASSERT( got == 8, EQ_SOCKET_ERROR );
+        EQASSERTINFO( got == 8, EQ_SOCKET_ERROR );
         *static_cast<uint64_t*>(buffer) = _overlappedBuffer;
         _overlappedPending = false;
     }

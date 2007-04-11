@@ -930,15 +930,16 @@ CommandResult Node::_cmdConnect( Command& command )
     _connectionNodes[ connection.get() ] = remoteNode;
     _nodes[ remoteNode->_id ]             = remoteNode;
 
-    if( packet->launchID != EQ_ID_INVALID )
-        _requestHandler.serveRequest( packet->launchID );
-    
     // send our information as reply
     NodeConnectReplyPacket reply( packet );
     reply.type      = getType();
     string nodeData = serialize();
 
     connection->send( reply, nodeData );
+
+    if( packet->launchID != EQ_ID_INVALID )
+        _requestHandler.serveRequest( packet->launchID );
+    
     return COMMAND_HANDLED;
 }
 
@@ -1042,6 +1043,7 @@ CommandResult Node::_cmdGetNodeData( Command& command)
 
     RefPtr<Node> node = command.getNode();
     node->send( reply, nodeData );
+    EQINFO << "Sent node data " << nodeData << " to " << node << endl;
     return COMMAND_HANDLED;
 }
 

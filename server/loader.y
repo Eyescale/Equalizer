@@ -271,7 +271,16 @@ connectionType:
 
 server: EQTOKEN_SERVER '{' { server = loader->createServer(); }
         serverConnections
-        configs '}'
+        configs '}' { 
+			if( server->nConnectionDescriptions() == 0 )
+			{
+                connectionDescription = new eqs::ConnectionDescription;
+                connectionDescription->setHostname( "" );
+                connectionDescription->TCPIP.port = EQ_DEFAULT_PORT;
+                server->addConnectionDescription( connectionDescription );
+                connectionDescription = 0;
+            }
+        }
 
 serverConnections: /*null*/ 
              | serverConnection | serverConnections serverConnection

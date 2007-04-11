@@ -14,6 +14,11 @@
  The provided VS2003 files are out of date, but kept as a starting point for a
  Visual Studio 2003 port.
 
- Remote launching has been tested using ssh with the OpenSSH implementation from
- http://sshwindows.sourceforge.net/.
- 
+ Remote launching has been tested using ssh with the cygwin OpenSSH port. The 
+ previously tested port (http://sshwindows.sourceforge.net/) has problems with
+ command lines longer than 255 characters. The following caveats have been 
+ observed:
+
+ o You'll need to add <InstPath>/bin manually to your Path variable
+ o Open Computer Management->Services->CYGWIN sshd->Properties->Log On and
+   activate 'Allow service to interact with the desktop'

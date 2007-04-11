@@ -291,7 +291,7 @@ bool Session::mapObject( Object* object, const uint32_t id )
         }
 
         master = _localNode->connect( masterID, getServer( ));
-        if( !master )
+        if( !master || master->getState() == Node::STATE_STOPPED )
         {
             EQWARN << "Can't connect master node with id " << masterID
                    << " for object id " << id << endl;
