@@ -164,7 +164,7 @@ RefPtr<Connection> SocketConnection::accept()
     }
 
     EQINFO << "accepted connection from " << inet_ntoa( remote->sin_addr ) 
-           << ":" << remote->sin_port <<endl;
+           << ":" << ntohs( remote->sin_port ) <<endl;
 
     return newConnection;
 }

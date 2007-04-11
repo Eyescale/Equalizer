@@ -76,7 +76,7 @@ void SocketConnection::_parseAddress( sockaddr_in& socketAddress )
     }
 
     EQINFO << "Address " << inet_ntoa( socketAddress.sin_addr )
-           << ":" << socketAddress.sin_port << endl;
+           << ":" << ntohs( socketAddress.sin_port ) << endl;
 }
 //----------------------------------------------------------------------
 // listen
@@ -106,7 +106,7 @@ bool SocketConnection::listen()
         EQWARN << "Could not bind socket " << _readFD << ": " 
                << EQ_SOCKET_ERROR << " to "
                << inet_ntoa( socketAddress.sin_addr )
-               << ":" << socketAddress.sin_port << " AF " 
+               << ":" << ntohs( socketAddress.sin_port ) << " AF " 
                << (int)socketAddress.sin_family << endl;
 
         close();

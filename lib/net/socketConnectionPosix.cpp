@@ -114,7 +114,7 @@ RefPtr<Connection> SocketConnection::accept()
     newConnection->_description->TCPIP.port   = ntohs( newAddress.sin_port );
 
     EQINFO << "accepted connection from " << inet_ntoa(newAddress.sin_addr) 
-           << ":" << newAddress.sin_port <<endl;
+           << ":" << ntohs( newAddress.sin_port ) <<endl;
 
     return newConnection;
 }

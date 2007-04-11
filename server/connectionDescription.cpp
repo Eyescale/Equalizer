@@ -55,11 +55,11 @@ std::ostream& eqs::operator << ( std::ostream& os,
 
     if( desc->type != global->getConnectionIAttribute( 
             eqs::ConnectionDescription::IATTR_TYPE ))
-        os << "type " 
+        os << "type       " 
            << ( desc->type == eqNet::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
                 desc->type == eqNet::CONNECTIONTYPE_SDP   ? "SDP" : 
                 desc->type == eqNet::CONNECTIONTYPE_PIPE  ? "PIPE" :
-                "UNIPIPE" ) << endl;
+                "ERROR" ) << endl;
     
     if( desc->TCPIP.port != global->getConnectionIAttribute( 
             eqs::ConnectionDescription::IATTR_TCPIP_PORT ))
@@ -67,15 +67,15 @@ std::ostream& eqs::operator << ( std::ostream& os,
 
     if( desc->launchTimeout != global->getConnectionIAttribute( 
             eqs::ConnectionDescription::IATTR_LAUNCH_TIMEOUT ))
-        os << "timeout " << desc->launchTimeout << endl;
+        os << "timeout    " << desc->launchTimeout << endl;
 
     if( desc->getHostname() != global->getConnectionSAttribute( 
             eqs::ConnectionDescription::SATTR_HOSTNAME ))
-        os << "hostname \"" << desc->getHostname() << "\"" << endl;
+        os << "hostname   \"" << desc->getHostname() << "\"" << endl;
 
     if( desc->getLaunchCommand() != global->getConnectionSAttribute( 
             eqs::ConnectionDescription::SATTR_LAUNCH_COMMAND ))
-        os << "command \"" << desc->getLaunchCommand() << "\"" << endl;
+        os << "command    \"" << desc->getLaunchCommand() << "\"" << endl;
     
     os << exdent << "}" << enableFlush << endl;
 

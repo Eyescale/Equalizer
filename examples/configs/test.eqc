@@ -1,10 +1,12 @@
 server
 {
+#    connection { type SDP }
+    connection { type TCPIP }
+
     config
     {
         node
         {
-            connection { TCPIP_port 4243 }
             pipe
             {
                 window

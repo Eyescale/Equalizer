@@ -270,7 +270,26 @@ connectionType:
     | EQTOKEN_SDP { $$ = eqNet::CONNECTIONTYPE_SDP; };
 
 server: EQTOKEN_SERVER '{' { server = loader->createServer(); }
-        configs '}'
+        serverConnections
+        configs '}' {
+            if( server->nConnectionDescriptions() == 0 )
+                server->addConnectionDescription(
+                    new eqs::ConnectionDescription );
+        }
+
+serverConnections: /*null*/ 
+             | serverConnection | serverConnections serverConnection
+serverConnection: EQTOKEN_CONNECTION 
+        '{' { 
+                connectionDescription = new eqs::ConnectionDescription;
+                connectionDescription->setHostname( "" );
+                connectionDescription->TCPIP.port = EQ_DEFAULT_PORT;
+            }
+            connectionFields '}' 
+            { 
+                server->addConnectionDescription( connectionDescription );
+                connectionDescription = 0;
+            }
 
 configs: config | configs config
 config: EQTOKEN_CONFIG '{' { config = loader->createConfig(); }
@@ -300,7 +319,7 @@ renderNode: EQTOKEN_NODE '{' { node = loader->createNode(); }
                '}' { 
                         if( node->nConnectionDescriptions() == 0 )
                             node->addConnectionDescription(
-                                new eqs::ConnectionDescription( ));
+                                new eqs::ConnectionDescription );
 
                         config->addNode( node );
                         node = 0; 
@@ -316,7 +335,7 @@ nodeField: /*TODO*/
 connections: /*null*/ 
              | connection | connections connection
 connection: EQTOKEN_CONNECTION 
-            '{' { connectionDescription = new eqs::ConnectionDescription(); }
+            '{' { connectionDescription = new eqs::ConnectionDescription; }
             connectionFields '}' 
              { 
                  node->addConnectionDescription( connectionDescription );
@@ -494,7 +513,7 @@ wall: EQTOKEN_WALL '{'
         eqCompound->setWall( wall );
     }
 
-swapBarrier: EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eqs::SwapBarrier(); }
+swapBarrier: EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eqs::SwapBarrier; }
     swapBarrierFields '}'
         { 
             eqCompound->setSwapBarrier( swapBarrier );
@@ -505,13 +524,13 @@ swapBarrierFields: /*null*/ | swapBarrierField
 swapBarrierField: 
     EQTOKEN_NAME STRING { swapBarrier->setName( $2 ); }
 
-outputFrame : EQTOKEN_OUTPUTFRAME '{' { frame = new eqs::Frame(); }
+outputFrame : EQTOKEN_OUTPUTFRAME '{' { frame = new eqs::Frame; }
     frameFields '}'
         { 
             eqCompound->addOutputFrame( frame );
             frame = 0;
         } 
-inputFrame: EQTOKEN_INPUTFRAME '{' { frame = new eqs::Frame(); }
+inputFrame: EQTOKEN_INPUTFRAME '{' { frame = new eqs::Frame; }
     frameFields '}'
         { 
             eqCompound->addInputFrame( frame );

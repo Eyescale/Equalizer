@@ -240,6 +240,10 @@ std::ostream& eqs::operator << ( std::ostream& os, const Server* server )
     os << disableFlush << disableHeader << "server " << endl;
     os << "{" << endl << indent;
     
+    const uint32_t nConnectionDescriptions = server->nConnectionDescriptions();
+    for( uint32_t i=0; i<nConnectionDescriptions; i++ )
+        os << server->getConnectionDescription( i ).get();
+
     for( uint32_t i=0; i<nConfigs; i++ )
         os << server->getConfig(i);
     
