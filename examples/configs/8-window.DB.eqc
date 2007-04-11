@@ -1,0 +1,162 @@
+# single pipe, eight-to-one sort-last demo configuration
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 50 50 400 300 ]
+                    name "window1"
+
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+                window
+                {
+                    viewport [ 500 50 400 300 ]
+                    name "window2"
+
+                    channel
+                    {
+                        name "channel2"
+                    }
+                }
+                window
+                {
+                    viewport [ 950 50 400 300 ]
+                    name "window3"
+
+                    channel
+                    {
+                        name "channel3"
+                    }
+                }
+                window
+                {
+                    viewport [ 1400 50 400 300 ]
+                    name "window4"
+
+                    channel
+                    {
+                        name "channel4"
+                    }
+                }
+
+                window
+                {
+                    viewport [ 50 400 400 300 ]
+                    name "window5"
+
+                    channel
+                    {
+                        name "channel5"
+                    }
+                }
+                window
+                {
+                    viewport [ 500 400 400 300 ]
+                    name "window6"
+
+                    channel
+                    {
+                        name "channel6"
+                    }
+                }
+                window
+                {
+                    viewport [ 950 400 400 300 ]
+                    name "window7"
+
+                    channel
+                    {
+                        name "channel7"
+                    }
+                }
+                window
+                {
+                    viewport [ 1400 400 400 300 ]
+                    attributes{ planes_stencil ON }
+                    name "window8"
+
+                    channel
+                    {
+                        name "channel8"
+                    }
+                }
+            }
+        }
+        compound
+        {
+            channel "channel8"
+            buffer  [ COLOR DEPTH ]
+
+            wall
+            {
+                bottom_left  [ -.4 -.3 -1 ]
+                bottom_right [  .4 -.3 -1 ]
+                top_left     [ -.4  .3 -1 ]
+            }
+            
+            compound
+            {
+                range   [ 0 .125 ]
+            }
+            compound
+            { 
+                channel "channel1"
+                range   [ .125 .25 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel2"
+                range   [ .25 .375 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel3"
+                range   [ .375 .5 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel4"
+                range   [ .5 .625 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel5"
+                range   [ .625 .75 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel6"
+                range   [ .75 .875 ]
+                outputframe {}
+            }
+            compound
+            { 
+                channel "channel7"
+                range   [ .875 1 ]
+                outputframe {}
+            }
+
+            inputframe { name "frame.channel1" }
+            inputframe { name "frame.channel2" }
+            inputframe { name "frame.channel3" }
+            inputframe { name "frame.channel4" }
+            inputframe { name "frame.channel5" }
+            inputframe { name "frame.channel6" }
+            inputframe { name "frame.channel7" }
+        }
+    }    
+}

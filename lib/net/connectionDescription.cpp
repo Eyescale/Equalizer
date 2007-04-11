@@ -87,6 +87,8 @@ bool ConnectionDescription::fromString( string& data )
                 else
                     goto error;
             }
+
+            data.clear();
             return true;
         }
 

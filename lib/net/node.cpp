@@ -102,7 +102,7 @@ bool Node::initLocal( int argc, char** argv )
                 if( desc->fromString( data ))
                 {
                     addConnectionDescription( desc );
-                    EQASSERT( data.empty( ));
+                    EQASSERTINFO( data.empty(), data );
                 }
                 else
                     EQWARN << "Ignoring listen option: " << argv[i] << endl;
