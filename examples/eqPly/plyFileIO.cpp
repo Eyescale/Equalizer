@@ -2,6 +2,7 @@
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved.
    Adapted code for Equalizer usage.
+   Win32 porting.
  */
 
 /******************************************************************************
@@ -64,6 +65,8 @@
 #include <sys/types.h>
 #ifdef WIN32
 #  include <malloc.h>
+#  define EQ_WIN32_ERROR getErrorString( GetLastError( )) << \
+    "(" << GetLastError() << ")"
 #else
 #  include <alloca.h>
 #  include <sys/mman.h>
@@ -364,23 +367,34 @@ bool PlyFileIO::calculateNormal( NormalFace<ColorVertex> &face )
 PlyModel< NormalFace<ColorVertex> > *PlyFileIO::readBin( const char *filename )
 {
 #ifdef WIN32
+    EQINFO << "Trying " << filename << endl;
     HANDLE file = CreateFile( filename, GENERIC_READ, FILE_SHARE_READ, 0,
                               OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0 );
     
     if( file == INVALID_HANDLE_VALUE )
+    {
+        EQINFO << "Open of " << filename << " failed: " << EQ_WIN32_ERROR 
+               << endl;
         return 0;
+    }
 
     HANDLE map = CreateFileMapping( file, 0, PAGE_READONLY, 0, 0, filename );
     CloseHandle( file );
 
     if( !map )
+    {
+        EQINFO << "Mapping of " << filename << " failed: " << EQ_WIN32_ERROR
+               << endl;
         return 0;
+    }
 
     /* get a view of the mapping */
     char* addr = static_cast<char*>( MapViewOfFile( map, FILE_MAP_READ, 0, 0, 
                                                     0 ));
     if( !addr )
     {
+        EQINFO << "Mapping to memory of " << filename << " failed: " 
+               << EQ_WIN32_ERROR << endl;
         CloseHandle( map );
         return 0;
     }
@@ -407,6 +421,7 @@ PlyModel< NormalFace<ColorVertex> > *PlyFileIO::readBin( const char *filename )
 
     if( !model->fromMemory( addr ) )
     {
+        EQWARN << filename << " invalid" << endl;
         delete model;
         model = 0;
     }
@@ -428,9 +443,14 @@ PlyModel< NormalFace<ColorVertex> > *PlyFileIO::readBin( const char *filename )
 void PlyFileIO::writeBin( PlyModel< NormalFace<ColorVertex> > *model, 
     const char *filename )
 {
+    EQINFO << "Writing " << filename << endl;
     ofstream fout( filename, ios::out | ios::binary );
     if( !fout )
+    {
+        EQWARN << "Can't open " << filename << " for writing" << endl;
         return;
+    }
 
     model->toStream( fout );
+    fout.close();
 }

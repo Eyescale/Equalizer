@@ -8,10 +8,6 @@ using namespace eqNet;
 using namespace eqBase;
 using namespace std;
 
-#ifndef WSA_FLAG_SDP
-#  define WSA_FLAG_SDP 0x40
-#endif
-
 SocketConnection::SocketConnection( const ConnectionType type )
     : _overlappedBuffer( 0 ),
       _overlappedAcceptData( 0 ),

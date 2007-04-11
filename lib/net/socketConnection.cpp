@@ -19,7 +19,8 @@
 #  ifndef WSA_FLAG_SDP
 #    define WSA_FLAG_SDP 0x40
 #  endif
-#  define EQ_SOCKET_ERROR getErrorString( GetLastError( )) << "(" << GetLastError() << ")"
+#  define EQ_SOCKET_ERROR getErrorString( GetLastError( )) << \
+    "(" << GetLastError() << ")"
 #  include "socketConnectionWin32.cpp"
 
 #else
