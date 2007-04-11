@@ -271,11 +271,7 @@ connectionType:
 
 server: EQTOKEN_SERVER '{' { server = loader->createServer(); }
         serverConnections
-        configs '}' {
-            if( server->nConnectionDescriptions() == 0 )
-                server->addConnectionDescription(
-                    new eqs::ConnectionDescription );
-        }
+        configs '}'
 
 serverConnections: /*null*/ 
              | serverConnection | serverConnections serverConnection
