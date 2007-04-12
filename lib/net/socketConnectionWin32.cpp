@@ -47,7 +47,19 @@ bool SocketConnection::connect()
     // TODO: execute launch command
 
     sockaddr_in socketAddress;
-    _parseAddress( socketAddress );
+    if( !_parseAddress( socketAddress ))
+    {
+        EQWARN << "Can't parse connection parameters" << endl;
+        close();
+        return false;
+    }
+
+    if( socketAddress.sin_addr.s_addr == 0 )
+    {
+        EQWARN << "Refuse to connect to 0.0.0.0" << endl;
+        close();
+        return false;
+    }
 
     const bool connected = WSAConnect( _readFD, (sockaddr*)&socketAddress, 
                                        sizeof(socketAddress), 0, 0, 0, 0 ) == 0;

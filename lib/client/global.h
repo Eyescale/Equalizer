@@ -46,14 +46,16 @@ namespace eq
         static const std::string& getServer() { return _server; }
 
     private:
-		friend EQ_EXPORT bool init( int argc, char** argv, NodeFactory* nodeFactory );
+		friend EQ_EXPORT bool init( int argc, char** argv, 
+                                    NodeFactory* nodeFactory );
 		friend EQ_EXPORT bool exit();
         static NodeFactory* _nodeFactory;
 
         static std::string  _server;
     };
 
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const IAttrValue value );
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+                                          const IAttrValue value );
 }
 
 #endif // EQ_GLOBAL_H

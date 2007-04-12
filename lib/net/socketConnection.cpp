@@ -61,7 +61,7 @@ bool SocketConnection::_createSocket()
     return true;
 }
 
-void SocketConnection::_parseAddress( sockaddr_in& socketAddress )
+bool SocketConnection::_parseAddress( sockaddr_in& socketAddress )
 {
     socketAddress.sin_family      = AF_INET;
     socketAddress.sin_addr.s_addr = htonl( INADDR_ANY );
@@ -74,10 +74,16 @@ void SocketConnection::_parseAddress( sockaddr_in& socketAddress )
         hostent *hptr = gethostbyname( hostname.c_str( ));
         if( hptr )
             memcpy(&socketAddress.sin_addr.s_addr, hptr->h_addr,hptr->h_length);
+        else
+        {
+            EQWARN << "Can't resolve host " << hostname << endl;
+            return false;
+        }
     }
 
     EQINFO << "Address " << inet_ntoa( socketAddress.sin_addr )
            << ":" << ntohs( socketAddress.sin_port ) << endl;
+    return true;
 }
 //----------------------------------------------------------------------
 // listen
@@ -98,7 +104,12 @@ bool SocketConnection::listen()
     sockaddr_in socketAddress;
     const size_t size = sizeof( sockaddr_in ); 
 
-    _parseAddress( socketAddress ); //TODO restrict IP
+    if( !_parseAddress( socketAddress ))
+    {
+        EQWARN << "Can't parse connection parameters" << endl;
+        close();
+        return false;
+    }
 
     const bool bound = (::bind(_readFD, (sockaddr *)&socketAddress, size) == 0);
 

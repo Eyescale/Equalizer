@@ -399,10 +399,10 @@ void Compound::update( const uint32_t frameNumber )
     traverse( this, _updatePreCB, _updateCB, _updatePostCB, &data );
     traverse( this, _updateInputCB, _updateInputCB, NULL, &data );
     
-    for( hash_map<string, eqNet::Barrier*>::const_iterator iter = data.swapBarriers.begin();
-    iter != data.swapBarriers.end(); ++iter )
+    for( hash_map<string, eqNet::Barrier*>::const_iterator i = 
+             data.swapBarriers.begin(); i != data.swapBarriers.end(); ++i )
  
-        iter->second->commit();
+        i->second->commit();
 }
 
 TraverseResult Compound::_updatePreCB( Compound* compound, void* userData )

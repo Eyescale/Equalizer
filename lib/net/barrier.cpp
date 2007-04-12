@@ -48,8 +48,11 @@ Barrier::~Barrier()
 
 void Barrier::enter()
 {
-    EQASSERT( _data.height > 1 );
+    EQASSERT( _data.height > 0 );
     EQASSERT( _data.master != NodeID::ZERO );
+
+    if( _data.height == 1 ) // trivial ;)
+        return;
 
     if( !_master )
     {

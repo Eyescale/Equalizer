@@ -43,6 +43,7 @@ bool Client::connectServer( RefPtr<Server> server )
 {
     if( server->isConnected( ))
         return true;
+    bool explicitAddress = true;
 
     if( server->nConnectionDescriptions() == 0 )
     {
@@ -51,9 +52,10 @@ bool Client::connectServer( RefPtr<Server> server )
         connDesc->TCPIP.port = EQ_DEFAULT_PORT;
     
         const string globalServer = Global::getServer();
-        const char*  envServer = getenv( "EQ_SERVER" );
-        string       address   = !globalServer.empty() ? globalServer :
-                                     envServer ? envServer : "localhost";
+        const char*  envServer    = getenv( "EQ_SERVER" );
+        string       address      = !globalServer.empty() ? globalServer :
+                                    envServer             ? envServer : 
+                                    "localhost";
 
         if( !connDesc->fromString( address ))
             EQWARN << "Can't parse server address " << address << endl;
@@ -61,6 +63,9 @@ bool Client::connectServer( RefPtr<Server> server )
         EQINFO << "Connecting to " << connDesc->toString() << endl;
 
         server->addConnectionDescription( connDesc );
+
+        if( globalServer.empty() && !envServer )
+            explicitAddress = false;
     }
 
     if( connect( RefPtr_static_cast< Server, eqNet::Node >( server )))
@@ -69,7 +74,10 @@ bool Client::connectServer( RefPtr<Server> server )
         return true;
     }
 
-    // Use app-local server if failed
+    if( explicitAddress )
+        return false;
+
+    // Use app-local server if no explicit server was set
     RefPtr< eqNet::Connection > connection = _startLocalServer();
     if( !connection )
         return false;

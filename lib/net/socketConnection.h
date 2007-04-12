@@ -62,7 +62,7 @@ namespace eqNet
     private:
         bool _createSocket();
         void _tuneSocket( const Socket fd );
-        void _parseAddress( sockaddr_in& socketAddress );
+        bool _parseAddress( sockaddr_in& socketAddress );
 
 #ifdef WIN32
         bool _startAccept();
