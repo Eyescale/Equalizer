@@ -14,9 +14,15 @@
 #include <eq/net/command.h>
 #include <eq/net/connection.h>
 
+#ifndef WIN32
+#  include <dlfcn.h>
+#endif
+
 using namespace eq;
 using namespace eqBase;
 using namespace std;
+
+static RefPtr< eqNet::Connection > _startLocalServer();
 
 Client::Client()
         : _running( false )
@@ -36,7 +42,7 @@ Client::~Client()
 bool Client::connectServer( RefPtr<Server> server )
 {
     if( server->isConnected( ))
-        return false;
+        return true;
 
     if( server->nConnectionDescriptions() == 0 )
     {
@@ -62,8 +68,55 @@ bool Client::connectServer( RefPtr<Server> server )
         server->_client = this;
         return true;
     }
+
+    // Use app-local server if failed
+    RefPtr< eqNet::Connection > connection = _startLocalServer();
+    if( !connection )
+        return false;
+
+    if( connect( RefPtr_static_cast< Server, eqNet::Node >( server ),
+                 connection ))
+    {
+        server->_client = this;
+        return true;
+    }
+
+    // giving up
     return false;
-    // TODO: Use app-local server if failed
+}
+
+typedef eqBase::RefPtr< eqNet::Connection > (*eqsStartLocalServer_t)();
+
+RefPtr< eqNet::Connection > _startLocalServer()
+{
+#ifdef WIN32
+    // TODO: use LoadLibrary()
+    EQWARN << "Server-less mode not yet implemented on Win32" << endl;
+    return 0;
+#else // Posix
+#  ifdef Darwin
+    void* libeqserver = dlopen( "libeqserver.dylib", RTLD_LAZY );
+#  else
+    void* libeqserver = dlopen( "libeqserver.so", RTLD_LAZY );
+#  endif
+    if( !libeqserver )
+    {
+        EQWARN << "Can't open Equalizer server library" << dlerror() << endl;
+        return 0;
+    }
+
+    eqsStartLocalServer_t eqsStartLocalServer = (eqsStartLocalServer_t)
+        dlsym( libeqserver, "eqsStartLocalServer" );
+
+    if( !eqsStartLocalServer )
+    {
+        EQWARN << "Can't find server entry function eqsStartLocalServer()"
+               << dlerror() << endl;
+        return 0;
+    }
+
+    return eqsStartLocalServer();
+#endif
 }
 
 bool Client::disconnectServer( RefPtr<Server> server )

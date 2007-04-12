@@ -274,6 +274,8 @@ namespace eqNet
         eqBase::RefPtr<ConnectionDescription> _description;
 
         mutable eqBase::Lock _sendLock;
+
+        friend class PairConnection; // for access to read/write
     };
 
     inline std::ostream& operator << ( std::ostream& os, 

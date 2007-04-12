@@ -11,6 +11,15 @@
 #include <eq/net/node.h>         // base class
 
 /** 
+ * C entry point for the client library to start a local server within the
+ * application process.
+ * 
+ * @return the local connection to the started server, or 0 when an error
+ *         occured.
+ */
+extern "C" eqBase::RefPtr< eqNet::Connection > eqsStartLocalServer();
+
+/** 
  * @namespace eqs
  * @brief The Equalizer server library.
  *

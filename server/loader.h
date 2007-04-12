@@ -41,6 +41,14 @@ namespace eqs
         Server* loadFile( const std::string& filename );
 
         /** 
+         * Parse a config file given as a parameter.
+         * 
+         * @param config the config file.
+         * @return the parsed server.
+         */
+        Server* parseServer( const char* config );
+
+        /** 
          * Parse a config given as a parameter.
          * 
          * @param config the config.
@@ -62,6 +70,7 @@ namespace eqs
         //*}
 
     private:
+        void _parseString( const char* config );
     };
 };
 

@@ -408,7 +408,7 @@ void PlyModel<FaceType>::calculateFaceBBox( FaceType &face, Vertex bbox[2] )
 //---------------------------------------------------------------------------
 // faceInBBox
 //  a face is in the bbox if it touches the bbox, and all points are 'bigger'
-//  then the bbox min point.
+//  than the bbox min point.
 //---------------------------------------------------------------------------
 template<class FaceType>
 bool PlyModel<FaceType>::faceInBBox( Vertex bbox[2], Vertex faceBBox[2] )

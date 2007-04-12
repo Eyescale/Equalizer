@@ -205,3 +205,12 @@ void Thread::addListener( ExecutionListener* listener )
     _listeners.push_back( listener );
 }
 
+std::ostream& eqBase::operator << ( std::ostream& os, const Thread* thread )
+{
+#ifdef WIN32
+    os << "Thread " << thread->_threadID.p;
+#else
+    os << "Thread " << thread->_threadID;
+#endif
+    return os;
+}

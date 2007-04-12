@@ -636,7 +636,7 @@ eqs::Server* eqs::Loader::loadFile( const string& filename )
     return server;
 }
 
-eqs::Config* eqs::Loader::parseConfig( const char* data )
+void eqs::Loader::_parseString( const char* data )
 {
     EQASSERTINFO( !loader, "Config file loader is not reentrant" );
     loader = this;
@@ -649,5 +649,16 @@ eqs::Config* eqs::Loader::parseConfig( const char* data )
     eqLoader_parse();
 
     loader = 0;
+}
+
+eqs::Config* eqs::Loader::parseConfig( const char* data )
+{
+    _parseString( data );
     return config;
+}
+
+eqs::Server* eqs::Loader::parseServer( const char* data )
+{
+    _parseString( data );
+    return server;
 }

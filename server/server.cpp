@@ -123,7 +123,7 @@ eqNet::CommandResult Server::_reqChooseConfig( eqNet::Command& command )
     EQINFO << "Handle choose config " << packet << endl;
 
     // TODO
-    Config* config = nConfigs()>0 ? getConfig(0) : NULL;
+    Config* config = nConfigs()>0 ? getConfig(0) : 0;
     
     eq::ServerChooseConfigReplyPacket reply( packet );
     RefPtr<eqNet::Node>               node = command.getNode();

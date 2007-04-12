@@ -177,6 +177,8 @@ bool Node::listen()
     }
 
     _state = STATE_LISTENING;
+
+    EQVERB << typeid(*this).name() << " starting recv thread " << endl;
     _receiverThread->start();
 
     EQINFO << this << " listening." << endl;
@@ -597,7 +599,8 @@ bool Node::_handleData()
         node = _connectionNodes[ connection.get() ];
 
     EQASSERT( connection.isValid( ));
-    EQASSERT( !node || node->_connection == connection );
+    EQASSERTINFO( !node || node->_connection == connection, 
+                  typeid( *node.get( )).name( ));
     EQVERB << "Handle data from " << node << endl;
 
     uint64_t size;

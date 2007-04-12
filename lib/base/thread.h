@@ -156,7 +156,11 @@ namespace eqBase
 
         static void _notifyStarted();
         static void _notifyStopping( void* arg );
+
+        friend std::ostream& operator << ( std::ostream& os, const Thread* );
     };
+
+    std::ostream& operator << ( std::ostream& os, const Thread* thread );
 
 // thread-safety checks
 // These checks are for development purposes, to check that certain objects are

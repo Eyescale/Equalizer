@@ -19,6 +19,8 @@
 
 #include <list>
 
+extern "C" eqBase::RefPtr< eqNet::Connection > eqsStartLocalServer();
+
 namespace eqNet
 {
     class Command;
@@ -524,6 +526,7 @@ namespace eqNet
 
         /** The connection set of all connections from/to this node. */
         ConnectionSet _connectionSet;
+        friend eqBase::RefPtr< eqNet::Connection > (::eqsStartLocalServer());
 
         /** The node for each connection. */
         eqBase::PtrHash< Connection*, eqBase::RefPtr<Node> > _connectionNodes;

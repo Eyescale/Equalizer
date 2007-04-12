@@ -189,6 +189,8 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
         _connection = _fdSetConnections[ fd ];
         EQASSERT( _connection.isValid( ));
 
+        EQVERB << "Got event on connection @" << (void*)_connection.get()<<endl;
+
         if( pollEvents & POLLERR )
         {
             EQINFO << "Error during poll()" << endl;
@@ -305,6 +307,8 @@ bool ConnectionSet::_setupFDSet()
             return false;
         }
 
+        EQVERB << "Listening on " << typeid( *connection.get( )).name() 
+               << " @" << (void*)connection.get() << endl;
         _fdSetConnections[fd.fd] = connection.get();
         fd.revents = 0;
         _fdSet.push_back( fd );

@@ -3,24 +3,25 @@ include $(TOP)/make/system.mk
 
 SOURCES = \
 	channel.cpp \
+	compound.cpp \
 	config.cpp \
 	connectionDescription.cpp \
-	compound.cpp \
 	frame.cpp \
 	frameData.cpp \
 	global.cpp \
+	lexer.cpp \
 	loader.cpp \
 	node.cpp \
+	parser.cpp \
 	pipe.cpp \
 	server.cpp \
+	startLocalServer.cpp \
 	swapBarrier.cpp \
-	window.cpp \
-	lexer.cpp \
-	parser.cpp
+	window.cpp
 
 CXXFILES = \
 	eqServer.cpp
-INSTALL = 1
+INSTALL  = 1
 
 CLEAN_EXTRA = \
 	lexer.cpp \

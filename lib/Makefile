@@ -58,6 +58,7 @@ HEADER_SRC = \
 	net/object.h \
 	net/objectCM.h\
 	net/packets.h \
+	net/pairConnection.h \
 	net/pipeConnection.h \
 	net/session.h \
 	net/types.h \
@@ -130,6 +131,7 @@ SOURCES = \
 	net/object.cpp \
 	net/objectCM.cpp \
 	net/packets.cpp \
+	net/pairConnection.cpp \
 	net/pipeConnection.cpp \
 	net/session.cpp \
 	net/socketConnection.cpp \
