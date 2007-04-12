@@ -44,6 +44,12 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
     if( !isConnected( ))
         return 0;
 
+    if( parameters.renderClient.empty( ))
+    {
+        EQWARN << "No render client in ConfigParams specified" << endl;
+        return 0;
+    }
+
     ServerChooseConfigPacket packet;
 
     packet.requestID      = _requestHandler.registerRequest();
@@ -65,6 +71,12 @@ Config* Server::useConfig( const ConfigParams& parameters,
 {
     if( !isConnected( ))
         return 0;
+
+    if( parameters.renderClient.empty( ))
+    {
+        EQWARN << "No render client in ConfigParams specified" << endl;
+        return 0;
+    }
 
     ServerUseConfigPacket packet;
 
