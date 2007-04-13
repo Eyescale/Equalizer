@@ -119,6 +119,8 @@ COLOR                           { return EQTOKEN_COLOR; }
 DEPTH                           { return EQTOKEN_DEPTH; }
 viewport                        { return EQTOKEN_VIEWPORT; }
 range                           { return EQTOKEN_RANGE; }
+period                          { return EQTOKEN_PERIOD; }
+phase                           { return EQTOKEN_PHASE; }
 port                            { return EQTOKEN_PORT; }
 device                          { return EQTOKEN_DEVICE; }
 wall                            { return EQTOKEN_WALL; }

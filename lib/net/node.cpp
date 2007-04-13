@@ -159,9 +159,8 @@ bool Node::listen()
         return false;
 
     for( vector< RefPtr<ConnectionDescription> >::const_iterator i = 
-             _connectionDescriptions.begin(); 
-         i != _connectionDescriptions.end();
-         ++i )
+             _connectionDescriptions.begin();
+         i != _connectionDescriptions.end(); ++i )
     {
         RefPtr<ConnectionDescription> desc = *i;
         RefPtr<Connection>      connection = Connection::create( desc->type );

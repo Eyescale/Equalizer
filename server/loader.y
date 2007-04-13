@@ -122,6 +122,8 @@
 %token EQTOKEN_RIGHT
 %token EQTOKEN_VIEWPORT
 %token EQTOKEN_RANGE
+%token EQTOKEN_PERIOD
+%token EQTOKEN_PHASE
 %token EQTOKEN_PORT
 %token EQTOKEN_DEVICE
 %token EQTOKEN_WALL
@@ -473,6 +475,8 @@ compoundField:
         { eqCompound->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] ));}
     | EQTOKEN_RANGE '[' FLOAT FLOAT ']'
         { eqCompound->setRange( eq::Range( $3, $4 )); }
+    | EQTOKEN_PERIOD UNSIGNED { eqCompound->setPeriod( $2 ); }
+    | EQTOKEN_PHASE  UNSIGNED { eqCompound->setPhase( $2 ); }
     | wall
     | swapBarrier
     | outputFrame

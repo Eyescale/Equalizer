@@ -225,10 +225,16 @@ namespace eqs
         uint32_t getBuffers() const { return _data.buffers; }
 
         void setViewport( const eq::Viewport& vp ) { _data.vp = vp; }
-        const eq::Viewport& getViewport() const { return _data.vp; }
+        const eq::Viewport& getViewport() const    { return _data.vp; }
 
-        void setRange( const eq::Range& range ) { _data.range = range; }
-        const eq::Range& getRange() const { return _data.range; }
+        void setRange( const eq::Range& range )    { _data.range = range; }
+        const eq::Range& getRange() const          { return _data.range; }
+
+        void setPeriod( const uint32_t period )    { _data.period = period; }
+        const uint32_t getPeriod() const           { return _data.period; }
+
+        void setPhase( const uint32_t phase )      { _data.phase = phase; }
+        const uint32_t getPhase() const            { return _data.phase; }
         //*}
 
         /** @name IO object access. */
@@ -349,6 +355,13 @@ namespace eqs
                                         TraverseCB leafCB, TraverseCB postCB,
                                         void* userData );
 
+        /** Traverses the active (DPlex) compounds. */
+        static TraverseResult traverseActive( Compound* compound,
+                                              TraverseCB preCB, 
+                                              TraverseCB leafCB,
+                                              TraverseCB postCB,
+                                              void* userData );
+
         /** 
          * Initialises this compound.
          */
@@ -454,12 +467,16 @@ namespace eqs
             eq::View          view;
             uint32_t          buffers;
             uint32_t          eyes;
-            uint32_t          tasks;            
+            uint32_t          tasks;
+            uint32_t          period;
+            uint32_t          phase;
             int32_t           iAttributes[IATTR_ALL];
         };
 
         InheritData _data;
         InheritData _inherit;
+
+        uint32_t    _frame;
 
         SwapBarrier* _swapBarrier;
 
@@ -470,21 +487,22 @@ namespace eqs
 
         static TraverseResult _initCB( Compound* compound, void* );
 
+        bool _isActive() const
+            { return (( _frame % _inherit.period ) == _inherit.phase); }
+
         //----- pre-render compound setup
         struct UpdateData
         {
-            uint32_t                                     frameNumber;
             stde::hash_map<std::string, eqNet::Barrier*> swapBarriers;
             stde::hash_map<std::string, Frame*>          outputFrames;
         };
 
-        static TraverseResult _updatePreCB( Compound* compound, void* );
-        static TraverseResult _updateCB( Compound* compound, void* );
-        static TraverseResult _updatePostCB( Compound* compound, void* );
+        static TraverseResult _updateDataCB( Compound* compound, void* );
+        static TraverseResult _updateOutputCB( Compound* compound, void* );
+        static TraverseResult _updateInputCB( Compound* compound, void* );
         void _updateInheritData();
         void _updateSwapBarriers( UpdateData* data );
         void _updateOutput( UpdateData* data );
-        static TraverseResult _updateInputCB( Compound* compound, void* );
         void _updateInput( UpdateData* data );
 
         //----- per-channel render task generation

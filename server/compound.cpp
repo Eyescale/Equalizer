@@ -40,6 +40,7 @@ std::string Compound::_iAttributeStrings[IATTR_ALL] = {
 Compound::Compound()
         : _config( 0 ),
           _parent( 0 ),
+          _frame( 0 ),
           _swapBarrier( 0 )
 {
 }
@@ -47,7 +48,8 @@ Compound::Compound()
 // copy constructor
 Compound::Compound( const Compound& from )
         : _config( 0 ),
-          _parent( 0 )
+          _parent( 0 ),
+          _frame( 0 )
 {
     _name        = from._name;
     _view        = from._view;
@@ -84,7 +86,7 @@ Compound::~Compound()
     {
         Compound* compound = *i;
 
-        compound->_parent = NULL;
+        compound->_parent = 0;
         delete compound;
     }
     _children.clear();
@@ -94,7 +96,7 @@ Compound::~Compound()
     {
         Frame* frame = *i;
 
-        frame->_compound = NULL;
+        frame->_compound = 0;
         delete frame;
     }
     _inputFrames.clear();
@@ -104,17 +106,19 @@ Compound::~Compound()
     {
         Frame* frame = *i;
 
-        frame->_compound = NULL;
+        frame->_compound = 0;
         delete frame;
     }
     _outputFrames.clear();
 }
 
 Compound::InheritData::InheritData()
-        : channel( NULL ),
+        : channel( 0 ),
           buffers( eq::Frame::BUFFER_UNDEFINED ),
           eyes( EYE_UNDEFINED ),
-          tasks( TASK_DEFAULT )
+          tasks( TASK_DEFAULT ),
+          period( EQ_UNDEFINED_UINT32 ),
+          phase( EQ_UNDEFINED_UINT32 )
 {
     const Global* global = Global::instance();
     for( int i=0; i<IATTR_ALL; ++i )
@@ -132,17 +136,17 @@ void Compound::addChild( Compound* child )
 Compound* Compound::_getNext() const
 {
     if( !_parent )
-        return NULL;
+        return 0;
 
     vector<Compound*>&          siblings = _parent->_children;
     vector<Compound*>::iterator result   = find( siblings.begin(),
                                                  siblings.end(), this);
 
     if( result == siblings.end() )
-        return NULL;
+        return 0;
     result++;
     if( result == siblings.end() )
-        return NULL;
+        return 0;
 
     return *result;
 }
@@ -153,7 +157,7 @@ Channel* Compound::getChannel() const
         return _data.channel;
     if( _parent )
         return _parent->getChannel();
-    return NULL;
+    return 0;
 }
 
 eqs::Window* Compound::getWindow() const
@@ -161,7 +165,7 @@ eqs::Window* Compound::getWindow() const
     Channel* channel = getChannel();
     if( channel )
         return channel->getWindow();
-    return NULL;
+    return 0;
 }
 
 void Compound::setSwapBarrier( SwapBarrier* barrier )
@@ -260,7 +264,7 @@ TraverseResult Compound::traverse( Compound* compound, TraverseCB preCB,
     {
         Compound *parent = current->getParent();
         Compound *next   = current->_getNext();
-        Compound *child  = (current->nChildren()) ? current->getChild(0) : NULL;
+        Compound *child  = (current->nChildren()) ? current->getChild(0) : 0;
 
         //---------- down-right traversal
         if ( !child ) // leaf
@@ -287,9 +291,9 @@ TraverseResult Compound::traverse( Compound* compound, TraverseCB preCB,
         }
 
         //---------- up-right traversal
-        if( current == NULL && parent == NULL ) return TRAVERSE_CONTINUE;
+        if( !current && !parent ) return TRAVERSE_CONTINUE;
 
-        while ( current == NULL )
+        while( !current )
         {
             current = parent;
             parent  = current->getParent();
@@ -310,13 +314,82 @@ TraverseResult Compound::traverse( Compound* compound, TraverseCB preCB,
     return TRAVERSE_CONTINUE;
 }
 
+TraverseResult Compound::traverseActive( Compound* compound, TraverseCB preCB,
+                                         TraverseCB leafCB, TraverseCB postCB,
+                                         void *userData )
+{
+    if ( compound->isLeaf( )) 
+    {
+        if ( leafCB && compound->_isActive( )) 
+            return leafCB( compound, userData );
+        return TRAVERSE_CONTINUE;
+    }
+
+    Compound *current = compound;
+    while( true )
+    {
+        Compound *parent = current->getParent();
+        Compound *next   = current->_getNext();
+        Compound *child  = (current->nChildren()) ? current->getChild(0) : 0;
+
+        //---------- down-right traversal
+        if ( !child ) // leaf
+        {
+            if ( leafCB && current->_isActive( ))
+            {
+                TraverseResult result = leafCB( current, userData );
+                if( result == TRAVERSE_TERMINATE )
+                    return TRAVERSE_TERMINATE;
+            }
+
+            current = next;
+        } 
+        else // node
+        {
+            if( preCB && current->_isActive( ))
+            {
+                TraverseResult result = preCB( current, userData );
+                if( result == TRAVERSE_TERMINATE )
+                    return TRAVERSE_TERMINATE;
+            }
+
+            if( current->_isActive( ))
+                current = child;
+            else
+                current = next;
+        }
+
+        //---------- up-right traversal
+        if( !current && !parent ) return TRAVERSE_CONTINUE;
+
+        while( !current )
+        {
+            current = parent;
+            parent  = current->getParent();
+            next    = current->_getNext();
+
+            if( postCB && current->_isActive( ))
+            {
+                TraverseResult result = postCB( current, userData );
+                if( result == TRAVERSE_TERMINATE )
+                    return TRAVERSE_TERMINATE;
+            }
+            
+            if ( current == compound ) return TRAVERSE_CONTINUE;
+            
+            current = next;
+        }
+    }
+    return TRAVERSE_CONTINUE;
+}
+
 //---------------------------------------------------------------------------
 // Operations
 //---------------------------------------------------------------------------
 
 void Compound::init()
 {
-    traverse( this, _initCB, _initCB, NULL, NULL );
+    traverse( this, _initCB, _initCB, 0, 0 );
 }
 
 TraverseResult Compound::_initCB( Compound* compound, void* userData )
@@ -393,11 +466,13 @@ void Compound::exit()
 //---------------------------------------------------------------------------
 void Compound::update( const uint32_t frameNumber )
 {
-    UpdateData data;
-    data.frameNumber = frameNumber;
+    _frame = frameNumber;
 
-    traverse( this, _updatePreCB, _updateCB, _updatePostCB, &data );
-    traverse( this, _updateInputCB, _updateInputCB, NULL, &data );
+    UpdateData data;
+
+    traverse(       this, _updateDataCB, _updateDataCB, 0,     0     );
+    traverseActive( this, 0, _updateOutputCB, _updateOutputCB, &data );
+    traverseActive( this, _updateInputCB, _updateInputCB, 0,   &data );
     
     for( hash_map<string, eqNet::Barrier*>::const_iterator i = 
              data.swapBarriers.begin(); i != data.swapBarriers.end(); ++i )
@@ -408,27 +483,25 @@ void Compound::update( const uint32_t frameNumber )
     }
 }
 
-TraverseResult Compound::_updatePreCB( Compound* compound, void* userData )
+TraverseResult Compound::_updateDataCB( Compound* compound, void* userData )
 {
     compound->_updateInheritData();
     
     return TRAVERSE_CONTINUE;
 }
-TraverseResult Compound::_updateCB( Compound* compound, void* userData )
+TraverseResult Compound::_updateOutputCB( Compound* compound, void* userData )
 {
     UpdateData* data = (UpdateData*)userData;
-    compound->_updateInheritData();
     compound->_updateOutput( data );
     compound->_updateSwapBarriers( data );
     
     return TRAVERSE_CONTINUE;
 }
-TraverseResult Compound::_updatePostCB( Compound* compound, void* userData )
+
+TraverseResult Compound::_updateInputCB( Compound* compound, void* userData )
 {
     UpdateData* data = (UpdateData*)userData;
-    compound->_updateOutput( data );
-    compound->_updateSwapBarriers( data );
-    
+    compound->_updateInput( data );
     return TRAVERSE_CONTINUE;
 }
 
@@ -440,6 +513,12 @@ void Compound::_updateInheritData()
 
         if( _inherit.eyes == EYE_UNDEFINED )
             _inherit.eyes = EYE_CYCLOP;
+
+        if( _inherit.period == EQ_UNDEFINED_UINT32 )
+            _inherit.period = 1;
+
+        if( _inherit.phase == EQ_UNDEFINED_UINT32 )
+            _inherit.phase = 0;
 
         if( _inherit.channel )
         {
@@ -467,6 +546,7 @@ void Compound::_updateInheritData()
     }
     else
     {
+        _frame   = _parent->_frame;
         _inherit = _parent->_inherit;
 
         if( !_inherit.channel )
@@ -481,6 +561,12 @@ void Compound::_updateInheritData()
         if( _data.eyes != EYE_UNDEFINED )
             _inherit.eyes = _data.eyes;
         
+        if( _data.period != EQ_UNDEFINED_UINT32 )
+            _inherit.period = _data.period;
+
+        if( _data.phase != EQ_UNDEFINED_UINT32 )
+            _inherit.phase = _data.phase;
+
         if ( !_inherit.pvp.isValid() && _inherit.channel )
             _inherit.pvp = _inherit.channel->getPixelViewport();
         if( _inherit.pvp.isValid( ))
@@ -521,8 +607,6 @@ void Compound::_updateOutput( UpdateData* data )
 
         return;
 
-    const uint32_t frameNumber = data->frameNumber;
-
     for( vector<Frame*>::iterator iter = _outputFrames.begin(); 
          iter != _outputFrames.end(); ++iter )
     {
@@ -541,7 +625,7 @@ void Compound::_updateOutput( UpdateData* data )
         eq::PixelViewport   framePVP = _inherit.pvp * frameVP;
 
         // FrameData offset is position wrt destination view
-        frame->cycleData( frameNumber );
+        frame->cycleData( _frame );
         FrameData* frameData = frame->getData();
         EQASSERT( frameData );
 
@@ -607,13 +691,6 @@ void Compound::_updateSwapBarriers( UpdateData* data )
         window->joinSwapBarrier( iter->second );
 }
 
-TraverseResult Compound::_updateInputCB( Compound* compound, void* userData )
-{
-    UpdateData* data = (UpdateData*)userData;
-    compound->_updateInput( data );
-    return TRAVERSE_CONTINUE;
-}
-
 void Compound::_updateInput( UpdateData* data )
 {
     const Channel* channel = getChannel();
@@ -677,13 +754,16 @@ void Compound::updateChannel( Channel* channel, const uint32_t frameID )
     UpdateChannelData data = { channel, frameID };
 
     data.eye = EYE_LEFT;
-    traverse( this, _updatePreDrawCB, _updateDrawCB, _updatePostDrawCB, &data );
+    traverseActive( this, _updatePreDrawCB, _updateDrawCB, _updatePostDrawCB,
+                    &data );
 
     data.eye = EYE_RIGHT;
-    traverse( this, _updatePreDrawCB, _updateDrawCB, _updatePostDrawCB, &data );
+    traverseActive( this, _updatePreDrawCB, _updateDrawCB, _updatePostDrawCB, 
+                    &data );
 
     data.eye = EYE_CYCLOP;
-    traverse( this, _updatePreDrawCB, _updateDrawCB, _updatePostDrawCB, &data );
+    traverseActive( this, _updatePreDrawCB, _updateDrawCB, _updatePostDrawCB, 
+                    &data );
 }
 
 TraverseResult Compound::_updatePreDrawCB( Compound* compound, void* userData )
@@ -1100,6 +1180,14 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
             os << "RIGHT ";
         os << "]" << endl;
     }
+
+    const uint32_t period = compound->getPeriod();
+    if( period != EQ_UNDEFINED_UINT32 )
+        os << "period   " << period << endl;
+
+    const uint32_t phase = compound->getPhase();
+    if( phase != EQ_UNDEFINED_UINT32 )
+        os << "phase    " << phase << endl;
 
     // attributes
     bool attrPrinted = false;

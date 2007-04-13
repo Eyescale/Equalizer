@@ -61,8 +61,8 @@ typedef SSIZE_T    ssize_t;
 #endif // Win32
 
 // defines
-#define EQ_UNDEFINED_UINT32   (0xffffffff)
-//#define EQ_UNDEFINED_INT32    (0x7fffffff)
+#define EQ_UNDEFINED_UINT32   (0xffffffffu)
+//#define EQ_UNDEFINED_INT32    (0x7fffffffu)
 #define EQ_TIMEOUT_INDEFINITE 0
 #define EQ_OBJECT_CAST( type, object )                 \
     static_cast<type>( object );                       \

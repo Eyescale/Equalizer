@@ -1,31 +1,70 @@
+# 2-window test config
 server
 {
-#    connection { type SDP }
-    connection { type TCPIP }
-
     config
     {
-        node
+        appNode
         {
             pipe
             {
                 window
                 {
-                    viewport [ 0.25 0.25 0.5 0.5 ]
-                    
-                    channel { name "channel" }
+                    viewport [ 100 100 480 300 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 600 100 480 300 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ 1100 100 480 300 ]
+                    channel
+                    {
+                        name "channel3"
+                    }
                 }
             }
         }
         compound
         { 
-            channel "channel"
+            channel "channel1"
             wall
             {
-                bottom_left  [ -.8 -.5 -1 ]
-                bottom_right [  .8 -.5 -1 ]
-                top_left     [ -.8  .5 -1 ]
+                bottom_left  [ -.64 -.4 -1 ]
+                bottom_right [  .64 -.4 -1 ]
+                top_left     [ -.64  .4 -1 ]
             }
+
+            compound
+            {
+                channel "channel2"
+                period  2
+                phase   0
+                outputframe{}
+            }
+            compound
+            { 
+                channel "channel3"
+                period  2
+                phase   1
+                outputframe{}
+            }
+            inputframe{ name "frame.channel2" }
+            inputframe{ name "frame.channel3" }
         }
     }    
 }
