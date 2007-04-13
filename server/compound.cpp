@@ -401,8 +401,11 @@ void Compound::update( const uint32_t frameNumber )
     
     for( hash_map<string, eqNet::Barrier*>::const_iterator i = 
              data.swapBarriers.begin(); i != data.swapBarriers.end(); ++i )
- 
-        i->second->commit();
+    {
+        eqNet::Barrier* barrier = i->second;
+        if( barrier->getHeight() > 1 )
+            barrier->commit();
+    }
 }
 
 TraverseResult Compound::_updatePreCB( Compound* compound, void* userData )

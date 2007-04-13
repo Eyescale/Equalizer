@@ -394,17 +394,27 @@ void eqs::Window::updatePost( const uint32_t frameID,
 
 void eqs::Window::_updateSwap()
 {
-    if( !_swapBarriers.empty())
-    {
-        eq::WindowFinishPacket packet;
-        _send( packet );
-        EQLOG( eq::LOG_TASKS ) << "TASK finish  " << &packet << endl;
-    }
+    bool finishSent = false;
 
     for( vector<eqNet::Barrier*>::iterator iter = _swapBarriers.begin();
          iter != _swapBarriers.end(); ++iter )
     {
         const eqNet::Barrier*   barrier = *iter;
+        if( barrier->getHeight() <= 1 )
+        {
+            EQWARN << "Ignoring swap barrier of height " << barrier->getHeight()
+                   << endl;
+            continue;
+        }
+
+        if( !finishSent )
+        {
+            eq::WindowFinishPacket packet;
+            _send( packet );
+            EQLOG( eq::LOG_TASKS ) << "TASK finish  " << &packet << endl;
+            finishSent = true;
+        }
+
         eq::WindowBarrierPacket packet;
 
         packet.barrierID      = barrier->getID();
