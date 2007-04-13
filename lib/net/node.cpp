@@ -1358,7 +1358,7 @@ bool Node::runClient( const string& clientArgs )
     size_t nextPos = clientArgs.find( SEPARATOR );
     if( nextPos == string::npos )
     {
-        EQERROR << "Could not parse request identifier" << endl;
+        EQERROR << "Could not parse request identifier: " << clientArgs << endl;
         return false;
     }
 
@@ -1369,7 +1369,8 @@ bool Node::runClient( const string& clientArgs )
     nextPos = description.find( SEPARATOR );
     if( nextPos == string::npos )
     {
-        EQERROR << "Could not parse working directory" << endl;
+        EQERROR << "Could not parse working directory: " << description 
+                << " is left from " << clientArgs << endl;
         return false;
     }
 
@@ -1387,7 +1388,8 @@ bool Node::runClient( const string& clientArgs )
     nextPos = description.find( SEPARATOR );
     if( nextPos == string::npos )
     {
-        EQERROR << "Could not parse node identifier" << endl;
+        EQERROR << "Could not parse node identifier: " << description
+                << " is left from " << clientArgs << endl;
         return false;
     }
     _id         = description.substr( 0, nextPos );
@@ -1396,7 +1398,8 @@ bool Node::runClient( const string& clientArgs )
     nextPos = description.find( SEPARATOR );
     if( nextPos == string::npos )
     {
-        EQERROR << "Could not parse server node type" << endl;
+        EQERROR << "Could not parse server node type: " << description
+                << " is left from " << clientArgs << endl;
         return false;
     }
     const string nodeType = description.substr( 0, nextPos );
