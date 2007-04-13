@@ -66,7 +66,7 @@ namespace eqs
          * 
          * @return the number of nodes on this config. 
          */
-        uint32_t nNodes() const { return _nodes.size(); }
+        uint32_t nNodes() const { return static_cast<uint32_t>(_nodes.size()); }
 
         /** 
          * Gets a node.
@@ -98,7 +98,8 @@ namespace eqs
          * 
          * @return the number of compounds on this config. 
          */
-        uint32_t nCompounds() const { return _compounds.size(); }
+        uint32_t nCompounds() const 
+            { return static_cast<uint32_t>(_compounds.size()); }
 
         /** 
          * Gets a compound.

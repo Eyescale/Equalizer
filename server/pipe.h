@@ -70,7 +70,8 @@ namespace eqs
          * 
          * @return the number of windows on this config. 
          */
-        uint32_t nWindows() const { return _windows.size(); }
+        uint32_t nWindows() const 
+            { return static_cast<uint32_t>(_windows.size()); }
 
         /** 
          * Gets a window.

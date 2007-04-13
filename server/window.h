@@ -77,7 +77,8 @@ namespace eqs
          * 
          * @return the number of channels on this window. 
          */
-        uint32_t nChannels() const { return _channels.size(); }
+        uint32_t nChannels() const 
+            { return static_cast<uint32_t>(_channels.size()); }
 
         /** 
          * Gets a channel.

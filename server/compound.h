@@ -130,7 +130,8 @@ namespace eqs
          * 
          * @return the number of children on this compound. 
          */
-        uint32_t nChildren() const { return _children.size(); }
+        uint32_t nChildren() const 
+            { return static_cast<uint32_t>(_children.size()); }
 
         /** @return if the compound is a leaf compound. */
         bool isLeaf() const { return _children.empty(); }

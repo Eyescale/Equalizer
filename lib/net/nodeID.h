@@ -24,7 +24,7 @@ namespace eqNet
      *
      * Not to be subclassed.
      */
-    class NodeID
+    class EQ_EXPORT NodeID
     {
     public:
 #ifdef WIN32

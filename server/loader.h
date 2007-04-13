@@ -1,9 +1,11 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_LOADER_H
 #define EQS_LOADER_H
+
+#include "base.h"
 
 #include <iostream>
 
@@ -20,7 +22,7 @@ namespace eqs
     /**
      * The config file loader.
      */
-    class Loader
+    class EQS_EXPORT Loader
     {
     public:
         /** 

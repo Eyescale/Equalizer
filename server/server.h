@@ -1,9 +1,11 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_SERVER_H
 #define EQS_SERVER_H
+
+#include "base.h"
 
 #include <eq/client/nodeType.h>  // for TYPE_EQ_SERVER enum
 #include <eq/net/commandQueue.h> // member
@@ -34,7 +36,7 @@ namespace eqs
     /**
      * The Equalizer server.
      */
-    class Server : public eqNet::Node
+    class EQS_EXPORT Server : public eqNet::Node
     {
     public:
         /** 

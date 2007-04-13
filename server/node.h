@@ -64,7 +64,7 @@ namespace eqs
          * 
          * @return the number of pipes on this node. 
          */
-        uint32_t nPipes() const { return _pipes.size(); }
+        uint32_t nPipes() const { return static_cast<uint32_t>(_pipes.size()); }
 
         /** 
          * Gets a pipe.
