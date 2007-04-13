@@ -24,7 +24,7 @@ std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
     }
 
     os << " \"" << event->user.data << "\" " << event->formatType
-       << string( 40-strlen( event->formatType ), ' ' ) << event->area << ": ";
+       << string( 50-strlen( event->formatType ), ' ' ) << event->area << ": ";
 
     if( event->msec < 0.0f )
         os << "error " << -event->msec;

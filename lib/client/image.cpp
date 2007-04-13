@@ -34,6 +34,7 @@ uint32_t Image::getDepth( const Frame::Buffer buffer ) const
         case GL_RGBA:
         case GL_RGBA8:
         case GL_BGRA:
+        case GL_DEPTH_STENCIL_NV:
             depth = 4;
             break;
 
@@ -54,6 +55,7 @@ uint32_t Image::getDepth( const Frame::Buffer buffer ) const
     {
         case GL_UNSIGNED_BYTE:
         case GL_UNSIGNED_INT_8_8_8_8_REV:
+        case GL_UNSIGNED_INT_24_8_NV:
             return depth; // depth *= 1;
 
         case GL_FLOAT:
