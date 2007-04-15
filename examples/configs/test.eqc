@@ -1,4 +1,11 @@
-# 2-window test config
+# one-pipe fullscreen config, covering a 30" LCD one meter in front
+# of the viewer
+global
+{
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+    EQ_WINDOW_IATTR_PLANES_STENCIL  ON
+}
+
 server
 {
     config
@@ -9,62 +16,22 @@ server
             {
                 window
                 {
-                    viewport [ 100 100 480 300 ]
                     channel
                     {
-                        name "channel1"
-                    }
-                }
-            }
-            pipe
-            {
-                window
-                {
-                    viewport [ 600 100 480 300 ]
-                    channel
-                    {
-                        name "channel2"
-                    }
-                }
-            }
-            pipe
-            {
-                window
-                {
-                    viewport [ 1100 100 480 300 ]
-                    channel
-                    {
-                        name "channel3"
+                        name "channel"
                     }
                 }
             }
         }
         compound
         { 
-            channel "channel1"
+            channel "channel"
             wall
             {
-                bottom_left  [ -.64 -.4 -1 ]
-                bottom_right [  .64 -.4 -1 ]
-                top_left     [ -.64  .4 -1 ]
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
             }
-
-            compound
-            {
-                channel "channel2"
-                period  2
-                phase   0
-                outputframe{}
-            }
-            compound
-            { 
-                channel "channel3"
-                period  2
-                phase   1
-                outputframe{}
-            }
-            inputframe{ name "frame.channel2" }
-            inputframe{ name "frame.channel3" }
         }
     }    
 }

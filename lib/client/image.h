@@ -8,6 +8,7 @@
 #include <eq/client/frame.h>        // for Frame::Buffer enum
 #include <eq/client/viewport.h>     // member
 #include <eq/client/windowSystem.h> // for OpenGL types
+#include <eq/base/nonCopyable.h>    // base class of nested class
 
 namespace eq
 {
@@ -58,14 +59,14 @@ namespace eq
         uint32_t getDepth( const Frame::Buffer buffer ) const;
 
         /** @return a pointer to the raw pixel data. */
-        const uint8_t* getPixelData( const Frame::Buffer b ) const
-            { return _pixels[ _getIndexForBuffer( b )].data; }
+        const uint8_t* getPixelData( const Frame::Buffer buffer ) const
+            { return _getPixels( buffer ).data; }
         /** @return the size of the raw pixel data in bytes */
-        uint32_t getPixelDataSize( const Frame::Buffer b ) const
-            { return (_pvp.w * _pvp.h * getDepth( b )); }
+        uint32_t getPixelDataSize( const Frame::Buffer buffer ) const
+            { return (_pvp.w * _pvp.h * getDepth( buffer )); }
             
         /** @return a pointer to compressed pixel data. */
-        const uint8_t* compressPixelData( const Frame::Buffer b,
+        const uint8_t* compressPixelData( const Frame::Buffer buffer,
                                           uint32_t& size );
 
         /** 
@@ -73,7 +74,7 @@ namespace eq
          * not.
          */
         bool hasPixelData( const Frame::Buffer buffer ) const 
-            { return _pixels[ _getIndexForBuffer( buffer )].valid; }
+            { return _getPixels( buffer ).valid; }
             
         /** @return the pixel viewport of the image with in the frame buffer. */
         const PixelViewport& getPixelViewport() const { return _pvp; }
@@ -149,13 +150,6 @@ namespace eq
         //*}
         
     private:
-        enum BufferIndex
-        {
-            INDEX_COLOR,
-            INDEX_DEPTH,
-            INDEX_ALL
-        };
-
         /** All distributed data. */
         struct Data
         {
@@ -171,8 +165,9 @@ namespace eq
          * Previous implementations used a std::vector, but resizing it took
          * about 20ms for typical image sizes.
          */
-        struct Pixels
+        class Pixels : public eqBase::NonCopyable
         {
+        public:
             Pixels() : data(0), maxSize(0), format( GL_FALSE ),
                        type( GL_FALSE ), valid( false )
                 {}
@@ -186,15 +181,24 @@ namespace eq
             uint32_t type;
             bool     valid;   // data is currently valid
         };
-        Pixels _pixels[INDEX_ALL];
 
-        struct CompressedPixels : public Pixels
+        Pixels _colorPixels;
+        Pixels _depthPixels;
+
+        class CompressedPixels : public Pixels
         {
+        public:
             uint32_t size; // current size of the compressed data
         };
-        CompressedPixels _compressedPixels[INDEX_ALL];
 
-        static BufferIndex _getIndexForBuffer( const Frame::Buffer buffer );
+        CompressedPixels _compressedColorPixels;
+        CompressedPixels _compressedDepthPixels;
+
+        Pixels&           _getPixels( const Frame::Buffer buffer );
+        CompressedPixels& _getCompressedPixels( const Frame::Buffer buffer );
+        const Pixels&           _getPixels( const Frame::Buffer buffer ) const;
+        const CompressedPixels& _getCompressedPixels( const Frame::Buffer
+                                                      buffer ) const;
 
         void _startReadback( const Frame::Buffer buffer );
         void _startAssemble2D( const vmml::Vector2i& offset );

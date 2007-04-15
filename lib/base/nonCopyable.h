@@ -19,7 +19,6 @@ namespace eqBase
     {
     protected:
         NonCopyable() {}
-        virtual ~NonCopyable(){}
 
     private:
         /** Disable copy constructor. */

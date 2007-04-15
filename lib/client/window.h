@@ -28,8 +28,10 @@ namespace eq
         /** Stores current drawable characteristics. */
         struct DrawableConfig
         {
-            bool doublebuffered;
-            bool stereo;
+            int32_t stencilBits;
+            bool    stereo;
+            bool    doublebuffered;
+            bool    extPackedDepthStencil;
         };
         
         /** 
@@ -346,6 +348,9 @@ namespace eq
 
         void _send( eqNet::ObjectPacket& packet )
             { eqNet::Object::send( getServer(), packet ); }
+
+        /** Set up _drawableConfig by querying current context. */
+        void _queryDrawableConfig();
 
         /**
          * Initialize the event handling for this window. 

@@ -24,7 +24,7 @@ struct EnumMap
     { #format, #type, format, type }
 
 static EnumMap enums[] = {
-    ENUM_MAP_ITEM( GL_RGBA, GL_UNSIGNED_BYTE ), // initial resize
+    ENUM_MAP_ITEM( GL_RGBA, GL_UNSIGNED_BYTE ), // initial buffer resize
     ENUM_MAP_ITEM( GL_RGBA, GL_UNSIGNED_BYTE ),
     ENUM_MAP_ITEM( GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV ),
     ENUM_MAP_ITEM( GL_BGRA, GL_UNSIGNED_BYTE ),

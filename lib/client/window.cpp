@@ -242,6 +242,7 @@ bool eq::Window::configInitGLX()
         return false;
     }
 
+    // build attribute list
     vector<int> attributes;
     attributes.push_back( GLX_RGBA );
 
@@ -268,7 +269,7 @@ bool eq::Window::configInitGLX()
         attributes.push_back( depthSize>0 ? depthSize : 1 );
     }
     const int stencilSize = getIAttribute( IATTR_PLANES_STENCIL );
-    if( stencilSize >0 || depthSize == AUTO )
+    if( stencilSize >0 || stencilSize == AUTO )
     {
         attributes.push_back( GLX_STENCIL_SIZE );
         attributes.push_back( stencilSize>0 ? stencilSize : 1 );
@@ -278,27 +279,37 @@ bool eq::Window::configInitGLX()
         attributes.push_back( GLX_STEREO );
     if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) != OFF )
         attributes.push_back( GLX_DOUBLEBUFFER );
+
     attributes.push_back( None );
 
-    const int    screen  = DefaultScreen( display );
-    XVisualInfo *visInfo = glXChooseVisual( display, screen, &attributes[0] );
+    // build backoff list, least important attribute last
+    vector<int> backoffAttributes;
+    if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
+        backoffAttributes.push_back( GLX_DOUBLEBUFFER );
+    if( stencilSize == AUTO )
+        backoffAttributes.push_back( GLX_STENCIL_SIZE );
+    if( getIAttribute( IATTR_HINT_STEREO ) == AUTO )
+        backoffAttributes.push_back( GLX_STEREO );
 
-    if( !visInfo && getIAttribute( IATTR_HINT_STEREO ) == AUTO )
-    {        
-        EQINFO << "Stereo not available, requesting mono visual" << endl;
+    // Choose visual
+    const int    screen  = DefaultScreen( display );
+    XVisualInfo *visInfo = glXChooseVisual( display, screen, 
+                                            &attributes.front( ));
+
+    while( !visInfo && !backoffAttributes.empty( ))
+    {   // Gradually remove backoff attributes
+        const int attribute = backoffAttributes.back();
+        backoffAttributes.pop_back();
+
         vector<int>::iterator iter = find( attributes.begin(), attributes.end(),
-                                           GLX_STEREO );
-        attributes.erase( iter );
-        visInfo = glXChooseVisual( display, screen, &attributes[0] );
-    }
-    if( !visInfo && getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
-    {        
-        EQINFO << "Doublebuffer not available, requesting singlebuffer visual" 
-               << endl;
-        vector<int>::iterator iter = find( attributes.begin(), attributes.end(),
-                                           GLX_DOUBLEBUFFER );
-        attributes.erase( iter );
-        visInfo = glXChooseVisual( display, screen, &attributes[0] );
+                                           attribute );
+        EQASSERT( iter != attributes.end( ));
+        if( *iter == GLX_STENCIL_SIZE ) // two-elem attribute
+            attributes.erase( iter, iter+1 );
+        else                            // one-elem attribute
+            attributes.erase( iter );
+
+        visInfo = glXChooseVisual( display, screen, &attributes.front( ));
     }
 
     if ( !visInfo )
@@ -392,6 +403,7 @@ bool eq::Window::configInitCGL()
 #ifdef CGL
     CGDirectDisplayID displayID = _pipe->getCGLDisplayID();
 
+    // build attribute list
     vector<int> attributes;
     attributes.push_back( kCGLPFADisplayMask );
     attributes.push_back( CGDisplayIDToOpenGLDisplayMask( displayID ));
@@ -416,7 +428,7 @@ bool eq::Window::configInitCGL()
         attributes.push_back( depthSize>0 ? depthSize : 1 );
     }
     const int stencilSize = getIAttribute( IATTR_PLANES_STENCIL );
-    if( stencilSize > 0 )
+    if( stencilSize > 0 || stencilSize == AUTO )
     {
         attributes.push_back( kCGLPFAStencilSize );
         attributes.push_back( stencilSize>0 ? stencilSize : 1 );
@@ -429,28 +441,37 @@ bool eq::Window::configInitCGL()
 
     attributes.push_back( 0 );
 
+    // build backoff list, least important attribute last
+    vector<int> backoffAttributes;
+    if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
+        backoffAttributes.push_back( GLX_DOUBLEBUFFER );
+    if( stencilSize == AUTO )
+        backoffAttributes.push_back( GLX_STENCIL_SIZE );
+    if( getIAttribute( IATTR_HINT_STEREO ) == AUTO )
+        backoffAttributes.push_back( GLX_STEREO );
+
+    // choose pixel format
     CGLPixelFormatObj pixelFormat = 0;
     long numPixelFormats = 0;
-    const CGLPixelFormatAttribute* cglAttribs = 
-        (CGLPixelFormatAttribute*)&attributes[0];
+    const CGLPixelFormatAttribute* cglAttribs =
+        (CGLPixelFormatAttribute*)&attributes.front();
     CGLChoosePixelFormat( cglAttribs, &pixelFormat, &numPixelFormats );
 
-    if( !pixelFormat && getIAttribute( IATTR_HINT_STEREO ) == AUTO )
-    {
-        vector<int>::iterator iter = 
-            find( attributes.begin(), attributes.end(), kCGLPFAStereo );
-        attributes.erase( iter );
-        const CGLPixelFormatAttribute* cglAttribs = 
-            (CGLPixelFormatAttribute*)&attributes[0];
-        CGLChoosePixelFormat( cglAttribs, &pixelFormat, &numPixelFormats );
-    }
-    if( !pixelFormat && getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
-    {
-        vector<int>::iterator iter = 
-            find( attributes.begin(), attributes.end(), kCGLPFADoubleBuffer );
-        attributes.erase( iter );
-        const CGLPixelFormatAttribute* cglAttribs = 
-            (CGLPixelFormatAttribute*)&attributes[0];
+    while( !pixelFormat && !backoffAttributes.empty( ))
+    {   // Gradually remove backoff attributes
+        const int attribute = backoffAttributes.back();
+        backoffAttributes.pop_back();
+
+        vector<int>::iterator iter = find( attributes.begin(), attributes.end(),
+                                           attribute );
+        EQASSERT( iter != attributes.end( ));
+        if( *iter == kCGLPFAStencilSize ) // two-elem attribute
+            attributes.erase( iter, iter+1 );
+        else                            // one-elem attribute
+            attributes.erase( iter );
+
+        const CGLPixelFormatAttribute* cglAttribs =
+            (CGLPixelFormatAttribute*)&attributes.front();
         CGLChoosePixelFormat( cglAttribs, &pixelFormat, &numPixelFormats );
     }
 
@@ -562,7 +583,7 @@ bool eq::Window::configInitWGL()
         return false;
     }
 
-    // pixel format
+    // describe pixel format
     HDC windowDC   = GetDC( hWnd );
     HDC dc         = affinityDC ? affinityDC : windowDC;
 
@@ -593,18 +614,26 @@ bool eq::Window::configInitWGL()
         pfd.dwFlags |= PFD_STEREO;
     if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) != OFF )
         pfd.dwFlags |= PFD_DOUBLEBUFFER;
+
     int pf = ChoosePixelFormat( dc, &pfd );
 
     if( pf == 0 && getIAttribute( IATTR_HINT_STEREO ) == AUTO )
     {        
-        EQINFO << "Stereo not available, requesting mono visual" << endl;
+        EQINFO << "Visual not available, trying mono visual" << endl;
         pfd.dwFlags |= PFD_STEREO_DONTCARE;
+        pf = ChoosePixelFormat( dc, &pfd );
+    }
+
+    if( pf == 0 && stencilSize == AUTO )
+    {        
+        EQINFO << "Visual not available, trying non-stencil visual" << endl;
+        pfd.cStencilBits = 0;
         pf = ChoosePixelFormat( dc, &pfd );
     }
 
     if( pf == 0 && getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
     {        
-        EQINFO << "Doublebuffer not available, requesting singlebuffer visual" 
+        EQINFO << "Visual not available, trying singlebuffered visual" 
                << endl;
         pfd.dwFlags |= PFD_DOUBLEBUFFER_DONTCARE;
         pf = ChoosePixelFormat( dc, &pfd );
@@ -768,6 +797,27 @@ void eq::Window::configExitWGL()
 
     EQINFO << "Destroyed WGL context and window" << endl;
 #endif
+}
+
+void eq::Window::_queryDrawableConfig()
+{
+    // Framebuffer capabilities
+    GLboolean result;
+    glGetBooleanv( GL_STEREO,       &result );
+    _drawableConfig.stereo = result;
+
+    glGetBooleanv( GL_DOUBLEBUFFER, &result );
+    _drawableConfig.doublebuffered = result;
+
+    glGetIntegerv( GL_STENCIL_BITS, &_drawableConfig.stencilBits );
+
+    // OpenGL Extensions
+    const string extList = (const char*)glGetString( GL_EXTENSIONS );
+    
+    if( extList.find( "GL_EXT_packed_depth_stencil" ) != string::npos ||
+        extList.find( "GL_NV_packed_depth_stencil" ) != string::npos )
+
+        _drawableConfig.extPackedDepthStencil = true;
 }
 
 void eq::Window::_initEventHandling()
@@ -1114,13 +1164,7 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
         default: EQUNIMPLEMENTED;
     }
 
-    GLboolean glStereo;
-    GLboolean dBuffer;
-    glGetBooleanv( GL_STEREO, &glStereo );
-    glGetBooleanv( GL_DOUBLEBUFFER, &dBuffer );
-    _drawableConfig.doublebuffered = dBuffer;
-    _drawableConfig.stereo         = glStereo;
-
+    _queryDrawableConfig();
     _initEventHandling();
 
     reply.pvp            = _pvp;

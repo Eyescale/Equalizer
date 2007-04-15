@@ -117,6 +117,8 @@ namespace eq
             PixelViewport  pvp;
             vmml::Vector2i offset;
             uint32_t       buffers;
+            uint32_t       format;
+            uint32_t       type;
         }
             _data;
 
