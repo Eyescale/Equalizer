@@ -200,6 +200,8 @@ struct MapObjectData
 
 void Session::attachObject( Object* object, const uint32_t id )
 {
+    EQASSERT( object );
+
     if( _localNode->inReceiverThread( ))
     {
         CHECK_THREAD( _receiverThread );
@@ -272,6 +274,8 @@ void Session::detachObject( Object* object )
 
 bool Session::mapObject( Object* object, const uint32_t id )
 {
+    EQASSERT( object );
+
     EQINFO << "Mapping " << typeid( *object ).name() << " to id " << id << endl;
 
     EQASSERT( object->_id == EQ_ID_INVALID );
@@ -616,8 +620,9 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
     if( _objects.find( id ) != _objects.end( ))
     {
         vector<Object*>& objects = _objects[id];
+
         for( vector<Object*>::const_iterator i = objects.begin();
-             i != objects.end(); ++ i )
+             i != objects.end(); ++i )
         {
             Object* object = *i;
             if( object->isMaster( ))
@@ -741,6 +746,7 @@ CommandResult Session::_cmdUnsubscribeObject( Command& command )
     if( _objects.find( id ) != _objects.end( ))
     {
         vector<Object*>& objects = _objects[id];
+
         for( vector<Object*>::const_iterator i = objects.begin();
              i != objects.end(); ++ i )
         {

@@ -61,8 +61,8 @@ Object::Object( const Object& from )
 Object::~Object()
 {
     if( _session ) // Still registered
-        EQERROR << "Object is still registered in session " << _session->getID()
-                << " in destructor" << endl;
+        EQERROR << "Object " << _id << " is still registered in session "
+                << _session->getID() << " in destructor" << endl;
 
     if( _cm != ObjectCM::ZERO )
         delete _cm;

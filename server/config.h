@@ -44,7 +44,7 @@ namespace eqs
          */
         //*{
         Server* getServer() { return _server.get(); }
-        
+        bool    isRunning() const { return ( _state == STATE_INITIALIZED ); }
         /** 
          * Adds a new node to this config.
          * 

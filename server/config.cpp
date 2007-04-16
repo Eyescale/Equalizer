@@ -400,7 +400,7 @@ bool Config::_initNodes( const uint32_t initID )
 bool Config::exit()
 {
     if( _state != STATE_INITIALIZED )
-        return false;
+        EQWARN << "Exiting non-initialized config" << endl;
 
     _finishAllFrames();
 
@@ -630,7 +630,10 @@ eqNet::CommandResult Config::_reqExit( eqNet::Command& command )
     eq::ConfigExitReplyPacket   reply( packet );
     EQINFO << "handle config exit " << packet << endl;
 
-    reply.result = exit();
+    if( _state == STATE_INITIALIZED )
+        reply.result = exit();
+    else
+        reply.result = false;
 
     EQINFO << "config exit result: " << reply.result << endl;
     send( command.getNode(), reply );
