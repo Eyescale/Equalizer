@@ -1,0 +1,132 @@
+# single-pipe three-to-one sort-last, direct-send pipelined demo configuration
+# The assembly happens pipelined from the draw operation in another window. 
+# All windows, with the exception of the final destination view on assemble3 
+# should be offscreen.
+
+global
+{
+    EQ_WINDOW_IATTR_PLANES_STENCIL ON
+}
+
+server
+{
+    config
+    {
+        latency 2
+        appNode
+        {
+            pipe 
+            {
+                window 
+                {
+                    name    "draw1"
+                    viewport [ 20 50 600 375 ] 
+                    channel { name "channel1" }
+                }
+                window
+                { 
+                    name    "draw2"
+                    viewport [ 640 50 600 375 ]
+                    channel { name "channel2" }
+                }
+                window
+                { 
+                    name    "draw3"
+                    viewport [ 1260 50 600 375 ] 
+                    channel { name "channel3" }
+                }
+            }
+            pipe
+            {
+                window 
+                {
+                    name    "assemble1"
+                    viewport [ 20 450 600 375 ] 
+                    channel { name "assemble1" }
+                }
+                window
+                { 
+                    name    "assemble2"
+                    viewport [ 640 450 600 375 ]
+                    channel { name "assemble2" }
+                }
+                window
+                { 
+                    name    "assemble3"
+                    viewport [ 1260 450 600 375 ] 
+                    channel { name "assemble3" }
+                }
+            }
+        }
+        compound
+        {
+            channel "assemble3"
+            buffer  [ COLOR DEPTH ]
+
+            wall
+            {
+                bottom_left  [ -.32 -.2 -.5 ]
+                bottom_right [  .32 -.2 -.5 ]
+                top_left     [ -.32  .2 -.5 ]
+            }
+
+            compound
+            {
+                channel "channel1"
+                range [ 0 .333 ]
+
+                outputframe { name "f1.c1" viewport [ 0 .666 1 .334 ] }
+                outputframe { name "f2.c1" viewport [ 0  0 .5 .666 ] }
+                outputframe { name "f3.c1" viewport [ .5 0 .5 .666 ] }
+            }
+            compound
+            {
+                channel "assemble1"
+                task [ CLEAR ASSEMBLE READBACK ]
+
+                inputframe { name "f1.c1" }
+                inputframe { name "f1.c2" }
+                inputframe { name "f1.c3" }
+                outputframe { buffer [ COLOR ] viewport [ 0 .666 1 .334 ] }
+            }
+
+            compound
+            {
+                channel "channel2"
+                range [ .333 .666 ]
+
+                outputframe { name "f1.c2" viewport [ 0 .666 1 .334 ] }
+                outputframe { name "f2.c2" viewport [ 0  0 .5 .666 ] }
+                outputframe { name "f3.c2" viewport [ .5 0 .5 .666 ] }
+            }
+            compound
+            {
+                channel "assemble2"
+                task [ CLEAR ASSEMBLE READBACK ]
+
+                inputframe { name "f2.c1" }
+                inputframe { name "f2.c2" }
+                inputframe { name "f2.c3" }
+                outputframe { buffer [ COLOR ] viewport [ 0  0 .5 .666 ] }
+            }
+
+
+            compound
+            {
+                channel "channel3"
+                range [ .666 1 ]
+
+                outputframe { name "f1.c3" viewport [ 0 .666 1 .334 ] }
+                outputframe { name "f2.c3" viewport [ 0  0 .5 .666 ] }
+                outputframe { name "f3.c3" viewport [ .5 0 .5 .666 ] }
+            }
+
+            task [ CLEAR ASSEMBLE ]
+            inputframe { name "f3.c1" }
+            inputframe { name "f3.c2" }
+            inputframe { name "f3.c3" }
+            inputframe { name "frame.assemble1" }
+            inputframe { name "frame.assemble2" }
+        }
+    }    
+}
