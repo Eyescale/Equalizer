@@ -45,9 +45,8 @@ namespace eq
 
     inline std::ostream& operator << ( std::ostream& os, const StatEvent& event)
     {
-        os << " event " << StatEvent::typeNames[ event.type ] << ":" 
-           << event.objectID << " " << event.startTime << " - " 
-           << event.endTime;
+        os << StatEvent::typeNames[ event.type ] << ":" << event.objectID 
+           << " " << event.startTime << " - " << event.endTime;
         return os;
     }
 }

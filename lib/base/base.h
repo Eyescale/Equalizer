@@ -23,10 +23,22 @@
 #    define EQ_EXPORT EQ_DLLIMPORT
 #    define EQ_STLEXTERN extern
 #  endif
+   // Need to predefine server library exports for forward declaration of 
+   // eqsStartLocalServer
+#  ifdef EQUALIZERSERVERLIBRARY_EXPORTS
+#    define EQS_EXPORT EQ_DLLEXPORT
+#    define EQS_STLEXTERN 
+#  else
+#    define EQS_EXPORT EQ_DLLIMPORT
+#    define EQS_STLEXTERN extern
+#  endif
 #else
 #  define EQ_DLLEXPORT
 #  define EQ_DLLIMPORT
 #  define EQ_EXPORT
+#  define EQS_DLLEXPORT
+#  define EQS_DLLIMPORT
+#  define EQS_EXPORT
 #endif
 
 #include <cmath>

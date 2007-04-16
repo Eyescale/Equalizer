@@ -14,8 +14,11 @@
 #include <eq/net/command.h>
 #include <eq/net/connection.h>
 
-#ifndef WIN32
+#ifdef WIN32
+#  define EQ_DL_ERROR getErrorString( GetLastError( ))
+#else
 #  include <dlfcn.h>
+#  define EQ_DL_ERROR dlerror()
 #endif
 
 using namespace eq;
@@ -98,33 +101,35 @@ typedef eqBase::RefPtr< eqNet::Connection > (*eqsStartLocalServer_t)();
 RefPtr< eqNet::Connection > _startLocalServer()
 {
 #ifdef WIN32
-    // TODO: use LoadLibrary()
-    EQWARN << "Server-less mode not yet implemented on Win32" << endl;
-    return 0;
-#else // Posix
-#  ifdef Darwin
+    HMODULE libeqserver = LoadLibrary( "EqualizerServer.dll" );
+#elif defined (Darwin)
     void* libeqserver = dlopen( "libeqserver.dylib", RTLD_LAZY );
-#  else
+#else
     void* libeqserver = dlopen( "libeqserver.so", RTLD_LAZY );
-#  endif
+#endif
+
     if( !libeqserver )
     {
-        EQWARN << "Can't open Equalizer server library" << dlerror() << endl;
+        EQWARN << "Can't open Equalizer server library: " << EQ_DL_ERROR <<endl;
         return 0;
     }
 
+#ifdef WIN32
+    eqsStartLocalServer_t eqsStartLocalServer = (eqsStartLocalServer_t)
+        GetProcAddress( libeqserver, "eqsStartLocalServer" );
+#else
     eqsStartLocalServer_t eqsStartLocalServer = (eqsStartLocalServer_t)
         dlsym( libeqserver, "eqsStartLocalServer" );
+#endif
 
     if( !eqsStartLocalServer )
     {
-        EQWARN << "Can't find server entry function eqsStartLocalServer()"
-               << dlerror() << endl;
+        EQWARN << "Can't find server entry function eqsStartLocalServer: "
+               << EQ_DL_ERROR << endl;
         return 0;
     }
 
     return eqsStartLocalServer();
-#endif
 }
 
 bool Client::disconnectServer( RefPtr<Server> server )

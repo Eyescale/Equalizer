@@ -54,8 +54,9 @@ int main( int argc, char **argv )
             clock.reset();
             if( connection->recv( buffer, PACKETSIZE ))
             {
-                EQINFO << "Recv perf: " << mBytesSec / clock.getTimef()
-                       << "MB/s" << endl;
+                const float time = clock.getTimef();
+                EQINFO << "Recv perf: " << mBytesSec / time << "MB/s (" 
+                       << time << "ms)" << endl;
                 ++i;
             }
         }
@@ -73,8 +74,9 @@ int main( int argc, char **argv )
         {
             clock.reset();
             TEST( connection->send( buffer, PACKETSIZE ));
-            EQINFO << "Send perf: " << mBytesSec / clock.getTimef() 
-                   << "MB/s" << endl;
+            const float time = clock.getTimef();
+            EQINFO << "Send perf: " << mBytesSec / time << "MB/s (" << time 
+                   << "ms)" << endl;
         }
     }
 

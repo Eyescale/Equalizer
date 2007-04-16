@@ -45,8 +45,7 @@ private:
 
 static ServerThread _serverThread;
 
-
-eqBase::RefPtr< eqNet::Connection > eqsStartLocalServer()
+EQS_EXPORT eqBase::RefPtr< eqNet::Connection > eqsStartLocalServer()
 {
     if( _serverThread.isRunning( ))
     {
@@ -66,7 +65,9 @@ eqBase::RefPtr< eqNet::Connection > eqsStartLocalServer()
 
     // Do not use RefPtr for easier handling
     eqNet::PairConnection* connection = new eqNet::PairConnection( 
-        new eqNet::PipeConnection, new eqNet::PipeConnection );
+        eqNet::Connection::create( eqNet::CONNECTIONTYPE_PIPE ),
+        eqNet::Connection::create( eqNet::CONNECTIONTYPE_PIPE ));
+
     // Wrap in one RefPtr to do correct reference counting and avoid deletion
     RefPtr< eqNet::Connection >  conn = connection;
 

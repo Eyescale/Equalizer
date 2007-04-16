@@ -10,16 +10,7 @@
 #include <eq/client/nodeType.h>  // for TYPE_EQ_SERVER enum
 #include <eq/net/commandQueue.h> // member
 #include <eq/net/idHash.h>       // member
-#include <eq/net/node.h>         // base class
-
-/** 
- * C entry point for the client library to start a local server within the
- * application process.
- * 
- * @return the local connection to the started server, or 0 when an error
- *         occured.
- */
-extern "C" eqBase::RefPtr< eqNet::Connection > eqsStartLocalServer();
+#include <eq/net/node.h>         // base class & eqsStartLocalServer declaration
 
 /** 
  * @namespace eqs

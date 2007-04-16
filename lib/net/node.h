@@ -19,7 +19,7 @@
 
 #include <list>
 
-extern "C" eqBase::RefPtr< eqNet::Connection > eqsStartLocalServer();
+extern "C" EQS_EXPORT eqBase::RefPtr< eqNet::Connection > eqsStartLocalServer();
 
 namespace eqNet
 {
