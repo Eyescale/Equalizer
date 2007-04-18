@@ -377,9 +377,9 @@ bool eq::Window::configInitGLX()
 
     // create context
     Pipe*      pipe        = getPipe();
-    Window*    firstWindow = pipe->getWindow(0);
+    Window*    firstWindow = pipe->getWindow( 0 );
     GLXContext shareCtx    = firstWindow->getGLXContext();
-    GLXContext context = glXCreateContext( display, visInfo, shareCtx, True );
+    GLXContext context     = glXCreateContext( display, visInfo, shareCtx, True );
 
     if ( !context )
     {
@@ -810,7 +810,9 @@ void eq::Window::_queryDrawableConfig()
     _drawableConfig.doublebuffered = result;
 
     glGetIntegerv( GL_STENCIL_BITS, &_drawableConfig.stencilBits );
+    _drawableConfig.glVersion = atof( (const char*)glGetString( GL_VERSION ));
 
+#if 0
     // OpenGL Extensions
     const string extList = (const char*)glGetString( GL_EXTENSIONS );
     
@@ -818,6 +820,8 @@ void eq::Window::_queryDrawableConfig()
         extList.find( "GL_NV_packed_depth_stencil" ) != string::npos )
 
         _drawableConfig.extPackedDepthStencil = true;
+#endif
+    EQINFO << "Window drawable config: " << _drawableConfig << endl;
 }
 
 void eq::Window::_initEventHandling()
@@ -1100,7 +1104,8 @@ eqNet::CommandResult eq::Window::_cmdDestroyChannel(eqNet::Command& command )
 
 eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
 {
-    const WindowConfigInitPacket* packet = command.getPacket<WindowConfigInitPacket>();
+    const WindowConfigInitPacket* packet = 
+        command.getPacket<WindowConfigInitPacket>();
     EQINFO << "handle window configInit " << packet << endl;
 
     if( packet->pvp.isValid( ))
@@ -1262,4 +1267,17 @@ eqNet::CommandResult eq::Window::_reqSwap(eqNet::Command& command )
     _pipe->testMakeCurrentWindow( this );
     swapBuffers();
     return eqNet::COMMAND_HANDLED;
+}
+
+std::ostream& eq::operator << ( std::ostream& os, 
+                                const Window::DrawableConfig& config )
+{
+    os << "GL" << config.glVersion;
+    if( config.stereo )
+        os << "|ST";
+    if( config.doublebuffered )
+        os << "|DB";
+    if( config.stencilBits )
+        os << "|st" << config.stencilBits;
+    return os;
 }

@@ -14,7 +14,8 @@ SOURCES = \
 	pipe.cpp \
 	plyfile.cpp \
 	plyFileIO.cpp \
-	tracker.cpp
+	tracker.cpp \
+	window.cpp
 
 CXXFLAGS    += -I../include $(WINDOW_SYSTEM_INCS)
 SA_LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)

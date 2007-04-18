@@ -104,6 +104,6 @@ namespace eqNet
         DWORD _win32ThreadID;
 #endif
     };
-};
+}
 
 #endif //EQNET_COMMANDQUEUE_H

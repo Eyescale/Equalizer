@@ -16,7 +16,8 @@
 #define COMMAND_POINT "B"
 
 using namespace std;
-
+namespace eqPly
+{
 Tracker::Tracker()
         : _running( false ),
           _worldToEmitter( vmml::Matrix4f::IDENTITY ),
@@ -221,4 +222,5 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
    }
    return true;
 #endif
+}
 }

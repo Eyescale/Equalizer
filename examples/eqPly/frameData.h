@@ -9,37 +9,39 @@
 
 #include <eq/eq.h>
 
-class FrameData : public eqNet::Object
+namespace eqPly
 {
-public:
-
-    FrameData()
-        {
-            reset();
-            setInstanceData( &data, sizeof( Data ));
-            EQINFO << "New FrameData " << std::endl;
-        }
-
-    void reset()
-        {
-            data.translation   = vmml::Vector3f::ZERO;
-            data.translation.z = -1.f;
-            data.rotation = vmml::Matrix4f::IDENTITY;
-            data.rotation.rotateX( static_cast<float>( -M_PI_2 ));
-            data.rotation.rotateY( static_cast<float>( -M_PI_2 ));
-        }
-
-    struct Data
+    class FrameData : public eqNet::Object
     {
-        vmml::Matrix4f rotation;
-        vmml::Vector3f translation;
-        bool           color;
-    } data;
-    
-protected:
-    virtual bool isStatic() const { return false; }
-};
+    public:
 
+        FrameData()
+            {
+                reset();
+                setInstanceData( &data, sizeof( Data ));
+                EQINFO << "New FrameData " << std::endl;
+            }
+
+        void reset()
+            {
+                data.translation   = vmml::Vector3f::ZERO;
+                data.translation.z = -1.f;
+                data.rotation = vmml::Matrix4f::IDENTITY;
+                data.rotation.rotateX( static_cast<float>( -M_PI_2 ));
+                data.rotation.rotateY( static_cast<float>( -M_PI_2 ));
+            }
+
+        struct Data
+        {
+            vmml::Matrix4f rotation;
+            vmml::Vector3f translation;
+            bool           color;
+        } data;
+    
+    protected:
+        virtual bool isStatic() const { return false; }
+    };
+}
 
 
 #endif // EQ_PLY_FRAMEDATA_H

@@ -4,6 +4,9 @@
 
 #include "config.h"
 
+namespace eqPly
+{
+
 Config::Config()
         : _running( false ),
           _spinX( 5 ),
@@ -160,4 +163,5 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             break;
     }
     return eq::Config::handleEvent( event );
+}
 }

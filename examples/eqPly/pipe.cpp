@@ -14,9 +14,11 @@
 #include "node.h"
 #include <eq/eq.h>
 
-using namespace std;
 using namespace eqBase;
+using namespace std;
 
+namespace eqPly
+{
 bool Pipe::configInit( const uint32_t initID )
 {
     const Node*     node        = static_cast<Node*>( getNode( ));
@@ -43,14 +45,4 @@ void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber )
     _frameData.sync( frameID );
     startFrame( frameNumber );
 }
-
-GLuint Pipe::getDisplayList( const void* key )
-{
-    return _displayLists[key];
-}
-
-GLuint Pipe::newDisplayList( const void* key )
-{
-    _displayLists[key] = glGenLists( 1 );
-    return _displayLists[key];
 }

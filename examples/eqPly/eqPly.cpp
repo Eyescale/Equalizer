@@ -9,14 +9,17 @@
 
 #include <stdlib.h>
 
-using namespace std;
 using namespace eqBase;
+using namespace std;
 
-EqPly::EqPly( const LocalInitData& initData )
+namespace eqPly
+{
+
+Application::Application( const LocalInitData& initData )
         : _initData( initData )
 {}
 
-bool EqPly::initLocal( int argc, char** argv )
+bool Application::initLocal( int argc, char** argv )
 {
     if( _initData.isApplication( ))
         return eqNet::Node::initLocal( argc, argv );
@@ -39,15 +42,15 @@ bool EqPly::initLocal( int argc, char** argv )
     return true;
 }
 
-int EqPly::run()
+int Application::run()
 {
     if( _initData.isApplication( ))
-        return runApplication();
+        return runMainloop();
     // else
     return runClient();
 }
 
-int EqPly::runApplication()
+int Application::runMainloop()
 {
     // 1. connect to server
     RefPtr<eq::Server> server = new eq::Server;
@@ -113,7 +116,7 @@ int EqPly::runApplication()
     return EXIT_SUCCESS;
 }
 
-int EqPly::runClient()
+int Application::runClient()
 {
     // run client loop
     while( true ) // TODO: implement SIGHUP handler to exit?
@@ -122,4 +125,5 @@ int EqPly::runClient()
     }
 
     return EXIT_SUCCESS;
+}
 }

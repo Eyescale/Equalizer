@@ -13,27 +13,30 @@
 
 typedef PlyModel< NormalFace<ColorVertex> > Model;
 
-class LocalInitData;
-
-class EqPly : public eq::Client
+namespace eqPly
 {
-public:
-    EqPly( const LocalInitData& initData );
-    virtual ~EqPly() {}
+    class LocalInitData;
 
-    /** @sa eqNet::Node::initLocal() */
-    virtual bool initLocal( int argc, char** argv );
+    class Application : public eq::Client
+    {
+    public:
+        Application( const LocalInitData& initData );
+        virtual ~Application() {}
 
-    /** Run an eqPly instance. */
-    int run();
-
-protected:
-    int runApplication();
-    int runClient();
-
-private:
-    const LocalInitData& _initData;
-};
+        /** @sa eqNet::Node::initLocal() */
+        virtual bool initLocal( int argc, char** argv );
+        
+        /** Run an eqPly instance. */
+        int run();
+        
+    protected:
+        int runMainloop();
+        int runClient();
+        
+    private:
+        const LocalInitData& _initData;
+    };
+}
 
 #endif // EQ_PLY_H
 

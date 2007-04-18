@@ -1,0 +1,55 @@
+# single-window config for a 2-channel TAN Holobench(tm): L-shaped projection
+# table, each area is 1.8mx1.1m. Deploy in full-screen, quad-stereo and 
+# channels on two pipes (if available).
+
+global { EQ_COMPOUND_IATTR_STEREO_MODE ANAGLYPH }
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 100 100 450 660 ]
+                    channel 
+                    {
+                        viewport [ 0 .5 1 .5 ]
+                        name "channel-front"
+                    }
+                    channel 
+                    {
+                        viewport [ 0 0 1 .5 ]
+                        name "channel-bottom"
+                    }
+                }
+            }
+        }
+        compound
+        {
+            eye [ LEFT RIGHT ]
+            compound
+            {
+                channel "channel-front"
+                wall
+                {
+                    bottom_left  [ -.9 -.55 -1.1 ]
+                    bottom_right [  .9 -.55 -1.1 ]
+                    top_left     [ -.9  .55 -1.1 ]
+                }
+            }
+            compound
+            {
+                channel "channel-bottom"
+                wall
+                {
+                    bottom_left  [ -.9 -.55  0   ]
+                    bottom_right [  .9 -.55  0   ]
+                    top_left     [ -.9 -.55 -1.1 ]
+                }
+            }
+        }
+    }    
+}

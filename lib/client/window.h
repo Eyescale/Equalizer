@@ -29,9 +29,9 @@ namespace eq
         struct DrawableConfig
         {
             int32_t stencilBits;
+            float   glVersion;
             bool    stereo;
             bool    doublebuffered;
-            bool    extPackedDepthStencil;
         };
         
         /** 
@@ -66,7 +66,7 @@ namespace eq
 
         /**  @return  the X11 drawable ID. */
         XID getXDrawable() const { return _xDrawable; }
-        
+
         /** 
          * Set the GLX rendering context for this window.
          * 
@@ -376,6 +376,8 @@ namespace eq
         eqNet::CommandResult _reqFinish( eqNet::Command& command );
         eqNet::CommandResult _reqSwap( eqNet::Command& command );
     };
+
+    std::ostream& operator << ( std::ostream& , const Window::DrawableConfig& );
 }
 
 #endif // EQ_WINDOW_H

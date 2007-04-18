@@ -8,9 +8,10 @@
 #include "initData.h"
 #include "node.h"
 #include "pipe.h"
+#include "window.h"
 
-using namespace std;
 using namespace eqBase;
+using namespace std;
 
 static float lightpos[] = { 0.0f, 0.0f, 1.0f, 0.0f };
 
@@ -22,6 +23,8 @@ static float lightpos[] = { 0.0f, 0.0f, 1.0f, 0.0f };
 #  define M_SQRT3_2  0.86603f  /* sqrt(3)/2 */
 #endif
 
+namespace eqPly
+{
 bool Channel::configInit( const uint32_t initID )
 {
     EQINFO << "Init channel initID " << initID << " ptr " << this << endl;
@@ -152,22 +155,23 @@ void Channel::_drawBBoxCB( Model::BBox *bbox, void *userData )
 
 void Channel::_drawBBox( const Model::BBox *bbox )
 {
-    Pipe*            pipe        = static_cast<Pipe*>( getPipe( ));
-    const FrameData& frameData   = pipe->getFrameData();
-    GLuint           displayList = pipe->getDisplayList( bbox );
+    Window*          window      = static_cast<Window*>( getWindow( ));
+    GLuint           displayList = window->getDisplayList( bbox );
 
-    if( displayList != 0 )
+    if( displayList )
     {
         glCallList( displayList );
         return;
     }
 
-    displayList = pipe->newDisplayList( bbox );
+    displayList = window->newDisplayList( bbox );
     EQASSERT( displayList );
 
-    const size_t     nFaces = bbox->nFaces;
-    const eq::Range& range  = getRange();
-    const bool       color  = frameData.data.color && range.isFull();
+    Pipe*            pipe      = static_cast<Pipe*>( getPipe( ));
+    const FrameData& frameData = pipe->getFrameData();
+    const size_t     nFaces    = bbox->nFaces;
+    const eq::Range& range     = getRange();
+    const bool       color     = frameData.data.color && range.isFull();
 
     glNewList( displayList, GL_COMPILE );
     glBegin( GL_TRIANGLES );
@@ -249,4 +253,5 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler )
     //const eq::PixelViewport& pvp        = getPixelViewport();
 
     culler.setup( projection * modelView );
+}
 }

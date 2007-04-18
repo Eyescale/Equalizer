@@ -49,6 +49,6 @@ namespace eqNet
         std::list<Command*>       _freeCommands;
 #pragma warning(pop)
     };
-};
+}
 
 #endif //EQNET_COMMANDCACHE_H

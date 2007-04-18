@@ -10,33 +10,35 @@
 
 #include <eq/eq.h>
 
-class InitData : public eqNet::Object
+namespace eqPly
 {
-public:
-    InitData();
-    virtual ~InitData();
+    class InitData : public eqNet::Object
+    {
+    public:
+        InitData();
+        virtual ~InitData();
 
-    void setFrameDataID( const uint32_t id )  
-        { _clearInstanceData(); _frameDataID = id; }
+        void setFrameDataID( const uint32_t id )  
+            { _clearInstanceData(); _frameDataID = id; }
 
-    uint32_t           getFrameDataID() const { return _frameDataID; }
-    const std::string& getFilename()    const { return _filename; }
+        uint32_t           getFrameDataID() const { return _frameDataID; }
+        const std::string& getFilename()    const { return _filename; }
 
-protected:
-    virtual const void* getInstanceData( uint64_t* size );
-    virtual void applyInstanceData( const void* data, const uint64_t size );
+    protected:
+        virtual const void* getInstanceData( uint64_t* size );
+        virtual void applyInstanceData( const void* data, const uint64_t size );
 
-    void setFilename( const std::string& filename )
-        { _clearInstanceData(); _filename = filename; }
+        void setFilename( const std::string& filename )
+            { _clearInstanceData(); _filename = filename; }
 
-private:
-    uint32_t    _frameDataID;
-    std::string _filename;
+    private:
+        uint32_t    _frameDataID;
+        std::string _filename;
 
-    char* _instanceData;
-    void  _clearInstanceData();
-};
-
+        char* _instanceData;
+        void  _clearInstanceData();
+    };
+}
 
 
 #endif // EQ_PLY_INITDATA_H

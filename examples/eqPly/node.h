@@ -10,19 +10,24 @@
 
 #include <eq/eq.h>
 
-class Node : public eq::Node
+namespace eqPly
 {
-public:
-    const InitData& getInitData() const { return _initData; }
-    const Model*    getModel() const    { return _model; }
+    class Node : public eq::Node
+    {
+    public:
+        const InitData& getInitData() const { return _initData; }
+        const Model*    getModel() const    { return _model; }
 
-protected:
-    virtual bool configInit( const uint32_t initID );
-    virtual bool configExit();
+    protected:
+        virtual ~Node(){}
 
-private:
-    InitData _initData;
-    Model*   _model;
-};
+        virtual bool configInit( const uint32_t initID );
+        virtual bool configExit();
+
+    private:
+        InitData _initData;
+        Model*   _model;
+    };
+}
 
 #endif // EQ_PLY_NODE_H

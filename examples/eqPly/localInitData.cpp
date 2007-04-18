@@ -9,6 +9,8 @@
 
 #include <tclap/CmdLine.h>
 
+namespace eqPly
+{
 LocalInitData::LocalInitData()
         : _maxFrames( 0xffffffffu ),
           _clientPort( 0 ),
@@ -62,3 +64,5 @@ void LocalInitData::parseArguments( int argc, char** argv )
                 << " for argument " << exception.argId() << endl;
     }
 }
+}
+

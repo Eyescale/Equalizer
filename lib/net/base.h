@@ -65,7 +65,7 @@ namespace eqNet
          * The command handler which requests the command to be pushed to
          * another entity.
          */
-        CommandResult _cmdPush( Command& command )
+        CommandResult _cmdPush( Command& )
             { return eqNet::COMMAND_PUSH; }
 
     private:

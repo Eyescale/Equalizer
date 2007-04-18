@@ -6,9 +6,11 @@
 
 #include "plyFileIO.h"
 
-using namespace std;
 using namespace eqBase;
+using namespace std;
 
+namespace eqPly
+{
 bool Node::configInit( const uint32_t initID )
 {
     eq::Config* config = getConfig();
@@ -34,4 +36,5 @@ bool Node::configExit()
     config->unmapObject( &_initData );
 
     return eq::Node::configExit();
+}
 }

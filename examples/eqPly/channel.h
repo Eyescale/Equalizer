@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PLY_CHANNEL_H
@@ -14,21 +14,24 @@
 class FrameData;
 class InitData;
 
-class Channel : public eq::Channel
+namespace eqPly
 {
-public:
-    Channel(){}
+    class Channel : public eq::Channel
+    {
+    public:
 
-protected:
-    virtual bool configInit( const uint32_t initID );
-    virtual void frameDraw( const uint32_t frameID );
+    protected:
+        virtual ~Channel() {}
 
-private:
-    static void _drawBBoxCB( Model::BBox *bbox, void *userData );
-    void _drawBBox( const Model::BBox* bbox );
-    void _initFrustum( vmml::FrustumCullerf& frustum );
-};
+        virtual bool configInit( const uint32_t initID );
+        virtual void frameDraw( const uint32_t frameID );
 
+    private:
+        static void _drawBBoxCB( Model::BBox *bbox, void *userData );
+        void _drawBBox( const Model::BBox* bbox );
+        void _initFrustum( vmml::FrustumCullerf& frustum );
+    };
+}
 
 
 

@@ -12,8 +12,11 @@
 
 #include "initData.h"
 
-using namespace std;
 using namespace eqBase;
+using namespace std;
+
+namespace eqPly
+{
 
 InitData::InitData()
         : _filename( "rockerArm.ply" ),
@@ -59,4 +62,4 @@ void InitData::_clearInstanceData()
     delete [] _instanceData;
     _instanceData = 0;
 }
-
+}

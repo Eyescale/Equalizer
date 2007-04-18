@@ -471,7 +471,7 @@ namespace eqNet
          * @return the result of the operation.
          * @sa dispatchCommand
          */
-        virtual CommandResult handleCommand( Command& comman )
+        virtual CommandResult handleCommand( Command& )
             { return COMMAND_ERROR; }
 
         /** 
@@ -481,7 +481,7 @@ namespace eqNet
          * @return <code>true</code> if the command was pushed,
          *         <code>false</code> if not.
          */
-        virtual bool pushCommand( Command& command )
+        virtual bool pushCommand( Command& )
             { return false; }
 
         /** @return the type of the node, used during connect(). */

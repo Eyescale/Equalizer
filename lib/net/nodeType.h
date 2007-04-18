@@ -12,7 +12,7 @@ namespace eqNet
     {
         TYPE_EQNET_INVALID,         //!< Invalid type
         TYPE_EQNET_NODE,            //!< A plain eqNet::Node
-        TYPE_EQNET_USER = 0x100,    //!< Application-specific types
+        TYPE_EQNET_USER = 0x100     //!< Application-specific types
     };
 }
 

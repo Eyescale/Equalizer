@@ -8,36 +8,38 @@
 #include "config.h"
 #include "node.h"
 #include "pipe.h"
+#include "window.h"
 
 #include <stdlib.h>
 
-using namespace std;
 using namespace eqBase;
+using namespace std;
 
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Config*  createConfig()  { return new ::Config; }
-    virtual eq::Node*    createNode()    { return new ::Node; }
-    virtual eq::Pipe*    createPipe()    { return new ::Pipe; }
-    virtual eq::Channel* createChannel() { return new ::Channel; }
+    virtual eq::Config*  createConfig()   { return new eqPly::Config; }
+    virtual eq::Node*    createNode()     { return new eqPly::Node; }
+    virtual eq::Pipe*    createPipe()     { return new eqPly::Pipe; }
+    virtual eq::Window*    createWindow() { return new eqPly::Window; }
+    virtual eq::Channel* createChannel()  { return new eqPly::Channel; }
 };
 
 int main( int argc, char** argv )
 {
     // 1. parse arguments
-    LocalInitData initData;
+    eqPly::LocalInitData initData;
     initData.parseArguments( argc, argv );
 
     // 2. initialisation of local client node
-	NodeFactory nodeFactory;
-	if( !eq::init( argc, argv, &nodeFactory ))
+    NodeFactory nodeFactory;
+    if( !eq::init( argc, argv, &nodeFactory ))
     {
         EQERROR << "Equalizer init failed" << endl;
         return EXIT_FAILURE;
     }
 
-    RefPtr<EqPly> client = new EqPly( initData );
+    RefPtr< eqPly::Application > client = new eqPly::Application( initData );
     if( !client->initLocal( argc, argv ))
     {
         EQERROR << "Can't init client" << endl;

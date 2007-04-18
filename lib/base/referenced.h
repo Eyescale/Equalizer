@@ -50,7 +50,7 @@ namespace eqBase
 #endif
             {}
 
-        Referenced( const Referenced& from ) 
+        Referenced( const Referenced& ) 
             : _refCount(0)
 #ifndef NDEBUG
             , _hasBeenDeleted( false )

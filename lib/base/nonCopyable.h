@@ -22,9 +22,10 @@ namespace eqBase
 
     private:
         /** Disable copy constructor. */
-        NonCopyable( const NonCopyable& from ) {}
+        NonCopyable( const NonCopyable& ) {}
+
         /** Disable assignment operator. */
-        const NonCopyable& operator = ( const NonCopyable& from ) 
+        const NonCopyable& operator = ( const NonCopyable& ) 
             { return *this; }
     };
 }
