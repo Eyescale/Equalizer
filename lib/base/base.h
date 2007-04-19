@@ -58,7 +58,7 @@ typedef int socklen_t;
 #  include <crt_externs.h>
 #  define environ (*_NSGetEnviron())
 #else
-extern char **environ;
+extern "C" char **environ;
 #endif
 
 #ifdef WIN32
