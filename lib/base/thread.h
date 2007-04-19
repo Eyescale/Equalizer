@@ -4,8 +4,12 @@
 #ifndef EQBASE_THREAD_H
 #define EQBASE_THREAD_H
 
-#include <eq/base/base.h>
-#include <eq/base/lock.h>
+#include <eq/base/base.h> // EQ_EXPORT definition
+#include <eq/base/lock.h> // member
+
+#ifdef EQ_WIN32_SDP_JOIN_WAR
+#  include <eq/base/monitor.h> // member
+#endif
 
 #include <vector>
 
@@ -142,6 +146,11 @@ namespace eqBase
         Lock  _syncChild;
 
         pthread_t _threadID;
+
+#ifdef EQ_WIN32_SDP_JOIN_WAR
+        Monitor<bool> _running;
+        void*         _retVal;
+#endif
 
         static void* runChild( void* arg );
         void        _runChild();

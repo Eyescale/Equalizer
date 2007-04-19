@@ -16,7 +16,14 @@
 
 using namespace eqBase;
 using namespace std;
-    
+
+/* 
+ * EQ_WIN32_SDP_JOIN_WAR: When using SDP connections on Win32, the join() of the
+ * receiver thread blocks indefinitely, even after the thread has exited. This
+ * workaround uses a monitor to implement the join functionality independently
+ * of phtreads.
+ */
+
 Lock                            Thread::_listenerLock;
 std::vector<ExecutionListener*> Thread::_listeners;
 pthread_key_t                   Thread::_cleanupKey=Thread::_createCleanupKey();
@@ -47,6 +54,9 @@ pthread_key_t Thread::_createCleanupKey()
 
 Thread::Thread()
         : _state(STATE_STOPPED)
+#ifdef EQ_WIN32_SDP_JOIN_WAR
+        , _retVal( 0 )
+#endif
 {
     memset( &_threadID, 0, sizeof( pthread_t ));
     _syncChild.set();
@@ -65,7 +75,10 @@ void* Thread::runChild( void* arg )
 
 void Thread::_runChild()
 {
-    _threadID = pthread_self();
+#ifdef EQ_WIN32_SDP_JOIN_WAR
+    _running = true;
+#endif
+    _threadID = pthread_self(); // XXX remove, set during create already?
 
     if( !init( ))
     {
@@ -130,11 +143,7 @@ bool Thread::start()
 
         if( error == 0 ) // succeeded
         {
-#ifdef WIN32
-            EQVERB << "Created pthread " << _threadID.p << endl;
-#else
-            EQVERB << "Created pthread " << _threadID << endl;
-#endif
+            EQVERB << "Created pthread " << this << endl;
             break;
         }
         if( error != EAGAIN || nTries==0 )
@@ -156,6 +165,11 @@ void Thread::exit( void* retVal )
 
     EQINFO << "Exiting thread" << endl;
     _state = STATE_STOPPING;
+
+#ifdef EQ_WIN32_SDP_JOIN_WAR
+    _running = false;
+    _retVal  = retVal;
+#endif
 
     pthread_exit( (void*)retVal );
     EQUNREACHABLE;
@@ -180,6 +194,9 @@ bool Thread::join( void** retVal )
         return false;
 
     EQVERB << "Joining thread" << endl;
+#ifdef EQ_WIN32_SDP_JOIN_WAR
+    _running.waitEQ( false );
+#else
     void *_retVal;
     const int error = pthread_join( _threadID, &_retVal);
     if( error != 0 )
@@ -187,6 +204,7 @@ bool Thread::join( void** retVal )
         EQWARN << "Error joining thread: " << strerror(error) << endl;
         return false;
     }
+#endif
 
     _state = STATE_STOPPED;
     if( retVal )
