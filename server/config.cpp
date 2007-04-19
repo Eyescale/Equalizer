@@ -480,38 +480,22 @@ void Config::_updateHead()
     const eq::Matrix4f& head      = _headMatrix;
 
     // eye_world = (+-eye_base/2., 0, 0 ) x head_matrix
-    // Don't use vector operator* due to possible simplification
+    // OPT: don't use vector operator* due to possible simplification
 
-    _eyePosition[EYE_INDEX_CYCLOP].x = head.m03;
-    _eyePosition[EYE_INDEX_CYCLOP].y = head.m13;
-    _eyePosition[EYE_INDEX_CYCLOP].z = head.m23;
-    _eyePosition[EYE_INDEX_CYCLOP]  /= head.m33;
+    _eyePosition[eq::EYE_CYCLOP].x = head.m03;
+    _eyePosition[eq::EYE_CYCLOP].y = head.m13;
+    _eyePosition[eq::EYE_CYCLOP].z = head.m23;
+    _eyePosition[eq::EYE_CYCLOP]  /= head.m33;
 
-    _eyePosition[EYE_INDEX_LEFT].x = ( -eyeBase_2 * head.m00 + head.m03 );
-    _eyePosition[EYE_INDEX_LEFT].y = ( -eyeBase_2 * head.m10 + head.m13 );
-    _eyePosition[EYE_INDEX_LEFT].z = ( -eyeBase_2 * head.m20 + head.m23 );
-    _eyePosition[EYE_INDEX_LEFT]  /= ( -eyeBase_2 * head.m30 + head.m33 ); // w
+    _eyePosition[eq::EYE_LEFT].x = ( -eyeBase_2 * head.m00 + head.m03 );
+    _eyePosition[eq::EYE_LEFT].y = ( -eyeBase_2 * head.m10 + head.m13 );
+    _eyePosition[eq::EYE_LEFT].z = ( -eyeBase_2 * head.m20 + head.m23 );
+    _eyePosition[eq::EYE_LEFT]  /= ( -eyeBase_2 * head.m30 + head.m33 ); // w
 
-    _eyePosition[EYE_INDEX_RIGHT].x = ( eyeBase_2 * head.m00 + head.m03 );
-    _eyePosition[EYE_INDEX_RIGHT].y = ( eyeBase_2 * head.m10 + head.m13 );
-    _eyePosition[EYE_INDEX_RIGHT].z = ( eyeBase_2 * head.m20 + head.m23 );
-    _eyePosition[EYE_INDEX_RIGHT]  /= ( eyeBase_2 * head.m30 + head.m33 ); // w
-}
-
-const vmml::Vector3f& Config::getEyePosition( const uint32_t eye )
-{
-    switch( eye )
-    {
-        case Compound::EYE_CYCLOP:
-            return _eyePosition[EYE_INDEX_CYCLOP];
-        case Compound::EYE_LEFT:
-            return _eyePosition[EYE_INDEX_LEFT];
-        case Compound::EYE_RIGHT:
-            return _eyePosition[EYE_INDEX_RIGHT];
-        default:
-            EQERROR << "Unknown eye position" << endl;
-            return _eyePosition[EYE_INDEX_CYCLOP];
-    }
+    _eyePosition[eq::EYE_RIGHT].x = ( eyeBase_2 * head.m00 + head.m03 );
+    _eyePosition[eq::EYE_RIGHT].y = ( eyeBase_2 * head.m10 + head.m13 );
+    _eyePosition[eq::EYE_RIGHT].z = ( eyeBase_2 * head.m20 + head.m23 );
+    _eyePosition[eq::EYE_RIGHT]  /= ( eyeBase_2 * head.m30 + head.m33 ); // w
 }
 
 uint32_t Config::_prepareFrame( vector<Node*>& nodes )

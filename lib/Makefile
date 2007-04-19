@@ -71,6 +71,7 @@ HEADER_SRC = \
 	client/configParams.h \
 	client/event.h \
 	client/eventHandler.h \
+	client/eye.h \
 	client/frame.h \
 	client/frameData.h \
 	client/global.h \

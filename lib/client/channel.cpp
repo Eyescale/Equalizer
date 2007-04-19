@@ -361,6 +361,11 @@ const Range& Channel::getRange() const
     return _context ? _context->range : Range::FULL;
 }
 
+Eye Channel::getEye() const
+{
+    return _context ? _context->eye : EYE_CYCLOP;
+}
+
 void Channel::applyFrustum() const
 {
     const vmml::Frustumf& frustum = getFrustum();

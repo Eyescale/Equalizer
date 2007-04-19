@@ -4,20 +4,17 @@
 #ifndef EQ_CHANNEL_H
 #define EQ_CHANNEL_H
 
-#include <eq/client/colorMask.h>
-#include <eq/client/commands.h>
-#include <eq/client/frame.h>
-#include <eq/client/pixelViewport.h>
-#include <eq/client/window.h>
+#include <eq/client/colorMask.h>     // enum used
+#include <eq/client/eye.h>           // enum used
+#include <eq/client/frame.h>         // used in inline method
+#include <eq/client/pixelViewport.h> // member
+#include <eq/client/window.h>        // used in inline method
 
-#include <eq/net/base.h>
-#include <eq/net/object.h>
-#include <eq/vmmlib/VMMLib.h>
+#include <eq/vmmlib/VMMLib.h>        // Frustum definition 
 
 namespace eq
 {
     class Channel;
-    class Frame;
     class Node;
     class Range;
     class SceneObject;
@@ -101,6 +98,9 @@ namespace eq
 
         /** @return the database range for the current rendering task. */
         const Range& getRange() const;
+
+        /** @return the currently rendered eye pass. */
+        Eye getEye() const;
 
         /**
          * @return the modelling transformation to position and orient the view

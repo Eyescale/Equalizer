@@ -512,7 +512,7 @@ void Compound::_updateInheritData()
         _inherit = _data;
 
         if( _inherit.eyes == EYE_UNDEFINED )
-            _inherit.eyes = EYE_CYCLOP;
+            _inherit.eyes = EYE_CYCLOP_BIT;
 
         if( _inherit.period == EQ_UNDEFINED_UINT32 )
             _inherit.period = 1;
@@ -753,15 +753,15 @@ void Compound::updateChannel( Channel* channel, const uint32_t frameID )
 {
     UpdateChannelData data = { channel, frameID };
 
-    data.eye = EYE_LEFT;
+    data.eye = eq::EYE_LEFT;
     traverseActive( this, _updatePreDrawCB, _updateDrawCB, _updatePostDrawCB,
                     &data );
 
-    data.eye = EYE_RIGHT;
+    data.eye = eq::EYE_RIGHT;
     traverseActive( this, _updatePreDrawCB, _updateDrawCB, _updatePostDrawCB, 
                     &data );
 
-    data.eye = EYE_CYCLOP;
+    data.eye = eq::EYE_CYCLOP;
     traverseActive( this, _updatePreDrawCB, _updateDrawCB, _updatePostDrawCB, 
                     &data );
 }
@@ -773,7 +773,7 @@ TraverseResult Compound::_updatePreDrawCB( Compound* compound, void* userData )
 
     if( compound->getChannel() != channel ||
         !compound->testInheritTask( TASK_CLEAR ) ||
-        !( compound->_inherit.eyes & data->eye ))
+        !( compound->_inherit.eyes & (1<<data->eye) ))
         
         return TRAVERSE_CONTINUE;
 
@@ -794,7 +794,7 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
     Channel*           channel = data->channel;
 
     if( compound->getChannel() != channel || !compound->_inherit.tasks ||
-        !(compound->_inherit.eyes & data->eye) )
+        !( compound->_inherit.eyes & (1<<data->eye) ))
         
         return TRAVERSE_CONTINUE;
 
@@ -832,6 +832,7 @@ void Compound::_setupRenderContext( eq::RenderContext& context,
     context.pvp            = _inherit.pvp;
     context.vp             = _inherit.vp;
     context.range          = _inherit.range;
+    context.eye            = data->eye;
     context.buffer         = _getDrawBuffer( data );
     context.drawBufferMask = _getDrawBufferMask( data );
     const Channel* channel = data->channel;
@@ -863,10 +864,10 @@ GLenum Compound::_getDrawBuffer( const UpdateChannelData* data )
         {
             switch( data->eye )
             {
-                case EYE_LEFT:
+                case eq::EYE_LEFT:
                     return GL_BACK_LEFT;
                     break;
-                case EYE_RIGHT:
+                case eq::EYE_RIGHT:
                     return GL_BACK_RIGHT;
                     break;
                 default:
@@ -877,10 +878,10 @@ GLenum Compound::_getDrawBuffer( const UpdateChannelData* data )
         // else singlebuffered
         switch( data->eye )
         {
-            case EYE_LEFT:
+            case eq::EYE_LEFT:
                 return GL_FRONT_LEFT;
                 break;
-            case EYE_RIGHT:
+            case eq::EYE_RIGHT:
                 return GL_FRONT_RIGHT;
                 break;
             default:
@@ -897,10 +898,10 @@ eq::ColorMask Compound::_getDrawBufferMask( const UpdateChannelData* data )
 
     switch( data->eye )
     {
-        case EYE_LEFT:
+        case eq::EYE_LEFT:
             return eqs::ColorMask( 
                 _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] );
-        case EYE_RIGHT:
+        case eq::EYE_RIGHT:
             return eqs::ColorMask( 
                 _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] );
         default:
@@ -908,15 +909,17 @@ eq::ColorMask Compound::_getDrawBufferMask( const UpdateChannelData* data )
     }
 }
 
-void Compound::_computeFrustum( eq::RenderContext& context, const Eye whichEye )
+void Compound::_computeFrustum( eq::RenderContext& context, 
+                                const eq::Eye eyeIndex )
 {
     const Channel*  destination = _inherit.channel;
     const eq::View& view        = _inherit.view;
     Config*         config      = getConfig();
-    destination->getNearFar( &context.frustum.nearPlane, &context.frustum.farPlane );
+    destination->getNearFar( &context.frustum.nearPlane, 
+                             &context.frustum.farPlane );
 
     // compute eye position in screen space
-    const vmml::Vector3f& eyeW = config->getEyePosition( whichEye );
+    const vmml::Vector3f& eyeW = config->getEyePosition( eyeIndex );
     const vmml::Matrix4f& xfm  = view.xfm;
 
 #if 1
@@ -981,7 +984,7 @@ TraverseResult Compound::_updatePostDrawCB( Compound* compound, void* userData )
     Channel*           channel = data->channel;
 
     if( compound->getChannel() != channel || !compound->_inherit.tasks ||
-        !(compound->_inherit.eyes & data->eye) )
+        !( compound->_inherit.eyes & (1<<data->eye) ))
 
         return TRAVERSE_CONTINUE;
 
@@ -1172,11 +1175,11 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
     if( eye )
     {
         os << "eye      [ ";
-        if( eye & Compound::EYE_CYCLOP )
+        if( eye & Compound::EYE_CYCLOP_BIT )
             os << "CYCLOP ";
-        if( eye & Compound::EYE_LEFT )
+        if( eye & Compound::EYE_LEFT_BIT )
             os << "LEFT ";
-        if( eye & Compound::EYE_RIGHT )
+        if( eye & Compound::EYE_RIGHT_BIT )
             os << "RIGHT ";
         os << "]" << endl;
     }

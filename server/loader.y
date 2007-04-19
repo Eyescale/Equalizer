@@ -492,9 +492,9 @@ compoundTask:
 
 compoundEyes: /*null*/ | compoundEye | compoundEyes compoundEye
 compoundEye:
-    EQTOKEN_CYCLOP  { eqCompound->enableEye( eqs::Compound::EYE_CYCLOP ); }
-    | EQTOKEN_LEFT  { eqCompound->enableEye( eqs::Compound::EYE_LEFT ); }
-    | EQTOKEN_RIGHT { eqCompound->enableEye( eqs::Compound::EYE_RIGHT ); }
+    EQTOKEN_CYCLOP  { eqCompound->enableEye( eqs::Compound::EYE_CYCLOP_BIT ); }
+    | EQTOKEN_LEFT  { eqCompound->enableEye( eqs::Compound::EYE_LEFT_BIT ); }
+    | EQTOKEN_RIGHT { eqCompound->enableEye( eqs::Compound::EYE_RIGHT_BIT ); }
 
 buffers: /*null*/ | buffer | buffers buffer
 buffer:

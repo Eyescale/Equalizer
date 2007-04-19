@@ -68,18 +68,14 @@ namespace eqs
         };
 
         /**
-         * The cyclop eye is the standard for monoscopic rendering. It is
-         * also selected if no eye is set. The left and right eye are used
-         * for stereo rendering and are computed from the cyclop eye and the
-         * eye offset.
-         * The enums allow bitwise OR operations.
+         * Eye pass bit mask for which the compound is enabled.
          */
-        enum Eye
+        enum EyeMask
         {
-            EYE_UNDEFINED = 0,       //!< use inherited default eye(s)
-            EYE_CYCLOP    = 0x01,    //!< render monoscopic 'middle' eye
-            EYE_LEFT      = 0x02,    //!< render left eye
-            EYE_RIGHT     = 0x04     //!< render right eye
+            EYE_UNDEFINED  = 0,                 //!< use inherited eye(s)
+            EYE_CYCLOP_BIT = 1<<eq::EYE_CYCLOP, //!<  monoscopic 'middle' eye
+            EYE_LEFT_BIT   = 1<<eq::EYE_LEFT,   //!< left eye
+            EYE_RIGHT_BIT  = 1<<eq::EYE_RIGHT   //!< right eye
         };
 
         /** The color mask bits, used for anaglyphic stereo. */
@@ -511,7 +507,7 @@ namespace eqs
         {
             Channel* channel;
             uint32_t frameID;
-            Eye      eye;
+            eq::Eye  eye;
         };
 
         static TraverseResult _updatePreDrawCB(Compound* compound, void* );
@@ -524,7 +520,7 @@ namespace eqs
                                   const UpdateChannelData* data );
         GLenum _getDrawBuffer( const UpdateChannelData* data );
         eq::ColorMask _getDrawBufferMask( const UpdateChannelData* data );
-        void _computeFrustum( eq::RenderContext& context, const Eye whichEye );
+        void _computeFrustum( eq::RenderContext& context, const eq::Eye eye );
 
         friend std::ostream& operator << ( std::ostream& os,
                                            const Compound* compound );

@@ -175,11 +175,12 @@ namespace eqs
         void setWorkDir( const std::string& workDir ){ _workDir = workDir; }
 
          /** 
-          * Return the eye position.
+          * Return the position of the eye in world-space.
+          * 
           * @return the eye position.
-          * @sa Compound::Eye
           */
-        const vmml::Vector3f& getEyePosition( const uint32_t eye );
+        const vmml::Vector3f& getEyePosition( const eq::Eye eye ) const
+            { return _eyePosition[ eye ]; }
 
         // Used by Server::releaseConfig() to make sure config is exited
         bool exit();
@@ -208,15 +209,6 @@ namespace eqs
         //@}
 
     private:
-
-        enum EyeIndex
-        {
-            EYE_INDEX_CYCLOP,
-            EYE_INDEX_LEFT,
-            EYE_INDEX_RIGHT,
-            EYE_INDEX_ALL // must be last
-        };
-
         /** float attributes. */
         float _fAttributes[FATTR_ALL];
         /** String representation of float attributes. */
@@ -263,7 +255,7 @@ namespace eqs
         eq::Matrix4f _headMatrix;
 
         /** The vectors defining the eye positions. */
-        vmml::Vector3f _eyePosition[EYE_INDEX_ALL];
+        vmml::Vector3f _eyePosition[eq::EYE_ALL];
 
         enum State
         {

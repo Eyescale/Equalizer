@@ -7,6 +7,7 @@
 
 #include <eq/base/base.h>
 #include <eq/client/colorMask.h>
+#include <eq/client/eye.h>
 #include <eq/client/pixelViewport.h>
 #include <eq/client/range.h>
 #include <eq/vmmlib/VMMLib.h>
@@ -18,15 +19,18 @@ namespace eq
      */
     struct RenderContext 
     {
-    public:
+    public:        
         uint32_t       frameID;        //<! identifier from Config::beginFrame
+
         uint32_t       buffer;         //<! buffer as passed to glDrawBuffer() 
+        ColorMask      drawBufferMask; //<! draw color mask for anaglyph stereo
         PixelViewport  pvp;            //<! pixel viewport of channel wrt window
-        Viewport       vp;             //<! fractional viewport wrt dest channel
-        Range          range;          //<! database-range wrt to dest channel
         vmml::Frustumf frustum;        //<! frustum for projection matrix
         vmml::Matrix4f headTransform;  //<! frustum transform for modelview
-        ColorMask      drawBufferMask; //<! draw color mask for anaglyph stereo
+
+        Viewport       vp;             //<! fractional viewport wrt dest channel
+        Range          range;          //<! database-range wrt to dest channel
+        Eye            eye;            //<! current eye pass
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
