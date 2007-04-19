@@ -85,10 +85,10 @@ namespace eqBase
                     if( !_noHeader )
                     {
 #                   ifdef WIN32
-                        _stringStream << getpid()  << "." << pthread_self().p <<" "
+                        _stringStream << getpid()  << " " << pthread_self().p <<" "
                                       << _file << ":" << _line << " ";
 #                   else
-                        _stringStream << getpid()  << "." << pthread_self()<<" "
+                        _stringStream << getpid()  << " " << pthread_self()<<" "
                                       << _file << ":" << _line << " ";
 #                   endif
 #                   ifndef NDEBUG
@@ -156,9 +156,13 @@ namespace eqBase
     /** The logging class */
     class Log : public std::ostream 
     {
-    public: 
-        EQ_EXPORT Log() : std::ostream( &_logBuffer ), _logBuffer(std::cout)
-            {}
+    public:
+#ifdef NDEBUG
+        EQ_EXPORT Log() : std::ostream( &_logBuffer ), _logBuffer( std::cout ){}
+#else
+        EQ_EXPORT Log() : std::ostream( &_logBuffer ), _logBuffer( std::cerr ){}
+#endif
+
         virtual EQ_EXPORT ~Log() { _logBuffer.pubsync(); }
 
         void indent() { _logBuffer.indent(); }
