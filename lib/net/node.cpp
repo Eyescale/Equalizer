@@ -1067,6 +1067,15 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
 
     const uint32_t requestID = packet->requestID;
 
+    if( _nodes.find( packet->nodeID ) != _nodes.end( ))
+    {   // Requested node connect to us in the meantime
+        RefPtr<Node> node = _nodes[ packet->nodeID ];
+
+        node->ref();
+        _requestHandler.serveRequest( requestID, node.get( ));
+        return COMMAND_HANDLED;
+    }
+
     if( packet->type == TYPE_EQNET_INVALID )
     {
         _requestHandler.serveRequest( requestID, (void*)0 );
@@ -1080,9 +1089,6 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
     if( !node->deserialize( data ))
         EQWARN << "Failed do initialize node data" << endl;
     EQASSERT( data.empty( ));
-
-    EQASSERTINFO( _nodes.find( node->_id ) == _nodes.end(), "Node " << 
-                  node->_id << " is already connected" );
 
     node->setAutoLaunch( false );
     node->ref();
@@ -1221,6 +1227,9 @@ RefPtr<Node> Node::connect( const NodeID& nodeID, RefPtr<Node> server )
     RefPtr< Node > node = static_cast< Node* >( result );
     node->unref();
     
+    if( node->isConnected( ))
+        return node;
+
     if( !connect( node ))
         EQWARN << "Node connection failed" << endl;
     return node;

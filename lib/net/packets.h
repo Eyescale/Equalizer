@@ -180,10 +180,12 @@ namespace eqNet
             {
                 command     = CMD_NODE_GET_NODE_DATA_REPLY;
                 size        = sizeof( NodeGetNodeDataReplyPacket );
+                nodeID      = request->nodeID;
                 requestID   = request->requestID;
                 nodeData[0] = '\0';
             } 
 
+        NodeID   nodeID;
         uint32_t requestID;
         uint32_t type;        
         EQ_ALIGN8( char nodeData[8] );
