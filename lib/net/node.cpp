@@ -906,8 +906,13 @@ CommandResult Node::_cmdConnect( Command& command )
     
     EQINFO << "handle connect " << packet << endl;
 
-    EQASSERT( _connectionNodes.find( connection.get( )) == 
-              _connectionNodes.end( ))
+    if( _connectionNodes.find( connection.get( )) != _connectionNodes.end( ))
+    {   // Node exists, probably simultaneous connect from peer
+        EQASSERT( packet->launchID == EQ_ID_INVALID );
+        _connectionSet.removeConnection( connection );
+        connection->close();
+        return eqNet::COMMAND_HANDLED;
+    }
 
     // create and add connected node
     RefPtr<Node> remoteNode;
@@ -930,7 +935,7 @@ CommandResult Node::_cmdConnect( Command& command )
     remoteNode->_state      = STATE_CONNECTED;
     
     _connectionNodes[ connection.get() ] = remoteNode;
-    _nodes[ remoteNode->_id ]             = remoteNode;
+    _nodes[ remoteNode->_id ]            = remoteNode;
 
     // send our information as reply
     NodeConnectReplyPacket reply( packet );
@@ -956,8 +961,13 @@ CommandResult Node::_cmdConnectReply( Command& command )
 
     EQINFO << "handle connect reply " << packet << endl;
 
-    EQASSERT( _connectionNodes.find( connection.get( )) == 
-              _connectionNodes.end( ))
+    if( _connectionNodes.find( connection.get( )) != _connectionNodes.end( ))
+    {   // Node exists, probably simultaneous connect from peer
+        EQASSERT( packet->requestID == EQ_ID_INVALID );
+        _connectionSet.removeConnection( connection );
+        connection->close();
+        return eqNet::COMMAND_HANDLED;
+    }
 
     // create and add node
     RefPtr<Node> remoteNode;
