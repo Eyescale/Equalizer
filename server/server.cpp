@@ -237,6 +237,8 @@ eqNet::CommandResult Server::_reqReleaseConfig( eqNet::Command& command )
     delete config;
 
     node->send( reply );
+    EQLOG( LOG_ANY ) << "----- Released Config -----" << endl;
+
     return eqNet::COMMAND_HANDLED;
 }
 

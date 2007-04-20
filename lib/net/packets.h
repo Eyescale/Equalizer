@@ -129,6 +129,7 @@ namespace eqNet
                 nodeData[0] = '\0';
             }
 
+        NodeID   nodeID;
         uint32_t requestID;
         uint32_t type;
         uint32_t launchID;
@@ -145,6 +146,7 @@ namespace eqNet
                 nodeData[0] = '\0';
             }
 
+        NodeID   nodeID;
         uint32_t requestID;
         uint32_t type;
         EQ_ALIGN8( char nodeData[8] );

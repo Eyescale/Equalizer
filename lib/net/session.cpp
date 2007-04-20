@@ -391,15 +391,22 @@ CommandResult Session::_handleObjectCommand( Command& command )
     }
 
     _objectsMutex.set();
-    vector<Object*>& objects = _objects[id];
+
+    // create copy of objects vector for thread-safety
+    vector<Object*>& objectsTmp = _objects[id];
+    EQASSERT( !objectsTmp.empty( ));
+
+    const size_t nObjects = objectsTmp.size();
+    Object* objects[ nObjects ];
+    memcpy( objects, &objectsTmp[0], nObjects * sizeof( Object* ));
+
     _objectsMutex.unset();
 
-    EQASSERT( !objects.empty( ));
 
-    for( vector<Object*>::const_iterator i = objects.begin(); 
-        i != objects.end(); ++i )
+    for( size_t i=0; i<nObjects; ++i )
     {
-        Object* object = *i;
+        Object* object = objects[i];
+
         if( objPacket->instanceID == EQ_ID_ANY ||
             objPacket->instanceID == object->getInstanceID( ))
         {
@@ -432,9 +439,7 @@ CommandResult Session::_handleObjectCommand( Command& command )
                     // packets which are sent to all object instances
                     // Note: if the first object returns one of these results,
                     // we assume for now that it applies to all.
-                    if( i != objects.begin() &&
-                        objPacket->instanceID == EQ_ID_ANY )
-
+                    if( i != 0 && objPacket->instanceID == EQ_ID_ANY )
                         EQUNIMPLEMENTED;
 
                     return result;

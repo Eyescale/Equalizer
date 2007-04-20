@@ -62,6 +62,7 @@ void Barrier::enter()
     }
 
     EQASSERT( _master.isValid( ));
+    EQASSERT( _master->isConnected( ));
     EQLOG( LOG_BARRIER ) << "enter barrier " << getID() << " v" << getVersion()
                          << ", height " << _data.height << endl;
     EQASSERT( getSession( ));
@@ -113,9 +114,15 @@ CommandResult Barrier::_cmdEnter( Command& command )
     {
         RefPtr<Node>& node = *iter;
         if( node->isLocal( )) // OPT
+        {
+            EQLOG( LOG_BARRIER ) << "Unlock local user(s)" << endl;
             ++_leaveNotify;
+        }
         else
+        {
+            EQLOG( LOG_BARRIER ) << "Unlock " << node << endl;
             node->send( reply );
+        }
     }
 
     _enteredNodes.clear();
@@ -125,6 +132,7 @@ CommandResult Barrier::_cmdEnter( Command& command )
 CommandResult Barrier::_cmdEnterReply( Command& command )
 {
     CHECK_THREAD( _thread );
+    EQLOG( LOG_BARRIER ) << "Got ok, unlock local user(s)" << endl;
     ++_leaveNotify;
     return COMMAND_HANDLED;
 }

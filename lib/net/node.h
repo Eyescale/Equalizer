@@ -53,13 +53,16 @@ namespace eqNet
 
         /** @name Data Access. */
         //*{
+        bool operator == ( const Node* n ) const;
+
         /** 
          * Returns the state of this node.
          * 
          * @return the state of this node.
          */
         State getState()    const { return _state; }
-        bool  isConnected() const { return (_state == STATE_CONNECTED); }
+        bool  isConnected() const 
+            { return (_state == STATE_CONNECTED || _state == STATE_LISTENING); }
 
         void setAutoLaunch( const bool autoLaunch ) { _autoLaunch = autoLaunch;}
 
@@ -515,9 +518,6 @@ namespace eqNet
         /** The current state of this node. */
         State _state;
 
-        /** The connected nodes. */
-        NodeIDHash< eqBase::RefPtr<Node> > _nodes;
-
         /** The current mapped sessions of this node. */
         IDHash<Session*> _sessions;
 
@@ -528,8 +528,14 @@ namespace eqNet
         ConnectionSet _connectionSet;
         friend eqBase::RefPtr< eqNet::Connection > (::eqsStartLocalServer());
 
+        /** The connected nodes. */
+        NodeIDHash< eqBase::RefPtr<Node> > _nodes;
+
         /** The node for each connection. */
         eqBase::PtrHash< Connection*, eqBase::RefPtr<Node> > _connectionNodes;
+
+        /** Needed for thread-safety during nodeID-based connect() */
+        eqBase::Lock _connectMutex;
 
         /** The cache to store the last received command for reuse */
         Command* _receivedCommand;
