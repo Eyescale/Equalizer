@@ -60,7 +60,7 @@ namespace eqNet
 
     };
 
-    std::ostream& operator << ( std::ostream& os, const Command& );
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& );
 }
 
 #endif // EQNET_COMMAND_H

@@ -810,7 +810,8 @@ void eq::Window::_queryDrawableConfig()
     _drawableConfig.doublebuffered = result;
 
     glGetIntegerv( GL_STENCIL_BITS, &_drawableConfig.stencilBits );
-    _drawableConfig.glVersion = atof( (const char*)glGetString( GL_VERSION ));
+    _drawableConfig.glVersion = static_cast<float>( 
+        atof( (const char*)glGetString( GL_VERSION )));
 
 #if 0
     // OpenGL Extensions

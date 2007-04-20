@@ -68,8 +68,8 @@ void Command::release()
     _localNode = 0;
 }        
 
-std::ostream& eqNet::operator << ( std::ostream& os, 
-                                   const Command& command )
+EQ_EXPORT std::ostream& eqNet::operator << ( std::ostream& os, 
+                                             const Command& command )
 {
     if( command.isValid( ))
         os << "command< " << command.getPacket() << ", " 

@@ -87,7 +87,8 @@ int64_t PipeConnection::read( void* buffer, const uint64_t bytes )
         return -1;
 
     DWORD bytesRead = 0;
-    const BOOL ret = ReadFile( _readHandle, buffer, bytes, &bytesRead, 0 );
+    const BOOL ret = ReadFile( _readHandle, buffer, static_cast<DWORD>( bytes ),
+                               &bytesRead, 0 );
 
     if( ret == 0 ) // Error
     {
@@ -122,7 +123,8 @@ int64_t PipeConnection::write( const void* buffer, const uint64_t bytes ) const
     _mutex.unset();
 
     DWORD bytesWritten = 0;
-    const BOOL ret = WriteFile( _writeHandle, buffer, bytes, &bytesWritten, 0 );
+    const BOOL ret = WriteFile( _writeHandle, buffer, static_cast<DWORD>(bytes),
+                                &bytesWritten, 0 );
 
     if( ret == 0 ) // Error
     {
