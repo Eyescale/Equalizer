@@ -569,6 +569,7 @@ void Pipe::releaseFrame( const uint32_t frameNumber )
     _node->addStatEvents( frameNumber, _statEvents );
     _statEvents.clear();
     _finishedFrame = frameNumber; 
+    EQLOG( LOG_TASKS ) << "---- Released Frame --- " << frameNumber << endl;
 }
 
 bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
@@ -779,7 +780,8 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
 {
     const PipeConfigInitPacket* packet = 
         command.getPacket<PipeConfigInitPacket>();
-    EQINFO << "handle pipe configInit (pipe) " << packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK configInit " << getName() <<  " " << packet 
+                       << endl;
     
     _name         = packet->name;
     _port         = packet->port;
@@ -846,6 +848,7 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
     }
 
     _initEventHandling();
+    _initialized = true;
 
     reply.pvp = _pvp;
     send( node, reply );
@@ -856,9 +859,12 @@ eqNet::CommandResult Pipe::_reqConfigExit( eqNet::Command& command )
 {
     const PipeConfigExitPacket* packet = 
         command.getPacket<PipeConfigExitPacket>();
-    EQINFO << "handle pipe configExit " << packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK configExit " << getName() <<  " " << packet 
+                       << endl;
 
-    _exitEventHandling();
+    if( _initialized.get( ))
+        _exitEventHandling();
+
     configExit();
 
     _initialized = false;
@@ -916,7 +922,7 @@ eqNet::CommandResult Pipe::_reqFrameFinish( eqNet::Command& command )
     EQVERB << "handle pipe frame sync " << packet << endl;
 
     frameFinish( packet->frameID, packet->frameNumber );
-    EQLOG( LOG_TASKS ) << "----- Finish Frame ---- " << _finishedFrame.get()
+    EQLOG( LOG_TASKS ) << "---- Finished Frame --- " << _finishedFrame.get()
                        << endl;
     EQASSERTINFO( _finishedFrame >= packet->frameNumber, 
                   "Pipe::frameFinish() did not release frame " 

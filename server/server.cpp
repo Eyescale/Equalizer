@@ -111,7 +111,12 @@ void Server::_handleCommands()
             case eqNet::COMMAND_PUSH:
                 EQUNIMPLEMENTED;
             case eqNet::COMMAND_REDISPATCH:
-                EQUNIMPLEMENTED;
+                // This happens mostly during config exit when a request was
+                // still buffered for an object which just got deleted.
+                EQASSERT( (*command)->datatype == eqNet::DATATYPE_EQNET_OBJECT );
+                EQWARN << "Command for unknown object dropped: " << *command
+                       << endl;
+                break;
         }
     }
 }

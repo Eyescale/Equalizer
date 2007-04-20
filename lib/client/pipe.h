@@ -203,7 +203,8 @@ namespace eq
 
         /** Wait for the pipe to be exited. */
         void waitExited() const { _initialized.waitEQ( false ); }
-
+        bool isInitialized() const { return _initialized.get(); }
+        
         /** 
          * Wait for a frame to be finished.
          * 
@@ -358,7 +359,7 @@ namespace eq
         };
 
         /** The X event display connection. */
-        eqBase::RefPtr<X11Connection>     _xEventConnection;
+        eqBase::RefPtr<X11Connection> _xEventConnection;
 
         /** The display (GLX) or ignored (Win32, CGL). */
         uint32_t _port;

@@ -473,7 +473,7 @@ namespace eqs
         InheritData _data;
         InheritData _inherit;
 
-        uint32_t    _frame;
+        uint32_t    _frameNumber;
 
         SwapBarrier* _swapBarrier;
 
@@ -485,7 +485,7 @@ namespace eqs
         static TraverseResult _initCB( Compound* compound, void* );
 
         bool _isActive() const
-            { return (( _frame % _inherit.period ) == _inherit.phase); }
+            { return (( _frameNumber % _inherit.period ) == _inherit.phase); }
 
         //----- pre-render compound setup
         struct UpdateData

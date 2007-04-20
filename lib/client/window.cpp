@@ -953,6 +953,9 @@ void eq::Window::makeCurrent() const
     {
 #ifdef GLX
         case WINDOW_SYSTEM_GLX:
+            EQASSERT( _pipe );
+            EQASSERT( _pipe->getXDisplay( ));
+
             glXMakeCurrent( _pipe->getXDisplay(), _xDrawable, _glXContext );
             break;
 #endif
@@ -1106,7 +1109,8 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
 {
     const WindowConfigInitPacket* packet = 
         command.getPacket<WindowConfigInitPacket>();
-    EQINFO << "handle window configInit " << packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK configInit " << getName() <<  " " << packet 
+                       << endl;
 
     if( packet->pvp.isValid( ))
         _setPixelViewport( packet->pvp );
@@ -1182,10 +1186,16 @@ eqNet::CommandResult eq::Window::_reqConfigExit( eqNet::Command& command )
 {
     const WindowConfigExitPacket* packet =
         command.getPacket<WindowConfigExitPacket>();
-    EQINFO << "handle window configExit " << packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK configExit " << getName() <<  " " << packet 
+                       << endl;
 
-    _exitEventHandling();
-    _pipe->testMakeCurrentWindow( this );
+    if( _pipe->isInitialized( ))
+    {
+        _exitEventHandling();
+        _pipe->testMakeCurrentWindow( this );
+    } 
+    // else emergency exit, no context available.
+
     configExit();
 
     WindowConfigExitReplyPacket reply( packet );

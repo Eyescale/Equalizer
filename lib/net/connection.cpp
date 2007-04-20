@@ -127,8 +127,11 @@ bool Connection::recv( void* buffer, const uint64_t bytes )
 
         if( got == -1 ) // error
         {
-            EQERROR << "Error during read after " << bytes - bytesLeft
-                    << " bytes on " << typeid(*this).name() << endl;
+            if( bytes == bytesLeft )
+                EQINFO << "Read on dead connection" << endl;
+            else
+                EQERROR << "Error during read after " << bytes - bytesLeft
+                        << " bytes on " << typeid(*this).name() << endl;
             return false;
         }
         else if( got == 0 )

@@ -63,6 +63,12 @@ void BufferConnection::sendBuffer( eqBase::RefPtr<Connection> connection )
     if( _size == 0 )
         return;
 
+    if( !connection )
+    {
+        EQWARN << "NULL connection during buffer write" << endl;
+        return;
+    }
+
     const bool sent = connection->send( _buffer, _size );
     EQASSERT( sent );
     _size = 0;

@@ -5,10 +5,11 @@
 #ifndef EQ_FRAMEDATA_H
 #define EQ_FRAMEDATA_H
 
-#include <eq/client/frame.h>
+#include <eq/client/frame.h>         // enum Frame::Buffer
+#include <eq/client/pixelViewport.h> // member
 
-#include <eq/base/monitor.h>
-#include <eq/net/object.h>
+#include <eq/base/monitor.h>         // member
+#include <eq/net/object.h>           // base class
 
 namespace eqs
 {

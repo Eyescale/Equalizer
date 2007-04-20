@@ -49,6 +49,7 @@ namespace eqs
         virtual bool isStatic() const { return false; }
 
     private:
+        friend class Frame;
         eq::FrameData::Data _data;
         
         /** The number of the config frame when this data was last used. */

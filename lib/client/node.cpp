@@ -339,7 +339,7 @@ eqNet::CommandResult Node::_reqFrameFinish( eqNet::Command& command )
 
     _finishFrame( packet->frameNumber );
     frameFinish( packet->frameID, packet->frameNumber );
-    EQLOG( LOG_TASKS ) << "----- Finish Frame ---- " << packet->frameNumber
+    EQLOG( LOG_TASKS ) << "---- Finished Frame --- " << packet->frameNumber
                        << endl;
 
     return eqNet::COMMAND_HANDLED;

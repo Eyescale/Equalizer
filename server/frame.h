@@ -40,8 +40,9 @@ namespace eqs
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
 
-        FrameData* getData() const { return _frameData; }
-        bool       hasData() const { return ( _frameData != 0 ); }
+        FrameData* getMasterData() const { return _masterFrameData; }
+        bool       hasData( const eq::Eye eye ) const
+            { return ( _frameData[eye] != 0 ); }
 
         /** 
          * Set the frame's viewport wrt the compound (output frames) or wrt the
@@ -83,6 +84,9 @@ namespace eqs
          * @name Operations
          */
         //*{
+        /** Commit the frame's data (output frames only) */
+        void commitData();
+
         /** 
          * Update the inherited, absolute data of this frame.
          * 
@@ -97,20 +101,23 @@ namespace eqs
          * clears the list of input frames.
          *
          * @param frameNumber the current frame number.
+         * @param eyes the eye passes used.
          */
-        void cycleData( const uint32_t frameNumber );
+        void cycleData( const uint32_t frameNumber, const uint32_t eyes );
 
         /** 
          * Add an input frame to this (output) frame
          * 
          * @param frame the input frame.
+         * @param eyes the eye passes used.
          */
-        void addInputFrame( Frame* frame );
+        void addInputFrame( Frame* frame, const uint32_t eyes );
         /** @return the vector of current input frames. */
-        const std::vector<Frame*>& getInputFrames() const {return _inputFrames;}
+        const std::vector<Frame*>& getInputFrames( const eq::Eye eye ) const
+            { return _inputFrames[eye]; }
 
         /** Unset the frame data. */
-        void unsetData() { _frameData = NULL; }
+        void unsetData();
 
         /** Reset the frame and delete all frame datas. */
         void flush();
@@ -136,13 +143,14 @@ namespace eqs
         eq::Frame::Data _inherit;
 
         /** All framedatas ever allocated, used for recycling old datas. */
-        std::list<FrameData*> _datas;
+        std::deque<FrameData*> _datas;
         
         /** Current frame data. */
-        FrameData* _frameData;
+        FrameData* _masterFrameData;
+        FrameData* _frameData[eq::EYE_ALL];
 
         /** Vector of current input frames. */
-        std::vector<Frame*> _inputFrames;
+        std::vector<Frame*> _inputFrames[eq::EYE_ALL];
     };
 
     std::ostream& operator << ( std::ostream& os, const Frame* frame );

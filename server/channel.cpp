@@ -14,6 +14,7 @@
 #include <eq/net/command.h>
 #include <eq/client/commands.h>
 #include <eq/client/global.h>
+#include <eq/client/log.h>
 #include <eq/client/packets.h>
 
 using namespace eqs;
@@ -170,6 +171,7 @@ void Channel::_sendConfigInit( const uint32_t initID )
     
     send( packet, _name );
     _state = STATE_INITIALIZING;
+    EQLOG( eq::LOG_TASKS ) << "TASK configInit  " << &packet << endl;
 }
 
 bool Channel::syncConfigInit()
@@ -202,6 +204,7 @@ void Channel::_sendConfigExit()
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     send( packet );
+    EQLOG( eq::LOG_TASKS ) << "TASK configExit  " << &packet << endl;
 }
 
 bool Channel::syncConfigExit()
@@ -226,6 +229,7 @@ void Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
     send( startPacket );
+    EQLOG( eq::LOG_TASKS ) << "TASK start frame  " << &startPacket << endl;
 
     Config*        config     = getConfig();
     const uint32_t nCompounds = config->nCompounds();
@@ -242,6 +246,7 @@ void Channel::updatePost( const uint32_t frameID, const uint32_t frameNumber )
     finishPacket.frameID     = frameID;
     finishPacket.frameNumber = frameNumber;
     send( finishPacket );
+    EQLOG( eq::LOG_TASKS ) << "TASK end frame  " << &finishPacket << endl;
 }
 
 //===========================================================================

@@ -35,6 +35,7 @@ int64_t FDConnection::read( void* buffer, const uint64_t bytes )
 
     if( bytesRead == 0 ) // EOF
     {
+        EQINFO << "Got EOF, closing connection" << endl;
         close();
         return -1;
     }

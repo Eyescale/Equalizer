@@ -14,20 +14,25 @@ using namespace eqBase;
 using namespace std;
 
 Frame::Frame()
-        : _compound( 0 ),
-          _frameData( 0 )
+        : _compound( 0 )
 {
     _data.buffers = eq::Frame::BUFFER_UNDEFINED;
+    for( unsigned i = 0; i<eq::EYE_ALL; ++i )
+        _frameData[i] = 0;
+
     setInstanceData( &_inherit, sizeof( eq::Frame::Data ));
 }
 
 Frame::Frame( const Frame& from )
-        : _compound( 0 ),
-          _frameData( 0 )
+        : _compound( 0 )
 {
     _data = from._data;
     _name = from._name;
     _vp   = from._vp;
+
+    for( unsigned i = 0; i<eq::EYE_ALL; ++i )
+        _frameData[i] = 0;
+
     setInstanceData( &_inherit, sizeof( eq::Frame::Data ));
 }
 
@@ -38,6 +43,8 @@ Frame::~Frame()
 
 void Frame::flush()
 {
+    unsetData();
+
     eqNet::Session* session = getSession();
     EQASSERT( session );
     while( !_datas.empty( ))
@@ -46,8 +53,33 @@ void Frame::flush()
         session->deregisterObject( data );
         _datas.pop_front();
     }
-    _frameData = 0;
-    _inputFrames.clear();
+
+}
+
+void Frame::unsetData()
+{
+    for( unsigned i = 0; i<eq::EYE_ALL; ++i )
+    {
+        _frameData[i] = 0;
+        _inputFrames[i].clear();
+    }
+}
+
+void Frame::commitData()
+{
+    if( !_masterFrameData ) // not used
+        return;
+
+    for( unsigned i = 0; i<eq::EYE_ALL; ++i )
+    {
+        if( _frameData[i] )
+        {
+            if( _frameData[i] != _masterFrameData )
+                _frameData[i]->_data = _masterFrameData->_data;
+
+            _frameData[i]->commit();
+        }
+    }
 }
 
 void Frame::updateInheritData( const Compound* compound )
@@ -56,48 +88,74 @@ void Frame::updateInheritData( const Compound* compound )
     if( _inherit.buffers == eq::Frame::BUFFER_UNDEFINED )
         _inherit.buffers = compound->getInheritBuffers();
 
-    if( _frameData )
+    for( unsigned i = 0; i<eq::EYE_ALL; ++i )
     {
-        _inherit.frameData.objectID = _frameData->getID();
-        _inherit.frameData.version  = _frameData->getVersion();
+        if( _frameData[i] )
+        {
+            _inherit.frameData[i].objectID = _frameData[i]->getID();
+            _inherit.frameData[i].version  = _frameData[i]->getVersion();
+        }
+        else
+            _inherit.frameData[i].objectID = EQ_ID_INVALID;
     }
-    else
-        _inherit.frameData.objectID = EQ_ID_INVALID;
 }
 
-void Frame::cycleData( const uint32_t frameNumber )
+void Frame::cycleData( const uint32_t frameNumber, const uint32_t eyes )
 {
-    // find unused frame data
-    FrameData*     data    = _datas.empty() ? 0 : _datas.back();
-    const uint32_t latency = getAutoObsoleteCount();
-    const uint32_t dataAge = data ? data->getFrameNumber() : 0;
-
-    if( data && dataAge < frameNumber-latency && frameNumber > latency )
-        // not used anymore
-        _datas.pop_back();
-    else
+    _masterFrameData = 0;
+    for( unsigned i = 0; i<eq::EYE_ALL; ++i )
     {
-        data = new FrameData;
+        _inputFrames[i].clear();
+
+        if( !(eyes & (1<<i))) // eye pass not used
+        {
+            _frameData[i] = 0;
+            continue;
+        }
+
+        // find unused frame data
+        FrameData*     data    = _datas.empty() ? 0 : _datas.back();
+        const uint32_t latency = getAutoObsoleteCount();
+        const uint32_t dataAge = data ? data->getFrameNumber() : 0;
+
+        if( data && dataAge < frameNumber-latency && frameNumber > latency )
+            // not used anymore
+            _datas.pop_back();
+        else // still used - allocate new data
+        {
+            data = new FrameData;
         
-        eqNet::Session* session = getSession();
-        EQASSERT( session );
+            eqNet::Session* session = getSession();
+            EQASSERT( session );
 
-        session->registerObject( data );
-        data->setAutoObsolete( 1 ); // current + in use by render nodes
-    }
+            session->registerObject( data );
+            data->setAutoObsolete( 1 ); // current + in use by render nodes
+        }
 
-    data->setFrameNumber( frameNumber );
+        data->setFrameNumber( frameNumber );
     
-    _datas.push_front( data );
-    _frameData = data;
-    _inputFrames.clear();
+        _datas.push_front( data );
+        _frameData[i] = data;
+        if( !_masterFrameData )
+            _masterFrameData = data;
+    }
 }
 
-void Frame::addInputFrame( Frame* frame )
+void Frame::addInputFrame( Frame* frame, const uint32_t eyes )
 {
-    EQASSERT( _frameData );
-    frame->_frameData = _frameData;
-    _inputFrames.push_back( frame );
+    for( unsigned i = 0; i<eq::EYE_ALL; ++i )
+    {
+        if( !(eyes & (1<<i)) ||  // eye pass not used
+            !_frameData[i] )     // no output frame for eye pass
+        {
+            frame->_frameData[i] = 0;
+        }
+        else
+        {
+            frame->_frameData[i] = _frameData[i];
+            _inputFrames[i].push_back( frame );
+        }
+    }
 }
 
 std::ostream& eqs::operator << ( std::ostream& os, const Frame* frame )

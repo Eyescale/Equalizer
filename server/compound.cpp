@@ -40,7 +40,7 @@ std::string Compound::_iAttributeStrings[IATTR_ALL] = {
 Compound::Compound()
         : _config( 0 ),
           _parent( 0 ),
-          _frame( 0 ),
+          _frameNumber( 0 ),
           _swapBarrier( 0 )
 {
 }
@@ -49,7 +49,7 @@ Compound::Compound()
 Compound::Compound( const Compound& from )
         : _config( 0 ),
           _parent( 0 ),
-          _frame( 0 )
+          _frameNumber( 0 )
 {
     _name        = from._name;
     _view        = from._view;
@@ -466,7 +466,7 @@ void Compound::exit()
 //---------------------------------------------------------------------------
 void Compound::update( const uint32_t frameNumber )
 {
-    _frame = frameNumber;
+    _frameNumber = frameNumber;
 
     UpdateData data;
 
@@ -546,7 +546,7 @@ void Compound::_updateInheritData()
     }
     else
     {
-        _frame   = _parent->_frame;
+        _frameNumber   = _parent->_frameNumber;
         _inherit = _parent->_inherit;
 
         if( !_inherit.channel )
@@ -625,8 +625,8 @@ void Compound::_updateOutput( UpdateData* data )
         eq::PixelViewport   framePVP = _inherit.pvp * frameVP;
 
         // FrameData offset is position wrt destination view
-        frame->cycleData( _frame );
-        FrameData* frameData = frame->getData();
+        frame->cycleData( _frameNumber, _inherit.eyes );
+        FrameData* frameData = frame->getMasterData();
         EQASSERT( frameData );
 
         frameData->setOffset( vmml::Vector2i( framePVP.x, framePVP.y ));
@@ -660,7 +660,7 @@ void Compound::_updateOutput( UpdateData* data )
         frameData->setBuffers( buffers == eq::Frame::BUFFER_UNDEFINED ? 
                                getInheritBuffers() : buffers );
 
-        frameData->commit();
+        frame->commitData();
         frame->updateInheritData( this );
         frame->commit();
         data->outputFrames[name] = frame;
@@ -713,10 +713,10 @@ void Compound::_updateInput( UpdateData* data )
             continue;
         }
 
-        Frame*              outputFrame = iter->second;
-        const eq::Viewport& frameVP     = frame->getViewport();
-        eq::PixelViewport   framePVP    = _inherit.pvp * frameVP;
-        vmml::Vector2i      frameOffset = outputFrame->getData()->getOffset();
+        Frame*          outputFrame = iter->second;
+        const eq::Viewport& frameVP = frame->getViewport();
+        eq::PixelViewport  framePVP = _inherit.pvp * frameVP;
+        vmml::Vector2i  frameOffset = outputFrame->getMasterData()->getOffset();
 
         if( channel != _inherit.channel
             /* && !use dest channel origin hint set */ )
@@ -734,7 +734,7 @@ void Compound::_updateInput( UpdateData* data )
 
         frame->setOffset( frameOffset );
         //frame->setPixelViewport( framePVP );
-        outputFrame->addInputFrame( frame );
+        outputFrame->addInputFrame( frame, _inherit.eyes );
         frame->updateInheritData( this );
         frame->commit();
 
@@ -1012,7 +1012,7 @@ void Compound::_updateAssemble( const eq::RenderContext& context )
     {
         Frame* frame = *iter;
 
-        if( !frame->hasData( )) // TODO: filter: buffers, vp, eye
+        if( !frame->hasData( context.eye )) // TODO: filter: buffers, vp, eye
             continue;
 
         frames.push_back( frame );
@@ -1046,7 +1046,7 @@ void Compound::_updateReadback( const eq::RenderContext& context )
     {
         Frame* frame = *iter;
 
-        if( !frame->hasData( )) // TODO: filter: buffers, vp, eye
+        if( !frame->hasData( context.eye )) // TODO: filter: buffers, vp, eye
             continue;
 
         frames.push_back( frame );
@@ -1077,7 +1077,7 @@ void Compound::_updateReadback( const eq::RenderContext& context )
     {
         Frame* frame = *iter;
 
-        const vector<Frame*>& inputFrames  = frame->getInputFrames();
+        const vector<Frame*>& inputFrames = frame->getInputFrames( context.eye);
         vector<eqNet::NodeID> nodeIDs;
         for( vector<Frame*>::const_iterator iter = inputFrames.begin();
              iter != inputFrames.end(); ++iter )
@@ -1104,6 +1104,7 @@ void Compound::_updateReadback( const eq::RenderContext& context )
         eq::ChannelFrameTransmitPacket transmitPacket;
         transmitPacket.sessionID = packet.sessionID;
         transmitPacket.objectID  = packet.objectID;
+        transmitPacket.context   = context;
         transmitPacket.frame     = eqNet::ObjectVersion( frame );
         transmitPacket.nNodes    = nodeIDs.size();
 

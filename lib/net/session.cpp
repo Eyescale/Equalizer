@@ -715,14 +715,17 @@ CommandResult Session::_cmdUnmapObject( Command& command )
     {
         // unsubscribe first
         RefPtr<Node> master = _pollIDMasterNode( id );
-        EQASSERT( master.isValid( ));
+        if( master.isValid( ))
+        {
+            SessionUnsubscribeObjectPacket unsubscribePacket;
+            unsubscribePacket.requestID = packet->requestID;
+            unsubscribePacket.objectID  = id;
 
-        SessionUnsubscribeObjectPacket unsubscribePacket;
-        unsubscribePacket.requestID = packet->requestID;
-        unsubscribePacket.objectID  = id;
-
-        send( master, unsubscribePacket );
-        return COMMAND_HANDLED;
+            send( master, unsubscribePacket );
+            return COMMAND_HANDLED;
+        }
+        EQERROR << "Master node for object id " << id << " not connected"
+                << endl;
     }
 
     detachObject( object );

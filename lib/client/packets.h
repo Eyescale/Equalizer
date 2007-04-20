@@ -816,7 +816,7 @@ namespace eq
         EQ_ALIGN8( eqNet::ObjectVersion frames[1] );
     };
         
-    struct ChannelFrameTransmitPacket : public eqNet::ObjectPacket
+    struct ChannelFrameTransmitPacket : public ChannelTaskPacket
     {
         ChannelFrameTransmitPacket()
             {

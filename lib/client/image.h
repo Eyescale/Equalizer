@@ -5,10 +5,11 @@
 #ifndef EQ_IMAGE_H
 #define EQ_IMAGE_H
 
-#include <eq/client/frame.h>        // for Frame::Buffer enum
-#include <eq/client/viewport.h>     // member
-#include <eq/client/windowSystem.h> // for OpenGL types
-#include <eq/base/nonCopyable.h>    // base class of nested class
+#include <eq/client/frame.h>         // for Frame::Buffer enum
+#include <eq/client/pixelViewport.h> // member
+#include <eq/client/viewport.h>      // member
+#include <eq/client/windowSystem.h>  // for OpenGL types
+#include <eq/base/nonCopyable.h>     // base class of nested class
 
 namespace eq
 {

@@ -5,7 +5,7 @@
 #ifndef EQ_FRAME_H
 #define EQ_FRAME_H
 
-#include <eq/client/pixelViewport.h>
+#include <eq/client/eye.h>            // enum used in member
 
 #include <eq/base/monitor.h>
 #include <eq/net/object.h>
@@ -20,6 +20,7 @@ namespace eq
 {
     class FrameData;
     class Pipe;
+    class RenderContext;
 
     /**
      * A holder for a frame data and parameters.
@@ -114,6 +115,9 @@ namespace eq
         void removeListener( eqBase::Monitor<uint32_t>& listener );
         //*}
 
+        /** Set by the channel */
+        void setRenderContext( const RenderContext* context );
+
     protected:
         virtual bool isStatic() const { return false; }
 
@@ -121,12 +125,14 @@ namespace eq
         std::string _name;
         Pipe*       _pipe;
 
-        /** All distributed Data shared between eq::Frame and eqs::Frame. */
+        const RenderContext* _context;
+
+        /** All distributed data, shared between eq::Frame and eqs::Frame. */
         struct Data
         {
             vmml::Vector2i       offset;
             uint32_t             buffers;
-            eqNet::ObjectVersion frameData;
+            eqNet::ObjectVersion frameData[EYE_ALL];
         }
             _data;
         friend class eqs::Frame;

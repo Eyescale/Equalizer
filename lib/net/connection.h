@@ -59,6 +59,9 @@ namespace eqNet
          */
         static eqBase::RefPtr<Connection> create( const ConnectionType type );
         
+        /** @name Data Access. */
+        bool isClosed() const { return _state == STATE_CLOSED; }
+
         /** @name Connection Management */
         //@{
         /** 
