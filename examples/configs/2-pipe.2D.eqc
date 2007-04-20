@@ -20,7 +20,7 @@ server
                 device 1
                 window
                 {
-                    attributes { hint_fullscreen on }
+                    attributes { hint_fullscreen ON }
                     channel { name "channel2" }
                 }
             }
