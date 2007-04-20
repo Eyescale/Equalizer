@@ -397,7 +397,8 @@ CommandResult Session::_handleObjectCommand( Command& command )
     EQASSERT( !objectsTmp.empty( ));
 
     const size_t nObjects = objectsTmp.size();
-    Object* objects[ nObjects ];
+    Object** objects = static_cast<Object**>( 
+                           alloca( nObjects * sizeof( Object* )));
     memcpy( objects, &objectsTmp[0], nObjects * sizeof( Object* ));
 
     _objectsMutex.unset();
