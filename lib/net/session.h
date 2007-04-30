@@ -230,9 +230,6 @@ namespace eqNet
                 node->send( packet, data, size );
             }
 
-        /** The session's identifier. */
-        uint32_t _id;
-        
     private:
         friend class Node;
         /** The local node managing the session. */
@@ -241,6 +238,9 @@ namespace eqNet
         /** The node hosting the session. */
         eqBase::RefPtr<Node> _server;
 
+        /** The session's identifier. */
+        uint32_t _id;
+        
         /** The session's name. */
         std::string _name;
 

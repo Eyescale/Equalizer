@@ -25,14 +25,15 @@ using namespace std;
 
 void Object::_construct()
 {
-    _cm            = ObjectCM::ZERO;
-    _session       = 0;
-    _id            = EQ_ID_INVALID;
-    _instanceID    = EQ_ID_INVALID;
+    _cm               = ObjectCM::ZERO;
+    _session          = 0;
+    _id               = EQ_ID_INVALID;
+    _instanceID       = EQ_ID_INVALID;
     _instanceData     = 0;
     _instanceDataSize = 0;
-    _deltaData     = 0;
-    _deltaDataSize = 0;
+    _deltaData        = 0;
+    _deltaDataSize    = 0;
+    _threadSafe       = false;
 
     registerCommand( CMD_OBJECT_INSTANCE_DATA,
                      CommandFunc<Object>( this, &Object::_cmdForward ));

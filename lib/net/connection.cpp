@@ -255,9 +255,9 @@ bool Connection::send( Packet& packet, const void* data,
         memcpy( (char*)(&packet) + packet.size-8, data, dataSize );
         return send( packet );
     }
+    // else
 
     uint64_t       size   = packet.size-8 + dataSize;
-    size += (4 - size%4);
     char*          buffer = (char*)alloca( size );
 
     memcpy( buffer, &packet, packet.size-8 );

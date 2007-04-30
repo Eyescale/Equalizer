@@ -344,7 +344,7 @@ bool Config::_initNodes( const uint32_t initID )
     EQASSERT( localNode.isValid( ));
 
     eq::ServerCreateConfigPacket createConfigPacket;
-    createConfigPacket.configID  = _id;
+    createConfigPacket.configID  = getID();
     createConfigPacket.appNodeID = _appNetNode->getNodeID();
 
     eq::ConfigCreateNodePacket createNodePacket;
@@ -440,7 +440,7 @@ bool Config::_exitNodes()
     }
 
     eq::ServerDestroyConfigPacket destroyConfigPacket;
-    destroyConfigPacket.configID  = _id;
+    destroyConfigPacket.configID  = getID();
 
     eq::ConfigDestroyNodePacket destroyNodePacket;
     eq::ClientExitPacket        clientExitPacket;

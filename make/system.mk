@@ -46,7 +46,7 @@ ifneq ($(findstring -O, $(CXXFLAGS)),-O)
 endif # -O
 endif # -g
 ifeq ($(CXX),g++)
-    CXXFLAGS       += -Wall -Wnon-virtual-dtor
+    CXXFLAGS       += -Wall -Wnon-virtual-dtor -Wno-unknown-pragmas
 endif # g++
 endif # top-level
 

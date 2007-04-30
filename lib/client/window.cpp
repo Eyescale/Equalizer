@@ -1102,7 +1102,8 @@ eqNet::CommandResult eq::Window::_cmdDestroyChannel(eqNet::Command& command )
     _removeChannel( channel );
     Config*  config  = getConfig();
     config->detachObject( channel );
-    
+    delete channel;
+
     return eqNet::COMMAND_HANDLED;
 }
 

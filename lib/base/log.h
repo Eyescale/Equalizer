@@ -85,8 +85,8 @@ namespace eqBase
                     if( !_noHeader )
                     {
 #                   ifdef WIN32
-                        _stringStream << getpid()  << " " << pthread_self().p <<" "
-                                      << _file << ":" << _line << " ";
+                        _stringStream << getpid()  << " " << pthread_self().p 
+                                      <<" " << _file << ":" << _line << " ";
 #                   else
                         _stringStream << getpid()  << " " << pthread_self()<<" "
                                       << _file << ":" << _line << " ";
@@ -115,7 +115,7 @@ namespace eqBase
                 {
                     const std::string& string = _stringStream.str();
                     _stream.write( string.c_str(), string.length( ));
-                    _stringStream.str("");
+                    _stringStream.str( "" );
                 }
                 _newLine = true;
                 return 0;

@@ -22,8 +22,8 @@ using namespace std;
 #define MIN_ID_RANGE 1024
 
 Session::Session( const bool threadSafe )
-        : _id(EQ_ID_INVALID),
-          _server(0),
+        : _server(0),
+          _id(EQ_ID_INVALID),
           _isMaster(false),
           _requestHandler( threadSafe ),
           _masterPool( IDPool::MAX_CAPACITY ),

@@ -13,12 +13,13 @@ using namespace std;
 
 Lock::Lock()
 {
-    const int error = pthread_mutex_init( &_mutex, NULL );
+    const int error = pthread_mutex_init( &_mutex, 0 );
     if( error )
     {
         EQERROR << "Error creating pthread mutex: " << strerror(error) << endl;
         return;
     }
+    EQINFO << "New Lock @" << (void*)this << endl;
 }
 
 Lock::~Lock()

@@ -85,7 +85,8 @@ unsigned getLogTopics()
     return 0;
 }
 
-EQ_EXPORT Log& Log::instance( const char* subdir, const char* file, const int line )
+EQ_EXPORT Log& Log::instance( const char* subdir, const char* file,
+                              const int line )
 {
     Log* log = _logInstance.get();
     if( !log )
