@@ -263,7 +263,6 @@ bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
     // send connect packet to peer
     eqNet::NodeConnectPacket packet;
 
-    node->ref();
     packet.requestID = _requestHandler.registerRequest( node.get( ));
     packet.nodeID    = _id;
     packet.type      = getType();
@@ -276,7 +275,7 @@ bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
     _requestHandler.waitRequest( packet.requestID );
     EQASSERT( node->_id != EQ_ID_INVALID );
     EQASSERTINFO( node->_id != _id, _id );
-    EQINFO << node.get() << " connected to " << this << endl;
+    EQINFO << node << " connected to " << this << endl;
     return true;
 }
 
@@ -1212,7 +1211,6 @@ bool Node::syncConnect( eqBase::RefPtr<Node> node )
     node->_state = STATE_STOPPED;
     _requestHandler.unregisterRequest( _launchID );
     node->_launchID = EQ_ID_INVALID;
-    node->unref();
     return false;
 }
 
@@ -1254,7 +1252,7 @@ RefPtr<Node> Node::connect( const NodeID& nodeID, RefPtr<Node> server )
 
     EQASSERT( dynamic_cast< Node* >( (Base*)result ));
     RefPtr< Node > node = static_cast< Node* >( result );
-    node->unref();
+    node->unref(); // ref'd before serveRequest()
     
     if( node->isConnected( ))
         return node;
@@ -1269,7 +1267,6 @@ bool Node::_launch( RefPtr<Node> node,
 {
     EQASSERT( node->getState() == STATE_STOPPED );
 
-    node->ref();
     node->_launchID = _requestHandler.registerRequest( node.get() );
     node->_launchTimeout.setAlarm( description->launchTimeout );
 
@@ -1281,7 +1278,6 @@ bool Node::_launch( RefPtr<Node> node,
                << endl;
         _requestHandler.unregisterRequest( node->_launchID );
         node->_launchID = EQ_ID_INVALID;
-        node->unref();
         return false;
     }
     

@@ -21,7 +21,7 @@ public:
     virtual eq::Config*  createConfig()   { return new eqPly::Config; }
     virtual eq::Node*    createNode()     { return new eqPly::Node; }
     virtual eq::Pipe*    createPipe()     { return new eqPly::Pipe; }
-    virtual eq::Window*    createWindow() { return new eqPly::Window; }
+    virtual eq::Window*  createWindow()   { return new eqPly::Window; }
     virtual eq::Channel* createChannel()  { return new eqPly::Channel; }
 };
 

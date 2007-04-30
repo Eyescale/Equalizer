@@ -288,7 +288,7 @@ static RefPtr<eqNet::Node> _createNode( Node* node )
     RefPtr<eqNet::Node> netNode = new eqNet::Node;
 
     const uint32_t nConnectionDescriptions = node->nConnectionDescriptions();
-    for( uint32_t i=0; i<nConnectionDescriptions; i++ )
+    for( uint32_t i=0; i<nConnectionDescriptions; ++i )
     {
         eqNet::ConnectionDescription* desc = 
             node->getConnectionDescription(i).get();
@@ -297,6 +297,7 @@ static RefPtr<eqNet::Node> _createNode( Node* node )
             new eqNet::ConnectionDescription( *desc ));
     }
 
+    netNode->setAutoLaunch( true );
     return netNode;
 }
 
@@ -318,7 +319,6 @@ bool Config::_connectNodes()
         else
         {
             netNode = _createNode( node );
-            netNode->setAutoLaunch( true );
             netNode->setProgramName( _renderClient );
             netNode->setWorkDir( _workDir );
         }
@@ -444,6 +444,8 @@ bool Config::_exitNodes()
 
     eq::ConfigDestroyNodePacket destroyNodePacket;
     eq::ClientExitPacket        clientExitPacket;
+    RefPtr< eqNet::Node >       localNode         = getLocalNode();
+    EQASSERT( localNode.isValid( ));
 
     bool success = true;
     for( vector<Node*>::const_iterator i = exitingNodes.begin();
@@ -460,14 +462,17 @@ bool Config::_exitNodes()
         
         destroyNodePacket.nodeID = node->getID();
         send( netNode, destroyNodePacket );
+        node->setNode( 0 );
 
         if( node != _appNode )
         {
             netNode->send( destroyConfigPacket );
             netNode->send( clientExitPacket );
+            localNode->disconnect( netNode );
+            // Ref count should be one, but often commands still hold a reference.
+            //EQASSERTINFO( netNode->getRefCount() == 1, netNode->getRefCount( ));
         }
 
-        node->setNode( 0 );
         deregisterObject( node );
     }
     return success;
