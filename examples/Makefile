@@ -9,7 +9,7 @@ SUBDIRS = \
 	configs \
 	eqPly \
 	libmesh \
-	pixelBench \
+	eqPixelBench \
 	$(OPTIONAL)
 
 TARGETS = subdirs

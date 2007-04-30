@@ -21,7 +21,7 @@ using namespace std;
  * EQ_WIN32_SDP_JOIN_WAR: When using SDP connections on Win32, the join() of the
  * receiver thread blocks indefinitely, even after the thread has exited. This
  * workaround uses a monitor to implement the join functionality independently
- * of phtreads.
+ * of pthreads.
  */
 
 Lock                            Thread::_listenerLock;
