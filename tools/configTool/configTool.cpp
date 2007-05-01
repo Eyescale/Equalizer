@@ -4,8 +4,13 @@
 
 #include "configTool.h"
 
+#ifdef WIN32
+#  define MIN __min
+#else
+#  include <sys/param.h>
+#endif
+
 #include <math.h>
-#include <sys/param.h>
 #include <tclap/CmdLine.h>
 
 using namespace std;
