@@ -1,0 +1,35 @@
+
+/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com>
+   All rights reserved. */
+
+#ifndef EQ_CONFIGTOOL_H
+#define EQ_CONFIGTOOL_H
+
+class ConfigTool
+{
+public:
+    ConfigTool();
+    bool parseArguments( int argc, char** argv );
+    void writeConfig() const;
+
+private:
+    enum Mode
+    {
+        MODE_2D,
+        MODE_DB,
+        MODE_DB_DS,
+        MODE_ALL
+    }
+             _mode;
+
+    unsigned _nChannels;
+    bool     _useDestination;
+
+    void _writeResources() const;
+    void _writeCompound() const;
+    void   _write2D() const;
+    void   _writeDB() const;
+    void   _writeDS() const;
+};
+
+#endif // EQ_CONFIGTOOL_H

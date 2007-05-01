@@ -7,7 +7,8 @@ SUBDIRS = \
 	examples \
 	proto \
 	server \
-	tests
+	tests \
+	tools
 
 .PHONY: docs
 

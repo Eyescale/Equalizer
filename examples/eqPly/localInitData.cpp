@@ -22,7 +22,7 @@ void LocalInitData::parseArguments( int argc, char** argv )
 {
     try
     {
-        TCLAP::CmdLine command("eqPly - Equalizer polygonal rendering example");
+        TCLAP::CmdLine command( "eqPly - Equalizer polygonal rendering example" );
         TCLAP::ValueArg<string> modelArg( "m", "model", "ply model file name", 
                                           false, "rockerArm.ply", "string", 
                                           command );
