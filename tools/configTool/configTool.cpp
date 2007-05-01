@@ -77,6 +77,9 @@ bool ConfigTool::parseArguments( int argc, char** argv )
 
 void ConfigTool::writeConfig() const
 {
+    cout.setf( std::ios::right, std::ios::adjustfield );
+    cout.fill( '0' );
+
     cout << "global" << endl;
     cout << "{" << endl;
     cout << "    EQ_WINDOW_IATTR_HINT_FULLSCREEN    ON" << endl;
@@ -147,11 +150,6 @@ void ConfigTool::_writeCompound() const
     }
 }
 
-static float _roundDown( const float value, const unsigned nDigits )
-{
-    return floorf( value * powf( 10.0f, nDigits )) / powf( 10.0f, nDigits );
-}
-
 void ConfigTool::_write2D() const
 {
     cout << "        compound" << endl
@@ -164,9 +162,9 @@ void ConfigTool::_write2D() const
          << "                top_left     [ -.32  .20 -.75 ]" << endl
          << "            }" << endl;
 
-    const float step = _roundDown( 1.0f / ( _useDestination ? _nChannels :
-                                            _nChannels - 1 ), 4 );
-    float y    = 0.0f;
+    const unsigned step = static_cast< unsigned >
+        ( 100000.0f / ( _useDestination ? _nChannels : _nChannels - 1 ));
+    unsigned y = 0;
     for( unsigned i = _useDestination ? 0 : 1; i<_nChannels; ++i )
     {
         cout << "            compound" << endl
@@ -174,11 +172,11 @@ void ConfigTool::_write2D() const
              << "                channel   \"channel" << i << "\"" << endl;
 
         if( i == _nChannels - 1 ) // last - correct rounding 'error'
-            cout << "                viewport  [ 0 " << y << " 1 " << 1.0f-y << " ]"
-                 << endl;
+            cout << "                viewport  [ 0 0." << setw(5) << y << " 1 0."
+                 << setw(5) << 100000-y << " ]" << endl;
         else
-            cout << "                viewport  [ 0 " << y << " 1 " << step << " ]"
-                 << endl;
+            cout << "                viewport  [ 0 0." << setw(5) << y << " 1 0."
+                 << setw(5) << step << " ]" << endl;
 
         if( i != 0 ) 
             cout << "                outputframe{ name \"frame.channel" << i <<"\"}"
@@ -207,9 +205,9 @@ void ConfigTool::_writeDB() const
          << "                top_left     [ -.32  .20 -.75 ]" << endl
          << "            }" << endl;
 
-    const float step = _roundDown( 1.0f / ( _useDestination ? _nChannels :
-                                            _nChannels - 1 ), 4 );
-    float start = 0.0f;
+    const unsigned step = static_cast< unsigned >
+        ( 100000.0f / ( _useDestination ? _nChannels : _nChannels - 1 ));
+    unsigned start = 0;
     for( unsigned i = _useDestination ? 0 : 1; i<_nChannels; ++i )
     {
         cout << "            compound" << endl
@@ -217,10 +215,11 @@ void ConfigTool::_writeDB() const
              << "                channel   \"channel" << i << "\"" << endl;
 
         if( i == _nChannels - 1 ) // last - correct rounding 'error'
-            cout << "                range     [ " << start << " 1 ]" << endl;
+            cout << "                range     [ 0." << setw(5) << start << " 1 ]"
+                 << endl;
         else
-            cout << "                range     [ " << start << " " << start + step
-                 << " ]" << endl;
+            cout << "                range     [ 0." << setw(5) << start << " 0."
+                 << setw(5) << start + step << " ]" << endl;
 
         if( i != 0 ) 
             cout << "                outputframe{ name \"frame.channel" << i <<"\"}"
@@ -249,9 +248,9 @@ void ConfigTool::_writeDS() const
          << "                top_left     [ -.32  .20 -.75 ]" << endl
          << "            }" << endl;
 
-    const float step = _roundDown( 1.0f / ( _useDestination ? _nChannels :
-                                            _nChannels - 1 ), 4 );
-    float start = 0.0f;
+    const unsigned step = static_cast< unsigned >
+        ( 100000.0f / ( _useDestination ? _nChannels : _nChannels - 1 ));
+    unsigned start = 0;
     for( unsigned i = _useDestination ? 0 : 1; i<_nChannels; ++i )
     {
         cout << "            compound" << endl
@@ -262,12 +261,13 @@ void ConfigTool::_writeDS() const
         cout << "                compound" << endl
              << "                {" << endl;
         if( i == _nChannels - 1 ) // last - correct rounding 'error'
-            cout << "                    range     [ " << start << " 1 ]" << endl;
+            cout << "                    range     [ 0." << setw(5) << start 
+                 << " 1 ]" << endl;
         else
-            cout << "                    range     [ " << start << " " 
-                 << start + step << " ]" << endl;
+            cout << "                    range     [ 0." << setw(5) << start 
+                 << " 0." << setw(5) << start + step << " ]" << endl;
         
-        float y = 0.0f;
+        unsigned y = 0;
         for( unsigned j = _useDestination ? 0 : 1; j<_nChannels; ++j )
         {
             if( i != j )
@@ -275,9 +275,11 @@ void ConfigTool::_writeDS() const
                 cout << "                    outputframe{ name \"tile" << j 
                      << ".channel" << i << "\" ";
                 if( j == _nChannels - 1 ) // last - correct rounding 'error'
-                    cout << "viewport [ 0 " << y << " 1 " << 1.0f-y << " ]";
+                    cout << "viewport [ 0 0." << setw(5) << y << " 1 0." << setw(5)
+                         << 100000-y << " ]";
                 else
-                    cout << "viewport [ 0 " << y << " 1 " << step << " ]";
+                    cout << "viewport [ 0 0." << setw(5) << y << " 1 0." << setw(5)
+                         << step << " ]";
                 cout << " }" << endl;
             }
             // else own tile, is in place
@@ -302,9 +304,11 @@ void ConfigTool::_writeDS() const
             cout << "                outputframe{ name \"frame.channel" << i <<"\"";
             cout << " buffer [ COLOR ] ";
             if( i == _nChannels - 1 ) // last - correct rounding 'error'
-                cout << "viewport [ 0 " << start << " 1 " << 1.0f - start << " ]";
+                cout << "viewport [ 0 0." << setw(5) << start << " 1 0." << setw(5)
+                     << 100000 - start << " ]";
             else
-                cout << "viewport [ 0 " << start << " 1 " << step << " ]";
+                cout << "viewport [ 0 0." << setw(5) << start << " 1 0." << setw(5)
+                     << step << " ]";
             cout << " }" << endl;
         }
         cout << "            }" << endl
