@@ -22,6 +22,7 @@ private:
     }
              _mode;
 
+    unsigned _nPipes;
     unsigned _nChannels;
     bool     _useDestination;
 

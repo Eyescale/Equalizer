@@ -30,3 +30,6 @@ endif
 TARGETS = $(PROGRAMS)
 
 include $(TOP)/make/rules.mk
+
+README: ../../../website/build/documents/user/eqPly.html
+	links -dump $< > $@

@@ -25,6 +25,7 @@ int main( int argc, char** argv )
 
 ConfigTool::ConfigTool()
         : _mode( MODE_2D ),
+          _nPipes( 1 ),
           _nChannels( 4 ),
           _useDestination( true )
 {}
@@ -36,9 +37,12 @@ bool ConfigTool::parseArguments( int argc, char** argv )
         TCLAP::CmdLine command( "configTool - Equalizer config file generator" );
         TCLAP::ValueArg<string> modeArg( "m", "mode", "Compound mode (default 2D)",
                                          false, "2D", "2D|DB|DB_ds", command );
-        TCLAP::ValueArg<unsigned> numArg( "n", "numChannels", 
-                                          "Number of channels (default 4)",
-                                          false, 4, "unsigned", command );
+        TCLAP::ValueArg<unsigned> pipeArg( "p", "numPipes", 
+                                           "Number of pipes per node (default 1)",
+                                           false, 1, "unsigned", command );
+        TCLAP::ValueArg<unsigned> channelArg( "c", "numChannels", 
+                                             "Total number of channels (default 4)",
+                                              false, 4, "unsigned", command );
         TCLAP::SwitchArg destArg( "a", "assembleOnly", 
                             "Destination channel does not contribute to rendering", 
                                   command, false );
@@ -61,8 +65,10 @@ bool ConfigTool::parseArguments( int argc, char** argv )
             }
         }
 
-        if( numArg.isSet( ))
-            _nChannels = numArg.getValue();
+        if( pipeArg.isSet( ))
+            _nPipes = pipeArg.getValue();
+        if( channelArg.isSet( ))
+            _nChannels = channelArg.getValue();
 
         _useDestination = !destArg.isSet();
     }
@@ -101,30 +107,40 @@ void ConfigTool::writeConfig() const
 
 void ConfigTool::_writeResources() const
 {
-    for( unsigned i=0; i<_nChannels; ++i )
+    const unsigned nNodes  = _nChannels/_nPipes + 1;
+    unsigned       channel = 0;
+    for( unsigned node=0; node < nNodes && channel < _nChannels; ++node )
     {
         cout << "        node" << endl
              << "        {" << endl
-             << "            name       \"node" << i << "\""<< endl
-             << "            connection { hostname \"node" << i << "\" }"<< endl
-             << "            pipe" << endl
-             << "            {" << endl
-             << "                name     \"pipe" << i << "\""<< endl
-             << "                device   0" << endl
-             << "                window" << endl
-             << "                {" << endl
-             << "                    name     \"window" << i << "\""<< endl;
-        if( i == 0 ) // destination window
-            cout << "                    attributes{ hint_fullscreen OFF }" << endl
-                 << "                    viewport [ 100 100 1280 800 ]" << endl;
-
-        cout << "                    channel" << endl
-             << "                    {" << endl
-             << "                        name     \"channel" << i << "\""<< endl
-             << "                    }" << endl
-             << "                }" << endl
-             << "            }" << endl
-             << "        }" << endl;
+             << "            name       \"node" << node << "\""<< endl
+             << "            connection { hostname \"node" << node << "\" }"<< endl;
+        for( unsigned pipe=0; pipe < _nPipes && channel < _nChannels; ++pipe )
+        {
+            cout << "            pipe" << endl
+                 << "            {" << endl
+                 << "                name     \"pipe" << pipe << "n" << node << "\"" 
+                 << endl
+                 << "                device   " << pipe << endl
+                 << "                window" << endl
+                 << "                {" << endl
+                 << "                    name     \"window" << channel << "\""
+                 << endl;
+            if( channel == 0 ) // destination window
+                cout << "                    attributes{ hint_fullscreen OFF }"
+                     << endl
+                     << "                    viewport [ 100 100 1280 800 ]" << endl;
+            
+            cout << "                    channel" << endl
+                 << "                    {" << endl
+                 << "                        name     \"channel" << channel 
+                 << "\"" << endl
+                 << "                    }" << endl
+                 << "                }" << endl
+                 << "            }" << endl;
+            ++channel;
+        }
+        cout << "        }" << endl;
     }
 }
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "node.h"
@@ -17,11 +17,12 @@ bool Node::configInit( const uint32_t initID )
     const bool  mapped = config->mapObject( &_initData, initID );
     EQASSERT( mapped );
 
-    EQINFO << "Loading model " << _initData.getFilename() << endl;
+    const string& filename = _initData.getFilename();
+    EQINFO << "Loading model " << filename << endl;
 
-    _model = PlyFileIO::read( _initData.getFilename().c_str( ));
+    _model = PlyFileIO::read( filename.c_str( ));
     if( !_model)
-        EQWARN << "Can't load model: " << _initData.getFilename() << endl;
+        EQWARN << "Can't load model: " << filename << endl;
 
     return eq::Node::configInit( initID );
 }
