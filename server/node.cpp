@@ -196,8 +196,10 @@ bool Node::syncConfigExit()
     EQASSERT( _pendingRequestID != EQ_ID_INVALID );
 
     bool success = true;
-    eq::NodeDestroyPipePacket destroyPipePacket;
+    _requestHandler.waitRequest( _pendingRequestID, success );
+    _pendingRequestID = EQ_ID_INVALID;
 
+    eq::NodeDestroyPipePacket destroyPipePacket;
     for( PipeIter i = _pipes.begin(); i != _pipes.end(); ++i )
     {
         Pipe* pipe = *i;
@@ -209,19 +211,13 @@ bool Node::syncConfigExit()
             EQWARN << "Could not exit cleanly: " << pipe << endl;
             success = false;
         }
-        
+
         destroyPipePacket.pipeID = pipe->getID();
         _send( destroyPipePacket );
         _config->deregisterObject( pipe );
     }
     _bufferedTasks.sendBuffer( _node->getConnection( ));
 
-    bool requestSuccess = false;
-    _requestHandler.waitRequest( _pendingRequestID, requestSuccess );
-    if( !requestSuccess )
-        success = false;
-
-    _pendingRequestID = EQ_ID_INVALID;
     _flushBarriers();
     return success;
 }
