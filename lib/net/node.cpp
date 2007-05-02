@@ -255,6 +255,7 @@ bool Node::_listenToSelf()
 bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
 {
     EQASSERT( connection.isValid( ));
+
     if( !node.isValid() || _state != STATE_LISTENING ||
         connection->getState() != Connection::STATE_CONNECTED ||
         node->_state != STATE_STOPPED )
@@ -272,7 +273,11 @@ bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
     _connectionSet.addConnection( connection );
     connection->send( packet, serialize( ));
 
-    _requestHandler.waitRequest( packet.requestID );
+    bool connected = false;
+    _requestHandler.waitRequest( packet.requestID, connected );
+    if( !connected )
+        return false;
+
     EQASSERT( node->_id != EQ_ID_INVALID );
     EQASSERTINFO( node->_id != _id, _id );
     EQINFO << node << " connected to " << this << endl;
@@ -920,6 +925,14 @@ CommandResult Node::_cmdConnect( Command& command )
     if( _nodes.find( packet->nodeID ) != _nodes.end( ))
     {   // Node exists, probably simultaneous connect from peer
         EQASSERT( packet->launchID == EQ_ID_INVALID );
+        EQINFO << "Already got node " << packet->nodeID << ", refusing connect"
+               << endl;
+
+        // refuse connection
+        NodeConnectReplyPacket reply( packet );
+        connection->send( reply, serialize( ));
+
+        // close connection
         _connectionSet.removeConnection( connection );
         connection->close();
         return eqNet::COMMAND_HANDLED;
@@ -975,11 +988,16 @@ CommandResult Node::_cmdConnectReply( Command& command )
     EQASSERT( _connectionNodes.find( connection.get( )) == 
               _connectionNodes.end( ));
 
-    if( _nodes.find( packet->nodeID ) != _nodes.end( ))
-    {   // Node exists, probably simultaneous connect from peer
-        EQASSERT( packet->requestID == EQ_ID_INVALID );
+    if( packet->nodeID == NodeID::ZERO || // connection refused
+        _nodes.find( packet->nodeID ) != _nodes.end( )) // Node exists, probably
+                                                        // simultaneous connect
+    {
         _connectionSet.removeConnection( connection );
         connection->close();
+        
+        if( packet->requestID != EQ_ID_INVALID )
+            _requestHandler.serveRequest( packet->requestID, false );
+        
         return eqNet::COMMAND_HANDLED;
     }
 
@@ -1012,7 +1030,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
     _nodes[ remoteNode->_id ]            = remoteNode;
 
     if( packet->requestID != EQ_ID_INVALID )
-        _requestHandler.serveRequest( packet->requestID );
+        _requestHandler.serveRequest( packet->requestID, true );
     return COMMAND_HANDLED;
 }
 
@@ -1258,7 +1276,16 @@ RefPtr<Node> Node::connect( const NodeID& nodeID, RefPtr<Node> server )
         return node;
 
     if( !connect( node ))
+    {
+        // connect failed - maybe simultaneous connect from peer?
+        iter = _nodes.find( nodeID );
+        if( iter != _nodes.end( ))
+            return iter->second;
+        
         EQWARN << "Node connection failed" << endl;
+        return 0;
+    }
+
     return node;
 }
 

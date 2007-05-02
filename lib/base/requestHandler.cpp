@@ -101,7 +101,7 @@ bool RequestHandler::waitRequest( const uint32_t requestID, bool& rBool,
     if( !_waitRequest( requestID, result, timeout ))
         return false;
 
-    rBool = static_cast<bool>( result.rUint32 );
+    rBool = result.rBool;
     return true;
 }
 bool RequestHandler::waitRequest( const uint32_t requestID )
@@ -161,6 +161,16 @@ void RequestHandler::serveRequest( const uint32_t requestID, uint32_t result )
 
     Request* request = iter->second;
     request->result.rUint32 = result;
+    request->lock.unset();
+}
+void RequestHandler::serveRequest( const uint32_t requestID, bool result )
+{
+    RequestHash::const_iterator iter = _requests.find( requestID );
+    EQASSERTINFO( iter != _requests.end(),
+                  "Attempt to serve unregistered request " << requestID );
+
+    Request* request = iter->second;
+    request->result.rBool = result;
     request->lock.unset();
 }
     

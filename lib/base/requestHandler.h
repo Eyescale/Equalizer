@@ -109,6 +109,7 @@ namespace eqBase
          */
         void serveRequest( const uint32_t requestID, void* result = 0 );
         void serveRequest( const uint32_t requestID, uint32_t result );
+        void serveRequest( const uint32_t requestID, bool result );
 
 		bool isThreadSafe() const { return ( _mutex != 0 ); }
     private:
@@ -129,6 +130,7 @@ namespace eqBase
             {
                 void*    rPointer;
                 uint32_t rUint32;
+                bool     rBool;
             } result;
         };
         

@@ -198,9 +198,11 @@ void ConfigTool::_write2D() const
             cout << "                outputframe{ name \"frame.channel" << i <<"\"}"
                  << endl;
 
-        cout << "            }" << endl
-             << "            inputframe{ name \"frame.channel" << i <<"\" }" << endl
-             << endl;
+        cout << "            }" << endl;
+
+        if( i != 0 ) 
+	  cout << "            inputframe{ name \"frame.channel" << i <<"\" }" 
+	       << endl << endl;
  
         y += step;
     }
@@ -241,9 +243,11 @@ void ConfigTool::_writeDB() const
             cout << "                outputframe{ name \"frame.channel" << i <<"\"}"
                  << endl;
 
-        cout << "            }" << endl
-             << "            inputframe{ name \"frame.channel" << i <<"\" }" << endl
-             << endl;
+        cout << "            }" << endl;
+
+	if( i != 0 )
+	  cout << "            inputframe{ name \"frame.channel" << i <<"\" }" << endl
+	       << endl;
  
         start += step;
     }

@@ -29,6 +29,9 @@
 #  include <netdb.h>
 #  include <netinet/tcp.h>
 #  include <sys/socket.h>
+#  ifndef AF_INET_SDP
+#    define AF_INET_SDP 27
+#  endif
 
 #  include "socketConnectionPosix.cpp"
 #endif
@@ -46,7 +49,11 @@ bool SocketConnection::_createSocket()
     if( _description->type == CONNECTIONTYPE_SDP )
         EQINFO << "Created SDP socket" << endl;
 #else
-    const Socket fd = ::socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
+    Socket fd;
+    if( _description->type == CONNECTIONTYPE_SDP )
+        fd = ::socket( AF_INET_SDP, SOCK_STREAM, IPPROTO_TCP );
+    else
+        fd = ::socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
 #endif
     if( fd == INVALID_SOCKET )
     {
