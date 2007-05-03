@@ -222,6 +222,8 @@ void ConfigTool::_writeDB() const
          << "                bottom_right [  .32 -.20 -.75 ]" << endl
          << "                top_left     [ -.32  .20 -.75 ]" << endl
          << "            }" << endl;
+    if( !_useDestination )
+        cout << "            task      [ CLEAR ASSEMBLE ]" << endl;
 
     const unsigned step = static_cast< unsigned >
         ( 100000.0f / ( _useDestination ? _nChannels : _nChannels - 1 ));
