@@ -110,49 +110,6 @@ int Application::runMainloop()
 
     // 6. cleanup and exit
     server->releaseConfig( config );
-
-    // RESTART 
-	while( true )
-	{
-		config = (Config*)server->useConfig( configParams, 
-			"config{ node{ connection { hostname \"127.0.0.1\" TCPIP_port 2970 } pipe { window { viewport [ 0 0 .25 .25 ] channel { name \"channel\" }}}} compound { channel \"channel\" wall { bottom_left [ -.8 -.5 -1 ] bottom_right [  .8 -.5 -1 ] top_left [ -.8  .5 -1 ] }}}" );
-		EQASSERT( config );
-
-		if( !config->init( ))
-		{
-			EQERROR << "Config initialisation failed: " 
-					<< config->getErrorMessage() << endl;
-			server->releaseConfig( config );
-			disconnectServer( server );
-			return EXIT_FAILURE;
-		}
-
-		EQLOG( eq::LOG_CUSTOM ) << "Config init took " << clock.getTimef() << " ms"
-								<< endl;
-
-		// 4. run main loop
-		maxFrames = _initData.getMaxFrames();
-	    
-		clock.reset();
-		while( config->isRunning( ) && maxFrames-- )
-		{
-			config->startFrame();
-			// config->renderData(...);
-			config->finishFrame();
-		}
-
-		// 5. exit config
-		clock.reset();
-		config->exit();
-        server->releaseConfig( config );
-	}
-    EQLOG( eq::LOG_CUSTOM ) << "Exit took " << clock.getTimef() << " ms" <<endl;
-
-    // 6. cleanup and exit
-    server->releaseConfig( config );
-
-
-
     if( !disconnectServer( server ))
         EQERROR << "Client::disconnectServer failed" << endl;
     server = 0;
