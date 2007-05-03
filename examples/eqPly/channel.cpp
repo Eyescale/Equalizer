@@ -72,7 +72,8 @@ void Channel::frameDraw( const uint32_t frameID )
     }
     else if( !range.isFull( )) // Color DB-patches
     {
-        uint32_t value = reinterpret_cast< size_t >( this ) & 0xffffffffu;
+        uint32_t value = reinterpret_cast< size_t >( this ) & 0xffffffffu +
+	                 static_cast<uint32_t>( range.start * 1000.0f );
         uint8_t  red   = 0;
         uint8_t  green = 0;
         uint8_t  blue  = 0;

@@ -799,8 +799,15 @@ void eq::Window::configExitWGL()
 #endif
 }
 
-void eq::Window::_queryDrawableConfig()
+bool eq::Window::_queryDrawableConfig()
 {
+    // GL version
+    const char* glVersion = (const char*)glGetString( GL_VERSION );
+    if( !glVersion ) // most likely no context - fail
+        return false;
+
+    _drawableConfig.glVersion = static_cast<float>( atof( glVersion ));
+
     // Framebuffer capabilities
     GLboolean result;
     glGetBooleanv( GL_STEREO,       &result );
@@ -810,8 +817,6 @@ void eq::Window::_queryDrawableConfig()
     _drawableConfig.doublebuffered = result;
 
     glGetIntegerv( GL_STENCIL_BITS, &_drawableConfig.stencilBits );
-    _drawableConfig.glVersion = static_cast<float>( 
-        atof( (const char*)glGetString( GL_VERSION )));
 
 #if 0
     // OpenGL Extensions
@@ -823,6 +828,7 @@ void eq::Window::_queryDrawableConfig()
         _drawableConfig.extPackedDepthStencil = true;
 #endif
     EQINFO << "Window drawable config: " << _drawableConfig << endl;
+    return true;
 }
 
 void eq::Window::_initEventHandling()
@@ -1175,7 +1181,14 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
         default: EQUNIMPLEMENTED;
     }
 
-    _queryDrawableConfig();
+    if( !_queryDrawableConfig( ))
+    {
+        EQERROR << "querying of drawable configuration failed." << endl;
+        reply.result = false;
+        send( node, reply, _error );
+        return eqNet::COMMAND_HANDLED;
+    }
+
     _initEventHandling();
 
     reply.pvp            = _pvp;

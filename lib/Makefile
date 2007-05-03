@@ -103,6 +103,7 @@ HEADER_SRC = \
 
 SOURCES = \
 	base/barrier.cpp \
+	base/debug.cpp \
 	base/idPool.cpp \
 	base/launcher.cpp \
 	base/lock.cpp \

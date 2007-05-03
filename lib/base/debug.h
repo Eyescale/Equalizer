@@ -25,27 +25,33 @@
               << std::endl << eqBase::forceFlush; }
 
 #else // DEBUG
+namespace eqBase
+{
+    /** Used to trap into an infinite loop to allow debugging of node assertions */
+    EQ_EXPORT void abortDebug();
+}
+
 #  define EQASSERT(x) { if( !(x) )                                      \
     { EQERROR << "Assert: " << #x << std::endl << eqBase::forceFlush;   \
-      ::abort(); }}
+      eqBase::abortDebug(); }}
 #  define EQASSERTINFO(x, info) { if( !(x) )                            \
         {                                                               \
             EQERROR << "Assert: " << #x << " [" << info << "]" << std::endl \
                     << eqBase::forceFlush;                              \
-            ::abort();                                                  \
+            eqBase::abortDebug();                                                  \
         }}
 #  define EQUNIMPLEMENTED                                               \
     { EQERROR << "Unimplemented code in " << typeid(*this).name()       \
               << std::endl << eqBase::forceFlush;                       \
-        ::abort(); }
+        eqBase::abortDebug(); }
 #  define EQUNREACHABLE                                          \
     { EQERROR << "Unreachable code in " << typeid(*this).name()  \
               << std::endl << eqBase::forceFlush;                \
-        ::abort(); }
+        eqBase::abortDebug(); }
 #  define EQDONTCALL                                                    \
     { EQERROR << "Code is not supposed to be called in this context, type " \
               << typeid(*this).name() << std::endl << eqBase::forceFlush; \
-        ::abort(); }
+        eqBase::abortDebug(); }
 
 #endif
 #endif //EQBASE_DEBUG_H
