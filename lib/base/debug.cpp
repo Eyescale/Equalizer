@@ -4,6 +4,7 @@
 
 #include "debug.h"
 
+#ifndef NDEBUG
 EQ_EXPORT void eqBase::abortDebug()
 {
     // if EQ_ABORT_WAIT is set, spin forever to allow identifying and debugging
@@ -13,3 +14,4 @@ EQ_EXPORT void eqBase::abortDebug()
 
     ::abort();
 }
+#endif
