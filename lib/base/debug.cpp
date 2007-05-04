@@ -8,7 +8,7 @@
 EQ_EXPORT void eqBase::abortDebug()
 {
     // if EQ_ABORT_WAIT is set, spin forever to allow identifying and debugging
-    // of crashed nodes.
+    // crashed nodes.
     if( getenv( "EQ_ABORT_WAIT" ))
         while( true );
 

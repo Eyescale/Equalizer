@@ -68,6 +68,9 @@ namespace eq
          * @param farPlane a pointer to store the far plane.
          */
         void getNearFar( float *nearPlane, float *farPlane );
+
+        /** Return a stable, unique color for this channel. */
+        vmml::Vector3ub getUniqueColor() const;
         //*}
 
         /**

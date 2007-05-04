@@ -72,19 +72,8 @@ void Channel::frameDraw( const uint32_t frameID )
     }
     else if( !range.isFull( )) // Color DB-patches
     {
-        uint32_t value = reinterpret_cast< size_t >( this ) & 0xffffffffu;
-        uint8_t  red   = 0;
-        uint8_t  green = 0;
-        uint8_t  blue  = 0;
-
-        for( unsigned i=0; i<8; ++i )
-        {
-            red   |= ( value&1 << (7-i) ); value >>= 1;
-            green |= ( value&1 << (7-i) ); value >>= 1;
-            blue  |= ( value&1 << (7-i) ); value >>= 1;
-        }
-
-        glColor3ub( red, green, blue );
+        const vmml::Vector3ub color = getUniqueColor();
+        glColor3ub( color.r, color.g, color.b );
     }
 
     if( model )
@@ -143,7 +132,6 @@ void Channel::frameDraw( const uint32_t frameID )
         glVertex3f( -.25f, 0.f,  .25f );
         glVertex3f( -.25f, 0.f, -.25f );
         glEnd();
-        glFinish();
     }
 }
 

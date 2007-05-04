@@ -939,7 +939,6 @@ CommandResult Node::_cmdConnect( Command& command )
 
         // close connection
         _connectionSet.removeConnection( connection );
-        connection->close();
         return eqNet::COMMAND_HANDLED;
     }
 

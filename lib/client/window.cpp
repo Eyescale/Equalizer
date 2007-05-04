@@ -1183,7 +1183,7 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
 
     if( !_queryDrawableConfig( ))
     {
-        EQERROR << "querying of drawable configuration failed." << endl;
+        _error += " Querying of drawable configuration failed.";
         reply.result = false;
         send( node, reply, _error );
         return eqNet::COMMAND_HANDLED;

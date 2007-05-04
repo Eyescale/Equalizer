@@ -135,6 +135,21 @@ void eq::Channel::setNearFar( const float nearPlane, const float farPlane )
     send( getServer(), packet );
 }
 
+vmml::Vector3ub Channel::getUniqueColor() const
+{
+    vmml::Vector3ub color = vmml::Vector3ub::ZERO;
+    uint32_t  value = (reinterpret_cast< size_t >( this ) & 0xffffffffu) + getID();
+
+    for( unsigned i=0; i<8; ++i )
+    {
+        color.r |= ( value&1 << (7-i) ); value >>= 1;
+        color.g |= ( value&1 << (7-i) ); value >>= 1;
+        color.b |= ( value&1 << (7-i) ); value >>= 1;
+    }
+    
+    return color;
+}
+
 //---------------------------------------------------------------------------
 // operations
 //---------------------------------------------------------------------------
@@ -146,19 +161,8 @@ void Channel::frameClear( const uint32_t frameID )
 #ifndef NDEBUG
     if( getenv( "EQ_TAINT_CHANNELS" ))
     {
-        uint32_t value = reinterpret_cast< size_t >( this ) & 0xffffffffu;
-        uint8_t  red   = 0;
-        uint8_t  green = 0;
-        uint8_t  blue  = 0;
-
-        for( unsigned i=0; i<8; ++i )
-        {
-            red   |= ( value&1 << (7-i) ); value >>= 1;
-            green |= ( value&1 << (7-i) ); value >>= 1;
-            blue  |= ( value&1 << (7-i) ); value >>= 1;
-        }
-
-        glClearColor( red / 255.0f, green / 255.0f, blue / 255.0f, 1.0f );
+        const vmml::Vector3ub color = getUniqueColor();
+        glClearColor( color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, 1.0f );
     }
 #endif // DEBUG
 
