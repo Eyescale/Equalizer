@@ -361,6 +361,7 @@ const uint8_t* Image::compressPixelData( const Frame::Buffer buffer,
     while( !markerOk )
     {
         --marker; // Could guess random marker?
+        markerOk = true;
         EQWARN << "Trying marker " << marker << endl;
         
         for( uint32_t i=0; i<nWords; ++i )
