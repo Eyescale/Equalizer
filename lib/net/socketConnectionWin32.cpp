@@ -313,7 +313,7 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
         || got == 0 )
     {
         EQWARN << "Read complete failed: " << EQ_SOCKET_ERROR 
-               << ", socket closed" << endl;
+               << ", closing connection" << endl;
         close();
         return -1;
     }

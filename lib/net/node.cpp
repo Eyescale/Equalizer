@@ -631,6 +631,11 @@ bool Node::_handleData()
     EQASSERT( gotData );
     EQASSERT( _receivedCommand->isValid( ));
 
+    if( !gotData )
+    {
+        EQERROR << "Incomplete packet read: " << *_receivedCommand << endl;
+        return false;
+    }
     // If no node is associated with the connection, the incoming packet has to
     // be a one of the connection initialization packets
     EQASSERTINFO( node.isValid() ||
