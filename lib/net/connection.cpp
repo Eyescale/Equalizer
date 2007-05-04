@@ -137,7 +137,7 @@ bool Connection::recv( void* buffer, const uint64_t bytes )
         else if( got == 0 )
         {
             // ConnectionSet::select may report data on an 'empty' connection.
-            // Since we have nothing read yet, we have hit this case.
+            // If we have nothing read so far, we have hit this case.
             if( bytesLeft == bytes )
                 return false;
 
