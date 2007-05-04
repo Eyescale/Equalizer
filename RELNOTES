@@ -1,18 +1,18 @@
 
-                      Release Notes for Equalizer 0.3 Beta
+                        Release Notes for Equalizer 0.3
 
-   Welcome to Equalizer 0.3 beta, a framework for the development and
-   deployment of scalable multipipe applications, based on C++ and OpenGL.
-   The major new feature in Equalizer 0.3 beta is support for the Windows
-   operating system.
+   Welcome to Equalizer 0.3, a framework for the development and deployment
+   of scalable multipipe applications, based on C++ and OpenGL. The major new
+   feature in Equalizer 0.3 is support for the Windows XP operating system.
 
-   Equalizer 0.3 beta is an beta release, and therefore intended as preview
-   and evaluation snapshot for application developers and early adopters.
+   Equalizer 0.3 is a beta release, and therefore intended as preview and
+   evaluation snapshot for application developers and early adopters.
 
   Features
 
    Equalizer provides the following major features to facilitate the
-   development and deployment of multipipe applications:
+   development and deployment of scalable OpenGL applications. A detailed
+   feature list can be found on the Equalizer website.
 
      * Runtime Configurability: An Equalizer application can run on any
        configuration, from laptops to large scale visualization clusters,
@@ -27,7 +27,7 @@
        objects.
      * Support for Stereo and Immersive Environments: Equalizer supports both
        active and passive stereo rendering, as well as the head tracking,
-       which is required for immersive installations.
+       which is required for immersive Virtual Reality installations.
 
   New in this release
 
@@ -39,37 +39,43 @@
      * Support for Windows XP (i386, x64) and Visual Studio 2005
      * Anaglyphic stereo rendering
      * Improved distributed object support
+     * Standalone (server-less) application support
      * Nonthreaded rendering from the main application thread
      * Addressing of indidual graphic cards on Windows using the
        WGL_NV_gpu_affinity extension
+     * Support for explicit SDP connections
+     * New tool to create typical configuration files
      * New Equalizer-based benchmark tool for pixel readback and draw
        operations
      * New Equalizer-based benchmark tool for network bandwidth
+     * Support and example code for resident (pre-started) render clients
      * Support for application-specific config events
 
     Bug Fixes
 
-   Equalizer 0.3 beta includes various bugfixes over the previous release.
+   Equalizer 0.3 includes various bugfixes over the previous release.
 
     New Documentation
 
-     * Anaglyphic Stereo Specification
+     * Anaglyphic Stereo
      * Nonthreaded Rendering
-     * Infiniband Setup
+     * Infiniband Setup and Configuration
+     * Resident Render Clients
+     * Standalone Application Support
+     * Node Connection Setup
+     * Configuration Tool
 
     Known Bugs
 
-     * Infiniband network performance is too slow.
-
   Supported Platforms
 
-   The platforms supported below are the primary development platforms.
-   Equalizer is designed to run on a variety of platforms, including all Unix
-   variants and the Windows operating system. Equalizer 0.3 beta supports:
+   Equalizer is a cross-platform toolkit, designed to run on any modern
+   operating system, including all Unix variants and the Windows operating
+   system. Version 0.3 has been tested on:
 
     Operating System Support
 
-     * Linux: SuSE Linux 10 (x64, i386), Ubuntu 6.10 (i386)
+     * Linux: Ubuntu 6.10 (x64, i386), RedHat Enterprise Linux 4 (x64, i386)
      * Windows: XP with Visual Studio 2005 (i386, x64)
      * Mac OS X: 10.4 (PowerPC, i386)
 
@@ -77,7 +83,7 @@
 
      * X11: Full support for all documented features.
      * WGL: Full support for all documented features.
-     * CGL: Preliminary fullscreen support, no event handling
+     * CGL: Preliminary support: fullscreen only, no event handling
 
   Documentation
 
@@ -92,7 +98,6 @@
    Technical questions can be posted to the Developer Mailing List, or
    directly to info@equalizergraphics.com.
 
-   Commercial support, feature requests, as well as software development and
-   porting services are available. Please contact info@equalizergraphics.com
-   for further information.
-
+   Commercial support, feature requests, custom software development and
+   porting services are available from Tungsten Graphics. Please contact
+   sales@tungstengraphics.com for further information.
