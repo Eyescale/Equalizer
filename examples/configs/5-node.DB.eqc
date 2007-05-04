@@ -8,7 +8,6 @@ server
 {
     config
     {
-        latency 2
         node
         {
             pipe 

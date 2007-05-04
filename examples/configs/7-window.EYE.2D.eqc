@@ -1,4 +1,6 @@
-# single pipe, multi-level Eye / 2D configuration
+# single pipe, multi-level Eye / 2D configuration. 
+# See 4-window.EYE.2D.eqc for optimized version without composite-only channels.
+
 server
 {
     config

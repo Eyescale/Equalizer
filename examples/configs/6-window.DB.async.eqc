@@ -1,7 +1,7 @@
 # single-pipe three-to-one sort-last, direct-send pipelined demo configuration
 # The assembly happens pipelined from the draw operation in another window. 
 # All windows, with the exception of the final destination view on assemble3 
-# should be offscreen.
+# should be offscreen (pending on Equalizer FBO support).
 
 global
 {
@@ -12,7 +12,6 @@ server
 {
     config
     {
-        latency 2
         appNode
         {
             pipe 

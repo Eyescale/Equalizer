@@ -1,0 +1,12 @@
+
+                 Example Equalizer Configuration Files
+
+This directory contains some Equalizer configuration files. Each
+configuration has a short description explaining it's purpose.
+
+The configuration file format is described in:
+ <http://www.equalizergraphics.com/documents/design/fileFormat.html>.
+
+Sort-first, sort-last and sort-last direct-send configurations can be
+automatically generated for any number of nodes using the configTool,
+located in src/tools/configTool.

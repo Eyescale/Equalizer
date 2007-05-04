@@ -1,3 +1,4 @@
+# 'Hello, World!' config: one window rendering from the application process.
 server
 {
     config

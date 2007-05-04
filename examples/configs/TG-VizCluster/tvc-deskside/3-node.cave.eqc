@@ -1,5 +1,6 @@
 # Configuration to drive a three-sided 2x2m CAVE(tm)
-# Adapt wall descriptions in compound tree to match physical walls
+# Adapt wall descriptions in the compound tree to match physical wall size
+
 global
 {
     EQ_WINDOW_IATTR_HINT_FULLSCREEN ON

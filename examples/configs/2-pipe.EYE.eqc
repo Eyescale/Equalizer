@@ -43,12 +43,9 @@ server
                 eye [ RIGHT ]
                 outputframe {}
             }
-            compound
-            {
-                eye [ RIGHT ]
-                task [ ASSEMBLE ]
-                inputframe { name "frame.channel-right" }
-            }
+
+            eye [ RIGHT ]
+            inputframe { name "frame.channel-right" }
         }
     }    
 }

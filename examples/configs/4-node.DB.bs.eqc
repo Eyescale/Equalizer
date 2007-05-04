@@ -9,7 +9,6 @@ server
 {
     config
     {
-        latency 2
         appNode
         {
             connection { hostname "10.42.42.1" }

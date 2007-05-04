@@ -3,6 +3,7 @@ include $(TOP)/make/system.mk
 .PHONY: $(CONFIGS)
 
 CONFIG_SRC = \
+	README \
 	$(wildcard *.eqc) \
 	$(wildcard TG-VizCluster/tvc-deskside/*.eqc)
 

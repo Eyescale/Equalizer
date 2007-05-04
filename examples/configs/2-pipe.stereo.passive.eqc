@@ -1,5 +1,5 @@
 # two pipe fullscreen config for passive stereo output onto a 2x2 meter wall
-# Note: the root compounds channel is chosen arbitrarily to define the frustum.
+# Note: the root compound channel is chosen arbitrarily to define the frustum.
 
 server
 {

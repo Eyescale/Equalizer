@@ -1,4 +1,4 @@
-# single pipe eye (active stereo) demo configuration
+# single pipe eye decomposition demo configuration
 server
 {
     config
@@ -29,7 +29,6 @@ server
         compound
         {
             channel "channel2"
-            eye     [ LEFT ]
             attributes{ stereo_mode ANAGLYPH }
 
             wall
@@ -39,19 +38,19 @@ server
                 top_left     [ -.32  .2 -1 ]
             }
 
-            compound {} // left eye draw operation on channel2
-            compound    // right eye draw operation on channel1
+            compound  # left eye draw operation on channel2
+            {
+                eye     [ LEFT ]
+            }
+            compound  # right eye draw operation on channel1
             { 
                 channel "channel1"
                 eye     [ RIGHT ]
                 outputframe {}
             }
-            compound    // right eye 'copy' operation on channel2
-            {
-                task [ ASSEMBLE ]
-                eye  [ RIGHT ]
-                inputframe { name "frame.channel1" }
-            }
+            # right eye 'copy' operation on channel2
+            eye  [ RIGHT ]
+            inputframe { name "frame.channel1" }
         }
     }    
 }
