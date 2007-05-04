@@ -1,7 +1,7 @@
 Summary: A framework for the development and deployment of scalable graphics applications
 Name: Equalizer
 Version: 0.3.0
-Release: beta
+Release: 0
 License: LGPL
 Group: System Environment/Libraries
 Source: http://www.equalizergraphics.com/downloads/Equalizer-0.3.0.tar.gz
