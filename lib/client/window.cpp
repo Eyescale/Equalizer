@@ -444,11 +444,11 @@ bool eq::Window::configInitCGL()
     // build backoff list, least important attribute last
     vector<int> backoffAttributes;
     if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
-        backoffAttributes.push_back( GLX_DOUBLEBUFFER );
+        backoffAttributes.push_back( kCGLPFADoubleBuffer );
     if( stencilSize == AUTO )
-        backoffAttributes.push_back( GLX_STENCIL_SIZE );
+        backoffAttributes.push_back( kCGLPFAStencilSize );
     if( getIAttribute( IATTR_HINT_STEREO ) == AUTO )
-        backoffAttributes.push_back( GLX_STEREO );
+        backoffAttributes.push_back( kCGLPFAStereo );
 
     // choose pixel format
     CGLPixelFormatObj pixelFormat = 0;
@@ -816,7 +816,9 @@ bool eq::Window::_queryDrawableConfig()
     glGetBooleanv( GL_DOUBLEBUFFER, &result );
     _drawableConfig.doublebuffered = result;
 
-    glGetIntegerv( GL_STENCIL_BITS, &_drawableConfig.stencilBits );
+    GLint stencilBits;
+    glGetIntegerv( GL_STENCIL_BITS, &stencilBits );
+    _drawableConfig.stencilBits = stencilBits;
 
 #if 0
     // OpenGL Extensions

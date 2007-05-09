@@ -242,7 +242,7 @@ namespace eqNet
          * 
          * @param cd the connection description.
          */
-        void addConnectionDescription(eqBase::RefPtr<ConnectionDescription> cd);
+        void addConnectionDescription( eqBase::RefPtr<ConnectionDescription> cd );
         
         /** 
          * Removes a connection description.

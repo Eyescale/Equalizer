@@ -306,7 +306,7 @@ bool Node::disconnect( RefPtr<Node> node )
     return true;
 }
 
-void Node::addConnectionDescription(eqBase::RefPtr<ConnectionDescription> cd)
+void Node::addConnectionDescription( eqBase::RefPtr<ConnectionDescription> cd )
 {
     _connectionDescriptions.push_back( cd ); 
 }
