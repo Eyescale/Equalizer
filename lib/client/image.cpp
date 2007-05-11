@@ -382,7 +382,7 @@ const uint8_t* Image::compressPixelData( const Frame::Buffer buffer,
     compressedPixels.resize( 2 * size + sizeof( uint32_t ));
 #endif
 
-    uint32_t* out = reinterpret_cast<uint32_t*>( compressedPixels.data);
+    uint32_t* out = reinterpret_cast<uint32_t*>( compressedPixels.data );
 
     out[ 0 ] = marker;
 

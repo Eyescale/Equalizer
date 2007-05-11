@@ -8,10 +8,17 @@ A: Equalizer uses the libuuid to generate unique node identifiers.
    Under other Unix operating systems, the uuid library is either a
    separate package, or may be part of DCE, from which it originates.
 
-
 Q: Debian/Ubuntu: As soon as I am using scalable rendering or a swap
    barrier, one of my nodes crashes.
 A: The node's hostname is mapped to a local IP address in /etc/hosts,
    rather than a public one. Using another name for the node in the
    configuration file, e.g., the fully qualified hostname or IP address,
    solves the problem.
+
+Q: OS X: I am using the GLX version , and I've configured a fullscreen
+   window, but still see the menu bar and dock. What's the problem?
+A: The application is responsible for hiding the menu bar and
+   dock. Unfortunately that application is X11.app, not the actual X11
+   application. You can change X11 to automatically hide the menu and
+   dock using LSUIPresentationMode, see
+   http://www.macosxhints.com/article.php?story=20070118003804854.

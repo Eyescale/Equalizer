@@ -51,7 +51,6 @@ typedef void* GLXContext;
 #endif
 
 #ifndef CGL
-typedef int32_t CGDirectDisplayID;
 typedef void*   CGLContextObj;
 #endif
 

@@ -661,7 +661,7 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
 
     wglMakeCurrent( dc, context );
 
-	PFNWGLENUMGPUSNVPROC enumGPUs = (PFNWGLENUMGPUSNVPROC)
+    PFNWGLENUMGPUSNVPROC enumGPUs = (PFNWGLENUMGPUSNVPROC)
         ( wglGetProcAddress( "wglEnumGpusNV" ));
     PFNWGLCREATEAFFINITYDCNVPROC createAffinityDC = 
         (PFNWGLCREATEAFFINITYDCNVPROC)
