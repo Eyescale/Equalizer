@@ -51,6 +51,9 @@ typedef void* GLXContext;
 #endif
 
 #ifndef CGL
+#  ifndef Darwin
+typedef int32_t CGDirectDisplayID;
+#  endif
 typedef void*   CGLContextObj;
 #endif
 
