@@ -70,7 +70,7 @@ namespace eq
         void getNearFar( float *nearPlane, float *farPlane );
 
         /** Return a stable, unique color for this channel. */
-        vmml::Vector3ub getUniqueColor() const;
+        const vmml::Vector3ub& getUniqueColor() const { return _color; }
         //*}
 
         /**
@@ -306,6 +306,9 @@ namespace eq
 
         /** The name. */
         std::string    _name;
+        
+        /** A unique color assigned by the server during config init. */
+        vmml::Vector3ub _color;
 
         /** The reason for the last error. */
         std::string     _error;

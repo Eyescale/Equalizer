@@ -248,6 +248,8 @@ namespace eqs
         /** common code for all constructors */
         void _construct();
 
+        vmml::Vector3ub _getUniqueColor() const;
+
         void _sendConfigInit( const uint32_t initID );
         void _sendConfigExit();
 

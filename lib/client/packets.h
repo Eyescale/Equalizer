@@ -682,11 +682,12 @@ namespace eq
                 name[0] = '\0';
             }
 
-        uint32_t      requestID;
-        uint32_t      initID;
-        int32_t       iattr[eq::Channel::IATTR_ALL];
-        PixelViewport pvp;
-        Viewport      vp;
+        uint32_t        requestID;
+        uint32_t        initID;
+        int32_t         iattr[eq::Channel::IATTR_ALL];
+        PixelViewport   pvp;
+        Viewport        vp;
+        vmml::Vector3ub color;
         EQ_ALIGN8( char name[8] );
     };
 

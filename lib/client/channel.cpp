@@ -135,21 +135,6 @@ void eq::Channel::setNearFar( const float nearPlane, const float farPlane )
     send( getServer(), packet );
 }
 
-vmml::Vector3ub Channel::getUniqueColor() const
-{
-    vmml::Vector3ub color = vmml::Vector3ub::ZERO;
-    uint32_t  value = (reinterpret_cast< size_t >( this ) & 0xffffffffu) + getID();
-
-    for( unsigned i=0; i<8; ++i )
-    {
-        color.r |= ( value&1 << (7-i) ); value >>= 1;
-        color.g |= ( value&1 << (7-i) ); value >>= 1;
-        color.b |= ( value&1 << (7-i) ); value >>= 1;
-    }
-    
-    return color;
-}
-
 //---------------------------------------------------------------------------
 // operations
 //---------------------------------------------------------------------------
@@ -410,8 +395,9 @@ eqNet::CommandResult Channel::_reqConfigInit( eqNet::Command& command )
         _setPixelViewport( packet->pvp );
     else
         _setViewport( packet->vp );
-    _name = packet->name;
 
+    _name  = packet->name;
+    _color = packet->color;
     for( uint32_t i=0; i<IATTR_ALL; ++i )
         _iAttributes[i] = packet->iattr[i];
 

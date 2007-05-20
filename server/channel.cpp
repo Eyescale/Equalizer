@@ -88,6 +88,21 @@ void Channel::unrefUsed()
         _window->unrefUsed(); 
 }
 
+vmml::Vector3ub Channel::_getUniqueColor() const
+{
+    vmml::Vector3ub color = vmml::Vector3ub::ZERO;
+    uint32_t  value = (reinterpret_cast< size_t >( this ) & 0xffffffffu);
+
+    for( unsigned i=0; i<8; ++i )
+    {
+        color.r |= ( value&1 << (7-i) ); value >>= 1;
+        color.g |= ( value&1 << (7-i) ); value >>= 1;
+        color.b |= ( value&1 << (7-i) ); value >>= 1;
+    }
+    
+    return color;
+}
+
 //----------------------------------------------------------------------
 // viewport
 //----------------------------------------------------------------------
@@ -161,6 +176,7 @@ void Channel::_sendConfigInit( const uint32_t initID )
     _pendingRequestID = _requestHandler.registerRequest(); 
     packet.requestID  = _pendingRequestID;
     packet.initID     = initID;
+    packet.color      = _getUniqueColor();
     if( _fixedPVP )
         packet.pvp    = _pvp; 
     else
