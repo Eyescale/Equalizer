@@ -148,8 +148,6 @@ void Pipe::setXDisplay( Display* display )
                    << " display " << displayNumber
                    << ", but pipe has port " << _port << endl;
 
-            _port = displayNumber;
-        
             if( _device != EQ_UNDEFINED_UINT32 &&
                 DefaultScreen( display ) != (int)_device )
                 
@@ -157,7 +155,8 @@ void Pipe::setXDisplay( Display* display )
                        << " default screen " << DefaultScreen( display ) 
                        << ", but pipe has screen " << _device << endl;
             
-            _device  = DefaultScreen( display );
+            //_port = displayNumber;
+            //_device  = DefaultScreen( display );
         }
     }
 

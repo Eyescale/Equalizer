@@ -14,6 +14,7 @@ ARCH    = $(shell uname)
 SUBARCH = $(shell uname -m)
 
 include $(TOP)/make/$(ARCH).mk
+-include $(TOP)/make/local.mk
 
 # general variables, targets, etc.
 VARIANTS       ?= $(SUBARCH)
