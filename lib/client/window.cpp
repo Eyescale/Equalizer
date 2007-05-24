@@ -376,10 +376,10 @@ bool eq::Window::configInitGLX()
     setXDrawable( drawable );
 
     // create context
-    Pipe*      pipe        = getPipe();
-    Window*    firstWindow = pipe->getWindow( 0 );
-    GLXContext shareCtx    = firstWindow->getGLXContext();
-    GLXContext context     = glXCreateContext( display, visInfo, shareCtx, True );
+    Pipe*          pipe = getPipe();
+    Window* firstWindow = pipe->getWindow( 0 );
+    GLXContext shareCtx = firstWindow->getGLXContext();
+    GLXContext  context = glXCreateContext( display, visInfo, shareCtx, True );
 
     if ( !context )
     {

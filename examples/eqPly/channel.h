@@ -28,7 +28,9 @@ namespace eqPly
 
     private:
         static void _drawBBoxCB( Model::BBox *bbox, void *userData );
+
         void _drawBBox( const Model::BBox* bbox );
+        void _drawLogo();
         void _initFrustum( vmml::FrustumCullerf& frustum );
     };
 }

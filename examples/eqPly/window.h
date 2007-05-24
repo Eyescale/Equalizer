@@ -22,6 +22,9 @@ namespace eqPly
         GLuint newDisplayList( const void* key )
             { return _objects->newList( key ); }
 
+        void getLogoTexture( GLuint& id, vmml::Vector2i& size ) const
+            { id = _logoTexture; size = _logoSize; }
+
     protected:
         virtual ~Window() {}
         virtual bool configInit( const uint32_t initID );
@@ -29,6 +32,11 @@ namespace eqPly
 
     private:
         eqBase::RefPtr< ObjectManager > _objects;
+
+        GLuint         _logoTexture;
+        vmml::Vector2i _logoSize;
+
+        void _loadLogo();
     };
 }
 

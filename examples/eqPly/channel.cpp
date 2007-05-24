@@ -133,6 +133,7 @@ void Channel::frameDraw( const uint32_t frameID )
         glVertex3f( -.25f, 0.f, -.25f );
         glEnd();
     }
+    _drawLogo();
 }
 
 void Channel::_drawBBoxCB( Model::BBox *bbox, void *userData )
@@ -200,6 +201,60 @@ void Channel::_drawBBox( const Model::BBox *bbox )
     glEndList();
 
     glCallList( displayList );
+}
+
+void Channel::_drawLogo()
+{
+    const Window*  window = static_cast<Window*>( getWindow( ));
+    GLuint         texture;
+    vmml::Vector2i size;
+
+    window->getLogoTexture( texture, size );
+    if( !texture )
+        return;
+    
+    eq::PixelViewport pvp = getPixelViewport();
+    const eq::Viewport vp = getViewport();
+    
+    pvp.x = ( pvp.w / vp.w ) * vp.x;
+    pvp.y = ( pvp.h / vp.h ) * vp.y;
+    
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();
+    glOrtho( pvp.x, pvp.x + pvp.w, pvp.y, pvp.y + pvp.h, 0., 1. );
+
+    glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity();
+
+    glDisable( GL_DEPTH_TEST );
+    glDisable( GL_LIGHTING );
+    glEnable( GL_BLEND );
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+    glEnable( GL_TEXTURE_RECTANGLE_NV );
+    glBindTexture( GL_TEXTURE_RECTANGLE_NV, texture );
+    glTexParameteri( GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    glTexParameteri( GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+
+    glColor3f( 1.0f, 1.0f, 1.0f );
+    glBegin( GL_TRIANGLE_STRIP ); {
+        glTexCoord2f( 0.0f, 0.0f );
+        glVertex3f( 0.0f, 0.0f, 0.0f );
+        
+        glTexCoord2f( size.x, 0.0f );
+        glVertex3f( size.x, 0.0f, 0.0f );
+        
+        glTexCoord2f( 0.0f, size.y );
+        glVertex3f( 0.0f, size.y, 0.0f );
+        
+        glTexCoord2f( size.x, size.y );
+        glVertex3f( size.x, size.y, 0.0f );
+    } glEnd();
+
+    glDisable( GL_TEXTURE_RECTANGLE_NV );
+    glDisable( GL_BLEND );
+    glEnable( GL_LIGHTING );
+    glEnable( GL_DEPTH_TEST );
 }
 
 void Channel::_initFrustum( vmml::FrustumCullerf& culler )

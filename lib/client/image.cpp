@@ -618,17 +618,21 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
         image.close();
         return false;
     }
+
+    const size_t depth = header.depth;
+
     if( header.bytesPerChannel != 1 || header.nDimensions != 3 || 
-        header.minValue != 0 || header.maxValue != 255 || header.colorMode != 0)
+        header.minValue != 0 || header.maxValue != 255 || 
+        header.colorMode != 0 ||
+        ( buffer == Frame::BUFFER_COLOR && depth != 3 && depth != 4 ) ||
+        ( buffer == Frame::BUFFER_DEPTH && depth != 4 ))
     {
         EQERROR << "Unsupported image type " << filename << endl;
         image.close();
         return false;
     }
-
-
+    
     const size_t     nPixels = header.width * header.height;
-    const size_t     depth   = header.depth;
     const size_t     nBytes  = nPixels * depth;
     Pixels           pixels;
     
@@ -647,6 +651,19 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
     }
 
     setPixelViewport( PixelViewport( 0, 0, header.width, header.height ));
+    
+    if( buffer == Frame::BUFFER_COLOR )
+    {
+        setFormat( buffer, (depth==3) ? GL_RGB : GL_RGBA );
+        setType( buffer, GL_UNSIGNED_BYTE );
+    }
+    else
+    {
+        EQASSERT( buffer == Frame::BUFFER_DEPTH );
+        setFormat( buffer, GL_DEPTH_COMPONENT );
+        setType( buffer, GL_FLOAT );
+    }
+
     setPixelData( buffer, pixels.data );
 
     image.close();

@@ -29,6 +29,14 @@ namespace eq
         void   deleteList( const T& key );
         void   deleteList( const GLuint id );
 
+        GLuint getTexture( const T& key );
+        GLuint newTexture( const T& key );
+        GLuint obtainTexture( const T& key );
+        void   releaseTexture( const T& key );
+        void   releaseTexture( const GLuint id );
+        void   deleteTexture( const T& key );
+        void   deleteTexture( const GLuint id );
+
     private:
         struct Object
         {
@@ -39,8 +47,12 @@ namespace eq
 
         typedef stde::hash_map< GLuint, Object > ObjectIDHash;
         typedef stde::hash_map< T, Object* >     ObjectKeyHash;
+
         ObjectIDHash  _listsID;
         ObjectKeyHash _listsKey;
+
+        ObjectIDHash  _texturesID;
+        ObjectKeyHash _texturesKey;
     };
 }
 
