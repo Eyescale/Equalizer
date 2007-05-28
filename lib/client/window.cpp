@@ -452,7 +452,12 @@ bool eq::Window::configInitCGL()
 
     // choose pixel format
     CGLPixelFormatObj pixelFormat = 0;
+#ifdef MAC_OS_X_VERSION_10_5
+    GLint numPixelFormats = 0;
+#else
     long numPixelFormats = 0;
+#endif
+
     const CGLPixelFormatAttribute* cglAttribs =
         (CGLPixelFormatAttribute*)&attributes.front();
     CGLChoosePixelFormat( cglAttribs, &pixelFormat, &numPixelFormats );
