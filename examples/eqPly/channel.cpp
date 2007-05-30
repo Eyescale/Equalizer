@@ -216,8 +216,8 @@ void Channel::_drawLogo()
     eq::PixelViewport pvp = getPixelViewport();
     const eq::Viewport vp = getViewport();
     
-    pvp.x = ( pvp.w / vp.w ) * vp.x;
-    pvp.y = ( pvp.h / vp.h ) * vp.y;
+    pvp.x = static_cast<int32_t>(( pvp.w / vp.w ) * vp.x );
+    pvp.y = static_cast<int32_t>(( pvp.h / vp.h ) * vp.y );
     
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
