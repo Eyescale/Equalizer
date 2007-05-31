@@ -30,6 +30,7 @@ namespace eq
 
         Viewport       vp;             //<! fractional viewport wrt dest channel
         Range          range;          //<! database-range wrt to dest channel
+        vmml::Vector2i offset;         //<! absolute position wrt dest channel
         Eye            eye;            //<! current eye pass
     };
 

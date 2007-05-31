@@ -144,8 +144,8 @@ void Channel::_drawBBoxCB( Model::BBox *bbox, void *userData )
 
 void Channel::_drawBBox( const Model::BBox *bbox )
 {
-    Window*          window      = static_cast<Window*>( getWindow( ));
-    GLuint           displayList = window->getDisplayList( bbox );
+    Window* window      = static_cast<Window*>( getWindow( ));
+    GLuint  displayList = window->getDisplayList( bbox );
 
     if( displayList )
     {
@@ -198,14 +198,14 @@ void Channel::_drawBBox( const Model::BBox *bbox )
         }
 
     glEnd();
-    glEndList();
 
+    glEndList();
     glCallList( displayList );
 }
 
 void Channel::_drawLogo()
 {
-    const Window*  window = static_cast<Window*>( getWindow( ));
+    const Window*  window      = static_cast<Window*>( getWindow( ));
     GLuint         texture;
     vmml::Vector2i size;
 
@@ -213,15 +213,12 @@ void Channel::_drawLogo()
     if( !texture )
         return;
     
-    eq::PixelViewport pvp = getPixelViewport();
-    const eq::Viewport vp = getViewport();
-    
-    pvp.x = static_cast<int32_t>(( pvp.w / vp.w ) * vp.x );
-    pvp.y = static_cast<int32_t>(( pvp.h / vp.h ) * vp.y );
-    
+    const eq::PixelViewport pvp    = getPixelViewport();
+    const vmml::Vector2i    offset = getPixelOffset();
+
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-    glOrtho( pvp.x, pvp.x + pvp.w, pvp.y, pvp.y + pvp.h, 0., 1. );
+    glOrtho( offset.x, offset.x + pvp.w, offset.y, offset.y + pvp.h, 0., 1. );
 
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
@@ -233,8 +230,8 @@ void Channel::_drawLogo()
 
     glEnable( GL_TEXTURE_RECTANGLE_NV );
     glBindTexture( GL_TEXTURE_RECTANGLE_NV, texture );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glTexParameteri( GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri( GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
     glColor3f( 1.0f, 1.0f, 1.0f );
     glBegin( GL_TRIANGLE_STRIP ); {

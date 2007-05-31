@@ -310,6 +310,11 @@ const PixelViewport& Channel::getPixelViewport() const
     return _context ? _context->pvp : _pvp;
 }
 
+const vmml::Vector2i& Channel::getPixelOffset() const
+{
+    return _context ? _context->offset : vmml::Vector2i::ZERO;
+}
+
 void Channel::applyViewport()
 {
     const PixelViewport& pvp = getPixelViewport();

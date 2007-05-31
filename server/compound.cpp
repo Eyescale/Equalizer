@@ -832,11 +832,13 @@ void Compound::_setupRenderContext( eq::RenderContext& context,
     context.pvp            = _inherit.pvp;
     context.vp             = _inherit.vp;
     context.range          = _inherit.range;
+    context.offset.x       = _inherit.pvp.x;
+    context.offset.y       = _inherit.pvp.y;
     context.eye            = data->eye;
     context.buffer         = _getDrawBuffer( data );
     context.drawBufferMask = _getDrawBufferMask( data );
-    const Channel* channel = data->channel;
 
+    const Channel* channel = data->channel;
     if( channel != _inherit.channel /* && !use dest channel origin hint set */ )
     {
         const eq::PixelViewport& nativePVP = channel->getPixelViewport();

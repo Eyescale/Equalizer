@@ -58,7 +58,8 @@ namespace eq
         /** 
          * Set the X11 drawable ID for this window.
          * 
-         * This function should only be called from configInit() or configExit().
+         * This function should only be called from configInit() or 
+         * configExit().
          *
          * @param drawable the X11 drawable ID.
          */
@@ -70,7 +71,8 @@ namespace eq
         /** 
          * Set the GLX rendering context for this window.
          * 
-         * This function should only be called from configInit() or configExit().
+         * This function should only be called from configInit() or
+         * configExit().
          *
          * @param drawable the GLX rendering context.
          */

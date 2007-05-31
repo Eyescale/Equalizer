@@ -93,6 +93,17 @@ namespace eq
         /** @return the channel's current pixel viewport. */
         const PixelViewport& getPixelViewport() const;
 
+        /**
+         * Get the channel's current position wrt the destination channel.
+         *
+         * Note that computing this value from the current viewport and pixel
+         * viewport inaccurate because it neglects rounding of the pixel
+         * viewport done by the server.
+         *
+         * @return the channel's current position wrt the destination channel.
+         */
+        const vmml::Vector2i& getPixelOffset() const;
+
         /** @return the view frustum for the current rendering task. */
         const vmml::Frustumf& getFrustum() const;
 
