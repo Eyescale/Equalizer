@@ -16,6 +16,8 @@ namespace eqPly
     class Window : public eq::Window
     {
     public:
+        Window() : _logoTexture( 0 ) {}
+
         // display list cache (windows share the context and object manager)
         GLuint getDisplayList( const void* key )
             { return _objects->getList( key ); }
