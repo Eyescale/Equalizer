@@ -31,6 +31,7 @@ int main( int argc, char **argv )
     const uint8_t* compressedData;
     const uint8_t* data;
     uint32_t       size;
+    uint32_t       resultSize;
     Clock          clock;
     float          time;
 
@@ -45,8 +46,10 @@ int main( int argc, char **argv )
          << endl;
 
     clock.reset();
-    TEST( size == 
-          destImage.decompressPixelData( Frame::BUFFER_COLOR, compressedData ));
+    resultSize = destImage.decompressPixelData( Frame::BUFFER_COLOR, 
+                                                compressedData );
+    TESTINFO( size == resultSize, size << " == " << resultSize );
+          
     time = clock.getTimef();
 
     cout << argv[0] << ": Color " << size  << "->" << colorSize << " " << time
@@ -55,7 +58,7 @@ int main( int argc, char **argv )
          << endl;
 
     data = destImage.getPixelData( Frame::BUFFER_COLOR );
-    for( uint32_t i=0; i<colorSize; ++i )
+    for( uint32_t i=0; i<colorSize-7; ++i ) // last 7 pixels can be unitialized
         TEST( colorData[i] == data[i] );
 
 
@@ -70,8 +73,9 @@ int main( int argc, char **argv )
          << endl;
 
     clock.reset();
-    TEST( size == 
-          destImage.decompressPixelData( Frame::BUFFER_DEPTH, compressedData ));
+    resultSize = destImage.decompressPixelData( Frame::BUFFER_DEPTH, 
+                                                compressedData );
+    TESTINFO( size == resultSize, size << " == " << resultSize );
     time = clock.getTimef();
 
     cout << argv[0] << ": Depth " << size  << "->" << depthSize << " " << time
@@ -80,6 +84,6 @@ int main( int argc, char **argv )
          << endl;
 
     data = destImage.getPixelData( Frame::BUFFER_DEPTH );
-    for( uint32_t i=0; i<depthSize; ++i )
+    for( uint32_t i=0; i<depthSize-7; ++i ) // last 7 pixels can be unitialized
         TEST( depthData[i] == data[i] );
 }

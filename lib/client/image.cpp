@@ -168,12 +168,16 @@ void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp )
     _pvp.y = 0;
 }
 
-void Image::Pixels::resize( const uint32_t size )
+void Image::Pixels::resize( uint32_t size )
 {
     valid = true;
 
     if( maxSize >= size )
         return;
+    
+    // round to next nearest 8-byte alignment (compress uses 8-byte tokens)
+    if( size%8 )
+        size += 8 - (size%8);
 
     delete [] data;
     data    = new uint8_t[size];
@@ -297,23 +301,23 @@ uint32_t Image::decompressPixelData( const Frame::Buffer buffer,
     pixels.resize( size );
     compressedPixels.valid = false;
 
-    const uint32_t* in  = reinterpret_cast<const uint32_t*>( data );
-    uint32_t* out = reinterpret_cast<uint32_t*>( pixels.data );
+    const uint64_t* in  = reinterpret_cast<const uint64_t*>( data );
+    uint64_t*       out = reinterpret_cast<uint64_t*>( pixels.data );
 
     EQASSERT( size > 0 );
 
-    const uint32_t marker = in[0];    
+    const uint64_t marker = in[0];    
     uint32_t       outpos = 0;
-    const uint32_t endpos = size>>2;
+    const uint32_t endpos = (size%8) ? (size>>3) : (size>>3) + 1;
 
     uint32_t i = 1;
     while( outpos < endpos )
     {
-        const uint32_t token = in[i++];
+        const uint64_t token = in[i++];
         if( token == marker )
         {
-            const uint32_t symbol = in[i++];
-            const uint32_t nSame  = in[i++];
+            const uint64_t symbol = in[i++];
+            const uint64_t nSame  = in[i++];
             for( uint32_t i = 0; i<nSame; ++i )
                 out[outpos++] = symbol;
         }
@@ -322,7 +326,7 @@ uint32_t Image::decompressPixelData( const Frame::Buffer buffer,
     }
     EQASSERT( outpos == endpos );
 
-    return (i<<2);
+    return (i<<3);
 }
 
 
@@ -338,7 +342,7 @@ uint32_t Image::decompressPixelData( const Frame::Buffer buffer,
             switch( nSame )                                             \
             {                                                           \
                 case 0:                                                 \
-                    EQASSERTINFO( 0, "Unreachable code" );              \
+                    EQUNREACHABLE;                                      \
                     break;                                              \
                 case 3:                                                 \
                     out[ outpos++ ] = lastSymbol; /* fall through */    \
@@ -373,24 +377,24 @@ const uint8_t* Image::compressPixelData( const Frame::Buffer buffer,
     EQASSERT( size < (100 * 1024 * 1024 )); // < 100MB
 
     Pixels&         pixels   = _getPixels( buffer );
-    const uint32_t* data     = reinterpret_cast<const uint32_t*>
+    const uint64_t* data     = reinterpret_cast<const uint64_t*>
                                    ( pixels.data );
-    uint32_t        marker   = 0xffffffffu;
-    const uint32_t  nWords   = size>>2;
+    uint64_t        marker   = 0xffffffffffffffffull;
+    const uint32_t  nWords   = (size%8) ? (size>>3) : (size>>3) + 1;
 
     // conservative output allocation
-    compressedPixels.resize( 2 * size + sizeof( uint32_t ));
-    uint32_t* out = reinterpret_cast<uint32_t*>( compressedPixels.data );
+    compressedPixels.resize( 3 * size + sizeof( uint64_t ));
+    uint64_t* out = reinterpret_cast<uint64_t*>( compressedPixels.data );
 
     out[ 0 ] = marker;
 
     uint32_t outpos     = 1;
     uint32_t nSame      = 1;
-    uint32_t lastSymbol = data[0];
+    uint64_t lastSymbol = data[0];
 
     for( uint32_t i=1; i<nWords; ++i )
     {
-        const uint32_t symbol = data[i];
+        const uint64_t symbol = data[i];
         
         if( symbol == lastSymbol )
             ++nSame;
@@ -404,7 +408,7 @@ const uint8_t* Image::compressPixelData( const Frame::Buffer buffer,
     
     WRITE_OUTPUT;
 
-    compressedPixels.size = outpos<<2;
+    compressedPixels.size = outpos<<3;
     compressedSize = compressedPixels.size;
     return compressedPixels.data;
 }
