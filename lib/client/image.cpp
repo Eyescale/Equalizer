@@ -325,6 +325,36 @@ uint32_t Image::decompressPixelData( const Frame::Buffer buffer,
     return (i<<2);
 }
 
+
+#define WRITE_OUTPUT                                                    \
+    {                                                                   \
+        if( lastSymbol == marker )                                      \
+        {                                                               \
+            out[ outpos++ ] = marker;                                   \
+            out[ outpos++ ] = lastSymbol;                               \
+            out[ outpos++ ] = nSame;                                    \
+        }                                                               \
+        else                                                            \
+            switch( nSame )                                             \
+            {                                                           \
+                case 0:                                                 \
+                    EQASSERTINFO( 0, "Unreachable code" );              \
+                    break;                                              \
+                case 3:                                                 \
+                    out[ outpos++ ] = lastSymbol; /* fall through */    \
+                case 2:                                                 \
+                    out[ outpos++ ] = lastSymbol; /* fall through */    \
+                case 1:                                                 \
+                    out[ outpos++ ] = lastSymbol;                       \
+                    break;                                              \
+                default:                                                \
+                    out[ outpos++ ] = marker;                           \
+                    out[ outpos++ ] = lastSymbol;                       \
+                    out[ outpos++ ] = nSame;                            \
+                    break;                                              \
+            }                                                           \
+    }
+
 const uint8_t* Image::compressPixelData( const Frame::Buffer buffer, 
                                          uint32_t& compressedSize )
 {
@@ -348,117 +378,33 @@ const uint8_t* Image::compressPixelData( const Frame::Buffer buffer,
     uint32_t        marker   = 0xffffffffu;
     const uint32_t  nWords   = size>>2;
 
-#ifdef PERFECT_MARKER
-    bool            markerOk = true;
-    for( uint32_t i=0; i<nWords; ++i )
-    {
-        if( data[i] == marker )
-        {
-            markerOk = false;
-            break;
-        }
-    }
-    while( !markerOk )
-    {
-        --marker; // Could guess random marker?
-        markerOk = true;
-        EQWARN << "Trying marker " << marker << endl;
-        
-        for( uint32_t i=0; i<nWords; ++i )
-        {
-            if( data[i] == marker )
-            {
-                markerOk = false;
-                break;
-            }
-        }
-    }
-#endif
-
-#ifdef PERFECT_MARKER
-    // Can't get bigger than input since marker is not in input data
-    compressedPixels.resize( size + sizeof( uint32_t ));
-#else
+    // conservative output allocation
     compressedPixels.resize( 2 * size + sizeof( uint32_t ));
-#endif
-
     uint32_t* out = reinterpret_cast<uint32_t*>( compressedPixels.data );
 
     out[ 0 ] = marker;
 
     uint32_t outpos     = 1;
-    uint32_t lastSymbol = data[0];
     uint32_t nSame      = 1;
+    uint32_t lastSymbol = data[0];
+
     for( uint32_t i=1; i<nWords; ++i )
     {
         const uint32_t symbol = data[i];
-
+        
         if( symbol == lastSymbol )
             ++nSame;
         else
         {
-#ifndef PERFECT_MARKER
-            if( lastSymbol == marker )
-            {
-                out[ outpos++ ] = marker;
-                out[ outpos++ ] = lastSymbol;
-                out[ outpos++ ] = nSame;
-            }
-            else
-#endif
-            switch( nSame )
-            {
-                case 0:
-                    EQASSERTINFO( 0, "Unreachable code" );
-                    break;
-                case 3:
-                    out[ outpos++ ] = lastSymbol; // fall through
-                case 2:
-                    out[ outpos++ ] = lastSymbol; // fall through
-                case 1:
-                    out[ outpos++ ] = lastSymbol;
-                    break;
-                default:
-                    out[ outpos++ ] = marker;
-                    out[ outpos++ ] = lastSymbol;
-                    out[ outpos++ ] = nSame;
-                    break;
-            }     
+            WRITE_OUTPUT;
             lastSymbol = symbol;
             nSame      = 1;
         }
     }
+    
+    WRITE_OUTPUT;
 
-    // write remaining ...C&P code...
-#ifndef PERFECT_MARKER
-    if( lastSymbol == marker )
-    {
-        out[ outpos++ ] = marker;
-        out[ outpos++ ] = lastSymbol;
-        out[ outpos++ ] = nSame;
-    }
-    else
-#endif
-    switch( nSame )
-    {
-        case 0:
-            EQASSERTINFO( 0, "Unreachable code" );
-            break;
-        case 3:
-            out[ outpos++ ] = lastSymbol; // fall through
-        case 2:
-            out[ outpos++ ] = lastSymbol; // fall through
-        case 1:
-            out[ outpos++ ] = lastSymbol;
-            break;
-        default:
-            out[ outpos++ ] = marker;
-            out[ outpos++ ] = lastSymbol;
-            out[ outpos++ ] = nSame;
-            break;
-    }         
     compressedPixels.size = outpos<<2;
-
     compressedSize = compressedPixels.size;
     return compressedPixels.data;
 }
@@ -566,9 +512,33 @@ void Image::writeImage( const std::string& filename,
     const size_t   nBytes = nPixels * depth;
     const uint8_t* data   = pixels.data;
 
-    for( size_t i = 0; i < depth; ++i )
-        for( size_t j = i; j < nBytes; j += depth )
-            image.write( reinterpret_cast<const char*>( &data[j] ), 1 );
+    switch( getFormat( buffer ))
+    {
+        case GL_BGR:
+            for( size_t j = 2; j < nBytes; j += depth )
+                image.write( reinterpret_cast<const char*>( &data[j] ), 1 );
+            for( size_t j = 1; j < nBytes; j += depth )
+                image.write( reinterpret_cast<const char*>( &data[j] ), 1 );
+            for( size_t j = 0; j < nBytes; j += depth )
+                image.write( reinterpret_cast<const char*>( &data[j] ), 1 );
+            break;
+
+        case GL_BGRA:
+            for( size_t j = 2; j < nBytes; j += depth )
+                image.write( reinterpret_cast<const char*>( &data[j] ), 1 );
+            for( size_t j = 1; j < nBytes; j += depth )
+                image.write( reinterpret_cast<const char*>( &data[j] ), 1 );
+            for( size_t j = 0; j < nBytes; j += depth )
+                image.write( reinterpret_cast<const char*>( &data[j] ), 1 );
+            for( size_t j = 3; j < nBytes; j += depth )
+                image.write( reinterpret_cast<const char*>( &data[j] ), 1 );
+            break;
+
+        default:
+            for( size_t i = 0; i < depth; ++i )
+                for( size_t j = i; j < nBytes; j += depth )
+                    image.write( reinterpret_cast<const char*>( &data[j] ), 1 );
+    }
 
     image.close();
 }
