@@ -5,6 +5,8 @@
 #include "window.h"
 #include "pipe.h"
 
+using namespace std;
+
 namespace eqPly
 {
 
@@ -44,9 +46,11 @@ bool Window::configExit()
     return eq::Window::configExit();
 }
 
+static const char* _logoTextureName = "eqPly_logo";
+
 void Window::_loadLogo()
 {
-    EQASSERT( !_objects->getTexture( "eqPly_logo" ));
+    EQASSERT( !_objects->getTexture( _logoTextureName ));
 
     eq::Image image;
     if( !image.readImage( "logo.rgb", eq::Frame::BUFFER_COLOR ) &&
@@ -56,7 +60,7 @@ void Window::_loadLogo()
         return;
     }
 
-    _logoTexture = _objects->newTexture( "eqPly_logo" );
+    _logoTexture = _objects->newTexture( _logoTextureName );
     EQASSERT( _logoTexture );
 
     const eq::PixelViewport& pvp = image.getPixelViewport();

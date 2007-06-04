@@ -59,8 +59,6 @@
 
 #define PLYFILEVERSION 20
 
-using namespace std;
-
 //---------------------------------------------------------------------------
 // PlyModel
 //---------------------------------------------------------------------------
@@ -119,14 +117,14 @@ void PlyModel<FaceType>::setFaces( size_t nFaces, FaceType *faces,
     _bbox.parent   = 0;
     _bbox.next     = 0;
     _bbox.range[0] = 0.0f;
-    _bbox.range[1] = 1.0f - numeric_limits<float>::epsilon();
+    _bbox.range[1] = 1.0f - std::numeric_limits<float>::epsilon();
 
     fillBBox( nFaces, faces, _bbox, bboxFaceThreshold, 0 );
 
-    EQINFO << eqBase::enableHeader << endl;
+    EQINFO << eqBase::enableHeader << std::endl;
     if( _nFaces != nFaces )
         EQWARN << "Used " << nFaces << " faces of " << _nFaces << " input faces"
-               << endl;
+               << std::endl;
 }
 
 //---------------------------------------------------------------------------
@@ -195,7 +193,7 @@ void PlyModel<FaceType>::fillBBox( size_t nFaces, FaceType *faces, BBox &bbox,
     ++filled;
 #endif
 
-    vector<FaceType> bboxFaces;
+    std::vector<FaceType> bboxFaces;
     bboxFaces.reserve( nFaces>>1 );
 
     for( size_t i=0; i<nFaces; i++ )
@@ -641,7 +639,7 @@ void PlyModel<FaceType>::traverseBBox( BBox *top, TraverseCB preCB,
 // toStream
 //---------------------------------------------------------------------------
 template<class FaceType>
-void PlyModel< FaceType >::toStream(ostream& os)
+void PlyModel< FaceType >::toStream( std::ostream& os )
 {
     int version = PLYFILEVERSION;
     
@@ -671,7 +669,7 @@ bool PlyModel<FaceType>::fromMemory( char *start )
     if( version != PLYFILEVERSION )
     {
         EQERROR << "Read version " << version <<", expected " 
-                << PLYFILEVERSION << endl;
+                << PLYFILEVERSION << std::endl;
         return false;
     }
 
@@ -682,7 +680,7 @@ bool PlyModel<FaceType>::fromMemory( char *start )
         _faces = (FaceType *)malloc( size );
         
         MEM_READ( (char *)_faces, size );
-        EQINFO << _nFaces << " faces at " << _faces << endl;
+        EQINFO << _nFaces << " faces at " << _faces << std::endl;
     }
 
     readBBox( addr, _bbox );
@@ -694,7 +692,7 @@ bool PlyModel<FaceType>::fromMemory( char *start )
 // writeBBox
 //---------------------------------------------------------------------------
 template<class FaceType>
-void PlyModel<FaceType>::writeBBox( ostream& os, BBox &bbox )
+void PlyModel<FaceType>::writeBBox( std::ostream& os, BBox &bbox )
 {
     os.write( (char *)&bbox.nFaces, sizeof(size_t) );
 

@@ -9,6 +9,8 @@
 
 #include <tclap/CmdLine.h>
 
+using namespace std;
+
 namespace eqPly
 {
 LocalInitData::LocalInitData()
