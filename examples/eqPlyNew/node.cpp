@@ -20,14 +20,12 @@ bool Node::configInit( const uint32_t initID )
     const string& filename = _initData.getFilename();
     EQINFO << "Loading model " << filename << endl;
 
-//    _model = PlyFileIO::read( filename.c_str( ));
-//    if( !_model)
-//        EQWARN << "Can't load model: " << filename << endl;
     _model = new Model();
     if ( !_model->readFromFile( filename.c_str() ) )
     {
         EQWARN << "Can't load model: " << filename << endl;
         delete _model;
+        _model = 0;
     }
     
     return eq::Node::configInit( initID );

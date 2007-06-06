@@ -25,7 +25,7 @@ namespace mesh
     public:
         virtual ~VertexBufferState() {}
         virtual bool hasColors() = 0;
-        virtual void hasColors( bool colors ) = 0;
+        virtual void setColors( bool colors ) = 0;
         virtual RenderMode getRenderMode() = 0;
         virtual void setRenderMode( RenderMode mode ) = 0;
         virtual Culler* getCuller() = 0;
@@ -51,7 +51,7 @@ namespace mesh
         }
         
         virtual bool hasColors() { return _hasColors; }
-        virtual void hasColors( bool colors ) { _hasColors = colors; }
+        virtual void setColors( bool colors ) { _hasColors = colors; }
         virtual RenderMode getRenderMode() { return _renderMode; }
         virtual void setRenderMode( RenderMode mode ) { _renderMode = mode; }
         virtual Culler* getCuller() { return _culler; }

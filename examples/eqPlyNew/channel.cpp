@@ -126,8 +126,8 @@ void Channel::frameDraw( const uint32_t frameID )
         Window* window = static_cast<Window*>( getWindow( ));
         VertexBufferState& state = window->getState();
         
-        state.hasColors( const_cast< Model* >( model )->hasColors() && 
-                         frameData.data.color && range.isFull() );
+        state.setColors( model->hasColors() && frameData.data.color && 
+                         range.isFull( ));
         state.setCuller( culler );
         state.setRange( range.start, range.end );
         state.setRenderMode( DISPLAY_LIST_MODE );

@@ -27,7 +27,7 @@ namespace mesh
         void setupTree( VertexData& data );
         bool writeToFile( const char* filename );
         bool readFromFile( const char* filename );
-        bool hasColors() { return _data.colors.size() > 0; }
+        bool hasColors() const { return _data.colors.size() > 0; }
         
     protected:
         virtual void toStream( std::ostream& os );
