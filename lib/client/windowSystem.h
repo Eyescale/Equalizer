@@ -9,6 +9,12 @@
 
 
 #ifdef GLX
+#  define GL_GLEXT_PROTOTYPES
+#  ifdef DARWIN
+#    include <OpenGL/gl.h>
+#  else
+#    include <GL/gl.h>
+#  endif
 #  include <X11/Xlib.h>
 #  include <GL/glx.h>
 #  ifdef Darwin
@@ -22,6 +28,7 @@
 #endif
 
 #ifdef CGL
+#  define GL_GLEXT_PROTOTYPES
 #  if defined(__i386__) // WAR compile error
 #    undef Status 
 #  endif 
@@ -33,6 +40,7 @@
 #endif
 
 #ifdef WGL
+#  define GL_GLEXT_PROTOTYPES
 #  include <wingdi.h>
 #  include <gl/GL.h>
 #  include <eq/client/glext.h>
