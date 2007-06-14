@@ -10,7 +10,7 @@
 
 #ifdef GLX
 #  define GL_GLEXT_PROTOTYPES
-#  ifdef DARWIN
+#  ifdef Darwin
 #    include <OpenGL/gl.h>
 #  else
 #    include <GL/gl.h>

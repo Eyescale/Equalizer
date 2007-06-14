@@ -240,10 +240,12 @@ void Channel::_drawLogo()
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-    glEnable( GL_TEXTURE_RECTANGLE_NV );
-    glBindTexture( GL_TEXTURE_RECTANGLE_NV, texture );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri( GL_TEXTURE_RECTANGLE_NV, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glEnable( GL_TEXTURE_RECTANGLE_ARB );
+    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, texture );
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
+                     GL_LINEAR );
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, 
+                     GL_LINEAR );
 
     glColor3f( 1.0f, 1.0f, 1.0f );
     glBegin( GL_TRIANGLE_STRIP ); {
@@ -260,7 +262,7 @@ void Channel::_drawLogo()
         glVertex3f( size.x, size.y, 0.0f );
     } glEnd();
 
-    glDisable( GL_TEXTURE_RECTANGLE_NV );
+    glDisable( GL_TEXTURE_RECTANGLE_ARB );
     glDisable( GL_BLEND );
     glEnable( GL_LIGHTING );
     glEnable( GL_DEPTH_TEST );

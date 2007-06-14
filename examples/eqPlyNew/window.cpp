@@ -70,8 +70,8 @@ void Window::_loadLogo()
     _logoSize.x = pvp.w;
     _logoSize.y = pvp.h;
 
-    glBindTexture( GL_TEXTURE_RECTANGLE_NV, _logoTexture );
-    glTexImage2D( GL_TEXTURE_RECTANGLE_NV, 0, 
+    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _logoTexture );
+    glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
                   image.getFormat( eq::Frame::BUFFER_COLOR ),
                   _logoSize.x, _logoSize.y, 0,
                   image.getFormat( eq::Frame::BUFFER_COLOR ), 
