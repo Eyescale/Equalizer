@@ -172,39 +172,39 @@ void VertexBufferLeaf::render( VertexBufferState& state,
 inline
 void VertexBufferLeaf::renderBufferObject( VertexBufferState& state ) const
 {
-//    GLuint* buffers = state.getBufferObjects( _indexStart ); 
-//    if( !buffers )
-//    {
-//        buffers = state.newBufferObjects( _indexStart );
-//        glBindBuffer( GL_ARRAY_BUFFER, buffers[VERTEX_OBJECT] );
-//        glBufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Vertex ),
-//                      &_globalData.vertices[_vertexStart], GL_STATIC_DRAW );
-//        glBindBuffer( GL_ARRAY_BUFFER, buffers[NORMAL_OBJECT] );
-//        glBufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Normal ),
-//                      &_globalData.normals[_vertexStart], GL_STATIC_DRAW );
-//        if( state.hasColors() )
-//        {
-//            glBindBuffer( GL_ARRAY_BUFFER, buffers[COLOR_OBJECT] );
-//            glBufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Color ),
-//                          &_globalData.colors[_vertexStart], GL_STATIC_DRAW );
-//        }
-//        glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffers[INDEX_OBJECT] );
-//        glBufferData( GL_ELEMENT_ARRAY_BUFFER, 
-//                      _indexLength * sizeof( ShortIndex ),
-//                      &_globalData.indices[_indexStart], GL_STATIC_DRAW );
-//    }
-//    
-//    glBindBuffer( GL_ARRAY_BUFFER, buffers[VERTEX_OBJECT] );
-//    glVertexPointer( 3, GL_FLOAT, 0, 0 );
-//    glBindBuffer( GL_ARRAY_BUFFER, buffers[NORMAL_OBJECT] );
-//    glNormalPointer( GL_FLOAT, 0, 0 );
-//    if( state.hasColors() )
-//    {
-//        glBindBuffer( GL_ARRAY_BUFFER, buffers[COLOR_OBJECT] );
-//        glColorPointer( 4, GL_UNSIGNED_BYTE, 0, 0 );
-//    }
-//    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffers[INDEX_OBJECT] );
-//    glDrawElements( GL_TRIANGLES, _indexLength, GL_UNSIGNED_SHORT, 0 );
+    GLuint* buffers = state.getBufferObjects( _indexStart ); 
+    if( !buffers )
+    {
+        buffers = state.newBufferObjects( _indexStart );
+        glBindBuffer( GL_ARRAY_BUFFER, buffers[VERTEX_OBJECT] );
+        glBufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Vertex ),
+                      &_globalData.vertices[_vertexStart], GL_STATIC_DRAW );
+        glBindBuffer( GL_ARRAY_BUFFER, buffers[NORMAL_OBJECT] );
+        glBufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Normal ),
+                      &_globalData.normals[_vertexStart], GL_STATIC_DRAW );
+        if( state.hasColors() )
+        {
+            glBindBuffer( GL_ARRAY_BUFFER, buffers[COLOR_OBJECT] );
+            glBufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Color ),
+                          &_globalData.colors[_vertexStart], GL_STATIC_DRAW );
+        }
+        glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffers[INDEX_OBJECT] );
+        glBufferData( GL_ELEMENT_ARRAY_BUFFER, 
+                      _indexLength * sizeof( ShortIndex ),
+                      &_globalData.indices[_indexStart], GL_STATIC_DRAW );
+    }
+    
+    glBindBuffer( GL_ARRAY_BUFFER, buffers[VERTEX_OBJECT] );
+    glVertexPointer( 3, GL_FLOAT, 0, 0 );
+    glBindBuffer( GL_ARRAY_BUFFER, buffers[NORMAL_OBJECT] );
+    glNormalPointer( GL_FLOAT, 0, 0 );
+    if( state.hasColors() )
+    {
+        glBindBuffer( GL_ARRAY_BUFFER, buffers[COLOR_OBJECT] );
+        glColorPointer( 4, GL_UNSIGNED_BYTE, 0, 0 );
+    }
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffers[INDEX_OBJECT] );
+    glDrawElements( GL_TRIANGLES, _indexLength, GL_UNSIGNED_SHORT, 0 );
 }
 
 
@@ -243,6 +243,15 @@ void VertexBufferLeaf::renderDisplayList( VertexBufferState& state ) const
 inline
 void VertexBufferLeaf::renderImmediate( VertexBufferState& state ) const
 {
+#if 0
+    const unsigned color = static_cast< unsigned >( 
+        ( _range[0] + _range[1] ) * 256.f );
+    glColor3ub(
+        ((color & 0x1) << 5) + ((color & 0x8) << 3) + ((color & 0x40) << 1 ),
+        ((color & 0x2) << 4) + ((color & 0x10) << 2) + ((color & 0x80)),
+        ((color & 0x4) << 3) + ((color & 0x20) << 1) + ((color & 0x100) >> 1)
+               );
+#endif
     glBegin( GL_TRIANGLES );  
     for( Index offset = 0; offset < _indexLength; ++offset )
     {

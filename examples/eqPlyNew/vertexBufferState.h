@@ -34,8 +34,8 @@ namespace mesh
         virtual void setRange( float start, float end ) = 0;
         virtual GLuint getDisplayList( Index i ) = 0;
         virtual GLuint newDisplayList( Index i ) = 0;
-//        virtual GLuint* getBufferObjects( Index i ) = 0;
-//        virtual GLuint* newBufferObjects( Index i ) = 0;
+        virtual GLuint* getBufferObjects( Index i ) = 0;
+        virtual GLuint* newBufferObjects( Index i ) = 0;
     private:
     };
     
@@ -78,20 +78,20 @@ namespace mesh
             return _displayLists[i];
         }
         
-//        virtual GLuint* getBufferObjects( Index i )
-//        {
-//            if( _bufferObjects.find( i ) == _bufferObjects.end() )
-//                return 0;
-//            else
-//                return &_bufferObjects[i][0];
-//        }
-//        
-//        virtual GLuint* newBufferObjects( Index i )
-//        {
-//            GLuint* buffers = &_bufferObjects[i][0];
-//            glGenBuffers( 4, buffers );
-//            return buffers;
-//        }
+        virtual GLuint* getBufferObjects( Index i )
+        {
+            if( _bufferObjects.find( i ) == _bufferObjects.end() )
+                return 0;
+            else
+                return &_bufferObjects[i][0];
+        }
+        
+        virtual GLuint* newBufferObjects( Index i )
+        {
+            GLuint* buffers = &_bufferObjects[i][0];
+            glGenBuffers( 4, buffers );
+            return buffers;
+        }
         
     private:
         Culler*                                         _culler;

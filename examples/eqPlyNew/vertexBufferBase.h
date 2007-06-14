@@ -17,13 +17,10 @@
 
 namespace mesh 
 {
-    
-    
     // defined elsewhere
     class VertexData;
     class VertexBufferData;
     class VertexBufferState;
-    
         
     /*  The abstract base class for all kinds of kd-tree nodes.  */
     class VertexBufferBase
