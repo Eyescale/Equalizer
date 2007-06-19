@@ -84,7 +84,8 @@ namespace eq
         /** 
          * Set the CGL rendering context for this window.
          * 
-         * This function should only be called from configInit() or configExit().
+         * This function should only be called from configInit() or
+         * configExit().
          *
          * @param drawable the CGL rendering context.
          */
@@ -222,6 +223,7 @@ namespace eq
          * Exit this window.
          */
         virtual bool configExit();
+        virtual bool configExitGL(){}
         virtual void configExitGLX();
         virtual void configExitCGL();
         virtual void configExitWGL();

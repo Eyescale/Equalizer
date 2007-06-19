@@ -174,7 +174,7 @@ namespace eq
                 {}
             ~Pixels() { delete [] data; }
 
-            void resize( const uint32_t size );
+            void resize( uint32_t size );
 
             uint8_t* data;    // allocated (and cached data)
             uint32_t maxSize; // the size of the allocation

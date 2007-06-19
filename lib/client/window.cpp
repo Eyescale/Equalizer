@@ -714,20 +714,22 @@ bool eq::Window::configInitWGL()
 //----------------------------------------------------------------------
 bool eq::Window::configExit()
 {
+    const bool         ret          = configExitGL();
     const WindowSystem windowSystem = _pipe->getWindowSystem();
+
     switch( windowSystem )
     {
         case WINDOW_SYSTEM_GLX:
             configExitGLX();
-            return true;
+            return ret;
 
         case WINDOW_SYSTEM_CGL:
             configExitCGL();
-            return false;
+            return ret;
 
         case WINDOW_SYSTEM_WGL:
             configExitWGL();
-            return false;
+            return ret;
 
         default:
             EQWARN << "Unknown windowing system: " << windowSystem << endl;
