@@ -223,7 +223,7 @@ namespace eq
          * Exit this window.
          */
         virtual bool configExit();
-        virtual bool configExitGL(){}
+        virtual bool configExitGL() { return true; }
         virtual void configExitGLX();
         virtual void configExitCGL();
         virtual void configExitWGL();
