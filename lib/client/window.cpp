@@ -44,7 +44,8 @@ std::string eq::Window::_iAttributeStrings[IATTR_ALL] = {
 eq::Window::Window()
         : _xDrawable ( 0 ),
           _glXContext( 0 ),
-          _cglContext( 0 ),
+          _aglContext( 0 ),
+          _carbonWindow( 0 ),
           _wglWindowHandle( 0 ),
           _wglContext     ( 0 ),
           _wglEventHandler( 0 ),
@@ -188,8 +189,8 @@ bool eq::Window::configInit( const uint32_t initID )
                 return false;
             break;
 
-        case WINDOW_SYSTEM_CGL:
-            if( !configInitCGL( ))
+        case WINDOW_SYSTEM_AGL:
+            if( !configInitAGL( ))
                 return false;
             break;
 
@@ -398,115 +399,180 @@ bool eq::Window::configInitGLX()
 #endif
 }
 
-bool eq::Window::configInitCGL()
+bool eq::Window::configInitAGL()
 {
-#ifdef CGL
-    CGDirectDisplayID displayID = _pipe->getCGLDisplayID();
+#ifdef AGL
+    CGDirectDisplayID displayID = _pipe->getCGDisplayID();
+    GDHandle          displayHandle = 0;
+    
+    DMGetGDeviceByDisplayID( (DisplayIDType)displayID, &displayHandle, false );
+    if( !displayHandle )
+        return false;
 
     // build attribute list
-    vector<int> attributes;
-    attributes.push_back( kCGLPFADisplayMask );
-    attributes.push_back( CGDisplayIDToOpenGLDisplayMask( displayID ));
-    attributes.push_back( kCGLPFAFullScreen );
+    vector<GLint> attributes;
+
+    attributes.push_back( AGL_RGBA );
+    attributes.push_back( GL_TRUE );
+
+    if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON )
+        attributes.push_back( AGL_FULLSCREEN );
 
     const int colorSize = getIAttribute( IATTR_PLANES_COLOR );
     if( colorSize > 0 || colorSize == AUTO )
     {
-        attributes.push_back( kCGLPFAColorSize );
-        attributes.push_back( colorSize>0 ? colorSize : 1 );
+        const GLint size = colorSize > 0 ? colorSize : 8;
+
+        attributes.push_back( AGL_RED_SIZE );
+        attributes.push_back( size );
+        attributes.push_back( AGL_GREEN_SIZE );
+        attributes.push_back( size );
+        attributes.push_back( AGL_BLUE_SIZE );
+        attributes.push_back( size );
     }
     const int alphaSize = getIAttribute( IATTR_PLANES_ALPHA );
     if( alphaSize > 0 || alphaSize == AUTO )
     {
-        attributes.push_back( kCGLPFAAlphaSize );
-        attributes.push_back( alphaSize>0 ? alphaSize : 1  );
+        attributes.push_back( AGL_ALPHA_SIZE );
+        attributes.push_back( alphaSize>0 ? alphaSize : 8  );
     }
     const int depthSize = getIAttribute( IATTR_PLANES_DEPTH );
     if( depthSize > 0 || depthSize == AUTO )
     {
-        attributes.push_back( kCGLPFADepthSize );
-        attributes.push_back( depthSize>0 ? depthSize : 1 );
+        attributes.push_back( AGL_DEPTH_SIZE );
+        attributes.push_back( depthSize>0 ? depthSize : 24 );
     }
     const int stencilSize = getIAttribute( IATTR_PLANES_STENCIL );
     if( stencilSize > 0 || stencilSize == AUTO )
     {
-        attributes.push_back( kCGLPFAStencilSize );
+        attributes.push_back( AGL_STENCIL_SIZE );
         attributes.push_back( stencilSize>0 ? stencilSize : 1 );
     }
 
     if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) != OFF )
-        attributes.push_back( kCGLPFADoubleBuffer );
+    {
+        attributes.push_back( AGL_DOUBLEBUFFER );
+        attributes.push_back( GL_TRUE );
+    }
     if( getIAttribute( IATTR_HINT_STEREO ) != OFF )
-        attributes.push_back( kCGLPFAStereo );
+    {
+        attributes.push_back( AGL_STEREO );
+        attributes.push_back( GL_TRUE );
+    }
 
-    attributes.push_back( 0 );
+    attributes.push_back( AGL_NONE );
 
     // build backoff list, least important attribute last
     vector<int> backoffAttributes;
     if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
-        backoffAttributes.push_back( kCGLPFADoubleBuffer );
+        backoffAttributes.push_back( AGL_DOUBLEBUFFER );
     if( stencilSize == AUTO )
-        backoffAttributes.push_back( kCGLPFAStencilSize );
+        backoffAttributes.push_back( AGL_STENCIL_SIZE );
     if( getIAttribute( IATTR_HINT_STEREO ) == AUTO )
-        backoffAttributes.push_back( kCGLPFAStereo );
+        backoffAttributes.push_back( AGL_STEREO );
 
     // choose pixel format
-    CGLPixelFormatObj pixelFormat = 0;
-#ifdef MAC_OS_X_VERSION_10_5
-    GLint numPixelFormats = 0;
-#else
-    long numPixelFormats = 0;
-#endif
-
-    const CGLPixelFormatAttribute* cglAttribs =
-        (CGLPixelFormatAttribute*)&attributes.front();
-    CGLChoosePixelFormat( cglAttribs, &pixelFormat, &numPixelFormats );
+    AGLPixelFormat pixelFormat = aglChoosePixelFormat( &displayHandle, 1, 
+                                                       &attributes.front( ));
 
     while( !pixelFormat && !backoffAttributes.empty( ))
     {   // Gradually remove backoff attributes
-        const int attribute = backoffAttributes.back();
+        const GLint attribute = backoffAttributes.back();
         backoffAttributes.pop_back();
 
-        vector<int>::iterator iter = find( attributes.begin(), attributes.end(),
-                                           attribute );
+        vector<GLint>::iterator iter = find( attributes.begin(), 
+                                             attributes.end(), attribute );
         EQASSERT( iter != attributes.end( ));
-        if( *iter == kCGLPFAStencilSize ) // two-elem attribute
-            attributes.erase( iter, iter+1 );
-        else                            // one-elem attribute
-            attributes.erase( iter );
 
-        const CGLPixelFormatAttribute* cglAttribs =
-            (CGLPixelFormatAttribute*)&attributes.front();
-        CGLChoosePixelFormat( cglAttribs, &pixelFormat, &numPixelFormats );
+        attributes.erase( iter, iter+1 ); // remove two item (attr, value)
+        pixelFormat = aglChoosePixelFormat( &displayHandle, 1, // try again
+                                            &attributes.front( ));
     }
 
     if( !pixelFormat )
     {
-        setErrorMessage( "Could not find a matching pixel format" );
+        setErrorMessage( "Could not find a matching pixel format: " +
+                         aglGetError( ));
         return false;
     }
 
-    Pipe*         pipe        = getPipe();
-    Window*       firstWindow = pipe->getWindow(0);
-    CGLContextObj shareCtx    = firstWindow->getCGLContext();
-    CGLContextObj context     = 0;
-    CGLCreateContext( pixelFormat, shareCtx, &context );
-    CGLDestroyPixelFormat ( pixelFormat );
+    Pipe*      pipe        = getPipe();
+    Window*    firstWindow = pipe->getWindow(0);
+    AGLContext shareCtx    = firstWindow->getAGLContext();
+    AGLContext context     = aglCreateContext( pixelFormat, shareCtx );
+    aglDestroyPixelFormat ( pixelFormat );
 
     if( !context ) 
     {
-        setErrorMessage( "Could not create OpenGL context" );
+        setErrorMessage( "Could not create AGL context: " + aglGetError( ));
         return false;
     }
 
-    CGLSetCurrentContext( context );
-    CGLSetFullScreen( context );
+    // Always enable sync on vertical retrace - TODO should be a window hint
+    const GLint interval = 1;
+    aglSetInteger( context, AGL_SWAP_INTERVAL, &interval );
 
-    setCGLContext( context );
-    EQINFO << "Created CGL context " << context << endl;
+    aglSetCurrentContext( context );
+    setAGLContext( context );
+    EQINFO << "Created AGL context " << context << endl;
+
+    if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON )
+    {
+#if 0
+        const PixelViewport& pipePVP = _pipe->getPixelViewport();
+        const PixelViewport& pvp     = pipePVP.isValid() ? pipePVP : _pvp;
+        if( !aglSetFullScreen( context, pvp.w, pvp.h, 0, 0 ))
+            EQWARN << "aglSetFullScreen to " << pvp << " failed: " 
+                   << aglGetError() << endl;
+
+#else
+
+        if( !aglSetFullScreen( context, 0, 0, 0, 0 ))
+            EQWARN << "aglSetFullScreen failed: " << aglGetError()
+                   << endl;
+#endif
+    }
+    else // create carbon window and bind drawable to context
+    {
+        // window
+        WindowAttributes attributes = kWindowStandardDocumentAttributes |
+                                      kWindowStandardHandlerAttribute   |
+                                      kWindowInWindowMenuAttribute;
+        Rect             windowRect = { _pvp.y, _pvp.x, // top, left, b, r
+                                        _pvp.y + _pvp.h, _pvp.x + _pvp.w };
+        WindowRef        windowRef;
+        const OSStatus   status     = CreateNewWindow( kDocumentWindowClass, 
+                                                       attributes, &windowRect, 
+                                                       &windowRef );
+        if( status != noErr )
+        {
+            setErrorMessage( "Could not create carbon window: " + status );
+            return false;
+        }
+
+        // window title
+        CFStringRef title = 
+            CFStringCreateWithCString( kCFAllocatorDefault,
+                                    _name.empty() ? "Equalizer" : _name.c_str(),
+                                       kCFStringEncodingMacRoman );
+        SetWindowTitleWithCFString( windowRef, title );
+        CFRelease( title );
+        
+        if( !aglSetDrawable( context, GetWindowPort( windowRef )))
+        {
+            setErrorMessage( "aglSetDrawable failed: " + aglGetError( ));
+            return false;
+        }
+
+        // show
+        ShowWindow( windowRef );
+        setCarbonWindow( windowRef );
+    }
+
+    aglSetCurrentContext( context );
     return true;
 #else
-    setErrorMessage( "Library compiled without CGL support" );
+    setErrorMessage( "Library compiled without AGL support" );
     return false;
 #endif
 }
@@ -723,8 +789,8 @@ bool eq::Window::configExit()
             configExitGLX();
             return ret;
 
-        case WINDOW_SYSTEM_CGL:
-            configExitCGL();
+        case WINDOW_SYSTEM_AGL:
+            configExitAGL();
             return ret;
 
         case WINDOW_SYSTEM_WGL:
@@ -759,19 +825,26 @@ void eq::Window::configExitGLX()
 #endif
 }
 
-void eq::Window::configExitCGL()
+void eq::Window::configExitAGL()
 {
-#ifdef CGL
-    CGLContextObj context = getCGLContext();
-    if( !context )
-        return;
+#ifdef AGL
+    WindowRef window = getCarbonWindow();
+    if( window )
+    {
+        DisposeWindow( window );
+        setCarbonWindow( 0 );
+    }
 
-    setCGLContext( 0 );
-
-    CGLSetCurrentContext( 0 );
-    CGLClearDrawable( context );
-    CGLDestroyContext ( context );       
-    EQINFO << "Destroyed CGL context" << endl;
+    AGLContext context = getAGLContext();
+    if( context )
+    {
+        aglSetDrawable( context, 0 );
+        aglSetCurrentContext( 0 );
+        aglDestroyContext( context );
+        setAGLContext( 0 );
+    }
+    
+    EQINFO << "Destroyed AGL window and context" << endl;
 #endif
 }
 
@@ -930,14 +1003,32 @@ void eq::Window::setXDrawable( XID drawable )
 #endif // GLX
 }
 
-void eq::Window::setCGLContext( CGLContextObj context )
+void eq::Window::setAGLContext( AGLContext context )
 {
-#ifdef CGL
-    _cglContext = context;
-    // TODO: pvp
-#endif // CGL
+#ifdef AGL
+    _aglContext = context;
+#endif // AGL
 }
 
+void eq::Window::setCarbonWindow( WindowRef window )
+{
+#ifdef AGL
+    _carbonWindow = window;
+    _pvp.invalidate();
+
+    if( window )
+    {
+        Rect rect;
+        if( GetWindowBounds( window, kWindowUpdateRgn, &rect ) == noErr )
+        {
+            _pvp.x = rect.left;
+            _pvp.y = rect.top;
+            _pvp.w = rect.right - rect.left;
+            _pvp.h = rect.bottom - rect.top;
+        }
+    }
+#endif // AGL
+}
 
 void eq::Window::setWGLWindowHandle( HWND handle )
 {
@@ -975,9 +1066,9 @@ void eq::Window::makeCurrent() const
             glXMakeCurrent( _pipe->getXDisplay(), _xDrawable, _glXContext );
             break;
 #endif
-#ifdef CGL
-        case WINDOW_SYSTEM_CGL:
-            CGLSetCurrentContext( _cglContext );
+#ifdef AGL
+        case WINDOW_SYSTEM_AGL:
+            aglSetCurrentContext( _aglContext );
             break;
 #endif
 #ifdef WGL
@@ -1002,9 +1093,9 @@ void eq::Window::swapBuffers() const
             glXSwapBuffers( _pipe->getXDisplay(), _xDrawable );
             break;
 #endif
-#ifdef CGL
-        case WINDOW_SYSTEM_CGL:
-            CGLFlushDrawable( _cglContext );
+#ifdef AGL
+        case WINDOW_SYSTEM_AGL:
+            aglSwapBuffers( _aglContext );
             break;
 #endif
 #ifdef WGL
@@ -1156,7 +1247,7 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
             if( !_xDrawable || !_glXContext )
             {
                 EQERROR
-                    << "configInit() did not provide a drawable and context" 
+                    << "configInit() did not provide a drawable and/or context" 
                     << endl;
                 reply.result = false;
                 send( node, reply, _error );
@@ -1164,10 +1255,10 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
             }
             break;
 
-        case WINDOW_SYSTEM_CGL:
-            if( !_cglContext )
+        case WINDOW_SYSTEM_AGL:
+            if( !_aglContext )
             {
-                EQERROR << "configInit() did not provide an OpenGL context" 
+                EQERROR << "configInit() did not provide an AGL context" 
                         << endl;
                 reply.result = false;
                 send( node, reply, _error );

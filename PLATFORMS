@@ -6,7 +6,7 @@
   - Windows XP, VS2005 (i386, x64)
   - Mac OS X 10.4 (i386)
      o glX/X11 fully supported
-     o CGL partially implemented
+     o AGL partially implemented
   - Ubuntu 6.10 (i386, x64)
   - RHEL 4
 

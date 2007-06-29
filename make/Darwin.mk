@@ -14,14 +14,14 @@ endif
 
 DSO_LDFLAGS        += -dynamiclib
 DSO_SUFFIX          = dylib
-WINDOW_SYSTEM      ?= GLX CGL
+WINDOW_SYSTEM      ?= GLX AGL
 
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
   WINDOW_SYSTEM_LIBS += -L/usr/X11R6/lib -lX11 -lGL
   WINDOW_SYSTEM_INCS += -I/usr/X11R6/include
 endif
-ifeq ($(findstring CGL, $(WINDOW_SYSTEM)),CGL)
-  WINDOW_SYSTEM_LIBS += -framework OpenGL -framework Carbon
+ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
+  WINDOW_SYSTEM_LIBS += -framework AGL -framework OpenGL -framework Carbon
 endif
 
 AR           = libtool

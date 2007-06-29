@@ -102,8 +102,8 @@ bool Pipe::supportsWindowSystem( const WindowSystem windowSystem ) const
 #ifdef GLX
         case WINDOW_SYSTEM_GLX: return true;
 #endif
-#ifdef CGL
-        case WINDOW_SYSTEM_CGL: return true;
+#ifdef AGL
+        case WINDOW_SYSTEM_AGL: return true;
 #endif
 #ifdef WGL
         case WINDOW_SYSTEM_WGL: return true;
@@ -216,10 +216,10 @@ int Pipe::XErrorHandler( Display* display, XErrorEvent* event )
     return 0;
 }
 
-void Pipe::setCGLDisplayID( CGDirectDisplayID id )
+void Pipe::setCGDisplayID( CGDirectDisplayID id )
 {
-#ifdef CGL
-    _cglDisplayID = id; 
+#ifdef AGL
+    _cgDisplayID = id; 
 
     if( _pvp.isValid( ))
         return;
@@ -339,8 +339,8 @@ bool Pipe::configInit( const uint32_t initID )
         case WINDOW_SYSTEM_GLX:
             return configInitGLX();
 
-        case WINDOW_SYSTEM_CGL:
-            return configInitCGL();
+        case WINDOW_SYSTEM_AGL:
+            return configInitAGL();
 
         case WINDOW_SYSTEM_WGL:
             return configInitWGL();
@@ -396,9 +396,9 @@ std::string Pipe::getXDisplayString()
     return stringStream.str();
 }
 
-bool Pipe::configInitCGL()
+bool Pipe::configInitAGL()
 {
-#ifdef CGL
+#ifdef AGL
     CGDirectDisplayID displayID = CGMainDisplayID();
 
     if( _device != EQ_UNDEFINED_UINT32 )
@@ -427,8 +427,8 @@ bool Pipe::configInitCGL()
         displayID = displayIDs[_device];
     }
 
-    setCGLDisplayID( displayID );
-    EQINFO << "Using CGL displayID " << displayID << endl;
+    setCGDisplayID( displayID );
+    EQINFO << "Using CG displayID " << displayID << endl;
     return true;
 #else
     return false;
@@ -473,8 +473,8 @@ bool Pipe::configExit()
             configExitGLX();
             return true;
 
-        case WINDOW_SYSTEM_CGL:
-            configExitCGL();
+        case WINDOW_SYSTEM_AGL:
+            configExitAGL();
             return true;
 
         case WINDOW_SYSTEM_WGL:
@@ -500,11 +500,11 @@ void Pipe::configExitGLX()
 #endif
 }
 
-void Pipe::configExitCGL()
+void Pipe::configExitAGL()
 {
-#ifdef CGL
-    setCGLDisplayID( 0 );
-    EQINFO << "Reset X CGL displayID " << endl;
+#ifdef AGL
+    setCGDisplayID( 0 );
+    EQINFO << "Reset CG displayID " << endl;
 #endif
 }
 
@@ -817,9 +817,9 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
             EQINFO << "Using display " << DisplayString( _xDisplay ) << endl;
             break;
 #endif
-#ifdef CGL
-        case WINDOW_SYSTEM_CGL:
-            if( !_cglDisplayID )
+#ifdef AGL
+        case WINDOW_SYSTEM_AGL:
+            if( !_cgDisplayID )
             {
                 EQERROR << "configInit() did not set a display id" << endl;
                 reply.result = false;

@@ -231,13 +231,13 @@ namespace eqs
         /** The request id for pending asynchronous operations. */
         uint32_t _pendingRequestID;
 
-        /** The display (X11) or ignored (Win32, CGL). */
+        /** The display (X11) or ignored (Win32, AGL). */
         uint32_t _port;
 
-        /** The screen (X11), GPU (Win32) or virtual screen (CGL). */
+        /** The screen (X11), GPU (Win32) or virtual screen (AGL). */
         uint32_t _device;
 
-        /* The display (CGL) or output channel (X11?, Win32). */
+        /* The display (AGL) or output channel (X11?, Win32). */
         //uint32_t _monitor;
 
         /** The absolute size and position of the pipe. */

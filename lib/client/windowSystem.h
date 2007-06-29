@@ -27,15 +27,14 @@
 #  endif
 #endif
 
-#ifdef CGL
+#ifdef AGL
 #  define GL_GLEXT_PROTOTYPES
 #  if defined(__i386__) // WAR compile error
 #    undef Status 
 #  endif 
 #  define Cursor CGLCursor // avoid name clash with X11 'Cursor'
 #  include <ApplicationServices/ApplicationServices.h>
-#  include <OpenGL/OpenGL.h>
-#  include <OpenGL/gl.h>
+#  include <AGL/agl.h>
 #  undef Cursor
 #endif
 
@@ -58,11 +57,12 @@ typedef unsigned long XID;
 typedef void* GLXContext;
 #endif
 
-#ifndef CGL
+#ifndef AGL
 #  ifndef Darwin
 typedef int32_t CGDirectDisplayID;
+typedef void*   WindowRef;
 #  endif
-typedef void*   CGLContextObj;
+typedef void*   AGLContext;
 #endif
 
 #ifndef WGL
@@ -84,7 +84,7 @@ namespace eq
     {
         WINDOW_SYSTEM_NONE = 0, // must be first
         WINDOW_SYSTEM_GLX,
-        WINDOW_SYSTEM_CGL,
+        WINDOW_SYSTEM_AGL,
         WINDOW_SYSTEM_WGL,
         WINDOW_SYSTEM_ALL      // must be last
     };

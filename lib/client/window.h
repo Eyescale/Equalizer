@@ -82,20 +82,27 @@ namespace eq
         GLXContext getGLXContext() const { return _glXContext; }
 
         /** 
-         * Set the CGL rendering context for this window.
+         * Set the AGL rendering context for this window.
          * 
          * This function should only be called from configInit() or
          * configExit().
          *
-         * @param drawable the CGL rendering context.
+         * @param drawable the AGL rendering context.
          */
-        void setCGLContext( CGLContextObj context );
+        void setAGLContext( AGLContext context );
+
+        /** @return the AGL rendering context. */
+        AGLContext getAGLContext() const { return _aglContext; }
 
         /** 
-         * Returns the CGL rendering context.
-         * @return the CGL rendering context. 
+         * Set the carbon window to be used with the current AGL context.
+         * 
+         * @param window the window reference.
          */
-        CGLContextObj getCGLContext() const { return _cglContext; }
+        void setCarbonWindow( WindowRef window );
+        
+        /** @return the carbon window reference. */
+        WindowRef getCarbonWindow() const { return _carbonWindow; }
 
         /** 
          * Set the Win32 window handle for this window.
@@ -207,7 +214,7 @@ namespace eq
          */
         virtual bool configInit( const uint32_t initID );
         virtual bool configInitGLX();
-        virtual bool configInitCGL();
+        virtual bool configInitAGL();
         virtual bool configInitWGL();
 
         /** 
@@ -225,7 +232,7 @@ namespace eq
         virtual bool configExit();
         virtual bool configExitGL() { return true; }
         virtual void configExitGLX();
-        virtual void configExitCGL();
+        virtual void configExitAGL();
         virtual void configExitWGL();
 
         /**
@@ -310,8 +317,13 @@ namespace eq
                 GLXContext _glXContext;
             };
 
-            /** The CGL context. */
-            CGLContextObj _cglContext;
+            struct
+            {
+                /** The AGL context. */
+                AGLContext   _aglContext;
+                /** The carbon window reference. */
+                WindowRef    _carbonWindow;
+            };
 
             struct
             {

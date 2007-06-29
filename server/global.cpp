@@ -64,8 +64,8 @@ void Global::_setupDefaults()
     _windowIAttributes[eq::Window::IATTR_HINT_DOUBLEBUFFER] = eq::AUTO;
     _windowIAttributes[eq::Window::IATTR_HINT_FULLSCREEN]   = eq::OFF;
     _windowIAttributes[eq::Window::IATTR_HINT_DECORATION]   = eq::ON;
-    _windowIAttributes[eq::Window::IATTR_PLANES_COLOR]      = 1;
-    _windowIAttributes[eq::Window::IATTR_PLANES_DEPTH]      = 1;
+    _windowIAttributes[eq::Window::IATTR_PLANES_COLOR]      = eq::AUTO;
+    _windowIAttributes[eq::Window::IATTR_PLANES_DEPTH]      = eq::AUTO;
     
     // channel
     for( int i=0; i<eq::Channel::IATTR_ALL; ++i )

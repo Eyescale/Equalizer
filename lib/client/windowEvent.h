@@ -50,7 +50,7 @@ namespace eq
 #ifdef GLX
             XEvent xEvent; // 96 bytes
 #endif
-#ifdef CGL
+#ifdef AGL
             // TODO
 #endif
 #ifdef WGL

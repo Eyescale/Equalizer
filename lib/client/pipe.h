@@ -80,7 +80,7 @@ namespace eq
          * 
          * The device number identifies the X screen for systems using the
          * X11/GLX window system, or the number of the virtual screen for the
-         * CGL window system. On Windows systems it identifies the graphics
+         * AGL window system. On Windows systems it identifies the graphics
          * adapter. Normally the device identifies a GPU.
          *
          * @return the device number of this pipe, or 
@@ -132,20 +132,17 @@ namespace eq
             { return _xEventConnection; }
 
         /** 
-         * Set the CGL display ID for this pipe.
+         * Set the CG display ID for this pipe.
          * 
          * This function should only be called from configInit() or
          * configExit().
          *
-         * @param id the CGL display ID for this pipe.
+         * @param id the CG display ID for this pipe.
          */
-        void setCGLDisplayID( CGDirectDisplayID id );
+        void setCGDisplayID( CGDirectDisplayID id );
 
-        /** 
-         * Returns the CGL display ID for this pipe.
-         * @return the CGL display ID for this pipe.
-         */
-        CGDirectDisplayID getCGLDisplayID() const { return _cglDisplayID; }
+        /** @return the CG display ID for this pipe. */
+        CGDirectDisplayID getCGDisplayID() const { return _cgDisplayID; }
 
         /** @return the time in ms elapsed since the frame started. */
         float getFrameTime() const { return _frameClock.getTimef(); }
@@ -274,7 +271,7 @@ namespace eq
          */
         virtual bool configInit( const uint32_t initID );
         virtual bool configInitGLX();
-        virtual bool configInitCGL();
+        virtual bool configInitAGL();
         virtual bool configInitWGL();
 
         /** 
@@ -282,7 +279,7 @@ namespace eq
          */
         virtual bool configExit();
         virtual void configExitGLX();
-        virtual void configExitCGL();
+        virtual void configExitAGL();
         virtual void configExitWGL();
 
         /**
@@ -354,17 +351,17 @@ namespace eq
         union
         {
             Display* _xDisplay;
-            CGDirectDisplayID _cglDisplayID;
+            CGDirectDisplayID _cgDisplayID;
             char _displayFill[16];
         };
 
         /** The X event display connection. */
         eqBase::RefPtr<X11Connection> _xEventConnection;
 
-        /** The display (GLX) or ignored (Win32, CGL). */
+        /** The display (GLX) or ignored (Win32, AGL). */
         uint32_t _port;
 
-        /** The screen (GLX), GPU (Win32) or virtual screen (CGL). */
+        /** The screen (GLX), GPU (Win32) or virtual screen (AGL). */
         uint32_t _device;
         
         /** The configInit/configExit state. */
