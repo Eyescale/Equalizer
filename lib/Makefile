@@ -173,6 +173,14 @@ ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
 	client/glXEventThread.cpp
 endif
 
+ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
+  HEADER_SRC += \
+	client/aglEventThread.h
+
+  SOURCES += \
+	client/aglEventThread.cpp
+endif
+
 CXXFLAGS += $(WINDOW_SYSTEM_INCS)
 LDFLAGS  += $(WINDOW_SYSTEM_LIBS)
 

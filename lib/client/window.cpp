@@ -17,6 +17,9 @@
 #ifdef GLX
 #  include "glXEventThread.h"
 #endif
+#ifdef AGL
+#  include "aglEventThread.h"
+#endif
 #ifdef WGL
 #  include "wglEventHandler.h"
 #endif
@@ -926,6 +929,15 @@ void eq::Window::_initEventHandling()
 #endif
             break;
 
+        case WINDOW_SYSTEM_AGL:
+#ifdef AGL
+	{
+            AGLEventThread* thread = AGLEventThread::get();
+            thread->addWindow( this );
+	}
+#endif
+            break;
+
         case WINDOW_SYSTEM_WGL:
 #ifdef WGL
             _wglEventHandler = new WGLEventHandler( this );
@@ -947,6 +959,14 @@ void eq::Window::_exitEventHandling()
 #ifdef GLX
 	{
             GLXEventThread* thread = GLXEventThread::get();
+            thread->removeWindow( this );
+	}
+#endif
+            break;
+
+#ifdef AGL
+	{
+            AGLEventThread* thread = AGLEventThread::get();
             thread->removeWindow( this );
 	}
 #endif
