@@ -327,7 +327,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
         default:
             event.type = WindowEvent::UNHANDLED;
-            EQWARN << "Unhandled message " << uMsg << endl;
+            EQVERB << "Unhandled message " << uMsg << endl;
             result = !0;
             break;
     }
