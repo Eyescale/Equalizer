@@ -38,6 +38,15 @@ void AGLEventThread::exit()
 
 void AGLEventThread::addWindow( Window* window )
 {
+    const WindowRef carbonWindow = window->getCarbonWindow();
+    if( !carbonWindow )
+    {
+        EQWARN
+            << "Adding window without native Carbon window to AGL event thread"
+            << endl;
+        return;
+    }
+
     CHECK_NOT_THREAD( _eventThread );
     _startMutex.set();
     ++_used;
@@ -50,8 +59,10 @@ void AGLEventThread::addWindow( Window* window )
     EventTypeSpec   eventType    = 
         { kEventClassWindow, kEventWindowBoundsChanged };
 
-    InstallWindowEventHandler( window->getCarbonWindow(), eventHandler, 
+    InstallWindowEventHandler( carbonWindow, eventHandler, 
                                1, &eventType, window, 0 );
+    EQINFO << "Installed event handler for carbon window " << carbonWindow
+           << endl;
 }
 
 void AGLEventThread::removeWindow( Window* window )
@@ -79,20 +90,21 @@ void* AGLEventThread::run()
     CHECK_THREAD( _eventThread );
     EQINFO << "AGLEventThread running" << endl;
 
-    const EventTargetRef theTarget = GetEventDispatcherTarget();
+    const EventTargetRef target = GetEventDispatcherTarget();
     while( _used )
     {
-        EventRef theEvent;
+        EventRef event;
         const OSStatus status = ReceiveNextEvent( 0, 0, kEventDurationForever, 
-                                                  true, &theEvent );
+                                                  true, &event );
         if( status != noErr )
         {
             EQWARN << "ReceiveNextEvent failed: " << status << endl;
             continue;
         }
 
-        SendEventToEventTarget( theEvent, theTarget );
-        ReleaseEvent( theEvent );
+        EQINFO << "Dispatch Carbon event " << event << endl;
+        SendEventToEventTarget( event, target );
+        ReleaseEvent( event );
     }
 
     return 0;

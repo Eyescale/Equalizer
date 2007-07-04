@@ -22,7 +22,7 @@ namespace eqNet
     {
     public:
         CommandQueue();
-        ~CommandQueue();
+        virtual ~CommandQueue();
 
         /** 
          * Push a command to the queue.
@@ -34,7 +34,7 @@ namespace eqNet
          * @param node the node sending the packet.
          * @param packet the command packet.
          */
-        void push( Command& packet );
+        virtual void push( Command& packet );
 
         /** 
          * Push a command to the front of the queue.
@@ -46,7 +46,7 @@ namespace eqNet
          * @param node the node sending the packet.
          * @param packet the command packet.
          */
-        void pushFront( Command& packet );
+        virtual void pushFront( Command& packet );
 
         /** 
          * Pop a command from the queue.
@@ -55,7 +55,7 @@ namespace eqNet
          * 
          * @return the next command in the queue.
          */
-        Command* pop();
+        virtual Command* pop();
 
         /** 
          * Try to pop a command from the queue.
@@ -98,11 +98,6 @@ namespace eqNet
         /** The free command cache. */
         CommandCache              _commandCache;
         eqBase::Lock              _commandCacheLock;
-
-#ifdef WIN32
-        /** Thread ID of the receiver. */
-        DWORD _win32ThreadID;
-#endif
     };
 }
 

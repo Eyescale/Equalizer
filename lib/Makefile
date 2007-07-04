@@ -65,6 +65,7 @@ HEADER_SRC = \
 	client/channel.h \
 	client/client.h \
 	client/colorMask.h \
+	client/commandQueue.h \
 	client/commands.h \
 	client/config.h \
 	client/configEvent.h \
@@ -143,6 +144,7 @@ SOURCES = \
 	client/channel.cpp \
 	client/client.cpp \
 	client/colorMask.cpp \
+	client/commandQueue.cpp \
 	client/config.cpp \
 	client/configEvent.cpp \
 	client/configParams.cpp \

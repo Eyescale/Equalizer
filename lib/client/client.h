@@ -5,9 +5,9 @@
 #ifndef EQ_CLIENT_H
 #define EQ_CLIENT_H
 
-#include <eq/client/nodeType.h>  // for TYPE_EQ_CLIENT enum
-#include <eq/net/commandQueue.h> // member
-#include <eq/net/node.h>         // base class
+#include <eq/client/commandQueue.h> // member
+#include <eq/client/nodeType.h>     // for TYPE_EQ_CLIENT enum
+#include <eq/net/node.h>            // base class
 
 namespace eq
 {
@@ -55,7 +55,7 @@ namespace eq
 
     private:
         /** The receiver->node command queue. */
-        eqNet::CommandQueue    _commandQueue;
+        CommandQueue    _commandQueue;
         
         bool _running;
 

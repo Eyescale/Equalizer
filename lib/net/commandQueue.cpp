@@ -1,5 +1,4 @@
-
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "commandQueue.h"
@@ -13,9 +12,6 @@ using namespace std;
 
 CommandQueue::CommandQueue()
         : _lastCommand(0)
-#ifdef WIN32
-        , _win32ThreadID(0)
-#endif
 {
 }
 
@@ -51,11 +47,6 @@ void CommandQueue::push( Command& inCommand )
     //         modified. Could also use mutable modifier for Packet::command.
     ++(*outCommand)->command;
     _commands.push( outCommand );
-
-#ifdef WIN32
-    if( _win32ThreadID )
-        PostThreadMessage( _win32ThreadID, WM_APP, 0, 0 ); // Wake up pop()
-#endif
 }
 
 void CommandQueue::pushFront( Command& inCommand )
@@ -66,11 +57,6 @@ void CommandQueue::pushFront( Command& inCommand )
 
     ++(*outCommand)->command; // REQ must always follow CMD
     _commands.pushFront( outCommand );
-
-#ifdef WIN32
-    if( _win32ThreadID )
-        PostThreadMessage( _win32ThreadID, WM_APP, 0, 0 ); // Wake up pop()
-#endif
 }
 
 Command* CommandQueue::pop()
@@ -83,41 +69,9 @@ Command* CommandQueue::pop()
         _commandCache.release( _lastCommand );
         _commandCacheLock.unset();
     }
-#ifdef WIN32
-    else
-    {
-        // First call - force creation of thread message queue
-        MSG msg;
-        PeekMessage( &msg, 0, WM_USER, WM_USER, PM_NOREMOVE );
-        _win32ThreadID = GetCurrentThreadId();
-    }
 
-    while( true )
-    {
-        // Nonblocking windows message pump
-        MSG msg;
-        while( PeekMessage( &msg, 0, 0, 0, PM_REMOVE ))
-        {
-            TranslateMessage( &msg );
-            DispatchMessage( &msg );
-        }
-
-        // Poll for a command
-        _lastCommand = _commands.tryPop();
-        if( _lastCommand )
-            return _lastCommand;
-
-        // Blocking windows message pump - push() will send 'fake' message
-        if( GetMessage( &msg, 0, 0, 0 ))
-        {
-            TranslateMessage( &msg );
-            DispatchMessage( &msg );
-        }
-    }
-#else
     _lastCommand = _commands.pop();
     return _lastCommand;
-#endif
 }
 
 Command* CommandQueue::tryPop()

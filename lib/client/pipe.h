@@ -5,6 +5,7 @@
 #ifndef EQ_PIPE_H
 #define EQ_PIPE_H
 
+#include <eq/client/commandQueue.h>   // member
 #include <eq/client/node.h>           // used in inline methods
 #include <eq/client/pixelViewport.h>  // member
 #include <eq/client/statEvent.h>      // member
@@ -15,8 +16,8 @@
 #include <eq/base/spinLock.h>
 #include <eq/base/thread.h>
 #include <eq/net/base.h>
-#include <eq/net/object.h>
 #include <eq/net/commandQueue.h>
+#include <eq/net/object.h>
 
 #ifdef WGL
 #  include "wglext.h"
@@ -399,8 +400,11 @@ namespace eq
         PipeThread* _thread;
 
         /** The receiver->pipe thread command queue. */
+#ifdef WIN32 // Win32 needs message handling in each thread creating windows
+        CommandQueue           _commandQueue;
+#else
         eqNet::CommandQueue    _commandQueue;
-
+#endif
         void* _runThread();
 
         static int XErrorHandler( Display* display, XErrorEvent* event );

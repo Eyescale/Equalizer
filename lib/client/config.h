@@ -5,9 +5,9 @@
 #ifndef EQ_CONFIG_H
 #define EQ_CONFIG_H
 
-#include <eq/client/matrix4.h>   // member
-#include <eq/net/session.h>      // base class
-#include <eq/net/commandQueue.h> // member
+#include <eq/client/commandQueue.h> // member
+#include <eq/client/matrix4.h>      // member
+#include <eq/net/session.h>         // base class
 
 
 namespace eq
@@ -174,7 +174,7 @@ namespace eq
         eqBase::RequestHandler _requestHandler;
 
         /** The receiver->app thread event queue. */
-        eqNet::CommandQueue    _eventQueue;
+        CommandQueue           _eventQueue;
 
         /** The command functions. */
         eqNet::CommandResult _cmdCreateNode( eqNet::Command& command );
