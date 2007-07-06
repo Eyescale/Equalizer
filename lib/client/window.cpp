@@ -18,7 +18,7 @@
 #  include "glXEventThread.h"
 #endif
 #ifdef AGL
-#  include "aglEventThread.h"
+#  include "aglEventHandler.h"
 #endif
 #ifdef WGL
 #  include "wglEventHandler.h"
@@ -49,6 +49,7 @@ eq::Window::Window()
           _glXContext( 0 ),
           _aglContext( 0 ),
           _carbonWindow( 0 ),
+          _carbonHandler( 0 ),
           _wglWindowHandle( 0 ),
           _wglContext     ( 0 ),
           _wglEventHandler( 0 ),
@@ -932,8 +933,8 @@ void eq::Window::_initEventHandling()
         case WINDOW_SYSTEM_AGL:
 #ifdef AGL
 	{
-            AGLEventThread* thread = AGLEventThread::get();
-            thread->addWindow( this );
+            AGLEventHandler* handler = AGLEventHandler::get();
+            handler->addWindow( this );
 	}
 #endif
             break;
@@ -966,8 +967,8 @@ void eq::Window::_exitEventHandling()
 
 #ifdef AGL
 	{
-            AGLEventThread* thread = AGLEventThread::get();
-            thread->removeWindow( this );
+            AGLEventHandler* handler = AGLEventHandler::get();
+            handler->removeWindow( this );
 	}
 #endif
             break;

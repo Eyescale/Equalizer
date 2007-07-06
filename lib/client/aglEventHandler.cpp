@@ -1,7 +1,7 @@
 /* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#include "aglEventThread.h"
+#include "aglEventHandler.h"
 
 #include "window.h"
 
@@ -9,116 +9,84 @@ using namespace eq;
 using namespace eqBase;
 using namespace std;
 
-AGLEventThread AGLEventThread::_thread;
+AGLEventHandler AGLEventHandler::_handler;
 
-AGLEventThread* AGLEventThread::get()
+AGLEventHandler* AGLEventHandler::get()
 {
-    return &_thread;
+    return &_handler;
 }
 
-AGLEventThread::AGLEventThread()
-        : _used( 0 )
+AGLEventHandler::AGLEventHandler()
 {
 }
 
-bool AGLEventThread::init()
-{
-    CHECK_THREAD( _eventThread );
-    EQINFO << "Initialized agl event thread" << endl;
-    return true;
-}
-
-void AGLEventThread::exit()
-{
-    EQINFO << "Exiting agl event thread" << endl;
-    CHECK_THREAD( _eventThread );
-
-    eqBase::Thread::exit();
-}
-
-void AGLEventThread::addWindow( Window* window )
+void AGLEventHandler::addWindow( Window* window )
 {
     const WindowRef carbonWindow = window->getCarbonWindow();
     if( !carbonWindow )
     {
         EQWARN
-            << "Adding window without native Carbon window to AGL event thread"
+            << "Adding window without native Carbon window to AGL event handler"
             << endl;
         return;
     }
 
-    CHECK_NOT_THREAD( _eventThread );
-    _startMutex.set();
-    ++_used;
-    if( isStopped( ))
-        start();
-    _startMutex.unset();
-
     EventHandlerUPP eventHandler = NewEventHandlerUPP( 
-        eq::AGLEventThread::_handleEventUPP );
-    EventTypeSpec   eventType    = 
-        { kEventClassWindow, kEventWindowBoundsChanged };
+        eq::AGLEventHandler::_handleEventUPP );
+    EventTypeSpec   eventType[]    = {
+        { kEventClassWindow, kEventWindowBoundsChanged },
+        { kEventClassMouse,  kEventMouseDragged }
+    };
 
     InstallWindowEventHandler( carbonWindow, eventHandler, 
-                               1, &eventType, window, 0 );
+                               2, eventType, window, &window->_carbonHandler );
     EQINFO << "Installed event handler for carbon window " << carbonWindow
            << endl;
 }
 
-void AGLEventThread::removeWindow( Window* window )
+void AGLEventHandler::removeWindow( Window* window )
 {
-    CHECK_NOT_THREAD( _eventThread );
-    EQASSERT( isRunning( ));
-
-    // TODO send remove window event, wait for remove?
-
-    _startMutex.set();
-    EQASSERT( _used );
-    --_used;
-    if( !_used )
-        join();
-    CHECK_THREAD_RESET( _eventThread );
-    _startMutex.unset();
+    RemoveEventHandler( window->_carbonHandler );
+    window->_carbonHandler = 0;
 }
 
-//===========================================================================
-// Event thread methods
-//===========================================================================
-
-void* AGLEventThread::run()
-{
-    CHECK_THREAD( _eventThread );
-    EQINFO << "AGLEventThread running" << endl;
-
-    const EventTargetRef target = GetEventDispatcherTarget();
-    while( _used )
-    {
-        EventRef event;
-        const OSStatus status = ReceiveNextEvent( 0, 0, kEventDurationForever, 
-                                                  true, &event );
-        if( status != noErr )
-        {
-            EQWARN << "ReceiveNextEvent failed: " << status << endl;
-            continue;
-        }
-
-        EQINFO << "Dispatch Carbon event " << event << endl;
-        SendEventToEventTarget( event, target );
-        ReleaseEvent( event );
-    }
-
-    return 0;
-}
-
-pascal OSStatus AGLEventThread::_handleEventUPP( 
+pascal OSStatus AGLEventHandler::_handleEventUPP( 
     EventHandlerCallRef nextHandler, EventRef event, void* userData )
 {
-    EQINFO << "Event from " << userData << endl;
-    return CallNextEventHandler( nextHandler, event );
+    AGLEventHandler* handler = get();
+
+    if( !handler->_handleEvent( event, static_cast< eq::Window* >( userData )))
+        return CallNextEventHandler( nextHandler, event );
+
+    return noErr; // else was handled
+}
+
+bool AGLEventHandler::_handleEvent( EventRef event, eq::Window* window )
+{
+    switch( GetEventClass( event ))
+    {
+        case kEventClassWindow:
+            return _handleWindowEvent( event, window );
+        case kEventClassMouse:
+            return _handleMouseEvent( event, window );
+        default:
+            EQINFO << "Unknown event class " << GetEventClass( event ) << endl;
+            return false;
+    }
+}
+
+bool AGLEventHandler::_handleWindowEvent( EventRef event, eq::Window* window )
+{
+    return false;
+}
+
+bool AGLEventHandler::_handleMouseEvent( EventRef event, eq::Window* window )
+{
+    return false;
 }
 
 #if 0
-uint32_t AGLEventThread::_getButtonState( XEvent& event )
+uint32_t AGLEventHandler::_getButtonState( XEvent& event )
 {
     const int xState = event.xbutton.state;
     uint32_t   state  = 0;
@@ -145,7 +113,7 @@ uint32_t AGLEventThread::_getButtonState( XEvent& event )
     return state;
 }
 
-uint32_t AGLEventThread::_getButtonAction( XEvent& event )
+uint32_t AGLEventHandler::_getButtonAction( XEvent& event )
 {
     switch( event.xbutton.button )
     {    
@@ -159,7 +127,7 @@ uint32_t AGLEventThread::_getButtonAction( XEvent& event )
 }
 
 
-uint32_t AGLEventThread::_getKey( XEvent& event )
+uint32_t AGLEventHandler::_getKey( XEvent& event )
 {
     const KeySym key = XKeycodeToKeysym( event.xany.display, 
                                          event.xkey.keycode, 0);

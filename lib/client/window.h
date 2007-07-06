@@ -323,6 +323,10 @@ namespace eq
                 AGLContext   _aglContext;
                 /** The carbon window reference. */
                 WindowRef    _carbonWindow;
+                
+                friend class AGLEventHandler;
+                /** Used by AGLEventHandler to keep the handler for removal. */
+                EventHandlerRef _carbonHandler;
             };
 
             struct

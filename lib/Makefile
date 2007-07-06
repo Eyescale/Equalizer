@@ -177,10 +177,10 @@ endif
 
 ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
   HEADER_SRC += \
-	client/aglEventThread.h
+	client/aglEventHandler.h
 
   SOURCES += \
-	client/aglEventThread.cpp
+	client/aglEventHandler.cpp
 endif
 
 CXXFLAGS += $(WINDOW_SYSTEM_INCS)

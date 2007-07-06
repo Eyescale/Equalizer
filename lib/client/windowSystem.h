@@ -61,6 +61,7 @@ typedef void* GLXContext;
 #  ifndef Darwin
 typedef int32_t CGDirectDisplayID;
 typedef void*   WindowRef;
+typedef void*   EventHandlerRef;
 #  endif
 typedef void*   AGLContext;
 #endif
