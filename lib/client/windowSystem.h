@@ -31,11 +31,12 @@
 #  define GL_GLEXT_PROTOTYPES
 #  if defined(__i386__) // WAR compile error
 #    undef Status 
-#  endif 
-#  define Cursor CGLCursor // avoid name clash with X11 'Cursor'
+#  endif
+#  ifdef Cursor 
+#    undef Cursor // avoid name clash with X11 'Cursor'
+#  endif
 #  include <ApplicationServices/ApplicationServices.h>
 #  include <AGL/agl.h>
-#  undef Cursor
 #endif
 
 #ifdef WGL
