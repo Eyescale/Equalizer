@@ -38,10 +38,14 @@ namespace eqs
         /** @return the position of the data relative to the window. */
         const vmml::Vector2i& getOffset() const { return _data.offset; }
 
-        /** Set the buffers of the source frame. */
+        /** Set the (color, depth) buffers of the source frame. */
         void setBuffers( const uint32_t buffers ) 
             { _data.buffers = buffers; }
         uint32_t getBuffers() const { return _data.buffers; }
+
+        /** Set the source range wrt dest channel. */
+        void setRange( const eq::Range& range )
+            { _data.range = range; }
         //*}
 
     protected:

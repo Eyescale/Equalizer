@@ -14,7 +14,8 @@ using namespace eqBase;
 using namespace std;
 
 Frame::Frame()
-        : _compound( 0 )
+        : _compound( 0 ),
+          _masterFrameData( 0 )
 {
     _data.buffers = eq::Frame::BUFFER_UNDEFINED;
     for( unsigned i = 0; i<eq::EYE_ALL; ++i )

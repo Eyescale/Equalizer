@@ -13,31 +13,24 @@ using namespace std;
 
 Frame::Frame( Pipe* pipe )
         : _pipe( pipe ),
-          _context( 0 )
+          _eyePass( EYE_CYCLOP )
 {
     setInstanceData( &_data, sizeof( Data ));
 }
 
-void Frame::setRenderContext( const RenderContext* context )
-{
-    // We can only toggle between having and not having a context, otherwise
-    // something is fishy -- most likely two channels use the same frame at the
-    // same time.
-    EQASSERTINFO( !_context && context || _context && !context, 
-                  "Render context mismanaged" );
-
-    _context = context;
-}
 
 FrameData* Frame::_getData()
 {
-    EQASSERT( _context );
-
-    const eqNet::ObjectVersion& frameData = _data.frameData[ _context->eye ];
+    const eqNet::ObjectVersion& frameData = _data.frameData[ _eyePass ];
     EQASSERT( frameData.objectID != EQ_ID_INVALID );
 
     return _pipe->getNode()->getFrameData( frameData.objectID,
                                            frameData.version ); 
+}
+
+const Range& Frame::getRange()
+{
+    return _getData()->getRange();
 }
 
 void Frame::startReadback() 

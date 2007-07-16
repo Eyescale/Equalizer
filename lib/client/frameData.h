@@ -7,6 +7,7 @@
 
 #include <eq/client/frame.h>         // enum Frame::Buffer
 #include <eq/client/pixelViewport.h> // member
+#include <eq/client/range.h>         // member
 
 #include <eq/base/monitor.h>         // member
 #include <eq/net/object.h>           // base class
@@ -35,6 +36,8 @@ namespace eq
          * @name Data Access
          */
         //*{
+        /** The database-range relativ to the destination channel. */
+        const Range& getRange() const { return _data.range; }
         //*}
 
         /**
@@ -120,6 +123,7 @@ namespace eq
             uint32_t       buffers;
             uint32_t       format;
             uint32_t       type;
+            Range          range; //<! database-range wrt to dest channel
         }
             _data;
 

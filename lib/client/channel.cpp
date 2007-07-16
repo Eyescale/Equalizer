@@ -503,17 +503,12 @@ eqNet::CommandResult Channel::_reqFrameAssemble( eqNet::Command& command )
     {
         Frame* frame = pipe->getFrame( packet->frames[i].objectID, 
                                        packet->frames[i].version );
-        frame->setRenderContext( _context );
+        frame->setEyePass( _context->eye );
         _inputFrames.push_back( frame );
     }
 
     frameAssemble( packet->context.frameID );
 
-    for( vector<Frame*>::const_iterator i = _inputFrames.begin();
-         i != _inputFrames.end(); ++i )
-
-        (*i)->setRenderContext( 0 );
-    
     _inputFrames.clear();
     _context = NULL;
 
@@ -541,7 +536,7 @@ eqNet::CommandResult Channel::_reqFrameReadback( eqNet::Command& command )
     {
         Frame* frame = pipe->getFrame( packet->frames[i].objectID, 
                                        packet->frames[i].version );
-        frame->setRenderContext( _context );
+        frame->setEyePass( _context->eye );
         _outputFrames.push_back( frame );
     }
 
@@ -552,7 +547,6 @@ eqNet::CommandResult Channel::_reqFrameReadback( eqNet::Command& command )
     {
         Frame* frame = *i;
         frame->syncReadback();
-        frame->setRenderContext( 0 );
     }
 
     _outputFrames.clear();
@@ -578,7 +572,7 @@ eqNet::CommandResult Channel::_reqFrameTransmit( eqNet::Command& command )
     RefPtr<eqNet::Node> server    = session->getServer();
     Frame*              frame     = pipe->getFrame( packet->frame.objectID, 
                                                     packet->frame.version );
-    frame->setRenderContext( &packet->context );
+    frame->setEyePass( packet->context.eye );
 
     for( uint32_t i=0; i<packet->nNodes; ++i )
     {
@@ -594,7 +588,6 @@ eqNet::CommandResult Channel::_reqFrameTransmit( eqNet::Command& command )
         if( getIAttribute( IATTR_HINT_STATISTICS ))
             pipe->addStatEvent( nodeEvent );
     }
-    frame->setRenderContext( 0 );
 
     if( getIAttribute( IATTR_HINT_STATISTICS ))
         pipe->addStatEvent( event );

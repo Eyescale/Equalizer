@@ -660,6 +660,9 @@ void Compound::_updateOutput( UpdateData* data )
         frameData->setBuffers( buffers == eq::Frame::BUFFER_UNDEFINED ? 
                                getInheritBuffers() : buffers );
 
+        // (source) render context
+        frameData->setRange( _inherit.range );
+
         frame->commitData();
         frame->updateInheritData( this );
         frame->commit();
@@ -751,9 +754,8 @@ void Compound::_updateInput( UpdateData* data )
 //---------------------------------------------------------------------------
 void Compound::updateChannel( Channel* channel, const uint32_t frameID )
 {
-    UpdateChannelData data = { channel, frameID };
+    UpdateChannelData data = { channel, frameID, eq::EYE_LEFT };
 
-    data.eye = eq::EYE_LEFT;
     traverseActive( this, _updatePreDrawCB, _updateDrawCB, _updatePostDrawCB,
                     &data );
 

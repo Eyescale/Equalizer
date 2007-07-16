@@ -15,7 +15,7 @@ namespace eq
      */
     enum Eye
     {
-        EYE_CYCLOP,
+        EYE_CYCLOP = 0,
         EYE_LEFT,
         EYE_RIGHT,
         EYE_ALL   // must be last

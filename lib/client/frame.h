@@ -5,7 +5,7 @@
 #ifndef EQ_FRAME_H
 #define EQ_FRAME_H
 
-#include <eq/client/eye.h>            // enum used in member
+#include <eq/client/eye.h> // member enum
 
 #include <eq/base/monitor.h>
 #include <eq/net/object.h>
@@ -20,7 +20,7 @@ namespace eq
 {
     class FrameData;
     class Pipe;
-    class RenderContext;
+    class Range;
 
     /**
      * A holder for a frame data and parameters.
@@ -52,6 +52,9 @@ namespace eq
          */
         //*{
         const vmml::Vector2i& getOffset() const { return _data.offset; }
+        
+        /** The database-range relativ to the destination channel. */
+        const Range& getRange();
         //*}
 
         /**
@@ -116,7 +119,7 @@ namespace eq
         //*}
 
         /** Set by the channel */
-        void setRenderContext( const RenderContext* context );
+        void setEyePass( const Eye eyePass ) { _eyePass = eyePass; }
 
     protected:
         virtual bool isStatic() const { return false; }
@@ -125,7 +128,7 @@ namespace eq
         std::string _name;
         Pipe*       _pipe;
 
-        const RenderContext* _context;
+        Eye _eyePass;
 
         /** All distributed data, shared between eq::Frame and eqs::Frame. */
         struct Data
