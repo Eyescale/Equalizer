@@ -69,7 +69,9 @@ typedef INT32      int32_t;
 typedef UINT16     uint16_t;
 typedef UINT8      uint8_t;
 typedef int        socklen_t;
+#  ifndef HAVE_SSIZE_T
 typedef SSIZE_T    ssize_t;
+#  endif
 #endif // Win32
 
 // defines
