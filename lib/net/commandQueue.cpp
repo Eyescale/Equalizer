@@ -7,9 +7,10 @@
 #include "node.h"
 #include "packets.h"
 
-using namespace eqNet;
 using namespace std;
 
+namespace eqNet
+{
 CommandQueue::CommandQueue()
         : _lastCommand(0)
 {
@@ -41,10 +42,7 @@ void CommandQueue::push( Command& inCommand )
     Command* outCommand = _commandCache.alloc( inCommand );
     _commandCacheLock.unset();
 
-    // Note 1: REQ must always follow CMD
-    // Note 2: Use of const_cast here is less ugly than passing around non-cast
-    //         packets just for this one place were the packet is
-    //         modified. Could also use mutable modifier for Packet::command.
+    // Note: REQ must always follow CMD
     ++(*outCommand)->command;
     _commands.push( outCommand );
 }
@@ -96,4 +94,5 @@ Command* CommandQueue::tryPop()
 Command* CommandQueue::back() const
 {
     return _commands.back();
+}
 }
