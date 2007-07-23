@@ -47,9 +47,37 @@
 #  include <eq/client/wglext.h>
 #endif
 
+//----- Missing definitions due to old (w)glext.h
 #ifndef GL_TEXTURE_3D
 #  define 	GL_TEXTURE_3D   0x806F
 #endif
+
+#ifndef WGL_NV_gpu_affinity
+#define WGL_NV_gpu_affinity 1
+DECLARE_HANDLE(HGPUNV);
+typedef struct _GPU_DEVICE {
+	DWORD  cb;
+	CHAR   DeviceName[32];
+	CHAR   DeviceString[128];
+	DWORD  Flags;
+	RECT   rcVirtualScreen;
+} GPU_DEVICE, *PGPU_DEVICE;
+
+#ifdef WGL_WGLEXT_PROTOTYPES
+extern BOOL WINAPI wglEnumGpusNV (UINT iIndex, HGPUNV *hGpu);
+extern BOOL WINAPI wglEnumGpuDevicesNV (HGPUNV hGpu, UINT iIndex, PGPU_DEVICE pGpuDevice);
+extern HDC WINAPI wglCreateAffinityDCNV (const HGPUNV *pGpuList);
+extern BOOL WINAPI wglEnumGpusFromAffinityDCNV (HDC hAffinityDC, UINT iIndex, HGPUNV *hGpu);
+extern BOOL WINAPI wglDeleteDCNV (HDC hAffinityDC);
+#else
+typedef BOOL (WINAPI * PFNWGLENUMGPUSNVPROC) (UINT iIndex, HGPUNV *hGpu);
+typedef BOOL (WINAPI * PFNWGLENUMGPUDEVICESNVPROC) (HGPUNV hGpu, UINT iIndex, PGPU_DEVICE pGpuDevice);
+typedef HDC (WINAPI * PFNWGLCREATEAFFINITYDCNVPROC) (const HGPUNV *pGpuList);
+typedef BOOL (WINAPI * PFNWGLENUMGPUSFROMAFFINITYDCNVPROC) (HDC hAffinityDC, UINT iIndex, HGPUNV *hGpu);
+typedef BOOL (WINAPI * PFNWGLDELETEDCNVPROC) (HDC hAffinityDC);
+#endif
+#endif
+//-----
 
 #ifndef GLX
 typedef void Display;
