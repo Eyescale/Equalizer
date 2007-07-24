@@ -29,6 +29,8 @@ Server::Server()
             eqNet::CommandFunc<Server>( this, &Server::_cmdChooseConfigReply ));
     registerCommand( CMD_SERVER_RELEASE_CONFIG_REPLY, 
            eqNet::CommandFunc<Server>( this, &Server::_cmdReleaseConfigReply ));
+    registerCommand( CMD_SERVER_SHUTDOWN_REPLY, 
+           eqNet::CommandFunc<Server>( this, &Server::_cmdShutdownReply ));
 
     EQINFO << "New server at " << (void*)this << endl;
 }
@@ -108,6 +110,20 @@ void Server::releaseConfig( Config* config )
     _requestHandler.waitRequest( packet.requestID );
 }
 
+bool Server::shutdown()
+{
+    if( !isConnected( ))
+        return false;
+
+    ServerShutdownPacket packet;
+    packet.requestID = _requestHandler.registerRequest();
+    send( packet );
+
+    bool result = false;
+    _requestHandler.waitRequest( packet.requestID, result );
+    return result;
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
@@ -185,5 +201,14 @@ eqNet::CommandResult Server::_cmdReleaseConfigReply( eqNet::Command& command )
     delete config;
     _requestHandler.serveRequest( packet->requestID );
     
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Server::_cmdShutdownReply( eqNet::Command& command )
+{
+    const ServerShutdownReplyPacket* packet = 
+        command.getPacket<ServerShutdownReplyPacket>();
+
+    _requestHandler.serveRequest( packet->requestID, packet->result );
     return eqNet::COMMAND_HANDLED;
 }

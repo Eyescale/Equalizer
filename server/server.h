@@ -110,6 +110,9 @@ namespace eqs
         /** The receiver->main command queue. */
         eqNet::CommandQueue    _commandQueue;
 
+        /** The current state. */
+        bool _running;
+
         /** @sa eqNet::Node::getType */
         virtual uint32_t getType() const { return eq::TYPE_EQ_SERVER; }
 
@@ -119,6 +122,7 @@ namespace eqs
         eqNet::CommandResult _reqChooseConfig( eqNet::Command& command );
         eqNet::CommandResult _reqUseConfig( eqNet::Command& command );
         eqNet::CommandResult _reqReleaseConfig( eqNet::Command& command );
+        eqNet::CommandResult _reqShutdown( eqNet::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Server* server );

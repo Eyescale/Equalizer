@@ -110,6 +110,7 @@ int Application::runMainloop()
 
     // 6. cleanup and exit
     server->releaseConfig( config );
+    server->shutdown();
     if( !disconnectServer( server ))
         EQERROR << "Client::disconnectServer failed" << endl;
     server = 0;

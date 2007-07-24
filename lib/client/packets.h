@@ -153,6 +153,30 @@ namespace eq
         uint32_t requestID;
     };
 
+    struct ServerShutdownPacket : public ServerPacket
+    {
+        ServerShutdownPacket()
+            {
+                command = CMD_SERVER_SHUTDOWN;
+                size    = sizeof( ServerShutdownPacket );
+            }
+
+        uint32_t requestID;
+    };
+
+    struct ServerShutdownReplyPacket : public ServerPacket
+    {
+        ServerShutdownReplyPacket( const ServerShutdownPacket* requestPacket )
+            {
+                command   = CMD_SERVER_SHUTDOWN_REPLY;
+                size      = sizeof( ServerShutdownReplyPacket );
+                requestID = requestPacket->requestID;
+            }
+
+        uint32_t requestID;
+        bool     result;
+    };
+
     //------------------------------------------------------------
     // Config
     //------------------------------------------------------------

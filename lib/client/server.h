@@ -39,6 +39,7 @@ namespace eq
          */
         Config* chooseConfig( const ConfigParams& parameters );
 
+        /** Undocumented - may not be supported in the future */
         Config* useConfig( const ConfigParams& parameters, 
                            const std::string& config );
 
@@ -51,6 +52,9 @@ namespace eq
          * @param config the configuration.
          */
         void releaseConfig( Config* config );
+
+        /** Undocumented - may not be supported in the future */
+        bool shutdown();
 
     protected:
         /**
@@ -71,6 +75,7 @@ namespace eq
         eqNet::CommandResult _cmdDestroyConfig( eqNet::Command& command );
         eqNet::CommandResult _cmdChooseConfigReply( eqNet::Command& command );
         eqNet::CommandResult _cmdReleaseConfigReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdShutdownReply( eqNet::Command& command );
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Server* server )

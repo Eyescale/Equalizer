@@ -41,6 +41,10 @@ Server::Server()
                      eqNet::CommandFunc<Server>( this, &Server::_cmdPush ));
     registerCommand( eq::REQ_SERVER_RELEASE_CONFIG,
                 eqNet::CommandFunc<Server>( this, &Server::_reqReleaseConfig ));
+    registerCommand( eq::CMD_SERVER_SHUTDOWN,
+                     eqNet::CommandFunc<Server>( this, &Server::_cmdPush ));
+    registerCommand( eq::REQ_SERVER_SHUTDOWN,
+                     eqNet::CommandFunc<Server>( this, &Server::_reqShutdown ));
     EQINFO << "New server @" << (void*)this << endl;
 }
 
@@ -94,7 +98,8 @@ eqNet::CommandResult Server::handleCommand( eqNet::Command& command )
 
 void Server::_handleCommands()
 {
-    while( true )
+    _running = true;
+    while( _running ) // set to false in _reqShutdown()
     {
         eqNet::Command* command = _commandQueue.pop();
 
@@ -113,7 +118,7 @@ void Server::_handleCommands()
             case eqNet::COMMAND_REDISPATCH:
                 // This happens mostly during config exit when a request was
                 // still buffered for an object which just got deleted.
-                EQASSERT( (*command)->datatype == eqNet::DATATYPE_EQNET_OBJECT );
+                EQASSERT( (*command)->datatype == eqNet::DATATYPE_EQNET_OBJECT);
                 EQWARN << "Command for unknown object dropped: " << *command
                        << endl;
                 break;
@@ -214,8 +219,8 @@ eqNet::CommandResult Server::_reqReleaseConfig( eqNet::Command& command )
     EQINFO << "Handle release config " << packet << endl;
 
     eq::ServerReleaseConfigReplyPacket reply( packet );
-    RefPtr<eqNet::Node>                node   = command.getNode();
     Config*                            config = _appConfigs[packet->configID];
+    RefPtr<eqNet::Node>                node   = command.getNode();
 
     if( !config )
     {
@@ -239,6 +244,26 @@ eqNet::CommandResult Server::_reqReleaseConfig( eqNet::Command& command )
     node->send( reply );
     EQLOG( LOG_ANY ) << "----- Released Config -----" << endl;
 
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Server::_reqShutdown( eqNet::Command& command )
+{
+    const eq::ServerShutdownPacket* packet = 
+        command.getPacket<eq::ServerShutdownPacket>();
+    EQINFO << "Handle shutdown " << packet << endl;
+
+    eq::ServerShutdownReplyPacket reply( packet );
+
+    reply.result = _appConfigs.empty();
+    if( reply.result )
+        _running = false;
+    else
+        EQWARN << "Ignoring shutdown request, " << _appConfigs.size() 
+               << " configs still active" << endl;
+
+    RefPtr<eqNet::Node> node = command.getNode();
+    node->send( reply );
     return eqNet::COMMAND_HANDLED;
 }
 
