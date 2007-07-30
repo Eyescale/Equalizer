@@ -32,6 +32,8 @@
         static eqs::Frame*       frame = 0;
         static eqBase::RefPtr<eqNet::ConnectionDescription> 
             connectionDescription;
+        static eq::Wall          wall;
+        static eq::Projection    projection;
         static uint32_t          flags = 0;
     }
 
@@ -130,6 +132,11 @@
 %token EQTOKEN_BOTTOM_LEFT
 %token EQTOKEN_BOTTOM_RIGHT
 %token EQTOKEN_TOP_LEFT
+%token EQTOKEN_PROJECTION
+%token EQTOKEN_ORIGIN
+%token EQTOKEN_DISTANCE
+%token EQTOKEN_FOV
+%token EQTOKEN_HPR
 %token EQTOKEN_SYNC
 %token EQTOKEN_LATENCY
 %token EQTOKEN_SWAPBARRIER
@@ -478,6 +485,7 @@ compoundField:
     | EQTOKEN_PERIOD UNSIGNED { eqCompound->setPeriod( $2 ); }
     | EQTOKEN_PHASE  UNSIGNED { eqCompound->setPhase( $2 ); }
     | wall
+    | projection
     | swapBarrier
     | outputFrame
     | inputFrame
@@ -501,26 +509,31 @@ buffer:
     EQTOKEN_COLOR    { flags |= eq::Frame::BUFFER_COLOR; }
     | EQTOKEN_DEPTH  { flags |= eq::Frame::BUFFER_DEPTH; }
 
-wall: EQTOKEN_WALL '{'
-          EQTOKEN_BOTTOM_LEFT  '[' FLOAT FLOAT FLOAT ']' 
-          EQTOKEN_BOTTOM_RIGHT '[' FLOAT FLOAT FLOAT ']' 
-          EQTOKEN_TOP_LEFT     '[' FLOAT FLOAT FLOAT ']' 
-      '}'
-    { 
-        eq::Wall wall;
-        wall.bottomLeft[0] = $5;
-        wall.bottomLeft[1] = $6;
-        wall.bottomLeft[2] = $7;
+wall: EQTOKEN_WALL '{' { wall = eq::Wall(); } 
+    wallFields '}' { eqCompound->setWall( wall ); }
 
-        wall.bottomRight[0] = $11;
-        wall.bottomRight[1] = $12;
-        wall.bottomRight[2] = $13;
+wallFields:  /*null*/ | wallField | wallFields wallField
+wallField:
+    EQTOKEN_BOTTOM_LEFT  '[' FLOAT FLOAT FLOAT ']'
+        { wall.bottomLeft = vmml::Vector3f( $3, $4, $5 ); }
+    | EQTOKEN_BOTTOM_RIGHT  '[' FLOAT FLOAT FLOAT ']'
+        { wall.bottomRight = vmml::Vector3f( $3, $4, $5 ); }
+   |  EQTOKEN_TOP_LEFT  '[' FLOAT FLOAT FLOAT ']'
+        { wall.topLeft = vmml::Vector3f( $3, $4, $5 ); }
 
-        wall.topLeft[0] = $17;
-        wall.topLeft[1] = $18;
-        wall.topLeft[2] = $19;
-        eqCompound->setWall( wall );
-    }
+projection: EQTOKEN_PROJECTION '{' { projection = eq::Projection(); } 
+    projectionFields '}' { eqCompound->setProjection( projection ); }
+
+projectionFields:  /*null*/ | projectionField | projectionFields projectionField
+projectionField:
+    EQTOKEN_ORIGIN  '[' FLOAT FLOAT FLOAT ']'
+        { projection.origin = vmml::Vector3f( $3, $4, $5 ); }
+    | EQTOKEN_DISTANCE FLOAT
+        { projection.distance = $2; }
+    | EQTOKEN_FOV  '[' FLOAT FLOAT ']'
+        { projection.fov = vmml::Vector2f( $3, $4 ); }
+    | EQTOKEN_HPR  '[' FLOAT FLOAT FLOAT ']'
+        { projection.hpr = vmml::Vector3f( $3, $4, $5 ); }
 
 swapBarrier: EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eqs::SwapBarrier; }
     swapBarrierFields '}'

@@ -127,6 +127,11 @@ wall                            { return EQTOKEN_WALL; }
 bottom_left                     { return EQTOKEN_BOTTOM_LEFT; }
 bottom_right                    { return EQTOKEN_BOTTOM_RIGHT; }
 top_left                        { return EQTOKEN_TOP_LEFT; }
+projection                      { return EQTOKEN_PROJECTION; }
+origin                          { return EQTOKEN_ORIGIN; }
+distance                        { return EQTOKEN_DISTANCE; }
+fov                             { return EQTOKEN_FOV; }
+hpr                             { return EQTOKEN_HPR; }
 latency                         { return EQTOKEN_LATENCY; }
 swapbarrier                     { return EQTOKEN_SWAPBARRIER; }
 outputframe                     { return EQTOKEN_OUTPUTFRAME; }

@@ -33,6 +33,8 @@ namespace eq
         float height;
         vmml::Matrix4f xfm;
     };
+
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const View& view ); 
 }
 
 #endif // EQ_VIEW_H

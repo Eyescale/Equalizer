@@ -7,40 +7,21 @@
 #include "projection.h"
 #include "wall.h"
 
-using namespace eq;
-
 #define DEG2RAD( angle ) ( (angle) * static_cast<float>(M_PI) / 180.f )
 
+namespace eq
+{
 void View::applyWall( const Wall& wall )
 {
-    float u[3] = { wall.bottomRight[0] - wall.bottomLeft[0],
-                   wall.bottomRight[1] - wall.bottomLeft[1],
-                   wall.bottomRight[2] - wall.bottomLeft[2] };
+    vmml::Vector3f u = wall.bottomRight - wall.bottomLeft;
+    vmml::Vector3f v = wall.topLeft - wall.bottomLeft;
+    vmml::Vector3f w( u[1]*v[2] - u[2]*v[1],
+                      u[2]*v[0] - u[0]*v[2],
+                      u[0]*v[1] - u[1]*v[0] );
 
-    float v[3] = { wall.topLeft[0] - wall.bottomLeft[0],
-                   wall.topLeft[1] - wall.bottomLeft[1],
-                   wall.topLeft[2] - wall.bottomLeft[2] };
-
-    float w[3] = { u[1]*v[2] - u[2]*v[1],
-                   u[2]*v[0] - u[0]*v[2],
-                   u[0]*v[1] - u[1]*v[0] };
-
-    float length = sqrt( u[0]*u[0] + u[1]*u[1] + u[2]*u[2] );
-    u[0] /= length;
-    u[1] /= length;
-    u[2] /= length;
-    width = length;
-
-    length = sqrt( v[0]*v[0] + v[1]*v[1] + v[2]*v[2] );
-    v[0] /= length;
-    v[1] /= length;
-    v[2] /= length;
-    height = length;
-
-    length = sqrt( w[0]*w[0] + w[1]*w[1] + w[2]*w[2] );
-    w[0] /= length;
-    w[1] /= length;
-    w[2] /= length;
+    width = u.normalize();
+    height = v.normalize();
+    w.normalize();
 
     xfm.ml[0]  = u[0];
     xfm.ml[1]  = v[0];
@@ -57,9 +38,9 @@ void View::applyWall( const Wall& wall )
     xfm.ml[10] = w[2];
     xfm.ml[11] = 0.;
 
-    const float center[3] = { (wall.bottomRight[0] + wall.topLeft[0]) * 0.5f,
-                              (wall.bottomRight[1] + wall.topLeft[1]) * 0.5f,
-                              (wall.bottomRight[2] + wall.topLeft[2]) * 0.5f };
+    const vmml::Vector3f center((wall.bottomRight[0] + wall.topLeft[0]) * 0.5f,
+                                (wall.bottomRight[1] + wall.topLeft[1]) * 0.5f,
+                                (wall.bottomRight[2] + wall.topLeft[2]) * 0.5f);
 
     xfm.ml[12] = -(u[0]*center[0] + u[1]*center[1] + u[2]*center[2]);
     xfm.ml[13] = -(v[0]*center[0] + v[1]*center[1] + v[2]*center[2]);
@@ -85,14 +66,12 @@ void View::applyProjection( const Projection& projection )
         };
 
     // translation = HPR x -origin
-    const float* origin   = projection.origin;
+    const vmml::Vector3f& origin = projection.origin;
     const float  distance = projection.distance;
-    const float  trans[3] = 
-        {
-            -( rot[0]*origin[0] + rot[3]*origin[1] + rot[6]*origin[2] ),
-            -( rot[1]*origin[0] + rot[4]*origin[1] + rot[7]*origin[2] ),
-            -( rot[2]*origin[0] + rot[5]*origin[1] + rot[8]*origin[2] )
-        };
+    const vmml::Vector3f 
+        trans( -( rot[0]*origin[0] + rot[3]*origin[1] + rot[6]*origin[2] ),
+               -( rot[1]*origin[0] + rot[4]*origin[1] + rot[7]*origin[2] ),
+               -( rot[2]*origin[0] + rot[5]*origin[1] + rot[8]*origin[2] ));
 
     xfm.ml[0]  = rot[0];
     xfm.ml[1]  = rot[1];
@@ -116,4 +95,13 @@ void View::applyProjection( const Projection& projection )
 
     width  = distance * tan(DEG2RAD( projection.fov[0] ));
     height = distance * tan(DEG2RAD( projection.fov[1] ));
+}
+ 
+EQ_EXPORT std::ostream& operator << ( std::ostream& os, const View& view )
+{
+    os << "WxH: " << view.width << "x" << view.height << " xfm: " << view.xfm
+       << std::endl;
+    return os;
+}
+
 }

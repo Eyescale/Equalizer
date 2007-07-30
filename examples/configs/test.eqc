@@ -1,137 +1,68 @@
-# four-to-one sort-last, binary-swap single-pipe demo configuration
-global
-{
-    EQ_WINDOW_IATTR_PLANES_STENCIL ON
-    EQ_COMPOUND_IATTR_STEREO_MODE ANAGLYPH 
-}
-
+# 'Hello, World!' config: one window rendering from the application process.
 server
 {
     config
     {
         appNode
         {
-            pipe 
+            pipe
             {
-                window 
-                {
-                    name    "window1"
-                    viewport [ 0 50 600 375 ]
-                    channel { name "channel1" }
-                }
-            }
-            pipe 
-            {
-                window 
-                {
-                    name    "window2"
-                    viewport [ 640 50 600 375 ]
-                    channel { name "channel2" }
-                }
-            }
-            pipe { 
                 window
-                { 
-                    name    "window3"
-                    viewport [ 0 512 600 375 ] 
-                    channel { name "channel3" }
-                }
-            }
-            pipe { 
-                window 
-                { 
-                    name    "window4"
-                    viewport [ 640 512 600 375 ] 
-                    channel { name "channel4" }
+                {
+                    viewport [ 10 200 1200 400 ]
+                    channel 
+                    {
+                        viewport [ 0 0 400 400 ]
+                        name "channel-left"
+                    }
+                    channel 
+                    {
+                        viewport [ 400 0 400 400 ]
+                        name "channel-middle"
+                    }
+                    channel 
+                    {
+                        viewport [ 800 0 400 400 ]
+                        name "channel-right"
+                    }
                 }
             }
         }
         compound
         {
-            channel "channel1"
-            buffer  [ COLOR DEPTH ]
-            eye [ LEFT RIGHT ]
-            wall
-            {
-                bottom_left  [ -.32 -.2 -.5 ]
-                bottom_right [  .32 -.2 -.5 ]
-                top_left     [ -.32  .2 -.5 ]
-            }
-
             compound
             {
-                compound 
+                channel "channel-left"
+                projection
                 {
-                    range [ 0 .25 ]
-                    outputframe { name "f1.c1" viewport [ 0 0 1 .5 ] }
-                }
-                compound 
-                {
-                    task [ ASSEMBLE READBACK ]
-                    inputframe { name "f1.c2"  }
-                    outputframe { name "f2.c1" viewport [ 0 .5 1 .25 ] }
+                    origin      [ 0. 0. 0. ]
+                    distance    3.
+                    fov         [ 54. 47. ]
+                    hpr         [ 50. 0. 0. ]
                 }
             }
             compound
             {
-                channel "channel2"
-
-                compound 
+                channel "channel-middle"
+                projection
                 {
-                    range [ .25 .5 ]
-                    outputframe { name "f1.c2" viewport [ 0 .5 1 .5 ] }
+                    origin      [ 0. 0. 0. ]
+                    distance    3.
+                    fov         [ 54. 47. ]
+                    hpr         [ 0. 0. 0. ]
                 }
-                compound 
-                {
-                    task [ ASSEMBLE READBACK ]
-                    inputframe { name "f1.c1"  }
-                    outputframe { name "f2.c2" viewport [ 0 0 1 .25 ] }
-                }
-                inputframe { name "f2.c4" }
-                outputframe { buffer [ COLOR ] viewport [ 0 .25 1 .25 ] }
             }
             compound
             {
-                channel "channel3"
-
-                compound 
+                channel "channel-right"
+                projection
                 {
-                    range [ .5 .75 ]
-                    outputframe { name "f1.c3" viewport [ 0 0 1 .5 ] }
+                    origin      [ 0. 0. 0. ]
+                    distance    3.
+                    fov         [ 54. 47. ]
+                    hpr         [ -50. 0. 0. ]
                 }
-                compound 
-                {
-                    task [ ASSEMBLE READBACK ]
-                    inputframe { name "f1.c4"  }
-                    outputframe { name "f2.c3" viewport [ 0 .75 1 .25 ] }
-                }
-                inputframe { name "f2.c1" }
-                outputframe { buffer [ COLOR ] viewport [ 0 .5 1 .25 ] }
             }
-
-            compound
-            {
-                channel "channel4"
-
-                compound 
-                {
-                    range [ .75 1 ]
-                    outputframe { name "f1.c4" viewport [ 0 .5 1 .5 ] }
-                }
-                compound 
-                {
-                    task [ ASSEMBLE READBACK ]
-                    inputframe { name "f1.c3"  }
-                    outputframe { name "f2.c4" viewport [ 0 .25 1 .25 ] }
-                }
-                inputframe { name "f2.c2" }
-                outputframe { buffer [ COLOR ] viewport [ 0 0 1 .25 ] }
-            }
-
-            inputframe { name "f2.c3" }
-            inputframe { name "frame.channel2" }
-            inputframe { name "frame.channel3" }
-            inputframe { name "frame.channel4" }
         }
     }    
 }

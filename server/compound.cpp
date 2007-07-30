@@ -228,7 +228,7 @@ void Compound::setWall( const eq::Wall& wall )
     _view.wall   = wall;
     _view.latest = View::WALL;
 
-    EQVERB << "Wall matrix: " << _data.view.xfm << endl;
+    EQVERB << "Wall: " << _data.view << endl;
 }
 
 void Compound::setProjection( const eq::Projection& projection )
@@ -236,6 +236,8 @@ void Compound::setProjection( const eq::Projection& projection )
     _data.view.applyProjection( projection );
     _view.projection = projection;
     _view.latest     = View::PROJECTION;
+
+    EQVERB << "Projection: " << _data.view << endl;
 }
 
 void Compound::setView( const eq::View& view )
@@ -1247,7 +1249,7 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
             os << compound->getWall() << endl;
             break;
         case Compound::View::PROJECTION:
-            //os << compound->getProjection() << endl;
+            os << compound->getProjection() << endl;
             break;
         case Compound::View::VIEW:
             //os << compound->getView() << endl;

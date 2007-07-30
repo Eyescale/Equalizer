@@ -157,6 +157,7 @@ SOURCES = \
 	client/node.cpp \
 	client/objectManager.cpp \
 	client/pipe.cpp \
+	client/projection.cpp \
 	client/range.cpp \
 	client/renderContext.cpp \
 	client/server.cpp \

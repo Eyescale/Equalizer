@@ -1,9 +1,14 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PROJECTION_H
 #define EQ_PROJECTION_H
+
+#include <eq/base/base.h>
+#include <eq/vmmlib/vmmlib.h>
+
+#include <iostream>
 
 namespace eq
 {
@@ -18,11 +23,15 @@ namespace eq
     class Projection
     {
     public:
-        float origin[3];
-        float distance;
-        float fov[2];
-        float hpr[3];
+        Projection();
+
+        vmml::Vector3f origin;
+        float          distance;
+        vmml::Vector2f fov;
+        vmml::Vector3f hpr;
     };
+
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Projection& );
 }
 
 #endif // EQ_PROJECTION_H
