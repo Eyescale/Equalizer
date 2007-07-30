@@ -18,7 +18,7 @@ namespace eq
      * The three points describe the bottom left, bottom right and top left
      * coordinate of the wall in real-world coordinates.
      */
-    class Wall
+    class EQ_EXPORT Wall
     {
     public:
         Wall();

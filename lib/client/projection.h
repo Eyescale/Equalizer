@@ -20,7 +20,7 @@ namespace eq
      * wall at the given distance. The fov defines the horizontal and
      * vertical field of view of the projector.
      */
-    class Projection
+    class EQ_EXPORT Projection
     {
     public:
         Projection();
