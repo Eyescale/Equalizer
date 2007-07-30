@@ -106,16 +106,6 @@ namespace eq
          */
         WindowSystem getWindowSystem() const { return _windowSystem; }
 
-        /** 
-         * Set the X display connection for this pipe.
-         * 
-         * This function should only be called from configInit() or
-         * configExit(). Updates the pixel viewport.
-         *
-         * @param display the X display connection for this pipe.
-         */
-        void setXDisplay( Display* display );
-
         /** @return the X display connection for this pipe. */
         Display* getXDisplay() const { return _xDisplay; }
 
@@ -132,16 +122,6 @@ namespace eq
         eqBase::RefPtr<X11Connection> getXEventConnection() const
             { return _xEventConnection; }
 
-        /** 
-         * Set the CG display ID for this pipe.
-         * 
-         * This function should only be called from configInit() or
-         * configExit().
-         *
-         * @param id the CG display ID for this pipe.
-         */
-        void setCGDisplayID( CGDirectDisplayID id );
-
         /** @return the CG display ID for this pipe. */
         CGDirectDisplayID getCGDisplayID() const { return _cgDisplayID; }
 
@@ -156,7 +136,7 @@ namespace eq
         /**
          * Create a device context bound only to the display of this pipe.
          *
-         * If the dc return parameter is set to 0, and the return value is true,
+         * If the dc return parameter is set to 0 and the return value is true,
          * an affinitiy dc is not needed.
          *
          * @param affinityDC the affinity device context output parameter.
@@ -220,6 +200,29 @@ namespace eq
          * Destructs the pipe.
          */
         virtual ~Pipe();
+
+        /** @name Data Access. */
+        //*{
+        /** 
+         * Set the X display connection for this pipe.
+         * 
+         * This function should only be called from configInit() or
+         * configExit(). Updates the pixel viewport.
+         *
+         * @param display the X display connection for this pipe.
+         */
+        void setXDisplay( Display* display );
+
+        /** 
+         * Set the CG display ID for this pipe.
+         * 
+         * This function should only be called from configInit() or
+         * configExit().
+         *
+         * @param id the CG display ID for this pipe.
+         */
+        void setCGDisplayID( CGDirectDisplayID id );
+        //*}
 
         /** @name Actions */
         //*{

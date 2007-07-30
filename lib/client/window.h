@@ -55,77 +55,20 @@ namespace eq
 
         const std::string& getName() const { return _name; }
 
-        /** 
-         * Set the X11 drawable ID for this window.
-         * 
-         * This function should only be called from configInit() or 
-         * configExit().
-         *
-         * @param drawable the X11 drawable ID.
-         */
-        void setXDrawable( XID drawable );
-
         /**  @return  the X11 drawable ID. */
         XID getXDrawable() const { return _xDrawable; }
-
-        /** 
-         * Set the GLX rendering context for this window.
-         * 
-         * This function should only be called from configInit() or
-         * configExit().
-         *
-         * @param drawable the GLX rendering context.
-         */
-        void setGLXContext( GLXContext context ) { _glXContext = context; }
 
         /** @return the GLX rendering context. */
         GLXContext getGLXContext() const { return _glXContext; }
 
-        /** 
-         * Set the AGL rendering context for this window.
-         * 
-         * This function should only be called from configInit() or
-         * configExit().
-         *
-         * @param drawable the AGL rendering context.
-         */
-        void setAGLContext( AGLContext context );
-
         /** @return the AGL rendering context. */
         AGLContext getAGLContext() const { return _aglContext; }
 
-        /** 
-         * Set the carbon window to be used with the current AGL context.
-         * 
-         * @param window the window reference.
-         */
-        void setCarbonWindow( WindowRef window );
-        
         /** @return the carbon window reference. */
         WindowRef getCarbonWindow() const { return _carbonWindow; }
 
-        /** 
-         * Set the Win32 window handle for this window.
-         * 
-         * This function should only be called from configInit() or
-         * configExit().
-         *
-         * @param drawable the window handle.
-         */
-        void setWGLWindowHandle( HWND handle );
-
         /** @return the Win32 window handle. */
         HWND getWGLWindowHandle() const { return _wglWindowHandle; }
-        
-        /** 
-         * Set the WGL rendering context for this window.
-         * 
-         * This function should only be called from configInit() or
-         * configExit().
-         *
-         * @param drawable the WGL rendering context.
-         */
-        void setWGLContext( HGLRC context ) { _wglContext = context; }
 
         /** @return the WGL rendering context. */
         HGLRC getWGLContext() const { return _wglContext; }
@@ -181,6 +124,66 @@ namespace eq
          * Destructs the window.
          */
         virtual ~Window();
+
+        /** @name Data Access */
+        //*{
+        /** 
+         * Set the X11 drawable ID for this window.
+         * 
+         * This function should only be called from configInit() or 
+         * configExit().
+         *
+         * @param drawable the X11 drawable ID.
+         */
+        void setXDrawable( XID drawable );
+
+        /** 
+         * Set the GLX rendering context for this window.
+         * 
+         * This function should only be called from configInit() or
+         * configExit().
+         *
+         * @param drawable the GLX rendering context.
+         */
+        void setGLXContext( GLXContext context ) { _glXContext = context; }
+
+        /** 
+         * Set the AGL rendering context for this window.
+         * 
+         * This function should only be called from configInit() or
+         * configExit().
+         *
+         * @param drawable the AGL rendering context.
+         */
+        void setAGLContext( AGLContext context );
+
+        /** 
+         * Set the carbon window to be used with the current AGL context.
+         * 
+         * @param window the window reference.
+         */
+        void setCarbonWindow( WindowRef window );
+        
+        /** 
+         * Set the Win32 window handle for this window.
+         * 
+         * This function should only be called from configInit() or
+         * configExit().
+         *
+         * @param drawable the window handle.
+         */
+        void setWGLWindowHandle( HWND handle );
+        
+        /** 
+         * Set the WGL rendering context for this window.
+         * 
+         * This function should only be called from configInit() or
+         * configExit().
+         *
+         * @param drawable the WGL rendering context.
+         */
+        void setWGLContext( HGLRC context ) { _wglContext = context; }
+        //*}
 
         /** @name Actions */
         //*{
@@ -286,6 +289,7 @@ namespace eq
         friend class GLXEventThread;
         friend class WGLEventHandler;
         //*}
+
 
         /** @name Error information. */
         //@{
