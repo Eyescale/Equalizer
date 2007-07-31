@@ -24,19 +24,6 @@ namespace eqPly
         virtual bool configInit( const uint32_t initID );
         virtual bool configExit();
 
-        virtual void frameStart( const uint32_t frameID, 
-                                 const uint32_t frameNumber ) 
-            { 
-                std::cerr << "frameStart " << frameNumber << std::endl;
-                startFrame( frameNumber ); 
-            }
-        virtual void frameFinish( const uint32_t frameID, 
-                                  const uint32_t frameNumber ) 
-            { 
-                std::cerr << "frameFinish " << frameNumber << std::endl;
-                releaseFrame( frameNumber );
-            }
-
     private:
         InitData _initData;
         Model*   _model;
