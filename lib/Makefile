@@ -47,7 +47,6 @@ HEADER_SRC = \
 	net/connectionType.h \
 	net/fdConnection.h \
 	net/global.h \
-	net/group.h \
 	net/idHash.h \
 	net/init.h \
 	net/log.h \
@@ -184,7 +183,7 @@ ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
 	client/aglEventHandler.cpp
 endif
 
-CXXFLAGS += $(WINDOW_SYSTEM_INCS)
+CXXFLAGS += $(WINDOW_SYSTEM_INCS) -DEQUALIZER_EXPORTS
 LDFLAGS  += $(WINDOW_SYSTEM_LIBS)
 
 TARGETS = $(HEADERS) $(DYNAMIC_LIB)
