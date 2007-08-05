@@ -5,6 +5,7 @@
 
 #include "X11Connection.h"
 #include "commands.h"
+#include "log.h"
 #include "event.h"
 #include "global.h"
 #include "packets.h"
@@ -310,6 +311,7 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
                 EQWARN << "Unhandled X event, type " << xEvent.type << endl;
                 break;
         }
+        EQLOG( LOG_EVENTS ) << "received event: " << event << endl;
         event.window->processEvent( event );
     }
 }

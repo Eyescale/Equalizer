@@ -147,6 +147,7 @@ SOURCES = \
 	client/config.cpp \
 	client/configEvent.cpp \
 	client/configParams.cpp \
+	client/event.cpp \
 	client/eventHandler.cpp \
 	client/frame.cpp \
 	client/frameData.cpp \
@@ -164,7 +165,8 @@ SOURCES = \
 	client/version.cpp \
 	client/view.cpp \
 	client/wall.cpp \
-	client/window.cpp
+	client/window.cpp \
+	client/windowEvent.cpp
 
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
   HEADER_SRC += \

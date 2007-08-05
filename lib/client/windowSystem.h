@@ -8,6 +8,20 @@
 #include <eq/base/base.h>
 
 
+namespace eq
+{
+    enum WindowSystem
+    {
+        WINDOW_SYSTEM_NONE = 0, // must be first
+        WINDOW_SYSTEM_GLX,
+        WINDOW_SYSTEM_AGL,
+        WINDOW_SYSTEM_WGL,
+        WINDOW_SYSTEM_ALL      // must be last
+    };
+}
+
+// window system and OS-dependent includes and definitions below.
+
 #ifdef GLX
 #  define GL_GLEXT_PROTOTYPES
 #  ifdef Darwin
@@ -109,18 +123,6 @@ typedef void* HGLRC;
 #ifndef GL_UNSIGNED_INT_24_8_NV
 #  define GL_UNSIGNED_INT_24_8_NV           0x84FA
 #endif
-
-namespace eq
-{
-    enum WindowSystem
-    {
-        WINDOW_SYSTEM_NONE = 0, // must be first
-        WINDOW_SYSTEM_GLX,
-        WINDOW_SYSTEM_AGL,
-        WINDOW_SYSTEM_WGL,
-        WINDOW_SYSTEM_ALL      // must be last
-    };
-}
 
 #endif // EQ_WINDOWSYSTEM_H
 

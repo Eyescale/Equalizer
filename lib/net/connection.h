@@ -133,7 +133,7 @@ namespace eqNet
          * @return true if all data has been read, false if not.
          */
         bool send( const void* buffer, const uint64_t bytes, 
-                       bool isLocked = false ) const;
+                   bool isLocked = false ) const;
 
         /** 
          * Sends a packaged message using the connection.

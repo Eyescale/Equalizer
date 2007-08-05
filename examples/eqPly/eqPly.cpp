@@ -122,6 +122,7 @@ int Application::runClient()
     while( true ) // TODO: implement SIGHUP handler to exit?
     {
         clientLoop();
+        EQINFO << "One configuration run done" << endl;
     }
 
     return EXIT_SUCCESS;

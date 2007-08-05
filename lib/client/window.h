@@ -288,6 +288,7 @@ namespace eq
         virtual bool processEvent( const WindowEvent& event );
         friend class GLXEventThread;
         friend class WGLEventHandler;
+        friend class AGLEventHandler;
         //*}
 
 

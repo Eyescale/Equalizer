@@ -3,6 +3,7 @@
 
 #include "aglEventHandler.h"
 
+#include "log.h"
 #include "window.h"
 
 using namespace eq;
@@ -17,6 +18,8 @@ AGLEventHandler* AGLEventHandler::get()
 }
 
 AGLEventHandler::AGLEventHandler()
+        : _lastDX( 0 ),
+          _lastDY( 0 )
 {
 }
 
@@ -34,12 +37,23 @@ void AGLEventHandler::addWindow( Window* window )
     EventHandlerUPP eventHandler = NewEventHandlerUPP( 
         eq::AGLEventHandler::_handleEventUPP );
     EventTypeSpec   eventType[]    = {
-        { kEventClassWindow, kEventWindowBoundsChanged },
-        { kEventClassMouse,  kEventMouseDragged }
+        { kEventClassWindow,   kEventWindowBoundsChanged },
+        { kEventClassWindow,   kEventWindowUpdate },
+        { kEventClassWindow,   kEventWindowDrawContent },
+        { kEventClassWindow,   kEventWindowClosed },
+        { kEventClassMouse,    kEventMouseMoved },
+        { kEventClassMouse,    kEventMouseDragged },
+        { kEventClassMouse,    kEventMouseDown },
+        { kEventClassMouse,    kEventMouseUp },
+        { kEventClassKeyboard, kEventRawKeyDown },
+        { kEventClassKeyboard, kEventRawKeyUp },
+        { kEventClassKeyboard, kEventRawKeyRepeat },
+        { kEventClassKeyboard, kEventRawKeyModifiersChanged }
     };
 
     InstallWindowEventHandler( carbonWindow, eventHandler, 
-                               2, eventType, window, &window->_carbonHandler );
+                               sizeof( eventType ) / sizeof( EventTypeSpec ),
+                               eventType, window, &window->_carbonHandler );
     EQINFO << "Installed event handler for carbon window " << carbonWindow
            << endl;
 }
@@ -77,56 +91,106 @@ bool AGLEventHandler::_handleEvent( EventRef event, eq::Window* window )
 
 bool AGLEventHandler::_handleWindowEvent( EventRef event, eq::Window* window )
 {
+    EQINFO << "Unhandled window event" << endl;
     return false;
 }
 
 bool AGLEventHandler::_handleMouseEvent( EventRef event, eq::Window* window )
 {
-    return false;
-}
+    HIPoint     pos;
+    WindowEvent windowEvent;
 
-#if 0
-uint32_t AGLEventHandler::_getButtonState( XEvent& event )
-{
-    const int xState = event.xbutton.state;
-    uint32_t   state  = 0;
-    
-    if( xState & Button1Mask ) state |= PTR_BUTTON1;
-    if( xState & Button2Mask ) state |= PTR_BUTTON2;
-    if( xState & Button3Mask ) state |= PTR_BUTTON3;
-    if( xState & Button4Mask ) state |= PTR_BUTTON4;
-    if( xState & Button5Mask ) state |= PTR_BUTTON5;
-    
-    switch( event.type )
-    {   // state is state before event
-        case ButtonPress:
-            state |= _getButtonAction( event );
+    windowEvent.carbonEventRef = event;
+
+    switch( GetEventKind( event ))
+    {
+        case kEventMouseMoved:
+        case kEventMouseDragged:
+            windowEvent.type                  = WindowEvent::POINTER_MOTION;
+            windowEvent.pointerMotion.button  = PTR_BUTTON_NONE;
+            // Note: Luckily GetCurrentEventButtonState returns the same bits as
+            // our button definitions.
+            windowEvent.pointerMotion.buttons = GetCurrentEventButtonState();
+
+            GetEventParameter( event, kEventParamWindowMouseLocation, 
+                               typeHIPoint, 0, sizeof( pos ), 0, 
+                               &pos );
+            windowEvent.pointerMotion.x = static_cast< int32_t >( pos.x );
+            windowEvent.pointerMotion.y = static_cast< int32_t >( pos.y );
+
+            GetEventParameter( event, kEventParamMouseDelta, 
+                               typeHIPoint, 0, sizeof( pos ), 0, 
+                               &pos );
+            windowEvent.pointerMotion.dx = static_cast< int32_t >( pos.x );
+            windowEvent.pointerMotion.dy = static_cast< int32_t >( pos.y );
+
+            _lastDX = windowEvent.pointerMotion.dx;
+            _lastDY = windowEvent.pointerMotion.dy;
             break;
 
-        case ButtonRelease:
-            state &= ~_getButtonAction( event );
+        case kEventMouseDown:
+            windowEvent.type = WindowEvent::POINTER_BUTTON_PRESS;
+            windowEvent.pointerButtonPress.buttons=GetCurrentEventButtonState();
+            windowEvent.pointerButtonPress.button = _getButtonAction( event );
+
+            GetEventParameter( event, kEventParamWindowMouseLocation, 
+                               typeHIPoint, 0, sizeof( pos ), 0, 
+                               &pos );
+            windowEvent.pointerButtonPress.x = static_cast< int32_t >( pos.x );
+            windowEvent.pointerButtonPress.y = static_cast< int32_t >( pos.y );
+
+            windowEvent.pointerButtonPress.dx = _lastDX;
+            windowEvent.pointerButtonPress.dy = _lastDY;
+            _lastDX = 0;
+            _lastDY = 0;
+            break;
+
+        case kEventMouseUp:
+            windowEvent.type = WindowEvent::POINTER_BUTTON_RELEASE;
+            windowEvent.pointerButtonRelease.buttons =
+                GetCurrentEventButtonState();
+            windowEvent.pointerButtonRelease.button = _getButtonAction( event );
+
+            GetEventParameter( event, kEventParamWindowMouseLocation, 
+                               typeHIPoint, 0, sizeof( pos ), 0, 
+                               &pos );
+            windowEvent.pointerButtonRelease.x = static_cast< int32_t>( pos.x );
+            windowEvent.pointerButtonRelease.y = static_cast< int32_t>( pos.y );
+
+            windowEvent.pointerButtonRelease.dx = _lastDX;
+            windowEvent.pointerButtonRelease.dy = _lastDY;
+            _lastDX = 0;
+            _lastDY = 0;
             break;
 
         default:
+            EQINFO << "Unhandled mouse event " << GetEventKind( event ) << endl;
+            windowEvent.type = WindowEvent::UNHANDLED;
             break;
     }
-    return state;
+
+    EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << endl;
+    return window->processEvent( windowEvent );
 }
 
-uint32_t AGLEventHandler::_getButtonAction( XEvent& event )
+uint32_t AGLEventHandler::_getButtonAction( EventRef event )
 {
-    switch( event.xbutton.button )
+    EventMouseButton button;
+    GetEventParameter( event, kEventParamMouseButton, 
+                               typeMouseButton, 0, sizeof( button ), 0, 
+                               &button );
+
+    switch( button )
     {    
-        case Button1: return PTR_BUTTON1;
-        case Button2: return PTR_BUTTON2;
-        case Button3: return PTR_BUTTON3;
-        case Button4: return PTR_BUTTON4;
-        case Button5: return PTR_BUTTON5;
+        case kEventMouseButtonPrimary:   return PTR_BUTTON1;
+        case kEventMouseButtonSecondary: return PTR_BUTTON2;
+        case kEventMouseButtonTertiary:  return PTR_BUTTON3;
         default: return PTR_BUTTON_NONE;
     }
 }
 
 
+#if 0
 uint32_t AGLEventHandler::_getKey( XEvent& event )
 {
     const KeySym key = XKeycodeToKeysym( event.xany.display, 

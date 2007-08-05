@@ -8,6 +8,7 @@
 #define EQ_EVENT_H
 
 #include <eq/base/base.h>
+#include <eq/base/log.h>
 
 namespace eq
 {
@@ -100,6 +101,10 @@ namespace eq
         uint32_t key; // KC_? for special keys, ascii code otherwise
         // TODO modifier state
     };
+
+std::ostream& operator << ( std::ostream& os, const ResizeEvent& event );
+std::ostream& operator << ( std::ostream& os, const PointerEvent& event );
+std::ostream& operator << ( std::ostream& os, const KeyEvent& event );
 
 #   define EQ_USER_EVENT_SIZE 32
     struct UserEvent

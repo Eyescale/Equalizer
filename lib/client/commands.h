@@ -31,7 +31,7 @@ namespace eq
 
     enum ClientCommand
     {
-        CMD_CLIENT_EXIT               = CMD_SERVER_CUSTOM,
+        CMD_CLIENT_EXIT               = eqNet::CMD_NODE_CUSTOM,
         REQ_CLIENT_EXIT,
         CMD_CLIENT_CUSTOM
     };

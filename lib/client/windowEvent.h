@@ -25,7 +25,8 @@ namespace eq
             KEY_PRESS,
             KEY_RELEASE,
             CLOSE,
-            UNHANDLED
+            UNHANDLED,
+            ALL // must be last
         };
 
         Type    type;
@@ -51,7 +52,7 @@ namespace eq
             XEvent xEvent; // 96 bytes
 #endif
 #ifdef AGL
-            // TODO
+            EventRef carbonEventRef;
 #endif
 #ifdef WGL
             struct
@@ -65,6 +66,8 @@ namespace eq
             char fill[128];
         };
     };
+
+std::ostream& operator << ( std::ostream& os, const WindowEvent& event );
 }
 
 #endif // EQ_WINDOWEVENT_H

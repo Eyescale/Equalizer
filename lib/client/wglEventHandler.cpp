@@ -3,6 +3,7 @@
 
 #include "wglEventHandler.h"
 
+#include "log.h"
 #include "event.h"
 #include "window.h"
 
@@ -332,6 +333,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             break;
     }
 
+    EQLOG( LOG_EVENTS ) << "received event: " << event << endl;
     if( !event.window->processEvent( event ))
         return DefWindowProc( hWnd, uMsg, wParam, lParam );
 
