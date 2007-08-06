@@ -230,5 +230,17 @@ std::ostream& eqBase::operator << ( std::ostream& os, const Thread* thread )
 #else
     os << "Thread " << thread->_threadID;
 #endif
+	os << " state " 
+		<< ( thread->_state == Thread::STATE_STOPPED ? "stopped" :
+			thread->_state == Thread::STATE_STARTING ? "starting" :
+			thread->_state == Thread::STATE_RUNNING ? "running" :
+			thread->_state == Thread::STATE_STOPPING ? "stopping" : "unknown" );
+
+#ifdef WIN32
+	os << " called from " << pthread_self().p;
+#else
+	os << " called from " << pthread_self();
+#endif
+
     return os;
 }

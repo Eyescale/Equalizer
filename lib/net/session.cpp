@@ -316,7 +316,9 @@ bool Session::mapObject( Object* object, const uint32_t id )
 
 void Session::unmapObject( Object* object )
 {
-    EQASSERT( object->getID() != EQ_ID_INVALID );
+    if( object->getID() == EQ_ID_INVALID ) // not registered
+		return;
+
     EQASSERT( !_localNode->inReceiverThread( ));
 
     SessionUnmapObjectPacket packet;
