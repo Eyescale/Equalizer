@@ -69,10 +69,11 @@ pascal OSStatus AGLEventHandler::_handleEventUPP(
 {
     AGLEventHandler* handler = get();
 
-    if( !handler->_handleEvent( event, static_cast< eq::Window* >( userData )))
-        return CallNextEventHandler( nextHandler, event );
+    handler->_handleEvent( event, static_cast< eq::Window* >( userData ));
 
-    return noErr; // else was handled
+    // Always pass events to the default handler. Most events require some
+    // action, which is not the case on other window systems.
+    return CallNextEventHandler( nextHandler, event );
 }
 
 bool AGLEventHandler::_handleEvent( EventRef event, eq::Window* window )
@@ -83,6 +84,8 @@ bool AGLEventHandler::_handleEvent( EventRef event, eq::Window* window )
             return _handleWindowEvent( event, window );
         case kEventClassMouse:
             return _handleMouseEvent( event, window );
+        case kEventClassKeyboard:
+            return _handleKeyEvent( event, window );
         default:
             EQINFO << "Unknown event class " << GetEventClass( event ) << endl;
             return false;
@@ -91,8 +94,43 @@ bool AGLEventHandler::_handleEvent( EventRef event, eq::Window* window )
 
 bool AGLEventHandler::_handleWindowEvent( EventRef event, eq::Window* window )
 {
-    EQINFO << "Unhandled window event" << endl;
-    return false;
+    WindowEvent windowEvent;
+    windowEvent.carbonEventRef = event;
+
+    switch( GetEventKind( event ))
+    {
+        case kEventWindowBoundsChanged:
+        {
+            Rect rect;
+            GetEventParameter( event, kEventParamCurrentBounds, 
+                               typeQDRectangle, 0, sizeof( rect ), 0, 
+                               &rect );
+
+                windowEvent.type = WindowEvent::RESIZE;
+                windowEvent.resize.x = rect.top;
+                windowEvent.resize.y = rect.left;
+                windowEvent.resize.h = rect.bottom - rect.top;
+                windowEvent.resize.w = rect.right  - rect.left;
+                break;
+        }
+
+        case kEventWindowUpdate:
+        case kEventWindowDrawContent:
+            windowEvent.type = WindowEvent::EXPOSE;
+            break;
+
+        case kEventWindowClosed:
+            windowEvent.type = WindowEvent::CLOSE;
+            break;
+
+        default:
+            EQINFO << "Unhandled window event " << GetEventKind( event ) <<endl;
+            windowEvent.type = WindowEvent::UNHANDLED;
+            break;
+    }
+
+    EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << endl;
+    return window->processEvent( windowEvent );
 }
 
 bool AGLEventHandler::_handleMouseEvent( EventRef event, eq::Window* window )
@@ -171,6 +209,12 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event, eq::Window* window )
 
     EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << endl;
     return window->processEvent( windowEvent );
+}
+
+bool AGLEventHandler::_handleKeyEvent( EventRef event, eq::Window* window )
+{
+    EQINFO << "Unhandled key event" << endl;
+    return false;
 }
 
 uint32_t AGLEventHandler::_getButtonAction( EventRef event )

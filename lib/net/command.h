@@ -30,6 +30,8 @@ namespace eqNet
         Command( const Command& from ); // makes copy of _packet
         ~Command() { release(); }
         
+        void swap( Command& rhs );
+
         Packet*       getPacket()              { return _packet; }
         const Packet* getPacket() const        { return _packet; }
 
@@ -41,7 +43,6 @@ namespace eqNet
         eqBase::RefPtr<Node> getNode()      const { return _node; }
         eqBase::RefPtr<Node> getLocalNode() const { return _localNode; }
 
-        Command& operator = ( Command& rhs ); // transfers _packet
         bool     operator ! () const     { return ( _packet==0 ); }
 
         Packet*       operator->()       { EQASSERT(_packet); return _packet; }
@@ -54,6 +55,8 @@ namespace eqNet
         bool isValid() const { return ( _packet!=0 ); }
 
     private:
+        Command& operator = ( Command& rhs ); // transfers _packet
+
         eqBase::RefPtr<Node> _node;
         eqBase::RefPtr<Node> _localNode;
         Packet*              _packet;

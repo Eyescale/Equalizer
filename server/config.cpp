@@ -503,7 +503,7 @@ void Config::_updateHead()
     _eyePosition[eq::EYE_RIGHT]  /= ( eyeBase_2 * head.m30 + head.m33 ); // w
 }
 
-uint32_t Config::_prepareFrame( vector<Node*>& nodes )
+uint32_t Config::_prepareFrame( vector< eqNet::NodeID >& nodeIDs )
 {
     EQASSERT( _state == STATE_INITIALIZED );
     ++_currentFrame;
@@ -516,7 +516,10 @@ uint32_t Config::_prepareFrame( vector<Node*>& nodes )
     {
         Node* node = getNode( i );
         if( node->isUsed( ))
-            nodes.push_back( node );
+        {
+            RefPtr< eqNet::Node > netNode = node->getNode();
+            nodeIDs.push_back( netNode->getNodeID( ));
+        }
     }
     
     return _currentFrame;
@@ -636,10 +639,10 @@ eqNet::CommandResult Config::_reqStartFrame( eqNet::Command& command )
     eq::ConfigStartFrameReplyPacket   reply( packet );
     EQVERB << "handle config frame start " << packet << endl;
 
-    vector<Node*> nodes;
-    reply.frameNumber = _prepareFrame( nodes );
-    reply.nNodeIDs    = nodes.size();
-    command.getNode()->send( reply, nodes );
+    vector< eqNet::NodeID > nodeIDs;
+    reply.frameNumber = _prepareFrame( nodeIDs );
+    reply.nNodeIDs    = nodeIDs.size();
+    command.getNode()->send( reply, nodeIDs );
 
     _startFrame( packet->frameID );
     return eqNet::COMMAND_HANDLED;

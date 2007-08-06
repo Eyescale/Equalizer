@@ -48,23 +48,23 @@ Channel::Channel()
     registerCommand( CMD_CHANNEL_FRAME_CLEAR, 
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_FRAME_CLEAR, 
-                     eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameClear));
+                  eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameClear));
     registerCommand( CMD_CHANNEL_FRAME_DRAW, 
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_FRAME_DRAW, 
-                     eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameDraw ));
+                  eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameDraw ));
     registerCommand( CMD_CHANNEL_FRAME_ASSEMBLE, 
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_FRAME_ASSEMBLE, 
-                   eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameAssemble ));
+              eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameAssemble ));
     registerCommand( CMD_CHANNEL_FRAME_READBACK, 
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_FRAME_READBACK, 
-                   eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameReadback ));
+              eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameReadback ));
     registerCommand( CMD_CHANNEL_FRAME_TRANSMIT, 
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_FRAME_TRANSMIT, 
-                   eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameTransmit ));
+              eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameTransmit ));
 }
 
 Channel::~Channel()

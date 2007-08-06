@@ -41,6 +41,7 @@ namespace eq
         bool _handleEvent( EventRef event, eq::Window* window );
         bool   _handleWindowEvent( EventRef event, eq::Window* window );
         bool   _handleMouseEvent( EventRef event, eq::Window* window );
+        bool   _handleKeyEvent( EventRef event, eq::Window* window );
 
         uint32_t _getButtonAction( EventRef event );
 

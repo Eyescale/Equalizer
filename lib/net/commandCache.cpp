@@ -40,7 +40,7 @@ Command* CommandCache::alloc( Command& inCommand )
         _freeCommands.pop_front();
     }
 
-    *outCommand = inCommand;
+    (*outCommand).swap( inCommand );
     return outCommand;
 }
 

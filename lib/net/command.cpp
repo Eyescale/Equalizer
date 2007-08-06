@@ -8,6 +8,7 @@
 #include "packets.h"
 
 using namespace eqNet;
+using namespace eqBase;
 using namespace std;
 
 Command::Command( const Command& from )
@@ -23,25 +24,21 @@ Command::Command( const Command& from )
     _localNode = from._localNode;
 }
 
-Command& Command::operator = ( Command& rhs )
+void Command::swap( Command& rhs )
 {
     if( this == &rhs )
-        return *this;
+        return;
 
-    release();
-
-    if( !rhs._packet )   // empty holder
-        return *this;
-
+    Packet* packet = _packet;
+    RefPtr< Node > node = _node;
+    RefPtr< Node > localNode = _localNode;
     // transfer packet avoiding copy
     _packet        = rhs._packet;
     _node          = rhs._node;
     _localNode     = rhs._localNode;
-    rhs._packet    = 0;
-    rhs._node      = 0;
-    rhs._localNode = 0;
-
-    return *this;
+    rhs._packet    = packet;
+    rhs._node      = node;
+    rhs._localNode = localNode;
 }
 
 void Command::allocate( eqBase::RefPtr<Node> node, 
@@ -62,7 +59,8 @@ void Command::allocate( eqBase::RefPtr<Node> node,
 
 void Command::release()
 {
-    free( _packet );
+    if( _packet )
+        free( _packet );
     _packet    = 0;
     _node      = 0;
     _localNode = 0;
