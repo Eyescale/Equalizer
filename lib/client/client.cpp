@@ -243,5 +243,7 @@ eqNet::CommandResult Client::handleCommand( eqNet::Command& command )
 eqNet::CommandResult Client::_reqExit( eqNet::Command& command )
 {
     _running = false;
+    // Close connection here, this is the last packet we'll get on it
+    command.getLocalNode()->disconnect( command.getNode( ));
     return eqNet::COMMAND_HANDLED;
 }
