@@ -33,6 +33,7 @@ namespace eq
         /** @name Data Access */
         //*{
         eqBase::RefPtr< Client > getClient();
+        const std::vector< Node* >& getNodes() const { return _nodes; }
         //*}
 
         /** 
