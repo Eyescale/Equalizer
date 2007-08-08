@@ -103,10 +103,6 @@ int Application::runMainloop()
                             << " frames @ " << ( frame / time * 1000.f)
                             << " FPS)" << endl;
 
-    cout                    << "Rendering took " << time << " ms (" << frame
-                            << " frames @ " << ( frame / time * 1000.f)
-                            << " FPS)" << endl;
-
     // 5. exit config
     clock.reset();
     config->exit();
@@ -126,6 +122,7 @@ int Application::runClient()
     while( true ) // TODO: implement SIGHUP handler to exit?
     {
         clientLoop();
+        EQINFO << "One configuration run done" << endl;
     }
 
     return EXIT_SUCCESS;

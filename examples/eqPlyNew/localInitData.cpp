@@ -20,6 +20,17 @@ LocalInitData::LocalInitData()
           _isApplication( true )
 {}
 
+const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
+{
+    _trackerPort   = from._trackerPort;  
+    _maxFrames     = from._maxFrames;    
+    _clientPort    = from._clientPort;   
+    _color         = from._color;        
+    _isApplication = from._isApplication;
+    setFilename( from.getFilename( ));
+    return *this;
+}
+
 void LocalInitData::parseArguments( int argc, char** argv )
 {
     try

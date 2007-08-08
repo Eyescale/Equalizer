@@ -24,6 +24,8 @@ namespace eqPly
         uint16_t           getClientPort()  const { return _clientPort; }
         uint32_t           getMaxFrames()   const { return _maxFrames; }
 
+        const LocalInitData& operator = ( const LocalInitData& from );
+
     private:
         std::string _trackerPort;
         uint32_t    _maxFrames;
