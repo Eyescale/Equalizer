@@ -7,6 +7,7 @@
 
 #include <eq/net/commandQueue.h>
 
+#include <eq/base/messagePump.h>
 #include <eq/client/windowSystem.h>
 
 namespace eq
@@ -30,27 +31,7 @@ class CommandQueue : public eqNet::CommandQueue
         virtual eqNet::Command* pop();
 
     private:
-
-        union
-        {
-#ifdef WIN32
-            /** Thread ID of the receiver. */
-            DWORD _win32ThreadID;
-#endif
-#ifdef Darwin
-            EventQueueRef _receiverQueue;
-#endif
-            char _fillDummy[32];
-        };
-
-        /** Send a system-dependent message to wake up the receiver thread. */
-        void _postWakeupEvent();
-
-        /** Get and dispatch all pending system events, non-blocking */
-        void _pumpEvents();
-
-        /** Get and dispatch one pending system events, blocking */
-        void _pumpEvent();
+        eqBase::MessagePump _messagePump;
     };
 }
 

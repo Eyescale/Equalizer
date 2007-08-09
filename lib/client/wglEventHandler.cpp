@@ -261,17 +261,10 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
             event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
 
-            switch( GET_XBUTTON_WPARAM( wParam ))
-            {
-                case XBUTTON1:
-                    event.pointerButtonPress.button = PTR_BUTTON4;
-                    break;
-                case XBUTTON2:
-                    event.pointerButtonPress.button = PTR_BUTTON5;
-                    break;
-                default:
-                    event.pointerButtonPress.button = PTR_BUTTON_NONE;
-            }
+			if( GET_XBUTTON_WPARAM( wParam ) & XBUTTON1 )
+				event.pointerButtonRelease.button = PTR_BUTTON4;
+			else
+				event.pointerButtonRelease.button = PTR_BUTTON5;
 
             _buttonState |= event.pointerButtonPress.button;
             _syncButtonState( GET_KEYSTATE_WPARAM( wParam ));

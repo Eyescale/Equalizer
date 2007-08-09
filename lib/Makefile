@@ -16,6 +16,7 @@ HEADER_SRC = \
 	base/launcher.h \
 	base/lock.h \
 	base/log.h \
+	base/messagePump.h \
 	base/monitor.h \
 	base/mtQueue.h \
 	base/nonCopyable.h \
@@ -109,6 +110,7 @@ SOURCES = \
 	base/launcher.cpp \
 	base/lock.cpp \
 	base/log.cpp \
+	base/messagePump.cpp \
 	base/requestHandler.cpp \
 	base/sema.cpp \
 	base/spinLock.cpp \
