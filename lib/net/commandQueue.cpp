@@ -96,3 +96,4 @@ Command* CommandQueue::back() const
     return _commands.back();
 }
 }
+
