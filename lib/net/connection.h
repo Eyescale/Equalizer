@@ -18,7 +18,7 @@
 #include <sys/types.h>
 #include <vector>
 
-#ifdef WIN32
+#ifdef WIN32_VC
 #  include <malloc.h>     // for alloca()
 #else
 #  include <sys/param.h>  // for MAX()

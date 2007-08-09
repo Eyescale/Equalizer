@@ -23,7 +23,7 @@ namespace eqBase
      * original thread can wait for the request to be served and retrieve the
      * result.
      *
-     * A note on thread-safety: Unless threadSafe is set in the contructor, the
+     * A note on thread-safety: Unless threadSafe is set in the constructor, the
      * functions registerRequest(), unregisterRequest() and waitRequest() are
      * supposed to be called from one 'waiting' thread, and the functions
      * serveRequest() and deleteRequest() are supposed to be called only from

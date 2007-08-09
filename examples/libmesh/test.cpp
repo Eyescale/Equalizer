@@ -2,8 +2,9 @@
 /* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#include "vertexData.h"
 #include <test.h>
+
+#include "vertexData.h"
 
 #include <iterator>
 

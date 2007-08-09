@@ -3,6 +3,7 @@
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
+#include <eq/base/base.h>
 #include "compound.h"
 #include "parser.hpp"
 #include <stdlib.h>
@@ -11,7 +12,7 @@
 #define yylineno eqLoader_lineno
 #define yylex eqLoader_lex
 
-#ifdef WIN32
+#ifdef WIN32_VC
 #  include <io.h>
 #  define isatty _isatty
 #endif

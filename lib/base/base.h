@@ -12,8 +12,6 @@
 #  define _WIN32_WINNT 0x500
 #  include <Winsock2.h>
 #  include <Windows.h>
-#  define MAX __max
-#  define MIN __min
 #  define EQ_DLLEXPORT __declspec(dllexport) 
 #  define EQ_DLLIMPORT __declspec(dllimport)
 #  ifdef EQUALIZER_EXPORTS
@@ -45,7 +43,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <sys/types.h>
-#ifndef WIN32
+#ifndef WIN32_VC
 #  include <stdint.h>
 #endif
 
@@ -62,16 +60,21 @@ extern "C" char **environ;
 #endif
 
 #ifdef WIN32
+typedef int        socklen_t;
+#  ifdef WIN32_VC
+#    define MAX __max
+#    define MIN __min
+
 typedef UINT64     uint64_t;
 typedef INT64      int64_t;
 typedef UINT32     uint32_t;
 typedef INT32      int32_t;
 typedef UINT16     uint16_t;
 typedef UINT8      uint8_t;
-typedef int        socklen_t;
-#  ifndef HAVE_SSIZE_T
+#    ifndef HAVE_SSIZE_T
 typedef SSIZE_T    ssize_t;
-#  endif
+#    endif
+#  endif // Win32, Visual C++
 #endif // Win32
 
 // defines

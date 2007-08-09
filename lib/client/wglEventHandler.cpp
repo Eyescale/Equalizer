@@ -19,7 +19,12 @@ using namespace eqBase;
 using namespace std;
 using namespace stde;
 
+#ifdef WIN32_VC
 typedef hash_map< HWND, WGLEventHandler* > HandlerMap;
+#else // Cygwin does not want to instantiate a hash with key=HWND
+typedef hash_map< void*, WGLEventHandler* > HandlerMap;
+#endif
+
 static PerThread< HandlerMap* > _handlers;
 
 // Win32 defines to indentify special keys
@@ -33,6 +38,12 @@ static PerThread< HandlerMap* > _handlers;
 #endif
 #ifndef MK_XBUTTON2
 #  define MK_XBUTTON2  0x40
+#endif
+#ifndef GET_XBUTTON_WPARAM
+#  define GET_XBUTTON_WPARAM(wParam) (HIWORD(wParam))
+#endif
+#ifndef GET_KEYSTATE_WPARAM
+#  define GET_KEYSTATE_WPARAM(wParam) (LOWORD(wParam))
 #endif
 
 class HandlerMapCleaner : public ExecutionListener
@@ -250,10 +261,17 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
             event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
 
-            if( GET_XBUTTON_WPARAM( wParam ) & XBUTTON1 )
-                event.pointerButtonPress.button = PTR_BUTTON4;
-            else
-                event.pointerButtonPress.button = PTR_BUTTON5;
+            switch( GET_XBUTTON_WPARAM( wParam ))
+            {
+                case XBUTTON1:
+                    event.pointerButtonPress.button = PTR_BUTTON4;
+                    break;
+                case XBUTTON2:
+                    event.pointerButtonPress.button = PTR_BUTTON5;
+                    break;
+                default:
+                    event.pointerButtonPress.button = PTR_BUTTON_NONE;
+            }
 
             _buttonState |= event.pointerButtonPress.button;
             _syncButtonState( GET_KEYSTATE_WPARAM( wParam ));

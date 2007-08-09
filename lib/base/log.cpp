@@ -8,7 +8,7 @@
 using namespace eqBase;
 using namespace std;
 
-#ifdef WIN32
+#ifdef WIN32_VC
 #  define atoll _atoi64
 #endif
 

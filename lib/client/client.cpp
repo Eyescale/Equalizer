@@ -100,8 +100,10 @@ typedef eqBase::RefPtr< eqNet::Connection > (*eqsStartLocalServer_t)();
 
 RefPtr< eqNet::Connection > _startLocalServer()
 {
-#ifdef WIN32
+#ifdef WIN32_VC
     HMODULE libeqserver = LoadLibrary( "EqualizerServer.dll" );
+#elif defined (WIN32)
+    HMODULE libeqserver = LoadLibrary( "libeqserver.dll" );
 #elif defined (Darwin)
     void* libeqserver = dlopen( "libeqserver.dylib", RTLD_LAZY );
 #else

@@ -45,7 +45,16 @@ namespace std
         }
     };
 
-    /** void* hash function. */
+    /** void* hash functions. */
+    template<> 
+    struct hash< void* >
+    {
+        template< typename P >
+        size_t operator()( const P& key ) const
+        {
+            return reinterpret_cast<size_t>(key);	 
+        }
+    };
     template<> 
     struct hash< const void* >
     {

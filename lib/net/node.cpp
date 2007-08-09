@@ -20,7 +20,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#ifdef WIN32
+#ifdef WIN32_VC
 #  include <direct.h>  // for chdir
 #  define chdir _chdir
 #endif

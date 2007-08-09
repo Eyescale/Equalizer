@@ -54,7 +54,7 @@ namespace eqBase
 
 #elif defined (WIN32)
 
-            EQASSERT( RAND_MAX == 32767 );
+            EQASSERTINFO( RAND_MAX >= 32767, RAND_MAX );
 
             unsigned char* bytes = reinterpret_cast< unsigned char* >( &value );
             for( size_t i=0; i<sizeof( T ); ++i )

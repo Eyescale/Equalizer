@@ -9,7 +9,7 @@
 #include <errno.h>
 #include <sys/timeb.h>
 
-#ifdef WIN32
+#ifdef WIN32_VC
 #  define timeb _timeb
 #  define ftime _ftime
 #endif

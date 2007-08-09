@@ -98,6 +98,7 @@ HEADER_SRC = \
 	client/window.h \
 	client/windowEvent.h \
 	client/windowSystem.h \
+	client/X11Connection.h \
 	vmmlib/LICENSE \
 	$(wildcard vmmlib/*.h)
 
@@ -170,8 +171,7 @@ SOURCES = \
 
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
   HEADER_SRC += \
-	client/glXEventThread.h \
-	client/X11Connection.h
+	client/glXEventThread.h
 
   SOURCES += \
 	client/glXEventThread.cpp
@@ -183,6 +183,16 @@ ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
 
   SOURCES += \
 	client/aglEventHandler.cpp
+endif
+
+ifeq ($(findstring WGL, $(WINDOW_SYSTEM)),WGL)
+  HEADER_SRC += \
+	client/glext.h \
+	client/wglext.h \
+	client/wglEventHandler.h
+
+  SOURCES += \
+	client/wglEventHandler.cpp
 endif
 
 CXXFLAGS += $(WINDOW_SYSTEM_INCS) -DEQUALIZER_EXPORTS

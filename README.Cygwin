@@ -1,0 +1,14 @@
+
+                         Cygwin-Specific Notes
+
+ The Cygwin build is not yet stable. It has only be tested on Windows
+ XP. The executables are not yet copied to the same folder as the
+ DLL's. This has to be done manually in order to run the examples.
+
+ Please report problems to the eq-dev@equalizergraphics.com mailing
+ list.
+
+Prerequisites
+
+ Bison, flex, g++ from Cygwin distribution.
+

@@ -9,7 +9,9 @@
 #include "pipeConnection.h"
 
 #include <eq/base/base.h>
+#include <eq/base/stdExt.h>
 #include <eq/base/thread.h>
+
 #include <algorithm>
 #include <errno.h>
 

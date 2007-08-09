@@ -225,7 +225,7 @@ void Thread::addListener( ExecutionListener* listener )
 
 std::ostream& eqBase::operator << ( std::ostream& os, const Thread* thread )
 {
-#ifdef WIN32
+#ifdef WIN32_VC
     os << "Thread " << thread->_threadID.p;
 #else
     os << "Thread " << thread->_threadID;
@@ -236,7 +236,7 @@ std::ostream& eqBase::operator << ( std::ostream& os, const Thread* thread )
 			thread->_state == Thread::STATE_RUNNING ? "running" :
 			thread->_state == Thread::STATE_STOPPING ? "stopping" : "unknown" );
 
-#ifdef WIN32
+#ifdef WIN32_VC
 	os << " called from " << pthread_self().p;
 #else
 	os << " called from " << pthread_self();

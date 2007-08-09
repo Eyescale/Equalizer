@@ -4,7 +4,7 @@
 
 #include "configTool.h"
 
-#ifdef WIN32
+#ifdef WIN32_VC
 #  define MIN __min
 #else
 #  include <sys/param.h>

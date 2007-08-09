@@ -8,7 +8,7 @@ using namespace eq;
 using namespace std;
 using namespace stde;
 
-// instantiate desired key types -- see tail of fail
+// instantiate desired key types -- see end of file
 
 template< typename T >
 ObjectManager<T>::~ObjectManager()

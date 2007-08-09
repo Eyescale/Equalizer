@@ -82,7 +82,7 @@ namespace eqNet
 
     private:
         UUID _id;
-#else
+#else // WIN32
         NodeID( const bool generate = false )
             { generate ? uuid_generate( _id ) : uuid_clear( _id ); }
         NodeID( const NodeID& from ) { uuid_copy( _id, from._id ); }
@@ -112,14 +112,14 @@ namespace eqNet
 
     private:
         uuid_t _id;
-#endif
+#endif // WIN32
 
     public:
         static const NodeID ZERO;
 
     private:
         friend std::ostream& operator << ( std::ostream& os, const NodeID& id );
-#ifdef WIN32
+#ifdef WIN32_VC
         friend size_t stde::hash_compare< eqNet::NodeID >::operator() 
             ( const eqNet::NodeID& key ) const;
 #else
@@ -149,7 +149,7 @@ namespace eqNet
     }
 }
 
-#ifdef WIN32
+#ifdef WIN32_VC
 template<>
 inline size_t stde::hash_compare< eqNet::NodeID >::operator() 
     ( const eqNet::NodeID& key ) const
@@ -164,7 +164,21 @@ inline size_t stde::hash_value( const eqNet::NodeID& key )
     return hash( key );
 }
 
-#else // WIN32
+#elif defined (WIN32)
+
+namespace __gnu_cxx
+{
+    template<> 
+    struct hash< const eqNet::NodeID >
+    {
+        size_t operator()( const eqNet::NodeID& key ) const
+        {
+            return key._id.Data1;
+        }
+    };
+}
+
+#else // POSIX
 
 #  ifdef __GNUC__              // GCC 3.1 and later
 namespace __gnu_cxx
@@ -182,5 +196,5 @@ namespace std
     };
 }
 
-#endif // WIN32
+#endif // WIN32_VC
 #endif // EQNET_NODE_H

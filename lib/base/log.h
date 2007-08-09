@@ -15,7 +15,7 @@
 #include <sstream>
 #include <time.h>
 
-#ifdef WIN32
+#ifdef WIN32_VC
 #  include <process.h>
 #  define getpid _getpid
 #endif
@@ -84,7 +84,7 @@ namespace eqBase
                 {
                     if( !_noHeader )
                     {
-#                   ifdef WIN32
+#                   ifdef WIN32_VC
                         _stringStream << getpid()  << " " << pthread_self().p 
                                       <<" " << _file << ":" << _line << " ";
 #                   else
@@ -158,12 +158,12 @@ namespace eqBase
     {
     public:
 #ifdef NDEBUG
-        EQ_EXPORT Log() : std::ostream( &_logBuffer ), _logBuffer( std::cout ){}
+        Log() : std::ostream( &_logBuffer ), _logBuffer( std::cout ){}
 #else
-        EQ_EXPORT Log() : std::ostream( &_logBuffer ), _logBuffer( std::cerr ){}
+        Log() : std::ostream( &_logBuffer ), _logBuffer( std::cerr ){}
 #endif
 
-        virtual EQ_EXPORT ~Log() { _logBuffer.pubsync(); }
+        virtual ~Log() { _logBuffer.pubsync(); }
 
         void indent() { _logBuffer.indent(); }
         void exdent() { _logBuffer.exdent(); }
