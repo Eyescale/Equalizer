@@ -7,6 +7,12 @@
 
 #include <eq/base/base.h>
 
+#ifdef Darwin
+#  define Cursor CGLCursor   // avoid name clash with X11 'Cursor'
+#  include <Carbon/Carbon.h>
+#  undef Cursor
+#endif
+
 namespace eqBase
 {
     /**
