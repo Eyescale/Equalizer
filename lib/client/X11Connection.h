@@ -32,7 +32,7 @@ namespace eq
 
         Display* getDisplay() const   { return _display; }
         virtual ReadNotifier getReadNotifier()
-            { return ::ConnectionNumber( _display ); }
+            { return ConnectionNumber( _display ); }
 
     protected:
         virtual int64_t read( void* buffer, const uint64_t bytes )
