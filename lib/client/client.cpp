@@ -51,6 +51,7 @@ bool Client::listen()
     else                   _commandQueue = new eqNet::CommandQueue;
     return eqNet::Node::listen();
 }
+
 bool Client::stopListening()
 {
     if( !eqNet::Node::stopListening( ))

@@ -44,6 +44,7 @@ namespace eq
         bool   _handleKeyEvent( EventRef event, eq::Window* window );
 
         uint32_t _getButtonAction( EventRef event );
+        uint32_t _getKey( EventRef event );
 
         uint32_t _lastDX;
         uint32_t _lastDY;

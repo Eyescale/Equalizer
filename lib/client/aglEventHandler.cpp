@@ -47,8 +47,7 @@ void AGLEventHandler::addWindow( Window* window )
         { kEventClassMouse,    kEventMouseUp },
         { kEventClassKeyboard, kEventRawKeyDown },
         { kEventClassKeyboard, kEventRawKeyUp },
-        { kEventClassKeyboard, kEventRawKeyRepeat },
-        { kEventClassKeyboard, kEventRawKeyModifiersChanged }
+        { kEventClassKeyboard, kEventRawKeyRepeat }
     };
 
     InstallWindowEventHandler( carbonWindow, eventHandler, 
@@ -213,8 +212,32 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event, eq::Window* window )
 
 bool AGLEventHandler::_handleKeyEvent( EventRef event, eq::Window* window )
 {
+    WindowEvent windowEvent;
+    windowEvent.carbonEventRef = event;
+
     EQINFO << "Unhandled key event" << endl;
-    return false;
+    switch( GetEventKind( event ))
+    {
+        case kEventRawKeyDown:
+        case kEventRawKeyRepeat:
+            windowEvent.type         = WindowEvent::KEY_PRESS;
+            windowEvent.keyPress.key = _getKey( event );
+            break;
+
+        case kEventRawKeyUp:
+            windowEvent.type         = WindowEvent::KEY_PRESS;
+            windowEvent.keyPress.key = _getKey( event );
+            break;
+
+        default:
+            EQINFO << "Unhandled keyboard event " << GetEventKind( event )
+                   << endl;
+            windowEvent.type = WindowEvent::UNHANDLED;
+            break;
+    }
+
+    EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << endl;
+    return window->processEvent( windowEvent );
 }
 
 uint32_t AGLEventHandler::_getButtonAction( EventRef event )
@@ -233,26 +256,26 @@ uint32_t AGLEventHandler::_getButtonAction( EventRef event )
     }
 }
 
-
-#if 0
-uint32_t AGLEventHandler::_getKey( XEvent& event )
+uint32_t AGLEventHandler::_getKey( EventRef event )
 {
-    const KeySym key = XKeycodeToKeysym( event.xany.display, 
-                                         event.xkey.keycode, 0);
+    unsigned char key;
+    GetEventParameter( event, kEventParamKeyMacCharCodes, typeChar, 0,
+                       sizeof( char ), 0, &key );
     switch( key )
     {
-        case XK_Escape:    return KC_ESCAPE;    
-        case XK_BackSpace: return KC_BACKSPACE; 
-        case XK_Return:    return KC_RETURN;    
-        case XK_Tab:       return KC_TAB;       
-        case XK_Home:      return KC_HOME;       
-        case XK_Left:      return KC_LEFT;       
-        case XK_Up:        return KC_UP;         
-        case XK_Right:     return KC_RIGHT;      
-        case XK_Down:      return KC_DOWN;       
-        case XK_Page_Up:   return KC_PAGE_UP;    
-        case XK_Page_Down: return KC_PAGE_DOWN;  
-        case XK_End:       return KC_END;        
+        case kEscapeCharCode:     return KC_ESCAPE;    
+        case kBackspaceCharCode:  return KC_BACKSPACE; 
+        case kReturnCharCode:     return KC_RETURN;    
+        case kTabCharCode:        return KC_TAB;       
+        case kHomeCharCode:       return KC_HOME;       
+        case kLeftArrowCharCode:  return KC_LEFT;       
+        case kUpArrowCharCode:    return KC_UP;         
+        case kRightArrowCharCode: return KC_RIGHT;      
+        case kDownArrowCharCode:  return KC_DOWN;       
+        case kPageUpCharCode:     return KC_PAGE_UP;    
+        case kPageDownCharCode:   return KC_PAGE_DOWN;  
+        case kEndCharCode:        return KC_END;        
+#if 0
         case XK_F1:        return KC_F1;         
         case XK_F2:        return KC_F2;         
         case XK_F3:        return KC_F3;         
@@ -279,16 +302,16 @@ uint32_t AGLEventHandler::_getKey( XEvent& event )
         case XK_Control_R: return KC_CONTROL_R;  
         case XK_Alt_L:     return KC_ALT_L;      
         case XK_Alt_R:     return KC_ALT_R;
+#endif
             
         default: 
             // 'Useful' Latin1 characters
-            if( (key >= XK_space && key <= XK_asciitilde ) ||
-                (key >= XK_nobreakspace && key <= XK_ydiaeresis))
+            if(( key >= ' ' && key <= '~' ) ||
+               ( key >= 0xa0 /*XK_nobreakspace && key <= XK_ydiaeresis*/ ))
 
                 return key;
 
-            EQWARN << "Unrecognized X11 key code " << key << endl;
+            EQWARN << "Unrecognized key " << key << endl;
             return KC_VOID;
     }
 }
-#endif
