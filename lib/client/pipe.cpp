@@ -36,7 +36,8 @@ Pipe::Pipe()
           _windowSystem( WINDOW_SYSTEM_NONE ),
           _port( EQ_UNDEFINED_UINT32 ),
           _device( EQ_UNDEFINED_UINT32 ),
-          _thread( 0 )
+          _thread( 0 ),
+          _commandQueue( 0 )
 {
     bzero( _displayFill, sizeof( _displayFill ));
     registerCommand( CMD_PIPE_CREATE_WINDOW,
@@ -242,10 +243,11 @@ void* Pipe::_runThread()
     EQINFO << "Entered pipe thread" << endl;
     Config* config = getConfig();
     EQASSERT( config );
+    EQASSERT( _commandQueue );
 
     while( _thread->isRunning( ))
     {
-        eqNet::Command* command = _commandQueue.pop();
+        eqNet::Command* command = _commandQueue->pop();
         switch( config->dispatchCommand( *command ))
         {
             case eqNet::COMMAND_HANDLED:
@@ -273,7 +275,7 @@ eqNet::CommandResult Pipe::pushCommand( eqNet::Command& command )
         return eqNet::COMMAND_PUSH; // handled by main thread
 
     // else
-    _commandQueue.push( command ); 
+    _commandQueue->push( command ); 
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -325,8 +327,11 @@ void Pipe::waitExit()
         return;
 
     _thread->join();
+
     delete _thread;
-    _thread = 0;
+    delete _commandQueue;
+    _thread       = 0;
+    _commandQueue = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -521,10 +526,10 @@ void Pipe::_initEventHandling()
     {
         case WINDOW_SYSTEM_GLX:
 #ifdef GLX
-	{
+        {
             GLXEventThread* thread = GLXEventThread::get();
             thread->addPipe( this );
-	}
+        }
 #endif
             break;
 
@@ -545,10 +550,10 @@ void Pipe::_exitEventHandling()
     {
         case WINDOW_SYSTEM_GLX:
 #ifdef GLX
-	{
+        {
             GLXEventThread* thread = GLXEventThread::get();
             thread->removePipe( this );
-	}
+        }
 #endif
             break;
 
@@ -598,7 +603,7 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
     {
         setErrorMessage( "Can't register temporary window class: " +
                          getErrorString( GetLastError( )));
-	    return false;
+        return false;
     }
 
     // window
@@ -607,7 +612,7 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
 
     HWND hWnd = CreateWindowEx( windowStyleEx,
                                 wc.lpszClassName, "TMP",
-                  	            windowStyle, 0, 0, 1, 1,
+                                windowStyle, 0, 0, 1, 1,
                                 0, 0, // parent, menu
                                 instance, 0 );
 
@@ -616,7 +621,7 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
         setErrorMessage( "Can't create temporary window: " +
                          getErrorString( GetLastError( )));
         UnregisterClass( classStr.c_str(),  instance );
-	    return false;
+        return false;
     }
 
     HDC                   dc  = GetDC( hWnd );
@@ -633,7 +638,7 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
                          getErrorString( GetLastError( )));
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
-	    return false;
+        return false;
     }
  
     if( !SetPixelFormat( dc, pf, &pfd ))
@@ -643,7 +648,7 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
         ReleaseDC( hWnd, dc );
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
-	    return false;
+        return false;
     }
 
     // context
@@ -655,7 +660,7 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
         ReleaseDC( hWnd, dc );
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
-	    return false;
+        return false;
     }
 
     wglMakeCurrent( dc, context );
@@ -765,12 +770,20 @@ eqNet::CommandResult Pipe::_cmdConfigInit( eqNet::Command& command )
     EQINFO << "handle pipe configInit (recv) " << packet << endl;
 
     EQASSERT( !_thread );
+    EQASSERT( !_commandQueue );
+
     if( packet->threaded )
     {
+#ifdef WIN32
+        if( useMessagePump( )) _commandQueue = new eq::CommandQueue;
+        else                   _commandQueue = new eqNet::CommandQueue;
+#else
+        _commandQueue = new eqNet::CommandQueue;
+#endif
+
         _thread = new PipeThread( this );
         _thread->start();
     }
-    // else TODO OPT dynamically allocate _commandQueue ?
 
     return pushCommand( command );
 }
@@ -873,7 +886,7 @@ eqNet::CommandResult Pipe::_reqConfigExit( eqNet::Command& command )
     send( command.getNode(), reply );
 
     // cleanup
-    _commandQueue.flush();
+    _commandQueue->flush();
     
     // exit thread
     if( _thread )
@@ -887,9 +900,9 @@ eqNet::CommandResult Pipe::_reqConfigExit( eqNet::Command& command )
 
 eqNet::CommandResult Pipe::_cmdFrameStart( eqNet::Command& command )
 {
-	_frameClockMutex.set();
+    _frameClockMutex.set();
     _frameClocks.push_back( Clock( ));
-	_frameClockMutex.unset();
+    _frameClockMutex.unset();
     return pushCommand( command );
 }
 
@@ -899,12 +912,12 @@ eqNet::CommandResult Pipe::_reqFrameStart( eqNet::Command& command )
         command.getPacket<PipeFrameStartPacket>();
     EQVERB << "handle pipe frame start " << packet << endl;
 
-	_frameClockMutex.set();
+    _frameClockMutex.set();
     EQASSERT( !_frameClocks.empty( ));
 
-	_frameClock = _frameClocks.front();
+    _frameClock = _frameClocks.front();
     _frameClocks.pop_front();
-	_frameClockMutex.unset();
+    _frameClockMutex.unset();
 
     _grabFrame( packet->frameNumber );
     EQLOG( LOG_TASKS ) << "---- Grabbed Frame ---- " << packet->frameNumber

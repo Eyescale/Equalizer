@@ -49,13 +49,30 @@ namespace eq
          */
         void processCommand();
 
+        /** @sa eqNet::Node::listen() */
+        virtual bool listen();
+        /** @sa eqNet::Node::stopListening() */
+        virtual bool stopListening();
+
     protected:
         /** @sa eqNet::Node::clientLoop */
         virtual void clientLoop();
 
+        /** @name Configuration. */
+        //*{
+        /** 
+         * Enable or disable automatic or external OS event dispatch for the
+         * node thread.
+         *
+         * @return true if Equalizer shall dispatch OS events, false if the
+         *         application dispatches OS events.
+         * @sa Event handling documentation on website.
+         */
+        virtual bool useMessagePump() { return true; }
+        //*}
     private:
         /** The receiver->node command queue. */
-        CommandQueue    _commandQueue;
+        eqNet::CommandQueue* _commandQueue;
         
         bool _running;
 
@@ -73,7 +90,7 @@ namespace eq
 
         /** @sa eqNet::Node::pushCommand */
         virtual bool pushCommand( eqNet::Command& command )
-        { _commandQueue.push( command ); return true; }
+        { _commandQueue->push( command ); return true; }
 
         /** The command functions. */
         eqNet::CommandResult _reqExit( eqNet::Command& command );

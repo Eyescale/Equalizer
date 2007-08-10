@@ -16,10 +16,11 @@ namespace eq
      * Augments an eqNet::CommandQueue to pump system-specific events where
      * required by the underlying window/operating system.
      */
-class CommandQueue : public eqNet::CommandQueue
+    class CommandQueue : public eqNet::CommandQueue
     {
     public:
         CommandQueue();
+		virtual ~CommandQueue(){}
 
         /** @sa eqNet::CommandQueue::push(). */
         virtual void push( eqNet::Command& packet );

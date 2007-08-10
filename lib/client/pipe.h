@@ -247,7 +247,7 @@ namespace eq
          * The callbacks are called by Equalizer during rendering to execute
          * various actions.
          */
-        //@{
+        //*{
         /** 
          * Tests wether a particular windowing system is supported by this pipe
          * and all its windows.
@@ -314,10 +314,10 @@ namespace eq
         virtual void frameFinish( const uint32_t frameID, 
                                   const uint32_t frameNumber ) 
             { releaseFrame( frameNumber ); }
-        //@}
+        //*}
 
         /** @name Error information. */
-        //@{
+        //*{
         /** 
          * Set a message why the last operation failed.
          * 
@@ -327,7 +327,20 @@ namespace eq
          * @param message the error message.
          */
         void setErrorMessage( const std::string& message ) { _error = message; }
-        //@}
+        //*}
+
+        /** @name Configuration. */
+        //*{
+        /** 
+         * Enable or disable automatic or external OS event dispatch for the
+         * pipe thread.
+         *
+         * @return true if Equalizer shall dispatch OS events, false if the
+         *         application dispatches OS events.
+         * @sa Event handling documentation on website.
+         */
+        virtual bool useMessagePump() { return true; }
+        //*}
     private:
         /** The parent node. */
         friend class Node;
@@ -403,11 +416,8 @@ namespace eq
         PipeThread* _thread;
 
         /** The receiver->pipe thread command queue. */
-#ifdef WIN32 // Win32 needs message handling in each thread creating windows
-        CommandQueue           _commandQueue;
-#else
-        eqNet::CommandQueue    _commandQueue;
-#endif
+        eqNet::CommandQueue*   _commandQueue;
+
         void* _runThread();
 
         static int XErrorHandler( Display* display, XErrorEvent* event );

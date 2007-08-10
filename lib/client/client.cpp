@@ -28,7 +28,8 @@ using namespace std;
 static RefPtr< eqNet::Connection > _startLocalServer();
 
 Client::Client()
-        : _running( false )
+        : _commandQueue( 0 ),
+          _running( false )
 {
     registerCommand( CMD_CLIENT_EXIT,
                      eqNet::CommandFunc<Client>( this, &Client::_cmdPush ));
@@ -40,6 +41,23 @@ Client::Client()
 Client::~Client()
 {
     EQINFO << "Delete client at " << (void*)this << endl;
+    stopListening();
+}
+
+bool Client::listen()
+{
+    EQASSERT( !_commandQueue );
+    if( useMessagePump( )) _commandQueue = new eq::CommandQueue;
+    else                   _commandQueue = new eqNet::CommandQueue;
+    return eqNet::Node::listen();
+}
+bool Client::stopListening()
+{
+    if( !eqNet::Node::stopListening( ))
+        return false;
+
+    delete _commandQueue;
+    _commandQueue = 0;
 }
 
 bool Client::connectServer( RefPtr<Server> server )
@@ -149,7 +167,7 @@ bool Client::disconnectServer( RefPtr<Server> server )
         EQWARN << "Server disconnect failed" << endl;
 
     // cleanup
-    _commandQueue.flush();
+    _commandQueue->flush();
     return success;
 }
 
@@ -180,7 +198,7 @@ void Client::clientLoop()
         processCommand();
 
     // cleanup
-    _commandQueue.flush();
+    _commandQueue->flush();
     EQASSERT( !hasSessions( ));
 
     return;
@@ -188,7 +206,7 @@ void Client::clientLoop()
 
 void Client::processCommand()
 {
-    eqNet::Command* command = _commandQueue.pop();
+    eqNet::Command* command = _commandQueue->pop();
     switch( dispatchCommand( *command ))
     {
         case eqNet::COMMAND_HANDLED:
