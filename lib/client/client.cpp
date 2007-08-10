@@ -58,6 +58,7 @@ bool Client::stopListening()
 
     delete _commandQueue;
     _commandQueue = 0;
+    return true;
 }
 
 bool Client::connectServer( RefPtr<Server> server )

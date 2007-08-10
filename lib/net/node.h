@@ -116,7 +116,7 @@ namespace eqNet
          *         <code>false</code> if not.
          * @sa connect
          */
-        bool listen();
+        virtual bool listen();
 
         /** 
          * Stops this node.
@@ -127,7 +127,7 @@ namespace eqNet
          * @return <code>true</code> if the node was stopped, <code>false</code>
          *         if it was not stopped.
          */
-        bool stopListening();
+        virtual bool stopListening();
 
         /** 
          * Connects a node to this listening node.

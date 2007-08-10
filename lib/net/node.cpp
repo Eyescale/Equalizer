@@ -26,9 +26,10 @@
 #endif
 
 using namespace eqBase;
-using namespace eqNet;
 using namespace std;
 
+namespace eqNet
+{
 //----------------------------------------------------------------------
 // State management
 //----------------------------------------------------------------------
@@ -1501,4 +1502,5 @@ bool Node::runClient( const string& clientArgs )
 
     clientLoop();
     return true;
+}
 }
