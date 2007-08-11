@@ -43,6 +43,9 @@ std::string eq::Window::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_PLANES_STENCIL )
 };
 
+#ifdef AGL
+static Lock _carbonMutex; // needed for not-thread-safe Carbon calls
+#endif
 
 eq::Window::Window()
         : _xDrawable ( 0 ),
@@ -545,6 +548,8 @@ bool eq::Window::configInitAGL()
         Rect             windowRect = { _pvp.y, _pvp.x, // top, left, b, r
                                         _pvp.y + _pvp.h, _pvp.x + _pvp.w };
         WindowRef        windowRef;
+        ScopedMutex      mutex( _carbonMutex );
+
         const OSStatus   status     = CreateNewWindow( kDocumentWindowClass, 
                                                        attributes, &windowRect, 
                                                        &windowRef );
@@ -835,6 +840,7 @@ void eq::Window::configExitAGL()
     WindowRef window = getCarbonWindow();
     if( window )
     {
+        ScopedMutex mutex( _carbonMutex );
         DisposeWindow( window );
         setCarbonWindow( 0 );
     }
