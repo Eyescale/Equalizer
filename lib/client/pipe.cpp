@@ -533,6 +533,7 @@ void Pipe::_initEventHandling()
 #endif
             break;
 
+        case WINDOW_SYSTEM_AGL:
         case WINDOW_SYSTEM_WGL:
             // NOP
             break;
@@ -775,11 +776,11 @@ eqNet::CommandResult Pipe::_cmdConfigInit( eqNet::Command& command )
     if( packet->threaded )
     {
 #ifdef WIN32
-        if( useMessagePump( )) _commandQueue = new eq::CommandQueue;
-        else                   _commandQueue = new eqNet::CommandQueue;
-#else
-        _commandQueue = new eqNet::CommandQueue;
+        if( useMessagePump( )) 
+            _commandQueue = new eq::CommandQueue;
+        else
 #endif
+            _commandQueue = new eqNet::CommandQueue;
 
         _thread = new PipeThread( this );
         _thread->start();
@@ -885,12 +886,12 @@ eqNet::CommandResult Pipe::_reqConfigExit( eqNet::Command& command )
     PipeConfigExitReplyPacket reply( packet );
     send( command.getNode(), reply );
 
-    // cleanup
-    _commandQueue->flush();
-    
     // exit thread
     if( _thread )
     {
+        // cleanup
+        _commandQueue->flush();
+
         EQINFO << "Leaving pipe thread" << endl;
         _thread->exit( EXIT_SUCCESS );
         EQUNREACHABLE;

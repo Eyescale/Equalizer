@@ -24,6 +24,7 @@
     { EQERROR << "Code is not supposed to be called in this context"    \
               << std::endl << eqBase::forceFlush; }
 
+#  define EQGLERROR
 #else // DEBUG
 namespace eqBase
 {
@@ -52,6 +53,15 @@ namespace eqBase
     { EQERROR << "Code is not supposed to be called in this context, type " \
               << typeid(*this).name() << std::endl << eqBase::forceFlush; \
         eqBase::abortDebug(); }
+
+#  define EQGLERROR                                                 \
+    {                                                               \
+        const GLenum glError = glGetError();                        \
+        if( glError )                                               \
+        {                                                           \
+            EQWARN << "Caught OpenGL error " << glError << endl;    \
+        }                                                           \
+    }
 
 #endif
 #endif //EQBASE_DEBUG_H

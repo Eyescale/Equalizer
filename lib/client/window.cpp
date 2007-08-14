@@ -929,19 +929,20 @@ void eq::Window::_initEventHandling()
     {
         case WINDOW_SYSTEM_GLX:
 #ifdef GLX
-	{
+        {
             GLXEventThread* thread = GLXEventThread::get();
             thread->addWindow( this );
-	}
+        }
 #endif
             break;
 
         case WINDOW_SYSTEM_AGL:
 #ifdef AGL
-	{
+        {
             AGLEventHandler* handler = AGLEventHandler::get();
+            ScopedMutex      mutex( _carbonMutex );
             handler->addWindow( this );
-	}
+        }
 #endif
             break;
 
@@ -964,20 +965,22 @@ void eq::Window::_exitEventHandling()
     {
         case WINDOW_SYSTEM_GLX:
 #ifdef GLX
-	{
+        {
             GLXEventThread* thread = GLXEventThread::get();
             thread->removeWindow( this );
-	}
+        }
 #endif
-            break;
+        break;
 
+        case WINDOW_SYSTEM_AGL:
 #ifdef AGL
-	{
+        {
             AGLEventHandler* handler = AGLEventHandler::get();
+            ScopedMutex      mutex( _carbonMutex );
             handler->removeWindow( this );
-	}
+        }
 #endif
-            break;
+        break;
 
         case WINDOW_SYSTEM_WGL:
 #ifdef WGL
@@ -1046,7 +1049,7 @@ void eq::Window::setCarbonWindow( WindowRef window )
     if( window )
     {
         Rect rect;
-        if( GetWindowBounds( window, kWindowUpdateRgn, &rect ) == noErr )
+        if( GetWindowBounds( window, kWindowContentRgn, &rect ) == noErr )
         {
             _pvp.x = rect.left;
             _pvp.y = rect.top;

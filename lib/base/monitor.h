@@ -103,7 +103,7 @@ namespace eqBase
             }
         //*}
 
-        /** @name Comparision Operators. */
+        /** @name Comparison Operators. */
         //*{
         bool operator == ( const T& val ) const { return _value == val; }
         bool operator != ( const T& val ) const { return _value != val; }
@@ -111,6 +111,19 @@ namespace eqBase
         bool operator > ( const T& val ) const { return _value > val; }
         bool operator <= ( const T& val ) const { return _value <= val; }
         bool operator >= ( const T& val ) const { return _value >= val; }
+
+        bool operator == ( const Monitor<T>& rhs ) const
+            { return _value == rhs._value; }
+        bool operator != ( const Monitor<T>& rhs ) const
+            { return _value != rhs._value; }
+        bool operator < ( const Monitor<T>& rhs ) const
+            { return _value < rhs._value; }
+        bool operator > ( const Monitor<T>& rhs ) const
+            { return _value > rhs._value; }
+        bool operator <= ( const Monitor<T>& rhs ) const
+            { return _value <= rhs._value; }
+        bool operator >= ( const Monitor<T>& rhs ) const
+            { return _value >= rhs._value; }
         //*}
 
         const T& get() const { return _value; }
@@ -121,6 +134,9 @@ namespace eqBase
         mutable pthread_cond_t  _cond;
         mutable pthread_mutex_t _mutex;
     };
+
+    typedef Monitor< bool >     Monitorb;
+    typedef Monitor< uint32_t > Monitoru;
 
     template< typename T >
     std::ostream& operator << ( std::ostream& os, const Monitor<T>& monitor )

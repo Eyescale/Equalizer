@@ -5,7 +5,7 @@
 #ifndef EQ_COMMANDQUEUE_H
 #define EQ_COMMANDQUEUE_H
 
-#include <eq/net/commandQueue.h>
+#include <eq/net/commandQueue.h>    // base class
 
 #include <eq/base/messagePump.h>
 #include <eq/client/windowSystem.h>

@@ -105,12 +105,12 @@ bool AGLEventHandler::_handleWindowEvent( EventRef event, eq::Window* window )
                                typeQDRectangle, 0, sizeof( rect ), 0, 
                                &rect );
 
-                windowEvent.type = WindowEvent::RESIZE;
-                windowEvent.resize.x = rect.top;
-                windowEvent.resize.y = rect.left;
-                windowEvent.resize.h = rect.bottom - rect.top;
-                windowEvent.resize.w = rect.right  - rect.left;
-                break;
+            windowEvent.type = WindowEvent::RESIZE;
+            windowEvent.resize.x = rect.top;
+            windowEvent.resize.y = rect.left;
+            windowEvent.resize.h = rect.bottom - rect.top;
+            windowEvent.resize.w = rect.right  - rect.left;
+            break;
         }
 
         case kEventWindowUpdate:

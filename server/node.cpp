@@ -288,7 +288,7 @@ void Node::_storeFrameTasks( const uint32_t frame,
     }
     // else no free container - alloc new.
 
-    _frameTasks.push_back( FrameTasks( ));
+    _frameTasks.resize( _frameTasks.size() + 1 );
     FrameTasks& frameTasks = _frameTasks.back();
     frameTasks.tasks.swap( tasks );
     frameTasks.frame = frame;

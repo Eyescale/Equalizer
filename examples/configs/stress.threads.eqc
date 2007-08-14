@@ -1,0 +1,188 @@
+# stress-test config using multiple windows and a swap barrier, using a mixture
+# of singlepipe and multipipe nodes.
+server
+{
+    config
+    {
+        latency 10
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ .025 .025 .3 .3 ]
+                    channel { name "channel1" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ .35 .025 .3 .3 ]
+                    channel { name "channel2" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ .675 .025 .3 .3 ]
+                    channel { name "channel3" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ .025 .35 .3 .3 ]
+                    channel { name "channel4" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ .35 .35 .3 .3 ]
+                    channel { name "channel5" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ .675 .35 .3 .3 ]
+                    channel { name "channel6" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ .025 .675 .3 .3 ]
+                    channel { name "channel7" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ .35 .675 .3 .3 ]
+                    channel { name "channel8" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    viewport [ .675 .675 .3 .3 ]
+                    channel { name "channel9" }
+                }
+            }
+        }
+        compound
+        { 
+            compound
+            { 
+                channel "channel1"
+                wall
+                {
+                    bottom_left  [ -2    0.6 -4 ]
+                    bottom_right [ -0.8  0.6 -4 ]
+                    top_left     [ -2    1.5 -4 ]
+                }
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel2"
+                wall
+                {
+                    bottom_left  [ -0.6  0.6 -4 ]
+                    bottom_right [  0.6  0.6 -4 ]
+                    top_left     [ -0.6  1.5 -4 ]
+                }
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel3"
+                wall
+                {
+                    bottom_left  [  0.8  0.6 -4 ]
+                    bottom_right [  2    0.6 -4 ]
+                    top_left     [  0.8  1.5 -4 ]
+                }
+                swapbarrier {}
+            }
+
+            compound
+            { 
+                channel "channel4"
+                wall
+                {
+                    bottom_left  [ -2   -0.45 -4 ]
+                    bottom_right [ -0.8 -0.45 -4 ]
+                    top_left     [ -2    0.45 -4 ]
+                }
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel5"
+                wall
+                {
+                    bottom_left  [ -0.6 -0.45 -4 ]
+                    bottom_right [  0.6 -0.45 -4 ]
+                    top_left     [ -0.6  0.45 -4 ]
+                }
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel6"
+                wall
+                {
+                    bottom_left  [  0.8 -0.45 -4 ]
+                    bottom_right [  2   -0.45 -4 ]
+                    top_left     [  0.8  0.45 -4 ]
+                }
+                swapbarrier {}
+            }
+
+            compound
+            { 
+                channel "channel7"
+                wall
+                {
+                    bottom_left  [ -2   -2.5 -4 ]
+                    bottom_right [ -0.8 -2.5 -4 ]
+                    top_left     [ -2   -0.6 -4 ]
+                }
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel8"
+                wall
+                {
+                    bottom_left  [ -0.6 -2.5 -4 ]
+                    bottom_right [  0.6 -2.5 -4 ]
+                    top_left     [ -0.6 -0.6 -4 ]
+                }
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel "channel9"
+                wall
+                {
+                    bottom_left  [  0.8 -2.5 -4 ]
+                    bottom_right [  2   -2.5 -4 ]
+                    top_left     [  0.8 -0.6 -4 ]
+                }
+                swapbarrier {}
+            }
+        }
+    }    
+}

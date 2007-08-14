@@ -34,6 +34,8 @@ namespace eq
          * @return the config of this node. 
          */
         Config* getConfig() const { return _config; }
+        eqBase::RefPtr<Client> getClient() const
+            { return (_config ? _config->getClient() : NULL); }
         eqBase::RefPtr<eqNet::Node> getServer() const
             { return (_config ? _config->getServer() : NULL); }
 

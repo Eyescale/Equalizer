@@ -5,6 +5,7 @@
 #ifndef EQ_CONFIG_H
 #define EQ_CONFIG_H
 
+#include <eq/client/client.h>       // called in inline method
 #include <eq/client/commandQueue.h> // member
 #include <eq/client/matrix4.h>      // member
 #include <eq/net/session.h>         // base class
