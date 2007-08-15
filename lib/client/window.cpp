@@ -43,10 +43,6 @@ std::string eq::Window::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_PLANES_STENCIL )
 };
 
-#ifdef AGL
-static Lock _carbonMutex; // needed for not-thread-safe Carbon calls
-#endif
-
 eq::Window::Window()
         : _xDrawable ( 0 ),
           _glXContext( 0 ),
@@ -548,14 +544,15 @@ bool eq::Window::configInitAGL()
         Rect             windowRect = { _pvp.y, _pvp.x, // top, left, b, r
                                         _pvp.y + _pvp.h, _pvp.x + _pvp.w };
         WindowRef        windowRef;
-        ScopedMutex      mutex( _carbonMutex );
 
+        Global::enterCarbon();
         const OSStatus   status     = CreateNewWindow( kDocumentWindowClass, 
                                                        attributes, &windowRect, 
                                                        &windowRef );
         if( status != noErr )
         {
             setErrorMessage( "Could not create carbon window: " + status );
+            Global::leaveCarbon();
             return false;
         }
 
@@ -570,12 +567,14 @@ bool eq::Window::configInitAGL()
         if( !aglSetDrawable( context, GetWindowPort( windowRef )))
         {
             setErrorMessage( "aglSetDrawable failed: " + aglGetError( ));
+            Global::leaveCarbon();
             return false;
         }
 
         // show
         ShowWindow( windowRef );
         setCarbonWindow( windowRef );
+        Global::leaveCarbon();
     }
 
     aglSetCurrentContext( context );
@@ -840,9 +839,10 @@ void eq::Window::configExitAGL()
     WindowRef window = getCarbonWindow();
     if( window )
     {
-        ScopedMutex mutex( _carbonMutex );
+        Global::enterCarbon();
         DisposeWindow( window );
         setCarbonWindow( 0 );
+        Global::leaveCarbon();
     }
 
     AGLContext context = getAGLContext();
@@ -940,7 +940,6 @@ void eq::Window::_initEventHandling()
 #ifdef AGL
         {
             AGLEventHandler* handler = AGLEventHandler::get();
-            ScopedMutex      mutex( _carbonMutex );
             handler->addWindow( this );
         }
 #endif
@@ -976,7 +975,6 @@ void eq::Window::_exitEventHandling()
 #ifdef AGL
         {
             AGLEventHandler* handler = AGLEventHandler::get();
-            ScopedMutex      mutex( _carbonMutex );
             handler->removeWindow( this );
         }
 #endif
@@ -1261,6 +1259,7 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
 
     _error.clear();
     WindowConfigInitReplyPacket reply( packet );
+
     reply.result = configInit( packet->initID );
 
     RefPtr<eqNet::Node> node = command.getNode();

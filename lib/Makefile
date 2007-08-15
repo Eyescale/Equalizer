@@ -16,7 +16,6 @@ HEADER_SRC = \
 	base/launcher.h \
 	base/lock.h \
 	base/log.h \
-	base/messagePump.h \
 	base/monitor.h \
 	base/mtQueue.h \
 	base/nonCopyable.h \
@@ -80,6 +79,7 @@ HEADER_SRC = \
 	client/init.h \
 	client/log.h \
 	client/matrix4.h \
+	client/messagePump.h \
 	client/node.h \
 	client/nodeFactory.h \
 	client/nodeType.h \
@@ -110,7 +110,6 @@ SOURCES = \
 	base/launcher.cpp \
 	base/lock.cpp \
 	base/log.cpp \
-	base/messagePump.cpp \
 	base/requestHandler.cpp \
 	base/sema.cpp \
 	base/spinLock.cpp \
@@ -157,6 +156,7 @@ SOURCES = \
 	client/global.cpp \
 	client/image.cpp \
 	client/init.cpp \
+	client/messagePump.cpp \
 	client/node.cpp \
 	client/objectManager.cpp \
 	client/pipe.cpp \

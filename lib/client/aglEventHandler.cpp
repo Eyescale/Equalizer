@@ -3,6 +3,7 @@
 
 #include "aglEventHandler.h"
 
+#include "global.h"
 #include "log.h"
 #include "window.h"
 
@@ -33,7 +34,8 @@ void AGLEventHandler::addWindow( Window* window )
             << endl;
         return;
     }
-
+    
+    Global::enterCarbon();
     EventHandlerUPP eventHandler = NewEventHandlerUPP( 
         eq::AGLEventHandler::_handleEventUPP );
     EventTypeSpec   eventType[]    = {
@@ -53,13 +55,16 @@ void AGLEventHandler::addWindow( Window* window )
     InstallWindowEventHandler( carbonWindow, eventHandler, 
                                sizeof( eventType ) / sizeof( EventTypeSpec ),
                                eventType, window, &window->_carbonHandler );
+    Global::leaveCarbon();
     EQINFO << "Installed event handler for carbon window " << carbonWindow
            << endl;
 }
 
 void AGLEventHandler::removeWindow( Window* window )
 {
+    Global::enterCarbon();
     RemoveEventHandler( window->_carbonHandler );
+    Global::leaveCarbon();
     window->_carbonHandler = 0;
 }
 

@@ -13,8 +13,8 @@ namespace eq
     enum WindowSystem
     {
         WINDOW_SYSTEM_NONE = 0, // must be first
-        WINDOW_SYSTEM_GLX,
         WINDOW_SYSTEM_AGL,
+        WINDOW_SYSTEM_GLX,
         WINDOW_SYSTEM_WGL,
         WINDOW_SYSTEM_ALL      // must be last
     };

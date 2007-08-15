@@ -6,6 +6,7 @@
 #define EQ_GLOBAL_H
 
 #include <eq/base/base.h>
+#include <eq/base/lock.h> // member
 #include <string>
 
 namespace eq
@@ -45,6 +46,15 @@ namespace eq
         /** @return the default Equalizer server. */
         static const std::string& getServer() { return _server; }
 
+        /** 
+         * Global lock for all non-thread-safe Carbon API calls. 
+         * Note: this is a nop on non-AGL builds. Do not use unless you know the
+         * side effects, i.e., ask on the eq-dev mailing list.
+         */
+        static void enterCarbon();
+        /** Global unlock for all non-thread-safe Carbon API calls */
+        static void leaveCarbon();
+
     private:
 		friend EQ_EXPORT bool init( int argc, char** argv, 
                                     NodeFactory* nodeFactory );
@@ -52,6 +62,8 @@ namespace eq
         static NodeFactory* _nodeFactory;
 
         static std::string  _server;
+
+        static eqBase::Lock _carbonLock;
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, 

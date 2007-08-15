@@ -5,13 +5,29 @@
 #include "global.h"
 #include "nodeFactory.h"
 
-using namespace eq;
 using namespace std;
 
-EQ_EXPORT eq::NodeFactory* eq::Global::_nodeFactory = 0;
-string eq::Global::_server;
+namespace eq
+{
+EQ_EXPORT NodeFactory* Global::_nodeFactory = 0;
+string Global::_server;
+eqBase::Lock Global::_carbonLock;
 
-EQ_EXPORT std::ostream& eq::operator << ( std::ostream& os, 
+void Global::enterCarbon()
+{
+#ifdef AGL
+    _carbonLock.set();
+#endif
+}
+
+void Global::leaveCarbon()
+{ 
+#ifdef AGL
+    _carbonLock.unset();
+#endif
+}
+
+EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
                                           const IAttrValue value )
 {
     if( value > ON ) // ugh
@@ -26,4 +42,5 @@ EQ_EXPORT std::ostream& eq::operator << ( std::ostream& os,
                 value == ANAGLYPH  ? "ANAGLYPH"
                 : "ERROR"  );
     return os;
+}
 }

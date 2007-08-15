@@ -13,7 +13,7 @@
 #  undef Cursor
 #endif
 
-namespace eqBase
+namespace eq
 {
     /**
      * Implements an OS-agnostic way to process OS messages/events.

@@ -2,13 +2,14 @@
    All rights reserved. */
 
 #include "messagePump.h"
+#include "global.h"
 
 #include <eq/base/debug.h>
 #include <eq/base/log.h>
 
 using namespace std;
 
-namespace eqBase
+namespace eq
 {
 MessagePump::MessagePump()
 #ifdef WIN32
@@ -93,19 +94,30 @@ void MessagePump::dispatchOne()
 
 #elif defined (Darwin)
 
-    const EventTargetRef target = GetEventDispatcherTarget();
-    EventRef             event;
-    const OSStatus       status = ReceiveNextEvent( 0, 0, kEventDurationForever,
-                                                    true, &event );
-    if( status != noErr )
+    while( true )
     {
-        EQWARN << "ReceiveNextEvent failed: " << status << endl;
-        return;
+        Global::enterCarbon();
+        const EventTargetRef target = GetEventDispatcherTarget();
+        EventRef             event;
+        const OSStatus       status = ReceiveNextEvent( 0, 0, .05 /* 50ms */,
+                                                        true, &event );
+        if( status == noErr )
+        {
+            EQVERB << "Dispatch Carbon event " << event << endl;
+            SendEventToEventTarget( event, target );
+            ReleaseEvent( event );
+            Global::leaveCarbon();
+            return;
+        }
+        Global::leaveCarbon();
+
+        if( status != eventLoopTimedOutErr )
+        {
+            EQWARN << "ReceiveNextEvent failed: " << status << endl;
+            return;
+        }
     }
 
-    EQVERB << "Dispatch Carbon event " << event << endl;
-    SendEventToEventTarget( event, target );
-    ReleaseEvent( event );
 
 #else
     EQUNIMPLEMENTED;

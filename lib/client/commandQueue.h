@@ -6,9 +6,7 @@
 #define EQ_COMMANDQUEUE_H
 
 #include <eq/net/commandQueue.h>    // base class
-
-#include <eq/base/messagePump.h>
-#include <eq/client/windowSystem.h>
+#include <eq/client/messagePump.h>  // member
 
 namespace eq
 {
@@ -32,7 +30,7 @@ namespace eq
         virtual eqNet::Command* pop();
 
     private:
-        eqBase::MessagePump _messagePump;
+        MessagePump _messagePump;
     };
 }
 
