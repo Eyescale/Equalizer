@@ -7,7 +7,8 @@
 
 #include "splitAxis.h" // member
 
-#include <eq/vmmlib/VMMLib.h>
+#include <eq/base/defines.h>
+#include <eq/vmmlib/vmmlib.h>
 #include <vector>
 
 namespace mesh

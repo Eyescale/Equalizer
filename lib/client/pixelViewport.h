@@ -9,7 +9,7 @@
 
 #include <eq/base/base.h>
 #include <eq/base/debug.h>
-#include <eq/vmmlib/Vector2.h>
+#include <eq/vmmlib/vector2.h>
 
 namespace eq
 {

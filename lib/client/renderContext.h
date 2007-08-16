@@ -10,7 +10,7 @@
 #include <eq/client/eye.h>
 #include <eq/client/pixelViewport.h>
 #include <eq/client/range.h>
-#include <eq/vmmlib/VMMLib.h>
+#include <eq/vmmlib/vmmlib.h>
 
 namespace eq
 {

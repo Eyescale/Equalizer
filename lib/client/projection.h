@@ -6,8 +6,8 @@
 #define EQ_PROJECTION_H
 
 #include <eq/base/base.h>
-#include <eq/vmmlib/VMMLib.h>
-
+#include <eq/vmmlib/vmmlib.h>
+ 
 #include <iostream>
 
 namespace eq

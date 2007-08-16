@@ -25,6 +25,6 @@
 #include <eq/client/version.h>
 
 #include <eq/net/net.h>
-#include <eq/vmmlib/VMMLib.h>
+#include <eq/vmmlib/vmmlib.h>
 
 #endif // EQ_H
