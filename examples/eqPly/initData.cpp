@@ -19,7 +19,12 @@ namespace eqPly
 {
 
 InitData::InitData()
-        : _filename( "rockerArm.ply" ),
+        :
+#ifdef WIN32_VC
+          _filename( "../examples/eqPly/rockerArm.ply" ),
+#else
+          _filename( "rockerArm.ply" ),
+#endif
           _instanceData( 0 )
 {}
 
