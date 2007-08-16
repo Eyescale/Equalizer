@@ -5,17 +5,17 @@
 #ifndef EQS_COMPOUND_H
 #define EQS_COMPOUND_H
 
-#include "channel.h"
+#include "channel.h"    // used in inline method
+#include "projection.h" // member
+#include "view.h"       // member
+#include "wall.h"       // member
 
 #include <eq/client/colorMask.h>
 #include <eq/client/frame.h>
 #include <eq/client/frameData.h>
-#include <eq/client/projection.h>
 #include <eq/client/range.h>
 #include <eq/client/renderContext.h>
-#include <eq/client/view.h>
 #include <eq/client/viewport.h>
-#include <eq/client/wall.h>
 #include <eq/client/global.h>
 
 #include <iostream>
@@ -98,6 +98,7 @@ namespace eqs
             IATTR_STEREO_MODE,
             IATTR_STEREO_ANAGLYPH_LEFT_MASK,
             IATTR_STEREO_ANAGLYPH_RIGHT_MASK,
+            IATTR_UPDATE_FOV,
             IATTR_ALL
         };
 
@@ -281,30 +282,20 @@ namespace eqs
          * 
          * @param wall the wall description.
          */
-        void setWall( const eq::Wall& wall );
+        void setWall( const Wall& wall );
         
         /** @return the last specified wall description. */
-        const eq::Wall& getWall() const { return _view.wall; }
+        const Wall& getWall() const { return _view.wall; }
 
         /** 
          * Set the compound's view using a projection description
          * 
          * @param projection the projection description.
          */
-        void setProjection( const eq::Projection& projection );
+        void setProjection( const Projection& projection );
 
         /** @return the last specified projection description. */
-        const eq::Projection& getProjection() const { return _view.projection; }
-
-        /** 
-         * Set the compound's view as a four-by-four matrix.
-         * 
-         * @param view the view description.
-         */
-        void setView( const eq::View& view  );
-
-        /** @return the last specified projection matrix. */
-        const eq::View& getView() const { return _view.view; }
+        const Projection& getProjection() const { return _view.projection; }
 
         /** @return the bitwise OR of the eye values. */
         const uint32_t getEyes() const { return _data.eyes; }
@@ -434,22 +425,20 @@ namespace eqs
         /** String representation of integer attributes. */
         static std::string _iAttributeStrings[IATTR_ALL];
 
-        struct View
+        struct ViewDescription
         {
             enum Type
             {
                 NONE,
                 WALL,
-                PROJECTION,
-                VIEW
+                PROJECTION
             };
 
-            View() : latest( NONE ) {}
+            ViewDescription() : latest( NONE ) {}
 
-            Type           latest;
-            eq::Wall       wall;
-            eq::Projection projection;
-            eq::View       view;
+            Type       latest;
+            Wall       wall;
+            Projection projection;
         } 
         _view;
 
@@ -461,7 +450,7 @@ namespace eqs
             eq::Viewport      vp;
             eq::PixelViewport pvp;
             eq::Range         range;
-            eq::View          view;
+            View              view;
             uint32_t          buffers;
             uint32_t          eyes;
             uint32_t          tasks;

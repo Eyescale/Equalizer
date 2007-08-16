@@ -16,14 +16,16 @@ namespace eq
     /** Possible values for some integer attributes */
     enum IAttrValue
     {
-        UNDEFINED = -0xfffffff,
-        QUAD      = -4,
-        ANAGLYPH  = -3,
-        NICEST    = -2,
-        AUTO      = -1,
-        OFF       = false,
-        ON        = true,
-        FASTEST   = ON,
+        UNDEFINED  = -0xfffffff,
+        VERTICAL   = -5,
+        QUAD       = -4,
+        ANAGLYPH   = -3,
+        NICEST     = -2,
+        AUTO       = -1,
+        OFF        = false,
+        ON         = true,
+        FASTEST    = ON,
+        HORIZONTAL = ON
     };
 
     /** 

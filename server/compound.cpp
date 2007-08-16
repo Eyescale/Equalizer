@@ -16,6 +16,7 @@
 #include <eq/base/base.h>
 #include <eq/base/stdExt.h>
 #include <eq/client/colorMask.h>
+#include <eq/client/global.h>
 #include <eq/client/packets.h>
 #include <eq/client/wall.h>
 #include <eq/client/windowSystem.h>
@@ -222,29 +223,22 @@ void Compound::_setDefaultFrameName( Frame* frame )
 //---------------------------------------------------------------------------
 // view operations
 //---------------------------------------------------------------------------
-void Compound::setWall( const eq::Wall& wall )
+void Compound::setWall( const Wall& wall )
 {
     _data.view.applyWall( wall );
     _view.wall   = wall;
-    _view.latest = View::WALL;
+    _view.latest = ViewDescription::WALL;
 
     EQVERB << "Wall: " << _data.view << endl;
 }
 
-void Compound::setProjection( const eq::Projection& projection )
+void Compound::setProjection( const Projection& projection )
 {
     _data.view.applyProjection( projection );
     _view.projection = projection;
-    _view.latest     = View::PROJECTION;
+    _view.latest     = ViewDescription::PROJECTION;
 
     EQVERB << "Projection: " << _data.view << endl;
-}
-
-void Compound::setView( const eq::View& view )
-{
-    _data.view   = view;
-    _view.view   = view;
-    _view.latest = View::VIEW;
 }
 
 //---------------------------------------------------------------------------
@@ -545,6 +539,9 @@ void Compound::_updateInheritData()
             
             _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] =
                 COLOR_MASK_GREEN | COLOR_MASK_BLUE;
+
+        if( _inherit.iAttributes[IATTR_UPDATE_FOV] == eq::UNDEFINED )
+            _inherit.iAttributes[IATTR_UPDATE_FOV] = eq::HORIZONTAL;
     }
     else
     {
@@ -588,6 +585,10 @@ void Compound::_updateInheritData()
         if( _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] !=eq::UNDEFINED)
             _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] = 
                 _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK];
+
+        if( _data.iAttributes[IATTR_UPDATE_FOV] != eq::UNDEFINED )
+            _inherit.iAttributes[IATTR_UPDATE_FOV] =
+                _data.iAttributes[IATTR_UPDATE_FOV];
     }
 
     if( _data.tasks == TASK_DEFAULT )
@@ -918,9 +919,9 @@ eq::ColorMask Compound::_getDrawBufferMask( const UpdateChannelData* data )
 void Compound::_computeFrustum( eq::RenderContext& context, 
                                 const eq::Eye eyeIndex )
 {
-    const Channel*  destination = _inherit.channel;
-    const eq::View& view        = _inherit.view;
-    Config*         config      = getConfig();
+    const Channel* destination = _inherit.channel;
+    const View&    view        = _inherit.view;
+    Config*        config      = getConfig();
     destination->getNearFar( &context.frustum.nearPlane, 
                              &context.frustum.farPlane );
 
@@ -1245,14 +1246,11 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
 
     switch( compound->_view.latest )
     {
-        case Compound::View::WALL:
+        case Compound::ViewDescription::WALL:
             os << compound->getWall() << endl;
             break;
-        case Compound::View::PROJECTION:
+        case Compound::ViewDescription::PROJECTION:
             os << compound->getProjection() << endl;
-            break;
-        case Compound::View::VIEW:
-            //os << compound->getView() << endl;
             break;
         default: 
             break;

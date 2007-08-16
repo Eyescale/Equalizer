@@ -2,13 +2,13 @@
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_VIEW_H
-#define EQ_VIEW_H
+#ifndef EQS_VIEW_H
+#define EQS_VIEW_H
 
 #include <eq/base/base.h>
 #include <eq/vmmlib/matrix4.h>
 
-namespace eq
+namespace eqs
 {
     class Projection;
     class Wall;
@@ -20,7 +20,7 @@ namespace eq
      * transformation matrix.
      * @todo better doc
      */
-    struct EQ_EXPORT View
+    struct View
     {
         View() : width(0.f), height(0.f) {}
 
@@ -34,7 +34,7 @@ namespace eq
         vmml::Matrix4f xfm;
     };
 
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const View& view ); 
+    std::ostream& operator << ( std::ostream& os, const View& view ); 
 }
 
 #endif // EQ_VIEW_H

@@ -67,6 +67,7 @@ EQ_CHANNEL_IATTR_HINT_STATISTICS { return EQTOKEN_CHANNEL_IATTR_HINT_STATISTICS;
 EQ_COMPOUND_IATTR_STEREO_MODE    { return EQTOKEN_COMPOUND_IATTR_STEREO_MODE; } 
 EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK  { return EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK; }
 EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK { return EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK; }
+EQ_COMPOUND_IATTR_UPDATE_FOV { return EQTOKEN_COMPOUND_IATTR_UPDATE_FOV; }
 server                          { return EQTOKEN_SERVER; }
 config                          { return EQTOKEN_CONFIG; }
 appNode                         { return EQTOKEN_APPNODE; }
@@ -94,6 +95,8 @@ ANAGLYPH                        { return EQTOKEN_ANAGLYPH; }
 RED                             { return EQTOKEN_RED; }
 GREEN                           { return EQTOKEN_GREEN; }
 BLUE                            { return EQTOKEN_BLUE; }
+HORIZONTAL                      { return EQTOKEN_HORIZONTAL; }
+VERTICAL                        { return EQTOKEN_VERTICAL; }
 channel                         { return EQTOKEN_CHANNEL; }
 compound                        { return EQTOKEN_COMPOUND; }
 connection                      { return EQTOKEN_CONNECTION; }
@@ -140,6 +143,8 @@ inputframe                      { return EQTOKEN_INPUTFRAME; }
 stereo_mode                     { return EQTOKEN_STEREO_MODE; }
 stereo_anaglyph_left_mask       { return EQTOKEN_STEREO_ANAGLYPH_LEFT_MASK; }
 stereo_anaglyph_right_mask      { return EQTOKEN_STEREO_ANAGLYPH_RIGHT_MASK; }
+update_FOV                      { return EQTOKEN_UPDATE_FOV; }
+
 [+-]?[0-9]+[\.][0-9]*           { return EQTOKEN_FLOAT; }
 [+-]?[0-9]*[\.][0-9]+           { return EQTOKEN_FLOAT; }
 [+]?[0-9]+                      { return EQTOKEN_UNSIGNED; }

@@ -76,6 +76,8 @@ void Global::_setupDefaults()
     // compound
     for( int i=0; i<Compound::IATTR_ALL; ++i )
         _compoundIAttributes[i] = eq::UNDEFINED;
+
+    _compoundIAttributes[Compound::IATTR_UPDATE_FOV] = eq::HORIZONTAL;
 }
 
 void Global::_readEnvironment()

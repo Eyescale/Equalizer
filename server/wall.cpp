@@ -9,7 +9,7 @@
 using namespace eqBase;
 using namespace std;
 
-namespace eq
+namespace eqs
 {
 Wall::Wall()
         : bottomLeft( -.8f, -.5f, -1.f ),
@@ -18,7 +18,7 @@ Wall::Wall()
 {
 }
 
-EQ_EXPORT ostream& operator << ( ostream& os, const Wall& wall )
+ostream& operator << ( ostream& os, const Wall& wall )
 {
     os << "wall" << endl;
     os << "{" << endl << indent;

@@ -61,7 +61,7 @@ namespace eq
 
         /** @return a pointer to the raw pixel data. */
         const uint8_t* getPixelData( const Frame::Buffer buffer ) const
-            { return _getPixels( buffer ).data; }
+            { EQASSERT(hasPixelData(buffer)); return _getPixels( buffer ).data;}
         /** @return the size of the raw pixel data in bytes */
         uint32_t getPixelDataSize( const Frame::Buffer buffer ) const
             { return (_pvp.w * _pvp.h * getDepth( buffer )); }
@@ -83,7 +83,7 @@ namespace eq
         /** 
          * Set the pixel viewport of the image buffers.
          *
-         * The image buffers will be resized to match the new pixel viewport.
+         * The image buffers will be invalidated.
          * 
          * @param pvp the pixel viewport.
          */
@@ -169,18 +169,20 @@ namespace eq
         class Pixels : public eqBase::NonCopyable
         {
         public:
-            Pixels() : data(0), maxSize(0), format( GL_FALSE ),
-                       type( GL_FALSE ), valid( false )
+            Pixels() : data(0), format( GL_FALSE ), type( GL_FALSE ),
+                       valid( false ), maxSize(0)
                 {}
-            ~Pixels() { delete [] data; }
+            ~Pixels();
 
             void resize( uint32_t size );
 
             uint8_t* data;    // allocated (and cached data)
-            uint32_t maxSize; // the size of the allocation
             uint32_t format;
             uint32_t type;
             bool     valid;   // data is currently valid
+
+        private:
+            uint32_t maxSize; // the size of the allocation
         };
 
         Pixels _colorPixels;

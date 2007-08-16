@@ -87,15 +87,12 @@ HEADER_SRC = \
 	client/packets.h \
 	client/pipe.h \
 	client/pixelViewport.h \
-	client/projection.h \
 	client/range.h \
 	client/renderContext.h \
 	client/server.h \
 	client/statEvent.h \
 	client/version.h \
-	client/view.h \
 	client/viewport.h \
-	client/wall.h \
 	client/window.h \
 	client/windowEvent.h \
 	client/windowSystem.h \
@@ -160,14 +157,11 @@ SOURCES = \
 	client/node.cpp \
 	client/objectManager.cpp \
 	client/pipe.cpp \
-	client/projection.cpp \
 	client/range.cpp \
 	client/renderContext.cpp \
 	client/server.cpp \
 	client/statEvent.cpp \
 	client/version.cpp \
-	client/view.cpp \
-	client/wall.cpp \
 	client/window.cpp \
 	client/windowEvent.cpp
 

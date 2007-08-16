@@ -5,7 +5,7 @@
 #ifndef EQBASE_EXECUTIONLISTENER_H
 #define EQBASE_EXECUTIONLISTENER_H
 
-#include "base.h"
+#include <eq/base/base.h>
 
 namespace eqBase
 {
@@ -19,14 +19,12 @@ namespace eqBase
         virtual ~ExecutionListener() {}
 
         /**
-         * Notify that a new execution started.
-         * @sa Execution::start
+         * Notify that a new execution unit started.
          */
         virtual void notifyExecutionStarted(){};
 
         /**
-         * Notify that the execution is about to stop.
-         * @sa Execution::exit
+         * Notify that the execution unit is about to stop.
          */
         virtual void notifyExecutionStopping(){};        
     };

@@ -19,15 +19,12 @@ int main( int argc, char **argv )
 {
     Image image;
     TEST( image.readImage( "Image_7_color.rgb", Frame::BUFFER_COLOR ));
-    TEST( image.readImage( "Image_7_depth.rgb", Frame::BUFFER_DEPTH ));
 
     Image destImage;
     destImage.setPixelViewport( image.getPixelViewport( ));
 
     const uint8_t* colorData = image.getPixelData( Frame::BUFFER_COLOR);
     const size_t   colorSize = image.getPixelDataSize( Frame::BUFFER_COLOR);
-    const uint8_t* depthData = image.getPixelData( Frame::BUFFER_DEPTH);
-    const size_t   depthSize = image.getPixelDataSize( Frame::BUFFER_DEPTH);
     const uint8_t* compressedData;
     const uint8_t* data;
     uint32_t       size;
@@ -63,6 +60,12 @@ int main( int argc, char **argv )
 
 
     // Depth
+    TEST( image.readImage( "Image_7_depth.rgb", Frame::BUFFER_DEPTH ));
+    const uint8_t* depthData = image.getPixelData( Frame::BUFFER_DEPTH);
+    const size_t   depthSize = image.getPixelDataSize( Frame::BUFFER_DEPTH);
+
+    destImage.setPixelViewport( image.getPixelViewport( ));
+
     clock.reset();
     compressedData = image.compressPixelData( Frame::BUFFER_DEPTH, size );
     time = clock.getTimef();

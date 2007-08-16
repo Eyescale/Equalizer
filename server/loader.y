@@ -32,8 +32,8 @@
         static eqs::Frame*       frame = 0;
         static eqBase::RefPtr<eqNet::ConnectionDescription> 
             connectionDescription;
-        static eq::Wall          wall;
-        static eq::Projection    projection;
+        static eqs::Wall          wall;
+        static eqs::Projection    projection;
         static uint32_t          flags = 0;
     }
 
@@ -70,6 +70,7 @@
 %token EQTOKEN_COMPOUND_IATTR_STEREO_MODE
 %token EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK
 %token EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK
+%token EQTOKEN_COMPOUND_IATTR_UPDATE_FOV
 %token EQTOKEN_CHANNEL_IATTR_HINT_STATISTICS
 %token EQTOKEN_SERVER
 %token EQTOKEN_CONFIG
@@ -98,6 +99,8 @@
 %token EQTOKEN_RED
 %token EQTOKEN_GREEN
 %token EQTOKEN_BLUE
+%token EQTOKEN_HORIZONTAL
+%token EQTOKEN_VERTICAL
 %token EQTOKEN_CHANNEL
 %token EQTOKEN_COMPOUND
 %token EQTOKEN_CONNECTION
@@ -145,6 +148,7 @@
 %token EQTOKEN_STEREO_MODE
 %token EQTOKEN_STEREO_ANAGLYPH_LEFT_MASK
 %token EQTOKEN_STEREO_ANAGLYPH_RIGHT_MASK
+%token EQTOKEN_UPDATE_FOV
 
 %token EQTOKEN_STRING
 %token EQTOKEN_FLOAT
@@ -272,6 +276,11 @@ global:
      { 
          eqs::Global::instance()->setCompoundIAttribute( 
              eqs::Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK, $2 ); 
+     }
+     | EQTOKEN_COMPOUND_IATTR_UPDATE_FOV IATTR
+     {
+         eqs::Global::instance()->setCompoundIAttribute(
+             eqs::Compound::IATTR_UPDATE_FOV, $2 );
      }
 
 connectionType: 
@@ -500,7 +509,7 @@ buffer:
     EQTOKEN_COLOR    { flags |= eq::Frame::BUFFER_COLOR; }
     | EQTOKEN_DEPTH  { flags |= eq::Frame::BUFFER_DEPTH; }
 
-wall: EQTOKEN_WALL '{' { wall = eq::Wall(); } 
+wall: EQTOKEN_WALL '{' { wall = eqs::Wall(); } 
     wallFields '}' { eqCompound->setWall( wall ); }
 
 wallFields:  /*null*/ | wallField | wallFields wallField
@@ -512,7 +521,7 @@ wallField:
    |  EQTOKEN_TOP_LEFT  '[' FLOAT FLOAT FLOAT ']'
         { wall.topLeft = vmml::Vector3f( $3, $4, $5 ); }
 
-projection: EQTOKEN_PROJECTION '{' { projection = eq::Projection(); } 
+projection: EQTOKEN_PROJECTION '{' { projection = eqs::Projection(); } 
     projectionFields '}' { eqCompound->setProjection( projection ); }
 
 projectionFields:  /*null*/ | projectionField | projectionFields projectionField
@@ -567,6 +576,8 @@ compoundAttribute:
     | EQTOKEN_STEREO_ANAGLYPH_RIGHT_MASK colorMask
         { eqCompound->setIAttribute( 
                 eqs::Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK, $2 ); }
+    | EQTOKEN_UPDATE_FOV IATTR
+        { eqCompound->setIAttribute(eqs::Compound::IATTR_UPDATE_FOV, $2 ); }
 
 viewport: '[' FLOAT FLOAT FLOAT FLOAT ']'
      { 
@@ -587,14 +598,16 @@ colorMaskBit:
     | EQTOKEN_BLUE  { $$ = eqs::Compound::COLOR_MASK_BLUE; }
 
 IATTR:
-    EQTOKEN_ON         { $$ = eq::ON; }
-    | EQTOKEN_OFF      { $$ = eq::OFF; }
-    | EQTOKEN_AUTO     { $$ = eq::AUTO; }
-    | EQTOKEN_FASTEST  { $$ = eq::FASTEST; }
-    | EQTOKEN_NICEST   { $$ = eq::NICEST; }
-    | EQTOKEN_QUAD     { $$ = eq::QUAD; }
-    | EQTOKEN_ANAGLYPH { $$ = eq::ANAGLYPH; } 
-    | INTEGER          { $$ = $1; }
+    EQTOKEN_ON           { $$ = eq::ON; }
+    | EQTOKEN_OFF        { $$ = eq::OFF; }
+    | EQTOKEN_AUTO       { $$ = eq::AUTO; }
+    | EQTOKEN_FASTEST    { $$ = eq::FASTEST; }
+    | EQTOKEN_HORIZONTAL { $$ = eq::HORIZONTAL; }
+    | EQTOKEN_NICEST     { $$ = eq::NICEST; }
+    | EQTOKEN_QUAD       { $$ = eq::QUAD; }
+    | EQTOKEN_ANAGLYPH   { $$ = eq::ANAGLYPH; } 
+    | EQTOKEN_VERTICAL   { $$ = eq::VERTICAL; }
+    | INTEGER            { $$ = $1; }
 
 STRING: EQTOKEN_STRING
      {

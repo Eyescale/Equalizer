@@ -101,6 +101,7 @@ const Image::Pixels& Image::_getPixels( const Frame::Buffer buffer ) const
         case Frame::BUFFER_COLOR:
             return _colorPixels;
 
+        case Frame::BUFFER_DEPTH:
         default:
             EQASSERTINFO( buffer == Frame::BUFFER_DEPTH, buffer );
             return _depthPixels;
@@ -166,6 +167,11 @@ void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp )
 
     _pvp.x = 0;
     _pvp.y = 0;
+}
+
+Image::Pixels::~Pixels()
+{
+    delete [] data;
 }
 
 void Image::Pixels::resize( uint32_t size )
@@ -263,10 +269,8 @@ void Image::_startAssembleDB( const vmml::Vector2i& offset )
 void Image::setPixelViewport( const PixelViewport& pvp )
 {
     _pvp = pvp;
-
-    const uint32_t nPixels = pvp.w * pvp.h;
-    _colorPixels.resize( nPixels * getDepth( Frame::BUFFER_COLOR ));
-    _depthPixels.resize( nPixels * getDepth( Frame::BUFFER_DEPTH ));
+    _colorPixels.valid = false;
+    _depthPixels.valid = false;
     _compressedColorPixels.valid = false;
     _compressedDepthPixels.valid = false;
 }

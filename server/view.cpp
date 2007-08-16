@@ -9,7 +9,7 @@
 
 #define DEG2RAD( angle ) ( (angle) * static_cast<float>(M_PI) / 180.f )
 
-namespace eq
+namespace eqs
 {
 void View::applyWall( const Wall& wall )
 {
@@ -97,7 +97,7 @@ void View::applyProjection( const Projection& projection )
     height = distance * tan(DEG2RAD( projection.fov[1] ));
 }
  
-EQ_EXPORT std::ostream& operator << ( std::ostream& os, const View& view )
+std::ostream& operator << ( std::ostream& os, const View& view )
 {
     os << "WxH: " << view.width << "x" << view.height << " xfm: " << view.xfm
        << std::endl;

@@ -1154,6 +1154,12 @@ bool eq::Window::processEvent( const WindowEvent& event )
         case WindowEvent::RESIZE:
             setPixelViewport( PixelViewport( event.resize.x, event.resize.y, 
                                              event.resize.w, event.resize.h ));
+#ifdef AGL
+            // 'refresh' agl context viewport
+            EQASSERT( _pipe );
+            if( _aglContext && _pipe->getWindowSystem() == WINDOW_SYSTEM_AGL )
+                aglUpdateContext( _aglContext );
+#endif
             return true;
 
         case WindowEvent::CLOSE:

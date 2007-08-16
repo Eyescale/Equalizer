@@ -9,7 +9,7 @@
 using namespace eqBase;
 using namespace std;
 
-namespace eq
+namespace eqs
 {
 Projection::Projection()
         : origin( 0.f, 0.f, 0.f ),
@@ -18,7 +18,7 @@ Projection::Projection()
           hpr( 0.f, 0.f, 0.f )
 {}
 
-EQ_EXPORT ostream& operator << ( ostream& os, const Projection& projection )
+ostream& operator << ( ostream& os, const Projection& projection )
 {
     os << "projection" << endl;
     os << "{" << endl << indent;

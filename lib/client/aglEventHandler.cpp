@@ -119,6 +119,11 @@ bool AGLEventHandler::_handleWindowEvent( EventRef event, eq::Window* window )
         }
 
         case kEventWindowUpdate:
+        {
+            WindowRef carbonWindow = window->getCarbonWindow();
+            BeginUpdate( carbonWindow );
+            EndUpdate( carbonWindow );
+        } // no break;
         case kEventWindowDrawContent:
             windowEvent.type = WindowEvent::EXPOSE;
             break;

@@ -28,7 +28,7 @@ void Global::leaveCarbon()
 }
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
-                                          const IAttrValue value )
+                                      const IAttrValue value )
 {
     if( value > ON ) // ugh
         os << static_cast<int>( value );
@@ -39,8 +39,8 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
                 value == AUTO      ? "AUTO" :
                 value == NICEST    ? "NICEST" :
                 value == QUAD      ? "QUAD" :
-                value == ANAGLYPH  ? "ANAGLYPH"
-                : "ERROR"  );
+                value == ANAGLYPH  ? "ANAGLYPH" :
+                value == VERTICAL  ? "VERTICAL" : "ERROR"  );
     return os;
 }
 }
