@@ -9,7 +9,8 @@ SUBDIRS = \
 	netperf \
 	node \
 	pipeperf \
-	session
+	session \
+	wall
 
 TARGETS = subdirs
 

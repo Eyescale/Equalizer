@@ -5,7 +5,7 @@
 #ifndef EQS_PIXELVIEWPORT_LISTENER_H
 #define EQS_PIXELVIEWPORT_LISTENER_H
 
-#include <eq/base/pixelViewport.h>
+#include <eq/client/pixelViewport.h>
 
 namespace eqs
 {
@@ -15,6 +15,8 @@ namespace eqs
     class PixelViewportListener
     {
     public:
+        virtual ~PixelViewportListener(){}
+
         virtual void notifyPVPChanged( const eq::PixelViewport& pvp ){}
     };
 };

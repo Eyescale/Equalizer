@@ -119,6 +119,7 @@ void Channel::setPixelViewport( const eq::PixelViewport& pvp )
     _pvp = pvp;
     _vp.invalidate();
     notifyViewportChanged();
+    _firePVPChanged();
 }
 
 void Channel::setViewport( const eq::Viewport& vp )
@@ -151,9 +152,38 @@ void Channel::notifyViewportChanged()
     if( _fixedPVP ) // update viewport
         _vp = _pvp / windowPVP;
     else            // update pixel viewport
-        _pvp = windowPVP * _vp;
+    {
+        eq::PixelViewport pvp = windowPVP * _vp;
+        if( _pvp != pvp )
+        {
+            _pvp = pvp;
+            _firePVPChanged();
+        }
+    }
 
     EQINFO << "Channel viewport update: " << _pvp << ":" << _vp << endl;
+}
+
+void Channel::addPVPListener( PixelViewportListener* listener )
+{
+    _pvpListeners.push_back( listener );
+}
+
+void Channel::removePVPListener( PixelViewportListener* listener )
+{
+    vector< PixelViewportListener *>::iterator i = find( _pvpListeners.begin(),
+                                                         _pvpListeners.end(),
+                                                         listener );
+    if( i != _pvpListeners.end( ))
+        _pvpListeners.erase( i );
+}
+
+void Channel::_firePVPChanged()
+{
+    for( vector<PixelViewportListener*>::const_iterator i=_pvpListeners.begin();
+         i != _pvpListeners.end(); ++i )
+
+        (*i)->notifyPVPChanged( _pvp );
 }
 
 //===========================================================================

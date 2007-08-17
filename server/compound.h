@@ -5,10 +5,11 @@
 #ifndef EQS_COMPOUND_H
 #define EQS_COMPOUND_H
 
-#include "channel.h"    // used in inline method
-#include "projection.h" // member
-#include "view.h"       // member
-#include "wall.h"       // member
+#include "channel.h"               // used in inline method
+#include "pixelViewportListener.h" // base class
+#include "projection.h"            // member
+#include "view.h"                  // member
+#include "wall.h"                  // member
 
 #include <eq/client/colorMask.h>
 #include <eq/client/frame.h>
@@ -35,7 +36,7 @@ namespace eqs
     /**
      * The compound.
      */
-    class Compound
+    class Compound : private PixelViewportListener
     {
     public:
         /** 
@@ -166,7 +167,7 @@ namespace eqs
          * 
          * @param channel the channel.
          */
-        void setChannel( Channel* channel ){ _data.channel = channel; }
+        void setChannel( Channel* channel );
 
         /** 
          * Return the channel of this compound.
@@ -442,6 +443,8 @@ namespace eqs
         } 
         _view;
 
+        eq::PixelViewport _initialPVP;
+
         struct InheritData
         {
             InheritData();
@@ -475,6 +478,9 @@ namespace eqs
 
         bool _isActive() const
             { return (( _frameNumber % _inherit.period ) == _inherit.phase); }
+        
+        /** Channel pvp changed */
+        virtual void notifyPVPChanged( const eq::PixelViewport& pvp );
 
         //----- pre-render compound setup
         struct UpdateData

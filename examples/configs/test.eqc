@@ -1,4 +1,8 @@
-# 'Hello, World!' config: one window rendering from the application process.
+global
+{
+    EQ_COMPOUND_IATTR_UPDATE_FOV   VERTICAL
+}
+
 server
 {
     config
@@ -12,17 +16,17 @@ server
                     viewport [ 10 200 1200 400 ]
                     channel 
                     {
-                        viewport [ 0 0 400 400 ]
+                        viewport [ 0 0 .3333 1. ]
                         name "channel-left"
                     }
                     channel 
                     {
-                        viewport [ 400 0 400 400 ]
+                        viewport [ .3333 0 .3333 1. ]
                         name "channel-middle"
                     }
                     channel 
                     {
-                        viewport [ 800 0 400 400 ]
+                        viewport [ .6666 0 .3334 1. ]
                         name "channel-right"
                     }
                 }

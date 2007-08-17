@@ -25,6 +25,20 @@ namespace eqs
     public:
         Projection();
 
+        /** 
+         * Resize the horizontal FOV.
+         * 
+         * @param ratio the amount by which the FOV is grown or shrunk.
+         */
+        void resizeHorizontal( const float ratio );
+
+        /** 
+         * Resize the vertical FOV.
+         * 
+         * @param ratio the amount by which the FOV is grown or shrunk.
+         */
+        void resizeVertical( const float ratio );
+
         vmml::Vector3f origin;
         float          distance;
         vmml::Vector2f fov;

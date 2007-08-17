@@ -17,8 +17,6 @@ namespace eqs
      * 
      * The three points describe the bottom left, bottom right and top left
      * coordinate of the wall in real-world coordinates.
-     *
-     * Not intended to be subclassed. Do not add virtual methods.
      */
     class Wall
     {
@@ -31,6 +29,16 @@ namespace eqs
          * @param ratio the amount by which the wall is grown or shrunk.
          */
         void resizeHorizontal( const float ratio );
+
+        /** 
+         * Resize the wall vertical.
+         * 
+         * @param ratio the amount by which the wall is grown or shrunk.
+         */
+        void resizeVertical( const float ratio );
+
+        bool operator == ( const Wall& rhs ) const;
+        bool operator != ( const Wall& rhs ) const;
 
         vmml::Vector3f bottomLeft;
         vmml::Vector3f bottomRight;

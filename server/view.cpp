@@ -19,7 +19,7 @@ void View::applyWall( const Wall& wall )
                       u[2]*v[0] - u[0]*v[2],
                       u[0]*v[1] - u[1]*v[0] );
 
-    width = u.normalize();
+    width  = u.normalize();
     height = v.normalize();
     w.normalize();
 
@@ -66,10 +66,10 @@ void View::applyProjection( const Projection& projection )
         };
 
     // translation = HPR x -origin
-    const vmml::Vector3f& origin = projection.origin;
-    const float  distance = projection.distance;
-    const vmml::Vector3f 
-        trans( -( rot[0]*origin[0] + rot[3]*origin[1] + rot[6]*origin[2] ),
+    const vmml::Vector3f& origin   = projection.origin;
+    const float           distance = projection.distance;
+    const vmml::Vector3f  trans(
+               -( rot[0]*origin[0] + rot[3]*origin[1] + rot[6]*origin[2] ),
                -( rot[1]*origin[0] + rot[4]*origin[1] + rot[7]*origin[2] ),
                -( rot[2]*origin[0] + rot[5]*origin[1] + rot[8]*origin[2] ));
 
@@ -93,8 +93,8 @@ void View::applyProjection( const Projection& projection )
     xfm.ml[14] = trans[2] + distance;
     xfm.ml[15] = 1.;
 
-    width  = distance * tan(DEG2RAD( projection.fov[0] ));
-    height = distance * tan(DEG2RAD( projection.fov[1] ));
+    width  = distance * 2.f * tanf(DEG2RAD( .5f * projection.fov[0] ));
+    height = distance * 2.f * tanf(DEG2RAD( .5f * projection.fov[1] ));
 }
  
 std::ostream& operator << ( std::ostream& os, const View& view )

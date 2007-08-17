@@ -256,6 +256,7 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
         switch( i )
         {
             case Compound::IATTR_STEREO_MODE:
+            case Compound::IATTR_UPDATE_FOV:
                 os << static_cast<eq::IAttrValue>( value ) << endl;
                 break;
 

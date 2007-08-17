@@ -18,6 +18,44 @@ Wall::Wall()
 {
 }
 
+void Wall::resizeHorizontal( const float ratio )
+{
+    if( ratio == 1.f || ratio < 0.f )
+        return;
+
+    const vmml::Vector3f u_2   = (bottomRight - bottomLeft) * .5f;
+    const vmml::Vector3f delta = u_2 * (ratio - 1.f);
+    bottomLeft  -= delta;
+    bottomRight += delta;
+    topLeft     -= delta;
+}
+
+void Wall::resizeVertical( const float ratio )
+{
+    if( ratio == 1.f || ratio < 0.f )
+        return;
+
+    const vmml::Vector3f v_2   = (topLeft - bottomLeft) * .5f;
+    const vmml::Vector3f delta = v_2 * (ratio - 1.f);
+    bottomLeft  -= delta;
+    bottomRight -= delta;
+    topLeft     += delta;
+}
+
+bool Wall::operator == ( const Wall& rhs ) const
+{
+    return ( bottomLeft  == rhs.bottomLeft  &&
+             bottomRight == rhs.bottomRight &&
+             topLeft     == rhs.topLeft );
+}
+
+bool Wall::operator != ( const Wall& rhs ) const
+{
+    return ( bottomLeft  != rhs.bottomLeft  ||
+             bottomRight != rhs.bottomRight ||
+             topLeft     != rhs.topLeft );
+}
+
 ostream& operator << ( ostream& os, const Wall& wall )
 {
     os << "wall" << endl;

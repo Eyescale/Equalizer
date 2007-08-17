@@ -35,7 +35,8 @@ using namespace stde;
 std::string Compound::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_STEREO_MODE ),
     MAKE_ATTR_STRING( IATTR_STEREO_ANAGLYPH_LEFT_MASK ),
-    MAKE_ATTR_STRING( IATTR_STEREO_ANAGLYPH_RIGHT_MASK )
+    MAKE_ATTR_STRING( IATTR_STEREO_ANAGLYPH_RIGHT_MASK ),
+    MAKE_ATTR_STRING( IATTR_UPDATE_FOV )
 };
 
 Compound::Compound()
@@ -152,6 +153,24 @@ Compound* Compound::_getNext() const
     return *result;
 }
 
+void Compound::setChannel( Channel* channel )
+{ 
+    if( _data.channel == channel )
+        return;
+    
+    if( _data.channel )
+        _data.channel->removePVPListener( this );
+    
+    _data.channel = channel;
+    _initialPVP.invalidate();
+
+    if( channel )
+    {
+        channel->addPVPListener( this );
+        notifyPVPChanged( channel->getPixelViewport( ));
+    }
+}
+
 Channel* Compound::getChannel() const
 {
     if( _data.channel )
@@ -228,7 +247,10 @@ void Compound::setWall( const Wall& wall )
     _data.view.applyWall( wall );
     _view.wall   = wall;
     _view.latest = ViewDescription::WALL;
+    _initialPVP.invalidate();
 
+    if( _data.channel )
+        notifyPVPChanged( _data.channel->getPixelViewport( ));
     EQVERB << "Wall: " << _data.view << endl;
 }
 
@@ -237,8 +259,107 @@ void Compound::setProjection( const Projection& projection )
     _data.view.applyProjection( projection );
     _view.projection = projection;
     _view.latest     = ViewDescription::PROJECTION;
+    _initialPVP.invalidate();
 
+    if( _data.channel )
+        notifyPVPChanged( _data.channel->getPixelViewport( ));
     EQVERB << "Projection: " << _data.view << endl;
+}
+
+void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
+{
+    if( !_initialPVP.isValid( )) // no valid channel pvp: set initial values
+    {
+        _initialPVP = pvp;
+        return;
+    }
+
+    if( !_initialPVP.isValid( ) || !_data.view.isValid( ))
+        return;
+    
+    const int32_t update = _inherit.iAttributes[ IATTR_UPDATE_FOV ];
+    if( update == eq::OFF || update == eq::UNDEFINED )
+        return;
+
+    switch( _view.latest )
+    {
+        case ViewDescription::NONE:
+            EQUNREACHABLE;
+            return;
+
+        case ViewDescription::WALL:
+            switch( update )
+            {
+                case eq::HORIZONTAL:
+                {
+                    const float newAR = static_cast< float >( pvp.w ) /
+                                        static_cast< float >( pvp.h );
+                    const float initAR = static_cast< float >( _initialPVP.w ) /
+                                         static_cast< float >( _initialPVP.h );
+                    const float ratio  = newAR / initAR;
+
+                    Wall wall( _view.wall );
+                    wall.resizeHorizontal( ratio );
+                    _data.view.applyWall( wall );
+                    break;
+                }
+                case eq::VERTICAL:
+                {
+                    const float newAR = static_cast< float >( pvp.h ) /
+                                        static_cast< float >( pvp.w );
+                    const float initAR = static_cast< float >( _initialPVP.h ) /
+                                         static_cast< float >( _initialPVP.w );
+                    const float ratio  = newAR / initAR;
+
+                    Wall wall( _view.wall );
+                    wall.resizeVertical( ratio );
+                    _data.view.applyWall( wall );
+                    break;
+                }
+                default:
+                    EQUNIMPLEMENTED;
+            }
+            break;
+
+        case ViewDescription::PROJECTION:
+            switch( update )
+            {
+                case eq::HORIZONTAL:
+                {
+                    const float newAR = static_cast< float >( pvp.w ) /
+                                        static_cast< float >( pvp.h );
+                    const float initAR = static_cast< float >( _initialPVP.w ) /
+                                         static_cast< float >( _initialPVP.h );
+                    const float ratio  = newAR / initAR;
+
+                    Projection projection( _view.projection );
+                    projection.resizeHorizontal( ratio );
+                    _data.view.applyProjection( projection );
+                    break;
+                }
+                case eq::VERTICAL:
+                {
+                    const float newAR = static_cast< float >( pvp.h ) /
+                                        static_cast< float >( pvp.w );
+                    const float initAR = static_cast< float >( _initialPVP.h ) /
+                                         static_cast< float >( _initialPVP.w );
+                    const float ratio  = newAR / initAR;
+
+                    Projection projection( _view.projection );
+                    projection.resizeVertical( ratio );
+                    EQINFO << _view.projection << " -" << ratio << "-> "
+                           << projection << endl;
+                    _data.view.applyProjection( projection );
+                    break;
+                }
+                default:
+                    EQUNIMPLEMENTED;
+            }
+            break;
+
+        default:
+            EQUNIMPLEMENTED;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -551,7 +672,7 @@ void Compound::_updateInheritData()
         if( !_inherit.channel )
             _inherit.channel = _data.channel;
     
-        if( !_inherit.view.isValid( ))
+        if( _data.view.isValid( ))
             _inherit.view = _data.view;
         
         _inherit.vp    *= _data.vp;

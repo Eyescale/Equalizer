@@ -107,8 +107,11 @@ namespace eq
 
         bool operator == ( const PixelViewport& rhs ) const 
             { 
-                return ( x==rhs.x && x==rhs.x && 
-                         y==rhs.y && w==rhs.w && h==rhs.h);
+                return ( x==rhs.x && y==rhs.y && w==rhs.w && h==rhs.h );
+            }
+        bool operator != ( const PixelViewport& rhs ) const 
+            { 
+                return ( x!=rhs.x || y!=rhs.y || w!=rhs.w || h!=rhs.h );
             }
         //*}
 
