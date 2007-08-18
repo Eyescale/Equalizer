@@ -18,7 +18,6 @@
 #include <eq/client/colorMask.h>
 #include <eq/client/global.h>
 #include <eq/client/packets.h>
-#include <eq/client/wall.h>
 #include <eq/client/windowSystem.h>
 #include <eq/net/session.h>
 
