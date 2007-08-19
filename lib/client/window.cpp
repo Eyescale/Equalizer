@@ -406,16 +406,20 @@ bool eq::Window::configInitAGL()
 {
 #ifdef AGL
     CGDirectDisplayID displayID = _pipe->getCGDisplayID();
+#ifndef LEOPARD
     GDHandle          displayHandle = 0;
     
     DMGetGDeviceByDisplayID( (DisplayIDType)displayID, &displayHandle, false );
     if( !displayHandle )
         return false;
+#endif
 
     // build attribute list
     vector<GLint> attributes;
 
     attributes.push_back( AGL_RGBA );
+    attributes.push_back( GL_TRUE );
+    attributes.push_back( AGL_ACCELERATED );
     attributes.push_back( GL_TRUE );
 
     if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON )
@@ -475,11 +479,60 @@ bool eq::Window::configInitAGL()
         backoffAttributes.push_back( AGL_STEREO );
 
     // choose pixel format
-    AGLPixelFormat pixelFormat = aglChoosePixelFormat( &displayHandle, 1, 
-                                                       &attributes.front( ));
+    AGLPixelFormat pixelFormat = 0;
+    string         error;
+    while( true )
+    {
+#ifndef LEOPARD
+        pixelFormat = aglChoosePixelFormat( &displayHandle, 1,
+                                            &attributes.front( ));
+#else
+        pixelFormat = aglChoosePixelFormat( 0, 0, &attributes.front( ));
 
-    while( !pixelFormat && !backoffAttributes.empty( ))
-    {   // Gradually remove backoff attributes
+        if( !pixelFormat )
+            error = reinterpret_cast<const char*>(
+                aglErrorString( aglGetError( )));
+
+        EQINFO << "PF: " << pixelFormat << endl;
+        while( pixelFormat )
+        {
+            // Find a pixelFormat for our display
+            bool               found      = false;
+            GLint              nDisplayIDs = 0;
+            CGDirectDisplayID *displayIDs = 
+                aglDisplaysOfPixelFormat( pixelFormat, &nDisplayIDs );
+
+            if( !displayIDs )
+                EQWARN << "aglDisplaysOfPixelFormat failed: "
+                       << reinterpret_cast<const char*>(
+                           aglErrorString( aglGetError( ))) << endl;
+            else
+                EQINFO << nDisplayIDs << " displays " << endl;
+
+            for( GLint i = 0; i < nDisplayIDs && !found; ++i )
+            {
+                EQINFO << displayIDs[i] << "=? " << displayID << endl;
+                if( displayIDs[i] == displayID )
+                    found = true;
+            }
+
+            if( found )
+                break;
+            
+            error = "No matching pixel format on display";
+
+            // None found, try next pixelFormat in list
+            pixelFormat = aglNextPixelFormat( pixelFormat );
+            EQINFO << "next PF: " << pixelFormat << endl;
+        }
+#endif // LEOPARD
+
+        if( pixelFormat ||              // found one or
+            backoffAttributes.empty( )) // nothing else to try
+
+            break;
+
+        // Gradually remove backoff attributes
         const GLint attribute = backoffAttributes.back();
         backoffAttributes.pop_back();
 
@@ -488,14 +541,11 @@ bool eq::Window::configInitAGL()
         EQASSERT( iter != attributes.end( ));
 
         attributes.erase( iter, iter+1 ); // remove two item (attr, value)
-        pixelFormat = aglChoosePixelFormat( &displayHandle, 1, // try again
-                                            &attributes.front( ));
     }
 
     if( !pixelFormat )
     {
-        setErrorMessage( "Could not find a matching pixel format: " +
-                         aglGetError( ));
+        setErrorMessage( "Could not find a pixel format: " + error );
         return false;
     }
 
@@ -564,12 +614,21 @@ bool eq::Window::configInitAGL()
         SetWindowTitleWithCFString( windowRef, title );
         CFRelease( title );
         
+#ifdef LEOPARD
+        if( !aglSetWindowRef( context, windowRef ))
+        {
+            setErrorMessage( "aglSetWindowRef failed: " + aglGetError( ));
+            Global::leaveCarbon();
+            return false;
+        }
+#else
         if( !aglSetDrawable( context, GetWindowPort( windowRef )))
         {
             setErrorMessage( "aglSetDrawable failed: " + aglGetError( ));
             Global::leaveCarbon();
             return false;
         }
+#endif
 
         // show
         ShowWindow( windowRef );
@@ -848,7 +907,11 @@ void eq::Window::configExitAGL()
     AGLContext context = getAGLContext();
     if( context )
     {
+#ifdef LEOPARD
+        aglSetWindowRef( context, 0 );
+#else
         aglSetDrawable( context, 0 );
+#endif
         aglSetCurrentContext( 0 );
         aglDestroyContext( context );
         setAGLContext( 0 );
@@ -889,14 +952,18 @@ void eq::Window::configExitWGL()
 #endif
 }
 
-bool eq::Window::_queryDrawableConfig()
+void eq::Window::_queryDrawableConfig()
 {
     // GL version
     const char* glVersion = (const char*)glGetString( GL_VERSION );
     if( !glVersion ) // most likely no context - fail
-        return false;
-
-    _drawableConfig.glVersion = static_cast<float>( atof( glVersion ));
+    {
+        EQWARN << "glGetString(GL_VERSION) returned 0, assuming GL version 1.1" 
+               << endl;
+        _drawableConfig.glVersion = 1.1f;
+    }
+    else
+        _drawableConfig.glVersion = static_cast<float>( atof( glVersion ));
 
     // Framebuffer capabilities
     GLboolean result;
@@ -920,7 +987,6 @@ bool eq::Window::_queryDrawableConfig()
         _drawableConfig.extPackedDepthStencil = true;
 #endif
     EQINFO << "Window drawable config: " << _drawableConfig << endl;
-    return true;
 }
 
 void eq::Window::_initEventHandling()
@@ -1316,14 +1382,7 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
         default: EQUNIMPLEMENTED;
     }
 
-    if( !_queryDrawableConfig( ))
-    {
-        _error += " Querying of drawable configuration failed.";
-        reply.result = false;
-        send( node, reply, _error );
-        return eqNet::COMMAND_HANDLED;
-    }
-
+    _queryDrawableConfig();
     _initEventHandling();
 
     reply.pvp            = _pvp;

@@ -17,7 +17,7 @@ public:
 
 int main( int argc, char** argv )
 {
-    // 1. initialisation of local node
+    // 1. initialization of local node
 	NodeFactory nodeFactory;
 	if( !eq::init( argc, argv, &nodeFactory ))
     {
@@ -61,7 +61,7 @@ int main( int argc, char** argv )
 
     if( !config->init( 0 ))
     {
-        EQERROR << "Config initialisation failed: " 
+        EQERROR << "Config initialization failed: " 
                 << config->getErrorMessage() << endl;
         server->releaseConfig( config );
         client->disconnectServer( server );

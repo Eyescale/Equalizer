@@ -377,7 +377,7 @@ namespace eq
             { eqNet::Object::send( getServer(), packet ); }
 
         /** Set up _drawableConfig by querying current context. */
-        bool _queryDrawableConfig();
+        void _queryDrawableConfig();
 
         /**
          * Initialize the event handling for this window. 

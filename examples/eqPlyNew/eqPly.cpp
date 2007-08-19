@@ -77,7 +77,7 @@ int Application::runMainloop()
     config->setInitData( _initData );
     if( !config->init( ))
     {
-        EQERROR << "Config initialisation failed: " 
+        EQERROR << "Config initialization failed: " 
                 << config->getErrorMessage() << endl;
         server->releaseConfig( config );
         disconnectServer( server );

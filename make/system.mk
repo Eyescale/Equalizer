@@ -12,6 +12,7 @@ DEPTH     := $(subst .,-->,$(DEPTH))
 # os-specific settings
 ARCH    = $(shell uname)
 SUBARCH = $(shell uname -m)
+RELARCH = $(shell uname -r)
 
 include $(TOP)/make/$(ARCH).mk
 -include $(TOP)/make/local.mk

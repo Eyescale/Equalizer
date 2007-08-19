@@ -1,15 +1,32 @@
 
-BUILD_FAT = 1
+BUILD_FAT  = 1
 
-ifeq ($(findstring i386, $(SUBARCH)),i386)
-  VARIANTS ?= ppc i386
+ifeq ($(findstring 9.0, $(RELARCH)),9.0)
+  LEOPARD = 1
+endif
+
+ifdef LEOPARD
+  VARIANTS ?= i386
+  CXXFLAGS += -DLEOPARD
+  USE_SDK   = 1
 else
-  VARIANTS ?= ppc
+  ifeq ($(findstring i386, $(SUBARCH)),i386)
+    VARIANTS ?= i386 ppc
+  else
+    VARIANTS ?= ppc
+  endif
 endif
 
 ifdef VARIANT
   CXXFLAGS    += -arch $(VARIANT) -Wno-unknown-pragmas
   DSO_LDFLAGS += -arch $(VARIANT)
+endif
+
+
+ifdef USE_SDK
+  SDK         ?= /Developer/SDKs/MacOSX10.5.sdk
+  CXXFLAGS    += -isysroot $(SDK)
+  LDFLAGS     += -Wl,-syslibroot $(SDK)
 endif
 
 DSO_LDFLAGS        += -dynamiclib
@@ -27,6 +44,10 @@ endif
 AR           = libtool
 ARFLAGS      = -static
 
-# default bison on Darwin is too old, use fink version. 
-# Change to /opt/local/bin/bison if you are using DarwinPorts
-BISON        = /sw/bin/bison
+ifdef LEOPARD
+  BISON        = bison
+else
+ # default bison on Tiger and earlier is too old, use fink version. 
+ # Change to /opt/local/bin/bison if you are using DarwinPorts
+  BISON        = /sw/bin/bison
+endif
