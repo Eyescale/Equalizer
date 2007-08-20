@@ -14,13 +14,17 @@ CommandQueue::CommandQueue()
 void CommandQueue::push( eqNet::Command& inCommand )
 {
     eqNet::CommandQueue::push( inCommand );
+#if defined (WIN32) || defined (Darwin)
     _messagePump.postWakeup();
+#endif
 }
 
 void CommandQueue::pushFront( eqNet::Command& inCommand )
 {
     eqNet::CommandQueue::pushFront( inCommand );
+#if defined (WIN32) || defined (Darwin)
     _messagePump.postWakeup();
+#endif
 }
 
 eqNet::Command* CommandQueue::pop()
