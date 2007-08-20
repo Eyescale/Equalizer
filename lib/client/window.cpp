@@ -44,14 +44,14 @@ std::string eq::Window::_iAttributeStrings[IATTR_ALL] = {
 };
 
 eq::Window::Window()
-        : _xDrawable ( 0 ),
+        : _eventHandler( 0 ),
+          _xDrawable ( 0 ),
           _glXContext( 0 ),
           _aglContext( 0 ),
           _carbonWindow( 0 ),
           _carbonHandler( 0 ),
           _wglWindowHandle( 0 ),
           _wglContext     ( 0 ),
-          _wglEventHandler( 0 ),
           _pipe( 0 )
 {
     registerCommand( CMD_WINDOW_CREATE_CHANNEL, 
@@ -90,13 +90,8 @@ eq::Window::Window()
 
 eq::Window::~Window()
 {
-    if( _wglEventHandler )
-        EQWARN << "WGL event handler present in destructor" << endl;
-
-#ifdef WGL
-    delete _wglEventHandler;
-    _wglEventHandler = 0;
-#endif
+    if( _eventHandler )
+        EQWARN << "Event handler present in destructor" << endl;
 }
 
 void eq::Window::_addChannel( Channel* channel )
@@ -989,75 +984,17 @@ void eq::Window::_queryDrawableConfig()
     EQINFO << "Window drawable config: " << _drawableConfig << endl;
 }
 
-void eq::Window::_initEventHandling()
+void eq::Window::initEventHandling()
 {
-    switch( _pipe->getWindowSystem( ))
-    {
-        case WINDOW_SYSTEM_GLX:
-#ifdef GLX
-        {
-            GLXEventThread* thread = GLXEventThread::get();
-            thread->addWindow( this );
-        }
-#endif
-            break;
-
-        case WINDOW_SYSTEM_AGL:
-#ifdef AGL
-        {
-            AGLEventHandler* handler = AGLEventHandler::get();
-            handler->addWindow( this );
-        }
-#endif
-            break;
-
-        case WINDOW_SYSTEM_WGL:
-#ifdef WGL
-            _wglEventHandler = new WGLEventHandler( this );
-#endif
-            break;
-
-        default:
-            EQERROR << "event handling not implemented for window system " 
-                    << _pipe->getWindowSystem() << endl;
-            break;
-    }
+    EQASSERT( !_eventHandler );
+    _eventHandler = EventHandler::registerWindow( this );
 }
 
-void eq::Window::_exitEventHandling()
+void eq::Window::exitEventHandling()
 {
-    switch( _pipe->getWindowSystem( ))
-    {
-        case WINDOW_SYSTEM_GLX:
-#ifdef GLX
-        {
-            GLXEventThread* thread = GLXEventThread::get();
-            thread->removeWindow( this );
-        }
-#endif
-        break;
-
-        case WINDOW_SYSTEM_AGL:
-#ifdef AGL
-        {
-            AGLEventHandler* handler = AGLEventHandler::get();
-            handler->removeWindow( this );
-        }
-#endif
-        break;
-
-        case WINDOW_SYSTEM_WGL:
-#ifdef WGL
-            delete _wglEventHandler;
-            _wglEventHandler = 0;
-#endif
-            break;
-
-        default:
-            EQERROR << "event handling not implemented for window system " 
-                    << _pipe->getWindowSystem() << endl;
-            break;
-    }
+    if( _eventHandler )
+        _eventHandler->deregisterWindow( this );
+    _eventHandler = 0;
 }
 
 void eq::Window::setXDrawable( XID drawable )
@@ -1383,7 +1320,7 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
     }
 
     _queryDrawableConfig();
-    _initEventHandling();
+    initEventHandling();
 
     reply.pvp            = _pvp;
     reply.drawableConfig = _drawableConfig;
@@ -1400,7 +1337,7 @@ eqNet::CommandResult eq::Window::_reqConfigExit( eqNet::Command& command )
 
     if( _pipe->isInitialized( ))
     {
-        _exitEventHandling();
+        exitEventHandling();
         _pipe->testMakeCurrentWindow( this );
     } 
     // else emergency exit, no context available.

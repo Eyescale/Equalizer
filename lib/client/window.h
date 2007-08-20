@@ -19,7 +19,6 @@
 namespace eq
 {
     class Channel;
-    class WGLEventHandler;
     class WindowEvent;
 
     class EQ_EXPORT Window : public eqNet::Object
@@ -276,6 +275,24 @@ namespace eq
         /** Finish outstanding rendering requests. */
         virtual void finish() const { glFinish(); }
 
+        /**
+         * Initialize the event handling for this window. 
+         * 
+         * This function initializes the necessary event handler for this
+         * window, if required by the window system. Can be overriden by an
+         * empty method to disable built-in event handling.
+         * @sa EventHandler, eq::Pipe::useMessagePump()
+         */
+        virtual void initEventHandling();
+
+        /**
+         * De-initialize the event handling for this window. 
+         */
+        virtual void exitEventHandling();
+
+        /** The current event handler, or 0. */
+        EventHandler* _eventHandler;
+
         /** 
          * Process a received event.
          *
@@ -340,7 +357,6 @@ namespace eq
             {
                 HWND             _wglWindowHandle;
                 HGLRC            _wglContext;
-                WGLEventHandler* _wglEventHandler;
             };
             char _windowFill[32];
         };

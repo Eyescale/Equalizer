@@ -31,14 +31,14 @@ GLXEventThread::GLXEventThread()
         : _running( false ),
           _requestHandler( true )
 {
-    registerCommand( CMD_GLXEVENTTHREAD_ADD_PIPE,
-      eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdAddPipe ));
-    registerCommand( CMD_GLXEVENTTHREAD_REMOVE_PIPE, 
-   eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdRemovePipe ));
-    registerCommand( CMD_GLXEVENTTHREAD_ADD_WINDOW, 
-    eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdAddWindow ));
-    registerCommand( CMD_GLXEVENTTHREAD_REMOVE_WINDOW,
- eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdRemoveWindow ));
+    registerCommand( CMD_GLXEVENTTHREAD_REGISTER_PIPE,
+      eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdRegisterPipe ));
+    registerCommand( CMD_GLXEVENTTHREAD_DEREGISTER_PIPE, 
+   eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdDeregisterPipe ));
+    registerCommand( CMD_GLXEVENTTHREAD_REGISTER_WINDOW, 
+    eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdRegisterWindow ));
+    registerCommand( CMD_GLXEVENTTHREAD_DEREGISTER_WINDOW,
+ eqNet::CommandFunc<GLXEventThread>( this, &GLXEventThread::_cmdDeregisterWindow ));
 }
 
 bool GLXEventThread::init()
@@ -67,7 +67,7 @@ void GLXEventThread::exit()
     Thread::exit();
 }
 
-void GLXEventThread::addPipe( Pipe* pipe )
+void GLXEventThread::registerPipe( Pipe* pipe )
 {
     CHECK_NOT_THREAD( _eventThread );
 
@@ -76,15 +76,15 @@ void GLXEventThread::addPipe( Pipe* pipe )
         start();
     _startMutex.unset();
 
-    GLXEventThreadAddPipePacket packet;
+    GLXEventThreadRegisterPipePacket packet;
     packet.pipe = pipe;
     _commandConnection->send( packet );
 }
 
-void GLXEventThread::removePipe( Pipe* pipe )
+void GLXEventThread::deregisterPipe( Pipe* pipe )
 {
     CHECK_NOT_THREAD( _eventThread );
-    GLXEventThreadRemovePipePacket packet;
+    GLXEventThreadDeregisterPipePacket packet;
     packet.pipe      = pipe;
     packet.requestID = _requestHandler.registerRequest();
     _startMutex.set();
@@ -99,22 +99,22 @@ void GLXEventThread::removePipe( Pipe* pipe )
     _startMutex.unset();
 }
 
-void GLXEventThread::addWindow( Window* window )
+void GLXEventThread::registerWindow( Window* window )
 {
     CHECK_NOT_THREAD( _eventThread );
     EQASSERT( isRunning( ));
 
-    GLXEventThreadAddWindowPacket packet;
+    GLXEventThreadRegisterWindowPacket packet;
     packet.window = window;
     _commandConnection->send( packet );
 }
 
-void GLXEventThread::removeWindow( Window* window )
+void GLXEventThread::deregisterWindow( Window* window )
 {
     CHECK_NOT_THREAD( _eventThread );
     EQASSERT( isRunning( ));
 
-    GLXEventThreadRemoveWindowPacket packet;
+    GLXEventThreadDeregisterWindowPacket packet;
     packet.window    = window;
     packet.requestID = _requestHandler.registerRequest();
 
@@ -414,11 +414,11 @@ uint32_t GLXEventThread::_getKey( XEvent& event )
     }
 }
 
-eqNet::CommandResult GLXEventThread::_cmdAddPipe( eqNet::Command& command )
+eqNet::CommandResult GLXEventThread::_cmdRegisterPipe( eqNet::Command& command )
 {
     CHECK_THREAD( _eventThread );
-    const GLXEventThreadAddPipePacket* packet = 
-        command.getPacket<GLXEventThreadAddPipePacket>();
+    const GLXEventThreadRegisterPipePacket* packet = 
+        command.getPacket<GLXEventThreadRegisterPipePacket>();
 
     Pipe*        pipe        = packet->pipe;
     const string displayName = pipe->getXDisplayString();
@@ -442,10 +442,10 @@ eqNet::CommandResult GLXEventThread::_cmdAddPipe( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;    
 }
 
-eqNet::CommandResult GLXEventThread::_cmdRemovePipe( eqNet::Command& command )
+eqNet::CommandResult GLXEventThread::_cmdDeregisterPipe( eqNet::Command& command )
 {
-    const GLXEventThreadRemovePipePacket* packet = 
-        command.getPacket<GLXEventThreadRemovePipePacket>();
+    const GLXEventThreadDeregisterPipePacket* packet = 
+        command.getPacket<GLXEventThreadDeregisterPipePacket>();
 
     Pipe*                     pipe          = packet->pipe;
     RefPtr<X11Connection>     x11Connection = pipe->getXEventConnection();
@@ -476,10 +476,10 @@ eqNet::CommandResult GLXEventThread::_cmdRemovePipe( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;    
 }
 
-eqNet::CommandResult GLXEventThread::_cmdAddWindow( eqNet::Command& command )
+eqNet::CommandResult GLXEventThread::_cmdRegisterWindow( eqNet::Command& command )
 {
-    const GLXEventThreadAddWindowPacket* packet = 
-        command.getPacket<GLXEventThreadAddWindowPacket>();
+    const GLXEventThreadRegisterWindowPacket* packet = 
+        command.getPacket<GLXEventThreadRegisterWindowPacket>();
 
     Window*               window        = packet->window;
     Pipe*                 pipe          = window->getPipe();
@@ -505,10 +505,10 @@ eqNet::CommandResult GLXEventThread::_cmdAddWindow( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;    
 }
 
-eqNet::CommandResult GLXEventThread::_cmdRemoveWindow( eqNet::Command& command )
+eqNet::CommandResult GLXEventThread::_cmdDeregisterWindow( eqNet::Command& command )
 {
-    const GLXEventThreadRemoveWindowPacket* packet = 
-        command.getPacket<GLXEventThreadRemoveWindowPacket>();
+    const GLXEventThreadDeregisterWindowPacket* packet = 
+        command.getPacket<GLXEventThreadDeregisterWindowPacket>();
 
     Window*               window        = packet->window;
     Pipe*                 pipe          = window->getPipe();

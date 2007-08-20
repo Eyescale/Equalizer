@@ -24,7 +24,7 @@ AGLEventHandler::AGLEventHandler()
 {
 }
 
-void AGLEventHandler::addWindow( Window* window )
+void AGLEventHandler::registerWindow( Window* window )
 {
     const WindowRef carbonWindow = window->getCarbonWindow();
     if( !carbonWindow )
@@ -60,7 +60,7 @@ void AGLEventHandler::addWindow( Window* window )
            << endl;
 }
 
-void AGLEventHandler::removeWindow( Window* window )
+void AGLEventHandler::deregisterWindow( Window* window )
 {
     Global::enterCarbon();
     RemoveEventHandler( window->_carbonHandler );

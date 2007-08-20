@@ -19,6 +19,17 @@ using namespace std;
 
 namespace eqPly
 {
+eq::WindowSystem Pipe::selectWindowSystem() const
+{
+    const Node*            node     = static_cast<Node*>( getNode( ));
+    const InitData&        initData = node->getInitData();
+    const eq::WindowSystem ws       = initData.getWindowSystem();
+
+    if( ws == eq::WINDOW_SYSTEM_NONE )
+        return eq::Pipe::selectWindowSystem();
+    return ws;
+}
+
 bool Pipe::configInit( const uint32_t initID )
 {
     const Node*     node        = static_cast<Node*>( getNode( ));

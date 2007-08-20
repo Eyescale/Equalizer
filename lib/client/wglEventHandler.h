@@ -24,11 +24,19 @@ namespace eq
         /** Constructs a new wgl event thread. */
         WGLEventHandler( Window* window );
 
+        /** @sa EventHandler::deregisterPipe() */
+        virtual void deregisterPipe( Pipe* pipe ){ /*NOP*/ }
+        
+        /** @sa EventHandler::deregisterWindow() */
+        virtual void deregisterWindow( Window* window ){ delete this; }
+
+        static LRESULT CALLBACK wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
+                                         LPARAM lParam );
+
+      protected:
         /** Destructs the wgl event thread. */
         virtual ~WGLEventHandler();
         
-        static LRESULT CALLBACK wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
-                                         LPARAM lParam );
     private:
         Window*  _window;
         HWND     _hWnd;

@@ -885,40 +885,40 @@ namespace eq
     //------------------------------------------------------------
     // Event Thread
     //------------------------------------------------------------
-    struct GLXEventThreadAddPipePacket : public eqNet::Packet
+    struct GLXEventThreadRegisterPipePacket : public eqNet::Packet
     {
-        GLXEventThreadAddPipePacket()
+        GLXEventThreadRegisterPipePacket()
             {
-                command = CMD_GLXEVENTTHREAD_ADD_PIPE;
-                size    = sizeof( GLXEventThreadAddPipePacket );
+                command = CMD_GLXEVENTTHREAD_REGISTER_PIPE;
+                size    = sizeof( GLXEventThreadRegisterPipePacket );
             }
         Pipe* pipe;
     };
-    struct GLXEventThreadRemovePipePacket : public eqNet::Packet
+    struct GLXEventThreadDeregisterPipePacket : public eqNet::Packet
     {
-        GLXEventThreadRemovePipePacket()
+        GLXEventThreadDeregisterPipePacket()
             {
-                command = CMD_GLXEVENTTHREAD_REMOVE_PIPE;
-                size    = sizeof( GLXEventThreadRemovePipePacket );
+                command = CMD_GLXEVENTTHREAD_DEREGISTER_PIPE;
+                size    = sizeof( GLXEventThreadDeregisterPipePacket );
             }
         uint32_t requestID;
         Pipe*    pipe;
     };
-    struct GLXEventThreadAddWindowPacket : public eqNet::Packet
+    struct GLXEventThreadRegisterWindowPacket : public eqNet::Packet
     {
-        GLXEventThreadAddWindowPacket()
+        GLXEventThreadRegisterWindowPacket()
             {
-                command = CMD_GLXEVENTTHREAD_ADD_WINDOW;
-                size    = sizeof( GLXEventThreadAddWindowPacket );
+                command = CMD_GLXEVENTTHREAD_REGISTER_WINDOW;
+                size    = sizeof( GLXEventThreadRegisterWindowPacket );
             }
         Window* window;
     };
-    struct GLXEventThreadRemoveWindowPacket : public eqNet::Packet
+    struct GLXEventThreadDeregisterWindowPacket : public eqNet::Packet
     {
-        GLXEventThreadRemoveWindowPacket()
+        GLXEventThreadDeregisterWindowPacket()
             {
-                command = CMD_GLXEVENTTHREAD_REMOVE_WINDOW;
-                size    = sizeof( GLXEventThreadRemoveWindowPacket );
+                command = CMD_GLXEVENTTHREAD_DEREGISTER_WINDOW;
+                size    = sizeof( GLXEventThreadDeregisterWindowPacket );
             }
         uint32_t requestID;
         Window*  window;

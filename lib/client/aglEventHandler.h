@@ -22,10 +22,14 @@ namespace eq
     public:
         static AGLEventHandler* get();
 
-        /** @sa EventHandler::addWindow. */
-        virtual void addWindow( Window* window );
-        /** @sa EventHandler::removeWindow. */
-        virtual void removeWindow( Window* window );
+        /** @sa EventHandler::deregisterPipe. */
+        virtual void deregisterPipe( Pipe* pipe ) { /*NOP*/ };
+        
+        /** @sa EventHandler::registerWindow. */
+        void registerWindow( Window* window );
+        
+        /** @sa EventHandler::deregisterWindow. */
+        virtual void deregisterWindow( Window* window ) ;
 
     private:
         static AGLEventHandler _handler;

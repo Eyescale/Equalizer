@@ -29,6 +29,7 @@
 
 namespace eq
 {
+    class EventHandler;
     class Frame;
     class Window;
 
@@ -317,6 +318,24 @@ namespace eq
         virtual void frameFinish( const uint32_t frameID, 
                                   const uint32_t frameNumber ) 
             { releaseFrame( frameNumber ); }
+
+        /**
+         * Initialize the event handling for this pipe. 
+         * 
+         * This function initializes the necessary event handler for this pipe,
+         * if required by the window system. Can be overriden by an empty
+         * method to disable built-in event handling.
+         * @sa EventHandler, useMessagePump()
+         */
+        virtual void initEventHandling();
+
+        /**
+         * De-initialize the event handling for this pipe. 
+         */
+        virtual void exitEventHandling();
+
+        /** The current event handler, or 0. */
+        EventHandler* _eventHandler;
         //*}
 
         /** @name Error information. */
@@ -344,6 +363,7 @@ namespace eq
          */
         virtual bool useMessagePump() { return true; }
         //*}
+
     private:
         /** The parent node. */
         friend class Node;
@@ -428,18 +448,6 @@ namespace eq
         void _addWindow( Window* window );
         void _removeWindow( Window* window );
         Window* _findWindow( const uint32_t id );
-
-        /**
-         * Initialize the event handling for this pipe. 
-         * @todo make official task method?
-         */
-        void _initEventHandling();
-
-        /**
-         * De-initialize the event handling for this pipe. 
-         * @todo make official task method?
-         */
-        void _exitEventHandling();
 
         void _flushFrames();
 

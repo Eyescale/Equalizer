@@ -32,15 +32,16 @@ namespace eq
         /** @sa eqBase::Thread::run. */
         virtual void* run();
 
-        /** @sa EventHandler::addPipe. */
-        virtual void addPipe( Pipe* pipe );
-        /** @sa EventHandler::removePipe. */
-        virtual void removePipe( Pipe* pipe );
+        /** @sa EventHandler::registerPipe. */
+        void registerPipe( Pipe* pipe );
 
-        /** @sa EventHandler::addWindow. */
-        virtual void addWindow( Window* window );
-        /** @sa EventHandler::removeWindow. */
-        virtual void removeWindow( Window* window );
+        /** @sa EventHandler::deregisterPipe. */
+        virtual void deregisterPipe( Pipe* pipe );
+
+        /** @sa EventHandler::registerWindow. */
+        void registerWindow( Window* window );
+        /** @sa EventHandler::deregisterWindow. */
+        virtual void deregisterWindow( Window* window );
 
     private:
         static GLXEventThread _thread;
@@ -74,10 +75,10 @@ namespace eq
         uint32_t  _getKey( XEvent& event );
 
         /** The command functions. */
-        eqNet::CommandResult _cmdAddPipe( eqNet::Command& command );
-        eqNet::CommandResult _cmdRemovePipe( eqNet::Command& command );
-        eqNet::CommandResult _cmdAddWindow( eqNet::Command& command );
-        eqNet::CommandResult _cmdRemoveWindow( eqNet::Command& command );
+        eqNet::CommandResult _cmdRegisterPipe( eqNet::Command& command );
+        eqNet::CommandResult _cmdDeregisterPipe( eqNet::Command& command );
+        eqNet::CommandResult _cmdRegisterWindow( eqNet::Command& command );
+        eqNet::CommandResult _cmdDeregisterWindow( eqNet::Command& command );
 
         CHECK_THREAD_DECLARE( _eventThread );
     };

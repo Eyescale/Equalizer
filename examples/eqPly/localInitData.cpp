@@ -7,6 +7,9 @@
 #include "localInitData.h"
 #include "frameData.h"
 
+#include <algorithm>
+#include <cctype>
+#include <functional>
 #include <tclap/CmdLine.h>
 
 using namespace std;
@@ -28,6 +31,7 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     _color         = from._color;        
     _isApplication = from._isApplication;
     setFilename( from.getFilename( ));
+    setWindowSystem( from.getWindowSystem( ));
     return *this;
 }
 
@@ -40,8 +44,10 @@ void LocalInitData::parseArguments( int argc, char** argv )
                                           false, "rockerArm.ply", "string", 
                                           command );
         TCLAP::ValueArg<string> portArg( "p", "port", "tracking device port",
-                                         false, "/dev/ttyS0", "string", 
+                                         false, "/dev/ttyS0", "string",
                                          command );
+        TCLAP::ValueArg<string> wsArg( "w", "windowSystem", "Window System API",
+                                       false, "auto", "string", command );
         TCLAP::SwitchArg colorArg( "b", "bw", "Don't use colors from ply file", 
                                    command, false );
         TCLAP::ValueArg<uint32_t> framesArg( "n", "numFrames", 
@@ -59,6 +65,19 @@ void LocalInitData::parseArguments( int argc, char** argv )
             setFilename( modelArg.getValue( ));
         if( portArg.isSet( ))
             _trackerPort = portArg.getValue();
+        if( wsArg.isSet( ))
+        {
+            string windowSystem = wsArg.getValue();
+            transform( windowSystem.begin(), windowSystem.end(),
+                       windowSystem.begin(), (int(*)(int))std::tolower );
+
+            if( windowSystem == "glx" )
+                setWindowSystem( eq::WINDOW_SYSTEM_GLX );
+            else if( windowSystem == "agl" )
+                setWindowSystem( eq::WINDOW_SYSTEM_AGL );
+            else if( windowSystem == "wgl" )
+                setWindowSystem( eq::WINDOW_SYSTEM_WGL );
+        }
 
         _color         = !colorArg.isSet();
 

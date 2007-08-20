@@ -31,7 +31,8 @@ using namespace std;
 #endif
 
 Pipe::Pipe()
-        : _node( 0 ),
+        : _eventHandler( 0 ),
+          _node( 0 ),
           _currentGLWindow( 0 ),
           _windowSystem( WINDOW_SYSTEM_NONE ),
           _port( EQ_UNDEFINED_UINT32 ),
@@ -520,53 +521,17 @@ void Pipe::configExitWGL()
 #endif
 }
 
-void Pipe::_initEventHandling()
+void Pipe::initEventHandling()
 {
-    switch( getWindowSystem( ))
-    {
-        case WINDOW_SYSTEM_GLX:
-#ifdef GLX
-        {
-            GLXEventThread* thread = GLXEventThread::get();
-            thread->addPipe( this );
-        }
-#endif
-            break;
-
-        case WINDOW_SYSTEM_AGL:
-        case WINDOW_SYSTEM_WGL:
-            // NOP
-            break;
-
-        default:
-            EQERROR << "event handling not implemented for window system " 
-                    << getWindowSystem() << endl;
-            break;
-    }
+    EQASSERT( !_eventHandler );
+    _eventHandler = EventHandler::registerPipe( this );
 }
 
-void Pipe::_exitEventHandling()
+void Pipe::exitEventHandling()
 {
-    switch( getWindowSystem( ))
-    {
-        case WINDOW_SYSTEM_GLX:
-#ifdef GLX
-        {
-            GLXEventThread* thread = GLXEventThread::get();
-            thread->removePipe( this );
-        }
-#endif
-            break;
-
-        case WINDOW_SYSTEM_WGL:
-            // NOP
-            break;
-
-        default:
-            EQERROR << "event handling not implemented for window system " 
-                    << getWindowSystem() << endl;
-            break;
-    }
+    if( _eventHandler )
+        _eventHandler->deregisterPipe( this );
+    _eventHandler = 0;
 }
 
 void Pipe::releaseFrame( const uint32_t frameNumber )
@@ -800,11 +765,12 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
     _port         = packet->port;
     _device       = packet->device;
     _pvp          = packet->pvp;
-    _windowSystem = selectWindowSystem();
-    _error.clear();
 
     PipeConfigInitReplyPacket reply( packet );
     _node->waitInitialized();
+
+    _windowSystem = selectWindowSystem();
+    _error.clear();
     reply.result  = configInit( packet->initID );
 
     RefPtr<eqNet::Node> node = command.getNode();
@@ -860,7 +826,7 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
         default: EQUNIMPLEMENTED;
     }
 
-    _initEventHandling();
+    initEventHandling();
     _initialized = true;
 
     reply.pvp = _pvp;
@@ -876,7 +842,7 @@ eqNet::CommandResult Pipe::_reqConfigExit( eqNet::Command& command )
                        << endl;
 
     if( _initialized.get( ))
-        _exitEventHandling();
+        exitEventHandling();
 
     configExit();
 
