@@ -327,12 +327,12 @@ namespace eq
          * method to disable built-in event handling.
          * @sa EventHandler, useMessagePump()
          */
-        virtual void initEventHandling();
+        virtual void configInitEventHandler();
 
         /**
          * De-initialize the event handling for this pipe. 
          */
-        virtual void exitEventHandling();
+        virtual void configExitEventHandler();
 
         /** The current event handler, or 0. */
         EventHandler* _eventHandler;

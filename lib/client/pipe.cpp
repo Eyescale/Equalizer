@@ -521,13 +521,13 @@ void Pipe::configExitWGL()
 #endif
 }
 
-void Pipe::initEventHandling()
+void Pipe::configInitEventHandler()
 {
     EQASSERT( !_eventHandler );
     _eventHandler = EventHandler::registerPipe( this );
 }
 
-void Pipe::exitEventHandling()
+void Pipe::configExitEventHandler()
 {
     if( _eventHandler )
         _eventHandler->deregisterPipe( this );
@@ -826,7 +826,7 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
         default: EQUNIMPLEMENTED;
     }
 
-    initEventHandling();
+    configInitEventHandler();
     _initialized = true;
 
     reply.pvp = _pvp;
@@ -842,7 +842,7 @@ eqNet::CommandResult Pipe::_reqConfigExit( eqNet::Command& command )
                        << endl;
 
     if( _initialized.get( ))
-        exitEventHandling();
+        configExitEventHandler();
 
     configExit();
 

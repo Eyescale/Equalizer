@@ -984,13 +984,13 @@ void eq::Window::_queryDrawableConfig()
     EQINFO << "Window drawable config: " << _drawableConfig << endl;
 }
 
-void eq::Window::initEventHandling()
+void eq::Window::configInitEventHandler()
 {
     EQASSERT( !_eventHandler );
     _eventHandler = EventHandler::registerWindow( this );
 }
 
-void eq::Window::exitEventHandling()
+void eq::Window::configExitEventHandler()
 {
     if( _eventHandler )
         _eventHandler->deregisterWindow( this );
@@ -1320,7 +1320,7 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
     }
 
     _queryDrawableConfig();
-    initEventHandling();
+    configInitEventHandler();
 
     reply.pvp            = _pvp;
     reply.drawableConfig = _drawableConfig;
@@ -1337,7 +1337,7 @@ eqNet::CommandResult eq::Window::_reqConfigExit( eqNet::Command& command )
 
     if( _pipe->isInitialized( ))
     {
-        exitEventHandling();
+        configExitEventHandler();
         _pipe->testMakeCurrentWindow( this );
     } 
     // else emergency exit, no context available.

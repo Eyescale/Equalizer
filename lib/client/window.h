@@ -283,12 +283,12 @@ namespace eq
          * empty method to disable built-in event handling.
          * @sa EventHandler, eq::Pipe::useMessagePump()
          */
-        virtual void initEventHandling();
+        virtual void configInitEventHandler();
 
         /**
          * De-initialize the event handling for this window. 
          */
-        virtual void exitEventHandling();
+        virtual void configExitEventHandler();
 
         /** The current event handler, or 0. */
         EventHandler* _eventHandler;
@@ -394,18 +394,6 @@ namespace eq
 
         /** Set up _drawableConfig by querying current context. */
         void _queryDrawableConfig();
-
-        /**
-         * Initialize the event handling for this window. 
-         * @todo make official task method?
-         */
-        void _initEventHandling();
-
-        /**
-         * De-initialize the event handling for this window. 
-         * @todo make official task method?
-         */
-        void _exitEventHandling();
 
         /* The command functions. */
         eqNet::CommandResult _pushCommand( eqNet::Command& command );
