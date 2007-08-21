@@ -18,11 +18,11 @@ using namespace std;
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Config*  createConfig()   { return new eqPly::Config; }
-    virtual eq::Node*    createNode()     { return new eqPly::Node; }
-    virtual eq::Pipe*    createPipe()     { return new eqPly::Pipe; }
-    virtual eq::Window*  createWindow()   { return new eqPly::Window; }
-    virtual eq::Channel* createChannel()  { return new eqPly::Channel; }
+    virtual eq::Config*  createConfig()  { return new eqPly::Config; }
+    virtual eq::Node*    createNode()    { return new eqPly::Node; }
+    virtual eq::Pipe*    createPipe()    { return new eqPly::Pipe; }
+    virtual eq::Window*  createWindow()  { return new eqPly::Window; }
+    virtual eq::Channel* createChannel() { return new eqPly::Channel; }
 };
 
 int main( int argc, char** argv )
@@ -31,14 +31,15 @@ int main( int argc, char** argv )
     eqPly::LocalInitData initData;
     initData.parseArguments( argc, argv );
 
-    // 2. initialisation of local client node
+    // 2. Equalizer initialization
     NodeFactory nodeFactory;
     if( !eq::init( argc, argv, &nodeFactory ))
     {
         EQERROR << "Equalizer init failed" << endl;
         return EXIT_FAILURE;
     }
-
+    
+    // 3. initialization of local client node
     RefPtr< eqPly::Application > client = new eqPly::Application( initData );
     if( !client->initLocal( argc, argv ))
     {
