@@ -34,7 +34,7 @@ namespace eq
         //*}
 
         /** 
-         * Initialises this configuration.
+         * Initializes this configuration.
          * 
          * @param initID an identifier to be passed to all init methods.
          * @return <code>true</code> if the initialisation was successful,
@@ -46,7 +46,7 @@ namespace eq
          * Exits this configuration.
          * 
          * A config which could not be exited properly may not be
-         * re-initialised. The exit function does not provide the possibility to
+         * re-initialized. The exit function does not provide the possibility to
          * pass an exit identifier to the exit methods, because individual
          * entities may stopped dynamically by the server when running a config,
          * i.e., before exit() is called.

@@ -283,12 +283,12 @@ namespace eq
          * empty method to disable built-in event handling.
          * @sa EventHandler, eq::Pipe::useMessagePump()
          */
-        virtual void configInitEventHandler();
+        virtual void initEventHandler();
 
         /**
          * De-initialize the event handling for this window. 
          */
-        virtual void configExitEventHandler();
+        virtual void exitEventHandler();
 
         /** The current event handler, or 0. */
         EventHandler* _eventHandler;

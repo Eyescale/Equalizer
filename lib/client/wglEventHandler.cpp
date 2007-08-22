@@ -115,11 +115,14 @@ WGLEventHandler::WGLEventHandler( Window* window )
     }
 
     registerHandler( _hWnd, this );
-    SetWindowLongPtr( _hWnd, GWLP_WNDPROC, (LONG_PTR)wndProc );
+    _prevWndProc = (WndProc)SetWindowLongPtr( _hWnd, GWLP_WNDPROC, (LONG_PTR)wndProc );;
+    if( _prevWndProc == wndProc ) // avoid recursion
+        _prevWndProc = DefWindowProc;
 }
 
 WGLEventHandler::~WGLEventHandler()
 {
+    SetWindowLongPtr( _hWnd, (LONG_PTR)_prevWndProc, GWLP_WNDPROC );
     deregisterHandler( _hWnd );
 }
 
@@ -345,10 +348,11 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
     }
 
     EQLOG( LOG_EVENTS ) << "received event: " << event << endl;
-    if( !event.window->processEvent( event ))
-        return DefWindowProc( hWnd, uMsg, wParam, lParam );
 
-    return result;
+    if( event.window->processEvent( event ))
+        return result;
+
+    return _prevWndProc( hWnd, uMsg, wParam, lParam );
 }
 
 uint32_t WGLEventHandler::_getKey( LPARAM lParam, WPARAM wParam )

@@ -38,8 +38,12 @@ namespace eq
         virtual ~WGLEventHandler();
         
     private:
-        Window*  _window;
+        typedef LRESULT (CALLBACK *WndProc)( HWND hWnd, UINT uMsg, 
+            WPARAM wParam, LPARAM lParam );
+
+		Window*  _window;
         HWND     _hWnd;
+        WndProc  _prevWndProc;
         uint32_t _buttonState;
 
         LRESULT CALLBACK _wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 

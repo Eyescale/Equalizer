@@ -129,10 +129,16 @@ WindowSystem Pipe::selectWindowSystem() const
 void Pipe::setXDisplay( Display* display )
 {
 #ifdef GLX
+    if( _xDisplay == display )
+		return;
+
+    if( _xDisplay )
+        exitEventHandler();
     _xDisplay = display; 
 
     if( display )
     {
+        initEventHandler();
 #ifndef NDEBUG
         // somewhat reduntant since it is a global handler
         XSetErrorHandler( eq::Pipe::XErrorHandler );
@@ -221,7 +227,14 @@ int Pipe::XErrorHandler( Display* display, XErrorEvent* event )
 void Pipe::setCGDisplayID( CGDirectDisplayID id )
 {
 #ifdef AGL
+    if( _cgDisplayID == id )
+        return;
+
+    if( _cgDisplayID )
+        exitEventHandler();
     _cgDisplayID = id; 
+    if( _cgDisplayID )
+        initEventHandler();
 
     if( _pvp.isValid( ))
         return;
@@ -521,13 +534,13 @@ void Pipe::configExitWGL()
 #endif
 }
 
-void Pipe::configInitEventHandler()
+void Pipe::initEventHandler()
 {
     EQASSERT( !_eventHandler );
     _eventHandler = EventHandler::registerPipe( this );
 }
 
-void Pipe::configExitEventHandler()
+void Pipe::exitEventHandler()
 {
     if( _eventHandler )
         _eventHandler->deregisterPipe( this );
@@ -826,7 +839,6 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
         default: EQUNIMPLEMENTED;
     }
 
-    configInitEventHandler();
     _initialized = true;
 
     reply.pvp = _pvp;
@@ -840,9 +852,6 @@ eqNet::CommandResult Pipe::_reqConfigExit( eqNet::Command& command )
         command.getPacket<PipeConfigExitPacket>();
     EQLOG( LOG_TASKS ) << "TASK configExit " << getName() <<  " " << packet 
                        << endl;
-
-    if( _initialized.get( ))
-        configExitEventHandler();
 
     configExit();
 

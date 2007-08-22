@@ -172,6 +172,7 @@ void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp )
 Image::Pixels::~Pixels()
 {
     delete [] data;
+	data = 0;
 }
 
 void Image::Pixels::resize( uint32_t size )

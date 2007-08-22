@@ -650,7 +650,7 @@ bool eq::Window::configInitWGL()
     HINSTANCE instance = GetModuleHandle( 0 );
     WNDCLASS  wc = { 0 };
     wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC; 
-    wc.lpfnWndProc   = WGLEventHandler::wndProc;    
+    wc.lpfnWndProc   = DefWindowProc;    
     wc.hInstance     = instance; 
     wc.hIcon         = LoadIcon( NULL, IDI_WINLOGO );
     wc.hCursor       = LoadCursor( NULL, IDC_ARROW );
@@ -984,13 +984,13 @@ void eq::Window::_queryDrawableConfig()
     EQINFO << "Window drawable config: " << _drawableConfig << endl;
 }
 
-void eq::Window::configInitEventHandler()
+void eq::Window::initEventHandler()
 {
     EQASSERT( !_eventHandler );
     _eventHandler = EventHandler::registerWindow( this );
 }
 
-void eq::Window::configExitEventHandler()
+void eq::Window::exitEventHandler()
 {
     if( _eventHandler )
         _eventHandler->deregisterWindow( this );
@@ -1000,7 +1000,14 @@ void eq::Window::configExitEventHandler()
 void eq::Window::setXDrawable( XID drawable )
 {
 #ifdef GLX
+    if( _xDrawable == drawable )
+        return;
+
+    if( _xDrawable )
+        exitEventHandler();
     _xDrawable = drawable;
+    if( _xDrawable )
+        initEventHandler();
 
     if( !drawable )
     {
@@ -1044,7 +1051,15 @@ void eq::Window::setAGLContext( AGLContext context )
 void eq::Window::setCarbonWindow( WindowRef window )
 {
 #ifdef AGL
+    if( _carbonWindow == window )
+        return window;
+
+    if( _carbonWindow )
+        exitEventHandler();
     _carbonWindow = window;
+    if( _carbonWindow )
+        initEventHandler();
+
     _pvp.invalidate();
 
     if( window )
@@ -1064,7 +1079,14 @@ void eq::Window::setCarbonWindow( WindowRef window )
 void eq::Window::setWGLWindowHandle( HWND handle )
 {
 #ifdef WGL
+    if( _wglWindowHandle == handle )
+        return;
+
+    if( _wglWindowHandle )
+        exitEventHandler();
     _wglWindowHandle = handle;
+    if( _wglWindowHandle )
+        initEventHandler();
 
     if( !handle )
     {
@@ -1320,7 +1342,6 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
     }
 
     _queryDrawableConfig();
-    configInitEventHandler();
 
     reply.pvp            = _pvp;
     reply.drawableConfig = _drawableConfig;
@@ -1336,10 +1357,7 @@ eqNet::CommandResult eq::Window::_reqConfigExit( eqNet::Command& command )
                        << endl;
 
     if( _pipe->isInitialized( ))
-    {
-        configExitEventHandler();
         _pipe->testMakeCurrentWindow( this );
-    } 
     // else emergency exit, no context available.
 
     configExit();
