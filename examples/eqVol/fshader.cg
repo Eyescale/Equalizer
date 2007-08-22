@@ -1,0 +1,132 @@
+
+//#define TEXTURE_ROTATION
+//#define LINES_ONLY
+
+
+#ifdef TEXTURE_ROTATION 
+//------------------------------------------------------------------------------------------------------------
+
+void main( 
+
+	uniform sampler3D volume,
+	uniform sampler2D preInt,
+
+	uniform half      shininess,
+	
+	half3   frontP  : TEXCOORD0,
+	half3   backP   : TEXCOORD1,
+
+out float4   oColor  : COLOR 
+)
+{
+#ifdef LINES_ONLY
+	oColor = half4( 0.5, 0.5, 0.5, 0.5 );
+#else
+	
+	float4 lookupSF = tex3D( volume, frontP.xyz );
+	float4 lookupSB = tex3D( volume, backP.xyz  );
+		
+
+	// lighting
+	float3 normalSF = ( 2.*lookupSF.rgb-1. );
+	float3 normalSB = ( 2.*lookupSB.rgb-1. );
+    float3 normal = normalize(normalSF+normalSB);
+
+	float3 L = (gl_LightSource[0].position).xyz;
+  
+	float3 halfVector = normalize(L);
+
+	float4 preInt_ =  tex2D( preInt, float2(lookupSF.a, lookupSB.a) );
+//	preInt.rgb = vec3(100, 0, 0);
+	
+	float diffuse = max( dot(gl_LightSource[0].position.xyz, normal), 0.0 ); 
+
+	float specular = pow( max( dot(glstate.light[0].position.xyz, normal), 0.0), shininess ); 
+
+	float4 color = float4(glstate.light[0].ambient.rgb  * preInt_.rgb + 
+					      glstate.light[0].diffuse.rgb  * preInt_.rgb * diffuse + 
+					      glstate.light[0].specular.rgb * preInt_.rgb * specular ,
+					      preInt_.a);
+  
+
+	oColor = color;
+
+#endif //LINES_ONLY
+}
+
+//------------------------------------------------------------------------------------------------------------
+#else //TEXTURE_ROTATION
+//------------------------------------------------------------------------------------------------------------
+
+void main( 
+
+	uniform sampler3D volume,
+	uniform sampler2D preInt,
+
+	uniform half      shininess,
+	uniform half      lines,
+	
+	half3   frontP  : TEXCOORD0,
+	half3   backP   : TEXCOORD1,
+
+out float4   oColor  : COLOR 
+
+)
+{
+#ifdef LINES_ONLY
+	oColor = half4( 0.5, 0.5, 0.5, 0.5 );
+#else
+	if( lines > 0.5 )
+	{
+		oColor = half4( 0.0, 0.0, 0.0, 0.0 );
+//		oColor = half4( 1.0, 0.5, 0.5, 0.5 );
+//		oColor = half4( 1.0, 0.0, 0.0, 0.0 );
+	}else
+	{
+//		oColor = half4( 0.0, 0.0, 0.0, 0.0 );
+		
+		half4 lookupSF = tex3D( volume, frontP );
+		half4 lookupSB = tex3D( volume, backP  );
+		half4 preIntV =  tex2D( preInt, half2(lookupSF.a, lookupSF.a) );
+
+		oColor   = preIntV;
+//		oColor.a = oColor.a*1.00;
+/*
+
+		half3 lightPos  = half3( 0.0, 0.0, 0.0 );
+		half3 lightProp = half3( 0.2, 1.0, 1.0 );
+	
+	
+
+		// lighting
+		half3 normalSF = lookupSF.rgb*2.0 - 1.0;
+		half3 normalSB = lookupSB.rgb*2.0 - 1.0;
+	
+	    half3 normal = normalize( normalSF+normalSB );
+
+		half3 L = lightPos;
+ 
+		half3 halfVector = normalize(L);
+
+		half diffuse  = max( dot( glstate.light[0].position.xyz, normal ), 0.0 ); 
+
+		half specular = pow( max( dot( halfVector, normal), 0.0 ), shininess ); 
+
+		half4 color = half4( lightProp.x * preIntV.rgb + 
+						  	 lightProp.y * preIntV.rgb * diffuse + 
+						   	 lightProp.z * preIntV.rgb * specular ,
+						  	 preIntV.a );
+ 
+		oColor   = color;
+//		oColor   = preIntV;//float4( preIntV.rgb*1.0, preIntV.a );//half4( lookupSF.a, lookupSF.a, lookupSF.a, lookupSF.a );
+	
+//		oColor = half4( clamp(backP.x, 0.0, 1.0), clamp(backP.y, 0.0, 1.0), clamp(backP.z, 0.0, 1.0), 1.0 );
+//		oColor = half4( clamp(frontP.x - backP.x, 0.0, 1.0), clamp(frontP.y - backP.y, 0.0, 1.0), clamp(frontP.z - backP.z, 0.0, 1.0), 1.0 );
+*/	
+	}
+#endif //LINES_ONLY
+}
+#endif //TEXTURE_ROTATION
+//------------------------------------------------------------------------------------------------------------
+
+
