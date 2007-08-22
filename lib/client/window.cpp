@@ -627,8 +627,8 @@ bool eq::Window::configInitAGL()
 
         // show
         ShowWindow( windowRef );
-        setCarbonWindow( windowRef );
         Global::leaveCarbon();
+        setCarbonWindow( windowRef );
     }
 
     aglSetCurrentContext( context );
@@ -895,8 +895,8 @@ void eq::Window::configExitAGL()
     {
         Global::enterCarbon();
         DisposeWindow( window );
-        setCarbonWindow( 0 );
         Global::leaveCarbon();
+        setCarbonWindow( 0 );
     }
 
     AGLContext context = getAGLContext();
@@ -1052,7 +1052,7 @@ void eq::Window::setCarbonWindow( WindowRef window )
 {
 #ifdef AGL
     if( _carbonWindow == window )
-        return window;
+        return;
 
     if( _carbonWindow )
         exitEventHandler();
@@ -1065,13 +1065,16 @@ void eq::Window::setCarbonWindow( WindowRef window )
     if( window )
     {
         Rect rect;
+        Global::enterCarbon();
         if( GetWindowBounds( window, kWindowContentRgn, &rect ) == noErr )
         {
+            Global::leaveCarbon();
             _pvp.x = rect.left;
             _pvp.y = rect.top;
             _pvp.w = rect.right - rect.left;
             _pvp.h = rect.bottom - rect.top;
         }
+        Global::leaveCarbon();
     }
 #endif // AGL
 }

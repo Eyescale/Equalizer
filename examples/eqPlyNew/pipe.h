@@ -19,6 +19,7 @@ namespace eqPly
     protected:
         virtual ~Pipe() {}
 
+        virtual eq::WindowSystem selectWindowSystem() const;
         virtual bool configInit( const uint32_t initID );
         virtual bool configExit();
         virtual void frameStart( const uint32_t frameID, 

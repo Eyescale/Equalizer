@@ -46,8 +46,6 @@ void LocalInitData::parseArguments( int argc, char** argv )
         TCLAP::ValueArg<string> portArg( "p", "port", "tracking device port",
                                          false, "/dev/ttyS0", "string",
                                          command );
-        TCLAP::ValueArg<string> wsArg( "w", "windowSystem", "Window System API",
-                                       false, "auto", "string", command );
         TCLAP::SwitchArg colorArg( "b", "bw", "Don't use colors from ply file", 
                                    command, false );
         TCLAP::ValueArg<uint32_t> framesArg( "n", "numFrames", 
@@ -58,6 +56,21 @@ void LocalInitData::parseArguments( int argc, char** argv )
                                              "Run as resident render client", 
                                              false, 4243, "unsigned short",
                                              command );
+
+        string wsHelp = "Window System API ( one of: ";
+#ifdef AGL
+        wsHelp += "AGL ";
+#endif
+#ifdef GLX
+        wsHelp += "glX ";
+#endif
+#ifdef WGL
+        wsHelp += "WGL ";
+#endif
+        wsHelp += ")";
+
+        TCLAP::ValueArg<string> wsArg( "w", "windowSystem", wsHelp,
+                                       false, "auto", "string", command );
                                 
         command.parse( argc, argv );
 
