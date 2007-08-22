@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_SCOPEDMUTEX_H
@@ -14,8 +14,9 @@ namespace eqBase
      * 
      * The mutex is automatically set upon creation, and released when the
      * scoped mutex is destroyed, e.g., when the scope is left. The scoped mutex
-     * does nothing if a NULL pointer for the lock is passed.
+     * does nothing if a NULL pointer for the lock/spin lock is passed.
      */
+    template< typename T > // T == Lock or SpinLock
     class ScopedMutex
     {
     public:
@@ -24,17 +25,17 @@ namespace eqBase
          * 
          * @param lock the mutex to set and unset.
          */
-        explicit ScopedMutex( Lock* lock ) : _lock( lock )
+        explicit ScopedMutex( T* lock ) : _lock( lock )
             { if( lock ) lock->set(); }
-        explicit ScopedMutex( Lock& lock ) : _lock( &lock )
+        explicit ScopedMutex( T& lock ) : _lock( &lock )
             { lock.set(); }
-
 
         /** Destructs the scoped mutex and unsets the mutex. */
         ~ScopedMutex() { if( _lock ) _lock->unset(); }
+
     private:
         ScopedMutex(){}
-        Lock* _lock;
+        T* _lock;
     };
 }
 

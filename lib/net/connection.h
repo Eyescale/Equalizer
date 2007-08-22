@@ -120,9 +120,9 @@ namespace eqNet
         bool recv( void* buffer, const uint64_t bytes );
 
         /** Lock the connection, no other thread can send data. */
-        void lockSend()   { _sendLock.set(); }
+        void lockSend() const   { _sendLock.set(); }
         /** Unlock the connection. */
-        void unlockSend() { _sendLock.unset(); }
+        void unlockSend() const { _sendLock.unset(); }
             
         /** 
          * Sends data using the connection.
@@ -276,7 +276,7 @@ namespace eqNet
         State                                 _state; //!< The connection state
         eqBase::RefPtr<ConnectionDescription> _description;
 
-        mutable eqBase::Lock _sendLock;
+        mutable eqBase::SpinLock _sendLock;
 
         friend class PairConnection; // for access to read/write
     };

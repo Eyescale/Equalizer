@@ -35,19 +35,19 @@ DeltaMasterCM::~DeltaMasterCM()
         EQWARN << _slaves.size() 
                << " slave nodes subscribed during deregisterObject" << endl;
 
-    for( deque<InstanceData>::const_iterator iter = _instanceDatas.begin(); 
-         iter != _instanceDatas.end(); ++iter )
+    for( deque<InstanceData>::const_iterator i = _instanceDatas.begin(); 
+         i != _instanceDatas.end(); ++i )
     {
-        if( (*iter).data )
-            free( (*iter).data );
+        if( (*i).data )
+            free( (*i).data );
     }
     _instanceDatas.clear();
 
-    for( deque<ChangeData>::const_iterator iter = _changeDatas.begin(); 
-         iter != _changeDatas.end(); ++iter )
+    for( deque<ChangeData>::const_iterator i = _changeDatas.begin(); 
+         i != _changeDatas.end(); ++i )
     {
-        if( (*iter).data )
-            free( (*iter).data );
+        if( (*i).data )
+            free( (*i).data );
     }
     _changeDatas.clear();
 }

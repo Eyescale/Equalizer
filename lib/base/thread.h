@@ -4,8 +4,9 @@
 #ifndef EQBASE_THREAD_H
 #define EQBASE_THREAD_H
 
-#include <eq/base/base.h> // EQ_EXPORT definition
-#include <eq/base/lock.h> // member
+#include <eq/base/base.h>     // EQ_EXPORT definition
+#include <eq/base/lock.h>     // member
+#include <eq/base/spinLock.h> // member
 
 #ifdef EQ_WIN32_SDP_JOIN_WAR
 #  include <eq/base/monitor.h> // member
@@ -156,7 +157,7 @@ namespace eqBase
         void        _runChild();
 
         // listener API
-        static Lock                            _listenerLock;
+        static SpinLock                        _listenerLock;
         static std::vector<ExecutionListener*> _listeners;
         static pthread_key_t                   _cleanupKey;
 

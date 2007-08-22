@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "requestHandler.h"
@@ -114,7 +114,7 @@ bool RequestHandler::_waitRequest( const uint32_t requestID,
                                    Request::Result& result,
                                    const uint32_t timeout )
 {
-    ScopedMutex mutex( _mutex );
+    ScopedMutex< Lock > mutex( _mutex );
 
     if( !_mutex )
         CHECK_THREAD( _thread );

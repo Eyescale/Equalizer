@@ -49,7 +49,7 @@ bool FullSlaveCM::sync( const uint32_t version )
     if( !_mutex )
         CHECK_THREAD( _thread );
 
-    ScopedMutex mutex( _mutex );
+    ScopedMutex< Lock > mutex( _mutex );
 
     if( version ==  Object::VERSION_HEAD )
     {

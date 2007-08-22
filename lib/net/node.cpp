@@ -1250,8 +1250,9 @@ RefPtr<Node> Node::connect( const NodeID& nodeID, RefPtr<Node> server )
     // might be instanciated twice in _cmdGetNodeDataReply(). The alternative to
     // this mutex is to register connecting nodes with this local node, and
     // handle all cases correctly, which is far more complex. Node connection
-    // only happen a lot during initialization, and are therefore not time-critical.
-    ScopedMutex mutex( _connectMutex );
+    // only happen a lot during initialization, and are therefore not
+    // time-critical.
+    ScopedMutex< Lock > mutex( _connectMutex );
 
     iter = _nodes.find( nodeID );
     if( iter != _nodes.end( ))

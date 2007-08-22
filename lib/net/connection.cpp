@@ -188,11 +188,10 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
 
     // possible OPT: We need to lock here to guarantee an atomic transmission of
     // the buffer. Possible improvements are:
-    // 1) Use a spinlock, since this lock should be relatively uncontended
-    // 2) Disassemble buffer into 'small enough' pieces and use a header to
+    // 1) Disassemble buffer into 'small enough' pieces and use a header to
     //    reassemble correctly on the other side (aka reliable UDP)
-    // 3) Introduce a send thread with a thread-safe task queue
-    ScopedMutex mutex( isLocked ? 0 : &_sendLock );
+    // 2) Introduce a send thread with a thread-safe task queue
+    ScopedMutex<SpinLock> mutex( isLocked ? 0 : &_sendLock );
 
     const unsigned char* ptr = static_cast<const unsigned char*>(buffer);
 

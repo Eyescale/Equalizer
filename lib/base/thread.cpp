@@ -24,7 +24,7 @@ using namespace std;
  * of pthreads.
  */
 
-Lock                            Thread::_listenerLock;
+SpinLock                        Thread::_listenerLock;
 std::vector<ExecutionListener*> Thread::_listeners;
 pthread_key_t                   Thread::_cleanupKey=Thread::_createCleanupKey();
 
@@ -101,7 +101,7 @@ void Thread::_runChild()
 
 void Thread::_notifyStarted()
 {
-    ScopedMutex mutex( _listenerLock );
+    ScopedMutex< SpinLock > mutex( _listenerLock );
 
     EQINFO << "Calling " << _listeners.size() << " thread started listeners"
            << endl;
@@ -115,7 +115,7 @@ void Thread::_notifyStopping( void* )
 {
     pthread_setspecific( _cleanupKey, NULL );
 
-    ScopedMutex mutex( _listenerLock );
+    ScopedMutex< SpinLock > mutex( _listenerLock );
     EQINFO << "Calling " << _listeners.size() << " thread stopping listeners"
            <<endl;
     for( vector<ExecutionListener*>::const_iterator iter = _listeners.begin();
@@ -219,7 +219,7 @@ bool Thread::isCurrent() const
 
 void Thread::addListener( ExecutionListener* listener )
 {
-    ScopedMutex mutex( _listenerLock );
+    ScopedMutex< SpinLock > mutex( _listenerLock );
     _listeners.push_back( listener );
 }
 

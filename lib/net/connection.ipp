@@ -1,6 +1,8 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
+
+#define ASSEMBLE_THRESHOLD (4096)
 
 template< typename T >
 bool Connection::send( Packet &packet, const std::vector<T>& data ) const
@@ -22,10 +24,20 @@ bool Connection::send( Packet &packet, const std::vector<T>& data ) const
         return send( packet );
     }
 
-    // Possible OPT: For big packets, lock the connection and do two send()
-    // calls to avoid memcpy
+    const uint64_t headerSize  = packet.size - packetStorage;
+    const uint64_t size        = headerSize + dataSize;
+    if( size > ASSEMBLE_THRESHOLD )
+    {
+        // OPT: lock the connection and use two send() to avoid big memcpy
+        packet.size = size;
 
-    uint64_t size   = packet.size - packetStorage + dataSize;
+        lockSend();
+        const bool ret = ( send( &packet,  headerSize, true ) &&
+                           !send( &data[0], dataSize,   true ));
+        unlockSend();
+        return ret;
+    }
+
     char*    buffer = (char*)alloca( size );
 
     memcpy( buffer, &packet, packet.size - packetStorage );
@@ -64,16 +76,36 @@ bool Connection::send( const std::vector<T>& receivers, Packet& packet,
         return send<T>( receivers, packet );
     }
 
-    uint64_t       size   = packet.size-8 + dataSize;
-    size += (4 - size%4);
-    char*          buffer = (char*)alloca( size );
+    const uint64_t headerSize  = packet.size - 8;
+    const uint64_t size        = headerSize + dataSize;
+    const int      nReceivers  = receivers.size();
 
+    if( size > ASSEMBLE_THRESHOLD )
+    {
+        // OPT: lock the connection and use two send() to avoid big memcpy
+        packet.size = size;
+
+        for( int i=0; i<nReceivers; ++i )
+        {
+            eqBase::RefPtr< Connection > connection = 
+                receivers[i]->getConnection();
+
+            connection->lockSend();
+            const bool ok = (connection->send( &packet, headerSize, true ) &&
+                             connection->send( data, dataSize, true ));
+            connection->unlockSend();
+            if( !ok )
+                return false;
+        }
+        return true;
+    }
+
+    char*          buffer = (char*)alloca( size );
     memcpy( buffer, &packet, packet.size-8 );
     memcpy( buffer + packet.size-8, data, dataSize );
 
     ((Packet*)buffer)->size = size;
 
-    const int nReceivers = receivers.size();
     for( int i=0; i<nReceivers; ++i )
         if( !receivers[i]->getConnection()->send( buffer, size ))
             return false;
