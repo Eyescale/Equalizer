@@ -303,17 +303,16 @@ uint32_t Image::decompressPixelData( const Frame::Buffer buffer,
     Pixels&           pixels           = _getPixels( buffer );
     CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
 
+	EQASSERT( size > 0 );
     pixels.resize( size );
     compressedPixels.valid = false;
 
     const uint64_t* in  = reinterpret_cast<const uint64_t*>( data );
     uint64_t*       out = reinterpret_cast<uint64_t*>( pixels.data );
 
-    EQASSERT( size > 0 );
-
     const uint64_t marker = in[0];    
     uint32_t       outpos = 0;
-    const uint32_t endpos = (size%8) ? (size>>3) : (size>>3) + 1;
+    const uint32_t endpos = (size%8) ? (size>>3)+1 : (size>>3);
 
     uint32_t i = 1;
     while( outpos < endpos )
@@ -328,6 +327,8 @@ uint32_t Image::decompressPixelData( const Frame::Buffer buffer,
         }
         else // symbol
             out[outpos++] = token;
+        EQASSERTINFO( ((outpos-1) << 3) <= pixels.maxSize, 
+                      "Overwrite array bounds during image decompress" );
     }
     EQASSERT( outpos == endpos );
 
@@ -384,8 +385,8 @@ const uint8_t* Image::compressPixelData( const Frame::Buffer buffer,
     Pixels&         pixels   = _getPixels( buffer );
     const uint64_t* data     = reinterpret_cast<const uint64_t*>
                                    ( pixels.data );
-    uint64_t        marker   = 0xffffffffffffffffull;
-    const uint32_t  nWords   = (size%8) ? (size>>3) : (size>>3) + 1;
+    const uint64_t  marker   = 0xffffffffffffffffull;
+    const uint32_t  nWords   = (size%8) ? (size>>3)+1 : (size>>3);
 
     // conservative output allocation
     compressedPixels.resize( 3 * size + sizeof( uint64_t ));
@@ -408,10 +409,14 @@ const uint8_t* Image::compressPixelData( const Frame::Buffer buffer,
             WRITE_OUTPUT;
             lastSymbol = symbol;
             nSame      = 1;
+            EQASSERTINFO( ((outpos-1) << 3) <= compressedPixels.maxSize, 
+                "Overwrite array bounds during image compress" );
         }
     }
     
     WRITE_OUTPUT;
+    EQASSERTINFO( ((outpos-1) << 3) <= compressedPixels.maxSize, 
+        "Overwrite array bounds during image compress" );
 
     compressedPixels.size = outpos<<3;
     compressedSize = compressedPixels.size;

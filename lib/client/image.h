@@ -180,8 +180,6 @@ namespace eq
             uint32_t format;
             uint32_t type;
             bool     valid;   // data is currently valid
-
-        private:
             uint32_t maxSize; // the size of the allocation
         };
 
