@@ -278,9 +278,11 @@ namespace eqs
         /** common code for all constructors */
         void _construct();
 
-        bool _init( const uint32_t initID );
+        bool _init( const uint32_t initID, 
+                    std::vector< eqNet::NodeID::Data >& nodeIDs );
         bool   _connectNodes();
-        bool   _initNodes( const uint32_t initID );
+        bool   _initNodes( const uint32_t initID, 
+                           std::vector< eqNet::NodeID::Data >& nodeIDs );
         bool   _exitNodes();
 
         void _updateHead();

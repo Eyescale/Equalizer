@@ -26,11 +26,17 @@ namespace eqNet
      */
     class EQ_EXPORT NodeID
     {
-    public:
 #ifdef WIN32
+    public:
+        /** Data type, used for network transport. */
+        typedef UUID Data;
+
         NodeID( const bool generate = false )
             { generate ? UuidCreate( &_id ) : UuidCreateNil( &_id ); }
         NodeID( const NodeID& from ) { _id = from._id; }
+        NodeID( const Data& from )   { _id = from; }
+
+        void getData( Data& data ) const { data = _id; }
 
         NodeID& operator = ( const NodeID& from )
             {
@@ -83,9 +89,19 @@ namespace eqNet
     private:
         UUID _id;
 #else // WIN32
+    public:
+        /** Data type, used for network transport. */
+        struct Data
+        {
+            uuid_t id;
+        };
+
         NodeID( const bool generate = false )
             { generate ? uuid_generate( _id ) : uuid_clear( _id ); }
         NodeID( const NodeID& from ) { uuid_copy( _id, from._id ); }
+        NodeID( const Data& from )   { uuid_copy( _id, from.id ); }
+
+        void getData( Data& data ) const { uuid_copy( data.id, _id ); }
 
         NodeID& operator = ( const NodeID& from )
             {

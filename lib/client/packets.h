@@ -223,12 +223,20 @@ namespace eq
                 command   = CMD_CONFIG_INIT_REPLY;
                 size      = sizeof( ConfigInitReplyPacket );
                 requestID = requestPacket->requestID;
-                error[0]  = '\0';
+                sessionID = requestPacket->sessionID;
+                data.error[0] = '\0';
             }
 
         uint32_t requestID;
+        uint32_t nNodeIDs;
         bool     result;
-        EQ_ALIGN8( char error[8] );
+
+        union ReturnData
+        {
+            char                error[8];
+            eqNet::NodeID::Data nodeIDs[1];
+        };
+        EQ_ALIGN8( ReturnData data );
     };
 
     struct ConfigExitPacket : public ConfigPacket
@@ -323,6 +331,17 @@ namespace eq
             }
         uint32_t requestID;
         uint32_t result;
+    };
+
+    struct ConfigDataPacket : public ConfigPacket
+    {
+        ConfigDataPacket()
+            {
+                command   = CMD_CONFIG_DATA;
+                size      = sizeof( ConfigDataPacket );
+            }
+        uint64_t dataSize;
+        EQ_ALIGN8( char data[8] );        
     };
 
     //------------------------------------------------------------

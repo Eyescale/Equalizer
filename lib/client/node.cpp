@@ -51,6 +51,8 @@ Node::Node()
 Node::~Node()
 {
     EQINFO << " Delete eq::Node @" << (void*)this << endl;
+    if( !_dataQueue.empty( ))
+        EQWARN << "Node data queue not empty in destructor" << endl;
 }
 
 void Node::_addPipe( Pipe* pipe )
@@ -234,6 +236,38 @@ void Node::_flushObjects()
     }
     _frameDatas.clear();
     _frameDatasMutex.unset();
+}
+
+const void* Node::receiveData( uint64_t* size )
+{
+    eqNet::Command* command = _dataQueue.pop();
+    const ConfigDataPacket* packet = command->getPacket<ConfigDataPacket>();
+    EQASSERT( packet->datatype == eqNet::DATATYPE_EQNET_SESSION );
+    EQASSERT( packet->command == REQ_CONFIG_DATA );
+
+    if( size )
+        *size = packet->dataSize;
+    return packet->data;
+}
+
+const void* Node::tryReceiveData( uint64_t* size )
+{
+    eqNet::Command* command = _dataQueue.tryPop();
+    if( !command )
+        return 0;
+
+    const ConfigDataPacket* packet = command->getPacket<ConfigDataPacket>();
+    EQASSERT( packet->datatype == eqNet::DATATYPE_EQNET_SESSION );
+    EQASSERT( packet->command == REQ_CONFIG_DATA );
+
+    if( size )
+        *size = packet->dataSize;
+    return packet->data;
+}
+
+bool Node::hasData() const
+{
+    return !_dataQueue.empty();
 }
 
 //---------------------------------------------------------------------------

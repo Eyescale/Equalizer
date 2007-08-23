@@ -139,11 +139,22 @@ namespace eq
          */
         void setHeadMatrix( const vmml::Matrix4f& matrix );
 
-        /** @name Error information. */
-        //@{
+        /** @name Error Information. */
+        //*{
         /** @return the error message from the last operation. */
         const std::string& getErrorMessage() const { return _error; }
-        //@}
+        //*}
+
+        /** @name Data Transmission. */
+        //*{
+        /** 
+         * Send data to all active render client nodes.
+         * 
+         * @param data the pointer to the data.
+         * @param size the data size.
+         */
+        void broadcastData( const void* data, uint64_t size );
+        //*}
 
     protected:
         virtual ~Config();
@@ -156,6 +167,13 @@ namespace eq
         /** The node running the application thread. */
         eqBase::RefPtr<eqNet::Node> _appNode;
 
+        /** The list of the running client node identifiers. */
+        std::vector<eqNet::NodeID> _clientNodeIDs;
+
+        /** The running client nodes, is cleared when _clientNodeIDs changes. */
+        std::vector< eqBase::RefPtr<eqNet::Node> > _clientNodes;
+
+        /** Locally-instantiated nodes of this config. */
         std::vector<Node*> _nodes;
 
         void _addNode( Node* node );
@@ -174,6 +192,9 @@ namespace eq
         /** The receiver->app thread event queue. */
         CommandQueue           _eventQueue;
 
+        /** Connect client nodes of this config. */
+        bool _connectClientNodes();
+
         /** The command functions. */
         eqNet::CommandResult _cmdCreateNode( eqNet::Command& command );
         eqNet::CommandResult _cmdDestroyNode( eqNet::Command& command );
@@ -183,6 +204,7 @@ namespace eq
         eqNet::CommandResult _reqFinishFrameReply( eqNet::Command& command );
         eqNet::CommandResult _reqFinishAllFramesReply( eqNet::Command& command);
         eqNet::CommandResult _cmdEvent( eqNet::Command& command );
+        eqNet::CommandResult _cmdData( eqNet::Command& command );
     };
 }
 

@@ -89,6 +89,29 @@ namespace eq
         void waitFrameStarted( const uint32_t frameNumber ) const
             { _currentFrame.waitGE( frameNumber ); }
 
+ 
+        /** @name Data Transmission. */
+        //*{
+        /** 
+         * Blockingly receive data sent by Config::broadcastData().
+         * 
+         * @param size return value for the size of the data, can be 0.
+         * @return the data pointer.
+         */
+        const void* receiveData( uint64_t* size );
+
+        /** 
+         * Non-blockingly receive data sent by Config::broadcastData().
+         * 
+         * @param size return value for the size of the data, can be 0.
+         * @return the data pointer, or 0 if no data is pending.
+         */
+        const void* tryReceiveData( uint64_t* size );
+
+        /** @return true if data is available, false if not. */
+        bool  hasData() const;
+        //*}
+
     protected:
         /**
          * Destructs the node.
@@ -176,7 +199,7 @@ namespace eq
          */
         void setErrorMessage( const std::string& message ) { _error = message; }
         //*}
- 
+
     private:
         /** The parent config */
         friend class Config;
@@ -211,6 +234,9 @@ namespace eq
         };
         std::vector<FrameStatEvents> _statEvents;
         eqBase::SpinLock             _statEventsLock;
+
+        /** The receiver->node data transmission queue. */
+        CommandQueue           _dataQueue;
 
         void _addPipe( Pipe* pipe );
         void _removePipe( Pipe* pipe );

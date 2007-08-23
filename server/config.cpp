@@ -260,7 +260,8 @@ void Config::setApplicationNode( eqBase::RefPtr<eqNet::Node> node )
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-bool Config::_init( const uint32_t initID )
+bool Config::_init( const uint32_t initID, 
+                    vector< eqNet::NodeID::Data >& nodeIDs )
 {
     EQASSERT( _state == STATE_STOPPED );
     _currentFrame  = 0;
@@ -273,7 +274,7 @@ bool Config::_init( const uint32_t initID )
         compound->init();
     }
 
-    if( !_connectNodes()  || !_initNodes( initID ))
+    if( !_connectNodes()  || !_initNodes( initID, nodeIDs ))
     {
         exit();
         return false;
@@ -335,7 +336,8 @@ bool Config::_connectNodes()
     return true;
 }
 
-bool Config::_initNodes( const uint32_t initID )
+bool Config::_initNodes( const uint32_t initID,
+                         vector< eqNet::NodeID::Data >& nodeIDs )
 {
     const string& name    = getName();
     bool          success = true;
@@ -393,6 +395,9 @@ bool Config::_initNodes( const uint32_t initID )
                     << endl;
             success = false;
         }
+
+        nodeIDs.resize( nodeIDs.size() + 1 );
+        netNode->getNodeID().getData( nodeIDs.back( ));
     }
     return success;
 }
@@ -604,14 +609,24 @@ eqNet::CommandResult Config::_reqInit( eqNet::Command& command )
     EQINFO << "handle config init " << packet << endl;
 
     _error.clear();
-    reply.result = _init( packet->initID );
-
-    if( reply.result )
-        mapObject( &_headMatrix, packet->headMatrixID );
+    vector< eqNet::NodeID::Data > nodeIDs;
+    reply.result   = _init( packet->initID, nodeIDs );
 
     EQINFO << "Config init " << (reply.result ? "successful":"failed: ") 
            << _error << endl;
-    send( command.getNode(), reply, _error );
+
+    if( reply.result )
+    {
+        mapObject( &_headMatrix, packet->headMatrixID );
+        reply.nNodeIDs = nodeIDs.size();
+        command.getNode()->send( reply, nodeIDs );
+    }
+    else
+    {
+        reply.nNodeIDs = 0;
+        send( command.getNode(), reply, _error );
+    }
+
     return eqNet::COMMAND_HANDLED;
 }
 

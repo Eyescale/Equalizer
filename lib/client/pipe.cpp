@@ -391,7 +391,7 @@ bool Pipe::configInitGLX()
     EQINFO << "Opened X display " << xDisplay << ", device " << _device << endl;
     return true;
 #else
-    setErrorMessage( "Library compiled without GLX support" );
+    setErrorMessage( "Client library compiled without GLX support" );
     return false;
 #endif
 }
@@ -450,6 +450,7 @@ bool Pipe::configInitAGL()
     EQINFO << "Using CG displayID " << displayID << endl;
     return true;
 #else
+    setErrorMessage( "Client library compiled without AGL support" );
     return false;
 #endif
 }
@@ -480,6 +481,7 @@ bool Pipe::configInitWGL()
     _pvp.h = GetDeviceCaps( dc, VERTRES );
     return true;
 #else
+    setErrorMessage( "Client library compiled without WGL support" );
     return false;
 #endif
 }

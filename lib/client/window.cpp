@@ -393,6 +393,7 @@ bool eq::Window::configInitGLX()
            << context << endl;
     return true;
 #else
+    setErrorMessage( "Client library compiled without GLX support" );
     return false;
 #endif
 }
@@ -634,7 +635,7 @@ bool eq::Window::configInitAGL()
     aglSetCurrentContext( context );
     return true;
 #else
-    setErrorMessage( "Library compiled without AGL support" );
+    setErrorMessage( "Client library compiled without AGL support" );
     return false;
 #endif
 }
@@ -833,6 +834,7 @@ bool eq::Window::configInitWGL()
     EQINFO << "Created WGL context " << context << endl;
     return true;
 #else
+    setErrorMessage( "Client library compiled without WGL support" );
     return false;
 #endif
 }

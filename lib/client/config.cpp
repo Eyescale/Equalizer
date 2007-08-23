@@ -48,6 +48,8 @@ Config::Config()
          eqNet::CommandFunc<Config>( this, &Config::_reqFinishAllFramesReply ));
     registerCommand( CMD_CONFIG_EVENT, 
                      eqNet::CommandFunc<Config>( this, &Config::_cmdEvent ));
+    registerCommand( CMD_CONFIG_DATA, 
+                     eqNet::CommandFunc<Config>( this, &Config::_cmdData ));
 }
 
 Config::~Config()
@@ -223,6 +225,51 @@ void Config::setHeadMatrix( const vmml::Matrix4f& matrix )
     _headMatrix.commit();
 }
 
+void Config::broadcastData( const void* data, uint64_t size )
+{
+    if( _clientNodeIDs.empty( ))
+        return;
+
+    if( !_connectClientNodes( ))
+        return;
+
+    ConfigDataPacket packet;
+    packet.sessionID = getID();
+    packet.dataSize  = size;
+
+    for( vector< RefPtr<eqNet::Node> >::iterator i = _clientNodes.begin();
+         i != _clientNodes.end(); ++i )
+    {
+        (*i)->send( packet, data, size );
+    }
+}
+
+bool Config::_connectClientNodes()
+{
+    if( !_clientNodes.empty( ))
+        return true;
+
+    RefPtr< eqNet::Node > localNode = getLocalNode();
+    RefPtr< eqNet::Node > server    = getServer();
+
+    for( vector< eqNet::NodeID >::const_iterator i = _clientNodeIDs.begin();
+         i < _clientNodeIDs.end(); ++i )
+    {
+        const eqNet::NodeID&        id   = *i;
+        RefPtr< eqNet::Node > node = localNode->connect( id, server );
+
+        if( !node.isValid( ))
+        {
+            EQERROR << "Can't connect node with ID " << id << endl;
+            _clientNodes.clear();
+            return false;
+        }
+
+        _clientNodes.push_back( node );
+    }
+    return true;
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
@@ -263,7 +310,17 @@ eqNet::CommandResult Config::_reqInitReply( eqNet::Command& command )
         command.getPacket<ConfigInitReplyPacket>();
     EQINFO << "handle init reply " << packet << endl;
 
-    _error = packet->error;
+    _clientNodeIDs.clear();
+    _clientNodes.clear();
+
+    if( packet->result )
+    {
+        for( uint32_t i=0; i<packet->nNodeIDs; ++i )
+            _clientNodeIDs.push_back( packet->data.nodeIDs[i] );
+    }
+    else
+        _error = packet->data.error;
+
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;
 }
@@ -274,6 +331,9 @@ eqNet::CommandResult Config::_reqExitReply( eqNet::Command& command )
         command.getPacket<ConfigExitReplyPacket>();
     EQINFO << "handle exit reply " << packet << endl;
 
+    _clientNodeIDs.clear();
+    _clientNodes.clear();
+
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;
 }
@@ -283,6 +343,14 @@ eqNet::CommandResult Config::_cmdStartFrameReply( eqNet::Command& command )
     const ConfigStartFrameReplyPacket* packet =
         command.getPacket<ConfigStartFrameReplyPacket>();
     EQVERB << "handle frame start reply " << packet << endl;
+
+#if 0 // enable when list of client nodes is dynamic
+    _clientNodeIDs.clear();
+    _clientNodes.clear();
+
+    for( uint32_t i=0; i<packet->nNodeIDs; ++i )
+        _clientNodeIDs.push_back( packet->nodeIDs[i] );
+#endif
 
     _requestHandler.serveRequest( packet->requestID, packet->frameNumber );
     return eqNet::COMMAND_HANDLED;
@@ -314,5 +382,21 @@ eqNet::CommandResult Config::_cmdEvent( eqNet::Command& command )
            << endl;
 
     _eventQueue.push( command );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Config::_cmdData( eqNet::Command& command )
+{
+    EQVERB << "received data " << command.getPacket<ConfigDataPacket>()
+           << endl;
+
+    // If we -for whatever reason- instantiate more than one config node per
+    // client, the server has to send us a list of config node object IDs
+    // together with the eqNet::NodeIDs, so that broadcastData can send the
+    // packet directly to the eq::Node objects.
+    EQASSERTINFO( _nodes.size() == 1, 
+                  "More than one config node instantiated locally" );
+
+    _nodes[0]->_dataQueue.push( command );
     return eqNet::COMMAND_HANDLED;
 }
