@@ -38,6 +38,9 @@ namespace eq
         //*{
         /** The database-range relativ to the destination channel. */
         const Range& getRange() const { return _data.range; }
+        
+        /** The images of this frame data holder */
+        const std::vector<Image*>& getImages() const { return _images; }
         //*}
 
         /**

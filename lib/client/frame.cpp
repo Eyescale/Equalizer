@@ -19,7 +19,7 @@ Frame::Frame( Pipe* pipe )
 }
 
 
-FrameData* Frame::_getData()
+FrameData* Frame::_getData() const
 {
     const eqNet::ObjectVersion& frameData = _data.frameData[ _eyePass ];
     EQASSERT( frameData.objectID != EQ_ID_INVALID );
@@ -28,9 +28,14 @@ FrameData* Frame::_getData()
                                            frameData.version ); 
 }
 
-const Range& Frame::getRange()
+const Range& Frame::getRange() const
 {
     return _getData()->getRange();
+}
+
+const std::vector<Image*>& Frame::getImages() const
+{
+    return _getData()->getImages();
 }
 
 void Frame::startReadback() 
@@ -58,12 +63,12 @@ void Frame::transmit( eqBase::RefPtr<eqNet::Node> toNode )
     _getData()->transmit( toNode );
 }
 
-bool Frame::isReady()
+bool Frame::isReady() const
 {
     return _getData()->isReady();
 }
 
-void Frame::waitReady()
+void Frame::waitReady() const
 {
     _getData()->waitReady();
 }

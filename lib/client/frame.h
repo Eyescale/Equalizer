@@ -19,6 +19,7 @@ namespace eqs
 namespace eq
 {
     class FrameData;
+    class Image;
     class Pipe;
     class Range;
 
@@ -54,7 +55,10 @@ namespace eq
         const vmml::Vector2i& getOffset() const { return _data.offset; }
         
         /** The database-range relativ to the destination channel. */
-        const Range& getRange();
+        const Range& getRange() const;
+
+        /** The images of this frame data holder */
+        const std::vector<Image*>& getImages() const;
         //*}
 
         /**
@@ -98,10 +102,10 @@ namespace eq
          * 
          * @return true if the frame is ready, false if not. 
          */
-        bool isReady();
+        bool isReady() const;
 
         /** Wait for the frame to become available. */
-        void waitReady();
+        void waitReady() const;
 
         /** 
          * Add a listener which will be incremented when the frame is ready.
@@ -140,7 +144,7 @@ namespace eq
             _data;
         friend class eqs::Frame;
 
-        FrameData* _getData();
+        FrameData* _getData() const;
     };
 };
 #endif // EQ_FRAME_H
