@@ -13,8 +13,6 @@
 
 #include "frame.h"
 
-#include <eq/gloo/cg_uniform.h>
-
 
 class FrameData;
 class InitData;
@@ -71,7 +69,6 @@ namespace eqVol
 		GLuint _tex3D;
 		GLuint _preintName;
 		GLuint _vertexID;
-//		GLhandleARB _shader;
 		int _slices;
 		int _angle;
     };

@@ -29,7 +29,7 @@ void main(
 	
 	float4 eyeToVert = normalize( VindexAndSlice - vPosition );
 	float4 backVert = float4(1,1,1,1);
-	backVert = gl_Vertex - eyeToVert * ( sliceDistance / dot( vDir,eyeToVert ) ); 
+	backVert = VindexAndSlice - eyeToVert * ( sliceDistance / dot( vDir,eyeToVert ) ); 
 	
 	//compute texture coordinates for virtual back vertex
 	
@@ -65,8 +65,8 @@ void main(
 			
 	// output variables
     out float4  VertexOut : POSITION,
-	out half3   frontP    : TEXCOORD0,
-	out half3   backP     : TEXCOORD1
+	out float3  frontP    : TEXCOORD0,
+	out float3  backP     : TEXCOORD1
 )
 {
 
@@ -131,19 +131,18 @@ void main(
 
 	frontP = 0.5 * Position + 0.5;
 	
-	half4 vPosition = mul( glstate.matrix.inverse.modelview[0], half4(0,0,0,1) );
+	float4 vPosition = mul( glstate.matrix.inverse.modelview[0], float4(0,0,0,1) );
 	
-	half3 vDir = normalize( mul( (float3x3)glstate.matrix.inverse.modelview[0], half3(0.,0.,-1.) ) );
+	float4 vDir = normalize( mul( glstate.matrix.inverse.modelview[0], float4(0.,0.,-1.,1.) ) );
 
 	//compute position of virtual back vertex
-	half3 eyeToVert = normalize( Position - vPosition.xyz );
+	float4 eyeToVert = normalize( float4( Position, 1.0) - vPosition );
 
-	half cos = sliceDistance / dot( vDir, eyeToVert );
-	half3 backV = Position + ( eyeToVert * cos ); 
+	backP = Position + eyeToVert * ( sliceDistance / dot( vDir, eyeToVert ) ); 
 	
 	//compute texture coordinates for virtual back vertex
 	
-	backP = 0.5 * backV + 0.5;
+	backP = 0.5 * backP + 0.5;
 	
 	return;    
 }

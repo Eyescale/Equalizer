@@ -48,8 +48,9 @@ void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber )
 
 void Pipe::LoadShaders()
 {
-	if( !_cgContext )
+	if( !_shadersLoaded )
 	{
+#ifdef CG_SHADERS
 		_cgContext = cgCreateContext();
 
 		if( _shaders.cgVertex )
@@ -62,9 +63,20 @@ void Pipe::LoadShaders()
 			delete _shaders.cgFragment;
 
 		_shaders.cgFragment = new gloo::cg_program( _cgContext );
-		_shaders.cgFragment->create_from_file( CG_GL_FRAGMENT, "./examples/eqVol/fshader.cg" );
+		_shaders.cgFragment->create_from_file( CG_GL_FRAGMENT, "./examples/eqVol/fshader.cg" );		
+
+#else
+		if( !eqShader::loadShaders("./examples/eqVol/vshader.oglsl", "./examples/eqVol/fshader.oglsl", _shader) )
+		{
+			EQERROR << "Can't load glsl shaders" << endl;
+			return;
+		}
 		
-		EQERROR << "cg program created" << endl;
+		glUseProgramObjectARB( NULL );
+	
+#endif
+		_shadersLoaded = true;
+		EQERROR << "shaders loaded" << endl;
 	}
 }
 

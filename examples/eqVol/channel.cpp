@@ -126,7 +126,7 @@ void checkError( std::string msg )
 		EQERROR << msg << " GL Error: " << gluErrorString(error) << endl;
 }
 
-//#define COMPOSE_MODE_NEW
+#define COMPOSE_MODE_NEW
 void createPreintegrationTable( const uint8_t *Table, GLuint &preintName )
 {
 	EQINFO << "Calculating preintegration table..." << endl;
@@ -269,12 +269,6 @@ bool Channel::configInit( const uint32_t initID )
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 
-//Init shader
-//	if( !eqShader::loadShaders("./examples/eqVol/vshader.oglsl", "./examples/eqVol/fshader.oglsl", _shader) )
-//		return false;
-		
-//	glUseProgramObjectARB( NULL );
-	
 	
 #ifndef DYNAMIC_NEAR_FAR
     setNearFar( 0.0001f, 10.0f );
@@ -390,6 +384,7 @@ void Channel::frameDraw( const uint32_t frameID )
 #ifndef TEXTURE_ROTATION 
 		glMultMatrixf( frameData.data.rotation.ml );
 #endif
+//		glScalef( 0.5, 1.0, 1.0 );
 
 /*		glPushMatrix(); //Rotate lights
 		{
@@ -453,195 +448,195 @@ void Channel::frameDraw( const uint32_t frameID )
 			}
 		}
 
-//		double dXdist = 2.0*m_dScaleFactorX;
-//		double dYdist = 2.0*m_dScaleFactorY;
-//		double dZdist = 2.0*m_dScaleFactorZ;
-//		int nMaxNumSlices = int( sqrt( dXdist*dXdist + dYdist*dYdist + dZdist*dZdist ) / m_dSliceDist ) + 1;
-		
-
 		//rendering
 
 		// Enable shader
-//		glUseProgramObjectARB( _shader );
+		
+#ifdef CG_SHADERS
 		eqCgShaders shaders = pipe->getShaders();
 		shaders.cgVertex->use();
 		shaders.cgFragment->use();
 
 		CGprogram m_vProg = shaders.cgVertex->get_program();
 		CGprogram m_fProg = shaders.cgFragment->get_program();
-		{
-			const float sequence[64] = {
-				0, 1, 4, 2, 3, 5, 6, 7,      
-				1, 0, 3, 5, 4, 2, 7, 6, 
-				2, 0, 6, 3, 1, 4, 7, 5, 
-				3, 1, 2, 7, 5, 0, 6, 4, 
-				4, 0, 5, 6, 2, 1, 7, 3, 
-				5, 1, 7, 4, 0, 3, 6, 2, 
-				6, 2, 4, 7, 3, 0, 5, 1, 
-				7, 3, 6, 5, 1, 2, 4, 0 };
+#else
+		GLhandleARB shader = pipe->getShader();
+		glUseProgramObjectARB( shader );
+#endif
 
-			const float e1[24] = {
-				0, 1, 4, 4,
-				1, 0, 1, 4,
-				0, 2, 5, 5,
-				2, 0, 2, 5,
-				0, 3, 6, 6, 
-				3, 0, 3, 6 };
-				
-			const float e2[24] = {
-				1, 4, 7, 7,
-				5, 1, 4, 7,
-				2, 5, 7, 7,
-				6, 2, 5, 7,
-				3, 6, 7, 7,
-				4, 3, 6, 7 };
-		
-			float vertices[24];
-			for(int i = 0; i < 8; ++i) {
-				vertices[3*i]   = double(m_dScaleFactorX*m_pVertices[i][0]);
-				vertices[3*i+1] = double(m_dScaleFactorY*m_pVertices[i][1]);
-				vertices[3*i+2] = double(m_dScaleFactorZ*m_pVertices[i][2]);
-			}
+
+#ifndef TEXTURE_ROTATION 
+		const float sequence[64] = {
+			0, 1, 4, 2, 3, 5, 6, 7,      
+			1, 0, 3, 5, 4, 2, 7, 6, 
+			2, 0, 6, 3, 1, 4, 7, 5, 
+			3, 1, 2, 7, 5, 0, 6, 4, 
+			4, 0, 5, 6, 2, 1, 7, 3, 
+			5, 1, 7, 4, 0, 3, 6, 2, 
+			6, 2, 4, 7, 3, 0, 5, 1, 
+			7, 3, 6, 5, 1, 2, 4, 0 };
+
+		const float e1[24] = {
+			0, 1, 4, 4,
+			1, 0, 1, 4,
+			0, 2, 5, 5,
+			2, 0, 2, 5,
+			0, 3, 6, 6, 
+			3, 0, 3, 6 };
 			
-#ifndef TEXTURE_ROTATION 
-			cgGLSetParameterArray3f( cgGetNamedParameter( m_vProg, "vecVertices" ), 0,  8, vertices );
-			cgGLSetParameterArray1f( cgGetNamedParameter( m_vProg, "sequence"    ), 0, 64, sequence );
-			cgGLSetParameterArray1f( cgGetNamedParameter( m_vProg, "v1"          ), 0, 24, e1       );
-			cgGLSetParameterArray1f( cgGetNamedParameter( m_vProg, "v2"          ), 0, 24, e2       );
-#endif			
-//			glUniform3fvARB( glGetUniformLocationARB( _shader, "vecVertices"),  8, vertices );
-//			glUniform1ivARB( glGetUniformLocationARB( _shader, "sequence"   ), 64, sequence );
-//			glUniform1ivARB( glGetUniformLocationARB( _shader, "v1"         ), 24, e1       );
-//			glUniform1ivARB( glGetUniformLocationARB( _shader, "v2"         ), 24, e2       );
-		}
-		
-
-#ifndef TEXTURE_ROTATION 
-		cgGLSetParameter3dv( cgGetNamedParameter( m_vProg, "vecView"    ), viewVec.xyzw   );
-		cgGLSetParameter1f(  cgGetNamedParameter( m_vProg, "frontIndex" ), float(nMaxIdx) );
-
-
-		cgGLSetParameter1d(  cgGetNamedParameter( m_vProg, "dPlaneIncr" ), m_dSliceDist   );  
-#endif
-//		glUniform3fARB( glGetUniformLocationARB( _shader, "vecView"    ), viewVec.x, viewVec.y, viewVec.z );
-//		const GLint frontInd = static_cast<GLint>(nMaxIdx);
-//		glUniform1iARB( glGetUniformLocationARB( _shader, "frontIndex" ), frontInd );
-//		glUniform1fARB( glGetUniformLocationARB( _shader, "dPlaneIncr" ), m_dSliceDist   );
-		
+		const float e2[24] = {
+			1, 4, 7, 7,
+			5, 1, 4, 7,
+			2, 5, 7, 7,
+			6, 2, 5, 7,
+			3, 6, 7, 7,
+			4, 3, 6, 7 };
+	
+		float vertices[24];
+		for(int i = 0; i < 8; ++i)
 		{
-			const int nSequence[8][8] = {
-				{7,3,5,6,1,2,4,0},
-				{6,2,4,7,0,3,5,1},
-				{5,1,4,7,0,3,6,2},
-				{4,0,5,6,1,2,7,3},
-				{3,1,2,7,0,5,6,4},
-				{2,0,3,6,1,4,7,5},
-				{1,0,3,5,2,4,7,6},
-				{0,1,2,4,3,5,6,7},
-			};
-		
-			int nMinIdx = 0;
-			double dMinDist = (camPosition - m_pVertices[0]).length();
+			vertices[3*i]   = static_cast<double>( m_dScaleFactorX * m_pVertices[i][0] );
+			vertices[3*i+1] = static_cast<double>( m_dScaleFactorY * m_pVertices[i][1] );
+			vertices[3*i+2] = static_cast<double>( m_dScaleFactorZ * m_pVertices[i][2] );
+		}
+			
+#ifdef CG_SHADERS
+		cgGLSetParameterArray3f( cgGetNamedParameter( m_vProg, "vecVertices" ), 0,  8, vertices );
+		cgGLSetParameterArray1f( cgGetNamedParameter( m_vProg, "sequence"    ), 0, 64, sequence );
+		cgGLSetParameterArray1f( cgGetNamedParameter( m_vProg, "v1"          ), 0, 24, e1       );
+		cgGLSetParameterArray1f( cgGetNamedParameter( m_vProg, "v2"          ), 0, 24, e2       );
 
-			double dDist;
-			for(int v = 1; v < 8; v++) {
-				dDist = (camPosition - m_pVertices[v]).length();
-				if (dDist < dMinDist) {
-					dMinDist = dDist;
-					nMinIdx = v;
-				}
+		cgGLSetParameter3dv(     cgGetNamedParameter( m_vProg, "vecView"     ), viewVec.xyzw   );
+		cgGLSetParameter1f(      cgGetNamedParameter( m_vProg, "frontIndex"  ), float(nMaxIdx) );
+
+		cgGLSetParameter1d(      cgGetNamedParameter( m_vProg, "dPlaneIncr"  ), m_dSliceDist   );  
+#else
+		glUniform3fvARB( glGetUniformLocationARB( shader, "vecVertices"),  8, vertices );
+		glUniform1ivARB( glGetUniformLocationARB( shader, "sequence"   ), 64, sequence );
+		glUniform1ivARB( glGetUniformLocationARB( shader, "v1"         ), 24, e1       );
+		glUniform1ivARB( glGetUniformLocationARB( shader, "v2"         ), 24, e2       );
+
+		glUniform3fARB(  glGetUniformLocationARB( shader, "vecView"    ), viewVec.x, viewVec.y, viewVec.z );
+		const GLint frontInd = static_cast<GLint>(nMaxIdx);
+		glUniform1iARB(  glGetUniformLocationARB( shader, "frontIndex" ), frontInd     );
+		glUniform1fARB(  glGetUniformLocationARB( shader, "dPlaneIncr" ), m_dSliceDist );
+#endif //CG_SHADERS			
+
+		const int nSequence[8][8] = {
+			{7,3,5,6,1,2,4,0},
+			{6,2,4,7,0,3,5,1},
+			{5,1,4,7,0,3,6,2},
+			{4,0,5,6,1,2,7,3},
+			{3,1,2,7,0,5,6,4},
+			{2,0,3,6,1,4,7,5},
+			{1,0,3,5,2,4,7,6},
+			{0,1,2,4,3,5,6,7},
+		};
+	
+		int nMinIdx = 0;
+		double dMinDist = (camPosition - m_pVertices[0]).length();
+
+		double dDist;
+		for(int v = 1; v < 8; v++) {
+			dDist = (camPosition - m_pVertices[v]).length();
+			if (dDist < dMinDist) {
+				dMinDist = dDist;
+				nMinIdx = v;
 			}
+		}
 
-			double dStartDist   = viewVec.dot( m_pVertices[nSequence[nMaxIdx][0]] );
-			double dEndDist     = viewVec.dot( m_pVertices[nMaxIdx]               );
-			double dS           = ceil( dStartDist/m_dSliceDist);
-			dStartDist          = dS * m_dSliceDist;
+		double dStartDist   = viewVec.dot( m_pVertices[nSequence[nMaxIdx][0]] );
+		double dEndDist     = viewVec.dot( m_pVertices[nMaxIdx]               );
+		double dS           = ceil( dStartDist/m_dSliceDist);
+		dStartDist          = dS * m_dSliceDist;
 
-			int nNumSlices = int((dEndDist-dStartDist)/m_dSliceDist)+1; 
+		int nNumSlices = int((dEndDist-dStartDist)/m_dSliceDist)+1; 
 
-#ifndef TEXTURE_ROTATION 
-			cgGLSetParameter1d(cgGetNamedParameter( m_vProg,"dPlaneStart"),dStartDist); 
+#ifdef CG_SHADERS
+		cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "dPlaneStart" ), dStartDist ); 
+#else
+		glUniform1fARB( glGetUniformLocationARB(  shader, "dPlaneStart" ), dStartDist );
 #endif
-//			glUniform1fARB( glGetUniformLocationARB( _shader, "dPlaneStart" ), dStartDist   );
+#endif //TEXTURE_ROTATION 
 
 
-			// Fill volume data
-			{
-				glActiveTexture( GL_TEXTURE1 );
-				glBindTexture( GL_TEXTURE_2D, _preintName ); //preintegrated values
-//				glUniform1iARB( glGetUniformLocationARB( _shader, "preInt"        ), 1                  ); //f-shader
-				cgGLSetTextureParameter(    cgGetNamedParameter( m_fProg,"preInt" ), _preintName );
-				cgGLEnableTextureParameter( cgGetNamedParameter( m_fProg,"preInt" )              );
+		// Fill volume data
+		{
+			glActiveTexture( GL_TEXTURE1 );
+			glBindTexture( GL_TEXTURE_2D, _preintName ); //preintegrated values
+#ifdef CG_SHADERS
+			cgGLSetTextureParameter(    cgGetNamedParameter( m_fProg,"preInt" ), _preintName    );
+			cgGLEnableTextureParameter( cgGetNamedParameter( m_fProg,"preInt" )                 );
+#else
+			glUniform1iARB( glGetUniformLocationARB( shader, "preInt"        ), 1              ); //f-shader
+#endif
 
+			glActiveTexture( GL_TEXTURE0 ); // Activate last because it has to be the active texture
+			glBindTexture( GL_TEXTURE_3D, _tex3D ); //gx, gy, gz, val
+			glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+#ifdef CG_SHADERS
+			cgGLSetTextureParameter(    cgGetNamedParameter( m_fProg, "volume" ), _tex3D        );
+			cgGLEnableTextureParameter( cgGetNamedParameter( m_fProg, "volume" )                );
 
-				glActiveTexture( GL_TEXTURE0 ); // Activate last because it has to be the active texture
-				glBindTexture( GL_TEXTURE_3D, _tex3D ); //gx, gy, gz, val
-				glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-//				glUniform1iARB( glGetUniformLocationARB( _shader, "volume"        ), 0                  ); //f-shader
-				cgGLSetTextureParameter(    cgGetNamedParameter( m_fProg,"volume" ), _tex3D );
-				cgGLEnableTextureParameter( cgGetNamedParameter( m_fProg,"volume" )         );
+			cgGLSetParameter1f(  cgGetNamedParameter( m_vProg, "sliceDistance" ), m_dSliceDist  );
+			cgGLSetParameter1f(  cgGetNamedParameter( m_fProg, "shininess"     ), 20.0f         );
+#else
+			glUniform1iARB( glGetUniformLocationARB(  shader,  "volume"        ), 0             ); //f-shader
 
-
-				cgGLSetParameter1f(  cgGetNamedParameter( m_vProg, "sliceDistance" ), m_dSliceDist );
-				cgGLSetParameter1f(  cgGetNamedParameter( m_fProg, "shininess" ), 20.0f );
-				
-//				glUniform1fARB( glGetUniformLocationARB( _shader, "sliceDistance" ), 3.6/numberOfSlices ); //v-shader
-//				glUniform1fARB( glGetUniformLocationARB( _shader, "shininess"     ), 20.0f              ); //f-shader
-			}
+			glUniform1fARB( glGetUniformLocationARB(  shader,  "sliceDistance" ), m_dSliceDist  ); //v-shader
+			glUniform1fARB( glGetUniformLocationARB(  shader,  "shininess"     ), 20.0f         ); //f-shader
+#endif
+		}
 
 			//Render slices
-			glEnable(GL_BLEND);
+		glEnable(GL_BLEND);
 #ifdef COMPOSE_MODE_NEW
-//			glBlendFuncSeparateEXT( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA );
-			glBlendFuncSeparateEXT( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
-//			glBlendFuncSeparateEXT( GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA );
+		glBlendFuncSeparateEXT( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
 #else
-			glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
+		glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
 #endif
 
 #ifndef TEXTURE_ROTATION 
-			cgGLSetParameter1f(  cgGetNamedParameter( m_fProg, "lines" ), 0.0f );
-			for( int s = 0; s < nNumSlices; ++s )
-			{
+		for( int s = 0; s < nNumSlices; ++s )
+		{
+		cgGLSetParameter1f(  cgGetNamedParameter( m_fProg, "lines" ), 0.0f );
+			glBegin( GL_POLYGON );
+			for( int i = 0; i < 6; ++i )
+				glVertex2i( i, nNumSlices-1-s );
+			glEnd();
 
-				glBegin( GL_POLYGON );
-				for( int i = 0; i < 6; ++i )
-					glVertex2i( i, nNumSlices-1-s );
-				glEnd();
+			cgGLSetParameter1f(  cgGetNamedParameter( m_fProg, "lines" ), 1.0f );
 
-/*				cgGLSetParameter1f(  cgGetNamedParameter( m_fProg, "lines" ), 1.0f );
-
-				glBegin( GL_LINE_LOOP );
-				for( int i = 0; i < 6; ++i )
-					glVertex2i( i, nNumSlices-1-s );
-			
-				glEnd();
-*/				
-			}
+			glBegin( GL_LINE_LOOP );
+			for( int i = 0; i < 6; ++i )
+				glVertex2i( i, nNumSlices-1-s );
+		
+			glEnd();
+				
+		}
 #else		
-			// Draw slices from vertex array
-			glEnableClientState( GL_VERTEX_ARRAY );
-			glBindBuffer( GL_ARRAY_BUFFER, _vertexID );
-			glVertexPointer( 3, GL_FLOAT, 0, 0 );
-			glDrawArrays( GL_QUADS, 0, 4*numberOfSlices );
-			glDisableClientState( GL_VERTEX_ARRAY );	
-			glBindBuffer( GL_ARRAY_BUFFER, 0 );
+		// Draw slices from vertex array
+		glEnableClientState( GL_VERTEX_ARRAY );
+		glBindBuffer( GL_ARRAY_BUFFER, _vertexID );
+		glVertexPointer( 3, GL_FLOAT, 0, 0 );
+		glDrawArrays( GL_QUADS, 0, 4*numberOfSlices );
+		glDisableClientState( GL_VERTEX_ARRAY );	
+		glBindBuffer( GL_ARRAY_BUFFER, 0 );
 #endif
 
-			glDisable(GL_BLEND);
+		glDisable(GL_BLEND);
 
-			//disable shader
-//			glUseProgramObjectARB( NULL );
+		checkError( "error during rendering " );			
 
-			checkError( "error during rendering " );			
-		}
-
-	//Disable shader
+		//Disable shader
+#ifdef CG_SHADERS
 		shaders.cgVertex->turnOff();
 		shaders.cgFragment->turnOff();
-		
+#else
+		glUseProgramObjectARB( NULL );
+#endif
+	
 /**/		
-
      }
     else
     {
@@ -933,7 +928,7 @@ void Channel::frameReadback( const uint32_t frameID )
     for( vector<Frame*>::const_iterator iter = frames.begin(); iter != frames.end(); ++iter )
 	{
 		//Drop depth buffer flag if present
-		(*iter)->setDataBuffers( ( (*iter)->getDataBuffers() )&( ~Frame::BUFFER_DEPTH ) );
+		(*iter)->disableBuffer( Frame::BUFFER_DEPTH );
 		
         (*iter)->startReadback();
 	}
@@ -1057,7 +1052,8 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler )
 
 	//calculate inverse transposed matrix
 	_curFrData.modelviewM.getInverse( _curFrData.modelviewIM );
-	_curFrData.modelviewITM = (_curFrData.modelviewIM.getTransposed()).getMainSubmatrix();
+//	_curFrData.modelviewITM = (_curFrData.modelviewIM.getTransposed()).getMainSubmatrix();
+	_curFrData.modelviewITM = _curFrData.modelviewIM.getTransposed();
 	
 
     culler.setup( projection * modelView );

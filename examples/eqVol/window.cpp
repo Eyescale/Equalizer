@@ -17,7 +17,6 @@ bool Window::configInitGL( const uint32_t initID )
 
 	Pipe*     pipe      = static_cast<Pipe*>( getPipe() );
 	pipe->LoadShaders();
-	EQERROR << "cg shaders loaded" << endl;
 
 	return true;
 }
