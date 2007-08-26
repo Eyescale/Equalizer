@@ -26,15 +26,12 @@ namespace eqPly
         Application( const LocalInitData& initData );
         virtual ~Application() {}
 
-        /** @sa eqNet::Node::initLocal() */
-        virtual bool initLocal( int argc, char** argv );
-        
         /** Run an eqPly instance. */
         int run();
         
     protected:
-        int runMainloop();
-        int runClient();
+        /** @sa eq::Client::clientLoop. */
+        virtual bool clientLoop();
         
     private:
         const LocalInitData& _initData;

@@ -191,7 +191,7 @@ eqNet::Session* Client::createSession()
     return Global::getNodeFactory()->createConfig(); 
 }
 
-void Client::clientLoop()
+bool Client::clientLoop()
 {
     EQINFO << "Entered client loop" << endl;
 
@@ -203,7 +203,12 @@ void Client::clientLoop()
     _commandQueue->flush();
     EQASSERT( !hasSessions( ));
 
-    return;
+    return true;
+}
+
+bool Client::exitClient()
+{
+    return (eqNet::Node::exitClient() & eq::exit( ));
 }
 
 void Client::processCommand()
@@ -224,18 +229,6 @@ void Client::processCommand()
         case eqNet::COMMAND_REDISPATCH:
             EQUNIMPLEMENTED;
     }
-}
-
-bool Client::runClient( const std::string& clientArgs )
-{
-    const bool ret = eqNet::Node::runClient( clientArgs );
-
-    exitLocal();
-    eq::exit();
-
-    EQINFO << "Leaving auto-launched client process " << getRefCount() << endl;
-    ::exit( ret ? EXIT_SUCCESS : EXIT_FAILURE ); // never return from eq::init
-    return ret;
 }
 
 eqNet::CommandResult Client::handleCommand( eqNet::Command& command )

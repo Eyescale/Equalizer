@@ -96,17 +96,18 @@ bool Node::initLocal( int argc, char** argv )
     // - reordering of arguments
     // - different behaviour of GNU and BSD implementations
     // - incomplete man pages
-    bool   isClient = false;
+    bool   isClient   = false;
+    bool   isResident = false;
     string clientOpts;
 
     for( int i=1; i<argc; ++i )
     {
-        if( strcmp( "--eq-listen", argv[i] ) == 0 )
+        if( string( "--eq-listen" ) == argv[i] )
         {
             if( i<argc && argv[i+1][0] != '-' )
             {
-                RefPtr<ConnectionDescription> desc = new ConnectionDescription;
                 string                        data = argv[++i];
+                RefPtr<ConnectionDescription> desc = new ConnectionDescription;
                 desc->TCPIP.port = Global::getDefaultPort();
 
                 if( desc->fromString( data ))
@@ -118,19 +119,20 @@ bool Node::initLocal( int argc, char** argv )
                     EQWARN << "Ignoring listen option: " << argv[i] << endl;
             }
         }
-        else if( strcmp( "--eq-client", argv[i] ) == 0 )
+        else if( string( "--eq-client" ) == argv[i] )
         {
-            ++i;
-            if( i<argc && argv[i][0] != '-' )
+            isClient = true;
+            if( i<argc && argv[i+1][0] != '-' ) // server-started client
             {
-                isClient   = true;
-                clientOpts = argv[i];
+                clientOpts = argv[++i];
 
                 if( !deserialize( clientOpts ))
                     EQWARN << "Failed to parse client listen port parameters"
                            << endl;
                 EQASSERT( !clientOpts.empty( ));
             }
+            else // resident render client
+                isResident = true;
         }
     }
     
@@ -154,7 +156,12 @@ bool Node::initLocal( int argc, char** argv )
     {
         EQINFO << "Client node started from command line with option " 
                << clientOpts << endl;
-        return runClient( clientOpts );
+
+        bool ret = (isResident ? clientLoop() : runClient( clientOpts ));
+
+        EQINFO << "Exit node process " << getRefCount() << endl;
+        ret &= exitClient();
+        ::exit( ret ? EXIT_SUCCESS : EXIT_FAILURE );
     }
 
     return true;
@@ -1501,7 +1508,6 @@ bool Node::runClient( const string& clientArgs )
         return false;
     }
 
-    clientLoop();
-    return true;
+    return clientLoop();
 }
 }

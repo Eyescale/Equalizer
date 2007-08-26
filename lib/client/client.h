@@ -56,7 +56,9 @@ namespace eq
 
     protected:
         /** @sa eqNet::Node::clientLoop */
-        virtual void clientLoop();
+        virtual bool clientLoop();
+        /** @sa eqNet::Node::exitClient(). */
+        virtual bool exitClient();
 
         /** @name Configuration. */
         //*{
@@ -75,9 +77,6 @@ namespace eq
         eqNet::CommandQueue* _commandQueue;
         
         bool _running;
-
-        /** @sa eqNet::Node::runClient */
-        virtual bool runClient( const std::string& clientArgs );
 
         /** @sa eqNet::Node::createNode */
         virtual eqBase::RefPtr<eqNet::Node> createNode( const uint32_t type );

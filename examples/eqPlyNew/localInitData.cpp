@@ -18,18 +18,16 @@ namespace eqPly
 {
 LocalInitData::LocalInitData()
         : _maxFrames( 0xffffffffu ),
-          _clientPort( 0 ),
           _color( true ),
-          _isApplication( true )
+          _isResident( false )
 {}
 
 const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
 {
-    _trackerPort   = from._trackerPort;  
-    _maxFrames     = from._maxFrames;    
-    _clientPort    = from._clientPort;   
-    _color         = from._color;        
-    _isApplication = from._isApplication;
+    _trackerPort = from._trackerPort;  
+    _maxFrames   = from._maxFrames;    
+    _color       = from._color;        
+    _isResident  = from._isResident;
     setFilename( from.getFilename( ));
     setWindowSystem( from.getWindowSystem( ));
     return *this;
@@ -48,13 +46,12 @@ void LocalInitData::parseArguments( int argc, char** argv )
                                          command );
         TCLAP::SwitchArg colorArg( "b", "bw", "Don't use colors from ply file", 
                                    command, false );
+        TCLAP::SwitchArg residentArg( "r", "resident", 
+            "Keep client resident (see resident node documentation on website)", 
+                                      command, false );
         TCLAP::ValueArg<uint32_t> framesArg( "n", "numFrames", 
                                            "Maximum number of rendered frames", 
                                              false, 0xffffffffu, "unsigned",
-                                             command );
-        TCLAP::ValueArg<uint16_t> clientArg( "c", "client", 
-                                             "Run as resident render client", 
-                                             false, 4243, "unsigned short",
                                              command );
 
         string wsHelp = "Window System API ( one of: ";
@@ -97,11 +94,8 @@ void LocalInitData::parseArguments( int argc, char** argv )
         if( framesArg.isSet( ))
             _maxFrames = framesArg.getValue();
 
-        if( clientArg.isSet( ))
-        {
-            _isApplication = false;
-            _clientPort    = clientArg.getValue();
-        }
+        if( residentArg.isSet( ))
+            _isResident = true;
     }
     catch( TCLAP::ArgException& exception )
     {

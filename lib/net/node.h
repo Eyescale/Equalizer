@@ -91,8 +91,9 @@ namespace eqNet
         /** 
          * Initialize a local listening node.
          *
-         * This function may not return. This is used for remote render client
-         * nodes which only execute incoming commands from the server.
+         * This function does not return when the command line option
+         * '--eq-client' is present. This is used for remote nodes which have
+         * been auto-launched by another node, e.g., remote render clients.
          *
          * @param argc the command line argument count.
          * @param argv the command line argument values.
@@ -103,6 +104,9 @@ namespace eqNet
 
         /** Exit a local, listening node. */
         virtual bool exitLocal() { return stopListening(); }
+
+        /** Exit a client node. */
+        virtual bool exitClient() { return exitLocal(); }
 
         /** 
          * Initializes this node.
@@ -464,7 +468,7 @@ namespace eqNet
          *
          * @sa runClient()
          */
-        virtual void clientLoop() {}
+        virtual bool clientLoop() { return true; }
 
         /** 
          * Handles a packet which has been received by this node for a custom

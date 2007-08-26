@@ -20,16 +20,16 @@ namespace eqVol
 
         const std::string& getTrackerPort() const { return _trackerPort; }
         bool               useColor()       const { return _color; }
-        bool               isApplication()  const { return _isApplication; }
-        uint16_t           getClientPort()  const { return _clientPort; }
+        bool               isResident()     const { return _isResident; }
         uint32_t           getMaxFrames()   const { return _maxFrames; }
+
+        const LocalInitData& operator = ( const LocalInitData& from );
 
     private:
         std::string _trackerPort;
         uint32_t    _maxFrames;
-        uint16_t    _clientPort;
         bool        _color;
-        bool        _isApplication;
+        bool        _isResident;
     };
 }
 
