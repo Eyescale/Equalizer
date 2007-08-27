@@ -28,7 +28,8 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     _maxFrames   = from._maxFrames;    
     _color       = from._color;        
     _isResident  = from._isResident;
-    setFilename( from.getFilename( ));
+    setDataFilename( from.getDataFilename( ));
+    setInfoFilename( from.getInfoFilename( ));
     setWindowSystem( from.getWindowSystem( ));
     return *this;
 }

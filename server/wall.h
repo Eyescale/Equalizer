@@ -6,7 +6,7 @@
 #define EQS_WALL_H
 
 #include <eq/base/base.h>
-#include <eq/vmmlib/vmmlib.h>
+#include <vmmlib/vmmlib.h>
 
 #include <iostream>
 

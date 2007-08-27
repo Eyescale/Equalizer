@@ -6,7 +6,7 @@
 #define EQS_VIEW_H
 
 #include <eq/base/base.h>
-#include <eq/vmmlib/matrix4.h>
+#include <vmmlib/matrix4.h>
 
 namespace eqs
 {

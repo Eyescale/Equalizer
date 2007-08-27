@@ -5,6 +5,7 @@ include make/system.mk
 SUBDIRS = \
 	lib \
 	examples \
+	externals \
 	proto \
 	server \
 	tests \
@@ -20,7 +21,8 @@ include make/rules.mk
 docs: lib
 	@$(DOXYGEN) Doxyfile
 
-lib: precompile
+subdirs: precompile
+lib: externals
 proto: lib
 tests: lib
 examples: lib

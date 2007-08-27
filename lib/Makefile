@@ -1,7 +1,7 @@
 
 include $(TOP)/make/system.mk
 
-MODULE = 
+MODULE = eq
 
 HEADER_SRC = \
 	eq.h \
@@ -96,9 +96,7 @@ HEADER_SRC = \
 	client/window.h \
 	client/windowEvent.h \
 	client/windowSystem.h \
-	client/X11Connection.h \
-	vmmlib/LICENSE \
-	$(wildcard vmmlib/*.h)
+	client/X11Connection.h
 
 SOURCES = \
 	base/barrier.cpp \

@@ -73,7 +73,7 @@ ifndef BUILD_FAT
 	    >> $(INSTALL_CMD)
 endif
 else
-	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).$(DSO_SUFFIX)=%) TOP=$(TOP) $@
+	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/lib$(MODULE).$(DSO_SUFFIX)=%) TOP=$(TOP) $@
 endif
 
 $(FAT_STATIC_LIB): $(THIN_STATIC_LIBS)
@@ -96,7 +96,7 @@ ifndef BUILD_FAT
 	    >> $(INSTALL_CMD) 
 endif
 else
-	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/libeq$(MODULE).a=%) TOP=$(TOP) $@
+	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/lib$(MODULE).a=%) TOP=$(TOP) $@
 endif
 
 $(OBJECT_DIR)/%.h.gch: %.h

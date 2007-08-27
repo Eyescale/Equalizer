@@ -30,7 +30,7 @@ CLEAN_EXTRA = \
 	lexer.cpp \
 	parser.cpp
 
-MODULE  = server
+MODULE  = eqserver
 
 CXXFLAGS    += $(WINDOW_SYSTEM_INCS) -DEQUALIZERSERVERLIBRARY_EXPORTS
 LDFLAGS     += -leq

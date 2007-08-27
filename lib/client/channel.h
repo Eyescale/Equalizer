@@ -10,7 +10,7 @@
 #include <eq/client/pixelViewport.h> // member
 #include <eq/client/window.h>        // used in inline method
 
-#include <eq/vmmlib/vmmlib.h>        // Frustum definition 
+#include <vmmlib/vmmlib.h>           // Frustum definition 
 
 namespace eq
 {

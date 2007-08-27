@@ -7,7 +7,7 @@
 #define CLIENT_MATRIX4_H
 
 #include <eq/net/object.h>
-#include <eq/vmmlib/matrix4.h>
+#include <vmmlib/matrix4.h>
 
 namespace eq
 {

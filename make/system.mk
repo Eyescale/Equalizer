@@ -26,7 +26,7 @@ INSTALL_LDSO_DIR   ?= /etc/ld.so.conf.d
 INSTALL_LDSO_CONF  ?= $(INSTALL_LDSO_DIR)/Equalizer.conf
 INSTALL_BIN_DIR    ?= $(INSTALL_DIR)/bin
 INSTALL_SHARE_DIR  ?= $(INSTALL_DIR)/share/Equalizer
-INCLUDE_BASE        = include/eq/$(MODULE)
+INCLUDE_BASE        = include/$(MODULE)
 INSTALL_INCLUDE_DIR = $(INSTALL_DIR)/$(INCLUDE_BASE)
 
 BUILD_DIR_BASE  = build/$(ARCH)
@@ -84,19 +84,19 @@ endif
 
 # library variables
 LIBRARY           = $(DYNAMIC_LIB)
-FAT_STATIC_LIB    = $(BUILD_DIR)/lib/libeq$(MODULE).a
-FAT_DYNAMIC_LIB   = $(BUILD_DIR)/lib/libeq$(MODULE).$(DSO_SUFFIX)
+FAT_STATIC_LIB    = $(BUILD_DIR)/lib/lib$(MODULE).a
+FAT_DYNAMIC_LIB   = $(BUILD_DIR)/lib/lib$(MODULE).$(DSO_SUFFIX)
 INSTALL_LIBS     ?= $(wildcard $(BUILD_DIR)/$(VARIANT)/lib/*.a \
                                $(BUILD_DIR)/$(VARIANT)/lib/*.$(DSO_SUFFIX))
 
 ifdef VARIANT
-THIN_STATIC_LIBS  = $(BUILD_DIR)/$(VARIANT)/lib/libeq$(MODULE).a
-THIN_DYNAMIC_LIBS = $(BUILD_DIR)/$(VARIANT)/lib/libeq$(MODULE).$(DSO_SUFFIX)
+THIN_STATIC_LIBS  = $(BUILD_DIR)/$(VARIANT)/lib/lib$(MODULE).a
+THIN_DYNAMIC_LIBS = $(BUILD_DIR)/$(VARIANT)/lib/lib$(MODULE).$(DSO_SUFFIX)
 
 else
 
-THIN_STATIC_LIBS  = $(foreach V,$(VARIANTS),$(BUILD_DIR)/$(V)/lib/libeq$(MODULE).a)
-THIN_DYNAMIC_LIBS = $(foreach V,$(VARIANTS),$(BUILD_DIR)/$(V)/lib/libeq$(MODULE).$(DSO_SUFFIX))
+THIN_STATIC_LIBS  = $(foreach V,$(VARIANTS),$(BUILD_DIR)/$(V)/lib/lib$(MODULE).a)
+THIN_DYNAMIC_LIBS = $(foreach V,$(VARIANTS),$(BUILD_DIR)/$(V)/lib/lib$(MODULE).$(DSO_SUFFIX))
 endif
 
 # executable target
