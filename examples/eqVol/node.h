@@ -18,7 +18,6 @@ namespace eqVol
     {
     public:
         const InitData& getInitData() const { return _initData; }
-        const Model*    getModel() const    { return _model; }
 
 		virtual eq::FrameData* getFrameData( const uint32_t id, const uint32_t version );
 
@@ -32,7 +31,6 @@ namespace eqVol
     private:
  		
 		InitData _initData;
-        Model*   _model;
     };
 }
 

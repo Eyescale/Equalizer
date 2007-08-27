@@ -18,10 +18,10 @@ using namespace std;
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Config*  createConfig()   { return new eqVol::Config; }
-    virtual eq::Node*    createNode()     { return new eqVol::Node; }
-    virtual eq::Pipe*    createPipe()     { return new eqVol::Pipe; }
-    virtual eq::Window*  createWindow()   { return new eqVol::Window; }
+    virtual eq::Config*  createConfig()   { return new eqVol::Config;  }
+    virtual eq::Node*    createNode()     { return new eqVol::Node;    }
+    virtual eq::Pipe*    createPipe()     { return new eqVol::Pipe;    }
+    virtual eq::Window*  createWindow()   { return new eqVol::Window;  }
     virtual eq::Channel* createChannel()  { return new eqVol::Channel; }
 };
 

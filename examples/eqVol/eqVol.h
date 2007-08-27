@@ -21,12 +21,15 @@ namespace eqVol
         Application( const LocalInitData& initData );
         virtual ~Application() {}
 
-        /** Run an eqPly instance. */
+        /** @sa eqNet::Node::initLocal() */
+        virtual bool initLocal( int argc, char** argv );
+        
+        /** Run an eqVol instance. */
         int run();
         
     protected:
-        /** @sa eq::Client::clientLoop. */
-        virtual bool clientLoop();
+        int runMainloop();
+        int runClient();
         
     private:
         const LocalInitData& _initData;

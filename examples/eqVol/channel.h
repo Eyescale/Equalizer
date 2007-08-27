@@ -22,6 +22,7 @@ namespace eqVol
     class Channel : public eq::Channel
     {
     public:
+		Channel() : eq::Channel(), _model(NULL) {}
 		bool _perspective; // perspective/ortogonal projection
 
     protected:
@@ -64,13 +65,14 @@ namespace eqVol
 
 		Image _curFrameImage; //!< buffer for readback in case of DB compositing
 
+        Model*   _model;	//!< equal to RawVolume Model
 		
-		GLuint _tex1D;
 		GLuint _tex3D;
 		GLuint _preintName;
 		GLuint _vertexID;
-		int _slices;
-		int _angle;
+		int    _angle;
+		
+		uint32_t _prvNumberOfSlices;
     };
 }
 

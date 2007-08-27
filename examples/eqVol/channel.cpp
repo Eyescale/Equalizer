@@ -29,96 +29,10 @@ namespace eqVol
 
 using namespace eqBase;
 using namespace std;
-using namespace hlpFuncs;
+
+#define COMPOSE_MODE_NEW
 
 	
-GLuint createGxGyGzATexture( const uint8_t *volume, uint32_t w, uint32_t h, uint32_t d, const eq::Range& range )
-{
-	EQINFO << "Precalculating gradients..." << endl;
-	
-    int wh = w*h;
-
-	vector<uint8_t> GxGyGzA;
-	GxGyGzA.resize( wh*d*4 );
-	memset( &GxGyGzA[0], 0, wh*d*4 );
-	
-	uint32_t start = 1;//static_cast<uint32_t>( clip<int32_t>( d*range.start-2, 1, d-1 ) );
-	uint32_t end   = d-1;//static_cast<uint32_t>( clip<int32_t>( d*range.end  +2, 1, d-1 ) );
-	
-	for( uint32_t z=start; z<end; z++ )
-    {
-        int zwh = z*wh;
-
-        const uint8_t *curPz = volume + zwh;
-
-		for( uint32_t y=1; y<h-1; y++ )
-        {
-            int zwh_y = zwh + y*w;
-            const uint8_t * curPy = curPz + y*w ;
-			for( uint32_t x=1; x<w-1; x++ )
-            {
-                const uint8_t * curP = curPy +  x;
-                const uint8_t * prvP = curP  - wh;
-                const uint8_t * nxtP = curP  + wh;
-				int32_t gx = 
-                      nxtP[  1+w ]+ 3*curP[  1+w ]+   prvP[  1+w ]+
-                    3*nxtP[  1   ]+ 6*curP[  1   ]+ 3*prvP[  1   ]+
-                      nxtP[  1-w ]+ 3*curP[  1-w ]+   prvP[  1-w ]-
-				
-                      nxtP[ -1+w ]- 3*curP[ -1+w ]-   prvP[ -1+w ]-
-                    3*nxtP[ -1   ]- 6*curP[ -1   ]- 3*prvP[ -1   ]-
-                      nxtP[ -1-w ]- 3*curP[ -1-w ]-   prvP[ -1-w ];
-				
-				int32_t gy = 
-                      nxtP[  1+w ]+ 3*curP[  1+w ]+   prvP[  1+w ]+
-					3*nxtP[    w ]+ 6*curP[    w ]+ 3*prvP[    w ]+
-					  nxtP[ -1+w ]+ 3*curP[ -1+w ]+   prvP[ -1+w ]-
-					
-				 	  nxtP[  1-w ]- 3*curP[  1-w ]-   prvP[  1-w ]-
-					3*nxtP[   -w ]- 6*curP[   -w ]- 3*prvP[   -w ]-
-                      nxtP[ -1-w ]- 3*curP[ -1-w ]-   prvP[ -1-w ];
-				
-				int32_t gz = 
-                      prvP[  1+w ]+ 3*prvP[  1   ]+   prvP[  1-w ]+
-                    3*prvP[    w ]+ 6*prvP[  0   ]+ 3*prvP[   -w ]+
-					  prvP[ -1+w ]+ 3*prvP[ -1   ]+   prvP[ -1-w ]-
-					
-                      nxtP[  1+w ]- 3*nxtP[  1   ]-   nxtP[  1-w ]-
-					3*nxtP[   +w ]- 6*nxtP[  0   ]- 3*nxtP[   -w ]-
-					  nxtP[ -1+w ]- 3*nxtP[ -1   ]-   nxtP[ -1-w ];
-				
-				
-				int32_t length = sqrt( (gx*gx+gy*gy+gz*gz) )+1;
-				
-				gx = ( gx*255/length + 255 )/2; 
-				gy = ( gy*255/length + 255 )/2;
-				gz = ( gz*255/length + 255 )/2;
-				
-				GxGyGzA[(zwh_y + x)*4   ] = (uint8_t)(gx);
-				GxGyGzA[(zwh_y + x)*4 +1] = (uint8_t)(gy);
-				GxGyGzA[(zwh_y + x)*4 +2] = (uint8_t)(gz);	
-				GxGyGzA[(zwh_y + x)*4 +3] = curP[0];
-			}
-		}
-	}
-	
-	EQINFO << "Done precalculating gradients." << endl;
-	
-	GLuint tex3D;
-    glGenTextures( 1, &tex3D ); 	
-	glBindTexture(GL_TEXTURE_3D, tex3D);
-    
-    glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_WRAP_S    , GL_CLAMP_TO_EDGE );
-    glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_WRAP_T    , GL_CLAMP_TO_EDGE );
-    glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_WRAP_R    , GL_CLAMP_TO_EDGE );
-    glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR        );
-    glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR        );
-
-    glTexImage3D( GL_TEXTURE_3D, 0, GL_RGBA, w, h, d, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)(&GxGyGzA[0]) );
-
-	return tex3D;
-}
-
 void checkError( std::string msg ) 
 {
 	GLenum error = glGetError();
@@ -126,80 +40,6 @@ void checkError( std::string msg )
 		EQERROR << msg << " GL Error: " << gluErrorString(error) << endl;
 }
 
-#define COMPOSE_MODE_NEW
-void createPreintegrationTable( const uint8_t *Table, GLuint &preintName )
-{
-	EQINFO << "Calculating preintegration table..." << endl;
-			
-	double rInt[256]; rInt[0] = 0.;
-	double gInt[256]; gInt[0] = 0.;
-	double bInt[256]; bInt[0] = 0.;
-	double aInt[256]; aInt[0] = 0.;
-	
-	for( int i=1; i<256; i++ )
-	{
-		double tauc = ( Table[(i-1)*4+3] + Table[i*4+3] ) / 2.;
-		
-		rInt[i] = rInt[i-1] + ( Table[(i-1)*4+0] + Table[i*4+0] )/2.*tauc/255.;
-		gInt[i] = gInt[i-1] + ( Table[(i-1)*4+1] + Table[i*4+1] )/2.*tauc/255.;
-		bInt[i] = bInt[i-1] + ( Table[(i-1)*4+2] + Table[i*4+2] )/2.*tauc/255.;
-		aInt[i] = aInt[i-1] + tauc;
-	}
-
-	vector<GLubyte> lookupI;
-	lookupI.resize(256*256*4);	
-	GLubyte* lookupImg = &lookupI[0];	// Preint Texture	
-	int lookupindex=0;
-
-	for( int sb=0; sb<256; sb++ )
-	{
-		for( int sf=0; sf<256; sf++ )
-		{
-			int smin, smax;
-			if( sb<sf ) { smin=sb; smax=sf; }
-			else        { smin=sf; smax=sb; }
-			
-			int rcol, gcol, bcol, acol;
-			if( smax != smin )
-			{
-				double factor = 1. / (double)(smax-smin);
-				rcol = (rInt[smax]-rInt[smin])*factor;
-				gcol = (gInt[smax]-gInt[smin])*factor;
-				bcol = (bInt[smax]-bInt[smin])*factor;
-#ifdef COMPOSE_MODE_NEW
-				acol = 256.*(exp(-(aInt[smax]-aInt[smin])*factor/255.));
-#else
-				acol = 256.*(1.0-exp(-(aInt[smax]-aInt[smin])*factor/255.));
-#endif
-			} else
-			{
-				double factor = 1./255.;
-				rcol = Table[smin*4+0]*Table[smin*4+3]*factor;
-				gcol = Table[smin*4+1]*Table[smin*4+3]*factor;
-				bcol = Table[smin*4+2]*Table[smin*4+3]*factor;
-#ifdef COMPOSE_MODE_NEW
-				acol = 256.*(exp(-Table[smin*4+3]*1./255.));
-#else
-				acol = 256.*(1.0-exp(-Table[smin*4+3]*1./255.));
-#endif
-			}
-			
-			lookupImg[lookupindex++] = clip( rcol, 0, 255 );//min( rcol, 255 );	
-			lookupImg[lookupindex++] = clip( gcol, 0, 255 );//min( gcol, 255 );
-			lookupImg[lookupindex++] = clip( bcol, 0, 255 );//min( bcol, 255 );
-			lookupImg[lookupindex++] = clip( acol, 0, 255 );//min( acol, 255 );
-		}
-	}
-	
-	
-	glGenTextures( 1, &preintName );
-	glBindTexture( GL_TEXTURE_2D, preintName );
-	glTexImage2D(  GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, lookupImg );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR        );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR        );
-}
 
 struct quad 
 {
@@ -249,26 +89,15 @@ bool Channel::configInit( const uint32_t initID )
 //chose projection type
 	_perspective = true;
 	
-// Init model-dependent stuff
-    Node*            node  = (Node*)getNode();
-    const Model*     model = node->getModel();
-	
-	EQASSERT( model );
-	
-	//setup the 3D textures
-	glGenTextures( 1, &_tex3D );
-	glGenTextures( 1, &_tex1D );
+	if( _model )
+		delete _model;
+		
+    Node* node  = (Node*)getNode();
+	_model = new Model( node->getInitData().getDataFilename() );
 
-	_tex3D = 0;
-  
-	_slices = model->GetWidth() *2;
-	createVertexArray( _slices, _vertexID );
 
-	createPreintegrationTable( model->GetTransferFunc(), _preintName );
-    
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
-
 	
 #ifndef DYNAMIC_NEAR_FAR
     setNearFar( 0.0001f, 10.0f );
@@ -336,15 +165,16 @@ void Channel::frameDraw( const uint32_t frameID )
 	_curFrData.needInverse = frameData.data.rotation.ml[10] < 0; //check if z coordinate of vector (0,0,1) after rotation is < 0
 	_curFrData.lastRange   = getRange();						 //save range for compositing
 
-    Node*            node  = (Node*)getNode();
-    const Model*     model = node->getModel();
-
-	if( _tex3D==0 )
-		_tex3D = createGxGyGzATexture( model->GetData(), model->GetWidth(), model->GetHeight(), model->GetDepth(), _curFrData.lastRange );
-
-   	if( model )
+   	if( _model )
     {
-		int numberOfSlices = _slices;
+		_model->createTextures( _tex3D, _preintName, _curFrData.lastRange ); 
+
+		uint32_t numberOfSlices = _model->getResolution() * 4;
+		if( _prvNumberOfSlices != numberOfSlices )
+		{
+			createVertexArray( numberOfSlices, _vertexID );
+			_prvNumberOfSlices = numberOfSlices;
+		}
 
 		GLfloat lightAmbient[]  = {0.2f, 0.2f, 0.2f, 1.0f};
 		GLfloat lightDiffuse[]  = {0.8f, 0.8f, 0.8f, 1.0f};
@@ -359,7 +189,7 @@ void Channel::frameDraw( const uint32_t frameID )
 		//set light parameters
 		glLightfv( GL_LIGHT0, GL_AMBIENT,  lightAmbient  );
 		glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDiffuse  );
-//		glLightfv( GL_LIGHT0, GL_SPECULAR, lightSpecular );
+		glLightfv( GL_LIGHT0, GL_SPECULAR, lightSpecular );
 		glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
 
 #ifdef TEXTURE_ROTATION 
@@ -554,6 +384,14 @@ void Channel::frameDraw( const uint32_t frameID )
 
 #ifdef CG_SHADERS
 		cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "dPlaneStart" ), dStartDist ); 
+
+ 		cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "W"  ), _model->_TD.W  ); 
+		cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "H"  ), _model->_TD.H  ); 
+		cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "D"  ), _model->_TD.D  ); 
+		cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "Do" ), _model->_TD.Do ); 
+		cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "Db" ), _model->_TD.Db ); 
+		
+		
 #else
 		glUniform1fARB( glGetUniformLocationARB(  shader, "dPlaneStart" ), dStartDist );
 #endif
@@ -597,22 +435,23 @@ void Channel::frameDraw( const uint32_t frameID )
 #endif
 
 #ifndef TEXTURE_ROTATION 
+		cgGLSetParameter1f(  cgGetNamedParameter( m_fProg, "lines" ), 0.0f );
 		for( int s = 0; s < nNumSlices; ++s )
 		{
-		cgGLSetParameter1f(  cgGetNamedParameter( m_fProg, "lines" ), 0.0f );
+//            int s = nNumSlices/2;
 			glBegin( GL_POLYGON );
 			for( int i = 0; i < 6; ++i )
 				glVertex2i( i, nNumSlices-1-s );
 			glEnd();
 
-			cgGLSetParameter1f(  cgGetNamedParameter( m_fProg, "lines" ), 1.0f );
+/*			cgGLSetParameter1f(  cgGetNamedParameter( m_fProg, "lines" ), 1.0f );
 
 			glBegin( GL_LINE_LOOP );
 			for( int i = 0; i < 6; ++i )
 				glVertex2i( i, nNumSlices-1-s );
 		
 			glEnd();
-				
+*/				
 		}
 #else		
 		// Draw slices from vertex array

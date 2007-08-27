@@ -17,22 +17,11 @@ bool Node::configInit( const uint32_t initID )
     const bool  mapped = config->mapObject( &_initData, initID );
     EQASSERT( mapped );
 
-    const string& dataFilename = _initData.getDataFilename();
-    const string& infoFilename = _initData.getInfoFilename();
-    EQINFO << "Loading model " << dataFilename << " (" << infoFilename << ") " << endl;
-
-    _model = RawVolumeModel::read( dataFilename, infoFilename );
-    if( !_model)
-        EQWARN << "Can't load model: " << dataFilename << " (" << infoFilename << ") " << endl;
-
     return eq::Node::configInit( initID );
 }
 
 bool Node::configExit()
 {
-    if( _model )
-        delete _model;
-    _model = NULL;
 
     eq::Config* config = getConfig();
     config->unmapObject( &_initData );
