@@ -21,10 +21,7 @@ namespace eqVol
         Application( const LocalInitData& initData );
         virtual ~Application() {}
 
-        /** @sa eqNet::Node::initLocal() */
-        virtual bool initLocal( int argc, char** argv );
-        
-        /** Run an eqVol instance. */
+        /** Run an eqPly instance. */
         int run();
         
     protected:

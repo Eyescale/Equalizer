@@ -103,7 +103,7 @@ $(OBJECT_DIR)/%.h.gch: %.h
 	@mkdir -p $(@D)
 	$(CXX) -x c++-header $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
 
-$(OBJECT_DIR)/%.o: %.cpp
+$(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o: %.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MD -MF $@.d -c $< -o $@
 

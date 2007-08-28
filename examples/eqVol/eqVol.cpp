@@ -46,7 +46,7 @@ int Application::run()
     config->setInitData( _initData );
     if( !config->init( ))
     {
-        EQERROR << "Config initialisation failed: " 
+        EQERROR << "Config initialization failed: " 
                 << config->getErrorMessage() << endl;
         server->releaseConfig( config );
         disconnectServer( server );
@@ -90,13 +90,13 @@ bool Application::clientLoop()
     if( !_initData.isResident( )) // execute only one config run
         return eq::Client::clientLoop();
 
-    // else execute client loops 'forever'    while( true ) // TODO: implement SIGHUP handler to exit?
+    // else execute client loops 'forever'
+    while( true ) // TODO: implement SIGHUP handler to exit?
     {
         if( !eq::Client::clientLoop( ))
             return false;
         EQINFO << "One configuration run successfully executed" << endl;
     }
-
     return true;
 }
 }

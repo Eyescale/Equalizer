@@ -16,7 +16,8 @@ SOURCES = \
 	shader.cpp\
 	tracker.cpp \
 	rawVolModel.cpp \
-	window.cpp 
+	window.cpp \
+	../common/gloo/cg_program.cpp
 
 CXXFLAGS    += -I../include $(WINDOW_SYSTEM_INCS)
 SA_LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)

@@ -72,12 +72,13 @@ SHARE_DIR       = $(BUILD_DIR)/share
 
 # source code variables
 CXXFILES        = $(wildcard *.cpp)
-OBJECT_DIR      = obj/$(ARCH)/$(VARIANT)
+OBJECT_DIR      = $(TOP)/obj/$(SUBDIR)
+OBJECT_SUFFIX   = $(ARCH).$(VARIANT)
 
 ifndef VARIANT
   OBJECTS       = build_variants
 else
-  OBJECTS       = $(SOURCES:%.cpp=$(OBJECT_DIR)/%.o)
+  OBJECTS       = $(SOURCES:%.cpp=$(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o)
   DEPENDENCIES  = $(OBJECTS:%=%.d) $(THIN_SIMPLE_PROGRAMS:%=%.d)
 #  PCHEADERS     = $(HEADER_SRC:%=$(OBJECT_DIR)/%.gch)
 endif

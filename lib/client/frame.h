@@ -54,7 +54,7 @@ namespace eq
         //*{
         const vmml::Vector2i& getOffset() const { return _data.offset; }
         
-        /** The database-range relativ to the destination channel. */
+        /** @return the database-range relativ to the destination channel. */
         const Range& getRange() const;
 
         /** The images of this frame data holder */
@@ -130,7 +130,7 @@ namespace eq
          * 
          * @param buffer the buffer to disable.
          */
-        void disableBuffer( const Frame::Buffer buffer );
+        void disableBuffer( const Buffer buffer );
         
     protected:
         virtual bool isStatic() const { return false; }

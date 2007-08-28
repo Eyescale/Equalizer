@@ -73,6 +73,11 @@ void Frame::waitReady() const
     _getData()->waitReady();
 }
 
+void Frame::disableBuffer( const Buffer buffer )
+{
+    _getData()->disableBuffer( buffer );
+}
+
 
 void Frame::addListener( eqBase::Monitor<uint32_t>& listener )
 {
