@@ -124,7 +124,14 @@ namespace eq
 
         /** Set by the channel */
         void setEyePass( const Eye eyePass ) { _eyePass = eyePass; }
-
+        
+        /** 
+         * Disable the usage of a frame buffer attachment for all images.
+         * 
+         * @param buffer the buffer to disable.
+         */
+        void disableBuffer( const Frame::Buffer buffer );
+        
     protected:
         virtual bool isStatic() const { return false; }
 

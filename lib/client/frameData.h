@@ -109,6 +109,14 @@ namespace eq
          * @param listener the listener.
          */
         void removeListener( eqBase::Monitor<uint32_t>& listener );
+        
+        /** 
+         * Disable the usage of a frame buffer attachment for all images.
+         * 
+         * @param buffer the buffer to disable.
+         */
+        void disableBuffer( const Frame::Buffer buffer )
+            { _data.buffers &= ~buffer; }
         //*}
 
     protected:

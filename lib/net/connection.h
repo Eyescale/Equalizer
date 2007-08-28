@@ -20,8 +20,6 @@
 
 #ifdef WIN32_VC
 #  include <malloc.h>     // for alloca()
-#else
-#  include <sys/param.h>  // for MAX()
 #endif
 
 #ifdef WIN32

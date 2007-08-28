@@ -113,6 +113,51 @@ namespace eq
             { 
                 return ( x!=rhs.x || y!=rhs.y || w!=rhs.w || h!=rhs.h );
             }
+        
+		/** create a pixel viewport that includes both viewports */
+        PixelViewport operator += ( const PixelViewport& rhs )
+            {
+                if( *this == rhs )
+                    return *this;
+                if( !rhs.hasArea() )
+                    return *this;
+                if( !hasArea() )
+                    return rhs;
+
+                int32_t sEx =     x +     w;
+                int32_t sEy =     y +     h;
+                int32_t dEx = rhs.x + rhs.w;
+                int32_t dEy = rhs.y + rhs.h;
+                
+                x = MIN( x, rhs.x );
+                y = MIN( y, rhs.y );
+                w = MAX( sEx, dEx ) - x;
+                h = MAX( sEy, dEy ) - y;
+
+                return *this;
+            }
+        
+		/** create the intersection pixel viewport  */
+        PixelViewport operator ^= ( const PixelViewport& rhs )
+            {
+                if( *this == rhs )
+                    return *this;
+                if( !rhs.hasArea() || !hasArea() )
+                    return PixelViewport();
+                
+                int32_t sEx =     x +     w;
+                int32_t sEy =     y +     h;
+                int32_t dEx = rhs.x + rhs.w;
+                int32_t dEy = rhs.y + rhs.h;
+                    
+                x = MAX( x, rhs.x );
+                y = MAX( y, rhs.y );
+                w = MIN( sEx, dEx ) - x;
+                h = MIN( sEy, dEy ) - y;
+                    
+                return *this;
+            }
+
         //*}
 
         int32_t x;

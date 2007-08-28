@@ -45,6 +45,7 @@
 #include <sys/types.h>
 #ifndef WIN32_VC
 #  include <stdint.h>
+#  include <sys/param.h>  // for MIN/MAX
 #endif
 
 // type definitions

@@ -32,7 +32,12 @@ namespace eq
                 start += rhs.start * w;
                 return *this;
             }
-
+        
+        bool operator == ( const Range& rhs ) const
+        {
+            return start==rhs.start && end==rhs.end;
+        }
+        
         void invalidate() { start=0.f; end=0.f; }
 
         bool isValid() const 
