@@ -12,7 +12,7 @@
 #define CG_SHADERS
 
 #ifdef CG_SHADERS
-#include <eq/gloo/cg_program.h>
+#include <gloo/cg_program.hpp>
 #else
 #include "shader.h"
 #endif
