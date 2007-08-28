@@ -469,8 +469,8 @@ void Channel::frameDraw( const uint32_t frameID )
 
 		//Disable shader
 #ifdef CG_SHADERS
-		shaders.cgVertex->turnOff();
-		shaders.cgFragment->turnOff();
+		shaders.cgVertex->unbind_and_disable();
+		shaders.cgFragment->unbind_and_disable();
 #else
 		glUseProgramObjectARB( NULL );
 #endif
