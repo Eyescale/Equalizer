@@ -5,6 +5,7 @@ PROGRAM = eqVol
 
 SOURCES = \
 	localInitData.cpp \
+	rawConverter.cpp \
 	channel.cpp \
 	config.cpp \
 	eqVol.cpp \

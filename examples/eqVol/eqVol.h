@@ -28,8 +28,8 @@ namespace eqVol
         int run();
         
     protected:
-        int runMainloop();
-        int runClient();
+        /** @sa eq::Client::clientLoop. */
+        virtual bool clientLoop();
         
     private:
         const LocalInitData& _initData;

@@ -649,7 +649,7 @@ void Channel::frameAssemble( const uint32_t frameID )
 				if( !curRange.isFull() ) // Add only DB related slices, screen decomposition should be composed as is
 				{
 					ranges.push_back( curRange );
-					IntersectViewports( curPVP, unusedFrames[k]->getPixelViewports() ); 
+/////					IntersectViewports( curPVP, unusedFrames[k]->getPixelViewports() ); 
 				}
 			}
 			
@@ -691,7 +691,7 @@ void Channel::frameAssemble( const uint32_t frameID )
 					
 					if( curRange.isFull() ) //2D screen element, asseble as is
 					{
-						_clearPixelViewPorts( frame->getPixelViewports() );
+//////						_clearPixelViewPorts( frame->getPixelViewports() );
 	            		frame->startAssemble();
 						unusedFrames.erase( i );
 						foundMatchedFrame = true;

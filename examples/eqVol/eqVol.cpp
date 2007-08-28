@@ -19,38 +19,7 @@ Application::Application( const LocalInitData& initData )
         : _initData( initData )
 {}
 
-bool Application::initLocal( int argc, char** argv )
-{
-    if( _initData.isApplication( ))
-        return eqNet::Node::initLocal( argc, argv );
-
-    // else set up fixed client listener
-    EQASSERT( getState() == eqNet::Node::STATE_STOPPED );
-    EQASSERT( nConnectionDescriptions() == 0 );
-
-    RefPtr<eqNet::ConnectionDescription> desc =new eqNet::ConnectionDescription;
-
-    desc->type       = eqNet::CONNECTIONTYPE_TCPIP;
-    desc->TCPIP.port = _initData.getClientPort();
-    addConnectionDescription( desc );
-
-    if( !listen( ))
-    {
-        EQERROR << "Can't setup listener" << endl; 
-        return false;
-    }
-    return true;
-}
-
 int Application::run()
-{
-    if( _initData.isApplication( ))
-        return runMainloop();
-
-    return runClient();
-}
-
-int Application::runMainloop()
 {
     // 1. connect to server
     RefPtr<eq::Server> server = new eq::Server;
@@ -116,14 +85,18 @@ int Application::runMainloop()
     return EXIT_SUCCESS;
 }
 
-int Application::runClient()
+bool Application::clientLoop()
 {
-    // run client loop
-    while( true ) // TODO: implement SIGHUP handler to exit?
+    if( !_initData.isResident( )) // execute only one config run
+        return eq::Client::clientLoop();
+
+    // else execute client loops 'forever'    while( true ) // TODO: implement SIGHUP handler to exit?
     {
-        clientLoop();
+        if( !eq::Client::clientLoop( ))
+            return false;
+        EQINFO << "One configuration run successfully executed" << endl;
     }
 
-    return EXIT_SUCCESS;
+    return true;
 }
 }
