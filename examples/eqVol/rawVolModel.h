@@ -52,9 +52,9 @@ struct DataInTextureDimensions
 */
 struct VolumeScales
 {
-	float wScale;
-	float hScale;
-	float dScale;
+	float W;
+	float H;
+	float D;
 };
 
 /** Load model to texture */
@@ -77,8 +77,8 @@ public:
 	      uint32_t getResolution() const { return _resolution; };
 
 //Data	
-	DataInTextureDimensions _TD;        //!< Data dimensions within volume texture 
-	VolumeScales			_VolScales; //!< Proportions of volume
+	DataInTextureDimensions TD;        //!< Data dimensions within volume texture 
+	VolumeScales			volScales; //!< Proportions of volume
 	
 private:
 	bool lSuccess() { return _lastSuccess=true;  }

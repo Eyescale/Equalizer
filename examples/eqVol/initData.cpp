@@ -19,8 +19,8 @@ namespace eqVol
 {
 
 InitData::InitData()
-: _dataFilename( "Bucky32x32x32.raw" )
-,_windowSystem( eq::WINDOW_SYSTEM_NONE )
+:_windowSystem( eq::WINDOW_SYSTEM_NONE )
+,_dataFilename( "Bucky32x32x32.raw" )
 ,_instanceData( 0 )
 {}
 

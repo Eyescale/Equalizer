@@ -86,8 +86,13 @@ void createPreintegrationTable( const uint8_t *Table, GLuint &preintName )
 
 uint32_t getMinPow2( uint32_t size )
 {
-	uint32_t res=1;
-    size--;
+	uint32_t res=0;
+	
+	if( size > 0)
+	{
+        size--;
+        res = 1;
+    }
     
 	while( size > 0 )
 	{
@@ -95,6 +100,26 @@ uint32_t getMinPow2( uint32_t size )
 		size >>= 1;
 	}
 	return res;
+}
+
+/** Volume always represented as cube [-1,-1,-1]..[1,1,1], so if the model 
+    is not cube it's proportions should be modified.
+*/
+void correctScales( uint32_t w, uint32_t h, uint32_t d, VolumeScales &scales )
+{
+//Correct proportions according to real size of volume
+    float maxS = MAX( w, MAX( h, d ) );
+
+    scales.W *= w / maxS;
+    scales.H *= h / maxS;
+    scales.D *= d / maxS;
+    
+//Make maximum proportion equal to 1.0 to prevent unnecessary rescaling
+    maxS = MAX( scales.W, MAX( scales.H, scales.D ) );
+
+    scales.W /= maxS;
+    scales.H /= maxS;
+    scales.D /= maxS;
 }
 
 bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range )
@@ -120,14 +145,15 @@ bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range
 		fscanf( file, "h=%u\n", &h );
 		fscanf( file, "d=%u\n", &d );
 
-		fscanf( file, "wScale=%g\n", &_VolScales.wScale );
-		fscanf( file, "hScale=%g\n", &_VolScales.hScale );
-		fscanf( file, "dScale=%g\n", &_VolScales.dScale );
+		fscanf( file, "wScale=%g\n", &volScales.W );
+		fscanf( file, "hScale=%g\n", &volScales.H );
+		fscanf( file, "dScale=%g\n", &volScales.D );
+	
+        EQERROR << endl;
+        correctScales( w, h, d, volScales );
 	
         EQWARN << " " << w << "x" << h << "x" << d << endl;
-        EQWARN << "width  scale = " << _VolScales.wScale << endl;
-        EQWARN << "height scale = " << _VolScales.hScale << endl;
-        EQWARN << "depth  scale = " << _VolScales.dScale << endl;
+        EQWARN << "Scales: " << volScales.W << " x " << volScales.H << " x " << volScales.D << endl;
 
 		if( fscanf(file,"TF:\n") !=0 ) return lFailed( "Error in header file" );
 	
@@ -174,14 +200,14 @@ bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range
 	_resolution = max( w, max( h, d ) );
     EQWARN << "r: " << _resolution << endl;
 	
-	_TD.W  =   (float)w / (float)tW;
-	_TD.H  =   (float)h / (float)tH;
-	_TD.D  = ( (float)(e-s+1) / (float)tD ) / ( range.end>range.start ? (range.end-range.start) : 1.0 );
+	TD.W  =   (float)w / (float)tW;
+	TD.H  =   (float)h / (float)tH;
+	TD.D  = ( (float)(e-s+1) / (float)tD ) / ( range.end>range.start ? (range.end-range.start) : 1.0 );
 	
-	_TD.Do = range.start;
-	_TD.Db = range.start > 0.0001 ? 1.0 / static_cast<float>(tD) : 0; // left  border in texture for depth
+	TD.Do = range.start;
+	TD.Db = range.start > 0.0001 ? 1.0 / static_cast<float>(tD) : 0; // left  border in texture for depth
 
-    EQWARN << "ws: " << _TD.W << " hs: " << _TD.H  << " wd: " << _TD.D << " Do: " << _TD.Do  << " Db: " << _TD.Db << endl << " s=" << start << " e=" << end << endl;
+    EQWARN << "ws: " << TD.W << " hs: " << TD.H  << " wd: " << TD.D << " Do: " << TD.Do  << " Db: " << TD.Db << endl << " s=" << start << " e=" << end << endl;
 
 	{
 		ifstream file ( _fileName.c_str(), ifstream::in | ifstream::binary | ifstream::ate );
@@ -224,349 +250,5 @@ bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range
 	
 	return lSuccess();
 }
-
-
-/*	
-
-GLuint createGxGyGzATexture( const uint8_t *volume, uint32_t w, uint32_t h, uint32_t d, const eq::Range& range )
-{
-	EQINFO << "Precalculating gradients..." << endl;
-	
-    int wh = w*h;
-
-	vector<uint8_t> GxGyGzA;
-	GxGyGzA.resize( wh*d*4 );
-	memset( &GxGyGzA[0], 0, wh*d*4 );
-	
-	uint32_t start = static_cast<uint32_t>( clip<int32_t>( d*range.start-1, 1, d-1 ) );
-	uint32_t end   = static_cast<uint32_t>( clip<int32_t>( d*range.end  +2, 1, d-1 ) );
-	
-	for( uint32_t z=start; z<end; z++ )
-    {
-        int zwh = z*wh;
-
-        const uint8_t *curPz = volume + zwh;
-
-		for( uint32_t y=1; y<h-1; y++ )
-        {
-            int zwh_y = zwh + y*w;
-            const uint8_t * curPy = curPz + y*w ;
-			for( uint32_t x=1; x<w-1; x++ )
-            {
-                const uint8_t * curP = curPy +  x;
-                const uint8_t * prvP = curP  - wh;
-                const uint8_t * nxtP = curP  + wh;
-				int32_t gx = 
-                      nxtP[  1+w ]+ 3*curP[  1+w ]+   prvP[  1+w ]+
-                    3*nxtP[  1   ]+ 6*curP[  1   ]+ 3*prvP[  1   ]+
-                      nxtP[  1-w ]+ 3*curP[  1-w ]+   prvP[  1-w ]-
-				
-                      nxtP[ -1+w ]- 3*curP[ -1+w ]-   prvP[ -1+w ]-
-                    3*nxtP[ -1   ]- 6*curP[ -1   ]- 3*prvP[ -1   ]-
-                      nxtP[ -1-w ]- 3*curP[ -1-w ]-   prvP[ -1-w ];
-				
-				int32_t gy = 
-                      nxtP[  1+w ]+ 3*curP[  1+w ]+   prvP[  1+w ]+
-					3*nxtP[    w ]+ 6*curP[    w ]+ 3*prvP[    w ]+
-					  nxtP[ -1+w ]+ 3*curP[ -1+w ]+   prvP[ -1+w ]-
-					
-				 	  nxtP[  1-w ]- 3*curP[  1-w ]-   prvP[  1-w ]-
-					3*nxtP[   -w ]- 6*curP[   -w ]- 3*prvP[   -w ]-
-                      nxtP[ -1-w ]- 3*curP[ -1-w ]-   prvP[ -1-w ];
-				
-				int32_t gz = 
-                      prvP[  1+w ]+ 3*prvP[  1   ]+   prvP[  1-w ]+
-                    3*prvP[    w ]+ 6*prvP[  0   ]+ 3*prvP[   -w ]+
-					  prvP[ -1+w ]+ 3*prvP[ -1   ]+   prvP[ -1-w ]-
-					
-                      nxtP[  1+w ]- 3*nxtP[  1   ]-   nxtP[  1-w ]-
-					3*nxtP[   +w ]- 6*nxtP[  0   ]- 3*nxtP[   -w ]-
-					  nxtP[ -1+w ]- 3*nxtP[ -1   ]-   nxtP[ -1-w ];
-				
-				
-				int32_t length = sqrt( (gx*gx+gy*gy+gz*gz) )+1;
-				
-				gx = ( gx*255/length + 255 )/2; 
-				gy = ( gy*255/length + 255 )/2;
-				gz = ( gz*255/length + 255 )/2;
-				
-				GxGyGzA[(zwh_y + x)*4   ] = (uint8_t)(gx);
-				GxGyGzA[(zwh_y + x)*4 +1] = (uint8_t)(gy);
-				GxGyGzA[(zwh_y + x)*4 +2] = (uint8_t)(gz);	
-				GxGyGzA[(zwh_y + x)*4 +3] = curP[0];
-			}
-		}
-	}
-	
-	EQINFO << "Done precalculating gradients." << endl;
-	
-	GLuint tex3D;
-    glGenTextures( 1, &tex3D ); 	
-	glBindTexture(GL_TEXTURE_3D, tex3D);
-    
-    glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_WRAP_S    , GL_CLAMP_TO_EDGE );
-    glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_WRAP_T    , GL_CLAMP_TO_EDGE );
-    glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_WRAP_R    , GL_CLAMP_TO_EDGE );
-    glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR        );
-    glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR        );
-
-    glTexImage3D( GL_TEXTURE_3D, 0, GL_RGBA, w, h, d, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)(&GxGyGzA[0]) );
-
-	return tex3D;
-}
-	
-RawVolumeModel::RawVolumeModel()
-:_width( 0 )
-,_height(0 )
-,_depth( 0 )
-{
-	_bbox.range[0] = 0;
-	_bbox.range[1] = 0;
-}
-
-RawVolumeModel::RawVolumeModel( const string& filename, uint32_t w, uint32_t h, uint32_t d )
-:_width( w )
-,_height(h )
-,_depth( d )
-{
-	_bbox.range[0] = 0;
-	_bbox.range[1] = 0;
-	
-	_bbox.userData.resize( w*h*d );
-	
-	_bbox.transferFunc.resize( 4*256 );
-
-	EQWARN << "Raw model: " << filename << " " << w << " x " << h << " x " << d << endl;
-	
-	ifstream file ( filename.c_str(), ifstream::in | ifstream::binary | ifstream::ate );
-    
-	if( !file.is_open() )
-		return;
-
-	ifstream::pos_type size;	
-	
-	size = min( (int)file.tellg(), (int)_bbox.userData.size() );
-	
-	file.seekg( 0, ios::beg );
-	file.read( (char*)( &_bbox.userData[0] ), size );	
-	
-	file.close();		
-}
-
-
-RawVolumeModel::~RawVolumeModel()
-{
-}
-
-void CreateTransferFunc( int t, uint8_t *transfer )
-{
-	memset( transfer, 0, 256*4 );
-
-	int i;
-	switch(t)
-	{
-		case 0: 
-//spheres	
-		EQWARN << "transfer: spheres" << endl;
-			for (i=40; i<255; i++) {
-				transfer[(i*4)]   = 115;
-				transfer[(i*4)+1] = 186;
-				transfer[(i*4)+2] = 108;
-				transfer[(i*4)+3] = 255;
-			}
-			break;
-	
-		case 1:
-// fuel	
-			EQWARN << "transfer: fuel" << endl;
-			for (i=0; i<65; i++) {
-				transfer[(i*4)] = 255;
-				transfer[(i*4)+1] = 255;
-				transfer[(i*4)+2] = 255;
-			}
-			for (i=65; i<193; i++) {
-				transfer[(i*4)]  =  0;
-				transfer[(i*4)+1] = 160;
-				transfer[(i*4)+2] = transfer[(192-i)*4];
-			}
-			for (i=193; i<255; i++) {
-				transfer[(i*4)]  =  0;
-				transfer[(i*4)+1] = 0;
-				transfer[(i*4)+2] = 255;
-			}
-	
-			for (i=2; i<80; i++) {
-				transfer[(i*4)+3] = (unsigned char)((i-2)*56/(80-2));
-			}	
-			for (i=80; i<255; i++) {
-				transfer[(i*4)+3] = 128;
-			}
-			for (i=200; i<255; i++) {
-				transfer[(i*4)+3] = 255;
-			}
-			break;
-			
-		case 2: 
-//neghip	
-		EQWARN << "transfer: neghip" << endl;
-			for (i=0; i<65; i++) {
-				transfer[(i*4)] = 255;
-				transfer[(i*4)+1] = 0;
-				transfer[(i*4)+2] = 0;
-			}
-			for (i=65; i<193; i++) {
-				transfer[(i*4)]  =  0;
-				transfer[(i*4)+1] = 160;
-				transfer[(i*4)+2] = transfer[(192-i)*4];
-			}
-			for (i=193; i<255; i++) {
-				transfer[(i*4)]  =  0;
-				transfer[(i*4)+1] = 0;
-				transfer[(i*4)+2] = 255;
-			}
-	
-			for (i=2; i<80; i++) {
-				transfer[(i*4)+3] = (unsigned char)((i-2)*36/(80-2));
-			}	
-			for (i=80; i<255; i++) {
-				transfer[(i*4)+3] = 128;
-			}
-			break;
-	
-		case 3: 
-//bucky
-		EQWARN << "transfer: bucky" << endl;
-			
-			for (i=20; i<99; i++) {
-				transfer[(i*4)]  =  200;
-				transfer[(i*4)+1] = 200;
-				transfer[(i*4)+2] = 200;
-			}
-			for (i=20; i<49; i++) {
-				transfer[(i*4)+3] = 10;
-			}
-			for (i=50; i<99; i++) {
-				transfer[(i*4)+3] = 20;
-			}
-	
-			for (i=100; i<255; i++) {
-				transfer[(i*4)]  =  93;
-				transfer[(i*4)+1] = 163;
-				transfer[(i*4)+2] = 80;
-			}
-
-			for (i=100; i<255; i++) {
-				transfer[(i*4)+3] = 255;
-			}
-			break;
-	
-		case 4: 
-//hydrogen	
-		EQWARN << "transfer: hydrogen" << endl;
-			for (i=4; i<20; i++) {
-				transfer[(i*4)] = 137;
-				transfer[(i*4)+1] = 187;
-				transfer[(i*4)+2] = 188;
-				transfer[(i*4)+3] = 5;
-			}
-
-			for (i=20; i<255; i++) {
-				transfer[(i*4)]  =  115;
-				transfer[(i*4)+1] = 186;
-				transfer[(i*4)+2] = 108;
-				transfer[(i*4)+3] = 250;
-			}
-			break;
-	
-		case 5: 
-//engine	
-		EQWARN << "transfer: engine" << endl;
-			for (i=100; i<200; i++) {
-				transfer[(i*4)] = 	44;
-				transfer[(i*4)+1] = 44;
-				transfer[(i*4)+2] = 44;
-			}
-			for (i=200; i<255; i++) {
-				transfer[(i*4)]  =  173;
-				transfer[(i*4)+1] = 22;
-				transfer[(i*4)+2] = 22;
-			}
-			// opacity
-
-			for (i=100; i<200; i++) {
-				transfer[(i*4)+3] = 8;
-			}
-			for (i=200; i<255; i++) {
-				transfer[(i*4)+3] = 255;
-			}
-			break;
-	
-		case 6: 
-//skull
-		EQWARN << "transfer: skull" << endl;
-			for (i=40; i<255; i++) {
-				transfer[(i*4)]  =  128;
-				transfer[(i*4)+1] = 128;
-				transfer[(i*4)+2] = 128;
-				transfer[(i*4)+3] = 128;
-			}
-			break;
-	
-		case 7: 
-//vertebra
-		EQWARN << "transfer: vertebra" << endl;
-			for (i=40; i<255; i++) {
-		        int k = i*2;
-		        if (k > 255) k = 255;
-				transfer[(i*4)]  =  k;
-				transfer[(i*4)+1] = k;
-				transfer[(i*4)+2] = k;
-				transfer[(i*4)+3] = k;
-			}	
-			break;
-	}
-}
-
-RawVolumeModel* RawVolumeModel::read( const string& data, const string& info )
-{
-	uint32_t w=0;
-	uint32_t h=0;
-	uint32_t d=0;
-	uint32_t t=0;
-
-	if( data.find( "spheres128x128x128"	, 0 ) != string::npos )
-		t=0, w=h=d=128;
-	
-	if( data.find( "fuel"				, 0 ) != string::npos )
-		t=1, w=h=d=64;
-		
-	if( data.find( "neghip"				, 0 ) != string::npos )
-		t=2, w=h=d=64;
-		
-	if( data.find( "Bucky32x32x32"		, 0 ) != string::npos )
-		t=3, w=h=d=32;
-		
-	if( data.find( "hydrogen"			, 0 ) != string::npos )
-		t=4, w=h=d=128;
-		
-	if( data.find( "Engine256x256x256"	, 0 ) != string::npos )
-		t=5, w=h=d=256;
-		
-	if( data.find( "skull"				, 0 ) != string::npos )
-		t=6, w=h=d=256;
-		
-	if( data.find( "vertebra8"			, 0 ) != string::npos )
-		t=7, w=h=512, d=256;
-	
-	if( w!=0 )
-	{
-		RawVolumeModel *model = new RawVolumeModel( data, w, h, d );
-		CreateTransferFunc( t, &model->_bbox.transferFunc[0] );
-		return model;
-	}	
-
-	return NULL;	
-}
-*/
 
 }

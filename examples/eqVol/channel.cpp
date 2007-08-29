@@ -32,6 +32,14 @@ using namespace std;
 
 #define COMPOSE_MODE_NEW
 
+
+Channel::Channel()
+: eq::Channel()
+, _model(NULL)
+,_vertexID(0)
+{
+}
+
 	
 void checkError( std::string msg ) 
 {
@@ -138,10 +146,40 @@ void Channel::frameClear( const uint32_t frameID )
 }
 
 
+void createHexagonsList( int num, GLuint &listId )
+{
+    if( listId != 0 )
+        glDeleteLists( listId, 1 );
+     
+    listId = glGenLists(1);
+    
+    glNewList( listId, GL_COMPILE );    
+    
+	for( int s = 0; s < num; ++s )
+	{
+		glBegin( GL_POLYGON );
+		for( int i = 0; i < 6; ++i )
+			glVertex2i( i, num-1-s );
+		glEnd();
+	}
+
+    glEndList();
+}
+
 //#define TEXTURE_ROTATION
 
 void Channel::frameDraw( const uint32_t frameID )
 {
+    const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
+    const FrameData& frameData = pipe->getFrameData();
+
+	_curFrData.needInverse = frameData.data.rotation.ml[10] < 0; //check if z coordinate of vector (0,0,1) after rotation is < 0
+	_curFrData.lastRange   = getRange();						 //save range for compositing
+
+   	if( _model )
+		_model->createTextures( _tex3D, _preintName, _curFrData.lastRange ); 
+
+
     vmml::FrustumCullerf culler;
     _initFrustum( culler ); 
 
@@ -153,20 +191,17 @@ void Channel::frameDraw( const uint32_t frameID )
 
     applyFrustum();
 
-    const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
-    const FrameData& frameData = pipe->getFrameData();
-
-	_curFrData.needInverse = frameData.data.rotation.ml[10] < 0; //check if z coordinate of vector (0,0,1) after rotation is < 0
-	_curFrData.lastRange   = getRange();						 //save range for compositing
 
    	if( _model )
     {
-		_model->createTextures( _tex3D, _preintName, _curFrData.lastRange ); 
-
-		uint32_t numberOfSlices = _model->getResolution() * 4;
+		uint32_t numberOfSlices = _model->getResolution() * 2;
 		if( _prvNumberOfSlices != numberOfSlices )
 		{
-			createVertexArray( numberOfSlices, _vertexID );
+#ifndef TEXTURE_ROTATION 
+            createHexagonsList( numberOfSlices, _vertexID );
+#else		
+			createVertexArray(  numberOfSlices, _vertexID );
+#endif
 			_prvNumberOfSlices = numberOfSlices;
 		}
 
@@ -174,11 +209,6 @@ void Channel::frameDraw( const uint32_t frameID )
 		GLfloat lightDiffuse[]  = {0.8f, 0.8f, 0.8f, 1.0f};
 		GLfloat lightSpecular[] = {0.8f, 0.8f, 0.8f, 1.0f};
 		GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f}; 
-
-		
-//		glClearColor( 1.0f, 1.0f, 1.0f, 1.0f ); 
-
-//		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 		//set light parameters
 		glLightfv( GL_LIGHT0, GL_AMBIENT,  lightAmbient  );
@@ -208,7 +238,7 @@ void Channel::frameDraw( const uint32_t frameID )
 #ifndef TEXTURE_ROTATION 
 		glMultMatrixf( frameData.data.rotation.ml );
 #endif
-//		glScalef( 0.5, 1.0, 1.0 );
+		glScalef( _model->volScales.W, _model->volScales.H, _model->volScales.D );
 
 /*		glPushMatrix(); //Rotate lights
 		{
@@ -379,11 +409,11 @@ void Channel::frameDraw( const uint32_t frameID )
 #ifdef CG_SHADERS
 		cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "dPlaneStart" ), dStartDist ); 
 
- 		cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "W"  ), _model->_TD.W  ); 
-		cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "H"  ), _model->_TD.H  ); 
-		cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "D"  ), _model->_TD.D  ); 
-		cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "Do" ), _model->_TD.Do ); 
-		cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "Db" ), _model->_TD.Db ); 
+ 		cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "W"  ), _model->TD.W  ); 
+		cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "H"  ), _model->TD.H  ); 
+		cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "D"  ), _model->TD.D  ); 
+		cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "Do" ), _model->TD.Do ); 
+		cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "Db" ), _model->TD.Db ); 
 		
 		
 #else
@@ -430,23 +460,9 @@ void Channel::frameDraw( const uint32_t frameID )
 
 #ifndef TEXTURE_ROTATION 
 		cgGLSetParameter1f(  cgGetNamedParameter( m_fProg, "lines" ), 0.0f );
-		for( int s = 0; s < nNumSlices; ++s )
-		{
-//            int s = nNumSlices/2;
-			glBegin( GL_POLYGON );
-			for( int i = 0; i < 6; ++i )
-				glVertex2i( i, nNumSlices-1-s );
-			glEnd();
 
-/*			cgGLSetParameter1f(  cgGetNamedParameter( m_fProg, "lines" ), 1.0f );
+		glCallList( _vertexID );
 
-			glBegin( GL_LINE_LOOP );
-			for( int i = 0; i < 6; ++i )
-				glVertex2i( i, nNumSlices-1-s );
-		
-			glEnd();
-*/				
-		}
 #else		
 		// Draw slices from vertex array
 		glEnableClientState( GL_VERTEX_ARRAY );
@@ -832,8 +848,20 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler )
     const FrameData& frameData = pipe->getFrameData();
 
     vmml::Matrix4f view( frameData.data.rotation );
+    
+    if( _model )
+    {
+        vmml::Matrix4f scale( 
+            _model->volScales.W, 0, 0, 0, 
+            0, _model->volScales.H, 0, 0,
+            0, 0, _model->volScales.D, 0,
+            0, 0,                   0, 1 );
+            
+        view = scale * view;
+    }
+    
     view.setTranslation( frameData.data.translation );
-
+    
     const vmml::Frustumf&  frustum       = getFrustum();
     const vmml::Matrix4f&  headTransform = getHeadTransform();
     const vmml::Matrix4f   modelView     = headTransform * view;
