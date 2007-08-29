@@ -18,7 +18,9 @@ static void sigChildHandler( int /*signal*/ )
 {
     //int status;
     //int pid = wait( &status );
-    EQINFO << "Received SIGCHILD" << endl;
+    // DO NOT USE cout/cerr: signal handler might be call while another cout is
+    //            used, which will cause a dead lock due to a double flockfile()
+    // EQINFO << "Received SIGCHILD" << endl;
     signal( SIGCHLD, sigChildHandler );
 }
 #endif
