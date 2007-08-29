@@ -16,11 +16,16 @@ using namespace std;
 // the signal handler for SIGCHILD
 static void sigChildHandler( int /*signal*/ )
 {
-    //int status;
-    //int pid = wait( &status );
-    // DO NOT USE cout/cerr: signal handler might be call while another cout is
-    //            used, which will cause a dead lock due to a double flockfile()
+    // Get exit status to avoid zombies
+    int status;
+    wait( &status );
+
+    // DO NOT USE cout/cerr: signal handler might be called while another cout
+    //            is in progress, which will cause a deadlock due to a double
+    //            flockfile() 
     // EQINFO << "Received SIGCHILD" << endl;
+    
+    // Re-install signal handler
     signal( SIGCHLD, sigChildHandler );
 }
 #endif
