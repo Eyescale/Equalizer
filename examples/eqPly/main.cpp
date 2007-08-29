@@ -48,10 +48,10 @@ int main( int argc, char** argv )
         return EXIT_FAILURE;
     }
 
-    // 3. run client
+    // 4. run client
     const int ret = client->run();
 
-    // 4. cleanup and exit
+    // 5. cleanup and exit
     client->exitLocal();
     client = 0;
 

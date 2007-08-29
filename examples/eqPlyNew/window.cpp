@@ -34,7 +34,8 @@ bool Window::configInit( const uint32_t initID )
         _logoSize    = firstWindow->_logoSize;
     }
 
-    EQASSERT( _objects );
+    if( !_objects ) // happens if first window failed to initialize
+        return false;
 
     return true;
 }

@@ -47,7 +47,7 @@ void LocalInitData::parseArguments( int argc, char** argv )
         TCLAP::SwitchArg colorArg( "b", "bw", "Don't use colors from ply file", 
                                    command, false );
         TCLAP::SwitchArg residentArg( "r", "resident", 
-            "Keep client resident (see resident node documentation on website)", 
+           "Keep client resident (see resident node documentation on website)", 
                                       command, false );
         TCLAP::ValueArg<uint32_t> framesArg( "n", "numFrames", 
                                            "Maximum number of rendered frames", 

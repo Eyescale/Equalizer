@@ -31,14 +31,15 @@ int main( int argc, char** argv )
     eqVol::LocalInitData initData;
     initData.parseArguments( argc, argv );
 
-    // 2. initialisation of local client node
+    // 2. Equalizer initialization
     NodeFactory nodeFactory;
     if( !eq::init( argc, argv, &nodeFactory ))
     {
         EQERROR << "Equalizer init failed" << endl;
         return EXIT_FAILURE;
     }
-
+    
+    // 3. initialization of local client node
     RefPtr< eqVol::Application > client = new eqVol::Application( initData );
     if( !client->initLocal( argc, argv ))
     {
@@ -47,10 +48,10 @@ int main( int argc, char** argv )
         return EXIT_FAILURE;
     }
 
-    // 3. run client
+    // 4. run client
     const int ret = client->run();
 
-    // 4. cleanup and exit
+    // 5. cleanup and exit
     client->exitLocal();
     client = 0;
 
