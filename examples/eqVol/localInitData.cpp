@@ -118,7 +118,9 @@ void LocalInitData::parseArguments( int argc, char** argv )
                 setWindowSystem( eq::WINDOW_SYSTEM_AGL );
             else if( windowSystem == "wgl" )
                 setWindowSystem( eq::WINDOW_SYSTEM_WGL );
-        }
+        }else
+            setWindowSystem( eq::WINDOW_SYSTEM_GLX );
+
 
          _color         = !colorArg.isSet();
  

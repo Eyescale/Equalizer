@@ -32,10 +32,7 @@ namespace eqVol
     class Pipe : public eq::Pipe
     {
     public:
- 		Pipe() : eq::Pipe()
-		{
-			_shadersLoaded = false;
-		}
+ 		Pipe() : eq::Pipe(), _shadersLoaded( false ) { }
 
         const FrameData& getFrameData() const { return _frameData; }
 
@@ -50,6 +47,7 @@ namespace eqVol
     protected:
         virtual ~Pipe() {}
 
+        virtual eq::WindowSystem selectWindowSystem() const;
         virtual bool configInit( const uint32_t initID );
         virtual bool configExit();
         virtual void frameStart( const uint32_t frameID, 

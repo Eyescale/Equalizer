@@ -20,7 +20,7 @@ namespace eqVol
 
 InitData::InitData()
 : _dataFilename( "Bucky32x32x32.raw" )
-//, _infoFilename( "Bucky32x32x32.inf" )
+,_windowSystem( eq::WINDOW_SYSTEM_NONE )
 ,_instanceData( 0 )
 {}
 
@@ -29,18 +29,20 @@ InitData::~InitData()
     setFrameDataID( EQ_ID_INVALID );
 }
 
+
 const void* InitData::getInstanceData( uint64_t* size )
 {
-	*size = sizeof( uint32_t ) + _dataFilename.length() + 1;// + _infoFilename.length() + 1;
+	*size = sizeof( uint32_t ) + sizeof( eq::WindowSystem ) + _dataFilename.length() + 1;// + _infoFilename.length() + 1;
     if( _instanceData )
         return _instanceData;
 
     _instanceData = new char[ *size ];
 
     reinterpret_cast< uint32_t* >( _instanceData )[0] =  _frameDataID;
+    reinterpret_cast< uint32_t* >( _instanceData )[1] =  _windowSystem;
 
     const char* string = _dataFilename.c_str();
-    memcpy( _instanceData + sizeof( uint32_t ), string, _dataFilename.length()+1 );
+    memcpy( _instanceData + 2*sizeof( uint32_t ), string, _dataFilename.length()+1 );
  
 //    string = _infoFilename.c_str();
 //    memcpy( _instanceData + sizeof( uint32_t ) + _dataFilename.length()+1, string, _infoFilename.length()+1 );
@@ -48,12 +50,14 @@ const void* InitData::getInstanceData( uint64_t* size )
     return _instanceData;
 }
 
+
 void InitData::applyInstanceData( const void* data, const uint64_t size )
 {
     EQASSERT( size > sizeof( _frameDataID ));
 
     _frameDataID  = reinterpret_cast< const uint32_t* >( data )[0];
-    _dataFilename = static_cast<const char*>( data ) + sizeof( uint32_t );
+    _windowSystem = reinterpret_cast< const eq::WindowSystem* >( data )[1];
+    _dataFilename = static_cast<const char*>( data ) + 2*sizeof( uint32_t );
 //    _infoFilename = static_cast<const char*>( data ) + sizeof( uint32_t ) + _dataFilename.length()+1;
 
     EQASSERT( _frameDataID != EQ_ID_INVALID );
