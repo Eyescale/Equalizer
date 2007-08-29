@@ -169,7 +169,7 @@ bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range
 	
     EQWARN << "w: " << w << " " << tW << " h: " << h << " " << tH << " d: " << d << " " << depth << " " << tD << endl;
 
-	vector<uint8_t> data( tW*tH*tD*4, 50 );
+	vector<uint8_t> data( tW*tH*tD*4, 0 );
 
 	_resolution = max( w, max( h, d ) );
     EQWARN << "r: " << _resolution << endl;
@@ -436,13 +436,6 @@ void CreateTransferFunc( int t, uint8_t *transfer )
 		case 3: 
 //bucky
 		EQWARN << "transfer: bucky" << endl;
-//			for (i=20; i<255; i++) {
-//				transfer[(i*4)]  =  100;
-//				transfer[(i*4)+1] = 100;
-//				transfer[(i*4)+2] = 255;
-//				transfer[(i*4)+3] = 255;
-//			}
-//			break;
 			
 			for (i=20; i<99; i++) {
 				transfer[(i*4)]  =  200;

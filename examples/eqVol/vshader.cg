@@ -62,6 +62,14 @@ void main(
 	uniform float3  vecVertices[8],
 	uniform int   v1[24],
 	uniform int   v2[24],
+
+
+	uniform float   W,   //scale for x
+	uniform float   H,   //scale for y
+	uniform float   D,   //scale for z
+	uniform float   Do,  //shift of z
+	uniform float   Db,  //z offset 
+
 			
 	// output variables
     out float4  VertexOut : POSITION,
@@ -144,19 +152,17 @@ void main(
 	
 	backP = 0.5 * backP + 0.5;
 	
+//Scaling of texture coordinates
+	frontP.x *= W;
+	frontP.y *= H;
+	frontP.z  = Db + (frontP.z - Do) * D;
+
+	backP.x  *= W;
+	backP.y  *= H;
+	backP.z   = Db + (backP.z  - Do) * D;
+	
 	return;    
 }
 
 //------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
 

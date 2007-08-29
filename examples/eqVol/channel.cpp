@@ -142,12 +142,6 @@ void Channel::frameClear( const uint32_t frameID )
 
 void Channel::frameDraw( const uint32_t frameID )
 {
-//	vmml::Matrix4f rotation( 
-//		-0.9687  , -0.072722, 0.23743 , 0,
-//	 	 0.23553 ,  0.33545 , 0.97129 , 0,
-//		-0.078602,  0.9968  ,-0.015379, 0,
-//		 0.0     ,  0.0     , 0.0     , 1 );
-		
     vmml::FrustumCullerf culler;
     _initFrustum( culler ); 
 
@@ -551,26 +545,26 @@ void Channel::arrangeFrames( vector<Range>& ranges )
 }
 
 
-void IntersectViewports( PixelViewport &pvp, const vector<PixelViewport> &pvpVec )
+void IntersectViewports( PixelViewport &pvp, const vector<Image*>& vecImages, const vmml::Vector2i& offset )
 {
-	if( pvpVec.size() < 1 )
+	if( vecImages.size() < 1 )
 	{
 		pvp.invalidate();
 		return;
 	}
 	
-	PixelViewport overalPVP = pvpVec[0];
+	PixelViewport overalPVP = vecImages[0]->getPixelViewport() + offset;
 
-	for( uint i=1; i<pvpVec.size(); i++ )
-		overalPVP += pvpVec[i];
+	for( uint i=1; i<vecImages.size(); i++ )
+		overalPVP += vecImages[i]->getPixelViewport() + offset;
 
 	pvp ^= overalPVP;	
 }
 
-void Channel::_clearPixelViewPorts( const vector<eq::PixelViewport> &pvpVec )
+void Channel::_clearPixelViewPorts( const vector<Image*> &vecImages, const vmml::Vector2i& offset )
 {
-	for( uint i=0; i<pvpVec.size(); i++ )
-		clearViewport( pvpVec[i] );
+	for( uint i=0; i<vecImages.size(); i++ )
+		clearViewport( vecImages[i]->getPixelViewport() + offset );
 }
 
 #define SOLID_BG
@@ -649,7 +643,7 @@ void Channel::frameAssemble( const uint32_t frameID )
 				if( !curRange.isFull() ) // Add only DB related slices, screen decomposition should be composed as is
 				{
 					ranges.push_back( curRange );
-/////					IntersectViewports( curPVP, unusedFrames[k]->getPixelViewports() ); 
+					IntersectViewports( curPVP, unusedFrames[k]->getImages(), unusedFrames[k]->getOffset() ); 
 				}
 			}
 			
@@ -691,7 +685,7 @@ void Channel::frameAssemble( const uint32_t frameID )
 					
 					if( curRange.isFull() ) //2D screen element, asseble as is
 					{
-//////						_clearPixelViewPorts( frame->getPixelViewports() );
+						_clearPixelViewPorts( frame->getImages(), frame->getOffset() );
 	            		frame->startAssemble();
 						unusedFrames.erase( i );
 						foundMatchedFrame = true;

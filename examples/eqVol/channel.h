@@ -46,7 +46,7 @@ namespace eqVol
 
     private:
 
-		void _clearPixelViewPorts( const vector<PixelViewport> &pvpVec );
+		void _clearPixelViewPorts( const vector<Image*> &vecImages, const vmml::Vector2i& offset );
 		
         void _drawLogo();
         void _initFrustum( vmml::FrustumCullerf& frustum );
