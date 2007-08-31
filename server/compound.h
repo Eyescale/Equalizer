@@ -58,14 +58,14 @@ namespace eqs
          */
         enum Task
         {
-            TASK_NONE     = 0,
-            TASK_DEFAULT  = 0x1,      //!< ALL for leaf, else ASSEMBLE|READBACK
-            TASK_CLEAR    = 0x10,     //!< Clear the framebuffer
-            TASK_CULL     = 0x100,    //!< Cull data
-            TASK_DRAW     = 0x1000,   //!< Draw data to the framebuffer
-            TASK_ASSEMBLE = 0x10000,  //!< Combine input frames
-            TASK_READBACK = 0x100000, //!< Read results to output frames
-            TASK_ALL      = 0xfffffff
+            TASK_NONE     = EQ_BIT_NONE,
+            TASK_DEFAULT  = EQ_BIT1,   //!< ALL for leaf, else ASSEMBLE|READBACK
+            TASK_CLEAR    = EQ_BIT5,   //!< Clear the framebuffer
+            TASK_CULL     = EQ_BIT9,   //!< Cull data
+            TASK_DRAW     = EQ_BIT13,  //!< Draw data to the framebuffer
+            TASK_ASSEMBLE = EQ_BIT17,  //!< Combine input frames
+            TASK_READBACK = EQ_BIT21,  //!< Read results to output frames
+            TASK_ALL      = EQ_BIT_ALL
         };
 
         /**

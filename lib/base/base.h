@@ -48,35 +48,7 @@
 #  include <sys/param.h>  // for MIN/MAX
 #endif
 
-// type definitions
-#ifdef sgi
-typedef int socklen_t;
-#endif
-
-#ifdef Darwin
-#  include <crt_externs.h>
-#  define environ (*_NSGetEnviron())
-#else
-extern "C" char **environ;
-#endif
-
-#ifdef WIN32
-typedef int        socklen_t;
-#  ifdef WIN32_VC
-#    define MAX __max
-#    define MIN __min
-
-typedef UINT64     uint64_t;
-typedef INT64      int64_t;
-typedef UINT32     uint32_t;
-typedef INT32      int32_t;
-typedef UINT16     uint16_t;
-typedef UINT8      uint8_t;
-#    ifndef HAVE_SSIZE_T
-typedef SSIZE_T    ssize_t;
-#    endif
-#  endif // Win32, Visual C++
-#endif // Win32
+#include <eq/base/types.h>
 
 // defines
 #define EQ_UNDEFINED_UINT32   (0xffffffffu)
@@ -84,7 +56,7 @@ typedef SSIZE_T    ssize_t;
 #define EQ_TIMEOUT_INDEFINITE 0
 #define EQ_OBJECT_CAST( type, object )                 \
     static_cast<type>( object );                       \
-    EQASSERTINFO( dynamic_cast<type>( object ),        \
+    EQASSERTINFO( object && !dynamic_cast<type>( object ),  \
                   "Object is not of type " << #type ); 
 
 #endif //EQBASE_BASE_H

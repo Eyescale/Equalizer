@@ -30,6 +30,7 @@ HEADER_SRC = \
 	base/stdExt.h \
 	base/thread.h \
 	base/timedLock.h \
+	base/types.h \
 	base/userdata.h \
 	net/barrier.h \
 	net/base.h \

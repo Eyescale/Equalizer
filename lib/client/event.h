@@ -72,12 +72,12 @@ namespace eq
 
     enum PointerButton
     {
-        PTR_BUTTON_NONE = 0,
-        PTR_BUTTON1     = 0x01,
-        PTR_BUTTON2     = 0x02,
-        PTR_BUTTON3     = 0x04,
-        PTR_BUTTON4     = 0x08,
-        PTR_BUTTON5     = 0x10
+        PTR_BUTTON_NONE = EQ_BIT_NONE,
+        PTR_BUTTON1     = EQ_BIT1,
+        PTR_BUTTON2     = EQ_BIT2,
+        PTR_BUTTON3     = EQ_BIT3,
+        PTR_BUTTON4     = EQ_BIT4,
+        PTR_BUTTON5     = EQ_BIT5
     };
 
     struct ResizeEvent

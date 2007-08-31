@@ -35,11 +35,11 @@ namespace eq
          */
         enum Buffer
         {
-            BUFFER_NONE      = 0,
-            BUFFER_UNDEFINED = 0x1,      //!< Inherit, only if no others are set
-            BUFFER_COLOR     = 0x10,     //!< Use color images
-            BUFFER_DEPTH     = 0x10000,  //!< Use depth images
-            BUFFER_ALL       = 0xfffffff
+            BUFFER_NONE      = EQ_BIT_NONE,
+            BUFFER_UNDEFINED = EQ_BIT1,  //!< Inherit, only if no others are set
+            BUFFER_COLOR     = EQ_BIT5,  //!< Use color images
+            BUFFER_DEPTH     = EQ_BIT9,  //!< Use depth images
+            BUFFER_ALL       = EQ_BIT_ALL
         };
 
         /** 

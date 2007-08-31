@@ -11,7 +11,7 @@
 #define MESH_TYPEDEFS_H
 
 
-#include <eq/vmmlib/vmmlib.h>
+#include <vmmlib/vmmlib.h>
 #include <OpenGL/gl.h>
 
 
