@@ -13,7 +13,7 @@ void CreateTransferFunc( int t, uint8_t *transfer );
 
 void lFailed( char* msg ) { EQERROR << msg << endl; }
 
-void ConvertRawToRawPlusDerivatives( const string& src, const string& dst )
+void RawConverter::ConvertRawToRawPlusDerivatives( const string& src, const string& dst )
 {
     uint32_t w, h, d;
 //read header
@@ -126,7 +126,7 @@ void ConvertRawToRawPlusDerivatives( const string& src, const string& dst )
     }
 }
 
-void SavToVhfConverter( const string& src, const string& dst )
+void RawConverter::SavToVhfConverter( const string& src, const string& dst )
 {
     //read original header
     uint32_t w=1;
@@ -241,6 +241,50 @@ void SavToVhfConverter( const string& src, const string& dst )
     EQWARN << "file " << src.c_str() << " > " << dst.c_str() << " converted" << endl;
 }
 
+void RawConverter::DscToVhfConverter( const string& src, const string& dst )
+{
+    EQWARN << "converting " << src.c_str() << " > " << dst.c_str() << " .. ";
+//Read Description file
+    uint32_t w=1;
+    uint32_t h=1;
+    uint32_t d=1;
+    float wScale=1.0;
+    float hScale=1.0;
+    float dScale=1.0;
+    {
+        hFile info( fopen( src.c_str(), "rb" ) );
+        FILE* file = info.f;
+    
+        if( file==NULL ) return lFailed( "Can't open source Dsc file" );
+    
+        if( fscanf( file, "reading PVM file\n" ) != 0 ) 
+            return lFailed( "Not a proper file format, first line should be:\nreading PVM file" );
+            
+        uint32_t c=0;
+        if( fscanf( file, "found volume with width=%u height=%u depth=%u components=%u\n", &w, &h, &d, &c ) != 4 )
+            return lFailed( "Not a proper file format, second line should be:\nfound volume with width=<num> height=<num> depth=<num> components=<num>" );
+        if( c!=1 )
+            return lFailed( "'components' should be equal to '1', only 8 bit volumes supported so far" );
+        
+        fscanf( file, "and edge length %g/%g/%g\n", &wScale, &hScale, &dScale ); 
+    }
+//Write Vhf file
+    {
+        hFile info( fopen( dst.c_str(), "wb" ) );
+        FILE* file = info.f;
+    
+        if( file==NULL ) return lFailed( "Can't open destination header file" );
+    
+        fprintf( file, "w=%u\n", w );
+        fprintf( file, "h=%u\n", h );
+        fprintf( file, "d=%u\n", d );
+
+        fprintf( file, "wScale=%g\n", wScale );
+        fprintf( file, "hScale=%g\n", hScale );
+        fprintf( file, "dScale=%g\n", dScale );
+    }
+    EQWARN << "succeed" << endl;
+}
 
 void getHeaderParameters( const string& fileName, uint32_t &w, uint32_t &h, uint32_t &d, vector<uint8_t> &TF )
 {

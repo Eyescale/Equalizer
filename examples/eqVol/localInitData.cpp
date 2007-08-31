@@ -51,9 +51,9 @@ void LocalInitData::parseArguments( int argc, char** argv )
          TCLAP::ValueArg<string> savArg( "s", "sav", "sav to vhf transfer function converter", 
                                           false, "Bucky32x32x32.raw.vhf", "string", 
                                           command );
-//         TCLAP::ValueArg<string> infoArg( "i", "inf", "info file name", 
-//                                          false, "Bucky32x32x32.inf", "string", 
-//                                          command );
+         TCLAP::ValueArg<string> dscArg( "c", "dsc", "dsc to vhf file converter", 
+                                          false, "Bucky32x32x32.pvm.dsc", "string", 
+                                          command );
         TCLAP::ValueArg<string> portArg( "p", "port", "tracking device port",
                                          false, "/dev/ttyS0", "string", 
                                          command );
@@ -85,28 +85,31 @@ void LocalInitData::parseArguments( int argc, char** argv )
                                 
         command.parse( argc, argv );
 
-        if( modelArg.isSet( ))
+        if( modelArg.isSet() )
             setDataFilename( modelArg.getValue( ));
 
-        if( derArg.isSet( ))
+        if( derArg.isSet() ) // raw -> raw + derivatives
 		{
-            ConvertRawToRawPlusDerivatives( getDataFilename(), derArg.getValue( ));
+            RawConverter::ConvertRawToRawPlusDerivatives( getDataFilename(), derArg.getValue( ));
 			exit(0);
 		}
 
-        if( savArg.isSet( ))
+        if( savArg.isSet() ) // sav -> vhf
 		{
-            SavToVhfConverter( getDataFilename(), savArg.getValue( ) );
+            RawConverter::SavToVhfConverter( getDataFilename(), savArg.getValue( ) );
 			exit(0);
 		}
 
-//        if( infoArg.isSet( ))
-//            setInfoFilename( infoArg.getValue( ));
+        if( dscArg.isSet() ) // dsc -> vhf
+		{
+            RawConverter::DscToVhfConverter( getDataFilename(), dscArg.getValue( ) );
+			exit(0);
+		}
 
-        if( portArg.isSet( ))
+        if( portArg.isSet() )
             _trackerPort = portArg.getValue();
 
-        if( wsArg.isSet( ))
+        if( wsArg.isSet() )
         {
             string windowSystem = wsArg.getValue();
             transform( windowSystem.begin(), windowSystem.end(),
@@ -124,10 +127,10 @@ void LocalInitData::parseArguments( int argc, char** argv )
 
          _color         = !colorArg.isSet();
  
-         if( framesArg.isSet( ))
+         if( framesArg.isSet() )
              _maxFrames = framesArg.getValue();
  
-        if( residentArg.isSet( ))
+        if( residentArg.isSet() )
             _isResident = true;
     }
     catch( TCLAP::ArgException& exception )
