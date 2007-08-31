@@ -33,15 +33,16 @@ bool Connection::send( Packet &packet, const std::vector<T>& data ) const
 
         lockSend();
         const bool ret = ( send( &packet,  headerSize, true ) &&
-                           !send( &data[0], dataSize,   true ));
+                           send( &data[0], dataSize,   true ));
         unlockSend();
         return ret;
     }
+    // else
 
-    char*    buffer = (char*)alloca( size );
+    char* buffer = static_cast<char*>( alloca( size ));
 
-    memcpy( buffer, &packet, packet.size - packetStorage );
-    memcpy( buffer + packet.size - packetStorage, &data[0], dataSize );
+    memcpy( buffer,              &packet,  headerSize );
+    memcpy( buffer + headerSize, &data[0], dataSize );
 
     ((Packet*)buffer)->size = size;
     return send( buffer, size );

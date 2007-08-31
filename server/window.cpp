@@ -20,8 +20,6 @@ void eqs::Window::_construct()
 {
     _used             = 0;
     _pipe             = NULL;
-    _pendingRequestID = EQ_ID_INVALID;
-    _state            = STATE_STOPPED;
     _fixedPVP         = false;
 
     registerCommand( eq::CMD_WINDOW_CONFIG_INIT_REPLY, 
@@ -215,6 +213,9 @@ void eqs::Window::joinSwapBarrier( eqNet::Barrier* barrier )
 //---------------------------------------------------------------------------
 void eqs::Window::startConfigInit( const uint32_t initID )
 {
+    EQASSERT( _state == STATE_STOPPED );
+    _state = STATE_INITIALIZING;
+
     _sendConfigInit( initID );
 
     Config* config = getConfig();
@@ -233,17 +234,11 @@ void eqs::Window::startConfigInit( const uint32_t initID )
             channel->startConfigInit( initID );
         }
     }
-    _state = STATE_INITIALISING;
 }
 
 void eqs::Window::_sendConfigInit( const uint32_t initID )
 {
-    EQASSERT( _pendingRequestID == EQ_ID_INVALID );
-
     eq::WindowConfigInitPacket packet;
-    _pendingRequestID = _requestHandler.registerRequest(); 
-
-    packet.requestID = _pendingRequestID;
     packet.initID    = initID;
     if( _fixedPVP )
         packet.pvp    = _pvp; 
@@ -260,8 +255,6 @@ void eqs::Window::_sendConfigInit( const uint32_t initID )
 bool eqs::Window::syncConfigInit()
 {
     bool success = true;
-    string error;
-
     for( std::vector<Channel*>::iterator iter = _channels.begin(); 
          iter != _channels.end(); ++iter )
     {
@@ -269,24 +262,18 @@ bool eqs::Window::syncConfigInit()
         if( channel->isUsed( ))
             if( !channel->syncConfigInit( ))
             {
-                error += "channel: '"  + channel->getErrorMessage() + '\'';
+                _error += "channel: '"  + channel->getErrorMessage() + '\'';
                 success = false;
             }
     }
 
-    EQASSERT( _pendingRequestID != EQ_ID_INVALID );
-
-    bool requestSuccess = false;
-    _requestHandler.waitRequest( _pendingRequestID, requestSuccess );
-    if( !requestSuccess )
+    EQASSERT( _state == STATE_INITIALIZING || _state == STATE_RUNNING ||
+              _state == STATE_INIT_FAILED );
+    _state.waitNE( STATE_INITIALIZING );
+    if( _state == STATE_INIT_FAILED )
         success = false;
 
-    _pendingRequestID = EQ_ID_INVALID;
-    _error += (' ' + error);
-
-    if( success )
-        _state = STATE_RUNNING;
-    else
+    if( !success )
         EQWARN << "Window initialisation failed: " << _error << endl;
     return success;
 }
@@ -296,7 +283,9 @@ bool eqs::Window::syncConfigInit()
 //---------------------------------------------------------------------------
 void eqs::Window::startConfigExit()
 {
+    EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_STOPPING;
+
     for( std::vector<Channel*>::iterator iter = _channels.begin(); 
          iter != _channels.end(); ++iter )
     {
@@ -312,23 +301,21 @@ void eqs::Window::startConfigExit()
 
 void eqs::Window::_sendConfigExit()
 {
-    EQASSERT( _pendingRequestID == EQ_ID_INVALID );
-
     eq::WindowConfigExitPacket packet;
-    _pendingRequestID = _requestHandler.registerRequest(); 
-    packet.requestID  = _pendingRequestID;
     _send( packet );
     EQLOG( eq::LOG_TASKS ) << "TASK configExit  " << &packet << endl;
 }
 
 bool eqs::Window::syncConfigExit()
 {
-    EQASSERT( _pendingRequestID != EQ_ID_INVALID );
-
-    bool success = false;
-    _requestHandler.waitRequest( _pendingRequestID, success );
-    _pendingRequestID = EQ_ID_INVALID;
+    EQASSERT( _state == STATE_STOPPING || _state == STATE_STOPPED || 
+              _state == STATE_STOP_FAILED );
     
+    _state.waitNE( STATE_STOPPING );
+    bool success = ( _state == STATE_STOPPED );
+    EQASSERT( success || _state == STATE_STOP_FAILED );
+    _state = STATE_STOPPED; /// STOP_FAILED -> STOPPED transition
+
     Config* config = getConfig();
     eq::WindowDestroyChannelPacket destroyChannelPacket;
 
@@ -336,7 +323,7 @@ bool eqs::Window::syncConfigExit()
          i != _channels.end(); ++i )
     {
         Channel* channel = *i;
-        if( channel->getState() != Channel::STATE_STOPPING )
+        if( channel->getID() == EQ_ID_INVALID )
             continue;
 
         if( !channel->syncConfigExit( ))
@@ -346,8 +333,6 @@ bool eqs::Window::syncConfigExit()
         _send( destroyChannelPacket );
         config->deregisterObject( channel );
     }
-
-    _state = STATE_STOPPED;
     return success;
 }
 
@@ -442,14 +427,19 @@ eqNet::CommandResult eqs::Window::_cmdConfigInitReply( eqNet::Command& command )
         command.getPacket<eq::WindowConfigInitReplyPacket>();
     EQINFO << "handle window configInit reply " << packet << endl;
 
-    if( packet->result )
-        _drawableConfig = packet->drawableConfig;
-    
     if( packet->pvp.isValid( ))
         setPixelViewport( packet->pvp );
 
     _error = packet->error;
-    _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
+
+    if( packet->result )
+    {
+        _drawableConfig = packet->drawableConfig;
+        _state = STATE_RUNNING;
+    }
+    else
+        _state = STATE_INIT_FAILED;
+
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -459,7 +449,11 @@ eqNet::CommandResult eqs::Window::_cmdConfigExitReply( eqNet::Command& command )
         command.getPacket<eq::WindowConfigExitReplyPacket>();
     EQINFO << "handle window configExit reply " << packet << endl;
 
-    _requestHandler.serveRequest( packet->requestID, (void*)true );
+    if( packet->result )
+        _state = STATE_STOPPED;
+    else
+        _state = STATE_STOP_FAILED;
+
     return eqNet::COMMAND_HANDLED;
 }
 

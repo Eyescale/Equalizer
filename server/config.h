@@ -19,9 +19,6 @@ namespace eqs
     class Node;
     class Server;
 
-    typedef eqNet::IDHash<Node*>               NodeHash;
-    typedef std::vector<Node*>::const_iterator NodeHashIter;
-
     /**
      * The config.
      */
@@ -264,13 +261,6 @@ namespace eqs
         }
             _state;
 
-        /** The command functions. */
-        eqNet::CommandResult _reqInit( eqNet::Command& command );
-        eqNet::CommandResult _reqExit( eqNet::Command& command );
-        eqNet::CommandResult _reqStartFrame( eqNet::Command& command );
-        eqNet::CommandResult _reqFinishFrame( eqNet::Command& command ); 
-        eqNet::CommandResult _reqFinishAllFrames( eqNet::Command& command ); 
-
         /**
          * @name Operations
          */
@@ -278,12 +268,14 @@ namespace eqs
         /** common code for all constructors */
         void _construct();
 
-        bool _init( const uint32_t initID, 
-                    std::vector< eqNet::NodeID::Data >& nodeIDs );
+        bool _startInit( const uint32_t initID, 
+                         std::vector< eqNet::NodeID::Data >& nodeIDs );
         bool   _connectNodes();
         bool   _initNodes( const uint32_t initID, 
                            std::vector< eqNet::NodeID::Data >& nodeIDs );
-        bool   _exitNodes();
+        bool _finishInit();
+
+        bool _exitNodes();
 
         void _updateHead();
 
@@ -292,8 +284,16 @@ namespace eqs
         uint32_t _finishFrame();
         uint32_t _finishAllFrames();
         void       _finishFrame( const uint32_t frame );
-
         //*}
+
+        /** The command functions. */
+        eqNet::CommandResult _reqStartInit( eqNet::Command& command );
+        eqNet::CommandResult _reqFinishInit( eqNet::Command& command );
+        eqNet::CommandResult _reqExit( eqNet::Command& command );
+        eqNet::CommandResult _reqStartFrame( eqNet::Command& command );
+        eqNet::CommandResult _reqFinishFrame( eqNet::Command& command ); 
+        eqNet::CommandResult _reqFinishAllFrames( eqNet::Command& command ); 
+        eqNet::CommandResult _cmdCreateNodeReply( eqNet::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Config* config );

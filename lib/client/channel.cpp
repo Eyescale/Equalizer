@@ -415,8 +415,9 @@ eqNet::CommandResult Channel::_reqConfigInit( eqNet::Command& command )
         _iAttributes[i] = packet->iattr[i];
 
     _error.clear();
-    ChannelConfigInitReplyPacket reply( packet );
+    ChannelConfigInitReplyPacket reply;
     reply.result = configInit( packet->initID );
+
     reply.nearPlane   = _frustum.nearPlane;
     reply.farPlane    = _frustum.farPlane;
     send( command.getNode(), reply, _error );
@@ -430,9 +431,9 @@ eqNet::CommandResult Channel::_reqConfigExit( eqNet::Command& command )
     EQLOG( LOG_TASKS ) << "TASK configExit " << getName() <<  " " << packet 
                        << endl;
 
-    configExit();
+    ChannelConfigExitReplyPacket reply;
+    reply.result = configExit();
 
-    ChannelConfigExitReplyPacket reply( packet );
     send( command.getNode(), reply );
     return eqNet::COMMAND_HANDLED;
 }

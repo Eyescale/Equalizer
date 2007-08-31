@@ -37,10 +37,24 @@ namespace eq
          * Initializes this configuration.
          * 
          * @param initID an identifier to be passed to all init methods.
-         * @return <code>true</code> if the initialisation was successful,
-         *         <code>false</code> if not.
+         * @return true if the initialisation was successful, false if not.
          */
-        virtual bool init( const uint32_t initID );
+        virtual bool init( const uint32_t initID )
+            { return startInit( initID ) && finishInit(); }
+
+        /** 
+         * Start initializing the configuration.
+         * 
+         * @param initID an identifier to be passed to all init methods. 
+         */
+        virtual bool startInit( const uint32_t initID );
+
+        /** 
+         * Finish initializing the configuration.
+         * 
+         * @return true if the initialisation was successful, false if not.
+         */
+        virtual bool finishInit();
 
         /** 
          * Exits this configuration.
@@ -198,7 +212,8 @@ namespace eq
         /** The command functions. */
         eqNet::CommandResult _cmdCreateNode( eqNet::Command& command );
         eqNet::CommandResult _cmdDestroyNode( eqNet::Command& command );
-        eqNet::CommandResult _reqInitReply( eqNet::Command& command );
+        eqNet::CommandResult _reqStartInitReply( eqNet::Command& command );
+        eqNet::CommandResult _reqFinishInitReply( eqNet::Command& command );
         eqNet::CommandResult _reqExitReply( eqNet::Command& command );
         eqNet::CommandResult _cmdStartFrameReply( eqNet::Command& command );
         eqNet::CommandResult _reqFinishFrameReply( eqNet::Command& command );

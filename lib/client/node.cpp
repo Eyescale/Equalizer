@@ -14,6 +14,7 @@
 #include "pipe.h"
 #include "server.h"
 
+#include <eq/base/scopedMutex.h>
 #include <eq/net/command.h>
 #include <eq/net/connection.h>
 
@@ -138,39 +139,43 @@ void Node::addStatEvents( const uint32_t frameNumber,
 
 vector<StatEvent>& Node::_getStatEvents( const uint32_t frameNumber )
 {
-    FrameStatEvents* statEvents = 0;
-    _statEventsLock.set();
+    ScopedMutex< SpinLock > mutex( _statEventsLock );
 
     // O(N), but for small values of N.
+    // 1. search for existing vector of events for frame
+    for( vector<FrameStatEvents>::iterator i = _statEvents.begin();
+         i != _statEvents.end(); ++i )
+    {
+        FrameStatEvents& candidate = *i;
+
+        if( candidate.frameNumber == frameNumber )
+            return candidate.events;
+    }
+
+    // 2. Reuse old container
     for( vector<FrameStatEvents>::iterator i = _statEvents.begin();
          i != _statEvents.end(); ++i )
     {
         FrameStatEvents& candidate = *i;
 
         if( candidate.frameNumber == 0 ) // reusable container
-            statEvents = &candidate;
-        else if( candidate.frameNumber == frameNumber )
         {
-            statEvents = &candidate;
-            break;
+            candidate.frameNumber = frameNumber;
+            return candidate.events;
         }
     }
     
-    if( !statEvents )
-    {
-        _statEvents.push_back( FrameStatEvents( ));
-        statEvents = &_statEvents.back();
-    }
+    // 3. Create new container
+    _statEvents.resize( _statEvents.size() + 1 );
+    FrameStatEvents& statEvents = _statEvents.back();
 
-    statEvents->frameNumber = frameNumber;
-    _statEventsLock.unset();
-
-    return statEvents->events;
+    statEvents.frameNumber = frameNumber;
+    return statEvents.events;
 }
 
 void Node::_recycleStatEvents( const uint32_t frameNumber )
 {
-    _statEventsLock.set();
+    ScopedMutex< SpinLock > mutex( _statEventsLock );
     for( vector<FrameStatEvents>::iterator i = _statEvents.begin();
          i != _statEvents.end(); ++i )
     {
@@ -179,10 +184,9 @@ void Node::_recycleStatEvents( const uint32_t frameNumber )
         {
             candidate.events.clear();
             candidate.frameNumber = 0;
-            break;
+            return;
         }
     }
-    _statEventsLock.unset();
 }
 
 void Node::_finishFrame( const uint32_t frameNumber )
@@ -200,7 +204,7 @@ void Node::releaseFrame( const uint32_t frameNumber )
     EQASSERT( _currentFrame >= frameNumber );
 
     NodeFrameFinishReplyPacket packet;
-    vector<StatEvent>&     statEvents = _getStatEvents( frameNumber );
+    const vector<StatEvent>&   statEvents = _getStatEvents( frameNumber );
 
     packet.sessionID   = _config->getID();
     packet.objectID    = getID();
@@ -315,7 +319,7 @@ eqNet::CommandResult Node::_reqConfigInit( eqNet::Command& command )
     _name = packet->name;
 
     _error.clear();
-    NodeConfigInitReplyPacket reply( packet );
+    NodeConfigInitReplyPacket reply;
     reply.result = configInit( packet->initID );
     _initialized = true; // even if init failed we need to unlock the pipes
 
@@ -337,13 +341,13 @@ eqNet::CommandResult Node::_reqConfigExit( eqNet::Command& command )
         pipe->waitExited();
     }
     
-    configExit();
+    NodeConfigExitReplyPacket reply;
+    reply.result = configExit();
+
     _initialized = false;
     _flushObjects();
 
-    NodeConfigExitReplyPacket reply( packet );
     send( command.getNode(), reply );
-
     return eqNet::COMMAND_HANDLED;
 }
 

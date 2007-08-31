@@ -29,6 +29,8 @@ Server::Server()
             eqNet::CommandFunc<Server>( this, &Server::_cmdChooseConfigReply ));
     registerCommand( CMD_SERVER_RELEASE_CONFIG_REPLY, 
            eqNet::CommandFunc<Server>( this, &Server::_cmdReleaseConfigReply ));
+    registerCommand( REQ_SERVER_RELEASE_CONFIG_REPLY, 
+           eqNet::CommandFunc<Server>( this, &Server::_reqReleaseConfigReply ));
     registerCommand( CMD_SERVER_SHUTDOWN_REPLY, 
            eqNet::CommandFunc<Server>( this, &Server::_cmdShutdownReply ));
 
@@ -106,6 +108,12 @@ void Server::releaseConfig( Config* config )
     packet.requestID = _requestHandler.registerRequest( config );
     packet.configID  = config->getID();
     send( packet );
+
+    // the release might include a Config::exit, which requires us to process
+    // the Node::configExit
+    RefPtr< Client > client = getClient();
+    while( !_requestHandler.isServed( packet.requestID ))
+        client->processCommand();
 
     _requestHandler.waitRequest( packet.requestID );
 }
@@ -199,8 +207,16 @@ eqNet::CommandResult Server::_cmdReleaseConfigReply( eqNet::Command& command )
     
     localNode->removeSession( config );
     delete config;
+
+    return eqNet::COMMAND_PUSH;
+}
+
+eqNet::CommandResult Server::_reqReleaseConfigReply( eqNet::Command& command )
+{
+    const ServerReleaseConfigReplyPacket* packet = 
+        command.getPacket<ServerReleaseConfigReplyPacket>();
+
     _requestHandler.serveRequest( packet->requestID );
-    
     return eqNet::COMMAND_HANDLED;
 }
 

@@ -202,7 +202,8 @@ namespace eqNet
          */
         virtual void applyInstanceData( const void* data, const uint64_t size )
             { 
-                EQASSERT( size == _instanceDataSize );
+                EQASSERTINFO( size == _instanceDataSize, 
+                              size << " != " << _instanceDataSize );
                 memcpy( _instanceData, data, size );
             }
 

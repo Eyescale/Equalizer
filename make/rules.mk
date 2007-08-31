@@ -166,7 +166,7 @@ testRun.%: %
 clean:
 ifdef VARIANT
 	rm -f *~ .*~ $(TARGETS) $(CLEAN_EXTRA) $(DEPENDENCIES)
-	rm -rf $(OBJECT_DIR) $(BUILD_DIR)
+	rm -rf $(BUILD_DIR)
 ifdef SUBDIRS
 	@for dir in $(SUBDIRS); do \
 		echo "$(DEPTH) $$dir clean"; \

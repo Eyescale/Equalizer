@@ -26,7 +26,6 @@ void Node::_construct()
 {
     _used             = 0;
     _config           = NULL;
-    _pendingRequestID = EQ_ID_INVALID;
 
     registerCommand( eq::CMD_NODE_CONFIG_INIT_REPLY, 
                   eqNet::CommandFunc<Node>( this, &Node::_cmdConfigInitReply ));
@@ -114,13 +113,11 @@ bool Node::removePipe( Pipe* pipe )
 //---------------------------------------------------------------------------
 void Node::startConfigInit( const uint32_t initID )
 {
-    EQASSERT( _pendingRequestID == EQ_ID_INVALID );
+    EQASSERT( _state == STATE_STOPPED );
+    _state = STATE_INITIALIZING;
 
     eq::NodeConfigInitPacket packet;
-    _pendingRequestID = _requestHandler.registerRequest(); 
-    packet.requestID  = _pendingRequestID;
-    packet.initID     = initID;
-
+    packet.initID = initID;
     _send( packet, _name );
 
     eq::NodeCreatePipePacket createPipePacket;
@@ -141,8 +138,6 @@ void Node::startConfigInit( const uint32_t initID )
 
 bool Node::syncConfigInit()
 {
-    EQASSERT( _pendingRequestID != EQ_ID_INVALID );
-
     bool success = true;
     for( PipeIter i = _pipes.begin(); i != _pipes.end(); ++i )
     {
@@ -157,11 +152,11 @@ bool Node::syncConfigInit()
         }
     }
 
-    bool requestSuccess = false;
-    _requestHandler.waitRequest( _pendingRequestID, requestSuccess );
-    if( !requestSuccess )
+    EQASSERT( _state == STATE_INITIALIZING || _state == STATE_RUNNING ||
+              _state == STATE_INIT_FAILED );
+    _state.waitNE( STATE_INITIALIZING );
+    if( _state == STATE_INIT_FAILED )
         success = false;
-    _pendingRequestID = EQ_ID_INVALID;
 
     if( !success )
         EQWARN << "Node initialisation failed: " << _error << endl;
@@ -173,7 +168,8 @@ bool Node::syncConfigInit()
 //---------------------------------------------------------------------------
 void Node::startConfigExit()
 {
-    EQASSERT( _pendingRequestID == EQ_ID_INVALID );
+    EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
+    _state = STATE_STOPPING;
 
     for( PipeIter i = _pipes.begin(); i != _pipes.end(); ++i )
     {
@@ -184,26 +180,25 @@ void Node::startConfigExit()
     }
 
     eq::NodeConfigExitPacket packet;
-    _pendingRequestID = _requestHandler.registerRequest(); 
-    packet.requestID  = _pendingRequestID;
-
     _send( packet );
     _bufferedTasks.sendBuffer( _node->getConnection( ));
 }
 
 bool Node::syncConfigExit()
 {
-    EQASSERT( _pendingRequestID != EQ_ID_INVALID );
-
-    bool success = true;
-    _requestHandler.waitRequest( _pendingRequestID, success );
-    _pendingRequestID = EQ_ID_INVALID;
+    EQASSERT( _state == STATE_STOPPING || _state == STATE_STOPPED || 
+              _state == STATE_STOP_FAILED );
+    
+    _state.waitNE( STATE_STOPPING );
+    bool success = ( _state == STATE_STOPPED );
+    EQASSERT( success || _state == STATE_STOP_FAILED );
+    _state = STATE_STOPPED; // STOP_FAILED -> STOPPED transition
 
     eq::NodeDestroyPipePacket destroyPipePacket;
     for( PipeIter i = _pipes.begin(); i != _pipes.end(); ++i )
     {
         Pipe* pipe = *i;
-        if( pipe->getState() != Pipe::STATE_STOPPING )
+        if( pipe->getID() == EQ_ID_INVALID )
             continue;
 
         if( !pipe->syncConfigExit( ))
@@ -361,7 +356,11 @@ eqNet::CommandResult Node::_cmdConfigInitReply( eqNet::Command& command )
     EQINFO << "handle configInit reply " << packet << endl;
 
     _error = packet->error;
-    _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
+    if( packet->result )
+        _state = STATE_RUNNING;
+    else
+        _state = STATE_INIT_FAILED;
+
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -371,7 +370,11 @@ eqNet::CommandResult Node::_cmdConfigExitReply( eqNet::Command& command )
         command.getPacket<eq::NodeConfigExitReplyPacket>();
     EQINFO << "handle configExit reply " << packet << endl;
 
-    _requestHandler.serveRequest( packet->requestID, (void*)true );
+    if( packet->result )
+        _state = STATE_STOPPED;
+    else
+        _state = STATE_STOP_FAILED;
+
     return eqNet::COMMAND_HANDLED;
 }
 

@@ -23,7 +23,7 @@ namespace eqBase
         /** 
          * Constructs a new monitor for the given thread type.
          */
-        Monitor()                 : _value( 0 )     { _construct(); }
+        Monitor() : _value( static_cast<T>( 0 ))    { _construct(); }
         Monitor( const T& value ) : _value( value ) { _construct(); }
 
         void _construct()
@@ -94,10 +94,24 @@ namespace eqBase
                     pthread_cond_wait( &_cond, &_mutex);
                 pthread_mutex_unlock( &_mutex );
             }
+        void waitNE( const T& val ) const
+            {
+                pthread_mutex_lock( &_mutex );
+                while( _value == val )
+                    pthread_cond_wait( &_cond, &_mutex);
+                pthread_mutex_unlock( &_mutex );
+            }
         void waitGE( const T& val ) const
             {
                 pthread_mutex_lock( &_mutex );
                 while( _value < val )
+                    pthread_cond_wait( &_cond, &_mutex);
+                pthread_mutex_unlock( &_mutex );
+            }
+        void waitLE( const T& val ) const
+            {
+                pthread_mutex_lock( &_mutex );
+                while( _value > val )
                     pthread_cond_wait( &_cond, &_mutex);
                 pthread_mutex_unlock( &_mutex );
             }

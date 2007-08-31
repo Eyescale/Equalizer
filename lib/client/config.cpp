@@ -28,10 +28,14 @@ Config::Config()
                    eqNet::CommandFunc<Config>( this, &Config::_cmdCreateNode ));
     registerCommand( CMD_CONFIG_DESTROY_NODE,
                   eqNet::CommandFunc<Config>( this, &Config::_cmdDestroyNode ));
-    registerCommand( CMD_CONFIG_INIT_REPLY, 
+    registerCommand( CMD_CONFIG_START_INIT_REPLY, 
                     eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
-    registerCommand( REQ_CONFIG_INIT_REPLY, 
-                    eqNet::CommandFunc<Config>( this, &Config::_reqInitReply ));
+    registerCommand( REQ_CONFIG_START_INIT_REPLY, 
+               eqNet::CommandFunc<Config>( this, &Config::_reqStartInitReply ));
+    registerCommand( CMD_CONFIG_FINISH_INIT_REPLY, 
+                    eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
+    registerCommand( REQ_CONFIG_FINISH_INIT_REPLY, 
+              eqNet::CommandFunc<Config>( this, &Config::_reqFinishInitReply ));
     registerCommand( CMD_CONFIG_EXIT_REPLY, 
                     eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
     registerCommand( REQ_CONFIG_EXIT_REPLY, 
@@ -94,13 +98,29 @@ Node* Config::_findNode( const uint32_t id )
     return 0;
 }
 
-bool Config::init( const uint32_t initID )
+bool Config::startInit( const uint32_t initID )
+{
+    ConfigStartInitPacket packet;
+    packet.requestID    = _requestHandler.registerRequest();
+    packet.initID       = initID;
+
+    send( packet );
+    
+    RefPtr< Client > client = getClient();
+    while( !_requestHandler.isServed( packet.requestID ))
+        client->processCommand();
+
+    bool ret = false;
+    _requestHandler.waitRequest( packet.requestID, ret );
+    return ret;
+}
+
+bool Config::finishInit()
 {
     registerObject( &_headMatrix );
 
-    ConfigInitPacket packet;
+    ConfigFinishInitPacket packet;
     packet.requestID    = _requestHandler.registerRequest();
-    packet.initID       = initID;
     packet.headMatrixID = _headMatrix.getID();
 
     send( packet );
@@ -281,9 +301,12 @@ eqNet::CommandResult Config::_cmdCreateNode( eqNet::Command& command )
     EQASSERT( packet->nodeID != EQ_ID_INVALID );
 
     Node* node = Global::getNodeFactory()->createNode();
-    
     attachObject( node, packet->nodeID );
     _addNode( node );
+
+    ConfigCreateNodeReplyPacket reply( packet );
+    send( command.getNode(), reply );
+    
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -304,11 +327,11 @@ eqNet::CommandResult Config::_cmdDestroyNode( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_reqInitReply( eqNet::Command& command )
+eqNet::CommandResult Config::_reqStartInitReply( eqNet::Command& command )
 {
-    const ConfigInitReplyPacket* packet = 
-        command.getPacket<ConfigInitReplyPacket>();
-    EQINFO << "handle init reply " << packet << endl;
+    const ConfigStartInitReplyPacket* packet = 
+        command.getPacket<ConfigStartInitReplyPacket>();
+    EQINFO << "handle start init reply " << packet << endl;
 
     _clientNodeIDs.clear();
     _clientNodes.clear();
@@ -320,6 +343,23 @@ eqNet::CommandResult Config::_reqInitReply( eqNet::Command& command )
     }
     else
         _error = packet->data.error;
+
+    _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Config::_reqFinishInitReply( eqNet::Command& command )
+{
+    const ConfigFinishInitReplyPacket* packet = 
+        command.getPacket<ConfigFinishInitReplyPacket>();
+    EQINFO << "handle finish init reply " << packet << endl;
+
+    if( !packet->result )
+    {
+        _error = packet->error;
+        _clientNodeIDs.clear();
+        _clientNodes.clear();
+    }
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;

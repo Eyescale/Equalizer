@@ -1294,8 +1294,7 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
         _iAttributes[i] = packet->iattr[i];
 
     _error.clear();
-    WindowConfigInitReplyPacket reply( packet );
-
+    WindowConfigInitReplyPacket reply;
     reply.result = configInit( packet->initID );
 
     RefPtr<eqNet::Node> node = command.getNode();
@@ -1365,9 +1364,9 @@ eqNet::CommandResult eq::Window::_reqConfigExit( eqNet::Command& command )
         _pipe->testMakeCurrentWindow( this );
     // else emergency exit, no context available.
 
-    configExit();
+    WindowConfigExitReplyPacket reply;
+    reply.result = configExit();
 
-    WindowConfigExitReplyPacket reply( packet );
     send( command.getNode(), reply );
     return eqNet::COMMAND_HANDLED;
 }

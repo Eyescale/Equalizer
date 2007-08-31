@@ -781,7 +781,7 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
     _device       = packet->device;
     _pvp          = packet->pvp;
 
-    PipeConfigInitReplyPacket reply( packet );
+    PipeConfigInitReplyPacket reply;
     _node->waitInitialized();
 
     _windowSystem = selectWindowSystem();
@@ -855,12 +855,12 @@ eqNet::CommandResult Pipe::_reqConfigExit( eqNet::Command& command )
     EQLOG( LOG_TASKS ) << "TASK configExit " << getName() <<  " " << packet 
                        << endl;
 
-    configExit();
+    PipeConfigExitReplyPacket reply;
+    reply.result = configExit();
 
     _initialized = false;
     _flushFrames();
 
-    PipeConfigExitReplyPacket reply( packet );
     send( command.getNode(), reply );
 
     // exit thread

@@ -272,9 +272,19 @@ namespace eqs
         /** The number of the last finished frame. */
         eqBase::Monitor<uint32_t> _finishedFrame;
 
-        /** The request identifier for pending asynchronous operations. */
-        uint32_t _pendingRequestID;
+        enum State
+        {
+            STATE_STOPPED = 0,  // next: INITIALIZING
+            STATE_INITIALIZING, // next: INIT_FAILED or RUNNING
+            STATE_INIT_FAILED,  // next: STOPPING
+            STATE_RUNNING,      // next: STOPPING
+            STATE_STOPPING,     // next: STOP_FAILED or STOPPED
+            STATE_STOP_FAILED,  // next: STOPPED
+        };
 
+        /** The current state for state change synchronization. */
+        eqBase::Monitor< State > _state;
+            
         /** The cached barriers. */
         std::vector<eqNet::Barrier*> _barriers;
 

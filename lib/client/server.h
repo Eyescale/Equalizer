@@ -75,6 +75,7 @@ namespace eq
         eqNet::CommandResult _cmdDestroyConfig( eqNet::Command& command );
         eqNet::CommandResult _cmdChooseConfigReply( eqNet::Command& command );
         eqNet::CommandResult _cmdReleaseConfigReply( eqNet::Command& command );
+        eqNet::CommandResult _reqReleaseConfigReply( eqNet::Command& command );
         eqNet::CommandResult _cmdShutdownReply( eqNet::Command& command );
     };
 

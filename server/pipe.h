@@ -25,10 +25,12 @@ namespace eqs
     public:
         enum State
         {
-            STATE_STOPPED,       // initial     <----+
-            STATE_INITIALISING,  // init sent        |
-            STATE_RUNNING,       // init successful  |
-            STATE_STOPPING       // exit send   -----+
+            STATE_STOPPED = 0,  // next: INITIALIZING
+            STATE_INITIALIZING, // next: INIT_FAILED or RUNNING
+            STATE_INIT_FAILED,  // next: STOPPING
+            STATE_RUNNING,      // next: STOPPING
+            STATE_STOPPING,     // next: STOP_FAILED or STOPPED
+            STATE_STOP_FAILED,  // next: STOPPED
         };
 
         /** 
@@ -47,7 +49,7 @@ namespace eqs
         /** 
          * @return the state of this pipe.
          */
-        State getState()    const { return _state; }
+        State getState()    const { return _state.get(); }
 
         /** 
          * Adds a new window to this config.
@@ -204,9 +206,6 @@ namespace eqs
         eqBase::RequestHandler _requestHandler;
 
     private:
-        /** The current operational state. */
-        State _state;
-
         /** The pipe's name */
         std::string _name;
 
@@ -228,9 +227,9 @@ namespace eqs
         Node* _node;
         friend class Node;
 
-        /** The request id for pending asynchronous operations. */
-        uint32_t _pendingRequestID;
-
+        /** The current state for state change synchronization. */
+        eqBase::Monitor< State > _state;
+            
         /** The display (X11) or ignored (Win32, AGL). */
         uint32_t _port;
 

@@ -230,6 +230,9 @@ namespace eqNet
                 node->send( packet, data, size );
             }
 
+        /** Registers request packets waiting for a return value. */
+        eqBase::RequestHandler _requestHandler;
+
     private:
         friend class Node;
         /** The local node managing the session. */
@@ -246,9 +249,6 @@ namespace eqNet
 
         /** The state (master/client) of this session instance. */
         bool _isMaster;
-
-        /** Registers request packets waiting for a return value. */
-        eqBase::RequestHandler _requestHandler;
 
         /** The distributed master identifier pool. */
         eqBase::IDPool _masterPool;

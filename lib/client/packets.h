@@ -190,6 +190,19 @@ namespace eq
             }
 
         uint32_t nodeID;
+        uint32_t requestID;
+    };
+
+    struct ConfigCreateNodeReplyPacket : public ConfigPacket
+    {
+        ConfigCreateNodeReplyPacket( const ConfigCreateNodePacket* request )
+            {
+                command   = CMD_CONFIG_CREATE_NODE_REPLY;
+                size      = sizeof( ConfigCreateNodeReplyPacket );
+                requestID = request->requestID;
+            }
+
+        uint32_t requestID;
     };
 
     struct ConfigDestroyNodePacket : public ConfigPacket
@@ -203,25 +216,24 @@ namespace eq
         uint32_t nodeID;
     };
 
-    struct ConfigInitPacket : public ConfigPacket
+    struct ConfigStartInitPacket : public ConfigPacket
     {
-        ConfigInitPacket()
+        ConfigStartInitPacket()
             {
-                command   = CMD_CONFIG_INIT;
-                size      = sizeof( ConfigInitPacket );
+                command   = CMD_CONFIG_START_INIT;
+                size      = sizeof( ConfigStartInitPacket );
             }
 
         uint32_t requestID;
         uint32_t initID;
-        uint32_t headMatrixID;
     };
 
-    struct ConfigInitReplyPacket : public ConfigPacket
+    struct ConfigStartInitReplyPacket : public ConfigPacket
     {
-        ConfigInitReplyPacket( const ConfigInitPacket* requestPacket )
+        ConfigStartInitReplyPacket( const ConfigStartInitPacket* requestPacket )
             {
-                command   = CMD_CONFIG_INIT_REPLY;
-                size      = sizeof( ConfigInitReplyPacket );
+                command   = CMD_CONFIG_START_INIT_REPLY;
+                size      = sizeof( ConfigStartInitReplyPacket );
                 requestID = requestPacket->requestID;
                 sessionID = requestPacket->sessionID;
                 data.error[0] = '\0';
@@ -233,10 +245,38 @@ namespace eq
 
         union ReturnData
         {
-            char                error[8];
-            eqNet::NodeID::Data nodeIDs[1];
+            eqNet::NodeID::Data nodeIDs[1]; // if result == true
+            char                error[8];   // if result == false
         };
         EQ_ALIGN8( ReturnData data );
+    };
+
+    struct ConfigFinishInitPacket : public ConfigPacket
+    {
+        ConfigFinishInitPacket()
+            {
+                command   = CMD_CONFIG_FINISH_INIT;
+                size      = sizeof( ConfigFinishInitPacket );
+            }
+
+        uint32_t requestID;
+        uint32_t headMatrixID;
+    };
+
+    struct ConfigFinishInitReplyPacket : public ConfigPacket
+    {
+        ConfigFinishInitReplyPacket( const ConfigFinishInitPacket* request )
+            {
+                command   = CMD_CONFIG_FINISH_INIT_REPLY;
+                size      = sizeof( ConfigFinishInitReplyPacket );
+                requestID = request->requestID;
+                sessionID = request->sessionID;
+                error[0]  = '\0';
+            }
+
+        uint32_t requestID;
+        bool     result;
+        EQ_ALIGN8( char error[8] );
     };
 
     struct ConfigExitPacket : public ConfigPacket
@@ -356,22 +396,19 @@ namespace eq
                 name[0]        = '\0';
             }
 
-        uint32_t requestID;
         uint32_t initID;
         EQ_ALIGN8( char name[8] );
     };
 
     struct NodeConfigInitReplyPacket : public eqNet::ObjectPacket
     {
-        NodeConfigInitReplyPacket( const NodeConfigInitPacket* requestPacket )
+        NodeConfigInitReplyPacket()
             {
                 command   = CMD_NODE_CONFIG_INIT_REPLY;
-                requestID = requestPacket->requestID;
                 size      = sizeof( NodeConfigInitReplyPacket );
                 error[0]  = '\0';
             }
 
-        uint32_t requestID;
         bool     result;
         EQ_ALIGN8( char error[8] );
     };
@@ -383,20 +420,16 @@ namespace eq
                 command = CMD_NODE_CONFIG_EXIT;
                 size    = sizeof( NodeConfigExitPacket );
             }
-
-        uint32_t requestID;
     };
 
     struct NodeConfigExitReplyPacket : public eqNet::ObjectPacket
     {
-        NodeConfigExitReplyPacket( const NodeConfigExitPacket* requestPacket )
+        NodeConfigExitReplyPacket()
             {
                 command   = CMD_NODE_CONFIG_EXIT_REPLY;
-                requestID = requestPacket->requestID;
                 size      = sizeof( NodeConfigExitReplyPacket );
             }
 
-        uint32_t requestID;
         bool     result;
     };
 
@@ -493,7 +526,6 @@ namespace eq
                 name[0] = '\0';
             }
 
-        uint32_t      requestID;
         uint32_t      initID;
         uint32_t      port;
         uint32_t      device;
@@ -504,15 +536,13 @@ namespace eq
 
     struct PipeConfigInitReplyPacket : public eqNet::ObjectPacket
     {
-        PipeConfigInitReplyPacket( const PipeConfigInitPacket* requestPacket )
+        PipeConfigInitReplyPacket()
             {
                 command   = CMD_PIPE_CONFIG_INIT_REPLY;
-                requestID = requestPacket->requestID;
                 size      = sizeof( PipeConfigInitReplyPacket );
                 error[0]  = '\0';
             }
 
-        uint32_t      requestID;
         bool          result;
         PixelViewport pvp;
         EQ_ALIGN8( char error[8] );
@@ -525,20 +555,16 @@ namespace eq
                 command = CMD_PIPE_CONFIG_EXIT;
                 size    = sizeof( PipeConfigExitPacket );
             }
-
-        uint32_t requestID;
     };
 
     struct PipeConfigExitReplyPacket : public eqNet::ObjectPacket
     {
-        PipeConfigExitReplyPacket( const PipeConfigExitPacket* requestPacket )
+        PipeConfigExitReplyPacket()
             {
                 command   = CMD_PIPE_CONFIG_EXIT_REPLY;
-                requestID = requestPacket->requestID;
                 size      = sizeof( PipeConfigExitReplyPacket );
             }
 
-        uint32_t requestID;
         bool     result;
     };
 
@@ -578,7 +604,6 @@ namespace eq
                 name[0] = '\0';
             }
 
-        uint32_t       requestID;
         uint32_t       initID;
         int32_t        iattr[eq::Window::IATTR_ALL];
         PixelViewport  pvp;
@@ -588,18 +613,16 @@ namespace eq
 
     struct WindowConfigInitReplyPacket : public eqNet::ObjectPacket
     {
-        WindowConfigInitReplyPacket( const WindowConfigInitPacket* request )
+        WindowConfigInitReplyPacket()
             {
                 command   = CMD_WINDOW_CONFIG_INIT_REPLY;
                 size      = sizeof( WindowConfigInitReplyPacket );
-                requestID = request->requestID;
                 error[0]  = '\0';
             }
 
-        uint32_t                requestID;
-        bool                    result;
         PixelViewport           pvp;
         Window::DrawableConfig  drawableConfig;
+        bool                    result;
         EQ_ALIGN8( char error[8] );
     };
 
@@ -610,20 +633,16 @@ namespace eq
                 command = CMD_WINDOW_CONFIG_EXIT;
                 size    = sizeof( WindowConfigExitPacket );
             }
-
-        uint32_t requestID;
     };
 
     struct WindowConfigExitReplyPacket : public eqNet::ObjectPacket
     {
-        WindowConfigExitReplyPacket( const WindowConfigExitPacket* request )
+        WindowConfigExitReplyPacket()
             {
                 command   = CMD_WINDOW_CONFIG_EXIT_REPLY;
                 size      = sizeof( WindowConfigExitReplyPacket );
-                requestID = request->requestID;
             }
 
-        uint32_t requestID;
         bool     result;
     };
 
@@ -725,7 +744,6 @@ namespace eq
                 name[0] = '\0';
             }
 
-        uint32_t        requestID;
         uint32_t        initID;
         int32_t         iattr[eq::Channel::IATTR_ALL];
         PixelViewport   pvp;
@@ -736,16 +754,13 @@ namespace eq
 
     struct ChannelConfigInitReplyPacket : public eqNet::ObjectPacket
     {
-        ChannelConfigInitReplyPacket( const ChannelConfigInitPacket* 
-                                      requestPacket )
+        ChannelConfigInitReplyPacket()
             {
                 command   = CMD_CHANNEL_CONFIG_INIT_REPLY;
-                requestID = requestPacket->requestID;
                 size      = sizeof( ChannelConfigInitReplyPacket );
                 error[0]  = '\0';
             }
 
-        uint32_t requestID;
         float    nearPlane;
         float    farPlane;
         bool     result;
@@ -759,21 +774,16 @@ namespace eq
                 command = CMD_CHANNEL_CONFIG_EXIT;
                 size    = sizeof( ChannelConfigExitPacket );
             }
-
-        uint32_t requestID;
     };
 
     struct ChannelConfigExitReplyPacket : public eqNet::ObjectPacket
     {
-        ChannelConfigExitReplyPacket( const ChannelConfigExitPacket* 
-                                      requestPacket )
+        ChannelConfigExitReplyPacket()
             {
                 command   = CMD_CHANNEL_CONFIG_EXIT_REPLY;
-                requestID = requestPacket->requestID;
                 size      = sizeof( ChannelConfigExitReplyPacket );
             }
 
-        uint32_t requestID;
         bool     result;
     };
 
@@ -982,12 +992,6 @@ namespace eq
         return os;
     }
 
-    inline std::ostream& operator << ( std::ostream& os,
-                                       const ConfigInitReplyPacket* packet )
-    {
-        os << (eqNet::ObjectPacket*)packet << " requestID " <<packet->requestID;
-        return os;
-    }
     inline std::ostream& operator << ( std::ostream& os, 
                                      const ConfigStartFrameReplyPacket* packet )
     {

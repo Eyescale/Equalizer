@@ -256,11 +256,25 @@ bool Connection::send( Packet& packet, const void* data,
     }
     // else
 
-    uint64_t       size   = packet.size-8 + dataSize;
+    const uint64_t headerSize  = packet.size - 8;
+    const uint64_t size        = headerSize + dataSize;
+    if( size > ASSEMBLE_THRESHOLD )
+    {
+        // OPT: lock the connection and use two send() to avoid big memcpy
+        packet.size = size;
+
+        lockSend();
+        const bool ret = ( send( &packet, headerSize, true ) &&
+                           send( data,    dataSize,   true ));
+        unlockSend();
+        return ret;
+    }
+    // else
+
     char*          buffer = (char*)alloca( size );
 
-    memcpy( buffer, &packet, packet.size-8 );
-    memcpy( buffer + packet.size-8, data, dataSize );
+    memcpy( buffer,              &packet, headerSize );
+    memcpy( buffer + headerSize, data,    dataSize );
 
     ((Packet*)buffer)->size = size;
     return send( buffer, size );

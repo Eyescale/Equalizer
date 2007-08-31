@@ -25,8 +25,6 @@ void Channel::_construct()
 {
     _used             = 0;
     _window           = NULL;
-    _pendingRequestID = EQ_ID_INVALID;
-    _state            = STATE_STOPPED;
     _fixedPVP         = false;
 
     registerCommand( eq::CMD_CHANNEL_CONFIG_INIT_REPLY, 
@@ -200,11 +198,10 @@ void Channel::startConfigInit( const uint32_t initID )
 
 void Channel::_sendConfigInit( const uint32_t initID )
 {
-    EQASSERT( _pendingRequestID == EQ_ID_INVALID );
+    EQASSERT( _state == STATE_STOPPED );
+    _state = STATE_INITIALIZING;
 
     eq::ChannelConfigInitPacket packet;
-    _pendingRequestID = _requestHandler.registerRequest(); 
-    packet.requestID  = _pendingRequestID;
     packet.initID     = initID;
     packet.color      = _getUniqueColor();
     if( _fixedPVP )
@@ -216,21 +213,20 @@ void Channel::_sendConfigInit( const uint32_t initID )
         packet.iattr[i] = _iAttributes[i];
     
     send( packet, _name );
-    _state = STATE_INITIALIZING;
     EQLOG( eq::LOG_TASKS ) << "TASK configInit  " << &packet << endl;
 }
 
 bool Channel::syncConfigInit()
 {
-    bool success = false;
-    _requestHandler.waitRequest( _pendingRequestID, success );
-    _pendingRequestID = EQ_ID_INVALID;
+    EQASSERT( _state == STATE_INITIALIZING || _state == STATE_RUNNING ||
+              _state == STATE_INIT_FAILED );
+    _state.waitNE( STATE_INITIALIZING );
 
-    if( success )
-        _state = STATE_RUNNING;
-    else
-        EQWARN << "Channel initialisation failed: " << _error << endl;
-    return success;
+    if( _state == STATE_RUNNING )
+        return true;
+
+    EQWARN << "Channel initialisation failed: " << _error << endl;
+    return false;
 }
 
 //---------------------------------------------------------------------------
@@ -238,31 +234,30 @@ bool Channel::syncConfigInit()
 //---------------------------------------------------------------------------
 void Channel::startConfigExit()
 {
+    EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_STOPPING;
     _sendConfigExit();
 }
 
 void Channel::_sendConfigExit()
 {
-    EQASSERT( _pendingRequestID == EQ_ID_INVALID );
-
     eq::ChannelConfigExitPacket packet;
-    _pendingRequestID = _requestHandler.registerRequest(); 
-    packet.requestID  = _pendingRequestID;
     send( packet );
     EQLOG( eq::LOG_TASKS ) << "TASK configExit  " << &packet << endl;
 }
 
 bool Channel::syncConfigExit()
 {
-    EQASSERT( _pendingRequestID != EQ_ID_INVALID );
+    EQASSERT( _state == STATE_STOPPING || _state == STATE_STOPPED || 
+              _state == STATE_STOP_FAILED );
+    
+    _state.waitNE( STATE_STOPPING );
+    if( _state == STATE_STOPPED )
+        return true;
 
-    bool success = false;
-    _requestHandler.waitRequest( _pendingRequestID, success );
-    _pendingRequestID = EQ_ID_INVALID;
-
-    _state = STATE_STOPPED;
-    return success;
+    EQASSERT( _state == STATE_STOP_FAILED );
+    _state = STATE_STOPPED; /// STOP_FAILED -> STOPPED transition
+    return false;
 }
 
 
@@ -308,7 +303,11 @@ eqNet::CommandResult Channel::_cmdConfigInitReply( eqNet::Command& command )
     _far   = packet->farPlane;
     _error = packet->error;
 
-    _requestHandler.serveRequest( packet->requestID, (void*)packet->result );
+    if( packet->result )
+        _state = STATE_RUNNING;
+    else
+        _state = STATE_INIT_FAILED;
+
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -318,7 +317,11 @@ eqNet::CommandResult Channel::_cmdConfigExitReply( eqNet::Command& command )
         command.getPacket<eq::ChannelConfigExitReplyPacket>();
     EQINFO << "handle channel configExit reply " << packet << endl;
 
-    _requestHandler.serveRequest( packet->requestID, (void*)true );
+    if( packet->result )
+        _state = STATE_STOPPED;
+    else
+        _state = STATE_STOP_FAILED;
+
     return eqNet::COMMAND_HANDLED;
 }
 
