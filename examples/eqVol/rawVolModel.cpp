@@ -176,10 +176,9 @@ bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range
 			}
 			TF[4*i+3] = tmp;
 		}
-
+        
 		createPreintegrationTable( &TF[0], preint );
 	}
-
 // reading volume and derivatives
 
     uint32_t s = static_cast<uint32_t>( hlpFuncs::clip<int32_t>( d*range.start, 0, d-1 ) );
@@ -198,6 +197,7 @@ bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range
 	vector<uint8_t> data( tW*tH*tD*4, 0 );
 
 	_resolution = max( w, max( h, d ) );
+	
     EQWARN << "r: " << _resolution << endl;
 	
 	TD.W  =   (float)w / (float)tW;
@@ -223,12 +223,12 @@ bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range
 			if( w==tW ) 	// only width is power of 2
 			{
 				for( uint32_t i=0; i<depth; i++ )
-					file.read( (char*)( &data[i*tW*tH] ), w*h*4 );
+					file.read( (char*)( &data[i*tW*tH*4] ), w*h*4 );
 			}else
 			{				// nor width nor heigh is power of 2
 				for( uint32_t i=0; i<depth; i++ )
 					for( uint32_t j=0; j<h; j++ )
-						file.read( (char*)( &data[i*tW*tH + j*tW] ), w*4 );
+						file.read( (char*)( &data[(i*tW*tH + j*tW)*4] ), w*4 );
 			}
 	
 		file.close();		
