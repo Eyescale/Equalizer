@@ -13,12 +13,14 @@ using namespace eqBase;
 using namespace std;
 
 #ifndef WIN32
+#  include <sys/wait.h>
+
 // the signal handler for SIGCHILD
 static void sigChildHandler( int /*signal*/ )
 {
     // Get exit status to avoid zombies
     int status;
-    wait( &status );
+    ::wait( &status );
 
     // DO NOT USE cout/cerr: signal handler might be called while another cout
     //            is in progress, which will cause a deadlock due to a double
