@@ -90,6 +90,7 @@ namespace eq
             { _currentFrame.waitGE( frameNumber ); }
 
  
+#ifdef EQ_TRANSMISSION_API
         /** @name Data Transmission. */
         //*{
         /** 
@@ -111,6 +112,7 @@ namespace eq
         /** @return true if data is available, false if not. */
         bool  hasData() const;
         //*}
+#endif
 
     protected:
         /**

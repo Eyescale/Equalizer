@@ -52,8 +52,10 @@ Config::Config()
          eqNet::CommandFunc<Config>( this, &Config::_reqFinishAllFramesReply ));
     registerCommand( CMD_CONFIG_EVENT, 
                      eqNet::CommandFunc<Config>( this, &Config::_cmdEvent ));
+#ifdef EQ_TRANSMISSION_API
     registerCommand( CMD_CONFIG_DATA, 
                      eqNet::CommandFunc<Config>( this, &Config::_cmdData ));
+#endif
 }
 
 Config::~Config()
@@ -98,7 +100,7 @@ Node* Config::_findNode( const uint32_t id )
     return 0;
 }
 
-bool Config::startInit( const uint32_t initID )
+bool Config::_startInit( const uint32_t initID )
 {
     ConfigStartInitPacket packet;
     packet.requestID    = _requestHandler.registerRequest();
@@ -115,7 +117,7 @@ bool Config::startInit( const uint32_t initID )
     return ret;
 }
 
-bool Config::finishInit()
+bool Config::_finishInit()
 {
     registerObject( &_headMatrix );
 
@@ -245,6 +247,7 @@ void Config::setHeadMatrix( const vmml::Matrix4f& matrix )
     _headMatrix.commit();
 }
 
+#ifdef EQ_TRANSMISSION_API
 void Config::broadcastData( const void* data, uint64_t size )
 {
     if( _clientNodeIDs.empty( ))
@@ -289,6 +292,7 @@ bool Config::_connectClientNodes()
     }
     return true;
 }
+#endif // EQ_TRANSMISSION_API
 
 //---------------------------------------------------------------------------
 // command handlers
@@ -333,6 +337,7 @@ eqNet::CommandResult Config::_reqStartInitReply( eqNet::Command& command )
         command.getPacket<ConfigStartInitReplyPacket>();
     EQINFO << "handle start init reply " << packet << endl;
 
+#ifdef EQ_TRANSMISSION_API
     _clientNodeIDs.clear();
     _clientNodes.clear();
 
@@ -343,6 +348,10 @@ eqNet::CommandResult Config::_reqStartInitReply( eqNet::Command& command )
     }
     else
         _error = packet->data.error;
+#else
+    if( !packet->result )
+        _error = packet->data.error;
+#endif
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;
@@ -357,8 +366,10 @@ eqNet::CommandResult Config::_reqFinishInitReply( eqNet::Command& command )
     if( !packet->result )
     {
         _error = packet->error;
+#ifdef EQ_TRANSMISSION_API
         _clientNodeIDs.clear();
         _clientNodes.clear();
+#endif
     }
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
@@ -371,8 +382,10 @@ eqNet::CommandResult Config::_reqExitReply( eqNet::Command& command )
         command.getPacket<ConfigExitReplyPacket>();
     EQINFO << "handle exit reply " << packet << endl;
 
+#ifdef EQ_TRANSMISSION_API
     _clientNodeIDs.clear();
     _clientNodes.clear();
+#endif
 
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;
@@ -425,6 +438,7 @@ eqNet::CommandResult Config::_cmdEvent( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
+#ifdef EQ_TRANSMISSION_API
 eqNet::CommandResult Config::_cmdData( eqNet::Command& command )
 {
     EQVERB << "received data " << command.getPacket<ConfigDataPacket>()
@@ -440,3 +454,4 @@ eqNet::CommandResult Config::_cmdData( eqNet::Command& command )
     _nodes[0]->_dataQueue.push( command );
     return eqNet::COMMAND_HANDLED;
 }
+#endif

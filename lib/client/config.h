@@ -40,21 +40,7 @@ namespace eq
          * @return true if the initialisation was successful, false if not.
          */
         virtual bool init( const uint32_t initID )
-            { return startInit( initID ) && finishInit(); }
-
-        /** 
-         * Start initializing the configuration.
-         * 
-         * @param initID an identifier to be passed to all init methods. 
-         */
-        virtual bool startInit( const uint32_t initID );
-
-        /** 
-         * Finish initializing the configuration.
-         * 
-         * @return true if the initialisation was successful, false if not.
-         */
-        virtual bool finishInit();
+            { return _startInit( initID ) && _finishInit(); }
 
         /** 
          * Exits this configuration.
@@ -159,6 +145,7 @@ namespace eq
         const std::string& getErrorMessage() const { return _error; }
         //*}
 
+#ifdef EQ_TRANSMISSION_API
         /** @name Data Transmission. */
         //*{
         /** 
@@ -169,6 +156,7 @@ namespace eq
          */
         void broadcastData( const void* data, uint64_t size );
         //*}
+#endif
 
     protected:
         virtual ~Config();
@@ -181,11 +169,13 @@ namespace eq
         /** The node running the application thread. */
         eqBase::RefPtr<eqNet::Node> _appNode;
 
+#ifdef EQ_TRANSMISSION_API
         /** The list of the running client node identifiers. */
         std::vector<eqNet::NodeID> _clientNodeIDs;
 
         /** The running client nodes, is cleared when _clientNodeIDs changes. */
         std::vector< eqBase::RefPtr<eqNet::Node> > _clientNodes;
+#endif
 
         /** Locally-instantiated nodes of this config. */
         std::vector<Node*> _nodes;
@@ -193,6 +183,20 @@ namespace eq
         void _addNode( Node* node );
         void _removeNode( Node* node );
         Node* _findNode( const uint32_t id );
+
+        /** 
+         * Start initializing the configuration.
+         * 
+         * @param initID an identifier to be passed to all init methods. 
+         */
+        virtual bool _startInit( const uint32_t initID );
+
+        /** 
+         * Finish initializing the configuration.
+         * 
+         * @return true if the initialisation was successful, false if not.
+         */
+        virtual bool _finishInit();
 
         /** The matrix describing the head position and orientation. */
         Matrix4f _headMatrix;
@@ -206,8 +210,10 @@ namespace eq
         /** The receiver->app thread event queue. */
         CommandQueue           _eventQueue;
 
+#ifdef EQ_TRANSMISSION_API
         /** Connect client nodes of this config. */
         bool _connectClientNodes();
+#endif
 
         /** The command functions. */
         eqNet::CommandResult _cmdCreateNode( eqNet::Command& command );
@@ -219,7 +225,9 @@ namespace eq
         eqNet::CommandResult _reqFinishFrameReply( eqNet::Command& command );
         eqNet::CommandResult _reqFinishAllFramesReply( eqNet::Command& command);
         eqNet::CommandResult _cmdEvent( eqNet::Command& command );
+#ifdef EQ_TRANSMISSION_API
         eqNet::CommandResult _cmdData( eqNet::Command& command );
+#endif
     };
 }
 

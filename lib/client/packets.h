@@ -373,6 +373,7 @@ namespace eq
         uint32_t result;
     };
 
+#ifdef EQ_TRANSMISSION_API
     struct ConfigDataPacket : public ConfigPacket
     {
         ConfigDataPacket()
@@ -383,6 +384,7 @@ namespace eq
         uint64_t dataSize;
         EQ_ALIGN8( char data[8] );        
     };
+#endif
 
     //------------------------------------------------------------
     // Node

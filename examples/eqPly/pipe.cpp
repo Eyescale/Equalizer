@@ -3,10 +3,11 @@
  * Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
  * All rights reserved.
  *
- * The pipe object is responsible for maintaining the frame-specific data. The
- * identifier passed by the application contains the version of the frame data
- * corresponding to the rendered frame. The pipe's start frame callback
- * synchronizes the thread-local instance of the frame data to this version.
+ * The pipe object is responsible for maintaining GPU-specific and
+ * frame-specific data. The identifier passed by the application contains the
+ * version of the frame data corresponding to the rendered frame. The pipe's
+ * start frame callback synchronizes the thread-local instance of the frame data
+ * to this version.
  */
 
 #include "pipe.h"
@@ -27,6 +28,13 @@ eq::WindowSystem Pipe::selectWindowSystem() const
 
     if( ws == eq::WINDOW_SYSTEM_NONE )
         return eq::Pipe::selectWindowSystem();
+    if( !supportsWindowSystem( ws ))
+    {
+        EQWARN << "Window system " << ws 
+               << " not supported, using default window system" << endl;
+        return eq::Pipe::selectWindowSystem();
+    }
+
     return ws;
 }
 

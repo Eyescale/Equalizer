@@ -12,8 +12,6 @@
 
 namespace eqVol
 {
-	using namespace eq;
-	
     class Node : public eq::Node
     {
     public:

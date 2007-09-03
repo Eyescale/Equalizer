@@ -242,6 +242,7 @@ void Node::_flushObjects()
     _frameDatasMutex.unset();
 }
 
+#ifdef EQ_TRANSMISSION_API
 const void* Node::receiveData( uint64_t* size )
 {
     eqNet::Command* command = _dataQueue.pop();
@@ -273,6 +274,7 @@ bool Node::hasData() const
 {
     return !_dataQueue.empty();
 }
+#endif // EQ_TRANSMISSION_API
 
 //---------------------------------------------------------------------------
 // command handlers
