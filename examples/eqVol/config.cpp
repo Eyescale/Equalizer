@@ -45,7 +45,6 @@ bool Config::init()
             // Note: this depends on the physical installation.
             vmml::Matrix4f m( vmml::Matrix4f::IDENTITY );
             m.scale( 1.f, 1.f, -1.f );
-			//m.setTranslation( 0.f, 0.f, -5.f);
             //m.x = .5;
             _tracker.setWorldToEmitter( m );
 
@@ -55,8 +54,6 @@ bool Config::init()
             EQLOG( eq::LOG_CUSTOM ) << "Tracker initialised" << endl;
         }
     }
-
-	//init model
 
     return true;
 }

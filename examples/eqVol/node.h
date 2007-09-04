@@ -17,9 +17,6 @@ namespace eqVol
     public:
         const InitData& getInitData() const { return _initData; }
 
-		virtual eq::FrameData* getFrameData( const uint32_t id, const uint32_t version );
-
-
     protected:
         virtual ~Node(){}
 
@@ -27,8 +24,8 @@ namespace eqVol
         virtual bool configExit();
 
     private:
- 		
 		InitData _initData;
+
     };
 }
 

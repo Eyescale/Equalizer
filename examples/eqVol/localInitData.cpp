@@ -10,10 +10,8 @@
 #include <algorithm>
 #include <cctype>
 #include <functional>
-
 #include <tclap/CmdLine.h>
 #include "rawConverter.h"
-
 
 using namespace std;
 
@@ -32,7 +30,6 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     _color       = from._color;        
     _isResident  = from._isResident;
     setDataFilename( from.getDataFilename( ));
-//    setInfoFilename( from.getInfoFilename( ));
     setWindowSystem( from.getWindowSystem( ));
     return *this;
 }
@@ -45,13 +42,13 @@ void LocalInitData::parseArguments( int argc, char** argv )
         TCLAP::ValueArg<string> modelArg( "m", "model", "raw model file name", 
                                           false, "Bucky32x32x32.raw", "string", 
                                           command );
-         TCLAP::ValueArg<string> derArg( "d", "der", "data plus derivatives name", 
+        TCLAP::ValueArg<string> derArg( "d", "der", "data plus derivatives name", 
                                           false, "Bucky32x32x32_d.raw", "string", 
                                           command );
-         TCLAP::ValueArg<string> savArg( "s", "sav", "sav to vhf transfer function converter", 
+        TCLAP::ValueArg<string> savArg( "s", "sav", "sav to vhf transfer function converter", 
                                           false, "Bucky32x32x32.raw.vhf", "string", 
                                           command );
-         TCLAP::ValueArg<string> dscArg( "c", "dsc", "dsc to vhf file converter", 
+        TCLAP::ValueArg<string> dscArg( "c", "dsc", "dsc to vhf file converter", 
                                           false, "Bucky32x32x32.pvm.dsc", "string", 
                                           command );
         TCLAP::ValueArg<string> portArg( "p", "port", "tracking device port",
@@ -125,10 +122,10 @@ void LocalInitData::parseArguments( int argc, char** argv )
             setWindowSystem( eq::WINDOW_SYSTEM_GLX );
 
 
-         _color         = !colorArg.isSet();
+        _color         = !colorArg.isSet();
  
-         if( framesArg.isSet() )
-             _maxFrames = framesArg.getValue();
+        if( framesArg.isSet() )
+            _maxFrames = framesArg.getValue();
  
         if( residentArg.isSet() )
             _isResident = true;

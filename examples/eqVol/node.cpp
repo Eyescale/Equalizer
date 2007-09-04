@@ -29,10 +29,4 @@ bool Node::configExit()
     return eq::Node::configExit();
 }
 
-eq::FrameData* Node::getFrameData( const uint32_t id, const uint32_t version )
-{
-	return eq::Node::getFrameData( id, version );
-}
-
-
 }

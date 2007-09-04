@@ -24,26 +24,21 @@ namespace eqVol
         uint32_t           getFrameDataID()  const { return _frameDataID;  }
         eq::WindowSystem   getWindowSystem() const { return _windowSystem; }
         const std::string& getDataFilename() const { return _dataFilename; }
-//        const std::string& getInfoFilename() const { return _infoFilename; }
  
     protected:
         virtual const void* getInstanceData( uint64_t* size );
         virtual void applyInstanceData( const void* data, const uint64_t size );
 
-         void setWindowSystem( const eq::WindowSystem windowSystem )
-             { _clearInstanceData(); _windowSystem = windowSystem; }
+        void setWindowSystem( const eq::WindowSystem windowSystem )
+            { _clearInstanceData(); _windowSystem = windowSystem; }
   
-         void setDataFilename( const std::string& dataFilename )
-             { _clearInstanceData(); _dataFilename = dataFilename; }
- 
-//         void setInfoFilename( const std::string& infoFilename )
-//             { _clearInstanceData(); _infoFilename = infoFilename; }
- 
+        void setDataFilename( const std::string& dataFilename )
+            { _clearInstanceData(); _dataFilename = dataFilename; }
+  
     private:
         uint32_t         _frameDataID;
         eq::WindowSystem _windowSystem;
         std::string      _dataFilename;	//!< volume raw data file name
-//        std::string _infoFilename;	//!< volume info file name
 
         char* _instanceData;
         void  _clearInstanceData();
