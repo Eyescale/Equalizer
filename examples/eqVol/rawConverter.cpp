@@ -7,6 +7,9 @@
 
 namespace eqVol
 {
+    
+using hlpFuncs::clip;
+
 
 void getHeaderParameters( const string& fileName, uint32_t &w, uint32_t &h, uint32_t &d, vector<uint8_t> &TF );
 void CreateTransferFunc( int t, uint8_t *transfer );
@@ -105,15 +108,15 @@ void RawConverter::ConvertRawToRawPlusDerivatives( const string& src, const stri
                           nxtP[ -1+w ]- 3*nxtP[ -1   ]-   nxtP[ -1-w ];
                 
                 
-                    int32_t length = sqrt( (gx*gx+gy*gy+gz*gz) )+1;
+                    int32_t length = static_cast<int32_t>(sqrt( (gx*gx+gy*gy+gz*gz) )+1);
                 
                     gx = ( gx*255/length + 255 )/2; 
                     gy = ( gy*255/length + 255 )/2;
                     gz = ( gz*255/length + 255 )/2;
                 
-                    GxGyGzA[(zwh_y + x)*4   ] = (uint8_t)(gx);
-                    GxGyGzA[(zwh_y + x)*4 +1] = (uint8_t)(gy);
-                    GxGyGzA[(zwh_y + x)*4 +2] = (uint8_t)(gz);    
+                    GxGyGzA[(zwh_y + x)*4   ] = static_cast<uint8_t>( gx );
+                    GxGyGzA[(zwh_y + x)*4 +1] = static_cast<uint8_t>( gy );
+                    GxGyGzA[(zwh_y + x)*4 +2] = static_cast<uint8_t>( gz );
                     GxGyGzA[(zwh_y + x)*4 +3] = curP[0];
                 }
             }
@@ -191,9 +194,9 @@ void RawConverter::SavToVhfConverter( const string& src, const string& dst )
         
         for( int i=0; i<TFSize; i++ )
         {
-            fscanf( file, "re=%f\n", &t   ); TF[4*i  ] = hlpFuncs::clip<uint8_t>( t*255.0, 0, 255 );
-            fscanf( file, "ge=%f\n", &t   ); TF[4*i+1] = hlpFuncs::clip<uint8_t>( t*255.0, 0, 255 );
-            fscanf( file, "be=%f\n", &t   ); TF[4*i+2] = hlpFuncs::clip<uint8_t>( t*255.0, 0, 255 );
+            fscanf( file, "re=%f\n", &t   ); TF[4*i  ] = clip( static_cast<int32_t>( t*255.0 ), 0, 255 );
+            fscanf( file, "ge=%f\n", &t   ); TF[4*i+1] = clip( static_cast<int32_t>( t*255.0 ), 0, 255 );
+            fscanf( file, "be=%f\n", &t   ); TF[4*i+2] = clip( static_cast<int32_t>( t*255.0 ), 0, 255 );
             fscanf( file, "ra=%f\n", &tra );    
             fscanf( file, "ga=%f\n", &tba );
             if( fscanf( file, "ba=%f\n", &tga ) !=1 )
@@ -201,7 +204,7 @@ void RawConverter::SavToVhfConverter( const string& src, const string& dst )
                 EQERROR << "Failed to read entity #" << i << " of sav file" << endl;
                 return;
             }
-            TF[4*i+3] = hlpFuncs::clip<uint8_t>( (tra+tga+tba)*255.0/3.0, 0, 255 );
+            TF[4*i+3] = clip( static_cast<int32_t>( (tra+tga+tba)*255.0/3.0 ), 0, 255 );
         }        
     }else
     {   //predefined transfer functions and parameters

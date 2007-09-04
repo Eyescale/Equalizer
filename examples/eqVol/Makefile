@@ -29,6 +29,8 @@ endif
 
 ifeq "${ARCH}" "Linux"
   SA_LDFLAGS += -lrt
+  LDFLAGS    += -lCg -lCgGL
+  LDFLAGS    += -lGLU
 ifeq "${SUBARCH}" "ia64"
     SA_LDFLAGS += -luuid
 endif

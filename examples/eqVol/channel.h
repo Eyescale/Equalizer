@@ -41,7 +41,7 @@ namespace eqVol
 		
 		void clearViewport( const PixelViewport &pvp );
 		
-		void Channel::frameClear( const uint32_t frameID );
+		void frameClear( const uint32_t frameID );
 
 
     private:

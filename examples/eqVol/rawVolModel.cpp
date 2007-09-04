@@ -9,6 +9,7 @@ namespace eqVol
 
 #define COMPOSE_MODE_NEW
 
+using hlpFuncs::clip;
 
 void createPreintegrationTable( const uint8_t *Table, GLuint &preintName )
 {
@@ -46,31 +47,31 @@ void createPreintegrationTable( const uint8_t *Table, GLuint &preintName )
 			if( smax != smin )
 			{
 				double factor = 1. / (double)(smax-smin);
-				rcol = (rInt[smax]-rInt[smin])*factor;
-				gcol = (gInt[smax]-gInt[smin])*factor;
-				bcol = (bInt[smax]-bInt[smin])*factor;
+				rcol = static_cast<int>( (rInt[smax]-rInt[smin])*factor );
+				gcol = static_cast<int>( (gInt[smax]-gInt[smin])*factor );
+				bcol = static_cast<int>( (bInt[smax]-bInt[smin])*factor );
 #ifdef COMPOSE_MODE_NEW
-				acol = 256.*(exp(-(aInt[smax]-aInt[smin])*factor/255.));
+				acol = static_cast<int>( 256.*(    exp(-(aInt[smax]-aInt[smin])*factor/255.)) );
 #else
-				acol = 256.*(1.0-exp(-(aInt[smax]-aInt[smin])*factor/255.));
+				acol = static_cast<int>( 256.*(1.0-exp(-(aInt[smax]-aInt[smin])*factor/255.)) );
 #endif
 			} else
 			{
 				double factor = 1./255.;
-				rcol = Table[smin*4+0]*Table[smin*4+3]*factor;
-				gcol = Table[smin*4+1]*Table[smin*4+3]*factor;
-				bcol = Table[smin*4+2]*Table[smin*4+3]*factor;
+				rcol = static_cast<int>( Table[smin*4+0]*Table[smin*4+3]*factor );
+				gcol = static_cast<int>( Table[smin*4+1]*Table[smin*4+3]*factor );
+				bcol = static_cast<int>( Table[smin*4+2]*Table[smin*4+3]*factor );
 #ifdef COMPOSE_MODE_NEW
-				acol = 256.*(exp(-Table[smin*4+3]*1./255.));
+				acol = static_cast<int>( 256.*(    exp(-Table[smin*4+3]*1./255.)) );
 #else
-				acol = 256.*(1.0-exp(-Table[smin*4+3]*1./255.));
+				acol = static_cast<int>( 256.*(1.0-exp(-Table[smin*4+3]*1./255.)) );
 #endif
 			}
 			
-            lookupImg[lookupindex++] = hlpFuncs::clip( rcol, 0, 255 );//min( rcol, 255 );	
-			lookupImg[lookupindex++] = hlpFuncs::clip( gcol, 0, 255 );//min( gcol, 255 );
-			lookupImg[lookupindex++] = hlpFuncs::clip( bcol, 0, 255 );//min( bcol, 255 );
-			lookupImg[lookupindex++] = hlpFuncs::clip( acol, 0, 255 );//min( acol, 255 );
+            lookupImg[lookupindex++] = clip( rcol, 0, 255 );//min( rcol, 255 );	
+			lookupImg[lookupindex++] = clip( gcol, 0, 255 );//min( gcol, 255 );
+			lookupImg[lookupindex++] = clip( bcol, 0, 255 );//min( bcol, 255 );
+			lookupImg[lookupindex++] = clip( acol, 0, 255 );//min( acol, 255 );
 		}
 	}
 	
@@ -181,11 +182,11 @@ bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range
 	}
 // reading volume and derivatives
 
-    uint32_t s = static_cast<uint32_t>( hlpFuncs::clip<int32_t>( d*range.start, 0, d-1 ) );
-    uint32_t e = static_cast<uint32_t>( hlpFuncs::clip<int32_t>( d*range.end-1, 0, d-1 ) );
+    int32_t s = clip<int32_t>( static_cast<int32_t>( d*range.start ), 0, d-1 );
+    int32_t e = clip<int32_t>( static_cast<int32_t>( d*range.end-1 ), 0, d-1 );
 
-	uint32_t start = static_cast<uint32_t>( hlpFuncs::clip<int32_t>( s-1, 0, d-1 ) );
-	uint32_t end   = static_cast<uint32_t>( hlpFuncs::clip<int32_t>( e+2, 0, d-1 ) );
+	uint32_t start = static_cast<uint32_t>( clip<int32_t>( s-1, 0, d-1 ) );
+	uint32_t end   = static_cast<uint32_t>( clip<int32_t>( e+2, 0, d-1 ) );
 	uint32_t depth = end-start+1;
 
 	uint32_t tW = getMinPow2( w ); 

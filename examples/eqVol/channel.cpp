@@ -13,7 +13,12 @@
 #include "hlp.h"
 
 
-#include <GLUT/glut.h> //Only for gluErrorString()
+//Only for gluErrorString()
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else // linux & Win
+#include <GL/glu.h>
+#endif
 
 
 //#define DYNAMIC_NEAR_FAR 
@@ -45,7 +50,7 @@ void checkError( std::string msg )
 {
 	GLenum error = glGetError();
 	if (error != GL_NO_ERROR)
-		EQERROR << msg << " GL Error: " << gluErrorString(error) << endl;
+        EQERROR << msg << " GL Error: " << gluErrorString(error) << endl;
 }
 
 
@@ -400,11 +405,11 @@ void Channel::frameDraw( const uint32_t frameID )
 		}
 
 		double dStartDist   = viewVec.dot( m_pVertices[nSequence[nMaxIdx][0]] );
-		double dEndDist     = viewVec.dot( m_pVertices[nMaxIdx]               );
+//		double dEndDist     = viewVec.dot( m_pVertices[nMaxIdx]               );
 		double dS           = ceil( dStartDist/m_dSliceDist);
 		dStartDist          = dS * m_dSliceDist;
 
-		int nNumSlices = int((dEndDist-dStartDist)/m_dSliceDist)+1; 
+//		int nNumSlices = int((dEndDist-dStartDist)/m_dSliceDist)+1; 
 
 #ifdef CG_SHADERS
 		cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "dPlaneStart" ), dStartDist ); 
