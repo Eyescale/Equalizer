@@ -11,8 +11,6 @@
 
 #include <eq/eq.h>
 
-#include "frame.h"
-
 
 class FrameData;
 class InitData;
