@@ -28,6 +28,7 @@ namespace eq
         struct DrawableConfig
         {
             int32_t stencilBits;
+            int32_t alphaBits;
             float   glVersion;
             bool    stereo;
             bool    doublebuffered;
@@ -146,7 +147,7 @@ namespace eq
          *
          * @param drawable the GLX rendering context.
          */
-        void setGLXContext( GLXContext context ) { _glXContext = context; }
+        void setGLXContext( GLXContext context );
 
         /** 
          * Set the AGL rendering context for this window.
@@ -183,7 +184,7 @@ namespace eq
          *
          * @param drawable the WGL rendering context.
          */
-        void setWGLContext( HGLRC context ) { _wglContext = context; }
+        void setWGLContext( HGLRC context );
         //*}
 
         /** @name Actions */

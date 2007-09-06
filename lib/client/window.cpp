@@ -974,6 +974,10 @@ void eq::Window::_queryDrawableConfig()
     glGetIntegerv( GL_STENCIL_BITS, &stencilBits );
     _drawableConfig.stencilBits = stencilBits;
 
+    GLint alphaBits;
+    glGetIntegerv( GL_ALPHA_BITS, &alphaBits );
+    _drawableConfig.alphaBits = alphaBits;
+
 #if 0
     // OpenGL Extensions
     const string extList = (const char*)glGetString( GL_EXTENSIONS );
@@ -1047,7 +1051,27 @@ void eq::Window::setAGLContext( AGLContext context )
 {
 #ifdef AGL
     _aglContext = context;
+    if( _aglContext )
+        _queryDrawableConfig();
 #endif // AGL
+}
+
+void eq::Window::setGLXContext( GLXContext context )
+{
+#ifdef GLX
+    _glXContext = context;
+    if( _glXContext )
+        _queryDrawableConfig();
+#endif
+}
+
+void eq::Window::setWGLContext( HGLRC context )
+{
+#ifdef WGL
+    _wglContext = context; 
+    if( _wglContext )
+        _queryDrawableConfig();
+#endif
 }
 
 void eq::Window::setCarbonWindow( WindowRef window )
@@ -1345,8 +1369,6 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
         default: EQUNIMPLEMENTED;
     }
 
-    _queryDrawableConfig();
-
     reply.pvp            = _pvp;
     reply.drawableConfig = _drawableConfig;
     send( node, reply );
@@ -1457,5 +1479,7 @@ std::ostream& eq::operator << ( std::ostream& os,
         os << "|DB";
     if( config.stencilBits )
         os << "|st" << config.stencilBits;
+    if( config.alphaBits )
+        os << "|a" << config.alphaBits;
     return os;
 }
