@@ -1,6 +1,23 @@
+# three-to-one sort-last, direct-send config for cluster at unizh
+
+# Output:
+# ./lib/client/channel.cpp:503 678.6 TASK assemble channel3 packet dt 2 cmd 22 session id 2775274806 objectID 1050 inst 4294967295 pvp [ 0 0 200 150 ] vp [ 0 0 1 1 ] range    [ 0 1 ] cyclop eye frustum [2.3012e-37 4.4706e-39 4.4706e-39    -1.9995 2.3005e-37    -1.9995] nFrames 2
+# ./lib/client/frameData.cpp:143 885.6 Assemble 1 images, buffers 272 offset [         0         99]
+# ./lib/client/frameData.cpp:143 885.6 Assemble 1 images, buffers 272 offset [         0          0]
+# ./lib/client/image.cpp:243 887.5 _startAssembleDB [ 0 0 200 49 ]
+# ./lib/client/image.cpp:243 887.5 _startAssembleDB [ 0 0 200 51 ]
+# ./lib/client/frameData.cpp:143 891.1 Assemble 1 images, buffers 272 offset [         0          0]
+# ./lib/client/frameData.cpp:143 891.1 Assemble 1 images, buffers 272 offset [         0         99]
+# ./lib/client/image.cpp:243 891.2 _startAssembleDB [ 0 0 200 49 ]
+# ./lib/client/image.cpp:243 891.2 _startAssembleDB [ 0 0 200 51 ]
+# ./lib/client/frameData.cpp:143 894.3 Assemble 1 images, buffers 272 offset [         0         49]
+# ./lib/client/image.cpp:243 895.9 _startAssembleDB [ 0 0 200 50 ]
+# ./lib/client/frameData.cpp:143 898.8 Assemble 1 images, buffers 272 offset [         0         49]
+# ./lib/client/image.cpp:243 898.9 _startAssembleDB [ 0 0 200 50 ]
+
 global
 {
-    EQ_COMPOUND_IATTR_UPDATE_FOV   VERTICAL
+    EQ_WINDOW_IATTR_PLANES_STENCIL  ON
 }
 
 server
@@ -9,64 +26,77 @@ server
     {
         appNode
         {
-            pipe
+            pipe 
             {
-                window
+                window 
                 {
-                    viewport [ 10 200 1200 400 ]
-                    channel 
-                    {
-                        viewport [ 0 0 .3333 1. ]
-                        name "channel-left"
-                    }
-                    channel 
-                    {
-                        viewport [ .3333 0 .3333 1. ]
-                        name "channel-middle"
-                    }
-                    channel 
-                    {
-                        viewport [ .6666 0 .3334 1. ]
-                        name "channel-right"
-                    }
+                    viewport [ 50 50 200 150 ]
+                    name    "window1"
+                    channel { name "channel1" }
                 }
             }
+
+            pipe { window {
+                viewport [ 50 500 200 150 ]
+                channel { name "channel2" }
+            }}
+
+            pipe { window {
+                viewport [ 500 500 200 150 ]
+                channel { name "channel3" }
+            }}
         }
         compound
         {
+            channel "channel1"
+            buffer  [ COLOR DEPTH ]
+
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+            }
+
             compound
             {
-                channel "channel-left"
-                projection
-                {
-                    origin      [ 0. 0. 0. ]
-                    distance    3.
-                    fov         [ 54. 47. ]
-                    hpr         [ 50. 0. 0. ]
+                channel "channel2"
+
+                compound {
+                    range [ 0 .333 ]
+                    outputframe { name "stripe1.c2" viewport [ 0 0   1  .333 ] }
+                    outputframe { name "stripe2.c2" viewport [ 0 .333 1 .333 ] }
                 }
+                inputframe { name "stripe3.c1" }
+                inputframe { name "stripe3.c3" }
+                outputframe { buffer [ COLOR ] viewport [ 0 .666 1 .334 ] }
             }
             compound
             {
-                channel "channel-middle"
-                projection
-                {
-                    origin      [ 0. 0. 0. ]
-                    distance    3.
-                    fov         [ 54. 47. ]
-                    hpr         [ 0. 0. 0. ]
+                channel "channel3"
+
+                compound {
+                    range [ .333 .666 ]
+                    outputframe { name "stripe1.c3" viewport [ 0 0    1 .333 ] }
+                    outputframe { name "stripe3.c3" viewport [ 0 .666 1 .334 ] }
                 }
+                inputframe { name "stripe2.c1" }
+                inputframe { name "stripe2.c2" }
+                outputframe { buffer [ COLOR ] viewport [ 0 .333 1 .333 ] }
             }
+
             compound
             {
-                channel "channel-right"
-                projection
-                {
-                    origin      [ 0. 0. 0. ]
-                    distance    3.
-                    fov         [ 54. 47. ]
-                    hpr         [ -50. 0. 0. ]
-                }
+                range [ .666 1 ]
+
+                outputframe { name "stripe2.c1" viewport [ 0 .333 1 .333 ] }
+                outputframe { name "stripe3.c1" viewport [ 0 .666 1 .334 ] }
             }
+            inputframe { name "stripe1.c2" }
+            inputframe { name "stripe1.c3" }
+
+            inputframe { name "frame.channel2" }
+            inputframe { name "frame.channel3" }
         }
     }    
 }
