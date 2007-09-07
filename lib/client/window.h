@@ -127,6 +127,15 @@ namespace eq
          */
         virtual ~Window();
 
+        /**
+         * @name Attributes
+         */
+        //*{
+        void setIAttribute( const eq::Window::IAttribute attr,
+                            const int32_t value )
+            { _iAttributes[attr] = value; }
+        //*}
+
         /** @name Data Access */
         //*{
         /** 
