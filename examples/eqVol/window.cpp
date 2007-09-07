@@ -24,21 +24,21 @@ bool Window::configInitGL( const uint32_t initID )
 
 bool Window::configInit( const uint32_t initID )
 {
-//Enable alpha channel
-#ifndef __APPLE__
-    setIAttribute( IATTR_PLANES_ALPHA, 1 );
+#if !defined(Darwin) || !defined(GLX)
+    // Enable alpha channel
+    // Note: Apple's glX implementation has a bug in that it does not expose
+    // visuals with alpha, even though they do have alpha.
+    setIAttribute( IATTR_PLANES_ALPHA, 8 );
 #endif
 
     if( !eq::Window::configInit( initID ))
         return false;
 
-//Check if alpha is eanabled
+    // Check if we have a drawable with alpha
     eq::Window::DrawableConfig drawableConfig = getDrawableConfig();
     if( !drawableConfig.alphaBits )
     {
-        EQERROR << "Alpha channel is not enabled. Try:"        << endl
-                << "global { EQ_WINDOW_IATTR_PLANES_ALPHA 1 }" << endl
-                << "in config file"                            << endl;
+        setErrorMessage( "OpenGL drawable has no alpha channel. Try: 'global { EQ_WINDOW_IATTR_PLANES_ALPHA 1 }' in config file" );
         return false;
     }
 
