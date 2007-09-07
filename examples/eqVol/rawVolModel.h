@@ -10,6 +10,10 @@ namespace eqVol
 using namespace std;
 using namespace eq;
 
+
+#define COMPOSE_MODE_NEW
+
+
 /** Just helping structure to automatically
     close files
 */

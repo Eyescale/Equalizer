@@ -7,7 +7,6 @@
 namespace eqVol
 {
 
-#define COMPOSE_MODE_NEW
 
 using hlpFuncs::clip;
 
