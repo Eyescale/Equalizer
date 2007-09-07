@@ -84,7 +84,7 @@ namespace eqBase
         T*       get()              { return _ptr; }
         const T* get() const        { return _ptr; }
 
-        bool isValid() { return ( _ptr!=NULL ); }
+        bool isValid() const { return ( _ptr != 0 ); }
         
     private:
         T* _ptr;
