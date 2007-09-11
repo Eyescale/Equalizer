@@ -16,9 +16,10 @@ namespace eq
     class EQ_EXPORT ObjectManager : public eqBase::NonCopyable
     {
     public:
-        ObjectManager() {}
+        ObjectManager();
         virtual ~ObjectManager();
 
+        void init();
         void deleteAll();
 
         GLuint getList( const T& key );
@@ -37,6 +38,16 @@ namespace eq
         void   deleteTexture( const T& key );
         void   deleteTexture( const GLuint id );
 
+#ifdef GL_ARB_vertex_buffer_object
+        GLuint getBuffer( const T& key );
+        GLuint newBuffer( const T& key );
+        GLuint obtainBuffer( const T& key );
+        void   releaseBuffer( const T& key );
+        void   releaseBuffer( const GLuint id );
+        void   deleteBuffer( const T& key );
+        void   deleteBuffer( const GLuint id );
+#endif
+
     private:
         struct Object
         {
@@ -53,6 +64,21 @@ namespace eq
 
         ObjectIDHash  _texturesID;
         ObjectKeyHash _texturesKey;
+
+#ifdef GL_ARB_vertex_buffer_object
+        ObjectIDHash  _buffersID;
+        ObjectKeyHash _buffersKey;
+        bool          _buffersSupported;
+
+#   ifdef WIN32
+        PFNGLGENBUFFERSPROC    _glGenBuffersARB;
+        PFNGLDELETEBUFFERSPROC _glDeleteBuffersARB;
+#   else
+        void ( * _glGenBuffersARB )( GLsizei, GLuint* );
+        void ( * _glDeleteBuffersARB )( GLsizei, const GLuint* );
+#   endif // WIN32
+
+#endif // GL_ARB_vertex_buffer_object
     };
 }
 

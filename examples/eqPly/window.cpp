@@ -23,6 +23,9 @@ bool Window::configInit( const uint32_t initID )
     if( firstWindow == this )
     {
         _objects = new ObjectManager;
+        if( _objects.isValid() )
+            _objects->init();
+
         _loadLogo();
     }
     else
