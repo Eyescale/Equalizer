@@ -21,9 +21,9 @@ namespace eq
 }
 
 // window system and OS-dependent includes and definitions below.
+#define GL_GLEXT_PROTOTYPES
 
 #ifdef GLX
-#  define GL_GLEXT_PROTOTYPES
 #  ifdef Darwin
 #    include <OpenGL/gl.h>
 #  else
@@ -42,7 +42,6 @@ namespace eq
 #endif
 
 #ifdef AGL
-#  define GL_GLEXT_PROTOTYPES
 #  if defined(__i386__) // WAR compile error
 #    undef Status 
 #  endif
@@ -54,7 +53,6 @@ namespace eq
 #endif
 
 #ifdef WGL
-#  define GL_GLEXT_PROTOTYPES
 #  include <wingdi.h>
 #  include <gl/GL.h>
 #  include <eq/client/glext.h>
@@ -117,11 +115,25 @@ typedef void* HWND;
 typedef void* HGLRC;
 #endif
 
+// Definitions missing since the OS has an old glext.h
+
 #ifndef GL_DEPTH_STENCIL_NV
 #  define GL_DEPTH_STENCIL_NV               0x84F9
 #endif
 #ifndef GL_UNSIGNED_INT_24_8_NV
 #  define GL_UNSIGNED_INT_24_8_NV           0x84FA
+#endif
+
+#ifndef APIENTRY
+#define APIENTRY
+#endif
+#ifndef APIENTRYP
+#define APIENTRYP APIENTRY *
+#endif
+
+#ifndef PFNGLDELETEBUFFERSPROC
+typedef void (APIENTRYP PFNGLDELETEBUFFERSPROC) (GLsizei n, const GLuint *buffers);
+typedef void (APIENTRYP PFNGLGENBUFFERSPROC) (GLsizei n, GLuint *buffers);
 #endif
 
 #endif // EQ_WINDOWSYSTEM_H
