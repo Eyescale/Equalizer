@@ -6,17 +6,23 @@
 #define EQ_OBJECTMANAGER_H
 
 #include <eq/base/base.h>             // EQ_EXPORT definition
+#include <eq/base/debug.h>            // EQASSERT definition
 #include <eq/base/hash.h>             // member
 #include <eq/base/nonCopyable.h>      // base class
 #include <eq/client/windowSystem.h>   // OpenGL types
 
 namespace eq
 {
+    class GLFunctions;
+
     template< typename T >
     class EQ_EXPORT ObjectManager : public eqBase::NonCopyable
     {
     public:
-        ObjectManager();
+        ObjectManager( const GLFunctions* glFunctions )
+            : _glFunctions( glFunctions ) 
+            { EQASSERT( glFunctions ); }
+
         virtual ~ObjectManager();
 
         void init();
@@ -38,7 +44,7 @@ namespace eq
         void   deleteTexture( const T& key );
         void   deleteTexture( const GLuint id );
 
-#ifdef GL_ARB_vertex_buffer_object
+		bool   supportsBuffers() const;
         GLuint getBuffer( const T& key );
         GLuint newBuffer( const T& key );
         GLuint obtainBuffer( const T& key );
@@ -46,9 +52,10 @@ namespace eq
         void   releaseBuffer( const GLuint id );
         void   deleteBuffer( const T& key );
         void   deleteBuffer( const GLuint id );
-#endif
 
     private:
+        const GLFunctions* _glFunctions;
+
         struct Object
         {
             GLuint   id;
@@ -65,20 +72,8 @@ namespace eq
         ObjectIDHash  _texturesID;
         ObjectKeyHash _texturesKey;
 
-#ifdef GL_ARB_vertex_buffer_object
         ObjectIDHash  _buffersID;
         ObjectKeyHash _buffersKey;
-        bool          _buffersSupported;
-
-#   ifdef WIN32
-        PFNGLGENBUFFERSPROC    _glGenBuffersARB;
-        PFNGLDELETEBUFFERSPROC _glDeleteBuffersARB;
-#   else
-        void ( * _glGenBuffersARB )( GLsizei, GLuint* );
-        void ( * _glDeleteBuffersARB )( GLsizei, const GLuint* );
-#   endif // WIN32
-
-#endif // GL_ARB_vertex_buffer_object
     };
 }
 

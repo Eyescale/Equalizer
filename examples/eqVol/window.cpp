@@ -49,7 +49,7 @@ bool Window::configInit( const uint32_t initID )
 
     if( firstWindow == this )
     {
-        _objects = new ObjectManager;
+        _objects = new ObjectManager( getGLFunctions( ));
         _loadLogo();
     }
     else

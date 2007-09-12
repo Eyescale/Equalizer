@@ -4,22 +4,14 @@
 #ifndef EQ_WINDOW_H
 #define EQ_WINDOW_H
 
-#include <eq/client/commands.h>
-#include <eq/client/pipe.h>
-#include <eq/client/pixelViewport.h>
-#include <eq/net/base.h>
-#include <eq/net/object.h>
-
-#ifdef Darwin
-#  include <OpenGL/gl.h>
-#else
-#  include <GL/gl.h>
-#endif
+#include <eq/client/pipe.h>          // used in inline functions
+#include <eq/client/pixelViewport.h> // member
 
 namespace eq
 {
     class Channel;
     class WindowEvent;
+    class GLFunctions;
 
     class EQ_EXPORT Window : public eqNet::Object
     {
@@ -74,6 +66,12 @@ namespace eq
 
         /** @return the WGL rendering context. */
         HGLRC getWGLContext() const { return _wglContext; }
+
+        /**
+         * @return the extended OpenGL function table if the window has a
+         *         context, 0 otherwise.
+         */
+        const GLFunctions* getGLFunctions() const { return _glFunctions; }
 
         /** 
          * Set the window's pixel viewport wrt its parent pipe.
@@ -337,8 +335,11 @@ namespace eq
         /** Drawable characteristics of this window */
         DrawableConfig _drawableConfig;
 
+        /** Extended OpenGL function entries when window has a context. */
+        GLFunctions*   _glFunctions;
+
         /** The reason for the last error. */
-        std::string            _error;
+        std::string    _error;
 
         /** Window-system specific information. */
         union

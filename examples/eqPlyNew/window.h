@@ -13,8 +13,13 @@ namespace eqPly
 {
     class ObjectManager : public eq::ObjectManager< const void* >, 
                           public eqBase::Referenced
-    {};
-    
+    {
+    public:
+        ObjectManager( const eq::GLFunctions* glFunctions ) 
+                : eq::ObjectManager< const void * >( glFunctions ) {}
+        virtual ~ObjectManager(){}
+    };
+
     class VertexBufferStateSimple : public mesh::VertexBufferStateSimple, 
                                     public eqBase::Referenced
     {};

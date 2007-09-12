@@ -9,6 +9,7 @@
 #include "configEvent.h"
 #include "event.h"
 #include "eventHandler.h"
+#include "glFunctions.h"
 #include "global.h"
 #include "log.h"
 #include "nodeFactory.h"
@@ -45,6 +46,7 @@ std::string eq::Window::_iAttributeStrings[IATTR_ALL] = {
 
 eq::Window::Window()
         : _eventHandler( 0 ),
+          _glFunctions( 0 ),
           _xDrawable ( 0 ),
           _glXContext( 0 ),
           _aglContext( 0 ),
@@ -92,6 +94,9 @@ eq::Window::~Window()
 {
     if( _eventHandler )
         EQWARN << "Event handler present in destructor" << endl;
+
+    delete _glFunctions;
+    _glFunctions = 0;
 }
 
 void eq::Window::_addChannel( Channel* channel )
@@ -1051,8 +1056,15 @@ void eq::Window::setAGLContext( AGLContext context )
 {
 #ifdef AGL
     _aglContext = context;
+    delete _glFunctions;
+
     if( _aglContext )
+    {
         _queryDrawableConfig();
+        _glFunctions = new GLFunctions( WINDOW_SYSTEM_AGL );
+    }
+    else
+        _glFunctions = 0;
 #endif // AGL
 }
 
@@ -1060,8 +1072,15 @@ void eq::Window::setGLXContext( GLXContext context )
 {
 #ifdef GLX
     _glXContext = context;
+    delete _glFunctions;
+
     if( _glXContext )
+    {
         _queryDrawableConfig();
+        _glFunctions = new GLFunctions( WINDOW_SYSTEM_GLX );
+    }
+    else
+        _glFunctions = 0;
 #endif
 }
 
@@ -1069,8 +1088,15 @@ void eq::Window::setWGLContext( HGLRC context )
 {
 #ifdef WGL
     _wglContext = context; 
+    delete _glFunctions;
+
     if( _wglContext )
+    {
         _queryDrawableConfig();
+		_glFunctions = new GLFunctions( WINDOW_SYSTEM_WGL );
+    }
+    else
+        _glFunctions = 0;
 #endif
 }
 

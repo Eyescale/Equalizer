@@ -75,6 +75,7 @@ HEADER_SRC = \
 	client/eye.h \
 	client/frame.h \
 	client/frameData.h \
+	client/glFunctions.h \
 	client/global.h \
 	client/image.h \
 	client/init.h \
@@ -149,6 +150,7 @@ SOURCES = \
 	client/eventHandler.cpp \
 	client/frame.cpp \
 	client/frameData.cpp \
+	client/glFunctions.cpp \
 	client/global.cpp \
 	client/image.cpp \
 	client/init.cpp \
