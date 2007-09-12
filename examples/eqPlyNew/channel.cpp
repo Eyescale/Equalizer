@@ -145,6 +145,15 @@ void Channel::frameDraw( const uint32_t frameID )
         glVertex3f( -.25f, 0.f, -.25f );
         glEnd();
     }
+
+    const eq::Viewport& vp = getViewport();
+    if( range.isFull() && vp.isFullScreen( ))
+        _drawLogo();
+}
+
+void Channel::frameAssemble( const uint32_t frameID )
+{
+    eq::Channel::frameAssemble( frameID );
     _drawLogo();
 }
 

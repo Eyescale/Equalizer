@@ -133,7 +133,10 @@ void Channel::frameDraw( const uint32_t frameID )
         glVertex3f( -.25f, 0.f, -.25f );
         glEnd();
     }
-    _drawLogo();
+
+    const eq::Viewport& vp = getViewport();
+    if( range.isFull() && vp.isFullScreen( ))
+        _drawLogo();
 }
 
 void Channel::_drawBBoxCB( Model::BBox *bbox, void *userData )
@@ -201,6 +204,12 @@ void Channel::_drawBBox( const Model::BBox *bbox )
 
     glEndList();
     glCallList( displayList );
+}
+
+void Channel::frameAssemble( const uint32_t frameID )
+{
+    eq::Channel::frameAssemble( frameID );
+    _drawLogo();
 }
 
 void Channel::_drawLogo()
