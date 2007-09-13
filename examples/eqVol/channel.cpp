@@ -564,8 +564,8 @@ void Channel::arrangeFrames( vector<Range>& ranges, bool composeOnly )
 {
     if( _perspective )
     {//perspective projection
-		vmml::Matrix4d  modelviewM;		// modelview matrix
-		vmml::Matrix3d  modelviewITM;	// modelview inversed transposed matrix
+        vmml::Matrix4d  modelviewM;     // modelview matrix
+        vmml::Matrix3d  modelviewITM;   // modelview inversed transposed matrix
         if( !composeOnly )
         {
             modelviewM      = _curFrData.modelviewM;

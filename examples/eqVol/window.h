@@ -23,7 +23,7 @@ namespace eqVol
     public:
         Window() : _logoTexture( 0 ) {}
 
-		bool configInitGL( const uint32_t initID );
+        bool configInitGL( const uint32_t initID );
 
         // display list cache (windows share the context and object manager)
         GLuint getDisplayList( const void* key )

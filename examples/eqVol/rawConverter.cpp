@@ -39,7 +39,7 @@ void RawConverter::ConvertRawToRawPlusDerivatives( const string& src, const stri
     EQWARN << "Reading model" << endl;
     {
         ifstream file( src.c_str(), ifstream::in | ifstream::binary | ifstream::ate );
-   
+
         if( !file.is_open() )
             return lFailed( "Can't open volume file" );
 
@@ -88,32 +88,32 @@ void RawConverter::ConvertRawToRawPlusDerivatives( const string& src, const stri
                           nxtP[ -1+w ]- 3*curP[ -1+w ]-   prvP[ -1+w ]-
                         3*nxtP[ -1   ]- 6*curP[ -1   ]- 3*prvP[ -1   ]-
                           nxtP[ -1-w ]- 3*curP[ -1-w ]-   prvP[ -1-w ];
-                
+
                     int32_t gy = 
                           nxtP[  1+w ]+ 3*curP[  1+w ]+   prvP[  1+w ]+
                         3*nxtP[    w ]+ 6*curP[    w ]+ 3*prvP[    w ]+
                           nxtP[ -1+w ]+ 3*curP[ -1+w ]+   prvP[ -1+w ]-
-                    
+
                            nxtP[  1-w ]- 3*curP[  1-w ]-   prvP[  1-w ]-
                         3*nxtP[   -w ]- 6*curP[   -w ]- 3*prvP[   -w ]-
                           nxtP[ -1-w ]- 3*curP[ -1-w ]-   prvP[ -1-w ];
-                
+
                     int32_t gz = 
                           prvP[  1+w ]+ 3*prvP[  1   ]+   prvP[  1-w ]+
                         3*prvP[    w ]+ 6*prvP[  0   ]+ 3*prvP[   -w ]+
                           prvP[ -1+w ]+ 3*prvP[ -1   ]+   prvP[ -1-w ]-
-                    
+
                           nxtP[  1+w ]- 3*nxtP[  1   ]-   nxtP[  1-w ]-
                         3*nxtP[   +w ]- 6*nxtP[  0   ]- 3*nxtP[   -w ]-
                           nxtP[ -1+w ]- 3*nxtP[ -1   ]-   nxtP[ -1-w ];
-                
-                
+
+
                     int32_t length = static_cast<int32_t>(sqrt( (gx*gx+gy*gy+gz*gz) )+1);
-                
+
                     gx = ( gx*255/length + 255 )/2; 
                     gy = ( gy*255/length + 255 )/2;
                     gz = ( gz*255/length + 255 )/2;
-                
+
                     GxGyGzA[(zwh_y + x)*4   ] = static_cast<uint8_t>( gx );
                     GxGyGzA[(zwh_y + x)*4 +1] = static_cast<uint8_t>( gy );
                     GxGyGzA[(zwh_y + x)*4 +2] = static_cast<uint8_t>( gz );

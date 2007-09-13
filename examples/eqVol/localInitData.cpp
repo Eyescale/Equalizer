@@ -86,22 +86,22 @@ void LocalInitData::parseArguments( int argc, char** argv )
             setDataFilename( modelArg.getValue( ));
 
         if( derArg.isSet() ) // raw -> raw + derivatives
-		{
+        {
             RawConverter::ConvertRawToRawPlusDerivatives( getDataFilename(), derArg.getValue( ));
-			exit(0);
-		}
+            exit(0);
+        }
 
         if( savArg.isSet() ) // sav -> vhf
-		{
+        {
             RawConverter::SavToVhfConverter( getDataFilename(), savArg.getValue( ) );
-			exit(0);
-		}
+            exit(0);
+        }
 
         if( dscArg.isSet() ) // dsc -> vhf
-		{
+        {
             RawConverter::DscToVhfConverter( getDataFilename(), dscArg.getValue( ) );
-			exit(0);
-		}
+            exit(0);
+        }
 
         if( portArg.isSet() )
             _trackerPort = portArg.getValue();

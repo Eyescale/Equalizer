@@ -36,7 +36,7 @@ InitData::~InitData()
 
 const void* InitData::getInstanceData( uint64_t* size )
 {
-	*size = sizeof( uint32_t ) + sizeof( eq::WindowSystem ) + _dataFilename.length() + 1;
+    *size = sizeof( uint32_t ) + sizeof( eq::WindowSystem ) + _dataFilename.length() + 1;
 
     if( _instanceData )
         return _instanceData;

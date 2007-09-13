@@ -33,14 +33,14 @@ void correctScales( uint32_t w, uint32_t h, uint32_t d, VolumeScales &scales )
  
 void readDimensionsAndScales( FILE* file, uint32_t& w, uint32_t& h, uint32_t& d, VolumeScales& volScales )
 {
-	fscanf( file, "w=%u\n", &w );
-	fscanf( file, "h=%u\n", &h );
-	fscanf( file, "d=%u\n", &d );
+    fscanf( file, "w=%u\n", &w );
+    fscanf( file, "h=%u\n", &h );
+    fscanf( file, "d=%u\n", &d );
 
-	fscanf( file, "wScale=%g\n", &volScales.W );
-	fscanf( file, "hScale=%g\n", &volScales.H );
-	fscanf( file, "dScale=%g\n", &volScales.D );
-	
+    fscanf( file, "wScale=%g\n", &volScales.W );
+    fscanf( file, "hScale=%g\n", &volScales.H );
+    fscanf( file, "dScale=%g\n", &volScales.D );
+
     correctScales( w, h, d, volScales );
 }
 
@@ -51,218 +51,218 @@ RawVolumeModel::RawVolumeModel( const string& data )
 ,_resolution(1)
 {
     _fileName = data;
-	string configFileName = _fileName;
-	hFile info( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
+    string configFileName = _fileName;
+    hFile info( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
 
-	if( info.f==NULL ) 
-	    lFailed( "Can't open header file" );
-	else
-	{
-    	uint32_t w, h, d;
+    if( info.f==NULL ) 
+        lFailed( "Can't open header file" );
+    else
+    {
+        uint32_t w, h, d;
         readDimensionsAndScales( info.f, w, h, d, volScales );
     }
 }
 
 void createPreintegrationTable( const uint8_t *Table, GLuint &preintName )
 {
-	EQINFO << "Calculating preintegration table..." << endl;
-			
-	double rInt[256]; rInt[0] = 0.;
-	double gInt[256]; gInt[0] = 0.;
-	double bInt[256]; bInt[0] = 0.;
-	double aInt[256]; aInt[0] = 0.;
-	
-	for( int i=1; i<256; i++ )
-	{
-		double tauc = ( Table[(i-1)*4+3] + Table[i*4+3] ) / 2.;
-		
-		rInt[i] = rInt[i-1] + ( Table[(i-1)*4+0] + Table[i*4+0] )/2.*tauc/255.;
-		gInt[i] = gInt[i-1] + ( Table[(i-1)*4+1] + Table[i*4+1] )/2.*tauc/255.;
-		bInt[i] = bInt[i-1] + ( Table[(i-1)*4+2] + Table[i*4+2] )/2.*tauc/255.;
-		aInt[i] = aInt[i-1] + tauc;
-	}
+    EQINFO << "Calculating preintegration table..." << endl;
 
-	vector<GLubyte> lookupI( 256*256*4, 255 );
+    double rInt[256]; rInt[0] = 0.;
+    double gInt[256]; gInt[0] = 0.;
+    double bInt[256]; bInt[0] = 0.;
+    double aInt[256]; aInt[0] = 0.;
 
-	GLubyte* lookupImg = &lookupI[0];	// Preint Texture	
-	int lookupindex=0;
+    for( int i=1; i<256; i++ )
+    {
+        double tauc = ( Table[(i-1)*4+3] + Table[i*4+3] ) / 2.;
+        
+        rInt[i] = rInt[i-1] + ( Table[(i-1)*4+0] + Table[i*4+0] )/2.*tauc/255.;
+        gInt[i] = gInt[i-1] + ( Table[(i-1)*4+1] + Table[i*4+1] )/2.*tauc/255.;
+        bInt[i] = bInt[i-1] + ( Table[(i-1)*4+2] + Table[i*4+2] )/2.*tauc/255.;
+        aInt[i] = aInt[i-1] + tauc;
+    }
 
-	for( int sb=0; sb<256; sb++ )
-	{
-		for( int sf=0; sf<256; sf++ )
-		{
-			int smin, smax;
-			if( sb<sf ) { smin=sb; smax=sf; }
-			else        { smin=sf; smax=sb; }
-			
-			int rcol, gcol, bcol, acol;
-			if( smax != smin )
-			{
-				double factor = 1. / (double)(smax-smin);
-				rcol = static_cast<int>( (rInt[smax]-rInt[smin])*factor );
-				gcol = static_cast<int>( (gInt[smax]-gInt[smin])*factor );
-				bcol = static_cast<int>( (bInt[smax]-bInt[smin])*factor );
+    vector<GLubyte> lookupI( 256*256*4, 255 );
+
+    GLubyte* lookupImg = &lookupI[0]; // Preint Texture
+    int lookupindex=0;
+
+    for( int sb=0; sb<256; sb++ )
+    {
+        for( int sf=0; sf<256; sf++ )
+        {
+            int smin, smax;
+            if( sb<sf ) { smin=sb; smax=sf; }
+            else        { smin=sf; smax=sb; }
+            
+            int rcol, gcol, bcol, acol;
+            if( smax != smin )
+            {
+                double factor = 1. / (double)(smax-smin);
+                rcol = static_cast<int>( (rInt[smax]-rInt[smin])*factor );
+                gcol = static_cast<int>( (gInt[smax]-gInt[smin])*factor );
+                bcol = static_cast<int>( (bInt[smax]-bInt[smin])*factor );
 #ifdef COMPOSE_MODE_NEW
-				acol = static_cast<int>( 256.*(    exp(-(aInt[smax]-aInt[smin])*factor/255.)) );
+                acol = static_cast<int>( 256.*(    exp(-(aInt[smax]-aInt[smin])*factor/255.)) );
 #else
-				acol = static_cast<int>( 256.*(1.0-exp(-(aInt[smax]-aInt[smin])*factor/255.)) );
+                acol = static_cast<int>( 256.*(1.0-exp(-(aInt[smax]-aInt[smin])*factor/255.)) );
 #endif
-			} else
-			{
-				double factor = 1./255.;
-				rcol = static_cast<int>( Table[smin*4+0]*Table[smin*4+3]*factor );
-				gcol = static_cast<int>( Table[smin*4+1]*Table[smin*4+3]*factor );
-				bcol = static_cast<int>( Table[smin*4+2]*Table[smin*4+3]*factor );
+            } else
+            {
+                double factor = 1./255.;
+                rcol = static_cast<int>( Table[smin*4+0]*Table[smin*4+3]*factor );
+                gcol = static_cast<int>( Table[smin*4+1]*Table[smin*4+3]*factor );
+                bcol = static_cast<int>( Table[smin*4+2]*Table[smin*4+3]*factor );
 #ifdef COMPOSE_MODE_NEW
-				acol = static_cast<int>( 256.*(    exp(-Table[smin*4+3]*1./255.)) );
+                acol = static_cast<int>( 256.*(    exp(-Table[smin*4+3]*1./255.)) );
 #else
-				acol = static_cast<int>( 256.*(1.0-exp(-Table[smin*4+3]*1./255.)) );
+                acol = static_cast<int>( 256.*(1.0-exp(-Table[smin*4+3]*1./255.)) );
 #endif
-			}
-			
-            lookupImg[lookupindex++] = clip( rcol, 0, 255 );//min( rcol, 255 );	
-			lookupImg[lookupindex++] = clip( gcol, 0, 255 );//min( gcol, 255 );
-			lookupImg[lookupindex++] = clip( bcol, 0, 255 );//min( bcol, 255 );
-			lookupImg[lookupindex++] = clip( acol, 0, 255 );//min( acol, 255 );
-		}
-	}
-	
-	
-	glGenTextures( 1, &preintName );
-	glBindTexture( GL_TEXTURE_2D, preintName );
-	glTexImage2D(  GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, lookupImg );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR        );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR        );
+            }
+            
+            lookupImg[lookupindex++] = clip( rcol, 0, 255 );//min( rcol, 255 );
+            lookupImg[lookupindex++] = clip( gcol, 0, 255 );//min( gcol, 255 );
+            lookupImg[lookupindex++] = clip( bcol, 0, 255 );//min( bcol, 255 );
+            lookupImg[lookupindex++] = clip( acol, 0, 255 );//min( acol, 255 );
+        }
+    }
+
+
+    glGenTextures( 1, &preintName );
+    glBindTexture( GL_TEXTURE_2D, preintName );
+    glTexImage2D(  GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, lookupImg );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR        );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR        );
 }
 
 uint32_t getMinPow2( uint32_t size )
 {
-	uint32_t res=0;
-	
-	if( size > 0)
-	{
+    uint32_t res=0;
+    
+    if( size > 0)
+    {
         size--;
         res = 1;
     }
     
-	while( size > 0 )
-	{
-		res  <<= 1;
-		size >>= 1;
-	}
-	return res;
+    while( size > 0 )
+    {
+        res  <<= 1;
+        size >>= 1;
+    }
+    return res;
 }
 
 
 bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range )
 {
-	if( _cRange == range )
-		return _lastSuccess;
-		
-	_cRange = range;
-	
+    if( _cRange == range )
+        return _lastSuccess;
+        
+    _cRange = range;
+    
 // reading header file & creating preintegration table
-	uint32_t w, h, d;
-	
+    uint32_t w, h, d;
+    
     EQWARN << "--------------------------------------------" << endl;
     EQWARN << "loading model: " << _fileName;
-	{
-		string configFileName = _fileName;
-		hFile info( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
-		FILE* file = info.f;
-	
-		if( file==NULL ) return lFailed( "Can't open header file" );
-	
+    {
+        string configFileName = _fileName;
+        hFile info( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
+        FILE* file = info.f;
+    
+        if( file==NULL ) return lFailed( "Can't open header file" );
+    
         readDimensionsAndScales( file, w, h, d, volScales );
-	
+    
         EQWARN << " " << w << "x" << h << "x" << d << endl;
         EQWARN << "Scales: " << volScales.W << " x " << volScales.H << " x " << volScales.D << endl;
 
-		if( fscanf(file,"TF:\n") !=0 ) return lFailed( "Error in header file" );
-	
-		uint32_t TFSize;
-		fscanf( file, "size=%u\n", &TFSize );
-	
-		if( TFSize!=256  )  return lFailed( "Wrong size of transfer function, should be 256" );
-	
-		vector< uint8_t > TF( TFSize*4, 0 );
-		int tmp;
-		for( uint32_t i=0; i<TFSize; i++ )
-		{
-			fscanf( file, "r=%d\n", &tmp ); TF[4*i  ] = tmp;
-			fscanf( file, "g=%d\n", &tmp ); TF[4*i+1] = tmp;
-			fscanf( file, "b=%d\n", &tmp ); TF[4*i+2] = tmp;
-			if( fscanf( file, "a=%d\n", &tmp ) != 1 )
-			{
-			    EQERROR << "Failed to read entity #" << i << " of TF from header file" << endl;
+        if( fscanf(file,"TF:\n") !=0 ) return lFailed( "Error in header file" );
+    
+        uint32_t TFSize;
+        fscanf( file, "size=%u\n", &TFSize );
+    
+        if( TFSize!=256  )  return lFailed( "Wrong size of transfer function, should be 256" );
+    
+        vector< uint8_t > TF( TFSize*4, 0 );
+        int tmp;
+        for( uint32_t i=0; i<TFSize; i++ )
+        {
+            fscanf( file, "r=%d\n", &tmp ); TF[4*i  ] = tmp;
+            fscanf( file, "g=%d\n", &tmp ); TF[4*i+1] = tmp;
+            fscanf( file, "b=%d\n", &tmp ); TF[4*i+2] = tmp;
+            if( fscanf( file, "a=%d\n", &tmp ) != 1 )
+            {
+                EQERROR << "Failed to read entity #" << i << " of TF from header file" << endl;
                 break;
-			}
-			TF[4*i+3] = tmp;
-		}
+            }
+            TF[4*i+3] = tmp;
+        }
         
-		createPreintegrationTable( &TF[0], preint );
-	}
+        createPreintegrationTable( &TF[0], preint );
+    }
 // reading volume and derivatives
 
     int32_t s = clip<int32_t>( static_cast<int32_t>( d*range.start ), 0, d-1 );
     int32_t e = clip<int32_t>( static_cast<int32_t>( d*range.end-1 ), 0, d-1 );
 
-	uint32_t start = static_cast<uint32_t>( clip<int32_t>( s-1, 0, d-1 ) );
-	uint32_t end   = static_cast<uint32_t>( clip<int32_t>( e+2, 0, d-1 ) );
-	uint32_t depth = end-start+1;
+    uint32_t start = static_cast<uint32_t>( clip<int32_t>( s-1, 0, d-1 ) );
+    uint32_t end   = static_cast<uint32_t>( clip<int32_t>( e+2, 0, d-1 ) );
+    uint32_t depth = end-start+1;
 
-	uint32_t tW = getMinPow2( w ); 
-	uint32_t tH = getMinPow2( h ); 
-	uint32_t tD = getMinPow2( depth );
-	
+    uint32_t tW = getMinPow2( w ); 
+    uint32_t tH = getMinPow2( h ); 
+    uint32_t tD = getMinPow2( depth );
+    
     EQWARN << "w: " << w << " " << tW << " h: " << h << " " << tH << " d: " << d << " " << depth << " " << tD << endl;
 
-	vector<uint8_t> data( tW*tH*tD*4, 0 );
+    vector<uint8_t> data( tW*tH*tD*4, 0 );
 
-	_resolution = max( w, max( h, d ) );
-	
+    _resolution = max( w, max( h, d ) );
+    
     EQWARN << "r: " << _resolution << endl;
-	
-	TD.W  =   (float)w / (float)tW;
-	TD.H  =   (float)h / (float)tH;
-	TD.D  = ( (float)(e-s+1) / (float)tD ) / ( range.end>range.start ? (range.end-range.start) : 1.0 );
-	
-	TD.Do = range.start;
-	TD.Db = range.start > 0.0001 ? 1.0 / static_cast<float>(tD) : 0; // left  border in texture for depth
+    
+    TD.W  =   (float)w / (float)tW;
+    TD.H  =   (float)h / (float)tH;
+    TD.D  = ( (float)(e-s+1) / (float)tD ) / ( range.end>range.start ? (range.end-range.start) : 1.0 );
+    
+    TD.Do = range.start;
+    TD.Db = range.start > 0.0001 ? 1.0 / static_cast<float>(tD) : 0; // left  border in texture for depth
 
     EQWARN << "ws: " << TD.W << " hs: " << TD.H  << " wd: " << TD.D << " Do: " << TD.Do  << " Db: " << TD.Db << endl << " s=" << start << " e=" << end << endl;
 
-	{
-		ifstream file ( _fileName.c_str(), ifstream::in | ifstream::binary | ifstream::ate );
+    {
+        ifstream file ( _fileName.c_str(), ifstream::in | ifstream::binary | ifstream::ate );
     
-		if( !file.is_open() ) return lFailed("Can't open model data file");
+        if( !file.is_open() ) return lFailed("Can't open model data file");
 
-		file.seekg( w*h*start*4, ios::beg );
-		
-		if( w==tW && h==tH ) // width and height are power of 2
-		{
-			file.read( (char*)( &data[0] ), w*h*depth*4 );
-		}else
-			if( w==tW ) 	// only width is power of 2
-			{
-				for( uint32_t i=0; i<depth; i++ )
-					file.read( (char*)( &data[i*tW*tH*4] ), w*h*4 );
-			}else
-			{				// nor width nor heigh is power of 2
-				for( uint32_t i=0; i<depth; i++ )
-					for( uint32_t j=0; j<h; j++ )
-						file.read( (char*)( &data[(i*tW*tH + j*tW)*4] ), w*4 );
-			}
-	
-		file.close();		
-	}
+        file.seekg( w*h*start*4, ios::beg );
+        
+        if( w==tW && h==tH ) // width and height are power of 2
+        {
+            file.read( (char*)( &data[0] ), w*h*depth*4 );
+        }else
+            if( w==tW )     // only width is power of 2
+            {
+                for( uint32_t i=0; i<depth; i++ )
+                    file.read( (char*)( &data[i*tW*tH*4] ), w*h*4 );
+            }else
+            {               // nor width nor heigh is power of 2
+                for( uint32_t i=0; i<depth; i++ )
+                    for( uint32_t j=0; j<h; j++ )
+                        file.read( (char*)( &data[(i*tW*tH + j*tW)*4] ), w*4 );
+            }
+    
+        file.close();
+    }
 
 // creating 3D texture
 
-    glGenTextures( 1, &volume ); 	
-	glBindTexture(GL_TEXTURE_3D, volume);
+    glGenTextures( 1, &volume );
+    glBindTexture(GL_TEXTURE_3D, volume);
     
     glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_WRAP_S    , GL_CLAMP_TO_EDGE );
     glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_WRAP_T    , GL_CLAMP_TO_EDGE );
@@ -272,8 +272,8 @@ bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range
 
     glTexImage3D( GL_TEXTURE_3D, 0, GL_RGBA, tW, tH, tD, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)(&data[0]) );
 
-	
-	return lSuccess();
+    
+    return lSuccess();
 }
 
 }

@@ -11,7 +11,7 @@
 
 namespace eqVol
 {
-	typedef RawVolumeModel Model;
+    typedef RawVolumeModel Model;
 
     class LocalInitData;
 

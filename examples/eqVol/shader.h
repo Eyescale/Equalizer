@@ -11,8 +11,8 @@
 
 namespace eqShader
 {
-	
-	bool loadShaders( const std::string &v_file, const std::string &f_file, GLhandleARB &shader );
-	
+    
+    bool loadShaders( const std::string &v_file, const std::string &f_file, GLhandleARB &shader );
+    
 }
 #endif

@@ -12,6 +12,7 @@
 
 namespace eqVol
 {
+
     class Node : public eq::Node
     {
     public:
@@ -24,9 +25,10 @@ namespace eqVol
         virtual bool configExit();
 
     private:
-		InitData _initData;
+        InitData _initData;
 
     };
+
 }
 
 #endif // EQ_VOL_NODE_H

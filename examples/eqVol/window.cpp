@@ -12,13 +12,13 @@ namespace eqVol
 
 bool Window::configInitGL( const uint32_t initID )
 {
-	if( !eq::Window::configInitGL( initID ) )
-		return false;
+    if( !eq::Window::configInitGL( initID ) )
+        return false;
 
-	Pipe*     pipe      = static_cast<Pipe*>( getPipe() );
-	pipe->LoadShaders();
+    Pipe*     pipe      = static_cast<Pipe*>( getPipe() );
+    pipe->LoadShaders();
 
-	return true;
+    return true;
 }
 
 

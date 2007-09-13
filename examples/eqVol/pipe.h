@@ -20,28 +20,28 @@
 namespace eqVol
 {
 #ifdef CG_SHADERS
-	struct eqCgShaders
-	{
-		eqCgShaders() : cgVertex(NULL), cgFragment(NULL) {};
-		
-		gloo::cg_program*  cgVertex;    //!< Cg vertex shader
-	    gloo::cg_program*  cgFragment;  //!< Cg fragment shader
-	};
+    struct eqCgShaders
+    {
+        eqCgShaders() : cgVertex(NULL), cgFragment(NULL) {};
+        
+        gloo::cg_program*  cgVertex;    //!< Cg vertex shader
+        gloo::cg_program*  cgFragment;  //!< Cg fragment shader
+    };
 #endif
-	
+    
     class Pipe : public eq::Pipe
     {
     public:
- 		Pipe() : eq::Pipe(), _shadersLoaded( false ) { }
+         Pipe() : eq::Pipe(), _shadersLoaded( false ) { }
 
         const FrameData& getFrameData() const { return _frameData; }
 
-		void LoadShaders();
+        void LoadShaders();
 
 #ifdef CG_SHADERS
-		eqCgShaders getShaders() const { return _shaders; }
+        eqCgShaders getShaders() const { return _shaders; }
 #else
-		GLhandleARB getShader() const { return _shader; }
+        GLhandleARB getShader() const { return _shader; }
 #endif
 
     protected:
@@ -54,12 +54,12 @@ namespace eqVol
                                  const uint32_t frameNumber );
     private:
 #ifdef CG_SHADERS
-		CGcontext   _cgContext;
- 		eqCgShaders _shaders;
+        CGcontext   _cgContext;
+        eqCgShaders _shaders;
 #else
-		GLhandleARB _shader;
+        GLhandleARB _shader;
 #endif
-		bool		_shadersLoaded;
+        bool        _shadersLoaded;
         FrameData   _frameData;
     };
 }

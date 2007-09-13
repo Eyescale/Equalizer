@@ -38,7 +38,7 @@ namespace eqVol
     private:
         uint32_t         _frameDataID;
         eq::WindowSystem _windowSystem;
-        std::string      _dataFilename;	//!< volume raw data file name
+        std::string      _dataFilename; //!< volume raw data file name
 
         char* _instanceData;
         void  _clearInstanceData();
