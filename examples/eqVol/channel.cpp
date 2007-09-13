@@ -41,6 +41,7 @@ Channel::Channel()
 , _model(NULL)
 ,_vertexID(0)
 {
+    _curFrData.frameID = 0;
 }
 
 
@@ -51,7 +52,27 @@ void checkError( std::string msg )
         EQERROR << msg << " GL Error: " << gluErrorString(error) << endl;
 }
 
+#ifdef CG_SHADERS
+void createHexagonsList( int num, GLuint &listId )
+{
+    if( listId != 0 )
+        glDeleteLists( listId, 1 );
 
+    listId = glGenLists(1);
+
+    glNewList( listId, GL_COMPILE );
+
+    for( int s = 0; s < num; ++s )
+    {
+        glBegin( GL_POLYGON );
+        for( int i = 0; i < 6; ++i )
+            glVertex2i( i, num-1-s );
+        glEnd();
+    }
+
+    glEndList();
+}
+#else
 struct quad 
 {
     GLfloat x;
@@ -92,6 +113,8 @@ void createVertexArray( uint32_t numberOfSlices, GLuint &vertexID )
 
     checkError( "creating vertex array" );
 }
+#endif //CG_SHADERS
+
 
 bool Channel::configInit( const uint32_t initID )
 {
@@ -131,7 +154,7 @@ void Channel::applyFrustum() const
                  frustum.nearPlane, frustum.farPlane );
     }
 
-       EQVERB << "Apply " << frustum << endl;
+    EQVERB << "Apply " << frustum << endl;
 }
 
 void Channel::frameClear( const uint32_t frameID )
@@ -149,26 +172,6 @@ void Channel::frameClear( const uint32_t frameID )
 }
 
 
-void createHexagonsList( int num, GLuint &listId )
-{
-    if( listId != 0 )
-        glDeleteLists( listId, 1 );
-
-    listId = glGenLists(1);
-
-    glNewList( listId, GL_COMPILE );
-
-    for( int s = 0; s < num; ++s )
-    {
-        glBegin( GL_POLYGON );
-        for( int i = 0; i < 6; ++i )
-            glVertex2i( i, num-1-s );
-        glEnd();
-    }
-
-    glEndList();
-}
-
 //#define TEXTURE_ROTATION
 
 void Channel::frameDraw( const uint32_t frameID )
@@ -176,12 +179,12 @@ void Channel::frameDraw( const uint32_t frameID )
     const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
     const FrameData& frameData = pipe->getFrameData();
 
-    _curFrData.needInverse = frameData.data.rotation.ml[10] < 0; //check if z coordinate of vector (0,0,1) after rotation is < 0
-    _curFrData.lastRange   = getRange();                         //save range for compositing
+    _curFrData.lastRange    = getRange();  //save range for compositing
+    _curFrData.frameID      = frameID;
+    _curFrData.pvp          = getPixelViewport();
 
     if( _model )
         _model->createTextures( _tex3D, _preintName, _curFrData.lastRange );
-
 
     vmml::FrustumCullerf culler;
     _initFrustum( culler );
@@ -404,11 +407,8 @@ void Channel::frameDraw( const uint32_t frameID )
         }
 
         double dStartDist   = viewVec.dot( m_pVertices[nSequence[nMaxIdx][0]] );
-//        double dEndDist     = viewVec.dot( m_pVertices[nMaxIdx]               );
         double dS           = ceil( dStartDist/m_dSliceDist);
         dStartDist          = dS * m_dSliceDist;
-
-//        int nNumSlices = int((dEndDist-dStartDist)/m_dSliceDist)+1;
 
 #ifdef CG_SHADERS
         cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "dPlaneStart" ), dStartDist );
@@ -453,7 +453,7 @@ void Channel::frameDraw( const uint32_t frameID )
 #endif
         }
 
-            //Render slices
+        //Render slices
         glEnable(GL_BLEND);
 #ifdef COMPOSE_MODE_NEW
         glBlendFuncSeparateEXT( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
@@ -462,9 +462,25 @@ void Channel::frameDraw( const uint32_t frameID )
 #endif
 
 #ifndef TEXTURE_ROTATION 
-        cgGLSetParameter1f(  cgGetNamedParameter( m_fProg, "lines" ), 0.0f );
 
         glCallList( _vertexID );
+
+/*  
+        for( int s = 0; s < numberOfSlices; ++s )
+        {
+            cgGLSetParameter1f(  cgGetNamedParameter( m_fProg, "lines" ), 0.0f );
+            glBegin( GL_POLYGON );
+            for( int i = 0; i < 6; ++i )
+                glVertex2i( i, numberOfSlices-1-s );
+            glEnd();
+
+            cgGLSetParameter1f(  cgGetNamedParameter( m_fProg, "lines" ), 1.0f );
+            glBegin( GL_LINE_LOOP );
+            for( int i = 0; i < 6; ++i )
+                glVertex2i( i, numberOfSlices-1-s );
+            glEnd();
+        }
+*/
 
 #else
         // Draw slices from vertex array
@@ -514,27 +530,66 @@ bool cmpRangesInc(const Range& r1, const Range& r2)
     return r1.start > r2.start;
 }
 
-void Channel::arrangeFrames( vector<Range>& ranges )
+const FrameData& Channel::_getFrameData() const
+{
+    const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
+    return pipe->getFrameData();
+}
+
+void Channel::_calcMVandITMV( vmml::Matrix4d& modelviewM, vmml::Matrix3d& modelviewITM ) const
+{
+    const FrameData& frameData = _getFrameData();
+    
+    if( _model )
+    {
+        vmml::Matrix4f scale( 
+            _model->volScales.W, 0, 0, 0,
+            0, _model->volScales.H, 0, 0,
+            0, 0, _model->volScales.D, 0,
+            0, 0,                   0, 1 );
+
+        modelviewM = scale * frameData.data.rotation;
+    }
+    modelviewM.setTranslation( frameData.data.translation );
+
+    modelviewM = getHeadTransform() * modelviewM;
+
+    //calculate inverse transposed matrix
+    vmml::Matrix4d modelviewIM;
+    modelviewM.getInverse( modelviewIM );
+    modelviewITM = modelviewIM.getTransposed();
+}
+
+void Channel::arrangeFrames( vector<Range>& ranges, bool composeOnly )
 {
     if( _perspective )
     {//perspective projection
-        vmml::Vector3d norm = _curFrData.modelviewITM * vmml::Vector3d( 0.0, 0.0, 1.0 );
+		vmml::Matrix4d  modelviewM;		// modelview matrix
+		vmml::Matrix3d  modelviewITM;	// modelview inversed transposed matrix
+        if( !composeOnly )
+        {
+            modelviewM      = _curFrData.modelviewM;
+            modelviewITM    = _curFrData.modelviewITM;
+        }else
+            _calcMVandITMV( modelviewM, modelviewITM );
+
+        vmml::Vector3d norm = modelviewITM * vmml::Vector3d( 0.0, 0.0, 1.0 );
         norm.normalize();
 
         sort( ranges.begin(), ranges.end(), cmpRangesDec );
 
-        vector<double> dotVals;              // cos of angle between normal and vectors from center 
+        vector<double> dotVals;             // cos of angle between normal and vectors from center 
         dotVals.reserve( ranges.size()+1 ); // of projection to the middle of slices' boundaries
 
         for( uint i=0; i<ranges.size(); i++ )
         {
             double px = -1.0 + ranges[i].start*2.0;
 
-            vmml::Vector4d pS = _curFrData.modelviewM * vmml::Vector4d( 0.0, 0.0, px , 1.0 );
+            vmml::Vector4d pS = modelviewM * vmml::Vector4d( 0.0, 0.0, px , 1.0 );
             dotVals.push_back( norm.dot( pS.getNormalizedVector3() ) );
         }
 
-        vmml::Vector4d pS = _curFrData.modelviewM * vmml::Vector4d( 0.0, 0.0, 1.0, 1.0 );
+        vmml::Vector4d pS = modelviewM * vmml::Vector4d( 0.0, 0.0, 1.0, 1.0 );
         dotVals.push_back( norm.dot( pS.getNormalizedVector3() ) );
 
         //check if any slices need to be rendered in rederse orded
@@ -557,7 +612,7 @@ void Channel::arrangeFrames( vector<Range>& ranges )
         }
     }else
     {//parallel projection
-        sort( ranges.begin(), ranges.end(), _curFrData.needInverse ? cmpRangesDec : cmpRangesInc );
+        sort( ranges.begin(), ranges.end(), _getFrameData().data.rotation.ml[10]<0 ? cmpRangesDec : cmpRangesInc );
     }
 }
 
@@ -615,6 +670,8 @@ void Channel::clearViewport( const PixelViewport &pvp )
 
 void Channel::frameAssemble( const uint32_t frameID )
 {
+    const bool composeOnly  = frameID != _curFrData.frameID;
+    
     applyBuffer();
     applyViewport();
     setupAssemblyState();
@@ -634,7 +691,7 @@ void Channel::frameAssemble( const uint32_t frameID )
 //All frames is ready
 
     //fill ranges - it should be supplied by server actualy 
-    eq::PixelViewport curPVP = getPixelViewport();
+    eq::PixelViewport curPVP = composeOnly ? getPixelViewport() : _curFrData.pvp;
 
     vector<Range> ranges;
     for( uint k=0; k<unusedFrames.size(); k++ )
@@ -649,32 +706,38 @@ void Channel::frameAssemble( const uint32_t frameID )
     }
 
     //calculate correct frames sequence
-    ranges.push_back( _curFrData.lastRange );
-    arrangeFrames( ranges );
+    if( !composeOnly ) ranges.push_back( _curFrData.lastRange );
+    arrangeFrames( ranges, composeOnly );
 
     //check if current frame in proper position, redback if not
+    if( !composeOnly )
+    {
 #ifndef NDEBUG
-    if( _curFrData.lastRange == ranges.back() && !getenv( "EQ_TAINT_CHANNELS" ) )
-        ranges.pop_back();
-    else
+        if( _curFrData.lastRange == ranges.back() && !getenv( "EQ_TAINT_CHANNELS" ) )
+            ranges.pop_back();
+        else
 #else
 #ifndef SOLID_BG
-    if( _curFrData.lastRange == ranges.back() )
-        ranges.pop_back();
-    else
+        if( _curFrData.lastRange == ranges.back() )
+            ranges.pop_back();
+        else
 #endif //SOLID_BG
 #endif //NDEBUG
-        if( curPVP.hasArea() )
-        {
-            _curFrameImage.setFormat(        Frame::BUFFER_COLOR, GL_RGBA          );
-            _curFrameImage.setType(          Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
+            if( curPVP.hasArea() )
+            {
+                _curFrameImage.setFormat(        Frame::BUFFER_COLOR, GL_RGBA          );
+                _curFrameImage.setType(          Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
 
-            _curFrameImage.setPixelViewport(                      curPVP           );
-            _curFrameImage.startReadback(    Frame::BUFFER_COLOR, curPVP           );
+                _curFrameImage.setPixelViewport(                      curPVP           );
+                _curFrameImage.startReadback(    Frame::BUFFER_COLOR, curPVP           );
 
-            //clear part of a screen
- //           clearViewport( curPVP );
-        }
+                //clear part of a screen
+#ifdef __APPLE__
+                clearViewport( curPVP );
+#endif
+            }
+    }
+
 
     while( !unusedFrames.empty() )
     {
@@ -708,7 +771,7 @@ void Channel::frameAssemble( const uint32_t frameID )
                     }
             }
 
-            if( ranges.back() == _curFrData.lastRange ) // current range equals to range of original frame
+            if( !composeOnly && ( ranges.back() == _curFrData.lastRange )) // current range equals to range of original frame
             {
                 if( curPVP.hasArea() )
                     _curFrameImage.startAssemble( Frame::BUFFER_COLOR, vmml::Vector2i( curPVP.x, curPVP.y ) );
@@ -737,7 +800,6 @@ void Channel::setupAssemblyState()
     glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
 #endif
 
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 
@@ -885,13 +947,10 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler )
     }
 
     _curFrData.modelviewM.set( modelView.ml );
-//    _curFrData.projectionM = projection;
 
     //calculate inverse transposed matrix
     _curFrData.modelviewM.getInverse( _curFrData.modelviewIM );
-//    _curFrData.modelviewITM = (_curFrData.modelviewIM.getTransposed()).getMainSubmatrix();
     _curFrData.modelviewITM = _curFrData.modelviewIM.getTransposed();
-
 
     culler.setup( projection * modelView );
 }

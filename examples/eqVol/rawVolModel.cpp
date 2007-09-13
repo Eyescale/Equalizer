@@ -10,6 +10,59 @@ namespace eqVol
 
 using hlpFuncs::clip;
 
+/** Volume always represented as cube [-1,-1,-1]..[1,1,1], so if the model 
+    is not cube it's proportions should be modified.
+*/
+void correctScales( uint32_t w, uint32_t h, uint32_t d, VolumeScales &scales )
+{
+//Correct proportions according to real size of volume
+    float maxS = MAX( w, MAX( h, d ) );
+
+    scales.W *= w / maxS;
+    scales.H *= h / maxS;
+    scales.D *= d / maxS;
+    
+//Make maximum proportion equal to 1.0 to prevent unnecessary rescaling
+    maxS = MAX( scales.W, MAX( scales.H, scales.D ) );
+
+    scales.W /= maxS;
+    scales.H /= maxS;
+    scales.D /= maxS;
+}
+
+ 
+void readDimensionsAndScales( FILE* file, uint32_t& w, uint32_t& h, uint32_t& d, VolumeScales& volScales )
+{
+	fscanf( file, "w=%u\n", &w );
+	fscanf( file, "h=%u\n", &h );
+	fscanf( file, "d=%u\n", &d );
+
+	fscanf( file, "wScale=%g\n", &volScales.W );
+	fscanf( file, "hScale=%g\n", &volScales.H );
+	fscanf( file, "dScale=%g\n", &volScales.D );
+	
+    correctScales( w, h, d, volScales );
+}
+
+
+RawVolumeModel::RawVolumeModel( const string& data ) 
+:_cRange( -1.0, -1.0 )
+,_lastSuccess(false)
+,_resolution(1)
+{
+    _fileName = data;
+	string configFileName = _fileName;
+	hFile info( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
+
+	if( info.f==NULL ) 
+	    lFailed( "Can't open header file" );
+	else
+	{
+    	uint32_t w, h, d;
+        readDimensionsAndScales( info.f, w, h, d, volScales );
+    }
+}
+
 void createPreintegrationTable( const uint8_t *Table, GLuint &preintName )
 {
 	EQINFO << "Calculating preintegration table..." << endl;
@@ -102,25 +155,6 @@ uint32_t getMinPow2( uint32_t size )
 	return res;
 }
 
-/** Volume always represented as cube [-1,-1,-1]..[1,1,1], so if the model 
-    is not cube it's proportions should be modified.
-*/
-void correctScales( uint32_t w, uint32_t h, uint32_t d, VolumeScales &scales )
-{
-//Correct proportions according to real size of volume
-    float maxS = MAX( w, MAX( h, d ) );
-
-    scales.W *= w / maxS;
-    scales.H *= h / maxS;
-    scales.D *= d / maxS;
-    
-//Make maximum proportion equal to 1.0 to prevent unnecessary rescaling
-    maxS = MAX( scales.W, MAX( scales.H, scales.D ) );
-
-    scales.W /= maxS;
-    scales.H /= maxS;
-    scales.D /= maxS;
-}
 
 bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range )
 {
@@ -141,16 +175,7 @@ bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range
 	
 		if( file==NULL ) return lFailed( "Can't open header file" );
 	
-		fscanf( file, "w=%u\n", &w );
-		fscanf( file, "h=%u\n", &h );
-		fscanf( file, "d=%u\n", &d );
-
-		fscanf( file, "wScale=%g\n", &volScales.W );
-		fscanf( file, "hScale=%g\n", &volScales.H );
-		fscanf( file, "dScale=%g\n", &volScales.D );
-	
-        EQERROR << endl;
-        correctScales( w, h, d, volScales );
+        readDimensionsAndScales( file, w, h, d, volScales );
 	
         EQWARN << " " << w << "x" << h << "x" << d << endl;
         EQWARN << "Scales: " << volScales.W << " x " << volScales.H << " x " << volScales.D << endl;

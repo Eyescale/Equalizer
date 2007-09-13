@@ -1,5 +1,6 @@
 
 //#define TEXTURE_ROTATION
+//#define PARALLEL_PROJECTION
 
 
 #ifdef TEXTURE_ROTATION 
@@ -139,15 +140,18 @@ void main(
 
 	frontP = 0.5 * Position + 0.5;
 	
-	float4 vPosition = mul( glstate.matrix.inverse.modelview[0], float4(0,0,0,1) );
-	
 	float4 vDir = normalize( mul( glstate.matrix.inverse.modelview[0], float4(0.,0.,-1.,1.) ) );
+
+#ifndef PARALLEL_PROJECTION	
+	float4 vPosition = mul( glstate.matrix.inverse.modelview[0], float4(0,0,0,1) );
 
 	//compute position of virtual back vertex
 	float4 eyeToVert = normalize( float4( Position, 1.0) - vPosition );
 
 	backP = Position + eyeToVert * ( sliceDistance / dot( vDir, eyeToVert ) ); 
-	
+#else
+	backP = Position + vDir * sliceDistance; 
+#endif	
 	//compute texture coordinates for virtual back vertex
 	
 	backP = 0.5 * backP + 0.5;

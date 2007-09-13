@@ -12,11 +12,11 @@
 #include <eq/eq.h>
 
 
-class FrameData;
-class InitData;
-
 namespace eqVol
 {
+    class FrameData;
+    class InitData;
+
     class Channel : public eq::Channel
     {
     public:
@@ -33,7 +33,7 @@ namespace eqVol
        	virtual void setupAssemblyState();
         virtual void frameReadback( const uint32_t frameID );
 
-		void arrangeFrames( std::vector<Range>& ranges );
+		void arrangeFrames( std::vector<Range>& ranges, bool composeOnly );
 
        	void applyFrustum() const;
 		
@@ -48,16 +48,21 @@ namespace eqVol
 		
         void _drawLogo();
         void _initFrustum( vmml::FrustumCullerf& frustum );
+        
+        void _calcMVandITMV( vmml::Matrix4d& modelviewM, vmml::Matrix3d& modelviewITM ) const;
+        
+        const FrameData& _getFrameData() const;
 
 		//
 		struct curFrData
 		{
-			Range           lastRange;
-			bool  			needInverse;
-			vmml::Matrix4d  modelviewM;		// modelview matrix
-			vmml::Matrix4d  modelviewIM;	// modelview inverse matrix
-			vmml::Matrix3d  modelviewITM;	// modelview inversed transposed matrix
-			vmml::Frustumf  frustum;		// frustum
+            uint32_t            frameID;
+            eq::PixelViewport   pvp; 
+			Range               lastRange;
+			vmml::Matrix4d      modelviewM;		// modelview matrix
+			vmml::Matrix4d      modelviewIM;	// modelview inverse matrix
+			vmml::Matrix3d      modelviewITM;	// modelview inversed transposed matrix
+			vmml::Frustumf      frustum;		// frustum
 		}
 		    _curFrData;
 

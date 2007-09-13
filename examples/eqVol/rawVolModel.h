@@ -66,13 +66,7 @@ class RawVolumeModel
 {
 public:
 	
-	RawVolumeModel( const string& data ) 
-	:_cRange( -1.0, -1.0 )
-	,_lastSuccess(false)
-	,_resolution(1)
-	{
-		_fileName = data;
-	}
+    RawVolumeModel( const string& data );
 	
 	bool createTextures( GLuint &volume, GLuint &preint, Range range );
 
@@ -88,11 +82,11 @@ private:
 	bool lSuccess() { return _lastSuccess=true;  }
 	bool lFailed( char* msg )  { EQERROR << msg << endl; return _lastSuccess=false; }
 	
-	string  _fileName;
 	Range   _cRange;        //!< Current Range
 	bool    _lastSuccess;   //!< Result of last loading
-	
+
 	uint32_t _resolution;   //!< max(w,h,d) of a model
+	string  _fileName;
 };
 
 /*
