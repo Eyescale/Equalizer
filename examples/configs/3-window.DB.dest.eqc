@@ -1,0 +1,61 @@
+# single pipe, two-to-one sort-last demo configuration with separate compositing channel
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ .55 .1 .4 .3 ]
+
+                    channel { name "channel1" }
+                }
+                window
+                {
+                    viewport [ .05 .1 .4 .3 ]
+
+                    channel { name "channel2" }
+                }
+                window
+                {
+                    viewport [ .35 .45 .4 .3 ]
+
+                    attributes { planes_stencil 1 }
+
+                    channel { name "channel3" }
+                }
+            }
+        }
+        compound
+        {
+            channel "channel3"
+            buffer  [ COLOR DEPTH ]
+            task    [ CLEAR ASSEMBLE ] 
+
+            wall
+            {
+                bottom_left  [ -.32 -.2 -1 ]
+                bottom_right [  .32 -.2 -1 ]
+                top_left     [ -.32  .2 -1 ]
+            }
+            
+            compound
+            {
+                channel "channel1"
+                range   [ 0 .5 ]
+                outputframe { }
+            }
+            compound
+            { 
+                channel "channel2"
+                range   [ .5 1 ]
+                outputframe { }
+            }
+            inputframe { name "frame.channel1" }
+            inputframe { name "frame.channel2" }
+        }
+    }    
+}
