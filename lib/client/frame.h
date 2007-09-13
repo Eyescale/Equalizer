@@ -54,7 +54,7 @@ namespace eq
         //*{
         const vmml::Vector2i& getOffset() const { return _data.offset; }
         
-        /** @return the database-range relativ to the destination channel. */
+        /** @return the database-range relative to the destination channel. */
         const Range& getRange() const;
 
         /** The images of this frame data holder */

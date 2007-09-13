@@ -940,7 +940,6 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
         eq::ChannelFrameDrawPacket drawPacket;
 
         drawPacket.context = context;
-        compound->_computeFrustum( drawPacket.context, data->eye );
         channel->send( drawPacket );
         EQLOG( eq::LOG_TASKS ) << "TASK draw " << channel->getName() <<  " " 
                            << &drawPacket << endl;
@@ -971,11 +970,13 @@ void Compound::_setupRenderContext( eq::RenderContext& context,
         context.pvp.y = nativePVP.y;
     }
     // TODO: pvp size overcommit check?
+
+    _computeFrustum( context, data->eye );
 }
 
 GLenum Compound::_getDrawBuffer( const UpdateChannelData* data )
 {
-    eq::Window::DrawableConfig drawableConfig = 
+    const eq::Window::DrawableConfig& drawableConfig = 
         data->channel->getWindow()->getDrawableConfig();
     
     if( !drawableConfig.stereo )

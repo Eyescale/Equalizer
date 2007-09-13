@@ -36,7 +36,7 @@ namespace eq
          * @name Data Access
          */
         //*{
-        /** The database-range relativ to the destination channel. */
+        /** The database-range relative to the destination channel. */
         const Range& getRange() const { return _data.range; }
         
         /** The images of this frame data holder */
