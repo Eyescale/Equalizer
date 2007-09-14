@@ -78,7 +78,8 @@ static const char* _logoTextureName = "eqVol_logo";
 
 void Window::_loadLogo()
 {
-    EQASSERT( !_objects->getTexture( _logoTextureName ));
+    EQASSERT( _objects->getTexture( _logoTextureName ) == 
+              ObjectManager::FAILED );
 
     eq::Image image;
     if( !image.readImage( "logo.rgb", eq::Frame::BUFFER_COLOR ) &&
@@ -89,7 +90,7 @@ void Window::_loadLogo()
     }
 
     _logoTexture = _objects->newTexture( _logoTextureName );
-    EQASSERT( _logoTexture );
+    EQASSERT( _logoTexture != ObjectManager::FAILED );
 
     const eq::PixelViewport& pvp = image.getPixelViewport();
     _logoSize.x = pvp.w;

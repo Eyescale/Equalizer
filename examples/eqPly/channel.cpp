@@ -150,14 +150,14 @@ void Channel::_drawBBox( const Model::BBox *bbox )
     Window* window      = static_cast<Window*>( getWindow( ));
     GLuint  displayList = window->getDisplayList( bbox );
 
-    if( displayList )
+    if( displayList != ObjectManager::FAILED )
     {
         glCallList( displayList );
         return;
     }
 
     displayList = window->newDisplayList( bbox );
-    EQASSERT( displayList );
+    EQASSERT( displayList != ObjectManager::FAILED );
 
     Pipe*            pipe      = static_cast<Pipe*>( getPipe( ));
     const FrameData& frameData = pipe->getFrameData();

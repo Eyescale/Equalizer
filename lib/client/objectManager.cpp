@@ -38,34 +38,6 @@ ObjectManager<T>::~ObjectManager()
     _buffersKey.clear();
 }
 
-// helper function to check for specific OpenGL extensions
-bool checkExtension( char* extensionName )
-{
-    // get the list of supported extensions
-    const char* extensionList = 
-        reinterpret_cast<const char*>( glGetString( GL_EXTENSIONS ) );
-
-    if( !extensionName || !extensionList )
-        return false;
-
-    while( *extensionList )
-    {
-        // find the length of the first extension substring
-        size_t firstExtensionLength = strcspn( extensionList, " " );
-
-        if( strlen( extensionName ) == firstExtensionLength &&
-            strncmp( extensionName, extensionList, firstExtensionLength ) == 0 )
-        {
-            return true;
-		}
-
-        // move to the next substring
-        extensionList += firstExtensionLength + 1;
-    }
-
-    return false;
-}
-
 template< typename T >
 void ObjectManager<T>::deleteAll()
 {
@@ -109,7 +81,7 @@ template< typename T >
 GLuint ObjectManager<T>::getList( const T& key )
 {
     if( _listsKey.find( key ) == _listsKey.end( ))
-        return 0;
+        return FAILED;
 
     Object* object = _listsKey[ key ];
     ++object->refCount;
@@ -122,14 +94,14 @@ GLuint ObjectManager<T>::newList( const T& key )
     if( _listsKey.find( key ) != _listsKey.end( ))
     {
         EQWARN << "Requested new list for existing key" << endl;
-        return 0;
+        return FAILED;
     }
 
     const GLuint id = glGenLists( 1 );
     if( !id )
     {
         EQWARN << "glGenLists failed: " << glGetError() << endl;
-        return 0;
+        return FAILED;
     }
     
     Object& object   = _listsID[ id ];
@@ -212,7 +184,7 @@ template< typename T >
 GLuint ObjectManager<T>::getTexture( const T& key )
 {
     if( _texturesKey.find( key ) == _texturesKey.end( ))
-        return 0;
+        return FAILED;
 
     Object* object = _texturesKey[ key ];
     ++object->refCount;
@@ -225,15 +197,15 @@ GLuint ObjectManager<T>::newTexture( const T& key )
     if( _texturesKey.find( key ) != _texturesKey.end( ))
     {
         EQWARN << "Requested new texture for existing key" << endl;
-        return 0;
+        return FAILED;
     }
 
-    GLuint id = 0;
+    GLuint id = FAILED;
     glGenTextures( 1, &id );
-    if( !id )
+    if( id == FAILED )
     {
         EQWARN << "glGenTextures failed: " << glGetError() << endl;
-        return 0;
+        return FAILED;
     }
     
     Object& object   = _texturesID[ id ];
@@ -322,7 +294,7 @@ template< typename T >
 GLuint ObjectManager<T>::getBuffer( const T& key )
 {
     if( _buffersKey.find( key ) == _buffersKey.end() )
-        return 0;
+        return FAILED;
 
     Object* object = _buffersKey[ key ];
     ++object->refCount;
@@ -335,22 +307,22 @@ GLuint ObjectManager<T>::newBuffer( const T& key )
     if( !_glFunctions->hasGenBuffers( ))
     {
         EQWARN << "glGenBuffers not available" << endl;
-        return 0;
+        return FAILED;
     }
 
     if( _buffersKey.find( key ) != _buffersKey.end() )
     {
         EQWARN << "Requested new buffer for existing key" << endl;
-        return 0;
+        return FAILED;
     }
 
-    GLuint id = 0;
+    GLuint id = FAILED;
     _glFunctions->genBuffers( 1, &id );
 
-    if( !id )
+    if( id == FAILED )
     {
         EQWARN << "glGenBuffers failed: " << glGetError() << endl;
-        return 0;
+        return FAILED;
     }
     
     Object& object     = _buffersID[ id ];

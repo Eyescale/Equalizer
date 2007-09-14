@@ -15,10 +15,28 @@ namespace eq
 {
     class GLFunctions;
 
+    /**
+     * A facility class to managed OpenGL objects across shared contexts
+     *
+     * See also:
+     * http://www.equalizergraphics.com/documents/design/objectManager.html
+     * 
+     * The semantics for the functions is:
+     * get - lookup existing object,
+     * new - allocate new object,
+     * obtain - get or new,
+     * release - decrease reference count,
+     * delete - forcibly delete.
+     */
     template< typename T >
     class EQ_EXPORT ObjectManager : public eqBase::NonCopyable
     {
     public:
+        enum
+        {
+            FAILED = 0xffffffffu //<! return value for failed operations.
+        };
+
         ObjectManager( const GLFunctions* glFunctions )
             : _glFunctions( glFunctions ) 
             { EQASSERT( glFunctions ); }
