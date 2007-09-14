@@ -29,7 +29,7 @@
 #  define M_SQRT3_2  0.86603f  /* sqrt(3)/2 */
 #endif
 
-namespace eqVol
+namespace eVolve
 {
 
 using namespace eqBase;
@@ -676,7 +676,7 @@ void Channel::frameAssemble( const uint32_t frameID )
     applyViewport();
     setupAssemblyState();
 
-    Pipe*                 pipe    = static_cast<eqVol::Pipe*>( getPipe() );
+    Pipe*                 pipe    = static_cast<eVolve::Pipe*>( getPipe() );
     const vector<Frame*>& frames  = getInputFrames();
 
     vector<Frame*> unusedFrames = frames;

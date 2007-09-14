@@ -5,7 +5,7 @@
 #include <fstream>
 #include "hlp.h"
 
-namespace eqVol
+namespace eVolve
 {
     
 using hlpFuncs::clip;

@@ -7,7 +7,7 @@
 
 #include <eq/eq.h>
 
-namespace eqVol
+namespace eVolve
 {
     class ObjectManager : public eq::ObjectManager< const void* >, 
                           public eqBase::Referenced

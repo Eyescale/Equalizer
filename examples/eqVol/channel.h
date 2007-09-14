@@ -5,14 +5,14 @@
 #ifndef EQ_VOL_CHANNEL_H
 #define EQ_VOL_CHANNEL_H
 
-#include "eqVol.h"
+#include "eVolve.h"
 
 #include "rawVolModel.h"
 
 #include <eq/eq.h>
 
 
-namespace eqVol
+namespace eVolve
 {
 
     class FrameData;

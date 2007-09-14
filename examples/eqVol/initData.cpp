@@ -15,14 +15,14 @@
 using namespace eqBase;
 using namespace std;
 
-namespace eqVol
+namespace eVolve
 {
 
 InitData::InitData()
 :_frameDataID( EQ_UNDEFINED_UINT32 )
 ,_windowSystem( eq::WINDOW_SYSTEM_NONE )
 #ifdef WIN32_VC
-,_dataFilename( "../examples/eqVol/Bucky32x32x32_d.raw" )
+,_dataFilename( "../examples/eVolve/Bucky32x32x32_d.raw" )
 #else
 ,_dataFilename( "Bucky32x32x32_d.raw" )
 #endif

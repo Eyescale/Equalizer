@@ -2,7 +2,7 @@
 /* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#include "eqVol.h"
+#include "eVolve.h"
 
 #include "channel.h"
 #include "config.h"
@@ -18,17 +18,17 @@ using namespace std;
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Config*  createConfig()   { return new eqVol::Config;  }
-    virtual eq::Node*    createNode()     { return new eqVol::Node;    }
-    virtual eq::Pipe*    createPipe()     { return new eqVol::Pipe;    }
-    virtual eq::Window*  createWindow()   { return new eqVol::Window;  }
-    virtual eq::Channel* createChannel()  { return new eqVol::Channel; }
+    virtual eq::Config*  createConfig()   { return new eVolve::Config;  }
+    virtual eq::Node*    createNode()     { return new eVolve::Node;    }
+    virtual eq::Pipe*    createPipe()     { return new eVolve::Pipe;    }
+    virtual eq::Window*  createWindow()   { return new eVolve::Window;  }
+    virtual eq::Channel* createChannel()  { return new eVolve::Channel; }
 };
 
 int main( int argc, char** argv )
 {
     // 1. parse arguments
-    eqVol::LocalInitData initData;
+    eVolve::LocalInitData initData;
     initData.parseArguments( argc, argv );
 
     // 2. Equalizer initialization
@@ -40,7 +40,7 @@ int main( int argc, char** argv )
     }
     
     // 3. initialization of local client node
-    RefPtr< eqVol::Application > client = new eqVol::Application( initData );
+    RefPtr< eVolve::Application > client = new eVolve::Application( initData );
     if( !client->initLocal( argc, argv ))
     {
         EQERROR << "Can't init client" << endl;

@@ -5,12 +5,12 @@
 #ifndef EQ_VOL_NODE_H
 #define EQ_VOL_NODE_H
 
-#include "eqVol.h"
+#include "eVolve.h"
 #include "initData.h"
 
 #include <eq/eq.h>
 
-namespace eqVol
+namespace eVolve
 {
 
     class Node : public eq::Node

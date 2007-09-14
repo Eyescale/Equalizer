@@ -5,12 +5,12 @@
 #ifndef EQ_VOL_INITDATA_H
 #define EQ_VOL_INITDATA_H
 
-#include "eqVol.h"
+#include "eVolve.h"
 #include "frameData.h"
 
 #include <eq/eq.h>
 
-namespace eqVol
+namespace eVolve
 {
     class InitData : public eqNet::Object
     {

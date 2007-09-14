@@ -2,7 +2,7 @@
 /* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#include "eqVol.h"
+#include "eVolve.h"
 
 #include "config.h"
 #include "localInitData.h"
@@ -12,7 +12,7 @@
 using namespace eqBase;
 using namespace std;
 
-namespace eqVol
+namespace eVolve
 {
 
 Application::Application( const LocalInitData& initData )

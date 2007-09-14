@@ -9,7 +9,7 @@
 
 #include <eq/eq.h>
 
-namespace eqVol
+namespace eVolve
 {
     typedef RawVolumeModel Model;
 

@@ -5,11 +5,11 @@
 #ifndef EQ_VOL_FRAMEDATA_H
 #define EQ_VOL_FRAMEDATA_H
 
-#include "eqVol.h"
+#include "eVolve.h"
 
 #include <eq/eq.h>
 
-namespace eqVol
+namespace eVolve
 {
     class FrameData : public eqNet::Object
     {

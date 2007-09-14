@@ -11,7 +11,7 @@
 #include "frameData.h"     // member
 #include "tracker.h"       // member
 
-namespace eqVol
+namespace eVolve
 {
     class Config : public eq::Config
     {

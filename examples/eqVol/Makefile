@@ -1,14 +1,14 @@
 
 include $(TOP)/make/system.mk
 
-PROGRAM = eqVol
+PROGRAM = eVolve
 
 SOURCES = \
 	localInitData.cpp \
 	rawConverter.cpp \
 	channel.cpp \
 	config.cpp \
-	eqVol.cpp \
+	eVolve.cpp \
 	initData.cpp \
 	main.cpp \
 	node.cpp \
@@ -40,5 +40,5 @@ TARGETS = $(PROGRAMS)
 
 include $(TOP)/make/rules.mk
 
-README: ../../../website/build/documents/user/eqVol.html
+README: ../../../website/build/documents/user/eVolve.html
 	links -dump $< > $@

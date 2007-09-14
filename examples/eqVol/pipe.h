@@ -17,7 +17,7 @@
 #include "shader.h"
 #endif
 
-namespace eqVol
+namespace eVolve
 {
 #ifdef CG_SHADERS
     struct eqCgShaders

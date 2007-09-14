@@ -7,7 +7,7 @@
 #include <eq/eq.h>
 #include <string>
 
-namespace eqVol
+namespace eVolve
 {
     class Tracker
     {

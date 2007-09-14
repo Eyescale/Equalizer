@@ -15,7 +15,7 @@
 
 using namespace std;
 
-namespace eqVol
+namespace eVolve
 {
 LocalInitData::LocalInitData()
         : _maxFrames( 0xffffffffu ),
@@ -38,7 +38,7 @@ void LocalInitData::parseArguments( int argc, char** argv )
 {
     try
     {
-        TCLAP::CmdLine command( "eqVol - Equalizer volume rendering example" );
+        TCLAP::CmdLine command( "eVolve - Equalizer volume rendering example" );
         TCLAP::ValueArg<string> modelArg( "m", "model", "raw model file name", 
                                           false, "Bucky32x32x32.raw", "string", 
                                           command );

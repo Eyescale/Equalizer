@@ -9,7 +9,7 @@
 using namespace eqBase;
 using namespace std;
 
-namespace eqVol
+namespace eVolve
 {
 bool Node::configInit( const uint32_t initID )
 {

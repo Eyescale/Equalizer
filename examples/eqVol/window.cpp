@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace eqVol
+namespace eVolve
 {
 
 bool Window::configInitGL( const uint32_t initID )
@@ -74,7 +74,7 @@ bool Window::configExit()
     return eq::Window::configExit();
 }
 
-static const char* _logoTextureName = "eqVol_logo";
+static const char* _logoTextureName = "eVolve_logo";
 
 void Window::_loadLogo()
 {
@@ -83,7 +83,7 @@ void Window::_loadLogo()
 
     eq::Image image;
     if( !image.readImage( "logo.rgb", eq::Frame::BUFFER_COLOR ) &&
-        !image.readImage( "examples/eqVol/logo.rgb", eq::Frame::BUFFER_COLOR ))
+        !image.readImage( "examples/eVolve/logo.rgb", eq::Frame::BUFFER_COLOR ))
     {
         EQWARN << "Can't load overlay logo 'logo.rgb'" << endl;
         return;

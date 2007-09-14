@@ -9,7 +9,7 @@
 
 class FrameData;
 
-namespace eqVol
+namespace eVolve
 {
 
     class LocalInitData : public InitData

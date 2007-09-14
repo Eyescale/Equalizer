@@ -16,7 +16,7 @@
 #define COMMAND_POINT "B"
 
 using namespace std;
-namespace eqVol
+namespace eVolve
 {
 
 Tracker::Tracker()
