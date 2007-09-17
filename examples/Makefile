@@ -12,6 +12,10 @@ SUBDIRS = \
 	eqPixelBench \
 	$(OPTIONAL)
 
+ifdef CG_INSTALLED
+SUBDIRS += eVolve
+endif
+
 TARGETS = subdirs
 
 include $(TOP)/make/rules.mk

@@ -10,18 +10,6 @@ using namespace std;
 namespace eVolve
 {
 
-bool Window::configInitGL( const uint32_t initID )
-{
-    if( !eq::Window::configInitGL( initID ) )
-        return false;
-
-    Pipe*     pipe      = static_cast<Pipe*>( getPipe() );
-    pipe->LoadShaders();
-
-    return true;
-}
-
-
 bool Window::configInit( const uint32_t initID )
 {
 #if !defined(Darwin) || !defined(GLX)
@@ -61,6 +49,20 @@ bool Window::configInit( const uint32_t initID )
 
     if( !_objects ) // happens if first window failed to initialize
         return false;
+
+    return true;
+}
+
+bool Window::configInitGL( const uint32_t initID )
+{
+    if( !eq::Window::configInitGL( initID ) )
+        return false;
+
+    Pipe* pipe = static_cast<Pipe*>( getPipe() );
+    pipe->LoadShaders();
+
+    glDisable(GL_LIGHTING);
+    glDisable(GL_DEPTH_TEST);
 
     return true;
 }

@@ -63,6 +63,12 @@ CXX_DEFINES      = $(sort $(filter -D%,$(CXXFLAGS)))
 CXX_DEFINES_FILE = lib/base/defines.h
 CXX_DEFINES_TXT  = $(CXX_DEFINES:-D%= %)
 
+# Cg test
+CG_HEADER ?= $(wildcard /usr/include/Cg/cg.h /Library/Frameworks/Cg.framework/Headers/cg.h)
+ifeq ($(findstring cg.h, $(CG_HEADER)),cg.h)
+CG_INSTALLED ?= 1
+endif
+
 # include file variables
 INCLUDE_DIR     = $(BUILD_DIR)/$(INCLUDE_BASE)
 HEADERS         = $(HEADER_SRC:%=$(INCLUDE_DIR)/%)

@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com>
+                 2007       Maxim Makhinya
    All rights reserved. */
 
 #include "channel.h"
@@ -45,15 +46,15 @@ Channel::Channel()
 }
 
 
-void checkError( std::string msg ) 
+static void checkError( std::string msg ) 
 {
-    GLenum error = glGetError();
+    const GLenum error = glGetError();
     if (error != GL_NO_ERROR)
         EQERROR << msg << " GL Error: " << gluErrorString(error) << endl;
 }
 
 #ifdef CG_SHADERS
-void createHexagonsList( int num, GLuint &listId )
+static void createHexagonsList( int num, GLuint &listId )
 {
     if( listId != 0 )
         glDeleteLists( listId, 1 );
@@ -120,18 +121,14 @@ bool Channel::configInit( const uint32_t initID )
 {
     EQINFO << "Init channel initID " << initID << " ptr " << this << endl;
 
-//chose projection type
+    // chose projection type
     _perspective = true;
 
     if( _model )
         delete _model;
 
-    Node* node  = (Node*)getNode();
+    Node* node = static_cast< Node* >( getNode( ));
     _model = new Model( node->getInitData().getDataFilename() );
-
-
-    glDisable(GL_LIGHTING);
-    glDisable(GL_DEPTH_TEST);
 
 #ifndef DYNAMIC_NEAR_FAR
     setNearFar( 0.0001f, 10.0f );
@@ -147,7 +144,7 @@ void Channel::applyFrustum() const
     if( _perspective )
     {
         glFrustum( frustum.left, frustum.right, frustum.bottom, frustum.top,
-                 frustum.nearPlane, frustum.farPlane );
+                   frustum.nearPlane, frustum.farPlane );
     }else
     {
         glOrtho( frustum.left, frustum.right, frustum.bottom, frustum.top,
@@ -200,7 +197,7 @@ void Channel::frameDraw( const uint32_t frameID )
 
     if( _model )
     {
-        uint32_t numberOfSlices = _model->getResolution() * 2;
+        const uint32_t numberOfSlices = _model->getResolution() * 2;
         if( _prvNumberOfSlices != numberOfSlices )
         {
 #ifndef TEXTURE_ROTATION 
@@ -216,7 +213,7 @@ void Channel::frameDraw( const uint32_t frameID )
         GLfloat lightSpecular[] = {0.8f, 0.8f, 0.8f, 1.0f};
         GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};
 
-        //set light parameters
+        // set light parameters
         glLightfv( GL_LIGHT0, GL_AMBIENT,  lightAmbient  );
         glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDiffuse  );
         glLightfv( GL_LIGHT0, GL_SPECULAR, lightSpecular );
@@ -269,7 +266,8 @@ void Channel::frameDraw( const uint32_t frameID )
         vmml::Matrix4d pMatrix      = _curFrData.modelviewM;
         vmml::Matrix4d matModelView = _curFrData.modelviewIM;
 
-        vmml::Vector4d camPosition = matModelView * vmml::Vector4f( 0.0, 0.0, 0.0, 1.0 );
+        vmml::Vector4d camPosition = matModelView * 
+            vmml::Vector4f( 0.0, 0.0, 0.0, 1.0 );
         camPosition[3] = 1.0;
 
         vmml::Vector4d viewVec( -pMatrix.ml[2], -pMatrix.ml[6], -pMatrix.ml[10], 0.0 );
@@ -612,7 +610,8 @@ void Channel::arrangeFrames( vector<Range>& ranges, bool composeOnly )
         }
     }else
     {//parallel projection
-        sort( ranges.begin(), ranges.end(), _getFrameData().data.rotation.ml[10]<0 ? cmpRangesDec : cmpRangesInc );
+        const bool orientation =  _getFrameData().data.rotation.ml[10] < 0;
+        sort( ranges.begin(), ranges.end(), orientation ? cmpRangesDec : cmpRangesInc );
     }
 }
 
@@ -687,7 +686,7 @@ void Channel::frameAssemble( const uint32_t frameID )
         frame->waitReady( );
     }
 
-//All frames is ready
+    //All frames is ready
 
     //fill ranges - it should be supplied by server actualy 
     eq::PixelViewport curPVP = composeOnly ? getPixelViewport() : _curFrData.pvp;

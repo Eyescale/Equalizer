@@ -19,14 +19,14 @@ namespace eVolve
 {
 
 InitData::InitData()
-:_frameDataID( EQ_UNDEFINED_UINT32 )
-,_windowSystem( eq::WINDOW_SYSTEM_NONE )
+        : _frameDataID( EQ_UNDEFINED_UINT32 )
+        , _windowSystem( eq::WINDOW_SYSTEM_NONE )
 #ifdef WIN32_VC
-,_dataFilename( "../examples/eVolve/Bucky32x32x32_d.raw" )
+        , _dataFilename( "../examples/eVolve/Bucky32x32x32_d.raw" )
 #else
-,_dataFilename( "Bucky32x32x32_d.raw" )
+        , _dataFilename( "Bucky32x32x32_d.raw" )
 #endif
-,_instanceData( 0 )
+        , _instanceData( 0 )
 {}
 
 InitData::~InitData()

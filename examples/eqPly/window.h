@@ -14,7 +14,7 @@ namespace eqPly
     {
     public:
         ObjectManager( const eq::GLFunctions* glFunctions ) 
-                : eq::ObjectManager< const void * >( glFunctions ) {}
+                : eq::ObjectManager< const void* >( glFunctions ) {}
         virtual ~ObjectManager(){}
     };
 

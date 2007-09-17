@@ -23,8 +23,6 @@ namespace eVolve
     public:
         Window() : _logoTexture( 0 ) {}
 
-        bool configInitGL( const uint32_t initID );
-
         // display list cache (windows share the context and object manager)
         GLuint getDisplayList( const void* key )
             { return _objects->getList( key ); }
@@ -37,6 +35,7 @@ namespace eVolve
     protected:
         virtual ~Window() {}
         virtual bool configInit( const uint32_t initID );
+        virtual bool configInitGL( const uint32_t initID );
         virtual bool configExit();
 
     private:
