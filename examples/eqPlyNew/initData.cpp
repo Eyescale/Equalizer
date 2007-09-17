@@ -54,7 +54,7 @@ const void* InitData::getInstanceData( uint64_t* size )
 
 void InitData::applyInstanceData( const void* data, const uint64_t size )
 {
-    EQASSERT( size > sizeof( _frameDataID ));
+    EQASSERT( size > ( sizeof( _frameDataID ) + sizeof( _windowSystem )));
 
     _frameDataID  = reinterpret_cast< const uint32_t* >( data )[0];
     _windowSystem = reinterpret_cast< const eq::WindowSystem* >( data )[1];

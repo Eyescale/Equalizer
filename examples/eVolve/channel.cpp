@@ -676,7 +676,6 @@ void Channel::frameAssemble( const uint32_t frameID )
     applyViewport();
     setupAssemblyState();
 
-    Pipe*                 pipe    = static_cast<eVolve::Pipe*>( getPipe() );
     const vector<Frame*>& frames  = getInputFrames();
 
     vector<Frame*> unusedFrames = frames;
