@@ -75,13 +75,14 @@ namespace eVolve
               uint32_t getResolution() const { return _resolution; };
 
     //Data
-        DataInTextureDimensions TD;        //!< Data dimensions within volume texture 
+        DataInTextureDimensions TD; //!< Data dimensions within volume texture 
         VolumeScales            volScales; //!< Proportions of volume
     
     private:
         bool lSuccess() { return _lastSuccess=true;  }
-        bool lFailed( char* msg )  { EQERROR << msg << endl; return _lastSuccess=false; }
-    
+        bool lFailed( char* msg )  
+                { EQERROR << msg << endl; return _lastSuccess=false; }
+
         Range   _cRange;        //!< Current Range
         bool    _lastSuccess;   //!< Result of last loading
 

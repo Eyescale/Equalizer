@@ -34,7 +34,7 @@ namespace eVolve
         virtual void setupAssemblyState();
         virtual void frameReadback( const uint32_t frameID );
 
-        void arrangeFrames( std::vector<Range>& ranges, bool composeOnly );
+        void arrangeFrames( std::vector<Range>& ranges );
 
         void applyFrustum() const;
 
@@ -45,12 +45,13 @@ namespace eVolve
 
     private:
 
-        void _clearPixelViewPorts( const vector<Image*> &vecImages, const vmml::Vector2i& offset );
+        void _clearPixelViewPorts(  const vector<Image*>& vecImages,
+                                    const vmml::Vector2i& offset        );
 
         void _drawLogo();
-        void _initFrustum( vmml::FrustumCullerf& frustum );
 
-        void _calcMVandITMV( vmml::Matrix4d& modelviewM, vmml::Matrix3d& modelviewITM ) const;
+        void _calcMVandITMV( vmml::Matrix4d& modelviewM, 
+                             vmml::Matrix3d& modelviewITM ) const;
 
         const FrameData& _getFrameData() const;
 
@@ -60,23 +61,21 @@ namespace eVolve
             uint32_t            frameID;
             eq::PixelViewport   pvp; 
             Range               lastRange;
-            vmml::Matrix4d      modelviewM;     // modelview matrix
-            vmml::Matrix4d      modelviewIM;    // modelview inverse matrix
-            vmml::Matrix3d      modelviewITM;   // modelview inversed transposed matrix
-            vmml::Frustumf      frustum;        // frustum
         }
             _curFrData;
 
-        Image _curFrameImage;   //!< buffer for readback in case of DB compositing
+        vmml::Vector4f _bgColor;
+        
+        Image _curFrameImage; //!< buffer for readback in case of DB compositing
 
-        Model*   _model;        //!< equal to RawVolume Model
-    
+        Model*   _model;      //!< equal to RawVolume Model
+
         GLuint _tex3D;
         GLuint _preintName;
-        GLuint _vertexID;       //!< display list for hexagonals or quads
+        GLuint _vertexID;     //!< display list for hexagonals or quads
         int    _angle;
-    
-        uint32_t _prvNumberOfSlices; //!< number of slices to update display list
+
+        uint32_t _prvNumberOfSlices; //!< N of slices to update display list
     };
 
 }

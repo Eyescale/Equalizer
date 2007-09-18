@@ -31,7 +31,11 @@ void correctScales( uint32_t w, uint32_t h, uint32_t d, VolumeScales &scales )
 }
 
  
-void readDimensionsAndScales( FILE* file, uint32_t& w, uint32_t& h, uint32_t& d, VolumeScales& volScales )
+void readDimensionsAndScales( 
+    FILE* file, 
+    uint32_t& w, uint32_t& h, uint32_t& d, 
+    VolumeScales& volScales 
+)
 {
     fscanf( file, "w=%u\n", &w );
     fscanf( file, "h=%u\n", &h );
@@ -46,9 +50,9 @@ void readDimensionsAndScales( FILE* file, uint32_t& w, uint32_t& h, uint32_t& d,
 
 
 RawVolumeModel::RawVolumeModel( const string& data ) 
-:_cRange( -1.0, -1.0 )
-,_lastSuccess(false)
-,_resolution(1)
+    :_cRange( -1.0, -1.0 )
+    ,_lastSuccess(false)
+    ,_resolution(1)
 {
     _fileName = data;
     string configFileName = _fileName;
@@ -103,20 +107,30 @@ void createPreintegrationTable( const uint8_t *Table, GLuint &preintName )
                 gcol = static_cast<int>( (gInt[smax]-gInt[smin])*factor );
                 bcol = static_cast<int>( (bInt[smax]-bInt[smin])*factor );
 #ifdef COMPOSE_MODE_NEW
-                acol = static_cast<int>( 256.*(    exp(-(aInt[smax]-aInt[smin])*factor/255.)) );
+                acol = static_cast<int>( 
+                        256.*(    exp(-(aInt[smax]-aInt[smin])*factor/255.)));
 #else
-                acol = static_cast<int>( 256.*(1.0-exp(-(aInt[smax]-aInt[smin])*factor/255.)) );
+                acol = static_cast<int>(
+                        256.*(1.0-exp(-(aInt[smax]-aInt[smin])*factor/255.)));
 #endif
             } else
             {
                 double factor = 1./255.;
-                rcol = static_cast<int>( Table[smin*4+0]*Table[smin*4+3]*factor );
-                gcol = static_cast<int>( Table[smin*4+1]*Table[smin*4+3]*factor );
-                bcol = static_cast<int>( Table[smin*4+2]*Table[smin*4+3]*factor );
+                rcol =
+                    static_cast<int>( Table[smin*4+0]*Table[smin*4+3]*factor );
+
+                gcol =
+                    static_cast<int>( Table[smin*4+1]*Table[smin*4+3]*factor );
+                        
+                bcol =
+                    static_cast<int>( Table[smin*4+2]*Table[smin*4+3]*factor );
+                        
 #ifdef COMPOSE_MODE_NEW
-                acol = static_cast<int>( 256.*(    exp(-Table[smin*4+3]*1./255.)) );
+                acol =
+                    static_cast<int>( 256.*(    exp( -Table[smin*4+3]/255. )));
 #else
-                acol = static_cast<int>( 256.*(1.0-exp(-Table[smin*4+3]*1./255.)) );
+                acol = 
+                    static_cast<int>( 256.*(1.0-exp( -Table[smin*4+3]/255. )));
 #endif
             }
             
@@ -130,7 +144,9 @@ void createPreintegrationTable( const uint8_t *Table, GLuint &preintName )
 
     glGenTextures( 1, &preintName );
     glBindTexture( GL_TEXTURE_2D, preintName );
-    glTexImage2D(  GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, lookupImg );
+    glTexImage2D(  GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, 
+                   GL_RGBA, GL_UNSIGNED_BYTE, lookupImg );
+
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR        );
@@ -163,7 +179,7 @@ bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range
         
     _cRange = range;
     
-// reading header file & creating preintegration table
+    // reading header file & creating preintegration table
     uint32_t w, h, d;
     
     EQWARN << "--------------------------------------------" << endl;
@@ -172,21 +188,27 @@ bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range
         string configFileName = _fileName;
         hFile info( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
         FILE* file = info.f;
-    
-        if( file==NULL ) return lFailed( "Can't open header file" );
-    
-        readDimensionsAndScales( file, w, h, d, volScales );
-    
-        EQWARN << " " << w << "x" << h << "x" << d << endl;
-        EQWARN << "Scales: " << volScales.W << " x " << volScales.H << " x " << volScales.D << endl;
 
-        if( fscanf(file,"TF:\n") !=0 ) return lFailed( "Error in header file" );
-    
+        if( file==NULL )
+            return lFailed( "Can't open header file" );
+
+        readDimensionsAndScales( file, w, h, d, volScales );
+
+        EQWARN << " " << w << "x" << h << "x" << d << endl;
+        EQWARN << "Scales: " 
+               << volScales.W << " x " 
+               << volScales.H << " x " 
+               << volScales.D << endl;
+
+        if( fscanf(file,"TF:\n") !=0 ) 
+            return lFailed( "Error in header file" );
+
         uint32_t TFSize;
         fscanf( file, "size=%u\n", &TFSize );
-    
-        if( TFSize!=256  )  return lFailed( "Wrong size of transfer function, should be 256" );
-    
+
+        if( TFSize!=256  )
+            return lFailed( "Wrong size of transfer function, should be 256" );
+
         vector< uint8_t > TF( TFSize*4, 0 );
         int tmp;
         for( uint32_t i=0; i<TFSize; i++ )
@@ -196,7 +218,8 @@ bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range
             fscanf( file, "b=%d\n", &tmp ); TF[4*i+2] = tmp;
             if( fscanf( file, "a=%d\n", &tmp ) != 1 )
             {
-                EQERROR << "Failed to read entity #" << i << " of TF from header file" << endl;
+                EQERROR << "Failed to read entity #" << i 
+                        << " of TF from header file" << endl;
                 break;
             }
             TF[4*i+3] = tmp;
@@ -204,20 +227,28 @@ bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range
         
         createPreintegrationTable( &TF[0], preint );
     }
-// reading volume and derivatives
+    // reading volume and derivatives
+    const int32_t bwStart = 2; //border width from left
+    const int32_t bwEnd   = 2; //border width from right
 
     int32_t s = clip<int32_t>( static_cast<int32_t>( d*range.start ), 0, d-1 );
     int32_t e = clip<int32_t>( static_cast<int32_t>( d*range.end-1 ), 0, d-1 );
 
-    uint32_t start = static_cast<uint32_t>( clip<int32_t>( s-1, 0, d-1 ) );
-    uint32_t end   = static_cast<uint32_t>( clip<int32_t>( e+2, 0, d-1 ) );
+    uint32_t start = 
+                static_cast<uint32_t>( clip<int32_t>( s-bwStart, 0, d-1 ) );
+                
+    uint32_t end   = 
+                static_cast<uint32_t>( clip<int32_t>( e+bwEnd  , 0, d-1 ) );
+                
     uint32_t depth = end-start+1;
 
     uint32_t tW = getMinPow2( w ); 
     uint32_t tH = getMinPow2( h ); 
     uint32_t tD = getMinPow2( depth );
     
-    EQWARN << "w: " << w << " " << tW << " h: " << h << " " << tH << " d: " << d << " " << depth << " " << tD << endl;
+    EQWARN  << " w: " << w << " " << tW 
+            << " h: " << h << " " << tH 
+            << " d: " << d << " " << depth << " " << tD << endl;
 
     vector<uint8_t> data( tW*tH*tD*4, 0 );
 
@@ -225,18 +256,24 @@ bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range
     
     EQWARN << "r: " << _resolution << endl;
     
-    TD.W  =   (float)w / (float)tW;
-    TD.H  =   (float)h / (float)tH;
-    TD.D  = ( (float)(e-s+1) / (float)tD ) / ( range.end>range.start ? (range.end-range.start) : 1.0 );
+    //texture scaling coefficients
+    TD.W  = static_cast<float>( w     ) / static_cast<float>( tW );
+    TD.H  = static_cast<float>( h     ) / static_cast<float>( tH );
+    TD.D  = static_cast<float>( e-s+1 ) / static_cast<float>( tD ); 
+    TD.D /= range.end>range.start ? (range.end-range.start) : 1.0 ;
     
+    // Shift coefficient and left border in texture for depth
     TD.Do = range.start;
-    TD.Db = range.start > 0.0001 ? 1.0 / static_cast<float>(tD) : 0; // left  border in texture for depth
+    TD.Db = range.start > 0.0001 ? bwStart / static_cast<float>(tD) : 0;
 
-    EQWARN << "ws: " << TD.W << " hs: " << TD.H  << " wd: " << TD.D << " Do: " << TD.Do  << " Db: " << TD.Db << endl << " s=" << start << " e=" << end << endl;
+    EQWARN << " ws: " << TD.W  << " hs: " << TD.H  << " wd: " << TD.D 
+           << " Do: " << TD.Do << " Db: " << TD.Db << endl 
+           << " s= "  << start << " e= "  << end   << endl;
 
     {
-        ifstream file ( _fileName.c_str(), ifstream::in | ifstream::binary | ifstream::ate );
-    
+        ifstream file ( _fileName.c_str(), 
+                        ifstream::in | ifstream::binary | ifstream::ate );
+
         if( !file.is_open() ) return lFailed("Can't open model data file");
 
         file.seekg( w*h*start*4, ios::beg );
@@ -255,12 +292,11 @@ bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range
                     for( uint32_t j=0; j<h; j++ )
                         file.read( (char*)( &data[(i*tW*tH + j*tW)*4] ), w*4 );
             }
-    
+
         file.close();
     }
 
-// creating 3D texture
-
+    // creating 3D texture
     glGenTextures( 1, &volume );
     glBindTexture(GL_TEXTURE_3D, volume);
     
@@ -270,9 +306,10 @@ bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range
     glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR        );
     glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR        );
 
-    glTexImage3D( GL_TEXTURE_3D, 0, GL_RGBA, tW, tH, tD, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)(&data[0]) );
+    glTexImage3D(   GL_TEXTURE_3D, 
+                    0, GL_RGBA, tW, tH, tD, 
+                    0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)(&data[0]) );
 
-    
     return lSuccess();
 }
 

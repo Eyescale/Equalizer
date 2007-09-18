@@ -38,9 +38,10 @@ using namespace std;
 
 
 Channel::Channel()
-: eq::Channel()
-, _model(NULL)
-,_vertexID(0)
+    : eq::Channel()
+    , _model(NULL)
+    ,_vertexID(0)
+    ,_bgColor( 0.0f, 0.0f, 0.0f, 1.0f ) //use (0,0,0,1) to save transparancy
 {
     _curFrData.frameID = 0;
 }
@@ -107,9 +108,10 @@ void createVertexArray( uint32_t numberOfSlices, GLuint &vertexID )
         pVertex[4*ii  ].z =  (3.6*ii)/(numberOfSlices-1)-1.8;
     }
 
+    uint32_t sizeOfData = 3*4*numberOfSlices*sizeof(GLfloat);
     glGenBuffers( 1, &vertexID );
     glBindBuffer( GL_ARRAY_BUFFER, vertexID );
-    glBufferData( GL_ARRAY_BUFFER, 3*4*numberOfSlices*sizeof(GLfloat), &pVertex[0], GL_STATIC_DRAW );
+    glBufferData( GL_ARRAY_BUFFER, sizeOfData, &pVertex[0], GL_STATIC_DRAW );
     glBindBuffer( GL_ARRAY_BUFFER, 0 );
 
     checkError( "creating vertex array" );
@@ -139,7 +141,7 @@ bool Channel::configInit( const uint32_t initID )
 
 void Channel::applyFrustum() const
 {
-    const vmml::Frustumf& frustum = _curFrData.frustum;
+    const vmml::Frustumf& frustum = getFrustum();
 
     if( _perspective )
     {
@@ -147,8 +149,14 @@ void Channel::applyFrustum() const
                    frustum.nearPlane, frustum.farPlane );
     }else
     {
-        glOrtho( frustum.left, frustum.right, frustum.bottom, frustum.top,
-                 frustum.nearPlane, frustum.farPlane );
+        double zc = ( 1.0 + frustum.farPlane/frustum.nearPlane ) / 3.0;
+        glOrtho( 
+            frustum.left   * zc,
+            frustum.right  * zc,
+            frustum.bottom * zc,
+            frustum.top    * zc,
+            frustum.nearPlane, 
+            frustum.farPlane      );
     }
 
     EQVERB << "Apply " << frustum << endl;
@@ -160,7 +168,10 @@ void Channel::frameClear( const uint32_t frameID )
     applyViewport();
 
 #ifdef COMPOSE_MODE_NEW
-    glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+    if( getRange().isFull() )
+        glClearColor( _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a );
+    else
+        glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
 #else
     glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
 #endif
@@ -183,9 +194,6 @@ void Channel::frameDraw( const uint32_t frameID )
     if( _model )
         _model->createTextures( _tex3D, _preintName, _curFrData.lastRange );
 
-    vmml::FrustumCullerf culler;
-    _initFrustum( culler );
-
     applyBuffer();
     applyViewport();
 
@@ -194,9 +202,16 @@ void Channel::frameDraw( const uint32_t frameID )
 
     applyFrustum();
 
-
     if( _model )
     {
+        // temporal variables to store cgGetNamedParameter
+        // and glGetUniformLocationARB values, I need this 
+        // only to make someone people be happy with their 
+        // old school 80 characters per line and not to 
+        // make code look completely ugly :(
+        CGparameter tParamNameCg; // for Cg
+        GLint       tParamNameGL; // for GLSL
+
         const uint32_t numberOfSlices = _model->getResolution() * 2;
         if( _prvNumberOfSlices != numberOfSlices )
         {
@@ -227,9 +242,6 @@ void Channel::frameDraw( const uint32_t frameID )
         glMultMatrixf( frameData.data.rotation.ml );
 #endif
 
-
-/////////////////////////////////////////////////////////////////////////////        
-
         // Matrix World
         glMatrixMode( GL_MODELVIEW );
         glLoadIdentity();
@@ -241,7 +253,10 @@ void Channel::frameDraw( const uint32_t frameID )
 #ifndef TEXTURE_ROTATION 
         glMultMatrixf( frameData.data.rotation.ml );
 #endif
-        glScalef( _model->volScales.W, _model->volScales.H, _model->volScales.D );
+        glScalef( 
+            _model->volScales.W,
+            _model->volScales.H, 
+            _model->volScales.D  );
 
 /*        glPushMatrix(); //Rotate lights
         {
@@ -260,38 +275,47 @@ void Channel::frameDraw( const uint32_t frameID )
         }
         glPopMatrix();
 */
-        checkError("");
 
+        vmml::Matrix4d  modelviewM;     // modelview matrix
+        vmml::Matrix3d  modelviewITM;   // modelview inversed transposed matrix
+        _calcMVandITMV( modelviewM, modelviewITM );
 
-        vmml::Matrix4d pMatrix      = _curFrData.modelviewM;
-        vmml::Matrix4d matModelView = _curFrData.modelviewIM;
+        vmml::Vector4d camPosition( 
+                            modelviewITM.ml[3],
+                            modelviewITM.ml[7],
+                            1.0               ,
+                            1.0                  );
 
-        vmml::Vector4d camPosition = matModelView * 
-            vmml::Vector4f( 0.0, 0.0, 0.0, 1.0 );
-        camPosition[3] = 1.0;
-
-        vmml::Vector4d viewVec( -pMatrix.ml[2], -pMatrix.ml[6], -pMatrix.ml[10], 0.0 );
+        vmml::Vector4d viewVec( 
+                            -modelviewM.ml[ 2],
+                            -modelviewM.ml[ 6],
+                            -modelviewM.ml[10],
+                             0.0                );
 
         double m_dScaleFactorX = 1.0;
         double m_dScaleFactorY = 1.0;
         double m_dScaleFactorZ = 1.0;
         double m_dSliceDist    = 3.6/numberOfSlices;
 
-        vmml::Vector4d scaledViewVec( viewVec.x*m_dScaleFactorX, viewVec.y*m_dScaleFactorY, viewVec.z*m_dScaleFactorZ, 0.0 ) ;
+        vmml::Vector4d scaledViewVec( 
+                                viewVec.x*m_dScaleFactorX,
+                                viewVec.y*m_dScaleFactorY,
+                                viewVec.z*m_dScaleFactorZ,
+                                0.0                        );
 
         double zRs = -1+2*_curFrData.lastRange.start;
         double zRe = -1+2*_curFrData.lastRange.end;
 
         vmml::Vector4d m_pVertices[8];
-        m_pVertices[0] = vmml::Vector4f(-1.0,-1.0,zRs, 1.0);
-        m_pVertices[1] = vmml::Vector4f( 1.0,-1.0,zRs, 1.0);
-        m_pVertices[2] = vmml::Vector4f(-1.0, 1.0,zRs, 1.0);
-        m_pVertices[3] = vmml::Vector4f( 1.0, 1.0,zRs, 1.0);
+        m_pVertices[0] = vmml::Vector4d(-1.0,-1.0,zRs, 1.0);
+        m_pVertices[1] = vmml::Vector4d( 1.0,-1.0,zRs, 1.0);
+        m_pVertices[2] = vmml::Vector4d(-1.0, 1.0,zRs, 1.0);
+        m_pVertices[3] = vmml::Vector4d( 1.0, 1.0,zRs, 1.0);
 
-        m_pVertices[4] = vmml::Vector4f(-1.0,-1.0,zRe, 1.0);
-        m_pVertices[5] = vmml::Vector4f( 1.0,-1.0,zRe, 1.0);
-        m_pVertices[6] = vmml::Vector4f(-1.0, 1.0,zRe, 1.0);
-        m_pVertices[7] = vmml::Vector4f( 1.0, 1.0,zRe, 1.0);
+        m_pVertices[4] = vmml::Vector4d(-1.0,-1.0,zRe, 1.0);
+        m_pVertices[5] = vmml::Vector4d( 1.0,-1.0,zRe, 1.0);
+        m_pVertices[6] = vmml::Vector4d(-1.0, 1.0,zRe, 1.0);
+        m_pVertices[7] = vmml::Vector4d( 1.0, 1.0,zRe, 1.0);
 
 
         float dMaxDist = scaledViewVec.dot( m_pVertices[0] );
@@ -352,31 +376,55 @@ void Channel::frameDraw( const uint32_t frameID )
         float vertices[24];
         for(int i = 0; i < 8; ++i)
         {
-            vertices[3*i]   = static_cast<double>( m_dScaleFactorX * m_pVertices[i][0] );
-            vertices[3*i+1] = static_cast<double>( m_dScaleFactorY * m_pVertices[i][1] );
-            vertices[3*i+2] = static_cast<double>( m_dScaleFactorZ * m_pVertices[i][2] );
+            vertices[3*i  ] = m_dScaleFactorX * m_pVertices[i][0];
+            vertices[3*i+1] = m_dScaleFactorY * m_pVertices[i][1];
+            vertices[3*i+2] = m_dScaleFactorZ * m_pVertices[i][2];
         }
 
 #ifdef CG_SHADERS
-        cgGLSetParameterArray3f( cgGetNamedParameter( m_vProg, "vecVertices" ), 0,  8, vertices );
-        cgGLSetParameterArray1f( cgGetNamedParameter( m_vProg, "sequence"    ), 0, 64, sequence );
-        cgGLSetParameterArray1f( cgGetNamedParameter( m_vProg, "v1"          ), 0, 24, e1       );
-        cgGLSetParameterArray1f( cgGetNamedParameter( m_vProg, "v2"          ), 0, 24, e2       );
+        tParamNameCg = cgGetNamedParameter( m_vProg, "vecVertices" );
+        cgGLSetParameterArray3f( tParamNameCg, 0,  8, vertices     );
 
-        cgGLSetParameter3dv(     cgGetNamedParameter( m_vProg, "vecView"     ), viewVec.xyzw   );
-        cgGLSetParameter1f(      cgGetNamedParameter( m_vProg, "frontIndex"  ), float(nMaxIdx) );
+        tParamNameCg = cgGetNamedParameter( m_vProg, "sequence"    );
+        cgGLSetParameterArray1f( tParamNameCg, 0, 64, sequence     );
 
-        cgGLSetParameter1d(      cgGetNamedParameter( m_vProg, "dPlaneIncr"  ), m_dSliceDist   );
+        tParamNameCg = cgGetNamedParameter( m_vProg, "v1"          );
+        cgGLSetParameterArray1f( tParamNameCg, 0, 24, e1           );
+
+        tParamNameCg = cgGetNamedParameter( m_vProg, "v2"          );
+        cgGLSetParameterArray1f( tParamNameCg, 0, 24, e2           );
+
+        tParamNameCg = cgGetNamedParameter( m_vProg, "vecView"     );
+        cgGLSetParameter3dv(     tParamNameCg,        viewVec.xyzw );
+
+        tParamNameCg = cgGetNamedParameter( m_vProg, "frontIndex"  );
+        cgGLSetParameter1f(      tParamNameCg, static_cast<float>( nMaxIdx ) );
+
+        tParamNameCg = cgGetNamedParameter( m_vProg, "dPlaneIncr"  );
+        cgGLSetParameter1d(      tParamNameCg,        m_dSliceDist );
 #else
-        glUniform3fvARB( glGetUniformLocationARB( shader, "vecVertices"),  8, vertices );
-        glUniform1ivARB( glGetUniformLocationARB( shader, "sequence"   ), 64, sequence );
-        glUniform1ivARB( glGetUniformLocationARB( shader, "v1"         ), 24, e1       );
-        glUniform1ivARB( glGetUniformLocationARB( shader, "v2"         ), 24, e2       );
+        tParamNameGL = glGetUniformLocationARB( shader, "vecVertices" );
+        glUniform3fvARB( tParamNameGL,  8, vertices                   );
 
-        glUniform3fARB(  glGetUniformLocationARB( shader, "vecView"    ), viewVec.x, viewVec.y, viewVec.z );
-        const GLint frontInd = static_cast<GLint>(nMaxIdx);
-        glUniform1iARB(  glGetUniformLocationARB( shader, "frontIndex" ), frontInd     );
-        glUniform1fARB(  glGetUniformLocationARB( shader, "dPlaneIncr" ), m_dSliceDist );
+        tParamNameGL = glGetUniformLocationARB( shader, "sequence"    );
+        glUniform1ivARB( tParamNameGL, 64, sequence                   );
+
+        tParamNameGL = glGetUniformLocationARB( shader, "v1"          );
+        glUniform1ivARB( tParamNameGL, 24, e1                         );
+
+        tParamNameGL = glGetUniformLocationARB( shader, "v2"          );
+        glUniform1ivARB( tParamNameGL,24,  e2                         );
+
+        tParamNameGL = glGetUniformLocationARB( shader, "vecView"     );
+        glUniform3fARB( tParamNameGL, viewVec.x, viewVec.y, viewVec.z );
+            
+
+        tParamNameGL = glGetUniformLocationARB( shader, "frontIndex"  );
+        glUniform1iARB( tParamNameGL, static_cast<GLint>( nMaxIdx )   );
+
+        tParamNameGL = glGetUniformLocationARB( shader, "dPlaneIncr"  );
+        glUniform1fARB( tParamNameGL, m_dSliceDist                    );
+            
 #endif //CG_SHADERS
 
         const int nSequence[8][8] = {
@@ -409,45 +457,65 @@ void Channel::frameDraw( const uint32_t frameID )
         dStartDist          = dS * m_dSliceDist;
 
 #ifdef CG_SHADERS
-        cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "dPlaneStart" ), dStartDist );
+        tParamNameCg = cgGetNamedParameter(  m_vProg, "dPlaneStart" );
+        cgGLSetParameter1d( tParamNameCg,   dStartDist              );
 
-        cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "W"  ), _model->TD.W  );
-        cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "H"  ), _model->TD.H  );
-        cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "D"  ), _model->TD.D  );
-        cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "Do" ), _model->TD.Do );
-        cgGLSetParameter1d(cgGetNamedParameter(  m_vProg, "Db" ), _model->TD.Db );
+        tParamNameCg = cgGetNamedParameter(  m_vProg, "W"           );
+        cgGLSetParameter1d( tParamNameCg,   _model->TD.W            );
+
+        tParamNameCg = cgGetNamedParameter(  m_vProg, "H"           );
+        cgGLSetParameter1d( tParamNameCg,   _model->TD.H            );
+
+        tParamNameCg = cgGetNamedParameter(  m_vProg, "D"           );
+        cgGLSetParameter1d( tParamNameCg,   _model->TD.D            );
+
+        tParamNameCg = cgGetNamedParameter(  m_vProg, "Do"          );
+        cgGLSetParameter1d( tParamNameCg,   _model->TD.Do           );
+
+        tParamNameCg = cgGetNamedParameter(  m_vProg, "Db"          );
+        cgGLSetParameter1d( tParamNameCg,   _model->TD.Db           );
 
 #else
-        glUniform1fARB( glGetUniformLocationARB(  shader, "dPlaneStart" ), dStartDist );
+        tParamNameGL = glGetUniformLocationARB(  shader, "dPlaneStart"  );
+        glUniform1fARB(     tParamNameGL,   dStartDist                  );
 #endif
 #endif //TEXTURE_ROTATION 
-
 
         // Fill volume data
         {
             glActiveTexture( GL_TEXTURE1 );
             glBindTexture( GL_TEXTURE_2D, _preintName ); //preintegrated values
 #ifdef CG_SHADERS
-            cgGLSetTextureParameter(    cgGetNamedParameter( m_fProg,"preInt" ), _preintName    );
-            cgGLEnableTextureParameter( cgGetNamedParameter( m_fProg,"preInt" )                 );
+            tParamNameCg = cgGetNamedParameter( m_fProg,"preInt" );
+            cgGLSetTextureParameter(    tParamNameCg   , _preintName  );
+            cgGLEnableTextureParameter( tParamNameCg                  );
 #else
-            glUniform1iARB( glGetUniformLocationARB( shader, "preInt"        ), 1              ); //f-shader
+            tParamNameGL = glGetUniformLocationARB( shader, "preInt" )
+            glUniform1iARB( tParamNameGL,  1    ); //f-shader
 #endif
-
-            glActiveTexture( GL_TEXTURE0 ); // Activate last because it has to be the active texture
+            // Activate last because it has to be the active texture
+            glActiveTexture( GL_TEXTURE0 ); 
             glBindTexture( GL_TEXTURE_3D, _tex3D ); //gx, gy, gz, val
             glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 #ifdef CG_SHADERS
-            cgGLSetTextureParameter(    cgGetNamedParameter( m_fProg, "volume" ), _tex3D        );
-            cgGLEnableTextureParameter( cgGetNamedParameter( m_fProg, "volume" )                );
+            tParamNameCg = cgGetNamedParameter( m_fProg, "volume" );
+            cgGLSetTextureParameter(    tParamNameCg, _tex3D      );
+            cgGLEnableTextureParameter( tParamNameCg              );
 
-            cgGLSetParameter1f(  cgGetNamedParameter( m_vProg, "sliceDistance" ), m_dSliceDist  );
-            cgGLSetParameter1f(  cgGetNamedParameter( m_fProg, "shininess"     ), 20.0f         );
+            tParamNameCg = cgGetNamedParameter( m_vProg, "sliceDistance" );
+            cgGLSetParameter1f( tParamNameCg, m_dSliceDist  );
+            
+            tParamNameCg = cgGetNamedParameter( m_fProg, "shininess"     );
+            cgGLSetParameter1f( tParamNameCg, 20.0f         );
 #else
-            glUniform1iARB( glGetUniformLocationARB(  shader,  "volume"        ), 0             ); //f-shader
+            tParamNameGL = glGetUniformLocationARB(  shader,  "volume"        );
+            glUniform1iARB( tParamNameGL ,  0            ); //f-shader
 
-            glUniform1fARB( glGetUniformLocationARB(  shader,  "sliceDistance" ), m_dSliceDist  ); //v-shader
-            glUniform1fARB( glGetUniformLocationARB(  shader,  "shininess"     ), 20.0f         ); //f-shader
+            tParamNameGL = glGetUniformLocationARB(  shader,  "sliceDistance" );
+            glUniform1fARB( tParamNameGL,  m_dSliceDist  ); //v-shader
+
+            tParamNameGL = glGetUniformLocationARB(  shader,  "shininess"     );
+            glUniform1fARB( tParamNameGL,  20.0f         ); //f-shader
 #endif
         }
 
@@ -463,16 +531,18 @@ void Channel::frameDraw( const uint32_t frameID )
 
         glCallList( _vertexID );
 
-/*  
+/*
         for( int s = 0; s < numberOfSlices; ++s )
         {
-            cgGLSetParameter1f(  cgGetNamedParameter( m_fProg, "lines" ), 0.0f );
+            tParamNameCg = cgGetNamedParameter( m_fProg, "lines" );
+            cgGLSetParameter1f( tParamNameCg, 0.0f );
             glBegin( GL_POLYGON );
             for( int i = 0; i < 6; ++i )
                 glVertex2i( i, numberOfSlices-1-s );
             glEnd();
 
-            cgGLSetParameter1f(  cgGetNamedParameter( m_fProg, "lines" ), 1.0f );
+            tParamNameCg = cgGetNamedParameter( m_fProg, "lines" );
+            cgGLSetParameter1f( tParamNameCg, 1.0f );
             glBegin( GL_LINE_LOOP );
             for( int i = 0; i < 6; ++i )
                 glVertex2i( i, numberOfSlices-1-s );
@@ -494,7 +564,7 @@ void Channel::frameDraw( const uint32_t frameID )
 
         checkError( "error during rendering " );
 
-        //Disable shader
+        //Disable shaders
 #ifdef CG_SHADERS
         shaders.cgVertex->unbind_and_disable();
         shaders.cgFragment->unbind_and_disable();
@@ -502,7 +572,6 @@ void Channel::frameDraw( const uint32_t frameID )
         glUseProgramObjectARB( NULL );
 #endif
 
-/**/
      }
     else
     {
@@ -518,12 +587,12 @@ void Channel::frameDraw( const uint32_t frameID )
 //    _drawLogo();
 }
 
-bool cmpRangesDec(const Range& r1, const Range& r2)
+static bool cmpRangesDec(const Range& r1, const Range& r2)
 {
     return r1.start < r2.start;
 }
 
-bool cmpRangesInc(const Range& r1, const Range& r2)
+static bool cmpRangesInc(const Range& r1, const Range& r2)
 {
     return r1.start > r2.start;
 }
@@ -534,7 +603,9 @@ const FrameData& Channel::_getFrameData() const
     return pipe->getFrameData();
 }
 
-void Channel::_calcMVandITMV( vmml::Matrix4d& modelviewM, vmml::Matrix3d& modelviewITM ) const
+void Channel::_calcMVandITMV(
+    vmml::Matrix4d& modelviewM,
+    vmml::Matrix3d& modelviewITM ) const
 {
     const FrameData& frameData = _getFrameData();
     
@@ -558,32 +629,32 @@ void Channel::_calcMVandITMV( vmml::Matrix4d& modelviewM, vmml::Matrix3d& modelv
     modelviewITM = modelviewIM.getTransposed();
 }
 
-void Channel::arrangeFrames( vector<Range>& ranges, bool composeOnly )
+void Channel::arrangeFrames( vector<Range>& ranges )
 {
     if( _perspective )
     {//perspective projection
         vmml::Matrix4d  modelviewM;     // modelview matrix
         vmml::Matrix3d  modelviewITM;   // modelview inversed transposed matrix
-        if( !composeOnly )
-        {
-            modelviewM      = _curFrData.modelviewM;
-            modelviewITM    = _curFrData.modelviewITM;
-        }else
-            _calcMVandITMV( modelviewM, modelviewITM );
+        _calcMVandITMV( modelviewM, modelviewITM );
 
         vmml::Vector3d norm = modelviewITM * vmml::Vector3d( 0.0, 0.0, 1.0 );
         norm.normalize();
 
         sort( ranges.begin(), ranges.end(), cmpRangesDec );
 
-        vector<double> dotVals;             // cos of angle between normal and vectors from center 
-        dotVals.reserve( ranges.size()+1 ); // of projection to the middle of slices' boundaries
+        // cos of angle between normal and vectors from center
+        vector<double> dotVals;
+        
+        // of projection to the middle of slices' boundaries
+        dotVals.reserve( ranges.size()+1 );
 
         for( uint i=0; i<ranges.size(); i++ )
         {
             double px = -1.0 + ranges[i].start*2.0;
 
-            vmml::Vector4d pS = modelviewM * vmml::Vector4d( 0.0, 0.0, px , 1.0 );
+            vmml::Vector4d pS = 
+                modelviewM * vmml::Vector4d( 0.0, 0.0, px , 1.0 );
+                
             dotVals.push_back( norm.dot( pS.getNormalizedVector3() ) );
         }
 
@@ -602,7 +673,10 @@ void Channel::arrangeFrames( vector<Range>& ranges, bool composeOnly )
             vector<Range> rangesTmp = ranges;
 
             //Copy slices that should be rendered first
-            memcpy( &ranges[0], &rangesTmp[minPos+1], (rangesNum-minPos-1)*sizeof(Range) );
+            memcpy( 
+                &ranges[0], 
+                &rangesTmp[minPos+1],
+                (rangesNum-minPos-1)*sizeof(Range)  );
 
             //Copy sliced that shouls be rendered last in reversed order
             for( int i=0; i<=minPos; i++ )
@@ -610,13 +684,18 @@ void Channel::arrangeFrames( vector<Range>& ranges, bool composeOnly )
         }
     }else
     {//parallel projection
-        const bool orientation =  _getFrameData().data.rotation.ml[10] < 0;
-        sort( ranges.begin(), ranges.end(), orientation ? cmpRangesDec : cmpRangesInc );
+        const bool orientation = _getFrameData().data.rotation.ml[10] < 0;
+        sort(
+            ranges.begin(), 
+            ranges.end(), 
+            orientation ? cmpRangesDec : cmpRangesInc );
     }
 }
 
 
-void IntersectViewports( PixelViewport &pvp, const vector<Image*>& vecImages, const vmml::Vector2i& offset )
+void IntersectViewports(        PixelViewport & pvp, 
+                          const vector<Image*>& vecImages,
+                          const vmml::Vector2i& offset      )
 {
     if( vecImages.size() < 1 )
     {
@@ -632,11 +711,14 @@ void IntersectViewports( PixelViewport &pvp, const vector<Image*>& vecImages, co
     pvp ^= overalPVP;
 }
 
-void Channel::_clearPixelViewPorts( const vector<Image*> &vecImages, const vmml::Vector2i& offset )
+
+void Channel::_clearPixelViewPorts( const vector<Image*>& vecImages, 
+                                    const vmml::Vector2i& offset     )
 {
     for( uint i=0; i<vecImages.size(); i++ )
         clearViewport( vecImages[i]->getPixelViewport() + offset );
 }
+
 
 #define SOLID_BG
 
@@ -649,12 +731,16 @@ void Channel::clearViewport( const PixelViewport &pvp )
     if( getenv( "EQ_TAINT_CHANNELS" ))
     {
         const vmml::Vector3ub color = getUniqueColor();
-        glClearColor( color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, 1.0f );
+        glClearColor( color.r/255., color.g/255., color.b/255., 1. );
     }
 #else 
 #ifdef SOLID_BG
 #ifdef COMPOSE_MODE_NEW
-    glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+    if( getRange().isFull() )
+        glClearColor( _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a );
+    else
+        glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+//    glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
 #else
     glClearColor( 0.5f, 0.0f, 0.0f, 1.0f );
 #endif
@@ -669,6 +755,9 @@ void Channel::clearViewport( const PixelViewport &pvp )
 
 void Channel::frameAssemble( const uint32_t frameID )
 {
+    EQWARN << getRange() << " " << _curFrData.lastRange << endl;
+    EQWARN << getPixelViewport() << " " << _curFrData.pvp << endl;
+    
     const bool composeOnly  = frameID != _curFrData.frameID;
     
     applyBuffer();
@@ -689,29 +778,35 @@ void Channel::frameAssemble( const uint32_t frameID )
     //All frames is ready
 
     //fill ranges - it should be supplied by server actualy 
-    eq::PixelViewport curPVP = composeOnly ? getPixelViewport() : _curFrData.pvp;
+    eq::PixelViewport 
+        curPVP = composeOnly ? getPixelViewport() : _curFrData.pvp;
 
     vector<Range> ranges;
     for( uint k=0; k<unusedFrames.size(); k++ )
     {
         Range curRange = unusedFrames[k]->getRange();
 
-        if( !curRange.isFull() ) // Add only DB related slices, screen decomposition should be composed as is
+        // Add only DB related slices,
+        // screen decomposition should be composed as is
+        if( !curRange.isFull() )
         {
             ranges.push_back( curRange );
-            IntersectViewports( curPVP, unusedFrames[k]->getImages(), unusedFrames[k]->getOffset() );
+            IntersectViewports( curPVP, 
+                                unusedFrames[k]->getImages(),
+                                unusedFrames[k]->getOffset()  );
         }
     }
 
     //calculate correct frames sequence
     if( !composeOnly ) ranges.push_back( _curFrData.lastRange );
-    arrangeFrames( ranges, composeOnly );
+    arrangeFrames( ranges );
 
     //check if current frame in proper position, redback if not
     if( !composeOnly )
     {
 #ifndef NDEBUG
-        if( _curFrData.lastRange == ranges.back() && !getenv( "EQ_TAINT_CHANNELS" ) )
+        if(  _curFrData.lastRange == ranges.back() && 
+            !getenv( "EQ_TAINT_CHANNELS" ) )
             ranges.pop_back();
         else
 #else
@@ -723,11 +818,12 @@ void Channel::frameAssemble( const uint32_t frameID )
 #endif //NDEBUG
             if( curPVP.hasArea() )
             {
-                _curFrameImage.setFormat(        Frame::BUFFER_COLOR, GL_RGBA          );
-                _curFrameImage.setType(          Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
+                _curFrameImage.setFormat(    Frame::BUFFER_COLOR, GL_RGBA   );
+                _curFrameImage.setType(      Frame::BUFFER_COLOR,
+                                             GL_UNSIGNED_BYTE               );
 
-                _curFrameImage.setPixelViewport(                      curPVP           );
-                _curFrameImage.startReadback(    Frame::BUFFER_COLOR, curPVP           );
+                _curFrameImage.setPixelViewport(                   curPVP   );
+                _curFrameImage.startReadback( Frame::BUFFER_COLOR, curPVP   );
 
                 //clear part of a screen
 #ifdef __APPLE__
@@ -737,11 +833,23 @@ void Channel::frameAssemble( const uint32_t frameID )
     }
 
 
-    while( !unusedFrames.empty() )
+    while( !unusedFrames.empty() || !ranges.empty() )
     {
-        for( vector<Frame*>::iterator i = unusedFrames.begin(); i != unusedFrames.end(); ++i )
+        if( !composeOnly && ( ranges.back() == _curFrData.lastRange ))
         {
-            bool foundMatchedFrame = false;
+            // current range equals to range of original frame
+            if( curPVP.hasArea() )
+            {
+                vmml::Vector2i curOff( curPVP.x, curPVP.y );
+                _curFrameImage.startAssemble( Frame::BUFFER_COLOR, curOff ); 
+            }
+            ranges.pop_back();
+        }
+
+        for( vector<Frame*>::iterator i  = unusedFrames.begin(); 
+                                      i != unusedFrames.end();
+                                      i ++                       )
+        {
             Frame* frame = *i;
             Range curRange = frame->getRange();
 
@@ -750,38 +858,30 @@ void Channel::frameAssemble( const uint32_t frameID )
                 _clearPixelViewPorts( frame->getImages(), frame->getOffset() );
                 frame->startAssemble();
                 unusedFrames.erase( i );
-                foundMatchedFrame = true;
+                break;
             }
             else
             {
-                if( ranges.empty() ) // no ranges to put but some not full-ranges frames -> error
-                {
+                if( ranges.empty() ) // no ranges to put but some not       
+                {                    // full-ranges frames -> error
+                
                     EQERROR << "uncounted frame" << endl;
                     unusedFrames.erase( i );
                     break;
                 }else
-                    if( ranges.back() == curRange ) // current frame has proper range
-                    {
+                    if( ranges.back() == curRange ) // current frame has 
+                    {                               // proper range
+                    
                         frame->startAssemble();
                         unusedFrames.erase( i );
                         ranges.pop_back();
-                        foundMatchedFrame = true;
+                        break;
                     }
             }
-
-            if( !composeOnly && ( ranges.back() == _curFrData.lastRange )) // current range equals to range of original frame
-            {
-                if( curPVP.hasArea() )
-                    _curFrameImage.startAssemble( Frame::BUFFER_COLOR, vmml::Vector2i( curPVP.x, curPVP.y ) );
-
-                ranges.pop_back();
-                foundMatchedFrame = true;
-            }
-
-            if( foundMatchedFrame )
-                break;
+            
         }
     }
+
 
     resetAssemblyState();
 }
@@ -809,7 +909,9 @@ void Channel::frameReadback( const uint32_t frameID )
 
     const vector<Frame*>& frames = getOutputFrames();
 
-    for( vector<Frame*>::const_iterator iter = frames.begin(); iter != frames.end(); ++iter )
+    for( vector<Frame*>::const_iterator iter  = frames.begin(); 
+                                        iter != frames.end(); 
+                                        iter ++                 )
     {
         //Drop depth buffer flag if present
         (*iter)->disableBuffer( Frame::BUFFER_DEPTH );
@@ -876,81 +978,6 @@ void Channel::_drawLogo()
     glDisable( GL_BLEND );
     glEnable( GL_LIGHTING );
     glEnable( GL_DEPTH_TEST );
-}
-
-void Channel::_initFrustum( vmml::FrustumCullerf& culler )
-{
-    const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
-    const FrameData& frameData = pipe->getFrameData();
-
-    vmml::Matrix4f view( frameData.data.rotation );
-
-    if( _model )
-    {
-        vmml::Matrix4f scale( 
-            _model->volScales.W, 0, 0, 0, 
-            0, _model->volScales.H, 0, 0,
-            0, 0, _model->volScales.D, 0,
-            0, 0,                   0, 1 );
-
-        view = scale * view;
-    }
-
-    view.setTranslation( frameData.data.translation );
-
-    const vmml::Frustumf&  frustum       = getFrustum();
-    const vmml::Matrix4f&  headTransform = getHeadTransform();
-    const vmml::Matrix4f   modelView     = headTransform * view;
-
-#ifdef DYNAMIC_NEAR_FAR
-    vmml::Matrix4f modelInv;
-    headTransform.getInverse( modelInv );
-
-    const vmml::Vector3f zero  = modelInv * vmml::Vector3f( 0.0f, 0.0f,  0.0f );
-    vmml::Vector3f       front = modelInv * vmml::Vector3f( 0.0f, 0.0f, -1.0f );
-    front -= zero;
-    front.normalise();
-    EQINFO << getName()  << " front " << front << endl;
-    front.scale( M_SQRT3_2 ); // bounding sphere size of unit-sized cube
-
-    const vmml::Vector3f center( frameData.data.translation );
-    const vmml::Vector3f near  = headTransform * ( center - front );
-    const vmml::Vector3f far   = headTransform * ( center + front );
-    const float          zNear = MAX( 0.0001f, -near.z );
-    const float          zFar  = MAX( 0.0002f, -far.z );
-
-    EQINFO << getName() << " center:    " << headTransform * center << endl;
-    EQINFO << getName() << " near, far: " << near  << " " << far << endl;
-    EQINFO << getName() << " near, far: " << zNear << " " << zFar << endl;
-    setNearFar( zNear, zFar );
-#endif
-
-    vmml::Matrix4f projection;
-    if( _perspective )
-    {
-        projection         = frustum.computeMatrix();
-        _curFrData.frustum = frustum;
-
-    }else
-    {
-        vmml::Frustumf  f = frustum;
-        double zc = ( 1.0 + f.farPlane/f.nearPlane ) / 3.0;
-        f.left   *= zc;
-        f.right  *= zc;
-        f.top    *= zc;
-        f.bottom *= zc;
-
-        projection         = f.computeOrthoMatrix();
-        _curFrData.frustum = f;
-    }
-
-    _curFrData.modelviewM.set( modelView.ml );
-
-    //calculate inverse transposed matrix
-    _curFrData.modelviewM.getInverse( _curFrData.modelviewIM );
-    _curFrData.modelviewITM = _curFrData.modelviewIM.getTransposed();
-
-    culler.setup( projection * modelView );
 }
 
 }
