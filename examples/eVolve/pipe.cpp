@@ -77,7 +77,14 @@ void Pipe::LoadShaders()
             delete _shaders.cgVertex; 
 
         _shaders.cgVertex = new gloo::cg_program( _cgContext );
-        _shaders.cgVertex->create_from_file(   CG_GL_VERTEX  , "./examples/eVolve/vshader.cg" );
+        try
+        {
+            _shaders.cgVertex->create_from_file(   CG_PROFILE_VP40  , "./examples/eVolve/vshader.cg" );
+        }catch(...)
+        {
+            EQWARN << "using VP40 profile faild, tring to use VP30..." << endl;
+            _shaders.cgVertex->create_from_file(   CG_PROFILE_VP30  , "./examples/eVolve/vshader.cg" );
+        }
 
         if( _shaders.cgFragment )
             delete _shaders.cgFragment;
