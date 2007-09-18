@@ -21,27 +21,55 @@ namespace eq
         /** 
          * Create a new OpenGL function table.
          * 
-         * The OpenGL context for which this function table is used has to be current.
+         * The OpenGL context for which this function table is used has to be 
+         * current.
          */
         GLFunctions( const WindowSystem windowSystem );
         ~GLFunctions();
-
+        
         bool hasGenBuffers() const
             { return ( _table.glGenBuffers != 0 ); }
-        void genBuffers( GLsizei n, GLuint *buffers ) const
-            { EQASSERT( hasGenBuffers( )); _table.glGenBuffers( n, buffers ); }
+        void genBuffers( GLsizei n, GLuint* buffers ) const
+        {
+            EQASSERT( hasGenBuffers() );
+            _table.glGenBuffers( n, buffers );
+        }
         
         bool hasDeleteBuffers() const
             { return ( _table.glDeleteBuffers != 0 ); }
-        void deleteBuffers( GLsizei n, const GLuint *buffers ) const
-            { EQASSERT( hasDeleteBuffers( )); _table.glDeleteBuffers( n, buffers ); }
+        void deleteBuffers( GLsizei n, const GLuint* buffers ) const
+        {
+            EQASSERT( hasDeleteBuffers() );
+            _table.glDeleteBuffers( n, buffers );
+        }
+        
+        bool hasBindBuffer() const
+           { return ( _table.glBindBuffer != 0 ); }
+        void bindBuffer( GLenum target, GLuint buffer) const
+        {
+            EQASSERT( hasBindBuffer() );
+            _table.glBindBuffer( target, buffer );
+        }
+        
+        bool hasBufferData() const
+            { return ( _table.glBufferData != 0 ); }
+        void bufferData( GLenum target, GLsizeiptr size, const GLvoid* data, 
+                         GLenum usage) const
+        {
+            EQASSERT( hasBufferData() );
+            _table.glBufferData( target, size, data, usage );
+        }
+        
+        bool checkExtension( const char* extensionName ) const;
         
     private:
         class GLFunctionTable
         {
         public:
-            PFNGLGENBUFFERSPROC    glGenBuffers;
-            PFNGLDELETEBUFFERSPROC glDeleteBuffers;
+            PFNGLGENBUFFERSPROC     glGenBuffers;
+            PFNGLDELETEBUFFERSPROC  glDeleteBuffers;
+            PFNGLBINDBUFFERPROC     glBindBuffer;
+            PFNGLBUFFERDATAPROC     glBufferData;
         } _table;
     };
 }

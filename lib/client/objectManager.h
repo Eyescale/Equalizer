@@ -43,7 +43,6 @@ namespace eq
 
         virtual ~ObjectManager();
 
-        void init();
         void deleteAll();
 
         GLuint getList( const T& key );
@@ -62,7 +61,7 @@ namespace eq
         void   deleteTexture( const T& key );
         void   deleteTexture( const GLuint id );
 
-		bool   supportsBuffers() const;
+        bool   supportsBuffers() const;
         GLuint getBuffer( const T& key );
         GLuint newBuffer( const T& key );
         GLuint obtainBuffer( const T& key );

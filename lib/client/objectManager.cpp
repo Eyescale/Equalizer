@@ -287,7 +287,8 @@ void   ObjectManager<T>::deleteTexture( const GLuint id )
 template< typename T >
 bool ObjectManager<T>::supportsBuffers() const
 {
-    return ( _glFunctions->hasGenBuffers() && _glFunctions->hasDeleteBuffers( ));
+    return ( _glFunctions->hasGenBuffers() && 
+             _glFunctions->hasDeleteBuffers() );
 }
 
 template< typename T >
@@ -304,7 +305,7 @@ GLuint ObjectManager<T>::getBuffer( const T& key )
 template< typename T >
 GLuint ObjectManager<T>::newBuffer( const T& key )
 {
-    if( !_glFunctions->hasGenBuffers( ))
+    if( !_glFunctions->hasGenBuffers() )
     {
         EQWARN << "glGenBuffers not available" << endl;
         return FAILED;
