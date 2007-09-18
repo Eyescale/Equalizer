@@ -47,7 +47,7 @@ ARFLAGS      = -static
 ifdef LEOPARD
   BISON        = bison
 else
- # default bison on Tiger and earlier is too old, use fink version. 
- # Change to /opt/local/bin/bison if you are using DarwinPorts
-  BISON        = /sw/bin/bison
+ # default bison on Tiger and earlier is too old, use fink or macports version
+ BISONS       = $(wildcard /opt/local/bin/bison /sw/bin/bison )
+ BISON        = $(word 1, $(BISONS))
 endif
