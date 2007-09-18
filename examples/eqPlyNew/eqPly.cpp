@@ -31,7 +31,7 @@ int Application::run()
 
     // 2. choose config
     eq::ConfigParams configParams;
-    Config*          config = (Config*)server->chooseConfig( configParams );
+    Config* config = static_cast<Config*>(server->chooseConfig( configParams ));
 
     if( !config )
     {

@@ -24,12 +24,16 @@ namespace mesh
     public:
         VertexBufferNode() : _left( 0 ), _right( 0 ) {}
         virtual ~VertexBufferNode();
-        virtual void render( VertexBufferState& state, 
-                             bool performCulling = true ) const;
+        
+        virtual void render( VertexBufferState& state ) const;
+        
+        virtual const VertexBufferBase* getLeft() const { return _left; }
+        virtual const VertexBufferBase* getRight() const { return _right; }
         
     protected:
         virtual void toStream( std::ostream& os );
         virtual void fromMemory( char** addr, VertexBufferData& globalData );
+        
         virtual void setupTree( VertexData& data, const Index start,
                                 const Index length, const Axis axis,
                                 VertexBufferData& globalData );
@@ -37,6 +41,9 @@ namespace mesh
         virtual void updateRange();
                                 
     private:
+        size_t countUniqueVertices( VertexData& data, const Index start,
+                                    const Index length ) const;
+        
         VertexBufferBase*   _left;
         VertexBufferBase*   _right;
     };

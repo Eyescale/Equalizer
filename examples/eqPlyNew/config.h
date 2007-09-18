@@ -29,6 +29,8 @@ namespace eqPly
         virtual uint32_t startFrame();
 
         void setInitData( const LocalInitData& data ) { _initData = data; }
+        
+        bool useVBOs() { return _initData.useVBOs(); }
 
     protected:
         virtual ~Config();

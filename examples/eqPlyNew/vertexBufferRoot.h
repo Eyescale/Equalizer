@@ -24,6 +24,10 @@ namespace mesh
     {
     public:
         virtual void render( VertexBufferState& state ) const;
+        
+        void beginRendering( VertexBufferState& state ) const;
+        void endRendering( VertexBufferState& state ) const;
+        
         void setupTree( VertexData& data );
         bool writeToFile( const char* filename );
         bool readFromFile( const char* filename );
@@ -32,9 +36,11 @@ namespace mesh
     protected:
         virtual void toStream( std::ostream& os );
         virtual void fromMemory( char* start );
-    
+        
     private:
-        VertexBufferData    _data;
+        bool constructFromPly( const char* filename );
+        
+        VertexBufferData _data;
     };
     
     

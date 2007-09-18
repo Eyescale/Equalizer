@@ -13,10 +13,6 @@
 #include <algorithm>
 
 
-#undef NDEBUG
-#include <cassert>
-
-
 using namespace std;
 using namespace mesh;
 
@@ -68,7 +64,7 @@ void VertexData::readVertices( PlyFile* file, const int nVertices,
         colors.reserve( nVertices );
     }
     
-    // read in the vertices, set color to default if none is specified
+    // read in the vertices
     for( int i = 0; i < nVertices; ++i )
     {
         ply_get_element( file, static_cast< void* >( &vertex ) );
@@ -104,7 +100,13 @@ void VertexData::readTriangles( PlyFile* file, const int nFaces )
     for( int i = 0; i < nFaces; ++i )
     {
         ply_get_element( file, static_cast< void* >( &face ) );
-        assert( face.nVertices == 3 && face.vertices != 0 );
+        MESHASSERT( face.vertices != 0 );
+        if( face.nVertices != 3 )
+        {
+            free( face.vertices );
+            throw MeshException( "Error reading PLY file. Encountered a "
+                                 "face which does not have three vertices." );
+        }
         triangles.push_back( Triangle( face.vertices[0], 
                                        face.vertices[1],
                                        face.vertices[2] ) );
@@ -128,12 +130,16 @@ bool VertexData::readPlyFile( const char* filename, const bool ignoreColors )
                                           &nPlyElems, &elemNames, 
                                           &fileType, &version );
     if( !file )
+    {
+        MESHERROR << "Unable to open PLY file " << filename 
+                  << " for reading." << endl;
         return result;
-    assert( elemNames != 0 );
+    }
+    MESHASSERT( elemNames != 0 );
     
     #ifndef NDEBUG
-    cout << filename << ": " << nPlyElems << " elements, file type = " 
-         << fileType << ", version = " << version << endl;
+    MESHINFO << filename << ": " << nPlyElems << " elements, file type = " 
+             << fileType << ", version = " << version << endl;
     #endif
     
     for( int i = 0; i < nPlyElems; ++i )
@@ -143,15 +149,15 @@ bool VertexData::readPlyFile( const char* filename, const bool ignoreColors )
         
         PlyProperty** props = ply_get_element_description( file, elemNames[i], 
                                                            &nElems, &nProps );
-        assert( props != 0 );
+        MESHASSERT( props != 0 );
         
         #ifndef NDEBUG
-        cout << "element " << i << ": name = " << elemNames[i] << ", "
-             << nProps << " properties, " << nElems << " elements" << endl;
+        MESHINFO << "element " << i << ": name = " << elemNames[i] << ", "
+                 << nProps << " properties, " << nElems << " elements" << endl;
         for( int j = 0; j < nProps; ++j )
         {
-            cout << "element " << i << ", property " << j << ": "
-                 << "name = " << props[j]->name << endl;
+            MESHINFO << "element " << i << ", property " << j << ": "
+                     << "name = " << props[j]->name << endl;
         }
         #endif
         
@@ -163,21 +169,28 @@ bool VertexData::readPlyFile( const char* filename, const bool ignoreColors )
                 if( equal_strings( props[j]->name, "red" ) )
                     hasColors = true;
             
-            #ifndef NDEBUG
             if( ignoreColors )
-                cout << "colors in file ignored per request" << endl;
-            #endif
+                MESHINFO << "Colors in PLY file ignored per request." << endl;
             
             readVertices( file, nElems, hasColors && !ignoreColors );
-            assert( vertices.size() == static_cast< size_t >( nElems ) );
+            MESHASSERT( vertices.size() == static_cast< size_t >( nElems ) );
             if( hasColors && !ignoreColors )
-                assert( colors.size() == static_cast< size_t >( nElems ) );
+                MESHASSERT( colors.size() == static_cast< size_t >( nElems ) );
         }
         else if( equal_strings( elemNames[i], "face" ) )
+        try
         {
             readTriangles( file, nElems );
-            assert( triangles.size() == static_cast< size_t >( nElems ) );
+            MESHASSERT( triangles.size() == static_cast< size_t >( nElems ) );
             result = true;
+        }
+        catch( exception& e )
+        {
+            MESHERROR << "Unable to read PLY file, an exception occured:  " 
+                      << e.what() << endl;
+            // stop for loop by setting the loop variable to break condition
+            // this way resources still get released even on error cases
+            i = nPlyElems;
         }
         
         // free the memory that was allocated by ply_get_element_description
@@ -203,7 +216,7 @@ void VertexData::calculateNormals( const bool vertexNormals )
     #ifndef NDEBUG
     int wrongNormals = 0;
     #endif
-     
+    
     normals.clear();
     if( vertexNormals )
     {
@@ -248,7 +261,7 @@ void VertexData::calculateNormals( const bool vertexNormals )
             normals[i].normalise();
     
     #ifndef NDEBUG
-    cout << wrongNormals << " faces had no valid normal" << endl;
+    MESHINFO << wrongNormals << " faces had no valid normal." << endl;
     #endif 
 }
 
@@ -347,9 +360,9 @@ struct _TriangleSort
 /*  Sort the index data from start to start + length along the given axis.  */
 void VertexData::sort( const Index start, const Index length, const Axis axis )
 {
-    assert( start >= 0);
-    assert( length > 0 );
-    assert( start + length <= triangles.size() );
+    MESHASSERT( start >= 0);
+    MESHASSERT( length > 0 );
+    MESHASSERT( start + length <= triangles.size() );
     
     std::sort( triangles.begin() + start, 
                triangles.begin() + start + length,

@@ -14,6 +14,10 @@
 #include "typedefs.h"
 #include <map>
 
+#ifdef EQUALIZER
+#   include <eq/client/objectManager.h>
+#endif // EQUALIZER
+
 
 namespace mesh 
 {
@@ -23,19 +27,40 @@ namespace mesh
     class VertexBufferState
     {
     public:
+        virtual bool useColors() const { return _useColors; }
+        virtual void setColors( const bool colors ) { _useColors = colors; }
+        virtual RenderMode getRenderMode() const { return _renderMode; }
+        virtual void setRenderMode( const RenderMode mode ) 
+        { 
+            _renderMode = mode;
+        }
+        
+        virtual GLuint getDisplayList( const void* key ) = 0;
+        virtual GLuint newDisplayList( const void* key ) = 0;
+#ifdef GL_ARB_vertex_buffer_object
+        virtual GLuint getBufferObject( const void* key ) = 0;
+        virtual GLuint newBufferObject( const void* key ) = 0;
+#endif // GL_ARB_vertex_buffer_object
+        
+        virtual const GLFunctions* getGLFunctions() const 
+        { 
+            return _glFunctions; 
+        }
+        
+    protected:
+        VertexBufferState( const GLFunctions* glFunctions ) 
+            : _glFunctions( glFunctions ), _useColors( false ), 
+              _renderMode( DISPLAY_LIST_MODE ) 
+        {
+            MESHASSERT( glFunctions );
+        } 
+        
         virtual ~VertexBufferState() {}
-        virtual bool hasColors() = 0;
-        virtual void setColors( bool colors ) = 0;
-        virtual RenderMode getRenderMode() = 0;
-        virtual void setRenderMode( RenderMode mode ) = 0;
-        virtual Culler* getCuller() = 0;
-        virtual void setCuller( Culler& culler ) = 0;
-        virtual Range getRange() = 0;
-        virtual void setRange( float start, float end ) = 0;
-        virtual GLuint getDisplayList( Index i ) = 0;
-        virtual GLuint newDisplayList( Index i ) = 0;
-        virtual GLuint* getBufferObjects( Index i ) = 0;
-        virtual GLuint* newBufferObjects( Index i ) = 0;
+        
+        const GLFunctions*  _glFunctions;
+        bool                _useColors;
+        RenderMode          _renderMode;
+        
     private:
     };
     
@@ -44,63 +69,86 @@ namespace mesh
     class VertexBufferStateSimple : public VertexBufferState 
     {
     public:
-        VertexBufferStateSimple() : _culler( 0 ), _hasColors( false ), 
-                                    _renderMode( IMMEDIATE_MODE ) 
-        {
-            setRange( 0.0f, 1.0f );
-        }
+        VertexBufferStateSimple( const GLFunctions* glFunctions )
+            : VertexBufferState( glFunctions ) {}
         
-        virtual bool hasColors() { return _hasColors; }
-        virtual void setColors( bool colors ) { _hasColors = colors; }
-        virtual RenderMode getRenderMode() { return _renderMode; }
-        virtual void setRenderMode( RenderMode mode ) { _renderMode = mode; }
-        virtual Culler* getCuller() { return _culler; }
-        virtual void setCuller( Culler& culler ) { _culler = &culler; }
-        virtual Range getRange() { return _range; }
-        
-        virtual void setRange( float start, float end )
+        virtual GLuint getDisplayList( const void* key )
         {
-            _range[0] = start;
-            _range[1] = end;
-        }
-        
-        virtual GLuint getDisplayList( Index i )
-        {
-            if( _displayLists.find( i ) == _displayLists.end() )
+            if( _displayLists.find( key ) == _displayLists.end() )
                 return 0;
             else
-                return _displayLists[i];
+                return _displayLists[key];
         }
         
-        virtual GLuint newDisplayList( Index i )
+        virtual GLuint newDisplayList( const void* key )
         {
-            _displayLists[i] = glGenLists( 1 );
-            return _displayLists[i];
+            _displayLists[key] = glGenLists( 1 );
+            return _displayLists[key];
         }
         
-        virtual GLuint* getBufferObjects( Index i )
+#ifdef GL_ARB_vertex_buffer_object
+        virtual GLuint getBufferObject( const void* key )
         {
-            if( _bufferObjects.find( i ) == _bufferObjects.end() )
+            if( _bufferObjects.find( key ) == _bufferObjects.end() )
                 return 0;
             else
-                return &_bufferObjects[i][0];
+                return _bufferObjects[key];
         }
         
-        virtual GLuint* newBufferObjects( Index i )
+        virtual GLuint newBufferObject( const void* key )
         {
-            GLuint* buffers = &_bufferObjects[i][0];
-            glGenBuffers( 4, buffers );
-            return buffers;
+            _glFunctions->genBuffers( 1, &_bufferObjects[key] );
+            return _bufferObjects[key];
         }
+#endif // GL_ARB_vertex_buffer_object
         
     private:
-        Culler*                                         _culler;
-        Range                                           _range;
-        bool                                            _hasColors;
-        RenderMode                                      _renderMode;
-        std::map< Index, GLuint >                       _displayLists;
-        std::map< Index, ArrayWrapper< GLuint, 4 > >    _bufferObjects;
+        std::map< const void*, GLuint >  _displayLists;
+#ifdef GL_ARB_vertex_buffer_object
+        std::map< const void*, GLuint >  _bufferObjects;
+#endif // GL_ARB_vertex_buffer_object
     };
+    
+    
+#ifdef EQUALIZER
+    /*  State for Equalizer usage, uses EQ Object Manager.  */
+    class VertexBufferStateOM : public VertexBufferState 
+    {
+    public:
+        VertexBufferStateOM( const eq::GLFunctions* glFunctions, 
+                             eq::ObjectManager< const void* >& om ) 
+            : VertexBufferState( glFunctions ), _objectManager( om ) {} 
+        
+        virtual GLuint getDisplayList( const void* key )
+        {
+            GLuint i = _objectManager.getList( key );
+            return ( i == eq::ObjectManager< const void* >::FAILED ? 0 : i );
+        }
+        
+        virtual GLuint newDisplayList( const void* key )
+        {
+            GLuint i = _objectManager.newList( key );
+            return ( i == eq::ObjectManager< const void* >::FAILED ? 0 : i );
+        }
+        
+#ifdef GL_ARB_vertex_buffer_object
+        virtual GLuint getBufferObject( const void* key )
+        {
+            GLuint i = _objectManager.getBuffer( key );
+            return ( i == eq::ObjectManager< const void* >::FAILED ? 0 : i );
+        }
+        
+        virtual GLuint newBufferObject( const void* key )
+        {
+            GLuint i = _objectManager.newBuffer( key );
+            return ( i == eq::ObjectManager< const void* >::FAILED ? 0 : i );
+        }
+#endif // GL_ARB_vertex_buffer_object
+        
+    private:
+        eq::ObjectManager< const void* >&   _objectManager;
+    };
+#endif // EQUALIZER
     
     
 }

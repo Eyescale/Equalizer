@@ -13,11 +13,6 @@
 #include "vertexData.h"
 #include <map>
 
-
-#undef NDEBUG
-#include <cassert>
-
-
 using namespace std;
 using namespace mesh;
 
@@ -28,8 +23,9 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
                                   VertexBufferData& globalData )
 {
     #ifndef NDEBUG
-    cout << "entering VertexBufferLeaf::setupTree"
-         << "( " << start << ", " << length << ", " << axis << " )" << endl;
+    MESHINFO << "Entering VertexBufferLeaf::setupTree"
+             << "( " << start << ", " << length << ", " << axis << " )." 
+             << endl;
     #endif
     
     data.sort( start, length, axis );
@@ -52,7 +48,7 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
             {
                 newIndex[i] = _vertexLength++;
                 // assert number of vertices does not exceed SmallIndex range
-                assert( _vertexLength );
+                MESHASSERT( _vertexLength );
                 globalData.vertices.push_back( data.vertices[i] );
                 if( hasColors )
                     globalData.colors.push_back( data.colors[i] );
@@ -64,9 +60,12 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
     }
     
     #ifndef NDEBUG
-    cout << "exiting VertexBufferLeaf::setupTree"
-         << "( " << _indexStart << ", " << _indexLength << "; " 
-         << _vertexStart << ", " << _vertexLength << " )" << endl;
+    MESHINFO << "Exiting VertexBufferLeaf::setupTree"
+             << "( " << _indexStart << ", " << _indexLength << "; " 
+             << _vertexStart << ", " << _vertexLength << " )." << endl;
+    #else
+    MESHINFO << "Leaf " << this << " contains " << _vertexLength << " vertices"
+             << " and " << _indexLength / 3 << " triangles." << endl;
     #endif
 }
 
@@ -96,8 +95,9 @@ BoundingBox VertexBufferLeaf::updateBoundingSphere()
     calculateBoundingSphere( boundingBox );
     
     #ifndef NDEBUG
-    cout << "exiting VertexBufferLeaf::updateBoundingSphere" 
-         << "( " << boundingBox[0] << ", " << boundingBox[1] << " )" << endl;
+    MESHINFO << "Exiting VertexBufferLeaf::updateBoundingSphere" 
+             << "( " << boundingBox[0] << ", " << boundingBox[1] << " )." 
+             << endl;
     #endif
     
     return boundingBox;
@@ -111,157 +111,158 @@ void VertexBufferLeaf::updateRange()
     _range[1] = _range[0] + 1.0f * _indexLength / _globalData.indices.size();
     
     #ifndef NDEBUG
-    cout << "exiting VertexBufferLeaf::updateRange" 
-         << "( " << _range[0] << ", " << _range[1] << " )" << endl;
+    MESHINFO << "Exiting VertexBufferLeaf::updateRange" 
+             << "( " << _range[0] << ", " << _range[1] << " )." << endl;
     #endif
 }
 
 
-/*  Render the leaf.  */
-void VertexBufferLeaf::render( VertexBufferState& state, 
-                               bool performCulling ) const
+/*  Set up rendering of the leaf nodes.  */
+void VertexBufferLeaf::setupRendering( VertexBufferState& state ) const
 {
-    if( performCulling )
+    if( _isSetup )
+        return;
+    
+    MESHINFO << "Setting up rendering for leaf " << this << "." << endl;
+    const GLFunctions* gl = state.getGLFunctions();
+    
+    switch( state.getRenderMode() )
     {
-        // out of range check (_range is node range, range is render range)
-        const Range range = state.getRange();
-        if( _range[0] >= range[1] || _range[1] < range[0] )
-            return;
+    case IMMEDIATE_MODE:
+        break;
         
-        // bounding sphere culling (if culler present)
-        Culler* culler = state.getCuller();
-        if( culler )
+#ifdef GL_ARB_vertex_buffer_object
+    case BUFFER_OBJECT_MODE:
+        GLuint buffers[4];
+        
+        buffers[VERTEX_OBJECT] = 
+            state.newBufferObject( reinterpret_cast< const char* >( this ) + 0 );
+        gl->bindBuffer( GL_ARRAY_BUFFER, buffers[VERTEX_OBJECT] );
+        gl->bufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Vertex ),
+                       &_globalData.vertices[_vertexStart], GL_STATIC_DRAW );
+        
+        buffers[NORMAL_OBJECT] = 
+            state.newBufferObject( reinterpret_cast< const char* >( this ) + 1 );
+        gl->bindBuffer( GL_ARRAY_BUFFER, buffers[NORMAL_OBJECT] );
+        gl->bufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Normal ),
+                       &_globalData.normals[_vertexStart], GL_STATIC_DRAW );
+        
+        buffers[COLOR_OBJECT] = 
+            state.newBufferObject( reinterpret_cast< const char* >( this ) + 2 );
+        if( state.useColors() )
         {
-            switch( culler->testSphere( _boundingSphere ) )
-            {
-            case vmml::VISIBILITY_FULL:
-                // if fully visible and fully in range, render it
-                if( _range[0] >= range[0] && _range[1] < range[1] )
-                    break;
-                // partial range, fall through to partial visibility
-            case vmml::VISIBILITY_PARTIAL:
-                if( _range[0] >= range[0] )
-                    break;
-            case vmml::VISIBILITY_NONE:
-                // don't render anything
-                return;
-            }
+            gl->bindBuffer( GL_ARRAY_BUFFER, buffers[COLOR_OBJECT] );
+            gl->bufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Color ),
+                           &_globalData.colors[_vertexStart], GL_STATIC_DRAW );
         }
+        
+        buffers[INDEX_OBJECT] = 
+            state.newBufferObject( reinterpret_cast< const char* >( this ) + 3 );
+        gl->bindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffers[INDEX_OBJECT] );
+        gl->bufferData( GL_ELEMENT_ARRAY_BUFFER, 
+                       _indexLength * sizeof( ShortIndex ),
+                       &_globalData.indices[_indexStart], GL_STATIC_DRAW );
+        
+        break;
+#endif
+        
+    case DISPLAY_LIST_MODE:
+    default:
+        GLuint displayList = state.newDisplayList( this );
+        glNewList( displayList, GL_COMPILE );
+        renderImmediate( state );
+        glEndList();
+        break;
     }
+    
+    MESHINFO << "Leaf " << this << " contains " << _vertexLength << " vertices"
+             << " and " << _indexLength / 3 << " triangles." << endl;
+    
+    _isSetup = true;
+}
+
+
+/*  Render the leaf.  */
+void VertexBufferLeaf::render( VertexBufferState& state ) const
+{
+    if( !_isSetup )
+        setupRendering( state );
     
     switch( state.getRenderMode() )
     {
     case IMMEDIATE_MODE:
         renderImmediate( state );
         return;
-    case DISPLAY_LIST_MODE:
-        renderDisplayList( state );
-        return;
-    case VERTEX_ARRAY_MODE:
-        renderVertexArray( state );
-        return;
+#ifdef GL_ARB_vertex_buffer_object
     case BUFFER_OBJECT_MODE:
-    default:
         renderBufferObject( state );
+        return;
+#endif
+    case DISPLAY_LIST_MODE:
+    default:
+        renderDisplayList( state );
         return;
     }
 }
 
 
+#ifdef GL_ARB_vertex_buffer_object
 /*  Render the leaf with buffer objects.  */
 inline
 void VertexBufferLeaf::renderBufferObject( VertexBufferState& state ) const
 {
-    GLuint* buffers = state.getBufferObjects( _indexStart ); 
-    if( !buffers )
-    {
-        buffers = state.newBufferObjects( _indexStart );
-        glBindBuffer( GL_ARRAY_BUFFER, buffers[VERTEX_OBJECT] );
-        glBufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Vertex ),
-                      &_globalData.vertices[_vertexStart], GL_STATIC_DRAW );
-        glBindBuffer( GL_ARRAY_BUFFER, buffers[NORMAL_OBJECT] );
-        glBufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Normal ),
-                      &_globalData.normals[_vertexStart], GL_STATIC_DRAW );
-        if( state.hasColors() )
-        {
-            glBindBuffer( GL_ARRAY_BUFFER, buffers[COLOR_OBJECT] );
-            glBufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Color ),
-                          &_globalData.colors[_vertexStart], GL_STATIC_DRAW );
-        }
-        glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffers[INDEX_OBJECT] );
-        glBufferData( GL_ELEMENT_ARRAY_BUFFER, 
-                      _indexLength * sizeof( ShortIndex ),
-                      &_globalData.indices[_indexStart], GL_STATIC_DRAW );
-    }
+    const GLFunctions* gl = state.getGLFunctions();
+    GLuint buffers[4];
+    for( int i = 0; i < 4; ++i )
+        buffers[i] = 
+            state.getBufferObject( reinterpret_cast< const char* >( this ) + i );
     
-    glBindBuffer( GL_ARRAY_BUFFER, buffers[VERTEX_OBJECT] );
-    glVertexPointer( 3, GL_FLOAT, 0, 0 );
-    glBindBuffer( GL_ARRAY_BUFFER, buffers[NORMAL_OBJECT] );
-    glNormalPointer( GL_FLOAT, 0, 0 );
-    if( state.hasColors() )
+    if( state.useColors() )
     {
-        glBindBuffer( GL_ARRAY_BUFFER, buffers[COLOR_OBJECT] );
+        gl->bindBuffer( GL_ARRAY_BUFFER, buffers[COLOR_OBJECT] );
         glColorPointer( 4, GL_UNSIGNED_BYTE, 0, 0 );
     }
-    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffers[INDEX_OBJECT] );
+    gl->bindBuffer( GL_ARRAY_BUFFER, buffers[NORMAL_OBJECT] );
+    glNormalPointer( GL_FLOAT, 0, 0 );
+    gl->bindBuffer( GL_ARRAY_BUFFER, buffers[VERTEX_OBJECT] );
+    glVertexPointer( 3, GL_FLOAT, 0, 0 );
+    gl->bindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffers[INDEX_OBJECT] );
     glDrawElements( GL_TRIANGLES, _indexLength, GL_UNSIGNED_SHORT, 0 );
 }
-
-
-/*  Render the leaf with vertex arrays.  */
-inline
-void VertexBufferLeaf::renderVertexArray( VertexBufferState& state ) const
-{
-    if( state.hasColors() )
-        glColorPointer( 4, GL_UNSIGNED_BYTE, 0, 
-                        &_globalData.colors[_vertexStart] );
-    glNormalPointer( GL_FLOAT, 0, &_globalData.normals[_vertexStart] );
-    glVertexPointer( 3, GL_FLOAT, 0, &_globalData.vertices[_vertexStart] );
-    glDrawElements( GL_TRIANGLES, _indexLength, GL_UNSIGNED_SHORT, 
-                    &_globalData.indices[_indexStart] );
-}
+#endif
 
 
 /*  Render the leaf with a display list.  */
 inline
 void VertexBufferLeaf::renderDisplayList( VertexBufferState& state ) const
 {
-    GLuint displayList = state.getDisplayList( _indexStart );
-    if( !displayList )
-    {
-        displayList = state.newDisplayList( _indexStart );
-        glNewList( displayList, GL_COMPILE );
-        renderImmediate( state );
-        glEndList();
-    }
-    
+    GLuint displayList = state.getDisplayList( this );
     glCallList( displayList );
 }
 
 
-/*  Render the leaf with immediate mode.  */
+/*  Render the leaf with immediate mode primitives or vertex arrays.  */
 inline
 void VertexBufferLeaf::renderImmediate( VertexBufferState& state ) const
 {
-#if 0
-    const unsigned color = static_cast< unsigned >( 
-        ( _range[0] + _range[1] ) * 256.f );
-    glColor3ub(
-        ((color & 0x1) << 5) + ((color & 0x8) << 3) + ((color & 0x40) << 1 ),
-        ((color & 0x2) << 4) + ((color & 0x10) << 2) + ((color & 0x80)),
-        ((color & 0x4) << 3) + ((color & 0x20) << 1) + ((color & 0x100) >> 1)
-               );
-#endif
     glBegin( GL_TRIANGLES );  
     for( Index offset = 0; offset < _indexLength; ++offset )
     {
         Index i = _vertexStart + _globalData.indices[_indexStart + offset];
-        if( state.hasColors() )
+        if( state.useColors() )
             glColor4ubv( &_globalData.colors[i][0] );
         glNormal3fv( &_globalData.normals[i][0] );
         glVertex3fv( &_globalData.vertices[i][0] );
     }
     glEnd();
+    
+//    if( state.useColors() )
+//        glColorPointer( 4, GL_UNSIGNED_BYTE, 0, 
+//                        &_globalData.colors[_vertexStart] );
+//    glNormalPointer( GL_FLOAT, 0, &_globalData.normals[_vertexStart] );
+//    glVertexPointer( 3, GL_FLOAT, 0, &_globalData.vertices[_vertexStart] );
+//    glDrawElements( GL_TRIANGLES, _indexLength, GL_UNSIGNED_SHORT, 
+//                    &_globalData.indices[_indexStart] );
 }
 
 
@@ -270,13 +271,16 @@ void VertexBufferLeaf::fromMemory( char** addr, VertexBufferData& globalData )
 {
     size_t nodeType;
     memRead( reinterpret_cast< char* >( &nodeType ), addr, sizeof( size_t ) );
-    assert( nodeType == LEAF_TYPE );
+    if( nodeType != LEAF_TYPE )
+        throw MeshException( "Error reading binary file. Expected a leaf "
+                             "node, but found something else instead." );
     VertexBufferBase::fromMemory( addr, globalData );
     memRead( reinterpret_cast< char* >( &_vertexStart ), addr, 
              sizeof( Index ) );
     memRead( reinterpret_cast< char* >( &_vertexLength ), addr, 
              sizeof( ShortIndex ) );
-    memRead( reinterpret_cast< char* >( &_indexStart ), addr, sizeof( Index ) );
+    memRead( reinterpret_cast< char* >( &_indexStart ), addr, 
+             sizeof( Index ) );
     memRead( reinterpret_cast< char* >( &_indexLength ), addr, 
              sizeof( Index ) );
 }
@@ -289,8 +293,7 @@ void VertexBufferLeaf::toStream( ostream& os )
     os.write( reinterpret_cast< char* >( &nodeType ), sizeof( size_t ) );
     VertexBufferBase::toStream( os );
     os.write( reinterpret_cast< char* >( &_vertexStart ), sizeof( Index ) );
-    os.write( reinterpret_cast< char* >( &_vertexLength ), 
-              sizeof( ShortIndex ) );
+    os.write( reinterpret_cast< char* >( &_vertexLength ), sizeof( ShortIndex ) );
     os.write( reinterpret_cast< char* >( &_indexStart ), sizeof( Index ) );
     os.write( reinterpret_cast< char* >( &_indexLength ), sizeof( Index ) );
 }

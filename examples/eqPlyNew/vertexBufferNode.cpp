@@ -11,14 +11,24 @@
 #include "vertexBufferLeaf.h"
 #include "vertexBufferState.h"
 #include "vertexData.h"
-
-
-#undef NDEBUG
-#include <cassert>
+#include <map>
 
 
 using namespace std;
 using namespace mesh;
+
+
+/*  Helper function to determine the number of unique vertices in a range.  */
+size_t VertexBufferNode::countUniqueVertices( VertexData& data, 
+                                              const Index start,
+                                              const Index length ) const
+{
+    map< Index, bool > uniqueIndex;
+    for( Index t = 0; t < length; ++t )
+        for( Index v = 0; v < 3; ++v )
+            uniqueIndex[ data.triangles[start + t][v] ] = true;
+    return uniqueIndex.size();
+}
 
 
 /*  Continue kd-tree setup, create intermediary or leaf nodes as required.  */
@@ -27,8 +37,9 @@ void VertexBufferNode::setupTree( VertexData& data, const Index start,
                                   VertexBufferData& globalData )
 {
     #ifndef NDEBUG
-    cout << "entering VertexBufferNode::setupTree"
-         << "( " << start << ", " << length << ", " << axis << " )" << endl;
+    MESHINFO << "Entering VertexBufferNode::setupTree"
+             << "( " << start << ", " << length << ", " << axis << " )." 
+             << endl;
     #endif
     
     data.sort( start, length, axis );
@@ -36,14 +47,16 @@ void VertexBufferNode::setupTree( VertexData& data, const Index start,
     
     // left child will include elements smaller than the median
     Index leftLength = length / 2;
-    if( leftLength > LEAF_SIZE )
+//    if( leftLength > LEAF_SIZE )
+    if( countUniqueVertices( data, start, leftLength ) > LEAF_SIZE )
         _left = new VertexBufferNode;
     else
         _left = new VertexBufferLeaf( globalData );
     
     // right child will include elements equal to or greater than the median
     Index rightLength = ( length + 1 ) / 2;
-    if( rightLength > LEAF_SIZE )
+//    if( rightLength > LEAF_SIZE )
+    if( countUniqueVertices( data, median, rightLength ) > LEAF_SIZE )
         _right = new VertexBufferNode;
     else
         _right = new VertexBufferLeaf( globalData );
@@ -80,8 +93,9 @@ BoundingBox VertexBufferNode::updateBoundingSphere()
     calculateBoundingSphere( boundingBox );
     
     #ifndef NDEBUG
-    cout << "exiting VertexBufferNode::updateBoundingSphere" 
-         << "( " << boundingBox[0] << ", " << boundingBox[1] << " )" << endl;
+    MESHINFO << "Exiting VertexBufferNode::updateBoundingSphere" 
+             << "( " << boundingBox[0] << ", " << boundingBox[1] << " )." 
+             << endl;
     #endif
     
     return boundingBox;
@@ -100,47 +114,15 @@ void VertexBufferNode::updateRange()
     _range[1] = max( _left->getRange()[1], _right->getRange()[1] );
     
     #ifndef NDEBUG
-    cout << "exiting VertexBufferNode::updateRange" 
-         << "( " << _range[0] << ", " << _range[1] << " )" << endl;
+    MESHINFO << "Exiting VertexBufferNode::updateRange" 
+             << "( " << _range[0] << ", " << _range[1] << " )." << endl;
     #endif
 }
 
 
 /*  Render the node by rendering the children.  */
-void VertexBufferNode::render( VertexBufferState& state, 
-                               bool performCulling ) const
+void VertexBufferNode::render( VertexBufferState& state ) const
 {
-    if( performCulling )
-    {
-        // out of range check (_range is node range, range is render range)
-        const Range range = state.getRange();
-        if( _range[0] >= range[1] || _range[1] < range[0] )
-            return;
-        
-        // bounding sphere culling (if culler present)
-        Culler* culler = state.getCuller();
-        if( culler )
-        {
-            switch( culler->testSphere( _boundingSphere ) )
-            {
-            case vmml::VISIBILITY_FULL:
-                // if fully visible and fully in range, bypass further culling
-                if( _range[0] >= range[0] && _range[1] < range[1] )
-                {
-                    _left->render( state, false );
-                    _right->render( state, false );
-                    return;
-                }
-                // partial range, fall through to partial visibility
-            case vmml::VISIBILITY_PARTIAL:
-                break;
-            case vmml::VISIBILITY_NONE:
-                // no further rendering to be done
-                return;
-            }
-        }
-    }
-    
     _left->render( state );
     _right->render( state );
 }
@@ -152,12 +134,16 @@ void VertexBufferNode::fromMemory( char** addr, VertexBufferData& globalData )
     // read node itself   
     size_t nodeType;
     memRead( reinterpret_cast< char* >( &nodeType ), addr, sizeof( size_t ) );
-    assert( nodeType == NODE_TYPE );
+    if( nodeType != NODE_TYPE )
+        throw MeshException( "Error reading binary file. Expected a regular "
+                             "node, but found something else instead." );
     VertexBufferBase::fromMemory( addr, globalData );
     
     // read left child (peek ahead)
     memRead( reinterpret_cast< char* >( &nodeType ), addr, sizeof( size_t ) );
-    assert( nodeType == NODE_TYPE || nodeType == LEAF_TYPE );
+    if( nodeType != NODE_TYPE && nodeType != LEAF_TYPE )
+        throw MeshException( "Error reading binary file. Expected either a "
+                             "regular or a leaf node, but found neither." );
     *addr -= sizeof( size_t );
     if( nodeType == NODE_TYPE )
         _left = new VertexBufferNode;
@@ -167,7 +153,9 @@ void VertexBufferNode::fromMemory( char** addr, VertexBufferData& globalData )
     
     // read right child (peek ahead)
     memRead( reinterpret_cast< char* >( &nodeType ), addr, sizeof( size_t ) );
-    assert( nodeType == NODE_TYPE || nodeType == LEAF_TYPE );
+    if( nodeType != NODE_TYPE && nodeType != LEAF_TYPE )
+        throw MeshException( "Error reading binary file. Expected either a "
+                             "regular or a leaf node, but found neither." );
     *addr -= sizeof( size_t );
     if( nodeType == NODE_TYPE )
         _right = new VertexBufferNode;

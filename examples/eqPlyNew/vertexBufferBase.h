@@ -17,6 +17,8 @@
 
 namespace mesh 
 {
+    
+    
     // defined elsewhere
     class VertexData;
     class VertexBufferData;
@@ -26,18 +28,20 @@ namespace mesh
     class VertexBufferBase
     {
     public:
-        virtual void render( VertexBufferState& state, 
-                             bool performCulling = true ) const = 0;
+        virtual void render( VertexBufferState& state ) const = 0;
         
         const BoundingSphere& getBoundingSphere() const 
         {
             return _boundingSphere;
         }
         
-        const GLfloat* getRange() const
+        const float* getRange() const
         {
             return &_range[0];
         }
+        
+        virtual const VertexBufferBase* getLeft() const { return 0; }
+        virtual const VertexBufferBase* getRight() const { return 0; }
         
     protected:
         VertexBufferBase() : _boundingSphere( 0.0f ) 

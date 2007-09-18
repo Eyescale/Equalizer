@@ -68,16 +68,16 @@ void Channel::frameDraw( const uint32_t frameID )
     const Model*     model = node->getModel();
     const eq::Range& range = getRange();
 
-    if( !frameData.data.color )
-    {
-        glColor3f( 1.0f, 1.0f, 1.0f );
-    }
-    else if( !range.isFull( )) // Color DB-patches
+    if( !range.isFull( )) // Color DB-patches
     {
         const vmml::Vector3ub color = getUniqueColor();
         glColor3ub( color.r, color.g, color.b );
     }
-
+    else if( !frameData.data.color || !model->hasColors() )
+    {
+        glColor3f( 1.0f, 1.0f, 1.0f );
+    }
+    
     if( model )
     {
 //        vector<const Model::BBox*> candidates;
@@ -123,16 +123,65 @@ void Channel::frameDraw( const uint32_t frameID )
 //                    break;
 //            }
 //        }
-        Window* window = static_cast<Window*>( getWindow( ));
-        VertexBufferState& state = window->getState();
+        Window* window = static_cast<Window*>( getWindow() );
+        mesh::VertexBufferState& state = window->getState();
         
-        state.setColors( model->hasColors() && frameData.data.color && 
-                         range.isFull( ));
-        state.setCuller( culler );
-        state.setRange( range.start, range.end );
-        state.setRenderMode( DISPLAY_LIST_MODE );
+        state.setColors( frameData.data.color && 
+                         range.isFull() && 
+                         model->hasColors() );
+        model->beginRendering( state );
         
-        model->render( state );
+        // start with root node
+        vector< const VertexBufferBase* > candidates;
+        candidates.push_back( model );
+        
+        while( !candidates.empty() )
+        {
+            const VertexBufferBase* treeNode = candidates.back();
+            candidates.pop_back();
+            
+            const VertexBufferBase* left = treeNode->getLeft();
+            const VertexBufferBase* right = treeNode->getRight();
+            
+            // out of range check
+            if( treeNode->getRange()[0] >= range.end || 
+                treeNode->getRange()[1] < range.start )
+                continue;
+            
+            // bounding sphere culling
+            switch( culler.testSphere( treeNode->getBoundingSphere() ) )
+            {
+            case vmml::VISIBILITY_FULL:
+                // if fully visible and fully in range, render it
+                if( treeNode->getRange()[0] >= range.start && 
+                    treeNode->getRange()[1] < range.end )
+                {
+                    treeNode->render( state );
+                    break;
+                }
+                // partial range, fall through to partial visibility
+            case vmml::VISIBILITY_PARTIAL:
+                if( !left && !right )
+                {
+                    if( treeNode->getRange()[0] >= range.start )
+                        treeNode->render( state );
+                    // else drop, to be drawn by 'previous' channel
+                }
+                else
+                {
+                    if( left )
+                        candidates.push_back( left );
+                    if( right )
+                        candidates.push_back( right );
+                }
+                break;
+            case vmml::VISIBILITY_NONE:
+                // do nothing
+                break;
+            }
+        }
+        
+        model->endRendering( state );
     }
     else
     {

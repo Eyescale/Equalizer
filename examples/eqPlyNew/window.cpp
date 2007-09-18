@@ -4,6 +4,7 @@
 
 #include "window.h"
 #include "pipe.h"
+#include "config.h"
 
 using namespace std;
 
@@ -22,8 +23,8 @@ bool Window::configInit( const uint32_t initID )
 
     if( firstWindow == this )
     {
-        _objects = new ObjectManager( getGLFunctions( ));
-        _state = new VertexBufferStateSimple;
+        _objects = new ObjectManager( getGLFunctions() );
+        _state = new VertexBufferState( getGLFunctions(), *_objects );
         _loadLogo();
     }
     else
@@ -36,7 +37,24 @@ bool Window::configInit( const uint32_t initID )
 
     if( !_objects ) // happens if first window failed to initialize
         return false;
-
+    
+    Config* config = static_cast< Config* >( getConfig() );
+    if( !_state )
+        return false;
+    else if( config->useVBOs() )
+    {
+        // DISPLAY_LIST_MODE is default, only change if all checks pass
+        if( !getGLFunctions()->checkExtension( "GL_ARB_vertex_buffer_object" ) )
+            EQWARN << "VBOs not supported, using DLs" << endl;
+        else if( !getGLFunctions()->hasGenBuffers() ||
+                 !getGLFunctions()->hasBindBuffer() ||
+                 !getGLFunctions()->hasBufferData() ||
+                 !getGLFunctions()->hasDeleteBuffers() )
+            EQWARN << "VBO function pointers missing, using DLs" << endl;
+        else
+            _state->setRenderMode( mesh::BUFFER_OBJECT_MODE );
+    }
+    
     return true;
 }
 

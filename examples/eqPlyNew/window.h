@@ -16,13 +16,19 @@ namespace eqPly
     {
     public:
         ObjectManager( const eq::GLFunctions* glFunctions ) 
-                : eq::ObjectManager< const void * >( glFunctions ) {}
-        virtual ~ObjectManager(){}
+                : eq::ObjectManager< const void* >( glFunctions ) {}
+        virtual ~ObjectManager() {}
     };
 
-    class VertexBufferStateSimple : public mesh::VertexBufferStateSimple, 
-                                    public eqBase::Referenced
-    {};
+    class VertexBufferState : public mesh::VertexBufferStateOM, 
+                              public eqBase::Referenced
+    {
+    public:
+        VertexBufferState( const eq::GLFunctions* glFunctions, 
+                           ObjectManager& om )
+                : mesh::VertexBufferStateOM( glFunctions, om ) {}
+        virtual ~VertexBufferState() {}
+    };
     
     class Window : public eq::Window
     {
@@ -30,15 +36,15 @@ namespace eqPly
         Window() : _logoTexture( 0 ) {}
 
         // display list cache (windows share the context and object manager)
-        GLuint getDisplayList( const void* key )
-            { return _objects->getList( key ); }
-        GLuint newDisplayList( const void* key )
-            { return _objects->newList( key ); }
+//        GLuint getDisplayList( const void* key )
+//            { return _objects->getList( key ); }
+//        GLuint newDisplayList( const void* key )
+//            { return _objects->newList( key ); }
 
         void getLogoTexture( GLuint& id, vmml::Vector2i& size ) const
             { id = _logoTexture; size = _logoSize; }
         
-        mesh::VertexBufferStateSimple& getState() { return *_state; }
+        mesh::VertexBufferState& getState() { return *_state; }
         
     protected:
         virtual ~Window() {}
@@ -46,8 +52,8 @@ namespace eqPly
         virtual bool configExit();
 
     private:
-        eqBase::RefPtr< ObjectManager >           _objects;
-        eqBase::RefPtr< VertexBufferStateSimple > _state;
+        eqBase::RefPtr< ObjectManager >     _objects;
+        eqBase::RefPtr< VertexBufferState > _state;
 
         GLuint         _logoTexture;
         vmml::Vector2i _logoSize;

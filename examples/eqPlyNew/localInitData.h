@@ -21,6 +21,7 @@ namespace eqPly
         const std::string& getTrackerPort() const { return _trackerPort; }
         bool               useColor()       const { return _color; }
         bool               isResident()     const { return _isResident; }
+        bool               useVBOs()        const { return _useVBOs; }
         uint32_t           getMaxFrames()   const { return _maxFrames; }
 
         const LocalInitData& operator = ( const LocalInitData& from );
@@ -30,6 +31,7 @@ namespace eqPly
         uint32_t    _maxFrames;
         bool        _color;
         bool        _isResident;
+        bool        _useVBOs;
     };
 }
 

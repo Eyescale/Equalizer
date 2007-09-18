@@ -19,7 +19,8 @@ namespace eqPly
 LocalInitData::LocalInitData()
         : _maxFrames( 0xffffffffu ),
           _color( true ),
-          _isResident( false )
+          _isResident( false ),
+          _useVBOs( false )
 {}
 
 const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
@@ -28,6 +29,7 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     _maxFrames   = from._maxFrames;    
     _color       = from._color;        
     _isResident  = from._isResident;
+    _useVBOs     = from._useVBOs;
     setFilename( from.getFilename( ));
     setWindowSystem( from.getWindowSystem( ));
     return *this;
@@ -68,7 +70,10 @@ void LocalInitData::parseArguments( int argc, char** argv )
 
         TCLAP::ValueArg<string> wsArg( "w", "windowSystem", wsHelp,
                                        false, "auto", "string", command );
-                                
+        
+        TCLAP::SwitchArg vboArg( "v", "vbo", "Use the new VBO rendering", 
+                                 command, false);
+        
         command.parse( argc, argv );
 
         if( modelArg.isSet( ))
@@ -96,6 +101,9 @@ void LocalInitData::parseArguments( int argc, char** argv )
 
         if( residentArg.isSet( ))
             _isResident = true;
+        
+        if( vboArg.isSet() )
+            _useVBOs = true;
     }
     catch( TCLAP::ArgException& exception )
     {
