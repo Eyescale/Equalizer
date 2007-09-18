@@ -28,6 +28,8 @@ namespace eq
 #   else
 #       define GLXFUNC( name ) glXGetProcAddress( (const GLubyte*) #name )
 #   endif // Darwin
+#else
+#   define GLXFUNC( foo ) 0
 #endif // GLX
 
 #define QUERY( windowSystem, name, func, type )                         \
