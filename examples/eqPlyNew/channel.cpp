@@ -235,8 +235,7 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler,
     const vmml::Frustumf&  frustum       = getFrustum();
     const vmml::Matrix4f&  headTransform = getHeadTransform();
     const vmml::Matrix4f   modelView     = headTransform * view;
-
-    const vmml::Matrix4f     projection = frustum.computeMatrix();
+    const vmml::Matrix4f   projection    = frustum.computeMatrix();
 
     culler.setup( projection * modelView );
 
@@ -253,10 +252,10 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler,
 
     const vmml::Vector3f center = vmml::Vector3f( boundingSphere.xyzw ) + 
                                   vmml::Vector3f( frameData.data.translation );
-    const vmml::Vector3f near  = headTransform * ( center - front );
-    const vmml::Vector3f far   = headTransform * ( center + front );
-    const float          zNear = MAX( 0.0001f, -near.z );
-    const float          zFar  = MAX( 0.0002f, -far.z );
+    const vmml::Vector3f nearPoint  = headTransform * ( center - front );
+    const vmml::Vector3f farPoint   = headTransform * ( center + front );
+    const float          zNear = MAX( 0.0001f, -nearPoint.z );
+    const float          zFar  = MAX( 0.0002f, -farPoint.z );
 
     setNearFar( zNear, zFar );
 }

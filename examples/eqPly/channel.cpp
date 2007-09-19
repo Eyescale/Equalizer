@@ -287,10 +287,10 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler )
     front.scale( M_SQRT3_2 ); // bounding sphere size of unit-sized cube
 
     const vmml::Vector3f center( frameData.data.translation );
-    const vmml::Vector3f near  = headTransform * ( center - front );
-    const vmml::Vector3f far   = headTransform * ( center + front );
-    const float          zNear = MAX( 0.0001f, -near.z );
-    const float          zFar  = MAX( 0.0002f, -far.z );
+    const vmml::Vector3f nearPoint  = headTransform * ( center - front );
+    const vmml::Vector3f farPoint   = headTransform * ( center + front );
+    const float          zNear = MAX( 0.0001f, -nearPoint.z );
+    const float          zFar  = MAX( 0.0002f, -farPoint.z );
 
     setNearFar( zNear, zFar );
 }
