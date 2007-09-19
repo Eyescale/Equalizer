@@ -23,7 +23,7 @@ bool Window::configInit( const uint32_t initID )
 
     if( firstWindow == this )
     {
-        _objects = new ObjectManager( getGLFunctions() );
+        _objects = new ObjectManager( getGLFunctions( ));
         _state = new VertexBufferState( getGLFunctions(), *_objects );
         _loadLogo();
     }
@@ -44,12 +44,11 @@ bool Window::configInit( const uint32_t initID )
     else if( config->useVBOs() )
     {
         // DISPLAY_LIST_MODE is default, only change if all checks pass
-        if( !getGLFunctions()->checkExtension( "GL_ARB_vertex_buffer_object" ) )
-            EQWARN << "VBOs not supported, using DLs" << endl;
-        else if( !getGLFunctions()->hasGenBuffers() ||
-                 !getGLFunctions()->hasBindBuffer() ||
-                 !getGLFunctions()->hasBufferData() ||
-                 !getGLFunctions()->hasDeleteBuffers() )
+        if( !getGLFunctions()->hasGenBuffers() ||
+            !getGLFunctions()->hasBindBuffer() ||
+            !getGLFunctions()->hasBufferData() ||
+            !getGLFunctions()->hasDeleteBuffers() )
+
             EQWARN << "VBO function pointers missing, using DLs" << endl;
         else
         {

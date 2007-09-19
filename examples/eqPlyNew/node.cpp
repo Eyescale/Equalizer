@@ -33,9 +33,8 @@ bool Node::configInit( const uint32_t initID )
 
 bool Node::configExit()
 {
-    if( _model )
-        delete _model;
-    _model = NULL;
+    delete _model;
+    _model = 0;
 
     eq::Config* config = getConfig();
     config->unmapObject( &_initData );

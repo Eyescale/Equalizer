@@ -17,7 +17,7 @@ namespace eqPly
     public:
         ObjectManager( const eq::GLFunctions* glFunctions ) 
                 : eq::ObjectManager< const void* >( glFunctions ) {}
-        virtual ~ObjectManager() {}
+        virtual ~ObjectManager(){}
     };
 
     class VertexBufferState : public mesh::VertexBufferStateOM, 
@@ -34,12 +34,6 @@ namespace eqPly
     {
     public:
         Window() : _logoTexture( 0 ) {}
-
-        // display list cache (windows share the context and object manager)
-//        GLuint getDisplayList( const void* key )
-//            { return _objects->getList( key ); }
-//        GLuint newDisplayList( const void* key )
-//            { return _objects->newList( key ); }
 
         void getLogoTexture( GLuint& id, vmml::Vector2i& size ) const
             { id = _logoTexture; size = _logoSize; }

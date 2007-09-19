@@ -57,14 +57,18 @@ namespace eq
 
 GLFunctions::GLFunctions( const WindowSystem windowSystem )
 {
-    LOOKUP(     windowSystem, glGenBuffers,    PFNGLGENBUFFERSPROC );
-    ARB_BACKUP( windowSystem, glGenBuffers,    PFNGLGENBUFFERSPROC );
-    LOOKUP(     windowSystem, glDeleteBuffers, PFNGLDELETEBUFFERSPROC );
-    ARB_BACKUP( windowSystem, glDeleteBuffers, PFNGLDELETEBUFFERSPROC );
-    LOOKUP(     windowSystem, glBindBuffer,    PFNGLBINDBUFFERPROC );
-    ARB_BACKUP( windowSystem, glBindBuffer,    PFNGLBINDBUFFERPROC );
-    LOOKUP(     windowSystem, glBufferData,    PFNGLBUFFERDATAPROC );
-    ARB_BACKUP( windowSystem, glBufferData,    PFNGLBUFFERDATAPROC );
+    LOOKUP( windowSystem, glGenBuffers,    PFNGLGENBUFFERSPROC );
+    LOOKUP( windowSystem, glDeleteBuffers, PFNGLDELETEBUFFERSPROC );
+    LOOKUP( windowSystem, glBindBuffer,    PFNGLBINDBUFFERPROC );
+    LOOKUP( windowSystem, glBufferData,    PFNGLBUFFERDATAPROC );
+
+    if( checkExtension( "GL_ARB_vertex_buffer_object" ))
+    {
+        ARB_BACKUP( windowSystem, glGenBuffers,    PFNGLGENBUFFERSPROC );
+        ARB_BACKUP( windowSystem, glDeleteBuffers, PFNGLDELETEBUFFERSPROC );
+        ARB_BACKUP( windowSystem, glBindBuffer,    PFNGLBINDBUFFERPROC );
+        ARB_BACKUP( windowSystem, glBufferData,    PFNGLBUFFERDATAPROC );
+    }
 }
 
 GLFunctions::~GLFunctions()

@@ -271,8 +271,7 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler )
     const vmml::Frustumf&  frustum       = getFrustum();
     const vmml::Matrix4f&  headTransform = getHeadTransform();
     const vmml::Matrix4f   modelView     = headTransform * view;
-
-    const vmml::Matrix4f     projection = frustum.computeMatrix();
+    const vmml::Matrix4f   projection    = frustum.computeMatrix();
 
     culler.setup( projection * modelView );
 
@@ -282,6 +281,7 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler )
 
     const vmml::Vector3f zero  = modelInv * vmml::Vector3f::ZERO;
     vmml::Vector3f       front = modelInv * vmml::Vector3f( 0.0f, 0.0f, -1.0f );
+
     front -= zero;
     front.normalise();
     front.scale( M_SQRT3_2 ); // bounding sphere size of unit-sized cube
