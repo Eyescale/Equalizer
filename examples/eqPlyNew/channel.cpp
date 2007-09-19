@@ -64,7 +64,7 @@ void Channel::frameDraw( const uint32_t frameID )
         const vmml::Vector3ub color = getUniqueColor();
         glColor3ub( color.r, color.g, color.b );
     }
-    else if( !frameData.data.color || !model->hasColors() )
+    else if( !frameData.data.color || (model && !model->hasColors( )) )
     {
         glColor3f( 1.0f, 1.0f, 1.0f );
     }
