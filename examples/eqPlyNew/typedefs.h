@@ -13,6 +13,11 @@
 
 #include <vmmlib/vmmlib.h>
 
+#ifdef _WIN32
+#   include <Winsock2.h>
+#   include <Windows.h>
+#endif
+
 #ifdef __APPLE__
 #   include <OpenGL/gl.h>
 #else

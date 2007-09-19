@@ -52,7 +52,10 @@ bool Window::configInit( const uint32_t initID )
                  !getGLFunctions()->hasDeleteBuffers() )
             EQWARN << "VBO function pointers missing, using DLs" << endl;
         else
+        {
             _state->setRenderMode( mesh::BUFFER_OBJECT_MODE );
+            EQINFO << "VBO rendering successfully enabled" << endl;
+        }
     }
     
     return true;

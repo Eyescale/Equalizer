@@ -15,7 +15,9 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/mman.h>
+#ifndef _WIN32
+#   include <sys/mman.h>
+#endif
 
 
 using namespace std;
@@ -164,7 +166,7 @@ bool VertexBufferRoot::readFromFile( const char* filename )
             fromMemory( addr );
             result = true;
         }
-        catch( exception% e )
+        catch( exception& e )
         {
             MESHERROR << "Unable to read binary file, an exception occured:  "
                       << e.what() << endl;
