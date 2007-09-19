@@ -261,7 +261,8 @@ void VertexData::calculateNormals( const bool vertexNormals )
             normals[i].normalise();
     
     #ifndef NDEBUG
-    MESHINFO << wrongNormals << " faces had no valid normal." << endl;
+    if( wrongNormals > 0 )
+        MESHINFO << wrongNormals << " faces had no valid normal." << endl;
     #endif 
 }
 

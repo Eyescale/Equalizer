@@ -15,10 +15,6 @@ using namespace std;
 
 static float lightpos[] = { 0.0f, 0.0f, 1.0f, 0.0f };
 
-//#define DYNAMIC_NEAR_FAR 
-#ifndef M_SQRT3
-#  define M_SQRT3    1.7321f   /* sqrt(3) */
-#endif
 #ifndef M_SQRT3_2
 #  define M_SQRT3_2  0.86603f  /* sqrt(3)/2 */
 #endif
@@ -29,9 +25,7 @@ bool Channel::configInit( const uint32_t initID )
 {
     EQINFO << "Init channel initID " << initID << " ptr " << this << endl;
 
-#ifndef DYNAMIC_NEAR_FAR
-    setNearFar( 0.0001f, 10.0f );
-#endif
+    setNearFar( 0.1f, 10.0f );
     return true;
 }
 
@@ -267,6 +261,7 @@ void Channel::_drawLogo()
 
 void Channel::_initFrustum( vmml::FrustumCullerf& culler )
 {
+    // setup frustum cull helper
     const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
     const FrameData& frameData = pipe->getFrameData();
 
@@ -277,15 +272,18 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler )
     const vmml::Matrix4f&  headTransform = getHeadTransform();
     const vmml::Matrix4f   modelView     = headTransform * view;
 
-#ifdef DYNAMIC_NEAR_FAR
+    const vmml::Matrix4f     projection = frustum.computeMatrix();
+
+    culler.setup( projection * modelView );
+
+    // compute dynamic near/far plane of whole model
     vmml::Matrix4f modelInv;
     headTransform.getInverse( modelInv );
 
-    const vmml::Vector3f zero  = modelInv * vmml::Vector3f( 0.0f, 0.0f,  0.0f );
+    const vmml::Vector3f zero  = modelInv * vmml::Vector3f::ZERO;
     vmml::Vector3f       front = modelInv * vmml::Vector3f( 0.0f, 0.0f, -1.0f );
     front -= zero;
     front.normalise();
-    EQINFO << getName()  << " front " << front << endl;
     front.scale( M_SQRT3_2 ); // bounding sphere size of unit-sized cube
 
     const vmml::Vector3f center( frameData.data.translation );
@@ -294,15 +292,6 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler )
     const float          zNear = MAX( 0.0001f, -near.z );
     const float          zFar  = MAX( 0.0002f, -far.z );
 
-    EQINFO << getName() << " center:    " << headTransform * center << endl;
-    EQINFO << getName() << " near, far: " << near << " " << far << endl;
-    EQINFO << getName() << " near, far: " << zNear << " " << zFar << endl;
     setNearFar( zNear, zFar );
-#endif
-
-    const vmml::Matrix4f     projection = frustum.computeMatrix();
-    //const eq::PixelViewport& pvp        = getPixelViewport();
-
-    culler.setup( projection * modelView );
 }
 }

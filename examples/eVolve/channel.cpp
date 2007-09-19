@@ -39,9 +39,9 @@ using namespace std;
 
 Channel::Channel()
     : eq::Channel()
+    , _bgColor( 0.0f, 0.0f, 0.0f, 1.0f ) //use (0,0,0,1) to save transparancy
     , _model(NULL)
-    ,_vertexID(0)
-    ,_bgColor( 0.0f, 0.0f, 0.0f, 1.0f ) //use (0,0,0,1) to save transparancy
+    , _vertexID(0)
 {
     _curFrData.frameID = 0;
 }
@@ -209,8 +209,6 @@ void Channel::frameDraw( const uint32_t frameID )
         // only to make someone people be happy with their 
         // old school 80 characters per line and not to 
         // make code look completely ugly :(
-        CGparameter tParamNameCg; // for Cg
-        GLint       tParamNameGL; // for GLSL
 
         const uint32_t numberOfSlices = _model->getResolution() * 2;
         if( _prvNumberOfSlices != numberOfSlices )
@@ -382,7 +380,7 @@ void Channel::frameDraw( const uint32_t frameID )
         }
 
 #ifdef CG_SHADERS
-        tParamNameCg = cgGetNamedParameter( m_vProg, "vecVertices" );
+        CGparameter tParamNameCg = cgGetNamedParameter( m_vProg, "vecVertices");
         cgGLSetParameterArray3f( tParamNameCg, 0,  8, vertices     );
 
         tParamNameCg = cgGetNamedParameter( m_vProg, "sequence"    );
@@ -403,7 +401,7 @@ void Channel::frameDraw( const uint32_t frameID )
         tParamNameCg = cgGetNamedParameter( m_vProg, "dPlaneIncr"  );
         cgGLSetParameter1d(      tParamNameCg,        m_dSliceDist );
 #else
-        tParamNameGL = glGetUniformLocationARB( shader, "vecVertices" );
+        GLint tParamNameGL = glGetUniformLocationARB( shader, "vecVertices" );
         glUniform3fvARB( tParamNameGL,  8, vertices                   );
 
         tParamNameGL = glGetUniformLocationARB( shader, "sequence"    );
