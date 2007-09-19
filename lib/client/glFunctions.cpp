@@ -71,8 +71,33 @@ GLFunctions::~GLFunctions()
 {
 }
 
+void GLFunctions::genBuffers( GLsizei n, GLuint* buffers ) const
+{
+    EQASSERT( hasGenBuffers() );
+    _table.glGenBuffers( n, buffers );
+}
+        
+void GLFunctions::deleteBuffers( GLsizei n, const GLuint* buffers ) const
+{
+    EQASSERT( hasDeleteBuffers() );
+    _table.glDeleteBuffers( n, buffers );
+}
+        
+void GLFunctions::bindBuffer( GLenum target, GLuint buffer) const
+{
+    EQASSERT( hasBindBuffer() );
+    _table.glBindBuffer( target, buffer );
+}
+        
+void GLFunctions::bufferData( GLenum target, GLsizeiptr size, 
+                              const GLvoid* data, GLenum usage) const
+{
+    EQASSERT( hasBufferData() );
+    _table.glBufferData( target, size, data, usage );
+}
+
 // helper function to check for specific OpenGL extensions by name
-bool GLFunctions::checkExtension( const char* extensionName ) const
+bool GLFunctions::checkExtension( const char* extensionName )
 {
     // get the list of supported extensions
     const char* extensionList = 

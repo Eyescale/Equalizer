@@ -159,6 +159,18 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event, eq::Window* window )
             // our button definitions.
             windowEvent.pointerMotion.buttons = GetCurrentEventButtonState();
 
+            if( windowEvent.pointerMotion.buttons == PTR_BUTTON1 )
+            {   // Only left button pressed: implement apple-style middle/right
+                // button if modifier keys are used.
+                uint32_t keys = 0;
+                GetEventParameter( event, kEventParamKeyModifiers, 
+                                   typeUInt32, 0, sizeof( keys ), 0, &keys );
+                if( keys & controlKey )
+                    windowEvent.pointerMotion.buttons = PTR_BUTTON3;
+                else if( keys & optionKey )
+                    windowEvent.pointerMotion.buttons = PTR_BUTTON2;
+            }
+
             GetEventParameter( event, kEventParamWindowMouseLocation, 
                                typeHIPoint, 0, sizeof( pos ), 0, 
                                &pos );
@@ -180,6 +192,18 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event, eq::Window* window )
             windowEvent.pointerButtonPress.buttons=GetCurrentEventButtonState();
             windowEvent.pointerButtonPress.button = _getButtonAction( event );
 
+            if( windowEvent.pointerMotion.buttons == PTR_BUTTON1 )
+            {   // Only left button pressed: implement apple-style middle/right
+                // button if modifier keys are used.
+                uint32_t keys = 0;
+                GetEventParameter( event, kEventParamKeyModifiers, 
+                                   typeUInt32, 0, sizeof( keys ), 0, &keys );
+                if( keys & controlKey )
+                    windowEvent.pointerMotion.buttons = PTR_BUTTON3;
+                else if( keys & optionKey )
+                    windowEvent.pointerMotion.buttons = PTR_BUTTON2;
+            }
+
             GetEventParameter( event, kEventParamWindowMouseLocation, 
                                typeHIPoint, 0, sizeof( pos ), 0, 
                                &pos );
@@ -197,6 +221,18 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event, eq::Window* window )
             windowEvent.pointerButtonRelease.buttons =
                 GetCurrentEventButtonState();
             windowEvent.pointerButtonRelease.button = _getButtonAction( event );
+
+            if( windowEvent.pointerMotion.buttons == PTR_BUTTON1 )
+            {   // Only left button pressed: implement apple-style middle/right
+                // button if modifier keys are used.
+                uint32_t keys = 0;
+                GetEventParameter( event, kEventParamKeyModifiers, 
+                                   typeUInt32, 0, sizeof( keys ), 0, &keys );
+                if( keys & controlKey )
+                    windowEvent.pointerMotion.buttons = PTR_BUTTON3;
+                else if( keys & optionKey )
+                    windowEvent.pointerMotion.buttons = PTR_BUTTON2;
+            }
 
             GetEventParameter( event, kEventParamWindowMouseLocation, 
                                typeHIPoint, 0, sizeof( pos ), 0, 
