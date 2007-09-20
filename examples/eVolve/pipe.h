@@ -9,25 +9,22 @@
 
 #include "frameData.h"
 
-#define CG_SHADERS
-
-#ifdef CG_SHADERS
+#ifdef CG_INSTALLED
 #include <gloo/cg_program.hpp>
-#else
-#include "shader.h"
 #endif
+#include "shader.h"
 
 namespace eVolve
 {
-#ifdef CG_SHADERS
     struct eqCgShaders
     {
+#ifdef CG_INSTALLED
         eqCgShaders() : cgVertex(NULL), cgFragment(NULL) {};
         
         gloo::cg_program*  cgVertex;    //!< Cg vertex shader
         gloo::cg_program*  cgFragment;  //!< Cg fragment shader
-    };
 #endif
+    };
     
     class Pipe : public eq::Pipe
     {
@@ -38,11 +35,8 @@ namespace eVolve
 
         void LoadShaders();
 
-#ifdef CG_SHADERS
         eqCgShaders getShaders() const { return _shaders; }
-#else
-        GLhandleARB getShader() const { return _shader; }
-#endif
+        GLhandleARB getShader()  const { return _shader; }
 
     protected:
         virtual ~Pipe() {}
@@ -53,12 +47,12 @@ namespace eVolve
         virtual void frameStart( const uint32_t frameID, 
                                  const uint32_t frameNumber );
     private:
-#ifdef CG_SHADERS
+#ifdef CG_INSTALLED
         CGcontext   _cgContext;
-        eqCgShaders _shaders;
-#else
-        GLhandleARB _shader;
 #endif
+        eqCgShaders _shaders;
+        GLhandleARB _shader;
+
         bool        _shadersLoaded;
         FrameData   _frameData;
     };

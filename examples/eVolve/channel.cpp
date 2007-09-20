@@ -38,10 +38,11 @@ using namespace std;
 
 
 Channel::Channel()
-    : eq::Channel()
-    , _bgColor( 0.0f, 0.0f, 0.0f, 1.0f ) //use (0,0,0,1) to save transparancy
-    , _model(NULL)
-    , _vertexID(0)
+    :eq::Channel()
+    ,_useCg          ( true )
+    ,_bgColor        ( 0.0f, 0.0f, 0.0f, 1.0f ) 
+    ,_model          ( NULL )
+    ,_slicesListID ( 0 )
 {
     _curFrData.frameID = 0;
 }
@@ -54,8 +55,7 @@ static void checkError( std::string msg )
         EQERROR << msg << " GL Error: " << gluErrorString(error) << endl;
 }
 
-#ifdef CG_SHADERS
-static void createHexagonsList( int num, GLuint &listId )
+static void createSlicesHexagonsList( int num, GLuint &listId )
 {
     if( listId != 0 )
         glDeleteLists( listId, 1 );
@@ -74,50 +74,6 @@ static void createHexagonsList( int num, GLuint &listId )
 
     glEndList();
 }
-#else
-struct quad 
-{
-    GLfloat x;
-    GLfloat y;
-    GLfloat z;
-};
-
-void createVertexArray( uint32_t numberOfSlices, GLuint &vertexID )
-{
-    vector<quad> pVertex;
-    pVertex.resize( 4*numberOfSlices );
-
-    //draw the slices
-    for( uint32_t ii=0; ii<numberOfSlices; ii++ )
-    {
-        pVertex[4*ii+3].x =  1.8;
-        pVertex[4*ii+3].y = -1.8;
-        pVertex[4*ii+3].z =  (3.6*ii)/(numberOfSlices-1)-1.8;
-
-        pVertex[4*ii+2].x =  1.8;
-        pVertex[4*ii+2].y =  1.8;
-        pVertex[4*ii+2].z =  (3.6*ii)/(numberOfSlices-1)-1.8;
-
-        pVertex[4*ii+1].x = -1.8;
-        pVertex[4*ii+1].y =  1.8;
-        pVertex[4*ii+1].z =  (3.6*ii)/(numberOfSlices-1)-1.8;
-
-
-        pVertex[4*ii  ].x = -1.8;
-        pVertex[4*ii  ].y = -1.8;
-        pVertex[4*ii  ].z =  (3.6*ii)/(numberOfSlices-1)-1.8;
-    }
-
-    uint32_t sizeOfData = 3*4*numberOfSlices*sizeof(GLfloat);
-    glGenBuffers( 1, &vertexID );
-    glBindBuffer( GL_ARRAY_BUFFER, vertexID );
-    glBufferData( GL_ARRAY_BUFFER, sizeOfData, &pVertex[0], GL_STATIC_DRAW );
-    glBindBuffer( GL_ARRAY_BUFFER, 0 );
-
-    checkError( "creating vertex array" );
-}
-#endif //CG_SHADERS
-
 
 bool Channel::configInit( const uint32_t initID )
 {
@@ -180,208 +136,117 @@ void Channel::frameClear( const uint32_t frameID )
 }
 
 
-//#define TEXTURE_ROTATION
-
-void Channel::frameDraw( const uint32_t frameID )
+static void calcAndPutDataForPolygonsClippingToShader
+(
+    vmml::Matrix4d&     modelviewM,
+    vmml::Matrix3d&     modelviewITM,
+    double              sliceDistance,
+    Range               range,
+    eqCgShaders         cgShaders,
+    GLhandleARB         glslShader,
+    bool                useCgShaders
+)
 {
-    const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
-    const FrameData& frameData = pipe->getFrameData();
+    vmml::Vector4d camPosition( 
+                        modelviewITM.ml[3],
+                        modelviewITM.ml[7],
+                        1.0               ,
+                        1.0                  );
 
-    _curFrData.lastRange    = getRange();  //save range for compositing
-    _curFrData.frameID      = frameID;
-    _curFrData.pvp          = getPixelViewport();
+    vmml::Vector4d viewVec( 
+                        -modelviewM.ml[ 2],
+                        -modelviewM.ml[ 6],
+                        -modelviewM.ml[10],
+                         0.0                );
 
-    if( _model )
-        _model->createTextures( _tex3D, _preintName, _curFrData.lastRange );
+    double zRs = -1+2.*range.start;
+    double zRe = -1+2.*range.end;
 
-    applyBuffer();
-    applyViewport();
+    //rendering parallelepipid's verteces 
+    vmml::Vector4d vertices[8]; 
+    vertices[0] = vmml::Vector4d(-1.0,-1.0,zRs, 1.0);
+    vertices[1] = vmml::Vector4d( 1.0,-1.0,zRs, 1.0);
+    vertices[2] = vmml::Vector4d(-1.0, 1.0,zRs, 1.0);
+    vertices[3] = vmml::Vector4d( 1.0, 1.0,zRs, 1.0);
 
-    glMatrixMode( GL_PROJECTION );
-    glLoadIdentity();
+    vertices[4] = vmml::Vector4d(-1.0,-1.0,zRe, 1.0);
+    vertices[5] = vmml::Vector4d( 1.0,-1.0,zRe, 1.0);
+    vertices[6] = vmml::Vector4d(-1.0, 1.0,zRe, 1.0);
+    vertices[7] = vmml::Vector4d( 1.0, 1.0,zRe, 1.0);
 
-    applyFrustum();
 
-    if( _model )
+    float dMaxDist = viewVec.dot( vertices[0] );
+    int nMaxIdx = 0;
+    for( int i = 1; i < 8; i++ )
     {
+        float dist = viewVec.dot( vertices[i] );
+        if ( dist > dMaxDist)
+        {
+            dMaxDist = dist;
+            nMaxIdx = i;
+        }
+    }
+
+    const int nSequence[8][8] = {
+        {7,3,5,6,1,2,4,0},
+        {6,2,4,7,0,3,5,1},
+        {5,1,4,7,0,3,6,2},
+        {4,0,5,6,1,2,7,3},
+        {3,1,2,7,0,5,6,4},
+        {2,0,3,6,1,4,7,5},
+        {1,0,3,5,2,4,7,6},
+        {0,1,2,4,3,5,6,7},
+    };
+
+    double dStartDist   = viewVec.dot( vertices[nSequence[nMaxIdx][0]] );
+    double dS           = ceil( dStartDist/sliceDistance );
+    dStartDist          = dS * sliceDistance;
+    
+    
+    const float sequence[64] = {
+        0, 1, 4, 2, 3, 5, 6, 7,
+        1, 0, 3, 5, 4, 2, 7, 6,
+        2, 0, 6, 3, 1, 4, 7, 5,
+        3, 1, 2, 7, 5, 0, 6, 4,
+        4, 0, 5, 6, 2, 1, 7, 3,
+        5, 1, 7, 4, 0, 3, 6, 2,
+        6, 2, 4, 7, 3, 0, 5, 1,
+        7, 3, 6, 5, 1, 2, 4, 0 };
+
+    const float e1[24] = {
+        0, 1, 4, 4,
+        1, 0, 1, 4,
+        0, 2, 5, 5,
+        2, 0, 2, 5,
+        0, 3, 6, 6, 
+        3, 0, 3, 6 };
+
+    const float e2[24] = {
+        1, 4, 7, 7,
+        5, 1, 4, 7,
+        2, 5, 7, 7,
+        6, 2, 5, 7,
+        3, 6, 7, 7,
+        4, 3, 6, 7 };
+
+    float shaderVertices[24];
+    for( int i=0; i<8; i++ )
+        for( int j=0; j<3; j++)
+            shaderVertices[ i*3+j ] = vertices[i][j];
+
+    if( useCgShaders )
+    {
+#ifdef CG_INSTALLED
         // temporal variables to store cgGetNamedParameter
         // and glGetUniformLocationARB values, I need this 
         // only to make someone people be happy with their 
         // old school 80 characters per line and not to 
         // make code look completely ugly :(
-
-        const uint32_t numberOfSlices = _model->getResolution() * 2;
-        if( _prvNumberOfSlices != numberOfSlices )
-        {
-#ifndef TEXTURE_ROTATION 
-            createHexagonsList( numberOfSlices, _vertexID );
-#else
-            createVertexArray(  numberOfSlices, _vertexID );
-#endif
-            _prvNumberOfSlices = numberOfSlices;
-        }
-
-        GLfloat lightAmbient[]  = {0.2f, 0.2f, 0.2f, 1.0f};
-        GLfloat lightDiffuse[]  = {0.8f, 0.8f, 0.8f, 1.0f};
-        GLfloat lightSpecular[] = {0.8f, 0.8f, 0.8f, 1.0f};
-        GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};
-
-        // set light parameters
-        glLightfv( GL_LIGHT0, GL_AMBIENT,  lightAmbient  );
-        glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDiffuse  );
-        glLightfv( GL_LIGHT0, GL_SPECULAR, lightSpecular );
-        glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
-
-#ifdef TEXTURE_ROTATION 
-        // Rotate 3D texture
-        glActiveTexture( GL_TEXTURE0 );
-        glMatrixMode( GL_TEXTURE );
-        glLoadIdentity();
-        glMultMatrixf( frameData.data.rotation.ml );
-#endif
-
-        // Matrix World
-        glMatrixMode( GL_MODELVIEW );
-        glLoadIdentity();
-        applyHeadTransform();
-
-        glTranslatef(  frameData.data.translation.x,
-                       frameData.data.translation.y,
-                       frameData.data.translation.z );
-#ifndef TEXTURE_ROTATION 
-        glMultMatrixf( frameData.data.rotation.ml );
-#endif
-        glScalef( 
-            _model->volScales.W,
-            _model->volScales.H, 
-            _model->volScales.D  );
-
-/*        glPushMatrix(); //Rotate lights
-        {
-            glLoadIdentity();
-            vmml::Matrix4f r = frameData.data.rotation;
-            r.ml[1] = -r.ml[1];
-            r.ml[2] = -r.ml[2];
-            r.ml[4] = -r.ml[4];
-            r.ml[6] = -r.ml[6];
-            r.ml[8] = -r.ml[8];
-            r.ml[9] = -r.ml[9];
-
-            vmml::Matrix4f ri; r.getInverse(r);
-            glMultMatrixf( ri.ml );
-            glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-        }
-        glPopMatrix();
-*/
-
-        vmml::Matrix4d  modelviewM;     // modelview matrix
-        vmml::Matrix3d  modelviewITM;   // modelview inversed transposed matrix
-        _calcMVandITMV( modelviewM, modelviewITM );
-
-        vmml::Vector4d camPosition( 
-                            modelviewITM.ml[3],
-                            modelviewITM.ml[7],
-                            1.0               ,
-                            1.0                  );
-
-        vmml::Vector4d viewVec( 
-                            -modelviewM.ml[ 2],
-                            -modelviewM.ml[ 6],
-                            -modelviewM.ml[10],
-                             0.0                );
-
-        double m_dScaleFactorX = 1.0;
-        double m_dScaleFactorY = 1.0;
-        double m_dScaleFactorZ = 1.0;
-        double m_dSliceDist    = 3.6/numberOfSlices;
-
-        vmml::Vector4d scaledViewVec( 
-                                viewVec.x*m_dScaleFactorX,
-                                viewVec.y*m_dScaleFactorY,
-                                viewVec.z*m_dScaleFactorZ,
-                                0.0                        );
-
-        double zRs = -1+2*_curFrData.lastRange.start;
-        double zRe = -1+2*_curFrData.lastRange.end;
-
-        vmml::Vector4d m_pVertices[8];
-        m_pVertices[0] = vmml::Vector4d(-1.0,-1.0,zRs, 1.0);
-        m_pVertices[1] = vmml::Vector4d( 1.0,-1.0,zRs, 1.0);
-        m_pVertices[2] = vmml::Vector4d(-1.0, 1.0,zRs, 1.0);
-        m_pVertices[3] = vmml::Vector4d( 1.0, 1.0,zRs, 1.0);
-
-        m_pVertices[4] = vmml::Vector4d(-1.0,-1.0,zRe, 1.0);
-        m_pVertices[5] = vmml::Vector4d( 1.0,-1.0,zRe, 1.0);
-        m_pVertices[6] = vmml::Vector4d(-1.0, 1.0,zRe, 1.0);
-        m_pVertices[7] = vmml::Vector4d( 1.0, 1.0,zRe, 1.0);
-
-
-        float dMaxDist = scaledViewVec.dot( m_pVertices[0] );
-        int nMaxIdx = 0;
-        for( int i = 1; i < 8; i++ )
-        {
-            float dist = scaledViewVec.dot( m_pVertices[i] );
-            if ( dist > dMaxDist)
-            {
-                dMaxDist = dist;
-                nMaxIdx = i;
-            }
-        }
-
-        //rendering
-
-        // Enable shader
-#ifdef CG_SHADERS
-        eqCgShaders shaders = pipe->getShaders();
-        shaders.cgVertex->use();
-        shaders.cgFragment->use();
-
-        CGprogram m_vProg = shaders.cgVertex->get_program();
-        CGprogram m_fProg = shaders.cgFragment->get_program();
-#else
-        GLhandleARB shader = pipe->getShader();
-        glUseProgramObjectARB( shader );
-#endif
-
-
-#ifndef TEXTURE_ROTATION 
-        const float sequence[64] = {
-            0, 1, 4, 2, 3, 5, 6, 7,
-            1, 0, 3, 5, 4, 2, 7, 6,
-            2, 0, 6, 3, 1, 4, 7, 5,
-            3, 1, 2, 7, 5, 0, 6, 4,
-            4, 0, 5, 6, 2, 1, 7, 3,
-            5, 1, 7, 4, 0, 3, 6, 2,
-            6, 2, 4, 7, 3, 0, 5, 1,
-            7, 3, 6, 5, 1, 2, 4, 0 };
-
-        const float e1[24] = {
-            0, 1, 4, 4,
-            1, 0, 1, 4,
-            0, 2, 5, 5,
-            2, 0, 2, 5,
-            0, 3, 6, 6, 
-            3, 0, 3, 6 };
-
-        const float e2[24] = {
-            1, 4, 7, 7,
-            5, 1, 4, 7,
-            2, 5, 7, 7,
-            6, 2, 5, 7,
-            3, 6, 7, 7,
-            4, 3, 6, 7 };
-
-        float vertices[24];
-        for(int i = 0; i < 8; ++i)
-        {
-            vertices[3*i  ] = m_dScaleFactorX * m_pVertices[i][0];
-            vertices[3*i+1] = m_dScaleFactorY * m_pVertices[i][1];
-            vertices[3*i+2] = m_dScaleFactorZ * m_pVertices[i][2];
-        }
-
-#ifdef CG_SHADERS
-        CGparameter tParamNameCg = cgGetNamedParameter( m_vProg, "vecVertices");
-        cgGLSetParameterArray3f( tParamNameCg, 0,  8, vertices     );
+        CGparameter tParamNameCg;
+        CGprogram   m_vProg = cgShaders.cgVertex->get_program();
+    
+        tParamNameCg = cgGetNamedParameter( m_vProg, "vecVertices" );
+        cgGLSetParameterArray3f( tParamNameCg, 0,  8, shaderVertices );
 
         tParamNameCg = cgGetNamedParameter( m_vProg, "sequence"    );
         cgGLSetParameterArray1f( tParamNameCg, 0, 64, sequence     );
@@ -398,124 +263,272 @@ void Channel::frameDraw( const uint32_t frameID )
         tParamNameCg = cgGetNamedParameter( m_vProg, "frontIndex"  );
         cgGLSetParameter1f(      tParamNameCg, static_cast<float>( nMaxIdx ) );
 
+        tParamNameCg = cgGetNamedParameter( m_vProg, "dPlaneStart" );
+        cgGLSetParameter1d( tParamNameCg,             dStartDist   );
+
         tParamNameCg = cgGetNamedParameter( m_vProg, "dPlaneIncr"  );
-        cgGLSetParameter1d(      tParamNameCg,        m_dSliceDist );
-#else
-        GLint tParamNameGL = glGetUniformLocationARB( shader, "vecVertices" );
-        glUniform3fvARB( tParamNameGL,  8, vertices                   );
+        cgGLSetParameter1d(      tParamNameCg,        sliceDistance );
+#endif
+    }
+    else // glsl shaders
+    {
+        GLint tParamNameGL;
+    
+        tParamNameGL = glGetUniformLocationARB( glslShader, "vecVertices" );
+        glUniform3fvARB( tParamNameGL,  8, shaderVertices                 );
 
-        tParamNameGL = glGetUniformLocationARB( shader, "sequence"    );
-        glUniform1ivARB( tParamNameGL, 64, sequence                   );
+        tParamNameGL = glGetUniformLocationARB( glslShader, "sequence"    );
+        glUniform1fvARB( tParamNameGL, 64, sequence                       );
 
-        tParamNameGL = glGetUniformLocationARB( shader, "v1"          );
-        glUniform1ivARB( tParamNameGL, 24, e1                         );
+        tParamNameGL = glGetUniformLocationARB( glslShader, "v1"          );
+        glUniform1fvARB( tParamNameGL, 24, e1                             );
 
-        tParamNameGL = glGetUniformLocationARB( shader, "v2"          );
-        glUniform1ivARB( tParamNameGL,24,  e2                         );
+        tParamNameGL = glGetUniformLocationARB( glslShader, "v2"          );
+        glUniform1fvARB( tParamNameGL, 24, e2                             );
 
-        tParamNameGL = glGetUniformLocationARB( shader, "vecView"     );
-        glUniform3fARB( tParamNameGL, viewVec.x, viewVec.y, viewVec.z );
-            
+        tParamNameGL = glGetUniformLocationARB( glslShader, "vecView"     );
+        glUniform3fARB( tParamNameGL, viewVec.x, viewVec.y, viewVec.z     );
 
-        tParamNameGL = glGetUniformLocationARB( shader, "frontIndex"  );
-        glUniform1iARB( tParamNameGL, static_cast<GLint>( nMaxIdx )   );
+        tParamNameGL = glGetUniformLocationARB(  glslShader, "dPlaneStart" );
+        glUniform1fARB(     tParamNameGL,   dStartDist                     );
 
-        tParamNameGL = glGetUniformLocationARB( shader, "dPlaneIncr"  );
-        glUniform1fARB( tParamNameGL, m_dSliceDist                    );
-            
-#endif //CG_SHADERS
+        tParamNameGL = glGetUniformLocationARB( glslShader, "frontIndex"  );
+        glUniform1iARB( tParamNameGL, static_cast<GLint>( nMaxIdx )       );
 
-        const int nSequence[8][8] = {
-            {7,3,5,6,1,2,4,0},
-            {6,2,4,7,0,3,5,1},
-            {5,1,4,7,0,3,6,2},
-            {4,0,5,6,1,2,7,3},
-            {3,1,2,7,0,5,6,4},
-            {2,0,3,6,1,4,7,5},
-            {1,0,3,5,2,4,7,6},
-            {0,1,2,4,3,5,6,7},
-        };
+        tParamNameGL = glGetUniformLocationARB( glslShader, "dPlaneIncr"  );
+        glUniform1fARB( tParamNameGL, sliceDistance                        );
+    }
+}
 
-        int nMinIdx = 0;
-        double dMinDist = (camPosition - m_pVertices[0]).length();
 
-        double dDist;
-        for(int v = 1; v < 8; v++)
+
+static void putTextureCoordinatesModifyersToShader
+(
+    DataInTextureDimensions&    TD, 
+    eqCgShaders                 cgShaders,
+    GLhandleARB                 glslShader,
+    bool                        useCgShaders
+)
+{
+    if( useCgShaders )
+    {
+#ifdef CG_INSTALLED
+        CGparameter tParamNameCg;
+        CGprogram   m_vProg = cgShaders.cgVertex->get_program();
+
+        tParamNameCg = cgGetNamedParameter(  m_vProg, "W"   );
+        cgGLSetParameter1d( tParamNameCg,   TD.W            );
+
+        tParamNameCg = cgGetNamedParameter(  m_vProg, "H"   );
+        cgGLSetParameter1d( tParamNameCg,   TD.H            );
+
+        tParamNameCg = cgGetNamedParameter(  m_vProg, "D"   );
+        cgGLSetParameter1d( tParamNameCg,   TD.D            );
+
+        tParamNameCg = cgGetNamedParameter(  m_vProg, "Do"  );
+        cgGLSetParameter1d( tParamNameCg,   TD.Do           );
+
+        tParamNameCg = cgGetNamedParameter(  m_vProg, "Db"  );
+        cgGLSetParameter1d( tParamNameCg,   TD.Db           );
+#endif
+    }
+    else // glsl shaders
+    {
+    }
+}
+
+
+
+static void putVolumeDataToShader
+(
+    GLuint      preIntID,
+    GLuint      volumeID,
+    double      sliceDistance,
+    eqCgShaders cgShaders,
+    GLhandleARB glslShader,
+    bool        useCgShaders
+)
+{
+    if( useCgShaders )
+    {
+#ifdef CG_INSTALLED
+        CGparameter tParamNameCg;
+        CGprogram   m_vProg = cgShaders.cgVertex->get_program();
+        CGprogram   m_fProg = cgShaders.cgFragment->get_program();
+
+        glActiveTexture( GL_TEXTURE1 );
+        glBindTexture( GL_TEXTURE_2D, preIntID ); //preintegrated values
+
+        tParamNameCg = cgGetNamedParameter( m_fProg,"preInt"  );
+        cgGLSetTextureParameter(    tParamNameCg   , preIntID );
+        cgGLEnableTextureParameter( tParamNameCg              );
+
+        // Activate last because it has to be the active texture
+        glActiveTexture( GL_TEXTURE0 ); 
+        glBindTexture( GL_TEXTURE_3D, volumeID ); //gx, gy, gz, val
+        glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+
+        tParamNameCg = cgGetNamedParameter( m_fProg, "volume" );
+        cgGLSetTextureParameter(    tParamNameCg, volumeID    );
+        cgGLEnableTextureParameter( tParamNameCg              );
+
+        tParamNameCg = cgGetNamedParameter( m_vProg, "sliceDistance" );
+        cgGLSetParameter1f( tParamNameCg, sliceDistance  );
+
+        tParamNameCg = cgGetNamedParameter( m_fProg, "shininess"     );
+        cgGLSetParameter1f( tParamNameCg, 20.0f         );
+#endif
+    }
+    else // glsl shaders
+    {
+        GLint tParamNameGL;
+
+        glActiveTexture( GL_TEXTURE1 );
+        glBindTexture( GL_TEXTURE_2D, preIntID ); //preintegrated values
+        tParamNameGL = glGetUniformLocationARB( glslShader, "preInt" );
+        glUniform1iARB( tParamNameGL,  1    ); //f-shader
+
+        // Activate last because it has to be the active texture
+        glActiveTexture( GL_TEXTURE0 ); 
+        glBindTexture( GL_TEXTURE_3D, volumeID ); //gx, gy, gz, val
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER,GL_LINEAR    );
+
+        tParamNameGL = glGetUniformLocationARB(  glslShader,  "volume"        );
+        glUniform1iARB( tParamNameGL ,  0            ); //f-shader
+
+        tParamNameGL = glGetUniformLocationARB(  glslShader,  "sliceDistance" );
+        glUniform1fARB( tParamNameGL,  sliceDistance ); //v-shader
+
+        tParamNameGL = glGetUniformLocationARB(  glslShader,  "shininess"     );
+        glUniform1fARB( tParamNameGL,  20.0f         ); //f-shader
+    }
+}
+
+
+static void setLightParameters()
+{
+    GLfloat lightAmbient[]  = {0.2f, 0.2f, 0.2f, 1.0f};
+    GLfloat lightDiffuse[]  = {0.8f, 0.8f, 0.8f, 1.0f};
+    GLfloat lightSpecular[] = {0.8f, 0.8f, 0.8f, 1.0f};
+    GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};
+
+    glLightfv( GL_LIGHT0, GL_AMBIENT,  lightAmbient  );
+    glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDiffuse  );
+    glLightfv( GL_LIGHT0, GL_SPECULAR, lightSpecular );
+    glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
+}
+
+
+static void rotateLights()
+{
+/*    glPushMatrix(); //Rotate lights
+      {
+          glLoadIdentity();
+          vmml::Matrix4f r = frameData.data.rotation;
+          r.ml[1] = -r.ml[1];
+          r.ml[2] = -r.ml[2];
+          r.ml[4] = -r.ml[4];
+          r.ml[6] = -r.ml[6];
+          r.ml[8] = -r.ml[8];
+          r.ml[9] = -r.ml[9];
+
+        vmml::Matrix4f ri; r.getInverse(r);
+        glMultMatrixf( ri.ml );
+        glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+    }
+    glPopMatrix();
+*/
+}
+
+void Channel::frameDraw( const uint32_t frameID )
+{
+    const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
+    const FrameData& frameData = pipe->getFrameData();
+
+    _curFrData.lastRange    = getRange();  //save range for compositing
+    _curFrData.frameID      = frameID;
+
+    if( _model )
+        _model->createTextures( _tex3D, _preintName, _curFrData.lastRange );
+
+    applyBuffer();
+    applyViewport();
+
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();
+
+    applyFrustum();
+
+    if( _model )
+    {
+        const uint32_t  numberOfSlices = _model->getResolution() * 2;
+        double          sliceDistance  = 3.6/numberOfSlices;
+        
+        if( _prvNumberOfSlices != numberOfSlices )
         {
-            dDist = ( camPosition - m_pVertices[v] ).length();
-            if (dDist < dMinDist)
-            {
-                dMinDist = dDist;
-                nMinIdx = v;
-            }
+            createSlicesHexagonsList( numberOfSlices, _slicesListID );
+            _prvNumberOfSlices = numberOfSlices;
         }
 
-        double dStartDist   = viewVec.dot( m_pVertices[nSequence[nMaxIdx][0]] );
-        double dS           = ceil( dStartDist/m_dSliceDist);
-        dStartDist          = dS * m_dSliceDist;
+        setLightParameters();
 
-#ifdef CG_SHADERS
-        tParamNameCg = cgGetNamedParameter(  m_vProg, "dPlaneStart" );
-        cgGLSetParameter1d( tParamNameCg,   dStartDist              );
+        // Matrix World
+        glMatrixMode( GL_MODELVIEW );
+        glLoadIdentity();
+        applyHeadTransform();
 
-        tParamNameCg = cgGetNamedParameter(  m_vProg, "W"           );
-        cgGLSetParameter1d( tParamNameCg,   _model->TD.W            );
+        glTranslatef(  frameData.data.translation.x,
+                       frameData.data.translation.y,
+                       frameData.data.translation.z );
 
-        tParamNameCg = cgGetNamedParameter(  m_vProg, "H"           );
-        cgGLSetParameter1d( tParamNameCg,   _model->TD.H            );
+        glMultMatrixf( frameData.data.rotation.ml );
 
-        tParamNameCg = cgGetNamedParameter(  m_vProg, "D"           );
-        cgGLSetParameter1d( tParamNameCg,   _model->TD.D            );
+        glScalef( 
+            _model->volScales.W,
+            _model->volScales.H, 
+            _model->volScales.D  );
 
-        tParamNameCg = cgGetNamedParameter(  m_vProg, "Do"          );
-        cgGLSetParameter1d( tParamNameCg,   _model->TD.Do           );
+        rotateLights();
 
-        tParamNameCg = cgGetNamedParameter(  m_vProg, "Db"          );
-        cgGLSetParameter1d( tParamNameCg,   _model->TD.Db           );
-
-#else
-        tParamNameGL = glGetUniformLocationARB(  shader, "dPlaneStart"  );
-        glUniform1fARB(     tParamNameGL,   dStartDist                  );
+        // Enable shaders
+        eqCgShaders cgShaders  = pipe->getShaders();
+        GLhandleARB glslShader = pipe->getShader();
+        
+        if( _useCg )
+        {
+#ifdef CG_INSTALLED
+            cgShaders.cgVertex->use();
+            cgShaders.cgFragment->use();
 #endif
-#endif //TEXTURE_ROTATION 
+        }
+        else
+        {
+            glUseProgramObjectARB( glslShader );
+        }
+
+        // Calculate and put necessary data to shaders 
+        vmml::Matrix4d  modelviewM;     // modelview matrix
+        vmml::Matrix3d  modelviewITM;   // modelview inversed transposed matrix
+        _calcMVandITMV( modelviewM, modelviewITM );
+
+        calcAndPutDataForPolygonsClippingToShader
+        (
+            modelviewM, modelviewITM, sliceDistance, _curFrData.lastRange,
+            cgShaders, glslShader, _useCg 
+        );
+
+        putTextureCoordinatesModifyersToShader
+        (
+            _model->TD,
+            cgShaders, glslShader, _useCg 
+        );
 
         // Fill volume data
-        {
-            glActiveTexture( GL_TEXTURE1 );
-            glBindTexture( GL_TEXTURE_2D, _preintName ); //preintegrated values
-#ifdef CG_SHADERS
-            tParamNameCg = cgGetNamedParameter( m_fProg,"preInt" );
-            cgGLSetTextureParameter(    tParamNameCg   , _preintName  );
-            cgGLEnableTextureParameter( tParamNameCg                  );
-#else
-            tParamNameGL = glGetUniformLocationARB( shader, "preInt" )
-            glUniform1iARB( tParamNameGL,  1    ); //f-shader
-#endif
-            // Activate last because it has to be the active texture
-            glActiveTexture( GL_TEXTURE0 ); 
-            glBindTexture( GL_TEXTURE_3D, _tex3D ); //gx, gy, gz, val
-            glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-#ifdef CG_SHADERS
-            tParamNameCg = cgGetNamedParameter( m_fProg, "volume" );
-            cgGLSetTextureParameter(    tParamNameCg, _tex3D      );
-            cgGLEnableTextureParameter( tParamNameCg              );
-
-            tParamNameCg = cgGetNamedParameter( m_vProg, "sliceDistance" );
-            cgGLSetParameter1f( tParamNameCg, m_dSliceDist  );
-            
-            tParamNameCg = cgGetNamedParameter( m_fProg, "shininess"     );
-            cgGLSetParameter1f( tParamNameCg, 20.0f         );
-#else
-            tParamNameGL = glGetUniformLocationARB(  shader,  "volume"        );
-            glUniform1iARB( tParamNameGL ,  0            ); //f-shader
-
-            tParamNameGL = glGetUniformLocationARB(  shader,  "sliceDistance" );
-            glUniform1fARB( tParamNameGL,  m_dSliceDist  ); //v-shader
-
-            tParamNameGL = glGetUniformLocationARB(  shader,  "shininess"     );
-            glUniform1fARB( tParamNameGL,  20.0f         ); //f-shader
-#endif
-        }
+        putVolumeDataToShader
+        ( 
+            _preintName, _tex3D, sliceDistance,
+            cgShaders, glslShader, _useCg 
+        );
 
         //Render slices
         glEnable(GL_BLEND);
@@ -525,52 +538,37 @@ void Channel::frameDraw( const uint32_t frameID )
         glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
 #endif
 
-#ifndef TEXTURE_ROTATION 
-
-        glCallList( _vertexID );
-
+        glCallList( _slicesListID );
 /*
         for( int s = 0; s < numberOfSlices; ++s )
-        {
-            tParamNameCg = cgGetNamedParameter( m_fProg, "lines" );
-            cgGLSetParameter1f( tParamNameCg, 0.0f );
-            glBegin( GL_POLYGON );
-            for( int i = 0; i < 6; ++i )
-                glVertex2i( i, numberOfSlices-1-s );
-            glEnd();
-
-            tParamNameCg = cgGetNamedParameter( m_fProg, "lines" );
-            cgGLSetParameter1f( tParamNameCg, 1.0f );
-            glBegin( GL_LINE_LOOP );
-            for( int i = 0; i < 6; ++i )
-                glVertex2i( i, numberOfSlices-1-s );
-            glEnd();
-        }
+            for( float l=0; l < 1.5; l++ )
+            {
+                tParamNameCg = cgGetNamedParameter( m_fProg, "lines" );
+                cgGLSetParameter1f( tParamNameCg, l );
+                glBegin( GL_POLYGON );
+                for( int i = 0; i < 6; ++i )
+                    glVertex2i( i, numberOfSlices-1-s );
+                glEnd();
+            }
 */
-
-#else
-        // Draw slices from vertex array
-        glEnableClientState( GL_VERTEX_ARRAY );
-        glBindBuffer( GL_ARRAY_BUFFER, _vertexID );
-        glVertexPointer( 3, GL_FLOAT, 0, 0 );
-        glDrawArrays( GL_QUADS, 0, 4*numberOfSlices );
-        glDisableClientState( GL_VERTEX_ARRAY );
-        glBindBuffer( GL_ARRAY_BUFFER, 0 );
-#endif
 
         glDisable(GL_BLEND);
 
         checkError( "error during rendering " );
 
         //Disable shaders
-#ifdef CG_SHADERS
-        shaders.cgVertex->unbind_and_disable();
-        shaders.cgFragment->unbind_and_disable();
-#else
-        glUseProgramObjectARB( NULL );
+        if( _useCg )
+        {
+#ifdef CG_INSTALLED
+            cgShaders.cgVertex->unbind_and_disable();
+            cgShaders.cgFragment->unbind_and_disable();
 #endif
-
-     }
+        }
+        else
+        {    
+            glUseProgramObjectARB( NULL );
+        }
+    }
     else
     {
         glColor3f( 1.f, 1.f, 0.f );
@@ -753,10 +751,10 @@ void Channel::clearViewport( const PixelViewport &pvp )
 
 void Channel::frameAssemble( const uint32_t frameID )
 {
-    EQWARN << getRange() << " " << _curFrData.lastRange << endl;
-    EQWARN << getPixelViewport() << " " << _curFrData.pvp << endl;
+//    EQWARN << getRange() << " " << _curFrData.lastRange << endl;
     
-    const bool composeOnly  = frameID != _curFrData.frameID;
+    const bool composeOnly  = frameID != _curFrData.frameID || 
+                              _curFrData.lastRange.isFull();
     
     applyBuffer();
     applyViewport();
@@ -776,8 +774,7 @@ void Channel::frameAssemble( const uint32_t frameID )
     //All frames is ready
 
     //fill ranges - it should be supplied by server actualy 
-    eq::PixelViewport 
-        curPVP = composeOnly ? getPixelViewport() : _curFrData.pvp;
+    eq::PixelViewport curPVP = getPixelViewport();
 
     vector<Range> ranges;
     for( uint k=0; k<unusedFrames.size(); k++ )
@@ -802,7 +799,7 @@ void Channel::frameAssemble( const uint32_t frameID )
     //check if current frame in proper position, redback if not
     if( !composeOnly )
     {
-#ifndef NDEBUG
+#ifndef NDEBUG //DEBUG
         if(  _curFrData.lastRange == ranges.back() && 
             !getenv( "EQ_TAINT_CHANNELS" ) )
             ranges.pop_back();
@@ -876,10 +873,8 @@ void Channel::frameAssemble( const uint32_t frameID )
                         break;
                     }
             }
-            
         }
     }
-
 
     resetAssemblyState();
 }

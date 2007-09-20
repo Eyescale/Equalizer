@@ -10,6 +10,7 @@
 
 #include <eq/eq.h>
 
+
 namespace eVolve
 {
     class InitData : public eqNet::Object
@@ -24,6 +25,7 @@ namespace eVolve
         uint32_t           getFrameDataID()  const { return _frameDataID;  }
         eq::WindowSystem   getWindowSystem() const { return _windowSystem; }
         const std::string& getDataFilename() const { return _dataFilename; }
+        bool               getUseCgSwitch()  const;
  
     protected:
         virtual const void* getInstanceData( uint64_t* size );
@@ -38,6 +40,7 @@ namespace eVolve
     private:
         uint32_t         _frameDataID;
         eq::WindowSystem _windowSystem;
+        uint32_t          _useCg;       //!< use Cg switch
         std::string      _dataFilename; //!< volume raw data file name
 
         char* _instanceData;

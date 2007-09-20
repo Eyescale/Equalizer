@@ -1,46 +1,5 @@
 
-//#define TEXTURE_ROTATION
 //#define PARALLEL_PROJECTION
-
-
-#ifdef TEXTURE_ROTATION 
-//------------------------------------------------------------------------------------------------------------
-uniform float sliceDistance;
-
-void main(
-    float4  VindexAndSlice : POSITION, 
-      
-    uniform half sliceDistance,
-          
-    // output variables
-    out float4  VertexOut : POSITION,
-    out half3   frontP    : TEXCOORD0,
-    out half3   backP     : TEXCOORD1
-)
-{
-    VertexOut = mul( glstate.matrix.mvp, VindexAndSlice );
-    
-    frontP = mul( glstate.matrix.inverse.texture[0], VindexAndSlice );
-    frontP = frontP / 2.0 + 0.5;
-    
-    float4 vPosition = mul( glstate.matrix.inverse.modelview[0], float4(0,0,0,1) );
-    float4 vDir = normalize( mul( glstate.matrix.inverse.modelview[0], float4(0.,0.,-1.,1.) ) );
-
-    //compute position of virtual back vertex
-    
-    float4 eyeToVert = normalize( VindexAndSlice - vPosition );
-    float4 backVert = float4(1,1,1,1);
-    backVert = VindexAndSlice - eyeToVert * ( sliceDistance / dot( vDir,eyeToVert ) ); 
-    
-    //compute texture coordinates for virtual back vertex
-    
-    backP = mul( glstate.matrix.inverse.texture[0], backVert );
-    backP = backP / 2.0 + 0.5;
-}
-
-//------------------------------------------------------------------------------------------------------------
-#else
-//------------------------------------------------------------------------------------------------------------
 
 #define ZERO 0.0
 #define ONE  1.0
@@ -78,72 +37,44 @@ void main(
     out float3  backP     : TEXCOORD1
 )
 {
-
     float3   vecTranslate = float3( 0.0, 0.0, 0.0 );
 
-
-#ifdef DEBUG_COLOR_VERTEX
-    half3 vcolor;
-    if (VindexAndSlice.x == 0.0) {
-        vcolor = half3(1.0,0.0,0.0);
-    } else if (VindexAndSlice.x == 1.0) {
-        vcolor = half3(1.0,1.0,0.0);
-    } else if (VindexAndSlice.x == 2.0) {
-        vcolor = half3(0.0,1.0,0.0);
-    } else if (VindexAndSlice.x == 3.0) {
-        vcolor = half3(0.0,1.0,1.0);
-    } else if (VindexAndSlice.x == 4.0) {
-        vcolor = half3(0.0,0.0,1.0);
-    } else if (VindexAndSlice.x == 5.0) {
-        vcolor = half3(1.0,0.0,1.0);
-    } 
-    colorOut = half3(0.0,0.0,0.0);
-#endif
-    
-
     float dPlaneDist = dPlaneStart + VindexAndSlice.y * dPlaneIncr;
-        
+
     float3 Position = vecTranslate;
     
-    for(int e = 0; e < 4; ++e) {
-    
+    for(int e = 0; e < 4; ++e)
+    {
         int vidx1 = sequence[int(frontIndex * 8 + v1[VindexAndSlice.x*4+e])];
         int vidx2 = sequence[int(frontIndex * 8 + v2[VindexAndSlice.x*4+e])];
-    
+
         float3 vecV1 = vecVertices[vidx1];
         float3 vecV2 = vecVertices[vidx2];
         
         float3 vecStart = vecV1+vecTranslate;
         float3 vecDir   = vecV2-vecV1;
-    
-        float denom = dot(vecDir,vecView);
-        float lambda = (denom != 0.0)? (dPlaneDist - dot(vecStart,vecView))/denom : -1.0;
 
-        if ((lambda >= ZERO) && (lambda <= ONE)) {
+        float denom = dot(vecDir,vecView);
+        float lambda = 
+            (denom != 0.0) ? (dPlaneDist - dot(vecStart,vecView))/denom : -1.0;
+
+        if ((lambda >= ZERO) && (lambda <= ONE))
+        {
             Position = vecStart + lambda * vecDir;
-#ifdef DEBUG_COLOR_VERTEX
-            colorOut = vcolor;
-#endif
             break;
         }
-        
     } 
 
-//    if( abs(Position.x) <= 0.1 && abs(Position.y) <= 0.1 && abs(Position.z) <= 0.1 )
-//        coll = float4( 1.0, 0.0, 0.0, 1.0 );
-//    else
-//        coll = float4( 0.3, 0.3, 0.3, 0.1 );
-
-
     VertexOut = mul( glstate.matrix.mvp, float4( Position, 1.0) );
-    
 
     frontP = 0.5 * Position + 0.5;
     
-    float4 vDir = normalize( mul( glstate.matrix.inverse.modelview[0], float4(0.,0.,-1.,1.) ) );
+    float4 vDir = normalize( 
+            mul( glstate.matrix.inverse.modelview[0], float4(0.,0.,-1.,1.) ) );
 
 #ifndef PARALLEL_PROJECTION
-    float4 vPosition = mul( glstate.matrix.inverse.modelview[0], float4(0,0,0,1) );
+    float4 vPosition = 
+        mul( glstate.matrix.inverse.modelview[0], float4(0,0,0,1) );
 
     //compute position of virtual back vertex
     float4 eyeToVert = normalize( float4( Position, 1.0) - vPosition );
@@ -153,9 +84,9 @@ void main(
     backP = Position + vDir * sliceDistance; 
 #endif
     //compute texture coordinates for virtual back vertex
-    
+
     backP = 0.5 * backP + 0.5;
-    
+
 //Scaling of texture coordinates
     frontP.x *= W;
     frontP.y *= H;
@@ -164,9 +95,6 @@ void main(
     backP.x  *= W;
     backP.y  *= H;
     backP.z   = Db + (backP.z  - Do) * D;
-    
-    return;    
+
+    return;
 }
-
-//------------------------------------------------------------------------------------------------------------
-

@@ -22,7 +22,8 @@ namespace eVolve
     {
     public:
         Channel();
-        bool _perspective; // perspective/ortogonal projection
+        bool _perspective;  // perspective/ortogonal projection
+        bool _useCg;        // Cg / GLSL shaders 
 
     protected:
         virtual ~Channel() {}
@@ -42,7 +43,6 @@ namespace eVolve
 
         void frameClear( const uint32_t frameID );
 
-
     private:
 
         void _clearPixelViewPorts(  const vector<Image*>& vecImages,
@@ -58,9 +58,8 @@ namespace eVolve
         //
         struct curFrData
         {
-            uint32_t            frameID;
-            eq::PixelViewport   pvp; 
-            Range               lastRange;
+            uint32_t    frameID;
+            Range       lastRange;
         }
             _curFrData;
 
@@ -72,7 +71,7 @@ namespace eVolve
 
         GLuint _tex3D;
         GLuint _preintName;
-        GLuint _vertexID;     //!< display list for hexagonals or quads
+        GLuint _slicesListID;     //!< display list for hexagonals
         int    _angle;
 
         uint32_t _prvNumberOfSlices; //!< N of slices to update display list

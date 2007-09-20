@@ -16,11 +16,16 @@ SOURCES = \
 	shader.cpp\
 	tracker.cpp \
 	rawVolModel.cpp \
-	window.cpp \
-	../common/gloo/cg_program.cpp
+	window.cpp
 
 CXXFLAGS    += -I../include $(WINDOW_SYSTEM_INCS)
 SA_LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)
+
+
+ifdef CG_INSTALLED
+
+SOURCES      += ../common/gloo/cg_program.cpp
+CXXFLAGS     += -DCG_INSTALLED
 
 ifeq "${ARCH}" "Darwin"
   LDFLAGS += -framework Cg
@@ -33,6 +38,7 @@ ifeq "${ARCH}" "Linux"
   LDFLAGS    += -lGLU
 ifeq "${SUBARCH}" "ia64"
     SA_LDFLAGS += -luuid
+endif
 endif
 endif
 

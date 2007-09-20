@@ -70,38 +70,43 @@ void Pipe::LoadShaders()
 {
     if( !_shadersLoaded )
     {
-#ifdef CG_SHADERS
-        _cgContext = cgCreateContext();
+        const Node*     node     = static_cast<Node*>( getNode( ));
+        const InitData& initData = node->getInitData();
+        const bool      useCg    = initData.getUseCgSwitch();
 
-        if( _shaders.cgVertex )
-            delete _shaders.cgVertex; 
-
-        _shaders.cgVertex = new gloo::cg_program( _cgContext );
-        try
+        if( useCg )
         {
-            _shaders.cgVertex->create_from_file(   CG_PROFILE_VP40  , "./examples/eVolve/vshader.cg" );
-        }catch(...)
-        {
-            EQWARN << "using VP40 profile faild, tring to use VP30..." << endl;
-            _shaders.cgVertex->create_from_file(   CG_PROFILE_VP30  , "./examples/eVolve/vshader.cg" );
-        }
+#ifdef CG_INSTALLED
+            _cgContext = cgCreateContext();
 
-        if( _shaders.cgFragment )
-            delete _shaders.cgFragment;
+            if( _shaders.cgVertex )
+                delete _shaders.cgVertex; 
 
-        _shaders.cgFragment = new gloo::cg_program( _cgContext );
-        _shaders.cgFragment->create_from_file( CG_GL_FRAGMENT, "./examples/eVolve/fshader.cg" );
+            _shaders.cgVertex = new gloo::cg_program( _cgContext );
+            _shaders.cgVertex->create_from_file(   CG_GL_VERTEX , 
+                                        "./examples/eVolve/vshader.cg" );
 
-#else
-        if( !eqShader::loadShaders("./examples/eVolve/vshader.oglsl", "./examples/eVolve/fshader.oglsl", _shader) )
-        {
-            EQERROR << "Can't load glsl shaders" << endl;
-            return;
-        }
-        
-        glUseProgramObjectARB( NULL );
-    
+            if( _shaders.cgFragment )
+                delete _shaders.cgFragment;
+
+            _shaders.cgFragment = new gloo::cg_program( _cgContext );
+            _shaders.cgFragment->create_from_file( CG_GL_FRAGMENT, 
+                                        "./examples/eVolve/fshader.cg" );
 #endif
+        }
+        else
+        {
+            if( !eqShader::loadShaders("./examples/eVolve/vshader.oglsl", 
+                                       "./examples/eVolve/fshader.oglsl", 
+                                        _shader) )
+            {
+                EQERROR << "Can't load glsl shaders" << endl;
+                return;
+            }
+        
+            glUseProgramObjectARB( NULL );
+        }    
+
         _shadersLoaded = true;
         EQERROR << "shaders loaded" << endl;
     }
