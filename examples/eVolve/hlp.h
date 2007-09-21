@@ -2,8 +2,23 @@
 #ifndef EQ_HLP_H
 #define EQ_HLP_H
 
+#include <iostream>
+#include <fstream>
+
 namespace hlpFuncs
 {
+
+/** Just helping structure to automatically
+    close files
+*/
+struct hFile
+{
+    hFile()             : f(NULL) {}
+    hFile( FILE *file ) : f(file) {}
+    ~hFile() { if( f ) fclose( f ); }
+
+    FILE *f;
+};
 
 template <class T> 
 T min( T a, T b )

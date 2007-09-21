@@ -13,20 +13,6 @@ namespace eVolve
 
 #define COMPOSE_MODE_NEW
 
-
-    /** Just helping structure to automatically
-        close files
-    */
-    struct hFile
-    {
-        hFile()             : f(NULL) {}
-        hFile( FILE *file ) : f(file) {}
-        ~hFile() { if( f ) fclose( f ); }
-    
-        FILE *f;
-    };
-
-
     /** Structure that contain actual dimensions of data that is 
         stored in volume texture.  
 
@@ -61,6 +47,13 @@ namespace eVolve
         float D;
     };
 
+    struct Volume
+    {
+        GLuint                  volume; //!< 3D texture ID
+        DataInTextureDimensions TD; //!< Data dimensions within volume texture 
+        VolumeScales            volScales; //!< Proportions of volume
+    };
+
     /** Load model to texture */
     class RawVolumeModel
     {
@@ -79,6 +72,7 @@ namespace eVolve
         VolumeScales            volScales; //!< Proportions of volume
     
     private:
+        
         bool lSuccess() { return _lastSuccess=true;  }
         bool lFailed( char* msg )  
                 { EQERROR << msg << endl; return _lastSuccess=false; }

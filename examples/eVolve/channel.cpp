@@ -580,7 +580,10 @@ void Channel::frameDraw( const uint32_t frameID )
         glVertex3f( -.25f, 0.f, -.25f );
         glEnd();
     }
-//    _drawLogo();
+    
+    const eq::Viewport& vp = getViewport();
+    if( _curFrData.lastRange.isFull() && vp.isFullScreen( ))
+       _drawLogo();
 }
 
 static bool cmpRangesDec(const Range& r1, const Range& r2)
@@ -876,6 +879,7 @@ void Channel::frameAssemble( const uint32_t frameID )
         }
     }
 
+    _drawLogo();
     resetAssemblyState();
 }
 

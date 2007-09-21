@@ -5,7 +5,6 @@ PROGRAM = eVolve
 
 SOURCES = \
 	localInitData.cpp \
-	rawConverter.cpp \
 	channel.cpp \
 	config.cpp \
 	eVolve.cpp \

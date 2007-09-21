@@ -1,22 +1,120 @@
+/*
+ * Copyright (c) 2007, Makhinya Maxim 
+ * All rights reserved. 
+ */
+
+#ifdef WIN32_VC
+#  define MIN __min
+#else
+#  include <sys/param.h>
+#endif
+
+#include <math.h>
+#include <tclap/CmdLine.h>
 
 #include "rawConverter.h"
-#include "rawVolModel.h"
-#include <iostream>
-#include <fstream>
 #include "hlp.h"
+
+
+int main( int argc, char** argv )
+{
+    eVolve::RawConverter::parseArguments( argc, argv );
+}
 
 namespace eVolve
 {
-    
+
+using namespace std;
 using hlpFuncs::clip;
+using hlpFuncs::hFile;
 
 
-void getHeaderParameters( const string& fileName, uint32_t &w, uint32_t &h, uint32_t &d, vector<uint8_t> &TF );
-void CreateTransferFunc( int t, uint8_t *transfer );
+#ifndef EQERROR
+#define EQERROR cerr
+#endif
+
+#ifndef EQWARN
+#define EQWARN cout
+#endif
+
 
 void lFailed( char* msg ) { EQERROR << msg << endl; }
 
-void RawConverter::ConvertRawToRawPlusDerivatives( const string& src, const string& dst )
+
+void RawConverter::parseArguments( int argc, char** argv )
+{
+    try
+    {
+        TCLAP::CmdLine command( 
+            "rawConverter - volume file formats converter" );
+
+        TCLAP::ValueArg<string> srcArg( 
+            "s", "src", "source file",
+            false, "Bucky32x32x32.raw"    , "string", command );
+
+        TCLAP::ValueArg<string> dstArg(
+            "d", "dst", "",
+            false, "Bucky32x32x32_d.raw"  , "string", command );
+
+        TCLAP::SwitchArg derArg( 
+            "r", "der", "raw -> raw + derivatives"  , command, false );
+
+        TCLAP::SwitchArg savArg(
+            "v", "sav", "sav to vhf transfer function converter",
+                                                      command, false );
+
+        TCLAP::SwitchArg dscArg(
+            "c", "dsc", "dsc to vhf file converter",  command, false );
+
+                                
+        command.parse( argc, argv );
+
+        if( !srcArg.isSet() )
+            return lFailed( "Src file in not spacified" );
+
+        if( !dstArg.isSet() )
+            return lFailed( "Dst file in not spacified" );
+
+        if( derArg.isSet() ) // raw -> raw + derivatives
+        {
+            RawConverter::ConvertRawToRawPlusDerivatives( srcArg.getValue( ),
+                                                          dstArg.getValue( ));
+            exit(0);
+        }
+
+        if( savArg.isSet() ) // sav -> vhf
+        {
+            RawConverter::SavToVhfConverter( srcArg.getValue( ),
+                                             dstArg.getValue( ));
+            exit(0);
+        }
+
+        if( dscArg.isSet() ) // dsc -> vhf
+        {
+            RawConverter::DscToVhfConverter( srcArg.getValue( ),
+                                             dstArg.getValue( ));
+            exit(0);
+        }
+    }
+    catch( TCLAP::ArgException& exception )
+    {
+        EQERROR << " Command line parse error: " << exception.error()
+                << " for argument " << exception.argId() << endl;
+    }
+}
+
+
+void getHeaderParameters
+(
+    const string& fileName, 
+    uint32_t &w, uint32_t &h, uint32_t &d,
+    vector<uint8_t> &TF                     );
+    
+void CreateTransferFunc( int t, uint8_t *transfer );
+
+
+void RawConverter::ConvertRawToRawPlusDerivatives( const string& src,
+                                                   const string& dst )
 {
     uint32_t w, h, d;
 //read header
@@ -31,14 +129,16 @@ void RawConverter::ConvertRawToRawPlusDerivatives( const string& src, const stri
         fscanf( file, "h=%u\n", &h );
         fscanf( file, "d=%u\n", &d );
     }
-    EQWARN << "Creating derivatives for raw model: " << src << " " << w << " x " << h << " x " << d << endl;
+    EQWARN << "Creating derivatives for raw model: " 
+           << src << " " << w << " x " << h << " x " << d << endl;
 
 //read model    
     vector<uint8_t> volume( w*h*d, 0 );
 
     EQWARN << "Reading model" << endl;
     {
-        ifstream file( src.c_str(), ifstream::in | ifstream::binary | ifstream::ate );
+        ifstream file( src.c_str(), 
+                       ifstream::in | ifstream::binary | ifstream::ate );
 
         if( !file.is_open() )
             return lFailed( "Can't open volume file" );
@@ -48,7 +148,7 @@ void RawConverter::ConvertRawToRawPlusDerivatives( const string& src, const stri
         size = min( (int)file.tellg(), (int)volume.size() );
 
         file.seekg( 0, ios::beg );
-        file.read( (char*)( &volume[0] ), size );    
+        file.read( (char*)( &volume[0] ), size );
 
         file.close();
     }
@@ -56,7 +156,8 @@ void RawConverter::ConvertRawToRawPlusDerivatives( const string& src, const stri
 //calculate and save derivatives
     {
         EQWARN << "Calculating derivatives" << endl;
-        ofstream file ( dst.c_str(), ifstream::out | ifstream::binary | ifstream::trunc );
+        ofstream file ( dst.c_str(),
+                        ifstream::out | ifstream::binary | ifstream::trunc );
    
         if( !file.is_open() )
             return lFailed( "Can't open destination volume file" );
@@ -108,7 +209,8 @@ void RawConverter::ConvertRawToRawPlusDerivatives( const string& src, const stri
                           nxtP[ -1+w ]- 3*nxtP[ -1   ]-   nxtP[ -1-w ];
 
 
-                    int32_t length = static_cast<int32_t>(sqrt( (gx*gx+gy*gy+gz*gz) )+1);
+                    int32_t length = static_cast<int32_t>(
+                                            sqrt( (gx*gx+gy*gy+gz*gz) )+1);
 
                     gx = ( gx*255/length + 255 )/2; 
                     gy = ( gy*255/length + 255 )/2;
@@ -122,10 +224,13 @@ void RawConverter::ConvertRawToRawPlusDerivatives( const string& src, const stri
             }
         }
         
-        EQWARN << "Writing derivatives: " << dst.c_str() << " " << GxGyGzA.size() << " bytes" <<endl;
+        EQWARN << "Writing derivatives: " 
+               << dst.c_str() << " " << GxGyGzA.size() << " bytes" <<endl;
+               
         file.write( (char*)( &GxGyGzA[0] ), GxGyGzA.size() );
         
         file.close();
+        EQWARN << "done" << endl; 
     }
 }
 
@@ -189,22 +294,32 @@ void RawConverter::SavToVhfConverter( const string& src, const string& dst )
         if( fscanf( file, "bascale=%f\n", &t ) != 1)
             return lFailed( "failed to read header of sav file" );
 
-        if( TFSize!=256  )  return lFailed( "Wrong size of transfer function, should be 256" );
+        if( TFSize!=256  )
+            return lFailed( "Wrong size of transfer function, should be 256" );
+            
         TF.resize( TFSize*4 );
         
         for( int i=0; i<TFSize; i++ )
         {
-            fscanf( file, "re=%f\n", &t   ); TF[4*i  ] = clip( static_cast<int32_t>( t*255.0 ), 0, 255 );
-            fscanf( file, "ge=%f\n", &t   ); TF[4*i+1] = clip( static_cast<int32_t>( t*255.0 ), 0, 255 );
-            fscanf( file, "be=%f\n", &t   ); TF[4*i+2] = clip( static_cast<int32_t>( t*255.0 ), 0, 255 );
+            fscanf( file, "re=%f\n", &t   );
+            TF[4*i  ] = clip( static_cast<int32_t>( t*255.0 ), 0, 255 );
+            
+            fscanf( file, "ge=%f\n", &t   );
+            TF[4*i+1] = clip( static_cast<int32_t>( t*255.0 ), 0, 255 );
+            
+            fscanf( file, "be=%f\n", &t   ); 
+            TF[4*i+2] = clip( static_cast<int32_t>( t*255.0 ), 0, 255 );
+            
             fscanf( file, "ra=%f\n", &tra );    
             fscanf( file, "ga=%f\n", &tba );
             if( fscanf( file, "ba=%f\n", &tga ) !=1 )
             {
-                EQERROR << "Failed to read entity #" << i << " of sav file" << endl;
+                EQERROR << "Failed to read entity #" 
+                        << i << " of sav file" << endl;
                 return;
             }
-            TF[4*i+3] = clip( static_cast<int32_t>( (tra+tga+tba)*255.0/3.0 ), 0, 255 );
+            TF[4*i+3] = 
+                clip( static_cast<int32_t>( (tra+tga+tba)*255.0/3.0 ), 0, 255 );
         }        
     }else
     {   //predefined transfer functions and parameters
@@ -217,9 +332,9 @@ void RawConverter::SavToVhfConverter( const string& src, const string& dst )
     {
         hFile info( fopen( dst.c_str(), "wb" ) );
         FILE* file = info.f;
-    
+
         if( file==NULL ) return lFailed( "Can't open destination header file" );
-    
+
         fprintf( file, "w=%u\n", w );
         fprintf( file, "h=%u\n", h );
         fprintf( file, "d=%u\n", d );
@@ -227,11 +342,11 @@ void RawConverter::SavToVhfConverter( const string& src, const string& dst )
         fprintf( file, "wScale=%g\n", wScale );
         fprintf( file, "hScale=%g\n", hScale );
         fprintf( file, "dScale=%g\n", dScale );
-    
+
         fprintf( file,"TF:\n" );
-    
+
         fprintf( file, "size=%d\n", TFSize );
-    
+
         int tmp;
         for( int i=0; i<TFSize; i++ )
         {
@@ -241,7 +356,8 @@ void RawConverter::SavToVhfConverter( const string& src, const string& dst )
             tmp = TF[4*i+3]; fprintf( file, "a=%d\n", tmp );
         }
     }
-    EQWARN << "file " << src.c_str() << " > " << dst.c_str() << " converted" << endl;
+    EQWARN << "file " << src.c_str() << " > " << dst.c_str() 
+           << " converted" << endl;
 }
 
 void RawConverter::DscToVhfConverter( const string& src, const string& dst )
@@ -257,27 +373,33 @@ void RawConverter::DscToVhfConverter( const string& src, const string& dst )
     {
         hFile info( fopen( src.c_str(), "rb" ) );
         FILE* file = info.f;
-    
+
         if( file==NULL ) return lFailed( "Can't open source Dsc file" );
-    
+
         if( fscanf( file, "reading PVM file\n" ) != 0 ) 
-            return lFailed( "Not a proper file format, first line should be:\nreading PVM file" );
-            
+            return lFailed( "Not a proper file format, \
+                             first line should be:\nreading PVM file" );
+
         uint32_t c=0;
-        if( fscanf( file, "found volume with width=%u height=%u depth=%u components=%u\n", &w, &h, &d, &c ) != 4 )
-            return lFailed( "Not a proper file format, second line should be:\nfound volume with width=<num> height=<num> depth=<num> components=<num>" );
+        if( fscanf( file, 
+            "found volume with width=%u height=%u depth=%u components=%u\n", 
+            &w, &h, &d, &c ) != 4 )
+            return lFailed( "Not a proper file format, second line should \
+                             be:\nfound volume with width=<num> height=<num>  \
+                             depth=<num> components=<num>" );
         if( c!=1 )
-            return lFailed( "'components' should be equal to '1', only 8 bit volumes supported so far" );
-        
+            return lFailed( "'components' should be equal to '1', \
+                             only 8 bit volumes supported so far" );
+
         fscanf( file, "and edge length %g/%g/%g\n", &wScale, &hScale, &dScale ); 
     }
 //Write Vhf file
     {
         hFile info( fopen( dst.c_str(), "wb" ) );
         FILE* file = info.f;
-    
+
         if( file==NULL ) return lFailed( "Can't open destination header file" );
-    
+
         fprintf( file, "w=%u\n", w );
         fprintf( file, "h=%u\n", h );
         fprintf( file, "d=%u\n", d );
@@ -289,32 +411,34 @@ void RawConverter::DscToVhfConverter( const string& src, const string& dst )
     EQWARN << "succeed" << endl;
 }
 
-void getHeaderParameters( const string& fileName, uint32_t &w, uint32_t &h, uint32_t &d, vector<uint8_t> &TF )
+void getHeaderParameters( const string& fileName,
+                                uint32_t &w, uint32_t &h, uint32_t &d,
+                                vector<uint8_t> &TF )
 {
     int t=w=h=d=0;
 
     if( fileName.find( "spheres128x128x128"    , 0 ) != string::npos )
         t=0, w=h=d=128;
     
-    if( fileName.find( "fuel"                , 0 ) != string::npos )
+    if( fileName.find( "fuel"                  , 0 ) != string::npos )
         t=1, w=h=d=64;
         
     if( fileName.find( "neghip"                , 0 ) != string::npos )
         t=2, w=h=d=64;
         
-    if( fileName.find( "Bucky32x32x32"        , 0 ) != string::npos )
+    if( fileName.find( "Bucky32x32x32"         , 0 ) != string::npos )
         t=3, w=h=d=32;
         
-    if( fileName.find( "hydrogen"            , 0 ) != string::npos )
+    if( fileName.find( "hydrogen"              , 0 ) != string::npos )
         t=4, w=h=d=128;
         
-    if( fileName.find( "Engine256x256x256"    , 0 ) != string::npos )
+    if( fileName.find( "Engine256x256x256"     , 0 ) != string::npos )
         t=5, w=h=d=256;
         
-    if( fileName.find( "skull"                , 0 ) != string::npos )
+    if( fileName.find( "skull"                 , 0 ) != string::npos )
         t=6, w=h=d=256;
         
-    if( fileName.find( "vertebra8"            , 0 ) != string::npos )
+    if( fileName.find( "vertebra8"             , 0 ) != string::npos )
         t=7, w=h=512, d=256;
     
     if( w!=0 )

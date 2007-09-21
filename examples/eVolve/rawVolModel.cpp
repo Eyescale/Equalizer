@@ -1,7 +1,5 @@
 
 #include "rawVolModel.h"
-#include <iostream>
-#include <fstream>
 #include "hlp.h"
 
 namespace eVolve
@@ -9,6 +7,7 @@ namespace eVolve
 
 
 using hlpFuncs::clip;
+using hlpFuncs::hFile;
 
 /** Volume always represented as cube [-1,-1,-1]..[1,1,1], so if the model 
     is not cube it's proportions should be modified.
@@ -172,7 +171,9 @@ uint32_t getMinPow2( uint32_t size )
 }
 
 
-bool RawVolumeModel::createTextures( GLuint &volume, GLuint &preint, Range range )
+bool RawVolumeModel::createTextures( GLuint& volume, 
+                                     GLuint& preint, 
+                                     Range   range   )
 {
     if( _cRange == range )
         return _lastSuccess;
