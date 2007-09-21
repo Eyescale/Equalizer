@@ -10,18 +10,23 @@ namespace eVolve
     class RawConverter
     {
     public:
-        static void ConvertRawToRawPlusDerivatives( const string& src,
-                                                    const string& dst  );
-                                                    
-        static void SavToVhfConverter(              const string& src,
-                                                    const string& dst  );
-                                                    
-        static void DscToVhfConverter(              const string& src,
-                                                    const string& dst  );
+        static int RawToRawPlusDerivativesConverter( const string& src,
+                                                     const string& dst  );
 
-        static void RawConverter::parseArguments( int argc, char** argv );
+        static int SavToVhfConverter(                const string& src,
+                                                     const string& dst  );
+
+        static int DscToVhfConverter(                const string& src,
+                                                     const string& dst  );
+
+        static int PvmSavToRawDerVhfConverter(       const string& src,
+                                                     const string& dst  );
+
+        static int CompareTwoRawDerVhf(              const string& src1,
+                                                     const string& src2 );
+
+        static int RawConverter::parseArguments( int argc, char** argv );
     };
-
 }
 
 #endif //EQ_RAW_CONVERTER

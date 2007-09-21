@@ -3,6 +3,8 @@
  * All rights reserved. 
  */
 
+#include "ddsbase.h"
+
 #ifdef WIN32_VC
 #  define MIN __min
 #else
@@ -38,83 +40,242 @@ using hlpFuncs::hFile;
 #endif
 
 
-void lFailed( char* msg ) { EQERROR << msg << endl; }
+static int lFailed( char* msg, int result=1 ) 
+{ EQERROR << msg << endl; return result; }
 
 
-void RawConverter::parseArguments( int argc, char** argv )
+int RawConverter::parseArguments( int argc, char** argv )
 {
     try
     {
         TCLAP::CmdLine command( 
-            "rawConverter - volume file formats converter" );
+            "volConv - volume file formats converter" );
+
+        TCLAP::SwitchArg cmpArg(
+            "m", "cmp", "compare two raw+derivations+vhf",  command, false );
+
+        TCLAP::SwitchArg dscArg(
+            "c", "dsc", "dsc to vhf file converter",  command, false );
+
+        TCLAP::SwitchArg savArg(
+            "v", "sav", "sav to vhf transfer function converter",
+                                                      command, false );
+        TCLAP::SwitchArg derArg( 
+            "r", "der", "raw -> raw + derivatives"  , command, false );
+
+        TCLAP::SwitchArg pvmArg( 
+            "p", "pvm", "pvm[+sav] -> raw+derivatives+vhf", command, false );
+
+        TCLAP::ValueArg<string> dstArg(
+            "d", "dst", "destination file",
+            false, "Bucky32x32x32_d.raw"  , "string", command );
 
         TCLAP::ValueArg<string> srcArg( 
             "s", "src", "source file",
             false, "Bucky32x32x32.raw"    , "string", command );
 
-        TCLAP::ValueArg<string> dstArg(
-            "d", "dst", "",
-            false, "Bucky32x32x32_d.raw"  , "string", command );
-
-        TCLAP::SwitchArg derArg( 
-            "r", "der", "raw -> raw + derivatives"  , command, false );
-
-        TCLAP::SwitchArg savArg(
-            "v", "sav", "sav to vhf transfer function converter",
-                                                      command, false );
-
-        TCLAP::SwitchArg dscArg(
-            "c", "dsc", "dsc to vhf file converter",  command, false );
-
                                 
         command.parse( argc, argv );
 
         if( !srcArg.isSet() )
-            return lFailed( "Src file in not spacified" );
+            return lFailed( "Src file in not specified" );
 
         if( !dstArg.isSet() )
-            return lFailed( "Dst file in not spacified" );
+            return lFailed( "Dst file in not specified" );
 
         if( derArg.isSet() ) // raw -> raw + derivatives
-        {
-            RawConverter::ConvertRawToRawPlusDerivatives( srcArg.getValue( ),
-                                                          dstArg.getValue( ));
-            exit(0);
-        }
+            return RawConverter::RawToRawPlusDerivativesConverter(
+                        srcArg.getValue( ), dstArg.getValue( ));
 
         if( savArg.isSet() ) // sav -> vhf
-        {
-            RawConverter::SavToVhfConverter( srcArg.getValue( ),
-                                             dstArg.getValue( ));
-            exit(0);
-        }
+            return RawConverter::SavToVhfConverter( 
+                        srcArg.getValue( ), dstArg.getValue( ));
 
         if( dscArg.isSet() ) // dsc -> vhf
-        {
-            RawConverter::DscToVhfConverter( srcArg.getValue( ),
-                                             dstArg.getValue( ));
-            exit(0);
-        }
+            return RawConverter::DscToVhfConverter(
+                        srcArg.getValue( ), dstArg.getValue( ));
+
+        if( pvmArg.isSet() ) // pvm -> raw
+            return RawConverter::PvmSavToRawDerVhfConverter( 
+                        srcArg.getValue( ), dstArg.getValue( ));
+        
+        if( cmpArg.isSet() ) // cmp raw+derivations+vhf
+            return RawConverter::CompareTwoRawDerVhf( 
+                        srcArg.getValue( ), dstArg.getValue( ));
+
+        EQERROR << "Converter options was not specified completely.";
     }
     catch( TCLAP::ArgException& exception )
     {
         EQERROR << " Command line parse error: " << exception.error()
                 << " for argument " << exception.argId() << endl;
     }
+    return 1;
 }
 
 
-void getHeaderParameters
+static void getPredefinedHeaderParameters
 (
     const string& fileName, 
     uint32_t &w, uint32_t &h, uint32_t &d,
     vector<uint8_t> &TF                     );
     
-void CreateTransferFunc( int t, uint8_t *transfer );
+static void CreateTransferFunc( int t, uint8_t *transfer );
 
 
-void RawConverter::ConvertRawToRawPlusDerivatives( const string& src,
-                                                   const string& dst )
+static int calculateAndSaveDerivatives( const string& dst, uint8_t *volume,
+                                        uint32_t w, uint32_t h, uint32_t d  );
+
+
+static int readDimensionsFromSav( FILE*     file,
+                                  uint32_t& w, 
+                                  uint32_t& h, 
+                                  uint32_t& d     )
+{
+        fscanf( file, "w=%u\n", &w );
+        fscanf( file, "h=%u\n", &h );
+    if( fscanf( file, "d=%u\n", &d ) != 1 )
+        return 1;
+    
+    return 0;
+}
+
+
+static int writeDimensionsToSav(       FILE*    file,
+                                 const uint32_t w,
+                                 const uint32_t h,
+                                 const uint32_t d       )
+{
+        fprintf( file, "w=%u\n", w );
+        fprintf( file, "h=%u\n", h );
+    if( fprintf( file, "d=%u\n", d ) != 1 )
+        return 1;
+
+    return 0;
+}
+
+
+int readScalesFormSav( FILE* file,
+                       float& wScale, 
+                       float& hScale,
+                       float& dScale  )
+{
+        fscanf( file, "wScale=%g\n", &wScale );
+        fscanf( file, "hScale=%g\n", &hScale );
+    if( fscanf( file, "dScale=%g\n", &dScale ) != 1 )
+        return 1;
+
+    return 0;
+}
+
+
+int writeScalesToSav(       FILE* file,
+                      const float wScale, 
+                      const float hScale,
+                      const float dScale  )
+{
+        fprintf( file, "wScale=%g\n", wScale );
+        fprintf( file, "hScale=%g\n", hScale );
+    if( fprintf( file, "dScale=%g\n", dScale ) != 1 )
+        return 1;
+    
+    return 0;
+}
+
+int readTrasferFunction( FILE* file,  vector<uint8_t>& TF )
+{
+    if( fscanf(file,"TF:\n") !=0 ) 
+        return lFailed( "Error in header file", 0 );
+
+    uint32_t TFSize;
+    fscanf( file, "size=%u\n", &TFSize );
+
+    if( TFSize!=256  )
+        EQWARN << "Wrong size of transfer function, should be 256" << endl;
+        
+    TFSize = clip<int32_t>( TFSize, 1, 256 );
+
+    int tmp;
+    for( uint32_t i=0; i<TFSize; i++ )
+    {
+            fscanf( file, "r=%d\n", &tmp ); TF[4*i  ] = tmp;
+            fscanf( file, "g=%d\n", &tmp ); TF[4*i+1] = tmp;
+            fscanf( file, "b=%d\n", &tmp ); TF[4*i+2] = tmp;
+        if( fscanf( file, "a=%d\n", &tmp ) != 1 )
+        {
+            EQERROR << "Failed to read entity #" << i 
+                    << " of TF from first header file" << endl;
+            return i;
+        }
+        TF[4*i+3] = tmp;
+    }
+    
+    return 256;
+}
+
+int RawConverter::CompareTwoRawDerVhf( const string& src1,
+                                       const string& src2 )
+{
+    EQWARN << "Comparing two raw+derivatives+vhf" << endl;
+    uint32_t  w1,  h1,  d1;
+    uint32_t  w2,  h2,  d2;
+    float    sw1, sh1, sd1;
+    float    sw2, sh2, sd2;
+
+    vector< uint8_t > TF1( 256*4, 0 );
+    vector< uint8_t > TF2( 256*4, 0 );
+    int tfSize1;
+    int tfSize2;
+    //reading headers
+    {
+        string configFileName = src1;
+        hFile info( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
+        FILE* file = info.f;
+
+        if( file==NULL ) return lFailed( "Can't open first header file" );
+
+        //reading dimensions
+        readDimensionsFromSav( file,  w1,  h1,  d1 );
+        if( readScalesFormSav( file, sw1, sh1, sd1 ) )
+            lFailed( "Wrong format of the first header file" );
+
+        //reading transfer function
+        tfSize1 = readTrasferFunction( file, TF1 );
+    }
+    {
+        string configFileName = src2;
+        hFile info( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
+        FILE* file = info.f;
+
+        if( file==NULL ) return lFailed( "Can't open first header file" );
+
+        readDimensionsFromSav( file,  w2,  h2,  d2 );
+        if( readScalesFormSav( file, sw2, sh2, sd2 ) )
+            lFailed( "Wrong format of the second header file" );
+
+        //reading transfer function
+        tfSize2 = readTrasferFunction( file, TF2 );
+    }
+    //comparing headers
+    {
+        if( w1!=w2 ) return lFailed(" Widths are not equal ");
+        if( h1!=h2 ) return lFailed(" Heights are not equal ");
+        if( d1!=d2 ) return lFailed(" Depths are not equal ");
+
+        if( sw1!=sw2 ) EQWARN << " Widths'  scales are not equal " << endl;
+        if( sh1!=sh2 ) EQWARN << " Heights' scales are not equal " << endl;
+        if( sd1!=sd2 ) EQWARN << " Depths'  scales are not equal " << endl;
+        
+        if( tfSize1!=tfSize2 ) EQWARN << " TF sizes are not equal" << endl;
+    }
+    
+    EQWARN << "done" << endl;
+    return 0;
+}
+
+
+int RawConverter::RawToRawPlusDerivativesConverter( const string& src,
+                                                    const string& dst )
 {
     uint32_t w, h, d;
 //read header
@@ -125,9 +286,7 @@ void RawConverter::ConvertRawToRawPlusDerivatives( const string& src,
 
         if( file==NULL ) return lFailed( "Can't open header file" );
 
-        fscanf( file, "w=%u\n", &w );
-        fscanf( file, "h=%u\n", &h );
-        fscanf( file, "d=%u\n", &d );
+        readDimensionsFromSav( file, w, h, d );
     }
     EQWARN << "Creating derivatives for raw model: " 
            << src << " " << w << " x " << h << " x " << d << endl;
@@ -155,86 +314,15 @@ void RawConverter::ConvertRawToRawPlusDerivatives( const string& src,
     
 //calculate and save derivatives
     {
-        EQWARN << "Calculating derivatives" << endl;
-        ofstream file ( dst.c_str(),
-                        ifstream::out | ifstream::binary | ifstream::trunc );
-   
-        if( !file.is_open() )
-            return lFailed( "Can't open destination volume file" );
+        int result = calculateAndSaveDerivatives( dst, &volume[0], w,  h, d );
 
-        int wh = w*h;
-
-        vector<uint8_t> GxGyGzA( wh*d*4, 0 );
-    
-        for( uint32_t z=1; z<d-1; z++ )
-        {
-            int zwh = z*wh;
-
-            const uint8_t *curPz = &volume[0] + zwh;
-
-            for( uint32_t y=1; y<h-1; y++ )
-            {
-                int zwh_y = zwh + y*w;
-                const uint8_t * curPy = curPz + y*w ;
-                for( uint32_t x=1; x<w-1; x++ )
-                {
-                    const uint8_t * curP = curPy +  x;
-                    const uint8_t * prvP = curP  - wh;
-                    const uint8_t * nxtP = curP  + wh;
-                    int32_t gx = 
-                          nxtP[  1+w ]+ 3*curP[  1+w ]+   prvP[  1+w ]+
-                        3*nxtP[  1   ]+ 6*curP[  1   ]+ 3*prvP[  1   ]+
-                          nxtP[  1-w ]+ 3*curP[  1-w ]+   prvP[  1-w ]-
-
-                          nxtP[ -1+w ]- 3*curP[ -1+w ]-   prvP[ -1+w ]-
-                        3*nxtP[ -1   ]- 6*curP[ -1   ]- 3*prvP[ -1   ]-
-                          nxtP[ -1-w ]- 3*curP[ -1-w ]-   prvP[ -1-w ];
-
-                    int32_t gy = 
-                          nxtP[  1+w ]+ 3*curP[  1+w ]+   prvP[  1+w ]+
-                        3*nxtP[    w ]+ 6*curP[    w ]+ 3*prvP[    w ]+
-                          nxtP[ -1+w ]+ 3*curP[ -1+w ]+   prvP[ -1+w ]-
-
-                           nxtP[  1-w ]- 3*curP[  1-w ]-   prvP[  1-w ]-
-                        3*nxtP[   -w ]- 6*curP[   -w ]- 3*prvP[   -w ]-
-                          nxtP[ -1-w ]- 3*curP[ -1-w ]-   prvP[ -1-w ];
-
-                    int32_t gz = 
-                          prvP[  1+w ]+ 3*prvP[  1   ]+   prvP[  1-w ]+
-                        3*prvP[    w ]+ 6*prvP[  0   ]+ 3*prvP[   -w ]+
-                          prvP[ -1+w ]+ 3*prvP[ -1   ]+   prvP[ -1-w ]-
-
-                          nxtP[  1+w ]- 3*nxtP[  1   ]-   nxtP[  1-w ]-
-                        3*nxtP[   +w ]- 6*nxtP[  0   ]- 3*nxtP[   -w ]-
-                          nxtP[ -1+w ]- 3*nxtP[ -1   ]-   nxtP[ -1-w ];
-
-
-                    int32_t length = static_cast<int32_t>(
-                                            sqrt( (gx*gx+gy*gy+gz*gz) )+1);
-
-                    gx = ( gx*255/length + 255 )/2; 
-                    gy = ( gy*255/length + 255 )/2;
-                    gz = ( gz*255/length + 255 )/2;
-
-                    GxGyGzA[(zwh_y + x)*4   ] = static_cast<uint8_t>( gx );
-                    GxGyGzA[(zwh_y + x)*4 +1] = static_cast<uint8_t>( gy );
-                    GxGyGzA[(zwh_y + x)*4 +2] = static_cast<uint8_t>( gz );
-                    GxGyGzA[(zwh_y + x)*4 +3] = curP[0];
-                }
-            }
-        }
-        
-        EQWARN << "Writing derivatives: " 
-               << dst.c_str() << " " << GxGyGzA.size() << " bytes" <<endl;
-               
-        file.write( (char*)( &GxGyGzA[0] ), GxGyGzA.size() );
-        
-        file.close();
-        EQWARN << "done" << endl; 
+        if( result ) return result;
     }
+    EQWARN << "done" << endl; 
+    return 0;
 }
 
-void RawConverter::SavToVhfConverter( const string& src, const string& dst )
+int RawConverter::SavToVhfConverter( const string& src, const string& dst )
 {
     //read original header
     uint32_t w=1;
@@ -249,83 +337,81 @@ void RawConverter::SavToVhfConverter( const string& src, const string& dst )
     
         if( file!=NULL )
         {
-            fscanf( file, "w=%u\n", &w );
-            fscanf( file, "h=%u\n", &h );
-            fscanf( file, "d=%u\n", &d );
-
-            fscanf( file, "wScale=%g\n", &wScale );
-            fscanf( file, "hScale=%g\n", &hScale );
-            fscanf( file, "dScale=%g\n", &dScale );
+            readDimensionsFromSav( file, w, h, d );
+            readScalesFormSav( file, wScale, hScale, dScale );
         }
     }
     
     //read sav
-    int TFSize = 0;
+    int TFSize = 256;
     vector< uint8_t > TF( 256*4, 0 );
     
-    if( true )
     {    
         hFile info( fopen( src.c_str(), "rb" ) );
         FILE* file = info.f;
     
-        if( file==NULL ) return lFailed( "Can't open source sav file" );
-    
-        float t;
-        int   ti;
-        float tra;
-        float tga;
-        float tba;
-        fscanf( file, "2DTF:\n"          );
-        fscanf( file, "num=%d\n"    , &ti);
-        fscanf( file, "mode=%d\n"   , &ti);
-        fscanf( file, "rescale=%f\n", &t );
-        fscanf( file, "gescale=%f\n", &t );
-        fscanf( file, "bescale=%f\n", &t );
-        fscanf( file, "rascale=%f\n", &t );
-        fscanf( file, "gascale=%f\n", &t );
-        fscanf( file, "bascale=%f\n", &t );
-        fscanf( file, "TF:\n"            );
-        fscanf( file, "res=%d\n",&TFSize );
-        fscanf( file, "rescale=%f\n", &t );
-        fscanf( file, "gescale=%f\n", &t );
-        fscanf( file, "bescale=%f\n", &t );
-        fscanf( file, "rascale=%f\n", &t );
-        fscanf( file, "gascale=%f\n", &t );
-        if( fscanf( file, "bascale=%f\n", &t ) != 1)
-            return lFailed( "failed to read header of sav file" );
-
-        if( TFSize!=256  )
-            return lFailed( "Wrong size of transfer function, should be 256" );
-            
-        TF.resize( TFSize*4 );
-        
-        for( int i=0; i<TFSize; i++ )
+        if( file==NULL ) 
+        {   
+            EQWARN << "Can't open source sav file." << endl
+                   << "Using predefined transfer functions and parameters." 
+                   << endl;
+                   
+            getPredefinedHeaderParameters( src, w, h, d, TF );
+        }else
         {
-            fscanf( file, "re=%f\n", &t   );
-            TF[4*i  ] = clip( static_cast<int32_t>( t*255.0 ), 0, 255 );
-            
-            fscanf( file, "ge=%f\n", &t   );
-            TF[4*i+1] = clip( static_cast<int32_t>( t*255.0 ), 0, 255 );
-            
-            fscanf( file, "be=%f\n", &t   ); 
-            TF[4*i+2] = clip( static_cast<int32_t>( t*255.0 ), 0, 255 );
-            
-            fscanf( file, "ra=%f\n", &tra );    
-            fscanf( file, "ga=%f\n", &tba );
-            if( fscanf( file, "ba=%f\n", &tga ) !=1 )
+            float t;
+            int   ti;
+            float tra;
+            float tga;
+            float tba;
+            fscanf( file, "2DTF:\n"          );
+            fscanf( file, "num=%d\n"    , &ti);
+            fscanf( file, "mode=%d\n"   , &ti);
+            fscanf( file, "rescale=%f\n", &t );
+            fscanf( file, "gescale=%f\n", &t );
+            fscanf( file, "bescale=%f\n", &t );
+            fscanf( file, "rascale=%f\n", &t );
+            fscanf( file, "gascale=%f\n", &t );
+            fscanf( file, "bascale=%f\n", &t );
+            fscanf( file, "TF:\n"            );
+            fscanf( file, "res=%d\n",&TFSize );
+            fscanf( file, "rescale=%f\n", &t );
+            fscanf( file, "gescale=%f\n", &t );
+            fscanf( file, "bescale=%f\n", &t );
+            fscanf( file, "rascale=%f\n", &t );
+            fscanf( file, "gascale=%f\n", &t );
+            if( fscanf( file, "bascale=%f\n", &t ) != 1)
+                return lFailed( "failed to read header of sav file" );
+
+            if( TFSize!=256  )
+                return lFailed( "Wrong size of transfer function, != 256" );
+
+            TF.resize( TFSize*4 );
+
+            for( int i=0; i<TFSize; i++ )
             {
-                EQERROR << "Failed to read entity #" 
-                        << i << " of sav file" << endl;
-                return;
+                fscanf( file, "re=%f\n", &t   );
+                TF[4*i  ] = clip( static_cast<int32_t>( t*255.0 ), 0, 255 );
+
+                fscanf( file, "ge=%f\n", &t   );
+                TF[4*i+1] = clip( static_cast<int32_t>( t*255.0 ), 0, 255 );
+
+                fscanf( file, "be=%f\n", &t   ); 
+                TF[4*i+2] = clip( static_cast<int32_t>( t*255.0 ), 0, 255 );
+
+                fscanf( file, "ra=%f\n", &tra );    
+                fscanf( file, "ga=%f\n", &tba );
+                if( fscanf( file, "ba=%f\n", &tga ) !=1 )
+                {
+                    EQERROR << "Failed to read entity #" 
+                            << i << " of sav file" << endl;
+                    return 1;
+                }
+                TF[4*i+3] = 
+                    clip( static_cast<int32_t>(
+                                        (tra+tga+tba)*255.0/3.0 ), 0, 255 );
             }
-            TF[4*i+3] = 
-                clip( static_cast<int32_t>( (tra+tga+tba)*255.0/3.0 ), 0, 255 );
-        }        
-    }else
-    {   //predefined transfer functions and parameters
-         TFSize = 256;
-        TF.resize( TFSize*4 );
-        getHeaderParameters( src, w, h, d, TF );
+        }
     }
     
     //write vhf
@@ -335,13 +421,8 @@ void RawConverter::SavToVhfConverter( const string& src, const string& dst )
 
         if( file==NULL ) return lFailed( "Can't open destination header file" );
 
-        fprintf( file, "w=%u\n", w );
-        fprintf( file, "h=%u\n", h );
-        fprintf( file, "d=%u\n", d );
-
-        fprintf( file, "wScale=%g\n", wScale );
-        fprintf( file, "hScale=%g\n", hScale );
-        fprintf( file, "dScale=%g\n", dScale );
+        writeDimensionsToSav( file, w, h, d );
+        writeScalesToSav( file, wScale, hScale, dScale );
 
         fprintf( file,"TF:\n" );
 
@@ -358,12 +439,15 @@ void RawConverter::SavToVhfConverter( const string& src, const string& dst )
     }
     EQWARN << "file " << src.c_str() << " > " << dst.c_str() 
            << " converted" << endl;
+
+    return 0;
 }
 
-void RawConverter::DscToVhfConverter( const string& src, const string& dst )
+int RawConverter::DscToVhfConverter( const string& src, const string& dst )
 {
     EQWARN << "converting " << src.c_str() << " > " << dst.c_str() << " .. ";
-//Read Description file
+    
+    //Read Description file
     uint32_t w=1;
     uint32_t h=1;
     uint32_t d=1;
@@ -393,27 +477,162 @@ void RawConverter::DscToVhfConverter( const string& src, const string& dst )
 
         fscanf( file, "and edge length %g/%g/%g\n", &wScale, &hScale, &dScale ); 
     }
-//Write Vhf file
+    //Write Vhf file
     {
         hFile info( fopen( dst.c_str(), "wb" ) );
         FILE* file = info.f;
 
         if( file==NULL ) return lFailed( "Can't open destination header file" );
 
-        fprintf( file, "w=%u\n", w );
-        fprintf( file, "h=%u\n", h );
-        fprintf( file, "d=%u\n", d );
-
-        fprintf( file, "wScale=%g\n", wScale );
-        fprintf( file, "hScale=%g\n", hScale );
-        fprintf( file, "dScale=%g\n", dScale );
+        writeDimensionsToSav( file, w, h, d );
+        writeScalesToSav( file, wScale, hScale, dScale );
     }
     EQWARN << "succeed" << endl;
+    return 0;
 }
 
-void getHeaderParameters( const string& fileName,
-                                uint32_t &w, uint32_t &h, uint32_t &d,
-                                vector<uint8_t> &TF )
+int RawConverter::PvmSavToRawDerVhfConverter(     const string& src,
+                                                  const string& dst  )
+{
+    EQWARN << "Converting " << src << " -> " << dst << endl;
+
+    // reading pvm volume
+    unsigned char*    volume = 0;
+             uint32_t width,  height, depth, components;
+             float    scaleX, scaleY, scaleZ;
+    {
+        char* srcTmp = const_cast<char*>( src.c_str() );
+
+        volume = readPVMvolume( srcTmp,  &width,  &height, &depth, 
+                                &components, &scaleX, &scaleY, &scaleZ  );
+
+        if( volume==NULL )
+            return lFailed( "Can't read vpm file" );
+
+        if( components != 1 )
+            return lFailed( "The only 8-bits models are supported" );
+
+        EQWARN  << "dimensions: " 
+                << width << " x " << height << " x " << depth << endl
+                << "scales: " << scaleX << " x "
+                              << scaleY << " x "
+                              << scaleZ << endl;
+    }
+    
+    // calculating derivatives
+    {
+        int result = 
+            calculateAndSaveDerivatives( dst, volume, width,  height, depth );
+
+        free( volume );
+        if( result ) return result;
+    }
+    
+    // saving volume dimensions
+    {
+        hFile info( fopen( (dst+".vhf").c_str(), "wb" ) );
+        FILE* file = info.f;
+
+        if( file==NULL ) return lFailed( "Can't open destination header file" );
+
+        writeDimensionsToSav( file, width,  height, depth  );
+        writeScalesToSav(     file, scaleX, scaleY, scaleZ );
+    }
+
+    //converting transfer function
+    SavToVhfConverter( src+".sav", dst+".vhf" );
+
+    EQWARN << "done" << endl; 
+
+    return 0;
+}
+
+static int calculateAndSaveDerivatives( const string& dst, uint8_t *volume,
+                                        uint32_t w, uint32_t h, uint32_t d  )
+{
+    EQWARN << "Calculating derivatives" << endl;
+    ofstream file ( dst.c_str(),
+                    ifstream::out | ifstream::binary | ifstream::trunc );
+
+    if( !file.is_open() )
+        return lFailed( "Can't open destination volume file" );
+
+    int wh = w*h;
+
+    vector<uint8_t> GxGyGzA( wh*d*4, 0 );
+
+    for( uint32_t z=1; z<d-1; z++ )
+    {
+        int zwh = z*wh;
+
+        const uint8_t *curPz = &volume[0] + zwh;
+
+        for( uint32_t y=1; y<h-1; y++ )
+        {
+            int zwh_y = zwh + y*w;
+            const uint8_t * curPy = curPz + y*w ;
+            for( uint32_t x=1; x<w-1; x++ )
+            {
+                const uint8_t * curP = curPy +  x;
+                const uint8_t * prvP = curP  - wh;
+                const uint8_t * nxtP = curP  + wh;
+                int32_t gx = 
+                      nxtP[  1+w ]+ 3*curP[  1+w ]+   prvP[  1+w ]+
+                    3*nxtP[  1   ]+ 6*curP[  1   ]+ 3*prvP[  1   ]+
+                      nxtP[  1-w ]+ 3*curP[  1-w ]+   prvP[  1-w ]-
+
+                      nxtP[ -1+w ]- 3*curP[ -1+w ]-   prvP[ -1+w ]-
+                    3*nxtP[ -1   ]- 6*curP[ -1   ]- 3*prvP[ -1   ]-
+                      nxtP[ -1-w ]- 3*curP[ -1-w ]-   prvP[ -1-w ];
+
+                int32_t gy = 
+                      nxtP[  1+w ]+ 3*curP[  1+w ]+   prvP[  1+w ]+
+                    3*nxtP[    w ]+ 6*curP[    w ]+ 3*prvP[    w ]+
+                      nxtP[ -1+w ]+ 3*curP[ -1+w ]+   prvP[ -1+w ]-
+
+                       nxtP[  1-w ]- 3*curP[  1-w ]-   prvP[  1-w ]-
+                    3*nxtP[   -w ]- 6*curP[   -w ]- 3*prvP[   -w ]-
+                      nxtP[ -1-w ]- 3*curP[ -1-w ]-   prvP[ -1-w ];
+
+                int32_t gz = 
+                      prvP[  1+w ]+ 3*prvP[  1   ]+   prvP[  1-w ]+
+                    3*prvP[    w ]+ 6*prvP[  0   ]+ 3*prvP[   -w ]+
+                      prvP[ -1+w ]+ 3*prvP[ -1   ]+   prvP[ -1-w ]-
+
+                      nxtP[  1+w ]- 3*nxtP[  1   ]-   nxtP[  1-w ]-
+                    3*nxtP[   +w ]- 6*nxtP[  0   ]- 3*nxtP[   -w ]-
+                      nxtP[ -1+w ]- 3*nxtP[ -1   ]-   nxtP[ -1-w ];
+
+
+                int32_t length = static_cast<int32_t>(
+                                        sqrt( (gx*gx+gy*gy+gz*gz) )+1);
+
+                gx = ( gx*255/length + 255 )/2; 
+                gy = ( gy*255/length + 255 )/2;
+                gz = ( gz*255/length + 255 )/2;
+
+                GxGyGzA[(zwh_y + x)*4   ] = static_cast<uint8_t>( gx );
+                GxGyGzA[(zwh_y + x)*4 +1] = static_cast<uint8_t>( gy );
+                GxGyGzA[(zwh_y + x)*4 +2] = static_cast<uint8_t>( gz );
+                GxGyGzA[(zwh_y + x)*4 +3] = curP[0];
+            }
+        }
+    }
+    
+    EQWARN << "Writing derivatives: " 
+           << dst.c_str() << " " << GxGyGzA.size() << " bytes" <<endl;
+           
+    file.write( (char*)( &GxGyGzA[0] ), GxGyGzA.size() );
+    
+    file.close();
+    
+    return 0;
+}
+
+
+static void getPredefinedHeaderParameters( const string& fileName,
+                                          uint32_t &w, uint32_t &h, uint32_t &d,
+                                          vector<uint8_t> &TF )
 {
     int t=w=h=d=0;
 
@@ -441,21 +660,23 @@ void getHeaderParameters( const string& fileName,
     if( fileName.find( "vertebra8"             , 0 ) != string::npos )
         t=7, w=h=512, d=256;
     
-    if( w!=0 )
-        CreateTransferFunc( t, &TF[0] );
+    if( w==0 )
+        w=h=d=8;
+    
+    return CreateTransferFunc( t, &TF[0] );
 }
 
 
-void CreateTransferFunc( int t, uint8_t *transfer )
+static void CreateTransferFunc( int t, uint8_t *transfer )
 {
     memset( transfer, 0, 256*4 );
 
     int i;
     switch(t)
     {
-        case 0: 
-//spheres    
-        EQWARN << "transfer: spheres" << endl;
+        case 0:  //spheres
+
+            EQWARN << "transfer: spheres" << endl;
             for (i=40; i<255; i++) {
                 transfer[(i*4)]   = 115;
                 transfer[(i*4)+1] = 186;
@@ -463,9 +684,9 @@ void CreateTransferFunc( int t, uint8_t *transfer )
                 transfer[(i*4)+3] = 255;
             }
             break;
-    
-        case 1:
-// fuel    
+
+        case 1:// fuel
+            
             EQWARN << "transfer: fuel" << endl;
             for (i=0; i<65; i++) {
                 transfer[(i*4)] = 255;
@@ -494,9 +715,9 @@ void CreateTransferFunc( int t, uint8_t *transfer )
             }
             break;
             
-        case 2: 
-//neghip    
-        EQWARN << "transfer: neghip" << endl;
+        case 2: //neghip
+
+            EQWARN << "transfer: neghip" << endl;
             for (i=0; i<65; i++) {
                 transfer[(i*4)] = 255;
                 transfer[(i*4)+1] = 0;
@@ -512,7 +733,7 @@ void CreateTransferFunc( int t, uint8_t *transfer )
                 transfer[(i*4)+1] = 0;
                 transfer[(i*4)+2] = 255;
             }
-    
+
             for (i=2; i<80; i++) {
                 transfer[(i*4)+3] = (unsigned char)((i-2)*36/(80-2));
             }    
@@ -520,11 +741,10 @@ void CreateTransferFunc( int t, uint8_t *transfer )
                 transfer[(i*4)+3] = 128;
             }
             break;
-    
-        case 3: 
-//bucky
-        EQWARN << "transfer: bucky" << endl;
-            
+
+        case 3: //bucky
+
+            EQWARN << "transfer: bucky" << endl;
             for (i=20; i<99; i++) {
                 transfer[(i*4)]  =  200;
                 transfer[(i*4)+1] = 200;
@@ -547,10 +767,10 @@ void CreateTransferFunc( int t, uint8_t *transfer )
                 transfer[(i*4)+3] = 255;
             }
             break;
-    
-        case 4: 
-//hydrogen    
-        EQWARN << "transfer: hydrogen" << endl;
+
+        case 4: //hydrogen
+
+            EQWARN << "transfer: hydrogen" << endl;
             for (i=4; i<20; i++) {
                 transfer[(i*4)] = 137;
                 transfer[(i*4)+1] = 187;
@@ -565,10 +785,10 @@ void CreateTransferFunc( int t, uint8_t *transfer )
                 transfer[(i*4)+3] = 250;
             }
             break;
-    
-        case 5: 
-//engine    
-        EQWARN << "transfer: engine" << endl;
+
+        case 5: //engine
+
+            EQWARN << "transfer: engine" << endl;
             for (i=100; i<200; i++) {
                 transfer[(i*4)] =     44;
                 transfer[(i*4)+1] = 44;
@@ -588,10 +808,10 @@ void CreateTransferFunc( int t, uint8_t *transfer )
                 transfer[(i*4)+3] = 255;
             }
             break;
-    
-        case 6: 
-//skull
-        EQWARN << "transfer: skull" << endl;
+
+        case 6: //skull
+
+            EQWARN << "transfer: skull" << endl;
             for (i=40; i<255; i++) {
                 transfer[(i*4)]  =  128;
                 transfer[(i*4)+1] = 128;
@@ -599,10 +819,10 @@ void CreateTransferFunc( int t, uint8_t *transfer )
                 transfer[(i*4)+3] = 128;
             }
             break;
-    
-        case 7: 
-//vertebra
-        EQWARN << "transfer: vertebra" << endl;
+
+        case 7: //vertebra
+
+            EQWARN << "transfer: vertebra" << endl;
             for (i=40; i<255; i++) {
                 int k = i*2;
                 if (k > 255) k = 255;
@@ -612,6 +832,15 @@ void CreateTransferFunc( int t, uint8_t *transfer )
                 transfer[(i*4)+3] = k;
             }    
             break;
+            
+        default:
+        EQWARN << "transfer: linear (default)" << endl;
+            for (i=0; i<255; i++) {
+                transfer[(i*4)]   = i;
+                transfer[(i*4)+1] = i;
+                transfer[(i*4)+2] = i;
+                transfer[(i*4)+3] = i;
+            }
     }
 }
 

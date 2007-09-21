@@ -4,7 +4,8 @@ include $(TOP)/make/system.mk
 PROGRAM = volConv
 
 SOURCES = \
-	rawConverter.cpp
+	rawConverter.cpp \
+	ddsbase.cpp
 
 CXXFLAGS += -I../../examples/include
 
