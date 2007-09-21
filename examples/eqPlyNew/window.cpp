@@ -4,7 +4,7 @@
 
 #include "window.h"
 #include "pipe.h"
-#include "config.h"
+#include "node.h"
 
 using namespace std;
 
@@ -19,53 +19,49 @@ bool Window::configInit( const uint32_t initID )
     eq::Pipe*  pipe        = getPipe();
     Window*    firstWindow = static_cast< Window* >( pipe->getWindow( 0 ));
 
-    EQASSERT( !_objects );
+    EQASSERT( !_state );
 
     if( firstWindow == this )
     {
-        _objects = new ObjectManager( getGLFunctions( ));
-        _state = new VertexBufferState( getGLFunctions(), *_objects );
+        _state = new VertexBufferState( getGLFunctions( ));
         _loadLogo();
+
+        const Node*     node     = static_cast< const Node* >( getNode( ));
+        const InitData& initData = node->getInitData();
+
+        if( initData.useVBOs() )
+        {
+            const eq::GLFunctions* glFunctions = getGLFunctions();
+            // Check if all VBO funcs available, else leave DISPLAY_LIST_MODE on
+            if( glFunctions->hasGenBuffers() && glFunctions->hasBindBuffer() &&
+                glFunctions->hasBufferData() && glFunctions->hasDeleteBuffers())
+            {
+                _state->setRenderMode( mesh::BUFFER_OBJECT_MODE );
+                EQINFO << "VBO rendering enabled" << endl;
+            }
+            else
+                EQWARN << "VBO function pointers missing, using display lists" 
+                       << endl;
+        }
     }
     else
     {
-        _objects     = firstWindow->_objects;
         _state       = firstWindow->_state;
         _logoTexture = firstWindow->_logoTexture;
         _logoSize    = firstWindow->_logoSize;
     }
 
-    if( !_objects ) // happens if first window failed to initialize
+    if( !_state ) // happens if first window failed to initialize
         return false;
-    
-    Config* config = static_cast< Config* >( getConfig() );
-    if( !_state )
-        return false;
-    else if( config->useVBOs() )
-    {
-        // DISPLAY_LIST_MODE is default, only change if all checks pass
-        if( !getGLFunctions()->hasGenBuffers() ||
-            !getGLFunctions()->hasBindBuffer() ||
-            !getGLFunctions()->hasBufferData() ||
-            !getGLFunctions()->hasDeleteBuffers() )
-
-            EQWARN << "VBO function pointers missing, using DLs" << endl;
-        else
-        {
-            _state->setRenderMode( mesh::BUFFER_OBJECT_MODE );
-            EQINFO << "VBO rendering successfully enabled" << endl;
-        }
-    }
     
     return true;
 }
 
 bool Window::configExit()
 {
-    if( _objects.isValid() && _objects->getRefCount() == 1 )
-        _objects->deleteAll();
+    if( _state.isValid() && _state->getRefCount() == 1 )
+        _state->deleteAll();
 
-    _objects = 0;
     _state = 0;
     return eq::Window::configExit();
 }
@@ -74,8 +70,8 @@ static const char* _logoTextureName = "eqPly_logo";
 
 void Window::_loadLogo()
 {
-    EQASSERT( _objects->getTexture( _logoTextureName ) == 
-              ObjectManager::FAILED );
+    EQASSERT( _state->getTexture( _logoTextureName ) == 
+              VertexBufferState::FAILED );
 
     eq::Image image;
     if( !image.readImage( "logo.rgb", eq::Frame::BUFFER_COLOR ) &&
@@ -85,8 +81,8 @@ void Window::_loadLogo()
         return;
     }
 
-    _logoTexture = _objects->newTexture( _logoTextureName );
-    EQASSERT( _logoTexture != ObjectManager::FAILED );
+    _logoTexture = _state->newTexture( _logoTextureName );
+    EQASSERT( _logoTexture != VertexBufferState::FAILED );
 
     const eq::PixelViewport& pvp = image.getPixelViewport();
     _logoSize.x = pvp.w;

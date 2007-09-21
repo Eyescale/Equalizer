@@ -30,8 +30,6 @@ namespace eqPly
 
         void setInitData( const LocalInitData& data ) { _initData = data; }
         
-        bool useVBOs() { return _initData.useVBOs(); }
-
     protected:
         virtual ~Config();
 

@@ -123,7 +123,6 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state ) const
     if( _isSetup )
         return;
     
-    MESHINFO << "Setting up rendering for leaf " << this << "." << endl;
     const GLFunctions* gl = state.getGLFunctions();
     
     switch( state.getRenderMode() )
@@ -131,8 +130,9 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state ) const
     case IMMEDIATE_MODE:
         break;
         
-#ifdef GL_ARB_vertex_buffer_object
     case BUFFER_OBJECT_MODE:
+    {
+        MESHINFO << "Setting up VBO rendering for leaf " << this << "." << endl;
         GLuint buffers[4];
         
         buffers[VERTEX_OBJECT] = 
@@ -164,17 +164,20 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state ) const
                        &_globalData.indices[_indexStart], GL_STATIC_DRAW );
         
         break;
-#endif
-        
+    }        
     case DISPLAY_LIST_MODE:
     default:
+    {
+        MESHINFO << "Setting up display list rendering for leaf " << this
+                 << "." << endl;
         GLuint displayList = state.newDisplayList( this );
         glNewList( displayList, GL_COMPILE );
         renderImmediate( state );
         glEndList();
         break;
     }
-    
+    }
+
     MESHINFO << "Leaf " << this << " contains " << _vertexLength << " vertices"
              << " and " << _indexLength / 3 << " triangles." << endl;
     
@@ -193,11 +196,9 @@ void VertexBufferLeaf::render( VertexBufferState& state ) const
     case IMMEDIATE_MODE:
         renderImmediate( state );
         return;
-#ifdef GL_ARB_vertex_buffer_object
     case BUFFER_OBJECT_MODE:
         renderBufferObject( state );
         return;
-#endif
     case DISPLAY_LIST_MODE:
     default:
         renderDisplayList( state );
@@ -206,7 +207,6 @@ void VertexBufferLeaf::render( VertexBufferState& state ) const
 }
 
 
-#ifdef GL_ARB_vertex_buffer_object
 /*  Render the leaf with buffer objects.  */
 inline
 void VertexBufferLeaf::renderBufferObject( VertexBufferState& state ) const
@@ -229,7 +229,6 @@ void VertexBufferLeaf::renderBufferObject( VertexBufferState& state ) const
     gl->bindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffers[INDEX_OBJECT] );
     glDrawElements( GL_TRIANGLES, _indexLength, GL_UNSIGNED_SHORT, 0 );
 }
-#endif
 
 
 /*  Render the leaf with a display list.  */

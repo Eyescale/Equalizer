@@ -25,8 +25,6 @@ namespace eqPly
 {
 bool Channel::configInit( const uint32_t initID )
 {
-    EQINFO << "Init channel initID " << initID << " ptr " << this << endl;
-
     setNearFar( 0.1f, 10.0f );
     return true;
 }

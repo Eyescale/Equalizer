@@ -11,22 +11,12 @@
 
 namespace eqPly
 {
-    class ObjectManager : public eq::ObjectManager< const void* >, 
-                          public eqBase::Referenced
-    {
-    public:
-        ObjectManager( const eq::GLFunctions* glFunctions ) 
-                : eq::ObjectManager< const void* >( glFunctions ) {}
-        virtual ~ObjectManager(){}
-    };
-
-    class VertexBufferState : public mesh::VertexBufferStateOM, 
+    class VertexBufferState : public mesh::EqVertexBufferState, 
                               public eqBase::Referenced
     {
     public:
-        VertexBufferState( const eq::GLFunctions* glFunctions, 
-                           ObjectManager& om )
-                : mesh::VertexBufferStateOM( glFunctions, om ) {}
+        VertexBufferState( const eq::GLFunctions* glFunctions )
+                : mesh::EqVertexBufferState( glFunctions ) {}
         virtual ~VertexBufferState() {}
     };
     
@@ -46,7 +36,6 @@ namespace eqPly
         virtual bool configExit();
 
     private:
-        eqBase::RefPtr< ObjectManager >     _objects;
         eqBase::RefPtr< VertexBufferState > _state;
 
         GLuint         _logoTexture;
