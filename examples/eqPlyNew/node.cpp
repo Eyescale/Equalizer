@@ -4,8 +4,6 @@
 
 #include "node.h"
 
-//#include "plyFileIO.h"
-
 using namespace eqBase;
 using namespace std;
 
