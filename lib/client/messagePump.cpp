@@ -137,7 +137,8 @@ void MessagePump::dispatchAll()
 
 #elif defined (Darwin)
 
-    const EventTargetRef target  = GetEventDispatcherTarget();
+    Global::enterCarbon();
+    const EventTargetRef target = GetEventDispatcherTarget();
 
     while( true )
     {
@@ -157,6 +158,8 @@ void MessagePump::dispatchAll()
         SendEventToEventTarget( event, target );
         ReleaseEvent( event );
     }
+
+    Global::leaveCarbon();
 
 #else
     EQUNIMPLEMENTED;
