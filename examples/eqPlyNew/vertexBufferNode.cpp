@@ -11,7 +11,7 @@
 #include "vertexBufferLeaf.h"
 #include "vertexBufferState.h"
 #include "vertexData.h"
-#include <map>
+#include <set>
 
 
 using namespace std;
@@ -23,10 +23,10 @@ size_t VertexBufferNode::countUniqueVertices( VertexData& data,
                                               const Index start,
                                               const Index length ) const
 {
-    map< Index, bool > uniqueIndex;
+    set< Index > uniqueIndex;
     for( Index t = 0; t < length; ++t )
         for( Index v = 0; v < 3; ++v )
-            uniqueIndex[ data.triangles[start + t][v] ] = true;
+            uniqueIndex.insert( data.triangles[start + t][v] );
     return uniqueIndex.size();
 }
 
@@ -34,39 +34,48 @@ size_t VertexBufferNode::countUniqueVertices( VertexData& data,
 /*  Continue kd-tree setup, create intermediary or leaf nodes as required.  */
 void VertexBufferNode::setupTree( VertexData& data, const Index start,
                                   const Index length, const Axis axis,
+                                  const size_t depth,
                                   VertexBufferData& globalData )
 {
     #ifndef NDEBUG
     MESHINFO << "Entering VertexBufferNode::setupTree"
-             << "( " << start << ", " << length << ", " << axis << " )." 
-             << endl;
+             << "( " << start << ", " << length << ", " << axis << ", " 
+             << depth << " )." << endl;
     #endif
     
     data.sort( start, length, axis );
-    Index median = start + ( length / 2 );
+    const Index median = start + ( length / 2 );
     
     // left child will include elements smaller than the median
-    Index leftLength = length / 2;
-//    if( leftLength > LEAF_SIZE )
-    if( countUniqueVertices( data, start, leftLength ) > LEAF_SIZE )
+    const Index leftLength    = length / 2;
+    const bool  subdivideLeft = 
+        countUniqueVertices( data, start, leftLength ) > LEAF_SIZE ||
+        depth < 3;
+
+    if( subdivideLeft )
         _left = new VertexBufferNode;
     else
         _left = new VertexBufferLeaf( globalData );
     
     // right child will include elements equal to or greater than the median
-    Index rightLength = ( length + 1 ) / 2;
-//    if( rightLength > LEAF_SIZE )
-    if( countUniqueVertices( data, median, rightLength ) > LEAF_SIZE )
+    const Index rightLength    = ( length + 1 ) / 2;
+    const bool  subdivideRight = 
+        countUniqueVertices( data, median, rightLength ) > LEAF_SIZE ||
+        depth < 3;
+
+    if( subdivideRight )
         _right = new VertexBufferNode;
     else
         _right = new VertexBufferLeaf( globalData );
     
     // move to next axis and continue contruction in the child nodes
-    Axis newAxis = static_cast< Axis >( ( axis + 1 ) % 3 );
+    const Axis newAxis = static_cast< Axis >( ( axis + 1 ) % 3 );
     static_cast< VertexBufferNode* >
-        ( _left )->setupTree( data, start, leftLength, newAxis, globalData );
+        ( _left )->setupTree( data, start, leftLength, newAxis, depth+1, 
+                              globalData );
     static_cast< VertexBufferNode* >
-        ( _right )->setupTree( data, median, rightLength, newAxis, globalData );
+        ( _right )->setupTree( data, median, rightLength, newAxis, depth+1,
+                               globalData );
 }
 
 

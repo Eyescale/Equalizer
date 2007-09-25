@@ -70,6 +70,7 @@ namespace mesh
         
         virtual void setupTree( VertexData& data, const Index start,
                                 const Index length, const Axis axis,
+                                const size_t depth,
                                 VertexBufferData& globalData ) = 0;
         
         virtual BoundingBox updateBoundingSphere() = 0;

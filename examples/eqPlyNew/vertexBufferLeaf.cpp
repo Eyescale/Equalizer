@@ -20,12 +20,13 @@ using namespace mesh;
 /*  Finish partial setup - sort, reindex and merge into global data.  */
 void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
                                   const Index length, const Axis axis,
+                                  const size_t depth,
                                   VertexBufferData& globalData )
 {
     #ifndef NDEBUG
     MESHINFO << "Entering VertexBufferLeaf::setupTree"
-             << "( " << start << ", " << length << ", " << axis << " )." 
-             << endl;
+             << "( " << start << ", " << length << ", " << axis << ", " 
+             << depth << " )." << endl;
     #endif
     
     data.sort( start, length, axis );

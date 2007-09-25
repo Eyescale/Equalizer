@@ -2,7 +2,8 @@
 include $(TOP)/make/system.mk
 
 SUBDIRS = \
-	configTool
+	configTool \
+	volRawConverter
 
 TARGETS = subdirs
 

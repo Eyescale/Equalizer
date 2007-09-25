@@ -36,6 +36,7 @@ namespace mesh
         
         virtual void setupTree( VertexData& data, const Index start,
                                 const Index length, const Axis axis,
+                                const size_t depth, 
                                 VertexBufferData& globalData );
         virtual BoundingBox updateBoundingSphere();
         virtual void updateRange();

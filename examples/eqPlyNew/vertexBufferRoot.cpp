@@ -30,7 +30,7 @@ void VertexBufferRoot::setupTree( VertexData& data )
     // data is VertexData, _data is VertexBufferData
     _data.clear();
     VertexBufferNode::setupTree( data, 0, data.triangles.size(), 
-                                 AXIS_X, _data );
+                                 AXIS_X, 0, _data );
     VertexBufferNode::updateBoundingSphere();
     VertexBufferNode::updateRange();
 }
