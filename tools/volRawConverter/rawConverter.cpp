@@ -28,6 +28,7 @@ namespace eVolve
 
 using namespace std;
 using hlpFuncs::clip;
+using hlpFuncs::min;
 using hlpFuncs::hFile;
 
 
@@ -50,6 +51,10 @@ int RawConverter::parseArguments( int argc, char** argv )
     {
         TCLAP::CmdLine command( 
             "volConv - volume file formats converter" );
+
+        TCLAP::ValueArg<double> sclArg( 
+            "l", "scl", "scale factor",
+            false, 1.0  , "double", command );
 
         TCLAP::SwitchArg cmpArg(
             "m", "cmp", "compare two raw+derivations+vhf",  command, false );
@@ -102,6 +107,12 @@ int RawConverter::parseArguments( int argc, char** argv )
         if( cmpArg.isSet() ) // cmp raw+derivations+vhf
             return RawConverter::CompareTwoRawDerVhf( 
                         srcArg.getValue( ), dstArg.getValue( ));
+
+        if( sclArg.isSet() ) // scale volume
+            return RawConverter::scaleRawDerFile( 
+                        srcArg.getValue( ), dstArg.getValue( ),
+                        sclArg.getValue( ) );
+
 
         EQERROR << "Converter options was not specified completely.";
     }
@@ -182,6 +193,7 @@ int writeScalesToSav(       FILE* file,
     return 0;
 }
 
+
 int readTrasferFunction( FILE* file,  vector<uint8_t>& TF )
 {
     if( fscanf(file,"TF:\n") !=0 ) 
@@ -211,6 +223,49 @@ int readTrasferFunction( FILE* file,  vector<uint8_t>& TF )
     }
     
     return 256;
+}
+
+
+int writeTrasferFunction( FILE* file,  const vector<uint8_t>& TF )
+{
+    int TFSize = TF.size() / 4;
+    
+    fprintf( file,"TF:\n" );
+
+    fprintf( file, "size=%d\n", TFSize );
+
+    int tmp;
+    for( int i=0; i<TFSize; i++ )
+    {
+        tmp = TF[4*i  ]; fprintf( file, "r=%d\n", tmp );
+        tmp = TF[4*i+1]; fprintf( file, "g=%d\n", tmp );
+        tmp = TF[4*i+2]; fprintf( file, "b=%d\n", tmp );
+        tmp = TF[4*i+3]; fprintf( file, "a=%d\n", tmp );
+    }
+
+    return 0;
+}
+
+int writeVHF( const string&  filename,
+              const uint32_t w,
+              const uint32_t h,
+              const uint32_t d,
+              const float    wScale,
+              const float    hScale,
+              const float    dScale,
+              const vector<uint8_t>& TF )
+{
+    hFile info( fopen( filename.c_str(), "wb" ) );
+    FILE* file = info.f;
+
+    if( file==NULL ) return lFailed( "Can't open destination header file" );
+
+    writeDimensionsToSav( file, w, h, d );
+    writeScalesToSav( file, wScale, hScale, dScale );
+
+    writeTrasferFunction( file, TF );
+    
+    return 0;
 }
 
 int RawConverter::CompareTwoRawDerVhf( const string& src1,
@@ -322,6 +377,7 @@ int RawConverter::RawToRawPlusDerivativesConverter( const string& src,
     return 0;
 }
 
+
 int RawConverter::SavToVhfConverter( const string& src, const string& dst )
 {
     //read original header
@@ -416,32 +472,16 @@ int RawConverter::SavToVhfConverter( const string& src, const string& dst )
     
     //write vhf
     {
-        hFile info( fopen( dst.c_str(), "wb" ) );
-        FILE* file = info.f;
-
-        if( file==NULL ) return lFailed( "Can't open destination header file" );
-
-        writeDimensionsToSav( file, w, h, d );
-        writeScalesToSav( file, wScale, hScale, dScale );
-
-        fprintf( file,"TF:\n" );
-
-        fprintf( file, "size=%d\n", TFSize );
-
-        int tmp;
-        for( int i=0; i<TFSize; i++ )
-        {
-            tmp = TF[4*i  ]; fprintf( file, "r=%d\n", tmp );
-            tmp = TF[4*i+1]; fprintf( file, "g=%d\n", tmp );
-            tmp = TF[4*i+2]; fprintf( file, "b=%d\n", tmp );
-            tmp = TF[4*i+3]; fprintf( file, "a=%d\n", tmp );
-        }
+        int result = writeVHF( dst, w, h, d, wScale, hScale, dScale, TF );
+        if( result ) return result;
     }
+
     EQWARN << "file " << src.c_str() << " > " << dst.c_str() 
            << " converted" << endl;
 
     return 0;
 }
+
 
 int RawConverter::DscToVhfConverter( const string& src, const string& dst )
 {
@@ -490,6 +530,7 @@ int RawConverter::DscToVhfConverter( const string& src, const string& dst )
     EQWARN << "succeed" << endl;
     return 0;
 }
+
 
 int RawConverter::PvmSavToRawDerVhfConverter(     const string& src,
                                                   const string& dst  )
@@ -546,6 +587,145 @@ int RawConverter::PvmSavToRawDerVhfConverter(     const string& src,
 
     return 0;
 }
+
+
+int RawConverter::scaleRawDerFile(                  const string& src,
+                                                    const string& dst,
+                                                          double scale )
+{
+    double scaleX = scale;
+    double scaleY = scale;
+    double scaleZ = scale;
+    EQWARN << "scale: " << scale << endl;
+    
+    if( scale < 0.0001 )
+        lFailed( "Scale is too small" );
+
+    EQWARN << "Scaling raw+derivatives+vhf" << endl;
+    uint32_t wS, hS, dS;
+    float    sw, sh, sd;
+
+    vector< uint8_t > TF( 256*4, 0 );
+    //reading header
+    {
+        string configFileName = src;
+        hFile info( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
+        FILE* file = info.f;
+
+        if( file==NULL ) return lFailed( "Can't open source header file" );
+
+        //reading dimensions
+        readDimensionsFromSav( file, wS, hS, dS );
+        if( readScalesFormSav( file, sw, sh, sd ) )
+            lFailed( "Wrong format of the source header file" );
+
+        //reading transfer function
+        readTrasferFunction( file, TF );
+    }
+    //writing header
+    uint32_t wD = static_cast<uint32_t>( wS*scaleX );
+    uint32_t hD = static_cast<uint32_t>( hS*scaleY );
+    uint32_t dD = static_cast<uint32_t>( dS*scaleZ );
+    {
+        string vhf = dst;
+        int result = writeVHF( vhf.append( ".vhf" ), wD, hD, dD, 
+                                                     sw, sh, sd, TF );
+        if( result ) return result;
+    }
+
+    //read volume
+    vector<uint8_t> sVol( wS*hS*dS*4, 0 );
+
+    EQWARN << "Reading model" << endl;
+    {
+        ifstream file( src.c_str(), 
+                       ifstream::in | ifstream::binary | ifstream::ate );
+
+        if( !file.is_open() )
+            return lFailed( "Can't open volume file" );
+
+        ifstream::pos_type size;
+
+        size = min( (int)file.tellg(), (int)sVol.size() );
+
+        file.seekg( 0, ios::beg );
+        file.read( (char*)( &sVol[0] ), size );
+
+        file.close();
+    }
+    //scale volume
+    vector<uint8_t> dVol( wD*hD*dD*4, 0 );
+    {
+        int wD4   = wD*4;
+        int wDhD4 = wD*hD*4;
+        int wS4   = wS*4;
+        int wShS4 = wS*hS*4;
+        for( uint32_t z=0; z<dD; z++ )
+            for( uint32_t y=0; y<hD; y++ )
+                for( uint32_t x=0; x<wD; x++ )
+                {
+                    double cx = x/scaleX;
+                    double cy = y/scaleY;
+                    double cz = z/scaleZ;
+
+                    int nx = min<int>( cx, wS-1 );
+                    int ny = min<int>( cy, hS-1 );
+                    int nz = min<int>( cz, dS-1 );
+
+                    int fx = min<int>( nx+1, wS-1 );
+                    int fy = min<int>( ny+1, hS-1 );
+                    int fz = min<int>( nz+1, dS-1 );
+
+                    cx -= nx;
+                    cy -= ny;
+                    cz -= nz;
+
+                    double v1 = (1-cx)*(1-cy)*(1-cz);
+                    double v2 =    cx *(1-cy)*(1-cz);
+                    double v3 = (1-cx)*(1-cy)*   cz;
+                    double v4 =    cx *(1-cy)*   cz;
+                    double v5 = (1-cx)*   cy *(1-cz);
+                    double v6 =    cx *   cy *(1-cz);
+                    double v7 = (1-cx)*   cy *   cz ;
+                    double v8 =    cx *   cy *   cz ;
+                    
+                    int p1 = nx + ny*wS4 + nz*wShS4;
+                    int p2 = fx + ny*wS4 + nz*wShS4;
+                    int p3 = nx + ny*wS4 + fz*wShS4;
+                    int p4 = fx + ny*wS4 + fz*wShS4;
+                    int p5 = nx + fy*wS4 + nz*wShS4;
+                    int p6 = fx + fy*wS4 + nz*wShS4;
+                    int p7 = nx + fy*wS4 + fz*wShS4;
+                    int p8 = fx + fy*wS4 + fz*wShS4;
+
+                    for( int d = 0; d<4; d++)
+                    {
+                        double res = v1*sVol[p1+d] + v2*sVol[p2+d] +
+                                     v3*sVol[p3+d] + v4*sVol[p4+d] +
+                                     v5*sVol[p5+d] + v6*sVol[p6+d] +
+                                     v7*sVol[p7+d] + v8*sVol[p8+d];
+
+                        dVol[x + y*wD4 + z*wDhD4 + d] = min<int>( res, 255 );
+                    }
+                }
+    }
+    
+    //write new volume
+    {
+        ofstream file ( dst.c_str(),
+                        ifstream::out | ifstream::binary | ifstream::trunc );
+
+        if( !file.is_open() )
+            return lFailed( "Can't open destination volume file" );
+
+        file.write( (char*)( &dVol[0] ), dVol.size() );
+        file.close();
+    }
+
+    EQWARN << "Done" << endl;
+    return 0;
+}
+
 
 static int calculateAndSaveDerivatives( const string& dst, uint8_t *volume,
                                         uint32_t w, uint32_t h, uint32_t d  )

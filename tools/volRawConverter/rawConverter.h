@@ -25,6 +25,10 @@ namespace eVolve
         static int CompareTwoRawDerVhf(              const string& src1,
                                                      const string& src2 );
 
+        static int scaleRawDerFile(                  const string& src,
+                                                     const string& dst,
+                                                           double scale );
+
         static int RawConverter::parseArguments( int argc, char** argv );
     };
 }
