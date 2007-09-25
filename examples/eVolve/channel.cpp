@@ -922,6 +922,8 @@ void Channel::frameReadback( const uint32_t frameID )
 
 void Channel::_drawLogo()
 {
+    glPushAttrib( GL_ALL_ATTRIB_BITS );
+
     const Window*  window      = static_cast<Window*>( getWindow( ));
     GLuint         texture;
     vmml::Vector2i size;
@@ -973,8 +975,8 @@ void Channel::_drawLogo()
 
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
     glDisable( GL_BLEND );
-    glEnable( GL_LIGHTING );
-    glEnable( GL_DEPTH_TEST );
+
+    glPopAttrib( );
 }
 
 }
