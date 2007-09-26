@@ -17,7 +17,7 @@ namespace eqNet
      *
      * Derived classes send the data using command packets.
      */
-    class EQ_EXPORT DataIStream : public std::istream
+    class EQ_EXPORT DataIStream // : public std::istream
     {
     public:
         DataIStream();

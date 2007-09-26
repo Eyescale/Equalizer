@@ -20,7 +20,7 @@ namespace eqNet
      *
      * Derived classes send the data using command packets.
      */
-    class EQ_EXPORT DataOStream : public std::ostream
+    class EQ_EXPORT DataOStream // : public std::ostream
     {
     public:
         DataOStream();
