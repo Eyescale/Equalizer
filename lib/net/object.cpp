@@ -127,6 +127,7 @@ bool Object::send( eqBase::RefPtr<Node> node, ObjectPacket& packet,
     return node->send( packet, data, size );
 }
 
+#if 0
 bool Object::send( NodeVector& nodes, ObjectPacket& packet )
 {
     EQASSERT( _session ); EQASSERT( _id != EQ_ID_INVALID );
@@ -134,13 +135,19 @@ bool Object::send( NodeVector& nodes, ObjectPacket& packet )
     packet.objectID  = _id;
     return Connection::send( nodes, packet );
 }
+#endif
 bool Object::send( NodeVector nodes, ObjectPacket& packet, const void* data,
                    const uint64_t size )
 {
     EQASSERT( _session ); EQASSERT( _id != EQ_ID_INVALID );
     packet.sessionID = _session->getID();
     packet.objectID  = _id;
-    return Connection::send( nodes, packet, data, size );
+
+    ConnectionVector connections;
+    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+        connections.push_back( (*i)->getConnection( ));
+
+    return Connection::send( connections, packet, data, size );
 }
 
 uint32_t Object::commit()

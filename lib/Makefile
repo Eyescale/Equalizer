@@ -7,6 +7,7 @@ HEADER_SRC = \
 	eq.h \
 	base/barrier.h \
 	base/base.h \
+	base/buffer.h \
 	base/clock.h \
 	base/debug.h \
 	base/defines.h \
@@ -46,6 +47,8 @@ HEADER_SRC = \
 	net/connectionDescription.h \
 	net/connectionSet.h \
 	net/connectionType.h \
+	net/dataIStream.h \
+	net/dataOStream.h \
 	net/fdConnection.h \
 	net/global.h \
 	net/idHash.h \
@@ -121,6 +124,8 @@ SOURCES = \
 	net/connection.cpp \
 	net/connectionDescription.cpp \
 	net/connectionSet.cpp \
+	net/dataIStream.cpp \
+	net/dataOStream.cpp \
 	net/deltaMasterCM.cpp \
 	net/deltaSlaveCM.cpp \
 	net/fdConnection.cpp \

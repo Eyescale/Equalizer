@@ -61,7 +61,7 @@ namespace eqNet
         /** The managed object. */
         Object* _object;
 
-        /** The list of subsribed slave nodes, kept on the master only. */
+        /** The list of subsribed slave nodes. */
         NodeVector _slaves;
 
         /** The number of object instances subscribed per slave node. */

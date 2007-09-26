@@ -223,6 +223,9 @@ namespace eqNet
         virtual const void* pack( uint64_t* size )
             { *size = _deltaDataSize; return _deltaData; }
 
+        //virtual void pack( DataOStream& ostream )
+        //{ ostream.disableBuffer(); ostream.write( pack(), size ); }
+
         /** 
          * Release the delta data obtained by pack().
          * 
@@ -293,7 +296,7 @@ namespace eqNet
         bool send( eqBase::RefPtr<Node> node, ObjectPacket& packet, 
                    const void* data, const uint64_t size );
 
-        bool send( NodeVector& nodes, ObjectPacket& packet );
+        //bool send( NodeVector& nodes, ObjectPacket& packet );
         bool send( NodeVector nodes, ObjectPacket& packet, const void* data,
                    const uint64_t size );
         //*}
@@ -351,7 +354,7 @@ namespace eqNet
 
         /* The command handlers. */
         CommandResult _cmdForward( Command& command )
-        { return _cm->invokeCommand( command ); }
+            { return _cm->invokeCommand( command ); }
 
         CHECK_THREAD_DECLARE( _thread );
     };

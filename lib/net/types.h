@@ -11,8 +11,10 @@
 namespace eqNet
 {
     class Node;
+    class Connection;
 
-    typedef std::vector< eqBase::RefPtr<Node> > NodeVector;
+    typedef std::vector< eqBase::RefPtr< Node > > NodeVector;
+    typedef std::vector< eqBase::RefPtr< Connection > > ConnectionVector;
 }
 
 #endif // EQNET_TYPES_H

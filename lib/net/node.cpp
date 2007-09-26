@@ -633,7 +633,9 @@ bool Node::_handleData()
     _receivedCommand->allocate( node, this, size );
     size -= sizeof( size );
 
-    char*      ptr     = (char*)_receivedCommand->getPacket() + sizeof(size);
+    char*      ptr     = 
+        reinterpret_cast< char* >(_receivedCommand->getPacket()) + 
+        sizeof( size );
     const bool gotData = connection->recv( ptr, size );
 
     EQASSERT( gotData );

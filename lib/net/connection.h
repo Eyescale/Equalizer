@@ -5,8 +5,9 @@
 #ifndef EQNET_CONNECTION_H
 #define EQNET_CONNECTION_H
 
-#include <eq/net/connectionDescription.h>
-#include <eq/net/packets.h>
+#include <eq/net/connectionDescription.h> // member
+#include <eq/net/packets.h>               // used in inline method
+#include <eq/net/types.h>                 // ConnectionVector type
 
 #include <eq/base/base.h>
 #include <eq/base/lock.h>
@@ -14,7 +15,6 @@
 #include <eq/base/refPtr.h>
 #include <eq/base/scopedMutex.h>
 
-#include <stdexcept>
 #include <sys/types.h>
 #include <vector>
 
@@ -131,7 +131,7 @@ namespace eqNet
          * @return true if all data has been read, false if not.
          */
         bool send( const void* buffer, const uint64_t bytes, 
-                   bool isLocked = false ) const;
+                   const bool isLocked = false ) const;
 
         /** 
          * Sends a packaged message using the connection.
@@ -178,31 +178,29 @@ namespace eqNet
             const;
 
         /** 
-         * Sends a packaged message to multiple receivers.
+         * Sends a packaged message to multiple connections.
          *
-         * The receivers have to implement getConnection(). The reason we don't
-         * use an abstract class to define the interface is that we sometimes
-         * use a vector of RefPtr<SomeThing> in some places.
-         * 
-         * @param receivers The receiving entities.
-         * @param packet the message packet.
-         * @return true if the packet was sent successfully to all receivers.
+         * @param connections The connections.
+         * @param packet      the message packet.
+         * @param isLocked true if the connection is locked externally.
+         * @return true if the packet was sent successfully to all connections.
          */
-        template< typename T >
-        static bool send(const std::vector<T>& receivers, const Packet& packet);
+        static bool send( const ConnectionVector& connections,
+                          const Packet& packet, const bool isLocked = false );
         /** 
          * Sends a packaged message including additional data to multiple
-         * receivers.
+         * connections.
          *
-         * @param receivers The receiving entities.
+         * @param connections The connections.
          * @param packet the message packet.
          * @param data the data.
          * @param size the data size in bytes.
+         * @param isLocked true if the connection is locked externally.
          * @return true if the packet was sent successfully to all receivers.
          */
-        template< typename T >
-        static bool send( const std::vector<T>& receivers, Packet& packet,
-                          const void* data, const uint64_t size );
+        static bool send( const ConnectionVector& connections, Packet& packet,
+                          const void* data, const uint64_t size,
+                          const bool isLocked = false );
         //@}
 
         /** 

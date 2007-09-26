@@ -181,7 +181,7 @@ bool Connection::recv( void* buffer, const uint64_t bytes )
 // write
 //----------------------------------------------------------------------
 bool Connection::send( const void* buffer, const uint64_t bytes, 
-                       bool isLocked ) const
+                       const bool isLocked ) const
 {
     if( _state != STATE_CONNECTED )
         return false;
@@ -279,6 +279,77 @@ bool Connection::send( Packet& packet, const void* data,
     ((Packet*)buffer)->size = size;
     return send( buffer, size );
 }
+
+bool Connection::send( const ConnectionVector& connections,
+                       const Packet& packet, const bool isLocked )
+{
+    if( connections.empty( ))
+        return true;
+
+    for( ConnectionVector::const_iterator i= connections.begin(); 
+         i<connections.end(); ++i )
+    {        
+        if( !(*i)->send( &packet, packet.size, isLocked ))
+            return false;
+    }
+    return true;
+}
+
+bool Connection::send( const ConnectionVector& connections, Packet& packet,
+                       const void* data, const uint64_t dataSize,
+                       const bool isLocked )
+{
+    if( connections.empty( ))
+        return true;
+
+    if( dataSize <= 8 ) // fits in existing packet
+    {
+        if( dataSize != 0 )
+            memcpy( (char*)(&packet) + packet.size-8, data, dataSize );
+        return send( connections, packet, isLocked );
+    }
+
+    const uint64_t headerSize  = packet.size - 8;
+    const uint64_t size        = headerSize + dataSize;
+
+    if( size > ASSEMBLE_THRESHOLD )
+    {
+        // OPT: lock the connection and use two send() to avoid big memcpy
+        packet.size = size;
+
+        for( ConnectionVector::const_iterator i= connections.begin(); 
+             i<connections.end(); ++i )
+        {        
+            eqBase::RefPtr< Connection > connection = *i;
+
+            if( !isLocked )
+                connection->lockSend();
+            const bool ok = (connection->send( &packet, headerSize, true ) &&
+                             connection->send( data, dataSize, true ));
+            if( !isLocked )
+                connection->unlockSend();
+            if( !ok )
+                return false;
+        }
+        return true;
+    }
+
+    char*          buffer = (char*)alloca( size );
+    memcpy( buffer, &packet, packet.size-8 );
+    memcpy( buffer + packet.size-8, data, dataSize );
+
+    ((Packet*)buffer)->size = size;
+
+    for( ConnectionVector::const_iterator i= connections.begin(); 
+         i<connections.end(); ++i )
+    {        
+        if( !(*i)->send( buffer, size, isLocked ))
+            return false;
+    }
+
+    return true;
+}
+
 
 eqBase::RefPtr<ConnectionDescription> Connection::getDescription()
 {

@@ -5,6 +5,7 @@ SUBDIRS = \
 	base \
 	client \
 	connection \
+	dataStream \
 	image \
 	netperf \
 	node \
