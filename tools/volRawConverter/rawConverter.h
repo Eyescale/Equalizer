@@ -27,7 +27,9 @@ namespace eVolve
 
         static int scaleRawDerFile(                  const string& src,
                                                      const string& dst,
-                                                           double scale );
+                                                           double scaleX,
+                                                           double scaleY,
+                                                           double scaleZ  );
 
         static int RawConverter::parseArguments( int argc, char** argv );
     };

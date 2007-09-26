@@ -52,8 +52,20 @@ int RawConverter::parseArguments( int argc, char** argv )
         TCLAP::CmdLine command( 
             "volConv - volume file formats converter" );
 
+        TCLAP::ValueArg<double> sclXArg( 
+            "", "sW", "scale factor for Width",
+            false, 1.0  , "double", command );
+
+        TCLAP::ValueArg<double> sclYArg( 
+            "", "sH", "scale factor for Height",
+            false, 1.0  , "double", command );
+
+        TCLAP::ValueArg<double> sclZArg( 
+            "", "sD", "scale factor for Depth",
+            false, 1.0  , "double", command );
+
         TCLAP::ValueArg<double> sclArg( 
-            "l", "scl", "scale factor",
+            "", "sA", "common scale factor",
             false, 1.0  , "double", command );
 
         TCLAP::SwitchArg cmpArg(
@@ -108,10 +120,35 @@ int RawConverter::parseArguments( int argc, char** argv )
             return RawConverter::CompareTwoRawDerVhf( 
                         srcArg.getValue( ), dstArg.getValue( ));
 
-        if( sclArg.isSet() ) // scale volume
+        bool scale = false;
+        double scaleX = 1.0;
+        double scaleY = 1.0;
+        double scaleZ = 1.0;
+        if( sclArg.isSet() ) // scale volume common
+        {
+            scaleX = scaleY = scaleZ = sclArg.getValue( );
+            scale  = true;
+        }
+        if( sclXArg.isSet() ) // scale volume X
+        {
+            scaleX = sclXArg.getValue( );
+            scale  = true;
+        }
+        if( sclYArg.isSet() ) // scale volume Y
+        {
+            scaleY = sclYArg.getValue( );
+            scale  = true;
+        }
+        if( sclZArg.isSet() ) // scale volume Z
+        {
+            scaleZ = sclZArg.getValue( );
+            scale  = true;
+        }
+        
+        if( scale )
             return RawConverter::scaleRawDerFile( 
                         srcArg.getValue( ), dstArg.getValue( ),
-                        sclArg.getValue( ) );
+                        scaleX, scaleY, scaleZ                  );
 
 
         EQERROR << "Converter options was not specified completely.";
@@ -591,15 +628,17 @@ int RawConverter::PvmSavToRawDerVhfConverter(     const string& src,
 
 int RawConverter::scaleRawDerFile(                  const string& src,
                                                     const string& dst,
-                                                          double scale )
+                                                          double scaleX,
+                                                          double scaleY,
+                                                          double scaleZ  )
 {
-    double scaleX = scale;
-    double scaleY = scale;
-    double scaleZ = scale;
-    EQWARN << "scale: " << scale << endl;
+    EQWARN << "scaleW: " << scaleX << endl;
+    EQWARN << "scaleH: " << scaleY << endl;
+    EQWARN << "scaleD: " << scaleZ << endl;
     
-    if( scale < 0.0001 )
-        lFailed( "Scale is too small" );
+    if( scaleX < 0.0001 ) lFailed( "Scale for width  is too small" );
+    if( scaleY < 0.0001 ) lFailed( "Scale for height is too small" );
+    if( scaleZ < 0.0001 ) lFailed( "Scale for depth  is too small" );
 
     EQWARN << "Scaling raw+derivatives+vhf" << endl;
     uint32_t wS, hS, dS;
@@ -632,7 +671,9 @@ int RawConverter::scaleRawDerFile(                  const string& src,
                                                      sw, sh, sd, TF );
         if( result ) return result;
     }
-
+    EQWARN << "old dimensions: " << wS << " x " << hS << " x " << dS << endl;
+    EQWARN << "new dimensions: " << wD << " x " << hD << " x " << dD << endl;
+    
     //read volume
     vector<uint8_t> sVol( wS*hS*dS*4, 0 );
 
@@ -653,6 +694,7 @@ int RawConverter::scaleRawDerFile(                  const string& src,
 
         file.close();
     }
+    EQWARN << "Scaling model" << endl;
     //scale volume
     vector<uint8_t> dVol( wD*hD*dD*4, 0 );
     {
@@ -660,22 +702,35 @@ int RawConverter::scaleRawDerFile(                  const string& src,
         int wDhD4 = wD*hD*4;
         int wS4   = wS*4;
         int wShS4 = wS*hS*4;
-        for( uint32_t z=0; z<dD; z++ )
-            for( uint32_t y=0; y<hD; y++ )
-                for( uint32_t x=0; x<wD; x++ )
+        
+        int scaleIx  = static_cast<int>( scaleX );
+        int scaleIy  = static_cast<int>( scaleY );
+        int scaleIz  = static_cast<int>( scaleZ );
+        int tenPerc  = (dD-scaleIz-1) / 10;
+        int tenPercI = 0;
+        for( uint32_t z=0; z<dD-scaleIz; z++ )
+        {
+            if( ++tenPercI >= tenPerc )
+            {
+                std::cout << ".";
+                std::cout.flush();
+                tenPercI = 0;
+            }
+            for( uint32_t y=0; y<hD-scaleIy; y++ )
+                for( uint32_t x=0; x<wD-scaleIx; x++ )
                 {
                     double cx = x/scaleX;
                     double cy = y/scaleY;
                     double cz = z/scaleZ;
 
-                    int nx = min<int>( cx, wS-1 );
-                    int ny = min<int>( cy, hS-1 );
-                    int nz = min<int>( cz, dS-1 );
+                    int nx = static_cast<int>( cx );
+                    int ny = static_cast<int>( cy );
+                    int nz = static_cast<int>( cz );
 
-                    int fx = min<int>( nx+1, wS-1 );
-                    int fy = min<int>( ny+1, hS-1 );
-                    int fz = min<int>( nz+1, dS-1 );
-
+                    int fx = nx+1;
+                    int fy = ny+1;
+                    int fz = nz+1;
+                    
                     cx -= nx;
                     cy -= ny;
                     cz -= nz;
@@ -689,14 +744,16 @@ int RawConverter::scaleRawDerFile(                  const string& src,
                     double v7 = (1-cx)*   cy *   cz ;
                     double v8 =    cx *   cy *   cz ;
                     
-                    int p1 = nx + ny*wS4 + nz*wShS4;
-                    int p2 = fx + ny*wS4 + nz*wShS4;
-                    int p3 = nx + ny*wS4 + fz*wShS4;
-                    int p4 = fx + ny*wS4 + fz*wShS4;
-                    int p5 = nx + fy*wS4 + nz*wShS4;
-                    int p6 = fx + fy*wS4 + nz*wShS4;
-                    int p7 = nx + fy*wS4 + fz*wShS4;
-                    int p8 = fx + fy*wS4 + fz*wShS4;
+                    int p1 = nx*4 + ny*wS4 + nz*wShS4;
+                    int p2 = fx*4 + ny*wS4 + nz*wShS4;
+                    int p3 = nx*4 + ny*wS4 + fz*wShS4;
+                    int p4 = fx*4 + ny*wS4 + fz*wShS4;
+                    int p5 = nx*4 + fy*wS4 + nz*wShS4;
+                    int p6 = fx*4 + fy*wS4 + nz*wShS4;
+                    int p7 = nx*4 + fy*wS4 + fz*wShS4;
+                    int p8 = fx*4 + fy*wS4 + fz*wShS4;
+
+                    int pD =  x*4 +  y*wD4 +  z*wDhD4;
 
                     for( int d = 0; d<4; d++)
                     {
@@ -705,12 +762,15 @@ int RawConverter::scaleRawDerFile(                  const string& src,
                                      v5*sVol[p5+d] + v6*sVol[p6+d] +
                                      v7*sVol[p7+d] + v8*sVol[p8+d];
 
-                        dVol[x + y*wD4 + z*wDhD4 + d] = min<int>( res, 255 );
+                        dVol[pD+d] = min<int>( res, 255 );
                     }
                 }
+        }
+        std::cout << endl;
     }
     
     //write new volume
+    EQWARN << "Writing model" << endl;
     {
         ofstream file ( dst.c_str(),
                         ifstream::out | ifstream::binary | ifstream::trunc );
