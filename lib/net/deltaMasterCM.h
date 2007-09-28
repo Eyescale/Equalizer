@@ -8,6 +8,7 @@
 #include <eq/net/objectCM.h> // base class
 #include <eq/net/nodeID.h>   // for NodeIDHash
 #include <eq/net/types.h>    // for NodeVector
+#include <eq/base/buffer.h>  // member
 
 #include <deque>
 
@@ -84,12 +85,15 @@ namespace eqNet
 
         struct InstanceData
         {
-            InstanceData() : data(NULL), size(0), maxSize(0), commitCount(0) {}
-            void*    data;
-            uint64_t size;
-            uint64_t maxSize;
+            InstanceData() : commitCount(0) {}
+            InstanceData( const InstanceData& from )
+                { 
+                    buffer      = const_cast< eqBase::Buffer& >( from.buffer );
+                    commitCount = from.commitCount;
+                }
 
-            uint32_t commitCount;
+            eqBase::Buffer buffer;
+            uint32_t       commitCount;
         };
         struct ChangeData : public InstanceData
         {

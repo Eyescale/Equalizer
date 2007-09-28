@@ -35,20 +35,7 @@ DeltaMasterCM::~DeltaMasterCM()
         EQWARN << _slaves.size() 
                << " slave nodes subscribed during deregisterObject" << endl;
 
-    for( deque<InstanceData>::const_iterator i = _instanceDatas.begin(); 
-         i != _instanceDatas.end(); ++i )
-    {
-        if( (*i).data )
-            free( (*i).data );
-    }
     _instanceDatas.clear();
-
-    for( deque<ChangeData>::const_iterator i = _changeDatas.begin(); 
-         i != _changeDatas.end(); ++i )
-    {
-        if( (*i).data )
-            free( (*i).data );
-    }
     _changeDatas.clear();
 }
 
@@ -93,14 +80,8 @@ void DeltaMasterCM::_setInitialVersion( const void* ptr, const uint64_t size )
     EQASSERT( _changeDatas.empty( ));
 
     InstanceData data;
-
-    data.size = size;
-    if( ptr && size )
-    {
-        data.data    = malloc( size );
-        data.maxSize = size;
-        memcpy( data.data, ptr, size );
-    }
+    if( ptr && size > 0 )
+        data.buffer.replace( ptr, size );
 
     _instanceDatas.push_front( data );
     ++_version;
@@ -152,8 +133,8 @@ const void* DeltaMasterCM::getInitialData( uint64_t* size, uint32_t* version )
     const InstanceData& data = _instanceDatas.back();
 
     *version = _version - age;
-    *size    = data.size;
-    return data.data;
+    *size    = data.buffer.size;
+    return data.buffer.data;
 }
 
 void DeltaMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
@@ -177,10 +158,10 @@ void DeltaMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
         ObjectDeltaDataPacket deltaPacket;
 
         deltaPacket.version   = data.version;
-        deltaPacket.deltaSize = data.size;
+        deltaPacket.deltaSize = data.buffer.size;
         
         EQLOG( LOG_OBJECTS ) << "send " << &deltaPacket << endl;
-        _object->send( node, deltaPacket, data.data, data.size );
+        _object->send( node, deltaPacket, data.buffer.data, data.buffer.size );
     }
 }
 
@@ -282,22 +263,16 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
             _changeDataCache.pop_back();
         }
 
-        if( deltaSize > changeData.maxSize )
-        {
-            if( changeData.data )
-                free( changeData.data );
-            
-            changeData.data    = malloc( deltaSize );
-            changeData.maxSize = deltaSize;
-        }
-        memcpy( changeData.data, delta, deltaSize );
-        changeData.size        = deltaSize;
+        changeData.buffer.replace( delta, deltaSize );
         changeData.commitCount = _commitCount;
         changeData.version     = _version;
         _changeDatas.push_front( changeData );
     }
 
     // save instance data
+    uint64_t instanceDataSize = 0;
+    const void* ptr = _object->getInstanceData( &instanceDataSize );
+
     InstanceData instanceData;
     if( !_instanceDataCache.empty( ))
     {
@@ -305,18 +280,11 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
         _instanceDataCache.pop_back();
     }
 
-    instanceData.size = 0;
-    const void* ptr = _object->getInstanceData( &instanceData.size );
+    if( ptr && instanceDataSize > 0 )
+        instanceData.buffer.replace( ptr, instanceDataSize );
+    else
+        instanceData.buffer.size = 0;
 
-    if( instanceData.size > instanceData.maxSize )
-    {
-        if( instanceData.data )
-            free( instanceData.data );
-        instanceData.data    = malloc( instanceData.size );
-        instanceData.maxSize = instanceData.size;
-    }
-    if( ptr )
-        memcpy( instanceData.data, ptr, instanceData.size );
     _object->releaseInstanceData( ptr );
 
     instanceData.commitCount = _commitCount;
