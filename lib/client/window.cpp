@@ -409,10 +409,16 @@ bool eq::Window::configInitAGL()
     CGDirectDisplayID displayID = _pipe->getCGDisplayID();
 #ifndef LEOPARD
     GDHandle          displayHandle = 0;
-    
+
+    Global::enterCarbon();
     DMGetGDeviceByDisplayID( (DisplayIDType)displayID, &displayHandle, false );
+    Global::leaveCarbon();
+
     if( !displayHandle )
+    {
+        setErrorMessage( "Can't get display handle" );
         return false;
+    }
 #endif
 
     // build attribute list
