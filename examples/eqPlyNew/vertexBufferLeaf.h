@@ -24,7 +24,7 @@ namespace mesh
     public:
         VertexBufferLeaf( VertexBufferData& data) 
             : _globalData( data ), _vertexStart( 0 ),
-              _indexStart( 0 ), _indexLength( 0 ), _isSetup( false ) {}
+              _indexStart( 0 ), _indexLength( 0 ) {}
         virtual ~VertexBufferLeaf() {}
         
         virtual void render( VertexBufferState& state ) const;
@@ -41,7 +41,7 @@ namespace mesh
         virtual void updateRange();
         
     private:
-        void setupRendering( VertexBufferState& state ) const;
+        void setupRendering( VertexBufferState& state, GLuint* data ) const;
         void renderImmediate( VertexBufferState& state ) const;
         void renderDisplayList( VertexBufferState& state ) const;
 #ifdef GL_ARB_vertex_buffer_object
@@ -53,7 +53,6 @@ namespace mesh
         ShortIndex          _vertexLength;
         Index               _indexStart;
         Index               _indexLength;
-        mutable bool        _isSetup;
     };
     
     

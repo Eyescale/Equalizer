@@ -119,11 +119,9 @@ void VertexBufferLeaf::updateRange()
 
 
 /*  Set up rendering of the leaf nodes.  */
-void VertexBufferLeaf::setupRendering( VertexBufferState& state ) const
+void VertexBufferLeaf::setupRendering( VertexBufferState& state,
+                                       GLuint* data ) const
 {
-    if( _isSetup )
-        return;
-    
     const GLFunctions* gl = state.getGLFunctions();
     
     switch( state.getRenderMode() )
@@ -134,35 +132,35 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state ) const
     case BUFFER_OBJECT_MODE:
     {
         MESHINFO << "Setting up VBO rendering for leaf " << this << "." << endl;
-        GLuint buffers[4];
+        const char* charThis = reinterpret_cast< const char* >( this );
         
-        buffers[VERTEX_OBJECT] = 
-            state.newBufferObject( reinterpret_cast< const char* >( this ) + 0);
-        gl->bindBuffer( GL_ARRAY_BUFFER, buffers[VERTEX_OBJECT] );
+        if( data[VERTEX_OBJECT] == state.FAILED )
+            data[VERTEX_OBJECT] = state.newBufferObject( charThis + 0 );
+        gl->bindBuffer( GL_ARRAY_BUFFER, data[VERTEX_OBJECT] );
         gl->bufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Vertex ),
-                       &_globalData.vertices[_vertexStart], GL_STATIC_DRAW );
+                        &_globalData.vertices[_vertexStart], GL_STATIC_DRAW );
         
-        buffers[NORMAL_OBJECT] = 
-            state.newBufferObject( reinterpret_cast< const char* >( this ) + 1);
-        gl->bindBuffer( GL_ARRAY_BUFFER, buffers[NORMAL_OBJECT] );
+        if( data[NORMAL_OBJECT] == state.FAILED )
+            data[NORMAL_OBJECT] = state.newBufferObject( charThis + 1 );
+        gl->bindBuffer( GL_ARRAY_BUFFER, data[NORMAL_OBJECT] );
         gl->bufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Normal ),
-                       &_globalData.normals[_vertexStart], GL_STATIC_DRAW );
+                        &_globalData.normals[_vertexStart], GL_STATIC_DRAW );
         
-        buffers[COLOR_OBJECT] = 
-            state.newBufferObject( reinterpret_cast< const char* >( this ) + 2);
+        if( data[COLOR_OBJECT] == state.FAILED )
+            data[COLOR_OBJECT] = state.newBufferObject( charThis + 2 );
         if( state.useColors() )
         {
-            gl->bindBuffer( GL_ARRAY_BUFFER, buffers[COLOR_OBJECT] );
+            gl->bindBuffer( GL_ARRAY_BUFFER, data[COLOR_OBJECT] );
             gl->bufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Color ),
-                           &_globalData.colors[_vertexStart], GL_STATIC_DRAW );
+                            &_globalData.colors[_vertexStart], GL_STATIC_DRAW );
         }
         
-        buffers[INDEX_OBJECT] = 
-            state.newBufferObject( reinterpret_cast< const char* >( this ) + 3);
-        gl->bindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffers[INDEX_OBJECT] );
+        if( data[INDEX_OBJECT] == state.FAILED )
+            data[INDEX_OBJECT] = state.newBufferObject( charThis + 3 );
+        gl->bindBuffer( GL_ELEMENT_ARRAY_BUFFER, data[INDEX_OBJECT] );
         gl->bufferData( GL_ELEMENT_ARRAY_BUFFER, 
-                       _indexLength * sizeof( ShortIndex ),
-                       &_globalData.indices[_indexStart], GL_STATIC_DRAW );
+                        _indexLength * sizeof( ShortIndex ),
+                        &_globalData.indices[_indexStart], GL_STATIC_DRAW );
         
         break;
     }        
@@ -171,8 +169,9 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state ) const
     {
         MESHINFO << "Setting up display list rendering for leaf " << this
                  << "." << endl;
-        GLuint displayList = state.newDisplayList( this );
-        glNewList( displayList, GL_COMPILE );
+        if( data[0] == state.FAILED )
+            data[0] = state.newDisplayList( this );
+        glNewList( data[0], GL_COMPILE );
         renderImmediate( state );
         glEndList();
         break;
@@ -181,17 +180,12 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state ) const
 
     MESHINFO << "Leaf " << this << " contains " << _vertexLength << " vertices"
              << " and " << _indexLength / 3 << " triangles." << endl;
-    
-    _isSetup = true;
 }
 
 
 /*  Render the leaf.  */
 void VertexBufferLeaf::render( VertexBufferState& state ) const
 {
-    if( !_isSetup )
-        setupRendering( state );
-    
     switch( state.getRenderMode() )
     {
     case IMMEDIATE_MODE:
@@ -217,6 +211,11 @@ void VertexBufferLeaf::renderBufferObject( VertexBufferState& state ) const
     for( int i = 0; i < 4; ++i )
         buffers[i] = 
             state.getBufferObject( reinterpret_cast< const char* >( this ) + i );
+    if( buffers[VERTEX_OBJECT] == state.FAILED || 
+        buffers[NORMAL_OBJECT] == state.FAILED || 
+        buffers[COLOR_OBJECT] == state.FAILED || 
+        buffers[INDEX_OBJECT] == state.FAILED )
+        setupRendering( state, buffers );
     
     if( state.useColors() )
     {
@@ -237,6 +236,9 @@ inline
 void VertexBufferLeaf::renderDisplayList( VertexBufferState& state ) const
 {
     GLuint displayList = state.getDisplayList( this );
+    if( displayList == state.FAILED )
+        setupRendering( state, &displayList );
+    
     glCallList( displayList );
 }
 
