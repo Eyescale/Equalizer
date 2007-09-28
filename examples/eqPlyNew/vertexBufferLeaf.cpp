@@ -130,26 +130,26 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state ) const
     {
     case IMMEDIATE_MODE:
         break;
-        
+
     case BUFFER_OBJECT_MODE:
     {
         MESHINFO << "Setting up VBO rendering for leaf " << this << "." << endl;
         GLuint buffers[4];
         
         buffers[VERTEX_OBJECT] = 
-            state.newBufferObject( reinterpret_cast< const char* >( this ) + 0 );
+            state.newBufferObject( reinterpret_cast< const char* >( this ) + 0);
         gl->bindBuffer( GL_ARRAY_BUFFER, buffers[VERTEX_OBJECT] );
         gl->bufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Vertex ),
                        &_globalData.vertices[_vertexStart], GL_STATIC_DRAW );
         
         buffers[NORMAL_OBJECT] = 
-            state.newBufferObject( reinterpret_cast< const char* >( this ) + 1 );
+            state.newBufferObject( reinterpret_cast< const char* >( this ) + 1);
         gl->bindBuffer( GL_ARRAY_BUFFER, buffers[NORMAL_OBJECT] );
         gl->bufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Normal ),
                        &_globalData.normals[_vertexStart], GL_STATIC_DRAW );
         
         buffers[COLOR_OBJECT] = 
-            state.newBufferObject( reinterpret_cast< const char* >( this ) + 2 );
+            state.newBufferObject( reinterpret_cast< const char* >( this ) + 2);
         if( state.useColors() )
         {
             gl->bindBuffer( GL_ARRAY_BUFFER, buffers[COLOR_OBJECT] );
@@ -158,7 +158,7 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state ) const
         }
         
         buffers[INDEX_OBJECT] = 
-            state.newBufferObject( reinterpret_cast< const char* >( this ) + 3 );
+            state.newBufferObject( reinterpret_cast< const char* >( this ) + 3);
         gl->bindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffers[INDEX_OBJECT] );
         gl->bufferData( GL_ELEMENT_ARRAY_BUFFER, 
                        _indexLength * sizeof( ShortIndex ),

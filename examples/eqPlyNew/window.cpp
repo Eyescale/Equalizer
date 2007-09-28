@@ -23,15 +23,15 @@ bool Window::configInit( const uint32_t initID )
 
     if( firstWindow == this )
     {
-        _state = new VertexBufferState( getGLFunctions( ));
-        _loadLogo();
+        const eq::GLFunctions* glFunctions = getGLFunctions();
+
+        _state = new VertexBufferState( glFunctions );
 
         const Node*     node     = static_cast< const Node* >( getNode( ));
         const InitData& initData = node->getInitData();
 
         if( initData.useVBOs() )
         {
-            const eq::GLFunctions* glFunctions = getGLFunctions();
             // Check if all VBO funcs available, else leave DISPLAY_LIST_MODE on
             if( glFunctions->hasGenBuffers() && glFunctions->hasBindBuffer() &&
                 glFunctions->hasBufferData() && glFunctions->hasDeleteBuffers())
@@ -43,6 +43,8 @@ bool Window::configInit( const uint32_t initID )
                 EQWARN << "VBO function pointers missing, using display lists" 
                        << endl;
         }
+
+        _loadLogo();
     }
     else
     {
@@ -52,8 +54,11 @@ bool Window::configInit( const uint32_t initID )
     }
 
     if( !_state ) // happens if first window failed to initialize
+    {
+        setErrorMessage( "No state handler object" );
         return false;
-    
+    }
+
     return true;
 }
 
