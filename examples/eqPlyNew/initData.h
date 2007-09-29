@@ -24,6 +24,7 @@ namespace eqPly
         uint32_t           getFrameDataID() const  { return _data.frameDataID; }
         eq::WindowSystem   getWindowSystem() const { return _data.windowSystem;}
         bool               useVBOs() const         { return _data.useVBOs; }
+        bool               useShaders() const      { return _data.useShaders; }
         const std::string& getFilename()    const  { return _filename; }
 
     protected:
@@ -33,6 +34,7 @@ namespace eqPly
         void setWindowSystem( const eq::WindowSystem windowSystem )
             { _clearInstanceData(); _data.windowSystem = windowSystem; }
         void enableVBOs() { _clearInstanceData(); _data.useVBOs = true; }
+        void enableShaders() { _clearInstanceData(); _data.useShaders = true; }
         void setFilename( const std::string& filename )
             { _clearInstanceData(); _filename = filename; }
 
@@ -45,11 +47,12 @@ namespace eqPly
             StaticData()
                     : frameDataID( EQ_UNDEFINED_UINT32 )
                     , windowSystem( eq::WINDOW_SYSTEM_NONE )
-                    , useVBOs( false )
+                    , useVBOs( false ), useShaders( false )
                 {}
             uint32_t         frameDataID;
             eq::WindowSystem windowSystem;
             bool             useVBOs;
+            bool             useShaders;
         };
 
         StaticData  _data;

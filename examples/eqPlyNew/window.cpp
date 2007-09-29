@@ -21,10 +21,10 @@ bool Window::configInit( const uint32_t initID )
 
     EQASSERT( !_state );
 
+    const eq::GLFunctions* glFunctions = getGLFunctions();
+
     if( firstWindow == this )
     {
-        const eq::GLFunctions* glFunctions = getGLFunctions();
-
         _state = new VertexBufferState( glFunctions );
 
         const Node*     node     = static_cast< const Node* >( getNode( ));
@@ -43,6 +43,29 @@ bool Window::configInit( const uint32_t initID )
                 EQWARN << "VBO function pointers missing, using display lists" 
                        << endl;
         }
+        
+        if( initData.useShaders() )
+        {
+            // Check if all shader functions are available
+            if( glFunctions->hasCreateShader() && 
+                glFunctions->hasDeleteShader() &&
+                glFunctions->hasShaderSource() &&
+                glFunctions->hasCompileShader() &&
+                glFunctions->hasGetShaderiv() &&
+                glFunctions->hasCreateProgram() && 
+                glFunctions->hasDeleteProgram() &&
+                glFunctions->hasAttachShader() &&
+                glFunctions->hasLinkProgram() && 
+                glFunctions->hasGetProgramiv() &&
+                glFunctions->hasUseProgram() )
+            {
+                EQINFO << "Shaders supported, attempting to load" << endl;
+                _loadShaders();
+            }
+            else
+                EQWARN << "Shader function pointers missing, using fixed "
+                       << "pipeline" << endl;
+        }
 
         _loadLogo();
     }
@@ -58,6 +81,10 @@ bool Window::configInit( const uint32_t initID )
         setErrorMessage( "No state handler object" );
         return false;
     }
+
+    const GLuint program = _state->getProgram( getPipe() );
+    if( program != VertexBufferState::FAILED )
+        glFunctions->useProgram( program );
 
     return true;
 }
@@ -102,6 +129,64 @@ void Window::_loadLogo()
                   image.getPixelData( eq::Frame::BUFFER_COLOR ));
 
     EQINFO << "Created logo texture of size " << _logoSize << endl;
+}
+
+static const char* _vertexShader = 
+    "/*  Pass-through vertex shader.  */\n"
+    "void main()\n"
+    "{\n"
+    "    gl_Position = ftransform();\n"
+    "}";
+
+static const char* _fragmentShader = 
+    "/*  Dummy fragment shader.  */\n"
+    "void main()\n"
+    "{\n"
+    "    gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 );\n"
+    "}";
+
+void Window::_loadShaders()
+{
+    const eq::GLFunctions* glFunctions = getGLFunctions();
+    GLint status;
+    
+    const GLuint vShader = 
+        _state->newShader( _vertexShader, GL_VERTEX_SHADER );
+    EQASSERT( vShader != VertexBufferState::FAILED );
+    glFunctions->shaderSource( vShader, 1, &_vertexShader, 0 );
+    glFunctions->compileShader( vShader );
+    glFunctions->getShaderiv( vShader, GL_COMPILE_STATUS, &status );
+    if( !status )
+    {
+        EQWARN << "Failed to compile vertex shader" << endl;
+        return;
+    }
+    
+    const GLuint fShader = 
+        _state->newShader( _fragmentShader, GL_FRAGMENT_SHADER );
+    EQASSERT( fShader != VertexBufferState::FAILED );
+    glFunctions->shaderSource( fShader, 1, &_fragmentShader, 0 );
+    glFunctions->compileShader( fShader );
+    glFunctions->getShaderiv( fShader, GL_COMPILE_STATUS, &status );
+    if( !status )
+    {
+        EQWARN << "Failed to compile fragment shader" << endl;
+        return;
+    }
+    
+    const GLuint program = _state->newProgram( getPipe() );
+    EQASSERT( program != VertexBufferState::FAILED );
+    glFunctions->attachShader( program, vShader );
+    glFunctions->attachShader( program, fShader );
+    glFunctions->linkProgram( program );
+    glFunctions->getProgramiv( program, GL_LINK_STATUS, &status );
+    if( !status )
+    {
+        EQWARN << "Failed to link shader program" << endl;
+        return;
+    }
+    
+    EQINFO << "Shaders loaded successfully" << endl;
 }
 
 }

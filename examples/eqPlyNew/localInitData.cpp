@@ -30,7 +30,10 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     _isResident  = from._isResident;
     setFilename( from.getFilename( ));
     setWindowSystem( from.getWindowSystem( ));
-    if( from.useVBOs( )) enableVBOs();
+    if( from.useVBOs() ) 
+        enableVBOs();
+    if( from.useShaders() ) 
+        enableShaders();
     return *this;
 }
 
@@ -71,7 +74,9 @@ void LocalInitData::parseArguments( int argc, char** argv )
                                        false, "auto", "string", command );
         
         TCLAP::SwitchArg vboArg( "v", "vbo", "Use the new VBO rendering", 
-                                 command, false);
+                                 command, false );
+        TCLAP::SwitchArg shaderArg( "s", "glsl", "Enable GLSL shaders", 
+                                    command, false );
         
         command.parse( argc, argv );
 
@@ -103,6 +108,8 @@ void LocalInitData::parseArguments( int argc, char** argv )
         
         if( vboArg.isSet() )
             enableVBOs();
+        if( shaderArg.isSet() )
+            enableShaders();
     }
     catch( TCLAP::ArgException& exception )
     {

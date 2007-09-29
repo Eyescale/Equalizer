@@ -42,6 +42,7 @@ namespace eqPly
         vmml::Vector2i _logoSize;
 
         void _loadLogo();
+        void _loadShaders();
     };
 }
 
