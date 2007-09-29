@@ -70,6 +70,24 @@ namespace eq
         void   deleteBuffer( const T& key );
         void   deleteBuffer( const GLuint id );
 
+        bool   supportsPrograms() const;
+        GLuint getProgram( const T& key );
+        GLuint newProgram( const T& key );
+        GLuint obtainProgram( const T& key );
+        void   releaseProgram( const T& key );
+        void   releaseProgram( const GLuint id );
+        void   deleteProgram( const T& key );
+        void   deleteProgram( const GLuint id );
+
+        bool   supportsShaders() const;
+        GLuint getShader( const T& key );
+        GLuint newShader( const T& key, const GLenum type );
+        GLuint obtainShader( const T& key, const GLenum type );
+        void   releaseShader( const T& key );
+        void   releaseShader( const GLuint id );
+        void   deleteShader( const T& key );
+        void   deleteShader( const GLuint id );
+
     private:
         const GLFunctions* _glFunctions;
 
@@ -91,6 +109,12 @@ namespace eq
 
         ObjectIDHash  _buffersID;
         ObjectKeyHash _buffersKey;
+
+        ObjectIDHash  _programsID;
+        ObjectKeyHash _programsKey;
+
+        ObjectIDHash  _shadersID;
+        ObjectKeyHash _shadersKey;
     };
 }
 

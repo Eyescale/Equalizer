@@ -138,6 +138,18 @@ namespace mesh
         
         virtual GLuint newBufferObject( const void* key )
             { return _objectManager.newBuffer( key ); }
+        
+        virtual GLuint getProgram( const void* key )
+            { return _objectManager.getProgram( key ); }
+        
+        virtual GLuint newProgram( const void* key )
+            { return _objectManager.newProgram( key ); }
+        
+        virtual GLuint getShader( const void* key )
+            { return _objectManager.getShader( key ); }
+        
+        virtual GLuint newShader( const void* key, GLenum type )
+            { return _objectManager.newShader( key, type ); }
 
         virtual void deleteAll() { _objectManager.deleteAll(); }
         

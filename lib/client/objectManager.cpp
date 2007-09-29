@@ -36,6 +36,20 @@ ObjectManager<T>::~ObjectManager()
                << endl;
     _buffersID.clear();
     _buffersKey.clear();
+
+    if( !_programsID.empty( ))
+        EQWARN << _programsID.size() 
+               << " programs still allocated in ObjectManager destructor" 
+               << endl;
+    _programsID.clear();
+    _programsKey.clear();
+
+    if( !_shadersID.empty( ))
+        EQWARN << _shadersID.size() 
+               << " shaders still allocated in ObjectManager destructor" 
+               << endl;
+    _shadersID.clear();
+    _shadersKey.clear();
 }
 
 template< typename T >
@@ -73,6 +87,28 @@ void ObjectManager<T>::deleteAll()
     }
     _buffersID.clear();
     _buffersKey.clear();
+
+    for( typename ObjectIDHash::const_iterator i = _programsID.begin(); 
+         i != _programsID.end(); ++i )
+    {
+        const Object& object = i->second;
+        EQVERB << "Delete program " << object.key << " id " << object.id
+               << " ref " << object.refCount << endl;
+        _glFunctions->deleteProgram( object.id ); 
+    }
+    _programsID.clear();
+    _programsKey.clear();
+
+    for( typename ObjectIDHash::const_iterator i = _shadersID.begin(); 
+         i != _shadersID.end(); ++i )
+    {
+        const Object& object = i->second;
+        EQVERB << "Delete shader " << object.key << " id " << object.id
+               << " ref " << object.refCount << endl;
+        _glFunctions->deleteShader( object.id ); 
+    }
+    _shadersID.clear();
+    _shadersKey.clear();
 }
 
 // display list functions
@@ -398,6 +434,239 @@ void ObjectManager<T>::deleteBuffer( const GLuint id )
     _glFunctions->deleteBuffers( 1, &id );
     _buffersKey.erase( object.key );
     _buffersID.erase( id );
+}
+
+// program object functions
+
+template< typename T >
+bool ObjectManager<T>::supportsPrograms() const
+{
+    return ( _glFunctions->hasCreateProgram() && 
+             _glFunctions->hasDeleteProgram() );
+}
+
+template< typename T >
+GLuint ObjectManager<T>::getProgram( const T& key )
+{
+    if( _programsKey.find( key ) == _programsKey.end() )
+        return FAILED;
+
+    Object* object = _programsKey[ key ];
+    ++object->refCount;
+    return object->id;
+}
+
+template< typename T >
+GLuint ObjectManager<T>::newProgram( const T& key )
+{
+    if( !_glFunctions->hasCreateProgram() )
+    {
+        EQWARN << "glCreateProgram not available" << endl;
+        return FAILED;
+    }
+
+    if( _programsKey.find( key ) != _programsKey.end() )
+    {
+        EQWARN << "Requested new program for existing key" << endl;
+        return FAILED;
+    }
+
+    const GLuint id = _glFunctions->createProgram();
+    if( !id )
+    {
+        EQWARN << "glCreateProgram failed: " << glGetError() << endl;
+        return FAILED;
+    }
+    
+    Object& object     = _programsID[ id ];
+    object.id          = id;
+    object.key         = key;
+    object.refCount    = 1;
+    _programsKey[ key ] = &object;
+
+    return id;
+}
+
+template< typename T >
+GLuint ObjectManager<T>::obtainProgram( const T& key )
+{
+    const GLuint id = getProgram( key );
+    if( id )
+        return id;
+    return newProgram( key );
+}
+
+template< typename T >
+void ObjectManager<T>::releaseProgram( const T& key )
+{
+    if( _programsKey.find( key ) == _programsKey.end() )
+        return;
+
+    Object* object = _programsKey[ key ];
+    --object->refCount;
+    if( object->refCount )
+        return;
+
+    _glFunctions->deleteProgram( object->id );
+    _programsKey.erase( key );
+    _programsID.erase( object->id );
+}
+
+template< typename T >
+void ObjectManager<T>::releaseProgram( const GLuint id )
+{
+    if( _programsID.find( id ) == _programsID.end() )
+        return;
+
+    Object& object = _programsID[ id ];
+    --object.refCount;
+    if( object.refCount )
+        return;
+
+    _glFunctions->deleteProgram( id );
+    _programsKey.erase( object.key );
+    _programsID.erase( id );
+}
+
+template< typename T >
+void ObjectManager<T>::deleteProgram( const T& key )
+{
+    if( _programsKey.find( key ) == _programsKey.end() )
+        return;
+
+    Object* object = _programsKey[ key ];
+    _glFunctions->deleteProgram( object->id );
+    _programsKey.erase( key );
+    _programsID.erase( object->id );
+}
+
+template< typename T >
+void ObjectManager<T>::deleteProgram( const GLuint id )
+{
+    if( _programsID.find( id ) == _programsID.end() )
+        return;
+
+    Object& object = _programsID[ id ];
+    _glFunctions->deleteProgram( id );
+    _programsKey.erase( object.key );
+    _programsID.erase( id );
+}
+
+// shader object functions
+
+template< typename T >
+bool ObjectManager<T>::supportsShaders() const
+{
+    return ( _glFunctions->hasCreateShader() && 
+             _glFunctions->hasDeleteShader() );
+}
+
+template< typename T >
+GLuint ObjectManager<T>::getShader( const T& key )
+{
+    if( _shadersKey.find( key ) == _shadersKey.end() )
+        return FAILED;
+
+    Object* object = _shadersKey[ key ];
+    ++object->refCount;
+    return object->id;
+}
+
+template< typename T >
+GLuint ObjectManager<T>::newShader( const T& key, const GLenum type )
+{
+    if( !_glFunctions->hasCreateShader() )
+    {
+        EQWARN << "glCreateShader not available" << endl;
+        return FAILED;
+    }
+
+    if( _shadersKey.find( key ) != _shadersKey.end() )
+    {
+        EQWARN << "Requested new shader for existing key" << endl;
+        return FAILED;
+    }
+
+    const GLuint id = _glFunctions->createShader( type );
+    if( !id )
+    {
+        EQWARN << "glCreateShader failed: " << glGetError() << endl;
+        return FAILED;
+    }
+
+    
+    Object& object     = _shadersID[ id ];
+    object.id          = id;
+    object.key         = key;
+    object.refCount    = 1;
+    _shadersKey[ key ] = &object;
+
+    return id;
+}
+
+template< typename T >
+GLuint ObjectManager<T>::obtainShader( const T& key, const GLenum type )
+{
+    const GLuint id = getShader( key );
+    if( id )
+        return id;
+    return newShader( key, type );
+}
+
+template< typename T >
+void ObjectManager<T>::releaseShader( const T& key )
+{
+    if( _shadersKey.find( key ) == _shadersKey.end() )
+        return;
+
+    Object* object = _shadersKey[ key ];
+    --object->refCount;
+    if( object->refCount )
+        return;
+
+    _glFunctions->deleteShader( object->id );
+    _shadersKey.erase( key );
+    _shadersID.erase( object->id );
+}
+
+template< typename T >
+void ObjectManager<T>::releaseShader( const GLuint id )
+{
+    if( _shadersID.find( id ) == _shadersID.end() )
+        return;
+
+    Object& object = _shadersID[ id ];
+    --object.refCount;
+    if( object.refCount )
+        return;
+
+    _glFunctions->deleteShader( id );
+    _shadersKey.erase( object.key );
+    _shadersID.erase( id );
+}
+
+template< typename T >
+void ObjectManager<T>::deleteShader( const T& key )
+{
+    if( _shadersKey.find( key ) == _shadersKey.end() )
+        return;
+
+    Object* object = _shadersKey[ key ];
+    _glFunctions->deleteShader( object->id );
+    _shadersKey.erase( key );
+    _shadersID.erase( object->id );
+}
+
+template< typename T >
+void ObjectManager<T>::deleteShader( const GLuint id )
+{
+    if( _shadersID.find( id ) == _shadersID.end() )
+        return;
+
+    Object& object = _shadersID[ id ];
+    _glFunctions->deleteShader( id );
+    _shadersKey.erase( object.key );
+    _shadersID.erase( id );
 }
 
 // instantiate desired key types
