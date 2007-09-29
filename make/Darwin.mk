@@ -3,6 +3,7 @@ BUILD_FAT  = 1
 
 ifeq ($(findstring 9.0, $(RELARCH)),9.0)
   LEOPARD = 1
+  WINDOW_SYSTEM ?= AGL  # GLX is broken in build 559
 endif
 
 ifdef LEOPARD

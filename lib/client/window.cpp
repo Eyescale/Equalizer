@@ -407,7 +407,11 @@ bool eq::Window::configInitAGL()
 {
 #ifdef AGL
     CGDirectDisplayID displayID = _pipe->getCGDisplayID();
-#ifndef LEOPARD
+
+#ifdef LEOPARD
+    CGOpenGLDisplayMask glDisplayMask =  
+        CGDisplayIDToOpenGLDisplayMask( displayID );
+#else
     GDHandle          displayHandle = 0;
 
     Global::enterCarbon();
@@ -431,6 +435,11 @@ bool eq::Window::configInitAGL()
 
     if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON )
         attributes.push_back( AGL_FULLSCREEN );
+
+#ifdef LEOPARD
+    attributes.push_back( AGL_DISPLAY_MASK );
+    attributes.push_back( glDisplayMask );
+#endif
 
     const int colorSize = getIAttribute( IATTR_PLANES_COLOR );
     if( colorSize > 0 || colorSize == AUTO )
@@ -490,49 +499,12 @@ bool eq::Window::configInitAGL()
     string         error;
     while( true )
     {
-#ifndef LEOPARD
+#ifdef LEOPARD
+        pixelFormat = aglCreatePixelFormat( &attributes.front( ));
+#else
         pixelFormat = aglChoosePixelFormat( &displayHandle, 1,
                                             &attributes.front( ));
-#else
-        pixelFormat = aglChoosePixelFormat( 0, 0, &attributes.front( ));
-
-        if( !pixelFormat )
-            error = reinterpret_cast<const char*>(
-                aglErrorString( aglGetError( )));
-
-        EQINFO << "PF: " << pixelFormat << endl;
-        while( pixelFormat )
-        {
-            // Find a pixelFormat for our display
-            bool               found      = false;
-            GLint              nDisplayIDs = 0;
-            CGDirectDisplayID *displayIDs = 
-                aglDisplaysOfPixelFormat( pixelFormat, &nDisplayIDs );
-
-            if( !displayIDs )
-                EQWARN << "aglDisplaysOfPixelFormat failed: "
-                       << reinterpret_cast<const char*>(
-                           aglErrorString( aglGetError( ))) << endl;
-            else
-                EQINFO << nDisplayIDs << " displays " << endl;
-
-            for( GLint i = 0; i < nDisplayIDs && !found; ++i )
-            {
-                EQINFO << displayIDs[i] << "=? " << displayID << endl;
-                if( displayIDs[i] == displayID )
-                    found = true;
-            }
-
-            if( found )
-                break;
-            
-            error = "No matching pixel format on display";
-
-            // None found, try next pixelFormat in list
-            pixelFormat = aglNextPixelFormat( pixelFormat );
-            EQINFO << "next PF: " << pixelFormat << endl;
-        }
-#endif // LEOPARD
+#endif
 
         if( pixelFormat ||              // found one or
             backoffAttributes.empty( )) // nothing else to try
