@@ -8,7 +8,6 @@
 #include <eq/net/objectCM.h> // base class
 #include <eq/net/nodeID.h>   // for NodeIDHash
 #include <eq/net/types.h>    // for NodeVector
-#include <eq/base/buffer.h>  // member
 
 #include <deque>
 
@@ -62,7 +61,7 @@ namespace eqNet
         /** The managed object. */
         Object* _object;
 
-        /** The list of subsribed slave nodes. */
+        /** The list of subsribed slave nodes, kept on the master only. */
         NodeVector _slaves;
 
         /** The number of object instances subscribed per slave node. */
@@ -85,15 +84,12 @@ namespace eqNet
 
         struct InstanceData
         {
-            InstanceData() : commitCount(0) {}
-            InstanceData( const InstanceData& from )
-                { 
-                    buffer      = const_cast< eqBase::Buffer& >( from.buffer );
-                    commitCount = from.commitCount;
-                }
+            InstanceData() : data(NULL), size(0), maxSize(0), commitCount(0) {}
+            void*    data;
+            uint64_t size;
+            uint64_t maxSize;
 
-            eqBase::Buffer buffer;
-            uint32_t       commitCount;
+            uint32_t commitCount;
         };
         
         /** The list of full instance datas, head version first. */

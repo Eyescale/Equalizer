@@ -35,6 +35,12 @@ FullMasterCM::~FullMasterCM()
         EQWARN << _slaves.size() 
                << " slave nodes subscribed during deregisterObject" << endl;
 
+    for( deque<InstanceData>::const_iterator iter = _instanceDatas.begin(); 
+         iter != _instanceDatas.end(); ++iter )
+    {
+        if( (*iter).data )
+            free( (*iter).data );
+    }
     _instanceDatas.clear();
 }
 
@@ -78,8 +84,14 @@ void FullMasterCM::_setInitialVersion( const void* ptr, const uint64_t size )
     EQASSERT( _instanceDatas.empty( ));
 
     InstanceData data;
-    if( ptr && size > 0 )
-        data.buffer.replace( ptr, size );
+
+    data.size = size;
+    if( ptr && size )
+    {
+        data.data    = malloc( size );
+        data.maxSize = size;
+        memcpy( data.data, ptr, size );
+    }
 
     _instanceDatas.push_front( data );
     ++_version;
@@ -120,8 +132,8 @@ const void* FullMasterCM::getInitialData( uint64_t* size, uint32_t* version )
     const InstanceData& data = _instanceDatas.back();
 
     *version = _version - age;
-    *size    = data.buffer.size;
-    return data.buffer.data;
+    *size    = data.size;
+    return data.data;
 }
 
 void FullMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
@@ -151,10 +163,10 @@ void FullMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
     {
         const InstanceData& data = *i;
 
-        initPacket.dataSize = data.buffer.size;
+        initPacket.dataSize = data.size;
         
         EQLOG( LOG_OBJECTS ) << "send " << &initPacket << endl;
-        _object->send( node, initPacket, data.buffer.data, data.buffer.size );
+        _object->send( node, initPacket, data.data, data.size );
         ++initPacket.version;
     }
     EQASSERT( initPacket.version - 1 == _version );
@@ -212,27 +224,35 @@ CommandResult FullMasterCM::_cmdCommit( Command& command )
     }
 
     ++_commitCount;
-    ++_version;
-    EQASSERT( _version );
 
-    // save instance data
-    uint64_t instanceDataSize = 0;
-    const void* ptr = _object->getInstanceData( &instanceDataSize );
-
+    // save new version of instance data
     InstanceData instanceData;
     if( !_instanceDataCache.empty( ))
     {
         instanceData = _instanceDataCache.back();
         _instanceDataCache.pop_back();
     }
+    
+    instanceData.size = 0;
+    const void* ptr = _object->getInstanceData( &instanceData.size );
 
-    if( ptr && instanceDataSize > 0 )
-        instanceData.buffer.replace( ptr, instanceDataSize );
-    else
-        instanceData.buffer.size = 0;
+    if( instanceData.size > instanceData.maxSize )
+    {
+        if( instanceData.data )
+            free( instanceData.data );
+        instanceData.data    = malloc( instanceData.size );
+        instanceData.maxSize = instanceData.size;
+    }
+    if( ptr )
+        memcpy( instanceData.data, ptr, instanceData.size );
+
+    _object->releaseInstanceData( ptr );
 
     instanceData.commitCount = _commitCount;
     _instanceDatas.push_front( instanceData );
+    
+    ++_version;
+    EQASSERT( _version );
     
     _obsolete();
 
@@ -241,15 +261,14 @@ CommandResult FullMasterCM::_cmdCommit( Command& command )
     {
         ObjectInstanceDataPacket initPacket;
 
-        initPacket.dataSize = instanceDataSize;
+        initPacket.dataSize = instanceData.size;
         initPacket.version  = _version;
         
         EQLOG( LOG_OBJECTS ) << "send " << &initPacket << " to " 
                              << _slaves.size() << " nodes " << endl;
-        _object->send( _slaves, initPacket, ptr, instanceDataSize );
+        _object->send( _slaves, initPacket, instanceData.data, 
+                       instanceData.size );
     }
-
-    _object->releaseInstanceData( ptr );
 
     EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
                          << _object->getID() << endl;
