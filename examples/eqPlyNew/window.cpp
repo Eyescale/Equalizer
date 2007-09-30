@@ -85,7 +85,7 @@ bool Window::configInit( const uint32_t initID )
     }
 
     // turn off OpenGL lighting if we are using our own shaders
-    if( _state->getProgram( pipe ) )
+    if( _state->getProgram( pipe ) != VertexBufferState::FAILED )
         glDisable( GL_LIGHTING );
 
     return true;
