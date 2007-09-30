@@ -1,10 +1,13 @@
 
 /* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+   Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
    All rights reserved. */
 
 #include "window.h"
 #include "pipe.h"
 #include "node.h"
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -21,10 +24,9 @@ bool Window::configInit( const uint32_t initID )
 
     EQASSERT( !_state );
 
-    const eq::GLFunctions* glFunctions = getGLFunctions();
-
     if( firstWindow == this )
     {
+        const eq::GLFunctions* glFunctions = getGLFunctions();
         _state = new VertexBufferState( glFunctions );
 
         const Node*     node     = static_cast< const Node* >( getNode( ));
@@ -82,9 +84,9 @@ bool Window::configInit( const uint32_t initID )
         return false;
     }
 
-    const GLuint program = _state->getProgram( getPipe() );
-    if( program != VertexBufferState::FAILED )
-        glFunctions->useProgram( program );
+    // turn off OpenGL lighting if we are using our own shaders
+    if( _state->getProgram( pipe ) )
+        glDisable( GL_LIGHTING );
 
     return true;
 }
@@ -107,7 +109,8 @@ void Window::_loadLogo()
 
     eq::Image image;
     if( !image.readImage( "logo.rgb", eq::Frame::BUFFER_COLOR ) &&
-        !image.readImage( "examples/eqPly/logo.rgb", eq::Frame::BUFFER_COLOR ))
+        !image.readImage( "./examples/eqPlyNew/logo.rgb", 
+                          eq::Frame::BUFFER_COLOR ) )
     {
         EQWARN << "Can't load overlay logo 'logo.rgb'" << endl;
         return;
@@ -131,29 +134,42 @@ void Window::_loadLogo()
     EQINFO << "Created logo texture of size " << _logoSize << endl;
 }
 
-static const char* _vertexShader = 
-    "/*  Pass-through vertex shader.  */\n"
-    "void main()\n"
-    "{\n"
-    "    gl_Position = ftransform();\n"
-    "}";
-
-static const char* _fragmentShader = 
-    "/*  Dummy fragment shader.  */\n"
-    "void main()\n"
-    "{\n"
-    "    gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 );\n"
-    "}";
+bool Window::_readShader( const char* filename, string& shaderSource )
+{
+    ifstream sourceFile( filename );
+    if( !sourceFile )
+    {
+        EQWARN << "Failed to open shader file " << filename << endl;
+        return false;
+    }
+    
+    ostringstream sourceCode;
+    string line;
+    while( getline( sourceFile, line ) )
+        sourceCode << line << endl;
+    
+    sourceFile.close();
+    shaderSource.assign( sourceCode.str() );
+    return true;
+}
 
 void Window::_loadShaders()
 {
     const eq::GLFunctions* glFunctions = getGLFunctions();
     GLint status;
     
+    string vertexShader;
+    if ( !_readShader( "vertexShader.glsl", vertexShader ) && 
+         !_readShader( "./examples/eqPlyNew/vertexShader.glsl", vertexShader ) )
+    {
+        EQWARN << "Failed to read vertex shader from file" << endl;
+        return;
+    }
     const GLuint vShader = 
-        _state->newShader( _vertexShader, GL_VERTEX_SHADER );
+        _state->newShader( vertexShader.c_str(), GL_VERTEX_SHADER );
     EQASSERT( vShader != VertexBufferState::FAILED );
-    glFunctions->shaderSource( vShader, 1, &_vertexShader, 0 );
+    const GLchar* vShaderPtr = vertexShader.c_str();
+    glFunctions->shaderSource( vShader, 1, &vShaderPtr, 0 );
     glFunctions->compileShader( vShader );
     glFunctions->getShaderiv( vShader, GL_COMPILE_STATUS, &status );
     if( !status )
@@ -162,10 +178,18 @@ void Window::_loadShaders()
         return;
     }
     
+    string fragmentShader;
+    if( !_readShader( "fragmentShader.glsl", fragmentShader ) && 
+        !_readShader( "./examples/eqPlyNew/fragmentShader.glsl", fragmentShader ) )
+    {
+        EQWARN << "Failed to read fragment shader from file" << endl;
+        return;
+    }
     const GLuint fShader = 
-        _state->newShader( _fragmentShader, GL_FRAGMENT_SHADER );
+        _state->newShader( fragmentShader.c_str(), GL_FRAGMENT_SHADER );
     EQASSERT( fShader != VertexBufferState::FAILED );
-    glFunctions->shaderSource( fShader, 1, &_fragmentShader, 0 );
+    const GLchar* fShaderPtr = fragmentShader.c_str();
+    glFunctions->shaderSource( fShader, 1, &fShaderPtr, 0 );
     glFunctions->compileShader( fShader );
     glFunctions->getShaderiv( fShader, GL_COMPILE_STATUS, &status );
     if( !status )

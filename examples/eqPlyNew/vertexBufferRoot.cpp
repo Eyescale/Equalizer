@@ -71,7 +71,13 @@ void VertexBufferRoot::endRendering( VertexBufferState& state ) const
     {
 #ifdef GL_ARB_vertex_buffer_object
     case BUFFER_OBJECT_MODE:
+    {
+        const GLFunctions* gl = state.getGLFunctions();
+        // deactivate VBO and EBO use
+        gl->bindBuffer( GL_ARRAY_BUFFER_ARB, 0);
+        gl->bindBuffer( GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
         glPopClientAttrib();
+    }
 #endif
     case DISPLAY_LIST_MODE:
     case IMMEDIATE_MODE:

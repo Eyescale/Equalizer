@@ -8,6 +8,7 @@
 #include <eq/eq.h>
 
 #include "vertexBufferState.h"
+#include <string>
 
 namespace eqPly
 {
@@ -28,7 +29,7 @@ namespace eqPly
         void getLogoTexture( GLuint& id, vmml::Vector2i& size ) const
             { id = _logoTexture; size = _logoSize; }
         
-        mesh::VertexBufferState& getState() { return *_state; }
+        VertexBufferState& getState() { return *_state; }
         
     protected:
         virtual ~Window() {}
@@ -43,6 +44,7 @@ namespace eqPly
 
         void _loadLogo();
         void _loadShaders();
+        bool _readShader( const char* filename, std::string& shaderSource );
     };
 }
 

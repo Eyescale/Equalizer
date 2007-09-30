@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+   Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
    All rights reserved. */
 
 #include "channel.h"
@@ -15,7 +16,17 @@ using namespace eqBase;
 using namespace std;
 using namespace mesh;
 
-static float lightpos[] = { 0.0f, 0.0f, 1.0f, 0.0f };
+// light parameters
+static GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};
+static GLfloat lightAmbient[]  = {0.0f, 0.0f, 0.0f, 1.0f};
+static GLfloat lightDiffuse[]  = {1.0f, 1.0f, 1.0f, 1.0f};
+static GLfloat lightSpecular[] = {1.0f, 1.0f, 1.0f, 1.0f};
+
+// material properties
+static GLfloat materialAmbient[]  = {0.2f, 0.2f, 0.2f, 1.0f};
+static GLfloat materialDiffuse[]  = {0.8f, 0.8f, 0.8f, 1.0f};
+static GLfloat materialSpecular[] = {0.5f, 0.5f, 0.5f, 1.0f};
+static GLint  materialShininess   = 64;
 
 #ifndef M_SQRT3_2
 #  define M_SQRT3_2  0.86603f  /* sqrt(3)/2 */
@@ -43,7 +54,15 @@ void Channel::frameDraw( const uint32_t frameID )
     glLoadIdentity();
     applyHeadTransform();
 
-    glLightfv( GL_LIGHT0, GL_POSITION, lightpos );
+    glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
+    glLightfv( GL_LIGHT0, GL_AMBIENT,  lightAmbient  );
+    glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDiffuse  );
+    glLightfv( GL_LIGHT0, GL_SPECULAR, lightSpecular );
+
+    glMaterialfv( GL_FRONT, GL_AMBIENT,   materialAmbient );
+    glMaterialfv( GL_FRONT, GL_DIFFUSE,   materialDiffuse );
+    glMaterialfv( GL_FRONT, GL_SPECULAR,  materialSpecular );
+    glMateriali(  GL_FRONT, GL_SHININESS, materialShininess );
 
     const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
     const FrameData& frameData = pipe->getFrameData();
@@ -97,7 +116,7 @@ void Channel::frameAssemble( const uint32_t frameID )
 void Channel::_drawModel( const Model* model )
 {
     Window*                  window    = static_cast<Window*>( getWindow() );
-    mesh::VertexBufferState& state     = window->getState();
+    VertexBufferState&       state     = window->getState();
 
     const Pipe*              pipe      = static_cast<Pipe*>( getPipe( ));
     const FrameData&         frameData = pipe->getFrameData();
@@ -110,12 +129,17 @@ void Channel::_drawModel( const Model* model )
                      model->hasColors() );
     _initFrustum( culler, model->getBoundingSphere( ));
 
+    const eq::GLFunctions* glFunctions = window->getGLFunctions();
+    const GLuint program = state.getProgram( pipe );
+    if( program != VertexBufferState::FAILED )
+        glFunctions->useProgram( program );
+    
     model->beginRendering( state );
-        
+    
     // start with root node
     vector< const VertexBufferBase* > candidates;
     candidates.push_back( model );
-        
+    
     while( !candidates.empty() )
     {
         const VertexBufferBase* treeNode = candidates.back();
@@ -163,8 +187,10 @@ void Channel::_drawModel( const Model* model )
                 break;
         }
     }
-        
+    
     model->endRendering( state );
+    
+    glFunctions->useProgram( 0 );
 }
 
 void Channel::_drawLogo()
