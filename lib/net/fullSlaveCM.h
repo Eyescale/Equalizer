@@ -59,13 +59,14 @@ namespace eqNet
                                const uint32_t instanceID )    { EQDONTCALL; }
         virtual void removeSlave( eqBase::RefPtr<Node> node ) { EQDONTCALL; }
 
-    private:
+    protected:
         /** The managed object. */
         Object* _object;
 
         /** The current version. */
         uint32_t _version;
 
+    private:
         /** The mutex, if thread safety is enabled. */
         eqBase::Lock* _mutex;
 
@@ -75,8 +76,9 @@ namespace eqNet
         void _syncToHead();
 
         /* The command handlers. */
+        CommandResult _cmdInstanceData( Command& command );
         CommandResult _cmdPushData( Command& command );
-        CommandResult _reqInit( Command& command );
+        CommandResult _reqDeltaData( Command& command );
 
         CHECK_THREAD_DECLARE( _thread );
     };

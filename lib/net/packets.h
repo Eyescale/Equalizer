@@ -347,12 +347,9 @@ namespace eqNet
                 instanceID = request->instanceID;
             }
         
-        uint64_t       dataSize;
         uint32_t       requestID;
         uint32_t       instanceID;
-        uint32_t       version;
         ObjectCM::Type cmType;
-        EQ_ALIGN8( char data[8] );
     };
 
     struct SessionSubscribeObjectReplyPacket : public SessionPacket

@@ -636,12 +636,10 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
             {
                 SessionSubscribeObjectSuccessPacket successPacket( packet );
                 successPacket.cmType = object->_getChangeManagerType();
+                send( node, successPacket );
 
-                const void* data = object->_cm->getInitialData( 
-                    &successPacket.dataSize, &successPacket.version  );
-
-                send( node, successPacket, data, successPacket.dataSize );
                 object->addSlave( node, packet->instanceID );
+
                 send( node, reply );
                 return COMMAND_HANDLED;
             }
@@ -674,8 +672,6 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
     object->_session    = this;
 
     object->_setupChangeManager( packet->cmType, false );
-    object->_cm->applyInitialData( packet->data, packet->dataSize,
-                                   packet->version );
 
     _objectsMutex.set();
     vector<Object*>& objects = _objects[ data->objectID ];

@@ -11,22 +11,33 @@
 
 #include <eq/base/scopedMutex.h>
 
-using namespace eqNet;
 using namespace eqBase;
 using namespace std;
 
+namespace eqNet
+{
 StaticSlaveCM::StaticSlaveCM( Object* object )
         : _object( object )
 {
+    registerCommand( CMD_OBJECT_INSTANCE_DATA,
+          CommandFunc<StaticSlaveCM>( this, &StaticSlaveCM::_cmdInstanceData ));
 }
 
 StaticSlaveCM::~StaticSlaveCM()
 {
 }
 
-void StaticSlaveCM::applyInitialData( const void* data, const uint64_t size,
-                                     const uint32_t version )
+//---------------------------------------------------------------------------
+// command handlers
+//---------------------------------------------------------------------------
+CommandResult StaticSlaveCM::_cmdInstanceData( Command& command )
 {
-    EQASSERT( version == Object::VERSION_NONE );
-    _object->applyInstanceData( data, size );
+    const ObjectInstanceDataPacket* packet = 
+        command.getPacket<ObjectInstanceDataPacket>();
+    EQLOG( LOG_OBJECTS ) << "cmd instance data " << command << endl;
+
+    EQASSERT( packet->version == Object::VERSION_NONE );
+    _object->applyInstanceData( packet->data, packet->dataSize );
+    return eqNet::COMMAND_HANDLED;
+}
 }

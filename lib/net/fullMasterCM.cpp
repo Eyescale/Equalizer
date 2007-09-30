@@ -23,10 +23,12 @@ FullMasterCM::FullMasterCM( Object* object )
           _obsoleteFlags( Object::AUTO_OBSOLETE_COUNT_VERSIONS )
 {
     registerCommand( CMD_OBJECT_COMMIT, 
-                CommandFunc<FullMasterCM>( this, &FullMasterCM::_cmdCommit ));
+                  CommandFunc<FullMasterCM>( this, &FullMasterCM::_cmdCommit ));
     // sync commands are send to any instance, even the master gets the command
     registerCommand( CMD_OBJECT_INSTANCE_DATA,
-               CommandFunc<FullMasterCM>( this, &FullMasterCM::_cmdDiscard ));
+                 CommandFunc<FullMasterCM>( this, &FullMasterCM::_cmdDiscard ));
+    registerCommand( CMD_OBJECT_DELTA_DATA,
+                 CommandFunc<FullMasterCM>( this, &FullMasterCM::_cmdDiscard ));
 }
 
 FullMasterCM::~FullMasterCM()
@@ -123,19 +125,6 @@ void FullMasterCM::_obsolete()
     }
 }
 
-const void* FullMasterCM::getInitialData( uint64_t* size, uint32_t* version )
-{
-    if( _version == Object::VERSION_NONE )
-        _commitInitial();
-
-    const uint32_t      age  = _instanceDatas.size() - 1;
-    const InstanceData& data = _instanceDatas.back();
-
-    *version = _version - age;
-    *size    = data.size;
-    return data.data;
-}
-
 void FullMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
 {
     _checkConsistency();
@@ -150,26 +139,33 @@ void FullMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
 
     EQASSERT( !_object->isStatic( ))
 
-    const uint32_t           age        = _instanceDatas.size() - 1;
-    ObjectInstanceDataPacket initPacket;
-    initPacket.instanceID = instanceID;
-    initPacket.dataSize   = 0;
-    initPacket.version    = _version - age + 1;
+    if( _version == Object::VERSION_NONE )
+        _commitInitial();
+
+    const uint32_t                        age = _instanceDatas.size() - 1;
+    deque<InstanceData>::reverse_iterator i   = _instanceDatas.rbegin();
+         
+    ObjectInstanceDataPacket instPacket;
+    const InstanceData&      data      = *i;
+    instPacket.instanceID = instanceID;
+    instPacket.dataSize   = data.size;
+    instPacket.version    = _version - age;
+
+    _object->send( node, instPacket, data.data, data.size );
 
     // send versions oldest-1..newest
-    deque<InstanceData>::reverse_iterator i = _instanceDatas.rbegin();
-    ++i; // oldest was sent by session using getInitialData()
-    for( ; i != _instanceDatas.rend(); ++i )
+    for( ++i; i != _instanceDatas.rend(); ++i )
     {
         const InstanceData& data = *i;
 
-        initPacket.dataSize = data.size;
-        
-        EQLOG( LOG_OBJECTS ) << "send " << &initPacket << endl;
-        _object->send( node, initPacket, data.data, data.size );
-        ++initPacket.version;
+        ObjectDeltaDataPacket deltaPacket;
+        deltaPacket.instanceID = instanceID;
+        deltaPacket.version    = ++instPacket.version;
+        deltaPacket.deltaSize  = data.size;
+        EQLOG( LOG_OBJECTS ) << "send " << &deltaPacket << endl;
+        _object->send( node, deltaPacket, data.data, data.size );
     }
-    EQASSERT( initPacket.version - 1 == _version );
+    EQASSERT( instPacket.version == _version );
 }
 
 void FullMasterCM::removeSlave( RefPtr<Node> node )
@@ -259,9 +255,9 @@ CommandResult FullMasterCM::_cmdCommit( Command& command )
     // send new version to subscribed slaves
     if( !_slaves.empty( ))
     {
-        ObjectInstanceDataPacket initPacket;
+        ObjectDeltaDataPacket initPacket;
 
-        initPacket.dataSize = instanceData.size;
+        initPacket.deltaSize = instanceData.size;
         initPacket.version  = _version;
         
         EQLOG( LOG_OBJECTS ) << "send " << &initPacket << " to " 

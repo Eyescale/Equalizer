@@ -95,13 +95,6 @@ namespace eqNet
          */
         virtual bool sync( const uint32_t version ) = 0;
 
-        /** Get the data to initialize the object on a slave. */
-        virtual const void* getInitialData( uint64_t* size, 
-                                            uint32_t* version ) = 0;
-        /** Apply the data to initialize the object on the slave. */
-        virtual void applyInitialData( const void* data, const uint64_t size,
-                                       const uint32_t version ) = 0;
-
         /** @return the latest available (head) version.
          */
         virtual uint32_t getHeadVersion() const = 0;

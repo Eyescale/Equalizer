@@ -21,7 +21,11 @@ FullSlaveCM::FullSlaveCM( Object* object )
           _mutex( 0 )
 {
     registerCommand( CMD_OBJECT_INSTANCE_DATA,
-                 CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdPushData ));
+              CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdInstanceData ));
+    registerCommand( CMD_OBJECT_DELTA_DATA,
+                  CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdPushData ));
+    registerCommand( REQ_OBJECT_DELTA_DATA,
+                 CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_reqDeltaData ));
 }
 
 FullSlaveCM::~FullSlaveCM()
@@ -63,9 +67,8 @@ bool FullSlaveCM::sync( const uint32_t version )
     {
         Command* command = _syncQueue.pop();
 
-         // OPT shortcut around invokeCommand()
-        EQASSERT( (*command)->command == REQ_OBJECT_INSTANCE_DATA );
-        _reqInit( *command );
+        EQASSERT( (*command)->command == REQ_OBJECT_DELTA_DATA );
+        invokeCommand( *command );
     }
     _object->getLocalNode()->flushCommands();
 
@@ -81,8 +84,8 @@ void FullSlaveCM::_syncToHead()
     for( Command* command = _syncQueue.tryPop(); command; 
          command = _syncQueue.tryPop( ))
     {
-        EQASSERT( (*command)->command == REQ_OBJECT_INSTANCE_DATA );
-        _reqInit( *command ); // XXX shortcut around invokeCommand()
+        EQASSERT( (*command)->command == REQ_OBJECT_DELTA_DATA );
+        invokeCommand( *command );
     }
 
     _object->getLocalNode()->flushCommands();
@@ -115,6 +118,20 @@ uint32_t FullSlaveCM::getHeadVersion() const
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
+CommandResult FullSlaveCM::_cmdInstanceData( Command& command )
+{
+    const ObjectInstanceDataPacket* packet = 
+        command.getPacket<ObjectInstanceDataPacket>();
+    EQLOG( LOG_OBJECTS ) << "cmd instance data " << command << endl;
+
+    EQASSERT( packet->version != Object::VERSION_NONE );
+    EQASSERT( _version == Object::VERSION_NONE );
+
+    _object->applyInstanceData( packet->data, packet->dataSize );
+    _version = packet->version;
+    return eqNet::COMMAND_HANDLED;
+}
+
 CommandResult FullSlaveCM::_cmdPushData( Command& command )
 {
     // init sent to all instances: make copy
@@ -124,13 +141,13 @@ CommandResult FullSlaveCM::_cmdPushData( Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-CommandResult FullSlaveCM::_reqInit( Command& command )
+CommandResult FullSlaveCM::_reqDeltaData( Command& command )
 {
-    const ObjectInstanceDataPacket* packet = 
-        command.getPacket<ObjectInstanceDataPacket>();
-    EQLOG( LOG_OBJECTS ) << "cmd init " << command << endl;
+    const ObjectDeltaDataPacket* packet = 
+        command.getPacket<ObjectDeltaDataPacket>();
+    EQLOG( LOG_OBJECTS ) << "cmd delta " << command << endl;
 
-    _object->applyInstanceData( packet->data, packet->dataSize );
+    _object->applyInstanceData( packet->delta, packet->deltaSize );
     _version = packet->version;
     return eqNet::COMMAND_HANDLED;
 }

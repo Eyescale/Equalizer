@@ -11,10 +11,11 @@
 #include "object.h"
 #include "packets.h"
 
-using namespace eqNet;
 using namespace eqBase;
 using namespace std;
 
+namespace eqNet
+{
 StaticMasterCM::StaticMasterCM( Object* object )
         : _object( object )
 {}
@@ -22,8 +23,16 @@ StaticMasterCM::StaticMasterCM( Object* object )
 StaticMasterCM::~StaticMasterCM()
 {}
 
-const void* StaticMasterCM::getInitialData( uint64_t* size, uint32_t* version )
+void StaticMasterCM::addSlave( eqBase::RefPtr<Node> node,
+                               const uint32_t instanceID )
 {
-    *version = Object::VERSION_NONE;
-    return _object->getInstanceData( size );
+    ObjectInstanceDataPacket instPacket;
+    const void* data = _object->getInstanceData( &instPacket.dataSize );
+
+    instPacket.instanceID = instanceID;
+    instPacket.version    = Object::VERSION_NONE;
+
+    _object->send( node, instPacket, data, instPacket.dataSize );
+    _object->releaseInstanceData( data );
+}
 }

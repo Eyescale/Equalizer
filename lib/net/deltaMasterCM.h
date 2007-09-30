@@ -44,10 +44,6 @@ namespace eqNet
 
         virtual bool sync( const uint32_t version ){ EQDONTCALL; return false; }
 
-        virtual const void* getInitialData( uint64_t* size, uint32_t* version );
-        virtual void applyInitialData( const void* data, const uint64_t size,
-                                       const uint32_t version ) { EQDONTCALL; }
-
         virtual uint32_t getHeadVersion() const { return _version; }
         virtual uint32_t getVersion() const     { return _version; }
         //*}
@@ -106,9 +102,10 @@ namespace eqNet
         std::vector<InstanceData> _instanceDataCache;
         std::vector<ChangeData>   _changeDataCache;
 
-
         uint32_t _commitInitial();
         void _setInitialVersion( const void* ptr, const uint64_t size );
+        const void* _getInitialData( uint64_t* size, uint32_t* version );
+
         void _obsolete();
         void _checkConsistency() const;
 
