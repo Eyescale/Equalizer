@@ -24,7 +24,7 @@ InitData::InitData()
         , _useVBOs( false )
         , _useShaders( false )
 #ifdef WIN32_VC
-        , _filename( "../examples/eqPlyNew/rockerArm.ply" )
+        , _filename( "../examples/eqPly/rockerArm.ply" )
 #else
         , _filename( "rockerArm.ply" )
 #endif
