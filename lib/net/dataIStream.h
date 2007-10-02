@@ -17,15 +17,16 @@ namespace eqNet
      *
      * Derived classes send the data using command packets.
      */
-    class EQ_EXPORT DataIStream // : public std::istream
+    class EQ_EXPORT DataIStream
     {
     public:
         DataIStream();
         virtual ~DataIStream();
 
         /** @name Basic data input */
-        //*{
-        DataIStream& operator >> ( int& value )
+        //*{ 
+        template< typename T >
+        DataIStream& operator >> ( T& value )
             { read( &value, sizeof( value )); return *this; }
 
         template< typename T >
@@ -39,7 +40,15 @@ namespace eqNet
         }
 
         void read( void* data, uint64_t size );
+
+        const void*    getRemainingBuffer();
+        uint64_t       getRemainingBufferSize();
+        void           advanceBuffer( const uint64_t offset ); 
+
+        virtual size_t nRemainingBuffers() const = 0;
         //*}
+
+        virtual void reset();
  
     protected:
         virtual bool getNextBuffer( const void** buffer, uint64_t* size ) = 0;
@@ -51,6 +60,25 @@ namespace eqNet
         uint64_t _inputSize;
         /** The current read position in the buffer */
         uint64_t  _position;
+
+        /**
+         * Check that the current buffer has data left, get the next buffer is
+         * necessary, return false if no data is left. 
+         */
+        bool _checkBuffer();
     };
+
+    // Some template specializations
+    template<>
+    inline DataIStream& DataIStream::operator >> ( std::string& str )
+    { 
+        uint64_t nElems = 0;
+        read( &nElems, sizeof( nElems ));
+        EQASSERT( nElems <= getRemainingBufferSize( ));
+        str.assign( static_cast< const char* >(getRemainingBuffer( )), nElems );
+        advanceBuffer( nElems );
+        return *this; 
+    }
 }
+
 #endif //EQNET_DATAISTREAM_H

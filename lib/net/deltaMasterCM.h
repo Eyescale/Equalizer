@@ -5,15 +5,18 @@
 #ifndef EQNET_DELTAMASTERCM_H
 #define EQNET_DELTAMASTERCM_H
 
-#include <eq/net/objectCM.h> // base class
-#include <eq/net/nodeID.h>   // for NodeIDHash
-#include <eq/net/types.h>    // for NodeVector
+#include "objectInstanceDataOStream.h"
+
+#include <eq/net/nodeID.h>             // for NodeIDHash
+#include <eq/net/objectCM.h>           // base class
+#include <eq/net/types.h>              // for NodeVector
 
 #include <deque>
 
 namespace eqNet
 {
     class Node;
+    class ObjectDeltaDataOStream;
 
     /** 
      * An object change manager handling full versions and deltas for the master
@@ -80,31 +83,28 @@ namespace eqNet
 
         struct InstanceData
         {
-            InstanceData() : data(NULL), size(0), maxSize(0), commitCount(0) {}
-            void*    data;
-            uint64_t size;
-            uint64_t maxSize;
+            InstanceData( const Object* object )
+                    : os( object ), commitCount(0) {}
 
+            ObjectInstanceDataOStream os;
             uint32_t commitCount;
         };
-        struct ChangeData : public InstanceData
-        {
-            ChangeData() : version(0) {}
-            uint32_t version;
-        };
+        
+        typedef ObjectDeltaDataOStream DeltaData;
         
         /** The list of full instance datas, head version first. */
-        std::deque<InstanceData> _instanceDatas;
+        std::deque< InstanceData* > _instanceDatas;
 
-        /** The list of change datas, (head-1):head change first. */
-        std::deque<ChangeData> _changeDatas;
+        /** The list of delta datas, (head-1):head delta first. */
+        std::deque< DeltaData* > _deltaDatas;
         
-        std::vector<InstanceData> _instanceDataCache;
-        std::vector<ChangeData>   _changeDataCache;
+        std::vector< InstanceData* > _instanceDataCache;
+        std::vector< DeltaData* >   _deltaDataCache;
+
+        DeltaData*   _newDeltaData();
+        InstanceData* _newInstanceData();
 
         uint32_t _commitInitial();
-        void _setInitialVersion( const void* ptr, const uint64_t size );
-        const void* _getInitialData( uint64_t* size, uint32_t* version );
 
         void _obsolete();
         void _checkConsistency() const;

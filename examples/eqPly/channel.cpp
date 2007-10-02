@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+   Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
    All rights reserved. */
 
 #include "channel.h"
@@ -9,11 +10,23 @@
 #include "node.h"
 #include "pipe.h"
 #include "window.h"
+#include "vertexBufferState.h"
 
 using namespace eqBase;
 using namespace std;
+using namespace mesh;
 
-static float lightpos[] = { 0.0f, 0.0f, 1.0f, 0.0f };
+// light parameters
+static GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};
+static GLfloat lightAmbient[]  = {0.0f, 0.0f, 0.0f, 1.0f};
+static GLfloat lightDiffuse[]  = {1.0f, 1.0f, 1.0f, 1.0f};
+static GLfloat lightSpecular[] = {1.0f, 1.0f, 1.0f, 1.0f};
+
+// material properties
+static GLfloat materialAmbient[]  = {0.2f, 0.2f, 0.2f, 1.0f};
+static GLfloat materialDiffuse[]  = {0.8f, 0.8f, 0.8f, 1.0f};
+static GLfloat materialSpecular[] = {0.5f, 0.5f, 0.5f, 1.0f};
+static GLint  materialShininess   = 64;
 
 #ifndef M_SQRT3_2
 #  define M_SQRT3_2  0.86603f  /* sqrt(3)/2 */
@@ -23,17 +36,12 @@ namespace eqPly
 {
 bool Channel::configInit( const uint32_t initID )
 {
-    EQINFO << "Init channel initID " << initID << " ptr " << this << endl;
-
     setNearFar( 0.1f, 10.0f );
     return true;
 }
 
 void Channel::frameDraw( const uint32_t frameID )
 {
-    vmml::FrustumCullerf culler;
-    _initFrustum( culler );
-
     applyBuffer();
     applyViewport();
             
@@ -46,7 +54,15 @@ void Channel::frameDraw( const uint32_t frameID )
     glLoadIdentity();
     applyHeadTransform();
 
-    glLightfv( GL_LIGHT0, GL_POSITION, lightpos );
+    glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
+    glLightfv( GL_LIGHT0, GL_AMBIENT,  lightAmbient  );
+    glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDiffuse  );
+    glLightfv( GL_LIGHT0, GL_SPECULAR, lightSpecular );
+
+    glMaterialfv( GL_FRONT, GL_AMBIENT,   materialAmbient );
+    glMaterialfv( GL_FRONT, GL_DIFFUSE,   materialDiffuse );
+    glMaterialfv( GL_FRONT, GL_SPECULAR,  materialSpecular );
+    glMateriali(  GL_FRONT, GL_SHININESS, materialShininess );
 
     const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
     const FrameData& frameData = pipe->getFrameData();
@@ -60,61 +76,19 @@ void Channel::frameDraw( const uint32_t frameID )
     const Model*     model = node->getModel();
     const eq::Range& range = getRange();
 
-    if( !frameData.data.color )
-    {
-        glColor3f( 1.0f, 1.0f, 1.0f );
-    }
-    else if( !range.isFull( )) // Color DB-patches
+    if( !range.isFull( )) // Color DB-patches
     {
         const vmml::Vector3ub color = getUniqueColor();
         glColor3ub( color.r, color.g, color.b );
     }
-
+    else if( !frameData.data.color || (model && !model->hasColors( )) )
+    {
+        glColor3f( 1.0f, 1.0f, 1.0f );
+    }
+    
     if( model )
     {
-        vector<const Model::BBox*> candidates;
-        candidates.push_back( model->getBBox( ));
-
-        while( !candidates.empty( ) )
-        {
-            const Model::BBox *bbox = candidates.back();
-            candidates.pop_back();
-
-            // cull against 'completely out of range'
-            if( bbox->range[0] >= range.end || bbox->range[1] < range.start )
-                continue;
-
-            const vmml::Visibility visibility = culler.testSphere( 
-                bbox->cullSphere );
-
-            switch( visibility )
-            {
-                case vmml::VISIBILITY_FULL:
-                {
-                    const bool fullyInRange = (bbox->range[0] >= range.start && 
-                                               bbox->range[1] <  range.end );
-                    if( fullyInRange )
-                    {
-                        model->traverseBBox( bbox, 0, _drawBBoxCB, 0, this );
-                        break;   
-                    }
-                    // partial range, fall through
-                }
-                case vmml::VISIBILITY_PARTIAL:
-                    if( !bbox->children )
-                    {
-                        if( bbox->range[0] >= range.start )
-                            model->traverseBBox( bbox, 0, _drawBBoxCB, 0, this);
-                        // else drop, to be drawn by 'previous' channel
-                    }
-                    else
-                        for( int i=0; i<8; i++ )
-                            candidates.push_back( &bbox->children[i] );
-                    break;
-                case vmml::VISIBILITY_NONE:
-                    break;
-            }
-        }
+        _drawModel( model );
     }
     else
     {
@@ -133,77 +107,90 @@ void Channel::frameDraw( const uint32_t frameID )
         _drawLogo();
 }
 
-void Channel::_drawBBoxCB( Model::BBox *bbox, void *userData )
-{
-    Channel* channel = static_cast<Channel*>( userData );
-    channel->_drawBBox( bbox );
-}
-
-void Channel::_drawBBox( const Model::BBox *bbox )
-{
-    Window* window      = static_cast<Window*>( getWindow( ));
-    GLuint  displayList = window->getDisplayList( bbox );
-
-    if( displayList != ObjectManager::FAILED )
-    {
-        glCallList( displayList );
-        return;
-    }
-
-    displayList = window->newDisplayList( bbox );
-    EQASSERT( displayList != ObjectManager::FAILED );
-
-    Pipe*            pipe      = static_cast<Pipe*>( getPipe( ));
-    const FrameData& frameData = pipe->getFrameData();
-    const size_t     nFaces    = bbox->nFaces;
-    const eq::Range& range     = getRange();
-    const bool       color     = frameData.data.color && range.isFull();
-
-    glNewList( displayList, GL_COMPILE );
-    glBegin( GL_TRIANGLES );
-
-    if( color )
-        for( size_t i=0; i<nFaces; ++i )
-        {
-            const NormalFace<ColorVertex> &face = bbox->faces[i];
-            
-            glColor3fv(  face.vertices[0].color );
-            glNormal3fv( face.normal );
-            glVertex3fv( face.vertices[0].pos );
-            
-            glColor3fv(  face.vertices[1].color );
-            glNormal3fv( face.normal ); 
-            glVertex3fv( face.vertices[1].pos );
-            
-            glColor3fv(  face.vertices[2].color );
-            glNormal3fv( face.normal ); 
-            glVertex3fv( face.vertices[2].pos );
-        }
-    else
-        for( size_t i=0; i<nFaces; ++i )
-        {
-            const NormalFace<ColorVertex> &face = bbox->faces[i];
-            
-            glNormal3fv( face.normal );
-            glVertex3fv( face.vertices[0].pos );
-            
-            glNormal3fv( face.normal ); 
-            glVertex3fv( face.vertices[1].pos );
-            
-            glNormal3fv( face.normal ); 
-            glVertex3fv( face.vertices[2].pos );
-        }
-
-    glEnd();
-
-    glEndList();
-    glCallList( displayList );
-}
-
 void Channel::frameAssemble( const uint32_t frameID )
 {
     eq::Channel::frameAssemble( frameID );
     _drawLogo();
+}
+
+void Channel::_drawModel( const Model* model )
+{
+    Window*                  window    = static_cast<Window*>( getWindow() );
+    VertexBufferState&       state     = window->getState();
+
+    const Pipe*              pipe      = static_cast<Pipe*>( getPipe( ));
+    const FrameData&         frameData = pipe->getFrameData();
+
+    const eq::Range&         range     = getRange();
+    vmml::FrustumCullerf     culler;
+
+    state.setColors( frameData.data.color && 
+                     range.isFull() && 
+                     model->hasColors() );
+    _initFrustum( culler, model->getBoundingSphere( ));
+
+    const eq::GLFunctions* glFunctions = window->getGLFunctions();
+    const GLuint program = state.getProgram( pipe );
+    if( program != VertexBufferState::FAILED )
+        glFunctions->useProgram( program );
+    
+    model->beginRendering( state );
+    
+    // start with root node
+    vector< const VertexBufferBase* > candidates;
+    candidates.push_back( model );
+    
+    while( !candidates.empty() )
+    {
+        const VertexBufferBase* treeNode = candidates.back();
+        candidates.pop_back();
+            
+        // completely out of range check
+        if( treeNode->getRange()[0] >= range.end || 
+            treeNode->getRange()[1] < range.start )
+            continue;
+            
+        // bounding sphere view frustum culling
+        switch( culler.testSphere( treeNode->getBoundingSphere() ) )
+        {
+            case vmml::VISIBILITY_FULL:
+                // if fully visible and fully in range, render it
+                if( treeNode->getRange()[0] >= range.start && 
+                    treeNode->getRange()[1] < range.end )
+                {
+                    treeNode->render( state );
+                    break;
+                }
+                // partial range, fall through to partial visibility
+            case vmml::VISIBILITY_PARTIAL:
+            {
+                const VertexBufferBase* left  = treeNode->getLeft();
+                const VertexBufferBase* right = treeNode->getRight();
+            
+                if( !left && !right )
+                {
+                    if( treeNode->getRange()[0] >= range.start )
+                        treeNode->render( state );
+                    // else drop, to be drawn by 'previous' channel
+                }
+                else
+                {
+                    if( left )
+                        candidates.push_back( left );
+                    if( right )
+                        candidates.push_back( right );
+                }
+                break;
+            }
+            case vmml::VISIBILITY_NONE:
+                // do nothing
+                break;
+        }
+    }
+    
+    model->endRendering( state );
+    
+    glFunctions->useProgram( 0 );
 }
 
 void Channel::_drawLogo()
@@ -259,7 +246,8 @@ void Channel::_drawLogo()
     glEnable( GL_DEPTH_TEST );
 }
 
-void Channel::_initFrustum( vmml::FrustumCullerf& culler )
+void Channel::_initFrustum( vmml::FrustumCullerf& culler,
+                            const vmml::Vector4f& boundingSphere )
 {
     // setup frustum cull helper
     const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
@@ -283,10 +271,11 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler )
     vmml::Vector3f       front = modelInv * vmml::Vector3f( 0.0f, 0.0f, -1.0f );
 
     front -= zero;
-    front.normalise();
-    front.scale( M_SQRT3_2 ); // bounding sphere size of unit-sized cube
+    front.normalize();
+    front.scale( boundingSphere.radius );
 
-    const vmml::Vector3f center( frameData.data.translation );
+    const vmml::Vector3f center = vmml::Vector3f( boundingSphere.xyzw ) + 
+                                  vmml::Vector3f( frameData.data.translation );
     const vmml::Vector3f nearPoint  = headTransform * ( center - front );
     const vmml::Vector3f farPoint   = headTransform * ( center + front );
     const float          zNear = MAX( 0.0001f, -nearPoint.z );

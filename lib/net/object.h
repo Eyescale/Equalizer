@@ -12,6 +12,8 @@
 
 namespace eqNet
 {
+    class DataIStream;
+    class DataOStream;
     class Node;
     class Session;
     struct ObjectPacket;
@@ -123,11 +125,11 @@ namespace eqNet
          */
         void setAutoObsolete( const uint32_t count, 
                            const uint32_t flags = AUTO_OBSOLETE_COUNT_VERSIONS )
-        { _cm->setAutoObsolete( count, flags ); }
+            { _cm->setAutoObsolete( count, flags ); }
 
         /** @return get the number of versions this object retains. */
         uint32_t getAutoObsoleteCount() const 
-        { return _cm->getAutoObsoleteCount(); }
+            { return _cm->getAutoObsoleteCount(); }
 
         /** 
          * Sync to a given version.
@@ -142,7 +144,7 @@ namespace eqNet
          */
         bool sync( const uint32_t version = VERSION_HEAD
                    /*, const float timeout = EQ_TIMEOUT_INDEFINITE*/ )
-        { return _cm->sync( version ); }
+            { return _cm->sync( version ); }
 
         /** 
          * Get the latest available version.
@@ -170,76 +172,53 @@ namespace eqNet
         virtual bool isStatic() const { return true; }
 
         /** 
-         * Return the instance information about this managed object.
-         *
-         * The returned pointer has to point to at least size bytes of memory
-         * allocated by the object. The data will be released before the next
-         * call to this object, that is, this function may return a pointer to
-         * member variables if no other threads are accessing the object.
-         * 
-         * @param size the size of the returned data, or unchanged for unmanaged
-         *             objects.
-         * @return the instance data, or <code>NULL</code> for unmanaged
-         *         objects.
+         * @return false if deltas are identical to the instance data, true if 
+         *         deltas are different from instance data.
          */
-        virtual const void* getInstanceData( uint64_t* size )
-            { *size = _instanceDataSize; return _instanceData; }
+        virtual bool usePack() const
+            { return ( !_instanceData || _instanceData != _deltaData ||
+                       _instanceDataSize != _deltaDataSize ); }
 
         /** 
-         * Release the instance data obtained by getInstanceData().
-         * 
-         * @param data the data.
+         * Serialize the instance information about this managed object.
+         *
+         * The default implementation uses the data provided by setInstanceData.
+         *
+         * @param os The output stream.
          */
-        virtual void releaseInstanceData( const void* data ) {}
+        virtual void getInstanceData( DataOStream& os );
 
         /**
-         * Apply instance data.
+         * Deserialize the instance data.
          *
          * This method is called during object mapping to populate slave
-         * instances with the master object's data.
+         * instances with the master object's data. The default implementation
+         * writes the data into the memory declared by setInstanceData.
          * 
-         * @param data the instance data. 
+         * @param is the input stream.
          */
-        virtual void applyInstanceData( const void* data, const uint64_t size )
-            { 
-                EQASSERTINFO( size == _instanceDataSize, 
-                              size << " != " << _instanceDataSize );
-                memcpy( _instanceData, data, size );
-            }
+        virtual void applyInstanceData( DataIStream& is );
 
         /** 
-         * Pack the changes since the last call to commit().
+         * Serialize the modifications since the last call to commit().
          * 
-         * The returned pointer has to point to at least size bytes of memory
-         * allocated by the object. The data will be released before the next
-         * call to this object, that is, this function may return a pointer to
-         * member variables if no other threads are accessing the object.
+         * No new version will be created if no data is written to the
+         * ostream. The default implementation uses the data provided by
+         * setDeltaData or setInstanceData.
          * 
-         * @param size the size of the returned data, or untouched for
-         *             unversioned or unchanged objects.
-         * @return the delta data, or <code>NULL</code> if the object has not
-         *             changed or is not versioned.
+         * @param os the output stream.
          */
-        virtual const void* pack( uint64_t* size )
-            { *size = _deltaDataSize; return _deltaData; }
-
-        //virtual void pack( DataOStream& ostream )
-        //{ ostream.disableBuffer(); ostream.write( pack(), size ); }
-
-        /** 
-         * Release the delta data obtained by pack().
-         * 
-         * @param data the data.
-         */
-        virtual void releasePackData( const void* data ){}
-
+        virtual void pack( DataOStream& os );
+        
         /**
-         * Unpack a change.
+         * Deserialize a change.
          *
-         * @param data the change delta. 
+         * The default implementation writes the data into the memory declared
+         * by setDeltaData or setInstanceData.
+         *
+         * @param is the input data stream.
          */
-        virtual void unpack( const void* data, const uint64_t size ) 
-        { EQASSERT( size == _deltaDataSize ); memcpy( _deltaData, data, size );}
+        virtual void unpack( DataIStream& is );
 
         /** 
          * Set the instance data of this object.

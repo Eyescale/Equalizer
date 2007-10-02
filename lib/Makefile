@@ -137,6 +137,11 @@ SOURCES = \
 	net/nodeID.cpp \
 	net/object.cpp \
 	net/objectCM.cpp \
+	net/objectDataIStream.cpp \
+	net/objectDeltaDataIStream.cpp \
+	net/objectDeltaDataOStream.cpp \
+	net/objectInstanceDataIStream.cpp \
+	net/objectInstanceDataOStream.cpp \
 	net/packets.cpp \
 	net/pairConnection.cpp \
 	net/pipeConnection.cpp \

@@ -8,7 +8,6 @@ OPTIONAL = \
 SUBDIRS = \
 	configs \
 	eqPly \
-	eqPlyNew \
 	libmesh \
 	eqPixelBench \
 	$(OPTIONAL)

@@ -27,7 +27,7 @@ namespace eqBase
         MTQueue()
             {
                 // mutex init
-                int error = pthread_mutex_init( &_mutex, NULL );
+                int error = pthread_mutex_init( &_mutex, 0 );
                 if( error )
                 {
                     EQERROR << "Error creating pthread mutex: " 
@@ -35,7 +35,7 @@ namespace eqBase
                     return;
                 }
                 // condvar init
-                error = pthread_cond_init( &_cond, NULL );
+                error = pthread_cond_init( &_cond, 0 );
                 if( error )
                 {
                     EQERROR << "Error creating pthread condition: " 
@@ -52,6 +52,7 @@ namespace eqBase
             }
 
         bool empty() const { return _queue.empty(); }
+        size_t size() const { return _queue.size(); }
 
         T* pop()
             {
@@ -69,13 +70,13 @@ namespace eqBase
         T* tryPop()
             {
                 if( _queue.empty( ))
-                    return NULL;
+                    return 0;
                 
                 pthread_mutex_lock( &_mutex );
                 if( _queue.empty( ))
                 {
                     pthread_mutex_unlock( &_mutex );
-                    return NULL;
+                    return 0;
                 }
 
                 T* element = _queue.front();
@@ -87,7 +88,7 @@ namespace eqBase
         T* back() const
             {
                 pthread_mutex_lock( &_mutex );
-                T* element = _queue.empty() ? NULL : _queue.back();
+                T* element = _queue.empty() ? 0 : _queue.back();
                 pthread_mutex_unlock( &_mutex );
                 return element;
             }

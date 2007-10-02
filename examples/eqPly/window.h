@@ -7,43 +7,44 @@
 
 #include <eq/eq.h>
 
+#include "vertexBufferState.h"
+#include <string>
+
 namespace eqPly
 {
-    class ObjectManager : public eq::ObjectManager< const void* >, 
-                          public eqBase::Referenced
+    class VertexBufferState : public mesh::EqVertexBufferState, 
+                              public eqBase::Referenced
     {
     public:
-        ObjectManager( const eq::GLFunctions* glFunctions ) 
-                : eq::ObjectManager< const void* >( glFunctions ) {}
-        virtual ~ObjectManager(){}
+        VertexBufferState( const eq::GLFunctions* glFunctions )
+                : mesh::EqVertexBufferState( glFunctions ) {}
+        virtual ~VertexBufferState() {}
     };
-
+    
     class Window : public eq::Window
     {
     public:
         Window() : _logoTexture( 0 ) {}
 
-        // display list cache (windows share the context and object manager)
-        GLuint getDisplayList( const void* key )
-            { return _objects->getList( key ); }
-        GLuint newDisplayList( const void* key )
-            { return _objects->newList( key ); }
-
         void getLogoTexture( GLuint& id, vmml::Vector2i& size ) const
             { id = _logoTexture; size = _logoSize; }
-
+        
+        VertexBufferState& getState() { return *_state; }
+        
     protected:
         virtual ~Window() {}
         virtual bool configInit( const uint32_t initID );
         virtual bool configExit();
 
     private:
-        eqBase::RefPtr< ObjectManager > _objects;
+        eqBase::RefPtr< VertexBufferState > _state;
 
         GLuint         _logoTexture;
         vmml::Vector2i _logoSize;
 
         void _loadLogo();
+        void _loadShaders();
+        bool _readShader( const char* filename, std::string& shaderSource );
     };
 }
 

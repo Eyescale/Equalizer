@@ -19,14 +19,15 @@ namespace eqPly
 {
 
 InitData::InitData()
-        : _frameDataID( EQ_UNDEFINED_UINT32 ),
-          _windowSystem( eq::WINDOW_SYSTEM_NONE ),
+        : _frameDataID( EQ_UNDEFINED_UINT32 )
+        , _windowSystem( eq::WINDOW_SYSTEM_NONE )
+        , _useVBOs( false )
+        , _useShaders( false )
 #ifdef WIN32_VC
-          _filename( "../examples/eqPly/rockerArm.ply" ),
+        , _filename( "../examples/eqPlyNew/rockerArm.ply" )
 #else
-          _filename( "rockerArm.ply" ),
+        , _filename( "rockerArm.ply" )
 #endif
-          _instanceData( 0 )
 {}
 
 InitData::~InitData()
@@ -34,41 +35,16 @@ InitData::~InitData()
     setFrameDataID( EQ_ID_INVALID );
 }
 
-const void* InitData::getInstanceData( uint64_t* size )
+void InitData::getInstanceData( eqNet::DataOStream& os )
 {
-    *size = sizeof( uint32_t ) + sizeof( eq::WindowSystem ) +
-            _filename.length() + 1;
-    if( _instanceData )
-        return _instanceData;
-
-    _instanceData = new char[ *size ];
-
-    reinterpret_cast< uint32_t* >( _instanceData )[0] =  _frameDataID;
-    reinterpret_cast< uint32_t* >( _instanceData )[1] =  _windowSystem;
-
-    const char* string = _filename.c_str();
-    memcpy( _instanceData + sizeof( uint64_t ), string, _filename.length()+1 );
-
-    return _instanceData;
+    os << _frameDataID << _windowSystem << _useVBOs << _useShaders << _filename;
 }
 
-void InitData::applyInstanceData( const void* data, const uint64_t size )
+void InitData::applyInstanceData( eqNet::DataIStream& is )
 {
-    EQASSERT( size > ( sizeof( _frameDataID ) + sizeof( _windowSystem )));
-
-    _frameDataID  = reinterpret_cast< const uint32_t* >( data )[0];
-    _windowSystem = reinterpret_cast< const eq::WindowSystem* >( data )[1];
-    _filename     = static_cast<const char*>( data ) + sizeof( uint64_t );
+    is >> _frameDataID >> _windowSystem >> _useVBOs >> _useShaders >> _filename;
 
     EQASSERT( _frameDataID != EQ_ID_INVALID );
-
     EQINFO << "New InitData instance" << endl;
-}
-
-
-void InitData::_clearInstanceData()
-{
-    delete [] _instanceData;
-    _instanceData = 0;
 }
 }

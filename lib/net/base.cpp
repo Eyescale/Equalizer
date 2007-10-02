@@ -63,7 +63,7 @@ CommandResult Base::invokeCommand( Command& command )
 
 CommandResult Base::_cmdUnknown( Command& command )
 {
-    EQERROR << "Unknown " << command << ", type " << typeid(*this).name()
-            << endl;
+    EQERROR << "Unknown " << command << " for " << typeid(*this).name()
+            << " @" << static_cast< void* >( this ) << endl;
     return COMMAND_ERROR;
 }

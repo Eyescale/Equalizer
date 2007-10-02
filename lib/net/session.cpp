@@ -678,9 +678,11 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
     _objectsMutex.unset();
     objects.push_back( object );
     
-    EQLOG( LOG_OBJECTS ) << "subscribed object id " << object->getID() << " @" 
-                         << (void*)object << " is " << typeid(*object).name()
-                         << endl;
+    EQLOG( LOG_OBJECTS ) << "subscribed object id " << object->getID() << '.'
+                         << object->getInstanceID() << " cm " 
+                         << typeid( *(object->_cm)).name() << " @" 
+                         << static_cast< void* >( object ) << " is "
+                         << typeid(*object).name() << endl;
     return COMMAND_HANDLED;
 }
 

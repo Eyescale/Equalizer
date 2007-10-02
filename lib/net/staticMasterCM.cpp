@@ -10,6 +10,7 @@
 #include "node.h"
 #include "object.h"
 #include "packets.h"
+#include "objectInstanceDataOStream.h"
 
 using namespace eqBase;
 using namespace std;
@@ -26,13 +27,11 @@ StaticMasterCM::~StaticMasterCM()
 void StaticMasterCM::addSlave( eqBase::RefPtr<Node> node,
                                const uint32_t instanceID )
 {
-    ObjectInstanceDataPacket instPacket;
-    const void* data = _object->getInstanceData( &instPacket.dataSize );
+    ObjectInstanceDataOStream os( _object );
+    os.setInstanceID( instanceID );
 
-    instPacket.instanceID = instanceID;
-    instPacket.version    = Object::VERSION_NONE;
-
-    _object->send( node, instPacket, data, instPacket.dataSize );
-    _object->releaseInstanceData( data );
+    os.enable( node );
+    _object->getInstanceData( os );
+    os.disable();
 }
 }

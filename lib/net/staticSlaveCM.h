@@ -15,6 +15,7 @@
 namespace eqNet
 {
     class Node;
+    class ObjectDataIStream;
 
     /** 
      * An object change manager handling static object slave instances.
@@ -54,12 +55,17 @@ namespace eqNet
                                const uint32_t instanceID )    { EQDONTCALL; }
         virtual void removeSlave( eqBase::RefPtr<Node> node ) { EQDONTCALL; }
 
-    private:
+    protected:
         /** The managed object. */
         Object* _object;
 
+        /** istream for receiving the current version */
+        ObjectDataIStream* _currentIStream;
+
+    private:
         /* The command handlers. */
         CommandResult _cmdInstanceData( Command& command );
+        CommandResult _cmdInstance( Command& command );
     };
 }
 

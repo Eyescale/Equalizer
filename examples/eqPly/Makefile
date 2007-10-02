@@ -12,10 +12,14 @@ SOURCES = \
 	main.cpp \
 	node.cpp \
 	pipe.cpp \
-	plyfile.cpp \
-	plyFileIO.cpp \
 	tracker.cpp \
-	window.cpp
+	window.cpp \
+	plyfile.cpp \
+	vertexData.cpp \
+	vertexBufferNode.cpp \
+	vertexBufferRoot.cpp \
+	vertexBufferLeaf.cpp
+
 
 CXXFLAGS    += -I../include $(WINDOW_SYSTEM_INCS)
 SA_LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)

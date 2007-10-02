@@ -86,7 +86,7 @@ bool Channel::configInit( const uint32_t initID )
         delete _model;
 
     Node* node = static_cast< Node* >( getNode( ));
-    _model = new Model( node->getInitData().getDataFilename() );
+    _model = new Model( node->getInitData().getFilename() );
 
 #ifndef DYNAMIC_NEAR_FAR
     setNearFar( 0.0001f, 10.0f );

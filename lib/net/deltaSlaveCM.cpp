@@ -8,6 +8,7 @@
 #include "commands.h"
 #include "log.h"
 #include "object.h"
+#include "objectDataIStream.h"
 
 #include <eq/base/scopedMutex.h>
 
@@ -18,24 +19,26 @@ using namespace std;
 DeltaSlaveCM::DeltaSlaveCM( Object* object )
         : FullSlaveCM( object )
 {
-    registerCommand( REQ_OBJECT_DELTA_DATA,
-               CommandFunc<DeltaSlaveCM>( this, &DeltaSlaveCM::_reqDeltaData ));
 }
 
 DeltaSlaveCM::~DeltaSlaveCM()
 {
 }
 
-//---------------------------------------------------------------------------
-// command handlers
-//---------------------------------------------------------------------------
-CommandResult DeltaSlaveCM::_reqDeltaData( Command& command )
+void DeltaSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
 {
-    const ObjectDeltaDataPacket* packet = 
-        command.getPacket<ObjectDeltaDataPacket>();
-    EQLOG( LOG_OBJECTS ) << "cmd delta " << command << endl;
+    EQASSERT( is );
 
-    _object->unpack( packet->delta, packet->deltaSize );
-    _version = packet->version;
-    return eqNet::COMMAND_HANDLED;
+    EQASSERTINFO( _version == is->getVersion() - 1, "Expected version " 
+                  << _version << ", got " << is->getVersion() - 1 );
+    
+    _object->unpack( *is );
+    _version = is->getVersion();
+    EQLOG( LOG_OBJECTS ) << "unpacked v" << _version << ", id "
+                         << _object->getID() << "." << _object->getInstanceID()
+                         << endl;
+
+    if( is->getRemainingBufferSize() > 0 || is->nRemainingBuffers() > 0 )
+        EQWARN << "Object did not unpack all data" << endl;
 }
+

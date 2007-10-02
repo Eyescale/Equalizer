@@ -83,6 +83,9 @@ namespace eqNet
         /** Flush all cached commands. */
         void flush();
 
+        /** @return the size of the queue. */
+        size_t size() const { return _commands.size(); }
+
         CHECK_THREAD_DECLARE( _thread );
     private:
 

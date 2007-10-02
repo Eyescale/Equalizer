@@ -414,6 +414,19 @@ namespace eqNet
             }
 
         uint64_t dataSize;
+        EQ_ALIGN8( char data[8] );
+    };
+
+    struct ObjectInstancePacket : public ObjectPacket
+    {
+        ObjectInstancePacket()
+            {
+                command = CMD_OBJECT_INSTANCE;
+                size    = sizeof( ObjectInstancePacket ); 
+                data[0] = '\0';
+            }
+
+        uint64_t dataSize;
         uint32_t version;
         EQ_ALIGN8( char data[8] );
     };
@@ -435,6 +448,19 @@ namespace eqNet
             {
                 command        = CMD_OBJECT_DELTA_DATA;
                 size           = sizeof( ObjectDeltaDataPacket ); 
+                delta[0]       = '\0';
+            }
+        
+        uint64_t deltaSize;
+        EQ_ALIGN8( char     delta[8] );
+    };
+
+    struct ObjectDeltaPacket : public ObjectPacket
+    {
+        ObjectDeltaPacket()
+            {
+                command        = CMD_OBJECT_DELTA;
+                size           = sizeof( ObjectDeltaPacket ); 
                 delta[0]       = '\0';
             }
         
@@ -564,12 +590,19 @@ namespace eqNet
                                        const ObjectPacket* packet )
     {
         os << (SessionPacket*)packet << " objectID " << packet->objectID
-           << " inst " << packet->instanceID;
+           << "." << packet->instanceID;
         return os;
     }
 
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ObjectDeltaDataPacket* packet )
+    {
+        os << (ObjectPacket*)packet << " size " << packet->deltaSize;
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const ObjectDeltaPacket* packet )
     {
         os << (ObjectPacket*)packet << " v" << packet->version
            << " size " << packet->deltaSize;

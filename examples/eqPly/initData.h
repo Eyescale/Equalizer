@@ -18,29 +18,30 @@ namespace eqPly
         InitData();
         virtual ~InitData();
 
-        void setFrameDataID( const uint32_t id )  
-            { _clearInstanceData(); _frameDataID = id; }
+        void setFrameDataID( const uint32_t id )   { _frameDataID = id; }
 
         uint32_t           getFrameDataID() const  { return _frameDataID; }
-        eq::WindowSystem   getWindowSystem() const { return _windowSystem; }
+        eq::WindowSystem   getWindowSystem() const { return _windowSystem;}
+        bool               useVBOs() const         { return _useVBOs; }
+        bool               useShaders() const      { return _useShaders; }
         const std::string& getFilename()    const  { return _filename; }
 
     protected:
-        virtual const void* getInstanceData( uint64_t* size );
-        virtual void applyInstanceData( const void* data, const uint64_t size );
+        virtual void getInstanceData( eqNet::DataOStream& os );
+        virtual void applyInstanceData( eqNet::DataIStream& is );
 
         void setWindowSystem( const eq::WindowSystem windowSystem )
-            { _clearInstanceData(); _windowSystem = windowSystem; }
-        void setFilename( const std::string& filename )
-            { _clearInstanceData(); _filename = filename; }
+            { _windowSystem = windowSystem; }
+        void enableVBOs()    { _useVBOs = true; }
+        void enableShaders() { _useShaders = true; }
+        void setFilename( const std::string& filename ) { _filename = filename;}
 
     private:
         uint32_t         _frameDataID;
         eq::WindowSystem _windowSystem;
+        bool             _useVBOs;
+        bool             _useShaders;
         std::string      _filename;
-
-        char* _instanceData;
-        void  _clearInstanceData();
     };
 }
 

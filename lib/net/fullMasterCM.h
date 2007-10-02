@@ -5,6 +5,8 @@
 #ifndef EQNET_FULLMASTERCM_H
 #define EQNET_FULLMASTERCM_H
 
+#include "objectDeltaDataOStream.h" // member
+
 #include <eq/net/objectCM.h> // base class
 #include <eq/net/nodeID.h>   // for NodeIDHash
 #include <eq/net/types.h>    // for NodeVector
@@ -57,7 +59,7 @@ namespace eqNet
         /** The managed object. */
         Object* _object;
 
-        /** The list of subsribed slave nodes, kept on the master only. */
+        /** The list of subsribed slave nodes. */
         NodeVector _slaves;
 
         /** The number of object instances subscribed per slave node. */
@@ -78,23 +80,23 @@ namespace eqNet
         /** Registers request packets waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
 
-        struct InstanceData
+        struct DeltaData
         {
-            InstanceData() : data(NULL), size(0), maxSize(0), commitCount(0) {}
-            void*    data;
-            uint64_t size;
-            uint64_t maxSize;
+            DeltaData( const Object* object ) 
+                    : os( object ), commitCount(0) {}
 
+            ObjectDeltaDataOStream os;
             uint32_t commitCount;
         };
         
-        /** The list of full instance datas, head version first. */
-        std::deque<InstanceData> _instanceDatas;
-        std::vector<InstanceData> _instanceDataCache;
+        /** The list of full delta datas, head version first. */
+        std::deque< DeltaData* >  _deltaDatas;
+        std::vector< DeltaData* > _deltaDataCache;
 
+        DeltaData* _newDeltaData();
 
         uint32_t _commitInitial();
-        void _setInitialVersion( const void* ptr, const uint64_t size );
+
         void _obsolete();
         void _checkConsistency() const;
 

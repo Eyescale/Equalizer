@@ -28,8 +28,10 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     _maxFrames   = from._maxFrames;    
     _color       = from._color;        
     _isResident  = from._isResident;
-    setDataFilename( from.getDataFilename( ));
+
     setWindowSystem( from.getWindowSystem( ));
+    if( !from.useCg( )) disableCg();
+    setFilename( from.getFilename( ));
     return *this;
 }
 
@@ -77,7 +79,7 @@ void LocalInitData::parseArguments( int argc, char** argv )
 
 
         if( modelArg.isSet() )
-            setDataFilename( modelArg.getValue( ));
+            setFilename( modelArg.getValue( ));
 
         if( portArg.isSet() )
             _trackerPort = portArg.getValue();

@@ -5,7 +5,7 @@
 #ifndef EQNET_FULLSLAVECM_H
 #define EQNET_FULLSLAVECM_H
 
-#include <eq/net/objectCM.h>     // base class
+#include "staticSlaveCM.h"     // base class
 
 #include <eq/net/commandQueue.h> // member
 #include <eq/net/object.h>       // nested enum (Object::Version)
@@ -14,12 +14,14 @@
 namespace eqNet
 {
     class Node;
+    class ObjectDataIStream;
+    class ObjectDeltaDataIStream;
 
     /** 
      * An object change manager handling full instance versions for slave
      * instances.
      */
-    class FullSlaveCM : public ObjectCM
+    class FullSlaveCM : public StaticSlaveCM
     {
     public:
         FullSlaveCM( Object* object );
@@ -44,11 +46,6 @@ namespace eqNet
 
         virtual bool sync( const uint32_t version );
 
-        virtual const void* getInitialData( uint64_t* size, uint32_t* version )
-            { EQDONTCALL; return 0; }
-        virtual void applyInitialData( const void* data, const uint64_t size,
-                                       const uint32_t version );
-
         virtual uint32_t getHeadVersion() const;
         virtual uint32_t getVersion() const { return _version; }
         //*}
@@ -60,25 +57,25 @@ namespace eqNet
         virtual void removeSlave( eqBase::RefPtr<Node> node ) { EQDONTCALL; }
 
     protected:
-        /** The managed object. */
-        Object* _object;
-
         /** The current version. */
         uint32_t _version;
+
+        /** The change queue. */
+        eqBase::MTQueue< ObjectDataIStream > _queuedVersions;
+
+        /** Apply the data in the input stream to the object */
+        virtual void _unpackOneVersion( ObjectDataIStream* is );
 
     private:
         /** The mutex, if thread safety is enabled. */
         eqBase::Lock* _mutex;
 
-        /** The change queue. */
-        CommandQueue _syncQueue;
-
         void _syncToHead();
 
         /* The command handlers. */
-        CommandResult _cmdInstanceData( Command& command );
-        CommandResult _cmdPushData( Command& command );
-        CommandResult _reqDeltaData( Command& command );
+        CommandResult _cmdInstance( Command& command );
+        CommandResult _cmdDeltaData( Command& command );
+        CommandResult _cmdDelta( Command& command );
 
         CHECK_THREAD_DECLARE( _thread );
     };

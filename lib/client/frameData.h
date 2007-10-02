@@ -122,9 +122,8 @@ namespace eq
     protected:
         virtual bool isStatic() const { return false; }
 
-        /** @sa eqNet::Object::unpack */
-        virtual void applyInstanceData( const void* data, const uint64_t size );
-
+        /** @sa eqNet::Object::applyInstanceData */
+        virtual void applyInstanceData( eqNet::DataIStream& is );
 
     private:
         struct Data

@@ -19,6 +19,7 @@ using namespace std;
 // Tests the functionality of the DataOStream and DataIStream
 
 #define CONTAINER_SIZE 4096
+static string _message( "So long, and thanks for all the fish" );
 
 struct HeaderPacket : public eqNet::Packet
 {
@@ -54,10 +55,12 @@ struct FooterPacket : public eqNet::Packet
 class DataOStream : public eqNet::DataOStream
 {
 protected:
-    virtual void sendHeader()
+    virtual void sendHeader( const void* buffer, const uint64_t size )
         {
             HeaderPacket packet;
             eqNet::Connection::send( _connections, packet, true /*isLocked*/ );
+
+            sendBuffer( buffer, size );
         }
 
     virtual void sendBuffer( const void* buffer, const uint64_t size )
@@ -68,8 +71,11 @@ protected:
                                      true /*isLocked*/ );
         }
 
-    virtual void sendFooter()
+    virtual void sendFooter( const void* buffer, const uint64_t size )
         {
+            if( size > 0 )
+                sendBuffer( buffer, size );
+
             FooterPacket packet;
             eqNet::Connection::send( _connections, packet, true /*isLocked*/ );
         }
@@ -83,6 +89,8 @@ public:
             TESTINFO( command->command == 2, command );
             _commands.push( command );
         }
+
+    virtual size_t nRemainingBuffers() const { return _commands.size(); }
 
 protected:
     virtual bool getNextBuffer( const void** buffer, uint64_t* size )
@@ -125,11 +133,15 @@ protected:
 
             int foo = 42;
             stream << foo;
+            stream << 43.0f;
+            stream << 44.0;
 
             vector< double > doubles;
             for( size_t i=0; i<CONTAINER_SIZE; ++i )
                 doubles.push_back( static_cast< double >( i ));
             stream << doubles;
+
+            stream << _message;
 
             stream.disable();
             return EXIT_SUCCESS;
@@ -190,10 +202,24 @@ int main( int argc, char **argv )
     stream >> foo;
     TEST( foo == 42 );
 
+    float fFoo;
+    stream >> fFoo;
+    TEST( fFoo == 43.f );
+
+    double dFoo;
+    stream >> dFoo;
+    TEST( dFoo == 44.0 );
+
     vector< double > doubles;
     stream >> doubles;
     for( size_t i=0; i<CONTAINER_SIZE; ++i )
         TEST( doubles[i] == static_cast< double >( i ));
+
+    string message;
+    stream >> message;
+    TEST( message.length() == _message.length() );
+    TESTINFO( message == _message, 
+              '\'' <<  message << "' != '" << _message << '\'' );
 
     TEST( sender.join( ));
     connection->close();

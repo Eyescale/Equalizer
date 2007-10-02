@@ -5,6 +5,8 @@
 #include "object.h"
 
 #include "command.h"
+#include "dataIStream.h"
+#include "dataOStream.h"
 #include "deltaMasterCM.h"
 #include "deltaSlaveCM.h"
 #include "fullMasterCM.h"
@@ -37,7 +39,11 @@ void Object::_construct()
 
     registerCommand( CMD_OBJECT_INSTANCE_DATA,
                      CommandFunc<Object>( this, &Object::_cmdForward ));
+    registerCommand( CMD_OBJECT_INSTANCE,
+                     CommandFunc<Object>( this, &Object::_cmdForward ));
     registerCommand( CMD_OBJECT_DELTA_DATA, 
+                     CommandFunc<Object>( this, &Object::_cmdForward ));
+    registerCommand( CMD_OBJECT_DELTA, 
                      CommandFunc<Object>( this, &Object::_cmdForward ));
     registerCommand( CMD_OBJECT_COMMIT, 
                      CommandFunc<Object>( this, &Object::_cmdForward ));
@@ -101,6 +107,56 @@ RefPtr<Node> Object::getLocalNode()
     return _session ? _session->getLocalNode() : 0; 
 }
 
+void Object::getInstanceData( DataOStream& ostream )
+{
+    if( !_instanceData || _instanceDataSize == 0 )
+        return;
+
+    ostream.writeOnce( _instanceData, _instanceDataSize ); 
+}
+
+void Object::applyInstanceData( DataIStream& is )
+{
+    EQASSERTINFO( is.nRemainingBuffers() == 1, 
+                  "Master instance did not use default getInstanceData(), "
+                  << "can't use default applyInstanceData()" );
+
+    const uint64_t size = is.getRemainingBufferSize();
+    const void*    data = is.getRemainingBuffer();
+
+    EQASSERT( data && size > 0 );
+    EQASSERT( size == _instanceDataSize ); 
+    EQASSERT( _instanceData );
+
+    memcpy( _instanceData, data, size );
+    is.advanceBuffer( size );
+}
+
+void Object::pack( DataOStream& ostream )
+{
+    if( !_deltaData || _deltaDataSize == 0 )
+        return;
+
+    ostream.writeOnce( _deltaData, _deltaDataSize ); 
+}
+
+void Object::unpack( DataIStream& is )
+{
+    EQASSERTINFO( is.nRemainingBuffers() == 1, 
+                  "Master instance did not use default Object::pack(), "
+                  << "can't use default Object::unpack()" );
+
+    const uint64_t size = is.getRemainingBufferSize();
+    const void*    data = is.getRemainingBuffer();
+
+    EQASSERT( data && size > 0 );
+    EQASSERT( size == _deltaDataSize ); 
+    EQASSERT( _deltaData );
+
+    memcpy( _deltaData, data, size );
+    is.advanceBuffer( size );
+}
+
 bool Object::send( eqBase::RefPtr<Node> node, ObjectPacket& packet )
 {
     EQASSERT( _session ); EQASSERT( _id != EQ_ID_INVALID );
@@ -161,12 +217,10 @@ ObjectCM::Type Object::_getChangeManagerType() const
     if( isStatic( ))
         return ObjectCM::STATIC;
 
-    if ( _instanceData && 
-         _instanceData == _deltaData && _instanceDataSize == _deltaDataSize )
+    if( usePack( ))
+        return ObjectCM::DELTA;
 
-        return ObjectCM::FULL;
-
-    return ObjectCM::DELTA;
+    return ObjectCM::FULL;
 }
 
 void Object::_setupChangeManager( const ObjectCM::Type type, const bool master )

@@ -20,7 +20,7 @@ namespace eqNet
      *
      * Derived classes send the data using command packets.
      */
-    class EQ_EXPORT DataOStream // : public std::ostream
+    class EQ_EXPORT DataOStream
     {
     public:
         DataOStream();
@@ -29,6 +29,11 @@ namespace eqNet
         /** Enable output, locks the connections to the receivers */ 
         void enable( const NodeVector& receivers );
         void enable( const ConnectionVector& receivers );
+        void enable( const eqBase::RefPtr< Node > node );
+        void enable();
+
+        /** Resend the saved buffer. */
+        void resend( const eqBase::RefPtr< Node > node );
 
         /** Disable, flush and unlock the output to the current receivers. */
         void disable();
@@ -46,13 +51,20 @@ namespace eqNet
         /** Disable copying of all data into a saved buffer. */
         void disableSave();
 
-        /** Swap the saved data with the buffer. */
-        void swapSaveBuffer( eqBase::Buffer& buffer );
+        /** @name Data Access. */
+        //*{
+        /** @return if data was sent since the last enable() */
+        bool hasSentData() const { return _dataSent; }
 
+        /** @return the buffer with the saved data. */
+        const eqBase::Buffer& getSaveBuffer() const 
+            { EQASSERT( _save ); return _buffer; }
+        //*}
 
         /** @name Basic data output */
         //*{
-        DataOStream& operator << ( const int value )
+        template< typename T >
+        DataOStream& operator << ( const T& value )
             { write( &value, sizeof( value )); return *this; }
 
         template< typename T >
@@ -65,16 +77,20 @@ namespace eqNet
             }
 
         void write( const void* data, uint64_t size );
+        void writeOnce( const void* data, uint64_t size );
         //*}
 
  
     protected:
         /** Send the leading data (packet) to the receivers */
-        virtual void sendHeader() = 0;
+        virtual void sendHeader( const void* buffer, const uint64_t size ) = 0;
         /** Send a data buffer (packet) to the receivers. */
         virtual void sendBuffer( const void* buffer, const uint64_t size ) = 0;
         /** Send the trailing data (packet) to the receivers */
-        virtual void sendFooter() = 0;
+        virtual void sendFooter( const void* buffer, const uint64_t size ) = 0;
+        /** Send only one data item (packet) to the receivers */
+        virtual void sendSingle( const void* buffer, const uint64_t size )
+            { sendHeader( buffer, size ); sendFooter( 0, 0 ); }
 
         /** Locked connections to the receivers, if _enabled */
         ConnectionVector _connections;
@@ -98,6 +114,22 @@ namespace eqNet
 
         /** Helper function calling sendHeader and sendBuffer as needed. */
         void _sendBuffer( const void* data, const uint64_t size );
+        
+        /** Reset the start position after sending a buffer. */
+        void _resetStart();
+
+        /** Unlock all connections during disable. */
+        void _unlockConnections();
     };
+
+    // Some template specializations
+    template<>
+    inline DataOStream& DataOStream::operator << ( const std::string& str )
+    { 
+        const uint64_t nElems = str.length();
+        write( &nElems, sizeof( nElems ));
+        write( str.c_str(), nElems );
+        return *this;
+    }
 }
 #endif //EQNET_DATAOSTREAM_H

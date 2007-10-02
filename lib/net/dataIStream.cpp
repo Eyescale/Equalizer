@@ -18,19 +18,23 @@ DataIStream::DataIStream()
 {}
 
 DataIStream::~DataIStream()
-{}
+{
+    reset();
+}
+
+void DataIStream::reset()
+{
+    _input     = 0;
+    _inputSize = 0;
+    _position  = 0;
+}
 
 void DataIStream::read( void* data, uint64_t size )
 {
-    if( _position >= _inputSize )
+    if( !_checkBuffer( ))
     {
-        if( !getNextBuffer( reinterpret_cast< const void** >( &_input ),
-                            &_inputSize ))
-        {
-            EQERROR << "No more input buffers" << endl;
-            return;
-        }
-        _position = 0;
+        EQERROR << "No more input data" << endl;
+        return;
     }
 
     EQASSERT( _input );
@@ -44,5 +48,42 @@ void DataIStream::read( void* data, uint64_t size )
     memcpy( data, _input + _position, size );
     _position += size;
 }
+
+const void* DataIStream::getRemainingBuffer()
+{
+    if( !_checkBuffer( ))
+        return 0;
+
+    return _input + _position;
+}
+
+uint64_t DataIStream::getRemainingBufferSize()
+{
+    if( !_checkBuffer( ))
+        return 0;
+
+    return _inputSize - _position;
+}
+
+void DataIStream::advanceBuffer( const uint64_t offset )
+{
+    EQASSERT( _position + offset <= _inputSize );
+    _position += offset;
+}
+
+bool DataIStream::_checkBuffer()
+{
+    if( _position < _inputSize )
+        return true;
+
+    if( !getNextBuffer( reinterpret_cast< const void** >( &_input ),
+                        &_inputSize ))
+    {
+        return false;
+    }
+    _position = 0;
+    return true;
+}
+
 }
 

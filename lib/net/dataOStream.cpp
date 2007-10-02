@@ -31,8 +31,6 @@ DataOStream::~DataOStream()
 
 void DataOStream::enable( const NodeVector& receivers )
 {
-    EQASSERT( !_enabled );
-
     for( NodeVector::const_iterator i = receivers.begin(); 
          i != receivers.end(); ++i )
     {
@@ -43,14 +41,20 @@ void DataOStream::enable( const NodeVector& receivers )
         _connections.push_back( connection );
     }
 
-    _dataSent = false;
-    _enabled  = true;
+    enable();
+}
+
+void DataOStream::enable( const eqBase::RefPtr< Node > node )
+{
+    RefPtr< Connection > connection = node->getConnection();
+        
+    connection->lockSend();
+    _connections.push_back( connection );
+    enable();
 }
 
 void DataOStream::enable( const ConnectionVector& receivers )
 {
-    EQASSERT( !_enabled );
-
     for( ConnectionVector::const_iterator i = receivers.begin(); 
          i != receivers.end(); ++i )
     {
@@ -60,8 +64,37 @@ void DataOStream::enable( const ConnectionVector& receivers )
         _connections.push_back( connection );
     }
 
+    enable();
+}
+
+void DataOStream::enable()
+{
+    EQASSERT( !_enabled );
+
+    _bufferStart = 0;
     _dataSent = false;
+    _buffered = true;
+    _buffer.size = 0;
     _enabled  = true;
+}
+
+void DataOStream::resend( const eqBase::RefPtr< Node > node )
+{
+    EQASSERT( !_enabled );
+    EQASSERT( _connections.empty( ));
+    EQASSERT( _save );
+    
+    if( _buffer.size == 0 )
+        return;
+
+    RefPtr< Connection > connection = node->getConnection();        
+    connection->lockSend();
+    _connections.push_back( connection );
+
+    sendSingle( _buffer.data, _buffer.size );
+
+    _connections.clear();
+    connection->unlockSend();
 }
 
 void DataOStream::disable()
@@ -69,12 +102,30 @@ void DataOStream::disable()
     if( !_enabled )
         return;
 
-    flush();
     if( _dataSent )
-        sendFooter();
+    {
+        if( !_connections.empty( ))
+            sendFooter( _buffer.data + _bufferStart, 
+                        _buffer.size - _bufferStart );
 
+        _dataSent = true;
+    }
+    else if( _buffer.size > 0 )
+    {
+        EQASSERT( _bufferStart == 0 );
+        if( !_connections.empty( ))
+            sendSingle( _buffer.data, _buffer.size );
+
+        _dataSent = true;
+    }
+
+    _resetStart();
     _enabled = false;
+    _unlockConnections();
+}
 
+void DataOStream::_unlockConnections()
+{
     for( ConnectionVector::const_iterator i = _connections.begin(); 
          i != _connections.end(); ++i )
     {
@@ -100,26 +151,18 @@ void DataOStream::disableBuffering()
 
 void DataOStream::enableSave()
 {
-    EQASSERTINFO( !_dataSent && _buffer.size == 0,
+    EQASSERTINFO( !_enabled || ( !_dataSent && _buffer.size == 0 ),
                   "Can't enable saving after data has been written" );
     _save = true;
 }
 
 void DataOStream::disableSave()
 {
-    EQASSERTINFO( !_dataSent && _buffer.size == 0,
+    EQASSERTINFO( !_enabled || (!_dataSent && _buffer.size == 0 ),
                   "Can't disable saving after data has been written" );
     _save = false;
 }
 
-void DataOStream::swapSaveBuffer( eqBase::Buffer& buffer )
-{
-    EQASSERT( !_enabled );
-    EQASSERT( _save );
-
-    _buffer.swap( buffer );
-}
- 
 void DataOStream::write( const void* data, uint64_t size )
 {
     EQASSERT( _enabled );
@@ -136,11 +179,33 @@ void DataOStream::write( const void* data, uint64_t size )
         flush();
 }
 
+void DataOStream::writeOnce( const void* data, uint64_t size )
+{
+    EQASSERT( _enabled );
+    EQASSERT( !_dataSent );
+    EQASSERT( _bufferStart == 0 );
+
+    if( _save )
+        _buffer.append( data, size );
+
+    if( !_connections.empty( ))
+        sendSingle( data, size );
+
+    _resetStart();
+    _enabled = false;
+    _dataSent = true;
+    _unlockConnections();
+}
+
 void DataOStream::flush()
 {
     EQASSERT( _enabled );
     _sendBuffer( _buffer.data + _bufferStart, _buffer.size - _bufferStart );
-    
+    _resetStart();
+}
+
+void DataOStream::_resetStart()
+{
     if( _save )
         _bufferStart = _buffer.size;
     else
@@ -158,10 +223,13 @@ void DataOStream::_sendBuffer( const void* data, const uint64_t size )
 
     if( !_dataSent )
     {
-        sendHeader();
+        if( !_connections.empty( ))
+            sendHeader( data, size );
         _dataSent = true;
+        return;
     }
 
-    sendBuffer( data, size );
+    if( !_connections.empty( ))
+        sendBuffer( data, size );
 }
 }

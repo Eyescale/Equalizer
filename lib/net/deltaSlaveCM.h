@@ -13,6 +13,7 @@
 
 namespace eqNet
 {
+    class ObjectDeltaDataIStream;
     class Node;
 
     /** 
@@ -25,9 +26,8 @@ namespace eqNet
         DeltaSlaveCM( Object* object );
         virtual ~DeltaSlaveCM();
 
-    private:
-        /* The command handlers. */
-        CommandResult _reqDeltaData( Command& command );
+    protected:
+        virtual void _unpackOneVersion( ObjectDataIStream* is );
     };
 }
 

@@ -72,11 +72,11 @@ void Pipe::LoadShaders()
     {
         const Node*     node     = static_cast<Node*>( getNode( ));
         const InitData& initData = node->getInitData();
-        const bool      useCg    = initData.getUseCgSwitch();
+        const bool      useCg    = initData.useCg();
 
+#ifdef CG_INSTALLED
         if( useCg )
         {
-#ifdef CG_INSTALLED
             _cgContext = cgCreateContext();
 
             if( _shaders.cgVertex )
@@ -92,9 +92,9 @@ void Pipe::LoadShaders()
             _shaders.cgFragment = new gloo::cg_program( _cgContext );
             _shaders.cgFragment->create_from_file( CG_GL_FRAGMENT, 
                                         "./examples/eVolve/fshader.cg" );
-#endif
         }
         else
+#endif
         {
             if( !eqShader::loadShaders("./examples/eVolve/vshader.oglsl", 
                                        "./examples/eVolve/fshader.oglsl", 

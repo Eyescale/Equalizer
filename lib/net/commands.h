@@ -50,9 +50,9 @@ namespace eqNet
     enum ObjectCommand
     {
         CMD_OBJECT_INSTANCE_DATA,
-        REQ_OBJECT_INSTANCE_DATA,
+        CMD_OBJECT_INSTANCE,
         CMD_OBJECT_DELTA_DATA,
-        REQ_OBJECT_DELTA_DATA,
+        CMD_OBJECT_DELTA,
         CMD_OBJECT_COMMIT,
         CMD_OBJECT_CUSTOM // must be last
     };

@@ -8,6 +8,8 @@
 #include "commands.h"
 #include "log.h"
 #include "object.h"
+#include "objectDeltaDataIStream.h"
+#include "objectInstanceDataIStream.h"
 
 #include <eq/base/scopedMutex.h>
 
@@ -16,21 +18,30 @@ using namespace eqBase;
 using namespace std;
 
 FullSlaveCM::FullSlaveCM( Object* object )
-        : _object( object ),
+        : StaticSlaveCM( object ),
           _version( Object::VERSION_NONE ),
           _mutex( 0 )
 {
-    registerCommand( CMD_OBJECT_INSTANCE_DATA,
-              CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdInstanceData ));
+    registerCommand( CMD_OBJECT_INSTANCE,
+                  CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdInstance ));
     registerCommand( CMD_OBJECT_DELTA_DATA,
-                  CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdPushData ));
-    registerCommand( REQ_OBJECT_DELTA_DATA,
-                 CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_reqDeltaData ));
+                 CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdDeltaData ));
+    registerCommand( CMD_OBJECT_DELTA,
+                     CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdDelta ));
 }
 
 FullSlaveCM::~FullSlaveCM()
 {
     delete _mutex;
+    _mutex = 0;
+
+    while( !_queuedVersions.empty( ))
+        delete _queuedVersions.pop();
+
+    delete _currentIStream;
+    _currentIStream = 0;
+
+    _version = Object::VERSION_NONE;
 }
 
 void FullSlaveCM::makeThreadSafe()
@@ -38,15 +49,13 @@ void FullSlaveCM::makeThreadSafe()
     if( _mutex ) return;
 
     _mutex = new eqBase::Lock;
-#ifdef EQ_CHECK_THREADSAFETY
-    _syncQueue._thread.extMutex = true;
-#endif
 }
 
 bool FullSlaveCM::sync( const uint32_t version )
 {
     EQLOG( LOG_OBJECTS ) << "sync to v" << version << ", id " 
-                         << _object->getID() << endl;
+                         << _object->getID() << "." << _object->getInstanceID()
+                         << endl;
     if( _version == version )
         return true;
 
@@ -55,7 +64,7 @@ bool FullSlaveCM::sync( const uint32_t version )
 
     ScopedMutex< Lock > mutex( _mutex );
 
-    if( version ==  Object::VERSION_HEAD )
+    if( version == Object::VERSION_HEAD )
     {
         _syncToHead();
         return true;
@@ -65,89 +74,115 @@ bool FullSlaveCM::sync( const uint32_t version )
 
     while( _version < version )
     {
-        Command* command = _syncQueue.pop();
-
-        EQASSERT( (*command)->command == REQ_OBJECT_DELTA_DATA );
-        invokeCommand( *command );
+        ObjectDataIStream* is = _queuedVersions.pop();
+        _unpackOneVersion( is );
+        EQASSERTINFO( _version == is->getVersion(), "Have version " 
+                      << _version << " instead of " << is->getVersion( ));
+        delete is;
     }
-    _object->getLocalNode()->flushCommands();
 
-    EQVERB << "Sync'ed to v" << version << ", id " << _object->getID() << endl;
+    _object->getLocalNode()->flushCommands();
     return true;
 }
 
 void FullSlaveCM::_syncToHead()
 {
-    if( _syncQueue.empty( ))
+    if( _queuedVersions.empty( ))
         return;
 
-    for( Command* command = _syncQueue.tryPop(); command; 
-         command = _syncQueue.tryPop( ))
+    for( ObjectDataIStream* is = _queuedVersions.tryPop(); 
+         is; is = _queuedVersions.tryPop( ))
     {
-        EQASSERT( (*command)->command == REQ_OBJECT_DELTA_DATA );
-        invokeCommand( *command );
+        _unpackOneVersion( is );
+        EQASSERTINFO( _version == is->getVersion(), "Have version " 
+                      << _version << " instead of " << is->getVersion( ));
+        delete is;
     }
 
     _object->getLocalNode()->flushCommands();
-    EQVERB << "Sync'ed to head v" << _version << ", id " << _object->getID() 
-           << endl;
 }
 
-void FullSlaveCM::applyInitialData( const void* data, const uint64_t size,
-                                     const uint32_t version )
-{
-    EQASSERT( _version == Object::VERSION_NONE );
-
-    _object->applyInstanceData( data, size );
-    _version = version;
-}
 
 uint32_t FullSlaveCM::getHeadVersion() const
 {
-    Command* command = _syncQueue.back();
-    if( command && (*command)->command == REQ_OBJECT_INSTANCE_DATA )
-    {
-        const ObjectInstanceDataPacket* packet = 
-            command->getPacket<ObjectInstanceDataPacket>();
-        return packet->version;
-    }
+    ObjectDataIStream* is = _queuedVersions.back();
+    if( is )
+        return is->getVersion();
 
     return _version;    
 }
 
+void FullSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
+{
+    EQASSERT( is );
+
+    EQASSERTINFO( _version == is->getVersion() - 1, "Expected version " 
+                  << _version << ", got " << is->getVersion() - 1 );
+    
+    _object->applyInstanceData( *is );
+    _version = is->getVersion();
+    EQLOG( LOG_OBJECTS ) << "applied v" << _version << ", id "
+                         << _object->getID() << "." << _object->getInstanceID()
+                         << endl;
+
+    if( is->getRemainingBufferSize() > 0 || is->nRemainingBuffers() > 0 )
+        EQWARN << "Object did not unpack all data" << endl;
+}
+
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-CommandResult FullSlaveCM::_cmdInstanceData( Command& command )
+CommandResult FullSlaveCM::_cmdInstance( Command& command )
 {
-    const ObjectInstanceDataPacket* packet = 
-        command.getPacket<ObjectInstanceDataPacket>();
-    EQLOG( LOG_OBJECTS ) << "cmd instance data " << command << endl;
+    if( !_currentIStream )
+        _currentIStream = new ObjectInstanceDataIStream;
 
-    EQASSERT( packet->version != Object::VERSION_NONE );
-    EQASSERT( _version == Object::VERSION_NONE );
+    _currentIStream->addDataPacket( command );
+ 
+    const ObjectInstancePacket* packet = 
+        command.getPacket<ObjectInstancePacket>();
+    _currentIStream->setVersion( packet->version );
 
-    _object->applyInstanceData( packet->data, packet->dataSize );
+    _object->applyInstanceData( *_currentIStream );
     _version = packet->version;
+
+    delete _currentIStream;
+    _currentIStream = 0;
+
+    EQLOG( LOG_OBJECTS ) << "v" << packet->version << ", id "
+                         << _object->getID() << "." << _object->getInstanceID()
+                         << " instantiated" << endl;
+
     return eqNet::COMMAND_HANDLED;
 }
 
-CommandResult FullSlaveCM::_cmdPushData( Command& command )
+CommandResult FullSlaveCM::_cmdDeltaData( Command& command )
 {
-    // init sent to all instances: make copy
-    Command copy( command );
-    _syncQueue.push( copy );
+    if( !_currentIStream )
+        _currentIStream = new ObjectDeltaDataIStream;
 
+    _currentIStream->addDataPacket( command );
     return eqNet::COMMAND_HANDLED;
 }
 
-CommandResult FullSlaveCM::_reqDeltaData( Command& command )
+CommandResult FullSlaveCM::_cmdDelta( Command& command )
 {
-    const ObjectDeltaDataPacket* packet = 
-        command.getPacket<ObjectDeltaDataPacket>();
+    if( !_currentIStream )
+        _currentIStream = new ObjectDeltaDataIStream;
+
+    const ObjectDeltaPacket* packet = command.getPacket<ObjectDeltaPacket>();
     EQLOG( LOG_OBJECTS ) << "cmd delta " << command << endl;
 
-    _object->applyInstanceData( packet->delta, packet->deltaSize );
-    _version = packet->version;
+    _currentIStream->addDataPacket( command );
+    _currentIStream->setVersion( packet->version );
+    
+    EQLOG( LOG_OBJECTS ) << "v" << packet->version << ", id "
+                         << _object->getID() << "." << _object->getInstanceID()
+                         << " ready" << endl;
+
+    _queuedVersions.push( _currentIStream );
+    _currentIStream = 0;
+
     return eqNet::COMMAND_HANDLED;
 }

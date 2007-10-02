@@ -7,8 +7,6 @@
 
 #include "eqPly.h"
 
-#include "plyModel.h"
-
 #include <eq/eq.h>
 
 class FrameData;
@@ -28,11 +26,10 @@ namespace eqPly
         virtual void frameAssemble( const uint32_t frameID );
 
     private:
-        static void _drawBBoxCB( Model::BBox *bbox, void *userData );
-
-        void _drawBBox( const Model::BBox* bbox );
+        void _drawModel( const Model* model );
         void _drawLogo();
-        void _initFrustum( vmml::FrustumCullerf& frustum );
+        void _initFrustum( vmml::FrustumCullerf& frustum, 
+                           const vmml::Vector4f& boundingSphere );
     };
 }
 

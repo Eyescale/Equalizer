@@ -5,6 +5,8 @@
 #ifndef EQBASE_TYPES_H
 #define EQBASE_TYPES_H
 
+#include <sys/types.h>
+
 #ifdef sgi
 typedef int socklen_t;
 #endif

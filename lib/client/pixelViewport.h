@@ -114,7 +114,7 @@ namespace eq
                 return ( x!=rhs.x || y!=rhs.y || w!=rhs.w || h!=rhs.h );
             }
         
-		/** create a pixel viewport that includes both viewports */
+		/** create a pixel viewport that includes both viewports (union) */
         PixelViewport operator += ( const PixelViewport& rhs )
             {
                 if( *this == rhs )
