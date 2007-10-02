@@ -115,13 +115,17 @@ typedef void* HWND;
 typedef void* HGLRC;
 #endif
 
-// Definitions missing since the OS has an old glext.h
+// Definitions missing when the OS has an old glext.h
 
 #ifndef GL_DEPTH_STENCIL_NV
 #  define GL_DEPTH_STENCIL_NV               0x84F9
 #endif
 #ifndef GL_UNSIGNED_INT_24_8_NV
 #  define GL_UNSIGNED_INT_24_8_NV           0x84FA
+#endif
+
+#ifndef GL_VERSION_2_0
+typedef char GLchar;
 #endif
 
 #ifndef APIENTRY
