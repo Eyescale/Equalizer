@@ -586,28 +586,15 @@ void Channel::frameDraw( const uint32_t frameID )
        _drawLogo();
 }
 
-#define SELF_FRAME (0)
-
-static bool cmpRangesDec(const Frame*& frame1, const Frame*& frame2)
+static bool cmpRangesDec(const Range& r1, const Range& r2)
 {
-    const Range& range1 = (frame1 == SELF_FRAME) ? 
-        _curFrData.lastRange : frame1->getRange();
-    const Range& range2 = (frame2 == SELF_FRAME) ? 
-        _curFrData.lastRange : frame2->getRange();
-
-    return range1.start < range2.start;
+    return r1.start < r2.start;
 }
 
-static bool cmpRangesInc(const Frame*& frame1, const Frame*& frame2)
+static bool cmpRangesInc(const Range& r1, const Range& r2)
 {
-    const Range& range1 = (frame1 == SELF_FRAME) ? 
-        _curFrData.lastRange : frame1->getRange();
-    const Range& range2 = (frame2 == SELF_FRAME) ? 
-        _curFrData.lastRange : frame2->getRange();
-
-    return range1.start > range2.start;
+    return r1.start > r2.start;
 }
-
 
 const FrameData& Channel::_getFrameData() const
 {
@@ -641,78 +628,86 @@ void Channel::_calcMVandITMV(
     modelviewITM = modelviewIM.getTransposed();
 }
 
-void Channel::_orderFrames( vector< Frame* >& frames )
-{    
-    if( !_perspective ) // parallel/ortho projection
-    {
-        const bool orientation = _getFrameData().data.rotation.ml[10] < 0;
-        sort( ranges.begin(), ranges.end(), 
-              orientation ? cmpRangesDec : cmpRangesInc );
-        return;
-    }
+void Channel::arrangeFrames( vector<Range>& ranges )
+{
+    if( _perspective )
+    {//perspective projection
+        vmml::Matrix4d  modelviewM;     // modelview matrix
+        vmml::Matrix3d  modelviewITM;   // modelview inversed transposed matrix
+        _calcMVandITMV( modelviewM, modelviewITM );
 
-    // else perspective projection
-    vmml::Matrix4d  modelviewM;     // modelview matrix
-    vmml::Matrix3d  modelviewITM;   // modelview inversed transposed matrix
-    _calcMVandITMV( modelviewM, modelviewITM );
+        vmml::Vector3d norm = modelviewITM * vmml::Vector3d( 0.0, 0.0, 1.0 );
+        norm.normalize();
 
-    vmml::Vector3d norm = modelviewITM * vmml::Vector3d( 0.0, 0.0, 1.0 );
-    norm.normalize();
+        sort( ranges.begin(), ranges.end(), cmpRangesDec );
 
-    sort( frames.begin(), frames.end(), cmpRangesDec );
-
-    // cos of angle between normal and vectors from center
-    vector<double> dotVals;
+        // cos of angle between normal and vectors from center
+        vector<double> dotVals;
         
-    // of projection to the middle of slices' boundaries
-    for( vector<Frame*>::const_iterator i = frames.begin();
-         i != frames.end(); ++i )
-    {
-        const Frame* frame = *i;
-        const Range& range = (frame == SELF_FRAME) ?
-                                 _curFrData.lastRange : frame->getRange();
-            
-        const double         px = -1.0 + range.start*2.0;        
-        const vmml::Vector4d pS =
-            modelviewM * vmml::Vector4d( 0.0, 0.0, px , 1.0 );
+        // of projection to the middle of slices' boundaries
+        dotVals.reserve( ranges.size()+1 );
+
+        for( uint i=0; i<ranges.size(); i++ )
+        {
+            double px = -1.0 + ranges[i].start*2.0;
+
+            vmml::Vector4d pS = 
+                modelviewM * vmml::Vector4d( 0.0, 0.0, px , 1.0 );
                 
+            dotVals.push_back( norm.dot( pS.getNormalizedVector3() ) );
+        }
+
+        vmml::Vector4d pS = modelviewM * vmml::Vector4d( 0.0, 0.0, 1.0, 1.0 );
         dotVals.push_back( norm.dot( pS.getNormalizedVector3() ) );
-    }
 
-    const vmml::Vector4d pS = modelviewM * vmml::Vector4d( 0.0, 0.0, 1.0, 1.0 );
-    dotVals.push_back( norm.dot( pS.getNormalizedVector3() ) );
+        //check if any slices need to be rendered in rederse orded
+        int minPos = -1;
+        for( uint i=0; i<dotVals.size()-1; i++ )
+            if( dotVals[i] < 0 && dotVals[i+1] < 0 )
+                minPos = static_cast<int>(i);
 
-    //check if any slices need to be rendered in reverse order
-    ssize_t minPos = -1;
-    for( size_t i=0; i<dotVals.size()-1; i++ )
-        if( dotVals[i] < 0 && dotVals[i+1] < 0 )
-            minPos = static_cast< int >( i );
+        if( minPos >= 0 )
+        {
+            uint          rangesNum = ranges.size();
+            vector<Range> rangesTmp = ranges;
 
-    if( minPos >= 0 )
-    {
-        uint             nFrames   = frames.size();
-        vector< Frame* > framesTmp = frames;
+            //Copy slices that should be rendered first
+            memcpy( 
+                &ranges[0], 
+                &rangesTmp[minPos+1],
+                (rangesNum-minPos-1)*sizeof(Range)  );
 
-        //Copy slices that should be rendered first
-        memcpy( &frames[0], &framesTmp[minPos+1], 
-                (nFrames-minPos-1) * sizeof( Frame* ));
-
-        //Copy slices that should be rendered last in reverse order
-        for( size_t i=0; i<=minPos; ++i )
-            frames[ nFrames-i-1 ] = framesTmp[i];
+            //Copy sliced that shouls be rendered last in reversed order
+            for( int i=0; i<=minPos; i++ )
+                ranges[ rangesNum-i-1 ] = rangesTmp[i];
+        }
+    }else
+    {//parallel projection
+        const bool orientation = _getFrameData().data.rotation.ml[10] < 0;
+        sort(
+            ranges.begin(), 
+            ranges.end(), 
+            orientation ? cmpRangesDec : cmpRangesInc );
     }
 }
 
 
-static void _expandPVP( PixelViewport& pvp, const vector< Image* >& images,
-                        const vmml::Vector2i& offset )
+void IntersectViewports(        PixelViewport & pvp, 
+                          const vector<Image*>& vecImages,
+                          const vmml::Vector2i& offset      )
 {
-    for( vector< Image* >::const_iterator i = images.begin();
-         i != images().end(); ++i )
+    if( vecImages.size() < 1 )
     {
-        const PixelViewport imagePVP = (*i)->getPixelViewport() + offset;
-        pvp += imagePVP;
+        pvp.invalidate();
+        return;
     }
+
+    PixelViewport overalPVP = vecImages[0]->getPixelViewport() + offset;
+
+    for( uint i=1; i<vecImages.size(); i++ )
+        overalPVP += vecImages[i]->getPixelViewport() + offset;
+
+    pvp ^= overalPVP;
 }
 
 
@@ -756,50 +751,142 @@ void Channel::clearViewport( const PixelViewport &pvp )
     applyViewport();
 }
 
+
 void Channel::frameAssemble( const uint32_t frameID )
 {
 //    EQWARN << getRange() << " " << _curFrData.lastRange << endl;
     
     const bool composeOnly  = frameID != _curFrData.frameID || 
                               _curFrData.lastRange.isFull();
+    
+    applyBuffer();
+    applyViewport();
+    setupAssemblyState();
 
-    _startAssemble();
+    const vector<Frame*>& frames  = getInputFrames();
 
-    const vector< Frame* >&  frames = getInputFrames();
-    eq::PixelViewport coveredPVP;
+    vector<Frame*> unusedFrames = frames;
 
-    vector< Frame* > dbFrames;
-
-    // Make sure all frames are ready and gather some information on them
-    for( vector<Frame*>::const_iterator i = frames.begin();
-         i != frames.end(); ++i )
+    for( vector<Frame*>::iterator i = unusedFrames.begin();
+         i != unusedFrames.end(); ++i )
     {
         Frame* frame = *i;
         frame->waitReady( );
-
-        const Range& range = frame->getRange();
-        if( range.isFull() ) // 2D frame, assemble directly
-        {
-            frame->startAssemble();
-        }
-        else
-        {
-            dbFrames.push_back( frame );
-            _expandPVP( coveredPVP, frame->getImages(), frame->getOffset());
-        }
     }
 
-    if( dbFrames.empty( ))
+    //All frames is ready
+
+    //fill ranges - it should be supplied by server actualy 
+    eq::PixelViewport curPVP = getPixelViewport();
+
+    vector<Range> ranges;
+    for( uint k=0; k<unusedFrames.size(); k++ )
     {
-        _finishAssemble();
-        return;
+        Range curRange = unusedFrames[k]->getRange();
+
+        // Add only DB related slices,
+        // screen decomposition should be composed as is
+        if( !curRange.isFull() )
+        {
+            ranges.push_back( curRange );
+            IntersectViewports( curPVP, 
+                                unusedFrames[k]->getImages(),
+                                unusedFrames[k]->getOffset()  );
+        }
     }
 
-    // Intersect area covered by DB input frames with render area
-    coveredPVP ^= getPixelViewport();
-    const bool hasSelfFrame = coveredPVP.hasArea();
+    //calculate correct frames sequence
+    if( !composeOnly ) ranges.push_back( _curFrData.lastRange );
+    arrangeFrames( ranges );
 
-    // Setup correct blending state for DB frames
+    //check if current frame in proper position, redback if not
+    if( !composeOnly )
+    {
+#ifndef NDEBUG //DEBUG
+        if(  _curFrData.lastRange == ranges.back() && 
+            !getenv( "EQ_TAINT_CHANNELS" ) )
+            ranges.pop_back();
+        else
+#else
+#ifndef SOLID_BG
+        if( _curFrData.lastRange == ranges.back() )
+            ranges.pop_back();
+        else
+#endif //SOLID_BG
+#endif //NDEBUG
+            if( curPVP.hasArea() )
+            {
+                _curFrameImage.setFormat(    Frame::BUFFER_COLOR, GL_RGBA   );
+                _curFrameImage.setType(      Frame::BUFFER_COLOR,
+                                             GL_UNSIGNED_BYTE               );
+
+                _curFrameImage.setPixelViewport(                   curPVP   );
+                _curFrameImage.startReadback( Frame::BUFFER_COLOR, curPVP   );
+
+                //clear part of a screen
+#ifdef __APPLE__
+                clearViewport( curPVP );
+#endif
+            }
+    }
+
+
+    while( !unusedFrames.empty() || !ranges.empty() )
+    {
+        if( !composeOnly && ( ranges.back() == _curFrData.lastRange ))
+        {
+            // current range equals to range of original frame
+            if( curPVP.hasArea() )
+            {
+                vmml::Vector2i curOff( curPVP.x, curPVP.y );
+                _curFrameImage.startAssemble( Frame::BUFFER_COLOR, curOff ); 
+            }
+            ranges.pop_back();
+        }
+
+        for( vector<Frame*>::iterator i  = unusedFrames.begin(); 
+                                      i != unusedFrames.end();
+                                      i ++                       )
+        {
+            Frame* frame = *i;
+            Range curRange = frame->getRange();
+
+            if( curRange.isFull() ) //2D screen element, asseble as is
+            {
+                _clearPixelViewPorts( frame->getImages(), frame->getOffset() );
+                frame->startAssemble();
+                unusedFrames.erase( i );
+                break;
+            }
+            else
+            {
+                if( ranges.empty() ) // no ranges to put but some not       
+                {                    // full-ranges frames -> error
+                
+                    EQERROR << "uncounted frame" << endl;
+                    unusedFrames.erase( i );
+                    break;
+                }else
+                    if( ranges.back() == curRange ) // current frame has 
+                    {                               // proper range
+                    
+                        frame->startAssemble();
+                        unusedFrames.erase( i );
+                        ranges.pop_back();
+                        break;
+                    }
+            }
+        }
+    }
+
+    _drawLogo();
+    resetAssemblyState();
+}
+
+void Channel::setupAssemblyState()
+{
+    eq::Channel::setupAssemblyState();
+
     glEnable( GL_BLEND );
 
 #ifdef COMPOSE_MODE_NEW
@@ -808,93 +895,28 @@ void Channel::frameAssemble( const uint32_t frameID )
     glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
 #endif
 
-    //calculate correct frame sequence
-    if( !composeOnly )
-        dbFrames.push_back( SELF_FRAME );
-
-    _orderFrames( dbFrames );
-
-    //check if current frame in proper position, read back if not
-    if( !composeOnly )
-    {
-#ifndef SOLID_BG
-        if( dbFrames.back() == SELF_FRAME )
-            dbFrames.pop_back();
-        else
-#endif //SOLID_BG
-            if( hasSelfFrame )
-            {
-                _curFrameImage.setFormat(    Frame::BUFFER_COLOR, GL_RGBA   );
-                _curFrameImage.setType(      Frame::BUFFER_COLOR,
-                                             GL_UNSIGNED_BYTE               );
-
-                _curFrameImage.setPixelViewport(                   coveredPVP );
-                _curFrameImage.startReadback( Frame::BUFFER_COLOR, coveredPVP );
-                
-#ifdef __APPLE__
-                //clear part of a screen
-                clearViewport( coveredPVP );
-#endif
-                _curFrameImage.syncReadback();
-            }
-    }
-
-    // blend DB frames in order
-    while( !dbFrames.empty( ))
-    {
-        Frame* frame = dbFrames.back();
-        dbFrames.pop_back();
-
-        if( frame == SELF_FRAME )
-        {
-            if( hasSelfFrame )
-            {
-                vmml::Vector2i offset( coveredPVP.x, coveredPVP.y );
-                _curFrameImage.startAssemble( Frame::BUFFER_COLOR, offset ); 
-                _curFrameImage.syncAssemble();
-            }
-        }
-        else
-            frame->startAssemble();
-    }
-    
-    _finishAssemble();
-}
-
-void Channel::_startAssemble()
-{
-    applyBuffer();
-    applyViewport();
-    setupAssemblyState();
-}
-
-void Channel::_finishAssemble()
-{
-    const vector< Frame* >&  frames = getInputFrames();
-
-    for( vector<Frame*>::const_iterator i = frames.begin();
-         i != frames.end(); ++i )
-    {
-        Frame* frame = *i;
-        frame->syncAssemble();
-    }
-
-    _drawLogo();
-    resetAssemblyState();
 }
 
 
 void Channel::frameReadback( const uint32_t frameID )
 {
-    // Drop depth buffer flag from all outframes
+    applyBuffer();
+    applyViewport();
+    setupAssemblyState();
+
     const vector<Frame*>& frames = getOutputFrames();
-    for( vector<Frame*>::const_iterator i = frames.begin(); 
-         i != frames.end(); ++i )
+
+    for( vector<Frame*>::const_iterator iter  = frames.begin(); 
+                                        iter != frames.end(); 
+                                        iter ++                 )
     {
-        (*i)->disableBuffer( Frame::BUFFER_DEPTH );
+        //Drop depth buffer flag if present
+        (*iter)->disableBuffer( Frame::BUFFER_DEPTH );
+
+        (*iter)->startReadback();
     }
 
-    eq::Channel::frameReadback( frameID );
+    resetAssemblyState();
 }
 
 

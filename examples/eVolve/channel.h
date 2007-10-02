@@ -35,6 +35,8 @@ namespace eVolve
         virtual void setupAssemblyState();
         virtual void frameReadback( const uint32_t frameID );
 
+        void arrangeFrames( std::vector<Range>& ranges );
+
         void applyFrustum() const;
 
         void clearViewport( const PixelViewport &pvp );
@@ -42,11 +44,6 @@ namespace eVolve
         void frameClear( const uint32_t frameID );
 
     private:
-
-        void _startAssemble();
-        void _finishAssemble();
-
-        void _orderFrames( std::vector< Frame* >& frames );
 
         void _clearPixelViewPorts(  const vector<Image*>& vecImages,
                                     const vmml::Vector2i& offset        );

@@ -13,7 +13,7 @@ SUBDIRS = \
 	$(OPTIONAL)
 
 ifdef CG_INSTALLED
-#SUBDIRS += eVolve
+SUBDIRS += eVolve
 endif
 
 TARGETS = subdirs
