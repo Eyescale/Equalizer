@@ -8,9 +8,8 @@
 #include <eq/net/commandFunc.h>
 
 #include <eq/base/base.h>
-#include <eq/base/debug.h>
-#include <eq/base/nonCopyable.h>
-#include <eq/base/requestHandler.h>
+
+#include <vector>
 
 namespace eqNet
 {

@@ -30,14 +30,14 @@ namespace eqNet
     public:
         enum Event
         {
-            EVENT_NONE,            //!< No event has occured
+            EVENT_NONE,            //!< No event has occurred
             EVENT_CONNECT,         //!< A new connection
             EVENT_DISCONNECT,      //!< A disconnect
             EVENT_DATA,            //!< Data can be read
             EVENT_TIMEOUT,         //!< The selection request timed out
             EVENT_INTERRUPT,       //!< ConnectionSet::interrupt was called
-            EVENT_ERROR,           //!< A connection signalled an error
-            EVENT_SELECT_ERROR,    //!< An error occured during select()
+            EVENT_ERROR,           //!< A connection signaled an error
+            EVENT_SELECT_ERROR,    //!< An error occurred during select()
             EVENT_INVALID_HANDLE   //!< A connection is not select'able
         };
 

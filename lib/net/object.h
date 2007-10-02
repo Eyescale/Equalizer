@@ -5,10 +5,11 @@
 #ifndef EQNET_OBJECT_H
 #define EQNET_OBJECT_H
 
-#include <eq/net/base.h>     // base class
-#include <eq/net/node.h>     // used in RefPtr
-#include <eq/net/objectCM.h> // called inline
-#include <eq/net/types.h>    // for NodeVector
+#include <eq/net/base.h>          // base class
+#include <eq/net/node.h>          // used in RefPtr
+#include <eq/net/objectCM.h>      // called inline
+#include <eq/net/types.h>         // for NodeVector
+#include <eq/base/nonCopyable.h>  // base class
 
 namespace eqNet
 {
