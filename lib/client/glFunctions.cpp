@@ -52,7 +52,7 @@ namespace eq
     QUERY( windowSystem, name, name, type );
 
 #define ARB_BACKUP( windowSystem, name, func, type )          \
-    if( !_table.name )                                  \
+    if( !_table.name )                                        \
         QUERY( windowSystem, name, func, type );
 
 GLFunctions::GLFunctions( const WindowSystem windowSystem )

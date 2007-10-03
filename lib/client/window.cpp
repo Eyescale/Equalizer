@@ -279,8 +279,15 @@ bool eq::Window::configInitGLX()
         attributes.push_back( stencilSize>0 ? stencilSize : 1 );
     }
 
+#ifdef DARWIN
+    // WAR: glDrawBuffer( GL_BACK ) renders only to the left back buffer on a
+    // stereo visual on Darwin which creates ugly flickering on mono configs
+    if( getIAttribute( IATTR_HINT_STEREO ) == ON )
+        attributes.push_back( GLX_STEREO );
+#else
     if( getIAttribute( IATTR_HINT_STEREO ) != OFF )
         attributes.push_back( GLX_STEREO );
+#endif
     if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) != OFF )
         attributes.push_back( GLX_DOUBLEBUFFER );
 
@@ -292,8 +299,10 @@ bool eq::Window::configInitGLX()
         backoffAttributes.push_back( GLX_DOUBLEBUFFER );
     if( stencilSize == AUTO )
         backoffAttributes.push_back( GLX_STENCIL_SIZE );
+#ifndef DARWIN
     if( getIAttribute( IATTR_HINT_STEREO ) == AUTO )
         backoffAttributes.push_back( GLX_STEREO );
+#endif
 
     // Choose visual
     const int    screen  = DefaultScreen( display );
@@ -416,11 +425,11 @@ bool eq::Window::configInitAGL()
 
     Global::enterCarbon();
     DMGetGDeviceByDisplayID( (DisplayIDType)displayID, &displayHandle, false );
-    Global::leaveCarbon();
 
     if( !displayHandle )
     {
         setErrorMessage( "Can't get display handle" );
+        Global::leaveCarbon();
         return false;
     }
 #endif
@@ -477,7 +486,7 @@ bool eq::Window::configInitAGL()
         attributes.push_back( AGL_DOUBLEBUFFER );
         attributes.push_back( GL_TRUE );
     }
-    if( getIAttribute( IATTR_HINT_STEREO ) != OFF )
+    if( getIAttribute( IATTR_HINT_STEREO ) == ON )
     {
         attributes.push_back( AGL_STEREO );
         attributes.push_back( GL_TRUE );
@@ -491,8 +500,6 @@ bool eq::Window::configInitAGL()
         backoffAttributes.push_back( AGL_DOUBLEBUFFER );
     if( stencilSize == AUTO )
         backoffAttributes.push_back( AGL_STENCIL_SIZE );
-    if( getIAttribute( IATTR_HINT_STEREO ) == AUTO )
-        backoffAttributes.push_back( AGL_STEREO );
 
     // choose pixel format
     AGLPixelFormat pixelFormat = 0;
@@ -525,6 +532,7 @@ bool eq::Window::configInitAGL()
     if( !pixelFormat )
     {
         setErrorMessage( "Could not find a pixel format: " + error );
+        Global::leaveCarbon();
         return false;
     }
 
@@ -537,6 +545,7 @@ bool eq::Window::configInitAGL()
     if( !context ) 
     {
         setErrorMessage( "Could not create AGL context: " + aglGetError( ));
+        Global::leaveCarbon();
         return false;
     }
 
@@ -563,6 +572,7 @@ bool eq::Window::configInitAGL()
             EQWARN << "aglSetFullScreen failed: " << aglGetError()
                    << endl;
 #endif
+        Global::leaveCarbon();
     }
     else // create carbon window and bind drawable to context
     {
@@ -574,7 +584,6 @@ bool eq::Window::configInitAGL()
                                         _pvp.y + _pvp.h, _pvp.x + _pvp.w };
         WindowRef        windowRef;
 
-        Global::enterCarbon();
         const OSStatus   status     = CreateNewWindow( kDocumentWindowClass, 
                                                        attributes, &windowRect, 
                                                        &windowRef );
@@ -614,8 +623,7 @@ bool eq::Window::configInitAGL()
         Global::leaveCarbon();
         setCarbonWindow( windowRef );
     }
-
-    aglSetCurrentContext( context );
+        
     return true;
 #else
     setErrorMessage( "Client library compiled without AGL support" );
