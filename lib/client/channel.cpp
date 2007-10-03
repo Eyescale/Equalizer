@@ -166,16 +166,6 @@ void Channel::frameDraw( const uint32_t frameID )
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
     applyHeadTransform();
-
-    glTranslatef( 0, 0, -2 );
-    glColor3f( 1, 1, 0 );
-    glBegin( GL_TRIANGLE_STRIP );
-    glVertex3f( -.25, -.25, -.25 );
-    glVertex3f( -.25,  .25, -.25 );
-    glVertex3f(  .25, -.25, -.25 );
-    glVertex3f(  .25,  .25, -.25 );
-    glEnd();
-    glFinish();
 }
 
 void Channel::frameAssemble( const uint32_t frameID )

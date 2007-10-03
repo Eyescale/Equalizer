@@ -10,9 +10,8 @@ namespace eVolve
 {
 
 Config::Config()
-        : _running( false ),
-          _spinX( 5 ),
-          _spinY( 5 )
+        : _spinX( 5 )
+        , _spinY( 5 )
 {
 }
 
@@ -30,8 +29,7 @@ bool Config::init()
     registerObject( &_initData );
 
     // init config
-    _running = eq::Config::init( _initData.getID( ));
-    if( !_running )
+    if( !eq::Config::init( _initData.getID( )))
         return false;
     
     // init tracker
@@ -60,7 +58,6 @@ bool Config::init()
 
 bool Config::exit()
 {
-    _running = false;
     const bool ret = eq::Config::exit();
 
     _initData.setFrameDataID( EQ_ID_INVALID );
@@ -92,33 +89,15 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 {
     switch( event->type )
     {
-        case eq::ConfigEvent::WINDOW_CLOSE:
-            _running = false;
-            return true;
-
         case eq::ConfigEvent::KEY_PRESS:
             switch( event->keyPress.key )
             {
-                case 'q':
-                case eq::KC_ESCAPE:
-                    _running = false;
-                    return true;
-
                 case 'r':
                 case ' ':
                     _spinX = 0;
                     _spinY = 0;
                     _frameData.reset();
                     return true;
-            }
-            break;
-
-        case eq::ConfigEvent::POINTER_BUTTON_PRESS:
-            if( event->pointerButtonPress.buttons == 
-                ( eq::PTR_BUTTON1 | eq::PTR_BUTTON2 | eq::PTR_BUTTON3 ))
-            {
-                _running = false;
-                return true;
             }
             break;
 

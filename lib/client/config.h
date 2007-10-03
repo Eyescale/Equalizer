@@ -31,6 +31,12 @@ namespace eq
         //*{
         eqBase::RefPtr< Client > getClient();
         const std::vector< Node* >& getNodes() const { return _nodes; }
+
+        /**
+         * @return true while the config is initialized and no exit event
+         *         happened.
+         */
+        bool isRunning() const { return _running; }
         //*}
 
         /** 
@@ -130,7 +136,7 @@ namespace eq
          * @return <code>true</code> if the event was handled,
          *         <code>false</code> if not.
          */
-        virtual bool handleEvent( const ConfigEvent* event ){ return false; }
+        virtual bool handleEvent( const ConfigEvent* event );
         //*}
 
         /** Sets the head matrix according to the specified matrix.
@@ -180,6 +186,21 @@ namespace eq
         /** Locally-instantiated nodes of this config. */
         std::vector<Node*> _nodes;
 
+        /** The matrix describing the head position and orientation. */
+        Matrix4f _headMatrix;
+
+        /** The reason for the last error. */
+        std::string            _error;
+
+        /** Registers pending commands waiting for a return value. */
+        eqBase::RequestHandler _requestHandler;
+
+        /** The receiver->app thread event queue. */
+        CommandQueue           _eventQueue;
+
+        /** true while the config is initialized and no window has exited. */
+        bool _running;
+
         void _addNode( Node* node );
         void _removeNode( Node* node );
         Node* _findNode( const uint32_t id );
@@ -197,18 +218,6 @@ namespace eq
          * @return true if the initialisation was successful, false if not.
          */
         virtual bool _finishInit();
-
-        /** The matrix describing the head position and orientation. */
-        Matrix4f _headMatrix;
-
-        /** The reason for the last error. */
-        std::string            _error;
-
-        /** Registers pending commands waiting for a return value. */
-        eqBase::RequestHandler _requestHandler;
-
-        /** The receiver->app thread event queue. */
-        CommandQueue           _eventQueue;
 
 #ifdef EQ_TRANSMISSION_API
         /** Connect client nodes of this config. */

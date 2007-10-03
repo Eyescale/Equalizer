@@ -23,6 +23,7 @@ using namespace std;
 
 Config::Config()
         : Session( true )
+        , _running( false )
 {
     registerCommand( CMD_CONFIG_CREATE_NODE,
                    eqNet::CommandFunc<Config>( this, &Config::_cmdCreateNode ));
@@ -119,6 +120,7 @@ bool Config::_startInit( const uint32_t initID )
 
 bool Config::_finishInit()
 {
+    EQASSERT( !_running );
     registerObject( &_headMatrix );
 
     ConfigFinishInitPacket packet;
@@ -131,16 +133,17 @@ bool Config::_finishInit()
     while( !_requestHandler.isServed( packet.requestID ))
         client->processCommand();
 
-    bool ret = false;
-    _requestHandler.waitRequest( packet.requestID, ret );
+    _requestHandler.waitRequest( packet.requestID, _running );
 
-    if( !ret )
+    if( !_running )
         deregisterObject( &_headMatrix );
-    return ret;
+    return _running;
 }
 
 bool Config::exit()
 {
+    _running = false;
+
     ConfigExitPacket packet;
     packet.requestID = _requestHandler.registerRequest();
     send( packet );
@@ -239,6 +242,35 @@ void Config::handleEvents()
         if( !handleEvent( event ))
             EQINFO << "Unhandled " << event << endl;
     }
+}
+
+bool Config::handleEvent( const ConfigEvent* event )
+{
+    switch( event->type )
+    {
+        case eq::ConfigEvent::WINDOW_CLOSE:
+            _running = false;
+            return true;
+
+        case eq::ConfigEvent::KEY_PRESS:
+            if( event->keyPress.key == eq::KC_ESCAPE )
+            {
+                _running = false;
+                return true;
+            }    
+            break;
+
+        case eq::ConfigEvent::POINTER_BUTTON_PRESS:
+            if( event->pointerButtonPress.buttons == 
+                ( eq::PTR_BUTTON1 | eq::PTR_BUTTON2 | eq::PTR_BUTTON3 ))
+            {
+                _running = false;
+                return true;
+            }
+            break;
+    }
+
+    return false;
 }
 
 void Config::setHeadMatrix( const vmml::Matrix4f& matrix )

@@ -42,17 +42,8 @@ bool Channel::configInit( const uint32_t initID )
 
 void Channel::frameDraw( const uint32_t frameID )
 {
-    applyBuffer();
-    applyViewport();
-            
-    glMatrixMode( GL_PROJECTION );
-    glLoadIdentity();
-
-    applyFrustum();
-
-    glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
-    applyHeadTransform();
+    // Setup OpenGL state
+    eq::Channel::frameDraw( frameID );
 
     glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
     glLightfv( GL_LIGHT0, GL_AMBIENT,  lightAmbient  );

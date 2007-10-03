@@ -1,0 +1,8 @@
+
+                    Equalizer Hello, World! Example
+
+Overview
+
+  The eqHello example shows a minimal Equalizer application which
+  renders some data. The source code should be pretty much self-
+  explaining, otherwise the Programming Guide provides more background.

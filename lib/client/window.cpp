@@ -218,7 +218,7 @@ bool eq::Window::configInitGL( const uint32_t initID )
     glEnable( GL_LIGHTING );
     glEnable( GL_LIGHT0 );
 
-    glColorMaterial( GL_FRONT_AND_BACK, GL_DIFFUSE );
+    glColorMaterial( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
     glEnable( GL_COLOR_MATERIAL );
 
     glClearDepth( 1.f );

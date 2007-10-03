@@ -18,8 +18,6 @@ namespace eqPly
     public:
         Config();
 
-        bool isRunning() const { return _running; }
-    
         /** @sa eq::Config::init. */
         virtual bool init();
         /** @sa eq::Config::exit. */
@@ -36,7 +34,6 @@ namespace eqPly
         /** @sa eq::Config::handleEvent */
         virtual bool handleEvent( const eq::ConfigEvent* event );
 
-        bool       _running;
         int        _spinX, _spinY;
 
         LocalInitData _initData;

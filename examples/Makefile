@@ -7,6 +7,7 @@ OPTIONAL = \
 
 SUBDIRS = \
 	configs \
+	eqHello \
 	eqPly \
 	libmesh \
 	eqPixelBench \
