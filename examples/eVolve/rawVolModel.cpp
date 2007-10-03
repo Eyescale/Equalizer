@@ -48,13 +48,13 @@ void readDimensionsAndScales(
 }
 
 
-RawVolumeModel::RawVolumeModel( const string& data ) 
+RawVolumeModel::RawVolumeModel( const std::string& data ) 
     :_cRange( -1.0, -1.0 )
     ,_lastSuccess(false)
     ,_resolution(1)
 {
     _fileName = data;
-    string configFileName = _fileName;
+    std::string configFileName = _fileName;
     hFile info( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
 
     if( info.f==NULL ) 
@@ -68,7 +68,7 @@ RawVolumeModel::RawVolumeModel( const string& data )
 
 void createPreintegrationTable( const uint8_t *Table, GLuint &preintName )
 {
-    EQINFO << "Calculating preintegration table..." << endl;
+    EQINFO << "Calculating preintegration table..." << std::endl;
 
     double rInt[256]; rInt[0] = 0.;
     double gInt[256]; gInt[0] = 0.;
@@ -85,7 +85,7 @@ void createPreintegrationTable( const uint8_t *Table, GLuint &preintName )
         aInt[i] = aInt[i-1] + tauc;
     }
 
-    vector<GLubyte> lookupI( 256*256*4, 255 );
+    std::vector<GLubyte> lookupI( 256*256*4, 255 );
 
     GLubyte* lookupImg = &lookupI[0]; // Preint Texture
     int lookupindex=0;
@@ -173,7 +173,7 @@ uint32_t getMinPow2( uint32_t size )
 
 bool RawVolumeModel::createTextures( GLuint& volume, 
                                      GLuint& preint, 
-                                     Range   range   )
+                                     const eq::Range& range   )
 {
     if( _cRange == range )
         return _lastSuccess;
@@ -183,10 +183,10 @@ bool RawVolumeModel::createTextures( GLuint& volume,
     // reading header file & creating preintegration table
     uint32_t w, h, d;
     
-    EQWARN << "--------------------------------------------" << endl;
+    EQWARN << "--------------------------------------------" << std::endl;
     EQWARN << "loading model: " << _fileName;
     {
-        string configFileName = _fileName;
+        std::string configFileName = _fileName;
         hFile info( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
         FILE* file = info.f;
 
@@ -195,11 +195,11 @@ bool RawVolumeModel::createTextures( GLuint& volume,
 
         readDimensionsAndScales( file, w, h, d, volScales );
 
-        EQWARN << " " << w << "x" << h << "x" << d << endl;
+        EQWARN << " " << w << "x" << h << "x" << d << std::endl;
         EQWARN << "Scales: " 
                << volScales.W << " x " 
                << volScales.H << " x " 
-               << volScales.D << endl;
+               << volScales.D << std::endl;
 
         if( fscanf(file,"TF:\n") !=0 ) 
             return lFailed( "Error in header file" );
@@ -210,7 +210,7 @@ bool RawVolumeModel::createTextures( GLuint& volume,
         if( TFSize!=256  )
             return lFailed( "Wrong size of transfer function, should be 256" );
 
-        vector< uint8_t > TF( TFSize*4, 0 );
+        std::vector< uint8_t > TF( TFSize*4, 0 );
         int tmp;
         for( uint32_t i=0; i<TFSize; i++ )
         {
@@ -220,7 +220,7 @@ bool RawVolumeModel::createTextures( GLuint& volume,
             if( fscanf( file, "a=%d\n", &tmp ) != 1 )
             {
                 EQERROR << "Failed to read entity #" << i 
-                        << " of TF from header file" << endl;
+                        << " of TF from header file" << std::endl;
                 break;
             }
             TF[4*i+3] = tmp;
@@ -249,13 +249,13 @@ bool RawVolumeModel::createTextures( GLuint& volume,
     
     EQWARN  << " w: " << w << " " << tW 
             << " h: " << h << " " << tH 
-            << " d: " << d << " " << depth << " " << tD << endl;
+            << " d: " << d << " " << depth << " " << tD << std::endl;
 
-    vector<uint8_t> data( tW*tH*tD*4, 0 );
+    std::vector<uint8_t> data( tW*tH*tD*4, 0 );
 
-    _resolution = max( w, max( h, d ) );
+    _resolution = MAX( w, MAX( h, d ) );
     
-    EQWARN << "r: " << _resolution << endl;
+    EQWARN << "r: " << _resolution << std::endl;
     
     //texture scaling coefficients
     TD.W  = static_cast<float>( w     ) / static_cast<float>( tW );
@@ -268,16 +268,16 @@ bool RawVolumeModel::createTextures( GLuint& volume,
     TD.Db = range.start > 0.0001 ? bwStart / static_cast<float>(tD) : 0;
 
     EQWARN << " ws: " << TD.W  << " hs: " << TD.H  << " wd: " << TD.D 
-           << " Do: " << TD.Do << " Db: " << TD.Db << endl 
-           << " s= "  << start << " e= "  << end   << endl;
+           << " Do: " << TD.Do << " Db: " << TD.Db << std::endl 
+           << " s= "  << start << " e= "  << end   << std::endl;
 
     {
-        ifstream file ( _fileName.c_str(), 
-                        ifstream::in | ifstream::binary | ifstream::ate );
+        std::ifstream file ( _fileName.c_str(), std::ifstream::in |
+                             std::ifstream::binary | std::ifstream::ate );
 
         if( !file.is_open() ) return lFailed("Can't open model data file");
 
-        file.seekg( w*h*start*4, ios::beg );
+        file.seekg( w*h*start*4, std::ios::beg );
         
         if( w==tW && h==tH ) // width and height are power of 2
         {

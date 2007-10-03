@@ -6,11 +6,6 @@
 
 namespace eVolve
 {
-
-    using namespace std;
-    using namespace eq;
-
-
 #define COMPOSE_MODE_NEW
 
     /** Structure that contain actual dimensions of data that is 
@@ -59,13 +54,14 @@ namespace eVolve
     {
     public:
     
-        RawVolumeModel( const string& data );
+        RawVolumeModel( const std::string& data );
     
-        bool createTextures( GLuint &volume, GLuint &preint, Range range );
+        bool createTextures( GLuint &volume, GLuint &preint, 
+                             const eq::Range& range );
 
-              Range    getCurRange()   const { return _cRange;     };
-        const string&  getFileName()   const { return _fileName;   };
-              uint32_t getResolution() const { return _resolution; };
+        const eq::Range&    getCurRange()   const { return _cRange;     };
+        const std::string&  getFileName()   const { return _fileName;   };
+              uint32_t      getResolution() const { return _resolution; };
 
     //Data
         DataInTextureDimensions TD; //!< Data dimensions within volume texture 
@@ -75,13 +71,13 @@ namespace eVolve
         
         bool lSuccess() { return _lastSuccess=true;  }
         bool lFailed( char* msg )  
-                { EQERROR << msg << endl; return _lastSuccess=false; }
+                { EQERROR << msg << std::endl; return _lastSuccess=false; }
 
-        Range   _cRange;        //!< Current Range
-        bool    _lastSuccess;   //!< Result of last loading
+        eq::Range  _cRange;        //!< Current Range
+        bool       _lastSuccess;   //!< Result of last loading
 
-        uint32_t _resolution;   //!< max(w,h,d) of a model
-        string  _fileName;
+        uint32_t     _resolution;   //!< max(w,h,d) of a model
+        std::string  _fileName;
     };
 
 }

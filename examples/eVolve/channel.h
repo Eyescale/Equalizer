@@ -14,9 +14,16 @@
 
 namespace eVolve
 {
-
     class FrameData;
     class InitData;
+    struct Frame;
+
+    // extend eq::Image class with a Range
+    class Image : public eq::Image
+    {
+    public:
+        eq::Range range;
+    };
 
     class Channel : public eq::Channel
     {
@@ -32,21 +39,20 @@ namespace eVolve
         virtual void frameDraw( const uint32_t frameID );
 
         virtual void frameAssemble( const uint32_t frameID );
-        virtual void setupAssemblyState();
         virtual void frameReadback( const uint32_t frameID );
-
-        void arrangeFrames( std::vector<Range>& ranges );
 
         void applyFrustum() const;
 
-        void clearViewport( const PixelViewport &pvp );
+        void clearViewport( const eq::PixelViewport &pvp );
 
         void frameClear( const uint32_t frameID );
 
     private:
 
-        void _clearPixelViewPorts(  const vector<Image*>& vecImages,
-                                    const vmml::Vector2i& offset        );
+        void _startAssemble();
+        void _finishAssemble();
+
+        void _orderFrames( std::vector< Frame >& frames );
 
         void _drawLogo();
 
@@ -59,13 +65,13 @@ namespace eVolve
         struct curFrData
         {
             uint32_t    frameID;
-            Range       lastRange;
+            eq::Range   lastRange;
         }
             _curFrData;
 
         vmml::Vector4f _bgColor;
         
-        Image _curFrameImage; //!< buffer for readback in case of DB compositing
+        Image _image; //!< buffer for readback in case of DB compositing
 
         Model*   _model;      //!< equal to RawVolume Model
 
