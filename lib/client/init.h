@@ -16,6 +16,7 @@
  */
 namespace eq
 {
+    class Config;
 	class NodeFactory;
 
     /** 
@@ -28,7 +29,7 @@ namespace eq
      * @return <code>true</code> if the library was successfully initialised,
      *         <code>false</code> otherwise.
      */
-    EQ_EXPORT bool init( int argc, char** argv, NodeFactory* nodeFactory = 0 );
+    EQ_EXPORT bool init( const int argc, char** argv, NodeFactory* nodeFactory);
     
     /**
      * Deinitialize the Equalizer client library.
@@ -37,6 +38,25 @@ namespace eq
      *         <code>false</code> otherwise.
      */
     EQ_EXPORT bool exit();
+
+    /**
+     * Convenience function to retrieve a configuration.
+     *
+     * This function initializes a local client node, connects it to the server,
+     * and retrieves a configuration. On any failure everything is correctly
+     * deinitialized and 0 is returned.
+     *
+     * @return the pointer to a configuration, or 0 upon error.
+     */
+    EQ_EXPORT Config* getConfig( const int argc, char** argv );
+
+   /** 
+    * Convenience function to release a configuration.
+    *
+    * This function releases the configuration, disconnects the server,
+    * and stops the local client node.
+    */
+    EQ_EXPORT void releaseConfig( Config* config );
 }
 
 #endif // EQNET_INIT_H

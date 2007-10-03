@@ -40,7 +40,7 @@ namespace eq
             { return ( _window ? _window->getNode() : 0 );}
         Config* getConfig() const 
             { return ( _window ? _window->getConfig() : 0 );}
-        eqBase::RefPtr<eqNet::Node> getServer() const 
+        eqBase::RefPtr< Server > getServer() const 
             { return ( _window ? _window->getServer() : 0 );}
 
         const std::string& getName() const { return _name; }

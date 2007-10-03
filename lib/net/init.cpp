@@ -17,7 +17,7 @@ using namespace eqNet;
 using namespace eqBase;
 using namespace std;
 
-EQ_EXPORT bool eqNet::init( int argc, char** argv )
+EQ_EXPORT bool eqNet::init( const int argc, char** argv )
 {
     EQINFO << "Log level " << Log::getLogLevelString() << " topics " 
            << Log::topics << endl;

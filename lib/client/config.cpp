@@ -65,13 +65,16 @@ Config::~Config()
     _appNode   = 0;
 }
 
+eqBase::RefPtr<Server> Config::getServer()
+{ 
+    RefPtr<eqNet::Node> node = eqNet::Session::getServer();
+    EQASSERT( dynamic_cast< Server* >( node.get( )));
+    return RefPtr_static_cast< eqNet::Node, Server >( node );
+}
+
 eqBase::RefPtr<Client> Config::getClient()
 { 
-    RefPtr<eqNet::Node> node = getServer();
-    EQASSERT( dynamic_cast< Server* >( node.get( )));
-
-    RefPtr< Server > server = RefPtr_static_cast< eqNet::Node, Server >( node );
-    return server->getClient(); 
+    return getServer()->getClient(); 
 }
 
 void Config::_addNode( Node* node )
@@ -219,7 +222,7 @@ void Config::sendEvent( ConfigEvent& event )
     if( !_appNode )
     {
         RefPtr<eqNet::Node> localNode = getLocalNode();
-        RefPtr<eqNet::Node> server    = getServer();
+        RefPtr<eqNet::Node> server    = eqNet::Session::getServer();
         _appNode = localNode->connect( _appNodeID, server );
     }
     EQASSERT( _appNode );

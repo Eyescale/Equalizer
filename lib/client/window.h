@@ -42,9 +42,9 @@ namespace eq
         Node* getNode() const 
             { return ( _pipe ? _pipe->getNode() : NULL );}
         Config* getConfig() const { return (_pipe ? _pipe->getConfig() : NULL);}
-        eqBase::RefPtr<Client> getClient() const 
+        eqBase::RefPtr< Client > getClient() const 
             { return ( _pipe ? _pipe->getClient() : NULL ); }
-        eqBase::RefPtr<eqNet::Node> getServer() const 
+        eqBase::RefPtr< Server > getServer() const 
             { return ( _pipe ? _pipe->getServer() : NULL ); }
 
         const std::string& getName() const { return _name; }
@@ -399,9 +399,6 @@ namespace eq
 
         bool _setPixelViewport( const PixelViewport& pvp );
         void _setViewport( const Viewport& vp );
-
-        void _send( eqNet::ObjectPacket& packet )
-            { eqNet::Object::send( getServer(), packet ); }
 
         /** Set up _drawableConfig by querying current context. */
         void _queryDrawableConfig();

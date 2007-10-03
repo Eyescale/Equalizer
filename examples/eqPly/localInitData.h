@@ -16,7 +16,7 @@ namespace eqPly
     public:
         LocalInitData();
 
-        void parseArguments( int argc, char** argv );
+        void parseArguments( const int argc, char** argv );
 
         const std::string& getTrackerPort() const { return _trackerPort; }
         bool               useColor()       const { return _color; }

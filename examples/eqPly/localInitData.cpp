@@ -37,7 +37,7 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     return *this;
 }
 
-void LocalInitData::parseArguments( int argc, char** argv )
+void LocalInitData::parseArguments( const int argc, char** argv )
 {
     try
     {

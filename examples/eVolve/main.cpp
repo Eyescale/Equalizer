@@ -25,7 +25,7 @@ public:
     virtual eq::Channel* createChannel()  { return new eVolve::Channel; }
 };
 
-int main( int argc, char** argv )
+int main( const int argc, char** argv )
 {
     // 1. parse arguments
     eVolve::LocalInitData initData;

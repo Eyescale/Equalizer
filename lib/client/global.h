@@ -58,7 +58,7 @@ namespace eq
         static void leaveCarbon();
 
     private:
-		friend EQ_EXPORT bool init( int argc, char** argv, 
+		friend EQ_EXPORT bool init( const int argc, char** argv, 
                                     NodeFactory* nodeFactory );
 		friend EQ_EXPORT bool exit();
         static NodeFactory* _nodeFactory;

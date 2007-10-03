@@ -45,9 +45,9 @@ namespace eq
         //*{
         Node* getNode() const { return _node; }
         Config* getConfig() const { return (_node ? _node->getConfig() : NULL);}
-        eqBase::RefPtr<Client> getClient() const
+        eqBase::RefPtr< Client > getClient() const
             { return (_node ? _node->getClient() : NULL);}
-        eqBase::RefPtr<eqNet::Node> getServer() const
+        eqBase::RefPtr< Server > getServer() const
             { return (_node ? _node->getServer() : NULL);}
 
         const std::string& getName() const { return _name; }

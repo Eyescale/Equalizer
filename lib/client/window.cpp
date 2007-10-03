@@ -141,7 +141,9 @@ void eq::Window::setPixelViewport( const PixelViewport& pvp )
 
     WindowSetPVPPacket packet;
     packet.pvp = pvp;
-    _send( packet );
+    RefPtr< eqNet::Node > node = 
+        RefPtr_static_cast< Server, eqNet::Node >( getServer( ));
+    send( node, packet );
 }
 
 bool eq::Window::_setPixelViewport( const PixelViewport& pvp )

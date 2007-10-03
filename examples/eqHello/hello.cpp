@@ -24,7 +24,7 @@ public:
     virtual eq::Channel* createChannel() { return new Channel; }
 };
 
-int main( int argc, char** argv )
+int main( const int argc, char** argv )
 {
     // 1. Equalizer initialization
     NodeFactory nodeFactory;
@@ -34,70 +34,42 @@ int main( int argc, char** argv )
         return EXIT_FAILURE;
     }
     
-    bool error = false;
-
-    // 2. initialization of local client node
-    RefPtr< eq::Client > client = new eq::Client;
-    if( client->initLocal( argc, argv ))
+    // 2. get a configuration
+    bool        error  = false;
+    eq::Config* config = eq::getConfig( argc, argv );
+    if( config )
     {
-        // 3. connect to server
-        RefPtr<eq::Server> server = new eq::Server;
-        if( client->connectServer( server ))
+        // 3. init config
+        if( config->init( 0 ))
         {
-            // 4. choose configuration
-            eq::ConfigParams configParams;
-            eq::Config* config = server->chooseConfig( configParams );
-            if( config )
+            // 4. run main loop
+            uint32_t spin = 0;
+            while( config->isRunning( ))
             {
-                // 5. init config
-                if( config->init( 0 ))
-                {
-                    // 6. run main loop
-                    uint32_t spin = 0;
-                    while( config->isRunning( ))
-                    {
-                        config->startFrame( ++spin );
-                        config->finishFrame();
-                    }
-                    
-                    // 7. exit config
-                    config->exit();
-                }
-                else
-                {
-                    EQERROR << "Config initialization failed: " 
-                            << config->getErrorMessage() << endl;
-                    error = true;
-                }
-
-                // 8. release config
-                server->releaseConfig( config );
+                config->startFrame( ++spin );
+                config->finishFrame();
             }
-            else
-            {
-                EQERROR << "No matching config on server" << endl;
-                error = true;
-            }
-
-            // 9. disconnect server
-            client->disconnectServer( server );
+        
+            // 5. exit config
+            config->exit();
         }
         else
         {
-            EQERROR << "Can't open server" << endl;
+            EQERROR << "Config initialization failed: " 
+                    << config->getErrorMessage() << endl;
             error = true;
         }
 
-        // 10. exit local client node
-        client->exitLocal();
+        // 6. release config
+        eq::releaseConfig( config );
     }
     else
     {
-        EQERROR << "Can't init local client node" << endl;
+        EQERROR << "Cannot get config" << endl;
         error = true;
-    }
+    }    
 
-    // 11. exit
+    // 7. exit
     eq::exit();
     return error ? EXIT_FAILURE : EXIT_SUCCESS;
 }
@@ -115,7 +87,7 @@ void Channel::frameDraw( const uint32_t spin )
     glLightfv( GL_LIGHT0, GL_AMBIENT, lightAmbient );
 
     // rotate scene around the origin
-    glRotatef( static_cast< float >( spin ) * 0.5f, 1.0f, 0.5f, 0.25f );
+    glRotatef( static_cast< float >( spin ) * 0.1f, 1.0f, 0.5f, 0.25f );
 
     // render six axis-aligned colored quads around the origin
     //  front

@@ -82,7 +82,7 @@ bool Node::operator == ( const Node* node ) const
     return ( this == node );
 }
 
-bool Node::initLocal( int argc, char** argv )
+bool Node::initLocal( const int argc, char** argv )
 {
 #ifndef NDEBUG
     EQINFO << "args: ";

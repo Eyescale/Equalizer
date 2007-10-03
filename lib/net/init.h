@@ -26,7 +26,7 @@ namespace eqNet
      * @return <code>true</code> if the library was successfully initialised,
      *         <code>false</code> otherwise.
      */
-    EQ_EXPORT bool init( int argc, char** argv );
+    EQ_EXPORT bool init( const int argc, char** argv );
 
     /**
      * De-initialises the Equalizer client library.

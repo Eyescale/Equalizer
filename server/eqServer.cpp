@@ -12,7 +12,7 @@ using namespace eqs;
 using namespace eqBase;
 using namespace std;
 
-int main( int argc, char **argv )
+int main( const int argc, char** argv )
 {
     eqNet::init( argc, argv );
     eqNet::Global::setDefaultPort( EQ_DEFAULT_PORT );

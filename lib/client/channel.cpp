@@ -132,7 +132,9 @@ void eq::Channel::setNearFar( const float nearPlane, const float farPlane )
     packet.nearPlane = nearPlane;
     packet.farPlane  = farPlane;
     
-    send( getServer(), packet );
+    RefPtr< eqNet::Node > node = 
+        RefPtr_static_cast< Server, eqNet::Node >( getServer( ));
+    send( node, packet );
 }
 
 //---------------------------------------------------------------------------

@@ -100,7 +100,7 @@ namespace eqNet
          * @return <code>true</code> if the client was successfully initialized,
          *         <code>false</code> otherwise.
          */
-        virtual bool initLocal( int argc, char** argv );
+        virtual bool initLocal( const int argc, char** argv );
 
         /** Exit a local, listening node. */
         virtual bool exitLocal() { return stopListening(); }

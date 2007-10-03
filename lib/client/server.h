@@ -5,6 +5,7 @@
 #ifndef EQ_SERVER_H
 #define EQ_SERVER_H
 
+#include <eq/client/client.h>    // called in inline method
 #include <eq/client/nodeType.h>  // for TYPE_EQ_SERVER enum
 #include <eq/net/node.h>         // base class
 
