@@ -11,7 +11,10 @@ namespace eq
 {
 EQ_EXPORT NodeFactory* Global::_nodeFactory = 0;
 string Global::_server;
-eqBase::Lock Global::_carbonLock;
+
+#ifdef AGL
+static eqBase::Lock _carbonLock;
+#endif
 
 void Global::enterCarbon()
 {

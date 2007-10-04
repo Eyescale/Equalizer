@@ -561,9 +561,9 @@ bool eq::Window::configInitAGL()
 
     if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON )
     {
-#if 0
         const PixelViewport& pipePVP = _pipe->getPixelViewport();
         const PixelViewport& pvp     = pipePVP.isValid() ? pipePVP : _pvp;
+#if 0
         if( !aglSetFullScreen( context, pvp.w, pvp.h, 0, 0 ))
             EQWARN << "aglSetFullScreen to " << pvp << " failed: " 
                    << aglGetError() << endl;
@@ -575,6 +575,7 @@ bool eq::Window::configInitAGL()
                    << endl;
 #endif
         Global::leaveCarbon();
+        setPixelViewport( pvp );
     }
     else // create carbon window and bind drawable to context
     {
@@ -1108,7 +1109,6 @@ void eq::Window::setCarbonWindow( WindowRef window )
         Global::enterCarbon();
         if( GetWindowBounds( window, kWindowContentRgn, &rect ) == noErr )
         {
-            Global::leaveCarbon();
             _pvp.x = rect.left;
             _pvp.y = rect.top;
             _pvp.w = rect.right - rect.left;

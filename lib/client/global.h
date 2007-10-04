@@ -64,8 +64,6 @@ namespace eq
         static NodeFactory* _nodeFactory;
 
         static std::string  _server;
-
-        static eqBase::Lock _carbonLock;
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
