@@ -6,10 +6,11 @@
 #define EQBASE_SEMA_H
 
 #include <eq/base/base.h>
-#include <pthread.h>
 
 namespace eqBase
 {
+    class SemaPrivate;
+
     /**
      * A semaphore primitive.
      */
@@ -43,9 +44,8 @@ namespace eqBase
         void adjust( const int delta );
 
     private:
-        pthread_cond_t  _cond;
-        pthread_mutex_t _mutex;
-        uint32_t        _value;
+        SemaPrivate*   _data;
+        uint32_t       _value;
     };
 }
 

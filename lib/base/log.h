@@ -7,11 +7,11 @@
 
 #include <eq/base/base.h>
 #include <eq/base/clock.h>
+#include <eq/base/thread.h>
 
 #include <assert.h>
 #include <iomanip>
 #include <iostream>
-#include <pthread.h>
 #include <sstream>
 #include <time.h>
 
@@ -84,13 +84,9 @@ namespace eqBase
                 {
                     if( !_noHeader )
                     {
-#                   ifdef WIN32_VC
-                        _stringStream << getpid()  << " " << pthread_self().p 
-                                      <<" " << _file << ":" << _line << " ";
-#                   else
-                        _stringStream << getpid()  << " " << pthread_self()<<" "
-                                      << _file << ":" << _line << " ";
-#                   endif
+                        _stringStream << getpid()  << " " 
+                                      << eqBase::Thread::getSelfThreadID()
+                                      << " " << _file << ":" << _line << " ";
 #                   ifndef NDEBUG
                         const int prec  = _stringStream.precision();
 

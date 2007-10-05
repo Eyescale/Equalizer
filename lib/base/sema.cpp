@@ -7,14 +7,24 @@
 #include <eq/base/log.h>
 
 #include <errno.h>
+#include <pthread.h>
 
-using namespace eqBase;
 using namespace std;
 
-Sema::Sema()
-        : _value( 0 )
+namespace eqBase
 {
-    int error = pthread_cond_init( &_cond, NULL );
+class SemaPrivate
+{
+public:
+    pthread_cond_t  cond;
+    pthread_mutex_t mutex;
+};
+
+Sema::Sema()
+        : _data( new SemaPrivate )
+        , _value( 0 )
+{
+    int error = pthread_cond_init( &_data->cond, NULL );
     if( error )
     {
         EQERROR << "Error creating pthread condition: " << strerror( error )
@@ -22,7 +32,7 @@ Sema::Sema()
         return;
     } 
             
-    error = pthread_mutex_init( &_mutex, NULL );
+    error = pthread_mutex_init( &_data->mutex, NULL );
     if( error )
     {
         EQERROR << "Error creating pthread mutex: " << strerror(error) << endl;
@@ -32,26 +42,28 @@ Sema::Sema()
 
 Sema::~Sema()
 {
-    pthread_cond_destroy( &_cond );
-    pthread_mutex_destroy( &_mutex );
+    pthread_cond_destroy( &_data->cond );
+    pthread_mutex_destroy( &_data->mutex );
+    delete _data;
+    _data = 0;
 }
 
 void Sema::post()
 {
-    pthread_mutex_lock( &_mutex );
+    pthread_mutex_lock( &_data->mutex );
     ++_value;
-    pthread_cond_signal( &_cond );
-    pthread_mutex_unlock( &_mutex );
+    pthread_cond_signal( &_data->cond );
+    pthread_mutex_unlock( &_data->mutex );
 }
 
 void Sema::wait()
 {
-    pthread_mutex_lock( &_mutex );
+    pthread_mutex_lock( &_data->mutex );
     while( _value == 0 )
-        pthread_cond_wait( &_cond, &_mutex );
+        pthread_cond_wait( &_data->cond, &_data->mutex );
 
     --_value;
-    pthread_mutex_unlock( &_mutex );
+    pthread_mutex_unlock( &_data->mutex );
 }
 
 void Sema::adjust( const int delta )
@@ -59,13 +71,13 @@ void Sema::adjust( const int delta )
     if( delta == 0 )
         return;
 
-    pthread_mutex_lock( &_mutex );
+    pthread_mutex_lock( &_data->mutex );
     
     if( delta > 0 )
     {
         _value += delta;
-        pthread_cond_broadcast( &_cond );
-        pthread_mutex_unlock( &_mutex );
+        pthread_cond_broadcast( &_data->cond );
+        pthread_mutex_unlock( &_data->mutex );
         return;
     };
 
@@ -73,7 +85,7 @@ void Sema::adjust( const int delta )
     while( amount )
     {
         while( _value == 0 )
-            pthread_cond_wait( &_cond, &_mutex );
+            pthread_cond_wait( &_data->cond, &_data->mutex );
                 
         if( _value < amount )
         {
@@ -86,6 +98,6 @@ void Sema::adjust( const int delta )
             amount = 0;
         }
     }
-    pthread_mutex_unlock( &_mutex );
+    pthread_mutex_unlock( &_data->mutex );
 }
-
+}

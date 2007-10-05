@@ -217,6 +217,15 @@ bool Thread::isCurrent() const
     return pthread_equal( pthread_self(), _threadID );
 }
 
+size_t Thread::getSelfThreadID()
+{
+#ifdef WIN32_VC
+    return reinterpret_cast< size_t >( pthread_self().p );
+#else
+    return reinterpret_cast< size_t >( pthread_self( ));
+#endif
+}
+
 void Thread::addListener( ExecutionListener* listener )
 {
     ScopedMutex< SpinLock > mutex( _listenerLock );

@@ -133,6 +133,9 @@ namespace eqBase
          */
         static void addListener( ExecutionListener* listener );
 
+        /** @return a unique identifier for the calling thread. */
+        static size_t getSelfThreadID();
+
     private:
         /** The current state of this thread. */
         enum State

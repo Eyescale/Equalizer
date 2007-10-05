@@ -110,6 +110,7 @@ SOURCES = \
 	base/launcher.cpp \
 	base/lock.cpp \
 	base/log.cpp \
+	base/monitor.cpp \
 	base/requestHandler.cpp \
 	base/sema.cpp \
 	base/spinLock.cpp \

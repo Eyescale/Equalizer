@@ -7,10 +7,10 @@
 
 #include <eq/base/thread.h>
 
-#include <pthread.h>
-
 namespace eqBase
 {
+    class TimedLockPrivate;
+
     /**
      * A timed lock primitive.
      */
@@ -59,9 +59,8 @@ namespace eqBase
         bool test(); 
 
     private:
-        pthread_mutex_t _mutex;
-        pthread_cond_t  _cond;
-        bool            _locked;
+        TimedLockPrivate* _data;
+        bool              _locked;
     };
 }
 

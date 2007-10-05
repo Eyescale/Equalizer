@@ -6,10 +6,11 @@
 #define EQBASE_LOCK_H
 
 #include <eq/base/base.h>
-#include <pthread.h>
 
 namespace eqBase
 {
+    class LockPrivate;
+
     /**
      * A lock (mutex) primitive.
      */
@@ -52,7 +53,7 @@ namespace eqBase
         bool test(); 
 
     private:
-        pthread_mutex_t _mutex;
+        LockPrivate* _data;
     };
 }
 

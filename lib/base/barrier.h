@@ -6,10 +6,11 @@
 #define EQBASE_BARRIER_H
 
 #include <eq/base/base.h>
-#include <pthread.h>
 
 namespace eqBase
 {
+    class BarrierPrivate;
+
     /**
      * A barrier primitive.
      */
@@ -34,9 +35,7 @@ namespace eqBase
         size_t enter( const size_t size );
 
     private:
-        pthread_mutex_t _mutex;
-        pthread_cond_t  _cond;
-        size_t          _count;
+        BarrierPrivate *_data;
     };
 }
 

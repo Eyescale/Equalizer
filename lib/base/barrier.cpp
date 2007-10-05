@@ -7,15 +7,27 @@
 #include "log.h"
 
 #include <errno.h>
+#include <pthread.h>
 
-using namespace eqBase;
 using namespace std;
 
+namespace eqBase
+{
+class BarrierPrivate
+{
+public:
+    BarrierPrivate() : count( 0 ) {}
+
+    pthread_mutex_t mutex;
+    pthread_cond_t  cond;
+    size_t          count;
+};
+
 Barrier::Barrier()
-        : _count(0)
+        : _data( new BarrierPrivate( ))
 {
     // mutex init
-    int error = pthread_mutex_init( &_mutex, NULL );
+    int error = pthread_mutex_init( &_data->mutex, NULL );
     if( error )
     {
         EQERROR << "Error creating pthread mutex: " << strerror( error )
@@ -23,7 +35,7 @@ Barrier::Barrier()
         return;
     }
     // condvar init
-    error = pthread_cond_init( &_cond, NULL );
+    error = pthread_cond_init( &_data->cond, NULL );
     if( error )
     {
         EQERROR << "Error creating pthread condition: " 
@@ -34,26 +46,28 @@ Barrier::Barrier()
 
 Barrier::~Barrier()
 {
-    pthread_mutex_destroy( &_mutex );
-    pthread_cond_destroy( &_cond );
+    pthread_mutex_destroy( &_data->mutex );
+    pthread_cond_destroy( &_data->cond );
+    delete _data;
+    _data = 0;
 }
 
 size_t Barrier::enter( const size_t size )
 {
-    pthread_mutex_lock( &_mutex );
-    const size_t pos = _count++;
-    //INFO << "barrier enter, pos " << pos << " of " << size << endl;
+    pthread_mutex_lock( &_data->mutex );
+    const size_t pos = _data->count++;
 
-    if( _count >= size ) // barrier reached, release
+    if( _data->count >= size ) // barrier reached, release
     {
-        _count = 0;
-        pthread_cond_broadcast( &_cond );
-        pthread_mutex_unlock( &_mutex );
+        _data->count = 0;
+        pthread_cond_broadcast( &_data->cond );
+        pthread_mutex_unlock( &_data->mutex );
     }
     else // wait
     {
-        pthread_cond_wait( &_cond, &_mutex );
-        pthread_mutex_unlock( &_mutex );
+        pthread_cond_wait( &_data->cond, &_data->mutex );
+        pthread_mutex_unlock( &_data->mutex );
     }
     return pos;
+}
 }

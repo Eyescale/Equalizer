@@ -7,13 +7,10 @@
 
 #include <eq/base/base.h>
 
-#include <pthread.h>
-#ifndef WIN32
-#  include <unistd.h> // for _POSIX_SPIN_LOCKS on some systems
-#endif
-
 namespace eqBase
 {
+    class SpinLockPrivate;
+
     /**
      * A spinlock primitive.
      *
@@ -58,11 +55,7 @@ namespace eqBase
         bool test(); 
 
     private:
-#if _POSIX_SPIN_LOCKS > 0
-        pthread_spinlock_t _mutex;
-#else
-        pthread_mutex_t _mutex;
-#endif
+        SpinLockPrivate* _data;
     };
 }
 
