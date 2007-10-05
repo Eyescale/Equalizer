@@ -14,14 +14,6 @@
 #include "hlp.h"
 
 
-//Only for gluErrorString()
-#ifdef __APPLE__
-#include <GLUT/glut.h>
-#else // linux & Win
-#include <GL/glu.h>
-#endif
-
-
 //#define DYNAMIC_NEAR_FAR 
 #ifndef M_SQRT3
 #  define M_SQRT3    1.7321f   /* sqrt(3) */
@@ -41,7 +33,7 @@ Channel::Channel()
     :eq::Channel()
     ,_useCg          ( true )
     ,_bgColor        ( 0.0f, 0.0f, 0.0f, 1.0f ) 
-    ,_model          ( NULL )
+    ,_model          ( 0 )
     ,_slicesListID ( 0 )
 {
     _curFrData.frameID = 0;
@@ -52,7 +44,7 @@ static void checkError( std::string msg )
 {
     const GLenum error = glGetError();
     if (error != GL_NO_ERROR)
-        EQERROR << msg << " GL Error: " << gluErrorString(error) << endl;
+        EQERROR << msg << " GL Error: " << error << endl;
 }
 
 static void createSlicesHexagonsList( int num, GLuint &listId )
@@ -566,7 +558,7 @@ void Channel::frameDraw( const uint32_t frameID )
         }
         else
         {    
-            glUseProgramObjectARB( NULL );
+            glUseProgramObjectARB( 0 );
         }
     }
     else

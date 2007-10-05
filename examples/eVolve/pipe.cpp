@@ -104,7 +104,7 @@ void Pipe::LoadShaders()
                 return;
             }
         
-            glUseProgramObjectARB( NULL );
+            glUseProgramObjectARB( 0 );
         }    
 
         _shadersLoaded = true;

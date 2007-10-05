@@ -31,7 +31,7 @@ namespace eVolve
                                                            double scaleY,
                                                            double scaleZ  );
 
-        static int RawConverter::parseArguments( int argc, char** argv );
+        static int parseArguments( int argc, char** argv );
     };
 }
 

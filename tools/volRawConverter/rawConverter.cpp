@@ -762,7 +762,7 @@ int RawConverter::scaleRawDerFile(                  const string& src,
                                      v5*sVol[p5+d] + v6*sVol[p6+d] +
                                      v7*sVol[p7+d] + v8*sVol[p8+d];
 
-                        dVol[pD+d] = min<int>( res, 255 );
+                        dVol[pD+d] = min<int>( static_cast<int>( res ), 255 );
                     }
                 }
         }
