@@ -230,7 +230,7 @@ size_t Thread::getSelfThreadID()
 #ifdef WIN32_VC
     return reinterpret_cast< size_t >( pthread_self().p );
 #else
-    return reinterpret_cast< size_t >( pthread_self( ));
+    return ( size_t )( pthread_self( ));
 #endif
 }
 
