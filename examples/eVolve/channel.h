@@ -18,13 +18,6 @@ namespace eVolve
     class InitData;
     struct Frame;
 
-    // extend eq::Image class with a Range
-    class Image : public eq::Image
-    {
-    public:
-        eq::Range range;
-    };
-
     class Channel : public eq::Channel
     {
     public:
@@ -71,7 +64,7 @@ namespace eVolve
 
         vmml::Vector4f _bgColor;
         
-        Image _image; //!< buffer for readback in case of DB compositing
+        eq::Image _image; //!< buffer for readback in case of DB compositing
 
         Model*   _model;      //!< equal to RawVolume Model
 

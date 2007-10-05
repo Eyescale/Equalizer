@@ -133,7 +133,7 @@ static void calcAndPutDataForPolygonsClippingToShader
     vmml::Matrix4d&     modelviewM,
     vmml::Matrix3d&     modelviewITM,
     double              sliceDistance,
-    eq::Range               range,
+    eq::Range           range,
     eqCgShaders         cgShaders,
     GLhandleARB         glslShader,
     bool                useCgShaders
@@ -578,34 +578,29 @@ void Channel::frameDraw( const uint32_t frameID )
        _drawLogo();
 }
 
-
 struct Frame
 {
-    Frame() : frame( 0 ), image( 0 ) {} 
+    Frame( eq::Frame* f=0, eq::Image* i=0, eq::Range r=eq::Range(0.f, 0.f) )
+    : frame( f ), image( i ), range( r ) {}
+
+    eq::Range getRange() const 
+    { return frame ? frame->getRange() : range; }
+
     eq::Frame* frame;
-    Image*     image;
+    eq::Image* image;
+    
+    eq::Range  range;
 };
 
 static bool cmpRangesDec(const Frame& frame1, const Frame& frame2)
 {
-    const eq::Range& range1 = frame1.frame ? 
-        frame1.frame->getRange() : frame1.image->range; 
-    const eq::Range& range2 = frame2.frame ? 
-        frame2.frame->getRange() : frame2.image->range;
-
-    return range1.start < range2.start;
+    return frame1.getRange().start < frame2.getRange().start;
 }
 
 static bool cmpRangesInc(const Frame& frame1, const Frame& frame2)
 {
-    const eq::Range& range1 = frame1.frame ? 
-        frame1.frame->getRange() : frame1.image->range; 
-    const eq::Range& range2 = frame2.frame ? 
-        frame2.frame->getRange() : frame2.image->range;
-
-    return range1.start > range2.start;
+    return frame1.getRange().start > frame2.getRange().start;
 }
-
 
 const FrameData& Channel::_getFrameData() const
 {
@@ -640,16 +635,16 @@ void Channel::_calcMVandITMV(
 }
 
 void Channel::_orderFrames( vector< Frame >& frames )
-{    
+{
     if( !_perspective ) // parallel/ortho projection
     {
         const bool orientation = _getFrameData().data.rotation.ml[10] < 0;
-        sort( frames.begin(), frames.end(), 
+        sort( frames.begin(), frames.end(),
               orientation ? cmpRangesDec : cmpRangesInc );
         return;
     }
 
-    // else perspective projection
+    //perspective projection
     vmml::Matrix4d  modelviewM;     // modelview matrix
     vmml::Matrix3d  modelviewITM;   // modelview inversed transposed matrix
     _calcMVandITMV( modelviewM, modelviewITM );
@@ -661,26 +656,24 @@ void Channel::_orderFrames( vector< Frame >& frames )
 
     // cos of angle between normal and vectors from center
     vector<double> dotVals;
-        
+
     // of projection to the middle of slices' boundaries
     for( vector< Frame >::const_iterator i = frames.begin();
          i != frames.end(); ++i )
     {
-        const Frame&     frame = *i;
-        const eq::Range& range = frame.frame ? 
-            frame.frame->getRange() : frame.image->range;
-            
-        const double         px = -1.0 + range.start*2.0;        
-        const vmml::Vector4d pS =
+        const Frame& frame = *i;
+        double       px    = -1.0 + frame.getRange().start*2.0;
+
+        vmml::Vector4d pS = 
             modelviewM * vmml::Vector4d( 0.0, 0.0, px , 1.0 );
-                
+            
         dotVals.push_back( norm.dot( pS.getNormalizedVector3() ) );
     }
 
     const vmml::Vector4d pS = modelviewM * vmml::Vector4d( 0.0, 0.0, 1.0, 1.0 );
     dotVals.push_back( norm.dot( pS.getNormalizedVector3() ) );
 
-    //check if any slices need to be rendered in reverse order
+    //check if any slices need to be rendered in rederse order
     size_t minPos = 0xffffffffu;
     for( size_t i=0; i<dotVals.size()-1; i++ )
         if( dotVals[i] < 0 && dotVals[i+1] < 0 )
@@ -692,26 +685,32 @@ void Channel::_orderFrames( vector< Frame >& frames )
         vector< Frame > framesTmp = frames;
 
         //Copy slices that should be rendered first
-        memcpy( &frames[0], &framesTmp[minPos+1], 
-                (nFrames-minPos-1) * sizeof( Frame* ));
+        memcpy( &frames[0], &framesTmp[minPos+1],
+                (nFrames-minPos-1)*sizeof( Frame ) );
 
-        //Copy slices that should be rendered last in reverse order
-        for( size_t i=0; i<=minPos; ++i )
+        //Copy sliced that shouls be rendered last in reversed order
+        for( size_t i=0; i<=minPos; i++ )
             frames[ nFrames-i-1 ] = framesTmp[i];
     }
 }
 
 
-static void _expandPVP( eq::PixelViewport& pvp, 
-                        const vector< eq::Image* >& images,
-                        const vmml::Vector2i& offset )
+void IntersectViewports(        eq::PixelViewport & pvp, 
+                          const vector<eq::Image*>& vecImages,
+                          const vmml::Vector2i& offset      )
 {
-    for( vector< eq::Image* >::const_iterator i = images.begin();
-         i != images.end(); ++i )
+    if( vecImages.size() < 1 )
     {
-        const eq::PixelViewport imagePVP = (*i)->getPixelViewport() + offset;
-        pvp += imagePVP;
+        pvp.invalidate();
+        return;
     }
+
+    eq::PixelViewport overalPVP = vecImages[0]->getPixelViewport() + offset;
+
+    for( uint i=1; i<vecImages.size(); i++ )
+        overalPVP += vecImages[i]->getPixelViewport() + offset;
+
+    pvp ^= overalPVP;
 }
 
 
@@ -753,11 +752,11 @@ void Channel::frameAssemble( const uint32_t frameID )
     
     const bool composeOnly  = frameID != _curFrData.frameID || 
                               _curFrData.lastRange.isFull();
-
+    
     _startAssemble();
 
-    const vector< eq::Frame* >&  frames = getInputFrames();
-    eq::PixelViewport coveredPVP;
+    const vector< eq::Frame* >& frames  = getInputFrames();
+    eq::PixelViewport coveredPVP = getPixelViewport();
 
     vector< Frame > dbFrames;
 
@@ -770,15 +769,12 @@ void Channel::frameAssemble( const uint32_t frameID )
 
         const eq::Range& range = frame->getRange();
         if( range.isFull() ) // 2D frame, assemble directly
-        {
             frame->startAssemble();
-        }
         else
         {
-            Frame dbFrame;
-            dbFrame.frame = frame;
-            dbFrames.push_back( dbFrame );
-            _expandPVP( coveredPVP, frame->getImages(), frame->getOffset());
+            dbFrames.push_back( Frame( frame ) );
+            IntersectViewports( coveredPVP, frame->getImages(),
+                                        frame->getOffset()  );
         }
     }
 
@@ -788,11 +784,13 @@ void Channel::frameAssemble( const uint32_t frameID )
         return;
     }
 
-    // Intersect area covered by DB input frames with render area
-    coveredPVP ^= getPixelViewport();
-    const bool hasSelfFrame = coveredPVP.hasArea();
+    //calculate correct frames sequence
+    if( !composeOnly )
+        dbFrames.push_back( Frame( 0, &_image, _curFrData.lastRange ) );
+        
+    _orderFrames( dbFrames );
 
-    // Setup correct blending state for DB frames
+
     glEnable( GL_BLEND );
 
 #ifdef COMPOSE_MODE_NEW
@@ -801,34 +799,21 @@ void Channel::frameAssemble( const uint32_t frameID )
     glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
 #endif
 
-    //calculate correct frame sequence
-    if( !composeOnly )
-    {
-        _image.range = getRange();
-
-        Frame frame;
-        frame.image = &_image;
-        dbFrames.push_back( frame );
-    }
-
-    _orderFrames( dbFrames );
-
-    //check if current frame in proper position, read back if not
+    //check if current frame in proper position, redback if not
     if( !composeOnly )
     {
 #ifndef SOLID_BG
-        if( dbFrames.back().image == &_image )
+        if( !dbFrames.back().frame )
             dbFrames.pop_back();
         else
 #endif //SOLID_BG
-            if( hasSelfFrame )
+            if( coveredPVP.hasArea() )
             {
-                _image.setFormat( eq::Frame::BUFFER_COLOR, GL_RGBA   );
-                _image.setType(   eq::Frame::BUFFER_COLOR,
-                                          GL_UNSIGNED_BYTE               );
-                _image.startReadback( eq::Frame::BUFFER_COLOR,
-                                              coveredPVP );
-                
+                _image.setFormat(eq::Frame::BUFFER_COLOR, GL_RGBA   );
+                _image.setType(  eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
+
+                _image.startReadback(eq::Frame::BUFFER_COLOR, coveredPVP );
+
 #ifdef __APPLE__
                 //clear part of a screen
                 clearViewport( coveredPVP );
@@ -838,24 +823,24 @@ void Channel::frameAssemble( const uint32_t frameID )
     }
 
     // blend DB frames in order
-    while( !dbFrames.empty( ))
+    while( !dbFrames.empty() )
     {
-        Frame& frame = dbFrames.back();
+        Frame frame = dbFrames.back();
         dbFrames.pop_back();
 
         if( frame.frame )
             frame.frame->startAssemble();
         else
-        {
-            EQASSERT( hasSelfFrame );
-            EQASSERT( frame.image == &_image );
-
-            vmml::Vector2i offset( coveredPVP.x, coveredPVP.y );
-            _image.startAssemble( eq::Frame::BUFFER_COLOR, offset ); 
-            _image.syncAssemble();
-        }
+            if( coveredPVP.hasArea() )
+            {
+                EQASSERT( frame.image == &_image );
+                
+                vmml::Vector2i offset( coveredPVP.x, coveredPVP.y );
+                _image.startAssemble( eq::Frame::BUFFER_COLOR, offset ); 
+                _image.syncAssemble();
+            }
     }
-    
+
     _finishAssemble();
 }
 
@@ -864,7 +849,7 @@ void Channel::_startAssemble()
     applyBuffer();
     applyViewport();
     setupAssemblyState();
-}
+}   
 
 void Channel::_finishAssemble()
 {
@@ -894,7 +879,6 @@ void Channel::frameReadback( const uint32_t frameID )
 
     eq::Channel::frameReadback( frameID );
 }
-
 
 void Channel::_drawLogo()
 {
