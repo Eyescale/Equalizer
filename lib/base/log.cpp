@@ -99,14 +99,14 @@ EQ_EXPORT Log& Log::instance( const char* subdir, const char* file,
     return *log;
 }
 
-EQ_EXPORT std::ostream& eqBase::indent( std::ostream& os )
+EQ_EXPORT std::ostream& indent( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
         log->indent();
     return os;
 }
-EQ_EXPORT std::ostream& eqBase::exdent( std::ostream& os )
+EQ_EXPORT std::ostream& exdent( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
@@ -114,21 +114,21 @@ EQ_EXPORT std::ostream& eqBase::exdent( std::ostream& os )
         return os;
 }
 
-EQ_EXPORT std::ostream& eqBase::disableFlush( std::ostream& os )
+EQ_EXPORT std::ostream& disableFlush( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
         log->disableFlush();
     return os;
 }
-EQ_EXPORT std::ostream& eqBase::enableFlush( std::ostream& os )
+EQ_EXPORT std::ostream& enableFlush( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
         log->enableFlush();
     return os;
 }
-EQ_EXPORT std::ostream& eqBase::forceFlush( std::ostream& os )
+EQ_EXPORT std::ostream& forceFlush( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
@@ -136,14 +136,14 @@ EQ_EXPORT std::ostream& eqBase::forceFlush( std::ostream& os )
     return os;
 }
 
-EQ_EXPORT std::ostream& eqBase::disableHeader( std::ostream& os )
+EQ_EXPORT std::ostream& disableHeader( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
         log->disableHeader();
     return os;
 }
-EQ_EXPORT std::ostream& eqBase::enableHeader( std::ostream& os )
+EQ_EXPORT std::ostream& enableHeader( std::ostream& os )
 {
     Log* log = dynamic_cast<Log*>(&os);
     if( log )
