@@ -166,7 +166,8 @@ namespace eqBase
         void _installCleanupHandler();
 
         static void _notifyStarted();
-        static void _notifyStopping( void* arg );
+        static void _notifyStopping();
+        friend void _notifyStopping( void* );
 
         friend std::ostream& operator << ( std::ostream& os, const Thread* );
     };
@@ -194,7 +195,7 @@ namespace eqBase
 
 #  define CHECK_THREAD( NAME )                                          \
     {                                                                   \
-        if( NAME.id == 0 ))                                             \
+        if( NAME.id == 0 )                                              \
         {                                                               \
             NAME.id = eqBase::Thread::getSelfThreadID();                \
             EQVERB << "Functions for " << #NAME                         \
@@ -211,8 +212,7 @@ namespace eqBase
 
 #  define CHECK_NOT_THREAD( NAME )                                      \
     {                                                                   \
-        if( !NAME.extMutex &&                                           \
-            NAME.id != 0 ))                                             \
+        if( !NAME.extMutex && NAME.id != 0 )                           \
         {                                                               \
             if( NAME.id ==  eqBase::Thread::getSelfThreadID( ))         \
             {                                                           \

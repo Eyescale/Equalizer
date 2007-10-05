@@ -10,6 +10,8 @@
 
 namespace eqBase
 {
+    class PerThreadPrivate;
+
     /**
      * Implements a thread-specific storage.
      * 
@@ -19,41 +21,15 @@ namespace eqBase
     template<typename T> class PerThread
     {
     public:
-        PerThread() 
-            {
-                EQASSERTINFO( sizeof(T) <= sizeof(void*), 
-                              "Data too large for thread-specific storage" );
+        PerThread();
+        virtual ~PerThread();
 
-                const int error = pthread_key_create( &_key, 0 );
-                if( error )
-                {
-                    EQERROR << "Can't create thread-specific key: " 
-                            << strerror( error ) << std::endl;
-                    EQASSERT( !error );
-                }
-            }
+        PerThread<T>& operator = ( const T& data );
+        PerThread<T>& operator = ( const PerThread<T>& rhs );
 
-        PerThread<T>& operator = ( const T& data )
-            { 
-                pthread_setspecific( _key, static_cast<const void*>( data ));
-                return *this; 
-            }
-
-        PerThread<T>& operator = ( const PerThread<T>& rhs )
-            { 
-                pthread_setspecific( _key, pthread_getspecific( rhs._key ));
-                return *this;
-            }
-
-        virtual ~PerThread()
-            {
-                pthread_key_delete( _key );
-            }
-
-        T get() const  { return static_cast<T>( pthread_getspecific( _key )); }
-        T operator->() { return static_cast<T>( pthread_getspecific( _key )); }
-        const T operator->() const 
-            { return const_cast<T>( pthread_getspecific( _key )); }
+        T get() const;
+        T operator->();
+        const T operator->() const;
 
         bool operator == ( const PerThread& rhs ) const 
             { return ( get() == rhs.get( )); }
@@ -61,8 +37,89 @@ namespace eqBase
         bool operator != ( const T& rhs ) const { return ( get()!=rhs ); }
 
     private:
-        pthread_key_t _key;
+        PerThreadPrivate* _data;
     };
+
+
+//----------------------------------------------------------------------
+// implementation
+//----------------------------------------------------------------------
+
+// Crude test if pthread.h was included
+#ifdef PTHREAD_CREATE_JOINABLE
+#  ifndef HAVE_PTHREAD_H
+#    define HAVE_PTHREAD_H
+#  endif
+#endif
+
+// The application has to include pthread.h if it wants to instantiate new queue
+// types, since on Windows the use of pthreads-Win32 library includes might
+// create hard to resolve type conflicts with other header files.
+
+#ifdef HAVE_PTHREAD_H
+
+class PerThreadPrivate
+{
+public:
+    pthread_key_t key;
+};
+
+template< typename T >
+PerThread<T>::PerThread() 
+        : _data( new PerThreadPrivate )
+{
+    EQASSERTINFO( sizeof(T) <= sizeof(void*), 
+                  "Data too large for thread-specific storage" );
+
+    const int error = pthread_key_create( &_data->key, 0 );
+    if( error )
+    {
+        EQERROR << "Can't create thread-specific key: " 
+                << strerror( error ) << std::endl;
+        EQASSERT( !error );
+    }
+}
+
+template< typename T >
+PerThread<T>::~PerThread()
+{
+    pthread_key_delete( _data->key );
+    delete _data;
+    _data = 0;
+}
+
+template< typename T >
+PerThread<T>& PerThread<T>::operator = ( const T& data )
+{ 
+    pthread_setspecific( _data->key, static_cast<const void*>( data ));
+    return *this; 
+}
+
+template< typename T >
+PerThread<T>& PerThread<T>::operator = ( const PerThread<T>& rhs )
+{ 
+    pthread_setspecific( _data->key, pthread_getspecific( rhs._data->key ));
+    return *this;
+}
+
+template< typename T >
+T PerThread<T>::get() const
+{
+    return static_cast<T>( pthread_getspecific( _data->key )); 
+}
+
+template< typename T >
+T PerThread<T>::operator->() 
+{
+    return static_cast<T>( pthread_getspecific( _data->key )); 
+}
+
+template< typename T >
+const T PerThread<T>::operator->() const 
+{ 
+    return const_cast<T>( pthread_getspecific( _data->key )); 
+}
+#endif // HAVE_PTHREAD_H
 }
 
 #endif //EQBASE_PERTHREAD_H

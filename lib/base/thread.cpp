@@ -29,11 +29,13 @@ SpinLock                        Thread::_listenerLock;
 std::vector<ExecutionListener*> Thread::_listeners;
 
 static pthread_key_t _createCleanupKey();
-static pthread_key_t _cleanupKey = Thread::_createCleanupKey();
+void                 _notifyStopping( void* arg );
+
+static pthread_key_t _cleanupKey = _createCleanupKey();
 
 pthread_key_t _createCleanupKey()
 {
-    const int error = pthread_key_create(&_cleanupKey, Thread::_notifyStopping);
+    const int error = pthread_key_create( &_cleanupKey, _notifyStopping );
     if( error )
     {
         EQERROR
@@ -79,7 +81,7 @@ void Thread::_runChild()
 #ifdef EQ_WIN32_SDP_JOIN_WAR
     _running = true;
 #endif
-    _threadID = pthread_self(); // XXX remove, set during create already?
+    _data->threadID = pthread_self(); // XXX remove, set during create already?
 
     if( !init( ))
     {
@@ -112,7 +114,12 @@ void Thread::_notifyStarted()
         (*iter)->notifyExecutionStarted();
 }
 
-void Thread::_notifyStopping( void* )
+void _notifyStopping( void* )
+{ 
+    Thread::_notifyStopping();
+}
+
+void Thread::_notifyStopping()
 {
     pthread_setspecific( _cleanupKey, NULL );
 
@@ -183,7 +190,7 @@ void Thread::cancel()
     EQINFO << "Cancelling thread" << endl;
     _state = STATE_STOPPING;
 
-    pthread_cancel( _threadID );
+    pthread_cancel( _data->threadID );
     EQUNREACHABLE;
 }
 
@@ -199,7 +206,7 @@ bool Thread::join( void** retVal )
     _running.waitEQ( false );
 #else
     void *_retVal;
-    const int error = pthread_join( _threadID, &_retVal);
+    const int error = pthread_join( _data->threadID, &_retVal);
     if( error != 0 )
     {
         EQWARN << "Error joining thread: " << strerror(error) << endl;
@@ -215,7 +222,7 @@ bool Thread::join( void** retVal )
 
 bool Thread::isCurrent() const
 {
-    return pthread_equal( pthread_self(), _threadID );
+    return pthread_equal( pthread_self(), _data->threadID );
 }
 
 size_t Thread::getSelfThreadID()
@@ -233,12 +240,12 @@ void Thread::addListener( ExecutionListener* listener )
     _listeners.push_back( listener );
 }
 
-std::ostream& eqBase::operator << ( std::ostream& os, const Thread* thread )
+std::ostream& operator << ( std::ostream& os, const Thread* thread )
 {
 #ifdef WIN32_VC
-    os << "Thread " << thread->_threadID.p;
+    os << "Thread " << thread->_data->threadID.p;
 #else
-    os << "Thread " << thread->_threadID;
+    os << "Thread " << thread->_data->threadID;
 #endif
 	os << " state " 
 		<< ( thread->_state == Thread::STATE_STOPPED ? "stopped" :
@@ -253,4 +260,5 @@ std::ostream& eqBase::operator << ( std::ostream& os, const Thread* thread )
 #endif
 
     return os;
+}
 }
