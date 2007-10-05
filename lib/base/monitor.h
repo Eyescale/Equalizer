@@ -94,7 +94,7 @@ typedef Monitor< uint32_t > Monitoru;
 //----------------------------------------------------------------------
 
 // Crude test if pthread.h was included
-#ifdef PTHREAD_CREATE_JOINABLE
+#ifdef PTHREAD_MUTEX_INITIALIZER
 #  ifndef HAVE_PTHREAD_H
 #    define HAVE_PTHREAD_H
 #  endif
@@ -225,7 +225,6 @@ std::ostream& operator << ( std::ostream& os, const Monitor<T>& monitor )
     os << "Monitor< " << monitor.get() << " >";
     return os;
 }
-}
 #endif // HAVE_PTHREAD_H
-
+}
 #endif //EQBASE_MONITOR_H

@@ -2,6 +2,7 @@
 /* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
+#include <pthread.h>
 #include "window.h"
 #include "global.h"
 #include "channel.h"

@@ -50,7 +50,7 @@ class MTQueuePrivate;
 //----------------------------------------------------------------------
 
 // Crude test if pthread.h was included
-#ifdef PTHREAD_CREATE_JOINABLE
+#ifdef PTHREAD_MUTEX_INITIALIZER
 #  ifndef HAVE_PTHREAD_H
 #    define HAVE_PTHREAD_H
 #  endif

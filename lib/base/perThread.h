@@ -46,7 +46,7 @@ namespace eqBase
 //----------------------------------------------------------------------
 
 // Crude test if pthread.h was included
-#ifdef PTHREAD_CREATE_JOINABLE
+#ifdef PTHREAD_MUTEX_INITIALIZER
 #  ifndef HAVE_PTHREAD_H
 #    define HAVE_PTHREAD_H
 #  endif
@@ -117,7 +117,7 @@ T PerThread<T>::operator->()
 template< typename T >
 const T PerThread<T>::operator->() const 
 { 
-    return const_cast<T>( pthread_getspecific( _data->key )); 
+    return static_cast<T>( pthread_getspecific( _data->key )); 
 }
 #endif // HAVE_PTHREAD_H
 }

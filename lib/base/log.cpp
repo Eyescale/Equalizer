@@ -2,21 +2,22 @@
 /* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
+#include <pthread.h>
 #include "log.h"
 #include "perThread.h"
 
-using namespace eqBase;
 using namespace std;
 
 #ifdef WIN32_VC
 #  define atoll _atoi64
 #endif
 
-static int      getLogLevel();
-static unsigned getLogTopics();
 
 namespace eqBase
 {
+	static int      getLogLevel();
+	static unsigned getLogTopics();
+
     class LogTable
     {
     public:
@@ -37,7 +38,6 @@ namespace eqBase
         LOG_TABLE_ENTRY( INFO ),
         LOG_TABLE_ENTRY( VERBATIM )
     };
-}
 
 EQ_EXPORT int           eqBase::Log::level  = getLogLevel();
 EQ_EXPORT unsigned      eqBase::Log::topics = getLogTopics();
@@ -149,4 +149,5 @@ EQ_EXPORT std::ostream& eqBase::enableHeader( std::ostream& os )
     if( log )
         log->enableHeader();
     return os;
+}
 }
