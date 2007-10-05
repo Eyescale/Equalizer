@@ -18,9 +18,9 @@ using namespace mesh;
 
 // light parameters
 static GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};
-static GLfloat lightAmbient[]  = {0.0f, 0.0f, 0.0f, 1.0f};
-static GLfloat lightDiffuse[]  = {1.0f, 1.0f, 1.0f, 1.0f};
-static GLfloat lightSpecular[] = {1.0f, 1.0f, 1.0f, 1.0f};
+static GLfloat lightAmbient[]  = {0.1f, 0.1f, 0.1f, 1.0f};
+static GLfloat lightDiffuse[]  = {0.8f, 0.8f, 0.8f, 1.0f};
+static GLfloat lightSpecular[] = {0.8f, 0.8f, 0.8f, 1.0f};
 
 // material properties
 static GLfloat materialAmbient[]  = {0.2f, 0.2f, 0.2f, 1.0f};

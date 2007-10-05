@@ -825,7 +825,7 @@ void Channel::frameAssemble( const uint32_t frameID )
     if( !composeOnly )
     {
 #ifndef SOLID_BG
-        if( dbFrames.back() == SELF_FRAME )
+        if( dbFrames.back().image == &_image )
             dbFrames.pop_back();
         else
 #endif //SOLID_BG
