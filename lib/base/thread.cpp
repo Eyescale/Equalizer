@@ -14,7 +14,6 @@
 #include <errno.h>
 #include <pthread.h>
 
-using namespace eqBase;
 using namespace std;
 
 /* 
@@ -24,22 +23,15 @@ using namespace std;
  * of pthreads.
  */
 
+namespace eqBase
+{
 SpinLock                        Thread::_listenerLock;
 std::vector<ExecutionListener*> Thread::_listeners;
-pthread_key_t                   Thread::_cleanupKey=Thread::_createCleanupKey();
 
-#ifdef EQ_CHECK_THREADSAFETY
-static pthread_t getThreadIdZero()
-{
-    pthread_t id;
-    memset( &id, 0, sizeof( pthread_t ));
-    return id;
-}
+static pthread_key_t _createCleanupKey();
+static pthread_key_t _cleanupKey = Thread::_createCleanupKey();
 
-pthread_t                       eqBase::threadIdZero = getThreadIdZero();
-#endif
-
-pthread_key_t Thread::_createCleanupKey()
+pthread_key_t _createCleanupKey()
 {
     const int error = pthread_key_create(&_cleanupKey, Thread::_notifyStopping);
     if( error )
@@ -52,18 +44,27 @@ pthread_key_t Thread::_createCleanupKey()
     return _cleanupKey;
 }
 
+class ThreadPrivate
+{
+public:
+	pthread_t threadID;
+};
+
 Thread::Thread()
-        : _state(STATE_STOPPED)
+        : _data( new ThreadPrivate )
+        , _state( STATE_STOPPED )
 #ifdef EQ_WIN32_SDP_JOIN_WAR
         , _retVal( 0 )
 #endif
 {
-    memset( &_threadID, 0, sizeof( pthread_t ));
+    memset( &_data->threadID, 0, sizeof( pthread_t ));
     _syncChild.set();
 }
 
 Thread::~Thread()
 {
+	delete _data;
+	_data = 0;
 }
 
 void* Thread::runChild( void* arg )
@@ -138,7 +139,7 @@ bool Thread::start()
     int nTries = 10;
     while( nTries-- )
     {
-        const int error = pthread_create( &_threadID, &attributes,
+        const int error = pthread_create( &_data->threadID, &attributes,
                                           runChild, this );
 
         if( error == 0 ) // succeeded

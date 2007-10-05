@@ -18,6 +18,7 @@ namespace eqBase
 {
     class Lock;
     class ExecutionListener;
+    class ThreadPrivate;
 
     /**
      * An abstraction to create a new execution thread.
@@ -137,6 +138,7 @@ namespace eqBase
         static size_t getSelfThreadID();
 
     private:
+		ThreadPrivate* _data;
         /** The current state of this thread. */
         enum State
         {
@@ -149,8 +151,6 @@ namespace eqBase
         State _state;
         Lock  _syncChild;
 
-        pthread_t _threadID;
-
 #ifdef EQ_WIN32_SDP_JOIN_WAR
         Monitor<bool> _running;
         void*         _retVal;
@@ -162,9 +162,7 @@ namespace eqBase
         // listener API
         static SpinLock                        _listenerLock;
         static std::vector<ExecutionListener*> _listeners;
-        static pthread_key_t                   _cleanupKey;
 
-        static pthread_key_t _createCleanupKey();
         void _installCleanupHandler();
 
         static void _notifyStarted();
@@ -178,33 +176,31 @@ namespace eqBase
 // thread-safety checks
 // These checks are for development purposes, to check that certain objects are
 // properly used within the framework. Leaving them enabled during application
-// developement may cause false positives, e.g. when threadsafety is ensured
+// development may cause false positives, e.g., when threadsafety is ensured
 // outside of the objects by the application.
 
 #ifdef EQ_CHECK_THREADSAFETY
-    extern pthread_t threadIdZero;
-
 #  define CHECK_THREAD_DECLARE( NAME )                      \
     struct EQ_EXPORT NAME ## Struct                         \
     {                                                       \
         NAME ## Struct ()                                   \
-            : id( eqBase::threadIdZero ), extMutex( false ) \
+            : id( 0 ), extMutex( false )                    \
             {}                                              \
-        mutable pthread_t id;                               \
+        mutable size_t id;                                  \
         bool extMutex;                                      \
     } NAME;                                                 \
 
-#  define CHECK_THREAD_RESET( NAME ) NAME.id = eqBase::threadIdZero;
+#  define CHECK_THREAD_RESET( NAME ) NAME.id = 0;
 
 #  define CHECK_THREAD( NAME )                                          \
     {                                                                   \
-        if( pthread_equal( NAME.id, eqBase::threadIdZero ))             \
+        if( NAME.id == 0 ))                                             \
         {                                                               \
-            NAME.id = pthread_self();                                   \
+            NAME.id = eqBase::Thread::getSelfThreadID();                \
             EQVERB << "Functions for " << #NAME                         \
                    << " locked to this thread" << std::endl;            \
         }                                                               \
-        if( !NAME.extMutex && !pthread_equal( NAME.id, pthread_self( ))) \
+        if( !NAME.extMutex && NAME.id != eqBase::Thread::getSelfThreadID( )) \
         {                                                               \
             EQERROR << "Threadsafety check for " << #NAME               \
                     << " failed on object of type "                     \
@@ -216,9 +212,9 @@ namespace eqBase
 #  define CHECK_NOT_THREAD( NAME )                                      \
     {                                                                   \
         if( !NAME.extMutex &&                                           \
-            !pthread_equal( NAME.id, eqBase::threadIdZero ))            \
+            NAME.id != 0 ))                                             \
         {                                                               \
-            if( pthread_equal( NAME.id, pthread_self( )))               \
+            if( NAME.id ==  eqBase::Thread::getSelfThreadID( ))         \
             {                                                           \
                 EQERROR << "Threadsafety check for not " << #NAME       \
                         << " failed on object of type "                 \
