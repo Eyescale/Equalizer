@@ -123,7 +123,7 @@ namespace eq
                 if( !hasArea() )
                 {
                     *this = rhs;
-                    return rhs;
+                    return *this;
                 }
 
                 int32_t sEx =     x +     w;
