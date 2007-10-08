@@ -695,24 +695,17 @@ void Channel::_orderFrames( vector< Frame >& frames )
 }
 
 
-void IntersectViewports(        eq::PixelViewport & pvp, 
-                          const vector<eq::Image*>& vecImages,
-                          const vmml::Vector2i& offset      )
+static void _expandPVP( eq::PixelViewport& pvp, 
+                        const vector< eq::Image* >& images,
+                        const vmml::Vector2i& offset )
 {
-    if( vecImages.size() < 1 )
+    for( vector< eq::Image* >::const_iterator i = images.begin();
+         i != images.end(); ++i )
     {
-        pvp.invalidate();
-        return;
+        const eq::PixelViewport imagePVP = (*i)->getPixelViewport() + offset;
+        pvp += imagePVP;
     }
-
-    eq::PixelViewport overalPVP = vecImages[0]->getPixelViewport() + offset;
-
-    for( uint i=1; i<vecImages.size(); i++ )
-        overalPVP += vecImages[i]->getPixelViewport() + offset;
-
-    pvp ^= overalPVP;
 }
-
 
 #define SOLID_BG
 
@@ -756,7 +749,7 @@ void Channel::frameAssemble( const uint32_t frameID )
     _startAssemble();
 
     const vector< eq::Frame* >& frames  = getInputFrames();
-    eq::PixelViewport coveredPVP = getPixelViewport();
+    eq::PixelViewport coveredPVP;
 
     vector< Frame > dbFrames;
 
@@ -773,10 +766,11 @@ void Channel::frameAssemble( const uint32_t frameID )
         else
         {
             dbFrames.push_back( Frame( frame ) );
-            IntersectViewports( coveredPVP, frame->getImages(),
-                                        frame->getOffset()  );
+            _expandPVP( coveredPVP, frame->getImages(), frame->getOffset() );
         }
     }
+
+    coveredPVP ^= getPixelViewport();
 
     if( dbFrames.empty( ))
     {
