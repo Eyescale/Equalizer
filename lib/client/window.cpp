@@ -561,9 +561,11 @@ bool eq::Window::configInitAGL()
 
     if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON )
     {
+        aglEnable( context, AGL_FS_CAPTURE_SINGLE );
+
         const PixelViewport& pipePVP = _pipe->getPixelViewport();
         const PixelViewport& pvp     = pipePVP.isValid() ? pipePVP : _pvp;
-#if 0
+#if 1
         if( !aglSetFullScreen( context, pvp.w, pvp.h, 0, 0 ))
             EQWARN << "aglSetFullScreen to " << pvp << " failed: " 
                    << aglGetError() << endl;
