@@ -113,16 +113,18 @@ namespace eq
             { 
                 return ( x!=rhs.x || y!=rhs.y || w!=rhs.w || h!=rhs.h );
             }
-        
-		/** create a pixel viewport that includes both viewports (union) */
-        PixelViewport operator += ( const PixelViewport& rhs )
+
+        /** create a pixel viewport that includes both viewports (union) */
+        const PixelViewport& operator += ( const PixelViewport& rhs )
             {
-                if( *this == rhs )
+                if( *this == rhs || !rhs.hasArea() )
                     return *this;
-                if( !rhs.hasArea() )
-                    return *this;
+
                 if( !hasArea() )
+                {
+                    *this = rhs;
                     return rhs;
+                }
 
                 int32_t sEx =     x +     w;
                 int32_t sEy =     y +     h;
@@ -136,8 +138,8 @@ namespace eq
 
                 return *this;
             }
-        
-		/** create the intersection pixel viewport  */
+
+        /** create the intersection pixel viewport  */
         PixelViewport operator ^= ( const PixelViewport& rhs )
             {
                 if( *this == rhs )
