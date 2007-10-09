@@ -31,10 +31,10 @@ using namespace std;
 
 Channel::Channel()
     :eq::Channel()
-    ,_useCg          ( true )
-    ,_bgColor        ( 0.0f, 0.0f, 0.0f, 1.0f ) 
-    ,_model          ( 0 )
-    ,_slicesListID ( 0 )
+    ,_useCg         ( true )
+    ,_bgColor       ( 0.0f, 0.0f, 0.0f, 1.0f ) 
+    ,_model         ( 0 )
+    ,_slicesListID  ( 0 )
 {
     _curFrData.frameID = 0;
 }
@@ -80,6 +80,12 @@ bool Channel::configInit( const uint32_t initID )
     Node* node = static_cast< Node* >( getNode( ));
     _model = new Model( node->getInitData().getFilename() );
 
+    if( !_model || !_model->getLoadingResult() )
+        return false;
+
+    createSlicesHexagonsList( _model->getResolution() * 2, _slicesListID );
+
+
 #ifndef DYNAMIC_NEAR_FAR
     setNearFar( 0.0001f, 10.0f );
 #endif
@@ -110,6 +116,7 @@ void Channel::applyFrustum() const
     EQVERB << "Apply " << frustum << endl;
 }
 
+
 void Channel::frameClear( const uint32_t frameID )
 {
     applyBuffer();
@@ -128,7 +135,7 @@ void Channel::frameClear( const uint32_t frameID )
 }
 
 
-static void calcAndPutDataForPolygonsClippingToShader
+static void calcAndPutDataForSlicesClippingToShader
 (
     vmml::Matrix4d&     modelviewM,
     vmml::Matrix3d&     modelviewITM,
@@ -330,7 +337,6 @@ static void putTextureCoordinatesModifyersToShader
 }
 
 
-
 static void putVolumeDataToShader
 (
     GLuint      preIntID,
@@ -397,7 +403,7 @@ static void putVolumeDataToShader
 }
 
 
-static void setLightParameters()
+static void setLights()
 {
     GLfloat lightAmbient[]  = {0.2f, 0.2f, 0.2f, 1.0f};
     GLfloat lightDiffuse[]  = {0.8f, 0.8f, 0.8f, 1.0f};
@@ -408,11 +414,7 @@ static void setLightParameters()
     glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDiffuse  );
     glLightfv( GL_LIGHT0, GL_SPECULAR, lightSpecular );
     glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
-}
 
-
-static void rotateLights()
-{
 /*    glPushMatrix(); //Rotate lights
       {
           glLoadIdentity();
@@ -432,147 +434,146 @@ static void rotateLights()
 */
 }
 
-void Channel::frameDraw( const uint32_t frameID )
+
+static void setCamera( const FrameData::Data &data, const VolumeScales &scales )
 {
-    const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
-    const FrameData& frameData = pipe->getFrameData();
+    glTranslatef(  data.translation.x, data.translation.y, data.translation.z );
 
-    _curFrData.lastRange    = getRange();  //save range for compositing
-    _curFrData.frameID      = frameID;
+    glMultMatrixf( data.rotation.ml );
 
-    if( _model )
-        _model->createTextures( _tex3D, _preintName, _curFrData.lastRange );
+    glScalef( scales.W, scales.H, scales.D );
+}
 
-    applyBuffer();
-    applyViewport();
 
-    glMatrixMode( GL_PROJECTION );
-    glLoadIdentity();
-
-    applyFrustum();
-
-    if( _model )
+static void enableShaders
+(   
+          eqCgShaders cgShaders,
+    const GLhandleARB glslShader,
+    const bool        useCgShaders
+)
+{
+    if( useCgShaders )
     {
-        const uint32_t  numberOfSlices = _model->getResolution() * 2;
-        double          sliceDistance  = 3.6/numberOfSlices;
-        
-        if( _prvNumberOfSlices != numberOfSlices )
-        {
-            createSlicesHexagonsList( numberOfSlices, _slicesListID );
-            _prvNumberOfSlices = numberOfSlices;
-        }
-
-        setLightParameters();
-
-        // Matrix World
-        glMatrixMode( GL_MODELVIEW );
-        glLoadIdentity();
-        applyHeadTransform();
-
-        glTranslatef(  frameData.data.translation.x,
-                       frameData.data.translation.y,
-                       frameData.data.translation.z );
-
-        glMultMatrixf( frameData.data.rotation.ml );
-
-        glScalef( 
-            _model->volScales.W,
-            _model->volScales.H, 
-            _model->volScales.D  );
-
-        rotateLights();
-
-        // Enable shaders
-        eqCgShaders cgShaders  = pipe->getShaders();
-        GLhandleARB glslShader = pipe->getShader();
-        
-        if( _useCg )
-        {
 #ifdef CG_INSTALLED
-            cgShaders.cgVertex->use();
-            cgShaders.cgFragment->use();
+        cgShaders.cgVertex->use();
+        cgShaders.cgFragment->use();
 #endif
-        }
-        else
-        {
-            glUseProgramObjectARB( glslShader );
-        }
-
-        // Calculate and put necessary data to shaders 
-        vmml::Matrix4d  modelviewM;     // modelview matrix
-        vmml::Matrix3d  modelviewITM;   // modelview inversed transposed matrix
-        _calcMVandITMV( modelviewM, modelviewITM );
-
-        calcAndPutDataForPolygonsClippingToShader
-        (
-            modelviewM, modelviewITM, sliceDistance, _curFrData.lastRange,
-            cgShaders, glslShader, _useCg 
-        );
-
-        putTextureCoordinatesModifyersToShader
-        (
-            _model->TD,
-            cgShaders, glslShader, _useCg 
-        );
-
-        // Fill volume data
-        putVolumeDataToShader
-        ( 
-            _preintName, _tex3D, sliceDistance,
-            cgShaders, glslShader, _useCg 
-        );
-
-        //Render slices
-        glEnable(GL_BLEND);
-#ifdef COMPOSE_MODE_NEW
-        glBlendFuncSeparateEXT( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
-#else
-        glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
-#endif
-
-        glCallList( _slicesListID );
-/*
-        for( int s = 0; s < numberOfSlices; ++s )
-            for( float l=0; l < 1.5; l++ )
-            {
-                tParamNameCg = cgGetNamedParameter( m_fProg, "lines" );
-                cgGLSetParameter1f( tParamNameCg, l );
-                glBegin( GL_POLYGON );
-                for( int i = 0; i < 6; ++i )
-                    glVertex2i( i, numberOfSlices-1-s );
-                glEnd();
-            }
-*/
-
-        glDisable(GL_BLEND);
-
-        checkError( "error during rendering " );
-
-        //Disable shaders
-        if( _useCg )
-        {
-#ifdef CG_INSTALLED
-            cgShaders.cgVertex->unbind_and_disable();
-            cgShaders.cgFragment->unbind_and_disable();
-#endif
-        }
-        else
-        {    
-            glUseProgramObjectARB( 0 );
-        }
     }
     else
     {
-        glColor3f( 1.f, 1.f, 0.f );
-        glNormal3f( 0.f, -1.f, 0.f );
-        glBegin( GL_TRIANGLE_STRIP );
-        glVertex3f(  .25f, 0.f,  .25f );
-        glVertex3f(  .25f, 0.f, -.25f );
-        glVertex3f( -.25f, 0.f,  .25f );
-        glVertex3f( -.25f, 0.f, -.25f );
-        glEnd();
+        glUseProgramObjectARB( glslShader );
     }
+}
+
+
+static void disableShaders
+(   
+          eqCgShaders cgShaders,
+    const GLhandleARB glslShader,
+    const bool        useCgShaders
+)
+{
+    if( useCgShaders )
+    {
+#ifdef CG_INSTALLED
+        cgShaders.cgVertex->unbind_and_disable();
+        cgShaders.cgFragment->unbind_and_disable();
+#endif
+    }
+    else
+    {    
+        glUseProgramObjectARB( 0 );
+    }
+}
+
+
+static void renderSlices( const GLuint slicesListID )
+{
+    glCallList( slicesListID );
+/*
+    for( int s = 0; s < numberOfSlices; ++s )
+        for( float l=0; l < 1.5; l++ )
+        {
+            tParamNameCg = cgGetNamedParameter( m_fProg, "lines" );
+            cgGLSetParameter1f( tParamNameCg, l );
+            glBegin( GL_POLYGON );
+            for( int i = 0; i < 6; ++i )
+                glVertex2i( i, numberOfSlices-1-s );
+            glEnd();
+        }
+*/
+}
+
+
+void Channel::frameDraw( const uint32_t frameID )
+{
+    // Setup frustum
+    eq::Channel::frameDraw( frameID );
+
+    // Save ID and range for compositing
+    _curFrData.lastRange    = getRange();
+    _curFrData.frameID      = frameID;
+
+    // Setup / load textures
+    if( !_model->createTextures( _tex3D, _preintName, _curFrData.lastRange ) )
+        return;
+
+    const double sliceDistance = 3.6/ ( _model->getResolution() * 2 );
+
+    // Setup camera and lighting
+    const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
+    const FrameData& frameData = pipe->getFrameData();
+
+    setCamera( frameData.data, _model->volScales );
+    setLights();
+
+    // Enable shaders
+    eqCgShaders cgShaders  = pipe->getShaders();
+    GLhandleARB glslShader = pipe->getShader();
+
+    enableShaders( cgShaders, glslShader, _useCg );
     
+    // Calculate and put necessary data to shaders 
+    vmml::Matrix4d  modelviewM;     // modelview matrix
+    vmml::Matrix3d  modelviewITM;   // modelview inversed transposed matrix
+    _calcMVandITMV( modelviewM, modelviewITM );
+
+    calcAndPutDataForSlicesClippingToShader
+    (
+        modelviewM, modelviewITM, sliceDistance, _curFrData.lastRange,
+        cgShaders, glslShader, _useCg 
+    );
+
+    putTextureCoordinatesModifyersToShader
+    (
+        _model->TD,
+        cgShaders, glslShader, _useCg 
+    );
+
+    // Fill volume data
+    putVolumeDataToShader
+    ( 
+        _preintName, _tex3D, sliceDistance,
+        cgShaders, glslShader, _useCg 
+    );
+
+    //Render slices
+    glEnable(GL_BLEND);
+#ifdef COMPOSE_MODE_NEW
+    glBlendFuncSeparateEXT( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
+#else
+    glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
+#endif
+
+    renderSlices( _slicesListID );
+
+    glDisable(GL_BLEND);
+
+    checkError( "error during rendering " );
+
+    disableShaders( cgShaders, glslShader, _useCg );
+    
+    //Draw logo
     const eq::Viewport& vp = getViewport();
     if( _curFrData.lastRange.isFull() && vp.isFullScreen( ))
        _drawLogo();

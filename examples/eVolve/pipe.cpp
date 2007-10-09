@@ -108,7 +108,7 @@ void Pipe::LoadShaders()
         }    
 
         _shadersLoaded = true;
-        EQERROR << "shaders loaded" << endl;
+        EQLOG( eq::LOG_CUSTOM ) << "shaders loaded" << endl;
     }
 }
 

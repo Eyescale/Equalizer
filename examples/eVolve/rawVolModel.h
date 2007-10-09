@@ -59,9 +59,10 @@ namespace eVolve
         bool createTextures( GLuint &volume, GLuint &preint, 
                              const eq::Range& range );
 
-        const eq::Range&    getCurRange()   const { return _cRange;     };
-        const std::string&  getFileName()   const { return _fileName;   };
-              uint32_t      getResolution() const { return _resolution; };
+        const eq::Range&    getCurRange()      const { return _cRange;      };
+        const std::string&  getFileName()      const { return _fileName;    };
+              uint32_t      getResolution()    const { return _resolution;  };
+              bool          getLoadingResult() const { return _lastSuccess; };
 
     //Data
         DataInTextureDimensions TD; //!< Data dimensions within volume texture 

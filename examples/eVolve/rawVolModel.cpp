@@ -9,6 +9,7 @@ namespace eVolve
 using hlpFuncs::clip;
 using hlpFuncs::hFile;
 
+
 /** Volume always represented as cube [-1,-1,-1]..[1,1,1], so if the model 
     is not cube it's proportions should be modified.
 */
@@ -29,7 +30,7 @@ void correctScales( uint32_t w, uint32_t h, uint32_t d, VolumeScales &scales )
     scales.D /= maxS;
 }
 
- 
+
 void readDimensionsAndScales( 
     FILE* file, 
     uint32_t& w, uint32_t& h, uint32_t& d, 
@@ -63,8 +64,11 @@ RawVolumeModel::RawVolumeModel( const std::string& data )
     {
         uint32_t w, h, d;
         readDimensionsAndScales( info.f, w, h, d, volScales );
+        _resolution  = MAX( w, MAX( h, d ) );
+        _lastSuccess = true;
     }
 }
+
 
 void createPreintegrationTable( const uint8_t *Table, GLuint &preintName )
 {
@@ -182,9 +186,10 @@ bool RawVolumeModel::createTextures( GLuint& volume,
     
     // reading header file & creating preintegration table
     uint32_t w, h, d;
-    
-    EQWARN << "--------------------------------------------" << std::endl;
-    EQWARN << "loading model: " << _fileName;
+
+    EQLOG( eq::LOG_CUSTOM ) << "-------------------------------------------"
+                            << std::endl;
+    EQLOG( eq::LOG_CUSTOM ) << "loading model: " << _fileName;
     {
         std::string configFileName = _fileName;
         hFile info( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
@@ -195,11 +200,10 @@ bool RawVolumeModel::createTextures( GLuint& volume,
 
         readDimensionsAndScales( file, w, h, d, volScales );
 
-        EQWARN << " " << w << "x" << h << "x" << d << std::endl;
-        EQWARN << "Scales: " 
-               << volScales.W << " x " 
-               << volScales.H << " x " 
-               << volScales.D << std::endl;
+        EQLOG( eq::LOG_CUSTOM ) << " " << w <<"x"<< h <<"x"<< d << std::endl;
+        EQLOG( eq::LOG_CUSTOM ) << "Scales: "   << volScales.W << " x " 
+                                                << volScales.H << " x "
+                                                << volScales.D << std::endl;
 
         if( fscanf(file,"TF:\n") !=0 ) 
             return lFailed( "Error in header file" );
@@ -247,15 +251,14 @@ bool RawVolumeModel::createTextures( GLuint& volume,
     uint32_t tH = getMinPow2( h ); 
     uint32_t tD = getMinPow2( depth );
     
-    EQWARN  << " w: " << w << " " << tW 
-            << " h: " << h << " " << tH 
-            << " d: " << d << " " << depth << " " << tD << std::endl;
+    EQLOG( eq::LOG_CUSTOM ) << " w: " << w << " " << tW
+                            << " h: " << h << " " << tH
+                            << " d: " << d << " " << depth << " " << tD
+                            << std::endl;
 
     std::vector<uint8_t> data( tW*tH*tD*4, 0 );
 
-    _resolution = MAX( w, MAX( h, d ) );
-    
-    EQWARN << "r: " << _resolution << std::endl;
+    EQLOG( eq::LOG_CUSTOM ) << "r: " << _resolution << std::endl;
     
     //texture scaling coefficients
     TD.W  = static_cast<float>( w     ) / static_cast<float>( tW );
@@ -267,7 +270,8 @@ bool RawVolumeModel::createTextures( GLuint& volume,
     TD.Do = range.start;
     TD.Db = range.start > 0.0001 ? bwStart / static_cast<float>(tD) : 0;
 
-    EQWARN << " ws: " << TD.W  << " hs: " << TD.H  << " wd: " << TD.D 
+    EQLOG( eq::LOG_CUSTOM )
+           << " ws: " << TD.W  << " hs: " << TD.H  << " wd: " << TD.D 
            << " Do: " << TD.Do << " Db: " << TD.Db << std::endl 
            << " s= "  << start << " e= "  << end   << std::endl;
 

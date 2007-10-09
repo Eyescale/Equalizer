@@ -71,9 +71,6 @@ namespace eVolve
         GLuint _tex3D;
         GLuint _preintName;
         GLuint _slicesListID;     //!< display list for hexagonals
-        int    _angle;
-
-        uint32_t _prvNumberOfSlices; //!< N of slices to update display list
     };
 
 }
