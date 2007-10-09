@@ -11,28 +11,28 @@ server
             {
                 window
                 {
-                    viewport [ 28 560 200 250 ]
+                    viewport [ 48 670 250 300 ]
                     name "Left Half"
 
                     channel { name "channel-left-1" }
                 }
                 window
                 {
-                    viewport [ 284 560 200 250 ]
+                    viewport [ 304 670 250 300 ]
                     name "Right Half"
 
                     channel { name "channel-left-2" }
                 }
                 window
                 {
-                    viewport [ 540 560 200 250 ]
+                    viewport [ 560 670 250 300 ]
                     name "Left Half"
 
                     channel { name "channel-right-1" }
                 }
                 window
                 {
-                    viewport [ 796 560 200 250 ]
+                    viewport [ 816 670 250 300 ]
                     name "Right Half"
 
                     channel { name "channel-right-2" }
@@ -40,14 +40,14 @@ server
 
                 window
                 {
-                    viewport [ 56 290 400 250 ]
+                    viewport [ 51 345 500 300 ]
                     name "Left Eye"
 
                     channel { name "channel-left" }
                 }
                 window
                 {
-                    viewport [ 568 290 400 250 ]
+                    viewport [ 563 345 500 300 ]
                     name "Right Eye"
 
                     channel { name "channel-right" }
@@ -55,7 +55,7 @@ server
 
                 window
                 {
-                    viewport [ 312 20 400 250 ]
+                    viewport [ 312 20 500 300 ]
                     name "Result"
 
                     channel { name "channel-all" }
