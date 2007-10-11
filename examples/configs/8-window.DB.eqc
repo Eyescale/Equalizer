@@ -19,7 +19,7 @@ server
                 }
                 window
                 {
-                    viewport [ 500 50 400 300 ]
+                    viewport [ 455 50 400 300 ]
                     name "window2"
 
                     channel
@@ -29,7 +29,7 @@ server
                 }
                 window
                 {
-                    viewport [ 950 50 400 300 ]
+                    viewport [ 860 50 400 300 ]
                     name "window3"
 
                     channel
@@ -39,7 +39,7 @@ server
                 }
                 window
                 {
-                    viewport [ 1400 50 400 300 ]
+                    viewport [ 1265 50 400 300 ]
                     name "window4"
 
                     channel
@@ -50,7 +50,7 @@ server
 
                 window
                 {
-                    viewport [ 50 400 400 300 ]
+                    viewport [ 50 375 400 300 ]
                     name "window5"
 
                     channel
@@ -60,7 +60,7 @@ server
                 }
                 window
                 {
-                    viewport [ 500 400 400 300 ]
+                    viewport [ 455 375 400 300 ]
                     name "window6"
 
                     channel
@@ -70,7 +70,7 @@ server
                 }
                 window
                 {
-                    viewport [ 950 400 400 300 ]
+                    viewport [ 860 375 400 300 ]
                     name "window7"
 
                     channel
@@ -80,7 +80,7 @@ server
                 }
                 window
                 {
-                    viewport [ 1400 400 400 300 ]
+                    viewport [ 1265 375 400 300 ]
                     attributes{ planes_stencil ON }
                     name "window8"
 

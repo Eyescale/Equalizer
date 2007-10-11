@@ -26,7 +26,7 @@ server
                 window
                 {
                     name     "window1"
-                    viewport [ 600 100 500 300 ]
+                    viewport [ 605 100 500 300 ]
                     channel { name "channel1"  }
                 }
             }
@@ -35,7 +35,7 @@ server
                 window
                 {
                     name     "window2"
-                    viewport [ 1100 100 500 300 ]
+                    viewport [ 1110 100 500 300 ]
                     channel { name "channel2"  }
                 }
             }
@@ -44,7 +44,7 @@ server
                 window
                 {
                     name     "window3"
-                    viewport [ 600 425 500 300 ]
+                    viewport [ 605 425 500 300 ]
                     channel { name "channel3"  }
                 }
             }
@@ -53,7 +53,7 @@ server
                 window
                 {
                     name     "window4"
-                    viewport [ 1100 425 500 300 ]
+                    viewport [ 1110 425 500 300 ]
                     channel { name "channel4"  }
                 }
             }
