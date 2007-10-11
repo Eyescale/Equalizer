@@ -109,7 +109,7 @@ void Window::_loadLogo()
 
     eq::Image image;
     if( !image.readImage( "logo.rgb", eq::Frame::BUFFER_COLOR ) &&
-        !image.readImage( "./examples/eqPlyNew/logo.rgb", 
+        !image.readImage( "./examples/eqPly/logo.rgb", 
                           eq::Frame::BUFFER_COLOR ) )
     {
         EQWARN << "Can't load overlay logo 'logo.rgb'" << endl;
@@ -160,7 +160,7 @@ void Window::_loadShaders()
     
     string vertexShader;
     if ( !_readShader( "vertexShader.glsl", vertexShader ) && 
-         !_readShader( "./examples/eqPlyNew/vertexShader.glsl", vertexShader ) )
+         !_readShader( "./examples/eqPly/vertexShader.glsl", vertexShader ) )
     {
         EQWARN << "Failed to read vertex shader from file" << endl;
         return;
@@ -180,7 +180,7 @@ void Window::_loadShaders()
     
     string fragmentShader;
     if( !_readShader( "fragmentShader.glsl", fragmentShader ) && 
-        !_readShader( "./examples/eqPlyNew/fragmentShader.glsl", fragmentShader ) )
+        !_readShader( "./examples/eqPly/fragmentShader.glsl", fragmentShader ) )
     {
         EQWARN << "Failed to read fragment shader from file" << endl;
         return;
