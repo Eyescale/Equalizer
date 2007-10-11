@@ -37,48 +37,69 @@ namespace eVolve
     */
     struct VolumeScales
     {
-        float W;
-        float H;
-        float D;
+        float W;    //!< width  scale
+        float H;    //!< height scale
+        float D;    //!< depth  scale
     };
 
-    struct Volume
+    struct VolumeInfo
     {
-        GLuint                  volume; //!< 3D texture ID
-        DataInTextureDimensions TD; //!< Data dimensions within volume texture 
+        GLuint                  volume;    //!< 3D texture ID
+        GLuint                  preint;    //!< preintegration table texture
         VolumeScales            volScales; //!< Proportions of volume
+        DataInTextureDimensions TD; //!< Data dimensions within volume texture
     };
 
     /** Load model to texture */
     class RawVolumeModel
     {
     public:
-    
-        RawVolumeModel( const std::string& data );
-    
-        bool createTextures( GLuint &volume, GLuint &preint, 
-                             const eq::Range& range );
 
-        const eq::Range&    getCurRange()      const { return _cRange;      };
+        RawVolumeModel( const std::string& data );
+
+        bool getVolumeInfo( VolumeInfo& info, const eq::Range& range );
+
+        void releaseVolumeInfo( const eq::Range& range );
+
         const std::string&  getFileName()      const { return _fileName;    };
               uint32_t      getResolution()    const { return _resolution;  };
+        const VolumeScales& getVolumeScales()  const { return _volScales;   };
               bool          getLoadingResult() const { return _lastSuccess; };
 
-    //Data
-        DataInTextureDimensions TD; //!< Data dimensions within volume texture 
-        VolumeScales            volScales; //!< Proportions of volume
-    
+    protected:
+
+        bool _createPreintegrationTexture();
+        bool _createVolumeTexture(        GLuint&                  volume,
+                                          DataInTextureDimensions& TD,
+                                    const eq::Range&               range   );
+
     private:
+        bool _lSuccess()           { return _lastSuccess=true;    }
+
+        bool _lFailed( char* msg ) { EQERROR << msg << std::endl;
+                                     return _lastSuccess=false;   }
+
+        struct VolumePart
+        {
+            GLuint                  volume; //!< 3D texture ID
+            DataInTextureDimensions TD;     //!< Data dimensions within volume
+        };
+
+        stde::hash_map< int32_t, VolumePart > _volumeHash;     // Data
+
+        bool         _lastSuccess;  //!< Result of last loading
+        std::string  _fileName;     //!< name of volume data file
+
+        GLuint       _preint;       //!< preintegration table texture
+
+        uint32_t     _w;            //!< volume width
+        uint32_t     _h;            //!< volume height
+        uint32_t     _d;            //!< volume depth
+        uint32_t     _resolution;   //!< max( _w, _h, _d) of a model
+
+        VolumeScales _volScales;    //!< Proportions of volume
         
-        bool lSuccess() { return _lastSuccess=true;  }
-        bool lFailed( char* msg )  
-                { EQERROR << msg << std::endl; return _lastSuccess=false; }
-
-        eq::Range  _cRange;        //!< Current Range
-        bool       _lastSuccess;   //!< Result of last loading
-
-        uint32_t     _resolution;   //!< max(w,h,d) of a model
-        std::string  _fileName;
+        std::vector< uint8_t >  _TF; //!< Transfer function
     };
 
 }

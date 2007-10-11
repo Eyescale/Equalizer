@@ -7,8 +7,6 @@
 
 #include "eVolve.h"
 
-#include "rawVolModel.h"
-
 #include <eq/eq.h>
 
 
@@ -66,10 +64,6 @@ namespace eVolve
         
         eq::Image _image; //!< buffer for readback in case of DB compositing
 
-        Model*   _model;      //!< equal to RawVolume Model
-
-        GLuint _tex3D;
-        GLuint _preintName;
         GLuint _slicesListID;     //!< display list for hexagonals
     };
 

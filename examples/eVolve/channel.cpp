@@ -25,6 +25,9 @@
 namespace eVolve
 {
 
+static const int _slicePrecision = 2;
+
+
 using namespace eqBase;
 using namespace std;
 
@@ -33,7 +36,6 @@ Channel::Channel()
     :eq::Channel()
     ,_useCg         ( true )
     ,_bgColor       ( 0.0f, 0.0f, 0.0f, 1.0f ) 
-    ,_model         ( 0 )
     ,_slicesListID  ( 0 )
 {
     _curFrData.frameID = 0;
@@ -74,17 +76,17 @@ bool Channel::configInit( const uint32_t initID )
     // chose projection type
     _perspective = true;
 
-    if( _model )
-        delete _model;
+    const Pipe* pipe = static_cast<Pipe*>( getPipe( ));
 
-    Node* node = static_cast< Node* >( getNode( ));
-    _model = new Model( node->getInitData().getFilename() );
-
-    if( !_model || !_model->getLoadingResult() )
+    const Model* model = pipe->getModel();
+    if( !model )
+    {
+        EQERROR << "model is not loaded" << std::endl;
         return false;
+    }
 
-    createSlicesHexagonsList( _model->getResolution() * 2, _slicesListID );
-
+    createSlicesHexagonsList( model->getResolution() * _slicePrecision,
+                              _slicesListID );
 
 #ifndef DYNAMIC_NEAR_FAR
     setNearFar( 0.0001f, 10.0f );
@@ -515,16 +517,22 @@ void Channel::frameDraw( const uint32_t frameID )
     _curFrData.frameID      = frameID;
 
     // Setup / load textures
-    if( !_model->createTextures( _tex3D, _preintName, _curFrData.lastRange ) )
+    const Pipe* pipe = static_cast<Pipe*>( getPipe( ));
+
+    Model* model = pipe->getModel();
+
+    VolumeInfo volumeInfo;
+
+    if( !model || !model->getVolumeInfo( volumeInfo, _curFrData.lastRange ) )
         return;
 
-    const double sliceDistance = 3.6/ ( _model->getResolution() * 2 );
+    const double sliceDistance = 
+                            3.6 / ( model->getResolution() * _slicePrecision );
 
     // Setup camera and lighting
-    const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
     const FrameData& frameData = pipe->getFrameData();
 
-    setCamera( frameData.data, _model->volScales );
+    setCamera( frameData.data, volumeInfo.volScales );
     setLights();
 
     // Enable shaders
@@ -546,14 +554,14 @@ void Channel::frameDraw( const uint32_t frameID )
 
     putTextureCoordinatesModifyersToShader
     (
-        _model->TD,
+        volumeInfo.TD,
         cgShaders, glslShader, _useCg 
     );
 
     // Fill volume data
     putVolumeDataToShader
     ( 
-        _preintName, _tex3D, sliceDistance,
+        volumeInfo.preint, volumeInfo.volume, sliceDistance,
         cgShaders, glslShader, _useCg 
     );
 
@@ -614,14 +622,18 @@ void Channel::_calcMVandITMV(
     vmml::Matrix3d& modelviewITM ) const
 {
     const FrameData& frameData = _getFrameData();
-    
-    if( _model )
+
+    const Pipe*  pipe = static_cast<Pipe*>( getPipe( ));
+    const Model* model = pipe->getModel();
+    if( model )
     {
+        const VolumeScales& volScales = model->getVolumeScales();
+        
         vmml::Matrix4f scale( 
-            _model->volScales.W, 0, 0, 0,
-            0, _model->volScales.H, 0, 0,
-            0, 0, _model->volScales.D, 0,
-            0, 0,                   0, 1 );
+            volScales.W, 0, 0, 0,
+            0, volScales.H, 0, 0,
+            0, 0, volScales.D, 0,
+            0, 0,           0, 1 );
 
         modelviewM = scale * frameData.data.rotation;
     }

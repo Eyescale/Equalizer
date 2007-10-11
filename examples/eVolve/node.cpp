@@ -4,8 +4,6 @@
 
 #include "node.h"
 
-#include "rawVolModel.h"
-
 using namespace eqBase;
 using namespace std;
 
@@ -17,6 +15,7 @@ bool Node::configInit( const uint32_t initID )
     const bool  mapped = config->mapObject( &_initData, initID );
     EQASSERT( mapped );
 
+    
     return eq::Node::configInit( initID );
 }
 

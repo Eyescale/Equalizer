@@ -29,14 +29,16 @@ namespace eVolve
     class Pipe : public eq::Pipe
     {
     public:
-         Pipe() : eq::Pipe(), _shadersLoaded( false ) { }
+        Pipe() : eq::Pipe(), _shadersLoaded( false ) { }
 
         const FrameData& getFrameData() const { return _frameData; }
 
         void LoadShaders();
 
         eqCgShaders getShaders() const { return _shaders; }
-        GLhandleARB getShader()  const { return _shader; }
+        GLhandleARB getShader()  const { return _shader;  }
+
+        Model*      getModel()   const { return _model;   }
 
     protected:
         virtual ~Pipe() {}
@@ -55,6 +57,8 @@ namespace eVolve
 
         bool        _shadersLoaded;
         FrameData   _frameData;
+
+        Model*   _model;      //!< equal to RawVolume Model
     };
 }
 

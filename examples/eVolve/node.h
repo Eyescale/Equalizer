@@ -10,6 +10,8 @@
 
 #include <eq/eq.h>
 
+//#include "rawVolModel.h"
+
 namespace eVolve
 {
 
@@ -26,7 +28,6 @@ namespace eVolve
 
     private:
         InitData _initData;
-
     };
 
 }

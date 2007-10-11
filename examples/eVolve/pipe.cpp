@@ -49,11 +49,35 @@ bool Pipe::configInit( const uint32_t initID )
     const bool mapped = config->mapObject( &_frameData, frameDataID );
     EQASSERT( mapped );
 
+
+    const string& filename = initData.getFilename();
+    EQINFO << "Loading model " << filename << endl;
+
+//    if( _model ) 
+//        delete _model;
+
+    _model = new Model( filename.c_str() );
+
+    if( !_model )
+        return false;
+
+    if( !_model->getLoadingResult() )
+    {
+        EQWARN << "Can't load model: " << filename << endl;
+        delete _model;
+        _model = 0;
+        return false;
+    }
+
+
     return eq::Pipe::configInit( initID );
 }
 
 bool Pipe::configExit()
 {
+    delete _model;
+    _model = 0;
+
     eq::Config* config = getConfig();
     config->unmapObject( &_frameData );
 
