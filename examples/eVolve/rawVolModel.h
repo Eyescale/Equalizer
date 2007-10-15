@@ -19,10 +19,9 @@ namespace eVolve
         Xn = X * W
         Yn = Y * H
         Zn = Db + (Z - Do) * D
-    
+
         so X and Y just scaled, but Z should be modifyed according to
         proper range.
-
     */
     struct DataInTextureDimensions
     {
@@ -69,9 +68,10 @@ namespace eVolve
     protected:
 
         bool _createPreintegrationTexture();
-        bool _createVolumeTexture(        GLuint&                  volume,
-                                          DataInTextureDimensions& TD,
-                                    const eq::Range&               range   );
+        bool _createVolumeTexture(
+                                      GLuint&                  volume,
+                                      DataInTextureDimensions& TD,
+                                const eq::Range&               range   ) const;
 
     private:
         bool _lSuccess()           { return _lastSuccess=true;    }
@@ -85,21 +85,21 @@ namespace eVolve
             DataInTextureDimensions TD;     //!< Data dimensions within volume
         };
 
-        stde::hash_map< int32_t, VolumePart > _volumeHash;     // Data
+        stde::hash_map< int32_t, VolumePart > _volumeHash; //!< 3D textures info
 
-        bool         _lastSuccess;  //!< Result of last loading
-        std::string  _fileName;     //!< name of volume data file
+        bool         _lastSuccess;      //!< Result of last loading
+        std::string  _fileName;         //!< name of volume data file
 
-        GLuint       _preint;       //!< preintegration table texture
+        GLuint       _preint;           //!< preintegration table texture
 
-        uint32_t     _w;            //!< volume width
-        uint32_t     _h;            //!< volume height
-        uint32_t     _d;            //!< volume depth
-        uint32_t     _resolution;   //!< max( _w, _h, _d) of a model
+        uint32_t     _w;                //!< volume width
+        uint32_t     _h;                //!< volume height
+        uint32_t     _d;                //!< volume depth
+        uint32_t     _resolution;       //!< max( _w, _h, _d ) of a model
 
-        VolumeScales _volScales;    //!< Proportions of volume
-        
-        std::vector< uint8_t >  _TF; //!< Transfer function
+        VolumeScales _volScales;        //!< Proportions of volume
+
+        std::vector< uint8_t >  _TF;    //!< Transfer function
     };
 
 }
