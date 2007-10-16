@@ -38,7 +38,8 @@ namespace mesh
         virtual void fromMemory( char* start );
         
     private:
-        bool constructFromPly( const char* filename );
+        bool _constructFromPly( const char* filename );
+        bool _readBinary( const char* filename );
         
         VertexBufferData _data;
     };

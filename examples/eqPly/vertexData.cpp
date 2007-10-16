@@ -337,13 +337,11 @@ struct _TriangleSort
         int axis = _axis;
         do
         {
-            // within one axis, test the different vertices in succession
-            if( v11[axis] != v21[axis] )
-                return ( v11[axis] < v21[axis] );
-            if( v12[axis] != v22[axis] )
-                return ( v12[axis] < v22[axis] );
-            if( v13[axis] != v23[axis] )
-                return ( v13[axis] < v23[axis] );
+            // test median of 'axis' component of all three vertices
+            const float median1 = (v11[axis] + v12[axis] + v13[axis] ) / 3.0f;
+            const float median2 = (v21[axis] + v22[axis] + v23[axis] ) / 3.0f;
+            if( median1 != median2 )
+                return ( median1 < median2 );
             
             // if still equal, move on to the next axis
             axis = ( axis + 1 ) % 3;

@@ -113,42 +113,35 @@ string getArchitectureFilename( const char* filename )
 }
 
 
-/*  Function extracted out of readFromFile to enhance readability.  */
-bool VertexBufferRoot::constructFromPly( const char* filename )
+/*  Functions extracted out of readFromFile to enhance readability.  */
+bool VertexBufferRoot::_constructFromPly( const char* filename )
 {
-    bool result = false;
-    
     MESHINFO << "Constructing new from PLY file." << endl;
     
     VertexData data;
-    if( data.readPlyFile( filename ) )
-    {
-        data.calculateNormals();
-        data.scale( 2.0f );
-        setupTree( data );
-        result = writeToFile( filename );
-    }
-    else
+    if( !data.readPlyFile( filename ) )
     {
         MESHERROR << "Unable to load PLY file." << endl;
+        return false;
     }
+
+    data.calculateNormals();
+    data.scale( 2.0f );
+    setupTree( data );
+    if( !writeToFile( filename ))
+        MESHWARN << "Unable to write binary representation." << endl;
     
-    return result;
+    return true;
 }
 
-
-/*  Read binary kd-tree representation, construct from ply if unavailable.  */
-bool VertexBufferRoot::readFromFile( const char* filename )
+bool VertexBufferRoot::_readBinary( const char* filename )
 {
-    bool result = false;
-    
 #ifdef WIN32
     // try to open binary file
-    HANDLE file = CreateFile( getArchitectureFilename( filename ).c_str(), 
-                              GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 
-                              FILE_ATTRIBUTE_NORMAL, 0 );
+    HANDLE file = CreateFile( filename, GENERIC_READ, FILE_SHARE_READ, 0,
+                              OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0 );
     if( file == INVALID_HANDLE_VALUE )
-        return constructFromPly( filename );
+        return false;
     
     MESHINFO << "Reading cached binary representation." << endl;
     
@@ -163,8 +156,10 @@ bool VertexBufferRoot::readFromFile( const char* filename )
     }
     
     // get a view of the mapping
-    char* addr = static_cast< char* >( MapViewOfFile( map, FILE_MAP_READ, 0, 
-                                                      0, 0 ) );
+    char* addr   = static_cast< char* >( MapViewOfFile( map, FILE_MAP_READ, 0, 
+                                                        0, 0 ) );
+    bool  result = false;
+
     if( addr )
     {
         try
@@ -183,15 +178,17 @@ bool VertexBufferRoot::readFromFile( const char* filename )
     {
         MESHERROR << "Unable to read binary file, memory mapping failed."
                   << endl;
+        return false;
     }
-    
+
     CloseHandle( map );
+    return result;
     
 #else
     // try to open binary file
-    int fd = open( getArchitectureFilename( filename ).c_str(), O_RDONLY );
+    int fd = open( filename, O_RDONLY );
     if( fd < 0 )
-        return constructFromPly( filename );
+        return false;
     
     MESHINFO << "Reading cached binary representation." << endl;
     
@@ -200,8 +197,9 @@ bool VertexBufferRoot::readFromFile( const char* filename )
     fstat( fd, &status );
     
     // create memory mapped file
-    char* addr = static_cast< char* >( mmap( 0, status.st_size, PROT_READ, 
-                                             MAP_SHARED, fd, 0 ) );
+    char* addr   = static_cast< char* >( mmap( 0, status.st_size, PROT_READ, 
+                                               MAP_SHARED, fd, 0 ) );
+    bool  result = false;
     if( addr != MAP_FAILED )
     {
         try
@@ -223,11 +221,21 @@ bool VertexBufferRoot::readFromFile( const char* filename )
     }
     
     close( fd );
-#endif
-    
     return result;
+#endif
 }
 
+
+/*  Read binary kd-tree representation, construct from ply if unavailable.  */
+bool VertexBufferRoot::readFromFile( const char* filename )
+{
+    if( _readBinary( getArchitectureFilename( filename ).c_str( )))
+        return true;
+    if( _constructFromPly( filename ))
+        return true;
+
+    return false;
+}
 
 /*  Write binary representation of the kd-tree to file.  */
 bool VertexBufferRoot::writeToFile( const char* filename )

@@ -119,8 +119,8 @@ namespace mesh
     // #vertices ~ #triangles/2, but max #vertices = #triangles * 3)
     const Index             LEAF_SIZE( 21845 );
     
-    // binary mesh file version
-    const unsigned short    FILE_VERSION ( 0x0111 );
+    // binary mesh file version, increment if changing the file format
+    const unsigned short    FILE_VERSION ( 0x0112 );
     
     
     // enumeration for the sort axis
