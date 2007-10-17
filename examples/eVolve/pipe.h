@@ -20,16 +20,16 @@ namespace eVolve
     {
 #ifdef CG_INSTALLED
         eqCgShaders() : cgVertex(NULL), cgFragment(NULL) {};
-        
+
         gloo::cg_program*  cgVertex;    //!< Cg vertex shader
         gloo::cg_program*  cgFragment;  //!< Cg fragment shader
 #endif
     };
-    
+
     class Pipe : public eq::Pipe
     {
     public:
-        Pipe() : eq::Pipe(), _shadersLoaded( false ) { }
+        Pipe() : eq::Pipe(), _shadersLoaded(false), _useSimpleShader(false) {}
 
         const FrameData& getFrameData() const { return _frameData; }
 
@@ -39,6 +39,7 @@ namespace eVolve
         GLhandleARB getShader()  const { return _shader;  }
 
         Model*      getModel()   const { return _model;   }
+        bool        isSimpleShaderUsed() const { return _useSimpleShader; }
 
     protected:
         virtual ~Pipe() {}
@@ -59,6 +60,7 @@ namespace eVolve
         FrameData   _frameData;
 
         Model*   _model;      //!< equal to RawVolume Model
+        bool     _useSimpleShader;
     };
 }
 

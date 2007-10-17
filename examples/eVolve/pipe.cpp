@@ -107,8 +107,19 @@ void Pipe::LoadShaders()
                 delete _shaders.cgVertex; 
 
             _shaders.cgVertex = new gloo::cg_program( _cgContext );
-            _shaders.cgVertex->create_from_file(   CG_GL_VERTEX , 
-                                        "./examples/eVolve/vshader.cg" );
+            try
+            {
+                _shaders.cgVertex->create_from_file(   CG_GL_VERTEX , 
+                                            "./examples/eVolve/vshader.cg" );
+                _useSimpleShader = false;
+            }catch(...)
+            {
+                _shaders.cgVertex->create_from_file(   CG_GL_VERTEX , 
+                                            "./examples/eVolve/vshader_s.cg" );
+                EQWARN  << "normal vertex shader failed to load, " 
+                        << "smaller vertex shader whould be used" << std::endl;
+                _useSimpleShader = true;
+            }
 
             if( _shaders.cgFragment )
                 delete _shaders.cgFragment;

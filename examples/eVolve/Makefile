@@ -15,6 +15,7 @@ SOURCES = \
 	shader.cpp\
 	tracker.cpp \
 	rawVolModel.cpp \
+	sliceClipping.cpp \
 	window.cpp
 
 CXXFLAGS    += -I../include $(WINDOW_SYSTEM_INCS)

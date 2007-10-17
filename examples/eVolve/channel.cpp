@@ -137,104 +137,14 @@ void Channel::frameClear( const uint32_t frameID )
 }
 
 
-static void calcAndPutDataForSlicesClippingToShader
+static void putClippingDataToShader
 (
-    vmml::Matrix4d&     modelviewM,
-    vmml::Matrix3d&     modelviewITM,
-    double              sliceDistance,
-    eq::Range           range,
-    eqCgShaders         cgShaders,
-    GLhandleARB         glslShader,
-    bool                useCgShaders
+    const SliceClipper& sliceClipper,
+    const eqCgShaders&  cgShaders,
+    const GLhandleARB&  glslShader,
+    const bool          useCgShaders
 )
 {
-    vmml::Vector4d camPosition( 
-                        modelviewITM.ml[3],
-                        modelviewITM.ml[7],
-                        1.0               ,
-                        1.0                  );
-
-    vmml::Vector4d viewVec( 
-                        -modelviewM.ml[ 2],
-                        -modelviewM.ml[ 6],
-                        -modelviewM.ml[10],
-                         0.0                );
-
-    double zRs = -1+2.*range.start;
-    double zRe = -1+2.*range.end;
-
-    //rendering parallelepipid's verteces 
-    vmml::Vector4d vertices[8]; 
-    vertices[0] = vmml::Vector4d(-1.0,-1.0,zRs, 1.0);
-    vertices[1] = vmml::Vector4d( 1.0,-1.0,zRs, 1.0);
-    vertices[2] = vmml::Vector4d(-1.0, 1.0,zRs, 1.0);
-    vertices[3] = vmml::Vector4d( 1.0, 1.0,zRs, 1.0);
-
-    vertices[4] = vmml::Vector4d(-1.0,-1.0,zRe, 1.0);
-    vertices[5] = vmml::Vector4d( 1.0,-1.0,zRe, 1.0);
-    vertices[6] = vmml::Vector4d(-1.0, 1.0,zRe, 1.0);
-    vertices[7] = vmml::Vector4d( 1.0, 1.0,zRe, 1.0);
-
-
-    float dMaxDist = viewVec.dot( vertices[0] );
-    int nMaxIdx = 0;
-    for( int i = 1; i < 8; i++ )
-    {
-        float dist = viewVec.dot( vertices[i] );
-        if ( dist > dMaxDist)
-        {
-            dMaxDist = dist;
-            nMaxIdx = i;
-        }
-    }
-
-    const int nSequence[8][8] = {
-        {7,3,5,6,1,2,4,0},
-        {6,2,4,7,0,3,5,1},
-        {5,1,4,7,0,3,6,2},
-        {4,0,5,6,1,2,7,3},
-        {3,1,2,7,0,5,6,4},
-        {2,0,3,6,1,4,7,5},
-        {1,0,3,5,2,4,7,6},
-        {0,1,2,4,3,5,6,7},
-    };
-
-    double dStartDist   = viewVec.dot( vertices[nSequence[nMaxIdx][0]] );
-    double dS           = ceil( dStartDist/sliceDistance );
-    dStartDist          = dS * sliceDistance;
-    
-    
-    const float sequence[64] = {
-        0, 1, 4, 2, 3, 5, 6, 7,
-        1, 0, 3, 5, 4, 2, 7, 6,
-        2, 0, 6, 3, 1, 4, 7, 5,
-        3, 1, 2, 7, 5, 0, 6, 4,
-        4, 0, 5, 6, 2, 1, 7, 3,
-        5, 1, 7, 4, 0, 3, 6, 2,
-        6, 2, 4, 7, 3, 0, 5, 1,
-        7, 3, 6, 5, 1, 2, 4, 0 };
-
-    const float e1[24] = {
-        0, 1, 4, 4,
-        1, 0, 1, 4,
-        0, 2, 5, 5,
-        2, 0, 2, 5,
-        0, 3, 6, 6, 
-        3, 0, 3, 6 };
-
-    const float e2[24] = {
-        1, 4, 7, 7,
-        5, 1, 4, 7,
-        2, 5, 7, 7,
-        6, 2, 5, 7,
-        3, 6, 7, 7,
-        4, 3, 6, 7 };
-
-    float shaderVertices[24];
-    for( int i=0; i<8; i++ )
-        for( int j=0; j<3; j++)
-            shaderVertices[ i*3+j ] = vertices[i][j];
-
     if( useCgShaders )
     {
 #ifdef CG_INSTALLED
@@ -243,61 +153,58 @@ static void calcAndPutDataForSlicesClippingToShader
         // only to make someone people be happy with their 
         // old school 80 characters per line and not to 
         // make code look completely ugly :(
-        CGparameter tParamNameCg;
+        CGparameter tNameCg;
         CGprogram   m_vProg = cgShaders.cgVertex->get_program();
-    
-        tParamNameCg = cgGetNamedParameter( m_vProg, "vecVertices" );
-        cgGLSetParameterArray3f( tParamNameCg, 0,  8, shaderVertices );
 
-        tParamNameCg = cgGetNamedParameter( m_vProg, "sequence"    );
-        cgGLSetParameterArray1f( tParamNameCg, 0, 64, sequence     );
+        tNameCg = cgGetNamedParameter( m_vProg, "vecVertices"                );
+        cgGLSetParameterArray3f( tNameCg, 0,  8, sliceClipper.shaderVertices );
 
-        tParamNameCg = cgGetNamedParameter( m_vProg, "v1"          );
-        cgGLSetParameterArray1f( tParamNameCg, 0, 24, e1           );
+        tNameCg = cgGetNamedParameter( m_vProg, "sequence"                   );
+        cgGLSetParameterArray1f( tNameCg, 0, 64, SliceClipper::sequence       );
 
-        tParamNameCg = cgGetNamedParameter( m_vProg, "v2"          );
-        cgGLSetParameterArray1f( tParamNameCg, 0, 24, e2           );
+        tNameCg = cgGetNamedParameter( m_vProg, "v1"                         );
+        cgGLSetParameterArray1f( tNameCg, 0, 24, sliceClipper.v1             );
 
-        tParamNameCg = cgGetNamedParameter( m_vProg, "vecView"     );
-        cgGLSetParameter3dv(     tParamNameCg,        viewVec.xyzw );
+        tNameCg = cgGetNamedParameter( m_vProg, "v2"                         );
+        cgGLSetParameterArray1f( tNameCg, 0, 24, sliceClipper.v2             );
 
-        tParamNameCg = cgGetNamedParameter( m_vProg, "frontIndex"  );
-        cgGLSetParameter1f(      tParamNameCg, static_cast<float>( nMaxIdx ) );
+        tNameCg = cgGetNamedParameter( m_vProg, "vecView"                    );
+        cgGLSetParameter3dv(     tNameCg,        sliceClipper.viewVec.xyzw );
 
-        tParamNameCg = cgGetNamedParameter( m_vProg, "dPlaneStart" );
-        cgGLSetParameter1d( tParamNameCg,             dStartDist   );
+        tNameCg = cgGetNamedParameter( m_vProg, "dPlaneStart"                );
+        cgGLSetParameter1d(      tNameCg,        sliceClipper.planeStart     );
 
-        tParamNameCg = cgGetNamedParameter( m_vProg, "dPlaneIncr"  );
-        cgGLSetParameter1d(      tParamNameCg,        sliceDistance );
+        tNameCg = cgGetNamedParameter( m_vProg, "frontIndex"                 );
+        cgGLSetParameter1f(      tNameCg,
+                                static_cast<float>( sliceClipper.frontIndex ));
 #endif
     }
     else // glsl shaders
     {
-        GLint tParamNameGL;
+        GLint tNameGL;
     
-        tParamNameGL = glGetUniformLocationARB( glslShader, "vecVertices" );
-        glUniform3fvARB( tParamNameGL,  8, shaderVertices                 );
+        tNameGL = glGetUniformLocationARB( glslShader, "vecVertices"        );
+        glUniform3fvARB( tNameGL,  8, sliceClipper.shaderVertices           );
 
-        tParamNameGL = glGetUniformLocationARB( glslShader, "sequence"    );
-        glUniform1fvARB( tParamNameGL, 64, sequence                       );
+        tNameGL = glGetUniformLocationARB( glslShader, "sequence"           );
+        glUniform1fvARB( tNameGL, 64, sliceClipper.sequence                 );
 
-        tParamNameGL = glGetUniformLocationARB( glslShader, "v1"          );
-        glUniform1fvARB( tParamNameGL, 24, e1                             );
+        tNameGL = glGetUniformLocationARB( glslShader, "v1"                 );
+        glUniform1fvARB( tNameGL, 24, sliceClipper.v1                       );
 
-        tParamNameGL = glGetUniformLocationARB( glslShader, "v2"          );
-        glUniform1fvARB( tParamNameGL, 24, e2                             );
+        tNameGL = glGetUniformLocationARB( glslShader, "v2"                 );
+        glUniform1fvARB( tNameGL, 24, sliceClipper.v2                       );
 
-        tParamNameGL = glGetUniformLocationARB( glslShader, "vecView"     );
-        glUniform3fARB( tParamNameGL, viewVec.x, viewVec.y, viewVec.z     );
+        tNameGL = glGetUniformLocationARB( glslShader, "vecView"            );
+        glUniform3fARB(  tNameGL,     sliceClipper.viewVec.x,
+                                      sliceClipper.viewVec.y,
+                                      sliceClipper.viewVec.z                );
 
-        tParamNameGL = glGetUniformLocationARB(  glslShader, "dPlaneStart" );
-        glUniform1fARB(     tParamNameGL,   dStartDist                     );
+        tNameGL = glGetUniformLocationARB(  glslShader, "dPlaneStart"       );
+        glUniform1fARB(  tNameGL,     sliceClipper.planeStart               );
 
-        tParamNameGL = glGetUniformLocationARB( glslShader, "frontIndex"  );
-        glUniform1iARB( tParamNameGL, static_cast<GLint>( nMaxIdx )       );
-
-        tParamNameGL = glGetUniformLocationARB( glslShader, "dPlaneIncr"  );
-        glUniform1fARB( tParamNameGL, sliceDistance                        );
+        tNameGL = glGetUniformLocationARB( glslShader, "frontIndex"    );
+        glUniform1iARB( tNameGL, static_cast<GLint>(sliceClipper.frontIndex));
     }
 }
 
@@ -488,24 +395,36 @@ static void disableShaders
     }
 }
 
-
-static void renderSlices( const GLuint slicesListID )
+static void renderSlices
+( 
+    const GLuint        slicesListID,
+    const SliceClipper& sliceClipper,
+    const bool          useSimpleShader
+)
 {
-    glCallList( slicesListID );
-/*
-    for( int s = 0; s < numberOfSlices; ++s )
-        for( float l=0; l < 1.5; l++ )
+    if( useSimpleShader )
+    {
+        int numberOfSlices = 
+                    static_cast<int>( 3.6 / sliceClipper.sliceDistance );
+
+        for( int s = 0; s < numberOfSlices; ++s )
         {
-            tParamNameCg = cgGetNamedParameter( m_fProg, "lines" );
-            cgGLSetParameter1f( tParamNameCg, l );
             glBegin( GL_POLYGON );
             for( int i = 0; i < 6; ++i )
-                glVertex2i( i, numberOfSlices-1-s );
+            {
+                vmml::Vector3f pos = 
+                        sliceClipper.getPosition( i, numberOfSlices-1-s );
+
+                glVertex3f( pos.x, pos.y, pos.z );
+            }
             glEnd();
         }
-*/
+        return;
+    }
+    // else normal shaders
+     
+    glCallList( slicesListID );
 }
-
 
 void Channel::frameDraw( const uint32_t frameID )
 {
@@ -536,8 +455,9 @@ void Channel::frameDraw( const uint32_t frameID )
     setLights();
 
     // Enable shaders
-    eqCgShaders cgShaders  = pipe->getShaders();
-    GLhandleARB glslShader = pipe->getShader();
+    eqCgShaders cgShaders        = pipe->getShaders();
+    GLhandleARB glslShader       = pipe->getShader();
+    bool        useSimpleShaders = pipe->isSimpleShaderUsed();
 
     enableShaders( cgShaders, glslShader, _useCg );
     
@@ -545,12 +465,6 @@ void Channel::frameDraw( const uint32_t frameID )
     vmml::Matrix4d  modelviewM;     // modelview matrix
     vmml::Matrix3d  modelviewITM;   // modelview inversed transposed matrix
     _calcMVandITMV( modelviewM, modelviewITM );
-
-    calcAndPutDataForSlicesClippingToShader
-    (
-        modelviewM, modelviewITM, sliceDistance, _curFrData.lastRange,
-        cgShaders, glslShader, _useCg 
-    );
 
     putTextureCoordinatesModifyersToShader
     (
@@ -565,6 +479,15 @@ void Channel::frameDraw( const uint32_t frameID )
         cgShaders, glslShader, _useCg 
     );
 
+    _sliceClipper.updatePerFrameInfo
+    (
+        modelviewM, modelviewITM, sliceDistance, _curFrData.lastRange
+    );
+
+
+    if( !useSimpleShaders )
+        putClippingDataToShader( _sliceClipper, cgShaders, glslShader, _useCg );
+    
     //Render slices
     glEnable(GL_BLEND);
 #ifdef COMPOSE_MODE_NEW
@@ -573,7 +496,7 @@ void Channel::frameDraw( const uint32_t frameID )
     glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
 #endif
 
-    renderSlices( _slicesListID );
+    renderSlices( _slicesListID,  _sliceClipper, useSimpleShaders );
 
     glDisable(GL_BLEND);
 

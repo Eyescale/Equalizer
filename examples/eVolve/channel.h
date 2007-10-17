@@ -9,6 +9,8 @@
 
 #include <eq/eq.h>
 
+#include "sliceClipping.h"
+
 
 namespace eVolve
 {
@@ -64,7 +66,8 @@ namespace eVolve
         
         eq::Image _image; //!< buffer for readback in case of DB compositing
 
-        GLuint _slicesListID;     //!< display list for hexagonals
+        GLuint       _slicesListID;     //!< display list for hexagonals
+        SliceClipper _sliceClipper;     //!< frame clipping algorithm
     };
 
 }
