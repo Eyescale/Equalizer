@@ -716,7 +716,7 @@ static void _expandPVP( eq::PixelViewport& pvp,
          i != images.end(); ++i )
     {
         const eq::PixelViewport imagePVP = (*i)->getPixelViewport() + offset;
-        pvp += imagePVP;
+        pvp.merge( imagePVP );
     }
 }
 
@@ -783,7 +783,7 @@ void Channel::frameAssemble( const uint32_t frameID )
         }
     }
 
-    coveredPVP ^= getPixelViewport();
+    coveredPVP.intersect( getPixelViewport( ));
 
     if( dbFrames.empty( ))
     {

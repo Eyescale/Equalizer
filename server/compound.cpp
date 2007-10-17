@@ -639,7 +639,7 @@ void Compound::_updateInheritData()
         if( _inherit.channel )
         {
             _inherit.pvp  = _inherit.channel->getPixelViewport();
-            _inherit.pvp *= _data.vp;
+            _inherit.pvp.apply( _data.vp );
         }
 
         if( _inherit.buffers == eq::Frame::BUFFER_UNDEFINED )
@@ -674,8 +674,8 @@ void Compound::_updateInheritData()
         if( _data.view.isValid( ))
             _inherit.view = _data.view;
         
-        _inherit.vp    *= _data.vp;
-        _inherit.range *= _data.range;
+        _inherit.vp.apply( _data.vp );
+        _inherit.range.apply( _data.range );
 
         if( _data.eyes != EYE_UNDEFINED )
             _inherit.eyes = _data.eyes;
@@ -689,7 +689,7 @@ void Compound::_updateInheritData()
         if ( !_inherit.pvp.isValid() && _inherit.channel )
             _inherit.pvp = _inherit.channel->getPixelViewport();
         if( _inherit.pvp.isValid( ))
-            _inherit.pvp *= _data.vp;
+            _inherit.pvp.apply( _data.vp );
 
         if( _data.buffers != eq::Frame::BUFFER_UNDEFINED )
             _inherit.buffers = _data.buffers;
@@ -745,7 +745,7 @@ void Compound::_updateOutput( UpdateData* data )
         }
 
         const eq::Viewport& frameVP  = frame->getViewport();
-        eq::PixelViewport   framePVP = _inherit.pvp * frameVP;
+        eq::PixelViewport   framePVP = _inherit.pvp.getSubPVP( frameVP );
 
         // FrameData offset is position wrt destination view
         frame->cycleData( _frameNumber, _inherit.eyes );
@@ -841,7 +841,7 @@ void Compound::_updateInput( UpdateData* data )
 
         Frame*          outputFrame = iter->second;
         const eq::Viewport& frameVP = frame->getViewport();
-        eq::PixelViewport  framePVP = _inherit.pvp * frameVP;
+        eq::PixelViewport  framePVP = _inherit.pvp.getSubPVP( frameVP );
         vmml::Vector2i  frameOffset = outputFrame->getMasterData()->getOffset();
 
         if( channel != _inherit.channel

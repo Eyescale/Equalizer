@@ -17,7 +17,7 @@ int main( int argc, char **argv )
     TEST( pvp.isValid( ));
     TEST( pvp.hasArea( ));
 
-    pvp *= vp;
+    pvp.apply( vp );
     TESTINFO( pvp == PixelViewport( 250, 250, 500, 500 ), pvp );
 
     pvp.x = -1000;
@@ -25,9 +25,9 @@ int main( int argc, char **argv )
     pvp.w =  1000;
     pvp.h =  1000;
     
-    pvp *= vp;
+    pvp.apply( vp );
     TESTINFO( pvp == PixelViewport( -750, 1250, 500, 500 ), pvp );
 
-    const Viewport vp2 = pvp / PixelViewport( -1000, 1000, 1000, 1000 );
+    const Viewport vp2 = pvp.getSubVP( PixelViewport(-1000, 1000, 1000, 1000));
     TESTINFO( vp == vp2, vp2 );
 }

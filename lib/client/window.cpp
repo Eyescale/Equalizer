@@ -158,7 +158,7 @@ bool eq::Window::_setPixelViewport( const PixelViewport& pvp )
     
     const PixelViewport& pipePVP = _pipe->getPixelViewport();
     if( pipePVP.isValid( ))
-        _vp = pvp / pipePVP;
+        _vp = pvp.getSubVP( pipePVP );
 
     EQINFO << "Window pvp set: " << _pvp << ":" << _vp << endl;
     return true;
@@ -177,7 +177,7 @@ void eq::Window::_setViewport( const Viewport& vp )
 
     PixelViewport pipePVP = _pipe->getPixelViewport();
     if( pipePVP.isValid( ))
-        _pvp = pipePVP * vp;
+        _pvp = pipePVP.getSubPVP( vp );
     EQINFO << "Window vp set: " << _pvp << ":" << _vp << endl;
 }
 

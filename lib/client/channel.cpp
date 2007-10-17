@@ -87,7 +87,7 @@ void eq::Channel::_setPixelViewport( const PixelViewport& pvp )
     
     const PixelViewport& windowPVP = _window->getPixelViewport();
     if( windowPVP.isValid( ))
-        _vp = pvp / windowPVP;
+        _vp = pvp.getSubVP( windowPVP );
 
     EQVERB << "Channel pvp set: " << _pvp << ":" << _vp << endl;
 }
@@ -108,7 +108,7 @@ void eq::Channel::_setViewport( const Viewport& vp )
     {
         windowPVP.x = 0;
         windowPVP.y = 0;
-        _pvp = windowPVP * vp;
+        _pvp = windowPVP.getSubPVP( vp );
     }
 
     EQVERB << "Channel vp set: " << _pvp << ":" << _vp << endl;

@@ -36,13 +36,6 @@ namespace eq
         void invalidate() { x = 0; y = 0; w = -1; h = -1; }
 
         /** 
-         * Apply a fractional viewport to the current pvp.
-         * 
-         * @param vp the fractional viewport.
-         */
-        void applyViewport( const Viewport& vp ) { (*this) *= vp; }
-        
-        /** 
          * @return true if the pixel viewport has a non-negative, but
          *         potentially empty, size.
          */
@@ -61,7 +54,7 @@ namespace eq
          * @name Operators
          */
         //*{
-        PixelViewport& operator *= ( const Viewport& rhs )
+        void apply( const Viewport& rhs )
             {
                 // honor position over size to avoid rounding artifacts
                 const int32_t xEnd = x + static_cast<int32_t>((rhs.x+rhs.w)*w);
@@ -71,11 +64,9 @@ namespace eq
                 y += static_cast<int32_t>( h * rhs.y );
                 w = xEnd - x;
                 h = yEnd - y;
-
-                return *this;
             }
 
-        const PixelViewport operator * ( const Viewport& rhs ) const
+        const PixelViewport getSubPVP( const Viewport& rhs ) const
             {
                 PixelViewport result;
 
@@ -91,7 +82,7 @@ namespace eq
                 return result;
             }
 
-        const Viewport operator / ( const PixelViewport& rhs ) const
+        const Viewport getSubVP( const PixelViewport& rhs ) const
             {
                 EQASSERT( rhs.hasArea( ));
                 return Viewport(  ( x - rhs.x )/ static_cast<float>( rhs.w ),
@@ -115,15 +106,15 @@ namespace eq
             }
 
         /** create a pixel viewport that includes both viewports (union) */
-        const PixelViewport& operator += ( const PixelViewport& rhs )
+        void merge( const PixelViewport& rhs )
             {
                 if( *this == rhs || !rhs.hasArea() )
-                    return *this;
+                    return;
 
                 if( !hasArea() )
                 {
                     *this = rhs;
-                    return *this;
+                    return;
                 }
 
                 int32_t sEx =     x +     w;
@@ -135,17 +126,28 @@ namespace eq
                 y = MIN( y, rhs.y );
                 w = MAX( sEx, dEx ) - x;
                 h = MAX( sEy, dEy ) - y;
-
-                return *this;
             }
 
         /** create the intersection pixel viewport  */
-        PixelViewport operator ^= ( const PixelViewport& rhs )
+        void intersect( const PixelViewport& rhs )
             {
                 if( *this == rhs )
-                    return *this;
+                    return;
+
+                if( !rhs.isValid() || !isValid() )
+                {
+                    invalidate();
+                    return;
+                }
+                
                 if( !rhs.hasArea() || !hasArea() )
-                    return PixelViewport();
+                {
+                    x = 0;
+                    y = 0;
+                    w = 0;
+                    h = 0;
+                    return;
+                }
                 
                 int32_t sEx =     x +     w;
                 int32_t sEy =     y +     h;
@@ -156,8 +158,6 @@ namespace eq
                 y = MAX( y, rhs.y );
                 w = MIN( sEx, dEx ) - x;
                 h = MIN( sEy, dEy ) - y;
-                    
-                return *this;
             }
 
         //*}

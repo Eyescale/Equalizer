@@ -159,9 +159,9 @@ void eqs::Window::notifyViewportChanged()
         if( pipePVP.hasArea( ))
         {
             if( _fixedPVP ) // update viewport
-                _vp = _pvp / pipePVP;
+                _vp = _pvp.getSubVP( pipePVP );
             else            // update pixel viewport
-                _pvp = pipePVP * _vp;
+                _pvp = pipePVP.getSubPVP( _vp );
         }
     }
     EQINFO << "Window viewport update: " << _pvp << ":" << _vp << endl;

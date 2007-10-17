@@ -149,10 +149,10 @@ void Channel::notifyViewportChanged()
     windowPVP.y = 0;
 
     if( _fixedPVP ) // update viewport
-        _vp = _pvp / windowPVP;
+        _vp = _pvp.getSubVP( windowPVP );
     else            // update pixel viewport
     {
-        eq::PixelViewport pvp = windowPVP * _vp;
+        eq::PixelViewport pvp = windowPVP.getSubPVP( _vp );
         if( _pvp != pvp )
         {
             _pvp = pvp;

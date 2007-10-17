@@ -26,13 +26,12 @@ namespace eq
         //*}
 
         void invalidate() { x=0.0f; y=0.0f; w=-1.0f; h=-1.0f; }
-        Viewport& operator *= ( const Viewport& rhs )
+        void apply ( const Viewport& rhs )
             {
                 x += rhs.x * w;
                 y += rhs.y * h;
                 w *= rhs.w;
                 h *= rhs.h;
-                return *this;
             }
 
         bool operator == ( const Viewport& rhs ) const 

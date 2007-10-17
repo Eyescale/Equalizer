@@ -25,12 +25,11 @@ namespace eq
                 : start(start), end(end) {}
         //*}
 
-        Range& operator *= ( const Range& rhs )
+        void apply( const Range& rhs )
             {
                 const float w = end-start;
                 end    = start + rhs.end * w;
                 start += rhs.start * w;
-                return *this;
             }
         
         bool operator == ( const Range& rhs ) const
