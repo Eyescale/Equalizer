@@ -64,7 +64,7 @@ namespace eqNet
          * 
          * @return the next command in the queue, or 0 if no command is queued.
          */
-        Command* tryPop();
+        virtual Command* tryPop();
 
         
         /** 

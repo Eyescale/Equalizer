@@ -237,11 +237,19 @@ const ConfigEvent* Config::nextEvent()
     return command->getPacket<ConfigEvent>();
 }
 
+const ConfigEvent* Config::tryNextEvent()
+{
+    eqNet::Command* command = _eventQueue.tryPop();
+    if( !command )
+        return 0;
+    return command->getPacket<ConfigEvent>();
+}
+
 void Config::handleEvents()
 {
-    while( checkEvent( ))
+    for( const ConfigEvent* event = tryNextEvent(); event; 
+         event = tryNextEvent( ))
     {
-        const ConfigEvent* event = nextEvent();
         if( !handleEvent( event ))
             EQINFO << "Unhandled " << event << endl;
     }

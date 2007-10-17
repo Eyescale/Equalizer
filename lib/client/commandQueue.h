@@ -29,6 +29,9 @@ namespace eq
         /** @sa eqNet::CommandQueue::pop(). */
         virtual eqNet::Command* pop();
 
+        /** @sa eqNet::CommandQueue::tryPop(). */
+        virtual eqNet::Command* tryPop();
+
     private:
         MessagePump _messagePump;
     };

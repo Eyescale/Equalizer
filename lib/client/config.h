@@ -116,6 +116,15 @@ namespace eq
          */
         const ConfigEvent* nextEvent();
 
+        /** 
+         * Try to get an event on the application node.
+         * 
+         * The returned event is valid until the next call to this method.
+         * 
+         * @return a config event, or 0 if no events are pending.
+         */
+        const ConfigEvent* tryNextEvent();
+
         /** @return true if events are pending. */
         bool checkEvent() const { return !_eventQueue.empty(); }
 
