@@ -17,7 +17,6 @@ void main(
           
     // const: never updated
     uniform float   dPlaneStart,
-    uniform float   dPlaneIncr,
     uniform int     sequence[64],
     uniform float3  vecVertices[8],
     uniform int   v1[24],
@@ -39,7 +38,7 @@ void main(
 {
     float3   vecTranslate = float3( 0.0, 0.0, 0.0 );
 
-    float dPlaneDist = dPlaneStart + VindexAndSlice.y * dPlaneIncr;
+    float dPlaneDist = dPlaneStart + VindexAndSlice.y * sliceDistance;
 
     float3 Position = vecTranslate;
     
