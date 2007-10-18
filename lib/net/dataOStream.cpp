@@ -84,9 +84,6 @@ void DataOStream::resend( const eqBase::RefPtr< Node > node )
     EQASSERT( _connections.empty( ));
     EQASSERT( _save );
     
-    if( _buffer.size == 0 )
-        return;
-
     RefPtr< Connection > connection = node->getConnection();        
     connection->lockSend();
     _connections.push_back( connection );

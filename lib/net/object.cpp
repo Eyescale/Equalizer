@@ -117,15 +117,18 @@ void Object::getInstanceData( DataOStream& ostream )
 
 void Object::applyInstanceData( DataIStream& is )
 {
-    EQASSERTINFO( is.nRemainingBuffers() == 1, 
-                  "Master instance did not use default getInstanceData(), "
-                  << "can't use default applyInstanceData()" );
-
     const uint64_t size = is.getRemainingBufferSize();
-    const void*    data = is.getRemainingBuffer();
-
-    EQASSERT( data && size > 0 );
     EQASSERT( size == _instanceDataSize ); 
+
+	if( size == 0 )
+		return;
+
+	const void*    data = is.getRemainingBuffer();
+
+	EQASSERTINFO( is.nRemainingBuffers() == 0, 
+		"Master instance did not use default getInstanceData(), "
+		<< "can't use default applyInstanceData()" );
+	EQASSERT( data && size > 0 );
     EQASSERT( _instanceData );
 
     memcpy( _instanceData, data, size );

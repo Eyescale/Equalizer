@@ -261,7 +261,7 @@ namespace eqNet
          * @return the number of stored connection descriptions. 
          */
         uint32_t nConnectionDescriptions() const 
-            { return _connectionDescriptions.size(); }
+            { return static_cast< uint32_t >( _connectionDescriptions.size( )); }
 
         /** 
          * Returns a connection description.

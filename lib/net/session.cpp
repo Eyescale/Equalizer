@@ -592,7 +592,7 @@ CommandResult Session::_cmdMapObject( Command& command )
 
     if( !object->isMaster( ))
     { 
-        // slave instanciation - subscribe first
+        // slave instantiation - subscribe first
         SessionSubscribeObjectPacket subscribePacket;
         subscribePacket.requestID  = packet->requestID;
         subscribePacket.objectID   = data->objectID;
