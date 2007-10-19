@@ -22,7 +22,6 @@ Config::~Config()
 bool Config::init()
 {
     // init distributed objects
-    _frameData.data.color = _initData.useColor();
     registerObject( &_frameData );
     _initData.setFrameDataID( _frameData.getID( ));
 
@@ -31,27 +30,6 @@ bool Config::init()
     // init config
     if( !eq::Config::init( _initData.getID( )))
         return false;
-    
-    // init tracker
-    if( !_initData.getTrackerPort().empty( ))
-    {
-        if( !_tracker.init( _initData.getTrackerPort() ))
-            EQWARN << "Failed to initialise tracker" << endl;
-        else
-        {
-            // Set up position of tracking system in world space
-            // Note: this depends on the physical installation.
-            vmml::Matrix4f m( vmml::Matrix4f::IDENTITY );
-            m.scale( 1.f, 1.f, -1.f );
-            //m.x = .5;
-            _tracker.setWorldToEmitter( m );
-
-            m = vmml::Matrix4f::IDENTITY;
-            m.rotateZ( -M_PI_2 );
-            _tracker.setSensorToObject( m );
-            EQLOG( eq::LOG_CUSTOM ) << "Tracker initialised" << endl;
-        }
-    }
 
     return true;
 }
@@ -69,14 +47,6 @@ bool Config::exit()
 
 uint32_t Config::startFrame()
 {
-    // update head position
-    if( _tracker.isRunning() )
-    {
-        _tracker.update();
-        const vmml::Matrix4f& headMatrix = _tracker.getMatrix();
-        setHeadMatrix( headMatrix );
-    }
-
     // update database
     _frameData.data.rotation.preRotateX( -0.001f * _spinX );
     _frameData.data.rotation.preRotateY( -0.001f * _spinY );

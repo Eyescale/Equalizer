@@ -13,10 +13,16 @@ SOURCES = \
 	node.cpp \
 	pipe.cpp \
 	shader.cpp\
-	tracker.cpp \
 	rawVolModel.cpp \
 	sliceClipping.cpp \
 	window.cpp
+
+SHADERS = \
+	vertexShaderComplex_cg.h \
+	vertexShaderSimple_cg.h \
+	fragmentShader_cg.h \
+	fragmentShader_glsl.h \
+	vertexShader_glsl.h
 
 CXXFLAGS    += -I../include $(WINDOW_SYSTEM_INCS)
 SA_LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)
@@ -45,5 +51,12 @@ TARGETS = $(PROGRAMS)
 
 include $(TOP)/make/rules.mk
 
+$(OBJECTS): $(SHADERS)
+
 README: ../../../website/build/documents/user/eVolve.html
 	links -dump $< > $@
+
+%_cg.h: %.cg
+	./stringify.pl $< > $@
+%_glsl.h: %.glsl
+	./stringify.pl $< > $@

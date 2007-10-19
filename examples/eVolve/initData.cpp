@@ -22,9 +22,9 @@ InitData::InitData()
         : _frameDataID(  EQ_UNDEFINED_UINT32 )
         , _windowSystem( eq::WINDOW_SYSTEM_NONE )
 #ifdef CG_INSTALLED
-        , _useCg       ( true )
+        , _useGLSL     ( false )
 #else
-        , _useCg       ( false )
+        , _useGLSL     ( true )
 #endif
 #ifdef WIN32_VC
         , _filename( "../examples/eVolve/Bucky32x32x32_d.raw" )
@@ -40,12 +40,12 @@ InitData::~InitData()
 
 void InitData::getInstanceData( eqNet::DataOStream& os )
 {
-    os << _frameDataID << _windowSystem << _useCg << _filename;
+    os << _frameDataID << _windowSystem << _useGLSL << _filename;
 }
 
 void InitData::applyInstanceData( eqNet::DataIStream& is )
 {
-    is >> _frameDataID >> _windowSystem >> _useCg >> _filename;
+    is >> _frameDataID >> _windowSystem >> _useGLSL >> _filename;
 
     EQASSERT( _frameDataID != EQ_ID_INVALID );
     EQINFO << "New InitData instance" << endl;

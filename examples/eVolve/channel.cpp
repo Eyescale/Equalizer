@@ -34,7 +34,6 @@ using namespace std;
 
 Channel::Channel()
     :eq::Channel()
-    ,_useCg         ( true )
     ,_bgColor       ( 0.0f, 0.0f, 0.0f, 1.0f ) 
     ,_slicesListID  ( 0 )
 {
@@ -450,16 +449,19 @@ void Channel::frameDraw( const uint32_t frameID )
 
     // Setup camera and lighting
     const FrameData& frameData = pipe->getFrameData();
-
+    
     setCamera( frameData.data, volumeInfo.volScales );
     setLights();
 
     // Enable shaders
-    eqCgShaders cgShaders        = pipe->getShaders();
-    GLhandleARB glslShader       = pipe->getShader();
-    bool        useSimpleShaders = pipe->isSimpleShaderUsed();
+    const Node*     node             = static_cast< Node* >( getNode( ));
+    const InitData& initData         = node->getInitData();
+    const bool      useCg            = !initData.useGLSL();
+    eqCgShaders     cgShaders        = pipe->getShaders();
+    GLhandleARB     glslShader       = pipe->getShader();
+    bool            useSimpleShaders = pipe->isSimpleShaderUsed();
 
-    enableShaders( cgShaders, glslShader, _useCg );
+    enableShaders( cgShaders, glslShader, useCg );
     
     // Calculate and put necessary data to shaders 
     vmml::Matrix4d  modelviewM;     // modelview matrix
@@ -469,14 +471,14 @@ void Channel::frameDraw( const uint32_t frameID )
     putTextureCoordinatesModifyersToShader
     (
         volumeInfo.TD,
-        cgShaders, glslShader, _useCg 
+        cgShaders, glslShader, useCg 
     );
 
     // Fill volume data
     putVolumeDataToShader
     ( 
         volumeInfo.preint, volumeInfo.volume, sliceDistance,
-        cgShaders, glslShader, _useCg 
+        cgShaders, glslShader, useCg 
     );
 
     _sliceClipper.updatePerFrameInfo
@@ -486,7 +488,7 @@ void Channel::frameDraw( const uint32_t frameID )
 
 
     if( !useSimpleShaders )
-        putClippingDataToShader( _sliceClipper, cgShaders, glslShader, _useCg );
+        putClippingDataToShader( _sliceClipper, cgShaders, glslShader, useCg );
     
     //Render slices
     glEnable(GL_BLEND);
@@ -502,7 +504,7 @@ void Channel::frameDraw( const uint32_t frameID )
 
     checkError( "error during rendering " );
 
-    disableShaders( cgShaders, glslShader, _useCg );
+    disableShaders( cgShaders, glslShader, useCg );
     
     //Draw logo
     const eq::Viewport& vp = getViewport();

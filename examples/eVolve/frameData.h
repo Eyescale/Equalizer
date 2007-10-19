@@ -35,7 +35,6 @@ namespace eVolve
         {
             vmml::Matrix4f rotation;
             vmml::Vector3f translation;
-            bool           color;
         } data;
     
     protected:

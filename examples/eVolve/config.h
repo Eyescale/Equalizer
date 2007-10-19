@@ -9,7 +9,6 @@
 
 #include "localInitData.h" // member
 #include "frameData.h"     // member
-#include "tracker.h"       // member
 
 namespace eVolve
 {
@@ -38,8 +37,6 @@ namespace eVolve
 
         LocalInitData _initData;
         FrameData     _frameData;
-
-        Tracker _tracker;
 
     private:
         static void _applyRotation( float m[16], const float dx, const float dy );

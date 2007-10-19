@@ -11,7 +11,6 @@ class FrameData;
 
 namespace eVolve
 {
-
     class LocalInitData : public InitData
     {
     public:
@@ -19,20 +18,15 @@ namespace eVolve
 
         void parseArguments( int argc, char** argv );
 
-        const std::string& getTrackerPort() const { return _trackerPort; }
-        bool               useColor()       const { return _color;       }
-        bool               isResident()     const { return _isResident;  }
-        uint32_t           getMaxFrames()   const { return _maxFrames;   }
+        bool               isResident()     const { return _isResident; }
+        uint32_t           getMaxFrames()   const { return _maxFrames; }
 
         const LocalInitData& operator = ( const LocalInitData& from );
-    
+
     private:
-        std::string _trackerPort;
         uint32_t    _maxFrames;
-        bool        _color;
         bool        _isResident;
     };
-
 }
 
 #endif // EQ_VOL_LOCALINITDATA_H

@@ -17,25 +17,22 @@ using namespace std;
 namespace eVolve
 {
 LocalInitData::LocalInitData()
-        : _maxFrames( 0xffffffffu ),
-          _color( true ),
-          _isResident( false )
+        : _maxFrames( 0xffffffffu )
+        , _isResident( false )
 {}
 
 const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
 {
-    _trackerPort = from._trackerPort;  
     _maxFrames   = from._maxFrames;    
-    _color       = from._color;        
     _isResident  = from._isResident;
-
-    setWindowSystem( from.getWindowSystem( ));
-    if( !from.useCg( )) disableCg();
     setFilename( from.getFilename( ));
+    setWindowSystem( from.getWindowSystem( ));
+    if( from.useGLSL( )) 
+      enableGLSL();
     return *this;
 }
 
-void LocalInitData::parseArguments( int argc, char** argv )
+void LocalInitData::parseArguments( const int argc, char** argv )
 {
     try
     {
@@ -54,58 +51,46 @@ void LocalInitData::parseArguments( int argc, char** argv )
 
         TCLAP::CmdLine command( "eVolve - Equalizer volume rendering example" );
         
-        TCLAP::ValueArg<string> modelArg( 
-            "m", "model", "raw model file name",
-            false, "Bucky32x32x32.raw"    , "string", command );
-            
-        TCLAP::ValueArg<string> portArg( 
-            "p", "port", "tracking device port",
-            false, "/dev/ttyS0"           , "string", command );
-            
-        TCLAP::SwitchArg colorArg( 
-            "b", "bw", "Don't use colors from ply file", command, false );
-            
-        TCLAP::SwitchArg residentArg( 
-            "r", "resident", "Keep client resident"    , command, false );
-            
-        TCLAP::ValueArg<uint32_t> framesArg(
-            "n", "numFrames", "Maximum number of rendered frames", 
-            false, 0xffffffffu            , "unsigned",  command );
-
-        TCLAP::ValueArg<string> wsArg(
-            "w", "windowSystem", wsHelp, false, "auto", "string", command );
-                                
+        TCLAP::ValueArg<string> modelArg( "m", "model", "raw model file name",
+                                          false, "Bucky32x32x32.raw", "string",
+                                          command );
+        TCLAP::SwitchArg residentArg( "r", "resident", 
+           "Keep client resident (see resident node documentation on website)", 
+                                      command, false );
+        TCLAP::ValueArg<uint32_t> framesArg( "n", "numFrames", 
+                                           "Maximum number of rendered frames", 
+                                             false, 0xffffffffu, "unsigned",
+                                             command );
+        TCLAP::ValueArg<string> wsArg( "w", "windowSystem", wsHelp,
+                                       false, "auto", "string", command );
+        TCLAP::SwitchArg glslArg( "g", "glsl", "Enable GLSL shaders", 
+                                  command, false );
+        
         command.parse( argc, argv );
 
-
-        if( modelArg.isSet() )
+        if( modelArg.isSet( ))
             setFilename( modelArg.getValue( ));
-
-        if( portArg.isSet() )
-            _trackerPort = portArg.getValue();
-
-        if( wsArg.isSet() )
+        if( wsArg.isSet( ))
         {
             string windowSystem = wsArg.getValue();
             transform( windowSystem.begin(), windowSystem.end(),
                        windowSystem.begin(), (int(*)(int))std::tolower );
- 
+
             if( windowSystem == "glx" )
                 setWindowSystem( eq::WINDOW_SYSTEM_GLX );
             else if( windowSystem == "agl" )
                 setWindowSystem( eq::WINDOW_SYSTEM_AGL );
             else if( windowSystem == "wgl" )
                 setWindowSystem( eq::WINDOW_SYSTEM_WGL );
-        }else
-            setWindowSystem( eq::WINDOW_SYSTEM_GLX );
+        }
 
-        _color         = !colorArg.isSet();
- 
-        if( framesArg.isSet() )
+        if( framesArg.isSet( ))
             _maxFrames = framesArg.getValue();
- 
-        if( residentArg.isSet() )
+
+        if( residentArg.isSet( ))
             _isResident = true;
+        if( glslArg.isSet() )
+            enableGLSL();
     }
     catch( TCLAP::ArgException& exception )
     {

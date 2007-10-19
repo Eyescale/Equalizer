@@ -21,7 +21,7 @@ using namespace std;
 using namespace hlpFuncs;
 
 
-bool checkShader( GLhandleARB shader, const string &type, const string &fn )
+bool checkShader( GLhandleARB shader, const string &type )
 {
     GLint length;
     glGetObjectParameterivARB( shader, GL_OBJECT_INFO_LOG_LENGTH_ARB, &length );
@@ -34,75 +34,41 @@ bool checkShader( GLhandleARB shader, const string &type, const string &fn )
         GLint written;
         
         glGetInfoLogARB( shader, length, &written, &log[0] );
-        EQERROR << "Shader error: " << type << " " << fn << endl << &log[0] << endl;
+        EQERROR << "Shader error: " << type << endl << &log[0] << endl;
         return false;
     }
     return true;
 }
 
-bool readShaderFile( const string &fn, vector<char> &shdrSrc )
+GLhandleARB loadShader( const string &shader, GLenum shaderType )
 {
-    ifstream file( fn.c_str() );
-    
-    if( file.is_open() )
-    {
-        int32_t size = file.tellg();
-        file.seekg( 0, ios::end );
-        size = static_cast<int32_t>( file.tellg() ) - size;
-        
-        shdrSrc.resize( size+1 );
-        
-        file.seekg( 0, ios::beg );
-        file.read ( &shdrSrc[0], size );
-        file.close();
-        
-        shdrSrc[size] = '\0';
-        
-        return true;
-    }else
-    {
-        EQERROR << "Can't load shader: " << fn << endl;
-        return false;
-    }
-}
+    GLhandleARB handle = glCreateShaderObjectARB( shaderType );
+    const char* cstr = shader.c_str();
+    glShaderSourceARB( handle, 1, &cstr, NULL );
+    glCompileShaderARB( handle );
 
-GLhandleARB loadShader( const string &filename, GLenum shaderType )
-{
-    vector<char> shdrSrc;
-    GLhandleARB handler = glCreateShaderObjectARB( shaderType );
+    GLint check;
+    glGetObjectParameterivARB( handle, GL_OBJECT_COMPILE_STATUS_ARB, &check );
+    if(!check)
+        checkShader( handle, "Compiling" );
 
-    if( readShaderFile( filename, shdrSrc ) )
-    {
-        const char *shdrSrc_ = &shdrSrc[0];
-        glShaderSourceARB( handler, 1, &shdrSrc_, NULL );
-    
-        glCompileShaderARB( handler );
-
-        GLint check;
-        glGetObjectParameterivARB( handler, GL_OBJECT_COMPILE_STATUS_ARB, &check );
-        if(!check)
-            checkShader( handler, "Compiling", filename );
-    }
-    
-    return handler;
+    return handle;
 }
 
 
-bool loadShaders( const string &v_file, const string &f_file, GLhandleARB &shader )
+bool loadShaders( const string &vShader, const string &fShader, 
+                  GLhandleARB &shader )
 {
     shader = glCreateProgramObjectARB();
     
-    glAttachObjectARB( shader, loadShader( v_file, GL_VERTEX_SHADER_ARB   ) );
-    glAttachObjectARB( shader, loadShader( f_file, GL_FRAGMENT_SHADER_ARB ) );
-    
+    glAttachObjectARB( shader, loadShader( vShader, GL_VERTEX_SHADER_ARB   ));
+    glAttachObjectARB( shader, loadShader( fShader, GL_FRAGMENT_SHADER_ARB ));
     glLinkProgramARB( shader );
 
     GLint check;
     glGetObjectParameterivARB( shader, GL_OBJECT_LINK_STATUS_ARB, &check );
-    if( !check && !checkShader( shader, "Linker", "" ) )
+    if( !check && !checkShader( shader, "Linking" ) )
         return false;
-    
-    glUseProgramObjectARB( shader );
     
     return true;
 }

@@ -23,7 +23,6 @@ namespace eVolve
     public:
         Channel();
         bool _perspective;  // perspective/ortogonal projection
-        bool _useCg;        // Cg / GLSL shaders 
 
     protected:
         virtual ~Channel() {}

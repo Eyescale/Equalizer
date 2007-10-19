@@ -20,6 +20,14 @@ using namespace std;
 
 namespace eVolve
 {
+
+#ifdef CG_INSTALLED
+#  include "vertexShaderComplex_cg.h"
+#  include "vertexShaderSimple_cg.h"
+#  include "fragmentShader_cg.h"
+#endif
+#include "fragmentShader_glsl.h"
+#include "vertexShader_glsl.h"
     
 eq::WindowSystem Pipe::selectWindowSystem() const
 {
@@ -53,22 +61,17 @@ bool Pipe::configInit( const uint32_t initID )
     const string& filename = initData.getFilename();
     EQINFO << "Loading model " << filename << endl;
 
-//    if( _model ) 
-//        delete _model;
-
     _model = new Model( filename.c_str() );
-
-    if( !_model )
-        return false;
+    EQASSERT( _model );
 
     if( !_model->getLoadingResult() )
     {
+        setErrorMessage( "Can't load model" );
         EQWARN << "Can't load model: " << filename << endl;
         delete _model;
         _model = 0;
         return false;
     }
-
 
     return eq::Pipe::configInit( initID );
 }
@@ -96,7 +99,7 @@ void Pipe::LoadShaders()
     {
         const Node*     node     = static_cast<Node*>( getNode( ));
         const InitData& initData = node->getInitData();
-        const bool      useCg    = initData.useCg();
+        const bool      useCg    = !initData.useGLSL();
 
 #ifdef CG_INSTALLED
         if( useCg )
@@ -109,37 +112,34 @@ void Pipe::LoadShaders()
             _shaders.cgVertex = new gloo::cg_program( _cgContext );
             try
             {
-                _shaders.cgVertex->create_from_file(   CG_GL_VERTEX , 
-                                            "./examples/eVolve/vshader.cg" );
+                _shaders.cgVertex->create_from_string( CG_GL_VERTEX , 
+                                                       vertexShaderComplex_cg );
                 _useSimpleShader = false;
             }catch(...)
             {
-                _shaders.cgVertex->create_from_file(   CG_GL_VERTEX , 
-                                            "./examples/eVolve/vshader_s.cg" );
-                EQWARN  << "normal vertex shader failed to load, " 
-                        << "smaller vertex shader whould be used" << std::endl;
+                _shaders.cgVertex->create_from_string( CG_GL_VERTEX, 
+                                                       vertexShaderSimple_cg );
+                EQWARN  << "Can't load normal vertex shader, using smaller, "
+                        << "but slower vertex shader" << std::endl;
                 _useSimpleShader = true;
             }
 
             if( _shaders.cgFragment )
                 delete _shaders.cgFragment;
-
+            
             _shaders.cgFragment = new gloo::cg_program( _cgContext );
-            _shaders.cgFragment->create_from_file( CG_GL_FRAGMENT, 
-                                        "./examples/eVolve/fshader.cg" );
+            _shaders.cgFragment->create_from_string( CG_GL_FRAGMENT, 
+                                                     fragmentShader_cg );
         }
         else
 #endif
         {
-            if( !eqShader::loadShaders("./examples/eVolve/vshader.oglsl", 
-                                       "./examples/eVolve/fshader.oglsl", 
-                                        _shader) )
+            if( !eqShader::loadShaders( vertexShader_glsl, fragmentShader_glsl,
+                                        _shader ))
             {
                 EQERROR << "Can't load glsl shaders" << endl;
                 return;
             }
-        
-            glUseProgramObjectARB( 0 );
         }    
 
         _shadersLoaded = true;
