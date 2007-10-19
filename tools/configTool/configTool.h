@@ -5,6 +5,8 @@
 #ifndef EQ_CONFIGTOOL_H
 #define EQ_CONFIGTOOL_H
 
+#include <string>
+
 class ConfigTool
 {
 public:
@@ -25,6 +27,8 @@ private:
     unsigned _nPipes;
     unsigned _nChannels;
     bool     _useDestination;
+
+    std::string _nodesFile;
 
     void _writeResources() const;
     void _writeCompound() const;

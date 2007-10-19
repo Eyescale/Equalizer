@@ -13,6 +13,10 @@
 #include <math.h>
 #include <tclap/CmdLine.h>
 
+#include <iostream>
+#include <fstream>
+
+
 using namespace std;
 
 int main( int argc, char** argv )
@@ -27,7 +31,8 @@ ConfigTool::ConfigTool()
         : _mode( MODE_2D ),
           _nPipes( 1 ),
           _nChannels( 4 ),
-          _useDestination( true )
+          _useDestination( true ),
+          _nodesFile( "" )
 {}
 
 bool ConfigTool::parseArguments( int argc, char** argv )
@@ -46,8 +51,15 @@ bool ConfigTool::parseArguments( int argc, char** argv )
         TCLAP::SwitchArg destArg( "a", "assembleOnly", 
                             "Destination channel does not contribute to rendering", 
                                   command, false );
+        TCLAP::ValueArg<string> nodesArg( "n", "nodes", "file with list of node-names",
+                                         false, "", "", command );
                                 
         command.parse( argc, argv );
+
+        if( nodesArg.isSet( ))
+        {
+            _nodesFile = nodesArg.getValue();
+        }
 
         if( modeArg.isSet( ))
         {
@@ -105,16 +117,52 @@ void ConfigTool::writeConfig() const
     cout << "}" << endl;
 }
 
+void readNodenames
+(
+    const string &filename,
+    const unsigned maxNodes,
+    vector<string> &nodesNames
+)
+{
+    if( filename == "" )
+        return;
+
+    std::ifstream inStream;
+
+    inStream.open( filename.c_str() );
+    if ( inStream.is_open() )
+    {
+        string tmp;
+        unsigned pos = 0;
+        while( ++pos < maxNodes && inStream >> tmp )
+            nodesNames.push_back( tmp );
+
+        inStream.close();
+    }
+}
+
 void ConfigTool::_writeResources() const
 {
+
     const unsigned nNodes  = _nChannels/_nPipes + 1;
     unsigned       channel = 0;
+
+    vector<string> nodesNames;
+
+    readNodenames( _nodesFile, nNodes, nodesNames );
+
     for( unsigned node=0; node < nNodes && channel < _nChannels; ++node )
     {
+        std::ostringstream nodeName;
+        if( node < nodesNames.size() )
+            nodeName << nodesNames[node];
+        else
+            nodeName << "node" << node;
+
         cout << "        node" << endl
              << "        {" << endl
              << "            name       \"node" << node << "\""<< endl
-             << "            connection { hostname \"node" << node << "\" }"<< endl;
+             << "            connection { hostname \"" << nodeName.str() << "\" }"<< endl;
         for( unsigned pipe=0; pipe < _nPipes && channel < _nChannels; ++pipe )
         {
             cout << "            pipe" << endl
