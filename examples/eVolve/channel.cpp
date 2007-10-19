@@ -25,9 +25,6 @@
 namespace eVolve
 {
 
-static const int _slicePrecision = 2;
-
-
 using namespace eqBase;
 using namespace std;
 
@@ -84,7 +81,11 @@ bool Channel::configInit( const uint32_t initID )
         return false;
     }
 
-    createSlicesHexagonsList( model->getResolution() * _slicePrecision,
+    const Node*     node             = static_cast< Node* >( getNode( ));
+    const InitData& initData         = node->getInitData();
+
+    EQASSERT( initData.getPrecision() != 0 );
+    createSlicesHexagonsList( model->getResolution() * initData.getPrecision(),
                               _slicesListID );
 
 #ifndef DYNAMIC_NEAR_FAR
@@ -444,8 +445,11 @@ void Channel::frameDraw( const uint32_t frameID )
     if( !model || !model->getVolumeInfo( volumeInfo, _curFrData.lastRange ) )
         return;
 
-    const double sliceDistance = 
-                            3.6 / ( model->getResolution() * _slicePrecision );
+
+    const Node*           node = static_cast< Node* >( getNode( ));
+    const InitData&   initData = node->getInitData();
+    const uint32_t   precision = initData.getPrecision();
+    const double sliceDistance = 3.6 / ( model->getResolution() * precision );
 
     // Setup camera and lighting
     const FrameData& frameData = pipe->getFrameData();
@@ -454,8 +458,6 @@ void Channel::frameDraw( const uint32_t frameID )
     setLights();
 
     // Enable shaders
-    const Node*     node             = static_cast< Node* >( getNode( ));
-    const InitData& initData         = node->getInitData();
     const bool      useCg            = !initData.useGLSL();
     eqCgShaders     cgShaders        = pipe->getShaders();
     GLhandleARB     glslShader       = pipe->getShader();

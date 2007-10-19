@@ -27,6 +27,7 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     _isResident  = from._isResident;
     setFilename( from.getFilename( ));
     setWindowSystem( from.getWindowSystem( ));
+    setPrecision( from.getPrecision( ));
     if( from.useGLSL( )) 
       enableGLSL();
     return *this;
@@ -61,6 +62,10 @@ void LocalInitData::parseArguments( const int argc, char** argv )
                                            "Maximum number of rendered frames", 
                                              false, 0xffffffffu, "unsigned",
                                              command );
+        TCLAP::ValueArg<uint32_t> precisionArg( "p", "precision", 
+                "Rendering precision (default 2, bigger is better and slower)", 
+                                                false, 2, "unsigned",
+                                                command );
         TCLAP::ValueArg<string> wsArg( "w", "windowSystem", wsHelp,
                                        false, "auto", "string", command );
         TCLAP::SwitchArg glslArg( "g", "glsl", "Enable GLSL shaders", 
@@ -86,7 +91,8 @@ void LocalInitData::parseArguments( const int argc, char** argv )
 
         if( framesArg.isSet( ))
             _maxFrames = framesArg.getValue();
-
+        if( precisionArg.isSet( ))
+            setPrecision( precisionArg.getValue( ));
         if( residentArg.isSet( ))
             _isResident = true;
         if( glslArg.isSet() )
