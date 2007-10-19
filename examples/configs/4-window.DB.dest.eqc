@@ -9,44 +9,27 @@ server
             {
                 window
                 {
-                    viewport [ .05 .05 .4 .3 ]
-                    name "window1"
-
-                    channel
-                    {
-                        name "channel1"
-                    }
+                    name     "window1"
+                    viewport [ 25 25 400 400 ]
+                    channel { name "channel1"  }
                 }
                 window
                 {
-                    viewport [ .55 .05 .4 .3 ]
-                    name "window2"
-
-                    channel
-                    {
-                        name "channel2"
-                    }
+                    name     "window2"
+                    viewport [ 450 25 400 400 ]
+                    channel { name "channel2"  }
                 }
                 window
                 {
-                    viewport [ .05 .5 .4 .3 ]
-                    name "window3"
-
-                    channel
-                    {
-                        name "channel3"
-                    }
+                    name     "window3"
+                    viewport [ 25 450 400 400 ]
+                    channel { name "channel3"  }
                 }
                 window
                 {
-                    viewport [ .55 .5 .4 .3 ]
-                    attributes{ planes_stencil ON }
-                    name "window4"
-
-                    channel
-                    {
-                        name "channel4"
-                    }
+                    name     "window4"
+                    viewport [ 450 450 400 400 ]
+                    channel { name "channel4"  }
                 }
             }
         }
@@ -58,9 +41,9 @@ server
 
             wall
             {
-                bottom_left  [ -.8 -.5 -1 ]
-                bottom_right [  .8 -.5 -1 ]
-                top_left     [ -.8  .5 -1 ]
+                bottom_left  [ -.5 -.5 -1 ]
+                bottom_right [  .5 -.5 -1 ]
+                top_left     [ -.5  .5 -1 ]
             }
             
             compound

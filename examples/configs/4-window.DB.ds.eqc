@@ -15,7 +15,7 @@ server
                 window
                 {
                     name     "window1"
-                    viewport [ 100 100 500 300 ]
+                    viewport [ 25 25 400 400 ]
                     channel { name "channel1"  }
                 }
             }
@@ -24,7 +24,7 @@ server
                 window
                 {
                     name     "window2"
-                    viewport [ 600 100 500 300 ]
+                    viewport [ 450 25 400 400 ]
                     channel { name "channel2"  }
                 }
             }
@@ -33,7 +33,7 @@ server
                 window
                 {
                     name     "window3"
-                    viewport [ 100 425 500 300 ]
+                    viewport [ 25 450 400 400 ]
                     channel { name "channel3"  }
                 }
             }
@@ -42,7 +42,7 @@ server
                 window
                 {
                     name     "window4"
-                    viewport [ 600 425 500 300 ]
+                    viewport [ 450 450 400 400 ]
                     channel { name "channel4"  }
                 }
             }
@@ -54,16 +54,16 @@ server
 
             wall
             {
-                bottom_left  [ -.32 -.20 -.75 ]
-                bottom_right [  .32 -.20 -.75 ]
-                top_left     [ -.32  .20 -.75 ]
+                bottom_left  [ -.5 -.5 -1 ]
+                bottom_right [  .5 -.5 -1 ]
+                top_left     [ -.5  .5 -1 ]
             }
             compound
             {
-                range     [ 0.00000 0.25000 ]
-                outputframe{ name "tile1.channel1" viewport [ 0 0.00000 1 0.25000 ] }
-                outputframe{ name "tile2.channel1" viewport [ 0 0.25000 1 0.25000 ] }
-                outputframe{ name "tile3.channel1" viewport [ 0 0.50000 1 0.25000 ] }
+                range     [ 0.00 0.25 ]
+                outputframe{ name "tile1.channel1" viewport [ 0 0.00 1 0.25 ] }
+                outputframe{ name "tile2.channel1" viewport [ 0 0.25 1 0.25 ] }
+                outputframe{ name "tile3.channel1" viewport [ 0 0.50 1 0.25 ] }
             }
 
             compound
@@ -72,15 +72,15 @@ server
                 
                 compound
                 {
-                    range     [ 0.25000 0.50000 ]
-                    outputframe{ name "tile1.channel2" viewport [ 0 0.00000 1 0.25000 ] }
-                    outputframe{ name "tile2.channel2" viewport [ 0 0.25000 1 0.25000 ] }
-                    outputframe{ name "tile4.channel2" viewport [ 0 0.75000 1 0.25000 ] }
+                    range     [ 0.25 0.50 ]
+                    outputframe{ name "tile1.channel2" viewport [ 0 0.00 1 0.25 ] }
+                    outputframe{ name "tile2.channel2" viewport [ 0 0.25 1 0.25 ] }
+                    outputframe{ name "tile4.channel2" viewport [ 0 0.75 1 0.25 ] }
                 }
                 inputframe{ name "tile3.channel1" }
                 inputframe{ name "tile3.channel3" }
                 inputframe{ name "tile3.channel4" }
-                outputframe{ name "frame.channel2" buffer [ COLOR ] viewport [ 0 0.50000 1 0.25000 ] }
+                outputframe{ name "frame.channel2" buffer [ COLOR ] viewport [ 0 0.50 1 0.25 ] }
             }
 
             compound
@@ -88,15 +88,15 @@ server
                 channel   "channel3"
                 compound
                 {
-                    range     [ 0.50000 0.75000 ]
-                    outputframe{ name "tile1.channel3" viewport [ 0 0.00000 1 0.25000 ] }
-                    outputframe{ name "tile3.channel3" viewport [ 0 0.50000 1 0.25000 ] }
-                    outputframe{ name "tile4.channel3" viewport [ 0 0.75000 1 0.25000 ] }
+                    range     [ 0.50 0.75 ]
+                    outputframe{ name "tile1.channel3" viewport [ 0 0.00 1 0.25 ] }
+                    outputframe{ name "tile3.channel3" viewport [ 0 0.50 1 0.25 ] }
+                    outputframe{ name "tile4.channel3" viewport [ 0 0.75 1 0.25 ] }
                 }
                 inputframe{ name "tile2.channel1" }
                 inputframe{ name "tile2.channel2" }
                 inputframe{ name "tile2.channel4" }
-                outputframe{ name "frame.channel3" buffer [ COLOR ] viewport [ 0 0.25000 1 0.25000 ] }
+                outputframe{ name "frame.channel3" buffer [ COLOR ] viewport [ 0 0.25 1 0.25 ] }
             }
 
             compound
@@ -104,15 +104,15 @@ server
                 channel   "channel4"
                 compound
                 {
-                    range     [ 0.75000 1 ]
-                    outputframe{ name "tile2.channel4" viewport [ 0 0.25000 1 0.25000 ] }
-                    outputframe{ name "tile3.channel4" viewport [ 0 0.50000 1 0.25000 ] }
-                    outputframe{ name "tile4.channel4" viewport [ 0 0.75000 1 0.25000 ] }
+                    range     [ 0.75 1 ]
+                    outputframe{ name "tile2.channel4" viewport [ 0 0.25 1 0.25 ] }
+                    outputframe{ name "tile3.channel4" viewport [ 0 0.50 1 0.25 ] }
+                    outputframe{ name "tile4.channel4" viewport [ 0 0.75 1 0.25 ] }
                 }
                 inputframe{ name "tile1.channel1" }
                 inputframe{ name "tile1.channel2" }
                 inputframe{ name "tile1.channel3" }
-                outputframe{ name "frame.channel4" buffer [ COLOR ] viewport [ 0 0.00000 1 0.25000 ] }
+                outputframe{ name "frame.channel4" buffer [ COLOR ] viewport [ 0 0.00 1 0.25 ] }
             }
 
             inputframe{ name "tile4.channel2" }
