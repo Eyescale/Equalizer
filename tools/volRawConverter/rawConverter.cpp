@@ -85,20 +85,14 @@ int RawConverter::parseArguments( int argc, char** argv )
 
         TCLAP::ValueArg<string> dstArg(
             "d", "dst", "destination file",
-            false, "Bucky32x32x32_d.raw"  , "string", command );
+            true, "Bucky32x32x32_d.raw"  , "string", command );
 
         TCLAP::ValueArg<string> srcArg( 
             "s", "src", "source file",
-            false, "Bucky32x32x32.raw"    , "string", command );
+            true, "Bucky32x32x32.raw"    , "string", command );
 
                                 
         command.parse( argc, argv );
-
-        if( !srcArg.isSet() )
-            return lFailed( "Src file in not specified" );
-
-        if( !dstArg.isSet() )
-            return lFailed( "Dst file in not specified" );
 
         if( derArg.isSet() ) // raw -> raw + derivatives
             return RawConverter::RawToRawPlusDerivativesConverter(
