@@ -209,6 +209,13 @@ namespace eq
          * @param frameNumber the frame to end.
          */
         void releaseFrame( const uint32_t frameNumber ) { /* currently nop */ }
+
+        /** 
+         * Release the local synchronization of the parent for a frame.
+         * 
+         * @param frameNumber the frame to release.
+         */
+        void releaseFrameLocal( const uint32_t frameNumber ) { /* nop */ }
         //*}
 
         /**
@@ -273,6 +280,19 @@ namespace eq
         virtual void frameFinish( const uint32_t frameID, 
                                   const uint32_t frameNumber ) 
             { releaseFrame( frameNumber ); }
+
+        /** 
+         * Finish drawing.
+         * 
+         * Called once per frame after the last draw operation. Typically
+         * releases the local node thread synchronization for this frame.
+         *
+         * @param frameID the per-frame identifier.
+         * @param frameNumber the frame to finished with draw.
+         */
+        virtual void frameDrawFinish( const uint32_t frameID, 
+                                      const uint32_t frameNumber )
+            { releaseFrameLocal( frameNumber ); }
 
         /** Make the window's drawable and context current. */
         virtual void makeCurrent() const;
@@ -414,6 +434,7 @@ namespace eq
         eqNet::CommandResult _reqBarrier( eqNet::Command& command );
         eqNet::CommandResult _reqFinish( eqNet::Command& command );
         eqNet::CommandResult _reqSwap( eqNet::Command& command );
+        eqNet::CommandResult _reqFrameDrawFinish( eqNet::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& , const Window::DrawableConfig& );

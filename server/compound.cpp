@@ -539,7 +539,8 @@ TraverseResult Compound::_initCB( Compound* compound, void* userData )
             << "Input frame \"" << frame->getName() << "\" id " 
             << frame->getID() << endl;
     }
-    
+
+    compound->_updateInheritData();
     return TRAVERSE_CONTINUE;    
 }
 
@@ -586,7 +587,7 @@ void Compound::update( const uint32_t frameNumber )
 
     UpdateData data;
 
-    traverse(       this, _updateDataCB, _updateDataCB, 0,     0     );
+    traverseActive( this, _updateDataCB, _updateDataCB, 0,     0     );
     traverseActive( this, 0, _updateOutputCB, _updateOutputCB, &data );
     traverseActive( this, _updateInputCB, _updateInputCB, 0,   &data );
     
@@ -602,7 +603,8 @@ void Compound::update( const uint32_t frameNumber )
 TraverseResult Compound::_updateDataCB( Compound* compound, void* userData )
 {
     compound->_updateInheritData();
-    
+    compound->_updateDrawFinish();
+
     return TRAVERSE_CONTINUE;
 }
 TraverseResult Compound::_updateOutputCB( Compound* compound, void* userData )
@@ -713,7 +715,7 @@ void Compound::_updateInheritData()
 
     if( _data.tasks == TASK_DEFAULT )
     {
-        if( _children.empty( ))
+        if( isLeaf( ))
             _inherit.tasks = TASK_ALL;
         else
             _inherit.tasks = TASK_ASSEMBLE | TASK_READBACK;
@@ -722,9 +724,22 @@ void Compound::_updateInheritData()
         _inherit.tasks = _data.tasks;
 }
 
+void Compound::_updateDrawFinish()
+{
+    if( !testInheritTask( TASK_DRAW ))
+        return;
+
+    Channel* channel = getChannel();
+
+    channel->setLastDrawCompound( this );
+    channel->getWindow()->setLastDrawCompound( this );
+    channel->getPipe()->setLastDrawCompound( this );
+    channel->getNode()->setLastDrawCompound( this );
+}
+
 void Compound::_updateOutput( UpdateData* data )
 {
-    const Channel* channel     = getChannel();
+    const Channel* channel = getChannel();
     if( !testInheritTask( TASK_READBACK ) || _outputFrames.empty( ) || 
         !channel )
 
@@ -878,7 +893,6 @@ void Compound::_updateInput( UpdateData* data )
 void Compound::updateChannel( Channel* channel, const uint32_t frameID )
 {
     UpdateChannelData data = { channel, frameID, eq::EYE_LEFT };
-
     traverseActive( this, _updatePreDrawCB, _updateDrawCB, _updatePostDrawCB,
                     &data );
 
@@ -897,18 +911,21 @@ TraverseResult Compound::_updatePreDrawCB( Compound* compound, void* userData )
     Channel*           channel = data->channel;
 
     if( compound->getChannel() != channel ||
-        !compound->testInheritTask( TASK_CLEAR ) ||
         !( compound->_inherit.eyes & (1<<data->eye) ))
         
         return TRAVERSE_CONTINUE;
 
-    // clear task tested above
-    eq::ChannelFrameClearPacket clearPacket;        
+    compound->_updateDrawFinish( data );
 
-    compound->_setupRenderContext( clearPacket.context, data );
-    channel->send( clearPacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK clear " << channel->getName() <<  " "
-                           << &clearPacket << endl;
+    if( compound->testInheritTask( TASK_CLEAR ))
+    {
+        eq::ChannelFrameClearPacket clearPacket;        
+
+        compound->_setupRenderContext( clearPacket.context, data );
+        channel->send( clearPacket );
+        EQLOG( eq::LOG_TASKS ) << "TASK clear " << channel->getName() <<  " "
+                               << &clearPacket << endl;
+    }
     return TRAVERSE_CONTINUE;
 }
 
@@ -945,6 +962,7 @@ TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
                            << &drawPacket << endl;
     }
     
+    compound->_updateDrawFinish( data );
     compound->_updatePostDraw( context );
     return TRAVERSE_CONTINUE;
 }
@@ -972,6 +990,67 @@ void Compound::_setupRenderContext( eq::RenderContext& context,
     // TODO: pvp size overcommit check?
 
     _computeFrustum( context, data->eye );
+}
+
+void Compound::_updateDrawFinish( const UpdateChannelData* data )
+{
+    if( _inherit.eyes + 1 > static_cast< uint32_t >( 1<<( data->eye + 1 )))
+        // not the last eye pass of this compound
+        return;
+    
+    const Channel* channel = getChannel();
+    Node*    node    = channel->getNode();
+    EQASSERT( channel );
+
+    if( channel->getLastDrawCompound() == this )
+    {
+        eq::ChannelFrameDrawFinishPacket packet;
+        packet.objectID    = channel->getID();
+        packet.frameNumber = _frameNumber;
+        packet.frameID     = data->frameID;
+
+        node->send( packet );
+        EQLOG( eq::LOG_TASKS ) << "TASK channel draw finish " 
+                               << channel->getName() <<  " " << &packet << endl;
+    }
+
+    const Window* window = channel->getWindow();
+    if( window->getLastDrawCompound() == this )
+    {
+        eq::WindowFrameDrawFinishPacket packet;
+        packet.objectID    = window->getID();
+        packet.frameNumber = _frameNumber;
+        packet.frameID     = data->frameID;
+
+        node->send( packet );
+        EQLOG( eq::LOG_TASKS ) << "TASK window draw finish " 
+                               << window->getName() <<  " " << &packet << endl;
+    }
+
+    const Pipe* pipe = channel->getPipe();
+    if( pipe->getLastDrawCompound() == this )
+    {
+        eq::PipeFrameDrawFinishPacket packet;
+        packet.objectID    = pipe->getID();
+        packet.frameNumber = _frameNumber;
+        packet.frameID     = data->frameID;
+
+        node->send( packet );
+        EQLOG( eq::LOG_TASKS ) << "TASK pipe draw finish " 
+                               << pipe->getName() <<  " " << &packet << endl;
+    }
+
+    if( node->getLastDrawCompound() == this )
+    {
+        eq::NodeFrameDrawFinishPacket packet;
+        packet.objectID    = node->getID();
+        packet.frameNumber = _frameNumber;
+        packet.frameID     = data->frameID;
+
+        node->send( packet );
+        EQLOG( eq::LOG_TASKS ) << "TASK node draw finish " 
+                               << node->getName() <<  " " << &packet << endl;
+    }
 }
 
 GLenum Compound::_getDrawBuffer( const UpdateChannelData* data )

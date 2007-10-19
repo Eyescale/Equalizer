@@ -136,6 +136,13 @@ namespace eq
          * @param frameNumber the frame to end.
          */
         void releaseFrame( const uint32_t frameNumber );
+
+        /** 
+         * Release the local synchronization of the parent for a frame.
+         * 
+         * @param frameNumber the frame to release.
+         */
+        void releaseFrameLocal( const uint32_t frameNumber );
         //*}
 
         /**
@@ -187,6 +194,21 @@ namespace eq
         virtual void frameFinish( const uint32_t frameID, 
                                   const uint32_t frameNumber ) 
             { releaseFrame( frameNumber ); }
+
+        /** 
+         * Finish drawing.
+         * 
+         * Called once per frame after the last draw operation. The default
+         * implementation waits for all pipe threads to release the local
+         * synchronization in order to frame-synchronize the node and pipe
+         * threads.
+         *
+         * @param frameID the per-frame identifier.
+         * @param frameNumber the frame to finished with draw.
+         * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
+         */
+        virtual void frameDrawFinish( const uint32_t frameID, 
+                                      const uint32_t frameNumber );
         //*}
 
         /** @name Error information. */
@@ -220,6 +242,9 @@ namespace eq
 
         /** The number of the last started frame. */
         eqBase::Monitor<uint32_t> _currentFrame;
+
+        /** The number of the last locally released frame. */
+        uint32_t                  _unlockedFrame;
 
         /** All barriers mapped by the node. */
         eqNet::IDHash< eqNet::Barrier* > _barriers;
@@ -258,6 +283,7 @@ namespace eq
         eqNet::CommandResult _reqConfigExit( eqNet::Command& command );
         eqNet::CommandResult _reqFrameStart( eqNet::Command& command );
         eqNet::CommandResult _reqFrameFinish( eqNet::Command& command );
+        eqNet::CommandResult _reqFrameDrawFinish( eqNet::Command& command );
 
         CHECK_THREAD_DECLARE( _recvThread );
     };

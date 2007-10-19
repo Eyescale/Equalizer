@@ -252,7 +252,7 @@ void Config::addApplicationNode( Node* node )
     addNode( node );
 }
 
-void Config::setApplicationNode( eqBase::RefPtr<eqNet::Node> node )
+void Config::setApplicationNetNode( eqBase::RefPtr<eqNet::Node> node )
 {
     EQASSERT( _state == STATE_STOPPED );
     EQASSERT( !_appNetNode );
@@ -560,19 +560,19 @@ void Config::_startFrame( const uint32_t frameID )
 {
     EQASSERT( _state == STATE_INITIALIZED );
 
-    const uint32_t nCompounds = this->nCompounds();
-    for( uint32_t i=0; i<nCompounds; ++i )
+    for( vector< Compound* >::const_iterator i = _compounds.begin(); 
+         i != _compounds.end(); ++i )
     {
-        Compound* compound = getCompound( i );
+        Compound* compound = *i;
         compound->update( _currentFrame );
     }
 
-    const uint32_t nNodes = this->nNodes();
-    for( uint32_t i=0; i<nNodes; ++i )
+    for( vector< Node* >::const_iterator i = _nodes.begin(); 
+         i != _nodes.end(); ++i )
     {
-        Node* node = getNode( i );
+        Node* node = *i;
         if( node->isUsed( ))
-            node->startFrame( frameID, _currentFrame );
+            node->update( frameID, _currentFrame );
     }
 }
 
@@ -593,13 +593,6 @@ void Config::_finishFrame( const uint32_t frame )
 {
     EQASSERT( _finishedFrame+1 == frame ); // otherwise app skipped finishFrame
 
-    for( vector<Node*>::const_iterator i = _nodes.begin(); i != _nodes.end();
-         ++i )
-    {
-        Node* node = *i;
-        if( node->isUsed( ))
-            node->finishFrame( frame );
-    }
     for( vector<Node*>::const_iterator i = _nodes.begin(); i != _nodes.end();
          ++i )
     {
@@ -637,6 +630,7 @@ eqNet::CommandResult Config::_reqStartInit( eqNet::Command& command )
     _error.clear();
     vector< eqNet::NodeID::Data > nodeIDs;
     reply.result   = _startInit( packet->initID, nodeIDs );
+    reply.latency  = _latency;
 
     EQINFO << "Config start init " << (reply.result ? "successful": "failed: ") 
            << _error << endl;
@@ -712,10 +706,10 @@ eqNet::CommandResult Config::_reqFinishFrame( eqNet::Command& command )
 {
     const eq::ConfigFinishFramePacket* packet = 
         command.getPacket<eq::ConfigFinishFramePacket>();
-    eq::ConfigFinishFrameReplyPacket   reply( packet );
     EQVERB << "handle config frame finish " << packet << endl;
 
-    reply.result = _finishFrame();
+    eq::ConfigFinishFrameReplyPacket reply;
+    reply.frameNumber = _finishFrame();
     send( command.getNode(), reply );
     return eqNet::COMMAND_HANDLED;
 }
@@ -724,10 +718,10 @@ eqNet::CommandResult Config::_reqFinishAllFrames( eqNet::Command& command )
 {
     const eq::ConfigFinishAllFramesPacket* packet = 
         command.getPacket<eq::ConfigFinishAllFramesPacket>();
-    eq::ConfigFinishAllFramesReplyPacket   reply( packet );
     EQVERB << "handle config all frames finish " << packet << endl;
 
-    reply.result = _finishAllFrames();
+    eq::ConfigFinishAllFramesReplyPacket reply;
+    reply.frameNumber = _finishAllFrames();
     send( command.getNode(), reply );
     return eqNet::COMMAND_HANDLED;
 }

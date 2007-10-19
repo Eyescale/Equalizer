@@ -22,6 +22,7 @@ void eqs::Window::_construct()
     _used             = 0;
     _pipe             = NULL;
     _fixedPVP         = false;
+    _lastDrawCompound = 0;
 
     registerCommand( eq::CMD_WINDOW_CONFIG_INIT_REPLY, 
                eqNet::CommandFunc<Window>( this, &Window::_cmdConfigInitReply));
@@ -250,7 +251,7 @@ void eqs::Window::_sendConfigInit( const uint32_t initID )
         packet.iattr[i] = _iAttributes[i];
     
     _send( packet, _name );
-    EQLOG( eq::LOG_TASKS ) << "TASK configInit  " << &packet << endl;
+    EQLOG( eq::LOG_TASKS ) << "TASK window configInit  " << &packet << endl;
 }
 
 bool eqs::Window::syncConfigInit()
@@ -343,11 +344,18 @@ bool eqs::Window::syncConfigExit()
 void eqs::Window::updateDraw( const uint32_t frameID, 
                               const uint32_t frameNumber )
 {
+    if( !_lastDrawCompound )
+    {
+        Config* config = getConfig();
+        _lastDrawCompound = config->getCompound(0);
+    }
+
     eq::WindowFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
     _send( startPacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK start frame  " << &startPacket << endl;
+    EQLOG( eq::LOG_TASKS ) << "TASK window start frame  " << &startPacket 
+                           << endl;
 
     const uint32_t nChannels = this->nChannels();
     for( uint32_t i=0; i<nChannels; i++ )
@@ -375,7 +383,9 @@ void eqs::Window::updatePost( const uint32_t frameID,
     finishPacket.frameID     = frameID;
     finishPacket.frameNumber = frameNumber;
     _send( finishPacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK end frame  " << &finishPacket << endl;
+    EQLOG( eq::LOG_TASKS ) << "TASK window finish frame  " << &finishPacket
+                           << endl;
+    _lastDrawCompound = 0;
 }
 
 void eqs::Window::_updateSwap()

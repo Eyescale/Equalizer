@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_VOL_NODE_H
@@ -25,6 +25,12 @@ namespace eVolve
 
         virtual bool configInit( const uint32_t initID );
         virtual bool configExit();
+
+        virtual void frameStart( const uint32_t frameID, 
+                                 const uint32_t frameNumber );
+        virtual void frameDrawFinish( const uint32_t frameID,
+                                      const uint32_t frameNumber )
+            { /* nop, see frameStart */ }
 
     private:
         InitData _initData;

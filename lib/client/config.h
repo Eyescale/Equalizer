@@ -96,6 +96,17 @@ namespace eq
          * @return the frame number of the last finished frame.
          */
         virtual uint32_t finishAllFrames();
+
+        /** 
+         * Release the local synchronization of the config for a frame.
+         * 
+         * This is used by the local node to release the local frame
+         * synchronization.
+         *
+         * @param frameNumber the frame to release.
+         */
+        void releaseFrameLocal( const uint32_t frameNumber )
+            { _unlockedFrame = frameNumber; }
         //*}
 
         /** @name Event handling. */
@@ -198,13 +209,22 @@ namespace eq
         Matrix4f _headMatrix;
 
         /** The reason for the last error. */
-        std::string            _error;
+        std::string _error;
 
         /** Registers pending commands waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
 
         /** The receiver->app thread event queue. */
         CommandQueue           _eventQueue;
+
+        /** The maximum number of outstanding frames. */
+        uint32_t _latency;
+        /** The last started frame. */
+        uint32_t _currentFrame;
+        /** The last locally released frame. */
+        uint32_t _unlockedFrame;
+        /** The last completed frame. */
+        uint32_t _finishedFrame;
 
         /** true while the config is initialized and no window has exited. */
         bool _running;

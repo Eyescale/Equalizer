@@ -31,6 +31,7 @@ void Pipe::_construct()
     _node             = 0;
     _port             = EQ_UNDEFINED_UINT32;
     _device           = EQ_UNDEFINED_UINT32;
+    _lastDrawCompound = 0;
 
     registerCommand( eq::CMD_PIPE_CONFIG_INIT_REPLY,
                   eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdConfigInitReply ));
@@ -164,6 +165,7 @@ void Pipe::_sendConfigInit( const uint32_t initID )
     packet.threaded   = getIAttribute( IATTR_HINT_THREAD );
 
     _send( packet, _name );
+    EQLOG( eq::LOG_TASKS ) << "TASK pipe configInit  " << &packet << endl;
 }
 
 bool Pipe::syncConfigInit()
@@ -256,11 +258,18 @@ bool Pipe::syncConfigExit()
 //---------------------------------------------------------------------------
 void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
 {
+    if( !_lastDrawCompound )
+    {
+        Config* config = getConfig();
+        _lastDrawCompound = config->getCompound(0);
+    }
+
     eq::PipeFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
 
     _send( startPacket );
+    EQLOG( eq::LOG_TASKS ) << "TASK pipe start frame " << &startPacket << endl;
 
     const uint32_t nWindows = this->nWindows();
     for( uint32_t i=0; i<nWindows; i++ )
@@ -281,6 +290,9 @@ void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
     finishPacket.frameID     = frameID;
     finishPacket.frameNumber = frameNumber;
     _send( finishPacket );
+    EQLOG( eq::LOG_TASKS ) << "TASK pipe finish frame  " << &finishPacket
+                           << endl;
+    _lastDrawCompound = 0;
 }
 
 //----------------------------------------------------------------------

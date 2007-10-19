@@ -18,6 +18,7 @@
 
 namespace eqs
 {
+    class Compound;
     class PixelViewportListener;
     class Window;
 
@@ -139,6 +140,11 @@ namespace eqs
          */
         void getNearFar( float* nearPlane, float* farPlane ) const 
             { *nearPlane = _near; *farPlane = _far; }
+
+        /** The last drawing compound for this entity. */
+        void setLastDrawCompound( const Compound* compound )
+            { _lastDrawCompound = compound; }
+        const Compound* getLastDrawCompound() const { return _lastDrawCompound;}
         //*}
 
         /**
@@ -261,7 +267,10 @@ namespace eqs
 
         /** The current state for state change synchronization. */
         eqBase::Monitor< State > _state;
-            
+
+        /** The last draw compound for this entity */
+        const Compound* _lastDrawCompound;
+
         /** common code for all constructors */
         void _construct();
 

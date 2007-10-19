@@ -88,6 +88,10 @@ eq::Window::Window()
                      eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
     registerCommand( REQ_WINDOW_SWAP, 
                      eqNet::CommandFunc<Window>( this, &Window::_reqSwap));
+    registerCommand( CMD_WINDOW_FRAME_DRAW_FINISH, 
+                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
+    registerCommand( REQ_WINDOW_FRAME_DRAW_FINISH, 
+              eqNet::CommandFunc<Window>( this, &Window::_reqFrameDrawFinish ));
 }
 
 eq::Window::~Window()
@@ -1482,6 +1486,17 @@ eqNet::CommandResult eq::Window::_reqSwap(eqNet::Command& command )
 {
     _pipe->testMakeCurrentWindow( this );
     swapBuffers();
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult eq::Window::_reqFrameDrawFinish( eqNet::Command& command )
+{
+    WindowFrameDrawFinishPacket* packet = 
+        command.getPacket< WindowFrameDrawFinishPacket >();
+    EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
+                       << endl;
+
+    frameDrawFinish( packet->frameID, packet->frameNumber );
     return eqNet::COMMAND_HANDLED;
 }
 

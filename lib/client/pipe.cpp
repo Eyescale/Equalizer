@@ -61,6 +61,10 @@ Pipe::Pipe()
                      eqNet::CommandFunc<Pipe>( this, &Pipe::pushCommand ));
     registerCommand( REQ_PIPE_FRAME_FINISH,
                      eqNet::CommandFunc<Pipe>( this, &Pipe::_reqFrameFinish ));
+    registerCommand( CMD_PIPE_FRAME_DRAW_FINISH, 
+                     eqNet::CommandFunc<Pipe>( this, &Pipe::pushCommand ));
+    registerCommand( REQ_PIPE_FRAME_DRAW_FINISH, 
+                  eqNet::CommandFunc<Pipe>( this, &Pipe::_reqFrameDrawFinish ));
 }
 
 Pipe::~Pipe()
@@ -536,6 +540,12 @@ void Pipe::configExitWGL()
 #endif
 }
 
+void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber ) 
+{ 
+    getNode()->waitFrameStarted( frameNumber );
+    startFrame( frameNumber );
+}
+
 void Pipe::initEventHandler()
 {
     EQASSERT( !_eventHandler );
@@ -555,6 +565,12 @@ void Pipe::releaseFrame( const uint32_t frameNumber )
     _statEvents.clear();
     _finishedFrame = frameNumber; 
     EQLOG( LOG_TASKS ) << "---- Released Frame --- " << frameNumber << endl;
+}
+
+void Pipe::releaseFrameLocal( const uint32_t frameNumber )
+{ 
+    _unlockedFrame = frameNumber; 
+    EQLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << frameNumber << endl;
 }
 
 bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
@@ -780,6 +796,9 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
     _port         = packet->port;
     _device       = packet->device;
     _pvp          = packet->pvp;
+    
+    _finishedFrame = 0;
+    _unlockedFrame = 0;
 
     PipeConfigInitReplyPacket reply;
     _node->waitInitialized();
@@ -897,11 +916,7 @@ eqNet::CommandResult Pipe::_reqFrameStart( eqNet::Command& command )
     _frameClocks.pop_front();
     _frameClockMutex.unset();
 
-    _grabFrame( packet->frameNumber );
-    EQLOG( LOG_TASKS ) << "---- Grabbed Frame ---- " << packet->frameNumber
-                     << endl;
     frameStart( packet->frameID, packet->frameNumber );
-
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -918,5 +933,24 @@ eqNet::CommandResult Pipe::_reqFrameFinish( eqNet::Command& command )
                   "Pipe::frameFinish() did not release frame " 
                   << packet->frameNumber );
 
+
+    if( _unlockedFrame < packet->frameNumber )
+    {
+        EQWARN << "Finished frame was not locally unlocked, enforcing unlock" 
+               << endl;
+        releaseFrameLocal( packet->frameNumber );
+    }
+
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Pipe::_reqFrameDrawFinish( eqNet::Command& command )
+{
+    PipeFrameDrawFinishPacket* packet = 
+        command.getPacket< PipeFrameDrawFinishPacket >();
+    EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
+                       << endl;
+
+    frameDrawFinish( packet->frameID, packet->frameNumber );
     return eqNet::COMMAND_HANDLED;
 }

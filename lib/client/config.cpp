@@ -17,12 +17,18 @@
 #include <eq/net/command.h>
 #include <eq/net/global.h>
 
-using namespace eq;
 using namespace eqBase;
 using namespace std;
 
+namespace eq
+{
+
 Config::Config()
         : Session( true )
+        , _latency( 0 )
+        , _currentFrame( 0 )
+        , _unlockedFrame( 0 )
+        , _finishedFrame( 0 )
         , _running( false )
 {
     registerCommand( CMD_CONFIG_CREATE_NODE,
@@ -106,6 +112,10 @@ Node* Config::_findNode( const uint32_t id )
 
 bool Config::_startInit( const uint32_t initID )
 {
+    _currentFrame = 0;
+    _unlockedFrame = 0;
+    _finishedFrame = 0;
+
     ConfigStartInitPacket packet;
     packet.requestID    = _requestHandler.registerRequest();
     packet.initID       = initID;
@@ -140,6 +150,8 @@ bool Config::_finishInit()
 
     if( !_running )
         deregisterObject( &_headMatrix );
+
+    handleEvents();
     return _running;
 }
 
@@ -170,10 +182,11 @@ uint32_t Config::startFrame( const uint32_t frameID )
     packet.requestID = _requestHandler.registerRequest();
     packet.frameID   = frameID;
 
+    const uint32_t frameNumber = _currentFrame + 1;
     send( packet );
 
-    uint32_t frameNumber = 0;
-    _requestHandler.waitRequest( packet.requestID, frameNumber );
+    _requestHandler.waitRequest( packet.requestID );
+    EQASSERT( frameNumber == _currentFrame );
     EQLOG( LOG_ANY ) << "---- Started Frame ---- " << frameNumber << endl;
     return frameNumber;
 }
@@ -181,39 +194,35 @@ uint32_t Config::startFrame( const uint32_t frameID )
 uint32_t Config::finishFrame()
 {
     ConfigFinishFramePacket packet;
-    packet.requestID = _requestHandler.registerRequest();
-
     send( packet );
 
-    RefPtr< Client > client = getClient();
-    while( !_requestHandler.isServed( packet.requestID ))
+    RefPtr< Client > client        = getClient();
+    const uint32_t   frameToFinish = (_currentFrame >= _latency) ? 
+                                      _currentFrame - _latency : 0;
+    while( _unlockedFrame < _currentFrame || // local sync
+           _finishedFrame < frameToFinish )  // global sync
+
         client->processCommand();
 
-    uint32_t frameNumber = 0;
-    _requestHandler.waitRequest( packet.requestID, frameNumber );
-
     handleEvents();
-    EQLOG( LOG_ANY ) << "----- Finish Frame ---- " << frameNumber << endl;
-    return frameNumber;
+    EQLOG( LOG_ANY ) << "----- Finish Frame ---- " << frameToFinish << endl;
+    return frameToFinish;
 }
 
 uint32_t Config::finishAllFrames()
 {
     ConfigFinishAllFramesPacket packet;
-    packet.requestID = _requestHandler.registerRequest();
     send( packet );
 
     RefPtr< Client > client = getClient();
-    while( !_requestHandler.isServed( packet.requestID ))
+    while( _finishedFrame < _currentFrame )
         client->processCommand();
-
-    uint32_t frameNumber = 0;
-    _requestHandler.waitRequest( packet.requestID, frameNumber );
 
     handleEvents();
     EQLOG( LOG_ANY ) << "-- Finish All Frames --" << endl;
-    return frameNumber;
+    return _currentFrame;
 }
+
 
 void Config::sendEvent( ConfigEvent& event )
 {
@@ -396,6 +405,7 @@ eqNet::CommandResult Config::_reqStartInitReply( eqNet::Command& command )
         _error = packet->data.error;
 #endif
 
+    _latency = packet->latency;
     _requestHandler.serveRequest( packet->requestID, (void*)(packet->result) );
     return eqNet::COMMAND_HANDLED;
 }
@@ -448,7 +458,11 @@ eqNet::CommandResult Config::_cmdStartFrameReply( eqNet::Command& command )
         _clientNodeIDs.push_back( packet->nodeIDs[i] );
 #endif
 
-    _requestHandler.serveRequest( packet->requestID, packet->frameNumber );
+    _currentFrame = packet->frameNumber;
+    if( _nodes.empty( )) // no local rendering - release sync immediately
+        releaseFrameLocal( packet->frameNumber );
+
+    _requestHandler.serveRequest( packet->requestID );
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -458,7 +472,15 @@ eqNet::CommandResult Config::_reqFinishFrameReply( eqNet::Command& command )
         command.getPacket<ConfigFinishFrameReplyPacket>();
     EQVERB << "handle frame finish reply " << packet << endl;
 
-    _requestHandler.serveRequest( packet->requestID, packet->result );
+    _finishedFrame = packet->frameNumber;
+
+    if( _unlockedFrame < _finishedFrame )
+    {
+        EQWARN << "Finished frame was not locally unlocked, enforcing unlock" 
+               << endl;
+        _unlockedFrame = _finishedFrame;
+    }
+
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -468,7 +490,7 @@ eqNet::CommandResult Config::_reqFinishAllFramesReply( eqNet::Command& command )
         command.getPacket<ConfigFinishAllFramesReplyPacket>();
     EQVERB << "handle all frames finish reply " << packet << endl;
 
-    _requestHandler.serveRequest( packet->requestID, packet->result );
+    _finishedFrame = packet->frameNumber;
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -498,3 +520,4 @@ eqNet::CommandResult Config::_cmdData( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 #endif
+}

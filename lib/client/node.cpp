@@ -24,6 +24,7 @@ using namespace std;
 
 Node::Node()
         : _config(0)
+        , _unlockedFrame( 0 )
 {
     registerCommand( CMD_NODE_CREATE_PIPE, 
                      eqNet::CommandFunc<Node>( this, &Node::_cmdCreatePipe ));
@@ -45,6 +46,10 @@ Node::Node()
                      eqNet::CommandFunc<Node>( this, &Node::_cmdPush ));
     registerCommand( REQ_NODE_FRAME_FINISH,
                      eqNet::CommandFunc<Node>( this, &Node::_reqFrameFinish ));
+    registerCommand( CMD_NODE_FRAME_DRAW_FINISH, 
+                     eqNet::CommandFunc<Node>( this, &Node::_cmdPush ));
+    registerCommand( REQ_NODE_FRAME_DRAW_FINISH, 
+                  eqNet::CommandFunc<Node>( this, &Node::_reqFrameDrawFinish ));
 
     EQINFO << " New eq::Node @" << (void*)this << endl;
 }
@@ -194,7 +199,8 @@ void Node::_finishFrame( const uint32_t frameNumber )
     for( vector<Pipe*>::const_iterator i = _pipes.begin(); i != _pipes.end(); 
          ++i )
     {
-        Pipe* pipe = *i;
+        const Pipe* pipe = *i;
+        pipe->waitFrameLocal( frameNumber );
         pipe->waitFrameFinished( frameNumber );
     }
 }
@@ -213,6 +219,29 @@ void Node::releaseFrame( const uint32_t frameNumber )
 
     _config->getServer()->send( packet, statEvents );
     _recycleStatEvents( frameNumber );
+}
+
+void Node::releaseFrameLocal( const uint32_t frameNumber )
+{
+    EQASSERT( _unlockedFrame <= frameNumber );
+    _unlockedFrame = frameNumber;
+    
+    Config* config = getConfig();
+    EQASSERT( config->getNodes().size() == 1 );
+    EQASSERT( config->getNodes()[0] == this );
+    config->releaseFrameLocal( frameNumber );
+}
+
+void Node::frameDrawFinish( const uint32_t frameID, const uint32_t frameNumber )
+{ 
+    for( vector<Pipe*>::const_iterator i = _pipes.begin(); i != _pipes.end(); 
+         ++i )
+    {
+        const Pipe* pipe = *i;
+        pipe->waitFrameLocal( frameNumber );
+    }
+
+    releaseFrameLocal( frameNumber );
 }
 
 void Node::_flushObjects()
@@ -319,6 +348,8 @@ eqNet::CommandResult Node::_reqConfigInit( eqNet::Command& command )
     EQINFO << "handle node config init " << packet << endl;
 
     _name = packet->name;
+    _currentFrame  = 0;
+    _unlockedFrame = 0;
 
     _error.clear();
     NodeConfigInitReplyPacket reply;
@@ -382,6 +413,23 @@ eqNet::CommandResult Node::_reqFrameFinish( eqNet::Command& command )
     EQLOG( LOG_TASKS ) << "---- Finished Frame --- " << packet->frameNumber
                        << endl;
 
+    if( _unlockedFrame < packet->frameNumber )
+    {
+        EQWARN << "Finished frame was not locally unlocked, enforcing unlock" 
+               << endl;
+        releaseFrameLocal( packet->frameNumber );
+    }
+
     return eqNet::COMMAND_HANDLED;
 }
 
+eqNet::CommandResult Node::_reqFrameDrawFinish( eqNet::Command& command )
+{
+    NodeFrameDrawFinishPacket* packet = 
+        command.getPacket< NodeFrameDrawFinishPacket >();
+    EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
+                       << endl;
+
+    frameDrawFinish( packet->frameID, packet->frameNumber );
+    return eqNet::COMMAND_HANDLED;
+}

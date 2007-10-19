@@ -196,6 +196,15 @@ namespace eq
         void waitFrameFinished( const uint32_t frameNumber ) const
             { _finishedFrame.waitGE( frameNumber ); }
 
+        /** 
+         * Wait for a frame to be released locally.
+         * 
+         * @param frameNumber the frame number.
+         * @sa releaseFrameLocal()
+         */
+        void waitFrameLocal( const uint32_t frameNumber ) const
+            { _unlockedFrame.waitGE( frameNumber ); }
+
         /** Wait for the pipe to exit. */
         void waitExit();
 
@@ -243,6 +252,13 @@ namespace eq
          * @param frameNumber the frame to end.
          */
         void releaseFrame( const uint32_t frameNumber );
+
+        /** 
+         * Release the local synchronization of the parent for a frame.
+         * 
+         * @param frameNumber the frame to release.
+         */
+        void releaseFrameLocal( const uint32_t frameNumber );
         //*}
 
         /**
@@ -294,16 +310,17 @@ namespace eq
          * Start rendering a frame.
          *
          * Called once at the beginning of each frame, to do per-frame updates
-         * of pipe-specific data, for example updating the rendering
-         * engine. This method has to call startFrame().
+         * of pipe-specific data, for example updating the rendering engine. The
+         * default implementation waits for the node to start the frame. This
+         * method has to call startFrame().
          *
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame to start.
-         * @sa Config::beginFrame()
+         * @sa Config::beginFrame(), Node::startFrame(), 
+         *     Node::waitFrameStarted()
          */
         virtual void frameStart( const uint32_t frameID, 
-                                 const uint32_t frameNumber ) 
-            { startFrame( frameNumber ); }
+                                 const uint32_t frameNumber );
 
         /**
          * Finish rendering a frame.
@@ -318,6 +335,19 @@ namespace eq
         virtual void frameFinish( const uint32_t frameID, 
                                   const uint32_t frameNumber ) 
             { releaseFrame( frameNumber ); }
+
+        /** 
+         * Finish drawing.
+         * 
+         * Called once per frame after the last draw operation. Typically
+         * releases the local node thread synchronization for this frame.
+         *
+         * @param frameID the per-frame identifier.
+         * @param frameNumber the frame to finished with draw.
+         */
+        virtual void frameDrawFinish( const uint32_t frameID, 
+                                      const uint32_t frameNumber )
+            { releaseFrameLocal( frameNumber ); }
 
         /**
          * Initialize the event handling for this pipe. 
@@ -410,6 +440,9 @@ namespace eq
         /** The number of the last finished frame. */
         eqBase::Monitor<uint32_t> _finishedFrame;
 
+        /** The number of the last locally unlocked frame. */
+        eqBase::Monitor<uint32_t> _unlockedFrame;
+
         /** The running per-frame statistic clocks. */
         std::deque<eqBase::Clock> _frameClocks;
 		eqBase::SpinLock          _frameClockMutex;
@@ -451,9 +484,6 @@ namespace eq
 
         void _flushFrames();
 
-        void _grabFrame( const uint32_t frameNumber ) const
-            { _node->waitFrameStarted( frameNumber ); }
-
         /* The command functions. */
         eqNet::CommandResult _cmdCreateWindow( eqNet::Command& command );
         eqNet::CommandResult _cmdDestroyWindow( eqNet::Command& command );
@@ -464,6 +494,7 @@ namespace eq
         eqNet::CommandResult _cmdFrameStart( eqNet::Command& command );
         eqNet::CommandResult _reqFrameStart( eqNet::Command& command );
         eqNet::CommandResult _reqFrameFinish( eqNet::Command& command );
+        eqNet::CommandResult _reqFrameDrawFinish( eqNet::Command& command );
     };
 }
 

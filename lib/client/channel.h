@@ -177,6 +177,13 @@ namespace eq
          * @param frameNumber the frame to end.
          */
         void releaseFrame( const uint32_t frameNumber ) { /* currently nop */ }
+
+        /** 
+         * Release the local synchronization of the parent for a frame.
+         * 
+         * @param frameNumber the frame to release.
+         */
+        void releaseFrameLocal( const uint32_t frameNumber ) { /* nop */ }
         //*}
 
         /**
@@ -224,6 +231,19 @@ namespace eq
         virtual void frameFinish( const uint32_t frameID, 
                                   const uint32_t frameNumber ) 
             { releaseFrame( frameNumber ); }
+
+        /** 
+         * Finish drawing.
+         * 
+         * Called once per frame after the last draw operation. Typically
+         * releases the local node thread synchronization for this frame.
+         *
+         * @param frameID the per-frame identifier.
+         * @param frameNumber the frame to finished with draw.
+         */
+        virtual void frameDrawFinish( const uint32_t frameID, 
+                                      const uint32_t frameNumber )
+            { releaseFrameLocal( frameNumber ); }
 
         /** 
          * Clear the frame buffer.
@@ -373,6 +393,7 @@ namespace eq
         eqNet::CommandResult _reqFrameFinish( eqNet::Command& command );
         eqNet::CommandResult _reqFrameClear( eqNet::Command& command );
         eqNet::CommandResult _reqFrameDraw( eqNet::Command& command );
+        eqNet::CommandResult _reqFrameDrawFinish( eqNet::Command& command );
         eqNet::CommandResult _reqFrameAssemble( eqNet::Command& command );
         eqNet::CommandResult _reqFrameReadback( eqNet::Command& command );
         eqNet::CommandResult _reqFrameTransmit( eqNet::Command& command );

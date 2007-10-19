@@ -28,4 +28,12 @@ bool Node::configExit()
     return eq::Node::configExit();
 }
 
+void Node::frameStart( const uint32_t frameID, const uint32_t frameNumber )
+{
+    startFrame( frameNumber ); // unlock pipe threads
+    
+    // Don't wait for pipes to release frame locally, sync not needed since all
+    // dynamic data is multi-buffered
+    releaseFrameLocal( frameNumber );
+}
 }

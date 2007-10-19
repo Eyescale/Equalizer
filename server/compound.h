@@ -352,7 +352,7 @@ namespace eqs
                                               void* userData );
 
         /** 
-         * Initialises this compound.
+         * Initializes this compound.
          */
         void init();
 
@@ -493,6 +493,7 @@ namespace eqs
         static TraverseResult _updateOutputCB( Compound* compound, void* );
         static TraverseResult _updateInputCB( Compound* compound, void* );
         void _updateInheritData();
+        void _updateDrawFinish();
         void _updateSwapBarriers( UpdateData* data );
         void _updateOutput( UpdateData* data );
         void _updateInput( UpdateData* data );
@@ -508,6 +509,7 @@ namespace eqs
         static TraverseResult _updatePreDrawCB(Compound* compound, void* );
         static TraverseResult _updateDrawCB(Compound* compound, void* );
         static TraverseResult _updatePostDrawCB( Compound* compound, void* );
+        void _updateDrawFinish( const UpdateChannelData* data );
         void _updatePostDraw( const eq::RenderContext& context );
         void   _updateAssemble( const eq::RenderContext& context );
         void   _updateReadback( const eq::RenderContext& context );

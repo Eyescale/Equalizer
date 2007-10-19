@@ -15,6 +15,7 @@
 
 namespace eqs
 {
+    class Compound;
     class Pipe;
     class Server;
 
@@ -101,6 +102,11 @@ namespace eqs
 
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
+
+        /** The last drawing compound for this entity. */
+        void setLastDrawCompound( const Compound* compound )
+            { _lastDrawCompound = compound; }
+        const Compound* getLastDrawCompound() const { return _lastDrawCompound;}
         //*}
 
         /**
@@ -142,15 +148,7 @@ namespace eqs
          *                methods.
          * @param frameNumber the number of the frame.
          */
-        void startFrame( const uint32_t frameID, const uint32_t frameNumber );
-
-        /**
-         * Trigger the finish rendering of a frame.
-         *
-         * @param frame the number of the frame to complete.
-         */
-        void finishFrame( const uint32_t frame )
-            { _sendFrameTasks( frame, _node->getConnection( )); }
+        void update( const uint32_t frameID, const uint32_t frameNumber );
 
         /** 
          * Synchronize the completion of the rendering of a frame.
@@ -234,10 +232,10 @@ namespace eqs
             { return _connectionDescriptions[index]; }
 
         /** @name Error information. */
-        //@{
+        //*{
         /** @return the error message from the last operation. */
         const std::string& getErrorMessage() const { return _error; }
-        //@}
+        //*}
 
     protected:
         virtual ~Node();
@@ -291,25 +289,14 @@ namespace eqs
         /** Task packets for the current operation. */
         eqNet::BufferConnection _bufferedTasks;
 
-        /** Stored tasks for a given frame. */
-        struct FrameTasks
-        {
-            uint32_t                frame;
-            eqNet::BufferConnection tasks;
-        };
-        /** The list of store frame tasks. */
-        std::vector<FrameTasks> _frameTasks;
+        /** The last draw compound for this entity */
+        const Compound* _lastDrawCompound;
 
         /** common code for all constructors */
         void _construct();
 
         /** flush cached barriers. */
         void _flushBarriers();
-
-        void _storeFrameTasks( const uint32_t frame, 
-                               eqNet::BufferConnection& tasks );
-        void _sendFrameTasks( const uint32_t frame, 
-                              eqBase::RefPtr<eqNet::Connection> connection );
 
         void _send( eqNet::ObjectPacket& packet ) 
             { packet.objectID = getID(); send( packet ); }

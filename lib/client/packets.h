@@ -241,6 +241,7 @@ namespace eq
 
         uint32_t requestID;
         uint32_t nNodeIDs;
+        uint32_t latency;
         bool     result;
 
         union ReturnData
@@ -334,20 +335,16 @@ namespace eq
                 command   = CMD_CONFIG_FINISH_FRAME;
                 size      = sizeof( ConfigFinishFramePacket );
             }
-        uint32_t requestID;
     };
 
     struct ConfigFinishFrameReplyPacket : public ConfigPacket
     {
-        ConfigFinishFrameReplyPacket( const ConfigFinishFramePacket* 
-                                      requestPacket )
+        ConfigFinishFrameReplyPacket()
             {
                 command   = CMD_CONFIG_FINISH_FRAME_REPLY;
                 size      = sizeof( ConfigFinishFrameReplyPacket );
-                requestID = requestPacket->requestID;
             }
-        uint32_t requestID;
-        uint32_t result;
+        uint32_t frameNumber;
     };
 
     struct ConfigFinishAllFramesPacket : public ConfigPacket
@@ -357,20 +354,16 @@ namespace eq
                 command   = CMD_CONFIG_FINISH_ALL_FRAMES;
                 size      = sizeof( ConfigFinishAllFramesPacket );
             }
-        uint32_t requestID;
     };
 
     struct ConfigFinishAllFramesReplyPacket : public ConfigPacket
     {
-        ConfigFinishAllFramesReplyPacket( const ConfigFinishAllFramesPacket* 
-                                       requestPacket )
+        ConfigFinishAllFramesReplyPacket()
             {
                 command   = CMD_CONFIG_FINISH_ALL_FRAMES_REPLY;
                 size      = sizeof( ConfigFinishAllFramesReplyPacket );
-                requestID = requestPacket->requestID;
             }
-        uint32_t requestID;
-        uint32_t result;
+        uint32_t frameNumber;
     };
 
 #ifdef EQ_TRANSMISSION_API
@@ -493,6 +486,17 @@ namespace eq
         uint32_t nStatEvents;
         EQ_ALIGN8( StatEvent statEvents[1] );
     };
+        
+    struct NodeFrameDrawFinishPacket : public eqNet::ObjectPacket
+    {
+        NodeFrameDrawFinishPacket()
+            {
+                command       = CMD_NODE_FRAME_DRAW_FINISH;
+                size          = sizeof( NodeFrameDrawFinishPacket );
+            }
+        uint32_t frameID;
+        uint32_t frameNumber;
+    };
 
     //------------------------------------------------------------
     // Pipe
@@ -590,6 +594,17 @@ namespace eq
                 size           = sizeof( PipeFrameFinishPacket );
             }
 
+        uint32_t frameID;
+        uint32_t frameNumber;
+    };
+        
+    struct PipeFrameDrawFinishPacket : public eqNet::ObjectPacket
+    {
+        PipeFrameDrawFinishPacket()
+            {
+                command       = CMD_PIPE_FRAME_DRAW_FINISH;
+                size          = sizeof( PipeFrameDrawFinishPacket );
+            }
         uint32_t frameID;
         uint32_t frameNumber;
     };
@@ -733,6 +748,17 @@ namespace eq
         uint32_t frameID;
         uint32_t frameNumber;
     };
+        
+    struct WindowFrameDrawFinishPacket : public eqNet::ObjectPacket
+    {
+        WindowFrameDrawFinishPacket()
+            {
+                command       = CMD_WINDOW_FRAME_DRAW_FINISH;
+                size          = sizeof( WindowFrameDrawFinishPacket );
+            }
+        uint32_t frameID;
+        uint32_t frameNumber;
+    };
 
     //------------------------------------------------------------
     // Channel
@@ -825,6 +851,18 @@ namespace eq
         uint32_t frameNumber;
     };
 
+    struct ChannelFrameDrawFinishPacket : public eqNet::ObjectPacket
+    {
+        ChannelFrameDrawFinishPacket()
+            {
+                command       = CMD_CHANNEL_FRAME_DRAW_FINISH;
+                size          = sizeof( ChannelFrameDrawFinishPacket );
+            }
+
+        uint32_t frameID;
+        uint32_t frameNumber;
+    };
+        
     struct ChannelTaskPacket : public eqNet::ObjectPacket
     {
         RenderContext context;
@@ -988,13 +1026,6 @@ namespace eq
     }
 
     inline std::ostream& operator << ( std::ostream& os, 
-                                       const NodeCreatePipePacket* packet )
-    {
-        os << (eqNet::ObjectPacket*)packet << " id " << packet->pipeID;
-        return os;
-    }
-
-    inline std::ostream& operator << ( std::ostream& os, 
                                      const ConfigStartFrameReplyPacket* packet )
     {
         os << (ConfigPacket*)packet << " frame #" << packet->frameNumber
@@ -1003,6 +1034,20 @@ namespace eq
         for( uint32_t i=0 ; i<4 && i<packet->nNodeIDs; ++i )
             os << " " << i << ":" << packet->nodeIDs[i];
 
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const NodeCreatePipePacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " id " << packet->pipeID;
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const NodeFrameDrawFinishPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber;
         return os;
     }
 

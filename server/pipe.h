@@ -13,6 +13,7 @@
 
 namespace eqs
 {
+    class Compound;
     class Config;
     class Server;
     class Window;
@@ -130,6 +131,11 @@ namespace eqs
 
         /** @return the pixel viewport. */
         const eq::PixelViewport& getPixelViewport() const { return _pvp; }
+
+        /** The last drawing compound for this entity. */
+        void setLastDrawCompound( const Compound* compound )
+            { _lastDrawCompound = compound; }
+        const Compound* getLastDrawCompound() const { return _lastDrawCompound;}
         //*}
 
         /**
@@ -241,6 +247,9 @@ namespace eqs
 
         /** The absolute size and position of the pipe. */
         eq::PixelViewport _pvp;
+
+        /** The last draw compound for this entity */
+        const Compound* _lastDrawCompound;
 
         /** common code for all constructors */
         void _construct();

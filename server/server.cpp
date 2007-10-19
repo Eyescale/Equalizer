@@ -146,7 +146,7 @@ eqNet::CommandResult Server::_reqChooseConfig( eqNet::Command& command )
     }
 
     Config* appConfig = new Config( *config );
-    appConfig->setApplicationNode( node );
+    appConfig->setApplicationNetNode( node );
 
     mapConfig( appConfig );
 
@@ -197,7 +197,7 @@ eqNet::CommandResult Server::_reqUseConfig( eqNet::Command& command )
     }
 
     EQINFO << "Using config: " << endl << Global::instance() << config << endl;
-    config->setApplicationNode( node );
+    config->setApplicationNetNode( node );
     mapConfig( config );
 
     config->setWorkDir( workDir );

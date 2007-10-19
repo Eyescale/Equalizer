@@ -155,7 +155,7 @@ namespace eqs
          * 
          * @param node the application node.
          */
-        void setApplicationNode( eqBase::RefPtr<eqNet::Node> node );
+        void setApplicationNetNode( eqBase::RefPtr<eqNet::Node> node );
 
         /** 
          * Set the name of the render client executable. 

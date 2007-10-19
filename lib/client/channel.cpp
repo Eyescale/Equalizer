@@ -53,6 +53,10 @@ Channel::Channel()
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_FRAME_DRAW, 
                   eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameDraw ));
+    registerCommand( CMD_CHANNEL_FRAME_DRAW_FINISH, 
+                   eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
+    registerCommand( REQ_CHANNEL_FRAME_DRAW_FINISH, 
+            eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameDrawFinish ));
     registerCommand( CMD_CHANNEL_FRAME_ASSEMBLE, 
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_FRAME_ASSEMBLE, 
@@ -482,6 +486,24 @@ eqNet::CommandResult Channel::_reqFrameDraw( eqNet::Command& command )
     _context = &packet->context;
 
     frameDraw( packet->context.frameID );
+
+    if( getIAttribute( IATTR_HINT_STATISTICS ))
+        pipe->addStatEvent( event );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Channel::_reqFrameDrawFinish( eqNet::Command& command )
+{
+    ChannelFrameDrawFinishPacket* packet = 
+        command.getPacket< ChannelFrameDrawFinishPacket >();
+    EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
+                       << endl;
+
+    Pipe* pipe = getPipe();
+    StatEvent event( StatEvent::CHANNEL_DRAW_FINISH, this, 
+                     pipe->getFrameTime( ));
+
+    frameDrawFinish( packet->frameID, packet->frameNumber );
 
     if( getIAttribute( IATTR_HINT_STATISTICS ))
         pipe->addStatEvent( event );

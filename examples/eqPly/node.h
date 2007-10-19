@@ -24,6 +24,12 @@ namespace eqPly
         virtual bool configInit( const uint32_t initID );
         virtual bool configExit();
 
+        virtual void frameStart( const uint32_t frameID, 
+                                 const uint32_t frameNumber );
+        virtual void frameDrawFinish( const uint32_t frameID,
+                                      const uint32_t frameNumber )
+            { /* nop, see frameStart */ }
+
     private:
         InitData _initData;
         Model*   _model;

@@ -16,6 +16,7 @@
 
 namespace eqs
 {
+    class Compound;
     class Channel;
     class Pipe;
 
@@ -167,6 +168,11 @@ namespace eqs
          * @param barrier the swap barrier.
          */
         void joinSwapBarrier( eqNet::Barrier* barrier );
+
+        /** The last drawing compound for this entity. */
+        void setLastDrawCompound( const Compound* compound )
+            { _lastDrawCompound = compound; }
+        const Compound* getLastDrawCompound() const { return _lastDrawCompound;}
         //*}
 
         /**
@@ -285,6 +291,9 @@ namespace eqs
         /** The list of slave swap barriers for the current frame. */
         std::vector<eqNet::Barrier*> _swapBarriers;
         
+        /** The last draw compound for this entity */
+        const Compound* _lastDrawCompound;
+
         /** common code for all constructors */
         void _construct();
 

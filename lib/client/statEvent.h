@@ -20,6 +20,7 @@ namespace eq
         {
             CHANNEL_CLEAR,
             CHANNEL_DRAW,
+            CHANNEL_DRAW_FINISH,
             CHANNEL_ASSEMBLE,
             CHANNEL_READBACK,
             CHANNEL_TRANSMIT,

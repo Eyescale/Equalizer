@@ -27,6 +27,7 @@ void Node::_construct()
 {
     _used             = 0;
     _config           = NULL;
+    _lastDrawCompound = 0;
 
     registerCommand( eq::CMD_NODE_CONFIG_INIT_REPLY, 
                   eqNet::CommandFunc<Node>( this, &Node::_cmdConfigInitReply ));
@@ -120,6 +121,7 @@ void Node::startConfigInit( const uint32_t initID )
     eq::NodeConfigInitPacket packet;
     packet.initID = initID;
     _send( packet, _name );
+    EQLOG( eq::LOG_TASKS ) << "TASK pipe configInit  " << &packet << endl;
 
     eq::NodeCreatePipePacket createPipePacket;
     for( PipeIter i = _pipes.begin(); i != _pipes.end(); ++i )
@@ -221,31 +223,27 @@ bool Node::syncConfigExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Node::startFrame( const uint32_t frameID, const uint32_t frameNumber )
+void Node::update( const uint32_t frameID, const uint32_t frameNumber )
 {
     EQVERB << "Start frame" << endl;
+
+    if( !_lastDrawCompound )
+    {
+        Config* config = getConfig();
+        _lastDrawCompound = config->getCompound(0);
+    }
 
     eq::NodeFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
     _send( startPacket );
+    EQLOG( eq::LOG_TASKS ) << "TASK node start frame " << &startPacket << endl;
 
-    // Threaded pipes update
     const uint32_t nPipes = this->nPipes();
     for( uint32_t i=0; i<nPipes; i++ )
     {
         Pipe* pipe = getPipe( i );
-        if( pipe->isUsed() && pipe->getIAttribute( Pipe::IATTR_HINT_THREAD ))
-            pipe->update( frameID, frameNumber );
-    }
-
-    _bufferedTasks.sendBuffer( _node->getConnection( ));
-
-    // Nonthreaded pipes update
-    for( uint32_t i=0; i<nPipes; i++ )
-    {
-        Pipe* pipe = getPipe( i );
-        if( pipe->isUsed() && !pipe->getIAttribute( Pipe::IATTR_HINT_THREAD ))
+        if( pipe->isUsed( ))
             pipe->update( frameID, frameNumber );
     }
 
@@ -253,61 +251,12 @@ void Node::startFrame( const uint32_t frameID, const uint32_t frameNumber )
     finishPacket.frameID     = frameID;
     finishPacket.frameNumber = frameNumber;
     _send( finishPacket );
+    EQLOG( eq::LOG_TASKS ) << "TASK node finish frame  " << &finishPacket
+                           << endl;
 
-    _storeFrameTasks( frameNumber, _bufferedTasks );
+    _bufferedTasks.sendBuffer( _node->getConnection( ));
+    _lastDrawCompound = 0;
 }
-
-void Node::_storeFrameTasks( const uint32_t frame, 
-                             eqNet::BufferConnection& tasks )
-{
-#ifndef NDEBUG
-    // check that we haven't already saved a buffer for frame
-    for( vector<FrameTasks>::const_iterator i = _frameTasks.begin(); 
-         i != _frameTasks.end(); ++i )
-    {
-        const FrameTasks& frameTasks = *i;
-        EQASSERT( frameTasks.frame != frame );
-    }
-#endif
-
-    // look for free container
-    for( vector<FrameTasks>::iterator i = _frameTasks.begin(); 
-         i != _frameTasks.end(); ++i )
-    {
-        FrameTasks& frameTasks = *i;
-        if( frameTasks.frame == 0 )
-        {
-            frameTasks.tasks.swap( tasks );
-            frameTasks.frame = frame;
-            return;
-        }
-    }
-    // else no free container - alloc new.
-
-    _frameTasks.resize( _frameTasks.size() + 1 );
-    FrameTasks& frameTasks = _frameTasks.back();
-    frameTasks.tasks.swap( tasks );
-    frameTasks.frame = frame;
-}
-
-void Node::_sendFrameTasks( const uint32_t frame, 
-                            RefPtr<eqNet::Connection> connection )
-{
-    // look for container with frame
-    for( vector<FrameTasks>::iterator i = _frameTasks.begin(); 
-         i != _frameTasks.end(); ++i )
-    {
-        FrameTasks& frameTasks = *i;
-        if( frameTasks.frame == frame )
-        {
-            frameTasks.tasks.sendBuffer( connection );
-            frameTasks.frame = 0;
-            return;
-        }
-    }
-    EQUNREACHABLE;
-}
-
 
 //---------------------------------------------------------------------------
 // Barrier cache
