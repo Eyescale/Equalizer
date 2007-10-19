@@ -23,7 +23,7 @@ namespace eqPly
         uint32_t           getFrameDataID() const  { return _frameDataID; }
         eq::WindowSystem   getWindowSystem() const { return _windowSystem;}
         bool               useVBOs() const         { return _useVBOs; }
-        bool               useShaders() const      { return _useShaders; }
+        bool               useGLSL() const         { return _useGLSL; }
         const std::string& getFilename()    const  { return _filename; }
 
     protected:
@@ -33,14 +33,14 @@ namespace eqPly
         void setWindowSystem( const eq::WindowSystem windowSystem )
             { _windowSystem = windowSystem; }
         void enableVBOs()    { _useVBOs = true; }
-        void enableShaders() { _useShaders = true; }
+        void enableGLSL()    { _useGLSL = true; }
         void setFilename( const std::string& filename ) { _filename = filename;}
 
     private:
         uint32_t         _frameDataID;
         eq::WindowSystem _windowSystem;
         bool             _useVBOs;
-        bool             _useShaders;
+        bool             _useGLSL;
         std::string      _filename;
     };
 }

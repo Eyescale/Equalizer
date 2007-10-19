@@ -46,7 +46,7 @@ bool Window::configInit( const uint32_t initID )
                        << endl;
         }
         
-        if( initData.useShaders() )
+        if( initData.useGLSL() )
         {
             // Check if all shader functions are available
             if( glFunctions->hasCreateShader() && 

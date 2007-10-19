@@ -17,9 +17,9 @@ using namespace std;
 namespace eqPly
 {
 LocalInitData::LocalInitData()
-        : _maxFrames( 0xffffffffu ),
-          _color( true ),
-          _isResident( false )
+        : _maxFrames( 0xffffffffu )
+        , _color( true )
+        , _isResident( false )
 {}
 
 const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
@@ -30,10 +30,10 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     _isResident  = from._isResident;
     setFilename( from.getFilename( ));
     setWindowSystem( from.getWindowSystem( ));
-    if( from.useVBOs() ) 
+    if( from.useVBOs( )) 
         enableVBOs();
-    if( from.useShaders() ) 
-        enableShaders();
+    if( from.useGLSL( )) 
+      enableGLSL();
     return *this;
 }
 
@@ -41,7 +41,19 @@ void LocalInitData::parseArguments( const int argc, char** argv )
 {
     try
     {
-        TCLAP::CmdLine command( "eqPly - Equalizer polygonal rendering example" );
+        string wsHelp = "Window System API ( one of: ";
+#ifdef AGL
+        wsHelp += "AGL ";
+#endif
+#ifdef GLX
+        wsHelp += "glX ";
+#endif
+#ifdef WGL
+        wsHelp += "WGL ";
+#endif
+        wsHelp += ")";
+
+        TCLAP::CmdLine command("eqPly - Equalizer polygonal rendering example");
         TCLAP::ValueArg<string> modelArg( "m", "model", "ply model file name", 
                                           false, "rockerArm.ply", "string", 
                                           command );
@@ -57,25 +69,11 @@ void LocalInitData::parseArguments( const int argc, char** argv )
                                            "Maximum number of rendered frames", 
                                              false, 0xffffffffu, "unsigned",
                                              command );
-
-        string wsHelp = "Window System API ( one of: ";
-#ifdef AGL
-        wsHelp += "AGL ";
-#endif
-#ifdef GLX
-        wsHelp += "glX ";
-#endif
-#ifdef WGL
-        wsHelp += "WGL ";
-#endif
-        wsHelp += ")";
-
         TCLAP::ValueArg<string> wsArg( "w", "windowSystem", wsHelp,
                                        false, "auto", "string", command );
-        
         TCLAP::SwitchArg vboArg( "v", "vbo", "Use the new VBO rendering", 
                                  command, false );
-        TCLAP::SwitchArg shaderArg( "s", "glsl", "Enable GLSL shaders", 
+        TCLAP::SwitchArg glslArg( "g", "glsl", "Enable GLSL shaders", 
                                     command, false );
         
         command.parse( argc, argv );
@@ -108,8 +106,8 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         
         if( vboArg.isSet() )
             enableVBOs();
-        if( shaderArg.isSet() )
-            enableShaders();
+        if( glslArg.isSet() )
+            enableGLSL();
     }
     catch( TCLAP::ArgException& exception )
     {
