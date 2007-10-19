@@ -34,9 +34,9 @@ server
 
             wall
             {
-                bottom_left  [ -.32 -.2 -1 ]
-                bottom_right [  .32 -.2 -1 ]
-                top_left     [ -.32  .2 -1 ]
+                bottom_left  [ -.8 -.5 -1 ]
+                bottom_right [  .8 -.5 -1 ]
+                top_left     [ -.8  .5 -1 ]
             }
             
             compound
