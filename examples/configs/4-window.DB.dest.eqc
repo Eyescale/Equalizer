@@ -29,6 +29,7 @@ server
                 {
                     name     "window4"
                     viewport [ 450 450 400 400 ]
+                    attributes{ planes_stencil ON }
                     channel { name "channel4"  }
                 }
             }

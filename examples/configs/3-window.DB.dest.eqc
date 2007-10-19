@@ -22,9 +22,7 @@ server
                 window
                 {
                     viewport [ .35 .45 .4 .3 ]
-
-                    attributes { planes_stencil 1 }
-
+                    attributes { planes_stencil ON }
                     channel { name "channel3" }
                 }
             }
