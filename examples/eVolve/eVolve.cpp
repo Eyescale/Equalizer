@@ -63,7 +63,6 @@ int Application::run()
     while( config->isRunning( ) && maxFrames-- )
     {
         config->startFrame();
-        // config->renderData(...);
         config->finishFrame();
     }
     const uint32_t frame = config->finishAllFrames();

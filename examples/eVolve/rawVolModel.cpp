@@ -13,7 +13,7 @@ using hlpFuncs::hFile;
 static void createPreintegrationTable( const uint8_t* Table,
                                              GLuint&  preintName );
 
-static int readTrasferFunction( FILE* file, std::vector<uint8_t>& TF );
+static int readTransferFunction( FILE* file, std::vector<uint8_t>& TF );
 
 static bool readDimensionsAndScales
 ( 
@@ -45,7 +45,7 @@ RawVolumeModel::RawVolumeModel( const std::string& data )
 
     _resolution  = MAX( _w, MAX( _h, _d ) );
 
-    if( readTrasferFunction( header.f, _TF ) != 256 )
+    if( readTransferFunction( header.f, _TF ) != 256 )
         return;
 
     _lastSuccess = true;
@@ -297,7 +297,7 @@ static bool readDimensionsAndScales
 }
 
 
-static int readTrasferFunction( FILE* file,  std::vector<uint8_t>& TF )
+static int readTransferFunction( FILE* file,  std::vector<uint8_t>& TF )
 {
     if( fscanf(file,"TF:\n") !=0 )
     {
