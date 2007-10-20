@@ -34,7 +34,7 @@ namespace eVolve
 
     /** Contain overal volume proportions relatively [-1,-1,-1]..[1,1,1] cube
     */
-    struct VolumeScales
+    struct VolumeScaling
     {
         float W;    //!< width  scale
         float H;    //!< height scale
@@ -43,9 +43,9 @@ namespace eVolve
 
     struct VolumeInfo
     {
-        GLuint                  volume;    //!< 3D texture ID
-        GLuint                  preint;    //!< preintegration table texture
-        VolumeScales            volScales; //!< Proportions of volume
+        GLuint                  volume;     //!< 3D texture ID
+        GLuint                  preint;     //!< preintegration table texture
+        VolumeScaling           volScaling; //!< Proportions of volume
         DataInTextureDimensions TD; //!< Data dimensions within volume texture
     };
 
@@ -54,16 +54,16 @@ namespace eVolve
     {
     public:
 
-        RawVolumeModel( const std::string& data );
+        RawVolumeModel( const std::string& filename );
+
+        bool loadHeader( const float brightness );
 
         bool getVolumeInfo( VolumeInfo& info, const eq::Range& range );
-
         void releaseVolumeInfo( const eq::Range& range );
 
-        const std::string&  getFileName()      const { return _fileName;    };
-              uint32_t      getResolution()    const { return _resolution;  };
-        const VolumeScales& getVolumeScales()  const { return _volScales;   };
-              bool          getLoadingResult() const { return _lastSuccess; };
+        const std::string&   getFileName()      const { return _filename;    };
+              uint32_t       getResolution()    const { return _resolution;  };
+        const VolumeScaling& getVolumeScaling() const { return _volScaling;  };
 
     protected:
 
@@ -74,10 +74,8 @@ namespace eVolve
                                 const eq::Range&               range   ) const;
 
     private:
-        bool _lSuccess()           { return _lastSuccess=true;    }
-
-        bool _lFailed( char* msg ) { EQERROR << msg << std::endl;
-                                     return _lastSuccess=false;   }
+        bool _lFailed( char* msg )
+            { EQERROR << msg << std::endl; return false; }
 
         struct VolumePart
         {
@@ -87,17 +85,17 @@ namespace eVolve
 
         stde::hash_map< int32_t, VolumePart > _volumeHash; //!< 3D textures info
 
-        bool         _lastSuccess;      //!< Result of last loading
-        std::string  _fileName;         //!< name of volume data file
+        bool         _headerLoaded;     //!< header is loaded successfully
+        std::string  _filename;         //!< name of volume data file
 
-        GLuint       _preint;           //!< preintegration table texture
+        GLuint       _preintName;       //!< preintegration table texture
 
         uint32_t     _w;                //!< volume width
         uint32_t     _h;                //!< volume height
         uint32_t     _d;                //!< volume depth
         uint32_t     _resolution;       //!< max( _w, _h, _d ) of a model
 
-        VolumeScales _volScales;        //!< Proportions of volume
+        VolumeScaling _volScaling;      //!< Proportions of volume
 
         std::vector< uint8_t >  _TF;    //!< Transfer function
     };

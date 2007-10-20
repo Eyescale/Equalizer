@@ -344,13 +344,14 @@ static void setLights()
 }
 
 
-static void setCamera( const FrameData::Data &data, const VolumeScales &scales )
+static void setCamera( const FrameData::Data &data, 
+                       const VolumeScaling &scaling )
 {
     glTranslatef(  data.translation.x, data.translation.y, data.translation.z );
 
     glMultMatrixf( data.rotation.ml );
 
-    glScalef( scales.W, scales.H, scales.D );
+    glScalef( scaling.W, scaling.H, scaling.D );
 }
 
 
@@ -442,9 +443,12 @@ void Channel::frameDraw( const uint32_t frameID )
 
     VolumeInfo volumeInfo;
 
-    if( !model || !model->getVolumeInfo( volumeInfo, _curFrData.lastRange ) )
+    EQASSERT( model );
+    if( !model || !model->getVolumeInfo( volumeInfo, _curFrData.lastRange ))
+    {
+        EQERROR << "Can't get volume data" << endl;
         return;
-
+    }
 
     const Node*           node = static_cast< Node* >( getNode( ));
     const InitData&   initData = node->getInitData();
@@ -454,7 +458,7 @@ void Channel::frameDraw( const uint32_t frameID )
     // Setup camera and lighting
     const FrameData& frameData = pipe->getFrameData();
     
-    setCamera( frameData.data, volumeInfo.volScales );
+    setCamera( frameData.data, volumeInfo.volScaling );
     setLights();
 
     // Enable shaders
@@ -554,13 +558,13 @@ void Channel::_calcMVandITMV(
     const Model* model = pipe->getModel();
     if( model )
     {
-        const VolumeScales& volScales = model->getVolumeScales();
+        const VolumeScaling& volScaling = model->getVolumeScaling();
         
         vmml::Matrix4f scale( 
-            volScales.W, 0, 0, 0,
-            0, volScales.H, 0, 0,
-            0, 0, volScales.D, 0,
-            0, 0,           0, 1 );
+            volScaling.W, 0, 0, 0,
+            0, volScaling.H, 0, 0,
+            0, 0, volScaling.D, 0,
+            0, 0,            0, 1 );
 
         modelviewM = scale * frameData.data.rotation;
     }

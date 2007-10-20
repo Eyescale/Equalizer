@@ -64,10 +64,11 @@ bool Pipe::configInit( const uint32_t initID )
     _model = new Model( filename.c_str() );
     EQASSERT( _model );
 
-    if( !_model->getLoadingResult() )
+    if( !_model->loadHeader( initData.getBrightness( )))
     {
-        setErrorMessage( "Can't load model" );
-        EQWARN << "Can't load model: " << filename << endl;
+        setErrorMessage( "Can't load model header file" );
+        EQWARN << "Can't load model header file: " << filename << ".vhf"
+               << endl;
         delete _model;
         _model = 0;
         return false;

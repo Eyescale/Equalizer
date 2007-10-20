@@ -10,45 +10,57 @@ using hlpFuncs::clip;
 using hlpFuncs::hFile;
 
 
-static void createPreintegrationTable( const uint8_t* Table,
-                                             GLuint&  preintName );
+static GLuint createPreintegrationTable( const uint8_t* Table );
 
-static int readTransferFunction( FILE* file, std::vector<uint8_t>& TF );
+static bool readTransferFunction( FILE* file, std::vector<uint8_t>& TF );
 
-static bool readDimensionsAndScales
+static bool readDimensionsAndScaling
 ( 
     FILE* file, 
     uint32_t& w, uint32_t& h, uint32_t& d, 
-    VolumeScales& volScales 
+    VolumeScaling& volScaling 
 );
 
 
-// Read volume dimensions, scales and transfer function
-RawVolumeModel::RawVolumeModel( const std::string& data ) 
-    :_lastSuccess ( false )
-    ,_preint      ( 0 )
-{
-    EQLOG( eq::LOG_CUSTOM ) << "-------------------------------------------"
-                            << std::endl << "model: " << _fileName;
+// Read volume dimensions, scaling and transfer function
+RawVolumeModel::RawVolumeModel( const std::string& filename  )
+        : _headerLoaded( false )
+        , _filename( filename )
+        , _preintName  ( 0 )
+{}
 
-    _fileName = data;
-    hFile header( fopen( ( data + std::string( ".vhf" ) ).c_str(), "rb" ) );
+bool RawVolumeModel::loadHeader( const float brightness )
+{
+    EQASSERT( !_headerLoaded );
+    EQASSERT( brightness > 0.0f );
+    EQLOG( eq::LOG_CUSTOM ) << "-------------------------------------------"
+                            << std::endl << "model: " << _filename;
+
+    hFile header( fopen( ( _filename + std::string( ".vhf" ) ).c_str(), "rb" ));
 
     if( header.f==NULL )
     {
         EQERROR << "Can't open header file" << std::endl;
-        return;
+        return false;
     }
 
-    if( !readDimensionsAndScales( header.f, _w, _h, _d, _volScales ) )
-        return;
+    if( !readDimensionsAndScaling( header.f, _w, _h, _d, _volScaling ) )
+        return false;
 
-    _resolution  = MAX( _w, MAX( _h, _d ) );
+    _resolution = MAX( _w, MAX( _h, _d ) );
 
-    if( readTransferFunction( header.f, _TF ) != 256 )
-        return;
+    if( !readTransferFunction( header.f, _TF ))
+        return false;
 
-    _lastSuccess = true;
+    _headerLoaded = true;
+
+    if( brightness == 1.0f )
+        return true;
+
+    for( size_t i = 0; i < _TF.size(); ++i )
+        _TF[i] = static_cast< uint8_t >( _TF[i] * brightness );
+
+    return true;
 }
 
 
@@ -60,13 +72,13 @@ static int32_t calcHashKey( const eq::Range& range )
 
 bool RawVolumeModel::getVolumeInfo( VolumeInfo& info, const eq::Range& range )
 {
-    if( !_lastSuccess )
+    if( !_headerLoaded && !loadHeader( 1.0 ))
         return false;
 
-    if( _preint==0 )
+    if( _preintName == 0 )
     {
         EQLOG( eq::LOG_CUSTOM ) << "Creating preint" << std::endl;
-        createPreintegrationTable( &_TF[0], _preint );
+        _preintName = createPreintegrationTable( &_TF[0] );
     }
 
           VolumePart* volumePart = NULL;
@@ -77,16 +89,17 @@ bool RawVolumeModel::getVolumeInfo( VolumeInfo& info, const eq::Range& range )
         // new key
         volumePart = &_volumeHash[ key ];
         if( !_createVolumeTexture( volumePart->volume, volumePart->TD, range ) )
-            return _lastSuccess=false;
-    }else
+            return false;
+    }
+    else
     {   // old key
         volumePart = &_volumeHash[ key ];
     }
 
     info.volume     = volumePart->volume;
     info.TD         = volumePart->TD;
-    info.preint     = _preint;
-    info.volScales  = _volScales;
+    info.preint     = _preintName;
+    info.volScaling  = _volScaling;
 
     return true;
 }
@@ -171,44 +184,42 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
 
     // Reading of requested part of a volume
     std::vector<uint8_t> data( tW*tH*tD*4, 0 );
+    const uint32_t  wh4 =  w *  h * 4;
+    const uint32_t tWH4 = tW * tH * 4;
+
+    std::ifstream file ( _filename.c_str(), std::ifstream::in |
+                         std::ifstream::binary | std::ifstream::ate );
+
+    if( !file.is_open() )
     {
-        const uint32_t  wh4 =  w *  h * 4;
-        const uint32_t tWH4 = tW * tH * 4;
-
-        std::ifstream file ( _fileName.c_str(), std::ifstream::in |
-                             std::ifstream::binary | std::ifstream::ate );
-
-        if( !file.is_open() )
-        {
-            EQERROR << "Can't open model data file";
-            return false;
-        }
-
-        file.seekg( wh4*start, std::ios::beg );
-
-        if( w==tW && h==tH ) // width and height are power of 2
-        {
-            file.read( (char*)( &data[0] ), wh4*depth );
-        }else
-            if( w==tW )     // only width is power of 2
-            {
-                for( uint32_t i=0; i<depth; i++ )
-                    file.read( (char*)( &data[i*tWH4] ), wh4 );
-            }
-            else
-            {               // nor width nor heigh is power of 2
-                const uint32_t   w4 =  w * 4;
-                const uint32_t  tW4 = tW * 4;
-
-                for( uint32_t i=0; i<depth; i++ )
-                    for( uint32_t j=0; j<h; j++ )
-                        file.read( (char*)( &data[ i*tWH4 + j*tW4] ), w4 );
-            }
-
-        file.close();
+        EQERROR << "Can't open model data file";
+        return false;
     }
 
-    // creating 3D texture
+    file.seekg( wh4*start, std::ios::beg );
+
+    if( w==tW && h==tH ) // width and height are power of 2
+    {
+        file.read( (char*)( &data[0] ), wh4*depth );
+    }
+    else if( w==tW )     // only width is power of 2
+    {
+        for( uint32_t i=0; i<depth; i++ )
+            file.read( (char*)( &data[i*tWH4] ), wh4 );
+    }
+    else
+    {               // nor width nor heigh is power of 2
+        const uint32_t   w4 =  w * 4;
+        const uint32_t  tW4 = tW * 4;
+        
+        for( uint32_t i=0; i<depth; i++ )
+            for( uint32_t j=0; j<h; j++ )
+                file.read( (char*)( &data[ i*tWH4 + j*tW4] ), w4 );
+    }
+
+    file.close();
+
+    // create 3D texture
     glGenTextures( 1, &volume );
     EQLOG( eq::LOG_CUSTOM ) << "generated texture: " << volume << std::endl;
     glBindTexture(GL_TEXTURE_3D, volume);
@@ -230,35 +241,35 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
     is not cube it's proportions should be modified. This function makes 
     maximum proportion equal to 1.0 to prevent unnecessary rescaling.
 */
-static void normalizeScales
+static void normalizeScaling
 (
     const uint32_t      w,
     const uint32_t      h,
     const uint32_t      d,
-          VolumeScales& scales
+          VolumeScaling& scaling
 )
 {
 //Correct proportions according to real size of volume
     float maxS = MAX( w, MAX( h, d ) );
 
-    scales.W *= w / maxS;
-    scales.H *= h / maxS;
-    scales.D *= d / maxS;
+    scaling.W *= w / maxS;
+    scaling.H *= h / maxS;
+    scaling.D *= d / maxS;
     
 //Make maximum proportion equal to 1.0
-    maxS = MAX( scales.W, MAX( scales.H, scales.D ) );
+    maxS = MAX( scaling.W, MAX( scaling.H, scaling.D ) );
 
-    scales.W /= maxS;
-    scales.H /= maxS;
-    scales.D /= maxS;
+    scaling.W /= maxS;
+    scaling.H /= maxS;
+    scaling.D /= maxS;
 }
 
 
-static bool readDimensionsAndScales
+static bool readDimensionsAndScaling
 ( 
     FILE* file, 
     uint32_t& w, uint32_t& h, uint32_t& d, 
-    VolumeScales& volScales 
+    VolumeScaling& volScaling 
 )
 {
         fscanf( file, "w=%u\n", &w );
@@ -269,39 +280,39 @@ static bool readDimensionsAndScales
         return false;
     }
 
-        fscanf( file, "wScale=%g\n", &volScales.W );
-        fscanf( file, "hScale=%g\n", &volScales.H );
-    if( fscanf( file, "dScale=%g\n", &volScales.D ) != 1 )
+        fscanf( file, "wScale=%g\n", &volScaling.W );
+        fscanf( file, "hScale=%g\n", &volScaling.H );
+    if( fscanf( file, "dScale=%g\n", &volScaling.D ) != 1 )
     {
-        EQERROR << "Can't read scales from header file: " << std::endl;
+        EQERROR << "Can't read scaling from header file: " << std::endl;
         return false;
     }
 
     if( w<1 || h<1 || d<1 ||
-        volScales.W<0.001 || 
-        volScales.H<0.001 || 
-        volScales.W<0.001    )
+        volScaling.W<0.001 || 
+        volScaling.H<0.001 || 
+        volScaling.W<0.001    )
     {
-        EQERROR << "volume scales are incorrect, check header file"<< std::endl;
+        EQERROR << "volume scaling is incorrect, check header file"<< std::endl;
         return false;
     }
 
-    normalizeScales( w, h, d, volScales );
+    normalizeScaling( w, h, d, volScaling );
 
     EQLOG( eq::LOG_CUSTOM ) << " "  << w << "x" << h << "x" << d << std::endl
-                            << "( " << volScales.W << " x "
-                                    << volScales.H << " x "
-                                    << volScales.D << " )"       << std::endl;
+                            << "( " << volScaling.W << " x "
+                                    << volScaling.H << " x "
+                                    << volScaling.D << " )"       << std::endl;
     return true;
 }
 
 
-static int readTransferFunction( FILE* file,  std::vector<uint8_t>& TF )
+static bool readTransferFunction( FILE* file,  std::vector<uint8_t>& TF )
 {
     if( fscanf(file,"TF:\n") !=0 )
     {
         EQERROR << "Error in header file, can't find 'TF:' marker.";
-        return 0;
+        return false;
     }
 
     uint32_t TFSize;
@@ -328,12 +339,11 @@ static int readTransferFunction( FILE* file,  std::vector<uint8_t>& TF )
         TF[4*i+3] = tmp;
     }
 
-    return 256;
+    return true;
 }
 
 
-static void createPreintegrationTable(
-                                    const uint8_t *Table, GLuint &preintName )
+static GLuint createPreintegrationTable( const uint8_t *Table )
 {
     EQLOG( eq::LOG_CUSTOM ) << "Calculating preintegration table" << std::endl;
 
@@ -398,7 +408,7 @@ static void createPreintegrationTable(
         }
     }
 
-
+    GLuint preintName = 0;
     glGenTextures( 1, &preintName );
     glBindTexture( GL_TEXTURE_2D, preintName );
     glTexImage2D(  GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, 
@@ -408,6 +418,8 @@ static void createPreintegrationTable(
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR        );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR        );
+
+    return preintName;
 }
 
 
