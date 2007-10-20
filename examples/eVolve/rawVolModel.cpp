@@ -52,7 +52,7 @@ RawVolumeModel::RawVolumeModel( const std::string& data )
 }
 
 
-static int32_t calcHachKey( const eq::Range& range )
+static int32_t calcHashKey( const eq::Range& range )
 {
     return static_cast<int32_t>(( range.start*10000.f + range.end )*10000.f );
 }
@@ -70,7 +70,7 @@ bool RawVolumeModel::getVolumeInfo( VolumeInfo& info, const eq::Range& range )
     }
 
           VolumePart* volumePart = NULL;
-    const int32_t     key        = calcHachKey( range );
+    const int32_t     key        = calcHashKey( range );
 
     if( _volumeHash.find( key ) == _volumeHash.end( ) )
     {
@@ -94,7 +94,7 @@ bool RawVolumeModel::getVolumeInfo( VolumeInfo& info, const eq::Range& range )
 
 void RawVolumeModel::releaseVolumeInfo( const eq::Range& range )
 {
-    const int32_t key = calcHachKey( range );
+    const int32_t key = calcHashKey( range );
     if( _volumeHash.find( key ) == _volumeHash.end() )
         return;
 
@@ -106,13 +106,11 @@ void RawVolumeModel::releaseVolumeInfo( const eq::Range& range )
 */
 static uint32_t calcMinPow2( uint32_t size )
 {
-    uint32_t res=0;
-
-    if( size > 0)
-    {
-        size--;
-        res = 1;
-    }
+    if( size == 0 )
+        return 0;
+    
+    size--;
+    uint32_t res = 1;
 
     while( size > 0 )
     {
@@ -196,7 +194,8 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
             {
                 for( uint32_t i=0; i<depth; i++ )
                     file.read( (char*)( &data[i*tWH4] ), wh4 );
-            }else
+            }
+            else
             {               // nor width nor heigh is power of 2
                 const uint32_t   w4 =  w * 4;
                 const uint32_t  tW4 = tW * 4;
