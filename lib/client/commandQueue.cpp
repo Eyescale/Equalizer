@@ -14,7 +14,7 @@ CommandQueue::CommandQueue()
 void CommandQueue::push(eqNet::Command& inCommand)
 {
     eqNet::CommandQueue::push(inCommand);
-#if defined (WIN32) || defined (Darwin)
+#if defined (WIN32) || defined (AGL)
     _messagePump.postWakeup();
 #endif
 }
@@ -22,14 +22,14 @@ void CommandQueue::push(eqNet::Command& inCommand)
 void CommandQueue::pushFront(eqNet::Command& inCommand)
 {
     eqNet::CommandQueue::pushFront(inCommand);
-#if defined (WIN32) || defined (Darwin)
+#if defined (WIN32) || defined (AGL)
     _messagePump.postWakeup();
 #endif
 }
 
 eqNet::Command* CommandQueue::pop()
 {
-#if defined (WIN32) || defined (Darwin)
+#if defined (WIN32) || defined (AGL)
     while( true )
     {
         // Poll for a command
@@ -47,7 +47,7 @@ eqNet::Command* CommandQueue::pop()
 
 eqNet::Command* CommandQueue::tryPop()
 {
-#if defined (WIN32) || defined (Darwin)
+#if defined (WIN32) || defined (AGL)
     _messagePump.dispatchAll(); // non-blocking
 #endif
     return eqNet::CommandQueue::tryPop();

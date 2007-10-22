@@ -423,13 +423,14 @@ bool eq::Window::configInitAGL()
 #ifdef AGL
     CGDirectDisplayID displayID = _pipe->getCGDisplayID();
 
+    Global::enterCarbon();
+
 #ifdef LEOPARD
-    CGOpenGLDisplayMask glDisplayMask =  
+    CGOpenGLDisplayMask glDisplayMask =
         CGDisplayIDToOpenGLDisplayMask( displayID );
 #else
     GDHandle          displayHandle = 0;
 
-    Global::enterCarbon();
     DMGetGDeviceByDisplayID( (DisplayIDType)displayID, &displayHandle, false );
 
     if( !displayHandle )
@@ -904,13 +905,19 @@ void eq::Window::configExitAGL()
     AGLContext context = getAGLContext();
     if( context )
     {
+        Global::enterCarbon();
+        if( getIAttribute( IATTR_HINT_FULLSCREEN ) != ON )
+        {
 #ifdef LEOPARD
-        aglSetWindowRef( context, 0 );
+            aglSetWindowRef( context, 0 );
 #else
-        aglSetDrawable( context, 0 );
+            aglSetDrawable( context, 0 );
 #endif
+        }
+
         aglSetCurrentContext( 0 );
         aglDestroyContext( context );
+        Global::leaveCarbon();
         setAGLContext( 0 );
     }
     
@@ -1098,19 +1105,20 @@ void eq::Window::setWGLContext( HGLRC context )
 void eq::Window::setCarbonWindow( WindowRef window )
 {
 #ifdef AGL
+    EQINFO << "set Carbon window " << window << endl;
+
     if( _carbonWindow == window )
         return;
 
     if( _carbonWindow )
         exitEventHandler();
     _carbonWindow = window;
-    if( _carbonWindow )
-        initEventHandler();
-
     _pvp.invalidate();
 
     if( window )
     {
+        initEventHandler();
+
         Rect rect;
         Global::enterCarbon();
         if( GetWindowBounds( window, kWindowContentRgn, &rect ) == noErr )

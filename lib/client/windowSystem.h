@@ -31,25 +31,16 @@ namespace eq
 #  endif
 #  include <X11/Xlib.h>
 #  include <GL/glx.h>
-#  ifdef Darwin
-#    if defined(__i386__) // WAR compile error
-#      undef Status 
-#    endif 
-#    define Cursor CGLCursor   // avoid name clash with X11 'Cursor'
-#    include <Carbon/Carbon.h> // for SetSystemUIMode / fullscreen setup
-#    undef Cursor
-#  endif
 #endif
 
 #ifdef AGL
 #  if defined(__i386__) // WAR compile error
 #    undef Status 
 #  endif
-#  ifdef Cursor 
-#    undef Cursor // avoid name clash with X11 'Cursor'
-#  endif
+#  define Cursor CGLCursor   // avoid name clash with X11 'Cursor'
 #  include <ApplicationServices/ApplicationServices.h>
 #  include <AGL/agl.h>
+#  include <Carbon/Carbon.h>
 #endif
 
 #ifdef WGL
@@ -101,11 +92,9 @@ typedef void* GLXContext;
 #endif
 
 #ifndef AGL
-#  ifndef Darwin
 typedef int32_t CGDirectDisplayID;
 typedef void*   WindowRef;
 typedef void*   EventHandlerRef;
-#  endif
 typedef void*   AGLContext;
 #endif
 

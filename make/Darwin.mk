@@ -2,32 +2,26 @@
 BUILD_FAT  = 1
 
 ifeq ($(findstring 9.0, $(RELARCH)),9.0)
-  LEOPARD = 1
-  WINDOW_SYSTEM ?= AGL  # GLX is broken in build 559
-endif
+  LEOPARD       = 1
+  CXXFLAGS     += -DLEOPARD
+  AGL_OR_64BIT  = AGL
 
-ifdef LEOPARD
-  VARIANTS ?= i386
-  CXXFLAGS += -DLEOPARD
-  USE_SDK   = 1
+ifeq ($(findstring 64BIT, $(AGL_OR_64BIT)), 64BIT)
+  VARIANTS      ?= i386 ppc x86_64 ppc64
+  WINDOW_SYSTEM  = GLX
+endif # 64BIT
+endif # LEOPARD
+
+
+ifeq ($(findstring i386, $(SUBARCH)), i386)
+  VARIANTS ?= i386 ppc
 else
-  ifeq ($(findstring i386, $(SUBARCH)),i386)
-    VARIANTS ?= i386 ppc
-  else
-    VARIANTS ?= ppc
-  endif
+  VARIANTS ?= ppc
 endif
 
 ifdef VARIANT
   CXXFLAGS    += -arch $(VARIANT) -Wno-unknown-pragmas
   DSO_LDFLAGS += -arch $(VARIANT)
-endif
-
-
-ifdef USE_SDK
-  SDK         ?= /Developer/SDKs/MacOSX10.5.sdk
-  CXXFLAGS    += -isysroot $(SDK)
-  LDFLAGS     += -Wl,-syslibroot $(SDK)
 endif
 
 DSO_LDFLAGS        += -dynamiclib
@@ -37,7 +31,12 @@ WINDOW_SYSTEM      ?= GLX AGL
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
   WINDOW_SYSTEM_LIBS += -L/usr/X11R6/lib -lX11 -lGL
   WINDOW_SYSTEM_INCS += -I/usr/X11R6/include
-endif
+ifdef LEOPARD
+  # war to broken libGL in betas
+  WINDOW_SYSTEM_LIBS += -dylib_file /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib
+endif # LEOPARD
+endif # GLX
+
 ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
   WINDOW_SYSTEM_LIBS += -framework AGL -framework OpenGL -framework Carbon
 endif

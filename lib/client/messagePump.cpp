@@ -15,7 +15,7 @@ MessagePump::MessagePump()
 #ifdef WIN32
         : _win32ThreadID(0)
 #endif
-#ifdef Darwin
+#ifdef AGL
         : _receiverQueue(0)
 #endif
 {
@@ -32,7 +32,7 @@ void MessagePump::postWakeup()
 
     PostThreadMessage( _win32ThreadID, WM_APP, 0, 0 ); // Wake up pop()
 
-#elif defined (Darwin)
+#elif defined (AGL)
 
     if( !_receiverQueue )
     {
@@ -69,7 +69,7 @@ void MessagePump::_initReceiverQueue()
     EQASSERTINFO( _win32ThreadID == GetCurrentThreadId(),
                   "MessagePump::pop() called from two different threads" );
 
-#elif defined (Darwin)
+#elif defined (AGL)
 
     if( !_receiverQueue )
         _receiverQueue = GetCurrentEventQueue();
@@ -92,7 +92,7 @@ void MessagePump::dispatchOne()
         DispatchMessage( &msg );
     }
 
-#elif defined (Darwin)
+#elif defined (AGL)
 
     while( true )
     {
@@ -135,7 +135,7 @@ void MessagePump::dispatchAll()
         DispatchMessage( &msg );
     }
 
-#elif defined (Darwin)
+#elif defined (AGL)
 
     Global::enterCarbon();
     const EventTargetRef target = GetEventDispatcherTarget();

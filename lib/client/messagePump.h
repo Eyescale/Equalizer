@@ -7,7 +7,7 @@
 
 #include <eq/base/base.h>
 
-#ifdef Darwin
+#ifdef AGL
 #  define Cursor CGLCursor   // avoid name clash with X11 'Cursor'
 #  include <Carbon/Carbon.h>
 #  undef Cursor
@@ -43,7 +43,7 @@ namespace eq
             /** Thread ID of the receiver. */
             DWORD _win32ThreadID;
 #endif
-#ifdef Darwin
+#ifdef AGL
             EventQueueRef _receiverQueue;
 #endif
             char _fillDummy[32];
