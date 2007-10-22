@@ -10,27 +10,7 @@
 #ifndef MESH_TYPEDEFS_H
 #define MESH_TYPEDEFS_H
 
-
-#include <vmmlib/vmmlib.h>
-
-#ifdef _WIN32
-#   include <Winsock2.h>
-#   include <Windows.h>
-#endif
-
-#ifdef __APPLE__
-#   include <OpenGL/gl.h>
-#else
-#   include <GL/gl.h>
-#endif
-
-#include <exception>
-#include <iostream>
-#include <string>
-
-
 #define EQUALIZER  1
-
 
 #ifdef EQUALIZER
 #   include <eq/base/log.h>
@@ -42,6 +22,15 @@
 #   define MESHINFO    EQINFO
 #   define GLFUNCTIONS eq::GLFunctions
 #else
+#   ifdef _WIN32
+#      include <Winsock2.h>
+#      include <Windows.h>
+#   endif
+#   ifdef __APPLE__
+#      include <OpenGL/gl.h>
+#   else
+#      include <GL/gl.h>
+#   endif
 #   include <cassert>
 #   include <eq/client/glFunctions.h>
 #   define MESHASSERT  assert
@@ -51,6 +40,11 @@
 #   define GLFUNCTIONS eq::GLFunctions
 #endif
 
+#include <vmmlib/vmmlib.h>
+
+#include <exception>
+#include <iostream>
+#include <string>
 
 namespace mesh 
 {

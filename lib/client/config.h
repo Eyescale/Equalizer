@@ -36,13 +36,16 @@ namespace eq
          *         happened.
          */
         bool isRunning() const { return _running; }
+
+		/** Stop running the config. */
+		void stopRunning() { _running = false; }
         //*}
 
         /** 
          * Initializes this configuration.
          * 
          * @param initID an identifier to be passed to all init methods.
-         * @return true if the initialisation was successful, false if not.
+         * @return true if the initialization was successful, false if not.
          */
         virtual bool init( const uint32_t initID )
             { return _startInit( initID ) && _finishInit(); }
