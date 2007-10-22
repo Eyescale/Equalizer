@@ -9,7 +9,6 @@ SUBDIRS = \
 	configs \
 	eqHello \
 	eqPly \
-	libmesh \
 	eqPixelBench \
 	$(OPTIONAL)
 
