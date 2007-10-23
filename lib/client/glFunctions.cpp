@@ -3,6 +3,7 @@
    All rights reserved. */
 
 #include "glFunctions.h"
+
 #include <eq/base/debug.h>
 #include <string.h>
 

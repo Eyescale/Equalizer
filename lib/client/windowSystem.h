@@ -146,5 +146,9 @@ typedef void (APIENTRYP PFNGLSHADERSOURCEPROC) (GLuint shader, GLsizei count, co
 typedef void (APIENTRYP PFNGLUSEPROGRAMPROC) (GLuint program);
 #endif
 
+#ifndef PFNGLBLENDFUNCSEPARATEPROC
+typedef void (APIENTRYP PFNGLBLENDFUNCSEPARATEPROC) (GLenum sfactorRGB, GLenum dfactorRGB, GLenum sfactorAlpha, GLenum dfactorAlpha);
+#endif
+
 #endif // EQ_WINDOWSYSTEM_H
 
