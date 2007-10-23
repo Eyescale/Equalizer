@@ -32,96 +32,95 @@ namespace eq
 #   define GLXFUNC( foo ) 0
 #endif // GLX
 
-#define QUERY( windowSystem, name, func, type )                         \
-    switch( windowSystem )                                              \
+#define QUERY( name, func, type )                                       \
     {                                                                   \
-        case WINDOW_SYSTEM_WGL:                                         \
-            _table.name = (type)( wglGetProcAddress( #func ));          \
-            break;                                                      \
-        case WINDOW_SYSTEM_GLX:                                         \
-            _table.name = (type)( GLXFUNC( func ) );                    \
-            break;                                                      \
-        case WINDOW_SYSTEM_AGL:                                         \
-            _table.name = (type)( AGLFUNC( func ) );                    \
-            break;                                                      \
-        default:                                                        \
-            EQUNIMPLEMENTED;                                            \
-    }                                                           
+        switch( windowSystem )                                          \
+        {                                                               \
+            case WINDOW_SYSTEM_WGL:                                     \
+                _table.name = (type)( wglGetProcAddress( #func ));      \
+                break;                                                  \
+            case WINDOW_SYSTEM_GLX:                                     \
+                _table.name = (type)( GLXFUNC( func ) );                \
+                break;                                                  \
+            case WINDOW_SYSTEM_AGL:                                     \
+                _table.name = (type)( AGLFUNC( func ) );                \
+                break;                                                  \
+            default:                                                    \
+                EQUNIMPLEMENTED;                                        \
+        }                                                               \
+    }
 
-#define LOOKUP( windowSystem, name, type )      \
-    QUERY( windowSystem, name, name, type );
+#define LOOKUP( name, type )      \
+    QUERY( name, name, type );
 
-#define ARB_BACKUP( windowSystem, name, func, type )          \
-    if( !_table.name )                                        \
-        QUERY( windowSystem, name, func, type );
+#define BACKUP( name, func, type )                            \
+    {                                                         \
+        if( !_table.name )                                    \
+            QUERY( name, func, type );                        \
+    }
+
 
 GLFunctions::GLFunctions( const WindowSystem windowSystem )
 {
     // buffer object functions
-    LOOKUP( windowSystem, glGenBuffers,    PFNGLGENBUFFERSPROC );
-    LOOKUP( windowSystem, glDeleteBuffers, PFNGLDELETEBUFFERSPROC );
-    LOOKUP( windowSystem, glBindBuffer,    PFNGLBINDBUFFERPROC );
-    LOOKUP( windowSystem, glBufferData,    PFNGLBUFFERDATAPROC );
+    LOOKUP( glGenBuffers,    PFNGLGENBUFFERSPROC );
+    LOOKUP( glDeleteBuffers, PFNGLDELETEBUFFERSPROC );
+    LOOKUP( glBindBuffer,    PFNGLBINDBUFFERPROC );
+    LOOKUP( glBufferData,    PFNGLBUFFERDATAPROC );
     
     // program object functions
-    LOOKUP( windowSystem, glCreateProgram, PFNGLCREATEPROGRAMPROC );
-    LOOKUP( windowSystem, glDeleteProgram, PFNGLDELETEPROGRAMPROC );
-    LOOKUP( windowSystem, glLinkProgram,   PFNGLLINKPROGRAMPROC );
-    LOOKUP( windowSystem, glUseProgram,    PFNGLUSEPROGRAMPROC );
-    LOOKUP( windowSystem, glGetProgramiv,  PFNGLGETPROGRAMIVPROC );
+    LOOKUP( glCreateProgram, PFNGLCREATEPROGRAMPROC );
+    LOOKUP( glDeleteProgram, PFNGLDELETEPROGRAMPROC );
+    LOOKUP( glLinkProgram,   PFNGLLINKPROGRAMPROC );
+    LOOKUP( glUseProgram,    PFNGLUSEPROGRAMPROC );
+    LOOKUP( glGetProgramiv,  PFNGLGETPROGRAMIVPROC );
     
     // shader object functions
-    LOOKUP( windowSystem, glCreateShader,  PFNGLCREATESHADERPROC );
-    LOOKUP( windowSystem, glDeleteShader,  PFNGLDELETESHADERPROC );
-    LOOKUP( windowSystem, glAttachShader,  PFNGLATTACHSHADERPROC );
-    LOOKUP( windowSystem, glDetachShader,  PFNGLDETACHSHADERPROC );
-    LOOKUP( windowSystem, glShaderSource,  PFNGLSHADERSOURCEPROC );
-    LOOKUP( windowSystem, glCompileShader, PFNGLCOMPILESHADERPROC );
-    LOOKUP( windowSystem, glGetShaderiv,   PFNGLGETSHADERIVPROC );
-    
+    LOOKUP( glCreateShader,  PFNGLCREATESHADERPROC );
+    LOOKUP( glDeleteShader,  PFNGLDELETESHADERPROC );
+    LOOKUP( glAttachShader,  PFNGLATTACHSHADERPROC );
+    LOOKUP( glDetachShader,  PFNGLDETACHSHADERPROC );
+    LOOKUP( glShaderSource,  PFNGLSHADERSOURCEPROC );
+    LOOKUP( glCompileShader, PFNGLCOMPILESHADERPROC );
+    LOOKUP( glGetShaderiv,   PFNGLGETSHADERIVPROC );
+
+    // misc functions
+    LOOKUP( glBlendFuncSeparate, PFNGLBLENDFUNCSEPARATEPROC );
+
     if( checkExtension( "GL_ARB_vertex_buffer_object" ))
     {
         // buffer object functions
-        ARB_BACKUP( windowSystem, glGenBuffers,
-                    glGenBuffersARB,    PFNGLGENBUFFERSPROC );
-        ARB_BACKUP( windowSystem, glDeleteBuffers, 
-                    glDeleteBuffersARB, PFNGLDELETEBUFFERSPROC );
-        ARB_BACKUP( windowSystem, glBindBuffer, 
-                    glBindBufferARB,    PFNGLBINDBUFFERPROC );
-        ARB_BACKUP( windowSystem, glBufferData, 
-                    glBufferDataARB,    PFNGLBUFFERDATAPROC );
+        BACKUP( glGenBuffers,    glGenBuffersARB,    PFNGLGENBUFFERSPROC );
+        BACKUP( glDeleteBuffers, glDeleteBuffersARB, PFNGLDELETEBUFFERSPROC );
+        BACKUP( glBindBuffer,    glBindBufferARB,    PFNGLBINDBUFFERPROC );
+        BACKUP( glBufferData,    glBufferDataARB,    PFNGLBUFFERDATAPROC );
     }
     
     if( checkExtension( "GL_ARB_shader_objects" ))
     {
         // program object functions
-        ARB_BACKUP( windowSystem, glCreateProgram, 
-                    glCreateProgramObjectARB,  PFNGLCREATEPROGRAMPROC );
-        ARB_BACKUP( windowSystem, glDeleteProgram, 
-                    glDeleteObjectARB,         PFNGLDELETEPROGRAMPROC );
-        ARB_BACKUP( windowSystem, glLinkProgram, 
-                    glLinkProgramARB,          PFNGLLINKPROGRAMPROC );
-        ARB_BACKUP( windowSystem, glUseProgram, 
-                    glUseProgramObjectARB,     PFNGLUSEPROGRAMPROC );
-        ARB_BACKUP( windowSystem, glGetProgramiv, 
-                    glGetObjectParameterivARB, PFNGLGETPROGRAMIVPROC );
+        BACKUP( glCreateProgram, glCreateProgramObjectARB,
+                PFNGLCREATEPROGRAMPROC );
+        BACKUP( glDeleteProgram, glDeleteObjectARB,    PFNGLDELETEPROGRAMPROC );
+        BACKUP( glLinkProgram,   glLinkProgramARB,       PFNGLLINKPROGRAMPROC );
+        BACKUP( glUseProgram,    glUseProgramObjectARB,  PFNGLUSEPROGRAMPROC );
+        BACKUP( glGetProgramiv,glGetObjectParameterivARB,PFNGLGETPROGRAMIVPROC);
         
         // shader object functions
-        ARB_BACKUP( windowSystem, glCreateShader, 
-                    glCreateShaderObjectARB,   PFNGLCREATESHADERPROC );
-        ARB_BACKUP( windowSystem, glDeleteShader, 
-                    glDeleteObjectARB,         PFNGLDELETESHADERPROC );
-        ARB_BACKUP( windowSystem, glAttachShader, 
-                    glAttachObjectARB,         PFNGLATTACHSHADERPROC );
-        ARB_BACKUP( windowSystem, glDetachShader, 
-                    glDetachObjectARB,         PFNGLDETACHSHADERPROC );
-        ARB_BACKUP( windowSystem, glShaderSource, 
-                    glShaderSourceARB,         PFNGLSHADERSOURCEPROC );
-        ARB_BACKUP( windowSystem, glCompileShader, 
-                    glCompileShaderARB,        PFNGLCOMPILESHADERPROC );
-        ARB_BACKUP( windowSystem, glGetShaderiv, 
-                    glGetObjectParameterivARB, PFNGLGETSHADERIVPROC );
+        BACKUP( glCreateShader, glCreateShaderObjectARB, PFNGLCREATESHADERPROC);
+        BACKUP( glDeleteShader,  glDeleteObjectARB,    PFNGLDELETESHADERPROC );
+        BACKUP( glAttachShader,  glAttachObjectARB,    PFNGLATTACHSHADERPROC );
+        BACKUP( glDetachShader,  glDetachObjectARB,    PFNGLDETACHSHADERPROC );
+        BACKUP( glShaderSource,  glShaderSourceARB,    PFNGLSHADERSOURCEPROC );
+        BACKUP( glCompileShader, glCompileShaderARB,   PFNGLCOMPILESHADERPROC );
+        BACKUP( glGetShaderiv, glGetObjectParameterivARB, PFNGLGETSHADERIVPROC);
     }
+
+    // misc functions
+    if( checkExtension( "GL_EXT_blend_func_separate" ))
+        BACKUP( glBlendFuncSeparate, glBlendFuncSeparateEXT, 
+                PFNGLBLENDFUNCSEPARATEPROC );
+
 }
 
 GLFunctions::~GLFunctions()
@@ -235,6 +234,14 @@ void GLFunctions::getShaderiv( GLuint shader, GLenum pname,
     _table.glGetShaderiv( shader, pname, params );
 }
 
+// misc functions
+void GLFunctions::blendFuncSeparate( GLenum srcRGB,   GLenum dstRGB, 
+                                       GLenum srcAlpha, GLenum dstAlpha ) const
+{
+    EQASSERT( hasBlendFuncSeparate() );
+    _table.glBlendFuncSeparate( srcRGB, dstRGB, srcAlpha, dstAlpha );
+}
+
 
 // helper function to check for specific OpenGL extensions by name
 bool GLFunctions::checkExtension( const char* extensionName )
@@ -263,5 +270,4 @@ bool GLFunctions::checkExtension( const char* extensionName )
     
     return false;
 }
-
 }

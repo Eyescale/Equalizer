@@ -499,7 +499,9 @@ void Channel::frameDraw( const uint32_t frameID )
     //Render slices
     glEnable(GL_BLEND);
 #ifdef COMPOSE_MODE_NEW
-    glBlendFuncSeparateEXT( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
+	const eq::Window* window = getWindow();
+	const eq::GLFunctions* gl = window->getGLFunctions();
+    gl->blendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
 #else
     glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
 #endif
@@ -625,7 +627,7 @@ void Channel::_orderFrames( vector< Frame >& frames )
 
     if( minPos < frames.size() )
     {
-        uint            nFrames   = frames.size();
+        uint32_t        nFrames   = frames.size();
         vector< Frame > framesTmp = frames;
 
         //Copy slices that should be rendered first

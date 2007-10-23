@@ -401,10 +401,10 @@ static GLuint createPreintegrationTable( const uint8_t *Table )
                 acol = static_cast<int>( 256.*(1.0-exp(-Table[index+3]/255.)) );
 #endif
             }
-            lookupImg[lookupindex++] = clip( rcol, 0, 255 );//min( rcol, 255 );
-            lookupImg[lookupindex++] = clip( gcol, 0, 255 );//min( gcol, 255 );
-            lookupImg[lookupindex++] = clip( bcol, 0, 255 );//min( bcol, 255 );
-            lookupImg[lookupindex++] = clip( acol, 0, 255 );//min( acol, 255 );
+            lookupImg[lookupindex++] = clip( rcol, 0, 255 );//MIN( rcol, 255 );
+            lookupImg[lookupindex++] = clip( gcol, 0, 255 );//MIN( gcol, 255 );
+            lookupImg[lookupindex++] = clip( bcol, 0, 255 );//MIN( bcol, 255 );
+            lookupImg[lookupindex++] = clip( acol, 0, 255 );//MIN( acol, 255 );
         }
     }
 

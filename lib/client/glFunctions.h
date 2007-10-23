@@ -95,7 +95,13 @@ namespace eq
         bool hasGetShaderiv() const
             { return ( _table.glGetShaderiv != 0 ); }
         void getShaderiv( GLuint shader, GLenum pname, GLint* params ) const;
-        
+
+        // misc functions
+        bool hasBlendFuncSeparate() const
+            { return ( _table.glBlendFuncSeparate != 0 ); }
+        void blendFuncSeparate( GLenum srcRGB,   GLenum dstRGB, 
+                                GLenum srcAlpha, GLenum dstAlpha ) const;
+
         // utility functions
         static bool checkExtension( const char* extensionName );
         
@@ -124,6 +130,9 @@ namespace eq
             PFNGLSHADERSOURCEPROC   glShaderSource;
             PFNGLCOMPILESHADERPROC  glCompileShader;
             PFNGLGETSHADERIVPROC    glGetShaderiv;
+
+            // misc functions
+            PFNGLBLENDFUNCSEPARATEPROC glBlendFuncSeparate;
         } _table;
     };
 }
