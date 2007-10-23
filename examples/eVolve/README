@@ -1,0 +1,105 @@
+
+                         eVolve - Parallel Volume Renderer
+
+Overview
+
+   The Evolve example is a demonstrational Equalizer application. It does render
+   volume data, read from a file of a special format. It supports all Equalizer
+   compound features, namely 2D (sort-first), DB (sort-last) and Eye (stereo)
+   decompositions. It introduces semitransparent objects compositing approach.
+
+Application Structure
+
+   Please check eqPly README 'Application Structure' section for more details.
+
+Data format
+
+    Each model is represented by two files: data file (.raw file) which contain
+    8-bit raw volume data plus gradient vector for each voxel, and description
+    file (.vhf file) which contain model's parameters. Please use
+    'volRawConverter' utility, which is shipped as a part of equalizer, to
+    convert raw data or pvm file to proper format.
+
+    raw files:
+
+        raw file is a file where each voxel is represented by 4 bytes. First
+        byte is a value of volume itself, other 3 bytes are x, y and z
+        components of gradient vector for current voxel (which is used for
+        lighting calculation). eVolve works only with data which is represented
+        as a regular parallelepiped grid of voxels. Position of each voxel in a
+        raw file could be calculated as:
+
+        pos = ( z*(W*H) + y*W + x )*4
+
+        where:
+
+        W, H, D - width, height and depth of a model,
+        x, y, z - coordinates of a voxel.
+
+    vhf file:
+
+        First 6 lines describes dimensions and scales of a model:
+
+        w=<val>
+        h=<val>
+        d=<val>
+        wScale=<val>
+        hScale=<val>
+        dScale=<val>
+
+        followed by transfer function description, two lines (which are constant
+        at the moment):
+
+        TF:
+        size=256
+
+        and 256 times lines of following format:
+
+        r=<val>
+        g=<val>
+        b=<val>
+        a=<val>
+
+        which are color and opacity of each volume value (values belongs to
+        diapason [0, 255] ).
+
+Usage
+
+USAGE:
+
+   ./examples/eVolve/eVolve  [-g] [-w <string>] [-b <float>] [-p <unsigned>] 
+                             [-n <unsigned>] [-r] [-m <string>] [--] [--version] 
+                             [-h]
+
+
+Where: 
+
+   -g,  --glsl
+     Enable GLSL shaders
+
+   -w <string>,  --windowSystem <string>
+     Window System API ( one of: AGL glX )
+
+   -b <float>,  --brightness <float>
+     brightness factor
+
+   -p <unsigned>,  --precision <unsigned>
+     Rendering precision (default 2, bigger is better and slower)
+
+   -n <unsigned>,  --numFrames <unsigned>
+     Maximum number of rendered frames
+
+   -r,  --resident
+     Keep client resident (see resident node documentation on website)
+
+   -m <string>,  --model <string>
+     raw model file name
+
+   --,  --ignore_rest
+     Ignores the rest of the labeled arguments following this flag.
+
+   --version
+     Displays version information and exits.
+
+   -h,  --help
+     Displays usage information and exits.
