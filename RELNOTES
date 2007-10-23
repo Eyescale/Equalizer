@@ -1,11 +1,11 @@
 
-                        Release Notes for Equalizer 0.3
+                        Release Notes for Equalizer 0.4
 
-   Welcome to Equalizer 0.3, a framework for the development and deployment
-   of scalable multipipe applications, based on C++ and OpenGL. The major new
-   feature in Equalizer 0.3 is support for the Windows XP operating system.
+   Welcome to Equalizer 0.4, a framework for the development and deployment
+   of scalable OpenGL applications. The major new feature in Equalizer 0.4 is
+   the Programming Guide.
 
-   Equalizer 0.3 is a beta release, and therefore intended as preview and
+   Equalizer 0.4 is a beta release, and therefore intended as preview and
    evaluation snapshot for application developers and early adopters.
 
   Features
@@ -36,68 +36,73 @@
 
     New Features
 
-     * Support for Windows XP (i386, x64) and Visual Studio 2005
-     * Anaglyphic stereo rendering
-     * Improved distributed object support
-     * Standalone (server-less) application support
-     * Nonthreaded rendering from the main application thread
-     * Addressing of indidual graphic cards on Windows using the
-       WGL_NV_gpu_affinity extension
-     * Support for explicit SDP connections
-     * New tool to create typical configuration files
-     * New Equalizer-based benchmark tool for pixel readback and draw
-       operations
-     * New Equalizer-based benchmark tool for network bandwidth
-     * Support and example code for resident (pre-started) render clients
-     * Support for application-specific config events
+     * Programming Guide
+     * Fixed aspect ratio support
+     * View configuration using projector layout
+     * Much improved polygonal rendering example performance
+     * New volume rendering example (beta preview)
+     * Support for volume-rendering applications
+     * Support for per-node frame synchronization
+     * Support for AGL and Carbon on Mac OS X
+     * Support for Mac OS X 10.5 Leopard
+     * Support for Cygwin on Windows XP
+     * Infiniband support for Linux
+     * Improved event handling support
 
     Bug Fixes
 
-   Equalizer 0.3 includes various bugfixes over the previous release.
+   Equalizer 0.4 includes various bugfixes over the previous release.
 
     New Documentation
 
-     * Anaglyphic Stereo
-     * Nonthreaded Rendering
-     * Infiniband Setup and Configuration
-     * Resident Render Clients
-     * Standalone Application Support
-     * Node Connection Setup
-     * Configuration Tool
+     * Programming Guide
+     * The Equalizer Parallel Rendering Framework, technical report
+     * Entwicklung eines parallelen OpenGL Polygon-Renderers, semester thesis
+       in German about the new eqPly example
+     * Direct Send Compositing for Parallel Sort-Last Rendering presentation
+     * Transparency and sort-last (DB) compounds
+     * Volume Rendering Example
+     * Fixed Aspect Ratio
 
-    Known Bugs
+  Removed Features
+
+   The incomplete support for CGL has been replaced by support for AGL and
+   Carbon on Mac OS X. CGL proved not to be useful in conjunction with
+   windowing and event handling.
 
   Supported Platforms
 
    Equalizer is a cross-platform toolkit, designed to run on any modern
    operating system, including all Unix variants and the Windows operating
-   system. Version 0.3 has been tested on:
+   system. A compatibility matrix can be found on the Equalizer website.
+   Version 0.4 has been tested on:
 
     Operating System Support
 
-     * Linux: Ubuntu 6.10 (x64, i386), RedHat Enterprise Linux 4 (x64, i386)
-     * Windows: XP with Visual Studio 2005 (i386, x64)
-     * Mac OS X: 10.4 (PowerPC, i386)
+     * Linux: Ubuntu 6.10 (x64, i386)
+     * Windows: XP with Visual Studio 2005 (i386, x64) and Cygwin(i386)
+     * Mac OS X: 10.4 (PowerPC, i386) and 10.5 (i386)
 
     Window System Support
 
      * X11: Full support for all documented features.
      * WGL: Full support for all documented features.
-     * CGL: Preliminary support: fullscreen only, no event handling
+     * AGL: Full support for all documented features.
 
   Documentation
 
-   Equalizer does not yet have a formal Users or Programmers Guide. The
-   shipped eqPly example provides a reference for developing or porting
-   applications. The Developer Documentation on the website provides further
-   design documents for specific features. The source code is a last resort
-   for information.
+   The Programming Guide is part of the Equalizer distribution and can be
+   found in doc/Developer/ProgrammingGuide/paper.pdf. Equalizer does not yet
+   have an Users Guide. The shipped eqPly example provides a reference for
+   developing or porting applications. The Developer Documentation on the
+   website provides further design documents for specific features. The
+   source code is a last resort for information.
 
   Support
 
    Technical questions can be posted to the Developer Mailing List, or
    directly to info@equalizergraphics.com.
 
-   Commercial support, feature requests, custom software development and
-   porting services are available from Tungsten Graphics. Please contact
-   sales@tungstengraphics.com for further information.
+   Commercial support, custom software development and porting services are
+   available from EyeScale. Please contact info@eyescale.ch for further
+   information.

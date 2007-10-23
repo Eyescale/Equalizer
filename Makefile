@@ -38,3 +38,6 @@ endif
 
 $(INSTALL_CMD): subdirs
 	@sort $@ | sort -u > .$@.tmp && mv .$@.tmp $@
+
+RELNOTES: ../website/build/documents/RelNotes/RelNotes_0.4.0.html
+	links -dump $< > $@

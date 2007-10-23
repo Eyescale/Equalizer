@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_VERSION_H
@@ -13,8 +13,8 @@ namespace eq
 {
     // Equalizer version macros and functions
 #   define EQ_VERSION_MAJOR 0
-#   define EQ_VERSION_MINOR 3
-#   define EQ_VERSION_PATCH 9
+#   define EQ_VERSION_MINOR 4
+#   define EQ_VERSION_PATCH 0
 
     class Version
     {
