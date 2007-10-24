@@ -29,10 +29,11 @@ RawVolumeModel::RawVolumeModel( const std::string& filename  )
         , _preintName  ( 0 )
 {}
 
-bool RawVolumeModel::loadHeader( const float brightness )
+bool RawVolumeModel::loadHeader( const float brightness, const float alpha )
 {
     EQASSERT( !_headerLoaded );
     EQASSERT( brightness > 0.0f );
+    EQASSERT( alpha > 0.0f );
     EQLOG( eq::LOG_CUSTOM ) << "-------------------------------------------"
                             << std::endl << "model: " << _filename;
 
@@ -54,11 +55,19 @@ bool RawVolumeModel::loadHeader( const float brightness )
 
     _headerLoaded = true;
 
-    if( brightness == 1.0f )
-        return true;
+    if( brightness != 1.0f )
+    {
+        for( size_t i = 0; i < _TF.size(); i+=4 )
+        {
+            _TF[i+0] = static_cast< uint8_t >( _TF[i+0] * brightness );
+            _TF[i+1] = static_cast< uint8_t >( _TF[i+1] * brightness );
+            _TF[i+2] = static_cast< uint8_t >( _TF[i+2] * brightness );
+        }
+    }
 
-    for( size_t i = 0; i < _TF.size(); ++i )
-        _TF[i] = static_cast< uint8_t >( _TF[i] * brightness );
+    if( alpha != 1.0f )
+        for( size_t i = 3; i < _TF.size(); i+=4 )
+            _TF[i] = static_cast< uint8_t >( _TF[i] * alpha );
 
     return true;
 }
@@ -72,7 +81,7 @@ static int32_t calcHashKey( const eq::Range& range )
 
 bool RawVolumeModel::getVolumeInfo( VolumeInfo& info, const eq::Range& range )
 {
-    if( !_headerLoaded && !loadHeader( 1.0 ))
+    if( !_headerLoaded && !loadHeader( 1.0f, 1.0f ))
         return false;
 
     if( _preintName == 0 )

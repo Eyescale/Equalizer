@@ -29,6 +29,7 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     setWindowSystem( from.getWindowSystem( ));
     setPrecision( from.getPrecision( ));
     setBrightness( from.getBrightness( ));
+    setAlpha( from.getAlpha( ));
     if( from.useGLSL( )) 
       enableGLSL();
     return *this;
@@ -70,6 +71,8 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         TCLAP::ValueArg<float> brightnessArg( "b", "brightness",
                                               "brightness factor", false, 1.0f,
                                               "float", command );
+        TCLAP::ValueArg<float> alphaArg( "a", "alpha", "alpha attenuation", 
+                                         false, 1.0f, "float", command );
         TCLAP::ValueArg<string> wsArg( "w", "windowSystem", wsHelp,
                                        false, "auto", "string", command );
         TCLAP::SwitchArg glslArg( "g", "glsl", "Enable GLSL shaders", 
@@ -99,6 +102,8 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             setPrecision( precisionArg.getValue( ));
         if( brightnessArg.isSet( ))
             setBrightness( brightnessArg.getValue( ));
+        if( alphaArg.isSet( ))
+            setAlpha( alphaArg.getValue( ));
         if( residentArg.isSet( ))
             _isResident = true;
         if( glslArg.isSet() )

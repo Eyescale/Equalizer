@@ -53,15 +53,15 @@ int RawConverter::parseArguments( int argc, char** argv )
             "volConv - volume file formats converter" );
 
         TCLAP::ValueArg<double> sclXArg( 
-            "", "sW", "scale factor for Width",
+            "", "sW", "scale factor for width",
             false, 1.0  , "double", command );
 
         TCLAP::ValueArg<double> sclYArg( 
-            "", "sH", "scale factor for Height",
+            "", "sH", "scale factor for height",
             false, 1.0  , "double", command );
 
         TCLAP::ValueArg<double> sclZArg( 
-            "", "sD", "scale factor for Depth",
+            "", "sD", "scale factor for depth",
             false, 1.0  , "double", command );
 
         TCLAP::ValueArg<double> sclArg( 
@@ -138,14 +138,14 @@ int RawConverter::parseArguments( int argc, char** argv )
             scaleZ = sclZArg.getValue( );
             scale  = true;
         }
-        
+
         if( scale )
             return RawConverter::scaleRawDerFile( 
                         srcArg.getValue( ), dstArg.getValue( ),
                         scaleX, scaleY, scaleZ                  );
 
 
-        EQERROR << "Converter options was not specified completely.";
+        EQERROR << "Converter options were not specified completely." << endl;
     }
     catch( TCLAP::ArgException& exception )
     {

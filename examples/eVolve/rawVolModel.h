@@ -56,7 +56,7 @@ namespace eVolve
 
         RawVolumeModel( const std::string& filename );
 
-        bool loadHeader( const float brightness );
+        bool loadHeader( const float brightness, const float alpha );
 
         bool getVolumeInfo( VolumeInfo& info, const eq::Range& range );
         void releaseVolumeInfo( const eq::Range& range );
