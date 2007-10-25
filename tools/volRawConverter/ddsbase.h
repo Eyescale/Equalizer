@@ -1,4 +1,10 @@
-// (c) by Stefan Roettger
+/*
+ * Copyright (c) by Stefan Roettger
+ * All rights reserved.
+ * 
+ * From the V^3 volume renderer <http://stereofx.org/volume.html>, license
+ * change to LGPL with kind permission from Stefan Roettger
+ */
 
 #ifndef DDSBASE_H
 #define DDSBASE_H
