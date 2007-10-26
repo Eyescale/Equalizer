@@ -3,7 +3,7 @@ include $(TOP)/make/system.mk
 
 SUBDIRS = \
 	configTool \
-	volRawConverter
+	eVolveConverter
 
 TARGETS = subdirs
 

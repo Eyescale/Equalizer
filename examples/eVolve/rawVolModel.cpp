@@ -1,3 +1,5 @@
+/* Copyright (c) 2007       Maxim Makhinya
+   All rights reserved. */
 
 #include "rawVolModel.h"
 #include "hlp.h"

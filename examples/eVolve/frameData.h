@@ -2,8 +2,8 @@
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_VOL_FRAMEDATA_H
-#define EQ_VOL_FRAMEDATA_H
+#ifndef EVOLVE_FRAMEDATA_H
+#define EVOLVE_FRAMEDATA_H
 
 #include "eVolve.h"
 
@@ -43,5 +43,5 @@ namespace eVolve
 }
 
 
-#endif // EQ_VOL_FRAMEDATA_H
+#endif // EVOLVE_FRAMEDATA_H
 

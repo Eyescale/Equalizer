@@ -2,8 +2,8 @@
 /* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com>
    All rights reserved. */
 
-#ifndef EQ_VOL_LOCALINITDATA_H
-#define EQ_VOL_LOCALINITDATA_H
+#ifndef EVOLVE_LOCALINITDATA_H
+#define EVOLVE_LOCALINITDATA_H
 
 #include "initData.h"
 
@@ -29,4 +29,4 @@ namespace eVolve
     };
 }
 
-#endif // EQ_VOL_LOCALINITDATA_H
+#endif // EVOLVE_LOCALINITDATA_H

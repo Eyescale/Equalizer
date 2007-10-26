@@ -1,13 +1,9 @@
-/*
- *  shader.h
- *  volume
- *
- *  Created by huebner on 19.12.05.
- *  Copyright 2005 __MyCompanyName__. All rights reserved.
- *
- */
-#ifndef _shader_h_
-#define _shader_h_
+/* Copyright (c) 2005       Thomas Huebner
+                 2007       Maxim Makhinya
+   All rights reserved. */
+
+#ifndef EVOLVE_SHADER_H
+#define EVOLVE_SHADER_H
 
 namespace eqShader
 {
@@ -15,4 +11,4 @@ namespace eqShader
                       GLhandleARB &shader );
     
 }
-#endif
+#endif // EVOLVE_SHADER_H

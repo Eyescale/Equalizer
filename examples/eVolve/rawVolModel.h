@@ -1,6 +1,8 @@
+/* Copyright (c) 2007       Maxim Makhinya
+   All rights reserved. */
 
-#ifndef RAW_VOL_MODEL_H
-#define RAW_VOL_MODEL_H
+#ifndef EVOLVE_RAW_VOL_MODEL_H
+#define EVOLVE_RAW_VOL_MODEL_H
 
 #include <eq/eq.h>
 
@@ -102,4 +104,4 @@ namespace eVolve
 
 }
 
-#endif // RAW_VOL_MODEL_H
+#endif // EVOLVE_RAW_VOL_MODEL_H

@@ -2,8 +2,8 @@
 /* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_VOL_WINDOW_H
-#define EQ_VOL_WINDOW_H
+#ifndef EVOLVE_WINDOW_H
+#define EVOLVE_WINDOW_H
 
 #include <eq/eq.h>
 
@@ -48,4 +48,4 @@ namespace eVolve
     };
 }
 
-#endif // EQ_VOL_WINDOW_H
+#endif // EVOLVE_WINDOW_H

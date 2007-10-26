@@ -197,7 +197,8 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             break;
         }
 
-        case WM_CLOSE:
+		case WM_CLOSE:
+		case WM_DESTROY:
             event.type = WindowEvent::CLOSE;
             break;
 

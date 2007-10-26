@@ -2,8 +2,8 @@
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_VOL_H
-#define EQ_VOL_H
+#ifndef EVOLVE_H
+#define EVOLVE_H
 
 #include "rawVolModel.h"
 
@@ -33,5 +33,5 @@ namespace eVolve
     };
 }
 
-#endif // EQ_VOL_H
+#endif // EVOLVE_H
 

@@ -1,6 +1,8 @@
+/* Copyright (c) 2007       Maxim Makhinya
+   All rights reserved. */
 
-#ifndef EQ_HLP_H
-#define EQ_HLP_H
+#ifndef EVOLVE_HLP_H
+#define EVOLVE_HLP_H
 
 #include <iostream>
 #include <fstream>
@@ -28,4 +30,4 @@ T clip( T val, T min, T max )
 
 }
 
-#endif //EQ_HLP_H
+#endif // EVOLVE_HLP_H

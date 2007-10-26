@@ -1,4 +1,7 @@
 
+/* Copyright (c) 2007       Maxim Makhinya
+   All rights reserved. */
+
 //#define PARALLEL_PROJECTION
 
 #define ZERO 0.0

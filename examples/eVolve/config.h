@@ -2,8 +2,8 @@
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_VOL_CONFIG_H
-#define EQ_VOL_CONFIG_H
+#ifndef EVOLVE_CONFIG_H
+#define EVOLVE_CONFIG_H
 
 #include <eq/eq.h>
 
@@ -43,4 +43,4 @@ namespace eVolve
     };
 }
 
-#endif // EQ_VOL_CONFIG_H
+#endif // EVOLVE_CONFIG_H

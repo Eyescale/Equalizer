@@ -1,4 +1,6 @@
 #!/usr/bin/perl -w
+# converts a text file into a text file containing a std::string declaration
+# with the input file as data.
 
 use strict;
 

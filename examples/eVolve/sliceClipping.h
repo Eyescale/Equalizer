@@ -1,9 +1,12 @@
 
+/* Copyright (c) 2007       Maxim Makhinya
+   All rights reserved. */
+
 #include <eq/eq.h>
 
 
-#ifndef EQ_VOL_SLICECLIPPING_H
-#define EQ_VOL_SLICECLIPPING_H
+#ifndef EVOLVE_SLICECLIPPING_H
+#define EVOLVE_SLICECLIPPING_H
 
 namespace eVolve
 {
@@ -44,4 +47,4 @@ struct SliceClipper
 
 }
 
-#endif //EQ_VOL_SLICECLIPPING_H
+#endif // EVOLVE_SLICECLIPPING_H

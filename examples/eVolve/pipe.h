@@ -2,8 +2,8 @@
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_VOL_PIPE_H
-#define EQ_VOL_PIPE_H
+#ifndef EVOLVE_PIPE_H
+#define EVOLVE_PIPE_H
 
 #include <eq/eq.h>
 
@@ -64,4 +64,4 @@ namespace eVolve
     };
 }
 
-#endif // EQ_VOL_PIPE_H
+#endif // EVOLVE_PIPE_H

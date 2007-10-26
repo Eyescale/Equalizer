@@ -2,8 +2,8 @@
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_VOL_NODE_H
-#define EQ_VOL_NODE_H
+#ifndef EVOLVE_NODE_H
+#define EVOLVE_NODE_H
 
 #include "eVolve.h"
 #include "initData.h"
@@ -38,4 +38,4 @@ namespace eVolve
 
 }
 
-#endif // EQ_VOL_NODE_H
+#endif // EVOLVE_NODE_H

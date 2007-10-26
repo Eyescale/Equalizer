@@ -1,4 +1,7 @@
 
+/* Copyright (c) 2007       Maxim Makhinya
+   All rights reserved. */
+
 /*
 // updated per cube
 varying vec3  vecTranslate;

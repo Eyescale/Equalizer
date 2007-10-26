@@ -1,11 +1,6 @@
-/*
- *  shader.cpp
- *  volume
- *
- *  Created by huebner on 19.12.05.
- *  Copyright 2005 __MyCompanyName__. All rights reserved.
- *
- */
+/* Copyright (c) 2005       Thomas Huebner
+                 2007       Maxim Makhinya
+   All rights reserved. */
 
 #include <eq/eq.h>
 #include "shader.h"
