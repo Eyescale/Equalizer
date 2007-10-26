@@ -188,7 +188,7 @@ inline double getclockticks()
    return(clockticks);
    }
 
-#ifdef WINOS
+#ifdef WIN32_VC
 
 inline char *strdup(char *str)
    {

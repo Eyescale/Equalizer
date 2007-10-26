@@ -9,7 +9,6 @@ SOURCES = \
 	frame.cpp \
 	frameData.cpp \
 	global.cpp \
-	lexer.cpp \
 	loader.cpp \
 	node.cpp \
 	parser.cpp \
@@ -28,7 +27,15 @@ INSTALL  = 1
 
 CLEAN_EXTRA = \
 	lexer.cpp \
+	lexer_cygwin.cpp \
 	parser.cpp
+
+
+ifeq "${ARCH}" "CYGWIN_NT-5.1"
+  SOURCES += lexer_cygwin.cpp
+else
+  SOURCES += lexer.cpp
+endif
 
 MODULE  = eqserver
 
@@ -49,6 +56,8 @@ include $(TOP)/make/rules.mk
 
 $(SIMPLE_PROGRAMS): $(DYNAMIC_LIB)
 $(DYNAMIC_LIB): lexer.cpp parser.cpp
+
+lexer_cygwin.cpp: lexer.cpp
 
 lexer.cpp: loader.l parser.cpp
 	$(FLEX) -o$@ $<

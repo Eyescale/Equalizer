@@ -478,13 +478,13 @@ int RawConverter::SavToVhfConverter( const string& src, const string& dst )
             for( int i=0; i<TFSize; i++ )
             {
                 fscanf( file, "re=%f\n", &t   );
-                TF[4*i  ] = clip( static_cast<int32_t>( t*255.0 ), 0, 255 );
+                TF[4*i  ] = clip( static_cast<int>( t*255.0 ), 0, 255 );
 
                 fscanf( file, "ge=%f\n", &t   );
-                TF[4*i+1] = clip( static_cast<int32_t>( t*255.0 ), 0, 255 );
+                TF[4*i+1] = clip( static_cast<int>( t*255.0 ), 0, 255 );
 
                 fscanf( file, "be=%f\n", &t   ); 
-                TF[4*i+2] = clip( static_cast<int32_t>( t*255.0 ), 0, 255 );
+                TF[4*i+2] = clip( static_cast<int>( t*255.0 ), 0, 255 );
 
                 fscanf( file, "ra=%f\n", &tra );    
                 fscanf( file, "ga=%f\n", &tba );
@@ -495,17 +495,14 @@ int RawConverter::SavToVhfConverter( const string& src, const string& dst )
                     return 1;
                 }
                 TF[4*i+3] = 
-                    clip( static_cast<int32_t>(
-                                        (tra+tga+tba)*255.0/3.0 ), 0, 255 );
+                    clip( static_cast<int>((tra+tga+tba)*255.0/3.0 ), 0, 255 );
             }
         }
     }
     
     //write vhf
-    {
-        int result = writeVHF( dst, w, h, d, wScale, hScale, dScale, TF );
-        if( result ) return result;
-    }
+    int result = writeVHF( dst, w, h, d, wScale, hScale, dScale, TF );
+    if( result ) return result;
 
     EQWARN << "file " << src.c_str() << " > " << dst.c_str() 
            << " converted" << endl;
@@ -569,47 +566,40 @@ int RawConverter::PvmSavToRawDerVhfConverter(     const string& src,
     EQWARN << "Converting " << src << " -> " << dst << endl;
 
     // reading pvm volume
-    unsigned char*    volume = 0;
-             uint32_t width,  height, depth, components;
-             float    scaleX, scaleY, scaleZ;
-    {
-        char* srcTmp = const_cast<char*>( src.c_str() );
+    unsigned char*  volume = 0;
+    unsigned        width,  height, depth, components;
+    float           scaleX, scaleY, scaleZ;
+    char*           srcTmp = const_cast<char*>( src.c_str() );
 
-        volume = readPVMvolume( srcTmp,  &width,  &height, &depth, 
+    volume = readPVMvolume( srcTmp,  &width,  &height, &depth, 
                                 &components, &scaleX, &scaleY, &scaleZ  );
+    
+    if( volume==NULL )
+        return lFailed( "Can't read vpm file" );
 
-        if( volume==NULL )
-            return lFailed( "Can't read vpm file" );
+    if( components != 1 )
+        return lFailed( "The only 8-bits models are supported" );
 
-        if( components != 1 )
-            return lFailed( "The only 8-bits models are supported" );
-
-        EQWARN  << "dimensions: " 
-                << width << " x " << height << " x " << depth << endl
-                << "scales: " << scaleX << " x "
-                              << scaleY << " x "
-                              << scaleZ << endl;
-    }
+    EQWARN  << "dimensions: " 
+            << width << " x " << height << " x " << depth << endl
+            << "scales: " << scaleX << " x " << scaleY << " x " << scaleZ
+            << endl;
     
     // calculating derivatives
-    {
-        int result = 
-            calculateAndSaveDerivatives( dst, volume, width,  height, depth );
+    int result = 
+        calculateAndSaveDerivatives( dst, volume, width,  height, depth );
 
-        free( volume );
-        if( result ) return result;
-    }
+    free( volume );
+    if( result ) return result;
     
-    // saving volume dimensions
-    {
-        hFile info( fopen( (dst+".vhf").c_str(), "wb" ) );
-        FILE* file = info.f;
-
-        if( file==NULL ) return lFailed( "Can't open destination header file" );
-
-        writeDimensionsToSav( file, width,  height, depth  );
-        writeScalesToSav(     file, scaleX, scaleY, scaleZ );
-    }
+    // save volume dimensions
+    hFile info( fopen( (dst+".vhf").c_str(), "wb" ) );
+    FILE* file = info.f;
+    
+    if( file==NULL ) return lFailed( "Can't open destination header file" );
+    
+    writeDimensionsToSav( file, width,  height, depth  );
+    writeScalesToSav(     file, scaleX, scaleY, scaleZ );
 
     //converting transfer function
     SavToVhfConverter( src+".sav", dst+".vhf" );
