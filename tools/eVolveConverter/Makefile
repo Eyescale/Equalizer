@@ -1,10 +1,10 @@
 
 include $(TOP)/make/system.mk
 
-PROGRAM = volConv
+PROGRAM = eVolveConverter
 
 SOURCES = \
-	rawConverter.cpp \
+	eVolveConverter.cpp \
 	ddsbase.cpp
 
 CXXFLAGS += -I../../examples/include
