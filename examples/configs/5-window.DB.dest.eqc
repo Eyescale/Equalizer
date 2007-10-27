@@ -16,7 +16,7 @@ server
                 window
                 {
                     name     "window1"
-                    viewport [ 605 100 500 300 ]
+                    viewport [ 450 25 400 400 ]
                     channel { name "channel1"  }
                 }
             }
@@ -25,7 +25,7 @@ server
                 window
                 {
                     name     "window2"
-                    viewport [ 1110 100 500 300 ]
+                    viewport [ 900 25 400 400 ]
                     channel { name "channel2"  }
                 }
             }
@@ -34,7 +34,7 @@ server
                 window
                 {
                     name     "window3"
-                    viewport [ 605 425 500 300 ]
+                    viewport [ 450 450 400 400 ]
                     channel { name "channel3"  }
                 }
             }
@@ -43,7 +43,7 @@ server
                 window
                 {
                     name     "window4"
-                    viewport [ 1110 425 500 300 ]
+                    viewport [ 900 450 400 400 ]
                     channel { name "channel4"  }
                 }
             }
@@ -52,7 +52,7 @@ server
                 window
                 {
                     name     "result"
-                    viewport [ 100 100 500 300 ]
+                    viewport [ 25 25 400 400 ]
                     channel { name "channel5"  }
                 }
             }
@@ -65,9 +65,9 @@ server
 
             wall
             {
-                bottom_left  [ -.8 -.5 -1 ]
-                bottom_right [  .8 -.5 -1 ]
-                top_left     [ -.8  .5 -1 ]
+                bottom_left  [ -.5 -.5 -1 ]
+                bottom_right [  .5 -.5 -1 ]
+                top_left     [ -.5  .5 -1 ]
             }
             
             compound

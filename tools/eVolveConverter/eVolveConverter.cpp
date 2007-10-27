@@ -14,7 +14,7 @@
 #include <math.h>
 #include <tclap/CmdLine.h>
 
-#include "rawConverter.h"
+#include "eVolveConverter.h"
 #include "hlp.h"
 
 
@@ -310,50 +310,45 @@ int RawConverter::CompareTwoRawDerVhf( const string& src1,
 
     vector< uint8_t > TF1( 256*4, 0 );
     vector< uint8_t > TF2( 256*4, 0 );
-    int tfSize1;
-    int tfSize2;
+
     //reading headers
-    {
-        string configFileName = src1;
-        hFile info( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
-        FILE* file = info.f;
-
-        if( file==NULL ) return lFailed( "Can't open first header file" );
-
-        //reading dimensions
-        readDimensionsFromSav( file,  w1,  h1,  d1 );
-        if( readScalesFormSav( file, sw1, sh1, sd1 ) )
-            lFailed( "Wrong format of the first header file" );
-
-        //reading transfer function
-        tfSize1 = readTrasferFunction( file, TF1 );
-    }
-    {
-        string configFileName = src2;
-        hFile info( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
-        FILE* file = info.f;
-
-        if( file==NULL ) return lFailed( "Can't open first header file" );
-
-        readDimensionsFromSav( file,  w2,  h2,  d2 );
-        if( readScalesFormSav( file, sw2, sh2, sd2 ) )
-            lFailed( "Wrong format of the second header file" );
-
-        //reading transfer function
-        tfSize2 = readTrasferFunction( file, TF2 );
-    }
+    string configFileName = src1;
+    hFile info( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
+    FILE* file = info.f;
+    
+    if( file==NULL ) return lFailed( "Can't open first header file" );
+    
+    //reading dimensions
+    readDimensionsFromSav( file,  w1,  h1,  d1 );
+    if( readScalesFormSav( file, sw1, sh1, sd1 ) )
+        lFailed( "Wrong format of the first header file" );
+    
+    //reading transfer function
+    const size_t tfSize1 = readTrasferFunction( file, TF1 );
+    
+    configFileName = src2;
+    hFile info2( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
+    file = info2.f;
+    
+    if( file==NULL ) return lFailed( "Can't open first header file" );
+    
+    readDimensionsFromSav( file,  w2,  h2,  d2 );
+    if( readScalesFormSav( file, sw2, sh2, sd2 ) )
+        lFailed( "Wrong format of the second header file" );
+    
+    //reading transfer function
+    const size_t tfSize2 = readTrasferFunction( file, TF2 );
+    
     //comparing headers
-    {
-        if( w1!=w2 ) return lFailed(" Widths are not equal ");
-        if( h1!=h2 ) return lFailed(" Heights are not equal ");
-        if( d1!=d2 ) return lFailed(" Depths are not equal ");
+    if( w1!=w2 ) return lFailed(" Widths are not equal ");
+    if( h1!=h2 ) return lFailed(" Heights are not equal ");
+    if( d1!=d2 ) return lFailed(" Depths are not equal ");
 
-        if( sw1!=sw2 ) EQWARN << " Widths'  scales are not equal " << endl;
-        if( sh1!=sh2 ) EQWARN << " Heights' scales are not equal " << endl;
-        if( sd1!=sd2 ) EQWARN << " Depths'  scales are not equal " << endl;
-        
-        if( tfSize1!=tfSize2 ) EQWARN << " TF sizes are not equal" << endl;
-    }
+    if( sw1!=sw2 ) EQWARN << " Widths'  scales are not equal " << endl;
+    if( sh1!=sh2 ) EQWARN << " Heights' scales are not equal " << endl;
+    if( sd1!=sd2 ) EQWARN << " Depths'  scales are not equal " << endl;
+    
+    if( tfSize1!=tfSize2 ) EQWARN << " TF sizes are not equal" << endl;
     
     EQWARN << "done" << endl;
     return 0;
