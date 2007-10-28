@@ -6,3 +6,7 @@ Overview
   The eqHello example shows a minimal Equalizer application which
   renders some data. The source code should be pretty much self-
   explaining, otherwise the Programming Guide provides more background.
+
+  It illustrates the basic principle of an Equalizer application: The
+  application developer implements Channel::frameDraw, which is similar
+  to the GlutDisplayFunc for GLUT applications.
