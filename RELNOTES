@@ -2,8 +2,8 @@
                         Release Notes for Equalizer 0.4
 
    Welcome to Equalizer 0.4, a framework for the development and deployment
-   of scalable OpenGL applications. The major new feature in Equalizer 0.4 is
-   the Programming Guide.
+   of scalable OpenGL applications. Equalizer 0.4 simplifies the development
+   of parallel OpenGL programs substantially over the previous version.
 
    Equalizer 0.4 is a beta release, and therefore intended as preview and
    evaluation snapshot for application developers and early adopters.
@@ -36,11 +36,11 @@
 
     New Features
 
-     * Programming Guide
-     * Fixed aspect ratio support
+     * Programming Guide in pdf and paper versions
+     * Fixed frustum aspect ratio support
      * View configuration using projector layout
      * Much improved polygonal rendering example performance
-     * New volume rendering example (beta preview)
+     * New volume rendering example (beta technology preview)
      * Support for volume-rendering applications
      * Support for per-node frame synchronization
      * Support for AGL and Carbon on Mac OS X
@@ -67,7 +67,7 @@
   Removed Features
 
    The incomplete support for CGL has been replaced by support for AGL and
-   Carbon on Mac OS X. CGL proved not to be useful in conjunction with
+   Carbon on Mac OS X. CGL has proven not to be useful in conjunction with
    windowing and event handling.
 
   Supported Platforms
@@ -79,8 +79,8 @@
 
     Operating System Support
 
-     * Linux: Ubuntu 6.10 (x64, i386)
-     * Windows: XP with Visual Studio 2005 (i386, x64) and Cygwin(i386)
+     * Linux: Ubuntu 6.10 (x64, i386), RHEL4 (x64, i386)
+     * Windows: XP with Visual Studio 2005 (i386, x64) and Cygwin (i386)
      * Mac OS X: 10.4 (PowerPC, i386) and 10.5 (i386)
 
     Window System Support
@@ -92,11 +92,11 @@
   Documentation
 
    The Programming Guide is part of the Equalizer distribution and can be
-   found in doc/Developer/ProgrammingGuide/paper.pdf. Equalizer does not yet
-   have an Users Guide. The shipped eqPly example provides a reference for
-   developing or porting applications. The Developer Documentation on the
-   website provides further design documents for specific features. The
-   source code is a last resort for information.
+   found in doc/Developer/ProgrammingGuide/paper.pdf or ordered online at
+   lulu.com. Equalizer does not yet have an Users Guide. The shipped eqPly
+   example provides a reference for developing or porting applications. The
+   Developer Documentation on the website provides further design documents
+   for specific features. The source code is a last resort for information.
 
   Support
 

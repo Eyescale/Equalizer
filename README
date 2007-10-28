@@ -25,7 +25,7 @@
                             Directory Layout
                             
  make/      files for the build environment.
- extras/    third-party source code used by Equalizer
+ externals/ third-party source code used by Equalizer
  lib/       the sources of the client library, i.e. libeq
  lib/base/    basic source code: utilities, OS abstraction, etc.
  lib/net/     the sources for the networking P2P layer
@@ -34,6 +34,7 @@
  examples/  Equalizer example programs
  proto/     quick prototypes written during development
  tests/     small programs testing certain functionality (to-be-unit-tests)
+ tools/     miscellanous tools
 
 
                            Build Environment
@@ -52,6 +53,8 @@
    rules.mk: The build rules to be used by the Makefiles. Typically
      included at the end of each Makefile.
 
+   local.mk: Optional, non-versioned file containing local machine build
+     settings
 
   The build environment uses the following targets and variables:
 
