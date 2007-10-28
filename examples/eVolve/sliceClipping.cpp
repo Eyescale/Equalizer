@@ -112,8 +112,10 @@ vmml::Vector3f SliceClipper::getPosition
 
     for( int e = 0; e < 4; e++ )
     {
-        int vidx1 = 3*sequence[int(frontIndex * 8 + v1[vertexNum*4+e])];
-        int vidx2 = 3*sequence[int(frontIndex * 8 + v2[vertexNum*4+e])];
+        int vidx1 = 3*static_cast<int>( sequence[ 
+                        static_cast<int>(frontIndex * 8 + v1[vertexNum*4+e])]);
+        int vidx2 = 3*static_cast<int>( sequence[
+                        static_cast<int>(frontIndex * 8 + v2[vertexNum*4+e])]);
 
         float3 vecV1( shaderVertices[vidx1  ],
                       shaderVertices[vidx1+1],

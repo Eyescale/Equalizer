@@ -124,6 +124,19 @@ typedef char GLchar;
 #define APIENTRYP APIENTRY *
 #endif
 
+#ifndef GL_VERTEX_SHADER
+#  define GL_VERTEX_SHADER                  0x8B31
+#endif
+#ifndef GL_FRAGMENT_SHADER
+#  define GL_FRAGMENT_SHADER                0x8B30
+#endif
+#ifndef GL_COMPILE_STATUS
+#  define GL_COMPILE_STATUS                 0x8B81
+#endif
+#ifndef GL_LINK_STATUS
+#  define GL_LINK_STATUS                    0x8B82
+#endif
+
 #ifndef PFNGLDELETEBUFFERSPROC
 typedef void (APIENTRYP PFNGLDELETEBUFFERSPROC) (GLsizei n, const GLuint *buffers);
 typedef void (APIENTRYP PFNGLGENBUFFERSPROC) (GLsizei n, GLuint *buffers);

@@ -158,8 +158,8 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
     const int32_t bwStart = 2; //border width from left
     const int32_t bwEnd   = 2; //border width from right
 
-    const int32_t s = clip<int32_t>( d*range.start, 0, d-1 );
-    const int32_t e = clip<int32_t>( d*range.end-1, 0, d-1 );
+    const int32_t s = clip<int32_t>( static_cast< int32_t >( d*range.start ), 0, d-1 );
+    const int32_t e = clip<int32_t>( static_cast< int32_t >( d*range.end-1 ), 0, d-1 );
 
     const uint32_t start =
                 static_cast<uint32_t>( clip<int32_t>( s-bwStart, 0, d-1 ) );
