@@ -10,13 +10,16 @@ Overview
    decompositions.
 
    eVolve is currently a beta technology preview, that is, it is not yet
-   finalized and debugged. Certain aspects of eVolve are not yet fully
-   optimized for Equalizer. eVolve has not been ported to Windows XP.
+   fully finalized and tested. Certain aspects of eVolve do not
+   represent bect practices for Equalizer programming. eVolve has not
+   been ported to Windows XP.
+
 
 Application Structure
 
    The application structure is similar to eqPly. Please check eqPly
    README 'Application Structure' section for more details.
+
 
 Data Format
 
