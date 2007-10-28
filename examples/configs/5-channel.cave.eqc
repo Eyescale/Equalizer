@@ -1,4 +1,5 @@
-# single-window config simulating a 5-sided cave with 2x2 meter walls on any machine
+# single-window config simulating a 5-sided cave with 2x2 meter walls on a 
+# single pipe
 server
 {
     config

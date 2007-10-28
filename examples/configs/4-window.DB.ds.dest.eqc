@@ -1,4 +1,5 @@
-# three-to-one sort-last, direct-send single-pipe demo configuration
+# three-to-one sort-last, direct-send single-pipe demo configuration with a 
+# separate destination channel
 global
 {
     EQ_WINDOW_IATTR_PLANES_STENCIL ON

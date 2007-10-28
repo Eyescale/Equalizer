@@ -1,6 +1,6 @@
 # single-window config for a 2-channel TAN Holobench(tm): L-shaped projection
 # table, each area is 1.8mx1.1m. Deploy in full-screen, quad-stereo and 
-# channels on two pipes (if available).
+# channels on two different pipes (if available).
 
 global { EQ_COMPOUND_IATTR_STEREO_MODE ANAGLYPH }
 server

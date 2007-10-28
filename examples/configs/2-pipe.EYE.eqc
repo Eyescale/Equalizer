@@ -28,9 +28,9 @@ server
             channel "channel"
             wall
             {
-                bottom_left  [ -.2 -.15 -.75 ]
-                bottom_right [  .2 -.15 -.75 ]
-                top_left     [ -.2  .15 -.75 ]
+                bottom_left  [ -1 -1 -1 ]
+                bottom_right [  1 -1 -1 ]
+                top_left     [ -1  1 -1 ]
             }
 
             compound
