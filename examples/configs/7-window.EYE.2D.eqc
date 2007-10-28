@@ -1,4 +1,4 @@
-# single pipe, multi-level Eye / 2D configuration. 
+# single pipe, multi-level stereo / 2D configuration. 
 # See 4-window.EYE.2D.eqc for optimized version without composite-only channels.
 
 server
@@ -69,9 +69,9 @@ server
 
             wall
             {
-                bottom_left  [ -.64 -.4 -1 ]
-                bottom_right [  .64 -.4 -1 ]
-                top_left     [ -.64  .4 -1 ]
+                bottom_left  [ -.32 -.2 -.75 ]
+                bottom_right [  .32 -.2 -.75 ]
+                top_left     [ -.32  .2 -.75 ]
             }
 
             compound

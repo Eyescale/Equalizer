@@ -1,5 +1,5 @@
-# four-to-one sort-last with 2D compositing in separate channel
-# direct-send single-pipe demo configuration
+# four-to-one sort-last single-pipe demo configuration with separate
+# destination channel
 global
 {
     EQ_WINDOW_IATTR_PLANES_STENCIL ON
