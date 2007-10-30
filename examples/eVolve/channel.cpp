@@ -145,9 +145,9 @@ static void putClippingDataToShader
     const bool          useCgShaders
 )
 {
+#ifdef CG_INSTALLED
     if( useCgShaders )
     {
-#ifdef CG_INSTALLED
         // temporal variables to store cgGetNamedParameter
         // and glGetUniformLocationARB values, I need this 
         // only to make someone people be happy with their 
@@ -177,9 +177,9 @@ static void putClippingDataToShader
         tNameCg = cgGetNamedParameter( m_vProg, "frontIndex"                 );
         cgGLSetParameter1f(      tNameCg,
                                 static_cast<float>( sliceClipper.frontIndex ));
-#endif
     }
     else // glsl shaders
+#endif
     {
         GLint tNameGL;
     
@@ -218,9 +218,9 @@ static void putTextureCoordinatesModifyersToShader
     bool                        useCgShaders
 )
 {
+#ifdef CG_INSTALLED
     if( useCgShaders )
     {
-#ifdef CG_INSTALLED
         CGparameter tParamNameCg;
         CGprogram   m_vProg = cgShaders.cgVertex->get_program();
 
@@ -238,9 +238,9 @@ static void putTextureCoordinatesModifyersToShader
 
         tParamNameCg = cgGetNamedParameter(  m_vProg, "Db"  );
         cgGLSetParameter1d( tParamNameCg,   TD.Db           );
-#endif
     }
     else // glsl shaders
+#endif
     {
         GLint tNameGL;
 
@@ -379,14 +379,14 @@ static void enableShaders
     const bool        useCgShaders
 )
 {
+#ifdef CG_INSTALLED
     if( useCgShaders )
     {
-#ifdef CG_INSTALLED
         cgShaders.cgVertex->use();
         cgShaders.cgFragment->use();
-#endif
     }
     else
+#endif
     {
         glUseProgramObjectARB( glslShader );
     }
@@ -400,15 +400,15 @@ static void disableShaders
     const bool        useCgShaders
 )
 {
+#ifdef CG_INSTALLED
     if( useCgShaders )
     {
-#ifdef CG_INSTALLED
         cgShaders.cgVertex->unbind_and_disable();
         cgShaders.cgFragment->unbind_and_disable();
-#endif
     }
     else
-    {
+#endif
+    {    
         glUseProgramObjectARB( 0 );
     }
 }

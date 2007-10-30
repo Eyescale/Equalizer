@@ -100,11 +100,11 @@ void Pipe::LoadShaders()
 {
     if( !_shadersLoaded )
     {
+#ifdef CG_INSTALLED
         const Node*     node     = static_cast<Node*>( getNode( ));
         const InitData& initData = node->getInitData();
         const bool      useCg    = !initData.useGLSL();
 
-#ifdef CG_INSTALLED
         if( useCg )
         {
             EQLOG( eq::LOG_CUSTOM ) << "using Cg shaders" << endl;

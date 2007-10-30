@@ -36,8 +36,6 @@ bool SocketConnection::connect()
     if( !_createSocket( ))
         return false;
 
-    // TODO: execute launch command
-
     sockaddr_in socketAddress;
     if( !_parseAddress( socketAddress ))
     {

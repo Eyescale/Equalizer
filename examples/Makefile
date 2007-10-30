@@ -10,11 +10,8 @@ SUBDIRS = \
 	eqHello \
 	eqPly \
 	eqPixelBench \
+	eVolve \
 	$(OPTIONAL)
-
-ifdef CG_INSTALLED
-SUBDIRS += eVolve
-endif
 
 TARGETS = subdirs
 
