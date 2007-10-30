@@ -27,8 +27,10 @@ DeltaMasterCM::DeltaMasterCM( Object* object )
     registerCommand( CMD_OBJECT_COMMIT, 
                 CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdCommit ));
     // sync commands are send to any instance, even the master gets the command
-    registerCommand( CMD_OBJECT_DELTA_DATA, 
-               CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdDiscard ));
+	registerCommand( CMD_OBJECT_DELTA_DATA, 
+		CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdDiscard ));
+	registerCommand( CMD_OBJECT_DELTA, 
+		CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdDiscard ));
 }
 
 DeltaMasterCM::~DeltaMasterCM()
