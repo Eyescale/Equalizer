@@ -6,7 +6,6 @@ void main(
     uniform sampler2D preInt,
 
     uniform half      shininess,
-    uniform half      lines,
 
     float3  frontP  : TEXCOORD0,
     float3  backP   : TEXCOORD1,
@@ -37,5 +36,6 @@ out float4   oColor  : COLOR
                     glstate.light[0].diffuse.rgb  * preInt_.rgb * diffuse +
                     glstate.light[0].specular.rgb * preInt_.rgb * specular,
                     preInt_.a);
+
 }
 

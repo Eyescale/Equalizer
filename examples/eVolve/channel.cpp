@@ -242,6 +242,22 @@ static void putTextureCoordinatesModifyersToShader
     }
     else // glsl shaders
     {
+        GLint tNameGL;
+
+        tNameGL = glGetUniformLocationARB( glslShader, "W" );
+        glUniform1fARB(  tNameGL,       TD.W               );
+
+        tNameGL = glGetUniformLocationARB( glslShader, "H" );
+        glUniform1fARB(  tNameGL,       TD.H               );
+
+        tNameGL = glGetUniformLocationARB( glslShader, "D" );
+        glUniform1fARB(  tNameGL,       TD.D               );
+
+        tNameGL = glGetUniformLocationARB( glslShader, "Do" );
+        glUniform1fARB(  tNameGL,       TD.Do               );
+
+        tNameGL = glGetUniformLocationARB( glslShader, "Db" );
+        glUniform1fARB(  tNameGL,       TD.Db               );
     }
 }
 
@@ -271,7 +287,7 @@ static void putVolumeDataToShader
         cgGLEnableTextureParameter( tParamNameCg              );
 
         // Activate last because it has to be the active texture
-        glActiveTexture( GL_TEXTURE0 ); 
+        glActiveTexture( GL_TEXTURE0 );
         glBindTexture( GL_TEXTURE_3D, volumeID ); //gx, gy, gz, val
         glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 
@@ -284,6 +300,7 @@ static void putVolumeDataToShader
 
         tParamNameCg = cgGetNamedParameter( m_fProg, "shininess"     );
         cgGLSetParameter1f( tParamNameCg, 20.0f         );
+
 #endif
     }
     else // glsl shaders
@@ -296,7 +313,7 @@ static void putVolumeDataToShader
         glUniform1iARB( tParamNameGL,  1    ); //f-shader
 
         // Activate last because it has to be the active texture
-        glActiveTexture( GL_TEXTURE0 ); 
+        glActiveTexture( GL_TEXTURE0 );
         glBindTexture( GL_TEXTURE_3D, volumeID ); //gx, gy, gz, val
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER,GL_LINEAR    );
 
@@ -391,7 +408,7 @@ static void disableShaders
 #endif
     }
     else
-    {    
+    {
         glUseProgramObjectARB( 0 );
     }
 }
@@ -423,7 +440,7 @@ static void renderSlices
         return;
     }
     // else normal shaders
-     
+
     glCallList( slicesListID );
 }
 
@@ -465,14 +482,15 @@ void Channel::frameDraw( const uint32_t frameID )
     const bool      useCg            = !initData.useGLSL();
     eqCgShaders     cgShaders        = pipe->getShaders();
     GLhandleARB     glslShader       = pipe->getShader();
-    bool            useSimpleShaders = pipe->isSimpleShaderUsed();
+    bool            useSimpleShaders = pipe->isSimpleShaderUsed() || !useCg;
 
     enableShaders( cgShaders, glslShader, useCg );
-    
+
     // Calculate and put necessary data to shaders 
     vmml::Matrix4d  modelviewM;     // modelview matrix
     vmml::Matrix3d  modelviewITM;   // modelview inversed transposed matrix
     _calcMVandITMV( modelviewM, modelviewITM );
+
 
     putTextureCoordinatesModifyersToShader
     (
@@ -482,10 +500,11 @@ void Channel::frameDraw( const uint32_t frameID )
 
     // Fill volume data
     putVolumeDataToShader
-    ( 
+    (
         volumeInfo.preint, volumeInfo.volume, sliceDistance,
         cgShaders, glslShader, useCg 
     );
+
 
     _sliceClipper.updatePerFrameInfo
     (
@@ -495,12 +514,12 @@ void Channel::frameDraw( const uint32_t frameID )
 
     if( !useSimpleShaders )
         putClippingDataToShader( _sliceClipper, cgShaders, glslShader, useCg );
-    
+
     //Render slices
     glEnable(GL_BLEND);
 #ifdef COMPOSE_MODE_NEW
-	const eq::Window* window = getWindow();
-	const eq::GLFunctions* gl = window->getGLFunctions();
+    const eq::Window* window = getWindow();
+    const eq::GLFunctions* gl = window->getGLFunctions();
     gl->blendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
 #else
     glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
@@ -513,7 +532,7 @@ void Channel::frameDraw( const uint32_t frameID )
     checkError( "error during rendering " );
 
     disableShaders( cgShaders, glslShader, useCg );
-    
+
     //Draw logo
     const eq::Viewport& vp = getViewport();
     if( _curFrData.lastRange.isFull() && vp.isFullScreen( ))

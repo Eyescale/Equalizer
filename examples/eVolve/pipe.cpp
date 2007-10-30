@@ -107,6 +107,7 @@ void Pipe::LoadShaders()
 #ifdef CG_INSTALLED
         if( useCg )
         {
+            EQLOG( eq::LOG_CUSTOM ) << "using Cg shaders" << endl;
             _cgContext = cgCreateContext();
 
             if( _shaders.cgVertex )
@@ -129,7 +130,7 @@ void Pipe::LoadShaders()
 
             if( _shaders.cgFragment )
                 delete _shaders.cgFragment;
-            
+
             _shaders.cgFragment = new gloo::cg_program( _cgContext );
             _shaders.cgFragment->create_from_string( CG_GL_FRAGMENT, 
                                                      fragmentShader_cg );
@@ -137,13 +138,14 @@ void Pipe::LoadShaders()
         else
 #endif
         {
+            EQLOG( eq::LOG_CUSTOM ) << "using glsl shaders" << endl;
             if( !eqShader::loadShaders( vertexShader_glsl, fragmentShader_glsl,
                                         _shader ))
             {
                 EQERROR << "Can't load glsl shaders" << endl;
                 return;
             }
-        }    
+        }
 
         _shadersLoaded = true;
         EQLOG( eq::LOG_CUSTOM ) << "shaders loaded" << endl;
