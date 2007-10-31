@@ -1,55 +1,41 @@
-/* Copyright (c) 2007       Maxim Makhinya
-   All rights reserved. */
-
-// input variables to function
-
-uniform sampler3D volume; //gx, gy, gz, v
-uniform sampler2D preInt; // r,  g,  b, a
+uniform sampler3D volume;
+uniform sampler2D preInt;
 
 uniform float shininess;
-uniform float wire;
-
-varying vec4 coll;
 
 void main (void)
 {
-//	if( wire > 0.5 )
-//	{
-		gl_FragColor = coll; //vec4( 1.0, 0.0, 0.0, 1.0 ); //vec4(coll, 1.0);
-/*	}else
-	{
-		vec4 lookupSF;
-		vec4 lookupSB;	
-		
-		lookupSF = texture3D(volume, gl_TexCoord[0].xyz);
-		lookupSB = texture3D(volume, gl_TexCoord[1].xyz);
-	
-		// lighting
-		vec3 normalSF = (2.*lookupSF.rgb-1.);
-		vec3 normalSB = (2.*lookupSB.rgb-1.);
-	    vec3 normal = normalize(normalSF+normalSB);
+    vec4 lookupSF;
+    vec4 lookupSB;
+    lookupSF = texture3D(volume, gl_TexCoord[0].xyz);
+    lookupSB = texture3D(volume, gl_TexCoord[1].xyz);
+    vec4 preInt_ =  texture2D(preInt, vec2(lookupSF.a, lookupSB.a));
+    vec3 normalSF = (2.*lookupSF.rgb-1.);
+    vec3 normalSB = (2.*lookupSB.rgb-1.);
+    vec3 normal = normalize(normalSF+normalSB);
+    vec3 L = (gl_LightSource[0].position).xyz;
+    vec3 halfVector = normalize(L);
+    float diffuse = max(dot(gl_LightSource[0].position.xyz, normal), 0.0); 
+    float specular = pow(max(dot(halfVector, normal), 0.0), shininess); 
+    vec4 color = vec4(gl_LightSource[0].ambient.rgb  * preInt_.rgb + 
+                      gl_LightSource[0].diffuse.rgb  * preInt_.rgb * diffuse + 
+                      gl_LightSource[0].specular.rgb * preInt_.rgb * specular ,
+                      preInt_.a);
 
-		vec3 L = (gl_LightSource[0].position).xyz;
-  
-		vec3 halfVector = normalize(L);
-
-		vec4 preInt =  texture2D(preInt, vec2(lookupSF.a, lookupSB.a));
-	//	preInt.rgb = vec3(100, 0, 0);
-	
-		float diffuse = max(dot(gl_LightSource[0].position.xyz, normal), 0.0); 
-
-		float specular = pow(max(dot(halfVector, normal), 0.0), shininess); 
-
-//		vec4 color = vec4(gl_LightSource[0].ambient.rgb  * preInt.rgb + 
-//						  gl_LightSource[0].diffuse.rgb  * preInt.rgb * diffuse + 
-//						  gl_LightSource[0].specular.rgb * preInt.rgb * specular ,
-//						  preInt.a);
-  
-		vec4 color = vec4( preInt );
-
-		gl_FragColor = color;
-	}
-	*/
+    gl_FragColor = color;
 }
 
-/**/
+/*
+uniform sampler3D volume;
+uniform sampler2D preInt;
+uniform float shininess;
+void main (void)
+{
+    vec4 lookupSF;
+    vec4 lookupSB;
+    lookupSF = texture3D(volume, gl_TexCoord[0].xyz);
+    lookupSB = texture3D(volume, gl_TexCoord[1].xyz);
+    vec4 preInt_ =  texture2D(preInt, vec2(lookupSF.a, lookupSB.a));
+    gl_FragColor = vec4(preInt_.rgb, preInt_.a);
+}
+*/
