@@ -5,7 +5,7 @@
 #ifndef EQS_CHANNELUPDATEVISITOR_H
 #define EQS_CHANNELUPDATEVISITOR_H
 
-#include "compoundVisitor.h" // base class
+#include "constCompoundVisitor.h" // base class
 
 #include <eq/client/colorMask.h>
 #include <eq/client/eye.h>
@@ -19,7 +19,7 @@ namespace eqs
     /**
      * The compound visitor generating the draw tasks for a channel.
      */
-    class ChannelUpdateVisitor : public CompoundVisitor
+    class ChannelUpdateVisitor : public ConstCompoundVisitor
     {
     public:
         ChannelUpdateVisitor( Channel* channel, const uint32_t frameID, 
@@ -29,11 +29,11 @@ namespace eqs
         void setEye( const eq::Eye eye ) { _eye = eye; }
 
         /** Visit a non-leaf compound on the down traversal. */
-        virtual Result visitPre( const Compound* compound );
+        virtual Compound::VisitorResult visitPre( const Compound* compound );
         /** Visit a leaf compound. */
-        virtual Result visitLeaf( const Compound* compound );
+        virtual Compound::VisitorResult visitLeaf( const Compound* compound );
         /** Visit a non-leaf compound on the up traversal. */
-        virtual Result visitPost( const Compound* compound );
+        virtual Compound::VisitorResult visitPost( const Compound* compound );
 
     private:
         Channel*       _channel;
@@ -57,4 +57,4 @@ namespace eqs
                               const eq::RenderContext& context );  
     };
 };
-#endif // EQS_COMPOUNDVISITOR_H
+#endif // EQS_CONSTCOMPOUNDVISITOR_H

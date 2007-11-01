@@ -24,13 +24,13 @@ ChannelUpdateVisitor::ChannelUpdateVisitor( Channel* channel,
         , _frameNumber( frameNumber )
 {}
 
-CompoundVisitor::Result ChannelUpdateVisitor::visitPre( 
+Compound::VisitorResult ChannelUpdateVisitor::visitPre( 
     const Compound* compound )
 {
     if( compound->getChannel() != _channel || 
         !compound->testInheritEye( _eye ) )
         
-        return CONTINUE;
+        return Compound::TRAVERSE_CONTINUE;
 
     _updateDrawFinish( compound );
 
@@ -43,16 +43,16 @@ CompoundVisitor::Result ChannelUpdateVisitor::visitPre(
         EQLOG( eq::LOG_TASKS ) << "TASK clear " << _channel->getName() <<  " "
                                << &clearPacket << endl;
     }
-    return CONTINUE;
+    return Compound::TRAVERSE_CONTINUE;
 }
 
-CompoundVisitor::Result ChannelUpdateVisitor::visitLeaf( 
+Compound::VisitorResult ChannelUpdateVisitor::visitLeaf( 
     const Compound* compound )
 {
     if( compound->getChannel() != _channel ||
         !compound->testInheritEye( _eye ) )
 
-        return CONTINUE;
+        return Compound::TRAVERSE_CONTINUE;
 
     eq::RenderContext context;
     _setupRenderContext( compound, context );
@@ -78,21 +78,21 @@ CompoundVisitor::Result ChannelUpdateVisitor::visitLeaf(
     
     _updateDrawFinish( compound );
     _updatePostDraw( compound, context );
-    return CONTINUE;
+    return Compound::TRAVERSE_CONTINUE;
 }
 
-CompoundVisitor::Result ChannelUpdateVisitor::visitPost( 
+Compound::VisitorResult ChannelUpdateVisitor::visitPost(
     const Compound* compound )
 {
     if( compound->getChannel() != _channel || !compound->getInheritTasks() ||
         !compound->testInheritEye( _eye ))
 
-        return CONTINUE;
+        return Compound::TRAVERSE_CONTINUE;
 
     eq::RenderContext context;
     _setupRenderContext( compound, context );
     _updatePostDraw( compound, context );
-    return CONTINUE;
+    return Compound::TRAVERSE_CONTINUE;
 }
 
 

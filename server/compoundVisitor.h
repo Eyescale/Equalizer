@@ -5,12 +5,12 @@
 #ifndef EQS_COMPOUNDVISITOR_H
 #define EQS_COMPOUNDVISITOR_H
 
+#include "compound.h"  // nested enum
+
 namespace eqs
 {
-    class Compound;
-    
     /**
-     * A visitor to traverse a compound tree.
+     * A visitor to traverse a non-const compound tree.
      */
     class CompoundVisitor
     {
@@ -21,28 +21,15 @@ namespace eqs
         /** Destruct the CompoundVisitor */
         virtual ~CompoundVisitor(){}
 
-        /** Return value of the visit methods */
-        enum Result
-        {
-            CONTINUE,  //!< Keep traversing
-            TERMINATE  //!< Abort traversal immediately
-        };
-
-        // non-const methods used by 'Compound::apply()'
         /** Visit a non-leaf compound on the down traversal. */
-        virtual Result visitPre( Compound* compound ){ return CONTINUE; }
+        virtual Compound::VisitorResult visitPre( Compound* compound )
+            { return Compound::TRAVERSE_CONTINUE; }
         /** Visit a leaf compound. */
-        virtual Result visitLeaf( Compound* compound ){ return CONTINUE; }
+        virtual Compound::VisitorResult visitLeaf( Compound* compound )
+            { return Compound::TRAVERSE_CONTINUE; }
         /** Visit a non-leaf compound on the up traversal. */
-        virtual Result visitPost( Compound* compound ){ return CONTINUE; }
-
-        // const methods used by 'Compound::apply() const'
-        /** Visit a non-leaf compound on the down traversal. */
-        virtual Result visitPre( const Compound* compound ){ return CONTINUE; }
-        /** Visit a leaf compound. */
-        virtual Result visitLeaf( const Compound* compound ){ return CONTINUE; }
-        /** Visit a non-leaf compound on the up traversal. */
-        virtual Result visitPost( const Compound* compound ){ return CONTINUE; }
+        virtual Compound::VisitorResult visitPost( Compound* compound )
+            { return Compound::TRAVERSE_CONTINUE; }
     };
 };
 #endif // EQS_COMPOUNDVISITOR_H

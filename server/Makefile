@@ -3,7 +3,10 @@ include $(TOP)/make/system.mk
 
 SOURCES = \
 	channel.cpp \
+	channelUpdateVisitor.cpp \
 	compound.cpp \
+	compoundInitVisitor.cpp \
+	compoundExitVisitor.cpp \
 	config.cpp \
 	connectionDescription.cpp \
 	frame.cpp \
@@ -17,7 +20,6 @@ SOURCES = \
 	server.cpp \
 	startLocalServer.cpp \
 	swapBarrier.cpp \
-	channelUpdateVisitor.cpp \
 	view.cpp \
 	wall.cpp \
 	window.cpp

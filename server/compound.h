@@ -6,7 +6,6 @@
 #define EQS_COMPOUND_H
 
 #include "channel.h"               // used in inline method
-#include "compoundVisitor.h"       // used nested enum
 #include "pixelViewportListener.h" // base class
 #include "projection.h"            // member
 #include "view.h"                  // member
@@ -25,6 +24,8 @@
 
 namespace eqs
 {
+    class ConstCompoundVisitor;
+    class CompoundVisitor;
     class Frame;
     class SwapBarrier;
     
@@ -90,6 +91,14 @@ namespace eqs
             COLOR_MASK_ALL       = 0xff
         };
 
+        /** The return value of a CompoundVisitor::visit method */
+        enum VisitorResult
+        {
+            TRAVERSE_CONTINUE,
+            TRAVERSE_TERMINATE
+        };
+
+
         /**
          * @name Attributes
          */
@@ -135,6 +144,10 @@ namespace eqs
         /** @return if the compound is a leaf compound. */
         bool isLeaf() const { return _children.empty(); }
 
+        /** @return if the compound is active. */
+        bool isActive() const
+            { return (( _frameNumber % _inherit.period ) == _inherit.phase); }
+        
         /** 
          * Gets a child.
          * 
@@ -151,6 +164,9 @@ namespace eqs
         /** @return the root of the compound tree. */
         Compound* getRoot()
             { return _parent ? _parent->getRoot() : this; }
+
+        /** @return the next sibling, or 0. */
+        Compound* getNext() const;
 
         Config* getConfig()
             { return getRoot()->_config; }
@@ -379,7 +395,11 @@ namespace eqs
                                               TraverseCB leafCB,
                                               TraverseCB postCB,
                                               void* userData );
-        CompoundVisitor::Result applyActive( CompoundVisitor* visitor ) const;
+
+        VisitorResult accept( ConstCompoundVisitor* visitor,
+                              const bool activeOnly=true ) const;
+        VisitorResult accept( CompoundVisitor* visitor,
+                              const bool activeOnly = true );
 
         /** 
          * Initializes this compound.
@@ -427,8 +447,6 @@ namespace eqs
         Compound               *_parent;
         std::vector<Compound*>  _children;
         
-        Compound* _getNext() const;
-
         /** String representation of integer attributes. */
         static std::string _iAttributeStrings[IATTR_ALL];
 
@@ -482,9 +500,6 @@ namespace eqs
 
         static TraverseResult _initCB( Compound* compound, void* );
 
-        bool _isActive() const
-            { return (( _frameNumber % _inherit.period ) == _inherit.phase); }
-        
         /** Channel pvp changed */
         virtual void notifyPVPChanged( const eq::PixelViewport& pvp );
 
@@ -498,7 +513,9 @@ namespace eqs
         static TraverseResult _updateDataCB( Compound* compound, void* );
         static TraverseResult _updateOutputCB( Compound* compound, void* );
         static TraverseResult _updateInputCB( Compound* compound, void* );
+    public: // XXX remove me after implementing update visitors
         void _updateInheritData();
+    private:
         void _updateDrawFinish();
         void _updateSwapBarriers( UpdateData* data );
         void _updateOutput( UpdateData* data );

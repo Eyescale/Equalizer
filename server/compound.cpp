@@ -6,11 +6,14 @@
 
 #include "channel.h"
 #include "colorMask.h"
+#include "compoundInitVisitor.h"
+#include "compoundExitVisitor.h"
 #include "config.h"
-#include "log.h"
+#include "constCompoundVisitor.h"
 #include "frame.h"
 #include "frameData.h"
 #include "global.h"
+#include "log.h"
 #include "swapBarrier.h"
 
 #include <eq/base/base.h>
@@ -134,7 +137,7 @@ void Compound::addChild( Compound* child )
     child->_parent = this;
 }
 
-Compound* Compound::_getNext() const
+Compound* Compound::getNext() const
 {
     if( !_parent )
         return 0;
@@ -372,14 +375,14 @@ TraverseResult Compound::traverse( Compound* compound, TraverseCB preCB,
     {
         if ( leafCB ) 
             return leafCB( compound, userData );
-        return TRAVERSE_CONTINUE;
+        return eqs::TRAVERSE_CONTINUE;
     }
 
     Compound *current = compound;
     while( true )
     {
         Compound *parent = current->getParent();
-        Compound *next   = current->_getNext();
+        Compound *next   = current->getNext();
         Compound *child  = (current->nChildren()) ? current->getChild(0) : 0;
 
         //---------- down-right traversal
@@ -388,8 +391,8 @@ TraverseResult Compound::traverse( Compound* compound, TraverseCB preCB,
             if ( leafCB )
             {
                 TraverseResult result = leafCB( current, userData );
-                if( result == TRAVERSE_TERMINATE )
-                    return TRAVERSE_TERMINATE;
+                if( result == eqs::TRAVERSE_TERMINATE )
+                    return eqs::TRAVERSE_TERMINATE;
             }
 
             current = next;
@@ -399,168 +402,187 @@ TraverseResult Compound::traverse( Compound* compound, TraverseCB preCB,
             if( preCB )
             {
                 TraverseResult result = preCB( current, userData );
-                if( result == TRAVERSE_TERMINATE )
-                    return TRAVERSE_TERMINATE;
+                if( result == eqs::TRAVERSE_TERMINATE )
+                    return eqs::TRAVERSE_TERMINATE;
             }
 
             current = child;
         }
 
         //---------- up-right traversal
-        if( !current && !parent ) return TRAVERSE_CONTINUE;
+        if( !current && !parent ) return eqs::TRAVERSE_CONTINUE;
 
         while( !current )
         {
             current = parent;
             parent  = current->getParent();
-            next    = current->_getNext();
+            next    = current->getNext();
 
             if( postCB )
             {
                 TraverseResult result = postCB( current, userData );
-                if( result == TRAVERSE_TERMINATE )
-                    return TRAVERSE_TERMINATE;
+                if( result == eqs::TRAVERSE_TERMINATE )
+                    return eqs::TRAVERSE_TERMINATE;
             }
             
-            if ( current == compound ) return TRAVERSE_CONTINUE;
+            if ( current == compound ) return eqs::TRAVERSE_CONTINUE;
             
             current = next;
         }
     }
-    return TRAVERSE_CONTINUE;
+    return eqs::TRAVERSE_CONTINUE;
 }
 
 TraverseResult Compound::traverseActive( Compound* compound, TraverseCB preCB,
-                                         TraverseCB leafCB, TraverseCB postCB,
-                                         void *userData )
+                                        TraverseCB leafCB, TraverseCB postCB,
+                                        void* userData )
 {
     if ( compound->isLeaf( )) 
     {
-        if ( leafCB && compound->_isActive( )) 
+        if ( leafCB && compound->isActive( )) 
             return leafCB( compound, userData );
-        return TRAVERSE_CONTINUE;
+        return eqs::TRAVERSE_CONTINUE;
     }
 
     Compound *current = compound;
     while( true )
     {
         Compound *parent = current->getParent();
-        Compound *next   = current->_getNext();
+        Compound *next   = current->getNext();
         Compound *child  = (current->nChildren()) ? current->getChild(0) : 0;
 
         //---------- down-right traversal
         if ( !child ) // leaf
         {
-            if ( leafCB && current->_isActive( ))
+            if ( leafCB && current->isActive( ))
             {
                 TraverseResult result = leafCB( current, userData );
-                if( result == TRAVERSE_TERMINATE )
-                    return TRAVERSE_TERMINATE;
+                if( result == eqs::TRAVERSE_TERMINATE )
+                    return eqs::TRAVERSE_TERMINATE;
             }
 
             current = next;
         } 
         else // node
         {
-            if( preCB && current->_isActive( ))
+            if( preCB && current->isActive( ))
             {
                 TraverseResult result = preCB( current, userData );
-                if( result == TRAVERSE_TERMINATE )
-                    return TRAVERSE_TERMINATE;
+                if( result == eqs::TRAVERSE_TERMINATE )
+                    return eqs::TRAVERSE_TERMINATE;
             }
 
-            if( current->_isActive( ))
+            if( current->isActive( ))
                 current = child;
             else
                 current = next;
         }
 
         //---------- up-right traversal
-        if( !current && !parent ) return TRAVERSE_CONTINUE;
+        if( !current && !parent ) return eqs::TRAVERSE_CONTINUE;
 
         while( !current )
         {
             current = parent;
             parent  = current->getParent();
-            next    = current->_getNext();
+            next    = current->getNext();
 
-            if( postCB && current->_isActive( ))
+            if( postCB && current->isActive( ))
             {
                 TraverseResult result = postCB( current, userData );
-                if( result == TRAVERSE_TERMINATE )
-                    return TRAVERSE_TERMINATE;
+                if( result == eqs::TRAVERSE_TERMINATE )
+                    return eqs::TRAVERSE_TERMINATE;
             }
             
-            if ( current == compound ) return TRAVERSE_CONTINUE;
+            if ( current == compound ) return eqs::TRAVERSE_CONTINUE;
             
             current = next;
         }
     }
-    return TRAVERSE_CONTINUE;
+    return eqs::TRAVERSE_CONTINUE;
 }
 
-CompoundVisitor::Result Compound::applyActive( CompoundVisitor* visitor ) const
+template< class C, class V >
+Compound::VisitorResult _accept( C* compound, V* visitor, 
+                                 const bool activeOnly )
 {
-    if( isLeaf( )) 
+    if( compound->isLeaf( )) 
     {
-        if ( _isActive( )) 
-            return visitor->visitLeaf( this );
-        return CompoundVisitor::CONTINUE;
+        if ( !activeOnly || compound->isActive( )) 
+            return visitor->visitLeaf( compound );
+        return Compound::TRAVERSE_CONTINUE;
     }
 
-    const Compound *current = this;
+    C* current = compound;
     while( true )
     {
-        Compound *parent = current->getParent();
-        Compound *next   = current->_getNext();
-        Compound *child  = (current->nChildren()) ? current->getChild(0) : 0;
+        C* parent = current->getParent();
+        C* next   = current->getNext();
+        C* child  = (current->nChildren()) ? current->getChild(0) : 0;
 
         //---------- down-right traversal
         if ( !child ) // leaf
         {
-            if ( current->_isActive( ))
+            if ( !activeOnly || current->isActive( ))
             {
-                if( visitor->visitLeaf( current ) == CompoundVisitor::TERMINATE)
-                    return CompoundVisitor::TERMINATE;
+                if( visitor->visitLeaf( current ) ==
+                    Compound::TRAVERSE_TERMINATE)
+
+                    return Compound::TRAVERSE_TERMINATE;
             }
 
             current = next;
         } 
         else // node
         {
-            if( current->_isActive( ))
+            if( !activeOnly || current->isActive( ))
             {
-                if( visitor->visitPre( current ) == CompoundVisitor::TERMINATE )
-                    return CompoundVisitor::TERMINATE;
-            }
+                if( visitor->visitPre( current ) == 
+                    Compound::TRAVERSE_TERMINATE )
 
-            if( current->_isActive( ))
+                    return Compound::TRAVERSE_TERMINATE;
+
                 current = child;
+            }
             else
                 current = next;
         }
 
         //---------- up-right traversal
-        if( !current && !parent ) return CompoundVisitor::CONTINUE;
+        if( !current && !parent ) return Compound::TRAVERSE_CONTINUE;
 
         while( !current )
         {
             current = parent;
             parent  = current->getParent();
-            next    = current->_getNext();
+            next    = current->getNext();
 
-            if( current->_isActive( ))
+            if( !activeOnly || current->isActive( ))
             {
-                if( visitor->visitPost( current ) == CompoundVisitor::TERMINATE)
-                    return CompoundVisitor::TERMINATE;
+                if( visitor->visitPost( current ) == 
+                    Compound::TRAVERSE_TERMINATE)
+
+                    return Compound::TRAVERSE_TERMINATE;
             }
             
-            if ( current == this ) return CompoundVisitor::CONTINUE;
+            if ( current == compound ) return Compound::TRAVERSE_CONTINUE;
             
             current = next;
         }
     }
-    return CompoundVisitor::CONTINUE;
+    return Compound::TRAVERSE_CONTINUE;
+}
+
+Compound::VisitorResult Compound::accept( ConstCompoundVisitor* visitor,
+                                          const bool activeOnly ) const
+{
+    return _accept( this, visitor, activeOnly );
+}
+
+Compound::VisitorResult Compound::accept( CompoundVisitor* visitor,
+                                          const bool activeOnly )
+{
+    return _accept( this, visitor, activeOnly );
 }
 
 //---------------------------------------------------------------------------
@@ -569,77 +591,16 @@ CompoundVisitor::Result Compound::applyActive( CompoundVisitor* visitor ) const
 
 void Compound::init()
 {
-    traverse( this, _initCB, _initCB, 0, 0 );
-}
+    CompoundInitVisitor initVisitor;
+    accept( &initVisitor, false /* activeOnly */ );
 
-TraverseResult Compound::_initCB( Compound* compound, void* userData )
-{
-    Channel* channel = compound->getChannel();
-    if( channel )
-        channel->refUsed();
-
-    Config*             config  = compound->getConfig();
-    const uint32_t      latency = config->getLatency();
-    EQASSERT( config );
-    
-    for( vector<Frame*>::iterator iter = compound->_outputFrames.begin(); 
-         iter != compound->_outputFrames.end(); ++iter )
-    {
-        Frame* frame = *iter;
-        config->registerObject( frame );
-        frame->setAutoObsolete( latency );
-        EQLOG( eq::LOG_ASSEMBLY ) 
-            << "Output frame \"" << frame->getName() << "\" id " 
-            << frame->getID() << endl;
-    }
-
-    for( vector<Frame*>::const_iterator iter = compound->_inputFrames.begin(); 
-         iter != compound->_inputFrames.end(); ++iter )
-    {
-        Frame* frame = *iter;
-        config->registerObject( frame );
-        frame->setAutoObsolete( latency );
-        EQLOG( eq::LOG_ASSEMBLY ) 
-            << "Input frame \"" << frame->getName() << "\" id " 
-            << frame->getID() << endl;
-    }
-
-    compound->_updateInheritData();
-    return TRAVERSE_CONTINUE;    
+    // CompoundUpdateVisitor updateVisitor;
 }
 
 void Compound::exit()
 {
-    Config* config = getConfig();
-    EQASSERT( config );
-
-    for( vector<Frame*>::iterator iter = _outputFrames.begin(); 
-         iter != _outputFrames.end(); ++iter )
-    {
-        Frame* frame = *iter;
-        frame->flush();
-        config->deregisterObject( frame );
-    }
-    _outputFrames.clear();
-
-    for( vector<Frame*>::const_iterator iter = _inputFrames.begin(); 
-         iter != _inputFrames.end(); ++iter )
-    {
-        Frame* frame = *iter;
-        config->deregisterObject( frame );
-    }
-    _inputFrames.clear();
-
-    const uint32_t nChildren = this->nChildren();
-    for( uint32_t i=0; i<nChildren; i++ )
-    {
-        Compound* child = getChild(i);
-        child->exit();
-    }
-
-    Channel* channel = getChannel();
-    if( channel )
-        channel->unrefUsed();
+    CompoundExitVisitor visitor;
+    accept( &visitor, false /* activeOnly */ );
 }
 
 //---------------------------------------------------------------------------
@@ -669,7 +630,7 @@ TraverseResult Compound::_updateDataCB( Compound* compound, void* userData )
     compound->_updateInheritData();
     compound->_updateDrawFinish();
 
-    return TRAVERSE_CONTINUE;
+    return eqs::TRAVERSE_CONTINUE;
 }
 TraverseResult Compound::_updateOutputCB( Compound* compound, void* userData )
 {
@@ -677,14 +638,14 @@ TraverseResult Compound::_updateOutputCB( Compound* compound, void* userData )
     compound->_updateOutput( data );
     compound->_updateSwapBarriers( data );
     
-    return TRAVERSE_CONTINUE;
+    return eqs::TRAVERSE_CONTINUE;
 }
 
 TraverseResult Compound::_updateInputCB( Compound* compound, void* userData )
 {
     UpdateData* data = (UpdateData*)userData;
     compound->_updateInput( data );
-    return TRAVERSE_CONTINUE;
+    return eqs::TRAVERSE_CONTINUE;
 }
 
 void Compound::_updateInheritData()
