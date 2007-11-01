@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include "channel.h"
 
+#include "channelUpdateVisitor.h"
 #include "compound.h"
 #include "config.h"
 #include "global.h"
@@ -286,7 +287,16 @@ void Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     for( uint32_t i=0; i<nCompounds; i++ )
     {
         Compound* compound = config->getCompound( i );
-        compound->updateChannel( this, frameID );
+        ChannelUpdateVisitor visitor( this, frameID, frameNumber );
+
+        visitor.setEye( eq::EYE_LEFT );
+        compound->applyActive( &visitor );
+
+        visitor.setEye( eq::EYE_RIGHT );
+        compound->applyActive( &visitor );
+
+        visitor.setEye( eq::EYE_CYCLOP );
+        compound->applyActive( &visitor );
     }
 }
 

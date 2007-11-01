@@ -499,6 +499,70 @@ TraverseResult Compound::traverseActive( Compound* compound, TraverseCB preCB,
     return TRAVERSE_CONTINUE;
 }
 
+CompoundVisitor::Result Compound::applyActive( CompoundVisitor* visitor ) const
+{
+    if( isLeaf( )) 
+    {
+        if ( _isActive( )) 
+            return visitor->visitLeaf( this );
+        return CompoundVisitor::CONTINUE;
+    }
+
+    const Compound *current = this;
+    while( true )
+    {
+        Compound *parent = current->getParent();
+        Compound *next   = current->_getNext();
+        Compound *child  = (current->nChildren()) ? current->getChild(0) : 0;
+
+        //---------- down-right traversal
+        if ( !child ) // leaf
+        {
+            if ( current->_isActive( ))
+            {
+                if( visitor->visitLeaf( current ) == CompoundVisitor::TERMINATE)
+                    return CompoundVisitor::TERMINATE;
+            }
+
+            current = next;
+        } 
+        else // node
+        {
+            if( current->_isActive( ))
+            {
+                if( visitor->visitPre( current ) == CompoundVisitor::TERMINATE )
+                    return CompoundVisitor::TERMINATE;
+            }
+
+            if( current->_isActive( ))
+                current = child;
+            else
+                current = next;
+        }
+
+        //---------- up-right traversal
+        if( !current && !parent ) return CompoundVisitor::CONTINUE;
+
+        while( !current )
+        {
+            current = parent;
+            parent  = current->getParent();
+            next    = current->_getNext();
+
+            if( current->_isActive( ))
+            {
+                if( visitor->visitPost( current ) == CompoundVisitor::TERMINATE)
+                    return CompoundVisitor::TERMINATE;
+            }
+            
+            if ( current == this ) return CompoundVisitor::CONTINUE;
+            
+            current = next;
+        }
+    }
+    return CompoundVisitor::CONTINUE;
+}
+
 //---------------------------------------------------------------------------
 // Operations
 //---------------------------------------------------------------------------
@@ -885,442 +949,6 @@ void Compound::_updateInput( UpdateData* data )
             << frame->getVersion() << " buffers " << frame->getInheritBuffers() 
             << "\" tile pos " << frameOffset << " sub-pvp " << framePVP << endl;
     }
-}
-
-//---------------------------------------------------------------------------
-// per-channel update/task generation
-//---------------------------------------------------------------------------
-void Compound::updateChannel( Channel* channel, const uint32_t frameID )
-{
-    UpdateChannelData data = { channel, frameID, eq::EYE_LEFT };
-    traverseActive( this, _updatePreDrawCB, _updateDrawCB, _updatePostDrawCB,
-                    &data );
-
-    data.eye = eq::EYE_RIGHT;
-    traverseActive( this, _updatePreDrawCB, _updateDrawCB, _updatePostDrawCB, 
-                    &data );
-
-    data.eye = eq::EYE_CYCLOP;
-    traverseActive( this, _updatePreDrawCB, _updateDrawCB, _updatePostDrawCB, 
-                    &data );
-}
-
-TraverseResult Compound::_updatePreDrawCB( Compound* compound, void* userData )
-{
-    UpdateChannelData* data    = (UpdateChannelData*)userData;
-    Channel*           channel = data->channel;
-
-    if( compound->getChannel() != channel ||
-        !( compound->_inherit.eyes & (1<<data->eye) ))
-        
-        return TRAVERSE_CONTINUE;
-
-    compound->_updateDrawFinish( data );
-
-    if( compound->testInheritTask( TASK_CLEAR ))
-    {
-        eq::ChannelFrameClearPacket clearPacket;        
-
-        compound->_setupRenderContext( clearPacket.context, data );
-        channel->send( clearPacket );
-        EQLOG( eq::LOG_TASKS ) << "TASK clear " << channel->getName() <<  " "
-                               << &clearPacket << endl;
-    }
-    return TRAVERSE_CONTINUE;
-}
-
-// leaf-channel update
-TraverseResult Compound::_updateDrawCB( Compound* compound, void* userData )
-{
-    UpdateChannelData* data    = (UpdateChannelData*)userData;
-    Channel*           channel = data->channel;
-
-    if( compound->getChannel() != channel || !compound->_inherit.tasks ||
-        !( compound->_inherit.eyes & (1<<data->eye) ))
-        
-        return TRAVERSE_CONTINUE;
-
-    eq::RenderContext context;
-    compound->_setupRenderContext( context, data );
-    // OPT: Send render context once before task packets?
-
-    if( compound->testInheritTask( TASK_CLEAR ))
-    {
-        eq::ChannelFrameClearPacket clearPacket;        
-        clearPacket.context = context;
-        channel->send( clearPacket );
-        EQLOG( eq::LOG_TASKS ) << "TASK clear " << channel->getName() <<  " "
-                           << &clearPacket << endl;
-    }
-    if( compound->testInheritTask( TASK_DRAW ))
-    {
-        eq::ChannelFrameDrawPacket drawPacket;
-
-        drawPacket.context = context;
-        channel->send( drawPacket );
-        EQLOG( eq::LOG_TASKS ) << "TASK draw " << channel->getName() <<  " " 
-                           << &drawPacket << endl;
-    }
-    
-    compound->_updateDrawFinish( data );
-    compound->_updatePostDraw( context );
-    return TRAVERSE_CONTINUE;
-}
-
-void Compound::_setupRenderContext( eq::RenderContext& context, 
-                                    const UpdateChannelData* data )
-{
-    context.frameID        = data->frameID;
-    context.pvp            = _inherit.pvp;
-    context.vp             = _inherit.vp;
-    context.range          = _inherit.range;
-    context.offset.x       = _inherit.pvp.x;
-    context.offset.y       = _inherit.pvp.y;
-    context.eye            = data->eye;
-    context.buffer         = _getDrawBuffer( data );
-    context.drawBufferMask = _getDrawBufferMask( data );
-
-    const Channel* channel = data->channel;
-    if( channel != _inherit.channel /* && !use dest channel origin hint set */ )
-    {
-        const eq::PixelViewport& nativePVP = channel->getPixelViewport();
-        context.pvp.x = nativePVP.x;
-        context.pvp.y = nativePVP.y;
-    }
-    // TODO: pvp size overcommit check?
-
-    _computeFrustum( context, data->eye );
-}
-
-void Compound::_updateDrawFinish( const UpdateChannelData* data )
-{
-    if( _inherit.eyes + 1 > static_cast< uint32_t >( 1<<( data->eye + 1 )))
-        // not the last eye pass of this compound
-        return;
-    
-    const Channel* channel = getChannel();
-    Node*    node    = channel->getNode();
-    EQASSERT( channel );
-
-    if( channel->getLastDrawCompound() == this )
-    {
-        eq::ChannelFrameDrawFinishPacket packet;
-        packet.objectID    = channel->getID();
-        packet.frameNumber = _frameNumber;
-        packet.frameID     = data->frameID;
-
-        node->send( packet );
-        EQLOG( eq::LOG_TASKS ) << "TASK channel draw finish " 
-                               << channel->getName() <<  " " << &packet << endl;
-    }
-
-    const Window* window = channel->getWindow();
-    if( window->getLastDrawCompound() == this )
-    {
-        eq::WindowFrameDrawFinishPacket packet;
-        packet.objectID    = window->getID();
-        packet.frameNumber = _frameNumber;
-        packet.frameID     = data->frameID;
-
-        node->send( packet );
-        EQLOG( eq::LOG_TASKS ) << "TASK window draw finish " 
-                               << window->getName() <<  " " << &packet << endl;
-    }
-
-    const Pipe* pipe = channel->getPipe();
-    if( pipe->getLastDrawCompound() == this )
-    {
-        eq::PipeFrameDrawFinishPacket packet;
-        packet.objectID    = pipe->getID();
-        packet.frameNumber = _frameNumber;
-        packet.frameID     = data->frameID;
-
-        node->send( packet );
-        EQLOG( eq::LOG_TASKS ) << "TASK pipe draw finish " 
-                               << pipe->getName() <<  " " << &packet << endl;
-    }
-
-    if( node->getLastDrawCompound() == this )
-    {
-        eq::NodeFrameDrawFinishPacket packet;
-        packet.objectID    = node->getID();
-        packet.frameNumber = _frameNumber;
-        packet.frameID     = data->frameID;
-
-        node->send( packet );
-        EQLOG( eq::LOG_TASKS ) << "TASK node draw finish " 
-                               << node->getName() <<  " " << &packet << endl;
-    }
-}
-
-GLenum Compound::_getDrawBuffer( const UpdateChannelData* data )
-{
-    const eq::Window::DrawableConfig& drawableConfig = 
-        data->channel->getWindow()->getDrawableConfig();
-    
-    if( !drawableConfig.stereo )
-    {    
-        if( drawableConfig.doublebuffered )
-            return GL_BACK;
-        // else singlebuffered
-        return GL_FRONT;
-    }
-    else
-    {
-        if( drawableConfig.doublebuffered )
-        {
-            switch( data->eye )
-            {
-                case eq::EYE_LEFT:
-                    return GL_BACK_LEFT;
-                    break;
-                case eq::EYE_RIGHT:
-                    return GL_BACK_RIGHT;
-                    break;
-                default:
-                    return GL_BACK;
-                    break;
-            }
-        }
-        // else singlebuffered
-        switch( data->eye )
-        {
-            case eq::EYE_LEFT:
-                return GL_FRONT_LEFT;
-                break;
-            case eq::EYE_RIGHT:
-                return GL_FRONT_RIGHT;
-                break;
-            default:
-                return GL_FRONT;
-                break;
-        }
-    }
-}
-
-eq::ColorMask Compound::_getDrawBufferMask( const UpdateChannelData* data )
-{
-    if( _inherit.iAttributes[IATTR_STEREO_MODE] != eq::ANAGLYPH )
-        return eq::ColorMask::ALL;
-
-    switch( data->eye )
-    {
-        case eq::EYE_LEFT:
-            return eqs::ColorMask( 
-                _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] );
-        case eq::EYE_RIGHT:
-            return eqs::ColorMask( 
-                _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] );
-        default:
-            return eq::ColorMask::ALL;
-    }
-}
-
-void Compound::_computeFrustum( eq::RenderContext& context, 
-                                const eq::Eye eyeIndex )
-{
-    const Channel* destination = _inherit.channel;
-    const View&    view        = _inherit.view;
-    Config*        config      = getConfig();
-    destination->getNearFar( &context.frustum.nearPlane, 
-                             &context.frustum.farPlane );
-
-    // compute eye position in screen space
-    const vmml::Vector3f& eyeW = config->getEyePosition( eyeIndex );
-    const vmml::Matrix4f& xfm  = view.xfm;
-
-#if 1
-    const float           w    = 
-        xfm.ml[3] * eyeW[0] + xfm.ml[7] * eyeW[1] + xfm.ml[11]* eyeW[2] + xfm.ml[15];
-    const float  eye[3] = {
-        (xfm.ml[0] * eyeW[0] + xfm.ml[4] * eyeW[1] + xfm.ml[8] * eyeW[2] + xfm.ml[12]) / w,
-        (xfm.ml[1] * eyeW[0] + xfm.ml[5] * eyeW[1] + xfm.ml[9] * eyeW[2] + xfm.ml[13]) / w,
-        (xfm.ml[2] * eyeW[0] + xfm.ml[6] * eyeW[1] + xfm.ml[10]* eyeW[2] + xfm.ml[14]) / w};
-#else
-    const vmml::Vector3f  eye  = xfm * eyeW;
-#endif
-
-    // compute frustum from size and eye position
-    vmml::Frustumf& frustum = context.frustum;
-    const float     ratio   = frustum.nearPlane / eye[2];
-    if( eye[2] > 0 )
-    {
-        frustum.left   =  ( -view.width*0.5f  - eye[0] ) * ratio;
-        frustum.right  =  (  view.width*0.5f  - eye[0] ) * ratio;
-        frustum.bottom =  ( -view.height*0.5f - eye[1] ) * ratio;
-        frustum.top    =  (  view.height*0.5f - eye[1] ) * ratio;
-    }
-    else // eye behind near plane - 'mirror' x
-    {
-        frustum.left   =  (  view.width*0.5f  - eye[0] ) * ratio;
-        frustum.right  =  ( -view.width*0.5f  - eye[0] ) * ratio;
-        frustum.bottom =  (  view.height*0.5f + eye[1] ) * ratio;
-        frustum.top    =  ( -view.height*0.5f + eye[1] ) * ratio;
-    }
-
-    // adjust to viewport (screen-space decomposition)
-    // Note: may need to be computed in pvp space to avoid rounding problems
-    const eq::Viewport vp = _inherit.vp;
-    if( !vp.isFullScreen() && vp.isValid( ))
-    {
-        const float frustumWidth = frustum.right - frustum.left;
-        frustum.left  += frustumWidth * vp.x;
-        frustum.right  = frustum.left + frustumWidth * vp.w;
-        
-        const float frustumHeight = frustum.top - frustum.bottom;
-        frustum.bottom += frustumHeight * vp.y;
-        frustum.top     = frustum.bottom + frustumHeight * vp.h;
-    }
-
-    // compute head transform
-    // headTransform = -trans(eye) * view matrix (frustum position)
-    vmml::Matrix4f& headTransform = context.headTransform;
-    for( int i=0; i<16; i += 4 )
-    {
-        headTransform.ml[i]   = xfm.ml[i]   - eye[0] * xfm.ml[i+3];
-        headTransform.ml[i+1] = xfm.ml[i+1] - eye[1] * xfm.ml[i+3];
-        headTransform.ml[i+2] = xfm.ml[i+2] - eye[2] * xfm.ml[i+3];
-        headTransform.ml[i+3] = xfm.ml[i+3];
-    }
-}
-
-// non-leaf update, executed after leaf update
-TraverseResult Compound::_updatePostDrawCB( Compound* compound, void* userData )
-{
-    UpdateChannelData* data    = (UpdateChannelData*)userData;
-    Channel*           channel = data->channel;
-
-    if( compound->getChannel() != channel || !compound->_inherit.tasks ||
-        !( compound->_inherit.eyes & (1<<data->eye) ))
-
-        return TRAVERSE_CONTINUE;
-
-    eq::RenderContext context;
-    compound->_setupRenderContext( context, data );
-    compound->_updatePostDraw( context );
-    return TRAVERSE_CONTINUE;
-}
-
-void Compound::_updatePostDraw( const eq::RenderContext& context )
-{
-    _updateAssemble( context );
-    _updateReadback( context );
-}
-
-void Compound::_updateAssemble( const eq::RenderContext& context )
-{
-    if( !testInheritTask( TASK_ASSEMBLE ) || _inputFrames.empty( ))
-        return;
-
-    vector<Frame*>               frames;
-    vector<eqNet::ObjectVersion> frameIDs;
-    for( vector<Frame*>::const_iterator iter = _inputFrames.begin(); 
-         iter != _inputFrames.end(); ++iter )
-    {
-        Frame* frame = *iter;
-
-        if( !frame->hasData( context.eye )) // TODO: filter: buffers, vp, eye
-            continue;
-
-        frames.push_back( frame );
-        frameIDs.push_back( eqNet::ObjectVersion( frame ));
-    }
-
-    if( frames.empty() )
-        return;
-
-    // assemble task
-    Channel*                       channel = getChannel();
-    eq::ChannelFrameAssemblePacket packet;
-    
-    packet.context   = context;
-    packet.nFrames   = frames.size();
-
-    EQLOG( eq::LOG_ASSEMBLY | eq::LOG_TASKS ) 
-        << "TASK assemble " << channel->getName() <<  " " << &packet << endl;
-    channel->send<eqNet::ObjectVersion>( packet, frameIDs );
-}
-    
-void Compound::_updateReadback( const eq::RenderContext& context )
-{
-    if( !testInheritTask( TASK_READBACK ) || _outputFrames.empty( ))
-        return;
-
-    vector<Frame*>               frames;
-    vector<eqNet::ObjectVersion> frameIDs;
-    for( vector<Frame*>::const_iterator iter = _outputFrames.begin(); 
-         iter != _outputFrames.end(); ++iter )
-    {
-        Frame* frame = *iter;
-
-        if( !frame->hasData( context.eye )) // TODO: filter: buffers, vp, eye
-            continue;
-
-        frames.push_back( frame );
-        frameIDs.push_back( eqNet::ObjectVersion( frame ));
-    }
-
-    if( frames.empty() )
-        return;
-
-    // readback task
-    Channel*                       channel = getChannel();
-    eq::ChannelFrameReadbackPacket packet;
-    
-    packet.context   = context;
-    packet.nFrames   = frames.size();
-
-    EQLOG( eq::LOG_ASSEMBLY | eq::LOG_TASKS ) 
-        << "TASK readback " << channel->getName() <<  " "
-        << &packet << endl;
-    channel->send<eqNet::ObjectVersion>( packet, frameIDs );
-    
-    // transmit tasks
-    Node*                 node         = channel->getNode();
-    RefPtr<eqNet::Node>   netNode      = node->getNode();
-    const eqNet::NodeID&  outputNodeID = netNode->getNodeID();
-    for( vector<Frame*>::const_iterator iter = frames.begin();
-         iter != frames.end(); ++iter )
-    {
-        Frame* frame = *iter;
-
-        const vector<Frame*>& inputFrames = frame->getInputFrames( context.eye);
-        vector<eqNet::NodeID> nodeIDs;
-        for( vector<Frame*>::const_iterator iter = inputFrames.begin();
-             iter != inputFrames.end(); ++iter )
-        {
-            const Frame*         frame   = *iter;
-            const Node*          node    = frame->getNode();
-            RefPtr<eqNet::Node>  netNode = node->getNode();
-            const eqNet::NodeID& nodeID  = netNode->getNodeID();
-            EQASSERT( node );
-
-            if( nodeID == outputNodeID ) // TODO filter: buffers, vp, eye
-                continue;
-
-            nodeIDs.push_back( nodeID );
-        }
-
-        // sort & filter dupes
-        stde::usort( nodeIDs );
-
-        if( nodeIDs.empty( ))
-            continue;
-
-        // send
-        eq::ChannelFrameTransmitPacket transmitPacket;
-        transmitPacket.sessionID = packet.sessionID;
-        transmitPacket.objectID  = packet.objectID;
-        transmitPacket.context   = context;
-        transmitPacket.frame     = eqNet::ObjectVersion( frame );
-        transmitPacket.nNodes    = nodeIDs.size();
-
-        EQLOG( eq::LOG_ASSEMBLY | eq::LOG_TASKS )
-            << "TASK transmit " << channel->getName() <<  " " << 
-            &transmitPacket << " first " << nodeIDs[0] << endl;
-
-        channel->send<eqNet::NodeID>( transmitPacket, nodeIDs );
-    }        
 }
 
 std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)

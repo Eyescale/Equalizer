@@ -17,6 +17,7 @@ SOURCES = \
 	server.cpp \
 	startLocalServer.cpp \
 	swapBarrier.cpp \
+	channelUpdateVisitor.cpp \
 	view.cpp \
 	wall.cpp \
 	window.cpp

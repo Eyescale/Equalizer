@@ -6,6 +6,7 @@
 #define EQS_COMPOUND_H
 
 #include "channel.h"               // used in inline method
+#include "compoundVisitor.h"       // used nested enum
 #include "pixelViewportListener.h" // base class
 #include "projection.h"            // member
 #include "view.h"                  // member
@@ -274,6 +275,34 @@ namespace eqs
             { return _outputFrames; }
         //*}
 
+        /** 
+         * @name Inherit data access needed during channel update.
+         * 
+         * Inherit data are the actual, as opposed to configured, attributes and
+         * data used by the compound. The inherit data is updated at the
+         * beginning of each update().
+         */
+        //*{
+        uint32_t getInheritBuffers() const { return _inherit.buffers; }
+        const eq::PixelViewport& getInheritPixelViewport() const 
+            { return _inherit.pvp; }
+        const eq::Viewport& getInheritViewport() const { return _inherit.vp; }
+        const eq::Range& getInheritRange()    const { return _inherit.range; }
+        uint32_t getInheritTask()             const { return _inherit.tasks; }
+        int32_t  getInheritIAttribute( const IAttribute attr ) const
+            { return _inherit.iAttributes[attr]; }
+        const View& getInheritView()       const { return _inherit.view; }
+        uint32_t getInheritTasks()         const { return _inherit.tasks; }
+        uint32_t getInheritEyes()          const { return _inherit.eyes; }
+        const Channel* getInheritChannel() const { return _inherit.channel; }
+
+        /** @return true if the task is set, false if not. */
+        bool testInheritTask( const Task task ) const
+            { return (_inherit.tasks & task); }
+        bool testInheritEye( const eq::Eye eye ) const
+            { return ( _inherit.eyes & (1<<eye) ); }
+        //*}
+
         /**
          * @name View Operations
          */
@@ -350,6 +379,7 @@ namespace eqs
                                               TraverseCB leafCB,
                                               TraverseCB postCB,
                                               void* userData );
+        CompoundVisitor::Result applyActive( CompoundVisitor* visitor ) const;
 
         /** 
          * Initializes this compound.
@@ -367,15 +397,6 @@ namespace eqs
          * The compound's parameters for the next frame are computed.
          */
         void update( const uint32_t frameNumber );
-
-        /** 
-         * Update a channel by generating all rendering tasks for this frame.
-         * 
-         * @param channel the channel to update.
-         * @param frameID a per-frame identifier passed to all rendering
-         *                methods.
-         */
-        void updateChannel( Channel* channel, const uint32_t frameID );
         //*}
 
         /**
@@ -388,21 +409,6 @@ namespace eqs
             { return _data.iAttributes[attr]; }
         static const std::string&  getIAttributeString( const IAttribute attr )
             { return _iAttributeStrings[attr]; }
-        //*}
-
-        /** 
-         * @name Inherit Data Access.
-         * 
-         * Inherit data are the actual, as opposed to configured, attributes and
-         * data used by the compound. The inherit data is updated at the
-         * beginning of each update().
-         */
-        //*{
-        uint32_t getInheritBuffers() const { return _inherit.buffers; }
-
-        /** @return true if the task is set, false if not. */
-        bool testInheritTask( const Task task ) const
-            { return (_inherit.tasks & task); }
         //*}
 
     protected:
@@ -497,27 +503,6 @@ namespace eqs
         void _updateSwapBarriers( UpdateData* data );
         void _updateOutput( UpdateData* data );
         void _updateInput( UpdateData* data );
-
-        //----- per-channel render task generation
-        struct UpdateChannelData
-        {
-            Channel* channel;
-            uint32_t frameID;
-            eq::Eye  eye;
-        };
-
-        static TraverseResult _updatePreDrawCB(Compound* compound, void* );
-        static TraverseResult _updateDrawCB(Compound* compound, void* );
-        static TraverseResult _updatePostDrawCB( Compound* compound, void* );
-        void _updateDrawFinish( const UpdateChannelData* data );
-        void _updatePostDraw( const eq::RenderContext& context );
-        void   _updateAssemble( const eq::RenderContext& context );
-        void   _updateReadback( const eq::RenderContext& context );
-        void _setupRenderContext( eq::RenderContext& context, 
-                                  const UpdateChannelData* data );
-        GLenum _getDrawBuffer( const UpdateChannelData* data );
-        eq::ColorMask _getDrawBufferMask( const UpdateChannelData* data );
-        void _computeFrustum( eq::RenderContext& context, const eq::Eye eye );
 
         friend std::ostream& operator << ( std::ostream& os,
                                            const Compound* compound );
