@@ -29,12 +29,6 @@ namespace eqs
     class Frame;
     class SwapBarrier;
     
-    enum TraverseResult
-    {
-        TRAVERSE_CONTINUE,
-        TRAVERSE_TERMINATE
-    };
-
     /**
      * The compound.
      */
@@ -145,8 +139,7 @@ namespace eqs
         bool isLeaf() const { return _children.empty(); }
 
         /** @return if the compound is active. */
-        bool isActive() const
-            { return (( _frameNumber % _inherit.period ) == _inherit.phase); }
+        bool isActive() const { return _inherit.active; }
         
         /** 
          * Gets a child.
@@ -267,7 +260,7 @@ namespace eqs
         void setSwapBarrier( SwapBarrier* barrier );
         
         /** @return the current swap barrier. */
-        SwapBarrier* getSwapBarrier() const { return _swapBarrier; }
+        const SwapBarrier* getSwapBarrier() const { return _swapBarrier; }
 
         /** 
          * Add a new input frame for this compound.
@@ -367,37 +360,18 @@ namespace eqs
 
         /** @name Compound Operations. */
         //*{
-        typedef TraverseResult (*TraverseCB)(Compound* compound,void* userData);
-
         /** 
-         * Traverses a compound tree in a top-down, left-to-right order.
+         * Traverse the compound and all (active) children using a compound
+         * visitor.
          * 
-         * @param compound the top level compound of the tree to traverse.
-         * @param preCB the callback to execute for non-leaf compounds when
-         *              traversing down, can be <code>NULL</code>.
-         * @param leafCB the callback to execute for leaf compounds, can be
-         *               <code>NULL</code>
-         * @param postCB the callback to execute for non-leaf compounds when
-         *              traversing up, can be <code>NULL</code>.
-         * @param userData an opaque pointer passed through to the callbacks.
-         *
-         * @return the result of the traversal, <code>TRAVERSE_TERMINATE</code>
-         *         if the traversal was terminated by one of the callbacks, 
-         *         otherwise <code>TRAVERSE_CONTINUE</code> .
+         * @param visitor the visitor.
+         * @param activeOnly traverse only the active DPlex or all compounds.
+         * 
+         * @return the result of the visitor traversal.
          */
-        static TraverseResult traverse( Compound* compound, TraverseCB preCB,
-                                        TraverseCB leafCB, TraverseCB postCB,
-                                        void* userData );
-
-        /** Traverses the active (DPlex) compounds. */
-        static TraverseResult traverseActive( Compound* compound,
-                                              TraverseCB preCB, 
-                                              TraverseCB leafCB,
-                                              TraverseCB postCB,
-                                              void* userData );
-
         VisitorResult accept( ConstCompoundVisitor* visitor,
                               const bool activeOnly=true ) const;
+        /** Non-const version of accept(). */
         VisitorResult accept( CompoundVisitor* visitor,
                               const bool activeOnly = true );
 
@@ -417,6 +391,9 @@ namespace eqs
          * The compound's parameters for the next frame are computed.
          */
         void update( const uint32_t frameNumber );
+
+        /** Update the inherit data of this compound. */
+        void updateInheritData( const uint32_t frameNumber );
         //*}
 
         /**
@@ -484,12 +461,11 @@ namespace eqs
             uint32_t          period;
             uint32_t          phase;
             int32_t           iAttributes[IATTR_ALL];
+            bool              active;
         };
 
         InheritData _data;
         InheritData _inherit;
-
-        uint32_t    _frameNumber;
 
         SwapBarrier* _swapBarrier;
 
@@ -498,28 +474,8 @@ namespace eqs
         
         void _setDefaultFrameName( Frame* frame );
 
-        static TraverseResult _initCB( Compound* compound, void* );
-
         /** Channel pvp changed */
         virtual void notifyPVPChanged( const eq::PixelViewport& pvp );
-
-        //----- pre-render compound setup
-        struct UpdateData
-        {
-            stde::hash_map<std::string, eqNet::Barrier*> swapBarriers;
-            stde::hash_map<std::string, Frame*>          outputFrames;
-        };
-
-        static TraverseResult _updateDataCB( Compound* compound, void* );
-        static TraverseResult _updateOutputCB( Compound* compound, void* );
-        static TraverseResult _updateInputCB( Compound* compound, void* );
-    public: // XXX remove me after implementing update visitors
-        void _updateInheritData();
-    private:
-        void _updateDrawFinish();
-        void _updateSwapBarriers( UpdateData* data );
-        void _updateOutput( UpdateData* data );
-        void _updateInput( UpdateData* data );
 
         friend std::ostream& operator << ( std::ostream& os,
                                            const Compound* compound );

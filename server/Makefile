@@ -5,8 +5,11 @@ SOURCES = \
 	channel.cpp \
 	channelUpdateVisitor.cpp \
 	compound.cpp \
-	compoundInitVisitor.cpp \
 	compoundExitVisitor.cpp \
+	compoundInitVisitor.cpp \
+	compoundUpdateDataVisitor.cpp \
+	compoundUpdateInputVisitor.cpp \
+	compoundUpdateOutputVisitor.cpp \
 	config.cpp \
 	connectionDescription.cpp \
 	frame.cpp \

@@ -8,6 +8,9 @@
 #include "colorMask.h"
 #include "compoundInitVisitor.h"
 #include "compoundExitVisitor.h"
+#include "compoundUpdateDataVisitor.h"
+#include "compoundUpdateInputVisitor.h"
+#include "compoundUpdateOutputVisitor.h"
 #include "config.h"
 #include "constCompoundVisitor.h"
 #include "frame.h"
@@ -28,11 +31,12 @@
 #include <math.h>
 #include <vector>
 
-using namespace eqs;
 using namespace eqBase;
 using namespace std;
 using namespace stde;
 
+namespace eqs
+{
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_COMPOUND_") + #attr )
 std::string Compound::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_STEREO_MODE ),
@@ -42,18 +46,16 @@ std::string Compound::_iAttributeStrings[IATTR_ALL] = {
 };
 
 Compound::Compound()
-        : _config( 0 ),
-          _parent( 0 ),
-          _frameNumber( 0 ),
-          _swapBarrier( 0 )
+        : _config( 0 )
+        , _parent( 0 )
+        , _swapBarrier( 0 )
 {
 }
 
 // copy constructor
 Compound::Compound( const Compound& from )
-        : _config( 0 ),
-          _parent( 0 ),
-          _frameNumber( 0 )
+        : _config( 0 )
+        , _parent( 0 )
 {
     _name        = from._name;
     _view        = from._view;
@@ -365,143 +367,8 @@ void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
 }
 
 //---------------------------------------------------------------------------
-// traverse
+// accept
 //---------------------------------------------------------------------------
-TraverseResult Compound::traverse( Compound* compound, TraverseCB preCB,
-                                   TraverseCB leafCB, TraverseCB postCB,
-                                   void *userData )
-{
-    if ( compound->isLeaf( )) 
-    {
-        if ( leafCB ) 
-            return leafCB( compound, userData );
-        return eqs::TRAVERSE_CONTINUE;
-    }
-
-    Compound *current = compound;
-    while( true )
-    {
-        Compound *parent = current->getParent();
-        Compound *next   = current->getNext();
-        Compound *child  = (current->nChildren()) ? current->getChild(0) : 0;
-
-        //---------- down-right traversal
-        if ( !child ) // leaf
-        {
-            if ( leafCB )
-            {
-                TraverseResult result = leafCB( current, userData );
-                if( result == eqs::TRAVERSE_TERMINATE )
-                    return eqs::TRAVERSE_TERMINATE;
-            }
-
-            current = next;
-        } 
-        else // node
-        {
-            if( preCB )
-            {
-                TraverseResult result = preCB( current, userData );
-                if( result == eqs::TRAVERSE_TERMINATE )
-                    return eqs::TRAVERSE_TERMINATE;
-            }
-
-            current = child;
-        }
-
-        //---------- up-right traversal
-        if( !current && !parent ) return eqs::TRAVERSE_CONTINUE;
-
-        while( !current )
-        {
-            current = parent;
-            parent  = current->getParent();
-            next    = current->getNext();
-
-            if( postCB )
-            {
-                TraverseResult result = postCB( current, userData );
-                if( result == eqs::TRAVERSE_TERMINATE )
-                    return eqs::TRAVERSE_TERMINATE;
-            }
-            
-            if ( current == compound ) return eqs::TRAVERSE_CONTINUE;
-            
-            current = next;
-        }
-    }
-    return eqs::TRAVERSE_CONTINUE;
-}
-
-TraverseResult Compound::traverseActive( Compound* compound, TraverseCB preCB,
-                                        TraverseCB leafCB, TraverseCB postCB,
-                                        void* userData )
-{
-    if ( compound->isLeaf( )) 
-    {
-        if ( leafCB && compound->isActive( )) 
-            return leafCB( compound, userData );
-        return eqs::TRAVERSE_CONTINUE;
-    }
-
-    Compound *current = compound;
-    while( true )
-    {
-        Compound *parent = current->getParent();
-        Compound *next   = current->getNext();
-        Compound *child  = (current->nChildren()) ? current->getChild(0) : 0;
-
-        //---------- down-right traversal
-        if ( !child ) // leaf
-        {
-            if ( leafCB && current->isActive( ))
-            {
-                TraverseResult result = leafCB( current, userData );
-                if( result == eqs::TRAVERSE_TERMINATE )
-                    return eqs::TRAVERSE_TERMINATE;
-            }
-
-            current = next;
-        } 
-        else // node
-        {
-            if( preCB && current->isActive( ))
-            {
-                TraverseResult result = preCB( current, userData );
-                if( result == eqs::TRAVERSE_TERMINATE )
-                    return eqs::TRAVERSE_TERMINATE;
-            }
-
-            if( current->isActive( ))
-                current = child;
-            else
-                current = next;
-        }
-
-        //---------- up-right traversal
-        if( !current && !parent ) return eqs::TRAVERSE_CONTINUE;
-
-        while( !current )
-        {
-            current = parent;
-            parent  = current->getParent();
-            next    = current->getNext();
-
-            if( postCB && current->isActive( ))
-            {
-                TraverseResult result = postCB( current, userData );
-                if( result == eqs::TRAVERSE_TERMINATE )
-                    return eqs::TRAVERSE_TERMINATE;
-            }
-            
-            if ( current == compound ) return eqs::TRAVERSE_CONTINUE;
-            
-            current = next;
-        }
-    }
-    return eqs::TRAVERSE_CONTINUE;
-}
-
 template< class C, class V >
 Compound::VisitorResult _accept( C* compound, V* visitor, 
                                  const bool activeOnly )
@@ -608,16 +475,22 @@ void Compound::exit()
 //---------------------------------------------------------------------------
 void Compound::update( const uint32_t frameNumber )
 {
-    _frameNumber = frameNumber;
+    CompoundUpdateDataVisitor updateDataVisitor( frameNumber );
+    accept( &updateDataVisitor, false /*activeOnly*/ );
 
-    UpdateData data;
+    CompoundUpdateOutputVisitor updateOutputVisitor( frameNumber );
+    accept( &updateOutputVisitor );
 
-    traverseActive( this, _updateDataCB, _updateDataCB, 0,     0     );
-    traverseActive( this, 0, _updateOutputCB, _updateOutputCB, &data );
-    traverseActive( this, _updateInputCB, _updateInputCB, 0,   &data );
-    
+    const hash_map<std::string, Frame*>& outputFrames =
+        updateOutputVisitor.getOutputFrames();
+    CompoundUpdateInputVisitor updateInputVisitor( outputFrames );
+    accept( &updateInputVisitor );
+
+    const hash_map<std::string, eqNet::Barrier*>& swapBarriers = 
+        updateOutputVisitor.getSwapBarriers();
+
     for( hash_map<string, eqNet::Barrier*>::const_iterator i = 
-             data.swapBarriers.begin(); i != data.swapBarriers.end(); ++i )
+             swapBarriers.begin(); i != swapBarriers.end(); ++i )
     {
         eqNet::Barrier* barrier = i->second;
         if( barrier->getHeight() > 1 )
@@ -625,30 +498,7 @@ void Compound::update( const uint32_t frameNumber )
     }
 }
 
-TraverseResult Compound::_updateDataCB( Compound* compound, void* userData )
-{
-    compound->_updateInheritData();
-    compound->_updateDrawFinish();
-
-    return eqs::TRAVERSE_CONTINUE;
-}
-TraverseResult Compound::_updateOutputCB( Compound* compound, void* userData )
-{
-    UpdateData* data = (UpdateData*)userData;
-    compound->_updateOutput( data );
-    compound->_updateSwapBarriers( data );
-    
-    return eqs::TRAVERSE_CONTINUE;
-}
-
-TraverseResult Compound::_updateInputCB( Compound* compound, void* userData )
-{
-    UpdateData* data = (UpdateData*)userData;
-    compound->_updateInput( data );
-    return eqs::TRAVERSE_CONTINUE;
-}
-
-void Compound::_updateInheritData()
+void Compound::updateInheritData( const uint32_t frameNumber )
 {
     if( !_parent )
     {
@@ -692,7 +542,6 @@ void Compound::_updateInheritData()
     }
     else
     {
-        _frameNumber   = _parent->_frameNumber;
         _inherit = _parent->_inherit;
 
         if( !_inherit.channel )
@@ -747,172 +596,11 @@ void Compound::_updateInheritData()
     }
     else
         _inherit.tasks = _data.tasks;
+
+    _inherit.active = (( frameNumber % _inherit.period ) == _inherit.phase);
 }
 
-void Compound::_updateDrawFinish()
-{
-    if( !testInheritTask( TASK_DRAW ))
-        return;
-
-    Channel* channel = getChannel();
-
-    channel->setLastDrawCompound( this );
-    channel->getWindow()->setLastDrawCompound( this );
-    channel->getPipe()->setLastDrawCompound( this );
-    channel->getNode()->setLastDrawCompound( this );
-}
-
-void Compound::_updateOutput( UpdateData* data )
-{
-    const Channel* channel = getChannel();
-    if( !testInheritTask( TASK_READBACK ) || _outputFrames.empty( ) || 
-        !channel )
-
-        return;
-
-    for( vector<Frame*>::iterator iter = _outputFrames.begin(); 
-         iter != _outputFrames.end(); ++iter )
-    {
-        Frame*             frame  = *iter;
-        const std::string& name   = frame->getName();
-
-        if( data->outputFrames.find( name ) != data->outputFrames.end())
-        {
-            EQWARN << "Multiple output frames of the same name are unsupported"
-                   << ", ignoring output frame " << name << endl;
-            frame->unsetData();
-            continue;
-        }
-
-        const eq::Viewport& frameVP  = frame->getViewport();
-        eq::PixelViewport   framePVP = _inherit.pvp.getSubPVP( frameVP );
-
-        // FrameData offset is position wrt destination view
-        frame->cycleData( _frameNumber, _inherit.eyes );
-        FrameData* frameData = frame->getMasterData();
-        EQASSERT( frameData );
-
-        frameData->setOffset( vmml::Vector2i( framePVP.x, framePVP.y ));
-
-        EQLOG( eq::LOG_ASSEMBLY )
-            << disableFlush << "Output frame \"" << name << "\" id " 
-            << frame->getID() << " v" << frame->getVersion()+1
-            << " data id " << frameData->getID() << " v" 
-            << frameData->getVersion() + 1 << " on channel \""
-            << channel->getName() << "\" tile pos " << framePVP.x << ", " 
-            << framePVP.y;
-
-        // FrameData pvp is area within channel
-        framePVP.x = (int32_t)(frameVP.x * _inherit.pvp.w);
-        framePVP.y = (int32_t)(frameVP.y * _inherit.pvp.h);
-        frameData->setPixelViewport( framePVP );
-
-        // Frame offset is position wrt window, i.e., the channel position
-        if( _inherit.channel == channel
-            /* || use dest channel origin hint set */ )
-
-            frame->setOffset( vmml::Vector2i( _inherit.pvp.x, _inherit.pvp.y));
-        else
-        {
-            const eq::PixelViewport& nativePVP = channel->getPixelViewport();
-            frame->setOffset( vmml::Vector2i( nativePVP.x, nativePVP.y ));
-        }
-
-        // image buffers
-        uint32_t buffers = frame->getBuffers();
-        frameData->setBuffers( buffers == eq::Frame::BUFFER_UNDEFINED ? 
-                               getInheritBuffers() : buffers );
-
-        // (source) render context
-        frameData->setRange( _inherit.range );
-
-        frame->commitData();
-        frame->updateInheritData( this );
-        frame->commit();
-        data->outputFrames[name] = frame;
-
-        EQLOG( eq::LOG_ASSEMBLY ) 
-            << " buffers frame " << frame->getInheritBuffers() << " data " 
-            << frameData->getBuffers() << " read area " << framePVP << endl
-            << enableFlush;
-    }
-}
-
-void Compound::_updateSwapBarriers( UpdateData* data )
-{
-    if( !_swapBarrier )
-        return;
-
-    Window* window = getWindow();
-    if( !window )
-        return;
-
-    const std::string& barrierName = _swapBarrier->getName();
-    hash_map<string, eqNet::Barrier*>::iterator iter = 
-        data->swapBarriers.find( barrierName );
-
-    if( iter == data->swapBarriers.end( ))
-        data->swapBarriers[barrierName] = window->newSwapBarrier();
-    else
-        window->joinSwapBarrier( iter->second );
-}
-
-void Compound::_updateInput( UpdateData* data )
-{
-    const Channel* channel = getChannel();
-
-    if( !testInheritTask( TASK_ASSEMBLE ) || _inputFrames.empty( ) || !channel )
-        return;
-
-    for( vector<Frame*>::const_iterator i = _inputFrames.begin(); 
-         i != _inputFrames.end(); ++i )
-    {
-        Frame*                            frame = *i;
-        const std::string&                 name = frame->getName();
-        hash_map<string, Frame*>::iterator iter = data->outputFrames.find(name);
-
-        if( iter == data->outputFrames.end())
-        {
-            EQWARN << "Can't find matching output frame, ignoring input frame "
-                   << name << endl;
-            frame->unsetData();
-            continue;
-        }
-
-        Frame*          outputFrame = iter->second;
-        const eq::Viewport& frameVP = frame->getViewport();
-        eq::PixelViewport  framePVP = _inherit.pvp.getSubPVP( frameVP );
-        vmml::Vector2i  frameOffset = outputFrame->getMasterData()->getOffset();
-
-        if( channel != _inherit.channel
-            /* && !use dest channel origin hint set */ )
-        {
-            // compute delta offset between source and destination, since the
-            // channel's native origin (as opposed to destination) is used.
-            frameOffset.x -= framePVP.x;
-            frameOffset.y -= framePVP.y;
-        }
-
-        // input frames are moved using the offset. The pvp signifies the pixels
-        // to be used from the frame data.
-        framePVP.x = static_cast<int32_t>( frameVP.x * _inherit.pvp.w );
-        framePVP.y = static_cast<int32_t>( frameVP.y * _inherit.pvp.h );
-
-        frame->setOffset( frameOffset );
-        //frame->setPixelViewport( framePVP );
-        outputFrame->addInputFrame( frame, _inherit.eyes );
-        frame->updateInheritData( this );
-        frame->commit();
-
-        EQLOG( eq::LOG_ASSEMBLY )
-            << "Input frame  \"" << name << "\" on channel \"" 
-            << channel->getName() << "\" id " << frame->getID() << " v"
-            << frame->getVersion() << " buffers " << frame->getInheritBuffers() 
-            << "\" tile pos " << frameOffset << " sub-pvp " << framePVP << endl;
-    }
-}
-
-std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
+std::ostream& operator << (std::ostream& os, const Compound* compound)
 {
     if( !compound )
         return os;
@@ -1069,4 +757,5 @@ std::ostream& eqs::operator << (std::ostream& os, const Compound* compound)
 
     os << exdent << "}" << endl << enableFlush;
     return os;
+}
 }

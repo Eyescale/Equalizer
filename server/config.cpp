@@ -6,6 +6,7 @@
 #include "config.h"
 
 #include "compound.h"
+#include "compoundVisitor.h"
 #include "node.h"
 #include "server.h"
 #include "global.h"
@@ -98,20 +99,25 @@ Config::~Config()
     _compounds.clear();
 }
 
-struct ReplaceChannelData
+class ReplaceChannelVisitor : public CompoundVisitor
 {
-    Channel* oldChannel;
-    Channel* newChannel;
+public:
+    ReplaceChannelVisitor( Channel* oldChannel, Channel* newChannel )
+            : _oldChannel( oldChannel ), _newChannel( newChannel ) {}
+    virtual ~ReplaceChannelVisitor() {}
+
+    virtual Compound::VisitorResult visitPre( Compound* compound )
+        { return visitLeaf( compound ); }
+    virtual Compound::VisitorResult visitLeaf( Compound* compound )
+        {
+            if( compound->getChannel() == _oldChannel )
+                compound->setChannel( _newChannel );
+            return Compound::TRAVERSE_CONTINUE;
+        }
+private:
+    Channel* _oldChannel;
+    Channel* _newChannel;
 };
-static TraverseResult replaceChannelCB(Compound* compound, void* userData )
-{
-    ReplaceChannelData* data = (ReplaceChannelData*)userData;
-                            
-    if( compound->getChannel() == data->oldChannel )
-        compound->setChannel( data->newChannel );
-    
-    return TRAVERSE_CONTINUE;
-}
 
 Config::Config( const Config& from )
         : eqNet::Session( eq::CMD_CONFIG_CUSTOM ),
@@ -162,16 +168,12 @@ Config::Config( const Config& from )
                     Channel* channel      = window->getChannel(l);
                     Channel* channelClone = windowClone->getChannel(l);
 
-                    ReplaceChannelData data;
-                    data.oldChannel = channel;
-                    data.newChannel = channelClone;
+                    ReplaceChannelVisitor visitor( channel, channelClone );
 
                     for( uint32_t m=0; m<nCompounds; m++ )
                     {
                         Compound* compound = getCompound(m);
-
-                        Compound::traverse( compound, replaceChannelCB, 
-                                            replaceChannelCB, 0, &data );
+                        compound->accept( &visitor, false /*activeOnly*/ );
                     }
                 }
             }

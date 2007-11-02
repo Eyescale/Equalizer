@@ -48,7 +48,7 @@ Compound::VisitorResult CompoundInitVisitor::visitLeaf( Compound* compound )
                                   << "\" id " << frame->getID() << endl;
     }
 
-    compound->_updateInheritData();
+    compound->updateInheritData( 0 ); // set up initial values
     return Compound::TRAVERSE_CONTINUE;    
 }
 
