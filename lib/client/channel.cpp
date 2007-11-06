@@ -242,15 +242,6 @@ void Channel::frameReadback( const uint32_t frameID )
     resetAssemblyState();
 }
 
-void Channel::applyBuffer()
-{
-    glReadBuffer( getReadBuffer( ));
-    glDrawBuffer( getDrawBuffer( ));
-    
-    const ColorMask& colorMask = getDrawBufferMask();
-    glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
-}
-
 void Channel::setupAssemblyState()
 {
     EQGLERROR;
@@ -319,21 +310,6 @@ const vmml::Vector2i& Channel::getPixelOffset() const
     return _context ? _context->offset : vmml::Vector2i::ZERO;
 }
 
-void Channel::applyViewport()
-{
-    const PixelViewport& pvp = getPixelViewport();
-    // TODO: OPT return if vp unchanged
-
-    if( !pvp.hasArea( ))
-    { 
-        EQERROR << "Can't apply viewport " << pvp << endl;
-        return;
-    }
-
-    glViewport( pvp.x, pvp.y, pvp.w, pvp.h );
-    glScissor( pvp.x, pvp.y, pvp.w, pvp.h );
-}
-
 const uint32_t Channel::getDrawBuffer() const
 {
     return _context ? _context->buffer : GL_BACK;
@@ -364,17 +340,41 @@ Eye Channel::getEye() const
     return _context ? _context->eye : EYE_CYCLOP;
 }
 
-void Channel::applyFrustum() const
-{
-    const vmml::Frustumf& frustum = getFrustum();
-    glFrustum( frustum.left, frustum.right, frustum.bottom, frustum.top,
-               frustum.nearPlane, frustum.farPlane ); 
-    EQVERB << "Apply " << frustum << endl;
-}
-
 const vmml::Matrix4f& Channel::getHeadTransform() const
 {
     return _context ? _context->headTransform : vmml::Matrix4f::IDENTITY;
+}
+
+void Channel::applyBuffer() const
+{
+	glReadBuffer( getReadBuffer( ));
+	glDrawBuffer( getDrawBuffer( ));
+
+	const ColorMask& colorMask = getDrawBufferMask();
+	glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
+}
+
+void Channel::applyViewport() const
+{
+	const PixelViewport& pvp = getPixelViewport();
+	// TODO: OPT return if vp unchanged
+
+	if( !pvp.hasArea( ))
+	{ 
+		EQERROR << "Can't apply viewport " << pvp << endl;
+		return;
+	}
+
+	glViewport( pvp.x, pvp.y, pvp.w, pvp.h );
+	glScissor( pvp.x, pvp.y, pvp.w, pvp.h );
+}
+
+void Channel::applyFrustum() const
+{
+	const vmml::Frustumf& frustum = getFrustum();
+	glFrustum( frustum.left, frustum.right, frustum.bottom, frustum.top,
+		frustum.nearPlane, frustum.farPlane ); 
+	EQVERB << "Apply " << frustum << endl;
 }
 
 void Channel::applyHeadTransform() const

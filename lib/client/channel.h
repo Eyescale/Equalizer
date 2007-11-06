@@ -299,23 +299,23 @@ namespace eq
         /** 
          * Apply the current rendering buffer.
          */
-        void applyBuffer();
+        virtual void applyBuffer() const;
 
         /** 
          * Apply the OpenGL viewport for the current rendering task.
          */
-        void applyViewport();
+        virtual void applyViewport() const;
 
         /**
          * Apply the frustum matrix for the current rendering task.
          */
-        void applyFrustum() const;
+        virtual void applyFrustum() const;
 
         /** 
          * Apply the modelling transformation to position and orient the view
          * frustum.
          */
-        void applyHeadTransform() const;
+        virtual void applyHeadTransform() const;
         //*}
 
         /** @name Error information. */
