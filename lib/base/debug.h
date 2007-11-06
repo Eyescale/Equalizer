@@ -5,6 +5,7 @@
 #ifndef EQBASE_DEBUG_H
 #define EQBASE_DEBUG_H
 
+#include <eq/base/defines.h>
 #include <eq/base/log.h>
 
 // assertions
@@ -27,7 +28,7 @@
 #else // DEBUG
 namespace eqBase
 {
-    /** Used to trap into an infinite loop to allow debugging of node assertions */
+    /** Used to trap into an infinite loop to allow debugging of assertions */
     EQ_EXPORT void abortDebug();
 }
 

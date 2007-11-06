@@ -157,36 +157,28 @@ void Channel::frameClear( const uint32_t frameID )
     }
 #endif // DEBUG
 
-    EQ_GL_ERROR;
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    EQ_GL_ERROR;
+    EQ_GL_CALL( glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ));
 }
 
 void Channel::frameDraw( const uint32_t frameID )
 {
-    applyBuffer();
-    applyViewport();
+    EQ_GL_CALL( applyBuffer( ));
+    EQ_GL_CALL( applyViewport( ));
     
-    EQ_GL_ERROR;
-    glMatrixMode( GL_PROJECTION );
-    glLoadIdentity();
-    EQ_GL_ERROR;
-    applyFrustum();
-    EQ_GL_ERROR;
+    EQ_GL_CALL( glMatrixMode( GL_PROJECTION ));
+    EQ_GL_CALL( glLoadIdentity( ));
+    EQ_GL_CALL( applyFrustum( ));
 
-    EQ_GL_ERROR;
-    glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
-    EQ_GL_ERROR;
-    applyHeadTransform();
-    EQ_GL_ERROR;
+    EQ_GL_CALL( glMatrixMode( GL_MODELVIEW ));
+    EQ_GL_CALL( glLoadIdentity( ));
+    EQ_GL_CALL( applyHeadTransform( ));
 }
 
 void Channel::frameAssemble( const uint32_t frameID )
 {
-    applyBuffer();
-    applyViewport();
-    setupAssemblyState();
+    EQ_GL_CALL( applyBuffer( ));
+    EQ_GL_CALL( applyViewport( ));
+    EQ_GL_CALL( setupAssemblyState( ));
 
     Pipe*                 pipe    = getPipe();
     const vector<Frame*>& frames  = getInputFrames();
@@ -232,14 +224,14 @@ void Channel::frameAssemble( const uint32_t frameID )
         frame->removeListener( monitor );
     }
 
-    resetAssemblyState();
+    EQ_GL_CALL( resetAssemblyState( ));
 }
 
 void Channel::frameReadback( const uint32_t frameID )
 {
-    applyBuffer();
-    applyViewport();
-    setupAssemblyState();
+    EQ_GL_CALL( applyBuffer( ));
+    EQ_GL_CALL( applyViewport( ));
+    EQ_GL_CALL( setupAssemblyState( ));
 
     const vector<Frame*>& frames = getOutputFrames();
     for( vector<Frame*>::const_iterator iter = frames.begin();
@@ -247,12 +239,12 @@ void Channel::frameReadback( const uint32_t frameID )
 
         (*iter)->startReadback();
 
-    resetAssemblyState();
+    EQ_GL_CALL( resetAssemblyState( ));
 }
 
 void Channel::setupAssemblyState()
 {
-    EQ_GL_ERROR;
+    EQ_GL_ERROR( "before setupAssemblyState" );
     glPushAttrib( GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_VIEWPORT_BIT );
 
     glDisable( GL_DEPTH_TEST );
@@ -271,39 +263,34 @@ void Channel::setupAssemblyState()
     glDisable( GL_CLIP_PLANE5 );
 
     EQASSERT( _window );    
-    EQ_GL_ERROR;
     const PixelViewport& pvp = _window->getPixelViewport();
     EQASSERT( pvp.isValid( ));
 
     glViewport( 0, 0, pvp.w, pvp.h );
     glScissor( 0, 0, pvp.w, pvp.h );
 
-    EQ_GL_ERROR;
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    EQ_GL_ERROR;
     glOrtho( 0.0f, pvp.w, 0.0f, pvp.h, -1.0f, 1.0f );
-    EQ_GL_ERROR;
    
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();
     glLoadIdentity();
-    EQ_GL_ERROR;
+    EQ_GL_ERROR( "after  setupAssemblyState" );
 }
 
 void Channel::resetAssemblyState()
 {
-    EQ_GL_ERROR;
+    EQ_GL_ERROR( "before resetAssemblyState" );
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
 
     glMatrixMode( GL_MODELVIEW );
     glPopMatrix();
 
-    EQ_GL_ERROR;
     glPopAttrib();
-    EQ_GL_ERROR;
+    EQ_GL_ERROR( "after  resetAssemblyState" );
 }
 
 const Viewport& Channel::getViewport() const
@@ -358,15 +345,11 @@ const vmml::Matrix4f& Channel::getHeadTransform() const
 
 void Channel::applyBuffer() const
 {
-    EQ_GL_ERROR;
-	glReadBuffer( getReadBuffer( ));
-    EQ_GL_ERROR;
-	glDrawBuffer( getDrawBuffer( ));
-    EQ_GL_ERROR;
+	EQ_GL_CALL( glReadBuffer( getReadBuffer( )));
+	EQ_GL_CALL( glDrawBuffer( getDrawBuffer( )));
 
 	const ColorMask& colorMask = getDrawBufferMask();
 	glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
-    EQ_GL_ERROR;
 }
 
 void Channel::applyViewport() const
@@ -380,29 +363,23 @@ void Channel::applyViewport() const
 		return;
 	}
 
-    EQ_GL_ERROR;
-	glViewport( pvp.x, pvp.y, pvp.w, pvp.h );
-    EQ_GL_ERROR;
-	glScissor( pvp.x, pvp.y, pvp.w, pvp.h );
-    EQ_GL_ERROR;
+	EQ_GL_CALL( glViewport( pvp.x, pvp.y, pvp.w, pvp.h ));
+    EQ_GL_CALL( glScissor( pvp.x, pvp.y, pvp.w, pvp.h ));
 }
 
 void Channel::applyFrustum() const
 {
 	const vmml::Frustumf& frustum = getFrustum();
-    EQ_GL_ERROR;
-	glFrustum( frustum.left, frustum.right, frustum.bottom, frustum.top,
-		frustum.nearPlane, frustum.farPlane ); 
-    EQ_GL_ERROR;
+	EQ_GL_CALL( glFrustum( frustum.left, frustum.right,             \
+                           frustum.bottom, frustum.top,             \
+                           frustum.nearPlane, frustum.farPlane )); 
 	EQVERB << "Apply " << frustum << endl;
 }
 
 void Channel::applyHeadTransform() const
 {
     const vmml::Matrix4f& xfm = getHeadTransform();
-    EQ_GL_ERROR;
-    glMultMatrixf( xfm.ml );
-    EQ_GL_ERROR;
+    EQ_GL_CALL( glMultMatrixf( xfm.ml ));
     EQVERB << "Apply head transform: " << xfm << endl;
 }
 

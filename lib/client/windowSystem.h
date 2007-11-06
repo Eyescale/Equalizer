@@ -7,6 +7,7 @@
 
 #include <eq/base/base.h>
 
+#include <string>
 
 namespace eq
 {
@@ -106,21 +107,32 @@ typedef void* HGLRC;
 
 // Error-check macros
 #ifdef NDEBUG
-#  define EQ_GL_ERROR
-#else
+#  define EQ_GL_ERROR( when ) 
+#  define EQ_GL_CALL( code ) { code; }
+
+#else // NDEBUG
 
 namespace eq
 {
-void debugGLError( const GLenum error, const char* file, const int line );
+void debugGLError( const std::string& when, const GLenum error, 
+                   const char* file, const int line );
 }
 
-#  define EQ_GL_ERROR                                             \
+#  define EQ_GL_ERROR( when )                                     \
     {                                                             \
         const GLenum error = glGetError();                        \
         if( error )                                               \
-            debugGLError( error, __FILE__, __LINE__ );            \
+            debugGLError( when, error, __FILE__, __LINE__ );      \
     }
-#endif
+
+#  define EQ_GL_CALL( code )                              \
+    {                                                     \
+        EQ_GL_ERROR( std::string( "before " ) + #code );  \
+        code;                                             \
+        EQ_GL_ERROR( std::string( "after  " ) + #code );  \
+    }
+
+#endif // NDEBUG
 
 
 // Definitions missing when the OS has an old glext.h
