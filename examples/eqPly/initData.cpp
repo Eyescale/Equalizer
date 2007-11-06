@@ -26,7 +26,7 @@ InitData::InitData()
 #ifdef WIN32_VC
         , _filename( "../examples/eqPly/rockerArm.ply" )
 #else
-        , _filename( "rockerArm.ply" )
+        , _filename( "../share/data/rockerArm.ply" )
 #endif
 {}
 

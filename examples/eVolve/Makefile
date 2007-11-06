@@ -24,6 +24,10 @@ SHADERS = \
 	fragmentShader_glsl.h \
 	vertexShader_glsl.h
 
+MODELS = \
+	$(SHARE_DIR)/data/Bucky32x32x32_d.raw \
+	$(SHARE_DIR)/data/Bucky32x32x32_d.raw.vhf
+
 CXXFLAGS    += -I../include $(WINDOW_SYSTEM_INCS)
 SA_LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)
 
@@ -47,7 +51,7 @@ endif
 endif
 endif
 
-TARGETS = $(PROGRAMS)
+TARGETS = $(PROGRAMS) $(MODELS)
 
 include $(TOP)/make/rules.mk
 
@@ -60,3 +64,7 @@ README: ../../../website/build/documents/user/eVolve.html
 	./stringify.pl $< > $@
 %_glsl.h: %.glsl
 	./stringify.pl $< > $@
+
+$(SHARE_DIR)/data/Bucky32x32x32_d.%: Bucky32x32x32_d.%
+	@mkdir -p $(@D)
+	cp $< $@

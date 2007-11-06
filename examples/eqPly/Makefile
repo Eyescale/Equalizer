@@ -31,9 +31,13 @@ ifeq "${SUBARCH}" "ia64"
 endif
 endif
 
-TARGETS = $(PROGRAMS)
+TARGETS = $(PROGRAMS) $(SHARE_DIR)/data/rockerArm.ply
 
 include $(TOP)/make/rules.mk
 
 README: ../../../website/build/documents/user/eqPly.html
 	links -dump $< > $@
+
+$(SHARE_DIR)/data/rockerArm.ply: rockerArm.ply
+	@mkdir -p $(@D)
+	cp $< $@

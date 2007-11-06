@@ -32,7 +32,7 @@ InitData::InitData()
 #ifdef WIN32_VC
         , _filename( "../examples/eVolve/Bucky32x32x32_d.raw" )
 #else
-        , _filename( "Bucky32x32x32_d.raw" )
+        , _filename( "../share/data/Bucky32x32x32_d.raw" )
 #endif
 {}
 
