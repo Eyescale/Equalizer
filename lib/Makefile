@@ -175,7 +175,8 @@ SOURCES = \
 	client/statEvent.cpp \
 	client/version.cpp \
 	client/window.cpp \
-	client/windowEvent.cpp
+	client/windowEvent.cpp \
+	client/windowSystem.cpp
 
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
   HEADER_SRC += \

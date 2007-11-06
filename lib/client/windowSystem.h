@@ -104,6 +104,25 @@ typedef void* HWND;
 typedef void* HGLRC;
 #endif
 
+// Error-check macros
+#ifdef NDEBUG
+#  define EQ_GL_ERROR
+#else
+
+namespace eq
+{
+void debugGLError( const GLenum error, const char* file, const int line );
+}
+
+#  define EQ_GL_ERROR                                             \
+    {                                                             \
+        const GLenum error = glGetError();                        \
+        if( error )                                               \
+            debugGLError( error, __FILE__, __LINE__ );            \
+    }
+#endif
+
+
 // Definitions missing when the OS has an old glext.h
 
 #ifndef GL_DEPTH_STENCIL_NV

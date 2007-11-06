@@ -24,7 +24,7 @@ docs: lib
 subdirs: precompile
 lib: externals
 proto: lib
-tests: lib
+tests: lib server
 examples: lib
 server: lib
 

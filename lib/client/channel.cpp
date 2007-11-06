@@ -153,11 +153,13 @@ void Channel::frameClear( const uint32_t frameID )
     if( getenv( "EQ_TAINT_CHANNELS" ))
     {
         const vmml::Vector3ub color = getUniqueColor();
-        glClearColor( color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, 1.0f );
+        glClearColor( color.r/255.0f, color.g/255.0f, color.b/255.0f, 1.0f );
     }
 #endif // DEBUG
 
+    EQ_GL_ERROR;
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    EQ_GL_ERROR;
 }
 
 void Channel::frameDraw( const uint32_t frameID )
@@ -165,13 +167,19 @@ void Channel::frameDraw( const uint32_t frameID )
     applyBuffer();
     applyViewport();
     
+    EQ_GL_ERROR;
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
+    EQ_GL_ERROR;
     applyFrustum();
+    EQ_GL_ERROR;
 
+    EQ_GL_ERROR;
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
+    EQ_GL_ERROR;
     applyHeadTransform();
+    EQ_GL_ERROR;
 }
 
 void Channel::frameAssemble( const uint32_t frameID )
@@ -244,7 +252,7 @@ void Channel::frameReadback( const uint32_t frameID )
 
 void Channel::setupAssemblyState()
 {
-    EQGLERROR;
+    EQ_GL_ERROR;
     glPushAttrib( GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_VIEWPORT_BIT );
 
     glDisable( GL_DEPTH_TEST );
@@ -263,36 +271,39 @@ void Channel::setupAssemblyState()
     glDisable( GL_CLIP_PLANE5 );
 
     EQASSERT( _window );    
-    EQGLERROR;
+    EQ_GL_ERROR;
     const PixelViewport& pvp = _window->getPixelViewport();
     EQASSERT( pvp.isValid( ));
 
     glViewport( 0, 0, pvp.w, pvp.h );
     glScissor( 0, 0, pvp.w, pvp.h );
 
-    EQGLERROR;
+    EQ_GL_ERROR;
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    EQGLERROR;
+    EQ_GL_ERROR;
     glOrtho( 0.0f, pvp.w, 0.0f, pvp.h, -1.0f, 1.0f );
-    EQGLERROR;
+    EQ_GL_ERROR;
    
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();
     glLoadIdentity();
-    EQGLERROR;
+    EQ_GL_ERROR;
 }
 
 void Channel::resetAssemblyState()
 {
+    EQ_GL_ERROR;
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
 
     glMatrixMode( GL_MODELVIEW );
     glPopMatrix();
 
+    EQ_GL_ERROR;
     glPopAttrib();
+    EQ_GL_ERROR;
 }
 
 const Viewport& Channel::getViewport() const
@@ -347,11 +358,15 @@ const vmml::Matrix4f& Channel::getHeadTransform() const
 
 void Channel::applyBuffer() const
 {
+    EQ_GL_ERROR;
 	glReadBuffer( getReadBuffer( ));
+    EQ_GL_ERROR;
 	glDrawBuffer( getDrawBuffer( ));
+    EQ_GL_ERROR;
 
 	const ColorMask& colorMask = getDrawBufferMask();
 	glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
+    EQ_GL_ERROR;
 }
 
 void Channel::applyViewport() const
@@ -365,22 +380,29 @@ void Channel::applyViewport() const
 		return;
 	}
 
+    EQ_GL_ERROR;
 	glViewport( pvp.x, pvp.y, pvp.w, pvp.h );
+    EQ_GL_ERROR;
 	glScissor( pvp.x, pvp.y, pvp.w, pvp.h );
+    EQ_GL_ERROR;
 }
 
 void Channel::applyFrustum() const
 {
 	const vmml::Frustumf& frustum = getFrustum();
+    EQ_GL_ERROR;
 	glFrustum( frustum.left, frustum.right, frustum.bottom, frustum.top,
 		frustum.nearPlane, frustum.farPlane ); 
+    EQ_GL_ERROR;
 	EQVERB << "Apply " << frustum << endl;
 }
 
 void Channel::applyHeadTransform() const
 {
     const vmml::Matrix4f& xfm = getHeadTransform();
+    EQ_GL_ERROR;
     glMultMatrixf( xfm.ml );
+    EQ_GL_ERROR;
     EQVERB << "Apply head transform: " << xfm << endl;
 }
 

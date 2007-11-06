@@ -10,9 +10,9 @@
 // assertions
 #ifdef NDEBUG
 
-#  define EQASSERT(x) { if( !(x) )                                 \
-        EQERROR << "##### Assert: " << #x << " #####" << std::endl \
-                << eqBase::forceFlush; }
+#  define EQASSERT(x) { if( !(x) )                                      \
+            EQERROR << "##### Assert: " << #x << " #####" << std::endl  \
+                    << eqBase::forceFlush; }
 #  define EQASSERTINFO(x, info) { if( !(x) )                            \
             EQERROR << "##### Assert: " << #x << " [" << info << "] #####" \
                     << std::endl << eqBase::forceFlush; }
@@ -24,7 +24,6 @@
     { EQERROR << "Code is not supposed to be called in this context"    \
               << std::endl << eqBase::forceFlush; }
 
-#  define EQGLERROR
 #else // DEBUG
 namespace eqBase
 {
@@ -33,13 +32,13 @@ namespace eqBase
 }
 
 #  define EQASSERT(x) { if( !(x) )                                      \
-    { EQERROR << "Assert: " << #x << std::endl << eqBase::forceFlush;   \
+        { EQERROR << "Assert: " << #x << std::endl << eqBase::forceFlush; \
       eqBase::abortDebug(); }}
 #  define EQASSERTINFO(x, info) { if( !(x) )                            \
         {                                                               \
             EQERROR << "Assert: " << #x << " [" << info << "]" << std::endl \
                     << eqBase::forceFlush;                              \
-            eqBase::abortDebug();                                                  \
+            eqBase::abortDebug();                                       \
         }}
 #  define EQUNIMPLEMENTED                                               \
     { EQERROR << "Unimplemented code in " << typeid(*this).name()       \
@@ -53,15 +52,6 @@ namespace eqBase
     { EQERROR << "Code is not supposed to be called in this context, type " \
               << typeid(*this).name() << std::endl << eqBase::forceFlush; \
         eqBase::abortDebug(); }
-
-#  define EQGLERROR                                                 \
-    {                                                               \
-        const GLenum glError = glGetError();                        \
-        if( glError )                                               \
-        {                                                           \
-            EQWARN << "Caught OpenGL error " << glError << endl;    \
-        }                                                           \
-    }
 
 #endif
 #endif //EQBASE_DEBUG_H
