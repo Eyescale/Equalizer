@@ -10,8 +10,8 @@ using namespace std;
 
 SocketConnection::SocketConnection( const ConnectionType type )
     : _overlappedAcceptData( 0 ),
-      _overlappedSocket( INVALID_SOCKET ),
-      _overlappedPending( false )
+      _overlappedPending( false ),
+      _overlappedSocket( INVALID_SOCKET )
 {
     memset( &_overlapped, 0, sizeof( _overlapped ));
 
@@ -283,7 +283,7 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
     }
     else // kick of new recv
     {
-        WSABUF wsaBuffer = { MIN( 512*1024, bytes ), 
+        WSABUF wsaBuffer = { EQ_MIN( 512*1024, bytes ), 
                              static_cast<char*>( buffer )};
 
         ResetEvent( _overlapped.hEvent );
@@ -344,7 +344,7 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
     if( _writeFD == INVALID_SOCKET )
         return -1;
 
-    WSABUF wsaBuffer = { MIN( 512*1024, bytes ),
+    WSABUF wsaBuffer = { EQ_MIN( 512*1024, bytes ),
         const_cast<char*>( static_cast< const char* >( buffer ))};
     DWORD wrote;
 

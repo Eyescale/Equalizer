@@ -10,3 +10,5 @@ LDFLAGS            += -lrpcrt4 -lws2_32 -lmswsock
 IMP_LIB             = $(@D)/$(@F:lib%=cyg%)
 DSO_LDFLAGS        += -Wl,--out-implib=$(IMP_LIB) \
                       -Wl,--export-all-symbols -Wl,--enable-auto-import
+
+SKIP_EVOLVE         = 1

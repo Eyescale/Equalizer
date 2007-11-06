@@ -20,10 +20,8 @@ extern "C" char **environ;
 
 #ifdef WIN32
 typedef int        socklen_t;
-#  ifdef WIN32_VC
-#    define MAX __max
-#    define MIN __min
 
+#  ifdef WIN32_VC
 typedef UINT64     uint64_t;
 typedef INT64      int64_t;
 typedef UINT32     uint32_t;

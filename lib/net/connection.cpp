@@ -157,7 +157,7 @@ bool Connection::recv( void* buffer, const uint64_t bytes )
     if( eqBase::Log::topics & LOG_WIRE ) // OPT
     {
         EQLOG( LOG_WIRE ) << disableFlush << "Received " << bytes << " bytes: ";
-        const uint32_t printBytes = MIN( bytes, 256 );
+        const uint32_t printBytes = EQ_MIN( bytes, 256 );
         unsigned char* data       = static_cast<unsigned char*>(buffer);
 
         for( uint32_t i=0; i<printBytes; i++ )
@@ -199,7 +199,7 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
     {
         EQLOG( LOG_WIRE ) << disableFlush << "Sending " << bytes 
                           << " bytes on " << (void*)this << ":";
-        const uint32_t printBytes = MIN( bytes, 256 );
+        const uint32_t printBytes = EQ_MIN( bytes, 256 );
 
         for( uint32_t i=0; i<printBytes; ++i )
         {

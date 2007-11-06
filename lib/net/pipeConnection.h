@@ -5,7 +5,12 @@
 #ifndef EQNET_PIPE_CONNECTION_H
 #define EQNET_PIPE_CONNECTION_H
 
-#include "fdConnection.h"
+#ifdef WIN32
+#  include <eq/net/connection.h>
+#else
+#  include <eq/net/fdConnection.h>
+#endif
+
 #include <eq/base/thread.h>
 
 namespace eqNet

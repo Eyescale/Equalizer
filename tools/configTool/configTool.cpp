@@ -4,13 +4,17 @@
 
 #include "configTool.h"
 
-#ifdef WIN32_VC
-#  define MIN __min
-#else
+
+#ifndef WIN32
 #  include <sys/param.h>
 #endif
 
 #include <math.h>
+
+#ifndef MIN
+#  define MIN(a,b) ((a)<(b)?(a):(b))
+#endif
+
 #include <tclap/CmdLine.h>
 
 #include <iostream>

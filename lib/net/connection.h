@@ -18,7 +18,7 @@
 #include <sys/types.h>
 #include <vector>
 
-#ifdef WIN32_VC
+#ifdef WIN32_API
 #  include <malloc.h>     // for alloca()
 #endif
 

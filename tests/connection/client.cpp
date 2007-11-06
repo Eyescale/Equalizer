@@ -4,7 +4,6 @@
 #include <eq/net/connectionDescription.h>
 #include <eq/net/init.h>
 
-#include <alloca.h>
 #include <iostream>
 
 using namespace eqNet;

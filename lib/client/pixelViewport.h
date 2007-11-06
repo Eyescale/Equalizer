@@ -122,10 +122,10 @@ namespace eq
                 int32_t dEx = rhs.x + rhs.w;
                 int32_t dEy = rhs.y + rhs.h;
                 
-                x = MIN( x, rhs.x );
-                y = MIN( y, rhs.y );
-                w = MAX( sEx, dEx ) - x;
-                h = MAX( sEy, dEy ) - y;
+                x = EQ_MIN( x, rhs.x );
+                y = EQ_MIN( y, rhs.y );
+                w = EQ_MAX( sEx, dEx ) - x;
+                h = EQ_MAX( sEy, dEy ) - y;
             }
 
         /** create the intersection pixel viewport  */
@@ -154,10 +154,10 @@ namespace eq
                 int32_t dEx = rhs.x + rhs.w;
                 int32_t dEy = rhs.y + rhs.h;
                     
-                x = MAX( x, rhs.x );
-                y = MAX( y, rhs.y );
-                w = MIN( sEx, dEx ) - x;
-                h = MIN( sEy, dEy ) - y;
+                x = EQ_MAX( x, rhs.x );
+                y = EQ_MAX( y, rhs.y );
+                w = EQ_MIN( sEx, dEx ) - x;
+                h = EQ_MIN( sEy, dEy ) - y;
             }
 
         //*}

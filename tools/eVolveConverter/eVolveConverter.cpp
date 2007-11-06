@@ -5,13 +5,12 @@
 
 #include "ddsbase.h"
 
-#ifdef WIN32_VC
-#  define MIN __min
-#else
-#  include <sys/param.h>
-#endif
-
 #include <math.h>
+
+#define EQ_MIN(a,b) ((a)<(b)?(a):(b))
+#ifndef MIN
+#  define MIN EQ_MIN
+#endif
 #include <tclap/CmdLine.h>
 
 #include "eVolveConverter.h"
@@ -32,13 +31,8 @@ using hlpFuncs::min;
 using hlpFuncs::hFile;
 
 
-#ifndef EQERROR
 #define EQERROR cerr
-#endif
-
-#ifndef EQWARN
-#define EQWARN cout
-#endif
+#define EQWARN  cout
 
 
 static int lFailed( char* msg, int result=1 ) 

@@ -8,7 +8,7 @@
 #include "node.h"
 #include "socketConnection.h"
 
-#ifdef WIN32_VC
+#ifdef WIN32_API
 #  include <direct.h>
 #  define getcwd _getcwd
 #endif

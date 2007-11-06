@@ -6,15 +6,16 @@
 #define EQNET_SOCKETCONNECTION_H
 
 #include <eq/base/base.h>
-#include <eq/net/fdConnection.h>
-
 #ifdef WIN32
+#  include <eq/net/connection.h>
 #  ifndef MAXPATHLEN
 #    define MAXPATHLEN 1024
 #  endif
 #else
+#  include <eq/net/fdConnection.h>
 #  include <netinet/in.h>
 #endif
+
 
 namespace eqNet
 {

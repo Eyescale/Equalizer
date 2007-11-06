@@ -202,6 +202,15 @@ ifeq ($(findstring WGL, $(WINDOW_SYSTEM)),WGL)
 
   SOURCES += \
 	client/wglEventHandler.cpp
+
+ifdef VARIANT
+$(OBJECTS): $(PTHREAD_LIBS)
+
+$(BUILD_DIR)/$(VARIANT)/lib/pthread.%: $(TOP)/Windows/pthreads/lib/pthreadGC2.%
+	@mkdir -p $(@D)
+	@echo 'Library file $@'
+	@cp $< $@
+endif
 endif
 
 CXXFLAGS += $(WINDOW_SYSTEM_INCS) -DEQUALIZER_EXPORTS

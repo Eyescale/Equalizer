@@ -2,6 +2,7 @@
 include $(TOP)/make/system.mk
 
 SA_CXXFLAGS += -I.. -leq
+BIN_DIR      = $(ARCH)
 
 ifeq "${ARCH}" "Linux"
   SA_CXXFLAGS += -lrt

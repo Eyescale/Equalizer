@@ -227,7 +227,7 @@ bool Thread::isCurrent() const
 
 size_t Thread::getSelfThreadID()
 {
-#ifdef WIN32_VC
+#ifdef PTW32_VERSION
     return reinterpret_cast< size_t >( pthread_self().p );
 #else
     return ( size_t )( pthread_self( ));
@@ -242,7 +242,7 @@ void Thread::addListener( ExecutionListener* listener )
 
 std::ostream& operator << ( std::ostream& os, const Thread* thread )
 {
-#ifdef WIN32_VC
+#ifdef PTW32_VERSION
     os << "Thread " << thread->_data->threadID.p;
 #else
     os << "Thread " << thread->_data->threadID;
@@ -253,7 +253,7 @@ std::ostream& operator << ( std::ostream& os, const Thread* thread )
 			thread->_state == Thread::STATE_RUNNING ? "running" :
 			thread->_state == Thread::STATE_STOPPING ? "stopping" : "unknown" );
 
-#ifdef WIN32_VC
+#ifdef PTW32_VERSION
 	os << " called from " << pthread_self().p;
 #else
 	os << " called from " << pthread_self();

@@ -12,6 +12,7 @@
 #  define _WIN32_WINNT 0x500
 #  include <Winsock2.h>
 #  include <Windows.h>
+#  include <windef.h>
 #  define EQ_DLLEXPORT __declspec(dllexport) 
 #  define EQ_DLLIMPORT __declspec(dllimport)
 #  ifdef EQUALIZER_EXPORTS
@@ -30,7 +31,7 @@
 #    define EQS_EXPORT EQ_DLLIMPORT
 #    define EQS_STLEXTERN extern
 #  endif
-#else
+#else // WIN32
 #  define EQ_DLLEXPORT
 #  define EQ_DLLIMPORT
 #  define EQ_EXPORT
@@ -38,6 +39,11 @@
 #  define EQS_DLLIMPORT
 #  define EQS_EXPORT
 #endif
+
+// Defining our own min/max macros seems to be the only sane way to get this
+// functionality across platforms thanks to some screwup in the MS header files.
+#define EQ_MAX(a,b) ((a)>(b)?(a):(b))
+#define EQ_MIN(a,b) ((a)<(b)?(a):(b))
 
 #include <cmath>
 #include <cstdio>

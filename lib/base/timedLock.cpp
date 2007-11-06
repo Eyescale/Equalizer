@@ -10,7 +10,7 @@
 #include <errno.h>
 #include <sys/timeb.h>
 
-#ifdef WIN32_VC
+#ifdef WIN32_API
 #  define timeb _timeb
 #  define ftime _ftime
 #endif

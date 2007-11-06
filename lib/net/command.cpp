@@ -17,8 +17,8 @@ Command::Command( const Command& from )
     if( !from.isValid( ))
         return;
 
-    _packet = static_cast<Packet*>( malloc( MAX( Packet::minSize,
-                                                 from._packet->size )));
+    _packet = static_cast<Packet*>( malloc( EQ_MAX( Packet::minSize,
+                                                    from._packet->size )));
     memcpy( _packet, from._packet, from._packet->size );
     _node      = from._node;
     _localNode = from._localNode;
@@ -49,8 +49,8 @@ void Command::allocate( eqBase::RefPtr<Node> node,
         release();
 
     if( !_packet )
-        _packet = static_cast<Packet*>( malloc( MAX( Packet::minSize,
-                                                     packetSize      )));
+        _packet = static_cast<Packet*>( malloc( EQ_MAX( Packet::minSize,
+                                                        packetSize      )));
 
     _node         = node;
     _localNode    = localNode;

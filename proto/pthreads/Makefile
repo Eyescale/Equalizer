@@ -4,6 +4,7 @@ include $(TOP)/make/system.mk
 PROGRAM = perf
 SOURCES = perf.cpp
 NOINSTALL = 1
+BIN_DIR   = $(ARCH)
 
 SA_LDFLAGS  += -L$(LIBRARY_DIR) -leq -lpthread
 

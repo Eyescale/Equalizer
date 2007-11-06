@@ -2,6 +2,7 @@
 /* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
+#ifndef WIN32
 #ifndef EQNET_FDCONNECTION_H
 #define EQNET_FDCONNECTION_H
 
@@ -44,3 +45,4 @@ namespace eqNet
 }
 
 #endif //EQNET_FDCONNECTION_H
+#endif // WIN32

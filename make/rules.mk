@@ -110,6 +110,7 @@ $(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o: %.cpp
 # executables
 $(FAT_PROGRAM): $(THIN_PROGRAMS)
 ifndef VARIANT
+	@mkdir -p $(@D)
 	lipo -create $(THIN_PROGRAMS) -output $@
 ifndef NOINSTALL
 	@echo "mkdir -p \$$DESTDIR/$(INSTALL_BIN_DIR);" \
@@ -120,6 +121,7 @@ endif
 
 $(THIN_PROGRAMS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
+	@mkdir -p $(@D)
 	$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) $(OBJECTS) $(LINKDIRS) $(SA_LDFLAGS) $(LDFLAGS) -o $@
 ifndef BUILD_FAT
 ifndef NOINSTALL
@@ -134,7 +136,8 @@ endif
 
 ifndef PROGRAM
 ifdef VARIANT
-%.$(VARIANT): %.cpp
+$(BIN_DIR)/%.$(VARIANT): %.cpp
+	@mkdir -p $(@D)
 	$(CXX) $< $(INCLUDEDIRS) $(CXXFLAGS) $(LINKDIRS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -MD -MF $@.d -o $@ 
 ifndef BUILD_FAT
 ifdef INSTALL
@@ -159,7 +162,7 @@ $(THIN_SIMPLE_PROGRAMS): $(CXXFILES)
 endif # VARIANT
 endif # PROGRAMS
 
-testRun.%: %
+%.testOk: %
 	env EQ_LOG_LEVEL=WARN LD_LIBRARY_PATH=$(BUILD_DIR)/$(subst .,,$(suffix $<))/lib DYLD_LIBRARY_PATH=$(BUILD_DIR)/$(subst .,,$(suffix $<))/lib ./$< && touch $@ || rm -f $@
 
 # cleaning targets

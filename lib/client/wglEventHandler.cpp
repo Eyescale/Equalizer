@@ -1,7 +1,10 @@
 /* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#include <pthread.h>
+#include <eq/base/base.h>      // first get windows.h
+#include <pthread.h>           // then get pthreads
+#include <eq/base/perThread.h> // then get perThread to have template code
+
 #include "wglEventHandler.h"
 
 #include "log.h"
@@ -10,7 +13,6 @@
 
 #include <eq/base/debug.h>
 #include <eq/base/executionListener.h>
-#include <eq/base/perThread.h>
 
 #include <algorithm>
 #include <windowsx.h>

@@ -20,8 +20,8 @@ int main( int argc, char **argv )
     while( nLoops-- )
     {
         RNG rng;
-        uint range = static_cast<uint>( rng.get<uint>() * .0001f );
-        uint id    = pool.genIDs( range );
+        uint32_t range = static_cast<uint32_t>( rng.get<uint32_t>() * .0001f );
+        uint32_t id    = pool.genIDs( range );
         
         TESTINFO( id != EQ_ID_INVALID,
                   "Failed to allocate after " << nLoops << " allocations" );

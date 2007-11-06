@@ -7,7 +7,6 @@
 #include <eq/net/init.h>
 #include <eq/net/pipeConnection.h>
 
-#include <alloca.h>
 #include <iostream>
 
 using namespace eqBase;

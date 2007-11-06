@@ -112,7 +112,7 @@ uint32_t Session::genIDs( const uint32_t range )
 
     SessionGenIDsPacket packet;
     packet.requestID = _requestHandler.registerRequest();
-    packet.range     = MAX(range, MIN_ID_RANGE);
+    packet.range     = EQ_MAX(range, MIN_ID_RANGE);
 
     send( packet );
     _requestHandler.waitRequest( packet.requestID, id );

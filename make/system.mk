@@ -10,17 +10,17 @@ DEPTH     := $(subst ../,--,$(TOP))
 DEPTH     := $(subst .,-->,$(DEPTH))
 
 # os-specific settings
-ARCH    = $(shell uname)
-SUBARCH = $(shell uname -m)
-RELARCH = $(shell uname -r)
+ARCH    ?= $(shell uname)
+SUBARCH ?= $(shell uname -m)
+RELARCH ?= $(shell uname -r)
 
 include $(TOP)/make/$(ARCH).mk
 -include $(TOP)/make/local.mk
 
 # general variables, targets, etc.
-VARIANTS       ?= $(SUBARCH)
+VARIANTS           ?= $(SUBARCH)
 
-INSTALL_DIR    ?= /usr/local
+INSTALL_DIR        ?= /usr/local
 INSTALL_LIB_DIR    ?= $(INSTALL_DIR)/lib$(VARIANT)
 INSTALL_LDSO_DIR   ?= /etc/ld.so.conf.d
 INSTALL_LDSO_CONF  ?= $(INSTALL_LDSO_DIR)/Equalizer.conf
@@ -34,6 +34,7 @@ BUILD_DIR       = $(TOP)/$(BUILD_DIR_BASE)
 LIBRARY_DIR     = $(BUILD_DIR)/$(VARIANT)/lib
 INCLUDEDIRS     = -I$(BUILD_DIR)/include
 LINKDIRS        = -L$(LIBRARY_DIR)
+BIN_DIR        ?= $(BUILD_DIR)/bin
 
 WINDOW_SYSTEM_DEFINES = $(foreach WS,$(WINDOW_SYSTEM),-D$(WS))
 DEP_CXX        ?= $(CXX)
@@ -107,12 +108,12 @@ THIN_DYNAMIC_LIBS = $(foreach V,$(VARIANTS),$(BUILD_DIR)/$(V)/lib/lib$(MODULE).$
 endif
 
 # executable target
-THIN_PROGRAMS     = $(foreach V,$(VARIANTS),$(PROGRAM).$(V))
-FAT_PROGRAM       = $(PROGRAM)
+THIN_PROGRAMS     = $(foreach V,$(VARIANTS),$(BIN_DIR)/$(PROGRAM).$(V))
+FAT_PROGRAM       = $(BIN_DIR)/$(PROGRAM)
 
-FAT_SIMPLE_PROGRAMS  = $(CXXFILES:%.cpp=%)
+FAT_SIMPLE_PROGRAMS  = $(CXXFILES:%.cpp=$(BIN_DIR)/%)
 THIN_SIMPLE_PROGRAMS = $(foreach V,$(VARIANTS),$(foreach P,$(FAT_SIMPLE_PROGRAMS),$(P).$(V)))
-TESTS               ?= $(THIN_SIMPLE_PROGRAMS:%=testRun.%)
+TESTS               ?= $(THIN_SIMPLE_PROGRAMS:%=%.testOk)
 
 DYNAMIC_LIB       = $(THIN_DYNAMIC_LIBS)
 STATIC_LIB        = $(THIN_STATIC_LIBS)

@@ -269,8 +269,8 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler,
                                   vmml::Vector3f( frameData.data.translation );
     const vmml::Vector3f nearPoint  = headTransform * ( center - front );
     const vmml::Vector3f farPoint   = headTransform * ( center + front );
-    const float          zNear = MAX( 0.0001f, -nearPoint.z );
-    const float          zFar  = MAX( 0.0002f, -farPoint.z );
+    const float          zNear = EQ_MAX( 0.0001f, -nearPoint.z );
+    const float          zFar  = EQ_MAX( 0.0002f, -farPoint.z );
 
     setNearFar( zNear, zFar );
 }

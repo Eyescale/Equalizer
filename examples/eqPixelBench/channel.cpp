@@ -8,7 +8,7 @@
 using namespace std;
 using namespace eqBase;
 
-#ifdef WIN32_VC
+#ifdef WIN32_API
 #  define snprintf _snprintf
 #endif
 

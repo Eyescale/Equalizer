@@ -10,6 +10,10 @@
 #include <algorithm>
 #include <cctype>
 #include <functional>
+
+#ifndef MIN
+#  define MIN EQ_MIN
+#endif
 #include <tclap/CmdLine.h>
 
 using namespace std;

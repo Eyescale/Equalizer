@@ -8,7 +8,6 @@
 #include <eq/net/node.h>
 #include <eq/net/packets.h>
 
-#include <alloca.h>
 #include <iostream>
 
 using namespace eqBase;

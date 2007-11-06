@@ -2,6 +2,7 @@
 /* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
+#ifndef WIN32
 #include "fdConnection.h"
 #include "log.h"
 
@@ -73,3 +74,5 @@ int64_t FDConnection::write( const void* buffer, const uint64_t bytes ) const
 
     return bytesWritten;
 }
+
+#endif // WIN32

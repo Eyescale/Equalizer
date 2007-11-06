@@ -12,7 +12,7 @@
 #define yylineno eqLoader_lineno
 #define yylex eqLoader_lex
 
-#ifdef WIN32_VC
+#ifdef WIN32_API
 #  include <io.h>
 #  define isatty _isatty
 #endif
@@ -28,17 +28,17 @@ const char* yyinString = 0;
            && ferror( yyin ) )                              \
         YY_FATAL_ERROR( "input in flex scanner failed" );
 
-#define YY_INPUT( buf, result, max_size )                   \
-    if( yyinString )                                        \
-    {                                                       \
-        result = MIN( max_size, (int)strlen( yyinString )); \
-        if( result )                                        \
-            memcpy( buf, yyinString, result );              \
-        yyinString += result;                               \
-    }                                                       \
-    else                                                    \
-    {                                                       \
-        YY_INPUT_FILE( buf, result, max_size );             \
+#define YY_INPUT( buf, result, max_size )                      \
+    if( yyinString )                                           \
+    {                                                          \
+        result = EQ_MIN( max_size, (int)strlen( yyinString )); \
+        if( result )                                           \
+            memcpy( buf, yyinString, result );                 \
+        yyinString += result;                                  \
+    }                                                          \
+    else                                                       \
+    {                                                          \
+        YY_INPUT_FILE( buf, result, max_size );                \
     }
 %}
 

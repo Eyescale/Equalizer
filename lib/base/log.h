@@ -15,7 +15,7 @@
 #include <sstream>
 #include <time.h>
 
-#ifdef WIN32_VC
+#ifdef WIN32_API
 #  include <process.h>
 #  define getpid _getpid
 #endif
