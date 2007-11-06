@@ -146,5 +146,7 @@ int64_t PipeConnection::write( const void* buffer, const uint64_t bytes ) const
     }
     _mutex.unset();
 
-    return (ret==0) ? -1 : bytesWritten;
+	if( ret==0 ) 
+		return -1;
+	return bytesWritten;
 }
