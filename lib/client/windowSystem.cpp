@@ -10,7 +10,7 @@ using namespace std;
 
 namespace eq
 {
-void debugGLError( const std::string& when, const GLenum error, 
+EQ_EXPORT void debugGLError( const std::string& when, const GLenum error, 
                    const char* file, const int line )
 {                                                                 
     EQWARN << "Got GL error 0x" << hex << error << dec << ' ' << when

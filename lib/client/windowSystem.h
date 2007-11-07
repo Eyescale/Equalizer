@@ -114,7 +114,7 @@ typedef void* HGLRC;
 
 namespace eq
 {
-void debugGLError( const std::string& when, const GLenum error, 
+EQ_EXPORT void debugGLError( const std::string& when, const GLenum error, 
                    const char* file, const int line );
 }
 
@@ -122,7 +122,7 @@ void debugGLError( const std::string& when, const GLenum error,
     {                                                             \
         const GLenum error = glGetError();                        \
         if( error )                                               \
-            debugGLError( when, error, __FILE__, __LINE__ );      \
+            eq::debugGLError( when, error, __FILE__, __LINE__ );  \
     }
 
 #  define EQ_GL_CALL( code )                              \

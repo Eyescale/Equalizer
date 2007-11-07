@@ -146,8 +146,8 @@ void eq::Channel::setNearFar( const float nearPlane, const float farPlane )
 //---------------------------------------------------------------------------
 void Channel::frameClear( const uint32_t frameID )
 {
-    applyBuffer();
-    applyViewport();
+    EQ_GL_CALL( applyBuffer( ));
+    EQ_GL_CALL( applyViewport( ));
 
 #ifndef NDEBUG
     if( getenv( "EQ_TAINT_CHANNELS" ))
