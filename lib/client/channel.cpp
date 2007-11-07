@@ -180,10 +180,19 @@ void Channel::frameAssemble( const uint32_t frameID )
     EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
 
+    // This is an optimized version of frameAssemble.
+    // The frames are not assemble in the saved order,
+    // but in the order they become available, which is
+    // faster because less time is spent waiting.
+    // The ready frames are counted in a monitor. Whenever
+    // a frame becomes available, it increments the monitor
+    // which causes this function to wake up and assemble it.
+
     Pipe*                 pipe    = getPipe();
     const vector<Frame*>& frames  = getInputFrames();
     Monitor<uint32_t>     monitor;
 
+    // register monitor with all input frames
     for( vector<Frame*>::const_iterator i = frames.begin();
          i != frames.end(); ++i )
     {
@@ -194,6 +203,7 @@ void Channel::frameAssemble( const uint32_t frameID )
     uint32_t       nUsedFrames  = 0;
     vector<Frame*> unusedFrames = frames;
 
+    // wait and assemble frames
     while( !unusedFrames.empty( ))
     {
         StatEvent event( StatEvent::CHANNEL_WAIT_FRAME, this, 
@@ -216,6 +226,7 @@ void Channel::frameAssemble( const uint32_t frameID )
         }
     }
 
+    // sync finish of the assemble operation and de-register the monitor
     for( vector<Frame*>::const_iterator i = frames.begin(); i != frames.end();
          ++i )
     {
@@ -245,7 +256,8 @@ void Channel::frameReadback( const uint32_t frameID )
 void Channel::setupAssemblyState()
 {
     EQ_GL_ERROR( "before setupAssemblyState" );
-    glPushAttrib( GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_VIEWPORT_BIT );
+    glPushAttrib( GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_VIEWPORT_BIT | 
+                  GL_SCISSOR_BIT );
 
     glDisable( GL_DEPTH_TEST );
     glDisable( GL_BLEND );
@@ -269,7 +281,7 @@ void Channel::setupAssemblyState()
     glViewport( 0, 0, pvp.w, pvp.h );
     glScissor( 0, 0, pvp.w, pvp.h );
 
-    glMatrixMode(GL_PROJECTION);
+    glMatrixMode( GL_PROJECTION );
     glPushMatrix();
     glLoadIdentity();
     glOrtho( 0.0f, pvp.w, 0.0f, pvp.h, -1.0f, 1.0f );
@@ -283,7 +295,7 @@ void Channel::setupAssemblyState()
 void Channel::resetAssemblyState()
 {
     EQ_GL_ERROR( "before resetAssemblyState" );
-    glMatrixMode(GL_PROJECTION);
+    glMatrixMode( GL_PROJECTION );
     glPopMatrix();
 
     glMatrixMode( GL_MODELVIEW );

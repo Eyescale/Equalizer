@@ -122,10 +122,10 @@ namespace eq
          */
         const vmml::Matrix4f& getHeadTransform() const;
 
-        /** @return the list of input frames, used from assemble(). */
+        /** @return the list of input frames, used from frameAssemble(). */
         const std::vector<Frame*>& getInputFrames() { return _inputFrames; }
 
-        /** @return the list of output frames, used from readback(). */
+        /** @return the list of output frames, used from frameReadback(). */
         const std::vector<Frame*>& getOutputFrames() { return _outputFrames; }
         //*}
 
