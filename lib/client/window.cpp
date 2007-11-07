@@ -212,7 +212,11 @@ bool eq::Window::configInit( const uint32_t initID )
             EQERROR << "Unknown windowing system: " << windowSystem << endl;
             return false;
     }
-    return configInitGL( initID );
+
+	EQ_GL_CALL( makeCurrent( ));
+    const bool ret = configInitGL( initID );
+    EQ_GL_ERROR( "after eq::Window::configInitGL" );
+	return ret;
 }
 
 bool eq::Window::configInitGL( const uint32_t initID )

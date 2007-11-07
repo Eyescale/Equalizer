@@ -129,7 +129,7 @@ EQ_EXPORT void debugGLError( const std::string& when, const GLenum error,
     {                                                     \
         EQ_GL_ERROR( std::string( "before " ) + #code );  \
         code;                                             \
-        EQ_GL_ERROR( std::string( "after  " ) + #code );  \
+        EQ_GL_ERROR( std::string( "after " ) + #code );   \
     }
 
 #endif // NDEBUG

@@ -15,7 +15,7 @@ EQ_EXPORT void debugGLError( const std::string& when, const GLenum error,
 {                                                                 
     EQWARN << "Got GL error 0x" << hex << error << dec << ' ' << when
            << " in " << file << ':' << line << endl
-           << "    Set breapoint in " << __FILE__ << ':' << __LINE__ 
+           << "    Set breakpoint in " << __FILE__ << ':' << __LINE__ 
            << " to debug" << endl;
 }                                 
                         
