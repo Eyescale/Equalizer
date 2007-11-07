@@ -9,7 +9,7 @@ SKIP_EVOLVE         = 1
 AR                  = ld
 ARFLAGS             = -r
 FLEX                = $(TOP)/Windows/bin/flex.exe
-BISON               = $(TOP)/Windows/bin/bison.exe
+BISON               = env BISON_SIMPLE=$(TOP)/Windows/bin/bison.simple $(TOP)/Windows/bin/bison.exe
 
 WINDOW_SYSTEM_LIBS += -lopengl32 -lgdi32
 LDFLAGS            += -lrpcrt4 -lws2_32 -lmswsock -L$(LIBRARY_DIR) -lpthread

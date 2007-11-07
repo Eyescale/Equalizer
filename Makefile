@@ -27,6 +27,7 @@ proto: lib
 tests: lib server
 examples: lib
 server: lib
+tools: lib
 
 postcompile: subdirs
 	@echo "----- Compilation successful -----"
