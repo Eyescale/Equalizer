@@ -20,15 +20,6 @@ include $(TOP)/make/$(ARCH).mk
 # general variables, targets, etc.
 VARIANTS           ?= $(SUBARCH)
 
-INSTALL_DIR        ?= /usr/local
-INSTALL_LIB_DIR    ?= $(INSTALL_DIR)/lib$(VARIANT)
-INSTALL_LDSO_DIR   ?= /etc/ld.so.conf.d
-INSTALL_LDSO_CONF  ?= $(INSTALL_LDSO_DIR)/Equalizer.conf
-INSTALL_BIN_DIR    ?= $(INSTALL_DIR)/bin
-INSTALL_SHARE_DIR  ?= $(INSTALL_DIR)/share/Equalizer
-INCLUDE_BASE        = include/$(MODULE)
-INSTALL_INCLUDE_DIR = $(INSTALL_DIR)/$(INCLUDE_BASE)
-
 BUILD_DIR_BASE  = build/$(ARCH)
 BUILD_DIR       = $(TOP)/$(BUILD_DIR_BASE)
 LIBRARY_DIR     = $(BUILD_DIR)/$(VARIANT)/lib
@@ -71,11 +62,12 @@ CG_INSTALLED ?= 1
 endif
 
 # include file variables
+INCLUDE_BASE    = include/$(MODULE)
 INCLUDE_DIR     = $(BUILD_DIR)/$(INCLUDE_BASE)
 HEADERS         = $(HEADER_SRC:%=$(INCLUDE_DIR)/%)
 
 # share files
-SHARE_DIR       = $(BUILD_DIR)/share
+SHARE_DIR       = $(BUILD_DIR)/share/Equalizer
 
 # source code variables
 CXXFILES        = $(wildcard *.cpp)
@@ -94,8 +86,6 @@ endif
 LIBRARY           = $(DYNAMIC_LIB)
 FAT_STATIC_LIB    = $(BUILD_DIR)/lib/lib$(MODULE).a
 FAT_DYNAMIC_LIB   = $(BUILD_DIR)/lib/lib$(MODULE).$(DSO_SUFFIX)
-INSTALL_LIBS     ?= $(wildcard $(BUILD_DIR)/$(VARIANT)/lib/*.a \
-                               $(BUILD_DIR)/$(VARIANT)/lib/*.$(DSO_SUFFIX))
 
 ifdef VARIANT
 THIN_STATIC_LIBS  = $(BUILD_DIR)/$(VARIANT)/lib/lib$(MODULE).a

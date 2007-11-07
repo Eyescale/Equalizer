@@ -15,8 +15,5 @@ $(SHARE_DIR)/configs/%: %
 	@mkdir -p $(@D)
 	@echo 'Config file $@'
 	@cp $< $@
-	@echo "mkdir -p \$$DESTDIR/$(dir $(INSTALL_SHARE_DIR)/configs/$<);" \
-	      "install -c $(SUBDIR)/$@ \$$DESTDIR/$(INSTALL_SHARE_DIR)/configs/$<" \
-	    >> $(INSTALL_CMD)
 
 include $(TOP)/make/rules.mk

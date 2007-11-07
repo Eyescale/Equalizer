@@ -36,42 +36,25 @@ rpm: $(INSTALL_FILES)
 	@echo "check $(INSTALL_FILES), run 'rpmbuild -ba make/Equalizer.spec' as root"
 
 $(INSTALL_FILES):
-	@cat $(INSTALL_CMD) | awk '{print $$7;}' | sed 's/.DESTDIR//' | sort | sort -u > $@
+	@find $(BUILD_DIR) -type f > $@
 
 # includes
 $(INCLUDE_DIR)/%: %
 	@mkdir -p $(@D)
 	@echo 'Include file $@'
 	@cp $< $@
-	@echo "mkdir -p \$$DESTDIR/$(dir $(INSTALL_INCLUDE_DIR)/$<);" \
-	      "install -c $(SUBDIR)/$@ \$$DESTDIR/$(INSTALL_INCLUDE_DIR)/$<" \
-	    >> $(INSTALL_CMD)
 
 # libraries
 $(FAT_DYNAMIC_LIB): $(THIN_DYNAMIC_LIBS)
 ifndef VARIANT
 	@mkdir -p $(@D)
 	lipo -create $(THIN_DYNAMIC_LIBS) -output $@
-	@echo "mkdir -p \$$DESTDIR/$(INSTALL_LIB_DIR);" \
-	      "install -c $(SUBDIR)/$@ \$$DESTDIR/$(INSTALL_LIB_DIR)/$(@F)" \
-	    >> $(INSTALL_CMD)
-	@echo "mkdir -p \$$DESTDIR/$(INSTALL_LDSO_DIR);" \
-	      "echo $(INSTALL_LIB_DIR) >> \$$DESTDIR/$(INSTALL_LDSO_CONF)" \
-	    >> $(INSTALL_CMD)
 endif
 
 $(THIN_DYNAMIC_LIBS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
 	@mkdir -p $(@D)
 	$(CXX) $(LINKDIRS) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
-ifndef BUILD_FAT
-	@echo "mkdir -p \$$DESTDIR/$(INSTALL_LIB_DIR);" \
-	      "install -c $(SUBDIR)/$@ \$$DESTDIR/$(INSTALL_LIB_DIR)/$(@F)" \
-	    >> $(INSTALL_CMD) 
-	@echo "mkdir -p \$$DESTDIR/$(INSTALL_LDSO_DIR);" \
-	      "echo $(INSTALL_LIB_DIR) >> \$$DESTDIR/$(INSTALL_LDSO_CONF)" \
-	    >> $(INSTALL_CMD)
-endif
 else
 	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/lib$(MODULE).$(DSO_SUFFIX)=%) TOP=$(TOP) $@
 endif
@@ -80,9 +63,6 @@ $(FAT_STATIC_LIB): $(THIN_STATIC_LIBS)
 ifndef VARIANT
 	@mkdir -p $(@D)
 	lipo -create $(THIN_STATIC_LIBS) -output $@
-	@echo "mkdir -p \$$DESTDIR/$(INSTALL_LIB_DIR);" \
-	      "install -c $(SUBDIR)/$@ \$$DESTDIR/$(INSTALL_LIB_DIR)/$(@F)" \
-	    >> $(INSTALL_CMD) 
 endif
 
 $(THIN_STATIC_LIBS): $(PCHEADERS) $(OBJECTS)
@@ -90,11 +70,6 @@ ifdef VARIANT
 	@mkdir -p $(@D)
 	@rm -f $@
 	$(AR) $(LINKDIRS) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
-ifndef BUILD_FAT
-	@echo "mkdir -p \$$DESTDIR/$(INSTALL_LIB_DIR);" \
-	      "install -c $(SUBDIR)/$@ \$$DESTDIR/$(INSTALL_LIB_DIR)/$(@F)" \
-	    >> $(INSTALL_CMD) 
-endif
 else
 	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/lib$(MODULE).a=%) TOP=$(TOP) $@
 endif
@@ -112,24 +87,12 @@ $(FAT_PROGRAM): $(THIN_PROGRAMS)
 ifndef VARIANT
 	@mkdir -p $(@D)
 	lipo -create $(THIN_PROGRAMS) -output $@
-ifndef NOINSTALL
-	@echo "mkdir -p \$$DESTDIR/$(INSTALL_BIN_DIR);" \
-	      "install -c $(SUBDIR)/$@ \$$DESTDIR/$(INSTALL_BIN_DIR)/$(@F)" \
-	    >> $(INSTALL_CMD) 
-endif
 endif
 
 $(THIN_PROGRAMS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
 	@mkdir -p $(@D)
 	$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) $(OBJECTS) $(LINKDIRS) $(SA_LDFLAGS) $(LDFLAGS) -o $@
-ifndef BUILD_FAT
-ifndef NOINSTALL
-	@echo "mkdir -p \$$DESTDIR/$(INSTALL_BIN_DIR);" \
-	      "install -c $(SUBDIR)/$@ \$$DESTDIR/$(INSTALL_BIN_DIR)/$(@F)" \
-	    >> $(INSTALL_CMD)
-endif
-endif
 else
 	@$(MAKE) VARIANT=$(subst .,,$(suffix $@)) TOP=$(TOP) $@
 endif
@@ -139,23 +102,11 @@ ifdef VARIANT
 $(BIN_DIR)/%.$(VARIANT): %.cpp
 	@mkdir -p $(@D)
 	$(CXX) $< $(INCLUDEDIRS) $(CXXFLAGS) $(LINKDIRS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -MD -MF $@.d -o $@ 
-ifndef BUILD_FAT
-ifdef INSTALL
-	@echo "mkdir -p \$$DESTDIR/$(INSTALL_BIN_DIR);" \
-	      "install -c $(SUBDIR)/$@ \$$DESTDIR/$(INSTALL_BIN_DIR)/$(@F)" \
-	    >> $(INSTALL_CMD)
-endif
-endif
 
 else # VARIANT
 
 $(FAT_SIMPLE_PROGRAMS): $(THIN_SIMPLE_PROGRAMS)
 	lipo -create $(foreach V,$(VARIANTS),$@.$(V)) -output $@
-ifdef INSTALL
-	@echo "mkdir -p \$$DESTDIR/$(INSTALL_BIN_DIR);" \
-	      "install -c $(SUBDIR)/$@ \$$DESTDIR/$(INSTALL_BIN_DIR)/$(@F)" \
-	    >> $(INSTALL_CMD)
-endif
 
 $(THIN_SIMPLE_PROGRAMS): $(CXXFILES)
 	@$(MAKE) VARIANT=$(subst .,,$(suffix $@)) TOP=$(TOP) $@
@@ -169,7 +120,6 @@ endif # PROGRAMS
 clean:
 ifdef VARIANT
 	rm -f *~ .*~ $(TARGETS) $(CLEAN_EXTRA) $(DEPENDENCIES)
-	rm -rf $(BUILD_DIR)
 ifdef SUBDIRS
 	@for dir in $(SUBDIRS); do \
 		echo "$(DEPTH) $$dir clean"; \

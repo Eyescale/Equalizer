@@ -14,7 +14,7 @@ SUBDIRS = \
 .PHONY: docs
 
 TARGETS     = precompile subdirs postcompile # docs
-CLEAN_EXTRA = $(INSTALL_CMD) $(INSTALL_FILES)
+CLEAN_EXTRA = $(INSTALL_FILES)
 
 include make/rules.mk
 
@@ -28,16 +28,13 @@ tests: lib server
 examples: lib
 server: lib
 
-postcompile: $(INSTALL_CMD) subdirs
+postcompile: subdirs
 	@echo "----- Compilation successful -----"
 ifeq (Darwin,$(ARCH))
 	@echo "Set DYLD_LIBRARY_PATH to $(PWD)/$(LIBRARY_DIR)"
 else
 	@echo "Set LD_LIBRARY_PATH to $(PWD)/$(BUILD_DIR)/$(word 1, $(VARIANTS))/lib"
 endif
-
-$(INSTALL_CMD): subdirs
-	@sort $@ | sort -u > .$@.tmp && mv .$@.tmp $@
 
 RELNOTES: ../website/build/documents/RelNotes/RelNotes_0.4.0.html
 	links -dump $< > $@
