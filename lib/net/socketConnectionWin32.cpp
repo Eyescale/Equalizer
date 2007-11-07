@@ -9,9 +9,9 @@ using namespace eqBase;
 using namespace std;
 
 SocketConnection::SocketConnection( const ConnectionType type )
-    : _overlappedAcceptData( 0 ),
-      _overlappedPending( false ),
-      _overlappedSocket( INVALID_SOCKET )
+    : _overlappedAcceptData( 0 )
+    , _overlappedSocket( INVALID_SOCKET )
+    , _overlappedPending( false )
 {
     memset( &_overlapped, 0, sizeof( _overlapped ));
 

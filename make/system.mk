@@ -10,7 +10,7 @@ DEPTH     := $(subst ../,--,$(TOP))
 DEPTH     := $(subst .,-->,$(DEPTH))
 
 # os-specific settings
-ARCH    ?= $(subst -,_,$(shell uname))
+ARCH    ?= $(subst .,_,$(subst -,_,$(shell uname)))
 SUBARCH ?= $(shell uname -m)
 RELARCH ?= $(shell uname -r)
 

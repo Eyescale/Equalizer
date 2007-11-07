@@ -33,11 +33,10 @@ INSTALL  = 1
 
 CLEAN_EXTRA = \
 	lexer.cpp \
-	lexer_cygwin.cpp \
 	parser.cpp
 
 
-ifeq "${ARCH}" "CYGWIN_NT-5.1"
+ifeq "${ARCH}" "CYGWIN_NT_5_1"
   SOURCES += lexer_cygwin.cpp
 else
   SOURCES += lexer.cpp

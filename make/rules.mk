@@ -114,7 +114,11 @@ endif # VARIANT
 endif # PROGRAMS
 
 %.testOk: %
-	env EQ_LOG_LEVEL=WARN LD_LIBRARY_PATH=$(BUILD_DIR)/$(subst .,,$(suffix $<))/lib DYLD_LIBRARY_PATH=$(BUILD_DIR)/$(subst .,,$(suffix $<))/lib ./$< && touch $@ || rm -f $@
+	env EQ_LOG_LEVEL=WARN \
+		LD_LIBRARY_PATH="$(BUILD_DIR)/$(subst .,,$(suffix $<))/lib" \
+		DYLD_LIBRARY_PATH="$(BUILD_DIR)/$(subst .,,$(suffix $<))/lib" \
+		PATH="$(PATH):$(BUILD_DIR)/$(subst .,,$(suffix $<))/lib" \
+		./$< && touch $@ || rm -f $@
 
 # cleaning targets
 clean:
