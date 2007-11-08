@@ -63,7 +63,7 @@ bool TimedLock::set( const uint32_t timeout )
     {
         if( timeout )
         {
-            timespec ts = {0};
+            timespec ts = { 0, 0 };
             if( timeout > 0 )
             {
                 ts.tv_sec  = static_cast<int>( timeout / 1000 );

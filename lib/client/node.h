@@ -75,7 +75,7 @@ namespace eq
          * @param events the list of events.
          */
         void addStatEvents( const uint32_t frameNumber,
-                            std::vector<StatEvent> events );
+                            const std::vector< StatEvent::Data >& events );
 
         /** Wait for the node to be initialized. */
         void waitInitialized() const { _initialized.waitEQ( true ); }
@@ -256,8 +256,8 @@ namespace eq
 
         struct FrameStatEvents
         {
-            uint32_t               frameNumber;
-            std::vector<StatEvent> events;
+            uint32_t                     frameNumber;
+            std::vector<StatEvent::Data> data;
         };
         std::vector<FrameStatEvents> _statEvents;
         eqBase::SpinLock             _statEventsLock;
@@ -271,7 +271,8 @@ namespace eq
 
         void _finishFrame( const uint32_t frameNumber );
 
-        std::vector<StatEvent>& _getStatEvents( const uint32_t frameNumber );
+        std::vector< StatEvent::Data >& _getStatEvents( const uint32_t 
+                                                        frameNumber );
         void _recycleStatEvents( const uint32_t frameNumber );
 
         void _flushObjects();

@@ -23,7 +23,8 @@ static std::string _windowEventTypeNames[WindowEvent::ALL] =
     "UNHANDLED",
 };
 
-std::ostream& operator << ( std::ostream& os, const WindowEvent& event )
+EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+                                      const WindowEvent& event )
 {
     os << disableFlush << _windowEventTypeNames[event.type] << " ";
     switch( event.type )
@@ -52,6 +53,17 @@ std::ostream& operator << ( std::ostream& os, const WindowEvent& event )
     }
     
     os << enableFlush << endl;
+    return os;
+}
+
+EQ_EXPORT std::ostream& operator << ( std::ostream& os,
+                                      const WindowEvent::Type type )
+{
+    if( type >= WindowEvent::ALL )
+        os << "unknown (" << static_cast<unsigned>( type ) << ')';
+    else 
+        os << _windowEventTypeNames[ type ];
+
     return os;
 }
 }

@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
@@ -67,7 +68,10 @@ namespace eq
         };
     };
 
-std::ostream& operator << ( std::ostream& os, const WindowEvent& event );
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+                                          const WindowEvent& event );
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+                                          const WindowEvent::Type type );
 }
 
 #endif // EQ_WINDOWEVENT_H

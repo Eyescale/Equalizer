@@ -16,9 +16,10 @@ BufferConnection::BufferConnection()
 }
 
 BufferConnection::BufferConnection( const BufferConnection& from )
-        : _buffer( from._buffer ),
-          _size( from._size ),
-          _maxSize( from._maxSize )
+        : Connection( from )
+        , _buffer( from._buffer )
+        , _size( from._size )
+        , _maxSize( from._maxSize )
 {
     // More a 'move' constructor. Used primarily when resizing STL containers
     _state   = STATE_CONNECTED;

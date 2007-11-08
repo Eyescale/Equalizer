@@ -484,7 +484,7 @@ namespace eq
 
         uint32_t frameNumber;
         uint32_t nStatEvents;
-        EQ_ALIGN8( StatEvent statEvents[1] );
+        EQ_ALIGN8( StatEvent::Data statEvents[1] );
     };
         
     struct NodeFrameDrawFinishPacket : public eqNet::ObjectPacket

@@ -19,6 +19,9 @@ namespace eq
         WINDOW_SYSTEM_WGL,
         WINDOW_SYSTEM_ALL      // must be last
     };
+
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+                                          const WindowSystem ws );
 }
 
 // window system and OS-dependent includes and definitions below.

@@ -30,9 +30,10 @@ Connection::Connection()
     EQINFO << "New Connection @" << (void*)this << endl;
 }
 
-Connection::Connection(const Connection& conn)
-        : _state( conn._state ),
-          _description( conn._description )
+Connection::Connection( const Connection& from )
+        : Referenced( from )
+        , _state( from._state )
+        , _description( from._description )
 {
     EQINFO << "New Connection copy @" << (void*)this << endl;
 }

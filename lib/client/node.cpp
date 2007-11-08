@@ -133,32 +133,32 @@ FrameData* Node::getFrameData( const uint32_t id, const uint32_t version )
 }
 
 void Node::addStatEvents( const uint32_t frameNumber,
-                          vector<StatEvent> events )
+                          const vector< StatEvent::Data >& data )
 {
-    vector<StatEvent>& statEvents = _getStatEvents( frameNumber );
+    vector< StatEvent::Data >& statEvents = _getStatEvents( frameNumber );
 
     _statEventsLock.set();
-    statEvents.insert( statEvents.end(), events.begin(), events.end( ));
+    statEvents.insert( statEvents.end(), data.begin(), data.end( ));
     _statEventsLock.unset();
 }
 
-vector<StatEvent>& Node::_getStatEvents( const uint32_t frameNumber )
+vector< StatEvent::Data >& Node::_getStatEvents( const uint32_t frameNumber )
 {
     ScopedMutex< SpinLock > mutex( _statEventsLock );
 
     // O(N), but for small values of N.
     // 1. search for existing vector of events for frame
-    for( vector<FrameStatEvents>::iterator i = _statEvents.begin();
+    for( vector< FrameStatEvents >::iterator i = _statEvents.begin();
          i != _statEvents.end(); ++i )
     {
         FrameStatEvents& candidate = *i;
 
         if( candidate.frameNumber == frameNumber )
-            return candidate.events;
+            return candidate.data;
     }
 
     // 2. Reuse old container
-    for( vector<FrameStatEvents>::iterator i = _statEvents.begin();
+    for( vector< FrameStatEvents >::iterator i = _statEvents.begin();
          i != _statEvents.end(); ++i )
     {
         FrameStatEvents& candidate = *i;
@@ -166,7 +166,7 @@ vector<StatEvent>& Node::_getStatEvents( const uint32_t frameNumber )
         if( candidate.frameNumber == 0 ) // reusable container
         {
             candidate.frameNumber = frameNumber;
-            return candidate.events;
+            return candidate.data;
         }
     }
     
@@ -175,19 +175,19 @@ vector<StatEvent>& Node::_getStatEvents( const uint32_t frameNumber )
     FrameStatEvents& statEvents = _statEvents.back();
 
     statEvents.frameNumber = frameNumber;
-    return statEvents.events;
+    return statEvents.data;
 }
 
 void Node::_recycleStatEvents( const uint32_t frameNumber )
 {
     ScopedMutex< SpinLock > mutex( _statEventsLock );
-    for( vector<FrameStatEvents>::iterator i = _statEvents.begin();
+    for( vector< FrameStatEvents >::iterator i = _statEvents.begin();
          i != _statEvents.end(); ++i )
     {
         FrameStatEvents& candidate = *i;
         if( candidate.frameNumber == frameNumber )
         {
-            candidate.events.clear();
+            candidate.data.clear();
             candidate.frameNumber = 0;
             return;
         }
@@ -210,7 +210,7 @@ void Node::releaseFrame( const uint32_t frameNumber )
     EQASSERT( _currentFrame >= frameNumber );
 
     NodeFrameFinishReplyPacket packet;
-    const vector<StatEvent>&   statEvents = _getStatEvents( frameNumber );
+    const vector< StatEvent::Data >& statEvents = _getStatEvents( frameNumber );
 
     packet.sessionID   = _config->getID();
     packet.objectID    = getID();

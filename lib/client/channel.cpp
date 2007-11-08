@@ -15,9 +15,11 @@
 
 #include <eq/net/command.h>
 
-using namespace eq;
 using namespace eqBase;
 using namespace std;
+
+namespace eq
+{
 
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_CHANNEL_") + #attr )
 std::string eq::Channel::_iAttributeStrings[IATTR_ALL] = {
@@ -188,7 +190,6 @@ void Channel::frameAssemble( const uint32_t frameID )
     // a frame becomes available, it increments the monitor
     // which causes this function to wake up and assemble it.
 
-    Pipe*                 pipe    = getPipe();
     const vector<Frame*>& frames  = getInputFrames();
     Monitor<uint32_t>     monitor;
 
@@ -206,12 +207,10 @@ void Channel::frameAssemble( const uint32_t frameID )
     // wait and assemble frames
     while( !unusedFrames.empty( ))
     {
-        StatEvent event( StatEvent::CHANNEL_WAIT_FRAME, this, 
-                         pipe->getFrameTime( ));
-
-        monitor.waitGE( ++nUsedFrames );
-        if( getIAttribute( IATTR_HINT_STATISTICS ))
-            pipe->addStatEvent( event );
+        {
+            StatEvent event( StatEvent::CHANNEL_WAIT_FRAME, this );
+            monitor.waitGE( ++nUsedFrames );
+        }
 
         for( vector<Frame*>::iterator i = unusedFrames.begin();
              i != unusedFrames.end(); ++i )
@@ -473,15 +472,12 @@ eqNet::CommandResult Channel::_reqFrameClear( eqNet::Command& command )
         command.getPacket<ChannelFrameClearPacket>();
     EQLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet << endl;
 
-    Pipe* pipe = getPipe();
-    StatEvent event( StatEvent::CHANNEL_CLEAR, this, pipe->getFrameTime( ));
+    StatEvent event( StatEvent::CHANNEL_CLEAR, this );
 
     _context = &packet->context;
     frameClear( packet->context.frameID );
     _context = NULL;
 
-    if( getIAttribute( IATTR_HINT_STATISTICS ))
-        pipe->addStatEvent( event );
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -491,15 +487,12 @@ eqNet::CommandResult Channel::_reqFrameDraw( eqNet::Command& command )
         command.getPacket<ChannelFrameDrawPacket>();
     EQLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << packet << endl;
 
-    Pipe* pipe = getPipe();
-    StatEvent event( StatEvent::CHANNEL_DRAW, this, pipe->getFrameTime( ));
+    StatEvent event( StatEvent::CHANNEL_DRAW, this );
 
     _context = &packet->context;
-
     frameDraw( packet->context.frameID );
+    _context = NULL;
 
-    if( getIAttribute( IATTR_HINT_STATISTICS ))
-        pipe->addStatEvent( event );
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -510,14 +503,10 @@ eqNet::CommandResult Channel::_reqFrameDrawFinish( eqNet::Command& command )
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << endl;
 
-    Pipe* pipe = getPipe();
-    StatEvent event( StatEvent::CHANNEL_DRAW_FINISH, this, 
-                     pipe->getFrameTime( ));
+    StatEvent event( StatEvent::CHANNEL_DRAW_FINISH, this );
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
 
-    if( getIAttribute( IATTR_HINT_STATISTICS ))
-        pipe->addStatEvent( event );
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -528,13 +517,12 @@ eqNet::CommandResult Channel::_reqFrameAssemble( eqNet::Command& command )
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK assemble " << getName() <<  " " 
                                        << packet << endl;
 
-    Pipe* pipe = getPipe();
-    StatEvent event( StatEvent::CHANNEL_ASSEMBLE, this, pipe->getFrameTime( ));
-
+    StatEvent event( StatEvent::CHANNEL_ASSEMBLE, this );
     _context = &packet->context;
 
     for( uint32_t i=0; i<packet->nFrames; ++i )
     {
+        Pipe*  pipe  = getPipe();
         Frame* frame = pipe->getFrame( packet->frames[i].objectID, 
                                        packet->frames[i].version );
         frame->setEyePass( _context->eye );
@@ -546,11 +534,6 @@ eqNet::CommandResult Channel::_reqFrameAssemble( eqNet::Command& command )
     _inputFrames.clear();
     _context = NULL;
 
-    if( getIAttribute( IATTR_HINT_STATISTICS ))
-    {
-        event.endTime = pipe->getFrameTime();
-        pipe->addStatEvent( event );
-    }
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -561,13 +544,12 @@ eqNet::CommandResult Channel::_reqFrameReadback( eqNet::Command& command )
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " " 
                                        << packet << endl;
 
-    Pipe* pipe = getPipe();
-    StatEvent event( StatEvent::CHANNEL_READBACK, this, pipe->getFrameTime( ));
-
+    StatEvent event( StatEvent::CHANNEL_READBACK, this );
     _context = &packet->context;
 
     for( uint32_t i=0; i<packet->nFrames; ++i )
     {
+        Pipe*  pipe  = getPipe();
         Frame* frame = pipe->getFrame( packet->frames[i].objectID, 
                                        packet->frames[i].version );
         frame->setEyePass( _context->eye );
@@ -585,9 +567,6 @@ eqNet::CommandResult Channel::_reqFrameReadback( eqNet::Command& command )
 
     _outputFrames.clear();
     _context = NULL;
-
-    if( getIAttribute( IATTR_HINT_STATISTICS ))
-        pipe->addStatEvent( event );
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -598,12 +577,12 @@ eqNet::CommandResult Channel::_reqFrameTransmit( eqNet::Command& command )
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK transmit " << getName() <<  " " 
                                       << packet << endl;
 
-    Pipe* pipe = getPipe();
-    StatEvent event( StatEvent::CHANNEL_TRANSMIT, this, pipe->getFrameTime( ));
+    StatEvent event( StatEvent::CHANNEL_TRANSMIT, this );
 
     eqNet::Session*     session   = getSession();
     RefPtr<eqNet::Node> localNode = session->getLocalNode();
     RefPtr<eqNet::Node> server    = session->getServer();
+    Pipe*               pipe      = getPipe();
     Frame*              frame     = pipe->getFrame( packet->frame.objectID, 
                                                     packet->frame.version );
     frame->setEyePass( packet->context.eye );
@@ -616,15 +595,10 @@ eqNet::CommandResult Channel::_reqFrameTransmit( eqNet::Command& command )
         EQLOG( LOG_ASSEMBLY ) << "channel \"" << getName() << "\" transmit " 
                               << frame << " to " << nodeID << endl;
 
-        StatEvent nodeEvent( StatEvent::CHANNEL_TRANSMIT_NODE, this,
-                             pipe->getFrameTime( ));
+        StatEvent nodeEvent( StatEvent::CHANNEL_TRANSMIT_NODE, this );
         frame->transmit( toNode );
-        if( getIAttribute( IATTR_HINT_STATISTICS ))
-            pipe->addStatEvent( nodeEvent );
     }
 
-    if( getIAttribute( IATTR_HINT_STATISTICS ))
-        pipe->addStatEvent( event );
-
     return eqNet::COMMAND_HANDLED;
+}
 }

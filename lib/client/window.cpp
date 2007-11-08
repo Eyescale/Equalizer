@@ -209,7 +209,7 @@ bool eq::Window::configInit( const uint32_t initID )
             break;
 
         default:
-            EQERROR << "Unknown windowing system: " << windowSystem << endl;
+            EQERROR << "windowing system " << windowSystem << endl;
             return false;
     }
 
@@ -871,7 +871,7 @@ bool eq::Window::configExit()
             return ret;
 
         default:
-            EQWARN << "Unknown windowing system: " << windowSystem << endl;
+            EQWARN << "windowing system " << windowSystem << endl;
             return false;
     }
 }

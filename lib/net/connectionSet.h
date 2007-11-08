@@ -30,7 +30,7 @@ namespace eqNet
     public:
         enum Event
         {
-            EVENT_NONE,            //!< No event has occurred
+            EVENT_NONE = 0,        //!< No event has occurred
             EVENT_CONNECT,         //!< A new connection
             EVENT_DISCONNECT,      //!< A disconnect
             EVENT_DATA,            //!< Data can be read
@@ -38,7 +38,8 @@ namespace eqNet
             EVENT_INTERRUPT,       //!< ConnectionSet::interrupt was called
             EVENT_ERROR,           //!< A connection signaled an error
             EVENT_SELECT_ERROR,    //!< An error occurred during select()
-            EVENT_INVALID_HANDLE   //!< A connection is not select'able
+            EVENT_INVALID_HANDLE,  //!< A connection is not select'able
+            EVENT_ALL
         };
 
         ConnectionSet();
@@ -107,14 +108,10 @@ namespace eqNet
         Event _getSelectResult( const uint32_t index );
     };
 
-    /** 
-     * Prints the connection set to a std::ostream.
-     * 
-     * @param os the output stream.
-     * @param set the connection set.
-     * @return the output stream.
-     */
-    std::ostream& operator << ( std::ostream& os, ConnectionSet* set );
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+                                          const ConnectionSet* set );
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+                                          const ConnectionSet::Event event );
 }
 
 #endif // EQNET_CONNECTION_SET_H

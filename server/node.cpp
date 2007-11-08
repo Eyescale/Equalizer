@@ -337,8 +337,8 @@ eqNet::CommandResult Node::_cmdFrameFinishReply( eqNet::Command& command )
     // Move me
     for( uint32_t i =0; i<packet->nStatEvents; ++i )
     {
-        const eq::StatEvent& event = packet->statEvents[i];
-        EQLOG( LOG_STATS ) << event << endl;
+        const eq::StatEvent::Data& data = packet->statEvents[i];
+        EQLOG( LOG_STATS ) << data << endl;
     }
 
     _finishedFrame = packet->frameNumber;

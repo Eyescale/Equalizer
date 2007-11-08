@@ -22,8 +22,10 @@
 #endif
 
 using namespace eqBase;
-using namespace eqNet;
 using namespace std;
+
+namespace eqNet
+{
 
 ConnectionSet::ConnectionSet()
         : _error(0)
@@ -320,7 +322,8 @@ bool ConnectionSet::_setupFDSet()
     return true;
 }   
 
-std::ostream& eqNet::operator << ( std::ostream& os, ConnectionSet* set)
+EQ_EXPORT std::ostream& operator << ( std::ostream& os,
+                                      const ConnectionSet* set)
 {
     const size_t nConnections = set->nConnections();
     
@@ -334,4 +337,26 @@ std::ostream& eqNet::operator << ( std::ostream& os, ConnectionSet* set)
     }
     
     return os;
+}
+
+EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+                                      const ConnectionSet::Event event )
+{
+    if( event >= ConnectionSet::EVENT_ALL )
+        os << "unknown (" << static_cast<unsigned>( event ) << ')';
+    else 
+        os << ( event == ConnectionSet::EVENT_NONE ? "none" :       
+                event == ConnectionSet::EVENT_CONNECT ? "connect" :        
+                event == ConnectionSet::EVENT_DISCONNECT ? "disconnect" :     
+                event == ConnectionSet::EVENT_DATA ? "data" :           
+                event == ConnectionSet::EVENT_TIMEOUT ? "timeout" :        
+                event == ConnectionSet::EVENT_INTERRUPT ? "interrupted" :      
+                event == ConnectionSet::EVENT_ERROR ? "error" :          
+                event == ConnectionSet::EVENT_SELECT_ERROR ? "select error" :   
+                event == ConnectionSet::EVENT_INVALID_HANDLE ? "invalid handle":
+                "ERROR" );
+
+    return os;
+}
+
 }

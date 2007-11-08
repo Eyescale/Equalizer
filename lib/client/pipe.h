@@ -151,7 +151,7 @@ namespace eq
                                PFNWGLDELETEDCNVPROC& deleteProc );
 
         /** Add a new statistics event to the current frame. */
-        void addStatEvent( StatEvent& event );
+        void addStatEvent( StatEvent::Data& eventData );
 
         /**'
          * Push a command to the pipe thread to be handled from there.
@@ -451,7 +451,7 @@ namespace eq
         eqBase::Clock _frameClock;
 
         /** The statistics events gathered during the current frame. */
-        std::vector<StatEvent> _statEvents;
+        std::vector<StatEvent::Data> _statEvents;
 
         /** All assembly frames used by the pipe during rendering. */
         eqNet::IDHash< Frame* > _frames;

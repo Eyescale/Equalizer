@@ -117,8 +117,16 @@ namespace eq
             { return _iAttributeStrings[attr]; }
         //*}
 
+        /** @name Actions */
+        //*{
+        /** Finish outstanding rendering requests. */
+        virtual void finish() const { glFinish(); }
+        //*}
+
+
         const DrawableConfig& getDrawableConfig() const
             { return _drawableConfig; }
+
     protected:
         /**
          * Destructs the window.
@@ -299,9 +307,6 @@ namespace eq
 
         /** Swap the front and back buffer of the window. */
         virtual void swapBuffers() const;
-
-        /** Finish outstanding rendering requests. */
-        virtual void finish() const { glFinish(); }
 
         /**
          * Initialize the event handling for this window. 
