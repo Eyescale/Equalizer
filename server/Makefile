@@ -29,11 +29,11 @@ SOURCES = \
 
 CXXFILES = \
 	eqServer.cpp
-INSTALL  = 1
 
 CLEAN_EXTRA = \
 	lexer.cpp \
-	parser.cpp
+	parser.cpp \
+	parser.hpp
 
 
 ifeq "${ARCH}" "CYGWIN_NT_5_1"
@@ -60,7 +60,7 @@ TARGETS = $(DYNAMIC_LIB) $(SIMPLE_PROGRAMS)
 include $(TOP)/make/rules.mk
 
 $(SIMPLE_PROGRAMS): $(DYNAMIC_LIB)
-$(DYNAMIC_LIB): lexer.cpp parser.cpp
+$(DYNAMIC_LIB): lexer.cpp parser.hpp
 
 lexer_cygwin.cpp: lexer.cpp
 
@@ -71,3 +71,4 @@ parser.cpp: loader.y
 	$(BISON) -l -p eqLoader_ -d $< -o $@
 
 parser.hpp: parser.cpp
+	-mv parser.cpp.h parser.hpp
