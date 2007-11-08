@@ -123,7 +123,7 @@ endif # PROGRAMS
 # cleaning targets
 clean:
 ifdef VARIANT
-	rm -f *~ .*~ $(TARGETS) $(CLEAN_EXTRA) $(DEPENDENCIES)
+	rm -f *~ .*~ $(TARGETS) $(CLEAN_EXTRA) $(DEPENDENCIES) $(OBJECTS)
 ifdef SUBDIRS
 	@for dir in $(SUBDIRS); do \
 		echo "$(DEPTH) $$dir clean"; \
