@@ -359,7 +359,6 @@ struct _TriangleSort
 /*  Sort the index data from start to start + length along the given axis.  */
 void VertexData::sort( const Index start, const Index length, const Axis axis )
 {
-    MESHASSERT( start >= 0);
     MESHASSERT( length > 0 );
     MESHASSERT( start + length <= triangles.size() );
     

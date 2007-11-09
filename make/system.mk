@@ -40,7 +40,9 @@ ifneq ($(findstring -O, $(CXXFLAGS)),-O)
 endif # -O
 endif # -g
 ifeq ($(CXX),g++)
-    CXXFLAGS       += -Wall -Wnon-virtual-dtor -Wno-unknown-pragmas
+    CXXFLAGS += -Wall -Wextra \
+                -Wnon-virtual-dtor -Wsign-promo \
+                -Wno-unknown-pragmas -Wno-unused-parameter
 endif # g++
 endif # top-level
 
@@ -100,6 +102,7 @@ endif
 # executable target
 THIN_PROGRAMS     = $(foreach V,$(VARIANTS),$(BIN_DIR)/$(PROGRAM).$(V))
 FAT_PROGRAM       = $(BIN_DIR)/$(PROGRAM)
+APP_PROGRAM       = $(BIN_DIR)/$(PROGRAM).app/Contents/MacOS/$(PROGRAM)
 
 FAT_SIMPLE_PROGRAMS  = $(CXXFILES:%.cpp=$(BIN_DIR)/%)
 THIN_SIMPLE_PROGRAMS = $(foreach V,$(VARIANTS),$(foreach P,$(FAT_SIMPLE_PROGRAMS),$(P).$(V)))
@@ -107,7 +110,7 @@ TESTS               ?= $(THIN_SIMPLE_PROGRAMS:%=%.testOk)
 
 DYNAMIC_LIB       = $(THIN_DYNAMIC_LIBS)
 STATIC_LIB        = $(THIN_STATIC_LIBS)
-PROGRAMS          = $(THIN_PROGRAMS)
+PROGRAMS         += $(THIN_PROGRAMS)
 SIMPLE_PROGRAMS   = $(THIN_SIMPLE_PROGRAMS)
 
 ifdef BUILD_FAT

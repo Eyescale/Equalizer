@@ -54,17 +54,6 @@ Object::Object()
     _construct();
 }
 
-Object::Object( const Object& from )
-{
-    EQASSERT( from._id == EQ_ID_INVALID );
-
-    _construct();
-    _instanceData     = from._instanceData;
-    _instanceDataSize = from._instanceDataSize;
-    _deltaData        = from._deltaData;
-    _deltaDataSize    = from._deltaDataSize;
-}
-
 Object::~Object()
 {
     if( _session ) // Still registered

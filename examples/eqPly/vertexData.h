@@ -18,11 +18,8 @@
 // defined elsewhere
 class PlyFile;
 
-       
 namespace mesh 
 {
-    
-    
     /*  Holds the flat data and offers routines to read, scale and sort it.  */
     class VertexData
     {
@@ -48,8 +45,6 @@ namespace mesh
         
         BoundingBox _boundingBox;
     };
-    
-    
 }
 
 

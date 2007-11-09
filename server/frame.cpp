@@ -25,7 +25,8 @@ Frame::Frame()
 }
 
 Frame::Frame( const Frame& from )
-        : _compound( 0 )
+        : eqNet::Object()
+        , _compound( 0 )
 {
     _data = from._data;
     _name = from._name;

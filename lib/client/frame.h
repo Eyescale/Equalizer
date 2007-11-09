@@ -153,5 +153,8 @@ namespace eq
 
         FrameData* _getData() const;
     };
+
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+                                          const Frame::Buffer buffer );
 };
 #endif // EQ_FRAME_H

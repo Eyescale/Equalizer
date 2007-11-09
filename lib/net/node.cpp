@@ -1512,4 +1512,15 @@ bool Node::runClient( const string& clientArgs )
 
     return clientLoop();
 }
+
+
+EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Node::State state)
+{
+    os << ( state == Node::STATE_STOPPED ? "stopped" :
+            state == Node::STATE_LAUNCHED ? "launched" :
+            state == Node::STATE_CONNECTED ? "connected" :
+            state == Node::STATE_LISTENING ? "listening" : "ERROR" );
+    return os;
+}
+
 }

@@ -54,6 +54,7 @@ Channel::Channel()
 }
 
 Channel::Channel( const Channel& from )
+        : eqNet::Object()
 {
     _construct();
 

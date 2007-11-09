@@ -20,7 +20,7 @@ else
 endif
 
 ifdef VARIANT
-  CXXFLAGS    += -arch $(VARIANT) -Wno-unknown-pragmas
+  CXXFLAGS    += -arch $(VARIANT)
   DSO_LDFLAGS += -arch $(VARIANT)
 endif
 
@@ -39,6 +39,7 @@ endif # GLX
 
 ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
   WINDOW_SYSTEM_LIBS += -framework AGL -framework OpenGL -framework Carbon
+  PROGRAMS           += $(APP_PROGRAM)
 endif
 
 AR           = libtool

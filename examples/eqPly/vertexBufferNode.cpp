@@ -15,8 +15,9 @@
 
 
 using namespace std;
-using namespace mesh;
 
+namespace mesh
+{
 
 /*  Helper function to determine the number of unique vertices in a range.  */
 size_t VertexBufferNode::countUniqueVertices( VertexData& data, 
@@ -190,4 +191,5 @@ VertexBufferNode::~VertexBufferNode()
 {
     delete static_cast< VertexBufferNode* >( _left );
     delete static_cast< VertexBufferNode* >( _right );
+}
 }

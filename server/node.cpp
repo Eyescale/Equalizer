@@ -45,6 +45,7 @@ Node::Node()
 }
 
 Node::Node( const Node& from )
+        : eqNet::Object()
 {
     _construct();
 

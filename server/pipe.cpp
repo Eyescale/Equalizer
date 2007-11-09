@@ -52,6 +52,7 @@ Pipe::Pipe()
 }
 
 Pipe::Pipe( const Pipe& from )
+        : eqNet::Object()
 {
     _construct();
 

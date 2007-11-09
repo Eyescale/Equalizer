@@ -47,6 +47,7 @@ eqs::Window::Window()
 }
 
 eqs::Window::Window( const Window& from )
+        : eqNet::Object()
 {
     _construct();
 

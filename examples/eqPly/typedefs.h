@@ -124,8 +124,13 @@ namespace mesh
         AXIS_Y,
         AXIS_Z
     };
+    inline std::ostream& operator << ( std::ostream& os, const Axis axis )
+    {
+        os << ( axis == AXIS_X ? "x axis" : axis == AXIS_Y ? "y axis" :
+                axis == AXIS_Z ? "z axis" : "ERROR" );
+        return os;
+    }
     
-#ifdef GL_ARB_vertex_buffer_object
     // enumeration for the buffer objects
     enum BufferObject
     {
@@ -134,17 +139,13 @@ namespace mesh
         COLOR_OBJECT,
         INDEX_OBJECT
     };
-#endif
     
     // enumeration for the render modes
     enum RenderMode
     {
         IMMEDIATE_MODE,
-        DISPLAY_LIST_MODE
-#ifdef GL_ARB_vertex_buffer_object
-        ,
+        DISPLAY_LIST_MODE,
         BUFFER_OBJECT_MODE
-#endif
     };
     
     // enumeration for kd-tree node types
@@ -167,8 +168,6 @@ namespace mesh
     
     // internally linked null stream, every translation unit gets a copy
     static mesh::NullOStream cnul;
-
-
 }
 
 

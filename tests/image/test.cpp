@@ -23,8 +23,8 @@ int main( int argc, char **argv )
     Image destImage;
     destImage.setPixelViewport( image.getPixelViewport( ));
 
-    const uint8_t* colorData = image.getPixelData( Frame::BUFFER_COLOR);
-    const size_t   colorSize = image.getPixelDataSize( Frame::BUFFER_COLOR);
+    const uint8_t* colorData = image.getPixelData( Frame::BUFFER_COLOR );
+    const size_t   colorSize = image.getPixelDataSize( Frame::BUFFER_COLOR );
     const uint8_t* compressedData;
     const uint8_t* data;
     uint32_t       size;

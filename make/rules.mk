@@ -89,6 +89,10 @@ ifndef VARIANT
 	lipo -create $(THIN_PROGRAMS) -output $@
 endif
 
+$(APP_PROGRAM): $(FAT_PROGRAM)
+	@mkdir -p $(@D)
+	ln -f $< $@
+
 $(THIN_PROGRAMS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
 	@mkdir -p $(@D)

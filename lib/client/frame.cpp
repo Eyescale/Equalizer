@@ -8,8 +8,10 @@
 
 #include <eq/net/session.h>
 
-using namespace eq;
 using namespace std;
+
+namespace eq
+{
 
 Frame::Frame( Pipe* pipe )
         : _pipe( pipe ),
@@ -87,4 +89,24 @@ void Frame::addListener( eqBase::Monitor<uint32_t>& listener )
 void Frame::removeListener( eqBase::Monitor<uint32_t>& listener )
 {
     _getData()->removeListener( listener );
+}
+
+EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+                                      const Frame::Buffer buffer )
+{
+    if( buffer == Frame::BUFFER_NONE )
+        os << "none ";
+    else if( buffer & Frame::BUFFER_UNDEFINED )
+        os << "undefined ";
+    else
+    {
+        if( buffer & Frame::BUFFER_COLOR )
+            os << "color ";
+        if( buffer & Frame::BUFFER_DEPTH )
+            os << "depth ";
+    }
+
+    return os;
+}
+
 }

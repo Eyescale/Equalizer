@@ -213,7 +213,8 @@ void ConfigTool::_writeCompound() const
             break;
 
         default:
-            cerr << "Unimplemented mode " << _mode << endl;
+            cerr << "Unimplemented mode " << static_cast< unsigned >( _mode )
+                 << endl;
             exit( EXIT_FAILURE );
     }
 }
@@ -397,3 +398,4 @@ void ConfigTool::_writeDS() const
              << endl;
     cout << "        }" << endl;    
 }
+

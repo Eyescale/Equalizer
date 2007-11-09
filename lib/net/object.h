@@ -163,8 +163,6 @@ namespace eqNet
         //*}
 
     protected:
-        Object( const Object& from );
-
         /**
          * @name Automatic Instanciation and Versioning
          */

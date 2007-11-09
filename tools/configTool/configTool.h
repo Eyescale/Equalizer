@@ -17,12 +17,12 @@ public:
 private:
     enum Mode
     {
-        MODE_2D,
+        MODE_2D = 0,
         MODE_DB,
         MODE_DB_DS,
         MODE_ALL
     }
-             _mode;
+        _mode;
 
     unsigned _nPipes;
     unsigned _nChannels;

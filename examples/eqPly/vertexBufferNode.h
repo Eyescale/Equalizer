@@ -16,8 +16,6 @@
 
 namespace mesh 
 {
-    
-    
     /*  The class for regular (non-leaf) kd-tree nodes.  */
     class VertexBufferNode : public VertexBufferBase
     {
@@ -48,8 +46,6 @@ namespace mesh
         VertexBufferBase*   _left;
         VertexBufferBase*   _right;
     };
-    
-    
 }
 
 

@@ -656,5 +656,9 @@ namespace eqNet
         
         return os;
     }
+
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+                                          const Node::State state );
+
 };
 #endif // EQNET_NODE_H
