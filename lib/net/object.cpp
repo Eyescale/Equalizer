@@ -17,6 +17,7 @@
 #include "session.h"
 #include "staticMasterCM.h"
 #include "staticSlaveCM.h"
+#include "unbufferedMasterCM.h"
 
 #include <eq/base/scopedMutex.h>
 #include <iostream>
@@ -80,6 +81,8 @@ void Object::_setChangeManager( ObjectCM* cm )
         cm->makeThreadSafe();
 
     _cm = cm;
+    EQLOG( LOG_OBJECTS ) << "set new change manager " << typeid( *cm ).name()
+                         << " for " << typeid( *this ).name() << endl;
 }
 
 void Object::makeThreadSafe()
@@ -175,15 +178,6 @@ bool Object::send( eqBase::RefPtr<Node> node, ObjectPacket& packet,
     return node->send( packet, data, size );
 }
 
-#if 0
-bool Object::send( NodeVector& nodes, ObjectPacket& packet )
-{
-    EQASSERT( _session ); EQASSERT( _id != EQ_ID_INVALID );
-    packet.sessionID = _session->getID();
-    packet.objectID  = _id;
-    return Connection::send( nodes, packet );
-}
-#endif
 bool Object::send( NodeVector nodes, ObjectPacket& packet, const void* data,
                    const uint64_t size )
 {
@@ -208,6 +202,9 @@ ObjectCM::Type Object::_getChangeManagerType() const
 {
     if( isStatic( ))
         return ObjectCM::STATIC;
+
+    if( !isBuffered( ))
+        return ObjectCM::UNBUFFERED;
 
     if( usePack( ))
         return ObjectCM::DELTA;
@@ -234,6 +231,12 @@ void Object::_setupChangeManager( const ObjectCM::Type type, const bool master )
         case ObjectCM::DELTA:
             if( master )
                 _setChangeManager( new DeltaMasterCM( this ));
+            else
+                _setChangeManager( new DeltaSlaveCM( this ));
+            break;
+        case ObjectCM::UNBUFFERED:
+            if( master )
+                _setChangeManager( new UnbufferedMasterCM( this ));
             else
                 _setChangeManager( new DeltaSlaveCM( this ));
             break;

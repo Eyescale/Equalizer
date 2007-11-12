@@ -595,6 +595,21 @@ namespace eqNet
     }
 
     inline std::ostream& operator << ( std::ostream& os, 
+                                       const ObjectInstanceDataPacket* packet )
+    {
+        os << (ObjectPacket*)packet << " size " << packet->dataSize;
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const ObjectInstancePacket* packet )
+    {
+        os << (ObjectPacket*)packet << " v" << packet->version
+           << " size " << packet->dataSize;
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
                                        const ObjectDeltaDataPacket* packet )
     {
         os << (ObjectPacket*)packet << " size " << packet->deltaSize;

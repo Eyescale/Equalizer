@@ -170,6 +170,9 @@ namespace eqNet
         /** @return if the object is static (true) or versioned (false). */
         virtual bool isStatic() const { return true; }
 
+        /** @return if the object should buffer previous versions. */
+        virtual bool isBuffered() const { return true; }
+
         /** 
          * @return false if deltas are identical to the instance data, true if 
          *         deltas are different from instance data.
@@ -290,6 +293,7 @@ namespace eqNet
         friend class FullSlaveCM;
         friend class StaticMasterCM;
         friend class StaticSlaveCM;
+        friend class UnbufferedMasterCM;
 
         /** The session-unique object identifier. */
         uint32_t     _id;

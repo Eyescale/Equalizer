@@ -150,6 +150,7 @@ SOURCES = \
 	net/socketConnection.cpp \
 	net/staticMasterCM.cpp \
 	net/staticSlaveCM.cpp \
+	net/unbufferedMasterCM.cpp \
 	client/channel.cpp \
 	client/client.cpp \
 	client/colorMask.cpp \

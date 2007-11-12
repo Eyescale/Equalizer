@@ -32,7 +32,8 @@ namespace eqNet
         {
             STATIC,
             FULL,
-            DELTA
+            DELTA,
+            UNBUFFERED
         };
 
         /** 
