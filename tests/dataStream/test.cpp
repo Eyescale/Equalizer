@@ -69,6 +69,7 @@ protected:
             packet.dataSize = size;
             eqNet::Connection::send( _connections, packet, buffer, size, 
                                      true /*isLocked*/ );
+            EQINFO << "Sent buffer of " << size << " bytes" << endl;
         }
 
     virtual void sendFooter( const void* buffer, const uint64_t size )
@@ -78,6 +79,7 @@ protected:
 
             FooterPacket packet;
             eqNet::Connection::send( _connections, packet, true /*isLocked*/ );
+            EQINFO << "Sent footer with " << size << " bytes" << endl;
         }
 };
 
@@ -105,6 +107,7 @@ protected:
             
             *buffer = packet->data;
             *size   = packet->dataSize;
+            EQINFO << "Got buffer of " << *size << " bytes" << endl;
             return true;
         }
 
