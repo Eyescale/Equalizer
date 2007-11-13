@@ -338,7 +338,7 @@ void Session::registerObject( Object* object )
 
     setIDMaster( id, 1, _localNode->getNodeID( ));
 
-    object->_setupChangeManager( object->_getChangeManagerType(), true );
+    object->_setupChangeManager( object->getChangeType(), true );
     mapObject( object, id );
     EQINFO << "Registered " << typeid( *object ).name() << " to id " << id 
            << endl;
@@ -635,7 +635,7 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
             if( object->isMaster( ))
             {
                 SessionSubscribeObjectSuccessPacket successPacket( packet );
-                successPacket.cmType = object->_getChangeManagerType();
+                successPacket.changeType = object->getChangeType();
                 send( node, successPacket );
 
                 object->addSlave( node, packet->instanceID );
@@ -671,7 +671,8 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
     object->_instanceID = packet->instanceID;
     object->_session    = this;
 
-    object->_setupChangeManager( packet->cmType, false );
+    object->_setupChangeManager( 
+        static_cast< Object::ChangeType >( packet->changeType ), false );
 
     _objectsMutex.set();
     vector<Object*>& objects = _objects[ data->objectID ];

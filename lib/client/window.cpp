@@ -28,12 +28,14 @@
 #include <eq/net/barrier.h>
 #include <eq/net/command.h>
 
-using namespace eq;
 using namespace eqBase;
 using namespace std;
 
+namespace eq
+{
+
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_WINDOW_") + #attr )
-std::string eq::Window::_iAttributeStrings[IATTR_ALL] = {
+std::string Window::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_HINT_STEREO ),
     MAKE_ATTR_STRING( IATTR_HINT_DOUBLEBUFFER ),
     MAKE_ATTR_STRING( IATTR_HINT_FULLSCREEN ),
@@ -593,9 +595,9 @@ bool eq::Window::configInitAGL()
         static const uint32_t menuBarHeight = 22;
 
         // window
-        WindowAttributes attributes = kWindowStandardDocumentAttributes |
-                                      kWindowStandardHandlerAttribute   |
-                                      kWindowInWindowMenuAttribute;
+        WindowAttributes winAttributes = kWindowStandardDocumentAttributes |
+                                         kWindowStandardHandlerAttribute   |
+                                         kWindowInWindowMenuAttribute;
         // top, left, bottom, right
         Rect             windowRect = { _pvp.y + menuBarHeight, _pvp.x, 
                                         _pvp.y + _pvp.h + menuBarHeight,
@@ -603,8 +605,8 @@ bool eq::Window::configInitAGL()
         WindowRef        windowRef;
 
         const OSStatus   status     = CreateNewWindow( kDocumentWindowClass, 
-                                                       attributes, &windowRect, 
-                                                       &windowRef );
+                                                       winAttributes,
+                                                       &windowRect, &windowRef );
         if( status != noErr )
         {
             setErrorMessage( "Could not create carbon window: " + status );
@@ -1516,8 +1518,8 @@ eqNet::CommandResult eq::Window::_reqFrameDrawFinish( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-std::ostream& eq::operator << ( std::ostream& os, 
-                                const Window::DrawableConfig& config )
+std::ostream& operator << ( std::ostream& os,
+                            const Window::DrawableConfig& config )
 {
     os << "GL" << config.glVersion;
     if( config.stereo )
@@ -1529,4 +1531,5 @@ std::ostream& eq::operator << ( std::ostream& os,
     if( config.alphaBits )
         os << "|a" << config.alphaBits;
     return os;
+}
 }

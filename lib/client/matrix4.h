@@ -25,8 +25,7 @@ namespace eq
             { vmml::Matrix4<T>::operator= (matrix); return *this; }
 
     protected:
-        virtual bool isStatic() const   { return false; }
-        virtual bool isBuffered() const { return false; }
+        virtual ChangeType getChangeType() const { return DELTA_UNBUFFERED; }
     };
 
     typedef Matrix4<float> Matrix4f;

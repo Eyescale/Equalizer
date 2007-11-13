@@ -201,6 +201,9 @@ namespace eq
         const CompressedPixels& _getCompressedPixels( const Frame::Buffer
                                                       buffer ) const;
 
+        uint32_t _compressPixelData( const uint64_t* data, const uint32_t size, 
+                                     const uint64_t marker, uint64_t* out );
+
         void _startReadback( const Frame::Buffer buffer );
         void _startAssemble2D( const vmml::Vector2i& offset );
         void _startAssembleDB( const vmml::Vector2i& offset );

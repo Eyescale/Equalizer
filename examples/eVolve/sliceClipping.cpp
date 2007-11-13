@@ -50,7 +50,7 @@ void SliceClipper::updatePerFrameInfo
 (
     const vmml::Matrix4d&   modelviewM,
     const vmml::Matrix3d&   modelviewITM,
-    const double            sliceDistance,
+    const double            newSliceDistance,
     const eq::Range&        range
 )
 {
@@ -81,7 +81,7 @@ void SliceClipper::updatePerFrameInfo
 
     viewVecf = vmml::Vector3f( viewVec.x, viewVec.y, viewVec.z );
 
-    this->sliceDistance = sliceDistance;
+    sliceDistance = newSliceDistance;
 
     frontIndex = 0;
     float maxDist = viewVec.dot( vertices[0] );

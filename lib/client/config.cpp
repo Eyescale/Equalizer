@@ -171,7 +171,7 @@ bool Config::exit()
     _requestHandler.waitRequest( packet.requestID, ret );
 
     deregisterObject( &_headMatrix );
-    while( _eventQueue.tryPop( )); // flush all pending events
+    while( _eventQueue.tryPop( )) ; // flush all pending events
 
     return ret;
 }

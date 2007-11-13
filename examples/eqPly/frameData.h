@@ -39,7 +39,7 @@ namespace eqPly
         } data;
     
     protected:
-        virtual bool isStatic() const { return false; }
+        virtual ChangeType getChangeType() const { return INSTANCE; }
     };
 }
 

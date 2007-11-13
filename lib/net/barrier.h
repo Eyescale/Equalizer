@@ -60,7 +60,7 @@ namespace eqNet
         //*}
 
     protected:
-        virtual bool isStatic() const { return false; }
+        virtual ChangeType getChangeType() const { return INSTANCE; }
 
     private:
         struct Data

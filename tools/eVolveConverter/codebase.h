@@ -168,7 +168,7 @@ inline void waitfor(double secs)
    while (nanosleep(&dt,&rt)!=0) dt=rt;
 #else
    double time=gettime()+secs;
-   while (gettime()<time);
+   while (gettime()<time) ;
 #endif
    }
 
@@ -180,7 +180,7 @@ inline double getclockticks()
    if (!setclockticks)
       {
       double time=gettime();
-      while (time==gettime());
+      while (time==gettime()) ;
       clockticks=1.0/(gettime()-time);
       setclockticks=TRUE;
       }

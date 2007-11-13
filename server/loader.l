@@ -154,6 +154,6 @@ update_FOV                      { return EQTOKEN_UPDATE_FOV; }
 [{}\[\]]                        { return *yytext; }
 [\n]                            { ++yylineno; }
 [ \t]                           { ; }
-[/][/]|[#]                      { while( yyinput() != '\n' ); ++yylineno; }
+[/][/]|[#]                      { while( yyinput() != '\n' ) ; ++yylineno; }
 
 %%

@@ -21,7 +21,7 @@ namespace eqNet
         virtual ~ObjectDeltaDataIStream();
 
     protected:
-        virtual bool getNextBuffer( const void** buffer, uint64_t* size );
+        virtual bool getNextBuffer( const uint8_t** buffer, uint64_t* size );
     };
 }
 #endif //EQNET_OBJECTDELTADATAISTREAM_H

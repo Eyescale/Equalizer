@@ -39,7 +39,7 @@ UnbufferedMasterCM::~UnbufferedMasterCM()
 
 uint32_t UnbufferedMasterCM::commitNB()
 {
-    EQASSERTINFO( !_object->isStatic( ), 
+    EQASSERTINFO( _object->getChangeType() == Object::DELTA_UNBUFFERED,
                   "Object type " << typeid(*this).name( ));
 
     ObjectCommitPacket packet;

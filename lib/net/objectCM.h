@@ -28,14 +28,6 @@ namespace eqNet
         ObjectCM() {}
         virtual ~ObjectCM() {}
 
-        enum Type
-        {
-            STATIC,
-            FULL,
-            DELTA,
-            UNBUFFERED
-        };
-
         /** 
          * Make this object thread safe.
          * 

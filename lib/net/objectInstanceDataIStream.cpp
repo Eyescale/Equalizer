@@ -21,7 +21,7 @@ ObjectInstanceDataIStream::~ObjectInstanceDataIStream()
 {
 }
 
-bool ObjectInstanceDataIStream::getNextBuffer( const void** buffer, 
+bool ObjectInstanceDataIStream::getNextBuffer( const uint8_t** buffer, 
                                                uint64_t* size )
 {
     const Command* command = getNextCommand();

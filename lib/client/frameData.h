@@ -120,7 +120,7 @@ namespace eq
         //*}
 
     protected:
-        virtual bool isStatic() const { return false; }
+        virtual ChangeType getChangeType() const { return INSTANCE; }
 
         /** @sa eqNet::Object::applyInstanceData */
         virtual void applyInstanceData( eqNet::DataIStream& is );

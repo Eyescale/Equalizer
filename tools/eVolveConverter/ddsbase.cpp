@@ -236,9 +236,9 @@ void writeDDSfile(char *filename,unsigned char *data,unsigned int bytes,unsigned
       while (act1>127) act1-=256;
 
       if (act1<=0)
-         for (bits=0; (1<<bits)/2<-act1; bits++);
+         for (bits=0; (1<<bits)/2<-act1; bits++) ;
       else
-         for (bits=0; (1<<bits)/2<=act1; bits++);
+         for (bits=0; (1<<bits)/2<=act1; bits++) ;
 
       bits=DDS_decode(DDS_code(bits));
 

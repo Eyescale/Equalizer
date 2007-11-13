@@ -50,7 +50,7 @@ namespace eqs
 
     protected:
         virtual ~FrameData(){}
-        virtual bool isStatic() const { return false; }
+        virtual ChangeType getChangeType() const { return INSTANCE; }
 
     private:
         friend class Frame;

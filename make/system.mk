@@ -33,20 +33,26 @@ DEP_CXX        ?= $(CXX)
 ifeq (0,${MAKELEVEL})
   CXXFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DEQ_CHECK_THREADSAFETY \
                     -DEQ_USE_COMPRESSION
+ifdef USE_OPENMP
+    CXXFLAGS += -fopenmp -DEQ_USE_OPENMP
+    LDFLAGS  += -lgomp
+endif
+
 ifneq ($(findstring -g, $(CXXFLAGS)),-g)
     CXXFLAGS       += -DNDEBUG
 ifneq ($(findstring -O, $(CXXFLAGS)),-O)
     CXXFLAGS       += -O2
 endif # -O
 endif # -g
-ifeq ($(CXX),g++)
+
+ifeq ($(findstring g++, $(CXX)),g++)
     CXXFLAGS += -Wall -Wextra \
-                -Wnon-virtual-dtor -Wsign-promo \
-                -Wno-unknown-pragmas -Wno-unused-parameter
+                -Wnon-virtual-dtor -Wsign-promo -Wshadow \
+                -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings
 endif # g++
 endif # top-level
 
-export CXXFLAGS
+export CXXFLAGS LDFLAGS
 
 DOXYGEN        ?= Doxygen
 FLEX           ?= flex

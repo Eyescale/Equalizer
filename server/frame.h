@@ -125,7 +125,7 @@ namespace eqs
 
     protected:
         virtual ~Frame();
-        virtual bool isStatic() const { return false; }
+        virtual ChangeType getChangeType() const { return INSTANCE; }
 
     private:
         /** The parent compound. */

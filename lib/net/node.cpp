@@ -587,7 +587,7 @@ void Node::_handleConnect()
 
 void Node::_handleDisconnect()
 {
-    while( _handleData( )); // read remaining data off connection
+    while( _handleData( )) ; // read remaining data off connection
 
     RefPtr<Connection> connection = _connectionSet.getConnection();
     RefPtr<Node>       node;
@@ -810,8 +810,8 @@ CommandResult Node::_cmdMapSession( Command& command )
             {
                 session = (Session*)_requestHandler.getRequestData( packet->
                                                                     requestID );
-                const uint32_t sessionID = _generateSessionID();
-                addSession( session, this, sessionID, sessionName );
+                const uint32_t newSessionID = _generateSessionID();
+                addSession( session, this, newSessionID, sessionName );
             }
         }
         // else mapped by identifier: not possible since we are the master

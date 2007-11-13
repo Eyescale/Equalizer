@@ -92,15 +92,15 @@ bool ConnectionDescription::fromString( string& data )
             return true;
         }
 
-        const string type = data.substr( 0, nextPos );
-        data              = data.substr( nextPos + 1 );
+        const string typeStr = data.substr( 0, nextPos );
+        data                 = data.substr( nextPos + 1 );
 
-        if( type == "TCPIP" )
-            this->type = CONNECTIONTYPE_TCPIP;
-        else if( type == "SDP" )
-            this->type = CONNECTIONTYPE_SDP;
-        else if( type == "PIPE" )
-            this->type = CONNECTIONTYPE_PIPE;
+        if( typeStr == "TCPIP" )
+            type = CONNECTIONTYPE_TCPIP;
+        else if( typeStr == "SDP" )
+            type = CONNECTIONTYPE_SDP;
+        else if( typeStr == "PIPE" )
+            type = CONNECTIONTYPE_PIPE;
         else
             goto error;
 
@@ -122,9 +122,9 @@ bool ConnectionDescription::fromString( string& data )
         if( nextPos == string::npos )
             goto error;
 
-        const string launchTimeout = data.substr( 0, nextPos );
-        data                       = data.substr( nextPos + 1 );
-        this->launchTimeout = atoi( launchTimeout.c_str( ));
+        const string launchTimeoutStr = data.substr( 0, nextPos );
+        data                          = data.substr( nextPos + 1 );
+        launchTimeout = atoi( launchTimeoutStr.c_str( ));
 
         nextPos = data.find( SEPARATOR );
         if( nextPos == string::npos )

@@ -51,11 +51,11 @@ namespace eqNet
         virtual void reset();
  
     protected:
-        virtual bool getNextBuffer( const void** buffer, uint64_t* size ) = 0;
+        virtual bool getNextBuffer( const uint8_t** buffer, uint64_t* size ) =0;
 
     private:
         /** The current input buffer */
-        const char* _input;
+        const uint8_t* _input;
         /** The size of the input buffer */
         uint64_t _inputSize;
         /** The current read position in the buffer */

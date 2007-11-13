@@ -64,8 +64,8 @@ Pipe::Pipe( const Pipe& from )
     for( int i=0; i<IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
 
-    const uint32_t nWindows = from.nWindows();
-    for( uint32_t i=0; i<nWindows; i++ )
+    const uint32_t numWindows = from.nWindows();
+    for( uint32_t i=0; i<numWindows; i++ )
     {
         Window* window      = from.getWindow(i);
         Window* windowClone = new Window( *window );
@@ -141,10 +141,11 @@ void Pipe::startConfigInit( const uint32_t initID )
     Config*                    config = getConfig();
     eq::PipeCreateWindowPacket createWindowPacket;
 
-    const int nWindows = _windows.size();
-    for( int i=0; i<nWindows; ++i )
+    for( vector< Window* >::const_iterator i = _windows.begin(); 
+         i != _windows.end(); ++i )
     {
-        Window* window = _windows[i];
+        Window* window = *i;
+
         if( window->isUsed( ))
         {
             config->registerObject( window );
@@ -172,11 +173,11 @@ void Pipe::_sendConfigInit( const uint32_t initID )
 bool Pipe::syncConfigInit()
 {
     bool      success  = true;
-    const int nWindows = _windows.size();
 
-    for( int i=0; i<nWindows; ++i )
+    for( vector< Window* >::const_iterator i = _windows.begin(); 
+         i != _windows.end(); ++i )
     {
-        Window* window = _windows[i];
+        Window* window = *i;
         if( window->isUsed( ))
             if( !window->syncConfigInit( ))
             {
@@ -204,10 +205,10 @@ void Pipe::startConfigExit()
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_STOPPING;
 
-    const int nWindows = _windows.size();
-    for( int i=0; i<nWindows; ++i )
+    for( vector< Window* >::const_iterator i = _windows.begin(); 
+         i != _windows.end(); ++i )
     {
-        Window* window = _windows[i];
+        Window* window = *i;
         if( window->getState() == Window::STATE_STOPPED )
             continue;
 
@@ -236,10 +237,10 @@ bool Pipe::syncConfigExit()
     Config* config = getConfig();
     eq::PipeDestroyWindowPacket destroyWindowPacket;
 
-    const int nWindows = _windows.size();
-    for( int i=0; i<nWindows; ++i )
+    for( vector< Window* >::const_iterator i = _windows.begin(); 
+         i != _windows.end(); ++i )
     {
-        Window* window = _windows[i];
+        Window* window = *i;
         if( window->getID() == EQ_ID_INVALID )
             continue;
 
@@ -272,17 +273,18 @@ void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
     _send( startPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK pipe start frame " << &startPacket << endl;
 
-    const uint32_t nWindows = this->nWindows();
-    for( uint32_t i=0; i<nWindows; i++ )
+    for( vector< Window* >::const_iterator i = _windows.begin(); 
+         i != _windows.end(); ++i )
     {
-        Window* window = getWindow( i );
+        Window* window = *i;
         if( window->isUsed( ))
             window->updateDraw( frameID, frameNumber );
     }
 
-    for( uint32_t i=0; i<nWindows; i++ )
+    for( vector< Window* >::const_iterator i = _windows.begin(); 
+         i != _windows.end(); ++i )
     {
-        Window* window = getWindow( i );
+        Window* window = *i;
         if( window->isUsed( ))
             window->updatePost( frameID, frameNumber );
     }

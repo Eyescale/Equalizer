@@ -106,11 +106,11 @@ class StdOutput : public CmdLineOutput
 
 inline void StdOutput::version(CmdLineInterface& _cmd) 
 {
-	std::string progName = _cmd.getProgramName();
-	std::string version = _cmd.getVersion();
+	std::string progName   = _cmd.getProgramName();
+	std::string cmdVersion = _cmd.getVersion();
 
 	std::cout << std::endl << progName << "  version: " 
-			  << version << std::endl << std::endl;
+			  << cmdVersion << std::endl << std::endl;
 }
 
 inline void StdOutput::usage(CmdLineInterface& _cmd ) 

@@ -63,8 +63,8 @@ Compound::Compound( const Compound& from )
     _data        = from._data;
     _swapBarrier = from._swapBarrier;
 
-    const uint32_t nChildren = from.nChildren();
-    for( uint32_t i=0; i<nChildren; i++ )
+    const uint32_t nCompounds = from.nChildren();
+    for( uint32_t i=0; i<nCompounds; i++ )
     {
         const Compound* child = from.getChild(i);
         addChild( new Compound( *child ));
@@ -282,8 +282,8 @@ void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
     if( !_initialPVP.isValid( ) || !_data.view.isValid( ))
         return;
     
-    const int32_t update = _inherit.iAttributes[ IATTR_UPDATE_FOV ];
-    if( update == eq::OFF || update == eq::UNDEFINED )
+    const int32_t updateFOV = _inherit.iAttributes[ IATTR_UPDATE_FOV ];
+    if( updateFOV == eq::OFF || updateFOV == eq::UNDEFINED )
         return;
 
     switch( _view.latest )
@@ -293,7 +293,7 @@ void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
             return;
 
         case ViewDescription::WALL:
-            switch( update )
+            switch( updateFOV )
             {
                 case eq::HORIZONTAL:
                 {
@@ -327,7 +327,7 @@ void Compound::notifyPVPChanged( const eq::PixelViewport& pvp )
             break;
 
         case ViewDescription::PROJECTION:
-            switch( update )
+            switch( updateFOV )
             {
                 case eq::HORIZONTAL:
                 {
@@ -619,11 +619,11 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
         Compound* parent = compound->getParent();
         if( !parent || parent->getChannel() != channel )
         {
-            const std::string& name = channel->getName();
-            if( name.empty( ))
+            const std::string& channelName = channel->getName();
+            if( channelName.empty( ))
                 os << "channel  \"channel_" << (void*)channel << "\"" << endl;
             else
-                os << "channel  \"" << name << "\"" << endl;
+                os << "channel  \"" << channelName << "\"" << endl;
         }
     }
 

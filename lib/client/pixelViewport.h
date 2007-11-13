@@ -25,9 +25,9 @@ namespace eq
         //*{
         PixelViewport() : x(0), y(0), w(-1), h(-1)  {}
 
-        PixelViewport( const int32_t x, const int32_t y, 
-                       const int32_t w, const int32_t h )
-                : x(x), y(y), w(w), h(h)  {}
+        PixelViewport( const int32_t x_, const int32_t y_, 
+                       const int32_t w_, const int32_t h_ )
+                : x(x_), y(y_), w(w_), h(h_)  {}
         //*}
 
         /** 

@@ -52,8 +52,8 @@ Node::Node( const Node& from )
     _name = from._name;
     _node = from._node;
 
-    const uint32_t nConnectionDescriptions = from.nConnectionDescriptions();
-    for( uint32_t i=0; i<nConnectionDescriptions; i++ )
+    const uint32_t numConnectionDescriptions = from.nConnectionDescriptions();
+    for( uint32_t i=0; i<numConnectionDescriptions; i++ )
     {
         eqNet::ConnectionDescription* desc = 
             from.getConnectionDescription(i).get();
@@ -61,8 +61,8 @@ Node::Node( const Node& from )
         addConnectionDescription( new eqNet::ConnectionDescription( *desc ));
     }
 
-    const uint32_t nPipes = from.nPipes();
-    for( uint32_t i=0; i<nPipes; i++ )
+    const uint32_t numPipes = from.nPipes();
+    for( uint32_t i=0; i<numPipes; i++ )
     {
         Pipe* pipe      = from.getPipe(i);
         Pipe* pipeClone = new Pipe( *pipe );
@@ -240,10 +240,10 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
     _send( startPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK node start frame " << &startPacket << endl;
 
-    const uint32_t nPipes = this->nPipes();
-    for( uint32_t i=0; i<nPipes; i++ )
+    for( vector< Pipe* >::const_iterator i = _pipes.begin();
+         i != _pipes.end(); ++i )
     {
-        Pipe* pipe = getPipe( i );
+        Pipe* pipe = *i;
         if( pipe->isUsed( ))
             pipe->update( frameID, frameNumber );
     }

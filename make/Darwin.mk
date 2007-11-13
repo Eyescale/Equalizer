@@ -12,12 +12,15 @@ ifeq ($(findstring 64BIT, $(AGL_OR_64BIT)), 64BIT)
 endif # 64BIT
 endif # LEOPARD
 
-
 ifeq ($(findstring i386, $(SUBARCH)), i386)
   VARIANTS ?= i386 ppc
 else
   VARIANTS ?= ppc
 endif
+
+ifeq ($(findstring g++-4.2, $(CXX)),g++-4.2)
+  USE_OPENMP = 1
+endif # g++ 4.2
 
 ifdef VARIANT
   CXXFLAGS    += -arch $(VARIANT)

@@ -71,7 +71,7 @@ DeltaMasterCM::~DeltaMasterCM()
 
 uint32_t DeltaMasterCM::commitNB()
 {
-    EQASSERTINFO( !_object->isStatic( ), 
+    EQASSERTINFO( _object->getChangeType() == Object::DELTA,
                   "Object type " << typeid(*this).name( ));
 
     ObjectCommitPacket packet;
@@ -172,9 +172,9 @@ void DeltaMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
     for( deque< DeltaData* >::reverse_iterator i = _deltaDatas.rbegin();
          i != _deltaDatas.rend(); ++i )
     {
-        DeltaData* data = *i;
-        data->setInstanceID( instanceID );
-        data->resend( node );
+        DeltaData* deltaData = *i;
+        deltaData->setInstanceID( instanceID );
+        deltaData->resend( node );
     }
 }
 
@@ -200,7 +200,7 @@ void DeltaMasterCM::_checkConsistency() const
 {
 #ifndef NDEBUG
     EQASSERT( _object->_id != EQ_ID_INVALID );
-    EQASSERT( !_object->isStatic( ));
+    EQASSERT( _object->getChangeType() == Object::DELTA );
     if( _version == Object::VERSION_NONE )
         return;
 

@@ -198,43 +198,30 @@ uint32_t Object::commit()
     return commitSync( requestID );
 }
 
-ObjectCM::Type Object::_getChangeManagerType() const
-{
-    if( isStatic( ))
-        return ObjectCM::STATIC;
-
-    if( !isBuffered( ))
-        return ObjectCM::UNBUFFERED;
-
-    if( usePack( ))
-        return ObjectCM::DELTA;
-
-    return ObjectCM::FULL;
-}
-
-void Object::_setupChangeManager( const ObjectCM::Type type, const bool master )
+void Object::_setupChangeManager( const Object::ChangeType type, 
+                                  const bool master )
 {
     switch( type )
     {
-        case ObjectCM::STATIC:
+        case Object::STATIC:
             if( master )
                 _setChangeManager( new StaticMasterCM( this ));
             else
                 _setChangeManager( new StaticSlaveCM( this ));
             break;
-        case ObjectCM::FULL:
+        case Object::INSTANCE:
             if( master )
                 _setChangeManager( new FullMasterCM( this ));
             else
                 _setChangeManager( new FullSlaveCM( this ));
             break;
-        case ObjectCM::DELTA:
+        case Object::DELTA:
             if( master )
                 _setChangeManager( new DeltaMasterCM( this ));
             else
                 _setChangeManager( new DeltaSlaveCM( this ));
             break;
-        case ObjectCM::UNBUFFERED:
+        case Object::DELTA_UNBUFFERED:
             if( master )
                 _setChangeManager( new UnbufferedMasterCM( this ));
             else

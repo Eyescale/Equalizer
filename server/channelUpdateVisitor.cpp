@@ -368,10 +368,10 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
 
     vector<Frame*>               frames;
     vector<eqNet::ObjectVersion> frameIDs;
-    for( vector<Frame*>::const_iterator iter = outputFrames.begin(); 
-         iter != outputFrames.end(); ++iter )
+    for( vector<Frame*>::const_iterator i = outputFrames.begin(); 
+         i != outputFrames.end(); ++i )
     {
-        Frame* frame = *iter;
+        Frame* frame = *i;
 
         if( !frame->hasData( _eye )) // TODO: filter: buffers, vp, eye
             continue;
@@ -397,20 +397,22 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
     Node*                 node         = _channel->getNode();
     RefPtr<eqNet::Node>   netNode      = node->getNode();
     const eqNet::NodeID&  outputNodeID = netNode->getNodeID();
-    for( vector<Frame*>::const_iterator iter = frames.begin();
-         iter != frames.end(); ++iter )
+    for( vector<Frame*>::const_iterator i = frames.begin(); 
+         i != frames.end(); ++i )
     {
-        Frame* frame = *iter;
+        Frame* outputFrame = *i;
 
-        const vector<Frame*>& inputFrames = frame->getInputFrames( context.eye);
+        const vector<Frame*>& inputFrames = 
+            outputFrame->getInputFrames( context.eye);
+
         vector<eqNet::NodeID> nodeIDs;
-        for( vector<Frame*>::const_iterator iter = inputFrames.begin();
-             iter != inputFrames.end(); ++iter )
+        for( vector<Frame*>::const_iterator j = inputFrames.begin();
+             j != inputFrames.end(); ++j )
         {
-            const Frame*         frame   = *iter;
-            const Node*          node    = frame->getNode();
-            RefPtr<eqNet::Node>  netNode = node->getNode();
-            const eqNet::NodeID& nodeID  = netNode->getNodeID();
+            const Frame*         inputFrame   = *j;
+            const Node*          inputNode    = inputFrame->getNode();
+            RefPtr<eqNet::Node>  inputNetNode = inputNode->getNode();
+            const eqNet::NodeID& nodeID       = inputNetNode->getNodeID();
             EQASSERT( node );
 
             if( nodeID == outputNodeID ) // TODO filter: buffers, vp, eye
@@ -430,7 +432,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
         transmitPacket.sessionID = packet.sessionID;
         transmitPacket.objectID  = packet.objectID;
         transmitPacket.context   = context;
-        transmitPacket.frame     = eqNet::ObjectVersion( frame );
+        transmitPacket.frame     = eqNet::ObjectVersion( outputFrame );
         transmitPacket.nNodes    = nodeIDs.size();
 
         EQLOG( eq::LOG_ASSEMBLY | eq::LOG_TASKS )

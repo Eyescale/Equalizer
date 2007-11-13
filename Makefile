@@ -18,7 +18,7 @@ CLEAN_EXTRA = $(INSTALL_FILES)
 
 include make/rules.mk
 
-docs: lib
+docs:
 	@$(DOXYGEN) Doxyfile
 
 subdirs: precompile

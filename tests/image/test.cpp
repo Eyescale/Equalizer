@@ -38,7 +38,9 @@ int main( int argc, char **argv )
     time = clock.getTimef();
 
     cout << argv[0] << ": Color " << colorSize << "->" << size << " " 
-         << 100.0f * size / colorSize << "%, " << time << " ms, max bw " 
+         << 100.0f * size / colorSize << "%, " << time << " ms ("
+         << 1000.0f * colorSize / time / 1024.0f / 1024.0f 
+         << " MB/s), max network bw " 
          << 1000.0f * (colorSize - size) / time / 1024.0f / 1024.0f << "MB/s" 
          << endl;
 
@@ -71,7 +73,9 @@ int main( int argc, char **argv )
     time = clock.getTimef();
 
     cout << argv[0] << ": Depth " << depthSize << "->" << size << " " 
-         << 100.0f * size / depthSize << "%, " << time << " ms, max bw " 
+         << 100.0f * size / depthSize << "%, " << time << " ms ("
+         << 1000.0f * depthSize / time / 1024.0f / 1024.0f 
+         << " MB/s), max network bw " 
          << 1000.0f * (depthSize - size) / time / 1024.0f / 1024.0f << "MB/s" 
          << endl;
 

@@ -13,6 +13,7 @@ HEADER_SRC = \
 	base/defines.h \
 	base/executionListener.h \
 	base/hash.h \
+	base/omp.h \
 	base/idPool.h \
 	base/launcher.h \
 	base/lock.h \
@@ -111,6 +112,7 @@ SOURCES = \
 	base/lock.cpp \
 	base/log.cpp \
 	base/monitor.cpp \
+	base/omp.cpp \
 	base/requestHandler.cpp \
 	base/sema.cpp \
 	base/spinLock.cpp \

@@ -55,7 +55,7 @@ FullMasterCM::~FullMasterCM()
 
 uint32_t FullMasterCM::commitNB()
 {
-    EQASSERTINFO( !_object->isStatic( ), 
+    EQASSERTINFO( _object->getChangeType() == Object::INSTANCE,
                   "Object type " << typeid(*this).name( ));
 
     ObjectCommitPacket packet;
@@ -132,7 +132,7 @@ void FullMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
     EQLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
                          << ", instanciate on " << node->getNodeID() << endl;
 
-    EQASSERT( !_object->isStatic( ))
+    EQASSERT( _object->getChangeType() == Object::INSTANCE );
 
     deque< DeltaData* >::reverse_iterator i = _deltaDatas.rbegin();
     const DeltaData* data = *i;
@@ -149,10 +149,10 @@ void FullMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
     // versions oldest-1..newest are delta packets
     for( ++i; i != _deltaDatas.rend(); ++i )
     {
-        DeltaData* data = *i;
-        data->os.setInstanceID( instanceID );
-        data->os.resend( node );
-        EQASSERT( ++instPacket.version == data->os.getVersion( ));
+        DeltaData* deltaData = *i;
+        deltaData->os.setInstanceID( instanceID );
+        deltaData->os.resend( node );
+        EQASSERT( ++instPacket.version == deltaData->os.getVersion( ));
     }
     EQASSERT( instPacket.version == _version );
 }
@@ -179,7 +179,7 @@ void FullMasterCM::_checkConsistency() const
 {
 #ifndef NDEBUG
     EQASSERT( _object->_id != EQ_ID_INVALID );
-    EQASSERT( !_object->isStatic( ));
+    EQASSERT( _object->getChangeType() == Object::INSTANCE );
 
     if( _version == Object::VERSION_NONE )
         return;

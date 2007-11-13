@@ -7,7 +7,6 @@
 
 #include <eq/net/commands.h> // used for CMD_ enums
 #include <eq/net/nodeID.h>   // member
-#include <eq/net/objectCM.h> // for ObjectCM::Type enum
 
 #include <eq/base/idPool.h> // for EQ_ID_*
 
@@ -347,9 +346,9 @@ namespace eqNet
                 instanceID = request->instanceID;
             }
         
-        uint32_t       requestID;
-        uint32_t       instanceID;
-        ObjectCM::Type cmType;
+        uint32_t requestID;
+        uint32_t instanceID;
+        uint32_t changeType;
     };
 
     struct SessionSubscribeObjectReplyPacket : public SessionPacket
@@ -414,7 +413,7 @@ namespace eqNet
             }
 
         uint64_t dataSize;
-        EQ_ALIGN8( char data[8] );
+        EQ_ALIGN8( uint8_t data[8] );
     };
 
     struct ObjectInstancePacket : public ObjectPacket
@@ -428,7 +427,7 @@ namespace eqNet
 
         uint64_t dataSize;
         uint32_t version;
-        EQ_ALIGN8( char data[8] );
+        EQ_ALIGN8( uint8_t data[8] );
     };
 
     struct ObjectCommitPacket : public ObjectPacket
@@ -452,7 +451,7 @@ namespace eqNet
             }
         
         uint64_t deltaSize;
-        EQ_ALIGN8( char     delta[8] );
+        EQ_ALIGN8( uint8_t     delta[8] );
     };
 
     struct ObjectDeltaPacket : public ObjectPacket
@@ -466,7 +465,7 @@ namespace eqNet
         
         uint32_t version;
         uint64_t deltaSize;
-        EQ_ALIGN8( char     delta[8] );
+        EQ_ALIGN8( uint8_t     delta[8] );
     };
 
     //------------------------------------------------------------

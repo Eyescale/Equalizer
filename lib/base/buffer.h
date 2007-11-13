@@ -35,47 +35,47 @@ namespace eqBase
             }
 
         /** Ensure that the data can contain at least size bytes, retain data */
-        void resize( const uint64_t size )
+        void resize( const uint64_t newSize )
             { 
-                this->size = size;
-                if( size <= _maxSize )
+                size = newSize;
+                if( newSize <= _maxSize )
                     return;
                 
                 if( data )
-                    data = static_cast< char* >( realloc( data, size ));
+                    data = static_cast< char* >( realloc( data, newSize ));
                 else
-                    data = static_cast< char* >( malloc( size ));
+                    data = static_cast< char* >( malloc( newSize ));
                 
-                _maxSize = size;
+                _maxSize = newSize;
             }
 
         /** Append size bytes to the buffer, increasing its size. */
-        void append( const void* data, const uint64_t size )
+        void append( const void* addData, const uint64_t addSize )
             {
-                EQASSERT( data );
-                EQASSERT( size );
-                const uint64_t oldSize = this->size;
-                resize( oldSize + size );
-                memcpy( this->data + oldSize, data, size );
+                EQASSERT( addData );
+                EQASSERT( addSize );
+                const uint64_t oldSize = size;
+                resize( oldSize + addSize );
+                memcpy( data + oldSize, addData, addSize );
             }
 
         /** Replace the existing data. */
-        void replace( const void* data, const uint64_t size )
+        void replace( const void* newData, const uint64_t newSize )
             {
-                EQASSERT( data );
-                EQASSERT( size );
+                EQASSERT( newData );
+                EQASSERT( newSize );
                 
-                if( size > _maxSize )
+                if( newSize > _maxSize )
                 {
-                    if( this->data )
-                        free( this->data );
+                    if( data )
+                        free( data );
             
-                    this->data = static_cast< char* >( malloc( size ));
+                    data = static_cast< char* >( malloc( newSize ));
                     _maxSize = size;
                 }
 
-                memcpy( this->data, data, size );
-                this->size = size;
+                memcpy( data, newData, newSize );
+                size = newSize;
             }
 
         /** Swap the buffer contents */

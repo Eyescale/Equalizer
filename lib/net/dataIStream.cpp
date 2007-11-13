@@ -76,8 +76,7 @@ bool DataIStream::_checkBuffer()
     if( _position < _inputSize )
         return true;
 
-    if( !getNextBuffer( reinterpret_cast< const void** >( &_input ),
-                        &_inputSize ))
+    if( !getNextBuffer( &_input, &_inputSize ))
     {
         return false;
     }

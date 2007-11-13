@@ -14,9 +14,11 @@
 #include <eq/net/command.h>
 #include <eq/net/global.h>
 
-using namespace eqs;
 using namespace eqBase;
 using namespace std;
+
+namespace eqs
+{
 
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_CONFIG_") + #attr )
 std::string Config::_fAttributeStrings[FATTR_ALL] = 
@@ -127,8 +129,8 @@ Config::Config( const Config& from )
     _appNetNode = from._appNetNode;
     _latency    = from._latency;
 
-    const uint32_t nCompounds = from.nCompounds();
-    for( uint32_t i=0; i<nCompounds; ++i )
+    const uint32_t numCompounds = from.nCompounds();
+    for( uint32_t i=0; i<numCompounds; ++i )
     {
         Compound* compound      = from.getCompound(i);
         Compound* compoundClone = new Compound( *compound );
@@ -140,8 +142,8 @@ Config::Config( const Config& from )
     for( int i=0; i<FATTR_ALL; ++i )
         _fAttributes[i] = from.getFAttribute( (FAttribute)i );
         
-    const uint32_t nNodes = from.nNodes();
-    for( uint32_t i=0; i<nNodes; ++i )
+    const uint32_t numNodes = from.nNodes();
+    for( uint32_t i=0; i<numNodes; ++i )
     {
         eqs::Node* node      = from.getNode(i);
         eqs::Node* nodeClone = new eqs::Node( *node );
@@ -170,9 +172,9 @@ Config::Config( const Config& from )
 
                     ReplaceChannelVisitor visitor( channel, channelClone );
 
-                    for( uint32_t m=0; m<nCompounds; m++ )
+                    for( uint32_t m=0; m<numCompounds; ++m )
                     {
-                        Compound* compound = getCompound(m);
+                        Compound* compound = getCompound( m );
                         compound->accept( &visitor, false /*activeOnly*/ );
                     }
                 }
@@ -220,10 +222,10 @@ bool Config::removeCompound( Compound* compound )
 
 Channel* Config::findChannel( const std::string& name ) const
 {
-    const uint32_t nNodes = this->nNodes();
-    for( uint32_t i=0; i<nNodes; ++i )
+    for( vector< Node* >::const_iterator i = _nodes.begin();
+         i != _nodes.end(); ++i )
     {
-        eqs::Node*     node   = getNode(i);
+        eqs::Node*     node   = *i;
         const uint32_t nPipes = node->nPipes();
         for( uint32_t j=0; j<nPipes; j++ )
         {
@@ -276,10 +278,10 @@ bool Config::_startInit( const uint32_t initID,
     _currentFrame  = 0;
     _finishedFrame = 0;
 
-    const uint32_t nCompounds = this->nCompounds();
-    for( uint32_t i=0; i<nCompounds; ++i )
+    for( vector< Compound* >::const_iterator i = _compounds.begin();
+         i != _compounds.end(); ++i )
     {
-        Compound* compound = getCompound( i );
+        Compound* compound = *i;
         compound->init();
     }
 
@@ -440,10 +442,10 @@ bool Config::exit()
     if( !cleanExit )
         EQERROR << "nodes exit failed" << endl;
 
-    const uint32_t nCompounds = this->nCompounds();
-    for( uint32_t i=0; i<nCompounds; ++i )
+    for( vector< Compound* >::const_iterator i = _compounds.begin();
+         i != _compounds.end(); ++i )
     {
-        Compound* compound = getCompound( i );
+        Compound* compound = *i;
         compound->exit();
     }
 
@@ -544,10 +546,10 @@ uint32_t Config::_prepareFrame( vector< eqNet::NodeID >& nodeIDs )
 
     _updateHead();
 
-    const uint32_t nNodes = this->nNodes();
-    for( uint32_t i=0; i<nNodes; ++i )
+    for( vector<Node*>::const_iterator i = _nodes.begin(); i != _nodes.end();
+         ++i )
     {
-        Node* node = getNode( i );
+        Node* node = *i;
         if( node->isUsed( ))
         {
             RefPtr< eqNet::Node > netNode = node->getNode();
@@ -738,7 +740,7 @@ eqNet::CommandResult Config::_cmdCreateNodeReply( eqNet::Command& command )
 }
 
 
-ostream& eqs::operator << ( ostream& os, const Config* config )
+ostream& operator << ( ostream& os, const Config* config )
 {
     if( !config )
         return os;
@@ -770,4 +772,5 @@ ostream& eqs::operator << ( ostream& os, const Config* config )
     os << exdent << "}" << endl << enableHeader << enableFlush;
 
     return os;
+}
 }

@@ -8,12 +8,15 @@
 #include "log.h"
 #include "windowSystem.h"
 
+#include <eq/base/omp.h>
 #include <eq/net/node.h>
+
 #include <fstream>
 
-using namespace eq;
 using namespace std;
 
+namespace eq
+{
 Image::Image()
 {
     _colorPixels.format = GL_BGRA;
@@ -322,7 +325,7 @@ uint32_t Image::decompressPixelData( const Frame::Buffer buffer,
         {
             const uint64_t symbol = in[i++];
             const uint64_t nSame  = in[i++];
-            for( uint32_t i = 0; i<nSame; ++i )
+            for( uint32_t j = 0; j<nSame; ++j )
                 out[outpos++] = symbol;
         }
         else // symbol
@@ -335,6 +338,75 @@ uint32_t Image::decompressPixelData( const Frame::Buffer buffer,
     return (i<<3);
 }
 
+
+const uint8_t* Image::compressPixelData( const Frame::Buffer buffer, 
+                                         uint32_t& compressedSize )
+{
+    const uint32_t size = getPixelDataSize( buffer );
+    if( size == 0 ) 
+        return 0;
+
+    CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
+    if( compressedPixels.valid )
+    {
+        compressedSize = compressedPixels.size;
+        return compressedPixels.data;
+    }
+
+    EQASSERT( getDepth( buffer ) == 4 )     // may change with RGB format
+    EQASSERT( size < (100 * 1024 * 1024 )); // < 100MB
+
+    Pixels&         pixels   = _getPixels( buffer );
+    const uint64_t* data     = reinterpret_cast<const uint64_t*>
+                                   ( pixels.data );
+    const uint32_t  nWords   = (size%8) ? (size>>3)+1 : (size>>3);
+
+    // conservative output allocation
+    compressedPixels.resize( nWords<<4 );
+    uint64_t* out = reinterpret_cast<uint64_t*>( compressedPixels.data );
+
+    const uint64_t marker   = 0xffffffffffffffffull;
+    //F3C553FF0x1968354FE
+    out[ 0 ] = marker;
+
+#ifdef EQ_USE_OPENMP
+    const int   nThreads = eqBase::OMP::getNThreads();
+    const float width    = static_cast< float >( nWords ) / 
+                           static_cast< float >( nThreads );
+
+    uint32_t    outSizes[ nThreads ];
+#  pragma omp parallel for
+    for ( int i = 0; i < nThreads; ++i )
+    {
+        const int      threadNum  = omp_get_thread_num();
+        const uint32_t startIndex = threadNum * width;
+        const uint32_t endIndex   = (threadNum+1) * width;
+        outSizes[ threadNum ] = _compressPixelData( &data[ startIndex ], 
+                                                    endIndex - startIndex, 
+                                                    marker,
+                                                    &out[(startIndex<<1) + 1] );
+    }
+
+    uint32_t outSize = outSizes[0] + 8 /*marker header*/;
+
+    for ( int i = 1; i < nThreads; ++i )
+    {
+        const uint32_t startIndex = i * width;
+        memcpy( &compressedPixels.data[outSize], &out[ (startIndex<<1) + 1 ],
+                outSizes[i] );
+        outSize += outSizes[i];
+    }
+
+#else
+    const uint32_t outSize = _compressPixelData( data, nWords, marker, &out[1] )
+                                 + 8 /*marker header*/;
+#endif
+
+    compressedPixels.size = outSize;
+    compressedSize        = outSize;
+
+    return compressedPixels.data;
+}
 
 #define WRITE_OUTPUT                                                    \
     {                                                                   \
@@ -363,38 +435,14 @@ uint32_t Image::decompressPixelData( const Frame::Buffer buffer,
                     out[ outpos++ ] = nSame;                            \
                     break;                                              \
             }                                                           \
+        EQASSERTINFO( nWords<<1 >= outpos,                             \
+                      "Overwrite array bounds during image compress" ); \
     }
 
-const uint8_t* Image::compressPixelData( const Frame::Buffer buffer, 
-                                         uint32_t& compressedSize )
+uint32_t Image::_compressPixelData( const uint64_t* data, const uint32_t nWords,
+                                    const uint64_t marker, uint64_t* out )
 {
-    const uint32_t size = getPixelDataSize( buffer );
-    if( size == 0 ) 
-        return 0;
-
-    CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
-    if( compressedPixels.valid )
-    {
-        compressedSize = compressedPixels.size;
-        return compressedPixels.data;
-    }
-
-    EQASSERT( getDepth( buffer ) == 4 )     // may change with RGB format
-    EQASSERT( size < (100 * 1024 * 1024 )); // < 100MB
-
-    Pixels&         pixels   = _getPixels( buffer );
-    const uint64_t* data     = reinterpret_cast<const uint64_t*>
-                                   ( pixels.data );
-    const uint64_t  marker   = 0xffffffffffffffffull;
-    const uint32_t  nWords   = (size%8) ? (size>>3)+1 : (size>>3);
-
-    // conservative output allocation
-    compressedPixels.resize( 3 * size + sizeof( uint64_t ));
-    uint64_t* out = reinterpret_cast<uint64_t*>( compressedPixels.data );
-
-    out[ 0 ] = marker;
-
-    uint32_t outpos     = 1;
+    uint32_t outpos     = 0;
     uint32_t nSame      = 1;
     uint64_t lastSymbol = data[0];
 
@@ -409,18 +457,11 @@ const uint8_t* Image::compressPixelData( const Frame::Buffer buffer,
             WRITE_OUTPUT;
             lastSymbol = symbol;
             nSame      = 1;
-            EQASSERTINFO( ((outpos-1) << 3) <= compressedPixels.maxSize, 
-                "Overwrite array bounds during image compress" );
         }
     }
     
     WRITE_OUTPUT;
-    EQASSERTINFO( ((outpos-1) << 3) <= compressedPixels.maxSize, 
-        "Overwrite array bounds during image compress" );
-
-    compressedPixels.size = outpos<<3;
-    compressedSize = compressedPixels.size;
-    return compressedPixels.data;
+    return (outpos<<3);
 }
 
 //---------------------------------------------------------------------------
@@ -654,9 +695,9 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
     return true;
 }
 
-
-std::ostream& eq::operator << ( std::ostream& os, const Image* image )
+std::ostream& operator << ( std::ostream& os, const Image* image )
 {
     os << "image " << image->_pvp;
     return os;
+}
 }

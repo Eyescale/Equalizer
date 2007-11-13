@@ -8,19 +8,22 @@
 #include "node.h"
 #include "socketConnection.h"
 
+#include <eq/base/omp.h>
+
 #ifdef WIN32_API
 #  include <direct.h>
 #  define getcwd _getcwd
 #endif
 
-using namespace eqNet;
-using namespace eqBase;
 using namespace std;
 
-EQ_EXPORT bool eqNet::init( const int argc, char** argv )
+namespace eqNet
 {
-    EQINFO << "Log level " << Log::getLogLevelString() << " topics " 
-           << Log::topics << endl;
+
+EQ_EXPORT bool init( const int argc, char** argv )
+{
+    EQINFO << "Log level " << eqBase::Log::getLogLevelString() << " topics " 
+           << eqBase::Log::topics << endl;
 
     EQASSERT( argc > 0 );
 
@@ -50,7 +53,7 @@ EQ_EXPORT bool eqNet::init( const int argc, char** argv )
     return true;
 }
 
-EQ_EXPORT bool eqNet::exit()
+EQ_EXPORT bool exit()
 {
 #ifdef WIN32
     if( WSACleanup() != 0 )
@@ -61,4 +64,5 @@ EQ_EXPORT bool eqNet::exit()
     }
 #endif
     return true;
+}
 }

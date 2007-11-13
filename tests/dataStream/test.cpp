@@ -40,7 +40,7 @@ struct DataPacket : public eqNet::Packet
         }
         
     uint64_t dataSize;
-    EQ_ALIGN8( char data[8] );
+    EQ_ALIGN8( uint8_t data[8] );
 };
 
 struct FooterPacket : public eqNet::Packet
@@ -79,7 +79,7 @@ protected:
 
             FooterPacket packet;
             eqNet::Connection::send( _connections, packet, true /*isLocked*/ );
-            EQINFO << "Sent footer with " << size << " bytes" << endl;
+            EQINFO << "Sent footer" << endl;
         }
 };
 
@@ -95,7 +95,7 @@ public:
     virtual size_t nRemainingBuffers() const { return _commands.size(); }
 
 protected:
-    virtual bool getNextBuffer( const void** buffer, uint64_t* size )
+    virtual bool getNextBuffer( const uint8_t** buffer, uint64_t* size )
         {
             eqNet::Command* command = _commands.tryPop();
             if( !command )

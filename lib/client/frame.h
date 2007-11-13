@@ -133,9 +133,9 @@ namespace eq
         void disableBuffer( const Buffer buffer );
         
     protected:
-        virtual bool isStatic() const { return false; }
+        virtual ChangeType getChangeType() const { return INSTANCE; }
 
-     private:
+    private:
         std::string _name;
         Pipe*       _pipe;
 

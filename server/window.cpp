@@ -59,8 +59,8 @@ eqs::Window::Window( const Window& from )
     for( int i=0; i<eq::Window::IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
 
-    const uint32_t nChannels = from.nChannels();
-    for( uint32_t i=0; i<nChannels; i++ )
+    const uint32_t numChannels = from.nChannels();
+    for( uint32_t i=0; i<numChannels; i++ )
     {
         Channel* channel      = from.getChannel(i);
         Channel* channelClone = new Channel( *channel );
@@ -358,10 +358,10 @@ void eqs::Window::updateDraw( const uint32_t frameID,
     EQLOG( eq::LOG_TASKS ) << "TASK window start frame  " << &startPacket 
                            << endl;
 
-    const uint32_t nChannels = this->nChannels();
-    for( uint32_t i=0; i<nChannels; i++ )
+    for( vector< Channel* >::const_iterator i = _channels.begin(); 
+         i != _channels.end(); ++i )
     {
-        Channel* channel = getChannel( i );
+        Channel* channel = *i;
         if( channel->isUsed( ))
             channel->updateDraw( frameID, frameNumber );
     }
@@ -370,10 +370,10 @@ void eqs::Window::updateDraw( const uint32_t frameID,
 void eqs::Window::updatePost( const uint32_t frameID, 
                               const uint32_t frameNumber )
 {
-    const uint32_t nChannels = this->nChannels();
-    for( uint32_t i=0; i<nChannels; i++ )
+    for( vector< Channel* >::const_iterator i = _channels.begin(); 
+         i != _channels.end(); ++i )
     {
-        Channel* channel = getChannel( i );
+        Channel* channel = *i;
         if( channel->isUsed( ))
             channel->updatePost( frameID, frameNumber );
     }
