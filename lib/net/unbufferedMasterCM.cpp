@@ -65,7 +65,7 @@ void UnbufferedMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID)
     stde::usort( _slaves );
 
     EQLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
-                         << ", instanciate on " << node->getNodeID() << endl;
+                         << ", instantiate on " << node->getNodeID() << endl;
 
     // send instance data
     ObjectInstanceDataOStream os( _object );
@@ -76,6 +76,13 @@ void UnbufferedMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID)
     _object->getInstanceData( os );
 
     os.disable();
+
+    if( !os.hasSentData( )) // if no instance data, send packet to set version
+    {
+        os.enable( node );
+        os.writeOnce( 0, 0 );
+        os.disable();
+    }
 }
 
 void UnbufferedMasterCM::removeSlave( RefPtr<Node> node )
