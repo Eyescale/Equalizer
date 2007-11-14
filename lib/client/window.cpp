@@ -402,7 +402,7 @@ bool eq::Window::configInitGLX()
 
     // create context
     Pipe*          pipe = getPipe();
-    Window* firstWindow = pipe->getWindow( 0 );
+    Window* firstWindow = pipe->getWindows()[0];
     GLXContext shareCtx = firstWindow->getGLXContext();
     GLXContext  context = glXCreateContext( display, visInfo, shareCtx, True );
 
@@ -550,7 +550,7 @@ bool eq::Window::configInitAGL()
     }
 
     Pipe*      pipe        = getPipe();
-    Window*    firstWindow = pipe->getWindow(0);
+    Window*    firstWindow = pipe->getWindows()[0];
     AGLContext shareCtx    = firstWindow->getAGLContext();
     AGLContext context     = aglCreateContext( pixelFormat, shareCtx );
     aglDestroyPixelFormat ( pixelFormat );

@@ -213,15 +213,17 @@ void GLXEventThread::_handleEvent( RefPtr<X11Connection> connection )
         XEvent&     xEvent = event.xEvent;
         XNextEvent( display, &xEvent );
         
-        XID            drawable = xEvent.xany.window;
-        const uint32_t nWindows = pipe->nWindows();
+        XID                      drawable = xEvent.xany.window;
+        const vector< Window* >& windows  = pipe->getWindows();
 
         event.window   = 0;
-        for( uint32_t i=0; i<nWindows; ++i )
+        for( vector< Window* >::const_iterator i = windows.begin(); 
+             i != windows.end(); ++i )
         {
-            if( pipe->getWindow(i)->getXDrawable() == drawable )
+            Window* window = *i;
+            if( window->getXDrawable() == drawable )
             {
-                event.window = pipe->getWindow(i);
+                event.window = window;
                 break;
             }
         }

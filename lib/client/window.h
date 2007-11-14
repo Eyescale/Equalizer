@@ -46,6 +46,7 @@ namespace eq
             { return ( _pipe ? _pipe->getClient() : NULL ); }
         eqBase::RefPtr< Server > getServer() const 
             { return ( _pipe ? _pipe->getServer() : NULL ); }
+        const std::vector< Channel* >& getChannels() const { return _channels; }
 
         const std::string& getName() const { return _name; }
 

@@ -49,20 +49,10 @@ namespace eq
             { return (_node ? _node->getClient() : NULL);}
         eqBase::RefPtr< Server > getServer() const
             { return (_node ? _node->getServer() : NULL);}
+        const std::vector< Window* >& getWindows() const { return _windows; }
 
         const std::string& getName() const { return _name; }
         bool isThreaded() const { return ( _thread != 0 ); }
-
-        /** @return the number of windows. */
-        uint32_t nWindows() const { return _windows.size(); }
-        /** 
-         * Gets a window.
-         * 
-         * @param index the window's index. 
-         * @return the window.
-         */
-        Window* getWindow( const uint32_t index ) const
-            { return _windows[index]; }
 
         /** 
          * @return the pipe's pixel viewport

@@ -38,17 +38,9 @@ namespace eq
             { return (_config ? _config->getClient() : NULL); }
         eqBase::RefPtr< Server > getServer() const
             { return (_config ? _config->getServer() : NULL); }
+        const std::vector< Pipe* >& getPipes() const { return _pipes; }
 
         const std::string& getName() const { return _name; }
-
-        /** 
-         * Gets a pipe.
-         * 
-         * @param index the pipe's index. 
-         * @return the pipe.
-         */
-        Pipe* getPipe( const uint32_t index ) const
-            { return _pipes[index]; }
 
         /** 
          * Get a network barrier. 

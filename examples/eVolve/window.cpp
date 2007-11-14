@@ -31,7 +31,7 @@ bool Window::configInit( const uint32_t initID )
     }
 
     eq::Pipe*  pipe        = getPipe();
-    Window*    firstWindow = static_cast< Window* >( pipe->getWindow( 0 ));
+    Window*    firstWindow = static_cast< Window* >( pipe->getWindows()[0] );
 
     EQASSERT( !_objects );
 
