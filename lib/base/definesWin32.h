@@ -28,6 +28,9 @@
 #    define EQ_USE_COMPRESSION
 #  endif
 #endif
+#ifdef _OPENMP
+#  define EQ_USE_OPENMP
+#endif
 #ifndef EQ_CHECK_THREADSAFETY
 #  define EQ_CHECK_THREADSAFETY
 #endif

@@ -13,6 +13,12 @@
 
 #include <fstream>
 
+#ifdef WIN32
+#  include <malloc.h>
+#else
+#  include <alloca.h>
+#endif
+
 using namespace std;
 
 namespace eq
@@ -374,7 +380,8 @@ const uint8_t* Image::compressPixelData( const Frame::Buffer buffer,
     const float width    = static_cast< float >( nWords ) / 
                            static_cast< float >( nThreads );
 
-    uint32_t    outSizes[ nThreads ];
+    uint32_t*   outSizes = static_cast< uint32_t* >(
+                               alloca( nThreads * sizeof( uint32_t )));
 #  pragma omp parallel for
     for ( int i = 0; i < nThreads; ++i )
     {

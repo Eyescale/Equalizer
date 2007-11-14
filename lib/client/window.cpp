@@ -830,7 +830,7 @@ bool eq::Window::configInitWGL()
     }
 
     Pipe*    pipe        = getPipe();
-    Window*  firstWindow = pipe->getWindow(0);
+    Window*  firstWindow = pipe->getWindows()[0];
     HGLRC    shareCtx    = firstWindow->getWGLContext();
 
     if( shareCtx && !wglShareLists( shareCtx, context ))
