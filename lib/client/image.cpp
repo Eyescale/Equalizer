@@ -371,8 +371,7 @@ const uint8_t* Image::compressPixelData( const Frame::Buffer buffer,
     compressedPixels.resize( nWords<<4 );
     uint64_t* out = reinterpret_cast<uint64_t*>( compressedPixels.data );
 
-    const uint64_t marker   = 0xffffffffffffffffull;
-    //F3C553FF0x1968354FE
+    const uint64_t marker = 0xF3C553FF64F6477Full; // just a random number
     out[ 0 ] = marker;
 
 #ifdef EQ_USE_OPENMP
