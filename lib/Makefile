@@ -97,6 +97,7 @@ HEADER_SRC = \
 	client/renderContext.h \
 	client/server.h \
 	client/statEvent.h \
+	client/types.h \
 	client/version.h \
 	client/viewport.h \
 	client/window.h \

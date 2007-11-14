@@ -113,7 +113,7 @@ void eq::Window::_addChannel( Channel* channel )
 
 void eq::Window::_removeChannel( Channel* channel )
 {
-    vector<Channel*>::iterator iter = find( _channels.begin(), _channels.end(), 
+    ChannelVector::iterator iter = find( _channels.begin(), _channels.end(), 
                                             channel );
     EQASSERT( iter != _channels.end( ))
     
@@ -123,7 +123,7 @@ void eq::Window::_removeChannel( Channel* channel )
 
 Channel* eq::Window::_findChannel( const uint32_t id )
 {
-    for( vector<Channel*>::const_iterator i = _channels.begin(); 
+    for( ChannelVector::const_iterator i = _channels.begin(); 
          i != _channels.end(); ++i )
     {
         Channel* channel = *i;

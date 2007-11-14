@@ -49,7 +49,7 @@ namespace eq
             { return (_node ? _node->getClient() : NULL);}
         eqBase::RefPtr< Server > getServer() const
             { return (_node ? _node->getServer() : NULL);}
-        const std::vector< Window* >& getWindows() const { return _windows; }
+        const WindowVector& getWindows() const { return _windows; }
 
         const std::string& getName() const { return _name; }
         bool isThreaded() const { return ( _thread != 0 ); }
@@ -393,7 +393,7 @@ namespace eq
         std::string    _name;
 
         /** The windows of this pipe. */
-        std::vector<Window*>     _windows;
+        WindowVector   _windows;
 
         /** The currently attached window. */
         const Window* _currentGLWindow;

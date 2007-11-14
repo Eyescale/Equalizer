@@ -8,8 +8,9 @@
 #include <eq/client/server.h>       // called in inline method
 #include <eq/client/commandQueue.h> // member
 #include <eq/client/matrix4.h>      // member
-#include <eq/net/session.h>         // base class
+#include <eq/client/types.h>          // typedefs
 
+#include <eq/net/session.h>         // base class
 
 namespace eq
 {
@@ -29,7 +30,7 @@ namespace eq
         //*{
         eqBase::RefPtr< Client > getClient();
         eqBase::RefPtr< Server > getServer();
-        const std::vector< Node* >& getNodes() const { return _nodes; }
+        const NodeVector& getNodes() const { return _nodes; }
 
         /**
          * @return true while the config is initialized and no exit event
@@ -206,7 +207,7 @@ namespace eq
 #endif
 
         /** Locally-instantiated nodes of this config. */
-        std::vector<Node*> _nodes;
+        NodeVector _nodes;
 
         /** The matrix describing the head position and orientation. */
         Matrix4f _headMatrix;

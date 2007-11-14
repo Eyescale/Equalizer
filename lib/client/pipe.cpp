@@ -81,7 +81,7 @@ void Pipe::_addWindow( Window* window )
 
 void Pipe::_removeWindow( Window* window )
 {
-    vector<Window*>::iterator iter = find( _windows.begin(), _windows.end(),
+    WindowVector::iterator iter = find( _windows.begin(), _windows.end(),
                                            window );
     EQASSERT( iter != _windows.end( ))
     
@@ -91,7 +91,7 @@ void Pipe::_removeWindow( Window* window )
 
 eq::Window* Pipe::_findWindow( const uint32_t id )
 {
-    for( vector<Window*>::const_iterator i = _windows.begin(); 
+    for( WindowVector::const_iterator i = _windows.begin(); 
          i != _windows.end(); ++i )
     {
         Window* window = *i;

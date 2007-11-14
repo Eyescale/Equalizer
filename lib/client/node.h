@@ -38,7 +38,7 @@ namespace eq
             { return (_config ? _config->getClient() : NULL); }
         eqBase::RefPtr< Server > getServer() const
             { return (_config ? _config->getServer() : NULL); }
-        const std::vector< Pipe* >& getPipes() const { return _pipes; }
+        const PipeVector& getPipes() const { return _pipes; }
 
         const std::string& getName() const { return _name; }
 
@@ -224,7 +224,7 @@ namespace eq
         /** The name. */
         std::string            _name;
 
-        std::vector<Pipe*>     _pipes;
+        PipeVector             _pipes;
 
         /** The reason for the last error. */
         std::string            _error;

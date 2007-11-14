@@ -80,7 +80,7 @@ $(OBJECT_DIR)/%.h.gch: %.h
 
 $(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o: %.cpp
 	@mkdir -p $(@D)
-	$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MD -MF $@.d -c $< -o $@
+	$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MMD -MF $@.d -c $< -o $@
 
 # executables
 $(FAT_PROGRAM): $(THIN_PROGRAMS)
@@ -105,7 +105,7 @@ ifndef PROGRAM
 ifdef VARIANT
 $(BIN_DIR)/%.$(VARIANT): %.cpp
 	@mkdir -p $(@D)
-	$(CXX) $< $(INCLUDEDIRS) $(CXXFLAGS) $(LINKDIRS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -MD -MF $@.d -o $@ 
+	$(CXX) $< $(INCLUDEDIRS) $(CXXFLAGS) $(LINKDIRS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -MMD -MF $@.d -o $@ 
 
 else # VARIANT
 

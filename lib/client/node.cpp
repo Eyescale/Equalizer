@@ -69,7 +69,7 @@ void Node::_addPipe( Pipe* pipe )
 
 void Node::_removePipe( Pipe* pipe )
 {
-    vector<Pipe*>::iterator iter = find( _pipes.begin(), _pipes.end(), pipe );
+    PipeVector::iterator iter = find( _pipes.begin(), _pipes.end(), pipe );
     EQASSERT( iter != _pipes.end( ))
     
     _pipes.erase( iter );
@@ -78,7 +78,7 @@ void Node::_removePipe( Pipe* pipe )
 
 Pipe* Node::_findPipe( const uint32_t id )
 {
-    for( vector<Pipe*>::const_iterator i = _pipes.begin(); i != _pipes.end(); 
+    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); 
          ++i )
     {
         Pipe* pipe = *i;
@@ -196,7 +196,7 @@ void Node::_recycleStatEvents( const uint32_t frameNumber )
 
 void Node::_finishFrame( const uint32_t frameNumber )
 {
-    for( vector<Pipe*>::const_iterator i = _pipes.begin(); i != _pipes.end(); 
+    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); 
          ++i )
     {
         const Pipe* pipe = *i;
@@ -234,7 +234,7 @@ void Node::releaseFrameLocal( const uint32_t frameNumber )
 
 void Node::frameDrawFinish( const uint32_t frameID, const uint32_t frameNumber )
 { 
-    for( vector<Pipe*>::const_iterator i = _pipes.begin(); i != _pipes.end(); 
+    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); 
          ++i )
     {
         const Pipe* pipe = *i;
@@ -367,7 +367,7 @@ eqNet::CommandResult Node::_reqConfigExit( eqNet::Command& command )
         command.getPacket<NodeConfigExitPacket>();
     EQINFO << "handle node config exit " << packet << endl;
 
-    for( vector<Pipe*>::const_iterator i = _pipes.begin(); i != _pipes.end(); 
+    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); 
          ++i )
     {
         Pipe* pipe = *i;
