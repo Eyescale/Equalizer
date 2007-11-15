@@ -284,8 +284,8 @@ global:
      }
 
 connectionType: 
-    EQTOKEN_TCPIP { $$ = eqNet::CONNECTIONTYPE_TCPIP; };
-    | EQTOKEN_SDP { $$ = eqNet::CONNECTIONTYPE_SDP; };
+    EQTOKEN_TCPIP { $$ = eqNet::CONNECTIONTYPE_TCPIP; }
+    | EQTOKEN_SDP { $$ = eqNet::CONNECTIONTYPE_SDP; }
 
 server: EQTOKEN_SERVER '{' { server = loader->createServer(); }
         serverConnections

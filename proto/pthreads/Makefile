@@ -6,12 +6,12 @@ SOURCES = perf.cpp
 NOINSTALL = 1
 BIN_DIR   = $(ARCH)
 
-SA_LDFLAGS  += -L$(LIBRARY_DIR) -leq -lpthread
+LDFLAGS  += -L$(LIBRARY_DIR) -leq -lpthread
 
 ifeq "${ARCH}" "Linux"
-  SA_LDFLAGS += -lrt
+  LDFLAGS += -lrt
 ifeq "${SUBARCH}" "ia64"
-    SA_LDFLAGS += -luuid
+    LDFLAGS += -luuid
 endif
 endif
 

@@ -1,5 +1,13 @@
 
-BUILD_FAT  = 1
+BUILD_FAT        = 1
+DSO_SUFFIX       = dylib
+DSO_LDFLAGS     += -dynamiclib
+WINDOW_SYSTEM   ?= GLX AGL
+
+ifeq (0,${MAKELEVEL})
+  CXXFLAGS        += -Wextra
+endif
+
 
 ifeq ($(findstring 9.0, $(RELARCH)),9.0)
   LEOPARD       = 1
@@ -27,16 +35,12 @@ ifdef VARIANT
   DSO_LDFLAGS += -arch $(VARIANT)
 endif
 
-DSO_LDFLAGS        += -dynamiclib
-DSO_SUFFIX          = dylib
-WINDOW_SYSTEM      ?= GLX AGL
-
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
   WINDOW_SYSTEM_LIBS += -L/usr/X11R6/lib -lX11 -lGL
   WINDOW_SYSTEM_INCS += -I/usr/X11R6/include
 ifdef LEOPARD
-  # war to broken libGL in betas
-  WINDOW_SYSTEM_LIBS += -dylib_file /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib
+    # war to broken libGL in Leopard
+    WINDOW_SYSTEM_LIBS += -dylib_file /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib
 endif # LEOPARD
 endif # GLX
 

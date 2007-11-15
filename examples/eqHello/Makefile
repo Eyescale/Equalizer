@@ -6,13 +6,13 @@ PROGRAM = eqHello
 SOURCES = \
 	hello.cpp
 
-CXXFLAGS    += -I../include $(WINDOW_SYSTEM_INCS)
-SA_LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)
+CXXFLAGS += -I../include $(WINDOW_SYSTEM_INCS)
+LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)
 
 ifeq "${ARCH}" "Linux"
-  SA_LDFLAGS += -lrt
+  LDFLAGS += -lrt
 ifeq "${SUBARCH}" "ia64"
-    SA_LDFLAGS += -luuid
+    LDFLAGS += -luuid
 endif
 endif
 

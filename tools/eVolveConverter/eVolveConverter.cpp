@@ -153,20 +153,21 @@ int RawConverter::parseArguments( int argc, char** argv )
 static void getPredefinedHeaderParameters
 (
     const string& fileName, 
-    uint32_t &w, uint32_t &h, uint32_t &d,
-    vector<uint8_t> &TF                     );
+    unsigned &w, unsigned &h, unsigned &d,
+    vector<unsigned char> &TF                     );
     
-static void CreateTransferFunc( int t, uint8_t *transfer );
+static void CreateTransferFunc( int t, unsigned char *transfer );
 
 
-static int calculateAndSaveDerivatives( const string& dst, uint8_t *volume,
-                                        uint32_t w, uint32_t h, uint32_t d  );
+static int calculateAndSaveDerivatives( const string& dst, 
+                                        unsigned char *volume,
+                                        unsigned w, unsigned h, unsigned d  );
 
 
 static int readDimensionsFromSav( FILE*     file,
-                                  uint32_t& w, 
-                                  uint32_t& h, 
-                                  uint32_t& d     )
+                                  unsigned& w, 
+                                  unsigned& h, 
+                                  unsigned& d     )
 {
         fscanf( file, "w=%u\n", &w );
         fscanf( file, "h=%u\n", &h );
@@ -178,9 +179,9 @@ static int readDimensionsFromSav( FILE*     file,
 
 
 static int writeDimensionsToSav(       FILE*    file,
-                                 const uint32_t w,
-                                 const uint32_t h,
-                                 const uint32_t d       )
+                                 const unsigned w,
+                                 const unsigned h,
+                                 const unsigned d       )
 {
         fprintf( file, "w=%u\n", w );
         fprintf( file, "h=%u\n", h );
@@ -219,12 +220,12 @@ int writeScalesToSav(       FILE* file,
 }
 
 
-int readTrasferFunction( FILE* file,  vector<uint8_t>& TF )
+int readTrasferFunction( FILE* file,  vector<unsigned char>& TF )
 {
     if( fscanf(file,"TF:\n") !=0 ) 
         return lFailed( "Error in header file", 0 );
 
-    uint32_t TFSize;
+    unsigned TFSize;
     fscanf( file, "size=%u\n", &TFSize );
 
     if( TFSize!=256  )
@@ -233,7 +234,7 @@ int readTrasferFunction( FILE* file,  vector<uint8_t>& TF )
     TFSize = clip<int32_t>( TFSize, 1, 256 );
 
     int tmp;
-    for( uint32_t i=0; i<TFSize; i++ )
+    for( unsigned i=0; i<TFSize; i++ )
     {
             fscanf( file, "r=%d\n", &tmp ); TF[4*i  ] = tmp;
             fscanf( file, "g=%d\n", &tmp ); TF[4*i+1] = tmp;
@@ -251,7 +252,7 @@ int readTrasferFunction( FILE* file,  vector<uint8_t>& TF )
 }
 
 
-int writeTrasferFunction( FILE* file,  const vector<uint8_t>& TF )
+int writeTrasferFunction( FILE* file,  const vector<unsigned char>& TF )
 {
     int TFSize = TF.size() / 4;
     
@@ -272,13 +273,13 @@ int writeTrasferFunction( FILE* file,  const vector<uint8_t>& TF )
 }
 
 int writeVHF( const string&  filename,
-              const uint32_t w,
-              const uint32_t h,
-              const uint32_t d,
+              const unsigned w,
+              const unsigned h,
+              const unsigned d,
               const float    wScale,
               const float    hScale,
               const float    dScale,
-              const vector<uint8_t>& TF )
+              const vector<unsigned char>& TF )
 {
     hFile info( fopen( filename.c_str(), "wb" ) );
     FILE* file = info.f;
@@ -297,13 +298,13 @@ int RawConverter::CompareTwoRawDerVhf( const string& src1,
                                        const string& src2 )
 {
     EQWARN << "Comparing two raw+derivatives+vhf" << endl;
-    uint32_t  w1,  h1,  d1;
-    uint32_t  w2,  h2,  d2;
+    unsigned  w1,  h1,  d1;
+    unsigned  w2,  h2,  d2;
     float    sw1, sh1, sd1;
     float    sw2, sh2, sd2;
 
-    vector< uint8_t > TF1( 256*4, 0 );
-    vector< uint8_t > TF2( 256*4, 0 );
+    vector< unsigned char > TF1( 256*4, 0 );
+    vector< unsigned char > TF2( 256*4, 0 );
 
     //reading headers
     string configFileName = src1;
@@ -352,7 +353,7 @@ int RawConverter::CompareTwoRawDerVhf( const string& src1,
 int RawConverter::RawToRawPlusDerivativesConverter( const string& src,
                                                     const string& dst )
 {
-    uint32_t w, h, d;
+    unsigned w, h, d;
 //read header
     {
         string configFileName = src;
@@ -367,7 +368,7 @@ int RawConverter::RawToRawPlusDerivativesConverter( const string& src,
            << src << " " << w << " x " << h << " x " << d << endl;
 
 //read model    
-    vector<uint8_t> volume( w*h*d, 0 );
+    vector<unsigned char> volume( w*h*d, 0 );
 
     EQWARN << "Reading model" << endl;
     {
@@ -401,9 +402,9 @@ int RawConverter::RawToRawPlusDerivativesConverter( const string& src,
 int RawConverter::SavToVhfConverter( const string& src, const string& dst )
 {
     //read original header
-    uint32_t w=1;
-    uint32_t h=1;
-    uint32_t d=1;
+    unsigned w=1;
+    unsigned h=1;
+    unsigned d=1;
     float wScale=1.0;
     float hScale=1.0;
     float dScale=1.0;
@@ -420,7 +421,7 @@ int RawConverter::SavToVhfConverter( const string& src, const string& dst )
     
     //read sav
     int TFSize = 256;
-    vector< uint8_t > TF( 256*4, 0 );
+    vector< unsigned char > TF( 256*4, 0 );
     
     {    
         hFile info( fopen( src.c_str(), "rb" ) );
@@ -505,9 +506,9 @@ int RawConverter::DscToVhfConverter( const string& src, const string& dst )
     EQWARN << "converting " << src.c_str() << " > " << dst.c_str() << " .. ";
     
     //Read Description file
-    uint32_t w=1;
-    uint32_t h=1;
-    uint32_t d=1;
+    unsigned w=1;
+    unsigned h=1;
+    unsigned d=1;
     float wScale=1.0;
     float hScale=1.0;
     float dScale=1.0;
@@ -521,7 +522,7 @@ int RawConverter::DscToVhfConverter( const string& src, const string& dst )
             return lFailed( "Not a proper file format, \
                              first line should be:\nreading PVM file" );
 
-        uint32_t c=0;
+        unsigned c=0;
         if( fscanf( file, 
             "found volume with width=%u height=%u depth=%u components=%u\n", 
             &w, &h, &d, &c ) != 4 )
@@ -532,7 +533,7 @@ int RawConverter::DscToVhfConverter( const string& src, const string& dst )
             return lFailed( "'components' should be equal to '1', \
                              only 8 bit volumes supported so far" );
 
-        fscanf( file, "and edge length %g/%g/%g\n", &wScale, &hScale, &dScale ); 
+        fscanf( file, "and edge length %g/%g/%g\n", &wScale, &hScale, &dScale );
     }
     //Write Vhf file
     {
@@ -614,10 +615,10 @@ int RawConverter::scaleRawDerFile(                  const string& src,
     if( scaleZ < 0.0001 ) lFailed( "Scale for depth  is too small" );
 
     EQWARN << "Scaling raw+derivatives+vhf" << endl;
-    uint32_t wS, hS, dS;
+    unsigned wS, hS, dS;
     float    sw, sh, sd;
 
-    vector< uint8_t > TF( 256*4, 0 );
+    vector< unsigned char > TF( 256*4, 0 );
     //reading header
     {
         string configFileName = src;
@@ -635,9 +636,9 @@ int RawConverter::scaleRawDerFile(                  const string& src,
         readTrasferFunction( file, TF );
     }
     //writing header
-    uint32_t wD = static_cast<uint32_t>( wS*scaleX );
-    uint32_t hD = static_cast<uint32_t>( hS*scaleY );
-    uint32_t dD = static_cast<uint32_t>( dS*scaleZ );
+    unsigned wD = static_cast<unsigned>( wS*scaleX );
+    unsigned hD = static_cast<unsigned>( hS*scaleY );
+    unsigned dD = static_cast<unsigned>( dS*scaleZ );
     {
         string vhf = dst;
         int result = writeVHF( vhf.append( ".vhf" ), wD, hD, dD, 
@@ -648,7 +649,7 @@ int RawConverter::scaleRawDerFile(                  const string& src,
     EQWARN << "new dimensions: " << wD << " x " << hD << " x " << dD << endl;
     
     //read volume
-    vector<uint8_t> sVol( wS*hS*dS*4, 0 );
+    vector<unsigned char> sVol( wS*hS*dS*4, 0 );
 
     EQWARN << "Reading model" << endl;
     {
@@ -669,7 +670,7 @@ int RawConverter::scaleRawDerFile(                  const string& src,
     }
     EQWARN << "Scaling model" << endl;
     //scale volume
-    vector<uint8_t> dVol( wD*hD*dD*4, 0 );
+    vector<unsigned char> dVol( wD*hD*dD*4, 0 );
     {
         int wD4   = wD*4;
         int wDhD4 = wD*hD*4;
@@ -681,7 +682,7 @@ int RawConverter::scaleRawDerFile(                  const string& src,
         int scaleIz  = static_cast<int>( scaleZ );
         int tenPerc  = (dD-scaleIz-1) / 10;
         int tenPercI = 0;
-        for( uint32_t z=0; z<dD-scaleIz; z++ )
+        for( unsigned z=0; z<dD-scaleIz; z++ )
         {
             if( ++tenPercI >= tenPerc )
             {
@@ -689,8 +690,8 @@ int RawConverter::scaleRawDerFile(                  const string& src,
                 std::cout.flush();
                 tenPercI = 0;
             }
-            for( uint32_t y=0; y<hD-scaleIy; y++ )
-                for( uint32_t x=0; x<wD-scaleIx; x++ )
+            for( unsigned y=0; y<hD-scaleIy; y++ )
+                for( unsigned x=0; x<wD-scaleIx; x++ )
                 {
                     double cx = x/scaleX;
                     double cy = y/scaleY;
@@ -760,8 +761,9 @@ int RawConverter::scaleRawDerFile(                  const string& src,
 }
 
 
-static int calculateAndSaveDerivatives( const string& dst, uint8_t *volume,
-                                        uint32_t w, uint32_t h, uint32_t d  )
+static int calculateAndSaveDerivatives( const string& dst, 
+                                        unsigned char *volume,
+                                        unsigned w, unsigned h, unsigned d  )
 {
     EQWARN << "Calculating derivatives" << endl;
     ofstream file ( dst.c_str(),
@@ -772,23 +774,23 @@ static int calculateAndSaveDerivatives( const string& dst, uint8_t *volume,
 
     int wh = w*h;
 
-    vector<uint8_t> GxGyGzA( wh*d*4, 0 );
+    vector<unsigned char> GxGyGzA( wh*d*4, 0 );
 
-    for( uint32_t z=1; z<d-1; z++ )
+    for( unsigned z=1; z<d-1; z++ )
     {
         int zwh = z*wh;
 
-        const uint8_t *curPz = &volume[0] + zwh;
+        const unsigned char *curPz = &volume[0] + zwh;
 
-        for( uint32_t y=1; y<h-1; y++ )
+        for( unsigned y=1; y<h-1; y++ )
         {
             int zwh_y = zwh + y*w;
-            const uint8_t * curPy = curPz + y*w ;
-            for( uint32_t x=1; x<w-1; x++ )
+            const unsigned char * curPy = curPz + y*w ;
+            for( unsigned x=1; x<w-1; x++ )
             {
-                const uint8_t * curP = curPy +  x;
-                const uint8_t * prvP = curP  - wh;
-                const uint8_t * nxtP = curP  + wh;
+                const unsigned char * curP = curPy +  x;
+                const unsigned char * prvP = curP  - wh;
+                const unsigned char * nxtP = curP  + wh;
                 int32_t gx = 
                       nxtP[  1+w ]+ 3*curP[  1+w ]+   prvP[  1+w ]+
                     3*nxtP[  1   ]+ 6*curP[  1   ]+ 3*prvP[  1   ]+
@@ -824,9 +826,9 @@ static int calculateAndSaveDerivatives( const string& dst, uint8_t *volume,
                 gy = ( gy*255/length + 255 )/2;
                 gz = ( gz*255/length + 255 )/2;
 
-                GxGyGzA[(zwh_y + x)*4   ] = static_cast<uint8_t>( gx );
-                GxGyGzA[(zwh_y + x)*4 +1] = static_cast<uint8_t>( gy );
-                GxGyGzA[(zwh_y + x)*4 +2] = static_cast<uint8_t>( gz );
+                GxGyGzA[(zwh_y + x)*4   ] = static_cast<unsigned char>( gx );
+                GxGyGzA[(zwh_y + x)*4 +1] = static_cast<unsigned char>( gy );
+                GxGyGzA[(zwh_y + x)*4 +2] = static_cast<unsigned char>( gz );
                 GxGyGzA[(zwh_y + x)*4 +3] = curP[0];
             }
         }
@@ -844,8 +846,8 @@ static int calculateAndSaveDerivatives( const string& dst, uint8_t *volume,
 
 
 static void getPredefinedHeaderParameters( const string& fileName,
-                                          uint32_t &w, uint32_t &h, uint32_t &d,
-                                          vector<uint8_t> &TF )
+                                          unsigned &w, unsigned &h, unsigned &d,
+                                          vector<unsigned char> &TF )
 {
     int t=w=h=d=0;
 
@@ -880,7 +882,7 @@ static void getPredefinedHeaderParameters( const string& fileName,
 }
 
 
-static void CreateTransferFunc( int t, uint8_t *transfer )
+static void CreateTransferFunc( int t, unsigned char *transfer )
 {
     memset( transfer, 0, 256*4 );
 

@@ -46,7 +46,7 @@ endif # -O
 endif # -g
 
 ifeq ($(findstring g++, $(CXX)),g++)
-    CXXFLAGS += -Wall -Wextra \
+    CXXFLAGS += -Wall \
                 -Wnon-virtual-dtor -Wsign-promo -Wshadow \
                 -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings
 endif # g++

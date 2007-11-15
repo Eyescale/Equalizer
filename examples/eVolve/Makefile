@@ -28,8 +28,8 @@ MODELS = \
 	$(SHARE_DIR)/data/Bucky32x32x32_d.raw \
 	$(SHARE_DIR)/data/Bucky32x32x32_d.raw.vhf
 
-CXXFLAGS    += -I../include $(WINDOW_SYSTEM_INCS)
-SA_LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)
+CXXFLAGS += -I../include $(WINDOW_SYSTEM_INCS)
+LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)
 
 
 ifdef CG_INSTALLED
@@ -43,10 +43,9 @@ endif
 
 
 ifeq "${ARCH}" "Linux"
-  SA_LDFLAGS += -lrt
-  LDFLAGS    += -lCg -lCgGL
+  LDFLAGS += -lrt -lCg -lCgGL
 ifeq "${SUBARCH}" "ia64"
-    SA_LDFLAGS += -luuid
+    LDFLAGS += -luuid
 endif
 endif
 endif

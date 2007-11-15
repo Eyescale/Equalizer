@@ -96,7 +96,7 @@ $(APP_PROGRAM): $(FAT_PROGRAM)
 $(THIN_PROGRAMS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
 	@mkdir -p $(@D)
-	$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) $(OBJECTS) $(LINKDIRS) $(SA_LDFLAGS) $(LDFLAGS) -o $@
+	$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) $(OBJECTS) $(LINKDIRS) $(LDFLAGS) -o $@
 else
 	@$(MAKE) VARIANT=$(subst .,,$(suffix $@)) TOP=$(TOP) $@
 endif
@@ -105,7 +105,7 @@ ifndef PROGRAM
 ifdef VARIANT
 $(BIN_DIR)/%.$(VARIANT): %.cpp
 	@mkdir -p $(@D)
-	$(CXX) $< $(INCLUDEDIRS) $(CXXFLAGS) $(LINKDIRS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) $(SA_CXXFLAGS) -MMD -MF $@.d -o $@ 
+	$(CXX) $< $(INCLUDEDIRS) $(CXXFLAGS) $(LINKDIRS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_CXXFLAGS) -MMD -MF $@.d -o $@ 
 
 else # VARIANT
 

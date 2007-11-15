@@ -13,9 +13,6 @@ namespace eq
 #ifndef WGL
 #   define wglGetProcAddress( foo ) 0
 #endif
-#ifndef GLX
-#   define glXGetProcAddress( foo ) 0
-#endif
 #ifdef AGL
 #   define AGLFUNC( name ) &name
 #else
@@ -24,11 +21,7 @@ namespace eq
 
 // glXGetProcAddress does not seem to work under Darwin/X11
 #ifdef GLX
-#   ifdef Darwin
-#       define GLXFUNC( name ) &name
-#   else
-#       define GLXFUNC( name ) glXGetProcAddress( (const GLubyte*) #name )
-#   endif // Darwin
+#   define GLXFUNC( name ) &name
 #else
 #   define GLXFUNC( foo ) 0
 #endif // GLX
