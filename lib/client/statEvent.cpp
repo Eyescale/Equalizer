@@ -14,6 +14,7 @@ EQ_EXPORT std::string StatEvent::_typeNames[TYPE_ALL] =
     std::string( "NO EVENT          " ),
     std::string( "channel clear     " ),
     std::string( "channel draw      " ),
+    std::string( "channel finishdraw" ),
     std::string( "channel assemble  " ),
     std::string( "channel readback  " ),
     std::string( "channel transmit  " ),
