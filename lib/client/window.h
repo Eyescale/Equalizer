@@ -105,6 +105,7 @@ namespace eq
             IATTR_HINT_DOUBLEBUFFER,
             IATTR_HINT_FULLSCREEN,
             IATTR_HINT_DECORATION,
+            IATTR_HINT_SWAPSYNC,
             IATTR_PLANES_COLOR,
             IATTR_PLANES_ALPHA,
             IATTR_PLANES_DEPTH,

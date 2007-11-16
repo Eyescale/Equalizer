@@ -59,6 +59,8 @@ EQ_WINDOW_IATTR_HINT_STEREO      { return EQTOKEN_WINDOW_IATTR_HINT_STEREO; }
 EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER { return EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER; }
 EQ_WINDOW_IATTR_HINT_FULLSCREEN  { return EQTOKEN_WINDOW_IATTR_HINT_FULLSCREEN;}
 EQ_WINDOW_IATTR_HINT_DECORATION  { return EQTOKEN_WINDOW_IATTR_HINT_DECORATION;}
+EQ_WINDOW_IATTR_HINT_SWAPSYNC    { return EQTOKEN_WINDOW_IATTR_HINT_SWAPSYNC; }
+
 EQ_WINDOW_IATTR_PLANES_COLOR     { return EQTOKEN_WINDOW_IATTR_PLANES_COLOR; }
 EQ_WINDOW_IATTR_PLANES_ALPHA     { return EQTOKEN_WINDOW_IATTR_PLANES_ALPHA; }
 EQ_WINDOW_IATTR_PLANES_DEPTH     { return EQTOKEN_WINDOW_IATTR_PLANES_DEPTH; }
@@ -80,6 +82,7 @@ hint_doublebuffer               { return EQTOKEN_HINT_DOUBLEBUFFER; }
 hint_fullscreen                 { return EQTOKEN_HINT_FULLSCREEN; }
 hint_statistics                 { return EQTOKEN_HINT_STATISTICS; }
 hint_stereo                     { return EQTOKEN_HINT_STEREO; }
+hint_swapsync                   { return EQTOKEN_HINT_SWAPSYNC; }
 hint_thread                     { return EQTOKEN_HINT_THREAD; }
 planes_alpha                    { return EQTOKEN_PLANES_ALPHA; }
 planes_color                    { return EQTOKEN_PLANES_COLOR; }

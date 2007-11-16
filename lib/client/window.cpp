@@ -40,6 +40,7 @@ std::string Window::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_HINT_DOUBLEBUFFER ),
     MAKE_ATTR_STRING( IATTR_HINT_FULLSCREEN ),
     MAKE_ATTR_STRING( IATTR_HINT_DECORATION ),
+    MAKE_ATTR_STRING( IATTR_HINT_SWAPSYNC ),
     MAKE_ATTR_STRING( IATTR_PLANES_COLOR ),
     MAKE_ATTR_STRING( IATTR_PLANES_ALPHA ),
     MAKE_ATTR_STRING( IATTR_PLANES_DEPTH ),
@@ -562,9 +563,11 @@ bool eq::Window::configInitAGL()
         return false;
     }
 
-    // Always enable sync on vertical retrace - TODO should be a window hint
-    const GLint interval = 1;
-    aglSetInteger( context, AGL_SWAP_INTERVAL, &interval );
+    if( getIAttribute( IATTR_HINT_SWAPSYNC ) != OFF )
+    {
+        const GLint interval = 1;
+        aglSetInteger( context, AGL_SWAP_INTERVAL, &interval );
+    }
 
     aglSetCurrentContext( context );
     setAGLContext( context );

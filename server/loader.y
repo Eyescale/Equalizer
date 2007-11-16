@@ -63,6 +63,7 @@
 %token EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER
 %token EQTOKEN_WINDOW_IATTR_HINT_FULLSCREEN
 %token EQTOKEN_WINDOW_IATTR_HINT_DECORATION
+%token EQTOKEN_WINDOW_IATTR_HINT_SWAPSYNC
 %token EQTOKEN_WINDOW_IATTR_PLANES_COLOR
 %token EQTOKEN_WINDOW_IATTR_PLANES_ALPHA
 %token EQTOKEN_WINDOW_IATTR_PLANES_DEPTH
@@ -84,6 +85,7 @@
 %token EQTOKEN_HINT_FULLSCREEN
 %token EQTOKEN_HINT_DECORATION
 %token EQTOKEN_HINT_STATISTICS
+%token EQTOKEN_HINT_SWAPSYNC
 %token EQTOKEN_HINT_THREAD
 %token EQTOKEN_PLANES_COLOR
 %token EQTOKEN_PLANES_ALPHA
@@ -236,6 +238,11 @@ global:
      {
          eqs::Global::instance()->setWindowIAttribute(
              eq::Window::IATTR_HINT_DECORATION, $2 );
+     }
+     | EQTOKEN_WINDOW_IATTR_HINT_SWAPSYNC IATTR
+     {
+         eqs::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_HINT_SWAPSYNC, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_PLANES_COLOR IATTR
      {
@@ -413,6 +420,8 @@ windowAttribute:
         { window->setIAttribute( eq::Window::IATTR_HINT_FULLSCREEN, $2 ); }
     | EQTOKEN_HINT_DECORATION IATTR
         { window->setIAttribute( eq::Window::IATTR_HINT_DECORATION, $2 ); }
+    | EQTOKEN_HINT_SWAPSYNC IATTR
+        { window->setIAttribute( eq::Window::IATTR_HINT_SWAPSYNC, $2 ); }
     | EQTOKEN_PLANES_COLOR IATTR
         { window->setIAttribute( eq::Window::IATTR_PLANES_COLOR, $2 ); }
     | EQTOKEN_PLANES_ALPHA IATTR
