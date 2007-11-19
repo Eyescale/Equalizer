@@ -118,14 +118,14 @@ WGLEventHandler::WGLEventHandler( Window* window )
     }
 
     registerHandler( _hWnd, this );
-    _prevWndProc = (WNDPROC)SetWindowLongPtr( _hWnd, GWLP_WNDPROC, (LONG_PTR)wndProc );;
+    _prevWndProc = (WNDPROC)SetWindowLongPtr( _hWnd, GWLP_WNDPROC, (LONG_PTR)wndProc );
     if( _prevWndProc == wndProc ) // avoid recursion
         _prevWndProc = DefWindowProc;
 }
 
 WGLEventHandler::~WGLEventHandler()
 {
-    SetWindowLongPtr( _hWnd, (LONG_PTR)_prevWndProc, GWLP_WNDPROC );
+    SetWindowLongPtr( _hWnd, GWLP_WNDPROC, (LONG_PTR)_prevWndProc );
     deregisterHandler( _hWnd );
 }
 
