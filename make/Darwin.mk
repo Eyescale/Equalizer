@@ -9,7 +9,7 @@ ifeq (0,${MAKELEVEL})
 endif
 
 
-ifeq ($(findstring 9.0, $(RELARCH)),9.0)
+ifeq ($(findstring 9., $(RELARCH)),9.)
   LEOPARD       = 1
   CXXFLAGS     += -DLEOPARD
   AGL_OR_64BIT  = AGL
