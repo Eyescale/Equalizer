@@ -75,8 +75,13 @@ namespace eqNet
         uint64_t nElems = 0;
         read( &nElems, sizeof( nElems ));
         EQASSERT( nElems <= getRemainingBufferSize( ));
-        str.assign( static_cast< const char* >(getRemainingBuffer( )), nElems );
-        advanceBuffer( nElems );
+        if( nElems == 0 )
+            str.clear();
+        else
+        {
+            str.assign( static_cast< const char* >(getRemainingBuffer( )), nElems );
+            advanceBuffer( nElems );
+        }
         return *this; 
     }
 }

@@ -128,7 +128,9 @@ namespace eqNet
     { 
         const uint64_t nElems = str.length();
         write( &nElems, sizeof( nElems ));
-        write( str.c_str(), nElems );
+        if ( nElems > 0 )
+            write( str.c_str(), nElems );
+
         return *this;
     }
 }
