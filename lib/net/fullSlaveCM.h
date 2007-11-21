@@ -56,6 +56,8 @@ namespace eqNet
                                const uint32_t instanceID )    { EQDONTCALL; }
         virtual void removeSlave( eqBase::RefPtr<Node> node ) { EQDONTCALL; }
 
+        virtual void applyMapData();
+
     protected:
         /** The current version. */
         uint32_t _version;
@@ -73,7 +75,6 @@ namespace eqNet
         void _syncToHead();
 
         /* The command handlers. */
-        CommandResult _cmdInstance( Command& command );
         CommandResult _cmdDeltaData( Command& command );
         CommandResult _cmdDelta( Command& command );
 

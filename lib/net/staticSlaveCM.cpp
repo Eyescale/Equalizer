@@ -56,12 +56,16 @@ CommandResult StaticSlaveCM::_cmdInstance( Command& command )
 
     EQLOG( LOG_OBJECTS ) << "id " << _object->getID() << "." 
                          << _object->getInstanceID() << " ready" << endl;
+    return eqNet::COMMAND_HANDLED;
+}
+
+void StaticSlaveCM::applyMapData()
+{
+    EQASSERT( _currentIStream );
 
     _object->applyInstanceData( *_currentIStream );
     delete _currentIStream;
     _currentIStream = 0;
-
-    return eqNet::COMMAND_HANDLED;
 }
 
 }

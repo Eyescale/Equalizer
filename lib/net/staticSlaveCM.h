@@ -55,6 +55,8 @@ namespace eqNet
                                const uint32_t instanceID )    { EQDONTCALL; }
         virtual void removeSlave( eqBase::RefPtr<Node> node ) { EQDONTCALL; }
 
+        virtual void applyMapData();
+
     protected:
         /** The managed object. */
         Object* _object;

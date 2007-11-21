@@ -309,6 +309,10 @@ bool Session::mapObject( Object* object, const uint32_t id )
     _sendLocal( packet );
     _requestHandler.waitRequest( packet.requestID );
 
+    // apply first instance data on slave instances
+    if( !object->isMaster( ))
+        object->_cm->applyMapData();
+
     EQINFO << "Mapped " << typeid( *object ).name() << " to id " << id << endl;
     return( object->getID() != EQ_ID_INVALID );
 }
@@ -619,8 +623,6 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
         command.getPacket<SessionSubscribeObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd subscribe object " << packet << endl;
 
-    SessionSubscribeObjectReplyPacket reply( packet );
-
     RefPtr<Node>   node = command.getNode();
     const uint32_t id   = packet->objectID;
 
@@ -640,6 +642,7 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
 
                 object->addSlave( node, packet->instanceID );
 
+                SessionSubscribeObjectReplyPacket reply( packet );
                 send( node, reply );
                 return COMMAND_HANDLED;
             }
@@ -647,6 +650,8 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
     }
     
     EQWARN << "Can't find master object for subscribe" << endl;
+
+    SessionSubscribeObjectReplyPacket reply( packet );
     send( node, reply );
     return COMMAND_HANDLED;
 }

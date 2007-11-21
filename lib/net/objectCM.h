@@ -88,17 +88,14 @@ namespace eqNet
          */
         virtual bool sync( const uint32_t version ) = 0;
 
-        /** @return the latest available (head) version.
-         */
+        /** @return the latest available (head) version. */
         virtual uint32_t getHeadVersion() const = 0;
 
         /** @return the current version. */
         virtual uint32_t getVersion() const = 0;
         //*}
 
-        /** 
-         * @return if this instance is the master version.
-         */
+        /** @return if this instance is the master version. */
         virtual bool isMaster() const = 0;
 
         /** 
@@ -117,8 +114,10 @@ namespace eqNet
          */
         virtual void removeSlave( eqBase::RefPtr<Node> node ) = 0;
 
+        /** Apply the initial data after mapping. */
+        virtual void applyMapData() = 0;
+
         static ObjectCM* ZERO;
-    private:
     };
 }
 

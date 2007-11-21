@@ -23,8 +23,6 @@ FullSlaveCM::FullSlaveCM( Object* object )
           _version( Object::VERSION_NONE ),
           _mutex( 0 )
 {
-    registerCommand( CMD_OBJECT_INSTANCE,
-                  CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdInstance ));
     registerCommand( CMD_OBJECT_DELTA_DATA,
                  CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdDeltaData ));
     registerCommand( CMD_OBJECT_DELTA,
@@ -131,32 +129,19 @@ void FullSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
 }
 
 
+void FullSlaveCM::applyMapData()
+{
+    EQASSERT( _currentIStream );
+
+    _object->applyInstanceData( *_currentIStream );
+    _version = _currentIStream->getVersion();
+    delete _currentIStream;
+    _currentIStream = 0;
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-CommandResult FullSlaveCM::_cmdInstance( Command& command )
-{
-    if( !_currentIStream )
-        _currentIStream = new ObjectInstanceDataIStream;
-
-    _currentIStream->addDataPacket( command );
- 
-    const ObjectInstancePacket* packet = 
-        command.getPacket<ObjectInstancePacket>();
-    _currentIStream->setVersion( packet->version );
-
-    _object->applyInstanceData( *_currentIStream );
-    _version = packet->version;
-
-    delete _currentIStream;
-    _currentIStream = 0;
-
-    EQLOG( LOG_OBJECTS ) << "v" << packet->version << ", id "
-                         << _object->getID() << "." << _object->getInstanceID()
-                         << " instantiated" << endl;
-
-    return eqNet::COMMAND_HANDLED;
-}
 
 CommandResult FullSlaveCM::_cmdDeltaData( Command& command )
 {
