@@ -59,7 +59,8 @@ bool Window::configInitGL( const uint32_t initID )
         return false;
 
     Pipe* pipe = static_cast<Pipe*>( getPipe() );
-    pipe->LoadShaders();
+    if( !pipe->LoadShaders() )
+        return false;
 
     glDisable(GL_LIGHTING);
     glDisable(GL_DEPTH_TEST);

@@ -38,14 +38,14 @@ Channel::Channel()
 }
 
 
-static void checkError( std::string msg ) 
+static void checkError( const std::string& msg ) 
 {
     const GLenum error = glGetError();
     if (error != GL_NO_ERROR)
         EQERROR << msg << " GL Error: " << error << endl;
 }
 
-static void createSlicesHexagonsList( int num, GLuint &listId )
+static void createSlicesHexagonsList( const int num, GLuint &listId )
 {
     if( listId != 0 )
         glDeleteLists( listId, 1 );
@@ -137,195 +137,52 @@ void Channel::frameClear( const uint32_t frameID )
 }
 
 
-static void putClippingDataToShader
-(
-    const SliceClipper& sliceClipper,
-    const eqCgShaders&  cgShaders,
-    const GLhandleARB&  glslShader,
-    const bool          useCgShaders
-)
-{
-#ifdef CG_INSTALLED
-    if( useCgShaders )
-    {
-        // temporal variables to store cgGetNamedParameter
-        // and glGetUniformLocationARB values, I need this 
-        // only to make someone people be happy with their 
-        // old school 80 characters per line and not to 
-        // make code look completely ugly :(
-        CGparameter tNameCg;
-        CGprogram   m_vProg = cgShaders.cgVertex->get_program();
-
-        tNameCg = cgGetNamedParameter( m_vProg, "vecVertices"                );
-        cgGLSetParameterArray3f( tNameCg, 0,  8, sliceClipper.shaderVertices );
-
-        tNameCg = cgGetNamedParameter( m_vProg, "sequence"                   );
-        cgGLSetParameterArray1f( tNameCg, 0, 64, SliceClipper::sequence       );
-
-        tNameCg = cgGetNamedParameter( m_vProg, "v1"                         );
-        cgGLSetParameterArray1f( tNameCg, 0, 24, sliceClipper.v1             );
-
-        tNameCg = cgGetNamedParameter( m_vProg, "v2"                         );
-        cgGLSetParameterArray1f( tNameCg, 0, 24, sliceClipper.v2             );
-
-        tNameCg = cgGetNamedParameter( m_vProg, "vecView"                    );
-        cgGLSetParameter3dv(     tNameCg,        sliceClipper.viewVec.xyzw );
-
-        tNameCg = cgGetNamedParameter( m_vProg, "dPlaneStart"                );
-        cgGLSetParameter1d(      tNameCg,        sliceClipper.planeStart     );
-
-        tNameCg = cgGetNamedParameter( m_vProg, "frontIndex"                 );
-        cgGLSetParameter1f(      tNameCg,
-                                static_cast<float>( sliceClipper.frontIndex ));
-    }
-    else // glsl shaders
-#endif
-    {
-        GLint tNameGL;
-    
-        tNameGL = glGetUniformLocationARB( glslShader, "vecVertices"        );
-        glUniform3fvARB( tNameGL,  8, sliceClipper.shaderVertices           );
-
-        tNameGL = glGetUniformLocationARB( glslShader, "sequence"           );
-        glUniform1fvARB( tNameGL, 64, sliceClipper.sequence                 );
-
-        tNameGL = glGetUniformLocationARB( glslShader, "v1"                 );
-        glUniform1fvARB( tNameGL, 24, sliceClipper.v1                       );
-
-        tNameGL = glGetUniformLocationARB( glslShader, "v2"                 );
-        glUniform1fvARB( tNameGL, 24, sliceClipper.v2                       );
-
-        tNameGL = glGetUniformLocationARB( glslShader, "vecView"            );
-        glUniform3fARB(  tNameGL,     sliceClipper.viewVec.x,
-                                      sliceClipper.viewVec.y,
-                                      sliceClipper.viewVec.z                );
-
-        tNameGL = glGetUniformLocationARB(  glslShader, "dPlaneStart"       );
-        glUniform1fARB(  tNameGL,     sliceClipper.planeStart               );
-
-        tNameGL = glGetUniformLocationARB( glslShader, "frontIndex"    );
-        glUniform1iARB( tNameGL, static_cast<GLint>(sliceClipper.frontIndex));
-    }
-}
-
-
-
-static void putTextureCoordinatesModifyersToShader
-(
-    DataInTextureDimensions&    TD, 
-    eqCgShaders                 cgShaders,
-    GLhandleARB                 glslShader,
-    bool                        useCgShaders
-)
-{
-#ifdef CG_INSTALLED
-    if( useCgShaders )
-    {
-        CGparameter tParamNameCg;
-        CGprogram   m_vProg = cgShaders.cgVertex->get_program();
-
-        tParamNameCg = cgGetNamedParameter(  m_vProg, "W"   );
-        cgGLSetParameter1d( tParamNameCg,   TD.W            );
-
-        tParamNameCg = cgGetNamedParameter(  m_vProg, "H"   );
-        cgGLSetParameter1d( tParamNameCg,   TD.H            );
-
-        tParamNameCg = cgGetNamedParameter(  m_vProg, "D"   );
-        cgGLSetParameter1d( tParamNameCg,   TD.D            );
-
-        tParamNameCg = cgGetNamedParameter(  m_vProg, "Do"  );
-        cgGLSetParameter1d( tParamNameCg,   TD.Do           );
-
-        tParamNameCg = cgGetNamedParameter(  m_vProg, "Db"  );
-        cgGLSetParameter1d( tParamNameCg,   TD.Db           );
-    }
-    else // glsl shaders
-#endif
-    {
-        GLint tNameGL;
-
-        tNameGL = glGetUniformLocationARB( glslShader, "W" );
-        glUniform1fARB(  tNameGL,       TD.W               );
-
-        tNameGL = glGetUniformLocationARB( glslShader, "H" );
-        glUniform1fARB(  tNameGL,       TD.H               );
-
-        tNameGL = glGetUniformLocationARB( glslShader, "D" );
-        glUniform1fARB(  tNameGL,       TD.D               );
-
-        tNameGL = glGetUniformLocationARB( glslShader, "Do" );
-        glUniform1fARB(  tNameGL,       TD.Do               );
-
-        tNameGL = glGetUniformLocationARB( glslShader, "Db" );
-        glUniform1fARB(  tNameGL,       TD.Db               );
-    }
-}
-
-
 static void putVolumeDataToShader
 (
-    GLuint      preIntID,
-    GLuint      volumeID,
-    double      sliceDistance,
-    eqCgShaders cgShaders,
-    GLhandleARB glslShader,
-    bool        useCgShaders
+    const VolumeInfo& volumeInfo,
+    const double      sliceDistance,
+    const GLhandleARB glslShader
 )
 {
-    if( useCgShaders )
-    {
-#ifdef CG_INSTALLED
-        CGparameter tParamNameCg;
-        CGprogram   m_vProg = cgShaders.cgVertex->get_program();
-        CGprogram   m_fProg = cgShaders.cgFragment->get_program();
+    const DataInTextureDimensions& TD = volumeInfo.TD; 
 
-        glActiveTexture( GL_TEXTURE1 );
-        glBindTexture( GL_TEXTURE_2D, preIntID ); //preintegrated values
+    GLint tParamNameGL;
 
-        tParamNameCg = cgGetNamedParameter( m_fProg,"preInt"  );
-        cgGLSetTextureParameter(    tParamNameCg   , preIntID );
-        cgGLEnableTextureParameter( tParamNameCg              );
+    // Put texture coordinates modifyers to the shader
+    tParamNameGL = glGetUniformLocationARB( glslShader, "W"  );
+    glUniform1fARB( tParamNameGL, TD.W );
 
-        // Activate last because it has to be the active texture
-        glActiveTexture( GL_TEXTURE0 );
-        glBindTexture( GL_TEXTURE_3D, volumeID ); //gx, gy, gz, val
-        glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    tParamNameGL = glGetUniformLocationARB( glslShader, "H"  );
+    glUniform1fARB( tParamNameGL, TD.H );
 
-        tParamNameCg = cgGetNamedParameter( m_fProg, "volume" );
-        cgGLSetTextureParameter(    tParamNameCg, volumeID    );
-        cgGLEnableTextureParameter( tParamNameCg              );
+    tParamNameGL = glGetUniformLocationARB( glslShader, "D"  );
+    glUniform1fARB( tParamNameGL, TD.D  );
 
-        tParamNameCg = cgGetNamedParameter( m_vProg, "sliceDistance" );
-        cgGLSetParameter1f( tParamNameCg, sliceDistance  );
+    tParamNameGL = glGetUniformLocationARB( glslShader, "Do" );
+    glUniform1fARB( tParamNameGL, TD.Do );
 
-        tParamNameCg = cgGetNamedParameter( m_fProg, "shininess"     );
-        cgGLSetParameter1f( tParamNameCg, 20.0f         );
+    tParamNameGL = glGetUniformLocationARB( glslShader, "Db" );
+    glUniform1fARB( tParamNameGL, TD.Db );
 
-#endif
-    }
-    else // glsl shaders
-    {
-        GLint tParamNameGL;
+    // Put Volume data to the shader
+    glActiveTexture( GL_TEXTURE1 );
+    glBindTexture( GL_TEXTURE_2D, volumeInfo.preint ); //preintegrated values
+    tParamNameGL = glGetUniformLocationARB( glslShader, "preInt" );
+    glUniform1iARB( tParamNameGL,  1    ); //f-shader
 
-        glActiveTexture( GL_TEXTURE1 );
-        glBindTexture( GL_TEXTURE_2D, preIntID ); //preintegrated values
-        tParamNameGL = glGetUniformLocationARB( glslShader, "preInt" );
-        glUniform1iARB( tParamNameGL,  1    ); //f-shader
+    // Activate last because it has to be the active texture
+    glActiveTexture( GL_TEXTURE0 );
+    glBindTexture( GL_TEXTURE_3D, volumeInfo.volume ); //gx, gy, gz, val
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER,GL_LINEAR    );
 
-        // Activate last because it has to be the active texture
-        glActiveTexture( GL_TEXTURE0 );
-        glBindTexture( GL_TEXTURE_3D, volumeID ); //gx, gy, gz, val
-        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER,GL_LINEAR    );
+    tParamNameGL = glGetUniformLocationARB(  glslShader,  "volume"        );
+    glUniform1iARB( tParamNameGL ,  0            ); //f-shader
 
-        tParamNameGL = glGetUniformLocationARB(  glslShader,  "volume"        );
-        glUniform1iARB( tParamNameGL ,  0            ); //f-shader
+    tParamNameGL = glGetUniformLocationARB(  glslShader,  "sliceDistance" );
+    glUniform1fARB( tParamNameGL,  sliceDistance ); //v-shader
 
-        tParamNameGL = glGetUniformLocationARB(  glslShader,  "sliceDistance" );
-        glUniform1fARB( tParamNameGL,  sliceDistance ); //v-shader
-
-        tParamNameGL = glGetUniformLocationARB(  glslShader,  "shininess"     );
-        glUniform1fARB( tParamNameGL,  20.0f         ); //f-shader
-    }
+    tParamNameGL = glGetUniformLocationARB(  glslShader,  "shininess"     );
+    glUniform1fARB( tParamNameGL,  20.0f         ); //f-shader
 }
 
 
@@ -361,87 +218,26 @@ static void setLights()
 }
 
 
-static void setCamera( const FrameData::Data &data, 
-                       const VolumeScaling &scaling )
-{
-    glTranslatef(  data.translation.x, data.translation.y, data.translation.z );
-
-    glMultMatrixf( data.rotation.ml );
-
-    glScalef( scaling.W, scaling.H, scaling.D );
-}
-
-
-static void enableShaders
-(   
-          eqCgShaders cgShaders,
-    const GLhandleARB glslShader,
-    const bool        useCgShaders
-)
-{
-#ifdef CG_INSTALLED
-    if( useCgShaders )
-    {
-        cgShaders.cgVertex->use();
-        cgShaders.cgFragment->use();
-    }
-    else
-#endif
-    {
-        glUseProgramObjectARB( glslShader );
-    }
-}
-
-
-static void disableShaders
-(   
-          eqCgShaders cgShaders,
-    const GLhandleARB glslShader,
-    const bool        useCgShaders
-)
-{
-#ifdef CG_INSTALLED
-    if( useCgShaders )
-    {
-        cgShaders.cgVertex->unbind_and_disable();
-        cgShaders.cgFragment->unbind_and_disable();
-    }
-    else
-#endif
-    {    
-        glUseProgramObjectARB( 0 );
-    }
-}
-
 static void renderSlices
 ( 
     const GLuint        slicesListID,
-    const SliceClipper& sliceClipper,
-    const bool          useSimpleShader
+    const SliceClipper& sliceClipper
 )
 {
-    if( useSimpleShader )
+    int numberOfSlices = static_cast<int>( 3.6 / sliceClipper.sliceDistance );
+
+    for( int s = 0; s < numberOfSlices; ++s )
     {
-        int numberOfSlices = 
-                    static_cast<int>( 3.6 / sliceClipper.sliceDistance );
-
-        for( int s = 0; s < numberOfSlices; ++s )
+        glBegin( GL_POLYGON );
+        for( int i = 0; i < 6; ++i )
         {
-            glBegin( GL_POLYGON );
-            for( int i = 0; i < 6; ++i )
-            {
-                vmml::Vector3f pos = 
-                        sliceClipper.getPosition( i, numberOfSlices-1-s );
+            vmml::Vector3f pos =
+                    sliceClipper.getPosition( i, numberOfSlices-1-s );
 
-                glVertex3f( pos.x, pos.y, pos.z );
-            }
-            glEnd();
+            glVertex3f( pos.x, pos.y, pos.z );
         }
-        return;
+        glEnd();
     }
-    // else normal shaders
-
-    glCallList( slicesListID );
 }
 
 void Channel::frameDraw( const uint32_t frameID )
@@ -450,94 +246,93 @@ void Channel::frameDraw( const uint32_t frameID )
     eq::Channel::frameDraw( frameID );
 
     // Save ID and range for compositing
-    _curFrData.lastRange    = getRange();
-    _curFrData.frameID      = frameID;
+    const eq::Range range = getRange();
 
-    // Setup / load textures
+    _curFrData.lastRange  = range;
+    _curFrData.frameID    = frameID;
+
     const Pipe* pipe = static_cast<Pipe*>( getPipe( ));
 
-    Model* model = pipe->getModel();
+    const FrameData::Data& data = pipe->getFrameData().data;
 
+    glTranslatef(  data.translation.x, data.translation.y, data.translation.z );
+    glMultMatrixf( data.rotation.ml );
+    setLights();
+
+    Model*      model  = pipe->getModel();
+    GLhandleARB shader = pipe->getShader();
+
+    _drawModel( model, shader, range );
+
+    //Draw logo
+    const eq::Viewport& vp = getViewport();
+    if( range.isFull() && vp.isFullScreen( ))
+       _drawLogo();
+}
+
+
+double Channel::_getSliceDistance( uint32_t resolution ) const
+{
+    const Node*      node      = static_cast< Node* >( getNode( ));
+    const InitData&  initData  = node->getInitData();
+    const uint32_t   precision = initData.getPrecision();
+    return 3.6 / ( resolution * precision );
+}
+
+void Channel::_drawModel(       Model*      model,
+                          const GLhandleARB shader,
+                          const eq::Range   range   )
+{
     VolumeInfo volumeInfo;
 
     EQASSERT( model );
-    if( !model || !model->getVolumeInfo( volumeInfo, _curFrData.lastRange ))
+    if( !model || !model->getVolumeInfo( volumeInfo, range ))
     {
         EQERROR << "Can't get volume data" << endl;
         return;
     }
 
-    const Node*           node = static_cast< Node* >( getNode( ));
-    const InitData&   initData = node->getInitData();
-    const uint32_t   precision = initData.getPrecision();
-    const double sliceDistance = 3.6 / ( model->getResolution() * precision );
-
-    // Setup camera and lighting
-    const FrameData& frameData = pipe->getFrameData();
-    
-    setCamera( frameData.data, volumeInfo.volScaling );
-    setLights();
+    glScalef( volumeInfo.volScaling.W,
+              volumeInfo.volScaling.H,
+              volumeInfo.volScaling.D );
 
     // Enable shaders
-    const bool      useCg            = !initData.useGLSL();
-    eqCgShaders     cgShaders        = pipe->getShaders();
-    GLhandleARB     glslShader       = pipe->getShader();
-    bool            useSimpleShaders = pipe->isSimpleShaderUsed() || !useCg;
-
-    enableShaders( cgShaders, glslShader, useCg );
+    glUseProgramObjectARB( shader );
 
     // Calculate and put necessary data to shaders 
     vmml::Matrix4d  modelviewM;     // modelview matrix
     vmml::Matrix3d  modelviewITM;   // modelview inversed transposed matrix
     _calcMVandITMV( modelviewM, modelviewITM );
 
+    const uint32_t resolution    = model->getResolution();
+    const double   sliceDistance = _getSliceDistance( resolution );
 
-    putTextureCoordinatesModifyersToShader
-    (
-        volumeInfo.TD,
-        cgShaders, glslShader, useCg 
-    );
+//    if( !model->isSameRange() )
+        putVolumeDataToShader( volumeInfo, sliceDistance, shader );
 
-    // Fill volume data
-    putVolumeDataToShader
-    (
-        volumeInfo.preint, volumeInfo.volume, sliceDistance,
-        cgShaders, glslShader, useCg 
-    );
-
-
-    _sliceClipper.updatePerFrameInfo
-    (
-        modelviewM, modelviewITM, sliceDistance, _curFrData.lastRange
-    );
-
-
-    if( !useSimpleShaders )
-        putClippingDataToShader( _sliceClipper, cgShaders, glslShader, useCg );
+    _sliceClipper.updatePerFrameInfo( modelviewM, modelviewITM,
+                                      sliceDistance, range );
 
     //Render slices
-    glEnable(GL_BLEND);
+    glEnable( GL_BLEND );
 #ifdef COMPOSE_MODE_NEW
-    const eq::Window* window = getWindow();
-    const eq::GLFunctions* gl = window->getGLFunctions();
+    const eq::Window*      window = getWindow();
+    const eq::GLFunctions* gl     = window->getGLFunctions();
     gl->blendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
 #else
     glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
 #endif
 
-    renderSlices( _slicesListID,  _sliceClipper, useSimpleShaders );
+    renderSlices( _slicesListID,  _sliceClipper );
 
-    glDisable(GL_BLEND);
+    glDisable( GL_BLEND );
+
+    // Disable shader
+    glUseProgramObjectARB( 0 );
 
     checkError( "error during rendering " );
-
-    disableShaders( cgShaders, glslShader, useCg );
-
-    //Draw logo
-    const eq::Viewport& vp = getViewport();
-    if( _curFrData.lastRange.isFull() && vp.isFullScreen( ))
-       _drawLogo();
 }
+
 
 struct Frame
 {
@@ -706,11 +501,9 @@ void Channel::clearViewport( const eq::PixelViewport &pvp )
 
 void Channel::frameAssemble( const uint32_t frameID )
 {
-//    EQWARN << getRange() << " " << _curFrData.lastRange << endl;
-    
-    const bool composeOnly  = frameID != _curFrData.frameID || 
-                              _curFrData.lastRange.isFull();
-    
+    const eq::Range range  = _curFrData.lastRange;
+    const bool composeOnly = frameID != _curFrData.frameID || range.isFull();
+
     _startAssemble();
 
     const vector< eq::Frame* >& frames  = getInputFrames();
@@ -725,8 +518,8 @@ void Channel::frameAssemble( const uint32_t frameID )
         eq::Frame* frame = *i;
         frame->waitReady( );
 
-        const eq::Range& range = frame->getRange();
-        if( range.isFull() ) // 2D frame, assemble directly
+        const eq::Range& curRange = frame->getRange();
+        if( curRange.isFull() ) // 2D frame, assemble directly
             frame->startAssemble();
         else
         {
@@ -745,7 +538,7 @@ void Channel::frameAssemble( const uint32_t frameID )
 
     //calculate correct frames sequence
     if( !composeOnly )
-        dbFrames.push_back( Frame( 0, &_image, _curFrData.lastRange ) );
+        dbFrames.push_back( Frame( 0, &_image, range ) );
         
     _orderFrames( dbFrames );
 

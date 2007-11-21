@@ -18,9 +18,6 @@ SOURCES = \
 	window.cpp
 
 SHADERS = \
-	vertexShaderComplex_cg.h \
-	vertexShaderSimple_cg.h \
-	fragmentShader_cg.h \
 	fragmentShader_glsl.h \
 	vertexShader_glsl.h
 
@@ -32,21 +29,12 @@ CXXFLAGS += -I../include $(WINDOW_SYSTEM_INCS)
 LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)
 
 
-ifdef CG_INSTALLED
-
-SOURCES      += ../common/gloo/cg_program.cpp
-CXXFLAGS     += -DCG_INSTALLED
-
-ifeq "${ARCH}" "Darwin"
-  LDFLAGS += -framework Cg
-endif
 
 
 ifeq "${ARCH}" "Linux"
-  LDFLAGS += -lrt -lCg -lCgGL
+  LDFLAGS += -lrt
 ifeq "${SUBARCH}" "ia64"
     LDFLAGS += -luuid
-endif
 endif
 endif
 
@@ -59,8 +47,6 @@ $(OBJECTS): $(SHADERS)
 README: ../../../website/build/documents/user/eVolve.html
 	links -dump $< > $@
 
-%_cg.h: %.cg
-	./stringify.pl $< > $@
 %_glsl.h: %.glsl
 	./stringify.pl $< > $@
 

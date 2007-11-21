@@ -34,8 +34,6 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     setPrecision( from.getPrecision( ));
     setBrightness( from.getBrightness( ));
     setAlpha( from.getAlpha( ));
-    if( from.useGLSL( )) 
-      enableGLSL();
     return *this;
 }
 
@@ -79,9 +77,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
                                          false, 1.0f, "float", command );
         TCLAP::ValueArg<string> wsArg( "w", "windowSystem", wsHelp,
                                        false, "auto", "string", command );
-        TCLAP::SwitchArg glslArg( "g", "glsl", "Enable GLSL shaders", 
-                                  command, false );
-        
+
         command.parse( argc, argv );
 
         if( modelArg.isSet( ))
@@ -110,8 +106,6 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             setAlpha( alphaArg.getValue( ));
         if( residentArg.isSet( ))
             _isResident = true;
-        if( glslArg.isSet() )
-            enableGLSL();
     }
     catch( TCLAP::ArgException& exception )
     {

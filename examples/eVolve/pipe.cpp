@@ -21,11 +21,6 @@ using namespace std;
 namespace eVolve
 {
 
-#ifdef CG_INSTALLED
-#  include "vertexShaderComplex_cg.h"
-#  include "vertexShaderSimple_cg.h"
-#  include "fragmentShader_cg.h"
-#endif
 #include "fragmentShader_glsl.h"
 #include "vertexShader_glsl.h"
     
@@ -96,60 +91,22 @@ void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber )
     startFrame( frameNumber );
 }
 
-void Pipe::LoadShaders()
+bool Pipe::LoadShaders()
 {
     if( !_shadersLoaded )
     {
-#ifdef CG_INSTALLED
-        const Node*     node     = static_cast<Node*>( getNode( ));
-        const InitData& initData = node->getInitData();
-        const bool      useCg    = !initData.useGLSL();
-
-        if( useCg )
+        EQLOG( eq::LOG_CUSTOM ) << "using glsl shaders" << endl;
+        if( !eqShader::loadShaders( vertexShader_glsl,
+                                    fragmentShader_glsl, _shader ))
         {
-            EQLOG( eq::LOG_CUSTOM ) << "using Cg shaders" << endl;
-            _cgContext = cgCreateContext();
-
-            if( _shaders.cgVertex )
-                delete _shaders.cgVertex; 
-
-            _shaders.cgVertex = new gloo::cg_program( _cgContext );
-            try
-            {
-                _shaders.cgVertex->create_from_string( CG_GL_VERTEX , 
-                                                       vertexShaderComplex_cg );
-                _useSimpleShader = false;
-            }catch(...)
-            {
-                _shaders.cgVertex->create_from_string( CG_GL_VERTEX, 
-                                                       vertexShaderSimple_cg );
-                EQWARN  << "Can't load normal vertex shader, using smaller, "
-                        << "but slower vertex shader" << std::endl;
-                _useSimpleShader = true;
-            }
-
-            if( _shaders.cgFragment )
-                delete _shaders.cgFragment;
-
-            _shaders.cgFragment = new gloo::cg_program( _cgContext );
-            _shaders.cgFragment->create_from_string( CG_GL_FRAGMENT, 
-                                                     fragmentShader_cg );
-        }
-        else
-#endif
-        {
-            EQLOG( eq::LOG_CUSTOM ) << "using glsl shaders" << endl;
-            if( !eqShader::loadShaders( vertexShader_glsl, fragmentShader_glsl,
-                                        _shader ))
-            {
-                EQERROR << "Can't load glsl shaders" << endl;
-                return;
-            }
+            EQERROR << "Can't load glsl shaders" << endl;
+            return false;
         }
 
         _shadersLoaded = true;
         EQLOG( eq::LOG_CUSTOM ) << "shaders loaded" << endl;
     }
+    return true;
 }
 
 }

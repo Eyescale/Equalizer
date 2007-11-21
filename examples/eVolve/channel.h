@@ -44,6 +44,9 @@ namespace eVolve
         void _startAssemble();
         void _finishAssemble();
 
+        void _drawModel( Model*    model, const GLhandleARB shader,
+                         eq::Range range );
+
         void _orderFrames( std::vector< Frame >& frames );
 
         void _drawLogo();
@@ -52,6 +55,8 @@ namespace eVolve
                              vmml::Matrix3d& modelviewITM ) const;
 
         const FrameData& _getFrameData() const;
+
+        double _getSliceDistance( uint32_t resolution ) const;
 
         //
         struct curFrData
