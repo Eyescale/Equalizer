@@ -16,6 +16,9 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #  define WIN32_LEAN_AND_MEAN
 #endif
+#ifndef GLEW_MX
+#  define GLEW_MX
+#endif
 //#ifndef EQ_BUILD_FOR_SDP
 //#  define EQ_BUILD_FOR_SDP
 //#endif
