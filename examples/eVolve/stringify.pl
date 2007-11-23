@@ -10,6 +10,7 @@ $stringname =~ s/\./_/g;
 
 open( FILE, "<$filename" ) or die "Can't open $filename: $!";
 
+print "//Generated file - Edit $filename!\n";
 print "static const std::string $stringname = \"";
 
 foreach my $line (<FILE>)
