@@ -13,14 +13,11 @@
 #define EQUALIZER  1
 
 #ifdef EQUALIZER
-#   include <eq/base/log.h>
-#   include <eq/base/debug.h>
-#   include <eq/client/glFunctions.h>
+#   include <eq/eq.h>
 #   define MESHASSERT  EQASSERT
 #   define MESHERROR   EQERROR
 #   define MESHWARN    EQWARN
 #   define MESHINFO    EQINFO
-#   define GLFUNCTIONS eq::GLFunctions
 #else
 #   ifdef _WIN32
 #      include <Winsock2.h>
@@ -32,12 +29,10 @@
 #      include <GL/gl.h>
 #   endif
 #   include <cassert>
-#   include <eq/client/glFunctions.h>
 #   define MESHASSERT  assert
 #   define MESHERROR   std::cerr
 #   define MESHWARN    std::cout
 #   define MESHINFO    std::cout
-#   define GLFUNCTIONS eq::GLFunctions
 #endif
 
 #include <vmmlib/vmmlib.h>
@@ -105,7 +100,6 @@ namespace mesh
     typedef ArrayWrapper< Vertex, 2 >   BoundingBox;
     typedef vmml::Vector4< float >      BoundingSphere;
     typedef ArrayWrapper< float, 2 >    Range;
-    typedef GLFUNCTIONS                 GLFunctions;
     
     
     // maximum triangle count per leaf node (keep in mind that the number of

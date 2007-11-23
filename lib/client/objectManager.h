@@ -37,9 +37,9 @@ namespace eq
             FAILED = 0xffffffffu //<! return value for failed operations.
         };
 
-        ObjectManager( const GLFunctions* glFunctions )
-            : _glFunctions( glFunctions ) 
-            { EQASSERT( glFunctions ); }
+        ObjectManager( GLEWContext* glewContext )
+            : _glewContext( glewContext ) 
+            { EQASSERT( glewContext ); }
 
         virtual ~ObjectManager();
 
@@ -88,8 +88,11 @@ namespace eq
         void   deleteShader( const T& key );
         void   deleteShader( const GLuint id );
 
+    protected:
+        GLEWContext* glewGetContext() const { return _glewContext; }
+
     private:
-        const GLFunctions* _glFunctions;
+        GLEWContext* _glewContext;
 
         struct Object
         {

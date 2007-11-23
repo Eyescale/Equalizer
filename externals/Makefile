@@ -5,9 +5,8 @@ MODULE =
 
 HEADER_SRC = \
 	vmmlib/LICENSE \
-	$(wildcard vmmlib/*.h)
-
-SOURCES = \
+	$(wildcard vmmlib/*.h) \
+	GL/glew.h
 
 TARGETS = $(HEADERS)
 

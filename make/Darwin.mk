@@ -32,6 +32,7 @@ endif # g++ 4.2
 
 ifdef VARIANT
   CXXFLAGS    += -arch $(VARIANT)
+  CFLAGS      += -arch $(VARIANT)
   DSO_LDFLAGS += -arch $(VARIANT)
 endif
 

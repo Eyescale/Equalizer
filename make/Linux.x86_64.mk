@@ -3,6 +3,7 @@ VARIANTS    ?= 64
 
 ifdef VARIANT
   CXXFLAGS    += -m$(VARIANT) -fPIC
+  CFLAGS      += -m$(VARIANT) -fPIC
   DSO_LDFLAGS += -m$(VARIANT)
 endif
 

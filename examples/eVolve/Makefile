@@ -3,7 +3,7 @@ include $(TOP)/make/system.mk
 
 PROGRAM = eVolve
 
-SOURCES = \
+CXXFILES = \
 	localInitData.cpp \
 	channel.cpp \
 	config.cpp \
@@ -27,8 +27,6 @@ MODELS = \
 
 CXXFLAGS += -I../include $(WINDOW_SYSTEM_INCS)
 LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)
-
-
 
 
 ifeq "${ARCH}" "Linux"

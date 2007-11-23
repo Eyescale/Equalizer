@@ -13,8 +13,8 @@ namespace eVolve
                           public eqBase::Referenced
     {
     public:
-        ObjectManager( const eq::GLFunctions* glFunctions ) 
-                : eq::ObjectManager< const void * >( glFunctions ) {}
+        ObjectManager( GLEWContext* glewContext ) 
+                : eq::ObjectManager< const void * >( glewContext ) {}
         virtual ~ObjectManager(){}
     };
 

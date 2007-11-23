@@ -18,6 +18,7 @@
 #  ifdef EQUALIZER_EXPORTS
 #    define EQ_EXPORT EQ_DLLEXPORT
 #    define EQ_STLEXTERN 
+#    define GLEW_BUILD
 #  else
 #    define EQ_EXPORT EQ_DLLIMPORT
 #    define EQ_STLEXTERN extern

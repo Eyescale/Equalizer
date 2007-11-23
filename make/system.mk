@@ -29,21 +29,25 @@ BIN_DIR        ?= $(BUILD_DIR)/bin
 
 WINDOW_SYSTEM_DEFINES = $(foreach WS,$(WINDOW_SYSTEM),-D$(WS))
 DEP_CXX        ?= $(CXX)
+DEFFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DEQ_CHECK_THREADSAFETY \
+                  -DEQ_USE_COMPRESSION -DGLEW_MX
+
 
 ifeq (0,${MAKELEVEL})
-  CXXFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DEQ_CHECK_THREADSAFETY \
-                    -DEQ_USE_COMPRESSION
 ifdef USE_OPENMP
-    CXXFLAGS += -fopenmp -DEQ_USE_OPENMP
+    DEFFLAGS += -DEQ_USE_OPENMP
+    CXXFLAGS += -fopenmp
     LDFLAGS  += -lgomp
 endif
-
 ifneq ($(findstring -g, $(CXXFLAGS)),-g)
-    CXXFLAGS       += -DNDEBUG
+    DEFFLAGS       += -DNDEBUG
 ifneq ($(findstring -O, $(CXXFLAGS)),-O)
     CXXFLAGS       += -O2
 endif # -O
 endif # -g
+
+  CFLAGS         += $(DEFFLAGS)
+  CXXFLAGS       += $(DEFFLAGS)
 
 ifeq ($(findstring g++, $(CXX)),g++)
     CXXFLAGS += -Wall \
@@ -52,7 +56,9 @@ ifeq ($(findstring g++, $(CXX)),g++)
 endif # g++
 endif # top-level
 
-export CXXFLAGS LDFLAGS
+export CFLAGS
+export CXXFLAGS
+export LDFLAGS
 
 DOXYGEN        ?= Doxygen
 FLEX           ?= flex
@@ -72,14 +78,15 @@ HEADERS         = $(HEADER_SRC:%=$(INCLUDE_DIR)/%)
 SHARE_DIR       = $(BUILD_DIR)/share/Equalizer
 
 # source code variables
-CXXFILES        = $(wildcard *.cpp)
+SIMPLE_CXXFILES = $(wildcard *.cpp)
 OBJECT_DIR      = $(TOP)/obj/$(SUBDIR)
 OBJECT_SUFFIX   = $(ARCH).$(VARIANT)
 
 ifndef VARIANT
   OBJECTS       = build_variants
 else
-  OBJECTS       = $(SOURCES:%.cpp=$(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o)
+  OBJECTS       = $(CXXFILES:%.cpp=$(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o) \
+		  $(CFILES:%.c=$(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o)
   DEPENDENCIES  = $(OBJECTS:%=%.d) $(THIN_SIMPLE_PROGRAMS:%=%.d)
 #  PCHEADERS     = $(HEADER_SRC:%=$(OBJECT_DIR)/%.gch)
 endif
@@ -104,7 +111,7 @@ THIN_PROGRAMS     = $(foreach V,$(VARIANTS),$(BIN_DIR)/$(PROGRAM).$(V))
 FAT_PROGRAM       = $(BIN_DIR)/$(PROGRAM)
 APP_PROGRAM       = $(BIN_DIR)/$(PROGRAM).app/Contents/MacOS/$(PROGRAM)
 
-FAT_SIMPLE_PROGRAMS  = $(CXXFILES:%.cpp=$(BIN_DIR)/%)
+FAT_SIMPLE_PROGRAMS  = $(SIMPLE_CXXFILES:%.cpp=$(BIN_DIR)/%)
 THIN_SIMPLE_PROGRAMS = $(foreach V,$(VARIANTS),$(foreach P,$(FAT_SIMPLE_PROGRAMS),$(P).$(V)))
 TESTS               ?= $(THIN_SIMPLE_PROGRAMS:%=%.testOk)
 

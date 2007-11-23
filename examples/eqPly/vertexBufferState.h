@@ -45,24 +45,21 @@ namespace mesh
         
         virtual void deleteAll() = 0;
 
-        virtual const GLFunctions* getGLFunctions() const 
-        { 
-            return _glFunctions; 
-        }
+        GLEWContext* glewGetContext() { return _glewContext; }
         
     protected:
-        VertexBufferState( const GLFunctions* glFunctions ) 
-            : _glFunctions( glFunctions ), _useColors( false ), 
+        VertexBufferState( GLEWContext* glewContext ) 
+            : _glewContext( glewContext ), _useColors( false ), 
               _renderMode( DISPLAY_LIST_MODE ) 
         {
-            MESHASSERT( glFunctions );
+            MESHASSERT( glewContext );
         } 
         
         virtual ~VertexBufferState() {}
         
-        const GLFunctions*  _glFunctions;
-        bool                _useColors;
-        RenderMode          _renderMode;
+        GLEWContext*  _glewContext;
+        bool          _useColors;
+        RenderMode    _renderMode;
         
     private:
     };
@@ -72,8 +69,8 @@ namespace mesh
     class VertexBufferStateSimple : public VertexBufferState 
     {
     public:
-        VertexBufferStateSimple( const GLFunctions* glFunctions )
-            : VertexBufferState( glFunctions ) {}
+        VertexBufferStateSimple( GLEWContext* glewContext )
+            : VertexBufferState( glewContext ) {}
         
         virtual GLuint getDisplayList( const void* key )
         {
@@ -97,9 +94,9 @@ namespace mesh
         
         virtual GLuint newBufferObject( const void* key )
         {
-            if( !_glFunctions->hasGenBuffers( ))
+            if( !GLEW_VERSION_1_5 )
                 return FAILED;
-            _glFunctions->genBuffers( 1, &_bufferObjects[key] );
+            glGenBuffers( 1, &_bufferObjects[key] );
             return _bufferObjects[key];
         }
         
@@ -116,9 +113,9 @@ namespace mesh
     class EqVertexBufferState : public VertexBufferState 
     {
     public:
-        EqVertexBufferState( const eq::GLFunctions* glFunctions ) 
-                : VertexBufferState( glFunctions )
-                , _objectManager( glFunctions )
+        EqVertexBufferState( GLEWContext* glewContext ) 
+                : VertexBufferState( glewContext )
+                , _objectManager( glewContext )
             {} 
         
         virtual GLuint getDisplayList( const void* key )

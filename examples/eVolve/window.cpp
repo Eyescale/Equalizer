@@ -37,7 +37,7 @@ bool Window::configInit( const uint32_t initID )
 
     if( firstWindow == this )
     {
-        _objects = new ObjectManager( getGLFunctions( ));
+        _objects = new ObjectManager( glewGetContext( ));
         _loadLogo();
     }
     else

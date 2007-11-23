@@ -3,7 +3,7 @@ include $(TOP)/make/system.mk
 
 PROGRAM = eqHello
 
-SOURCES = \
+CXXFILES = \
 	hello.cpp
 
 CXXFLAGS += -I../include $(WINDOW_SYSTEM_INCS)

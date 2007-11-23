@@ -26,17 +26,15 @@ bool Window::configInit( const uint32_t initID )
 
     if( firstWindow == this )
     {
-        const eq::GLFunctions* glFunctions = getGLFunctions();
-        _state = new VertexBufferState( glFunctions );
+        _state = new VertexBufferState( glewGetContext( ));
 
         const Node*     node     = static_cast< const Node* >( getNode( ));
         const InitData& initData = node->getInitData();
 
         if( initData.useVBOs() )
         {
-            // Check if all VBO funcs available, else leave DISPLAY_LIST_MODE on
-            if( glFunctions->hasGenBuffers() && glFunctions->hasBindBuffer() &&
-                glFunctions->hasBufferData() && glFunctions->hasDeleteBuffers())
+            // Check if VBO funcs available, else leave DISPLAY_LIST_MODE on
+            if( GLEW_VERSION_1_5 )
             {
                 _state->setRenderMode( mesh::BUFFER_OBJECT_MODE );
                 EQINFO << "VBO rendering enabled" << endl;
@@ -48,18 +46,8 @@ bool Window::configInit( const uint32_t initID )
         
         if( initData.useGLSL() )
         {
-            // Check if all shader functions are available
-            if( glFunctions->hasCreateShader() && 
-                glFunctions->hasDeleteShader() &&
-                glFunctions->hasShaderSource() &&
-                glFunctions->hasCompileShader() &&
-                glFunctions->hasGetShaderiv() &&
-                glFunctions->hasCreateProgram() && 
-                glFunctions->hasDeleteProgram() &&
-                glFunctions->hasAttachShader() &&
-                glFunctions->hasLinkProgram() && 
-                glFunctions->hasGetProgramiv() &&
-                glFunctions->hasUseProgram() )
+            // Check if all functions are available
+            if( GLEW_VERSION_2_0 )
             {
                 EQINFO << "Shaders supported, attempting to load" << endl;
                 _loadShaders();
@@ -155,7 +143,6 @@ bool Window::_readShader( const char* filename, string& shaderSource )
 
 void Window::_loadShaders()
 {
-    const eq::GLFunctions* glFunctions = getGLFunctions();
     GLint status;
     
     string vertexShader;
@@ -169,9 +156,9 @@ void Window::_loadShaders()
         _state->newShader( vertexShader.c_str(), GL_VERTEX_SHADER );
     EQASSERT( vShader != VertexBufferState::FAILED );
     const GLchar* vShaderPtr = vertexShader.c_str();
-    glFunctions->shaderSource( vShader, 1, &vShaderPtr, 0 );
-    glFunctions->compileShader( vShader );
-    glFunctions->getShaderiv( vShader, GL_COMPILE_STATUS, &status );
+    glShaderSource( vShader, 1, &vShaderPtr, 0 );
+    glCompileShader( vShader );
+    glGetShaderiv( vShader, GL_COMPILE_STATUS, &status );
     if( !status )
     {
         EQWARN << "Failed to compile vertex shader" << endl;
@@ -189,9 +176,9 @@ void Window::_loadShaders()
         _state->newShader( fragmentShader.c_str(), GL_FRAGMENT_SHADER );
     EQASSERT( fShader != VertexBufferState::FAILED );
     const GLchar* fShaderPtr = fragmentShader.c_str();
-    glFunctions->shaderSource( fShader, 1, &fShaderPtr, 0 );
-    glFunctions->compileShader( fShader );
-    glFunctions->getShaderiv( fShader, GL_COMPILE_STATUS, &status );
+    glShaderSource( fShader, 1, &fShaderPtr, 0 );
+    glCompileShader( fShader );
+    glGetShaderiv( fShader, GL_COMPILE_STATUS, &status );
     if( !status )
     {
         EQWARN << "Failed to compile fragment shader" << endl;
@@ -200,10 +187,10 @@ void Window::_loadShaders()
     
     const GLuint program = _state->newProgram( getPipe() );
     EQASSERT( program != VertexBufferState::FAILED );
-    glFunctions->attachShader( program, vShader );
-    glFunctions->attachShader( program, fShader );
-    glFunctions->linkProgram( program );
-    glFunctions->getProgramiv( program, GL_LINK_STATUS, &status );
+    glAttachShader( program, vShader );
+    glAttachShader( program, fShader );
+    glLinkProgram( program );
+    glGetProgramiv( program, GL_LINK_STATUS, &status );
     if( !status )
     {
         EQWARN << "Failed to link shader program" << endl;

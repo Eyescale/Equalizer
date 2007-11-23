@@ -63,8 +63,8 @@
 
       subdirs        Traverses into all SUBDIRS
       $(HEADERS)     All header file targets derived from HEADER_SRC
-      $(DYNAMIC_LIB) A dynamic library for all VARIANTS build from all SOURCES.
-      $(STATIC_LIB)  A static library for all VARIANTS build from all SOURCES.
+      $(DYNAMIC_LIB) A dynamic library for all VARIANTS build from all sources.
+      $(STATIC_LIB)  A static library for all VARIANTS build from all sources.
       $(PROGRAMS)    Executables for PROGRAM on all VARIANTS.
 
     install  Copies all include files and libraries from BUILD_DIR to
@@ -80,7 +80,7 @@
    VARIANT     The variant from VARIANTS currently in build.
    ARCH        The current architecture, i.e., `uname`
    SUBARCH     The current sub-architecure, i.e., `uname -m`
-   SOURCES     The source files for a library or executable
+   CXXFILES    The source files for a library or executable
    HEADER_SRC  The source header files, i.e. headers to be packaged and
                installed.
    PROGRAM     The name of the stand-alone executable to be build.

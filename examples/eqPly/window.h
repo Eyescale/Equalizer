@@ -16,8 +16,8 @@ namespace eqPly
                               public eqBase::Referenced
     {
     public:
-        VertexBufferState( const eq::GLFunctions* glFunctions )
-                : mesh::EqVertexBufferState( glFunctions ) {}
+        VertexBufferState( GLEWContext* glewContext )
+                : mesh::EqVertexBufferState( glewContext ) {}
         virtual ~VertexBufferState() {}
     };
     

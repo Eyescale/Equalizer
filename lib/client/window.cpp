@@ -9,7 +9,6 @@
 #include "configEvent.h"
 #include "event.h"
 #include "eventHandler.h"
-#include "glFunctions.h"
 #include "global.h"
 #include "log.h"
 #include "nodeFactory.h"
@@ -49,7 +48,6 @@ std::string Window::_iAttributeStrings[IATTR_ALL] = {
 
 eq::Window::Window()
         : _eventHandler( 0 ),
-          _glFunctions( 0 ),
           _xDrawable ( 0 ),
           _glXContext( 0 ),
           _aglContext( 0 ),
@@ -101,9 +99,6 @@ eq::Window::~Window()
 {
     if( _eventHandler )
         EQWARN << "Event handler present in destructor" << endl;
-
-    delete _glFunctions;
-    _glFunctions = 0;
 }
 
 void eq::Window::_addChannel( Channel* channel )
@@ -216,7 +211,6 @@ bool eq::Window::configInit( const uint32_t initID )
             return false;
     }
 
-	EQ_GL_CALL( makeCurrent( ));
     const bool ret = configInitGL( initID );
     EQ_GL_ERROR( "after eq::Window::configInitGL" );
 	return ret;
@@ -412,8 +406,6 @@ bool eq::Window::configInitGLX()
         setErrorMessage( "Could not create OpenGL context" );
         return false;
     }
-
-    glXMakeCurrent( display, drawable, context );
 
     setGLXContext( context );
     EQINFO << "Created X11 drawable " << drawable << ", glX context "
@@ -1071,15 +1063,15 @@ void eq::Window::setAGLContext( AGLContext context )
 {
 #ifdef AGL
     _aglContext = context;
-    delete _glFunctions;
 
     if( _aglContext )
     {
+        EQ_GL_CALL( makeCurrent( ));
         _queryDrawableConfig();
-        _glFunctions = new GLFunctions( WINDOW_SYSTEM_AGL );
+        const GLenum result = glewInit();
+        if( result != GLEW_OK )
+            EQWARN << "GLEW initialization failed with error " << result <<endl;
     }
-    else
-        _glFunctions = 0;
 #endif // AGL
 }
 
@@ -1087,15 +1079,15 @@ void eq::Window::setGLXContext( GLXContext context )
 {
 #ifdef GLX
     _glXContext = context;
-    delete _glFunctions;
 
     if( _glXContext )
     {
+        EQ_GL_CALL( makeCurrent( ));
         _queryDrawableConfig();
-        _glFunctions = new GLFunctions( WINDOW_SYSTEM_GLX );
+        const GLenum result = glewInit();
+        if( result != GLEW_OK )
+            EQWARN << "GLEW initialization failed with error " << result <<endl;
     }
-    else
-        _glFunctions = 0;
 #endif
 }
 
@@ -1103,15 +1095,15 @@ void eq::Window::setWGLContext( HGLRC context )
 {
 #ifdef WGL
     _wglContext = context; 
-    delete _glFunctions;
 
     if( _wglContext )
     {
+        EQ_GL_CALL( makeCurrent( ));
         _queryDrawableConfig();
-		_glFunctions = new GLFunctions( WINDOW_SYSTEM_WGL );
+        const GLenum result = glewInit();
+        if( result != GLEW_OK )
+            EQWARN << "GLEW initialization failed with error " << result <<endl;
     }
-    else
-        _glFunctions = 0;
 #endif
 }
 

@@ -117,13 +117,12 @@ void VertexBufferLeaf::updateRange()
     #endif
 }
 
+#define glewGetContext state.glewGetContext
 
 /*  Set up rendering of the leaf nodes.  */
 void VertexBufferLeaf::setupRendering( VertexBufferState& state,
                                        GLuint* data ) const
 {
-    const GLFunctions* gl = state.getGLFunctions();
-    
     switch( state.getRenderMode() )
     {
     case IMMEDIATE_MODE:
@@ -136,29 +135,29 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state,
         
         if( data[VERTEX_OBJECT] == state.FAILED )
             data[VERTEX_OBJECT] = state.newBufferObject( charThis + 0 );
-        gl->bindBuffer( GL_ARRAY_BUFFER, data[VERTEX_OBJECT] );
-        gl->bufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Vertex ),
+        glBindBuffer( GL_ARRAY_BUFFER, data[VERTEX_OBJECT] );
+        glBufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Vertex ),
                         &_globalData.vertices[_vertexStart], GL_STATIC_DRAW );
         
         if( data[NORMAL_OBJECT] == state.FAILED )
             data[NORMAL_OBJECT] = state.newBufferObject( charThis + 1 );
-        gl->bindBuffer( GL_ARRAY_BUFFER, data[NORMAL_OBJECT] );
-        gl->bufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Normal ),
+        glBindBuffer( GL_ARRAY_BUFFER, data[NORMAL_OBJECT] );
+        glBufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Normal ),
                         &_globalData.normals[_vertexStart], GL_STATIC_DRAW );
         
         if( data[COLOR_OBJECT] == state.FAILED )
             data[COLOR_OBJECT] = state.newBufferObject( charThis + 2 );
         if( state.useColors() )
         {
-            gl->bindBuffer( GL_ARRAY_BUFFER, data[COLOR_OBJECT] );
-            gl->bufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Color ),
+            glBindBuffer( GL_ARRAY_BUFFER, data[COLOR_OBJECT] );
+            glBufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Color ),
                             &_globalData.colors[_vertexStart], GL_STATIC_DRAW );
         }
         
         if( data[INDEX_OBJECT] == state.FAILED )
             data[INDEX_OBJECT] = state.newBufferObject( charThis + 3 );
-        gl->bindBuffer( GL_ELEMENT_ARRAY_BUFFER, data[INDEX_OBJECT] );
-        gl->bufferData( GL_ELEMENT_ARRAY_BUFFER, 
+        glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, data[INDEX_OBJECT] );
+        glBufferData( GL_ELEMENT_ARRAY_BUFFER, 
                         _indexLength * sizeof( ShortIndex ),
                         &_globalData.indices[_indexStart], GL_STATIC_DRAW );
         
@@ -206,7 +205,6 @@ void VertexBufferLeaf::render( VertexBufferState& state ) const
 inline
 void VertexBufferLeaf::renderBufferObject( VertexBufferState& state ) const
 {
-    const GLFunctions* gl = state.getGLFunctions();
     GLuint buffers[4];
     for( int i = 0; i < 4; ++i )
         buffers[i] = 
@@ -219,14 +217,14 @@ void VertexBufferLeaf::renderBufferObject( VertexBufferState& state ) const
     
     if( state.useColors() )
     {
-        gl->bindBuffer( GL_ARRAY_BUFFER, buffers[COLOR_OBJECT] );
+        glBindBuffer( GL_ARRAY_BUFFER, buffers[COLOR_OBJECT] );
         glColorPointer( 4, GL_UNSIGNED_BYTE, 0, 0 );
     }
-    gl->bindBuffer( GL_ARRAY_BUFFER, buffers[NORMAL_OBJECT] );
+    glBindBuffer( GL_ARRAY_BUFFER, buffers[NORMAL_OBJECT] );
     glNormalPointer( GL_FLOAT, 0, 0 );
-    gl->bindBuffer( GL_ARRAY_BUFFER, buffers[VERTEX_OBJECT] );
+    glBindBuffer( GL_ARRAY_BUFFER, buffers[VERTEX_OBJECT] );
     glVertexPointer( 3, GL_FLOAT, 0, 0 );
-    gl->bindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffers[INDEX_OBJECT] );
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffers[INDEX_OBJECT] );
     glDrawElements( GL_TRIANGLES, _indexLength, GL_UNSIGNED_SHORT, 0 );
 }
 

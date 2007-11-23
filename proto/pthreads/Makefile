@@ -2,7 +2,7 @@
 include $(TOP)/make/system.mk
 
 PROGRAM = perf
-SOURCES = perf.cpp
+CXXFILES = perf.cpp
 NOINSTALL = 1
 BIN_DIR   = $(ARCH)
 

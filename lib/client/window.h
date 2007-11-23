@@ -11,7 +11,6 @@ namespace eq
 {
     class Channel;
     class WindowEvent;
-    class GLFunctions;
 
     class EQ_EXPORT Window : public eqNet::Object
     {
@@ -69,10 +68,10 @@ namespace eq
         HGLRC getWGLContext() const { return _wglContext; }
 
         /**
-         * @return the extended OpenGL function table if the window has a
-         *         context, 0 otherwise.
+         * @return the extended OpenGL function table for the window's OpenGL
+         *         context.
          */
-        const GLFunctions* getGLFunctions() const { return _glFunctions; }
+        GLEWContext* glewGetContext() { return &_glewContext; }
 
         /** 
          * Set the window's pixel viewport wrt its parent pipe.
@@ -363,7 +362,7 @@ namespace eq
         DrawableConfig _drawableConfig;
 
         /** Extended OpenGL function entries when window has a context. */
-        GLFunctions*   _glFunctions;
+        GLEWContext    _glewContext;
 
         /** The reason for the last error. */
         std::string    _error;

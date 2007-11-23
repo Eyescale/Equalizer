@@ -1,7 +1,7 @@
 
 include $(TOP)/make/system.mk
 
-SOURCES = \
+CXXFILES = \
 	channel.cpp \
 	channelUpdateVisitor.cpp \
 	compound.cpp \
@@ -27,7 +27,7 @@ SOURCES = \
 	wall.cpp \
 	window.cpp
 
-CXXFILES = \
+SIMPLE_CXXFILES = \
 	eqServer.cpp
 
 CLEAN_EXTRA = \
@@ -37,9 +37,9 @@ CLEAN_EXTRA = \
 
 
 ifeq "${ARCH}" "CYGWIN_NT_5_1"
-  SOURCES += lexer_cygwin.cpp
+  CXXFILES += lexer_cygwin.cpp
 else
-  SOURCES += lexer.cpp
+  CXXFILES += lexer.cpp
 endif
 
 MODULE  = eqserver

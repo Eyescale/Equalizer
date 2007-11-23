@@ -11,7 +11,6 @@
 #include <eq/client/configParams.h>
 #include <eq/client/event.h>
 #include <eq/client/frame.h>
-#include <eq/client/glFunctions.h>
 #include <eq/client/global.h>
 #include <eq/client/image.h>
 #include <eq/client/init.h>

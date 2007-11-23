@@ -82,6 +82,10 @@ $(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o: %.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MMD -MF $@.d -c $< -o $@
 
+$(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o: %.c
+	@mkdir -p $(@D)
+	$(CC) $(INCLUDEDIRS) $(CFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MMD -MF $@.d -c $< -o $@
+
 # executables
 $(FAT_PROGRAM): $(THIN_PROGRAMS)
 ifndef VARIANT
@@ -112,7 +116,7 @@ else # VARIANT
 $(FAT_SIMPLE_PROGRAMS): $(THIN_SIMPLE_PROGRAMS)
 	lipo -create $(foreach V,$(VARIANTS),$@.$(V)) -output $@
 
-$(THIN_SIMPLE_PROGRAMS): $(CXXFILES)
+$(THIN_SIMPLE_PROGRAMS): $(SIMPLE_CXXFILES)
 	@$(MAKE) VARIANT=$(subst .,,$(suffix $@)) TOP=$(TOP) $@
 endif # VARIANT
 endif # PROGRAMS

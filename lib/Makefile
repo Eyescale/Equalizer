@@ -79,7 +79,6 @@ HEADER_SRC = \
 	client/eye.h \
 	client/frame.h \
 	client/frameData.h \
-	client/glFunctions.h \
 	client/global.h \
 	client/image.h \
 	client/init.h \
@@ -105,7 +104,7 @@ HEADER_SRC = \
 	client/windowSystem.h \
 	client/X11Connection.h
 
-SOURCES = \
+CXXFILES = \
 	base/barrier.cpp \
 	base/debug.cpp \
 	base/idPool.cpp \
@@ -165,7 +164,6 @@ SOURCES = \
 	client/eventHandler.cpp \
 	client/frame.cpp \
 	client/frameData.cpp \
-	client/glFunctions.cpp \
 	client/global.cpp \
 	client/image.cpp \
 	client/init.cpp \
@@ -182,11 +180,14 @@ SOURCES = \
 	client/windowEvent.cpp \
 	client/windowSystem.cpp
 
+CFILES += \
+	glew/glew.c
+
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
   HEADER_SRC += \
 	client/glXEventThread.h
 
-  SOURCES += \
+  CXXFILES += \
 	client/glXEventThread.cpp
 endif
 
@@ -194,7 +195,7 @@ ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
   HEADER_SRC += \
 	client/aglEventHandler.h
 
-  SOURCES += \
+  CXXFILES += \
 	client/aglEventHandler.cpp
 endif
 
@@ -204,7 +205,7 @@ ifeq ($(findstring WGL, $(WINDOW_SYSTEM)),WGL)
 	client/wglext.h \
 	client/wglEventHandler.h
 
-  SOURCES += \
+  CXXFILES += \
 	client/wglEventHandler.cpp
 
 ifdef VARIANT

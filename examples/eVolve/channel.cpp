@@ -316,9 +316,7 @@ void Channel::_drawModel(       Model*      model,
     //Render slices
     glEnable( GL_BLEND );
 #ifdef COMPOSE_MODE_NEW
-    const eq::Window*      window = getWindow();
-    const eq::GLFunctions* gl     = window->getGLFunctions();
-    gl->blendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
+    glBlendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
 #else
     glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
 #endif

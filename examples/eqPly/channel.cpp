@@ -120,10 +120,9 @@ void Channel::_drawModel( const Model* model )
                      model->hasColors() );
     _initFrustum( culler, model->getBoundingSphere( ));
 
-    const eq::GLFunctions* glFunctions = window->getGLFunctions();
     const GLuint program = state.getProgram( pipe );
     if( program != VertexBufferState::FAILED )
-        glFunctions->useProgram( program );
+        glUseProgram( program );
     
     model->beginRendering( state );
     
@@ -181,7 +180,7 @@ void Channel::_drawModel( const Model* model )
     
     model->endRendering( state );
     
-    glFunctions->useProgram( 0 );
+    glUseProgram( 0 );
 }
 
 void Channel::_drawLogo()

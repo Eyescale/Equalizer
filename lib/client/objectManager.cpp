@@ -5,8 +5,6 @@
 #include "objectManager.h"
 #include <string.h>
 
-#include "glFunctions.h"
-
 using namespace eq;
 using namespace std;
 using namespace stde;
@@ -55,7 +53,7 @@ ObjectManager<T>::~ObjectManager()
 template< typename T >
 void ObjectManager<T>::deleteAll()
 {
-    for( typename ObjectIDHash::const_iterator i = _listsID.begin(); 
+   for( typename ObjectIDHash::const_iterator i = _listsID.begin(); 
          i != _listsID.end(); ++i )
     {
         const Object& object = i->second;
@@ -83,7 +81,7 @@ void ObjectManager<T>::deleteAll()
         const Object& object = i->second;
         EQVERB << "Delete buffer " << object.key << " id " << object.id
                << " ref " << object.refCount << endl;
-        _glFunctions->deleteBuffers( 1, &object.id ); 
+        glDeleteBuffers( 1, &object.id ); 
     }
     _buffersID.clear();
     _buffersKey.clear();
@@ -94,7 +92,7 @@ void ObjectManager<T>::deleteAll()
         const Object& object = i->second;
         EQVERB << "Delete program " << object.key << " id " << object.id
                << " ref " << object.refCount << endl;
-        _glFunctions->deleteProgram( object.id ); 
+        glDeleteProgram( object.id ); 
     }
     _programsID.clear();
     _programsKey.clear();
@@ -105,7 +103,7 @@ void ObjectManager<T>::deleteAll()
         const Object& object = i->second;
         EQVERB << "Delete shader " << object.key << " id " << object.id
                << " ref " << object.refCount << endl;
-        _glFunctions->deleteShader( object.id ); 
+        glDeleteShader( object.id ); 
     }
     _shadersID.clear();
     _shadersKey.clear();
@@ -323,8 +321,7 @@ void   ObjectManager<T>::deleteTexture( const GLuint id )
 template< typename T >
 bool ObjectManager<T>::supportsBuffers() const
 {
-    return ( _glFunctions->hasGenBuffers() && 
-             _glFunctions->hasDeleteBuffers() );
+    return ( GLEW_VERSION_1_5 );
 }
 
 template< typename T >
@@ -341,7 +338,7 @@ GLuint ObjectManager<T>::getBuffer( const T& key )
 template< typename T >
 GLuint ObjectManager<T>::newBuffer( const T& key )
 {
-    if( !_glFunctions->hasGenBuffers() )
+    if( !GLEW_VERSION_1_5 )
     {
         EQWARN << "glGenBuffers not available" << endl;
         return FAILED;
@@ -354,7 +351,7 @@ GLuint ObjectManager<T>::newBuffer( const T& key )
     }
 
     GLuint id = FAILED;
-    _glFunctions->genBuffers( 1, &id );
+    glGenBuffers( 1, &id );
 
     if( id == FAILED )
     {
@@ -391,7 +388,7 @@ void ObjectManager<T>::releaseBuffer( const T& key )
     if( object->refCount )
         return;
 
-    _glFunctions->deleteBuffers( 1, &object->id );
+    glDeleteBuffers( 1, &object->id );
     _buffersKey.erase( key );
     _buffersID.erase( object->id );
 }
@@ -407,7 +404,7 @@ void ObjectManager<T>::releaseBuffer( const GLuint id )
     if( object.refCount )
         return;
 
-    _glFunctions->deleteBuffers( 1, &id );
+    glDeleteBuffers( 1, &id );
     _buffersKey.erase( object.key );
     _buffersID.erase( id );
 }
@@ -419,7 +416,7 @@ void ObjectManager<T>::deleteBuffer( const T& key )
         return;
 
     Object* object = _buffersKey[ key ];
-    _glFunctions->deleteBuffers( 1, &object->id );
+    glDeleteBuffers( 1, &object->id );
     _buffersKey.erase( key );
     _buffersID.erase( object->id );
 }
@@ -431,7 +428,7 @@ void ObjectManager<T>::deleteBuffer( const GLuint id )
         return;
 
     Object& object = _buffersID[ id ];
-    _glFunctions->deleteBuffers( 1, &id );
+    glDeleteBuffers( 1, &id );
     _buffersKey.erase( object.key );
     _buffersID.erase( id );
 }
@@ -441,8 +438,7 @@ void ObjectManager<T>::deleteBuffer( const GLuint id )
 template< typename T >
 bool ObjectManager<T>::supportsPrograms() const
 {
-    return ( _glFunctions->hasCreateProgram() && 
-             _glFunctions->hasDeleteProgram() );
+    return ( GLEW_VERSION_2_0 );
 }
 
 template< typename T >
@@ -459,7 +455,7 @@ GLuint ObjectManager<T>::getProgram( const T& key )
 template< typename T >
 GLuint ObjectManager<T>::newProgram( const T& key )
 {
-    if( !_glFunctions->hasCreateProgram() )
+    if( !GLEW_VERSION_2_0 )
     {
         EQWARN << "glCreateProgram not available" << endl;
         return FAILED;
@@ -471,7 +467,7 @@ GLuint ObjectManager<T>::newProgram( const T& key )
         return FAILED;
     }
 
-    const GLuint id = _glFunctions->createProgram();
+    const GLuint id = glCreateProgram();
     if( !id )
     {
         EQWARN << "glCreateProgram failed: " << glGetError() << endl;
@@ -507,7 +503,7 @@ void ObjectManager<T>::releaseProgram( const T& key )
     if( object->refCount )
         return;
 
-    _glFunctions->deleteProgram( object->id );
+    glDeleteProgram( object->id );
     _programsKey.erase( key );
     _programsID.erase( object->id );
 }
@@ -523,7 +519,7 @@ void ObjectManager<T>::releaseProgram( const GLuint id )
     if( object.refCount )
         return;
 
-    _glFunctions->deleteProgram( id );
+    glDeleteProgram( id );
     _programsKey.erase( object.key );
     _programsID.erase( id );
 }
@@ -535,7 +531,7 @@ void ObjectManager<T>::deleteProgram( const T& key )
         return;
 
     Object* object = _programsKey[ key ];
-    _glFunctions->deleteProgram( object->id );
+    glDeleteProgram( object->id );
     _programsKey.erase( key );
     _programsID.erase( object->id );
 }
@@ -547,7 +543,7 @@ void ObjectManager<T>::deleteProgram( const GLuint id )
         return;
 
     Object& object = _programsID[ id ];
-    _glFunctions->deleteProgram( id );
+    glDeleteProgram( id );
     _programsKey.erase( object.key );
     _programsID.erase( id );
 }
@@ -557,8 +553,7 @@ void ObjectManager<T>::deleteProgram( const GLuint id )
 template< typename T >
 bool ObjectManager<T>::supportsShaders() const
 {
-    return ( _glFunctions->hasCreateShader() && 
-             _glFunctions->hasDeleteShader() );
+    return ( GLEW_VERSION_2_0 );
 }
 
 template< typename T >
@@ -575,7 +570,7 @@ GLuint ObjectManager<T>::getShader( const T& key )
 template< typename T >
 GLuint ObjectManager<T>::newShader( const T& key, const GLenum type )
 {
-    if( !_glFunctions->hasCreateShader() )
+    if( !GLEW_VERSION_2_0 )
     {
         EQWARN << "glCreateShader not available" << endl;
         return FAILED;
@@ -587,7 +582,7 @@ GLuint ObjectManager<T>::newShader( const T& key, const GLenum type )
         return FAILED;
     }
 
-    const GLuint id = _glFunctions->createShader( type );
+    const GLuint id = glCreateShader( type );
     if( !id )
     {
         EQWARN << "glCreateShader failed: " << glGetError() << endl;
@@ -624,7 +619,7 @@ void ObjectManager<T>::releaseShader( const T& key )
     if( object->refCount )
         return;
 
-    _glFunctions->deleteShader( object->id );
+    glDeleteShader( object->id );
     _shadersKey.erase( key );
     _shadersID.erase( object->id );
 }
@@ -640,7 +635,7 @@ void ObjectManager<T>::releaseShader( const GLuint id )
     if( object.refCount )
         return;
 
-    _glFunctions->deleteShader( id );
+    glDeleteShader( id );
     _shadersKey.erase( object.key );
     _shadersID.erase( id );
 }
@@ -652,7 +647,7 @@ void ObjectManager<T>::deleteShader( const T& key )
         return;
 
     Object* object = _shadersKey[ key ];
-    _glFunctions->deleteShader( object->id );
+    glDeleteShader( object->id );
     _shadersKey.erase( key );
     _shadersID.erase( object->id );
 }
@@ -664,7 +659,7 @@ void ObjectManager<T>::deleteShader( const GLuint id )
         return;
 
     Object& object = _shadersID[ id ];
-    _glFunctions->deleteShader( id );
+    glDeleteShader( id );
     _shadersKey.erase( object.key );
     _shadersID.erase( id );
 }

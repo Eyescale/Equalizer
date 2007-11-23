@@ -43,6 +43,8 @@ namespace eq
         eqBase::RefPtr< Server > getServer() const 
             { return ( _window ? _window->getServer() : 0 );}
 
+        GLEWContext* glewGetContext() { return _window->glewGetContext(); }
+
         const std::string& getName() const { return _name; }
 
         /** 

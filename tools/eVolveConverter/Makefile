@@ -3,7 +3,7 @@ include $(TOP)/make/system.mk
 
 PROGRAM = eVolveConverter
 
-SOURCES = \
+CXXFILES = \
 	eVolveConverter.cpp \
 	ddsbase.cpp
 

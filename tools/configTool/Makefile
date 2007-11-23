@@ -3,7 +3,7 @@ include $(TOP)/make/system.mk
 
 PROGRAM = configTool
 
-SOURCES = \
+CXXFILES = \
 	configTool.cpp
 
 CXXFLAGS += -I../../examples/include

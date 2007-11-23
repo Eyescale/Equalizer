@@ -3,7 +3,7 @@ include $(TOP)/make/system.mk
 
 PROGRAM = eqPly
 
-SOURCES = \
+CXXFILES = \
 	localInitData.cpp \
 	channel.cpp \
 	config.cpp \

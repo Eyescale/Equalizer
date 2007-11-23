@@ -3,7 +3,7 @@ include $(TOP)/make/system.mk
 
 PROGRAM = eqPixelBench
 
-SOURCES = \
+CXXFILES = \
 	channel.cpp \
 	config.cpp \
 	configEvent.cpp \
