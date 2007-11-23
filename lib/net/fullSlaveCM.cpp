@@ -19,9 +19,10 @@ using namespace eqBase;
 using namespace std;
 
 FullSlaveCM::FullSlaveCM( Object* object )
-        : StaticSlaveCM( object ),
-          _version( Object::VERSION_NONE ),
-          _mutex( 0 )
+        : StaticSlaveCM( object )
+        , _version( Object::VERSION_NONE )
+        , _mutex( 0 )
+        , _currentDeltaStream( 0 )
 {
     registerCommand( CMD_OBJECT_DELTA_DATA,
                  CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdDeltaData ));
@@ -37,8 +38,8 @@ FullSlaveCM::~FullSlaveCM()
     while( !_queuedVersions.empty( ))
         delete _queuedVersions.pop();
 
-    delete _currentIStream;
-    _currentIStream = 0;
+    delete _currentDeltaStream;
+    _currentDeltaStream = 0;
 
     _version = Object::VERSION_NONE;
 }
@@ -131,12 +132,15 @@ void FullSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
 
 void FullSlaveCM::applyMapData()
 {
-    EQASSERT( _currentIStream );
+    EQASSERTINFO( _currentIStream, typeid( *_object ).name() << " id " <<
+                  _object->getID() << "." << _object->getInstanceID( ));
 
     _object->applyInstanceData( *_currentIStream );
     _version = _currentIStream->getVersion();
     delete _currentIStream;
     _currentIStream = 0;
+    EQLOG( LOG_OBJECTS ) << "Mapped initial data for " << _object->getID()
+                         << "." << _object->getInstanceID() << " ready" << endl;
 }
 
 //---------------------------------------------------------------------------
@@ -145,30 +149,30 @@ void FullSlaveCM::applyMapData()
 
 CommandResult FullSlaveCM::_cmdDeltaData( Command& command )
 {
-    if( !_currentIStream )
-        _currentIStream = new ObjectDeltaDataIStream;
+    if( !_currentDeltaStream )
+        _currentDeltaStream = new ObjectDeltaDataIStream;
 
-    _currentIStream->addDataPacket( command );
+    _currentDeltaStream->addDataPacket( command );
     return eqNet::COMMAND_HANDLED;
 }
 
 CommandResult FullSlaveCM::_cmdDelta( Command& command )
 {
-    if( !_currentIStream )
-        _currentIStream = new ObjectDeltaDataIStream;
+    if( !_currentDeltaStream )
+        _currentDeltaStream = new ObjectDeltaDataIStream;
 
     const ObjectDeltaPacket* packet = command.getPacket<ObjectDeltaPacket>();
     EQLOG( LOG_OBJECTS ) << "cmd delta " << command << endl;
 
-    _currentIStream->addDataPacket( command );
-    _currentIStream->setVersion( packet->version );
+    _currentDeltaStream->addDataPacket( command );
+    _currentDeltaStream->setVersion( packet->version );
     
     EQLOG( LOG_OBJECTS ) << "v" << packet->version << ", id "
                          << _object->getID() << "." << _object->getInstanceID()
                          << " ready" << endl;
 
-    _queuedVersions.push( _currentIStream );
-    _currentIStream = 0;
+    _queuedVersions.push( _currentDeltaStream );
+    _currentDeltaStream = 0;
 
     return eqNet::COMMAND_HANDLED;
 }

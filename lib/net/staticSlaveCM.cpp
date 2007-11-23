@@ -29,6 +29,8 @@ StaticSlaveCM::StaticSlaveCM( Object* object )
 
 StaticSlaveCM::~StaticSlaveCM()
 {
+    delete _currentIStream;
+    _currentIStream = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -66,6 +68,8 @@ void StaticSlaveCM::applyMapData()
     _object->applyInstanceData( *_currentIStream );
     delete _currentIStream;
     _currentIStream = 0;
+    EQLOG( LOG_OBJECTS ) << "Mapped initial data for " << _object->getID()
+                         << "." << _object->getInstanceID() << " ready" << endl;
 }
 
 }

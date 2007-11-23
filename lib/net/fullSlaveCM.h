@@ -72,6 +72,9 @@ namespace eqNet
         /** The mutex, if thread safety is enabled. */
         eqBase::Lock* _mutex;
 
+        /** istream for receiving the current version */
+        ObjectDataIStream* _currentDeltaStream;
+
         void _syncToHead();
 
         /* The command handlers. */
