@@ -11,8 +11,11 @@
  */
 
 #include "pipe.h"
-
 #include "node.h"
+
+#include "fragmentShader_glsl.h"
+#include "vertexShader_glsl.h"
+    
 #include <eq/eq.h>
 
 using namespace eqBase;
@@ -21,9 +24,6 @@ using namespace std;
 namespace eVolve
 {
 
-#include "fragmentShader_glsl.h"
-#include "vertexShader_glsl.h"
-    
 eq::WindowSystem Pipe::selectWindowSystem() const
 {
     const Node*            node     = static_cast<Node*>( getNode( ));

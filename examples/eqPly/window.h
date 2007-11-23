@@ -44,7 +44,6 @@ namespace eqPly
 
         void _loadLogo();
         void _loadShaders();
-        bool _readShader( const char* filename, std::string& shaderSource );
     };
 }
 

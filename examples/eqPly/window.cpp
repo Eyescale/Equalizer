@@ -6,6 +6,10 @@
 #include "window.h"
 #include "pipe.h"
 #include "node.h"
+
+#include "fragmentShader_glsl.h"
+#include "vertexShader_glsl.h"
+    
 #include <fstream>
 #include <sstream>
 
@@ -122,40 +126,14 @@ void Window::_loadLogo()
     EQINFO << "Created logo texture of size " << _logoSize << endl;
 }
 
-bool Window::_readShader( const char* filename, string& shaderSource )
-{
-    ifstream sourceFile( filename );
-    if( !sourceFile )
-    {
-        EQWARN << "Failed to open shader file " << filename << endl;
-        return false;
-    }
-    
-    ostringstream sourceCode;
-    string line;
-    while( getline( sourceFile, line ) )
-        sourceCode << line << endl;
-    
-    sourceFile.close();
-    shaderSource.assign( sourceCode.str() );
-    return true;
-}
-
 void Window::_loadShaders()
 {
     GLint status;
     
-    string vertexShader;
-    if ( !_readShader( "vertexShader.glsl", vertexShader ) && 
-         !_readShader( "./examples/eqPly/vertexShader.glsl", vertexShader ) )
-    {
-        EQWARN << "Failed to read vertex shader from file" << endl;
-        return;
-    }
     const GLuint vShader = 
-        _state->newShader( vertexShader.c_str(), GL_VERTEX_SHADER );
+        _state->newShader( vertexShader_glsl.c_str(), GL_VERTEX_SHADER );
     EQASSERT( vShader != VertexBufferState::FAILED );
-    const GLchar* vShaderPtr = vertexShader.c_str();
+    const GLchar* vShaderPtr = vertexShader_glsl.c_str();
     glShaderSource( vShader, 1, &vShaderPtr, 0 );
     glCompileShader( vShader );
     glGetShaderiv( vShader, GL_COMPILE_STATUS, &status );
@@ -165,17 +143,10 @@ void Window::_loadShaders()
         return;
     }
     
-    string fragmentShader;
-    if( !_readShader( "fragmentShader.glsl", fragmentShader ) && 
-        !_readShader( "./examples/eqPly/fragmentShader.glsl", fragmentShader ) )
-    {
-        EQWARN << "Failed to read fragment shader from file" << endl;
-        return;
-    }
     const GLuint fShader = 
-        _state->newShader( fragmentShader.c_str(), GL_FRAGMENT_SHADER );
+        _state->newShader( fragmentShader_glsl.c_str(), GL_FRAGMENT_SHADER );
     EQASSERT( fShader != VertexBufferState::FAILED );
-    const GLchar* fShaderPtr = fragmentShader.c_str();
+    const GLchar* fShaderPtr = fragmentShader_glsl.c_str();
     glShaderSource( fShader, 1, &fShaderPtr, 0 );
     glCompileShader( fShader );
     glGetShaderiv( fShader, GL_COMPILE_STATUS, &status );

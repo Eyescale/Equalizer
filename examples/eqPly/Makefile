@@ -20,6 +20,10 @@ CXXFILES = \
 	vertexBufferRoot.cpp \
 	vertexBufferLeaf.cpp
 
+SHADERS = \
+	fragmentShader_glsl.h \
+	vertexShader_glsl.h
+
 
 CXXFLAGS += -I../include $(WINDOW_SYSTEM_INCS)
 LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)
@@ -35,9 +39,14 @@ TARGETS = $(PROGRAMS) $(SHARE_DIR)/data/rockerArm.ply
 
 include $(TOP)/make/rules.mk
 
+$(OBJECTS): $(SHADERS)
+
 README: ../../../website/build/documents/user/eqPly.html
 	links -dump $< > $@
 
 $(SHARE_DIR)/data/rockerArm.ply: rockerArm.ply
 	@mkdir -p $(@D)
 	cp $< $@
+
+%_glsl.h: %.glsl
+	./stringify.pl $< > $@
