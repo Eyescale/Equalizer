@@ -648,7 +648,7 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
             }
         }   
     }
-    
+
     EQWARN << "Can't find master object for subscribe" << endl;
 
     SessionSubscribeObjectReplyPacket reply( packet );

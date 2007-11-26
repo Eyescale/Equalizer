@@ -47,15 +47,16 @@ std::string Window::_iAttributeStrings[IATTR_ALL] = {
 };
 
 eq::Window::Window()
-        : _eventHandler( 0 ),
-          _xDrawable ( 0 ),
-          _glXContext( 0 ),
-          _aglContext( 0 ),
-          _carbonWindow( 0 ),
-          _carbonHandler( 0 ),
-          _wglWindowHandle( 0 ),
-          _wglContext     ( 0 ),
-          _pipe( 0 )
+        : _eventHandler( 0 )
+        , _glewContext( new GLEWContext )
+        , _xDrawable ( 0 )
+        , _glXContext( 0 )
+        , _aglContext( 0 )
+        , _carbonWindow( 0 )
+        , _carbonHandler( 0 )
+        , _wglWindowHandle( 0 )
+        , _wglContext     ( 0 )
+        , _pipe( 0 )
 {
     registerCommand( CMD_WINDOW_CREATE_CHANNEL, 
                 eqNet::CommandFunc<Window>( this, &Window::_cmdCreateChannel ));
@@ -97,6 +98,9 @@ eq::Window::Window()
 
 eq::Window::~Window()
 {
+    delete _glewContext;
+    _glewContext = 0;
+
     if( _eventHandler )
         EQWARN << "Event handler present in destructor" << endl;
 }
@@ -1066,7 +1070,8 @@ void eq::Window::setAGLContext( AGLContext context )
 
     if( _aglContext )
     {
-        EQ_GL_CALL( makeCurrent( ));
+        aglSetCurrentContext( _aglContext );
+
         _queryDrawableConfig();
         const GLenum result = glewInit();
         if( result != GLEW_OK )
@@ -1080,9 +1085,10 @@ void eq::Window::setGLXContext( GLXContext context )
 #ifdef GLX
     _glXContext = context;
 
-    if( _glXContext )
+    if( _glXContext && _xDrawable )
     {
-        EQ_GL_CALL( makeCurrent( ));
+        glXMakeCurrent( _pipe->getXDisplay(), _xDrawable, _glXContext );
+
         _queryDrawableConfig();
         const GLenum result = glewInit();
         if( result != GLEW_OK )
@@ -1096,9 +1102,12 @@ void eq::Window::setWGLContext( HGLRC context )
 #ifdef WGL
     _wglContext = context; 
 
-    if( _wglContext )
+    if( _wglContext && _wglWindowHandle )
     {
-        EQ_GL_CALL( makeCurrent( ));
+        HDC dc = GetDC( _wglWindowHandle );
+        wglMakeCurrent( dc, _wglContext );
+        ReleaseDC( _wglWindowHandle, dc );
+
         _queryDrawableConfig();
         const GLenum result = glewInit();
         if( result != GLEW_OK )

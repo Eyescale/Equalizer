@@ -71,7 +71,7 @@ namespace eq
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.
          */
-        GLEWContext* glewGetContext() { return &_glewContext; }
+        GLEWContext* glewGetContext() { return _glewContext; }
 
         /** 
          * Set the window's pixel viewport wrt its parent pipe.
@@ -362,7 +362,7 @@ namespace eq
         DrawableConfig _drawableConfig;
 
         /** Extended OpenGL function entries when window has a context. */
-        GLEWContext    _glewContext;
+        GLEWContext*   _glewContext;
 
         /** The reason for the last error. */
         std::string    _error;

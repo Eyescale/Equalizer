@@ -25,7 +25,11 @@ namespace eq
 }
 
 // window system and OS-dependent includes and definitions below.
-#include <GL/glew.h>
+#ifdef EQ_IGNORE_GLEW
+#  define GLEWContext void
+#else
+#  include <GL/glew.h>
+#endif
 
 #define GL_GLEXT_PROTOTYPES
 
