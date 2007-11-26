@@ -33,7 +33,6 @@ using namespace std;
 Pipe::Pipe()
         : _eventHandler( 0 ),
           _node( 0 ),
-          _currentGLWindow( 0 ),
           _windowSystem( WINDOW_SYSTEM_NONE ),
           _port( EQ_UNDEFINED_UINT32 ),
           _device( EQ_UNDEFINED_UINT32 ),
@@ -295,16 +294,6 @@ eqNet::CommandResult Pipe::pushCommand( eqNet::Command& command )
     // else
     _commandQueue->push( command ); 
     return eqNet::COMMAND_HANDLED;
-}
-
-void Pipe::testMakeCurrentWindow( const Window* window )
-{
-    if( _currentGLWindow == window )
-        return;
-
-    _currentGLWindow = window;
-    window->makeCurrent();
-    return;
 }
 
 Frame* Pipe::getFrame( const uint32_t id, const uint32_t version )

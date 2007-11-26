@@ -1425,7 +1425,7 @@ eqNet::CommandResult eq::Window::_reqConfigExit( eqNet::Command& command )
                        << endl;
 
     if( _pipe->isInitialized( ))
-        _pipe->testMakeCurrentWindow( this );
+        EQ_GL_CALL( makeCurrent( ));
     // else emergency exit, no context available.
 
     WindowConfigExitReplyPacket reply;
@@ -1442,7 +1442,7 @@ eqNet::CommandResult eq::Window::_reqFrameStart( eqNet::Command& command )
     EQVERB << "handle window frame start " << packet << endl;
 
     //_grabFrame( packet->frameNumber ); single-threaded
-    _pipe->testMakeCurrentWindow( this );
+    EQ_GL_CALL( makeCurrent( ));
 
 #ifdef GLX // handle window close request - see comment in configInitGLX
     if( _pipe->getWindowSystem() == WINDOW_SYSTEM_GLX )
@@ -1475,7 +1475,7 @@ eqNet::CommandResult eq::Window::_reqFrameFinish( eqNet::Command& command )
         command.getPacket<WindowFrameFinishPacket>();
     EQVERB << "handle window frame sync " << packet << endl;
 
-    _pipe->testMakeCurrentWindow( this );
+    EQ_GL_CALL( makeCurrent( ));
     frameFinish( packet->frameID, packet->frameNumber );
 
     return eqNet::COMMAND_HANDLED;
@@ -1483,7 +1483,7 @@ eqNet::CommandResult eq::Window::_reqFrameFinish( eqNet::Command& command )
 
 eqNet::CommandResult eq::Window::_reqFinish(eqNet::Command& command ) 
 {
-    _pipe->testMakeCurrentWindow( this );
+    EQ_GL_CALL( makeCurrent( ));
     finish();
     return eqNet::COMMAND_HANDLED;
 }
@@ -1506,7 +1506,7 @@ eqNet::CommandResult eq::Window::_reqBarrier( eqNet::Command& command )
 
 eqNet::CommandResult eq::Window::_reqSwap(eqNet::Command& command ) 
 {
-    _pipe->testMakeCurrentWindow( this );
+    EQ_GL_CALL( makeCurrent( ));
     swapBuffers();
     return eqNet::COMMAND_HANDLED;
 }

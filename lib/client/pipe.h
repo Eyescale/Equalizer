@@ -150,18 +150,6 @@ namespace eq
          * @param packet the command packet.
          */
         eqNet::CommandResult pushCommand( eqNet::Command& command );
-        
-        /** 
-         * Test and sets the currently attached window.
-         * 
-         * The pipe maintains which window is current, in order to optimize make
-         * current calls.
-         *
-         * @param window The new current window.
-         * @return true if the new window needs to be made current, false if
-         *         not.
-         */
-        void testMakeCurrentWindow( const Window* window );
 
         /** 
          * Get an assembly frame.
@@ -394,9 +382,6 @@ namespace eq
 
         /** The windows of this pipe. */
         WindowVector   _windows;
-
-        /** The currently attached window. */
-        const Window* _currentGLWindow;
 
         /** The current window system. */
         WindowSystem _windowSystem;
