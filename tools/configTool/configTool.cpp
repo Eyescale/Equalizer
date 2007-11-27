@@ -44,26 +44,43 @@ bool ConfigTool::parseArguments( int argc, char** argv )
     try
     {
         TCLAP::CmdLine command( "configTool - Equalizer config file generator" );
+
+        TCLAP::SwitchArg fullScreenArg( "f", "fullScreen",
+                            "Full screen rendering", command, false );
+
         TCLAP::ValueArg<string> modeArg( "m", "mode", "Compound mode (default 2D)",
-                                         false, "2D", "2D|DB|DB_ds", command );
-        TCLAP::ValueArg<unsigned> pipeArg( "p", "numPipes", 
+                                         false, "2D", "2D|DB|DB_ds|DB_ds_ac", command );
+
+        TCLAP::ValueArg<unsigned> pipeArg( "p", "numPipes",
                                            "Number of pipes per node (default 1)",
                                            false, 1, "unsigned", command );
+
         TCLAP::ValueArg<unsigned> channelArg( "c", "numChannels", 
                                              "Total number of channels (default 4)",
                                               false, 4, "unsigned", command );
+
         TCLAP::SwitchArg destArg( "a", "assembleOnly", 
                             "Destination channel does not contribute to rendering", 
                                   command, false );
+
         TCLAP::ValueArg<string> nodesArg( "n", "nodes", "file with list of node-names",
                                          false, "", "", command );
-                                
+
         command.parse( argc, argv );
 
         if( nodesArg.isSet( ))
         {
             _nodesFile = nodesArg.getValue();
         }
+
+
+        if( pipeArg.isSet( ))
+            _nPipes = pipeArg.getValue();
+        if( channelArg.isSet( ))
+            _nChannels = channelArg.getValue();
+
+        _useDestination = !destArg.isSet();
+        _fullScreen     = fullScreenArg.isSet();
 
         if( modeArg.isSet( ))
         {
@@ -74,19 +91,23 @@ bool ConfigTool::parseArguments( int argc, char** argv )
                 _mode = MODE_DB;
             else if( mode == "DB_ds" )
                 _mode = MODE_DB_DS;
+            else if( mode == "DB_ds_ac" )
+            {
+                _mode = MODE_DB_DS_AC;
+                _nPipes = 2;
+
+                if( _nChannels%2 != 0 )
+                {
+                    cerr << "Channels number must be even" << endl;
+                    return false;
+                }
+            }
             else
             {
                 cerr << "Unknown mode " << mode << endl;
                 return false;
             }
         }
-
-        if( pipeArg.isSet( ))
-            _nPipes = pipeArg.getValue();
-        if( channelArg.isSet( ))
-            _nChannels = channelArg.getValue();
-
-        _useDestination = !destArg.isSet();
     }
     catch( TCLAP::ArgException& exception )
     {
@@ -178,11 +199,11 @@ void ConfigTool::_writeResources() const
                  << "                {" << endl
                  << "                    name     \"window" << channel << "\""
                  << endl;
-            if( channel == 0 ) // destination window
+            if( channel == 0 && !_fullScreen ) // destination window
                 cout << "                    attributes{ hint_fullscreen OFF }"
                      << endl
                      << "                    viewport [ 100 100 1280 800 ]" << endl;
-            
+
             cout << "                    channel" << endl
                  << "                    {" << endl
                  << "                        name     \"channel" << channel 
@@ -210,6 +231,10 @@ void ConfigTool::_writeCompound() const
 
         case MODE_DB_DS:
             _writeDS();
+            break;
+            
+        case MODE_DB_DS_AC:
+            _writeDSAC();
             break;
 
         default:
@@ -241,8 +266,17 @@ void ConfigTool::_write2D() const
              << "                channel   \"channel" << i << "\"" << endl;
 
         if( i == _nChannels - 1 ) // last - correct rounding 'error'
-            cout << "                viewport  [ 0 0." << setw(5) << y << " 1 0."
-                 << setw(5) << 100000-y << " ]" << endl;
+        {
+            if( y==0 ) //only one channel
+            {
+                cout << "                viewport  [ 0 0 1 1 ]" << endl;
+            }else
+            {
+                cout << "                viewport  [ 0 0."
+                     << setw(5) << y << " 1 0."
+                     << setw(5) << 100000-y << " ]" << endl;
+            }
+        }
         else
             cout << "                viewport  [ 0 0." << setw(5) << y << " 1 0."
                  << setw(5) << step << " ]" << endl;
@@ -395,6 +429,97 @@ void ConfigTool::_writeDS() const
     // gather assembled input tiles
     for( unsigned i = 1; i<_nChannels; ++i )
         cout << "            inputframe{ name \"frame.channel" << i << "\" }" 
+             << endl;
+    cout << "        }" << endl;    
+}
+
+
+void ConfigTool::_writeDSAC() const
+{
+    cout << "        compound" << endl
+         << "        {" << endl
+         << "            channel   \"channel0\"" << endl
+         << "            buffer    [ COLOR DEPTH ]" << endl
+         << "            wall" << endl
+         << "            {" << endl
+         << "                bottom_left  [ -.32 -.20 -.75 ]" << endl
+         << "                bottom_right [  .32 -.20 -.75 ]" << endl
+         << "                top_left     [ -.32  .20 -.75 ]" << endl
+         << "            }" << endl;
+
+    unsigned nChannels = _nChannels / 2;
+    unsigned start      = 0;
+    const unsigned step = static_cast< unsigned >( 100000.0f / nChannels );
+    for( unsigned i = 0; i<nChannels; ++i, start += step )
+    {
+        // Rendering compund
+        cout << "            compound" << endl
+             << "            {" << endl
+             << "                channel   \"channel" << i*2+1 << "\"" << endl;
+
+        // leaf draw + tile readback compound
+        cout << "                compound" << endl
+             << "                {" << endl;
+        if( i == nChannels - 1 ) // last - correct rounding 'error'
+            cout << "                    range     [ 0." << setw(5) << start 
+                 << " 1 ]" << endl;
+        else
+            cout << "                    range     [ 0." << setw(5) << start 
+                 << " 0." << setw(5) << start + step << " ]" << endl;
+        
+        unsigned y = 0;
+        for( unsigned j = 0; j<nChannels; ++j )
+        {
+            cout << "                    outputframe{ name \"tile" << j*2+1 
+                 << ".channel" << i*2+1 << "\" ";
+            if( j == nChannels - 1 ) // last - correct rounding 'error'
+                cout << "viewport [ 0 0." << setw(5) << y << " 1 0." << setw(5)
+                     << 100000-y << " ]";
+            else
+                cout << "viewport [ 0 0." << setw(5) << y << " 1 0." << setw(5)
+                     << step << " ]";
+            cout << " }" << endl;
+
+            y += step;
+        }
+        cout << "                }" << endl
+             << "            }" << endl
+             << endl;
+
+        // compositing compund
+        cout << "            compound" << endl
+             << "            {" << endl
+             << "                channel   \"channel" << i*2 << "\"" << endl;
+
+        // input tiles from other channels
+        for( unsigned j = 0; j<nChannels; ++j )
+        {
+            cout << "                inputframe{ name \"tile" << i*2+1 << ".channel"
+                 << j*2+1 <<"\" }" << endl;
+        }
+
+        // assembled color tile output, if not already in place
+        if( i!=0 )
+        {
+            cout << "                outputframe{ name \"frame.channel" << i*2 <<"\"";
+            cout << " buffer [ COLOR ] ";
+            if( i == nChannels - 1 ) // last - correct rounding 'error'
+                cout << "viewport [ 0 0." << setw(5) << start << " 1 0." << setw(5)
+                     << 100000 - start << " ]";
+            else
+                cout << "viewport [ 0 0." << setw(5) << start << " 1 0." << setw(5)
+                     << step << " ]";
+            cout << " }" << endl;
+        }
+
+
+        cout << "            }" << endl
+             << endl;
+    }
+
+    // gather assembled input tiles
+    for( unsigned i = 1; i<nChannels; ++i )
+        cout << "            inputframe{ name \"frame.channel" << i*2 << "\" }" 
              << endl;
     cout << "        }" << endl;    
 }
