@@ -50,6 +50,7 @@ namespace eq
 
 #ifdef WGL
 #  include <wingdi.h>
+#  include <GL/gl.h>
 #endif
 
 //----- Missing definitions due to old (w)glext.h

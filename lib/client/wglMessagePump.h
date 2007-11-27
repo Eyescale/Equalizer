@@ -26,7 +26,7 @@ namespace eq
         /** Get and dispatch at least one pending system event, blocking. */
         virtual void dispatchOne();
 
-        virtual ~WGLMessagePump();
+        virtual ~WGLMessagePump() {}
 
     private:
         /** Thread ID of the receiver. */
