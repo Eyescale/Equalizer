@@ -30,7 +30,7 @@ namespace eqBase
             { _ptr = static_cast<T*>(f._ptr); ref(); }
 
 
-        ~RefPtr() { unref(); }
+        ~RefPtr() { unref(); _ptr = 0; }
 
         void ref()   { if(_ptr) _ptr->ref(); }
         void unref() { if(_ptr) _ptr->unref(); }

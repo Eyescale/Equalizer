@@ -3,33 +3,79 @@
 
 #include "commandQueue.h"
 
+#ifdef GLX
+#  include "glXMessagePump.h"
+#endif
+#ifdef WGL
+#  include "wglMessagePump.h"
+#endif
+#ifdef AGL
+#  include "aglMessagePump.h"
+#endif
+
 using namespace std;
 
 namespace eq
 {
 CommandQueue::CommandQueue()
+        : _messagePump( 0 )
+        , _windowSystem( WINDOW_SYSTEM_NONE )
 {
+}
+
+void CommandQueue::setWindowSystem( const WindowSystem windowSystem )
+{
+    if( _windowSystem == windowSystem )
+        return;
+
+    EQASSERTINFO( _windowSystem == WINDOW_SYSTEM_NONE, 
+                  "Can't switch window system from " << _windowSystem << " to "
+                  << windowSystem );
+    EQASSERT( !_windowSystem );
+
+    _windowSystem = windowSystem;
+
+    switch( windowSystem )
+    {
+#ifdef GLX
+        case WINDOW_SYSTEM_GLX:
+            _messagePump = new GLXMessagePump();
+            break;
+#endif
+
+#ifdef WGL
+        case WINDOW_SYSTEM_WGL:
+            _messagePump = new WGLMessagePump();
+            break;
+#endif
+
+#ifdef AGL
+        case WINDOW_SYSTEM_AGL:
+            _messagePump = new AGLMessagePump();
+            break;
+#endif
+
+        default:
+            EQUNREACHABLE;
+    }
 }
 
 void CommandQueue::push(eqNet::Command& inCommand)
 {
     eqNet::CommandQueue::push(inCommand);
-#if defined (WIN32) || defined (AGL)
-    _messagePump.postWakeup();
-#endif
+    if( _messagePump )
+        _messagePump->postWakeup();
 }
 
 void CommandQueue::pushFront(eqNet::Command& inCommand)
 {
     eqNet::CommandQueue::pushFront(inCommand);
-#if defined (WIN32) || defined (AGL)
-    _messagePump.postWakeup();
-#endif
+    if( _messagePump )
+        _messagePump->postWakeup();
 }
 
 eqNet::Command* CommandQueue::pop()
 {
-#if defined (WIN32) || defined (AGL)
     while( true )
     {
         // Poll for a command
@@ -37,19 +83,18 @@ eqNet::Command* CommandQueue::pop()
         if( command )
             return command;
 
-        _messagePump.dispatchOne(); // blocking - push will send 'fake' event
+        if( _messagePump )
+            _messagePump->dispatchOne(); // blocking - push will send wakeup
+        else
+            return eqNet::CommandQueue::pop();
     }
-
-#else
-    return eqNet::CommandQueue::pop();
-#endif
 }
 
 eqNet::Command* CommandQueue::tryPop()
 {
-#if defined (WIN32) || defined (AGL)
-    _messagePump.dispatchAll(); // non-blocking
-#endif
+    if( _messagePump )
+        _messagePump->dispatchAll(); // non-blocking
+
     return eqNet::CommandQueue::tryPop();
 }
 }

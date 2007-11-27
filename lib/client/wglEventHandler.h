@@ -21,7 +21,7 @@ namespace eq
     class EQ_EXPORT WGLEventHandler : public EventHandler
     {
     public:
-        /** Constructs a new wgl event thread. */
+        /** Constructs a new wgl event handler. */
         WGLEventHandler( Window* window );
 
         /** @sa EventHandler::deregisterPipe() */
@@ -34,7 +34,7 @@ namespace eq
                                          LPARAM lParam );
 
       protected:
-        /** Destructs the wgl event thread. */
+        /** Destructs the wgl event handler. */
         virtual ~WGLEventHandler();
         
     private:

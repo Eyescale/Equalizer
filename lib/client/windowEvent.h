@@ -18,7 +18,7 @@ namespace eq
     public:
         enum Type
         {
-            EXPOSE,
+            EXPOSE = 0,
             RESIZE,
             POINTER_MOTION,
             POINTER_BUTTON_PRESS,

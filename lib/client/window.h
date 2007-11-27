@@ -339,7 +339,7 @@ namespace eq
          * @param true when the event was handled, false if not.
          */
         virtual bool processEvent( const WindowEvent& event );
-        friend class GLXEventThread;
+        friend class GLXEventHandler;
         friend class WGLEventHandler;
         friend class AGLEventHandler;
         //*}

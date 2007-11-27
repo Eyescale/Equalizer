@@ -15,7 +15,7 @@
 #include "packets.h"
 #include "windowEvent.h"
 #ifdef GLX
-#  include "glXEventThread.h"
+#  include "glXEventHandler.h"
 #endif
 #ifdef AGL
 #  include "aglEventHandler.h"
@@ -231,6 +231,9 @@ bool eq::Window::configInitGL( const uint32_t initID )
 
     glColorMaterial( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
     glEnable( GL_COLOR_MATERIAL );
+
+    glEnable( GL_CULL_FACE );
+    glCullFace( GL_BACK );
 
     glClearDepth( 1.f );
     //glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );

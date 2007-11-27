@@ -54,6 +54,12 @@ namespace eq
         /** @sa eqNet::Node::stopListening() */
         virtual bool stopListening();
 
+        /** 
+         * Set the window system for the client's message pump, used by
+         * non-threaded pipes.
+         */
+        void setWindowSystem( const WindowSystem windowSystem );
+
     protected:
         /** @sa eqNet::Node::clientLoop */
         virtual bool clientLoop();
@@ -74,7 +80,7 @@ namespace eq
         //*}
     private:
         /** The receiver->node command queue. */
-        eqNet::CommandQueue* _commandQueue;
+        CommandQueue* _commandQueue;
         
         bool _running;
 

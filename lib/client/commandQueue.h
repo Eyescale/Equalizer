@@ -7,6 +7,7 @@
 
 #include <eq/net/commandQueue.h>    // base class
 #include <eq/client/messagePump.h>  // member
+#include <eq/client/windowSystem.h> // enum
 
 namespace eq
 {
@@ -32,8 +33,12 @@ namespace eq
         /** @sa eqNet::CommandQueue::tryPop(). */
         virtual eqNet::Command* tryPop();
 
+        void         setWindowSystem( const WindowSystem windowSystem );
+        WindowSystem getWindowSystem() const { return _windowSystem; }
+        
     private:
-        MessagePump _messagePump;
+        MessagePump* _messagePump;
+        WindowSystem _windowSystem;
     };
 }
 

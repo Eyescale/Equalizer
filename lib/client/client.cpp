@@ -47,9 +47,29 @@ Client::~Client()
 bool Client::listen()
 {
     EQASSERT( !_commandQueue );
-    if( useMessagePump( )) _commandQueue = new eq::CommandQueue;
-    else                   _commandQueue = new eqNet::CommandQueue;
+    _commandQueue = new CommandQueue;
+
     return eqNet::Node::listen();
+}
+
+void Client::setWindowSystem( const WindowSystem windowSystem )
+{
+    // called from pipe threads - but only during init
+    static SpinLock _lock;
+    ScopedMutex< SpinLock > mutex( _lock );
+
+    if( _commandQueue->getWindowSystem() == WINDOW_SYSTEM_NONE )
+    {
+        if( useMessagePump( ))
+        {
+            _commandQueue->setWindowSystem( windowSystem );
+            EQINFO << "Client message pump set up for " << windowSystem << endl;
+        }
+    }
+    else if( _commandQueue->getWindowSystem() != windowSystem )
+        EQWARN << "Can't switch to window system " << windowSystem 
+               << ", already using " <<  _commandQueue->getWindowSystem()
+               << endl;
 }
 
 bool Client::stopListening()
@@ -179,7 +199,11 @@ eqBase::RefPtr<eqNet::Node> Client::createNode( const uint32_t type )
     switch( type )
     {
         case TYPE_EQ_SERVER:
-            return new Server;
+        {
+            Server* server = new Server;
+            server->_client = this;
+            return server;
+        }
 
         default:
             return eqNet::Node::createNode( type );

@@ -325,15 +325,15 @@ bool ConnectionSet::_setupFDSet()
 EQ_EXPORT std::ostream& operator << ( std::ostream& os,
                                       const ConnectionSet* set)
 {
-    const size_t nConnections = set->nConnections();
-    
-    os << "connection set " << (void*)set << ", " << nConnections
+    const ConnectionVector& connections = set->getConnections();
+
+    os << "connection set " << (void*)set << ", " << connections.size()
        << " connections";
     
-    for( size_t i=0; i<nConnections; i++ )
+    for( ConnectionVector::const_iterator i = connections.begin(); 
+         i != connections.end(); ++i )
     {
-        eqBase::RefPtr<Connection> connection = set->getConnection(i);
-        os << endl << "    " << connection.get();
+        os << endl << "    " << (*i).get();
     }
     
     return os;

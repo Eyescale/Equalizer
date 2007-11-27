@@ -48,9 +48,8 @@ namespace eqNet
         void addConnection( eqBase::RefPtr<Connection> connection );
         bool removeConnection( eqBase::RefPtr<Connection> connection );
         void clear();
-        size_t nConnections() const { return _connections.size(); }
-        eqBase::RefPtr<Connection> getConnection( const size_t i ) const
-            { return _connections[i]; }
+
+        const ConnectionVector& getConnections() const { return _connections; }
 
         /** 
          * Selects a Connection which is ready for I/O.
@@ -77,7 +76,7 @@ namespace eqNet
         eqBase::SpinLock _mutex;
 
         /** The connections to handle */
-        std::vector< eqBase::RefPtr<Connection> > _connections;
+        ConnectionVector _connections;
 
 #ifdef WIN32
         std::vector<HANDLE> _fdSet;

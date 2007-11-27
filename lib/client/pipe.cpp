@@ -13,7 +13,7 @@
 #include "X11Connection.h"
 #include "window.h"
 #ifdef GLX
-#  include "glXEventThread.h"
+#  include "glXEventHandler.h"
 #endif
 #ifdef WGL
 #  include "wglEventHandler.h"
@@ -22,13 +22,15 @@
 #include <eq/net/command.h>
 #include <sstream>
 
-using namespace eq;
 using namespace eqBase;
 using namespace std;
 
 #ifdef WIN32
 #  define bzero( ptr, size ) memset( ptr, 0, size );
 #endif
+
+namespace eq
+{
 
 Pipe::Pipe()
         : _eventHandler( 0 ),
@@ -129,6 +131,27 @@ WindowSystem Pipe::selectWindowSystem() const
     return WINDOW_SYSTEM_NONE;
 }
 
+void Pipe::_setupCommandQueue()
+{
+    EQASSERT( _windowSystem != WINDOW_SYSTEM_NONE );
+
+    // Switch the client's message pump for non-threaded and AGL pipes
+    if( !_thread || _windowSystem == WINDOW_SYSTEM_AGL )
+    {
+        RefPtr< Client > client = getClient();
+        client->setWindowSystem( _windowSystem );
+        return;
+    }
+    
+    EQASSERT( _commandQueue );
+    
+    if( useMessagePump( ))
+    {
+        _commandQueue->setWindowSystem( _windowSystem );
+        EQINFO << "Pipe message pump set up for " << _windowSystem << endl;
+    }
+}
+
 void Pipe::setXDisplay( Display* display )
 {
 #ifdef GLX
@@ -184,11 +207,6 @@ void Pipe::setXDisplay( Display* display )
     else
         _pvp.invalidate();
 #endif
-}
-
-void Pipe::setXEventConnection( RefPtr<X11Connection> display )
-{
-    _xEventConnection = display; 
 }
 
 int Pipe::XErrorHandler( Display* display, XErrorEvent* event )
@@ -334,10 +352,10 @@ void Pipe::waitExit()
         return;
 
     _thread->join();
-
     delete _thread;
+    _thread = 0;
+
     delete _commandQueue;
-    _thread       = 0;
     _commandQueue = 0;
 }
 
@@ -759,14 +777,9 @@ eqNet::CommandResult Pipe::_cmdConfigInit( eqNet::Command& command )
 
     if( packet->threaded )
     {
-#ifdef WIN32
-        if( useMessagePump( )) 
-            _commandQueue = new eq::CommandQueue;
-        else
-#endif
-            _commandQueue = new eqNet::CommandQueue;
+        _commandQueue = new CommandQueue;
+        _thread       = new PipeThread( this );
 
-        _thread = new PipeThread( this );
         _thread->start();
     }
 
@@ -792,6 +805,8 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
     _node->waitInitialized();
 
     _windowSystem = selectWindowSystem();
+    _setupCommandQueue();
+
     _error.clear();
     reply.result  = configInit( packet->initID );
 
@@ -941,4 +956,5 @@ eqNet::CommandResult Pipe::_reqFrameDrawFinish( eqNet::Command& command )
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
     return eqNet::COMMAND_HANDLED;
+}
 }

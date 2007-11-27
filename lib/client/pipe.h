@@ -9,23 +9,13 @@
 #include <eq/client/node.h>           // used in inline methods
 #include <eq/client/pixelViewport.h>  // member
 #include <eq/client/statEvent.h>      // member
-#include <eq/client/X11Connection.h>  // member
 #include <eq/client/windowSystem.h>   // member
 
 #include <eq/base/refPtr.h>
 #include <eq/base/spinLock.h>
 #include <eq/base/thread.h>
 #include <eq/net/base.h>
-#include <eq/net/commandQueue.h>
 #include <eq/net/object.h>
-
-#ifdef WGL
-#  include "wglext.h"
-#else
-#  ifndef PFNWGLDELETEDCNVPROC
-#    define PFNWGLDELETEDCNVPROC void*
-#  endif
-#endif
 
 namespace eq
 {
@@ -103,24 +93,14 @@ namespace eq
         /** @return the X display connection for this pipe. */
         Display* getXDisplay() const { return _xDisplay; }
 
-        /** 
-         * Set the X display connection for event processing
-         * 
-         * This function should only be called from the event thread.
-         *
-         * @param connection the X event display connection for this pipe.
-         */
-        void setXEventConnection( eqBase::RefPtr<X11Connection> connection );
-
-        /** @return the X event display connection for this pipe. */
-        eqBase::RefPtr<X11Connection> getXEventConnection() const
-            { return _xEventConnection; }
-
         /** @return the CG display ID for this pipe. */
         CGDirectDisplayID getCGDisplayID() const { return _cgDisplayID; }
 
         /** @return the time in ms elapsed since the frame started. */
         float getFrameTime() const { return _frameClock.getTimef(); }
+
+        /** @return the pipe's event handler, or 0. */
+        EventHandler* getEventHandler() { return _eventHandler; }
         //*}
 
         /**
@@ -400,9 +380,6 @@ namespace eq
             char _displayFill[16];
         };
 
-        /** The X event display connection. */
-        eqBase::RefPtr<X11Connection> _xEventConnection;
-
         /** The display (GLX) or ignored (Win32, AGL). */
         uint32_t _port;
 
@@ -447,9 +424,10 @@ namespace eq
         PipeThread* _thread;
 
         /** The receiver->pipe thread command queue. */
-        eqNet::CommandQueue*   _commandQueue;
+        eq::CommandQueue*   _commandQueue;
 
         void* _runThread();
+        void _setupCommandQueue();
 
         static int XErrorHandler( Display* display, XErrorEvent* event );
 

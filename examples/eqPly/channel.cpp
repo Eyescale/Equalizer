@@ -76,7 +76,7 @@ void Channel::frameDraw( const uint32_t frameID )
     {
         glColor3f( 1.0f, 1.0f, 1.0f );
     }
-    
+
     if( model )
     {
         _drawModel( model );

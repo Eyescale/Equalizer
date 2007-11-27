@@ -7,49 +7,24 @@
 
 #include <eq/base/base.h>
 
-#ifdef AGL
-#  define Cursor CGLCursor   // avoid name clash with X11 'Cursor'
-#  include <Carbon/Carbon.h>
-#  undef Cursor
-#endif
-
 namespace eq
 {
     /**
-     * Implements an OS-agnostic way to process OS messages/events.
-     *
-     * Not implemented on Unix-like systems, where a (X11) message pump is not
-     * needed.
+     * Defines an interface to process OS messages/events.
      */
     class MessagePump
     {
     public:
-        MessagePump();
+        /** Wake up dispatchOne(). */
+        virtual void postWakeup() = 0;
 
-        /** Wake up dispatchOneEvent(). */
-        void postWakeup();
+        /** Get and dispatch all pending system events, non-blocking. */
+        virtual void dispatchAll() = 0;
 
-        /** Get and dispatch all pending system events, non-blocking */
-        void dispatchAll();
-
-        /** Get and dispatch one pending system event, blocking */
-        void dispatchOne();
-
-    private:
-
-        union
-        {
-#ifdef WIN32
-            /** Thread ID of the receiver. */
-            DWORD _win32ThreadID;
-#endif
-#ifdef AGL
-            EventQueueRef _receiverQueue;
-#endif
-            char _fillDummy[32];
-        };
-
-        void _initReceiverQueue();
+        /** Get and dispatch at least one pending system event, blocking. */
+        virtual void dispatchOne() = 0;
+        
+        virtual ~MessagePump() {}
     };
 }
 

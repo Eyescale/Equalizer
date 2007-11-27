@@ -167,7 +167,6 @@ CXXFILES = \
 	client/global.cpp \
 	client/image.cpp \
 	client/init.cpp \
-	client/messagePump.cpp \
 	client/node.cpp \
 	client/objectManager.cpp \
 	client/pipe.cpp \
@@ -185,10 +184,11 @@ CFILES += \
 
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
   HEADER_SRC += \
-	client/glXEventThread.h
+	client/glXEventHandler.h
 
   CXXFILES += \
-	client/glXEventThread.cpp
+	client/glXEventHandler.cpp \
+	client/glXMessagePump.cpp
 endif
 
 ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
@@ -196,17 +196,17 @@ ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
 	client/aglEventHandler.h
 
   CXXFILES += \
-	client/aglEventHandler.cpp
+	client/aglEventHandler.cpp \
+	client/aglMessagePump.cpp
 endif
 
 ifeq ($(findstring WGL, $(WINDOW_SYSTEM)),WGL)
   HEADER_SRC += \
-	client/glext.h \
-	client/wglext.h \
 	client/wglEventHandler.h
 
   CXXFILES += \
-	client/wglEventHandler.cpp
+	client/wglEventHandler.cpp \
+	client/wglMessagePump.cpp
 
 ifdef VARIANT
 $(OBJECTS): $(PTHREAD_LIBS)

@@ -16,13 +16,14 @@ namespace eq
     /**
      * A X11 Display connection wrapper.
      */
-    class X11Connection : public eqNet::Connection, 
-                          public virtual eqBase::Userdata<Pipe*>
+    class X11Connection : public eqNet::Connection
     {
     public:
-        X11Connection( Display* display )
-                : _display( display )
+        X11Connection( Pipe* pipe_ )
+                : pipe( pipe_ )
+                , _display( pipe_->getXDisplay( ))
             {
+                EQASSERT( _display );
                 _state = STATE_CONNECTED;
                 EQINFO << "New X11 connection @" << (void*)this << std::endl;
             }
@@ -33,6 +34,8 @@ namespace eq
         Display* getDisplay() const   { return _display; }
         virtual ReadNotifier getReadNotifier()
             { return ConnectionNumber( _display ); }
+
+        Pipe* const pipe;
 
     protected:
         virtual int64_t read( void* buffer, const uint64_t bytes )

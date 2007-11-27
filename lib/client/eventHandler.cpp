@@ -4,7 +4,7 @@
 #include "eventHandler.h"
 
 #ifdef GLX
-#  include "glXEventThread.h"
+#  include "glXEventHandler.h"
 #endif
 #ifdef WGL
 #  include "wglEventHandler.h"
@@ -29,11 +29,7 @@ EventHandler* EventHandler::registerPipe( Pipe* pipe )
     {
         case WINDOW_SYSTEM_GLX:
 #ifdef GLX
-        {
-            GLXEventThread* thread = GLXEventThread::get();
-            thread->registerPipe( pipe );
-            return thread;
-        }
+            return new GLXEventHandler( pipe );
 #endif
             break;
 
@@ -52,7 +48,7 @@ EventHandler* EventHandler::registerPipe( Pipe* pipe )
 
 EventHandler* EventHandler::registerWindow( Window* window )
 {
-    const Pipe* pipe = window->getPipe();
+    Pipe* pipe = window->getPipe();
     if( !pipe )
     {
         EQWARN << "Can't determine window system: no parent pipe" << endl;
@@ -64,9 +60,21 @@ EventHandler* EventHandler::registerWindow( Window* window )
         case WINDOW_SYSTEM_GLX:
 #ifdef GLX
         {
-            GLXEventThread* thread = GLXEventThread::get();
-            thread->registerWindow( window );
-            return thread;
+            EventHandler* handler = pipe->getEventHandler();
+            if( !handler )
+            {
+                EQWARN << "No pipe event handler, can't initialize window event"
+                       << " handling" << endl;
+                return 0;
+            }
+
+            EQASSERT( dynamic_cast< GLXEventHandler* >( handler ));
+            
+            GLXEventHandler* glxHandler = 
+                static_cast< GLXEventHandler* >( handler );
+            
+            glxHandler->registerWindow( window );
+            return glxHandler;
         }
 #endif
             break;

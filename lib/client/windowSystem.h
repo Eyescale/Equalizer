@@ -104,6 +104,7 @@ typedef void*   AGLContext;
 typedef void* HDC;
 typedef void* HWND;
 typedef void* HGLRC;
+#  define PFNWGLDELETEDCNVPROC void*
 #endif
 
 // Error-check macros

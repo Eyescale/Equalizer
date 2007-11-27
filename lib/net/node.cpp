@@ -223,10 +223,11 @@ void Node::_cleanup()
     _connectionNodes.erase( _connection.get( ));
     _connection = 0;
 
-    const size_t nConnections = _connectionSet.nConnections();
-    for( size_t i = 0; i<nConnections; i++ )
+    const ConnectionVector& connections = _connectionSet.getConnections();
+    for( ConnectionVector::const_iterator i = connections.begin(); 
+         i != connections.end(); ++i )
     {
-        RefPtr<Connection> connection = _connectionSet.getConnection(i);
+        RefPtr<Connection> connection = *i;
         RefPtr<Node>       node       = _connectionNodes[ connection.get() ];
 
         node->_state      = STATE_STOPPED;
