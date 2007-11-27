@@ -1,56 +1,92 @@
-# Simple config executing the rendering from the application thread
-global
-{
-    EQ_PIPE_IATTR_HINT_THREAD OFF
-}
-
 server
 {
-    config
-    {
-        appNode
-        {
-            pipe
-            {
-                window
-                {
-                    viewport [ 0.25 0.25 0.25 0.25 ]
-                    
-                    channel { name "channel" }
-                }
-            }
-            pipe
-            {
-                window
-                {
-                    viewport [ 0.25 0.25 0.25 0.25 ]
-                    
-                    channel { name "channel2" }
-                }
-            }
-        }
-        compound
-        { 
-        compound
-        { 
-            channel "channel"
-            wall
-            {
-                bottom_left  [ -.32 -.20 -.75 ]
-                bottom_right [  .32 -.20 -.75 ]
-                top_left     [ -.32  .20 -.75 ]
-            }
-        }
-        compound
-        { 
-            channel "channel2"
-            wall
-            {
-                bottom_left  [ -.32 -.20 -.75 ]
-                bottom_right [  .32 -.20 -.75 ]
-                top_left     [ -.32  .20 -.75 ]
-            }
-        }
-        }
-    }    
+   config
+   {
+       appNode
+       {
+           pipe
+           {
+               window
+               {
+                   name "Clustered csg - powered by Equalizer"
+                   viewport [ 100 400 480 300 ]
+                   channel
+                   {
+                       name "channel1"
+                   }
+               }
+               window
+               {
+                   name "Clustered csg - powered by Equalizer"
+                   viewport [ 580 400 480 300 ]
+                   channel
+                   {
+                       name "channel2"
+                   }
+               }
+               window
+               {
+                   name "Clustered csg - powered by Equalizer"
+                   viewport [ 100 100 480 300 ]
+                   channel
+                   {
+                       name "channel3"
+                   }
+               }
+               window
+               {
+                   name "Clustered csg - powered by Equalizer"
+                   viewport [ 580 100 480 300 ]
+                   channel
+                   {
+                       name "channel4"
+                   }
+               }
+           }
+       }
+       compound
+       {
+           compound
+           {
+               channel "channel1"
+               wall
+               {
+                   bottom_left  [ -.48 -.3 -1 ]
+                   bottom_right [ -.0 -.3 -1 ]
+                   top_left     [ -.48  .0 -1 ]
+               }
+           }
+           compound
+           {
+               channel "channel2"
+               wall
+               {
+                   bottom_left  [  .0 -.3 -1 ]
+                   bottom_right [  .48 -.3 -1 ]
+                   top_left     [  .0  .0 -1 ]
+               }
+           }
+           compound
+           {
+               channel "channel3"
+               wall
+               {
+                   bottom_left  [ -.48  .0 -1 ]
+                   bottom_right [  .0   .0 -1 ]
+                   top_left     [ -.48  .3 -1 ]
+               }
+           }
+           compound
+           {
+               channel "channel4"
+               wall
+               {
+                   bottom_left  [  .0   .0 -1 ]
+                   bottom_right [  .48  .0 -1 ]
+                   top_left     [  .0   .3 -1 ]
+               }
+           }
+       }
+   }
 }
+
