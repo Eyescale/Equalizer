@@ -179,8 +179,12 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event, eq::Window* window )
             GetEventParameter( event, kEventParamWindowMouseLocation, 
                                typeHIPoint, 0, sizeof( pos ), 0, 
                                &pos );
+            if( pos.y < EQ_AGL_MENUBARHEIGHT )
+                return false; // ignore pointer events on the menu bar
+
             windowEvent.data.pointerMotion.x = static_cast< int32_t >( pos.x );
-            windowEvent.data.pointerMotion.y = static_cast< int32_t >( pos.y );
+            windowEvent.data.pointerMotion.y = static_cast< int32_t >( pos.y ) -
+                                               EQ_AGL_MENUBARHEIGHT;
 
             GetEventParameter( event, kEventParamMouseDelta, 
                                typeHIPoint, 0, sizeof( pos ), 0, 
@@ -216,10 +220,13 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event, eq::Window* window )
             GetEventParameter( event, kEventParamWindowMouseLocation, 
                                typeHIPoint, 0, sizeof( pos ), 0, 
                                &pos );
+            if( pos.y < EQ_AGL_MENUBARHEIGHT )
+                return false; // ignore pointer events on the menu bar
+
             windowEvent.data.pointerButtonPress.x = 
                 static_cast< int32_t >( pos.x );
             windowEvent.data.pointerButtonPress.y = 
-                static_cast< int32_t >( pos.y );
+                static_cast< int32_t >( pos.y ) - EQ_AGL_MENUBARHEIGHT;
 
             windowEvent.data.pointerButtonPress.dx = _lastDX;
             windowEvent.data.pointerButtonPress.dy = _lastDY;
@@ -251,10 +258,13 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event, eq::Window* window )
             GetEventParameter( event, kEventParamWindowMouseLocation, 
                                typeHIPoint, 0, sizeof( pos ), 0, 
                                &pos );
+            if( pos.y < EQ_AGL_MENUBARHEIGHT )
+                return false; // ignore pointer events on the menu bar
+
             windowEvent.data.pointerButtonRelease.x = 
                 static_cast< int32_t>( pos.x );
             windowEvent.data.pointerButtonRelease.y = 
-                static_cast< int32_t>( pos.y );
+                static_cast< int32_t>( pos.y ) - EQ_AGL_MENUBARHEIGHT;
 
             windowEvent.data.pointerButtonRelease.dx = _lastDX;
             windowEvent.data.pointerButtonRelease.dy = _lastDY;

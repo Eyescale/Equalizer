@@ -113,6 +113,8 @@ namespace eq
 
     struct Event
     {
+        Event();
+
         enum Type
         {
             EXPOSE = 0,

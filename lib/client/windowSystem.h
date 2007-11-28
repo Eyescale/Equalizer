@@ -46,6 +46,7 @@ namespace eq
 #  include <ApplicationServices/ApplicationServices.h>
 #  include <AGL/agl.h>
 #  include <Carbon/Carbon.h>
+#  define EQ_AGL_MENUBARHEIGHT 22
 #endif
 
 #ifdef WGL

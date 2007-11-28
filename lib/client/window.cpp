@@ -635,15 +635,13 @@ bool Window::configInitAGL()
     }
     else // create carbon window and bind drawable to context
     {
-        static const uint32_t menuBarHeight = 22;
-
         // window
         WindowAttributes winAttributes = kWindowStandardDocumentAttributes |
                                          kWindowStandardHandlerAttribute   |
                                          kWindowInWindowMenuAttribute;
         // top, left, bottom, right
-        Rect             windowRect = { _pvp.y + menuBarHeight, _pvp.x, 
-                                        _pvp.y + _pvp.h + menuBarHeight,
+        Rect             windowRect = { _pvp.y + EQ_AGL_MENUBARHEIGHT, _pvp.x, 
+                                        _pvp.y + _pvp.h + EQ_AGL_MENUBARHEIGHT,
                                         _pvp.x + _pvp.w };
         WindowRef        windowRef;
 

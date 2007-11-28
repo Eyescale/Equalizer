@@ -7,6 +7,6 @@
 EQ_EXPORT std::ostream& eq::operator << ( std::ostream& os, const RenderContext& ctx )
 {
     os << "pvp " << ctx.pvp << " vp " << ctx.vp << " " << ctx.range << " " 
-       << ctx.eye << " frustum " << ctx.frustum;
+       << ctx.eye << " frustum " << ctx.frustum << " xfm " << ctx.headTransform;
     return os;
 }

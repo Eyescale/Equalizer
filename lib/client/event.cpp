@@ -7,6 +7,10 @@
 using namespace std;
 using namespace eqBase;
 
+#ifdef WIN32
+#  define bzero( ptr, size ) memset( ptr, 0, size );
+#endif
+
 namespace eq
 {
 /** String representation of event types. */
@@ -23,6 +27,12 @@ static std::string _eventTypeNames[ Event::ALL ] =
     "unknown",
     "user-specific"
 };
+
+Event::Event()
+        : type( UNKNOWN )
+{
+    bzero( &context, sizeof( RenderContext ));
+}
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event& event )
 {

@@ -169,7 +169,7 @@ namespace eq
         /** @returns true if the point (pX,pY) is inside, false if not. */
         bool isPointInside( const int32_t pX, const int32_t pY ) const
             {
-                if( pX < x || pX < y || pX >= (x+w) || pY >= (y+h) )
+                if( pX < x || pX < y || pX > (x+w) || pY > (y+h) )
                     return false;
                 return true;
             }

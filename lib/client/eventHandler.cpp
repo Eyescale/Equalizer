@@ -22,10 +22,6 @@
 using namespace eqBase;
 using namespace std;
 
-#ifdef WIN32
-#  define bzero( ptr, size ) memset( ptr, 0, size );
-#endif
-
 namespace eq
 {
 EventHandler* EventHandler::registerPipe( Pipe* pipe )
@@ -145,16 +141,13 @@ void EventHandler::_computePointerDelta( WindowEvent &event )
 void EventHandler::_getRenderContext( WindowEvent& event )
 {
     const int32_t x = event.data.pointerEvent.x;
-    const int32_t y = event.data.pointerEvent.x;
+    const int32_t y = event.data.pointerEvent.y;
 
     const RenderContext* context = event.window->getRenderContext( x, y );
     if( context )
         event.data.context = *context;
     else
-    {
         EQINFO << "No rendering context for pointer event on " << x << ", " 
                << y << endl;
-        bzero( &event.data.context, sizeof( RenderContext ));
-    }
 }
 }
