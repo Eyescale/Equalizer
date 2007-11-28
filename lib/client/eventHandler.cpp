@@ -19,10 +19,15 @@
 #include <eq/base/lock.h>
 #include <eq/base/debug.h>
 
-using namespace eq;
 using namespace eqBase;
 using namespace std;
 
+#ifdef WIN32
+#  define bzero( ptr, size ) memset( ptr, 0, size );
+#endif
+
+namespace eq
+{
 EventHandler* EventHandler::registerPipe( Pipe* pipe )
 {
     switch( pipe->getWindowSystem( ))
@@ -108,29 +113,48 @@ void EventHandler::_computePointerDelta( WindowEvent &event )
 {
     if( _lastPointerEvent.window != event.window )
     {
-        event.pointerEvent.dx = 0;
-        event.pointerEvent.dy = 0;
+        event.data.pointerEvent.dx = 0;
+        event.data.pointerEvent.dy = 0;
         _lastPointerEvent = event;
         return;
     }
 
-    switch( event.type )
+    switch( event.data.type )
     {
-        case WindowEvent::POINTER_BUTTON_PRESS:
-        case WindowEvent::POINTER_BUTTON_RELEASE:
-            if( _lastPointerEvent.type == WindowEvent::POINTER_MOTION )
+        case Event::POINTER_BUTTON_PRESS:
+        case Event::POINTER_BUTTON_RELEASE:
+            if( _lastPointerEvent.data.type == Event::POINTER_MOTION )
             {
-                event.pointerEvent.dx = _lastPointerEvent.pointerEvent.dx;
-                event.pointerEvent.dy = _lastPointerEvent.pointerEvent.dy;
+                event.data.pointerEvent.dx =
+                    _lastPointerEvent.data.pointerEvent.dx;
+                event.data.pointerEvent.dy =
+                    _lastPointerEvent.data.pointerEvent.dy;
                 break;
             }
             // fall through
 
         default:
-            event.pointerEvent.dx = 
-                event.pointerEvent.x - _lastPointerEvent.pointerEvent.x;
-            event.pointerEvent.dy = 
-                event.pointerEvent.y - _lastPointerEvent.pointerEvent.y;
+            event.data.pointerEvent.dx = event.data.pointerEvent.x -
+                                         _lastPointerEvent.data.pointerEvent.x;
+            event.data.pointerEvent.dy = event.data.pointerEvent.y -
+                                         _lastPointerEvent.data.pointerEvent.y;
     }
     _lastPointerEvent = event;
+}
+
+void EventHandler::_getRenderContext( WindowEvent& event )
+{
+    const int32_t x = event.data.pointerEvent.x;
+    const int32_t y = event.data.pointerEvent.x;
+
+    const RenderContext* context = event.window->getRenderContext( x, y );
+    if( context )
+        event.data.context = *context;
+    else
+    {
+        EQINFO << "No rendering context for pointer event on " << x << ", " 
+               << y << endl;
+        bzero( &event.data.context, sizeof( RenderContext ));
+    }
+}
 }

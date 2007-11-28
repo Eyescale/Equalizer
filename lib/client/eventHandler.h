@@ -61,7 +61,10 @@ namespace eq
         virtual ~EventHandler(){}
 
         /** Compute the mouse move delta from the previous pointer event. */
-        void _computePointerDelta( WindowEvent &event );
+        void _computePointerDelta( WindowEvent& event );
+
+        /** Find and set the rendering context at the mouse position. */
+        void _getRenderContext( WindowEvent& event );
 
         /** The previous pointer event to compute mouse movement deltas. */
         WindowEvent _lastPointerEvent;

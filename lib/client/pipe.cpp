@@ -33,15 +33,15 @@ namespace eq
 {
 
 Pipe::Pipe()
-        : _eventHandler( 0 ),
-          _node( 0 ),
-          _windowSystem( WINDOW_SYSTEM_NONE ),
-          _port( EQ_UNDEFINED_UINT32 ),
-          _device( EQ_UNDEFINED_UINT32 ),
-          _thread( 0 ),
-          _commandQueue( 0 )
+        : _eventHandler( 0 )
+        , _node( 0 )
+        , _windowSystem( WINDOW_SYSTEM_NONE )
+        , _port( EQ_UNDEFINED_UINT32 )
+        , _device( EQ_UNDEFINED_UINT32 )
+        , _thread( 0 )
+        , _commandQueue( 0 )
 {
-    bzero( _displayFill, sizeof( _displayFill ));
+    bzero( _pipeFill, sizeof( _pipeFill ));
     registerCommand( CMD_PIPE_CREATE_WINDOW,
                    eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdCreateWindow ));
     registerCommand( CMD_PIPE_DESTROY_WINDOW, 
@@ -83,7 +83,7 @@ void Pipe::_addWindow( Window* window )
 void Pipe::_removeWindow( Window* window )
 {
     WindowVector::iterator iter = find( _windows.begin(), _windows.end(),
-                                           window );
+                                        window );
     EQASSERT( iter != _windows.end( ))
     
     _windows.erase( iter );
@@ -240,6 +240,12 @@ int Pipe::XErrorHandler( Display* display, XErrorEvent* event )
             break;
     }
     EQERROR << enableFlush << exdent << enableHeader;
+
+#ifndef NDEBUG
+    if( getenv( "EQ_ABORT_WAIT" ))
+        while( true ) ;
+#endif
+
 #endif // GLX
 
     return 0;

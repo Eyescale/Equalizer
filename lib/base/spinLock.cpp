@@ -41,6 +41,7 @@ SpinLock::SpinLock()
         EQERROR << "Error creating pthread mutex: " << strerror(error) << endl;
         return;
     }
+    EQINFO << " New SpinLock @" << (void*)this << endl;
 }
 
 SpinLock::~SpinLock()

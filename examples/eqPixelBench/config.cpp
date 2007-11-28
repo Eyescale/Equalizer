@@ -17,7 +17,7 @@ Config::~Config()
 
 bool Config::handleEvent( const eq::ConfigEvent* event )
 {
-    switch( event->type )
+    switch( event->data.type )
     {
         case ConfigEvent::READBACK:
         case ConfigEvent::ASSEMBLE:

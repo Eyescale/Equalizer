@@ -304,6 +304,12 @@ void Channel::resetAssemblyState()
     EQ_GL_ERROR( "after  resetAssemblyState" );
 }
 
+void Channel::_setRenderContext( RenderContext& context )
+{
+    _context = &context;
+    _window->addRenderContext( context );
+}
+
 const Viewport& Channel::getViewport() const
 {
     return _context ? _context->vp : _vp;
@@ -474,7 +480,7 @@ eqNet::CommandResult Channel::_reqFrameClear( eqNet::Command& command )
 
     StatEvent event( StatEvent::CHANNEL_CLEAR, this );
 
-    _context = &packet->context;
+    _setRenderContext( packet->context );
     frameClear( packet->context.frameID );
     _context = NULL;
 
@@ -489,7 +495,7 @@ eqNet::CommandResult Channel::_reqFrameDraw( eqNet::Command& command )
 
     StatEvent event( StatEvent::CHANNEL_DRAW, this );
 
-    _context = &packet->context;
+    _setRenderContext( packet->context );
     frameDraw( packet->context.frameID );
     _context = NULL;
 
@@ -518,7 +524,7 @@ eqNet::CommandResult Channel::_reqFrameAssemble( eqNet::Command& command )
                                        << packet << endl;
 
     StatEvent event( StatEvent::CHANNEL_ASSEMBLE, this );
-    _context = &packet->context;
+    _setRenderContext( packet->context );
 
     for( uint32_t i=0; i<packet->nFrames; ++i )
     {
@@ -545,7 +551,7 @@ eqNet::CommandResult Channel::_reqFrameReadback( eqNet::Command& command )
                                        << packet << endl;
 
     StatEvent event( StatEvent::CHANNEL_READBACK, this );
-    _context = &packet->context;
+    _setRenderContext( packet->context );
 
     for( uint32_t i=0; i<packet->nFrames; ++i )
     {

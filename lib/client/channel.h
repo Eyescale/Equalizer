@@ -352,7 +352,7 @@ namespace eq
         static std::string _iAttributeStrings[IATTR_ALL];
 
         /** server-supplied rendering data. */
-        RenderContext *_context;
+        RenderContext* _context;
 
         /** server-supplied vector of output frames for current task. */
         std::vector<Frame*> _outputFrames;
@@ -386,6 +386,9 @@ namespace eq
          * @param pvp the viewport in pixels.
          */
         void _setPixelViewport( const PixelViewport& pvp );
+
+        /** Setup the current rendering context. */
+        void _setRenderContext( RenderContext& context );
 
         /* The command handler functions. */
         eqNet::CommandResult _pushCommand( eqNet::Command& command );

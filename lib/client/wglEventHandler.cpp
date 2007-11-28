@@ -180,12 +180,12 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
         case WM_SHOWWINDOW:
         case WM_WINDOWPOSCHANGED:
         {
-            event.type = WindowEvent::RESIZE;
+            event.data.type = Event::RESIZE;
 
             RECT rect;
             GetClientRect( hWnd, &rect );
-            event.resize.w = rect.right - rect.left;
-            event.resize.h = rect.bottom - rect.top; 
+            event.data.resize.w = rect.right - rect.left;
+            event.data.resize.h = rect.bottom - rect.top; 
 
             // Get window coordinates, the rect data is relative
             // to window parent, but we report pvp relative to screen.
@@ -193,15 +193,15 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             point.x = rect.left;
             point.y = rect.top;
             ClientToScreen( hWnd, &point );
-            event.resize.x = point.x;
-            event.resize.y = point.y;
+            event.data.resize.x = point.x;
+            event.data.resize.y = point.y;
 
             break;
         }
 
 		case WM_CLOSE:
 		case WM_DESTROY:
-            event.type = WindowEvent::CLOSE;
+            event.data.type = Event::WINDOW_CLOSE;
             break;
 
         case WM_PAINT:
@@ -213,7 +213,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             BeginPaint(hWnd, &ps);
             EndPaint(hWnd, &ps);
 
-            event.type = WindowEvent::EXPOSE;
+            event.data.type = Event::EXPOSE;
             break;
         }
 
@@ -221,131 +221,140 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
         {
             _syncButtonState( wParam );
 
-            event.type = WindowEvent::POINTER_MOTION;
-            event.pointerMotion.x = GET_X_LPARAM( lParam );
-            event.pointerMotion.y = GET_Y_LPARAM( lParam );
-            event.pointerMotion.buttons = _buttonState;
+            event.data.type = Event::POINTER_MOTION;
+            event.data.pointerMotion.x = GET_X_LPARAM( lParam );
+            event.data.pointerMotion.y = GET_Y_LPARAM( lParam );
+            event.data.pointerMotion.buttons = _buttonState;
 
             _computePointerDelta( event );
+            _getRenderContext( event );
             break;
         }
 
         case WM_LBUTTONDOWN:
             _buttonState |= PTR_BUTTON1;
-            event.type = WindowEvent::POINTER_BUTTON_PRESS;
-            event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
-            event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
-            event.pointerButtonPress.buttons = _buttonState;
-            event.pointerButtonPress.button  = PTR_BUTTON1;
+            event.data.type = Event::POINTER_BUTTON_PRESS;
+            event.data.pointerButtonPress.x       = GET_X_LPARAM( lParam );
+            event.data.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
+            event.data.pointerButtonPress.buttons = _buttonState;
+            event.data.pointerButtonPress.button  = PTR_BUTTON1;
 
             _computePointerDelta( event );
+            _getRenderContext( event );
             break;
 
         case WM_MBUTTONDOWN:
             _buttonState |= PTR_BUTTON2;
-            event.type = WindowEvent::POINTER_BUTTON_PRESS;
-            event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
-            event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
-            event.pointerButtonPress.buttons = _buttonState;
-            event.pointerButtonPress.button  = PTR_BUTTON2;
+            event.data.type = Event::POINTER_BUTTON_PRESS;
+            event.data.pointerButtonPress.x       = GET_X_LPARAM( lParam );
+            event.data.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
+            event.data.pointerButtonPress.buttons = _buttonState;
+            event.data.pointerButtonPress.button  = PTR_BUTTON2;
 
             _computePointerDelta( event );
+            _getRenderContext( event );
             break;
 
         case WM_RBUTTONDOWN:
             _buttonState |= PTR_BUTTON3;
-            event.type = WindowEvent::POINTER_BUTTON_PRESS;
-            event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
-            event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
-            event.pointerButtonPress.buttons = _buttonState;
-            event.pointerButtonPress.button  = PTR_BUTTON3;
+            event.data.type = Event::POINTER_BUTTON_PRESS;
+            event.data.pointerButtonPress.x       = GET_X_LPARAM( lParam );
+            event.data.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
+            event.data.pointerButtonPress.buttons = _buttonState;
+            event.data.pointerButtonPress.button  = PTR_BUTTON3;
 
             _computePointerDelta( event );
+            _getRenderContext( event );
             break;
 
         case WM_XBUTTONDOWN:
-            event.type = WindowEvent::POINTER_BUTTON_PRESS;
-            event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
-            event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
+            event.data.type = Event::POINTER_BUTTON_PRESS;
+            event.data.pointerButtonPress.x       = GET_X_LPARAM( lParam );
+            event.data.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
 
 			if( GET_XBUTTON_WPARAM( wParam ) & XBUTTON1 )
-				event.pointerButtonRelease.button = PTR_BUTTON4;
+				event.data.pointerButtonRelease.button = PTR_BUTTON4;
 			else
-				event.pointerButtonRelease.button = PTR_BUTTON5;
+				event.data.pointerButtonRelease.button = PTR_BUTTON5;
 
-            _buttonState |= event.pointerButtonPress.button;
+            _buttonState |= event.data.pointerButtonPress.button;
             _syncButtonState( GET_KEYSTATE_WPARAM( wParam ));
-            event.pointerButtonPress.buttons = _buttonState;
+            event.data.pointerButtonPress.buttons = _buttonState;
 
             _computePointerDelta( event );
+            _getRenderContext( event );
             result = TRUE;
             break;
 
         case WM_LBUTTONUP:
             _buttonState &= ~PTR_BUTTON1;
-            event.type = WindowEvent::POINTER_BUTTON_RELEASE;
-            event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
-            event.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
-            event.pointerButtonRelease.buttons = _buttonState;
-            event.pointerButtonRelease.button  = PTR_BUTTON1;
+            event.data.type = Event::POINTER_BUTTON_RELEASE;
+            event.data.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
+            event.data.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
+            event.data.pointerButtonRelease.buttons = _buttonState;
+            event.data.pointerButtonRelease.button  = PTR_BUTTON1;
 
             _computePointerDelta( event );
+            _getRenderContext( event );
             break;
 
         case WM_MBUTTONUP:
             _buttonState &= ~PTR_BUTTON2;
-            event.type = WindowEvent::POINTER_BUTTON_RELEASE;
-            event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
-            event.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
-            event.pointerButtonRelease.buttons = _buttonState;
-            event.pointerButtonRelease.button  = PTR_BUTTON2;
+            event.data.type = Event::POINTER_BUTTON_RELEASE;
+            event.data.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
+            event.data.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
+            event.data.pointerButtonRelease.buttons = _buttonState;
+            event.data.pointerButtonRelease.button  = PTR_BUTTON2;
 
             _computePointerDelta( event );
+            _getRenderContext( event );
             break;
 
         case WM_RBUTTONUP:
             _buttonState &= ~PTR_BUTTON3;
-            event.type = WindowEvent::POINTER_BUTTON_RELEASE;
-            event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
-            event.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
-            event.pointerButtonRelease.buttons = _buttonState;
-            event.pointerButtonRelease.button  = PTR_BUTTON3;
+            event.data.type = Event::POINTER_BUTTON_RELEASE;
+            event.data.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
+            event.data.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
+            event.data.pointerButtonRelease.buttons = _buttonState;
+            event.data.pointerButtonRelease.button  = PTR_BUTTON3;
 
             _computePointerDelta( event );
+            _getRenderContext( event );
             break;
 
         case WM_XBUTTONUP:
-            event.type = WindowEvent::POINTER_BUTTON_RELEASE;
-            event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
-            event.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
+            event.data.type = Event::POINTER_BUTTON_RELEASE;
+            event.data.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
+            event.data.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
 
             if( GET_XBUTTON_WPARAM( wParam ) & XBUTTON1 )
-                event.pointerButtonRelease.button = PTR_BUTTON4;
+                event.data.pointerButtonRelease.button = PTR_BUTTON4;
             else
-                event.pointerButtonRelease.button = PTR_BUTTON5;
+                event.data.pointerButtonRelease.button = PTR_BUTTON5;
 
-            _buttonState &= ~event.pointerButtonRelease.button;
+            _buttonState &= ~event.data.pointerButtonRelease.button;
             _syncButtonState( GET_KEYSTATE_WPARAM( wParam ));
-            event.pointerButtonRelease.buttons =_buttonState;
+            event.data.pointerButtonRelease.buttons =_buttonState;
 
             _computePointerDelta( event );
+            _getRenderContext( event );
             result = TRUE;
             break;
 
         case WM_SYSKEYDOWN:
         case WM_KEYDOWN:
-            event.type = WindowEvent::KEY_PRESS;
-            event.keyPress.key = _getKey( lParam, wParam );
+            event.data.type = Event::KEY_PRESS;
+            event.data.keyPress.key = _getKey( lParam, wParam );
             break;
 
         case WM_SYSKEYUP:
         case WM_KEYUP:
-            event.type = WindowEvent::KEY_RELEASE;
-            event.keyRelease.key = _getKey( lParam, wParam );
+            event.data.type = Event::KEY_RELEASE;
+            event.data.keyRelease.key = _getKey( lParam, wParam );
             break;
 
         default:
-            event.type = WindowEvent::UNHANDLED;
+            event.data.type = Event::UNKNOWN;
             EQVERB << "Unhandled message " << uMsg << endl;
             result = !0;
             break;

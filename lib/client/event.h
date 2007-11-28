@@ -1,4 +1,5 @@
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+
+/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. 
  
    Various event-related definitions.
@@ -6,6 +7,8 @@
 
 #ifndef EQ_EVENT_H
 #define EQ_EVENT_H
+
+#include <eq/client/renderContext.h> // used as member
 
 #include <eq/base/base.h>
 #include <eq/base/log.h>
@@ -89,12 +92,12 @@ namespace eq
     };
     struct PointerEvent
     {
-        int32_t x; // relative to entity (window)
+        int32_t x;             //<! relative to entity (window)
         int32_t y;
         int32_t dx;
         int32_t dy;
-        uint32_t buttons; // current state of all buttons
-        uint32_t button;  // fired button
+        uint32_t buttons;      //<! current state of all buttons
+        uint32_t button;       //<! fired button
     };
     struct KeyEvent
     {
@@ -102,15 +105,55 @@ namespace eq
         // TODO modifier state
     };
 
-std::ostream& operator << ( std::ostream& os, const ResizeEvent& event );
-std::ostream& operator << ( std::ostream& os, const PointerEvent& event );
-std::ostream& operator << ( std::ostream& os, const KeyEvent& event );
-
 #   define EQ_USER_EVENT_SIZE 32
     struct UserEvent
     {
         char data[ EQ_USER_EVENT_SIZE ];
     };
+
+    struct Event
+    {
+        enum Type
+        {
+            EXPOSE = 0,
+            RESIZE,
+            POINTER_MOTION,
+            POINTER_BUTTON_PRESS,
+            POINTER_BUTTON_RELEASE,
+            KEY_PRESS,
+            KEY_RELEASE,
+            WINDOW_CLOSE,
+            UNKNOWN,
+            USER,
+            ALL // must be last
+        };
+
+        uint32_t type;
+
+        union // event data
+        {
+            ResizeEvent  resize;
+
+            PointerEvent pointerEvent;
+            PointerEvent pointerMotion;
+            PointerEvent pointerButtonPress;
+            PointerEvent pointerButtonRelease;
+
+            KeyEvent     keyEvent;
+            KeyEvent     keyPress;
+            KeyEvent     keyRelease;
+
+            UserEvent    user;
+        };
+     
+        RenderContext context; //<! The last rendering context at (x,y)
+    };
+
+    EQ_EXPORT std::ostream& operator << ( std::ostream&, const Event::Type );
+    EQ_EXPORT std::ostream& operator << ( std::ostream&, const Event& );
+    EQ_EXPORT std::ostream& operator << ( std::ostream&, const ResizeEvent& );
+    EQ_EXPORT std::ostream& operator << ( std::ostream&, const PointerEvent& );
+    EQ_EXPORT std::ostream& operator << ( std::ostream&, const KeyEvent& );
 }
 
 #endif // EQ_EVENT_H

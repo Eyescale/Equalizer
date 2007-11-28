@@ -266,22 +266,22 @@ void Config::handleEvents()
 
 bool Config::handleEvent( const ConfigEvent* event )
 {
-    switch( event->type )
+    switch( event->data.type )
     {
-        case eq::ConfigEvent::WINDOW_CLOSE:
+        case Event::WINDOW_CLOSE:
             _running = false;
             return true;
 
-        case eq::ConfigEvent::KEY_PRESS:
-            if( event->keyPress.key == eq::KC_ESCAPE )
+        case Event::KEY_PRESS:
+            if( event->data.keyPress.key == eq::KC_ESCAPE )
             {
                 _running = false;
                 return true;
             }    
             break;
 
-        case eq::ConfigEvent::POINTER_BUTTON_PRESS:
-            if( event->pointerButtonPress.buttons == 
+        case Event::POINTER_BUTTON_PRESS:
+            if( event->data.pointerButtonPress.buttons == 
                 ( eq::PTR_BUTTON1 | eq::PTR_BUTTON2 | eq::PTR_BUTTON3 ))
             {
                 _running = false;

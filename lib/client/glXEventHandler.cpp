@@ -204,7 +204,7 @@ void GLXEventHandler::_processEvent( WindowEvent& event, Pipe* pipe )
             if( xEvent.xexpose.count ) // Only report last expose event
                 return;
                 
-            event.type = WindowEvent::EXPOSE;
+            event.data.type = Event::EXPOSE;
             break;
 
         case ConfigureNotify:
@@ -219,61 +219,73 @@ void GLXEventHandler::_processEvent( WindowEvent& event, Pipe* pipe )
             XTranslateCoordinates( xEvent.xany.display, drawable, 
                                    RootWindowOfScreen( windowAttrs.screen ),
                                    windowAttrs.x, windowAttrs.y,
-                                   &event.resize.x, &event.resize.y,
+                                   &event.data.resize.x, &event.data.resize.y,
                                    &child );
 
-            event.type = WindowEvent::RESIZE;
-            event.resize.w = windowAttrs.width;
-            event.resize.h = windowAttrs.height;
+            event.data.type = Event::RESIZE;
+            event.data.resize.w = windowAttrs.width;
+            event.data.resize.h = windowAttrs.height;
             break;
         }
 
-        case MotionNotify:
-            event.type = WindowEvent::POINTER_MOTION;
-            event.pointerMotion.x = xEvent.xmotion.x;
-            event.pointerMotion.y = xEvent.xmotion.y;
-            event.pointerMotion.buttons = _getButtonState( xEvent );
-            event.pointerMotion.button  = PTR_BUTTON_NONE;
+        case ClientMessage:
+        {
+            Atom deleteAtom = XInternAtom( xEvent.xany.display,
+                                           "WM_DELETE_WINDOW", False );
 
-            _computePointerDelta( event );
+            if( static_cast<Atom>( xEvent.xclient.data.l[0] ) != deleteAtom )
+                return; // not a delete message, ignore.
+        }
+        // else: delete message, fall through
+        case DestroyNotify:
+            event.data.type = Event::WINDOW_CLOSE;
             break;
 
-        case DestroyNotify:
-            event.type = WindowEvent::CLOSE;
+        case MotionNotify:
+            event.data.type = Event::POINTER_MOTION;
+            event.data.pointerMotion.x = xEvent.xmotion.x;
+            event.data.pointerMotion.y = xEvent.xmotion.y;
+            event.data.pointerMotion.buttons = _getButtonState( xEvent );
+            event.data.pointerMotion.button  = PTR_BUTTON_NONE;
+
+            _computePointerDelta( event );
+            _getRenderContext( event );
             break;
 
         case ButtonPress:
-            event.type = WindowEvent::POINTER_BUTTON_PRESS;
-            event.pointerButtonPress.x = xEvent.xbutton.x;
-            event.pointerButtonPress.y = xEvent.xbutton.y;
-            event.pointerButtonPress.buttons = _getButtonState( xEvent );
-            event.pointerButtonPress.button  = _getButtonAction( xEvent );
+            event.data.type = Event::POINTER_BUTTON_PRESS;
+            event.data.pointerButtonPress.x = xEvent.xbutton.x;
+            event.data.pointerButtonPress.y = xEvent.xbutton.y;
+            event.data.pointerButtonPress.buttons = _getButtonState( xEvent );
+            event.data.pointerButtonPress.button  = _getButtonAction( xEvent );
             
             _computePointerDelta( event );
+            _getRenderContext( event );
             break;
             
         case ButtonRelease:
-            event.type = WindowEvent::POINTER_BUTTON_RELEASE;
-            event.pointerButtonRelease.x = xEvent.xbutton.x;
-            event.pointerButtonRelease.y = xEvent.xbutton.y;
-            event.pointerButtonRelease.buttons = _getButtonState( xEvent );
-            event.pointerButtonRelease.button  = _getButtonAction( xEvent );
+            event.data.type = Event::POINTER_BUTTON_RELEASE;
+            event.data.pointerButtonRelease.x = xEvent.xbutton.x;
+            event.data.pointerButtonRelease.y = xEvent.xbutton.y;
+            event.data.pointerButtonRelease.buttons = _getButtonState( xEvent );
+            event.data.pointerButtonRelease.button  = _getButtonAction( xEvent);
             
             _computePointerDelta( event );
+            _getRenderContext( event );
             break;
             
         case KeyPress:
-            event.type = WindowEvent::KEY_PRESS;
-            event.keyPress.key = _getKey( xEvent );
+            event.data.type = Event::KEY_PRESS;
+            event.data.keyPress.key = _getKey( xEvent );
             break;
                 
         case KeyRelease:
-            event.type = WindowEvent::KEY_RELEASE;
-            event.keyPress.key = _getKey( xEvent );
+            event.data.type = Event::KEY_RELEASE;
+            event.data.keyPress.key = _getKey( xEvent );
             break;
                 
         default:
-            event.type = WindowEvent::UNHANDLED;
+            event.data.type = Event::UNKNOWN;
             EQWARN << "Unhandled X event, type " << xEvent.type << endl;
             break;
     }

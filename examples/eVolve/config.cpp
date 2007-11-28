@@ -57,10 +57,10 @@ uint32_t Config::startFrame()
 
 bool Config::handleEvent( const eq::ConfigEvent* event )
 {
-    switch( event->type )
+    switch( event->data.type )
     {
-        case eq::ConfigEvent::KEY_PRESS:
-            switch( event->keyPress.key )
+        case eq::Event::KEY_PRESS:
+            switch( event->data.keyPress.key )
             {
                 case 'r':
                 case ' ':
@@ -71,42 +71,42 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             }
             break;
 
-        case eq::ConfigEvent::POINTER_BUTTON_RELEASE:
-            if( event->pointerButtonRelease.buttons == eq::PTR_BUTTON_NONE &&
-                event->pointerButtonRelease.button  == eq::PTR_BUTTON1 )
+        case eq::Event::POINTER_BUTTON_RELEASE:
+            if( event->data.pointerButtonRelease.buttons == eq::PTR_BUTTON_NONE
+                && event->data.pointerButtonRelease.button  == eq::PTR_BUTTON1 )
             {
-                _spinX = event->pointerButtonRelease.dx;
-                _spinY = event->pointerButtonRelease.dy;
+                _spinX = event->data.pointerButtonRelease.dx;
+                _spinY = event->data.pointerButtonRelease.dy;
             }
             return true;
 
-        case eq::ConfigEvent::POINTER_MOTION:
-            if( event->pointerMotion.buttons == eq::PTR_BUTTON_NONE )
+        case eq::Event::POINTER_MOTION:
+            if( event->data.pointerMotion.buttons == eq::PTR_BUTTON_NONE )
                 return true;
 
-            if( event->pointerMotion.buttons == eq::PTR_BUTTON1 )
+            if( event->data.pointerMotion.buttons == eq::PTR_BUTTON1 )
             {
                 _spinX = 0;
                 _spinY = 0;
 
                 _frameData.data.rotation.preRotateX( 
-                    -0.005f * event->pointerMotion.dx );
+                    -0.005f * event->data.pointerMotion.dx );
                 _frameData.data.rotation.preRotateY(
-                    -0.005f * event->pointerMotion.dy );
+                    -0.005f * event->data.pointerMotion.dy );
             }
-            else if( event->pointerMotion.buttons == eq::PTR_BUTTON2 ||
-                     event->pointerMotion.buttons == ( eq::PTR_BUTTON1 |
+            else if( event->data.pointerMotion.buttons == eq::PTR_BUTTON2 ||
+                     event->data.pointerMotion.buttons == ( eq::PTR_BUTTON1 |
                                                        eq::PTR_BUTTON3 ))
             {
                 _frameData.data.translation.z +=
-                    .005f * event->pointerMotion.dy;
+                    .005f * event->data.pointerMotion.dy;
             }
-            else if( event->pointerMotion.buttons == eq::PTR_BUTTON3 )
+            else if( event->data.pointerMotion.buttons == eq::PTR_BUTTON3 )
             {
                 _frameData.data.translation.x += 
-                    .0005f * event->pointerMotion.dx;
+                    .0005f * event->data.pointerMotion.dx;
                 _frameData.data.translation.y -= 
-                    .0005f * event->pointerMotion.dy;
+                    .0005f * event->data.pointerMotion.dy;
             }
             return true;
 

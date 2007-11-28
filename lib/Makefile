@@ -33,7 +33,6 @@ HEADER_SRC = \
 	base/thread.h \
 	base/timedLock.h \
 	base/types.h \
-	base/userdata.h \
 	net/barrier.h \
 	net/base.h \
 	net/bufferConnection.h \

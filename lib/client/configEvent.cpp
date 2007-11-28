@@ -7,7 +7,8 @@ using namespace eq;
 
 std::ostream& eq::operator << ( std::ostream& os, const ConfigEvent* event )
 {
-    os << "config event " << (ConfigPacket*)event << ", type "
-       << event->type;
+    os << "config event " << (ConfigPacket*)event << ", event "
+       << event->data;
+
     return os;
 }

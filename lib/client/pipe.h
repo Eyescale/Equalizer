@@ -375,9 +375,9 @@ namespace eq
         /** Window-system specific display information. */
         union
         {
-            Display* _xDisplay;
+            Display*          _xDisplay;
             CGDirectDisplayID _cgDisplayID;
-            char _displayFill[16];
+            char              _pipeFill[16];
         };
 
         /** The display (GLX) or ignored (Win32, AGL). */

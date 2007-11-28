@@ -62,10 +62,10 @@ void Channel::frameDraw( const uint32_t frameID )
     ConfigEvent   event;
     const string& name  = getName();
     if( name.empty( ))    
-        snprintf( event.user.data, 32, "%p", this);
+        snprintf( event.data.user.data, 32, "%p", this);
     else
-        snprintf( event.user.data, 32, "%s", name.c_str( ));
-    event.user.data[31] = '\0';
+        snprintf( event.data.user.data, 32, "%s", name.c_str( ));
+    event.data.user.data[31] = '\0';
     event.area.x = pvp.w;
     event.area.y = pvp.h;
 
@@ -76,7 +76,7 @@ void Channel::frameDraw( const uint32_t frameID )
         snprintf( event.formatType, 64, "%s/%s", 
                   enums[i].formatString, enums[i].typeString );
         event.formatType[63] = '\0';
-        event.type = ConfigEvent::READBACK;
+        event.data.type = ConfigEvent::READBACK;
 
         image.setFormat( eq::Frame::BUFFER_COLOR, enums[i].format );
         image.setType(   eq::Frame::BUFFER_COLOR, enums[i].type );
@@ -93,7 +93,7 @@ void Channel::frameDraw( const uint32_t frameID )
         config->sendEvent( event );
 
         // draw
-        event.type = ConfigEvent::ASSEMBLE;
+        event.data.type = ConfigEvent::ASSEMBLE;
         clock.reset();
         image.startAssemble( eq::Frame::BUFFER_COLOR, offset );
         image.syncAssemble();

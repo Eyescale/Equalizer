@@ -41,25 +41,12 @@ namespace eq
                 command = CMD_CONFIG_EVENT;
                 size    = sizeof( ConfigEvent );
             }
-
-        uint32_t type;
-
-        union // event data: Move into subclass?
-        {
-            ResizeEvent  resize;
-
-            PointerEvent pointerMotion;
-            PointerEvent pointerButtonPress;
-            PointerEvent pointerButtonRelease;
-
-            KeyEvent     keyPress;
-            KeyEvent     keyRelease;
-
-            UserEvent    user;
-        };
+        
+        Event data;
     };
 
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const ConfigEvent* event );
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+                                          const ConfigEvent* event );
 }
 
 #endif // EQ_CONFIGEVENT_H

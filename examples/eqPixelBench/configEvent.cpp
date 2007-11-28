@@ -8,7 +8,7 @@ using namespace std;
 
 std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
 {
-    switch( event->type )
+    switch( event->data.type )
     {
         case ConfigEvent::READBACK:
             os  << "readback";
@@ -23,7 +23,7 @@ std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
             return os;
     }
 
-    os << " \"" << event->user.data << "\" " << event->formatType
+    os << " \"" << event->data.user.data << "\" " << event->formatType
        << string( 50-strlen( event->formatType ), ' ' ) << event->area << ": ";
 
     if( event->msec < 0.0f )

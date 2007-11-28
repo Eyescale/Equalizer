@@ -19,7 +19,7 @@ class MTQueuePrivate;
      *
      * @todo evaluate lock-free implementation if performance is problematic
      */
-    template<class T> class MTQueue
+    template< typename T > class MTQueue
     {
     public:
         /** 
@@ -57,8 +57,8 @@ class MTQueuePrivate;
 #endif
 
 // The application has to include pthread.h if it wants to instantiate new queue
-// types, since on Windows the use of pthreads-Win32 library includes might
-// create hard to resolve type conflicts with other header files.
+// types, since on Windows the use of pthreads-Win32 includes might create hard
+// to resolve type conflicts with other header files.
 
 #ifdef HAVE_PTHREAD_H
 

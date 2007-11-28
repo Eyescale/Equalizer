@@ -214,8 +214,8 @@ void Session::attachObject( Object* object, const uint32_t id )
         _objectsMutex.unset();
         objects.push_back( object );
 
-        EQINFO << "Attached " << typeid( *object ).name() << " to id " << id
-               << endl;
+        EQLOG( LOG_OBJECTS ) << "Attached " << typeid( *object ).name()
+                             << " to id " << id << endl;
         return;
     }
     // else
@@ -238,8 +238,8 @@ void Session::detachObject( Object* object )
         EQASSERT( id != EQ_ID_INVALID );
         EQASSERT( _objects.find( id ) != _objects.end( ));
 
-        EQINFO << "Detach " << typeid( *object ).name() << " from id " << id
-               << endl;
+        EQLOG( LOG_OBJECTS ) << "Detach " << typeid( *object ).name() 
+                             << " from id " << id << endl;
 
         vector<Object*>&          objects = _objects[ id ];
         vector<Object*>::iterator iter    = find( objects.begin(),objects.end(),
@@ -275,7 +275,8 @@ bool Session::mapObject( Object* object, const uint32_t id )
 {
     EQASSERT( object );
 
-    EQINFO << "Mapping " << typeid( *object ).name() << " to id " << id << endl;
+    EQLOG( LOG_OBJECTS ) << "Mapping " << typeid( *object ).name() << " to id "
+                         << id << endl;
 
     EQASSERT( object->_id == EQ_ID_INVALID );
     EQASSERT( id != EQ_ID_INVALID );
@@ -313,7 +314,8 @@ bool Session::mapObject( Object* object, const uint32_t id )
     if( !object->isMaster( ))
         object->_cm->applyMapData();
 
-    EQINFO << "Mapped " << typeid( *object ).name() << " to id " << id << endl;
+    EQLOG( LOG_OBJECTS ) << "Mapped " << typeid( *object ).name() << " to id " 
+                         << id << endl;
     return( object->getID() != EQ_ID_INVALID );
 }
 
@@ -327,8 +329,8 @@ void Session::unmapObject( Object* object )
     SessionUnmapObjectPacket packet;
     packet.requestID = _requestHandler.registerRequest( object );
 
-    EQINFO << "Unmap " << typeid( *object ).name() << " from id "
-           << object->getID() << endl;
+    EQLOG( LOG_OBJECTS ) << "Unmap " << typeid( *object ).name() << " from id "
+                          << object->getID() << endl;
     _sendLocal( packet );
     _requestHandler.waitRequest( packet.requestID );
 }
@@ -344,16 +346,16 @@ void Session::registerObject( Object* object )
 
     object->_setupChangeManager( object->getChangeType(), true );
     mapObject( object, id );
-    EQINFO << "Registered " << typeid( *object ).name() << " to id " << id 
-           << endl;
+    EQLOG( LOG_OBJECTS ) << "Registered " << typeid( *object ).name()
+                         << " to id " << id << endl;
 }
 
 void Session::deregisterObject( Object* object )
 {
     const uint32_t id = object->getID();
 
-    EQINFO << "Deregister " << typeid( *object ).name() << " from id " << id
-           << endl;
+    EQLOG( LOG_OBJECTS ) << "Deregister " << typeid( *object ).name() 
+                         << " from id " << id << endl;
 
     // TODO unsetIDMaster ?
     unmapObject( object );

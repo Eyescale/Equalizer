@@ -11,6 +11,7 @@ namespace eq
 {
     class Channel;
     class WindowEvent;
+    struct RenderContext;
 
     class EQ_EXPORT Window : public eqNet::Object
     {
@@ -73,6 +74,10 @@ namespace eq
          */
         GLEWContext* glewGetContext() { return _glewContext; }
 
+        /** @return information about the current drawable. */
+        const DrawableConfig& getDrawableConfig() const
+            { return _drawableConfig; }
+
         /** 
          * Set the window's pixel viewport wrt its parent pipe.
          *
@@ -91,6 +96,13 @@ namespace eq
          * @return the window's fractional viewport.
          */
         const Viewport& getViewport() const { return _vp; }
+
+        /** Add a channel's rendering context to the current frame's list */
+        void addRenderContext( const RenderContext& context );
+
+        /** Get the last rendering context at the x, y position, or 0. */
+        const RenderContext* getRenderContext( const int32_t x,
+                                               const int32_t y ) const;
         //*}
 
         /**
@@ -123,10 +135,6 @@ namespace eq
         /** Finish outstanding rendering requests. */
         virtual void finish() const { glFinish(); }
         //*}
-
-
-        const DrawableConfig& getDrawableConfig() const
-            { return _drawableConfig; }
 
     protected:
         /**
@@ -418,6 +426,17 @@ namespace eq
 
         /** The fractional viewport wrt the pipe. */
         eq::Viewport      _vp;
+
+        /** The list of render context used since the last frame start. */
+        std::vector< RenderContext > _renderContexts[2];
+        enum 
+        {
+            FRONT = 0,
+            BACK  = 1
+        };
+
+        /** Used on AGL only */
+        eqBase::SpinLock* _renderContextAGLLock;
 
         void _addChannel( Channel* channel );
         void _removeChannel( Channel* channel );

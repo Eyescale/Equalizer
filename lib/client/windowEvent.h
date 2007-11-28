@@ -16,36 +16,9 @@ namespace eq
     class EQ_EXPORT WindowEvent
     {
     public:
-        enum Type
-        {
-            EXPOSE = 0,
-            RESIZE,
-            POINTER_MOTION,
-            POINTER_BUTTON_PRESS,
-            POINTER_BUTTON_RELEASE,
-            KEY_PRESS,
-            KEY_RELEASE,
-            CLOSE,
-            UNHANDLED,
-            ALL // must be last
-        };
 
-        Type    type;
         Window* window;
-
-        union // event data
-        {
-            ResizeEvent  resize;
-
-            PointerEvent pointerEvent;
-            PointerEvent pointerMotion;
-            PointerEvent pointerButtonPress;
-            PointerEvent pointerButtonRelease;
-
-            KeyEvent     keyEvent;
-            KeyEvent     keyPress;
-            KeyEvent     keyRelease;
-        };
+        Event   data;
 
         union // Native event
         {
@@ -70,8 +43,6 @@ namespace eq
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
                                           const WindowEvent& event );
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
-                                          const WindowEvent::Type type );
 }
 
 #endif // EQ_WINDOWEVENT_H

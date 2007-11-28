@@ -12,7 +12,7 @@ struct ConfigEvent : public eq::ConfigEvent
 public:
     enum Type
     {
-        READBACK = eq::ConfigEvent::USER,
+        READBACK = eq::Event::USER,
         ASSEMBLE
     };
 

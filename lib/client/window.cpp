@@ -46,7 +46,7 @@ std::string Window::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_PLANES_STENCIL )
 };
 
-eq::Window::Window()
+Window::Window()
         : _eventHandler( 0 )
         , _glewContext( new GLEWContext )
         , _xDrawable ( 0 )
@@ -57,6 +57,7 @@ eq::Window::Window()
         , _wglWindowHandle( 0 )
         , _wglContext     ( 0 )
         , _pipe( 0 )
+        , _renderContextAGLLock( 0 )
 {
     registerCommand( CMD_WINDOW_CREATE_CHANNEL, 
                 eqNet::CommandFunc<Window>( this, &Window::_cmdCreateChannel ));
@@ -94,24 +95,30 @@ eq::Window::Window()
                      eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
     registerCommand( REQ_WINDOW_FRAME_DRAW_FINISH, 
               eqNet::CommandFunc<Window>( this, &Window::_reqFrameDrawFinish ));
+
+    EQINFO << " New eq::Window @" << (void*)this << endl;
 }
 
-eq::Window::~Window()
+
+Window::~Window()
 {
     delete _glewContext;
     _glewContext = 0;
+
+    delete _renderContextAGLLock;
+    _renderContextAGLLock = 0;
 
     if( _eventHandler )
         EQWARN << "Event handler present in destructor" << endl;
 }
 
-void eq::Window::_addChannel( Channel* channel )
+void Window::_addChannel( Channel* channel )
 {
     _channels.push_back( channel );
     channel->_window = this;
 }
 
-void eq::Window::_removeChannel( Channel* channel )
+void Window::_removeChannel( Channel* channel )
 {
     ChannelVector::iterator iter = find( _channels.begin(), _channels.end(), 
                                             channel );
@@ -121,7 +128,7 @@ void eq::Window::_removeChannel( Channel* channel )
     channel->_window = 0;
 }
 
-Channel* eq::Window::_findChannel( const uint32_t id )
+Channel* Window::_findChannel( const uint32_t id )
 {
     for( ChannelVector::const_iterator i = _channels.begin(); 
          i != _channels.end(); ++i )
@@ -140,7 +147,7 @@ Channel* eq::Window::_findChannel( const uint32_t id )
 //----------------------------------------------------------------------
 // viewport
 //----------------------------------------------------------------------
-void eq::Window::setPixelViewport( const PixelViewport& pvp )
+void Window::setPixelViewport( const PixelViewport& pvp )
 {
     if( !_setPixelViewport( pvp ))
         return; // nothing changed
@@ -152,7 +159,7 @@ void eq::Window::setPixelViewport( const PixelViewport& pvp )
     send( node, packet );
 }
 
-bool eq::Window::_setPixelViewport( const PixelViewport& pvp )
+bool Window::_setPixelViewport( const PixelViewport& pvp )
 {
     if( pvp == _pvp || !pvp.hasArea( ))
         return false;
@@ -170,7 +177,7 @@ bool eq::Window::_setPixelViewport( const PixelViewport& pvp )
     return true;
 }
 
-void eq::Window::_setViewport( const Viewport& vp )
+void Window::_setViewport( const Viewport& vp )
 {
     if( !vp.hasArea( ))
         return;
@@ -188,9 +195,47 @@ void eq::Window::_setViewport( const Viewport& vp )
 }
 
 //----------------------------------------------------------------------
+// render context
+//----------------------------------------------------------------------
+void Window::addRenderContext( const RenderContext& context )
+{
+    // AGL events are dispatched from the main thread, which therefore
+    // potentially accesses _renderContexts concurrently with the pipe
+    // thread. The _renderContextAGLLock is only active for AGL windows. The
+    // proper solution would be to implement our own event queue which
+    // dispatches events from the main to the pipe thread, to be handled
+    // there. Since the event dispatch is buried in the messagePump, using this
+    // lock is easier. Eventually we should implement it, though.
+    ScopedMutex< SpinLock > mutex( _renderContextAGLLock );
+    _renderContexts[BACK].push_back( context );
+}
+
+const RenderContext* Window::getRenderContext( const int32_t x, 
+                                               const int32_t y ) const
+{
+    ScopedMutex< SpinLock > mutex( _renderContextAGLLock );
+    const unsigned which = _drawableConfig.doublebuffered ? FRONT : BACK;
+
+    vector< RenderContext >::const_reverse_iterator i   =
+        _renderContexts[which].rbegin(); 
+    vector< RenderContext >::const_reverse_iterator end =
+        _renderContexts[which].rend();
+
+    for( ; i != end; ++i )
+    {
+        const RenderContext& context = *i;
+
+        if( context.pvp.isPointInside( x, y ))
+            return &context;
+    }
+    return 0;
+}
+
+
+//----------------------------------------------------------------------
 // configInit
 //----------------------------------------------------------------------
-bool eq::Window::configInit( const uint32_t initID )
+bool Window::configInit( const uint32_t initID )
 {
     const WindowSystem windowSystem = _pipe->getWindowSystem();
     switch( windowSystem )
@@ -216,11 +261,11 @@ bool eq::Window::configInit( const uint32_t initID )
     }
 
     const bool ret = configInitGL( initID );
-    EQ_GL_ERROR( "after eq::Window::configInitGL" );
+    EQ_GL_ERROR( "after Window::configInitGL" );
 	return ret;
 }
 
-bool eq::Window::configInitGL( const uint32_t initID )
+bool Window::configInitGL( const uint32_t initID )
 {
     glEnable( GL_SCISSOR_TEST ); // needed to constrain channel viewport
     glEnable( GL_DEPTH_TEST );
@@ -250,7 +295,7 @@ static Bool WaitForNotify( Display*, XEvent *e, char *arg )
 { return (e->type == MapNotify) && (e->xmap.window == (::Window)arg); }
 #endif
 
-bool eq::Window::configInitGLX()
+bool Window::configInitGLX()
 {
 #ifdef GLX
     Display* display = _pipe->getXDisplay();
@@ -385,10 +430,6 @@ bool eq::Window::configInitGLX()
     XStoreName( display, drawable,_name.empty() ? "Equalizer" : _name.c_str( ));
 
     // Register for close window request from the window manager
-    //  The WM sends a ClientMessage with the delete atom directly to the
-    //  window. Therefore we can not request these events with XSelectInput, we
-    //  have to handle them from the pipe thread. We'll check during startFrame
-    //  for the event and issue a WindowEvent::CLOSE.
     Atom deleteAtom = XInternAtom( display, "WM_DELETE_WINDOW", False );
     XSetWMProtocols( display, drawable, &deleteAtom, 1 );
 
@@ -424,7 +465,7 @@ bool eq::Window::configInitGLX()
 #endif
 }
 
-bool eq::Window::configInitAGL()
+bool Window::configInitAGL()
 {
 #ifdef AGL
     CGDirectDisplayID displayID = _pipe->getCGDisplayID();
@@ -653,7 +694,7 @@ bool eq::Window::configInitAGL()
 #endif
 }
 
-bool eq::Window::configInitWGL()
+bool Window::configInitWGL()
 {
 #ifdef WGL
     // window class
@@ -855,7 +896,7 @@ bool eq::Window::configInitWGL()
 //----------------------------------------------------------------------
 // configExit
 //----------------------------------------------------------------------
-bool eq::Window::configExit()
+bool Window::configExit()
 {
     const bool         ret          = configExitGL();
     const WindowSystem windowSystem = _pipe->getWindowSystem();
@@ -880,7 +921,7 @@ bool eq::Window::configExit()
     }
 }
 
-void eq::Window::configExitGLX()
+void Window::configExitGLX()
 {
 #ifdef GLX
     Display *display = _pipe->getXDisplay();
@@ -902,7 +943,7 @@ void eq::Window::configExitGLX()
 #endif
 }
 
-void eq::Window::configExitAGL()
+void Window::configExitAGL()
 {
 #ifdef AGL
     WindowRef window = getCarbonWindow();
@@ -937,7 +978,7 @@ void eq::Window::configExitAGL()
 #endif
 }
 
-void eq::Window::configExitWGL()
+void Window::configExitWGL()
 {
 #ifdef WGL
     wglMakeCurrent( 0, 0 );
@@ -968,7 +1009,7 @@ void eq::Window::configExitWGL()
 #endif
 }
 
-void eq::Window::_queryDrawableConfig()
+void Window::_queryDrawableConfig()
 {
     // GL version
     const char* glVersion = (const char*)glGetString( GL_VERSION );
@@ -1009,20 +1050,20 @@ void eq::Window::_queryDrawableConfig()
     EQINFO << "Window drawable config: " << _drawableConfig << endl;
 }
 
-void eq::Window::initEventHandler()
+void Window::initEventHandler()
 {
     EQASSERT( !_eventHandler );
     _eventHandler = EventHandler::registerWindow( this );
 }
 
-void eq::Window::exitEventHandler()
+void Window::exitEventHandler()
 {
     if( _eventHandler )
         _eventHandler->deregisterWindow( this );
     _eventHandler = 0;
 }
 
-void eq::Window::setXDrawable( XID drawable )
+void Window::setXDrawable( XID drawable )
 {
 #ifdef GLX
     if( _xDrawable == drawable )
@@ -1066,7 +1107,7 @@ void eq::Window::setXDrawable( XID drawable )
 #endif // GLX
 }
 
-void eq::Window::setAGLContext( AGLContext context )
+void Window::setAGLContext( AGLContext context )
 {
 #ifdef AGL
     _aglContext = context;
@@ -1083,7 +1124,7 @@ void eq::Window::setAGLContext( AGLContext context )
 #endif // AGL
 }
 
-void eq::Window::setGLXContext( GLXContext context )
+void Window::setGLXContext( GLXContext context )
 {
 #ifdef GLX
     _glXContext = context;
@@ -1100,7 +1141,7 @@ void eq::Window::setGLXContext( GLXContext context )
 #endif
 }
 
-void eq::Window::setWGLContext( HGLRC context )
+void Window::setWGLContext( HGLRC context )
 {
 #ifdef WGL
     _wglContext = context; 
@@ -1119,7 +1160,7 @@ void eq::Window::setWGLContext( HGLRC context )
 #endif
 }
 
-void eq::Window::setCarbonWindow( WindowRef window )
+void Window::setCarbonWindow( WindowRef window )
 {
 #ifdef AGL
     EQINFO << "set Carbon window " << window << endl;
@@ -1150,7 +1191,7 @@ void eq::Window::setCarbonWindow( WindowRef window )
 #endif // AGL
 }
 
-void eq::Window::setWGLWindowHandle( HWND handle )
+void Window::setWGLWindowHandle( HWND handle )
 {
 #ifdef WGL
     if( _wglWindowHandle == handle )
@@ -1181,7 +1222,7 @@ void eq::Window::setWGLWindowHandle( HWND handle )
 #endif // WGL
 }
 
-void eq::Window::makeCurrent() const
+void Window::makeCurrent() const
 {
     switch( _pipe->getWindowSystem( ))
     {
@@ -1211,7 +1252,7 @@ void eq::Window::makeCurrent() const
     }
 }
 
-void eq::Window::swapBuffers() const
+void Window::swapBuffers() const
 {
     switch( _pipe->getWindowSystem( ))
     {
@@ -1242,17 +1283,19 @@ void eq::Window::swapBuffers() const
 //======================================================================
 // event-handler methods
 //======================================================================
-bool eq::Window::processEvent( const WindowEvent& event )
+bool Window::processEvent( const WindowEvent& event )
 {
     ConfigEvent configEvent;
-    switch( event.type )
+    switch( event.data.type )
     {
-        case WindowEvent::EXPOSE:
-            return true;
+        case Event::EXPOSE:
+            break;
 
-        case WindowEvent::RESIZE:
-            setPixelViewport( PixelViewport( event.resize.x, event.resize.y, 
-                                             event.resize.w, event.resize.h ));
+        case Event::RESIZE:
+            setPixelViewport( PixelViewport( event.data.resize.x, 
+                                             event.data.resize.y, 
+                                             event.data.resize.w,
+                                             event.data.resize.h ));
 #ifdef AGL
             // 'refresh' agl context viewport
             EQASSERT( _pipe );
@@ -1261,48 +1304,29 @@ bool eq::Window::processEvent( const WindowEvent& event )
 #endif
             return true;
 
-        case WindowEvent::CLOSE:
-            configEvent.type = ConfigEvent::WINDOW_CLOSE;
-            break;
-
-        case WindowEvent::POINTER_MOTION:
-            configEvent.type          = ConfigEvent::POINTER_MOTION;
-            configEvent.pointerMotion = event.pointerMotion;
-            break;
-            
-        case WindowEvent::POINTER_BUTTON_PRESS:
-            configEvent.type = ConfigEvent::POINTER_BUTTON_PRESS;
-            configEvent.pointerButtonPress = event.pointerButtonPress;
-            break;
-
-        case WindowEvent::POINTER_BUTTON_RELEASE:
-            configEvent.type = ConfigEvent::POINTER_BUTTON_RELEASE;
-            configEvent.pointerButtonRelease = event.pointerButtonRelease;
-            break;
-
-        case WindowEvent::KEY_PRESS:
-            if( event.keyPress.key == KC_VOID )
+        case Event::KEY_PRESS:
+        case Event::KEY_RELEASE:
+            if( event.data.keyEvent.key == KC_VOID )
                 return true; //ignore
-            configEvent.type         = ConfigEvent::KEY_PRESS;
-            configEvent.keyPress.key = event.keyPress.key;
-            break;
-                
-        case WindowEvent::KEY_RELEASE:
-            if( event.keyPress.key == KC_VOID )
-                return true; // ignore
-            configEvent.type           = ConfigEvent::KEY_RELEASE;
-            configEvent.keyRelease.key = event.keyRelease.key;
+            // else fall through
+        case Event::WINDOW_CLOSE:
+        case Event::POINTER_MOTION:
+        case Event::POINTER_BUTTON_PRESS:
+        case Event::POINTER_BUTTON_RELEASE:
             break;
 
-        case WindowEvent::UNHANDLED:
+        case Event::UNKNOWN:
             // Handle other window-system native events here
             return false;
 
         default:
-            EQWARN << "Unhandled window event of type " << event.type << endl;
+            EQWARN << "Unhandled window event of type " << event.data.type
+                   << endl;
             EQUNIMPLEMENTED;
     }
-    
+
+    configEvent.data = event.data;
+
     Config* config = getConfig();
     config->sendEvent( configEvent );
     return true;
@@ -1311,12 +1335,12 @@ bool eq::Window::processEvent( const WindowEvent& event )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult eq::Window::_pushCommand( eqNet::Command& command )
+eqNet::CommandResult Window::_pushCommand( eqNet::Command& command )
 {
     return ( _pipe ? _pipe->pushCommand( command ) : _cmdUnknown( command ));
 }
 
-eqNet::CommandResult eq::Window::_cmdCreateChannel( eqNet::Command& command )
+eqNet::CommandResult Window::_cmdCreateChannel( eqNet::Command& command )
 {
     const WindowCreateChannelPacket* packet = 
         command.getPacket<WindowCreateChannelPacket>();
@@ -1329,7 +1353,7 @@ eqNet::CommandResult eq::Window::_cmdCreateChannel( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_cmdDestroyChannel(eqNet::Command& command ) 
+eqNet::CommandResult Window::_cmdDestroyChannel(eqNet::Command& command ) 
 {
     const WindowDestroyChannelPacket* packet =
         command.getPacket<WindowDestroyChannelPacket>();
@@ -1346,7 +1370,7 @@ eqNet::CommandResult eq::Window::_cmdDestroyChannel(eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
+eqNet::CommandResult Window::_reqConfigInit( eqNet::Command& command )
 {
     const WindowConfigInitPacket* packet = 
         command.getPacket<WindowConfigInitPacket>();
@@ -1363,6 +1387,9 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
         _iAttributes[i] = packet->iattr[i];
 
     _error.clear();
+    if( _pipe->getWindowSystem() == WINDOW_SYSTEM_AGL )
+        _renderContextAGLLock = new SpinLock;
+
     WindowConfigInitReplyPacket reply;
     reply.result = configInit( packet->initID );
 
@@ -1420,7 +1447,7 @@ eqNet::CommandResult eq::Window::_reqConfigInit( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_reqConfigExit( eqNet::Command& command )
+eqNet::CommandResult Window::_reqConfigExit( eqNet::Command& command )
 {
     const WindowConfigExitPacket* packet =
         command.getPacket<WindowConfigExitPacket>();
@@ -1435,44 +1462,34 @@ eqNet::CommandResult eq::Window::_reqConfigExit( eqNet::Command& command )
     reply.result = configExit();
 
     send( command.getNode(), reply );
+
+    delete _renderContextAGLLock;
+    _renderContextAGLLock = 0;
+
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_reqFrameStart( eqNet::Command& command )
+eqNet::CommandResult Window::_reqFrameStart( eqNet::Command& command )
 {
     const WindowFrameStartPacket* packet = 
         command.getPacket<WindowFrameStartPacket>();
     EQVERB << "handle window frame start " << packet << endl;
 
     //_grabFrame( packet->frameNumber ); single-threaded
-    EQ_GL_CALL( makeCurrent( ));
 
-#ifdef GLX // handle window close request - see comment in configInitGLX
-    if( _pipe->getWindowSystem() == WINDOW_SYSTEM_GLX )
     {
-        Display*  display = _pipe->getXDisplay();
-        Atom   deleteAtom = XInternAtom( display, "WM_DELETE_WINDOW", False );
-        WindowEvent event;
-        XEvent&     xEvent = event.xEvent;
-        while( XCheckTypedEvent( display, ClientMessage, &xEvent ))
-        {
-            if( xEvent.xany.window == _xDrawable &&
-                static_cast<Atom>( xEvent.xclient.data.l[0] ) == 
-                    deleteAtom )
-            {
-                event.window = this;
-                event.type   = WindowEvent::CLOSE;
-                processEvent( event );
-            }
-        }
+        ScopedMutex< SpinLock > mutex( _renderContextAGLLock );
+        if( _drawableConfig.doublebuffered )
+            _renderContexts[FRONT].swap( _renderContexts[BACK] );
+        _renderContexts[BACK].clear();
     }
-#endif
+    EQ_GL_CALL( makeCurrent( ));
 
     frameStart( packet->frameID, packet->frameNumber );
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_reqFrameFinish( eqNet::Command& command )
+eqNet::CommandResult Window::_reqFrameFinish( eqNet::Command& command )
 {
     const WindowFrameFinishPacket* packet =
         command.getPacket<WindowFrameFinishPacket>();
@@ -1484,14 +1501,14 @@ eqNet::CommandResult eq::Window::_reqFrameFinish( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_reqFinish(eqNet::Command& command ) 
+eqNet::CommandResult Window::_reqFinish(eqNet::Command& command ) 
 {
     EQ_GL_CALL( makeCurrent( ));
     finish();
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_reqBarrier( eqNet::Command& command )
+eqNet::CommandResult Window::_reqBarrier( eqNet::Command& command )
 {
     const WindowBarrierPacket* packet = 
         command.getPacket<WindowBarrierPacket>();
@@ -1507,14 +1524,14 @@ eqNet::CommandResult eq::Window::_reqBarrier( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_reqSwap(eqNet::Command& command ) 
+eqNet::CommandResult Window::_reqSwap(eqNet::Command& command ) 
 {
     EQ_GL_CALL( makeCurrent( ));
     swapBuffers();
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eq::Window::_reqFrameDrawFinish( eqNet::Command& command )
+eqNet::CommandResult Window::_reqFrameDrawFinish( eqNet::Command& command )
 {
     WindowFrameDrawFinishPacket* packet = 
         command.getPacket< WindowFrameDrawFinishPacket >();

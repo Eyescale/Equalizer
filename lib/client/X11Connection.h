@@ -7,7 +7,6 @@
 
 #include <eq/client/windowSystem.h>
 
-#include <eq/base/userdata.h>
 #include <eq/net/connection.h>
 
 namespace eq
