@@ -1250,7 +1250,7 @@ void Window::makeCurrent() const
     }
 }
 
-void Window::swapBuffers() const
+void Window::swapBuffers()
 {
     switch( _pipe->getWindowSystem( ))
     {

@@ -315,7 +315,7 @@ namespace eq
         virtual void makeCurrent() const;
 
         /** Swap the front and back buffer of the window. */
-        virtual void swapBuffers() const;
+        virtual void swapBuffers();
 
         /**
          * Initialize the event handling for this window. 

@@ -677,7 +677,7 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
 
     PFNWGLENUMGPUSNVPROC enumGPUs = (PFNWGLENUMGPUSNVPROC)
         ( wglGetProcAddress( "wglEnumGpusNV" ));
-    PFNWGLCREATEAFFINITYDCNVPROC createAffinityDC = 
+    PFNWGLCREATEAFFINITYDCNVPROC createAffinityDC_ = 
         (PFNWGLCREATEAFFINITYDCNVPROC)
             ( wglGetProcAddress( "wglCreateAffinityDCNV" ));
     PFNWGLENUMGPUDEVICESNVPROC enumGPUDevices = 
@@ -691,7 +691,7 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
     DestroyWindow( hWnd );
     UnregisterClass( classStr.c_str(),  instance );
 
-    if( !enumGPUs || !createAffinityDC || !deleteProc )
+    if( !enumGPUs || !createAffinityDC_ || !deleteProc )
     {
         EQWARN << "WGL_NV_gpu_affinity unsupported, ignoring device setting"
                << endl;
@@ -720,7 +720,7 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
         _pvp.h = rect.bottom - rect.top; 
     }
 
-    affinityDC = createAffinityDC( hGPU );
+    affinityDC = createAffinityDC_( hGPU );
     if( !affinityDC )
     {
         setErrorMessage( "Can't create affinity DC: " +
