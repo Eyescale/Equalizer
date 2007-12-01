@@ -928,15 +928,17 @@ void Window::configExitGLX()
 
     glXMakeCurrent( display, None, NULL );
 
-    GLXContext context = getGLXContext();
+    GLXContext context  = getGLXContext();
+    XID        drawable = getXDrawable();
+
+    setGLXContext( 0 );
+    setXDrawable( 0 );
+
     if( context )
         glXDestroyContext( display, context );
-    setGLXContext( 0 );
-
-    XID drawable = getXDrawable();
     if( drawable )
         XDestroyWindow( display, drawable );
-    setXDrawable( 0 );
+
     EQINFO << "Destroyed GLX context and X drawable " << endl;
 #endif
 }
@@ -945,12 +947,13 @@ void Window::configExitAGL()
 {
 #ifdef AGL
     WindowRef window = getCarbonWindow();
+    setCarbonWindow( 0 );
+
     if( window )
     {
         Global::enterCarbon();
         DisposeWindow( window );
         Global::leaveCarbon();
-        setCarbonWindow( 0 );
     }
 
     AGLContext context = getAGLContext();
@@ -982,12 +985,14 @@ void Window::configExitWGL()
     wglMakeCurrent( 0, 0 );
 
     HGLRC context = getWGLContext();
+    HWND  hWnd    = getWGLWindowHandle();
+
+    setWGLContext( 0 );
+    setWGLWindowHandle( 0 );
+
     if( context )
         wglDeleteContext( context );
 
-    setWGLContext( 0 );
-
-    HWND hWnd = getWGLWindowHandle();
     if( hWnd )
     {
         char className[256] = {0};
@@ -997,8 +1002,6 @@ void Window::configExitWGL()
         if( strlen( className ) > 0 )
             UnregisterClass( className, GetModuleHandle( 0 ));
     }
-
-    setWGLWindowHandle( 0 );
 
     if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON )
         ChangeDisplaySettings( 0, 0 );

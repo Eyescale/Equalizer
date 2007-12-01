@@ -69,7 +69,6 @@ namespace eVolve
 
     protected:
 
-        bool _createPreintegrationTexture();
         bool _createVolumeTexture(
                                       GLuint&                  volume,
                                       DataInTextureDimensions& TD,

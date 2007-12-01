@@ -243,7 +243,11 @@ int Pipe::XErrorHandler( Display* display, XErrorEvent* event )
 
 #ifndef NDEBUG
     if( getenv( "EQ_ABORT_WAIT" ))
+    {
+        EQERROR << "Caught X Error, entering infinite loop for debugging" 
+                << endl;
         while( true ) ;
+    }
 #endif
 
 #endif // GLX
