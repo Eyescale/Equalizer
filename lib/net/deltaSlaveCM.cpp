@@ -39,6 +39,7 @@ void DeltaSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
                          << endl;
 
     if( is->getRemainingBufferSize() > 0 || is->nRemainingBuffers() > 0 )
-        EQWARN << "Object did not unpack all data" << endl;
+        EQWARN << "Object " << typeid( *_object ).name() 
+            << " did not unpack all data" << endl;
 }
 

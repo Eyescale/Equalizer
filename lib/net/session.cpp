@@ -183,7 +183,8 @@ const NodeID& Session::getIDMaster( const uint32_t id )
 
     send( packet );
     _requestHandler.waitRequest( packet.requestID );
-    EQINFO << "Master node for id " << id << ": " << _pollIDMaster( id ) <<endl;
+    EQLOG( LOG_OBJECTS ) << "Master node for id " << id << ": " 
+        << _pollIDMaster( id ) << endl;
     return _pollIDMaster( id );
 }
 
@@ -542,7 +543,7 @@ CommandResult Session::_cmdGetIDMasterReply( Command& command )
     CHECK_THREAD( _receiverThread );
     const SessionGetIDMasterReplyPacket* packet = 
         command.getPacket<SessionGetIDMasterReplyPacket>();
-    EQINFO << "handle get idMaster reply " << packet << endl;
+    EQLOG( LOG_OBJECTS ) << "handle get idMaster reply " << packet << endl;
 
     if( packet->start != 0 )
     {

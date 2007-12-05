@@ -178,6 +178,7 @@ CXXFILES = \
 	client/windowEvent.cpp \
 	client/windowSystem.cpp
 
+CFLAGS += -DGLEW_BUILD
 CFILES += \
 	glew/glew.c
 

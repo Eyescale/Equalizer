@@ -739,10 +739,19 @@ bool Window::configInitWGL()
         windowStyle = WS_POPUP | WS_MAXIMIZE;
     }
 
+    // adjust window size (adds border pixels)
+    RECT rect;
+    rect.left   = _pvp.x;
+    rect.top    = _pvp.y;
+    rect.right  = _pvp.x + _pvp.w;
+    rect.bottom = _pvp.y + _pvp.h;
+    AdjustWindowRectEx( &rect, windowStyle, FALSE, windowStyleEx );
+
     HWND hWnd = CreateWindowEx( windowStyleEx,
                                 wc.lpszClassName, 
                                 _name.empty() ? "Equalizer" : _name.c_str(),
-                  	            windowStyle, _pvp.x, _pvp.y, _pvp.w, _pvp.h,
+                  	            windowStyle, rect.left, rect.top, 
+                                rect.right - rect.left, rect.bottom - rect.top,
                                 0, 0, // parent, menu
                                 instance, 0 );
 
@@ -1101,10 +1110,12 @@ void Window::setXDrawable( XID drawable )
     XTranslateCoordinates( display, parent, root, wa.x, wa.y, &x, &y,
         &childReturn );
 
-    _pvp.x = x;
-    _pvp.y = y;
-    _pvp.w = wa.width;
-    _pvp.h = wa.height;
+    PixelViewport pvp;
+    pvp.x = x;
+    pvp.y = y;
+    pvp.w = wa.width;
+    pvp.h = wa.height;
+    setPixelViewport( pvp );
 #endif // GLX
 }
 
@@ -1182,10 +1193,12 @@ void Window::setCarbonWindow( WindowRef window )
         Global::enterCarbon();
         if( GetWindowBounds( window, kWindowContentRgn, &rect ) == noErr )
         {
-            _pvp.x = rect.left;
-            _pvp.y = rect.top;
-            _pvp.w = rect.right - rect.left;
-            _pvp.h = rect.bottom - rect.top;
+            PixelViewport pvp;
+            pvp.x = rect.left;
+            pvp.y = rect.top;
+            pvp.w = rect.right - rect.left;
+            pvp.h = rect.bottom - rect.top;
+            setPixelViewport( pvp );
         }
         Global::leaveCarbon();
     }
@@ -1216,10 +1229,12 @@ void Window::setWGLWindowHandle( HWND handle )
 
     GetWindowInfo( handle, &windowInfo );
 
-    _pvp.x = windowInfo.rcClient.left;
-    _pvp.y = windowInfo.rcClient.top;
-    _pvp.w = windowInfo.rcClient.right  - windowInfo.rcClient.left;
-    _pvp.h = windowInfo.rcClient.bottom - windowInfo.rcClient.top;
+    PixelViewport pvp;
+    pvp.x = windowInfo.rcClient.left;
+    pvp.y = windowInfo.rcClient.top;
+    pvp.w = windowInfo.rcClient.right  - windowInfo.rcClient.left;
+    pvp.h = windowInfo.rcClient.bottom - windowInfo.rcClient.top;
+    setPixelViewport( pvp );
 #endif // WGL
 }
 
