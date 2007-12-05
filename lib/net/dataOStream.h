@@ -72,7 +72,8 @@ namespace eqNet
             { 
                 const uint64_t nElems = value.size();
                 write( &nElems, sizeof( nElems ));
-                write( &value[0], nElems * sizeof( T ) );
+                if( nElems > 0 )
+                    write( &value[0], nElems * sizeof( T ) );
                 return *this;
             }
 

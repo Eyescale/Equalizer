@@ -35,7 +35,8 @@ namespace eqNet
             uint64_t nElems = 0;
             read( &nElems, sizeof( nElems ));
             value.resize( nElems );
-            read( &value[0], nElems * sizeof( T ) ); 
+            if( nElems > 0 )
+                read( &value[0], nElems * sizeof( T ) ); 
             return *this; 
         }
 
