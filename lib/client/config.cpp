@@ -260,7 +260,7 @@ void Config::handleEvents()
          event = tryNextEvent( ))
     {
         if( !handleEvent( event ))
-            EQINFO << "Unhandled " << event << endl;
+            EQVERB << "Unhandled " << event << endl;
     }
 }
 

@@ -640,14 +640,16 @@ bool Window::configInitAGL()
                                          kWindowStandardHandlerAttribute   |
                                          kWindowInWindowMenuAttribute;
         // top, left, bottom, right
-        Rect             windowRect = { _pvp.y + EQ_AGL_MENUBARHEIGHT, _pvp.x, 
-                                        _pvp.y + _pvp.h + EQ_AGL_MENUBARHEIGHT,
-                                        _pvp.x + _pvp.w };
-        WindowRef        windowRef;
+        const bool decoration = (getIAttribute( IATTR_HINT_DECORATION ) != OFF);
+        const int32_t  menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0 ;
+        Rect           windowRect = { _pvp.y + menuHeight, _pvp.x, 
+                                      _pvp.y + _pvp.h + menuHeight,
+                                      _pvp.x + _pvp.w };
+        WindowRef      windowRef;
 
-        const OSStatus   status     = CreateNewWindow( kDocumentWindowClass, 
-                                                       winAttributes,
-                                                       &windowRect, &windowRef );
+        const OSStatus status     = CreateNewWindow( kDocumentWindowClass, 
+                                                     winAttributes,
+                                                     &windowRect, &windowRef );
         if( status != noErr )
         {
             setErrorMessage( "Could not create carbon window: " + status );
