@@ -36,7 +36,7 @@ CLEAN_EXTRA = \
 	parser.hpp
 
 
-ifeq "${ARCH}" "CYGWIN_NT_5_1"
+ifeq ($(findstring CYGWIN_NT_5, $(ARCH)),CYGWIN_NT_5)
   CXXFILES += lexer_cygwin.cpp
 else
   CXXFILES += lexer.cpp
