@@ -180,7 +180,8 @@ void Channel::_drawModel( const Model* model )
     
     model->endRendering( state );
     
-    glUseProgram( 0 );
+    if( program != VertexBufferState::FAILED )
+        glUseProgram( 0 );
 }
 
 void Channel::_drawLogo()
