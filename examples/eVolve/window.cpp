@@ -59,6 +59,8 @@ bool Window::configInitGL( const uint32_t initID )
     if( !pipe->LoadShaders() )
         return false;
 
+    glEnable( GL_SCISSOR_TEST ); // needed to constrain channel viewport
+
     return true;
 }
 
