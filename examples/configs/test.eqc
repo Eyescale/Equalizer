@@ -1,92 +1,126 @@
-server
+# four-to-one sort-last, direct-send single-pipe demo configuration
+global
 {
-   config
-   {
-       appNode
-       {
-           pipe
-           {
-               window
-               {
-                   name "Clustered csg - powered by Equalizer"
-                   viewport [ 100 400 480 300 ]
-                   channel
-                   {
-                       name "channel1"
-                   }
-               }
-               window
-               {
-                   name "Clustered csg - powered by Equalizer"
-                   viewport [ 580 400 480 300 ]
-                   channel
-                   {
-                       name "channel2"
-                   }
-               }
-               window
-               {
-                   name "Clustered csg - powered by Equalizer"
-                   viewport [ 100 100 480 300 ]
-                   channel
-                   {
-                       name "channel3"
-                   }
-               }
-               window
-               {
-                   name "Clustered csg - powered by Equalizer"
-                   viewport [ 580 100 480 300 ]
-                   channel
-                   {
-                       name "channel4"
-                   }
-               }
-           }
-       }
-       compound
-       {
-           compound
-           {
-               channel "channel1"
-               wall
-               {
-                   bottom_left  [ -.48 -.3 -1 ]
-                   bottom_right [ -.0 -.3 -1 ]
-                   top_left     [ -.48  .0 -1 ]
-               }
-           }
-           compound
-           {
-               channel "channel2"
-               wall
-               {
-                   bottom_left  [  .0 -.3 -1 ]
-                   bottom_right [  .48 -.3 -1 ]
-                   top_left     [  .0  .0 -1 ]
-               }
-           }
-           compound
-           {
-               channel "channel3"
-               wall
-               {
-                   bottom_left  [ -.48  .0 -1 ]
-                   bottom_right [  .0   .0 -1 ]
-                   top_left     [ -.48  .3 -1 ]
-               }
-           }
-           compound
-           {
-               channel "channel4"
-               wall
-               {
-                   bottom_left  [  .0   .0 -1 ]
-                   bottom_right [  .48  .0 -1 ]
-                   top_left     [  .0   .3 -1 ]
-               }
-           }
-       }
-   }
+    EQ_WINDOW_IATTR_PLANES_STENCIL ON
 }
 
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    name     "window1"
+                    viewport [ 25 25 400 400 ]
+                    channel { name "channel1"  }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    name     "window2"
+                    viewport [ 450 25 400 400 ]
+                    channel { name "channel2"  }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    name     "window3"
+                    viewport [ 25 450 400 400 ]
+                    channel { name "channel3"  }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    name     "window4"
+                    viewport [ 450 450 400 400 ]
+                    channel { name "channel4"  }
+                }
+            }
+        }
+        compound
+        {
+            channel   "channel1"
+            buffer    [ COLOR DEPTH ]
+
+            wall
+            {
+                bottom_left  [ -.5 -.5 -1 ]
+                bottom_right [  .5 -.5 -1 ]
+                top_left     [ -.5  .5 -1 ]
+            }
+            compound
+            {
+                range     [ 0.00 0.25 ]
+                outputframe{ name "tile1.channel1" viewport [ 0 0.00 1 0.25 ] }
+                outputframe{ name "tile2.channel1" viewport [ 0 0.25 1 0.25 ] }
+                outputframe{ name "tile3.channel1" viewport [ 0 0.50 1 0.25 ] }
+            }
+
+            compound
+            {
+                channel   "channel2"
+                
+                compound
+                {
+                    range     [ 0.25 0.50 ]
+                    outputframe{ name "tile1.channel2" viewport [ 0 0.00 1 0.25 ] }
+                    outputframe{ name "tile2.channel2" viewport [ 0 0.25 1 0.25 ] }
+                    outputframe{ name "tile4.channel2" viewport [ 0 0.75 1 0.25 ] }
+                }
+                inputframe{ name "tile3.channel1" }
+                inputframe{ name "tile3.channel3" }
+                inputframe{ name "tile3.channel4" }
+                outputframe{ name "frame.channel2" buffer [ COLOR ] viewport [ 0 0.50 1 0.25 ] }
+            }
+
+            compound
+            {
+                channel   "channel3"
+                compound
+                {
+                    range     [ 0.50 0.75 ]
+                    outputframe{ name "tile1.channel3" viewport [ 0 0.00 1 0.25 ] }
+                    outputframe{ name "tile3.channel3" viewport [ 0 0.50 1 0.25 ] }
+                    outputframe{ name "tile4.channel3" viewport [ 0 0.75 1 0.25 ] }
+                }
+                inputframe{ name "tile2.channel1" }
+                inputframe{ name "tile2.channel2" }
+                inputframe{ name "tile2.channel4" }
+                outputframe{ name "frame.channel3" buffer [ COLOR ] viewport [ 0 0.25 1 0.25 ] }
+            }
+
+            compound
+            {
+                channel   "channel4"
+                compound
+                {
+                    range     [ 0.75 1 ]
+                    outputframe{ name "tile2.channel4" viewport [ 0 0.25 1 0.25 ] }
+                    outputframe{ name "tile3.channel4" viewport [ 0 0.50 1 0.25 ] }
+                    outputframe{ name "tile4.channel4" viewport [ 0 0.75 1 0.25 ] }
+                }
+                inputframe{ name "tile1.channel1" }
+                inputframe{ name "tile1.channel2" }
+                inputframe{ name "tile1.channel3" }
+                outputframe{ name "frame.channel4" buffer [ COLOR ] viewport [ 0 0.00 1 0.25 ] }
+            }
+
+            inputframe{ name "tile4.channel2" }
+            inputframe{ name "tile4.channel3" }
+            inputframe{ name "tile4.channel4" }
+            inputframe{ name "frame.channel2" }
+            inputframe{ name "frame.channel3" }
+            inputframe{ name "frame.channel4" }
+        }
+    }
+}
