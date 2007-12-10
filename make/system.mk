@@ -4,11 +4,6 @@ ifndef TOP
   TOP := .
 endif
 
-SUBDIR    ?= "."
-SUBDIRTOP := ../$(TOP)
-DEPTH     := $(subst ../,--,$(TOP))
-DEPTH     := $(subst .,-->,$(DEPTH))
-
 # os-specific settings
 ARCH    ?= $(subst .,_,$(subst -,_,$(shell uname)))
 SUBARCH ?= $(shell uname -m)
@@ -17,8 +12,21 @@ RELARCH ?= $(shell uname -r)
 include $(TOP)/make/$(ARCH).mk
 -include $(TOP)/make/local.mk
 
+# What to pass down to sub-makes
+export CFLAGS
+export CXXFLAGS
+export LDFLAGS
+export LD
+
+# helper variables for directory-dependent stuff
+SUBDIR    ?= "."
+SUBDIRTOP := ../$(TOP)
+DEPTH     := $(subst ../,--,$(TOP))
+DEPTH     := $(subst .,-->,$(DEPTH))
+
 # general variables, targets, etc.
-VARIANTS           ?= $(SUBARCH)
+VARIANTS       ?= $(SUBARCH)    # different architectures, e.g., i386, ppc
+
 
 BUILD_DIR_BASE  = build/$(ARCH)
 BUILD_DIR       = $(TOP)/$(BUILD_DIR_BASE)
@@ -34,11 +42,9 @@ DEFFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DEQ_CHECK_THREADSAFETY \
 
 
 ifeq (0,${MAKELEVEL})
-ifdef USE_OPENMP
-    DEFFLAGS += -DEQ_USE_OPENMP
-    CXXFLAGS += -fopenmp
-    LDFLAGS  += -lgomp
-endif
+
+LD              = $(CXX) # use c++ compiler for linking
+
 ifneq ($(findstring -g, $(CXXFLAGS)),-g)
     DEFFLAGS       += -DNDEBUG
 ifneq ($(findstring -O, $(CXXFLAGS)),-O)
@@ -49,16 +55,25 @@ endif # -g
   CFLAGS         += $(DEFFLAGS)
   CXXFLAGS       += $(DEFFLAGS)
 
+ifeq ($(findstring icc, $(CXX)),icc)
+    ICC_DIR    ?= /opt/intel/cc/10.1.006
+    CXXFLAGS   += -openmp
+    LDFLAGS    += -L$(ICC_DIR)/lib -lirc -lguide -limf -lsvml
+    LD          = g++
+endif # icc
+
 ifeq ($(findstring g++, $(CXX)),g++)
     CXXFLAGS += -Wall \
                 -Wnon-virtual-dtor -Wsign-promo -Wshadow \
                 -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings
+ifdef USE_OPENMP
+      DEFFLAGS += -DEQ_USE_OPENMP
+      CXXFLAGS += -fopenmp
+      LDFLAGS  += -lgomp
+endif
 endif # g++
-endif # top-level
 
-export CFLAGS
-export CXXFLAGS
-export LDFLAGS
+endif # top-level
 
 DOXYGEN        ?= Doxygen
 FLEX           ?= flex

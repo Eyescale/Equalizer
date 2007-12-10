@@ -31,9 +31,9 @@ ifeq ($(findstring g++-4.2, $(CXX)),g++-4.2)
 endif # g++ 4.2
 
 ifdef VARIANT
-  CXXFLAGS    += -arch $(VARIANT)
-  CFLAGS      += -arch $(VARIANT)
-  DSO_LDFLAGS += -arch $(VARIANT)
+  CXXFLAGS += -arch $(VARIANT)
+  CFLAGS   += -arch $(VARIANT)
+  LDFLAGS  += -arch $(VARIANT)
 endif
 
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)

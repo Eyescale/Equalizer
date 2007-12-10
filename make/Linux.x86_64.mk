@@ -2,9 +2,9 @@
 VARIANTS    ?= 64
 
 ifdef VARIANT
-  CXXFLAGS    += -m$(VARIANT) -fPIC
-  CFLAGS      += -m$(VARIANT) -fPIC
-  DSO_LDFLAGS += -m$(VARIANT)
+  CXXFLAGS += -m$(VARIANT) -fPIC
+  CFLAGS   += -m$(VARIANT) -fPIC
+  LDFLAGS  += -m$(VARIANT)
 endif
 
 ifeq ($(findstring 32, $(VARIANT)),32)

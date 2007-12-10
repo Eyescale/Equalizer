@@ -45,7 +45,7 @@ namespace eqNet
             { _data.height = height; }
         void increase() { ++_data.height; }
 
-        const uint32_t getHeight() const { return _data.height; }
+        uint32_t getHeight() const { return _data.height; }
         //*}
 
         /** @name Operations */

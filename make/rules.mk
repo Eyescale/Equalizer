@@ -54,7 +54,7 @@ endif
 $(THIN_DYNAMIC_LIBS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
 	@mkdir -p $(@D)
-	$(CXX) $(LINKDIRS) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
+	$(LD) $(LINKDIRS) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 else
 	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/lib$(MODULE).$(DSO_SUFFIX)=%) TOP=$(TOP) $@
 endif
@@ -100,7 +100,7 @@ $(APP_PROGRAM): $(FAT_PROGRAM)
 $(THIN_PROGRAMS): $(PCHEADERS) $(OBJECTS)
 ifdef VARIANT
 	@mkdir -p $(@D)
-	$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) $(OBJECTS) $(LINKDIRS) $(LDFLAGS) -o $@
+	$(LD) $(INCLUDEDIRS) $(OBJECTS) $(LINKDIRS) $(LDFLAGS) -o $@
 else
 	@$(MAKE) VARIANT=$(subst .,,$(suffix $@)) TOP=$(TOP) $@
 endif
