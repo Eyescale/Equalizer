@@ -17,6 +17,7 @@ namespace eqPly
     class Channel : public eq::Channel
     {
     public:
+        Channel( eq::Window* parent ) : eq::Channel( parent ) {}
 
     protected:
         virtual ~Channel() {}

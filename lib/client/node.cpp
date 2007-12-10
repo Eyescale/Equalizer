@@ -22,8 +22,8 @@ using namespace eq;
 using namespace eqBase;
 using namespace std;
 
-Node::Node()
-        : _config(0)
+Node::Node( Config* parent )
+        : _config( parent )
         , _unlockedFrame( 0 )
 {
     registerCommand( CMD_NODE_CREATE_PIPE, 
@@ -51,11 +51,13 @@ Node::Node()
     registerCommand( REQ_NODE_FRAME_DRAW_FINISH, 
                   eqNet::CommandFunc<Node>( this, &Node::_reqFrameDrawFinish ));
 
+    parent->_addNode( this );
     EQINFO << " New eq::Node @" << (void*)this << endl;
 }
 
 Node::~Node()
 {
+    _config->_removeNode( this );
     EQINFO << " Delete eq::Node @" << (void*)this << endl;
     if( !_dataQueue.empty( ))
         EQWARN << "Node data queue not empty in destructor" << endl;
@@ -63,8 +65,8 @@ Node::~Node()
 
 void Node::_addPipe( Pipe* pipe )
 {
+    EQASSERT( pipe->getNode() == this );
     _pipes.push_back( pipe );
-    pipe->_node = this;
 }
 
 void Node::_removePipe( Pipe* pipe )
@@ -73,7 +75,6 @@ void Node::_removePipe( Pipe* pipe )
     EQASSERT( iter != _pipes.end( ))
     
     _pipes.erase( iter );
-    pipe->_node = 0;
 }
 
 Pipe* Node::_findPipe( const uint32_t id )
@@ -316,10 +317,9 @@ eqNet::CommandResult Node::_cmdCreatePipe( eqNet::Command& command )
     EQINFO << "Handle create pipe " << packet << endl;
     EQASSERT( packet->pipeID != EQ_ID_INVALID );
 
-    Pipe* pipe = Global::getNodeFactory()->createPipe();
-    
+    Pipe* pipe = Global::getNodeFactory()->createPipe( this );
     _config->attachObject( pipe, packet->pipeID );
-    _addPipe( pipe );
+    
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -332,11 +332,9 @@ eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Command& command )
 
     Pipe* pipe = _findPipe( packet->pipeID );
     pipe->waitExit();
-
-    _removePipe( pipe );
     _config->detachObject( pipe );
-    delete pipe;
 
+    delete pipe;
     return eqNet::COMMAND_HANDLED;
 }
 

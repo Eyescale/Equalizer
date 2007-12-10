@@ -21,7 +21,7 @@ namespace eVolve
     class Window : public eq::Window
     {
     public:
-        Window() : _logoTexture( 0 ) {}
+        Window( eq::Pipe* parent ) : eq::Window( parent ), _logoTexture( 0 ) {}
 
         // display list cache (windows share the context and object manager)
         GLuint getDisplayList( const void* key )

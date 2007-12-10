@@ -3,9 +3,10 @@
 include make/system.mk
 
 SUBDIRS = \
-	lib \
+	contrib \
 	examples \
 	externals \
+	lib \
 	proto \
 	server \
 	tests \
@@ -26,6 +27,7 @@ lib: externals
 proto: lib
 tests: lib server
 examples: lib
+contrib: lib
 server: lib
 tools: lib
 

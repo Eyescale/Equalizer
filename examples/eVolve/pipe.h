@@ -16,7 +16,7 @@ namespace eVolve
     class Pipe : public eq::Pipe
     {
     public:
-        Pipe() : eq::Pipe(), _shadersLoaded(false) {}
+        Pipe( eq::Node* parent ) : eq::Pipe( parent ), _shadersLoaded(false) {}
 
         const FrameData& getFrameData() const { return _frameData; }
 

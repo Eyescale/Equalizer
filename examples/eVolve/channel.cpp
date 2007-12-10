@@ -29,10 +29,10 @@ using namespace eqBase;
 using namespace std;
 
 
-Channel::Channel()
-    :eq::Channel()
-    ,_bgColor       ( 0.0f, 0.0f, 0.0f, 1.0f ) 
-    ,_slicesListID  ( 0 )
+Channel::Channel( eq::Window* parent )
+    : eq::Channel( parent )
+    , _bgColor       ( 0.0f, 0.0f, 0.0f, 1.0f ) 
+    , _slicesListID  ( 0 )
 {
     _curFrData.frameID = 0;
 }

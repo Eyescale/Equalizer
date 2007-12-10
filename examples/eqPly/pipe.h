@@ -14,6 +14,8 @@ namespace eqPly
     class Pipe : public eq::Pipe
     {
     public:
+        Pipe( eq::Node* parent ) : eq::Pipe( parent ) {}
+
         const FrameData& getFrameData() const { return _frameData; }
 
     protected:

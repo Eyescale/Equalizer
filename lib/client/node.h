@@ -26,7 +26,7 @@ namespace eq
         /** 
          * Constructs a new node.
          */
-        Node();
+        Node( Config* parent );
 
         /** 
          * Returns the config of this node.
@@ -111,6 +111,7 @@ namespace eq
          * Destructs the node.
          */
         virtual ~Node();
+        friend class Config;
 
         /** @name Actions */
         //*{
@@ -218,8 +219,7 @@ namespace eq
 
     private:
         /** The parent config */
-        friend class Config;
-        Config*                _config;
+        Config* const          _config;
 
         /** The name. */
         std::string            _name;
@@ -257,6 +257,7 @@ namespace eq
         /** The receiver->node data transmission queue. */
         CommandQueue           _dataQueue;
 
+        friend class Pipe;
         void _addPipe( Pipe* pipe );
         void _removePipe( Pipe* pipe );
         Pipe* _findPipe( const uint32_t id );

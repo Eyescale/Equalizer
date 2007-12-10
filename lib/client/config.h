@@ -233,6 +233,7 @@ namespace eq
         /** true while the config is initialized and no window has exited. */
         bool _running;
 
+        friend class Node;
         void _addNode( Node* node );
         void _removeNode( Node* node );
         Node* _findNode( const uint32_t id );

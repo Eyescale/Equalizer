@@ -210,11 +210,6 @@ eqBase::RefPtr<eqNet::Node> Client::createNode( const uint32_t type )
     }
 }
 
-eqNet::Session* Client::createSession()
-{
-    return Global::getNodeFactory()->createConfig(); 
-}
-
 bool Client::clientLoop()
 {
     EQINFO << "Entered client loop" << endl;

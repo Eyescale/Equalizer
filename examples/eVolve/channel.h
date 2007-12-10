@@ -21,7 +21,7 @@ namespace eVolve
     class Channel : public eq::Channel
     {
     public:
-        Channel();
+        Channel( eq::Window* parent );
         bool _perspective;  // perspective/ortogonal projection
 
     protected:

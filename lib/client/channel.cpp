@@ -26,8 +26,8 @@ std::string eq::Channel::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_HINT_STATISTICS ),
 };
 
-Channel::Channel()
-        : _window(NULL),
+Channel::Channel( Window* parent )
+        : _window( parent ),
           _context( NULL ),
           _frustum( vmml::Frustumf::DEFAULT )
 {
@@ -71,10 +71,14 @@ Channel::Channel()
                    eqNet::CommandFunc<Channel>( this, &Channel::_pushCommand ));
     registerCommand( REQ_CHANNEL_FRAME_TRANSMIT, 
               eqNet::CommandFunc<Channel>( this, &Channel::_reqFrameTransmit ));
+
+    parent->_addChannel( this );
+    EQINFO << " New eq::Channel @" << (void*)this << endl;
 }
 
 Channel::~Channel()
 {
+    _window->_removeChannel( this );
 }
 
 //----------------------------------------------------------------------

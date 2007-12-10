@@ -29,7 +29,7 @@ namespace eq
         /** 
          * Constructs a new pipe.
          */
-        Pipe();
+        Pipe( Node* parent );
 
         /** @name Data Access. */
         //*{
@@ -171,6 +171,7 @@ namespace eq
          * Destructs the pipe.
          */
         virtual ~Pipe();
+        friend class Node;
 
         /** @name Data Access. */
         //*{
@@ -354,8 +355,7 @@ namespace eq
 
     private:
         /** The parent node. */
-        friend class Node;
-        Node*       _node;
+        Node* const    _node;
 
         /** The name. */
         std::string    _name;
@@ -431,6 +431,7 @@ namespace eq
 
         static int XErrorHandler( Display* display, XErrorEvent* event );
 
+        friend class Window;
         void _addWindow( Window* window );
         void _removeWindow( Window* window );
         Window* _findWindow( const uint32_t id );

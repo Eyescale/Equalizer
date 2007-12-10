@@ -85,7 +85,7 @@ eqBase::RefPtr<Client> Config::getClient()
 
 void Config::_addNode( Node* node )
 {
-    node->_config = this;
+    EQASSERT( node->getConfig() == this );
     _nodes.push_back( node );
 }
 
@@ -94,8 +94,6 @@ void Config::_removeNode( Node* node )
     vector<Node*>::iterator i = find( _nodes.begin(), _nodes.end(), node );
     EQASSERT( i != _nodes.end( ));
     _nodes.erase( i );
-
-    node->_config = 0;
 }
 
 Node* Config::_findNode( const uint32_t id )
@@ -356,9 +354,8 @@ eqNet::CommandResult Config::_cmdCreateNode( eqNet::Command& command )
     EQINFO << "Handle create node " << packet << endl;
     EQASSERT( packet->nodeID != EQ_ID_INVALID );
 
-    Node* node = Global::getNodeFactory()->createNode();
+    Node* node = Global::getNodeFactory()->createNode( this );
     attachObject( node, packet->nodeID );
-    _addNode( node );
 
     ConfigCreateNodeReplyPacket reply( packet );
     send( command.getNode(), reply );
@@ -376,7 +373,6 @@ eqNet::CommandResult Config::_cmdDestroyNode( eqNet::Command& command )
     if( !node )
         return eqNet::COMMAND_HANDLED;
 
-    _removeNode( node );
     detachObject( node );
     delete node;
 

@@ -38,28 +38,30 @@ namespace eq
          * 
          * @return the node.
          */
-        virtual Node* createNode(){ return new eq::Node; }
+        virtual Node* createNode( Config* parent ){ return new Node( parent ); }
 
         /** 
          * Creates a new pipe.
          * 
          * @return the pipe.
          */
-        virtual Pipe* createPipe(){ return new eq::Pipe; }
+        virtual Pipe* createPipe( Node* parent ){ return new Pipe( parent ); }
 
         /** 
          * Creates a new window.
          * 
          * @return the window.
          */
-        virtual Window* createWindow(){ return new eq::Window; }
+        virtual Window* createWindow( Pipe* parent )
+            { return new Window( parent ); }
 
         /** 
          * Creates a new channel.
          * 
          * @return the channel.
          */
-        virtual Channel* createChannel(){ return new eq::Channel; }
+        virtual Channel* createChannel( Window* parent )
+            { return new Channel( parent ); }
         //@}
         
         virtual ~NodeFactory(){}

@@ -15,13 +15,17 @@ using namespace std;
 class Channel : public eq::Channel
 {
 public:
+    Channel( eq::Window* parent ) : eq::Channel( parent ) {}
+
+protected:
     virtual void frameDraw( const uint32_t spin );
 };
 
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Channel* createChannel() { return new Channel; }
+    virtual eq::Channel* createChannel( eq::Window* parent )
+        { return new Channel( parent ); }
 };
 
 int main( const int argc, char** argv )

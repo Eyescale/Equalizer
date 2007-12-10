@@ -32,9 +32,9 @@ using namespace std;
 namespace eq
 {
 
-Pipe::Pipe()
+Pipe::Pipe( Node* parent )
         : _eventHandler( 0 )
-        , _node( 0 )
+        , _node( parent )
         , _windowSystem( WINDOW_SYSTEM_NONE )
         , _port( EQ_UNDEFINED_UINT32 )
         , _device( EQ_UNDEFINED_UINT32 )
@@ -66,18 +66,22 @@ Pipe::Pipe()
                      eqNet::CommandFunc<Pipe>( this, &Pipe::pushCommand ));
     registerCommand( REQ_PIPE_FRAME_DRAW_FINISH, 
                   eqNet::CommandFunc<Pipe>( this, &Pipe::_reqFrameDrawFinish ));
+
+    parent->_addPipe( this );
+    EQINFO << " New eq::Pipe @" << (void*)this << endl;
 }
 
 Pipe::~Pipe()
 {
+    _node->_removePipe( this );
     delete _thread;
     _thread = 0;
 }
 
 void Pipe::_addWindow( Window* window )
 {
+    EQASSERT( window->getPipe() == this );
     _windows.push_back( window );
-    window->_pipe = this;
 }
 
 void Pipe::_removeWindow( Window* window )
@@ -87,7 +91,6 @@ void Pipe::_removeWindow( Window* window )
     EQASSERT( iter != _windows.end( ))
     
     _windows.erase( iter );
-    window->_pipe = 0;
 }
 
 eq::Window* Pipe::_findWindow( const uint32_t id )
@@ -751,10 +754,9 @@ eqNet::CommandResult Pipe::_cmdCreateWindow(  eqNet::Command& command  )
         command.getPacket<PipeCreateWindowPacket>();
     EQINFO << "Handle create window " << packet << endl;
 
-    Window* window = Global::getNodeFactory()->createWindow();
-    
+    Window* window = Global::getNodeFactory()->createWindow( this );
     getConfig()->attachObject( window, packet->windowID );
-    _addWindow( window );
+    
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -767,12 +769,10 @@ eqNet::CommandResult Pipe::_cmdDestroyWindow(  eqNet::Command& command  )
     Window* window = _findWindow( packet->windowID );
     EQASSERT( window );
 
-    _removeWindow( window );
-
     Config* config = getConfig();
     config->detachObject( window );
-    delete window;
 
+    delete window;
     return eqNet::COMMAND_HANDLED;
 }
 

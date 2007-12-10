@@ -24,7 +24,7 @@ namespace eqPly
     class Window : public eq::Window
     {
     public:
-        Window() : _logoTexture( 0 ) {}
+        Window( eq::Pipe* parent ) : eq::Window( parent ), _logoTexture( 0 ) {}
 
         void getLogoTexture( GLuint& id, vmml::Vector2i& size ) const
             { id = _logoTexture; size = _logoSize; }

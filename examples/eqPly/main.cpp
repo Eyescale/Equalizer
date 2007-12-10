@@ -18,11 +18,16 @@ using namespace std;
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Config*  createConfig()  { return new eqPly::Config; }
-    virtual eq::Node*    createNode()    { return new eqPly::Node; }
-    virtual eq::Pipe*    createPipe()    { return new eqPly::Pipe; }
-    virtual eq::Window*  createWindow()  { return new eqPly::Window; }
-    virtual eq::Channel* createChannel() { return new eqPly::Channel; }
+    virtual eq::Config*  createConfig()  
+        { return new eqPly::Config; }
+    virtual eq::Node*    createNode( eq::Config* parent )  
+        { return new eqPly::Node( parent ); }
+    virtual eq::Pipe*    createPipe( eq::Node* parent )
+        { return new eqPly::Pipe( parent ); }
+    virtual eq::Window*  createWindow( eq::Pipe* parent )
+        { return new eqPly::Window( parent ); }
+    virtual eq::Channel* createChannel( eq::Window* parent )
+        { return new eqPly::Channel( parent ); }
 };
 
 int main( const int argc, char** argv )

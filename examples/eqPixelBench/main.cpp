@@ -12,7 +12,8 @@ class NodeFactory : public eq::NodeFactory
 {
 public:
     virtual eq::Config*  createConfig() { return new ::Config; }
-    virtual eq::Channel* createChannel() { return new ::Channel; }
+    virtual eq::Channel* createChannel( eq::Window* parent )
+        { return new ::Channel( parent ); }
 };
 
 int main( int argc, char** argv )

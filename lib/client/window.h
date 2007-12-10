@@ -29,7 +29,7 @@ namespace eq
         /** 
          * Constructs a new window.
          */
-        Window();
+        Window( Pipe* parent );
 
         /** @name Data Access */
         //*{
@@ -141,6 +141,7 @@ namespace eq
          * Destructs the window.
          */
         virtual ~Window();
+        friend class Pipe;
 
         /**
          * @name Attributes
@@ -405,8 +406,7 @@ namespace eq
         };
 
         /** The parent pipe. */
-        friend class Pipe;
-        Pipe*        _pipe;
+        Pipe* const   _pipe;
 
         /** The name. */
         std::string    _name;
@@ -436,6 +436,7 @@ namespace eq
         /** Used on AGL only */
         eqBase::SpinLock* _renderContextAGLLock;
 
+        friend class Channel;
         void _addChannel( Channel* channel );
         void _removeChannel( Channel* channel );
         Channel* _findChannel( const uint32_t id );

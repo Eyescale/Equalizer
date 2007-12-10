@@ -35,6 +35,7 @@ namespace std
 #endif
 {
 #  ifdef __GNUC__
+#    ifndef EQ_HAVE_STRING_HASH
     /** std::string hash function. */
     template<> 
     struct hash< std::string >
@@ -44,6 +45,7 @@ namespace std
             return hash< const char* >()( str.c_str() );
         }
     };
+#    endif
 
     /** void* hash functions. */
     template<> 
@@ -66,6 +68,7 @@ namespace std
     };
 
 #  else // WIN32
+#    ifndef EQ_HAVE_STRING_HASH
 
     /** std::string hash function. */
     template<>
@@ -74,6 +77,8 @@ namespace std
     {
         return hash_value( key.c_str( ));
     }
+
+#    endif
 #  endif
 
     /** Uniquely sorts and truncates a STL container. */

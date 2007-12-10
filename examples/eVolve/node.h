@@ -18,6 +18,8 @@ namespace eVolve
     class Node : public eq::Node
     {
     public:
+        Node( eq::Config* parent ) : eq::Node( parent ) {}
+
         const InitData& getInitData() const { return _initData; }
 
     protected:

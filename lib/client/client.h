@@ -87,9 +87,6 @@ namespace eq
         /** @sa eqNet::Node::createNode */
         virtual eqBase::RefPtr<eqNet::Node> createNode( const uint32_t type );
         
-        /** @sa eqNet::Node::createSession */
-        virtual eqNet::Session* createSession();
-
         /** @sa eqNet::Node::handleCommand */
         virtual eqNet::CommandResult handleCommand( eqNet::Command& command );
 

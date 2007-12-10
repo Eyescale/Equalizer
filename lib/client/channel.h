@@ -26,7 +26,7 @@ namespace eq
         /** 
          * Constructs a new channel.
          */
-        Channel();
+        Channel( Window* parent );
 
         /**
          * @name Data Access
@@ -163,6 +163,7 @@ namespace eq
          * Destructs the channel.
          */
         virtual ~Channel();
+        friend class Window;
 
         /** @name Actions */
         //*{
@@ -334,8 +335,7 @@ namespace eq
         //@}
     private:
         /** The parent window. */
-        friend class   Window;
-        Window*        _window;
+        Window* const _window;
 
         /** The name. */
         std::string    _name;

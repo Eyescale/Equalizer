@@ -46,7 +46,7 @@ std::string Window::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_PLANES_STENCIL )
 };
 
-Window::Window()
+Window::Window( Pipe* parent )
         : _eventHandler( 0 )
         , _glewContext( new GLEWContext )
         , _xDrawable ( 0 )
@@ -56,7 +56,7 @@ Window::Window()
         , _carbonHandler( 0 )
         , _wglWindowHandle( 0 )
         , _wglContext     ( 0 )
-        , _pipe( 0 )
+        , _pipe( parent )
         , _renderContextAGLLock( 0 )
 {
     registerCommand( CMD_WINDOW_CREATE_CHANNEL, 
@@ -96,12 +96,14 @@ Window::Window()
     registerCommand( REQ_WINDOW_FRAME_DRAW_FINISH, 
               eqNet::CommandFunc<Window>( this, &Window::_reqFrameDrawFinish ));
 
+    parent->_addWindow( this );
     EQINFO << " New eq::Window @" << (void*)this << endl;
 }
 
 
 Window::~Window()
 {
+    _pipe->_removeWindow( this );
     delete _glewContext;
     _glewContext = 0;
 
@@ -114,8 +116,8 @@ Window::~Window()
 
 void Window::_addChannel( Channel* channel )
 {
+    EQASSERT( channel->getWindow() == this );
     _channels.push_back( channel );
-    channel->_window = this;
 }
 
 void Window::_removeChannel( Channel* channel )
@@ -125,7 +127,6 @@ void Window::_removeChannel( Channel* channel )
     EQASSERT( iter != _channels.end( ))
     
     _channels.erase( iter );
-    channel->_window = 0;
 }
 
 Channel* Window::_findChannel( const uint32_t id )
@@ -1364,10 +1365,9 @@ eqNet::CommandResult Window::_cmdCreateChannel( eqNet::Command& command )
         command.getPacket<WindowCreateChannelPacket>();
     EQINFO << "Handle create channel " << packet << endl;
 
-    Channel* channel = Global::getNodeFactory()->createChannel();
-    
+    Channel* channel = Global::getNodeFactory()->createChannel( this );
     getConfig()->attachObject( channel, packet->channelID );
-    _addChannel( channel );
+
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -1380,7 +1380,6 @@ eqNet::CommandResult Window::_cmdDestroyChannel(eqNet::Command& command )
     Channel* channel = _findChannel( packet->channelID );
     EQASSERT( channel )
 
-    _removeChannel( channel );
     Config*  config  = getConfig();
     config->detachObject( channel );
     delete channel;

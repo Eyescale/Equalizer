@@ -10,7 +10,7 @@
 class Channel : public eq::Channel
 {
 public:
-    Channel(){}
+    Channel( eq::Window* parent ) : eq::Channel( parent ) {}
 
 protected:
     virtual void frameDraw( const uint32_t frameID );
