@@ -1,6 +1,11 @@
 # two pipe fullscreen config for passive stereo output onto a 2x2 meter wall
 # Note: the root compound channel is chosen arbitrarily to define the frustum.
 
+global
+{
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+}
+
 server
 {
     config
@@ -26,7 +31,6 @@ server
         }
         compound 
         {
-            channel "channel-left"
             wall
             {
                 bottom_left  [ -1 -1 -1 ]
@@ -35,6 +39,7 @@ server
             }
             compound
             {
+                channel "channel-left"
                 eye [ LEFT ]
                 swapbarrier{}
             }
