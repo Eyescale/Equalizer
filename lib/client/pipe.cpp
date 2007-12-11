@@ -717,6 +717,7 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
     if( !_pvp.isValid() && enumGPUDevices )
     {
         GPU_DEVICE device;
+        device.cb = sizeof( device );
         const bool found = enumGPUDevices( hGPU[0], 0, &device );
         EQASSERT( found );
 
