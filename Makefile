@@ -3,14 +3,14 @@
 include make/system.mk
 
 SUBDIRS = \
-	contrib \
-	examples \
 	externals \
 	lib \
-	proto \
 	server \
-	tests \
-	tools
+	tools \
+	examples \
+	contrib \
+	proto \
+	tests
 
 .PHONY: docs
 
