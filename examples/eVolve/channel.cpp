@@ -125,7 +125,7 @@ void Channel::frameClear( const uint32_t frameID )
     applyViewport();
 
 #ifdef COMPOSE_MODE_NEW
-    if( getRange().isFull() )
+    if( getRange() == eq::Range::ALL )
         glClearColor( _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a );
     else
         glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
@@ -266,7 +266,7 @@ void Channel::frameDraw( const uint32_t frameID )
 
     //Draw logo
     const eq::Viewport& vp = getViewport();
-    if( range.isFull() && vp.isFullScreen( ))
+    if( range == eq::Range::ALL && vp.isFullScreen( ))
        _drawLogo();
 }
 
@@ -481,7 +481,7 @@ void Channel::clearViewport( const eq::PixelViewport &pvp )
 #else 
 #ifdef SOLID_BG
 #ifdef COMPOSE_MODE_NEW
-    if( getRange().isFull() )
+    if( getRange() == eq::Range::ALL )
         glClearColor( _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a );
     else
         glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
@@ -500,7 +500,8 @@ void Channel::clearViewport( const eq::PixelViewport &pvp )
 void Channel::frameAssemble( const uint32_t frameID )
 {
     const eq::Range range  = _curFrData.lastRange;
-    const bool composeOnly = frameID != _curFrData.frameID || range.isFull();
+    const bool composeOnly = ( frameID != _curFrData.frameID || 
+                               range == eq::Range::ALL );
 
     _startAssemble();
 
@@ -517,7 +518,7 @@ void Channel::frameAssemble( const uint32_t frameID )
         frame->waitReady( );
 
         const eq::Range& curRange = frame->getRange();
-        if( curRange.isFull() ) // 2D frame, assemble directly
+        if( curRange == eq::Range::ALL ) // 2D frame, assemble directly
             frame->startAssemble();
         else
         {
@@ -641,13 +642,16 @@ void Channel::_drawLogo()
     window->getLogoTexture( texture, size );
     if( !texture )
         return;
-
-    const eq::PixelViewport pvp    = getPixelViewport();
-    const vmml::Vector2i    offset = getPixelOffset();
+    
+    const eq::PixelViewport& pvp    = getPixelViewport();
+    const vmml::Vector2i&    offset = getPixelOffset();
+    const eq::Pixel&         pixel   = getPixel();
 
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-    glOrtho( offset.x, offset.x + pvp.w, offset.y, offset.y + pvp.h, 0., 1. );
+    glOrtho( offset.x * pixel.size + pixel.index, 
+             (offset.x + pvp.w) * pixel.size + pixel.index, 
+             offset.y, offset.y + pvp.h, 0., 1. );
 
     glMatrixMode(GL_TEXTURE);
     glLoadIdentity();
@@ -668,8 +672,7 @@ void Channel::_drawLogo()
                      GL_LINEAR );
 
     glColor3f( 1.0f, 1.0f, 1.0f );
-    glBegin( GL_TRIANGLE_STRIP );
-    {
+    glBegin( GL_TRIANGLE_STRIP ); {
         glTexCoord2f( 0.0f, 0.0f );
         glVertex3f( 0.0f, 0.0f, 0.0f );
 

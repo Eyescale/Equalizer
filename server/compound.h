@@ -244,6 +244,9 @@ namespace eqs
 
         void setPhase( const uint32_t phase )      { _data.phase = phase; }
         const uint32_t getPhase() const            { return _data.phase; }
+
+        void setPixel( const eq::Pixel& pixel )    { _data.pixel = pixel; }
+        const eq::Pixel& getPixel() const          { return _data.pixel; }
         //*}
 
         /** @name IO object access. */
@@ -297,6 +300,7 @@ namespace eqs
             { return _inherit.pvp; }
         const eq::Viewport& getInheritViewport() const { return _inherit.vp; }
         const eq::Range& getInheritRange()    const { return _inherit.range; }
+        const eq::Pixel&  getInheritPixel()   const { return _inherit.pixel; }
         uint32_t getInheritTask()             const { return _inherit.tasks; }
         int32_t  getInheritIAttribute( const IAttribute attr ) const
             { return _inherit.iAttributes[attr]; }
@@ -454,6 +458,7 @@ namespace eqs
             eq::Viewport      vp;
             eq::PixelViewport pvp;
             eq::Range         range;
+            eq::Pixel         pixel;
             View              view;
             uint32_t          buffers;
             uint32_t          eyes;

@@ -131,6 +131,7 @@
 %token EQTOKEN_RANGE
 %token EQTOKEN_PERIOD
 %token EQTOKEN_PHASE
+%token EQTOKEN_PIXEL
 %token EQTOKEN_PORT
 %token EQTOKEN_DEVICE
 %token EQTOKEN_WALL
@@ -493,6 +494,8 @@ compoundField:
         { eqCompound->setRange( eq::Range( $3, $4 )); }
     | EQTOKEN_PERIOD UNSIGNED { eqCompound->setPeriod( $2 ); }
     | EQTOKEN_PHASE  UNSIGNED { eqCompound->setPhase( $2 ); }
+    | EQTOKEN_PIXEL '[' UNSIGNED UNSIGNED ']'
+        { eqCompound->setPixel( eq::Pixel( $3, $4 )); }
     | wall
     | projection
     | swapBarrier

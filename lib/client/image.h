@@ -22,7 +22,7 @@ namespace eq
     {
     public:
         /** Constructs a new Image. */
-        Image();
+        Image( const FrameData* parent = 0 );
         virtual ~Image();
         
         /**
@@ -156,7 +156,10 @@ namespace eq
         {
             Viewport vp;
         }
-            _data;
+        _data;
+        
+        /** The parent frame data. */
+        const FrameData* const _frameData;
 
         /** The rectangle of the current pixels data. */
         PixelViewport _pvp;
@@ -205,6 +208,8 @@ namespace eq
                                      const uint64_t marker, uint64_t* out );
 
         void _startReadback( const Frame::Buffer buffer );
+
+        void _setupAssemble( const vmml::Vector2i& offset );
         void _startAssemble2D( const vmml::Vector2i& offset );
         void _startAssembleDB( const vmml::Vector2i& offset );
 

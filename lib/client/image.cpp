@@ -5,6 +5,8 @@
 #include "image.h"
 
 #include "frame.h"
+#include "frameData.h"
+#include "pixel.h"
 #include "log.h"
 #include "windowSystem.h"
 
@@ -23,7 +25,8 @@ using namespace std;
 
 namespace eq
 {
-Image::Image()
+Image::Image( const FrameData* parent )
+        : _frameData( parent )
 {
     _colorPixels.format = GL_BGRA;
     _colorPixels.type   = GL_UNSIGNED_BYTE;
@@ -228,7 +231,7 @@ void Image::startAssemble( const uint32_t buffers, const vmml::Vector2i& offset)
         return;
     }
 
-    glRasterPos2i( offset.x + _pvp.x, offset.y + _pvp.y );
+    _setupAssemble( offset );
 
     if( useBuffers == Frame::BUFFER_COLOR )
         _startAssemble2D( offset );
@@ -236,6 +239,48 @@ void Image::startAssemble( const uint32_t buffers, const vmml::Vector2i& offset)
         _startAssembleDB( offset );
     else
         EQUNIMPLEMENTED;
+}
+
+void Image::_setupAssemble( const vmml::Vector2i& offset )
+{
+    const int32_t startX = offset.x + _pvp.x;
+    glRasterPos2i( startX, offset.y + _pvp.y );
+
+    const Pixel& pixel = _frameData ? _frameData->getPixel() : Pixel::ALL;
+    if( pixel == Pixel::ALL )
+        return;
+
+    glPixelZoom( static_cast< float >( pixel.size ), 1.0f );
+
+    // mark stencil buffer where pixel shall pass
+    // TODO: OPT!
+    glClear( GL_STENCIL_BUFFER_BIT );
+    glEnable( GL_STENCIL_TEST );
+    glEnable( GL_DEPTH_TEST );
+
+    glStencilFunc( GL_ALWAYS, 1, 1 );
+    glStencilOp( GL_REPLACE, GL_REPLACE, GL_REPLACE );
+
+    glLineWidth( 1.0f );
+    glDepthMask( false );
+    
+    const int32_t endX   = startX   + _pvp.w * pixel.size;
+    const float   startY = static_cast< float >( offset.y + _pvp.y );
+    const float   endY   = static_cast< float >( startY   + _pvp.h );
+
+    glBegin( GL_LINES );
+    for( int32_t x = startX + pixel.index; x < endX; x += pixel.size )
+    {
+        glVertex3f( static_cast< float >( x ), startY, 0.0f );
+        glVertex3f( static_cast< float >( x ), endY, 0.0f );        
+    }
+    glEnd();
+    
+    glDisable( GL_DEPTH_TEST );
+    glStencilFunc( GL_EQUAL, 1, 1 );
+    glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
+    
+    glDepthMask( true );
 }
 
 void Image::_startAssemble2D( const vmml::Vector2i& offset )
@@ -256,10 +301,21 @@ void Image::_startAssembleDB( const vmml::Vector2i& offset )
     // Z-Based sort-last assembly
     glEnable( GL_STENCIL_TEST );
     
+    const Pixel& pixel = _frameData ? _frameData->getPixel() : Pixel::ALL;
+    const bool   pixelComposite = ( pixel != Pixel::ALL );
+
     // test who is in front and mark in stencil buffer
     glEnable( GL_DEPTH_TEST );
-    glStencilFunc( GL_ALWAYS, 1, 1 );
-    glStencilOp( GL_ZERO, GL_ZERO, GL_REPLACE );
+    if( pixelComposite )
+    {   // keep already marked stencil values
+        glStencilFunc( GL_NOTEQUAL, 1, 1 );
+        glStencilOp( GL_KEEP, GL_ZERO, GL_REPLACE );
+    }
+    else
+    {
+        glStencilFunc( GL_ALWAYS, 1, 1 );
+        glStencilOp( GL_ZERO, GL_ZERO, GL_REPLACE );
+    }
 
     glDrawPixels( _pvp.w, _pvp.h, getFormat( Frame::BUFFER_DEPTH ), 
                   getType( Frame::BUFFER_DEPTH ), _depthPixels.data );

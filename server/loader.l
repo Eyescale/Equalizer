@@ -128,6 +128,7 @@ viewport                        { return EQTOKEN_VIEWPORT; }
 range                           { return EQTOKEN_RANGE; }
 period                          { return EQTOKEN_PERIOD; }
 phase                           { return EQTOKEN_PHASE; }
+pixel                           { return EQTOKEN_PIXEL; }
 port                            { return EQTOKEN_PORT; }
 device                          { return EQTOKEN_DEVICE; }
 wall                            { return EQTOKEN_WALL; }

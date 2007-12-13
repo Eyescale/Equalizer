@@ -260,7 +260,7 @@ void Channel::setupAssemblyState()
 {
     EQ_GL_ERROR( "before setupAssemblyState" );
     glPushAttrib( GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_VIEWPORT_BIT | 
-                  GL_SCISSOR_BIT );
+                  GL_SCISSOR_BIT | GL_LINE_BIT );
 
     glDisable( GL_DEPTH_TEST );
     glDisable( GL_BLEND );
@@ -351,7 +351,12 @@ const vmml::Frustumf& Channel::getFrustum() const
 
 const Range& Channel::getRange() const
 {
-    return _context ? _context->range : Range::FULL;
+    return _context ? _context->range : Range::ALL;
+}
+
+const Pixel& Channel::getPixel() const
+{
+    return _context ? _context->pixel : Pixel::ALL;
 }
 
 Eye Channel::getEye() const

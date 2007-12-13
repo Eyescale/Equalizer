@@ -103,6 +103,7 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.pvp            = compound->getInheritPixelViewport();
     context.vp             = compound->getInheritViewport();
     context.range          = compound->getInheritRange();
+    context.pixel          = compound->getInheritPixel();
     context.offset.x       = context.pvp.x;
     context.offset.y       = context.pvp.y;
     context.eye            = _eye;
@@ -288,6 +289,21 @@ void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
         frustum.right  =  ( -view.width*0.5f  - eye[0] ) * ratio;
         frustum.bottom =  (  view.height*0.5f + eye[1] ) * ratio;
         frustum.top    =  ( -view.height*0.5f + eye[1] ) * ratio;
+    }
+
+    // move frustum according to pixel decomposition
+    const eq::Pixel& pixel = compound->getInheritPixel();
+    if( pixel != eq::Pixel::ALL && pixel.isValid( ) && pixel.index > 0)
+    {
+        const Channel*    inheritChannel = compound->getInheritChannel();
+        const eq::PixelViewport& destPVP = inheritChannel->getPixelViewport();
+        const float         frustumWidth = frustum.right - frustum.left;
+        const float           pixelWidth = frustumWidth / 
+                                           static_cast<float>( destPVP.w );
+        const float               jitter = pixelWidth * pixel.index;
+        
+        frustum.left  += jitter;
+        frustum.right += jitter;
     }
 
     // adjust to viewport (screen-space decomposition)

@@ -37,21 +37,26 @@ namespace eq
             return start==rhs.start && end==rhs.end;
         }
         
+        bool operator != ( const Range& rhs ) const
+        {
+            return start!=rhs.start || end!=rhs.end;
+        }
+        
         void invalidate() { start=0.f; end=0.f; }
 
         bool isValid() const 
             { return ( start>=0.f && end <=1.f && (end - start) > 0.f ); }
-        bool isFull() const { return ( start==0.f && end==1.f ); }
 
         float start;
         float end;
 
-        static const Range FULL;
+        static const Range ALL;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Range& range )
     {
-        os << "range    [ " << range.start << " " << range.end << " ]";
+        if( range.isValid( ))
+            os << "range    [ " << range.start << " " << range.end << " ]";
         return os;
     }
 }

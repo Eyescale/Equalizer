@@ -75,7 +75,7 @@ Image* FrameData::_allocImage()
     _imageCacheLock.set();
 
     if( _imageCache.empty( ))
-        image = new Image();
+        image = new Image( this );
     else
     {
         image = _imageCache.back();

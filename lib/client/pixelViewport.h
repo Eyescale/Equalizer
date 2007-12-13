@@ -5,7 +5,8 @@
 #ifndef EQ_PIXELVIEWPORT_H
 #define EQ_PIXELVIEWPORT_H
 
-#include "viewport.h"
+#include <eq/client/viewport.h> // used in inline method
+#include <eq/client/pixel.h>    // used in inline method
 
 #include <eq/base/base.h>
 #include <eq/base/debug.h>
@@ -64,6 +65,21 @@ namespace eq
                 y += static_cast<int32_t>( h * rhs.y );
                 w = xEnd - x;
                 h = yEnd - y;
+            }
+
+        void apply( const Pixel& pixel )
+            {
+                if( pixel == eq::Pixel::ALL )
+                    return;
+
+                int32_t newWidth = w / pixel.size;
+                // This would be the correct thing to do, but it would require
+                // frustum adaptations in CUV::_computeFrustum:
+                //if( w - ( newWidth * pixel.size ) > pixel.index )
+                if( w - ( newWidth * pixel.size ) != 0 )
+                    ++newWidth;
+
+                w = newWidth;
             }
 
         const PixelViewport getSubPVP( const Viewport& rhs ) const

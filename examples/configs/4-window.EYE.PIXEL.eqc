@@ -1,0 +1,114 @@
+# single pipe, multi-level Eye / Pixel configuration. Same as 
+# 7-window.EYE.PIXEL.eqc, but using only four windows and optimized pixel
+# transfers.
+
+global
+{
+    EQ_WINDOW_IATTR_PLANES_STENCIL 1
+}
+
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 100 400 200 250 ]
+                    name "left eye 1"
+
+                    channel { name "left-buffer" }
+                }
+                window
+                {
+                    viewport [ 350 400 200 250 ]
+                    name "right eye 1"
+
+                    channel { name "right-buffer-1" }
+                }
+                window
+                {
+                    viewport [ 600 400 200 250 ]
+                    name "right eye 2"
+
+                    channel { name "right-buffer-2" }
+                }
+
+                window
+                {
+                    viewport [ 100 100 400 250 ]
+                    name "Result"
+
+                    channel { name "destination" }
+                }
+            }
+        }
+        compound
+        {
+            channel "destination"
+            attributes{ stereo_mode ANAGLYPH } # remove for quad-buffered stereo
+
+            wall
+            {
+                bottom_left  [ -.32 -.2 -.75 ]
+                bottom_right [  .32 -.2 -.75 ]
+                top_left     [ -.32  .2 -.75 ]
+            }
+
+            compound
+            {
+                channel "destination"
+                eye     [ LEFT ]
+
+                compound
+                {
+                    channel  "left-buffer"
+                    pixel [ 0 2 ]
+                    outputframe {}
+                }
+                compound
+                {
+                    channel  "destination"
+                    pixel [ 1 2 ]
+                    outputframe {}
+                }
+            }
+            compound
+            {
+                channel "right-buffer-1"
+                eye     [ RIGHT ]
+
+                compound
+                {
+                    channel  "right-buffer-1"
+                    pixel [ 0 2 ]
+                    outputframe {}
+                }
+                compound
+                {
+                    channel  "right-buffer-2"
+                    pixel [ 1 2 ]
+                    outputframe {}
+                }
+            }
+
+            compound
+            {
+                task      [ ASSEMBLE ]
+                eye       [ LEFT ]
+                inputframe{ name "frame.left-buffer" }
+                inputframe{ name "frame.destination" }
+            }
+            compound
+            {
+                task      [ ASSEMBLE ]
+                eye       [ RIGHT ]
+                inputframe{ name "frame.right-buffer-1" }
+                inputframe{ name "frame.right-buffer-2" }
+            }
+        }
+    }    
+}

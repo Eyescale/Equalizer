@@ -501,6 +501,8 @@ void Compound::update( const uint32_t frameNumber )
 
 void Compound::updateInheritData( const uint32_t frameNumber )
 {
+    _data.pixel.validate();
+
     if( !_parent )
     {
         _inherit = _data;
@@ -518,6 +520,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         {
             _inherit.pvp  = _inherit.channel->getPixelViewport();
             _inherit.pvp.apply( _data.vp );
+            _inherit.pvp.apply( _data.pixel );
         }
 
         if( _inherit.buffers == eq::Frame::BUFFER_UNDEFINED )
@@ -553,6 +556,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         
         _inherit.vp.apply( _data.vp );
         _inherit.range.apply( _data.range );
+        _inherit.pixel.apply( _data.pixel );
 
         if( _data.eyes != EYE_UNDEFINED )
             _inherit.eyes = _data.eyes;
@@ -565,8 +569,12 @@ void Compound::updateInheritData( const uint32_t frameNumber )
 
         if ( !_inherit.pvp.isValid() && _inherit.channel )
             _inherit.pvp = _inherit.channel->getPixelViewport();
+
         if( _inherit.pvp.isValid( ))
+        {
             _inherit.pvp.apply( _data.vp );
+            _inherit.pvp.apply( _data.pixel );
+        }
 
         if( _data.buffers != eq::Frame::BUFFER_UNDEFINED )
             _inherit.buffers = _data.buffers;
@@ -654,8 +662,12 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
         os << "viewport " << vp << endl;
     
     const eq::Range& range = compound->getRange();
-    if( range.isValid() && !range.isFull( ))
+    if( range.isValid() && range != eq::Range::ALL )
         os << range << endl;
+
+    const eq::Pixel& pixel = compound->getPixel();
+    if( pixel.isValid() && pixel != eq::Pixel::ALL )
+        os << pixel << endl;
 
     const uint32_t eye = compound->getEyes();
     if( eye )

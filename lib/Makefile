@@ -79,6 +79,7 @@ HEADER_SRC = \
 	client/frame.h \
 	client/frameData.h \
 	client/global.h \
+	client/pixel.h \
 	client/image.h \
 	client/init.h \
 	client/log.h \
@@ -164,6 +165,7 @@ CXXFILES = \
 	client/frame.cpp \
 	client/frameData.cpp \
 	client/global.cpp \
+	client/pixel.cpp \
 	client/image.cpp \
 	client/init.cpp \
 	client/node.cpp \

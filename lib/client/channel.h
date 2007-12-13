@@ -15,6 +15,7 @@
 namespace eq
 {
     class Channel;
+    class Pixel;
     class Node;
     class Range;
     class SceneObject;
@@ -114,6 +115,9 @@ namespace eq
 
         /** @return the database range for the current rendering task. */
         const Range& getRange() const;
+
+        /** @return the pixel decomposition for the current rendering task. */
+        const Pixel& getPixel() const;
 
         /** @return the currently rendered eye pass. */
         Eye getEye() const;

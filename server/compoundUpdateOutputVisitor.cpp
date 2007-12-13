@@ -96,6 +96,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 
         // (source) render context
         frameData->setRange( compound->getInheritRange( ));
+        frameData->setPixel( compound->getInheritPixel( ));
 
         frame->commitData();
         frame->updateInheritData( compound );

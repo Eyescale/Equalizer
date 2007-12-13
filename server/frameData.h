@@ -28,7 +28,7 @@ namespace eqs
         void setFrameNumber( const uint32_t number ) { _frameNumber = number; }
         uint32_t getFrameNumber() const { return _frameNumber; }
 
-        /** Set the datas area within the channel */
+        /** Set the data's area within the channel */
         void setPixelViewport( const eq::PixelViewport& pvp ) 
             { _data.pvp = pvp; }
 
@@ -46,6 +46,10 @@ namespace eqs
         /** Set the source range wrt dest channel. */
         void setRange( const eq::Range& range )
             { _data.range = range; }
+
+        /** Set the source pixel decomposition wrt dest channel. */
+        void setPixel( const eq::Pixel& pixel )
+            { _data.pixel = pixel; }
         //*}
 
     protected:

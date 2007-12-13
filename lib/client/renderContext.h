@@ -8,6 +8,7 @@
 #include <eq/base/base.h>
 #include <eq/client/colorMask.h>
 #include <eq/client/eye.h>
+#include <eq/client/pixel.h>
 #include <eq/client/pixelViewport.h>
 #include <eq/client/range.h>
 #include <vmmlib/vmmlib.h>
@@ -30,6 +31,7 @@ namespace eq
 
         Viewport       vp;             //<! fractional viewport wrt dest channel
         Range          range;          //<! database-range wrt to dest channel
+        Pixel          pixel;          //<! pixel decomposition wrt to dest
         vmml::Vector2i offset;         //<! absolute position wrt dest channel
         Eye            eye;            //<! current eye pass
     };

@@ -7,6 +7,7 @@
 
 #include <eq/client/frame.h>         // enum Frame::Buffer
 #include <eq/client/pixelViewport.h> // member
+#include <eq/client/pixel.h>         // member
 #include <eq/client/range.h>         // member
 
 #include <eq/base/monitor.h>         // member
@@ -38,6 +39,9 @@ namespace eq
         //*{
         /** The database-range relative to the destination channel. */
         const Range& getRange() const { return _data.range; }
+        
+        /** The pixel decomposition relative to the destination channel. */
+        const Pixel& getPixel() const { return _data.pixel; }
         
         /** The images of this frame data holder */
         const std::vector<Image*>& getImages() const { return _images; }
@@ -133,7 +137,8 @@ namespace eq
             uint32_t       buffers;
             uint32_t       format;
             uint32_t       type;
-            Range          range; //<! database-range wrt to dest channel
+            Range          range; //<! database-range of src wrt to dest channel
+            Pixel          pixel; //<! pixel decomposition of source
         }
             _data;
 

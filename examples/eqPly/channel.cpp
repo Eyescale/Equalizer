@@ -67,7 +67,7 @@ void Channel::frameDraw( const uint32_t frameID )
     const Model*     model = node->getModel();
     const eq::Range& range = getRange();
 
-    if( !range.isFull( )) // Color DB-patches
+    if( range != eq::Range::ALL ) // Color DB-patches
     {
         const vmml::Vector3ub color = getUniqueColor();
         glColor3ub( color.r, color.g, color.b );
@@ -94,7 +94,7 @@ void Channel::frameDraw( const uint32_t frameID )
     }
 
     const eq::Viewport& vp = getViewport();
-    if( range.isFull() && vp.isFullScreen( ))
+    if( range == eq::Range::ALL && vp.isFullScreen( ))
         _drawLogo();
 }
 
@@ -116,7 +116,7 @@ void Channel::_drawModel( const Model* model )
     vmml::FrustumCullerf     culler;
 
     state.setColors( frameData.data.color && 
-                     range.isFull() && 
+                     range == eq::Range::ALL && 
                      model->hasColors() );
     _initFrustum( culler, model->getBoundingSphere( ));
 
@@ -194,12 +194,15 @@ void Channel::_drawLogo()
     if( !texture )
         return;
     
-    const eq::PixelViewport pvp    = getPixelViewport();
-    const vmml::Vector2i    offset = getPixelOffset();
+    const eq::PixelViewport& pvp    = getPixelViewport();
+    const vmml::Vector2i&    offset = getPixelOffset();
+    const eq::Pixel&         pixel   = getPixel();
 
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-    glOrtho( offset.x, offset.x + pvp.w, offset.y, offset.y + pvp.h, 0., 1. );
+    glOrtho( offset.x * pixel.size + pixel.index, 
+             (offset.x + pvp.w) * pixel.size + pixel.index, 
+             offset.y, offset.y + pvp.h, 0., 1. );
 
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
