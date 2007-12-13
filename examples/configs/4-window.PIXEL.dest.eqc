@@ -15,22 +15,22 @@ server
             {
                 window
                 {
-                    viewport [ 50 50 400 600 ]
+                    viewport [ 50 50 200 300 ]
                     channel { name "channel1" }
                 }
                 window
                 {
-                    viewport [ 300 50 400 600 ]
+                    viewport [ 300 50 200 300 ]
                     channel { name "channel2" }
                 }
                 window
                 {
-                    viewport [ 550 50 400 600 ]
+                    viewport [ 550 50 200 300 ]
                     channel { name "channel3" }
                 }
                 window
                 {
-                    viewport [ 50 400 1200 600 ]
+                    viewport [ 50 400 600 300 ]
                     channel { name "channel4" }
                 }
             }
