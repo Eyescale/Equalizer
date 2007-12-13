@@ -6,7 +6,6 @@
 #include "config.h"
 
 #include "compound.h"
-#include "compoundVisitor.h"
 #include "node.h"
 #include "server.h"
 #include "global.h"
@@ -16,6 +15,7 @@
 
 using namespace eqBase;
 using namespace std;
+using eqNet::ConnectionDescriptionVector;
 
 namespace eqs
 {
@@ -80,8 +80,7 @@ Config::~Config()
     _server     = 0;
     _appNode    = 0;
 
-    for( vector<Node*>::const_iterator i = _nodes.begin(); i != _nodes.end();
-         ++i )
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
 
@@ -101,26 +100,6 @@ Config::~Config()
     _compounds.clear();
 }
 
-class ReplaceChannelVisitor : public CompoundVisitor
-{
-public:
-    ReplaceChannelVisitor( Channel* oldChannel, Channel* newChannel )
-            : _oldChannel( oldChannel ), _newChannel( newChannel ) {}
-    virtual ~ReplaceChannelVisitor() {}
-
-    virtual Compound::VisitorResult visitPre( Compound* compound )
-        { return visitLeaf( compound ); }
-    virtual Compound::VisitorResult visitLeaf( Compound* compound )
-        {
-            if( compound->getChannel() == _oldChannel )
-                compound->setChannel( _newChannel );
-            return Compound::TRAVERSE_CONTINUE;
-        }
-private:
-    Channel* _oldChannel;
-    Channel* _newChannel;
-};
-
 Config::Config( const Config& from )
         : eqNet::Session( eq::CMD_CONFIG_CUSTOM ),
           _server( from._server )
@@ -129,57 +108,28 @@ Config::Config( const Config& from )
     _appNetNode = from._appNetNode;
     _latency    = from._latency;
 
-    const uint32_t numCompounds = from.nCompounds();
-    for( uint32_t i=0; i<numCompounds; ++i )
+    const CompoundVector& compounds = from.getCompounds();
+    for( CompoundVector::const_iterator i = compounds.begin(); 
+         i != compounds.end(); ++i )
     {
-        Compound* compound      = from.getCompound(i);
-        Compound* compoundClone = new Compound( *compound );
+        const Compound* compound      = *i;
+        Compound*       compoundClone = new Compound( *compound );
 
         addCompound( compoundClone );
-        // channel is replaced below
+        // channel is replaced in channel copy constructor
     }
 
     for( int i=0; i<FATTR_ALL; ++i )
         _fAttributes[i] = from.getFAttribute( (FAttribute)i );
         
-    const uint32_t numNodes = from.nNodes();
-    for( uint32_t i=0; i<numNodes; ++i )
+    const NodeVector& nodes = from.getNodes();
+    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
-        eqs::Node* node      = from.getNode(i);
-        eqs::Node* nodeClone = new eqs::Node( *node );
+        const Node* node      = *i;
+        Node*       nodeClone = new eqs::Node( *node, _compounds );
         
         (node == from._appNode) ? 
             addApplicationNode( nodeClone ) : addNode( nodeClone );
-
-        // replace channels in compounds
-        const uint32_t nPipes = node->nPipes();
-        for( uint32_t j=0; j<nPipes; j++ )
-        {
-            Pipe* pipe      = node->getPipe(j);
-            Pipe* pipeClone = nodeClone->getPipe(j);
-            
-            const uint32_t nWindows = pipe->nWindows();
-            for( uint32_t k=0; k<nWindows; k++ )
-            {
-                Window* window      = pipe->getWindow(k);
-                Window* windowClone = pipeClone->getWindow(k);
-            
-                const uint32_t nChannels = window->nChannels();
-                for( uint32_t l=0; l<nChannels; l++ )
-                {
-                    Channel* channel      = window->getChannel(l);
-                    Channel* channelClone = windowClone->getChannel(l);
-
-                    ReplaceChannelVisitor visitor( channel, channelClone );
-
-                    for( uint32_t m=0; m<numCompounds; ++m )
-                    {
-                        Compound* compound = getCompound( m );
-                        compound->accept( &visitor, false /*activeOnly*/ );
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -192,7 +142,7 @@ void Config::addNode( Node* node )
 
 bool Config::removeNode( Node* node )
 {
-    vector<Node*>::iterator i = find( _nodes.begin(), _nodes.end(), node );
+    NodeVector::iterator i = find( _nodes.begin(), _nodes.end(), node );
     if( i == _nodes.end( ))
         return false;
 
@@ -220,26 +170,28 @@ bool Config::removeCompound( Compound* compound )
     return true;
 }
 
-Channel* Config::findChannel( const std::string& name ) const
+Channel* Config::findChannel( const std::string& name )
 {
-    for( vector< Node* >::const_iterator i = _nodes.begin();
-         i != _nodes.end(); ++i )
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
-        eqs::Node*     node   = *i;
-        const uint32_t nPipes = node->nPipes();
-        for( uint32_t j=0; j<nPipes; j++ )
+        const Node*       node  = *i;
+        const PipeVector& pipes = node->getPipes();
+        for( PipeVector::const_iterator j = pipes.begin();
+             j != pipes.end(); ++j )
         {
-            Pipe*          pipe     = node->getPipe(j);
-            const uint32_t nWindows = pipe->nWindows();
-            for( uint32_t k=0; k<nWindows; k++ )
+            const Pipe*         pipe    = *j;
+            const WindowVector& windows = pipe->getWindows();
+            for( WindowVector::const_iterator k = windows.begin(); 
+                 k != windows.end(); ++k )
             {
-                Window*        window    = pipe->getWindow(k);
-                const uint32_t nChannels = window->nChannels();
-                for( uint32_t l=0; l<nChannels; l++ )
+                const Window*        window   = *k;
+                const ChannelVector& channels = window->getChannels();
+                for( ChannelVector::const_iterator l = channels.begin();
+                     l != channels.end(); ++l )
                 {
-                    Channel* channel = window->getChannel(l);
-                    if( channel && channel->getName() == name )
-                        return channel;
+                    const Channel* channel = *l;
+                    if( channel->getName() == name )
+                        return *l;
                 }
             }
         }
@@ -299,11 +251,12 @@ static RefPtr<eqNet::Node> _createNode( Node* node )
 {
     RefPtr<eqNet::Node> netNode = new eqNet::Node;
 
-    const uint32_t nConnectionDescriptions = node->nConnectionDescriptions();
-    for( uint32_t i=0; i<nConnectionDescriptions; ++i )
+    const ConnectionDescriptionVector& descriptions = 
+        node->getConnectionDescriptions();
+    for( ConnectionDescriptionVector::const_iterator i = descriptions.begin();
+         i != descriptions.end(); ++i )
     {
-        eqNet::ConnectionDescription* desc = 
-            node->getConnectionDescription(i).get();
+        const eqNet::ConnectionDescription* desc = (*i).get();
         
         netNode->addConnectionDescription( 
             new eqNet::ConnectionDescription( *desc ));
@@ -318,8 +271,7 @@ bool Config::_connectNodes()
     RefPtr< eqNet::Node > localNode = getLocalNode();
     EQASSERT( localNode.isValid( ));
 
-    for( vector<Node*>::const_iterator i = _nodes.begin(); i != _nodes.end();
-         ++i )
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
         if( !node->isUsed( ))
@@ -364,8 +316,7 @@ bool Config::_initNodes( const uint32_t initID,
     eq::ConfigCreateNodePacket createNodePacket;
     vector<uint32_t>           createNodeRequests;
     
-    for( vector<Node*>::const_iterator i = _nodes.begin(); i != _nodes.end();
-         ++i )
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
         if( !node->isUsed( ))
@@ -412,8 +363,7 @@ bool Config::_initNodes( const uint32_t initID,
 bool Config::_finishInit()
 {
     bool success = true;
-    for( vector<Node*>::const_iterator i = _nodes.begin(); i != _nodes.end();
-         ++i )
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node*               node    = *i;
         RefPtr<eqNet::Node> netNode = node->getNode();
@@ -460,9 +410,8 @@ bool Config::exit()
 
 bool Config::_exitNodes()
 {
-    vector<Node*> exitingNodes;
-    for( vector<Node*>::const_iterator i = _nodes.begin(); i != _nodes.end();
-         ++i )
+    NodeVector exitingNodes;
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
         if( !node->isUsed() || 
@@ -483,7 +432,7 @@ bool Config::_exitNodes()
     EQASSERT( localNode.isValid( ));
 
     bool success = true;
-    for( vector<Node*>::const_iterator i = exitingNodes.begin();
+    for( NodeVector::const_iterator i = exitingNodes.begin();
          i != exitingNodes.end(); ++i )
     {
         Node*               node    = *i;
@@ -546,8 +495,7 @@ uint32_t Config::_prepareFrame( vector< eqNet::NodeID >& nodeIDs )
 
     _updateHead();
 
-    for( vector<Node*>::const_iterator i = _nodes.begin(); i != _nodes.end();
-         ++i )
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
         if( node->isUsed( ))
@@ -597,8 +545,7 @@ void Config::_finishFrame( const uint32_t frame )
 {
     EQASSERT( _finishedFrame+1 == frame ); // otherwise app skipped finishFrame
 
-    for( vector<Node*>::const_iterator i = _nodes.begin(); i != _nodes.end();
-         ++i )
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
         if( node->isUsed( ))
@@ -761,13 +708,15 @@ ostream& operator << ( ostream& os, const Config* config )
         os << exdent << "}" << endl;
     }
 
-    const uint32_t nNodes = config->nNodes();
-    for( uint32_t i=0; i<nNodes; ++i )
-        os << config->getNode(i);
+    const NodeVector& nodes = config->getNodes();
+    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+        os << *i;
 
-    const uint32_t nCompounds = config->nCompounds();
-    for( uint32_t i=0; i<nCompounds; ++i )
-        os << config->getCompound(i);
+    const CompoundVector& compounds = config->getCompounds();
+    for( CompoundVector::const_iterator i = compounds.begin(); 
+         i != compounds.end(); ++i )
+
+        os << *i;
 
     os << exdent << "}" << endl << enableHeader << enableFlush;
 

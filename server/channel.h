@@ -18,9 +18,7 @@
 
 namespace eqs
 {
-    class Compound;
     class PixelViewportListener;
-    class Window;
 
     /**
      * The channel.
@@ -46,7 +44,7 @@ namespace eqs
         /** 
          * Constructs a new deep copy of a channel.
          */
-        Channel( const Channel& from );
+        Channel( const Channel& from, const CompoundVector& compounds );
 
         /** 
          * @return the state of this pipe.
@@ -57,10 +55,23 @@ namespace eqs
          * @name Data Access
          */
         //*{
-        Node* getNode() const { return (_window ? _window->getNode() : NULL); }
-        Pipe* getPipe() const { return (_window ? _window->getPipe() : NULL); }
-        Window* getWindow() const { return _window; }
-        Config* getConfig() const { return _window ? _window->getConfig():NULL;}
+        Config* getConfig() { return _window ? _window->getConfig():0; }
+        const Config* getConfig() const
+            { return _window ? _window->getConfig():0;}
+
+        Node* getNode() { return (_window ? _window->getNode() : 0); }
+        const Node* getNode() const
+            { return (_window ? _window->getNode() : 0); }
+
+        Pipe* getPipe() { return (_window ? _window->getPipe() : 0); }
+        const Pipe* getPipe() const
+            { return (_window ? _window->getPipe() : 0); }
+
+        Window* getWindow()             { return _window; }
+        const Window* getWindow() const { return _window; }
+
+        const CompoundVector& getCompounds() const
+            { return getConfig()->getCompounds(); }
 
         /** 
          * References this window as being actively used.

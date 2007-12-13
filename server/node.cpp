@@ -17,11 +17,12 @@
 #include <eq/net/command.h>
 #include <eq/client/packets.h>
 
-using namespace eqs;
 using namespace eqBase;
 using namespace std;
+using eqNet::ConnectionDescriptionVector;
 
-typedef std::vector<Pipe*>::const_iterator PipeIter;
+namespace eqs
+{
 
 void Node::_construct()
 {
@@ -44,7 +45,7 @@ Node::Node()
     _construct();
 }
 
-Node::Node( const Node& from )
+Node::Node( const Node& from, const CompoundVector& compounds )
         : eqNet::Object()
 {
     _construct();
@@ -52,21 +53,21 @@ Node::Node( const Node& from )
     _name = from._name;
     _node = from._node;
 
-    const uint32_t numConnectionDescriptions = from.nConnectionDescriptions();
-    for( uint32_t i=0; i<numConnectionDescriptions; i++ )
+    const ConnectionDescriptionVector& descriptions = 
+        from.getConnectionDescriptions();
+    for( ConnectionDescriptionVector::const_iterator i = descriptions.begin();
+         i != descriptions.end(); ++i )
     {
-        eqNet::ConnectionDescription* desc = 
-            from.getConnectionDescription(i).get();
-        
+        const eqNet::ConnectionDescription* desc = (*i).get();
         addConnectionDescription( new eqNet::ConnectionDescription( *desc ));
     }
 
-    const uint32_t numPipes = from.nPipes();
-    for( uint32_t i=0; i<numPipes; i++ )
+    const PipeVector& pipes = from.getPipes();
+    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
-        Pipe* pipe      = from.getPipe(i);
-        Pipe* pipeClone = new Pipe( *pipe );
-            
+        const Pipe* pipe      = *i;
+        Pipe*       pipeClone = new Pipe( *pipe, compounds );
+
         addPipe( pipeClone );
     }
 }
@@ -78,8 +79,7 @@ Node::~Node()
     if( _config )
         _config->removeNode( this );
     
-    for( vector<Pipe*>::const_iterator i = _pipes.begin(); i != _pipes.end();
-         ++i )
+    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
     {
         Pipe* pipe = *i;
 
@@ -97,7 +97,7 @@ void Node::addPipe( Pipe* pipe )
 
 bool Node::removePipe( Pipe* pipe )
 {
-    vector<Pipe*>::iterator i = find( _pipes.begin(), _pipes.end(), pipe );
+    PipeVector::iterator i = find( _pipes.begin(), _pipes.end(), pipe );
     if( i == _pipes.end( ))
         return false;
 
@@ -125,7 +125,7 @@ void Node::startConfigInit( const uint32_t initID )
     EQLOG( eq::LOG_TASKS ) << "TASK pipe configInit  " << &packet << endl;
 
     eq::NodeCreatePipePacket createPipePacket;
-    for( PipeIter i = _pipes.begin(); i != _pipes.end(); ++i )
+    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
     {
         Pipe* pipe = *i;
         if( !pipe->isUsed( ))
@@ -143,7 +143,7 @@ void Node::startConfigInit( const uint32_t initID )
 bool Node::syncConfigInit()
 {
     bool success = true;
-    for( PipeIter i = _pipes.begin(); i != _pipes.end(); ++i )
+    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
     {
         Pipe* pipe = *i;
         if( !pipe->isUsed( ))
@@ -175,7 +175,7 @@ void Node::startConfigExit()
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_STOPPING;
 
-    for( PipeIter i = _pipes.begin(); i != _pipes.end(); ++i )
+    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
     {
         Pipe* pipe = *i;
 
@@ -199,7 +199,7 @@ bool Node::syncConfigExit()
     _state = STATE_STOPPED; // STOP_FAILED -> STOPPED transition
 
     eq::NodeDestroyPipePacket destroyPipePacket;
-    for( PipeIter i = _pipes.begin(); i != _pipes.end(); ++i )
+    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
     {
         Pipe* pipe = *i;
         if( pipe->getID() == EQ_ID_INVALID )
@@ -231,7 +231,7 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
     if( !_lastDrawCompound )
     {
         Config* config = getConfig();
-        _lastDrawCompound = config->getCompound(0);
+        _lastDrawCompound = config->getCompounds()[0];
     }
 
     eq::NodeFrameStartPacket startPacket;
@@ -346,7 +346,7 @@ eqNet::CommandResult Node::_cmdFrameFinishReply( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-ostream& eqs::operator << ( ostream& os, const Node* node )
+ostream& operator << ( ostream& os, const Node* node )
 {
     if( !node )
         return os;
@@ -364,14 +364,19 @@ ostream& eqs::operator << ( ostream& os, const Node* node )
     if( !name.empty( ))
         os << "name     \"" << name << "\"" << endl;
 
-    const uint32_t nConnectionDescriptions = node->nConnectionDescriptions();
-    for( uint32_t i=0; i<nConnectionDescriptions; i++ )
-        os << node->getConnectionDescription( i ).get();
+    const ConnectionDescriptionVector& descriptions = 
+        node->getConnectionDescriptions();
+    for( ConnectionDescriptionVector::const_iterator i = descriptions.begin();
+         i != descriptions.end(); ++i )
 
-    const uint32_t nPipes = node->nPipes();
-    for( uint32_t i=0; i<nPipes; i++ )
-        os << node->getPipe(i);
+        os << (*i).get();
+
+    const PipeVector& pipes = node->getPipes();
+    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
+        os << *i;
 
     os << exdent << "}" << enableFlush << endl;
     return os;
+}
+
 }

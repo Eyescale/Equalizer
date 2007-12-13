@@ -46,7 +46,7 @@ eqs::Window::Window()
             static_cast<eq::Window::IAttribute>( i ));
 }
 
-eqs::Window::Window( const Window& from )
+eqs::Window::Window( const Window& from, const CompoundVector& compounds )
         : eqNet::Object()
 {
     _construct();
@@ -59,12 +59,13 @@ eqs::Window::Window( const Window& from )
     for( int i=0; i<eq::Window::IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
 
-    const uint32_t numChannels = from.nChannels();
-    for( uint32_t i=0; i<numChannels; i++ )
+    const ChannelVector& channels = from.getChannels();
+    for( ChannelVector::const_iterator i = channels.begin();
+         i != channels.end(); ++i )
     {
-        Channel* channel      = from.getChannel(i);
-        Channel* channelClone = new Channel( *channel );
-
+        const Channel* channel      = *i;
+        Channel*       channelClone = new Channel( *channel, compounds );
+        
         addChannel( channelClone );
     }            
 }
@@ -347,8 +348,8 @@ void eqs::Window::updateDraw( const uint32_t frameID,
 {
     if( !_lastDrawCompound )
     {
-        Config* config = getConfig();
-        _lastDrawCompound = config->getCompound(0);
+        const Config* config = getConfig();
+        _lastDrawCompound = config->getCompounds()[ 0 ];
     }
 
     eq::WindowFrameStartPacket startPacket;
@@ -545,9 +546,11 @@ std::ostream& eqs::operator << ( std::ostream& os, const eqs::Window* window )
     if( attrPrinted )
         os << exdent << "}" << endl << endl;
 
-    const uint32_t nChannels = window->nChannels();
-    for( uint32_t i=0; i<nChannels; i++ )
-        os << window->getChannel(i);
+    const ChannelVector& channels = window->getChannels();
+    for( ChannelVector::const_iterator i = channels.begin(); 
+         i != channels.end(); ++i )
+
+        os << *i;
 
     os << exdent << "}" << endl << enableHeader << enableFlush;
     return os;

@@ -15,10 +15,6 @@
 
 namespace eqs
 {
-    class Compound;
-    class Pipe;
-    class Server;
-
     /**
      * The node.
      */
@@ -33,7 +29,7 @@ namespace eqs
         /** 
          * Constructs a new deep copy of a node.
          */
-        Node( const Node& from );
+        Node( const Node& from, const CompoundVector& compounds );
 
         /** @name Data Access. */
         //*{
@@ -60,27 +56,8 @@ namespace eqs
          */
         bool removePipe( Pipe* pipe );
 
-        /** 
-         * Returns the number of pipes on this node.
-         * 
-         * @return the number of pipes on this node. 
-         */
-        uint32_t nPipes() const { return static_cast<uint32_t>(_pipes.size()); }
-
-        /** 
-         * Gets a pipe.
-         * 
-         * @param index the pipe's index. 
-         * @return the pipe.
-         */
-        Pipe* getPipe( const uint32_t index ) const { return _pipes[index]; }
-
-        /** 
-         * Gets the vector of pipes
-         * 
-         * @return the pipe vector.
-         */
-        const std::vector<Pipe*>& getPipes() const { return _pipes; }
+        /** @return vector of pipes */
+        const PipeVector& getPipes() const { return _pipes; }
 
         /** 
          * References this node as being actively used.
@@ -203,7 +180,7 @@ namespace eqs
          * @param cd the connection description.
          */
         void addConnectionDescription( 
-            eqBase::RefPtr<eqNet::ConnectionDescription> cd)
+            eqBase::RefPtr<eqNet::ConnectionDescription> cd )
             { _connectionDescriptions.push_back( cd ); }
         
         /** 
@@ -214,22 +191,13 @@ namespace eqs
         void removeConnectionDescription( const uint32_t index );
 
         /** 
-         * Returns the number of stored connection descriptions. 
-         * 
-         * @return the number of stored connection descriptions. 
-         */
-        uint32_t nConnectionDescriptions() const 
-            { return _connectionDescriptions.size(); }
-
-        /** 
          * Returns a connection description.
          * 
          * @param index the index of the connection description.
          * @return the connection description.
          */
-        eqBase::RefPtr<eqNet::ConnectionDescription> getConnectionDescription(
-            const uint32_t index ) const
-            { return _connectionDescriptions[index]; }
+        const eqNet::ConnectionDescriptionVector& getConnectionDescriptions()
+            const { return _connectionDescriptions; }
 
         /** @name Error information. */
         //*{
@@ -252,7 +220,7 @@ namespace eqs
         friend class Config;
 
         /** The vector of pipes belonging to this node. */
-        std::vector<Pipe*> _pipes;
+        PipeVector _pipes;
 
         /** The reason for the last error. */
         std::string        _error;
@@ -264,8 +232,7 @@ namespace eqs
         eqBase::RefPtr<eqNet::Node> _node;
 
         /** The list of descriptions on how this node is reachable. */
-        std::vector< eqBase::RefPtr<eqNet::ConnectionDescription> >
-            _connectionDescriptions;
+        eqNet::ConnectionDescriptionVector _connectionDescriptions;
 
         /** The number of the last finished frame. */
         eqBase::Monitor<uint32_t> _finishedFrame;

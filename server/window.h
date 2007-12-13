@@ -16,10 +16,6 @@
 
 namespace eqs
 {
-    class Compound;
-    class Channel;
-    class Pipe;
-
     /**
      * The window.
      */
@@ -44,7 +40,7 @@ namespace eqs
         /** 
          * Constructs a new deep copy of a window.
          */
-        Window( const Window& from );
+        Window( const Window& from, const CompoundVector& compounds );
 
 //        Server* getServer() const
 //            { return _pipe ? _pipe->getServer() : NULL; }
@@ -75,22 +71,8 @@ namespace eqs
          */
         bool removeChannel( Channel* channel );
 
-        /** 
-         * Returns the number of channels on this window.
-         * 
-         * @return the number of channels on this window. 
-         */
-        uint32_t nChannels() const 
-            { return static_cast<uint32_t>(_channels.size()); }
-
-        /** 
-         * Gets a channel.
-         * 
-         * @param index the channel's index. 
-         * @return the channel.
-         */
-        Channel* getChannel( const uint32_t index ) const
-            { return _channels[index]; }
+        /** @return the vector of channels. */
+        const ChannelVector& getChannels() const { return _channels; }
 
         Node* getNode() const { return (_pipe ? _pipe->getNode() : NULL); }
         Config* getConfig() const 
@@ -262,7 +244,7 @@ namespace eqs
         int32_t _iAttributes[eq::Window::IATTR_ALL];
 
         /** The child channels. */
-        std::vector<Channel*> _channels;
+        ChannelVector _channels;
 
         /** Number of entitities actively using this window. */
         uint32_t _used;

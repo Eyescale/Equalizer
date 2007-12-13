@@ -52,7 +52,7 @@ bool Server::run()
 {
     EQASSERT( getState() == eqNet::Node::STATE_LISTENING );
 
-    if( nConfigs() == 0 )
+    if( _configs.empty( ))
     {
         EQERROR << "No configurations loaded" << endl;
         return false;
@@ -133,7 +133,7 @@ eqNet::CommandResult Server::_reqChooseConfig( eqNet::Command& command )
     EQINFO << "Handle choose config " << packet << endl;
 
     // TODO
-    Config* config = nConfigs()>0 ? getConfig(0) : 0;
+    Config* config = _configs.empty() ? 0 : _configs[0];
     
     eq::ServerChooseConfigReplyPacket reply( packet );
     RefPtr<eqNet::Node>               node = command.getNode();
@@ -272,8 +272,6 @@ std::ostream& eqs::operator << ( std::ostream& os, const Server* server )
     if( !server )
         return os;
     
-    const uint32_t nConfigs = server->nConfigs();
-    
     os << disableFlush << disableHeader << "server " << endl;
     os << "{" << endl << indent;
     
@@ -281,8 +279,11 @@ std::ostream& eqs::operator << ( std::ostream& os, const Server* server )
     for( uint32_t i=0; i<nConnectionDescriptions; i++ )
         os << server->getConnectionDescription( i ).get();
 
-    for( uint32_t i=0; i<nConfigs; i++ )
-        os << server->getConfig(i);
+    const ConfigVector& configs = server->getConfigs();
+    for( ConfigVector::const_iterator i = configs.begin();
+         i != configs.end(); ++i )
+
+        os << *i;
     
     os << exdent << "}"  << enableHeader << enableFlush << endl;
 

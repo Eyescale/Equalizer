@@ -6,6 +6,7 @@
 #define EQS_SERVER_H
 
 #include "base.h"
+#include "types.h"
 
 #include <eq/client/nodeType.h>  // for TYPE_EQ_SERVER enum
 #include <eq/net/commandQueue.h> // member
@@ -21,9 +22,6 @@
  */
 namespace eqs
 {
-    class Config;
-    class Node;
-
     /**
      * The Equalizer server.
      */
@@ -69,20 +67,9 @@ namespace eqs
         bool removeConfig( Config* config );
 
         /** 
-         * Return the number of configs on this config.
-         * 
-         * @return the number of configs on this config. 
+         * @return the vector of configurations.
          */
-        uint32_t nConfigs() const { return _configs.size(); }
-
-        /** 
-         * Get a config.
-         * 
-         * @param index the config's index. 
-         * @return the config.
-         */
-        Config* getConfig( const uint32_t index ) const 
-            { return _configs[index]; }
+        const ConfigVector& getConfigs() const { return _configs; }
 
     protected:
         virtual ~Server() {}
@@ -98,11 +85,8 @@ namespace eqs
         /** The unique config identifier. */
         uint32_t _configID;
 
-        /** The list of nodes. */
-        std::vector<Node*>     _nodes;
-
         /** The list of configurations. */
-        std::vector<Config*>   _configs;
+        ConfigVector   _configs;
 
         /** The application-allocated configurations, mapped by identifier. */
         eqNet::IDHash<Config*> _appConfigs;

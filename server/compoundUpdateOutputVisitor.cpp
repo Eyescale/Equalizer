@@ -110,7 +110,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
     }
 }
 
-void CompoundUpdateOutputVisitor::_updateSwapBarriers( Compound* compound)
+void CompoundUpdateOutputVisitor::_updateSwapBarriers( Compound* compound )
 {
     const SwapBarrier* swapBarrier = compound->getSwapBarrier();
     if( !swapBarrier )

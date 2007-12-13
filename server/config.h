@@ -5,6 +5,8 @@
 #ifndef EQS_CONFIG_H
 #define EQS_CONFIG_H
 
+#include "types.h"
+
 #include <eq/client/matrix4.h>
 #include <eq/client/packets.h>
 #include <eq/net/session.h>
@@ -14,9 +16,6 @@
 
 namespace eqs
 {
-    class Channel;
-    class Compound;
-    class Node;
     class Server;
 
     /**
@@ -58,21 +57,8 @@ namespace eqs
          */
         bool removeNode( Node* node );
 
-        /** 
-         * Return the number of nodes on this config.
-         * 
-         * @return the number of nodes on this config. 
-         */
-        uint32_t nNodes() const { return static_cast<uint32_t>(_nodes.size()); }
-
-        /** 
-         * Gets a node.
-         * 
-         * @param index the node's index. 
-         * @return the node.
-         */
-        Node* getNode( const uint32_t index ) const
-            { return _nodes[index]; }
+        /** @return the vector of nodes. */
+        const NodeVector& getNodes() const { return _nodes; }
 
         /** 
          * Adds a new compound to this config.
@@ -90,22 +76,8 @@ namespace eqs
          */
         bool removeCompound( Compound* compound );
 
-        /** 
-         * Return the number of compounds on this config.
-         * 
-         * @return the number of compounds on this config. 
-         */
-        uint32_t nCompounds() const 
-            { return static_cast<uint32_t>(_compounds.size()); }
-
-        /** 
-         * Gets a compound.
-         * 
-         * @param index the compound's index. 
-         * @return the compound.
-         */
-        Compound* getCompound( const uint32_t index ) const
-            { return _compounds[index]; }
+        /** @return the vecotr of compounds. */
+        const CompoundVector& getCompounds() const { return _compounds; }
 
         /** 
          * Find the first channel of a given name.
@@ -114,7 +86,7 @@ namespace eqs
          * @return the first channel with the name, or <code>NULL</code> if no
          *         channel with the name exists.
          */
-        Channel* findChannel( const std::string& name ) const;
+        Channel* findChannel( const std::string& name );
         //*}
 
         /** 
@@ -216,10 +188,10 @@ namespace eqs
         friend class Server;
 
         /** The list of compounds. */
-        std::vector<Compound*> _compounds;
+        CompoundVector _compounds;
 
         /** The list of nodes. */
-        std::vector<Node*>     _nodes;
+        NodeVector _nodes;
 
         /** The reason for the last error. */
         std::string            _error;

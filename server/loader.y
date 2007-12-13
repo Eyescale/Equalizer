@@ -339,7 +339,7 @@ node: appNode | renderNode
 renderNode: EQTOKEN_NODE '{' { node = loader->createNode(); }
                nodeFields
                '}' { 
-                        if( node->nConnectionDescriptions() == 0 )
+                        if( node->getConnectionDescriptions().empty( ))
                             node->addConnectionDescription(
                                 new eqs::ConnectionDescription );
 

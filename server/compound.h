@@ -163,8 +163,7 @@ namespace eqs
 
         Config* getConfig()
             { return getRoot()->_config; }
-        Node* getNode()
-            { return getChannel()->getNode(); }
+        Node* getNode() { return getChannel()->getNode(); }
 
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
@@ -187,9 +186,11 @@ namespace eqs
          *
          * @return the channel of this compound.
          */
-        Channel* getChannel() const;
+        Channel* getChannel();
+        const Channel* getChannel() const;
 
-        Window* getWindow() const;
+        Window* getWindow();
+        const Window* getWindow() const;
 
         /** 
          * Set the tasks to be executed by the compound, overwriting previous

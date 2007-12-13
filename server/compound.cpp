@@ -176,7 +176,7 @@ void Compound::setChannel( Channel* channel )
     }
 }
 
-Channel* Compound::getChannel() const
+const Channel* Compound::getChannel() const
 {
     if( _data.channel )
         return _data.channel;
@@ -185,9 +185,26 @@ Channel* Compound::getChannel() const
     return 0;
 }
 
-eqs::Window* Compound::getWindow() const
+Channel* Compound::getChannel()
+{
+    if( _data.channel )
+        return _data.channel;
+    if( _parent )
+        return _parent->getChannel();
+    return 0;
+}
+
+eqs::Window* Compound::getWindow()
 {
     Channel* channel = getChannel();
+    if( channel )
+        return channel->getWindow();
+    return 0;
+}
+
+const eqs::Window* Compound::getWindow() const
+{
+    const Channel* channel = getChannel();
     if( channel )
         return channel->getWindow();
     return 0;

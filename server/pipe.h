@@ -13,11 +13,6 @@
 
 namespace eqs
 {
-    class Compound;
-    class Config;
-    class Server;
-    class Window;
-    
     /**
      * The pipe.
      */
@@ -42,7 +37,7 @@ namespace eqs
         /** 
          * Constructs a new deep copy of a pipe.
          */
-        Pipe( const Pipe& from );
+        Pipe( const Pipe& from, const CompoundVector& compounds );
 
         Server* getServer() const
             { return _node ? _node->getServer() : NULL; }
@@ -68,22 +63,8 @@ namespace eqs
          */
         bool removeWindow( Window* window );
 
-        /** 
-         * Returns the number of windows on this config.
-         * 
-         * @return the number of windows on this config. 
-         */
-        uint32_t nWindows() const 
-            { return static_cast<uint32_t>(_windows.size()); }
-
-        /** 
-         * Gets a window.
-         * 
-         * @param index the window's index. 
-         * @return the window.
-         */
-        Window* getWindow( const uint32_t index ) const
-            { return _windows[index]; }
+        /** @return the vector of windows. */
+        const WindowVector& getWindows() const { return _windows; }
 
         Node*   getNode()   const { return _node; }
         Config* getConfig() const { return (_node ? _node->getConfig() : NULL);}
@@ -221,7 +202,7 @@ namespace eqs
         static std::string _iAttributeStrings[IATTR_ALL];
 
         /** The list of windows. */
-        std::vector<Window*> _windows;
+        WindowVector _windows;
 
         /** Number of entitities actively using this pipe. */
         uint32_t _used;

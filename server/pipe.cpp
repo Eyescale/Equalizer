@@ -51,7 +51,7 @@ Pipe::Pipe()
             static_cast<IAttribute>( i ));
 }
 
-Pipe::Pipe( const Pipe& from )
+Pipe::Pipe( const Pipe& from, const CompoundVector& compounds )
         : eqNet::Object()
 {
     _construct();
@@ -64,14 +64,15 @@ Pipe::Pipe( const Pipe& from )
     for( int i=0; i<IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
 
-    const uint32_t numWindows = from.nWindows();
-    for( uint32_t i=0; i<numWindows; i++ )
+    const WindowVector& windows = from.getWindows();
+    for( WindowVector::const_iterator i = windows.begin(); 
+         i != windows.end(); ++i )
     {
-        Window* window      = from.getWindow(i);
-        Window* windowClone = new Window( *window );
+        const Window* window      = *i;
+        Window*       windowClone = new Window( *window, compounds );
             
         addWindow( windowClone );
-    }    
+    }
 }
 
 Pipe::~Pipe()
@@ -263,7 +264,7 @@ void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
     if( !_lastDrawCompound )
     {
         Config* config = getConfig();
-        _lastDrawCompound = config->getCompound(0);
+        _lastDrawCompound = config->getCompounds()[ 0 ];
     }
 
     eq::PipeFrameStartPacket startPacket;
@@ -396,10 +397,13 @@ std::ostream& eqs::operator << ( std::ostream& os, const Pipe* pipe )
         os << exdent << "}" << endl << endl;
 
     os << endl;
-    const uint32_t nWindows = pipe->nWindows();
-    for( uint32_t i=0; i<nWindows; i++ )
-        os << pipe->getWindow(i);
-    
+
+    const WindowVector& windows = pipe->getWindows();
+    for( WindowVector::const_iterator i = windows.begin();
+         i != windows.end(); ++i )
+
+        os << *i;
+
     os << exdent << "}" << endl << enableHeader << enableFlush;
     return os;
 }

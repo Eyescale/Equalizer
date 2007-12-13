@@ -7,6 +7,7 @@
 
 #include "channelUpdateVisitor.h"
 #include "compound.h"
+#include "compoundVisitor.h"
 #include "config.h"
 #include "global.h"
 #include "window.h"
@@ -53,7 +54,30 @@ Channel::Channel()
     _construct();
 }
 
-Channel::Channel( const Channel& from )
+namespace
+{
+class ReplaceChannelVisitor : public CompoundVisitor
+{
+public:
+    ReplaceChannelVisitor( const Channel* oldChannel, Channel* newChannel )
+            : _oldChannel( oldChannel ), _newChannel( newChannel ) {}
+    virtual ~ReplaceChannelVisitor() {}
+
+    virtual Compound::VisitorResult visitPre( Compound* compound )
+        { return visitLeaf( compound ); }
+    virtual Compound::VisitorResult visitLeaf( Compound* compound )
+        {
+            if( compound->getChannel() == _oldChannel )
+                compound->setChannel( _newChannel );
+            return Compound::TRAVERSE_CONTINUE;
+        }
+private:
+    const Channel* _oldChannel;
+    Channel*       _newChannel;
+};
+}
+
+Channel::Channel( const Channel& from, const CompoundVector& compounds )
         : eqNet::Object()
 {
     _construct();
@@ -65,6 +89,15 @@ Channel::Channel( const Channel& from )
 
     for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
+
+    // replace channel in all compounds
+    ReplaceChannelVisitor visitor( &from, this );
+    for( CompoundVector::const_iterator i = compounds.begin(); 
+         i != compounds.end(); ++i )
+    {
+        Compound* compound = *i;
+        compound->accept( &visitor, false /*activeOnly*/ );
+    }
 }
 
 Channel::~Channel()
@@ -273,7 +306,7 @@ void Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     if( !_lastDrawCompound )
     {
         Config* config = getConfig();
-        _lastDrawCompound = config->getCompound(0);
+        _lastDrawCompound = config->getCompounds()[0];
     }
 
     eq::ChannelFrameStartPacket startPacket;
@@ -283,11 +316,11 @@ void Channel::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     EQLOG( eq::LOG_TASKS ) << "TASK channel start frame  " << &startPacket
                            << endl;
 
-    Config*        config     = getConfig();
-    const uint32_t nCompounds = config->nCompounds();
-    for( uint32_t i=0; i<nCompounds; i++ )
+    const CompoundVector& compounds = getCompounds();
+    for( CompoundVector::const_iterator i = compounds.begin(); 
+         i != compounds.end(); ++i )
     {
-        Compound* compound = config->getCompound( i );
+        Compound* compound = *i;
         ChannelUpdateVisitor visitor( this, frameID, frameNumber );
 
         visitor.setEye( eq::EYE_LEFT );
