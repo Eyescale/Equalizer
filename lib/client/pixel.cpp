@@ -4,4 +4,4 @@
 
 #include "pixel.h"
 
-const eq::Pixel eq::Pixel::ALL;
+EQ_EXPORT const eq::Pixel eq::Pixel::ALL;

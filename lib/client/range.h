@@ -5,6 +5,8 @@
 #ifndef EQ_RANGE_H
 #define EQ_RANGE_H
 
+#include <eq/base/base.h>
+
 #include <iostream>
 
 namespace eq
@@ -50,7 +52,7 @@ namespace eq
         float start;
         float end;
 
-        static const Range ALL;
+        EQ_EXPORT static const Range ALL;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Range& range )

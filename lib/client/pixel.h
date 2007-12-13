@@ -5,6 +5,7 @@
 #ifndef EQ_PIXEL_H
 #define EQ_PIXEL_H
 
+#include <eq/base/base.h>
 #include <eq/base/log.h>
 
 namespace eq
@@ -71,7 +72,7 @@ namespace eq
         uint32_t index;
         uint32_t size;
 
-        static const Pixel ALL;
+        EQ_EXPORT static const Pixel ALL;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Pixel& pixel )

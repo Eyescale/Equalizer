@@ -4,4 +4,4 @@
 
 #include "range.h"
 
-const eq::Range eq::Range::ALL;
+EQ_EXPORT const eq::Range eq::Range::ALL;

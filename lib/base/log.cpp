@@ -15,29 +15,29 @@ using namespace std;
 
 namespace eqBase
 {
-	static int      getLogLevel();
-	static unsigned getLogTopics();
+static int      getLogLevel();
+static unsigned getLogTopics();
 
-    class LogTable
-    {
-    public:
-        LogTable( const LogLevel _level, const string& _name )
-                : level( _level ), name( _name ) {}
+class LogTable
+{
+public:
+    LogTable( const LogLevel _level, const string& _name )
+            : level( _level ), name( _name ) {}
 
-        LogLevel level;
-        string   name;
-    };
+    LogLevel level;
+    string   name;
+};
 
-#   define LOG_TABLE_ENTRY( name ) LogTable( LOG_ ## name, string( #name ))
-#   define LOG_TABLE_SIZE (4)
-    
-    static LogTable _logTable[ LOG_TABLE_SIZE ] =
-    {
-        LOG_TABLE_ENTRY( ERROR ),
-        LOG_TABLE_ENTRY( WARN ),
-        LOG_TABLE_ENTRY( INFO ),
-        LOG_TABLE_ENTRY( VERBATIM )
-    };
+#define LOG_TABLE_ENTRY( name ) LogTable( LOG_ ## name, string( #name ))
+#define LOG_TABLE_SIZE (4)
+
+static LogTable _logTable[ LOG_TABLE_SIZE ] =
+{
+    LOG_TABLE_ENTRY( ERROR ),
+    LOG_TABLE_ENTRY( WARN ),
+    LOG_TABLE_ENTRY( INFO ),
+    LOG_TABLE_ENTRY( VERBATIM )
+};
 
 EQ_EXPORT int           eqBase::Log::level  = getLogLevel();
 EQ_EXPORT unsigned      eqBase::Log::topics = getLogTopics();
