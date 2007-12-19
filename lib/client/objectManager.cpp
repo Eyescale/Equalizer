@@ -151,7 +151,7 @@ template< typename T >
 GLuint ObjectManager<T>::obtainList( const T& key )
 {
     const GLuint id = getList( key );
-    if( id )
+    if( id != FAILED )
         return id;
     return newList( key );
 }
@@ -255,7 +255,7 @@ template< typename T >
 GLuint ObjectManager<T>::obtainTexture( const T& key )
 {
     const GLuint id = getTexture( key );
-    if( id )
+    if( id != FAILED )
         return id;
     return newTexture( key );
 }
@@ -372,7 +372,7 @@ template< typename T >
 GLuint ObjectManager<T>::obtainBuffer( const T& key )
 {
     const GLuint id = getBuffer( key );
-    if( id )
+    if( id != FAILED )
         return id;
     return newBuffer( key );
 }
@@ -487,7 +487,7 @@ template< typename T >
 GLuint ObjectManager<T>::obtainProgram( const T& key )
 {
     const GLuint id = getProgram( key );
-    if( id )
+    if( id != FAILED )
         return id;
     return newProgram( key );
 }
@@ -603,7 +603,7 @@ template< typename T >
 GLuint ObjectManager<T>::obtainShader( const T& key, const GLenum type )
 {
     const GLuint id = getShader( key );
-    if( id )
+    if( id != FAILED )
         return id;
     return newShader( key, type );
 }
