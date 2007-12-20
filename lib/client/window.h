@@ -4,6 +4,7 @@
 #ifndef EQ_WINDOW_H
 #define EQ_WINDOW_H
 
+#include <eq/client/objectManager.h> // member
 #include <eq/client/pipe.h>          // used in inline functions
 #include <eq/client/pixelViewport.h> // member
 
@@ -26,6 +27,16 @@ namespace eq
             bool    doublebuffered;
         };
         
+        /** The per-window object manager */
+        class ObjectManager : public eq::ObjectManager< const void* >, 
+                              public eqBase::Referenced
+        {
+        public:
+            ObjectManager( GLEWContext* glewContext ) 
+                    : eq::ObjectManager< const void * >( glewContext ) {}
+            virtual ~ObjectManager(){}
+        };
+
         /** 
          * Constructs a new window.
          */
@@ -77,6 +88,9 @@ namespace eq
         /** @return information about the current drawable. */
         const DrawableConfig& getDrawableConfig() const
             { return _drawableConfig; }
+
+        /** @return the window's object manager instance. */
+        ObjectManager* getObjectManager() { return _objectManager.get(); }
 
         /** 
          * Set the window's pixel viewport wrt its parent pipe.
@@ -169,6 +183,7 @@ namespace eq
          * 
          * This function should only be called from configInit() or
          * configExit().
+         * The context has to be set to 0 before it is destroyed.
          *
          * @param drawable the GLX rendering context.
          */
@@ -179,6 +194,7 @@ namespace eq
          * 
          * This function should only be called from configInit() or
          * configExit().
+         * The context has to be set to 0 before it is destroyed.
          *
          * @param drawable the AGL rendering context.
          */
@@ -206,6 +222,7 @@ namespace eq
          * 
          * This function should only be called from configInit() or
          * configExit().
+         * The context has to be set to 0 before it is destroyed.
          *
          * @param drawable the WGL rendering context.
          */
@@ -366,12 +383,16 @@ namespace eq
          */
         void setErrorMessage( const std::string& message ) { _error = message; }
         //@}
+
     private:
         /** Drawable characteristics of this window */
         DrawableConfig _drawableConfig;
 
         /** Extended OpenGL function entries when window has a context. */
         GLEWContext*   _glewContext;
+
+        /** OpenGL object management. */
+        eqBase::RefPtr< ObjectManager > _objectManager;
 
         /** The reason for the last error. */
         std::string    _error;
@@ -446,6 +467,11 @@ namespace eq
 
         /** Set up _drawableConfig by querying current context. */
         void _queryDrawableConfig();
+
+        /** Set up object manager during initialization. */
+        void _setupObjectManager( Window* sharedContextWindow );
+        /** Release object manager. */
+        void Window::_releaseObjectManager();
 
         /* The command functions. */
         eqNet::CommandResult _pushCommand( eqNet::Command& command );

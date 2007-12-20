@@ -3,6 +3,7 @@
    All rights reserved. */
 
 #include "channel.h"
+
 #include "configEvent.h"
 
 using namespace std;
@@ -12,6 +13,8 @@ using namespace eqBase;
 #  define snprintf _snprintf
 #endif
 
+namespace eqPixelBench
+{
 struct EnumMap
 {
     const char*    formatString;
@@ -94,9 +97,13 @@ void Channel::frameDraw( const uint32_t frameID )
 
         // draw
         event.data.type = ConfigEvent::ASSEMBLE;
+        eq::Compositor::ImageOp op;
+        op.channel = this;
+        op.buffers = eq::Frame::BUFFER_COLOR;
+        op.offset  = offset;
+
         clock.reset();
-        image.startAssemble( eq::Frame::BUFFER_COLOR, offset );
-        image.syncAssemble();
+        eq::Compositor::assembleImage( &image, op );
         event.msec = clock.getTimef();
 
         error = glGetError();
@@ -104,7 +111,41 @@ void Channel::frameDraw( const uint32_t frameID )
             event.msec = - static_cast<float>( error );
 
         config->sendEvent( event );
+
+        if( enums[i].format == GL_DEPTH_COMPONENT && enums[i].type == GL_FLOAT )
+        {
+            // test z-based assembly
+            // fill depth & color image
+            image.setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
+            image.setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
+            image.setFormat( eq::Frame::BUFFER_DEPTH, enums[i].format );
+            image.setType(   eq::Frame::BUFFER_DEPTH, enums[i].type );
+        
+            image.startReadback( eq::Frame::BUFFER_COLOR | 
+                                 eq::Frame::BUFFER_DEPTH, pvp );
+            image.syncReadback();
+
+            // benchmark
+            op.buffers = eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH;
+
+            snprintf( event.formatType, 64, 
+                      "Fixed-function depth-based assembly" ); 
+            clock.reset();
+            eq::Compositor::assembleImageDB_FF( &image, op );
+            event.msec = clock.getTimef();
+            config->sendEvent( event );            
+
+            if( GLEW_VERSION_2_0 )
+            {
+                snprintf( event.formatType, 64, "GLSL depth-based assembly" ); 
+                clock.reset();
+                eq::Compositor::assembleImageDB_GLSL( &image, op );
+                event.msec = clock.getTimef();
+                config->sendEvent( event );
+            }
+        }
     }
 
     resetAssemblyState();
+}
 }

@@ -7,6 +7,8 @@
 
 #include <eq/eq.h>
 
+namespace eqPixelBench
+{
 struct ConfigEvent : public eq::ConfigEvent
 {
 public:
@@ -28,6 +30,7 @@ public:
 };
 
 std::ostream& operator << ( std::ostream& os, const ConfigEvent* event );
+}
 
 #endif // EQ_PIXELBENCH_CONFIGEVENT_H
 

@@ -75,7 +75,7 @@ Image* FrameData::_allocImage()
     _imageCacheLock.set();
 
     if( _imageCache.empty( ))
-        image = new Image( this );
+        image = new Image();
     else
     {
         image = _imageCache.back();
@@ -136,35 +136,6 @@ void FrameData::_setReady()
     }
 
     _listenersMutex.unset();
-}
-
-void FrameData::startAssemble( const Frame& frame )
-{
-    EQLOG( LOG_ASSEMBLY ) << "Assemble " << _images.size() <<" images, buffers "
-                          << _data.buffers << " offset " << frame.getOffset()
-                          << endl;
-    if( _data.buffers == Frame::BUFFER_NONE )
-        return;
-
-    if( _images.empty( ))
-        EQWARN << "No Images to assemble" << endl;
-
-    for( vector<Image*>::const_iterator i = _images.begin();
-         i != _images.end(); ++i )
-    {
-        Image* image = *i;
-        image->startAssemble( _data.buffers, frame.getOffset( ));
-    }
-}
-
-void FrameData::syncAssemble()
-{
-    for( vector<Image*>::const_iterator iter = _images.begin();
-         iter != _images.end(); ++iter )
-    {
-        Image* image = *iter;
-        image->syncAssemble();
-    }
 }
 
 void FrameData::transmit( eqBase::RefPtr<eqNet::Node> toNode )

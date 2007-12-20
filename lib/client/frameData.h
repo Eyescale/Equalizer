@@ -37,6 +37,9 @@ namespace eq
          * @name Data Access
          */
         //*{
+        /** The enabled frame buffer attachments. */
+        uint32_t getBuffers() const { return _data.buffers; }
+
         /** The database-range relative to the destination channel. */
         const Range& getRange() const { return _data.range; }
         
@@ -74,14 +77,6 @@ namespace eq
 
         /** Synchronize the last image readback. */
         void syncReadback();
-
-        /** 
-         * Assemble all images according of the current frame data.
-         */
-        void startAssemble( const Frame& frame );
-        
-        /** Synchronize the image assembly. */
-        void syncAssemble();
 
         /** 
          * Transmit the frame data to the specified node.

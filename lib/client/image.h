@@ -22,7 +22,7 @@ namespace eq
     {
     public:
         /** Constructs a new Image. */
-        Image( const FrameData* parent = 0 );
+        Image();
         virtual ~Image();
         
         /**
@@ -127,18 +127,6 @@ namespace eq
         /** Make sure that the last readback operation is complete. */
         void syncReadback() {}
         
-        /** 
-         * Start assemble the image into the frame buffer.
-         *
-         * @param buffers bit-wise combination of the frame buffer components.
-         * @param offset the x,y offset wrt the current drawable.
-         */
-        void startAssemble( const uint32_t buffers,
-                            const vmml::Vector2i& offset);
-
-        /** Make sure that the last assemble operation is complete. */
-        void syncAssemble() {}
-        
         /** Writes the pixel data as rgb image files. */
         void writeImage( const std::string& filename, 
                          const Frame::Buffer buffer ) const;
@@ -158,9 +146,6 @@ namespace eq
         }
         _data;
         
-        /** The parent frame data. */
-        const FrameData* const _frameData;
-
         /** The rectangle of the current pixels data. */
         PixelViewport _pvp;
 

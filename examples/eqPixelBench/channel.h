@@ -7,6 +7,8 @@
 
 #include <eq/eq.h>
 
+namespace eqPixelBench
+{
 class Channel : public eq::Channel
 {
 public:
@@ -15,6 +17,7 @@ public:
 protected:
     virtual void frameDraw( const uint32_t frameID );
 };
+}
 
 #endif // EQ_PIXELBENCH_CHANNEL_H
 

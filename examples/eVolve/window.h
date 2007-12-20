@@ -9,15 +9,6 @@
 
 namespace eVolve
 {
-    class ObjectManager : public eq::ObjectManager< const void* >, 
-                          public eqBase::Referenced
-    {
-    public:
-        ObjectManager( GLEWContext* glewContext ) 
-                : eq::ObjectManager< const void * >( glewContext ) {}
-        virtual ~ObjectManager(){}
-    };
-
     class Window : public eq::Window
     {
     public:
@@ -25,9 +16,9 @@ namespace eVolve
 
         // display list cache (windows share the context and object manager)
         GLuint getDisplayList( const void* key )
-            { return _objects->getList( key ); }
+            { return getObjectManager()->getList( key ); }
         GLuint newDisplayList( const void* key )
-            { return _objects->newList( key ); }
+            { return getObjectManager()->newList( key ); }
 
         void getLogoTexture( GLuint& id, vmml::Vector2i& size ) const
             { id = _logoTexture; size = _logoSize; }
@@ -36,11 +27,8 @@ namespace eVolve
         virtual ~Window() {}
         virtual bool configInit( const uint32_t initID );
         virtual bool configInitGL( const uint32_t initID );
-        virtual bool configExit();
 
     private:
-        eqBase::RefPtr< ObjectManager > _objects;
-
         GLuint         _logoTexture;
         vmml::Vector2i _logoSize;
 

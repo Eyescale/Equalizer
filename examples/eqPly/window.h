@@ -12,19 +12,11 @@
 
 namespace eqPly
 {
-    class VertexBufferState : public mesh::EqVertexBufferState, 
-                              public eqBase::Referenced
-    {
-    public:
-        VertexBufferState( GLEWContext* glewContext )
-                : mesh::EqVertexBufferState( glewContext ) {}
-        virtual ~VertexBufferState() {}
-    };
-    
     class Window : public eq::Window
     {
     public:
-        Window( eq::Pipe* parent ) : eq::Window( parent ), _logoTexture( 0 ) {}
+        Window( eq::Pipe* parent ) 
+                : eq::Window( parent ), _state( 0 ), _logoTexture( 0 ) {}
 
         void getLogoTexture( GLuint& id, vmml::Vector2i& size ) const
             { id = _logoTexture; size = _logoSize; }
@@ -37,7 +29,7 @@ namespace eqPly
         virtual bool configExit();
 
     private:
-        eqBase::RefPtr< VertexBufferState > _state;
+        VertexBufferState* _state;
 
         GLuint         _logoTexture;
         vmml::Vector2i _logoSize;

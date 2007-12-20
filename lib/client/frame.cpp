@@ -30,6 +30,16 @@ FrameData* Frame::_getData() const
                                            frameData.version ); 
 }
 
+uint32_t Frame::getBuffers() const
+{
+    return _getData()->getBuffers();
+}
+
+const Pixel& Frame::getPixel() const
+{
+    return _getData()->getPixel();
+}
+
 const Range& Frame::getRange() const
 {
     return _getData()->getRange();
@@ -48,16 +58,6 @@ void Frame::startReadback()
 void Frame::syncReadback() 
 {
     _getData()->syncReadback();
-}
-
-void Frame::startAssemble() 
-{
-    _getData()->startAssemble( *this );
-}
-
-void Frame::syncAssemble() 
-{
-    _getData()->syncAssemble();
 }
 
 void Frame::transmit( eqBase::RefPtr<eqNet::Node> toNode )

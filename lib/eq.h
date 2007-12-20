@@ -6,6 +6,7 @@
 #define EQ_H
 
 #include <eq/client/client.h>
+#include <eq/client/compositor.h>
 #include <eq/client/config.h>
 #include <eq/client/configEvent.h>
 #include <eq/client/configParams.h>

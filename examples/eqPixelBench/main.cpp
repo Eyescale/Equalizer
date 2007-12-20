@@ -11,9 +11,9 @@ using namespace eqBase;
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Config*  createConfig() { return new ::Config; }
+    virtual eq::Config*  createConfig()  { return new eqPixelBench::Config; }
     virtual eq::Channel* createChannel( eq::Window* parent )
-        { return new ::Channel( parent ); }
+        { return new eqPixelBench::Channel( parent ); }
 };
 
 int main( int argc, char** argv )
@@ -46,7 +46,8 @@ int main( int argc, char** argv )
 
     // 3. choose config
     eq::ConfigParams configParams;
-    Config*          config = (Config*)server->chooseConfig( configParams );
+    eqPixelBench::Config* config = static_cast<eqPixelBench::Config*>(
+        server->chooseConfig( configParams ));
 
     if( !config )
     {

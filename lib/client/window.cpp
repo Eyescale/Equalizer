@@ -456,7 +456,9 @@ bool Window::configInitGLX()
         return false;
     }
 
+    _setupObjectManager( shareCtx ? firstWindow : 0 );
     setGLXContext( context );
+
     EQINFO << "Created X11 drawable " << drawable << ", glX context "
            << context << endl;
     return true;
@@ -610,8 +612,10 @@ bool Window::configInitAGL()
         aglSetInteger( context, AGL_SWAP_INTERVAL, &interval );
     }
 
+    _setupObjectManager( shareCtx ? firstWindow : 0 );
     aglSetCurrentContext( context );
     setAGLContext( context );
+
     EQINFO << "Created AGL context " << context << endl;
 
     if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON )
@@ -757,7 +761,6 @@ bool Window::configInitWGL()
                                 rect.right - rect.left, rect.bottom - rect.top,
                                 0, 0, // parent, menu
                                 instance, 0 );
-
     if( !hWnd )
     {
         setErrorMessage( "Can't create window: " + 
@@ -887,8 +890,13 @@ bool Window::configInitWGL()
     HGLRC    shareCtx    = firstWindow->getWGLContext();
 
     if( shareCtx && !wglShareLists( shareCtx, context ))
+    {
         EQWARN << "Context sharing failed: " << getErrorString( GetLastError( ))
                << endl;
+        _setupObjectManager( 0 );
+    }
+    else
+        _setupObjectManager( shareCtx ? firstWindow : 0 );
 
     setWGLContext( context );
     ReleaseDC( hWnd, windowDC );
@@ -1051,16 +1059,27 @@ void Window::_queryDrawableConfig()
     glGetIntegerv( GL_ALPHA_BITS, &alphaBits );
     _drawableConfig.alphaBits = alphaBits;
 
-#if 0
-    // OpenGL Extensions
-    const string extList = (const char*)glGetString( GL_EXTENSIONS );
-    
-    if( extList.find( "GL_EXT_packed_depth_stencil" ) != string::npos ||
-        extList.find( "GL_NV_packed_depth_stencil" ) != string::npos )
-
-        _drawableConfig.extPackedDepthStencil = true;
-#endif
     EQINFO << "Window drawable config: " << _drawableConfig << endl;
+}
+
+void Window::_setupObjectManager( Window* sharedContextWindow )
+{
+    if( _objectManager.isValid( ))
+        return;
+
+    if( sharedContextWindow )
+        _objectManager = sharedContextWindow->getObjectManager();
+    
+    if( !_objectManager.isValid( ))
+        _objectManager = new ObjectManager( _glewContext );
+}
+
+void Window::_releaseObjectManager()
+{
+    if( _objectManager.isValid() && _objectManager->getRefCount() == 1 )
+        _objectManager->deleteAll();
+
+    _objectManager = 0;
 }
 
 void Window::initEventHandler()
@@ -1135,7 +1154,11 @@ void Window::setAGLContext( AGLContext context )
         const GLenum result = glewInit();
         if( result != GLEW_OK )
             EQWARN << "GLEW initialization failed with error " << result <<endl;
+
+        _setupObjectManager( 0 );
     }
+    else
+        _releaseObjectManager();
 #endif // AGL
 }
 
@@ -1144,15 +1167,23 @@ void Window::setGLXContext( GLXContext context )
 #ifdef GLX
     _glXContext = context;
 
-    if( _glXContext && _xDrawable )
+    if( _glXContext )
     {
-        glXMakeCurrent( _pipe->getXDisplay(), _xDrawable, _glXContext );
+        if( _xDrawable )
+        {
+            glXMakeCurrent( _pipe->getXDisplay(), _xDrawable, _glXContext );
+            
+            _queryDrawableConfig();
+            const GLenum result = glewInit();
+            if( result != GLEW_OK )
+                EQWARN << "GLEW initialization failed with error " << result
+                       << endl;
+        }
 
-        _queryDrawableConfig();
-        const GLenum result = glewInit();
-        if( result != GLEW_OK )
-            EQWARN << "GLEW initialization failed with error " << result <<endl;
+        _setupObjectManager( 0 );
     }
+    else
+        _releaseObjectManager();
 #endif
 }
 
@@ -1161,17 +1192,25 @@ void Window::setWGLContext( HGLRC context )
 #ifdef WGL
     _wglContext = context; 
 
-    if( _wglContext && _wglWindowHandle )
+    if( _wglContext )
     {
-        HDC dc = GetDC( _wglWindowHandle );
-        wglMakeCurrent( dc, _wglContext );
-        ReleaseDC( _wglWindowHandle, dc );
+        if( _wglWindowHandle )
+        {
+            HDC dc = GetDC( _wglWindowHandle );
+            wglMakeCurrent( dc, _wglContext );
+            ReleaseDC( _wglWindowHandle, dc );
+            
+            _queryDrawableConfig();
+            const GLenum result = glewInit();
+            if( result != GLEW_OK )
+                EQWARN << "GLEW initialization failed with error " << result
+                       << endl;
+        }
 
-        _queryDrawableConfig();
-        const GLenum result = glewInit();
-        if( result != GLEW_OK )
-            EQWARN << "GLEW initialization failed with error " << result <<endl;
+        _setupObjectManager( 0 );
     }
+    else
+        _releaseObjectManager();
 #endif
 }
 

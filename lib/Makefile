@@ -70,6 +70,7 @@ HEADER_SRC = \
 	client/colorMask.h \
 	client/commandQueue.h \
 	client/commands.h \
+	client/compositor.h \
 	client/config.h \
 	client/configEvent.h \
 	client/configParams.h \
@@ -124,6 +125,7 @@ CXXFILES = \
 	net/command.cpp \
 	net/commandCache.cpp \
 	net/commandQueue.cpp \
+	client/compositor.cpp \
 	net/connection.cpp \
 	net/connectionDescription.cpp \
 	net/connectionSet.cpp \

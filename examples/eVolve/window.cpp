@@ -30,26 +30,7 @@ bool Window::configInit( const uint32_t initID )
         return false;
     }
 
-    eq::Pipe*  pipe        = getPipe();
-    Window*    firstWindow = static_cast< Window* >( pipe->getWindows()[0] );
-
-    EQASSERT( !_objects );
-
-    if( firstWindow == this )
-    {
-        _objects = new ObjectManager( glewGetContext( ));
-        _loadLogo();
-    }
-    else
-    {
-        _objects     = firstWindow->_objects;
-        _logoTexture = firstWindow->_logoTexture;
-        _logoSize    = firstWindow->_logoSize;
-    }
-
-    if( !_objects ) // happens if first window failed to initialize
-        return false;
-
+    _loadLogo();
     return true;
 }
 
@@ -64,21 +45,24 @@ bool Window::configInitGL( const uint32_t initID )
     return true;
 }
 
-bool Window::configExit()
-{
-    if( _objects.isValid() && _objects->getRefCount() == 1 )
-        _objects->deleteAll();
-
-    _objects = 0;
-    return eq::Window::configExit();
-}
-
 static const char* _logoTextureName = "eVolve_logo";
 
 void Window::_loadLogo()
 {
-    EQASSERT( _objects->getTexture( _logoTextureName ) == 
-              ObjectManager::FAILED );
+    eq::Window::ObjectManager* objects = getObjectManager();
+
+    if( objects->getTexture( _logoTextureName ) != 
+        eq::Window::ObjectManager::FAILED );
+    {
+        // Already loaded by first window
+        const eq::Pipe* pipe        = getPipe();
+        const Window*   firstWindow = static_cast< Window* >
+                                          ( pipe->getWindows()[0] );
+        
+        _logoTexture = firstWindow->_logoTexture;
+        _logoSize    = firstWindow->_logoSize;
+        return;
+    }
 
     eq::Image image;
     if( !image.readImage( "logo.rgb", eq::Frame::BUFFER_COLOR ) &&
@@ -88,8 +72,8 @@ void Window::_loadLogo()
         return;
     }
 
-    _logoTexture = _objects->newTexture( _logoTextureName );
-    EQASSERT( _logoTexture != ObjectManager::FAILED );
+    _logoTexture = objects->newTexture( _logoTextureName );
+    EQASSERT( _logoTexture != eq::Window::ObjectManager::FAILED );
 
     const eq::PixelViewport& pvp = image.getPixelViewport();
     _logoSize.x = pvp.w;

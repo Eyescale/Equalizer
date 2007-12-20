@@ -25,8 +25,8 @@ using namespace std;
 
 namespace eq
 {
-Image::Image( const FrameData* parent )
-        : _frameData( parent )
+
+Image::Image()
 {
     _colorPixels.format = GL_BGRA;
     _colorPixels.type   = GL_UNSIGNED_BYTE;
@@ -214,122 +214,6 @@ void Image::_startReadback( const Frame::Buffer buffer )
 
     glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h, getFormat( buffer ), 
                   getType( buffer ), pixels.data );
-}
-
-void Image::startAssemble( const uint32_t buffers, const vmml::Vector2i& offset)
-{
-    uint32_t useBuffers = Frame::BUFFER_NONE;
-
-    if( buffers & Frame::BUFFER_COLOR && _colorPixels.valid )
-        useBuffers |= Frame::BUFFER_COLOR;
-    if( buffers & Frame::BUFFER_DEPTH && _depthPixels.valid )
-        useBuffers |= Frame::BUFFER_DEPTH;
-
-    if( useBuffers == Frame::BUFFER_NONE )
-    {
-        EQWARN << "No buffers to assemble" << endl;
-        return;
-    }
-
-    _setupAssemble( offset );
-
-    if( useBuffers == Frame::BUFFER_COLOR )
-        _startAssemble2D( offset );
-    else if( useBuffers == ( Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH ))
-        _startAssembleDB( offset );
-    else
-        EQUNIMPLEMENTED;
-}
-
-void Image::_setupAssemble( const vmml::Vector2i& offset )
-{
-    const int32_t startX = offset.x + _pvp.x;
-    glRasterPos2i( startX, offset.y + _pvp.y );
-
-    const Pixel& pixel = _frameData ? _frameData->getPixel() : Pixel::ALL;
-    if( pixel == Pixel::ALL )
-        return;
-
-    glPixelZoom( static_cast< float >( pixel.size ), 1.0f );
-
-    // mark stencil buffer where pixel shall pass
-    // TODO: OPT!
-    glClear( GL_STENCIL_BUFFER_BIT );
-    glEnable( GL_STENCIL_TEST );
-    glEnable( GL_DEPTH_TEST );
-
-    glStencilFunc( GL_ALWAYS, 1, 1 );
-    glStencilOp( GL_REPLACE, GL_REPLACE, GL_REPLACE );
-
-    glLineWidth( 1.0f );
-    glDepthMask( false );
-    
-    const int32_t endX   = startX   + _pvp.w * pixel.size;
-    const float   startY = static_cast< float >( offset.y + _pvp.y );
-    const float   endY   = static_cast< float >( startY   + _pvp.h );
-
-    glBegin( GL_LINES );
-    for( int32_t x = startX + pixel.index; x < endX; x += pixel.size )
-    {
-        glVertex3f( static_cast< float >( x ), startY, 0.0f );
-        glVertex3f( static_cast< float >( x ), endY, 0.0f );        
-    }
-    glEnd();
-    
-    glDisable( GL_DEPTH_TEST );
-    glStencilFunc( GL_EQUAL, 1, 1 );
-    glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
-    
-    glDepthMask( true );
-}
-
-void Image::_startAssemble2D( const vmml::Vector2i& offset )
-{
-    EQLOG( LOG_ASSEMBLY ) << "_startAssemble2D " << _pvp << endl;
-    EQASSERT( _colorPixels.valid );
-
-    glDrawPixels( _pvp.w, _pvp.h, getFormat( Frame::BUFFER_COLOR ), 
-                  getType( Frame::BUFFER_COLOR ), _colorPixels.data );
-}
-
-void Image::_startAssembleDB( const vmml::Vector2i& offset )
-{
-    EQLOG( LOG_ASSEMBLY ) << "_startAssembleDB " << _pvp << endl;
-    EQASSERT( _colorPixels.valid );
-    EQASSERT( _depthPixels.valid );
-
-    // Z-Based sort-last assembly
-    glEnable( GL_STENCIL_TEST );
-    
-    const Pixel& pixel = _frameData ? _frameData->getPixel() : Pixel::ALL;
-    const bool   pixelComposite = ( pixel != Pixel::ALL );
-
-    // test who is in front and mark in stencil buffer
-    glEnable( GL_DEPTH_TEST );
-    if( pixelComposite )
-    {   // keep already marked stencil values
-        glStencilFunc( GL_NOTEQUAL, 1, 1 );
-        glStencilOp( GL_KEEP, GL_ZERO, GL_REPLACE );
-    }
-    else
-    {
-        glStencilFunc( GL_ALWAYS, 1, 1 );
-        glStencilOp( GL_ZERO, GL_ZERO, GL_REPLACE );
-    }
-
-    glDrawPixels( _pvp.w, _pvp.h, getFormat( Frame::BUFFER_DEPTH ), 
-                  getType( Frame::BUFFER_DEPTH ), _depthPixels.data );
-    
-    glDisable( GL_DEPTH_TEST );
-
-    // draw 'our' front pixels using stencil mask
-    glStencilFunc( GL_EQUAL, 1, 1 );
-    glStencilOp( GL_KEEP, GL_ZERO, GL_ZERO );
-    
-    glDrawPixels( _pvp.w, _pvp.h, getFormat( Frame::BUFFER_COLOR ), 
-                  getType( Frame::BUFFER_COLOR ), _colorPixels.data );
-
-    glDisable( GL_STENCIL_TEST );
 }
 
 void Image::setPixelViewport( const PixelViewport& pvp )

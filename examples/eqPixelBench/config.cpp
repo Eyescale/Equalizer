@@ -7,6 +7,8 @@
 
 using namespace std;
 
+namespace eqPixelBench
+{
 Config::Config()
 {
 }
@@ -27,4 +29,5 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
         default:
             return eq::Config::handleEvent( event );
     }
+}
 }

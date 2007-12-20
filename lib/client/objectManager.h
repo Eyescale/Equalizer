@@ -13,8 +13,6 @@
 
 namespace eq
 {
-    class GLFunctions;
-
     /**
      * A facility class to managed OpenGL objects across shared contexts
      *
@@ -88,7 +86,6 @@ namespace eq
         void   deleteShader( const T& key );
         void   deleteShader( const GLuint id );
 
-    protected:
         GLEWContext* glewGetContext() const { return _glewContext; }
 
     private:

@@ -106,57 +106,58 @@ namespace mesh
         std::map< const void*, GLuint >  _displayLists;
         std::map< const void*, GLuint >  _bufferObjects;
     };
-    
-    
+} // namespace mesh
+
 #ifdef EQUALIZER
-    /*  State for Equalizer usage, uses Eq Object Manager.  */
-    class EqVertexBufferState : public VertexBufferState 
+namespace eqPly
+{
+    /*  State for Equalizer usage, uses Eq's Object Manager.  */
+    class VertexBufferState : public mesh::VertexBufferState 
     {
     public:
-        EqVertexBufferState( GLEWContext* glewContext ) 
-                : VertexBufferState( glewContext )
-                , _objectManager( glewContext )
+        VertexBufferState( eq::Window::ObjectManager* objectManager ) 
+                : mesh::VertexBufferState( objectManager->glewGetContext( ))
+                , _objectManager( objectManager )
             {} 
         
         virtual GLuint getDisplayList( const void* key )
-            { return _objectManager.getList( key ); }
+            { return _objectManager->getList( key ); }
         
         virtual GLuint newDisplayList( const void* key )
-            { return _objectManager.newList( key ); }
+            { return _objectManager->newList( key ); }
         
         virtual GLuint getTexture( const void* key )
-            { return _objectManager.getTexture( key ); }
+            { return _objectManager->getTexture( key ); }
         
         virtual GLuint newTexture( const void* key )
-            { return _objectManager.newTexture( key ); }
+            { return _objectManager->newTexture( key ); }
         
         virtual GLuint getBufferObject( const void* key )
-            { return _objectManager.getBuffer( key ); }
+            { return _objectManager->getBuffer( key ); }
         
         virtual GLuint newBufferObject( const void* key )
-            { return _objectManager.newBuffer( key ); }
+            { return _objectManager->newBuffer( key ); }
         
         virtual GLuint getProgram( const void* key )
-            { return _objectManager.getProgram( key ); }
+            { return _objectManager->getProgram( key ); }
         
         virtual GLuint newProgram( const void* key )
-            { return _objectManager.newProgram( key ); }
+            { return _objectManager->newProgram( key ); }
         
         virtual GLuint getShader( const void* key )
-            { return _objectManager.getShader( key ); }
+            { return _objectManager->getShader( key ); }
         
         virtual GLuint newShader( const void* key, GLenum type )
-            { return _objectManager.newShader( key, type ); }
+            { return _objectManager->newShader( key, type ); }
 
-        virtual void deleteAll() { _objectManager.deleteAll(); }
+        virtual void deleteAll() { _objectManager->deleteAll(); }
         
     private:
-        eq::ObjectManager< const void* >   _objectManager;
+        eq::Window::ObjectManager* _objectManager;
     };
+} // namespace eqPly
 #endif // EQUALIZER
     
     
-}
-
 
 #endif // MESH_VERTEXBUFFERSTATE_H

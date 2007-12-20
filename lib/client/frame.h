@@ -21,6 +21,7 @@ namespace eq
     class FrameData;
     class Image;
     class Pipe;
+    class Pixel;
     class Range;
 
     /**
@@ -54,8 +55,14 @@ namespace eq
         //*{
         const vmml::Vector2i& getOffset() const { return _data.offset; }
         
+        /** The enabled frame buffer attachments. */
+        uint32_t getBuffers() const;
+
         /** @return the database-range relative to the destination channel. */
         const Range& getRange() const;
+
+        /** @return the pixel parameters relative to the destination channel. */
+        const Pixel& getPixel() const;
 
         /** The images of this frame data holder */
         const std::vector<Image*>& getImages() const;
@@ -75,14 +82,6 @@ namespace eq
         
         /** Synchronize the image readback. */
         void syncReadback();
-
-        /** 
-         * Assemble all images according of the current frame data.
-         */
-        void startAssemble();
-        
-        /** Synchronize the image assembly. */
-        void syncAssemble();
 
         /** 
          * Transmit the frame data to the specified node.

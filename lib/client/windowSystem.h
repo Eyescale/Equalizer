@@ -122,11 +122,11 @@ EQ_EXPORT void debugGLError( const std::string& when, const GLenum error,
                    const char* file, const int line );
 }
 
-#  define EQ_GL_ERROR( when )                                     \
-    {                                                             \
-        const GLenum error = glGetError();                        \
-        if( error )                                               \
-            eq::debugGLError( when, error, __FILE__, __LINE__ );  \
+#  define EQ_GL_ERROR( when )                                           \
+    {                                                                   \
+        const GLenum eqGlError = glGetError();                          \
+        if( eqGlError )                                                 \
+            eq::debugGLError( when, eqGlError, __FILE__, __LINE__ );    \
     }
 
 #  define EQ_GL_CALL( code )                              \

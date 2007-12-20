@@ -7,6 +7,8 @@
 
 #include <eq/eq.h>
 
+namespace eqPixelBench
+{
 class Config : public eq::Config
 {
 public:
@@ -18,5 +20,6 @@ public:
 protected:
     virtual ~Config();
 };
+}
 
 #endif // EQ_PIXELBENCH_CONFIG_H

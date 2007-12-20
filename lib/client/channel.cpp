@@ -4,6 +4,7 @@
 
 #include "channel.h"
 
+#include "compositor.h"
 #include "commands.h"
 #include "frame.h"
 #include "global.h"
@@ -186,57 +187,7 @@ void Channel::frameAssemble( const uint32_t frameID )
     EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
 
-    // This is an optimized version of frameAssemble.
-    // The frames are not assemble in the saved order,
-    // but in the order they become available, which is
-    // faster because less time is spent waiting.
-    // The ready frames are counted in a monitor. Whenever
-    // a frame becomes available, it increments the monitor
-    // which causes this function to wake up and assemble it.
-
-    const vector<Frame*>& frames  = getInputFrames();
-    Monitor<uint32_t>     monitor;
-
-    // register monitor with all input frames
-    for( vector<Frame*>::const_iterator i = frames.begin();
-         i != frames.end(); ++i )
-    {
-        Frame* frame = *i;
-        frame->addListener( monitor );
-    }
-
-    uint32_t       nUsedFrames  = 0;
-    vector<Frame*> unusedFrames = frames;
-
-    // wait and assemble frames
-    while( !unusedFrames.empty( ))
-    {
-        {
-            StatEvent event( StatEvent::CHANNEL_WAIT_FRAME, this );
-            monitor.waitGE( ++nUsedFrames );
-        }
-
-        for( vector<Frame*>::iterator i = unusedFrames.begin();
-             i != unusedFrames.end(); ++i )
-        {
-            Frame* frame = *i;
-            if( !frame->isReady( ))
-                continue;
-
-            frame->startAssemble();
-            unusedFrames.erase( i );
-            break;
-        }
-    }
-
-    // sync finish of the assemble operation and de-register the monitor
-    for( vector<Frame*>::const_iterator i = frames.begin(); i != frames.end();
-         ++i )
-    {
-        Frame* frame = *i;
-        frame->syncAssemble();
-        frame->removeListener( monitor );
-    }
+    Compositor::assembleFrames( getInputFrames(), this );
 
     EQ_GL_CALL( resetAssemblyState( ));
 }

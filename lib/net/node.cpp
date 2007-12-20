@@ -1173,7 +1173,8 @@ bool Node::connect( eqBase::RefPtr<Node> node )
 
     if( !initConnect( node ))
     {
-        EQERROR << "Connection initialisation failed." << endl;
+        EQERROR << "Connection initialisation to " << node << " failed." 
+                << endl;
         return false;
     }
 

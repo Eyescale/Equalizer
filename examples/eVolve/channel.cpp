@@ -519,7 +519,7 @@ void Channel::frameAssemble( const uint32_t frameID )
 
         const eq::Range& curRange = frame->getRange();
         if( curRange == eq::Range::ALL ) // 2D frame, assemble directly
-            frame->startAssemble();
+            eq::Compositor::assembleFrame( frame, this );
         else
         {
             dbFrames.push_back( Frame( frame ) );
@@ -580,15 +580,19 @@ void Channel::frameAssemble( const uint32_t frameID )
         dbFrames.pop_back();
 
         if( frame.frame )
-            frame.frame->startAssemble();
+            eq::Compositor::assembleFrame( frame.frame, this );
         else
             if( coveredPVP.hasArea() )
             {
                 EQASSERT( frame.image == &_image );
                 
-                vmml::Vector2i offset( coveredPVP.x, coveredPVP.y );
-                _image.startAssemble( eq::Frame::BUFFER_COLOR, offset ); 
-                _image.syncAssemble();
+                eq::Compositor::ImageOp op;
+                op.channel  = this;
+                op.buffers  = eq::Frame::BUFFER_COLOR;
+                op.offset.x = coveredPVP.x;
+                op.offset.y = coveredPVP.y;
+                
+                eq::Compositor::assembleImage( frame.image, op ); 
             }
     }
 
@@ -604,15 +608,6 @@ void Channel::_startAssemble()
 
 void Channel::_finishAssemble()
 {
-    const vector< eq::Frame* >&  frames = getInputFrames();
-
-    for( vector< eq::Frame* >::const_iterator i = frames.begin();
-         i != frames.end(); ++i )
-    {
-        eq::Frame* frame = *i;
-        frame->syncAssemble();
-    }
-
     _drawLogo();
     resetAssemblyState();
 }
@@ -633,8 +628,6 @@ void Channel::frameReadback( const uint32_t frameID )
 
 void Channel::_drawLogo()
 {
-    glPushAttrib( GL_ALL_ATTRIB_BITS );
-
     const Window*  window      = static_cast<Window*>( getWindow( ));
     GLuint         texture;
     vmml::Vector2i size;
@@ -643,6 +636,8 @@ void Channel::_drawLogo()
     if( !texture )
         return;
     
+    glPushAttrib( GL_ALL_ATTRIB_BITS );
+
     const eq::PixelViewport& pvp    = getPixelViewport();
     const vmml::Vector2i&    offset = getPixelOffset();
     const eq::Pixel&         pixel   = getPixel();
