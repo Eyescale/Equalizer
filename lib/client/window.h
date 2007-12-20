@@ -471,7 +471,7 @@ namespace eq
         /** Set up object manager during initialization. */
         void _setupObjectManager( Window* sharedContextWindow );
         /** Release object manager. */
-        void Window::_releaseObjectManager();
+        void _releaseObjectManager();
 
         /* The command functions. */
         eqNet::CommandResult _pushCommand( eqNet::Command& command );
