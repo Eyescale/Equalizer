@@ -63,7 +63,7 @@ static const char* _logoTextureName = "eqPly_logo";
 
 void Window::_loadLogo()
 {
-    if( _state->getTexture( _logoTextureName ) != VertexBufferState::FAILED );
+    if( _state->getTexture( _logoTextureName ) != VertexBufferState::FAILED )
     {
         // Already loaded by first window
         const eq::Pipe* pipe        = getPipe();

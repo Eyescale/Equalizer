@@ -52,7 +52,7 @@ void Window::_loadLogo()
     eq::Window::ObjectManager* objects = getObjectManager();
 
     if( objects->getTexture( _logoTextureName ) != 
-        eq::Window::ObjectManager::FAILED );
+        eq::Window::ObjectManager::FAILED )
     {
         // Already loaded by first window
         const eq::Pipe* pipe        = getPipe();

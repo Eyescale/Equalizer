@@ -27,12 +27,12 @@ ChannelUpdateVisitor::ChannelUpdateVisitor( Channel* channel,
 Compound::VisitorResult ChannelUpdateVisitor::visitPre( 
     const Compound* compound )
 {
+    _updateDrawFinish( compound );
+
     if( compound->getChannel() != _channel || 
         !compound->testInheritEye( _eye ) )
         
         return Compound::TRAVERSE_CONTINUE;
-
-    _updateDrawFinish( compound );
 
     if( compound->testInheritTask( Compound::TASK_CLEAR ))
     {
@@ -51,8 +51,10 @@ Compound::VisitorResult ChannelUpdateVisitor::visitLeaf(
 {
     if( compound->getChannel() != _channel ||
         !compound->testInheritEye( _eye ) )
-
+    {
+        _updateDrawFinish( compound );
         return Compound::TRAVERSE_CONTINUE;
+    }
 
     eq::RenderContext context;
     _setupRenderContext( compound, context );
