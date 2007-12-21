@@ -75,6 +75,18 @@ void Compositor::assembleFrames( const vector<Frame*>& frames, Channel* channel)
     }
 }
 
+void Compositor::assembleFramesSorted( const vector<Frame*>& frames,
+                                       Channel* channel )
+{
+    for( vector<Frame*>::const_iterator i = frames.begin();
+         i != frames.end(); ++i )
+    {
+        Frame* frame = *i;
+        frame->waitReady( );
+        assembleFrame( frame, channel );
+    }
+}
+
 void Compositor::assembleFrame( const Frame* frame, Channel* channel )
 {
     const vector< Image* >& images = frame->getImages();
@@ -289,7 +301,18 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
                    << endl;
             return;
         }
+
+        // use fragment shader and setup uniforms
+        EQ_GL_CALL( glUseProgram( program ));
+        
+        const GLint depthParam = glGetUniformLocation( program, "depth" );
+        glUniform1i( depthParam, 0 );
+        const GLint colorParam = glGetUniformLocation( program, "color" );
+        glUniform1i( colorParam, 1 );
     }
+    else
+        // use fragment shader
+        EQ_GL_CALL( glUseProgram( program ));
 
     // Enable & download color and depth textures
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
@@ -321,14 +344,6 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
                               image->getFormat( Frame::BUFFER_COLOR ), 
                               image->getType( Frame::BUFFER_COLOR ),
                               image->getPixelData( Frame::BUFFER_COLOR )));
-
-    // use fragment shader and setup uniforms
-    EQ_GL_CALL( glUseProgram( program ));
-
-    const GLint depthParam = glGetUniformLocation( program, "depth" );
-    glUniform1i( depthParam, 0 );
-    const GLint colorParam = glGetUniformLocation( program, "color" );
-    glUniform1i( colorParam, 1 );
 
     // Draw a quad using shader & textures in the right place
     glEnable( GL_DEPTH_TEST );

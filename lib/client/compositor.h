@@ -40,6 +40,15 @@ namespace eq
         static void assembleFrames( const std::vector< Frame* >& frames,
                                     Channel* channel );
 
+        /** 
+         * Assemble all frames in arbitrary order using the default algorithm.
+         *
+         * @param frames the frames to assemble.
+         * @param channel the destination channel.
+         */
+        static void assembleFramesSorted( const std::vector< Frame* >& frames,
+                                          Channel* channel );
+
         /** Start assembling a frame using the default algorithm. */
         static void assembleFrame( const Frame* frame, Channel* channel );
         //*}
