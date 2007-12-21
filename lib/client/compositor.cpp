@@ -145,6 +145,7 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
 
     glLineWidth( 1.0f );
     glDepthMask( false );
+    glColorMask( false, false, false, false );
     
     const PixelViewport& pvp    = image->getPixelViewport();
     const int32_t        startX = op.offset.x + pvp.x;
@@ -164,6 +165,7 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
     glStencilFunc( GL_EQUAL, 1, 1 );
     glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
     
+    op.channel->applyColorMask();
     glDepthMask( true );
 }
 
@@ -243,8 +245,7 @@ static const void* KEY_DB_COLOR_TEXTURE = &_assembleDBKeys[1];
 static const void* KEY_DB_GLSL          = &_assembleDBKeys[2];
 }
 
-void Compositor::assembleImageDB_GLSL( const Image* image,
-                                            const ImageOp& op )
+void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
 {
     const PixelViewport& pvp = image->getPixelViewport();
 
@@ -259,7 +260,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image,
 
     if( program == Window::ObjectManager::FAILED )
     {
-        // Create fragment shader which read color and depth values from 
+        // Create fragment shader which reads color and depth values from 
         // rectangular textures
         const GLuint shader = objects->newShader( KEY_DB_GLSL,
                                                   GL_FRAGMENT_SHADER );
@@ -290,8 +291,6 @@ void Compositor::assembleImageDB_GLSL( const Image* image,
         }
     }
 
-    EQ_GL_CALL( glUseProgram( program )); // use fragment shader
-
     // Enable & download color and depth textures
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
 
@@ -309,9 +308,6 @@ void Compositor::assembleImageDB_GLSL( const Image* image,
                               image->getType( Frame::BUFFER_DEPTH ),
                               image->getPixelData( Frame::BUFFER_DEPTH )));
 
-    const GLint depthParam = glGetUniformLocation( program, "depth" );
-    glUniform1i( depthParam, 0 );
-
     EQ_GL_CALL( glActiveTexture( GL_TEXTURE1 ));
     EQ_GL_CALL( glBindTexture( GL_TEXTURE_RECTANGLE_ARB, colorTexture ));
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
@@ -326,6 +322,11 @@ void Compositor::assembleImageDB_GLSL( const Image* image,
                               image->getType( Frame::BUFFER_COLOR ),
                               image->getPixelData( Frame::BUFFER_COLOR )));
 
+    // use fragment shader and setup uniforms
+    EQ_GL_CALL( glUseProgram( program ));
+
+    const GLint depthParam = glGetUniformLocation( program, "depth" );
+    glUniform1i( depthParam, 0 );
     const GLint colorParam = glGetUniformLocation( program, "color" );
     glUniform1i( colorParam, 1 );
 
@@ -333,9 +334,12 @@ void Compositor::assembleImageDB_GLSL( const Image* image,
     glEnable( GL_DEPTH_TEST );
     glColor3f( 1.0f, 1.0f, 1.0f );
 
-    const float startX = static_cast< float >( op.offset.x + pvp.x );
+    const float startX = static_cast< float >
+        ( op.offset.x + pvp.x * op.pixel.size + op.pixel.index );
+    const float endX   = static_cast< float >
+        ( op.offset.x + (pvp.x + pvp.w) * op.pixel.size + op.pixel.index );
+
     const float startY = static_cast< float >( op.offset.y + pvp.y );
-    const float endX   = static_cast< float >( op.offset.x + pvp.x + pvp.w );
     const float endY   = static_cast< float >( op.offset.y + pvp.y + pvp.h );
 
     glBegin( GL_TRIANGLE_STRIP );

@@ -136,6 +136,41 @@ namespace eq
         //*}
 
         /**
+         * @name Operations
+         *
+         * Operations are only meaningfull from within certain callbacks. They
+         * are just convenience wrappers applying context-specific data to the
+         * OpenGL state.
+         */
+        //*{
+        /** 
+         * Apply the current rendering buffer, including the color mask.
+         */
+        virtual void applyBuffer() const;
+
+        /** 
+         * Apply the current color mask.
+         */
+        virtual void applyColorMask() const;
+
+        /** 
+         * Apply the OpenGL viewport for the current rendering task.
+         */
+        virtual void applyViewport() const;
+
+        /**
+         * Apply the frustum matrix for the current rendering task.
+         */
+        virtual void applyFrustum() const;
+
+        /** 
+         * Apply the modelling transformation to position and orient the view
+         * frustum.
+         */
+        virtual void applyHeadTransform() const;
+        //*}
+
+        /**
          * @name Attributes
          */
         //*{
@@ -294,35 +329,6 @@ namespace eq
          * Reset the OpenGL state after an assembly operation.
          */
         virtual void resetAssemblyState();
-        //*}
-
-        /**
-         * @name Operations
-         *
-         * Operations are only available from within certain callbacks.
-         */
-        //*{
-
-        /** 
-         * Apply the current rendering buffer.
-         */
-        virtual void applyBuffer() const;
-
-        /** 
-         * Apply the OpenGL viewport for the current rendering task.
-         */
-        virtual void applyViewport() const;
-
-        /**
-         * Apply the frustum matrix for the current rendering task.
-         */
-        virtual void applyFrustum() const;
-
-        /** 
-         * Apply the modelling transformation to position and orient the view
-         * frustum.
-         */
-        virtual void applyHeadTransform() const;
         //*}
 
         /** @name Error information. */

@@ -322,9 +322,14 @@ const vmml::Matrix4f& Channel::getHeadTransform() const
 
 void Channel::applyBuffer() const
 {
-	EQ_GL_CALL( glReadBuffer( getReadBuffer( )));
-	EQ_GL_CALL( glDrawBuffer( getDrawBuffer( )));
+    EQ_GL_CALL( glReadBuffer( getReadBuffer( )));
+    EQ_GL_CALL( glDrawBuffer( getDrawBuffer( )));
 
+    applyColorMask();
+}
+
+void Channel::applyColorMask() const
+{
 	const ColorMask& colorMask = getDrawBufferMask();
 	glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
 }
