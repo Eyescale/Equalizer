@@ -82,6 +82,7 @@ server
             compound
             {
                 channel "channel-first"
+                task    [ CLEAR ASSEMBLE ] 
                 range   [ 0 .5 ]
 
                 compound
@@ -97,12 +98,13 @@ server
                     outputframe {}
                 }
 
-#                inputframe{ name "frame.channel-first-1" }
-#                inputframe{ name "frame.channel-first-2" }
+                inputframe{ name "frame.channel-first-1" }
+                inputframe{ name "frame.channel-first-2" }
             }
             compound
             {
                 channel "channel-second"
+                task    [ CLEAR ASSEMBLE ] 
                 range   [ .5 1 ]
 
                 compound
@@ -118,8 +120,8 @@ server
                     outputframe {}
                 }
 
-#                inputframe{ name "frame.channel-second-1" }
-#                inputframe{ name "frame.channel-second-2" }
+                inputframe{ name "frame.channel-second-1" }
+                inputframe{ name "frame.channel-second-2" }
             }
 
             inputframe{ name "frame.channel-first-1" }
