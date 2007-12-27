@@ -374,6 +374,13 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     glVertex3f( endX, endY, 0.0f );
 
     glEnd();
+
+#ifdef Darwin
+    // WAR for bug 1849962. If we don't flush the GL pipe here, subsequent
+    // assemble ops before the next swap get random texture values form either
+    // this op or the next.
+    glFlush();
+#endif
             
     // restore state
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
