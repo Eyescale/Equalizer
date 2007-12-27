@@ -203,8 +203,7 @@ void Compositor::assembleImageDB( const Image* image, const ImageOp& op )
         assembleImageDB_FF( image, op );
 }
 
-void Compositor::assembleImageDB_FF( const Image* image,
-                                          const ImageOp& op )
+void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
 {
     const PixelViewport& pvp = image->getPixelViewport();
 
@@ -217,13 +216,13 @@ void Compositor::assembleImageDB_FF( const Image* image,
     glRasterPos2i( op.offset.x + pvp.x, op.offset.y + pvp.y );
     glEnable( GL_STENCIL_TEST );
     
-    const bool   pixelComposite = ( op.pixel != Pixel::ALL );
-
     // test who is in front and mark in stencil buffer
     glEnable( GL_DEPTH_TEST );
+
+    const bool pixelComposite = ( op.pixel != Pixel::ALL );
     if( pixelComposite )
     {   // keep already marked stencil values
-        glStencilFunc( GL_NOTEQUAL, 1, 1 );
+        glStencilFunc( GL_EQUAL, 1, 1 );
         glStencilOp( GL_KEEP, GL_ZERO, GL_REPLACE );
     }
     else
