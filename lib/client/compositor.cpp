@@ -250,10 +250,8 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
 
 namespace
 {
-static const char  _assembleDBKeys[3] = "12";
-static const void* KEY_DB_DEPTH_TEXTURE = &_assembleDBKeys[0];
-static const void* KEY_DB_COLOR_TEXTURE = &_assembleDBKeys[1];
-static const void* KEY_DB_GLSL          = &_assembleDBKeys[2];
+// use one shader and program per shared context set
+static const char glslKey = 42;
 }
 
 void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
@@ -265,16 +263,24 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
 
     Window*                window  = op.channel->getWindow();
     Window::ObjectManager* objects = window->getObjectManager();
-    GLuint depthTexture = objects->obtainTexture( KEY_DB_DEPTH_TEXTURE );
-    GLuint colorTexture = objects->obtainTexture( KEY_DB_COLOR_TEXTURE );
-    GLuint program      = objects->getProgram( KEY_DB_GLSL );
+    
+    // use per-window textures: using a shared texture across multiple windows
+    // creates undefined texture contents, since each context has it's own
+    // command buffer which is flushed unpredictably (at least on Darwin). A
+    // glFlush at the end of this method would do it too, but the performance
+    // use case is one window per pipe, hence we'll optimize for that and remove
+    // the glFlush.
+    const char*            key     = reinterpret_cast< char* >( window );
+
+    GLuint depthTexture = objects->obtainTexture( key );
+    GLuint colorTexture = objects->obtainTexture( key+1 );
+    GLuint program      = objects->getProgram( &glslKey );
 
     if( program == Window::ObjectManager::FAILED )
     {
         // Create fragment shader which reads color and depth values from 
         // rectangular textures
-        const GLuint shader = objects->newShader( KEY_DB_GLSL,
-                                                  GL_FRAGMENT_SHADER );
+        const GLuint shader = objects->newShader( &glslKey, GL_FRAGMENT_SHADER);
         EQASSERT( shader != Window::ObjectManager::FAILED );
 
         const char* source = "uniform sampler2DRect color; uniform sampler2DRect depth; void main(void){ gl_FragColor = texture2DRect( color, gl_TexCoord[0].st ); gl_FragDepth = texture2DRect( depth, gl_TexCoord[0].st ).x; }";
@@ -288,7 +294,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
             EQERROR << "Failed to compile fragment shader for DB compositing" 
                     << endl;
 
-        program = objects->newProgram( KEY_DB_GLSL );
+        program = objects->newProgram( &glslKey );
 
         EQ_GL_CALL( glAttachShader( program, shader ));
         EQ_GL_CALL( glLinkProgram( program ));
@@ -308,6 +314,9 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
         glUniform1i( depthParam, 0 );
         const GLint colorParam = glGetUniformLocation( program, "color" );
         glUniform1i( colorParam, 1 );
+
+        // make sure the other shared context see the program
+        glFlush();
     }
     else
         // use fragment shader
@@ -375,13 +384,6 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
 
     glEnd();
 
-#ifdef Darwin
-    // WAR for bug 1849962. If we don't flush the GL pipe here, subsequent
-    // assemble ops before the next swap get random texture values from either
-    // this op or the next.
-    glFlush();
-#endif
-            
     // restore state
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
     glDisable( GL_DEPTH_TEST );
