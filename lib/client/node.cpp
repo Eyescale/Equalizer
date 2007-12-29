@@ -111,10 +111,10 @@ eqNet::Barrier* Node::getBarrier( const uint32_t id, const uint32_t version )
     return barrier;
 }
 
-FrameData* Node::getFrameData( const uint32_t id, const uint32_t version )
+FrameData* Node::getFrameData( const eqNet::ObjectVersion& dataVersion )
 {
     _frameDatasMutex.set();
-    FrameData* frameData = _frameDatas[ id ];
+    FrameData* frameData = _frameDatas[ dataVersion.id ];
 
     if( !frameData )
     {
@@ -122,14 +122,14 @@ FrameData* Node::getFrameData( const uint32_t id, const uint32_t version )
         
         frameData = new FrameData;
         frameData->makeThreadSafe();
-        const bool mapped = session->mapObject( frameData, id );
+        const bool mapped = session->mapObject( frameData, dataVersion.id );
         EQASSERT( mapped );
 
-        _frameDatas[ id ] = frameData;
+        _frameDatas[ dataVersion.id ] = frameData;
     }
     _frameDatasMutex.unset();
 
-    frameData->sync( version );
+    frameData->sync( dataVersion.version );
     return frameData;
 }
 

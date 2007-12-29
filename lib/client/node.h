@@ -54,11 +54,10 @@ namespace eq
         /** 
          * Get a frame data instance.
          * 
-         * @param id the frame identifier.
-         * @param version the frame's version.
+         * @param dataVersion the frame data identifier and version.
          * @return the frame.
          */
-        FrameData* getFrameData( const uint32_t id, const uint32_t version );
+        FrameData* getFrameData( const eqNet::ObjectVersion& dataVersion );
 
         /** 
          * Add stat events to a frame. Used by Pipe::releaseFrame().

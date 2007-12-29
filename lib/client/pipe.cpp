@@ -327,21 +327,27 @@ eqNet::CommandResult Pipe::pushCommand( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-Frame* Pipe::getFrame( const uint32_t id, const uint32_t version )
+Frame* Pipe::getFrame( const eqNet::ObjectVersion& frameVersion, const Eye eye)
 {
-    Frame* frame = _frames[id];
-
+    Frame* frame = _frames[ frameVersion.id ];
     if( !frame )
     {
         eqNet::Session* session = getSession();
-        frame = new Frame( this );
+        frame = new Frame();
 
-        const bool mapped = session->mapObject( frame, id );
+        const bool mapped = session->mapObject( frame, frameVersion.id );
         EQASSERT( mapped );
-        _frames[id] = frame;
+        _frames[ frameVersion.id ] = frame;
     }
     
-    frame->sync( version );
+    frame->sync( frameVersion.version );
+
+    const eqNet::ObjectVersion& data = frame->getDataVersion( eye );
+    EQASSERT( data.id != EQ_ID_INVALID );
+    FrameData* frameData = getNode()->getFrameData( data ); 
+    EQASSERT( frameData );
+
+    frame->setData( frameData );
     return frame;
 }
 

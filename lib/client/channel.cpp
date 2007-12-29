@@ -494,9 +494,7 @@ eqNet::CommandResult Channel::_reqFrameAssemble( eqNet::Command& command )
     for( uint32_t i=0; i<packet->nFrames; ++i )
     {
         Pipe*  pipe  = getPipe();
-        Frame* frame = pipe->getFrame( packet->frames[i].objectID, 
-                                       packet->frames[i].version );
-        frame->setEyePass( _context->eye );
+        Frame* frame = pipe->getFrame( packet->frames[i], _context->eye );
         _inputFrames.push_back( frame );
     }
 
@@ -521,9 +519,7 @@ eqNet::CommandResult Channel::_reqFrameReadback( eqNet::Command& command )
     for( uint32_t i=0; i<packet->nFrames; ++i )
     {
         Pipe*  pipe  = getPipe();
-        Frame* frame = pipe->getFrame( packet->frames[i].objectID, 
-                                       packet->frames[i].version );
-        frame->setEyePass( _context->eye );
+        Frame* frame = pipe->getFrame( packet->frames[i], _context->eye );
         _outputFrames.push_back( frame );
     }
 
@@ -554,9 +550,8 @@ eqNet::CommandResult Channel::_reqFrameTransmit( eqNet::Command& command )
     RefPtr<eqNet::Node> localNode = session->getLocalNode();
     RefPtr<eqNet::Node> server    = session->getServer();
     Pipe*               pipe      = getPipe();
-    Frame*              frame     = pipe->getFrame( packet->frame.objectID, 
-                                                    packet->frame.version );
-    frame->setEyePass( packet->context.eye );
+    Frame*              frame     = pipe->getFrame( packet->frame, 
+                                                    packet->context.eye );
 
     for( uint32_t i=0; i<packet->nNodes; ++i )
     {

@@ -46,7 +46,7 @@ namespace eq
         /** 
          * Constructs a new Frame.
          */
-        Frame( Pipe* pipe );
+        Frame();
         virtual ~Frame(){}
 
         /**
@@ -64,8 +64,14 @@ namespace eq
         /** @return the pixel parameters relative to the destination channel. */
         const Pixel& getPixel() const;
 
-        /** The images of this frame data holder */
+        /** The images of this frame */
         const std::vector<Image*>& getImages() const;
+
+        /** Set the data for this frame. */
+        void setData( FrameData* data ) { _frameData = data; }
+    
+        const eqNet::ObjectVersion& getDataVersion( const Eye eye ) const
+            { return _data.frameData[ eye ]; }
         //*}
 
         /**
@@ -121,9 +127,6 @@ namespace eq
         void removeListener( eqBase::Monitor<uint32_t>& listener );
         //*}
 
-        /** Set by the channel */
-        void setEyePass( const Eye eyePass ) { _eyePass = eyePass; }
-        
         /** 
          * Disable the usage of a frame buffer attachment for all images.
          * 
@@ -136,21 +139,20 @@ namespace eq
 
     private:
         std::string _name;
-        Pipe*       _pipe;
+        FrameData*  _frameData;
 
-        Eye _eyePass;
-
-        /** All distributed data, shared between eq::Frame and eqs::Frame. */
+        /** The distributed data shared between eq::Frame and eqs::Frame. */
+        friend class eqs::Frame;
         struct Data
         {
+            Data() : buffers( 0 ) {}
+
             vmml::Vector2i       offset;
             uint32_t             buffers;
             eqNet::ObjectVersion frameData[EYE_ALL];
         }
-            _data;
-        friend class eqs::Frame;
+        _data;
 
-        FrameData* _getData() const;
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, 

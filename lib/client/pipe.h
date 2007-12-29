@@ -6,6 +6,7 @@
 #define EQ_PIPE_H
 
 #include <eq/client/commandQueue.h>   // member
+#include <eq/client/eye.h>            // Eye enum
 #include <eq/client/node.h>           // used in inline methods
 #include <eq/client/pixelViewport.h>  // member
 #include <eq/client/statEvent.h>      // member
@@ -134,11 +135,12 @@ namespace eq
         /** 
          * Get an assembly frame.
          * 
-         * @param id the frame identifier.
-         * @param version the frame's version.
+         * @param frameVersion the frame's identifier and version.
+         * @param id the current eye pass.
          * @return the frame.
          */
-        Frame* getFrame( const uint32_t id, const uint32_t version );
+        Frame* getFrame( const eqNet::ObjectVersion& frameVersion, 
+                         const Eye eye );
         //*}
 
         /** Wait for the pipe to be exited. */

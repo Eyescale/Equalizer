@@ -13,82 +13,83 @@ using namespace std;
 namespace eq
 {
 
-Frame::Frame( Pipe* pipe )
-        : _pipe( pipe ),
-          _eyePass( EYE_CYCLOP )
+Frame::Frame()
+        : _frameData( 0 )
 {
     setInstanceData( &_data, sizeof( Data ));
 }
 
-
-FrameData* Frame::_getData() const
-{
-    const eqNet::ObjectVersion& frameData = _data.frameData[ _eyePass ];
-    EQASSERT( frameData.objectID != EQ_ID_INVALID );
-
-    return _pipe->getNode()->getFrameData( frameData.objectID,
-                                           frameData.version ); 
-}
-
 uint32_t Frame::getBuffers() const
 {
-    return _getData()->getBuffers();
+    EQASSERT( _frameData );
+    return _frameData->getBuffers();
 }
 
 const Pixel& Frame::getPixel() const
 {
-    return _getData()->getPixel();
+    EQASSERT( _frameData );
+    return _frameData->getPixel();
 }
 
 const Range& Frame::getRange() const
 {
-    return _getData()->getRange();
+    EQASSERT( _frameData );
+    return _frameData->getRange();
 }
 
 const std::vector<Image*>& Frame::getImages() const
 {
-    return _getData()->getImages();
+    EQASSERT( _frameData );
+    return _frameData->getImages();
 }
 
 void Frame::startReadback() 
 {
-    _getData()->startReadback( *this );
+    EQASSERT( _frameData );
+    _frameData->startReadback( *this );
 }
 
 void Frame::syncReadback() 
 {
-    _getData()->syncReadback();
+    EQASSERT( _frameData );
+    _frameData->syncReadback();
 }
 
 void Frame::transmit( eqBase::RefPtr<eqNet::Node> toNode )
 {
-    _getData()->transmit( toNode );
+    EQASSERT( _frameData );
+    _frameData->transmit( toNode );
 }
 
 bool Frame::isReady() const
 {
-    return _getData()->isReady();
+    EQASSERT( _frameData );
+    return _frameData->isReady();
 }
 
 void Frame::waitReady() const
 {
-    _getData()->waitReady();
+    EQASSERT( _frameData );
+    _frameData->waitReady();
 }
 
 void Frame::disableBuffer( const Buffer buffer )
 {
-    _getData()->disableBuffer( buffer );
+    EQASSERT( _frameData );
+    _frameData->disableBuffer( buffer );
 }
 
 
 void Frame::addListener( eqBase::Monitor<uint32_t>& listener )
 {
-    _getData()->addListener( listener );
+    EQASSERT( _frameData );
+    _frameData->addListener( listener );
 }
 
 void Frame::removeListener( eqBase::Monitor<uint32_t>& listener )
 {
-    _getData()->removeListener( listener );
+    EQASSERT( _frameData );
+    _frameData->removeListener( listener );
 }
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
