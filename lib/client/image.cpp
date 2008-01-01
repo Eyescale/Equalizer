@@ -243,7 +243,7 @@ void Image::clearPixelData( const Frame::Buffer buffer )
         memset_pattern4( pixels.data, &one, size );
 #else
         const size_t nWords = (size >> 2) + 1;
-        float*       data   = pixels.data;
+        float*       data   = reinterpret_cast< float* >( pixels.data );
         for( size_t i =0; i < nWords; ++i )
             data[i] = 1.0f;
 #endif
