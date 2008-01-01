@@ -17,6 +17,7 @@
 
 #ifdef WIN32
 #  include <malloc.h>
+#  define bzero( ptr, size ) memset( ptr, 0, size );
 #else
 #  include <alloca.h>
 #endif

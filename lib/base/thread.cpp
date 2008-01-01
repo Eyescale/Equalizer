@@ -13,6 +13,7 @@
 
 #include <errno.h>
 #include <pthread.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -251,9 +252,9 @@ void Thread::removeListener( ExecutionListener* listener )
 {
     ScopedMutex< SpinLock > mutex( _listenerLock );
 
-    std::vector<ExecutionListener*>::iterator i = find( _listeners.begin(),
-                                                        _listeners.end(),
-                                                         listener );
+    std::vector<ExecutionListener*>::iterator i = std::find( _listeners.begin(),
+                                                             _listeners.end(),
+                                                             listener );
     if( i != _listeners.end( ))
         _listeners.erase( i );
 }

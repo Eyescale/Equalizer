@@ -27,7 +27,7 @@ namespace eq
      * A frame data holds multiple images and is used by frames.
      * It is not intended to be used directly by application code.
      */
-    class FrameData : public eqNet::Object
+    class EQ_EXPORT FrameData : public eqNet::Object
     {
     public:
         FrameData();
