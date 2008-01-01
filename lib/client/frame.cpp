@@ -19,6 +19,12 @@ Frame::Frame()
     setInstanceData( &_data, sizeof( Data ));
 }
 
+Frame::~Frame()
+{
+    if( _frameData )
+        EQINFO << "FrameData attached to frame during deletion" << endl;
+}
+
 uint32_t Frame::getBuffers() const
 {
     EQASSERT( _frameData );

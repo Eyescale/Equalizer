@@ -62,6 +62,9 @@ namespace eq
         /** @return a pointer to the raw pixel data. */
         const uint8_t* getPixelData( const Frame::Buffer buffer ) const
             { EQASSERT(hasPixelData(buffer)); return _getPixels( buffer ).data;}
+        uint8_t* getPixelData( const Frame::Buffer buffer )
+            { EQASSERT(hasPixelData(buffer)); return _getPixels( buffer ).data;}
+
         /** @return the size of the raw pixel data in bytes */
         uint32_t getPixelDataSize( const Frame::Buffer buffer ) const
             { return (_pvp.w * _pvp.h * getDepth( buffer )); }
@@ -90,12 +93,19 @@ namespace eq
         void setPixelViewport( const PixelViewport& pvp );
 
         /** 
+         * Clear (zero-initialize) and validate an image buffer.
+         * 
+         * @param buffer the image buffer to clear.
+         */
+        void clearPixelData( const Frame::Buffer buffer );
+
+        /** 
          * Set the pixel data of one of the image buffers.
          *
          * The data is copied, and previous data for the buffer is overwritten.
          * 
-         * @param buffer the image buffer to set
-         * @param data the buffer data of size pvp.w * pvp.h * depth
+         * @param buffer the image buffer to set.
+         * @param data the buffer data of size pvp.w * pvp.h * depth.
          */
         void setPixelData( const Frame::Buffer buffer, const uint8_t* data );
 

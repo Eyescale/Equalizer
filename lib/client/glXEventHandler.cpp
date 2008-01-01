@@ -20,7 +20,10 @@ using namespace std;
 
 namespace eq
 {
-static PerThread< eqNet::ConnectionSet*> _pipeConnections;
+namespace
+{
+static PerThread< eqNet::ConnectionSet* > _pipeConnections;
+}
 
 GLXEventHandler::GLXEventHandler( Pipe* pipe )
 {

@@ -60,6 +60,8 @@ uint32_t Image::getDepth( const Frame::Buffer buffer ) const
             break;
         
         default :
+            EQWARN << "Unknown number of components for format "
+                   << getFormat( buffer ) << " of buffer " << buffer << endl;
             EQUNIMPLEMENTED;
     }
 
@@ -223,6 +225,35 @@ void Image::setPixelViewport( const PixelViewport& pvp )
     _depthPixels.valid = false;
     _compressedColorPixels.valid = false;
     _compressedDepthPixels.valid = false;
+}
+
+void Image::clearPixelData( const Frame::Buffer buffer )
+{
+    const uint32_t size  = getPixelDataSize( buffer );
+    if( size == 0 )
+        return;
+    
+    Pixels& pixels = _getPixels( buffer );
+
+    pixels.resize( size );
+    if( buffer == Frame::BUFFER_DEPTH )
+    {
+#ifdef LEOPARD
+        const float one = 1.0f;
+        memset_pattern4( pixels.data, &one, size );
+#else
+        const size_t nWords = (size >> 2) + 1;
+        float*       data   = pixels.data;
+        for( size_t i =0; i < nWords; ++i )
+            data[i] = 1.0f;
+#endif
+
+    }
+    else
+        bzero( pixels.data, size );
+
+    CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
+    compressedPixels.valid = false;
 }
 
 void Image::setPixelData( const Frame::Buffer buffer, const uint8_t* data )

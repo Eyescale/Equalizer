@@ -104,14 +104,17 @@ void Thread::_runChild()
 
 void Thread::_notifyStarted()
 {
-    ScopedMutex< SpinLock > mutex( _listenerLock );
+    // make copy of vector so that listeners can add/remove listeners.
+    _listenerLock.set();
+    const std::vector<ExecutionListener*> listeners = _listeners;
+    _listenerLock.unset();
 
-    EQINFO << "Calling " << _listeners.size() << " thread started listeners"
+    EQINFO << "Calling " << listeners.size() << " thread started listeners"
            << endl;
-    for( vector<ExecutionListener*>::const_iterator iter = _listeners.begin();
-         iter != _listeners.end(); ++iter )
+    for( vector<ExecutionListener*>::const_iterator i = listeners.begin();
+         i != listeners.end(); ++i )
         
-        (*iter)->notifyExecutionStarted();
+        (*i)->notifyExecutionStarted();
 }
 
 void _notifyStopping( void* )
@@ -123,13 +126,17 @@ void Thread::_notifyStopping()
 {
     pthread_setspecific( _cleanupKey, NULL );
 
-    ScopedMutex< SpinLock > mutex( _listenerLock );
-    EQINFO << "Calling " << _listeners.size() << " thread stopping listeners"
+    // make copy of vector so that listeners can add/remove listeners.
+    _listenerLock.set();
+    const std::vector<ExecutionListener*> listeners = _listeners;
+    _listenerLock.unset();
+
+    EQINFO << "Calling " << listeners.size() << " thread stopping listeners"
            <<endl;
-    for( vector<ExecutionListener*>::const_iterator iter = _listeners.begin();
-         iter != _listeners.end(); ++iter )
+    for( vector<ExecutionListener*>::const_iterator i = listeners.begin();
+         i != listeners.end(); ++i )
         
-        (*iter)->notifyExecutionStopping();
+        (*i)->notifyExecutionStopping();
 }
 
 bool Thread::start()
@@ -238,6 +245,17 @@ void Thread::addListener( ExecutionListener* listener )
 {
     ScopedMutex< SpinLock > mutex( _listenerLock );
     _listeners.push_back( listener );
+}
+
+void Thread::removeListener( ExecutionListener* listener )
+{
+    ScopedMutex< SpinLock > mutex( _listenerLock );
+
+    std::vector<ExecutionListener*>::iterator i = find( _listeners.begin(),
+                                                        _listeners.end(),
+                                                         listener );
+    if( i != _listeners.end( ))
+        _listeners.erase( i );
 }
 
 std::ostream& operator << ( std::ostream& os, const Thread* thread )

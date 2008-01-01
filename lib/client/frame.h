@@ -47,7 +47,7 @@ namespace eq
          * Constructs a new Frame.
          */
         Frame();
-        virtual ~Frame(){}
+        virtual ~Frame();
 
         /**
          * @name Data Access
@@ -145,7 +145,7 @@ namespace eq
         friend class eqs::Frame;
         struct Data
         {
-            Data() : buffers( 0 ) {}
+            Data() : offset( vmml::Vector2i::ZERO ), buffers( 0 ) {}
 
             vmml::Vector2i       offset;
             uint32_t             buffers;

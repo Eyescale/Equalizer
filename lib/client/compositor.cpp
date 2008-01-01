@@ -11,6 +11,7 @@
 #include "statEvent.h"
 #include "windowSystem.h"
 
+#include <eq/base/executionListener.h>
 #include <eq/base/monitor.h>
 
 using eqBase::Monitor;
@@ -20,6 +21,29 @@ namespace eq
 {
 
 #define glewGetContext op.channel->glewGetContext
+
+namespace
+{
+// use to address one shader and program per shared context set
+static const char glslKey = 42;
+// Image used for CPU-based assembly
+static eqBase::PerThread< Image* > _resultImage;
+
+// Deletes the per-thread result image when a thread exits.
+class ImageDestructor : public eqBase::ExecutionListener
+{
+public:
+    virtual ~ImageDestructor() {}
+    virtual void notifyExecutionStopping()
+        {
+            Image* image = _resultImage.get();
+            _resultImage = 0;
+            delete image;
+        }
+};
+
+static  ImageDestructor _imageDestructor;
+}
 
 void Compositor::assembleFrames( const vector<Frame*>& frames, Channel* channel)
 {
@@ -31,9 +55,8 @@ void Compositor::assembleFrames( const vector<Frame*>& frames, Channel* channel)
     // available, it increments the monitor which causes this code to wake up
     // and assemble it.
 
-    Monitor<uint32_t>     monitor;
-
     // register monitor with all input frames
+    Monitor<uint32_t> monitor;
     for( vector<Frame*>::const_iterator i = frames.begin();
          i != frames.end(); ++i )
     {
@@ -75,6 +98,192 @@ void Compositor::assembleFrames( const vector<Frame*>& frames, Channel* channel)
     }
 }
 
+void Compositor::assembleFramesCPU( const vector< Frame* >& frames,
+                                    Channel* channel )
+{
+    // Assembles images from DB and 2D compounds using the CPU and then
+    // assembles the result image. Does not yet support Pixel or Eye
+    // compounds. The result image has to be fully filled.
+
+    // collect and categorize input images
+    vector< FrameImage > imagesDB;
+    vector< FrameImage > images2D;
+    PixelViewport        resultPVP;
+
+    for( vector< Frame* >::const_iterator i = frames.begin();
+         i != frames.end(); ++i )
+    {
+        Frame* frame = *i;
+        frame->waitReady();
+
+        const vector< Image* >& images = frame->getImages();        
+        for( vector< Image* >::const_iterator j = images.begin(); 
+             j != images.end(); ++j )
+        {
+            const Image* image = *j;
+            EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
+
+            resultPVP.merge( image->getPixelViewport() + frame->getOffset( ));
+
+            if( image->hasPixelData( Frame::BUFFER_DEPTH ))
+                imagesDB.push_back( FrameImage( frame, image ));
+            else
+                images2D.push_back( FrameImage( frame, image ));
+        }
+    }
+
+    if( !resultPVP.hasArea( ))
+    {
+        EQWARN << "Nothing to assemble" << endl;
+        return;
+    }
+
+    // prepare output image
+    Image* result = _resultImage.get();
+    if( !result )
+    {
+        eqBase::Thread::addListener( &_imageDestructor );
+
+        result       = new Image;
+        _resultImage = result;
+    }
+
+    result->setPixelViewport( resultPVP );
+    result->clearPixelData( Frame::BUFFER_COLOR );
+    if( !imagesDB.empty( ))
+        result->clearPixelData( Frame::BUFFER_DEPTH );
+
+    // assembly
+    _assembleDBImages( result, imagesDB );
+    _assemble2DImages( result, images2D );
+
+    // assemble result on dest channel
+    ImageOp operation;
+    operation.channel = channel;
+    operation.buffers = Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH;
+    assembleImage( result, operation );
+
+#if 0
+    static uint32_t counter = 0;
+    ostringstream stringstream;
+    stringstream << "Image_" << ++counter;
+    result->writeImages( stringstream.str( ));
+#endif
+}
+
+
+void Compositor::_assembleDBImages( Image* result, 
+                                    const vector< FrameImage >& images )
+{
+    const eq::PixelViewport resultPVP = result->getPixelViewport();
+
+    for( vector< FrameImage >::const_iterator i = images.begin();
+         i != images.end(); ++i )
+    {
+        const Frame*          frame  = i->first;
+        const Image*          image  = i->second;
+        const vmml::Vector2i& offset = frame->getOffset();
+        const PixelViewport&  pvp    = image->getPixelViewport();
+        const int32_t         destX  = offset.x + pvp.x - resultPVP.x;
+        const int32_t         destY  = offset.y + pvp.y - resultPVP.y;
+
+        EQASSERT( image->getDepth( Frame::BUFFER_COLOR ) == 4 );
+        EQASSERT( image->getDepth( Frame::BUFFER_DEPTH ) == 4 );
+        EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
+        EQASSERT( image->hasPixelData( Frame::BUFFER_DEPTH ));
+        EQASSERT( image->getFormat( Frame::BUFFER_COLOR ) ==
+                  result->getFormat( Frame::BUFFER_COLOR ));
+        EQASSERT( image->getType( Frame::BUFFER_COLOR ) ==
+                  result->getType( Frame::BUFFER_COLOR ));
+        EQASSERT( image->getFormat( Frame::BUFFER_DEPTH ) ==
+                  result->getFormat( Frame::BUFFER_DEPTH ));
+        EQASSERT( image->getType( Frame::BUFFER_DEPTH ) ==
+                  result->getType( Frame::BUFFER_DEPTH ));
+
+        const int32_t* color = reinterpret_cast< const int32_t* >
+            ( image->getPixelData( Frame::BUFFER_COLOR ));
+        const float*   depth = reinterpret_cast< const float* >
+            ( image->getPixelData( Frame::BUFFER_DEPTH ));
+
+        int32_t* destColor = reinterpret_cast< int32_t* >
+            ( result->getPixelData( Frame::BUFFER_COLOR ));
+        float*   destDepth = reinterpret_cast< float* >
+            ( result->getPixelData( Frame::BUFFER_DEPTH ));
+
+// This crashes in OpenMP when compiled with g++-4.2 !?
+//#  pragma omp parallel for
+        for( int32_t y = 0; y < pvp.h; ++y )
+        {
+            const uint32_t skip =  (destY + y) * resultPVP.w + destX;
+            EQASSERT( skip * sizeof( int32_t ) <= 
+                      result->getPixelDataSize( Frame::BUFFER_COLOR ));
+            EQASSERT( skip * sizeof( float ) <= 
+                      result->getPixelDataSize( Frame::BUFFER_DEPTH ));
+
+            int32_t*   destColorIt = destColor + skip;
+            float*     destDepthIt = destDepth + skip;
+            const int32_t* colorIt = color + y * pvp.w;
+            const float*   depthIt = depth + y * pvp.w;
+
+            for( int32_t x = 0; x < pvp.w; ++x )
+            {
+                if( *destDepthIt > *depthIt )
+                {
+                    *destColorIt = *colorIt;
+                    *destDepthIt = *depthIt;
+                }
+
+                ++destColorIt;
+                ++destDepthIt;
+                ++colorIt;
+                ++depthIt;
+            }
+        }
+    }
+}
+
+void Compositor::_assemble2DImages( Image* result, 
+                                    const vector< FrameImage >& images )
+{
+    // This is in large part copy&paste code from _assembleDBImages :-/
+
+    const eq::PixelViewport resultPVP = result->getPixelViewport();
+
+    for( vector< FrameImage >::const_iterator i = images.begin();
+         i != images.end(); ++i )
+    {
+        const Frame*          frame  = i->first;
+        const Image*          image  = i->second;
+        const vmml::Vector2i& offset = frame->getOffset();
+        const PixelViewport&  pvp    = image->getPixelViewport();
+        const int32_t         destX  = offset.x + pvp.x - resultPVP.x;
+        const int32_t         destY  = offset.y + pvp.y - resultPVP.y;
+
+        EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
+        EQASSERT( image->getFormat( Frame::BUFFER_COLOR ) ==
+                  result->getFormat( Frame::BUFFER_COLOR ));
+        EQASSERT( image->getType( Frame::BUFFER_COLOR ) ==
+                  result->getType( Frame::BUFFER_COLOR ));
+
+        uint8_t*     destColor = result->getPixelData( Frame::BUFFER_COLOR );
+        const uint8_t*   color = image->getPixelData( Frame::BUFFER_COLOR );
+        const size_t pixelSize = image->getDepth( Frame::BUFFER_COLOR );
+        const size_t rowLength = pvp.w * pixelSize;
+
+// This crashes in OpenMP when compiled with g++-4.2 !?
+//#  pragma omp parallel for
+        for( int32_t y = 0; y < pvp.h; ++y )
+        {
+            const size_t skip = ( (destY + y) * resultPVP.w + destX ) *
+                                    pixelSize;
+            EQASSERT( skip + rowLength <= 
+                      result->getPixelDataSize( Frame::BUFFER_COLOR ));
+            
+            memcpy( destColor + skip, color + y * pvp.w * pixelSize, rowLength);
+        }
+    }
+}
+
 void Compositor::assembleFramesSorted( const vector<Frame*>& frames,
                                        Channel* channel )
 {
@@ -99,7 +308,7 @@ void Compositor::assembleFrame( const Frame* frame, Channel* channel )
     operation.offset  = frame->getOffset();
     operation.pixel   = frame->getPixel();
 
-    for( vector<Image*>::const_iterator i = images.begin(); 
+    for( vector< Image* >::const_iterator i = images.begin(); 
          i != images.end(); ++i )
     {
         const Image* image = *i;
@@ -124,7 +333,7 @@ void Compositor::assembleImage( const Image* image, const ImageOp& op )
 
     if( operation.buffers == Frame::BUFFER_NONE )
     {
-        EQWARN << "No image attachement buffers to assemble" << endl;
+        EQWARN << "No image attachment buffers to assemble" << endl;
         return;
     }
 
@@ -246,12 +455,6 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
                   image->getPixelData( Frame::BUFFER_COLOR ));
 
     glDisable( GL_STENCIL_TEST );
-}
-
-namespace
-{
-// use one shader and program per shared context set
-static const char glslKey = 42;
 }
 
 void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )

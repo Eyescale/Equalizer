@@ -34,12 +34,12 @@ FrameData::~FrameData()
 
 void FrameData::applyInstanceData( eqNet::DataIStream& is )
 { 
-    _clear();
+    clear();
     eqNet::Object::applyInstanceData( is ); 
     getLocalNode()->flushCommands(); // process rescheduled transmit packets
 }
 
-void FrameData::_clear()
+void FrameData::clear()
 {
     EQASSERT( _listeners.empty( ));
 
@@ -52,7 +52,7 @@ void FrameData::_clear()
 
 void FrameData::flush()
 {
-    _clear();
+    clear();
 
     for( vector<Image*>::const_iterator i = _imageCache.begin();
          i != _imageCache.end(); ++i )

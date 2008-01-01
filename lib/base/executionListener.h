@@ -21,12 +21,12 @@ namespace eqBase
         /**
          * Notify that a new execution unit started.
          */
-        virtual void notifyExecutionStarted(){};
+        virtual void notifyExecutionStarted() {}
 
         /**
          * Notify that the execution unit is about to stop.
          */
-        virtual void notifyExecutionStopping(){};        
+        virtual void notifyExecutionStopping() {}
     };
 }
 

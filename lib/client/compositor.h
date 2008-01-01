@@ -23,10 +23,14 @@ namespace eq
     public:
         struct ImageOp
         {
+            ImageOp() : channel( 0 ), buffers( 0 )
+                      , offset( vmml::Vector2i::ZERO ), useCPU( false ) {}
+
             Channel*       channel;
             uint32_t       buffers;
             vmml::Vector2i offset;
             Pixel          pixel;
+            bool           useCPU;
         };
 
         /** @name Frame-based operations. */
@@ -49,7 +53,17 @@ namespace eq
         static void assembleFramesSorted( const std::vector< Frame* >& frames,
                                           Channel* channel );
 
-        /** Start assembling a frame using the default algorithm. */
+        /** 
+         * Assemble all frames in arbitrary order using the CPU before
+         * assembling the result on the destination channel.
+         *
+         * @param frames the frames to assemble.
+         * @param channel the destination channel.
+         */
+        static void assembleFramesCPU( const std::vector< Frame* >& frames,
+                                       Channel* channel );
+
+        /** Assemble a frame using the default algorithm. */
         static void assembleFrame( const Frame* frame, Channel* channel );
         //*}
 
@@ -94,6 +108,14 @@ namespace eq
                                           const ImageOp& op );
         //*}
                                         
+      private:
+        typedef std::pair< const Frame*, const Image* > FrameImage;
+
+        static void _assembleDBImages( Image* result,
+                                       const std::vector< FrameImage >& images);
+        static void _assemble2DImages( Image* result,
+                                       const std::vector< FrameImage >& images);
+
     };
 }
 

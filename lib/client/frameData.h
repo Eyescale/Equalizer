@@ -65,6 +65,9 @@ namespace eq
          */
         Image* newImage();
 
+        /** Clear the frame by recycling the attached images. */
+        void clear();
+
         /** 
          * Read back a set of images according to the current frame data.
          * 
@@ -127,6 +130,9 @@ namespace eq
     private:
         struct Data
         {
+            Data() : offset( vmml::Vector2i::ZERO ), buffers( 0 ), format( 0 )
+                   , type( 0 ) {}
+
             PixelViewport  pvp;
             vmml::Vector2i offset;
             uint32_t       buffers;
@@ -159,8 +165,6 @@ namespace eq
         /** External monitors for readyness synchronization. */
         std::vector< eqBase::Monitor<uint32_t>* > _listeners;
         eqBase::Lock                              _listenersMutex;
-        /** Clear the frame by recycling the attached images. */
-        void _clear();
 
         /** Allocate or reuse a new image. */
         Image* _allocImage();
