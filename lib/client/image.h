@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_IMAGE_H
@@ -31,6 +31,9 @@ namespace eq
         //*{
         /** @return the fractional viewport of the image. */
         const eq::Viewport& getViewport() const { return _data.vp; }
+
+        /** Reset the image to its default state. */
+        void reset();
 
         /** 
          * Set the (OpenGL) format of the pixel data for a buffer.

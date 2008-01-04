@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "image.h"
@@ -29,14 +29,21 @@ namespace eq
 
 Image::Image()
 {
-    _colorPixels.format = GL_BGRA;
-    _colorPixels.type   = GL_UNSIGNED_BYTE;
-    _depthPixels.format = GL_DEPTH_COMPONENT;
-    _depthPixels.type   = GL_FLOAT;
+    reset();
 }
 
 Image::~Image()
 {
+}
+
+void Image::reset()
+{
+    _colorPixels.format = GL_BGRA;
+    _colorPixels.type   = GL_UNSIGNED_BYTE;
+    _depthPixels.format = GL_DEPTH_COMPONENT;
+    _depthPixels.type   = GL_FLOAT;
+
+    setPixelViewport( PixelViewport( ));
 }
 
 uint32_t Image::getDepth( const Frame::Buffer buffer ) const

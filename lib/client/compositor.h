@@ -45,7 +45,7 @@ namespace eq
                                     Channel* channel );
 
         /** 
-         * Assemble all frames in arbitrary order using the default algorithm.
+         * Assemble all frames in the given order using the default algorithm.
          *
          * @param frames the frames to assemble.
          * @param channel the destination channel.
@@ -54,8 +54,17 @@ namespace eq
                                           Channel* channel );
 
         /** 
+         * Assemble all frames in the order they become available using the GPU.
+         *
+         * @param frames the frames to assemble.
+         * @param channel the destination channel.
+         */
+        static void assembleFramesUnsorted( const std::vector< Frame* >& frames,
+                                            Channel* channel );
+
+        /** 
          * Assemble all frames in arbitrary order using the CPU before
-         * assembling the result on the destination channel.
+         * assembling the result on the destination channel, using the GPU.
          *
          * @param frames the frames to assemble.
          * @param channel the destination channel.

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include <pthread.h>
@@ -46,10 +46,93 @@ public:
 };
 
 static  ImageDestructor _imageDestructor;
+
+
+static bool _useCPUAssembly( const vector< Frame* >& frames )
+{
+    // It doesn't make sense to use CPU-assembly for only one frame
+    if( frames.size() < 2 )
+        return false;
+
+    // Test that at least two input frames have color and depth buffers. We
+    // assume then that we will have at least one color&depth image per frame so
+    // most likely it's worth to wait for the images and to do a CPU-based
+    // assembly.
+    size_t nFrames = 0;
+    for( vector< Frame* >::const_iterator i = frames.begin();
+         i != frames.end(); ++i )
+    {
+        const Frame* frame = *i;
+        if( frame->getPixel() != Pixel::ALL ) // Not supported yet on the CPU
+            return false;
+
+        if( frame->getBuffers() == (Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH ))
+            ++nFrames;
+    }
+
+    if( nFrames < 2 )
+        return false;
+
+    // Now wait for all images to be ready and test if our assumption was
+    // correct, that there are enough images to make a CPU-based assembly
+    // worthwhile and all other preconditions for our current CPU-based assembly
+    // code are true.
+    size_t nImages = 0;
+
+    for( vector< Frame* >::const_iterator i = frames.begin();
+         i != frames.end(); ++i )
+    {
+        const Frame* frame = *i;
+        frame->waitReady();
+
+        const vector< Image* >& images = frame->getImages();        
+        for( vector< Image* >::const_iterator j = images.begin(); 
+             j != images.end(); ++j )
+        {
+            const Image* image = *j;
+
+            if( image->hasPixelData( Frame::BUFFER_COLOR ) &&
+                image->hasPixelData( Frame::BUFFER_DEPTH ))
+
+                ++nImages;
+        }
+    }
+
+    return (nImages > 1);
+}
 }
 
-void Compositor::assembleFrames( const vector<Frame*>& frames, Channel* channel)
+void Compositor::assembleFrames( const vector< Frame* >& frames,
+                                 Channel* channel )
 {
+    if( _useCPUAssembly( frames ))
+        assembleFramesCPU( frames, channel );
+    else
+        assembleFramesUnsorted( frames, channel );
+}
+
+void Compositor::assembleFramesSorted( const vector< Frame* >& frames,
+                                       Channel* channel )
+{
+    if( _useCPUAssembly( frames ))
+    {
+        assembleFramesCPU( frames, channel );
+        return;
+    }
+
+    for( vector< Frame* >::const_iterator i = frames.begin();
+         i != frames.end(); ++i )
+    {
+        Frame* frame = *i;
+        frame->waitReady( );
+        assembleFrame( frame, channel );
+    }
+}
+
+void Compositor::assembleFramesUnsorted( const vector< Frame* >& frames, 
+                                         Channel* channel )
+{
+    EQVERB << "Unsorted GPU assembly" << endl;
     // This is an optimized assembly version. The frames are not assembled in
     // the saved order, but in the order they become available, which is faster
     // because less time is spent waiting on frame availability.
@@ -60,7 +143,7 @@ void Compositor::assembleFrames( const vector<Frame*>& frames, Channel* channel)
 
     // register monitor with all input frames
     Monitor<uint32_t> monitor;
-    for( vector<Frame*>::const_iterator i = frames.begin();
+    for( vector< Frame* >::const_iterator i = frames.begin();
          i != frames.end(); ++i )
     {
         Frame* frame = *i;
@@ -68,7 +151,7 @@ void Compositor::assembleFrames( const vector<Frame*>& frames, Channel* channel)
     }
 
     uint32_t       nUsedFrames  = 0;
-    vector<Frame*> unusedFrames = frames;
+    vector< Frame* > unusedFrames = frames;
 
     // wait and assemble frames
     while( !unusedFrames.empty( ))
@@ -78,7 +161,7 @@ void Compositor::assembleFrames( const vector<Frame*>& frames, Channel* channel)
             monitor.waitGE( ++nUsedFrames );
         }
 
-        for( vector<Frame*>::iterator i = unusedFrames.begin();
+        for( vector< Frame* >::iterator i = unusedFrames.begin();
              i != unusedFrames.end(); ++i )
         {
             Frame* frame = *i;
@@ -92,7 +175,7 @@ void Compositor::assembleFrames( const vector<Frame*>& frames, Channel* channel)
     }
 
     // de-register the monitor
-    for( vector<Frame*>::const_iterator i = frames.begin(); i != frames.end();
+    for( vector< Frame* >::const_iterator i = frames.begin(); i != frames.end();
          ++i )
     {
         Frame* frame = *i;
@@ -104,6 +187,7 @@ void Compositor::assembleFrames( const vector<Frame*>& frames, Channel* channel)
 void Compositor::assembleFramesCPU( const vector< Frame* >& frames,
                                     Channel* channel )
 {
+    EQVERB << "Sorted CPU assembly" << endl;
     // Assembles images from DB and 2D compounds using the CPU and then
     // assembles the result image. Does not yet support Pixel or Eye
     // compounds. The result image has to be fully filled.
@@ -118,6 +202,9 @@ void Compositor::assembleFramesCPU( const vector< Frame* >& frames,
     {
         Frame* frame = *i;
         frame->waitReady();
+
+        EQASSERTINFO( frame->getPixel() == Pixel::ALL,
+                      "CPU-based pixel recomposition not implemented" );
 
         const vector< Image* >& images = frame->getImages();        
         for( vector< Image* >::const_iterator j = images.begin(); 
@@ -178,7 +265,14 @@ void Compositor::assembleFramesCPU( const vector< Frame* >& frames,
 void Compositor::_assembleDBImages( Image* result, 
                                     const vector< FrameImage >& images )
 {
+    if( images.empty( ))
+        return;
+
     const eq::PixelViewport resultPVP = result->getPixelViewport();
+    int32_t* destColor = reinterpret_cast< int32_t* >
+        ( result->getPixelData( Frame::BUFFER_COLOR ));
+    float*   destDepth = reinterpret_cast< float* >
+        ( result->getPixelData( Frame::BUFFER_DEPTH ));
 
     for( vector< FrameImage >::const_iterator i = images.begin();
          i != images.end(); ++i )
@@ -207,11 +301,6 @@ void Compositor::_assembleDBImages( Image* result,
             ( image->getPixelData( Frame::BUFFER_COLOR ));
         const float*   depth = reinterpret_cast< const float* >
             ( image->getPixelData( Frame::BUFFER_DEPTH ));
-
-        int32_t* destColor = reinterpret_cast< int32_t* >
-            ( result->getPixelData( Frame::BUFFER_COLOR ));
-        float*   destDepth = reinterpret_cast< float* >
-            ( result->getPixelData( Frame::BUFFER_DEPTH ));
 
 // This crashes in OpenMP when compiled with g++-4.2 !?
 //#  pragma omp parallel for
@@ -249,8 +338,12 @@ void Compositor::_assemble2DImages( Image* result,
                                     const vector< FrameImage >& images )
 {
     // This is in large part copy&paste code from _assembleDBImages :-/
-
+    
     const eq::PixelViewport resultPVP = result->getPixelViewport();
+    uint8_t* destColor = result->getPixelData( Frame::BUFFER_COLOR );
+    uint8_t* destDepth = result->hasPixelData( Frame::BUFFER_DEPTH ) ?
+        reinterpret_cast< uint8_t* >(result->getPixelData( Frame::BUFFER_DEPTH))
+        : 0;
 
     for( vector< FrameImage >::const_iterator i = images.begin();
          i != images.end(); ++i )
@@ -268,7 +361,6 @@ void Compositor::_assemble2DImages( Image* result,
         EQASSERT( image->getType( Frame::BUFFER_COLOR ) ==
                   result->getType( Frame::BUFFER_COLOR ));
 
-        uint8_t*     destColor = result->getPixelData( Frame::BUFFER_COLOR );
         const uint8_t*   color = image->getPixelData( Frame::BUFFER_COLOR );
         const size_t pixelSize = image->getDepth( Frame::BUFFER_COLOR );
         const size_t rowLength = pvp.w * pixelSize;
@@ -283,19 +375,12 @@ void Compositor::_assemble2DImages( Image* result,
                       result->getPixelDataSize( Frame::BUFFER_COLOR ));
             
             memcpy( destColor + skip, color + y * pvp.w * pixelSize, rowLength);
+            if( destDepth )
+            {
+                EQASSERT( pixelSize == image->getDepth( Frame::BUFFER_DEPTH ));
+                bzero( destDepth + skip, rowLength );
+            }
         }
-    }
-}
-
-void Compositor::assembleFramesSorted( const vector<Frame*>& frames,
-                                       Channel* channel )
-{
-    for( vector<Frame*>::const_iterator i = frames.begin();
-         i != frames.end(); ++i )
-    {
-        Frame* frame = *i;
-        frame->waitReady( );
-        assembleFrame( frame, channel );
     }
 }
 

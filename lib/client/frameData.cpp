@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "frameData.h"
@@ -79,6 +79,7 @@ Image* FrameData::_allocImage()
     else
     {
         image = _imageCache.back();
+        image->reset();
         _imageCache.pop_back();
     }
 
