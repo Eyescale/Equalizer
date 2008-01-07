@@ -17,6 +17,10 @@
 #include <eq/base/executionListener.h>
 #include <eq/base/monitor.h>
 
+#ifdef WIN32
+#  define bzero( ptr, size ) memset( ptr, 0, size );
+#endif
+
 using eqBase::Monitor;
 using namespace std;
 
