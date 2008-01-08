@@ -19,6 +19,7 @@ using namespace mesh;
 
 /*  Contructor.  */
 VertexData::VertexData()
+    : _invertFaces( false )
 {
     _boundingBox[0] = Vertex( 0.0f );
     _boundingBox[1] = Vertex( 0.0f );
@@ -97,6 +98,8 @@ void VertexData::readTriangles( PlyFile* file, const int nFaces )
     triangles.reserve( nFaces );
     
     // read in the faces, asserting that they are only triangles
+    uint8_t ind1 = _invertFaces ? 2 : 0;
+    uint8_t ind3 = _invertFaces ? 0 : 2;
     for( int i = 0; i < nFaces; ++i )
     {
         ply_get_element( file, static_cast< void* >( &face ) );
@@ -107,9 +110,9 @@ void VertexData::readTriangles( PlyFile* file, const int nFaces )
             throw MeshException( "Error reading PLY file. Encountered a "
                                  "face which does not have three vertices." );
         }
-        triangles.push_back( Triangle( face.vertices[0], 
+        triangles.push_back( Triangle( face.vertices[ind1], 
                                        face.vertices[1],
-                                       face.vertices[2] ) );
+                                       face.vertices[ind3] ) );
         
         // free the memory that was allocated by ply_get_element
         free( face.vertices );

@@ -23,6 +23,7 @@ InitData::InitData()
         , _windowSystem( eq::WINDOW_SYSTEM_NONE )
         , _useVBOs( false )
         , _useGLSL( false )
+        , _invFaces( false )
 #ifdef WIN32_VC
         , _filename( "../examples/eqPly/rockerArm.ply" )
 #else
@@ -37,12 +38,14 @@ InitData::~InitData()
 
 void InitData::getInstanceData( eqNet::DataOStream& os )
 {
-    os << _frameDataID << _windowSystem << _useVBOs << _useGLSL << _filename;
+    os << _frameDataID << _windowSystem << _useVBOs << _useGLSL << _invFaces 
+       << _filename;
 }
 
 void InitData::applyInstanceData( eqNet::DataIStream& is )
 {
-    is >> _frameDataID >> _windowSystem >> _useVBOs >> _useGLSL >> _filename;
+    is >> _frameDataID >> _windowSystem >> _useVBOs >> _useGLSL >> _invFaces 
+       >> _filename;
 
     EQASSERT( _frameDataID != EQ_ID_INVALID );
     EQINFO << "New InitData instance" << endl;

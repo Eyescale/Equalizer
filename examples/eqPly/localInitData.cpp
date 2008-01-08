@@ -37,7 +37,9 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     if( from.useVBOs( )) 
         enableVBOs();
     if( from.useGLSL( )) 
-      enableGLSL();
+        enableGLSL();
+    if( from.useInvertedFaces( )) 
+        enableInvertedFaces();
     return *this;
 }
 
@@ -79,6 +81,9 @@ void LocalInitData::parseArguments( const int argc, char** argv )
                                  command, false );
         TCLAP::SwitchArg glslArg( "g", "glsl", "Enable GLSL shaders", 
                                     command, false );
+        TCLAP::SwitchArg invFacesArg( "i", "iface",
+            "Invert faces (valid during binary file creation)", 
+                                    command, false );
         
         command.parse( argc, argv );
 
@@ -112,6 +117,8 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             enableVBOs();
         if( glslArg.isSet() )
             enableGLSL();
+        if( invFacesArg.isSet() )
+            enableInvertedFaces();
     }
     catch( TCLAP::ArgException& exception )
     {

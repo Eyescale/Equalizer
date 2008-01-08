@@ -19,6 +19,10 @@ bool Node::configInit( const uint32_t initID )
     EQINFO << "Loading model " << filename << endl;
 
     _model = new Model();
+
+    if( _initData.useInvertedFaces() )
+        _model->useInvertedFaces();
+
     if ( !_model->readFromFile( filename.c_str() ) )
     {
         EQWARN << "Can't load model: " << filename << endl;

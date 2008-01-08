@@ -23,6 +23,8 @@ namespace mesh
     class VertexBufferRoot : public VertexBufferNode
     {
     public:
+        VertexBufferRoot() : VertexBufferNode(), _invertFaces(false) {}
+
         virtual void render( VertexBufferState& state ) const;
         
         void beginRendering( VertexBufferState& state ) const;
@@ -32,7 +34,9 @@ namespace mesh
         bool writeToFile( const char* filename );
         bool readFromFile( const char* filename );
         bool hasColors() const { return _data.colors.size() > 0; }
-        
+
+        void useInvertedFaces() { _invertFaces = true; }
+
     protected:
         virtual void toStream( std::ostream& os );
         virtual void fromMemory( char* start );
@@ -42,6 +46,8 @@ namespace mesh
         bool _readBinary( const char* filename );
         
         VertexBufferData _data;
+
+        bool _invertFaces;
     };
     
     

@@ -119,6 +119,8 @@ bool VertexBufferRoot::_constructFromPly( const char* filename )
     MESHINFO << "Constructing new from PLY file." << endl;
     
     VertexData data;
+    if( _invertFaces )
+        data.useInvertedFaces();
     if( !data.readPlyFile( filename ) )
     {
         MESHERROR << "Unable to load PLY file." << endl;
