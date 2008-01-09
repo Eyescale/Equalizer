@@ -36,6 +36,7 @@ void ConnectionDescription::serialize( std::ostream& os ) const
     }        
 
     os << SEPARATOR << bandwidthKBS << SEPARATOR << _launchCommand 
+       << SEPARATOR << static_cast<int>( launchCommandQuote )
        << SEPARATOR << launchTimeout << SEPARATOR << _hostname ;
     
     switch( type )
@@ -117,6 +118,13 @@ bool ConnectionDescription::fromString( string& data )
             goto error;
         _launchCommand = data.substr( 0, nextPos );
         data           = data.substr( nextPos + 1 );
+
+        nextPos = data.find( SEPARATOR );
+        if( nextPos == string::npos )
+            goto error;
+        const string quoteStr = data.substr( 0, nextPos );
+        launchCommandQuote = static_cast< char >( atoi( quoteStr.c_str( )));
+        data               = data.substr( nextPos + 1 );
 
         nextPos = data.find( SEPARATOR );
         if( nextPos == string::npos )

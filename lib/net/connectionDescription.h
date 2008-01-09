@@ -21,9 +21,10 @@ namespace eqNet
     {
     public:
         ConnectionDescription() 
-                : type( CONNECTIONTYPE_TCPIP ),
-                  bandwidthKBS( 0 ),
-                  launchTimeout( 10000 )
+                : type( CONNECTIONTYPE_TCPIP )
+                , bandwidthKBS( 0 )
+                , launchTimeout( 10000 )
+                , launchCommandQuote( '\'' )
             {
                 TCPIP.port = 0;
             }
@@ -52,6 +53,9 @@ namespace eqNet
             } TCPIP, SDP;
         };
 
+        /** The character to quote the launch command arguments */
+        char launchCommandQuote;
+
         /** @return this description as a string. */
         std::string toString() const;
         void serialize( std::ostream& os ) const;
@@ -67,7 +71,10 @@ namespace eqNet
          */
         bool fromString( std::string& data );
 
-        /** @name Data Access */
+        /** @name Data Access
+         *
+         * std::strings are not public because of DLL allocation issues.
+         */
         //*{
         void setHostname( const std::string& hostname );
         const std::string& getHostname() const;

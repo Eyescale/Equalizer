@@ -13,9 +13,13 @@ using namespace eqBase;
 using namespace std;
 
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_CONNECTION_") + #attr )
+
 std::string ConnectionDescription::_sAttributeStrings[SATTR_ALL] = {
     MAKE_ATTR_STRING( SATTR_HOSTNAME ),
     MAKE_ATTR_STRING( SATTR_LAUNCH_COMMAND )
+};
+std::string ConnectionDescription::_cAttributeStrings[CATTR_ALL] = {
+    MAKE_ATTR_STRING( CATTR_LAUNCH_COMMAND_QUOTE ),
 };
 std::string ConnectionDescription::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_TYPE ),
@@ -29,6 +33,9 @@ ConnectionDescription::ConnectionDescription()
 
     setHostname( global->getConnectionSAttribute( SATTR_HOSTNAME ));
     setLaunchCommand( global->getConnectionSAttribute( SATTR_LAUNCH_COMMAND ));
+
+    launchCommandQuote = global->getConnectionCAttribute( 
+                             CATTR_LAUNCH_COMMAND_QUOTE );
 
     launchTimeout  = global->getConnectionIAttribute( IATTR_LAUNCH_TIMEOUT );
     type           = (eqNet::ConnectionType)global->
@@ -55,7 +62,7 @@ std::ostream& eqs::operator << ( std::ostream& os,
 
     if( desc->type != global->getConnectionIAttribute( 
             eqs::ConnectionDescription::IATTR_TYPE ))
-        os << "type       " 
+        os << "type          " 
            << ( desc->type == eqNet::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
                 desc->type == eqNet::CONNECTIONTYPE_SDP   ? "SDP" : 
                 desc->type == eqNet::CONNECTIONTYPE_PIPE  ? "PIPE" :
@@ -63,19 +70,23 @@ std::ostream& eqs::operator << ( std::ostream& os,
     
     if( desc->TCPIP.port != global->getConnectionIAttribute( 
             eqs::ConnectionDescription::IATTR_TCPIP_PORT ))
-        os << "TCPIP_port " << desc->TCPIP.port << endl;
+        os << "TCPIP_port    " << desc->TCPIP.port << endl;
 
     if( desc->launchTimeout != global->getConnectionIAttribute( 
             eqs::ConnectionDescription::IATTR_LAUNCH_TIMEOUT ))
-        os << "timeout    " << desc->launchTimeout << endl;
+        os << "timeout       " << desc->launchTimeout << endl;
 
     if( desc->getHostname() != global->getConnectionSAttribute( 
             eqs::ConnectionDescription::SATTR_HOSTNAME ))
-        os << "hostname   \"" << desc->getHostname() << "\"" << endl;
+        os << "hostname      \"" << desc->getHostname() << "\"" << endl;
 
     if( desc->getLaunchCommand() != global->getConnectionSAttribute( 
             eqs::ConnectionDescription::SATTR_LAUNCH_COMMAND ))
-        os << "command    \"" << desc->getLaunchCommand() << "\"" << endl;
+        os << "command       \"" << desc->getLaunchCommand() << "\"" << endl;
+    
+    if( desc->launchCommandQuote != global->getConnectionCAttribute( 
+            eqs::ConnectionDescription::CATTR_LAUNCH_COMMAND_QUOTE ))
+        os << "command_quote '" << desc->launchCommandQuote << "'" << endl;
     
     os << exdent << "}" << enableFlush << endl;
 

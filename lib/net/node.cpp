@@ -1334,6 +1334,8 @@ string Node::_createLaunchCommand( RefPtr<Node> node,
 {
     const string& launchCommand    = description->getLaunchCommand();
     const size_t  launchCommandLen = launchCommand.size();
+    const char    quote            = description->launchCommandQuote;
+
     bool          commandFound     = false;
     size_t        lastPos          = 0;
     string        result;
@@ -1347,7 +1349,7 @@ string Node::_createLaunchCommand( RefPtr<Node> node,
         {
             case 'c':
             {
-                replacement << _createRemoteCommand( node );
+                replacement << _createRemoteCommand( node, quote );
                 commandFound = true;
                 break;
             }
@@ -1374,13 +1376,13 @@ string Node::_createLaunchCommand( RefPtr<Node> node,
     result += launchCommand.substr( lastPos, launchCommandLen-lastPos );
 
     if( !commandFound )
-        result += " " + _createRemoteCommand( node );
+        result += " " + _createRemoteCommand( node, quote );
 
     EQINFO << "Launch command: " << result << endl;
     return result;
 }
 
-string Node::_createRemoteCommand( RefPtr<Node> node )
+string Node::_createRemoteCommand( RefPtr<Node> node, const char quote )
 {
     if( getState() != STATE_LISTENING )
     {
@@ -1430,10 +1432,10 @@ string Node::_createRemoteCommand( RefPtr<Node> node )
 #endif
 
     stringStream
-        << "\"'" << program << "' -- --eq-client '" << remoteData
-        << node->_launchID << SEPARATOR << node->_workDir << SEPARATOR 
-        << node->_id << SEPARATOR << getType() << SEPARATOR << serialize()
-        << "'\"";
+        << quote << program << quote << " -- --eq-client " << quote
+        << remoteData << node->_launchID << SEPARATOR << node->_workDir 
+        << SEPARATOR << node->_id << SEPARATOR << getType() << SEPARATOR
+        << serialize() << quote;
 
     return stringStream.str();
 }

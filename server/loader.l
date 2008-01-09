@@ -50,6 +50,7 @@ const char* yyinString = 0;
 global                           { return EQTOKEN_GLOBAL; }
 EQ_CONNECTION_SATTR_HOSTNAME     { return EQTOKEN_CONNECTION_SATTR_HOSTNAME; }
 EQ_CONNECTION_SATTR_LAUNCH_COMMAND { return EQTOKEN_CONNECTION_SATTR_LAUNCH_COMMAND; }
+EQ_CONNECTION_CATTR_LAUNCH_COMMAND_QUOTE { return EQTOKEN_CONNECTION_CATTR_LAUNCH_COMMAND_QUOTE; }
 EQ_CONNECTION_IATTR_TYPE         { return EQTOKEN_CONNECTION_IATTR_TYPE; }
 EQ_CONNECTION_IATTR_TCPIP_PORT   { return EQTOKEN_CONNECTION_IATTR_TCPIP_PORT; }
 EQ_CONNECTION_IATTR_LAUNCH_TIMEOUT { return EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT; }
@@ -109,6 +110,7 @@ TCPIP                           { return EQTOKEN_TCPIP; }
 SDP                             { return EQTOKEN_SDP; }
 hostname                        { return EQTOKEN_HOSTNAME; }
 command                         { return EQTOKEN_COMMAND; }
+command_quote                   { return EQTOKEN_COMMAND_QUOTE; }
 timeout                         { return EQTOKEN_TIMEOUT; }
 TCPIP_port                      { return EQTOKEN_TCPIP_PORT; }
 task                            { return EQTOKEN_TASK; }
@@ -154,6 +156,7 @@ update_FOV                      { return EQTOKEN_UPDATE_FOV; }
 [+]?[0-9]+                      { return EQTOKEN_UNSIGNED; }
 [+-]?[0-9]+                     { return EQTOKEN_INTEGER; }
 \"[-\., _%<>:a-zA-Z0-9]*\"      { return EQTOKEN_STRING; }
+'.'                             { return EQTOKEN_CHARACTER; }
 
 [{}\[\]]                        { return *yytext; }
 [\n]                            { ++yylineno; }

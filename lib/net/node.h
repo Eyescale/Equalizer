@@ -588,7 +588,8 @@ namespace eqNet
          */
         std::string _createLaunchCommand( eqBase::RefPtr<Node> node,
                             eqBase::RefPtr<ConnectionDescription> description );
-        std::string   _createRemoteCommand( eqBase::RefPtr<Node> node );
+        std::string   _createRemoteCommand( eqBase::RefPtr<Node> node, 
+                                            const char quote );
 
         /** 
          * Find a connected node using a connection description

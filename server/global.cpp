@@ -42,9 +42,13 @@ void Global::_setupDefaults()
 #ifdef WIN32
     _connectionSAttributes[ConnectionDescription::SATTR_LAUNCH_COMMAND] = 
         "ssh -n %h %c";
+    _connectionCAttributes[ConnectionDescription::CATTR_LAUNCH_COMMAND_QUOTE] =
+        '\"';
 #else
     _connectionSAttributes[ConnectionDescription::SATTR_LAUNCH_COMMAND] = 
         "ssh -n %h %c >& %h.%n.log";
+    _connectionCAttributes[ConnectionDescription::CATTR_LAUNCH_COMMAND_QUOTE] =
+        '\'';
 #endif
 
     // config
@@ -91,6 +95,15 @@ void Global::_readEnvironment()
         
         if( envValue )
             _connectionSAttributes[i] = envValue;
+    }
+    for( int i=0; i<ConnectionDescription::CATTR_ALL; ++i )
+    {
+        const string& name     = ConnectionDescription::getCAttributeString(
+            (ConnectionDescription::CAttribute)i);
+        const char*   envValue = getenv( name.c_str( ));
+        
+        if( envValue )
+            _connectionCAttributes[i] = envValue[0];
     }
     for( int i=0; i<ConnectionDescription::IATTR_ALL; ++i )
     {
@@ -194,6 +207,18 @@ std::ostream& eqs::operator << ( std::ostream& os, const Global* global )
             static_cast<ConnectionDescription::SAttribute>( i ));
         os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << "\"" << value << "\"" << endl;
+    }
+
+    for( int i=0; i<ConnectionDescription::CATTR_ALL; ++i )
+    {
+        const char value = global->_connectionCAttributes[i];
+        if( value == reference._connectionCAttributes[i] )
+            continue;
+
+        const string& name = ConnectionDescription::getCAttributeString( 
+            static_cast<ConnectionDescription::CAttribute>( i ));
+        os << name << string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
+           << "'" << value << "'" << endl;
     }
 
     for( int i=0; i<Config::FATTR_ALL; ++i )

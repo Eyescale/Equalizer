@@ -26,6 +26,12 @@ namespace eqs
             SATTR_ALL
         };
 
+        enum CAttribute
+        {
+            CATTR_LAUNCH_COMMAND_QUOTE,
+            CATTR_ALL
+        };
+
         enum IAttribute
         {
             IATTR_TYPE,
@@ -37,6 +43,8 @@ namespace eqs
 
         static const std::string&  getSAttributeString( const SAttribute attr )
             { return _sAttributeStrings[attr]; }
+        static const std::string&  getCAttributeString( const CAttribute attr )
+            { return _cAttributeStrings[attr]; }
         static const std::string&  getIAttributeString( const IAttribute attr )
             { return _iAttributeStrings[attr]; }
     protected:
@@ -45,6 +53,8 @@ namespace eqs
     private:
         /** String representation of string attributes. */
         static std::string _sAttributeStrings[SATTR_ALL];
+        /** String representation of character attributes. */
+        static std::string _cAttributeStrings[CATTR_ALL];
         /** String representation of integer attributes. */
         static std::string _iAttributeStrings[IATTR_ALL];
     };

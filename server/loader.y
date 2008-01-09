@@ -54,6 +54,7 @@
 %token EQTOKEN_GLOBAL
 %token EQTOKEN_CONNECTION_SATTR_HOSTNAME
 %token EQTOKEN_CONNECTION_SATTR_LAUNCH_COMMAND
+%token EQTOKEN_CONNECTION_CATTR_LAUNCH_COMMAND_QUOTE
 %token EQTOKEN_CONNECTION_IATTR_TYPE
 %token EQTOKEN_CONNECTION_IATTR_TCPIP_PORT
 %token EQTOKEN_CONNECTION_IATTR_LAUNCH_TIMEOUT
@@ -112,6 +113,7 @@
 %token EQTOKEN_SDP
 %token EQTOKEN_HOSTNAME
 %token EQTOKEN_COMMAND
+%token EQTOKEN_COMMAND_QUOTE
 %token EQTOKEN_TIMEOUT
 %token EQTOKEN_TCPIP_PORT
 %token EQTOKEN_TASK
@@ -154,12 +156,14 @@
 %token EQTOKEN_UPDATE_FOV
 
 %token EQTOKEN_STRING
+%token EQTOKEN_CHARACTER
 %token EQTOKEN_FLOAT
 %token EQTOKEN_INTEGER
 %token EQTOKEN_UNSIGNED
 
 %union{
     const char*             _string;
+    char                    _character;
     int                     _int;
     unsigned                _unsigned;
     float                   _float;
@@ -168,6 +172,7 @@
 }
 
 %type <_string>         STRING;
+%type <_character>      CHARACTER;
 %type <_int>            INTEGER IATTR;
 %type <_unsigned>       UNSIGNED colorMask colorMaskBit colorMaskBits;
 %type <_connectionType> connectionType;
@@ -194,6 +199,11 @@ global:
      {
          eqs::Global::instance()->setConnectionSAttribute(
              eqs::ConnectionDescription::SATTR_LAUNCH_COMMAND, $2 );
+     }
+     | EQTOKEN_CONNECTION_CATTR_LAUNCH_COMMAND_QUOTE CHARACTER
+     {
+         eqs::Global::instance()->setConnectionCAttribute(
+             eqs::ConnectionDescription::CATTR_LAUNCH_COMMAND_QUOTE, $2 );
      }
      | EQTOKEN_CONNECTION_IATTR_TYPE connectionType 
      { 
@@ -369,6 +379,7 @@ connectionField:
     EQTOKEN_TYPE connectionType   { connectionDescription->type = $2; }
     | EQTOKEN_HOSTNAME  STRING    { connectionDescription->setHostname($2); }
     | EQTOKEN_COMMAND   STRING  { connectionDescription->setLaunchCommand($2); }
+    | EQTOKEN_COMMAND_QUOTE CHARACTER { connectionDescription->launchCommandQuote = $2; }
     | EQTOKEN_TIMEOUT   UNSIGNED  { connectionDescription->launchTimeout = $2; }
     | EQTOKEN_TCPIP_PORT UNSIGNED { connectionDescription->TCPIP.port = $2; }
 
@@ -628,6 +639,9 @@ STRING: EQTOKEN_STRING
          stringBuf.erase( stringBuf.size()-1, 1 ); // Trailing '"'
          $$ = stringBuf.c_str(); 
      }
+
+CHARACTER: EQTOKEN_CHARACTER               { $$ = yytext[1]; }
+
 FLOAT: EQTOKEN_FLOAT                       { $$ = atof( yytext ); }
     | INTEGER                              { $$ = $1; }
 

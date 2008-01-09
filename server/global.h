@@ -30,8 +30,15 @@ namespace eqs
                                       attr, const std::string& value )
             { _connectionSAttributes[attr] = value; }
         const std::string& getConnectionSAttribute(
-            const ConnectionDescription::SAttribute attr) const
+            const ConnectionDescription::SAttribute attr ) const
             { return _connectionSAttributes[attr]; }
+
+        void setConnectionCAttribute( const ConnectionDescription::CAttribute 
+                                      attr, const char value )
+            { _connectionCAttributes[attr] = value; }
+        char getConnectionCAttribute(
+            const ConnectionDescription::CAttribute attr ) const
+            { return _connectionCAttributes[attr]; }
 
         void setConnectionIAttribute( const ConnectionDescription::IAttribute 
                                       attr, const int32_t value)
@@ -89,6 +96,7 @@ namespace eqs
         Global();
         
         std::string _connectionSAttributes[ConnectionDescription::SATTR_ALL];
+        char        _connectionCAttributes[ConnectionDescription::CATTR_ALL];
         int32_t     _connectionIAttributes[ConnectionDescription::IATTR_ALL];
         
         float       _configFAttributes[Config::FATTR_ALL];
