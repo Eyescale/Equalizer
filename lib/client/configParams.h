@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_CONFIG_PARAMS_H
@@ -18,9 +18,15 @@ namespace eq
 
         ConfigParams& operator = ( const ConfigParams& rhs );
 
-        std::string renderClient;
-        std::string workDir;
+        void setRenderClient( const std::string& renderClient );
+        const std::string& getRenderClient() const;
+
+        void setWorkDir( const std::string& workDir );
+        const std::string& getWorkDir() const;
+
     private:
+        std::string _renderClient;
+        std::string _workDir;
     };
 }
 

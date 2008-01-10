@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include <pthread.h>
@@ -101,8 +101,8 @@ Config::~Config()
 }
 
 Config::Config( const Config& from )
-        : eqNet::Session( eq::CMD_CONFIG_CUSTOM ),
-          _server( from._server )
+        : eqNet::Session()
+        , _server( from._server )
 {
     _construct();
     _appNetNode = from._appNetNode;
@@ -413,9 +413,11 @@ bool Config::_exitNodes()
     NodeVector exitingNodes;
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
-        Node* node = *i;
-        if( !node->isUsed() || 
-            node->getNode()->getState() == eqNet::Node::STATE_STOPPED )
+        Node*               node = *i;
+        RefPtr<eqNet::Node> netNode = node->getNode();
+
+        if( !node->isUsed() || !netNode.isValid() ||
+            netNode->getState() == eqNet::Node::STATE_STOPPED )
 
             continue;
 

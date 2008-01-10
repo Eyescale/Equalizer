@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "init.h"
@@ -25,8 +25,6 @@ EQ_EXPORT bool init( const int argc, char** argv )
     EQINFO << "Log level " << eqBase::Log::getLogLevelString() << " topics " 
            << eqBase::Log::topics << endl;
 
-    EQASSERT( argc > 0 );
-
 #ifdef WIN32
     WORD    wsVersion = MAKEWORD( 2, 0 );
     WSADATA wsData;
@@ -39,11 +37,11 @@ EQ_EXPORT bool init( const int argc, char** argv )
 #endif
 
     const string programName = Global::getProgramName();
-    if( programName.size() == 0  )
+    if( programName.empty() && argc > 0 )
         Global::setProgramName( argv[0] );
 
     const string workDir = Global::getWorkDir();
-    if( workDir.size() == 0 )
+    if( workDir.empty( ))
     {
         char cwd[MAXPATHLEN];
         getcwd( cwd, MAXPATHLEN );

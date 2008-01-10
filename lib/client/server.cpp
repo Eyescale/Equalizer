@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "server.h"
@@ -48,17 +48,19 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
     if( !isConnected( ))
         return 0;
 
-    if( parameters.renderClient.empty( ))
+    const string& renderClient = parameters.getRenderClient();
+    if( renderClient.empty( ))
     {
         EQWARN << "No render client in ConfigParams specified" << endl;
         return 0;
     }
 
     ServerChooseConfigPacket packet;
+    const string& workDir = parameters.getWorkDir();
 
     packet.requestID      = _requestHandler.registerRequest();
-    string rendererInfo   = parameters.workDir + '#' + parameters.renderClient;
-#ifdef WIN32 // replace dir delimeters since '\' is often used as escape char
+    string rendererInfo   = workDir + '#' + renderClient;
+#ifdef WIN32 // replace dir delimiters since '\' is often used as escape char
     for( size_t i=0; i<rendererInfo.length(); ++i )
         if( rendererInfo[i] == '\\' )
             rendererInfo[i] = '/';
@@ -76,17 +78,19 @@ Config* Server::useConfig( const ConfigParams& parameters,
     if( !isConnected( ))
         return 0;
 
-    if( parameters.renderClient.empty( ))
+    const string& renderClient = parameters.getRenderClient();
+    if( renderClient.empty( ))
     {
         EQWARN << "No render client in ConfigParams specified" << endl;
         return 0;
     }
 
     ServerUseConfigPacket packet;
+    const string& workDir = parameters.getWorkDir();
 
     packet.requestID  = _requestHandler.registerRequest();
-    string configInfo = parameters.workDir + '#' + parameters.renderClient;
-#ifdef WIN32 // replace dir delimeters since '\' is often used as escape char
+    string configInfo = workDir + '#' + renderClient;
+#ifdef WIN32 // replace dir delimiters since '\' is often used as escape char
     for( size_t i=0; i<configInfo.length(); ++i )
         if( configInfo[i] == '\\' )
             configInfo[i] = '/';

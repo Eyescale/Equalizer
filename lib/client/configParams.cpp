@@ -1,18 +1,19 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "configParams.h"
 
 #include <eq/net/global.h>
 
-using namespace eq;
 using namespace std;
 
+namespace eq
+{
 ConfigParams::ConfigParams()
 {
-    renderClient = eqNet::Global::getProgramName();
-    workDir      = eqNet::Global::getWorkDir();
+    _renderClient = eqNet::Global::getProgramName();
+    _workDir      = eqNet::Global::getWorkDir();
 
 //     compoundModes = 
 //         COMPOUND_MODE_2D    | 
@@ -26,8 +27,31 @@ ConfigParams& ConfigParams::operator = ( const ConfigParams& rhs )
     if( this == &rhs )
         return *this;
  
-    renderClient  = rhs.renderClient;
-    workDir       = rhs.workDir;
+    _renderClient  = rhs._renderClient;
+    _workDir       = rhs._workDir;
 //    compoundModes = rhs.compoundModes;
     return *this;
+}
+
+
+void ConfigParams::setRenderClient( const std::string& renderClient )
+{
+    _renderClient = renderClient;
+}
+
+const std::string& ConfigParams::getRenderClient() const
+{
+    return _renderClient;
+}
+
+void ConfigParams::setWorkDir( const std::string& workDir )
+{
+    _workDir = workDir;
+}
+
+const std::string& ConfigParams::getWorkDir() const
+{
+    return _workDir;
+}
+
 }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "node.h"
@@ -287,7 +287,7 @@ bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
     if( !connected )
         return false;
 
-    EQASSERT( node->_id != EQ_ID_INVALID );
+    EQASSERT( node->_id != NodeID::ZERO );
     EQASSERTINFO( node->_id != _id, _id );
     EQINFO << node << " connected to " << this << endl;
     return true;
@@ -304,7 +304,7 @@ eqBase::RefPtr<Node> Node::getNode( const NodeID& id ) const
 bool Node::disconnect( RefPtr<Node> node )
 {
     if( !node || _state != STATE_LISTENING || 
-        !node->_state == STATE_CONNECTED || !node->_connection )
+        node->_state != STATE_CONNECTED || !node->_connection )
         return false;
     EQASSERT( !inReceiverThread( ));
 
@@ -909,7 +909,7 @@ CommandResult Node::_cmdUnmapSessionReply( Command& command)
 
     const uint32_t requestID = packet->requestID;
 
-    if( !packet->result == EQ_ID_INVALID )
+    if( !packet->result )
     {
         _requestHandler.serveRequest( requestID, (void*)false );
         return COMMAND_HANDLED;

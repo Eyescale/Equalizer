@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_NODE_H
@@ -19,7 +19,9 @@
 
 #include <list>
 
+#pragma warning(disable : 4190)
 extern "C" EQS_EXPORT eqBase::RefPtr< eqNet::Connection > eqsStartLocalServer();
+#pragma warning(default : 4190)
 
 namespace eqNet
 {

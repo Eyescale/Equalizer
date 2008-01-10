@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include <pthread.h>
@@ -122,7 +122,7 @@ void Node::startConfigInit( const uint32_t initID )
     eq::NodeConfigInitPacket packet;
     packet.initID = initID;
     _send( packet, _name );
-    EQLOG( eq::LOG_TASKS ) << "TASK pipe configInit  " << &packet << endl;
+    EQLOG( eq::LOG_TASKS ) << "TASK node configInit  " << &packet << endl;
 
     eq::NodeCreatePipePacket createPipePacket;
     for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )

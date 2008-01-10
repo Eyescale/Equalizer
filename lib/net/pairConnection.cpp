@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "pairConnection.h"
@@ -8,10 +8,10 @@ using namespace eqNet;
 
 PairConnection::PairConnection( eqBase::RefPtr<Connection> readConnection,
                                 eqBase::RefPtr<Connection> writeConnection )
-        : _readConnection( readConnection ),
-          _writeConnection( writeConnection ),
-          _sibling( new PairConnection( this ))
+        : _readConnection( readConnection )
+        , _writeConnection( writeConnection )
 {
+    _sibling = new PairConnection( this );
     EQASSERT( readConnection->getState() == STATE_CLOSED );
     EQASSERT( writeConnection->getState() == STATE_CLOSED );
 }
