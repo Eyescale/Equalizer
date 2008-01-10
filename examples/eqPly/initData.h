@@ -20,12 +20,12 @@ namespace eqPly
 
         void setFrameDataID( const uint32_t id )   { _frameDataID = id; }
 
-        uint32_t           getFrameDataID() const  { return _frameDataID; }
-        eq::WindowSystem   getWindowSystem() const { return _windowSystem;}
-        bool               useVBOs() const         { return _useVBOs; }
-        bool               useGLSL() const         { return _useGLSL; }
-        bool               useInvertedFaces()const { return _invFaces; }
-        const std::string& getFilename()    const  { return _filename; }
+        uint32_t           getFrameDataID() const   { return _frameDataID; }
+        eq::WindowSystem   getWindowSystem() const  { return _windowSystem;}
+        bool               useVBOs() const          { return _useVBOs; }
+        bool               useGLSL() const          { return _useGLSL; }
+        bool               useInvertedFaces() const { return _invFaces; }
+        const std::string& getFilename()    const   { return _filename; }
 
     protected:
         virtual void getInstanceData( eqNet::DataOStream& os );

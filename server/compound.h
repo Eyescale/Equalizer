@@ -241,10 +241,10 @@ namespace eqs
         const eq::Range& getRange() const          { return _data.range; }
 
         void setPeriod( const uint32_t period )    { _data.period = period; }
-        const uint32_t getPeriod() const           { return _data.period; }
+        uint32_t getPeriod() const                 { return _data.period; }
 
         void setPhase( const uint32_t phase )      { _data.phase = phase; }
-        const uint32_t getPhase() const            { return _data.phase; }
+        uint32_t getPhase() const                  { return _data.phase; }
 
         void setPixel( const eq::Pixel& pixel )    { _data.pixel = pixel; }
         const eq::Pixel& getPixel() const          { return _data.pixel; }
@@ -342,7 +342,7 @@ namespace eqs
         const Projection& getProjection() const { return _view.projection; }
 
         /** @return the bitwise OR of the eye values. */
-        const uint32_t getEyes() const { return _data.eyes; }
+        uint32_t getEyes() const { return _data.eyes; }
 
          /** 
          * Set the eyes to be used by the compound.

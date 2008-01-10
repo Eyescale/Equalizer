@@ -280,12 +280,12 @@ const vmml::Vector2i& Channel::getPixelOffset() const
     return _context ? _context->offset : vmml::Vector2i::ZERO;
 }
 
-const uint32_t Channel::getDrawBuffer() const
+uint32_t Channel::getDrawBuffer() const
 {
     return _context ? _context->buffer : GL_BACK;
 }
 
-const uint32_t Channel::getReadBuffer() const
+uint32_t Channel::getReadBuffer() const
 {
     return _context ? _context->buffer : GL_BACK;
 }

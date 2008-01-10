@@ -85,10 +85,10 @@ namespace eq
          */
         //*{
         /** @return the channel's current draw buffer. */
-        const uint32_t getDrawBuffer() const;
+        uint32_t getDrawBuffer() const;
 
         /** @return the channel's current read buffer. */
-        const uint32_t getReadBuffer() const;
+        uint32_t getReadBuffer() const;
 
         /** @return the channel's current color mask for drawing. */
         const ColorMask& getDrawBufferMask() const;
