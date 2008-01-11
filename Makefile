@@ -22,7 +22,7 @@ include make/rules.mk
 docs:
 	@$(DOXYGEN) Doxyfile
 
-subdirs: precompile
+lib: precompile
 lib: externals
 proto: lib
 tests: lib server
