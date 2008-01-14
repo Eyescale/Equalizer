@@ -52,7 +52,9 @@ bool Window::configInit( const uint32_t initID )
 
 bool Window::configExit()
 {
-    _state->deleteAll();
+    if( _state )
+        _state->deleteAll();
+
     delete _state;
     _state = 0;
 
