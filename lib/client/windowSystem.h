@@ -93,6 +93,7 @@ typedef void Display;
 typedef void XErrorEvent;
 typedef unsigned long XID;
 typedef void* GLXContext;
+typedef void  XVisualInfo;
 #endif
 
 #ifndef AGL

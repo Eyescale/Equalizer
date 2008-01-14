@@ -302,6 +302,7 @@ static Bool WaitForNotify( Display*, XEvent *e, char *arg )
 
 bool Window::configInitGLX()
 {
+#ifdef GLX
     XVisualInfo* visualInfo = chooseXVisualInfo();
     if( !visualInfo )
         return false;
@@ -322,6 +323,10 @@ bool Window::configInitGLX()
     }
 
     return success;    
+#else
+    setErrorMessage( "Client library compiled without GLX support" );
+    return false;
+#endif
 }
 
 XVisualInfo* Window::chooseXVisualInfo()
