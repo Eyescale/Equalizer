@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_WINDOWSYSTEM_H
@@ -100,6 +100,7 @@ typedef int32_t CGDirectDisplayID;
 typedef void*   WindowRef;
 typedef void*   EventHandlerRef;
 typedef void*   AGLContext;
+typedef void*   AGLPixelFormat;
 #endif
 
 #ifndef WGL

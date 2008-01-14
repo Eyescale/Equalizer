@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "window.h"
@@ -470,6 +470,22 @@ bool Window::configInitGLX()
 
 bool Window::configInitAGL()
 {
+    AGLPixelFormat pixelFormat = chooseAGLPixelFormat();
+    if( !pixelFormat )
+        return false;
+
+    AGLContext context = createAGLContext( pixelFormat );
+    destroyAGLPixelFormat ( pixelFormat );
+    setAGLContext( context );
+
+    if( !context )
+        return false;
+
+    return configInitAGLDrawable();
+}
+
+AGLPixelFormat Window::chooseAGLPixelFormat()
+{
 #ifdef AGL
     CGDirectDisplayID displayID = _pipe->getCGDisplayID();
 
@@ -487,7 +503,7 @@ bool Window::configInitAGL()
     {
         setErrorMessage( "Can't get display handle" );
         Global::leaveCarbon();
-        return false;
+        return 0;
     }
 #endif
 
@@ -560,7 +576,6 @@ bool Window::configInitAGL()
 
     // choose pixel format
     AGLPixelFormat pixelFormat = 0;
-    string         error;
     while( true )
     {
 #ifdef LEOPARD
@@ -587,23 +602,45 @@ bool Window::configInitAGL()
     }
 
     if( !pixelFormat )
-    {
-        setErrorMessage( "Could not find a pixel format: " + error );
-        Global::leaveCarbon();
-        return false;
-    }
+        setErrorMessage( "Could not find a matching pixel format" );
 
+    Global::leaveCarbon();
+    return pixelFormat;
+#else
+    setErrorMessage( "Client library compiled without AGL support" );
+    return 0;
+#endif
+}
+
+void Window::destroyAGLPixelFormat( AGLPixelFormat pixelFormat )
+{
+#ifdef AGL
+    if( !pixelFormat )
+        return;
+
+    Global::enterCarbon();
+    aglDestroyPixelFormat( pixelFormat );
+    Global::leaveCarbon();
+#else
+    setErrorMessage( "Client library compiled without AGL support" );
+#endif
+}
+
+AGLContext Window::createAGLContext( AGLPixelFormat pixelFormat )
+{
+#ifdef AGL
     Pipe*      pipe        = getPipe();
     Window*    firstWindow = pipe->getWindows()[0];
     AGLContext shareCtx    = firstWindow->getAGLContext();
+ 
+    Global::enterCarbon();
     AGLContext context     = aglCreateContext( pixelFormat, shareCtx );
-    aglDestroyPixelFormat ( pixelFormat );
 
     if( !context ) 
     {
         setErrorMessage( "Could not create AGL context: " + aglGetError( ));
         Global::leaveCarbon();
-        return false;
+        return 0;
     }
 
     if( getIAttribute( IATTR_HINT_SWAPSYNC ) != OFF )
@@ -614,84 +651,121 @@ bool Window::configInitAGL()
 
     _setupObjectManager( shareCtx ? firstWindow : 0 );
     aglSetCurrentContext( context );
-    setAGLContext( context );
+
+    Global::leaveCarbon();
 
     EQINFO << "Created AGL context " << context << endl;
-
-    if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON )
-    {
-        aglEnable( context, AGL_FS_CAPTURE_SINGLE );
-
-        const PixelViewport& pipePVP = _pipe->getPixelViewport();
-        const PixelViewport& pvp     = pipePVP.isValid() ? pipePVP : _pvp;
-#if 1
-        if( !aglSetFullScreen( context, pvp.w, pvp.h, 0, 0 ))
-            EQWARN << "aglSetFullScreen to " << pvp << " failed: " 
-                   << aglGetError() << endl;
-
+    return context;
 #else
-
-        if( !aglSetFullScreen( context, 0, 0, 0, 0 ))
-            EQWARN << "aglSetFullScreen failed: " << aglGetError()
-                   << endl;
+    setErrorMessage( "Client library compiled without AGL support" );
+    return 0;
 #endif
-        Global::leaveCarbon();
-        setPixelViewport( pvp );
-    }
-    else // create carbon window and bind drawable to context
+}
+
+
+bool Window::configInitAGLDrawable()
+{    
+    if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON )
+        return configInitAGLFullscreen();
+    else
+        return configInitAGLWindow();
+}
+
+bool Window::configInitAGLFullscreen()
+{
+#ifdef AGL
+    AGLContext context = getAGLContext();
+    if( !context )
     {
-        // window
-        WindowAttributes winAttributes = kWindowStandardDocumentAttributes |
-                                         kWindowStandardHandlerAttribute   |
-                                         kWindowInWindowMenuAttribute;
-        // top, left, bottom, right
-        const bool decoration = (getIAttribute( IATTR_HINT_DECORATION ) != OFF);
-        const int32_t  menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0 ;
-        Rect           windowRect = { _pvp.y + menuHeight, _pvp.x, 
-                                      _pvp.y + _pvp.h + menuHeight,
-                                      _pvp.x + _pvp.w };
-        WindowRef      windowRef;
+        setErrorMessage( "No AGLContext set" );
+        return false;
+    }
 
-        const OSStatus status     = CreateNewWindow( kDocumentWindowClass, 
-                                                     winAttributes,
-                                                     &windowRect, &windowRef );
-        if( status != noErr )
-        {
-            setErrorMessage( "Could not create carbon window: " + status );
-            Global::leaveCarbon();
-            return false;
-        }
+    Global::enterCarbon();
 
-        // window title
-        CFStringRef title = 
-            CFStringCreateWithCString( kCFAllocatorDefault,
+    aglEnable( context, AGL_FS_CAPTURE_SINGLE );
+
+    const PixelViewport& pipePVP = _pipe->getPixelViewport();
+    const PixelViewport& pvp     = pipePVP.isValid() ? pipePVP : _pvp;
+#if 1
+    if( !aglSetFullScreen( context, pvp.w, pvp.h, 0, 0 ))
+        EQWARN << "aglSetFullScreen to " << pvp << " failed: " << aglGetError()
+               << endl;
+#else
+    if( !aglSetFullScreen( context, 0, 0, 0, 0 ))
+        EQWARN << "aglSetFullScreen failed: " << aglGetError() << endl;
+#endif
+
+    Global::leaveCarbon();
+    setPixelViewport( pvp );
+    return true;
+#else
+    setErrorMessage( "Client library compiled without AGL support" );
+    return false;
+#endif
+}
+
+bool Window::configInitAGLWindow()
+{
+#ifdef AGL
+    AGLContext context = getAGLContext();
+    if( !context )
+    {
+        setErrorMessage( "No AGLContext set" );
+        return false;
+    }
+
+    // window
+    WindowAttributes winAttributes = kWindowStandardDocumentAttributes |
+                                     kWindowStandardHandlerAttribute   |
+                                     kWindowInWindowMenuAttribute;
+    // top, left, bottom, right
+    const bool     decoration = (getIAttribute( IATTR_HINT_DECORATION ) != OFF);
+    const int32_t  menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0 ;
+    Rect           windowRect = { _pvp.y + menuHeight, _pvp.x, 
+                                 _pvp.y + _pvp.h + menuHeight,
+                                 _pvp.x + _pvp.w };
+    WindowRef      windowRef;
+
+    Global::enterCarbon();
+    const OSStatus status     = CreateNewWindow( kDocumentWindowClass, 
+                                                 winAttributes,
+                                                 &windowRect, &windowRef );
+    if( status != noErr )
+    {
+        setErrorMessage( "Could not create carbon window: " + status );
+        Global::leaveCarbon();
+        return false;
+    }
+
+    // window title
+    CFStringRef title = CFStringCreateWithCString( kCFAllocatorDefault,
                                     _name.empty() ? "Equalizer" : _name.c_str(),
-                                       kCFStringEncodingMacRoman );
-        SetWindowTitleWithCFString( windowRef, title );
-        CFRelease( title );
+                                    kCFStringEncodingMacRoman );
+    SetWindowTitleWithCFString( windowRef, title );
+    CFRelease( title );
         
 #ifdef LEOPARD
-        if( !aglSetWindowRef( context, windowRef ))
-        {
-            setErrorMessage( "aglSetWindowRef failed: " + aglGetError( ));
-            Global::leaveCarbon();
-            return false;
-        }
+    if( !aglSetWindowRef( context, windowRef ))
+    {
+        setErrorMessage( "aglSetWindowRef failed: " + aglGetError( ));
+        Global::leaveCarbon();
+        return false;
+    }
 #else
-        if( !aglSetDrawable( context, GetWindowPort( windowRef )))
-        {
-            setErrorMessage( "aglSetDrawable failed: " + aglGetError( ));
-            Global::leaveCarbon();
-            return false;
-        }
+    if( !aglSetDrawable( context, GetWindowPort( windowRef )))
+    {
+        setErrorMessage( "aglSetDrawable failed: " + aglGetError( ));
+        Global::leaveCarbon();
+        return false;
+    }
 #endif
 
-        // show
-        ShowWindow( windowRef );
-        Global::leaveCarbon();
-        setCarbonWindow( windowRef );
-    }
-        
+    // show
+    ShowWindow( windowRef );
+    Global::leaveCarbon();
+    setCarbonWindow( windowRef );
+
     return true;
 #else
     setErrorMessage( "Client library compiled without AGL support" );

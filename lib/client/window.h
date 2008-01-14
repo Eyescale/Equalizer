@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_WINDOW_H
@@ -268,7 +268,6 @@ namespace eq
          */
         virtual bool configInit( const uint32_t initID );
         virtual bool configInitGLX();
-        virtual bool configInitAGL();
         virtual bool configInitWGL();
 
         /** 
@@ -288,6 +287,92 @@ namespace eq
         virtual void configExitGLX();
         virtual void configExitAGL();
         virtual void configExitWGL();
+        
+        //* @name AGL/Carbon initialization
+        //*{
+        /** 
+         * Initialize this window for the AGL window system.
+         *
+         * This method first call chooseAGLPixelFormat(), then
+         * createAGLContext() with the chosen pixel format, destroys the pixel
+         * format using destroyAGLPixelFormat and finally creates a drawable
+         * using configInitAGLDrawable().
+         * 
+         * @return true if the initialization was successful, false otherwise.
+         */
+        virtual bool configInitAGL();
+
+        /** 
+         * Choose a pixel format based on the window's attributes.
+         * 
+         * The returned pixel format has to be destroyed using
+         * destroyAGLPixelFormat() to avoid memory leaks.
+         *
+         * This method uses Global::enterCarbon() and Global::leaveCarbon() to
+         * protect the calls to AGL/Carbon.
+         *  
+         * @return a pixel format, or 0 if no pixel format was found.
+         */
+        virtual AGLPixelFormat chooseAGLPixelFormat();
+
+        /** 
+         * Destroy a pixel format obtained with chooseAGLPixelFormat().
+         * 
+         * This method uses Global::enterCarbon() and Global::leaveCarbon() to
+         * protect the calls to AGL/Carbon.
+         *
+         * @param pixelFormat a pixel format.
+         */
+        virtual void destroyAGLPixelFormat( AGLPixelFormat pixelFormat );
+
+        /** 
+         * Create an AGL context.
+         * 
+         * This method does not set the window's AGL context.
+         *
+         * This method uses Global::enterCarbon() and Global::leaveCarbon() to
+         * protect the calls to AGL/Carbon.
+         *
+         * @param pixelFormat the pixel format for the context.
+         * @return the context, or 0 if context creation failed.
+         */
+        virtual AGLContext createAGLContext( AGLPixelFormat pixelFormat );
+
+        /** 
+         * Initialize the window's drawable (fullscreen, pbuffer or window) and
+         * bind the the AGL context.
+         *
+         * Sets the window's carbon window on success. Calls
+         * configInitAGLFullscreen() or configInitAGLWindow().
+         * 
+         * @return true if the drawable was created, false otherwise.
+         */
+        virtual bool configInitAGLDrawable();
+
+        /** 
+         * Initialize the window with a fullscreen Carbon window.
+         *
+         * Sets the window's carbon window on success.
+         *
+         * This method uses Global::enterCarbon() and Global::leaveCarbon() to
+         * protect the calls to AGL/Carbon.
+         *
+         * @return true if the window was created, false otherwise.
+         */
+        virtual bool configInitAGLFullscreen();
+
+        /** 
+         * Initialize the window with a normal Carbon window.
+         *
+         * Sets the window's carbon window on success.
+         *
+         * This method uses Global::enterCarbon() and Global::leaveCarbon() to
+         * protect the calls to AGL/Carbon.
+         *
+         * @return true if the window was created, false otherwise.
+         */
+        virtual bool configInitAGLWindow();
+        //*}
 
         /**
          * Start rendering a frame.
