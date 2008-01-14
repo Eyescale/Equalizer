@@ -267,7 +267,6 @@ namespace eq
          * @param initID the init identifier.
          */
         virtual bool configInit( const uint32_t initID );
-        virtual bool configInitGLX();
         virtual bool configInitWGL();
 
         /** 
@@ -288,6 +287,49 @@ namespace eq
         virtual void configExitAGL();
         virtual void configExitWGL();
         
+        //* @name GLX/X11 initialization
+        //*{
+        /** 
+         * Initialize this window for the GLX window system.
+         *
+         * This method first call chooseXVisualInfo(), then createGLXContext()
+         * with the chosen visual, and finally creates a drawable using
+         * configInitGLXDrawable().
+         * 
+         * @return true if the initialization was successful, false otherwise.
+         */
+        virtual bool configInitGLX();
+
+        /** 
+         * Choose a X11 visual based on the window's attributes.
+         * 
+         * The returned XVisualInfo has to be freed using XFree().
+         *  
+         * @return a pixel format, or 0 if no pixel format was found.
+         */
+        XVisualInfo* chooseXVisualInfo();
+
+        /** 
+         * Create a GLX context.
+         * 
+         * This method does not set the window's GLX context.
+         *
+         * @param visualInfo the visual info for the context.
+         * @return the context, or 0 if context creation failed.
+         */
+        GLXContext createGLXContext( XVisualInfo* visualInfo );
+
+        /** 
+         * Initialize the window's drawable (fullscreen, pbuffer or window) and
+         * bind the GLX context.
+         *
+         * Sets the window's X11 window on success
+         * 
+         * @param visualInfo the visual info for the context.
+         * @return true if the drawable was created, false otherwise.
+         */
+        bool configInitGLXDrawable( XVisualInfo* visualInfo );
+
         //* @name AGL/Carbon initialization
         //*{
         /** 
@@ -340,7 +382,7 @@ namespace eq
 
         /** 
          * Initialize the window's drawable (fullscreen, pbuffer or window) and
-         * bind the the AGL context.
+         * bind the AGL context.
          *
          * Sets the window's carbon window on success. Calls
          * configInitAGLFullscreen() or configInitAGLWindow().
@@ -552,6 +594,11 @@ namespace eq
 
         /** Set up _drawableConfig by querying current context. */
         void _queryDrawableConfig();
+
+        /** Set up OpenGL-specific window data, e.g., GLEW. */
+        void _initializeGLData();
+        /** Clear OpenGL-specific window data. */
+        void _clearGLData();
 
         /** Set up object manager during initialization. */
         void _setupObjectManager( Window* sharedContextWindow );

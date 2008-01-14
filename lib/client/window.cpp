@@ -291,6 +291,10 @@ bool Window::configInitGL( const uint32_t initID )
     return true;
 }
 
+//---------------------------------------------------------------------------
+// GLX init
+//---------------------------------------------------------------------------
+
 #ifdef GLX
 static Bool WaitForNotify( Display*, XEvent *e, char *arg )
 { return (e->type == MapNotify) && (e->xmap.window == (::Window)arg); }
@@ -298,12 +302,36 @@ static Bool WaitForNotify( Display*, XEvent *e, char *arg )
 
 bool Window::configInitGLX()
 {
+    XVisualInfo* visualInfo = chooseXVisualInfo();
+    if( !visualInfo )
+        return false;
+
+    GLXContext context = createGLXContext( visualInfo );
+    setGLXContext( context );
+
+    if( !context )
+        return false;
+
+    const bool success = configInitGLXDrawable( visualInfo );
+    XFree( visualInfo );
+
+    if( success && !_xDrawable )
+    {
+        setErrorMessage( "configInitGLXDrawable did set no X11 drawable" );
+        return false;
+    }
+
+    return success;    
+}
+
+XVisualInfo* Window::chooseXVisualInfo()
+{
 #ifdef GLX
     Display* display = _pipe->getXDisplay();
     if( !display )
     {
         setErrorMessage( "Pipe has no X11 display connection" );
-        return false;
+        return 0;
     }
 
     // build attribute list
@@ -386,17 +414,74 @@ bool Window::configInitGLX()
     }
 
     if ( !visInfo )
-    {
         setErrorMessage( "Could not find a matching visual" );
+    else
+        EQINFO << "Using visual 0x" << std::hex << visInfo->visualid
+               << std::dec << endl;
+
+    return visInfo;
+#else
+    setErrorMessage( "Client library compiled without GLX support" );
+    return 0;
+#endif
+}
+
+GLXContext Window::createGLXContext( XVisualInfo* visualInfo )
+{
+#ifdef GLX
+    if( !visualInfo )
+    {
+        setErrorMessage( "No visual info given" );
+        return 0;
+    }
+
+    Pipe*    pipe    = getPipe();
+    Display* display = pipe->getXDisplay();
+    if( !display )
+    {
+        setErrorMessage( "Pipe has no X11 display connection" );
+        return 0;
+    }
+
+    Window* firstWindow = pipe->getWindows()[0];
+    GLXContext shareCtx = firstWindow->getGLXContext();
+    GLXContext  context = glXCreateContext(display, visualInfo, shareCtx, True);
+
+    if ( !context )
+    {
+        setErrorMessage( "Could not create OpenGL context" );
+        return 0;
+    }
+
+    _setupObjectManager( shareCtx ? firstWindow : 0 );
+    return context;
+#else
+    setErrorMessage( "Client library compiled without GLX support" );
+    return 0;
+#endif
+}
+
+bool Window::configInitGLXDrawable( XVisualInfo* visualInfo )
+{
+#ifdef GLX
+    if( !visualInfo )
+    {
+        setErrorMessage( "No visual info given" );
+        return 0;
+    }
+
+    Pipe*    pipe    = getPipe();
+    Display* display = pipe->getXDisplay();
+    if( !display )
+    {
+        setErrorMessage( "Pipe has no X11 display connection" );
         return false;
     }
 
-    EQINFO << "Using visual 0x" << std::hex << visInfo->visualid << std::dec 
-           << endl;
-
+    const int            screen = DefaultScreen( display );
     XID                  parent = RootWindow( display, screen );
     XSetWindowAttributes wa;
-    wa.colormap          = XCreateColormap( display, parent, visInfo->visual,
+    wa.colormap          = XCreateColormap( display, parent, visualInfo->visual,
                                             AllocNone );
     wa.background_pixmap = None;
     wa.border_pixel      = 0;
@@ -417,8 +502,9 @@ bool Window::configInitGLX()
 
     XID drawable = XCreateWindow( display, parent, 
                                   _pvp.x, _pvp.y, _pvp.w, _pvp.h,
-                                  0, visInfo->depth, InputOutput,
-                                  visInfo->visual, CWBackPixmap|CWBorderPixel|
+                                  0, visualInfo->depth, InputOutput,
+                                  visualInfo->visual, 
+                                  CWBackPixmap|CWBorderPixel|
                                   CWEventMask|CWColormap|CWOverrideRedirect,
                                   &wa );
     
@@ -442,31 +528,20 @@ bool Window::configInitGLX()
 
     XMoveResizeWindow( display, drawable, _pvp.x, _pvp.y, _pvp.w, _pvp.h );
     XFlush( display );
+
     setXDrawable( drawable );
 
-    // create context
-    Pipe*          pipe = getPipe();
-    Window* firstWindow = pipe->getWindows()[0];
-    GLXContext shareCtx = firstWindow->getGLXContext();
-    GLXContext  context = glXCreateContext( display, visInfo, shareCtx, True );
-
-    if ( !context )
-    {
-        setErrorMessage( "Could not create OpenGL context" );
-        return false;
-    }
-
-    _setupObjectManager( shareCtx ? firstWindow : 0 );
-    setGLXContext( context );
-
-    EQINFO << "Created X11 drawable " << drawable << ", glX context "
-           << context << endl;
+    EQINFO << "Created X11 drawable " << drawable << endl;
     return true;
 #else
     setErrorMessage( "Client library compiled without GLX support" );
     return false;
 #endif
 }
+
+//---------------------------------------------------------------------------
+// AGL init
+//---------------------------------------------------------------------------
 
 bool Window::configInitAGL()
 {
@@ -481,7 +556,14 @@ bool Window::configInitAGL()
     if( !context )
         return false;
 
-    return configInitAGLDrawable();
+    const bool success = configInitAGLDrawable();
+    if( success && !_xDrawable )
+    {
+        setErrorMessage( "configInitAGLDrawable did set no AGL drawable" );
+        return false;
+    }
+
+    return success;
 }
 
 AGLPixelFormat Window::chooseAGLPixelFormat()
@@ -629,6 +711,12 @@ void Window::destroyAGLPixelFormat( AGLPixelFormat pixelFormat )
 AGLContext Window::createAGLContext( AGLPixelFormat pixelFormat )
 {
 #ifdef AGL
+    if( !pixelFormat )
+    {
+        setErrorMessage( "No pixel format given" );
+        return 0;
+    }
+
     Pipe*      pipe        = getPipe();
     Window*    firstWindow = pipe->getWindows()[0];
     AGLContext shareCtx    = firstWindow->getAGLContext();
@@ -649,8 +737,8 @@ AGLContext Window::createAGLContext( AGLPixelFormat pixelFormat )
         aglSetInteger( context, AGL_SWAP_INTERVAL, &interval );
     }
 
-    _setupObjectManager( shareCtx ? firstWindow : 0 );
     aglSetCurrentContext( context );
+    _setupObjectManager( shareCtx ? firstWindow : 0 );
 
     Global::leaveCarbon();
 
@@ -772,6 +860,10 @@ bool Window::configInitAGLWindow()
     return false;
 #endif
 }
+
+//---------------------------------------------------------------------------
+// WGL init
+//---------------------------------------------------------------------------
 
 bool Window::configInitWGL()
 {
@@ -1136,6 +1228,22 @@ void Window::_queryDrawableConfig()
     EQINFO << "Window drawable config: " << _drawableConfig << endl;
 }
 
+void Window::_initializeGLData()
+{
+    makeCurrent();
+    _queryDrawableConfig();
+    const GLenum result = glewInit();
+    if( result != GLEW_OK )
+        EQWARN << "GLEW initialization failed with error " << result <<endl;
+
+    _setupObjectManager( 0 );
+}
+
+void Window::_clearGLData()
+{
+    _releaseObjectManager();
+}
+
 void Window::_setupObjectManager( Window* sharedContextWindow )
 {
     if( _objectManager.isValid( ))
@@ -1169,6 +1277,42 @@ void Window::exitEventHandler()
     _eventHandler = 0;
 }
 
+void Window::setGLXContext( GLXContext context )
+{
+#ifdef GLX
+    _glXContext = context;
+
+    if( _xDrawable && _glXContext )
+        _initializeGLData();
+    else
+        _clearGLData();
+#endif
+}
+
+void Window::setAGLContext( AGLContext context )
+{
+#ifdef AGL
+    _aglContext = context;
+
+    if( _aglContext )
+        _initializeGLData();
+    else
+        _clearGLData();
+#endif // AGL
+}
+
+void Window::setWGLContext( HGLRC context )
+{
+#ifdef WGL
+    _wglContext = context; 
+
+    if( _wglContext && _wglWindowHandle )
+        _initializeGLData();
+    else
+        _clearGLData();
+#endif
+}
+
 void Window::setXDrawable( XID drawable )
 {
 #ifdef GLX
@@ -1180,6 +1324,11 @@ void Window::setXDrawable( XID drawable )
     _xDrawable = drawable;
     if( _xDrawable )
         initEventHandler();
+
+    if( _xDrawable && _glXContext )
+        _initializeGLData();
+    else
+        _clearGLData();
 
     if( !drawable )
     {
@@ -1213,79 +1362,6 @@ void Window::setXDrawable( XID drawable )
     pvp.h = wa.height;
     setPixelViewport( pvp );
 #endif // GLX
-}
-
-void Window::setAGLContext( AGLContext context )
-{
-#ifdef AGL
-    _aglContext = context;
-
-    if( _aglContext )
-    {
-        aglSetCurrentContext( _aglContext );
-
-        _queryDrawableConfig();
-        const GLenum result = glewInit();
-        if( result != GLEW_OK )
-            EQWARN << "GLEW initialization failed with error " << result <<endl;
-
-        _setupObjectManager( 0 );
-    }
-    else
-        _releaseObjectManager();
-#endif // AGL
-}
-
-void Window::setGLXContext( GLXContext context )
-{
-#ifdef GLX
-    _glXContext = context;
-
-    if( _glXContext )
-    {
-        if( _xDrawable )
-        {
-            glXMakeCurrent( _pipe->getXDisplay(), _xDrawable, _glXContext );
-            
-            _queryDrawableConfig();
-            const GLenum result = glewInit();
-            if( result != GLEW_OK )
-                EQWARN << "GLEW initialization failed with error " << result
-                       << endl;
-        }
-
-        _setupObjectManager( 0 );
-    }
-    else
-        _releaseObjectManager();
-#endif
-}
-
-void Window::setWGLContext( HGLRC context )
-{
-#ifdef WGL
-    _wglContext = context; 
-
-    if( _wglContext )
-    {
-        if( _wglWindowHandle )
-        {
-            HDC dc = GetDC( _wglWindowHandle );
-            wglMakeCurrent( dc, _wglContext );
-            ReleaseDC( _wglWindowHandle, dc );
-            
-            _queryDrawableConfig();
-            const GLenum result = glewInit();
-            if( result != GLEW_OK )
-                EQWARN << "GLEW initialization failed with error " << result
-                       << endl;
-        }
-
-        _setupObjectManager( 0 );
-    }
-    else
-        _releaseObjectManager();
-#endif
 }
 
 void Window::setCarbonWindow( WindowRef window )
@@ -1332,6 +1408,11 @@ void Window::setWGLWindowHandle( HWND handle )
     _wglWindowHandle = handle;
     if( _wglWindowHandle )
         initEventHandler();
+
+    if( _wglContext && _wglWindowHandle )
+        _initializeGLData();
+    else
+        _clearGLData();
 
     if( !handle )
     {
