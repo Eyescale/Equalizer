@@ -79,6 +79,8 @@ typedef void* HWND;
 typedef void* HGLRC;
 typedef void* WGLEWContext;
 #  define PFNWGLDELETEDCNVPROC void*
+typedef bool  BOOL;
+#  define WINAPI
 #endif
 
 // Error-check macros

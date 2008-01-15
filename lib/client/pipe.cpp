@@ -771,6 +771,10 @@ eqNet::CommandResult Pipe::_cmdCreateWindow(  eqNet::Command& command  )
     Window* window = Global::getNodeFactory()->createWindow( this );
     getConfig()->attachObject( window, packet->windowID );
     
+    EQASSERT( !_windows.empty( ));
+    if( window != _windows[0] )
+        window->setSharedContextWindow( _windows[0] );
+
     return eqNet::COMMAND_HANDLED;
 }
 

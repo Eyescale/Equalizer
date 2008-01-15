@@ -48,6 +48,7 @@ std::string Window::_iAttributeStrings[IATTR_ALL] = {
 
 Window::Window( Pipe* parent )
         : _eventHandler( 0 )
+        , _sharedContextWindow( 0 ) // default set by pipe
         , _glewContext( new GLEWContext )
         , _xDrawable ( 0 )
         , _glXContext( 0 )
@@ -263,7 +264,7 @@ bool Window::configInit( const uint32_t initID )
 
     const bool ret = configInitGL( initID );
     EQ_GL_ERROR( "after Window::configInitGL" );
-	return ret;
+    return ret;
 }
 
 bool Window::configInitGL( const uint32_t initID )
@@ -458,7 +459,6 @@ GLXContext Window::createGLXContext( XVisualInfo* visualInfo )
         return 0;
     }
 
-    _setupObjectManager( shareCtx ? firstWindow : 0 );
     return context;
 #else
     setErrorMessage( "Client library compiled without GLX support" );
@@ -743,7 +743,6 @@ AGLContext Window::createAGLContext( AGLPixelFormat pixelFormat )
     }
 
     aglSetCurrentContext( context );
-    _setupObjectManager( shareCtx ? firstWindow : 0 );
 
     Global::leaveCarbon();
 
@@ -869,10 +868,64 @@ bool Window::configInitAGLWindow()
 //---------------------------------------------------------------------------
 // WGL init
 //---------------------------------------------------------------------------
-
 bool Window::configInitWGL()
 {
 #ifdef WGL
+    PFNEQDELETEDCPROC deleteDCProc = 0;
+    HDC dc = getWGLDeviceContext( deleteDCProc );
+    EQASSERT( !dc || deleteDCProc );
+
+    if( !configInitWGLDrawable( dc ))
+    {
+        if( dc )
+            deleteDCProc( dc );
+        return false;
+    }
+
+    if( !_wglWindowHandle )
+    {
+        if( dc )
+            deleteDCProc( dc );
+        setErrorMessage( "configInitWGLDrawable did set no WGL drawable" );
+        return false;
+    }
+
+    int pixelFormat = chooseWGLPixelFormat( dc );
+    if( pixelFormat == 0 )
+    {
+        if( dc )
+            deleteDCProc( dc );
+        return false;
+    }
+
+    HDC windowDC = GetDC( _wglWindowHandle );
+    HGLRC context = createWGLContext( dc ? dc : windowDC );
+    ReleaseDC( _wglWindowHandle, windowDC );
+
+    setWGLContext( context );
+
+    if( !context )
+    {
+        if( dc )
+            deleteDCProc( dc );
+        return false;
+    }
+
+    if( dc )
+        deleteDCProc( dc );
+    return true;
+#else
+    setErrorMessage( "Client library compiled without WGL support" );
+    return false;
+#endif
+}
+
+bool Window::configInitWGLDrawable( HDC dc )
+{
+#ifdef WGL
+    // Note: the dc is not needed for on-screen windows. It is a place holder
+    // for future extensions, e.g., PBuffers.
+
     // window class
     ostringstream className;
     className << (_name.empty() ? string("Equalizer") : _name) << (void*)this;
@@ -891,7 +944,7 @@ bool Window::configInitWGL()
     {
         setErrorMessage( "Can't register window class: " + 
                          getErrorString( GetLastError( )));
-	    return false;
+        return false;
     }
 
     // window
@@ -912,7 +965,7 @@ bool Window::configInitWGL()
         {
             setErrorMessage( "Can't switch to fullscreen mode: " + 
                          getErrorString( GetLastError( )));
-	        return false;
+            return false;
         }
         windowStyle = WS_POPUP | WS_MAXIMIZE;
     }
@@ -928,7 +981,7 @@ bool Window::configInitWGL()
     HWND hWnd = CreateWindowEx( windowStyleEx,
                                 wc.lpszClassName, 
                                 _name.empty() ? "Equalizer" : _name.c_str(),
-                  	            windowStyle, rect.left, rect.top, 
+                                windowStyle, rect.left, rect.top, 
                                 rect.right - rect.left, rect.bottom - rect.top,
                                 0, 0, // parent, menu
                                 instance, 0 );
@@ -936,28 +989,45 @@ bool Window::configInitWGL()
     {
         setErrorMessage( "Can't create window: " + 
                          getErrorString( GetLastError( )));
-	    return false;
+        return false;
     }
 
     setWGLWindowHandle( hWnd );
     ShowWindow( hWnd, SW_SHOW );
     UpdateWindow( hWnd );
 
+    return true;
+#else
+    setErrorMessage( "Client library compiled without WGL support" );
+    return false;
+#endif
+}
+
+HDC Window::getWGLDeviceContext( PFNEQDELETEDCPROC& deleteProc )
+{
+#ifdef WGL
     // per-GPU affinity DC
     // We need to create one DC per window, since the window DC pixel format and
     // the affinity RC pixel format have to match, and each window has
     // potentially a different pixel format.
-    HDC                  affinityDC;
-    PFNWGLDELETEDCNVPROC deleteDC;
-    if( !_pipe->createAffinityDC( affinityDC, deleteDC ))
+    HDC affinityDC = 0;
+    if( !_pipe->createAffinityDC( affinityDC, deleteProc ))
     {
         setErrorMessage( "Can't create affinity dc" );
-        return false;
+        return 0;
     }
 
-    // describe pixel format
-    HDC windowDC   = GetDC( hWnd );
-    HDC dc         = affinityDC ? affinityDC : windowDC;
+    return affinityDC;
+#else
+    setErrorMessage( "Client library compiled without WGL support" );
+    return 0;
+#endif
+}
+
+int Window::chooseWGLPixelFormat( HDC dc )
+{
+#ifdef WGL
+    EQASSERT( _wglWindowHandle );
 
     PIXELFORMATDESCRIPTOR pfd = {0};
     pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
@@ -968,15 +1038,15 @@ bool Window::configInitWGL()
 
     const int colorSize = getIAttribute( IATTR_PLANES_COLOR );
     if( colorSize > 0 || colorSize == AUTO )
-        pfd.cColorBits = colorSize>0 ? colorSize : 1;
+        pfd.cColorBits = colorSize>0 ? colorSize : 8;
 
     const int alphaSize = getIAttribute( IATTR_PLANES_ALPHA );
     if( alphaSize > 0 || alphaSize == AUTO )
-        pfd.cAlphaBits = alphaSize>0 ? alphaSize : 1;
+        pfd.cAlphaBits = alphaSize>0 ? alphaSize : 8;
 
     const int depthSize = getIAttribute( IATTR_PLANES_DEPTH );
     if( depthSize > 0  || depthSize == AUTO )
-        pfd.cDepthBits = depthSize>0 ? depthSize : 1;
+        pfd.cDepthBits = depthSize>0 ? depthSize : 24;
 
     const int stencilSize = getIAttribute( IATTR_PLANES_STENCIL );
     if( stencilSize >0 || stencilSize == AUTO )
@@ -987,20 +1057,22 @@ bool Window::configInitWGL()
     if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) != OFF )
         pfd.dwFlags |= PFD_DOUBLEBUFFER;
 
-    int pf = ChoosePixelFormat( dc, &pfd );
+    HDC windowDC = GetDC( _wglWindowHandle );
+    HDC pfDC     = dc ? dc : windowDC;
+    int pf       = ChoosePixelFormat( pfDC, &pfd );
 
     if( pf == 0 && getIAttribute( IATTR_HINT_STEREO ) == AUTO )
     {        
         EQINFO << "Visual not available, trying mono visual" << endl;
         pfd.dwFlags |= PFD_STEREO_DONTCARE;
-        pf = ChoosePixelFormat( dc, &pfd );
+        pf = ChoosePixelFormat( pfDC, &pfd );
     }
 
     if( pf == 0 && stencilSize == AUTO )
-    {        
+    {
         EQINFO << "Visual not available, trying non-stencil visual" << endl;
         pfd.cStencilBits = 0;
-        pf = ChoosePixelFormat( dc, &pfd );
+        pf = ChoosePixelFormat( pfDC, &pfd );
     }
 
     if( pf == 0 && getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
@@ -1008,77 +1080,68 @@ bool Window::configInitWGL()
         EQINFO << "Visual not available, trying singlebuffered visual" 
                << endl;
         pfd.dwFlags |= PFD_DOUBLEBUFFER_DONTCARE;
-        pf = ChoosePixelFormat( dc, &pfd );
+        pf = ChoosePixelFormat( pfDC, &pfd );
     }
 
     if( pf == 0 )
     {
         setErrorMessage( "Can't find matching pixel format: " + 
                          getErrorString( GetLastError( )));
-        ReleaseDC( hWnd, windowDC );
-	    return false;
+        ReleaseDC( _wglWindowHandle, windowDC );
+        return 0;
     }
  
-    if( !SetPixelFormat( dc, pf, &pfd ))
+    if( !SetPixelFormat( windowDC, pf, &pfd ))
     {
-        setErrorMessage( "Can't set pixel format: " + 
+        setErrorMessage( "Can't set window pixel format: " + 
                          getErrorString( GetLastError( )));
-        ReleaseDC( hWnd, windowDC );
-	    return false;
+        ReleaseDC( _wglWindowHandle, windowDC );
+        return 0;
     }
+    ReleaseDC( _wglWindowHandle, windowDC );
 
-    // set the same pixel format on the window DC
-    if( affinityDC )
+    if( dc && !SetPixelFormat( dc, pf, &pfd ))
     {
-        DescribePixelFormat( dc, pf, sizeof( pfd ), &pfd );
-        if( !SetPixelFormat( windowDC, pf, &pfd ))
-        {
-            setErrorMessage( "Can't set pixel format: " + 
-                             getErrorString( GetLastError( )));
-            ReleaseDC( hWnd, windowDC );
-	        return false;
-        }
+        setErrorMessage( "Can't set device pixel format: " + 
+                         getErrorString( GetLastError( )));
+        return 0;
     }
+    
+    return pf;
+#else
+    setErrorMessage( "Client library compiled without WGL support" );
+    return 0;
+#endif
+}
 
-    // context
+HGLRC Window::createWGLContext( HDC dc )
+{
+#ifdef WGL
+    // create context
     HGLRC context = wglCreateContext( dc );
     if( !context )
     {
         setErrorMessage( "Can't create OpenGL context: " + 
                          getErrorString( GetLastError( )));
-	    return false;
+        return 0;
     }
 
-    if( !wglMakeCurrent( dc, context ))
-    {
-        setErrorMessage( "Can't make OpenGL context current: " + 
-                         getErrorString( GetLastError( )));
-	    return false;
-    }
-
+    // share context
     Pipe*    pipe        = getPipe();
     Window*  firstWindow = pipe->getWindows()[0];
+    if( firstWindow == this )
+        return context;
+
     HGLRC    shareCtx    = firstWindow->getWGLContext();
 
     if( shareCtx && !wglShareLists( shareCtx, context ))
-    {
         EQWARN << "Context sharing failed: " << getErrorString( GetLastError( ))
                << endl;
-        _setupObjectManager( 0 );
-    }
-    else
-        _setupObjectManager( shareCtx ? firstWindow : 0 );
 
-    setWGLContext( context );
-    ReleaseDC( hWnd, windowDC );
-    if( affinityDC )
-        deleteDC( affinityDC );
-
-    EQINFO << "Created WGL context " << context << endl;
-    return true;
+    return context;
 #else
     setErrorMessage( "Client library compiled without WGL support" );
-    return false;
+    return 0;
 #endif
 }
 
@@ -1241,7 +1304,7 @@ void Window::_initializeGLData()
     if( result != GLEW_OK )
         EQWARN << "GLEW initialization failed with error " << result <<endl;
 
-    _setupObjectManager( 0 );
+    _setupObjectManager();
 }
 
 void Window::_clearGLData()
@@ -1249,13 +1312,12 @@ void Window::_clearGLData()
     _releaseObjectManager();
 }
 
-void Window::_setupObjectManager( Window* sharedContextWindow )
+void Window::_setupObjectManager()
 {
-    if( _objectManager.isValid( ))
-        return;
+    _releaseObjectManager();
 
-    if( sharedContextWindow )
-        _objectManager = sharedContextWindow->getObjectManager();
+    if( _sharedContextWindow )
+        _objectManager = _sharedContextWindow->getObjectManager();
     
     if( !_objectManager.isValid( ))
         _objectManager = new ObjectManager( _glewContext );

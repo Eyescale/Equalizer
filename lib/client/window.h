@@ -79,6 +79,13 @@ namespace eq
         /** @return the WGL rendering context. */
         HGLRC getWGLContext() const { return _wglContext; }
 
+        /** 
+         * Set the window with which this window shares the OpenGL context,
+         * defaults to the first window of the pipe.
+         */
+        void setSharedContextWindow( Window* sharedContextWindow )
+            { _sharedContextWindow = sharedContextWindow; }
+
         /**
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.
@@ -267,7 +274,6 @@ namespace eq
          * @param initID the init identifier.
          */
         virtual bool configInit( const uint32_t initID );
-        virtual bool configInitWGL();
 
         /** 
          * Initialize the OpenGL state for this window.
@@ -416,6 +422,66 @@ namespace eq
         virtual bool configInitAGLWindow();
         //*}
 
+        //* @name WGL/Win32 initialization
+        //*{
+        /** 
+         * Initialize this window for the WGL window system.
+         *
+         * This method first calls getWGLDeviceContext(), then creates a
+         * drawable using configInitWGLDrawable(), then chooses a pixel format
+         * with chooseWGLPixelFormat() and finally creates the context using
+         * createWGLContext().
+         * 
+         * @return true if the initialization was successful, false otherwise.
+         */
+        virtual bool configInitWGL();
+
+        typedef BOOL (WINAPI * PFNEQDELETEDCPROC)( HDC hdc );
+        /** 
+         * Get a device context for this window.
+         * 
+         * @param deleteProc returns the function to be used to dispose the
+         *                   device context when it is no longer needed.
+         * @return the device context, or 0 when no special device context is 
+         *         needed.
+         */
+        virtual HDC getWGLDeviceContext( PFNEQDELETEDCPROC& deleteProc );
+
+        /** 
+         * Initialize the window's drawable (fullscreen, pbuffer or window) and
+         * bind the WGL context.
+         *
+         * Sets the window handle on success.
+         * 
+         * @param the device context of the pixel format.
+         * @param the window's target pixel format.
+         * @return true if the drawable was created, false otherwise.
+         */
+        virtual bool configInitWGLDrawable( HDC dc );
+
+        /** 
+         * Choose a pixel format based on the window's attributes.
+         * 
+         * Sets the chosen pixel format on the given device context and on the
+         * window's device context. A valid WGL window handle on this window is
+         * a precondition.
+         *
+         * @param dc the device context for the pixel format.
+         * @return a pixel format, or 0 if no pixel format was found.
+         */
+        virtual int chooseWGLPixelFormat( HDC dc );
+
+        /** 
+         * Create a WGL context.
+         * 
+         * This method does not set the window's WGL context.
+         *
+         * @param dc the device context for the rendering context.
+         * @return the context, or 0 if context creation failed.
+         */
+        virtual HGLRC createWGLContext( HDC dc );
+        //*}
+
         /**
          * Start rendering a frame.
          *
@@ -515,6 +581,9 @@ namespace eq
         /** Drawable characteristics of this window */
         DrawableConfig _drawableConfig;
 
+        /** The window sharing the OpenGL context. */
+        Window* _sharedContextWindow;
+
         /** Extended OpenGL function entries when window has a context. */
         GLEWContext*   _glewContext;
 
@@ -601,7 +670,8 @@ namespace eq
         void _clearGLData();
 
         /** Set up object manager during initialization. */
-        void _setupObjectManager( Window* sharedContextWindow );
+        void _setupObjectManager();
+
         /** Release object manager. */
         void _releaseObjectManager();
 
