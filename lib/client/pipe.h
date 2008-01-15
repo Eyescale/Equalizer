@@ -102,6 +102,10 @@ namespace eq
 
         /** @return the pipe's event handler, or 0. */
         EventHandler* getEventHandler() { return _eventHandler; }
+
+        /** 
+         * @return the generic OpenGL function table for the pipe. */
+        WGLEWContext* wglewGetContext() { return _wglewContext; }
         //*}
 
         /**
@@ -368,6 +372,9 @@ namespace eq
         /** The current window system. */
         WindowSystem _windowSystem;
 
+        /** Extended OpenGL function entries. */
+        WGLEWContext*   _wglewContext;
+
         /** The size (and location) of the pipe. */
         PixelViewport _pvp;
 
@@ -437,6 +444,9 @@ namespace eq
         void _addWindow( Window* window );
         void _removeWindow( Window* window );
         Window* _findWindow( const uint32_t id );
+
+        /** Initialize the generic wglew context. */
+        void _configInitWGLEW();
 
         void _flushFrames();
 

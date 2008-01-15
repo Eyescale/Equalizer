@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "pipe.h"
@@ -36,6 +36,7 @@ Pipe::Pipe( Node* parent )
         : _eventHandler( 0 )
         , _node( parent )
         , _windowSystem( WINDOW_SYSTEM_NONE )
+        , _wglewContext( new WGLEWContext )       
         , _port( EQ_UNDEFINED_UINT32 )
         , _device( EQ_UNDEFINED_UINT32 )
         , _thread( 0 )
@@ -76,6 +77,9 @@ Pipe::~Pipe()
     _node->_removePipe( this );
     delete _thread;
     _thread = 0;
+
+    delete _wglewContext;
+    _wglewContext = 0;
 }
 
 void Pipe::_addWindow( Window* window )
@@ -381,6 +385,107 @@ void Pipe::waitExit()
 //---------------------------------------------------------------------------
 // pipe-thread methods
 //---------------------------------------------------------------------------
+void Pipe::_configInitWGLEW()
+{
+    if( _windowSystem != WINDOW_SYSTEM_WGL )
+        return;
+
+#ifdef WGL
+    //----- Create and make current a temporary GL context to initialize WGLEW
+
+    // window class
+    ostringstream className;
+    className << "TMP" << (void*)this;
+    const string& classStr = className.str();
+                                  
+    HINSTANCE instance = GetModuleHandle( 0 );
+    WNDCLASS  wc       = { 0 };
+    wc.lpfnWndProc   = WGLEventHandler::wndProc;    
+    wc.hInstance     = instance; 
+    wc.hIcon         = LoadIcon( NULL, IDI_WINLOGO );
+    wc.hCursor       = LoadCursor( NULL, IDC_ARROW );
+    wc.lpszClassName = classStr.c_str();       
+
+    if( !RegisterClass( &wc ))
+    {
+        EQWARN << "Can't register temporary window class: " 
+               << getErrorString( GetLastError( )) << endl;
+        return;
+    }
+
+    // window
+    DWORD windowStyleEx = WS_EX_APPWINDOW;
+    DWORD windowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW;
+
+    HWND hWnd = CreateWindowEx( windowStyleEx,
+                                wc.lpszClassName, "TMP",
+                                windowStyle, 0, 0, 1, 1,
+                                0, 0, // parent, menu
+                                instance, 0 );
+
+    if( !hWnd )
+    {
+        EQWARN << "Can't create temporary window: "
+               << getErrorString( GetLastError( )) << endl;
+        UnregisterClass( classStr.c_str(),  instance );
+        return;
+    }
+
+    HDC                   dc  = GetDC( hWnd );
+    PIXELFORMATDESCRIPTOR pfd = {0};
+    pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
+    pfd.nVersion     = 1;
+    pfd.dwFlags      = PFD_DRAW_TO_WINDOW |
+                       PFD_SUPPORT_OPENGL;
+
+    int pf = ChoosePixelFormat( dc, &pfd );
+    if( pf == 0 )
+    {
+        EQWARN << "Can't find temporary pixel format: "
+               << getErrorString( GetLastError( )) << endl;
+        DestroyWindow( hWnd );
+        UnregisterClass( classStr.c_str(),  instance );
+        return;
+    }
+ 
+    if( !SetPixelFormat( dc, pf, &pfd ))
+    {
+        EQWARN << "Can't set pixel format: " << getErrorString( GetLastError( ))
+               << endl;
+        ReleaseDC( hWnd, dc );
+        DestroyWindow( hWnd );
+        UnregisterClass( classStr.c_str(),  instance );
+        return;
+    }
+
+    // context
+    HGLRC context = wglCreateContext( dc );
+    if( !context )
+    {
+         EQWARN << "Can't create temporary OpenGL context: " 
+                << getErrorString( GetLastError( )) << endl;
+        ReleaseDC( hWnd, dc );
+        DestroyWindow( hWnd );
+        UnregisterClass( classStr.c_str(),  instance );
+        return;
+    }
+
+    wglMakeCurrent( dc, context );
+
+    const GLenum result = wglewInit();
+    if( result != GLEW_OK )
+        EQWARN << "Pipe WGLEW initialization failed with error " << result 
+               << endl;
+    else
+        EQINFO << "Pipe WGLEW initialization successful" << endl;
+
+    wglDeleteContext( context );
+    ReleaseDC( hWnd, dc );
+    DestroyWindow( hWnd );
+    UnregisterClass( classStr.c_str(),  instance );
+#endif
+}
+
 bool Pipe::configInit( const uint32_t initID )
 {
     switch( _windowSystem )
@@ -606,125 +711,27 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
     if( _device == EQ_UNDEFINED_UINT32 )
         return true;
 
-    //----- Create and make current a temporary GL context to get proc address
-    //      of WGL_NV_gpu_affinity functions.
-
-    // window class
-    ostringstream className;
-    className << "TMP" << (void*)this;
-    const string& classStr = className.str();
-                                  
-    HINSTANCE instance = GetModuleHandle( 0 );
-    WNDCLASS  wc       = { 0 };
-    wc.lpfnWndProc   = WGLEventHandler::wndProc;    
-    wc.hInstance     = instance; 
-    wc.hIcon         = LoadIcon( NULL, IDI_WINLOGO );
-    wc.hCursor       = LoadCursor( NULL, IDC_ARROW );
-    wc.lpszClassName = classStr.c_str();       
-
-    if( !RegisterClass( &wc ))
+    if( !WGLEW_NV_gpu_affinity )
     {
-        setErrorMessage( "Can't register temporary window class: " +
-                         getErrorString( GetLastError( )));
-        return false;
-    }
-
-    // window
-    DWORD windowStyleEx = WS_EX_APPWINDOW;
-    DWORD windowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW;
-
-    HWND hWnd = CreateWindowEx( windowStyleEx,
-                                wc.lpszClassName, "TMP",
-                                windowStyle, 0, 0, 1, 1,
-                                0, 0, // parent, menu
-                                instance, 0 );
-
-    if( !hWnd )
-    {
-        setErrorMessage( "Can't create temporary window: " +
-                         getErrorString( GetLastError( )));
-        UnregisterClass( classStr.c_str(),  instance );
-        return false;
-    }
-
-    HDC                   dc  = GetDC( hWnd );
-    PIXELFORMATDESCRIPTOR pfd = {0};
-    pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
-    pfd.nVersion     = 1;
-    pfd.dwFlags      = PFD_DRAW_TO_WINDOW |
-                       PFD_SUPPORT_OPENGL;
-
-    int pf = ChoosePixelFormat( dc, &pfd );
-    if( pf == 0 )
-    {
-        setErrorMessage( "Can't find temporary pixel format: " +
-                         getErrorString( GetLastError( )));
-        DestroyWindow( hWnd );
-        UnregisterClass( classStr.c_str(),  instance );
-        return false;
-    }
- 
-    if( !SetPixelFormat( dc, pf, &pfd ))
-    {
-        setErrorMessage( "Can't set pixel format: " + 
-                        getErrorString( GetLastError( )));
-        ReleaseDC( hWnd, dc );
-        DestroyWindow( hWnd );
-        UnregisterClass( classStr.c_str(),  instance );
-        return false;
-    }
-
-    // context
-    HGLRC context = wglCreateContext( dc );
-    if( !context )
-    {
-         setErrorMessage( "Can't create temporary OpenGL context: " + 
-                          getErrorString( GetLastError( )));
-        ReleaseDC( hWnd, dc );
-        DestroyWindow( hWnd );
-        UnregisterClass( classStr.c_str(),  instance );
-        return false;
-    }
-
-    wglMakeCurrent( dc, context );
-
-    PFNWGLENUMGPUSNVPROC enumGPUs = (PFNWGLENUMGPUSNVPROC)
-        ( wglGetProcAddress( "wglEnumGpusNV" ));
-    PFNWGLCREATEAFFINITYDCNVPROC createAffinityDC_ = 
-        (PFNWGLCREATEAFFINITYDCNVPROC)
-            ( wglGetProcAddress( "wglCreateAffinityDCNV" ));
-    PFNWGLENUMGPUDEVICESNVPROC enumGPUDevices = 
-        (PFNWGLENUMGPUDEVICESNVPROC)
-            ( wglGetProcAddress( "wglEnumGpuDevicesNV" ));
-    deleteProc = (PFNWGLDELETEDCNVPROC)
-        ( wglGetProcAddress( "wglDeleteDCNV" ));
-
-    wglDeleteContext( context );
-    ReleaseDC( hWnd, dc );
-    DestroyWindow( hWnd );
-    UnregisterClass( classStr.c_str(),  instance );
-
-    if( !enumGPUs || !createAffinityDC_ || !deleteProc )
-    {
-        EQWARN << "WGL_NV_gpu_affinity unsupported, ignoring device setting"
+        EQWARN <<"WGL_NV_gpu_affinity unsupported, ignoring pipe device setting"
                << endl;
         return true;
     }
 
     HGPUNV hGPU[2] = { 0 };
     hGPU[1] = 0;
-    if( !enumGPUs( _device, hGPU ))
+    if( !wglEnumGpusNV( _device, hGPU ))
     {
         setErrorMessage( "Can't enumerate GPU #" + _device );
         return false;
     }
 
     // setup pvp
-    if( !_pvp.isValid() && enumGPUDevices )
+    if( !_pvp.isValid( ))
     {
         GPU_DEVICE device;
         device.cb = sizeof( device );
-        const bool found = enumGPUDevices( hGPU[0], 0, &device );
+        const bool found = wglEnumGpuDevicesNV( hGPU[0], 0, &device );
         EQASSERT( found );
 
         const RECT& rect = device.rcVirtualScreen;
@@ -734,7 +741,7 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
         _pvp.h = rect.bottom - rect.top; 
     }
 
-    affinityDC = createAffinityDC_( hGPU );
+    affinityDC = wglCreateAffinityDCNV( hGPU );
     if( !affinityDC )
     {
         setErrorMessage( "Can't create affinity DC: " +
@@ -825,6 +832,7 @@ eqNet::CommandResult Pipe::_reqConfigInit( eqNet::Command& command )
     _setupCommandQueue();
 
     _error.clear();
+    _configInitWGLEW();
     reply.result  = configInit( packet->initID );
 
     RefPtr<eqNet::Node> node = command.getNode();
