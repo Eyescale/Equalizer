@@ -197,6 +197,7 @@ uint32_t Config::finishFrame()
     RefPtr< Client > client        = getClient();
     const uint32_t   frameToFinish = (_currentFrame >= _latency) ? 
                                       _currentFrame - _latency : 0;
+
     while( _unlockedFrame < _currentFrame || // local sync
            _finishedFrame < frameToFinish )  // global sync
 

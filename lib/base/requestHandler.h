@@ -47,8 +47,7 @@ namespace eqBase
         /** 
          * Registers a new request.
          * 
-         * @param data a pointer to user-specific data for the request, can be
-         *             <code>NULL</code>.
+         * @param data a pointer to user-specific data for the request, can be 0
          * @return the request identifier.
          */
         uint32_t registerRequest( void* data = NULL );

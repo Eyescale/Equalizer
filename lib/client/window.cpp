@@ -1117,6 +1117,8 @@ int Window::chooseWGLPixelFormat( HDC dc )
 HGLRC Window::createWGLContext( HDC dc )
 {
 #ifdef WGL
+    EQASSERT( dc );
+
     // create context
     HGLRC context = wglCreateContext( dc );
     if( !context )

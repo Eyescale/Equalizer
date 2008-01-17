@@ -29,5 +29,8 @@ Leopard Notes
 
  X11 supports all Leopard binary formats (ppc, i386, ppc64, x86_64).
  When using WINDOW_SYSTEM=GLX all these targets are enabled by default.
+
  At least x86_64 support is buggy in 10.5.0. Resizing a window causes a
- crash.
+ crash. Installing the latest X11.app from
+ <http://trac.macosforge.org/projects/xquartz> solves this issue
+ (the version tested was 2.1.2).

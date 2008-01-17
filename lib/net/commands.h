@@ -12,7 +12,6 @@ namespace eqNet
     enum NodeCommand
     {
         CMD_NODE_STOP,
-        REQ_NODE_STOP,
         CMD_NODE_MESSAGE,
         CMD_NODE_MAP_SESSION,
         CMD_NODE_MAP_SESSION_REPLY,
