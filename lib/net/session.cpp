@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "session.h"
@@ -498,7 +498,7 @@ CommandResult Session::_cmdSetIDMaster( Command& command )
     CHECK_THREAD( _receiverThread );
     const SessionSetIDMasterPacket* packet = 
         command.getPacket<SessionSetIDMasterPacket>();
-    EQINFO << "Cmd set ID master: " << packet << endl;
+    EQLOG( LOG_OBJECTS ) << "Cmd set ID master: " << packet << endl;
 
     // TODO thread-safety: _idMasterInfos is also read & written by app
     IDMasterInfo info = { packet->start, packet->start + packet->range, 
@@ -513,7 +513,7 @@ CommandResult Session::_cmdGetIDMaster( Command& command )
     CHECK_THREAD( _receiverThread );
     const SessionGetIDMasterPacket* packet =
         command.getPacket<SessionGetIDMasterPacket>();
-    EQINFO << "handle get idMaster " << packet << endl;
+    EQLOG( LOG_OBJECTS ) << "handle get idMaster " << packet << endl;
 
     SessionGetIDMasterReplyPacket reply( packet );
     reply.start = 0;
