@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_COMMAND_H
@@ -27,7 +27,7 @@ namespace eqNet
     {
     public:
         Command() : _packet(0)   {}
-        Command( const Command& from ); // makes copy of _packet
+        Command( const Command& from ); // deep copy (of _packet)
         ~Command() { release(); }
         
         void swap( Command& rhs );
@@ -55,7 +55,7 @@ namespace eqNet
         bool isValid() const { return ( _packet!=0 ); }
 
     private:
-        Command& operator = ( Command& rhs ); // transfers _packet
+        Command& operator = ( Command& rhs ); // disable assignment
 
         eqBase::RefPtr<Node> _node;
         eqBase::RefPtr<Node> _localNode;

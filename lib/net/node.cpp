@@ -34,13 +34,14 @@ namespace eqNet
 // State management
 //----------------------------------------------------------------------
 Node::Node()
-        : _requestHandler( true ),
-          _autoLaunch( false ),
-          _id( true ),
-          _state( STATE_STOPPED ),
-          _launchID( EQ_ID_INVALID ),
-          _programName( Global::getProgramName( )),
-          _workDir( Global::getWorkDir( ))
+        : _requestHandler( true )
+        , _autoLaunch( false )
+        , _id( true )
+        , _state( STATE_STOPPED )
+        , _receivedCommand( 0 )
+        , _launchID( EQ_ID_INVALID )
+        , _programName( Global::getProgramName( ))
+        , _workDir( Global::getWorkDir( ))
 {
     registerCommand( CMD_NODE_STOP, 
                      CommandFunc<Node>( this, &Node::_cmdStop ));
@@ -634,9 +635,8 @@ bool Node::_handleData()
     _receivedCommand->allocate( node, this, size );
     size -= sizeof( size );
 
-    char*      ptr     = 
-        reinterpret_cast< char* >(_receivedCommand->getPacket()) + 
-        sizeof( size );
+    char* ptr = reinterpret_cast< char* >(_receivedCommand->getPacket()) + 
+                    sizeof( size );
     const bool gotData = connection->recv( ptr, size );
 
     EQASSERT( gotData );
@@ -685,12 +685,6 @@ bool Node::_handleData()
         _pendingCommands.push_back( command );
     }
     
-#if 0 // Note: tradeoff between memory footprint and performance
-    // dealloc 'big' packets immediately
-    if( _receivedCommand->isValid() && (*_receivedCommand)->exceedsMinSize( ))
-        _receivedCommand->release();
-#endif
-
     return true;
 }
 

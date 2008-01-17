@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "commandCache.h"
@@ -40,7 +40,7 @@ Command* CommandCache::alloc( Command& inCommand )
         _freeCommands.pop_front();
     }
 
-    (*outCommand).swap( inCommand );
+    outCommand->swap( inCommand );
     return outCommand;
 }
 

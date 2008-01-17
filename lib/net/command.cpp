@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "command.h"
@@ -32,6 +32,7 @@ void Command::swap( Command& rhs )
     Packet* packet = _packet;
     RefPtr< Node > node = _node;
     RefPtr< Node > localNode = _localNode;
+
     // transfer packet avoiding copy
     _packet        = rhs._packet;
     _node          = rhs._node;
@@ -46,12 +47,11 @@ void Command::allocate( eqBase::RefPtr<Node> node,
                         const uint64_t packetSize )
 {
     if( _packet && packetSize > Packet::minSize && _packet->size < packetSize )
-        release();
+        _packet = static_cast<Packet*>( realloc( _packet, packetSize ));
 
     if( !_packet )
         _packet = static_cast<Packet*>( malloc( EQ_MAX( Packet::minSize,
                                                         packetSize      )));
-
     _node         = node;
     _localNode    = localNode;
     _packet->size = packetSize;
