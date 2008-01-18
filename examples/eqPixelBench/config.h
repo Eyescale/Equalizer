@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PIXELBENCH_CONFIG_H
@@ -14,11 +14,20 @@ class Config : public eq::Config
 public:
     Config();
 
+    /** @sa eq::Config::startFrame */
+    virtual uint32_t startFrame( const uint32_t frameID );
+
     /** @sa eq::Config::handleEvent */
     virtual bool handleEvent( const eq::ConfigEvent* event );
 
+    /** @return the clock started by startFrame, or 0 on render clients. */
+    const eqBase::Clock* getClock() const { return _clock; }
+
 protected:
     virtual ~Config();
+
+private:
+    eqBase::Clock* _clock;
 };
 }
 

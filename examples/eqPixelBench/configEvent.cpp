@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "configEvent.h"
@@ -18,6 +18,10 @@ std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
 
         case ConfigEvent::ASSEMBLE:
             os  << "assemble";
+            break;
+
+        case ConfigEvent::START_LATENCY:
+            os  << "        ";
             break;
 
         default:

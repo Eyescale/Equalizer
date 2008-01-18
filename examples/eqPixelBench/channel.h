@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PIXELBENCH_CHANNEL_H
@@ -15,6 +15,8 @@ public:
     Channel( eq::Window* parent ) : eq::Channel( parent ) {}
 
 protected:
+    virtual void frameStart( const uint32_t frameID,
+                             const uint32_t frameNumber );
     virtual void frameDraw( const uint32_t frameID );
 };
 }

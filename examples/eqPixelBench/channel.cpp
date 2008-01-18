@@ -1,9 +1,10 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "channel.h"
 
+#include "config.h"
 #include "configEvent.h"
 
 using namespace std;
@@ -41,6 +42,34 @@ static EnumMap enums[] = {
     { 0, 0, false, false }};
 
 #define NUM_IMAGES 8
+
+void Channel::frameStart( const uint32_t frameID, const uint32_t frameNumber ) 
+{
+    Config*      config = static_cast< Config* >( getConfig( ));
+    const Clock* clock  = config->getClock();
+
+    if( clock )
+    {
+        ConfigEvent   event;
+        event.msec = clock->getTimef();
+
+        const string& name  = getName();
+        if( name.empty( ))    
+            snprintf( event.data.user.data, 32, "%p", this);
+        else
+            snprintf( event.data.user.data, 32, "%s", name.c_str( ));
+        event.data.user.data[31] = '\0';
+        event.area.x = 0;
+        event.area.y = 0;
+
+        snprintf( event.formatType, 64, "Latency between app and render start");
+        event.data.type = ConfigEvent::START_LATENCY;
+
+        config->sendEvent( event );
+    }
+
+    eq::Channel::frameStart( frameID, frameNumber );
+}
 
 void Channel::frameDraw( const uint32_t frameID )
 {

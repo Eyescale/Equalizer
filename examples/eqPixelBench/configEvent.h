@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PIXELBENCH_CONFIGEVENT_H
@@ -15,7 +15,8 @@ public:
     enum Type
     {
         READBACK = eq::Event::USER,
-        ASSEMBLE
+        ASSEMBLE,
+        START_LATENCY
     };
 
     ConfigEvent()
