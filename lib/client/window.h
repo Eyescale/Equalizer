@@ -183,7 +183,7 @@ namespace eq
          *
          * @param drawable the X11 drawable ID.
          */
-        void setXDrawable( XID drawable );
+        virtual void setXDrawable( XID drawable );
 
         /** 
          * Set the GLX rendering context for this window.
@@ -194,7 +194,7 @@ namespace eq
          *
          * @param drawable the GLX rendering context.
          */
-        void setGLXContext( GLXContext context );
+        virtual void setGLXContext( GLXContext context );
 
         /** 
          * Set the AGL rendering context for this window.
@@ -205,14 +205,14 @@ namespace eq
          *
          * @param drawable the AGL rendering context.
          */
-        void setAGLContext( AGLContext context );
+        virtual void setAGLContext( AGLContext context );
 
         /** 
          * Set the carbon window to be used with the current AGL context.
          * 
          * @param window the window reference.
          */
-        void setCarbonWindow( WindowRef window );
+        virtual void setCarbonWindow( WindowRef window );
         
         /** 
          * Set the Win32 window handle for this window.
@@ -222,7 +222,7 @@ namespace eq
          *
          * @param drawable the window handle.
          */
-        void setWGLWindowHandle( HWND handle );
+        virtual void setWGLWindowHandle( HWND handle );
         
         /** 
          * Set the WGL rendering context for this window.
@@ -233,7 +233,7 @@ namespace eq
          *
          * @param drawable the WGL rendering context.
          */
-        void setWGLContext( HGLRC context );
+        virtual void setWGLContext( HGLRC context );
         //*}
 
         /** @name Actions */

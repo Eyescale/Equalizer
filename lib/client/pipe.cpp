@@ -470,6 +470,9 @@ void Pipe::_configInitWGLEW()
         return;
     }
 
+    HDC   oldDC      = wglGetCurrentDC();
+    HGLRC oldContext = wglGetCurrentContext();
+
     wglMakeCurrent( dc, context );
 
     const GLenum result = wglewInit();
@@ -483,6 +486,8 @@ void Pipe::_configInitWGLEW()
     ReleaseDC( hWnd, dc );
     DestroyWindow( hWnd );
     UnregisterClass( classStr.c_str(),  instance );
+
+    wglMakeCurrent( oldDC, oldContext );
 #endif
 }
 
