@@ -23,6 +23,8 @@ namespace eVolve
         void getLogoTexture( GLuint& id, vmml::Vector2i& size ) const
             { id = _logoTexture; size = _logoSize; }
 
+        GLEWContext* glewGetContext() { return getObjectManager()->glewGetContext(); }
+
     protected:
         virtual ~Window() {}
         virtual bool configInit( const uint32_t initID );

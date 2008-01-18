@@ -36,11 +36,22 @@ bool Window::configInit( const uint32_t initID )
 
 bool Window::configInitGL( const uint32_t initID )
 {
-    Pipe* pipe = static_cast<Pipe*>( getPipe() );
-    if( !pipe->LoadShaders() )
+    Pipe*  pipe  = static_cast<Pipe*>( getPipe() );
+    Model* model = pipe->getModel();
+
+    if( !model )
+        return false;
+
+    model->glewSetContext( glewGetContext( ));
+
+    if( !model->LoadShaders( ))
         return false;
 
     glEnable( GL_SCISSOR_TEST ); // needed to constrain channel viewport
+
+    glClear( GL_COLOR_BUFFER_BIT );
+    swapBuffers();
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
     return true;
 }

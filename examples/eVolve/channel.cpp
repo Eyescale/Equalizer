@@ -32,7 +32,6 @@ using namespace std;
 Channel::Channel( eq::Window* parent )
     : eq::Channel( parent )
     , _bgColor       ( 0.0f, 0.0f, 0.0f, 1.0f ) 
-    , _slicesListID  ( 0 )
 {
     _curFrData.frameID = 0;
 }
@@ -45,48 +44,12 @@ static void checkError( const std::string& msg )
         EQERROR << msg << " GL Error: " << error << endl;
 }
 
-static void createSlicesHexagonsList( const int num, GLuint &listId )
-{
-    if( listId != 0 )
-        glDeleteLists( listId, 1 );
-
-    listId = glGenLists(1);
-
-    glNewList( listId, GL_COMPILE );
-
-    for( int s = 0; s < num; ++s )
-    {
-        glBegin( GL_POLYGON );
-        for( int i = 0; i < 6; ++i )
-            glVertex2i( i, num-1-s );
-        glEnd();
-    }
-
-    glEndList();
-}
-
 bool Channel::configInit( const uint32_t initID )
 {
     EQINFO << "Init channel initID " << initID << " ptr " << this << endl;
 
     // chose projection type
     _perspective = true;
-
-    const Pipe* pipe = static_cast<Pipe*>( getPipe( ));
-
-    const Model* model = pipe->getModel();
-    if( !model )
-    {
-        EQERROR << "model is not loaded" << std::endl;
-        return false;
-    }
-
-    const Node*     node             = static_cast< Node* >( getNode( ));
-    const InitData& initData         = node->getInitData();
-
-    EQASSERT( initData.getPrecision() != 0 );
-    createSlicesHexagonsList( model->getResolution() * initData.getPrecision(),
-                              _slicesListID );
 
 #ifndef DYNAMIC_NEAR_FAR
     setNearFar( 0.0001f, 10.0f );
@@ -137,55 +100,6 @@ void Channel::frameClear( const uint32_t frameID )
 }
 
 
-static void putVolumeDataToShader
-(
-    const VolumeInfo& volumeInfo,
-    const double      sliceDistance,
-    const GLhandleARB glslShader
-)
-{
-    const DataInTextureDimensions& TD = volumeInfo.TD; 
-
-    GLint tParamNameGL;
-
-    // Put texture coordinates modifyers to the shader
-    tParamNameGL = glGetUniformLocationARB( glslShader, "W"  );
-    glUniform1fARB( tParamNameGL, TD.W );
-
-    tParamNameGL = glGetUniformLocationARB( glslShader, "H"  );
-    glUniform1fARB( tParamNameGL, TD.H );
-
-    tParamNameGL = glGetUniformLocationARB( glslShader, "D"  );
-    glUniform1fARB( tParamNameGL, TD.D  );
-
-    tParamNameGL = glGetUniformLocationARB( glslShader, "Do" );
-    glUniform1fARB( tParamNameGL, TD.Do );
-
-    tParamNameGL = glGetUniformLocationARB( glslShader, "Db" );
-    glUniform1fARB( tParamNameGL, TD.Db );
-
-    // Put Volume data to the shader
-    glActiveTexture( GL_TEXTURE1 );
-    glBindTexture( GL_TEXTURE_2D, volumeInfo.preint ); //preintegrated values
-    tParamNameGL = glGetUniformLocationARB( glslShader, "preInt" );
-    glUniform1iARB( tParamNameGL,  1    ); //f-shader
-
-    // Activate last because it has to be the active texture
-    glActiveTexture( GL_TEXTURE0 );
-    glBindTexture( GL_TEXTURE_3D, volumeInfo.volume ); //gx, gy, gz, val
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER,GL_LINEAR    );
-
-    tParamNameGL = glGetUniformLocationARB(  glslShader,  "volume"        );
-    glUniform1iARB( tParamNameGL ,  0            ); //f-shader
-
-    tParamNameGL = glGetUniformLocationARB(  glslShader,  "sliceDistance" );
-    glUniform1fARB( tParamNameGL,  sliceDistance ); //v-shader
-
-    tParamNameGL = glGetUniformLocationARB(  glslShader,  "shininess"     );
-    glUniform1fARB( tParamNameGL,  20.0f         ); //f-shader
-}
-
-
 static void setLights()
 {
     GLfloat lightAmbient[]  = {0.2f, 0.2f, 0.2f, 1.0f};
@@ -218,28 +132,6 @@ static void setLights()
 }
 
 
-static void renderSlices
-( 
-    const GLuint        slicesListID,
-    const SliceClipper& sliceClipper
-)
-{
-    int numberOfSlices = static_cast<int>( 3.6 / sliceClipper.sliceDistance );
-
-    for( int s = 0; s < numberOfSlices; ++s )
-    {
-        glBegin( GL_POLYGON );
-        for( int i = 0; i < 6; ++i )
-        {
-            vmml::Vector3f pos =
-                    sliceClipper.getPosition( i, numberOfSlices-1-s );
-
-            glVertex3f( pos.x, pos.y, pos.z );
-        }
-        glEnd();
-    }
-}
-
 void Channel::frameDraw( const uint32_t frameID )
 {
     // Setup frustum
@@ -251,84 +143,28 @@ void Channel::frameDraw( const uint32_t frameID )
     _curFrData.lastRange  = range;
     _curFrData.frameID    = frameID;
 
-    const Pipe* pipe = static_cast<Pipe*>( getPipe( ));
-
-    const FrameData::Data& data = pipe->getFrameData().data;
+    const Pipe*             pipe = static_cast<Pipe*>( getPipe( ));
+    const FrameData::Data&  data = pipe->getFrameData().data;
 
     glTranslatef(  data.translation.x, data.translation.y, data.translation.z );
     glMultMatrixf( data.rotation.ml );
     setLights();
 
-    Model*      model  = pipe->getModel();
-    GLhandleARB shader = pipe->getShader();
+    Model* model  = pipe->getModel();
+    EQASSERT( model );
 
-    _drawModel( model, shader, range );
+    vmml::Matrix4d  modelviewM;     // modelview matrix
+    vmml::Matrix3d  modelviewITM;   // modelview inversed transposed matrix
+    _calcMVandITMV( modelviewM, modelviewITM );
+
+    model->Render( range, modelviewM, modelviewITM );
+
+    checkError( "error during rendering " );
 
     //Draw logo
     const eq::Viewport& vp = getViewport();
     if( range == eq::Range::ALL && vp.isFullScreen( ))
        _drawLogo();
-}
-
-
-double Channel::_getSliceDistance( uint32_t resolution ) const
-{
-    const Node*      node      = static_cast< Node* >( getNode( ));
-    const InitData&  initData  = node->getInitData();
-    const uint32_t   precision = initData.getPrecision();
-    return 3.6 / ( resolution * precision );
-}
-
-void Channel::_drawModel(       Model*      model,
-                          const GLhandleARB shader,
-                          const eq::Range   range   )
-{
-    VolumeInfo volumeInfo;
-
-    EQASSERT( model );
-    if( !model || !model->getVolumeInfo( volumeInfo, range ))
-    {
-        EQERROR << "Can't get volume data" << endl;
-        return;
-    }
-
-    glScalef( volumeInfo.volScaling.W,
-              volumeInfo.volScaling.H,
-              volumeInfo.volScaling.D );
-
-    // Enable shaders
-    glUseProgramObjectARB( shader );
-
-    // Calculate and put necessary data to shaders 
-    vmml::Matrix4d  modelviewM;     // modelview matrix
-    vmml::Matrix3d  modelviewITM;   // modelview inversed transposed matrix
-    _calcMVandITMV( modelviewM, modelviewITM );
-
-    const uint32_t resolution    = model->getResolution();
-    const double   sliceDistance = _getSliceDistance( resolution );
-
-//    if( !model->isSameRange() )
-        putVolumeDataToShader( volumeInfo, sliceDistance, shader );
-
-    _sliceClipper.updatePerFrameInfo( modelviewM, modelviewITM,
-                                      sliceDistance, range );
-
-    //Render slices
-    glEnable( GL_BLEND );
-#ifdef COMPOSE_MODE_NEW
-    glBlendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
-#else
-    glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
-#endif
-
-    renderSlices( _slicesListID,  _sliceClipper );
-
-    glDisable( GL_BLEND );
-
-    // Disable shader
-    glUseProgramObjectARB( 0 );
-
-    checkError( "error during rendering " );
 }
 
 
@@ -346,21 +182,26 @@ struct Frame
     eq::Range  range;
 };
 
+
 static bool cmpRangesDec(const Frame& frame1, const Frame& frame2)
 {
     return frame1.getRange().start < frame2.getRange().start;
 }
+
 
 static bool cmpRangesInc(const Frame& frame1, const Frame& frame2)
 {
     return frame1.getRange().start > frame2.getRange().start;
 }
 
+
 const FrameData& Channel::_getFrameData() const
 {
-    const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
+    const Pipe* pipe = static_cast<Pipe*>( getPipe( ));
+
     return pipe->getFrameData();
 }
+
 
 void Channel::_calcMVandITMV(
     vmml::Matrix4d& modelviewM,
@@ -443,8 +284,9 @@ void Channel::_orderFrames( vector< Frame >& frames )
         vector< Frame > framesTmp = frames;
 
         //Copy slices that should be rendered first
-        memcpy( &frames[0], &framesTmp[minPos+1],
-                (nFrames-minPos-1)*sizeof( Frame ) );
+        if( minPos < nFrames-1 )
+            memcpy( &frames[0], &framesTmp[minPos+1],
+                    (nFrames-minPos-1)*sizeof( Frame ) );
 
         //Copy sliced that shouls be rendered last in reversed order
         for( size_t i=0; i<=minPos; i++ )

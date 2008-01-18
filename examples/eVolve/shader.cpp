@@ -16,7 +16,10 @@ using namespace std;
 using namespace hlpFuncs;
 
 
-bool checkShader( GLhandleARB shader, const string &type )
+#define glewGetContext() glewCtx
+
+bool checkShader( GLhandleARB shader, const string &type, 
+                              GLEWContext* glewCtx )
 {
     GLint length;
     glGetObjectParameterivARB( shader, GL_OBJECT_INFO_LOG_LENGTH_ARB, &length );
@@ -35,7 +38,8 @@ bool checkShader( GLhandleARB shader, const string &type )
     return true;
 }
 
-GLhandleARB loadShader( const string &shader, GLenum shaderType )
+GLhandleARB loadShader( const string &shader, GLenum shaderType, 
+                              GLEWContext* glewCtx )
 {
     GLhandleARB handle = glCreateShaderObjectARB( shaderType );
     const char* cstr = shader.c_str();
@@ -45,27 +49,30 @@ GLhandleARB loadShader( const string &shader, GLenum shaderType )
     GLint check;
     glGetObjectParameterivARB( handle, GL_OBJECT_COMPILE_STATUS_ARB, &check );
     if(!check)
-        checkShader( handle, "Compiling" );
+        checkShader( handle, "Compiling", glewCtx );
 
     return handle;
 }
 
 
 bool loadShaders( const string &vShader, const string &fShader, 
-                  GLhandleARB &shader )
+                  GLhandleARB &shader, GLEWContext* glewCtx )
 {
     shader = glCreateProgramObjectARB();
     
-    glAttachObjectARB( shader, loadShader( vShader, GL_VERTEX_SHADER_ARB   ));
-    glAttachObjectARB( shader, loadShader( fShader, GL_FRAGMENT_SHADER_ARB ));
+    glAttachObjectARB( shader, loadShader( vShader, GL_VERTEX_SHADER_ARB  , glewCtx ));
+    glAttachObjectARB( shader, loadShader( fShader, GL_FRAGMENT_SHADER_ARB, glewCtx ));
     glLinkProgramARB( shader );
 
     GLint check;
     glGetObjectParameterivARB( shader, GL_OBJECT_LINK_STATUS_ARB, &check );
-    if( !check && !checkShader( shader, "Linking" ) )
+    if( !check && !checkShader( shader, "Linking", glewCtx ) )
         return false;
     
     return true;
 }
+
+#undef glewGetContext()
+
 
 }

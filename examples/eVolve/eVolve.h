@@ -5,13 +5,13 @@
 #ifndef EVOLVE_H
 #define EVOLVE_H
 
-#include "rawVolModel.h"
+#include "rawVolModelRenderer.h"
 
 #include <eq/eq.h>
 
 namespace eVolve
 {
-    typedef RawVolumeModel Model;
+    typedef RawVolumeModelRenderer Model;
 
     class LocalInitData;
 

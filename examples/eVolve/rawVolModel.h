@@ -55,24 +55,28 @@ namespace eVolve
     class RawVolumeModel
     {
     public:
-
         RawVolumeModel( const std::string& filename );
 
         bool loadHeader( const float brightness, const float alpha );
 
         bool getVolumeInfo( VolumeInfo& info, const eq::Range& range );
+
         void releaseVolumeInfo( const eq::Range& range );
 
         const std::string&   getFileName()      const { return _filename;    };
               uint32_t       getResolution()    const { return _resolution;  };
         const VolumeScaling& getVolumeScaling() const { return _volScaling;  };
 
+        void glewSetContext( GLEWContext* context ) { _glewContext = context; }
+
+        GLEWContext* glewGetContext() { return _glewContext; }
+
     protected:
 
         bool _createVolumeTexture(
                                       GLuint&                  volume,
                                       DataInTextureDimensions& TD,
-                                const eq::Range&               range   ) const;
+                                const eq::Range&               range ) const;
 
     private:
         bool _lFailed( char* msg )
@@ -99,6 +103,8 @@ namespace eVolve
         VolumeScaling _volScaling;      //!< Proportions of volume
 
         std::vector< uint8_t >  _TF;    //!< Transfer function
+
+        GLEWContext*   _glewContext;    //!< OpenGL rendering context
     };
 
 }

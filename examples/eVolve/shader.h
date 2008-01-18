@@ -8,7 +8,7 @@
 namespace eqShader
 {
     bool loadShaders( const std::string &vShader, const std::string &fShader,
-                      GLhandleARB &shader );
+                      GLhandleARB &shader, GLEWContext* glewCtx );
     
 }
 #endif // EVOLVE_SHADER_H

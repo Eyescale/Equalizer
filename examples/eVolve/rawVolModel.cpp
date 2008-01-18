@@ -29,6 +29,7 @@ RawVolumeModel::RawVolumeModel( const std::string& filename  )
         : _headerLoaded( false )
         , _filename( filename )
         , _preintName  ( 0 )
+        , _glewContext( 0 )
 {}
 
 bool RawVolumeModel::loadHeader( const float brightness, const float alpha )
@@ -99,7 +100,7 @@ bool RawVolumeModel::getVolumeInfo( VolumeInfo& info, const eq::Range& range )
     {
         // new key
         volumePart = &_volumeHash[ key ];
-        if( !_createVolumeTexture( volumePart->volume, volumePart->TD, range ) )
+        if( !_createVolumeTexture( volumePart->volume, volumePart->TD, range ))
             return false;
     }
     else
@@ -149,7 +150,7 @@ static uint32_t calcMinPow2( uint32_t size )
 */
 bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
                                                   DataInTextureDimensions& TD,
-                                            const eq::Range& range   ) const
+                                            const eq::Range& range    ) const
 {
     const uint32_t w = _w;
     const uint32_t h = _h;
@@ -158,8 +159,11 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
     const int32_t bwStart = 2; //border width from left
     const int32_t bwEnd   = 2; //border width from right
 
-    const int32_t s = clip<int32_t>( static_cast< int32_t >( d*range.start ), 0, d-1 );
-    const int32_t e = clip<int32_t>( static_cast< int32_t >( d*range.end-1 ), 0, d-1 );
+    const int32_t s =
+            clip<int32_t>( static_cast< int32_t >( d*range.start ), 0, d-1 );
+
+    const int32_t e =
+            clip<int32_t>( static_cast< int32_t >( d*range.end-1 ), 0, d-1 );
 
     const uint32_t start =
                 static_cast<uint32_t>( clip<int32_t>( s-bwStart, 0, d-1 ) );
@@ -230,6 +234,7 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
 
     file.close();
 
+    EQASSERT( _glewContext );
     // create 3D texture
     glGenTextures( 1, &volume );
     EQLOG( eq::LOG_CUSTOM ) << "generated texture: " << volume << std::endl;
@@ -254,9 +259,9 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
 */
 static void normalizeScaling
 (
-    const uint32_t      w,
-    const uint32_t      h,
-    const uint32_t      d,
+    const uint32_t       w,
+    const uint32_t       h,
+    const uint32_t       d,
           VolumeScaling& scaling
 )
 {

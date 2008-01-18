@@ -13,9 +13,6 @@
 #include "pipe.h"
 #include "node.h"
 
-#include "fragmentShader_glsl.h"
-#include "vertexShader_glsl.h"
-    
 #include <eq/eq.h>
 
 using namespace eqBase;
@@ -23,6 +20,7 @@ using namespace std;
 
 namespace eVolve
 {
+
 
 eq::WindowSystem Pipe::selectWindowSystem() const
 {
@@ -42,6 +40,7 @@ eq::WindowSystem Pipe::selectWindowSystem() const
     return ws;
 }
 
+
 bool Pipe::configInit( const uint32_t initID )
 {
     const Node*     node        = static_cast<Node*>( getNode( ));
@@ -53,10 +52,11 @@ bool Pipe::configInit( const uint32_t initID )
     EQASSERT( mapped );
 
 
-    const string& filename = initData.getFilename();
+    const string&  filename  = initData.getFilename();
+    const uint32_t precision = initData.getPrecision();
     EQINFO << "Loading model " << filename << endl;
 
-    _model = new Model( filename.c_str() );
+    _model = new Model( filename.c_str(), precision );
     EQASSERT( _model );
 
     if( !_model->loadHeader( initData.getBrightness(), initData.getAlpha( )))
@@ -72,6 +72,7 @@ bool Pipe::configInit( const uint32_t initID )
     return eq::Pipe::configInit( initID );
 }
 
+
 bool Pipe::configExit()
 {
     delete _model;
@@ -83,6 +84,7 @@ bool Pipe::configExit()
     return eq::Pipe::configExit();
 }
 
+
 void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber )
 {
     // don't wait for node to start frame, local sync not needed
@@ -91,22 +93,5 @@ void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber )
     startFrame( frameNumber );
 }
 
-bool Pipe::LoadShaders()
-{
-    if( !_shadersLoaded )
-    {
-        EQLOG( eq::LOG_CUSTOM ) << "using glsl shaders" << endl;
-        if( !eqShader::loadShaders( vertexShader_glsl,
-                                    fragmentShader_glsl, _shader ))
-        {
-            EQERROR << "Can't load glsl shaders" << endl;
-            return false;
-        }
-
-        _shadersLoaded = true;
-        EQLOG( eq::LOG_CUSTOM ) << "shaders loaded" << endl;
-    }
-    return true;
-}
 
 }

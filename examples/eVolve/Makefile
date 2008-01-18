@@ -14,6 +14,7 @@ CXXFILES = \
 	pipe.cpp \
 	shader.cpp\
 	rawVolModel.cpp \
+	rawVolModelRenderer.cpp \
 	sliceClipping.cpp \
 	window.cpp
 

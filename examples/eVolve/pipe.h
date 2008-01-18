@@ -9,20 +9,15 @@
 
 #include "frameData.h"
 
-#include "shader.h"
-
 namespace eVolve
 {
     class Pipe : public eq::Pipe
     {
     public:
-        Pipe( eq::Node* parent ) : eq::Pipe( parent ), _shadersLoaded(false) {}
+        Pipe( eq::Node* parent ) : eq::Pipe( parent ) {}
 
         const FrameData& getFrameData() const { return _frameData; }
 
-        bool LoadShaders();
-
-        GLhandleARB getShader()  const { return _shader;  }
         Model*      getModel()   const { return _model;   }
 
     protected:
@@ -34,12 +29,10 @@ namespace eVolve
         virtual void frameStart( const uint32_t frameID, 
                                  const uint32_t frameNumber );
     private:
-        GLhandleARB _shader;
 
-        bool        _shadersLoaded;
         FrameData   _frameData;
 
-        Model*   _model;      //!< equal to RawVolume Model
+        Model*      _model;      //!< equal to RawVolumeModelRenderer
     };
 }
 
