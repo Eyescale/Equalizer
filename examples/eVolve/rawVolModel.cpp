@@ -150,7 +150,7 @@ static uint32_t calcMinPow2( uint32_t size )
 */
 bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
                                                   DataInTextureDimensions& TD,
-                                            const eq::Range& range    ) const
+                                            const eq::Range& range    )
 {
     const uint32_t w = _w;
     const uint32_t h = _h;

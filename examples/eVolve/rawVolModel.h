@@ -76,7 +76,7 @@ namespace eVolve
         bool _createVolumeTexture(
                                       GLuint&                  volume,
                                       DataInTextureDimensions& TD,
-                                const eq::Range&               range ) const;
+                                const eq::Range&               range );
 
     private:
         bool _lFailed( char* msg )
