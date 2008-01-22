@@ -753,6 +753,8 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
                          getErrorString( GetLastError( )));
         return false;
     }
+
+    deleteProc = wglDeleteDCNV;
     return true;
 #else
     return 0;
