@@ -109,6 +109,11 @@ CommandResult UnbufferedMasterCM::_cmdCommit( Command& command )
 {
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command << endl;
+    if( _slaves.empty( ))
+    {
+        _requestHandler.serveRequest( packet->requestID, _version );
+        return COMMAND_HANDLED;
+    }
 
     ObjectDeltaDataOStream os( _object );
     os.setVersion( _version + 1 );
