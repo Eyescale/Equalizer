@@ -99,8 +99,8 @@ void Channel::frameDraw( const uint32_t spin )
     glNormal3f( 0.0f, 0.0f, 1.0f );
     glBegin( GL_TRIANGLE_STRIP );
     glVertex3f(  .7f,  .7f, -1.0f );
-    glVertex3f(  .7f, -.7f, -1.0f );
     glVertex3f( -.7f,  .7f, -1.0f );
+    glVertex3f(  .7f, -.7f, -1.0f );
     glVertex3f( -.7f, -.7f, -1.0f );
     glEnd();
 
@@ -109,8 +109,8 @@ void Channel::frameDraw( const uint32_t spin )
     glNormal3f( 0.0f, 1.0f, 0.0f );
     glBegin( GL_TRIANGLE_STRIP );
     glVertex3f(  .7f, -1.0f,  .7f );
-    glVertex3f(  .7f, -1.0f, -.7f );
     glVertex3f( -.7f, -1.0f,  .7f );
+    glVertex3f(  .7f, -1.0f, -.7f );
     glVertex3f( -.7f, -1.0f, -.7f );
     glEnd();
 
@@ -119,8 +119,8 @@ void Channel::frameDraw( const uint32_t spin )
     glNormal3f( 0.0f, 0.0f, -1.0f );
     glBegin( GL_TRIANGLE_STRIP );
     glVertex3f(  .7f,  .7f, 1.0f );
-    glVertex3f(  .7f, -.7f, 1.0f );
     glVertex3f( -.7f,  .7f, 1.0f );
+    glVertex3f(  .7f, -.7f, 1.0f );
     glVertex3f( -.7f, -.7f, 1.0f );
     glEnd();
 
@@ -129,8 +129,8 @@ void Channel::frameDraw( const uint32_t spin )
     glNormal3f( 0.f, -1.f, 0.f );
     glBegin( GL_TRIANGLE_STRIP );
     glVertex3f(  .7f, 1.0f,  .7f );
-    glVertex3f(  .7f, 1.0f, -.7f );
     glVertex3f( -.7f, 1.0f,  .7f );
+    glVertex3f(  .7f, 1.0f, -.7f );
     glVertex3f( -.7f, 1.0f, -.7f );
     glEnd();
 
@@ -139,8 +139,8 @@ void Channel::frameDraw( const uint32_t spin )
     glNormal3f( -1.f, 0.f, 0.f );
     glBegin( GL_TRIANGLE_STRIP );
     glVertex3f( 1.0f,  .7f,  .7f );
-    glVertex3f( 1.0f,  .7f, -.7f );
     glVertex3f( 1.0f, -.7f,  .7f );
+    glVertex3f( 1.0f,  .7f, -.7f );
     glVertex3f( 1.0f, -.7f, -.7f );
     glEnd();
 
@@ -149,8 +149,8 @@ void Channel::frameDraw( const uint32_t spin )
     glNormal3f( 1.f, 0.f, 0.f );
     glBegin( GL_TRIANGLE_STRIP );
     glVertex3f( -1.0f,  .7f,  .7f );
-    glVertex3f( -1.0f,  .7f, -.7f );
     glVertex3f( -1.0f, -.7f,  .7f );
+    glVertex3f( -1.0f,  .7f, -.7f );
     glVertex3f( -1.0f, -.7f, -.7f );
     glEnd();
 }
