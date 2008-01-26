@@ -46,6 +46,8 @@ static void checkError( const std::string& msg )
 
 bool Channel::configInit( const uint32_t initID )
 {
+    if( !eq::Channel::configInit( initID ))
+        return false;
     EQINFO << "Init channel initID " << initID << " ptr " << this << endl;
 
     // chose projection type

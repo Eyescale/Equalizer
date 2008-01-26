@@ -11,12 +11,15 @@ namespace eVolve
 {
 bool Node::configInit( const uint32_t initID )
 {
+    if( !eq::Node::configInit( initID ))
+        return false;
+
     eq::Config* config = getConfig();
     const bool  mapped = config->mapObject( &_initData, initID );
     EQASSERT( mapped );
 
     
-    return eq::Node::configInit( initID );
+    return true;
 }
 
 bool Node::configExit()

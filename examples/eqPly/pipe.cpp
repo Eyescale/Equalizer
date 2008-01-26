@@ -40,6 +40,9 @@ eq::WindowSystem Pipe::selectWindowSystem() const
 
 bool Pipe::configInit( const uint32_t initID )
 {
+    if( !eq::Pipe::configInit( initID ))
+        return false;
+
     const Node*     node        = static_cast<Node*>( getNode( ));
     const InitData& initData    = node->getInitData();
     const uint32_t  frameDataID = initData.getFrameDataID();
@@ -47,8 +50,7 @@ bool Pipe::configInit( const uint32_t initID )
 
     const bool mapped = config->mapObject( &_frameData, frameDataID );
     EQASSERT( mapped );
-
-    return eq::Pipe::configInit( initID );
+    return mapped;
 }
 
 bool Pipe::configExit()

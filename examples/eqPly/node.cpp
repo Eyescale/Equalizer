@@ -11,6 +11,9 @@ namespace eqPly
 {
 bool Node::configInit( const uint32_t initID )
 {
+    if( !eq::Node::configInit( initID ))
+        return false;
+
     eq::Config* config = getConfig();
     const bool  mapped = config->mapObject( &_initData, initID );
     EQASSERT( mapped );
@@ -30,7 +33,7 @@ bool Node::configInit( const uint32_t initID )
         _model = 0;
     }
     
-    return eq::Node::configInit( initID );
+    return true;
 }
 
 bool Node::configExit()

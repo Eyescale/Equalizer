@@ -20,8 +20,6 @@ using namespace std;
 
 namespace eVolve
 {
-
-
 eq::WindowSystem Pipe::selectWindowSystem() const
 {
     const Node*            node     = static_cast<Node*>( getNode( ));
@@ -40,9 +38,11 @@ eq::WindowSystem Pipe::selectWindowSystem() const
     return ws;
 }
 
-
 bool Pipe::configInit( const uint32_t initID )
 {
+    if( !eq::Pipe::configInit( initID ))
+        return false;
+
     const Node*     node        = static_cast<Node*>( getNode( ));
     const InitData& initData    = node->getInitData();
     const uint32_t  frameDataID = initData.getFrameDataID();
@@ -69,7 +69,7 @@ bool Pipe::configInit( const uint32_t initID )
         return false;
     }
 
-    return eq::Pipe::configInit( initID );
+    return mapped;
 }
 
 
