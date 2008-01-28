@@ -65,6 +65,7 @@
 %token EQTOKEN_WINDOW_IATTR_HINT_FULLSCREEN
 %token EQTOKEN_WINDOW_IATTR_HINT_DECORATION
 %token EQTOKEN_WINDOW_IATTR_HINT_SWAPSYNC
+%token EQTOKEN_WINDOW_IATTR_HINT_DRAWABLE
 %token EQTOKEN_WINDOW_IATTR_PLANES_COLOR
 %token EQTOKEN_WINDOW_IATTR_PLANES_ALPHA
 %token EQTOKEN_WINDOW_IATTR_PLANES_DEPTH
@@ -87,6 +88,7 @@
 %token EQTOKEN_HINT_DECORATION
 %token EQTOKEN_HINT_STATISTICS
 %token EQTOKEN_HINT_SWAPSYNC
+%token EQTOKEN_HINT_DRAWABLE
 %token EQTOKEN_HINT_THREAD
 %token EQTOKEN_PLANES_COLOR
 %token EQTOKEN_PLANES_ALPHA
@@ -154,6 +156,8 @@
 %token EQTOKEN_STEREO_ANAGLYPH_LEFT_MASK
 %token EQTOKEN_STEREO_ANAGLYPH_RIGHT_MASK
 %token EQTOKEN_UPDATE_FOV
+%token EQTOKEN_WINDOW
+%token EQTOKEN_PBUFFER
 
 %token EQTOKEN_STRING
 %token EQTOKEN_CHARACTER
@@ -254,6 +258,11 @@ global:
      {
          eqs::Global::instance()->setWindowIAttribute(
              eq::Window::IATTR_HINT_SWAPSYNC, $2 );
+     }
+     | EQTOKEN_WINDOW_IATTR_HINT_DRAWABLE IATTR
+     {
+         eqs::Global::instance()->setWindowIAttribute(
+             eq::Window::IATTR_HINT_DRAWABLE, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_PLANES_COLOR IATTR
      {
@@ -434,6 +443,8 @@ windowAttribute:
         { window->setIAttribute( eq::Window::IATTR_HINT_DECORATION, $2 ); }
     | EQTOKEN_HINT_SWAPSYNC IATTR
         { window->setIAttribute( eq::Window::IATTR_HINT_SWAPSYNC, $2 ); }
+    | EQTOKEN_HINT_DRAWABLE IATTR
+        { window->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, $2 ); }
     | EQTOKEN_PLANES_COLOR IATTR
         { window->setIAttribute( eq::Window::IATTR_PLANES_COLOR, $2 ); }
     | EQTOKEN_PLANES_ALPHA IATTR
@@ -630,6 +641,8 @@ IATTR:
     | EQTOKEN_QUAD       { $$ = eq::QUAD; }
     | EQTOKEN_ANAGLYPH   { $$ = eq::ANAGLYPH; } 
     | EQTOKEN_VERTICAL   { $$ = eq::VERTICAL; }
+    | EQTOKEN_WINDOW     { $$ = eq::WINDOW; }
+    | EQTOKEN_PBUFFER    { $$ = eq::PBUFFER; }
     | INTEGER            { $$ = $1; }
 
 STRING: EQTOKEN_STRING

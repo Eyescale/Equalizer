@@ -532,6 +532,8 @@ std::ostream& eqs::operator << ( std::ostream& os, const eqs::Window* window )
                     "hint_decoration   " :
                 i==eq::Window::IATTR_HINT_SWAPSYNC ?
                     "hint_swapsync     " :
+                i==eq::Window::IATTR_HINT_DRAWABLE ?
+                    "hint_drawable     " :
                 i==eq::Window::IATTR_PLANES_COLOR ? 
                     "planes_color      " :
                 i==eq::Window::IATTR_PLANES_ALPHA ?

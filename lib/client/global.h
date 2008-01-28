@@ -17,6 +17,8 @@ namespace eq
     enum IAttrValue
     {
         UNDEFINED  = -0xfffffff,
+        PBUFFER    = -7,
+        WINDOW     = -6,
         VERTICAL   = -5,
         QUAD       = -4,
         ANAGLYPH   = -3,

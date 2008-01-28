@@ -61,6 +61,7 @@ EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER { return EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFE
 EQ_WINDOW_IATTR_HINT_FULLSCREEN  { return EQTOKEN_WINDOW_IATTR_HINT_FULLSCREEN;}
 EQ_WINDOW_IATTR_HINT_DECORATION  { return EQTOKEN_WINDOW_IATTR_HINT_DECORATION;}
 EQ_WINDOW_IATTR_HINT_SWAPSYNC    { return EQTOKEN_WINDOW_IATTR_HINT_SWAPSYNC; }
+EQ_WINDOW_IATTR_HINT_DRAWABLE    { return EQTOKEN_WINDOW_IATTR_HINT_DRAWABLE; }
 
 EQ_WINDOW_IATTR_PLANES_COLOR     { return EQTOKEN_WINDOW_IATTR_PLANES_COLOR; }
 EQ_WINDOW_IATTR_PLANES_ALPHA     { return EQTOKEN_WINDOW_IATTR_PLANES_ALPHA; }
@@ -84,6 +85,7 @@ hint_fullscreen                 { return EQTOKEN_HINT_FULLSCREEN; }
 hint_statistics                 { return EQTOKEN_HINT_STATISTICS; }
 hint_stereo                     { return EQTOKEN_HINT_STEREO; }
 hint_swapsync                   { return EQTOKEN_HINT_SWAPSYNC; }
+hint_drawable                   { return EQTOKEN_HINT_DRAWABLE; }
 hint_thread                     { return EQTOKEN_HINT_THREAD; }
 planes_alpha                    { return EQTOKEN_PLANES_ALPHA; }
 planes_color                    { return EQTOKEN_PLANES_COLOR; }
@@ -150,6 +152,8 @@ stereo_mode                     { return EQTOKEN_STEREO_MODE; }
 stereo_anaglyph_left_mask       { return EQTOKEN_STEREO_ANAGLYPH_LEFT_MASK; }
 stereo_anaglyph_right_mask      { return EQTOKEN_STEREO_ANAGLYPH_RIGHT_MASK; }
 update_FOV                      { return EQTOKEN_UPDATE_FOV; }
+window                          { return EQTOKEN_WINDOW; }
+pbuffer                         { return EQTOKEN_PBUFFER; }
 
 [+-]?[0-9]+[\.][0-9]*           { return EQTOKEN_FLOAT; }
 [+-]?[0-9]*[\.][0-9]+           { return EQTOKEN_FLOAT; }

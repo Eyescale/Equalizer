@@ -43,7 +43,9 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
                 value == NICEST    ? "NICEST" :
                 value == QUAD      ? "QUAD" :
                 value == ANAGLYPH  ? "ANAGLYPH" :
-                value == VERTICAL  ? "VERTICAL" : "ERROR"  );
+                value == VERTICAL  ? "VERTICAL" :
+                value == WINDOW    ? "WINDOW" :
+                value == PBUFFER   ? "PBUFFER" : "ERROR"  );
     return os;
 }
 }

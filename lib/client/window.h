@@ -138,6 +138,7 @@ namespace eq
             IATTR_HINT_FULLSCREEN,
             IATTR_HINT_DECORATION,
             IATTR_HINT_SWAPSYNC,
+            IATTR_HINT_DRAWABLE,
             IATTR_PLANES_COLOR,
             IATTR_PLANES_ALPHA,
             IATTR_PLANES_DEPTH,
