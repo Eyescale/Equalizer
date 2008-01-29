@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "config.h"
@@ -32,9 +32,13 @@ Config::Config()
         , _running( false )
 {
     registerCommand( CMD_CONFIG_CREATE_NODE,
-                   eqNet::CommandFunc<Config>( this, &Config::_cmdCreateNode ));
+                     eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
+    registerCommand( REQ_CONFIG_CREATE_NODE,
+                   eqNet::CommandFunc<Config>( this, &Config::_reqCreateNode ));
     registerCommand( CMD_CONFIG_DESTROY_NODE,
-                  eqNet::CommandFunc<Config>( this, &Config::_cmdDestroyNode ));
+                     eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
+    registerCommand( REQ_CONFIG_DESTROY_NODE,
+                   eqNet::CommandFunc<Config>( this, &Config::_reqDestroyNode ));
     registerCommand( CMD_CONFIG_START_INIT_REPLY, 
                     eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
     registerCommand( REQ_CONFIG_START_INIT_REPLY, 
@@ -348,7 +352,7 @@ bool Config::_connectClientNodes()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Config::_cmdCreateNode( eqNet::Command& command )
+eqNet::CommandResult Config::_reqCreateNode( eqNet::Command& command )
 {
     const ConfigCreateNodePacket* packet = 
         command.getPacket<ConfigCreateNodePacket>();
@@ -364,7 +368,7 @@ eqNet::CommandResult Config::_cmdCreateNode( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_cmdDestroyNode( eqNet::Command& command ) 
+eqNet::CommandResult Config::_reqDestroyNode( eqNet::Command& command ) 
 {
     const ConfigDestroyNodePacket* packet =
         command.getPacket<ConfigDestroyNodePacket>();

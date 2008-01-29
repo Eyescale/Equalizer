@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include <pthread.h>
@@ -28,6 +28,10 @@ void CommandQueue::flush()
 
     if( !empty( ))
         EQWARN << "Flushing non-empty command queue" << endl;
+#ifndef NDEBUG
+    while( !_commands.empty( ))
+        EQINFO << _commands.pop() << endl;
+#endif
 
     if( _lastCommand )
         _commandCache.release( _lastCommand );

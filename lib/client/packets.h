@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PACKETS_H
@@ -83,12 +83,14 @@ namespace eq
     {
         ServerCreateConfigPacket()
             {
-                command = CMD_SERVER_CREATE_CONFIG;
-                size    = sizeof( ServerCreateConfigPacket );
-                name[0] = '\0';
+                command   = CMD_SERVER_CREATE_CONFIG;
+                size      = sizeof( ServerCreateConfigPacket );
+                requestID = EQ_ID_INVALID;
+                name[0]   = '\0';
             }
 
         uint32_t      configID;
+        uint32_t      requestID;
         eqNet::NodeID appNodeID;
         EQ_ALIGN8( char          name[8] );
     };
@@ -112,7 +114,6 @@ namespace eq
                 command   = CMD_SERVER_CHOOSE_CONFIG_REPLY;
                 size      = sizeof( ServerChooseConfigReplyPacket );
                 requestID = requestPacket->requestID;
-                sessionName[0] = '\0';
             }
         ServerChooseConfigReplyPacket( const ServerUseConfigPacket*
                                        requestPacket )
@@ -120,12 +121,10 @@ namespace eq
                 command   = CMD_SERVER_CHOOSE_CONFIG_REPLY;
                 size      = sizeof( ServerChooseConfigReplyPacket );
                 requestID = requestPacket->requestID;
-                sessionName[0] = '\0';
             }
 
         uint32_t requestID;
         uint32_t configID;
-        EQ_ALIGN8( char     sessionName[8] );
     };
 
     struct ServerReleaseConfigPacket : public ServerPacket
@@ -181,6 +180,21 @@ namespace eq
     // Config
     //------------------------------------------------------------
     typedef eqNet::SessionPacket ConfigPacket;
+
+    struct ConfigCreateReplyPacket : public ConfigPacket
+    {
+        ConfigCreateReplyPacket( const ServerCreateConfigPacket* request )
+        {
+            command   = CMD_CONFIG_CREATE_REPLY;
+            size      = sizeof( ConfigCreateReplyPacket );
+            sessionID = request->configID;
+            requestID = request->requestID;
+        }
+
+        uint32_t requestID;
+    };
+
+
     struct ConfigCreateNodePacket : public ConfigPacket
     {
         ConfigCreateNodePacket()
@@ -437,6 +451,7 @@ namespace eq
             }
 
         uint32_t pipeID;
+        bool     threaded;
     };
 
     struct NodeDestroyPipePacket : public eqNet::ObjectPacket
@@ -536,7 +551,6 @@ namespace eq
         uint32_t      port;
         uint32_t      device;
         PixelViewport pvp;
-        bool          threaded;
         EQ_ALIGN8( char name[8] );
     };
 

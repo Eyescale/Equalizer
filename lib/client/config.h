@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_CONFIG_H
@@ -258,8 +258,8 @@ namespace eq
 #endif
 
         /** The command functions. */
-        eqNet::CommandResult _cmdCreateNode( eqNet::Command& command );
-        eqNet::CommandResult _cmdDestroyNode( eqNet::Command& command );
+        eqNet::CommandResult _reqCreateNode( eqNet::Command& command );
+        eqNet::CommandResult _reqDestroyNode( eqNet::Command& command );
         eqNet::CommandResult _reqStartInitReply( eqNet::Command& command );
         eqNet::CommandResult _reqFinishInitReply( eqNet::Command& command );
         eqNet::CommandResult _reqExitReply( eqNet::Command& command );

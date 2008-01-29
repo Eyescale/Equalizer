@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_NODE_H
@@ -270,8 +270,8 @@ namespace eq
         void _flushObjects();
 
         /** The command functions. */
-        eqNet::CommandResult _cmdCreatePipe( eqNet::Command& command );
-        eqNet::CommandResult _cmdDestroyPipe( eqNet::Command& command );
+        eqNet::CommandResult _reqCreatePipe( eqNet::Command& command );
+        eqNet::CommandResult _reqDestroyPipe( eqNet::Command& command );
         eqNet::CommandResult _reqConfigInit( eqNet::Command& command );
         eqNet::CommandResult _reqConfigExit( eqNet::Command& command );
         eqNet::CommandResult _reqFrameStart( eqNet::Command& command );

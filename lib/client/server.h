@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_SERVER_H
@@ -34,7 +34,7 @@ namespace eq
          * Chooses a configuration on the server.
          * 
          * @param parameters the configuration parameters
-         * @return The choosen config, or <code>NULL</code> if no matching
+         * @return The chosen config, or <code>NULL</code> if no matching
          *         config was found.
          * @sa ConfigParams
          */
@@ -72,10 +72,9 @@ namespace eq
         virtual uint32_t getType() const { return TYPE_EQ_SERVER; }
 
         /* The command handler functions. */
-        eqNet::CommandResult _cmdCreateConfig( eqNet::Command& command );
-        eqNet::CommandResult _cmdDestroyConfig( eqNet::Command& command );
-        eqNet::CommandResult _cmdChooseConfigReply( eqNet::Command& command );
-        eqNet::CommandResult _cmdReleaseConfigReply( eqNet::Command& command );
+        eqNet::CommandResult _reqCreateConfig( eqNet::Command& command );
+        eqNet::CommandResult _reqDestroyConfig( eqNet::Command& command );
+        eqNet::CommandResult _reqChooseConfigReply( eqNet::Command& command );
         eqNet::CommandResult _reqReleaseConfigReply( eqNet::Command& command );
         eqNet::CommandResult _cmdShutdownReply( eqNet::Command& command );
     };

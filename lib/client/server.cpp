@@ -15,20 +15,27 @@
 #include <eq/net/command.h>
 #include <eq/net/connection.h>
 
-using namespace eq;
 using namespace eqBase;
 using namespace std;
 
+namespace eq
+{
 Server::Server()
 {
     registerCommand( CMD_SERVER_CREATE_CONFIG, 
-                 eqNet::CommandFunc<Server>( this, &Server::_cmdCreateConfig ));
+                     eqNet::CommandFunc<Server>( this, &Server::_cmdPush ));
+    registerCommand( REQ_SERVER_CREATE_CONFIG, 
+                 eqNet::CommandFunc<Server>( this, &Server::_reqCreateConfig ));
     registerCommand( CMD_SERVER_DESTROY_CONFIG, 
-                eqNet::CommandFunc<Server>( this, &Server::_cmdDestroyConfig ));
+                     eqNet::CommandFunc<Server>( this, &Server::_cmdPush ));
+    registerCommand( REQ_SERVER_DESTROY_CONFIG, 
+                eqNet::CommandFunc<Server>( this, &Server::_reqDestroyConfig ));
     registerCommand( CMD_SERVER_CHOOSE_CONFIG_REPLY, 
-            eqNet::CommandFunc<Server>( this, &Server::_cmdChooseConfigReply ));
+                     eqNet::CommandFunc<Server>( this, &Server::_cmdPush ));
+    registerCommand( REQ_SERVER_CHOOSE_CONFIG_REPLY, 
+            eqNet::CommandFunc<Server>( this, &Server::_reqChooseConfigReply ));
     registerCommand( CMD_SERVER_RELEASE_CONFIG_REPLY, 
-           eqNet::CommandFunc<Server>( this, &Server::_cmdReleaseConfigReply ));
+                     eqNet::CommandFunc<Server>( this, &Server::_cmdPush ));
     registerCommand( REQ_SERVER_RELEASE_CONFIG_REPLY, 
            eqNet::CommandFunc<Server>( this, &Server::_reqReleaseConfigReply ));
     registerCommand( CMD_SERVER_SHUTDOWN_REPLY, 
@@ -67,6 +74,10 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
 #endif
     send( packet, rendererInfo );
 
+    RefPtr< Client > client = getClient();
+    while( !_requestHandler.isServed( packet.requestID ))
+        client->processCommand();
+
     void* ptr = 0;
     _requestHandler.waitRequest( packet.requestID, ptr );
     return static_cast<Config*>( ptr );
@@ -99,6 +110,10 @@ Config* Server::useConfig( const ConfigParams& parameters,
     configInfo += '#' + config;
     send( packet, configInfo );
 
+    RefPtr< Client > client = getClient();
+    while( !_requestHandler.isServed( packet.requestID ))
+        client->processCommand();
+
     void* ptr = 0;
     _requestHandler.waitRequest( packet.requestID, ptr );
     return static_cast<Config*>( ptr );
@@ -109,12 +124,10 @@ void Server::releaseConfig( Config* config )
     EQASSERT( isConnected( ));
 
     ServerReleaseConfigPacket packet;
-    packet.requestID = _requestHandler.registerRequest( config );
+    packet.requestID = _requestHandler.registerRequest();
     packet.configID  = config->getID();
     send( packet );
 
-    // the release might include a Config::exit, which requires us to process
-    // the Node::configExit
     RefPtr< Client > client = getClient();
     while( !_requestHandler.isServed( packet.requestID ))
         client->processCommand();
@@ -139,7 +152,7 @@ bool Server::shutdown()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Command& command )
+eqNet::CommandResult Server::_reqCreateConfig( eqNet::Command& command )
 {
     const ServerCreateConfigPacket* packet = 
         command.getPacket<ServerCreateConfigPacket>();
@@ -154,10 +167,16 @@ eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Command& command )
     localNode->addSession( config, command.getNode(), packet->configID,
                            packet->name );
 
+    if( packet->requestID != EQ_ID_INVALID )
+    {
+        ConfigCreateReplyPacket reply( packet );
+        command.getNode()->send( reply );
+    }
+
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Server::_cmdDestroyConfig( eqNet::Command& command )
+eqNet::CommandResult Server::_reqDestroyConfig( eqNet::Command& command )
 {
     const ServerDestroyConfigPacket* packet = 
         command.getPacket<ServerDestroyConfigPacket>();
@@ -175,7 +194,7 @@ eqNet::CommandResult Server::_cmdDestroyConfig( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Command& command )
+eqNet::CommandResult Server::_reqChooseConfigReply( eqNet::Command& command )
 {
     const ServerChooseConfigReplyPacket* packet = 
         command.getPacket<ServerChooseConfigReplyPacket>();
@@ -187,32 +206,13 @@ eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Command& command )
         return eqNet::COMMAND_HANDLED;
     }
 
-    Config*      config    = Global::getNodeFactory()->createConfig();
-    RefPtr<Node> localNode = command.getLocalNode();
- 
-    EQASSERT( localNode->getSession( packet->configID ) == 0 );
-    config->_appNodeID = localNode->getNodeID();
-    localNode->addSession( config, command.getNode(), packet->configID, 
-                           packet->sessionName);
+    RefPtr<Node>    localNode = command.getLocalNode();
+    eqNet::Session* session   = localNode->getSession( packet->configID );
+    Config*         config    = static_cast< Config* >( session );
+    EQASSERT( dynamic_cast< Config* >( session ));
 
     _requestHandler.serveRequest( packet->requestID, config );
     return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult Server::_cmdReleaseConfigReply( eqNet::Command& command )
-{
-    const ServerReleaseConfigReplyPacket* packet = 
-        command.getPacket<ServerReleaseConfigReplyPacket>();
-
-    RefPtr<Node> localNode = command.getLocalNode();
-    Config*      config    = static_cast<Config*>
-        ( _requestHandler.getRequestData( packet->requestID ));
-    EQASSERT( config );
-    
-    localNode->removeSession( config );
-    delete config;
-
-    return eqNet::COMMAND_PUSH;
 }
 
 eqNet::CommandResult Server::_reqReleaseConfigReply( eqNet::Command& command )
@@ -231,4 +231,5 @@ eqNet::CommandResult Server::_cmdShutdownReply( eqNet::Command& command )
 
     _requestHandler.serveRequest( packet->requestID, packet->result );
     return eqNet::COMMAND_HANDLED;
+}
 }

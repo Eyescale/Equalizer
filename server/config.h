@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_CONFIG_H
@@ -265,6 +265,7 @@ namespace eqs
         eqNet::CommandResult _reqStartFrame( eqNet::Command& command );
         eqNet::CommandResult _reqFinishFrame( eqNet::Command& command ); 
         eqNet::CommandResult _reqFinishAllFrames( eqNet::Command& command ); 
+        eqNet::CommandResult _cmdCreateReply( eqNet::Command& command );
         eqNet::CommandResult _cmdCreateNodeReply( eqNet::Command& command );
     };
 

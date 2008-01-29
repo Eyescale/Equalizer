@@ -132,7 +132,8 @@ void Node::startConfigInit( const uint32_t initID )
             continue;
         
         _config->registerObject( pipe );
-        createPipePacket.pipeID = pipe->getID();
+        createPipePacket.pipeID   = pipe->getID();
+        createPipePacket.threaded = pipe->getIAttribute( Pipe::IATTR_HINT_THREAD );
         _send( createPipePacket );
         pipe->startConfigInit( initID );
     }

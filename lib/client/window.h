@@ -678,8 +678,8 @@ namespace eq
 
         /* The command functions. */
         eqNet::CommandResult _pushCommand( eqNet::Command& command );
-        eqNet::CommandResult _cmdCreateChannel( eqNet::Command& command );
-        eqNet::CommandResult _cmdDestroyChannel(eqNet::Command& command );
+        eqNet::CommandResult _reqCreateChannel( eqNet::Command& command );
+        eqNet::CommandResult _reqDestroyChannel(eqNet::Command& command );
         eqNet::CommandResult _reqConfigInit( eqNet::Command& command );
         eqNet::CommandResult _reqConfigExit( eqNet::Command& command );
         eqNet::CommandResult _reqFrameStart( eqNet::Command& command );

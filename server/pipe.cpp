@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include <pthread.h>
@@ -15,10 +15,11 @@
 #include <eq/net/command.h>
 #include <eq/client/commands.h>
 
-using namespace eqs;
 using namespace eqBase;
 using namespace std;
 
+namespace eqs
+{
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_PIPE_") + #attr )
 std::string Pipe::_iAttributeStrings[IATTR_ALL] = 
 {
@@ -165,7 +166,6 @@ void Pipe::_sendConfigInit( const uint32_t initID )
     packet.port       = _port;
     packet.device     = _device;
     packet.pvp        = _pvp;
-    packet.threaded   = getIAttribute( IATTR_HINT_THREAD );
 
     _send( packet, _name );
     EQLOG( eq::LOG_TASKS ) << "TASK pipe configInit  " << &packet << endl;
@@ -406,4 +406,5 @@ std::ostream& eqs::operator << ( std::ostream& os, const Pipe* pipe )
 
     os << exdent << "}" << endl << enableHeader << enableFlush;
     return os;
+}
 }

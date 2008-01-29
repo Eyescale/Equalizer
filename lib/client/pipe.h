@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PIPE_H
@@ -169,8 +169,11 @@ namespace eq
         void waitFrameLocal( const uint32_t frameNumber ) const
             { _unlockedFrame.waitGE( frameNumber ); }
 
-        /** Wait for the pipe to exit. */
-        void waitExit();
+        /** Start the pipe thread. */
+        void startThread();
+
+        /** Wait for the pipe thread to exit. */
+        void joinThread();
 
     protected:
         /**
@@ -451,11 +454,9 @@ namespace eq
         void _flushFrames();
 
         /* The command functions. */
-        eqNet::CommandResult _cmdCreateWindow( eqNet::Command& command );
-        eqNet::CommandResult _cmdDestroyWindow( eqNet::Command& command );
-        eqNet::CommandResult _cmdConfigInit( eqNet::Command& command );
+        eqNet::CommandResult _reqCreateWindow( eqNet::Command& command );
+        eqNet::CommandResult _reqDestroyWindow( eqNet::Command& command );
         eqNet::CommandResult _reqConfigInit( eqNet::Command& command );
-        eqNet::CommandResult _cmdConfigExit( eqNet::Command& command );
         eqNet::CommandResult _reqConfigExit( eqNet::Command& command );
         eqNet::CommandResult _cmdFrameStart( eqNet::Command& command );
         eqNet::CommandResult _reqFrameStart( eqNet::Command& command );

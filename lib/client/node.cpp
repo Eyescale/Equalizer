@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "node.h"
@@ -27,9 +27,13 @@ Node::Node( Config* parent )
         , _unlockedFrame( 0 )
 {
     registerCommand( CMD_NODE_CREATE_PIPE, 
-                     eqNet::CommandFunc<Node>( this, &Node::_cmdCreatePipe ));
+                     eqNet::CommandFunc<Node>( this, &Node::_cmdPush ));
+    registerCommand( REQ_NODE_CREATE_PIPE, 
+                     eqNet::CommandFunc<Node>( this, &Node::_reqCreatePipe ));
     registerCommand( CMD_NODE_DESTROY_PIPE,
-                    eqNet::CommandFunc<Node>( this, &Node::_cmdDestroyPipe ));
+                     eqNet::CommandFunc<Node>( this, &Node::_cmdPush ));
+    registerCommand( REQ_NODE_DESTROY_PIPE,
+                    eqNet::CommandFunc<Node>( this, &Node::_reqDestroyPipe ));
     registerCommand( CMD_NODE_CONFIG_INIT, 
                      eqNet::CommandFunc<Node>( this, &Node::_cmdPush ));
     registerCommand( REQ_NODE_CONFIG_INIT,
@@ -49,7 +53,7 @@ Node::Node( Config* parent )
     registerCommand( CMD_NODE_FRAME_DRAW_FINISH, 
                      eqNet::CommandFunc<Node>( this, &Node::_cmdPush ));
     registerCommand( REQ_NODE_FRAME_DRAW_FINISH, 
-                  eqNet::CommandFunc<Node>( this, &Node::_reqFrameDrawFinish ));
+                 eqNet::CommandFunc<Node>( this, &Node::_reqFrameDrawFinish ));
 
     parent->_addNode( this );
     EQINFO << " New eq::Node @" << (void*)this << endl;
@@ -309,9 +313,9 @@ bool Node::hasData() const
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Node::_cmdCreatePipe( eqNet::Command& command )
+eqNet::CommandResult Node::_reqCreatePipe( eqNet::Command& command )
 {
-    CHECK_THREAD( _recvThread );
+    CHECK_NOT_THREAD( _recvThread );
     const NodeCreatePipePacket* packet = 
         command.getPacket<NodeCreatePipePacket>();
     EQINFO << "Handle create pipe " << packet << endl;
@@ -320,18 +324,21 @@ eqNet::CommandResult Node::_cmdCreatePipe( eqNet::Command& command )
     Pipe* pipe = Global::getNodeFactory()->createPipe( this );
     _config->attachObject( pipe, packet->pipeID );
     
+    if( packet->threaded )
+        pipe->startThread();
+
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Command& command )
+eqNet::CommandResult Node::_reqDestroyPipe( eqNet::Command& command )
 {
-    CHECK_THREAD( _recvThread );
+    CHECK_NOT_THREAD( _recvThread );
     const NodeDestroyPipePacket* packet = 
         command.getPacket<NodeDestroyPipePacket>();
     EQINFO << "Handle destroy pipe " << packet << endl;
 
     Pipe* pipe = _findPipe( packet->pipeID );
-    pipe->waitExit();
+    pipe->joinThread();
     _config->detachObject( pipe );
 
     delete pipe;

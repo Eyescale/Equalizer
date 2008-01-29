@@ -42,10 +42,12 @@ void Config::_construct()
                      eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
     registerCommand( eq::REQ_CONFIG_FINISH_INIT,
                      eqNet::CommandFunc<Config>(this, &Config::_reqFinishInit));
-    registerCommand( eq::CMD_CONFIG_EXIT, 
+    registerCommand( eq::CMD_CONFIG_EXIT,
                      eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
     registerCommand( eq::REQ_CONFIG_EXIT, 
                      eqNet::CommandFunc<Config>( this, &Config::_reqExit ));
+    registerCommand( eq::CMD_CONFIG_CREATE_REPLY,
+                  eqNet::CommandFunc<Config>( this, &Config::_cmdCreateReply ));
     registerCommand( eq::CMD_CONFIG_CREATE_NODE_REPLY,
               eqNet::CommandFunc<Config>( this, &Config::_cmdCreateNodeReply ));
     registerCommand( eq::CMD_CONFIG_START_FRAME, 
@@ -310,12 +312,11 @@ bool Config::_initNodes( const uint32_t initID,
     EQASSERT( localNode.isValid( ));
 
     eq::ServerCreateConfigPacket createConfigPacket;
+    deque<uint32_t>              createConfigRequests;
     createConfigPacket.configID  = getID();
     createConfigPacket.appNodeID = _appNetNode->getNodeID();
 
-    eq::ConfigCreateNodePacket createNodePacket;
-    vector<uint32_t>           createNodeRequests;
-    
+    // sync node connect and create configs
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
         Node* node = *i;
@@ -333,11 +334,36 @@ bool Config::_initNodes( const uint32_t initID,
         if( !success ) 
             continue;
 
-        // initialize nodes
+        // create config (session) on each non-app node
+        //   app-node already has config
         if( node != _appNode )
+        {
+            createConfigPacket.requestID = _requestHandler.registerRequest();
+            createConfigRequests.push_back( createConfigPacket.requestID );
+
             netNode->send( createConfigPacket, name );
+        }
+    }
+
+    // sync config creation and start node init
+    eq::ConfigCreateNodePacket createNodePacket;
+    vector<uint32_t>           createNodeRequests;
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    {
+        Node* node = *i;
+        if( !node->isUsed( ))
+            continue;
 
         registerObject( node );
+
+        if( node != _appNode )
+        {
+            _requestHandler.waitRequest( createConfigRequests.front( ));
+            createConfigRequests.pop_front();
+        }
+
+        RefPtr<eqNet::Node> netNode = node->getNode();
+
         createNodePacket.nodeID = node->getID();
         createNodePacket.requestID = _requestHandler.registerRequest();
         createNodeRequests.push_back( createNodePacket.requestID );
@@ -349,13 +375,14 @@ bool Config::_initNodes( const uint32_t initID,
         nodeIDs.resize( nodeIDs.size() + 1 );
         netNode->getNodeID().getData( nodeIDs.back( ));
     }
+
     // Need to sync eq::Node creation: It is possible, though unlikely, that
     // Config::startInit returns and Config::broadcastData is used before the
     // NodeCreatePacket has been processed by the render node.
-    while( !createNodeRequests.empty( ))
+    for( vector<uint32_t>::const_iterator i = createNodeRequests.begin();
+         i != createNodeRequests.end(); ++i )
     {
-        _requestHandler.waitRequest( createNodeRequests.back( ));
-        createNodeRequests.pop_back();
+        _requestHandler.waitRequest( *i );
     }
     return success;
 }
@@ -676,6 +703,15 @@ eqNet::CommandResult Config::_reqFinishAllFrames( eqNet::Command& command )
     eq::ConfigFinishAllFramesReplyPacket reply;
     reply.frameNumber = _finishAllFrames();
     send( command.getNode(), reply );
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Config::_cmdCreateReply( eqNet::Command& command ) 
+{
+    const eq::ConfigCreateReplyPacket* packet = 
+        command.getPacket<eq::ConfigCreateReplyPacket>();
+
+    _requestHandler.serveRequest( packet->requestID );
     return eqNet::COMMAND_HANDLED;
 }
 

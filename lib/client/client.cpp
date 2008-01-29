@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "client.h"
@@ -244,9 +244,14 @@ void Client::processCommand()
             abort();
             
         case eqNet::COMMAND_PUSH:
+            EQWARN << "Don't know how to push " << command << endl;
             EQUNIMPLEMENTED;
+            break;
+
         case eqNet::COMMAND_REDISPATCH:
+            EQWARN << "Don't know how to redispatch " << command << endl;
             EQUNIMPLEMENTED;
+            break;
     }
 }
 

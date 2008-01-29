@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "server.h"
@@ -156,15 +156,21 @@ eqNet::CommandResult Server::_reqChooseConfig( eqNet::Command& command )
     const string workDir      = rendererInfo.substr( 0, colonPos );
     const string renderClient = rendererInfo.substr( colonPos + 1 );
  
+    const uint32_t configID = appConfig->getID();
     appConfig->setWorkDir( workDir );
     appConfig->setRenderClient( renderClient );
-
-    reply.configID = appConfig->getID();
-    _appConfigs[reply.configID] = appConfig;
+    _appConfigs[configID] = appConfig;
 
     const string& name = appConfig->getName();
 
-    node->send( reply, name );
+    eq::ServerCreateConfigPacket createConfigPacket;
+    createConfigPacket.configID  = configID;
+    createConfigPacket.appNodeID = node->getNodeID();
+    node->send( createConfigPacket, name );
+
+    reply.configID = configID;
+    node->send( reply );
+
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -200,15 +206,20 @@ eqNet::CommandResult Server::_reqUseConfig( eqNet::Command& command )
     config->setApplicationNetNode( node );
     mapConfig( config );
 
+    const uint32_t configID = config->getID();
     config->setWorkDir( workDir );
     config->setRenderClient( renderClient );
-
-    reply.configID = config->getID();
-    _appConfigs[reply.configID] = config;
+    _appConfigs[configID] = config;
 
     const string& name = config->getName();
 
-    node->send( reply, name );
+    eq::ServerCreateConfigPacket createConfigPacket;
+    createConfigPacket.configID  = configID;
+    createConfigPacket.appNodeID = node->getNodeID();
+    node->send( createConfigPacket, name );
+
+    reply.configID = configID;
+    node->send( reply );
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -234,6 +245,10 @@ eqNet::CommandResult Server::_reqReleaseConfig( eqNet::Command& command )
         EQWARN << "Release of running configuration" << endl;
         config->exit(); // Make sure config is exited
     }
+
+    eq::ServerDestroyConfigPacket destroyConfigPacket;
+    destroyConfigPacket.configID  = config->getID();
+    node->send( destroyConfigPacket );
 
     const bool unmapped = unmapSession( config );
     EQASSERT( unmapped );

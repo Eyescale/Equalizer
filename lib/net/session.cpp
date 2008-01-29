@@ -393,7 +393,7 @@ CommandResult Session::_handleObjectCommand( Command& command )
 
     if( _objects.find( id ) == _objects.end( ))
     {
-        EQWARN << "no objects to handle command, redispatching " << objPacket
+        EQINFO << "no objects to handle command, redispatching " << objPacket
                << endl;
         return COMMAND_REDISPATCH;
     }

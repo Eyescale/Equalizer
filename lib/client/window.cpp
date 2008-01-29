@@ -62,9 +62,13 @@ Window::Window( Pipe* parent )
         , _renderContextAGLLock( 0 )
 {
     registerCommand( CMD_WINDOW_CREATE_CHANNEL, 
-                eqNet::CommandFunc<Window>( this, &Window::_cmdCreateChannel ));
+                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
+    registerCommand( REQ_WINDOW_CREATE_CHANNEL, 
+                eqNet::CommandFunc<Window>( this, &Window::_reqCreateChannel ));
     registerCommand( CMD_WINDOW_DESTROY_CHANNEL,
-               eqNet::CommandFunc<Window>( this, &Window::_cmdDestroyChannel ));
+                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
+    registerCommand( REQ_WINDOW_DESTROY_CHANNEL,
+               eqNet::CommandFunc<Window>( this, &Window::_reqDestroyChannel ));
     registerCommand( CMD_WINDOW_CONFIG_INIT,
                      eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
     registerCommand( REQ_WINDOW_CONFIG_INIT, 
@@ -1623,7 +1627,7 @@ eqNet::CommandResult Window::_pushCommand( eqNet::Command& command )
     return ( _pipe ? _pipe->pushCommand( command ) : _cmdUnknown( command ));
 }
 
-eqNet::CommandResult Window::_cmdCreateChannel( eqNet::Command& command )
+eqNet::CommandResult Window::_reqCreateChannel( eqNet::Command& command )
 {
     const WindowCreateChannelPacket* packet = 
         command.getPacket<WindowCreateChannelPacket>();
@@ -1635,7 +1639,7 @@ eqNet::CommandResult Window::_cmdCreateChannel( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_cmdDestroyChannel(eqNet::Command& command ) 
+eqNet::CommandResult Window::_reqDestroyChannel(eqNet::Command& command ) 
 {
     const WindowDestroyChannelPacket* packet =
         command.getPacket<WindowDestroyChannelPacket>();
