@@ -351,7 +351,7 @@ eqNet::CommandResult Pipe::_cmdConfigExitReply( eqNet::Command& command )
 }
 
 
-std::ostream& eqs::operator << ( std::ostream& os, const Pipe* pipe )
+std::ostream& operator << ( std::ostream& os, const Pipe* pipe )
 {
     if( !pipe )
         return os;

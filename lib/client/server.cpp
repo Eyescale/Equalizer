@@ -209,7 +209,8 @@ eqNet::CommandResult Server::_reqChooseConfigReply( eqNet::Command& command )
     RefPtr<Node>    localNode = command.getLocalNode();
     eqNet::Session* session   = localNode->getSession( packet->configID );
     Config*         config    = static_cast< Config* >( session );
-    EQASSERT( dynamic_cast< Config* >( session ));
+    EQASSERTINFO( dynamic_cast< Config* >( session ), 
+                  "Session id " << packet->configID << " @" << (void*)session );
 
     _requestHandler.serveRequest( packet->requestID, config );
     return eqNet::COMMAND_HANDLED;
