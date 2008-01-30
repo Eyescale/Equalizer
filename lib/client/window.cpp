@@ -417,7 +417,7 @@ XVisualInfo* Window::chooseXVisualInfo()
                                            attribute );
         EQASSERT( iter != attributes.end( ));
         if( *iter == GLX_STENCIL_SIZE ) // two-elem attribute
-            attributes.erase( iter, iter+1 );
+            attributes.erase( iter, iter+2 );
         else                            // one-elem attribute
             attributes.erase( iter );
 
@@ -690,7 +690,7 @@ AGLPixelFormat Window::chooseAGLPixelFormat()
                                              attributes.end(), attribute );
         EQASSERT( iter != attributes.end( ));
 
-        attributes.erase( iter, iter+1 ); // remove two item (attr, value)
+        attributes.erase( iter, iter+2 ); // remove two item (attr, value)
     }
 
     if( !pixelFormat )
@@ -880,7 +880,15 @@ bool Window::configInitWGL()
     HDC dc = getWGLDeviceContext( deleteDCProc );
     EQASSERT( !dc || deleteDCProc );
 
-    if( !configInitWGLDrawable( dc ))
+    int pixelFormat = chooseWGLPixelFormat( dc );
+    if( pixelFormat == 0 )
+    {
+        if( dc )
+            deleteDCProc( dc );
+        return false;
+    }
+
+    if( !configInitWGLDrawable( dc, pixelFormat ))
     {
         if( dc )
             deleteDCProc( dc );
@@ -892,14 +900,6 @@ bool Window::configInitWGL()
         if( dc )
             deleteDCProc( dc );
         setErrorMessage( "configInitWGLDrawable did set no WGL drawable" );
-        return false;
-    }
-
-    int pixelFormat = chooseWGLPixelFormat( dc );
-    if( pixelFormat == 0 )
-    {
-        if( dc )
-            deleteDCProc( dc );
         return false;
     }
 
@@ -925,12 +925,26 @@ bool Window::configInitWGL()
 #endif
 }
 
-bool Window::configInitWGLDrawable( HDC dc )
+bool Window::configInitWGLDrawable( HDC dc, int pixelFormat )
+{
+    switch( getIAttribute( IATTR_HINT_DRAWABLE ))
+    {
+        case PBUFFER:
+            return configInitWGLPBuffer( dc, pixelFormat );
+
+        default:
+            EQWARN << "Unknown drawable type " 
+                   << getIAttribute(IATTR_HINT_DRAWABLE ) << ", using window" 
+                   << endl;
+            // no break;
+        case WINDOW:
+            return configInitWGLWindow( dc, pixelFormat );
+    }
+}
+
+bool Window::configInitWGLWindow( HDC dc, int pixelFormat )
 {
 #ifdef WGL
-    // Note: the dc is not needed for on-screen windows. It is a place holder
-    // for future extensions, e.g., PBuffers.
-
     // window class
     ostringstream className;
     className << (_name.empty() ? string("Equalizer") : _name) << (void*)this;
@@ -997,11 +1011,38 @@ bool Window::configInitWGLDrawable( HDC dc )
         return false;
     }
 
+    HDC windowDC = GetDC( hWnd );
+
+    PIXELFORMATDESCRIPTOR pfd = {0};
+    pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
+    pfd.nVersion     = 1;
+
+    DescribePixelFormat( dc ? dc : windowDC, pixelFormat, sizeof(pfd), &pfd );
+    if( !SetPixelFormat( windowDC, pixelFormat, &pfd ))
+    {
+        ReleaseDC( hWnd, windowDC );
+        setErrorMessage( "Can't set window pixel format: " + 
+            getErrorString( GetLastError( )));
+        return false;
+    }
+    ReleaseDC( hWnd, windowDC );
+
     setWGLWindowHandle( hWnd );
     ShowWindow( hWnd, SW_SHOW );
     UpdateWindow( hWnd );
 
     return true;
+#else
+    setErrorMessage( "Client library compiled without WGL support" );
+    return false;
+#endif
+}
+
+bool Window::configInitWGLPBuffer( HDC dc, int pixelFormat )
+{
+#ifdef WGL
+    EQUNIMPLEMENTED;
+    return false;
 #else
     setErrorMessage( "Client library compiled without WGL support" );
     return false;
@@ -1032,87 +1073,136 @@ HDC Window::getWGLDeviceContext( PFNEQDELETEDCPROC& deleteProc )
 int Window::chooseWGLPixelFormat( HDC dc )
 {
 #ifdef WGL
-    EQASSERT( _wglWindowHandle );
+    EQASSERT( WGLEW_ARB_pixel_format );
 
-    PIXELFORMATDESCRIPTOR pfd = {0};
-    pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
-    pfd.nVersion     = 1;
-    pfd.dwFlags      = PFD_DRAW_TO_WINDOW |
-                       PFD_SUPPORT_OPENGL;
-    pfd.iPixelType   = PFD_TYPE_RGBA;
+    vector< int > attributes;
+    attributes.push_back( WGL_SUPPORT_OPENGL_ARB );
+    attributes.push_back( 1 );
 
     const int colorSize = getIAttribute( IATTR_PLANES_COLOR );
     if( colorSize > 0 || colorSize == AUTO )
-        pfd.cColorBits = colorSize>0 ? colorSize : 8;
+    {
+        const int colorBits = colorSize>0 ? colorSize : 8;
+        attributes.push_back( WGL_RED_BITS_ARB );
+        attributes.push_back( colorBits );
+        attributes.push_back( WGL_GREEN_BITS_ARB );
+        attributes.push_back( colorBits );
+        attributes.push_back( WGL_BLUE_BITS_ARB );
+        attributes.push_back( colorBits );
+    }
 
     const int alphaSize = getIAttribute( IATTR_PLANES_ALPHA );
     if( alphaSize > 0 || alphaSize == AUTO )
-        pfd.cAlphaBits = alphaSize>0 ? alphaSize : 8;
+    {
+        attributes.push_back( WGL_ALPHA_BITS_ARB );
+        attributes.push_back( alphaSize>0 ? alphaSize : 8 );
+    }
 
     const int depthSize = getIAttribute( IATTR_PLANES_DEPTH );
     if( depthSize > 0  || depthSize == AUTO )
-        pfd.cDepthBits = depthSize>0 ? depthSize : 24;
+    {
+        attributes.push_back( WGL_DEPTH_BITS_ARB );
+        attributes.push_back( depthSize>0 ? depthSize : 24 );
+    }
 
     const int stencilSize = getIAttribute( IATTR_PLANES_STENCIL );
     if( stencilSize >0 || stencilSize == AUTO )
-        pfd.cStencilBits = stencilSize>0 ? stencilSize : 1;
+    {
+        attributes.push_back( WGL_STENCIL_BITS_ARB );
+        attributes.push_back( stencilSize>0 ? stencilSize : 1 );
+    }
 
     if( getIAttribute( IATTR_HINT_STEREO ) != OFF )
-        pfd.dwFlags |= PFD_STEREO;
-    if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) != OFF )
-        pfd.dwFlags |= PFD_DOUBLEBUFFER;
-
-    HDC windowDC = GetDC( _wglWindowHandle );
-    HDC pfDC     = dc ? dc : windowDC;
-    int pf       = ChoosePixelFormat( pfDC, &pfd );
-
-    if( pf == 0 && getIAttribute( IATTR_HINT_STEREO ) == AUTO )
-    {        
-        EQINFO << "Visual not available, trying mono visual" << endl;
-        pfd.dwFlags |= PFD_STEREO_DONTCARE;
-        pf = ChoosePixelFormat( pfDC, &pfd );
-    }
-
-    if( pf == 0 && stencilSize == AUTO )
     {
-        EQINFO << "Visual not available, trying non-stencil visual" << endl;
-        pfd.cStencilBits = 0;
-        pf = ChoosePixelFormat( pfDC, &pfd );
+        attributes.push_back( WGL_STEREO_ARB );
+        attributes.push_back( 1 );
     }
 
-    if( pf == 0 && getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
-    {        
-        EQINFO << "Visual not available, trying singlebuffered visual" 
-               << endl;
-        pfd.dwFlags |= PFD_DOUBLEBUFFER_DONTCARE;
-        pf = ChoosePixelFormat( pfDC, &pfd );
+    if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) != OFF )
+    {
+        attributes.push_back( WGL_DOUBLE_BUFFER_ARB );
+        attributes.push_back( 1 );
     }
 
-    if( pf == 0 )
+    if( getIAttribute( IATTR_HINT_DRAWABLE ) == PBUFFER &&
+        WGLEW_ARB_pbuffer )
+    {
+        attributes.push_back( WGL_DRAW_TO_PBUFFER_ARB );
+        attributes.push_back( 1 );
+    }
+    else
+    {
+        attributes.push_back( WGL_DRAW_TO_WINDOW_ARB );
+        attributes.push_back( 1 );
+    }
+
+    attributes.push_back( 0 );
+
+    // build backoff list, least important attribute last
+    vector<int> backoffAttributes;
+    if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
+        backoffAttributes.push_back( WGL_DOUBLE_BUFFER_ARB );
+    if( stencilSize == AUTO )
+        backoffAttributes.push_back( WGL_STENCIL_BITS_ARB );
+    if( getIAttribute( IATTR_HINT_STEREO ) == AUTO )
+        backoffAttributes.push_back( WGL_STEREO_ARB );
+
+    HDC screenDC    = GetDC( 0 );
+    HDC pfDC        = dc ? dc : screenDC;
+    int pixelFormat = 0;
+
+    while( true )
+    {
+        UINT nFormats = 0;
+        if( !wglChoosePixelFormatARB( pfDC, &attributes[0], 0, 1,
+                                      &pixelFormat, &nFormats ))
+        {
+            EQWARN << "wglChoosePixelFormat failed: " 
+                   << getErrorString( GetLastError( )) << endl;
+        }
+
+        if( (pixelFormat && nFormats > 0) ||  // found one or
+            backoffAttributes.empty( ))       // nothing else to try
+
+            break;
+
+        // Gradually remove backoff attributes
+        const int attribute = backoffAttributes.back();
+        backoffAttributes.pop_back();
+
+        vector<GLint>::iterator iter = find( attributes.begin(), 
+            attributes.end(), attribute );
+        EQASSERT( iter != attributes.end( ));
+
+        attributes.erase( iter, iter+2 ); // remove two items (attr, value)
+
+    }
+
+    ReleaseDC( 0, screenDC );
+
+    if( pixelFormat == 0 )
     {
         setErrorMessage( "Can't find matching pixel format: " + 
                          getErrorString( GetLastError( )));
-        ReleaseDC( _wglWindowHandle, windowDC );
         return 0;
     }
  
-    if( !SetPixelFormat( windowDC, pf, &pfd ))
+    if( dc ) // set pixel format on given device context
     {
-        setErrorMessage( "Can't set window pixel format: " + 
-                         getErrorString( GetLastError( )));
-        ReleaseDC( _wglWindowHandle, windowDC );
-        return 0;
-    }
-    ReleaseDC( _wglWindowHandle, windowDC );
+        PIXELFORMATDESCRIPTOR pfd = {0};
+        pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
+        pfd.nVersion     = 1;
 
-    if( dc && !SetPixelFormat( dc, pf, &pfd ))
-    {
-        setErrorMessage( "Can't set device pixel format: " + 
-                         getErrorString( GetLastError( )));
-        return 0;
+        DescribePixelFormat( dc, pixelFormat, sizeof(pfd), &pfd );
+        if( !SetPixelFormat( dc, pixelFormat, &pfd ))
+        {
+            setErrorMessage( "Can't set device pixel format: " + 
+                             getErrorString( GetLastError( )));
+            return 0;
+        }
     }
     
-    return pf;
+    return pixelFormat;
 #else
     setErrorMessage( "Client library compiled without WGL support" );
     return 0;

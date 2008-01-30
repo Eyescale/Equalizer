@@ -92,6 +92,9 @@ namespace eq
          */
         GLEWContext* glewGetContext() { return _glewContext; }
 
+        /** @return the generic WGL function table for the window's pipe. */
+        WGLEWContext* wglewGetContext() { return _pipe->wglewGetContext(); }
+
         /** @return information about the current drawable. */
         const DrawableConfig& getDrawableConfig() const
             { return _drawableConfig; }
@@ -428,9 +431,9 @@ namespace eq
         /** 
          * Initialize this window for the WGL window system.
          *
-         * This method first calls getWGLDeviceContext(), then creates a
-         * drawable using configInitWGLDrawable(), then chooses a pixel format
-         * with chooseWGLPixelFormat() and finally creates the context using
+         * This method first calls getWGLDeviceContext(), then chooses a pixel
+         * format with chooseWGLPixelFormat(), then creates a drawable using 
+         * configInitWGLDrawable() and finally creates the context using
          * createWGLContext().
          * 
          * @return true if the initialization was successful, false otherwise.
@@ -449,28 +452,48 @@ namespace eq
         virtual HDC getWGLDeviceContext( PFNEQDELETEDCPROC& deleteProc );
 
         /** 
-         * Initialize the window's drawable (fullscreen, pbuffer or window) and
-         * bind the WGL context.
-         *
-         * Sets the window handle on success.
-         * 
-         * @param the device context of the pixel format.
-         * @param the window's target pixel format.
-         * @return true if the drawable was created, false otherwise.
-         */
-        virtual bool configInitWGLDrawable( HDC dc );
-
-        /** 
          * Choose a pixel format based on the window's attributes.
          * 
-         * Sets the chosen pixel format on the given device context and on the
-         * window's device context. A valid WGL window handle on this window is
-         * a precondition.
+         * Sets the chosen pixel format on the given device context.
          *
          * @param dc the device context for the pixel format.
          * @return a pixel format, or 0 if no pixel format was found.
          */
         virtual int chooseWGLPixelFormat( HDC dc );
+
+        /** 
+         * Initialize the window's drawable (pbuffer or window) and
+         * bind the WGL context.
+         *
+         * Sets the window handle on success.
+         * 
+         * @param dc the device context of the pixel format.
+         * @param pixelFormat the window's target pixel format.
+         * @return true if the drawable was created, false otherwise.
+         */
+        virtual bool configInitWGLDrawable( HDC dc, int pixelFormat );
+
+        /** 
+         * Initialize the window's with an on-screen Win32 window.
+         *
+         * Sets the window handle on success.
+         * 
+         * @param dc the device context of the pixel format, can be 0.
+         * @param pixelFormat the window's target pixel format.
+         * @return true if the drawable was created, false otherwise.
+         */
+        virtual bool configInitWGLWindow( HDC dc, int pixelFormat );
+
+        /** 
+         * Initialize the window's with an off-screen WGL PBuffer.
+         *
+         * Sets the window handle on success.
+         * 
+         * @param dc the device context of the pixel format, can be 0.
+         * @param pixelFormat the window's target pixel format.
+         * @return true if the drawable was created, false otherwise.
+         */
+        virtual bool configInitWGLPBuffer( HDC dc, int pixelFormat );
 
         /** 
          * Create a WGL context.

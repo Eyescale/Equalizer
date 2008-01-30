@@ -103,8 +103,7 @@ namespace eq
         /** @return the pipe's event handler, or 0. */
         EventHandler* getEventHandler() { return _eventHandler; }
 
-        /** 
-         * @return the generic OpenGL function table for the pipe. */
+        /** @return the generic WGL function table for the pipe. */
         WGLEWContext* wglewGetContext() { return _wglewContext; }
         //*}
 
