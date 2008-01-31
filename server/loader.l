@@ -152,7 +152,6 @@ stereo_mode                     { return EQTOKEN_STEREO_MODE; }
 stereo_anaglyph_left_mask       { return EQTOKEN_STEREO_ANAGLYPH_LEFT_MASK; }
 stereo_anaglyph_right_mask      { return EQTOKEN_STEREO_ANAGLYPH_RIGHT_MASK; }
 update_FOV                      { return EQTOKEN_UPDATE_FOV; }
-window                          { return EQTOKEN_WINDOW; }
 pbuffer                         { return EQTOKEN_PBUFFER; }
 
 [+-]?[0-9]+[\.][0-9]*           { return EQTOKEN_FLOAT; }
