@@ -1041,8 +1041,21 @@ bool Window::configInitWGLWindow( HDC dc, int pixelFormat )
 bool Window::configInitWGLPBuffer( HDC dc, int pixelFormat )
 {
 #ifdef WGL
-    EQUNIMPLEMENTED;
-    return false;
+    const eq::PixelViewport& pvp = getPixelViewport();
+    EQASSERT( pvp.isValid( ));
+
+    HPBUFFERARB pBuffer = wglCreatePbufferARB( dc, pixelFormat, pvp.w, pvp.h,
+                                               0 );
+    if( !pBuffer )
+    {
+        setErrorMessage( "Can't create PBuffer: " + 
+            getErrorString( GetLastError( )));
+        return false;
+    }
+
+    //setWGLPBufferHandle( pBuffer );
+
+    return true;
 #else
     setErrorMessage( "Client library compiled without WGL support" );
     return false;

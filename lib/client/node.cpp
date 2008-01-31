@@ -322,11 +322,12 @@ eqNet::CommandResult Node::_reqCreatePipe( eqNet::Command& command )
     EQASSERT( packet->pipeID != EQ_ID_INVALID );
 
     Pipe* pipe = Global::getNodeFactory()->createPipe( this );
-    _config->attachObject( pipe, packet->pipeID );
-    
+
     if( packet->threaded )
         pipe->startThread();
 
+    _config->attachObject( pipe, packet->pipeID );
+    
     return eqNet::COMMAND_HANDLED;
 }
 
