@@ -286,7 +286,12 @@ void GLXEventHandler::_processEvent( WindowEvent& event, Pipe* pipe )
             event.data.type = Event::KEY_RELEASE;
             event.data.keyPress.key = _getKey( xEvent );
             break;
-                
+
+        case VisibilityNotify:
+            event.data.type = Event::UNKNOWN;
+            EQINFO << "Ignored X event, type " << xEvent.type << endl;
+            break;
+
         default:
             event.data.type = Event::UNKNOWN;
             EQWARN << "Unhandled X event, type " << xEvent.type << endl;
