@@ -24,6 +24,14 @@ namespace eq
     class Frame;
     class Window;
 
+    /**
+     * A Pipe represents a graphics card (GPU) on a Node.
+     *
+     * All Pipe, Window and Channel task methods are executed in a separate
+     * eqBase::Thread, in parallel with all other pipes in the system, unless
+     * the pipe is non-threaded, in which case the tasks are executed on the
+     * Node's main thread.
+     */
     class EQ_EXPORT Pipe : public eqNet::Object
     {
     public:

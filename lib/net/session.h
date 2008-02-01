@@ -19,7 +19,7 @@
 namespace eqNet
 {
     /**
-     * Manages a session.
+     * A logical abstraction for multiple Node s.
      *
      * A session provides unique identifiers for a number of nodes.
      */

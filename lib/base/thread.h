@@ -22,9 +22,6 @@ namespace eqBase
 
     /**
      * An abstraction to create a new execution thread.
-     * 
-     * Depending on the type, a different implementation is used to create the
-     * thread.
      */
     class EQ_EXPORT Thread 
     {

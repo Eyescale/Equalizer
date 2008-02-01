@@ -20,6 +20,11 @@ namespace eq
 
     typedef stde::hash_map< uint32_t, FrameData* > FrameDataCache;
 
+    /**
+     * A Node represents a single computer in the cluster.
+     *
+     * Each node is executed in a seperate process.
+     */
     class EQ_EXPORT Node : public eqNet::Object
     {
     public:

@@ -13,6 +13,9 @@ namespace eq
 {
     class Server;
 
+    /** 
+     * The client represents a network node in the cluster.
+     */
     class EQ_EXPORT Client : public eqNet::Node
     {
     public:

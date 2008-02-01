@@ -9,6 +9,7 @@
 
 #include <eq/eq.h>
 
+/** The Equalizer Volume Rendering Example */
 namespace eVolve
 {
     typedef RawVolumeModelRenderer Model;

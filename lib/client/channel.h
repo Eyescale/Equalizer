@@ -21,6 +21,13 @@ namespace eq
     class SceneObject;
     struct RenderContext;
 
+    /**
+     * A channel represents a two-dimensional viewport within a Window.
+     *
+     * The channel is the basic rendering entity. It executes all
+     * rendering-relevant tasks, such as clear, draw, assemble and readback. It
+     * is a child of a Window.
+     */
     class EQ_EXPORT Channel : public eqNet::Object
     {
     public:

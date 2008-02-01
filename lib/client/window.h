@@ -14,6 +14,20 @@ namespace eq
     class WindowEvent;
     struct RenderContext;
 
+    /**
+     * A Window represents an on-screen or off-screen drawable, and manages an
+     * OpenGL context.
+     *
+     * A Window is a child of a Pipe. The task methods for all windows of a pipe
+     * are executed sequentially in the same thread, in the order they are
+     * stored on the Pipe.
+     *
+     * The default window initialization methods do initialize all windows of
+     * the same Pipe with a shared context, so that OpenGL objects can be reused
+     * between them for optimal GPU memory usage. Please not that each window
+     * might have it's own OpenGL command buffer, thus glFlush might be needed
+     * to synchronize the state of OpenGL objects between windows.
+     */
     class EQ_EXPORT Window : public eqNet::Object
     {
     public:

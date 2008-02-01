@@ -18,6 +18,10 @@ namespace eq
     class SceneObject;
     struct ConfigEvent;
 
+    /**
+     * The configuration groups all processes of the application in a single
+     * eqNet::Session.
+     */
     class EQ_EXPORT Config : public eqNet::Session
     {
     public:

@@ -7,6 +7,7 @@
 
 #include <eq/eq.h>
 
+/** The Equalizer Pixel Transfer Benchmark Utility */
 namespace eqPixelBench
 {
 class Config : public eq::Config

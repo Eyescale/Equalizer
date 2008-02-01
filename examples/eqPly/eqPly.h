@@ -11,6 +11,7 @@
 
 typedef mesh::VertexBufferRoot    Model;
 
+/** The Equalizer Polygonal Rendering Example. */
 namespace eqPly
 {
     class LocalInitData;
