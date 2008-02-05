@@ -98,6 +98,9 @@ namespace eqNet
         /** @return if this instance is the master version. */
         virtual bool isMaster() const = 0;
 
+        /** @return the instance identifier of the master object. */
+        virtual uint32_t getMasterInstanceID() const = 0;
+
         /** 
          * Add a subscribed slave to the managed object.
          * 

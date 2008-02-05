@@ -18,11 +18,12 @@ using namespace eqNet;
 using namespace eqBase;
 using namespace std;
 
-FullSlaveCM::FullSlaveCM( Object* object )
+FullSlaveCM::FullSlaveCM( Object* object, uint32_t masterInstanceID )
         : StaticSlaveCM( object )
         , _version( Object::VERSION_NONE )
         , _mutex( 0 )
         , _currentDeltaStream( 0 )
+        , _masterInstanceID( masterInstanceID )
 {
     registerCommand( CMD_OBJECT_DELTA_DATA,
                  CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdDeltaData ));

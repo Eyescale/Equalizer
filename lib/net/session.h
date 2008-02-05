@@ -255,8 +255,8 @@ namespace eqNet
         /** The local identifier pool. */
         eqBase::IDPool _localPool;
 
-        /** The identifier pool for node-local instance identifiers. */
-        eqBase::IDPool _instanceIDs;
+        /** The identifiers for node-local instance identifiers. */
+        uint32_t _instanceIDs;
 
         /** Stores a mapping from a block of identifiers to a master node. */
         struct IDMasterInfo
@@ -299,9 +299,7 @@ namespace eqNet
         CommandResult _cmdSubscribeObject( Command& command );
         CommandResult _cmdSubscribeObjectSuccess( Command& command );
         CommandResult _cmdSubscribeObjectReply( Command& command );
-        CommandResult _cmdUnmapObject( Command& command );
         CommandResult _cmdUnsubscribeObject( Command& command );
-        CommandResult _cmdUnsubscribeObjectReply( Command& command );
 
         CHECK_THREAD_DECLARE( _receiverThread );
     };

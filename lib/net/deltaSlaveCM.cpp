@@ -16,8 +16,8 @@ using namespace eqNet;
 using namespace eqBase;
 using namespace std;
 
-DeltaSlaveCM::DeltaSlaveCM( Object* object )
-        : FullSlaveCM( object )
+DeltaSlaveCM::DeltaSlaveCM( Object* object, uint32_t masterInstanceID )
+        : FullSlaveCM( object, masterInstanceID )
 {
 }
 

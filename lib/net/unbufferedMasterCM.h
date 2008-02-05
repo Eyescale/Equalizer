@@ -52,6 +52,9 @@ namespace eqNet
         //*}
 
         virtual bool isMaster() const { return true; }
+        virtual uint32_t getMasterInstanceID() const
+            { EQDONTCALL; return EQ_ID_INVALID; }
+
         virtual void addSlave( eqBase::RefPtr<Node> node, 
                                const uint32_t instanceID );
         virtual void removeSlave( eqBase::RefPtr<Node> node );

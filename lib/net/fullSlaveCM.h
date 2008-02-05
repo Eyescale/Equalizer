@@ -24,7 +24,7 @@ namespace eqNet
     class FullSlaveCM : public StaticSlaveCM
     {
     public:
-        FullSlaveCM( Object* object );
+        FullSlaveCM( Object* object, uint32_t masterInstanceID );
         virtual ~FullSlaveCM();
 
         virtual void makeThreadSafe();
@@ -51,6 +51,7 @@ namespace eqNet
         //*}
 
         virtual bool isMaster() const { return false; }
+        virtual uint32_t getMasterInstanceID() const {return _masterInstanceID;}
 
         virtual void addSlave( eqBase::RefPtr<Node> slave, 
                                const uint32_t instanceID )    { EQDONTCALL; }
@@ -74,6 +75,9 @@ namespace eqNet
 
         /** istream for receiving the current version */
         ObjectDataIStream* _currentDeltaStream;
+
+        /** The instance identifier of the master object. */
+        uint32_t _masterInstanceID;
 
         void _syncToHead();
 

@@ -187,7 +187,7 @@
 file:   global server | global config;
 
 global: EQTOKEN_GLOBAL '{' globals '}' 
-        |
+        | /* null */
         ;
 
 globals: global | globals global;

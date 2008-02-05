@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_PACKETS_H
@@ -289,34 +289,12 @@ namespace eqNet
         uint32_t            objectID;
     };
 
-    struct SessionDetachObjectPacket : public SessionPacket
-    {
-        SessionDetachObjectPacket()
-            {
-                command = CMD_SESSION_DETACH_OBJECT;
-                size    = sizeof( SessionDetachObjectPacket ); 
-            }
-        
-        uint32_t            requestID;
-    };
-
     struct SessionMapObjectPacket : public SessionPacket
     {
         SessionMapObjectPacket()
             {
                 command = CMD_SESSION_MAP_OBJECT;
                 size    = sizeof( SessionMapObjectPacket ); 
-            }
-        
-        uint32_t            requestID;
-    };
-
-    struct SessionUnmapObjectPacket : public SessionPacket
-    {
-        SessionUnmapObjectPacket()
-            {
-                command = CMD_SESSION_UNMAP_OBJECT;
-                size    = sizeof( SessionUnmapObjectPacket ); 
             }
         
         uint32_t            requestID;
@@ -349,6 +327,7 @@ namespace eqNet
         uint32_t requestID;
         uint32_t instanceID;
         uint32_t changeType;
+        uint32_t masterInstanceID;
     };
 
     struct SessionSubscribeObjectReplyPacket : public SessionPacket
@@ -374,19 +353,31 @@ namespace eqNet
         
         uint32_t            requestID;
         uint32_t            objectID;
+        uint32_t            masterInstanceID;
+        uint32_t            slaveInstanceID;
     };
 
-    struct SessionUnsubscribeObjectReplyPacket : public SessionPacket
+    struct SessionDetachObjectPacket : public SessionPacket
     {
-        SessionUnsubscribeObjectReplyPacket( 
-            const SessionUnsubscribeObjectPacket* request )
-            {
-                command   = CMD_SESSION_UNSUBSCRIBE_OBJECT_REPLY;
-                size      = sizeof( SessionUnsubscribeObjectReplyPacket ); 
-                requestID = request->requestID;
-            }
-        
+        SessionDetachObjectPacket()
+        {
+            command   = CMD_SESSION_DETACH_OBJECT;
+            size      = sizeof( SessionDetachObjectPacket ); 
+            requestID = EQ_ID_INVALID;
+        }
+
+        SessionDetachObjectPacket(const SessionUnsubscribeObjectPacket* request)
+        {
+            command   = CMD_SESSION_DETACH_OBJECT;
+            size      = sizeof( SessionDetachObjectPacket ); 
+            requestID = request->requestID;
+            objectID  = request->objectID;
+            objectInstanceID = request->slaveInstanceID;
+        }
+
         uint32_t            requestID;
+        uint32_t            objectID;
+        uint32_t            objectInstanceID;
     };
 
     //------------------------------------------------------------

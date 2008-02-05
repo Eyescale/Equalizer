@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "idPool.h"
@@ -54,10 +54,9 @@ uint32_t IDPool::genIDs( const uint32_t range )
 
 uint32_t IDPool::_genIDs( const uint32_t range )
 {
-    for( list<Block*>::iterator iter = _freeIDs.begin();
-         iter != _freeIDs.end(); ++iter )
+    for( list<Block*>::iterator i = _freeIDs.begin(); i != _freeIDs.end(); ++i )
     {
-        Block* block = *iter;
+        Block* block = *i;
 
         if( range <= block->range )
         {
@@ -68,7 +67,7 @@ uint32_t IDPool::_genIDs( const uint32_t range )
 
             if( block->range == 0 )
             {
-                _freeIDs.erase( iter );
+                _freeIDs.erase( i );
                 _blockCache.push_front( block );
             }
 

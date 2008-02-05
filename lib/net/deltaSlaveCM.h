@@ -23,7 +23,7 @@ namespace eqNet
     class DeltaSlaveCM : public FullSlaveCM
     {
     public:
-        DeltaSlaveCM( Object* object );
+        DeltaSlaveCM( Object* object, uint32_t masterInstanceID );
         virtual ~DeltaSlaveCM();
 
     protected:

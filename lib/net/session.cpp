@@ -16,18 +16,19 @@
 #endif
 
 using namespace eqBase;
-using namespace eqNet;
 using namespace std;
 
+namespace eqNet
+{
 #define MIN_ID_RANGE 1024
 
 Session::Session( const bool threadSafe )
-        : _requestHandler( threadSafe ),
-          _id(EQ_ID_INVALID),
-          _isMaster(false),
-          _masterPool( IDPool::MAX_CAPACITY ),
-          _localPool( 0 ),
-          _instanceIDs( IDPool::MAX_CAPACITY ) 
+        : _requestHandler( threadSafe )
+        , _id(EQ_ID_INVALID)
+        , _isMaster(false)
+        , _masterPool( IDPool::MAX_CAPACITY )
+        , _localPool( 0 )
+        , _instanceIDs( 0 ) 
 {
     registerCommand( CMD_SESSION_GEN_IDS, 
                      CommandFunc<Session>( this, &Session::_cmdGenIDs ));
@@ -53,12 +54,8 @@ Session::Session( const bool threadSafe )
             CommandFunc<Session>( this, &Session::_cmdSubscribeObjectSuccess ));
     registerCommand( CMD_SESSION_SUBSCRIBE_OBJECT_REPLY,
               CommandFunc<Session>( this, &Session::_cmdSubscribeObjectReply ));
-    registerCommand( CMD_SESSION_UNMAP_OBJECT,
-                     CommandFunc<Session>( this, &Session::_cmdUnmapObject ));
     registerCommand( CMD_SESSION_UNSUBSCRIBE_OBJECT,
                  CommandFunc<Session>( this, &Session::_cmdUnsubscribeObject ));
-    registerCommand( CMD_SESSION_UNSUBSCRIBE_OBJECT_REPLY,
-            CommandFunc<Session>( this, &Session::_cmdUnsubscribeObjectReply ));
 
     EQINFO << "New Session @" << (void*)this << endl;
 }
@@ -206,8 +203,10 @@ void Session::attachObject( Object* object, const uint32_t id )
     {
         CHECK_THREAD( _receiverThread );
 
+        _instanceIDs = ( _instanceIDs + 1 ) % IDPool::MAX_CAPACITY;
+
         object->_id         = id;
-        object->_instanceID = _instanceIDs.genIDs(1);
+        object->_instanceID = _instanceIDs;
         object->_session    = this;
 
         _objectsMutex.set();
@@ -235,7 +234,7 @@ void Session::detachObject( Object* object )
     {
         CHECK_THREAD( _receiverThread );
 
-        const uint32_t            id      = object->getID();
+        const uint32_t id = object->getID();
         EQASSERT( id != EQ_ID_INVALID );
         EQASSERT( _objects.find( id ) != _objects.end( ));
 
@@ -256,20 +255,24 @@ void Session::detachObject( Object* object )
         }
 
         EQASSERT( object->_instanceID != EQ_ID_INVALID );
-        _instanceIDs.freeIDs( object->_instanceID, 1 );
 
         object->_id         = EQ_ID_INVALID;
         object->_instanceID = EQ_ID_INVALID;
         object->_session    = 0;
-        object->_setChangeManager( ObjectCM::ZERO );
+        // Slave objects keep their cm to be able to sync queued versions
+        if( object->isMaster( )) 
+            object->_setChangeManager( ObjectCM::ZERO );
         return;
     }
     // else
 
     SessionDetachObjectPacket packet;
-    packet.requestID = _requestHandler.registerRequest( object );
+    packet.requestID = _requestHandler.registerRequest();
+    packet.objectID  = object->getID();
+    packet.objectInstanceID  = object->getInstanceID();
+
     _sendLocal( packet );
-    _requestHandler.waitRequest( packet.requestID );    
+    _requestHandler.waitRequest( packet.requestID );
 }
 
 bool Session::mapObject( Object* object, const uint32_t id )
@@ -322,18 +325,40 @@ bool Session::mapObject( Object* object, const uint32_t id )
 
 void Session::unmapObject( Object* object )
 {
-    if( object->getID() == EQ_ID_INVALID ) // not registered
+    const uint32_t id = object->getID();
+    if( id == EQ_ID_INVALID ) // not registered
 		return;
 
     EQASSERT( !_localNode->inReceiverThread( ));
-
-    SessionUnmapObjectPacket packet;
-    packet.requestID = _requestHandler.registerRequest( object );
-
     EQLOG( LOG_OBJECTS ) << "Unmap " << typeid( *object ).name() << " from id "
-                          << object->getID() << endl;
-    _sendLocal( packet );
-    _requestHandler.waitRequest( packet.requestID );
+        << object->getID() << endl;
+
+    // Slave: send unsubscribe to master. Master will send detach packet.
+    if( !object->isMaster( ))
+    {
+        const uint32_t masterInstanceID = object->getMasterInstanceID();
+        if( masterInstanceID != EQ_ID_INVALID )
+        {
+            RefPtr<Node> master = _pollIDMasterNode( id );
+            if( master.isValid( ))
+            {
+                SessionUnsubscribeObjectPacket packet;
+                packet.requestID = _requestHandler.registerRequest();
+                packet.objectID  = id;
+                packet.masterInstanceID = masterInstanceID;
+                packet.slaveInstanceID  = object->getInstanceID();
+                send( master, packet );
+
+                _requestHandler.waitRequest( packet.requestID );
+                return;
+            }
+            EQERROR << "Master node for object id " << id << " not connected"
+                    << endl;
+        }
+    }
+
+    // Master (or no unsubscribe sent): Detach directly
+    detachObject( object );
 }
 
 void Session::registerObject( Object* object )
@@ -578,10 +603,26 @@ CommandResult Session::_cmdDetachObject( Command& command )
         command.getPacket<SessionDetachObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd detach object " << packet << endl;
 
-    Object* object =  static_cast<Object*>( _requestHandler.getRequestData( 
-                                                packet->requestID ));
-    detachObject( object );
-    _requestHandler.serveRequest( packet->requestID );
+    const uint32_t id   = packet->objectID;
+    if( _objects.find( id ) != _objects.end( ))
+    {
+        vector<Object*>& objects = _objects[id];
+
+        for( vector<Object*>::const_iterator i = objects.begin();
+            i != objects.end(); ++i )
+        {
+            Object* object = *i;
+            if( object->getInstanceID() == packet->objectInstanceID )
+            {
+                detachObject( object );
+                break;
+            }
+        }
+    }
+
+    if( packet->requestID != EQ_ID_INVALID )
+        _requestHandler.serveRequest( packet->requestID );
+
     return COMMAND_HANDLED;
 }
 
@@ -599,11 +640,13 @@ CommandResult Session::_cmdMapObject( Command& command )
 
     if( !object->isMaster( ))
     { 
+        _instanceIDs = ( _instanceIDs + 1 ) % IDPool::MAX_CAPACITY;
+
         // slave instantiation - subscribe first
         SessionSubscribeObjectPacket subscribePacket;
         subscribePacket.requestID  = packet->requestID;
         subscribePacket.objectID   = data->objectID;
-        subscribePacket.instanceID = _instanceIDs.genIDs(1);
+        subscribePacket.instanceID = _instanceIDs;
 
         send( data->master, subscribePacket );
         return COMMAND_HANDLED;
@@ -640,7 +683,8 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
             if( object->isMaster( ))
             {
                 SessionSubscribeObjectSuccessPacket successPacket( packet );
-                successPacket.changeType = object->getChangeType();
+                successPacket.changeType       = object->getChangeType();
+                successPacket.masterInstanceID = object->getInstanceID();
                 send( node, successPacket );
 
                 object->addSlave( node, packet->instanceID );
@@ -680,7 +724,8 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
     object->_session    = this;
 
     object->_setupChangeManager( 
-        static_cast< Object::ChangeType >( packet->changeType ), false );
+        static_cast< Object::ChangeType >( packet->changeType ), false, 
+        packet->masterInstanceID );
 
     _objectsMutex.set();
     vector<Object*>& objects = _objects[ data->objectID ];
@@ -706,56 +751,12 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
     return COMMAND_HANDLED;
 }
 
-CommandResult Session::_cmdUnmapObject( Command& command )
-{
-    CHECK_THREAD( _receiverThread );
-    SessionUnmapObjectPacket* packet =
-        command.getPacket<SessionUnmapObjectPacket>();
-    EQLOG( LOG_OBJECTS ) << "Cmd unmap object " << packet << endl;
-
-    Object* object = static_cast<Object*>(
-        _requestHandler.getRequestData( packet->requestID ));
-    EQASSERT( object );
-
-    const uint32_t id = object->getID();
-    if( _objects.find( id ) == _objects.end( ))
-    {
-        EQASSERT( id == EQ_ID_INVALID );
-        EQWARN << "trying to remove unmapped object" << endl;
-        return COMMAND_HANDLED;
-    }
-
-    if( !object->isMaster( ))
-    {
-        // unsubscribe first
-        RefPtr<Node> master = _pollIDMasterNode( id );
-        if( master.isValid( ))
-        {
-            SessionUnsubscribeObjectPacket unsubscribePacket;
-            unsubscribePacket.requestID = packet->requestID;
-            unsubscribePacket.objectID  = id;
-
-            send( master, unsubscribePacket );
-            return COMMAND_HANDLED;
-        }
-        EQERROR << "Master node for object id " << id << " not connected"
-                << endl;
-    }
-
-    detachObject( object );
-
-    _requestHandler.serveRequest( packet->requestID );
-    return COMMAND_HANDLED;
-}
-
 CommandResult Session::_cmdUnsubscribeObject( Command& command )
 {
     CHECK_THREAD( _receiverThread );
     SessionUnsubscribeObjectPacket* packet =
         command.getPacket<SessionUnsubscribeObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd unsubscribe object  " << packet << endl;
-
-    SessionUnsubscribeObjectReplyPacket reply( packet );
 
     RefPtr<Node>   node = command.getNode();
     const uint32_t id   = packet->objectID;
@@ -768,38 +769,17 @@ CommandResult Session::_cmdUnsubscribeObject( Command& command )
              i != objects.end(); ++ i )
         {
             Object* object = *i;
-            if( object->isMaster( ))
+            if( object->isMaster( ) && 
+                object->getInstanceID() == packet->masterInstanceID )
             {
                 object->removeSlave( node );
-                send( node, reply );
-                return COMMAND_HANDLED;
+                break;
             }
         }   
     }
 
-    EQWARN << "Can't find master object for unsubscribe" << endl;
-    send( node, reply );
-    return COMMAND_HANDLED;
-}
-
-CommandResult Session::_cmdUnsubscribeObjectReply( Command& command )
-{
-    CHECK_THREAD( _receiverThread );
-    SessionUnsubscribeObjectReplyPacket* packet =
-        command.getPacket<SessionUnsubscribeObjectReplyPacket>();
-    EQLOG( LOG_OBJECTS ) << "Cmd unsubscribe object reply " << packet << endl;
-
-    Object* object = static_cast<Object*>(
-        _requestHandler.getRequestData( packet->requestID ));
-    EQASSERT( object );
-
-    EQASSERT( !object->isMaster( ));
-    detachObject( object );
-
-    EQLOG( LOG_OBJECTS ) << "unmapped object @" << (void*)object << " type "
-                         << typeid(*object).name() << endl;
-
-    _requestHandler.serveRequest( packet->requestID );
+    SessionDetachObjectPacket detachPacket( packet );
+    send( node, detachPacket );
     return COMMAND_HANDLED;
 }
 
@@ -815,4 +795,5 @@ std::ostream& eqNet::operator << ( std::ostream& os, Session* session )
        << ")";
 
     return os;
+}
 }

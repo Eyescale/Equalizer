@@ -6,6 +6,7 @@
 
 #include "lock.h"
 #include "scopedMutex.h"
+#include "idPool.h"
 
 #include <eq/base/debug.h>
 
@@ -26,15 +27,14 @@ RequestHandler::~RequestHandler()
         delete request;
     }
 
-    if( _mutex )
-        delete _mutex;
+    delete _mutex;
+    _mutex = 0;
 }
 
 uint32_t RequestHandler::registerRequest( void* data )
 {
-    if( _mutex )
-        _mutex->set();
-    else
+    ScopedMutex< Lock > mutex( _mutex );
+    if( !_mutex )
         CHECK_THREAD( _thread );
 
     Request* request;
@@ -47,19 +47,16 @@ uint32_t RequestHandler::registerRequest( void* data )
     }
 
     request->data = data;
-    const uint32_t requestID = _requestID++;
-    _requests[requestID] = request;
+    _requestID = ( _requestID + 1 ) % IDPool::MAX_CAPACITY;
+    _requests[_requestID] = request;
     
-    if( _mutex )
-        _mutex->unset();
-    return requestID;
+    return _requestID;
 }
 
 void RequestHandler::unregisterRequest( const uint32_t requestID )
 {
-    if( _mutex )
-        _mutex->set();
-    else
+    ScopedMutex< Lock > mutex( _mutex );
+    if( !_mutex )
         CHECK_THREAD( _thread );
 
     RequestHash::iterator iter = _requests.find( requestID );

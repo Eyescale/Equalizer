@@ -70,10 +70,9 @@ void Object::_setChangeManager( ObjectCM* cm )
 {
     if( _cm != ObjectCM::ZERO )
     {
-        EQASSERTINFO( cm == ObjectCM::ZERO, 
-                      "Overriding existing object change manager, obj "
-                      << typeid( *this ).name() << ", old cm " 
-                      << typeid( *_cm ).name( ));
+        EQINFO << "Overriding existing object change manager, obj "
+               << typeid( *this ).name() << ", old cm " 
+               << typeid( *_cm ).name( ) << endl;
         delete _cm;
     }
 
@@ -199,7 +198,8 @@ uint32_t Object::commit()
 }
 
 void Object::_setupChangeManager( const Object::ChangeType type, 
-                                  const bool master )
+                                  const bool master, 
+                                  const uint32_t masterInstanceID )
 {
     switch( type )
     {
@@ -213,19 +213,19 @@ void Object::_setupChangeManager( const Object::ChangeType type,
             if( master )
                 _setChangeManager( new FullMasterCM( this ));
             else
-                _setChangeManager( new FullSlaveCM( this ));
+                _setChangeManager( new FullSlaveCM( this, masterInstanceID ));
             break;
         case Object::DELTA:
             if( master )
                 _setChangeManager( new DeltaMasterCM( this ));
             else
-                _setChangeManager( new DeltaSlaveCM( this ));
+                _setChangeManager( new DeltaSlaveCM( this, masterInstanceID ));
             break;
         case Object::DELTA_UNBUFFERED:
             if( master )
                 _setChangeManager( new UnbufferedMasterCM( this ));
             else
-                _setChangeManager( new DeltaSlaveCM( this ));
+                _setChangeManager( new DeltaSlaveCM( this, masterInstanceID ));
             break;
 
         default: EQUNIMPLEMENTED;
