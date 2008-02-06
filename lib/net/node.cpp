@@ -1059,7 +1059,7 @@ CommandResult Node::_cmdDisconnect( Command& command )
     RefPtr<Connection> connection = node->_connection;
     node->_connection = 0;
 
-    const bool connectionRemoved = _connectionSet.removeConnection( connection);
+    const bool connectionRemoved = _connectionSet.removeConnection( connection );
     EQASSERTINFO( connectionRemoved, connection );
 
     EQINFO << node << " disconnecting from " << this << endl;
