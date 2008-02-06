@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "window.h"
@@ -30,7 +30,6 @@ bool Window::configInit( const uint32_t initID )
         return false;
     }
 
-    _loadLogo();
     return true;
 }
 
@@ -42,17 +41,18 @@ bool Window::configInitGL( const uint32_t initID )
     if( !model )
         return false;
 
-    model->glewSetContext( glewGetContext( ));
-
-    if( !model->LoadShaders( ))
-        return false;
-
     glEnable( GL_SCISSOR_TEST ); // needed to constrain channel viewport
 
     glClear( GL_COLOR_BUFFER_BIT );
     swapBuffers();
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
+    model->glewSetContext( glewGetContext( ));
+
+    if( !model->LoadShaders( ))
+        return false;
+
+    _loadLogo();
     return true;
 }
 

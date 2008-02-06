@@ -783,7 +783,7 @@ CommandResult Session::_cmdUnsubscribeObject( Command& command )
     return COMMAND_HANDLED;
 }
 
-std::ostream& eqNet::operator << ( std::ostream& os, Session* session )
+std::ostream& operator << ( std::ostream& os, Session* session )
 {
     if( !session )
     {

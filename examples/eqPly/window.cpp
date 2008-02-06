@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
    All rights reserved. */
 
@@ -18,10 +18,14 @@ using namespace std;
 namespace eqPly
 {
 
-bool Window::configInit( const uint32_t initID )
+bool Window::configInitGL( const uint32_t initID )
 {
-    if( !eq::Window::configInit( initID ))
+    if( !eq::Window::configInitGL( initID ))
         return false;
+
+    glLightModeli( GL_LIGHT_MODEL_LOCAL_VIEWER, 1 );
+    glEnable( GL_CULL_FACE ); // OPT - produces sparser images in DB mode
+    glCullFace( GL_BACK );
 
     EQASSERT( !_state );
     _state = new VertexBufferState( getObjectManager( ));
@@ -50,7 +54,7 @@ bool Window::configInit( const uint32_t initID )
     return true;
 }
 
-bool Window::configExit()
+bool Window::configExitGL()
 {
     if( _state )
         _state->deleteAll();
@@ -58,7 +62,7 @@ bool Window::configExit()
     delete _state;
     _state = 0;
 
-    return eq::Window::configExit();
+    return eq::Window::configExitGL();
 }
 
 static const char* _logoTextureName = "eqPly_logo";
