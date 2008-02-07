@@ -211,7 +211,7 @@ void Channel::setupAssemblyState()
 {
     EQ_GL_ERROR( "before setupAssemblyState" );
     glPushAttrib( GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_VIEWPORT_BIT | 
-                  GL_SCISSOR_BIT | GL_LINE_BIT );
+                  GL_SCISSOR_BIT | GL_LINE_BIT | GL_PIXEL_MODE_BIT );
 
     glDisable( GL_DEPTH_TEST );
     glDisable( GL_BLEND );
