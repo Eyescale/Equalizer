@@ -6,6 +6,7 @@
 
 #include "rawVolModel.h"
 #include "sliceClipping.h"
+#include "glslShaders.h"
 
 
 namespace eVolve
@@ -25,7 +26,7 @@ namespace eVolve
         const VolumeScaling& getVolumeScaling() const
         {
             return _rawModel.getVolumeScaling();
-        };
+        }
 
         void glewSetContext( GLEWContext* context )
         {
@@ -34,9 +35,9 @@ namespace eVolve
         }
 
 
-        bool Render(    const eq::Range&        range,
-                        const vmml::Matrix4d&   modelviewM,
-                        const vmml::Matrix3d&   modelviewITM );
+        bool Render( const eq::Range&        range,
+                     const vmml::Matrix4d&   modelviewM,
+                     const vmml::Matrix3d&   modelviewITM );
 
         void SetPrecision( const uint32_t precision ){ _precision = precision; }
 
@@ -50,8 +51,7 @@ namespace eVolve
         RawVolumeModel  _rawModel;      //!< volume data
         SliceClipper    _sliceClipper;  //!< frame clipping algorithm
         uint32_t        _precision;     //!< multiplyer for number of slices
-        GLhandleARB     _shader;        //!< GLSL shaders
-        bool            _shadersLoaded;
+        glslShaders     _shaders;       //!< GLSL shaders
 
         GLEWContext*    _glewContext;   //!< OpenGL rendering context
     };

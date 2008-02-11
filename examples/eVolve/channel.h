@@ -58,7 +58,14 @@ namespace eVolve
         }
             _curFrData;
 
-        vmml::Vector4f _bgColor;
+        vmml::Vector4f _bgColor; // background color
+
+        enum BGColorMode
+        {
+            BG_SOLID_BLACK    = 0,
+            BG_SOLID_COLORED  = 1,
+            BG_TAINT_CHANNELS = 2
+        } _bgColorMode;
 
         eq::Image _image; //!< buffer for readback in case of DB compositing
     };

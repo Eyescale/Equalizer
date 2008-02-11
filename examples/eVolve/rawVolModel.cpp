@@ -271,7 +271,7 @@ static void normalizeScaling
     scaling.W *= w / maxS;
     scaling.H *= h / maxS;
     scaling.D *= d / maxS;
-    
+
 //Make maximum proportion equal to 1.0
     maxS = EQ_MAX( scaling.W, EQ_MAX( scaling.H, scaling.D ) );
 
@@ -397,13 +397,8 @@ static GLuint createPreintegrationTable( const uint8_t *Table )
                 rcol = static_cast<int>( (rInt[smax]-rInt[smin])*factor );
                 gcol = static_cast<int>( (gInt[smax]-gInt[smin])*factor );
                 bcol = static_cast<int>( (bInt[smax]-bInt[smin])*factor );
-#ifdef COMPOSE_MODE_NEW
                 acol = static_cast<int>( 
                         256.*(    exp(-(aInt[smax]-aInt[smin])*factor/255.)));
-#else
-                acol = static_cast<int>(
-                        256.*(1.0-exp(-(aInt[smax]-aInt[smin])*factor/255.)));
-#endif
             } else
             {
                 const int    index  = smin*4;
@@ -411,11 +406,7 @@ static GLuint createPreintegrationTable( const uint8_t *Table )
                 rcol = static_cast<int>( Table[index+0]*Table[index+3]*factor );
                 gcol = static_cast<int>( Table[index+1]*Table[index+3]*factor );
                 bcol = static_cast<int>( Table[index+2]*Table[index+3]*factor );
-#ifdef COMPOSE_MODE_NEW
                 acol = static_cast<int>( 256.*(    exp(-Table[index+3]/255.)) );
-#else
-                acol = static_cast<int>( 256.*(1.0-exp(-Table[index+3]/255.)) );
-#endif
             }
             lookupImg[lookupindex++] = clip( rcol, 0, 255 );//MIN( rcol, 255 );
             lookupImg[lookupindex++] = clip( gcol, 0, 255 );//MIN( gcol, 255 );

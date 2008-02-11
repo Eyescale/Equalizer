@@ -10,8 +10,8 @@
 #include "node.h"
 #include "pipe.h"
 #include "window.h"
-#include "shader.h"
 #include "hlp.h"
+#include "framesOrderer.h"
 
 
 //#define DYNAMIC_NEAR_FAR 
@@ -31,7 +31,8 @@ using namespace std;
 
 Channel::Channel( eq::Window* parent )
     : eq::Channel( parent )
-    , _bgColor       ( 0.0f, 0.0f, 0.0f, 1.0f ) 
+    , _bgColor   ( 0.0f, 0.0f, 0.0f, 1.0f )
+    , _bgColorMode( BG_SOLID_COLORED )
 {
     _curFrData.frameID = 0;
 }
@@ -43,6 +44,7 @@ static void checkError( const std::string& msg )
     if (error != GL_NO_ERROR)
         EQERROR << msg << " GL Error: " << error << endl;
 }
+
 
 bool Channel::configInit( const uint32_t initID )
 {
@@ -56,6 +58,15 @@ bool Channel::configInit( const uint32_t initID )
 #ifndef DYNAMIC_NEAR_FAR
     setNearFar( 0.0001f, 10.0f );
 #endif
+
+    if( getenv( "EQ_TAINT_CHANNELS" ))
+        _bgColorMode = BG_TAINT_CHANNELS;
+    else
+        if( _bgColor.x + _bgColor.y + _bgColor.z < 0.0001 )
+            _bgColorMode = BG_SOLID_BLACK;
+        else
+            _bgColorMode = BG_SOLID_COLORED;
+
     return true;
 }
 
@@ -89,14 +100,17 @@ void Channel::frameClear( const uint32_t frameID )
     applyBuffer();
     applyViewport();
 
-#ifdef COMPOSE_MODE_NEW
     if( getRange() == eq::Range::ALL )
-        glClearColor( _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a );
+    {
+        if( _bgColorMode == BG_TAINT_CHANNELS )
+        {
+            const vmml::Vector3ub color = getUniqueColor();
+            glClearColor( color.r/255., color.g/255., color.b/255., 1. );
+        }else
+            glClearColor( _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a );
+    }
     else
         glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
-#else
-    glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-#endif
 
     glClear( GL_COLOR_BUFFER_BIT );
 }
@@ -170,33 +184,6 @@ void Channel::frameDraw( const uint32_t frameID )
 }
 
 
-struct Frame
-{
-    Frame( eq::Frame* f=0, eq::Image* i=0, eq::Range r=eq::Range(0.f, 0.f) )
-    : frame( f ), image( i ), range( r ) {}
-
-    eq::Range getRange() const 
-    { return frame ? frame->getRange() : range; }
-
-    eq::Frame* frame;
-    eq::Image* image;
-    
-    eq::Range  range;
-};
-
-
-static bool cmpRangesDec(const Frame& frame1, const Frame& frame2)
-{
-    return frame1.getRange().start < frame2.getRange().start;
-}
-
-
-static bool cmpRangesInc(const Frame& frame1, const Frame& frame2)
-{
-    return frame1.getRange().start > frame2.getRange().start;
-}
-
-
 const FrameData& Channel::_getFrameData() const
 {
     const Pipe* pipe = static_cast<Pipe*>( getPipe( ));
@@ -235,67 +222,6 @@ void Channel::_calcMVandITMV(
     modelviewITM = modelviewIM.getTransposed();
 }
 
-void Channel::_orderFrames( vector< Frame >& frames )
-{
-    if( !_perspective ) // parallel/ortho projection
-    {
-        const bool orientation = _getFrameData().data.rotation.ml[10] < 0;
-        sort( frames.begin(), frames.end(),
-              orientation ? cmpRangesDec : cmpRangesInc );
-        return;
-    }
-
-    //perspective projection
-    vmml::Matrix4d  modelviewM;     // modelview matrix
-    vmml::Matrix3d  modelviewITM;   // modelview inversed transposed matrix
-    _calcMVandITMV( modelviewM, modelviewITM );
-
-    vmml::Vector3d norm = modelviewITM * vmml::Vector3d( 0.0, 0.0, 1.0 );
-    norm.normalize();
-
-    sort( frames.begin(), frames.end(), cmpRangesDec );
-
-    // cos of angle between normal and vectors from center
-    vector<double> dotVals;
-
-    // of projection to the middle of slices' boundaries
-    for( vector< Frame >::const_iterator i = frames.begin();
-         i != frames.end(); ++i )
-    {
-        const Frame& frame = *i;
-        double       px    = -1.0 + frame.getRange().start*2.0;
-
-        vmml::Vector4d pS = 
-            modelviewM * vmml::Vector4d( 0.0, 0.0, px , 1.0 );
-            
-        dotVals.push_back( norm.dot( pS.getNormalizedVector3() ) );
-    }
-
-    const vmml::Vector4d pS = modelviewM * vmml::Vector4d( 0.0, 0.0, 1.0, 1.0 );
-    dotVals.push_back( norm.dot( pS.getNormalizedVector3() ) );
-
-    //check if any slices need to be rendered in rederse order
-    size_t minPos = 0xffffffffu;
-    for( size_t i=0; i<dotVals.size()-1; i++ )
-        if( dotVals[i] < 0 && dotVals[i+1] < 0 )
-            minPos = static_cast< int >( i );
-
-    if( minPos < frames.size() )
-    {
-        uint32_t        nFrames   = frames.size();
-        vector< Frame > framesTmp = frames;
-
-        //Copy slices that should be rendered first
-        if( minPos < nFrames-1 )
-            memcpy( &frames[0], &framesTmp[minPos+1],
-                    (nFrames-minPos-1)*sizeof( Frame ) );
-
-        //Copy sliced that shouls be rendered last in reversed order
-        for( size_t i=0; i<=minPos; i++ )
-            frames[ nFrames-i-1 ] = framesTmp[i];
-    }
-}
-
 
 static void _expandPVP( eq::PixelViewport& pvp, 
                         const vector< eq::Image* >& images,
@@ -309,37 +235,37 @@ static void _expandPVP( eq::PixelViewport& pvp,
     }
 }
 
-#define SOLID_BG
 
 void Channel::clearViewport( const eq::PixelViewport &pvp )
 {
     glViewport( pvp.x, pvp.y, pvp.w, pvp.h );
     glScissor(  pvp.x, pvp.y, pvp.w, pvp.h );
 
-#ifndef NDEBUG
-    if( getenv( "EQ_TAINT_CHANNELS" ))
+    if( _bgColorMode == BG_TAINT_CHANNELS )
     {
         const vmml::Vector3ub color = getUniqueColor();
         glClearColor( color.r/255., color.g/255., color.b/255., 1. );
-    }
-#else 
-#ifdef SOLID_BG
-#ifdef COMPOSE_MODE_NEW
-    if( getRange() == eq::Range::ALL )
+    }else
         glClearColor( _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a );
-    else
-        glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
-//    glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-#else
-    glClearColor( 0.5f, 0.0f, 0.0f, 1.0f );
-#endif
-#endif //SOLID_BG
-#endif //NDEBUG
 
     glClear( GL_COLOR_BUFFER_BIT );
 
     applyViewport();
 }
+
+
+void Channel::_orderFrames( vector< Frame > &frames )
+{
+          vmml::Matrix4d  modelviewM;   // modelview matrix
+          vmml::Matrix3d  modelviewITM; // modelview inversed transposed matrix
+    const vmml::Matrix4f &rotation = _getFrameData().data.rotation;
+    
+    if( _perspective )
+        _calcMVandITMV( modelviewM, modelviewITM );
+
+    orderFrames( frames, modelviewM, modelviewITM, rotation, _perspective );
+}
+
 
 void Channel::frameAssemble( const uint32_t frameID )
 {
@@ -370,7 +296,6 @@ void Channel::frameAssemble( const uint32_t frameID )
             _expandPVP( coveredPVP, frame->getImages(), frame->getOffset() );
         }
     }
-
     coveredPVP.intersect( getPixelViewport( ));
 
     if( dbFrames.empty( ))
@@ -382,36 +307,27 @@ void Channel::frameAssemble( const uint32_t frameID )
     //calculate correct frames sequence
     if( !composeOnly )
         dbFrames.push_back( Frame( 0, &_image, range ) );
-        
+
     _orderFrames( dbFrames );
 
-
     glEnable( GL_BLEND );
-
-#ifdef COMPOSE_MODE_NEW
     glBlendFunc( GL_ONE, GL_SRC_ALPHA );
-#else
-    glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
-#endif
 
     //check if current frame in proper position, redback if not
     if( !composeOnly )
     {
-#ifndef SOLID_BG
-        if( !dbFrames.back().frame )
+        if( _bgColorMode == BG_SOLID_BLACK && !dbFrames.back().frame )
             dbFrames.pop_back();
         else
-#endif //SOLID_BG
-            if( coveredPVP.hasArea() )
+            if( coveredPVP.hasArea())
             {
                 _image.setFormat(eq::Frame::BUFFER_COLOR, GL_RGBA   );
                 _image.setType(  eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
 
                 _image.startReadback(eq::Frame::BUFFER_COLOR, coveredPVP );
 
-#ifdef __APPLE__
-                //clear part of a screen
-                clearViewport( coveredPVP );
+#if defined(__APPLE__)||defined(_WIN32)
+                clearViewport( coveredPVP ); //this has to be checked on linux
 #endif
                 _image.syncReadback();
             }
@@ -429,13 +345,13 @@ void Channel::frameAssemble( const uint32_t frameID )
             if( coveredPVP.hasArea() )
             {
                 EQASSERT( frame.image == &_image );
-                
+
                 eq::Compositor::ImageOp op;
                 op.channel  = this;
                 op.buffers  = eq::Frame::BUFFER_COLOR;
                 op.offset.x = coveredPVP.x;
                 op.offset.y = coveredPVP.y;
-                
+
                 eq::Compositor::assembleImage( frame.image, op ); 
             }
     }

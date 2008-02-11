@@ -12,7 +12,8 @@ CXXFILES = \
 	main.cpp \
 	node.cpp \
 	pipe.cpp \
-	shader.cpp\
+	glslShaders.cpp \
+	framesOrderer.cpp \
 	rawVolModel.cpp \
 	rawVolModelRenderer.cpp \
 	sliceClipping.cpp \

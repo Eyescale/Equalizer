@@ -8,7 +8,6 @@
 
 namespace eVolve
 {
-#define COMPOSE_MODE_NEW
 
     /** Structure that contain actual dimensions of data that is 
         stored in volume texture.  
