@@ -115,18 +115,17 @@ void IDPool::_compressIDs()
             Block* block = _freeIDs.front();
             _freeIDs.pop_front();
 
-            for( list<Block*>::iterator iter = _freeIDs.begin(); 
-                 iter != _freeIDs.end(); ++iter )
+            for( list<Block*>::iterator i = _freeIDs.begin();  
+                 i != _freeIDs.end(); /*nop*/ )
             {
-                Block* block2 = *iter;
+                Block* block2 = *i;
+                list<Block*>::iterator currentIter = i;
+                ++i;
                 
                 if(( block->start + block->range ) == block2->start )
                 {
                     block->range += block2->range;
-
-                    list<Block*>::iterator iter2 = iter;
-                    ++iter;
-                    _freeIDs.erase( iter2 );
+                    _freeIDs.erase( currentIter );
 
                     _blockCache.push_front( block2 );
                     compress = true;
@@ -135,15 +134,12 @@ void IDPool::_compressIDs()
                 {
                     block->start  = block2->start;
                     block->range += block2->range;
-
-                    list<Block*>::iterator iter2 = iter;
-                    ++iter;
-                    _freeIDs.erase( iter2 );
+                    _freeIDs.erase( currentIter );
 
                     _blockCache.push_front( block2 );
                     compress = true;
                 }
-            }
+             }
             
             blocks.push_front( block );
         }
