@@ -262,18 +262,8 @@ namespace eqNet
          * 
          * @return the number of stored connection descriptions. 
          */
-        uint32_t nConnectionDescriptions() const 
-            { return static_cast< uint32_t >( _connectionDescriptions.size( )); }
-
-        /** 
-         * Returns a connection description.
-         * 
-         * @param index the index of the connection description.
-         * @return the connection description.
-         */
-        eqBase::RefPtr<ConnectionDescription> getConnectionDescription(
-            const uint32_t index ) const
-            { return _connectionDescriptions[index]; }
+        const ConnectionDescriptionVector& getConnectionDescriptions() const 
+            { return _connectionDescriptions; }
 
         /** 
          * Returns the connection to this node.
@@ -557,8 +547,7 @@ namespace eqNet
         CommandCache        _commandCache;
 
         /** The list of descriptions on how this node is reachable. */
-        std::vector< eqBase::RefPtr<ConnectionDescription> >
-            _connectionDescriptions;
+        ConnectionDescriptionVector _connectionDescriptions;
 
         /** The name of the program to autolaunch. */
         std::string _programName;

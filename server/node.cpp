@@ -164,7 +164,7 @@ bool Node::syncConfigInit()
         success = false;
 
     if( !success )
-        EQWARN << "Node initialisation failed: " << _error << endl;
+        EQWARN << "Node initialization failed: " << _error << endl;
     return success;
 }
 

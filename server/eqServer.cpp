@@ -12,25 +12,29 @@ using namespace eqs;
 using namespace eqBase;
 using namespace std;
 
+#define CONFIG "server{ config{ appNode{ pipe { window { viewport [ .25 .25 .5 .5 ] channel { name \"channel\" }}}} compound { channel \"channel\" wall { bottom_left [ -.8 -.5 -1 ] bottom_right [  .8 -.5 -1 ] top_left [ -.8  .5 -1 ] }}}}"
+
 int main( const int argc, char** argv )
 {
     eqNet::init( argc, argv );
     eqNet::Global::setDefaultPort( EQ_DEFAULT_PORT );
 
     Loader loader;
-    RefPtr<Server> server = loader.loadFile( argc > 1 ? argv[1] :
-                                             "examples/configs/config.eqc" );
+    RefPtr<Server> server;
+
+    if( argc == 1 )
+    {
+        server = loader.parseServer( CONFIG );
+    }
+    else
+    {
+        server = loader.loadFile( argv[1] );
+    }
+
     if( !server.isValid( ))
     {
-        if( argc == 1 )
-            server = loader.loadFile( 
-                "/usr/local/share/Equalizer/configs/config.eqc" );
-
-        if( !server.isValid( ))
-        {
-            EQERROR << "Server load failed" << endl;
-            return EXIT_FAILURE;
-        }
+        EQERROR << "Server load failed" << endl;
+        return EXIT_FAILURE;
     }
 
     if( !server->initLocal( argc, argv ))

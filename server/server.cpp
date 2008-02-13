@@ -290,9 +290,12 @@ std::ostream& eqs::operator << ( std::ostream& os, const Server* server )
     os << disableFlush << disableHeader << "server " << endl;
     os << "{" << endl << indent;
     
-    const uint32_t nConnectionDescriptions = server->nConnectionDescriptions();
-    for( uint32_t i=0; i<nConnectionDescriptions; i++ )
-        os << server->getConnectionDescription( i ).get();
+    const eqNet::ConnectionDescriptionVector& cds =
+        server->getConnectionDescriptions();
+    for( eqNet::ConnectionDescriptionVector::const_iterator i = cds.begin();
+         i != cds.end(); ++i )
+        
+        os << (*i).get();
 
     const ConfigVector& configs = server->getConfigs();
     for( ConfigVector::const_iterator i = configs.begin();

@@ -1186,11 +1186,11 @@ bool Node::initConnect( eqBase::RefPtr<Node> node )
     EQASSERT( node->getState() == STATE_STOPPED );
 
     // try connecting first
-    const size_t nDescriptions = node->nConnectionDescriptions();
-    for( size_t i=0; i<nDescriptions; i++ )
+    const ConnectionDescriptionVector& cds = node->getConnectionDescriptions();
+    for( ConnectionDescriptionVector::const_iterator i = cds.begin();
+        i != cds.end(); ++i )
     {
-        RefPtr<ConnectionDescription> description = 
-            node->getConnectionDescription(i);
+        RefPtr<ConnectionDescription> description = *i;
         RefPtr<Connection> connection = Connection::create( description->type );
         connection->setDescription( description );
 
@@ -1208,10 +1208,10 @@ bool Node::initConnect( eqBase::RefPtr<Node> node )
         return false;
     
     EQINFO << "Attempting to launch node." << endl;
-    for( size_t i=0; i<nDescriptions; i++ )
+    for( ConnectionDescriptionVector::const_iterator i = cds.begin();
+        i != cds.end(); ++i )
     {
-        RefPtr<ConnectionDescription> description = 
-            node->getConnectionDescription(i);
+        RefPtr<ConnectionDescription> description = *i;
 
         if( _launch( node, description ))
             return true;

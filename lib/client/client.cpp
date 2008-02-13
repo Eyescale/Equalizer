@@ -88,7 +88,7 @@ bool Client::connectServer( RefPtr<Server> server )
         return true;
     bool explicitAddress = true;
 
-    if( server->nConnectionDescriptions() == 0 )
+    if( server->getConnectionDescriptions().empty( ))
     {
         RefPtr<eqNet::ConnectionDescription> connDesc = 
             new eqNet::ConnectionDescription;
