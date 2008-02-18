@@ -20,15 +20,16 @@ namespace eVolve
 
         void setFrameDataID( const uint32_t id )   { _frameDataID = id; }
 
-        uint32_t           getFrameDataID() const  { return _frameDataID; }
-        eq::WindowSystem   getWindowSystem() const { return _windowSystem;}
-        uint32_t           getPrecision() const    { return _precision; }
-        float              getBrightness() const   { return _brightness; }
-        float              getAlpha() const        { return _alpha; }
-        const std::string& getFilename()    const  { return _filename; }
+        uint32_t           getFrameDataID()  const { return _frameDataID;  }
+        eq::WindowSystem   getWindowSystem() const { return _windowSystem; }
+        uint32_t           getPrecision()    const { return _precision;    }
+        float              getBrightness()   const { return _brightness;   }
+        float              getAlpha()        const { return _alpha;        }
+        bool               getPerspective()  const { return _perspective;  }
+        const std::string& getFilename()     const { return _filename;     }
 
     protected:
-        virtual void getInstanceData( eqNet::DataOStream& os );
+        virtual void getInstanceData(   eqNet::DataOStream& os );
         virtual void applyInstanceData( eqNet::DataIStream& is );
 
         void setWindowSystem( const eq::WindowSystem windowSystem )
@@ -36,6 +37,7 @@ namespace eVolve
         void setPrecision( const uint32_t precision ){ _precision = precision; }
         void setBrightness( const float brightness ) {_brightness = brightness;}
         void setAlpha( const float alpha )           { _alpha = alpha;}
+        void setParallel( )                          { _perspective = 0; }
         void setFilename( const std::string& filename ) { _filename = filename;}
 
     private:
@@ -44,6 +46,7 @@ namespace eVolve
         uint32_t         _precision;
         float            _brightness;
         float            _alpha;
+        uint32_t         _perspective;
         std::string      _filename;
     };
 }

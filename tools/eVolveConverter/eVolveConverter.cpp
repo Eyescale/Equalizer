@@ -62,6 +62,9 @@ int RawConverter::parseArguments( int argc, char** argv )
             "", "sA", "common scale factor",
             false, 1.0  , "double", command );
 
+        TCLAP::SwitchArg recArg(
+            "e", "rec", "recalculate derivatives in raw+der",  command, false );
+
         TCLAP::SwitchArg cmpArg(
             "m", "cmp", "compare two raw+derivations+vhf",  command, false );
 
@@ -108,6 +111,10 @@ int RawConverter::parseArguments( int argc, char** argv )
             return RawConverter::CompareTwoRawDerVhf( 
                         srcArg.getValue( ), dstArg.getValue( ));
 
+        if( recArg.isSet() ) // recalculate derivatives
+            return RawConverter::RecalculateDerivatives( 
+                        srcArg.getValue( ), dstArg.getValue( ));
+
         bool scale = false;
         double scaleX = 1.0;
         double scaleY = 1.0;
@@ -134,7 +141,7 @@ int RawConverter::parseArguments( int argc, char** argv )
         }
 
         if( scale )
-            return RawConverter::scaleRawDerFile( 
+            return RawConverter::ScaleRawDerFile( 
                         srcArg.getValue( ), dstArg.getValue( ),
                         scaleX, scaleY, scaleZ                  );
 
@@ -399,6 +406,67 @@ int RawConverter::RawToRawPlusDerivativesConverter( const string& src,
 }
 
 
+int RawConverter::RecalculateDerivatives( const string& src,
+                                          const string& dst )
+{
+    unsigned w, h, d;
+//read header
+    {
+        string configFileName = src;
+        hFile info( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
+        FILE* file = info.f;
+
+        if( file==NULL ) return lFailed( "Can't open header file" );
+
+        readDimensionsFromSav( file, w, h, d );
+    }
+    EQWARN << "Creating derivatives for raw model: " 
+           << src << " " << w << " x " << h << " x " << d << endl;
+
+//read model    
+    vector<unsigned char> volume( w*h*d*4, 0 );
+
+    EQWARN << "Reading model" << endl;
+    {
+        ifstream file( src.c_str(),
+                       ifstream::in | ifstream::binary | ifstream::ate );
+
+        if( !file.is_open() )
+            return lFailed( "Can't open volume file" );
+
+        ifstream::pos_type size;
+
+        size = min( (int)file.tellg(), (int)volume.size() );
+
+        file.seekg( 0, ios::beg );
+        file.read( (char*)( &volume[0] ), size );
+
+        file.close();
+    }
+//remove derivatives
+    {
+        unsigned char* sr = &volume[3];
+        unsigned char* ds = &volume[0];
+        for( unsigned i = 3; i < w*h*d*4; i+=4 )
+        {
+            *ds = *sr;
+            sr += 4;
+            ++ds;
+        }
+        volume.resize( w*h*d );
+    }
+
+//calculate and save derivatives
+    {
+        int result = calculateAndSaveDerivatives( dst, &volume[0], w, h, d );
+
+        if( result ) return result;
+    }
+    EQWARN << "done" << endl; 
+    return 0;
+}
+
+
 int RawConverter::SavToVhfConverter( const string& src, const string& dst )
 {
     //read original header
@@ -600,7 +668,7 @@ int RawConverter::PvmSavToRawDerVhfConverter(     const string& src,
 }
 
 
-int RawConverter::scaleRawDerFile(                  const string& src,
+int RawConverter::ScaleRawDerFile(                  const string& src,
                                                     const string& dst,
                                                           double scaleX,
                                                           double scaleY,
@@ -805,18 +873,18 @@ static int calculateAndSaveDerivatives( const string& dst,
                     3*nxtP[    w ]+ 6*curP[    w ]+ 3*prvP[    w ]+
                       nxtP[ -1+w ]+ 3*curP[ -1+w ]+   prvP[ -1+w ]-
 
-                       nxtP[  1-w ]- 3*curP[  1-w ]-   prvP[  1-w ]-
+                      nxtP[  1-w ]- 3*curP[  1-w ]-   prvP[  1-w ]-
                     3*nxtP[   -w ]- 6*curP[   -w ]- 3*prvP[   -w ]-
                       nxtP[ -1-w ]- 3*curP[ -1-w ]-   prvP[ -1-w ];
 
                 int32_t gz = 
-                      prvP[  1+w ]+ 3*prvP[  1   ]+   prvP[  1-w ]+
-                    3*prvP[    w ]+ 6*prvP[  0   ]+ 3*prvP[   -w ]+
-                      prvP[ -1+w ]+ 3*prvP[ -1   ]+   prvP[ -1-w ]-
+                      nxtP[  1+w ]+ 3*nxtP[  1   ]+   nxtP[  1-w ]+
+                    3*nxtP[    w ]+ 6*nxtP[  0   ]+ 3*nxtP[   -w ]+
+                      nxtP[ -1+w ]+ 3*nxtP[ -1   ]+   nxtP[ -1-w ]-
 
-                      nxtP[  1+w ]- 3*nxtP[  1   ]-   nxtP[  1-w ]-
-                    3*nxtP[   +w ]- 6*nxtP[  0   ]- 3*nxtP[   -w ]-
-                      nxtP[ -1+w ]- 3*nxtP[ -1   ]-   nxtP[ -1-w ];
+                      prvP[  1+w ]- 3*prvP[  1   ]-   prvP[  1-w ]-
+                    3*prvP[   +w ]- 6*prvP[  0   ]- 3*prvP[   -w ]-
+                      prvP[ -1+w ]- 3*prvP[ -1   ]-   prvP[ -1-w ];
 
 
                 int32_t length = static_cast<int32_t>(
@@ -833,14 +901,14 @@ static int calculateAndSaveDerivatives( const string& dst,
             }
         }
     }
-    
+
     EQWARN << "Writing derivatives: " 
            << dst.c_str() << " " << GxGyGzA.size() << " bytes" <<endl;
-           
+
     file.write( (char*)( &GxGyGzA[0] ), GxGyGzA.size() );
-    
+
     file.close();
-    
+
     return 0;
 }
 

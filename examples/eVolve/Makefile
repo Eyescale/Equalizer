@@ -42,7 +42,6 @@ TARGETS = $(PROGRAMS) $(MODELS)
 
 include $(TOP)/make/rules.mk
 
-$(OBJECTS): $(SHADERS)
 
 README: ../../../website/build/documents/user/eVolve.html
 	links -dump $< > $@

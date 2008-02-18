@@ -53,7 +53,10 @@ bool Channel::configInit( const uint32_t initID )
     EQINFO << "Init channel initID " << initID << " ptr " << this << endl;
 
     // chose projection type
-    _perspective = true;
+    const Node* node  = static_cast<Node*>( getNode( ));
+
+    _perspective      = node->getInitData().getPerspective();
+    _initTranslationZ = _getFrameData().data.translation.z;
 
 #ifndef DYNAMIC_NEAR_FAR
     setNearFar( 0.0001f, 10.0f );
@@ -81,13 +84,17 @@ void Channel::applyFrustum() const
                    frustum.nearPlane, frustum.farPlane );
     }else
     {
-        double zc = ( 1.0 + frustum.farPlane/frustum.nearPlane ) / 3.0;
-        glOrtho( 
+        double scale = 0.001 + fabs( 3.0 - _initTranslationZ +
+                                     _getFrameData().data.translation.z );
+
+        double zc = ( 1.0 + frustum.farPlane/frustum.nearPlane ) / scale;
+
+        glOrtho(
             frustum.left   * zc,
             frustum.right  * zc,
             frustum.bottom * zc,
             frustum.top    * zc,
-            frustum.nearPlane, 
+            frustum.nearPlane,
             frustum.farPlane      );
     }
 
@@ -118,33 +125,15 @@ void Channel::frameClear( const uint32_t frameID )
 
 static void setLights()
 {
-    GLfloat lightAmbient[]  = {0.2f, 0.2f, 0.2f, 1.0f};
-    GLfloat lightDiffuse[]  = {0.8f, 0.8f, 0.8f, 1.0f};
-    GLfloat lightSpecular[] = {0.8f, 0.8f, 0.8f, 1.0f};
-    GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};
+    GLfloat lightAmbient[]  = {0.05f, 0.05f, 0.05f, 1.0f};
+    GLfloat lightDiffuse[]  = {0.9f , 0.9f , 0.9f , 1.0f};
+    GLfloat lightSpecular[] = {0.8f , 0.8f , 0.8f , 1.0f};
+    GLfloat lightPosition[] = {1.0f , 1.0f ,-1.0f , 0.0f};
 
     glLightfv( GL_LIGHT0, GL_AMBIENT,  lightAmbient  );
     glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDiffuse  );
     glLightfv( GL_LIGHT0, GL_SPECULAR, lightSpecular );
     glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
-
-/*    glPushMatrix(); //Rotate lights
-      {
-          glLoadIdentity();
-          vmml::Matrix4f r = frameData.data.rotation;
-          r.ml[1] = -r.ml[1];
-          r.ml[2] = -r.ml[2];
-          r.ml[4] = -r.ml[4];
-          r.ml[6] = -r.ml[6];
-          r.ml[8] = -r.ml[8];
-          r.ml[9] = -r.ml[9];
-
-        vmml::Matrix4f ri; r.getInverse(r);
-        glMultMatrixf( ri.ml );
-        glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-    }
-    glPopMatrix();
-*/
 }
 
 
@@ -152,6 +141,7 @@ void Channel::frameDraw( const uint32_t frameID )
 {
     // Setup frustum
     eq::Channel::frameDraw( frameID );
+    setLights();
 
     // Save ID and range for compositing
     const eq::Range range = getRange();
@@ -162,9 +152,9 @@ void Channel::frameDraw( const uint32_t frameID )
     const Pipe*             pipe = static_cast<Pipe*>( getPipe( ));
     const FrameData::Data&  data = pipe->getFrameData().data;
 
-    glTranslatef(  data.translation.x, data.translation.y, data.translation.z );
+    double translationZ = _perspective ? data.translation.z : _initTranslationZ;
+    glTranslatef(  data.translation.x, data.translation.y, translationZ );
     glMultMatrixf( data.rotation.ml );
-    setLights();
 
     Model* model  = pipe->getModel();
     EQASSERT( model );

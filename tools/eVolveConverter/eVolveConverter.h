@@ -25,7 +25,10 @@ namespace eVolve
         static int CompareTwoRawDerVhf(              const string& src1,
                                                      const string& src2 );
 
-        static int scaleRawDerFile(                  const string& src,
+        static int RecalculateDerivatives(           const string& src,
+                                                     const string& dst );
+
+        static int ScaleRawDerFile(                  const string& src,
                                                      const string& dst,
                                                            double scaleX,
                                                            double scaleY,

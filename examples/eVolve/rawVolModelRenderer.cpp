@@ -12,10 +12,12 @@ namespace eVolve
 
 
 RawVolumeModelRenderer::RawVolumeModelRenderer( const std::string& filename, 
-                                                const uint32_t     precision )
+                                                const uint32_t     precision,
+                                                const bool         perspective )
         : _rawModel(  filename  )
         , _precision( precision )
         , _glewContext( 0 )
+        , _perspective( perspective )
 {
 }
 
@@ -32,7 +34,7 @@ static void renderSlices( const SliceClipper& sliceClipper )
             vmml::Vector3f pos =
                     sliceClipper.getPosition( i, numberOfSlices-1-s );
 
-            glVertex3f( pos.x, pos.y, pos.z );
+            glVertex4f( pos.x, pos.y, pos.z, 1.0 );
         }
         glEnd();
     }
@@ -87,8 +89,11 @@ void RawVolumeModelRenderer::_putVolumeDataToShader
     tParamNameGL = glGetUniformLocationARB(  shader,  "sliceDistance" );
     glUniform1fARB( tParamNameGL,  sliceDistance ); //v-shader
 
+    tParamNameGL = glGetUniformLocationARB(  shader,  "perspProj" );
+    glUniform1fARB( tParamNameGL,  _perspective ? 1.0 : 0.0 ); //v-shader
+
     tParamNameGL = glGetUniformLocationARB(  shader,  "shininess"     );
-    glUniform1fARB( tParamNameGL,  20.0f         ); //f-shader
+    glUniform1fARB( tParamNameGL,  8.0f         ); //f-shader
 }
 
 

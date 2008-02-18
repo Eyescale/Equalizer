@@ -33,6 +33,7 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     setWindowSystem( from.getWindowSystem( ));
     setPrecision( from.getPrecision( ));
     setBrightness( from.getBrightness( ));
+    if( !from.getPerspective( )) setParallel();
     setAlpha( from.getAlpha( ));
     return *this;
 }
@@ -75,6 +76,9 @@ void LocalInitData::parseArguments( const int argc, char** argv )
                                               "float", command );
         TCLAP::ValueArg<float> alphaArg( "a", "alpha", "alpha attenuation", 
                                          false, 1.0f, "float", command );
+        TCLAP::SwitchArg parallelArg( "l", "parallel", 
+                 "use parallel projection istead of pespective", 
+                                         command, false );
         TCLAP::ValueArg<string> wsArg( "w", "windowSystem", wsHelp,
                                        false, "auto", "string", command );
 
@@ -104,6 +108,8 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             setBrightness( brightnessArg.getValue( ));
         if( alphaArg.isSet( ))
             setAlpha( alphaArg.getValue( ));
+        if( parallelArg.isSet( ))
+            setParallel();
         if( residentArg.isSet( ))
             _isResident = true;
     }

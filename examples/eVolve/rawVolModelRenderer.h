@@ -15,8 +15,9 @@ namespace eVolve
     class RawVolumeModelRenderer
     {
     public:
-        RawVolumeModelRenderer( const std::string& filename, 
-                                const uint32_t     precision = 1 );
+        RawVolumeModelRenderer( const std::string& filename,
+                                const uint32_t     precision   = 1,
+                                const bool         perspective = true );
 
         bool loadHeader( const float brightness, const float alpha )
         {
@@ -54,6 +55,9 @@ namespace eVolve
         glslShaders     _shaders;       //!< GLSL shaders
 
         GLEWContext*    _glewContext;   //!< OpenGL rendering context
+
+        bool            _perspective;   //!< perspective/ortogonal projection
+
     };
 
 }

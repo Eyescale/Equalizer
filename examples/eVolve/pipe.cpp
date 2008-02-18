@@ -52,11 +52,12 @@ bool Pipe::configInit( const uint32_t initID )
     EQASSERT( mapped );
 
 
-    const string&  filename  = initData.getFilename();
-    const uint32_t precision = initData.getPrecision();
+    const string&  filename    = initData.getFilename();
+    const uint32_t precision   = initData.getPrecision();
+    const bool     perspective = initData.getPerspective();
     EQINFO << "Loading model " << filename << endl;
 
-    _model = new Model( filename.c_str(), precision );
+    _model = new Model( filename.c_str(), precision, perspective );
     EQASSERT( _model );
 
     if( !_model->loadHeader( initData.getBrightness(), initData.getAlpha( )))

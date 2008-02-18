@@ -67,6 +67,8 @@ namespace eVolve
             BG_TAINT_CHANNELS = 2
         } _bgColorMode;
 
+        double _initTranslationZ; //!< initial Z-translation (for ortog. proj)
+
         eq::Image _image; //!< buffer for readback in case of DB compositing
     };
 
