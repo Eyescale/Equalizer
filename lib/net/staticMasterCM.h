@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_STATICMASTERCM_H
@@ -24,6 +24,7 @@ namespace eqNet
         StaticMasterCM( Object* object );
         virtual ~StaticMasterCM();
 
+        virtual void notifyAttached(){}
         virtual void makeThreadSafe(){}
 
         /**

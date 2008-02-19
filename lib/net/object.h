@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_OBJECT_H
@@ -35,8 +35,9 @@ namespace eqNet
         /** Special version enums */
         enum Version
         {
-            VERSION_NONE = 0,
-            VERSION_HEAD = 0xffffffffu
+            VERSION_NONE    = 0,
+            VERSION_INVALID = 0xfffffffeu,
+            VERSION_HEAD    = 0xffffffffu
         };
 
         /** Object change handling characteristics */
@@ -55,6 +56,9 @@ namespace eqNet
 
         virtual ~Object();
 
+        virtual void attachToSession( const uint32_t id, 
+                                      const uint32_t instanceID, 
+                                      Session* session );
         /** 
          * Make this object thread safe.
          * 
@@ -75,10 +79,17 @@ namespace eqNet
         /** @return the node-wide unique object instance identifier. */
         uint32_t getInstanceID() const { return _instanceID; }
 
+        /** @return if this instance is the master version. */
+        bool isMaster() const { return _cm->isMaster(); }
+
         /**
          * @name Versioning
          */
         //*{
+        /** @return how the changes are to be handled. */
+        virtual Object::ChangeType getChangeType() const
+            { return STATIC; }
+        
         /** 
          * Commit a new version of this object.
          * 
@@ -173,15 +184,26 @@ namespace eqNet
         uint32_t getVersion() const { return _cm->getVersion(); }
         //*}
 
+        /** @name Methods used by session during mapping. */
+        //*{
+        /** 
+         * Setup the change manager.
+         * 
+         * @param type the type of the change manager.
+         * @param master true if this object is the master.
+         * @param masterInstanceID the instance identifier of the master object,
+         *                         when master == false.
+         */
+        void setupChangeManager( const Object::ChangeType type, 
+                                  const bool master, 
+                              const uint32_t masterInstanceID = EQ_ID_INVALID );
+        //*}
+
     protected:
         /**
          * @name Automatic Instantiation and Versioning
          */
         //*{
-        /** @return how the changes are to be handled. */
-        virtual Object::ChangeType getChangeType() const
-            { return STATIC; }
-        
         /** 
          * Serialize the instance information about this managed object.
          *
@@ -250,9 +272,6 @@ namespace eqNet
             { _deltaData = data; _deltaDataSize = size; }
         //*}
 
-        /** @return if this instance is the master version. */
-        bool isMaster() const { return _cm->isMaster(); }
-
         /** @return the master object instance identifier. */
         uint32_t getMasterInstanceID() const{return _cm->getMasterInstanceID();}
 
@@ -288,8 +307,8 @@ namespace eqNet
 
     private:
         /** Indicates if this instance is the copy on the server node. */
-        friend class Session;
         Session*     _session;
+        friend class Session;
 
         friend class DeltaMasterCM;
         friend class DeltaSlaveCM;
@@ -318,24 +337,6 @@ namespace eqNet
 
         /** Make synchronization thread safe. */
         bool _threadSafe;
-
-        /** @name Methods used by session during mapping. */
-        //*{
-        /** 
-         * Setup the change manager.
-         * 
-         * @param type the type of the change manager.
-         * @param master true if this object is the master.
-         * @param masterInstanceID the instance identifier of the master object,
-         *                         when master == false.
-         */
-        void _setupChangeManager( const Object::ChangeType type, 
-                                  const bool master, 
-                              const uint32_t masterInstanceID = EQ_ID_INVALID );
-        //*}
-
-        /** Common constructor code. */
-        void _construct();
 
         void _setChangeManager( ObjectCM* cm );
 

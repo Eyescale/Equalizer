@@ -9,6 +9,7 @@
 #include "frame.h"
 #include "frameData.h"
 #include "global.h"
+#include "log.h"
 #include "node.h"
 #include "nodeFactory.h"
 #include "packets.h"
@@ -19,11 +20,12 @@
 
 using namespace eqBase;
 using namespace std;
+using eqNet::CommandFunc;
 
 namespace eq
 {
 
-Config::Config()
+Config::Config( eqBase::RefPtr< Server > server )
         : Session( true )
         , _latency( 0 )
         , _currentFrame( 0 )
@@ -31,41 +33,40 @@ Config::Config()
         , _finishedFrame( 0 )
         , _running( false )
 {
+    eqNet::CommandQueue& queue    = server->getNodeThreadQueue();
+    eqNet::CommandQueue& cmdQueue = server->getCommandThreadQueue();
+
     registerCommand( CMD_CONFIG_CREATE_NODE,
-                     eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
-    registerCommand( REQ_CONFIG_CREATE_NODE,
-                   eqNet::CommandFunc<Config>( this, &Config::_reqCreateNode ));
+                     CommandFunc<Config>( this, &Config::_cmdCreateNode ),
+                     queue );
     registerCommand( CMD_CONFIG_DESTROY_NODE,
-                     eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
-    registerCommand( REQ_CONFIG_DESTROY_NODE,
-                   eqNet::CommandFunc<Config>( this, &Config::_reqDestroyNode ));
+                     CommandFunc<Config>( this, &Config::_cmdDestroyNode ),
+                     queue );
     registerCommand( CMD_CONFIG_START_INIT_REPLY, 
-                    eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
-    registerCommand( REQ_CONFIG_START_INIT_REPLY, 
-               eqNet::CommandFunc<Config>( this, &Config::_reqStartInitReply ));
-    registerCommand( CMD_CONFIG_FINISH_INIT_REPLY, 
-                    eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
-    registerCommand( REQ_CONFIG_FINISH_INIT_REPLY, 
-              eqNet::CommandFunc<Config>( this, &Config::_reqFinishInitReply ));
+                     CommandFunc<Config>( this, &Config::_cmdStartInitReply ),
+                     queue );
+    registerCommand( CMD_CONFIG_FINISH_INIT_REPLY,
+                     CommandFunc<Config>( this, &Config::_cmdFinishInitReply ),
+                     queue );
     registerCommand( CMD_CONFIG_EXIT_REPLY, 
-                    eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
-    registerCommand( REQ_CONFIG_EXIT_REPLY, 
-                    eqNet::CommandFunc<Config>( this, &Config::_reqExitReply ));
+                     CommandFunc<Config>( this, &Config::_cmdExitReply ),
+                     queue );
     registerCommand( CMD_CONFIG_START_FRAME_REPLY, 
-              eqNet::CommandFunc<Config>( this, &Config::_cmdStartFrameReply ));
+                     CommandFunc<Config>( this, &Config::_cmdStartFrameReply ),
+                     queue );
     registerCommand( CMD_CONFIG_FINISH_FRAME_REPLY, 
-                     eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
-    registerCommand( REQ_CONFIG_FINISH_FRAME_REPLY, 
-             eqNet::CommandFunc<Config>( this, &Config::_reqFinishFrameReply ));
+                     CommandFunc<Config>( this, &Config::_cmdFinishFrameReply ),
+                     queue );
     registerCommand( CMD_CONFIG_FINISH_ALL_FRAMES_REPLY, 
-                     eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
-    registerCommand( REQ_CONFIG_FINISH_ALL_FRAMES_REPLY, 
-         eqNet::CommandFunc<Config>( this, &Config::_reqFinishAllFramesReply ));
+                 CommandFunc<Config>( this, &Config::_cmdFinishAllFramesReply ),
+                     queue );
     registerCommand( CMD_CONFIG_EVENT, 
-                     eqNet::CommandFunc<Config>( this, &Config::_cmdEvent ));
+                     CommandFunc<Config>( this, &Config::_cmdEvent ),
+                     cmdQueue );
 #ifdef EQ_TRANSMISSION_API
     registerCommand( CMD_CONFIG_DATA, 
-                     eqNet::CommandFunc<Config>( this, &Config::_cmdData ));
+                     CommandFunc<Config>( this, &Config::_cmdData ),
+                     queue );
 #endif
 }
 
@@ -187,6 +188,10 @@ uint32_t Config::startFrame( const uint32_t frameID )
     const uint32_t frameNumber = _currentFrame + 1;
     send( packet );
 
+    RefPtr< Client > client = getClient();
+    while( !_requestHandler.isServed( packet.requestID ))
+        client->processCommand();
+
     _requestHandler.waitRequest( packet.requestID );
     EQASSERT( frameNumber == _currentFrame );
     EQLOG( LOG_ANY ) << "---- Started Frame ---- " << frameNumber << endl;
@@ -240,6 +245,7 @@ void Config::sendEvent( ConfigEvent& event )
     EQASSERT( _appNode );
 
     event.sessionID = getID();
+    EQLOG( LOG_EVENTS ) << "send event " << &event << endl;
     _appNode->send( event );
 }
 
@@ -352,7 +358,7 @@ bool Config::_connectClientNodes()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Config::_reqCreateNode( eqNet::Command& command )
+eqNet::CommandResult Config::_cmdCreateNode( eqNet::Command& command )
 {
     const ConfigCreateNodePacket* packet = 
         command.getPacket<ConfigCreateNodePacket>();
@@ -368,7 +374,7 @@ eqNet::CommandResult Config::_reqCreateNode( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_reqDestroyNode( eqNet::Command& command ) 
+eqNet::CommandResult Config::_cmdDestroyNode( eqNet::Command& command ) 
 {
     const ConfigDestroyNodePacket* packet =
         command.getPacket<ConfigDestroyNodePacket>();
@@ -384,7 +390,7 @@ eqNet::CommandResult Config::_reqDestroyNode( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_reqStartInitReply( eqNet::Command& command )
+eqNet::CommandResult Config::_cmdStartInitReply( eqNet::Command& command )
 {
     const ConfigStartInitReplyPacket* packet = 
         command.getPacket<ConfigStartInitReplyPacket>();
@@ -411,7 +417,7 @@ eqNet::CommandResult Config::_reqStartInitReply( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_reqFinishInitReply( eqNet::Command& command )
+eqNet::CommandResult Config::_cmdFinishInitReply( eqNet::Command& command )
 {
     const ConfigFinishInitReplyPacket* packet = 
         command.getPacket<ConfigFinishInitReplyPacket>();
@@ -430,7 +436,7 @@ eqNet::CommandResult Config::_reqFinishInitReply( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_reqExitReply( eqNet::Command& command )
+eqNet::CommandResult Config::_cmdExitReply( eqNet::Command& command )
 {
     const ConfigExitReplyPacket* packet = 
         command.getPacket<ConfigExitReplyPacket>();
@@ -467,7 +473,7 @@ eqNet::CommandResult Config::_cmdStartFrameReply( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_reqFinishFrameReply( eqNet::Command& command )
+eqNet::CommandResult Config::_cmdFinishFrameReply( eqNet::Command& command )
 {
     const ConfigFinishFrameReplyPacket* packet = 
         command.getPacket<ConfigFinishFrameReplyPacket>();
@@ -485,7 +491,7 @@ eqNet::CommandResult Config::_reqFinishFrameReply( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_reqFinishAllFramesReply( eqNet::Command& command )
+eqNet::CommandResult Config::_cmdFinishAllFramesReply( eqNet::Command& command )
 {
     const ConfigFinishAllFramesReplyPacket* packet = 
         command.getPacket<ConfigFinishAllFramesReplyPacket>();
@@ -497,8 +503,8 @@ eqNet::CommandResult Config::_reqFinishAllFramesReply( eqNet::Command& command )
 
 eqNet::CommandResult Config::_cmdEvent( eqNet::Command& command )
 {
-    EQVERB << "received config event " << command.getPacket<ConfigEvent>()
-           << endl;
+    EQLOG( LOG_EVENTS ) << "received event " << command.getPacket<ConfigEvent>()
+                        << endl;
 
     _eventQueue.push( command );
     return eqNet::COMMAND_HANDLED;

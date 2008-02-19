@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_BASE_H
@@ -15,6 +15,7 @@ namespace eqNet
 {
     class Connection;
     class Command;
+    class CommandQueue;
     enum  CommandResult;
 
     /** 
@@ -31,6 +32,16 @@ namespace eqNet
         virtual ~Base();        
 
         /** 
+         * Dispatch a command from the receiver thread to the registered queue.
+         * 
+         * @param command the command.
+         * @return true if the command was dispatch, false if not (command will
+         *         be dispatched again later)
+         * @sa registerCommand
+         */
+        virtual bool dispatchCommand( Command& command );
+
+        /** 
          * Handles a received command packet for this object by calling the
          * appropriate command handler function.
          * 
@@ -38,7 +49,7 @@ namespace eqNet
          * @return the result of the operation.
          * @sa registerCommand
          */
-        CommandResult invokeCommand( Command& command );
+        virtual CommandResult invokeCommand( Command& command );
  
     protected:
         /** 
@@ -46,10 +57,13 @@ namespace eqNet
          * 
          * @param command the command.
          * @param func the functor to handle the command.
+         * @param destinationQueue the queue to which the receiver thread
+         *                         dispatches the command.
          */
         template< typename T >
         void registerCommand( const uint32_t command, 
-                              const CommandFunc<T>& func);
+                              const CommandFunc<T>& func,
+                              CommandQueue& destinationQueue );
 
         
         /** 
@@ -60,29 +74,25 @@ namespace eqNet
          */
         CommandResult _cmdUnknown( Command& command );
 
-        /**
-         * The command handler which requests the command to be pushed to
-         * another entity.
-         */
-        CommandResult _cmdPush( Command& )
-            { return eqNet::COMMAND_PUSH; }
-
     private:
         void _registerCommand( const uint32_t command, 
-                               const CommandFunc<Base>& func);
+                               const CommandFunc<Base>& func,
+                                CommandQueue* destinationQueue );
 
-#pragma warning(push)
-#pragma warning(disable: 4251)
         /** The command handler function table. */
         std::vector< CommandFunc<Base> > _vTable;
-#pragma warning(pop)
+        
+        /** Defines a queue to which commands are dispatched from the recv. */
+        std::vector< CommandQueue* >     _qTable;
     };
 
     template< typename T >
     void Base::registerCommand( const uint32_t command,
-                                const CommandFunc<T>& func)
+                                const CommandFunc<T>& func,
+                                CommandQueue& destinationQueue )
     {
-        _registerCommand( command, static_cast< CommandFunc<Base> >( func ));
+        _registerCommand( command, static_cast< CommandFunc<Base> >( func ),
+                          &destinationQueue );
     }
 }
 

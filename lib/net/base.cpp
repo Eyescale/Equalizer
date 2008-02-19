@@ -1,10 +1,11 @@
 
-/* Copyright (c) 2005, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "base.h"
 
 #include "command.h"
+#include "commandQueue.h"
 #include "node.h"
 #include "packets.h"
 
@@ -30,20 +31,56 @@ Base::~Base()
 // command handling
 //===========================================================================
 void Base::_registerCommand( const uint32_t command,
-                             const CommandFunc<Base>& func)
+                             const CommandFunc<Base>& func,
+                             CommandQueue* destinationQueue )
 {
+    EQASSERT( _vTable.size() == _qTable.size( ));
+    EQASSERT( destinationQueue );
+
     if( _vTable.size() <= command )
     {
         while( _vTable.size() < command )
+        {
             _vTable.push_back( CommandFunc<Base>( this, &Base::_cmdUnknown ));
+            _qTable.push_back( 0 );
+        }
 
         _vTable.push_back( func );
+        _qTable.push_back( destinationQueue );
+
         EQASSERT( _vTable.size() == command + 1 );
     }
     else
+    {
         _vTable[command] = func;
+        _qTable[command] = destinationQueue;
+    }
 }
 
+
+bool Base::dispatchCommand( Command& command )
+{
+    EQVERB << "dispatch " << static_cast< ObjectPacket* >( command.getPacket( ))
+           << ", " << typeid( *this ).name() << endl;
+
+    const uint32_t which = command->command;
+#ifndef NDEBUG
+    if( which >= _qTable.size( ))
+    {
+        EQASSERTINFO( 0, "Command " << which
+                      << " higher than number of registered command handlers ("
+                      << _qTable.size() << ") for object of type "
+                      << typeid(*this).name() << endl );
+        return true;
+    }
+    EQASSERTINFO( _qTable[which], "No command queue registered for command" 
+                  << which << ", object of type " << typeid(*this).name() 
+                  << endl);
+#endif
+
+    _qTable[which]->push( command );
+    return true;
+}
 
 CommandResult Base::invokeCommand( Command& command )
 {

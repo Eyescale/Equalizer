@@ -42,35 +42,45 @@ Node::Node()
         , _launchID( EQ_ID_INVALID )
         , _programName( Global::getProgramName( ))
         , _workDir( Global::getWorkDir( ))
+        , _receiverThread( this )
+        , _commandThread( this )
 {
     registerCommand( CMD_NODE_STOP, 
-                     CommandFunc<Node>( this, &Node::_cmdStop ));
+                     CommandFunc<Node>( this, &Node::_cmdStop ),
+                     _commandThreadQueue );
     registerCommand( CMD_NODE_MAP_SESSION, 
-                     CommandFunc<Node>( this, &Node::_cmdMapSession ));
+                     CommandFunc<Node>( this, &Node::_cmdMapSession ),
+                     _commandThreadQueue );
     registerCommand( CMD_NODE_MAP_SESSION_REPLY,
-                     CommandFunc<Node>( this, &Node::_cmdMapSessionReply ));
+                     CommandFunc<Node>( this, &Node::_cmdMapSessionReply ),
+                     _commandThreadQueue );
     registerCommand( CMD_NODE_UNMAP_SESSION, 
-                     CommandFunc<Node>( this, &Node::_cmdUnmapSession ));
+                     CommandFunc<Node>( this, &Node::_cmdUnmapSession ),
+                     _commandThreadQueue );
     registerCommand( CMD_NODE_UNMAP_SESSION_REPLY,
-                     CommandFunc<Node>( this, &Node::_cmdUnmapSessionReply ));
+                     CommandFunc<Node>( this, &Node::_cmdUnmapSessionReply ),
+                     _commandThreadQueue );
     registerCommand( CMD_NODE_CONNECT,
-                     CommandFunc<Node>( this, &Node::_cmdConnect ));
+                     CommandFunc<Node>( this, &Node::_cmdConnect ),
+                     _commandThreadQueue );
     registerCommand( CMD_NODE_CONNECT_REPLY,
-                     CommandFunc<Node>( this, &Node::_cmdConnectReply ));
+                     CommandFunc<Node>( this, &Node::_cmdConnectReply ),
+                     _commandThreadQueue );
     registerCommand( CMD_NODE_DISCONNECT,
-                     CommandFunc<Node>( this, &Node::_cmdDisconnect ));
+                     CommandFunc<Node>( this, &Node::_cmdDisconnect ),
+                     _commandThreadQueue );
     registerCommand( CMD_NODE_GET_NODE_DATA,
-                     CommandFunc<Node>( this, &Node::_cmdGetNodeData));
+                     CommandFunc<Node>( this, &Node::_cmdGetNodeData),
+                     _commandThreadQueue );
     registerCommand( CMD_NODE_GET_NODE_DATA_REPLY,
-                     CommandFunc<Node>( this, &Node::_cmdGetNodeDataReply ));
+                     CommandFunc<Node>( this, &Node::_cmdGetNodeDataReply ),
+                     _commandThreadQueue );
 
-    _receiverThread  = new ReceiverThread( this );
     EQINFO << "New Node @" << (void*)this << " " << _id << endl;
 }
 
 Node::~Node()
 {
-    delete _receiverThread;
     EQINFO << "Delete Node @" << (void*)this << " " << _id << endl;
 }
 
@@ -195,8 +205,10 @@ bool Node::listen()
 
     _state = STATE_LISTENING;
 
-    EQVERB << typeid(*this).name() << " starting recv thread " << endl;
-    _receiverThread->start();
+    EQVERB << typeid(*this).name() << " starting command and receiver thread "
+           << endl;
+    _commandThread.start();
+    _receiverThread.start();
 
     EQINFO << this << " listening." << endl;
     return true;
@@ -209,8 +221,13 @@ bool Node::stopListening()
 
     NodeStopPacket packet;
     send( packet );
-    const bool joined = _receiverThread->join();
-    EQASSERT( joined );
+
+    const bool recvJoined = _receiverThread.join();
+    EQASSERT( recvJoined );
+
+    const bool cmdJoined = _commandThread.join();
+    EQASSERT( cmdJoined );
+
     _cleanup();
     return true;
 }
@@ -307,7 +324,7 @@ bool Node::disconnect( RefPtr<Node> node )
     if( !node || _state != STATE_LISTENING || 
         node->_state != STATE_CONNECTED || !node->_connection )
         return false;
-    EQASSERT( !inReceiverThread( ));
+    EQASSERT( !inCommandThread( ));
 
     NodeDisconnectPacket packet;
     packet.requestID = _requestHandler.registerRequest( node.get( ));
@@ -329,7 +346,7 @@ void Node::addSession( Session* session, RefPtr<Node> server,
 {
     CHECK_THREAD( _thread );
 
-    session->_localNode = this;
+    session->setLocalNode( this );
     session->_server    = server;
     session->_id        = sessionID;
     session->_name      = name;
@@ -347,7 +364,7 @@ void Node::removeSession( Session* session )
     CHECK_THREAD( _thread );
     _sessions.erase( session->getID( ));
 
-    session->_localNode = 0;
+    session->setLocalNode( 0 );
     session->_server    = 0;
     session->_id        = EQ_ID_INVALID;
     session->_name      = "";
@@ -358,7 +375,7 @@ bool Node::mapSession( RefPtr<Node> server, Session* session,
                        const string& name )
 {
     EQASSERT( isLocal( ));
-    EQASSERT( !_receiverThread->isCurrent( ));
+    EQASSERT( !inCommandThread( ));
 
     NodeMapSessionPacket packet;
     packet.requestID  = _requestHandler.registerRequest( session );
@@ -484,7 +501,7 @@ bool Node::deserialize( std::string& data )
 //----------------------------------------------------------------------
 // receiver thread functions
 //----------------------------------------------------------------------
-void* Node::_runReceiver()
+void* Node::_runReceiverThread()
 {
     EQINFO << "Entered receiver thread" << endl;
 
@@ -550,24 +567,25 @@ void* Node::_runReceiver()
             nErrors = 0;
     }
 
+#ifndef NDEBUG
     if( !_pendingCommands.empty( ))
-    {
         EQWARN << _pendingCommands.size() 
-               << " commands rescheduled while leaving receiver thread" << endl;
+               << " commands rescheduled while leaving command thread" << endl;
+#endif
 
-        for( list<Command*>::const_iterator i = _pendingCommands.begin();
-             i != _pendingCommands.end(); ++i )
+    for( list<Command*>::const_iterator i = _pendingCommands.begin();
+         i != _pendingCommands.end(); ++i )
             
-            _commandCache.release( *i );
+        _commandCache.release( *i );
 
-        _pendingCommands.clear();
-    }
-
+    _pendingCommands.clear();
     _commandCache.flush();
 
     delete _receivedCommand;
     _receivedCommand = 0;
 
+    EQINFO << _connectionSet.size() << " connections open during receiver exit"
+           << endl;
     EQINFO << "Leaving receiver thread" << endl;
     return EXIT_SUCCESS;
 }
@@ -647,98 +665,48 @@ bool Node::_handleData()
         EQERROR << "Incomplete packet read: " << *_receivedCommand << endl;
         return false;
     }
-    // If no node is associated with the connection, the incoming packet has to
-    // be a one of the connection initialization packets
-    EQASSERTINFO( node.isValid() ||
-                  ((*_receivedCommand)->datatype == DATATYPE_EQNET_NODE &&
-                   ((*_receivedCommand)->command == CMD_NODE_CONNECT  || 
-                    (*_receivedCommand)->command == CMD_NODE_CONNECT_REPLY )),
-                  *_receivedCommand << " connection " << connection );
 
-    const CommandResult result = dispatchCommand( *_receivedCommand );
-    switch( result )
+    if( !node.isValid( ))
     {
-        case COMMAND_ERROR:
-            EQASSERTINFO( 0, "Error handling " << *_receivedCommand );
-            break;
+        // This is one of the initial packets during the connection
+        // handshake. Handle them directly in the receiver thread since at this
+        // point the remote node is not yet available.
+        EQASSERTINFO( (*_receivedCommand)->datatype == DATATYPE_EQNET_NODE &&
+                      ( (*_receivedCommand)->command == CMD_NODE_CONNECT  || 
+                        (*_receivedCommand)->command == CMD_NODE_CONNECT_REPLY),
+                      *_receivedCommand << " connection " << connection );
         
-        case COMMAND_REDISPATCH:
-        case COMMAND_HANDLED:
-        case COMMAND_DISCARD:
-            break;
-            
-        case COMMAND_PUSH:
-            if( !pushCommand( *_receivedCommand ))
-                EQASSERTINFO( 0, "Error handling command packet: pushCommand "
-                              << "failed for " << *_receivedCommand << endl );
-            break;
+        const CommandResult result = invokeCommand( *_receivedCommand );
+        EQASSERT( result == COMMAND_HANDLED );
 
-        default:
-            EQUNIMPLEMENTED;
+        return true;
     }
 
-    _redispatchCommands();
- 
-    if( result == COMMAND_REDISPATCH )
-    {
-        Command* command = _commandCache.alloc( *_receivedCommand );
-        _pendingCommands.push_back( command );
-    }
-    
+    _dispatchCommand( *_receivedCommand );
     return true;
 }
 
-void Node::_redispatchCommands()
+void Node::_dispatchCommand( Command& command )
 {
-    bool changes = !_pendingCommands.empty();
-    while( changes )
+    EQASSERT( command.isValid( ));
+
+    const bool dispatched = dispatchCommand( command );
+ 
+    _redispatchCommands();
+  
+    if( !dispatched )
     {
-        changes = false;
+        Command* dispCommand = _commandCache.alloc( command );
+        _pendingCommands.push_back( dispCommand );
 
-        list<Command*>::iterator i = _pendingCommands.begin();
-        while( !changes && i != _pendingCommands.end( ))
-        {
-            Command* command = (*i);
-        
-            switch( dispatchCommand( *command ))
-            {
-                case COMMAND_HANDLED:
-                case COMMAND_DISCARD:
-                    _pendingCommands.erase( i );
-                    _commandCache.release( command );
-                    changes = true;
-                    break;
-
-                case COMMAND_ERROR:
-                    EQERROR << "Error handling command " << command << endl;
-                    EQASSERT(0);
-                    break;
-                
-                case COMMAND_PUSH:
-                {
-                    const bool pushed = pushCommand( *command );
-                    EQASSERTINFO( pushed, "Error handling command packet: "
-                                  << " pushCommand failed for " << *command
-                                  << endl );                    
-
-                    _pendingCommands.erase( i );
-                    _commandCache.release( command );
-                    changes = true;
-                    break;
-                }
-                case COMMAND_REDISPATCH:
-                    break;
-
-                default:
-                    EQUNIMPLEMENTED;
-            }
-            if( !changes )
-                ++i;
-        }
+#ifndef NDEBUG
+        if( (_pendingCommands.size() % 10) == 9 )
+            EQINFO << _pendingCommands.size() << " commands pending" <<endl;
+#endif
     }
 }
 
-CommandResult Node::dispatchCommand( Command& command )
+bool Node::dispatchCommand( Command& command )
 {
     EQVERB << "dispatch " << command << " by " << _id << endl;
     EQASSERT( command.isValid( ));
@@ -747,7 +715,7 @@ CommandResult Node::dispatchCommand( Command& command )
     switch( datatype )
     {
         case DATATYPE_EQNET_NODE:
-            return invokeCommand( command );
+            return Base::dispatchCommand( command );
 
         case DATATYPE_EQNET_SESSION:
         case DATATYPE_EQNET_OBJECT:
@@ -758,18 +726,105 @@ CommandResult Node::dispatchCommand( Command& command )
             Session*             session       = _sessions[id];
             EQASSERTINFO( session, "Can't find session for " << sessionPacket );
             
-            const CommandResult result = session->dispatchCommand( command );
+            return session->dispatchCommand( command );
+        }
+
+        default:
+            EQASSERTINFO( 0, "Unknown datatype " << datatype << " for "
+                          << command );
+            return true;
+    }
+}
+
+void Node::_redispatchCommands()
+{
+    bool changes = true;
+    while( changes && !_pendingCommands.empty( ))
+    {
+        changes = false;
+
+        for( list<Command*>::iterator i = _pendingCommands.begin();
+             i != _pendingCommands.end(); ++i )
+        {
+            Command* command = (*i);
+            EQASSERT( command->isValid( ));
+
+            if( dispatchCommand( *command ))
+            {
+                _pendingCommands.erase( i );
+                _commandCache.release( command );
+                changes = true;
+                break;
+            }
+        }
+    }
+
+#ifndef NDEBUG
+    if( !_pendingCommands.empty( ))
+        EQINFO << _pendingCommands.size() << " undispatched commands" << endl;
+#endif
+}
+
+//----------------------------------------------------------------------
+// command thread functions
+//----------------------------------------------------------------------
+void* Node::_runCommandThread()
+{
+    EQINFO << "Entered command thread" << endl;
+
+    while( _state == STATE_LISTENING )
+    {
+        Command*            command = _commandThreadQueue.pop();
+        EQASSERT( command->isValid( ));
+
+        const CommandResult result  = invokeCommand( *command );
+        switch( result )
+        {
+            case COMMAND_ERROR:
+                EQASSERTINFO( 0, "Error handling " << *command );
+                break;
+
+            case COMMAND_HANDLED:
+            case COMMAND_DISCARD:
+                break;
+
+            default:
+                EQUNIMPLEMENTED;
+        }
+    }
+ 
+    EQINFO << "Leaving command thread" << endl;
+    return EXIT_SUCCESS;
+}
+
+CommandResult Node::invokeCommand( Command& command )
+{
+    EQVERB << "dispatch " << command << " by " << _id << endl;
+    EQASSERT( command.isValid( ));
+
+    const uint32_t datatype = command->datatype;
+    switch( datatype )
+    {
+        case DATATYPE_EQNET_NODE:
+            return Base::invokeCommand( command );
+
+        case DATATYPE_EQNET_SESSION:
+        case DATATYPE_EQNET_OBJECT:
+        {
+            const SessionPacket* sessionPacket = 
+                static_cast<SessionPacket*>( command.getPacket( ));
+            const uint32_t       id            = sessionPacket->sessionID;
+            Session*             session       = _sessions[id];
+            EQASSERTINFO( session, "Can't find session for " << sessionPacket );
+            
+            const CommandResult result = session->invokeCommand( command );
             return result;
         }
 
         default:
-            if( datatype < DATATYPE_EQNET_CUSTOM )
-            {
-                EQERROR << "Unknown eqNet datatype " << datatype << endl;
-                return COMMAND_ERROR;
-            }
-            
-            return handleCommand( command );
+            EQASSERTINFO( 0, "Unknown datatype " << datatype << " for "
+                          << command );
+            return COMMAND_ERROR;
     }
 }
 
@@ -779,6 +834,8 @@ CommandResult Node::_cmdStop( Command& command )
     EQASSERT( _state == STATE_LISTENING );
 
     _state = STATE_STOPPED;
+    _connectionSet.interrupt();
+
     return COMMAND_HANDLED;
 }
 
@@ -803,8 +860,8 @@ CommandResult Node::_cmdMapSession( Command& command )
             sessionName = packet->name;
             if( !_findSession( sessionName )) // not yet mapped 
             {
-                session = (Session*)_requestHandler.getRequestData( packet->
-                                                                    requestID );
+                session = static_cast< Session* >( 
+                    _requestHandler.getRequestData( packet->requestID ));
                 const uint32_t newSessionID = _generateSessionID();
                 addSession( session, this, newSessionID, sessionName );
             }
@@ -818,8 +875,11 @@ CommandResult Node::_cmdMapSession( Command& command )
             sessionName = packet->name;
             session     = _findSession( sessionName );
         
+#if 0
             if( !session ) // session does not exist, wait until master maps it
                 return COMMAND_REDISPATCH;
+#endif
+
         }
         else // mapped by identifier, session has to exist already
         {
@@ -923,7 +983,7 @@ CommandResult Node::_cmdUnmapSessionReply( Command& command)
 CommandResult Node::_cmdConnect( Command& command )
 {
     EQASSERT( !command.getNode().isValid( ));
-    EQASSERT( inReceiverThread( ));
+    EQASSERT( _receiverThread.isCurrent( ));
 
     const NodeConnectPacket* packet = command.getPacket<NodeConnectPacket>();
     RefPtr<Connection>   connection = _connectionSet.getConnection();
@@ -987,7 +1047,7 @@ CommandResult Node::_cmdConnect( Command& command )
 CommandResult Node::_cmdConnectReply( Command& command )
 {
     EQASSERT( !command.getNode().isValid( ));
-    EQASSERT( inReceiverThread( ));
+    EQASSERT( _receiverThread.isCurrent( ));
 
     const NodeConnectReplyPacket* packet = 
         command.getPacket<NodeConnectReplyPacket>();
@@ -1045,7 +1105,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
 
 CommandResult Node::_cmdDisconnect( Command& command )
 {
-    EQASSERT( inReceiverThread( ));
+    EQASSERT( inCommandThread( ));
 
     const NodeDisconnectPacket* packet = 
         command.getPacket<NodeDisconnectPacket>();
@@ -1250,13 +1310,12 @@ RefPtr<Node> Node::connect( const NodeID& nodeID, RefPtr<Node> server )
     if( iter != _nodes.end( ))
         return iter->second;
 
-    // Make sure that only one connection request based solely on the node
-    // identifier is pending at a given time. Otherwise a node with the same id
-    // might be instanciated twice in _cmdGetNodeDataReply(). The alternative to
-    // this mutex is to register connecting nodes with this local node, and
-    // handle all cases correctly, which is far more complex. Node connection
-    // only happen a lot during initialization, and are therefore not
-    // time-critical.
+    // Make sure that only one connection request based on the node identifier
+    // is pending at a given time. Otherwise a node with the same id might be
+    // instanciated twice in _cmdGetNodeDataReply(). The alternative to this
+    // mutex is to register connecting nodes with this local node, and handle
+    // all cases correctly, which is far more complex. Node connection only
+    // happens a lot during initialization, and are therefore not time-critical.
     ScopedMutex< Lock > mutex( _connectMutex );
 
     iter = _nodes.find( nodeID );

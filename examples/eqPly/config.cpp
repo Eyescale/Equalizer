@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "config.h"
@@ -9,8 +9,9 @@ using namespace std;
 namespace eqPly
 {
 
-Config::Config()
-        : _spinX( 5 )
+Config::Config( eqBase::RefPtr< eq::Server > parent )
+        : eq::Config( parent )
+        , _spinX( 5 )
         , _spinY( 5 )
 {
 }
@@ -24,8 +25,8 @@ bool Config::init()
     // init distributed objects
     _frameData.data.color = _initData.useColor();
     registerObject( &_frameData );
+    
     _initData.setFrameDataID( _frameData.getID( ));
-
     registerObject( &_initData );
 
     // init config

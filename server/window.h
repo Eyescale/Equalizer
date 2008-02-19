@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_WINDOW_H
@@ -42,15 +42,6 @@ namespace eqs
          */
         Window( const Window& from, const CompoundVector& compounds );
 
-//        Server* getServer() const
-//            { return _pipe ? _pipe->getServer() : NULL; }
-        Pipe* getPipe() const { return _pipe; }
-
-        /** 
-         * @return the state of this window.
-         */
-        State getState()    const { return _state.get(); }
-
         /**
          * @name Data Access
          */
@@ -74,12 +65,22 @@ namespace eqs
         /** @return the vector of channels. */
         const ChannelVector& getChannels() const { return _channels; }
 
+        Pipe* getPipe() const { return _pipe; }
+
         Node* getNode() const { return (_pipe ? _pipe->getNode() : NULL); }
         Config* getConfig() const 
             { return (_pipe ? _pipe->getConfig() : NULL); }
         
         const eq::Window::DrawableConfig& getDrawableConfig() const
             { return _drawableConfig; }
+
+        eqNet::CommandQueue& getServerThreadQueue()
+            { return _pipe->getServerThreadQueue(); }
+        eqNet::CommandQueue& getCommandThreadQueue()
+            { return _pipe->getCommandThreadQueue(); }
+
+        /** @return the state of this window. */
+        State getState() const { return _state.get(); }
 
         /** 
          * References this window as being actively used.
@@ -231,6 +232,10 @@ namespace eqs
         /** Registers request packets waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
 
+        /** @sa eqNet::Object::attachToSession. */
+        virtual void attachToSession( const uint32_t id, 
+                                      const uint32_t instanceID, 
+                                      eqNet::Session* session );
     private:
         eq::Window::DrawableConfig _drawableConfig;
 
@@ -295,7 +300,7 @@ namespace eqs
         /* command handler functions. */
         eqNet::CommandResult _cmdConfigInitReply( eqNet::Command& command ); 
         eqNet::CommandResult _cmdConfigExitReply( eqNet::Command& command ); 
-        eqNet::CommandResult _reqSetPixelViewport( eqNet::Command& command );
+        eqNet::CommandResult _cmdSetPixelViewport( eqNet::Command& command );
 
         // For access to _fixedPVP
         friend std::ostream& operator << ( std::ostream&, const Window*);

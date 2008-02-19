@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "object.h"
@@ -22,37 +22,22 @@
 #include <eq/base/scopedMutex.h>
 #include <iostream>
 
-using namespace eqNet;
 using namespace eqBase;
 using namespace std;
 
-void Object::_construct()
+namespace eqNet
 {
-    _cm               = ObjectCM::ZERO;
-    _session          = 0;
-    _id               = EQ_ID_INVALID;
-    _instanceID       = EQ_ID_INVALID;
-    _instanceData     = 0;
-    _instanceDataSize = 0;
-    _deltaData        = 0;
-    _deltaDataSize    = 0;
-    _threadSafe       = false;
-
-    registerCommand( CMD_OBJECT_INSTANCE_DATA,
-                     CommandFunc<Object>( this, &Object::_cmdForward ));
-    registerCommand( CMD_OBJECT_INSTANCE,
-                     CommandFunc<Object>( this, &Object::_cmdForward ));
-    registerCommand( CMD_OBJECT_DELTA_DATA, 
-                     CommandFunc<Object>( this, &Object::_cmdForward ));
-    registerCommand( CMD_OBJECT_DELTA, 
-                     CommandFunc<Object>( this, &Object::_cmdForward ));
-    registerCommand( CMD_OBJECT_COMMIT, 
-                     CommandFunc<Object>( this, &Object::_cmdForward ));
-}
-
 Object::Object()
+        : _session          ( 0 )
+        , _id               ( EQ_ID_INVALID )
+        , _instanceID       ( EQ_ID_INVALID )
+        , _instanceData     ( 0 )
+        , _instanceDataSize ( 0 )
+        , _deltaData        ( 0 )
+        , _deltaDataSize    ( 0 )
+        , _cm               ( ObjectCM::ZERO )
+        , _threadSafe       ( false )
 {
-    _construct();
 }
 
 Object::~Object()
@@ -66,13 +51,41 @@ Object::~Object()
     _cm = 0;
 }
 
+void Object::attachToSession( const uint32_t id, const uint32_t instanceID, 
+                              Session* session )
+{
+    EQASSERT( id != EQ_ID_INVALID );
+    EQASSERT( instanceID != EQ_ID_INVALID );
+    EQASSERT( session );
+
+    _id         = id;
+    _instanceID = instanceID;
+    _session    = session;
+
+    _cm->notifyAttached();
+
+    CommandQueue& queue = session->getCommandThreadQueue();
+
+    registerCommand( CMD_OBJECT_INSTANCE_DATA,
+                     CommandFunc<Object>( this, &Object::_cmdForward ), queue );
+    registerCommand( CMD_OBJECT_INSTANCE,
+                     CommandFunc<Object>( this, &Object::_cmdForward ), queue );
+    registerCommand( CMD_OBJECT_DELTA_DATA, 
+                     CommandFunc<Object>( this, &Object::_cmdForward ), queue );
+    registerCommand( CMD_OBJECT_DELTA, 
+                     CommandFunc<Object>( this, &Object::_cmdForward ), queue );
+    registerCommand( CMD_OBJECT_COMMIT, 
+                     CommandFunc<Object>( this, &Object::_cmdForward ), queue );
+}
+
 void Object::_setChangeManager( ObjectCM* cm )
 {
     if( _cm != ObjectCM::ZERO )
     {
-        EQINFO << "Overriding existing object change manager, obj "
+        EQVERB << "Overriding existing object change manager, obj "
                << typeid( *this ).name() << ", old cm " 
-               << typeid( *_cm ).name( ) << endl;
+               << typeid( *_cm ).name() << ", new cm "
+               << typeid( *cm ).name() << endl;
         delete _cm;
     }
 
@@ -197,9 +210,9 @@ uint32_t Object::commit()
     return commitSync( requestID );
 }
 
-void Object::_setupChangeManager( const Object::ChangeType type, 
-                                  const bool master, 
-                                  const uint32_t masterInstanceID )
+void Object::setupChangeManager( const Object::ChangeType type, 
+                                 const bool master, 
+                                 const uint32_t masterInstanceID )
 {
     switch( type )
     {
@@ -242,4 +255,5 @@ void Object::setInstanceData( void* data, const uint64_t size )
 
     _deltaData     = data;
     _deltaDataSize = size;
+}
 }

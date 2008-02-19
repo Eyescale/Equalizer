@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_COMMANDQUEUE_H
@@ -19,14 +19,11 @@ namespace eq
     {
     public:
         CommandQueue();
-		virtual ~CommandQueue(){}
+        virtual ~CommandQueue();
 
         /** @sa eqNet::CommandQueue::push(). */
         virtual void push( eqNet::Command& packet );
 
-        /** @sa eqNet::CommandQueue::pushFront(). */
-        virtual void pushFront( eqNet::Command& packet );
-        
         /** @sa eqNet::CommandQueue::pop(). */
         virtual eqNet::Command* pop();
 

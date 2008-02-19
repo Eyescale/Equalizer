@@ -16,6 +16,7 @@
 using namespace eqBase;
 using namespace std;
 using eqNet::ConnectionDescriptionVector;
+using eqNet::CommandFunc;
 
 namespace eqs
 {
@@ -34,72 +35,17 @@ void Config::_construct()
     _state         = STATE_STOPPED;
     _appNode       = 0;
 
-    registerCommand( eq::CMD_CONFIG_START_INIT,
-                     eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
-    registerCommand( eq::REQ_CONFIG_START_INIT,
-                     eqNet::CommandFunc<Config>( this, &Config::_reqStartInit));
-    registerCommand( eq::CMD_CONFIG_FINISH_INIT,
-                     eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
-    registerCommand( eq::REQ_CONFIG_FINISH_INIT,
-                     eqNet::CommandFunc<Config>(this, &Config::_reqFinishInit));
-    registerCommand( eq::CMD_CONFIG_EXIT,
-                     eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
-    registerCommand( eq::REQ_CONFIG_EXIT, 
-                     eqNet::CommandFunc<Config>( this, &Config::_reqExit ));
-    registerCommand( eq::CMD_CONFIG_CREATE_REPLY,
-                  eqNet::CommandFunc<Config>( this, &Config::_cmdCreateReply ));
-    registerCommand( eq::CMD_CONFIG_CREATE_NODE_REPLY,
-              eqNet::CommandFunc<Config>( this, &Config::_cmdCreateNodeReply ));
-    registerCommand( eq::CMD_CONFIG_START_FRAME, 
-                     eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
-    registerCommand( eq::REQ_CONFIG_START_FRAME,
-                   eqNet::CommandFunc<Config>( this, &Config::_reqStartFrame ));
-    registerCommand( eq::CMD_CONFIG_FINISH_FRAME, 
-                     eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
-    registerCommand( eq::REQ_CONFIG_FINISH_FRAME, 
-                  eqNet::CommandFunc<Config>( this, &Config::_reqFinishFrame ));
-    registerCommand( eq::CMD_CONFIG_FINISH_ALL_FRAMES, 
-                     eqNet::CommandFunc<Config>( this, &Config::_cmdPush ));
-    registerCommand( eq::REQ_CONFIG_FINISH_ALL_FRAMES, 
-              eqNet::CommandFunc<Config>( this, &Config::_reqFinishAllFrames ));
-
-    const Global* global = Global::instance();
-    
-    for( int i=0; i<FATTR_ALL; ++i )
-        _fAttributes[i] = global->getConfigFAttribute( (FAttribute)i );
-        
     EQINFO << "New config @" << (void*)this << endl;
 }
 
 Config::Config()
 {
     _construct();
-}
 
-Config::~Config()
-{
-    EQINFO << "Delete config @" << (void*)this << endl;
-    _server     = 0;
-    _appNode    = 0;
-
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
-    {
-        Node* node = *i;
-
-        node->_config = 0;
-        delete node;
-    }
-    _nodes.clear();
-
-    for( vector<Compound*>::const_iterator i = _compounds.begin(); 
-         i != _compounds.end(); ++i )
-    {
-        Compound* compound = *i;
-
-        compound->_config = 0;
-        delete compound;
-    }
-    _compounds.clear();
+    const Global* global = Global::instance();
+    
+    for( int i=0; i<FATTR_ALL; ++i )
+        _fAttributes[i] = global->getConfigFAttribute( (FAttribute)i );
 }
 
 Config::Config( const Config& from )
@@ -133,6 +79,68 @@ Config::Config( const Config& from )
         (node == from._appNode) ? 
             addApplicationNode( nodeClone ) : addNode( nodeClone );
     }
+}
+
+Config::~Config()
+{
+    EQINFO << "Delete config @" << (void*)this << endl;
+    _server     = 0;
+    _appNode    = 0;
+
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    {
+        Node* node = *i;
+
+        node->_config = 0;
+        delete node;
+    }
+    _nodes.clear();
+
+    for( vector<Compound*>::const_iterator i = _compounds.begin(); 
+         i != _compounds.end(); ++i )
+    {
+        Compound* compound = *i;
+
+        compound->_config = 0;
+        delete compound;
+    }
+    _compounds.clear();
+}
+
+void Config::setLocalNode( eqBase::RefPtr< eqNet::Node > node )
+{
+    eqNet::Session::setLocalNode( node );
+    
+    if( !node ) 
+        return;
+
+    eqNet::CommandQueue& serverQueue  = getServerThreadQueue();
+    eqNet::CommandQueue& commandQueue = getCommandThreadQueue();
+
+    registerCommand( eq::CMD_CONFIG_START_INIT,
+                     CommandFunc<Config>( this, &Config::_cmdStartInit),
+                     serverQueue );
+    registerCommand( eq::CMD_CONFIG_FINISH_INIT,
+                     CommandFunc<Config>(this, &Config::_cmdFinishInit),
+                     serverQueue );
+    registerCommand( eq::CMD_CONFIG_EXIT,
+                     CommandFunc<Config>( this, &Config::_cmdExit ),
+                     serverQueue );
+    registerCommand( eq::CMD_CONFIG_CREATE_REPLY,
+                     CommandFunc<Config>( this, &Config::_cmdCreateReply ),
+                     commandQueue );
+    registerCommand( eq::CMD_CONFIG_CREATE_NODE_REPLY,
+                     CommandFunc<Config>( this, &Config::_cmdCreateNodeReply ),
+                     commandQueue );
+    registerCommand( eq::CMD_CONFIG_START_FRAME, 
+                     CommandFunc<Config>( this, &Config::_cmdStartFrame ),
+                     serverQueue );
+    registerCommand( eq::CMD_CONFIG_FINISH_FRAME, 
+                     CommandFunc<Config>( this, &Config::_cmdFinishFrame ),
+                     serverQueue );
+    registerCommand( eq::CMD_CONFIG_FINISH_ALL_FRAMES, 
+                     CommandFunc<Config>( this, &Config::_cmdFinishAllFrames ),
+                     serverQueue );
 }
 
 void Config::addNode( Node* node )
@@ -600,7 +608,7 @@ uint32_t Config::_finishAllFrames()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Config::_reqStartInit( eqNet::Command& command )
+eqNet::CommandResult Config::_cmdStartInit( eqNet::Command& command )
 {
     const eq::ConfigStartInitPacket* packet = 
         command.getPacket<eq::ConfigStartInitPacket>();
@@ -629,7 +637,7 @@ eqNet::CommandResult Config::_reqStartInit( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_reqFinishInit( eqNet::Command& command )
+eqNet::CommandResult Config::_cmdFinishInit( eqNet::Command& command )
 {
     const eq::ConfigFinishInitPacket* packet = 
         command.getPacket<eq::ConfigFinishInitPacket>();
@@ -649,7 +657,7 @@ eqNet::CommandResult Config::_reqFinishInit( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_reqExit( eqNet::Command& command ) 
+eqNet::CommandResult Config::_cmdExit( eqNet::Command& command ) 
 {
     const eq::ConfigExitPacket* packet = 
         command.getPacket<eq::ConfigExitPacket>();
@@ -666,7 +674,7 @@ eqNet::CommandResult Config::_reqExit( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_reqStartFrame( eqNet::Command& command ) 
+eqNet::CommandResult Config::_cmdStartFrame( eqNet::Command& command ) 
 {
     const eq::ConfigStartFramePacket* packet = 
         command.getPacket<eq::ConfigStartFramePacket>();
@@ -682,7 +690,7 @@ eqNet::CommandResult Config::_reqStartFrame( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_reqFinishFrame( eqNet::Command& command ) 
+eqNet::CommandResult Config::_cmdFinishFrame( eqNet::Command& command ) 
 {
     const eq::ConfigFinishFramePacket* packet = 
         command.getPacket<eq::ConfigFinishFramePacket>();
@@ -694,7 +702,7 @@ eqNet::CommandResult Config::_reqFinishFrame( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_reqFinishAllFrames( eqNet::Command& command ) 
+eqNet::CommandResult Config::_cmdFinishAllFrames( eqNet::Command& command ) 
 {
     const eq::ConfigFinishAllFramesPacket* packet = 
         command.getPacket<eq::ConfigFinishAllFramesPacket>();

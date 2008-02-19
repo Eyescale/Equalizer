@@ -18,11 +18,6 @@ void Barrier::_construct()
 {
     setInstanceData( &_data, sizeof( _data ));
     setDeltaData( &_data.height, sizeof( _data.height ));
-
-    registerCommand( CMD_BARRIER_ENTER, 
-                     CommandFunc<Barrier>( this, &Barrier::_cmdEnter ));
-    registerCommand( CMD_BARRIER_ENTER_REPLY, 
-                     CommandFunc<Barrier>( this, &Barrier::_cmdEnterReply ));
 }
 
 Barrier::Barrier( eqBase::RefPtr<Node> master, const uint32_t height )
@@ -44,6 +39,21 @@ Barrier::Barrier()
 
 Barrier::~Barrier()
 {
+}
+
+void Barrier::attachToSession( const uint32_t id, const uint32_t instanceID, 
+                               Session* session )
+{
+    Object::attachToSession( id, instanceID, session );
+
+    CommandQueue& queue = session->getCommandThreadQueue();
+
+    registerCommand( CMD_BARRIER_ENTER, 
+                     CommandFunc<Barrier>( this, &Barrier::_cmdEnter ),
+                     queue );
+    registerCommand( CMD_BARRIER_ENTER_REPLY, 
+                     CommandFunc<Barrier>( this, &Barrier::_cmdEnterReply ),
+                     queue );
 }
 
 void Barrier::enter()
@@ -88,31 +98,42 @@ CommandResult Barrier::_cmdEnter( Command& command )
 
     EQLOG( LOG_BARRIER ) << "handle barrier enter " << packet << " barrier v"
                          << getVersion() << endl;
-    if( packet->version > getVersion( ))
-        return COMMAND_REDISPATCH;
+
+    const uint32_t version = packet->version;
+    NodeVector&    nodes   = _enteredNodes[ packet->version ];
+
+    EQLOG( LOG_BARRIER ) << "enter barrier v" << version 
+                         << ", has " << nodes.size() << " of " << _data.height
+                         << endl;
+
+    nodes.push_back( command.getNode( ));
+
+    // If we got early entry requests for this barrier, just note their
+    // appearance. This requires that another request for the later version
+    // arrives once the barrier reaches this version. The only case when this is
+    // not the case is when no contributor to the current version contributes to
+    // the later version, in which case deadlocks might happen because the later
+    // version never leaves the barrier. We simply assume this is not the case.
+    if( version > getVersion( ))
+        return COMMAND_DISCARD;
     
-    EQASSERT( packet->version == getVersion( ));
+    EQASSERT( version == getVersion( ));
 
-    EQLOG( LOG_BARRIER ) << "enter barrier, has " << _enteredNodes.size()
-                         << " of " << _data.height << endl;
-    _enteredNodes.push_back( command.getNode( ));
-
-    if( _enteredNodes.size() < _data.height )
+    if( nodes.size() < _data.height )
         return COMMAND_DISCARD;
 
-    EQASSERT( _enteredNodes.size() == _data.height );
+    EQASSERT( nodes.size() == _data.height );
     EQLOG( LOG_BARRIER ) << "Barrier reached" << endl;
 
     BarrierEnterReplyPacket reply;
     reply.sessionID  = getSession()->getID();
     reply.objectID   = getID();
 
-    stde::usort( _enteredNodes );
+    stde::usort( nodes );
 
-    for( vector< RefPtr<Node> >::iterator iter = _enteredNodes.begin();
-         iter != _enteredNodes.end(); ++iter )
+    for( NodeVector::iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
-        RefPtr<Node>& node = *iter;
+        RefPtr< Node >& node = *i;
         if( node->isLocal( )) // OPT
         {
             EQLOG( LOG_BARRIER ) << "Unlock local user(s)" << endl;
@@ -125,7 +146,11 @@ CommandResult Barrier::_cmdEnter( Command& command )
         }
     }
 
-    _enteredNodes.clear();
+    // delete node vector for version
+    map< uint32_t, NodeVector >::iterator it = _enteredNodes.find( version );
+    EQASSERT( it != _enteredNodes.end( ));
+    _enteredNodes.erase( it );
+
     return COMMAND_DISCARD;
 }
 

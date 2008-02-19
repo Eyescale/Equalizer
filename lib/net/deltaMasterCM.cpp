@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "deltaMasterCM.h"
@@ -11,6 +11,7 @@
 #include "object.h"
 #include "objectDeltaDataOStream.h"
 #include "packets.h"
+#include "session.h"
 
 using namespace eqBase;
 using namespace std;
@@ -24,13 +25,6 @@ DeltaMasterCM::DeltaMasterCM( Object* object )
           _nVersions( 0 ),
           _obsoleteFlags( Object::AUTO_OBSOLETE_COUNT_VERSIONS )
 {
-    registerCommand( CMD_OBJECT_COMMIT, 
-                CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdCommit ));
-    // sync commands are send to any instance, even the master gets the command
-	registerCommand( CMD_OBJECT_DELTA_DATA, 
-		CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdDiscard ));
-	registerCommand( CMD_OBJECT_DELTA, 
-		CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdDiscard ));
 }
 
 DeltaMasterCM::~DeltaMasterCM()
@@ -67,6 +61,24 @@ DeltaMasterCM::~DeltaMasterCM()
         delete *i;
     
     _deltaDataCache.clear();
+}
+
+void DeltaMasterCM::notifyAttached()
+{
+    Session* session = _object->getSession();
+    EQASSERT( session );
+    CommandQueue& queue = session->getCommandThreadQueue();
+
+    registerCommand( CMD_OBJECT_COMMIT, 
+                 CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdCommit ),
+                     queue );
+    // sync commands are send to all instances, even the master gets it
+	registerCommand( CMD_OBJECT_DELTA_DATA, 
+                CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdDiscard ),
+                     queue );
+	registerCommand( CMD_OBJECT_DELTA, 
+                CommandFunc<DeltaMasterCM>( this, &DeltaMasterCM::_cmdDiscard ),
+                     queue );
 }
 
 uint32_t DeltaMasterCM::commitNB()

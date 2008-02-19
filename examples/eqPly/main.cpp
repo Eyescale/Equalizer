@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "eqPly.h"
@@ -18,8 +18,8 @@ using namespace std;
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Config*  createConfig()  
-        { return new eqPly::Config; }
+    virtual eq::Config*  createConfig( eqBase::RefPtr< eq::Server > parent )
+        { return new eqPly::Config( parent ); }
     virtual eq::Node*    createNode( eq::Config* parent )  
         { return new eqPly::Node( parent ); }
     virtual eq::Pipe*    createPipe( eq::Node* parent )

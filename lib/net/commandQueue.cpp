@@ -28,9 +28,13 @@ void CommandQueue::flush()
 
     if( !empty( ))
         EQWARN << "Flushing non-empty command queue" << endl;
+
 #ifndef NDEBUG
     while( !_commands.empty( ))
-        EQINFO << _commands.pop() << endl;
+    {
+        Command* command = _commands.pop();
+        EQWARN << *command << endl;
+    }
 #endif
 
     if( _lastCommand )
@@ -43,23 +47,14 @@ void CommandQueue::flush()
 
 void CommandQueue::push( Command& inCommand )
 {
+    EQASSERT( inCommand.isValid( ));
+
     _commandCacheLock.set();
     Command* outCommand = _commandCache.alloc( inCommand );
     _commandCacheLock.unset();
 
-    // Note: REQ must always follow CMD
-    ++(*outCommand)->command;
+    EQASSERT( outCommand->isValid( ));
     _commands.push( outCommand );
-}
-
-void CommandQueue::pushFront( Command& inCommand )
-{
-    _commandCacheLock.set();
-    Command* outCommand = _commandCache.alloc( inCommand );
-    _commandCacheLock.unset();
-
-    ++(*outCommand)->command; // REQ must always follow CMD
-    _commands.pushFront( outCommand );
 }
 
 Command* CommandQueue::pop()
@@ -74,6 +69,7 @@ Command* CommandQueue::pop()
     }
 
     _lastCommand = _commands.pop();
+    EQASSERT( _lastCommand->isValid( ));
     return _lastCommand;
 }
 
@@ -93,6 +89,7 @@ Command* CommandQueue::tryPop()
     }
     
     _lastCommand = command;
+    EQASSERT( command->isValid( ));
     return command;
 }
 

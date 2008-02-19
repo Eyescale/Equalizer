@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PLY_CONFIG_H
@@ -16,7 +16,7 @@ namespace eqPly
     class Config : public eq::Config
     {
     public:
-        Config();
+        Config( eqBase::RefPtr< eq::Server > parent );
 
         /** @sa eq::Config::init. */
         virtual bool init();

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_SERVER_H
@@ -9,6 +9,7 @@
 #include "types.h"
 
 #include <eq/client/nodeType.h>  // for TYPE_EQ_SERVER enum
+#include <eq/net/command.h>      // used in inline method
 #include <eq/net/commandQueue.h> // member
 #include <eq/net/idHash.h>       // member
 #include <eq/net/node.h>         // base class & eqsStartLocalServer declaration
@@ -66,21 +67,22 @@ namespace eqs
          */
         bool removeConfig( Config* config );
 
-        /** 
-         * @return the vector of configurations.
-         */
+        /** @return the vector of configurations. */
         const ConfigVector& getConfigs() const { return _configs; }
+
+        /** @return the command queue to the server thread */
+        eqNet::CommandQueue& getServerThreadQueue() 
+            { return _serverThreadQueue; }
 
     protected:
         virtual ~Server() {}
 
-        /** @sa eqNet::Node::handleCommand */
-        virtual eqNet::CommandResult handleCommand( eqNet::Command& command );
-        
-        /** @sa eqNet::Node::pushCommand */
-        virtual bool pushCommand( eqNet::Command& command )
-            { _commandQueue.push( command ); return true; }
+        /** @sa eqNet::Node::dispatchCommand */
+        virtual bool dispatchCommand( eqNet::Command& command );
 
+        /** @sa eqNet::Node::invokeCommand */
+        virtual eqNet::CommandResult invokeCommand( eqNet::Command& command );
+        
     private:
         /** The unique config identifier. */
         uint32_t _configID;
@@ -92,7 +94,7 @@ namespace eqs
         eqNet::IDHash<Config*> _appConfigs;
 
         /** The receiver->main command queue. */
-        eqNet::CommandQueue    _commandQueue;
+        eqNet::CommandQueue    _serverThreadQueue;
 
         /** The current state. */
         bool _running;
@@ -103,10 +105,10 @@ namespace eqs
         void        _handleCommands(); 
 
         /** The command functions. */
-        eqNet::CommandResult _reqChooseConfig( eqNet::Command& command );
-        eqNet::CommandResult _reqUseConfig( eqNet::Command& command );
-        eqNet::CommandResult _reqReleaseConfig( eqNet::Command& command );
-        eqNet::CommandResult _reqShutdown( eqNet::Command& command );
+        eqNet::CommandResult _cmdChooseConfig( eqNet::Command& command );
+        eqNet::CommandResult _cmdUseConfig( eqNet::Command& command );
+        eqNet::CommandResult _cmdReleaseConfig( eqNet::Command& command );
+        eqNet::CommandResult _cmdShutdown( eqNet::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Server* server );

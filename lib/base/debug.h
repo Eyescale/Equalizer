@@ -54,5 +54,9 @@ namespace eqBase
               << typeid(*this).name() << std::endl << eqBase::forceFlush; \
         eqBase::abortDebug(); }
 
-#endif
+#endif // DEBUG
+
+#define EQCHECK(x) { const bool eqResult = x; EQASSERTINFO( eqResult, #x ) }
+
+
 #endif //EQBASE_DEBUG_H

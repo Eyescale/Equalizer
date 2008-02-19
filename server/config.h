@@ -6,6 +6,7 @@
 #define EQS_CONFIG_H
 
 #include "types.h"
+#include "server.h" // used in inline method
 
 #include <eq/client/matrix4.h>
 #include <eq/client/packets.h>
@@ -16,8 +17,6 @@
 
 namespace eqs
 {
-    class Server;
-
     /**
      * The config.
      */
@@ -40,7 +39,12 @@ namespace eqs
          */
         //*{
         Server* getServer() { return _server.get(); }
+
         bool    isRunning() const { return ( _state == STATE_INITIALIZED ); }
+
+        eqNet::CommandQueue& getServerThreadQueue()
+            { return _server->getServerThreadQueue(); }
+
         /** 
          * Adds a new node to this config.
          * 
@@ -177,6 +181,10 @@ namespace eqs
         const std::string& getErrorMessage() const { return _error; }
         //@}
 
+    protected:
+        /** @sa eqNet::Session::setLocalNode. */
+        virtual void setLocalNode( eqBase::RefPtr< eqNet::Node > node );
+
     private:
         /** float attributes. */
         float _fAttributes[FATTR_ALL];
@@ -259,12 +267,12 @@ namespace eqs
         //*}
 
         /** The command functions. */
-        eqNet::CommandResult _reqStartInit( eqNet::Command& command );
-        eqNet::CommandResult _reqFinishInit( eqNet::Command& command );
-        eqNet::CommandResult _reqExit( eqNet::Command& command );
-        eqNet::CommandResult _reqStartFrame( eqNet::Command& command );
-        eqNet::CommandResult _reqFinishFrame( eqNet::Command& command ); 
-        eqNet::CommandResult _reqFinishAllFrames( eqNet::Command& command ); 
+        eqNet::CommandResult _cmdStartInit( eqNet::Command& command );
+        eqNet::CommandResult _cmdFinishInit( eqNet::Command& command );
+        eqNet::CommandResult _cmdExit( eqNet::Command& command );
+        eqNet::CommandResult _cmdStartFrame( eqNet::Command& command );
+        eqNet::CommandResult _cmdFinishFrame( eqNet::Command& command ); 
+        eqNet::CommandResult _cmdFinishAllFrames( eqNet::Command& command ); 
         eqNet::CommandResult _cmdCreateReply( eqNet::Command& command );
         eqNet::CommandResult _cmdCreateNodeReply( eqNet::Command& command );
     };

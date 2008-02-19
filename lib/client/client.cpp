@@ -21,20 +21,18 @@
 #  define EQ_DL_ERROR dlerror()
 #endif
 
-using namespace eq;
 using namespace eqBase;
 using namespace std;
+using eqNet::CommandFunc;
 
+namespace eq
+{
 static RefPtr< eqNet::Connection > _startLocalServer();
 
 Client::Client()
-        : _commandQueue( 0 ),
-          _running( false )
+        : _nodeThreadQueue( 0 )
+        , _running( false )
 {
-    registerCommand( CMD_CLIENT_EXIT,
-                     eqNet::CommandFunc<Client>( this, &Client::_cmdPush ));
-    registerCommand( REQ_CLIENT_EXIT,
-                     eqNet::CommandFunc<Client>( this, &Client::_reqExit ));
     EQINFO << "New client at " << (void*)this << endl;
 }
 
@@ -46,8 +44,11 @@ Client::~Client()
 
 bool Client::listen()
 {
-    EQASSERT( !_commandQueue );
-    _commandQueue = new CommandQueue;
+    EQASSERT( !_nodeThreadQueue );
+    _nodeThreadQueue = new CommandQueue;
+    registerCommand( CMD_CLIENT_EXIT,
+                     CommandFunc<Client>( this, &Client::_cmdExit ),
+                     *_nodeThreadQueue );
 
     return eqNet::Node::listen();
 }
@@ -58,17 +59,17 @@ void Client::setWindowSystem( const WindowSystem windowSystem )
     static SpinLock _lock;
     ScopedMutex< SpinLock > mutex( _lock );
 
-    if( _commandQueue->getWindowSystem() == WINDOW_SYSTEM_NONE )
+    if( _nodeThreadQueue->getWindowSystem() == WINDOW_SYSTEM_NONE )
     {
         if( useMessagePump( ))
         {
-            _commandQueue->setWindowSystem( windowSystem );
+            _nodeThreadQueue->setWindowSystem( windowSystem );
             EQINFO << "Client message pump set up for " << windowSystem << endl;
         }
     }
-    else if( _commandQueue->getWindowSystem() != windowSystem )
+    else if( _nodeThreadQueue->getWindowSystem() != windowSystem )
         EQWARN << "Can't switch to window system " << windowSystem 
-               << ", already using " <<  _commandQueue->getWindowSystem()
+               << ", already using " <<  _nodeThreadQueue->getWindowSystem()
                << endl;
 }
 
@@ -77,8 +78,8 @@ bool Client::stopListening()
     if( !eqNet::Node::stopListening( ))
         return false;
 
-    delete _commandQueue;
-    _commandQueue = 0;
+    delete _nodeThreadQueue;
+    _nodeThreadQueue = 0;
     return true;
 }
 
@@ -113,7 +114,7 @@ bool Client::connectServer( RefPtr<Server> server )
 
     if( connect( RefPtr_static_cast< Server, eqNet::Node >( server )))
     {
-        server->_client = this;
+        server->setClient( this );
         return true;
     }
 
@@ -128,7 +129,7 @@ bool Client::connectServer( RefPtr<Server> server )
     if( connect( RefPtr_static_cast< Server, eqNet::Node >( server ),
                  connection ))
     {
-        server->_client = this;
+        server->setClient( this );
         return true;
     }
 
@@ -182,14 +183,14 @@ bool Client::disconnectServer( RefPtr<Server> server )
         return false;
     }
 
-    server->_client = 0;
+    server->setClient( 0 );
     const int success = disconnect( 
         RefPtr_static_cast< Server, eqNet::Node >( server ));
     if( !success )
         EQWARN << "Server disconnect failed" << endl;
 
     // cleanup
-    _commandQueue->flush();
+    _nodeThreadQueue->flush();
     return success;
 }
 
@@ -201,7 +202,7 @@ eqBase::RefPtr<eqNet::Node> Client::createNode( const uint32_t type )
         case TYPE_EQ_SERVER:
         {
             Server* server = new Server;
-            server->_client = this;
+            server->setClient( this );
             return server;
         }
 
@@ -219,7 +220,7 @@ bool Client::clientLoop()
         processCommand();
 
     // cleanup
-    _commandQueue->flush();
+    _nodeThreadQueue->flush();
     EQASSERT( !hasSessions( ));
 
     return true;
@@ -232,8 +233,8 @@ bool Client::exitClient()
 
 void Client::processCommand()
 {
-    eqNet::Command* command = _commandQueue->pop();
-    switch( dispatchCommand( *command ))
+    eqNet::Command* command = _nodeThreadQueue->pop();
+    switch( invokeCommand( *command ))
     {
         case eqNet::COMMAND_HANDLED:
         case eqNet::COMMAND_DISCARD:
@@ -242,27 +243,17 @@ void Client::processCommand()
         case eqNet::COMMAND_ERROR:
             EQERROR << "Error handling command packet" << endl;
             abort();
-            
-        case eqNet::COMMAND_PUSH:
-            EQWARN << "Don't know how to push " << command << endl;
-            EQUNIMPLEMENTED;
-            break;
-
-        case eqNet::COMMAND_REDISPATCH:
-            EQWARN << "Don't know how to redispatch " << command << endl;
-            EQUNIMPLEMENTED;
-            break;
     }
 }
 
-eqNet::CommandResult Client::handleCommand( eqNet::Command& command )
+bool Client::dispatchCommand( eqNet::Command& command )
 {
-    EQVERB << "handleCommand " << command << endl;
+    EQVERB << "dispatchCommand " << command << endl;
 
     switch( command->datatype )
     {
         case DATATYPE_EQ_CLIENT:
-            return invokeCommand( command );
+            return eqNet::Base::dispatchCommand( command );
 
         case DATATYPE_EQ_SERVER:
         {
@@ -272,17 +263,43 @@ eqNet::CommandResult Client::handleCommand( eqNet::Command& command )
             RefPtr<Server> server = 
                 RefPtr_static_cast<eqNet::Node, Server>( node );
 
-            return server->invokeCommand( command );
+            return server->eqNet::Base::dispatchCommand( command );
         }
+
         default:
-            return eqNet::COMMAND_ERROR;
+            return eqNet::Node::dispatchCommand( command );
     }
 }
 
-eqNet::CommandResult Client::_reqExit( eqNet::Command& command )
+eqNet::CommandResult Client::invokeCommand( eqNet::Command& command )
+{
+    EQVERB << "invokeCommand " << command << endl;
+
+    switch( command->datatype )
+    {
+        case DATATYPE_EQ_CLIENT:
+            return eqNet::Base::invokeCommand( command );
+
+        case DATATYPE_EQ_SERVER:
+        {
+            RefPtr<eqNet::Node> node = command.getNode();
+
+            EQASSERT( dynamic_cast<Server*>( node.get( )) );
+            RefPtr<Server> server = 
+                RefPtr_static_cast<eqNet::Node, Server>( node );
+
+            return server->eqNet::Base::invokeCommand( command );
+        }
+        default:
+            return eqNet::Node::invokeCommand( command );
+    }
+}
+
+eqNet::CommandResult Client::_cmdExit( eqNet::Command& command )
 {
     _running = false;
     // Close connection here, this is the last packet we'll get on it
     command.getLocalNode()->disconnect( command.getNode( ));
     return eqNet::COMMAND_HANDLED;
+}
 }

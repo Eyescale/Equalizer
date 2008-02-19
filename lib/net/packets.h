@@ -340,7 +340,8 @@ namespace eqNet
                 requestID = request->requestID;
             }
         
-        uint32_t            requestID;
+        uint32_t requestID;
+        bool     result;
     };
 
     struct SessionUnsubscribeObjectPacket : public SessionPacket

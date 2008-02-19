@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_FRAMEDATA_H
@@ -13,6 +13,7 @@
 #include <eq/base/monitor.h>         // member
 #include <eq/net/object.h>           // base class
 
+#include <set>                       // member
 namespace eqs
 {
     class FrameData;
@@ -92,10 +93,10 @@ namespace eq
         void transmit( eqBase::RefPtr<eqNet::Node> toNode );
 
         /** @return true if the frame data is ready, false if not. */
-        bool isReady() const   { return _readyVersion == getVersion(); }
+        bool isReady() const   { return _readyVersion >= getVersion(); }
 
         /** Wait for the frame data to become available. */
-        void waitReady() const { _readyVersion.waitEQ( getVersion( )); }
+        void waitReady() const { _readyVersion.waitGE( getVersion( )); }
 
         /** 
          * Add a listener which will be incremented when the frame becomes
@@ -124,6 +125,10 @@ namespace eq
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
 
+        /** @sa eqNet::Object::attachToSession */
+        virtual void attachToSession( const uint32_t id, 
+                                      const uint32_t instanceID, 
+                                      eqNet::Session* session );
         /** @sa eqNet::Object::applyInstanceData */
         virtual void applyInstanceData( eqNet::DataIStream& is );
 
@@ -158,6 +163,7 @@ namespace eq
             uint32_t version;
         };
         std::list<ImageVersion> _pendingImages;
+        std::set< uint32_t >    _readyVersions;
 
         /** Data ready monitor synchronization primitive. */
         eqBase::Monitor<uint32_t> _readyVersion;
@@ -166,8 +172,11 @@ namespace eq
         std::vector< eqBase::Monitor<uint32_t>* > _listeners;
         eqBase::Lock                              _listenersMutex;
 
-        /** Allocate or reuse a new image. */
+        /** Allocate or reuse an image. */
         Image* _allocImage();
+
+        /** Apply all received images of the given version. */
+        void _applyVersion( const uint32_t version );
 
         /** 
          * Set the frame data ready.
@@ -175,7 +184,7 @@ namespace eq
          * The frame data is automatically set ready by syncReadback
          * and upon processing of the transmit commands.
          */
-        void _setReady();
+        void _setReady( const uint32_t version );
 
         void _transmit( eqBase::RefPtr<eqNet::Node> toNode,
                         FrameDataTransmitPacket& packet,
@@ -184,6 +193,7 @@ namespace eq
         /* The command handlers. */
         eqNet::CommandResult _cmdTransmit( eqNet::Command& command );
         eqNet::CommandResult _cmdReady( eqNet::Command& command );
+        eqNet::CommandResult _cmdUpdate( eqNet::Command& command );
     };
     std::ostream& operator << ( std::ostream& os, const FrameData* data );
 }

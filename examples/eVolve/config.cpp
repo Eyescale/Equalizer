@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "config.h"
@@ -9,8 +9,9 @@ using namespace std;
 namespace eVolve
 {
 
-Config::Config()
-        : _spinX( 5 )
+Config::Config( eqBase::RefPtr< eq::Server > parent )
+        : eq::Config( parent )
+        , _spinX( 5 )
         , _spinY( 5 )
 {
 }

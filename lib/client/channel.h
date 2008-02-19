@@ -408,17 +408,16 @@ namespace eq
         void _setRenderContext( RenderContext& context );
 
         /* The command handler functions. */
-        eqNet::CommandResult _pushCommand( eqNet::Command& command );
-        eqNet::CommandResult _reqConfigInit( eqNet::Command& command );
-        eqNet::CommandResult _reqConfigExit( eqNet::Command& command );
-        eqNet::CommandResult _reqFrameStart( eqNet::Command& command );
-        eqNet::CommandResult _reqFrameFinish( eqNet::Command& command );
-        eqNet::CommandResult _reqFrameClear( eqNet::Command& command );
-        eqNet::CommandResult _reqFrameDraw( eqNet::Command& command );
-        eqNet::CommandResult _reqFrameDrawFinish( eqNet::Command& command );
-        eqNet::CommandResult _reqFrameAssemble( eqNet::Command& command );
-        eqNet::CommandResult _reqFrameReadback( eqNet::Command& command );
-        eqNet::CommandResult _reqFrameTransmit( eqNet::Command& command );
+        eqNet::CommandResult _cmdConfigInit( eqNet::Command& command );
+        eqNet::CommandResult _cmdConfigExit( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameStart( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameFinish( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameClear( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameDraw( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameDrawFinish( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameAssemble( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameReadback( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameTransmit( eqNet::Command& command );
     };
 }
 

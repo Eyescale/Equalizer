@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_PIPE_H
@@ -42,9 +42,7 @@ namespace eqs
         Server* getServer() const
             { return _node ? _node->getServer() : NULL; }
 
-        /** 
-         * @return the state of this pipe.
-         */
+        /** @return the state of this pipe. */
         State getState()    const { return _state.get(); }
 
         /** 
@@ -68,6 +66,11 @@ namespace eqs
 
         Node*   getNode()   const { return _node; }
         Config* getConfig() const { return (_node ? _node->getConfig() : NULL);}
+
+        eqNet::CommandQueue& getServerThreadQueue()
+            { return _node->getServerThreadQueue(); }
+        eqNet::CommandQueue& getCommandThreadQueue()
+            { return _node->getCommandThreadQueue(); }
 
         /** 
          * References this pipe as being actively used.
@@ -192,6 +195,10 @@ namespace eqs
         /** Registers request packets waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
 
+        /** @sa eqNet::Object::attachToSession. */
+        virtual void attachToSession( const uint32_t id, 
+                                      const uint32_t instanceID, 
+                                      eqNet::Session* session );
     private:
         /** The pipe's name */
         std::string _name;

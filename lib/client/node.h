@@ -46,6 +46,8 @@ namespace eq
         const PipeVector& getPipes() const { return _pipes; }
 
         const std::string& getName() const { return _name; }
+        CommandQueue& getNodeThreadQueue()
+            { return getClient()->getNodeThreadQueue(); }
 
         /** 
          * Get a network barrier. 
@@ -275,15 +277,15 @@ namespace eq
         void _flushObjects();
 
         /** The command functions. */
-        eqNet::CommandResult _reqCreatePipe( eqNet::Command& command );
-        eqNet::CommandResult _reqDestroyPipe( eqNet::Command& command );
-        eqNet::CommandResult _reqConfigInit( eqNet::Command& command );
-        eqNet::CommandResult _reqConfigExit( eqNet::Command& command );
-        eqNet::CommandResult _reqFrameStart( eqNet::Command& command );
-        eqNet::CommandResult _reqFrameFinish( eqNet::Command& command );
-        eqNet::CommandResult _reqFrameDrawFinish( eqNet::Command& command );
+        eqNet::CommandResult _cmdCreatePipe( eqNet::Command& command );
+        eqNet::CommandResult _cmdDestroyPipe( eqNet::Command& command );
+        eqNet::CommandResult _cmdConfigInit( eqNet::Command& command );
+        eqNet::CommandResult _cmdConfigExit( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameStart( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameFinish( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameDrawFinish( eqNet::Command& command );
 
-        CHECK_THREAD_DECLARE( _recvThread );
+        CHECK_THREAD_DECLARE( _nodeThread );
     };
 }
 

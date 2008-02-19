@@ -18,42 +18,33 @@
 #include <eq/net/command.h>
 #include <eq/net/connection.h>
 
-using namespace eq;
 using namespace eqBase;
 using namespace std;
+using eqNet::CommandFunc;
 
+namespace eq
+{
 Node::Node( Config* parent )
         : _config( parent )
         , _unlockedFrame( 0 )
 {
+    eqNet::CommandQueue& queue        = parent->getNodeThreadQueue();
+
     registerCommand( CMD_NODE_CREATE_PIPE, 
-                     eqNet::CommandFunc<Node>( this, &Node::_cmdPush ));
-    registerCommand( REQ_NODE_CREATE_PIPE, 
-                     eqNet::CommandFunc<Node>( this, &Node::_reqCreatePipe ));
+                     CommandFunc<Node>( this, &Node::_cmdCreatePipe ), queue );
     registerCommand( CMD_NODE_DESTROY_PIPE,
-                     eqNet::CommandFunc<Node>( this, &Node::_cmdPush ));
-    registerCommand( REQ_NODE_DESTROY_PIPE,
-                    eqNet::CommandFunc<Node>( this, &Node::_reqDestroyPipe ));
+                     CommandFunc<Node>( this, &Node::_cmdDestroyPipe ), queue );
     registerCommand( CMD_NODE_CONFIG_INIT, 
-                     eqNet::CommandFunc<Node>( this, &Node::_cmdPush ));
-    registerCommand( REQ_NODE_CONFIG_INIT,
-                     eqNet::CommandFunc<Node>( this, &Node::_reqConfigInit ));
+                     CommandFunc<Node>( this, &Node::_cmdConfigInit ), queue );
     registerCommand( CMD_NODE_CONFIG_EXIT,
-                     eqNet::CommandFunc<Node>( this, &Node::_cmdPush ));
-    registerCommand( REQ_NODE_CONFIG_EXIT,
-                     eqNet::CommandFunc<Node>( this, &Node::_reqConfigExit ));
+                     CommandFunc<Node>( this, &Node::_cmdConfigExit ), queue );
     registerCommand( CMD_NODE_FRAME_START,
-                     eqNet::CommandFunc<Node>( this, &Node::_cmdPush ));
-    registerCommand( REQ_NODE_FRAME_START,
-                     eqNet::CommandFunc<Node>( this, &Node::_reqFrameStart ));
+                     CommandFunc<Node>( this, &Node::_cmdFrameStart ), queue );
     registerCommand( CMD_NODE_FRAME_FINISH,
-                     eqNet::CommandFunc<Node>( this, &Node::_cmdPush ));
-    registerCommand( REQ_NODE_FRAME_FINISH,
-                     eqNet::CommandFunc<Node>( this, &Node::_reqFrameFinish ));
+                     CommandFunc<Node>( this, &Node::_cmdFrameFinish ), queue );
     registerCommand( CMD_NODE_FRAME_DRAW_FINISH, 
-                     eqNet::CommandFunc<Node>( this, &Node::_cmdPush ));
-    registerCommand( REQ_NODE_FRAME_DRAW_FINISH, 
-                 eqNet::CommandFunc<Node>( this, &Node::_reqFrameDrawFinish ));
+                     CommandFunc<Node>( this, &Node::_cmdFrameDrawFinish ),
+                     queue );
 
     parent->_addNode( this );
     EQINFO << " New eq::Node @" << (void*)this << endl;
@@ -282,7 +273,7 @@ const void* Node::receiveData( uint64_t* size )
     eqNet::Command* command = _dataQueue.pop();
     const ConfigDataPacket* packet = command->getPacket<ConfigDataPacket>();
     EQASSERT( packet->datatype == eqNet::DATATYPE_EQNET_SESSION );
-    EQASSERT( packet->command == REQ_CONFIG_DATA );
+    EQASSERT( packet->command == CMD_CONFIG_DATA );
 
     if( size )
         *size = packet->dataSize;
@@ -297,7 +288,7 @@ const void* Node::tryReceiveData( uint64_t* size )
 
     const ConfigDataPacket* packet = command->getPacket<ConfigDataPacket>();
     EQASSERT( packet->datatype == eqNet::DATATYPE_EQNET_SESSION );
-    EQASSERT( packet->command == REQ_CONFIG_DATA );
+    EQASSERT( packet->command == CMD_CONFIG_DATA );
 
     if( size )
         *size = packet->dataSize;
@@ -313,12 +304,13 @@ bool Node::hasData() const
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Node::_reqCreatePipe( eqNet::Command& command )
+eqNet::CommandResult Node::_cmdCreatePipe( eqNet::Command& command )
 {
-    CHECK_NOT_THREAD( _recvThread );
     const NodeCreatePipePacket* packet = 
         command.getPacket<NodeCreatePipePacket>();
     EQINFO << "Handle create pipe " << packet << endl;
+
+    CHECK_THREAD( _nodeThread );
     EQASSERT( packet->pipeID != EQ_ID_INVALID );
 
     Pipe* pipe = Global::getNodeFactory()->createPipe( this );
@@ -327,17 +319,17 @@ eqNet::CommandResult Node::_reqCreatePipe( eqNet::Command& command )
         pipe->startThread();
 
     _config->attachObject( pipe, packet->pipeID );
-    
+
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_reqDestroyPipe( eqNet::Command& command )
+eqNet::CommandResult Node::_cmdDestroyPipe( eqNet::Command& command )
 {
-    CHECK_NOT_THREAD( _recvThread );
     const NodeDestroyPipePacket* packet = 
         command.getPacket<NodeDestroyPipePacket>();
     EQINFO << "Handle destroy pipe " << packet << endl;
 
+    CHECK_THREAD( _nodeThread );
     Pipe* pipe = _findPipe( packet->pipeID );
     pipe->joinThread();
     _config->detachObject( pipe );
@@ -346,13 +338,13 @@ eqNet::CommandResult Node::_reqDestroyPipe( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_reqConfigInit( eqNet::Command& command )
+eqNet::CommandResult Node::_cmdConfigInit( eqNet::Command& command )
 {
-    CHECK_NOT_THREAD( _recvThread );
     const NodeConfigInitPacket* packet = 
         command.getPacket<NodeConfigInitPacket>();
-    EQINFO << "handle node config init " << packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK node config init " << packet << endl;
 
+    CHECK_THREAD( _nodeThread );
     _name = packet->name;
     _currentFrame  = 0;
     _unlockedFrame = 0;
@@ -362,17 +354,18 @@ eqNet::CommandResult Node::_reqConfigInit( eqNet::Command& command )
     reply.result = configInit( packet->initID );
     _initialized = true; // even if init failed we need to unlock the pipes
 
+    EQLOG( LOG_TASKS ) << "TASK node config init reply " << &reply << endl;
     send( command.getNode(), reply, _error );
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_reqConfigExit( eqNet::Command& command )
+eqNet::CommandResult Node::_cmdConfigExit( eqNet::Command& command )
 {
-    CHECK_NOT_THREAD( _recvThread );
     const NodeConfigExitPacket* packet = 
         command.getPacket<NodeConfigExitPacket>();
     EQINFO << "handle node config exit " << packet << endl;
 
+    CHECK_THREAD( _nodeThread );
     for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); 
          ++i )
     {
@@ -390,13 +383,13 @@ eqNet::CommandResult Node::_reqConfigExit( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_reqFrameStart( eqNet::Command& command )
+eqNet::CommandResult Node::_cmdFrameStart( eqNet::Command& command )
 {
-    CHECK_NOT_THREAD( _recvThread );
     const NodeFrameStartPacket* packet = 
         command.getPacket<NodeFrameStartPacket>();
     EQVERB << "handle node frame start " << packet << endl;
 
+    CHECK_THREAD( _nodeThread );
     EQLOG( LOG_TASKS ) << "----- Begin Frame ----- " << packet->frameNumber
                        << endl;
     frameStart( packet->frameID, packet->frameNumber );
@@ -407,13 +400,13 @@ eqNet::CommandResult Node::_reqFrameStart( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_reqFrameFinish( eqNet::Command& command )
+eqNet::CommandResult Node::_cmdFrameFinish( eqNet::Command& command )
 {
-    CHECK_NOT_THREAD( _recvThread );
     const NodeFrameFinishPacket* packet = 
         command.getPacket<NodeFrameFinishPacket>();
     EQVERB << "handle node frame finish " << packet << endl;
 
+    CHECK_THREAD( _nodeThread );
     _finishFrame( packet->frameNumber );
     frameFinish( packet->frameID, packet->frameNumber );
     EQLOG( LOG_TASKS ) << "---- Finished Frame --- " << packet->frameNumber
@@ -429,7 +422,7 @@ eqNet::CommandResult Node::_reqFrameFinish( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Node::_reqFrameDrawFinish( eqNet::Command& command )
+eqNet::CommandResult Node::_cmdFrameDrawFinish( eqNet::Command& command )
 {
     NodeFrameDrawFinishPacket* packet = 
         command.getPacket< NodeFrameDrawFinishPacket >();
@@ -438,4 +431,5 @@ eqNet::CommandResult Node::_reqFrameDrawFinish( eqNet::Command& command )
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
     return eqNet::COMMAND_HANDLED;
+}
 }

@@ -22,29 +22,27 @@
 
 #include <sstream>
 
-using namespace eqs;
 using namespace eqBase;
 using namespace std;
+using eqNet::CommandFunc;
 
+namespace eqs
+{
 Server::Server()
         : _configID(0)
 {
     registerCommand( eq::CMD_SERVER_CHOOSE_CONFIG,
-                     eqNet::CommandFunc<Server>( this, &Server::_cmdPush ));
-    registerCommand( eq::REQ_SERVER_CHOOSE_CONFIG, 
-                 eqNet::CommandFunc<Server>( this, &Server::_reqChooseConfig ));
+                     CommandFunc<Server>( this, &Server::_cmdChooseConfig ),
+                     _serverThreadQueue );
     registerCommand( eq::CMD_SERVER_USE_CONFIG,
-                     eqNet::CommandFunc<Server>( this, &Server::_cmdPush ));
-    registerCommand( eq::REQ_SERVER_USE_CONFIG, 
-                    eqNet::CommandFunc<Server>( this, &Server::_reqUseConfig ));
+                     CommandFunc<Server>( this, &Server::_cmdUseConfig ),
+                     _serverThreadQueue );
     registerCommand( eq::CMD_SERVER_RELEASE_CONFIG,
-                     eqNet::CommandFunc<Server>( this, &Server::_cmdPush ));
-    registerCommand( eq::REQ_SERVER_RELEASE_CONFIG,
-                eqNet::CommandFunc<Server>( this, &Server::_reqReleaseConfig ));
+                     CommandFunc<Server>( this, &Server::_cmdReleaseConfig ),
+                     _serverThreadQueue );
     registerCommand( eq::CMD_SERVER_SHUTDOWN,
-                     eqNet::CommandFunc<Server>( this, &Server::_cmdPush ));
-    registerCommand( eq::REQ_SERVER_SHUTDOWN,
-                     eqNet::CommandFunc<Server>( this, &Server::_reqShutdown ));
+                     CommandFunc<Server>( this, &Server::_cmdShutdown ),
+                     _serverThreadQueue );
     EQINFO << "New server @" << (void*)this << endl;
 }
 
@@ -83,27 +81,38 @@ void Server::mapConfig( Config* config )
 //===========================================================================
 // packet handling methods
 //===========================================================================
-eqNet::CommandResult Server::handleCommand( eqNet::Command& command )
+bool Server::dispatchCommand( eqNet::Command& command )
 {
     switch( command->datatype )
     {
         case eq::DATATYPE_EQ_SERVER:
-            return invokeCommand( command );
+            return eqNet::Base::dispatchCommand( command );
             
         default:
-            EQUNIMPLEMENTED;
-            return eqNet::COMMAND_ERROR;
+            return eqNet::Node::dispatchCommand( command );
+    }
+}
+
+eqNet::CommandResult Server::invokeCommand( eqNet::Command& command )
+{
+    switch( command->datatype )
+    {
+        case eq::DATATYPE_EQ_SERVER:
+            return eqNet::Base::invokeCommand( command );
+            
+        default:
+            return eqNet::Node::invokeCommand( command );
     }
 }
 
 void Server::_handleCommands()
 {
     _running = true;
-    while( _running ) // set to false in _reqShutdown()
+    while( _running ) // set to false in _cmdShutdown()
     {
-        eqNet::Command* command = _commandQueue.pop();
+        eqNet::Command* command = _serverThreadQueue.pop();
 
-        switch( dispatchCommand( *command ))
+        switch( invokeCommand( *command ))
         {
             case eqNet::COMMAND_HANDLED:
             case eqNet::COMMAND_DISCARD:
@@ -112,21 +121,11 @@ void Server::_handleCommands()
             case eqNet::COMMAND_ERROR:
                 EQERROR << "Error handling command " << command << endl;
                 abort();
-
-            case eqNet::COMMAND_PUSH:
-                EQUNIMPLEMENTED;
-            case eqNet::COMMAND_REDISPATCH:
-                // This happens mostly during config exit when a request was
-                // still buffered for an object which just got deleted.
-                EQASSERT( (*command)->datatype == eqNet::DATATYPE_EQNET_OBJECT);
-                EQWARN << "Command for unknown object dropped: " << *command
-                       << endl;
-                break;
         }
     }
 }
 
-eqNet::CommandResult Server::_reqChooseConfig( eqNet::Command& command ) 
+eqNet::CommandResult Server::_cmdChooseConfig( eqNet::Command& command ) 
 {
     const eq::ServerChooseConfigPacket* packet = 
         command.getPacket<eq::ServerChooseConfigPacket>();
@@ -174,7 +173,7 @@ eqNet::CommandResult Server::_reqChooseConfig( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Server::_reqUseConfig( eqNet::Command& command ) 
+eqNet::CommandResult Server::_cmdUseConfig( eqNet::Command& command ) 
 {
     const eq::ServerUseConfigPacket* packet = 
         command.getPacket<eq::ServerUseConfigPacket>();
@@ -223,7 +222,7 @@ eqNet::CommandResult Server::_reqUseConfig( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Server::_reqReleaseConfig( eqNet::Command& command )
+eqNet::CommandResult Server::_cmdReleaseConfig( eqNet::Command& command )
 {
     const eq::ServerReleaseConfigPacket* packet = 
         command.getPacket<eq::ServerReleaseConfigPacket>();
@@ -262,7 +261,7 @@ eqNet::CommandResult Server::_reqReleaseConfig( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Server::_reqShutdown( eqNet::Command& command )
+eqNet::CommandResult Server::_cmdShutdown( eqNet::Command& command )
 {
     const eq::ServerShutdownPacket* packet = 
         command.getPacket<eq::ServerShutdownPacket>();
@@ -282,7 +281,7 @@ eqNet::CommandResult Server::_reqShutdown( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-std::ostream& eqs::operator << ( std::ostream& os, const Server* server )
+std::ostream& operator << ( std::ostream& os, const Server* server )
 {
     if( !server )
         return os;
@@ -306,4 +305,5 @@ std::ostream& eqs::operator << ( std::ostream& os, const Server* server )
     os << exdent << "}"  << enableHeader << enableFlush << endl;
 
     return os;
+}
 }

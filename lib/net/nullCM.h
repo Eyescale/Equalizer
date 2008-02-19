@@ -22,6 +22,7 @@ namespace eqNet
         NullCM() {}
         virtual ~NullCM() {}
 
+        virtual void notifyAttached() {};
         virtual void makeThreadSafe() {}
 
         /**

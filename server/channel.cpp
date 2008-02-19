@@ -20,39 +20,12 @@
 #include <eq/client/log.h>
 #include <eq/client/packets.h>
 
-using namespace eqs;
 using namespace eqBase;
 using namespace std;
+using eqNet::CommandFunc;
 
-void Channel::_construct()
+namespace eqs
 {
-    _used             = 0;
-    _window           = NULL;
-    _fixedPVP         = false;
-    _lastDrawCompound = 0;
-
-    registerCommand( eq::CMD_CHANNEL_CONFIG_INIT_REPLY, 
-            eqNet::CommandFunc<Channel>( this, &Channel::_cmdConfigInitReply ));
-    registerCommand( eq::CMD_CHANNEL_CONFIG_EXIT_REPLY,
-            eqNet::CommandFunc<Channel>( this, &Channel::_cmdConfigExitReply ));
-    registerCommand( eq::CMD_CHANNEL_SET_NEARFAR,
-                     eqNet::CommandFunc<Channel>( this, &Channel::_cmdPush ));
-    registerCommand( eq::REQ_CHANNEL_SET_NEARFAR,
-                 eqNet::CommandFunc<Channel>( this, &Channel::_reqSetNearFar ));
-
-    const Global* global = Global::instance();
-    
-    for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
-        _iAttributes[i] = global->getChannelIAttribute(
-            static_cast<eq::Channel::IAttribute>( i ));
-
-    EQINFO << "New channel @" << (void*)this << endl;
-}
-
-Channel::Channel()
-{
-    _construct();
-}
 
 namespace
 {
@@ -77,6 +50,26 @@ private:
 };
 }
 
+void Channel::_construct()
+{
+    _used             = 0;
+    _window           = NULL;
+    _fixedPVP         = false;
+    _lastDrawCompound = 0;
+    EQINFO << "New channel @" << (void*)this << endl;
+}
+
+Channel::Channel()
+{
+    _construct();
+
+    const Global* global = Global::instance();
+    
+    for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
+        _iAttributes[i] = global->getChannelIAttribute(
+            static_cast<eq::Channel::IAttribute>( i ));
+}
+
 Channel::Channel( const Channel& from, const CompoundVector& compounds )
         : eqNet::Object()
 {
@@ -98,6 +91,25 @@ Channel::Channel( const Channel& from, const CompoundVector& compounds )
         Compound* compound = *i;
         compound->accept( &visitor, false /*activeOnly*/ );
     }
+}
+
+void Channel::attachToSession( const uint32_t id, const uint32_t instanceID, 
+                               eqNet::Session* session )
+{
+    eqNet::Object::attachToSession( id, instanceID, session );
+    
+    eqNet::CommandQueue& serverQueue  = getServerThreadQueue();
+    eqNet::CommandQueue& commandQueue = getCommandThreadQueue();
+
+    registerCommand( eq::CMD_CHANNEL_CONFIG_INIT_REPLY, 
+                    CommandFunc<Channel>( this, &Channel::_cmdConfigInitReply ),
+                     commandQueue );
+    registerCommand( eq::CMD_CHANNEL_CONFIG_EXIT_REPLY,
+                    CommandFunc<Channel>( this, &Channel::_cmdConfigExitReply ),
+                     commandQueue );
+    registerCommand( eq::CMD_CHANNEL_SET_NEARFAR,
+                     CommandFunc<Channel>( this, &Channel::_cmdSetNearFar ),
+                     serverQueue );
 }
 
 Channel::~Channel()
@@ -380,7 +392,7 @@ eqNet::CommandResult Channel::_cmdConfigExitReply( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Channel::_reqSetNearFar( eqNet::Command& command )
+eqNet::CommandResult Channel::_cmdSetNearFar( eqNet::Command& command )
 {
     const eq::ChannelSetNearFarPacket* packet = 
         command.getPacket<eq::ChannelSetNearFarPacket>();
@@ -389,7 +401,7 @@ eqNet::CommandResult Channel::_reqSetNearFar( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-std::ostream& eqs::operator << ( std::ostream& os, const Channel* channel)
+std::ostream& operator << ( std::ostream& os, const Channel* channel)
 {
     if( !channel )
         return os;
@@ -444,4 +456,5 @@ std::ostream& eqs::operator << ( std::ostream& os, const Channel* channel)
     os << exdent << "}" << endl << enableHeader << enableFlush;
 
     return os;
+}
 }

@@ -13,30 +13,23 @@
 
 #include <eq/net/command.h>
 
-using namespace eqs;
 using namespace eqBase;
 using namespace std;
+using eqNet::CommandFunc;
 
-void eqs::Window::_construct()
+namespace eqs
+{
+void Window::_construct()
 {
     _used             = 0;
     _pipe             = NULL;
     _fixedPVP         = false;
     _lastDrawCompound = 0;
 
-    registerCommand( eq::CMD_WINDOW_CONFIG_INIT_REPLY, 
-               eqNet::CommandFunc<Window>( this, &Window::_cmdConfigInitReply));
-    registerCommand( eq::CMD_WINDOW_CONFIG_EXIT_REPLY, 
-               eqNet::CommandFunc<Window>( this, &Window::_cmdConfigExitReply));
-    registerCommand( eq::CMD_WINDOW_SET_PVP, 
-                     eqNet::CommandFunc<Window>( this, &Window::_cmdPush ));
-    registerCommand( eq::REQ_WINDOW_SET_PVP,
-             eqNet::CommandFunc<Window>( this, &Window::_reqSetPixelViewport ));
-                         
     EQINFO << "New window @" << (void*)this << endl;
 }
 
-eqs::Window::Window()
+Window::Window()
 {
     _construct();
     
@@ -46,7 +39,7 @@ eqs::Window::Window()
             static_cast<eq::Window::IAttribute>( i ));
 }
 
-eqs::Window::Window( const Window& from, const CompoundVector& compounds )
+Window::Window( const Window& from, const CompoundVector& compounds )
         : eqNet::Object()
 {
     _construct();
@@ -70,7 +63,7 @@ eqs::Window::Window( const Window& from, const CompoundVector& compounds )
     }            
 }
 
-eqs::Window::~Window()
+Window::~Window()
 {
     EQINFO << "Delete window @" << (void*)this << endl;
 
@@ -88,15 +81,34 @@ eqs::Window::~Window()
     _channels.clear();
 }
 
+void Window::attachToSession( const uint32_t id, const uint32_t instanceID, 
+                               eqNet::Session* session )
+{
+    eqNet::Object::attachToSession( id, instanceID, session );
+    
+    eqNet::CommandQueue& serverQueue  = getServerThreadQueue();
+    eqNet::CommandQueue& commandQueue = getCommandThreadQueue();
 
-void eqs::Window::addChannel( Channel* channel )
+    registerCommand( eq::CMD_WINDOW_CONFIG_INIT_REPLY, 
+                     CommandFunc<Window>( this, &Window::_cmdConfigInitReply),
+                     commandQueue );
+    registerCommand( eq::CMD_WINDOW_CONFIG_EXIT_REPLY, 
+                     CommandFunc<Window>( this, &Window::_cmdConfigExitReply),
+                     commandQueue );
+    registerCommand( eq::CMD_WINDOW_SET_PVP, 
+                     CommandFunc<Window>( this, &Window::_cmdSetPixelViewport ),
+                     serverQueue );
+                         
+}
+
+void Window::addChannel( Channel* channel )
 {
     _channels.push_back( channel ); 
     channel->_window = this;
     channel->notifyViewportChanged();
 }
 
-bool eqs::Window::removeChannel( Channel* channel )
+bool Window::removeChannel( Channel* channel )
 {
     vector<Channel*>::iterator i = find( _channels.begin(), _channels.end(),
                                         channel );
@@ -108,13 +120,13 @@ bool eqs::Window::removeChannel( Channel* channel )
     return true;
 }
 
-void eqs::Window::refUsed()
+void Window::refUsed()
 {
     _used++;
     if( _pipe ) 
         _pipe->refUsed(); 
 }
-void eqs::Window::unrefUsed()
+void Window::unrefUsed()
 {
     _used--;
     if( _pipe ) 
@@ -124,7 +136,7 @@ void eqs::Window::unrefUsed()
 //----------------------------------------------------------------------
 // viewport
 //----------------------------------------------------------------------
-void eqs::Window::setPixelViewport( const eq::PixelViewport& pvp )
+void Window::setPixelViewport( const eq::PixelViewport& pvp )
 {
     if( !pvp.hasArea( ))
         return;
@@ -139,7 +151,7 @@ void eqs::Window::setPixelViewport( const eq::PixelViewport& pvp )
     notifyViewportChanged();
 }
 
-void eqs::Window::setViewport( const eq::Viewport& vp )
+void Window::setViewport( const eq::Viewport& vp )
 {
     if( !vp.hasArea( ))
         return;
@@ -154,7 +166,7 @@ void eqs::Window::setViewport( const eq::Viewport& vp )
     notifyViewportChanged();
 }
 
-void eqs::Window::notifyViewportChanged()
+void Window::notifyViewportChanged()
 {
     if( _pipe )
     {
@@ -178,7 +190,7 @@ void eqs::Window::notifyViewportChanged()
 //---------------------------------------------------------------------------
 // swap barrier operations
 //---------------------------------------------------------------------------
-void eqs::Window::_resetSwapBarriers()
+void Window::_resetSwapBarriers()
 { 
     Node* node = getNode();
     EQASSERT( node );
@@ -192,7 +204,7 @@ void eqs::Window::_resetSwapBarriers()
     _swapBarriers.clear();
 }
 
-eqNet::Barrier* eqs::Window::newSwapBarrier()
+eqNet::Barrier* Window::newSwapBarrier()
 {
     Node*           node    = getNode();
     eqNet::Barrier* barrier = node->getBarrier();
@@ -202,7 +214,7 @@ eqNet::Barrier* eqs::Window::newSwapBarrier()
     return barrier;
 }
 
-void eqs::Window::joinSwapBarrier( eqNet::Barrier* barrier )
+void Window::joinSwapBarrier( eqNet::Barrier* barrier )
 { 
     barrier->increase();
     _swapBarriers.push_back( barrier );
@@ -215,7 +227,7 @@ void eqs::Window::joinSwapBarrier( eqNet::Barrier* barrier )
 //---------------------------------------------------------------------------
 // configInit
 //---------------------------------------------------------------------------
-void eqs::Window::startConfigInit( const uint32_t initID )
+void Window::startConfigInit( const uint32_t initID )
 {
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
@@ -240,7 +252,7 @@ void eqs::Window::startConfigInit( const uint32_t initID )
     }
 }
 
-void eqs::Window::_sendConfigInit( const uint32_t initID )
+void Window::_sendConfigInit( const uint32_t initID )
 {
     eq::WindowConfigInitPacket packet;
     packet.initID    = initID;
@@ -256,7 +268,7 @@ void eqs::Window::_sendConfigInit( const uint32_t initID )
     EQLOG( eq::LOG_TASKS ) << "TASK window configInit  " << &packet << endl;
 }
 
-bool eqs::Window::syncConfigInit()
+bool Window::syncConfigInit()
 {
     bool success = true;
     for( std::vector<Channel*>::iterator iter = _channels.begin(); 
@@ -285,7 +297,7 @@ bool eqs::Window::syncConfigInit()
 //---------------------------------------------------------------------------
 // configExit
 //---------------------------------------------------------------------------
-void eqs::Window::startConfigExit()
+void Window::startConfigExit()
 {
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_STOPPING;
@@ -303,14 +315,14 @@ void eqs::Window::startConfigExit()
     _sendConfigExit();
 }
 
-void eqs::Window::_sendConfigExit()
+void Window::_sendConfigExit()
 {
     eq::WindowConfigExitPacket packet;
     _send( packet );
     EQLOG( eq::LOG_TASKS ) << "TASK configExit  " << &packet << endl;
 }
 
-bool eqs::Window::syncConfigExit()
+bool Window::syncConfigExit()
 {
     EQASSERT( _state == STATE_STOPPING || _state == STATE_STOPPED || 
               _state == STATE_STOP_FAILED );
@@ -343,7 +355,7 @@ bool eqs::Window::syncConfigExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void eqs::Window::updateDraw( const uint32_t frameID, 
+void Window::updateDraw( const uint32_t frameID, 
                               const uint32_t frameNumber )
 {
     if( !_lastDrawCompound )
@@ -368,7 +380,7 @@ void eqs::Window::updateDraw( const uint32_t frameID,
     }
 }
 
-void eqs::Window::updatePost( const uint32_t frameID, 
+void Window::updatePost( const uint32_t frameID, 
                               const uint32_t frameNumber )
 {
     for( vector< Channel* >::const_iterator i = _channels.begin(); 
@@ -390,7 +402,7 @@ void eqs::Window::updatePost( const uint32_t frameID,
     _lastDrawCompound = 0;
 }
 
-void eqs::Window::_updateSwap()
+void Window::_updateSwap()
 {
     bool finishSent = false;
 
@@ -434,7 +446,7 @@ void eqs::Window::_updateSwap()
 //===========================================================================
 // command handling
 //===========================================================================
-eqNet::CommandResult eqs::Window::_cmdConfigInitReply( eqNet::Command& command )
+eqNet::CommandResult Window::_cmdConfigInitReply( eqNet::Command& command )
 {
     const eq::WindowConfigInitReplyPacket* packet =
         command.getPacket<eq::WindowConfigInitReplyPacket>();
@@ -456,7 +468,7 @@ eqNet::CommandResult eqs::Window::_cmdConfigInitReply( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eqs::Window::_cmdConfigExitReply( eqNet::Command& command )
+eqNet::CommandResult Window::_cmdConfigExitReply( eqNet::Command& command )
 {
     const eq::WindowConfigExitReplyPacket* packet =
         command.getPacket<eq::WindowConfigExitReplyPacket>();
@@ -470,7 +482,7 @@ eqNet::CommandResult eqs::Window::_cmdConfigExitReply( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult eqs::Window::_reqSetPixelViewport( eqNet::Command& command)
+eqNet::CommandResult Window::_cmdSetPixelViewport( eqNet::Command& command)
 {
     const eq::WindowSetPVPPacket* packet = 
         command.getPacket<eq::WindowSetPVPPacket>();
@@ -480,7 +492,7 @@ eqNet::CommandResult eqs::Window::_reqSetPixelViewport( eqNet::Command& command)
     return eqNet::COMMAND_HANDLED;
 }
 
-std::ostream& eqs::operator << ( std::ostream& os, const eqs::Window* window )
+std::ostream& operator << ( std::ostream& os, const Window* window )
 {
     if( !window )
         return os;
@@ -556,4 +568,5 @@ std::ostream& eqs::operator << ( std::ostream& os, const eqs::Window* window )
 
     os << exdent << "}" << endl << enableHeader << enableFlush;
     return os;
+}
 }

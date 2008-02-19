@@ -20,6 +20,7 @@
 using namespace eqBase;
 using namespace std;
 using eqNet::ConnectionDescriptionVector;
+using eqNet::CommandFunc;
 
 namespace eqs
 {
@@ -29,15 +30,7 @@ void Node::_construct()
     _used             = 0;
     _config           = NULL;
     _lastDrawCompound = 0;
-
-    registerCommand( eq::CMD_NODE_CONFIG_INIT_REPLY, 
-                  eqNet::CommandFunc<Node>( this, &Node::_cmdConfigInitReply ));
-    registerCommand( eq::CMD_NODE_CONFIG_EXIT_REPLY, 
-                  eqNet::CommandFunc<Node>( this, &Node::_cmdConfigExitReply ));
-    registerCommand( eq::CMD_NODE_FRAME_FINISH_REPLY,
-                 eqNet::CommandFunc<Node>( this, &Node::_cmdFrameFinishReply ));
-
-    EQINFO << "Add node @" << (void*)this << endl;
+    EQINFO << "New node @" << (void*)this << endl;
 }
 
 Node::Node()
@@ -89,6 +82,24 @@ Node::~Node()
     _pipes.clear();
 }
 
+void Node::attachToSession( const uint32_t id, const uint32_t instanceID, 
+                               eqNet::Session* session )
+{
+    eqNet::Object::attachToSession( id, instanceID, session );
+    
+    eqNet::CommandQueue& queue = getCommandThreadQueue();
+
+    registerCommand( eq::CMD_NODE_CONFIG_INIT_REPLY, 
+                     CommandFunc<Node>( this, &Node::_cmdConfigInitReply ),
+                     queue );
+    registerCommand( eq::CMD_NODE_CONFIG_EXIT_REPLY, 
+                     CommandFunc<Node>( this, &Node::_cmdConfigExitReply ),
+                     queue );
+    registerCommand( eq::CMD_NODE_FRAME_FINISH_REPLY,
+                     CommandFunc<Node>( this, &Node::_cmdFrameFinishReply ),
+                     queue );
+}
+
 void Node::addPipe( Pipe* pipe )
 {
     _pipes.push_back( pipe ); 
@@ -133,7 +144,8 @@ void Node::startConfigInit( const uint32_t initID )
         
         _config->registerObject( pipe );
         createPipePacket.pipeID   = pipe->getID();
-        createPipePacket.threaded = pipe->getIAttribute( Pipe::IATTR_HINT_THREAD );
+        createPipePacket.threaded = 
+            pipe->getIAttribute( Pipe::IATTR_HINT_THREAD );
         _send( createPipePacket );
         pipe->startConfigInit( initID );
     }

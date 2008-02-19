@@ -17,30 +17,12 @@
 
 using namespace eqBase;
 using namespace std;
+using eqNet::CommandFunc;
 
 namespace eq
 {
 Server::Server()
 {
-    registerCommand( CMD_SERVER_CREATE_CONFIG, 
-                     eqNet::CommandFunc<Server>( this, &Server::_cmdPush ));
-    registerCommand( REQ_SERVER_CREATE_CONFIG, 
-                 eqNet::CommandFunc<Server>( this, &Server::_reqCreateConfig ));
-    registerCommand( CMD_SERVER_DESTROY_CONFIG, 
-                     eqNet::CommandFunc<Server>( this, &Server::_cmdPush ));
-    registerCommand( REQ_SERVER_DESTROY_CONFIG, 
-                eqNet::CommandFunc<Server>( this, &Server::_reqDestroyConfig ));
-    registerCommand( CMD_SERVER_CHOOSE_CONFIG_REPLY, 
-                     eqNet::CommandFunc<Server>( this, &Server::_cmdPush ));
-    registerCommand( REQ_SERVER_CHOOSE_CONFIG_REPLY, 
-            eqNet::CommandFunc<Server>( this, &Server::_reqChooseConfigReply ));
-    registerCommand( CMD_SERVER_RELEASE_CONFIG_REPLY, 
-                     eqNet::CommandFunc<Server>( this, &Server::_cmdPush ));
-    registerCommand( REQ_SERVER_RELEASE_CONFIG_REPLY, 
-           eqNet::CommandFunc<Server>( this, &Server::_reqReleaseConfigReply ));
-    registerCommand( CMD_SERVER_SHUTDOWN_REPLY, 
-           eqNet::CommandFunc<Server>( this, &Server::_cmdShutdownReply ));
-
     EQINFO << "New server at " << (void*)this << endl;
 }
 
@@ -49,6 +31,30 @@ Server::~Server()
     EQINFO << "Delete server at " << (void*)this << endl;
 }
 
+void Server::setClient( eqBase::RefPtr<Client> client )
+{
+    _client = client;
+    if( !_client )
+        return;
+
+    eqNet::CommandQueue& queue = client->getNodeThreadQueue();
+
+    registerCommand( CMD_SERVER_CREATE_CONFIG, 
+                     CommandFunc<Server>( this, &Server::_cmdCreateConfig ),
+                     queue );
+    registerCommand( CMD_SERVER_DESTROY_CONFIG, 
+                     CommandFunc<Server>( this, &Server::_cmdDestroyConfig ),
+                     queue );
+    registerCommand( CMD_SERVER_CHOOSE_CONFIG_REPLY, 
+                    CommandFunc<Server>( this, &Server::_cmdChooseConfigReply ),
+                     queue );
+    registerCommand( CMD_SERVER_RELEASE_CONFIG_REPLY, 
+                   CommandFunc<Server>( this, &Server::_cmdReleaseConfigReply ),
+                     queue );
+    registerCommand( CMD_SERVER_SHUTDOWN_REPLY, 
+                     CommandFunc<Server>( this, &Server::_cmdShutdownReply ),
+                     queue );
+}
 
 Config* Server::chooseConfig( const ConfigParams& parameters )
 {
@@ -74,9 +80,8 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
 #endif
     send( packet, rendererInfo );
 
-    RefPtr< Client > client = getClient();
     while( !_requestHandler.isServed( packet.requestID ))
-        client->processCommand();
+        _client->processCommand();
 
     void* ptr = 0;
     _requestHandler.waitRequest( packet.requestID, ptr );
@@ -110,9 +115,8 @@ Config* Server::useConfig( const ConfigParams& parameters,
     configInfo += '#' + config;
     send( packet, configInfo );
 
-    RefPtr< Client > client = getClient();
     while( !_requestHandler.isServed( packet.requestID ))
-        client->processCommand();
+        _client->processCommand();
 
     void* ptr = 0;
     _requestHandler.waitRequest( packet.requestID, ptr );
@@ -128,9 +132,8 @@ void Server::releaseConfig( Config* config )
     packet.configID  = config->getID();
     send( packet );
 
-    RefPtr< Client > client = getClient();
     while( !_requestHandler.isServed( packet.requestID ))
-        client->processCommand();
+        _client->processCommand();
 
     _requestHandler.waitRequest( packet.requestID );
 }
@@ -144,6 +147,9 @@ bool Server::shutdown()
     packet.requestID = _requestHandler.registerRequest();
     send( packet );
 
+    while( !_requestHandler.isServed( packet.requestID ))
+        _client->processCommand();
+
     bool result = false;
     _requestHandler.waitRequest( packet.requestID, result );
     return result;
@@ -152,7 +158,7 @@ bool Server::shutdown()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Server::_reqCreateConfig( eqNet::Command& command )
+eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Command& command )
 {
     const ServerCreateConfigPacket* packet = 
         command.getPacket<ServerCreateConfigPacket>();
@@ -160,7 +166,7 @@ eqNet::CommandResult Server::_reqCreateConfig( eqNet::Command& command )
            << endl;
     
     RefPtr<Node> localNode = command.getLocalNode();
-    Config*      config    = Global::getNodeFactory()->createConfig();
+    Config*      config    = Global::getNodeFactory()->createConfig( this );
 
     EQASSERT( localNode->getSession( packet->configID ) == 0 );
     config->_appNodeID = packet->appNodeID;
@@ -176,7 +182,7 @@ eqNet::CommandResult Server::_reqCreateConfig( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Server::_reqDestroyConfig( eqNet::Command& command )
+eqNet::CommandResult Server::_cmdDestroyConfig( eqNet::Command& command )
 {
     const ServerDestroyConfigPacket* packet = 
         command.getPacket<ServerDestroyConfigPacket>();
@@ -194,7 +200,7 @@ eqNet::CommandResult Server::_reqDestroyConfig( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Server::_reqChooseConfigReply( eqNet::Command& command )
+eqNet::CommandResult Server::_cmdChooseConfigReply( eqNet::Command& command )
 {
     const ServerChooseConfigReplyPacket* packet = 
         command.getPacket<ServerChooseConfigReplyPacket>();
@@ -216,7 +222,7 @@ eqNet::CommandResult Server::_reqChooseConfigReply( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Server::_reqReleaseConfigReply( eqNet::Command& command )
+eqNet::CommandResult Server::_cmdReleaseConfigReply( eqNet::Command& command )
 {
     const ServerReleaseConfigReplyPacket* packet = 
         command.getPacket<ServerReleaseConfigReplyPacket>();

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "objectDeltaDataIStream.h"
@@ -15,7 +15,7 @@ namespace eqNet
 {
 ObjectDataIStream::ObjectDataIStream()
         : _lastCommand( 0 )
-        , _version( EQ_ID_INVALID )
+        , _version( Object::VERSION_INVALID )
 {
 }
 
@@ -36,6 +36,8 @@ void ObjectDataIStream::reset()
         delete _commands.front();
         _commands.pop_front();
     }
+
+    _version = Object::VERSION_INVALID;
 }
 
 void ObjectDataIStream::addDataPacket( const Command& command )

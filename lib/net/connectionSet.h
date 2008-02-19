@@ -48,6 +48,7 @@ namespace eqNet
         void addConnection( eqBase::RefPtr<Connection> connection );
         bool removeConnection( eqBase::RefPtr<Connection> connection );
         void clear();
+        size_t size() const { return _connections.size(); }
 
         const ConnectionVector& getConnections() const { return _connections; }
 

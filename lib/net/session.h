@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_SESSION_H
@@ -52,8 +52,15 @@ namespace eqNet
          */
         uint32_t getID() const { return _id; }
 
+        /** Set the local node */
+        virtual void setLocalNode( eqBase::RefPtr< Node > node );
+
         /** @return the local node holding this session. */
         eqBase::RefPtr<Node> getLocalNode(){ return _localNode; }
+
+        /** @return the command queue to the command thread. */
+        CommandQueue& getCommandThreadQueue() 
+            { return _localNode->getCommandThreadQueue(); }
 
         /** 
          * @return the server hosting this session. 
@@ -61,14 +68,22 @@ namespace eqNet
         eqBase::RefPtr<Node> getServer(){ return _server; }
 
         /** 
-         * Dispatches a command packet to the appropriate handler.
+         * Dispatches a command packet to the appropriate command queue.
          * 
-         * @param node the node which sent the packet.
-         * @param packet the packet.
+         * @param command the command packet.
+         * @return the result of the operation.
+         * @sa Base::dispatchCommand
+         */
+        virtual bool dispatchCommand( Command& packet );
+
+        /** 
+         * Dispatches a command packet to the appropriate handler method.
+         * 
+         * @param command the command packet.
          * @return the result of the operation.
          * @sa Base::invokeCommand
          */
-        CommandResult dispatchCommand( Command& packet );
+        virtual CommandResult invokeCommand( Command& packet );
 
         /**
          * @name Identifier management
@@ -285,7 +300,7 @@ namespace eqNet
                 _localNode->send( packet );
             }
 
-        CommandResult _handleObjectCommand( Command& packet );
+        CommandResult _invokeObjectCommand( Command& packet );
 
         /** The command handler functions. */
         CommandResult _cmdGenIDs( Command& packet );

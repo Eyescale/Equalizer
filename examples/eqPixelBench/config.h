@@ -13,7 +13,7 @@ namespace eqPixelBench
 class Config : public eq::Config
 {
 public:
-    Config();
+    Config( eqBase::RefPtr< eq::Server > parent );
 
     /** @sa eq::Config::startFrame */
     virtual uint32_t startFrame( const uint32_t frameID );

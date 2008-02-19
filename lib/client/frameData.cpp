@@ -10,21 +10,19 @@
 #include "packets.h"
 
 #include <eq/net/command.h>
+#include <eq/net/commandFunc.h>
 #include <eq/net/session.h>
 #include <algorithm>
 
-using namespace eq;
 using namespace eqBase;
 using namespace std;
+using eqNet::CommandFunc;
 
+namespace eq
+{
 FrameData::FrameData()
 {
     setInstanceData( &_data, sizeof( Data ));
-
-    registerCommand( CMD_FRAMEDATA_TRANSMIT,
-               eqNet::CommandFunc<FrameData>( this, &FrameData::_cmdTransmit ));
-    registerCommand( CMD_FRAMEDATA_READY,
-                  eqNet::CommandFunc<FrameData>( this, &FrameData::_cmdReady ));
 }
 
 FrameData::~FrameData()
@@ -32,11 +30,35 @@ FrameData::~FrameData()
     flush();
 }
 
+void FrameData::attachToSession( const uint32_t id, const uint32_t instanceID, 
+                                 eqNet::Session* session )
+{
+    eqNet::Object::attachToSession( id, instanceID, session );
+    
+    eqNet::CommandQueue& queue = session->getCommandThreadQueue();
+
+    registerCommand( CMD_FRAMEDATA_TRANSMIT,
+                     CommandFunc<FrameData>( this, &FrameData::_cmdTransmit ),
+                     queue );
+    registerCommand( CMD_FRAMEDATA_READY,
+                     CommandFunc<FrameData>( this, &FrameData::_cmdReady ),
+                     queue );
+    registerCommand( CMD_FRAMEDATA_UPDATE,
+                     CommandFunc<FrameData>( this, &FrameData::_cmdUpdate ),
+                     queue );
+}
+
 void FrameData::applyInstanceData( eqNet::DataIStream& is )
 { 
     clear();
     eqNet::Object::applyInstanceData( is ); 
-    getLocalNode()->flushCommands(); // process rescheduled transmit packets
+
+    EQLOG( LOG_ASSEMBLY ) << "applied " << this << endl;
+
+    FrameDataUpdatePacket packet; // trigger process of received ready packets
+    packet.instanceID = getInstanceID();
+    packet.version    = getVersion() + 1;
+    send( getLocalNode(), packet );
 }
 
 void FrameData::clear()
@@ -118,15 +140,15 @@ void FrameData::syncReadback()
         }
 #endif
     }
-    _setReady();
+    _setReady( getVersion( ));
 }
 
-void FrameData::_setReady()
+void FrameData::_setReady( const uint32_t version )
 { 
-    EQASSERT( _readyVersion < getVersion( ))
+    EQASSERT( _readyVersion < version );
 
     _listenersMutex.set();
-    _readyVersion = getVersion(); 
+    _readyVersion = version; 
     EQLOG( LOG_ASSEMBLY ) << "set ready " << this << endl;
 
     for( vector< Monitor<uint32_t>* >::iterator i = _listeners.begin();
@@ -248,7 +270,7 @@ void FrameData::addListener( eqBase::Monitor<uint32_t>& listener )
     _listenersMutex.set();
 
     _listeners.push_back( &listener );
-    if( _readyVersion == getVersion( ))
+    if( _readyVersion >= getVersion( ))
         ++listener;
 
     _listenersMutex.unset();
@@ -275,7 +297,7 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
         command.getPacket<FrameDataTransmitPacket>();
 
     EQLOG( LOG_ASSEMBLY ) 
-        << "received image, buffers " << packet->buffers << " pvp " 
+        << this << " received image, buffers " << packet->buffers << " pvp " 
         << packet->pvp << " v" << packet->version << endl;
 
     EQASSERT( packet->pvp.isValid( ));
@@ -299,6 +321,7 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
         data += image->getPixelDataSize( Frame::BUFFER_COLOR );
 #endif
     }
+
     if( packet->buffers & Frame::BUFFER_DEPTH )
     {
 #ifdef EQ_USE_COMPRESSION
@@ -320,7 +343,7 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
     if( version == packet->version )
     {
         EQASSERT( getVersion() == packet->version );
-        EQASSERT( _readyVersion.get() < getVersion( ));
+        EQASSERT( _readyVersion < getVersion( ));
         _images.push_back( image );
     }
     else
@@ -328,6 +351,7 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
         EQASSERT( version < packet->version );
         _pendingImages.push_back( ImageVersion( image, packet->version ));
     }
+
     return eqNet::COMMAND_HANDLED;
 }
 
@@ -336,19 +360,66 @@ eqNet::CommandResult FrameData::_cmdReady( eqNet::Command& command )
     const FrameDataReadyPacket* packet = 
         command.getPacket<FrameDataReadyPacket>();
 
-    if( getVersion() < packet->version )
-        return eqNet::COMMAND_REDISPATCH;
+    if( getVersion() == packet->version )
+    {
+        _applyVersion( packet->version );
+        _setReady( packet->version );
+    }
+    else
+        _readyVersions.insert( packet->version );
 
-    EQASSERT( getVersion() == packet->version );
-    EQASSERT( _readyVersion.get() < getVersion( ));
+    EQLOG( LOG_ASSEMBLY ) << this << " received v" << packet->version << endl;
+
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult FrameData::_cmdUpdate( eqNet::Command& command )
+{
+    const FrameDataUpdatePacket* packet = 
+        command.getPacket<FrameDataUpdatePacket>();
+
+    _applyVersion( packet->version );
+
+    std::set< uint32_t >::iterator i = _readyVersions.find( packet->version );
+    if( i != _readyVersions.end( ))
+    {
+        _readyVersions.erase( i );
+        _setReady( packet->version );
+    }
+
+    return eqNet::COMMAND_HANDLED;
+}
+
+void FrameData::_applyVersion( const uint32_t version )
+{
+    EQLOG( LOG_ASSEMBLY ) << this << " apply v" << version << endl;
+
+    if( _readyVersion == version )
+    {
+#ifndef NDEBUG
+        for( list<ImageVersion>::iterator i = _pendingImages.begin();
+             i != _pendingImages.end(); ++i )
+        {
+            const ImageVersion& imageVersion = *i;
+            EQASSERTINFO( imageVersion.version > version, 
+                          "Frame is ready, but not all images have been set" );
+        }
+#endif
+
+        // already applied
+        return;
+    }
+
+    EQASSERTINFO( _readyVersion < version, "old " << _readyVersion.get()
+                  << " new " << version << " for " << this );
 
     for( list<ImageVersion>::iterator i = _pendingImages.begin();
          i != _pendingImages.end(); )
     {
         const ImageVersion& imageVersion = *i;
-        EQASSERT( imageVersion.version >= packet->version );
+        EQASSERT( imageVersion.version >= version );
 
-        if( imageVersion.version == packet->version )
+        if( imageVersion.version == version )
         {
             _images.push_back( imageVersion.image );
             list<ImageVersion>::iterator eraseIter = i;
@@ -359,16 +430,14 @@ eqNet::CommandResult FrameData::_cmdReady( eqNet::Command& command )
             ++i;
     }
 
-    EQLOG( LOG_ASSEMBLY ) << this << " received v" << packet->version
-                          << " with " << _images.size() << " images" << endl;
-
-    _setReady();
-    return eqNet::COMMAND_HANDLED;
+    EQLOG( LOG_ASSEMBLY ) << this << " applied v" << version << endl;
 }
 
-std::ostream& eq::operator << ( std::ostream& os, const FrameData* data )
+std::ostream& operator << ( std::ostream& os, const FrameData* data )
 {
-    os << "frame data id " << data->getID() << " v" << data->getVersion()
-       << " ready " << data->isReady();
+    os << "frame data id " << data->getID() << "." << data->getInstanceID() 
+       << " v" << data->getVersion() << ' ' << data->getImages().size() 
+       << " images, ready " << ( data->isReady() ? 'y' :'n' );
     return os;
+}
 }

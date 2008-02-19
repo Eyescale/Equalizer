@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "fullMasterCM.h"
@@ -10,11 +10,13 @@
 #include "node.h"
 #include "object.h"
 #include "packets.h"
+#include "session.h"
 
-using namespace eqNet;
 using namespace eqBase;
 using namespace std;
 
+namespace eqNet
+{
 FullMasterCM::FullMasterCM( Object* object )
         : _object( object ),
           _version( Object::VERSION_NONE ),
@@ -22,13 +24,6 @@ FullMasterCM::FullMasterCM( Object* object )
           _nVersions( 0 ),
           _obsoleteFlags( Object::AUTO_OBSOLETE_COUNT_VERSIONS )
 {
-    registerCommand( CMD_OBJECT_COMMIT, 
-                  CommandFunc<FullMasterCM>( this, &FullMasterCM::_cmdCommit ));
-    // sync commands are send to any instance, even the master gets the command
-    registerCommand( CMD_OBJECT_DELTA_DATA,
-                 CommandFunc<FullMasterCM>( this, &FullMasterCM::_cmdDiscard ));
-    registerCommand( CMD_OBJECT_DELTA,
-                 CommandFunc<FullMasterCM>( this, &FullMasterCM::_cmdDiscard ));
 }
 
 FullMasterCM::~FullMasterCM()
@@ -51,6 +46,24 @@ FullMasterCM::~FullMasterCM()
         delete *i;
     
     _deltaDataCache.clear();
+}
+
+void FullMasterCM::notifyAttached()
+{
+    Session* session = _object->getSession();
+    EQASSERT( session );
+    CommandQueue& queue = session->getCommandThreadQueue();
+
+    registerCommand( CMD_OBJECT_COMMIT, 
+                   CommandFunc<FullMasterCM>( this, &FullMasterCM::_cmdCommit ),
+                     queue );
+    // sync commands are send to any instance, even the master gets the command
+    registerCommand( CMD_OBJECT_DELTA_DATA,
+                  CommandFunc<FullMasterCM>( this, &FullMasterCM::_cmdDiscard ),
+                     queue );
+    registerCommand( CMD_OBJECT_DELTA,
+                  CommandFunc<FullMasterCM>( this, &FullMasterCM::_cmdDiscard ),
+                     queue );
 }
 
 uint32_t FullMasterCM::commitNB()
@@ -259,4 +272,5 @@ CommandResult FullMasterCM::_cmdCommit( Command& command )
     _checkConsistency();
     _requestHandler.serveRequest( packet->requestID, _version );
     return COMMAND_HANDLED;
+}
 }

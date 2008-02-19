@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "server.h"
@@ -16,6 +16,8 @@ using namespace std;
 
 #define CONFIG "server{ config{ appNode{ pipe { window { viewport [ .25 .25 .5 .5 ] channel { name \"channel\" }}}} compound { channel \"channel\" wall { bottom_left [ -.8 -.5 -1 ] bottom_right [  .8 -.5 -1 ] top_left [ -.8  .5 -1 ] }}}}"
 
+namespace
+{
 class ServerThread : public eqBase::Thread
 {
 public:
@@ -44,6 +46,7 @@ private:
 };
 
 static ServerThread _serverThread;
+}
 
 EQS_EXPORT eqBase::RefPtr< eqNet::Connection > eqsStartLocalServer()
 {

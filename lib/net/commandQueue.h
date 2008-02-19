@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_COMMANDQUEUE_H
@@ -9,6 +9,7 @@
 
 #include <eq/base/lock.h>
 #include <eq/base/mtQueue.h>
+#include <eq/base/nonCopyable.h>
 #include <eq/base/thread.h>
 
 namespace eqNet
@@ -18,7 +19,7 @@ namespace eqNet
     /**
      * A CommandQueue is a thread-safe queue for command packets.
      */
-    class EQ_EXPORT CommandQueue
+    class EQ_EXPORT CommandQueue : public eqBase::NonCopyable
     {
     public:
         CommandQueue();
@@ -35,18 +36,6 @@ namespace eqNet
          * @param packet the command packet.
          */
         virtual void push( Command& packet );
-
-        /** 
-         * Push a command to the front of the queue.
-         *
-         * The command's command is incremented by one, which enables the usage
-         * of the same code for handling the arriving packet and the queued
-         * command, as they use different commands.
-         * 
-         * @param node the node sending the packet.
-         * @param packet the command packet.
-         */
-        virtual void pushFront( Command& packet );
 
         /** 
          * Pop a command from the queue.
@@ -88,12 +77,8 @@ namespace eqNet
 
         CHECK_THREAD_DECLARE( _thread );
     private:
-
-#pragma warning(push)
-#pragma warning(disable: 4251)
         /** Thread-safe command queue. */
         eqBase::MTQueue<Command>  _commands;
-#pragma warning(pop)
         
         /** The last popped command, to be released upon the next pop. */
         Command*                  _lastCommand;

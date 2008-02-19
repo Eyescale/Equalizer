@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "staticSlaveCM.h"
@@ -9,6 +9,7 @@
 #include "log.h"
 #include "object.h"
 #include "objectInstanceDataIStream.h"
+#include "session.h"
 
 #include <eq/base/scopedMutex.h>
 
@@ -19,12 +20,8 @@ namespace eqNet
 {
 StaticSlaveCM::StaticSlaveCM( Object* object )
         : _object( object )
-        , _currentIStream( 0 )
+        , _currentIStream( new ObjectInstanceDataIStream )
 {
-    registerCommand( CMD_OBJECT_INSTANCE_DATA,
-          CommandFunc<StaticSlaveCM>( this, &StaticSlaveCM::_cmdInstanceData ));
-    registerCommand( CMD_OBJECT_INSTANCE,
-              CommandFunc<StaticSlaveCM>( this, &StaticSlaveCM::_cmdInstance ));
 }
 
 StaticSlaveCM::~StaticSlaveCM()
@@ -33,23 +30,33 @@ StaticSlaveCM::~StaticSlaveCM()
     _currentIStream = 0;
 }
 
+void StaticSlaveCM::notifyAttached()
+{
+    Session* session = _object->getSession();
+    EQASSERT( session );
+    CommandQueue& queue = session->getCommandThreadQueue();
+
+    registerCommand( CMD_OBJECT_INSTANCE_DATA,
+           CommandFunc<StaticSlaveCM>( this, &StaticSlaveCM::_cmdInstanceData ),
+                     queue );
+    registerCommand( CMD_OBJECT_INSTANCE,
+               CommandFunc<StaticSlaveCM>( this, &StaticSlaveCM::_cmdInstance ),
+                     queue );
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
 CommandResult StaticSlaveCM::_cmdInstanceData( Command& command )
 {
-    if( !_currentIStream )
-        _currentIStream = new ObjectInstanceDataIStream;
-
+    EQASSERT( _currentIStream );
     _currentIStream->addDataPacket( command );
     return eqNet::COMMAND_HANDLED;
 }
 
 CommandResult StaticSlaveCM::_cmdInstance( Command& command )
 {
-    if( !_currentIStream )
-        _currentIStream = new ObjectInstanceDataIStream;
-
+    EQASSERT( _currentIStream );
     _currentIStream->addDataPacket( command );
  
     const ObjectInstancePacket* packet = 
@@ -64,10 +71,13 @@ CommandResult StaticSlaveCM::_cmdInstance( Command& command )
 void StaticSlaveCM::applyMapData()
 {
     EQASSERT( _currentIStream );
+    _currentIStream->waitReady();
 
     _object->applyInstanceData( *_currentIStream );
+
     delete _currentIStream;
     _currentIStream = 0;
+
     EQLOG( LOG_OBJECTS ) << "Mapped initial data for " << _object->getID()
                          << "." << _object->getInstanceID() << " ready" << endl;
 }

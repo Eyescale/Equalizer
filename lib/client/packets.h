@@ -623,6 +623,15 @@ namespace eq
         uint32_t frameNumber;
     };
 
+    struct PipeStopThreadPacket : public eqNet::ObjectPacket
+    {
+        PipeStopThreadPacket()
+            {
+                command       = CMD_PIPE_STOP_THREAD;
+                size          = sizeof( PipeStopThreadPacket );
+            }
+    };
+
     //------------------------------------------------------------
     // Window
     //------------------------------------------------------------
@@ -965,6 +974,16 @@ namespace eq
         uint32_t version;
     };
 
+    struct FrameDataUpdatePacket : public eqNet::ObjectPacket
+    {
+        FrameDataUpdatePacket()
+            {
+                command = CMD_FRAMEDATA_UPDATE;
+                size    = sizeof( FrameDataUpdatePacket );
+            }
+        uint32_t version;
+    };
+
     //------------------------------------------------------------
     // Event Thread
     //------------------------------------------------------------
@@ -1066,6 +1085,13 @@ namespace eq
     }
 
     inline std::ostream& operator << ( std::ostream& os, 
+                                       const PipeCreateWindowPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " id " << packet->windowID;
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
                                        const PipeConfigInitPacket* packet )
     {
         os << (eqNet::ObjectPacket*)packet << " init id " << packet->initID
@@ -1076,6 +1102,13 @@ namespace eq
                                        const PipeConfigInitReplyPacket* packet )
     {
         os << (eqNet::ObjectPacket*)packet << " result " << packet->result;
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const WindowCreateChannelPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " id " << packet->channelID;
         return os;
     }
 

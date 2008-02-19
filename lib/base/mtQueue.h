@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_MTQUEUE_H
@@ -16,8 +16,6 @@ class MTQueuePrivate;
     /**
      * A queue with a blocking pop() implementation, typically used between two
      * execution threads.
-     *
-     * @todo evaluate lock-free implementation if performance is problematic
      */
     template< typename T > class MTQueue
     {
@@ -57,8 +55,8 @@ class MTQueuePrivate;
 #endif
 
 // The application has to include pthread.h if it wants to instantiate new queue
-// types, since on Windows the use of pthreads-Win32 includes might create hard
-// to resolve type conflicts with other header files.
+// types, since on Windows the use of pthreads-Win32 includes might create 
+// hard-to-resolve type conflicts with other header files.
 
 #ifdef HAVE_PTHREAD_H
 

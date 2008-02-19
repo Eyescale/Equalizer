@@ -1,11 +1,11 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_NODE_H
 #define EQS_NODE_H
 
-#include "config.h"
+#include "config.h" // used in inline method
 
 #include <eq/net/barrier.h>
 #include <eq/net/bufferConnection.h>
@@ -39,6 +39,11 @@ namespace eqs
 
         eqBase::RefPtr<eqNet::Node> getNode() const { return _node; }
         void setNode( eqBase::RefPtr<eqNet::Node> node ) { _node = node; }
+
+        eqNet::CommandQueue& getServerThreadQueue()
+            { return _config->getServerThreadQueue(); }
+        eqNet::CommandQueue& getCommandThreadQueue()
+            { return _config->getCommandThreadQueue(); }
 
         /** 
          * Adds a new pipe to this node.
@@ -211,6 +216,10 @@ namespace eqs
         /** Registers request packets waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
 
+        /** @sa eqNet::Object::attachToSession. */
+        virtual void attachToSession( const uint32_t id, 
+                                      const uint32_t instanceID, 
+                                      eqNet::Session* session );
     private:
         /** The pipe's name */
         std::string _name;

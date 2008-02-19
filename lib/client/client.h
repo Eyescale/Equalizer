@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_CLIENT_H
@@ -7,6 +7,7 @@
 
 #include <eq/client/commandQueue.h> // member
 #include <eq/client/nodeType.h>     // for TYPE_EQ_CLIENT enum
+#include <eq/net/command.h>         // member
 #include <eq/net/node.h>            // base class
 
 namespace eq
@@ -63,6 +64,9 @@ namespace eq
          */
         void setWindowSystem( const WindowSystem windowSystem );
 
+        /** Return the command queue to the main node thread. */
+        CommandQueue& getNodeThreadQueue() { return *_nodeThreadQueue; }
+
     protected:
         /** @sa eqNet::Node::clientLoop */
         virtual bool clientLoop();
@@ -82,23 +86,22 @@ namespace eq
         virtual bool useMessagePump() { return true; }
         //*}
     private:
-        /** The receiver->node command queue. */
-        CommandQueue* _commandQueue;
+        /** The command->node command queue. */
+        CommandQueue* _nodeThreadQueue;
         
         bool _running;
 
         /** @sa eqNet::Node::createNode */
         virtual eqBase::RefPtr<eqNet::Node> createNode( const uint32_t type );
         
-        /** @sa eqNet::Node::handleCommand */
-        virtual eqNet::CommandResult handleCommand( eqNet::Command& command );
+        /** @sa eqNet::Node::dispatchCommand */
+        virtual bool dispatchCommand( eqNet::Command& command );
 
-        /** @sa eqNet::Node::pushCommand */
-        virtual bool pushCommand( eqNet::Command& command )
-        { _commandQueue->push( command ); return true; }
+        /** @sa eqNet::Node::invokeCommand */
+        virtual eqNet::CommandResult invokeCommand( eqNet::Command& command );
 
         /** The command functions. */
-        eqNet::CommandResult _reqExit( eqNet::Command& command );
+        eqNet::CommandResult _cmdExit( eqNet::Command& command );
     };
 }
 

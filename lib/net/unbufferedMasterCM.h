@@ -29,6 +29,7 @@ namespace eqNet
         UnbufferedMasterCM( Object* object );
         virtual ~UnbufferedMasterCM();
 
+        virtual void notifyAttached();
         virtual void makeThreadSafe(){}
 
         /**

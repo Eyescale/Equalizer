@@ -70,8 +70,25 @@ EQ_EXPORT std::ostream& eqNet::operator << ( std::ostream& os,
                                              const Command& command )
 {
     if( command.isValid( ))
-        os << "command< " << command.getPacket() << ", " 
-           << command.getNode() << " >";
+    {
+        os << disableFlush << "command< ";
+        const Packet* packet = command.getPacket() ;
+        switch( packet->datatype )
+        {
+            case DATATYPE_EQNET_SESSION:
+                os << static_cast< const SessionPacket* >( packet );
+                break;
+
+            case DATATYPE_EQNET_OBJECT:
+                os << static_cast< const ObjectPacket* >( packet );
+                break;
+
+            default:
+                os << packet;
+        }
+
+        os << ", " << command.getNode() << " >" << enableFlush;
+    }
     else
         os << "command< empty >";
     

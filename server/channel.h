@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_CHANNEL_H
@@ -72,6 +72,11 @@ namespace eqs
 
         const CompoundVector& getCompounds() const
             { return getConfig()->getCompounds(); }
+
+        eqNet::CommandQueue& getServerThreadQueue()
+            { return _window->getServerThreadQueue(); }
+        eqNet::CommandQueue& getCommandThreadQueue()
+            { return _window->getCommandThreadQueue(); }
 
         /** 
          * References this window as being actively used.
@@ -240,6 +245,10 @@ namespace eqs
         /** Registers request packets waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
 
+        /** @sa eqNet::Object::attachToSession. */
+        virtual void attachToSession( const uint32_t id, 
+                                      const uint32_t instanceID, 
+                                      eqNet::Session* session );
     private:
         /** Number of entitities actively using this channel. */
         uint32_t _used;
@@ -295,7 +304,7 @@ namespace eqs
         /* command handler functions. */
         eqNet::CommandResult _cmdConfigInitReply( eqNet::Command& command );
         eqNet::CommandResult _cmdConfigExitReply( eqNet::Command& command );
-        eqNet::CommandResult _reqSetNearFar( eqNet::Command& command );
+        eqNet::CommandResult _cmdSetNearFar( eqNet::Command& command );
 
         // For access to _fixedPVP
         friend std::ostream& operator << ( std::ostream&, const Channel*);

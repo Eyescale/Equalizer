@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_NODEFACTORY_H
@@ -31,7 +31,8 @@ namespace eq
          * 
          * @return the config.
          */
-        virtual Config* createConfig(){ return new eq::Config; }
+        virtual Config* createConfig( eqBase::RefPtr< Server > parent )
+            { return new eq::Config( parent ); }
 
         /** 
          * Creates a new node.

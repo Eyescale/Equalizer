@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include <pthread.h>
@@ -11,13 +11,15 @@
 #include "object.h"
 #include "objectDeltaDataIStream.h"
 #include "objectInstanceDataIStream.h"
+#include "session.h"
 
 #include <eq/base/scopedMutex.h>
 
-using namespace eqNet;
 using namespace eqBase;
 using namespace std;
 
+namespace eqNet
+{
 FullSlaveCM::FullSlaveCM( Object* object, uint32_t masterInstanceID )
         : StaticSlaveCM( object )
         , _version( Object::VERSION_NONE )
@@ -25,10 +27,6 @@ FullSlaveCM::FullSlaveCM( Object* object, uint32_t masterInstanceID )
         , _currentDeltaStream( 0 )
         , _masterInstanceID( masterInstanceID )
 {
-    registerCommand( CMD_OBJECT_DELTA_DATA,
-                 CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdDeltaData ));
-    registerCommand( CMD_OBJECT_DELTA,
-                     CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdDelta ));
 }
 
 FullSlaveCM::~FullSlaveCM()
@@ -43,6 +41,22 @@ FullSlaveCM::~FullSlaveCM()
     _currentDeltaStream = 0;
 
     _version = Object::VERSION_NONE;
+}
+
+void FullSlaveCM::notifyAttached()
+{
+    StaticSlaveCM::notifyAttached();
+
+    Session* session = _object->getSession();
+    EQASSERT( session );
+    CommandQueue& queue = session->getCommandThreadQueue();
+
+    registerCommand( CMD_OBJECT_DELTA_DATA,
+                  CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdDeltaData ),
+                     queue );
+    registerCommand( CMD_OBJECT_DELTA,
+                     CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdDelta ),
+                     queue );
 }
 
 void FullSlaveCM::makeThreadSafe()
@@ -136,10 +150,14 @@ void FullSlaveCM::applyMapData()
     EQASSERTINFO( _currentIStream, typeid( *_object ).name() << " id " <<
                   _object->getID() << "." << _object->getInstanceID( ));
 
+    _currentIStream->waitReady();
+
     _object->applyInstanceData( *_currentIStream );
     _version = _currentIStream->getVersion();
+
     delete _currentIStream;
     _currentIStream = 0;
+
     EQLOG( LOG_OBJECTS ) << "Mapped initial data for " << _object->getID()
                          << "." << _object->getInstanceID() << " ready" << endl;
 }
@@ -176,4 +194,5 @@ CommandResult FullSlaveCM::_cmdDelta( Command& command )
     _currentDeltaStream = 0;
 
     return eqNet::COMMAND_HANDLED;
+}
 }

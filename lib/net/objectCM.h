@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_OBJECTCM_H
@@ -27,6 +27,9 @@ namespace eqNet
         /** Construct a new change manager. */
         ObjectCM() {}
         virtual ~ObjectCM() {}
+
+        /** Notification that the object is attached to a session. */
+        virtual void notifyAttached() = 0;
 
         /** 
          * Make this object thread safe.

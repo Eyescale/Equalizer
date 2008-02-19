@@ -27,7 +27,12 @@ namespace eq
 
         /** @name Data Access */
         //*{
+        void setClient( eqBase::RefPtr<Client> client );
         eqBase::RefPtr<Client> getClient(){ return _client; }
+        eqNet::CommandQueue& getNodeThreadQueue() 
+            { return _client->getNodeThreadQueue(); }
+        eqNet::CommandQueue& getCommandThreadQueue() 
+            { return _client->getCommandThreadQueue(); }
         //*}
 
         /** 
@@ -66,16 +71,16 @@ namespace eq
     private:
         /** The local client connected to the server */
         eqBase::RefPtr<Client> _client;
-        friend class Client;
+        friend class Client; // to call invokeCommand()
 
         /** @sa eqNet::Node::getType */
         virtual uint32_t getType() const { return TYPE_EQ_SERVER; }
 
         /* The command handler functions. */
-        eqNet::CommandResult _reqCreateConfig( eqNet::Command& command );
-        eqNet::CommandResult _reqDestroyConfig( eqNet::Command& command );
-        eqNet::CommandResult _reqChooseConfigReply( eqNet::Command& command );
-        eqNet::CommandResult _reqReleaseConfigReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdCreateConfig( eqNet::Command& command );
+        eqNet::CommandResult _cmdDestroyConfig( eqNet::Command& command );
+        eqNet::CommandResult _cmdChooseConfigReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdReleaseConfigReply( eqNet::Command& command );
         eqNet::CommandResult _cmdShutdownReply( eqNet::Command& command );
     };
 

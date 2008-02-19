@@ -34,7 +34,8 @@ public:
     Server()
         { 
             registerCommand( CMD_NODE_CUSTOM, 
-                             CommandFunc<Server>( this, &Server::command ));
+                             CommandFunc<Server>( this, &Server::command ),
+                             getCommandThreadQueue( ));
         }
 
 protected:

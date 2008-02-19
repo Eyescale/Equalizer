@@ -9,8 +9,9 @@ using namespace std;
 
 namespace eqPixelBench
 {
-Config::Config()
-        : _clock(0)
+Config::Config( eqBase::RefPtr< eq::Server > parent )
+        : eq::Config( parent )
+        , _clock(0)
 {
 }
 

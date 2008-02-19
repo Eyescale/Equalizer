@@ -17,6 +17,7 @@
 
 using namespace eqBase;
 using namespace std;
+using eqNet::CommandFunc;
 
 namespace eqs
 {
@@ -33,11 +34,6 @@ void Pipe::_construct()
     _port             = EQ_UNDEFINED_UINT32;
     _device           = EQ_UNDEFINED_UINT32;
     _lastDrawCompound = 0;
-
-    registerCommand( eq::CMD_PIPE_CONFIG_INIT_REPLY,
-                  eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdConfigInitReply ));
-    registerCommand( eq::CMD_PIPE_CONFIG_EXIT_REPLY, 
-                  eqNet::CommandFunc<Pipe>( this, &Pipe::_cmdConfigExitReply ));
 
     EQINFO << "New pipe @" << (void*)this << endl;
 }
@@ -92,6 +88,21 @@ Pipe::~Pipe()
         delete window;
     }
     _windows.clear();
+}
+
+void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID, 
+                               eqNet::Session* session )
+{
+    eqNet::Object::attachToSession( id, instanceID, session );
+    
+    eqNet::CommandQueue& queue = getCommandThreadQueue();
+
+    registerCommand( eq::CMD_PIPE_CONFIG_INIT_REPLY,
+                     CommandFunc<Pipe>( this, &Pipe::_cmdConfigInitReply ),
+                     queue );
+    registerCommand( eq::CMD_PIPE_CONFIG_EXIT_REPLY, 
+                     CommandFunc<Pipe>( this, &Pipe::_cmdConfigExitReply ),
+                     queue );
 }
 
 void Pipe::addWindow( Window* window )
@@ -251,6 +262,12 @@ bool Pipe::syncConfigExit()
         destroyWindowPacket.windowID = window->getID();
         _send( destroyWindowPacket );
         config->deregisterObject( window );
+    }
+
+    if( getIAttribute( IATTR_HINT_THREAD ))
+    {   // Note: thread is started by NodeCreatePipePacket
+        eq::PipeStopThreadPacket packet;
+        _send( packet );
     }
 
     return success;

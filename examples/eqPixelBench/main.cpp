@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "channel.h"
@@ -11,7 +11,8 @@ using namespace eqBase;
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Config*  createConfig()  { return new eqPixelBench::Config; }
+    virtual eq::Config*  createConfig( eqBase::RefPtr< eq::Server > parent )
+        { return new eqPixelBench::Config( parent ); }
     virtual eq::Channel* createChannel( eq::Window* parent )
         { return new eqPixelBench::Channel( parent ); }
 };
@@ -75,8 +76,10 @@ int main( int argc, char** argv )
     EQLOG( eq::LOG_CUSTOM ) << "Config init took " << clock.getTimef() << " ms"
                             << endl;
 
-    // 5. render one frame
+    // 5. render three framesr
     clock.reset();
+    config->startFrame( 0 );
+    config->finishFrame();
     config->startFrame( 0 );
     config->finishFrame();
     config->startFrame( 0 );

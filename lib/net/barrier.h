@@ -9,6 +9,8 @@
 #include <eq/net/nodeID.h>
 #include <eq/base/monitor.h>
 
+#include <map>
+
 namespace eqNet
 {
     class Node;
@@ -34,6 +36,9 @@ namespace eqNet
          */
         virtual ~Barrier();
 
+        virtual void attachToSession( const uint32_t id, 
+                                      const uint32_t instanceID, 
+                                      Session* session );
         /** 
          * @name Data Access
          *
@@ -76,8 +81,8 @@ namespace eqNet
 
         eqBase::RefPtr<Node> _master;
 
-        /** Slave nodes which have entered the barrier. */
-        std::vector< eqBase::RefPtr<Node> > _enteredNodes;
+        /** Slave nodes which have entered the barrier, index per version. */
+        std::map< uint32_t, NodeVector > _enteredNodes;
         
         /** The monitor used for barrier leave notification. */
         eqBase::Monitor<uint32_t> _leaveNotify;

@@ -28,13 +28,15 @@ namespace eq
         /** 
          * Constructs a new config.
          */
-        Config();
+        Config( eqBase::RefPtr< Server > parent );
 
         /** @name Data Access */
         //*{
         eqBase::RefPtr< Client > getClient();
         eqBase::RefPtr< Server > getServer();
         const NodeVector& getNodes() const { return _nodes; }
+        CommandQueue& getNodeThreadQueue()
+            { return getClient()->getNodeThreadQueue(); }
 
         /**
          * @return true while the config is initialized and no exit event
@@ -219,9 +221,6 @@ namespace eq
         /** The reason for the last error. */
         std::string _error;
 
-        /** Registers pending commands waiting for a return value. */
-        eqBase::RequestHandler _requestHandler;
-
         /** The receiver->app thread event queue. */
         CommandQueue           _eventQueue;
 
@@ -262,14 +261,14 @@ namespace eq
 #endif
 
         /** The command functions. */
-        eqNet::CommandResult _reqCreateNode( eqNet::Command& command );
-        eqNet::CommandResult _reqDestroyNode( eqNet::Command& command );
-        eqNet::CommandResult _reqStartInitReply( eqNet::Command& command );
-        eqNet::CommandResult _reqFinishInitReply( eqNet::Command& command );
-        eqNet::CommandResult _reqExitReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdCreateNode( eqNet::Command& command );
+        eqNet::CommandResult _cmdDestroyNode( eqNet::Command& command );
+        eqNet::CommandResult _cmdStartInitReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdFinishInitReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdExitReply( eqNet::Command& command );
         eqNet::CommandResult _cmdStartFrameReply( eqNet::Command& command );
-        eqNet::CommandResult _reqFinishFrameReply( eqNet::Command& command );
-        eqNet::CommandResult _reqFinishAllFramesReply( eqNet::Command& command);
+        eqNet::CommandResult _cmdFinishFrameReply( eqNet::Command& command );
+        eqNet::CommandResult _cmdFinishAllFramesReply( eqNet::Command& command);
         eqNet::CommandResult _cmdEvent( eqNet::Command& command );
 #ifdef EQ_TRANSMISSION_API
         eqNet::CommandResult _cmdData( eqNet::Command& command );

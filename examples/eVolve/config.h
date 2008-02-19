@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EVOLVE_CONFIG_H
@@ -15,7 +15,7 @@ namespace eVolve
     class Config : public eq::Config
     {
     public:
-        Config();
+        Config( eqBase::RefPtr< eq::Server > parent );
 
         /** @sa eq::Config::init. */
         virtual bool init();

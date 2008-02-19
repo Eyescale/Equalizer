@@ -6,7 +6,7 @@
 #define EQNET_NODE_H
 
 #include <eq/net/base.h>                     // base class
-#include <eq/net/commandCache.h>             // member
+#include <eq/net/commandQueue.h>             // member
 #include <eq/net/connectionSet.h>            // member
 #include <eq/net/idHash.h>                   // member
 #include <eq/net/nodeID.h>                   // member
@@ -434,11 +434,15 @@ namespace eqNet
          */
         virtual bool runClient( const std::string& clientArgs );
 
+        /** Return the command queue to the command thread. */
+        CommandQueue& getCommandThreadQueue() 
+            { EQASSERT( isLocal( )); return _commandThreadQueue; }
+
         /** 
-         * @return <code>true</code> if executed from the receiver thread,
-         *         <code>false</code> if not.
+         * @return <code>true</code> if executed from the command handler
+         *         thread, <code>false</code> if not.
          */
-        bool inReceiverThread() const { return _receiverThread->isCurrent(); }
+        bool inCommandThread() const { return _commandThread.isCurrent(); }
 
         const NodeID& getNodeID() const { return _id; }
 
@@ -447,13 +451,22 @@ namespace eqNet
         virtual ~Node();
 
         /** 
-         * Dispatches a packet to the appropriate object or to handleCommand.
+         * Dispatches a packet to the registered command queue.
          * 
          * @param command the command.
          * @return the result of the operation.
-         * @sa handleCommand, Base::invokeCommand
+         * @sa invokeCommand
          */
-        CommandResult dispatchCommand( Command& command );
+        virtual bool dispatchCommand( Command& command );
+
+        /** 
+         * Invokes the command handler method for the packet.
+         * 
+         * @param command the command.
+         * @return the result of the operation.
+         * @sa Base::invokeCommand
+         */
+        virtual CommandResult invokeCommand( Command& command );
 
         /** 
          * The main loop for auto-launched clients. 
@@ -461,27 +474,6 @@ namespace eqNet
          * @sa runClient()
          */
         virtual bool clientLoop() { return true; }
-
-        /** 
-         * Handles a packet which has been received by this node for a custom
-         * data type.
-         * 
-         * @param command the command.
-         * @return the result of the operation.
-         * @sa dispatchCommand
-         */
-        virtual CommandResult handleCommand( Command& )
-            { return COMMAND_ERROR; }
-
-        /** 
-         * Push a command to be handled by another entity, typically a thread.
-         * 
-         * @param command the command.
-         * @return <code>true</code> if the command was pushed,
-         *         <code>false</code> if not.
-         */
-        virtual bool pushCommand( Command& )
-            { return false; }
 
         /** @return the type of the node, used during connect(). */
         virtual uint32_t getType() const { return TYPE_EQNET_NODE; }
@@ -530,6 +522,9 @@ namespace eqNet
         /** The node for each connection. */
         eqBase::PtrHash< Connection*, eqBase::RefPtr<Node> > _connectionNodes;
 
+        /** The receiver->command command queue. */
+        CommandQueue _commandThreadQueue;
+
         /** Needed for thread-safety during nodeID-based connect() */
         eqBase::Lock _connectMutex;
 
@@ -556,6 +551,8 @@ namespace eqNet
 
         bool _listenToSelf();
         void _cleanup();
+
+        void _dispatchCommand( Command& command );
 
         /** 
          * Launch a node using the parameters from the connection
@@ -611,17 +608,34 @@ namespace eqNet
                     : _node( node )
                 {}
             
-            virtual void* run(){ return _node->_runReceiver(); }
+            virtual void* run(){ return _node->_runReceiverThread(); }
 
         private:
             Node* _node;
         };
-        ReceiverThread* _receiverThread;
+        ReceiverThread _receiverThread;
 
-        void* _runReceiver();
+        /** The command handler thread. */
+        class CommandThread : public eqBase::Thread
+        {
+        public:
+            CommandThread( Node* node ) 
+                    : _node( node )
+                {}
+            
+            virtual void* run(){ return _node->_runCommandThread(); }
+
+        private:
+            Node* _node;
+        };
+        CommandThread _commandThread;
+
+        void* _runReceiverThread();
         void    _handleConnect();
         void    _handleDisconnect();
         bool    _handleData();
+
+        void* _runCommandThread();
         void    _redispatchCommands();
 
         /** The command functions. */

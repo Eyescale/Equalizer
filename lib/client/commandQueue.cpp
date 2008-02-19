@@ -1,5 +1,6 @@
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
- All rights reserved. */
+
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+   All rights reserved. */
 
 #include "commandQueue.h"
 
@@ -21,6 +22,12 @@ CommandQueue::CommandQueue()
         : _messagePump( 0 )
         , _windowSystem( WINDOW_SYSTEM_NONE )
 {
+}
+
+CommandQueue::~CommandQueue()
+{
+    delete _messagePump;
+    _messagePump = 0;
 }
 
 void CommandQueue::setWindowSystem( const WindowSystem windowSystem )
@@ -63,13 +70,6 @@ void CommandQueue::setWindowSystem( const WindowSystem windowSystem )
 void CommandQueue::push(eqNet::Command& inCommand)
 {
     eqNet::CommandQueue::push(inCommand);
-    if( _messagePump )
-        _messagePump->postWakeup();
-}
-
-void CommandQueue::pushFront(eqNet::Command& inCommand)
-{
-    eqNet::CommandQueue::pushFront(inCommand);
     if( _messagePump )
         _messagePump->postWakeup();
 }

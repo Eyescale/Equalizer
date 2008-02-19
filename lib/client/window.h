@@ -58,11 +58,10 @@ namespace eq
 
         /** @name Data Access */
         //*{
-        /** 
-         * Returns the pipe of this window.
-         * 
-         * @return the pipe of this window. 
-         */
+        eqNet::CommandQueue& getPipeThreadQueue()
+            { return _pipe->getPipeThreadQueue(); }
+
+        /** @return the pipe of this window. */
         Pipe* getPipe() const { return _pipe; }
         Node* getNode() const 
             { return ( _pipe ? _pipe->getNode() : NULL );}
@@ -714,17 +713,16 @@ namespace eq
         void _releaseObjectManager();
 
         /* The command functions. */
-        eqNet::CommandResult _pushCommand( eqNet::Command& command );
-        eqNet::CommandResult _reqCreateChannel( eqNet::Command& command );
-        eqNet::CommandResult _reqDestroyChannel(eqNet::Command& command );
-        eqNet::CommandResult _reqConfigInit( eqNet::Command& command );
-        eqNet::CommandResult _reqConfigExit( eqNet::Command& command );
-        eqNet::CommandResult _reqFrameStart( eqNet::Command& command );
-        eqNet::CommandResult _reqFrameFinish( eqNet::Command& command );
-        eqNet::CommandResult _reqBarrier( eqNet::Command& command );
-        eqNet::CommandResult _reqFinish( eqNet::Command& command );
-        eqNet::CommandResult _reqSwap( eqNet::Command& command );
-        eqNet::CommandResult _reqFrameDrawFinish( eqNet::Command& command );
+        eqNet::CommandResult _cmdCreateChannel( eqNet::Command& command );
+        eqNet::CommandResult _cmdDestroyChannel(eqNet::Command& command );
+        eqNet::CommandResult _cmdConfigInit( eqNet::Command& command );
+        eqNet::CommandResult _cmdConfigExit( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameStart( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameFinish( eqNet::Command& command );
+        eqNet::CommandResult _cmdBarrier( eqNet::Command& command );
+        eqNet::CommandResult _cmdFinish( eqNet::Command& command );
+        eqNet::CommandResult _cmdSwap( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameDrawFinish( eqNet::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& , const Window::DrawableConfig& );

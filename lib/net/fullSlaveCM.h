@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_FULLSLAVECM_H
@@ -27,6 +27,7 @@ namespace eqNet
         FullSlaveCM( Object* object, uint32_t masterInstanceID );
         virtual ~FullSlaveCM();
 
+        virtual void notifyAttached();
         virtual void makeThreadSafe();
 
         /**

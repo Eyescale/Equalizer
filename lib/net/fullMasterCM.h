@@ -27,6 +27,7 @@ namespace eqNet
         FullMasterCM( Object* object );
         virtual ~FullMasterCM();
 
+        virtual void notifyAttached();
         virtual void makeThreadSafe(){}
 
         /**

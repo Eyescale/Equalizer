@@ -1,12 +1,11 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_STATICSLAVECM_H
 #define EQNET_STATICSLAVECM_H
 
 #include <eq/net/objectCM.h>     // base class
-
 #include <eq/net/command.h>      // member
 #include <eq/net/object.h>       // nested enum (Object::Version)
 #include <eq/base/idPool.h>      // for EQ_ID_INVALID
@@ -26,6 +25,7 @@ namespace eqNet
         StaticSlaveCM( Object* object );
         virtual ~StaticSlaveCM();
 
+        virtual void notifyAttached();
         virtual void makeThreadSafe(){}
 
         /**

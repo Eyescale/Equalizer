@@ -101,7 +101,7 @@ protected:
             if( !command )
                 return false;
 
-            TESTINFO( (*command)->command == 3, *command );
+            TESTINFO( (*command)->command == 2, *command );
 
             DataPacket* packet = command->getPacket<DataPacket>();
             

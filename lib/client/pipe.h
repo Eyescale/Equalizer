@@ -42,6 +42,7 @@ namespace eq
 
         /** @name Data Access. */
         //*{
+        eqNet::CommandQueue& getPipeThreadQueue();
         Node* getNode() const { return _node; }
         Config* getConfig() const { return (_node ? _node->getConfig() : NULL);}
         eqBase::RefPtr< Client > getClient() const
@@ -134,14 +135,6 @@ namespace eq
 
         /** Add a new statistics event to the current frame. */
         void addStatEvent( StatEvent::Data& eventData );
-
-        /**'
-         * Push a command to the pipe thread to be handled from there.
-         * 
-         * @param node the node sending the packet.
-         * @param packet the command packet.
-         */
-        eqNet::CommandResult pushCommand( eqNet::Command& command );
 
         /** 
          * Get an assembly frame.
@@ -369,6 +362,14 @@ namespace eq
         virtual bool useMessagePump() { return true; }
         //*}
 
+        /** @sa eqNet::Object::attachToSession. */
+        virtual void attachToSession( const uint32_t id, 
+                                      const uint32_t instanceID, 
+                                      eqNet::Session* session );
+
+        /** @sa eqNet::Base::dispatchCommand. */
+        virtual bool dispatchCommand( eqNet::Command& command );
+
     private:
         /** The parent node. */
         Node* const    _node;
@@ -443,7 +444,7 @@ namespace eq
         PipeThread* _thread;
 
         /** The receiver->pipe thread command queue. */
-        eq::CommandQueue*   _commandQueue;
+        eq::CommandQueue*   _pipeThreadQueue;
 
         void* _runThread();
         void _setupCommandQueue();
@@ -458,17 +459,18 @@ namespace eq
         /** Initialize the generic wglew context. */
         void _configInitWGLEW();
 
+        void _startFrameClock();
         void _flushFrames();
 
         /* The command functions. */
-        eqNet::CommandResult _reqCreateWindow( eqNet::Command& command );
-        eqNet::CommandResult _reqDestroyWindow( eqNet::Command& command );
-        eqNet::CommandResult _reqConfigInit( eqNet::Command& command );
-        eqNet::CommandResult _reqConfigExit( eqNet::Command& command );
+        eqNet::CommandResult _cmdCreateWindow( eqNet::Command& command );
+        eqNet::CommandResult _cmdDestroyWindow( eqNet::Command& command );
+        eqNet::CommandResult _cmdConfigInit( eqNet::Command& command );
+        eqNet::CommandResult _cmdConfigExit( eqNet::Command& command );
         eqNet::CommandResult _cmdFrameStart( eqNet::Command& command );
-        eqNet::CommandResult _reqFrameStart( eqNet::Command& command );
-        eqNet::CommandResult _reqFrameFinish( eqNet::Command& command );
-        eqNet::CommandResult _reqFrameDrawFinish( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameFinish( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameDrawFinish( eqNet::Command& command );
+        eqNet::CommandResult _cmdStopThread( eqNet::Command& command );
     };
 }
 

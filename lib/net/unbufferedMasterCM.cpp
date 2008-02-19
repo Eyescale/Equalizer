@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "unbufferedMasterCM.h"
@@ -11,6 +11,7 @@
 #include "object.h"
 #include "objectDeltaDataOStream.h"
 #include "packets.h"
+#include "session.h"
 
 using namespace eqBase;
 using namespace std;
@@ -21,13 +22,6 @@ UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
         : _object( object )
         , _version( Object::VERSION_NONE )
 {
-    registerCommand( CMD_OBJECT_COMMIT, 
-      CommandFunc<UnbufferedMasterCM>( this, &UnbufferedMasterCM::_cmdCommit ));
-    // sync commands are send to any instance, even the master gets the command
-	registerCommand( CMD_OBJECT_DELTA_DATA, 
-	 CommandFunc<UnbufferedMasterCM>( this, &UnbufferedMasterCM::_cmdDiscard ));
-	registerCommand( CMD_OBJECT_DELTA, 
-     CommandFunc<UnbufferedMasterCM>( this, &UnbufferedMasterCM::_cmdDiscard ));
 }
 
 UnbufferedMasterCM::~UnbufferedMasterCM()
@@ -35,6 +29,24 @@ UnbufferedMasterCM::~UnbufferedMasterCM()
     if( !_slaves.empty( ))
         EQWARN << _slaves.size() 
                << " slave nodes subscribed during deregisterObject" << endl;
+}
+
+void UnbufferedMasterCM::notifyAttached()
+{
+    Session* session = _object->getSession();
+    EQASSERT( session );
+    CommandQueue& queue = session->getCommandThreadQueue();
+
+    registerCommand( CMD_OBJECT_COMMIT, 
+       CommandFunc<UnbufferedMasterCM>( this, &UnbufferedMasterCM::_cmdCommit ),
+                     queue );
+    // sync commands are send to any instance, even the master gets the command
+	registerCommand( CMD_OBJECT_DELTA_DATA, 
+	  CommandFunc<UnbufferedMasterCM>( this, &UnbufferedMasterCM::_cmdDiscard ),
+                     queue );
+	registerCommand( CMD_OBJECT_DELTA, 
+      CommandFunc<UnbufferedMasterCM>( this, &UnbufferedMasterCM::_cmdDiscard ),
+                     queue );
 }
 
 uint32_t UnbufferedMasterCM::commitNB()

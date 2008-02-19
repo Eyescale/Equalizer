@@ -29,6 +29,7 @@
 
 using namespace eqBase;
 using namespace std;
+using eqNet::CommandFunc;
 
 namespace eq
 {
@@ -61,46 +62,35 @@ Window::Window( Pipe* parent )
         , _pipe( parent )
         , _renderContextAGLLock( 0 )
 {
+    eqNet::CommandQueue& queue = parent->getPipeThreadQueue();
+
     registerCommand( CMD_WINDOW_CREATE_CHANNEL, 
-                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
-    registerCommand( REQ_WINDOW_CREATE_CHANNEL, 
-                eqNet::CommandFunc<Window>( this, &Window::_reqCreateChannel ));
+                     CommandFunc<Window>( this, &Window::_cmdCreateChannel ), 
+                     queue );
     registerCommand( CMD_WINDOW_DESTROY_CHANNEL,
-                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
-    registerCommand( REQ_WINDOW_DESTROY_CHANNEL,
-               eqNet::CommandFunc<Window>( this, &Window::_reqDestroyChannel ));
+                     CommandFunc<Window>( this, &Window::_cmdDestroyChannel ), 
+                     queue );
     registerCommand( CMD_WINDOW_CONFIG_INIT,
-                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
-    registerCommand( REQ_WINDOW_CONFIG_INIT, 
-                   eqNet::CommandFunc<Window>( this, &Window::_reqConfigInit ));
+                     CommandFunc<Window>( this, &Window::_cmdConfigInit ), 
+                     queue );
     registerCommand( CMD_WINDOW_CONFIG_EXIT, 
-                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
-    registerCommand( REQ_WINDOW_CONFIG_EXIT, 
-                   eqNet::CommandFunc<Window>( this, &Window::_reqConfigExit ));
+                     CommandFunc<Window>( this, &Window::_cmdConfigExit ), 
+                     queue );
     registerCommand( CMD_WINDOW_FRAME_START,
-                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
-    registerCommand( REQ_WINDOW_FRAME_START,
-                   eqNet::CommandFunc<Window>( this, &Window::_reqFrameStart ));
+                     CommandFunc<Window>( this, &Window::_cmdFrameStart ), 
+                     queue );
     registerCommand( CMD_WINDOW_FRAME_FINISH,
-                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
-    registerCommand( REQ_WINDOW_FRAME_FINISH,
-                  eqNet::CommandFunc<Window>( this, &Window::_reqFrameFinish ));
+                     CommandFunc<Window>( this, &Window::_cmdFrameFinish ), 
+                     queue );
     registerCommand( CMD_WINDOW_FINISH, 
-                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand));
-    registerCommand( REQ_WINDOW_FINISH, 
-                     eqNet::CommandFunc<Window>( this, &Window::_reqFinish));
+                     CommandFunc<Window>( this, &Window::_cmdFinish), queue );
     registerCommand( CMD_WINDOW_BARRIER, 
-                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
-    registerCommand( REQ_WINDOW_BARRIER,
-                     eqNet::CommandFunc<Window>( this, &Window::_reqBarrier ));
+                     CommandFunc<Window>( this, &Window::_cmdBarrier ), queue );
     registerCommand( CMD_WINDOW_SWAP, 
-                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
-    registerCommand( REQ_WINDOW_SWAP, 
-                     eqNet::CommandFunc<Window>( this, &Window::_reqSwap));
+                     CommandFunc<Window>( this, &Window::_cmdSwap), queue );
     registerCommand( CMD_WINDOW_FRAME_DRAW_FINISH, 
-                     eqNet::CommandFunc<Window>( this, &Window::_pushCommand ));
-    registerCommand( REQ_WINDOW_FRAME_DRAW_FINISH, 
-              eqNet::CommandFunc<Window>( this, &Window::_reqFrameDrawFinish ));
+                     CommandFunc<Window>( this, &Window::_cmdFrameDrawFinish ), 
+                     queue );
 
     parent->_addWindow( this );
     EQINFO << " New eq::Window @" << (void*)this << endl;
@@ -521,7 +511,18 @@ bool Window::configInitGLXDrawable( XVisualInfo* visualInfo )
         return false;
     }   
    
-    XStoreName( display, drawable,_name.empty() ? "Equalizer" : _name.c_str( ));
+    stringstream windowTitle;
+    if( _name.empty( ))
+    {
+        windowTitle << "Equalizer";
+#ifndef NDEBUG
+        windowTitle << " (" << getpid() << ")";
+#endif;
+    }
+    else
+        windowTitle << _name;
+
+    XStoreName( display, drawable, windowTitle.str().c_str( ));
 
     // Register for close window request from the window manager
     Atom deleteAtom = XInternAtom( display, "WM_DELETE_WINDOW", False );
@@ -833,9 +834,20 @@ bool Window::configInitAGLWindow()
     }
 
     // window title
+    stringstream windowTitle;
+    if( _name.empty( ))
+    {
+        windowTitle << "Equalizer";
+#ifndef NDEBUG
+        windowTitle << " (" << getpid() << ")";
+#endif;
+    }
+    else
+        windowTitle << _name;
+
     CFStringRef title = CFStringCreateWithCString( kCFAllocatorDefault,
-                                    _name.empty() ? "Equalizer" : _name.c_str(),
-                                    kCFStringEncodingMacRoman );
+                                                   windowTitle.str().c_str(),
+                                                   kCFStringEncodingMacRoman );
     SetWindowTitleWithCFString( windowRef, title );
     CFRelease( title );
         
@@ -1722,12 +1734,7 @@ bool Window::processEvent( const WindowEvent& event )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-eqNet::CommandResult Window::_pushCommand( eqNet::Command& command )
-{
-    return ( _pipe ? _pipe->pushCommand( command ) : _cmdUnknown( command ));
-}
-
-eqNet::CommandResult Window::_reqCreateChannel( eqNet::Command& command )
+eqNet::CommandResult Window::_cmdCreateChannel( eqNet::Command& command )
 {
     const WindowCreateChannelPacket* packet = 
         command.getPacket<WindowCreateChannelPacket>();
@@ -1739,7 +1746,7 @@ eqNet::CommandResult Window::_reqCreateChannel( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_reqDestroyChannel(eqNet::Command& command ) 
+eqNet::CommandResult Window::_cmdDestroyChannel(eqNet::Command& command ) 
 {
     const WindowDestroyChannelPacket* packet =
         command.getPacket<WindowDestroyChannelPacket>();
@@ -1755,12 +1762,11 @@ eqNet::CommandResult Window::_reqDestroyChannel(eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_reqConfigInit( eqNet::Command& command )
+eqNet::CommandResult Window::_cmdConfigInit( eqNet::Command& command )
 {
     const WindowConfigInitPacket* packet = 
         command.getPacket<WindowConfigInitPacket>();
-    EQLOG( LOG_TASKS ) << "TASK configInit " << getName() <<  " " << packet 
-                       << endl;
+    EQLOG( LOG_TASKS ) << "TASK window config init " << packet << endl;
 
     if( packet->pvp.isValid( ))
         _setPixelViewport( packet->pvp );
@@ -1777,6 +1783,7 @@ eqNet::CommandResult Window::_reqConfigInit( eqNet::Command& command )
 
     WindowConfigInitReplyPacket reply;
     reply.result = configInit( packet->initID );
+    EQLOG( LOG_TASKS ) << "TASK window config init reply " << &reply << endl;
 
     RefPtr<eqNet::Node> node = command.getNode();
     if( !reply.result )
@@ -1832,7 +1839,7 @@ eqNet::CommandResult Window::_reqConfigInit( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_reqConfigExit( eqNet::Command& command )
+eqNet::CommandResult Window::_cmdConfigExit( eqNet::Command& command )
 {
     const WindowConfigExitPacket* packet =
         command.getPacket<WindowConfigExitPacket>();
@@ -1854,7 +1861,7 @@ eqNet::CommandResult Window::_reqConfigExit( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_reqFrameStart( eqNet::Command& command )
+eqNet::CommandResult Window::_cmdFrameStart( eqNet::Command& command )
 {
     const WindowFrameStartPacket* packet = 
         command.getPacket<WindowFrameStartPacket>();
@@ -1874,7 +1881,7 @@ eqNet::CommandResult Window::_reqFrameStart( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_reqFrameFinish( eqNet::Command& command )
+eqNet::CommandResult Window::_cmdFrameFinish( eqNet::Command& command )
 {
     const WindowFrameFinishPacket* packet =
         command.getPacket<WindowFrameFinishPacket>();
@@ -1886,14 +1893,14 @@ eqNet::CommandResult Window::_reqFrameFinish( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_reqFinish(eqNet::Command& command ) 
+eqNet::CommandResult Window::_cmdFinish(eqNet::Command& command ) 
 {
     EQ_GL_CALL( makeCurrent( ));
     finish();
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_reqBarrier( eqNet::Command& command )
+eqNet::CommandResult Window::_cmdBarrier( eqNet::Command& command )
 {
     const WindowBarrierPacket* packet = 
         command.getPacket<WindowBarrierPacket>();
@@ -1909,14 +1916,14 @@ eqNet::CommandResult Window::_reqBarrier( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_reqSwap(eqNet::Command& command ) 
+eqNet::CommandResult Window::_cmdSwap(eqNet::Command& command ) 
 {
     EQ_GL_CALL( makeCurrent( ));
     swapBuffers();
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Window::_reqFrameDrawFinish( eqNet::Command& command )
+eqNet::CommandResult Window::_cmdFrameDrawFinish( eqNet::Command& command )
 {
     WindowFrameDrawFinishPacket* packet = 
         command.getPacket< WindowFrameDrawFinishPacket >();

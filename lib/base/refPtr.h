@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_REFPTR_H
@@ -21,9 +21,9 @@ namespace eqBase
     template<class T> class RefPtr 
     {
     public:
-        RefPtr()                   : _ptr(NULL)      {}
-        RefPtr(T* ptr)             : _ptr(ptr)       { ref(); }
-        RefPtr(const RefPtr& from) : _ptr(from._ptr) { ref(); }
+        RefPtr()                     : _ptr( 0 )         {}
+        RefPtr( T* const ptr )       : _ptr( ptr )       { ref(); }
+        RefPtr( const RefPtr& from ) : _ptr( from._ptr ) { ref(); }
         
         template<class from>
         RefPtr( RefPtr<from> const &f, RefPtr_scast )
@@ -66,7 +66,7 @@ namespace eqBase
             { return ( _ptr < rhs._ptr ); }
         bool operator >  ( const RefPtr& rhs ) const
             { return ( _ptr > rhs._ptr ); }
-        bool operator ! () const               { return ( _ptr==NULL ); }
+        bool operator ! () const               { return ( _ptr==0 ); }
 
         bool operator == ( const T* ptr ) const { return ( _ptr==ptr ); }
         bool operator != ( const T* ptr ) const { return ( _ptr!=ptr ); }

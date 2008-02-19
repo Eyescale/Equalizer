@@ -30,33 +30,6 @@ Session::Session( const bool threadSafe )
         , _localPool( 0 )
         , _instanceIDs( 0 ) 
 {
-    registerCommand( CMD_SESSION_GEN_IDS, 
-                     CommandFunc<Session>( this, &Session::_cmdGenIDs ));
-    registerCommand( CMD_SESSION_GEN_IDS_REPLY,
-                     CommandFunc<Session>( this, &Session::_cmdGenIDsReply ));
-    registerCommand( CMD_SESSION_SET_ID_MASTER,
-                     CommandFunc<Session>( this, &Session::_cmdSetIDMaster ));
-    registerCommand( CMD_SESSION_GET_ID_MASTER, 
-                     CommandFunc<Session>( this, &Session::_cmdGetIDMaster ));
-    registerCommand( CMD_SESSION_GET_ID_MASTER_REPLY,
-                  CommandFunc<Session>( this, &Session::_cmdGetIDMasterReply ));
-    registerCommand( CMD_SESSION_ATTACH_OBJECT,
-                     CommandFunc<Session>( this, &Session::_cmdAttachObject ));
-    registerCommand( CMD_SESSION_DETACH_OBJECT,
-                     CommandFunc<Session>( this, &Session::_cmdDetachObject ));
-    registerCommand( CMD_SESSION_MAP_OBJECT,
-                     CommandFunc<Session>( this, &Session::_cmdMapObject ));
-    registerCommand( CMD_SESSION_MAP_OBJECT,
-                     CommandFunc<Session>( this, &Session::_cmdMapObject ));
-    registerCommand( CMD_SESSION_SUBSCRIBE_OBJECT,
-                   CommandFunc<Session>( this, &Session::_cmdSubscribeObject ));
-    registerCommand( CMD_SESSION_SUBSCRIBE_OBJECT_SUCCESS,
-            CommandFunc<Session>( this, &Session::_cmdSubscribeObjectSuccess ));
-    registerCommand( CMD_SESSION_SUBSCRIBE_OBJECT_REPLY,
-              CommandFunc<Session>( this, &Session::_cmdSubscribeObjectReply ));
-    registerCommand( CMD_SESSION_UNSUBSCRIBE_OBJECT,
-                 CommandFunc<Session>( this, &Session::_cmdUnsubscribeObject ));
-
     EQINFO << "New Session @" << (void*)this << endl;
 }
 
@@ -74,8 +47,7 @@ Session::~Session()
             EQWARN << _objects.size()
                    << " attached objects in destructor" << endl;
 
-            for( IDHash< vector<Object*> >::const_iterator i =
-                     _objects.begin(); 
+            for( IDHash< vector<Object*> >::const_iterator i = _objects.begin();
                  i != _objects.end(); ++i )
             {
                 const vector<Object*>& objects = i->second;
@@ -86,7 +58,7 @@ Session::~Session()
                      j != objects.end(); ++j )
                 {
                     const Object* object = *j;
-                    EQINFO << "    Object of type " << typeid(*object).name() 
+                    EQINFO << "    object type " << typeid(*object).name() 
                            << endl;
                 }
             }
@@ -95,12 +67,62 @@ Session::~Session()
     _objects.clear();
 }
 
+
+void Session::setLocalNode( RefPtr< Node > node )
+{
+    _localNode = node;
+    if( !_localNode.isValid( ))
+        return; // TODO deregister command functions?
+
+    CommandQueue& queue = node->getCommandThreadQueue();
+
+    registerCommand( CMD_SESSION_GEN_IDS, 
+                     CommandFunc<Session>( this, &Session::_cmdGenIDs ),
+                     queue );
+    registerCommand( CMD_SESSION_GEN_IDS_REPLY,
+                     CommandFunc<Session>( this, &Session::_cmdGenIDsReply ),
+                     queue );
+    registerCommand( CMD_SESSION_SET_ID_MASTER,
+                     CommandFunc<Session>( this, &Session::_cmdSetIDMaster ),
+                     queue );
+    registerCommand( CMD_SESSION_GET_ID_MASTER, 
+                     CommandFunc<Session>( this, &Session::_cmdGetIDMaster ),
+                     queue );
+    registerCommand( CMD_SESSION_GET_ID_MASTER_REPLY,
+                  CommandFunc<Session>( this, &Session::_cmdGetIDMasterReply ),
+                     queue );
+    registerCommand( CMD_SESSION_ATTACH_OBJECT,
+                     CommandFunc<Session>( this, &Session::_cmdAttachObject ),
+                     queue );
+    registerCommand( CMD_SESSION_DETACH_OBJECT,
+                     CommandFunc<Session>( this, &Session::_cmdDetachObject ),
+                     queue );
+    registerCommand( CMD_SESSION_MAP_OBJECT,
+                     CommandFunc<Session>( this, &Session::_cmdMapObject ),
+                     queue );
+    registerCommand( CMD_SESSION_MAP_OBJECT,
+                     CommandFunc<Session>( this, &Session::_cmdMapObject ),
+                     queue );
+    registerCommand( CMD_SESSION_SUBSCRIBE_OBJECT,
+                   CommandFunc<Session>( this, &Session::_cmdSubscribeObject ),
+                     queue );
+    registerCommand( CMD_SESSION_SUBSCRIBE_OBJECT_SUCCESS,
+            CommandFunc<Session>( this, &Session::_cmdSubscribeObjectSuccess ),
+                     queue );
+    registerCommand( CMD_SESSION_SUBSCRIBE_OBJECT_REPLY,
+              CommandFunc<Session>( this, &Session::_cmdSubscribeObjectReply ),
+                     queue );
+    registerCommand( CMD_SESSION_UNSUBSCRIBE_OBJECT,
+                 CommandFunc<Session>( this, &Session::_cmdUnsubscribeObject ),
+                     queue );
+}
+
 //---------------------------------------------------------------------------
 // identifier generation
 //---------------------------------------------------------------------------
 uint32_t Session::genIDs( const uint32_t range )
 {
-    if( _isMaster && _server->inReceiverThread( ))
+    if( _isMaster && _server->inCommandThread( ))
         return _masterPool.genIDs( range );
 
     uint32_t id = _localPool.genIDs( range );
@@ -199,21 +221,19 @@ void Session::attachObject( Object* object, const uint32_t id )
 {
     EQASSERT( object );
 
-    if( _localNode->inReceiverThread( ))
+    if( _localNode->inCommandThread( ))
     {
         CHECK_THREAD( _receiverThread );
 
         _instanceIDs = ( _instanceIDs + 1 ) % IDPool::MAX_CAPACITY;
-
-        object->_id         = id;
-        object->_instanceID = _instanceIDs;
-        object->_session    = this;
+        object->attachToSession( id, _instanceIDs, this );
 
         _objectsMutex.set();
         vector<Object*>& objects = _objects[ id ];
-        _objectsMutex.unset();
         objects.push_back( object );
+        _objectsMutex.unset();
 
+        getLocalNode()->flushCommands(); // redispatch pending commands
         EQLOG( LOG_OBJECTS ) << "Attached " << typeid( *object ).name()
                              << " to id " << id << endl;
         return;
@@ -230,7 +250,7 @@ void Session::attachObject( Object* object, const uint32_t id )
 void Session::detachObject( Object* object )
 {
     EQASSERT( object );
-    if( _localNode->inReceiverThread( ))
+    if( _localNode->inCommandThread( ))
     {
         CHECK_THREAD( _receiverThread );
 
@@ -284,7 +304,7 @@ bool Session::mapObject( Object* object, const uint32_t id )
 
     EQASSERT( object->_id == EQ_ID_INVALID );
     EQASSERT( id != EQ_ID_INVALID );
-    EQASSERT( !_localNode->inReceiverThread( ));
+    EQASSERT( !_localNode->inCommandThread( ));
         
     RefPtr<Node> master;
     if( !object->isMaster( ))
@@ -312,15 +332,17 @@ bool Session::mapObject( Object* object, const uint32_t id )
     packet.requestID = _requestHandler.registerRequest( &data );
 
     _sendLocal( packet );
-    _requestHandler.waitRequest( packet.requestID );
+    bool result = false;
+    _requestHandler.waitRequest( packet.requestID, result );
 
     // apply first instance data on slave instances
-    if( !object->isMaster( ))
+    if( result && !object->isMaster( ))
         object->_cm->applyMapData();
 
     EQLOG( LOG_OBJECTS ) << "Mapped " << typeid( *object ).name() << " to id " 
                          << id << endl;
-    return( object->getID() != EQ_ID_INVALID );
+    EQASSERT( !result || object->getID() != EQ_ID_INVALID );
+    return result;
 }
 
 void Session::unmapObject( Object* object )
@@ -329,7 +351,7 @@ void Session::unmapObject( Object* object )
     if( id == EQ_ID_INVALID ) // not registered
 		return;
 
-    EQASSERT( !_localNode->inReceiverThread( ));
+    EQASSERT( !_localNode->inCommandThread( ));
     EQLOG( LOG_OBJECTS ) << "Unmap " << typeid( *object ).name() << " from id "
         << object->getID() << endl;
 
@@ -369,9 +391,9 @@ void Session::registerObject( Object* object )
     EQASSERT( id != EQ_ID_INVALID );
 
     setIDMaster( id, 1, _localNode->getNodeID( ));
+    object->setupChangeManager( object->getChangeType(), true );
 
-    object->_setupChangeManager( object->getChangeType(), true );
-    mapObject( object, id );
+    EQCHECK( mapObject( object, id ));
     EQLOG( LOG_OBJECTS ) << "Registered " << typeid( *object ).name()
                          << " to id " << id << endl;
 }
@@ -391,7 +413,7 @@ void Session::deregisterObject( Object* object )
 //===========================================================================
 // Packet handling
 //===========================================================================
-CommandResult Session::dispatchCommand( Command& command )
+bool Session::dispatchCommand( Command& command )
 {
     EQVERB << "dispatch " << command << endl;
     EQASSERT( command.isValid( ));
@@ -399,29 +421,67 @@ CommandResult Session::dispatchCommand( Command& command )
     switch( command->datatype )
     {
         case DATATYPE_EQNET_SESSION:
-            return invokeCommand( command );
+            return Base::dispatchCommand( command );
 
         case DATATYPE_EQNET_OBJECT:
-            return _handleObjectCommand( command );
+        {
+            EQASSERT( command.isValid( ));
+            const ObjectPacket* objPacket = command.getPacket<ObjectPacket>();
+            const uint32_t      id        = objPacket->objectID;
+
+            if( _objects.find( id ) == _objects.end( ))
+            {
+                EQVERB << "no objects to dispatch command, redispatching " 
+                       << objPacket << endl;
+                return false;
+            }
+
+            _objectsMutex.set();
+
+            // create copy of first object pointer for thread-safety
+            EQASSERTINFO( !_objects[id].empty(), id );
+            Object* object = _objects[id][0];
+            EQASSERT( object );
+
+            _objectsMutex.unset();
+
+            return object->dispatchCommand( command );
+        }
 
         default:
-            EQWARN << "Undispatched command " << command << endl;
+            EQASSERTINFO( 0, "Unknown datatype " << command->datatype << " for "
+                          << command );
+            return true;
+    }
+}
+
+CommandResult Session::invokeCommand( Command& command )
+{
+    EQVERB << "dispatch " << command << endl;
+    EQASSERT( command.isValid( ));
+
+    switch( command->datatype )
+    {
+        case DATATYPE_EQNET_SESSION:
+            return Base::invokeCommand( command );
+
+        case DATATYPE_EQNET_OBJECT:
+            return _invokeObjectCommand( command );
+
+        default:
+            EQWARN << "Unhandled command " << command << endl;
             return COMMAND_ERROR;
     }
 }
 
-CommandResult Session::_handleObjectCommand( Command& command )
+CommandResult Session::_invokeObjectCommand( Command& command )
 {
     EQASSERT( command.isValid( ));
     const ObjectPacket* objPacket = command.getPacket<ObjectPacket>();
     const uint32_t      id        = objPacket->objectID;
 
-    if( _objects.find( id ) == _objects.end( ))
-    {
-        EQINFO << "no objects to handle command, redispatching " << objPacket
-               << endl;
-        return COMMAND_REDISPATCH;
-    }
+    EQASSERTINFO( _objects.find( id ) != _objects.end(), 
+                  "No objects to handle command " << objPacket );
 
     _objectsMutex.set();
 
@@ -467,17 +527,6 @@ CommandResult Session::_handleObjectCommand( Command& command )
                             << endl;
                     return COMMAND_ERROR;
 
-                case COMMAND_REDISPATCH:
-                case COMMAND_PUSH:
-                    // Not sure if we should ever allow these functions on
-                    // packets which are sent to all object instances
-                    // Note: if the first object returns one of these results,
-                    // we assume for now that it applies to all.
-                    if( i != 0 && objPacket->instanceID == EQ_ID_ANY )
-                        EQUNIMPLEMENTED;
-
-                    return result;
-
                 case COMMAND_HANDLED:
                     if( objPacket->instanceID == object->getInstanceID( ))
                         return result;
@@ -491,8 +540,8 @@ CommandResult Session::_handleObjectCommand( Command& command )
     if( objPacket->instanceID == EQ_ID_ANY )
         return COMMAND_HANDLED;
 
-    EQWARN << "instance not found, redispatching " << objPacket << endl;
-    return COMMAND_REDISPATCH;
+    EQWARN << "instance not found for " << objPacket << endl;
+    return COMMAND_ERROR;
 }
 
 CommandResult Session::_cmdGenIDs( Command& command )
@@ -658,7 +707,7 @@ CommandResult Session::_cmdMapObject( Command& command )
                          << (void*)object << " is " << typeid(*object).name()
                          << endl;
 
-    _requestHandler.serveRequest( packet->requestID );
+    _requestHandler.serveRequest( packet->requestID, true );
     return COMMAND_HANDLED;
 }
 
@@ -690,6 +739,7 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
                 object->addSlave( node, packet->instanceID );
 
                 SessionSubscribeObjectReplyPacket reply( packet );
+                reply.result = true;
                 send( node, reply );
                 return COMMAND_HANDLED;
             }
@@ -699,6 +749,7 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
     EQWARN << "Can't find master object for subscribe" << endl;
 
     SessionSubscribeObjectReplyPacket reply( packet );
+    reply.result = false;
     send( node, reply );
     return COMMAND_HANDLED;
 }
@@ -717,21 +768,20 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
     EQASSERT( object );
     EQASSERT( !object->isMaster( ));
 
-    // Don't use 'attachObject( object, data->objectID )' here - we already have
-    // an instance id.
-    object->_id         = data->objectID;
-    object->_instanceID = packet->instanceID;
-    object->_session    = this;
-
-    object->_setupChangeManager( 
+    object->setupChangeManager( 
         static_cast< Object::ChangeType >( packet->changeType ), false, 
         packet->masterInstanceID );
 
+    // Don't use 'attachObject' - we already have an instance id.
+    object->attachToSession( data->objectID, packet->instanceID, this );
+    
     _objectsMutex.set();
     vector<Object*>& objects = _objects[ data->objectID ];
-    _objectsMutex.unset();
     objects.push_back( object );
+    _objectsMutex.unset();
     
+    getLocalNode()->flushCommands(); // redispatch pending commands
+
     EQLOG( LOG_OBJECTS ) << "subscribed object id " << object->getID() << '.'
                          << object->getInstanceID() << " cm " 
                          << typeid( *(object->_cm)).name() << " @" 
@@ -747,7 +797,7 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
         command.getPacket<SessionSubscribeObjectReplyPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd object subscribe reply " << packet << endl;
 
-    _requestHandler.serveRequest( packet->requestID );
+    _requestHandler.serveRequest( packet->requestID, packet->result );
     return COMMAND_HANDLED;
 }
 
