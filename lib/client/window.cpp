@@ -517,7 +517,7 @@ bool Window::configInitGLXDrawable( XVisualInfo* visualInfo )
         windowTitle << "Equalizer";
 #ifndef NDEBUG
         windowTitle << " (" << getpid() << ")";
-#endif;
+#endif
     }
     else
         windowTitle << _name;

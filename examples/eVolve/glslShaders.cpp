@@ -79,8 +79,8 @@ bool glslShaders::loadShaders( const std::string &vShader,
     return true;
 }
 
-#undef glewGetContext()
-#define glewGetContext() _glewCtx
+#undef glewGetContext
+#define glewGetContext _glewCtx
 
 void glslShaders::unloadShaders()
 {
@@ -95,6 +95,6 @@ void glslShaders::unloadShaders()
     _program       = 0;
 }
 
-#undef glewGetContext()
+#undef glewGetContext
 
 }

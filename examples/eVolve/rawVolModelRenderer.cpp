@@ -157,6 +157,6 @@ bool RawVolumeModelRenderer::LoadShaders()
     EQLOG( eq::LOG_CUSTOM ) << "glsl shaders loaded" << std::endl;
     return true;
 }
-
-
 }
+
+
