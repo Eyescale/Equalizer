@@ -177,6 +177,11 @@ namespace eqNet
          */
         bool mapObject( Object* object, const uint32_t id );
 
+        /** Start mapping a distributed object. */
+        uint32_t mapObjectNB( Object* object, const uint32_t id );
+        /** Finalize the mapping of a distributed object. */
+        bool mapObjectSync( const uint32_t requestID );
+
         /** 
          * Unmap a mapped object.
          * 

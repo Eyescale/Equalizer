@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PLY_H
@@ -31,6 +31,12 @@ namespace eqPly
         
     private:
         const LocalInitData& _initData;
+    };
+
+    enum LogTopics
+    {
+        LOG_STATS = eq::LOG_CUSTOM,      // 4096
+        LOG_CULL  = eq::LOG_CUSTOM << 1  // 8192
     };
 }
 

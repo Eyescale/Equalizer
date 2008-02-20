@@ -1,6 +1,7 @@
 /*  
     vertexBufferNode.h
     Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+    Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com>
     All rights reserved.  
     
     Header file of the VertexBufferNode class.
@@ -24,6 +25,8 @@ namespace mesh
         virtual ~VertexBufferNode();
         
         virtual void render( VertexBufferState& state ) const;
+        virtual Index getNumberOfVertices() const
+            {return _left->getNumberOfVertices()+_right->getNumberOfVertices();}
         
         virtual const VertexBufferBase* getLeft() const { return _left; }
         virtual const VertexBufferBase* getRight() const { return _right; }

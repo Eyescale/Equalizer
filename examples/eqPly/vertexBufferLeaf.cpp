@@ -1,6 +1,7 @@
 /*  
     vertexBufferLeaf.cpp
     Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+    Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com>
     All rights reserved.  
     
     Implementation of the VertexBufferLeaf class.
@@ -80,6 +81,7 @@ BoundingBox VertexBufferLeaf::updateBoundingSphere()
         _globalData.vertices[ _vertexStart + _globalData.indices[_indexStart] ];
     boundingBox[1] = 
         _globalData.vertices[ _vertexStart + _globalData.indices[_indexStart] ];
+
     for( Index offset = 1; offset < _indexLength; ++offset )
     {
         const Vertex& vertex = 
@@ -95,11 +97,11 @@ BoundingBox VertexBufferLeaf::updateBoundingSphere()
     // now compute the bounding sphere around the bounding box
     calculateBoundingSphere( boundingBox );
     
-    #ifndef NDEBUG
+#ifndef NDEBUG
     MESHINFO << "Exiting VertexBufferLeaf::updateBoundingSphere" 
              << "( " << boundingBox[0] << ", " << boundingBox[1] << " )." 
              << endl;
-    #endif
+#endif
     
     return boundingBox;
 }
@@ -248,7 +250,7 @@ void VertexBufferLeaf::renderImmediate( VertexBufferState& state ) const
     glBegin( GL_TRIANGLES );  
     for( Index offset = 0; offset < _indexLength; ++offset )
     {
-        Index i = _vertexStart + _globalData.indices[_indexStart + offset];
+        const Index i =_vertexStart + _globalData.indices[_indexStart + offset];
         if( state.useColors() )
             glColor4ubv( &_globalData.colors[i][0] );
         glNormal3fv( &_globalData.normals[i][0] );

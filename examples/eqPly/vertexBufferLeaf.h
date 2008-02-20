@@ -1,6 +1,7 @@
 /*  
     vertexBufferLeaf.h
     Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+    Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com>
     All rights reserved.  
     
     Header file of the VertexBufferLeaf class.
@@ -16,8 +17,6 @@
 
 namespace mesh 
 {
-    
-    
     /*  The class for kd-tree leaf nodes.  */
     class VertexBufferLeaf : public VertexBufferBase
     {
@@ -28,6 +27,7 @@ namespace mesh
         virtual ~VertexBufferLeaf() {}
         
         virtual void render( VertexBufferState& state ) const;
+        virtual Index getNumberOfVertices() const { return _indexLength; }
         
     protected:
         virtual void toStream( std::ostream& os );

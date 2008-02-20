@@ -100,9 +100,6 @@ void Session::setLocalNode( RefPtr< Node > node )
     registerCommand( CMD_SESSION_MAP_OBJECT,
                      CommandFunc<Session>( this, &Session::_cmdMapObject ),
                      queue );
-    registerCommand( CMD_SESSION_MAP_OBJECT,
-                     CommandFunc<Session>( this, &Session::_cmdMapObject ),
-                     queue );
     registerCommand( CMD_SESSION_SUBSCRIBE_OBJECT,
                    CommandFunc<Session>( this, &Session::_cmdSubscribeObject ),
                      queue );
@@ -210,13 +207,6 @@ const NodeID& Session::getIDMaster( const uint32_t id )
 //---------------------------------------------------------------------------
 // object mapping
 //---------------------------------------------------------------------------
-struct MapObjectData
-{
-    Object*      object;
-    uint32_t     objectID;
-    RefPtr<Node> master;
-};
-
 void Session::attachObject( Object* object, const uint32_t id )
 {
     EQASSERT( object );
@@ -297,6 +287,12 @@ void Session::detachObject( Object* object )
 
 bool Session::mapObject( Object* object, const uint32_t id )
 {
+    const uint32_t requestID = mapObjectNB( object, id );
+    return mapObjectSync( requestID );
+}
+
+uint32_t Session::mapObjectNB( Object* object, const uint32_t id )
+{
     EQASSERT( object );
 
     EQLOG( LOG_OBJECTS ) << "Mapping " << typeid( *object ).name() << " to id "
@@ -309,13 +305,14 @@ bool Session::mapObject( Object* object, const uint32_t id )
     RefPtr<Node> master;
     if( !object->isMaster( ))
     {
+        // Connect master node, can't do that from the command thread!
         EQASSERTINFO( object->_cm == ObjectCM::ZERO, typeid( *object ).name( ));
 
         const NodeID& masterID = getIDMaster( id );
         if( masterID == NodeID::ZERO )
         {
             EQWARN << "Can't find master node for object id " << id << endl;
-            return false;
+            return EQ_ID_INVALID;
         }
 
         master = _localNode->connect( masterID, getServer( ));
@@ -323,24 +320,37 @@ bool Session::mapObject( Object* object, const uint32_t id )
         {
             EQWARN << "Can't connect master node with id " << masterID
                    << " for object id " << id << endl;
-            return false;
+            return EQ_ID_INVALID;
         }
     }
 
-    MapObjectData data = { object, id, master };
+    object->_id = id; // temporarily store the object's identifier
     SessionMapObjectPacket packet;
-    packet.requestID = _requestHandler.registerRequest( &data );
+    packet.requestID = _requestHandler.registerRequest( object );
 
     _sendLocal( packet );
-    bool result = false;
-    _requestHandler.waitRequest( packet.requestID, result );
+    return packet.requestID;
+}
 
-    // apply first instance data on slave instances
-    if( result && !object->isMaster( ))
-        object->_cm->applyMapData();
+bool Session::mapObjectSync( const uint32_t requestID )
+{
+    if( requestID == EQ_ID_INVALID )
+        return false;
+
+    Object* object = static_cast<Object*>( _requestHandler.getRequestData( 
+                                               requestID ));    
+    EQASSERT( object );
+
+    bool result = false;
+    _requestHandler.waitRequest( requestID, result );
+
+    if( !result )
+        object->_id = EQ_ID_INVALID; // reset identifier
+    else if( !object->isMaster( ))  
+        object->_cm->applyMapData(); // apply instance data on slave instances
 
     EQLOG( LOG_OBJECTS ) << "Mapped " << typeid( *object ).name() << " to id " 
-                         << id << endl;
+                         << object->getID() << endl;
     EQASSERT( !result || object->getID() != EQ_ID_INVALID );
     return result;
 }
@@ -682,26 +692,30 @@ CommandResult Session::_cmdMapObject( Command& command )
         command.getPacket<SessionMapObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd map object " << packet << endl;
 
-    MapObjectData* data   = static_cast<MapObjectData*>( 
-        _requestHandler.getRequestData( packet->requestID ));    
-    Object*             object = data->object;
+    Object* object = static_cast<Object*>( _requestHandler.getRequestData( 
+                                               packet->requestID ));    
     EQASSERT( object );
+    const uint32_t id = object->getID();
 
     if( !object->isMaster( ))
     { 
+        RefPtr<Node> master = _pollIDMasterNode( object->getID( ));
+        EQASSERTINFO( master.isValid(), "Master node for object id " << id
+                      << " not connected" );
+
         _instanceIDs = ( _instanceIDs + 1 ) % IDPool::MAX_CAPACITY;
 
         // slave instantiation - subscribe first
         SessionSubscribeObjectPacket subscribePacket;
         subscribePacket.requestID  = packet->requestID;
-        subscribePacket.objectID   = data->objectID;
+        subscribePacket.objectID   = id;
         subscribePacket.instanceID = _instanceIDs;
 
-        send( data->master, subscribePacket );
+        send( master, subscribePacket );
         return COMMAND_HANDLED;
     }
 
-    attachObject( object, data->objectID );
+    attachObject( object, id );
 
     EQLOG( LOG_OBJECTS ) << "mapped object id " << object->getID() << " @" 
                          << (void*)object << " is " << typeid(*object).name()
@@ -761,10 +775,8 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
         command.getPacket<SessionSubscribeObjectSuccessPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd object subscribe success " << packet << endl;
 
-    MapObjectData* data   = static_cast<MapObjectData*>( 
-        _requestHandler.getRequestData( packet->requestID ));
-    Object*        object = data->object;
-
+    Object* object = static_cast<Object*>( _requestHandler.getRequestData( 
+                                               packet->requestID ));    
     EQASSERT( object );
     EQASSERT( !object->isMaster( ));
 
@@ -773,10 +785,11 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
         packet->masterInstanceID );
 
     // Don't use 'attachObject' - we already have an instance id.
-    object->attachToSession( data->objectID, packet->instanceID, this );
+    const uint32_t id = object->getID();
+    object->attachToSession( id, packet->instanceID, this );
     
     _objectsMutex.set();
-    vector<Object*>& objects = _objects[ data->objectID ];
+    vector<Object*>& objects = _objects[ id ];
     objects.push_back( object );
     _objectsMutex.unset();
     

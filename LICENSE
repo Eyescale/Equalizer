@@ -1,9 +1,10 @@
 Equalizer - A programming framework and resource management system for
-            multipipe rendering.
+            multi-GPU rendering.
 
 Equalizer is licensed under the LGPL, unless noted otherwise in external
 dependencies. See file LGPL for the full license. External dependencies
-(VMMLib, pthreads-win32, tclap) are either LGPL or BSD-licensed.
+(VMMLib, pthreads-win32, tclap) are either LGPL or BSD-licensed. See
+file ACKNOWLEDGEMENTS for further details.
 
 Copyright (C) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com>
 

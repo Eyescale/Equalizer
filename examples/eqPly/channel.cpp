@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
    All rights reserved. */
 
@@ -132,7 +132,12 @@ void Channel::_drawModel( const Model* model )
     // start with root node
     vector< const VertexBufferBase* > candidates;
     candidates.push_back( model );
-    
+
+#ifndef NDEBUG
+    size_t verticesRendered = 0;
+    size_t verticesOverlap  = 0;
+#endif
+
     while( !candidates.empty() )
     {
         const VertexBufferBase* treeNode = candidates.back();
@@ -144,7 +149,10 @@ void Channel::_drawModel( const Model* model )
             continue;
             
         // bounding sphere view frustum culling
-        switch( culler.testSphere( treeNode->getBoundingSphere() ) )
+        const vmml::Visibility visibility = 
+            culler.testSphere( treeNode->getBoundingSphere( ));
+
+        switch( visibility )
         {
             case vmml::VISIBILITY_FULL:
                 // if fully visible and fully in range, render it
@@ -152,9 +160,13 @@ void Channel::_drawModel( const Model* model )
                     treeNode->getRange()[1] < range.end )
                 {
                     treeNode->render( state );
+#ifndef NDEBUG
+                    verticesRendered += treeNode->getNumberOfVertices();
+#endif
                     break;
                 }
                 // partial range, fall through to partial visibility
+
             case vmml::VISIBILITY_PARTIAL:
             {
                 const VertexBufferBase* left  = treeNode->getLeft();
@@ -163,7 +175,14 @@ void Channel::_drawModel( const Model* model )
                 if( !left && !right )
                 {
                     if( treeNode->getRange()[0] >= range.start )
+                    {
                         treeNode->render( state );
+#ifndef NDEBUG
+                        verticesRendered += treeNode->getNumberOfVertices();
+                        if( visibility == vmml::VISIBILITY_PARTIAL )
+                            verticesOverlap  += treeNode->getNumberOfVertices();
+#endif
+                    }
                     // else drop, to be drawn by 'previous' channel
                 }
                 else
@@ -185,6 +204,14 @@ void Channel::_drawModel( const Model* model )
     
     if( program != VertexBufferState::FAILED )
         glUseProgram( 0 );
+
+#ifndef NDEBUG
+    const size_t verticesTotal = model->getNumberOfVertices();
+    EQLOG( LOG_CULL ) 
+        << getName() << " rendered " << verticesRendered * 100 / verticesTotal
+        << "% of model, overlap <= " << verticesOverlap * 100 / verticesTotal
+        << "%" << endl;
+#endif    
 }
 
 void Channel::_drawLogo()

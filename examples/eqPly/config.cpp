@@ -50,7 +50,7 @@ bool Config::init()
             m = vmml::Matrix4f::IDENTITY;
             m.rotateZ( -M_PI_2 );
             _tracker.setSensorToObject( m );
-            EQLOG( eq::LOG_CUSTOM ) << "Tracker initialised" << endl;
+            EQINFO << "Tracker initialised" << endl;
         }
     }
 

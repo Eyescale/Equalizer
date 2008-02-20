@@ -1,6 +1,7 @@
 /*  
     vertexBufferBase.h
     Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+    Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com>
     All rights reserved.  
     
     Header file of the abstract VertexBufferBase class.
@@ -29,7 +30,8 @@ namespace mesh
     {
     public:
         virtual void render( VertexBufferState& state ) const = 0;
-        
+        virtual Index getNumberOfVertices() const = 0;
+
         const BoundingSphere& getBoundingSphere() const 
         {
             return _boundingSphere;
