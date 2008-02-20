@@ -75,7 +75,14 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
 /*  Compute the bounding sphere of the leaf's indexed vertices.  */
 BoundingBox VertexBufferLeaf::updateBoundingSphere()
 {
-    // first initialize and compute a bounding box
+    // We determine a bounding sphere by:
+    // 1) Using the inner sphere of the dominant axis of the bounding box as an
+    //    estimate
+    // 2) Test all points to be in that sphere
+    // 3) Expand the sphere to contain all points outside.
+
+
+    // 1a) initialize and compute a bounding box
     BoundingBox boundingBox;
     boundingBox[0] = 
         _globalData.vertices[ _vertexStart + _globalData.indices[_indexStart] ];
@@ -87,20 +94,63 @@ BoundingBox VertexBufferLeaf::updateBoundingSphere()
         const Vertex& vertex = 
             _globalData.vertices[ _vertexStart + 
                                   _globalData.indices[_indexStart + offset] ];
-        for( Index i = 0; i < 3; ++i )
-        {
-            boundingBox[0][i] = min( boundingBox[0][i], vertex[i] );
-            boundingBox[1][i] = max( boundingBox[1][i], vertex[i] );
-        } 
+
+        boundingBox[0][0] = min( boundingBox[0][0], vertex[0] );
+        boundingBox[1][0] = max( boundingBox[1][0], vertex[0] );
+        boundingBox[0][1] = min( boundingBox[0][1], vertex[1] );
+        boundingBox[1][1] = max( boundingBox[1][1], vertex[1] );
+        boundingBox[0][2] = min( boundingBox[0][2], vertex[2] );
+        boundingBox[1][2] = max( boundingBox[1][2], vertex[2] );
     }
     
-    // now compute the bounding sphere around the bounding box
-    calculateBoundingSphere( boundingBox );
-    
+    // 1b) get inner sphere of bounding box as an initial estimate
+    _boundingSphere.center.x = ( boundingBox[0].x + boundingBox[1].x ) * 0.5f;
+    _boundingSphere.center.y = ( boundingBox[0].y + boundingBox[1].y ) * 0.5f;
+    _boundingSphere.center.z = ( boundingBox[0].z + boundingBox[1].z ) * 0.5f;
+
+    _boundingSphere.radius  = EQ_MAX( boundingBox[1].x - boundingBox[0].x,
+                                      boundingBox[1].y - boundingBox[0].y );
+    _boundingSphere.radius  = EQ_MAX( boundingBox[1].z - boundingBox[0].z,
+                                      _boundingSphere.radius );
+    _boundingSphere.radius *= .5f;
+
+    float  radius        = _boundingSphere.radius;
+    float  radiusSquared =  radius * radius;
+    Vertex center( _boundingSphere.xyzw );
+
+    // 2) test all points to be in the estimated bounding sphere
+    for( Index offset = 0; offset < _indexLength; ++offset )
+    {
+        const Vertex& vertex = 
+            _globalData.vertices[ _vertexStart + 
+                                  _globalData.indices[_indexStart + offset] ];
+        
+        const Vertex centerToPoint   = vertex - center;
+        const float  distanceSquared = centerToPoint.lengthSquared();
+        if( distanceSquared <= radiusSquared ) // point is inside existing BS
+            continue;
+
+        // 3) expand sphere to contain 'outside' points
+        const float distance = sqrtf( distanceSquared );
+        const float delta    = distance - radius;
+
+        radius        = ( radius + distance ) * .5f;
+        radiusSquared = radius * radius;
+        center       += centerToPoint.getNormalized() * ( 0.5f * delta );
+
+        EQASSERTINFO( Vertex( vertex-center ).lengthSquared() <= 
+                      ( radiusSquared + numeric_limits< float >::epsilon( )),
+                      vertex << " c " << center << " r " << radius << " (" 
+                             << Vertex( vertex-center ).length() << ")" );
+    }
+
+    // store optimal bounding sphere 
+    _boundingSphere        = center;
+    _boundingSphere.radius = radius;
+
 #ifndef NDEBUG
     MESHINFO << "Exiting VertexBufferLeaf::updateBoundingSphere" 
-             << "( " << boundingBox[0] << ", " << boundingBox[1] << " )." 
-             << endl;
+             << "( " << _boundingSphere << " )." << endl;
 #endif
     
     return boundingBox;
