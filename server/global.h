@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_GLOBAL_H
@@ -18,7 +18,7 @@ namespace eqs
     /**
      * The global default attributes.
      */
-    class Global
+    class EQS_EXPORT Global
     {
     public:
         static Global* instance();
