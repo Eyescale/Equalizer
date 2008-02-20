@@ -35,8 +35,8 @@ namespace eqPly
 
     enum LogTopics
     {
-        LOG_STATS = eq::LOG_CUSTOM,      // 4096
-        LOG_CULL  = eq::LOG_CUSTOM << 1  // 8192
+        LOG_STATS = eq::LOG_CUSTOM,      // 65536
+        LOG_CULL  = eq::LOG_CUSTOM << 1  // 131072
     };
 }
 

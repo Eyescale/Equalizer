@@ -44,7 +44,9 @@ namespace mesh
         
         virtual const VertexBufferBase* getLeft() const { return 0; }
         virtual const VertexBufferBase* getRight() const { return 0; }
-        
+
+        virtual const BoundingSphere& updateBoundingSphere() = 0;
+                
     protected:
         VertexBufferBase() : _boundingSphere( 0.0f ) 
         {
@@ -74,20 +76,6 @@ namespace mesh
                                 const Index length, const Axis axis,
                                 const size_t depth,
                                 VertexBufferData& globalData ) = 0;
-        
-        virtual BoundingBox updateBoundingSphere() = 0;
-        
-        void calculateBoundingSphere( const BoundingBox& bBox )
-        {
-            _boundingSphere.center.x = ( bBox[0].x + bBox[1].x ) * 0.5f;
-            _boundingSphere.center.y = ( bBox[0].y + bBox[1].y ) * 0.5f;
-            _boundingSphere.center.z = ( bBox[0].z + bBox[1].z ) * 0.5f;
-            Vertex delta;
-            delta.x = _boundingSphere.center.x - bBox[0].x;
-            delta.y = _boundingSphere.center.y - bBox[0].y;
-            delta.z = _boundingSphere.center.z - bBox[0].z;
-            _boundingSphere.radius = delta.length();
-        }
         
         virtual void updateRange() = 0;
         

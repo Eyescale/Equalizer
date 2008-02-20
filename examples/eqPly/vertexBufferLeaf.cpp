@@ -73,7 +73,7 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
 
 
 /*  Compute the bounding sphere of the leaf's indexed vertices.  */
-BoundingBox VertexBufferLeaf::updateBoundingSphere()
+const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
 {
     // We determine a bounding sphere by:
     // 1) Using the inner sphere of the dominant axis of the bounding box as an
@@ -153,7 +153,7 @@ BoundingBox VertexBufferLeaf::updateBoundingSphere()
              << "( " << _boundingSphere << " )." << endl;
 #endif
     
-    return boundingBox;
+    return _boundingSphere;
 }
 
 

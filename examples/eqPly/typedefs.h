@@ -108,7 +108,7 @@ namespace mesh
     const Index             LEAF_SIZE( 21845 );
     
     // binary mesh file version, increment if changing the file format
-    const unsigned short    FILE_VERSION ( 0x0113 );
+    const unsigned short    FILE_VERSION ( 0x0114 );
     
     
     // enumeration for the sort axis

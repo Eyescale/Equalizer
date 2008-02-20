@@ -37,7 +37,7 @@ namespace mesh
                                 const Index length, const Axis axis,
                                 const size_t depth,
                                 VertexBufferData& globalData );
-        virtual BoundingBox updateBoundingSphere();
+        virtual const BoundingSphere& updateBoundingSphere();
         virtual void updateRange();
         
     private:

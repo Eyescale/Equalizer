@@ -14,7 +14,8 @@ namespace eq
         LOG_ASSEMBLY = eqNet::LOG_CUSTOM,  // 256
         LOG_TASKS    = 0x200,              // 512
         LOG_EVENTS   = 0x400,              // 1024
-        LOG_CUSTOM   = 0x1000              // 4096
+        LOG_SERVER   = 0x1000,             // 4096
+        LOG_CUSTOM   = 0x10000             // 65536
     };
 }
 #endif // EQ_LOG_H

@@ -1,6 +1,7 @@
 /*  
     vertexBufferNode.cpp
     Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+    Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com>
     All rights reserved.  
     
     Implementation of the VertexBufferNode class.
@@ -81,34 +82,31 @@ void VertexBufferNode::setupTree( VertexData& data, const Index start,
 
 
 /*  Compute the bounding sphere from the children's bounding spheres.  */
-BoundingBox VertexBufferNode::updateBoundingSphere()
+const BoundingSphere& VertexBufferNode::updateBoundingSphere()
 {
-    // take the bounding boxes returned from the children
-    BoundingBox leftBoundingBox = 
-        static_cast< VertexBufferNode* >( _left )->updateBoundingSphere();
-    BoundingBox rightBoundingBox = 
-        static_cast< VertexBufferNode* >( _right )->updateBoundingSphere();
+    // take the bounding spheres returned by the children
+    const BoundingSphere& sphere1 = _left->updateBoundingSphere();
+    const BoundingSphere& sphere2 = _right->updateBoundingSphere();
     
-    // merge into new bounding box
-    BoundingBox boundingBox;
-    for( int i = 0; i < 3; ++i )
-    {
-        boundingBox[0][i] = min( leftBoundingBox[0][i], 
-                                 rightBoundingBox[0][i] );
-        boundingBox[1][i] = max( leftBoundingBox[1][i], 
-                                 rightBoundingBox[1][i] );
-    }
+    // compute enclosing sphere
+    const Vertex center1( sphere1.xyzw );
+    const Vertex center2( sphere2.xyzw );
+    const Vertex c1ToC2     = center2 - center1;
+    const Vertex c1ToC2Norm = c1ToC2.getNormalized();
     
-    // calculate sphere from the merged bounding box
-    calculateBoundingSphere( boundingBox );
+    const Vertex outer1 = center1 - c1ToC2Norm * sphere1.radius;
+    const Vertex outer2 = center2 + c1ToC2Norm * sphere2.radius;
+
+    _boundingSphere        = Vertex( outer1 + outer2 ) * 0.5f;
+    _boundingSphere.radius = Vertex( outer1 - outer2 ).length() * 0.5f;
     
-    #ifndef NDEBUG
+#ifndef NDEBUG
     MESHINFO << "Exiting VertexBufferNode::updateBoundingSphere" 
-             << "( " << boundingBox[0] << ", " << boundingBox[1] << " )." 
+             << "( " << _boundingSphere << " )." 
              << endl;
-    #endif
+#endif
     
-    return boundingBox;
+    return _boundingSphere;
 }
 
 
