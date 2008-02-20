@@ -442,7 +442,7 @@ namespace eqNet
          * @return <code>true</code> if executed from the command handler
          *         thread, <code>false</code> if not.
          */
-        bool inCommandThread() const { return _commandThread.isCurrent(); }
+        bool inCommandThread() const { return _commandThread->isCurrent(); }
 
         const NodeID& getNodeID() const { return _id; }
 
@@ -613,7 +613,7 @@ namespace eqNet
         private:
             Node* _node;
         };
-        ReceiverThread _receiverThread;
+        ReceiverThread* _receiverThread;
 
         /** The command handler thread. */
         class CommandThread : public eqBase::Thread
@@ -628,7 +628,7 @@ namespace eqNet
         private:
             Node* _node;
         };
-        CommandThread _commandThread;
+        CommandThread* _commandThread;
 
         void* _runReceiverThread();
         void    _handleConnect();

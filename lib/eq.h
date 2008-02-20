@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_H
@@ -25,6 +25,7 @@
 #include <eq/client/pipe.h>
 #include <eq/client/server.h>
 #include <eq/client/version.h>
+#include <eq/client/windowSystem.h>
 
 #include <eq/net/net.h>
 #include <vmmlib/vmmlib.h>

@@ -42,9 +42,10 @@ Node::Node()
         , _launchID( EQ_ID_INVALID )
         , _programName( Global::getProgramName( ))
         , _workDir( Global::getWorkDir( ))
-        , _receiverThread( this )
-        , _commandThread( this )
 {
+    _receiverThread = new ReceiverThread( this );
+    _commandThread  = new CommandThread( this );
+
     registerCommand( CMD_NODE_STOP, 
                      CommandFunc<Node>( this, &Node::_cmdStop ),
                      _commandThreadQueue );
@@ -82,6 +83,12 @@ Node::Node()
 Node::~Node()
 {
     EQINFO << "Delete Node @" << (void*)this << " " << _id << endl;
+
+    delete _commandThread;
+    _commandThread = 0;
+
+    delete _receiverThread;
+    _receiverThread = 0;
 }
 
 bool Node::operator == ( const Node* node ) const
@@ -207,8 +214,8 @@ bool Node::listen()
 
     EQVERB << typeid(*this).name() << " starting command and receiver thread "
            << endl;
-    _commandThread.start();
-    _receiverThread.start();
+    _commandThread->start();
+    _receiverThread->start();
 
     EQINFO << this << " listening." << endl;
     return true;
@@ -222,10 +229,10 @@ bool Node::stopListening()
     NodeStopPacket packet;
     send( packet );
 
-    const bool recvJoined = _receiverThread.join();
+    const bool recvJoined = _receiverThread->join();
     EQASSERT( recvJoined );
 
-    const bool cmdJoined = _commandThread.join();
+    const bool cmdJoined = _commandThread->join();
     EQASSERT( cmdJoined );
 
     _cleanup();
@@ -983,7 +990,7 @@ CommandResult Node::_cmdUnmapSessionReply( Command& command)
 CommandResult Node::_cmdConnect( Command& command )
 {
     EQASSERT( !command.getNode().isValid( ));
-    EQASSERT( _receiverThread.isCurrent( ));
+    EQASSERT( _receiverThread->isCurrent( ));
 
     const NodeConnectPacket* packet = command.getPacket<NodeConnectPacket>();
     RefPtr<Connection>   connection = _connectionSet.getConnection();
@@ -1047,7 +1054,7 @@ CommandResult Node::_cmdConnect( Command& command )
 CommandResult Node::_cmdConnectReply( Command& command )
 {
     EQASSERT( !command.getNode().isValid( ));
-    EQASSERT( _receiverThread.isCurrent( ));
+    EQASSERT( _receiverThread->isCurrent( ));
 
     const NodeConnectReplyPacket* packet = 
         command.getPacket<NodeConnectReplyPacket>();

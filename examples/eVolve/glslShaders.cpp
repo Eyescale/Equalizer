@@ -1,15 +1,12 @@
-/* Copyright (c) 2007       Maxim Makhinya
+/* Copyright (c) 2007,       Maxim Makhinya
+   Copyright (c) 2008,       Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
-#include <eq/eq.h>
+
 #include "glslShaders.h"
 
 namespace eVolve
 {
-
-#define glewGetContext() glewCtx
-
-bool checkShader( GLhandleARB shader, const std::string &type,
-                              GLEWContext* glewCtx )
+bool glslShaders::_checkShader( GLhandleARB shader, const std::string &type )
 {
     GLint length;
     glGetObjectParameterivARB( shader, GL_OBJECT_INFO_LOG_LENGTH_ARB, &length );
@@ -30,8 +27,7 @@ bool checkShader( GLhandleARB shader, const std::string &type,
 }
 
 
-GLhandleARB loadShader( const std::string &shader, GLenum shaderType,
-                              GLEWContext* glewCtx )
+GLhandleARB glslShaders::_loadShader( const std::string &shader, GLenum shaderType )
 {
     GLhandleARB handle = glCreateShaderObjectARB( shaderType );
     const char* cstr   = shader.c_str();
@@ -41,7 +37,7 @@ GLhandleARB loadShader( const std::string &shader, GLenum shaderType,
     GLint check;
     glGetObjectParameterivARB( handle, GL_OBJECT_COMPILE_STATUS_ARB, &check );
     if( !check )
-        checkShader( handle, "Compiling", glewCtx );
+        _checkShader( handle, "Compiling" );
 
     return handle;
 }
@@ -59,17 +55,17 @@ bool glslShaders::loadShaders( const std::string &vShader,
 
     _program = glCreateProgramObjectARB();
 
-    GLhandleARB vertH = loadShader( vShader, GL_VERTEX_SHADER_ARB  , glewCtx );
+    GLhandleARB vertH = _loadShader( vShader, GL_VERTEX_SHADER_ARB );
     glAttachObjectARB( _program, vertH );
 
-    GLhandleARB horH  = loadShader( fShader, GL_FRAGMENT_SHADER_ARB, glewCtx );
+    GLhandleARB horH  = _loadShader( fShader, GL_FRAGMENT_SHADER_ARB );
     glAttachObjectARB( _program, horH );
 
     glLinkProgramARB( _program );
 
     GLint check;
     glGetObjectParameterivARB( _program, GL_OBJECT_LINK_STATUS_ARB, &check );
-    if( !check || !checkShader( _program, "Linking", glewCtx ) )
+    if( !check || !_checkShader( _program, "Linking" ))
     {
         _program = 0;
         return false;
@@ -78,9 +74,6 @@ bool glslShaders::loadShaders( const std::string &vShader,
     _shadersLoaded = true;
     return true;
 }
-
-#undef glewGetContext
-#define glewGetContext _glewCtx
 
 void glslShaders::unloadShaders()
 {
@@ -94,7 +87,5 @@ void glslShaders::unloadShaders()
     _shadersLoaded = false;
     _program       = 0;
 }
-
-#undef glewGetContext
 
 }
