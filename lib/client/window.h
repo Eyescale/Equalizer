@@ -86,6 +86,9 @@ namespace eq
         /** @return the carbon window reference. */
         WindowRef getCarbonWindow() const { return _carbonWindow; }
 
+        /** @return the AGL PBuffer object. */
+        AGLPbuffer getAGLPBuffer() const { return _aglPBuffer; }
+
         /** @return the Win32 window handle. */
         HWND getWGLWindowHandle() const { return _wglWindowHandle; }
 
@@ -230,6 +233,13 @@ namespace eq
          * @param window the window reference.
          */
         virtual void setCarbonWindow( WindowRef window );
+        
+        /** 
+         * Set the AGL PBUffer object to be used with the current AGL context.
+         * 
+         * @param pbuffer the PBuffer.
+         */
+        virtual void setAGLPBuffer( AGLPbuffer pbuffer );
         
         /** 
          * Set the Win32 window handle for this window.
@@ -437,6 +447,15 @@ namespace eq
          * @return true if the window was created, false otherwise.
          */
         virtual bool configInitAGLWindow();
+
+        /** 
+         * Initialize the window with an offscreen AGL PBuffer.
+         *
+         * Sets the window's AGL PBuffer on success.
+         *
+         * @return true if the PBuffer was created, false otherwise.
+         */
+        virtual bool configInitAGLPBuffer();
         //*}
 
         //* @name WGL/Win32 initialization
@@ -647,6 +666,8 @@ namespace eq
                 AGLContext   _aglContext;
                 /** The carbon window reference. */
                 WindowRef    _carbonWindow;
+                /** The AGL PBuffer object. */
+                AGLPbuffer   _aglPBuffer;
                 /** Used by AGLEventHandler to keep the handler for removal. */
                 EventHandlerRef _carbonHandler;
             };

@@ -98,6 +98,7 @@ typedef void*   WindowRef;
 typedef void*   EventHandlerRef;
 typedef void*   AGLContext;
 typedef void*   AGLPixelFormat;
+typedef void*   AGLPbuffer;
 #endif
 
 #ifndef WGL

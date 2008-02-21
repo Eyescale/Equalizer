@@ -56,6 +56,7 @@ Window::Window( Pipe* parent )
         , _glXContext( 0 )
         , _aglContext( 0 )
         , _carbonWindow( 0 )
+        , _aglPBuffer( 0 )
         , _carbonHandler( 0 )
         , _wglWindowHandle( 0 )
         , _wglContext     ( 0 )
@@ -759,11 +760,47 @@ AGLContext Window::createAGLContext( AGLPixelFormat pixelFormat )
 
 
 bool Window::configInitAGLDrawable()
-{    
+{
+    if( getIAttribute( IATTR_HINT_DRAWABLE ) == PBUFFER )
+        return configInitAGLPBuffer();
     if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON )
         return configInitAGLFullscreen();
     else
         return configInitAGLWindow();
+}
+
+bool Window::configInitAGLPBuffer()
+{
+#ifdef AGL
+    AGLContext context = getAGLContext();
+    if( !context )
+    {
+        setErrorMessage( "No AGLContext set" );
+        return false;
+    }
+
+    // PBuffer
+    AGLPbuffer pbuffer;
+    if( !aglCreatePBuffer( _pvp.w, _pvp.h, GL_TEXTURE_RECTANGLE_EXT, GL_RGBA,
+                           0, &pbuffer ))
+    {
+        setErrorMessage( "Could not create PBuffer: " + aglGetError( ));
+        return false;
+    }
+
+    // attach to context
+    if( !aglSetPBuffer( context, pbuffer, 0, 0, aglGetVirtualScreen( context )))
+    {
+        setErrorMessage( "aglSetPBuffer failed: " + aglGetError( ));
+        return false;
+    }
+
+    setAGLPBuffer( pbuffer );
+    return true;
+#else
+    setErrorMessage( "Client library compiled without AGL support" );
+    return false;
+#endif
 }
 
 bool Window::configInitAGLFullscreen()
@@ -1322,12 +1359,17 @@ void Window::configExitAGL()
     WindowRef window = getCarbonWindow();
     setCarbonWindow( 0 );
 
+    AGLPbuffer pbuffer = getAGLPBuffer();
+    setAGLPBuffer( 0 );
+
     if( window )
     {
         Global::enterCarbon();
         DisposeWindow( window );
         Global::leaveCarbon();
     }
+    if( pbuffer )
+        aglDestroyPBuffer( pbuffer );
 
     AGLContext context = getAGLContext();
     if( context )
@@ -1579,6 +1621,36 @@ void Window::setCarbonWindow( WindowRef window )
             setPixelViewport( pvp );
         }
         Global::leaveCarbon();
+    }
+#endif // AGL
+}
+
+void Window::setAGLPBuffer( AGLPbuffer pbuffer )
+{
+#ifdef AGL
+    EQINFO << "set AGL PBuffer " << pbuffer << endl;
+
+    if( _aglPBuffer == pbuffer )
+        return;
+
+    _aglPBuffer = pbuffer;
+    _pvp.invalidate();
+
+    if( pbuffer )
+    {
+        GLint         w;
+        GLint         h;
+        GLenum        target;
+        GLenum        format;
+        GLint         maxLevel;
+
+        if( aglDescribePBuffer( pbuffer, &w, &h, &target, &format, &maxLevel ))
+        {
+            EQASSERT( target == GL_TEXTURE_RECTANGLE_EXT );
+
+            const PixelViewport pvp( 0, 0, w, h );
+            setPixelViewport( pvp );
+        }
     }
 #endif // AGL
 }
