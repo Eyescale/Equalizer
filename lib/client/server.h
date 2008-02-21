@@ -29,9 +29,9 @@ namespace eq
         //*{
         void setClient( eqBase::RefPtr<Client> client );
         eqBase::RefPtr<Client> getClient(){ return _client; }
-        eqNet::CommandQueue& getNodeThreadQueue() 
+        eqNet::CommandQueue* getNodeThreadQueue() 
             { return _client->getNodeThreadQueue(); }
-        eqNet::CommandQueue& getCommandThreadQueue() 
+        eqNet::CommandQueue* getCommandThreadQueue() 
             { return _client->getCommandThreadQueue(); }
         //*}
 

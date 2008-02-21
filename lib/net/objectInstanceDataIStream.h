@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_OBJECTINSTANCEDATAISTREAM_H
@@ -24,6 +24,9 @@ namespace eqNet
 
     protected:
         virtual bool getNextBuffer( const uint8_t** buffer, uint64_t* size );
+
+    private:
+        uint32_t _sequence;
     };
 }
 #endif //EQNET_OBJECTINSTANCEDATAISTREAM_H

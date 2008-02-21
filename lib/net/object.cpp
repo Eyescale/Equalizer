@@ -64,7 +64,7 @@ void Object::attachToSession( const uint32_t id, const uint32_t instanceID,
 
     _cm->notifyAttached();
 
-    CommandQueue& queue = session->getCommandThreadQueue();
+    CommandQueue* queue = session->getCommandThreadQueue();
 
     registerCommand( CMD_OBJECT_INSTANCE_DATA,
                      CommandFunc<Object>( this, &Object::_cmdForward ), queue );

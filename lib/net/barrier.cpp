@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "barrier.h"
@@ -10,10 +10,11 @@
 #include "packets.h"
 #include "session.h"
 
-using namespace eqNet;
 using namespace eqBase;
 using namespace std;
 
+namespace eqNet
+{
 void Barrier::_construct()
 {
     setInstanceData( &_data, sizeof( _data ));
@@ -46,7 +47,7 @@ void Barrier::attachToSession( const uint32_t id, const uint32_t instanceID,
 {
     Object::attachToSession( id, instanceID, session );
 
-    CommandQueue& queue = session->getCommandThreadQueue();
+    CommandQueue* queue = session->getCommandThreadQueue();
 
     registerCommand( CMD_BARRIER_ENTER, 
                      CommandFunc<Barrier>( this, &Barrier::_cmdEnter ),
@@ -160,4 +161,5 @@ CommandResult Barrier::_cmdEnterReply( Command& command )
     EQLOG( LOG_BARRIER ) << "Got ok, unlock local user(s)" << endl;
     ++_leaveNotify;
     return COMMAND_HANDLED;
+}
 }

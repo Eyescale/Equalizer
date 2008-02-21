@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "objectInstanceDataIStream.h"
@@ -14,6 +14,7 @@ using namespace std;
 namespace eqNet
 {
 ObjectInstanceDataIStream::ObjectInstanceDataIStream()
+    : _sequence( EQ_ID_INVALID ) // only for safety check - remove me later!
 {
 }
 
@@ -36,6 +37,11 @@ bool ObjectInstanceDataIStream::getNextBuffer( const uint8_t** buffer,
                 command->getPacket< ObjectInstanceDataPacket >();
             *buffer = packet->data;
             *size   = packet->dataSize;
+
+            EQASSERTINFO( ( _sequence==EQ_ID_INVALID && packet->sequence==0 )||
+                          ( _sequence+1 == packet->sequence ),
+                          "have " << _sequence << " got " << packet->sequence);
+            _sequence = packet->sequence;
             return true;
         }
 
@@ -45,6 +51,11 @@ bool ObjectInstanceDataIStream::getNextBuffer( const uint8_t** buffer,
                 command->getPacket< ObjectInstancePacket >();
             *buffer = packet->data;
             *size   = packet->dataSize;
+
+            EQASSERTINFO( ( _sequence==EQ_ID_INVALID && packet->sequence==0 )||
+                ( _sequence+1 == packet->sequence ),
+                "have " << _sequence << " got " << packet->sequence);
+            _sequence = packet->sequence;
             return true;
         }
         

@@ -67,9 +67,9 @@ namespace eqs
         Node*   getNode()   const { return _node; }
         Config* getConfig() const { return (_node ? _node->getConfig() : NULL);}
 
-        eqNet::CommandQueue& getServerThreadQueue()
+        eqNet::CommandQueue* getServerThreadQueue()
             { return _node->getServerThreadQueue(); }
-        eqNet::CommandQueue& getCommandThreadQueue()
+        eqNet::CommandQueue* getCommandThreadQueue()
             { return _node->getCommandThreadQueue(); }
 
         /** 

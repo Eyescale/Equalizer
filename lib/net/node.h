@@ -435,14 +435,14 @@ namespace eqNet
         virtual bool runClient( const std::string& clientArgs );
 
         /** Return the command queue to the command thread. */
-        CommandQueue& getCommandThreadQueue() 
-            { EQASSERT( isLocal( )); return _commandThreadQueue; }
+        CommandQueue* getCommandThreadQueue() 
+            { EQASSERT( isLocal( )); return &_commandThreadQueue; }
 
         /** 
          * @return <code>true</code> if executed from the command handler
          *         thread, <code>false</code> if not.
          */
-        bool inCommandThread() const { return _commandThread->isCurrent(); }
+        bool inCommandThread() const  { return _commandThread->isCurrent(); }
 
         const NodeID& getNodeID() const { return _id; }
 

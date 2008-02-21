@@ -33,8 +33,8 @@ Config::Config( eqBase::RefPtr< Server > server )
         , _finishedFrame( 0 )
         , _running( false )
 {
-    eqNet::CommandQueue& queue    = server->getNodeThreadQueue();
-    eqNet::CommandQueue& cmdQueue = server->getCommandThreadQueue();
+    eqNet::CommandQueue* queue    = server->getNodeThreadQueue();
+    eqNet::CommandQueue* cmdQueue = server->getCommandThreadQueue();
 
     registerCommand( CMD_CONFIG_CREATE_NODE,
                      CommandFunc<Config>( this, &Config::_cmdCreateNode ),

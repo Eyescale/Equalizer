@@ -114,8 +114,8 @@ void Config::setLocalNode( eqBase::RefPtr< eqNet::Node > node )
     if( !node ) 
         return;
 
-    eqNet::CommandQueue& serverQueue  = getServerThreadQueue();
-    eqNet::CommandQueue& commandQueue = getCommandThreadQueue();
+    eqNet::CommandQueue* serverQueue  = getServerThreadQueue();
+    eqNet::CommandQueue* commandQueue = getCommandThreadQueue();
 
     registerCommand( eq::CMD_CONFIG_START_INIT,
                      CommandFunc<Config>( this, &Config::_cmdStartInit),

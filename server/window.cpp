@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include <pthread.h>
@@ -86,8 +86,8 @@ void Window::attachToSession( const uint32_t id, const uint32_t instanceID,
 {
     eqNet::Object::attachToSession( id, instanceID, session );
     
-    eqNet::CommandQueue& serverQueue  = getServerThreadQueue();
-    eqNet::CommandQueue& commandQueue = getCommandThreadQueue();
+    eqNet::CommandQueue* serverQueue  = getServerThreadQueue();
+    eqNet::CommandQueue* commandQueue = getCommandThreadQueue();
 
     registerCommand( eq::CMD_WINDOW_CONFIG_INIT_REPLY, 
                      CommandFunc<Window>( this, &Window::_cmdConfigInitReply),

@@ -58,7 +58,7 @@ namespace eq
 
         /** @name Data Access */
         //*{
-        eqNet::CommandQueue& getPipeThreadQueue()
+        eqNet::CommandQueue* getPipeThreadQueue()
             { return _pipe->getPipeThreadQueue(); }
 
         /** @return the pipe of this window. */

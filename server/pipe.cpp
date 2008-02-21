@@ -95,7 +95,7 @@ void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID,
 {
     eqNet::Object::attachToSession( id, instanceID, session );
     
-    eqNet::CommandQueue& queue = getCommandThreadQueue();
+    eqNet::CommandQueue* queue = getCommandThreadQueue();
 
     registerCommand( eq::CMD_PIPE_CONFIG_INIT_REPLY,
                      CommandFunc<Pipe>( this, &Pipe::_cmdConfigInitReply ),

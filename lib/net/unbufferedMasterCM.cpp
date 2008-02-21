@@ -35,7 +35,7 @@ void UnbufferedMasterCM::notifyAttached()
 {
     Session* session = _object->getSession();
     EQASSERT( session );
-    CommandQueue& queue = session->getCommandThreadQueue();
+    CommandQueue* queue = session->getCommandThreadQueue();
 
     registerCommand( CMD_OBJECT_COMMIT, 
        CommandFunc<UnbufferedMasterCM>( this, &UnbufferedMasterCM::_cmdCommit ),

@@ -63,7 +63,7 @@ void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID,
 {
     eqNet::Object::attachToSession( id, instanceID, session );
     
-    eqNet::CommandQueue& queue = getPipeThreadQueue();
+    eqNet::CommandQueue* queue = getPipeThreadQueue();
 
     registerCommand( CMD_PIPE_CONFIG_INIT, 
                      CommandFunc<Pipe>( this, &Pipe::_cmdConfigInit ), queue );
@@ -329,12 +329,12 @@ void* Pipe::_runThread()
     return EXIT_SUCCESS;
 }
 
-eqNet::CommandQueue& Pipe::getPipeThreadQueue()
+eqNet::CommandQueue* Pipe::getPipeThreadQueue()
 {
     if( !_thread )
         return _node->getNodeThreadQueue();
 
-    return *_pipeThreadQueue;
+    return _pipeThreadQueue;
 }
 
 Frame* Pipe::getFrame( const eqNet::ObjectVersion& frameVersion, const Eye eye )

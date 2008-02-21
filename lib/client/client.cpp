@@ -48,7 +48,7 @@ bool Client::listen()
     _nodeThreadQueue = new CommandQueue;
     registerCommand( CMD_CLIENT_EXIT,
                      CommandFunc<Client>( this, &Client::_cmdExit ),
-                     *_nodeThreadQueue );
+                     _nodeThreadQueue );
 
     return eqNet::Node::listen();
 }

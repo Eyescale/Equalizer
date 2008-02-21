@@ -59,7 +59,7 @@ namespace eqNet
         eqBase::RefPtr<Node> getLocalNode(){ return _localNode; }
 
         /** @return the command queue to the command thread. */
-        CommandQueue& getCommandThreadQueue() 
+        CommandQueue* getCommandThreadQueue() 
             { return _localNode->getCommandThreadQueue(); }
 
         /** 
@@ -290,8 +290,8 @@ namespace eqNet
         std::vector<IDMasterInfo> _idMasterInfos;
         
         /** All registered and mapped objects. */
-        IDHash< std::vector<Object*> > _objects;
-        eqBase::SpinLock               _objectsMutex;
+        IDHash< ObjectVector > _objects;
+        eqBase::SpinLock       _objectsMutex;
 
         const NodeID& _pollIDMaster( const uint32_t id ) const;
         eqBase::RefPtr<Node> _pollIDMasterNode( const uint32_t id ) const;
@@ -306,6 +306,8 @@ namespace eqNet
             }
 
         CommandResult _invokeObjectCommand( Command& packet );
+        void _attachObject( Object* object, const uint32_t id );
+        void _detachObject( Object* object );
 
         /** The command handler functions. */
         CommandResult _cmdGenIDs( Command& packet );
@@ -322,6 +324,7 @@ namespace eqNet
         CommandResult _cmdUnsubscribeObject( Command& command );
 
         CHECK_THREAD_DECLARE( _receiverThread );
+        CHECK_THREAD_DECLARE( _commandThread );
     };
     std::ostream& operator << ( std::ostream& os, Session* session );
 }

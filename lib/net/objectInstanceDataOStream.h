@@ -22,11 +22,14 @@ namespace eqNet
  
     protected:
         virtual void sendHeader( const void* buffer, const uint64_t size )
-            { sendBuffer( buffer, size ); }
+            { _sequence = 0; sendBuffer( buffer, size ); }
         virtual void sendBuffer( const void* buffer, const uint64_t size );
         virtual void sendFooter( const void* buffer, const uint64_t size );
         virtual void sendSingle( const void* buffer, const uint64_t size )
             { sendFooter( buffer, size ); }
+
+    private:
+        uint32_t _sequence;
     };
 }
 #endif //EQNET_OBJECTINSTANCEDATAOSTREAM_H

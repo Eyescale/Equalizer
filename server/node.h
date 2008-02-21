@@ -40,9 +40,9 @@ namespace eqs
         eqBase::RefPtr<eqNet::Node> getNode() const { return _node; }
         void setNode( eqBase::RefPtr<eqNet::Node> node ) { _node = node; }
 
-        eqNet::CommandQueue& getServerThreadQueue()
+        eqNet::CommandQueue* getServerThreadQueue()
             { return _config->getServerThreadQueue(); }
-        eqNet::CommandQueue& getCommandThreadQueue()
+        eqNet::CommandQueue* getCommandThreadQueue()
             { return _config->getCommandThreadQueue(); }
 
         /** 

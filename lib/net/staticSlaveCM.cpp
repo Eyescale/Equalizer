@@ -34,7 +34,7 @@ void StaticSlaveCM::notifyAttached()
 {
     Session* session = _object->getSession();
     EQASSERT( session );
-    CommandQueue& queue = session->getCommandThreadQueue();
+    CommandQueue* queue = session->getCommandThreadQueue();
 
     registerCommand( CMD_OBJECT_INSTANCE_DATA,
            CommandFunc<StaticSlaveCM>( this, &StaticSlaveCM::_cmdInstanceData ),

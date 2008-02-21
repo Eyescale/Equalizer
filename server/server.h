@@ -71,8 +71,8 @@ namespace eqs
         const ConfigVector& getConfigs() const { return _configs; }
 
         /** @return the command queue to the server thread */
-        eqNet::CommandQueue& getServerThreadQueue() 
-            { return _serverThreadQueue; }
+        eqNet::CommandQueue* getServerThreadQueue() 
+            { return &_serverThreadQueue; }
 
     protected:
         virtual ~Server() {}

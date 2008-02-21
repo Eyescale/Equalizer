@@ -35,7 +35,7 @@ namespace eq
         eqBase::RefPtr< Client > getClient();
         eqBase::RefPtr< Server > getServer();
         const NodeVector& getNodes() const { return _nodes; }
-        CommandQueue& getNodeThreadQueue()
+        CommandQueue* getNodeThreadQueue()
             { return getClient()->getNodeThreadQueue(); }
 
         /**

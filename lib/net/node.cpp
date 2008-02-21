@@ -48,34 +48,32 @@ Node::Node()
 
     registerCommand( CMD_NODE_STOP, 
                      CommandFunc<Node>( this, &Node::_cmdStop ),
-                     _commandThreadQueue );
+                     &_commandThreadQueue );
     registerCommand( CMD_NODE_MAP_SESSION, 
                      CommandFunc<Node>( this, &Node::_cmdMapSession ),
-                     _commandThreadQueue );
+                     &_commandThreadQueue );
     registerCommand( CMD_NODE_MAP_SESSION_REPLY,
                      CommandFunc<Node>( this, &Node::_cmdMapSessionReply ),
-                     _commandThreadQueue );
+                     &_commandThreadQueue );
     registerCommand( CMD_NODE_UNMAP_SESSION, 
                      CommandFunc<Node>( this, &Node::_cmdUnmapSession ),
-                     _commandThreadQueue );
+                     &_commandThreadQueue );
     registerCommand( CMD_NODE_UNMAP_SESSION_REPLY,
                      CommandFunc<Node>( this, &Node::_cmdUnmapSessionReply ),
-                     _commandThreadQueue );
+                     &_commandThreadQueue );
     registerCommand( CMD_NODE_CONNECT,
-                     CommandFunc<Node>( this, &Node::_cmdConnect ),
-                     _commandThreadQueue );
+                     CommandFunc<Node>( this, &Node::_cmdConnect ), 0 );
     registerCommand( CMD_NODE_CONNECT_REPLY,
-                     CommandFunc<Node>( this, &Node::_cmdConnectReply ),
-                     _commandThreadQueue );
+                     CommandFunc<Node>( this, &Node::_cmdConnectReply ), 0 );
     registerCommand( CMD_NODE_DISCONNECT,
                      CommandFunc<Node>( this, &Node::_cmdDisconnect ),
-                     _commandThreadQueue );
+                     &_commandThreadQueue );
     registerCommand( CMD_NODE_GET_NODE_DATA,
                      CommandFunc<Node>( this, &Node::_cmdGetNodeData),
-                     _commandThreadQueue );
+                     &_commandThreadQueue );
     registerCommand( CMD_NODE_GET_NODE_DATA_REPLY,
                      CommandFunc<Node>( this, &Node::_cmdGetNodeDataReply ),
-                     _commandThreadQueue );
+                     &_commandThreadQueue );
 
     EQINFO << "New Node @" << (void*)this << " " << _id << endl;
 }
@@ -673,21 +671,13 @@ bool Node::_handleData()
         return false;
     }
 
-    if( !node.isValid( ))
-    {
-        // This is one of the initial packets during the connection
-        // handshake. Handle them directly in the receiver thread since at this
-        // point the remote node is not yet available.
-        EQASSERTINFO( (*_receivedCommand)->datatype == DATATYPE_EQNET_NODE &&
-                      ( (*_receivedCommand)->command == CMD_NODE_CONNECT  || 
-                        (*_receivedCommand)->command == CMD_NODE_CONNECT_REPLY),
-                      *_receivedCommand << " connection " << connection );
-        
-        const CommandResult result = invokeCommand( *_receivedCommand );
-        EQASSERT( result == COMMAND_HANDLED );
-
-        return true;
-    }
+    // This is one of the initial packets during the connection handshake, at
+    // this point the remote node is not yet available.
+    EQASSERTINFO( node.isValid() ||
+                  (*_receivedCommand)->datatype == DATATYPE_EQNET_NODE &&
+                  ( (*_receivedCommand)->command == CMD_NODE_CONNECT  || 
+                    (*_receivedCommand)->command == CMD_NODE_CONNECT_REPLY),
+                  *_receivedCommand << " connection " << connection );
 
     _dispatchCommand( *_receivedCommand );
     return true;

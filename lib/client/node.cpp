@@ -28,7 +28,7 @@ Node::Node( Config* parent )
         : _config( parent )
         , _unlockedFrame( 0 )
 {
-    eqNet::CommandQueue& queue        = parent->getNodeThreadQueue();
+    eqNet::CommandQueue* queue        = parent->getNodeThreadQueue();
 
     registerCommand( CMD_NODE_CREATE_PIPE, 
                      CommandFunc<Node>( this, &Node::_cmdCreatePipe ), queue );

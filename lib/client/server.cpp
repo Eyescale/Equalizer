@@ -37,7 +37,7 @@ void Server::setClient( eqBase::RefPtr<Client> client )
     if( !_client )
         return;
 
-    eqNet::CommandQueue& queue = client->getNodeThreadQueue();
+    eqNet::CommandQueue* queue = client->getNodeThreadQueue();
 
     registerCommand( CMD_SERVER_CREATE_CONFIG, 
                      CommandFunc<Server>( this, &Server::_cmdCreateConfig ),

@@ -42,7 +42,7 @@ namespace eqs
 
         bool    isRunning() const { return ( _state == STATE_INITIALIZED ); }
 
-        eqNet::CommandQueue& getServerThreadQueue()
+        eqNet::CommandQueue* getServerThreadQueue()
             { return _server->getServerThreadQueue(); }
 
         /** 

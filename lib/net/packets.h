@@ -405,6 +405,7 @@ namespace eqNet
             }
 
         uint64_t dataSize;
+        uint32_t sequence;
         EQ_ALIGN8( uint8_t data[8] );
     };
 
@@ -419,6 +420,7 @@ namespace eqNet
 
         uint64_t dataSize;
         uint32_t version;
+        uint32_t sequence;
         EQ_ALIGN8( uint8_t data[8] );
     };
 

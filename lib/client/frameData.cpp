@@ -35,7 +35,7 @@ void FrameData::attachToSession( const uint32_t id, const uint32_t instanceID,
 {
     eqNet::Object::attachToSession( id, instanceID, session );
     
-    eqNet::CommandQueue& queue = session->getCommandThreadQueue();
+    eqNet::CommandQueue* queue = session->getCommandThreadQueue();
 
     registerCommand( CMD_FRAMEDATA_TRANSMIT,
                      CommandFunc<FrameData>( this, &FrameData::_cmdTransmit ),

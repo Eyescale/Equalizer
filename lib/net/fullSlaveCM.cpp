@@ -49,7 +49,7 @@ void FullSlaveCM::notifyAttached()
 
     Session* session = _object->getSession();
     EQASSERT( session );
-    CommandQueue& queue = session->getCommandThreadQueue();
+    CommandQueue* queue = session->getCommandThreadQueue();
 
     registerCommand( CMD_OBJECT_DELTA_DATA,
                   CommandFunc<FullSlaveCM>( this, &FullSlaveCM::_cmdDeltaData ),

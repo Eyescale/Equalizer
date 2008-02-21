@@ -73,9 +73,9 @@ namespace eqs
         const CompoundVector& getCompounds() const
             { return getConfig()->getCompounds(); }
 
-        eqNet::CommandQueue& getServerThreadQueue()
+        eqNet::CommandQueue* getServerThreadQueue()
             { return _window->getServerThreadQueue(); }
-        eqNet::CommandQueue& getCommandThreadQueue()
+        eqNet::CommandQueue* getCommandThreadQueue()
             { return _window->getCommandThreadQueue(); }
 
         /** 

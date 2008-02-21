@@ -46,7 +46,7 @@ namespace eq
         const PipeVector& getPipes() const { return _pipes; }
 
         const std::string& getName() const { return _name; }
-        CommandQueue& getNodeThreadQueue()
+        CommandQueue* getNodeThreadQueue()
             { return getClient()->getNodeThreadQueue(); }
 
         /** 

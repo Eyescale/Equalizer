@@ -52,7 +52,7 @@ void FullMasterCM::notifyAttached()
 {
     Session* session = _object->getSession();
     EQASSERT( session );
-    CommandQueue& queue = session->getCommandThreadQueue();
+    CommandQueue* queue = session->getCommandThreadQueue();
 
     registerCommand( CMD_OBJECT_COMMIT, 
                    CommandFunc<FullMasterCM>( this, &FullMasterCM::_cmdCommit ),
@@ -156,6 +156,7 @@ void FullMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
     instPacket.instanceID = instanceID;
     instPacket.dataSize   = buffer.size;
     instPacket.version    = data->os.getVersion();
+    instPacket.sequence   = 0;
 
     _object->send( node, instPacket, buffer.data, buffer.size );
 

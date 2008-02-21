@@ -74,9 +74,9 @@ namespace eqs
         const eq::Window::DrawableConfig& getDrawableConfig() const
             { return _drawableConfig; }
 
-        eqNet::CommandQueue& getServerThreadQueue()
+        eqNet::CommandQueue* getServerThreadQueue()
             { return _pipe->getServerThreadQueue(); }
-        eqNet::CommandQueue& getCommandThreadQueue()
+        eqNet::CommandQueue* getCommandThreadQueue()
             { return _pipe->getCommandThreadQueue(); }
 
         /** @return the state of this window. */

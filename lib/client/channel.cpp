@@ -33,7 +33,7 @@ Channel::Channel( Window* parent )
           _context( NULL ),
           _frustum( vmml::Frustumf::DEFAULT )
 {
-    eqNet::CommandQueue& queue = parent->getPipeThreadQueue();
+    eqNet::CommandQueue* queue = parent->getPipeThreadQueue();
 
     registerCommand( CMD_CHANNEL_CONFIG_INIT, 
                      CommandFunc<Channel>( this, &Channel::_cmdConfigInit ),

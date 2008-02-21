@@ -42,7 +42,7 @@ namespace eq
 
         /** @name Data Access. */
         //*{
-        eqNet::CommandQueue& getPipeThreadQueue();
+        eqNet::CommandQueue* getPipeThreadQueue();
         Node* getNode() const { return _node; }
         Config* getConfig() const { return (_node ? _node->getConfig() : NULL);}
         eqBase::RefPtr< Client > getClient() const

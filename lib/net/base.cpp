@@ -35,7 +35,6 @@ void Base::_registerCommand( const uint32_t command,
                              CommandQueue* destinationQueue )
 {
     EQASSERT( _vTable.size() == _qTable.size( ));
-    EQASSERT( destinationQueue );
 
     if( _vTable.size() <= command )
     {
@@ -73,12 +72,13 @@ bool Base::dispatchCommand( Command& command )
                       << typeid(*this).name() << endl );
         return true;
     }
-    EQASSERTINFO( _qTable[which], "No command queue registered for command" 
-                  << which << ", object of type " << typeid(*this).name() 
-                  << endl);
 #endif
 
-    _qTable[which]->push( command );
+    if( _qTable[which] )
+        _qTable[which]->push( command );
+    else
+        _vTable[which]( command );
+
     return true;
 }
 

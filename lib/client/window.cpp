@@ -65,7 +65,7 @@ Window::Window( Pipe* parent )
         , _pipe( parent )
         , _renderContextAGLLock( 0 )
 {
-    eqNet::CommandQueue& queue = parent->getPipeThreadQueue();
+    eqNet::CommandQueue* queue = parent->getPipeThreadQueue();
 
     registerCommand( CMD_WINDOW_CREATE_CHANNEL, 
                      CommandFunc<Window>( this, &Window::_cmdCreateChannel ), 

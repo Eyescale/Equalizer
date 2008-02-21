@@ -65,7 +65,7 @@ namespace eq
         void setWindowSystem( const WindowSystem windowSystem );
 
         /** Return the command queue to the main node thread. */
-        CommandQueue& getNodeThreadQueue() { return *_nodeThreadQueue; }
+        CommandQueue* getNodeThreadQueue() { return _nodeThreadQueue; }
 
     protected:
         /** @sa eqNet::Node::clientLoop */

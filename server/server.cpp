@@ -33,16 +33,16 @@ Server::Server()
 {
     registerCommand( eq::CMD_SERVER_CHOOSE_CONFIG,
                      CommandFunc<Server>( this, &Server::_cmdChooseConfig ),
-                     _serverThreadQueue );
+                     &_serverThreadQueue );
     registerCommand( eq::CMD_SERVER_USE_CONFIG,
                      CommandFunc<Server>( this, &Server::_cmdUseConfig ),
-                     _serverThreadQueue );
+                     &_serverThreadQueue );
     registerCommand( eq::CMD_SERVER_RELEASE_CONFIG,
                      CommandFunc<Server>( this, &Server::_cmdReleaseConfig ),
-                     _serverThreadQueue );
+                     &_serverThreadQueue );
     registerCommand( eq::CMD_SERVER_SHUTDOWN,
                      CommandFunc<Server>( this, &Server::_cmdShutdown ),
-                     _serverThreadQueue );
+                     &_serverThreadQueue );
     EQINFO << "New server @" << (void*)this << endl;
 }
 

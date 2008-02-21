@@ -55,6 +55,9 @@ namespace eqNet
         /** 
          * Registers a command member function for a command.
          * 
+         * If the destination queue is 0, the command function is invoked
+         * directly.
+         *
          * @param command the command.
          * @param func the functor to handle the command.
          * @param destinationQueue the queue to which the receiver thread
@@ -63,7 +66,7 @@ namespace eqNet
         template< typename T >
         void registerCommand( const uint32_t command, 
                               const CommandFunc<T>& func,
-                              CommandQueue& destinationQueue );
+                              CommandQueue* destinationQueue );
 
         
         /** 
@@ -77,7 +80,7 @@ namespace eqNet
     private:
         void _registerCommand( const uint32_t command, 
                                const CommandFunc<Base>& func,
-                                CommandQueue* destinationQueue );
+                               CommandQueue* destinationQueue );
 
         /** The command handler function table. */
         std::vector< CommandFunc<Base> > _vTable;
@@ -89,10 +92,10 @@ namespace eqNet
     template< typename T >
     void Base::registerCommand( const uint32_t command,
                                 const CommandFunc<T>& func,
-                                CommandQueue& destinationQueue )
+                                CommandQueue* destinationQueue )
     {
         _registerCommand( command, static_cast< CommandFunc<Base> >( func ),
-                          &destinationQueue );
+                          destinationQueue );
     }
 }
 

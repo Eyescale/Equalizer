@@ -87,7 +87,7 @@ void Node::attachToSession( const uint32_t id, const uint32_t instanceID,
 {
     eqNet::Object::attachToSession( id, instanceID, session );
     
-    eqNet::CommandQueue& queue = getCommandThreadQueue();
+    eqNet::CommandQueue* queue = getCommandThreadQueue();
 
     registerCommand( eq::CMD_NODE_CONFIG_INIT_REPLY, 
                      CommandFunc<Node>( this, &Node::_cmdConfigInitReply ),

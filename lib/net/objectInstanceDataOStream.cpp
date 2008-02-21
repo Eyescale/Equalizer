@@ -17,6 +17,7 @@ namespace eqNet
 {
 ObjectInstanceDataOStream::ObjectInstanceDataOStream( const Object* object)
         : ObjectDataOStream( object )
+        , _sequence( 0 )
 {}
 
 ObjectInstanceDataOStream::~ObjectInstanceDataOStream()
@@ -30,6 +31,7 @@ void ObjectInstanceDataOStream::sendBuffer( const void* buffer,
     instancePacket.sessionID  = _object->getSession()->getID();
     instancePacket.objectID   = _object->getID();
     instancePacket.instanceID = _instanceID;
+    instancePacket.sequence   = _sequence++;
 
     EQLOG( LOG_OBJECTS ) << "send " << &instancePacket << " to " 
                          << _connections.size() << " receivers " << endl;
@@ -45,6 +47,7 @@ void ObjectInstanceDataOStream::sendFooter( const void* buffer,
     instancePacket.sessionID  = _object->getSession()->getID();
     instancePacket.objectID   = _object->getID();
     instancePacket.instanceID = _instanceID;
+    instancePacket.sequence   = _sequence++;
 
     EQLOG( LOG_OBJECTS ) << "send " << &instancePacket << " to " 
                          << _connections.size() << " receivers " << endl;
