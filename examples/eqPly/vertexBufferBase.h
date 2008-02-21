@@ -18,8 +18,6 @@
 
 namespace mesh 
 {
-    
-    
     // defined elsewhere
     class VertexData;
     class VertexBufferData;
@@ -30,6 +28,7 @@ namespace mesh
     {
     public:
         virtual void render( VertexBufferState& state ) const = 0;
+        void renderBoundingSphere( VertexBufferState& state ) const;
         virtual Index getNumberOfVertices() const = 0;
 
         const BoundingSphere& getBoundingSphere() const 
@@ -84,8 +83,6 @@ namespace mesh
         
     private:
     };
-    
-    
 }
 
 

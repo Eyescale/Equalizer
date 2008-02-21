@@ -77,7 +77,7 @@ void Channel::frameDraw( const uint32_t frameID )
     }
     else if( !frameData.data.color || (model && !model->hasColors( )) )
     {
-        glColor3f( 1.0f, 1.0f, 1.0f );
+        glColor3f( .5f, .5f, .5f );
     }
 
     if( model )
@@ -156,10 +156,12 @@ void Channel::_drawModel( const Model* model )
         {
             case vmml::VISIBILITY_FULL:
                 // if fully visible and fully in range, render it
-                if( treeNode->getRange()[0] >= range.start && 
-                    treeNode->getRange()[1] < range.end )
+                if( range == eq::Range::ALL || 
+                    ( treeNode->getRange()[0] >= range.start && 
+                      treeNode->getRange()[1] < range.end ))
                 {
                     treeNode->render( state );
+                    //treeNode->renderBoundingSphere( state );
 #ifndef NDEBUG
                     verticesRendered += treeNode->getNumberOfVertices();
 #endif
@@ -177,6 +179,7 @@ void Channel::_drawModel( const Model* model )
                     if( treeNode->getRange()[0] >= range.start )
                     {
                         treeNode->render( state );
+                        //treeNode->renderBoundingSphere( state );
 #ifndef NDEBUG
                         verticesRendered += treeNode->getNumberOfVertices();
                         if( visibility == vmml::VISIBILITY_PARTIAL )

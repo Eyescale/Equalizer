@@ -16,9 +16,10 @@ CXXFILES = \
 	window.cpp \
 	plyfile.cpp \
 	vertexData.cpp \
+	vertexBufferBase.cpp \
+	vertexBufferLeaf.cpp \
 	vertexBufferNode.cpp \
-	vertexBufferRoot.cpp \
-	vertexBufferLeaf.cpp
+	vertexBufferRoot.cpp
 
 SHADERS = \
 	fragmentShader_glsl.h \
