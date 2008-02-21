@@ -383,7 +383,7 @@ namespace eq
         /** The current window system. */
         WindowSystem _windowSystem;
 
-        /** Extended OpenGL function entries. */
+        /** Extended OpenGL function entries - WGL. */
         WGLEWContext*   _wglewContext;
 
         /** The size (and location) of the pipe. */

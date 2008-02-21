@@ -463,11 +463,21 @@ GLXContext Window::createGLXContext( XVisualInfo* visualInfo )
 
 bool Window::configInitGLXDrawable( XVisualInfo* visualInfo )
 {
+    if( getIAttribute( IATTR_HINT_DRAWABLE ) == PBUFFER )
+        return configInitGLXPBuffer( visualInfo );
+    else
+        return configInitGLXWindow( visualInfo );
+}
+
+bool Window::configInitGLXWindow( XVisualInfo* visualInfo )
+{
 #ifdef GLX
+    EQASSERT( getIAttribute( IATTR_HINT_DRAWABLE ) != PBUFFER )
+
     if( !visualInfo )
     {
         setErrorMessage( "No visual info given" );
-        return 0;
+        return false;
     }
 
     Pipe*    pipe    = getPipe();
@@ -550,6 +560,91 @@ bool Window::configInitGLXDrawable( XVisualInfo* visualInfo )
 #endif
 }
 
+bool Window::configInitGLXPBuffer( XVisualInfo* visualInfo )
+{
+#ifdef GLX
+    EQASSERT( getIAttribute( IATTR_HINT_DRAWABLE ) == PBUFFER )
+
+    if( !visualInfo )
+    {
+        setErrorMessage( "No visual info given" );
+        return false;
+    }
+    
+    Pipe*    pipe    = getPipe();
+    Display* display = pipe->getXDisplay();
+    if( !display )
+    {
+        setErrorMessage( "Pipe has no X11 display connection" );
+        return false;
+    }
+
+    // Check for GLX >= 1.3
+    int major = 0;
+    int minor = 0;
+    if( !glXQueryVersion( display, &major, &minor ))
+    {
+        setErrorMessage( "Can't get GLX version" );
+        return false;
+    }
+
+    if( major < 1 || (major == 1 && minor < 3 ))
+    {
+        setErrorMessage( "Need at least GLX 1.3" );
+        return false;
+    }
+
+    // Find FB config for X visual
+    const int    screen   = DefaultScreen( display );
+    int          nConfigs = 0;
+    GLXFBConfig* configs  = glXGetFBConfigs( display, screen, &nConfigs );
+    GLXFBConfig  config   = 0;
+
+    for( int i = 0; i < nConfigs; ++i )
+    {
+        int visualID;
+        if( glXGetFBConfigAttrib( display, configs[i], GLX_VISUAL_ID, 
+                                  &visualID ) == 0 )
+        {
+            if( visualID == static_cast< int >( visualInfo->visualid ))
+            {
+                config = configs[i];
+                break;
+	        }
+	    }
+    }
+
+    if( !config )
+    {
+        setErrorMessage( "Can't find FBConfig for visual" );
+        return false;
+    }
+
+    // Create PBuffer
+    const int attributes[] = { GLX_PBUFFER_WIDTH, _pvp.w,
+                               GLX_PBUFFER_HEIGHT, _pvp.h,
+                               GLX_LARGEST_PBUFFER, True,
+                               GLX_PRESERVED_CONTENTS, True,
+                               0 };
+
+    XID pbuffer = glXCreatePbuffer( display, config, attributes );
+    if ( !pbuffer )
+    {
+        setErrorMessage( "Could not create PBuffer" );
+        return false;
+    }   
+   
+    XFlush( display );
+    setXDrawable( pbuffer );
+
+    EQINFO << "Created X11 PBuffer " << pbuffer << endl;
+    return true;
+#else
+    setErrorMessage( "Client library compiled without GLX support" );
+    return false;
+#endif
+}
+
 //---------------------------------------------------------------------------
 // AGL init
 //---------------------------------------------------------------------------
@@ -568,7 +663,7 @@ bool Window::configInitAGL()
         return false;
 
     const bool success = configInitAGLDrawable();
-    if( success && !_xDrawable )
+    if( success && !_carbonHandler && !_aglPBuffer )
     {
         setErrorMessage( "configInitAGLDrawable did set no AGL drawable" );
         return false;
@@ -1361,8 +1456,14 @@ void Window::configExitGLX()
 
     if( context )
         glXDestroyContext( display, context );
+
     if( drawable )
-        XDestroyWindow( display, drawable );
+    {
+        if( getIAttribute( IATTR_HINT_DRAWABLE ) == PBUFFER )
+            glXDestroyPbuffer( display, drawable );
+        else
+            XDestroyWindow( display, drawable );
+    }
 
     EQINFO << "Destroyed GLX context and X drawable " << endl;
 #endif

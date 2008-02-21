@@ -369,12 +369,32 @@ namespace eq
          * Initialize the window's drawable (fullscreen, pbuffer or window) and
          * bind the GLX context.
          *
-         * Sets the window's X11 window on success
+         * Sets the window's X11 drawable on success
          * 
          * @param visualInfo the visual info for the context.
          * @return true if the drawable was created, false otherwise.
          */
         bool configInitGLXDrawable( XVisualInfo* visualInfo );
+
+        /** 
+         * Initialize the window with a window and bind the GLX context.
+         *
+         * Sets the window's X11 drawable on success
+         * 
+         * @param visualInfo the visual info for the context.
+         * @return true if the window was created, false otherwise.
+         */
+        bool configInitGLXWindow( XVisualInfo* visualInfo );
+
+        /** 
+         * Initialize the window with a PBuffer and bind the GLX context.
+         *
+         * Sets the window's X11 drawable on success
+         * 
+         * @param visualInfo the visual info for the context.
+         * @return true if the PBuffer was created, false otherwise.
+         */
+        bool configInitGLXPBuffer( XVisualInfo* visualInfo );
 
         //* @name AGL/Carbon initialization
         //*{

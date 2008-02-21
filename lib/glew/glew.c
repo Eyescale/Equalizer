@@ -1,7 +1,7 @@
 /*
 ** The OpenGL Extension Wrangler Library
-** Copyright (C) 2002-2007, Milan Ikits <milan ikits[]ieee org>
-** Copyright (C) 2002-2007, Marcelo E. Magallon <mmagallo[]debian org>
+** Copyright (C) 2002-2008, Milan Ikits <milan ikits[]ieee org>
+** Copyright (C) 2002-2008, Marcelo E. Magallon <mmagallo[]debian org>
 ** Copyright (C) 2002, Lev Povalahev
 ** All rights reserved.
 ** 
@@ -285,6 +285,8 @@ PFNGLMULTIDRAWARRAYSPROC __glewMultiDrawArrays = NULL;
 PFNGLMULTIDRAWELEMENTSPROC __glewMultiDrawElements = NULL;
 PFNGLPOINTPARAMETERFPROC __glewPointParameterf = NULL;
 PFNGLPOINTPARAMETERFVPROC __glewPointParameterfv = NULL;
+PFNGLPOINTPARAMETERIPROC __glewPointParameteri = NULL;
+PFNGLPOINTPARAMETERIVPROC __glewPointParameteriv = NULL;
 PFNGLSECONDARYCOLOR3BPROC __glewSecondaryColor3b = NULL;
 PFNGLSECONDARYCOLOR3BVPROC __glewSecondaryColor3bv = NULL;
 PFNGLSECONDARYCOLOR3DPROC __glewSecondaryColor3d = NULL;
@@ -456,6 +458,9 @@ PFNGLISFENCEAPPLEPROC __glewIsFenceAPPLE = NULL;
 PFNGLSETFENCEAPPLEPROC __glewSetFenceAPPLE = NULL;
 PFNGLTESTFENCEAPPLEPROC __glewTestFenceAPPLE = NULL;
 PFNGLTESTOBJECTAPPLEPROC __glewTestObjectAPPLE = NULL;
+
+PFNGLBUFFERPARAMETERIAPPLEPROC __glewBufferParameteriAPPLE = NULL;
+PFNGLFLUSHMAPPEDBUFFERRANGEAPPLEPROC __glewFlushMappedBufferRangeAPPLE = NULL;
 
 PFNGLGETTEXPARAMETERPOINTERVAPPLEPROC __glewGetTexParameterPointervAPPLE = NULL;
 PFNGLTEXTURERANGEAPPLEPROC __glewTextureRangeAPPLE = NULL;
@@ -1108,6 +1113,8 @@ PFNGLVERTEXWEIGHTPOINTEREXTPROC __glewVertexWeightPointerEXT = NULL;
 PFNGLVERTEXWEIGHTFEXTPROC __glewVertexWeightfEXT = NULL;
 PFNGLVERTEXWEIGHTFVEXTPROC __glewVertexWeightfvEXT = NULL;
 
+PFNGLFRAMETERMINATORGREMEDYPROC __glewFrameTerminatorGREMEDY = NULL;
+
 PFNGLSTRINGMARKERGREMEDYPROC __glewStringMarkerGREMEDY = NULL;
 
 PFNGLGETIMAGETRANSFORMPARAMETERFVHPPROC __glewGetImageTransformParameterfvHP = NULL;
@@ -1538,6 +1545,7 @@ GLboolean __GLEW_APPLE_client_storage = GL_FALSE;
 GLboolean __GLEW_APPLE_element_array = GL_FALSE;
 GLboolean __GLEW_APPLE_fence = GL_FALSE;
 GLboolean __GLEW_APPLE_float_pixels = GL_FALSE;
+GLboolean __GLEW_APPLE_flush_buffer_range = GL_FALSE;
 GLboolean __GLEW_APPLE_pixel_buffer = GL_FALSE;
 GLboolean __GLEW_APPLE_specular_vector = GL_FALSE;
 GLboolean __GLEW_APPLE_texture_range = GL_FALSE;
@@ -1688,6 +1696,7 @@ GLboolean __GLEW_EXT_timer_query = GL_FALSE;
 GLboolean __GLEW_EXT_vertex_array = GL_FALSE;
 GLboolean __GLEW_EXT_vertex_shader = GL_FALSE;
 GLboolean __GLEW_EXT_vertex_weighting = GL_FALSE;
+GLboolean __GLEW_GREMEDY_frame_terminator = GL_FALSE;
 GLboolean __GLEW_GREMEDY_string_marker = GL_FALSE;
 GLboolean __GLEW_HP_convolution_border_modes = GL_FALSE;
 GLboolean __GLEW_HP_image_transform = GL_FALSE;
@@ -1919,6 +1928,8 @@ static GLboolean _glewInit_GL_VERSION_1_4 (GLEW_CONTEXT_ARG_DEF_INIT)
   r = ((glMultiDrawElements = (PFNGLMULTIDRAWELEMENTSPROC)glewGetProcAddress((const GLubyte*)"glMultiDrawElements")) == NULL) || r;
   r = ((glPointParameterf = (PFNGLPOINTPARAMETERFPROC)glewGetProcAddress((const GLubyte*)"glPointParameterf")) == NULL) || r;
   r = ((glPointParameterfv = (PFNGLPOINTPARAMETERFVPROC)glewGetProcAddress((const GLubyte*)"glPointParameterfv")) == NULL) || r;
+  r = ((glPointParameteri = (PFNGLPOINTPARAMETERIPROC)glewGetProcAddress((const GLubyte*)"glPointParameteri")) == NULL) || r;
+  r = ((glPointParameteriv = (PFNGLPOINTPARAMETERIVPROC)glewGetProcAddress((const GLubyte*)"glPointParameteriv")) == NULL) || r;
   r = ((glSecondaryColor3b = (PFNGLSECONDARYCOLOR3BPROC)glewGetProcAddress((const GLubyte*)"glSecondaryColor3b")) == NULL) || r;
   r = ((glSecondaryColor3bv = (PFNGLSECONDARYCOLOR3BVPROC)glewGetProcAddress((const GLubyte*)"glSecondaryColor3bv")) == NULL) || r;
   r = ((glSecondaryColor3d = (PFNGLSECONDARYCOLOR3DPROC)glewGetProcAddress((const GLubyte*)"glSecondaryColor3d")) == NULL) || r;
@@ -2177,6 +2188,20 @@ static GLboolean _glewInit_GL_APPLE_fence (GLEW_CONTEXT_ARG_DEF_INIT)
 #ifdef GL_APPLE_float_pixels
 
 #endif /* GL_APPLE_float_pixels */
+
+#ifdef GL_APPLE_flush_buffer_range
+
+static GLboolean _glewInit_GL_APPLE_flush_buffer_range (GLEW_CONTEXT_ARG_DEF_INIT)
+{
+  GLboolean r = GL_FALSE;
+
+  r = ((glBufferParameteriAPPLE = (PFNGLBUFFERPARAMETERIAPPLEPROC)glewGetProcAddress((const GLubyte*)"glBufferParameteriAPPLE")) == NULL) || r;
+  r = ((glFlushMappedBufferRangeAPPLE = (PFNGLFLUSHMAPPEDBUFFERRANGEAPPLEPROC)glewGetProcAddress((const GLubyte*)"glFlushMappedBufferRangeAPPLE")) == NULL) || r;
+
+  return r;
+}
+
+#endif /* GL_APPLE_flush_buffer_range */
 
 #ifdef GL_APPLE_pixel_buffer
 
@@ -3955,6 +3980,19 @@ static GLboolean _glewInit_GL_EXT_vertex_weighting (GLEW_CONTEXT_ARG_DEF_INIT)
 
 #endif /* GL_EXT_vertex_weighting */
 
+#ifdef GL_GREMEDY_frame_terminator
+
+static GLboolean _glewInit_GL_GREMEDY_frame_terminator (GLEW_CONTEXT_ARG_DEF_INIT)
+{
+  GLboolean r = GL_FALSE;
+
+  r = ((glFrameTerminatorGREMEDY = (PFNGLFRAMETERMINATORGREMEDYPROC)glewGetProcAddress((const GLubyte*)"glFrameTerminatorGREMEDY")) == NULL) || r;
+
+  return r;
+}
+
+#endif /* GL_GREMEDY_frame_terminator */
+
 #ifdef GL_GREMEDY_string_marker
 
 static GLboolean _glewInit_GL_GREMEDY_string_marker (GLEW_CONTEXT_ARG_DEF_INIT)
@@ -5413,6 +5451,10 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
 #ifdef GL_APPLE_float_pixels
   CONST_CAST(GLEW_APPLE_float_pixels) = glewGetExtension("GL_APPLE_float_pixels");
 #endif /* GL_APPLE_float_pixels */
+#ifdef GL_APPLE_flush_buffer_range
+  CONST_CAST(GLEW_APPLE_flush_buffer_range) = glewGetExtension("GL_APPLE_flush_buffer_range");
+  if (glewExperimental || GLEW_APPLE_flush_buffer_range) CONST_CAST(GLEW_APPLE_flush_buffer_range) = !_glewInit_GL_APPLE_flush_buffer_range(GLEW_CONTEXT_ARG_VAR_INIT);
+#endif /* GL_APPLE_flush_buffer_range */
 #ifdef GL_APPLE_pixel_buffer
   CONST_CAST(GLEW_APPLE_pixel_buffer) = glewGetExtension("GL_APPLE_pixel_buffer");
 #endif /* GL_APPLE_pixel_buffer */
@@ -5938,6 +5980,10 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
   CONST_CAST(GLEW_EXT_vertex_weighting) = glewGetExtension("GL_EXT_vertex_weighting");
   if (glewExperimental || GLEW_EXT_vertex_weighting) CONST_CAST(GLEW_EXT_vertex_weighting) = !_glewInit_GL_EXT_vertex_weighting(GLEW_CONTEXT_ARG_VAR_INIT);
 #endif /* GL_EXT_vertex_weighting */
+#ifdef GL_GREMEDY_frame_terminator
+  CONST_CAST(GLEW_GREMEDY_frame_terminator) = glewGetExtension("GL_GREMEDY_frame_terminator");
+  if (glewExperimental || GLEW_GREMEDY_frame_terminator) CONST_CAST(GLEW_GREMEDY_frame_terminator) = !_glewInit_GL_GREMEDY_frame_terminator(GLEW_CONTEXT_ARG_VAR_INIT);
+#endif /* GL_GREMEDY_frame_terminator */
 #ifdef GL_GREMEDY_string_marker
   CONST_CAST(GLEW_GREMEDY_string_marker) = glewGetExtension("GL_GREMEDY_string_marker");
   if (glewExperimental || GLEW_GREMEDY_string_marker) CONST_CAST(GLEW_GREMEDY_string_marker) = !_glewInit_GL_GREMEDY_string_marker(GLEW_CONTEXT_ARG_VAR_INIT);
@@ -7128,6 +7174,9 @@ PFNGLXGETCONTEXTIDEXTPROC __glewXGetContextIDEXT = NULL;
 PFNGLXIMPORTCONTEXTEXTPROC __glewXImportContextEXT = NULL;
 PFNGLXQUERYCONTEXTINFOEXTPROC __glewXQueryContextInfoEXT = NULL;
 
+PFNGLXBINDTEXIMAGEEXTPROC __glewXBindTexImageEXT = NULL;
+PFNGLXRELEASETEXIMAGEEXTPROC __glewXReleaseTexImageEXT = NULL;
+
 PFNGLXGETAGPOFFSETMESAPROC __glewXGetAGPOffsetMESA = NULL;
 
 PFNGLXCOPYSUBBUFFERMESAPROC __glewXCopySubBufferMESA = NULL;
@@ -7214,6 +7263,7 @@ GLboolean __GLXEW_EXT_fbconfig_packed_float = GL_FALSE;
 GLboolean __GLXEW_EXT_framebuffer_sRGB = GL_FALSE;
 GLboolean __GLXEW_EXT_import_context = GL_FALSE;
 GLboolean __GLXEW_EXT_scene_marker = GL_FALSE;
+GLboolean __GLXEW_EXT_texture_from_pixmap = GL_FALSE;
 GLboolean __GLXEW_EXT_visual_info = GL_FALSE;
 GLboolean __GLXEW_EXT_visual_rating = GL_FALSE;
 GLboolean __GLXEW_MESA_agp_offset = GL_FALSE;
@@ -7355,6 +7405,20 @@ static GLboolean _glewInit_GLX_EXT_import_context (GLXEW_CONTEXT_ARG_DEF_INIT)
 #ifdef GLX_EXT_scene_marker
 
 #endif /* GLX_EXT_scene_marker */
+
+#ifdef GLX_EXT_texture_from_pixmap
+
+static GLboolean _glewInit_GLX_EXT_texture_from_pixmap (GLXEW_CONTEXT_ARG_DEF_INIT)
+{
+  GLboolean r = GL_FALSE;
+
+  r = ((glXBindTexImageEXT = (PFNGLXBINDTEXIMAGEEXTPROC)glewGetProcAddress((const GLubyte*)"glXBindTexImageEXT")) == NULL) || r;
+  r = ((glXReleaseTexImageEXT = (PFNGLXRELEASETEXIMAGEEXTPROC)glewGetProcAddress((const GLubyte*)"glXReleaseTexImageEXT")) == NULL) || r;
+
+  return r;
+}
+
+#endif /* GLX_EXT_texture_from_pixmap */
 
 #ifdef GLX_EXT_visual_info
 
@@ -7756,6 +7820,10 @@ GLenum glxewContextInit (GLXEW_CONTEXT_ARG_DEF_LIST)
 #ifdef GLX_EXT_scene_marker
   CONST_CAST(GLXEW_EXT_scene_marker) = glxewGetExtension("GLX_EXT_scene_marker");
 #endif /* GLX_EXT_scene_marker */
+#ifdef GLX_EXT_texture_from_pixmap
+  CONST_CAST(GLXEW_EXT_texture_from_pixmap) = glxewGetExtension("GLX_EXT_texture_from_pixmap");
+  if (glewExperimental || GLXEW_EXT_texture_from_pixmap) CONST_CAST(GLXEW_EXT_texture_from_pixmap) = !_glewInit_GLX_EXT_texture_from_pixmap(GLEW_CONTEXT_ARG_VAR_INIT);
+#endif /* GLX_EXT_texture_from_pixmap */
 #ifdef GLX_EXT_visual_info
   CONST_CAST(GLXEW_EXT_visual_info) = glxewGetExtension("GLX_EXT_visual_info");
 #endif /* GLX_EXT_visual_info */
@@ -7887,7 +7955,10 @@ const GLubyte* glewGetString (GLenum name)
   static const GLubyte* _glewString[] =
   {
     (const GLubyte*)NULL,
-    (const GLubyte*)"1.4.0"
+    (const GLubyte*)"1.5.0",
+    (const GLubyte*)"1",
+    (const GLubyte*)"5",
+    (const GLubyte*)"0"
   };
   const int max_string = sizeof(_glewString)/sizeof(*_glewString) - 1;
   return _glewString[(int)name > max_string ? 0 : (int)name];
@@ -8028,6 +8099,13 @@ GLboolean glewIsSupported (const char* name)
         if (_glewStrSame3(&pos, &len, (const GLubyte*)"float_pixels", 12))
         {
           ret = GLEW_APPLE_float_pixels;
+          continue;
+        }
+#endif
+#ifdef GL_APPLE_flush_buffer_range
+        if (_glewStrSame3(&pos, &len, (const GLubyte*)"flush_buffer_range", 18))
+        {
+          ret = GLEW_APPLE_flush_buffer_range;
           continue;
         }
 #endif
@@ -9096,6 +9174,13 @@ GLboolean glewIsSupported (const char* name)
       }
       if (_glewStrSame2(&pos, &len, (const GLubyte*)"GREMEDY_", 8))
       {
+#ifdef GL_GREMEDY_frame_terminator
+        if (_glewStrSame3(&pos, &len, (const GLubyte*)"frame_terminator", 16))
+        {
+          ret = GLEW_GREMEDY_frame_terminator;
+          continue;
+        }
+#endif
 #ifdef GL_GREMEDY_string_marker
         if (_glewStrSame3(&pos, &len, (const GLubyte*)"string_marker", 13))
         {
@@ -10512,6 +10597,13 @@ GLboolean glxewIsSupported (const char* name)
         if (_glewStrSame3(&pos, &len, (const GLubyte*)"scene_marker", 12))
         {
           ret = GLXEW_EXT_scene_marker;
+          continue;
+        }
+#endif
+#ifdef GLX_EXT_texture_from_pixmap
+        if (_glewStrSame3(&pos, &len, (const GLubyte*)"texture_from_pixmap", 19))
+        {
+          ret = GLXEW_EXT_texture_from_pixmap;
           continue;
         }
 #endif
