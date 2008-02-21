@@ -90,7 +90,10 @@ namespace eq
         AGLPbuffer getAGLPBuffer() const { return _aglPBuffer; }
 
         /** @return the Win32 window handle. */
-        HWND getWGLWindowHandle() const { return _wglWindowHandle; }
+        HWND getWGLWindowHandle() const { return _wglWindow; }
+
+        /** @return the Win32 off screen PBuffer handle. */
+        HPBUFFERARB getWGLPBufferHandle() const { return _wglPBuffer; }
 
         /** @return the WGL rendering context. */
         HGLRC getWGLContext() const { return _wglContext; }
@@ -247,10 +250,20 @@ namespace eq
          * This function should only be called from configInit() or
          * configExit().
          *
-         * @param drawable the window handle.
+         * @param handle the window handle.
          */
         virtual void setWGLWindowHandle( HWND handle );
         
+        /** 
+        * Set the Win32 off screen pbuffer handle for this window.
+        * 
+        * This function should only be called from configInit() or
+        * configExit().
+        *
+        * @param handle the pbuffer handle.
+        */
+        virtual void setWGLPBufferHandle( HPBUFFERARB handle );
+
         /** 
          * Set the WGL rendering context for this window.
          * 
@@ -674,8 +687,10 @@ namespace eq
 
             struct
             {
-                HWND             _wglWindowHandle;
+                HWND             _wglWindow;
+                HPBUFFERARB      _wglPBuffer;
                 HGLRC            _wglContext;
+                HDC              _wglDC;
             };
             char _windowFill[32];
         };

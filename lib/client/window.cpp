@@ -58,8 +58,10 @@ Window::Window( Pipe* parent )
         , _carbonWindow( 0 )
         , _aglPBuffer( 0 )
         , _carbonHandler( 0 )
-        , _wglWindowHandle( 0 )
-        , _wglContext     ( 0 )
+        , _wglWindow( 0 )
+        , _wglPBuffer( 0 )
+        , _wglContext( 0 )
+        , _wglDC( 0 )
         , _pipe( parent )
         , _renderContextAGLLock( 0 )
 {
@@ -941,18 +943,15 @@ bool Window::configInitWGL()
         return false;
     }
 
-    if( !_wglWindowHandle )
+    if( !_wglDC )
     {
         if( dc )
             deleteDCProc( dc );
-        setErrorMessage( "configInitWGLDrawable did set no WGL drawable" );
+        setErrorMessage( "configInitWGLDrawable did not set a WGL drawable" );
         return false;
     }
 
-    HDC windowDC = GetDC( _wglWindowHandle );
-    HGLRC context = createWGLContext( dc ? dc : windowDC );
-    ReleaseDC( _wglWindowHandle, windowDC );
-
+    HGLRC context = createWGLContext( dc );
     setWGLContext( context );
 
     if( !context )
@@ -1084,23 +1083,36 @@ bool Window::configInitWGLWindow( HDC dc, int pixelFormat )
 #endif
 }
 
-bool Window::configInitWGLPBuffer( HDC dc, int pixelFormat )
+bool Window::configInitWGLPBuffer( HDC overrideDC, int pixelFormat )
 {
 #ifdef WGL
+    if( !WGLEW_ARB_pbuffer )
+    {
+        setErrorMessage( "WGL_ARB_pbuffer not supported" );
+        return false;
+    }
+
     const eq::PixelViewport& pvp = getPixelViewport();
     EQASSERT( pvp.isValid( ));
 
+    HDC screenDC = GetDC( 0 );
+    HDC dc       = overrideDC ? overrideDC : screenDC;
+    const int attributes[] = { WGL_PBUFFER_LARGEST_ARB, TRUE, 0 };
+
     HPBUFFERARB pBuffer = wglCreatePbufferARB( dc, pixelFormat, pvp.w, pvp.h,
-                                               0 );
+                                               attributes );
     if( !pBuffer )
     {
         setErrorMessage( "Can't create PBuffer: " + 
             getErrorString( GetLastError( )));
+
+        ReleaseDC( 0, screenDC );
         return false;
     }
 
-    //setWGLPBufferHandle( pBuffer );
+    ReleaseDC( 0, screenDC );
 
+    setWGLPBufferHandle( pBuffer );
     return true;
 #else
     setErrorMessage( "Client library compiled without WGL support" );
@@ -1137,6 +1149,8 @@ int Window::chooseWGLPixelFormat( HDC dc )
     vector< int > attributes;
     attributes.push_back( WGL_SUPPORT_OPENGL_ARB );
     attributes.push_back( 1 );
+    attributes.push_back( WGL_ACCELERATION_ARB );
+    attributes.push_back( WGL_FULL_ACCELERATION_ARB );
 
     const int colorSize = getIAttribute( IATTR_PLANES_COLOR );
     if( colorSize > 0 || colorSize == AUTO )
@@ -1197,7 +1211,7 @@ int Window::chooseWGLPixelFormat( HDC dc )
 
     attributes.push_back( 0 );
 
-    // build backoff list, least important attribute last
+    // build back off list, least important attribute last
     vector<int> backoffAttributes;
     if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
         backoffAttributes.push_back( WGL_DOUBLE_BUFFER_ARB );
@@ -1225,7 +1239,7 @@ int Window::chooseWGLPixelFormat( HDC dc )
 
             break;
 
-        // Gradually remove backoff attributes
+        // Gradually remove back off attributes
         const int attribute = backoffAttributes.back();
         backoffAttributes.pop_back();
 
@@ -1268,9 +1282,10 @@ int Window::chooseWGLPixelFormat( HDC dc )
 #endif
 }
 
-HGLRC Window::createWGLContext( HDC dc )
+HGLRC Window::createWGLContext( HDC overrideDC )
 {
 #ifdef WGL
+    HDC dc = overrideDC ? overrideDC : _wglDC;
     EQASSERT( dc );
 
     // create context
@@ -1399,11 +1414,13 @@ void Window::configExitWGL()
 #ifdef WGL
     wglMakeCurrent( 0, 0 );
 
-    HGLRC context = getWGLContext();
-    HWND  hWnd    = getWGLWindowHandle();
+    HGLRC context        = getWGLContext();
+    HWND  hWnd           = getWGLWindowHandle();
+    HPBUFFERARB hPBuffer = getWGLPBufferHandle();
 
     setWGLContext( 0 );
     setWGLWindowHandle( 0 );
+    setWGLPBufferHandle( 0 );
 
     if( context )
         wglDeleteContext( context );
@@ -1417,6 +1434,8 @@ void Window::configExitWGL()
         if( strlen( className ) > 0 )
             UnregisterClass( className, GetModuleHandle( 0 ));
     }
+    if( hPBuffer )
+        wglDestroyPbufferARB( hPBuffer );
 
     if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON )
         ChangeDisplaySettings( 0, 0 );
@@ -1534,7 +1553,7 @@ void Window::setWGLContext( HGLRC context )
 #ifdef WGL
     _wglContext = context; 
 
-    if( _wglContext && _wglWindowHandle )
+    if( _wglContext && _wglDC )
         _initializeGLData();
     else
         _clearGLData();
@@ -1658,16 +1677,27 @@ void Window::setAGLPBuffer( AGLPbuffer pbuffer )
 void Window::setWGLWindowHandle( HWND handle )
 {
 #ifdef WGL
-    if( _wglWindowHandle == handle )
+    if( _wglWindow == handle )
         return;
 
-    if( _wglWindowHandle )
+    if( _wglWindow )
+    {
         exitEventHandler();
-    _wglWindowHandle = handle;
-    if( _wglWindowHandle )
-        initEventHandler();
+        EQASSERT( _wglDC );
+        ReleaseDC( _wglWindow, _wglDC );
+        _wglDC = 0;
+    }
+    EQASSERTINFO( !_wglDC, "Window and PBuffer set simultaneously?" );
 
-    if( _wglContext && _wglWindowHandle )
+    _wglWindow = handle;
+
+    if( _wglWindow )
+    {
+        initEventHandler();
+        _wglDC = GetDC( _wglWindow );
+    }
+
+    if( _wglContext && _wglWindow )
         _initializeGLData();
     else
         _clearGLData();
@@ -1693,6 +1723,44 @@ void Window::setWGLWindowHandle( HWND handle )
 #endif // WGL
 }
 
+void Window::setWGLPBufferHandle( HPBUFFERARB handle )
+{
+#ifdef WGL
+    if( _wglPBuffer == handle )
+        return;
+
+    if( _wglPBuffer )
+    {
+        EQASSERT( _wglDC );
+        wglReleasePbufferDCARB( _wglPBuffer, _wglDC );
+        _wglDC = 0;
+    }
+    EQASSERTINFO( !_wglDC, "Window and PBuffer set simultaneously?" );
+
+    _wglPBuffer = handle;
+
+    if( _wglPBuffer )
+        _wglDC = wglGetPbufferDCARB( _wglPBuffer );
+
+    if( _wglContext && _wglPBuffer)
+        _initializeGLData();
+    else
+        _clearGLData();
+
+    if( !handle )
+    {
+        _pvp.invalidate();
+        return;
+    }
+
+    // query pixel viewport of PBuffer
+    PixelViewport pvp;
+    wglQueryPbufferARB( handle, WGL_PBUFFER_WIDTH_ARB, &pvp.w );
+    wglQueryPbufferARB( handle, WGL_PBUFFER_HEIGHT_ARB, &pvp.h );
+    setPixelViewport( pvp );
+#endif // WGL
+}
+
 void Window::makeCurrent() const
 {
     switch( _pipe->getWindowSystem( ))
@@ -1712,11 +1780,8 @@ void Window::makeCurrent() const
 #endif
 #ifdef WGL
         case WINDOW_SYSTEM_WGL:
-        {
-            HDC dc = GetDC( _wglWindowHandle );
-            wglMakeCurrent( dc, _wglContext );
-            ReleaseDC( _wglWindowHandle, dc );
-        } break;
+            wglMakeCurrent( _wglDC, _wglContext );
+            break;
 #endif
 
         default: EQUNIMPLEMENTED;
@@ -1739,11 +1804,8 @@ void Window::swapBuffers()
 #endif
 #ifdef WGL
         case WINDOW_SYSTEM_WGL:
-        {
-            HDC dc = GetDC( _wglWindowHandle );
-            SwapBuffers( dc );
-            ReleaseDC( _wglWindowHandle, dc );
-        } break;
+            SwapBuffers( _wglDC );
+            break;
 #endif
 
         default: EQUNIMPLEMENTED;
@@ -1892,9 +1954,9 @@ eqNet::CommandResult Window::_cmdConfigInit( eqNet::Command& command )
             break;
 
         case WINDOW_SYSTEM_WGL:
-            if( !_wglWindowHandle || !_wglContext )
+            if( !_wglDC || !_wglContext )
             {
-                EQERROR << "configInit() did not provide a window handle and"
+                EQERROR << "configInit() did not provide a drawable handle and"
                         << " context" << endl;
                 reply.result = false;
                 send( node, reply, _error );

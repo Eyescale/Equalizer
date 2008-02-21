@@ -104,6 +104,7 @@ typedef void*   AGLPbuffer;
 #ifndef WGL
 typedef void* HDC;
 typedef void* HWND;
+typedef void* HPBUFFERARB;
 typedef void* HGLRC;
 typedef void* WGLEWContext;
 #  define PFNWGLDELETEDCNVPROC void*
