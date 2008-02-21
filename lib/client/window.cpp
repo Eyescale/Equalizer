@@ -1095,8 +1095,8 @@ bool Window::configInitWGLPBuffer( HDC overrideDC, int pixelFormat )
     const eq::PixelViewport& pvp = getPixelViewport();
     EQASSERT( pvp.isValid( ));
 
-    HDC screenDC = GetDC( 0 );
-    HDC dc       = overrideDC ? overrideDC : screenDC;
+    HDC displayDC = CreateDC( "DISPLAY", 0, 0, 0 );
+    HDC dc       = overrideDC ? overrideDC : displayDC;
     const int attributes[] = { WGL_PBUFFER_LARGEST_ARB, TRUE, 0 };
 
     HPBUFFERARB pBuffer = wglCreatePbufferARB( dc, pixelFormat, pvp.w, pvp.h,
@@ -1106,11 +1106,11 @@ bool Window::configInitWGLPBuffer( HDC overrideDC, int pixelFormat )
         setErrorMessage( "Can't create PBuffer: " + 
             getErrorString( GetLastError( )));
 
-        ReleaseDC( 0, screenDC );
+        DeleteDC( displayDC );
         return false;
     }
 
-    ReleaseDC( 0, screenDC );
+    DeleteDC( displayDC );
 
     setWGLPBufferHandle( pBuffer );
     return true;
