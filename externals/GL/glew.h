@@ -1128,6 +1128,7 @@ GLAPI void GLAPIENTRY glViewport (GLint x, GLint y, GLsizei width, GLsizei heigh
 
 #endif /* GL_VERSION_1_1 */
 
+#ifndef EQ_DEFINES_H
 /* ---------------------------------- GLU ---------------------------------- */
 
 /* this is where we can safely include GLU */
@@ -1135,6 +1136,8 @@ GLAPI void GLAPIENTRY glViewport (GLint x, GLint y, GLsizei width, GLsizei heigh
 #include <OpenGL/glu.h>
 #else
 #include <GL/glu.h>
+#endif
+
 #endif
 
 /* ----------------------------- GL_VERSION_1_2 ---------------------------- */
