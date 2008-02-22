@@ -95,6 +95,9 @@ namespace eq
         /** @return the Win32 off screen PBuffer handle. */
         HPBUFFERARB getWGLPBufferHandle() const { return _wglPBuffer; }
 
+        /** @return the Win32 device context used for the current WGL drawable. */
+        HDC getWGLDC() const { return _wglDC; }
+
         /** @return the WGL rendering context. */
         HGLRC getWGLContext() const { return _wglContext; }
 
@@ -496,7 +499,7 @@ namespace eq
         /** 
          * Initialize this window for the WGL window system.
          *
-         * This method first calls getWGLDeviceContext(), then chooses a pixel
+         * This method first calls getWGLPipeDC(), then chooses a pixel
          * format with chooseWGLPixelFormat(), then creates a drawable using 
          * configInitWGLDrawable() and finally creates the context using
          * createWGLContext().
@@ -514,7 +517,7 @@ namespace eq
          * @return the device context, or 0 when no special device context is 
          *         needed.
          */
-        virtual HDC getWGLDeviceContext( PFNEQDELETEDCPROC& deleteProc );
+        virtual HDC getWGLPipeDC( PFNEQDELETEDCPROC& deleteProc );
 
         /** 
          * Choose a pixel format based on the window's attributes.

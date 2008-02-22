@@ -1020,7 +1020,7 @@ bool Window::configInitWGL()
 {
 #ifdef WGL
     PFNEQDELETEDCPROC deleteDCProc = 0;
-    HDC dc = getWGLDeviceContext( deleteDCProc );
+    HDC dc = getWGLPipeDC( deleteDCProc );
     EQASSERT( !dc || deleteDCProc );
 
     int pixelFormat = chooseWGLPixelFormat( dc );
@@ -1215,7 +1215,7 @@ bool Window::configInitWGLPBuffer( HDC overrideDC, int pixelFormat )
 #endif
 }
 
-HDC Window::getWGLDeviceContext( PFNEQDELETEDCPROC& deleteProc )
+HDC Window::getWGLPipeDC( PFNEQDELETEDCPROC& deleteProc )
 {
 #ifdef WGL
     // per-GPU affinity DC
