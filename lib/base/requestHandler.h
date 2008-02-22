@@ -68,7 +68,7 @@ namespace eqBase
          * The request is unregistered.
          * 
          * @param requestID the request identifier.
-         * @param resulte the result code of the operation.
+         * @param result  the result code of the operation.
          * @param timeout the timeout in milliseconds to wait for the request,
          *                or <code>EQ_TIMEOUT_INDEFINITE</code> to wait
          *                indefinitely.

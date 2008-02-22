@@ -338,22 +338,19 @@ bool Session::mapObjectSync( const uint32_t requestID )
     if( requestID == EQ_ID_INVALID )
         return false;
 
-    Object* object = static_cast<Object*>( _requestHandler.getRequestData( 
-                                               requestID ));    
-    EQASSERT( object );
-
-    bool result = false;
+    void* result = 0;
     _requestHandler.waitRequest( requestID, result );
 
-    if( !result )
-        object->_id = EQ_ID_INVALID; // reset identifier
-    else if( !object->isMaster( ))  
+    EQASSERT( result );
+    Object* object = static_cast< Object* >( result );   
+
+    const bool mapped = ( object->getID() != EQ_ID_INVALID );
+    if( mapped && !object->isMaster( ))
         object->_cm->applyMapData(); // apply instance data on slave instances
 
     EQLOG( LOG_OBJECTS ) << "Mapped " << typeid( *object ).name() << " to id " 
                          << object->getID() << endl;
-    EQASSERT( !result || object->getID() != EQ_ID_INVALID );
-    return result;
+    return mapped;
 }
 
 void Session::unmapObject( Object* object )
@@ -717,7 +714,7 @@ CommandResult Session::_cmdMapObject( Command& command )
                          << (void*)object << " is " << typeid(*object).name()
                          << endl;
 
-    _requestHandler.serveRequest( packet->requestID, true );
+    _requestHandler.serveRequest( packet->requestID, object );
     return COMMAND_HANDLED;
 }
 
@@ -815,7 +812,14 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
         command.getPacket<SessionSubscribeObjectReplyPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd object subscribe reply " << packet << endl;
 
-    _requestHandler.serveRequest( packet->requestID, packet->result );
+    Object* object = static_cast<Object*>( _requestHandler.getRequestData( 
+        packet->requestID ));    
+    EQASSERT( object );
+
+    if( !packet->result )
+        object->_id = EQ_ID_INVALID; // reset identifier
+
+    _requestHandler.serveRequest( packet->requestID, object );
     return COMMAND_HANDLED;
 }
 
