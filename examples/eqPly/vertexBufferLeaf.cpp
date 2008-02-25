@@ -139,7 +139,7 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
         center       += centerToPoint.getNormalized() * ( 0.5f * delta );
 
         EQASSERTINFO( Vertex( vertex-center ).lengthSquared() <= 
-                      ( radiusSquared + numeric_limits< float >::epsilon( )),
+                      ( radiusSquared + 2.f* numeric_limits<float>::epsilon( )),
                       vertex << " c " << center << " r " << radius << " (" 
                              << Vertex( vertex-center ).length() << ")" );
     }
