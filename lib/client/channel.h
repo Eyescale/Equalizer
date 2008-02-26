@@ -130,7 +130,7 @@ namespace eq
         Eye getEye() const;
 
         /**
-         * @return the modelling transformation to position and orient the view
+         * @return the view transformation to position and orient the view
          *         frustum.
          */
         const vmml::Matrix4f& getHeadTransform() const;

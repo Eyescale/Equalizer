@@ -1,0 +1,79 @@
+# dual pipe, two-to-one stereo config for a dual-GPU workstation
+
+global
+{
+    EQ_COMPOUND_IATTR_STEREO_MODE   ANAGLYPH  # remove me for active stereo
+}
+
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ .25 .25 .5 .5 ]
+                    channel { name "channel" }
+                }
+            }
+            pipe
+            {
+                device 0
+                window
+                {
+                    attributes{ hint_drawable pbuffer }
+                    channel { name "buffer1" }
+                }
+            }
+            pipe
+            {
+                device 1
+                window
+                {
+                    attributes{ hint_drawable pbuffer }
+                    channel { name "buffer2" }
+                }
+            }
+        }
+        compound
+        {
+            channel "channel"
+            task    [ CLEAR ] 
+
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+            }
+            
+            compound
+            {
+                channel "buffer1"
+                eye [ LEFT ]
+                outputframe { }
+            }
+            compound
+            { 
+                channel "buffer2"
+                eye [ RIGHT ]
+                outputframe { }
+            }
+            compound
+            {
+                task [ ASSEMBLE ]
+                eye  [ LEFT ]
+                inputframe { name "frame.buffer1" }
+            }
+            compound
+            {
+                task [ ASSEMBLE ]
+                eye [ RIGHT ]
+                inputframe { name "frame.buffer2" }
+            }
+        }
+    }    
+}

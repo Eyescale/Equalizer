@@ -123,9 +123,14 @@ namespace eqs
          * @param node the application node.
          */
         void addApplicationNode( Node* node );
+
+        /** @return the application node, or 0 if it was not set. */
+        Node* getApplicationNode() { return _appNode; }
+
         /** @return true if the node is the application node. */
         bool isApplicationNode( const Node* node ) const
             { return (_appNode == node); }
+
         /** 
          * Set the network node running the application thread.
          * 

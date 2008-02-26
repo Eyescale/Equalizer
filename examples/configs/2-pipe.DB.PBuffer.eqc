@@ -1,0 +1,67 @@
+# dual pipe, two-to-one sort-last config for a dual-GPU workstation
+
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ .25 .25 .5 .5 ]
+                    attributes { planes_stencil ON }
+
+                    channel { name "channel" }
+                }
+            }
+            pipe
+            {
+                device 0
+                window
+                {
+                    attributes{ hint_drawable pbuffer }
+                    channel { name "buffer1" }
+                }
+            }
+            pipe
+            {
+                device 1
+                window
+                {
+                    attributes{ hint_drawable pbuffer }
+                    channel { name "buffer2" }
+                }
+            }
+        }
+        compound
+        {
+            channel "channel"
+            buffer  [ COLOR DEPTH ]
+            task    [ CLEAR ASSEMBLE ] 
+
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+            }
+            
+            compound
+            {
+                channel "buffer1"
+                range   [ 0 .5 ]
+                outputframe { }
+            }
+            compound
+            { 
+                channel "buffer2"
+                range   [ .5 1 ]
+                outputframe { }
+            }
+            inputframe { name "frame.buffer1" }
+            inputframe { name "frame.buffer2" }
+        }
+    }    
+}

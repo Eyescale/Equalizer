@@ -14,8 +14,8 @@ typedef int socklen_t;
 #ifdef Darwin
 #  include <crt_externs.h>
 #  define environ (*_NSGetEnviron())
-#else
-extern "C" char **environ;
+#elif !defined(WIN32)
+  extern "C" char **environ;
 #endif
 
 #ifdef WIN32

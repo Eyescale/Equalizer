@@ -107,6 +107,15 @@ namespace eqs
             IATTR_ALL
         };
 
+        /** @name view type names. */
+        enum ViewType
+        {
+            VIEW_NONE,
+            VIEW_WALL,
+            VIEW_PROJECTION
+        };
+
+
         /**
          * @name Data Access
          */
@@ -341,6 +350,9 @@ namespace eqs
         /** @return the last specified projection description. */
         const Projection& getProjection() const { return _view.projection; }
 
+        /** @return the type of the latest specified view. */
+        Compound::ViewType getLatestView() const { return _view.latest; }
+
         /** @return the bitwise OR of the eye values. */
         uint32_t getEyes() const { return _data.eyes; }
 
@@ -434,16 +446,9 @@ namespace eqs
 
         struct ViewDescription
         {
-            enum Type
-            {
-                NONE,
-                WALL,
-                PROJECTION
-            };
+            ViewDescription() : latest( VIEW_NONE ) {}
 
-            ViewDescription() : latest( NONE ) {}
-
-            Type       latest;
+            ViewType   latest;
             Wall       wall;
             Projection projection;
         } 
