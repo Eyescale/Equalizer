@@ -128,7 +128,10 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
 {
     // Test if this is not the last eye pass of this compound
     if( compound->getInheritEyes() + 1 >
-        static_cast< uint32_t >( 1<<( _eye + 1 )))
+        static_cast< uint32_t >( 1<<( _eye + 1 )) ||
+		// or we don't actually draw this eye
+		!compound->testInheritEye( _eye ))
+
         return;
     
     Node* node = _channel->getNode();

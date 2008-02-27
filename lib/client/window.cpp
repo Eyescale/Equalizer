@@ -463,10 +463,20 @@ GLXContext Window::createGLXContext( XVisualInfo* visualInfo )
 
 bool Window::configInitGLXDrawable( XVisualInfo* visualInfo )
 {
-    if( getIAttribute( IATTR_HINT_DRAWABLE ) == PBUFFER )
-        return configInitGLXPBuffer( visualInfo );
-    else
-        return configInitGLXWindow( visualInfo );
+    switch( getIAttribute( IATTR_HINT_DRAWABLE ))
+    {
+        case PBUFFER:
+			return configInitGLXPBuffer( visualInfo );
+
+        default:
+            EQWARN << "Unknown drawable type " 
+                   << getIAttribute(IATTR_HINT_DRAWABLE ) << ", using window" 
+                   << endl;
+            // no break;
+		case UNDEFINED:
+        case WINDOW:
+            return configInitGLXWindow( visualInfo );
+    }
 }
 
 bool Window::configInitGLXWindow( XVisualInfo* visualInfo )
@@ -1077,6 +1087,7 @@ bool Window::configInitWGLDrawable( HDC dc, int pixelFormat )
                    << getIAttribute(IATTR_HINT_DRAWABLE ) << ", using window" 
                    << endl;
             // no break;
+		case UNDEFINED:
         case WINDOW:
             return configInitWGLWindow( dc, pixelFormat );
     }
