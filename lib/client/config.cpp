@@ -154,7 +154,7 @@ bool Config::_finishInit()
     if( !_running )
         deregisterObject( &_headMatrix );
 
-    handleEvents();
+        handleEvents();
     return _running;
 }
 
@@ -409,7 +409,7 @@ eqNet::CommandResult Config::_cmdStartInitReply( eqNet::Command& command )
         _error = packet->data.error;
 #else
     if( !packet->result )
-        _error = packet->data.error;
+        _error = packet->error;
 #endif
 
     _latency = packet->latency;

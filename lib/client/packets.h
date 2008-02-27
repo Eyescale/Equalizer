@@ -250,20 +250,13 @@ namespace eq
                 size      = sizeof( ConfigStartInitReplyPacket );
                 requestID = requestPacket->requestID;
                 sessionID = requestPacket->sessionID;
-                data.error[0] = '\0';
+                error[0]  = '\0';
             }
 
         uint32_t requestID;
-        uint32_t nNodeIDs;
         uint32_t latency;
         bool     result;
-
-        union ReturnData
-        {
-            eqNet::NodeID::Data nodeIDs[1]; // if result == true
-            char                error[8];   // if result == false
-        };
-        EQ_ALIGN8( ReturnData data );
+        EQ_ALIGN8( char error[8] );
     };
 
     struct ConfigFinishInitPacket : public ConfigPacket

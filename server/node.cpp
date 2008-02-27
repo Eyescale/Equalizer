@@ -185,6 +185,9 @@ bool Node::syncConfigInit()
 //---------------------------------------------------------------------------
 void Node::startConfigExit()
 {
+    if( _state == STATE_STOPPED ) // never send the init tasks
+        return;
+
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_STOPPING;
 

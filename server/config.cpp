@@ -300,6 +300,12 @@ bool Config::_connectNodes()
 
         if( !localNode->initConnect( netNode ))
         {
+            stringstream nodeString;
+            nodeString << node;
+
+            _error = string( "Connection to node failed, node does not run " ) +
+                     string( "and launch command failed:\n " ) + 
+                     nodeString.str();
             EQERROR << "Connection to " << netNode->getNodeID() << " failed." 
                     << endl;
             return false;
@@ -335,6 +341,11 @@ bool Config::_initNodes( const uint32_t initID,
 
         if( !localNode->syncConnect( netNode ))
         {
+            stringstream nodeString;
+            nodeString << node;
+
+            _error = "Connection of node failed, node did not start:\n " +
+                     nodeString.str();
             EQERROR << "Connection of node " << node << " failed." << endl;
             success = false;
         }
@@ -623,17 +634,7 @@ eqNet::CommandResult Config::_cmdStartInit( eqNet::Command& command )
     EQINFO << "Config start init " << (reply.result ? "successful": "failed: ") 
            << _error << endl;
 
-    if( reply.result )
-    {
-        reply.nNodeIDs = nodeIDs.size();
-        command.getNode()->send( reply, nodeIDs );
-    }
-    else
-    {
-        reply.nNodeIDs = 0;
-        send( command.getNode(), reply, _error );
-    }
-
+    send( command.getNode(), reply, _error );
     return eqNet::COMMAND_HANDLED;
 }
 
