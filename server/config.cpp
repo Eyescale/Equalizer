@@ -364,6 +364,17 @@ bool Config::_initNodes( const uint32_t initID,
         }
     }
 
+    if( !success )
+    {
+        // sync already issued requests
+        while( !createConfigRequests.empty( ))
+        {
+            _requestHandler.waitRequest( createConfigRequests.front( ));
+            createConfigRequests.pop_front();
+        }
+        return false;
+    }
+
     // sync config creation and start node init
     eq::ConfigCreateNodePacket createNodePacket;
     vector<uint32_t>           createNodeRequests;
