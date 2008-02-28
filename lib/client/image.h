@@ -176,7 +176,7 @@ namespace eq
         {
         public:
             Pixels() : data(0), format( GL_FALSE ), type( GL_FALSE ),
-                       valid( false ), maxSize(0), reading( false )
+                       maxSize(0), valid( false ), reading( false )
                 {}
             ~Pixels();
 

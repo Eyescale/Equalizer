@@ -170,7 +170,7 @@ void Channel::frameDraw( const uint32_t frameID )
 
     for( unsigned i = 0; i < NUM_IMAGES; ++i )
     {
-        eq::Image* image = images[ i ];
+        image = images[ i ];
         EQASSERT( image );
         image->setPixelViewport( subPVP );
     }
@@ -180,7 +180,7 @@ void Channel::frameDraw( const uint32_t frameID )
         subPVP.y = pvp.y + i * subPVP.h;
 
         // fill color image
-        eq::Image* image = images[ i ];
+        image = images[ i ];
         image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
         image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
         
@@ -223,7 +223,7 @@ void Channel::frameDraw( const uint32_t frameID )
     //----- test depth-based assembly algorithms
     for( unsigned i = 0; i < NUM_IMAGES; ++i )
     {
-        eq::Image* image = images[ i ];
+        image = images[ i ];
         EQASSERT( image );
         image->setPixelViewport( pvp );
     }
@@ -233,7 +233,7 @@ void Channel::frameDraw( const uint32_t frameID )
     for( unsigned i = 0; i < NUM_IMAGES; ++i )
     {
         // fill depth & color image
-        eq::Image* image = images[ i ];
+        image = images[ i ];
         image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
         image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
         image->setFormat( eq::Frame::BUFFER_DEPTH, GL_DEPTH_COMPONENT );
