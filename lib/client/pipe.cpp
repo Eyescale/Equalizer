@@ -742,7 +742,9 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
     hGPU[1] = 0;
     if( !wglEnumGpusNV( _device, hGPU ))
     {
-        setErrorMessage( "Can't enumerate GPU #" + _device );
+		stringstream error;
+		error << "Can't enumerate GPU #" << _device;
+        setErrorMessage( error.str( ));
         return false;
     }
 
@@ -754,11 +756,21 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
         const bool found = wglEnumGpuDevicesNV( hGPU[0], 0, &device );
         EQASSERT( found );
 
-        const RECT& rect = device.rcVirtualScreen;
-        _pvp.x = rect.left;
-        _pvp.y = rect.top;
-        _pvp.w = rect.right  - rect.left;
-        _pvp.h = rect.bottom - rect.top; 
+		if( device.Flags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP )
+		{
+			const RECT& rect = device.rcVirtualScreen;
+			_pvp.x = rect.left;
+			_pvp.y = rect.top;
+			_pvp.w = rect.right  - rect.left;
+			_pvp.h = rect.bottom - rect.top; 
+		}
+		else
+		{
+			_pvp.x = 0;
+			_pvp.y = 0;
+			_pvp.w = 4096;
+			_pvp.h = 4096;
+	    }
     }
 
     affinityDC = wglCreateAffinityDCNV( hGPU );
@@ -920,6 +932,7 @@ eqNet::CommandResult Pipe::_cmdConfigExit( eqNet::Command& command )
 
 void Pipe::_startFrameClock()
 {
+	EQVERB << "start frame clock" << endl;
     _frameClockMutex.set();
     _frameClocks.push_back( Clock( ));
     _frameClockMutex.unset();
