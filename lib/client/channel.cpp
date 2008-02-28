@@ -191,11 +191,13 @@ void Channel::frameReadback( const uint32_t frameID )
     EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
 
-    const vector<Frame*>& frames = getOutputFrames();
-    for( vector<Frame*>::const_iterator iter = frames.begin();
-         iter != frames.end(); ++iter )
+    Window::ObjectManager* glObjects = getWindow()->getObjectManager();
 
-        (*iter)->startReadback();
+    const vector<Frame*>& frames = getOutputFrames();
+    for( vector<Frame*>::const_iterator i = frames.begin();
+         i != frames.end(); ++i )
+
+        (*i)->startReadback( glObjects );
 
     EQ_GL_CALL( resetAssemblyState( ));
 }

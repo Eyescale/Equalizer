@@ -1,11 +1,12 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_FRAME_H
 #define EQ_FRAME_H
 
-#include <eq/client/eye.h> // member enum
+#include <eq/client/eye.h>    // member enum
+#include <eq/client/window.h> // nested ObjectManager type
 
 #include <eq/base/monitor.h>
 #include <eq/net/object.h>
@@ -65,7 +66,7 @@ namespace eq
         const Pixel& getPixel() const;
 
         /** The images of this frame */
-        const std::vector<Image*>& getImages() const;
+        const ImageVector& getImages() const;
 
         /** Set the data for this frame. */
         void setData( FrameData* data ) { _frameData = data; }
@@ -83,8 +84,10 @@ namespace eq
          * Read back a set of images according to the current frame data.
          * 
          * The images are added to the frame, existing images are retained.
+         *
+         * @param glObjects the GL object manager for the current GL context.
          */
-        void startReadback();
+        void startReadback( Window::ObjectManager* glObjects );
         
         /** Synchronize the image readback. */
         void syncReadback();

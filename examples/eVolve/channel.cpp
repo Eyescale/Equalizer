@@ -311,10 +311,13 @@ void Channel::frameAssemble( const uint32_t frameID )
         else
             if( coveredPVP.hasArea())
             {
+                eq::Window::ObjectManager* glObjects = 
+                    getWindow()->getObjectManager();
                 _image.setFormat(eq::Frame::BUFFER_COLOR, GL_RGBA   );
                 _image.setType(  eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
 
-                _image.startReadback(eq::Frame::BUFFER_COLOR, coveredPVP );
+                _image.startReadback( eq::Frame::BUFFER_COLOR, coveredPVP, 
+                                      glObjects );
 
 #if defined(__APPLE__)||defined(_WIN32)
                 clearViewport( coveredPVP ); //this has to be checked on linux

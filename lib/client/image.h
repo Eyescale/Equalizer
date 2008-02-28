@@ -32,6 +32,9 @@ namespace eq
         /** @return the fractional viewport of the image. */
         const eq::Viewport& getViewport() const { return _data.vp; }
 
+		/** @return the GL function table, valid during readback. */
+		GLEWContext* glewGetContext() { return _glObjects->glewGetContext(); }
+
         /** Reset the image to its default state. */
         void reset();
 
@@ -134,11 +137,13 @@ namespace eq
          *
          * @param buffers bit-wise combination of the frame buffer components.
          * @param pvp the area of the frame buffer wrt the drawable.
+		 * @param glObjects the GL object manager for the current GL context.
          */
-        void startReadback( const uint32_t buffers, const PixelViewport& pvp );
+        void startReadback( const uint32_t buffers, const PixelViewport& pvp,
+			                Window::ObjectManager* glObjects );
 
         /** Make sure that the last readback operation is complete. */
-        void syncReadback() {}
+        void syncReadback();
         
         /** Writes the pixel data as rgb image files. */
         void writeImage( const std::string& filename, 
@@ -171,7 +176,7 @@ namespace eq
         {
         public:
             Pixels() : data(0), format( GL_FALSE ), type( GL_FALSE ),
-                       valid( false ), maxSize(0)
+                       valid( false ), maxSize(0), reading( false )
                 {}
             ~Pixels();
 
@@ -180,8 +185,9 @@ namespace eq
             uint8_t* data;    // allocated (and cached data)
             uint32_t format;
             uint32_t type;
-            bool     valid;   // data is currently valid
             uint32_t maxSize; // the size of the allocation
+            bool     valid;   // data is currently valid
+            bool     reading; // data is currently read
         };
 
         Pixels _colorPixels;
@@ -196,6 +202,9 @@ namespace eq
         CompressedPixels _compressedColorPixels;
         CompressedPixels _compressedDepthPixels;
 
+		/** The GL object manager, valid during a readback operation. */
+		Window::ObjectManager* _glObjects;
+
         Pixels&           _getPixels( const Frame::Buffer buffer );
         CompressedPixels& _getCompressedPixels( const Frame::Buffer buffer );
         const Pixels&           _getPixels( const Frame::Buffer buffer ) const;
@@ -205,7 +214,11 @@ namespace eq
         uint32_t _compressPixelData( const uint64_t* data, const uint32_t size, 
                                      const uint64_t marker, uint64_t* out );
 
+        /** @return a unique key for the frame buffer attachment. */
+        const void* _getPBOKey( const Frame::Buffer buffer ) const;
+
         void _startReadback( const Frame::Buffer buffer );
+        void _syncReadback( const Frame::Buffer buffer );
 
         void _setupAssemble( const vmml::Vector2i& offset );
         void _startAssemble2D( const vmml::Vector2i& offset );

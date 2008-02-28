@@ -109,7 +109,8 @@ Image* FrameData::_allocImage()
     return image;
 }
 
-void FrameData::startReadback( const Frame& frame )
+void FrameData::startReadback( const Frame& frame, 
+                               Window::ObjectManager* glObjects )
 {
     if( _data.buffers == Frame::BUFFER_NONE )
         return;
@@ -119,7 +120,7 @@ void FrameData::startReadback( const Frame& frame )
         return;
     
     Image* image = newImage();
-    image->startReadback( _data.buffers, absPVP );
+    image->startReadback( _data.buffers, absPVP, glObjects );
 }
 
 void FrameData::syncReadback()

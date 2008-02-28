@@ -8,7 +8,7 @@
 #include <eq/client/server.h>       // called in inline method
 #include <eq/client/commandQueue.h> // member
 #include <eq/client/matrix4.h>      // member
-#include <eq/client/types.h>          // typedefs
+#include <eq/client/types.h>        // typedefs
 
 #include <eq/net/session.h>         // base class
 

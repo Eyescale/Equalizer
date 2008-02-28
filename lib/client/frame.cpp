@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "frame.h"
@@ -43,16 +43,16 @@ const Range& Frame::getRange() const
     return _frameData->getRange();
 }
 
-const std::vector<Image*>& Frame::getImages() const
+const ImageVector& Frame::getImages() const
 {
     EQASSERT( _frameData );
     return _frameData->getImages();
 }
 
-void Frame::startReadback() 
+void Frame::startReadback( Window::ObjectManager* glObjects ) 
 {
     EQASSERT( _frameData );
-    _frameData->startReadback( *this );
+    _frameData->startReadback( *this, glObjects );
 }
 
 void Frame::syncReadback() 

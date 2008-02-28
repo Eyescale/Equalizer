@@ -43,6 +43,16 @@ static EnumMap enums[] = {
 
 #define NUM_IMAGES 8
 
+Channel::Channel( eq::Window* parent )
+        : eq::Channel( parent )
+{
+    eq::FrameData* frameData = new eq::FrameData;
+    _frame.setData( frameData );
+
+    for( unsigned i = 0; i < NUM_IMAGES; ++i )
+        frameData->newImage();
+}
+
 void Channel::frameStart( const uint32_t frameID, const uint32_t frameNumber ) 
 {
     Config*      config = static_cast< Config* >( getConfig( ));
@@ -89,11 +99,10 @@ void Channel::frameDraw( const uint32_t frameID )
     setupAssemblyState();
 
     //----- setup constant data
-    eq::Frame*     frame     = new eq::Frame;
-    eq::FrameData* frameData = new eq::FrameData;
-    frame->setData( frameData );
+    const eq::ImageVector& images = _frame.getImages();
+    eq::Image*             image  = images[ 0 ];
+    EQASSERT( image );
 
-    eq::Image*               image = frameData->newImage();
     const eq::PixelViewport& pvp    = getPixelViewport();
     const vmml::Vector2i     offset( pvp.x, pvp.y );
     eq::Config*              config = getConfig();
@@ -108,7 +117,8 @@ void Channel::frameDraw( const uint32_t frameID )
     event.area.x = pvp.w;
     event.area.y = pvp.h;
 
-    Clock          clock;
+    Clock                      clock;
+    eq::Window::ObjectManager* glObjects = getWindow()->getObjectManager();
 
     //----- test all default format/type combinations
     glGetError();
@@ -125,7 +135,7 @@ void Channel::frameDraw( const uint32_t frameID )
         
         // read
         clock.reset();
-        image->startReadback( eq::Frame::BUFFER_COLOR, pvp );
+        image->startReadback( eq::Frame::BUFFER_COLOR, pvp, glObjects );
         image->syncReadback();
         event.msec = clock.getTimef();
 
@@ -151,24 +161,30 @@ void Channel::frameDraw( const uint32_t frameID )
 
         config->sendEvent( event );
     }
+    return;
 
     //----- test tiled assembly algorithms
-    frameData->clear();
-
     eq::PixelViewport subPVP = pvp;
     subPVP.h /= NUM_IMAGES;
     event.area.y = subPVP.h;
 
     for( unsigned i = 0; i < NUM_IMAGES; ++i )
     {
+        eq::Image* image = images[ i ];
+        EQASSERT( image );
+        image->setPixelViewport( subPVP );
+    }
+
+    for( unsigned i = 0; i < NUM_IMAGES; ++i )
+    {
         subPVP.y = pvp.y + i * subPVP.h;
 
-        // add another image to the frame, fill color image
-        image = frameData->newImage();
+        // fill color image
+        eq::Image* image = images[ i ];
         image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
         image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
         
-        image->startReadback( eq::Frame::BUFFER_COLOR, subPVP );
+        image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, glObjects );
         image->syncReadback();
 
         // benchmark
@@ -182,7 +198,6 @@ void Channel::frameDraw( const uint32_t frameID )
         snprintf( event.formatType, 64, 
                   "Tiled assembly (GL1.1) of %d images", i+1 ); 
 
-        const vector< eq::Image* >& images = frame->getImages();
         clock.reset();
         for( vector< eq::Image* >::const_iterator j = images.begin(); 
              j != images.end(); ++j )
@@ -197,7 +212,7 @@ void Channel::frameDraw( const uint32_t frameID )
                   "Tiled assembly (CPU)   of %d images", i+1 ); 
 
         std::vector< eq::Frame* > frames;
-        frames.push_back( frame );
+        frames.push_back( &_frame );
 
         clock.reset();
         eq::Compositor::assembleFramesCPU( frames, this );
@@ -206,20 +221,26 @@ void Channel::frameDraw( const uint32_t frameID )
     }
 
     //----- test depth-based assembly algorithms
-    frameData->clear();
+    for( unsigned i = 0; i < NUM_IMAGES; ++i )
+    {
+        eq::Image* image = images[ i ];
+        EQASSERT( image );
+        image->setPixelViewport( pvp );
+    }
+
     event.area.y = pvp.h;
 
     for( unsigned i = 0; i < NUM_IMAGES; ++i )
     {
-        // add another image to the frame, fill depth & color image
-        image = frameData->newImage();
+        // fill depth & color image
+        eq::Image* image = images[ i ];
         image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
         image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
         image->setFormat( eq::Frame::BUFFER_DEPTH, GL_DEPTH_COMPONENT );
         image->setType(   eq::Frame::BUFFER_DEPTH, GL_FLOAT );
         
         image->startReadback( eq::Frame::BUFFER_COLOR | 
-                               eq::Frame::BUFFER_DEPTH, pvp );
+                              eq::Frame::BUFFER_DEPTH, pvp, glObjects );
         image->syncReadback();
 
         // benchmark
@@ -233,7 +254,6 @@ void Channel::frameDraw( const uint32_t frameID )
         snprintf( event.formatType, 64, 
                   "Depth-based assembly (GL1.1) of %d images", i+1 ); 
 
-        const vector< eq::Image* >& images = frame->getImages();
         clock.reset();
         for( vector< eq::Image* >::const_iterator j = images.begin(); 
              j != images.end(); ++j )
@@ -262,7 +282,7 @@ void Channel::frameDraw( const uint32_t frameID )
                   "Depth-based assembly (CPU)   of %d images", i+1 ); 
 
         std::vector< eq::Frame* > frames;
-        frames.push_back( frame );
+        frames.push_back( &_frame );
 
         clock.reset();
         eq::Compositor::assembleFramesCPU( frames, this );
@@ -271,9 +291,5 @@ void Channel::frameDraw( const uint32_t frameID )
     }
     
     resetAssemblyState();
-
-    frame->setData( 0 );
-    delete frameData;
-    delete frame;
 }
 }

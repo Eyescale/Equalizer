@@ -12,12 +12,16 @@ namespace eqPixelBench
 class Channel : public eq::Channel
 {
 public:
-    Channel( eq::Window* parent ) : eq::Channel( parent ) {}
+    Channel( eq::Window* parent );
+    virtual ~Channel() {}
 
 protected:
     virtual void frameStart( const uint32_t frameID,
                              const uint32_t frameNumber );
     virtual void frameDraw( const uint32_t frameID );
+
+private:
+    eq::Frame _frame;
 };
 }
 

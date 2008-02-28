@@ -48,7 +48,7 @@ namespace eq
         const Pixel& getPixel() const { return _data.pixel; }
         
         /** The images of this frame data holder */
-        const std::vector<Image*>& getImages() const { return _images; }
+        const ImageVector& getImages() const { return _images; }
         //*}
 
         /**
@@ -76,8 +76,10 @@ namespace eq
          * retained.
          *
          * @param frame the corresponding output frame holder.
+		 * @param glObjects the GL object manager for the current GL context.
          */
-        void startReadback( const Frame& frame );
+        void startReadback( const Frame& frame, 
+                            Window::ObjectManager* glObjects );
 
         /** Synchronize the last image readback. */
         void syncReadback();
@@ -99,7 +101,7 @@ namespace eq
         void waitReady() const { _readyVersion.waitGE( getVersion( )); }
 
         /** 
-         * Add a listener which will be incremented when the frame becomes
+         * Add a listener which will be incremented when the frame is
          * ready.
          * 
          * @param listener the listener.
@@ -150,8 +152,8 @@ namespace eq
 
         friend class eqs::FrameData;
 
-        std::vector<Image*> _images;
-        std::vector<Image*> _imageCache;
+        ImageVector _images;
+        ImageVector _imageCache;
         eqBase::SpinLock    _imageCacheLock;
 
         struct ImageVersion

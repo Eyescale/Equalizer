@@ -193,7 +193,7 @@ bool Pipe::syncConfigInit()
         if( window->isUsed( ))
             if( !window->syncConfigInit( ))
             {
-                _error += "window: '" + window->getErrorMessage() + '\'';
+                _error += ", window: '" + window->getErrorMessage() + '\'';
                 success = false;
             }
     }

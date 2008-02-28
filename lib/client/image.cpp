@@ -28,6 +28,7 @@ namespace eq
 {
 
 Image::Image()
+        : _glObjects( 0 )
 {
     reset();
 }
@@ -170,25 +171,35 @@ uint32_t Image::getType( const Frame::Buffer buffer ) const
     return pixels.type;
 }
 
-void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp )
+void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp, 
+                           Window::ObjectManager* glObjects )
 {
+    EQASSERT( glObjects );
+    EQASSERTINFO( !_glObjects, "Another readback in progress?" );
     EQLOG( LOG_ASSEMBLY ) << "startReadback " << pvp << ", buffers " << buffers 
                           << endl;
 
-    _pvp   = pvp;
+    _glObjects = glObjects;
+    _pvp       = pvp;
+
+    _colorPixels.valid = false;
+    _depthPixels.valid = false;
 
     if( buffers & Frame::BUFFER_COLOR )
         _startReadback( Frame::BUFFER_COLOR );
-    else
-        _colorPixels.valid = false;
 
     if( buffers & Frame::BUFFER_DEPTH )
         _startReadback( Frame::BUFFER_DEPTH );
-    else
-        _depthPixels.valid = false;
 
     _pvp.x = 0;
     _pvp.y = 0;
+}
+
+void Image::syncReadback()
+{
+    _syncReadback( Frame::BUFFER_COLOR );
+    _syncReadback( Frame::BUFFER_DEPTH );
+    _glObjects = 0;
 }
 
 Image::Pixels::~Pixels()
@@ -213,17 +224,80 @@ void Image::Pixels::resize( uint32_t size )
     maxSize = size;
 }
 
+const void* Image::_getPBOKey( const Frame::Buffer buffer ) const
+{
+    switch( buffer )
+    {
+        case Frame::BUFFER_COLOR:
+            return ( reinterpret_cast< const char* >( this ) + 1 );
+        case Frame::BUFFER_DEPTH:
+            return ( reinterpret_cast< const char* >( this ) + 2 );
+        default:
+            EQUNIMPLEMENTED;
+            return ( reinterpret_cast< const char* >( this ) + 0 );
+    }
+}
+
 void Image::_startReadback( const Frame::Buffer buffer )
 {
     Pixels&           pixels           = _getPixels( buffer );
     CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
     const size_t      size = _pvp.w * _pvp.h * getDepth( buffer );
 
-    pixels.resize( size );
     compressedPixels.valid = false;
 
-    glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h, getFormat( buffer ), 
-                  getType( buffer ), pixels.data );
+#ifdef EQ_USE_PBO
+    if( !_glObjects->supportsBuffers( ))
+#endif
+    {
+        pixels.resize( size );
+        glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h, getFormat( buffer ),
+                      getType( buffer ), pixels.data );
+        pixels.valid = true;
+        return;
+    }
+
+    // use PBOs
+    pixels.reading = true;
+
+    const void* bufferKey = _getPBOKey( buffer );
+    GLuint pbo = _glObjects->obtainBuffer( bufferKey );
+
+    glBindBuffer( GL_PIXEL_PACK_BUFFER, pbo );
+    if( pixels.maxSize < size )
+        glBufferData( GL_PIXEL_PACK_BUFFER, size, 0, GL_STREAM_READ );
+
+    glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h, getFormat( buffer ),
+                  getType( buffer ), 0 );
+    glBindBuffer( GL_PIXEL_PACK_BUFFER, 0 );
+}
+
+void Image::_syncReadback( const Frame::Buffer buffer )
+{
+    Pixels& pixels = _getPixels( buffer );
+    if( pixels.valid || !pixels.reading )
+        return;
+
+    // overlapped readbacks are only possible when PBOs are supported
+    EQASSERT( _glObjects->supportsBuffers( ));
+
+    const size_t size      = _pvp.w * _pvp.h * getDepth( buffer );
+    const void*  bufferKey = _getPBOKey( buffer );
+    GLuint       pbo       = _glObjects->getBuffer( bufferKey );
+    EQASSERT( pbo != Window::ObjectManager::FAILED );
+
+    glBindBuffer( GL_PIXEL_PACK_BUFFER, pbo );
+
+    pixels.resize( size );
+    const void* data = glMapBuffer( GL_PIXEL_PACK_BUFFER, GL_READ_ONLY );
+    EQASSERT( data );
+
+    memcpy( pixels.data, data, size );
+
+    glUnmapBuffer( GL_PIXEL_PACK_BUFFER );
+    glBindBuffer( GL_PIXEL_PACK_BUFFER, 0 );
+
+    pixels.reading = false;
 }
 
 void Image::setPixelViewport( const PixelViewport& pvp )
