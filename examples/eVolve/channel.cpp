@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com>
                  2007       Maxim Makhinya
    All rights reserved. */
 
@@ -33,8 +33,8 @@ Channel::Channel( eq::Window* parent )
     : eq::Channel( parent )
     , _bgColor   ( 0.0f, 0.0f, 0.0f, 1.0f )
     , _bgColorMode( BG_SOLID_COLORED )
+    , _haveDrawn( false )
 {
-    _curFrData.frameID = 0;
 }
 
 
@@ -101,6 +101,11 @@ void Channel::applyFrustum() const
     EQVERB << "Apply " << frustum << endl;
 }
 
+void Channel::frameStart( const uint32_t frameID, const uint32_t frameNumber )
+{
+    _haveDrawn = false;
+    eq::Channel::frameStart( frameID, frameNumber );
+}
 
 void Channel::frameClear( const uint32_t frameID )
 {
@@ -147,7 +152,6 @@ void Channel::frameDraw( const uint32_t frameID )
     const eq::Range range = getRange();
 
     _curFrData.lastRange  = range;
-    _curFrData.frameID    = frameID;
 
     const Pipe*             pipe = static_cast<Pipe*>( getPipe( ));
     const FrameData::Data&  data = pipe->getFrameData().data;
@@ -171,6 +175,8 @@ void Channel::frameDraw( const uint32_t frameID )
     const eq::Viewport& vp = getViewport();
     if( range == eq::Range::ALL && vp.isFullScreen( ))
        _drawLogo();
+
+    _haveDrawn = true;
 }
 
 
@@ -260,8 +266,7 @@ void Channel::_orderFrames( vector< Frame > &frames )
 void Channel::frameAssemble( const uint32_t frameID )
 {
     const eq::Range range  = _curFrData.lastRange;
-    const bool composeOnly = ( frameID != _curFrData.frameID || 
-                               range == eq::Range::ALL );
+    const bool composeOnly = ( !_haveDrawn || range == eq::Range::ALL );
 
     _startAssemble();
 

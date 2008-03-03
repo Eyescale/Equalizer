@@ -26,8 +26,11 @@ namespace eVolve
         virtual ~Channel() {}
 
         virtual bool configInit( const uint32_t initID );
-        virtual void frameDraw( const uint32_t frameID );
 
+        virtual void frameStart( const uint32_t frameID, 
+                                 const uint32_t frameNumber );
+
+        virtual void frameDraw( const uint32_t frameID );
         virtual void frameAssemble( const uint32_t frameID );
         virtual void frameReadback( const uint32_t frameID );
 
@@ -53,7 +56,6 @@ namespace eVolve
 
         struct curFrData
         {
-            uint32_t    frameID;
             eq::Range   lastRange;
         }
             _curFrData;
@@ -70,6 +72,8 @@ namespace eVolve
         double _initTranslationZ; //!< initial Z-translation (for ortog. proj)
 
         eq::Image _image; //!< buffer for readback in case of DB compositing
+
+        bool _haveDrawn;
     };
 
 }
