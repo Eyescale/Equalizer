@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EVOLVE_CHANNEL_H
@@ -54,26 +54,18 @@ namespace eVolve
 
         const FrameData& _getFrameData() const;
 
-        struct curFrData
-        {
-            eq::Range   lastRange;
-        }
-            _curFrData;
-
         vmml::Vector4f _bgColor; // background color
 
         enum BGColorMode
         {
             BG_SOLID_BLACK    = 0,
-            BG_SOLID_COLORED  = 1,
-            BG_TAINT_CHANNELS = 2
-        } _bgColorMode;
-
-        double _initTranslationZ; //!< initial Z-translation (for ortog. proj)
+            BG_SOLID_COLORED  = 1
+        } 
+            _bgColorMode;
 
         eq::Image _image; //!< buffer for readback in case of DB compositing
 
-        bool _haveDrawn;
+        eq::Range _drawRange; //!< The range from the last draw of this frame
     };
 
 }

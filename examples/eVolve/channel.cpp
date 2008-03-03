@@ -13,30 +13,20 @@
 #include "hlp.h"
 #include "framesOrderer.h"
 
-
-//#define DYNAMIC_NEAR_FAR 
-#ifndef M_SQRT3
-#  define M_SQRT3    1.7321f   /* sqrt(3) */
-#endif
-#ifndef M_SQRT3_2
-#  define M_SQRT3_2  0.86603f  /* sqrt(3)/2 */
-#endif
-
-namespace eVolve
-{
-
 using namespace eqBase;
 using namespace std;
 
+namespace eVolve
+{
+const float _orthoZ = -3.0f;
 
 Channel::Channel( eq::Window* parent )
     : eq::Channel( parent )
     , _bgColor   ( 0.0f, 0.0f, 0.0f, 1.0f )
     , _bgColorMode( BG_SOLID_COLORED )
-    , _haveDrawn( false )
+    , _drawRange( eq::Range::ALL )
 {
 }
-
 
 static void checkError( const std::string& msg ) 
 {
@@ -56,19 +46,19 @@ bool Channel::configInit( const uint32_t initID )
     const Node* node  = static_cast<Node*>( getNode( ));
 
     _perspective      = node->getInitData().getPerspective();
-    _initTranslationZ = _getFrameData().data.translation.z;
 
-#ifndef DYNAMIC_NEAR_FAR
     setNearFar( 0.0001f, 10.0f );
-#endif
 
     if( getenv( "EQ_TAINT_CHANNELS" ))
-        _bgColorMode = BG_TAINT_CHANNELS;
+    {
+        _bgColor = getUniqueColor();
+        _bgColor /= 255.f;
+    }
+
+    if( _bgColor.x + _bgColor.y + _bgColor.z < 0.0f )
+        _bgColorMode = BG_SOLID_BLACK;
     else
-        if( _bgColor.x + _bgColor.y + _bgColor.z < 0.0001 )
-            _bgColorMode = BG_SOLID_BLACK;
-        else
-            _bgColorMode = BG_SOLID_COLORED;
+        _bgColorMode = BG_SOLID_COLORED;
 
     return true;
 }
@@ -82,20 +72,18 @@ void Channel::applyFrustum() const
     {
         glFrustum( frustum.left, frustum.right, frustum.bottom, frustum.top,
                    frustum.nearPlane, frustum.farPlane );
-    }else
+    }
+    else
     {
-        double scale = 0.001 + fabs( 3.0 - _initTranslationZ +
-                                     _getFrameData().data.translation.z );
+        const float scale = 0.001f + fabs( _getFrameData().data.translation.z );
+        const float zc = ( 1.0 + frustum.farPlane/frustum.nearPlane ) / scale;
 
-        double zc = ( 1.0 + frustum.farPlane/frustum.nearPlane ) / scale;
-
-        glOrtho(
-            frustum.left   * zc,
-            frustum.right  * zc,
-            frustum.bottom * zc,
-            frustum.top    * zc,
-            frustum.nearPlane,
-            frustum.farPlane      );
+        glOrtho( frustum.left   * zc,
+                 frustum.right  * zc,
+                 frustum.bottom * zc,
+                 frustum.top    * zc,
+                 frustum.nearPlane,
+                 frustum.farPlane      );
     }
 
     EQVERB << "Apply " << frustum << endl;
@@ -103,7 +91,7 @@ void Channel::applyFrustum() const
 
 void Channel::frameStart( const uint32_t frameID, const uint32_t frameNumber )
 {
-    _haveDrawn = false;
+    _drawRange = eq::Range::ALL;
     eq::Channel::frameStart( frameID, frameNumber );
 }
 
@@ -113,14 +101,7 @@ void Channel::frameClear( const uint32_t frameID )
     applyViewport();
 
     if( getRange() == eq::Range::ALL )
-    {
-        if( _bgColorMode == BG_TAINT_CHANNELS )
-        {
-            const vmml::Vector3ub color = getUniqueColor();
-            glClearColor( color.r/255., color.g/255., color.b/255., 1. );
-        }else
-            glClearColor( _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a );
-    }
+        glClearColor( _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a );
     else
         glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
 
@@ -148,15 +129,10 @@ void Channel::frameDraw( const uint32_t frameID )
     eq::Channel::frameDraw( frameID );
     setLights();
 
-    // Save ID and range for compositing
-    const eq::Range range = getRange();
-
-    _curFrData.lastRange  = range;
-
     const Pipe*             pipe = static_cast<Pipe*>( getPipe( ));
     const FrameData::Data&  data = pipe->getFrameData().data;
 
-    double translationZ = _perspective ? data.translation.z : _initTranslationZ;
+    double translationZ = _perspective ? data.translation.z : _orthoZ;
     glTranslatef(  data.translation.x, data.translation.y, translationZ );
     glMultMatrixf( data.rotation.ml );
 
@@ -167,6 +143,7 @@ void Channel::frameDraw( const uint32_t frameID )
     vmml::Matrix3d  modelviewITM;   // modelview inversed transposed matrix
     _calcMVandITMV( modelviewM, modelviewITM );
 
+    const eq::Range& range = getRange();
     model->Render( range, modelviewM, modelviewITM );
 
     checkError( "error during rendering " );
@@ -176,7 +153,7 @@ void Channel::frameDraw( const uint32_t frameID )
     if( range == eq::Range::ALL && vp.isFullScreen( ))
        _drawLogo();
 
-    _haveDrawn = true;
+    _drawRange = range;
 }
 
 
@@ -237,12 +214,7 @@ void Channel::clearViewport( const eq::PixelViewport &pvp )
     glViewport( pvp.x, pvp.y, pvp.w, pvp.h );
     glScissor(  pvp.x, pvp.y, pvp.w, pvp.h );
 
-    if( _bgColorMode == BG_TAINT_CHANNELS )
-    {
-        const vmml::Vector3ub color = getUniqueColor();
-        glClearColor( color.r/255., color.g/255., color.b/255., 1. );
-    }else
-        glClearColor( _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a );
+    glClearColor( _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a );
 
     glClear( GL_COLOR_BUFFER_BIT );
 
@@ -265,8 +237,7 @@ void Channel::_orderFrames( vector< Frame > &frames )
 
 void Channel::frameAssemble( const uint32_t frameID )
 {
-    const eq::Range range  = _curFrData.lastRange;
-    const bool composeOnly = ( !_haveDrawn || range == eq::Range::ALL );
+    const bool composeOnly = _drawRange == eq::Range::ALL;
 
     _startAssemble();
 
@@ -301,7 +272,7 @@ void Channel::frameAssemble( const uint32_t frameID )
 
     //calculate correct frames sequence
     if( !composeOnly )
-        dbFrames.push_back( Frame( 0, &_image, range ) );
+        dbFrames.push_back( Frame( 0, &_image, _drawRange ));
 
     _orderFrames( dbFrames );
 

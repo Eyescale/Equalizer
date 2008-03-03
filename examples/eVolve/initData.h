@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EVOLVE_INITDATA_H
@@ -37,7 +37,7 @@ namespace eVolve
         void setPrecision( const uint32_t precision ){ _precision = precision; }
         void setBrightness( const float brightness ) {_brightness = brightness;}
         void setAlpha( const float alpha )           { _alpha = alpha;}
-        void setParallel( )                          { _perspective = 0; }
+        void setOrtho()                              { _perspective = false; }
         void setFilename( const std::string& filename ) { _filename = filename;}
 
     private:
@@ -46,7 +46,7 @@ namespace eVolve
         uint32_t         _precision;
         float            _brightness;
         float            _alpha;
-        uint32_t         _perspective;
+        bool             _perspective;
         std::string      _filename;
     };
 }

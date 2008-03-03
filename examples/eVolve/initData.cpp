@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
  * All rights reserved. 
  *
  * The init data manages static, per-instance application data. In this
@@ -24,7 +24,7 @@ InitData::InitData()
         , _precision( 2 )
         , _brightness( 1.0f )
         , _alpha( 1.0f )
-        , _perspective( 1 )
+        , _perspective( true )
 #ifdef WIN32_VC
         , _filename( "../examples/eVolve/Bucky32x32x32_d.raw" )
 #else
