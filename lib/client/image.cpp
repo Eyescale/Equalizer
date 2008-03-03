@@ -238,6 +238,8 @@ const void* Image::_getPBOKey( const Frame::Buffer buffer ) const
     }
 }
 
+//#define EQ_USE_PBO
+
 void Image::_startReadback( const Frame::Buffer buffer )
 {
     Pixels&           pixels           = _getPixels( buffer );
