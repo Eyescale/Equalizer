@@ -133,6 +133,13 @@ namespace eqs
         void update( const uint32_t frameID, const uint32_t frameNumber );
 
         /** 
+         * Flush the processing of frames, including frameNumber.
+         *
+         * @param frameNumber the number of the frame.
+         */
+        void flushFrames( const uint32_t frameNumber );
+
+        /** 
          * Synchronize the completion of the rendering of a frame.
          * 
          * @param frame 
@@ -232,7 +239,7 @@ namespace eqs
         PipeVector _pipes;
 
         /** The reason for the last error. */
-        std::string        _error;
+        std::string _error;
 
         /** Number of entitities actively using this node. */
         uint32_t _used;
@@ -242,6 +249,12 @@ namespace eqs
 
         /** The list of descriptions on how this node is reachable. */
         eqNet::ConnectionDescriptionVector _connectionDescriptions;
+
+        /** The frame identifiers of non-flushed frames, oldest first. */
+        std::deque< uint32_t > _frameIDs;
+
+        /** The number of the last flushed frame (frame finish packet sent). */
+        uint32_t _flushedFrame;
 
         /** The number of the last finished frame. */
         eqBase::Monitor<uint32_t> _finishedFrame;
@@ -278,6 +291,10 @@ namespace eqs
             { packet.objectID = getID(); send( packet ); }
         void _send( eqNet::ObjectPacket& packet, const std::string& string ) 
             { packet.objectID = getID(); send( packet, string ); }
+
+        /** Send the frame finish packet for the given frame number. */
+        void _sendFrameFinish( const uint32_t frameID,
+                               const uint32_t frameNumber );
 
         /* Command handler functions. */
         eqNet::CommandResult _cmdConfigInitReply( eqNet::Command& command );

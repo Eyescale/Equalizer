@@ -589,7 +589,7 @@ void Config::_startFrame( const uint32_t frameID )
 
 uint32_t Config::_finishFrame()
 {
-    if( _currentFrame <= _latency )
+    if( _currentFrame <= _latency ) // nothing to finish yet, says latency
         return 0;
 
     const uint32_t finishFrame = _currentFrame - _latency;
@@ -619,6 +619,13 @@ uint32_t Config::_finishAllFrames()
 {
     if( _currentFrame == 0 )
         return 0;
+
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    {
+        Node* node = *i;
+        if( node->isUsed( ))
+            node->flushFrames( _currentFrame );
+    }
 
     while( _finishedFrame < _currentFrame )
         _finishFrame( _finishedFrame + 1 );

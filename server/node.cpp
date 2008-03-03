@@ -30,6 +30,7 @@ void Node::_construct()
     _used             = 0;
     _config           = NULL;
     _lastDrawCompound = 0;
+    _flushedFrame     = 0;
     EQINFO << "New node @" << (void*)this << endl;
 }
 
@@ -129,6 +130,9 @@ void Node::startConfigInit( const uint32_t initID )
 {
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
+
+    _flushedFrame  = 0;
+    _finishedFrame = 0;
 
     eq::NodeConfigInitPacket packet;
     packet.initID = initID;
@@ -242,7 +246,8 @@ bool Node::syncConfigExit()
 //---------------------------------------------------------------------------
 void Node::update( const uint32_t frameID, const uint32_t frameNumber )
 {
-    EQVERB << "Start frame" << endl;
+    EQVERB << "Start frame " << frameNumber << endl;
+    _frameIDs.push_back( frameID );
 
     if( !_lastDrawCompound )
     {
@@ -264,15 +269,41 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
             pipe->update( frameID, frameNumber );
     }
 
-    eq::NodeFrameFinishPacket finishPacket;
-    finishPacket.frameID     = frameID;
-    finishPacket.frameNumber = frameNumber;
-    _send( finishPacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK node finish frame  " << &finishPacket
-                           << endl;
+    const Config*  config  = getConfig();
+    const uint32_t latency = config->getLatency();
+
+    if( frameNumber > latency )
+        flushFrames( frameNumber - latency );
 
     _bufferedTasks.sendBuffer( _node->getConnection( ));
     _lastDrawCompound = 0;
+}
+
+void Node::flushFrames( const uint32_t frameNumber )
+{
+    EQVERB << "Flush frames including " << frameNumber << endl;
+
+    while( _flushedFrame < frameNumber )
+    {
+        EQASSERT( !_frameIDs.empty( ));
+
+        ++_flushedFrame;
+        _sendFrameFinish( _frameIDs.front(), _flushedFrame );
+        _frameIDs.pop_front();
+    }
+
+    _bufferedTasks.sendBuffer( _node->getConnection( ));
+}
+
+void Node::_sendFrameFinish( const uint32_t frameID, const uint32_t frameNumber)
+{
+    eq::NodeFrameFinishPacket finishPacket;
+    finishPacket.frameID     = frameID;
+    finishPacket.frameNumber = frameNumber;
+
+    _send( finishPacket );
+    EQLOG( eq::LOG_TASKS ) << "TASK node finish frame  " << &finishPacket
+                           << endl;
 }
 
 //---------------------------------------------------------------------------
