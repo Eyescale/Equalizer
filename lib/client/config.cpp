@@ -213,7 +213,8 @@ uint32_t Config::finishFrame()
         client->processCommand();
 
     handleEvents();
-    EQLOG( LOG_ANY ) << "----- Finish Frame ---- " << frameToFinish << endl;
+    EQLOG( LOG_ANY ) << "----- Finish Frame ---- " << frameToFinish << " ("
+                     << _currentFrame << ')' << endl;
     return frameToFinish;
 }
 

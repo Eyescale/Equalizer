@@ -49,7 +49,7 @@ bool Window::configInitGL( const uint32_t initID )
 
     model->glewSetContext( glewGetContext( ));
 
-    if( !model->LoadShaders( ))
+    if( !model->loadShaders( ))
         return false;
 
     _loadLogo();

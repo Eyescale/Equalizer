@@ -97,7 +97,7 @@ void RawVolumeModelRenderer::_putVolumeDataToShader
 }
 
 
-bool RawVolumeModelRenderer::Render
+bool RawVolumeModelRenderer::render
 (
     const eq::Range&        range,
     const vmml::Matrix4d&   modelviewM,
@@ -144,7 +144,7 @@ bool RawVolumeModelRenderer::Render
 }
 
 
-bool RawVolumeModelRenderer::LoadShaders()
+bool RawVolumeModelRenderer::loadShaders()
 {
     if( !_shaders.loadShaders( vertexShader_glsl,
                                fragmentShader_glsl,

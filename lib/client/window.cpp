@@ -672,14 +672,7 @@ bool Window::configInitAGL()
     if( !context )
         return false;
 
-    const bool success = configInitAGLDrawable();
-    if( success && !_carbonHandler && !_aglPBuffer )
-    {
-        setErrorMessage( "configInitAGLDrawable did set no AGL drawable" );
-        return false;
-    }
-
-    return success;
+    return configInitAGLDrawable();
 }
 
 AGLPixelFormat Window::chooseAGLPixelFormat()
@@ -926,6 +919,7 @@ bool Window::configInitAGLFullscreen()
 
     const PixelViewport& pipePVP = _pipe->getPixelViewport();
     const PixelViewport& pvp     = pipePVP.isValid() ? pipePVP : _pvp;
+
 #if 1
     if( !aglSetFullScreen( context, pvp.w, pvp.h, 0, 0 ))
         EQWARN << "aglSetFullScreen to " << pvp << " failed: " << aglGetError()

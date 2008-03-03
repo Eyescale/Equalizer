@@ -230,8 +230,7 @@ void Node::releaseFrameLocal( const uint32_t frameNumber )
 
 void Node::frameDrawFinish( const uint32_t frameID, const uint32_t frameNumber )
 { 
-    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); 
-         ++i )
+    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
     {
         const Pipe* pipe = *i;
         pipe->waitFrameLocal( frameNumber );

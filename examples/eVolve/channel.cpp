@@ -144,7 +144,7 @@ void Channel::frameDraw( const uint32_t frameID )
     _calcMVandITMV( modelviewM, modelviewITM );
 
     const eq::Range& range = getRange();
-    model->Render( range, modelviewM, modelviewITM );
+    model->render( range, modelviewM, modelviewITM );
 
     checkError( "error during rendering " );
 

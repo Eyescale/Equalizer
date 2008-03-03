@@ -36,14 +36,14 @@ namespace eVolve
         }
 
 
-        bool Render( const eq::Range&        range,
+        bool render( const eq::Range&        range,
                      const vmml::Matrix4d&   modelviewM,
                      const vmml::Matrix3d&   modelviewITM );
 
-        void SetPrecision( const uint32_t precision ){ _precision = precision; }
+        void setPrecision( const uint32_t precision ){ _precision = precision; }
 
         GLEWContext* glewGetContext() { return _glewContext; }
-        bool LoadShaders();
+        bool loadShaders();
 
     private:
         void _putVolumeDataToShader( const VolumeInfo& volumeInfo,
