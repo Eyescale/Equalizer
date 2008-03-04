@@ -136,10 +136,10 @@ namespace eq
         const vmml::Matrix4f& getHeadTransform() const;
 
         /** @return the list of input frames, used from frameAssemble(). */
-        const std::vector<Frame*>& getInputFrames() { return _inputFrames; }
+        const FrameVector& getInputFrames() { return _inputFrames; }
 
         /** @return the list of output frames, used from frameReadback(). */
-        const std::vector<Frame*>& getOutputFrames() { return _outputFrames; }
+        const FrameVector& getOutputFrames() { return _outputFrames; }
         //*}
 
         /**
@@ -372,10 +372,10 @@ namespace eq
         RenderContext* _context;
 
         /** server-supplied vector of output frames for current task. */
-        std::vector<Frame*> _outputFrames;
+        FrameVector _outputFrames;
 
         /** server-supplied vector of input frames for current task. */
-        std::vector<Frame*> _inputFrames;
+        FrameVector _inputFrames;
 
         /** The native pixel viewport wrt the window. */
         eq::PixelViewport _pvp;

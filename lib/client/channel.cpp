@@ -193,10 +193,8 @@ void Channel::frameReadback( const uint32_t frameID )
 
     Window::ObjectManager* glObjects = getWindow()->getObjectManager();
 
-    const vector<Frame*>& frames = getOutputFrames();
-    for( vector<Frame*>::const_iterator i = frames.begin();
-         i != frames.end(); ++i )
-
+    const FrameVector& frames = getOutputFrames();
+    for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
         (*i)->startReadback( glObjects );
 
     EQ_GL_CALL( resetAssemblyState( ));
@@ -515,7 +513,7 @@ eqNet::CommandResult Channel::_cmdFrameReadback( eqNet::Command& command )
 
     frameReadback( packet->context.frameID );
 
-    for( vector<Frame*>::const_iterator i = _outputFrames.begin();
+    for( FrameVector::const_iterator i = _outputFrames.begin();
          i != _outputFrames.end(); ++i )
     {
         Frame* frame = *i;
