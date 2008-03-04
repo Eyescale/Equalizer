@@ -295,9 +295,7 @@ void Channel::frameAssemble( const uint32_t frameID )
                 _image.startReadback( eq::Frame::BUFFER_COLOR, coveredPVP, 
                                       glObjects );
 
-#if defined(__APPLE__)||defined(_WIN32)
-                clearViewport( coveredPVP ); //this has to be checked on linux
-#endif
+                clearViewport( coveredPVP );
                 _image.syncReadback();
             }
     }
@@ -365,8 +363,6 @@ void Channel::_drawLogo()
     if( !texture )
         return;
     
-    glPushAttrib( GL_ALL_ATTRIB_BITS );
-
     const eq::PixelViewport& pvp    = getPixelViewport();
     const vmml::Vector2i&    offset = getPixelOffset();
     const eq::Pixel&         pixel   = getPixel();
@@ -412,8 +408,6 @@ void Channel::_drawLogo()
 
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
     glDisable( GL_BLEND );
-
-    glPopAttrib( );
 }
 
 }
