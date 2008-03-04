@@ -50,7 +50,10 @@ bool Window::configInitGL( const uint32_t initID )
     model->glewSetContext( glewGetContext( ));
 
     if( !model->loadShaders( ))
+    {
+        setErrorMessage( "Can't load shaders" );
         return false;
+    }
 
     _loadLogo();
     return true;

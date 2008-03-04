@@ -1,6 +1,8 @@
 /* Copyright (c) 2007       Maxim Makhinya
    All rights reserved. */
 
+#version 110
+
 // updated per frame
 uniform vec3    vecView;
 uniform int     frontIndex;
