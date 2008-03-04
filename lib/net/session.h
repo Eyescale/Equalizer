@@ -291,7 +291,7 @@ namespace eqNet
         
         /** All registered and mapped objects. */
         IDHash< ObjectVector > _objects;
-        eqBase::SpinLock       _objectsMutex;
+        eqBase::Lock           _objectsMutex;
 
         const NodeID& _pollIDMaster( const uint32_t id ) const;
         eqBase::RefPtr<Node> _pollIDMasterNode( const uint32_t id ) const;
