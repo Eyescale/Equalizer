@@ -250,11 +250,12 @@ namespace eqs
                                       const uint32_t instanceID, 
                                       eqNet::Session* session );
     private:
+        //-------------------- Members --------------------
         /** Number of entitities actively using this channel. */
         uint32_t _used;
 
         /** The reason for the last error. */
-        std::string            _error;
+        std::string _error;
 
         /** The parent window. */
         Window* _window;
@@ -266,15 +267,12 @@ namespace eqs
         int32_t _iAttributes[eq::Channel::IATTR_ALL];
 
         /** The fractional viewport with respect to the window. */
-        eq::Viewport      _vp;
+        eq::Viewport _vp;
 
         /** The pixel viewport within the window. */
         eq::PixelViewport _pvp;
 
-        /** 
-         * true if the pixel viewport is immutable, false if the viewport is
-         * immutable
-         */
+        /** true if the pvp is immutable, false if the vp is immutable */
         bool _fixedPVP;
 
         /** The listeners on pixel viewport changes */
@@ -291,6 +289,13 @@ namespace eqs
         /** The last draw compound for this entity */
         const Compound* _lastDrawCompound;
 
+        typedef std::vector< eq::StatEvent::Data >     StatEventVector;
+        typedef std::pair< uint32_t, StatEventVector > FrameStatEvents;
+
+        /** Holds statistics for up to #latency frames, oldest first. */
+        std::deque< FrameStatEvents > _statEvents;
+
+        //-------------------- Methods --------------------
         /** common code for all constructors */
         void _construct();
 

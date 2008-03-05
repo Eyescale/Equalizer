@@ -410,11 +410,25 @@ eqNet::CommandResult Channel::_cmdFrameFinishReply( eqNet::Command& command )
     const eq::ChannelFrameFinishReplyPacket* packet = 
         command.getPacket<eq::ChannelFrameFinishReplyPacket>();
 
+    _statEvents.push_back( FrameStatEvents( ));
+    FrameStatEvents& frameEvents = _statEvents.back();
+    StatEventVector& events      = frameEvents.second;
+
+    frameEvents.first = packet->frameNumber;
+
+    // output and save received events
     for( uint32_t i =0; i<packet->nStatEvents; ++i )
     {
         const eq::StatEvent::Data& data = packet->statEvents[i];
         EQLOG( LOG_STATS ) << packet->frameNumber << ' ' << data << endl;
+
+        events.push_back( packet->statEvents[i] );
     }
+
+    // only keep events for #latency frames
+    const uint32_t latency = getConfig()->getLatency();
+    while( _statEvents.size() > latency )
+        _statEvents.pop_front();
 
     return eqNet::COMMAND_HANDLED;
 }
