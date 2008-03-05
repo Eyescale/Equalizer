@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_COMPOUND_H
@@ -25,6 +25,7 @@
 namespace eqs
 {
     class ConstCompoundVisitor;
+    class CompoundListener;
     class CompoundVisitor;
     class Frame;
     class SwapBarrier;
@@ -257,6 +258,7 @@ namespace eqs
 
         void setPixel( const eq::Pixel& pixel )    { _data.pixel = pixel; }
         const eq::Pixel& getPixel() const          { return _data.pixel; }
+
         //*}
 
         /** @name IO object access. */
@@ -413,6 +415,17 @@ namespace eqs
         void updateInheritData( const uint32_t frameNumber );
         //*}
 
+        /** @name Compound listener interface. */
+        //*{
+        /** Register a compound listener. */
+        void addListener( CompoundListener* listener );
+        /** Deregister a compound listener. */
+        void removeListener( CompoundListener* listener );
+
+        /** Notify all listeners that the compound is about to be updated. */
+        void notifyUpdatePre( const uint32_t frameNumber );
+        //*}
+
         /**
          * @name Attributes
          */
@@ -429,6 +442,7 @@ namespace eqs
         virtual ~Compound();
 
     private:
+        //-------------------- Members --------------------
         std::string _name;
         
         /** 
@@ -478,11 +492,17 @@ namespace eqs
         InheritData _data;
         InheritData _inherit;
 
+        typedef std::vector< CompoundListener* > CompoundListeners;
+        CompoundListeners _listeners;
+
         SwapBarrier* _swapBarrier;
 
         std::vector<Frame*> _inputFrames;
         std::vector<Frame*> _outputFrames;
-        
+
+        CHECK_THREAD_DECLARE( _serverThread );
+
+        //-------------------- Methods --------------------
         void _setDefaultFrameName( Frame* frame );
 
         /** Channel pvp changed */

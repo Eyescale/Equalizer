@@ -113,7 +113,7 @@ void Channel::attachToSession( const uint32_t id, const uint32_t instanceID,
                      serverQueue );
     registerCommand( eq::CMD_CHANNEL_FRAME_FINISH_REPLY,
                    CommandFunc<Channel>( this, &Channel::_cmdFrameFinishReply ),
-                     commandQueue );
+                     serverQueue );
 }
 
 Channel::~Channel()

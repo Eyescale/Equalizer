@@ -19,6 +19,7 @@ CompoundUpdateDataVisitor::CompoundUpdateDataVisitor(
 Compound::VisitorResult CompoundUpdateDataVisitor::visitLeaf(
     Compound* compound )
 {
+    compound->notifyUpdatePre( _frameNumber );
     compound->updateInheritData( _frameNumber );
     _updateDrawFinish( compound );
     return Compound::TRAVERSE_CONTINUE;    

@@ -1,13 +1,14 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "compound.h"
 
 #include "channel.h"
 #include "colorMask.h"
-#include "compoundInitVisitor.h"
 #include "compoundExitVisitor.h"
+#include "compoundInitVisitor.h"
+#include "compoundListener.h"
 #include "compoundUpdateDataVisitor.h"
 #include "compoundUpdateInputVisitor.h"
 #include "compoundUpdateOutputVisitor.h"
@@ -194,7 +195,7 @@ Channel* Compound::getChannel()
     return 0;
 }
 
-eqs::Window* Compound::getWindow()
+Window* Compound::getWindow()
 {
     Channel* channel = getChannel();
     if( channel )
@@ -202,7 +203,7 @@ eqs::Window* Compound::getWindow()
     return 0;
 }
 
-const eqs::Window* Compound::getWindow() const
+const Window* Compound::getWindow() const
 {
     const Channel* channel = getChannel();
     if( channel )
@@ -210,6 +211,40 @@ const eqs::Window* Compound::getWindow() const
     return 0;
 }
 
+
+//---------------------------------------------------------------------------
+// Listener interface
+//---------------------------------------------------------------------------
+void Compound::addListener( CompoundListener* listener )
+{
+    CHECK_THREAD( _serverThread );
+
+    _listeners.push_back( listener );
+}
+
+void Compound::removeListener(  CompoundListener* listener )
+{
+    CHECK_THREAD( _serverThread );
+
+    CompoundListeners::iterator i = find( _listeners.begin(), _listeners.end(),
+                                          listener );
+    if( i != _listeners.end( ))
+        _listeners.erase( i );
+}
+
+void Compound::notifyUpdatePre( const uint32_t frameNumber )
+{
+    CHECK_THREAD( _serverThread );
+
+    for( CompoundListeners::const_iterator i = _listeners.begin(); 
+         i != _listeners.end(); ++i )
+
+        (*i)->notifyUpdatePre( this, frameNumber );
+}
+
+//---------------------------------------------------------------------------
+// I/O objects access
+//---------------------------------------------------------------------------
 void Compound::setSwapBarrier( SwapBarrier* barrier )
 {
     if( barrier && barrier->getName().empty( ))
