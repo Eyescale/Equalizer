@@ -6,7 +6,6 @@
 #define EQ_NODE_H
 
 #include <eq/client/config.h>         // called in inline method
-#include <eq/client/statEvent.h>      // member
 
 #include <eq/base/base.h>
 #include <eq/net/barrier.h>
@@ -65,15 +64,6 @@ namespace eq
          * @return the frame.
          */
         FrameData* getFrameData( const eqNet::ObjectVersion& dataVersion );
-
-        /** 
-         * Add stat events to a frame. Used by Pipe::releaseFrame().
-         * 
-         * @param frameNumber the frame number.
-         * @param events the list of events.
-         */
-        void addStatEvents( const uint32_t frameNumber,
-                            const std::vector< StatEvent::Data >& events );
 
         /** Wait for the node to be initialized. */
         void waitInitialized() const { _initialized.waitEQ( true ); }
@@ -252,14 +242,6 @@ namespace eq
         FrameDataCache _frameDatas;
         eqBase::Lock   _frameDatasMutex;
 
-        struct FrameStatEvents
-        {
-            uint32_t                     frameNumber;
-            std::vector<StatEvent::Data> data;
-        };
-        std::vector<FrameStatEvents> _statEvents;
-        eqBase::SpinLock             _statEventsLock;
-
         /** The receiver->node data transmission queue. */
         CommandQueue           _dataQueue;
 
@@ -269,10 +251,6 @@ namespace eq
         Pipe* _findPipe( const uint32_t id );
 
         void _finishFrame( const uint32_t frameNumber );
-
-        std::vector< StatEvent::Data >& _getStatEvents( const uint32_t 
-                                                        frameNumber );
-        void _recycleStatEvents( const uint32_t frameNumber );
 
         void _flushObjects();
 

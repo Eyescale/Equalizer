@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_CHANNEL_H
@@ -8,6 +8,7 @@
 #include <eq/client/eye.h>           // enum used
 #include <eq/client/frame.h>         // used in inline method
 #include <eq/client/pixelViewport.h> // member
+#include <eq/client/statEvent.h>     // member
 #include <eq/client/window.h>        // used in inline method
 
 #include <vmmlib/vmmlib.h>           // Frustum definition 
@@ -68,19 +69,11 @@ namespace eq
          */
         void setNearFar( const float nearPlane, const float farPlane );
 
-        /** 
-         * Returns the current near and far planes for this channel.
-         *
-         * The current near and far plane depends on the context from which this
-         * function is called.
-         * 
-         * @param nearPlane a pointer to store the near plane.
-         * @param farPlane a pointer to store the far plane.
-         */
-        void getNearFar( float *nearPlane, float *farPlane );
-
         /** Return a stable, unique color for this channel. */
         const vmml::Vector3ub& getUniqueColor() const { return _color; }
+
+        /** Add a new statistics event for the current frame. */
+        void addStatEvent( StatEvent::Data& eventData );
         //*}
 
         /**
@@ -351,6 +344,7 @@ namespace eq
         void setErrorMessage( const std::string& message ) { _error = message; }
         //@}
     private:
+        //-------------------- Members --------------------
         /** The parent window. */
         Window* const _window;
 
@@ -386,6 +380,10 @@ namespace eq
         /** The native ('identity') frustum. */
         vmml::Frustumf  _frustum;
 
+        /** The statistics events gathered during the current frame. */
+        std::vector<StatEvent::Data> _statEvents;
+
+        //-------------------- Methods --------------------
         /** 
          * Set the channel's fractional viewport wrt its parent pipe.
          *

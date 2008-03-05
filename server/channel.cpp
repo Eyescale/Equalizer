@@ -10,6 +10,7 @@
 #include "compoundVisitor.h"
 #include "config.h"
 #include "global.h"
+#include "log.h"
 #include "window.h"
 
 #include <eq/base/base.h>
@@ -110,6 +111,9 @@ void Channel::attachToSession( const uint32_t id, const uint32_t instanceID,
     registerCommand( eq::CMD_CHANNEL_SET_NEARFAR,
                      CommandFunc<Channel>( this, &Channel::_cmdSetNearFar ),
                      serverQueue );
+    registerCommand( eq::CMD_CHANNEL_FRAME_FINISH_REPLY,
+                   CommandFunc<Channel>( this, &Channel::_cmdFrameFinishReply ),
+                     commandQueue );
 }
 
 Channel::~Channel()
@@ -398,6 +402,20 @@ eqNet::CommandResult Channel::_cmdSetNearFar( eqNet::Command& command )
         command.getPacket<eq::ChannelSetNearFarPacket>();
     _near = packet->nearPlane;
     _far  = packet->farPlane;
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Channel::_cmdFrameFinishReply( eqNet::Command& command )
+{
+    const eq::ChannelFrameFinishReplyPacket* packet = 
+        command.getPacket<eq::ChannelFrameFinishReplyPacket>();
+
+    for( uint32_t i =0; i<packet->nStatEvents; ++i )
+    {
+        const eq::StatEvent::Data& data = packet->statEvents[i];
+        EQLOG( LOG_STATS ) << packet->frameNumber << ' ' << data << endl;
+    }
+
     return eqNet::COMMAND_HANDLED;
 }
 

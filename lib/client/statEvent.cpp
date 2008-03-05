@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "statEvent.h"
@@ -46,10 +46,8 @@ StatEvent::~StatEvent()
     if( hint == NICEST )
         _channel->getWindow()->finish();
 
-    Pipe* pipe   = _channel->getPipe();
-    data.endTime = pipe->getFrameTime();
-
-    pipe->addStatEvent( data );
+    data.endTime = _channel->getPipe()->getFrameTime();
+    _channel->addStatEvent( data );
 }
 
 }

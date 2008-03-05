@@ -141,6 +141,11 @@ void eq::Channel::setNearFar( const float nearPlane, const float farPlane )
     send( node, packet );
 }
 
+void Channel::addStatEvent( StatEvent::Data& data )
+{
+    _statEvents.push_back( data );
+}
+
 //---------------------------------------------------------------------------
 // operations
 //---------------------------------------------------------------------------
@@ -422,6 +427,13 @@ eqNet::CommandResult Channel::_cmdFrameFinish( eqNet::Command& command )
     EQVERB << "handle channel frame sync " << packet << endl;
 
     frameFinish( packet->frameID, packet->frameNumber );
+
+    ChannelFrameFinishReplyPacket reply( packet );
+    reply.nStatEvents = _statEvents.size();
+
+    command.getNode()->send( reply, _statEvents );
+
+    _statEvents.clear();
     return eqNet::COMMAND_HANDLED;
 }
 

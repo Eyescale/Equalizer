@@ -712,8 +712,6 @@ void Pipe::exitEventHandler()
 
 void Pipe::releaseFrame( const uint32_t frameNumber )
 { 
-    _node->addStatEvents( frameNumber, _statEvents );
-    _statEvents.clear();
     _finishedFrame = frameNumber; 
     EQLOG( LOG_TASKS ) << "---- Released Frame --- " << frameNumber << endl;
 }
@@ -786,11 +784,6 @@ bool Pipe::createAffinityDC( HDC& affinityDC, PFNWGLDELETEDCNVPROC& deleteProc )
 #else
     return 0;
 #endif
-}
-
-void Pipe::addStatEvent( StatEvent::Data& data )
-{
-    _statEvents.push_back( data );
 }
 
 //---------------------------------------------------------------------------
@@ -962,12 +955,12 @@ eqNet::CommandResult Pipe::_cmdFrameFinish( eqNet::Command& command )
     EQVERB << "handle pipe frame sync " << packet << endl;
 
     frameFinish( packet->frameID, packet->frameNumber );
+
     EQLOG( LOG_TASKS ) << "---- Finished Frame --- " << _finishedFrame.get()
                        << endl;
     EQASSERTINFO( _finishedFrame >= packet->frameNumber, 
                   "Pipe::frameFinish() did not release frame " 
                   << packet->frameNumber );
-
 
     if( _unlockedFrame < packet->frameNumber )
     {

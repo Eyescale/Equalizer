@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "spinLock.h"
@@ -15,7 +15,7 @@
 
 using namespace std;
 
-#if 0
+#if 0 // temporarily disabled - causes prio inversion, observed on Linux
 #if _POSIX_SPIN_LOCKS > 0
 #  define pthread_mutex_init     pthread_spin_init     
 #  define pthread_mutex_destroy  pthread_spin_destroy  

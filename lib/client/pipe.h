@@ -9,7 +9,6 @@
 #include <eq/client/eye.h>            // Eye enum
 #include <eq/client/node.h>           // used in inline methods
 #include <eq/client/pixelViewport.h>  // member
-#include <eq/client/statEvent.h>      // member
 #include <eq/client/windowSystem.h>   // member
 
 #include <eq/base/refPtr.h>
@@ -132,9 +131,6 @@ namespace eq
          */
         bool createAffinityDC( HDC& affinityDC, 
                                PFNWGLDELETEDCNVPROC& deleteProc );
-
-        /** Add a new statistics event to the current frame. */
-        void addStatEvent( StatEvent::Data& eventData );
 
         /** 
          * Get an assembly frame.
@@ -371,6 +367,7 @@ namespace eq
         virtual bool dispatchCommand( eqNet::Command& command );
 
     private:
+        //-------------------- Members --------------------
         /** The parent node. */
         Node* const    _node;
 
@@ -422,9 +419,6 @@ namespace eq
         /** The clock for the currently active frame. */
         eqBase::Clock _frameClock;
 
-        /** The statistics events gathered during the current frame. */
-        std::vector<StatEvent::Data> _statEvents;
-
         /** All assembly frames used by the pipe during rendering. */
         eqNet::IDHash< Frame* > _frames;
 
@@ -446,6 +440,7 @@ namespace eq
         /** The receiver->pipe thread command queue. */
         eq::CommandQueue*   _pipeThreadQueue;
 
+        //-------------------- Methods --------------------
         void* _runThread();
         void _setupCommandQueue();
 

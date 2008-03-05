@@ -491,8 +491,6 @@ namespace eq
             }
 
         uint32_t frameNumber;
-        uint32_t nStatEvents;
-        EQ_ALIGN8( StatEvent::Data statEvents[1] );
     };
         
     struct NodeFrameDrawFinishPacket : public eqNet::ObjectPacket
@@ -866,6 +864,23 @@ namespace eq
         uint32_t frameID;
         uint32_t frameNumber;
     };
+
+    struct ChannelFrameFinishReplyPacket : public eqNet::ObjectPacket
+    {
+        ChannelFrameFinishReplyPacket( const ChannelFrameFinishPacket* request )
+            {
+                command     = CMD_CHANNEL_FRAME_FINISH_REPLY;
+                size        = sizeof( ChannelFrameFinishReplyPacket );
+                sessionID   = request->sessionID;
+                objectID    = request->objectID;
+                frameNumber = request->frameNumber;
+            }
+
+        uint32_t frameNumber;
+        uint32_t nStatEvents;
+        EQ_ALIGN8( StatEvent::Data statEvents[1] );
+    };
+        
 
     struct ChannelFrameDrawFinishPacket : public eqNet::ObjectPacket
     {

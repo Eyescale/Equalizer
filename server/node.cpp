@@ -382,13 +382,6 @@ eqNet::CommandResult Node::_cmdFrameFinishReply( eqNet::Command& command )
         command.getPacket<eq::NodeFrameFinishReplyPacket>();
     EQVERB << "handle frame finish reply " << packet << endl;
     
-    // Move me
-    for( uint32_t i =0; i<packet->nStatEvents; ++i )
-    {
-        const eq::StatEvent::Data& data = packet->statEvents[i];
-        EQLOG( LOG_STATS ) << data << endl;
-    }
-
     _finishedFrame = packet->frameNumber;
     return eqNet::COMMAND_HANDLED;
 }

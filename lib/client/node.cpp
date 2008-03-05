@@ -128,68 +128,6 @@ FrameData* Node::getFrameData( const eqNet::ObjectVersion& dataVersion )
     return frameData;
 }
 
-void Node::addStatEvents( const uint32_t frameNumber,
-                          const vector< StatEvent::Data >& data )
-{
-    vector< StatEvent::Data >& statEvents = _getStatEvents( frameNumber );
-
-    _statEventsLock.set();
-    statEvents.insert( statEvents.end(), data.begin(), data.end( ));
-    _statEventsLock.unset();
-}
-
-vector< StatEvent::Data >& Node::_getStatEvents( const uint32_t frameNumber )
-{
-    ScopedMutex< SpinLock > mutex( _statEventsLock );
-
-    // O(N), but for small values of N.
-    // 1. search for existing vector of events for frame
-    for( vector< FrameStatEvents >::iterator i = _statEvents.begin();
-         i != _statEvents.end(); ++i )
-    {
-        FrameStatEvents& candidate = *i;
-
-        if( candidate.frameNumber == frameNumber )
-            return candidate.data;
-    }
-
-    // 2. Reuse old container
-    for( vector< FrameStatEvents >::iterator i = _statEvents.begin();
-         i != _statEvents.end(); ++i )
-    {
-        FrameStatEvents& candidate = *i;
-
-        if( candidate.frameNumber == 0 ) // reusable container
-        {
-            candidate.frameNumber = frameNumber;
-            return candidate.data;
-        }
-    }
-    
-    // 3. Create new container
-    _statEvents.resize( _statEvents.size() + 1 );
-    FrameStatEvents& statEvents = _statEvents.back();
-
-    statEvents.frameNumber = frameNumber;
-    return statEvents.data;
-}
-
-void Node::_recycleStatEvents( const uint32_t frameNumber )
-{
-    ScopedMutex< SpinLock > mutex( _statEventsLock );
-    for( vector< FrameStatEvents >::iterator i = _statEvents.begin();
-         i != _statEvents.end(); ++i )
-    {
-        FrameStatEvents& candidate = *i;
-        if( candidate.frameNumber == frameNumber )
-        {
-            candidate.data.clear();
-            candidate.frameNumber = 0;
-            return;
-        }
-    }
-}
-
 void Node::_finishFrame( const uint32_t frameNumber )
 {
     for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); 
@@ -206,15 +144,11 @@ void Node::releaseFrame( const uint32_t frameNumber )
     EQASSERT( _currentFrame >= frameNumber );
 
     NodeFrameFinishReplyPacket packet;
-    const vector< StatEvent::Data >& statEvents = _getStatEvents( frameNumber );
-
-    packet.sessionID   = _config->getID();
-    packet.objectID    = getID();
     packet.frameNumber = frameNumber;
-    packet.nStatEvents = statEvents.size();
 
-    _config->getServer()->send( packet, statEvents );
-    _recycleStatEvents( frameNumber );
+    RefPtr< eqNet::Node > node = 
+        RefPtr_static_cast< Server, eqNet::Node >( _config->getServer( ));
+    send( node, packet );
 }
 
 void Node::releaseFrameLocal( const uint32_t frameNumber )
