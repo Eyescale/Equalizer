@@ -137,28 +137,14 @@ namespace eqs
          */
         bool removeChild( Compound* child );
 
-        /** 
-         * Returns the number of children on this compound.
-         * 
-         * @return the number of children on this compound. 
-         */
-        uint32_t nChildren() const 
-            { return static_cast<uint32_t>(_children.size()); }
-
         /** @return if the compound is a leaf compound. */
         bool isLeaf() const { return _children.empty(); }
 
         /** @return if the compound is active. */
         bool isActive() const { return _inherit.active; }
         
-        /** 
-         * Gets a child.
-         * 
-         * @param index the child's index. 
-         * @return the child.
-         */
-        Compound* getChild( const uint32_t index ) const
-            { return _children[index]; }
+        /** @return the children of this compound. */
+        const CompoundVector& getChildren() const { return _children; }
 
         /** @return the parent compound. */
         Compound* getParent() const
@@ -452,8 +438,8 @@ namespace eqs
         friend class Config;
         Config* _config;
 
-        Compound               *_parent;
-        std::vector<Compound*>  _children;
+        Compound*       _parent;
+        CompoundVector  _children;
         
         /** String representation of integer attributes. */
         static std::string _iAttributeStrings[IATTR_ALL];

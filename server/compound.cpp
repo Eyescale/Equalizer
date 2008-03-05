@@ -64,22 +64,20 @@ Compound::Compound( const Compound& from )
     _data        = from._data;
     _swapBarrier = from._swapBarrier;
 
-    const uint32_t nCompounds = from.nChildren();
-    for( uint32_t i=0; i<nCompounds; i++ )
-    {
-        const Compound* child = from.getChild(i);
-        addChild( new Compound( *child ));
-    }
+    for( CompoundVector::const_iterator i = from._children.begin();
+         i != from._children.end(); ++i )
 
-    for( vector<Frame*>::const_iterator iter = from._outputFrames.begin();
-         iter != from._outputFrames.end(); ++iter )
+        addChild( new Compound( **i ));
 
-        addOutputFrame( new Frame( **iter ));
+    for( FrameVector::const_iterator i = from._outputFrames.begin();
+         i != from._outputFrames.end(); ++i )
 
-    for( vector<Frame*>::const_iterator iter = from._inputFrames.begin();
-         iter != from._inputFrames.end(); ++iter )
+        addOutputFrame( new Frame( **i ));
 
-        addInputFrame( new Frame( **iter ));
+    for( FrameVector::const_iterator i = from._inputFrames.begin();
+         i != from._inputFrames.end(); ++i )
+
+        addInputFrame( new Frame( **i ));
 }
 
 Compound::~Compound()
@@ -89,7 +87,7 @@ Compound::~Compound()
 
     _config = 0;
 
-    for( vector<Compound*>::const_iterator i = _children.begin(); 
+    for( CompoundVector::const_iterator i = _children.begin(); 
          i != _children.end(); ++i )
     {
         Compound* compound = *i;
@@ -99,7 +97,7 @@ Compound::~Compound()
     }
     _children.clear();
 
-    for( vector<Frame*>::const_iterator i = _inputFrames.begin(); 
+    for( FrameVector::const_iterator i = _inputFrames.begin(); 
          i != _inputFrames.end(); ++i )
     {
         Frame* frame = *i;
@@ -109,7 +107,7 @@ Compound::~Compound()
     }
     _inputFrames.clear();
 
-    for( vector<Frame*>::const_iterator i = _outputFrames.begin(); 
+    for( FrameVector::const_iterator i = _outputFrames.begin(); 
          i != _outputFrames.end(); ++i )
     {
         Frame* frame = *i;
@@ -438,7 +436,9 @@ Compound::VisitorResult _accept( C* compound, V* visitor,
     {
         C* parent = current->getParent();
         C* next   = current->getNext();
-        C* child  = (current->nChildren()) ? current->getChild(0) : 0;
+
+        const CompoundVector& children = current->getChildren();
+        C* child  = children.empty() ? 0 : children[0];
 
         //---------- down-right traversal
         if ( !child ) // leaf
@@ -798,25 +798,27 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
             break;
     }
 
-    const uint32_t nChildren = compound->nChildren();
-    if( nChildren > 0 )
+    const CompoundVector& children = compound->getChildren();
+    if( !children.empty( ))
     {
         os << endl;
-        for( uint32_t i=0; i<nChildren; i++ )
-            os << compound->getChild(i);
+        for( CompoundVector::const_iterator i = children.begin();
+             i != children.end(); ++i )
+
+            os << *i;
     }
 
-    const vector<Frame*>& inputFrames = compound->getInputFrames();
-    for( vector<Frame*>::const_iterator iter = inputFrames.begin();
-         iter != inputFrames.end(); ++iter )
+    const FrameVector& inputFrames = compound->getInputFrames();
+    for( FrameVector::const_iterator i = inputFrames.begin();
+         i != inputFrames.end(); ++i )
         
-        os << "input" << *iter;
+        os << "input" << *i;
 
-    const vector<Frame*>& outputFrames = compound->getOutputFrames();
-    for( vector<Frame*>::const_iterator iter = outputFrames.begin();
-         iter != outputFrames.end(); ++iter )
+    const FrameVector& outputFrames = compound->getOutputFrames();
+    for( FrameVector::const_iterator i = outputFrames.begin();
+         i != outputFrames.end(); ++i )
         
-        os << "output"  << *iter;
+        os << "output"  << *i;
 
     os << compound->getSwapBarrier();
 
