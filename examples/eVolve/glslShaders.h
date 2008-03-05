@@ -28,7 +28,6 @@ namespace eVolve
         bool            _shadersLoaded; //!< flag of loaded shaders
         GLEWContext*    _glewCtx;       //!< OpenGL rendering context
 
-        bool _checkShader( GLhandleARB shader, const std::string &type );
         GLhandleARB _loadShader( const std::string &shader, GLenum shaderType );
 
     };

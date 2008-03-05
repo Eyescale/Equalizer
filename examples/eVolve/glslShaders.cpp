@@ -6,14 +6,13 @@
 
 namespace eVolve
 {
-bool glslShaders::_checkShader( GLhandleARB shader, const std::string &type )
+static void _printLog( GLhandleARB shader, const std::string &type )
 {
     GLint length;
     glGetObjectParameterivARB( shader, GL_OBJECT_INFO_LOG_LENGTH_ARB, &length );
 
     if( length <= 1 )
-        return true;
-    //else Error
+        return;
 
     std::vector<GLcharARB> log;
     log.resize( length );
@@ -23,7 +22,7 @@ bool glslShaders::_checkShader( GLhandleARB shader, const std::string &type )
     EQERROR << "Shader error: " << type << std::endl
             << &log[0] << std::endl;
 
-    return false;
+    return;
 }
 
 
@@ -38,7 +37,7 @@ GLhandleARB glslShaders::_loadShader( const std::string &shader,
     GLint status;
     glGetObjectParameterivARB( handle, GL_OBJECT_COMPILE_STATUS_ARB, &status );
     if( status == GL_FALSE )
-        _checkShader( handle, "Compiling" );
+        _printLog( handle, "Compiling" );
 
     return handle;
 }
@@ -66,8 +65,9 @@ bool glslShaders::loadShaders( const std::string &vShader,
 
     GLint status;
     glGetObjectParameterivARB( _program, GL_OBJECT_LINK_STATUS_ARB, &status );
-    if( status == GL_FALSE || !_checkShader( _program, "Linking" ))
+    if( status == GL_FALSE );
     {
+        _printLog( _program, "Linking" );
         _program = 0;
         return false;
     }
