@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 %{
@@ -32,8 +32,8 @@
         static eqs::Frame*       frame = 0;
         static eqBase::RefPtr<eqNet::ConnectionDescription> 
             connectionDescription;
-        static eqs::Wall          wall;
-        static eqs::Projection    projection;
+        static eqs::Wall         wall;
+        static eqs::Projection   projection;
         static uint32_t          flags = 0;
     }
 
@@ -368,12 +368,10 @@ appNode: EQTOKEN_APPNODE '{' { node = loader->createNode(); }
             nodeFields
             '}' { config->addApplicationNode( node ); node = 0; }
 nodeFields: /*null*/ | nodeField | nodeFields nodeField
-nodeField: /*TODO*/
-    EQTOKEN_NAME STRING            { node->setName( $2 ); }
+nodeField: EQTOKEN_NAME STRING            { node->setName( $2 ); }
     | connections
     | pipes                
-connections: /*null*/ 
-             | connection | connections connection
+connections: /*null*/ | connection | connections connection
 connection: EQTOKEN_CONNECTION 
             '{' { connectionDescription = new eqs::ConnectionDescription; }
             connectionFields '}' 

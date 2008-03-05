@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_DATAOSTREAM_H
@@ -57,7 +57,7 @@ namespace eqNet
         bool hasSentData() const { return _dataSent; }
 
         /** @return the buffer with the saved data. */
-        const eqBase::Buffer& getSaveBuffer() const 
+        const eqBase::Bufferb& getSaveBuffer() const 
             { EQASSERT( _save ); return _buffer; }
         //*}
 
@@ -98,7 +98,7 @@ namespace eqNet
 
     private:
         /** The buffer used for saving and buffering */
-        eqBase::Buffer  _buffer;
+        eqBase::Bufferb  _buffer;
         /** The start position of the buffering, always 0 if !_save */
         uint64_t _bufferStart;
         /** The threshold for the buffer to flush */

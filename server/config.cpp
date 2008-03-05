@@ -512,7 +512,8 @@ bool Config::_exitNodes()
             netNode->send( destroyConfigPacket );
             netNode->send( clientExitPacket );
             // connection will be closed by Client::_reqExit command handler.
-            // Ref count should be one, but often commands still hold a reference.
+            // Ref count should be one, but often commands still hold a
+            // reference. 
             //EQASSERTINFO( netNode->getRefCount() == 1, netNode->getRefCount( ));
         }
 

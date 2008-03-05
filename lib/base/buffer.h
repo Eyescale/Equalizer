@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_BUFFER_H
@@ -12,12 +12,22 @@ namespace eqBase
 {
     /**
      * A simple memory buffer with some helper functions.
+     *
+     * For bigger data (>100k) using a std::vector< uint8_t > has a high
+     * overhead when resizing (>1ms).
+     * This buffer just memcpy's elements, i.e., it should be used on PODs only
+     * since the copy constructor or assignment operator is not called on the
+     * copied elements.
      */
+    template< typename T >
     class Buffer
     {
     public:
         Buffer() : data(0), size(0), _maxSize(0) {}
-        ~Buffer() { if( data ) free( data ); data=0; }
+        ~Buffer() { flush(); }
+
+        /** Flush the buffer, deleting all data. */
+        void flush() { if( data ) free( data ); data=0; size=0; _maxSize=0; }
 
         /** Copy constructor - transfer ownership. */
         Buffer( Buffer& from )
@@ -42,21 +52,22 @@ namespace eqBase
                     return;
                 
                 if( data )
-                    data = static_cast< char* >( realloc( data, newSize ));
+                    data = static_cast< T* >( realloc( data, 
+                                                       newSize * sizeof( T )));
                 else
-                    data = static_cast< char* >( malloc( newSize ));
+                    data = static_cast< T* >( malloc( newSize * sizeof( T )));
                 
                 _maxSize = newSize;
             }
 
         /** Append size bytes to the buffer, increasing its size. */
-        void append( const void* addData, const uint64_t addSize )
+        void append( const T* addData, const uint64_t addSize )
             {
                 EQASSERT( addData );
                 EQASSERT( addSize );
                 const uint64_t oldSize = size;
                 resize( oldSize + addSize );
-                memcpy( data + oldSize, addData, addSize );
+                memcpy( data + oldSize, addData, addSize * sizeof( T ));
             }
 
         /** Replace the existing data. */
@@ -70,18 +81,18 @@ namespace eqBase
                     if( data )
                         free( data );
             
-                    data = static_cast< char* >( malloc( newSize ));
+                    data = static_cast< T* >( malloc( newSize * sizeof( T )));
                     _maxSize = size;
                 }
 
-                memcpy( data, newData, newSize );
+                memcpy( data, newData, newSize * sizeof( T ));
                 size = newSize;
             }
 
         /** Swap the buffer contents */
         void swap( Buffer& buffer )
             {
-                char*          tmpData = buffer.data;
+                T*             tmpData    = buffer.data;
                 const uint64_t tmpSize    = buffer.size;
                 const uint64_t tmpMaxSize = buffer._maxSize;
 
@@ -94,15 +105,17 @@ namespace eqBase
                 _maxSize = tmpMaxSize;
             }
 
-        /** A pointer to the data, char* for easier pointer math */
-        char*    data;
-        /** The number of valid bytes in data. */
+        /** A pointer to the data. */
+        T*    data;
+        /** The number of valid items in data. */
         uint64_t size;
 
     private:
         /** The allocation size of the buffer. */
         uint64_t _maxSize;
     };
+
+    typedef Buffer< uint8_t > Bufferb;
 }
 
 #endif //EQBASE_BUFFER_H

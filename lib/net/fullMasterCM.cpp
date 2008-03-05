@@ -151,7 +151,7 @@ void FullMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
     const DeltaData* data = *i;
          
     // first packet has to be an instance packet to be applied immediately
-    const Buffer&        buffer    = data->os.getSaveBuffer();
+    const Bufferb&       buffer    = data->os.getSaveBuffer();
     ObjectInstancePacket instPacket;
     instPacket.instanceID = instanceID;
     instPacket.dataSize   = buffer.size;

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "dataOStream.h"
@@ -164,7 +164,7 @@ void DataOStream::write( const void* data, uint64_t size )
 {
     EQASSERT( _enabled );
     if( _buffered || _save )
-        _buffer.append( data, size );
+        _buffer.append( static_cast< const uint8_t* >( data ), size );
 
     if( !_buffered )
     {
@@ -183,7 +183,7 @@ void DataOStream::writeOnce( const void* data, uint64_t size )
     EQASSERT( _bufferStart == 0 );
 
     if( _save )
-        _buffer.append( data, size );
+        _buffer.append( static_cast< const uint8_t* >( data ), size );
 
     if( !_connections.empty( ))
         sendSingle( data, size );
