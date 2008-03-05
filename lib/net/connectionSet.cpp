@@ -246,6 +246,11 @@ ConnectionSet::Event ConnectionSet::_handleSelfCommand()
 
 bool ConnectionSet::_setupFDSet()
 {
+    // TODO eile: Optimize this code after 0.5 release. Only rebuild when
+    // needed, since this takes 20% of the server's CPU time. Connections have
+    // to notify the subscribed connection set when they change state, which
+    // marks ourselve dirty for rebuilding the fd set.
+
     // The fdSet has to be rebuild every time since a connection may have been
     // closed in the meantime.
     _fdSetConnections.clear();
