@@ -186,7 +186,7 @@ namespace eqBase
 
 #ifdef EQ_CHECK_THREADSAFETY
 #  define CHECK_THREAD_DECLARE( NAME )                      \
-    struct EQ_EXPORT NAME ## Struct                         \
+    struct NAME ## Struct                                   \
     {                                                       \
         NAME ## Struct ()                                   \
             : id( 0 ), extMutex( false )                    \

@@ -29,7 +29,7 @@ namespace eVolve
         GLEWContext*    _glewCtx;       //!< OpenGL rendering context
 
         GLhandleARB _loadShader( const std::string &shader, GLenum shaderType );
-
+        void _printLog( GLhandleARB shader, const std::string &type );
     };
 
 }

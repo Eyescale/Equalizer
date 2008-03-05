@@ -18,6 +18,7 @@
 #include <eq/client/renderContext.h>
 #include <eq/client/viewport.h>
 #include <eq/client/global.h>
+#include <eq/base/thread.h>
 
 #include <iostream>
 #include <vector>

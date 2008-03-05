@@ -6,7 +6,7 @@
 
 namespace eVolve
 {
-static void _printLog( GLhandleARB shader, const std::string &type )
+void glslShaders::_printLog( GLhandleARB shader, const std::string &type )
 {
     GLint length;
     glGetObjectParameterivARB( shader, GL_OBJECT_INFO_LOG_LENGTH_ARB, &length );
