@@ -11,7 +11,7 @@ bool glslShaders::_checkShader( GLhandleARB shader, const std::string &type )
     GLint length;
     glGetObjectParameterivARB( shader, GL_OBJECT_INFO_LOG_LENGTH_ARB, &length );
 
-    if( length <= 0 )
+    if( length <= 1 )
         return true;
     //else Error
 
@@ -27,16 +27,17 @@ bool glslShaders::_checkShader( GLhandleARB shader, const std::string &type )
 }
 
 
-GLhandleARB glslShaders::_loadShader( const std::string &shader, GLenum shaderType )
+GLhandleARB glslShaders::_loadShader( const std::string &shader,
+                                                 GLenum shaderType )
 {
     GLhandleARB handle = glCreateShaderObjectARB( shaderType );
     const char* cstr   = shader.c_str();
     glShaderSourceARB(  handle, 1, &cstr, NULL );
     glCompileShaderARB( handle );
 
-    GLint check;
-    glGetObjectParameterivARB( handle, GL_OBJECT_COMPILE_STATUS_ARB, &check );
-    if( !check )
+    GLint status;
+    glGetObjectParameterivARB( handle, GL_OBJECT_COMPILE_STATUS_ARB, &status );
+    if( status == GL_FALSE )
         _checkShader( handle, "Compiling" );
 
     return handle;
@@ -63,9 +64,9 @@ bool glslShaders::loadShaders( const std::string &vShader,
 
     glLinkProgramARB( _program );
 
-    GLint check;
-    glGetObjectParameterivARB( _program, GL_OBJECT_LINK_STATUS_ARB, &check );
-    if( !check || !_checkShader( _program, "Linking" ))
+    GLint status;
+    glGetObjectParameterivARB( _program, GL_OBJECT_LINK_STATUS_ARB, &status );
+    if( status == GL_FALSE || !_checkShader( _program, "Linking" ))
     {
         _program = 0;
         return false;
