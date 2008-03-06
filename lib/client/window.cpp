@@ -237,6 +237,12 @@ const RenderContext* Window::getRenderContext( const int32_t x,
 //----------------------------------------------------------------------
 bool Window::configInit( const uint32_t initID )
 {
+    if( !_pvp.isValid( ))
+    {
+        setErrorMessage( "Window pixel viewport invalid - pipe init failed?" );
+        return false;
+    }
+
     const WindowSystem windowSystem = _pipe->getWindowSystem();
     switch( windowSystem )
     {
