@@ -326,11 +326,6 @@ void Pipe::setPixelViewport( const eq::PixelViewport& pvp )
 
     _pvp = pvp;
     EQINFO << "Pipe pvp set: " << _pvp << endl;
-
-    for( std::vector<Window*>::iterator iter = _windows.begin(); 
-         iter != _windows.end(); ++iter )
-
-        (*iter)->notifyViewportChanged();
 }
 
 //===========================================================================
