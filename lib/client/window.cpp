@@ -1083,9 +1083,9 @@ bool Window::configInitWGLDrawable( HDC dc, int pixelFormat )
             return configInitWGLPBuffer( dc, pixelFormat );
 
         default:
-            EQWARN << "Unknown drawable type " 
-                   << getIAttribute(IATTR_HINT_DRAWABLE ) << ", using window" 
-                   << endl;
+            EQWARN << "Unknown drawable type "
+                   << getIAttribute(IATTR_HINT_DRAWABLE )
+                   << ", creating a window" << endl;
             // no break;
 		case UNDEFINED:
         case WINDOW:
