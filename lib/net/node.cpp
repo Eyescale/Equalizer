@@ -1294,7 +1294,7 @@ bool Node::syncConnect( eqBase::RefPtr<Node> node )
     }
 
     node->_state = STATE_STOPPED;
-    _requestHandler.unregisterRequest( _launchID );
+    _requestHandler.unregisterRequest( node->_launchID );
     node->_launchID = EQ_ID_INVALID;
     return false;
 }
