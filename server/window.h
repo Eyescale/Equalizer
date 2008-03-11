@@ -19,7 +19,7 @@ namespace eqs
     /**
      * The window.
      */
-    class Window : public eqNet::Object
+    class EQS_EXPORT Window : public eqNet::Object
     {
     public:
         enum State

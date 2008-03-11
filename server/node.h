@@ -228,7 +228,7 @@ namespace eqs
                                       const uint32_t instanceID, 
                                       eqNet::Session* session );
     private:
-        /** The pipe's name */
+        /** The nodes's name */
         std::string _name;
 
         /** The parent config. */
@@ -241,7 +241,7 @@ namespace eqs
         /** The reason for the last error. */
         std::string _error;
 
-        /** Number of entitities actively using this node. */
+        /** Number of entities actively using this node. */
         uint32_t _used;
 
         /** The network node on which this Equalizer node is running. */

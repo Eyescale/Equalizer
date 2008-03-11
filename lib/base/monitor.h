@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_MONITOR_H
@@ -100,7 +100,7 @@ typedef Monitor< uint32_t > Monitoru;
 #  endif
 #endif
 
-// Monitor for uint32_t and bool are explicitely instantiated in monitor.cpp
+// Monitor for uint32_t and bool are explicitly instantiated in monitor.cpp
 // Monitors for other types can be created by including pthread.h before this
 // file.  
 // The application has to include pthread.h since on Windows the use of

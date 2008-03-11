@@ -40,6 +40,7 @@ Pipe::Pipe( Node* parent )
         , _wglewContext( new WGLEWContext )       
         , _port( EQ_UNDEFINED_UINT32 )
         , _device( EQ_UNDEFINED_UINT32 )
+        , _state( STATE_STOPPED )
         , _thread( 0 )
         , _pipeThreadQueue( 0 )
 {
@@ -837,6 +838,7 @@ eqNet::CommandResult Pipe::_cmdConfigInit( eqNet::Command& command )
 
     PipeConfigInitReplyPacket reply;
     _node->waitInitialized();
+    _state = STATE_INITIALIZING;
 
     _windowSystem = selectWindowSystem();
     _setupCommandQueue();
@@ -898,8 +900,7 @@ eqNet::CommandResult Pipe::_cmdConfigInit( eqNet::Command& command )
 
         default: EQUNIMPLEMENTED;
     }
-
-    _initialized = true;
+    _state = STATE_RUNNING;
 
     reply.pvp = _pvp;
     send( node, reply );
@@ -916,7 +917,7 @@ eqNet::CommandResult Pipe::_cmdConfigExit( eqNet::Command& command )
     PipeConfigExitReplyPacket reply;
     reply.result = configExit();
 
-    _initialized = false;
+    _state = STATE_STOPPED;
     _flushFrames();
 
     send( command.getNode(), reply );

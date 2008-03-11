@@ -5,6 +5,13 @@
 #ifndef EQ_PIPE_H
 #define EQ_PIPE_H
 
+#ifdef EQUALIZER_EXPORTS
+   // We need to instantiate a Monitor< State > when compiling the library,
+   // but we don't want to have <pthread.h> for a normal build, hence this hack
+#  include <pthread.h>
+#  include <eq/base/monitor.h>
+#endif
+
 #include <eq/client/commandQueue.h>   // member
 #include <eq/client/eye.h>            // Eye enum
 #include <eq/client/node.h>           // used in inline methods
@@ -144,8 +151,8 @@ namespace eq
         //*}
 
         /** Wait for the pipe to be exited. */
-        void waitExited() const { _initialized.waitEQ( false ); }
-        bool isInitialized() const { return _initialized.get(); }
+        void waitExited() const { _state.waitEQ( STATE_STOPPED ); }
+        bool isInitialized() const { return (_state == STATE_RUNNING); }
         
         /** 
          * Wait for a frame to be finished.
@@ -403,8 +410,14 @@ namespace eq
         /** The screen (GLX), GPU (Win32) or virtual screen (AGL). */
         uint32_t _device;
         
+        enum State
+        {
+            STATE_STOPPED,
+            STATE_INITIALIZING,
+            STATE_RUNNING
+        };
         /** The configInit/configExit state. */
-        eqBase::Monitor<bool> _initialized;
+        eqBase::Monitor< State > _state;
 
         /** The number of the last finished frame. */
         eqBase::Monitor<uint32_t> _finishedFrame;

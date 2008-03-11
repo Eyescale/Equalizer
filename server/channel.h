@@ -23,7 +23,7 @@ namespace eqs
     /**
      * The channel.
      */
-    class Channel : public eqNet::Object
+    class EQS_EXPORT Channel : public eqNet::Object
     {
     public:
         enum State

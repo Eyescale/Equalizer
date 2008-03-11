@@ -34,7 +34,7 @@ namespace eqs
     /**
      * The compound.
      */
-    class Compound : private PixelViewportListener
+    class EQS_EXPORT Compound : private PixelViewportListener
     {
     public:
         /** 
