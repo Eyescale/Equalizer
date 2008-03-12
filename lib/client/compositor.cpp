@@ -445,8 +445,6 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
     if( op.pixel == Pixel::ALL )
         return;
 
-    glPixelZoom( static_cast< float >( op.pixel.size ), 1.0f );
-
     // mark stencil buffer where pixel shall pass
     // TODO: OPT!
     glClear( GL_STENCIL_BUFFER_BIT );
@@ -461,6 +459,25 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
     glColorMask( false, false, false, false );
     
     const PixelViewport& pvp    = image->getPixelViewport();
+
+#ifdef EQ_PIXEL_Y
+    glPixelZoom( 1.0f, static_cast< float >( op.pixel.size ));
+
+    const float          startX = static_cast< float >( op.offset.x + pvp.x );
+    const float          endX   = static_cast< float >( startX   + pvp.w );
+    const int32_t        startY = op.offset.y + pvp.y;
+    const int32_t        endY   = startY   + pvp.h * op.pixel.size;
+
+    glBegin( GL_LINES );
+    for( int32_t y = startY + op.pixel.index; y < endY; y += op.pixel.size )
+    {
+        glVertex3f( startX, static_cast< float >( y ), 0.0f );
+        glVertex3f( endX,   static_cast< float >( y ), 0.0f );        
+    }
+    glEnd();
+#else
+    glPixelZoom( static_cast< float >( op.pixel.size ), 1.0f );
+
     const int32_t        startX = op.offset.x + pvp.x;
     const int32_t        endX   = startX   + pvp.w * op.pixel.size;
     const float          startY = static_cast< float >( op.offset.y + pvp.y );
@@ -473,6 +490,7 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
         glVertex3f( static_cast< float >( x ), endY, 0.0f );        
     }
     glEnd();
+#endif
     
     glDisable( GL_DEPTH_TEST );
     glStencilFunc( GL_EQUAL, 1, 1 );
@@ -652,6 +670,15 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     glEnable( GL_DEPTH_TEST );
     glColor3f( 1.0f, 1.0f, 1.0f );
 
+#ifdef EQ_PIXEL_Y
+    const float startX = static_cast< float >( op.offset.x + pvp.x );
+    const float endX   = static_cast< float >( op.offset.x + pvp.x + pvp.w );
+
+    const float startY = static_cast< float >
+        ( op.offset.y + pvp.y * op.pixel.size + op.pixel.index );
+    const float endY   = static_cast< float >
+        ( op.offset.y + (pvp.y + pvp.h) * op.pixel.size + op.pixel.index );
+#else
     const float startX = static_cast< float >
         ( op.offset.x + pvp.x * op.pixel.size + op.pixel.index );
     const float endX   = static_cast< float >
@@ -659,6 +686,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
 
     const float startY = static_cast< float >( op.offset.y + pvp.y );
     const float endY   = static_cast< float >( op.offset.y + pvp.y + pvp.h );
+#endif
 
     glBegin( GL_TRIANGLE_STRIP );
     glMultiTexCoord2f( GL_TEXTURE0, 0.0f, 0.0f );

@@ -72,6 +72,16 @@ namespace eq
                 if( pixel == eq::Pixel::ALL )
                     return;
 
+#ifdef EQ_PIXEL_Y
+                int32_t newHeight = h / pixel.size;
+                // This would be the correct thing to do, but it would require
+                // frustum adaptations in CUV::_computeFrustum:
+                //if( w - ( newWidth * pixel.size ) > pixel.index )
+                if( h - ( newHeight * pixel.size ) != 0 )
+                    ++newHeight;
+
+                h = newHeight;
+#else
                 int32_t newWidth = w / pixel.size;
                 // This would be the correct thing to do, but it would require
                 // frustum adaptations in CUV::_computeFrustum:
@@ -80,7 +90,8 @@ namespace eq
                     ++newWidth;
 
                 w = newWidth;
-            }
+#endif
+        }
 
         const PixelViewport getSubPVP( const Viewport& rhs ) const
             {

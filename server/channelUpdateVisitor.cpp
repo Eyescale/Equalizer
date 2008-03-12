@@ -302,13 +302,23 @@ void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
     {
         const Channel*    inheritChannel = compound->getInheritChannel();
         const eq::PixelViewport& destPVP = inheritChannel->getPixelViewport();
+#ifdef EQ_PIXEL_Y
+        const float        frustumHeight = frustum.bottom - frustum.top;
+        const float          pixelHeight = frustumHeight / 
+                                           static_cast<float>( destPVP.h );
+        const float               jitter = pixelHeight * pixel.index;
+
+        frustum.top    += jitter;
+        frustum.bottom += jitter;
+#else
         const float         frustumWidth = frustum.right - frustum.left;
         const float           pixelWidth = frustumWidth / 
-                                           static_cast<float>( destPVP.w );
+            static_cast<float>( destPVP.w );
         const float               jitter = pixelWidth * pixel.index;
-        
+
         frustum.left  += jitter;
         frustum.right += jitter;
+#endif
     }
 
     // adjust to viewport (screen-space decomposition)
