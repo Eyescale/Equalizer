@@ -463,31 +463,35 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
 #ifdef EQ_PIXEL_Y
     glPixelZoom( 1.0f, static_cast< float >( op.pixel.size ));
 
-    const float          startX = static_cast< float >( op.offset.x + pvp.x );
-    const float          endX   = static_cast< float >( startX   + pvp.w );
-    const int32_t        startY = op.offset.y + pvp.y;
-    const int32_t        endY   = startY   + pvp.h * op.pixel.size;
+    const float startX = static_cast< float >( op.offset.x + pvp.x );
+    const float endX   = static_cast< float >( startX      + pvp.w );
+    const float startY = static_cast< float >( op.offset.y + pvp.y ) +
+                         0.5f / pvp.h ;
+    const float endY   = startY + static_cast< float >( pvp.h * op.pixel.size );
 
     glBegin( GL_LINES );
-    for( int32_t y = startY + op.pixel.index; y < endY; y += op.pixel.size )
+    for( float y = startY + op.pixel.index; y < endY;
+         y += static_cast< float >( op.pixel.size ))
     {
-        glVertex3f( startX, static_cast< float >( y ), 0.0f );
-        glVertex3f( endX,   static_cast< float >( y ), 0.0f );        
+        glVertex3f( startX, y, 0.0f );
+        glVertex3f( endX,   y, 0.0f );        
     }
     glEnd();
 #else
     glPixelZoom( static_cast< float >( op.pixel.size ), 1.0f );
 
-    const int32_t        startX = op.offset.x + pvp.x;
-    const int32_t        endX   = startX   + pvp.w * op.pixel.size;
-    const float          startY = static_cast< float >( op.offset.y + pvp.y );
-    const float          endY   = static_cast< float >( startY   + pvp.h );
+    const float startX = static_cast< float >( op.offset.x + pvp.x ) +
+                         0.5f / pvp.w ;
+    const float endX   = startX + static_cast< float >( pvp.w * op.pixel.size );
+    const float startY = static_cast< float >( op.offset.y + pvp.y );
+    const float endY   = static_cast< float >( startY      + pvp.h );
 
     glBegin( GL_LINES );
-    for( int32_t x = startX + op.pixel.index; x < endX; x += op.pixel.size )
+    for( float x = startX + op.pixel.index; x < endX; 
+         x += static_cast< float >( op.pixel.size ))
     {
-        glVertex3f( static_cast< float >( x ), startY, 0.0f );
-        glVertex3f( static_cast< float >( x ), endY, 0.0f );        
+        glVertex3f( x, startY, 0.0f );
+        glVertex3f( x, endY, 0.0f );        
     }
     glEnd();
 #endif
