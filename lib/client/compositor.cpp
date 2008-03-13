@@ -465,9 +465,10 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
 
     const float startX = static_cast< float >( op.offset.x + pvp.x );
     const float endX   = static_cast< float >( startX      + pvp.w );
+    const float height = static_cast< float >( pvp.h * op.pixel.size );
     const float startY = static_cast< float >( op.offset.y + pvp.y ) +
-                         0.5f / pvp.h ;
-    const float endY   = startY + static_cast< float >( pvp.h * op.pixel.size );
+                         0.5f / height;
+    const float endY   = startY + height
 
     glBegin( GL_LINES );
     for( float y = startY + op.pixel.index; y < endY;
@@ -480,9 +481,10 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
 #else
     glPixelZoom( static_cast< float >( op.pixel.size ), 1.0f );
 
+    const float width  = static_cast< float >( pvp.w * op.pixel.size );
     const float startX = static_cast< float >( op.offset.x + pvp.x ) +
-                         0.5f / pvp.w ;
-    const float endX   = startX + static_cast< float >( pvp.w * op.pixel.size );
+                         0.5f / width;
+    const float endX   = startX + width;
     const float startY = static_cast< float >( op.offset.y + pvp.y );
     const float endY   = static_cast< float >( startY      + pvp.h );
 

@@ -1866,9 +1866,13 @@ void Window::setWGLPBufferHandle( HPBUFFERARB handle )
     }
 
     // query pixel viewport of PBuffer
+    int w,h;
+    wglQueryPbufferARB( handle, WGL_PBUFFER_WIDTH_ARB, &w );
+    wglQueryPbufferARB( handle, WGL_PBUFFER_HEIGHT_ARB, &h );
+
     PixelViewport pvp;
-    wglQueryPbufferARB( handle, WGL_PBUFFER_WIDTH_ARB, &pvp.w );
-    wglQueryPbufferARB( handle, WGL_PBUFFER_HEIGHT_ARB, &pvp.h );
+    pvp.w = w;
+    pvp.h = h;
     setPixelViewport( pvp );
 #endif // WGL
 }
