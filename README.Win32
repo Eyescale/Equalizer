@@ -4,17 +4,10 @@
  Equalizer has been fully tested with Visual Studio 2005 and Windows
  XP. Support for Cygwin is preliminary.
  
- The Visual Studio project files are in VS2005. The solution file includes the
- following projects:
- 
- o Equalizer: The client library (DLL)
- o Equalizer Server: The server executable
- o eqPly Example: The polygonal viewer example code
+ The Visual Studio project files are in the VS2005 directory.
 
  Remote launching has been tested using ssh with the cygwin OpenSSH
- port. The previously tested ssh port (http://sshwindows.sourceforge.net/) 
- has problems with command lines longer than 255 characters. The
- following caveats have been observed:
+ port. The following caveats have been observed:
 
  o You'll need to add <InstPath>/bin manually to your Path variable
  o Open Computer Management->Services->CYGWIN sshd->Properties->Log On and

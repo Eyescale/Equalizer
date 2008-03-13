@@ -1,10 +1,10 @@
 Summary: A framework for the development and deployment of scalable graphics applications
 Name: Equalizer
-Version: 0.4.1
+Version: 0.5.0
 Release: 0
 License: LGPL
 Group: System Environment/Libraries
-Source: http://www.equalizergraphics.com/downloads/Equalizer-0.4.1.tar.gz
+Source: http://www.equalizergraphics.com/downloads/Equalizer-0.5.0.tar.gz
 Buildroot: /var/tmp/%{name}-%{version}-buildroot
 URL: http://www.equalizergraphics.com
 Packager: Stefan Eilemann <eilemann@gmail.com>

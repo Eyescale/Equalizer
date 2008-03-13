@@ -2,27 +2,24 @@
                          Darwin-Specific Notes
 
  Equalizer is developed on the latest OS X version, at the time of
- writing 10.4.10 and 10.5.0. Other versions may work, but are not tested.
+ writing 10.5.2. Other versions may work, but are not tested.
 
 Prerequisites
+
+ X11SDK: Equalizer uses X11. The X11SDK packages is shipped with Mac OS X,
+ but not installed by default.
+
+Prerequisites for Mac OS X 10.4 Tiger:
 
  New bison version: Equalizer uses bison to generate the configuration
    file parser. The bison version shipped with Mac OS X 10.4 is too old,
    therefore you need to install a newer bison version, e.g., by using
    fink or DarwinPorts.
- X11SDK: Equalizer uses X11. The X11SDK packages is shipped with Mac OS
-   X, but not installed by default.
 
 Universal Binary Notes
 
  Right now, we compile separate libraries for each SUBARCH (ppc,
- i386), which are later combined to universal libraries using lipo. We
- do not support ppc64 since the UI libraries do not exist for this target.
-
- Compiling for i386 on ppc Macs does not work since several libraries do
- not contain i386 code. Copying them over from a Intel Mac may work.
-
-Leopard Notes
+ i386), which are later combined to universal libraries using lipo.
 
  AGL/Carbon does not support 64 bit. When compiling with WINDOW_SYSTEM
  AGL, the targets ppc64 and x86_64 are disabled.
