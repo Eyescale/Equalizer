@@ -61,6 +61,9 @@ namespace eqBase
 
         /** 
          * Set an alarm.
+         *
+         * The clock will return negative, decreasing times when the alarm has
+         * not been reached.
          * 
          * @param time The time in milliseconds when the alarm happens.
          */
@@ -89,7 +92,7 @@ namespace eqBase
         float getTimef() const
             {
 #ifdef Darwin
-                const uint64_t elapsed = mach_absolute_time() - _start;
+                const int64_t elapsed = mach_absolute_time() - _start;
                 return ( elapsed * _timebaseInfo.numer / _timebaseInfo.denom /
                          1000000.f );
 #elif defined (WIN32)
@@ -110,10 +113,10 @@ namespace eqBase
          * 
          * @return the elapsed time in milliseconds
          */
-        uint64_t getTime64() const
+        int64_t getTime64() const
             {
 #ifdef Darwin
-                const uint64_t elapsed = mach_absolute_time() - _start;
+                const int64_t elapsed = mach_absolute_time() - _start;
                 return ( elapsed * _timebaseInfo.numer / _timebaseInfo.denom /
                          1000000 );
 #elif defined (WIN32)
@@ -125,7 +128,7 @@ namespace eqBase
                 struct timespec now;
                 clock_gettime( CLOCK_REALTIME, &now );
                 return ( 1000 * (now.tv_sec - _start.tv_sec) +
-                         static_cast< uint64_t >(0.000001f * 
+                         static_cast< int64_t >(0.000001f * 
                                                  (now.tv_nsec-_start.tv_nsec)));
 #endif
             }
@@ -138,7 +141,7 @@ namespace eqBase
         double getTimed() const
             {
 #ifdef Darwin
-                const uint64_t elapsed = mach_absolute_time() - _start;
+                const int64_t elapsed = mach_absolute_time() - _start;
                 return ( elapsed * _timebaseInfo.numer / _timebaseInfo.denom /
                          1000000. );
 #elif defined (WIN32)

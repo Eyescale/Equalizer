@@ -1,16 +1,12 @@
 # one-pipe fullscreen config, covering a 30" LCD one meter in front
 # of the viewer
-global
-{
-    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
-}
 
 server
 {
     config
     {
         latency 0
-        appNode
+        node
         {
             pipe
             {

@@ -1011,7 +1011,7 @@ CommandResult Node::_cmdConnect( Command& command )
         void* ptr = _requestHandler.getRequestData( packet->launchID );
         EQASSERT( dynamic_cast< Node* >( (Base*)ptr ));
         remoteNode = static_cast< Node* >( ptr );
-        remoteNode->_connectionDescriptions.clear(); //get actual data from peer
+        remoteNode->_connectionDescriptions.clear(); //use actual data from peer
     }
     else
         remoteNode = createNode( packet->type );
@@ -1283,10 +1283,10 @@ bool Node::syncConnect( eqBase::RefPtr<Node> node )
         return ( node->getState() == STATE_CONNECTED );
 
     void*          ret;
-    const uint32_t time    = static_cast<uint32_t>( 
-        node->_launchTimeout.getTimef( ));
-    
-    if( _requestHandler.waitRequest( node->_launchID, ret, time ))
+    const float    time    = -( node->_launchTimeout.getTimef( )); 
+    const uint32_t timeout = (time > 0) ? time : 0;
+
+    if( _requestHandler.waitRequest( node->_launchID, ret, timeout ))
     {
         EQASSERT( node->getState() == STATE_CONNECTED );
         node->_launchID = EQ_ID_INVALID;

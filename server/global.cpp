@@ -36,7 +36,7 @@ void Global::_setupDefaults()
         eqNet::CONNECTIONTYPE_TCPIP;
     _connectionIAttributes[ConnectionDescription::IATTR_TCPIP_PORT] = 0;
     _connectionIAttributes[ConnectionDescription::IATTR_LAUNCH_TIMEOUT] = 
-        10000; // ms
+        60000; // ms
     
     _connectionSAttributes[ConnectionDescription::SATTR_HOSTNAME] = "localhost";
 #ifdef WIN32
