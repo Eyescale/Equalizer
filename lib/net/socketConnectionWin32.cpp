@@ -86,7 +86,7 @@ void SocketConnection::_tuneSocket( const Socket fd )
     setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, 
                 reinterpret_cast<const char*>( &on ), sizeof( on ));
 
-#if 1
+#if 0
     const int bufferSize = 1*1024*1024;
     setsockopt( fd, SOL_SOCKET, SO_SNDBUF, 
         reinterpret_cast<const char*>( &bufferSize ), sizeof( bufferSize ));
