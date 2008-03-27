@@ -65,7 +65,7 @@ bool glslShaders::loadShaders( const std::string &vShader,
 
     GLint status;
     glGetObjectParameterivARB( _program, GL_OBJECT_LINK_STATUS_ARB, &status );
-    if( status == GL_FALSE );
+    if( status == GL_FALSE )
     {
         _printLog( _program, "Linking" );
         _program = 0;
