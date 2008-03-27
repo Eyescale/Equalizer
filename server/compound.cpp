@@ -569,11 +569,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
             _inherit.phase = 0;
 
         if( _inherit.channel )
-        {
             _inherit.pvp  = _inherit.channel->getPixelViewport();
-            _inherit.pvp.apply( _data.vp );
-            _inherit.pvp.apply( _data.pixel );
-        }
 
         if( _inherit.buffers == eq::Frame::BUFFER_UNDEFINED )
             _inherit.buffers = eq::Frame::BUFFER_COLOR;
@@ -622,12 +618,6 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         if ( !_inherit.pvp.isValid() && _inherit.channel )
             _inherit.pvp = _inherit.channel->getPixelViewport();
 
-        if( _inherit.pvp.isValid( ))
-        {
-            _inherit.pvp.apply( _data.vp );
-            _inherit.pvp.apply( _data.pixel );
-        }
-
         if( _data.buffers != eq::Frame::BUFFER_UNDEFINED )
             _inherit.buffers = _data.buffers;
         
@@ -646,6 +636,21 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         if( _data.iAttributes[IATTR_UPDATE_FOV] != eq::UNDEFINED )
             _inherit.iAttributes[IATTR_UPDATE_FOV] =
                 _data.iAttributes[IATTR_UPDATE_FOV];
+    }
+
+    if( _inherit.pvp.isValid( ))
+    {
+        EQASSERT( _data.vp.isValid( ));
+        _inherit.pvp.apply( _data.vp );
+
+        // Recompute the inherit viewport to be pixel-correct with the
+        // integer-rounded pvp. This is needed to calculate the frustum
+        // correctly.
+        EQASSERT( _inherit.channel );
+        const eq::PixelViewport& destPVP = _inherit.channel->getPixelViewport();
+        _inherit.vp = _inherit.pvp.getSubVP( destPVP );
+
+        _inherit.pvp.apply( _data.pixel );
     }
 
     if( _data.tasks == TASK_DEFAULT )
