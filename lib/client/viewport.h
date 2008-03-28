@@ -52,6 +52,15 @@ namespace eq
          */
         bool hasArea() const { return (w>0.0f && h>0.0f); }
 
+        /** @return the area of this viewport */
+        float getArea() const { return w*h; }
+
+        /** @return the X end position */
+        float getXEnd() const { return x+w; }
+
+        /** @return the Y end position */
+        float getYEnd() const { return y+h; }
+
         bool isFullScreen() const 
             { return ( x==0.0f && y==0.0f && w==1.0f && h==1.0f ); }
 

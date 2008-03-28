@@ -118,6 +118,12 @@ namespace eq
                                   ( h )/ static_cast<float>( rhs.h ));
             }
 
+        /** @return the X end position */
+        int32_t getXEnd() const { return x+w; }
+
+        /** @return the Y end position */
+        int32_t getYEnd() const { return y+h; }
+
         const PixelViewport operator + ( const vmml::Vector2i& offset ) const
             {
                 return PixelViewport( x+offset.x, y+offset.y, w, h );
