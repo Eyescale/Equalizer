@@ -129,6 +129,15 @@ namespace eq
                 return PixelViewport( x+offset.x, y+offset.y, w, h );
             }
 
+        const PixelViewport operator * ( const eq::Pixel& pixel ) const
+            {
+#ifdef EQ_PIXEL_Y
+                return PixelViewport( x, y, w * pixel.size, h );
+#else
+                return PixelViewport( x, y, w, h * pixel.size );
+#endif
+            }
+
         bool operator == ( const PixelViewport& rhs ) const 
             { 
                 return ( x==rhs.x && y==rhs.y && w==rhs.w && h==rhs.h );
