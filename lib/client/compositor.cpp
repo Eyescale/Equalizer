@@ -512,6 +512,7 @@ static void _drawRect( const PixelViewport& rect )
     if( !getenv( "EQ_TAINT_CHANNELS" ))
         return;
 
+    glDisable( GL_LIGHTING );
     glColor3f( 1.0f, 1.0f, 1.0f );
     glBegin( GL_LINE_LOOP );
     {
@@ -521,6 +522,7 @@ static void _drawRect( const PixelViewport& rect )
         glVertex3f( rect.x, rect.getYEnd(), 0.f );
     } 
     glEnd();
+    glEnable( GL_LIGHTING );
 #endif
 }
 }
