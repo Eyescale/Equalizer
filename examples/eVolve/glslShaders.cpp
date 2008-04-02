@@ -2,7 +2,7 @@
    Copyright (c) 2008,       Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#include "GLSLShaders.h"
+#include "glslShaders.h"
 
 namespace eVolve
 {
