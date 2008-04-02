@@ -52,7 +52,7 @@ namespace eVolve
         RawVolumeModel  _rawModel;      //!< volume data
         SliceClipper    _sliceClipper;  //!< frame clipping algorithm
         uint32_t        _precision;     //!< multiplyer for number of slices
-        glslShaders     _shaders;       //!< GLSL shaders
+        GLSLShaders     _shaders;       //!< GLSL shaders
 
         GLEWContext*    _glewContext;   //!< OpenGL rendering context
 

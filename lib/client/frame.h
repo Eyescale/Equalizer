@@ -55,12 +55,14 @@ namespace eq
          */
         //*{
         const vmml::Vector2i& getOffset() const { return _data.offset; }
-        
+        void setOffset( const vmml::Vector2i& offset ) { _data.offset = offset;}
+
         /** The enabled frame buffer attachments. */
         uint32_t getBuffers() const;
 
         /** @return the database-range relative to the destination channel. */
         const Range& getRange() const;
+        void         setRange( const Range& range );
 
         /** @return the pixel parameters relative to the destination channel. */
         const Pixel& getPixel() const;
@@ -71,6 +73,9 @@ namespace eq
         /** Set the data for this frame. */
         void setData( FrameData* data ) { _frameData = data; }
     
+        /** Set the pixel viewport of the frame's data */
+        void setPixelViewport( const PixelViewport& pvp );
+
         const eqNet::ObjectVersion& getDataVersion( const Eye eye ) const
             { return _data.frameData[ eye ]; }
         //*}
@@ -79,6 +84,9 @@ namespace eq
          * @name Operations
          */
         //*{
+
+        /** Clear the frame, recycles the images attached to the frame data. */
+        void clear();
 
         /** 
          * Read back a set of images according to the current frame data.

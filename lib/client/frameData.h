@@ -40,15 +40,20 @@ namespace eq
         //*{
         /** The enabled frame buffer attachments. */
         uint32_t getBuffers() const { return _data.buffers; }
+        void     setBuffers( const uint32_t buffers ){ _data.buffers = buffers;}
 
         /** The database-range relative to the destination channel. */
         const Range& getRange() const { return _data.range; }
+        void setRange( const Range& range ) { _data.range = range; }
         
         /** The pixel decomposition relative to the destination channel. */
         const Pixel& getPixel() const { return _data.pixel; }
         
         /** The images of this frame data holder */
         const ImageVector& getImages() const { return _images; }
+
+        /** The covered area. */
+        void setPixelViewport( const PixelViewport& pvp ) { _data.pvp = pvp; }
         //*}
 
         /**

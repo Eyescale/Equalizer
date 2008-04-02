@@ -146,7 +146,8 @@ void FrameData::syncReadback()
 
 void FrameData::_setReady( const uint32_t version )
 { 
-    EQASSERT( _readyVersion < version );
+    EQASSERT( getVersion() == eqNet::Object::VERSION_NONE || 
+              _readyVersion < version );
 
     _listenersMutex.set();
     _readyVersion = version; 

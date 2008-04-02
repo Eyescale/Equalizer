@@ -2,11 +2,11 @@
    Copyright (c) 2008,       Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#include "glslShaders.h"
+#include "GLSLShaders.h"
 
 namespace eVolve
 {
-void glslShaders::_printLog( GLhandleARB shader, const std::string &type )
+void GLSLShaders::_printLog( GLhandleARB shader, const std::string &type )
 {
     GLint length;
     glGetObjectParameterivARB( shader, GL_OBJECT_INFO_LOG_LENGTH_ARB, &length );
@@ -26,7 +26,7 @@ void glslShaders::_printLog( GLhandleARB shader, const std::string &type )
 }
 
 
-GLhandleARB glslShaders::_loadShader( const std::string &shader,
+GLhandleARB GLSLShaders::_loadShader( const std::string &shader,
                                                  GLenum shaderType )
 {
     GLhandleARB handle = glCreateShaderObjectARB( shaderType );
@@ -43,7 +43,7 @@ GLhandleARB glslShaders::_loadShader( const std::string &shader,
 }
 
 
-bool glslShaders::loadShaders( const std::string &vShader,
+bool GLSLShaders::loadShaders( const std::string &vShader,
                                const std::string &fShader,
                                      GLEWContext* glewCtx )
 {
@@ -76,7 +76,7 @@ bool glslShaders::loadShaders( const std::string &vShader,
     return true;
 }
 
-void glslShaders::unloadShaders()
+void GLSLShaders::unloadShaders()
 {
     if( !_shadersLoaded )
         return;

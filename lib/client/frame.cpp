@@ -43,10 +43,28 @@ const Range& Frame::getRange() const
     return _frameData->getRange();
 }
 
+void Frame::setRange( const Range& range )
+{
+    EQASSERT( _frameData );
+    _frameData->setRange( range );    
+}
+
 const ImageVector& Frame::getImages() const
 {
     EQASSERT( _frameData );
     return _frameData->getImages();
+}
+
+void Frame::setPixelViewport( const PixelViewport& pvp )
+{
+    EQASSERT( _frameData );
+    _frameData->setPixelViewport( pvp );
+}
+
+void Frame::clear()
+{
+    EQASSERT( _frameData );
+    _frameData->clear();
 }
 
 void Frame::startReadback( Window::ObjectManager* glObjects ) 

@@ -244,7 +244,7 @@ void Image::_startReadback( const Frame::Buffer buffer )
 {
     Pixels&           pixels           = _getPixels( buffer );
     CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
-    const size_t      size = _pvp.w * _pvp.h * getDepth( buffer );
+    const size_t      size             = _pvp.w * _pvp.h * getDepth( buffer );
 
     compressedPixels.valid = false;
 

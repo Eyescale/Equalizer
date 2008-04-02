@@ -14,7 +14,6 @@ namespace eVolve
 {
     class FrameData;
     class InitData;
-    struct Frame;
 
     class Channel : public eq::Channel
     {
@@ -45,7 +44,7 @@ namespace eVolve
         void _startAssemble();
         void _finishAssemble();
 
-        void _orderFrames( std::vector< Frame >& frames );
+        void _orderFrames( eq::FrameVector& frames );
 
         void _drawLogo();
 
@@ -63,8 +62,7 @@ namespace eVolve
         } 
             _bgColorMode;
 
-        eq::Image _image; //!< buffer for readback in case of DB compositing
-
+        eq::Frame _frame;     //!< Readback buffer for DB compositing
         eq::Range _drawRange; //!< The range from the last draw of this frame
     };
 

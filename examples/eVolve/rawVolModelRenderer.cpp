@@ -146,9 +146,8 @@ bool RawVolumeModelRenderer::render
 
 bool RawVolumeModelRenderer::loadShaders()
 {
-    if( !_shaders.loadShaders( vertexShader_glsl,
-                               fragmentShader_glsl,
-                               _glewContext         ))
+    if( !_shaders.loadShaders( vertexShader_glsl, fragmentShader_glsl,
+                               _glewContext ))
     {
         EQERROR << "Can't load glsl shaders" << std::endl;
         return false;

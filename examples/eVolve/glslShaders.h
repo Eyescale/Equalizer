@@ -9,10 +9,10 @@
 
 namespace eVolve
 {
-    class glslShaders
+    class GLSLShaders
     {
     public:
-        glslShaders(): _program( 0 ), _shadersLoaded( false ), _glewCtx( 0 ) {}
+        GLSLShaders(): _program( 0 ), _shadersLoaded( false ), _glewCtx( 0 ) {}
 
         bool loadShaders( const std::string &vShader,
                           const std::string &fShader,

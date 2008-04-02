@@ -95,7 +95,7 @@ namespace eq
         /** @return the Win32 off screen PBuffer handle. */
         HPBUFFERARB getWGLPBufferHandle() const { return _wglPBuffer; }
 
-        /** @return the Win32 device context used for the current WGL drawable. */
+        /** @return the Win32 device context used for the current drawable. */
         HDC getWGLDC() const { return _wglDC; }
 
         /** @return the WGL rendering context. */

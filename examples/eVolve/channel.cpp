@@ -26,6 +26,9 @@ Channel::Channel( eq::Window* parent )
     , _bgColorMode( BG_SOLID_COLORED )
     , _drawRange( eq::Range::ALL )
 {
+    eq::FrameData* frameData = new eq::FrameData;
+    frameData->setBuffers( eq::Frame::BUFFER_COLOR );
+    _frame.setData( frameData );
 }
 
 static void checkError( const std::string& msg ) 
@@ -222,11 +225,11 @@ void Channel::clearViewport( const eq::PixelViewport &pvp )
 }
 
 
-void Channel::_orderFrames( vector< Frame > &frames )
+void Channel::_orderFrames( eq::FrameVector& frames )
 {
           vmml::Matrix4d  modelviewM;   // modelview matrix
           vmml::Matrix3d  modelviewITM; // modelview inversed transposed matrix
-    const vmml::Matrix4f &rotation = _getFrameData().data.rotation;
+    const vmml::Matrix4f& rotation = _getFrameData().data.rotation;
     
     if( _perspective )
         _calcMVandITMV( modelviewM, modelviewITM );
@@ -241,13 +244,12 @@ void Channel::frameAssemble( const uint32_t frameID )
 
     _startAssemble();
 
-    const vector< eq::Frame* >& frames  = getInputFrames();
-    eq::PixelViewport coveredPVP;
-
-    vector< Frame > dbFrames;
+    const eq::FrameVector& frames = getInputFrames();
+    eq::PixelViewport  coveredPVP;
+    eq::FrameVector    dbFrames;
 
     // Make sure all frames are ready and gather some information on them
-    for( vector< eq::Frame* >::const_iterator i = frames.begin();
+    for( eq::FrameVector::const_iterator i = frames.begin();
          i != frames.end(); ++i )
     {
         eq::Frame* frame = *i;
@@ -258,7 +260,7 @@ void Channel::frameAssemble( const uint32_t frameID )
             eq::Compositor::assembleFrame( frame, this );
         else
         {
-            dbFrames.push_back( Frame( frame ) );
+            dbFrames.push_back( frame );
             _expandPVP( coveredPVP, frame->getImages(), frame->getOffset() );
         }
     }
@@ -271,58 +273,43 @@ void Channel::frameAssemble( const uint32_t frameID )
     }
 
     //calculate correct frames sequence
-    if( !composeOnly )
-        dbFrames.push_back( Frame( 0, &_image, _drawRange ));
+    if( !composeOnly && coveredPVP.hasArea( ))
+    {
+        _frame.clear();
+        _frame.setRange( _drawRange );
+        dbFrames.push_back( &_frame );
+    }
 
     _orderFrames( dbFrames );
 
-    glEnable( GL_BLEND );
-    glBlendFunc( GL_ONE, GL_SRC_ALPHA );
-
-    //check if current frame in proper position, redback if not
+    // check if current frame is in proper position, read back if not
     if( !composeOnly )
     {
-        if( _bgColorMode == BG_SOLID_BLACK && !dbFrames.back().frame )
-            dbFrames.pop_back();
-        else
-            if( coveredPVP.hasArea())
-            {
-                eq::Window::ObjectManager* glObjects = 
-                    getWindow()->getObjectManager();
-                _image.setFormat(eq::Frame::BUFFER_COLOR, GL_RGBA   );
-                _image.setType(  eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
+        if( _bgColorMode == BG_SOLID_BLACK && dbFrames.front() == &_frame )
+            dbFrames.erase( dbFrames.begin( ));
+        else if( coveredPVP.hasArea())
+        {
+            eq::Window*                window    = getWindow();
+            eq::Window::ObjectManager* glObjects = window->getObjectManager();
 
-                _image.startReadback( eq::Frame::BUFFER_COLOR, coveredPVP, 
-                                      glObjects );
+            _frame.setOffset( vmml::Vector2i( 0, 0 ));
+            _frame.setPixelViewport( coveredPVP );
+            _frame.startReadback( glObjects );
+            clearViewport( coveredPVP );
+            _frame.syncReadback();
 
-                clearViewport( coveredPVP );
-                _image.syncReadback();
-            }
+            // offset for assembly
+            _frame.setOffset( vmml::Vector2i( coveredPVP.x, coveredPVP.y ));
+        }
     }
 
     // blend DB frames in order
-    while( !dbFrames.empty() )
-    {
-        Frame frame = dbFrames.back();
-        dbFrames.pop_back();
+    glEnable( GL_BLEND );
+    glBlendFunc( GL_ONE, GL_SRC_ALPHA );
 
-        if( frame.frame )
-            eq::Compositor::assembleFrame( frame.frame, this );
-        else
-            if( coveredPVP.hasArea() )
-            {
-                EQASSERT( frame.image == &_image );
+    eq::Compositor::assembleFramesSorted( dbFrames, this );
 
-                eq::Compositor::ImageOp op;
-                op.channel  = this;
-                op.buffers  = eq::Frame::BUFFER_COLOR;
-                op.offset.x = coveredPVP.x;
-                op.offset.y = coveredPVP.y;
-
-                eq::Compositor::assembleImage( frame.image, op ); 
-            }
-    }
-
+    //glDisable( GL_BLEND );
     _finishAssemble();
 }
 
@@ -342,9 +329,9 @@ void Channel::_finishAssemble()
 
 void Channel::frameReadback( const uint32_t frameID )
 {
-    // Drop depth buffer flag from all outframes
-    const vector< eq::Frame* >& frames = getOutputFrames();
-    for( vector< eq::Frame* >::const_iterator i = frames.begin(); 
+    // Drop depth buffer flag from all output frames
+    const eq::FrameVector& frames = getOutputFrames();
+    for( eq::FrameVector::const_iterator i = frames.begin(); 
          i != frames.end(); ++i )
     {
         (*i)->disableBuffer( eq::Frame::BUFFER_DEPTH );
