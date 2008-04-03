@@ -1,6 +1,10 @@
 /* Copyright (c) 2007       Maxim Makhinya
    All rights reserved. */
 
+#ifdef WIN32
+#  define NOMINMAX
+#endif
+
 #include "framesOrderer.h"
 
 namespace eVolve
@@ -56,7 +60,7 @@ void orderFrames( eq::FrameVector&     frames,
     const vmml::Vector4d pS = modelviewM * vmml::Vector4d( 0.0, 0.0,-1.0, 1.0 );
     dotVals.push_back( norm.dot( pS.getNormalizedVector3() ) );
 
-    //check if any slices need to be rendered in rederse order
+    //check if any slices need to be rendered in reverse order
     size_t minPos = std::numeric_limits< size_t >::max();
     for( size_t i=0; i<dotVals.size()-1; i++ )
         if( dotVals[i] > 0 && dotVals[i+1] > 0 )
