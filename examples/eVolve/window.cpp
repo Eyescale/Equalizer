@@ -41,6 +41,12 @@ bool Window::configInitGL( const uint32_t initID )
     if( !model )
         return false;
 
+    if( !GLEW_ARB_shader_objects )
+    {
+        setErrorMessage( "eVolve needs GL_ARB_shader_objects extension" );
+        return false;
+    }
+
     glEnable( GL_SCISSOR_TEST ); // needed to constrain channel viewport
 
     glClear( GL_COLOR_BUFFER_BIT );
