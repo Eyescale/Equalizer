@@ -20,8 +20,8 @@ namespace eVolve
 
         void unloadShaders();
 
-        GLhandleARB getProgram() { return _program; }
-        GLEWContext* glewGetContext() { return _glewCtx; }
+        GLhandleARB  getProgram() const { return _program; }
+        GLEWContext* glewGetContext()   { return _glewCtx; }
 
     private:
         GLhandleARB     _program;       //!< GLSL vertex and fragment shaders

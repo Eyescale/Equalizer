@@ -37,7 +37,11 @@ GLhandleARB GLSLShaders::_loadShader( const std::string &shader,
     GLint status;
     glGetObjectParameterivARB( handle, GL_OBJECT_COMPILE_STATUS_ARB, &status );
     if( status == GL_FALSE )
+    {
+        glDeleteObjectARB( handle );
         _printLog( handle, "Compiling" );
+        return 0;
+    }
 
     return handle;
 }
@@ -55,11 +59,11 @@ bool GLSLShaders::loadShaders( const std::string &vShader,
 
     _program = glCreateProgramObjectARB();
 
-    GLhandleARB vertH = _loadShader( vShader, GL_VERTEX_SHADER_ARB );
-    glAttachObjectARB( _program, vertH );
+    GLhandleARB vertexShader = _loadShader( vShader, GL_VERTEX_SHADER_ARB );
+    glAttachObjectARB( _program, vertexShader );
 
-    GLhandleARB horH  = _loadShader( fShader, GL_FRAGMENT_SHADER_ARB );
-    glAttachObjectARB( _program, horH );
+    GLhandleARB fragmentShader = _loadShader( fShader, GL_FRAGMENT_SHADER_ARB );
+    glAttachObjectARB( _program, fragmentShader );
 
     glLinkProgramARB( _program );
 
@@ -68,6 +72,13 @@ bool GLSLShaders::loadShaders( const std::string &vShader,
     if( status == GL_FALSE )
     {
         _printLog( _program, "Linking" );
+        
+        if( fragmentShader )
+            glDeleteObjectARB( fragmentShader );
+        if( vertexShader )
+            glDeleteObjectARB( vertexShader );
+
+        glDeleteObjectARB( _program );
         _program = 0;
         return false;
     }
