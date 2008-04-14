@@ -18,7 +18,8 @@ namespace eVolve
 
         const FrameData& getFrameData() const { return _frameData; }
 
-        Model*      getModel()   const { return _model;   }
+        Renderer*        getRenderer()        { return _renderer;  }
+        const Renderer*  getRenderer() const  { return _renderer;  }
 
     protected:
         virtual ~Pipe() {}
@@ -32,7 +33,7 @@ namespace eVolve
 
         FrameData   _frameData;
 
-        Model*      _model;      //!< equal to RawVolumeModelRenderer
+        Renderer*   _renderer;      //!< The renderer, holding the volume
     };
 }
 

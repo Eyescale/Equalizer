@@ -132,22 +132,22 @@ void Channel::frameDraw( const uint32_t frameID )
     eq::Channel::frameDraw( frameID );
     setLights();
 
-    const Pipe*             pipe = static_cast<Pipe*>( getPipe( ));
+    Pipe*                   pipe = static_cast<Pipe*>( getPipe( ));
     const FrameData::Data&  data = pipe->getFrameData().data;
 
     double translationZ = _perspective ? data.translation.z : _orthoZ;
     glTranslatef(  data.translation.x, data.translation.y, translationZ );
     glMultMatrixf( data.rotation.ml );
 
-    Model* model  = pipe->getModel();
-    EQASSERT( model );
+    Renderer* renderer  = pipe->getRenderer();
+    EQASSERT( renderer );
 
     vmml::Matrix4d  modelviewM;     // modelview matrix
     vmml::Matrix3d  modelviewITM;   // modelview inversed transposed matrix
     _calcMVandITMV( modelviewM, modelviewITM );
 
     const eq::Range& range = getRange();
-    model->render( range, modelviewM, modelviewITM );
+    renderer->render( range, modelviewM, modelviewITM );
 
     checkError( "error during rendering " );
 
@@ -174,11 +174,11 @@ void Channel::_calcMVandITMV(
 {
     const FrameData& frameData = _getFrameData();
 
-    const Pipe*  pipe = static_cast<Pipe*>( getPipe( ));
-    const Model* model = pipe->getModel();
-    if( model )
+    const Pipe*     pipe     = static_cast<Pipe*>( getPipe( ));
+    const Renderer* renderer = pipe->getRenderer();
+    if( renderer )
     {
-        const VolumeScaling& volScaling = model->getVolumeScaling();
+        const VolumeScaling& volScaling = renderer->getVolumeScaling();
         
         vmml::Matrix4f scale( 
             volScaling.W, 0, 0, 0,

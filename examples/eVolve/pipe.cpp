@@ -57,16 +57,16 @@ bool Pipe::configInit( const uint32_t initID )
     const bool     perspective = initData.getPerspective();
     EQINFO << "Loading model " << filename << endl;
 
-    _model = new Model( filename.c_str(), precision, perspective );
-    EQASSERT( _model );
+    _renderer = new Renderer( filename.c_str(), precision, perspective );
+    EQASSERT( _renderer );
 
-    if( !_model->loadHeader( initData.getBrightness(), initData.getAlpha( )))
+    if( !_renderer->loadHeader( initData.getBrightness(), initData.getAlpha( )))
     {
         setErrorMessage( "Can't load model header file" );
         EQWARN << "Can't load model header file: " << filename << ".vhf"
                << endl;
-        delete _model;
-        _model = 0;
+        delete _renderer;
+        _renderer = 0;
         return false;
     }
 
@@ -76,8 +76,8 @@ bool Pipe::configInit( const uint32_t initID )
 
 bool Pipe::configExit()
 {
-    delete _model;
-    _model = 0;
+    delete _renderer;
+    _renderer = 0;
 
     eq::Config* config = getConfig();
     config->unmapObject( &_frameData );

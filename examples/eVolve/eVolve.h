@@ -12,7 +12,7 @@
 /** The Equalizer Volume Rendering Example */
 namespace eVolve
 {
-    typedef RawVolumeModelRenderer Model;
+    typedef RawVolumeModelRenderer Renderer;
 
     class LocalInitData;
 

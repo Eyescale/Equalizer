@@ -35,10 +35,10 @@ bool Window::configInit( const uint32_t initID )
 
 bool Window::configInitGL( const uint32_t initID )
 {
-    Pipe*  pipe  = static_cast<Pipe*>( getPipe() );
-    Model* model = pipe->getModel();
+    Pipe*     pipe     = static_cast<Pipe*>( getPipe() );
+    Renderer* renderer = pipe->getRenderer();
 
-    if( !model )
+    if( !renderer )
         return false;
 
     if( !GLEW_ARB_shader_objects )
@@ -53,9 +53,9 @@ bool Window::configInitGL( const uint32_t initID )
     swapBuffers();
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-    model->glewSetContext( glewGetContext( ));
+    renderer->glewSetContext( glewGetContext( ));
 
-    if( !model->loadShaders( ))
+    if( !renderer->loadShaders( ))
     {
         setErrorMessage( "Can't load shaders" );
         return false;
