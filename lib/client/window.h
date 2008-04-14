@@ -258,13 +258,13 @@ namespace eq
         virtual void setWGLWindowHandle( HWND handle );
         
         /** 
-        * Set the Win32 off screen pbuffer handle for this window.
-        * 
-        * This function should only be called from configInit() or
-        * configExit().
-        *
-        * @param handle the pbuffer handle.
-        */
+         * Set the Win32 off screen pbuffer handle for this window.
+         * 
+         * This function should only be called from configInit() or
+         * configExit().
+         *
+         * @param handle the pbuffer handle.
+         */
         virtual void setWGLPBufferHandle( HPBUFFERARB handle );
 
         /** 
@@ -356,7 +356,7 @@ namespace eq
          *  
          * @return a pixel format, or 0 if no pixel format was found.
          */
-        XVisualInfo* chooseXVisualInfo();
+        virtual XVisualInfo* chooseXVisualInfo();
 
         /** 
          * Create a GLX context.
@@ -366,7 +366,7 @@ namespace eq
          * @param visualInfo the visual info for the context.
          * @return the context, or 0 if context creation failed.
          */
-        GLXContext createGLXContext( XVisualInfo* visualInfo );
+        virtual GLXContext createGLXContext( XVisualInfo* visualInfo );
 
         /** 
          * Initialize the window's drawable (fullscreen, pbuffer or window) and
@@ -377,7 +377,7 @@ namespace eq
          * @param visualInfo the visual info for the context.
          * @return true if the drawable was created, false otherwise.
          */
-        bool configInitGLXDrawable( XVisualInfo* visualInfo );
+        virtual bool configInitGLXDrawable( XVisualInfo* visualInfo );
 
         /** 
          * Initialize the window with a window and bind the GLX context.
@@ -387,7 +387,7 @@ namespace eq
          * @param visualInfo the visual info for the context.
          * @return true if the window was created, false otherwise.
          */
-        bool configInitGLXWindow( XVisualInfo* visualInfo );
+        virtual bool configInitGLXWindow( XVisualInfo* visualInfo );
 
         /** 
          * Initialize the window with a PBuffer and bind the GLX context.
@@ -397,7 +397,7 @@ namespace eq
          * @param visualInfo the visual info for the context.
          * @return true if the PBuffer was created, false otherwise.
          */
-        bool configInitGLXPBuffer( XVisualInfo* visualInfo );
+        virtual bool configInitGLXPBuffer( XVisualInfo* visualInfo );
 
         //* @name AGL/Carbon initialization
         //*{
@@ -491,7 +491,7 @@ namespace eq
          *
          * @return true if the PBuffer was created, false otherwise.
          */
-        virtual bool configInitAGLPBuffer();
+        virtual bool configInitAGLPBuffer(); 
         //*}
 
         //* @name WGL/Win32 initialization
