@@ -283,7 +283,7 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
     }
     else // kick of new recv
     {
-        WSABUF wsaBuffer = { EQ_MIN( 1024, bytes ), 
+        WSABUF wsaBuffer = { EQ_MIN( 512*1024, bytes ), 
                              static_cast<char*>( buffer )};
 
         ResetEvent( _overlapped.hEvent );
@@ -344,7 +344,7 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
     if( _writeFD == INVALID_SOCKET )
         return -1;
 
-    WSABUF wsaBuffer = { EQ_MIN( 1024, bytes ),
+    WSABUF wsaBuffer = { EQ_MIN( 512*1024, bytes ),
         const_cast<char*>( static_cast< const char* >( buffer ))};
     DWORD wrote;
 
