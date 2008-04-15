@@ -298,6 +298,8 @@ bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
 
     packet.requestID = _requestHandler.registerRequest( node.get( ));
     packet.nodeID    = _id;
+    packet.nodeID.convertToNetwork();
+
     packet.type      = getType();
     packet.launchID  = node->_launchID;
     node->_launchID  = EQ_ID_INVALID;
@@ -984,15 +986,18 @@ CommandResult Node::_cmdConnect( Command& command )
 
     const NodeConnectPacket* packet = command.getPacket<NodeConnectPacket>();
     RefPtr<Connection>   connection = _connectionSet.getConnection();
-    
+
+    NodeID nodeID = packet->nodeID;
+    nodeID.convertToHost();
+
     EQINFO << "handle connect " << packet << endl;
     EQASSERT( _connectionNodes.find( connection.get( )) == 
               _connectionNodes.end( ));
 
-    if( _nodes.find( packet->nodeID ) != _nodes.end( ))
+    if( _nodes.find( nodeID ) != _nodes.end( ))
     {   // Node exists, probably simultaneous connect from peer
         EQASSERT( packet->launchID == EQ_ID_INVALID );
-        EQINFO << "Already got node " << packet->nodeID << ", refusing connect"
+        EQINFO << "Already got node " << nodeID << ", refusing connect"
                << endl;
 
         // refuse connection
@@ -1020,7 +1025,8 @@ CommandResult Node::_cmdConnect( Command& command )
     if( !remoteNode->deserialize( data ))
         EQWARN << "Error during node initialization" << endl;
     EQASSERT( data.empty( ));
-    EQASSERT( remoteNode->_id == packet->nodeID );
+    EQASSERTINFO( remoteNode->_id == nodeID,
+                  remoteNode->_id << "!=" << nodeID );
 
     remoteNode->_connection = connection;
     remoteNode->_state      = STATE_CONNECTED;
@@ -1030,7 +1036,9 @@ CommandResult Node::_cmdConnect( Command& command )
 
     // send our information as reply
     NodeConnectReplyPacket reply( packet );
-    reply.nodeID    = _id;   
+    reply.nodeID    = _id;
+    reply.nodeID.convertToNetwork();
+
     reply.type      = getType();
 
     connection->send( reply, serialize( ));
@@ -1050,13 +1058,16 @@ CommandResult Node::_cmdConnectReply( Command& command )
         command.getPacket<NodeConnectReplyPacket>();
     RefPtr<Connection> connection = _connectionSet.getConnection();
 
+    NodeID nodeID = packet->nodeID;
+    nodeID.convertToHost();
+
     EQINFO << "handle connect reply " << packet << endl;
     EQASSERT( _connectionNodes.find( connection.get( )) == 
               _connectionNodes.end( ));
 
-    if( packet->nodeID == NodeID::ZERO || // connection refused
-        _nodes.find( packet->nodeID ) != _nodes.end( )) // Node exists, probably
-                                                        // simultaneous connect
+    if( nodeID == NodeID::ZERO || // connection refused
+        _nodes.find( nodeID ) != _nodes.end( )) // Node exists, probably
+                                                // simultaneous connect
     {
         _connectionSet.removeConnection( connection );
         connection->close();
@@ -1087,7 +1098,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
     if( !remoteNode->deserialize( data ))
         EQWARN << "Error during node initialization" << endl;
     EQASSERT( data.empty( ));
-    EQASSERT( remoteNode->_id == packet->nodeID );
+    EQASSERT( remoteNode->_id == nodeID );
 
     remoteNode->_connection = connection;
     remoteNode->_state      = STATE_CONNECTED;
@@ -1136,7 +1147,10 @@ CommandResult Node::_cmdGetNodeData( Command& command)
         command.getPacket<NodeGetNodeDataPacket>();
     EQINFO << "cmd get node data: " << packet << endl;
 
-    RefPtr<Node> descNode = getNode( packet->nodeID );
+    NodeID nodeID = packet->nodeID;
+    nodeID.convertToHost();
+
+    RefPtr<Node> descNode = getNode( nodeID );
     
     NodeGetNodeDataReplyPacket reply( packet );
 
@@ -1148,7 +1162,7 @@ CommandResult Node::_cmdGetNodeData( Command& command)
     }
     else
     {
-        EQINFO << "Node " << packet->nodeID << " unknown" << endl;
+        EQINFO << "Node " << nodeID << " unknown" << endl;
         reply.type = TYPE_EQNET_INVALID;
     }
 
@@ -1166,9 +1180,13 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
 
     const uint32_t requestID = packet->requestID;
 
-    if( _nodes.find( packet->nodeID ) != _nodes.end( ))
-    {   // Requested node connected to us in the meantime
-        RefPtr<Node> node = _nodes[ packet->nodeID ];
+    NodeID nodeID = packet->nodeID;
+    nodeID.convertToHost();
+
+    if( _nodes.find( nodeID ) != _nodes.end( ))
+    {   
+        // Requested node connected to us in the meantime
+        RefPtr<Node> node = _nodes[ nodeID ];
         EQASSERT( node->isConnected( ));
 
         node->ref();
@@ -1309,11 +1327,12 @@ RefPtr<Node> Node::connect( const NodeID& nodeID, RefPtr<Node> server )
 
     // Make sure that only one connection request based on the node identifier
     // is pending at a given time. Otherwise a node with the same id might be
-    // instanciated twice in _cmdGetNodeDataReply(). The alternative to this
+    // instantiated twice in _cmdGetNodeDataReply(). The alternative to this
     // mutex is to register connecting nodes with this local node, and handle
     // all cases correctly, which is far more complex. Node connection only
     // happens a lot during initialization, and are therefore not time-critical.
     ScopedMutex< Lock > mutex( _connectMutex );
+    EQINFO << "Connecting node " << nodeID << endl;
 
     iter = _nodes.find( nodeID );
     if( iter != _nodes.end( ))
@@ -1323,6 +1342,7 @@ RefPtr<Node> Node::connect( const NodeID& nodeID, RefPtr<Node> server )
     NodeGetNodeDataPacket packet;
     packet.requestID = _requestHandler.registerRequest();
     packet.nodeID    = nodeID;
+    packet.nodeID.convertToNetwork();
 
     server->send( packet );
 

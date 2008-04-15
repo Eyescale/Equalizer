@@ -555,9 +555,11 @@ eqNet::CommandResult Channel::_cmdFrameTransmit( eqNet::Command& command )
 
     for( uint32_t i=0; i<packet->nNodes; ++i )
     {
-        const eqNet::NodeID& nodeID = packet->nodes[i];
-        RefPtr<eqNet::Node>  node   = command.getNode();
-        RefPtr<eqNet::Node>  toNode = localNode->connect( nodeID, node );
+        eqNet::NodeID nodeID = packet->nodes[i];
+        nodeID.convertToHost();
+
+        RefPtr<eqNet::Node> node   = command.getNode();
+        RefPtr<eqNet::Node> toNode = localNode->connect( nodeID, node );
         EQLOG( LOG_ASSEMBLY ) << "channel \"" << getName() << "\" transmit " 
                               << frame << " to " << nodeID << endl;
 

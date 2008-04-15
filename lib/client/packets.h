@@ -1060,9 +1060,17 @@ namespace eq
     }
 
     inline std::ostream& operator << ( std::ostream& os, 
-                                       const ServerReleaseConfigPacket* packet )
+        const ServerReleaseConfigPacket* packet )
     {
         os << (ServerPacket*)packet << " config " << packet->configID;
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const ServerCreateConfigPacket* packet )
+    {
+        os << (ServerPacket*)packet << " config " << packet->configID 
+            << " request " << packet->requestID;
         return os;
     }
 

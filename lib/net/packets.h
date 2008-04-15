@@ -199,6 +199,7 @@ namespace eqNet
     {
         SessionPacket() { datatype = DATATYPE_EQNET_SESSION; }
         uint32_t sessionID;
+        uint32_t paddingSessionPacket; // pad to multiple-of-8
     };
 
     struct SessionGenIDsPacket : public SessionPacket
@@ -234,9 +235,9 @@ namespace eqNet
                 size    = sizeof( SessionSetIDMasterPacket ); 
             }
 
+        NodeID   masterID;
         uint32_t start;
         uint32_t range;
-        NodeID   masterID;
     };
 
     struct SessionGetIDMasterPacket : public SessionPacket
@@ -260,10 +261,10 @@ namespace eqNet
                 requestID = request->requestID;
             }
 
+        NodeID   masterID;
         uint32_t requestID;
         uint32_t start;
         uint32_t end;
-        NodeID   masterID;
     };
 
     struct SessionGetObjectPacket : public SessionPacket
@@ -457,8 +458,8 @@ namespace eqNet
                 delta[0]       = '\0';
             }
         
-        uint32_t version;
         uint64_t deltaSize;
+        uint32_t version;
         EQ_ALIGN8( uint8_t     delta[8] );
     };
 

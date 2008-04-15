@@ -329,6 +329,7 @@ bool Config::_initNodes( const uint32_t initID,
     deque<uint32_t>              createConfigRequests;
     createConfigPacket.configID  = getID();
     createConfigPacket.appNodeID = _appNetNode->getNodeID();
+    createConfigPacket.appNodeID.convertToNetwork();
 
     // sync node connect and create configs
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
@@ -704,6 +705,12 @@ eqNet::CommandResult Config::_cmdStartFrame( eqNet::Command& command )
     vector< eqNet::NodeID > nodeIDs;
     reply.frameNumber = _prepareFrame( nodeIDs );
     reply.nNodeIDs    = nodeIDs.size();
+
+    for( vector< eqNet::NodeID >::iterator i = nodeIDs.begin(); 
+         i != nodeIDs.end(); ++i )
+
+         (*i).convertToNetwork();
+
     command.getNode()->send( reply, nodeIDs );
 
     _startFrame( packet->frameID );

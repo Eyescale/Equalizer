@@ -170,6 +170,8 @@ eqNet::CommandResult Server::_cmdCreateConfig( eqNet::Command& command )
 
     EQASSERT( localNode->getSession( packet->configID ) == 0 );
     config->_appNodeID = packet->appNodeID;
+    config->_appNodeID.convertToHost();
+
     localNode->addSession( config, command.getNode(), packet->configID,
                            packet->name );
 

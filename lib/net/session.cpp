@@ -162,6 +162,7 @@ void Session::setIDMaster( const uint32_t start, const uint32_t range,
     packet.start    = start;
     packet.range    = range;
     packet.masterID = master;
+    packet.masterID.convertToNetwork();
 
     send( packet );
 }
@@ -577,9 +578,11 @@ CommandResult Session::_cmdSetIDMaster( Command& command )
         command.getPacket<SessionSetIDMasterPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd set ID master: " << packet << endl;
 
+    NodeID nodeID = packet->masterID;
+    nodeID.convertToHost();
+
     // TODO thread-safety: _idMasterInfos is also read & written by app
-    IDMasterInfo info = { packet->start, packet->start + packet->range, 
-                          packet->masterID };
+    IDMasterInfo info = { packet->start, packet->start+packet->range, nodeID };
     _idMasterInfos.push_back( info );
 
     return COMMAND_HANDLED;
@@ -607,6 +610,7 @@ CommandResult Session::_cmdGetIDMaster( Command& command )
             reply.start    = info.start;
             reply.end      = info.end;
             reply.masterID = info.master;
+            reply.masterID.convertToNetwork();
             break;
         }
     }
@@ -624,8 +628,11 @@ CommandResult Session::_cmdGetIDMasterReply( Command& command )
 
     if( packet->start != 0 )
     {
+        NodeID nodeID = packet->masterID;
+        nodeID.convertToHost();
+
         // TODO thread-safety: _idMasterInfos is also read & written by app
-        IDMasterInfo info = { packet->start, packet->end, packet->masterID };
+        IDMasterInfo info = { packet->start, packet->end, nodeID };
         _idMasterInfos.push_back( info );
     }
     // else not found

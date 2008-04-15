@@ -165,6 +165,7 @@ eqNet::CommandResult Server::_cmdChooseConfig( eqNet::Command& command )
     eq::ServerCreateConfigPacket createConfigPacket;
     createConfigPacket.configID  = configID;
     createConfigPacket.appNodeID = node->getNodeID();
+    createConfigPacket.appNodeID.convertToNetwork();
     node->send( createConfigPacket, name );
 
     reply.configID = configID;
@@ -215,6 +216,7 @@ eqNet::CommandResult Server::_cmdUseConfig( eqNet::Command& command )
     eq::ServerCreateConfigPacket createConfigPacket;
     createConfigPacket.configID  = configID;
     createConfigPacket.appNodeID = node->getNodeID();
+    createConfigPacket.appNodeID.convertToNetwork();
     node->send( createConfigPacket, name );
 
     reply.configID = configID;

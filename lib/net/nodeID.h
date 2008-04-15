@@ -86,6 +86,14 @@ namespace eqNet
                 return ( UuidIsNil( const_cast<UUID*>( &_id ), &status )==TRUE);
             }
 
+        void convertToNetwork()
+            { 
+                _id.Data1 = _byteswap_ulong( _id.Data1 ); 
+                _id.Data2 = _byteswap_ushort( _id.Data2 );
+                _id.Data3 = _byteswap_ushort( _id.Data3 );
+            }
+        void convertToHost() { convertToNetwork(); }
+
     private:
         UUID _id;
 #else // WIN32
@@ -125,6 +133,9 @@ namespace eqNet
             { return uuid_compare( _id, rhs._id ) > 0; }
 
         bool operator ! () const { return uuid_is_null( _id ); }
+
+        void convertToNetwork() {}
+        void convertToHost() {}
 
     private:
         uuid_t _id;

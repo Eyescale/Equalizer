@@ -463,7 +463,10 @@ eqNet::CommandResult Config::_cmdStartFrameReply( eqNet::Command& command )
     _clientNodes.clear();
 
     for( uint32_t i=0; i<packet->nNodeIDs; ++i )
+    {
         _clientNodeIDs.push_back( packet->nodeIDs[i] );
+        _clientNodeIDs[i].convertToHost();
+    }
 #endif
 
     _currentFrame = packet->frameNumber;

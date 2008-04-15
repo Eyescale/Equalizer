@@ -440,15 +440,16 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
         for( vector<Frame*>::const_iterator j = inputFrames.begin();
              j != inputFrames.end(); ++j )
         {
-            const Frame*         inputFrame   = *j;
-            const Node*          inputNode    = inputFrame->getNode();
-            RefPtr<eqNet::Node>  inputNetNode = inputNode->getNode();
-            const eqNet::NodeID& nodeID       = inputNetNode->getNodeID();
+            const Frame*        inputFrame   = *j;
+            const Node*         inputNode    = inputFrame->getNode();
+            RefPtr<eqNet::Node> inputNetNode = inputNode->getNode();
+            eqNet::NodeID       nodeID       = inputNetNode->getNodeID();
             EQASSERT( node );
 
             if( nodeID == outputNodeID ) // TODO filter: buffers, vp, eye
                 continue;
 
+            nodeID.convertToNetwork();
             nodeIDs.push_back( nodeID );
         }
 
