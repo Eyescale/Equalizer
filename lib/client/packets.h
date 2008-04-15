@@ -194,7 +194,6 @@ namespace eq
         uint32_t requestID;
     };
 
-
     struct ConfigCreateNodePacket : public ConfigPacket
     {
         ConfigCreateNodePacket()
