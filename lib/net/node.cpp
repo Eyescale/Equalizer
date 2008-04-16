@@ -1302,7 +1302,7 @@ bool Node::syncConnect( eqBase::RefPtr<Node> node )
 
     void*          ret;
     const float    time    = -( node->_launchTimeout.getTimef( )); 
-    const uint32_t timeout = (time > 0) ? time : 0;
+    const uint32_t timeout = static_cast< uint32_t >((time > 0) ? time : 0);
 
     if( _requestHandler.waitRequest( node->_launchID, ret, timeout ))
     {

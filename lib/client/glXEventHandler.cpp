@@ -62,6 +62,11 @@ void GLXEventHandler::deregisterPipe( Pipe* pipe )
 
 void GLXEventHandler::registerWindow( Window* window )
 {
+    if( window->getIAttribute( Window::IATTR_HINT_DRAWABLE ) == PBUFFER )
+        // XSelectInput does not work on PBuffers, but we don't care to much
+        // about events from PBuffers anyway. glXSelectEvent might help.
+        return;
+
     Pipe*    pipe      = window->getPipe();
     Display* display   = pipe->getXDisplay();
     XID      drawable  = window->getXDrawable();
@@ -87,6 +92,10 @@ void GLXEventHandler::registerWindow( Window* window )
 
 void GLXEventHandler::deregisterWindow( Window* window )
 {
+    if( window->getIAttribute( Window::IATTR_HINT_DRAWABLE ) == PBUFFER )
+        // see registerWindow();
+        return;
+
     EQINFO << "Stop collecting events for window  " << window->getName()
            << endl;
     

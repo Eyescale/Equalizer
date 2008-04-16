@@ -1699,26 +1699,43 @@ void Window::setXDrawable( XID drawable )
     Display          *display = _pipe->getXDisplay();
     EQASSERT( display );
 
-    XWindowAttributes wa;
-    XGetWindowAttributes( display, drawable, &wa );
-    
-    // Window position is relative to parent: translate to absolute coordinates
-    ::Window root, parent, *children;
-    unsigned nChildren;
-    
-    XQueryTree( display, drawable, &root, &parent, &children, &nChildren );
-    if( children != 0 ) XFree( children );
-
-    int x,y;
-    ::Window childReturn;
-    XTranslateCoordinates( display, parent, root, wa.x, wa.y, &x, &y,
-        &childReturn );
-
     PixelViewport pvp;
-    pvp.x = x;
-    pvp.y = y;
-    pvp.w = wa.width;
-    pvp.h = wa.height;
+    if( getIAttribute( IATTR_HINT_DRAWABLE ) == PBUFFER )
+    {
+        pvp.x = 0;
+        pvp.y = 0;
+        
+        unsigned value = 0;
+        glXQueryDrawable( display, drawable, GLX_WIDTH,  &value );
+        pvp.w = static_cast< int32_t >( value );
+
+        value = 0;
+        glXQueryDrawable( display, drawable, GLX_HEIGHT, &value );
+        pvp.h = static_cast< int32_t >( value );
+    }
+    else
+    {
+        XWindowAttributes wa;
+        XGetWindowAttributes( display, drawable, &wa );
+    
+        // Window position is relative to parent: translate to absolute coords
+        ::Window root, parent, *children;
+        unsigned nChildren;
+    
+        XQueryTree( display, drawable, &root, &parent, &children, &nChildren );
+        if( children != 0 ) XFree( children );
+
+        int x,y;
+        ::Window childReturn;
+        XTranslateCoordinates( display, parent, root, wa.x, wa.y, &x, &y,
+                               &childReturn );
+
+        pvp.x = x;
+        pvp.y = y;
+        pvp.w = wa.width;
+        pvp.h = wa.height;
+    }
+
     setPixelViewport( pvp );
 #endif // GLX
 }
