@@ -511,7 +511,11 @@ bool Window::configInitGLXWindow( XVisualInfo* visualInfo )
                                             AllocNone );
     wa.background_pixmap = None;
     wa.border_pixel      = 0;
-    wa.event_mask        = StructureNotifyMask | VisibilityChangeMask;
+    wa.event_mask        = StructureNotifyMask | VisibilityChangeMask |
+                           ExposureMask | KeyPressMask | KeyReleaseMask |
+                           PointerMotionMask | ButtonPressMask |
+                           ButtonReleaseMask;
+
     if( getIAttribute( IATTR_HINT_DECORATION ) != OFF )
         wa.override_redirect = False;
     else
@@ -530,8 +534,8 @@ bool Window::configInitGLXWindow( XVisualInfo* visualInfo )
                                   _pvp.x, _pvp.y, _pvp.w, _pvp.h,
                                   0, visualInfo->depth, InputOutput,
                                   visualInfo->visual, 
-                                  CWBackPixmap|CWBorderPixel|
-                                  CWEventMask|CWColormap|CWOverrideRedirect,
+                                  CWBackPixmap | CWBorderPixel |
+                                  CWEventMask | CWColormap | CWOverrideRedirect,
                                   &wa );
     
     if ( !drawable )
@@ -565,6 +569,11 @@ bool Window::configInitGLXWindow( XVisualInfo* visualInfo )
 
     XMoveResizeWindow( display, drawable, _pvp.x, _pvp.y, _pvp.w, _pvp.h );
     XFlush( display );
+
+    // Grab keyboard focus in fullscreen mode
+    if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
+        XGrabKeyboard( display, drawable, True, GrabModeAsync, GrabModeAsync, 
+                       CurrentTime );
 
     setXDrawable( drawable );
 

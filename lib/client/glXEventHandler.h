@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_GLXEVENTHANDLER_H
@@ -37,10 +37,10 @@ namespace eq
         virtual void deregisterPipe( Pipe* pipe );
 
         /** @sa EventHandler::registerWindow. */        
-        void registerWindow( Window* window );
+        void registerWindow( Window* window ) { /* nop */ }
 
         /** @sa EventHandler::deregisterWindow. */
-        virtual void deregisterWindow( Window* window );
+        virtual void deregisterWindow( Window* window ) { /* nop */ }
 
     private:
         /** Destructs the glX event handler. */

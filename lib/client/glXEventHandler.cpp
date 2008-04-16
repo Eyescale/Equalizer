@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "glXEventHandler.h"
@@ -58,56 +58,6 @@ void GLXEventHandler::deregisterPipe( Pipe* pipe )
     }
 
     delete this;
-}
-
-void GLXEventHandler::registerWindow( Window* window )
-{
-    if( window->getIAttribute( Window::IATTR_HINT_DRAWABLE ) == PBUFFER )
-        // XSelectInput does not work on PBuffers, but we don't care to much
-        // about events from PBuffers anyway. glXSelectEvent might help.
-        return;
-
-    Pipe*    pipe      = window->getPipe();
-    Display* display   = pipe->getXDisplay();
-    XID      drawable  = window->getXDrawable();
-    long     eventMask = StructureNotifyMask | ExposureMask | KeyPressMask |
-                         KeyReleaseMask | PointerMotionMask | ButtonPressMask |
-                         ButtonReleaseMask;
-
-    EQASSERT( display );
-    EQASSERT( drawable );
-
-    EQINFO << "Start collecting events for window @" << (void*)window << "('"
-           << window->getName() << "')" << endl;
-    
-    XSelectInput( display, drawable, eventMask );
-
-    // Grab keyboard focus in fullscreen mode
-    if( window->getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
-        XGrabKeyboard( display, drawable, True, GrabModeAsync, GrabModeAsync, 
-                       CurrentTime );
-
-    XFlush( display );
-}
-
-void GLXEventHandler::deregisterWindow( Window* window )
-{
-    if( window->getIAttribute( Window::IATTR_HINT_DRAWABLE ) == PBUFFER )
-        // see registerWindow();
-        return;
-
-    EQINFO << "Stop collecting events for window  " << window->getName()
-           << endl;
-    
-    Pipe*    pipe      = window->getPipe();
-    Display* display   = pipe->getXDisplay();
-    XID      drawable  = window->getXDrawable();
-
-    EQASSERT( display );
-    EQASSERT( drawable );
-
-    XSelectInput( display, drawable, 0l );
-    XFlush( display );
 }
 
 eqNet::ConnectionSet* GLXEventHandler::getEventSet()
