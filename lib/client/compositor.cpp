@@ -667,20 +667,6 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     // Enable & download color and depth textures
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
 
-    EQ_GL_CALL( glActiveTexture( GL_TEXTURE0 ));
-    EQ_GL_CALL( glBindTexture( GL_TEXTURE_RECTANGLE_ARB, depthTexture ));
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
-                     GL_NEAREST );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, 
-                     GL_NEAREST );
-
-    EQ_GL_CALL( glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
-                              GL_DEPTH_COMPONENT32_ARB,
-                              pvp.w, pvp.h, 0,
-                              image->getFormat( Frame::BUFFER_DEPTH ), 
-                              image->getType( Frame::BUFFER_DEPTH ),
-                              image->getPixelData( Frame::BUFFER_DEPTH )));
-
     EQ_GL_CALL( glActiveTexture( GL_TEXTURE1 ));
     EQ_GL_CALL( glBindTexture( GL_TEXTURE_RECTANGLE_ARB, colorTexture ));
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
@@ -694,6 +680,20 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
                               image->getFormat( Frame::BUFFER_COLOR ), 
                               image->getType( Frame::BUFFER_COLOR ),
                               image->getPixelData( Frame::BUFFER_COLOR )));
+
+    EQ_GL_CALL( glActiveTexture( GL_TEXTURE0 ));
+    EQ_GL_CALL( glBindTexture( GL_TEXTURE_RECTANGLE_ARB, depthTexture ));
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
+                     GL_NEAREST );
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, 
+                     GL_NEAREST );
+
+    EQ_GL_CALL( glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
+                              GL_DEPTH_COMPONENT32_ARB,
+                              pvp.w, pvp.h, 0,
+                              image->getFormat( Frame::BUFFER_DEPTH ), 
+                              image->getType( Frame::BUFFER_DEPTH ),
+                              image->getPixelData( Frame::BUFFER_DEPTH )));
 
     // Draw a quad using shader & textures in the right place
     glEnable( GL_DEPTH_TEST );
