@@ -237,7 +237,7 @@ void Channel::setupAssemblyState()
     glPushMatrix();
     glLoadIdentity();
     glOrtho( 0.0f, pvp.w, 0.0f, pvp.h, -1.0f, 1.0f );
-   
+
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();
     glLoadIdentity();

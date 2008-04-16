@@ -22,7 +22,7 @@ namespace eqBase
         void ref()   
         { 
 #ifndef NDEBUG
-            EQASSERT( !_hasBeenDeleted );
+            EQASSERTINFO( !_hasBeenDeleted, typeid( *this ).name( ));
 #endif
             _mutex.set(); ++_refCount; _mutex.unset();
         }

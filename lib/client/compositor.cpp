@@ -531,7 +531,8 @@ void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
 {
     const PixelViewport& pvp = image->getPixelViewport();
 
-    EQLOG( LOG_ASSEMBLY ) << "assembleImage2D " << pvp << endl;
+    EQLOG( LOG_ASSEMBLY ) << "assembleImage2D " << pvp << " offset " 
+                          << op.offset << endl;
     EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
 
     glRasterPos2i( op.offset.x + pvp.x, op.offset.y + pvp.y );

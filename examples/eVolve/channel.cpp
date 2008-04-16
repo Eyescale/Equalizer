@@ -214,16 +214,15 @@ static void _expandPVP( eq::PixelViewport& pvp,
 
 void Channel::clearViewport( const eq::PixelViewport &pvp )
 {
-    glViewport( pvp.x, pvp.y, pvp.w, pvp.h );
+    // clear given area
     glScissor(  pvp.x, pvp.y, pvp.w, pvp.h );
-
     glClearColor( _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a );
-
     glClear( GL_COLOR_BUFFER_BIT );
 
-    applyViewport();
+    // restore assembly state
+    const eq::PixelViewport& windowPVP = getWindow()->getPixelViewport();
+    glScissor( 0, 0, windowPVP.w, windowPVP.h );
 }
-
 
 void Channel::_orderFrames( eq::FrameVector& frames )
 {
@@ -240,7 +239,7 @@ void Channel::_orderFrames( eq::FrameVector& frames )
 
 void Channel::frameAssemble( const uint32_t frameID )
 {
-    const bool composeOnly = _drawRange == eq::Range::ALL;
+    const bool composeOnly = (_drawRange == eq::Range::ALL);
 
     _startAssemble();
 
@@ -322,8 +321,8 @@ void Channel::_startAssemble()
 
 void Channel::_finishAssemble()
 {
-    _drawLogo();
     resetAssemblyState();
+    _drawLogo();
 }
 
 
@@ -342,7 +341,7 @@ void Channel::frameReadback( const uint32_t frameID )
 
 void Channel::_drawLogo()
 {
-    const Window*  window      = static_cast<Window*>( getWindow( ));
+    const Window*  window = static_cast<Window*>( getWindow( ));
     GLuint         texture;
     vmml::Vector2i size;
 

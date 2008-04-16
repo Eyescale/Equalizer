@@ -99,7 +99,7 @@ Compound::VisitorResult ChannelUpdateVisitor::visitPost(
 
 
 void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
-                                               eq::RenderContext& context )
+                                                eq::RenderContext& context )
 {
     context.frameID        = _frameID;
     context.pvp            = compound->getInheritPixelViewport();
