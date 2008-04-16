@@ -73,13 +73,13 @@ void RawVolumeModelRenderer::_putVolumeDataToShader
     glUniform1fARB( tParamNameGL, TD.Db );
 
     // Put Volume data to the shader
-    glActiveTexture( GL_TEXTURE1 );
+    glActiveTextureARB( GL_TEXTURE1 );
     glBindTexture( GL_TEXTURE_2D, volumeInfo.preint ); //preintegrated values
     tParamNameGL = glGetUniformLocationARB( shader, "preInt" );
     glUniform1iARB( tParamNameGL,  1    ); //f-shader
 
     // Activate last because it has to be the active texture
-    glActiveTexture( GL_TEXTURE0 );
+    glActiveTextureARB( GL_TEXTURE0 );
     glBindTexture( GL_TEXTURE_3D, volumeInfo.volume ); //gx, gy, gz, val
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER,GL_LINEAR    );
 
@@ -131,7 +131,7 @@ bool RawVolumeModelRenderer::render
 
     //Render slices
     glEnable( GL_BLEND );
-    glBlendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
+    glBlendFuncSeparateEXT( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
 
     renderSlices( _sliceClipper );
 

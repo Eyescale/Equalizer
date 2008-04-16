@@ -46,6 +46,16 @@ bool Window::configInitGL( const uint32_t initID )
         setErrorMessage( "eVolve needs GL_ARB_shader_objects extension" );
         return false;
     }
+    if( !GLEW_EXT_blend_func_separate )
+    {
+        setErrorMessage( "eVolve needs GL_EXT_blend_func_separate extension" );
+        return false;
+    }
+    if( !GLEW_ARB_multitexture )
+    {
+        setErrorMessage( "eVolve needs GLEW_ARB_multitexture extension" );
+        return false;
+    }
 
     glEnable( GL_SCISSOR_TEST ); // needed to constrain channel viewport
 
