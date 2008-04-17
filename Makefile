@@ -39,5 +39,5 @@ else
 	@echo "Set LD_LIBRARY_PATH to $(PWD)/$(BUILD_DIR)/$(word 1, $(VARIANTS))/lib"
 endif
 
-RELNOTES: ../website/build/documents/RelNotes/RelNotes_0.4.0.html
+RELNOTES: ../website/build/documents/RelNotes/RelNotes_0.5.0.html
 	links -dump $< > $@

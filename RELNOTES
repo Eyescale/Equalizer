@@ -1,12 +1,14 @@
 
-                        Release Notes for Equalizer 0.4
+                    Release Notes for Equalizer 0.5
 
-   Welcome to Equalizer 0.4, a framework for the development and deployment
-   of scalable OpenGL applications. Equalizer 0.4 simplifies the development
-   of parallel OpenGL programs substantially over the previous version.
+   Welcome to Equalizer 0.5, a framework for the development and deployment
+   of parallel, scalable OpenGL applications. Equalizer 0.5 adds a new
+   'pixel' task decomposition mode for fill-rate bound applications such as
+   raytracing and volume rendering, and speeds up database (sort-last)
+   decompositions significantly.
 
-   Equalizer 0.4 is a beta release, and therefore intended as preview and
-   evaluation snapshot for application developers and early adopters.
+   Equalizer 0.5 is a beta release, and therefore targeted towards
+   application developers and early adopters.
 
   Features
 
@@ -36,52 +38,58 @@
 
     New Features
 
-     * Programming Guide in pdf and paper versions
-     * Fixed frustum aspect ratio support
-     * View configuration using projector layout
-     * Much improved polygonal rendering example performance
-     * New volume rendering example (beta technology preview)
-     * Support for volume-rendering applications
-     * Support for per-node frame synchronization
-     * Support for AGL and Carbon on Mac OS X
-     * Support for Mac OS X 10.5 Leopard
-     * Support for Cygwin on Windows XP
-     * Infiniband support for Linux
-     * Improved event handling support
+     * Pixel compounds to accelerate fill-bound applications
+     * GLEW integration for simplified OpenGL extension handling in a
+       multi-context environment
+     * Improved eVolve volume rendering example
+     * Pluggable window initialization
+     * Off-screen rendering support using PBuffers
+     * Interoperability between Mac OS X and Windows XP (same endianess,
+       Linux is untested)
+
+    Performance Improvements
+
+     * Much increased DB (sort-last) assembly performance using a mixture of
+       GLSL-based and CPU-based compositing
+     * Improved network pixel transfer using parallel image compression
+       through OpenMP
+     * Pluggable window initialization
 
     Bug Fixes
 
-   Equalizer 0.4 includes various bugfixes over the previous release.
+   Equalizer 0.5 includes various bugfixes over the previous release,
+   including the following:
 
-    New Documentation
+     * 1831090: Session::mapObject() might deadlock
+     * 1839291: Initial window size is too small on Win32
+     * 1842242: Bug with exiting examples on linux
 
-     * Programming Guide
-     * The Equalizer Parallel Rendering Framework, technical report
-     * Entwicklung eines parallelen OpenGL Polygon-Renderers, semester thesis
-       in German about the new eqPly example
-     * Direct Send Compositing for Parallel Sort-Last Rendering presentation
-     * Transparency and sort-last (DB) compounds
-     * Volume Rendering Example
-     * Fixed Aspect Ratio
+    Documentation
+
+   The Programming Guide has been extended to 43 pages. The following
+   documentation has been added:
+
+     * PBuffer Support
+     * OpenGL Extension Handling
+     * Pixel Compounds
+     * Event Handling
 
   Removed Features
 
-   The incomplete support for CGL has been replaced by support for AGL and
-   Carbon on Mac OS X. CGL has proven not to be useful in conjunction with
-   windowing and event handling.
+   None
 
   Supported Platforms
 
    Equalizer is a cross-platform toolkit, designed to run on any modern
    operating system, including all Unix variants and the Windows operating
    system. A compatibility matrix can be found on the Equalizer website.
-   Version 0.4 has been tested on:
+   Version 0.5 has been tested on:
 
     Operating System Support
 
      * Linux: Ubuntu 6.10 (x64, i386), RHEL4 (x64, i386)
      * Windows: XP with Visual Studio 2005 (i386, x64) and Cygwin (i386)
-     * Mac OS X: 10.4 (PowerPC, i386) and 10.5 (i386)
+     * Mac OS X: 10.5 (PowerPC, i386)
 
     Window System Support
 
@@ -91,12 +99,11 @@
 
   Documentation
 
-   The Programming Guide is part of the Equalizer distribution and can be
-   found in doc/Developer/ProgrammingGuide/paper.pdf or ordered online at
-   lulu.com. Equalizer does not yet have an Users Guide. The shipped eqPly
-   example provides a reference for developing or porting applications. The
-   Developer Documentation on the website provides further design documents
-   for specific features. The source code is a last resort for information.
+   The Programming Guide is part of the Equalizer and can be found online.
+   Equalizer does not yet have an Users Guide. The shipped eqPly example
+   provides a reference for developing or porting applications. The Developer
+   Documentation on the website provides further design documents for
+   specific features. The source code is a last resort for information.
 
   Support
 
