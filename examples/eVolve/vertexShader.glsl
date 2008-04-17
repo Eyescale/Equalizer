@@ -4,8 +4,6 @@
 #version 110
 
 // updated per frame
-uniform vec3    vecView;
-uniform int     frontIndex;
 uniform float   sliceDistance;
 uniform float   perspProj;
 
@@ -15,8 +13,6 @@ uniform float   H;   //scale for y
 uniform float   D;   //scale for z
 uniform float   Do;  //shift of z
 uniform float   Db;  //z offset 
-
-varying vec3 ecPosition;
 
 void main(void)
 {
@@ -49,7 +45,4 @@ void main(void)
     gl_TexCoord[1].z   = Db + (gl_TexCoord[1].z - Do) * D;
 
     gl_Position = ftransform();
-
-    vec4 ecPosition4 = gl_ModelViewMatrix * gl_Vertex;
-    ecPosition       = ecPosition4.xyz / ecPosition4.w;
 }

@@ -36,9 +36,10 @@ namespace eVolve
         }
 
 
-        bool render( const eq::Range&        range,
-                     const vmml::Matrix4d&   modelviewM,
-                     const vmml::Matrix3d&   modelviewITM );
+        bool render( const eq::Range&       range,
+                     const vmml::Matrix4d&  modelviewM,
+                     const vmml::Matrix3d&  modelviewITM,
+                     const vmml::Matrix4f&  invRotationM  );
 
         void setPrecision( const uint32_t precision ){ _precision = precision; }
 
@@ -46,8 +47,9 @@ namespace eVolve
         bool loadShaders();
 
     private:
-        void _putVolumeDataToShader( const VolumeInfo& volumeInfo,
-                                     const double      sliceDistance );
+        void _putVolumeDataToShader( const VolumeInfo&     volumeInfo,
+                                     const double          sliceDistance,
+                                     const vmml::Matrix4f& invRotationM );
 
         RawVolumeModel  _rawModel;      //!< volume data
         SliceClipper    _sliceClipper;  //!< frame clipping algorithm

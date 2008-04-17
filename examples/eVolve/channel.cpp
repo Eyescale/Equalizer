@@ -112,17 +112,24 @@ void Channel::frameClear( const uint32_t frameID )
 }
 
 
-static void setLights()
+static void setLights( vmml::Matrix4f& invRotationM )
 {
     GLfloat lightAmbient[]  = {0.05f, 0.05f, 0.05f, 1.0f};
     GLfloat lightDiffuse[]  = {0.9f , 0.9f , 0.9f , 1.0f};
     GLfloat lightSpecular[] = {0.8f , 0.8f , 0.8f , 1.0f};
-    GLfloat lightPosition[] = {1.0f , 1.0f ,-1.0f , 0.0f};
+    GLfloat lightPosition[] = {1.0f , 1.0f , 1.0f , 0.0f};
 
     glLightfv( GL_LIGHT0, GL_AMBIENT,  lightAmbient  );
     glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDiffuse  );
     glLightfv( GL_LIGHT0, GL_SPECULAR, lightSpecular );
+
+    // rotate light in the oposite direction of model rotation
+    // to keep light position constant but not recalculate 
+    // normals in the fragment shader
+    glPushMatrix();
+    glMultMatrixf( invRotationM.ml );
     glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
+    glPopMatrix();
 }
 
 
@@ -130,10 +137,13 @@ void Channel::frameDraw( const uint32_t frameID )
 {
     // Setup frustum
     eq::Channel::frameDraw( frameID );
-    setLights();
 
     Pipe*                   pipe = static_cast<Pipe*>( getPipe( ));
     const FrameData::Data&  data = pipe->getFrameData().data;
+
+    vmml::Matrix4f invRotationM;
+    data.rotation.getInverse( invRotationM );
+    setLights( invRotationM );
 
     double translationZ = _perspective ? data.translation.z : _orthoZ;
     glTranslatef(  data.translation.x, data.translation.y, translationZ );
@@ -147,7 +157,7 @@ void Channel::frameDraw( const uint32_t frameID )
     _calcMVandITMV( modelviewM, modelviewITM );
 
     const eq::Range& range = getRange();
-    renderer->render( range, modelviewM, modelviewITM );
+    renderer->render( range, modelviewM, modelviewITM, invRotationM );
 
     checkError( "error during rendering " );
 

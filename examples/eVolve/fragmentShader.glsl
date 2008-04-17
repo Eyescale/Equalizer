@@ -8,8 +8,7 @@ uniform sampler3D volume; //gx, gy, gz, v
 uniform sampler2D preInt; // r,  g,  b, a
 
 uniform float shininess;
-
-varying vec3 ecPosition;
+uniform vec3  viewVec;
 
 void main (void)
 {
@@ -24,12 +23,10 @@ void main (void)
     // lighting
     vec3 normalSF = lookupSF.rgb-0.5;
     vec3 normalSB = lookupSB.rgb-0.5;
-    vec3 normal   = -normalize(normalSF+normalSB);
+    vec3 tnorm   = -normalize(normalSF+normalSB);
 
-    vec3 tnorm    = normalize( gl_NormalMatrix * normal );
-    vec3 lightVec = normalize( gl_LightSource[0].position.xyz - ecPosition);
+    vec3 lightVec = normalize( gl_LightSource[0].position.xyz );
     vec3 reflect  = reflect( -lightVec, tnorm );
-    vec3 viewVec  = normalize( -ecPosition );
 
     float diffuse = max( dot(lightVec, tnorm), 0.0 );
 
