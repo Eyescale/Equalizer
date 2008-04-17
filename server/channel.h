@@ -5,6 +5,7 @@
 #ifndef EQS_CHANNEL_H
 #define EQS_CHANNEL_H
 
+#include "base.h"
 #include "node.h"
 #include "window.h"
 

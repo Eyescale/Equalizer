@@ -10,6 +10,11 @@
 
 #ifdef WIN32
 #  include <rpc.h>
+#  ifdef __CYGWIN__
+#    include <byteswap.h>
+#    define _byteswap_ushort bswap_16
+#    define _byteswap_ulong  bswap_32
+#  endif
 #elif defined (NetBSD) || defined (FreeBSD)
 #  include <uuid.h>
 #else

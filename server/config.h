@@ -5,6 +5,7 @@
 #ifndef EQS_CONFIG_H
 #define EQS_CONFIG_H
 
+#include "base.h"
 #include "types.h"
 #include "server.h" // used in inline method
 

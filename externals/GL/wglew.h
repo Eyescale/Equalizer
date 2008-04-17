@@ -62,7 +62,7 @@
 
 #define __wglext_h_
 
-#if !defined(APIENTRY) && !defined(__CYGWIN__)
+#if !defined(APIENTRY) /* && !defined(__CYGWIN__) */
 #  ifndef WIN32_LEAN_AND_MEAN
 #    define WIN32_LEAN_AND_MEAN 1
 #  endif
