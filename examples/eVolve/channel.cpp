@@ -123,9 +123,9 @@ static void setLights( vmml::Matrix4f& invRotationM )
     glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDiffuse  );
     glLightfv( GL_LIGHT0, GL_SPECULAR, lightSpecular );
 
-    // rotate light in the oposite direction of model rotation
-    // to keep light position constant but not recalculate 
-    // normals in the fragment shader
+    // rotate light in the opposite direction of the model rotation to keep
+    // light position constant and avoid recalculating normals in the fragment
+    // shader
     glPushMatrix();
     glMultMatrixf( invRotationM.ml );
     glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
@@ -161,7 +161,7 @@ void Channel::frameDraw( const uint32_t frameID )
 
     checkError( "error during rendering " );
 
-    //Draw logo
+    // Draw logo
     const eq::Viewport& vp = getViewport();
     if( range == eq::Range::ALL && vp.isFullScreen( ))
        _drawLogo();
