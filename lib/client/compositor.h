@@ -71,6 +71,8 @@ namespace eq
          */
         static void assembleFramesCPU( const std::vector< Frame* >& frames,
                                        Channel* channel );
+        static const Image* assembleFramesCPU( const std::vector< Frame* >& 
+                                               frames );
 
         /** Assemble a frame using the default algorithm. */
         static void assembleFrame( const Frame* frame, Channel* channel );

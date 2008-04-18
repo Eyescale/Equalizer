@@ -4,6 +4,7 @@ include $(TOP)/make/system.mk
 SUBDIRS = \
 	base \
 	client \
+	compositor \
 	connection \
 	dataStream \
 	image \

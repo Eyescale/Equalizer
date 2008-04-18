@@ -191,15 +191,41 @@ void Compositor::assembleFramesUnsorted( const vector< Frame* >& frames,
 void Compositor::assembleFramesCPU( const vector< Frame* >& frames,
                                     Channel* channel )
 {
-    EQVERB << "Sorted CPU assembly" << endl;
     // Assembles images from DB and 2D compounds using the CPU and then
     // assembles the result image. Does not yet support Pixel or Eye
     // compounds. The result image has to be fully filled.
+
+    const Image* result = assembleFramesCPU( frames );
+    if( !result )
+        return;
+
+    // assemble result on dest channel
+    ImageOp operation;
+    operation.channel = channel;
+    operation.buffers = Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH;
+    assembleImage( result, operation );
+
+#if 0
+    static uint32_t counter = 0;
+    ostringstream stringstream;
+    stringstream << "Image_" << ++counter;
+    result->writeImages( stringstream.str( ));
+#endif
+}
+
+const Image* Compositor::assembleFramesCPU( const std::vector< Frame* >& frames)
+{
+    EQVERB << "Sorted CPU assembly" << endl;
 
     // collect and categorize input images
     vector< FrameImage > imagesDB;
     vector< FrameImage > images2D;
     PixelViewport        resultPVP;
+
+    int colorFormat = GL_BGRA;
+    int colorType   = GL_UNSIGNED_BYTE;
+    int depthFormat = GL_DEPTH_COMPONENT;
+    int depthType   = GL_FLOAT;
 
     for( vector< Frame* >::const_iterator i = frames.begin();
          i != frames.end(); ++i )
@@ -218,9 +244,16 @@ void Compositor::assembleFramesCPU( const vector< Frame* >& frames,
             EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
 
             resultPVP.merge( image->getPixelViewport() + frame->getOffset( ));
+            
+            colorFormat = image->getFormat( Frame::BUFFER_COLOR );
+            colorType   = image->getType( Frame::BUFFER_COLOR );
 
             if( image->hasPixelData( Frame::BUFFER_DEPTH ))
+            {
                 imagesDB.push_back( FrameImage( frame, image ));
+                depthFormat = image->getFormat( Frame::BUFFER_DEPTH );
+                depthType   = image->getType( Frame::BUFFER_DEPTH );
+            }
             else
                 images2D.push_back( FrameImage( frame, image ));
         }
@@ -229,7 +262,7 @@ void Compositor::assembleFramesCPU( const vector< Frame* >& frames,
     if( !resultPVP.hasArea( ))
     {
         EQWARN << "Nothing to assemble" << endl;
-        return;
+        return 0;
     }
 
     // prepare output image
@@ -242,6 +275,10 @@ void Compositor::assembleFramesCPU( const vector< Frame* >& frames,
         _resultImage = result;
     }
 
+    result->setFormat( Frame::BUFFER_COLOR, colorFormat );
+    result->setType(   Frame::BUFFER_COLOR, colorType );
+    result->setFormat( Frame::BUFFER_DEPTH, depthFormat );
+    result->setType(   Frame::BUFFER_DEPTH, depthType );
     result->setPixelViewport( resultPVP );
     result->clearPixelData( Frame::BUFFER_COLOR );
     if( !imagesDB.empty( ))
@@ -251,18 +288,7 @@ void Compositor::assembleFramesCPU( const vector< Frame* >& frames,
     _assembleDBImages( result, imagesDB );
     _assemble2DImages( result, images2D );
 
-    // assemble result on dest channel
-    ImageOp operation;
-    operation.channel = channel;
-    operation.buffers = Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH;
-    assembleImage( result, operation );
-
-#if 0
-    static uint32_t counter = 0;
-    ostringstream stringstream;
-    stringstream << "Image_" << ++counter;
-    result->writeImages( stringstream.str( ));
-#endif
+    return result;
 }
 
 
@@ -272,10 +298,13 @@ void Compositor::_assembleDBImages( Image* result,
     if( images.empty( ))
         return;
 
+    EQASSERT( result->getFormat( Frame::BUFFER_DEPTH ) == GL_DEPTH_COMPONENT);
+    EQASSERT( result->getType( Frame::BUFFER_DEPTH )   == GL_FLOAT );
+
     const eq::PixelViewport resultPVP = result->getPixelViewport();
-    int32_t* destColor = reinterpret_cast< int32_t* >
+    uint32_t* destColor = reinterpret_cast< uint32_t* >
         ( result->getPixelData( Frame::BUFFER_COLOR ));
-    float*   destDepth = reinterpret_cast< float* >
+    float*    destDepth = reinterpret_cast< float* >
         ( result->getPixelData( Frame::BUFFER_DEPTH ));
 
     for( vector< FrameImage >::const_iterator i = images.begin();
@@ -292,8 +321,10 @@ void Compositor::_assembleDBImages( Image* result,
         EQASSERT( image->getDepth( Frame::BUFFER_DEPTH ) == 4 );
         EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
         EQASSERT( image->hasPixelData( Frame::BUFFER_DEPTH ));
-        EQASSERT( image->getFormat( Frame::BUFFER_COLOR ) ==
-                  result->getFormat( Frame::BUFFER_COLOR ));
+        EQASSERTINFO( image->getFormat( Frame::BUFFER_COLOR ) ==
+                      result->getFormat( Frame::BUFFER_COLOR ),
+                      image->getFormat( Frame::BUFFER_COLOR ) << " != "
+                      << result->getFormat( Frame::BUFFER_COLOR ));
         EQASSERT( image->getType( Frame::BUFFER_COLOR ) ==
                   result->getType( Frame::BUFFER_COLOR ));
         EQASSERT( image->getFormat( Frame::BUFFER_DEPTH ) ==
@@ -301,7 +332,7 @@ void Compositor::_assembleDBImages( Image* result,
         EQASSERT( image->getType( Frame::BUFFER_DEPTH ) ==
                   result->getType( Frame::BUFFER_DEPTH ));
 
-        const int32_t* color = reinterpret_cast< const int32_t* >
+        const uint32_t* color = reinterpret_cast< const uint32_t* >
             ( image->getPixelData( Frame::BUFFER_COLOR ));
         const float*   depth = reinterpret_cast< const float* >
             ( image->getPixelData( Frame::BUFFER_DEPTH ));
@@ -316,10 +347,10 @@ void Compositor::_assembleDBImages( Image* result,
             EQASSERT( skip * sizeof( float ) <= 
                       result->getPixelDataSize( Frame::BUFFER_DEPTH ));
 
-            int32_t*   destColorIt = destColor + skip;
-            float*     destDepthIt = destDepth + skip;
-            const int32_t* colorIt = color + y * pvp.w;
-            const float*   depthIt = depth + y * pvp.w;
+            uint32_t*   destColorIt = destColor + skip;
+            float*      destDepthIt = destDepth + skip;
+            const uint32_t* colorIt = color + y * pvp.w;
+            const float*    depthIt = depth + y * pvp.w;
 
             for( int32_t x = 0; x < pvp.w; ++x )
             {

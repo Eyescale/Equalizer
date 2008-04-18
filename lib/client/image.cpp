@@ -736,7 +736,9 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
         return false;
     }
 
-    setPixelViewport( PixelViewport( 0, 0, header.width, header.height ));
+    const PixelViewport pvp( 0, 0, header.width, header.height );
+    if( pvp != getPixelViewport( ))
+        setPixelViewport( pvp );
     
     if( buffer == Frame::BUFFER_COLOR )
     {
