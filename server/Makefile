@@ -15,7 +15,6 @@ CXXFILES = \
 	frame.cpp \
 	frameData.cpp \
 	global.cpp \
-	loadBalancer.cpp \
 	loader.cpp \
 	node.cpp \
 	parser.cpp \
