@@ -8,6 +8,7 @@ SUBDIRS = \
 	connection \
 	dataStream \
 	image \
+	loadBalancer \
 	netperf \
 	node \
 	pipeperf \

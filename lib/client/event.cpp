@@ -4,6 +4,8 @@
 
 #include "event.h"
 
+#include <eq/base/idPool.h>
+
 using namespace std;
 using namespace eqBase;
 
@@ -13,6 +15,7 @@ using namespace eqBase;
 
 namespace eq
 {
+namespace{
 /** String representation of event types. */
 static std::string _eventTypeNames[ Event::ALL ] =
 {
@@ -28,15 +31,31 @@ static std::string _eventTypeNames[ Event::ALL ] =
     "user-specific"
 };
 
+/** String representation of statistic event types. */
+static std::string _stateEventTypeNames[StatEvent::TYPE_ALL] =
+{
+    "NO EVENT          ",
+    "channel clear     ",
+    "channel draw      ",
+    "channel finishdraw",
+    "channel assemble  ",
+    "channel readback  ",
+    "channel transmit  ",
+    "channel transmit 1",
+    "channel wait frame"
+};
+}
+
 Event::Event()
         : type( UNKNOWN )
+        , originator( EQ_ID_INVALID )
 {
     bzero( &context, sizeof( RenderContext ));
 }
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event& event )
 {
-    os << disableFlush << event.type << " ";
+    os << disableFlush << event.type << ":" << event.originator;
     switch( event.type )
     {
         case Event::EXPOSE:
@@ -109,6 +128,13 @@ std::ostream& operator << ( std::ostream& os, const PointerEvent& event )
 std::ostream& operator << ( std::ostream& os, const KeyEvent& event )
 {
     os << "key " << event.key << ' ' << endl;
+    return os;
+}
+
+std::ostream& operator << ( std::ostream& os, const StatEvent& event )
+{
+    os << _stateEventTypeNames[ event.type ] << " " << event.startTime << " - "
+       << event.endTime;
     return os;
 }
 }

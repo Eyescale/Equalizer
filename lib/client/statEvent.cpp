@@ -9,35 +9,23 @@
 
 namespace eq
 {
-EQ_EXPORT std::string StatEvent::_typeNames[TYPE_ALL] = 
-{
-    std::string( "NO EVENT          " ),
-    std::string( "channel clear     " ),
-    std::string( "channel draw      " ),
-    std::string( "channel finishdraw" ),
-    std::string( "channel assemble  " ),
-    std::string( "channel readback  " ),
-    std::string( "channel transmit  " ),
-    std::string( "channel transmit 1" ),
-    std::string( "channel wait frame" )
-};
 
-StatEvent::StatEvent( const Type type, Channel* channel )
-        : data( type, channel->getID( ))
-        , _channel( channel ) 
+ScopedStatistics::ScopedStatistics( const StatEvent::Type type, Channel* channel )
+        : _channel( channel )
 {
     const int32_t hint = channel->getIAttribute(Channel::IATTR_HINT_STATISTICS);
     if( hint == OFF )
         return;
 
+    _event.type       = type;
+
     if( hint == NICEST )
         channel->getWindow()->finish();
-
-    data.startTime = channel->getPipe()->getFrameTime();
+    _event.startTime  = channel->getPipe()->getFrameTime();
 }
 
 
-StatEvent::~StatEvent()
+ScopedStatistics::~ScopedStatistics()
 {
     const int32_t hint =_channel->getIAttribute(Channel::IATTR_HINT_STATISTICS);
     if( hint == OFF )
@@ -46,8 +34,8 @@ StatEvent::~StatEvent()
     if( hint == NICEST )
         _channel->getWindow()->finish();
 
-    data.endTime = _channel->getPipe()->getFrameTime();
-    _channel->addStatEvent( data );
+    _event.endTime = _channel->getPipe()->getFrameTime();
+    _channel->addStatEvent( _event );
 }
 
 }

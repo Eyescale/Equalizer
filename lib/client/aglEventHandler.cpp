@@ -140,6 +140,7 @@ bool AGLEventHandler::_handleWindowEvent( EventRef event, eq::Window* window )
             windowEvent.data.type = Event::UNKNOWN;
             break;
     }
+    windowEvent.data.originator = window->getID();
 
     EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << endl;
     return window->processEvent( windowEvent );
@@ -283,6 +284,7 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event, eq::Window* window )
             windowEvent.data.type = Event::UNKNOWN;
             break;
     }
+    windowEvent.data.originator = window->getID();
 
     EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << endl;
     return window->processEvent( windowEvent );
@@ -315,6 +317,7 @@ bool AGLEventHandler::_handleKeyEvent( EventRef event, eq::Window* window )
             windowEvent.data.type = Event::UNKNOWN;
             break;
     }
+    windowEvent.data.originator = window->getID();
 
     EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << endl;
     return window->processEvent( windowEvent );

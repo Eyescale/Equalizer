@@ -38,7 +38,7 @@ namespace eqs
         };
 
         /** A vector of channel statistics events. */
-        typedef std::vector< eq::StatEvent::Data >     StatEventVector;
+        typedef std::vector< eq::StatEvent >     StatEventVector;
         
         /** The vector of channel statistics events for one frame. */
         typedef std::pair< uint32_t, StatEventVector > FrameStatEvents;
@@ -55,6 +55,9 @@ namespace eqs
          * Constructs a new deep copy of a channel.
          */
         Channel( const Channel& from, const CompoundVector& compounds );
+
+        /** Destruct this channel. */
+        virtual ~Channel();
 
         /** 
          * @return the state of this pipe.
@@ -250,8 +253,6 @@ namespace eqs
         //@}
         
     protected:
-        virtual ~Channel();
-
         /** Registers request packets waiting for a return value. */
         eqBase::RequestHandler _requestHandler;
 
@@ -300,7 +301,7 @@ namespace eqs
         const Compound* _lastDrawCompound;
 
         /** Holds statistics for up to #latency frames, oldest first. */
-        FrameStatEventsDeque _statEvents;
+        FrameStatEventsDeque _statEvents; // TODO: do we need to keep this?
 
         //-------------------- Methods --------------------
         /** common code for all constructors */

@@ -141,7 +141,7 @@ void eq::Channel::setNearFar( const float nearPlane, const float farPlane )
     send( node, packet );
 }
 
-void Channel::addStatEvent( StatEvent::Data& data )
+void Channel::addStatEvent( StatEvent& data )
 {
     _statEvents.push_back( data );
 }
@@ -443,7 +443,7 @@ eqNet::CommandResult Channel::_cmdFrameClear( eqNet::Command& command )
         command.getPacket<ChannelFrameClearPacket>();
     EQLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet << endl;
 
-    StatEvent event( StatEvent::CHANNEL_CLEAR, this );
+    ScopedStatistics event( StatEvent::CHANNEL_CLEAR, this );
 
     _setRenderContext( packet->context );
     frameClear( packet->context.frameID );
@@ -458,7 +458,7 @@ eqNet::CommandResult Channel::_cmdFrameDraw( eqNet::Command& command )
         command.getPacket<ChannelFrameDrawPacket>();
     EQLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << packet << endl;
 
-    StatEvent event( StatEvent::CHANNEL_DRAW, this );
+    ScopedStatistics event( StatEvent::CHANNEL_DRAW, this );
 
     _setRenderContext( packet->context );
     frameDraw( packet->context.frameID );
@@ -474,7 +474,7 @@ eqNet::CommandResult Channel::_cmdFrameDrawFinish( eqNet::Command& command )
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << endl;
 
-    StatEvent event( StatEvent::CHANNEL_DRAW_FINISH, this );
+    ScopedStatistics event( StatEvent::CHANNEL_DRAW_FINISH, this );
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
 
@@ -488,7 +488,7 @@ eqNet::CommandResult Channel::_cmdFrameAssemble( eqNet::Command& command )
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK assemble " << getName() <<  " " 
                                        << packet << endl;
 
-    StatEvent event( StatEvent::CHANNEL_ASSEMBLE, this );
+    ScopedStatistics event( StatEvent::CHANNEL_ASSEMBLE, this );
     _setRenderContext( packet->context );
 
     for( uint32_t i=0; i<packet->nFrames; ++i )
@@ -513,7 +513,7 @@ eqNet::CommandResult Channel::_cmdFrameReadback( eqNet::Command& command )
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " " 
                                        << packet << endl;
 
-    StatEvent event( StatEvent::CHANNEL_READBACK, this );
+    ScopedStatistics event( StatEvent::CHANNEL_READBACK, this );
     _setRenderContext( packet->context );
 
     for( uint32_t i=0; i<packet->nFrames; ++i )
@@ -544,7 +544,7 @@ eqNet::CommandResult Channel::_cmdFrameTransmit( eqNet::Command& command )
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK transmit " << getName() <<  " " 
                                       << packet << endl;
 
-    StatEvent event( StatEvent::CHANNEL_TRANSMIT, this );
+    ScopedStatistics event( StatEvent::CHANNEL_TRANSMIT, this );
 
     eqNet::Session*     session   = getSession();
     RefPtr<eqNet::Node> localNode = session->getLocalNode();
@@ -563,7 +563,7 @@ eqNet::CommandResult Channel::_cmdFrameTransmit( eqNet::Command& command )
         EQLOG( LOG_ASSEMBLY ) << "channel \"" << getName() << "\" transmit " 
                               << frame << " to " << nodeID << endl;
 
-        StatEvent nodeEvent( StatEvent::CHANNEL_TRANSMIT_NODE, this );
+        ScopedStatistics nodeEvent( StatEvent::CHANNEL_TRANSMIT_NODE, this );
         frame->transmit( toNode );
     }
 

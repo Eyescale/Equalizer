@@ -105,6 +105,27 @@ namespace eq
         // TODO modifier state
     };
 
+    struct StatEvent
+    {
+        enum Type // Also update string table in event.cpp
+        {
+            NONE = 0,
+            CHANNEL_CLEAR,
+            CHANNEL_DRAW,
+            CHANNEL_DRAW_FINISH,
+            CHANNEL_ASSEMBLE,
+            CHANNEL_READBACK,
+            CHANNEL_TRANSMIT,
+            CHANNEL_TRANSMIT_NODE,
+            CHANNEL_WAIT_FRAME,
+            TYPE_ALL          // must be last
+        };
+
+        Type     type;
+        float    startTime;
+        float    endTime;
+    };
+
 #   define EQ_USER_EVENT_SIZE 32
     struct UserEvent
     {
@@ -115,7 +136,7 @@ namespace eq
     {
         Event();
 
-        enum Type
+        enum Type // Also update string table in event.cpp
         {
             EXPOSE = 0,
             RESIZE,
@@ -125,12 +146,14 @@ namespace eq
             KEY_PRESS,
             KEY_RELEASE,
             WINDOW_CLOSE,
+            STATISTIC,
             UNKNOWN,
             USER,
             ALL // must be last
         };
 
         uint32_t type;
+        uint32_t originator;
 
         union // event data
         {
@@ -145,6 +168,8 @@ namespace eq
             KeyEvent     keyPress;
             KeyEvent     keyRelease;
 
+            StatEvent    statistic;
+
             UserEvent    user;
         };
      
@@ -156,6 +181,7 @@ namespace eq
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const ResizeEvent& );
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const PointerEvent& );
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const KeyEvent& );
+    EQ_EXPORT std::ostream& operator << ( std::ostream&, const StatEvent& );
 }
 
 #endif // EQ_EVENT_H

@@ -417,12 +417,12 @@ eqNet::CommandResult Channel::_cmdFrameFinishReply( eqNet::Command& command )
     frameEvents.first = packet->frameNumber;
 
     // output and save received events
-    for( uint32_t i =0; i<packet->nStatEvents; ++i )
+    for( uint32_t i = 0; i<packet->nStatEvents; ++i )
     {
-        const eq::StatEvent::Data& data = packet->statEvents[i];
+        const eq::StatEvent& data = packet->statEvents[i];
         EQLOG( LOG_STATS ) << packet->frameNumber << ' ' << data << endl;
 
-        events.push_back( packet->statEvents[i] );
+        events.push_back( data );
     }
 
     // only keep events for #latency frames

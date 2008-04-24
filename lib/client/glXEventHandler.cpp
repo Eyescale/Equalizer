@@ -260,6 +260,8 @@ void GLXEventHandler::_processEvent( WindowEvent& event, Pipe* pipe )
             break;
     }
 
+    event.data.originator = event.window->getID();
+
     EQLOG( LOG_EVENTS ) << "received event: " << event << endl;
     event.window->processEvent( event );
 }

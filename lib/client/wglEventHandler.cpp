@@ -360,6 +360,8 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             break;
     }
 
+    event.data.originator = event.window->getID();
+
     EQLOG( LOG_EVENTS ) << "received event: " << event << endl;
 
     if( event.window->processEvent( event ))

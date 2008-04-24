@@ -66,6 +66,7 @@ HEADER_SRC = \
 	net/session.h \
 	net/types.h \
 	client/channel.h \
+	client/channelEvent.h \
 	client/client.h \
 	client/colorMask.h \
 	client/commandQueue.h \
@@ -156,6 +157,7 @@ CXXFILES = \
 	net/staticSlaveCM.cpp \
 	net/unbufferedMasterCM.cpp \
 	client/channel.cpp \
+	client/channelEvent.cpp \
 	client/client.cpp \
 	client/colorMask.cpp \
 	client/commandQueue.cpp \

@@ -73,7 +73,7 @@ namespace eq
         const vmml::Vector3ub& getUniqueColor() const { return _color; }
 
         /** Add a new statistics event for the current frame. */
-        void addStatEvent( StatEvent::Data& eventData );
+        void addStatEvent( StatEvent& eventData );
         //*}
 
         /**
@@ -381,7 +381,7 @@ namespace eq
         vmml::Frustumf  _frustum;
 
         /** The statistics events gathered during the current frame. */
-        std::vector<StatEvent::Data> _statEvents;
+        std::vector<StatEvent> _statEvents;
 
         //-------------------- Methods --------------------
         /** 
