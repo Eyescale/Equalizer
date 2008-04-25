@@ -641,10 +641,9 @@ namespace eq
         /** 
          * Process a received event.
          *
-         * This function is called from the event thread. The task of this
-         * method is to update the window as necessary, and transform the event
-         * into an config event to be send to the application using
-         * Config::sendEvent().
+         * The task of this method is to update the window as necessary, and 
+         * transform the event into an config event to be send to the 
+         * application using Config::sendEvent().
          * 
          * @param event the received window system event.
          * @param true when the event was handled, false if not.

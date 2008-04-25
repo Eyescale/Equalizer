@@ -15,7 +15,6 @@ namespace eq
     class EQ_EXPORT ChannelEvent
     {
     public:
-
         Channel* channel;
         Event    data;
     };

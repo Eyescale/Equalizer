@@ -283,7 +283,7 @@ bool Config::handleEvent( const ConfigEvent* event )
             return true;
 
         case Event::KEY_PRESS:
-            if( event->data.keyPress.key == eq::KC_ESCAPE )
+            if( event->data.keyPress.key == KC_ESCAPE )
             {
                 _running = false;
                 return true;
@@ -292,12 +292,16 @@ bool Config::handleEvent( const ConfigEvent* event )
 
         case Event::POINTER_BUTTON_PRESS:
             if( event->data.pointerButtonPress.buttons == 
-                ( eq::PTR_BUTTON1 | eq::PTR_BUTTON2 | eq::PTR_BUTTON3 ))
+                ( PTR_BUTTON1 | PTR_BUTTON2 | PTR_BUTTON3 ))
             {
                 _running = false;
                 return true;
             }
             break;
+
+        case Event::STATISTIC:
+            EQLOG( LOG_STATS ) << event->data << endl;
+            return true;
     }
 
     return false;

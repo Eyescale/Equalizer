@@ -11,7 +11,7 @@
 #include "frame.h"
 #include "log.h"
 #include "image.h"
-#include "statEvent.h"
+#include "scopedStatistics.h"
 #include "windowSystem.h"
 
 #include <eq/base/executionListener.h>

@@ -41,6 +41,7 @@ Pipe::Pipe( Node* parent )
         , _port( EQ_UNDEFINED_UINT32 )
         , _device( EQ_UNDEFINED_UINT32 )
         , _state( STATE_STOPPED )
+        , _currentFrame( 0 )
         , _thread( 0 )
         , _pipeThreadQueue( 0 )
 {
@@ -833,6 +834,7 @@ eqNet::CommandResult Pipe::_cmdConfigInit( eqNet::Command& command )
     _device       = packet->device;
     _pvp          = packet->pvp;
     
+    _currentFrame  = 0;
     _finishedFrame = 0;
     _unlockedFrame = 0;
 

@@ -25,17 +25,6 @@ namespace eq
     struct EQ_EXPORT ConfigEvent : public ConfigPacket
     {
     public:
-        enum Type
-        {
-            POINTER_MOTION,
-            POINTER_BUTTON_PRESS,
-            POINTER_BUTTON_RELEASE,
-            KEY_PRESS,
-            KEY_RELEASE,
-            WINDOW_CLOSE,
-            USER         = 0x100
-        };
-
         ConfigEvent()
             {
                 command = CMD_CONFIG_EVENT;

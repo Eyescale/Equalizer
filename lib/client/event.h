@@ -122,6 +122,7 @@ namespace eq
         };
 
         Type     type;
+        uint32_t frameNumber;
         float    startTime;
         float    endTime;
     };

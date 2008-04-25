@@ -4,8 +4,10 @@
 
 #include "channel.h"
 
+#include "channelEvent.h"
 #include "compositor.h"
 #include "commands.h"
+#include "configEvent.h"
 #include "frame.h"
 #include "global.h"
 #include "log.h"
@@ -13,6 +15,7 @@
 #include "packets.h"
 #include "range.h"
 #include "renderContext.h"
+#include "scopedStatistics.h"
 
 #include <eq/net/command.h>
 
@@ -141,9 +144,10 @@ void eq::Channel::setNearFar( const float nearPlane, const float farPlane )
     send( node, packet );
 }
 
-void Channel::addStatEvent( StatEvent& data )
+void Channel::addStatEvent( ChannelEvent& event )
 {
-    _statEvents.push_back( data );
+    _statEvents.push_back( event.data.statistic );
+    processEvent( event );
 }
 
 //---------------------------------------------------------------------------
@@ -361,6 +365,27 @@ void Channel::applyHeadTransform() const
     const vmml::Matrix4f& xfm = getHeadTransform();
     EQ_GL_CALL( glMultMatrixf( xfm.ml ));
     EQVERB << "Apply head transform: " << xfm << endl;
+}
+
+bool Channel::processEvent( const ChannelEvent& event )
+{
+    switch( event.data.type )
+    {
+        case Event::STATISTIC:
+            break;
+
+        default:
+            EQWARN << "Unhandled channel event of type " << event.data.type
+                   << endl;
+            EQUNIMPLEMENTED;
+    }
+
+    ConfigEvent configEvent;
+    configEvent.data = event.data;
+
+    Config* config = getConfig();
+    config->sendEvent( configEvent );
+    return true;
 }
 
 //---------------------------------------------------------------------------

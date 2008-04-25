@@ -8,14 +8,14 @@
 #include <eq/client/eye.h>           // enum used
 #include <eq/client/frame.h>         // used in inline method
 #include <eq/client/pixelViewport.h> // member
-#include <eq/client/statEvent.h>     // member
+#include <eq/client/event.h>         // member
 #include <eq/client/window.h>        // used in inline method
 
 #include <vmmlib/vmmlib.h>           // Frustum definition 
 
 namespace eq
 {
-    class Channel;
+    class ChannelEvent;
     class Pixel;
     class Node;
     class Range;
@@ -73,7 +73,7 @@ namespace eq
         const vmml::Vector3ub& getUniqueColor() const { return _color; }
 
         /** Add a new statistics event for the current frame. */
-        void addStatEvent( StatEvent& eventData );
+        void addStatEvent( ChannelEvent& event );
         //*}
 
         /**
@@ -168,6 +168,18 @@ namespace eq
          * frustum.
          */
         virtual void applyHeadTransform() const;
+
+        /** 
+         * Process a received event.
+         *
+         * The task of this method is to update the window as necessary, and 
+         * transform the event into an config event to be send to the 
+         * application using Config::sendEvent().
+         * 
+         * @param event the received window system event.
+         * @param true when the event was handled, false if not.
+         */
+        virtual bool processEvent( const ChannelEvent& event );
         //*}
 
         /**
@@ -381,7 +393,7 @@ namespace eq
         vmml::Frustumf  _frustum;
 
         /** The statistics events gathered during the current frame. */
-        std::vector<StatEvent> _statEvents;
+        std::vector< StatEvent > _statEvents;
 
         //-------------------- Methods --------------------
         /** 

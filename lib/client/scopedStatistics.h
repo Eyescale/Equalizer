@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_STATEVENT_H
@@ -21,8 +21,7 @@ namespace eq
         ~ScopedStatistics();
 
     private:
-        StatEvent _event;
-        Channel*  _channel;
+        ChannelEvent _event;
     };
 }
 

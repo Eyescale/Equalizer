@@ -10,7 +10,6 @@
 #include <eq/client/frame.h>
 #include <eq/client/pixelViewport.h>
 #include <eq/client/renderContext.h>
-#include <eq/client/statEvent.h>
 #include <eq/client/viewport.h>
 #include <eq/client/window.h>
 

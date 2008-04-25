@@ -59,6 +59,7 @@ namespace eq
 
         const std::string& getName() const { return _name; }
         bool isThreaded() const { return ( _thread != 0 ); }
+        uint32_t getCurrentFrame() const { return _currentFrame; }
 
         /** 
          * @return the pipe's pixel viewport
@@ -215,7 +216,8 @@ namespace eq
          * 
          * @param frameNumber the frame to start.
          */
-        void startFrame( const uint32_t frameNumber ) { /* currently nop */ }
+        void startFrame( const uint32_t frameNumber ) 
+            { _currentFrame = frameNumber; }
 
         /** 
          * Signal the completion of a frame to the parent.
@@ -418,6 +420,9 @@ namespace eq
         };
         /** The configInit/configExit state. */
         eqBase::Monitor< State > _state;
+
+        /** The last started frame. */
+        uint32_t _currentFrame;
 
         /** The number of the last finished frame. */
         eqBase::Monitor<uint32_t> _finishedFrame;

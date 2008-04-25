@@ -55,7 +55,7 @@ Event::Event()
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event& event )
 {
-    os << disableFlush << event.type << ":" << event.originator;
+    os << disableFlush << event.type << ':' << event.originator << ' ';
     switch( event.type )
     {
         case Event::EXPOSE:
@@ -77,11 +77,13 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event& event )
             os << event.keyEvent;
             break;
 
+        case Event::STATISTIC:
+            os << event.statistic;
         default:
             break;
     }
     
-    os << ", context " << event.context << enableFlush;
+    os << /*", context " << event.context <<*/ enableFlush;
     return os;
 }
 
@@ -133,8 +135,8 @@ std::ostream& operator << ( std::ostream& os, const KeyEvent& event )
 
 std::ostream& operator << ( std::ostream& os, const StatEvent& event )
 {
-    os << _stateEventTypeNames[ event.type ] << " " << event.startTime << " - "
-       << event.endTime;
+    os << _stateEventTypeNames[ event.type ] << ' ' << event.frameNumber << ' '
+       << event.startTime << " - " << event.endTime;
     return os;
 }
 }

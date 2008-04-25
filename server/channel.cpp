@@ -420,7 +420,7 @@ eqNet::CommandResult Channel::_cmdFrameFinishReply( eqNet::Command& command )
     for( uint32_t i = 0; i<packet->nStatEvents; ++i )
     {
         const eq::StatEvent& data = packet->statEvents[i];
-        EQLOG( LOG_STATS ) << packet->frameNumber << ' ' << data << endl;
+        EQLOG( eq::LOG_STATS ) << data << endl;
 
         events.push_back( data );
     }

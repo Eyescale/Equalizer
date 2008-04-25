@@ -96,8 +96,8 @@ HEADER_SRC = \
 	client/pixelViewport.h \
 	client/range.h \
 	client/renderContext.h \
+	client/scopedStatistics.h \
 	client/server.h \
-	client/statEvent.h \
 	client/types.h \
 	client/version.h \
 	client/viewport.h \
@@ -177,8 +177,8 @@ CXXFILES = \
 	client/pipe.cpp \
 	client/range.cpp \
 	client/renderContext.cpp \
+	client/scopedStatistics.cpp \
 	client/server.cpp \
-	client/statEvent.cpp \
 	client/version.cpp \
 	client/window.cpp \
 	client/windowEvent.cpp \
