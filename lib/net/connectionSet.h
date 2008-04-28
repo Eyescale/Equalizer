@@ -1,11 +1,11 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_CONNECTION_SET_H
 #define EQNET_CONNECTION_SET_H
 
-#include <eq/net/connection.h>
+#include <eq/net/connectionListener.h> // base class
 
 #include <eq/base/base.h>
 #include <eq/base/hash.h>
@@ -25,7 +25,7 @@ namespace eqNet
      *
      * From the set, a connection with pending events can be selected.
      */
-    class EQ_EXPORT ConnectionSet
+    class EQ_EXPORT ConnectionSet : public ConnectionListener
     {
     public:
         enum Event
@@ -45,8 +45,8 @@ namespace eqNet
         ConnectionSet();
         ~ConnectionSet();
 
-        void addConnection( eqBase::RefPtr<Connection> connection );
-        bool removeConnection( eqBase::RefPtr<Connection> connection );
+        void addConnection( ConnectionPtr connection );
+        bool removeConnection( ConnectionPtr connection );
         void clear();
         size_t size() const { return _connections.size(); }
 
@@ -82,7 +82,8 @@ namespace eqNet
 #ifdef WIN32
         std::vector<HANDLE> _fdSet;
 #else
-        std::vector<pollfd> _fdSet;
+        std::vector<pollfd> _fdSetCopy; // 'const' set
+        std::vector<pollfd> _fdSet;     // copy of _fdSetCopy used to poll()
 #endif
         stde::hash_map<Connection::ReadNotifier, Connection*> _fdSetConnections;
 
@@ -99,10 +100,14 @@ namespace eqNet
         eqBase::RefPtr<Connection> _connection;
         int                        _error;
 
+        /** FD sets need rebuild. */
+        bool _dirty;
+
         bool _getEvent( Event& event, Connection::ReadNotifier& fd );
         void _dirtyFDSet();
         bool _setupFDSet();
         bool _buildFDSet();
+        virtual void notifyStateChanged( Connection* ) { _dirty = true; }
 
         Event _handleSelfCommand();
         Event _getSelectResult( const uint32_t index );

@@ -1,10 +1,11 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "connection.h"
 
 #include "connectionDescription.h"
+#include "connectionListener.h"
 #include "log.h"
 #include "node.h"
 #include "pipeConnection.h"
@@ -72,8 +73,8 @@ RefPtr<Connection> Connection::accept( const int timeout )
     if( notifier == 0 )
     {
         // Could implement the same using a setjmp() + alarm().
-        EQWARN << "Cannot accept on connection, it does not use a file descriptor"
-             << endl;
+        EQWARN << "Cannot accept on connection, does not use a file descriptor"
+               << endl;
         return 0;
     }
 
@@ -106,6 +107,29 @@ RefPtr<Connection> Connection::accept( const int timeout )
             return accept();
     }
 }
+
+void Connection::addListener( ConnectionListener* listener )
+{
+    _listeners.push_back( listener );
+}
+
+void Connection::removeListener( ConnectionListener* listener )
+{
+    vector< ConnectionListener* >::iterator i = find( _listeners.begin(),
+                                                      _listeners.end(),
+                                                      listener );
+    if( i != _listeners.end( ))
+        _listeners.erase( i );
+}
+
+void Connection::_fireStateChanged()
+{
+    for( vector<ConnectionListener*>::const_iterator i= _listeners.begin();
+         i != _listeners.end(); ++i )
+
+        (*i)->notifyStateChanged( this );
+}
+
 
 //----------------------------------------------------------------------
 // read

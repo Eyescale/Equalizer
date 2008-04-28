@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "connectionSet.h"
@@ -29,6 +29,7 @@ namespace eqNet
 
 ConnectionSet::ConnectionSet()
         : _error(0)
+        , _dirty( true )
 {
     // Whenever another threads modifies the connection list while the
     // connection set is waiting in a select, the select is interrupted by
@@ -70,24 +71,24 @@ void ConnectionSet::addConnection( RefPtr<Connection> connection )
 
     _mutex.set();
     _connections.push_back( connection );
+    connection->addListener( this );
     _mutex.unset();
     _dirtyFDSet();
 }
 
 bool ConnectionSet::removeConnection( eqBase::RefPtr<Connection> connection )
 {
-    _mutex.set();
-    vector< eqBase::RefPtr<Connection> >::iterator eraseIter =
-        find( _connections.begin(), _connections.end(), connection );
-
-    if( eraseIter == _connections.end( ))
     {
-        _mutex.unset();
-        return false;
-    }
+        ScopedMutex< SpinLock > mutex( _mutex );
+        connection->removeListener( this );
 
-    _connections.erase( eraseIter );
-    _mutex.unset();
+        ConnectionVector::iterator i = find( _connections.begin(),
+                                             _connections.end(), connection );
+        if( i == _connections.end( ))
+            return false;
+
+        _connections.erase( i );
+    }
 
     if( _connection == connection )
         _connection = 0;
@@ -99,6 +100,11 @@ bool ConnectionSet::removeConnection( eqBase::RefPtr<Connection> connection )
 void ConnectionSet::clear()
 {
     _connection = 0;
+    for( ConnectionVector::iterator i = _connections.begin(); 
+         i != _connections.end(); ++i )
+
+        (*i)->removeListener( this );
+
     _connections.clear();
     _dirtyFDSet();
     _fdSet.clear();
@@ -233,6 +239,7 @@ ConnectionSet::Event ConnectionSet::_handleSelfCommand()
             // The connection set was modified in the select, restart selection
             // TODO: decrease timeout accordingly.
             EQINFO << "FD set modified, restarting select" << endl;
+            _dirty = true;
             return EVENT_NONE; // handled
 
         case SELF_INTERRUPT:
@@ -246,10 +253,15 @@ ConnectionSet::Event ConnectionSet::_handleSelfCommand()
 
 bool ConnectionSet::_setupFDSet()
 {
-    // TODO eile: Optimize this code after 0.5 release. Only rebuild when
-    // needed, since this takes 20% of the server's CPU time. Connections have
-    // to notify the subscribed connection set when they change state, which
-    // marks ourselve dirty for rebuilding the fd set.
+    if( !_dirty )
+    {
+#ifndef WIN32
+        // TODO: verify that poll() really modifies _fdSet, and remove the copy
+        // if it doesn't. The man page seems to hint that poll changes fds.
+        _fdSet = _fdSetCopy;
+#endif
+        return true;
+    }
 
     // The fdSet has to be rebuild every time since a connection may have been
     // closed in the meantime.
@@ -323,7 +335,10 @@ bool ConnectionSet::_setupFDSet()
         _fdSet.push_back( fd );
     }
     _mutex.unset();
+    _fdSetCopy = _fdSet;
 #endif
+
+    _dirty = false;
     return true;
 }   
 

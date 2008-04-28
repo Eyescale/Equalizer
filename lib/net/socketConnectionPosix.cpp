@@ -32,6 +32,7 @@ bool SocketConnection::connect()
         return false;
 
     _state = STATE_CONNECTING;
+    _fireStateChanged();
 
     if( !_createSocket( ))
         return false;
@@ -63,6 +64,7 @@ bool SocketConnection::connect()
     }
  
     _state = STATE_CONNECTED;
+    _fireStateChanged();
     return true;
 }
 
@@ -78,7 +80,7 @@ void SocketConnection::close()
     if( !(_state == STATE_CONNECTED || _state == STATE_LISTENING ))
         return;
 
-    _state   = STATE_CLOSED;
+    _state = STATE_CLOSED;
     EQASSERT( _readFD > 0 ); 
 
     const bool closed = ( ::close(_readFD) == 0 );
@@ -87,6 +89,7 @@ void SocketConnection::close()
 
     _readFD  = INVALID_SOCKET;
     _writeFD = INVALID_SOCKET;
+    _fireStateChanged();
 }
 
 //----------------------------------------------------------------------

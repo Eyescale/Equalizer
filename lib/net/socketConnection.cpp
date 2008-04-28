@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "socketConnection.h"
@@ -104,6 +104,7 @@ bool SocketConnection::listen()
         return false;
 
     _state = STATE_CONNECTING;
+    _fireStateChanged();
 
     if( !_createSocket())
         return false;
@@ -173,7 +174,8 @@ bool SocketConnection::listen()
             _description->setHostname( inet_ntoa( address.sin_addr ));
     }
     
-    _state       = STATE_LISTENING;
+    _state = STATE_LISTENING;
+    _fireStateChanged();
 
     EQINFO << "Listening on " << _description->getHostname() << "["
            << inet_ntoa( socketAddress.sin_addr ) << "]:" 

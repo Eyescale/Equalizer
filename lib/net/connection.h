@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_CONNECTION_H
@@ -30,6 +30,7 @@
 
 namespace eqNet
 {
+    class ConnectionListener;
     enum ConnectionType;
 
     /**
@@ -105,9 +106,18 @@ namespace eqNet
         virtual void close(){};
         //@}
 
+        /** @name Listener Interface */
+        //*{
+        /** Add a listener for connection state changes. */
+        void addListener( ConnectionListener* listener );
+
+        /** Remove a listener for connection state changes. */
+        void removeListener( ConnectionListener* listener );
+        //*}
+
 
         /** @name Messaging API */
-        //@{
+        //*{
         /** 
          * Read data from the connection.
          * 
@@ -201,7 +211,7 @@ namespace eqNet
         static bool send( const ConnectionVector& connections, Packet& packet,
                           const void* data, const uint64_t size,
                           const bool isLocked = false );
-        //@}
+        //*}
 
         /** 
          * Returns the state of this connection.
@@ -240,9 +250,22 @@ namespace eqNet
         virtual ReadNotifier getReadNotifier() { return 0; }
 
     protected:
+        State                    _state; //!< The connection state
+        ConnectionDescriptionPtr _description;
+
+        mutable eqBase::SpinLock _sendLock;
+
+        /** The listeners on state changes */
+        std::vector< ConnectionListener* > _listeners;
+
+        friend class PairConnection; // for access to read/write
+
+
         Connection();
         Connection(const Connection& conn);
         virtual ~Connection();
+
+        void _fireStateChanged();
 
         /** @name Input/Output */
         //@{
@@ -268,13 +291,6 @@ namespace eqNet
         virtual int64_t write( const void* buffer, const uint64_t bytes )
             const = 0;
         //@}
-
-        State                                 _state; //!< The connection state
-        eqBase::RefPtr<ConnectionDescription> _description;
-
-        mutable eqBase::SpinLock _sendLock;
-
-        friend class PairConnection; // for access to read/write
     };
 
     inline std::ostream& operator << ( std::ostream& os, 

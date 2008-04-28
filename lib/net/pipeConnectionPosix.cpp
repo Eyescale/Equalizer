@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "pipeConnection.h"
@@ -43,7 +43,8 @@ bool PipeConnection::connect()
     }
 
     EQINFO << "readFD " << _readFD << " writeFD " << _writeFD << endl;
-    _state       = STATE_CONNECTED;
+    _state = STATE_CONNECTED;
+    _fireStateChanged();
     return true;
 }
 
@@ -77,4 +78,5 @@ void PipeConnection::close()
     }
 
     _state = STATE_CLOSED;
+    _fireStateChanged();
 }

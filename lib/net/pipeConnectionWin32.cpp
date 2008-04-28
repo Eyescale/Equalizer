@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "pipeConnection.h"
@@ -51,6 +51,7 @@ bool PipeConnection::connect()
     }
 
     _state = STATE_CONNECTED;
+    _fireStateChanged();
     return true;
 }
 
@@ -79,6 +80,7 @@ void PipeConnection::close()
         _writeHandle = 0;
     }
     _state = STATE_CLOSED;
+    _fireStateChanged();
 }
 
 int64_t PipeConnection::read( void* buffer, const uint64_t bytes )

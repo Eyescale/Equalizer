@@ -45,6 +45,7 @@ HEADER_SRC = \
 	net/connection.h \
 	net/connection.ipp \
 	net/connectionDescription.h \
+	net/connectionListener.h \
 	net/connectionSet.h \
 	net/connectionType.h \
 	net/dataIStream.h \
