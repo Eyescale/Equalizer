@@ -34,7 +34,6 @@ Config::Config( eqBase::RefPtr< Server > server )
         , _running( false )
 {
     eqNet::CommandQueue* queue    = server->getNodeThreadQueue();
-    eqNet::CommandQueue* cmdQueue = server->getCommandThreadQueue();
 
     registerCommand( CMD_CONFIG_CREATE_NODE,
                      CommandFunc<Config>( this, &Config::_cmdCreateNode ),
@@ -61,8 +60,8 @@ Config::Config( eqBase::RefPtr< Server > server )
                  CommandFunc<Config>( this, &Config::_cmdFinishAllFramesReply ),
                      queue );
     registerCommand( CMD_CONFIG_EVENT, 
-                     CommandFunc<Config>( this, &Config::_cmdEvent ),
-                     cmdQueue );
+                     CommandFunc<Config>( this, &Config::_cmdUnknown ),
+                     &_eventQueue );
 #ifdef EQ_TRANSMISSION_API
     registerCommand( CMD_CONFIG_DATA, 
                      CommandFunc<Config>( this, &Config::_cmdData ),
@@ -213,6 +212,8 @@ uint32_t Config::finishFrame()
         client->processCommand();
 
     handleEvents();
+    _updateStatistics( frameToFinish );
+
     EQLOG( LOG_ANY ) << "----- Finish Frame ---- " << frameToFinish << " ("
                      << _currentFrame << ')' << endl;
     return frameToFinish;
@@ -231,7 +232,6 @@ uint32_t Config::finishAllFrames()
     EQLOG( LOG_ANY ) << "-- Finish All Frames --" << endl;
     return _currentFrame;
 }
-
 
 void Config::sendEvent( ConfigEvent& event )
 {
@@ -300,12 +300,71 @@ bool Config::handleEvent( const ConfigEvent* event )
             break;
 
         case Event::STATISTIC:
+        {
             EQLOG( LOG_STATS ) << event->data << endl;
+
+            const uint32_t   channelID = event->data.originator;
+            EQASSERT( channelID != EQ_ID_INVALID );
+            if( channelID == EQ_ID_INVALID )
+                return true;
+
+            const Statistic& statistic = event->data.statistic;
+            const uint32_t   frame     = statistic.frameNumber;
+
+            for( deque< FrameStatistics >::iterator i = _statistics.begin();
+                 i != _statistics.end(); ++i )
+            {
+                FrameStatistics& frameStats = *i;
+                if( frameStats.first == frame )
+                {
+                    ConfigStatistics& configStats = frameStats.second;
+                    Statistics&       statistics  = configStats[ channelID ];
+                    statistics.push_back( statistic );
+                    return true;
+                }
+            }
+            
+            _statistics.push_back( FrameStatistics( ));
+            FrameStatistics& frameStats = _statistics.back();
+            frameStats.first = frame;
+
+            ConfigStatistics& configStats = frameStats.second;
+            Statistics&       statistics  = configStats[ channelID ];
+            statistics.push_back( statistic );
+            
             return true;
+        }
     }
 
     return false;
 }
+
+void Config::_updateStatistics( const uint32_t finishedFrame )
+{
+    for( deque< FrameStatistics >::iterator i = _statistics.begin();
+         i != _statistics.end(); ++i )
+    {
+        FrameStatistics& frameStats = *i;
+        EQASSERT( frameStats.first >= finishedFrame );
+        
+        if( frameStats.first > finishedFrame )
+            // No data for this frame
+            return;
+
+        if( frameStats.first == finishedFrame )
+        {
+            if( !_nodes.empty( ))
+            {
+                Node* node = _nodes.front();
+                node->addStatistics( frameStats );
+            }
+
+            _statistics.erase( i );
+            return;
+        }
+    }
+}
+
 
 void Config::setHeadMatrix( const vmml::Matrix4f& matrix )
 {
@@ -506,15 +565,6 @@ eqNet::CommandResult Config::_cmdFinishAllFramesReply( eqNet::Command& command )
     EQVERB << "handle all frames finish reply " << packet << endl;
 
     _finishedFrame = packet->frameNumber;
-    return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult Config::_cmdEvent( eqNet::Command& command )
-{
-    EQLOG( LOG_EVENTS ) << "received event " << command.getPacket<ConfigEvent>()
-                        << endl;
-
-    _eventQueue.push( command );
     return eqNet::COMMAND_HANDLED;
 }
 

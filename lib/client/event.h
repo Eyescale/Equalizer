@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. 
  
    Various event-related definitions.
@@ -105,7 +105,7 @@ namespace eq
         // TODO modifier state
     };
 
-    struct StatEvent
+    struct Statistic
     {
         enum Type // Also update string table in event.cpp
         {
@@ -169,7 +169,7 @@ namespace eq
             KeyEvent     keyPress;
             KeyEvent     keyRelease;
 
-            StatEvent    statistic;
+            Statistic    statistic;
 
             UserEvent    user;
         };
@@ -182,7 +182,7 @@ namespace eq
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const ResizeEvent& );
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const PointerEvent& );
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const KeyEvent& );
-    EQ_EXPORT std::ostream& operator << ( std::ostream&, const StatEvent& );
+    EQ_EXPORT std::ostream& operator << ( std::ostream&, const Statistic& );
 }
 
 #endif // EQ_EVENT_H

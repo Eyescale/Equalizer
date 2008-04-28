@@ -16,11 +16,14 @@ class Object;
 class Connection;
 class ConnectionDescription;
 
-typedef std::vector< eqBase::RefPtr< Node > >       NodeVector;
-typedef std::vector< Object* >                      ObjectVector;
-typedef std::vector< eqBase::RefPtr< Connection > > ConnectionVector;
-typedef std::vector< eqBase::RefPtr< eqNet::ConnectionDescription > >
-            ConnectionDescriptionVector;
+typedef eqBase::RefPtr< Node >                  NodePtr;
+typedef eqBase::RefPtr< Connection >            ConnectionPtr;
+typedef eqBase::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
+
+typedef std::vector< NodePtr >                  NodeVector;
+typedef std::vector< Object* >                  ObjectVector;
+typedef std::vector< ConnectionPtr >            ConnectionVector;
+typedef std::vector< ConnectionDescriptionPtr > ConnectionDescriptionVector;
 
 }
 

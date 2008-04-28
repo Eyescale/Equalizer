@@ -10,7 +10,7 @@
 namespace eq
 {
 
-ScopedStatistics::ScopedStatistics( const StatEvent::Type type, 
+ScopedStatistics::ScopedStatistics( const Statistic::Type type, 
                                     Channel* channel )
 {
     const int32_t hint = channel->getIAttribute(Channel::IATTR_HINT_STATISTICS);
@@ -40,7 +40,7 @@ ScopedStatistics::~ScopedStatistics()
         channel->getWindow()->finish();
 
     _event.data.statistic.endTime = channel->getPipe()->getFrameTime();
-    channel->addStatEvent( _event );
+    channel->addStatistic( _event );
 }
 
 }

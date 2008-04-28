@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "event.h"
@@ -32,7 +32,7 @@ static std::string _eventTypeNames[ Event::ALL ] =
 };
 
 /** String representation of statistic event types. */
-static std::string _stateEventTypeNames[StatEvent::TYPE_ALL] =
+static std::string _stateEventTypeNames[Statistic::TYPE_ALL] =
 {
     "NO EVENT          ",
     "channel clear     ",
@@ -133,7 +133,7 @@ std::ostream& operator << ( std::ostream& os, const KeyEvent& event )
     return os;
 }
 
-std::ostream& operator << ( std::ostream& os, const StatEvent& event )
+std::ostream& operator << ( std::ostream& os, const Statistic& event )
 {
     os << _stateEventTypeNames[ event.type ] << ' ' << event.frameNumber << ' '
        << event.startTime << " - " << event.endTime;

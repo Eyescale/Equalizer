@@ -77,6 +77,8 @@ namespace eq
         void waitFrameStarted( const uint32_t frameNumber ) const
             { _currentFrame.waitGE( frameNumber ); }
 
+        /** Add all received statistics for one frame. */
+        void addStatistics( const FrameStatistics& frameStats );
  
 #ifdef EQ_TRANSMISSION_API
         /** @name Data Transmission. */
@@ -244,6 +246,10 @@ namespace eq
 
         /** The receiver->node data transmission queue. */
         CommandQueue           _dataQueue;
+
+        /** Global statistics events, index per frame and channel. */
+        std::deque< FrameStatistics > _statistics;
+        eqBase::Lock                  _statisticsMutex;
 
         friend class Pipe;
         void _addPipe( Pipe* pipe );

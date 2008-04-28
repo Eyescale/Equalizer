@@ -161,7 +161,7 @@ void Compositor::assembleFramesUnsorted( const vector< Frame* >& frames,
     while( !unusedFrames.empty( ))
     {
         {
-            ScopedStatistics event( StatEvent::CHANNEL_WAIT_FRAME, channel );
+            ScopedStatistics event( Statistic::CHANNEL_WAIT_FRAME, channel );
             monitor.waitGE( ++nUsedFrames );
         }
 

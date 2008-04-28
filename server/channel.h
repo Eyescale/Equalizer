@@ -37,15 +37,6 @@ namespace eqs
             STATE_STOP_FAILED,  // next: STOPPED
         };
 
-        /** A vector of channel statistics events. */
-        typedef std::vector< eq::StatEvent >     StatEventVector;
-        
-        /** The vector of channel statistics events for one frame. */
-        typedef std::pair< uint32_t, StatEventVector > FrameStatEvents;
-
-        /** The list of all channel statistics events, oldest first. */
-        typedef std::deque< FrameStatEvents > FrameStatEventsDeque;
-
         /** 
          * Constructs a new Channel.
          */
@@ -299,9 +290,6 @@ namespace eqs
 
         /** The last draw compound for this entity */
         const Compound* _lastDrawCompound;
-
-        /** Holds statistics for up to #latency frames, oldest first. */
-        FrameStatEventsDeque _statEvents; // TODO: do we need to keep this?
 
         //-------------------- Methods --------------------
         /** common code for all constructors */

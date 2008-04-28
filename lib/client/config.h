@@ -202,14 +202,14 @@ namespace eq
         friend class Server;
 
         /** The node running the application thread. */
-        eqBase::RefPtr<eqNet::Node> _appNode;
+        eqNet::NodePtr _appNode;
 
 #ifdef EQ_TRANSMISSION_API
         /** The list of the running client node identifiers. */
         std::vector<eqNet::NodeID> _clientNodeIDs;
 
         /** The running client nodes, is cleared when _clientNodeIDs changes. */
-        std::vector< eqBase::RefPtr<eqNet::Node> > _clientNodes;
+        eqNet::NodeVector _clientNodes;
 #endif
 
         /** Locally-instantiated nodes of this config. */
@@ -222,7 +222,10 @@ namespace eq
         std::string _error;
 
         /** The receiver->app thread event queue. */
-        CommandQueue           _eventQueue;
+        CommandQueue _eventQueue;
+
+        /** Global statistics events, index per frame and channel. */
+        std::deque< FrameStatistics > _statistics;
 
         /** The maximum number of outstanding frames. */
         uint32_t _latency;
@@ -255,6 +258,12 @@ namespace eq
          */
         virtual bool _finishInit();
 
+        /** 
+         * Update statistics for the finished frame, push it to the local node
+         * for visualization.
+         */
+        void _updateStatistics( const uint32_t finishedFrame );
+
 #ifdef EQ_TRANSMISSION_API
         /** Connect client nodes of this config. */
         bool _connectClientNodes();
@@ -269,7 +278,6 @@ namespace eq
         eqNet::CommandResult _cmdStartFrameReply( eqNet::Command& command );
         eqNet::CommandResult _cmdFinishFrameReply( eqNet::Command& command );
         eqNet::CommandResult _cmdFinishAllFramesReply( eqNet::Command& command);
-        eqNet::CommandResult _cmdEvent( eqNet::Command& command );
 #ifdef EQ_TRANSMISSION_API
         eqNet::CommandResult _cmdData( eqNet::Command& command );
 #endif

@@ -200,6 +200,17 @@ void Node::_flushObjects()
     _frameDatasMutex.unset();
 }
 
+void Node::addStatistics( const FrameStatistics& frameStats )
+{
+    _statisticsMutex.set();
+
+    _statistics.push_back( frameStats );
+    while( _statistics.size() > 5 )
+        _statistics.pop_front();
+
+    _statisticsMutex.unset();
+}
+
 #ifdef EQ_TRANSMISSION_API
 const void* Node::receiveData( uint64_t* size )
 {

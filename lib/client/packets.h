@@ -875,8 +875,8 @@ namespace eq
             }
 
         uint32_t frameNumber;
-        uint32_t nStatEvents;
-        EQ_ALIGN8( StatEvent statEvents[1] );
+        uint32_t nStatistics;
+        EQ_ALIGN8( Statistic statistics[1] );
     };
         
 
