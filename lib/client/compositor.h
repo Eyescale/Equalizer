@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_COMPOSITOR_H
@@ -118,7 +118,7 @@ namespace eq
         static void assembleImageDB_GLSL( const Image* image, 
                                           const ImageOp& op );
         //*}
-                                        
+                                
       private:
         typedef std::pair< const Frame*, const Image* > FrameImage;
 
@@ -126,6 +126,8 @@ namespace eq
                                        const std::vector< FrameImage >& images);
         static void _assemble2DImages( Image* result,
                                        const std::vector< FrameImage >& images);
+        static bool   _assembleImage_PC( int operation, Image* result,
+                                         const Image* source );
 
     };
 }

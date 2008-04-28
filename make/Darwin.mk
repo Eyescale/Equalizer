@@ -3,10 +3,13 @@ DSO_SUFFIX       = dylib
 DSO_LDFLAGS     += -dynamiclib
 WINDOW_SYSTEM   ?= GLX AGL
 
+AR               = libtool
+ARFLAGS          = -static
+PC_LIBRARY_PATH ?= /opt/paracomp/lib
+
 ifeq (0,${MAKELEVEL})
   CXXFLAGS        += -Wextra
 endif
-
 
 ifeq ($(findstring 9., $(RELARCH)),9.)
   LEOPARD       = 1
@@ -42,9 +45,6 @@ ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
   WINDOW_SYSTEM_LIBS += -framework AGL -framework OpenGL -framework Carbon
   PROGRAMS            = $(PROGRAM_EXE) $(PROGRAM_APP)
 endif
-
-AR           = libtool
-ARFLAGS      = -static
 
 ifdef LEOPARD
   BISON        = bison

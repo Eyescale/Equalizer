@@ -1,0 +1,17 @@
+
+                       Paracomp Integration Notes
+
+Equalizer does use the Paracomp Library to do certain compositing
+operations. The library has to be compiled and installed in
+$PC_LIBRARY_PATH (default /opt/paracomp/lib64) before compiling
+Equalizer.
+
+Currently the support is experimental. Please use the test/compositor
+benchmark to verify your performance with and without Paracomp. The
+changes needed for Equalizer are not yet in the main branch of
+Paracomp. Please use the following branch for now:
+https://paracomp.svn.sourceforge.net/svnroot/paracomp/branches/developer/shree/feature/composite_binary
+
+
+
+

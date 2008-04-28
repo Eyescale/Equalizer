@@ -9,6 +9,8 @@
 #include <eq/client/frame.h>
 #include <eq/client/frameData.h>
 #include <eq/client/image.h>
+#include <eq/client/init.h>
+#include <eq/client/nodeFactory.h>
 
 using namespace eqBase;
 using namespace eq;
@@ -23,6 +25,9 @@ int main( int argc, char **argv )
 
     frameData->setBuffers( Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH );
     frame.setData( frameData );
+    
+    NodeFactory nodeFactory;
+    TEST( eq::init( 0, 0, &nodeFactory ));
 
     Image* image = frameData->newImage();
     TEST( image->readImage( "Image_1_color.rgb", Frame::BUFFER_COLOR ));
@@ -70,4 +75,6 @@ int main( int argc, char **argv )
 
     cout << argv[0] << ": 15 images: " << time << " ms (" 
          << 5000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << endl;
+    
+    TEST( eq::exit( ));
 }

@@ -12,11 +12,17 @@ RELARCH ?= $(shell uname -r)
 include $(TOP)/make/$(ARCH).mk
 -include $(TOP)/make/local.mk
 
+DOXYGEN         ?= Doxygen
+FLEX            ?= flex
+BISON           ?= bison
+PC_LIBRARY_PATH ?= /opt/paracomp/lib64
+
 # What to pass down to sub-makes
 export CFLAGS
 export CXXFLAGS
 export LDFLAGS
 export LD
+export PC_LIBRARY_PATH
 
 # helper variables for directory-dependent stuff
 SUBDIR    ?= "."
@@ -38,7 +44,7 @@ DEFFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DEQ_CHECK_THREADSAFETY \
                   -DEQ_USE_COMPRESSION -DGLEW_MX
 
 
-ifeq (0,${MAKELEVEL})
+ifeq (0,${MAKELEVEL}) # top-level invocation - one-time declarations below
 
 LD        = $(CXX) # use c++ compiler for linking
 
@@ -52,6 +58,7 @@ endif # -g
   CFLAGS         += $(DEFFLAGS)
   CXXFLAGS       += $(DEFFLAGS)
 
+# ICC settings
 ifeq ($(findstring icc, $(CXX)),icc)
     ICC_DIR    ?= /opt/intel/cc/10.1.006
     CXXFLAGS   += -openmp
@@ -59,22 +66,26 @@ ifeq ($(findstring icc, $(CXX)),icc)
     LD          = g++
 endif # icc
 
+# GCC settings
 ifeq ($(findstring g++, $(CXX)),g++)
     CXXFLAGS += -Wall \
                 -Wnon-virtual-dtor -Wsign-promo -Wshadow \
                 -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings
 ifdef USE_OPENMP
-      DEFFLAGS += -DEQ_USE_OPENMP
-      CXXFLAGS += -fopenmp
-      LDFLAGS  += -lgomp
+    DEFFLAGS += -DEQ_USE_OPENMP
+    CXXFLAGS += -fopenmp
+    LDFLAGS  += -lgomp
 endif
 endif # g++
 
-endif # top-level
+# Paracomp settings
+ifeq ($(wildcard $(PC_LIBRARY_PATH)), $(PC_LIBRARY_PATH))
+    DEFFLAGS += -DEQ_USE_PARACOMP
+    CXXFLAGS += -I$(PC_LIBRARY_PATH)/../include
+    LDFLAGS  += -L$(PC_LIBRARY_PATH) -lpcstub
+endif
 
-DOXYGEN        ?= Doxygen
-FLEX           ?= flex
-BISON          ?= bison
+endif # top-level
 
 # defines
 CXX_DEFINES      = $(sort $(filter -D%,$(CXXFLAGS)))

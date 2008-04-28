@@ -33,6 +33,29 @@ tools: lib
 
 postcompile: subdirs
 	@echo "----- Compilation successful -----"
+ifeq ($(findstring NDEBUG, $(DEFFLAGS)),NDEBUG)
+	@echo "Release build of Equalizer with support for:"
+else
+	@echo "Debug build of Equalizer with support for:"
+endif
+ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
+	@echo "    AGL/Carbon windowing"
+endif
+ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
+	@echo "    glX/X11 windowing"
+endif
+ifeq ($(findstring WGL, $(WINDOW_SYSTEM)),WGL)
+	@echo "    WGL/Win32 windowing"
+endif
+ifeq ($(findstring EQ_USE_OPENMP, $(DEFFLAGS)),EQ_USE_OPENMP)
+	@echo "    OpenMP (http://www.openmp.org/)"
+endif
+ifeq ($(findstring EQ_USE_PARACOMP, $(DEFFLAGS)),EQ_USE_PARACOMP)
+	@echo "    Paracomp (http://paracomp.sourceforge.net/)"
+endif
+ifeq ($(findstring EQ_USE_COMPRESSION, $(DEFFLAGS)),EQ_USE_COMPRESSION)
+	@echo "    Image Compression for network transfers"
+endif
 ifeq (Darwin,$(ARCH))
 	@echo "Set DYLD_LIBRARY_PATH to $(PWD)/$(LIBRARY_DIR)"
 else

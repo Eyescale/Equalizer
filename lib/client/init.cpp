@@ -13,14 +13,29 @@
 
 #include <eq/net/init.h>
 
+#ifdef EQ_USE_PARACOMP
+#  include <pcapi.h>
+#endif
+
 using namespace eqBase;
 using namespace std;
 
 namespace eq
 {
+
 EQ_EXPORT bool init( const int argc, char** argv, NodeFactory* nodeFactory )
 {
     EQINFO << "Equalizer v" << Version::getString() << " initializing" << endl;
+
+#ifdef EQ_USE_PARACOMP
+    EQINFO << "Initializing Paracomp library" << endl;
+    PCerr err = pcSystemInitialize( 0 );
+    if( err != PC_NO_ERROR )
+    {
+        EQERROR << "Paracomp initialization failed: " << err << endl;
+        return false;
+    }
+#endif
 
     // We do not use getopt_long because of:
     // - reordering of arguments
@@ -45,6 +60,10 @@ EQ_EXPORT bool init( const int argc, char** argv, NodeFactory* nodeFactory )
 
 EQ_EXPORT bool exit()
 {
+#ifdef EQ_USE_PARACOMP
+    pcSystemFinalize();
+#endif
+
     return eqNet::exit();
     Global::_nodeFactory = 0;
 }

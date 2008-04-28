@@ -17,6 +17,10 @@
 #include <eq/base/executionListener.h>
 #include <eq/base/monitor.h>
 
+#ifdef EQ_USE_PARACOMP
+#  include <pcapi.h>
+#endif
+
 #ifdef WIN32
 #  define bzero( ptr, size ) memset( ptr, 0, size );
 #endif
@@ -314,8 +318,6 @@ void Compositor::_assembleDBImages( Image* result,
         const Image*          image  = i->second;
         const vmml::Vector2i& offset = frame->getOffset();
         const PixelViewport&  pvp    = image->getPixelViewport();
-        const int32_t         destX  = offset.x + pvp.x - resultPVP.x;
-        const int32_t         destY  = offset.y + pvp.y - resultPVP.y;
 
         EQASSERT( image->getDepth( Frame::BUFFER_COLOR ) == 4 );
         EQASSERT( image->getDepth( Frame::BUFFER_DEPTH ) == 4 );
@@ -331,6 +333,20 @@ void Compositor::_assembleDBImages( Image* result,
                   result->getFormat( Frame::BUFFER_DEPTH ));
         EQASSERT( image->getType( Frame::BUFFER_DEPTH ) ==
                   result->getType( Frame::BUFFER_DEPTH ));
+
+#ifdef EQ_USE_PARACOMP
+        if( pvp == resultPVP && offset == vmml::Vector2i::ZERO )
+        {
+            // Use Paracomp to composite
+            if( !_assembleImage_PC( PC_COMP_DEPTH, result, image ))
+                EQWARN << "Paracomp compositing failed, using fallback" << endl;
+            else
+                continue; // Go to next input image
+        }
+#endif
+
+        const int32_t         destX  = offset.x + pvp.x - resultPVP.x;
+        const int32_t         destY  = offset.y + pvp.y - resultPVP.y;
 
         const uint32_t* color = reinterpret_cast< const uint32_t* >
             ( image->getPixelData( Frame::BUFFER_COLOR ));
@@ -417,6 +433,123 @@ void Compositor::_assemble2DImages( Image* result,
             }
         }
     }
+}
+
+#ifdef EQ_USE_PARACOMP
+namespace
+{
+static unsigned glToPCFormat( const unsigned glFormat, const unsigned glType )
+{
+    switch( glFormat )
+    {
+        case GL_RGBA:
+        case GL_RGBA8:
+            if( glType == GL_UNSIGNED_BYTE )
+                return PC_PF_RGBA8;
+            break;
+
+        case GL_BGRA:
+            if( glType == GL_UNSIGNED_BYTE )
+                return PC_PF_BGRA8;
+            break;
+
+        case GL_BGR:
+            if( glType == GL_UNSIGNED_BYTE )
+                return PC_PF_BGR8;
+            break;
+
+        case GL_DEPTH_COMPONENT:
+            if( glType == GL_FLOAT )
+                return PC_PF_Z32F;
+            break;
+    }
+
+    return 0;
+}
+}
+#endif
+
+bool Compositor::_assembleImage_PC( int operation, Image* result, 
+                                    const Image* source )
+{
+#ifdef EQ_USE_PARACOMP
+    const unsigned colorFormat = 
+        glToPCFormat( result->getFormat( Frame::BUFFER_COLOR ),
+                      result->getType(   Frame::BUFFER_COLOR ));
+    const unsigned depthFormat = 
+        glToPCFormat( result->getFormat( Frame::BUFFER_DEPTH ),
+                      result->getType(   Frame::BUFFER_DEPTH ));
+
+    if( colorFormat == 0 || depthFormat == 0 )
+    {
+        EQWARN << "Format or type of image not supported by Paracomp" << endl;
+        return false;
+    }
+
+    PCchannel input[2];
+    PCchannel output[2];
+    
+    input[0].pixelFormat = colorFormat;
+    input[1].pixelFormat = depthFormat;
+    output[0].pixelFormat = colorFormat;
+    output[1].pixelFormat = depthFormat;
+
+    input[0].size = result->getDepth( Frame::BUFFER_COLOR );
+    input[1].size = result->getDepth( Frame::BUFFER_DEPTH );
+    output[0].size = result->getDepth( Frame::BUFFER_COLOR );
+    output[1].size = result->getDepth( Frame::BUFFER_DEPTH );
+
+    const PixelViewport& pvp = source->getPixelViewport();
+    EQASSERT( pvp == result->getPixelViewport( ));
+
+    input[0].xOffset   = 0;
+    input[0].yOffset   = 0;
+    input[0].width     = pvp.w;
+    input[0].height    = pvp.h;
+    input[0].rowLength = pvp.w * input[0].size;
+    input[0].address   = source->getPixelData( Frame::BUFFER_COLOR );
+
+    input[1].xOffset   = 0;
+    input[1].yOffset   = 0;
+    input[1].width     = pvp.w;
+    input[1].height    = pvp.h;
+    input[1].rowLength = pvp.w * input[1].size;
+    input[1].address   = source->getPixelData( Frame::BUFFER_DEPTH );
+
+
+    output[0].xOffset   = 0;
+    output[0].yOffset   = 0;
+    output[0].width     = pvp.w;
+    output[0].height    = pvp.h;
+    output[0].rowLength = pvp.w * output[0].size;
+    output[0].address   = result->getPixelData( Frame::BUFFER_COLOR );
+
+    output[1].xOffset   = 0;
+    output[1].yOffset   = 0;
+    output[1].width     = pvp.w;
+    output[1].height    = pvp.h;
+    output[1].rowLength = pvp.w * output[1].size;
+    output[1].address   = result->getPixelData( Frame::BUFFER_DEPTH );
+
+    PCchannel* inputImages[2]     = { output, input };
+    PCchannel* outputImage[1]     = { output };
+    PCuint     nInputChannels[2]  = { 2, 2 };
+    PCuint     nOutputChannels[1] = { 2 };
+
+    const PCerr error = pcCompositeEXT( operation, 
+                                        2, nInputChannels, inputImages,
+                                        1, nOutputChannels, outputImage );
+    if( error != PC_NO_ERROR )
+    {
+        EQWARN << "Paracomp compositing failed: " << error << endl;
+        return false;
+    }
+
+    EQINFO << "Paracomp compositing successful" << endl;
+    return true;
+#else
+    return false;
+#endif
 }
 
 void Compositor::assembleFrame( const Frame* frame, Channel* channel )
