@@ -60,12 +60,12 @@ $(OBJECT_DIR)/%.h.gch: %.h
 
 $(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o: %.cpp
 	@mkdir -p $(@D)
-	@$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MM -MF $@.d -c $<
+	@$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MM -MF $@.d -c $< -MT $@
 	$(CXX) $(INCLUDEDIRS) $(ARCHFLAGS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
 
 $(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o: %.c
 	@mkdir -p $(@D)
-	@$(CC) $(INCLUDEDIRS) $(CFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MM -MF $@.d -c $<
+	@$(CC) $(INCLUDEDIRS) $(CFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MM -MF $@.d -c $< -MT $@
 	$(CC) $(INCLUDEDIRS) $(ARCHFLAGS) $(CFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
 
 # executables
@@ -80,7 +80,7 @@ $(PROGRAM_EXE): $(PCHEADERS) $(OBJECTS)
 ifndef PROGRAM
 $(BIN_DIR)/%: %.cpp
 	@mkdir -p $(@D)
-	@$(CXX) $< $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MM -MF $@.d
+	@$(CXX) $< $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MM -MF $@.d -MT $@
 	$(CXX) $< $(INCLUDEDIRS) $(ARCHFLAGS) $(CXXFLAGS) $(LINKDIRS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) -o $@ 
 endif # PROGRAMS
 
