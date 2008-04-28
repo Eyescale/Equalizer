@@ -36,7 +36,7 @@ postcompile: subdirs
 ifeq (Darwin,$(ARCH))
 	@echo "Set DYLD_LIBRARY_PATH to $(PWD)/$(LIBRARY_DIR)"
 else
-	@echo "Set LD_LIBRARY_PATH to $(PWD)/$(BUILD_DIR)/$(word 1, $(VARIANTS))/lib"
+	@echo "Set LD_LIBRARY_PATH to $(PWD)/$(LIBRARY_DIR)"
 endif
 
 RELNOTES: ../website/build/documents/RelNotes/RelNotes_0.5.0.html
