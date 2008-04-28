@@ -1,13 +1,14 @@
 
 include $(TOP)/make/system.mk
 
-SA_CXXFLAGS += -I.. -leq
-BIN_DIR      = $(ARCH)
+CXXFLAGS += -I..
+LDFLAGS  += -leq
+BIN_DIR   = $(ARCH)
 
 ifeq "${ARCH}" "Linux"
-  SA_CXXFLAGS += -lrt
+  LDFLAGS += -lrt
 ifeq "${SUBARCH}" "ia64"
-    SA_CXXFLAGS += -luuid
+    LDFLAGS += -luuid
 endif
 endif
 

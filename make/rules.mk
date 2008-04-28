@@ -1,5 +1,5 @@
 
-.PHONY: subdirs clean $(SUBDIRS) install build_variants
+.PHONY: subdirs clean $(SUBDIRS) install
 .SECONDARY: $(OBJECT_DIR)/%.o %.o %.d $(OBJECT_DIR)/%.d $(DEPENDENCIES)
 
 all: $(TARGETS)
@@ -25,7 +25,7 @@ subdirs: $(SUBDIRS)
 
 $(SUBDIRS):
 	@echo "$(DEPTH) $@"
-	@$(MAKE) TOP=$(SUBDIRTOP) VARIANT=$(VARIANT) SUBDIR=$(SUBDIR)/$@ -C $@
+	@$(MAKE) TOP=$(SUBDIRTOP) SUBDIR=$(SUBDIR)/$@ -C $@
 
 
 # installing and packaging
@@ -45,80 +45,43 @@ $(INCLUDE_DIR)/%: %
 	@cp $< $@
 
 # libraries
-$(FAT_DYNAMIC_LIB): $(THIN_DYNAMIC_LIBS)
-ifndef VARIANT
+$(DYNAMIC_LIB): $(PCHEADERS) $(OBJECTS)
 	@mkdir -p $(@D)
-	lipo -create $(THIN_DYNAMIC_LIBS) -output $@
-endif
+	$(LD) $(LINKDIRS) $(ARCHFLAGS) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 
-$(THIN_DYNAMIC_LIBS): $(PCHEADERS) $(OBJECTS)
-ifdef VARIANT
-	@mkdir -p $(@D)
-	$(LD) $(LINKDIRS) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
-else
-	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/lib$(MODULE).$(DSO_SUFFIX)=%) TOP=$(TOP) $@
-endif
-
-$(FAT_STATIC_LIB): $(THIN_STATIC_LIBS)
-ifndef VARIANT
-	@mkdir -p $(@D)
-	lipo -create $(THIN_STATIC_LIBS) -output $@
-endif
-
-$(THIN_STATIC_LIBS): $(PCHEADERS) $(OBJECTS)
-ifdef VARIANT
+$(STATIC_LIB): $(PCHEADERS) $(OBJECTS)
 	@mkdir -p $(@D)
 	@rm -f $@
-	$(AR) $(LINKDIRS) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
-else
-	@$(MAKE) VARIANT=$(@:$(BUILD_DIR)/%/lib/lib$(MODULE).a=%) TOP=$(TOP) $@
-endif
+	$(AR) $(LINKDIRS) $(ARCHFLAGS) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 
 $(OBJECT_DIR)/%.h.gch: %.h
 	@mkdir -p $(@D)
-	$(CXX) -x c++-header $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
+	$(CXX) -x c++-header $(INCLUDEDIRS) $(ARCHFLAGS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
 
 $(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o: %.cpp
 	@mkdir -p $(@D)
-	$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MMD -MF $@.d -c $< -o $@
+	@$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MM -MF $@.d -c $<
+	$(CXX) $(INCLUDEDIRS) $(ARCHFLAGS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
 
 $(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o: %.c
 	@mkdir -p $(@D)
-	$(CC) $(INCLUDEDIRS) $(CFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MMD -MF $@.d -c $< -o $@
+	@$(CC) $(INCLUDEDIRS) $(CFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MM -MF $@.d -c $<
+	$(CC) $(INCLUDEDIRS) $(ARCHFLAGS) $(CFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
 
 # executables
-$(FAT_PROGRAM): $(THIN_PROGRAMS)
-ifndef VARIANT
-	@mkdir -p $(@D)
-	lipo -create $(THIN_PROGRAMS) -output $@
-endif
-
-$(APP_PROGRAM): $(FAT_PROGRAM)
+$(PROGRAM_APP): $(PROGRAM_EXE)
 	@mkdir -p $(@D)
 	ln -f $< $@
 
-$(THIN_PROGRAMS): $(PCHEADERS) $(OBJECTS)
-ifdef VARIANT
+$(PROGRAM_EXE): $(PCHEADERS) $(OBJECTS)
 	@mkdir -p $(@D)
-	$(LD) $(INCLUDEDIRS) $(OBJECTS) $(LINKDIRS) $(LDFLAGS) -o $@
-else
-	@$(MAKE) VARIANT=$(subst .,,$(suffix $@)) TOP=$(TOP) $@
-endif
+	$(LD) $(INCLUDEDIRS) $(OBJECTS) $(LINKDIRS) $(ARCHFLAGS) $(LDFLAGS) -o $@
 
 ifndef PROGRAM
-ifdef VARIANT
-$(BIN_DIR)/%.$(VARIANT): %.cpp
+$(BIN_DIR)/%: %.cpp
 	@mkdir -p $(@D)
-	$(CXX) $< $(INCLUDEDIRS) $(CXXFLAGS) $(LINKDIRS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_CXXFLAGS) -MMD -MF $@.d -o $@ 
-
-else # VARIANT
-
-$(FAT_SIMPLE_PROGRAMS): $(THIN_SIMPLE_PROGRAMS)
-	lipo -create $(foreach V,$(VARIANTS),$@.$(V)) -output $@
-
-$(THIN_SIMPLE_PROGRAMS): $(SIMPLE_CXXFILES)
-	@$(MAKE) VARIANT=$(subst .,,$(suffix $@)) TOP=$(TOP) $@
-endif # VARIANT
+	@$(CXX) $< $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MM -MF $@.d
+	$(CXX) $< $(INCLUDEDIRS) $(ARCHFLAGS) $(CXXFLAGS) $(LINKDIRS) $(LDFLAGS) -DSUBDIR=\"$(SUBDIR)\" $(SA_LDFLAGS) -o $@ 
 endif # PROGRAMS
 
 %.testOk: %
@@ -130,17 +93,11 @@ endif # PROGRAMS
 
 # cleaning targets
 clean:
-ifdef VARIANT
 	rm -f *~ .*~ $(TARGETS) $(CLEAN_EXTRA) $(DEPENDENCIES) $(OBJECTS)
 ifdef SUBDIRS
 	@for dir in $(SUBDIRS); do \
 		echo "$(DEPTH) $$dir clean"; \
-		$(MAKE) TOP=$(SUBDIRTOP) VARIANT=$(VARIANT) SUBDIR=$(SUBDIR)/$$dir -C $$dir $@ ;\
-	done
-endif
-else # VARIANT
-	@for variant in $(VARIANTS); do \
-		$(MAKE) VARIANT=$$variant clean; \
+		$(MAKE) TOP=$(SUBDIRTOP) SUBDIR=$(SUBDIR)/$$dir -C $$dir $@ ;\
 	done
 endif
 

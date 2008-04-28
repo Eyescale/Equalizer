@@ -17,5 +17,4 @@ LDFLAGS            += -lrpcrt4 -lws2_32 -lmswsock -L$(LIBRARY_DIR) -lpthread
 IMP_LIB             = $(@D)/$(@F:lib%=cyg%)
 DSO_LDFLAGS        += -Wl,--out-implib=$(IMP_LIB) \
                       -Wl,--export-all-symbols -Wl,--enable-auto-import
-PTHREAD_LIBS = $(foreach V,$(VARIANTS),$(BUILD_DIR)/$(V)/lib/pthread.dll) \
-               $(foreach V,$(VARIANTS),$(BUILD_DIR)/$(V)/lib/pthread.def)
+PTHREAD_LIBS = $(BUILD_DIR)/lib/pthread.dll) $(BUILD_DIR)/lib/pthread.def)

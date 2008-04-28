@@ -1,5 +1,4 @@
 
-BUILD_FAT        = 1
 DSO_SUFFIX       = dylib
 DSO_LDFLAGS     += -dynamiclib
 WINDOW_SYSTEM   ?= GLX AGL
@@ -15,26 +14,20 @@ ifeq ($(findstring 9., $(RELARCH)),9.)
   AGL_OR_64BIT  = AGL
 
 ifeq ($(findstring 64BIT, $(AGL_OR_64BIT)), 64BIT)
-  VARIANTS      ?= i386 ppc x86_64 ppc64
+  ARCHFLAGS     ?= -arch i386 -arch ppc -arch x86_64 -arch ppc64
   WINDOW_SYSTEM  = GLX
 endif # 64BIT
 endif # LEOPARD
 
 ifeq ($(findstring i386, $(SUBARCH)), i386)
-  VARIANTS ?= i386 ppc
+  ARCHFLAGS ?= -arch i386 -arch ppc
 else
-  VARIANTS ?= ppc
+  ARCHFLAGS ?= -arch ppc
 endif
 
 ifeq ($(findstring g++-4.2, $(CXX)),g++-4.2)
   USE_OPENMP = 1
 endif # g++ 4.2
-
-ifdef VARIANT
-  CXXFLAGS += -arch $(VARIANT)
-  CFLAGS   += -arch $(VARIANT)
-  LDFLAGS  += -arch $(VARIANT)
-endif
 
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
   WINDOW_SYSTEM_LIBS += -L/usr/X11R6/lib -lX11 -lGL
@@ -47,7 +40,7 @@ endif # GLX
 
 ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
   WINDOW_SYSTEM_LIBS += -framework AGL -framework OpenGL -framework Carbon
-  PROGRAMS           += $(APP_PROGRAM)
+  PROGRAMS            = $(PROGRAM_EXE) $(PROGRAM_APP)
 endif
 
 AR           = libtool

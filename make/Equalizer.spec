@@ -22,7 +22,7 @@ multipipe application.
 %setup -q
 
 %build
-make VARIANTS="32 64"
+make
 
 %install
 make DESTDIR=$RPM_BUILD_ROOT install

@@ -1,10 +1,11 @@
 
 include $(TOP)/make/system.mk
 
-CXXFLAGS += -I.. -leq -lpthread
+CXXFLAGS += -I..
+LDFLAGS  += -leq -lpthread
 
 ifeq "${ARCH}" "Linux"
-SA_CXXFLAGS += -lrt -luuid
+LDFLAGS += -lrt -luuid
 endif
 
 TARGETS = $(SIMPLE_PROGRAMS)

@@ -1,6 +1,4 @@
 
-VARIANT     = n64
-
 CC          = cc
 CXX         = CC
 DEP_CXX     = g++

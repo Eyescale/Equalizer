@@ -25,12 +25,9 @@ DEPTH     := $(subst ../,--,$(TOP))
 DEPTH     := $(subst .,-->,$(DEPTH))
 
 # general variables, targets, etc.
-VARIANTS       ?= $(SUBARCH)    # different architectures, e.g., i386, ppc
-
-
 BUILD_DIR_BASE  = build/$(ARCH)
 BUILD_DIR       = $(TOP)/$(BUILD_DIR_BASE)
-LIBRARY_DIR     = $(BUILD_DIR)/$(VARIANT)/lib
+LIBRARY_DIR     = $(BUILD_DIR)/lib
 INCLUDEDIRS     = -I$(BUILD_DIR)/include
 LINKDIRS        = -L$(LIBRARY_DIR)
 BIN_DIR        ?= $(BUILD_DIR)/bin
@@ -43,7 +40,7 @@ DEFFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DEQ_CHECK_THREADSAFETY \
 
 ifeq (0,${MAKELEVEL})
 
-LD              = $(CXX) # use c++ compiler for linking
+LD        = $(CXX) # use c++ compiler for linking
 
 ifneq ($(findstring -g, $(CXXFLAGS)),-g)
     DEFFLAGS       += -DNDEBUG
@@ -95,52 +92,26 @@ SHARE_DIR       = $(BUILD_DIR)/share/Equalizer
 # source code variables
 SIMPLE_CXXFILES = $(wildcard *.cpp)
 OBJECT_DIR      = $(TOP)/obj/$(SUBDIR)
-OBJECT_SUFFIX   = $(ARCH).$(VARIANT)
+OBJECT_SUFFIX   = $(ARCH)
 
-ifndef VARIANT
-  OBJECTS       = build_variants
-else
-  OBJECTS       = $(CXXFILES:%.cpp=$(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o) \
+OBJECTS         = $(CXXFILES:%.cpp=$(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o) \
 		  $(CFILES:%.c=$(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o)
-  DEPENDENCIES  = $(OBJECTS:%=%.d) $(THIN_SIMPLE_PROGRAMS:%=%.d)
+DEPENDENCIES    = $(OBJECTS:%=%.d) $(SIMPLE_PROGRAMS:%=%.d)
 #  PCHEADERS     = $(HEADER_SRC:%=$(OBJECT_DIR)/%.gch)
-endif
 
 # library variables
 LIBRARY           = $(DYNAMIC_LIB)
-FAT_STATIC_LIB    = $(BUILD_DIR)/lib/lib$(MODULE).a
-FAT_DYNAMIC_LIB   = $(BUILD_DIR)/lib/lib$(MODULE).$(DSO_SUFFIX)
 
-ifdef VARIANT
-THIN_STATIC_LIBS  = $(BUILD_DIR)/$(VARIANT)/lib/lib$(MODULE).a
-THIN_DYNAMIC_LIBS = $(BUILD_DIR)/$(VARIANT)/lib/lib$(MODULE).$(DSO_SUFFIX)
-
-else
-
-THIN_STATIC_LIBS  = $(foreach V,$(VARIANTS),$(BUILD_DIR)/$(V)/lib/lib$(MODULE).a)
-THIN_DYNAMIC_LIBS = $(foreach V,$(VARIANTS),$(BUILD_DIR)/$(V)/lib/lib$(MODULE).$(DSO_SUFFIX))
-endif
+STATIC_LIB  = $(BUILD_DIR)/lib/lib$(MODULE).a)
+DYNAMIC_LIB = $(BUILD_DIR)/lib/lib$(MODULE).$(DSO_SUFFIX)
 
 # executable target
-THIN_PROGRAMS     = $(foreach V,$(VARIANTS),$(BIN_DIR)/$(PROGRAM).$(V))
-FAT_PROGRAM       = $(BIN_DIR)/$(PROGRAM)
-APP_PROGRAM       = $(BIN_DIR)/$(PROGRAM).app/Contents/MacOS/$(PROGRAM)
+PROGRAMS    ?= $(PROGRAM_EXE)
+PROGRAM_EXE  = $(BIN_DIR)/$(PROGRAM)
+PROGRAM_APP  = $(BIN_DIR)/$(PROGRAM).app/Contents/MacOS/$(PROGRAM)
 
-FAT_SIMPLE_PROGRAMS  = $(SIMPLE_CXXFILES:%.cpp=$(BIN_DIR)/%)
-THIN_SIMPLE_PROGRAMS = $(foreach V,$(VARIANTS),$(foreach P,$(FAT_SIMPLE_PROGRAMS),$(P).$(V)))
-TESTS               ?= $(THIN_SIMPLE_PROGRAMS:%=%.testOk)
-
-DYNAMIC_LIB       = $(THIN_DYNAMIC_LIBS)
-STATIC_LIB        = $(THIN_STATIC_LIBS)
-PROGRAMS         += $(THIN_PROGRAMS)
-SIMPLE_PROGRAMS   = $(THIN_SIMPLE_PROGRAMS)
-
-ifdef BUILD_FAT
-DYNAMIC_LIB      += $(FAT_DYNAMIC_LIB)
-STATIC_LIB       += $(FAT_STATIC_LIB)
-PROGRAMS         += $(FAT_PROGRAM)
-SIMPLE_PROGRAMS  += $(FAT_SIMPLE_PROGRAMS)
-endif
+SIMPLE_PROGRAMS  = $(SIMPLE_CXXFILES:%.cpp=$(BIN_DIR)/%)
+TESTS           ?= $(SIMPLE_PROGRAMS:%=%.testOk)
 
 # install variables
 INSTALL_CMD     = $(TOP)/install.sh

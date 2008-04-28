@@ -1,12 +1,12 @@
 
 include $(TOP)/make/system.mk
 
-CXXFLAGS    += -I.. -I$(TOP)/server
-SA_CXXFLAGS += -lpthread -leq -leqserver
-BIN_DIR      = $(ARCH)
+CXXFLAGS += -I.. -I$(TOP)/server
+LDFLAGS  += -lpthread -leq -leqserver
+BIN_DIR   = $(ARCH)
 
 ifeq "${ARCH}" "Linux"
-SA_CXXFLAGS += -lrt -luuid
+LDFLAGS += -lrt -luuid
 endif
 
 TARGETS = $(SIMPLE_PROGRAMS) $(TESTS)

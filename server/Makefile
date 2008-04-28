@@ -44,14 +44,14 @@ endif
 
 MODULE  = eqserver
 
-CXXFLAGS     += $(WINDOW_SYSTEM_INCS) -DEQUALIZERSERVERLIBRARY_EXPORTS
-LDFLAGS      += -leq
-SA_CXXFLAGS  += -leqserver
+CXXFLAGS    += $(WINDOW_SYSTEM_INCS) -DEQUALIZERSERVERLIBRARY_EXPORTS
+LDFLAGS     += -leq
+SA_LDFLAGS  += -leqserver
 
 ifeq "${ARCH}" "Linux"
-  SA_CXXFLAGS += -lrt
+  SA_LDFLAGS += -lrt
 ifeq "${SUBARCH}" "ia64"
-    SA_CXXFLAGS += -luuid
+    SA_LDFLAGS += -luuid
 endif
 endif
 
