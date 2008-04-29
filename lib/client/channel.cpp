@@ -213,7 +213,8 @@ void Channel::setupAssemblyState()
 {
     EQ_GL_ERROR( "before setupAssemblyState" );
     glPushAttrib( GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_VIEWPORT_BIT | 
-                  GL_SCISSOR_BIT | GL_LINE_BIT | GL_PIXEL_MODE_BIT );
+                  GL_SCISSOR_BIT | GL_LINE_BIT | GL_PIXEL_MODE_BIT | 
+                  GL_POLYGON_BIT );
 
     glDisable( GL_DEPTH_TEST );
     glDisable( GL_BLEND );
@@ -229,6 +230,8 @@ void Channel::setupAssemblyState()
     glDisable( GL_CLIP_PLANE3 );
     glDisable( GL_CLIP_PLANE4 );
     glDisable( GL_CLIP_PLANE5 );
+    
+    glPolygonMode( GL_FRONT, GL_FILL );
 
     EQASSERT( _window );    
     const PixelViewport& pvp = _window->getPixelViewport();
