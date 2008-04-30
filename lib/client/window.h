@@ -164,6 +164,7 @@ namespace eq
             IATTR_HINT_DECORATION,
             IATTR_HINT_SWAPSYNC,
             IATTR_HINT_DRAWABLE,
+            IATTR_HINT_STATISTICS,
             IATTR_PLANES_COLOR,
             IATTR_PLANES_ALPHA,
             IATTR_PLANES_DEPTH,
@@ -598,7 +599,7 @@ namespace eq
          * @param frameNumber the frame to finish.
          */
         virtual void frameFinish( const uint32_t frameID, 
-                                  const uint32_t frameNumber ) 
+                                  const uint32_t frameNumber )
             { releaseFrame( frameNumber ); }
 
         /** 
@@ -652,6 +653,7 @@ namespace eq
         friend class GLXEventHandler;
         friend class WGLEventHandler;
         friend class AGLEventHandler;
+        friend class WindowStatistics;
         //*}
 
 

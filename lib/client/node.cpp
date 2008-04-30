@@ -211,6 +211,18 @@ void Node::addStatistics( const FrameStatistics& frameStats )
     _statisticsMutex.unset();
 }
 
+void Node::getStatistics( std::vector< FrameStatistics >& statistics )
+{
+    _statisticsMutex.set();
+
+    for( std::deque< FrameStatistics >::const_iterator i = _statistics.begin();
+         i != _statistics.end(); ++i )
+
+        statistics.push_back( *i );
+
+    _statisticsMutex.unset();
+}
+
 #ifdef EQ_TRANSMISSION_API
 const void* Node::receiveData( uint64_t* size )
 {

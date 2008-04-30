@@ -546,6 +546,8 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
                     "hint_swapsync     " :
                 i==eq::Window::IATTR_HINT_DRAWABLE ?
                     "hint_drawable     " :
+                i==eq::Window::IATTR_HINT_STATISTICS ?
+                    "hint_statistics   " :
                 i==eq::Window::IATTR_PLANES_COLOR ? 
                     "planes_color      " :
                 i==eq::Window::IATTR_PLANES_ALPHA ?

@@ -109,7 +109,7 @@ namespace eqs
          *         <code>false</code> if not.
          */
         bool syncConfigInit();
-        
+
         /** 
          * Starts exiting this node.
          */

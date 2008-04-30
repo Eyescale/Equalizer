@@ -80,6 +80,9 @@ namespace eq
         /** Add all received statistics for one frame. */
         void addStatistics( const FrameStatistics& frameStats );
  
+        /** Get all received statistics. */
+        void getStatistics( std::vector< FrameStatistics >& statistics );
+
 #ifdef EQ_TRANSMISSION_API
         /** @name Data Transmission. */
         //*{

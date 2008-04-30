@@ -51,6 +51,7 @@ namespace eq
         CMD_CONFIG_FINISH_ALL_FRAMES_REPLY,
         CMD_CONFIG_EVENT,
         CMD_CONFIG_DATA,
+        CMD_CONFIG_START_CLOCK,
         CMD_CONFIG_CUSTOM
     };
 
@@ -81,6 +82,7 @@ namespace eq
         CMD_PIPE_FRAME_FINISH,
         CMD_PIPE_FRAME_DRAW_FINISH,
         CMD_PIPE_STOP_THREAD,
+        CMD_PIPE_FRAME_START_CLOCK,
         CMD_PIPE_CUSTOM
     };
 

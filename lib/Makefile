@@ -68,6 +68,7 @@ HEADER_SRC = \
 	net/types.h \
 	client/channel.h \
 	client/channelEvent.h \
+	client/channelStatistics.h \
 	client/client.h \
 	client/colorMask.h \
 	client/commandQueue.h \
@@ -76,6 +77,7 @@ HEADER_SRC = \
 	client/config.h \
 	client/configEvent.h \
 	client/configParams.h \
+	client/configStatistics.h \
 	client/event.h \
 	client/eventHandler.h \
 	client/eye.h \
@@ -97,13 +99,13 @@ HEADER_SRC = \
 	client/pixelViewport.h \
 	client/range.h \
 	client/renderContext.h \
-	client/scopedStatistics.h \
 	client/server.h \
 	client/types.h \
 	client/version.h \
 	client/viewport.h \
 	client/window.h \
 	client/windowEvent.h \
+	client/windowStatistics.h \
 	client/windowSystem.h \
 	client/X11Connection.h
 
@@ -159,12 +161,14 @@ CXXFILES = \
 	net/unbufferedMasterCM.cpp \
 	client/channel.cpp \
 	client/channelEvent.cpp \
+	client/channelStatistics.cpp \
 	client/client.cpp \
 	client/colorMask.cpp \
 	client/commandQueue.cpp \
 	client/config.cpp \
 	client/configEvent.cpp \
 	client/configParams.cpp \
+	client/configStatistics.cpp \
 	client/event.cpp \
 	client/eventHandler.cpp \
 	client/frame.cpp \
@@ -178,11 +182,11 @@ CXXFILES = \
 	client/pipe.cpp \
 	client/range.cpp \
 	client/renderContext.cpp \
-	client/scopedStatistics.cpp \
 	client/server.cpp \
 	client/version.cpp \
 	client/window.cpp \
 	client/windowEvent.cpp \
+	client/windowStatistics.cpp \
 	client/windowSystem.cpp
 
 CFLAGS += -DGLEW_BUILD -DEQ_DEFINES_H

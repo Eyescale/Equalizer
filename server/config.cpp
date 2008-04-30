@@ -436,6 +436,19 @@ bool Config::_finishInit()
             success = false;
         }
     }
+
+    // start global clock on all nodes
+    eq::ConfigStartClockPacket packet;
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    {
+        Node*               node    = *i;
+        RefPtr<eqNet::Node> netNode = node->getNode();
+        if( !node->isUsed() || !netNode->isConnected( ))
+            continue;
+
+        send( netNode, packet );
+    }
+    send( _appNetNode, packet );
     return success;
 }
 

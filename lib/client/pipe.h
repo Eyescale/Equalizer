@@ -114,7 +114,7 @@ namespace eq
         CGDirectDisplayID getCGDisplayID() const { return _cgDisplayID; }
 
         /** @return the time in ms elapsed since the frame started. */
-        float getFrameTime() const { return _frameClock.getTimef(); }
+        int64_t getFrameTime() const{ return getConfig()->getTime()-_frameTime;}
 
         /** @return the pipe's event handler, or 0. */
         EventHandler* getEventHandler() { return _eventHandler; }
@@ -372,9 +372,6 @@ namespace eq
                                       const uint32_t instanceID, 
                                       eqNet::Session* session );
 
-        /** @sa eqNet::Base::dispatchCommand. */
-        virtual bool dispatchCommand( eqNet::Command& command );
-
     private:
         //-------------------- Members --------------------
         /** The parent node. */
@@ -431,11 +428,11 @@ namespace eq
         eqBase::Monitor<uint32_t> _unlockedFrame;
 
         /** The running per-frame statistic clocks. */
-        std::deque<eqBase::Clock> _frameClocks;
-		eqBase::SpinLock          _frameClockMutex;
+        std::deque< int64_t > _frameTimes;
+        eqBase::SpinLock      _frameTimeMutex;
 
-        /** The clock for the currently active frame. */
-        eqBase::Clock _frameClock;
+        /** The base time for the currently active frame. */
+        int64_t _frameTime;
 
         /** All assembly frames used by the pipe during rendering. */
         eqNet::IDHash< Frame* > _frames;
@@ -472,7 +469,6 @@ namespace eq
         /** Initialize the generic wglew context. */
         void _configInitWGLEW();
 
-        void _startFrameClock();
         void _flushFrames();
 
         /* The command functions. */
@@ -480,6 +476,7 @@ namespace eq
         eqNet::CommandResult _cmdDestroyWindow( eqNet::Command& command );
         eqNet::CommandResult _cmdConfigInit( eqNet::Command& command );
         eqNet::CommandResult _cmdConfigExit( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameStartClock( eqNet::Command& command );
         eqNet::CommandResult _cmdFrameStart( eqNet::Command& command );
         eqNet::CommandResult _cmdFrameFinish( eqNet::Command& command );
         eqNet::CommandResult _cmdFrameDrawFinish( eqNet::Command& command );

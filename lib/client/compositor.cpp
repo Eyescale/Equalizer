@@ -8,10 +8,10 @@
 #include "compositor.h"
 
 #include "channel.h"
+#include "channelStatistics.h"
 #include "frame.h"
 #include "log.h"
 #include "image.h"
-#include "scopedStatistics.h"
 #include "windowSystem.h"
 
 #include <eq/base/executionListener.h>
@@ -56,7 +56,7 @@ public:
 static  ImageDestructor _imageDestructor;
 
 
-static bool _useCPUAssembly( const vector< Frame* >& frames )
+static bool _useCPUAssembly( const vector< Frame* >& frames, Channel* channel )
 {
     // It doesn't make sense to use CPU-assembly for only one frame
     if( frames.size() < 2 )
@@ -91,7 +91,10 @@ static bool _useCPUAssembly( const vector< Frame* >& frames )
          i != frames.end(); ++i )
     {
         const Frame* frame = *i;
-        frame->waitReady();
+        {
+            ChannelStatistics event( Statistic::CHANNEL_WAIT_FRAME, channel );
+            frame->waitReady();
+        }
 
         const vector< Image* >& images = frame->getImages();        
         for( vector< Image* >::const_iterator j = images.begin(); 
@@ -113,7 +116,7 @@ static bool _useCPUAssembly( const vector< Frame* >& frames )
 void Compositor::assembleFrames( const vector< Frame* >& frames,
                                  Channel* channel )
 {
-    if( _useCPUAssembly( frames ))
+    if( _useCPUAssembly( frames, channel ))
         assembleFramesCPU( frames, channel );
     else
         assembleFramesUnsorted( frames, channel );
@@ -122,7 +125,7 @@ void Compositor::assembleFrames( const vector< Frame* >& frames,
 void Compositor::assembleFramesSorted( const vector< Frame* >& frames,
                                        Channel* channel )
 {
-    if( _useCPUAssembly( frames ))
+    if( _useCPUAssembly( frames, channel ))
     {
         assembleFramesCPU( frames, channel );
         return;
@@ -132,7 +135,10 @@ void Compositor::assembleFramesSorted( const vector< Frame* >& frames,
          i != frames.end(); ++i )
     {
         Frame* frame = *i;
-        frame->waitReady( );
+        {
+            ChannelStatistics event( Statistic::CHANNEL_WAIT_FRAME, channel );
+            frame->waitReady( );
+        }
         assembleFrame( frame, channel );
     }
 }
@@ -165,7 +171,7 @@ void Compositor::assembleFramesUnsorted( const vector< Frame* >& frames,
     while( !unusedFrames.empty( ))
     {
         {
-            ScopedStatistics event( Statistic::CHANNEL_WAIT_FRAME, channel );
+            ChannelStatistics event( Statistic::CHANNEL_WAIT_FRAME, channel );
             monitor.waitGE( ++nUsedFrames );
         }
 

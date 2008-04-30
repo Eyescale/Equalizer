@@ -14,6 +14,8 @@
 #include "nodeFactory.h"
 #include "packets.h"
 #include "windowEvent.h"
+#include "windowStatistics.h"
+
 #ifdef GLX
 #  include "glXEventHandler.h"
 #endif
@@ -42,6 +44,7 @@ std::string Window::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_HINT_DECORATION ),
     MAKE_ATTR_STRING( IATTR_HINT_SWAPSYNC ),
     MAKE_ATTR_STRING( IATTR_HINT_DRAWABLE ),
+    MAKE_ATTR_STRING( IATTR_HINT_STATISTICS ),
     MAKE_ATTR_STRING( IATTR_PLANES_COLOR ),
     MAKE_ATTR_STRING( IATTR_PLANES_ALPHA ),
     MAKE_ATTR_STRING( IATTR_PLANES_DEPTH ),
@@ -121,11 +124,11 @@ void Window::_addChannel( Channel* channel )
 
 void Window::_removeChannel( Channel* channel )
 {
-    ChannelVector::iterator iter = find( _channels.begin(), _channels.end(), 
-                                            channel );
-    EQASSERT( iter != _channels.end( ))
+    ChannelVector::iterator i = find( _channels.begin(), _channels.end(), 
+                                      channel );
+    EQASSERT( i != _channels.end( ))
     
-    _channels.erase( iter );
+    _channels.erase( i );
 }
 
 Channel* Window::_findChannel( const uint32_t id )
@@ -1932,6 +1935,13 @@ void Window::makeCurrent() const
 
 void Window::swapBuffers()
 {
+#ifndef NDEBUG
+    if( !_channels.empty( ))
+        _channels.back()->drawStatistics();
+#endif
+    
+    WindowStatistics stat( Statistic::WINDOW_SWAP, this );
+
     switch( _pipe->getWindowSystem( ))
     {
 #ifdef GLX
@@ -1988,7 +1998,9 @@ bool Window::processEvent( const WindowEvent& event )
         case Event::POINTER_MOTION:
         case Event::POINTER_BUTTON_PRESS:
         case Event::POINTER_BUTTON_RELEASE:
+        case Event::STATISTIC:
             break;
+
 
         case Event::UNKNOWN:
             // Handle other window-system native events here

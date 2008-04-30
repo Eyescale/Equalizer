@@ -180,6 +180,9 @@ namespace eq
          * @param true when the event was handled, false if not.
          */
         virtual bool processEvent( const ChannelEvent& event );
+
+        /** Draw a statistics overlay. */
+        virtual void drawStatistics();
         //*}
 
         /**

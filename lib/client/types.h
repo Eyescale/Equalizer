@@ -33,11 +33,11 @@ typedef eqBase::RefPtr< X11Connection > X11ConnectionPtr;
 
 typedef std::vector< Statistic >                Statistics;
 
-// channel id -> statistics
-typedef std::map< uint32_t, Statistics >        ConfigStatistics;
+// originator id -> statistics
+typedef std::map< uint32_t, Statistics >        SortedStatistics;
 
 // frame id, config statistics
-typedef std::pair< uint32_t, ConfigStatistics > FrameStatistics;
+typedef std::pair< uint32_t, SortedStatistics > FrameStatistics;
 
 
 }

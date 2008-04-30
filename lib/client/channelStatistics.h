@@ -2,8 +2,8 @@
 /* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#ifndef EQ_SCOPEDSTATISTICS_H
-#define EQ_SCOPEDSTATISTICS_H
+#ifndef EQ_CHANNELSTATISTICS_H
+#define EQ_CHANNELSTATISTICS_H
 
 #include <eq/client/channelEvent.h>
 
@@ -14,15 +14,15 @@ namespace eq
     /**
      * Holds one statistics event, used for profiling.
      */
-    class ScopedStatistics
+    class ChannelStatistics
     {
     public:
-        ScopedStatistics( const Statistic::Type type, Channel* channel );
-        ~ScopedStatistics();
+        ChannelStatistics( const Statistic::Type type, Channel* channel );
+        ~ChannelStatistics();
 
     private:
         ChannelEvent _event;
     };
 }
 
-#endif // EQ_SCOPEDSTATISTICS_H
+#endif // EQ_CHANNELSTATISTICS_H

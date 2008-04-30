@@ -6,6 +6,7 @@
 
 #include "client.h"
 #include "configEvent.h"
+#include "configStatistics.h"
 #include "frame.h"
 #include "frameData.h"
 #include "global.h"
@@ -67,6 +68,8 @@ Config::Config( eqBase::RefPtr< Server > server )
                      CommandFunc<Config>( this, &Config::_cmdData ),
                      queue );
 #endif
+    registerCommand( CMD_CONFIG_START_CLOCK, 
+                     CommandFunc<Config>( this, &Config::_cmdStartClock ), 0 );
 }
 
 Config::~Config()
@@ -180,6 +183,7 @@ bool Config::exit()
 
 uint32_t Config::startFrame( const uint32_t frameID )
 {
+    ConfigStatistics stat( Statistic::CONFIG_START_FRAME, this );
     ConfigStartFramePacket packet;
     packet.requestID = _requestHandler.registerRequest();
     packet.frameID   = frameID;
@@ -194,11 +198,14 @@ uint32_t Config::startFrame( const uint32_t frameID )
     _requestHandler.waitRequest( packet.requestID );
     EQASSERT( frameNumber == _currentFrame );
     EQLOG( LOG_ANY ) << "---- Started Frame ---- " << frameNumber << endl;
+
+    stat.event.data.statistic.frameNumber = frameNumber;
     return frameNumber;
 }
 
 uint32_t Config::finishFrame()
 {
+    const int64_t startTime = getTime();
     ConfigFinishFramePacket packet;
     send( packet );
 
@@ -212,7 +219,7 @@ uint32_t Config::finishFrame()
         client->processCommand();
 
     handleEvents();
-    _updateStatistics( frameToFinish );
+    _updateStatistics( frameToFinish, startTime );
 
     EQLOG( LOG_ANY ) << "----- Finish Frame ---- " << frameToFinish << " ("
                      << _currentFrame << ')' << endl;
@@ -317,8 +324,8 @@ bool Config::handleEvent( const ConfigEvent* event )
                 FrameStatistics& frameStats = *i;
                 if( frameStats.first == frame )
                 {
-                    ConfigStatistics& configStats = frameStats.second;
-                    Statistics&       statistics  = configStats[ channelID ];
+                    SortedStatistics& sortedStats = frameStats.second;
+                    Statistics&       statistics  = sortedStats[ channelID ];
                     statistics.push_back( statistic );
                     return true;
                 }
@@ -328,8 +335,8 @@ bool Config::handleEvent( const ConfigEvent* event )
             FrameStatistics& frameStats = _statistics.back();
             frameStats.first = frame;
 
-            ConfigStatistics& configStats = frameStats.second;
-            Statistics&       statistics  = configStats[ channelID ];
+            SortedStatistics& sortedStats = frameStats.second;
+            Statistics&       statistics  = sortedStats[ channelID ];
             statistics.push_back( statistic );
             
             return true;
@@ -339,13 +346,30 @@ bool Config::handleEvent( const ConfigEvent* event )
     return false;
 }
 
-void Config::_updateStatistics( const uint32_t finishedFrame )
+void Config::_updateStatistics( const uint32_t finishedFrame,
+                                const uint64_t startTime )
 {
+    // We generate the finish event for the frame manually, since it would not
+    // be processed anymore using the normal event flow in time.
+    if( finishedFrame > 0 )
+    {
+        ConfigEvent event;
+        event.data.type                  = Event::STATISTIC;
+        event.data.originator            = getID();
+        event.data.statistic.type        = Statistic::CONFIG_FINISH_FRAME;
+        event.data.statistic.frameNumber = finishedFrame;
+        event.data.statistic.startTime   = startTime;
+        event.data.statistic.endTime     = getTime();
+        handleEvent( &event );
+    }
+
+    // push the statistics for the finished frame to the node for visualization
     for( deque< FrameStatistics >::iterator i = _statistics.begin();
          i != _statistics.end(); ++i )
     {
         FrameStatistics& frameStats = *i;
-        EQASSERT( frameStats.first >= finishedFrame );
+        EQASSERTINFO( frameStats.first >= finishedFrame, 
+                      frameStats.first << " < " << finishedFrame );
         
         if( frameStats.first > finishedFrame )
             // No data for this frame
@@ -585,4 +609,13 @@ eqNet::CommandResult Config::_cmdData( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 #endif
+
+eqNet::CommandResult Config::_cmdStartClock( eqNet::Command& command )
+{
+    _clock.reset();
+
+    EQVERB << "start global clock" << endl;
+    return eqNet::COMMAND_HANDLED;
+}
+
 }

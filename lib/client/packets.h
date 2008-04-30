@@ -384,6 +384,15 @@ namespace eq
     };
 #endif
 
+    struct ConfigStartClockPacket : public ConfigPacket
+    {
+        ConfigStartClockPacket()
+            {
+                command       = CMD_CONFIG_START_CLOCK;
+                size          = sizeof( ConfigStartClockPacket );
+            }
+    };
+
     //------------------------------------------------------------
     // Node
     //------------------------------------------------------------
@@ -575,6 +584,15 @@ namespace eq
             }
 
         bool     result;
+    };
+
+    struct PipeFrameStartClockPacket : public eqNet::ObjectPacket
+    {
+        PipeFrameStartClockPacket()
+            {
+                command       = CMD_PIPE_FRAME_START_CLOCK;
+                size          = sizeof( PipeFrameStartClockPacket );
+            }
     };
 
     struct PipeFrameStartPacket : public eqNet::ObjectPacket

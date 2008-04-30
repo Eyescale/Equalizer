@@ -5,6 +5,7 @@
 #include "channel.h"
 
 #include "channelEvent.h"
+#include "channelStatistics.h"
 #include "compositor.h"
 #include "commands.h"
 #include "configEvent.h"
@@ -15,7 +16,6 @@
 #include "packets.h"
 #include "range.h"
 #include "renderContext.h"
-#include "scopedStatistics.h"
 
 #include <eq/net/command.h>
 
@@ -153,6 +153,7 @@ void Channel::addStatistic( ChannelEvent& event )
 //---------------------------------------------------------------------------
 // operations
 //---------------------------------------------------------------------------
+
 void Channel::frameClear( const uint32_t frameID )
 {
     EQ_GL_CALL( applyBuffer( ));
@@ -391,6 +392,164 @@ bool Channel::processEvent( const ChannelEvent& event )
     return true;
 }
 
+#define HEIGHT 20
+#define SPACE  4
+
+void Channel::drawStatistics()
+{
+    Node* node = getNode();
+    EQASSERT( node );
+
+    std::vector< FrameStatistics > statistics;
+    node->getStatistics( statistics );
+
+    if( statistics.empty( )) 
+        return;
+
+    applyBuffer();
+    applyViewport();
+    setupAssemblyState();
+
+    glDisable( GL_LIGHTING );
+    glEnable( GL_DEPTH_TEST );
+    glClear( GL_DEPTH_BUFFER_BIT );
+
+    int64_t       xStart = 0;
+    PixelViewport pvp    = _window->getPixelViewport();
+    pvp.x = 0;
+    pvp.y = 0;
+
+    // find max time
+    const SortedStatistics& lastStats = statistics.back().second;
+    int64_t                 xMax      = 0;
+    for( SortedStatistics::const_iterator i = lastStats.begin();
+         i != lastStats.end(); ++i )
+    {
+        const Statistics& stats = i->second;
+
+        for( Statistics::const_iterator j = stats.begin(); 
+             j != stats.end(); ++j )
+        {
+            const Statistic& stat = *j;
+            xMax = EQ_MAX( xMax, stat.endTime );
+        }
+    }
+    xStart = xMax - pvp.getXEnd() + SPACE;
+    uint32_t                       nextY = pvp.getYEnd() - SPACE;
+    std::map< uint32_t, uint32_t > positions;
+
+    glBegin( GL_QUADS );
+    unsigned index = 0;
+    while( !statistics.empty( ))
+    {
+        const FrameStatistics&  frameStats  = statistics.back();
+        const SortedStatistics& configStats = frameStats.second;
+
+        int64_t     frameMin = xMax;
+        int64_t     frameMax = 0;
+        const float toggle   = (index % 2) == 0 ? .2f : .0f;
+
+        // draw stats
+        for( SortedStatistics::const_iterator i = configStats.begin();
+             i != configStats.end(); ++i )
+        {
+            const uint32_t    id    = i->first;
+            const Statistics& stats = i->second;
+
+            if( positions.find( id ) == positions.end( ))
+            {
+                positions.insert( 
+                    std::pair< uint32_t, uint32_t >( id, nextY ));
+                nextY -= (HEIGHT + SPACE);
+            }
+
+            const uint32_t y = positions[ id ];
+            
+            for( Statistics::const_iterator j = stats.begin(); 
+                 j != stats.end(); ++j )
+            {
+                const Statistic& stat = *j;
+                frameMin = EQ_MIN( frameMin, stat.startTime );
+                frameMax = EQ_MAX( frameMax, stat.endTime   );
+
+                if( stat.endTime < xStart || stat.endTime == stat.startTime )
+                    continue;
+
+                float z  = 0.0f;
+                switch( stat.type )
+                {
+                    case Statistic::CHANNEL_CLEAR:
+                        glColor3f( .4f+toggle, .8f+toggle, .4f+toggle );
+                        break;
+                    case Statistic::CHANNEL_DRAW:
+                        glColor3f( toggle, .8f+toggle, toggle ); 
+                        break;
+                    case Statistic::CHANNEL_DRAW_FINISH:
+                        glColor3f( toggle, .4f+toggle, toggle ); 
+                        break;
+                    case Statistic::CHANNEL_ASSEMBLE:
+                        glColor3f( .8f+toggle, .8f+toggle, toggle ); 
+                        break;
+                    case Statistic::CHANNEL_READBACK:
+                        glColor3f( .8f+toggle, .4f+toggle, .4f+toggle ); 
+                        break;
+                    case Statistic::CHANNEL_TRANSMIT:
+                    case Statistic::CHANNEL_TRANSMIT_NODE:
+                        glColor3f( toggle, toggle, .8f+toggle ); 
+                        break;
+                    case Statistic::CHANNEL_WAIT_FRAME:
+                        glColor3f( .8f+toggle, toggle, toggle ); 
+                        z = 0.1f; 
+                        break;
+
+                    case Statistic::CONFIG_START_FRAME:
+                        glColor3f( .4f+toggle, .8f+toggle, .4f+toggle ); 
+                        z = 0.1f; 
+                        break;
+                    case Statistic::CONFIG_FINISH_FRAME:
+                        glColor3f( .4f+toggle, .4f+toggle, .4f+toggle ); 
+                        break;
+
+                    default:
+                        glColor3f( .8f+toggle, .8f+toggle, .8f+toggle ); 
+                        z = 0.2f; 
+                        break;
+                }
+
+                const float x1 = stat.startTime - xStart;
+                const float x2 = stat.endTime   - xStart;
+                float       y2 = y - HEIGHT;
+                
+                glVertex3f( x2, y,  z );
+                glVertex3f( x1, y,  z );
+                glVertex3f( x1, y2, z );
+                glVertex3f( x2, y2, z );
+            }
+        }
+
+        frameMin -= xStart;
+        frameMax -= xStart;
+
+        glColor3f( .4f+toggle, .8f+toggle, .4f+toggle );
+        glVertex3f( frameMin+1.0f, pvp.getYEnd(), 0.3f );
+        glVertex3f( frameMin,      pvp.getYEnd(), 0.3f );
+        glVertex3f( frameMin,      nextY,         0.3f );
+        glVertex3f( frameMin+1.0f, nextY,         0.3f );
+
+        glColor3f( .4f+toggle, .4f+toggle, .4f+toggle );
+        glVertex3f( frameMax+1.0f, pvp.getYEnd(), 0.3f );
+        glVertex3f( frameMax,      pvp.getYEnd(), 0.3f );
+        glVertex3f( frameMax,      nextY,         0.3f );
+        glVertex3f( frameMax+1.0f, nextY,         0.3f );
+
+        statistics.pop_back();
+        ++index;
+    }
+    glEnd();
+
+    resetAssemblyState();
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
@@ -471,7 +630,7 @@ eqNet::CommandResult Channel::_cmdFrameClear( eqNet::Command& command )
         command.getPacket<ChannelFrameClearPacket>();
     EQLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet << endl;
 
-    ScopedStatistics event( Statistic::CHANNEL_CLEAR, this );
+    ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
 
     _setRenderContext( packet->context );
     frameClear( packet->context.frameID );
@@ -486,7 +645,7 @@ eqNet::CommandResult Channel::_cmdFrameDraw( eqNet::Command& command )
         command.getPacket<ChannelFrameDrawPacket>();
     EQLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << packet << endl;
 
-    ScopedStatistics event( Statistic::CHANNEL_DRAW, this );
+    ChannelStatistics event( Statistic::CHANNEL_DRAW, this );
 
     _setRenderContext( packet->context );
     frameDraw( packet->context.frameID );
@@ -502,8 +661,7 @@ eqNet::CommandResult Channel::_cmdFrameDrawFinish( eqNet::Command& command )
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << endl;
 
-    ScopedStatistics event( Statistic::CHANNEL_DRAW_FINISH, this );
-
+    ChannelStatistics event( Statistic::CHANNEL_DRAW_FINISH, this );
     frameDrawFinish( packet->frameID, packet->frameNumber );
 
     return eqNet::COMMAND_HANDLED;
@@ -516,7 +674,7 @@ eqNet::CommandResult Channel::_cmdFrameAssemble( eqNet::Command& command )
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK assemble " << getName() <<  " " 
                                        << packet << endl;
 
-    ScopedStatistics event( Statistic::CHANNEL_ASSEMBLE, this );
+    ChannelStatistics event( Statistic::CHANNEL_ASSEMBLE, this );
     _setRenderContext( packet->context );
 
     for( uint32_t i=0; i<packet->nFrames; ++i )
@@ -541,7 +699,7 @@ eqNet::CommandResult Channel::_cmdFrameReadback( eqNet::Command& command )
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " " 
                                        << packet << endl;
 
-    ScopedStatistics event( Statistic::CHANNEL_READBACK, this );
+    ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
     _setRenderContext( packet->context );
 
     for( uint32_t i=0; i<packet->nFrames; ++i )
@@ -572,7 +730,7 @@ eqNet::CommandResult Channel::_cmdFrameTransmit( eqNet::Command& command )
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK transmit " << getName() <<  " " 
                                       << packet << endl;
 
-    ScopedStatistics event( Statistic::CHANNEL_TRANSMIT, this );
+    ChannelStatistics event( Statistic::CHANNEL_TRANSMIT, this );
 
     eqNet::Session*     session   = getSession();
     RefPtr<eqNet::Node> localNode = session->getLocalNode();
@@ -591,7 +749,7 @@ eqNet::CommandResult Channel::_cmdFrameTransmit( eqNet::Command& command )
         EQLOG( LOG_ASSEMBLY ) << "channel \"" << getName() << "\" transmit " 
                               << frame << " to " << nodeID << endl;
 
-        ScopedStatistics nodeEvent( Statistic::CHANNEL_TRANSMIT_NODE, this );
+        ChannelStatistics nodeEvent( Statistic::CHANNEL_TRANSMIT_NODE, this );
         frame->transmit( toNode );
     }
 

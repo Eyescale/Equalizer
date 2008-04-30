@@ -42,6 +42,7 @@ Pipe::Pipe( Node* parent )
         , _device( EQ_UNDEFINED_UINT32 )
         , _state( STATE_STOPPED )
         , _currentFrame( 0 )
+        , _frameTime( 0 )
         , _thread( 0 )
         , _pipeThreadQueue( 0 )
 {
@@ -86,15 +87,8 @@ void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID,
                      queue );
     registerCommand( CMD_PIPE_STOP_THREAD, 
                      CommandFunc<Pipe>( this, &Pipe::_cmdStopThread ), queue );
-}
-
-bool Pipe::dispatchCommand( eqNet::Command& command )
-{
-    // special case: we want the pipe's frame clock to start immediately.
-    if( command->command == CMD_PIPE_FRAME_START )
-        _startFrameClock();
-
-    return eqNet::Object::dispatchCommand( command );
+    registerCommand( CMD_PIPE_FRAME_START_CLOCK,
+                     CommandFunc<Pipe>( this, &Pipe::_cmdFrameStartClock ), 0 );
 }
 
 void Pipe::_addWindow( Window* window )
@@ -926,12 +920,13 @@ eqNet::CommandResult Pipe::_cmdConfigExit( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-void Pipe::_startFrameClock()
+eqNet::CommandResult Pipe::_cmdFrameStartClock( eqNet::Command& command )
 {
 	EQVERB << "start frame clock" << endl;
-    _frameClockMutex.set();
-    _frameClocks.push_back( Clock( ));
-    _frameClockMutex.unset();
+    _frameTimeMutex.set();
+    _frameTimes.push_back( getConfig()->getTime( ));
+    _frameTimeMutex.unset();
+    return eqNet::COMMAND_HANDLED;
 }
 
 eqNet::CommandResult Pipe::_cmdFrameStart( eqNet::Command& command )
@@ -940,12 +935,12 @@ eqNet::CommandResult Pipe::_cmdFrameStart( eqNet::Command& command )
         command.getPacket<PipeFrameStartPacket>();
     EQVERB << "handle pipe frame start " << packet << endl;
 
-    _frameClockMutex.set();
-    EQASSERT( !_frameClocks.empty( ));
+    _frameTimeMutex.set();
+    EQASSERT( !_frameTimes.empty( ));
 
-    _frameClock = _frameClocks.front();
-    _frameClocks.pop_front();
-    _frameClockMutex.unset();
+    _frameTime = _frameTimes.front();
+    _frameTimes.pop_front();
+    _frameTimeMutex.unset();
 
     frameStart( packet->frameID, packet->frameNumber );
     return eqNet::COMMAND_HANDLED;

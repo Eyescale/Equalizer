@@ -37,6 +37,8 @@ namespace eq
         const NodeVector& getNodes() const { return _nodes; }
         CommandQueue* getNodeThreadQueue()
             { return getClient()->getNodeThreadQueue(); }
+        uint32_t getCurrentFrame()  const { return _currentFrame; }
+        uint32_t getFinishedFrame() const { return _finishedFrame; }
 
         /**
          * @return true while the config is initialized and no exit event
@@ -46,6 +48,9 @@ namespace eq
 
 		/** Stop running the config. */
 		void stopRunning() { _running = false; }
+
+        /** @return the global time in ms. */
+        int64_t getTime() const { return _clock.getTime64(); }
         //*}
 
         /** 
@@ -236,6 +241,9 @@ namespace eq
         /** The last completed frame. */
         uint32_t _finishedFrame;
 
+        /** The global clock. */
+        eqBase::Clock _clock;
+
         /** true while the config is initialized and no window has exited. */
         bool _running;
 
@@ -262,7 +270,8 @@ namespace eq
          * Update statistics for the finished frame, push it to the local node
          * for visualization.
          */
-        void _updateStatistics( const uint32_t finishedFrame );
+        void _updateStatistics( const uint32_t finishedFrame, 
+                                const uint64_t startTime );
 
 #ifdef EQ_TRANSMISSION_API
         /** Connect client nodes of this config. */
@@ -270,6 +279,7 @@ namespace eq
 #endif
 
         /** The command functions. */
+        eqNet::CommandResult _cmdStartClock( eqNet::Command& command );
         eqNet::CommandResult _cmdCreateNode( eqNet::Command& command );
         eqNet::CommandResult _cmdDestroyNode( eqNet::Command& command );
         eqNet::CommandResult _cmdStartInitReply( eqNet::Command& command );

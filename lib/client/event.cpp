@@ -42,7 +42,10 @@ static std::string _stateEventTypeNames[Statistic::TYPE_ALL] =
     "channel readback  ",
     "channel transmit  ",
     "channel transmit 1",
-    "channel wait frame"
+    "channel wait frame",
+    "window swap buffer",
+    "config start frame",
+    "config finishframe"
 };
 }
 

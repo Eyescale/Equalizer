@@ -284,6 +284,9 @@ void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
         _lastDrawCompound = config->getCompounds()[ 0 ];
     }
 
+    eq::PipeFrameStartClockPacket startClockPacket;
+    _send( startClockPacket );
+
     eq::PipeFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;

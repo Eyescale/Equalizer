@@ -118,13 +118,16 @@ namespace eq
             CHANNEL_TRANSMIT,
             CHANNEL_TRANSMIT_NODE,
             CHANNEL_WAIT_FRAME,
+            WINDOW_SWAP,
+            CONFIG_START_FRAME,
+            CONFIG_FINISH_FRAME,
             TYPE_ALL          // must be last
         };
 
         Type     type;
         uint32_t frameNumber;
-        float    startTime;
-        float    endTime;
+        int64_t  startTime;
+        int64_t  endTime;
     };
 
 #   define EQ_USER_EVENT_SIZE 32

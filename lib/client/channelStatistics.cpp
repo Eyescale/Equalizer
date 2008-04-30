@@ -2,7 +2,7 @@
 /* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#include "scopedStatistics.h"
+#include "channelStatistics.h"
 
 #include "channel.h"
 #include "global.h"
@@ -10,7 +10,7 @@
 namespace eq
 {
 
-ScopedStatistics::ScopedStatistics( const Statistic::Type type, 
+ChannelStatistics::ChannelStatistics( const Statistic::Type type, 
                                     Channel* channel )
 {
     const int32_t hint = channel->getIAttribute(Channel::IATTR_HINT_STATISTICS);
@@ -25,11 +25,11 @@ ScopedStatistics::ScopedStatistics( const Statistic::Type type,
 
     if( hint == NICEST )
         channel->getWindow()->finish();
-    _event.data.statistic.startTime  = channel->getPipe()->getFrameTime();
+    _event.data.statistic.startTime  = channel->getConfig()->getTime();
 }
 
 
-ScopedStatistics::~ScopedStatistics()
+ChannelStatistics::~ChannelStatistics()
 {
     Channel* channel   = _event.channel;
     const int32_t hint = channel->getIAttribute(Channel::IATTR_HINT_STATISTICS);
@@ -39,7 +39,7 @@ ScopedStatistics::~ScopedStatistics()
     if( hint == NICEST )
         channel->getWindow()->finish();
 
-    _event.data.statistic.endTime = channel->getPipe()->getFrameTime();
+    _event.data.statistic.endTime = channel->getConfig()->getTime();
     channel->addStatistic( _event );
 }
 

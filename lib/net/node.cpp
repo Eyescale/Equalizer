@@ -616,8 +616,8 @@ void Node::_handleDisconnect()
 {
     while( _handleData( )) ; // read remaining data off connection
 
-    RefPtr<Connection> connection = _connectionSet.getConnection();
-    RefPtr<Node>       node;
+    ConnectionPtr connection = _connectionSet.getConnection();
+    NodePtr       node;
     if( _connectionNodes.find( connection.get( )) != _connectionNodes.end( ))
         node = _connectionNodes[ connection.get() ];
 
@@ -640,8 +640,8 @@ void Node::_handleDisconnect()
 
 bool Node::_handleData()
 {
-    RefPtr<Connection> connection = _connectionSet.getConnection();
-    RefPtr<Node>       node;
+    ConnectionPtr connection = _connectionSet.getConnection();
+    NodePtr       node;
 
     if( _connectionNodes.find( connection.get( )) != _connectionNodes.end( ))
         node = _connectionNodes[ connection.get() ];
