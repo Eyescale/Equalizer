@@ -31,6 +31,9 @@ WindowStatistics::WindowStatistics( const Statistic::Type type,
 
 WindowStatistics::~WindowStatistics()
 {
+    if( _event.data.statistic.frameNumber == 0 ) // does not belong to a frame
+        return;
+
     Window*     window = _event.window;
     const int32_t hint = window->getIAttribute( Window::IATTR_HINT_STATISTICS );
     if( hint == OFF )

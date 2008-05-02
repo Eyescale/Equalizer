@@ -317,6 +317,7 @@ bool Config::handleEvent( const ConfigEvent* event )
 
             const Statistic& statistic = event->data.statistic;
             const uint32_t   frame     = statistic.frameNumber;
+            EQASSERTINFO( frame != 0, statistic );
 
             for( deque< FrameStatistics >::iterator i = _statistics.begin();
                  i != _statistics.end(); ++i )
