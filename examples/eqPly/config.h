@@ -27,7 +27,17 @@ namespace eqPly
         virtual uint32_t startFrame();
 
         void setInitData( const LocalInitData& data ) { _initData = data; }
-        
+        const InitData& getInitData() const { return _initData; }
+
+        /** Map the init data to the local node process */
+        void mapInitData( const uint32_t initDataID );
+
+        /** Map the config model to the local node process */
+        bool mapModel();
+
+        /** @return the loaded model, or 0. */
+        const Model* getModel() const { return _model; }
+
     protected:
         virtual ~Config();
 
@@ -41,8 +51,11 @@ namespace eqPly
 
         Tracker _tracker;
 
+        Model*     _model;
+        ModelDist* _modelDist;
+
     private:
-        static void _applyRotation( float m[16], const float dx, const float dy );
+        void _loadModel();
     };
 }
 

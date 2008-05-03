@@ -21,7 +21,7 @@ namespace mesh
     class VertexBufferLeaf : public VertexBufferBase
     {
     public:
-        VertexBufferLeaf( VertexBufferData& data) 
+        VertexBufferLeaf( VertexBufferData& data )
             : _globalData( data ), _vertexStart( 0 ),
               _indexStart( 0 ), _indexLength( 0 ) {}
         virtual ~VertexBufferLeaf() {}
@@ -53,6 +53,7 @@ namespace mesh
         ShortIndex          _vertexLength;
         Index               _indexStart;
         Index               _indexLength;
+        friend class eqPly::VertexBufferDist;
     };
     
     

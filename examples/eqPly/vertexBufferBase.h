@@ -15,6 +15,10 @@
 #include "typedefs.h"
 #include <fstream>
 
+namespace eqPly
+{
+    class VertexBufferDist;
+}
 
 namespace mesh 
 {
@@ -80,7 +84,8 @@ namespace mesh
         
         BoundingSphere  _boundingSphere;
         Range           _range;
-        
+        friend class eqPly::VertexBufferDist;
+
     private:
     };
 }

@@ -48,6 +48,7 @@ namespace mesh
         
         VertexBufferBase*   _left;
         VertexBufferBase*   _right;
+        friend class eqPly::VertexBufferDist;
     };
 }
 

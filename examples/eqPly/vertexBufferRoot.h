@@ -46,8 +46,8 @@ namespace mesh
         bool _readBinary( const char* filename );
         
         VertexBufferData _data;
-
-        bool _invertFaces;
+        bool             _invertFaces;
+        friend class eqPly::VertexBufferDist;
     };
     
     

@@ -17,6 +17,7 @@ CXXFILES = \
 	plyfile.cpp \
 	vertexData.cpp \
 	vertexBufferBase.cpp \
+	vertexBufferDist.cpp \
 	vertexBufferLeaf.cpp \
 	vertexBufferNode.cpp \
 	vertexBufferRoot.cpp

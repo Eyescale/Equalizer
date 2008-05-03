@@ -17,14 +17,10 @@ namespace eqPly
     public:
         Node( eq::Config* parent ) : eq::Node( parent ) {}
 
-        const InitData& getInitData() const { return _initData; }
-        const Model*    getModel() const    { return _model; }
-
     protected:
         virtual ~Node(){}
 
         virtual bool configInit( const uint32_t initID );
-        virtual bool configExit();
 
         virtual void frameStart( const uint32_t frameID, 
                                  const uint32_t frameNumber );
@@ -33,8 +29,6 @@ namespace eqPly
             { /* nop, see frameStart */ }
 
     private:
-        InitData _initData;
-        Model*   _model;
     };
 }
 

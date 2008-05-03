@@ -7,7 +7,7 @@
 
 #include "frameData.h"
 #include "initData.h"
-#include "node.h"
+#include "config.h"
 #include "pipe.h"
 #include "window.h"
 #include "vertexBufferState.h"
@@ -66,9 +66,9 @@ void Channel::frameDraw( const uint32_t frameID )
                   frameData.data.translation.z );
     glMultMatrixf( frameData.data.rotation.ml );
 
-    Node*            node  = (Node*)getNode();
-    const Model*     model = node->getModel();
-    const eq::Range& range = getRange();
+    const Config*    config = static_cast< Config* >( getConfig( ));
+    const Model*     model  = config->getModel();
+    const eq::Range& range  = getRange();
 
     if( range != eq::Range::ALL ) // Color DB-patches
     {

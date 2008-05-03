@@ -13,15 +13,24 @@ Config::Config( eqBase::RefPtr< eq::Server > parent )
         : eq::Config( parent )
         , _spinX( 5 )
         , _spinY( 5 )
+        , _model( 0 )
+        , _modelDist( 0 )
 {
 }
 
 Config::~Config()
 {
+    delete _model;
+    _model = 0;
+
+    delete _modelDist;
+    _modelDist = 0;
 }
 
 bool Config::init()
 {
+    _loadModel();
+
     // init distributed objects
     _frameData.data.color = _initData.useColor();
     registerObject( &_frameData );
@@ -65,7 +74,75 @@ bool Config::exit()
     deregisterObject( &_initData );
     deregisterObject( &_frameData );
 
+    if( _modelDist )
+    {
+        _modelDist->deregisterTree();
+        delete _modelDist;
+        _modelDist = 0;
+
+        _initData.setModelID( EQ_ID_INVALID );
+        // retain model for possible other config runs, destructor deletes it
+    }
+
     return ret;
+}
+
+void Config::_loadModel()
+{
+    if( !_model )
+    {
+        const string& filename = _initData.getFilename();
+        EQINFO << "Loading model " << filename << endl;
+     
+        _model = new Model;
+
+        if( _initData.useInvertedFaces() )
+            _model->useInvertedFaces();
+        
+        if ( !_model->readFromFile( filename.c_str() ) )
+        {
+            EQWARN << "Can't load model: " << filename << endl;
+
+            delete _model;
+            _model = 0;
+            return;
+        }
+    }
+    
+    if( !_modelDist )
+    {
+        EQASSERT( _model );
+        _modelDist = new ModelDist( _model );
+        _modelDist->registerTree( this );
+        EQASSERT( _modelDist->getID() != EQ_ID_INVALID );
+
+        _initData.setModelID( _modelDist->getID( ));
+    }
+}
+
+void Config::mapInitData( const uint32_t initDataID )
+{
+    if( _initData.getID() != EQ_ID_INVALID ) // appNode, _initData is registered
+    {
+        EQASSERT( _initData.getID() == initDataID );
+        return;
+    }
+
+    const bool mapped = mapObject( &_initData, initDataID );
+    EQASSERT( mapped );
+    unmapObject( &_initData ); // data was retrieved, unmap immediately
+}
+
+bool Config::mapModel()
+{
+    const uint32_t modelID = _initData.getModelID();
+    if( modelID == EQ_ID_INVALID ) // no model loaded by application
+        return true;
+
+    if( !_model )
+        _model = ModelDist::mapModel( this, modelID );
+
+    return (_model != 0);
 }
 
 uint32_t Config::startFrame()

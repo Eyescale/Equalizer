@@ -24,6 +24,11 @@ LocalInitData::LocalInitData()
         : _maxFrames( 0xffffffffu )
         , _color( true )
         , _isResident( false )
+#ifdef WIN32_VC
+        , _filename( "../examples/eqPly/rockerArm.ply" )
+#else
+        , _filename( "../share/data/rockerArm.ply" )
+#endif
 {}
 
 const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
@@ -32,7 +37,8 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     _maxFrames   = from._maxFrames;    
     _color       = from._color;        
     _isResident  = from._isResident;
-    setFilename( from.getFilename( ));
+    _filename    = from._filename;
+
     setWindowSystem( from.getWindowSystem( ));
     if( from.useVBOs( )) 
         enableVBOs();
@@ -88,7 +94,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         command.parse( argc, argv );
 
         if( modelArg.isSet( ))
-            setFilename( modelArg.getValue( ));
+            _filename = modelArg.getValue();
         if( portArg.isSet( ))
             _trackerPort = portArg.getValue();
         if( wsArg.isSet( ))

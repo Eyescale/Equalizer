@@ -12,7 +12,7 @@
 
 #include "pipe.h"
 
-#include "node.h"
+#include "config.h"
 #include <eq/eq.h>
 
 using namespace eqBase;
@@ -22,8 +22,8 @@ namespace eqPly
 {
 eq::WindowSystem Pipe::selectWindowSystem() const
 {
-    const Node*            node     = static_cast<Node*>( getNode( ));
-    const InitData&        initData = node->getInitData();
+    const Config*          config   = static_cast<Config*>( getConfig( ));
+    const InitData&        initData = config->getInitData();
     const eq::WindowSystem ws       = initData.getWindowSystem();
 
     if( ws == eq::WINDOW_SYSTEM_NONE )
@@ -43,10 +43,9 @@ bool Pipe::configInit( const uint32_t initID )
     if( !eq::Pipe::configInit( initID ))
         return false;
 
-    const Node*     node        = static_cast<Node*>( getNode( ));
-    const InitData& initData    = node->getInitData();
+    Config*         config      = static_cast<Config*>( getConfig( ));
+    const InitData& initData    = config->getInitData();
     const uint32_t  frameDataID = initData.getFrameDataID();
-    eq::Config*     config      = getConfig();
 
     const bool mapped = config->mapObject( &_frameData, frameDataID );
     EQASSERT( mapped );

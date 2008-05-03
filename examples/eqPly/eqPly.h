@@ -7,14 +7,17 @@
 
 #include <eq/eq.h>
 
+#include "vertexBufferDist.h"
 #include "vertexBufferRoot.h"
 
-typedef mesh::VertexBufferRoot    Model;
 
 /** The Equalizer Polygonal Rendering Example. */
 namespace eqPly
 {
     class LocalInitData;
+
+    typedef mesh::VertexBufferRoot    Model;
+    typedef VertexBufferDist          ModelDist;
 
     class Application : public eq::Client
     {

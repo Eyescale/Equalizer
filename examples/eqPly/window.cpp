@@ -5,7 +5,7 @@
 
 #include "window.h"
 #include "pipe.h"
-#include "node.h"
+#include "config.h"
 
 #include "fragmentShader_glsl.h"
 #include "vertexShader_glsl.h"
@@ -30,8 +30,8 @@ bool Window::configInitGL( const uint32_t initID )
     EQASSERT( !_state );
     _state = new VertexBufferState( getObjectManager( ));
 
-    const Node*     node     = static_cast< const Node* >( getNode( ));
-    const InitData& initData = node->getInitData();
+    const Config*   config   = static_cast< const Config* >( getConfig( ));
+    const InitData& initData = config->getInitData();
 
     if( initData.useVBOs() )
     {
