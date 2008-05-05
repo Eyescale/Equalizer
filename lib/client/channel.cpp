@@ -475,7 +475,10 @@ void Channel::drawStatistics()
                 if( stat.endTime < xStart || stat.endTime == stat.startTime )
                     continue;
 
+                float y1 = y;
+                float y2 = y - HEIGHT;
                 float z  = 0.0f;
+
                 switch( stat.type )
                 {
                     case Statistic::CHANNEL_CLEAR:
@@ -499,6 +502,8 @@ void Channel::drawStatistics()
                         break;
                     case Statistic::CHANNEL_WAIT_FRAME:
                         glColor3f( .8f+toggle, toggle, toggle ); 
+                        y1 -= SPACE;
+                        y2 += SPACE;
                         z = 0.1f; 
                         break;
 
@@ -518,10 +523,9 @@ void Channel::drawStatistics()
 
                 const float x1 = stat.startTime - xStart;
                 const float x2 = stat.endTime   - xStart;
-                float       y2 = y - HEIGHT;
                 
-                glVertex3f( x2, y,  z );
-                glVertex3f( x1, y,  z );
+                glVertex3f( x2, y1, z );
+                glVertex3f( x1, y1, z );
                 glVertex3f( x1, y2, z );
                 glVertex3f( x2, y2, z );
             }

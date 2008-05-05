@@ -39,7 +39,7 @@ namespace eq
             { return getClient()->getNodeThreadQueue(); }
         uint32_t getCurrentFrame()  const { return _currentFrame; }
         uint32_t getFinishedFrame() const { return _finishedFrame; }
-
+        uint32_t getLatency()       const { return _latency; }
         /**
          * @return true while the config is initialized and no exit event
          *         happened.

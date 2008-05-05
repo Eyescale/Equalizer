@@ -205,7 +205,7 @@ void Node::addStatistics( const FrameStatistics& frameStats )
     _statisticsMutex.set();
 
     _statistics.push_back( frameStats );
-    while( _statistics.size() > 5 )
+    while( _statistics.size() > _config->getLatency() + 1 )
         _statistics.pop_front();
 
     _statisticsMutex.unset();
