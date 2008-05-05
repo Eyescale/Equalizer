@@ -120,21 +120,17 @@ void Config::_loadModel()
     }
 }
 
-void Config::mapInitData( const uint32_t initDataID )
+bool Config::mapData( const uint32_t initDataID )
 {
-    if( _initData.getID() != EQ_ID_INVALID ) // appNode, _initData is registered
+    if( _initData.getID() == EQ_ID_INVALID )
     {
-        EQASSERT( _initData.getID() == initDataID );
-        return;
+        const bool mapped = mapObject( &_initData, initDataID );
+        EQASSERT( mapped );
+        unmapObject( &_initData ); // data was retrieved, unmap immediately
     }
+    else  // appNode, _initData is registered already
+        EQASSERT( _initData.getID() == initDataID );
 
-    const bool mapped = mapObject( &_initData, initDataID );
-    EQASSERT( mapped );
-    unmapObject( &_initData ); // data was retrieved, unmap immediately
-}
-
-bool Config::mapModel()
-{
     const uint32_t modelID = _initData.getModelID();
     if( modelID == EQ_ID_INVALID ) // no model loaded by application
         return true;

@@ -118,12 +118,10 @@ void VertexBufferDist::getInstanceData( eqNet::DataOStream& os )
 
         if( _isRoot )
         {
-            const mesh::VertexBufferRoot* root = 
-                static_cast< const mesh::VertexBufferRoot* >( _node );
-            const mesh::VertexBufferData& data = root->_data;
+            EQASSERT( _root );
+            const mesh::VertexBufferData& data = _root->_data;
             
-            os << data.vertices << data.colors << data.normals << data.indices
-               << root->_invertFaces;
+            os << data.vertices << data.colors << data.normals << data.indices;
         }
     }
     else
@@ -158,8 +156,7 @@ void VertexBufferDist::applyInstanceData( eqNet::DataIStream& is )
             mesh::VertexBufferRoot* root = new mesh::VertexBufferRoot;
             mesh::VertexBufferData& data = root->_data;
 
-            is >> data.vertices >> data.colors >> data.normals >> data.indices
-               >> root->_invertFaces;
+            is >> data.vertices >> data.colors >> data.normals >> data.indices;
 
             node  = root;
             _root = root;

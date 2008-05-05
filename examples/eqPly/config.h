@@ -29,11 +29,8 @@ namespace eqPly
         void setInitData( const LocalInitData& data ) { _initData = data; }
         const InitData& getInitData() const { return _initData; }
 
-        /** Map the init data to the local node process */
-        void mapInitData( const uint32_t initDataID );
-
-        /** Map the config model to the local node process */
-        bool mapModel();
+        /** Map per-config data to the local node process */
+        bool mapData( const uint32_t initDataID );
 
         /** @return the loaded model, or 0. */
         const Model* getModel() const { return _model; }

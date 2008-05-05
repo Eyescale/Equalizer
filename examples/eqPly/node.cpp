@@ -17,9 +17,7 @@ bool Node::configInit( const uint32_t initID )
         return false;
 
     Config*    config = static_cast< Config* >( getConfig( ));
-
-    config->mapInitData( initID );
-    return config->mapModel();
+    return config->mapData( initID );
 }
 
 void Node::frameStart( const uint32_t frameID, const uint32_t frameNumber )
