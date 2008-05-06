@@ -45,7 +45,8 @@ static std::string _stateEventTypeNames[Statistic::TYPE_ALL] =
     "channel wait frame",
     "window swap buffer",
     "config start frame",
-    "config finishframe"
+    "config finishframe",
+    "config wait finish"
 };
 }
 

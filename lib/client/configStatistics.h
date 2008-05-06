@@ -22,6 +22,7 @@ namespace eq
         ~ConfigStatistics();
 
         ConfigEvent event;
+        bool        ignore;
 
     private:
         Config*     _config;

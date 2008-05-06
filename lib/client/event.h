@@ -121,6 +121,7 @@ namespace eq
             WINDOW_SWAP,
             CONFIG_START_FRAME,
             CONFIG_FINISH_FRAME,
+            CONFIG_WAIT_FINISH_FRAME,
             TYPE_ALL          // must be last
         };
 

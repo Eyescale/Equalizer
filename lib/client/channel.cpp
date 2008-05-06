@@ -397,11 +397,11 @@ bool Channel::processEvent( const ChannelEvent& event )
 
 void Channel::drawStatistics()
 {
-    Node* node = getNode();
-    EQASSERT( node );
+    Config* config = getConfig();
+    EQASSERT( config );
 
-    std::vector< FrameStatistics > statistics;
-    node->getStatistics( statistics );
+    vector< FrameStatistics > statistics;
+    config->getStatistics( statistics );
 
     if( statistics.empty( )) 
         return;
@@ -410,9 +410,10 @@ void Channel::drawStatistics()
     applyViewport();
     setupAssemblyState();
 
+    glClear( GL_DEPTH_BUFFER_BIT );
+
     glDisable( GL_LIGHTING );
     glEnable( GL_DEPTH_TEST );
-    glClear( GL_DEPTH_BUFFER_BIT );
 
     int64_t       xStart = 0;
     PixelViewport pvp    = _window->getPixelViewport();
@@ -439,22 +440,22 @@ void Channel::drawStatistics()
     std::map< uint32_t, uint32_t > positions;
 
     glBegin( GL_QUADS );
-    unsigned index = 0;
-    while( !statistics.empty( ))
+    float dim = 0.0f;
+    for( vector< FrameStatistics >::reverse_iterator i = statistics.rbegin();
+         i != statistics.rend(); ++i )
     {
-        const FrameStatistics&  frameStats  = statistics.back();
+        const FrameStatistics&  frameStats  = *i;
         const SortedStatistics& configStats = frameStats.second;
 
         int64_t     frameMin = xMax;
         int64_t     frameMax = 0;
-        const float toggle   = (index % 2) == 0 ? .2f : .0f;
 
         // draw stats
-        for( SortedStatistics::const_iterator i = configStats.begin();
-             i != configStats.end(); ++i )
+        for( SortedStatistics::const_iterator j = configStats.begin();
+             j != configStats.end(); ++j )
         {
-            const uint32_t    id    = i->first;
-            const Statistics& stats = i->second;
+            const uint32_t    id    = j->first;
+            const Statistics& stats = j->second;
 
             if( positions.find( id ) == positions.end( ))
             {
@@ -465,10 +466,10 @@ void Channel::drawStatistics()
 
             const uint32_t y = positions[ id ];
             
-            for( Statistics::const_iterator j = stats.begin(); 
-                 j != stats.end(); ++j )
+            for( Statistics::const_iterator k = stats.begin(); 
+                 k != stats.end(); ++k )
             {
-                const Statistic& stat = *j;
+                const Statistic& stat = *k;
                 frameMin = EQ_MIN( frameMin, stat.startTime );
                 frameMax = EQ_MAX( frameMax, stat.endTime   );
 
@@ -482,41 +483,42 @@ void Channel::drawStatistics()
                 switch( stat.type )
                 {
                     case Statistic::CHANNEL_CLEAR:
-                        glColor3f( .4f+toggle, .8f+toggle, .4f+toggle );
+                        glColor3f( .5f-dim, 1.0f-dim, .5f-dim );
                         break;
                     case Statistic::CHANNEL_DRAW:
-                        glColor3f( toggle, .8f+toggle, toggle ); 
+                        glColor3f( 0.f, 1.0f-dim, 0.f ); 
                         break;
                     case Statistic::CHANNEL_DRAW_FINISH:
-                        glColor3f( toggle, .4f+toggle, toggle ); 
+                        glColor3f( 0.f, .5f-dim, 0.f ); 
                         break;
                     case Statistic::CHANNEL_ASSEMBLE:
-                        glColor3f( .8f+toggle, .8f+toggle, toggle ); 
+                        glColor3f( 1.0f-dim, 1.0f-dim, 0.f ); 
                         break;
                     case Statistic::CHANNEL_READBACK:
-                        glColor3f( .8f+toggle, .4f+toggle, .4f+toggle ); 
+                        glColor3f( 1.0f-dim, .5f-dim, .5f-dim ); 
                         break;
                     case Statistic::CHANNEL_TRANSMIT:
                     case Statistic::CHANNEL_TRANSMIT_NODE:
-                        glColor3f( toggle, toggle, .8f+toggle ); 
+                        glColor3f( 0.f, 0.f, 1.0f-dim ); 
                         break;
                     case Statistic::CHANNEL_WAIT_FRAME:
-                        glColor3f( .8f+toggle, toggle, toggle ); 
+                    case Statistic::CONFIG_WAIT_FINISH_FRAME:
+                        glColor3f( 1.0f-dim, 0.f, 0.f ); 
                         y1 -= SPACE;
                         y2 += SPACE;
                         z = 0.1f; 
                         break;
 
                     case Statistic::CONFIG_START_FRAME:
-                        glColor3f( .4f+toggle, .8f+toggle, .4f+toggle ); 
+                        glColor3f( .5f-dim, 1.0f-dim, .5f-dim ); 
                         z = 0.1f; 
                         break;
                     case Statistic::CONFIG_FINISH_FRAME:
-                        glColor3f( .4f+toggle, .4f+toggle, .4f+toggle ); 
+                        glColor3f( .5f-dim, .5f-dim, .5f-dim ); 
                         break;
 
                     default:
-                        glColor3f( .8f+toggle, .8f+toggle, .8f+toggle ); 
+                        glColor3f( 1.0f-dim, 1.0f-dim, 1.0f-dim ); 
                         z = 0.2f; 
                         break;
                 }
@@ -534,20 +536,19 @@ void Channel::drawStatistics()
         frameMin -= xStart;
         frameMax -= xStart;
 
-        glColor3f( .4f+toggle, .8f+toggle, .4f+toggle );
+        glColor3f( .5f-dim, 1.0f-dim, .5f-dim );
         glVertex3f( frameMin+1.0f, pvp.getYEnd(), 0.3f );
         glVertex3f( frameMin,      pvp.getYEnd(), 0.3f );
         glVertex3f( frameMin,      nextY,         0.3f );
         glVertex3f( frameMin+1.0f, nextY,         0.3f );
 
-        glColor3f( .4f+toggle, .4f+toggle, .4f+toggle );
+        glColor3f( .5f-dim, .5f-dim, .5f-dim );
         glVertex3f( frameMax+1.0f, pvp.getYEnd(), 0.3f );
         glVertex3f( frameMax,      pvp.getYEnd(), 0.3f );
         glVertex3f( frameMax,      nextY,         0.3f );
         glVertex3f( frameMax+1.0f, nextY,         0.3f );
 
-        statistics.pop_back();
-        ++index;
+        dim += .2f;
     }
     glEnd();
 

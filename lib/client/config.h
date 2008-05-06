@@ -39,7 +39,10 @@ namespace eq
             { return getClient()->getNodeThreadQueue(); }
         uint32_t getCurrentFrame()  const { return _currentFrame; }
         uint32_t getFinishedFrame() const { return _finishedFrame; }
-        uint32_t getLatency()       const { return _latency; }
+
+        /** Get all received statistics. */
+        void getStatistics( std::vector< FrameStatistics >& statistics );
+
         /**
          * @return true while the config is initialized and no exit event
          *         happened.
@@ -231,6 +234,7 @@ namespace eq
 
         /** Global statistics events, index per frame and channel. */
         std::deque< FrameStatistics > _statistics;
+        eqBase::SpinLock              _statisticsMutex;
 
         /** The maximum number of outstanding frames. */
         uint32_t _latency;
@@ -270,8 +274,7 @@ namespace eq
          * Update statistics for the finished frame, push it to the local node
          * for visualization.
          */
-        void _updateStatistics( const uint32_t finishedFrame, 
-                                const uint64_t startTime );
+        void _updateStatistics( const uint32_t finishedFrame );
 
 #ifdef EQ_TRANSMISSION_API
         /** Connect client nodes of this config. */

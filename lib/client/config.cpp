@@ -205,21 +205,38 @@ uint32_t Config::startFrame( const uint32_t frameID )
 
 uint32_t Config::finishFrame()
 {
-    const int64_t startTime = getTime();
+    ConfigStatistics        stat( Statistic::CONFIG_FINISH_FRAME, this );
     ConfigFinishFramePacket packet;
     send( packet );
 
     RefPtr< Client > client        = getClient();
     const uint32_t   frameToFinish = (_currentFrame >= _latency) ? 
                                       _currentFrame - _latency : 0;
+    {
+        ConfigStatistics waitStat( Statistic::CONFIG_WAIT_FINISH_FRAME, this );
 
-    while( _unlockedFrame < _currentFrame || // local sync
-           _finishedFrame < frameToFinish )  // global sync
+        while( _unlockedFrame < _currentFrame || // local sync
+               _finishedFrame < frameToFinish )  // global sync
 
-        client->processCommand();
+            client->processCommand();
+
+        // handle directly, it would not be processed in time using the normal
+        // event flow
+        waitStat.event.data.statistic.frameNumber = frameToFinish;
+        waitStat.event.data.statistic.endTime     = getTime();
+        handleEvent( &waitStat.event );
+        waitStat.ignore = true; // don't send again
+    }
 
     handleEvents();
-    _updateStatistics( frameToFinish, startTime );
+    
+    // handle directly - see above
+    stat.event.data.statistic.frameNumber = frameToFinish;
+    stat.event.data.statistic.endTime     = getTime();
+    handleEvent( &stat.event );
+    stat.ignore = true; // don't send again
+
+    _updateStatistics( frameToFinish );
 
     EQLOG( LOG_ANY ) << "----- Finish Frame ---- " << frameToFinish << " ("
                      << _currentFrame << ')' << endl;
@@ -310,14 +327,16 @@ bool Config::handleEvent( const ConfigEvent* event )
         {
             EQLOG( LOG_STATS ) << event->data << endl;
 
-            const uint32_t   channelID = event->data.originator;
-            EQASSERT( channelID != EQ_ID_INVALID );
-            if( channelID == EQ_ID_INVALID )
+            const uint32_t   originator = event->data.originator;
+            EQASSERT( originator != EQ_ID_INVALID );
+            if( originator == EQ_ID_INVALID )
                 return true;
 
             const Statistic& statistic = event->data.statistic;
             const uint32_t   frame     = statistic.frameNumber;
-            EQASSERTINFO( frame != 0, statistic );
+
+            if( frame == 0 ) // Not a frame-related stat event, ignore
+                return true;
 
             for( deque< FrameStatistics >::iterator i = _statistics.begin();
                  i != _statistics.end(); ++i )
@@ -326,7 +345,7 @@ bool Config::handleEvent( const ConfigEvent* event )
                 if( frameStats.first == frame )
                 {
                     SortedStatistics& sortedStats = frameStats.second;
-                    Statistics&       statistics  = sortedStats[ channelID ];
+                    Statistics&       statistics  = sortedStats[ originator ];
                     statistics.push_back( statistic );
                     return true;
                 }
@@ -337,7 +356,7 @@ bool Config::handleEvent( const ConfigEvent* event )
             frameStats.first = frame;
 
             SortedStatistics& sortedStats = frameStats.second;
-            Statistics&       statistics  = sortedStats[ channelID ];
+            Statistics&       statistics  = sortedStats[ originator ];
             statistics.push_back( statistic );
             
             return true;
@@ -347,48 +366,29 @@ bool Config::handleEvent( const ConfigEvent* event )
     return false;
 }
 
-void Config::_updateStatistics( const uint32_t finishedFrame,
-                                const uint64_t startTime )
+void Config::_updateStatistics( const uint32_t finishedFrame )
 {
-    // We generate the finish event for the frame manually, since it would not
-    // be processed anymore using the normal event flow in time.
-    if( finishedFrame > 0 )
-    {
-        ConfigEvent event;
-        event.data.type                  = Event::STATISTIC;
-        event.data.originator            = getID();
-        event.data.statistic.type        = Statistic::CONFIG_FINISH_FRAME;
-        event.data.statistic.frameNumber = finishedFrame;
-        event.data.statistic.startTime   = startTime;
-        event.data.statistic.endTime     = getTime();
-        handleEvent( &event );
-    }
+    // keep only latency+1 statistics
+    _statisticsMutex.set();
+    while( finishedFrame - _statistics.front().first > _latency )
+        _statistics.pop_front();
+    _statisticsMutex.unset();
+}
 
-    // push the statistics for the finished frame to the node for visualization
-    for( deque< FrameStatistics >::iterator i = _statistics.begin();
+void Config::getStatistics( std::vector< FrameStatistics >& statistics )
+{
+    _statisticsMutex.set();
+
+    for( std::deque< FrameStatistics >::const_iterator i = _statistics.begin();
          i != _statistics.end(); ++i )
     {
-        FrameStatistics& frameStats = *i;
-        EQASSERTINFO( frameStats.first >= finishedFrame, 
-                      frameStats.first << " < " << finishedFrame );
-        
-        if( frameStats.first > finishedFrame )
-            // No data for this frame
-            return;
-
-        if( frameStats.first == finishedFrame )
-        {
-            if( !_nodes.empty( ))
-            {
-                Node* node = _nodes.front();
-                node->addStatistics( frameStats );
-            }
-
-            _statistics.erase( i );
-            return;
-        }
+        if( (*i).first <= _finishedFrame )
+            statistics.push_back( *i );
     }
+
+    _statisticsMutex.unset();
 }
+
 
 
 void Config::setHeadMatrix( const vmml::Matrix4f& matrix )

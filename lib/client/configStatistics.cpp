@@ -12,19 +12,23 @@ namespace eq
 
 ConfigStatistics::ConfigStatistics( const Statistic::Type type, 
                                     Config* config )
-        : _config( config )
+        : ignore( false )
+        , _config( config )
 {
     event.data.type                  = Event::STATISTIC;
     event.data.originator            = config->getID();
     event.data.statistic.type        = type;
     event.data.statistic.frameNumber = config->getCurrentFrame();
 
-    event.data.statistic.startTime  = config->getTime();
+    event.data.statistic.startTime   = config->getTime();
 }
 
 
 ConfigStatistics::~ConfigStatistics()
 {
+    if( ignore )
+        return;
+
     event.data.statistic.endTime     = _config->getTime();
     _config->sendEvent( event );
 }
