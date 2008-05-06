@@ -211,8 +211,8 @@ Connection::ReadNotifier SocketConnection::getReadNotifier()
         EQASSERT( _state == STATE_CONNECTED );
 
         WSABUF wsaBuffer = { 8, reinterpret_cast<char*>( &_overlappedBuffer )};
-        DWORD got   = 0;
-        DWORD flags = 0;
+        DWORD  got   = 0;
+        DWORD  flags = 0;
 
         if( WSARecv( _readFD, &wsaBuffer, 1, &got, &flags, &_overlapped, 
                      0 ) == 0 ||

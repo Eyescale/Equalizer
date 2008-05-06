@@ -115,6 +115,11 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 {
     while( true )
     {
+#ifdef WIN32
+        if( _connection.isValid( ))
+            // HACK: This starts a new overlapped receive on the prev connection
+            _connection->getReadNotifier();
+#endif
         _connection = 0;
         _error      = 0;
 
@@ -263,8 +268,6 @@ bool ConnectionSet::_setupFDSet()
         return true;
     }
 
-    // The fdSet has to be rebuild every time since a connection may have been
-    // closed in the meantime.
     _fdSetConnections.clear();
 
 #ifdef WIN32
