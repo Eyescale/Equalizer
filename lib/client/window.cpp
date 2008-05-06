@@ -1940,8 +1940,6 @@ void Window::swapBuffers()
         _channels.back()->drawStatistics();
 #endif
     
-    WindowStatistics stat( Statistic::WINDOW_SWAP, this );
-
     switch( _pipe->getWindowSystem( ))
     {
 #ifdef GLX
@@ -2207,7 +2205,10 @@ eqNet::CommandResult Window::_cmdBarrier( eqNet::Command& command )
 eqNet::CommandResult Window::_cmdSwap(eqNet::Command& command ) 
 {
     EQ_GL_CALL( makeCurrent( ));
+
+    WindowStatistics stat( Statistic::WINDOW_SWAP, this );
     swapBuffers();
+
     return eqNet::COMMAND_HANDLED;
 }
 
