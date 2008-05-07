@@ -117,6 +117,7 @@ Node* Config::_findNode( const uint32_t id )
 
 bool Config::_startInit( const uint32_t initID )
 {
+    EQASSERT( !_running );
     _currentFrame = 0;
     _unlockedFrame = 0;
     _finishedFrame = 0;
@@ -370,7 +371,9 @@ void Config::_updateStatistics( const uint32_t finishedFrame )
 {
     // keep only latency+1 statistics
     _statisticsMutex.set();
-    while( finishedFrame - _statistics.front().first > _latency )
+    while( !_statistics.empty() &&
+           finishedFrame - _statistics.front().first > _latency )
+
         _statistics.pop_front();
     _statisticsMutex.unset();
 }
