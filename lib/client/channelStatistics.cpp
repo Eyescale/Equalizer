@@ -13,11 +13,12 @@ namespace eq
 ChannelStatistics::ChannelStatistics( const Statistic::Type type, 
                                     Channel* channel )
 {
+    _event.channel                    = channel;
+
     const int32_t hint = channel->getIAttribute(Channel::IATTR_HINT_STATISTICS);
     if( hint == OFF )
         return;
 
-    _event.channel                    = channel;
     _event.data.type                  = Event::STATISTIC;
     _event.data.originator            = channel->getID();
     _event.data.statistic.type        = type;

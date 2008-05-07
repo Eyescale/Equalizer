@@ -13,11 +13,12 @@ namespace eq
 WindowStatistics::WindowStatistics( const Statistic::Type type, 
                                     Window* window )
 {
+    _event.window                     = window;
+
     const int32_t hint = window->getIAttribute( Window::IATTR_HINT_STATISTICS );
     if( hint == OFF )
         return;
 
-    _event.window                     = window;
     _event.data.type                  = Event::STATISTIC;
     _event.data.originator            = window->getID();
     _event.data.statistic.type        = type;
@@ -31,12 +32,12 @@ WindowStatistics::WindowStatistics( const Statistic::Type type,
 
 WindowStatistics::~WindowStatistics()
 {
-    if( _event.data.statistic.frameNumber == 0 ) // does not belong to a frame
-        return;
-
     Window*     window = _event.window;
     const int32_t hint = window->getIAttribute( Window::IATTR_HINT_STATISTICS );
     if( hint == OFF )
+        return;
+
+    if( _event.data.statistic.frameNumber == 0 ) // does not belong to a frame
         return;
 
     if( hint == NICEST )
