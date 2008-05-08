@@ -339,6 +339,8 @@ bool Config::handleEvent( const ConfigEvent* event )
             if( frame == 0 ) // Not a frame-related stat event, ignore
                 return true;
 
+            ScopedMutex< SpinLock > mutex( _statisticsMutex );
+
             for( deque< FrameStatistics >::iterator i = _statistics.begin();
                  i != _statistics.end(); ++i )
             {
