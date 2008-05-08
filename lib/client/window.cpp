@@ -858,10 +858,11 @@ AGLContext Window::createAGLContext( AGLPixelFormat pixelFormat )
         return 0;
     }
 
-    if( getIAttribute( IATTR_HINT_SWAPSYNC ) != OFF )
+    // set vsync on/off
+    if( getIAttribute( IATTR_HINT_SWAPSYNC ) != AUTO )
     {
-        const GLint interval = 1;
-        aglSetInteger( context, AGL_SWAP_INTERVAL, &interval );
+        const GLint vsync = ( getIAttribute( IATTR_HINT_SWAPSYNC )==OFF ) ? 0 : 1;
+        aglSetInteger( context, AGL_SWAP_INTERVAL, &vsync );
     }
 
     aglSetCurrentContext( context );
@@ -1070,6 +1071,19 @@ bool Window::configInitWGL()
 
     HGLRC context = createWGLContext( dc );
     setWGLContext( context );
+
+    if( getIAttribute( IATTR_HINT_SWAPSYNC ) != AUTO )
+    {
+        if( WGLEW_EXT_swap_control )
+        {
+            // set vsync on/off
+            const GLint vsync = ( getIAttribute( IATTR_HINT_SWAPSYNC )==OFF ) ? 0 : 1;
+            wglSwapIntervalEXT( vsync );
+        }
+        else
+            EQWARN << "WGLEW_EXT_swap_control not supported, ignoring window "
+                   << "swapsync hint" << endl;
+    }
 
     if( !context )
     {
