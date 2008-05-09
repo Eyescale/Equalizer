@@ -406,9 +406,9 @@ void Channel::drawStatistics()
     if( statistics.empty( )) 
         return;
 
-    applyBuffer();
-    applyViewport();
-    setupAssemblyState();
+    EQ_GL_CALL( applyBuffer( ));
+    EQ_GL_CALL( applyViewport( ));
+    EQ_GL_CALL( setupAssemblyState( ));
 
     glClear( GL_DEPTH_BUFFER_BIT );
 
@@ -552,7 +552,7 @@ void Channel::drawStatistics()
     }
     glEnd();
 
-    resetAssemblyState();
+    EQ_GL_CALL( resetAssemblyState( ));
 }
 
 //---------------------------------------------------------------------------

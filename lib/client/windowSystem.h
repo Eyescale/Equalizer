@@ -114,6 +114,7 @@ typedef bool  BOOL;
 
 // Error-check macros
 #ifdef NDEBUG
+
 #  define EQ_GL_ERROR( when ) 
 #  define EQ_GL_CALL( code ) { code; }
 
