@@ -32,18 +32,15 @@ int main( int argc, char **argv )
     // 1) 2D assembly test
     Image* image = frameData->newImage();
     TEST( image->readImage( "Image_1_color.rgb", Frame::BUFFER_COLOR ));
-    TEST( image->readImage( "Image_1_depth.rgb", Frame::BUFFER_DEPTH ));
     image = frameData->newImage();
     TEST( image->readImage( "Image_2_color.rgb", Frame::BUFFER_COLOR ));
-    TEST( image->readImage( "Image_2_depth.rgb", Frame::BUFFER_DEPTH ));
     image = frameData->newImage();
     TEST( image->readImage( "Image_3_color.rgb", Frame::BUFFER_COLOR ));
-    TEST( image->readImage( "Image_3_depth.rgb", Frame::BUFFER_DEPTH ));
     
     FrameVector  frames;
     Clock        clock;
     float        time;
-    const size_t size = image->getPixelDataSize( Frame::BUFFER_COLOR ) * 6;
+    const size_t size = image->getPixelDataSize( Frame::BUFFER_COLOR ) * 3;
     frames.push_back( &frame );
 
     clock.reset();
@@ -131,7 +128,7 @@ int main( int argc, char **argv )
     TEST( result );
 
     cout << argv[0] << ": DB first op:  " << time << " ms (" 
-         << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << endl;
+         << 1000.0f * size * 2.f / time / 1024.0f / 1024.0f << " MB/s)" << endl;
 
     clock.reset();
     result = Compositor::assembleFramesCPU( frames );
@@ -139,7 +136,7 @@ int main( int argc, char **argv )
     TEST( result );
 
     cout << argv[0] << ": DB second op: " << time << " ms (" 
-         << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << endl;
+         << 1000.0f * size * 2.f / time / 1024.0f / 1024.0f << " MB/s)" << endl;
 
     result->writeImages( "Result_DB" );
 
@@ -154,7 +151,7 @@ int main( int argc, char **argv )
     TEST( result );
 
     cout << argv[0] << ": DB 15 images: " << time << " ms (" 
-         << 5000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << endl;
+         << 5000.0f * size * 2.f / time / 1024.0f / 1024.0f << " MB/s)" << endl;
     
     TEST( eq::exit( ));
 }
