@@ -6,6 +6,7 @@
 #define EQ_COMPOSITOR_H
 
 #include <eq/client/pixel.h>          // member
+#include <eq/client/types.h>          // type definitions
 #include <eq/base/base.h>             // EQ_EXPORT definition
 
 #include <vmmlib/vector2.h>
@@ -41,17 +42,22 @@ namespace eq
          * @param frames the frames to assemble.
          * @param channel the destination channel.
          */
-        static void assembleFrames( const std::vector< Frame* >& frames,
+        static void assembleFrames( const FrameVector& frames,
                                     Channel* channel );
 
         /** 
          * Assemble all frames in the given order using the default algorithm.
          *
+         * For alpha-blending see comment for assembleFramesCPU().
+         *
          * @param frames the frames to assemble.
          * @param channel the destination channel.
+         * @param blendAlpha blend color-only images if they have an alpha
+         *                   channel
          */
-        static void assembleFramesSorted( const std::vector< Frame* >& frames,
-                                          Channel* channel );
+        static void assembleFramesSorted( const FrameVector& frames,
+                                          Channel* channel,
+                                          const bool blendAlpha = false );
 
         /** 
          * Assemble all frames in the order they become available using the GPU.
@@ -59,20 +65,31 @@ namespace eq
          * @param frames the frames to assemble.
          * @param channel the destination channel.
          */
-        static void assembleFramesUnsorted( const std::vector< Frame* >& frames,
+        static void assembleFramesUnsorted( const FrameVector& frames,
                                             Channel* channel );
 
         /** 
          * Assemble all frames in arbitrary order using the CPU before
          * assembling the result on the destination channel, using the GPU.
          *
+         * If alpha-blending is enabled, the images are blended into the
+         * intermediate image in main memory as if using:
+         * glBlendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA )
+         * The resulting image is composited using
+         * glBlendFunc( GL_ONE, GL_SRC_ALPHA )
+         * into the current framebuffer.
+         *
          * @param frames the frames to assemble.
          * @param channel the destination channel.
+         * @param blendAlpha blend color-only images if they have an alpha
+         *                   channel
          */
-        static void assembleFramesCPU( const std::vector< Frame* >& frames,
-                                       Channel* channel );
-        static const Image* assembleFramesCPU( const std::vector< Frame* >& 
-                                               frames );
+        static void assembleFramesCPU( const FrameVector& frames,
+                                       Channel* channel,
+                                       const bool blendAlpha = false );
+
+        static const Image* assembleFramesCPU(const FrameVector& frames,
+                                              const bool blendAlpha = false );
 
         /** Assemble a frame using the default algorithm. */
         static void assembleFrame( const Frame* frame, Channel* channel );
@@ -125,6 +142,8 @@ namespace eq
         static void _assembleDBImages( Image* result,
                                        const std::vector< FrameImage >& images);
         static void _assemble2DImages( Image* result,
+                                       const std::vector< FrameImage >& images);
+        static void _assembleBlendImages( Image* result,
                                        const std::vector< FrameImage >& images);
         static bool   _assembleImage_PC( int operation, Image* result,
                                          const Image* source );

@@ -172,6 +172,20 @@ uint32_t Image::getType( const Frame::Buffer buffer ) const
     return pixels.type;
 }
 
+bool Image::hasAlpha() const
+{
+    switch( getFormat( Frame::BUFFER_COLOR ))
+    {
+        case GL_RGBA:
+        case GL_RGBA8:
+        case GL_BGRA:
+            return true;
+
+        default:
+            return false;
+    }
+}
+
 void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp, 
                            Window::ObjectManager* glObjects )
 {

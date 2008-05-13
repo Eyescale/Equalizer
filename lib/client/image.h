@@ -65,6 +65,9 @@ namespace eq
         /** @return the size of a single image pixel in bytes. */
         uint32_t getDepth( const Frame::Buffer buffer ) const;
 
+        /** @return true if the image has a color buffer with alpha. */
+        bool hasAlpha() const;
+
         /** @return a pointer to the raw pixel data. */
         const uint8_t* getPixelData( const Frame::Buffer buffer ) const
             { EQASSERT(hasPixelData(buffer)); return _getPixels( buffer ).data;}

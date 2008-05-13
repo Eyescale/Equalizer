@@ -466,7 +466,7 @@ bool Session::dispatchCommand( Command& command )
 
 CommandResult Session::invokeCommand( Command& command )
 {
-    EQVERB << "dispatch " << command << endl;
+    EQVERB << "invoke " << command << endl;
     EQASSERT( command.isValid( ));
 
     switch( command->datatype )

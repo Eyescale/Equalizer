@@ -58,7 +58,7 @@ bool Channel::configInit( const uint32_t initID )
         _bgColor /= 255.f;
     }
 
-    if( _bgColor.x + _bgColor.y + _bgColor.z < 0.0f )
+    if( _bgColor.r + _bgColor.g + _bgColor.b <= 0.0f )
         _bgColorMode = BG_SOLID_BLACK;
     else
         _bgColorMode = BG_SOLID_COLORED;
@@ -313,12 +313,8 @@ void Channel::frameAssemble( const uint32_t frameID )
     }
 
     // blend DB frames in order
-    glEnable( GL_BLEND );
-    glBlendFunc( GL_ONE, GL_SRC_ALPHA );
+    eq::Compositor::assembleFramesSorted( dbFrames, this, true /*blendAlpha*/ );
 
-    eq::Compositor::assembleFramesSorted( dbFrames, this );
-
-    //glDisable( GL_BLEND );
     _finishAssemble();
 }
 

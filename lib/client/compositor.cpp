@@ -56,28 +56,30 @@ public:
 static  ImageDestructor _imageDestructor;
 
 
-static bool _useCPUAssembly( const vector< Frame* >& frames, Channel* channel )
+static bool _useCPUAssembly( const FrameVector& frames, Channel* channel, 
+                             const bool blendAlpha = false )
 {
     // It doesn't make sense to use CPU-assembly for only one frame
     if( frames.size() < 2 )
         return false;
 
-    // Test that at least two input frames have color and depth buffers. We
-    // assume then that we will have at least one color&depth image per frame so
-    // most likely it's worth to wait for the images and to do a CPU-based
-    // assembly.
+    // Test that at least two input frames have color and depth buffers or that
+    // alpha-blended assembly is used with multiple RGBA buffers. We assume then
+    // that we will have at least one image per frame so most likely it's worth
+    // to wait for the images and to do a CPU-based assembly.
+    const uint32_t desiredBuffers = blendAlpha ? Frame::BUFFER_COLOR :
+                                    Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH;
     size_t nFrames = 0;
-    for( vector< Frame* >::const_iterator i = frames.begin();
+    for( FrameVector::const_iterator i = frames.begin();
          i != frames.end(); ++i )
     {
         const Frame* frame = *i;
         if( frame->getPixel() != Pixel::ALL ) // Not supported yet on the CPU
             return false;
 
-        if( frame->getBuffers() == (Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH ))
+        if( frame->getBuffers() == desiredBuffers )
             ++nFrames;
     }
-
     if( nFrames < 2 )
         return false;
 
@@ -85,9 +87,13 @@ static bool _useCPUAssembly( const vector< Frame* >& frames, Channel* channel )
     // correct, that there are enough images to make a CPU-based assembly
     // worthwhile and all other preconditions for our current CPU-based assembly
     // code are true.
-    size_t nImages = 0;
+    size_t   nImages     = 0;
+    uint32_t colorFormat = 0;
+    uint32_t colorType   = 0;
+    uint32_t depthFormat = 0;
+    uint32_t depthType   = 0;
 
-    for( vector< Frame* >::const_iterator i = frames.begin();
+    for( FrameVector::const_iterator i = frames.begin();
          i != frames.end(); ++i )
     {
         const Frame* frame = *i;
@@ -102,50 +108,92 @@ static bool _useCPUAssembly( const vector< Frame* >& frames, Channel* channel )
         {
             const Image* image = *j;
 
-            if( image->hasPixelData( Frame::BUFFER_COLOR ) &&
-                image->hasPixelData( Frame::BUFFER_DEPTH ))
+            const bool hasColor = image->hasPixelData( Frame::BUFFER_COLOR );
+            const bool hasDepth = image->hasPixelData( Frame::BUFFER_DEPTH );
+            
+            if(( blendAlpha && hasColor && image->hasAlpha( )) ||
+               ( hasColor && hasDepth ))
+            {
+                if( colorFormat == 0 )
+                {
+                    colorFormat = image->getFormat( Frame::BUFFER_COLOR );
+                    colorType   = image->getType(   Frame::BUFFER_COLOR );
+                }
+                if( !blendAlpha && depthFormat == 0 )
+                {
+                    depthFormat = image->getFormat( Frame::BUFFER_DEPTH );
+                    depthType   = image->getType(   Frame::BUFFER_DEPTH );
+                }
+
+                if( colorFormat != image->getFormat( Frame::BUFFER_COLOR ) ||
+                    colorType   != image->getType(   Frame::BUFFER_COLOR ) ||
+                    depthFormat != image->getFormat( Frame::BUFFER_DEPTH ) ||
+                    depthType   != image->getType(   Frame::BUFFER_DEPTH ))
+                    return false;
 
                 ++nImages;
+            }
         }
+
+        if( nImages > 1 ) // early-out to reduce wait time
+            return true;
     }
 
-    return (nImages > 1);
+    return false;
 }
 }
 
-void Compositor::assembleFrames( const vector< Frame* >& frames,
+void Compositor::assembleFrames( const FrameVector& frames,
                                  Channel* channel )
 {
+    if( frames.empty( ))
+        return;
+
     if( _useCPUAssembly( frames, channel ))
         assembleFramesCPU( frames, channel );
     else
         assembleFramesUnsorted( frames, channel );
 }
 
-void Compositor::assembleFramesSorted( const vector< Frame* >& frames,
-                                       Channel* channel )
+void Compositor::assembleFramesSorted( const FrameVector& frames,
+                                       Channel* channel, const bool blendAlpha )
 {
-    if( _useCPUAssembly( frames, channel ))
-    {
-        assembleFramesCPU( frames, channel );
+    if( frames.empty( ))
         return;
+
+    if( blendAlpha )
+    {
+        glEnable( GL_BLEND );
+        glBlendFunc( GL_ONE, GL_SRC_ALPHA );
     }
 
-    for( vector< Frame* >::const_iterator i = frames.begin();
-         i != frames.end(); ++i )
+    if( _useCPUAssembly( frames, channel, blendAlpha ))
+        assembleFramesCPU( frames, channel, blendAlpha );
+    else
     {
-        Frame* frame = *i;
+        for( FrameVector::const_iterator i = frames.begin();
+             i != frames.end(); ++i )
         {
-            ChannelStatistics event( Statistic::CHANNEL_WAIT_FRAME, channel );
-            frame->waitReady( );
+            Frame* frame = *i;
+            {
+                ChannelStatistics event( Statistic::CHANNEL_WAIT_FRAME,
+                                         channel );
+                frame->waitReady( );
+            }
+            assembleFrame( frame, channel );
         }
-        assembleFrame( frame, channel );
     }
+
+    if( blendAlpha )
+        glDisable( GL_BLEND );
 }
 
-void Compositor::assembleFramesUnsorted( const vector< Frame* >& frames, 
+void Compositor::assembleFramesUnsorted( const FrameVector& frames, 
                                          Channel* channel )
 {
+    if( frames.empty( ))
+        return;
+
     EQVERB << "Unsorted GPU assembly" << endl;
     // This is an optimized assembly version. The frames are not assembled in
     // the saved order, but in the order they become available, which is faster
@@ -157,7 +205,7 @@ void Compositor::assembleFramesUnsorted( const vector< Frame* >& frames,
 
     // register monitor with all input frames
     Monitor<uint32_t> monitor;
-    for( vector< Frame* >::const_iterator i = frames.begin();
+    for( FrameVector::const_iterator i = frames.begin();
          i != frames.end(); ++i )
     {
         Frame* frame = *i;
@@ -165,7 +213,7 @@ void Compositor::assembleFramesUnsorted( const vector< Frame* >& frames,
     }
 
     uint32_t       nUsedFrames  = 0;
-    vector< Frame* > unusedFrames = frames;
+    FrameVector unusedFrames = frames;
 
     // wait and assemble frames
     while( !unusedFrames.empty( ))
@@ -175,7 +223,7 @@ void Compositor::assembleFramesUnsorted( const vector< Frame* >& frames,
             monitor.waitGE( ++nUsedFrames );
         }
 
-        for( vector< Frame* >::iterator i = unusedFrames.begin();
+        for( FrameVector::iterator i = unusedFrames.begin();
              i != unusedFrames.end(); ++i )
         {
             Frame* frame = *i;
@@ -189,7 +237,7 @@ void Compositor::assembleFramesUnsorted( const vector< Frame* >& frames,
     }
 
     // de-register the monitor
-    for( vector< Frame* >::const_iterator i = frames.begin(); i != frames.end();
+    for( FrameVector::const_iterator i = frames.begin(); i != frames.end();
          ++i )
     {
         Frame* frame = *i;
@@ -198,14 +246,18 @@ void Compositor::assembleFramesUnsorted( const vector< Frame* >& frames,
     }
 }
 
-void Compositor::assembleFramesCPU( const vector< Frame* >& frames,
-                                    Channel* channel )
+void Compositor::assembleFramesCPU( const FrameVector& frames,
+                                    Channel* channel, const bool blendAlpha )
 {
+    if( frames.empty( ))
+        return;
+
+    EQVERB << "Sorted CPU assembly" << endl;
     // Assembles images from DB and 2D compounds using the CPU and then
     // assembles the result image. Does not yet support Pixel or Eye
     // compounds. The result image has to be fully filled.
 
-    const Image* result = assembleFramesCPU( frames );
+    const Image* result = assembleFramesCPU( frames, blendAlpha );
     if( !result )
         return;
 
@@ -223,13 +275,15 @@ void Compositor::assembleFramesCPU( const vector< Frame* >& frames,
 #endif
 }
 
-const Image* Compositor::assembleFramesCPU( const std::vector< Frame* >& frames)
+const Image* Compositor::assembleFramesCPU( const FrameVector& frames,
+                                            const bool blendAlpha )
 {
     EQVERB << "Sorted CPU assembly" << endl;
 
     // collect and categorize input images
     vector< FrameImage > imagesDB;
     vector< FrameImage > images2D;
+    vector< FrameImage > imagesBlend;
     PixelViewport        resultPVP;
 
     int colorFormat = GL_BGRA;
@@ -237,8 +291,7 @@ const Image* Compositor::assembleFramesCPU( const std::vector< Frame* >& frames)
     int depthFormat = GL_DEPTH_COMPONENT;
     int depthType   = GL_FLOAT;
 
-    for( vector< Frame* >::const_iterator i = frames.begin();
-         i != frames.end(); ++i )
+    for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
     {
         Frame* frame = *i;
         frame->waitReady();
@@ -264,6 +317,8 @@ const Image* Compositor::assembleFramesCPU( const std::vector< Frame* >& frames)
                 depthFormat = image->getFormat( Frame::BUFFER_DEPTH );
                 depthType   = image->getType( Frame::BUFFER_DEPTH );
             }
+            else if( blendAlpha && image->hasAlpha( ))
+                imagesBlend.push_back( FrameImage( frame, image ));
             else
                 images2D.push_back( FrameImage( frame, image ));
         }
@@ -271,7 +326,7 @@ const Image* Compositor::assembleFramesCPU( const std::vector< Frame* >& frames)
 
     if( !resultPVP.hasArea( ))
     {
-        EQWARN << "Nothing to assemble" << endl;
+        EQWARN << "Nothing to assemble: " << resultPVP << endl;
         return 0;
     }
 
@@ -297,6 +352,7 @@ const Image* Compositor::assembleFramesCPU( const std::vector< Frame* >& frames)
     // assembly
     _assembleDBImages( result, imagesDB );
     _assemble2DImages( result, images2D );
+    _assembleBlendImages( result, imagesBlend );
 
     return result;
 }
@@ -307,6 +363,8 @@ void Compositor::_assembleDBImages( Image* result,
 {
     if( images.empty( ))
         return;
+
+    EQVERB << "CPU-DB assembly of " << images.size() << " images" << endl;
 
     EQASSERT( result->getFormat( Frame::BUFFER_DEPTH ) == GL_DEPTH_COMPONENT);
     EQASSERT( result->getType( Frame::BUFFER_DEPTH )   == GL_FLOAT );
@@ -394,8 +452,12 @@ void Compositor::_assembleDBImages( Image* result,
 void Compositor::_assemble2DImages( Image* result, 
                                     const vector< FrameImage >& images )
 {
-    // This is in large part copy&paste code from _assembleDBImages :-/
-    
+    // This is mostly copy&paste code from _assembleDBImages :-/
+    if( images.empty( ))
+        return;
+
+    EQVERB << "CPU-2D assembly of " << images.size() << " images" << endl;
+
     const eq::PixelViewport resultPVP = result->getPixelViewport();
     uint8_t* destColor = result->getPixelData( Frame::BUFFER_COLOR );
     uint8_t* destDepth = result->hasPixelData( Frame::BUFFER_DEPTH ) ?
@@ -430,13 +492,90 @@ void Compositor::_assemble2DImages( Image* result,
                                     pixelSize;
             EQASSERT( skip + rowLength <= 
                       result->getPixelDataSize( Frame::BUFFER_COLOR ));
-            
+
             memcpy( destColor + skip, color + y * pvp.w * pixelSize, rowLength);
             if( destDepth )
             {
                 EQASSERT( pixelSize == image->getDepth( Frame::BUFFER_DEPTH ));
                 bzero( destDepth + skip, rowLength );
             }
+        }
+    }
+}
+
+
+void Compositor::_assembleBlendImages( Image* result, 
+                                       const vector< FrameImage >& images )
+{
+    if( images.empty( ))
+        return;
+
+    EQVERB << "CPU-Blend assembly of " << images.size() <<" images"<< endl;
+
+    const eq::PixelViewport resultPVP = result->getPixelViewport();
+    int32_t* destColor = reinterpret_cast< int32_t* >
+        ( result->getPixelData( Frame::BUFFER_COLOR ));
+
+    for( vector< FrameImage >::const_iterator i = images.begin();
+         i != images.end(); ++i )
+    {
+        const Frame*          frame  = i->first;
+        const Image*          image  = i->second;
+        const vmml::Vector2i& offset = frame->getOffset();
+        const PixelViewport&  pvp    = image->getPixelViewport();
+        const int32_t         destX  = offset.x + pvp.x - resultPVP.x;
+        const int32_t         destY  = offset.y + pvp.y - resultPVP.y;
+
+        EQASSERT( image->getDepth( Frame::BUFFER_COLOR ) == 4 );
+        EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
+        EQASSERT( image->hasAlpha( ));
+        EQASSERT( image->getFormat( Frame::BUFFER_COLOR ) ==
+                  result->getFormat( Frame::BUFFER_COLOR ));
+        EQASSERT( image->getType( Frame::BUFFER_COLOR ) ==
+                  result->getType( Frame::BUFFER_COLOR ));
+
+        const int32_t* color = reinterpret_cast< const int32_t* >
+                                ( image->getPixelData( Frame::BUFFER_COLOR ));
+
+
+        // Check if we have enought space
+        const int32_t maxSpace = ((destY+pvp.h-1)*resultPVP.w + destX+pvp.w);
+        EQASSERT( maxSpace * sizeof( uint32_t ) <=
+                      result->getPixelDataSize( Frame::BUFFER_COLOR ));
+
+
+        // Blending of two slices, none of which is on final image (i.e. result
+        // could be blended on to something else) should be performed with:
+        // glBlendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA )
+        // which means:
+        // dstColor = 1*srcColor + srcAlpha*dstColor
+        // dstAlpha = 0*srcAlpha + srcAlpha*dstAlpha
+        // because we accumulate light which is go through (= 1-Alpha) and we
+        // already have colors as Alpha*Color
+
+        const int32_t* colorIt     = color;
+        int32_t*       destColorIt = destColor + destY*resultPVP.w + destX;
+        const uint32_t step        = sizeof( int32_t );
+
+        for( int32_t y = 0; y < pvp.h; ++y )
+        {
+            const unsigned char* src =
+                reinterpret_cast< const unsigned char* >( colorIt );
+            unsigned char*       dst =
+                reinterpret_cast< unsigned char* >( destColorIt );
+
+            for( int32_t x = 0; x < pvp.w; ++x )
+            {
+                dst[0] = MIN( src[0] + (src[3]*dst[0] >> 8), 255 );
+                dst[1] = MIN( src[1] + (src[3]*dst[1] >> 8), 255 );
+                dst[2] = MIN( src[2] + (src[3]*dst[2] >> 8), 255 );
+                dst[3] =                src[3]*dst[3] >> 8;
+
+                src += step;
+                dst += step;
+            }
+            colorIt     += pvp.w;
+            destColorIt += resultPVP.w;
         }
     }
 }
