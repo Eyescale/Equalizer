@@ -157,16 +157,17 @@ void Node::_frameFinish( const uint32_t frameID, const uint32_t frameNumber )
 
     if( _finishedFrame < frameNumber )
     {
-        EQWARN << "Finished frame was not released, enforcing unlock" 
-               << endl;
+        EQWARN << "Finished frame was not released, enforcing unlock" << endl;
         releaseFrame( frameNumber );
     }
 }
 
 void Node::releaseFrame( const uint32_t frameNumber )
 {
-    EQASSERT( _currentFrame >= frameNumber );
-    EQASSERT( _finishedFrame < frameNumber );
+    EQASSERTINFO( _currentFrame >= frameNumber, 
+                  "current " << _currentFrame << " release " << frameNumber );
+    EQASSERTINFO( _finishedFrame < frameNumber, 
+                  "finished " << _currentFrame << " release " << frameNumber );
     _finishedFrame = frameNumber;
 
     NodeFrameFinishReplyPacket packet;
@@ -345,17 +346,20 @@ eqNet::CommandResult Node::_cmdConfigExit( eqNet::Command& command )
 
 eqNet::CommandResult Node::_cmdFrameStart( eqNet::Command& command )
 {
+    CHECK_THREAD( _nodeThread );
     const NodeFrameStartPacket* packet = 
         command.getPacket<NodeFrameStartPacket>();
     EQVERB << "handle node frame start " << packet << endl;
 
-    CHECK_THREAD( _nodeThread );
-    EQLOG( LOG_TASKS ) << "----- Begin Frame ----- " << packet->frameNumber
-                       << endl;
-    frameStart( packet->frameID, packet->frameNumber );
-    EQASSERTINFO( _currentFrame >= packet->frameNumber, 
-                  "Node::frameStart() did not start frame " 
-                  << packet->frameNumber );
+    const uint32_t frameNumber = packet->frameNumber;
+    if( _currentFrame >= frameNumber ) // already done be finish early (below)
+        return eqNet::COMMAND_HANDLED;
+
+    EQLOG( LOG_TASKS ) << "----- Begin Frame ----- " << frameNumber << endl;
+
+    frameStart( packet->frameID, frameNumber );
+    EQASSERTINFO( _currentFrame >= frameNumber, 
+                  "Node::frameStart() did not start frame " << frameNumber );
 
     return eqNet::COMMAND_HANDLED;
 }
@@ -378,15 +382,30 @@ eqNet::CommandResult Node::_cmdFrameFinish( eqNet::Command& command )
 eqNet::CommandResult Node::_cmdFrameFinishEarly( eqNet::Command& command )
 {
     CHECK_THREAD( _nodeThread );
+    EQASSERT( _currentFrame >= _finishedFrame );
+
     const NodeFrameFinishEarlyPacket* packet = 
         command.getPacket<NodeFrameFinishEarlyPacket>();
     EQVERB << "handle node frame finish early " << packet << endl;
 
-    if( _finishedFrame >= packet->frameNumber ) // already done
+    const uint32_t frameNumber = packet->frameNumber;
+    if( _finishedFrame >= frameNumber ) // already done
         return eqNet::COMMAND_HANDLED;
 
-    // Not needed: _finishFrame( packet->frameNumber );
-    _frameFinish( packet->frameID, packet->frameNumber );
+    if( _currentFrame < frameNumber )
+    {
+        // It is possible that the finishEarly arrives before the corresponding
+        // frameStart, e.g., in eqPly where pipe threads are not synchronized
+        // and send their finish to the server, which sends the node finishEarly
+        // _before_ the node thread managed to process the startFrame.
+        EQASSERT( _currentFrame.get() + 1 == frameNumber );
+        
+        // Make sure frameStart is called before frameFinish
+        frameStart( packet->frameID, frameNumber );
+    }
+
+    // Not needed: _finishFrame( frameNumber );
+    _frameFinish( packet->frameID, frameNumber );
     return eqNet::COMMAND_HANDLED;
 }
 

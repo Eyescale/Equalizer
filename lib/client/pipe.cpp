@@ -973,6 +973,12 @@ eqNet::CommandResult Pipe::_cmdFrameFinish( eqNet::Command& command )
         releaseFrameLocal( packet->frameNumber );
     }
 
+    if( _finishedFrame < packet->frameNumber )
+    {
+        EQWARN << "Finished frame was not released, enforcing unlock" << endl;
+        releaseFrame( packet->frameNumber );
+    }
+
     return eqNet::COMMAND_HANDLED;
 }
 
