@@ -27,6 +27,11 @@ EQ_EXPORT bool init( const int argc, char** argv, NodeFactory* nodeFactory )
 {
     EQINFO << "Equalizer v" << Version::getString() << " initializing" << endl;
 
+#ifdef AGL
+    ProcessSerialNumber selfProcess = { 0, kCurrentProcess };
+    SetFrontProcess( &selfProcess );
+#endif
+
 #ifdef EQ_USE_PARACOMP
     EQINFO << "Initializing Paracomp library" << endl;
     PCerr err = pcSystemInitialize( 0 );
