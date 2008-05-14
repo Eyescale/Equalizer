@@ -216,8 +216,7 @@ namespace eq
          * 
          * @param frameNumber the frame to start.
          */
-        void startFrame( const uint32_t frameNumber ) 
-            { _currentFrame = frameNumber; }
+        void startFrame( const uint32_t frameNumber );
 
         /** 
          * Signal the completion of a frame to the parent.
@@ -481,6 +480,8 @@ namespace eq
         eqNet::CommandResult _cmdFrameFinish( eqNet::Command& command );
         eqNet::CommandResult _cmdFrameDrawFinish( eqNet::Command& command );
         eqNet::CommandResult _cmdStopThread( eqNet::Command& command );
+
+        CHECK_THREAD_DECLARE( _pipeThread );
     };
 }
 

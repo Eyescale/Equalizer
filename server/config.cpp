@@ -87,15 +87,6 @@ Config::~Config()
     _server     = 0;
     _appNode    = 0;
 
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
-    {
-        Node* node = *i;
-
-        node->_config = 0;
-        delete node;
-    }
-    _nodes.clear();
-
     for( vector<Compound*>::const_iterator i = _compounds.begin(); 
          i != _compounds.end(); ++i )
     {
@@ -105,6 +96,15 @@ Config::~Config()
         delete compound;
     }
     _compounds.clear();
+
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    {
+        Node* node = *i;
+
+        node->_config = 0;
+        delete node;
+    }
+    _nodes.clear();
 }
 
 void Config::setLocalNode( eqBase::RefPtr< eqNet::Node > node )
@@ -562,10 +562,11 @@ void Config::_updateHead()
     _eyePosition[eq::EYE_RIGHT]  /= ( eyeBase_2 * head.m30 + head.m33 ); // w
 }
 
-uint32_t Config::_prepareFrame( vector< eqNet::NodeID >& nodeIDs )
+void Config::_prepareFrame( vector< eqNet::NodeID >& nodeIDs )
 {
-    // Note: If you add commands to the app node, please consider that the start
-    // frame reply sent directly after this function is a priority packet!
+    // Note: If you add sending commands to the app node, please consider that
+    // the start frame reply sent directly after this function is a priority
+    // packet!
 
     EQASSERT( _state == STATE_INITIALIZED );
     ++_currentFrame;
@@ -582,8 +583,6 @@ uint32_t Config::_prepareFrame( vector< eqNet::NodeID >& nodeIDs )
             nodeIDs.push_back( netNode->getNodeID( ));
         }
     }
-    
-    return _currentFrame;
 }
 
 void Config::_startFrame( const uint32_t frameID )
@@ -720,7 +719,9 @@ eqNet::CommandResult Config::_cmdStartFrame( eqNet::Command& command )
     EQVERB << "handle config frame start " << packet << endl;
 
     vector< eqNet::NodeID > nodeIDs;
-    reply.frameNumber = _prepareFrame( nodeIDs );
+    _prepareFrame( nodeIDs );
+
+    reply.frameNumber = _currentFrame;
     reply.nNodeIDs    = nodeIDs.size();
 
     for( vector< eqNet::NodeID >::iterator i = nodeIDs.begin(); 

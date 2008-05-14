@@ -302,6 +302,8 @@ void Pipe::setCGDisplayID( CGDirectDisplayID id )
 void* Pipe::_runThread()
 {
     EQINFO << "Entered pipe thread" << endl;
+    CHECK_THREAD( _pipeThread );
+
     Config* config = getConfig();
     EQASSERT( config );
     EQASSERT( _pipeThreadQueue );
@@ -402,6 +404,7 @@ void Pipe::joinThread()
 //---------------------------------------------------------------------------
 void Pipe::_configInitWGLEW()
 {
+    CHECK_THREAD( _pipeThread );
     if( _windowSystem != WINDOW_SYSTEM_WGL )
         return;
 
@@ -508,6 +511,7 @@ void Pipe::_configInitWGLEW()
 
 bool Pipe::configInit( const uint32_t initID )
 {
+    CHECK_THREAD( _pipeThread );
     switch( _windowSystem )
     {
         case WINDOW_SYSTEM_GLX:
@@ -643,6 +647,7 @@ bool Pipe::configInitWGL()
 
 bool Pipe::configExit()
 {
+    CHECK_THREAD( _pipeThread );
     switch( _windowSystem )
     {
         case WINDOW_SYSTEM_GLX:
@@ -693,6 +698,7 @@ void Pipe::configExitWGL()
 
 void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber ) 
 { 
+    CHECK_THREAD( _pipeThread );
     getNode()->waitFrameStarted( frameNumber );
     startFrame( frameNumber );
 }
@@ -710,14 +716,23 @@ void Pipe::exitEventHandler()
     _eventHandler = 0;
 }
 
+void Pipe::startFrame( const uint32_t frameNumber )
+{ 
+    CHECK_THREAD( _pipeThread );
+    _currentFrame = frameNumber; 
+    EQLOG( LOG_TASKS ) << "---- Started Frame ---- " << frameNumber << endl;
+}
+
 void Pipe::releaseFrame( const uint32_t frameNumber )
 { 
+    CHECK_THREAD( _pipeThread );
     _finishedFrame = frameNumber; 
-    EQLOG( LOG_TASKS ) << "---- Released Frame --- " << frameNumber << endl;
+    EQLOG( LOG_TASKS ) << "---- Finished Frame --- " << frameNumber << endl;
 }
 
 void Pipe::releaseFrameLocal( const uint32_t frameNumber )
 { 
+    CHECK_THREAD( _pipeThread );
     _unlockedFrame = frameNumber; 
     EQLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << frameNumber << endl;
 }
@@ -823,6 +838,7 @@ eqNet::CommandResult Pipe::_cmdDestroyWindow(  eqNet::Command& command  )
 
 eqNet::CommandResult Pipe::_cmdConfigInit( eqNet::Command& command )
 {
+    CHECK_THREAD( _pipeThread );
     const PipeConfigInitPacket* packet = 
         command.getPacket<PipeConfigInitPacket>();
     EQLOG( LOG_TASKS ) << "TASK pipe config init " << packet << endl;
@@ -909,6 +925,7 @@ eqNet::CommandResult Pipe::_cmdConfigInit( eqNet::Command& command )
 
 eqNet::CommandResult Pipe::_cmdConfigExit( eqNet::Command& command )
 {
+    CHECK_THREAD( _pipeThread );
     const PipeConfigExitPacket* packet = 
         command.getPacket<PipeConfigExitPacket>();
     EQLOG( LOG_TASKS ) << "TASK configExit " << getName() <<  " " << packet 
@@ -935,9 +952,15 @@ eqNet::CommandResult Pipe::_cmdFrameStartClock( eqNet::Command& command )
 
 eqNet::CommandResult Pipe::_cmdFrameStart( eqNet::Command& command )
 {
+    CHECK_THREAD( _pipeThread );
     const PipeFrameStartPacket* packet = 
         command.getPacket<PipeFrameStartPacket>();
     EQVERB << "handle pipe frame start " << packet << endl;
+    EQLOG( LOG_TASKS ) << "---- TASK start frame ---- " << packet << endl;
+
+    const uint32_t frameNumber = packet->frameNumber;
+    EQASSERTINFO( _currentFrame + 1 == frameNumber,
+                  "current " << _currentFrame << " start " << frameNumber );
 
     _frameTimeMutex.set();
     EQASSERT( !_frameTimes.empty( ));
@@ -946,37 +969,41 @@ eqNet::CommandResult Pipe::_cmdFrameStart( eqNet::Command& command )
     _frameTimes.pop_front();
     _frameTimeMutex.unset();
 
-    frameStart( packet->frameID, packet->frameNumber );
+    frameStart( packet->frameID, frameNumber );
     return eqNet::COMMAND_HANDLED;
 }
 
 eqNet::CommandResult Pipe::_cmdFrameFinish( eqNet::Command& command )
 {
+    CHECK_THREAD( _pipeThread );
     const PipeFrameFinishPacket* packet =
         command.getPacket<PipeFrameFinishPacket>();
     EQVERB << "handle pipe frame sync " << packet << endl;
+    EQLOG( LOG_TASKS ) << "---- TASK finish frame --- " << packet << endl;
 
-    frameFinish( packet->frameID, packet->frameNumber );
+    const uint32_t frameNumber = packet->frameNumber;
+    EQASSERTINFO( _currentFrame >= frameNumber, 
+                  "current " << _currentFrame << " finish " << frameNumber );
+
+    frameFinish( packet->frameID, frameNumber );
     PipeFrameFinishReplyPacket reply( packet );
     send( command.getNode(), reply );
     
-    EQLOG( LOG_TASKS ) << "---- Finished Frame --- " << _finishedFrame.get()
-                       << endl;
-    EQASSERTINFO( _finishedFrame >= packet->frameNumber, 
-                  "Pipe::frameFinish() did not release frame " 
-                  << packet->frameNumber );
+    EQASSERTINFO( _finishedFrame >= frameNumber, 
+                  "Pipe::frameFinish() did not release frame " << frameNumber );
 
-    if( _unlockedFrame < packet->frameNumber )
+    if( _unlockedFrame < frameNumber )
     {
         EQWARN << "Finished frame was not locally unlocked, enforcing unlock" 
-               << endl;
-        releaseFrameLocal( packet->frameNumber );
+               << endl << "    unlocked " << _unlockedFrame.get() << " done "
+               << frameNumber << endl;
+        releaseFrameLocal( frameNumber );
     }
 
-    if( _finishedFrame < packet->frameNumber )
+    if( _finishedFrame < frameNumber )
     {
         EQWARN << "Finished frame was not released, enforcing unlock" << endl;
-        releaseFrame( packet->frameNumber );
+        releaseFrame( frameNumber );
     }
 
     return eqNet::COMMAND_HANDLED;
@@ -984,6 +1011,7 @@ eqNet::CommandResult Pipe::_cmdFrameFinish( eqNet::Command& command )
 
 eqNet::CommandResult Pipe::_cmdFrameDrawFinish( eqNet::Command& command )
 {
+    CHECK_THREAD( _pipeThread );
     PipeFrameDrawFinishPacket* packet = 
         command.getPacket< PipeFrameDrawFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet

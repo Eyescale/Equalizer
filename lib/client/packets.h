@@ -1085,7 +1085,6 @@ namespace eq
            << " renderer " << packet->rendererInfo;
         return os;
     }
-
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ServerUseConfigPacket* packet )
     {
@@ -1093,7 +1092,6 @@ namespace eq
            << " params " << packet->configInfo;
         return os;
     }
-
     inline std::ostream& operator << ( std::ostream& os, 
                                    const ServerChooseConfigReplyPacket* packet )
     {
@@ -1101,14 +1099,12 @@ namespace eq
            << packet->configID;
         return os;
     }
-
     inline std::ostream& operator << ( std::ostream& os, 
         const ServerReleaseConfigPacket* packet )
     {
         os << (ServerPacket*)packet << " config " << packet->configID;
         return os;
     }
-
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ServerCreateConfigPacket* packet )
     {
@@ -1128,28 +1124,33 @@ namespace eq
 
         return os;
     }
-
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeCreatePipePacket* packet )
     {
         os << (eqNet::ObjectPacket*)packet << " id " << packet->pipeID;
         return os;
     }
-
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const NodeFrameStartPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+           << " id " << packet->frameID;
+        return os;
+    }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeFrameDrawFinishPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber;
+        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+           << " id " << packet->frameID;
         return os;
     }
-
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeFrameFinishPacket* packet )
     {
-        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber;
+        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+           << " id " << packet->frameID;
         return os;
     }
-
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeFrameFinishEarlyPacket* packet)
     {
@@ -1163,7 +1164,6 @@ namespace eq
         os << (eqNet::ObjectPacket*)packet << " id " << packet->windowID;
         return os;
     }
-
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PipeConfigInitPacket* packet )
     {
@@ -1177,6 +1177,27 @@ namespace eq
         os << (eqNet::ObjectPacket*)packet << " result " << packet->result;
         return os;
     }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const PipeFrameStartPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+           << " id " << packet->frameID;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const PipeFrameDrawFinishPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+           << " id " << packet->frameID;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const PipeFrameFinishPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+           << " id " << packet->frameID;
+        return os;
+    }
 
     inline std::ostream& operator << ( std::ostream& os, 
                                        const WindowCreateChannelPacket* packet )
@@ -1184,7 +1205,6 @@ namespace eq
         os << (eqNet::ObjectPacket*)packet << " id " << packet->channelID;
         return os;
     }
-
     inline std::ostream& operator << ( std::ostream& os, 
                                      const WindowConfigInitReplyPacket* packet )
     {
@@ -1192,7 +1212,20 @@ namespace eq
            << " pvp " << packet->pvp;
         return os;
     }
-
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const WindowFrameStartPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+           << " id " << packet->frameID;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                     const WindowFrameDrawFinishPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+           << " id " << packet->frameID;
+        return os;
+    }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const WindowBarrierPacket* packet )
     {
@@ -1211,6 +1244,20 @@ namespace eq
                                        const ChannelTaskPacket* packet )
     {
         os << (eqNet::ObjectPacket*)packet << " " << packet->context;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const ChannelFrameStartPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+           << " id " << packet->frameID;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                    const ChannelFrameDrawFinishPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber
+           << " id " << packet->frameID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

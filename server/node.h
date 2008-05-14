@@ -173,18 +173,18 @@ namespace eqs
 
         void send( eqNet::SessionPacket& packet ) 
             { 
-                packet.sessionID = getConfig()->getID(); 
+                packet.sessionID = _config->getID(); 
                 _bufferedTasks.send( packet );
             }
         void send( eqNet::SessionPacket& packet, const std::string& string ) 
             {
-                packet.sessionID = getConfig()->getID(); 
+                packet.sessionID = _config->getID(); 
                 _bufferedTasks.send( packet, string );
             }
         template< typename T >
         void send( eqNet::ObjectPacket &packet, const std::vector<T>& data )
             {
-                packet.sessionID = getConfig()->getID(); 
+                packet.sessionID = _config->getID(); 
                 _bufferedTasks.send( packet, data );
             }
 

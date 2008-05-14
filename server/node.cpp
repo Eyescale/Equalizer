@@ -303,8 +303,10 @@ void Node::notifyPipeFrameFinished( const uint32_t frameNumber )
     finishPacket.frameID     = _frameIDs[ frameNumber ];
     finishPacket.frameNumber = frameNumber;
 
-    _send( finishPacket );
-    _bufferedTasks.sendBuffer( _node->getConnection( ));
+    // do not used _send/_bufferedTasks, not thread-safe!
+    finishPacket.sessionID   = _config->getID();
+    finishPacket.objectID    = getID();
+    _node->send( finishPacket );
  }
 
 void Node::flushFrames( const uint32_t frameNumber )

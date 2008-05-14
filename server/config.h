@@ -265,7 +265,7 @@ namespace eqs
 
         void _updateHead();
 
-        uint32_t _prepareFrame( std::vector< eqNet::NodeID >& nodeIDs );
+        void     _prepareFrame( std::vector< eqNet::NodeID >& nodeIDs );
         void     _startFrame( const uint32_t frameID );
         uint32_t _finishFrame();
         uint32_t _finishAllFrames();
