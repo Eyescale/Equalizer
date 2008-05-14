@@ -69,8 +69,8 @@ namespace eqNet
          */
         void interrupt();
 
-        int                        getError()     { return _error; }
-        eqBase::RefPtr<Connection> getConnection(){ return _connection; }
+        int           getError()     { return _error; }
+        ConnectionPtr getConnection(){ return _connection; }
 
     private:
         /** Mutex protecting changes to the set. */
@@ -85,7 +85,8 @@ namespace eqNet
         std::vector<pollfd> _fdSetCopy; // 'const' set
         std::vector<pollfd> _fdSet;     // copy of _fdSetCopy used to poll()
 #endif
-        stde::hash_map<Connection::ReadNotifier, Connection*> _fdSetConnections;
+        stde::hash_map<Connection::ReadNotifier, ConnectionPtr>
+            _fdSetConnections;
 
         enum SelfCommands
         {
@@ -94,11 +95,11 @@ namespace eqNet
         };
 
         /** The connection to reset a running select, see constructor. */
-        eqBase::RefPtr<Connection> _selfConnection;
+        ConnectionPtr _selfConnection;
 
         // result values
-        eqBase::RefPtr<Connection> _connection;
-        int                        _error;
+        ConnectionPtr _connection;
+        int           _error;
 
         /** FD sets need rebuild. */
         bool _dirty;

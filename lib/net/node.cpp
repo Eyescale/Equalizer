@@ -123,7 +123,7 @@ bool Node::initLocal( const int argc, char** argv )
             if( i<argc && argv[i+1][0] != '-' )
             {
                 string                        data = argv[++i];
-                RefPtr<ConnectionDescription> desc = new ConnectionDescription;
+                ConnectionDescriptionPtr desc = new ConnectionDescription;
                 desc->TCPIP.port = Global::getDefaultPort();
 
                 if( desc->fromString( data ))
@@ -154,7 +154,7 @@ bool Node::initLocal( const int argc, char** argv )
     
     if( _connectionDescriptions.empty( )) // add default listener
     {
-        RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
+        ConnectionDescriptionPtr connDesc = new ConnectionDescription;
         connDesc->type       = CONNECTIONTYPE_TCPIP;
         connDesc->TCPIP.port = Global::getDefaultPort();
         addConnectionDescription( connDesc );
@@ -191,12 +191,12 @@ bool Node::listen()
     if( !_listenToSelf( ))
         return false;
 
-    for( vector< RefPtr<ConnectionDescription> >::const_iterator i = 
+    for( vector< ConnectionDescriptionPtr >::const_iterator i = 
              _connectionDescriptions.begin();
          i != _connectionDescriptions.end(); ++i )
     {
-        RefPtr<ConnectionDescription> desc = *i;
-        RefPtr<Connection>      connection = Connection::create( desc->type );
+        ConnectionDescriptionPtr desc = *i;
+        ConnectionPtr      connection = Connection::create( desc->type );
         connection->setDescription( desc );
         if( !connection->listen( ))
         {
@@ -204,6 +204,7 @@ bool Node::listen()
             return false;
         }
 
+        connection.ref();
         _connectionNodes[ connection.get() ] = this;
         _connectionSet.addConnection( connection );
     }
@@ -240,21 +241,23 @@ bool Node::stopListening()
 void Node::_cleanup()
 {
     EQASSERTINFO( _state == STATE_STOPPED, _state );
-    EQASSERT( _connection );
+    EQASSERT( _connection.isValid( ));
 
     _connectionSet.removeConnection( _connection );
     _connectionNodes.erase( _connection.get( ));
+    _connection.unref();
     _connection = 0;
 
     const ConnectionVector& connections = _connectionSet.getConnections();
     for( ConnectionVector::const_iterator i = connections.begin(); 
          i != connections.end(); ++i )
     {
-        RefPtr<Connection> connection = *i;
-        RefPtr<Node>       node       = _connectionNodes[ connection.get() ];
+        ConnectionPtr connection = *i;
+        NodePtr       node       = _connectionNodes[ connection.get() ];
 
         node->_state      = STATE_STOPPED;
         node->_connection = 0;
+        connection.unref();
     }
 
     _connectionSet.clear();
@@ -278,13 +281,14 @@ bool Node::_listenToSelf()
     EQASSERT( _connection->getDescription().isValid( )); 
     EQASSERT( _connectionNodes.find(_connection.get())==_connectionNodes.end());
 
+    _connection.ref();
     _connectionNodes[ _connection.get() ] = this;
     _connectionSet.addConnection( _connection );
     _nodes[ _id ] = this;
     return true;
 }
 
-bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
+bool Node::connect( NodePtr node, ConnectionPtr connection )
 {
     EQASSERT( connection.isValid( ));
 
@@ -318,15 +322,15 @@ bool Node::connect( RefPtr<Node> node, RefPtr<Connection> connection )
     return true;
 }
 
-eqBase::RefPtr<Node> Node::getNode( const NodeID& id ) const
+NodePtr Node::getNode( const NodeID& id ) const
 { 
-    NodeIDHash< eqBase::RefPtr<Node> >::const_iterator iter = _nodes.find( id );
+    NodeIDHash< NodePtr >::const_iterator iter = _nodes.find( id );
     if( iter == _nodes.end( ))
         return 0;
     return iter->second;
 }
 
-bool Node::disconnect( RefPtr<Node> node )
+bool Node::disconnect( NodePtr node )
 {
     if( !node || _state != STATE_LISTENING || 
         node->_state != STATE_CONNECTED || !node->_connection )
@@ -340,7 +344,7 @@ bool Node::disconnect( RefPtr<Node> node )
     return true;
 }
 
-void Node::addConnectionDescription( eqBase::RefPtr<ConnectionDescription> cd )
+void Node::addConnectionDescription( ConnectionDescriptionPtr cd )
 {
     _connectionDescriptions.push_back( cd ); 
 }
@@ -348,7 +352,7 @@ void Node::addConnectionDescription( eqBase::RefPtr<ConnectionDescription> cd )
 //----------------------------------------------------------------------
 // Node functionality
 //----------------------------------------------------------------------
-void Node::addSession( Session* session, RefPtr<Node> server, 
+void Node::addSession( Session* session, NodePtr server, 
                        const uint32_t sessionID, const string& name )
 {
     CHECK_THREAD( _thread );
@@ -378,7 +382,7 @@ void Node::removeSession( Session* session )
     session->_isMaster  = false;
 }
 
-bool Node::mapSession( RefPtr<Node> server, Session* session, 
+bool Node::mapSession( NodePtr server, Session* session, 
                        const string& name )
 {
     EQASSERT( isLocal( ));
@@ -393,7 +397,7 @@ bool Node::mapSession( RefPtr<Node> server, Session* session,
     return ret;
 }
 
-bool Node::mapSession( RefPtr<Node> server, Session* session, const uint32_t id)
+bool Node::mapSession( NodePtr server, Session* session, const uint32_t id)
 {
     EQASSERT( isLocal( ));
     EQASSERT( id != EQ_ID_INVALID );
@@ -441,12 +445,11 @@ std::string Node::serialize() const
     ostringstream data;
     data << _id << SEPARATOR << _connectionDescriptions.size() << SEPARATOR;
 
-    for( vector< RefPtr<ConnectionDescription> >::const_iterator i = 
+    for( vector< ConnectionDescriptionPtr >::const_iterator i = 
              _connectionDescriptions.begin(); 
-         i != _connectionDescriptions.end();
-         ++i )
+         i != _connectionDescriptions.end(); ++i )
     {
-        RefPtr<ConnectionDescription> desc = *i;
+        ConnectionDescriptionPtr desc = *i;
         desc->serialize( data );
     }
     
@@ -493,7 +496,7 @@ bool Node::deserialize( std::string& data )
     // connection descriptions
     for( size_t i = 0; i<nDesc; ++i )
     {
-        RefPtr<ConnectionDescription> desc = new ConnectionDescription;
+        ConnectionDescriptionPtr desc = new ConnectionDescription;
         if( !desc->fromString( data ))
         {
             EQERROR << "Error during node connection data parsing" << endl;
@@ -599,8 +602,8 @@ void* Node::_runReceiverThread()
 
 void Node::_handleConnect()
 {
-    RefPtr<Connection> connection = _connectionSet.getConnection();
-    RefPtr<Connection> newConn    = connection->accept();
+    ConnectionPtr connection = _connectionSet.getConnection();
+    ConnectionPtr newConn    = connection->accept();
 
     if( !newConn )
     {
@@ -629,6 +632,7 @@ void Node::_handleDisconnect()
         node->_connection = 0;
         _connectionNodes.erase( connection.get( ));
         _nodes.erase( node->_id );
+        connection.unref();
     }
 
     _connectionSet.removeConnection( connection );
@@ -851,7 +855,7 @@ CommandResult Node::_cmdMapSession( Command& command )
     Session*       session   = 0;
     const uint32_t sessionID = packet->sessionID;
     string         sessionName;
-    RefPtr<Node>   node      = command.getNode();
+    NodePtr   node      = command.getNode();
 
     if( node == this ) // local mapping
     {
@@ -910,7 +914,7 @@ CommandResult Node::_cmdMapSessionReply( Command& command)
         return COMMAND_HANDLED;
     }        
     
-    RefPtr<Node>   node      = command.getNode();
+    NodePtr   node      = command.getNode();
     if( node == this ) // local mapping, was performed in _cmdMapSession
     {
         _requestHandler.serveRequest( requestID, (void*)true );
@@ -937,7 +941,7 @@ CommandResult Node::_cmdUnmapSession( Command& command )
 
     NodeUnmapSessionReplyPacket reply( packet );
 
-    RefPtr<Node>   node      = command.getNode();
+    NodePtr   node      = command.getNode();
     if( !session )
     {
         reply.result = false;
@@ -972,7 +976,7 @@ CommandResult Node::_cmdUnmapSessionReply( Command& command)
     Session* session = (Session*)_requestHandler.getRequestData( requestID );
     EQASSERT( session );
 
-    RefPtr<Node>   node      = command.getNode();
+    NodePtr   node      = command.getNode();
     if( node != this ) // client instance unmapping
         removeSession( session );
 
@@ -986,7 +990,7 @@ CommandResult Node::_cmdConnect( Command& command )
     EQASSERT( _receiverThread->isCurrent( ));
 
     const NodeConnectPacket* packet = command.getPacket<NodeConnectPacket>();
-    RefPtr<Connection>   connection = _connectionSet.getConnection();
+    ConnectionPtr   connection = _connectionSet.getConnection();
 
     NodeID nodeID = packet->nodeID;
     nodeID.convertToHost();
@@ -1011,7 +1015,7 @@ CommandResult Node::_cmdConnect( Command& command )
     }
 
     // create and add connected node
-    RefPtr<Node> remoteNode;
+    NodePtr remoteNode;
     if( packet->launchID != EQ_ID_INVALID )
     {
         void* ptr = _requestHandler.getRequestData( packet->launchID );
@@ -1032,6 +1036,7 @@ CommandResult Node::_cmdConnect( Command& command )
     remoteNode->_connection = connection;
     remoteNode->_state      = STATE_CONNECTED;
     
+    connection.ref();
     _connectionNodes[ connection.get() ] = remoteNode;
     _nodes[ remoteNode->_id ]            = remoteNode;
 
@@ -1057,7 +1062,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
 
     const NodeConnectReplyPacket* packet = 
         command.getPacket<NodeConnectReplyPacket>();
-    RefPtr<Connection> connection = _connectionSet.getConnection();
+    ConnectionPtr connection = _connectionSet.getConnection();
 
     NodeID nodeID = packet->nodeID;
     nodeID.convertToHost();
@@ -1080,7 +1085,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
     }
 
     // create and add node
-    RefPtr<Node> remoteNode;
+    NodePtr remoteNode;
     if( packet->requestID != EQ_ID_INVALID )
     {
         void* ptr = _requestHandler.getRequestData( packet->requestID );
@@ -1104,6 +1109,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
     remoteNode->_connection = connection;
     remoteNode->_state      = STATE_CONNECTED;
     
+    connection.ref();
     _connectionNodes[ connection.get() ] = remoteNode;
     _nodes[ remoteNode->_id ]            = remoteNode;
 
@@ -1119,16 +1125,16 @@ CommandResult Node::_cmdDisconnect( Command& command )
     const NodeDisconnectPacket* packet = 
         command.getPacket<NodeDisconnectPacket>();
 
-    RefPtr<Node> node = static_cast<Node*>( 
+    NodePtr node = static_cast<Node*>( 
         _requestHandler.getRequestData( packet->requestID ));
     EQASSERT( node.isValid( ));
 
     node->_state      = STATE_STOPPED;
 
-    RefPtr<Connection> connection = node->_connection;
+    ConnectionPtr connection = node->_connection;
     node->_connection = 0;
 
-    const bool connectionRemoved = _connectionSet.removeConnection( connection );
+    const bool connectionRemoved = _connectionSet.removeConnection( connection);
     EQASSERTINFO( connectionRemoved, connection );
 
     EQINFO << node << " disconnecting from " << this << endl;
@@ -1137,6 +1143,7 @@ CommandResult Node::_cmdDisconnect( Command& command )
 
     _connectionNodes.erase( connection.get( ));
     _nodes.erase( node->_id );
+    connection.unref();
 
     _requestHandler.serveRequest( packet->requestID );
     return COMMAND_HANDLED;
@@ -1151,7 +1158,7 @@ CommandResult Node::_cmdGetNodeData( Command& command)
     NodeID nodeID = packet->nodeID;
     nodeID.convertToHost();
 
-    RefPtr<Node> descNode = getNode( nodeID );
+    NodePtr descNode = getNode( nodeID );
     
     NodeGetNodeDataReplyPacket reply( packet );
 
@@ -1167,7 +1174,7 @@ CommandResult Node::_cmdGetNodeData( Command& command)
         reply.type = TYPE_EQNET_INVALID;
     }
 
-    RefPtr<Node> node = command.getNode();
+    NodePtr node = command.getNode();
     node->send( reply, nodeData );
     EQINFO << "Sent node data " << nodeData << " to " << node << endl;
     return COMMAND_HANDLED;
@@ -1187,7 +1194,7 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
     if( _nodes.find( nodeID ) != _nodes.end( ))
     {   
         // Requested node connected to us in the meantime
-        RefPtr<Node> node = _nodes[ nodeID ];
+        NodePtr node = _nodes[ nodeID ];
         EQASSERT( node->isConnected( ));
 
         node->ref();
@@ -1201,7 +1208,7 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
         return COMMAND_HANDLED;
     }
         
-    RefPtr<Node> node = createNode( packet->type );
+    NodePtr node = createNode( packet->type );
     EQASSERT( node.isValid( ));
 
     string data = packet->nodeData;
@@ -1234,7 +1241,7 @@ Session* Node::_findSession( const std::string& name ) const
 //----------------------------------------------------------------------
 // Connecting and launching a node
 //----------------------------------------------------------------------
-bool Node::connect( eqBase::RefPtr<Node> node )
+bool Node::connect( NodePtr node )
 {
     if( node->getState() == STATE_CONNECTED ||
         node->getState() == STATE_LISTENING )
@@ -1251,7 +1258,7 @@ bool Node::connect( eqBase::RefPtr<Node> node )
     return syncConnect( node );
 }
 
-bool Node::initConnect( eqBase::RefPtr<Node> node )
+bool Node::initConnect( NodePtr node )
 {
     EQASSERT( _state == STATE_LISTENING );
     if( node->getState() == STATE_CONNECTED ||
@@ -1266,8 +1273,8 @@ bool Node::initConnect( eqBase::RefPtr<Node> node )
     for( ConnectionDescriptionVector::const_iterator i = cds.begin();
         i != cds.end(); ++i )
     {
-        RefPtr<ConnectionDescription> description = *i;
-        RefPtr<Connection> connection = Connection::create( description->type );
+        ConnectionDescriptionPtr description = *i;
+        ConnectionPtr connection = Connection::create( description->type );
         connection->setDescription( description );
 
         if( !connection->connect( ))
@@ -1287,7 +1294,7 @@ bool Node::initConnect( eqBase::RefPtr<Node> node )
     for( ConnectionDescriptionVector::const_iterator i = cds.begin();
         i != cds.end(); ++i )
     {
-        RefPtr<ConnectionDescription> description = *i;
+        ConnectionDescriptionPtr description = *i;
 
         if( _launch( node, description ))
             return true;
@@ -1296,7 +1303,7 @@ bool Node::initConnect( eqBase::RefPtr<Node> node )
     return false;
 }
 
-bool Node::syncConnect( eqBase::RefPtr<Node> node )
+bool Node::syncConnect( NodePtr node )
 {
     if( node->_launchID == EQ_ID_INVALID )
         return ( node->getState() == STATE_CONNECTED );
@@ -1318,7 +1325,7 @@ bool Node::syncConnect( eqBase::RefPtr<Node> node )
     return false;
 }
 
-RefPtr<Node> Node::connect( const NodeID& nodeID, RefPtr<Node> server )
+NodePtr Node::connect( const NodeID& nodeID, NodePtr server )
 {
     EQASSERT( nodeID != NodeID::ZERO );
 
@@ -1377,8 +1384,8 @@ RefPtr<Node> Node::connect( const NodeID& nodeID, RefPtr<Node> server )
     return node;
 }
 
-bool Node::_launch( RefPtr<Node> node,
-                    RefPtr<ConnectionDescription> description )
+bool Node::_launch( NodePtr node,
+                    ConnectionDescriptionPtr description )
 {
     EQASSERT( node->getState() == STATE_STOPPED );
 
@@ -1400,8 +1407,8 @@ bool Node::_launch( RefPtr<Node> node,
     return true;
 }
 
-string Node::_createLaunchCommand( RefPtr<Node> node,
-                                   RefPtr<ConnectionDescription> description )
+string Node::_createLaunchCommand( NodePtr node,
+                                   ConnectionDescriptionPtr description )
 {
     const string& launchCommand    = description->getLaunchCommand();
     const size_t  launchCommandLen = launchCommand.size();
@@ -1453,7 +1460,7 @@ string Node::_createLaunchCommand( RefPtr<Node> node,
     return result;
 }
 
-string Node::_createRemoteCommand( RefPtr<Node> node, const char quote )
+string Node::_createRemoteCommand( NodePtr node, const char quote )
 {
     if( getState() != STATE_LISTENING )
     {

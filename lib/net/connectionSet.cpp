@@ -192,15 +192,20 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
 
     return EVENT_DATA;
 #else
-    for( size_t i=0; i<_fdSet.size(); ++i )
+    for( vector< pollfd >::const_iterator i = _fdSet.begin();
+         i != _fdSet.end(); ++i )
     {
-        if( _fdSet[i].revents == 0 )
+        const pollfd& pollFD = *i;
+        if( pollFD.revents == 0 )
             continue;
 
-        const int fd         = _fdSet[i].fd;
-        const int pollEvents = _fdSet[i].revents;
+        const int fd         = pollFD.fd;
+        const int pollEvents = pollFD.revents;
 
         EQASSERT( fd > 0 );
+        EQASSERT( _fdSetConnections.find( fd ) != _fdSetConnections.end( ));
+        EQASSERT( _fdSetConnections[ fd ].isValid( ));
+
         _connection = _fdSetConnections[ fd ];
         EQASSERT( _connection.isValid( ));
 
@@ -276,7 +281,7 @@ bool ConnectionSet::_setupFDSet()
     HANDLE readHandle = _selfConnection->getReadNotifier();
     EQASSERT( readHandle );
 
-    _fdSetConnections[readHandle] = _selfConnection.get();
+    _fdSetConnections[readHandle] = _selfConnection;
     _fdSet.push_back( readHandle );
 
     // add regular connections
@@ -296,7 +301,7 @@ bool ConnectionSet::_setupFDSet()
             return false;
         }
         
-        _fdSetConnections[readHandle] = connection.get();
+        _fdSetConnections[readHandle] = connection;
         _fdSet.push_back( readHandle );
     }
     _mutex.unset();
@@ -310,7 +315,7 @@ bool ConnectionSet::_setupFDSet()
     fd.fd      = _selfConnection->getReadNotifier();
     EQASSERT( fd.fd > 0 );
     fd.revents = 0;
-    _fdSetConnections[fd.fd] = _selfConnection.get();
+    _fdSetConnections[fd.fd] = _selfConnection;
     _fdSet.push_back( fd );
 
     // add regular connections
@@ -333,7 +338,7 @@ bool ConnectionSet::_setupFDSet()
 
         EQVERB << "Listening on " << typeid( *connection.get( )).name() 
                << " @" << (void*)connection.get() << endl;
-        _fdSetConnections[fd.fd] = connection.get();
+        _fdSetConnections[fd.fd] = connection;
         fd.revents = 0;
         _fdSet.push_back( fd );
     }

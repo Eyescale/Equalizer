@@ -143,7 +143,7 @@ namespace eqNet
          * @return <code>true</code> if the node was connected correctly,
          *         <code>false</code> otherwise.
          */
-        bool connect( eqBase::RefPtr<Node> node, 
+        bool connect( NodePtr node, 
                       eqBase::RefPtr<Connection> connection );
 
         /** 
@@ -152,7 +152,7 @@ namespace eqNet
          * @param id the node identifier.
          * @return the node.
          */
-        eqBase::RefPtr<Node> getNode( const NodeID& id ) const;
+        NodePtr getNode( const NodeID& id ) const;
 
         /** 
          * Connect and potentially launch a node to this listening node, using
@@ -166,7 +166,7 @@ namespace eqNet
          *         <code>false</code> otherwise.
          * @sa initConnect, syncConnect
          */
-        bool connect( eqBase::RefPtr<Node> node );
+        bool connect( NodePtr node );
 
         /** 
          * Start connecting and potentially launching a node using the
@@ -180,7 +180,7 @@ namespace eqNet
          *         <code>false</code> otherwise.
          * @sa syncConnect
          */
-        bool initConnect( eqBase::RefPtr<Node> node );
+        bool initConnect( NodePtr node );
 
         /** 
          * Synchronize the connection initiated by initConnect().
@@ -193,7 +193,7 @@ namespace eqNet
          *         <code>false</code> otherwise.
          * @sa initConnect
          */
-        bool syncConnect( eqBase::RefPtr<Node> node );
+        bool syncConnect( NodePtr node );
 
         /** 
          * Create and connect a node given by an identifier.
@@ -204,8 +204,8 @@ namespace eqNet
          * @return the connected node, or an invalid RefPtr if the node could
          *         not be connected.
          */
-        eqBase::RefPtr<Node> connect( const NodeID& nodeID,
-                                      eqBase::RefPtr<Node> server );
+        NodePtr connect( const NodeID& nodeID,
+                                      NodePtr server );
 
         /** 
          * Disconnects a connected node.
@@ -214,7 +214,7 @@ namespace eqNet
          * @return <code>true</code> if the node was disconnected correctly,
          *         <code>false</code> otherwise.
          */
-        bool disconnect( eqBase::RefPtr<Node> node );
+        bool disconnect( NodePtr node );
 
         /** 
          * Ensures the connectivity of this node.
@@ -248,7 +248,7 @@ namespace eqNet
          * 
          * @param cd the connection description.
          */
-        void addConnectionDescription( eqBase::RefPtr<ConnectionDescription> cd );
+        void addConnectionDescription( ConnectionDescriptionPtr cd );
         
         /** 
          * Removes a connection description.
@@ -378,7 +378,7 @@ namespace eqNet
          * @return <code>true</code> if the session was mapped,
          *         <code>false</code> if not.
          */
-        bool mapSession( eqBase::RefPtr<Node> server, Session* session, 
+        bool mapSession( NodePtr server, Session* session, 
                          const std::string& name );
 
         /**
@@ -390,7 +390,7 @@ namespace eqNet
          * @return <code>true</code> if the session was mapped,
          *         <code>false</code> if not.
          */
-        bool mapSession( eqBase::RefPtr<Node> server, Session* session, 
+        bool mapSession( NodePtr server, Session* session, 
                          const uint32_t id );
 
         /** 
@@ -413,7 +413,7 @@ namespace eqNet
          * @param sessionID the identifier of the session.
          * @param name the name of the session.
          */
-        void addSession( Session* session, eqBase::RefPtr<Node> server, 
+        void addSession( Session* session, NodePtr server, 
                          const uint32_t sessionID, const std::string& name );
 
         /** 
@@ -485,7 +485,7 @@ namespace eqNet
          * @return the node.
          * @sa getType()
          */
-        virtual eqBase::RefPtr<Node> createNode( const uint32_t type )
+        virtual NodePtr createNode( const uint32_t type )
         { EQASSERTINFO( type == TYPE_EQNET_NODE, type ); return new Node(); }
 
         /** Serialize the node's information. */
@@ -517,10 +517,10 @@ namespace eqNet
         friend eqBase::RefPtr< eqNet::Connection > (::eqsStartLocalServer());
 
         /** The connected nodes. */
-        NodeIDHash< eqBase::RefPtr<Node> > _nodes;
+        NodeIDHash< NodePtr > _nodes;
 
         /** The node for each connection. */
-        eqBase::PtrHash< Connection*, eqBase::RefPtr<Node> > _connectionNodes;
+        eqBase::PtrHash< Connection*, NodePtr > _connectionNodes;
 
         /** The receiver->command command queue. */
         CommandQueue _commandThreadQueue;
@@ -562,8 +562,8 @@ namespace eqNet
          * @return <code>true</code> if the node was launched,
          *         <code>false</code> otherwise.
          */
-        bool _launch( eqBase::RefPtr<Node> node, 
-                      eqBase::RefPtr<ConnectionDescription> description );
+        bool _launch( NodePtr node, 
+                      ConnectionDescriptionPtr description );
 
         /** 
          * Composes the launch command by expanding the variables in the
@@ -574,9 +574,9 @@ namespace eqNet
          *                  node when connecting to this node.
          * @return the expanded launch command.
          */
-        std::string _createLaunchCommand( eqBase::RefPtr<Node> node,
-                            eqBase::RefPtr<ConnectionDescription> description );
-        std::string   _createRemoteCommand( eqBase::RefPtr<Node> node, 
+        std::string _createLaunchCommand( NodePtr node,
+                                          ConnectionDescriptionPtr description);
+        std::string   _createRemoteCommand( NodePtr node, 
                                             const char quote );
 
         /** 
@@ -585,8 +585,7 @@ namespace eqNet
          * @param connectionDescription the connection description for the node.
          * @return the node, or <code>NULL</code> if no node was found.
          */
-        eqBase::RefPtr<Node> _findConnectedNode( const char* 
-                                                 connectionDescription );
+        NodePtr _findConnectedNode( const char* connectionDescription );
 
         /** 
          * Find a named, mapped session.
