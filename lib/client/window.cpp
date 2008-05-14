@@ -1077,7 +1077,8 @@ bool Window::configInitWGL()
         if( WGLEW_EXT_swap_control )
         {
             // set vsync on/off
-            const GLint vsync = ( getIAttribute( IATTR_HINT_SWAPSYNC )==OFF ) ? 0 : 1;
+            const GLint vsync = ( getIAttribute( IATTR_HINT_SWAPSYNC )==OFF ) ?
+                                    0 : 1;
             wglSwapIntervalEXT( vsync );
         }
         else

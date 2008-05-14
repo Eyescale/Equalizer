@@ -133,6 +133,7 @@ void Node::startConfigInit( const uint32_t initID )
 
     _flushedFrame  = 0;
     _finishedFrame = 0;
+    _frameIDs.clear();
 
     eq::NodeConfigInitPacket packet;
     packet.initID = initID;
@@ -237,6 +238,7 @@ bool Node::syncConfigExit()
     }
     _bufferedTasks.sendBuffer( _node->getConnection( ));
 
+    _frameIDs.clear();
     _flushBarriers();
     return success;
 }
@@ -247,8 +249,8 @@ bool Node::syncConfigExit()
 void Node::update( const uint32_t frameID, const uint32_t frameNumber )
 {
     EQVERB << "Start frame " << frameNumber << endl;
-    _frameIDs.push_back( frameID );
-
+    _frameIDs[ frameNumber ] = frameID;
+    
     if( !_lastDrawCompound )
     {
         Config* config = getConfig();
@@ -272,6 +274,10 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
     const Config*  config  = getConfig();
     const uint32_t latency = config->getLatency();
 
+    // Note: we could always wait for the pipes to return the finish, and then
+    // send the node finish. This is an optimisation to queue the command on the
+    // node when the latency is exhausted, in order to avoid the round-trip at
+    // the end of a frame.
     if( frameNumber > latency )
         flushFrames( frameNumber - latency );
 
@@ -279,31 +285,56 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
     _lastDrawCompound = 0;
 }
 
+void Node::notifyPipeFrameFinished( const uint32_t frameNumber )
+{
+    if( _finishedFrame >= frameNumber ) // node finish already done
+        return;
+
+    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
+    {
+        const Pipe* pipe = *i;
+        if( pipe->isUsed() && pipe->getFinishedFrame() < frameNumber )
+            return;
+    }
+
+    // All pipes have finished the frame. Send a priority packet to the node, so
+    // that the node can finish the frame early.
+    eq::NodeFrameFinishEarlyPacket finishPacket;
+    finishPacket.frameID     = _frameIDs[ frameNumber ];
+    finishPacket.frameNumber = frameNumber;
+
+    _send( finishPacket );
+    _bufferedTasks.sendBuffer( _node->getConnection( ));
+ }
+
 void Node::flushFrames( const uint32_t frameNumber )
 {
     EQVERB << "Flush frames including " << frameNumber << endl;
 
     while( _flushedFrame < frameNumber )
     {
-        EQASSERT( !_frameIDs.empty( ));
-
         ++_flushedFrame;
-        _sendFrameFinish( _frameIDs.front(), _flushedFrame );
-        _frameIDs.pop_front();
+        _sendFrameFinish( _flushedFrame );
     }
 
     _bufferedTasks.sendBuffer( _node->getConnection( ));
 }
 
-void Node::_sendFrameFinish( const uint32_t frameID, const uint32_t frameNumber)
+void Node::_sendFrameFinish( const uint32_t frameNumber)
 {
     eq::NodeFrameFinishPacket finishPacket;
-    finishPacket.frameID     = frameID;
+    finishPacket.frameID     = _frameIDs[ frameNumber ];
     finishPacket.frameNumber = frameNumber;
 
     _send( finishPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK node finish frame  " << &finishPacket
                            << endl;
+}
+
+void Node::finishFrame( const uint32_t frame )
+{ 
+    _finishedFrame.waitGE( frame ); 
+    _frameIDs.erase( frame );
 }
 
 //---------------------------------------------------------------------------

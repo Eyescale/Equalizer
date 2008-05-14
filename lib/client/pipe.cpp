@@ -318,7 +318,11 @@ void* Pipe::_runThread()
             case eqNet::COMMAND_ERROR:
                 EQERROR << "Error handling command packet" << endl;
                 abort();
+            default:
+                EQERROR << "Unknown command result" << endl;
+                abort();
         }
+        _pipeThreadQueue->release( command );
     }
 
     EQUNREACHABLE; // since we are exited from _cmdConfigExit
@@ -953,7 +957,9 @@ eqNet::CommandResult Pipe::_cmdFrameFinish( eqNet::Command& command )
     EQVERB << "handle pipe frame sync " << packet << endl;
 
     frameFinish( packet->frameID, packet->frameNumber );
-
+    PipeFrameFinishReplyPacket reply( packet );
+    send( command.getNode(), reply );
+    
     EQLOG( LOG_TASKS ) << "---- Finished Frame --- " << _finishedFrame.get()
                        << endl;
     EQASSERTINFO( _finishedFrame >= packet->frameNumber, 

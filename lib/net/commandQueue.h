@@ -27,20 +27,19 @@ namespace eqNet
 
         /** 
          * Push a command to the queue.
-         *
-         * The command's command is incremented by one, which enables the usage
-         * of the same code for handling the arriving packet and the queued
-         * command, as they use different commands.
          * 
          * @param node the node sending the packet.
          * @param packet the command packet.
          */
         virtual void push( Command& packet );
 
+        /** Push a command to the front of the queue. */
+        virtual void pushFront( Command& packet );
+
         /** 
          * Pop a command from the queue.
          *
-         * The returned packet is valid until the next pop operation.
+         * The returned packet has to be released after usage.
          * 
          * @return the next command in the queue.
          */
@@ -49,13 +48,15 @@ namespace eqNet
         /** 
          * Try to pop a command from the queue.
          *
-         * The returned packet is valid until the next pop operation.
+         * The returned packet has to be released after usage.
          * 
          * @return the next command in the queue, or 0 if no command is queued.
          */
         virtual Command* tryPop();
 
-        
+        /** Release a command obtained by pop() or tryPop(). */
+        void release( Command* command );
+
         /** 
          * Peek the command at the end of the queue.
          *
@@ -80,9 +81,6 @@ namespace eqNet
         /** Thread-safe command queue. */
         eqBase::MTQueue<Command>  _commands;
         
-        /** The last popped command, to be released upon the next pop. */
-        Command*                  _lastCommand;
-
         /** The free command cache. */
         CommandCache              _commandCache;
         eqBase::Lock              _commandCacheLock;

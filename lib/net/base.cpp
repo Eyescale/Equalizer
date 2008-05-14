@@ -74,8 +74,15 @@ bool Base::dispatchCommand( Command& command )
     }
 #endif
 
-    if( _qTable[which] )
-        _qTable[which]->push( command );
+    CommandQueue* queue = _qTable[which];
+    if( queue )
+    {
+        // unlikely, maybe http://tim.klingt.org/git?p=boost_lockfree.git;a=tree
+        if( command->hasPriority ) 
+            queue->pushFront( command );
+        else
+            queue->push( command );
+    }
     else
         _vTable[which]( command );
 

@@ -74,6 +74,13 @@ void CommandQueue::push(eqNet::Command& inCommand)
         _messagePump->postWakeup();
 }
 
+void CommandQueue::pushFront(eqNet::Command& inCommand)
+{
+    eqNet::CommandQueue::pushFront(inCommand);
+    if( _messagePump )
+        _messagePump->postWakeup();
+}
+
 eqNet::Command* CommandQueue::pop()
 {
     while( true )

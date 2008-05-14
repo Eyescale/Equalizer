@@ -322,10 +322,11 @@ namespace eq
     {
         ConfigStartFrameReplyPacket(const ConfigStartFramePacket* requestPacket)
             {
-                command   = CMD_CONFIG_START_FRAME_REPLY;
-                size      = sizeof( ConfigStartFrameReplyPacket );
-                sessionID = requestPacket->sessionID;
-                requestID = requestPacket->requestID;
+                command     = CMD_CONFIG_START_FRAME_REPLY;
+                size        = sizeof( ConfigStartFrameReplyPacket );
+                sessionID   = requestPacket->sessionID;
+                requestID   = requestPacket->requestID;
+                hasPriority = true;
             }
         uint32_t requestID;
         uint32_t frameNumber;
@@ -346,8 +347,9 @@ namespace eq
     {
         ConfigFinishFrameReplyPacket()
             {
-                command   = CMD_CONFIG_FINISH_FRAME_REPLY;
-                size      = sizeof( ConfigFinishFrameReplyPacket );
+                command     = CMD_CONFIG_FINISH_FRAME_REPLY;
+                size        = sizeof( ConfigFinishFrameReplyPacket );
+                hasPriority = true;
             }
         uint32_t frameNumber;
     };
@@ -489,6 +491,19 @@ namespace eq
         uint32_t frameNumber;
     };
 
+    struct NodeFrameFinishEarlyPacket : public eqNet::ObjectPacket
+    {
+        NodeFrameFinishEarlyPacket()
+            {
+                command        = CMD_NODE_FRAME_FINISH_EARLY;
+                size           = sizeof( NodeFrameFinishEarlyPacket );
+                hasPriority    = true;
+            }
+
+        uint32_t frameID;
+        uint32_t frameNumber;
+    };
+
     struct NodeFrameFinishReplyPacket : public eqNet::ObjectPacket
     {
         NodeFrameFinishReplyPacket()
@@ -616,6 +631,18 @@ namespace eq
             }
 
         uint32_t frameID;
+        uint32_t frameNumber;
+    };
+
+    struct PipeFrameFinishReplyPacket : public eqNet::ObjectPacket
+    {
+        PipeFrameFinishReplyPacket( const PipeFrameFinishPacket* request )
+            {
+                command        = CMD_PIPE_FRAME_FINISH_REPLY;
+                size           = sizeof( PipeFrameFinishReplyPacket );
+                frameNumber    = request->frameNumber;
+            }
+
         uint32_t frameNumber;
     };
         
@@ -1111,6 +1138,20 @@ namespace eq
 
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeFrameDrawFinishPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber;
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const NodeFrameFinishPacket* packet )
+    {
+        os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber;
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const NodeFrameFinishEarlyPacket* packet)
     {
         os << (eqNet::ObjectPacket*)packet << " frame " << packet->frameNumber;
         return os;

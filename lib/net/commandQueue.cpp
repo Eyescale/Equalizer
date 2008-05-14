@@ -13,7 +13,6 @@ using namespace std;
 namespace eqNet
 {
 CommandQueue::CommandQueue()
-        : _lastCommand(0)
 {
 }
 
@@ -37,10 +36,6 @@ void CommandQueue::flush()
     }
 #endif
 
-    if( _lastCommand )
-        _commandCache.release( _lastCommand );
-    _lastCommand = 0;
-
     _commandCache.flush();
     _commandCacheLock.unset();
 }
@@ -57,40 +52,39 @@ void CommandQueue::push( Command& inCommand )
     _commands.push( outCommand );
 }
 
+void CommandQueue::pushFront( Command& inCommand )
+{
+    EQASSERT( inCommand.isValid( ));
+
+    _commandCacheLock.set();
+    Command* outCommand = _commandCache.alloc( inCommand );
+    _commandCacheLock.unset();
+
+    EQASSERT( outCommand->isValid( ));
+    _commands.pushFront( outCommand );
+}
+
 Command* CommandQueue::pop()
 {
     CHECK_THREAD( _thread );
 
-    if( _lastCommand )
-    {
-        _commandCacheLock.set();
-        _commandCache.release( _lastCommand );
-        _commandCacheLock.unset();
-    }
-
-    _lastCommand = _commands.pop();
-    EQASSERT( _lastCommand->isValid( ));
-    return _lastCommand;
+    return _commands.pop();
 }
 
 Command* CommandQueue::tryPop()
 {
     CHECK_THREAD( _thread );
+    return _commands.tryPop();
+}
 
-    Command* command = _commands.tryPop();
+void CommandQueue::release( Command* command )
+{
     if( !command )
-        return 0;
+        return;
 
-    if( _lastCommand )
-    {
-        _commandCacheLock.set();
-        _commandCache.release( _lastCommand );
-        _commandCacheLock.unset();
-    }
-    
-    _lastCommand = command;
-    EQASSERT( command->isValid( ));
-    return command;
+    _commandCacheLock.set();
+    _commandCache.release( command );
+    _commandCacheLock.unset();
 }
 
 Command* CommandQueue::back() const

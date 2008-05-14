@@ -121,7 +121,12 @@ void Server::_handleCommands()
             case eqNet::COMMAND_ERROR:
                 EQERROR << "Error handling command " << command << endl;
                 abort();
+            default:
+                EQERROR << "Unknown command result" << endl;
+                abort();
         }
+
+        _serverThreadQueue.release( command );
     }
 }
 

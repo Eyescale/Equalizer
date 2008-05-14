@@ -9,6 +9,7 @@ server
         {
             pipe
             {
+                attributes { hint_thread 0 }
                 window
                 {
                     viewport [ .025 .025 .3 .3 ]

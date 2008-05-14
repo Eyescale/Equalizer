@@ -790,6 +790,8 @@ void* Node::_runCommandThread()
             default:
                 EQUNIMPLEMENTED;
         }
+
+        _commandThreadQueue.release( command );
     }
  
     EQINFO << "Leaving command thread" << endl;
@@ -816,8 +818,7 @@ CommandResult Node::invokeCommand( Command& command )
             Session*             session       = _sessions[id];
             EQASSERTINFO( session, "Can't find session for " << sessionPacket );
             
-            const CommandResult result = session->invokeCommand( command );
-            return result;
+            return session->invokeCommand( command );
         }
 
         default:

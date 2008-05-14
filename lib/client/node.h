@@ -233,6 +233,9 @@ namespace eq
         /** The number of the last locally released frame. */
         uint32_t                  _unlockedFrame;
 
+        /** The number of the last finished frame. */
+        uint32_t                  _finishedFrame;
+
         /** All barriers mapped by the node. */
         eqNet::IDHash< eqNet::Barrier* > _barriers;
         eqBase::Lock                     _barriersMutex;
@@ -249,7 +252,8 @@ namespace eq
         void _removePipe( Pipe* pipe );
         Pipe* _findPipe( const uint32_t id );
 
-        void _finishFrame( const uint32_t frameNumber );
+        void _finishFrame( const uint32_t frameNumber ) const;
+        void _frameFinish( const uint32_t frameID, const uint32_t frameNumber );
 
         void _flushObjects();
 
@@ -260,6 +264,7 @@ namespace eq
         eqNet::CommandResult _cmdConfigExit( eqNet::Command& command );
         eqNet::CommandResult _cmdFrameStart( eqNet::Command& command );
         eqNet::CommandResult _cmdFrameFinish( eqNet::Command& command );
+        eqNet::CommandResult _cmdFrameFinishEarly( eqNet::Command& command );
         eqNet::CommandResult _cmdFrameDrawFinish( eqNet::Command& command );
 
         CHECK_THREAD_DECLARE( _nodeThread );

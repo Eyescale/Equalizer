@@ -132,6 +132,9 @@ namespace eqs
          */
         void update( const uint32_t frameID, const uint32_t frameNumber );
 
+        /** Notify that a pipe of this node has finished a frame. */
+        void notifyPipeFrameFinished( const uint32_t frameNumber );
+
         /** 
          * Flush the processing of frames, including frameNumber.
          *
@@ -144,8 +147,7 @@ namespace eqs
          * 
          * @param frame 
          */
-        void syncFrame( const uint32_t frame )
-            { _finishedFrame.waitGE( frame ); }
+        void finishFrame( const uint32_t frame );
         //*}
 
         /**
@@ -250,8 +252,8 @@ namespace eqs
         /** The list of descriptions on how this node is reachable. */
         eqNet::ConnectionDescriptionVector _connectionDescriptions;
 
-        /** The frame identifiers of non-flushed frames, oldest first. */
-        std::deque< uint32_t > _frameIDs;
+        /** The frame identifiers non-finished frames. */
+        std::map< uint32_t, uint32_t > _frameIDs;
 
         /** The number of the last flushed frame (frame finish packet sent). */
         uint32_t _flushedFrame;
@@ -293,8 +295,7 @@ namespace eqs
             { packet.objectID = getID(); send( packet, string ); }
 
         /** Send the frame finish packet for the given frame number. */
-        void _sendFrameFinish( const uint32_t frameID,
-                               const uint32_t frameNumber );
+        void _sendFrameFinish( const uint32_t frameNumber );
 
         /* Command handler functions. */
         eqNet::CommandResult _cmdConfigInitReply( eqNet::Command& command );

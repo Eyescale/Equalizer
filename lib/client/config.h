@@ -231,6 +231,9 @@ namespace eq
 
         /** The receiver->app thread event queue. */
         CommandQueue _eventQueue;
+        
+        /** The last received event to be released. */
+        eqNet::Command* _lastEvent;
 
         /** Global statistics events, index per frame and channel. */
         std::deque< FrameStatistics > _statistics;

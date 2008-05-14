@@ -34,6 +34,7 @@ void Pipe::_construct()
     _port             = EQ_UNDEFINED_UINT32;
     _device           = EQ_UNDEFINED_UINT32;
     _lastDrawCompound = 0;
+    _finishedFrame    = 0;
 
     EQINFO << "New pipe @" << (void*)this << endl;
 }
@@ -103,6 +104,9 @@ void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID,
     registerCommand( eq::CMD_PIPE_CONFIG_EXIT_REPLY, 
                      CommandFunc<Pipe>( this, &Pipe::_cmdConfigExitReply ),
                      queue );
+    registerCommand( eq::CMD_PIPE_FRAME_FINISH_REPLY, 
+                     CommandFunc<Pipe>( this, &Pipe::_cmdFrameFinishReply ),
+                     queue );
 }
 
 void Pipe::addWindow( Window* window )
@@ -147,7 +151,8 @@ void Pipe::unrefUsed()
 void Pipe::startConfigInit( const uint32_t initID )
 {
     EQASSERT( _state == STATE_STOPPED );
-    _state = STATE_INITIALIZING;
+    _state         = STATE_INITIALIZING;
+    _finishedFrame = 0;
 
     _sendConfigInit( initID );
 
@@ -362,6 +367,17 @@ eqNet::CommandResult Pipe::_cmdConfigExitReply( eqNet::Command& command )
     else
         _state = STATE_STOP_FAILED;
 
+    return eqNet::COMMAND_HANDLED;
+}
+
+eqNet::CommandResult Pipe::_cmdFrameFinishReply( eqNet::Command& command ) 
+{
+    const eq::PipeFrameFinishReplyPacket* packet = 
+        command.getPacket< eq::PipeFrameFinishReplyPacket >();
+    EQVERB << "handle pipe frameFinish reply " << packet << endl;
+
+    _finishedFrame = packet->frameNumber;
+    _node->notifyPipeFrameFinished( packet->frameNumber );
     return eqNet::COMMAND_HANDLED;
 }
 

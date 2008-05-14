@@ -27,6 +27,7 @@ namespace eq
 Node::Node( Config* parent )
         : _config( parent )
         , _unlockedFrame( 0 )
+        , _finishedFrame( 0 )
 {
     eqNet::CommandQueue* queue        = parent->getNodeThreadQueue();
 
@@ -42,6 +43,9 @@ Node::Node( Config* parent )
                      CommandFunc<Node>( this, &Node::_cmdFrameStart ), queue );
     registerCommand( CMD_NODE_FRAME_FINISH,
                      CommandFunc<Node>( this, &Node::_cmdFrameFinish ), queue );
+    registerCommand( CMD_NODE_FRAME_FINISH_EARLY,
+                     CommandFunc<Node>( this, &Node::_cmdFrameFinishEarly ), 
+                     queue );
     registerCommand( CMD_NODE_FRAME_DRAW_FINISH, 
                      CommandFunc<Node>( this, &Node::_cmdFrameDrawFinish ),
                      queue );
@@ -128,7 +132,7 @@ FrameData* Node::getFrameData( const eqNet::ObjectVersion& dataVersion )
     return frameData;
 }
 
-void Node::_finishFrame( const uint32_t frameNumber )
+void Node::_finishFrame( const uint32_t frameNumber ) const
 {
     for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); 
          ++i )
@@ -139,9 +143,31 @@ void Node::_finishFrame( const uint32_t frameNumber )
     }
 }
 
+void Node::_frameFinish( const uint32_t frameID, const uint32_t frameNumber )
+{
+    frameFinish( frameID, frameNumber );
+    EQLOG( LOG_TASKS ) << "---- Finished Frame --- " << frameNumber << endl;
+
+    if( _unlockedFrame < frameNumber )
+    {
+        EQWARN << "Finished frame was not locally unlocked, enforcing unlock" 
+               << endl;
+        releaseFrameLocal( frameNumber );
+    }
+
+    if( _finishedFrame < frameNumber )
+    {
+        EQWARN << "Finished frame was not released, enforcing unlock" 
+               << endl;
+        releaseFrame( frameNumber );
+    }
+}
+
 void Node::releaseFrame( const uint32_t frameNumber )
 {
     EQASSERT( _currentFrame >= frameNumber );
+    EQASSERT( _finishedFrame < frameNumber );
+    _finishedFrame = frameNumber;
 
     NodeFrameFinishReplyPacket packet;
     packet.frameNumber = frameNumber;
@@ -281,6 +307,7 @@ eqNet::CommandResult Node::_cmdConfigInit( eqNet::Command& command )
     _name = packet->name;
     _currentFrame  = 0;
     _unlockedFrame = 0;
+    _finishedFrame = 0;
 
     _error.clear();
     NodeConfigInitReplyPacket reply;
@@ -335,23 +362,31 @@ eqNet::CommandResult Node::_cmdFrameStart( eqNet::Command& command )
 
 eqNet::CommandResult Node::_cmdFrameFinish( eqNet::Command& command )
 {
+    CHECK_THREAD( _nodeThread );
     const NodeFrameFinishPacket* packet = 
         command.getPacket<NodeFrameFinishPacket>();
     EQVERB << "handle node frame finish " << packet << endl;
 
-    CHECK_THREAD( _nodeThread );
+    if( _finishedFrame >= packet->frameNumber ) // already done
+        return eqNet::COMMAND_HANDLED;
+
     _finishFrame( packet->frameNumber );
-    frameFinish( packet->frameID, packet->frameNumber );
-    EQLOG( LOG_TASKS ) << "---- Finished Frame --- " << packet->frameNumber
-                       << endl;
+    _frameFinish( packet->frameID, packet->frameNumber );
+    return eqNet::COMMAND_HANDLED;
+}
 
-    if( _unlockedFrame < packet->frameNumber )
-    {
-        EQWARN << "Finished frame was not locally unlocked, enforcing unlock" 
-               << endl;
-        releaseFrameLocal( packet->frameNumber );
-    }
+eqNet::CommandResult Node::_cmdFrameFinishEarly( eqNet::Command& command )
+{
+    CHECK_THREAD( _nodeThread );
+    const NodeFrameFinishEarlyPacket* packet = 
+        command.getPacket<NodeFrameFinishEarlyPacket>();
+    EQVERB << "handle node frame finish early " << packet << endl;
 
+    if( _finishedFrame >= packet->frameNumber ) // already done
+        return eqNet::COMMAND_HANDLED;
+
+    // Not needed: _finishFrame( packet->frameNumber );
+    _frameFinish( packet->frameID, packet->frameNumber );
     return eqNet::COMMAND_HANDLED;
 }
 

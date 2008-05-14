@@ -539,6 +539,7 @@ bool Config::_exitNodes()
 void Config::_updateHead()
 {
     _headMatrix.sync();
+
     const float         eyeBase_2 = .5f * getFAttribute(Config::FATTR_EYE_BASE);
     const eq::Matrix4f& head      = _headMatrix;
 
@@ -563,6 +564,9 @@ void Config::_updateHead()
 
 uint32_t Config::_prepareFrame( vector< eqNet::NodeID >& nodeIDs )
 {
+    // Note: If you add commands to the app node, please consider that the start
+    // frame reply sent directly after this function is a priority packet!
+
     EQASSERT( _state == STATE_INITIALIZED );
     ++_currentFrame;
     EQLOG( LOG_ANY ) << "----- Start Frame ----- " << _currentFrame << endl;
@@ -623,7 +627,7 @@ void Config::_finishFrame( const uint32_t frame )
     {
         Node* node = *i;
         if( node->isUsed( ))
-            node->syncFrame( frame );
+            node->finishFrame( frame );
     }
 
     _finishedFrame = frame;

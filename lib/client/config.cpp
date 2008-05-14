@@ -28,6 +28,7 @@ namespace eq
 
 Config::Config( eqBase::RefPtr< Server > server )
         : Session( true )
+        , _lastEvent( 0 )
         , _latency( 0 )
         , _currentFrame( 0 )
         , _unlockedFrame( 0 )
@@ -76,6 +77,7 @@ Config::~Config()
 {
     _appNodeID = eqNet::NodeID::ZERO;
     _appNode   = 0;
+    _lastEvent = 0;
 }
 
 eqBase::RefPtr<Server> Config::getServer()
@@ -177,7 +179,17 @@ bool Config::exit()
     _requestHandler.waitRequest( packet.requestID, ret );
 
     deregisterObject( &_headMatrix );
-    while( _eventQueue.tryPop( )) ; // flush all pending events
+
+    while( true ) // flush all pending events
+    {
+        eqNet::Command* command = _eventQueue.tryPop();
+        if( !command )
+            break;
+        _eventQueue.release( command );
+    }
+    _eventQueue.release( _lastEvent );
+    _eventQueue.flush();
+    _lastEvent = 0;
 
     return ret;
 }
@@ -277,8 +289,9 @@ void Config::sendEvent( ConfigEvent& event )
 
 const ConfigEvent* Config::nextEvent()
 {
-    eqNet::Command* command = _eventQueue.pop();
-    return command->getPacket<ConfigEvent>();
+    _eventQueue.release( _lastEvent );
+    _lastEvent = _eventQueue.pop();
+    return _lastEvent->getPacket<ConfigEvent>();
 }
 
 const ConfigEvent* Config::tryNextEvent()
@@ -286,6 +299,9 @@ const ConfigEvent* Config::tryNextEvent()
     eqNet::Command* command = _eventQueue.tryPop();
     if( !command )
         return 0;
+
+    _eventQueue.release( _lastEvent );
+    _lastEvent = command;
     return command->getPacket<ConfigEvent>();
 }
 
