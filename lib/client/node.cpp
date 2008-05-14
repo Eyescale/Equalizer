@@ -2,6 +2,8 @@
 /* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
+#include <pthread.h>
+
 #include "node.h"
 
 #include "client.h"
