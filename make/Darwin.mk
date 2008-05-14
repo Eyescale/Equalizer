@@ -16,6 +16,10 @@ ifeq ($(findstring 9., $(RELARCH)),9.)
   CXXFLAGS     += -DLEOPARD
   AGL_OR_64BIT  = AGL
 
+ifeq ($(findstring icc, $(CXX)),icc)
+  ARCHFLAGS     ?= -m32
+endif
+
 ifeq ($(findstring 64BIT, $(AGL_OR_64BIT)), 64BIT)
   ARCHFLAGS     ?= -arch i386 -arch ppc -arch x86_64 -arch ppc64
   WINDOW_SYSTEM  = GLX

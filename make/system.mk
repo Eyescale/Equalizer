@@ -60,7 +60,8 @@ endif # -g
 
 # ICC settings
 ifeq ($(findstring icc, $(CXX)),icc)
-    ICC_DIR    ?= /opt/intel/cc/10.1.006
+    ICC_DIR    ?= /opt/intel/cc/10.1.014
+    DEFFLAGS   += -DEQ_USE_OPENMP
     CXXFLAGS   += -openmp
     LDFLAGS    += -L$(ICC_DIR)/lib -lirc -lguide -limf -lsvml
     LD          = g++

@@ -18,7 +18,8 @@ using namespace std;
 int main( int argc, char **argv )
 {
     Image image;
-    TEST( image.readImage( "Image_7_color.rgb", Frame::BUFFER_COLOR ));
+    TEST( image.readImage( "../compositor/Image_1_color.rgb",
+                           Frame::BUFFER_COLOR ));
 
     Image destImage;
     destImage.setPixelViewport( image.getPixelViewport( ));
@@ -62,7 +63,8 @@ int main( int argc, char **argv )
 
 
     // Depth
-    TEST( image.readImage( "Image_7_depth.rgb", Frame::BUFFER_DEPTH ));
+    TEST( image.readImage( "../compositor/Image_1_depth.rgb",
+                           Frame::BUFFER_DEPTH ));
     const uint8_t* depthData = image.getPixelData( Frame::BUFFER_DEPTH);
     const size_t   depthSize = image.getPixelDataSize( Frame::BUFFER_DEPTH);
 
