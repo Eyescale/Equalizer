@@ -418,7 +418,7 @@ void Compositor::_assembleDBImages( Image* result,
             ( image->getPixelData( Frame::BUFFER_DEPTH ));
 
 // This crashes in OpenMP when compiled with g++-4.2 !?
-//#  pragma omp parallel for
+#  pragma omp parallel for
         for( int32_t y = 0; y < pvp.h; ++y )
         {
             const uint32_t skip =  (destY + y) * resultPVP.w + destX;
@@ -485,7 +485,7 @@ void Compositor::_assemble2DImages( Image* result,
         const size_t rowLength = pvp.w * pixelSize;
 
 // This crashes in OpenMP when compiled with g++-4.2 !?
-//#  pragma omp parallel for
+#  pragma omp parallel for
         for( int32_t y = 0; y < pvp.h; ++y )
         {
             const size_t skip = ( (destY + y) * resultPVP.w + destX ) *
@@ -557,6 +557,7 @@ void Compositor::_assembleBlendImages( Image* result,
         int32_t*       destColorIt = destColor + destY*resultPVP.w + destX;
         const uint32_t step        = sizeof( int32_t );
 
+#  pragma omp parallel for
         for( int32_t y = 0; y < pvp.h; ++y )
         {
             const unsigned char* src =
