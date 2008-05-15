@@ -10,6 +10,7 @@ SUBDIRS = \
 	image \
 	netperf \
 	node \
+	openmp \
 	pipeperf \
 	session \
 	wall

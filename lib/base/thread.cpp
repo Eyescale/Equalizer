@@ -74,7 +74,7 @@ void* Thread::runChild( void* arg )
 {
     Thread* thread = static_cast<Thread*>(arg);
     thread->_runChild();
-    return NULL; // not reached
+    return 0; // not reached
 }
 
 void Thread::_runChild()
@@ -89,7 +89,7 @@ void Thread::_runChild()
         EQINFO << "Thread failed to initialise" << endl;
         _state = STATE_STOPPED;
         _syncChild.unset();
-        pthread_exit( NULL );
+        pthread_exit( 0 );
     }
 
     _state    = STATE_RUNNING;
@@ -125,7 +125,7 @@ void _notifyStopping( void* )
 
 void Thread::_notifyStopping()
 {
-    pthread_setspecific( _cleanupKey, NULL );
+    pthread_setspecific( _cleanupKey, 0 );
 
     // make copy of vector so that listeners can add/remove listeners.
     _listenerLock.set();
