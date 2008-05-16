@@ -12,7 +12,10 @@
 #define LOOPSIZE 100000
 
 #include <pthread.h>
-#include <omp.h>
+
+#ifdef EQ_USE_OPENMP
+#  include <omp.h>
+#endif
 
 void* runChild( void* arg )
 {
