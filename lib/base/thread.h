@@ -28,8 +28,6 @@ namespace eqBase
     public:
         /** 
          * Constructs a new thread.
-         * 
-         * @param type the execution model to use for the thread.
          */
         Thread();
 
@@ -39,8 +37,8 @@ namespace eqBase
         /** 
          * Starts the thread.
          *
-         * All thread listeners will be notified from within the thread, after
-         * the thread was initialized successfully.
+         * All thread state listeners will be notified from the running thread,
+         * after the thread was initialized successfully.
          * 
          * @return <code>true</code> if the thread was launched,
          *         <code>false</code> otherwise.
@@ -62,6 +60,9 @@ namespace eqBase
 
         /** 
          * The entry function for the child thread.
+         *
+         * This method should contain the main execution routine for the thread
+         * and is called after a successful init().
          * 
          * @return the return value of the child thread.
          */

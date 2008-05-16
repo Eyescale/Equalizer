@@ -16,17 +16,12 @@ namespace eqBase
 
     /**
      * An abstraction to create a new execution process.
-     * 
-     * Depending on the type, a different implementation is used to create the
-     * process.
      */
     class Process 
     {
     public:
         /** 
          * Constructs a new process.
-         * 
-         * @param type the execution model to use for the process.
          */
         Process();
 
