@@ -266,17 +266,7 @@ void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
     // compute eye position in screen space
     const vmml::Vector3f& eyeW = config->getEyePosition( _eye );
     const vmml::Matrix4f& xfm  = view.xfm;
-
-#if 1
-    const float           w    = 
-        xfm.ml[3] * eyeW[0] + xfm.ml[7] * eyeW[1] + xfm.ml[11]* eyeW[2] + xfm.ml[15];
-    const float  eye[3] = {
-        (xfm.ml[0] * eyeW[0] + xfm.ml[4] * eyeW[1] + xfm.ml[8] * eyeW[2] + xfm.ml[12]) / w,
-        (xfm.ml[1] * eyeW[0] + xfm.ml[5] * eyeW[1] + xfm.ml[9] * eyeW[2] + xfm.ml[13]) / w,
-        (xfm.ml[2] * eyeW[0] + xfm.ml[6] * eyeW[1] + xfm.ml[10]* eyeW[2] + xfm.ml[14]) / w};
-#else
     const vmml::Vector3f  eye  = xfm * eyeW;
-#endif
 
     // compute frustum from size and eye position
     vmml::Frustumf& frustum = context.frustum;
