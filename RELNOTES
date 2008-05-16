@@ -1,14 +1,14 @@
 
-                    Release Notes for Equalizer 0.5
+                   Release Notes for Equalizer 0.5.1
 
-   Welcome to Equalizer 0.5, a framework for the development and deployment
-   of parallel, scalable OpenGL applications. Equalizer 0.5 adds a new
-   'pixel' task decomposition mode for fill-rate bound applications such as
-   raytracing and volume rendering, and speeds up database (sort-last)
-   decompositions significantly.
+   Welcome to Equalizer 0.5.1, a framework for the development and deployment
+   of parallel, scalable OpenGL applications. Equalizer 0.5.1 ...
 
-   Equalizer 0.5 is a beta release, and therefore targeted towards
-   application developers and early adopters.
+   Equalizer 0.5.1 is a developer release, representing a stable snapshot of
+   the development tree after the 0.5 release. Equalizer 0.5.1 can be
+   retrieved using:
+   svn co
+   https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.5.1
 
   Features
 
@@ -34,49 +34,48 @@
   New in this release
 
    The following features, bug fixes and documentation changes where
-   introduced in this release:
+   introduced since the 0.5 release:
 
     New Features
 
-     * Pixel compounds to accelerate fill-bound applications
-     * GLEW integration for simplified OpenGL extension handling in a
-       multi-context environment
-     * Improved eVolve volume rendering example
-     * Pluggable window initialization
-     * Off-screen rendering support using PBuffers
-     * Interoperability between Mac OS X and Windows XP (same endianess,
-       Linux is untested)
+     * Statistics Overlay to understand and eliminate bottlenecks in the
+       rendering pipeline
+     * Support for using Paracomp as a compositing backend, see
+       README.paracomp
+     * Network-based instead of file-based model distribution in eqPly
+     * Support for the window swapsync hint on WGL
 
     Performance Improvements
 
-     * Much increased DB (sort-last) assembly performance using a mixture of
-       GLSL-based and CPU-based compositing
-     * Improved network pixel transfer using parallel image compression
-       through OpenMP
-     * Pluggable window initialization
+     * Alpha-blending support in the CPU-based compositor
+     * Improved performance when using non-threaded pipes
 
     Bug Fixes
 
-   Equalizer 0.5 includes various bugfixes over the previous release,
-   including the following:
+   Equalizer 0.5.1 includes various bugfixes over the 0.5 release, including
+   the following:
 
-     * 1831090: Session::mapObject() might deadlock
-     * 1839291: Initial window size is too small on Win32
-     * 1842242: Bug with exiting examples on linux
+     * 1960225: Problems with windows getting focus on mac
+     * 1960098: eqPly crashes during rendering
 
     Documentation
 
-   The Programming Guide has been extended to 43 pages. The following
-   documentation has been added:
+   The Programming Guide has been extended to 52 pages. In addition, the
+   following documentation has been added:
 
-     * PBuffer Support
-     * OpenGL Extension Handling
-     * Pixel Compounds
-     * Event Handling
+     * Statistics Overlay
 
   Removed Features
 
    None
+
+  Known Bugs
+
+     * 1964341: OpenMP crashes with multi-pipe configurations
+     * 1959418: DB Compositing fails on MacBook with GMA X3100
+     * 1854948: eVolve: lighting ignores head transformation
+     * 1854929: eqPly GLSL shader has artefacts
+     * 1816670: eVolve: binary swap configs don't work
 
   Supported Platforms
 
@@ -100,8 +99,8 @@
   Documentation
 
    The Programming Guide is part of the Equalizer and can be found online.
-   Equalizer does not yet have an Users Guide. The shipped eqPly example
-   provides a reference for developing or porting applications. The Developer
+   Equalizer does not yet have an Users Guide. The shipped examples provides
+   a reference for developing or porting applications. The Developer
    Documentation on the website provides further design documents for
    specific features. The source code is a last resort for information.
 
