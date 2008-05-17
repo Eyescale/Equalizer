@@ -74,7 +74,7 @@ int main( int argc, char **argv )
     cout << argv[0] << ": 2D 15 images: " << time << " ms (" 
          << 5000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << endl;
     
-    // 1) alpha-blend assembly test
+    // 2) alpha-blend assembly test
     frames.clear();
     frames.push_back( &frame );
 
@@ -102,14 +102,14 @@ int main( int argc, char **argv )
     frames.push_back( &frame );
 
     clock.reset();
-    result = Compositor::assembleFramesCPU( frames );
+    result = Compositor::assembleFramesCPU( frames, true );
     time = clock.getTimef();
     TEST( result );
 
     cout << argv[0] << ": Alpha 15 images: " << time << " ms (" 
          << 5000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << endl;
     
-    // 1) 2D assembly test
+    // 3) DB assembly test
     const ImageVector& images = frameData->getImages();
 
     image = images[0];
