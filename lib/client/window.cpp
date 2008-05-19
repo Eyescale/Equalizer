@@ -371,7 +371,7 @@ XVisualInfo* Window::chooseXVisualInfo()
         attributes.push_back( depthSize>0 ? depthSize : 1 );
     }
     const int stencilSize = getIAttribute( IATTR_PLANES_STENCIL );
-    if( stencilSize >0 || stencilSize == AUTO )
+    if( stencilSize > 0 || stencilSize == AUTO )
     {
         attributes.push_back( GLX_STENCIL_SIZE );
         attributes.push_back( stencilSize>0 ? stencilSize : 1 );
@@ -383,24 +383,36 @@ XVisualInfo* Window::chooseXVisualInfo()
     if( getIAttribute( IATTR_HINT_STEREO ) == ON )
         attributes.push_back( GLX_STEREO );
 #else
-    if( getIAttribute( IATTR_HINT_STEREO ) != OFF )
+    if( getIAttribute( IATTR_HINT_STEREO ) == ON ||
+        ( getIAttribute( IATTR_HINT_STEREO )   == AUTO && 
+          getIAttribute( IATTR_HINT_DRAWABLE ) == WINDOW ))
+
         attributes.push_back( GLX_STEREO );
 #endif
-    if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) != OFF )
+    if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == ON ||
+        ( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO && 
+          getIAttribute( IATTR_HINT_DRAWABLE )     == WINDOW ))
+
         attributes.push_back( GLX_DOUBLEBUFFER );
 
     attributes.push_back( None );
 
     // build backoff list, least important attribute last
     vector<int> backoffAttributes;
-    if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
-        backoffAttributes.push_back( GLX_DOUBLEBUFFER );
+    if( getIAttribute( IATTR_HINT_DRAWABLE ) == WINDOW )
+    {
+        if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
+            backoffAttributes.push_back( GLX_DOUBLEBUFFER );
+
+#ifndef DARWIN
+        if( getIAttribute( IATTR_HINT_STEREO ) == AUTO )
+            backoffAttributes.push_back( GLX_STEREO );
+#endif
+    }
+
     if( stencilSize == AUTO )
         backoffAttributes.push_back( GLX_STENCIL_SIZE );
-#ifndef DARWIN
-    if( getIAttribute( IATTR_HINT_STEREO ) == AUTO )
-        backoffAttributes.push_back( GLX_STEREO );
-#endif
+
 
     // Choose visual
     const int    screen  = DefaultScreen( display );
@@ -752,7 +764,7 @@ AGLPixelFormat Window::chooseAGLPixelFormat()
     }
     const int depthSize = getIAttribute( IATTR_PLANES_DEPTH );
     if( depthSize > 0 || depthSize == AUTO )
-    {
+   { 
         attributes.push_back( AGL_DEPTH_SIZE );
         attributes.push_back( depthSize>0 ? depthSize : 24 );
     }
@@ -763,7 +775,9 @@ AGLPixelFormat Window::chooseAGLPixelFormat()
         attributes.push_back( stencilSize>0 ? stencilSize : 1 );
     }
 
-    if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) != OFF )
+    if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == ON ||
+        ( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO && 
+          getIAttribute( IATTR_HINT_DRAWABLE )     == WINDOW ))
     {
         attributes.push_back( AGL_DOUBLEBUFFER );
         attributes.push_back( GL_TRUE );
@@ -778,8 +792,11 @@ AGLPixelFormat Window::chooseAGLPixelFormat()
 
     // build backoff list, least important attribute last
     vector<int> backoffAttributes;
-    if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
+    if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO &&
+        getIAttribute( IATTR_HINT_DRAWABLE )     == WINDOW  )
+
         backoffAttributes.push_back( AGL_DOUBLEBUFFER );
+
     if( stencilSize == AUTO )
         backoffAttributes.push_back( AGL_STENCIL_SIZE );
 
@@ -1318,13 +1335,17 @@ int Window::chooseWGLPixelFormat( HDC dc )
         attributes.push_back( stencilSize>0 ? stencilSize : 1 );
     }
 
-    if( getIAttribute( IATTR_HINT_STEREO ) != OFF )
+    if( getIAttribute( IATTR_HINT_STEREO ) == ON ||
+        ( getIAttribute( IATTR_HINT_STEREO )   == AUTO && 
+          getIAttribute( IATTR_HINT_DRAWABLE ) == WINDOW ))
     {
         attributes.push_back( WGL_STEREO_ARB );
         attributes.push_back( 1 );
     }
 
-    if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) != OFF )
+    if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == ON ||
+        ( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO && 
+          getIAttribute( IATTR_HINT_DRAWABLE )     == WINDOW ))
     {
         attributes.push_back( WGL_DOUBLE_BUFFER_ARB );
         attributes.push_back( 1 );
@@ -1346,12 +1367,17 @@ int Window::chooseWGLPixelFormat( HDC dc )
 
     // build back off list, least important attribute last
     vector<int> backoffAttributes;
-    if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
-        backoffAttributes.push_back( WGL_DOUBLE_BUFFER_ARB );
+    if( getIAttribute( IATTR_HINT_DRAWABLE ) == WINDOW )
+    {
+        if( getIAttribute( IATTR_HINT_DOUBLEBUFFER ) == AUTO )
+            backoffAttributes.push_back( WGL_DOUBLE_BUFFER_ARB );
+
+        if( getIAttribute( IATTR_HINT_STEREO ) == AUTO )
+            backoffAttributes.push_back( WGL_STEREO_ARB );
+    }
+
     if( stencilSize == AUTO )
         backoffAttributes.push_back( WGL_STENCIL_BITS_ARB );
-    if( getIAttribute( IATTR_HINT_STEREO ) == AUTO )
-        backoffAttributes.push_back( WGL_STEREO_ARB );
 
     HDC screenDC    = GetDC( 0 );
     HDC pfDC        = dc ? dc : screenDC;

@@ -13,7 +13,6 @@ HEADER_SRC = \
 	base/defines.h \
 	base/executionListener.h \
 	base/hash.h \
-	base/omp.h \
 	base/idPool.h \
 	base/launcher.h \
 	base/lock.h \
@@ -21,6 +20,7 @@ HEADER_SRC = \
 	base/monitor.h \
 	base/mtQueue.h \
 	base/nonCopyable.h \
+	base/omp.h \
 	base/perThread.h \
 	base/refPtr.h \
 	base/referenced.h \
@@ -84,7 +84,6 @@ HEADER_SRC = \
 	client/frame.h \
 	client/frameData.h \
 	client/global.h \
-	client/pixel.h \
 	client/image.h \
 	client/init.h \
 	client/log.h \
@@ -96,6 +95,7 @@ HEADER_SRC = \
 	client/objectManager.h \
 	client/packets.h \
 	client/pipe.h \
+	client/pixel.h \
 	client/pixelViewport.h \
 	client/range.h \
 	client/renderContext.h \
