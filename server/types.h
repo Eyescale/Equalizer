@@ -1,15 +1,17 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_TYPES_H
 #define EQS_TYPES_H
 
+#include <eq/base/refPtr.h>
 #include <vector>
 
 namespace eqs
 {
 
+class Server;
 class Config;
 class Node;
 class Pipe;
@@ -27,6 +29,8 @@ typedef std::vector< Channel* >  ChannelVector;
 
 typedef std::vector< Compound* > CompoundVector;
 typedef std::vector< Frame* >    FrameVector;
+
+typedef eqBase::RefPtr< eqs::Server > ServerPtr;
 
 }
 #endif // EQS_TYPES_H
