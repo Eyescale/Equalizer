@@ -1468,8 +1468,6 @@ string Node::_createRemoteCommand( NodePtr node, const char quote )
         return "";
     }
 
-    const string  ownData    = serialize();
-    const string  remoteData = node->serialize();
     ostringstream stringStream;
 
     //----- environment
@@ -1509,11 +1507,14 @@ string Node::_createRemoteCommand( NodePtr node, const char quote )
         program = node->_workDir + '/' + program;
 #endif
 
+    const string ownData    = serialize();
+    const string remoteData = node->serialize();
+
     stringStream
         << quote << program << quote << " -- --eq-client " << quote
         << remoteData << node->_launchID << SEPARATOR << node->_workDir 
         << SEPARATOR << node->_id << SEPARATOR << getType() << SEPARATOR
-        << serialize() << quote;
+        << ownData << quote;
 
     return stringStream.str();
 }
