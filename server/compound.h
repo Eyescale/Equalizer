@@ -91,7 +91,8 @@ namespace eqs
         enum VisitorResult
         {
             TRAVERSE_CONTINUE,
-            TRAVERSE_TERMINATE
+            TRAVERSE_TERMINATE,
+            TRAVERSE_PRUNE
         };
 
 

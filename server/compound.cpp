@@ -432,6 +432,8 @@ Compound::VisitorResult _accept( C* compound, V* visitor,
     }
 
     C* current = compound;
+    Compound::VisitorResult result = Compound::TRAVERSE_CONTINUE;
+
     while( true )
     {
         C* parent = current->getParent();
@@ -445,24 +447,48 @@ Compound::VisitorResult _accept( C* compound, V* visitor,
         {
             if ( !activeOnly || current->isActive( ))
             {
-                if( visitor->visitLeaf( current ) ==
-                    Compound::TRAVERSE_TERMINATE)
+                switch( visitor->visitLeaf( current ))
+                {
+                    case Compound::TRAVERSE_TERMINATE:
+                        return Compound::TRAVERSE_TERMINATE;
 
-                    return Compound::TRAVERSE_TERMINATE;
+                    case Compound::TRAVERSE_PRUNE:
+                        result = Compound::TRAVERSE_PRUNE;
+                        current = 0;
+                        break;
+
+                    case Compound::TRAVERSE_CONTINUE:
+                        current = next;
+                        break;
+
+                    default:
+                        EQASSERTINFO( 0, "Unreachable" );
+                }
             }
-
-            current = next;
+            else
+                current = next;
         } 
         else // node
         {
             if( !activeOnly || current->isActive( ))
             {
-                if( visitor->visitPre( current ) == 
-                    Compound::TRAVERSE_TERMINATE )
+                switch( visitor->visitPre( current ))
+                {
+                    case Compound::TRAVERSE_TERMINATE:
+                        return Compound::TRAVERSE_TERMINATE;
 
-                    return Compound::TRAVERSE_TERMINATE;
+                    case Compound::TRAVERSE_PRUNE:
+                        result = Compound::TRAVERSE_PRUNE;
+                        current = next;
+                        break;
 
-                current = child;
+                    case Compound::TRAVERSE_CONTINUE:
+                        current = child;
+                        break;
+
+                    default:
+                        EQASSERTINFO( 0, "Unreachable" );
+                }
             }
             else
                 current = next;
@@ -479,18 +505,29 @@ Compound::VisitorResult _accept( C* compound, V* visitor,
 
             if( !activeOnly || current->isActive( ))
             {
-                if( visitor->visitPost( current ) == 
-                    Compound::TRAVERSE_TERMINATE)
+                switch( visitor->visitPost( current ))
+                {
+                    case Compound::TRAVERSE_TERMINATE:
+                        return Compound::TRAVERSE_TERMINATE;
 
-                    return Compound::TRAVERSE_TERMINATE;
+                    case Compound::TRAVERSE_PRUNE:
+                        result = Compound::TRAVERSE_PRUNE;
+                        break;
+
+                    case Compound::TRAVERSE_CONTINUE:
+                        break;
+
+                    default:
+                        EQASSERTINFO( 0, "Unreachable" );
+                }
             }
             
-            if ( current == compound ) return Compound::TRAVERSE_CONTINUE;
+            if ( current == compound ) return result;
             
             current = next;
         }
     }
-    return Compound::TRAVERSE_CONTINUE;
+    return result;
 }
 
 Compound::VisitorResult Compound::accept( ConstCompoundVisitor* visitor,
