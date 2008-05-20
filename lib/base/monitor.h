@@ -5,9 +5,7 @@
 #ifndef EQBASE_MONITOR_H
 #define EQBASE_MONITOR_H
 
-#include <eq/base/debug.h>
-#include <eq/base/log.h>
-#include <eq/base/nonCopyable.h>
+#include <eq/base/nonCopyable.h> // base class
 
 namespace eqBase
 {
@@ -88,6 +86,7 @@ namespace eqBase
 
 typedef Monitor< bool >     Monitorb;
 typedef Monitor< uint32_t > Monitoru;
+}
 
 //----------------------------------------------------------------------
 // implementation
@@ -109,6 +108,11 @@ typedef Monitor< uint32_t > Monitoru;
 
 #ifdef HAVE_PTHREAD_H
 
+#include <eq/base/debug.h>
+#include <eq/base/log.h>
+
+namespace eqBase
+{
 class MonitorPrivate
 {
 public:
@@ -225,6 +229,6 @@ std::ostream& operator << ( std::ostream& os, const Monitor<T>& monitor )
     os << "Monitor< " << monitor.get() << " >";
     return os;
 }
-#endif // HAVE_PTHREAD_H
 }
+#endif // HAVE_PTHREAD_H
 #endif //EQBASE_MONITOR_H

@@ -1,10 +1,12 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include <pthread.h>
+
 #include "log.h"
 #include "perThread.h"
+#include "thread.h"
 
 using namespace std;
 
@@ -39,9 +41,9 @@ static LogTable _logTable[ LOG_TABLE_SIZE ] =
     LOG_TABLE_ENTRY( VERBATIM )
 };
 
-EQ_EXPORT int           eqBase::Log::level  = getLogLevel();
-EQ_EXPORT unsigned      eqBase::Log::topics = getLogTopics();
-EQ_EXPORT eqBase::Clock eqBase::LogBuffer::_clock;
+EQ_EXPORT int        Log::level  = getLogLevel();
+EQ_EXPORT unsigned   Log::topics = getLogTopics();
+EQ_EXPORT Clock      LogBuffer::_clock;
 
 static PerThread<Log*> _logInstance;
 
@@ -98,6 +100,37 @@ EQ_EXPORT Log& Log::instance( const char* subdir, const char* file,
     log->setLogInfo( subdir, file, line );
     return *log;
 }
+
+LogBuffer::int_type LogBuffer::overflow( LogBuffer::int_type c )
+{
+    if( c == EOF )
+        return EOF;
+
+    if( _newLine )
+    {
+        if( !_noHeader )
+        {
+            _stringStream << getpid()  << " " 
+                          << eqBase::Thread::getSelfThreadID()
+                          << " " << _file << ":" << _line << " ";
+#ifndef NDEBUG
+            const int prec  = _stringStream.precision();
+
+            _stringStream.precision( 4 );
+            _stringStream << std::setw(5) << _clock.getMSf() << " ";
+            _stringStream.precision( prec );
+#endif
+        }
+
+        for( int i=0; i<_indent; ++i )
+            _stringStream << "    ";
+        _newLine = false;
+    }
+
+    _stringStream << (char)c;
+    return c;
+}
+
 
 EQ_EXPORT std::ostream& indent( std::ostream& os )
 {

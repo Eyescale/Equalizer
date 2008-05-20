@@ -1,13 +1,11 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_NONCOPYABLE_H
 #define EQBASE_NONCOPYABLE_H
 
-#include <eq/base/base.h>
-#include <eq/base/lock.h>
-#include <eq/base/log.h>
+#include <eq/base/base.h> // for EQ_EXPORT
 
 namespace eqBase
 {

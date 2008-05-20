@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_LOG_H
@@ -7,7 +7,6 @@
 
 #include <eq/base/base.h>
 #include <eq/base/clock.h>
-#include <eq/base/thread.h>
 
 #include <assert.h>
 #include <iomanip>
@@ -75,35 +74,7 @@ namespace eqBase
 #endif
 
 	protected:
-        virtual int_type overflow (int_type c) 
-            {
-                if( c == EOF )
-                    return EOF;
-
-                if( _newLine )
-                {
-                    if( !_noHeader )
-                    {
-                        _stringStream << getpid()  << " " 
-                                      << eqBase::Thread::getSelfThreadID()
-                                      << " " << _file << ":" << _line << " ";
-#                   ifndef NDEBUG
-                        const int prec  = _stringStream.precision();
-
-                        _stringStream.precision( 4 );
-                        _stringStream << std::setw(5) << _clock.getMSf() << " ";
-                        _stringStream.precision( prec );
-#                   endif
-                    }
-
-                    for( int i=0; i<_indent; ++i )
-                        _stringStream << "    ";
-                    _newLine = false;
-                }
-
-                _stringStream << (char)c;
-                return c;
-            }
+        virtual int_type overflow( int_type c );
         
         virtual int sync() 
             {
