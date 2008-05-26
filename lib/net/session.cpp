@@ -266,14 +266,14 @@ void Session::_detachObject( Object* object )
     ObjectVector&          objects = _objects[ id ];
     ObjectVector::iterator iter = find( objects.begin(),objects.end(), object );
     EQASSERT( iter != objects.end( ));
-    objects.erase( iter );
 
+    _objectsMutex.set();
+
+    objects.erase( iter );
     if( objects.empty( ))
-    {
-        _objectsMutex.set();
         _objects.erase( id );
-        _objectsMutex.unset();
-    }
+
+    _objectsMutex.unset();
     
     EQASSERT( object->_instanceID != EQ_ID_INVALID );
 
@@ -662,7 +662,7 @@ CommandResult Session::_cmdDetachObject( Command& command )
         command.getPacket<SessionDetachObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd detach object " << packet << endl;
 
-    const uint32_t id   = packet->objectID;
+    const uint32_t id = packet->objectID;
     if( _objects.find( id ) != _objects.end( ))
     {
         ObjectVector& objects = _objects[id];

@@ -169,7 +169,8 @@ bool Node::syncConfigInit()
 
         if( !pipe->syncConfigInit( ))
         {
-            _error += "pipe: '" + pipe->getErrorMessage() + '\'';
+            _error += "pipe " + pipe->getName() + ": '" + 
+                      pipe->getErrorMessage() + '\'';
             success = false;
         }
     }

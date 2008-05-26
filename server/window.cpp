@@ -278,7 +278,8 @@ bool Window::syncConfigInit()
         if( channel->isUsed( ))
             if( !channel->syncConfigInit( ))
             {
-                _error += ", channel: '"  + channel->getErrorMessage() + '\'';
+                _error += ", channel " + channel->getName() + ": '"  +
+                          channel->getErrorMessage() + '\'';
                 success = false;
             }
     }
