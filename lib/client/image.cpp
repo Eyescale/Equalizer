@@ -349,7 +349,13 @@ void Image::clearPixelData( const Frame::Buffer buffer )
 
     }
     else
+    {
         bzero( pixels.data, size );
+
+        if( getDepth( Frame::BUFFER_COLOR ) == 4 )
+            for( uint32_t i = 3; i < size; i+=4 )
+                pixels.data[i] = 255;
+    }
 
     CompressedPixels& compressedPixels = _getCompressedPixels( buffer );
     compressedPixels.valid = false;

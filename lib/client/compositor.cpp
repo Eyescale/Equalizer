@@ -125,12 +125,12 @@ static bool _useCPUAssembly( const FrameVector& frames, Channel* channel,
 
                     return false;
 
-                if( !blendAlpha && depthFormat == 0 )
+                if( depthFormat == 0 )
                 {
                     depthFormat = image->getFormat( Frame::BUFFER_DEPTH );
                     depthType   = image->getType(   Frame::BUFFER_DEPTH );
                 }
-                
+
                 if( depthFormat != image->getFormat(Frame::BUFFER_DEPTH ) ||
                     depthType   != image->getType(  Frame::BUFFER_DEPTH ))
 
@@ -540,8 +540,7 @@ void Compositor::_assembleBlendImages( Image* result,
                   result->getType( Frame::BUFFER_COLOR ));
 
 #ifdef EQ_USE_PARACOMP
-        if( pvp == resultPVP && offset == vmml::Vector2i::ZERO && 
-            i != images.begin() )
+        if( pvp == resultPVP && offset == vmml::Vector2i::ZERO )
         { 
             // Use Paracomp to composite
             if( !_assembleImage_PC( PC_COMP_ALPHA_SORT2_HP,result, image ))
@@ -572,17 +571,6 @@ void Compositor::_assembleBlendImages( Image* result,
         const int32_t* colorIt     = color;
         int32_t*       destColorIt = destColor + destY*resultPVP.w + destX;
         const uint32_t step        = sizeof( int32_t );
-
-        if( i == images.begin())
-        {
-            for( int32_t y = 0; y < pvp.h; ++y )
-            {
-                memcpy( destColorIt, colorIt, pvp.w * sizeof( int32_t ));
-                colorIt     += pvp.w;
-                destColorIt += resultPVP.w;
-            }
-            continue;
-        }
 
 #  pragma omp parallel for
         for( int32_t y = 0; y < pvp.h; ++y )
