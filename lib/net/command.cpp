@@ -29,14 +29,14 @@ void Command::swap( Command& rhs )
     if( this == &rhs )
         return;
 
-    Packet*        packet    = _packet;
-    RefPtr< Node > node      = _node;
-    RefPtr< Node > localNode = _localNode;
+    Packet* packet    = _packet;
+    NodePtr node      = _node;
+    NodePtr localNode = _localNode;
 
-    // transfer packet avoiding copy
     _packet        = rhs._packet;
     _node          = rhs._node;
     _localNode     = rhs._localNode;
+
     rhs._packet    = packet;
     rhs._node      = node;
     rhs._localNode = localNode;

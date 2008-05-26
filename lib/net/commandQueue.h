@@ -79,7 +79,7 @@ namespace eqNet
         CHECK_THREAD_DECLARE( _thread );
     private:
         /** Thread-safe command queue. */
-        eqBase::MTQueue<Command>  _commands;
+        eqBase::MTQueue< Command >  _commands;
         
         /** The free command cache. */
         CommandCache              _commandCache;

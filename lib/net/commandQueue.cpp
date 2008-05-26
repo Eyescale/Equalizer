@@ -28,13 +28,12 @@ void CommandQueue::flush()
     if( !empty( ))
         EQWARN << "Flushing non-empty command queue" << endl;
 
-#ifndef NDEBUG
     while( !_commands.empty( ))
     {
         Command* command = _commands.pop();
         EQWARN << *command << endl;
+        release( command );
     }
-#endif
 
     _commandCache.flush();
     _commandCacheLock.unset();
