@@ -244,6 +244,7 @@ void Client::processCommand()
             EQERROR << "Error handling command packet" << endl;
             abort();
     }
+    _nodeThreadQueue->release( command );
 }
 
 bool Client::dispatchCommand( eqNet::Command& command )
