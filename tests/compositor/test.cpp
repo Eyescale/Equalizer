@@ -74,54 +74,7 @@ int main( int argc, char **argv )
     cout << argv[0] << ": 2D 15 images: " << time << " ms (" 
          << 5000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << endl;
 
-    // 2) alpha-blend assembly test
-    Frame      frameAlpha;
-    FrameData* frameDataAlpha = new eq::FrameData;
-
-    frameDataAlpha->setBuffers( Frame::BUFFER_COLOR );
-    frameAlpha.setData( frameData );
-
-    image = frameDataAlpha->newImage();
-    TEST( image->readImage( "Image_13_color.rgb", Frame::BUFFER_COLOR ));
-    image = frameDataAlpha->newImage();
-    TEST( image->readImage( "Image_14_color.rgb", Frame::BUFFER_COLOR ));
-    image = frameDataAlpha->newImage();
-    TEST( image->readImage( "Image_15_color.rgb", Frame::BUFFER_COLOR ));
-    frames.clear();
-    frames.push_back( &frameAlpha );
-
-    clock.reset();
-    result = Compositor::assembleFramesCPU( frames, true );
-    time = clock.getTimef();
-    TEST( result );
-
-    cout << argv[0] << ": Alpha first op:  " << time << " ms (" 
-         << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << endl;
-
-    clock.reset();
-    result = Compositor::assembleFramesCPU( frames, true );
-    time = clock.getTimef();
-    TEST( result );
-
-    cout << argv[0] << ": Alpha second op: " << time << " ms (" 
-         << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << endl;
-
-    result->writeImages( "Result_Alpha" );
-
-    frames.push_back( &frameAlpha );
-    frames.push_back( &frameAlpha );
-    frames.push_back( &frameAlpha );
-    frames.push_back( &frameAlpha );
-
-    clock.reset();
-    result = Compositor::assembleFramesCPU( frames, true );
-    time = clock.getTimef();
-    TEST( result );
-
-    cout << argv[0] << ": Alpha 15 images: " << time << " ms (" 
-         << 5000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << endl;
-    
-    // 3) DB assembly test
+    // 2) DB assembly test
     const ImageVector& images = frameData->getImages();
 
     image = images[0];
@@ -165,5 +118,49 @@ int main( int argc, char **argv )
     cout << argv[0] << ": DB 15 images: " << time << " ms (" 
          << 5000.0f * size * 2.f / time / 1024.0f / 1024.0f << " MB/s)" << endl;
 
+    // 3) alpha-blend assembly test
+    frameData->clear();
+    frameData->setBuffers( Frame::BUFFER_COLOR );
+
+    image = frameData->newImage();
+    TEST( image->readImage( "Image_13_color.rgb", Frame::BUFFER_COLOR ));
+    image = frameData->newImage();
+    TEST( image->readImage( "Image_14_color.rgb", Frame::BUFFER_COLOR ));
+    image = frameData->newImage();
+    TEST( image->readImage( "Image_15_color.rgb", Frame::BUFFER_COLOR ));
+    frames.clear();
+    frames.push_back( &frame );
+
+    clock.reset();
+    result = Compositor::assembleFramesCPU( frames, true );
+    time = clock.getTimef();
+    TEST( result );
+
+    cout << argv[0] << ": Alpha first op:  " << time << " ms (" 
+         << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << endl;
+
+    clock.reset();
+    result = Compositor::assembleFramesCPU( frames, true );
+    time = clock.getTimef();
+    TEST( result );
+
+    cout << argv[0] << ": Alpha second op: " << time << " ms (" 
+         << 1000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << endl;
+
+    result->writeImages( "Result_Alpha" );
+
+    frames.push_back( &frame );
+    frames.push_back( &frame );
+    frames.push_back( &frame );
+    frames.push_back( &frame );
+
+    clock.reset();
+    result = Compositor::assembleFramesCPU( frames, true );
+    time = clock.getTimef();
+    TEST( result );
+
+    cout << argv[0] << ": Alpha 15 images: " << time << " ms (" 
+         << 5000.0f * size / time / 1024.0f / 1024.0f << " MB/s)" << endl;
+    
     TEST( eq::exit( ));
 }

@@ -119,22 +119,22 @@ static bool _useCPUAssembly( const FrameVector& frames, Channel* channel,
                     colorFormat = image->getFormat( Frame::BUFFER_COLOR );
                     colorType   = image->getType(   Frame::BUFFER_COLOR );
                 }
+
                 if( colorFormat != image->getFormat( Frame::BUFFER_COLOR ) ||
                     colorType   != image->getType(   Frame::BUFFER_COLOR ))
+
                     return false;
 
-                if( !blendAlpha )
+                if( !blendAlpha && depthFormat == 0 )
                 {
-                    if( depthFormat == 0 )
-                    {
-                        depthFormat = image->getFormat( Frame::BUFFER_DEPTH );
-                        depthType   = image->getType(   Frame::BUFFER_DEPTH );
-                    }
-
-                    if( depthFormat != image->getFormat(Frame::BUFFER_DEPTH ) ||
-                        depthType   != image->getType(  Frame::BUFFER_DEPTH ))
-                        return false;
+                    depthFormat = image->getFormat( Frame::BUFFER_DEPTH );
+                    depthType   = image->getType(   Frame::BUFFER_DEPTH );
                 }
+                
+                if( depthFormat != image->getFormat(Frame::BUFFER_DEPTH ) ||
+                    depthType   != image->getType(  Frame::BUFFER_DEPTH ))
+
+                    return false;
 
                 ++nImages;
             }
@@ -538,18 +538,19 @@ void Compositor::_assembleBlendImages( Image* result,
                   result->getFormat( Frame::BUFFER_COLOR ));
         EQASSERT( image->getType( Frame::BUFFER_COLOR ) ==
                   result->getType( Frame::BUFFER_COLOR ));
-/*
+
 #ifdef EQ_USE_PARACOMP
         if( pvp == resultPVP && offset == vmml::Vector2i::ZERO && 
             i != images.begin() )
         { 
             // Use Paracomp to composite
-            if( !_assembleBlendImage_PC( PC_COMP_ALPHA_SORT2_HP,result, image ))
+            if( !_assembleImage_PC( PC_COMP_ALPHA_SORT2_HP,result, image ))
                 EQWARN << "Paracomp compositing failed, using fallback" << endl;
             else
                 continue; // Go to next input image
         }
-#endif*/
+#endif
+
         const int32_t* color = reinterpret_cast< const int32_t* >
                                 ( image->getPixelData( Frame::BUFFER_COLOR ));
 
@@ -648,11 +649,8 @@ bool Compositor::_assembleImage_PC( int operation, Image* result,
     const unsigned colorFormat = 
         glToPCFormat( result->getFormat( Frame::BUFFER_COLOR ),
                       result->getType(   Frame::BUFFER_COLOR ));
-    const unsigned depthFormat = 
-        glToPCFormat( result->getFormat( Frame::BUFFER_DEPTH ),
-                      result->getType(   Frame::BUFFER_DEPTH ));
 
-    if( colorFormat == 0 || depthFormat == 0 )
+    if( colorFormat == 0 )
     {
         EQWARN << "Format or type of image not supported by Paracomp" << endl;
         return false;
@@ -661,15 +659,10 @@ bool Compositor::_assembleImage_PC( int operation, Image* result,
     PCchannel input[2];
     PCchannel output[2];
     
-    input[0].pixelFormat = colorFormat;
-    input[1].pixelFormat = depthFormat;
+    input[0].pixelFormat  = colorFormat;
+    input[0].size         = result->getDepth( Frame::BUFFER_COLOR );
     output[0].pixelFormat = colorFormat;
-    output[1].pixelFormat = depthFormat;
-
-    input[0].size = result->getDepth( Frame::BUFFER_COLOR );
-    input[1].size = result->getDepth( Frame::BUFFER_DEPTH );
-    output[0].size = result->getDepth( Frame::BUFFER_COLOR );
-    output[1].size = result->getDepth( Frame::BUFFER_DEPTH );
+    output[0].size        = result->getDepth( Frame::BUFFER_COLOR );
 
     const PixelViewport& pvp = source->getPixelViewport();
     EQASSERT( pvp == result->getPixelViewport( ));
@@ -681,14 +674,6 @@ bool Compositor::_assembleImage_PC( int operation, Image* result,
     input[0].rowLength = pvp.w * input[0].size;
     input[0].address   = source->getPixelData( Frame::BUFFER_COLOR );
 
-    input[1].xOffset   = 0;
-    input[1].yOffset   = 0;
-    input[1].width     = pvp.w;
-    input[1].height    = pvp.h;
-    input[1].rowLength = pvp.w * input[1].size;
-    input[1].address   = source->getPixelData( Frame::BUFFER_DEPTH );
-
-
     output[0].xOffset   = 0;
     output[0].yOffset   = 0;
     output[0].width     = pvp.w;
@@ -696,17 +681,53 @@ bool Compositor::_assembleImage_PC( int operation, Image* result,
     output[0].rowLength = pvp.w * output[0].size;
     output[0].address   = result->getPixelData( Frame::BUFFER_COLOR );
 
-    output[1].xOffset   = 0;
-    output[1].yOffset   = 0;
-    output[1].width     = pvp.w;
-    output[1].height    = pvp.h;
-    output[1].rowLength = pvp.w * output[1].size;
-    output[1].address   = result->getPixelData( Frame::BUFFER_DEPTH );
+    
+    const bool useDepth = ( operation == PC_COMP_DEPTH );
+    if( useDepth )
+    {
+        const unsigned depthFormat = 
+            glToPCFormat( result->getFormat( Frame::BUFFER_DEPTH ),
+                          result->getType(   Frame::BUFFER_DEPTH ));
+
+        if( depthFormat == 0 )
+        {
+            EQWARN << "Format or type of image not supported by Paracomp" 
+                   << endl;
+            return false;
+        }
+
+        input[1].pixelFormat  = depthFormat;
+        input[1].size         = result->getDepth( Frame::BUFFER_DEPTH );
+        output[1].pixelFormat = depthFormat;
+        output[1].size        = result->getDepth( Frame::BUFFER_DEPTH );
+
+        input[1].xOffset   = 0;
+        input[1].yOffset   = 0;
+        input[1].width     = pvp.w;
+        input[1].height    = pvp.h;
+        input[1].rowLength = pvp.w * input[1].size;
+        input[1].address   = source->getPixelData( Frame::BUFFER_DEPTH );
+
+        output[1].xOffset   = 0;
+        output[1].yOffset   = 0;
+        output[1].width     = pvp.w;
+        output[1].height    = pvp.h;
+        output[1].rowLength = pvp.w * output[1].size;
+        output[1].address   = result->getPixelData( Frame::BUFFER_DEPTH );
+    }
+
 
     PCchannel* inputImages[2]     = { output, input };
     PCchannel* outputImage[1]     = { output };
-    PCuint     nInputChannels[2]  = { 2, 2 };
-    PCuint     nOutputChannels[1] = { 2 };
+    PCuint     nInputChannels[2]  = { 1, 1 };
+    PCuint     nOutputChannels[1] = { 1 };
+
+    if( useDepth )
+    {
+        nInputChannels[ 0 ]  = 2;
+        nInputChannels[ 1 ]  = 2;
+        nOutputChannels[ 0 ] = 2;
+    }
 
     const PCerr error = pcCompositeEXT( operation, 
                                         2, nInputChannels, inputImages,
@@ -724,67 +745,6 @@ bool Compositor::_assembleImage_PC( int operation, Image* result,
 #endif
 }
 
-bool Compositor::_assembleBlendImage_PC( int operation, Image* result, 
-                                    const Image* source )
-{
-#ifdef EQ_USE_PARACOMP
-    const unsigned colorFormat = 
-        glToPCFormat( result->getFormat( Frame::BUFFER_COLOR ),
-                      result->getType(   Frame::BUFFER_COLOR ));
-
-    if( colorFormat == 0)
-    {
-        EQWARN << "Format or type of image not supported by Paracomp" << endl;
-        return false;
-    }
-
-    PCchannel input[2];
-    PCchannel output[2];
-    
-    input[0].pixelFormat = colorFormat;
-    output[0].pixelFormat = colorFormat;
-
-    input[0].size = result->getDepth( Frame::BUFFER_COLOR );
-    output[0].size = result->getDepth( Frame::BUFFER_COLOR );
-
-    const PixelViewport& pvp = source->getPixelViewport();
-    EQASSERT( pvp == result->getPixelViewport( ));
-
-    input[0].xOffset   = 0;
-    input[0].yOffset   = 0;
-    input[0].width     = pvp.w;
-    input[0].height    = pvp.h;
-    input[0].rowLength = pvp.w * input[0].size;
-    input[0].address   = source->getPixelData( Frame::BUFFER_COLOR );
-
-
-    output[0].xOffset   = 0;
-    output[0].yOffset   = 0;
-    output[0].width     = pvp.w;
-    output[0].height    = pvp.h;
-    output[0].rowLength = pvp.w * output[0].size;
-    output[0].address   = result->getPixelData( Frame::BUFFER_COLOR );
-
-    PCchannel* inputImages[2]     = { output, input };
-    PCchannel* outputImage[1]     = { output };
-    PCuint     nInputChannels[2]  = { 1, 1 };
-    PCuint     nOutputChannels[1] = { 1 };
-
-    const PCerr error = pcCompositeEXT( operation, 
-                                        2, nInputChannels, inputImages,
-                                        1, nOutputChannels, outputImage );
-    if( error != PC_NO_ERROR )
-    {
-        EQWARN << "Paracomp compositing failed: " << error << endl;
-        return false;
-    }
-
-    EQINFO << "Paracomp alpha compositing successful" << endl;
-    return true;
-#else
-    return false;
-#endif
-}
 
 void Compositor::assembleFrame( const Frame* frame, Channel* channel )
 {

@@ -147,8 +147,6 @@ namespace eq
                                        const std::vector< FrameImage >& images);
         static bool   _assembleImage_PC( int operation, Image* result,
                                          const Image* source );
-        static bool   _assembleBlendImage_PC( int operation, Image* result,
-                                         const Image* source );
 
     };
 }
