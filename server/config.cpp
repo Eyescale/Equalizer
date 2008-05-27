@@ -457,8 +457,6 @@ bool Config::exit()
     if( _state != STATE_INITIALIZED )
         EQWARN << "Exiting non-initialized config" << endl;
 
-    _finishAllFrames();
-
     bool cleanExit = _exitNodes();
     if( !cleanExit )
         EQERROR << "nodes exit failed" << endl;

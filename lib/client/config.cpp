@@ -159,12 +159,13 @@ bool Config::_finishInit()
     if( !_running )
         deregisterObject( &_headMatrix );
 
-        handleEvents();
+    handleEvents();
     return _running;
 }
 
 bool Config::exit()
 {
+    finishAllFrames();
     _running = false;
 
     ConfigExitPacket packet;
