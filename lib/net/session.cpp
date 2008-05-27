@@ -308,8 +308,6 @@ uint32_t Session::mapObjectNB( Object* object, const uint32_t id )
     if( !object->isMaster( ))
     {
         // Connect master node, can't do that from the command thread!
-        EQASSERTINFO( object->_cm == ObjectCM::ZERO, typeid( *object ).name( ));
-
         const NodeID& masterID = getIDMaster( id );
         if( masterID == NodeID::ZERO )
         {
