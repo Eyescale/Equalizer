@@ -73,6 +73,9 @@ namespace eq
         eqBase::RefPtr<Client> _client;
         friend class Client; // to call invokeCommand()
 
+        /** Process-local server */
+        bool _localServer;
+
         /** @sa eqNet::Node::getType */
         virtual uint32_t getType() const { return TYPE_EQ_SERVER; }
 

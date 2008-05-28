@@ -350,11 +350,21 @@ void Image::clearPixelData( const Frame::Buffer buffer )
     }
     else
     {
-        bzero( pixels.data, size );
-
         if( getDepth( Frame::BUFFER_COLOR ) == 4 )
-            for( uint32_t i = 3; i < size; i+=4 )
-                pixels.data[i] = 255;
+        {
+#ifdef LEOPARD
+            const unsigned char pixel[4] = { 0, 0, 0, 255 };
+            memset_pattern4( pixels.data, &pixel, size );
+#else
+            bzero( pixels.data, size );
+
+            if( getDepth( Frame::BUFFER_COLOR ) == 4 )
+                for( uint32_t i = 3; i < size; i+=4 )
+                    pixels.data[i] = 255;
+#endif
+        }
+        else
+            bzero( pixels.data, size );
     }
 
     CompressedPixels& compressedPixels = _getCompressedPixels( buffer );

@@ -577,11 +577,9 @@ void* Node::_runReceiverThread()
             nErrors = 0;
     }
 
-#ifndef NDEBUG
     if( !_pendingCommands.empty( ))
         EQWARN << _pendingCommands.size() 
-               << " commands rescheduled while leaving command thread" << endl;
-#endif
+               << " commands pending while leaving command thread" << endl;
 
     for( list<Command*>::const_iterator i = _pendingCommands.begin();
          i != _pendingCommands.end(); ++i )

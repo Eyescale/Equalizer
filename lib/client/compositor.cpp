@@ -125,7 +125,8 @@ static bool _useCPUAssembly( const FrameVector& frames, Channel* channel,
 
                     return false;
 
-                if( depthFormat == 0 )
+                if( depthFormat == 0 && 
+                    image->hasPixelData( Frame::BUFFER_DEPTH ))
                 {
                     depthFormat = image->getFormat( Frame::BUFFER_DEPTH );
                     depthType   = image->getType(   Frame::BUFFER_DEPTH );

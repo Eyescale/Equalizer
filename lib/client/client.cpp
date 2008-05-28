@@ -130,6 +130,7 @@ bool Client::connectServer( RefPtr<Server> server )
                  connection ))
     {
         server->setClient( this );
+        server->_localServer = true;
         return true;
     }
 
@@ -182,6 +183,10 @@ bool Client::disconnectServer( RefPtr<Server> server )
         EQWARN << "Trying to disconnect unconnected server" << endl;
         return false;
     }
+
+    // shut down process-local server (see _startLocalServer)
+    if( server->_localServer )
+        server->shutdown();
 
     server->setClient( 0 );
     const int success = disconnect( 

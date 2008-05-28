@@ -22,6 +22,7 @@ using eqNet::CommandFunc;
 namespace eq
 {
 Server::Server()
+        : _localServer( false )
 {
     EQINFO << "New server at " << (void*)this << endl;
 }
