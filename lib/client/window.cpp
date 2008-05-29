@@ -1306,12 +1306,8 @@ int Window::chooseWGLPixelFormat( HDC dc )
     if( colorSize > 0 || colorSize == AUTO )
     {
         const int colorBits = colorSize>0 ? colorSize : 8;
-        attributes.push_back( WGL_RED_BITS_ARB );
-        attributes.push_back( colorBits );
-        attributes.push_back( WGL_GREEN_BITS_ARB );
-        attributes.push_back( colorBits );
-        attributes.push_back( WGL_BLUE_BITS_ARB );
-        attributes.push_back( colorBits );
+        attributes.push_back( WGL_COLOR_BITS_ARB );
+        attributes.push_back( colorBits * 3 );
     }
 
     const int alphaSize = getIAttribute( IATTR_PLANES_ALPHA );
