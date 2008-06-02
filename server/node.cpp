@@ -31,6 +31,8 @@ void Node::_construct()
     _config           = NULL;
     _lastDrawCompound = 0;
     _flushedFrame     = 0;
+    _finishedFrame    = 0;
+
     EQINFO << "New node @" << (void*)this << endl;
 }
 
@@ -308,7 +310,7 @@ void Node::notifyPipeFrameFinished( const uint32_t frameNumber )
     finishPacket.sessionID   = _config->getID();
     finishPacket.objectID    = getID();
     _node->send( finishPacket );
- }
+}
 
 void Node::flushFrames( const uint32_t frameNumber )
 {
@@ -321,6 +323,7 @@ void Node::flushFrames( const uint32_t frameNumber )
     }
 
     _bufferedTasks.sendBuffer( _node->getConnection( ));
+    _frameIDs.erase( frameNumber );
 }
 
 void Node::_sendFrameFinish( const uint32_t frameNumber)
@@ -332,12 +335,6 @@ void Node::_sendFrameFinish( const uint32_t frameNumber)
     _send( finishPacket );
     EQLOG( eq::LOG_TASKS ) << "TASK node finish frame  " << &finishPacket
                            << endl;
-}
-
-void Node::finishFrame( const uint32_t frame )
-{ 
-    _finishedFrame.waitGE( frame ); 
-    _frameIDs.erase( frame );
 }
 
 //---------------------------------------------------------------------------
@@ -417,6 +414,8 @@ eqNet::CommandResult Node::_cmdFrameFinishReply( eqNet::Command& command )
     EQVERB << "handle frame finish reply " << packet << endl;
     
     _finishedFrame = packet->frameNumber;
+    _config->notifyNodeFrameFinished( packet->frameNumber );
+
     return eqNet::COMMAND_HANDLED;
 }
 

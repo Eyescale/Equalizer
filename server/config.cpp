@@ -135,9 +135,6 @@ void Config::setLocalNode( eqBase::RefPtr< eqNet::Node > node )
     registerCommand( eq::CMD_CONFIG_START_FRAME, 
                      CommandFunc<Config>( this, &Config::_cmdStartFrame ),
                      serverQueue );
-    registerCommand( eq::CMD_CONFIG_FINISH_FRAME, 
-                     CommandFunc<Config>( this, &Config::_cmdFinishFrame ),
-                     serverQueue );
     registerCommand( eq::CMD_CONFIG_FINISH_ALL_FRAMES, 
                      CommandFunc<Config>( this, &Config::_cmdFinishAllFrames ),
                      serverQueue );
@@ -603,38 +600,32 @@ void Config::_startFrame( const uint32_t frameID )
     }
 }
 
-uint32_t Config::_finishFrame()
+void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
 {
-    if( _currentFrame <= _latency ) // nothing to finish yet, says latency
-        return 0;
-
-    const uint32_t finishFrame = _currentFrame - _latency;
-    if( _finishedFrame == finishFrame ) // already called?
-        return finishFrame;
-
-    _finishFrame( finishFrame );
-    return finishFrame;
-}
-
-void Config::_finishFrame( const uint32_t frame )
-{
-    EQASSERT( _finishedFrame+1 == frame ); // otherwise app skipped finishFrame
+    if( _finishedFrame >= frameNumber ) // node finish already done
+        return;
 
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
-        Node* node = *i;
-        if( node->isUsed( ))
-            node->finishFrame( frame );
+        const Node* node = *i;
+        if( node->isUsed() && node->getFinishedFrame() < frameNumber )
+            return;
     }
 
-    _finishedFrame = frame;
-    EQLOG( LOG_ANY ) << "----- Finish Frame ---- " << frame << endl;
-}
+    // All nodes have finished the frame. Notify the app-node config that the
+    // frame is finished
+    eq::ConfigFrameFinishPacket finishPacket;
+    finishPacket.frameNumber = frameNumber;
 
-uint32_t Config::_finishAllFrames()
+    // do not use send/_bufferedTasks, not thread-safe!
+    finishPacket.sessionID   = getID();
+    _appNetNode->send( finishPacket );
+ }
+
+void Config::_flushFrames()
 {
     if( _currentFrame == 0 )
-        return 0;
+        return;
 
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
@@ -643,11 +634,7 @@ uint32_t Config::_finishAllFrames()
             node->flushFrames( _currentFrame );
     }
 
-    while( _finishedFrame < _currentFrame )
-        _finishFrame( _finishedFrame + 1 );
-
-    EQLOG( LOG_ANY ) << "-- Finish All Frames -- " << endl;
-    return _currentFrame;
+    EQLOG( LOG_ANY ) << "--- Flush All Frames -- " << endl;
 }
 
 //---------------------------------------------------------------------------
@@ -733,27 +720,13 @@ eqNet::CommandResult Config::_cmdStartFrame( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_cmdFinishFrame( eqNet::Command& command ) 
-{
-    const eq::ConfigFinishFramePacket* packet = 
-        command.getPacket<eq::ConfigFinishFramePacket>();
-    EQVERB << "handle config frame finish " << packet << endl;
-
-    eq::ConfigFinishFrameReplyPacket reply;
-    reply.frameNumber = _finishFrame();
-    send( command.getNode(), reply );
-    return eqNet::COMMAND_HANDLED;
-}
-
 eqNet::CommandResult Config::_cmdFinishAllFrames( eqNet::Command& command ) 
 {
     const eq::ConfigFinishAllFramesPacket* packet = 
         command.getPacket<eq::ConfigFinishAllFramesPacket>();
     EQVERB << "handle config all frames finish " << packet << endl;
 
-    eq::ConfigFinishAllFramesReplyPacket reply;
-    reply.frameNumber = _finishAllFrames();
-    send( command.getNode(), reply );
+    _flushFrames();
     return eqNet::COMMAND_HANDLED;
 }
 

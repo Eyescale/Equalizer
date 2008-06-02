@@ -292,8 +292,7 @@ namespace eq
         eqNet::CommandResult _cmdFinishInitReply( eqNet::Command& command );
         eqNet::CommandResult _cmdExitReply( eqNet::Command& command );
         eqNet::CommandResult _cmdStartFrameReply( eqNet::Command& command );
-        eqNet::CommandResult _cmdFinishFrameReply( eqNet::Command& command );
-        eqNet::CommandResult _cmdFinishAllFramesReply( eqNet::Command& command);
+        eqNet::CommandResult _cmdFrameFinish( eqNet::Command& command );
 #ifdef EQ_TRANSMISSION_API
         eqNet::CommandResult _cmdData( eqNet::Command& command );
 #endif

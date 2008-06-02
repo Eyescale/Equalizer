@@ -161,6 +161,9 @@ namespace eqs
         const vmml::Vector3f& getEyePosition( const eq::Eye eye ) const
             { return _eyePosition[ eye ]; }
 
+        /** Notify that a node of this config has finished a frame. */
+        void notifyNodeFrameFinished( const uint32_t frameNumber );
+
         // Used by Server::releaseConfig() to make sure config is exited
         bool exit();
 
@@ -265,11 +268,9 @@ namespace eqs
 
         void _updateHead();
 
-        void     _prepareFrame( std::vector< eqNet::NodeID >& nodeIDs );
-        void     _startFrame( const uint32_t frameID );
-        uint32_t _finishFrame();
-        uint32_t _finishAllFrames();
-        void       _finishFrame( const uint32_t frame );
+        void _prepareFrame( std::vector< eqNet::NodeID >& nodeIDs );
+        void _startFrame( const uint32_t frameID );
+        void _flushFrames();
         //*}
 
         /** The command functions. */
@@ -277,7 +278,6 @@ namespace eqs
         eqNet::CommandResult _cmdFinishInit( eqNet::Command& command );
         eqNet::CommandResult _cmdExit( eqNet::Command& command );
         eqNet::CommandResult _cmdStartFrame( eqNet::Command& command );
-        eqNet::CommandResult _cmdFinishFrame( eqNet::Command& command ); 
         eqNet::CommandResult _cmdFinishAllFrames( eqNet::Command& command ); 
         eqNet::CommandResult _cmdCreateReply( eqNet::Command& command );
         eqNet::CommandResult _cmdCreateNodeReply( eqNet::Command& command );

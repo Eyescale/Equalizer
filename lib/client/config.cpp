@@ -55,11 +55,8 @@ Config::Config( eqBase::RefPtr< Server > server )
     registerCommand( CMD_CONFIG_START_FRAME_REPLY, 
                      CommandFunc<Config>( this, &Config::_cmdStartFrameReply ),
                      queue );
-    registerCommand( CMD_CONFIG_FINISH_FRAME_REPLY, 
-                     CommandFunc<Config>( this, &Config::_cmdFinishFrameReply ),
-                     queue );
-    registerCommand( CMD_CONFIG_FINISH_ALL_FRAMES_REPLY, 
-                 CommandFunc<Config>( this, &Config::_cmdFinishAllFramesReply ),
+    registerCommand( CMD_CONFIG_FRAME_FINISH, 
+                     CommandFunc<Config>( this, &Config::_cmdFrameFinish ),
                      queue );
     registerCommand( CMD_CONFIG_EVENT, 
                      CommandFunc<Config>( this, &Config::_cmdUnknown ),
@@ -214,8 +211,6 @@ uint32_t Config::startFrame( const uint32_t frameID )
 uint32_t Config::finishFrame()
 {
     ConfigStatistics        stat( Statistic::CONFIG_FINISH_FRAME, this );
-    ConfigFinishFramePacket packet;
-    send( packet );
 
     RefPtr< Client > client        = getClient();
     const uint32_t   frameToFinish = (_currentFrame >= _latency) ? 
@@ -246,7 +241,7 @@ uint32_t Config::finishFrame()
 
     _updateStatistics( frameToFinish );
 
-    EQLOG( LOG_ANY ) << "----- Finish Frame ---- " << frameToFinish << " ("
+    EQLOG( LOG_ANY ) << "---- Finished Frame --- " << frameToFinish << " ("
                      << _currentFrame << ')' << endl;
     return frameToFinish;
 }
@@ -581,11 +576,11 @@ eqNet::CommandResult Config::_cmdStartFrameReply( eqNet::Command& command )
     return eqNet::COMMAND_HANDLED;
 }
 
-eqNet::CommandResult Config::_cmdFinishFrameReply( eqNet::Command& command )
+eqNet::CommandResult Config::_cmdFrameFinish( eqNet::Command& command )
 {
-    const ConfigFinishFrameReplyPacket* packet = 
-        command.getPacket<ConfigFinishFrameReplyPacket>();
-    EQVERB << "handle frame finish reply " << packet << endl;
+    const ConfigFrameFinishPacket* packet = 
+        command.getPacket<ConfigFrameFinishPacket>();
+    EQVERB << "handle frame finish " << packet << endl;
 
     _finishedFrame = packet->frameNumber;
 
@@ -596,16 +591,6 @@ eqNet::CommandResult Config::_cmdFinishFrameReply( eqNet::Command& command )
         _unlockedFrame = _finishedFrame;
     }
 
-    return eqNet::COMMAND_HANDLED;
-}
-
-eqNet::CommandResult Config::_cmdFinishAllFramesReply( eqNet::Command& command )
-{
-    const ConfigFinishAllFramesReplyPacket* packet = 
-        command.getPacket<ConfigFinishAllFramesReplyPacket>();
-    EQVERB << "handle all frames finish reply " << packet << endl;
-
-    _finishedFrame = packet->frameNumber;
     return eqNet::COMMAND_HANDLED;
 }
 

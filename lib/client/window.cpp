@@ -2245,6 +2245,7 @@ eqNet::CommandResult Window::_cmdBarrier( eqNet::Command& command )
 
 eqNet::CommandResult Window::_cmdSwap(eqNet::Command& command ) 
 {
+    EQLOG( LOG_TASKS ) << "TASK swap  " << getName() << endl;
     EQ_GL_CALL( makeCurrent( ));
 
     WindowStatistics stat( Statistic::WINDOW_SWAP, this );

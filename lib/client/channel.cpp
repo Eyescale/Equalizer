@@ -616,7 +616,7 @@ eqNet::CommandResult Channel::_cmdFrameFinish( eqNet::Command& command )
 {
     const ChannelFrameFinishPacket* packet =
         command.getPacket<ChannelFrameFinishPacket>();
-    EQVERB << "handle channel frame sync " << packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet << endl;
 
     frameFinish( packet->frameID, packet->frameNumber );
 

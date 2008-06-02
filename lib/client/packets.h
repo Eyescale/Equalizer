@@ -334,21 +334,12 @@ namespace eq
         EQ_ALIGN8( eqNet::NodeID nodeIDs[1] );
     };
 
-    struct ConfigFinishFramePacket : public ConfigPacket
+    struct ConfigFrameFinishPacket : public ConfigPacket
     {
-        ConfigFinishFramePacket()
+        ConfigFrameFinishPacket()
             {
-                command   = CMD_CONFIG_FINISH_FRAME;
-                size      = sizeof( ConfigFinishFramePacket );
-            }
-    };
-
-    struct ConfigFinishFrameReplyPacket : public ConfigPacket
-    {
-        ConfigFinishFrameReplyPacket()
-            {
-                command     = CMD_CONFIG_FINISH_FRAME_REPLY;
-                size        = sizeof( ConfigFinishFrameReplyPacket );
+                command     = CMD_CONFIG_FRAME_FINISH;
+                size        = sizeof( ConfigFrameFinishPacket );
                 hasPriority = true;
             }
         uint32_t frameNumber;
@@ -361,16 +352,6 @@ namespace eq
                 command   = CMD_CONFIG_FINISH_ALL_FRAMES;
                 size      = sizeof( ConfigFinishAllFramesPacket );
             }
-    };
-
-    struct ConfigFinishAllFramesReplyPacket : public ConfigPacket
-    {
-        ConfigFinishAllFramesReplyPacket()
-            {
-                command   = CMD_CONFIG_FINISH_ALL_FRAMES_REPLY;
-                size      = sizeof( ConfigFinishAllFramesReplyPacket );
-            }
-        uint32_t frameNumber;
     };
 
 #ifdef EQ_TRANSMISSION_API

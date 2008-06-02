@@ -37,13 +37,16 @@ namespace eqs
         Server* getServer() const
             { return _config ? _config->getServer() : NULL; }
 
-        eqBase::RefPtr<eqNet::Node> getNode() const { return _node; }
-        void setNode( eqBase::RefPtr<eqNet::Node> node ) { _node = node; }
+        eqNet::NodePtr getNode() const { return _node; }
+        void setNode( eqNet::NodePtr node ) { _node = node; }
 
         eqNet::CommandQueue* getServerThreadQueue()
             { return _config->getServerThreadQueue(); }
         eqNet::CommandQueue* getCommandThreadQueue()
             { return _config->getCommandThreadQueue(); }
+
+        /** @return the number of the last finished frame. */
+        uint32_t getFinishedFrame() const { return _finishedFrame; }
 
         /** 
          * Adds a new pipe to this node.
@@ -259,7 +262,7 @@ namespace eqs
         uint32_t _flushedFrame;
 
         /** The number of the last finished frame. */
-        eqBase::Monitor<uint32_t> _finishedFrame;
+        uint32_t _finishedFrame;
 
         enum State
         {
