@@ -181,13 +181,7 @@ bool Config::exit()
 
     deregisterObject( &_headMatrix );
 
-    while( true ) // flush all pending events
-    {
-        eqNet::Command* command = _eventQueue.tryPop();
-        if( !command )
-            break;
-        _eventQueue.release( command );
-    }
+    while( tryNextEvent( )) /* flush all pending events */ ;
     _eventQueue.release( _lastEvent );
     _eventQueue.flush();
     _lastEvent = 0;

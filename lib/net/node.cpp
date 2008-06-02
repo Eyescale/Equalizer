@@ -101,10 +101,10 @@ bool Node::operator == ( const Node* node ) const
 bool Node::initLocal( const int argc, char** argv )
 {
 #ifndef NDEBUG
-    EQINFO << "args: ";
+    EQINFO << disableFlush << "args: ";
     for( int i=0; i<argc; i++ )
          EQINFO << argv[i] << ", ";
-    EQINFO << endl;
+    EQINFO << endl << enableFlush;
 #endif
 
     // We do not use getopt_long because it really does not work due to the
@@ -235,11 +235,22 @@ bool Node::stopListening()
     EQASSERT( cmdJoined );
 
     _cleanup();
+
+    EQINFO << _connectionSet.size() << " connections open after stopListening"
+           << endl;
+#ifndef NDEBUG
+    const ConnectionVector& connections = _connectionSet.getConnections();
+    for( ConnectionVector::const_iterator i = connections.begin();
+         i != connections.end(); ++i )
+
+        EQINFO << "    " << *i << endl;
+#endif
     return true;
 }
 
 void Node::_cleanup()
 {
+    EQINFO << "Clean up stopped node" << endl;
     EQASSERTINFO( _state == STATE_STOPPED, _state );
     EQASSERT( _connection.isValid( ));
 
@@ -592,8 +603,6 @@ void* Node::_runReceiverThread()
     delete _receivedCommand;
     _receivedCommand = 0;
 
-    EQINFO << _connectionSet.size() << " connections open during receiver exit"
-           << endl;
     EQINFO << "Leaving receiver thread" << endl;
     return EXIT_SUCCESS;
 }
@@ -684,6 +693,12 @@ bool Node::_handleData()
                   *_receivedCommand << " connection " << connection );
 
     _dispatchCommand( *_receivedCommand );
+
+#ifndef NDEBUG
+    // Unref nodes in command to keep node ref counts easier for debugging.
+    // Release builds will unref the nodes at receiver thread exit.
+    _receivedCommand->allocate( 0, 0, 1 );
+#endif
     return true;
 }
 
@@ -796,6 +811,7 @@ void* Node::_runCommandThread()
         _commandThreadQueue.release( command );
     }
  
+    _commandThreadQueue.flush();
     EQINFO << "Leaving command thread" << endl;
     return EXIT_SUCCESS;
 }

@@ -58,6 +58,8 @@ int main( const int argc, char** argv )
 
     // 5. cleanup and exit
     client->exitLocal();
+
+    //TODO EQASSERTINFO( client->getRefCount() == 1, client->getRefCount( ));
     client = 0;
 
     eq::exit();

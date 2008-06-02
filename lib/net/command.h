@@ -26,7 +26,7 @@ namespace eqNet
     class Command 
     {
     public:
-        Command() : _packet(0)   {}
+        Command() : _packet( 0 ), _packetAllocSize( 0 )   {}
         Command( const Command& from ); // deep copy (of _packet)
         ~Command() { release(); }
         
@@ -48,8 +48,7 @@ namespace eqNet
         Packet*       operator->()       { EQASSERT(_packet); return _packet; }
         const Packet* operator->() const { EQASSERT(_packet); return _packet; }
 
-        void allocate( eqBase::RefPtr<Node> node, 
-                       eqBase::RefPtr<Node> localNode, 
+        void allocate( NodePtr node, NodePtr localNode,
                        const uint64_t packetSize );
         void release();
         bool isValid() const { return ( _packet!=0 ); }
@@ -57,10 +56,10 @@ namespace eqNet
     private:
         Command& operator = ( Command& rhs ); // disable assignment
 
-        eqBase::RefPtr<Node> _node;
-        eqBase::RefPtr<Node> _localNode;
-        Packet*              _packet;
-
+        NodePtr  _node;
+        NodePtr  _localNode;
+        Packet*  _packet;
+        uint64_t _packetAllocSize;
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& );

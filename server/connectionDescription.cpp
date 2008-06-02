@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "connectionDescription.h"
@@ -8,10 +8,11 @@
 #include <eq/base/log.h>
 #include <eq/net/connection.h>
 
-using namespace eqs;
 using namespace eqBase;
 using namespace std;
 
+namespace eqs
+{
 #define MAKE_ATTR_STRING( attr ) ( string("EQ_CONNECTION_") + #attr )
 
 std::string ConnectionDescription::_sAttributeStrings[SATTR_ALL] = {
@@ -52,8 +53,8 @@ ConnectionDescription::ConnectionDescription()
     }
 }
 
-std::ostream& eqs::operator << ( std::ostream& os, 
-                                 const eqNet::ConnectionDescription* desc )
+std::ostream& operator << ( std::ostream& os, 
+                            const eqNet::ConnectionDescription* desc )
 {
     os << disableFlush << "connection" << endl;
     os << "{" << endl << indent;
@@ -91,4 +92,5 @@ std::ostream& eqs::operator << ( std::ostream& os,
     os << exdent << "}" << enableFlush << endl;
 
     return os;
+}
 }

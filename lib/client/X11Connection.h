@@ -24,7 +24,7 @@ namespace eq
             {
                 EQASSERT( _display );
                 _state = STATE_CONNECTED;
-                EQINFO << "New X11 connection @" << (void*)this << std::endl;
+                EQINFO << "New X11 Connection @" << (void*)this << std::endl;
             }
         
         virtual ~X11Connection() 

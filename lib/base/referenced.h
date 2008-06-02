@@ -1,12 +1,12 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_REFERENCED_H
 #define EQBASE_REFERENCED_H
 
 #include <eq/base/base.h>     // for EQ_EXPORT
-#include <eq/base/debug.h>    // for EQ_ERROR
+#include <eq/base/debug.h>    // for EQERROR
 #include <eq/base/spinLock.h> // member
 
 namespace eqBase
@@ -20,7 +20,7 @@ namespace eqBase
     public:
         // TODO: optional thread-safety
         void ref()   
-        { 
+        {
 #ifndef NDEBUG
             EQASSERTINFO( !_hasBeenDeleted, typeid( *this ).name( ));
 #endif

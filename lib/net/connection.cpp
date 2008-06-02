@@ -21,9 +21,11 @@
 #  include <alloca.h>
 #endif
 
-using namespace eqNet;
 using namespace eqBase;
 using namespace std;
+
+namespace eqNet
+{
 
 Connection::Connection()
         : _state( STATE_CLOSED )
@@ -376,7 +378,7 @@ bool Connection::send( const ConnectionVector& connections, Packet& packet,
 }
 
 
-eqBase::RefPtr<ConnectionDescription> Connection::getDescription()
+eqBase::RefPtr<ConnectionDescription> Connection::getDescription() const
 {
     return _description;
 }
@@ -388,4 +390,27 @@ void Connection::setDescription( eqBase::RefPtr<ConnectionDescription>
     EQASSERTINFO( _description->type == description->type,
                   "Wrong connection type in description" );
     _description = description;
+}
+
+std::ostream& operator << ( std::ostream& os, const Connection* connection )
+{
+    if( !connection )
+    {
+        os << "NULL connection";
+        return os;
+    }
+    
+    Connection::State state = connection->getState();
+        
+    os << "Connection " << (void*)connection << " type "
+       << typeid(*connection).name() << " state "
+       << ( state == Connection::STATE_CLOSED     ? "closed" :
+            state == Connection::STATE_CONNECTING ? "connecting" :
+            state == Connection::STATE_CONNECTED  ? "connected" :
+            state == Connection::STATE_LISTENING  ? "listening" :
+            "unknown state" )
+       << " description " << connection->getDescription()->toString();
+    
+    return os;
+}
 }

@@ -13,6 +13,7 @@ BufferConnection::BufferConnection()
           _maxSize(0)
 {
     _state = STATE_CONNECTED;
+    EQINFO << "New Buffer Connection @" << (void*)this << endl;
 }
 
 BufferConnection::BufferConnection( const BufferConnection& from )

@@ -189,6 +189,8 @@ bool Client::disconnectServer( RefPtr<Server> server )
         server->shutdown();
 
     server->setClient( 0 );
+    server->_localServer = false;
+
     const int success = disconnect( 
         RefPtr_static_cast< Server, eqNet::Node >( server ));
     if( !success )

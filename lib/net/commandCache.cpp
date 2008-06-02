@@ -46,6 +46,13 @@ Command* CommandCache::alloc( Command& inCommand )
 
 void CommandCache::release( Command* command )
 {
+#ifndef NDEBUG
+    // Unref nodes in command to keep node ref counts easier for debugging.
+    // Release builds will unref the nodes when the queues are flushed at the
+    // exit of the consumer threads.
+    command->allocate( 0, 0, 1 );
+#endif
+
     if( command->isValid() && (*command)->exceedsMinSize( ))
         // old packet was 'big', release
         command->release();

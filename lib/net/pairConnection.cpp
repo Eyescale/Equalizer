@@ -4,8 +4,10 @@
 
 #include "pairConnection.h"
 
-using namespace eqNet;
+using namespace std;
 
+namespace eqNet
+{
 PairConnection::PairConnection( eqBase::RefPtr<Connection> readConnection,
                                 eqBase::RefPtr<Connection> writeConnection )
         : _readConnection( readConnection )
@@ -14,6 +16,7 @@ PairConnection::PairConnection( eqBase::RefPtr<Connection> readConnection,
     _sibling = new PairConnection( this );
     EQASSERT( readConnection->getState() == STATE_CLOSED );
     EQASSERT( writeConnection->getState() == STATE_CLOSED );
+    EQINFO << "New Connection Pair @" << (void*)this << endl;
 }
 
 PairConnection::PairConnection( PairConnection* sibling )
@@ -75,4 +78,5 @@ void PairConnection::close()
 
     _readConnection->close();
     _writeConnection->close();
+}
 }

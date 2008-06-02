@@ -228,7 +228,7 @@ namespace eqNet
         void setDescription( eqBase::RefPtr<ConnectionDescription> description);
 
         /** @return the description for this connection. */
-        eqBase::RefPtr<ConnectionDescription> getDescription();
+        eqBase::RefPtr<ConnectionDescription> getDescription() const;
 
 
         /** @return the notifier handle to signal that data can be read. */
@@ -293,26 +293,7 @@ namespace eqNet
         //@}
     };
 
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const Connection* connection )
-    {
-        if( !connection )
-        {
-            os << "NULL connection";
-            return os;
-        }
-
-        Connection::State state = connection->getState();
-        
-        os << "Connection " << (void*)connection << " type "
-           << typeid(*connection).name() << " state "
-           << ( state == Connection::STATE_CLOSED     ? "closed" :
-                state == Connection::STATE_CONNECTING ? "connecting" :
-                state == Connection::STATE_CONNECTED  ? "connected" :
-                state == Connection::STATE_LISTENING  ? "listening" :
-                "unknown state");
-        return os;
-    }
+    std::ostream& operator << ( std::ostream&, const Connection* );
 
 #   include "connection.ipp" // template implementation
 }

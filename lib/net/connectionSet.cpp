@@ -168,14 +168,14 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                         return event;
                     }
                     
-                    if( event == EVENT_DATA && 
+                    if( event == EVENT_DATA &&
                         _connection->getState() == Connection::STATE_LISTENING )
 
                         event = EVENT_CONNECT;
 
-                    EQVERB << "selected connection " << _connection.get() 
-                           << " of " << _fdSetConnections.size()+1 << ", event "
-                           << event << endl;
+                    EQVERB << "selected connection " << _connection << " of "
+                           << _fdSetConnections.size()+1 << ", event " << event
+                           << endl;
                     return event;
                 }
         }

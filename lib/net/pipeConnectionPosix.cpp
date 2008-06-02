@@ -17,6 +17,7 @@ PipeConnection::PipeConnection()
 {
     _description = new ConnectionDescription;
     _description->type = CONNECTIONTYPE_PIPE;
+    EQINFO << "New Pipe Connection @" << (void*)this << endl;
 }
 
 PipeConnection::~PipeConnection()

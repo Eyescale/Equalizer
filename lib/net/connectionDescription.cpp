@@ -1,13 +1,15 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "connectionDescription.h"
 
 #include <sstream>
 
-using namespace eqNet;
 using namespace std;
+
+namespace eqNet
+{
 
 #define SEPARATOR '#'
 
@@ -185,4 +187,5 @@ void ConnectionDescription::setLaunchCommand( const std::string& launchCommand )
 const string& ConnectionDescription::getLaunchCommand() const
 {
     return _launchCommand;
+}
 }
