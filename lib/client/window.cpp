@@ -736,7 +736,9 @@ AGLPixelFormat Window::chooseAGLPixelFormat()
     attributes.push_back( AGL_ACCELERATED );
     attributes.push_back( GL_TRUE );
 
-    if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON )
+    if( getIAttribute( IATTR_HINT_FULLSCREEN ) == ON && 
+        getIAttribute( IATTR_HINT_DRAWABLE )   == WINDOW )
+
         attributes.push_back( AGL_FULLSCREEN );
 
 #ifdef LEOPARD
