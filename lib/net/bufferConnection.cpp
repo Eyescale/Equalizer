@@ -1,12 +1,13 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "bufferConnection.h"
 
-using namespace eqNet;
 using namespace std;
 
+namespace eqNet
+{
 BufferConnection::BufferConnection()
         : _buffer(0),
           _size(0),
@@ -14,20 +15,6 @@ BufferConnection::BufferConnection()
 {
     _state = STATE_CONNECTED;
     EQINFO << "New Buffer Connection @" << (void*)this << endl;
-}
-
-BufferConnection::BufferConnection( const BufferConnection& from )
-        : Connection( from )
-        , _buffer( from._buffer )
-        , _size( from._size )
-        , _maxSize( from._maxSize )
-{
-    // More a 'move' constructor. Used primarily when resizing STL containers
-    _state   = STATE_CONNECTED;
-    
-    from._buffer  = 0;
-    from._size    = 0;
-    from._maxSize = 0;
 }
 
 BufferConnection::~BufferConnection()
@@ -75,18 +62,4 @@ void BufferConnection::sendBuffer( eqBase::RefPtr<Connection> connection )
     EQASSERT( sent );
     _size = 0;
 }
-
-void BufferConnection::swap( BufferConnection& connection )
-{
-    uint8_t*    buffer = _buffer;
-    _buffer            = connection._buffer;
-    connection._buffer = buffer;
-
-    uint64_t    size = _size;
-    _size            = connection._size;
-    connection._size = size;
-
-    uint64_t    maxSize = _maxSize;
-    _maxSize            = connection._maxSize;
-    connection._maxSize = maxSize;
 }

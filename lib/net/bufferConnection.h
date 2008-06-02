@@ -1,26 +1,26 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_BUFFER_CONNECTION_H
 #define EQNET_BUFFER_CONNECTION_H
 
 #include <eq/net/connection.h> // base class
+#include <eq/base/nonCopyable.h> // base class
 
 namespace eqNet
 {
     /**
      * A proxy connection buffering outgoing data into a memory region.
      */
-    class EQ_EXPORT BufferConnection : public Connection
+    class EQ_EXPORT BufferConnection : public Connection, 
+                                       public eqBase::NonCopyable
     {
     public:
         BufferConnection();
-        BufferConnection( const BufferConnection& from );
         virtual ~BufferConnection();
 
         void sendBuffer( eqBase::RefPtr<Connection> connection );
-        void swap( BufferConnection& connection );
 
         uint64_t getSize() const { return _size; }
 
