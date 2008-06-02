@@ -350,6 +350,7 @@ bool Node::disconnect( NodePtr node )
     NodeDisconnectPacket packet;
     packet.requestID = _requestHandler.registerRequest( node.get( ));
     send( packet );
+
     _requestHandler.waitRequest( packet.requestID );
     return true;
 }
@@ -1143,7 +1144,6 @@ CommandResult Node::_cmdDisconnect( Command& command )
     EQASSERT( node.isValid( ));
 
     ConnectionPtr connection = node->_connection;
-
     if( connection.isValid( ))
     {
         node->_state      = STATE_STOPPED;
@@ -1214,7 +1214,7 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
         NodePtr node = _nodes[ nodeID ];
         EQASSERT( node->isConnected( ));
 
-        node->ref();
+        node.ref();
         _requestHandler.serveRequest( requestID, node.get( ));
         return COMMAND_HANDLED;
     }
@@ -1234,7 +1234,7 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
     EQASSERT( data.empty( ));
 
     node->setAutoLaunch( false );
-    node->ref();
+    node.ref();
     _requestHandler.serveRequest( requestID, node.get( ));
     return COMMAND_HANDLED;
 }
@@ -1381,8 +1381,8 @@ NodePtr Node::connect( const NodeID& nodeID, NodePtr server )
     }
 
     EQASSERT( dynamic_cast< Node* >( (Base*)result ));
-    RefPtr< Node > node = static_cast< Node* >( result );
-    node->unref(); // ref'd before serveRequest()
+    NodePtr node = static_cast< Node* >( result );
+    node.unref(); // ref'd before serveRequest()
     
     if( node->isConnected( ))
         return node;
