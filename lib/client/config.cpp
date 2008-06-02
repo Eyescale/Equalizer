@@ -72,9 +72,13 @@ Config::Config( eqBase::RefPtr< Server > server )
 
 Config::~Config()
 {
+    while( tryNextEvent( )) /* flush all pending events */ ;
+    _eventQueue.release( _lastEvent );
+    _eventQueue.flush();
+    _lastEvent = 0;
+
     _appNodeID = eqNet::NodeID::ZERO;
     _appNode   = 0;
-    _lastEvent = 0;
 }
 
 eqBase::RefPtr<Server> Config::getServer()
@@ -183,6 +187,8 @@ bool Config::exit()
     _eventQueue.flush();
     _lastEvent = 0;
 
+    _appNode   = 0;
+    _appNodeID = eqNet::NodeID::ZERO;
     return ret;
 }
 
