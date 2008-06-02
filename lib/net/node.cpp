@@ -66,8 +66,7 @@ Node::Node()
     registerCommand( CMD_NODE_CONNECT_REPLY,
                      CommandFunc<Node>( this, &Node::_cmdConnectReply ), 0 );
     registerCommand( CMD_NODE_DISCONNECT,
-                     CommandFunc<Node>( this, &Node::_cmdDisconnect ),
-                     &_commandThreadQueue );
+                     CommandFunc<Node>( this, &Node::_cmdDisconnect ), 0 );
     registerCommand( CMD_NODE_GET_NODE_DATA,
                      CommandFunc<Node>( this, &Node::_cmdGetNodeData),
                      &_commandThreadQueue );
@@ -1001,7 +1000,7 @@ CommandResult Node::_cmdUnmapSessionReply( Command& command)
 CommandResult Node::_cmdConnect( Command& command )
 {
     EQASSERT( !command.getNode().isValid( ));
-    EQASSERT( _receiverThread->isCurrent( ));
+    EQASSERT( inReceiverThread( ));
 
     const NodeConnectPacket* packet = command.getPacket<NodeConnectPacket>();
     ConnectionPtr   connection = _connectionSet.getConnection();
@@ -1072,7 +1071,7 @@ CommandResult Node::_cmdConnect( Command& command )
 CommandResult Node::_cmdConnectReply( Command& command )
 {
     EQASSERT( !command.getNode().isValid( ));
-    EQASSERT( _receiverThread->isCurrent( ));
+    EQASSERT( inReceiverThread( ));
 
     const NodeConnectReplyPacket* packet = 
         command.getPacket<NodeConnectReplyPacket>();
@@ -1134,7 +1133,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
 
 CommandResult Node::_cmdDisconnect( Command& command )
 {
-    EQASSERT( inCommandThread( ));
+    EQASSERT( inReceiverThread( ));
 
     const NodeDisconnectPacket* packet = 
         command.getPacket<NodeDisconnectPacket>();
@@ -1143,22 +1142,26 @@ CommandResult Node::_cmdDisconnect( Command& command )
         _requestHandler.getRequestData( packet->requestID ));
     EQASSERT( node.isValid( ));
 
-    node->_state      = STATE_STOPPED;
-
     ConnectionPtr connection = node->_connection;
-    node->_connection = 0;
 
-    const bool connectionRemoved = _connectionSet.removeConnection( connection);
-    EQASSERTINFO( connectionRemoved, connection );
+    if( connection.isValid( ))
+    {
+        node->_state      = STATE_STOPPED;
+        node->_connection = 0;
 
-    EQINFO << node << " disconnecting from " << this << endl;
-    EQASSERT( _connectionNodes.find( connection.get( )) !=
-              _connectionNodes.end( ));
+        const bool removed = _connectionSet.removeConnection( connection );
+        EQASSERTINFO( removed, connection );
 
-    _connectionNodes.erase( connection.get( ));
-    _nodes.erase( node->_id );
-    connection.unref();
+        EQINFO << node << " disconnecting from " << this << endl;
+        EQASSERT( _connectionNodes.find( connection.get( )) !=
+                  _connectionNodes.end( ));
 
+        _connectionNodes.erase( connection.get( ));
+        _nodes.erase( node->_id );
+        connection.unref();
+    }
+
+    EQASSERT( node->_state == STATE_STOPPED );
     _requestHandler.serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }

@@ -1,4 +1,4 @@
-
+\
 /* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
@@ -56,7 +56,7 @@ namespace eqNet
         virtual void setLocalNode( eqBase::RefPtr< Node > node );
 
         /** @return the local node holding this session. */
-        eqBase::RefPtr<Node> getLocalNode(){ return _localNode; }
+        NodePtr getLocalNode(){ return _localNode; }
 
         /** @return the command queue to the command thread. */
         CommandQueue* getCommandThreadQueue() 
@@ -255,7 +255,7 @@ namespace eqNet
     private:
         friend class Node;
         /** The local node managing the session. */
-        eqBase::RefPtr<Node> _localNode;
+        NodePtr _localNode;
 
         /** The node hosting the session. */
         eqBase::RefPtr<Node> _server;

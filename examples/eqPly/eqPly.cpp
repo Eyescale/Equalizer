@@ -9,7 +9,7 @@
 
 #include <stdlib.h>
 
-using namespace eqBase;
+using eqBase::RefPtr;
 using namespace std;
 
 namespace eqPly
@@ -82,7 +82,7 @@ int Application::run()
     if( !disconnectServer( server ))
         EQERROR << "Client::disconnectServer failed" << endl;
 
-    //TODO: EQASSERTINFO( server->getRefCount() == 1, server->getRefCount( ));
+    EQASSERTINFO( server->getRefCount() == 1, server->getRefCount( ));
     server = 0;
 
     return EXIT_SUCCESS;

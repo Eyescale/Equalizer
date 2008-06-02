@@ -204,8 +204,7 @@ namespace eqNet
          * @return the connected node, or an invalid RefPtr if the node could
          *         not be connected.
          */
-        NodePtr connect( const NodeID& nodeID,
-                                      NodePtr server );
+        NodePtr connect( const NodeID& nodeID, NodePtr server );
 
         /** 
          * Disconnects a connected node.
@@ -443,6 +442,7 @@ namespace eqNet
          *         thread, <code>false</code> if not.
          */
         bool inCommandThread() const  { return _commandThread->isCurrent(); }
+        bool inReceiverThread() const { return _receiverThread->isCurrent(); }
 
         const NodeID& getNodeID() const { return _id; }
 
