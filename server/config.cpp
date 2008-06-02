@@ -86,6 +86,7 @@ Config::~Config()
     EQINFO << "Delete config @" << (void*)this << endl;
     _server     = 0;
     _appNode    = 0;
+    _appNetNode = 0;
 
     for( vector<Compound*>::const_iterator i = _compounds.begin(); 
          i != _compounds.end(); ++i )

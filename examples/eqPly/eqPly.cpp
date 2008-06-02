@@ -82,7 +82,7 @@ int Application::run()
     if( !disconnectServer( server ))
         EQERROR << "Client::disconnectServer failed" << endl;
 
-    EQASSERTINFO( server->getRefCount() == 1, server->getRefCount( ));
+    // TODO EQASSERTINFO( server->getRefCount() == 1, server->getRefCount( ));
     server = 0;
 
     return EXIT_SUCCESS;
