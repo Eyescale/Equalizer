@@ -54,7 +54,7 @@ class HandlerMap
 #endif
 {
 public:
-    virtual ~HandlerMap{}
+    virtual ~HandlerMap() {}
 
     void notifyPerThreadDelete() 
         {
