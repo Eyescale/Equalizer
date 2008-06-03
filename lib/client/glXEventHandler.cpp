@@ -56,12 +56,16 @@ void GLXEventHandler::deregisterPipe( Pipe* pipe )
 
             // TODO EQASSERTINFO( connection->getRefCount() == 1,
             //                    connection->getRefCount( ));
-
+#if 0
+            // Can't delete the connection set since it is used by the
+            // glXMessagePump
             if( _pipeConnections->size() == 0 )
             {
                 delete _pipeConnections.get();
                 _pipeConnections = 0;
             }
+#endif
+
             break;
         }
     }
