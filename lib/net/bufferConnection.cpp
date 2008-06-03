@@ -20,10 +20,10 @@ BufferConnection::BufferConnection()
 BufferConnection::~BufferConnection()
 {
     if( _size )
-    {
         EQWARN << "Deleting BufferConnection with buffered data" << endl;
+
+    if( _buffer )
         free( _buffer );
-    }
 
     _buffer  = 0;
     _size    = 0;
