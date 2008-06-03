@@ -16,7 +16,12 @@
 
 using namespace std;
 
+namespace
+{
 eqBase::Lock lock;
+static const string message = "Don't Panic!";
+#define NMESSAGES 10
+}
 
 struct DataPacket : public eqNet::NodePacket
 {
@@ -33,7 +38,7 @@ struct DataPacket : public eqNet::NodePacket
 class Server : public eqNet::Node
 {
 public:
-    Server() {}
+    Server() : _messagesLeft( NMESSAGES ){}
 
     virtual bool listen()
         {
@@ -50,12 +55,20 @@ protected:
     eqNet::CommandResult command( eqNet::Command& cmd )
         {
             TEST( cmd->command == eqNet::CMD_NODE_CUSTOM );
+            TEST( _messagesLeft > 0 );
 
             const DataPacket* packet = cmd.getPacket< DataPacket >();
-            cerr << "Server received: " << packet->data << endl;
-            lock.unset();
+            TESTINFO( message == packet->data, packet->data );
+
+            --_messagesLeft;
+            if( !_messagesLeft )
+                lock.unset();
+
             return eqNet::COMMAND_HANDLED;
         }
+
+private:
+    unsigned _messagesLeft;
 };
 
 int main( int argc, char **argv )
@@ -81,9 +94,9 @@ int main( int argc, char **argv )
     serverProxy->addConnectionDescription( connDesc );
     TEST( client->connect( serverProxy ));
 
-    const char message[] = "Don't Panic!";
     DataPacket packet;
-    serverProxy->send( packet, message );
+    for( unsigned i = 0; i < NMESSAGES; ++i )
+        serverProxy->send( packet, message );
 
     lock.set();
 

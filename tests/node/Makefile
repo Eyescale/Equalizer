@@ -12,6 +12,6 @@ ifeq "${SUBARCH}" "ia64"
 endif
 endif
 
-TARGETS = $(SIMPLE_PROGRAMS)
+TARGETS = $(SIMPLE_PROGRAMS) $(TESTS)
 
 include $(TOP)/make/rules.mk
