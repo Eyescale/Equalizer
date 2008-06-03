@@ -19,8 +19,9 @@ using namespace std;
 namespace
 {
 eqBase::Lock lock;
-static const string message = "Don't Panic!";
-#define NMESSAGES 10
+static const string message =
+    "Don't Panic! And now some more text to make the message bigger";
+#define NMESSAGES 1000
 }
 
 struct DataPacket : public eqNet::NodePacket
@@ -95,8 +96,16 @@ int main( int argc, char **argv )
     TEST( client->connect( serverProxy ));
 
     DataPacket packet;
+
+    eqBase::Clock clock;
     for( unsigned i = 0; i < NMESSAGES; ++i )
         serverProxy->send( packet, message );
+    const float time = clock.getTimef();
+
+    const size_t size = NMESSAGES * ( packet.size + message.length() - 7 );
+    cout << "Send " << size << " bytes using " << NMESSAGES << " packets in "
+         << time << "ms" << " (" << size / 1024. * 1000.f / time << " KB/s)" 
+         << endl;
 
     lock.set();
 
