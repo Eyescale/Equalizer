@@ -1,4 +1,8 @@
 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+   All rights reserved. */
+
+
 #include <test.h>
 
 #include <eq/base/lock.h>
@@ -10,17 +14,15 @@
 
 #include <iostream>
 
-using namespace eqBase;
-using namespace eqNet;
 using namespace std;
 
-Lock lock;
+eqBase::Lock lock;
 
-struct DataPacket : public NodePacket
+struct DataPacket : public eqNet::NodePacket
 {
     DataPacket()
         {
-            command  = CMD_NODE_CUSTOM;
+            command  = eqNet::CMD_NODE_CUSTOM;
             size     = sizeof( DataPacket );
             data[0]  = '\0';
         }
@@ -28,25 +30,31 @@ struct DataPacket : public NodePacket
     char     data[8];
 };
 
-class Server : public Node
+class Server : public eqNet::Node
 {
 public:
-    Server()
-        { 
-            registerCommand( CMD_NODE_CUSTOM, 
-                             CommandFunc<Server>( this, &Server::command ),
+    Server() {}
+
+    virtual bool listen()
+        {
+            if( !eqNet::Node::listen( ))
+                return false;
+
+            registerCommand( eqNet::CMD_NODE_CUSTOM, 
+                             eqNet::CommandFunc<Server>(this, &Server::command),
                              getCommandThreadQueue( ));
+            return true;
         }
 
 protected:
-    CommandResult command( Command& cmd )
+    eqNet::CommandResult command( eqNet::Command& cmd )
         {
-            TEST( cmd->command == CMD_NODE_CUSTOM );
+            TEST( cmd->command == eqNet::CMD_NODE_CUSTOM );
 
-            const DataPacket* packet = cmd.getPacket<DataPacket>();
+            const DataPacket* packet = cmd.getPacket< DataPacket >();
             cerr << "Server received: " << packet->data << endl;
             lock.unset();
-            return COMMAND_HANDLED;
+            return eqNet::COMMAND_HANDLED;
         }
 };
 
@@ -55,32 +63,39 @@ int main( int argc, char **argv )
     eqNet::init( argc, argv );
 
     lock.set();
-    Server server;
-
-    RefPtr<ConnectionDescription> connDesc = new ConnectionDescription;
+    eqBase::RefPtr< Server >        server   = new Server;
+    eqNet::ConnectionDescriptionPtr connDesc = new eqNet::ConnectionDescription;
     
-    connDesc->type       = CONNECTIONTYPE_TCPIP;
+    connDesc->type       = eqNet::CONNECTIONTYPE_TCPIP;
     connDesc->TCPIP.port = 4242;
+    connDesc->setHostname( "localhost" );
 
-    server.addConnectionDescription( connDesc );
-    TEST( server.listen( ));
+    server->addConnectionDescription( connDesc );
+    TEST( server->listen( ));
 
-    RefPtr<eqNet::Node> client = new eqNet::Node;
+    eqNet::NodePtr client = new eqNet::Node;
     TEST( client->listen( ));
 
-    RefPtr<Node> serverProxy = new Node;
+    eqNet::NodePtr serverProxy = new eqNet::Node;
 
-    connDesc->setHostname( "localhost" );
     serverProxy->addConnectionDescription( connDesc );
+    TEST( client->connect( serverProxy ));
 
     const char message[] = "Don't Panic!";
     DataPacket packet;
     serverProxy->send( packet, message );
 
     lock.set();
-    TEST( serverProxy->getRefCount() == 1 );
-    serverProxy = NULL;
 
-    TEST( client->getRefCount() == 1 );
-    client      = NULL;
+    TEST( client->disconnect( serverProxy ));
+    TESTINFO( serverProxy->getRefCount() == 1, serverProxy->getRefCount( ));
+    serverProxy = 0;
+
+    TEST( client->stopListening( ));
+    TESTINFO( client->getRefCount() == 1, client->getRefCount( ));
+    client      = 0;
+
+    TEST( server->stopListening( ));
+    TESTINFO( server->getRefCount() == 1, server->getRefCount( ));
+    server      = 0;
 }
