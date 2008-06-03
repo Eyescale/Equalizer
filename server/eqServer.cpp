@@ -50,6 +50,8 @@ int main( const int argc, char** argv )
         return EXIT_FAILURE;
     }
 
+    server->exitLocal();
+
     EQINFO << "Server ref count: " << server->getRefCount() << endl;
     return EXIT_SUCCESS;
 }

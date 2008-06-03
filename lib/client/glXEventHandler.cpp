@@ -53,6 +53,15 @@ void GLXEventHandler::deregisterPipe( Pipe* pipe )
         if( connection->pipe == pipe )
         {
             _pipeConnections->removeConnection( *i );
+
+            // TODO EQASSERTINFO( connection->getRefCount() == 1,
+            //                    connection->getRefCount( ));
+
+            if( _pipeConnections->size() == 0 )
+            {
+                delete _pipeConnections.get();
+                _pipeConnections = 0;
+            }
             break;
         }
     }

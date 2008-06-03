@@ -24,7 +24,7 @@ public:
     ServerThread() {}
     virtual ~ServerThread() {}
 
-    bool start( RefPtr<Server> server)
+    bool start( RefPtr<Server> server )
         {
             EQASSERT( !_server );
             _server = server;
@@ -37,6 +37,10 @@ protected:
         {
             const bool ret = _server->run();
             EQASSERT( ret );
+
+            _server->stopListening();
+
+            // TODO EQASSERTINFO( _server->getRefCount() == 1, _server->getRefCount( ));
             _server = 0;
             return 0;
         }
@@ -72,7 +76,7 @@ EQS_EXPORT eqBase::RefPtr< eqNet::Connection > eqsStartLocalServer()
         eqNet::Connection::create( eqNet::CONNECTIONTYPE_PIPE ));
 
     // Wrap in one RefPtr to do correct reference counting and avoid deletion
-    RefPtr< eqNet::Connection >  conn = connection;
+    eqNet::ConnectionPtr  conn = connection;
 
     if( !connection->connect( ))
     {
@@ -81,7 +85,6 @@ EQS_EXPORT eqBase::RefPtr< eqNet::Connection > eqsStartLocalServer()
     }
 
     server->_connectionSet.addConnection( connection->getSibling( ));
-
     if( !_serverThread.start( server ))
     {
         EQERROR << "Failed to start server thread" << endl;

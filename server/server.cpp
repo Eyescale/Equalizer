@@ -46,6 +46,20 @@ Server::Server()
     EQINFO << "New server @" << (void*)this << endl;
 }
 
+Server::~Server()
+{
+    for( ConfigVector::const_iterator i = _configs.begin(); 
+         i != _configs.end(); ++i )
+    {
+        Config* config = *i;
+
+        config->_server = 0;
+        delete config;
+    }
+
+    _configs.clear();
+}
+
 bool Server::run()
 {
     EQASSERT( getState() == eqNet::Node::STATE_LISTENING );
@@ -60,7 +74,7 @@ bool Server::run()
            << Global::instance() << this << exdent << enableFlush;
 
     _handleCommands();
-    return stopListening();
+    return true;
 }
 
 void Server::addConfig( Config* config )

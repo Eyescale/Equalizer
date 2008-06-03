@@ -129,13 +129,15 @@ void Thread::_notifyStopping()
 
     // make copy of vector so that listeners can add/remove listeners.
     _listenerLock.set();
-    const std::vector<ExecutionListener*> listeners = _listeners;
+    std::vector< ExecutionListener* > listeners = _listeners;
     _listenerLock.unset();
 
     EQINFO << "Calling " << listeners.size() << " thread stopping listeners"
            <<endl;
-    for( vector<ExecutionListener*>::const_iterator i = listeners.begin();
-         i != listeners.end(); ++i )
+
+    // Call them in reverse order so that symmetry is kept
+    for( vector< ExecutionListener* >::reverse_iterator i = listeners.rbegin();
+         i != listeners.rend(); ++i )
         
         (*i)->notifyExecutionStopping();
 }

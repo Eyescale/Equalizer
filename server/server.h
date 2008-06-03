@@ -75,7 +75,7 @@ namespace eqs
             { return &_serverThreadQueue; }
 
     protected:
-        virtual ~Server() {}
+        virtual ~Server();
 
         /** @sa eqNet::Node::dispatchCommand */
         virtual bool dispatchCommand( eqNet::Command& command );
