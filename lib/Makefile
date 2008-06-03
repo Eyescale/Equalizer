@@ -14,6 +14,7 @@ HEADER_SRC = \
 	base/executionListener.h \
 	base/hash.h \
 	base/idPool.h \
+	base/init.h \
 	base/launcher.h \
 	base/lock.h \
 	base/log.h \
@@ -113,6 +114,7 @@ CXXFILES = \
 	base/barrier.cpp \
 	base/debug.cpp \
 	base/idPool.cpp \
+	base/init.cpp \
 	base/launcher.cpp \
 	base/lock.cpp \
 	base/log.cpp \

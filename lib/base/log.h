@@ -19,10 +19,6 @@
 #  define getpid _getpid
 #endif
 
-/**
- * @namespace eqBase
- * @brief Namespace for basic Equalizer utility code.
- */
 namespace eqBase
 {
     /** The logging levels. */
@@ -149,6 +145,9 @@ namespace eqBase
         /** The per-thread logger. */
         static EQ_EXPORT Log& instance( const char* subdir, const char* file,
                                         const int line );
+
+        /** Exit the log instance for the current thread. */
+        static EQ_EXPORT void exit();
 
         /** The string representation of the current log level. */
         static std::string& getLogLevelString();

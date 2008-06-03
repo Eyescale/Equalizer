@@ -1,11 +1,11 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_INIT_H
 #define EQNET_INIT_H
 
-#include <eq/base/base.h>
+#include <eq/base/init.h>
 
 /** 
  * @namespace eqNet

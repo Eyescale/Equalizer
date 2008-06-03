@@ -22,6 +22,9 @@ namespace eqNet
 
 EQ_EXPORT bool init( const int argc, char** argv )
 {
+    if( !eqBase::init( ))
+        return false;
+
     EQINFO << "Log level " << eqBase::Log::getLogLevelString() << " topics " 
            << eqBase::Log::topics << endl;
 
@@ -61,6 +64,6 @@ EQ_EXPORT bool exit()
         return false;
     }
 #endif
-    return true;
+    return eqBase::exit();
 }
 }

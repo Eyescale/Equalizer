@@ -101,6 +101,13 @@ EQ_EXPORT Log& Log::instance( const char* subdir, const char* file,
     return *log;
 }
 
+EQ_EXPORT void Log::exit()
+{
+    Log* log = _logInstance.get();
+    _logInstance = 0;
+    delete log;
+}
+
 LogBuffer::int_type LogBuffer::overflow( LogBuffer::int_type c )
 {
     if( c == EOF )

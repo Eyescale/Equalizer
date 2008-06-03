@@ -69,9 +69,8 @@ EQ_EXPORT bool exit()
     pcSystemFinalize();
 #endif
 
-    const bool success = eqNet::exit();
     Global::_nodeFactory = 0;
-    eqBase::Thread::removeAllListeners();
+    const bool success = eqNet::exit();
     return success;
 }
 

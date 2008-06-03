@@ -82,7 +82,9 @@ PerThread<T>::PerThread()
 template< typename T >
 PerThread<T>::~PerThread()
 {
-    get()->notifyPerThreadDelete();
+    T object = get();
+    if( object )
+        object->notifyPerThreadDelete();
 
     pthread_key_delete( _data->key );
     delete _data;
