@@ -13,6 +13,8 @@
 #include "windowEvent.h"
 #include "X11Connection.h"
 
+#include <eq/base/perThreadRef.h>
+
 #include <X11/keysym.h>
 
 using namespace eqBase;
@@ -22,16 +24,13 @@ namespace eq
 {
 namespace
 {
-static PerThread< GLXEventHandler::EventSet* > _pipeConnections;
+static PerThreadRef< GLXEventHandler::EventSet > _pipeConnections;
 }
 
 GLXEventHandler::GLXEventHandler( Pipe* pipe )
 {
-    if( _pipeConnections == 0 )
-    {
+    if( !_pipeConnections )
         _pipeConnections = new GLXEventHandler::EventSet;
-        _pipeConnections->ref();
-    }
 
     _pipeConnections->addConnection( new X11Connection( pipe ));
 }
@@ -42,7 +41,7 @@ GLXEventHandler::~GLXEventHandler()
 
 void GLXEventHandler::deregisterPipe( Pipe* pipe )
 {
-    EQASSERT( _pipeConnections.get( ));
+    EQASSERT( _pipeConnections.isValid( ));
 
     const eqNet::ConnectionVector& connections = 
         _pipeConnections->getConnections();
@@ -73,13 +72,10 @@ GLXEventSetPtr GLXEventHandler::getEventSet()
 
 void GLXEventHandler::dispatchOne()
 {
-    if( _pipeConnections == 0 )
-    {
+    if( !_pipeConnections )
         _pipeConnections = new GLXEventHandler::EventSet;
-        _pipeConnections->ref();
-    }
 
-    eqNet::ConnectionSet* connections = _pipeConnections.get();
+    GLXEventSetPtr connections = _pipeConnections.get();
 
     const eqNet::ConnectionSet::Event event = connections->select( );
     switch( event )
@@ -111,11 +107,8 @@ void GLXEventHandler::dispatchOne()
 
 void GLXEventHandler::dispatchAll()
 {
-    if( _pipeConnections == 0 )
-    {
+    if( !_pipeConnections )
         _pipeConnections = new GLXEventHandler::EventSet;
-        _pipeConnections->ref();
-    }
 
     const eqNet::ConnectionVector& connections =
         _pipeConnections->getConnections();

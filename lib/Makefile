@@ -23,6 +23,7 @@ HEADER_SRC = \
 	base/nonCopyable.h \
 	base/omp.h \
 	base/perThread.h \
+	base/perThreadRef.h \
 	base/refPtr.h \
 	base/referenced.h \
 	base/requestHandler.h \
