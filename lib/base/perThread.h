@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_PERTHREAD_H
@@ -13,9 +13,8 @@ namespace eqBase
     class PerThreadPrivate;
 
     /**
-     * Implements a thread-specific storage.
+     * Implements a thread-specific storage for C++ objects.
      * 
-     * The size of the stored data has not to exceed sizeof(void*).
      * OPT: using __thread storage where available might be benefitial.
      */
     template<typename T> class PerThread
@@ -52,7 +51,7 @@ namespace eqBase
 #  endif
 #endif
 
-// The application has to include pthread.h if it wants to instantiate new queue
+// The application has to include pthread.h if it wants to instantiate new
 // types, since on Windows the use of pthreads-Win32 library includes might
 // create hard to resolve type conflicts with other header files.
 
@@ -83,6 +82,8 @@ PerThread<T>::PerThread()
 template< typename T >
 PerThread<T>::~PerThread()
 {
+    get()->notifyPerThreadDelete();
+
     pthread_key_delete( _data->key );
     delete _data;
     _data = 0;

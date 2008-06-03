@@ -1,4 +1,4 @@
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include <eq/base/base.h>      // first get windows.h
@@ -17,18 +17,12 @@
 #include <algorithm>
 #include <windowsx.h>
 
-using namespace eq;
 using namespace eqBase;
 using namespace std;
 using namespace stde;
 
-#ifdef WIN32_VC
-typedef hash_map< HWND, WGLEventHandler* > HandlerMap;
-#else // Cygwin does not want to instantiate a hash with key=HWND
-typedef hash_map< void*, WGLEventHandler* > HandlerMap;
-#endif
-
-static PerThread< HandlerMap* > _handlers;
+namespace eq
+{
 
 // Win32 defines to indentify special keys
 #define SCANCODE_MASK     0xff0000
@@ -49,28 +43,32 @@ static PerThread< HandlerMap* > _handlers;
 #  define GET_KEYSTATE_WPARAM(wParam) (LOWORD(wParam))
 #endif
 
-class HandlerMapCleaner : public ExecutionListener
+
+namespace
+{
+class HandlerMap
+#ifdef WIN32_VC
+    : public hash_map< HWND, WGLEventHandler* >
+#else // Cygwin does not want to instantiate a hash with key=HWND
+    : public hash_map< void*, WGLEventHandler* >
+#endif
 {
 public:
-    HandlerMapCleaner()
-        {
-            Thread::addListener( this );
-        }
+    virtual ~HandlerMap{}
 
-    void notifyExecutionStopping()
+    void notifyPerThreadDelete() 
         {
-            HandlerMap* map = _handlers.get();
-            if( map ) 
-            {
-                EQWARN << map->size() 
+            if( !empty( ))
+                EQWARN << size() 
                        << " WGL event handlers registered during thread exit"
                        << endl;
-                map->clear();
-                delete map;
-            }
+            delete this;
         }
 };
-static HandlerMapCleaner _cleaner;
+
+static PerThread< HandlerMap* > _handlers;
+
+
 
 static void registerHandler( HWND hWnd, WGLEventHandler* handler )
 {
@@ -90,11 +88,6 @@ static void deregisterHandler( HWND hWnd )
     EQASSERT( map->find( hWnd ) != map->end( ));
 
     map->erase( hWnd );
-    if( map->empty( ))
-    {
-        delete map;
-        _handlers = 0;
-    }
 }
 
 static WGLEventHandler* getEventHandler( HWND hWnd )
@@ -104,6 +97,7 @@ static WGLEventHandler* getEventHandler( HWND hWnd )
         return 0;
 
     return (*map)[hWnd];
+}
 }
 
 WGLEventHandler::WGLEventHandler( Window* window )
@@ -438,4 +432,5 @@ uint32_t WGLEventHandler::_getKey( LPARAM lParam, WPARAM wParam )
     }
     EQWARN << "Unrecognized virtual key code " << wParam << endl;
     return KC_VOID;
+}
 }

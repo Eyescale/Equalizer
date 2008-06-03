@@ -37,23 +37,18 @@ namespace
 {
 // use to address one shader and program per shared context set
 static const char glslKey = 42;
-// Image used for CPU-based assembly
-static eqBase::PerThread< Image* > _resultImage;
 
-// Deletes the per-thread result image when a thread exits.
-class ImageDestructor : public eqBase::ExecutionListener
+class ResultImage : public Image
 {
 public:
-    virtual ~ImageDestructor() {}
-    virtual void notifyExecutionStopping()
-        {
-            Image* image = _resultImage.get();
-            _resultImage = 0;
-            delete image;
-        }
+    virtual ~ResultImage() {}
+
+    void notifyPerThreadDelete() { delete this; }
 };
 
-static  ImageDestructor _imageDestructor;
+
+// Image used for CPU-based assembly
+static eqBase::PerThread< ResultImage* > _resultImage;
 
 
 static bool _useCPUAssembly( const FrameVector& frames, Channel* channel, 
@@ -340,10 +335,8 @@ const Image* Compositor::assembleFramesCPU( const FrameVector& frames,
     Image* result = _resultImage.get();
     if( !result )
     {
-        eqBase::Thread::addListener( &_imageDestructor );
-
-        result       = new Image;
-        _resultImage = result;
+        _resultImage = new ResultImage;
+        result       = _resultImage.get();;
     }
 
     result->setFormat( Frame::BUFFER_COLOR, colorFormat );

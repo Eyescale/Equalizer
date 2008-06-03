@@ -22,13 +22,25 @@ namespace eq
 {
 namespace
 {
-static PerThread< eqNet::ConnectionSet* > _pipeConnections;
+
+class ConnectionSet : public eqNet::ConnectionSet
+{
+public:
+    void notifyPerThreadDelete() 
+        {
+            // Can't delete the connection set since it is used by the
+            // glXMessagePump
+            //? delete this;
+        }
+};
+
+static PerThread< ConnectionSet* > _pipeConnections;
 }
 
 GLXEventHandler::GLXEventHandler( Pipe* pipe )
 {
     if( _pipeConnections == 0 )
-        _pipeConnections = new eqNet::ConnectionSet;
+        _pipeConnections = new ConnectionSet;
 
     _pipeConnections->addConnection( new X11Connection( pipe ));
 }
@@ -56,16 +68,6 @@ void GLXEventHandler::deregisterPipe( Pipe* pipe )
 
             // TODO EQASSERTINFO( connection->getRefCount() == 1,
             //                    connection->getRefCount( ));
-#if 0
-            // Can't delete the connection set since it is used by the
-            // glXMessagePump
-            if( _pipeConnections->size() == 0 )
-            {
-                delete _pipeConnections.get();
-                _pipeConnections = 0;
-            }
-#endif
-
             break;
         }
     }
@@ -81,7 +83,7 @@ eqNet::ConnectionSet* GLXEventHandler::getEventSet()
 void GLXEventHandler::dispatchOne()
 {
     if( _pipeConnections == 0 )
-        _pipeConnections = new eqNet::ConnectionSet;
+        _pipeConnections = new ConnectionSet;
 
     eqNet::ConnectionSet* connections = _pipeConnections.get();
 
@@ -116,7 +118,7 @@ void GLXEventHandler::dispatchOne()
 void GLXEventHandler::dispatchAll()
 {
     if( _pipeConnections == 0 )
-        _pipeConnections = new eqNet::ConnectionSet;
+        _pipeConnections = new ConnectionSet;
 
     const eqNet::ConnectionVector& connections =
         _pipeConnections->getConnections();

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "init.h"
@@ -69,8 +69,10 @@ EQ_EXPORT bool exit()
     pcSystemFinalize();
 #endif
 
-    return eqNet::exit();
+    const bool success = eqNet::exit();
     Global::_nodeFactory = 0;
+    eqBase::Thread::removeAllListeners();
+    return success;
 }
 
 EQ_EXPORT Config* getConfig( const int argc, char** argv )

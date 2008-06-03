@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "thread.h"
@@ -99,7 +99,9 @@ void Thread::_runChild()
     _syncChild.unset(); // sync w/ parent
 
     void* result = run();
+    EQINFO << "Thread finished with result " << result << endl;
     this->exit( result );
+
     EQUNREACHABLE;
 }
 
@@ -131,9 +133,6 @@ void Thread::_notifyStopping()
     _listenerLock.set();
     std::vector< ExecutionListener* > listeners = _listeners;
     _listenerLock.unset();
-
-    EQINFO << "Calling " << listeners.size() << " thread stopping listeners"
-           <<endl;
 
     // Call them in reverse order so that symmetry is kept
     for( vector< ExecutionListener* >::reverse_iterator i = listeners.rbegin();
@@ -250,15 +249,26 @@ void Thread::addListener( ExecutionListener* listener )
     _listeners.push_back( listener );
 }
 
-void Thread::removeListener( ExecutionListener* listener )
+bool Thread::removeListener( ExecutionListener* listener )
 {
     ScopedMutex< SpinLock > mutex( _listenerLock );
 
-    std::vector<ExecutionListener*>::iterator i = std::find( _listeners.begin(),
-                                                             _listeners.end(),
-                                                             listener );
-    if( i != _listeners.end( ))
-        _listeners.erase( i );
+    vector< ExecutionListener* >::iterator i = find( _listeners.begin(),
+                                                     _listeners.end(),
+                                                     listener );
+    if( i == _listeners.end( ))
+        return false;
+
+    _listeners.erase( i );
+    return true;
+}
+
+void Thread::removeAllListeners()
+{
+    ScopedMutex< SpinLock > mutex( _listenerLock );
+
+    EQINFO << _listeners.size() << " thread listeners active" << endl;
+    _listeners.clear();
 }
 
 std::ostream& operator << ( std::ostream& os, const Thread* thread )

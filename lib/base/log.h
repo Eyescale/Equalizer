@@ -7,7 +7,6 @@
 
 #include <eq/base/base.h>
 #include <eq/base/clock.h>
-#include <eq/base/executionListener.h>
 
 #include <assert.h>
 #include <iomanip>
@@ -122,7 +121,7 @@ namespace eqBase
     };
 
     /** The logging class */
-class Log : public std::ostream, public ExecutionListener
+    class Log : public std::ostream
     {
     public:
 #ifdef NDEBUG
@@ -154,6 +153,8 @@ class Log : public std::ostream, public ExecutionListener
         /** The string representation of the current log level. */
         static std::string& getLogLevelString();
 
+        void notifyPerThreadDelete() { delete this; }
+
     private:
         LogBuffer _logBuffer; 
 
@@ -163,7 +164,6 @@ class Log : public std::ostream, public ExecutionListener
         void setLogInfo( const char* subdir, const char* file, const int line )
             { _logBuffer.setLogInfo( subdir, file, line ); }
 
-        virtual void notifyExecutionStopping();
     };
 
     /** The ostream indent manipulator. */

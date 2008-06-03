@@ -95,22 +95,10 @@ EQ_EXPORT Log& Log::instance( const char* subdir, const char* file,
     {
         log = new Log();
         _logInstance = log;
-        Thread::addListener( log );
     }
 
     log->setLogInfo( subdir, file, line );
     return *log;
-}
-
-void Log::notifyExecutionStopping()
-{
-    Log* log = _logInstance.get();
-    if( log == this )
-    {
-        Thread::removeListener( log );
-        _logInstance = 0;
-        delete log;
-    }
 }
 
 LogBuffer::int_type LogBuffer::overflow( LogBuffer::int_type c )

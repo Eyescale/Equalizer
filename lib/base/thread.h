@@ -133,11 +133,14 @@ namespace eqBase
         static void addListener( ExecutionListener* listener );
 
         /** 
-         * Remove a new thread state listener.
+         * Remove a thread state listener.
          * 
          * @param listener the listener.
          */
-        static void removeListener( ExecutionListener* listener );
+        static bool removeListener( ExecutionListener* listener );
+
+        /** Remove all registered listeners, used at exit. */
+        static void removeAllListeners();
 
         /** @return a unique identifier for the calling thread. */
         static size_t getSelfThreadID();
