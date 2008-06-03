@@ -11,6 +11,8 @@
 #include "scopedMutex.h"
 #include "executionListener.h"
 
+#include <eq/base/spinLock.h>
+
 #include <errno.h>
 #include <pthread.h>
 #include <algorithm>
@@ -26,8 +28,20 @@ using namespace std;
 
 namespace eqBase
 {
-SpinLock                        Thread::_listenerLock;
-std::vector<ExecutionListener*> Thread::_listeners;
+namespace
+{
+static SpinLock& _listenerLock()
+{
+    static SpinLock lock;
+    return lock;
+}
+
+static std::vector<ExecutionListener*>& _listeners()
+{
+    static std::vector<ExecutionListener*> listeners;
+    return listeners;
+}
+}
 
 static pthread_key_t _createCleanupKey();
 void                 _notifyStopping( void* arg );
@@ -108,9 +122,9 @@ void Thread::_runChild()
 void Thread::_notifyStarted()
 {
     // make copy of vector so that listeners can add/remove listeners.
-    _listenerLock.set();
-    const std::vector<ExecutionListener*> listeners = _listeners;
-    _listenerLock.unset();
+    _listenerLock().set();
+    const std::vector<ExecutionListener*> listeners = _listeners();
+    _listenerLock().unset();
 
     EQINFO << "Calling " << listeners.size() << " thread started listeners"
            << endl;
@@ -130,9 +144,9 @@ void Thread::_notifyStopping()
     pthread_setspecific( _cleanupKey, 0 );
 
     // make copy of vector so that listeners can add/remove listeners.
-    _listenerLock.set();
-    std::vector< ExecutionListener* > listeners = _listeners;
-    _listenerLock.unset();
+    _listenerLock().set();
+    std::vector< ExecutionListener* > listeners = _listeners();
+    _listenerLock().unset();
 
     // Call them in reverse order so that symmetry is kept
     for( vector< ExecutionListener* >::reverse_iterator i = listeners.rbegin();
@@ -245,30 +259,41 @@ size_t Thread::getSelfThreadID()
 
 void Thread::addListener( ExecutionListener* listener )
 {
-    ScopedMutex< SpinLock > mutex( _listenerLock );
-    _listeners.push_back( listener );
+    ScopedMutex< SpinLock > mutex( _listenerLock() );
+    _listeners().push_back( listener );
 }
 
 bool Thread::removeListener( ExecutionListener* listener )
 {
-    ScopedMutex< SpinLock > mutex( _listenerLock );
+    ScopedMutex< SpinLock > mutex( _listenerLock() );
 
-    vector< ExecutionListener* >::iterator i = find( _listeners.begin(),
-                                                     _listeners.end(),
+    vector< ExecutionListener* >::iterator i = find( _listeners().begin(),
+                                                     _listeners().end(),
                                                      listener );
-    if( i == _listeners.end( ))
+    if( i == _listeners().end( ))
         return false;
 
-    _listeners.erase( i );
+    _listeners().erase( i );
     return true;
 }
 
 void Thread::removeAllListeners()
 {
-    ScopedMutex< SpinLock > mutex( _listenerLock );
+    _listenerLock().set();
 
-    EQINFO << _listeners.size() << " thread listeners active" << endl;
-    _listeners.clear();
+    EQINFO << _listeners().size() << " thread listeners active" << endl;
+    for( vector<ExecutionListener*>::const_iterator i = _listeners().begin();
+         i != _listeners().end(); ++i )
+
+        EQINFO << "    " << typeid( **i ).name() << endl;
+
+    _listenerLock().unset();
+    
+    _notifyStopping();
+
+    _listenerLock().set();
+    _listeners().clear();
+    _listenerLock().unset();
 }
 
 std::ostream& operator << ( std::ostream& os, const Thread* thread )

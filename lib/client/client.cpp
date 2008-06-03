@@ -138,21 +138,37 @@ bool Client::connectServer( RefPtr<Server> server )
     return false;
 }
 
+namespace
+{
+#ifdef WIN32_VC
+static HMODULE _libeqserver = 0;
+#elif defined (WIN32)
+static HMODULE _libeqserver = 0;
+#elif defined (Darwin)
+static void* _libeqserver = 0;
+#else
+static void* _libeqserver = 0;
+#endif
+}
+
 typedef eqBase::RefPtr< eqNet::Connection > (*eqsStartLocalServer_t)();
 
 RefPtr< eqNet::Connection > _startLocalServer()
 {
+    if( !_libeqserver )
+    {
 #ifdef WIN32_VC
-    HMODULE libeqserver = LoadLibrary( "EqualizerServer.dll" );
+        _libeqserver = LoadLibrary( "EqualizerServer.dll" );
 #elif defined (WIN32)
-    HMODULE libeqserver = LoadLibrary( "libeqserver.dll" );
+        _libeqserver = LoadLibrary( "libeqserver.dll" );
 #elif defined (Darwin)
-    void* libeqserver = dlopen( "libeqserver.dylib", RTLD_LAZY );
+        _libeqserver = dlopen( "libeqserver.dylib", RTLD_LAZY );
 #else
-    void* libeqserver = dlopen( "libeqserver.so", RTLD_LAZY );
+        _libeqserver = dlopen( "libeqserver.so", RTLD_LAZY );
 #endif
+    }
 
-    if( !libeqserver )
+    if( !_libeqserver )
     {
         EQWARN << "Can't open Equalizer server library: " << EQ_DL_ERROR <<endl;
         return 0;
@@ -160,10 +176,10 @@ RefPtr< eqNet::Connection > _startLocalServer()
 
 #ifdef WIN32
     eqsStartLocalServer_t eqsStartLocalServer = (eqsStartLocalServer_t)
-        GetProcAddress( libeqserver, "eqsStartLocalServer" );
+        GetProcAddress( _libeqserver, "eqsStartLocalServer" );
 #else
     eqsStartLocalServer_t eqsStartLocalServer = (eqsStartLocalServer_t)
-        dlsym( libeqserver, "eqsStartLocalServer" );
+        dlsym( _libeqserver, "eqsStartLocalServer" );
 #endif
 
     if( !eqsStartLocalServer )
@@ -176,6 +192,34 @@ RefPtr< eqNet::Connection > _startLocalServer()
     return eqsStartLocalServer();
 }
 
+typedef void (*eqsJoinLocalServer_t)();
+
+static void _joinLocalServer()
+{
+    if( !_libeqserver )
+    {
+        EQWARN << "Equalizer server library not opened" << endl;
+        return;
+    }
+
+#ifdef WIN32
+    eqsJoinLocalServer_t eqsJoinLocalServer = (eqsJoinLocalServer_t)
+        GetProcAddress( _libeqserver, "eqsJoinLocalServer" );
+#else
+    eqsJoinLocalServer_t eqsJoinLocalServer = (eqsJoinLocalServer_t)
+        dlsym( _libeqserver, "eqsJoinLocalServer" );
+#endif
+
+    if( !eqsJoinLocalServer )
+    {
+        EQWARN << "Can't find server entry function eqsJoinLocalServer: "
+               << EQ_DL_ERROR << endl;
+        return;
+    }
+
+    eqsJoinLocalServer();
+}
+
 bool Client::disconnectServer( RefPtr<Server> server )
 {
     if( !server->isConnected( ))
@@ -186,7 +230,10 @@ bool Client::disconnectServer( RefPtr<Server> server )
 
     // shut down process-local server (see _startLocalServer)
     if( server->_localServer )
+    {
         server->shutdown();
+        _joinLocalServer();
+    }
 
     server->setClient( 0 );
     server->_localServer = false;

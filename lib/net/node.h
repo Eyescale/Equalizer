@@ -21,6 +21,7 @@
 
 #pragma warning(disable : 4190)
 extern "C" EQS_EXPORT eqBase::RefPtr< eqNet::Connection > eqsStartLocalServer();
+extern "C" EQS_EXPORT void                                eqsJoinLocalServer();
 #pragma warning(default : 4190)
 
 namespace eqNet

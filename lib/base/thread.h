@@ -6,7 +6,6 @@
 
 #include <eq/base/base.h>     // EQ_EXPORT definition
 #include <eq/base/lock.h>     // member
-#include <eq/base/spinLock.h> // member
 
 #ifdef EQ_WIN32_SDP_JOIN_WAR
 #  include <eq/base/monitor.h> // member
@@ -16,7 +15,6 @@
 
 namespace eqBase
 {
-    class Lock;
     class ExecutionListener;
     class ThreadPrivate;
 
@@ -166,10 +164,6 @@ namespace eqBase
 
         static void* runChild( void* arg );
         void        _runChild();
-
-        // listener API
-        static SpinLock                        _listenerLock;
-        static std::vector<ExecutionListener*> _listeners;
 
         void _installCleanupHandler();
 

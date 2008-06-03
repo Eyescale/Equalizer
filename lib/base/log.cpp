@@ -45,7 +45,7 @@ EQ_EXPORT int        Log::level  = getLogLevel();
 EQ_EXPORT unsigned   Log::topics = getLogTopics();
 EQ_EXPORT Clock      LogBuffer::_clock;
 
-static PerThread<Log*> _logInstance;
+static PerThread< Log > _logInstance;
 
 int getLogLevel()
 {

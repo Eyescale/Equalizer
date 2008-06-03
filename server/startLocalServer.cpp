@@ -93,3 +93,8 @@ EQS_EXPORT eqBase::RefPtr< eqNet::Connection > eqsStartLocalServer()
 
     return conn;
 }
+
+EQS_EXPORT void eqsJoinLocalServer()
+{
+    _serverThread.join();
+}

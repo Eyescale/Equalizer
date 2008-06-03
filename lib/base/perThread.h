@@ -6,7 +6,7 @@
 #define EQBASE_PERTHREAD_H
 
 #include <eq/base/base.h>
-#include <eq/base/debug.h>
+#include <eq/base/executionListener.h>
 
 namespace eqBase
 {
@@ -15,30 +15,36 @@ namespace eqBase
     /**
      * Implements a thread-specific storage for C++ objects.
      * 
+     * The object has to implement notifyPerThreadDelete().
+     *
      * OPT: using __thread storage where available might be benefitial.
      */
-    template<typename T> class PerThread
+    template<typename T> class PerThread : public ExecutionListener
     {
     public:
         PerThread();
         virtual ~PerThread();
 
-        PerThread<T>& operator = ( const T& data );
+        PerThread<T>& operator = ( const T* data );
         PerThread<T>& operator = ( const PerThread<T>& rhs );
 
-        T get() const;
-        T operator->();
-        const T operator->() const;
+        T* get();
+        const T* get() const;
+        T* operator->();
+        const T* operator->() const;
 
         bool operator == ( const PerThread& rhs ) const 
             { return ( get() == rhs.get( )); }
-        bool operator == ( const T& rhs ) const { return ( get()==rhs ); }
-        bool operator != ( const T& rhs ) const { return ( get()!=rhs ); }
+        bool operator == ( const T* rhs ) const { return ( get()==rhs ); }
+        bool operator != ( const T* rhs ) const { return ( get()!=rhs ); }
+
+    protected:
+        virtual void notifyExecutionStopping();
 
     private:
         PerThreadPrivate* _data;
     };
-
+}
 
 //----------------------------------------------------------------------
 // implementation
@@ -57,6 +63,12 @@ namespace eqBase
 
 #ifdef HAVE_PTHREAD_H
 
+#include <eq/base/debug.h>
+#include <eq/base/thread.h>
+
+namespace eqBase
+{
+
 class PerThreadPrivate
 {
 public:
@@ -67,9 +79,6 @@ template< typename T >
 PerThread<T>::PerThread() 
         : _data( new PerThreadPrivate )
 {
-    EQASSERTINFO( sizeof(T) <= sizeof(void*), 
-                  "Data too large for thread-specific storage" );
-
     const int error = pthread_key_create( &_data->key, 0 );
     if( error )
     {
@@ -77,12 +86,16 @@ PerThread<T>::PerThread()
                 << strerror( error ) << std::endl;
         EQASSERT( !error );
     }
+
+    Thread::addListener( this );
 }
 
 template< typename T >
 PerThread<T>::~PerThread()
 {
-    T object = get();
+    Thread::removeListener( this );
+
+    T* object = get();
     if( object )
         object->notifyPerThreadDelete();
 
@@ -92,7 +105,17 @@ PerThread<T>::~PerThread()
 }
 
 template< typename T >
-PerThread<T>& PerThread<T>::operator = ( const T& data )
+void PerThread<T>::notifyExecutionStopping()
+{
+    T* object = get();
+    pthread_setspecific( _data->key, 0 );
+
+    if( object )
+        object->notifyPerThreadDelete();
+}
+
+template< typename T >
+PerThread<T>& PerThread<T>::operator = ( const T* data )
 { 
     pthread_setspecific( _data->key, static_cast<const void*>( data ));
     return *this; 
@@ -106,21 +129,25 @@ PerThread<T>& PerThread<T>::operator = ( const PerThread<T>& rhs )
 }
 
 template< typename T >
-T PerThread<T>::get() const
+T* PerThread<T>::get()
 {
-    return static_cast<T>( pthread_getspecific( _data->key )); 
+    return static_cast< T* >( pthread_getspecific( _data->key )); 
+}
+template< typename T >
+const T* PerThread<T>::get() const
+{
+    return static_cast< const T* >( pthread_getspecific( _data->key )); 
 }
 
 template< typename T >
-T PerThread<T>::operator->() 
+T* PerThread<T>::operator->() 
 {
-    return static_cast<T>( pthread_getspecific( _data->key )); 
+    return static_cast< T* >( pthread_getspecific( _data->key )); 
 }
-
 template< typename T >
-const T PerThread<T>::operator->() const 
+const T* PerThread<T>::operator->() const 
 { 
-    return static_cast<T>( pthread_getspecific( _data->key )); 
+    return static_cast< const T* >( pthread_getspecific( _data->key )); 
 }
 #endif // HAVE_PTHREAD_H
 }
