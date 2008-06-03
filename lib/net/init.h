@@ -19,7 +19,7 @@ namespace eqNet
     class Node;
 
     /** 
-     * Initialises the Equalizer client library.
+     * Initializes the Equalizer client library.
      * 
      * @param argc the command line argument count.
      * @param argv the command line argument values.
@@ -29,7 +29,7 @@ namespace eqNet
     EQ_EXPORT bool init( const int argc, char** argv );
 
     /**
-     * De-initialises the Equalizer client library.
+     * De-initializes the Equalizer client library.
      *
      * @return <code>true</code> if the library was successfully de-initialised,
      *         <code>false</code> otherwise.

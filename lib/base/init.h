@@ -14,7 +14,7 @@
 namespace eqBase
 {
     /** 
-     * Initialises the Equalizer base classes.
+     * Initializes the Equalizer base classes.
      * 
      * @return <code>true</code> if the library was successfully initialised,
      *         <code>false</code> otherwise.
@@ -22,7 +22,7 @@ namespace eqBase
     EQ_EXPORT bool init();
 
     /**
-     * De-initialises the Equalizer base classes.
+     * De-initializes the Equalizer base classes.
      *
      * @return <code>true</code> if the library was successfully de-initialised,
      *         <code>false</code> otherwise.
