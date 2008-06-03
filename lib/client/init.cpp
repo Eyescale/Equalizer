@@ -70,8 +70,7 @@ EQ_EXPORT bool exit()
 #endif
 
     Global::_nodeFactory = 0;
-    const bool success = eqNet::exit();
-    return success;
+    return eqNet::exit();
 }
 
 EQ_EXPORT Config* getConfig( const int argc, char** argv )

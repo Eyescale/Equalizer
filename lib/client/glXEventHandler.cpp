@@ -22,25 +22,16 @@ namespace eq
 {
 namespace
 {
-
-class ConnectionSet : public eqNet::ConnectionSet
-{
-public:
-    void notifyPerThreadDelete() 
-        {
-            // Can't delete the connection set since it is used by the
-            // glXMessagePump
-            //? delete this;
-        }
-};
-
-static PerThread< ConnectionSet* > _pipeConnections;
+static PerThread< GLXEventHandler::EventSet* > _pipeConnections;
 }
 
 GLXEventHandler::GLXEventHandler( Pipe* pipe )
 {
     if( _pipeConnections == 0 )
-        _pipeConnections = new ConnectionSet;
+    {
+        _pipeConnections = new GLXEventHandler::EventSet;
+        _pipeConnections->ref();
+    }
 
     _pipeConnections->addConnection( new X11Connection( pipe ));
 }
@@ -75,7 +66,7 @@ void GLXEventHandler::deregisterPipe( Pipe* pipe )
     delete this;
 }
 
-eqNet::ConnectionSet* GLXEventHandler::getEventSet()
+GLXEventSetPtr GLXEventHandler::getEventSet()
 {
     return _pipeConnections.get();
 }
@@ -83,7 +74,10 @@ eqNet::ConnectionSet* GLXEventHandler::getEventSet()
 void GLXEventHandler::dispatchOne()
 {
     if( _pipeConnections == 0 )
-        _pipeConnections = new ConnectionSet;
+    {
+        _pipeConnections = new GLXEventHandler::EventSet;
+        _pipeConnections->ref();
+    }
 
     eqNet::ConnectionSet* connections = _pipeConnections.get();
 
@@ -118,7 +112,10 @@ void GLXEventHandler::dispatchOne()
 void GLXEventHandler::dispatchAll()
 {
     if( _pipeConnections == 0 )
-        _pipeConnections = new ConnectionSet;
+    {
+        _pipeConnections = new GLXEventHandler::EventSet;
+        _pipeConnections->ref();
+    }
 
     const eqNet::ConnectionVector& connections =
         _pipeConnections->getConnections();

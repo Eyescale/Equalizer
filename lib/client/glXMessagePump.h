@@ -1,13 +1,12 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_GLXMESSAGEPUMP_H
 #define EQ_GLXMESSAGEPUMP_H
 
-#include <eq/client/messagePump.h> // base class
-
-#include <eq/net/connectionSet.h>
+#include <eq/client/messagePump.h>     // base class
+#include <eq/client/glXEventHandler.h> // member [_wakeupSet]
 
 namespace eq
 {
@@ -28,10 +27,10 @@ namespace eq
         /** Get and dispatch at least one pending system event, blocking. */
         virtual void dispatchOne();
         
-        virtual ~GLXMessagePump() {}
+        virtual ~GLXMessagePump();
 
     private:
-        eqNet::ConnectionSet* _wakeupSet;
+        GLXEventSetPtr _wakeupSet;
     };
 }
 

@@ -21,6 +21,15 @@ namespace eq
     class GLXEventHandler : public EventHandler
     {
     public:
+        class EventSet : public eqNet::ConnectionSet, public eqBase::Referenced
+        {
+        public:
+            void notifyPerThreadDelete() { unref(); }
+
+        protected:
+            virtual ~EventSet(){}
+        };
+
         /** Dispatch at least one event for the current thread, blocking. */
         static void dispatchOne();
 
@@ -28,7 +37,8 @@ namespace eq
         static void dispatchAll();
 
         /** Get the event set of the current thread. */
-        static eqNet::ConnectionSet* getEventSet();
+        static eqBase::RefPtr< EventSet > getEventSet();
+
 
         /** Constructs a new glx event handler. */
         GLXEventHandler( Pipe* pipe );
@@ -53,6 +63,8 @@ namespace eq
         uint32_t  _getButtonAction( XEvent& event );
         uint32_t  _getKey( XEvent& event );
     };
+
+    typedef eqBase::RefPtr< GLXEventHandler::EventSet > GLXEventSetPtr; 
 }
 
 #endif // EQ_GLXEVENTHANDLER_H
