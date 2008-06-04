@@ -66,7 +66,7 @@ public:
         }
 };
 
-static PerThread< HandlerMap* > _handlers;
+static PerThread< HandlerMap > _handlers;
 
 
 

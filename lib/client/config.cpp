@@ -383,10 +383,10 @@ bool Config::handleEvent( const ConfigEvent* event )
 
 void Config::_updateStatistics( const uint32_t finishedFrame )
 {
-    // keep only latency+1 statistics
+    // keep statistics for latency+2 frames
     _statisticsMutex.set();
     while( !_statistics.empty() &&
-           finishedFrame - _statistics.front().first > _latency )
+           finishedFrame - _statistics.front().first > _latency+1 )
 
         _statistics.pop_front();
     _statisticsMutex.unset();

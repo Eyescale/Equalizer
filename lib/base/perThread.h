@@ -149,7 +149,7 @@ const T* PerThread<T>::operator->() const
 { 
     return static_cast< const T* >( pthread_getspecific( _data->key )); 
 }
-#endif // HAVE_PTHREAD_H
 }
+#endif // HAVE_PTHREAD_H
 
 #endif //EQBASE_PERTHREAD_H
