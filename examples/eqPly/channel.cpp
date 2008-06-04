@@ -96,6 +96,10 @@ void Channel::frameDraw( const uint32_t frameID )
         glEnd();
     }
 
+#ifndef NDEBUG
+    outlineViewport();
+#endif
+
     const eq::Viewport& vp = getViewport();
     if( range == eq::Range::ALL && vp.isFullScreen( ))
         _drawLogo();

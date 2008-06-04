@@ -183,6 +183,9 @@ namespace eq
 
         /** Draw a statistics overlay. */
         virtual void drawStatistics();
+
+        /** Outlines the current pixel viewport. */
+        virtual void outlineViewport();
         //*}
 
         /**

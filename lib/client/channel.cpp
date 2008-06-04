@@ -555,6 +555,50 @@ void Channel::drawStatistics()
     EQ_GL_CALL( resetAssemblyState( ));
 }
 
+void Channel::outlineViewport()
+{
+    glPushAttrib( GL_ENABLE_BIT );
+
+    glDisable( GL_DEPTH_TEST );
+    glDisable( GL_BLEND );
+    glDisable( GL_ALPHA_TEST );
+    glDisable( GL_STENCIL_TEST );
+    glDisable( GL_TEXTURE_1D );
+    glDisable( GL_TEXTURE_2D );
+    glDisable( GL_TEXTURE_3D );
+    
+    glMatrixMode( GL_PROJECTION );
+    glPushMatrix();
+    glLoadIdentity();
+
+    const PixelViewport& pvp = getPixelViewport();
+    glOrtho( 0.0f, pvp.w, 0.0f, pvp.h, -1.0f, 1.0f );
+
+    glMatrixMode( GL_MODELVIEW );
+    glPushMatrix();
+    glLoadIdentity();
+
+    glDisable( GL_LIGHTING );
+    glColor3f( 1.0f, 1.0f, 1.0f );
+    glBegin( GL_LINE_LOOP );
+    {
+        glVertex3f( .5f,         .5f,         0.f );
+        glVertex3f( pvp.w - .5f, .5f,         0.f );
+        glVertex3f( pvp.w - .5f, pvp.h - .5f, 0.f );
+        glVertex3f( .5f,         pvp.h - .5f, 0.f );
+    } 
+    glEnd();
+
+    glMatrixMode( GL_PROJECTION );
+    glPopMatrix();
+
+    glMatrixMode( GL_MODELVIEW );
+    glPopMatrix();
+
+    glPopAttrib();
+}
+
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------

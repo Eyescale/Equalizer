@@ -844,29 +844,6 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
     glDepthMask( true );
 }
 
-namespace
-{
-static void _drawRect( const PixelViewport& rect )
-{
-#ifndef NDEBUG
-    if( !getenv( "EQ_TAINT_CHANNELS" ))
-        return;
-
-    glDisable( GL_LIGHTING );
-    glColor3f( 1.0f, 1.0f, 1.0f );
-    glBegin( GL_LINE_LOOP );
-    {
-        glVertex3f( rect.x, rect.y, 0.f );
-        glVertex3f( rect.getXEnd(), rect.y, 0.f );
-        glVertex3f( rect.getXEnd(), rect.getYEnd(), 0.f );
-        glVertex3f( rect.x, rect.getYEnd(), 0.f );
-    } 
-    glEnd();
-    glEnable( GL_LIGHTING );
-#endif
-}
-}
-
 void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
 {
     const PixelViewport& pvp = image->getPixelViewport();
@@ -880,7 +857,6 @@ void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
                   image->getFormat( Frame::BUFFER_COLOR ), 
                   image->getType( Frame::BUFFER_COLOR ), 
                   image->getPixelData( Frame::BUFFER_COLOR ));
-    _drawRect( (pvp + op.offset) * op.pixel );
 }
 
 void Compositor::assembleImageDB( const Image* image, const ImageOp& op )
