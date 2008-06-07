@@ -531,7 +531,7 @@ void* Node::_runReceiverThread()
     int nErrors = 0;
     while( _state == STATE_LISTENING )
     {
-        const int result = _connectionSet.select();
+        const ConnectionSet::Event result = _connectionSet.select();
         switch( result )
         {
             case ConnectionSet::EVENT_CONNECT:

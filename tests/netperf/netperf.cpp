@@ -31,10 +31,10 @@ int main( int argc, char **argv )
 
     eqNet::init( argc, argv );
 
-    RefPtr<Connection>            connection = 
-        Connection::create( CONNECTIONTYPE_TCPIP );
-    RefPtr<ConnectionDescription> connDesc   = connection->getDescription();
+    ConnectionPtr connection = Connection::create( CONNECTIONTYPE_TCPIP );
+    ConnectionDescriptionPtr connDesc = connection->getDescription();
     connDesc->TCPIP.port = 4242;
+
     if( argc == 3 )
     {
         string desc = argv[2];
@@ -49,27 +49,6 @@ int main( int argc, char **argv )
     {
         TEST( connection->connect( ));
 
-        for( unsigned i=0; i<NPACKETS; )
-        {
-            clock.reset();
-            if( connection->recv( buffer, PACKETSIZE ))
-            {
-                const float time = clock.getTimef();
-                EQINFO << i << " Recv perf: " << mBytesSec / time << "MB/s (" 
-                       << time << "ms)" << endl;
-                ++i;
-            }
-        }
-    }
-    else
-    {
-        TEST( connection->listen( ));
-
-        RefPtr<Connection> client = connection->accept();
-        EQINFO << "accepted connection" << endl;
-        connection->close();
-        connection = client;
-
         for( unsigned i=0; i<NPACKETS; ++i )
         {
             clock.reset();
@@ -79,8 +58,66 @@ int main( int argc, char **argv )
                    << time << "ms)" << endl;
         }
     }
+    else
+    {
+        TEST( connection->listen( ));
+
+        ConnectionSet connectionSet;
+        connectionSet.addConnection( connection );
+
+        const ConnectionSet::Event event = connectionSet.select();
+        TEST( event == ConnectionSet::EVENT_CONNECT );
+
+        ConnectionPtr resultConn = connectionSet.getConnection();
+        ConnectionPtr newConn    = resultConn->accept();
+        TEST( resultConn == connection );
+        TEST( newConn.isValid( ));
+
+        connectionSet.addConnection( newConn );
+
+        // Until all client have disconnected...
+        while( connectionSet.size() > 1 )
+        {
+            switch( connectionSet.select( )) // ...get next request
+            {
+                case ConnectionSet::EVENT_CONNECT: // new client
+                    resultConn = connectionSet.getConnection();
+                    TEST( resultConn == connection );
+                    newConn    = resultConn->accept();
+                    TEST( newConn.isValid( ));
+
+                    connectionSet.addConnection( newConn );
+                    break;
+
+                case ConnectionSet::EVENT_DATA:  // new data
+                    resultConn = connectionSet.getConnection();
+
+                    clock.reset();
+                    if( resultConn->recv( buffer, PACKETSIZE ))
+                    {
+                        const float time = clock.getTimef();
+                        EQINFO << " Recv perf: " << mBytesSec / time << "MB/s ("
+                               << time << "ms)" << endl;
+                    }
+                    else // Connection dead?!
+                        connectionSet.removeConnection( resultConn );
+                    break;
+
+                case ConnectionSet::EVENT_DISCONNECT:
+                case ConnectionSet::EVENT_INVALID_HANDLE:  // client done
+                    resultConn = connectionSet.getConnection();
+                    connectionSet.removeConnection( resultConn );
+                    break;
+
+                default:
+                    TESTINFO( false, "Not reachable" );
+            }
+        }
+    }
 
     free( buffer );
+
+    TESTINFO( connection->getRefCount() == 1, connection->getRefCount( ));
     connection->close();
     return EXIT_SUCCESS;
 }
