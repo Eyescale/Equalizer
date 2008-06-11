@@ -31,7 +31,7 @@ FullMasterCM::~FullMasterCM()
     if( !_slaves.empty( ))
         EQWARN << _slaves.size() 
                << " slave nodes subscribed during deregisterObject" << endl;
-
+    _slaves.clear();
 
     for( std::deque< DeltaData* >::const_iterator i = _deltaDatas.begin();
          i != _deltaDatas.end(); ++i )
@@ -131,7 +131,7 @@ void FullMasterCM::_obsolete()
     }
 }
 
-void FullMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
+void FullMasterCM::addSlave( NodePtr node, const uint32_t instanceID )
 {
     if( _version == Object::VERSION_NONE )
         _commitInitial();
@@ -171,7 +171,7 @@ void FullMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID )
     EQASSERT( instPacket.version == _version );
 }
 
-void FullMasterCM::removeSlave( RefPtr<Node> node )
+void FullMasterCM::removeSlave( NodePtr node )
 {
     _checkConsistency();
 

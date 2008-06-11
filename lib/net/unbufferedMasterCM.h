@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_UNBUFFEREDMASTERCM_H
@@ -56,9 +56,8 @@ namespace eqNet
         virtual uint32_t getMasterInstanceID() const
             { EQDONTCALL; return EQ_ID_INVALID; }
 
-        virtual void addSlave( eqBase::RefPtr<Node> node, 
-                               const uint32_t instanceID );
-        virtual void removeSlave( eqBase::RefPtr<Node> node );
+        virtual void addSlave( NodePtr node, const uint32_t instanceID );
+        virtual void removeSlave( NodePtr node );
 
         virtual void applyMapData() { EQDONTCALL; }
 

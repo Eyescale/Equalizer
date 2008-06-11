@@ -2,8 +2,8 @@
 /* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
  *  All rights reserved.
  *
- * Equalizer 'Hello, World!' example. Shows the minimum Equalizer program which
- * renders spinning quads around the origin.
+ * Equalizer 'Hello, World!' example. Shows the minimum Equalizer program,
+ * rendering spinning quads around the origin.
  */
 
 #include <eq/eq.h>

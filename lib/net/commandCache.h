@@ -1,12 +1,12 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQNET_COMMANDCACHE_H
 #define EQNET_COMMANDCACHE_H
 
 #include <eq/base/base.h>
-#include <list>
+#include <vector>
 
 namespace eqNet
 {
@@ -42,11 +42,12 @@ namespace eqNet
         /** Flush all released commands. */
         void flush();
 
+        bool empty() const { return _freeCommands.empty(); }
     private:
 #pragma warning(push)
 #pragma warning(disable: 4251)
         /** The free command cache. */
-        std::list<Command*>       _freeCommands;
+        std::vector< Command* >       _freeCommands;
 #pragma warning(pop)
     };
 }

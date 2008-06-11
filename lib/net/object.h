@@ -70,7 +70,7 @@ namespace eqNet
         virtual void makeThreadSafe();  
         bool isThreadSafe() const      { return _threadSafe; }
 
-        eqBase::RefPtr<Node> getLocalNode();
+        NodePtr getLocalNode();
         const Session* getSession() const { return _session; }
         Session* getSession()             { return _session; }
 
@@ -281,7 +281,7 @@ namespace eqNet
          * @param node the slave node.
          * @param instanceID the object instance identifier on the slave node.
          */
-        void addSlave( eqBase::RefPtr<Node> node, const uint32_t instanceID )
+        void addSlave( NodePtr node, const uint32_t instanceID )
             { _cm->addSlave( node, instanceID ); }
 
         /** 
@@ -289,15 +289,15 @@ namespace eqNet
          * 
          * @param node the slave node. 
          */
-        void removeSlave( eqBase::RefPtr<Node> node )
+        void removeSlave( NodePtr node )
             { _cm->removeSlave( node ); }
 
         /** @name Packet Transmission */
         //*{
-        bool send( eqBase::RefPtr<Node> node, ObjectPacket& packet );
-        bool send( eqBase::RefPtr<Node> node, ObjectPacket& packet, 
+        bool send( NodePtr node, ObjectPacket& packet );
+        bool send( NodePtr node, ObjectPacket& packet,
                    const std::string& string );
-        bool send( eqBase::RefPtr<Node> node, ObjectPacket& packet, 
+        bool send( NodePtr node, ObjectPacket& packet, 
                    const void* data, const uint64_t size );
 
         //bool send( NodeVector& nodes, ObjectPacket& packet );

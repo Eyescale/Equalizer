@@ -8,8 +8,10 @@
 #include "node.h"
 #include "packets.h"
 
-using namespace eqNet;
+using namespace std;
 
+namespace eqNet
+{
 CommandCache::CommandCache()
 {}
 
@@ -20,12 +22,13 @@ CommandCache::~CommandCache()
 
 void CommandCache::flush()
 {
-    while( !_freeCommands.empty( ))
+    for( vector< Command* >::const_iterator i = _freeCommands.begin();
+         i != _freeCommands.end(); ++i )
     {
-        Command* command = _freeCommands.front();
-        _freeCommands.pop_front();
+        Command* command = *i;
         delete command;
     }
+    _freeCommands.clear();
 }
 
 Command* CommandCache::alloc( Command& inCommand )
@@ -36,8 +39,8 @@ Command* CommandCache::alloc( Command& inCommand )
         outCommand = new Command;
     else
     {
-        outCommand = _freeCommands.front();
-        _freeCommands.pop_front();
+        outCommand = _freeCommands.back();
+        _freeCommands.pop_back();
     }
 
     outCommand->swap( inCommand );
@@ -59,4 +62,4 @@ void CommandCache::release( Command* command )
     
     _freeCommands.push_back( command );
 }
-
+}

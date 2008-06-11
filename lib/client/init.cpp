@@ -118,6 +118,8 @@ EQ_EXPORT void releaseConfig( Config* config )
     RefPtr< eq::Client > client = server->getClient();
     EQASSERT( client.isValid( ));
     client->disconnectServer( server );
+
+    // TODO EQASSERTINFO( server->getRefCount() == 1, server->getRefCount( ));
 }
 
 }

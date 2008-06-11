@@ -80,10 +80,19 @@ Node::Node()
 Node::~Node()
 {
     EQINFO << "Delete Node @" << (void*)this << " " << _id << endl;
+    EQASSERT( _connection == 0 );
+    EQASSERT( _connectionSet.empty( ));
+    EQASSERT( _connectionNodes.empty( ));
+    EQASSERT( _pendingCommands.empty( ));
+    EQASSERT( _commandCache.empty( ));
+    EQASSERT( _nodes.empty( ));
+    EQASSERT( _requestHandler.empty( ));
 
+    EQASSERT( !_commandThread->isRunning( ));
     delete _commandThread;
     _commandThread = 0;
 
+    EQASSERT( !_receiverThread->isRunning( ));
     delete _receiverThread;
     _receiverThread = 0;
 }
@@ -203,8 +212,7 @@ bool Node::listen()
             return false;
         }
 
-        connection.ref();
-        _connectionNodes[ connection.get() ] = this;
+        _connectionNodes[ connection ] = this;
         _connectionSet.addConnection( connection );
     }
 
@@ -244,6 +252,8 @@ bool Node::stopListening()
 
         EQINFO << "    " << *i << endl;
 #endif
+
+    EQASSERT( _requestHandler.empty( ));
     return true;
 }
 
@@ -254,8 +264,7 @@ void Node::_cleanup()
     EQASSERT( _connection.isValid( ));
 
     _connectionSet.removeConnection( _connection );
-    _connectionNodes.erase( _connection.get( ));
-    _connection.unref();
+    _connectionNodes.erase( _connection );
     _connection = 0;
 
     const ConnectionVector& connections = _connectionSet.getConnections();
@@ -263,11 +272,10 @@ void Node::_cleanup()
          i != connections.end(); ++i )
     {
         ConnectionPtr connection = *i;
-        NodePtr       node       = _connectionNodes[ connection.get() ];
+        NodePtr       node       = _connectionNodes[ connection ];
 
         node->_state      = STATE_STOPPED;
         node->_connection = 0;
-        connection.unref();
     }
 
     _connectionSet.clear();
@@ -289,10 +297,9 @@ bool Node::_listenToSelf()
 
     // add to connection set
     EQASSERT( _connection->getDescription().isValid( )); 
-    EQASSERT( _connectionNodes.find(_connection.get())==_connectionNodes.end());
+    EQASSERT( _connectionNodes.find( _connection ) == _connectionNodes.end( ));
 
-    _connection.ref();
-    _connectionNodes[ _connection.get() ] = this;
+    _connectionNodes[ _connection ] = this;
     _connectionSet.addConnection( _connection );
     _nodes[ _id ] = this;
     return true;
@@ -524,7 +531,7 @@ bool Node::deserialize( std::string& data )
 //----------------------------------------------------------------------
 void* Node::_runReceiverThread()
 {
-    EQINFO << "Entered receiver thread" << endl;
+    EQINFO << "Entered receiver thread of " << typeid( *this ).name() << endl;
 
     _receivedCommand = new Command;
 
@@ -603,7 +610,7 @@ void* Node::_runReceiverThread()
     delete _receivedCommand;
     _receivedCommand = 0;
 
-    EQINFO << "Leaving receiver thread" << endl;
+    EQINFO << "Leaving receiver thread of " << typeid( *this ).name() << endl;
     return EXIT_SUCCESS;
 }
 
@@ -628,8 +635,8 @@ void Node::_handleDisconnect()
 
     ConnectionPtr connection = _connectionSet.getConnection();
     NodePtr       node;
-    if( _connectionNodes.find( connection.get( )) != _connectionNodes.end( ))
-        node = _connectionNodes[ connection.get() ];
+    if( _connectionNodes.find( connection ) != _connectionNodes.end( ))
+        node = _connectionNodes[ connection ];
 
     EQASSERT( !node || node->_connection == connection );
 
@@ -637,9 +644,8 @@ void Node::_handleDisconnect()
     {
         node->_state      = STATE_STOPPED;
         node->_connection = 0;
-        _connectionNodes.erase( connection.get( ));
+        _connectionNodes.erase( connection );
         _nodes.erase( node->_id );
-        connection.unref();
     }
 
     _connectionSet.removeConnection( connection );
@@ -654,8 +660,8 @@ bool Node::_handleData()
     ConnectionPtr connection = _connectionSet.getConnection();
     NodePtr       node;
 
-    if( _connectionNodes.find( connection.get( )) != _connectionNodes.end( ))
-        node = _connectionNodes[ connection.get() ];
+    if( _connectionNodes.find( connection ) != _connectionNodes.end( ))
+        node = _connectionNodes[ connection ];
 
     EQASSERT( connection.isValid( ));
     EQASSERTINFO( !node || node->_connection == connection, 
@@ -714,11 +720,6 @@ void Node::_dispatchCommand( Command& command )
     {
         Command* dispCommand = _commandCache.alloc( command );
         _pendingCommands.push_back( dispCommand );
-
-#ifndef NDEBUG
-        if( (_pendingCommands.size() % 10) == 9 )
-            EQINFO << _pendingCommands.size() << " commands pending" <<endl;
-#endif
     }
 }
 
@@ -786,7 +787,7 @@ void Node::_redispatchCommands()
 //----------------------------------------------------------------------
 void* Node::_runCommandThread()
 {
-    EQINFO << "Entered command thread" << endl;
+    EQINFO << "Entered command thread of " << typeid( *this ).name() << endl;
 
     while( _state == STATE_LISTENING )
     {
@@ -812,7 +813,7 @@ void* Node::_runCommandThread()
     }
  
     _commandThreadQueue.flush();
-    EQINFO << "Leaving command thread" << endl;
+    EQINFO << "Leaving command thread of " << typeid( *this ).name() << endl;
     return EXIT_SUCCESS;
 }
 
@@ -1010,8 +1011,7 @@ CommandResult Node::_cmdConnect( Command& command )
     nodeID.convertToHost();
 
     EQINFO << "handle connect " << packet << endl;
-    EQASSERT( _connectionNodes.find( connection.get( )) == 
-              _connectionNodes.end( ));
+    EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
 
     if( _nodes.find( nodeID ) != _nodes.end( ))
     {   // Node exists, probably simultaneous connect from peer
@@ -1050,9 +1050,8 @@ CommandResult Node::_cmdConnect( Command& command )
     remoteNode->_connection = connection;
     remoteNode->_state      = STATE_CONNECTED;
     
-    connection.ref();
-    _connectionNodes[ connection.get() ] = remoteNode;
-    _nodes[ remoteNode->_id ]            = remoteNode;
+    _connectionNodes[ connection ] = remoteNode;
+    _nodes[ remoteNode->_id ]      = remoteNode;
 
     // send our information as reply
     NodeConnectReplyPacket reply( packet );
@@ -1082,8 +1081,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
     nodeID.convertToHost();
 
     EQINFO << "handle connect reply " << packet << endl;
-    EQASSERT( _connectionNodes.find( connection.get( )) == 
-              _connectionNodes.end( ));
+    EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
 
     if( nodeID == NodeID::ZERO || // connection refused
         _nodes.find( nodeID ) != _nodes.end( )) // Node exists, probably
@@ -1123,9 +1121,8 @@ CommandResult Node::_cmdConnectReply( Command& command )
     remoteNode->_connection = connection;
     remoteNode->_state      = STATE_CONNECTED;
     
-    connection.ref();
-    _connectionNodes[ connection.get() ] = remoteNode;
-    _nodes[ remoteNode->_id ]            = remoteNode;
+    _connectionNodes[ connection ] = remoteNode;
+    _nodes[ remoteNode->_id ]      = remoteNode;
 
     if( packet->requestID != EQ_ID_INVALID )
         _requestHandler.serveRequest( packet->requestID, true );
@@ -1151,14 +1148,13 @@ CommandResult Node::_cmdDisconnect( Command& command )
 
         const bool removed = _connectionSet.removeConnection( connection );
         EQASSERTINFO( removed, connection );
+        EQASSERT( _connectionNodes.find( connection )!=_connectionNodes.end( ));
 
-        EQINFO << node << " disconnecting from " << this << endl;
-        EQASSERT( _connectionNodes.find( connection.get( )) !=
-                  _connectionNodes.end( ));
-
-        _connectionNodes.erase( connection.get( ));
+        _connectionNodes.erase( connection );
         _nodes.erase( node->_id );
-        connection.unref();
+
+        EQINFO << node << " disconnected from " << this << " connection used " 
+               << connection->getRefCount() << endl;
     }
 
     EQASSERT( node->_state == STATE_STOPPED );

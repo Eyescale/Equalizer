@@ -52,9 +52,9 @@ namespace eqNet
         virtual bool isMaster() const { return false; }
         virtual uint32_t getMasterInstanceID() const { return EQ_ID_INVALID; }
 
-        virtual void addSlave( eqBase::RefPtr<Node> slave, 
-                               const uint32_t instanceID )    { EQDONTCALL; }
-        virtual void removeSlave( eqBase::RefPtr<Node> node ) { EQDONTCALL; }
+        virtual void addSlave( NodePtr slave, const uint32_t instanceID ) 
+            { EQDONTCALL; }
+        virtual void removeSlave( NodePtr node ) { EQDONTCALL; }
 
         virtual void applyMapData();
 

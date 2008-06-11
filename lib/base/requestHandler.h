@@ -111,6 +111,8 @@ namespace eqBase
         void serveRequest( const uint32_t requestID, bool result );
 
 		bool isThreadSafe() const { return ( _mutex != 0 ); }
+        bool empty()        const { return _requests.empty( ); }
+
     private:
         Lock*        _mutex;
 

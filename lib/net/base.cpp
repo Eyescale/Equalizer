@@ -70,7 +70,7 @@ bool Base::dispatchCommand( Command& command )
                       << " higher than number of registered command handlers ("
                       << _qTable.size() << ") for object of type "
                       << typeid(*this).name() << endl );
-        return true;
+        return false;
     }
 #endif
 
@@ -84,7 +84,10 @@ bool Base::dispatchCommand( Command& command )
             queue->push( command );
     }
     else
-        _vTable[which]( command );
+    {
+        const CommandResult result = _vTable[which]( command );
+        EQASSERT( result == COMMAND_HANDLED );
+    }
 
     return true;
 }

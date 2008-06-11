@@ -6,8 +6,7 @@
 #define EQNET_OBJECTCM_H
 
 #include <eq/net/base.h>
-
-#include <eq/base/refPtr.h>
+#include <eq/net/types.h>
 
 namespace eqNet
 {
@@ -110,15 +109,14 @@ namespace eqNet
          * @param slave the slave.
          * @param instanceID the object instance identifier on the slave node.
          */
-        virtual void addSlave( eqBase::RefPtr<Node> node, 
-                               const uint32_t instanceID ) = 0;
+        virtual void addSlave( NodePtr node, const uint32_t instanceID ) = 0;
 
         /** 
          * Remove a subscribed slave.
          * 
          * @param node the slave node. 
          */
-        virtual void removeSlave( eqBase::RefPtr<Node> node ) = 0;
+        virtual void removeSlave( NodePtr node ) = 0;
 
         /** Apply the initial data after mapping. */
         virtual void applyMapData() = 0;

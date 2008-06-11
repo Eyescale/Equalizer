@@ -68,8 +68,10 @@ Session::~Session()
 }
 
 
-void Session::setLocalNode( RefPtr< Node > node )
+void Session::setLocalNode( NodePtr node )
 {
+    EQASSERT( _requestHandler.empty( ));
+
     _localNode = node;
     if( !_localNode.isValid( ))
         return; // TODO deregister command functions?

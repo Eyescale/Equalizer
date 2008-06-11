@@ -521,7 +521,7 @@ namespace eqNet
         NodeIDHash< NodePtr > _nodes;
 
         /** The node for each connection. */
-        eqBase::PtrHash< Connection*, NodePtr > _connectionNodes;
+        eqBase::RefPtrHash< Connection, NodePtr > _connectionNodes;
 
         /** The receiver->command command queue. */
         CommandQueue _commandThreadQueue;
@@ -539,8 +539,8 @@ namespace eqNet
         eqBase::Clock _launchTimeout;
 
         /** Commands re-scheduled for dispatch. */
-        std::list<Command*> _pendingCommands;
-        CommandCache        _commandCache;
+        std::list< Command* > _pendingCommands;
+        CommandCache          _commandCache;
 
         /** The list of descriptions on how this node is reachable. */
         ConnectionDescriptionVector _connectionDescriptions;

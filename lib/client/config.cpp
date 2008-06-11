@@ -72,6 +72,8 @@ Config::Config( eqBase::RefPtr< Server > server )
 
 Config::~Config()
 {
+    EQINFO << "Delete config @" << (void*)this << endl;
+
     while( tryNextEvent( )) /* flush all pending events */ ;
     _eventQueue.release( _lastEvent );
     _eventQueue.flush();

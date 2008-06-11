@@ -29,6 +29,7 @@ UnbufferedMasterCM::~UnbufferedMasterCM()
     if( !_slaves.empty( ))
         EQWARN << _slaves.size() 
                << " slave nodes subscribed during deregisterObject" << endl;
+    _slaves.clear();
 }
 
 void UnbufferedMasterCM::notifyAttached()
@@ -69,7 +70,7 @@ uint32_t UnbufferedMasterCM::commitSync( const uint32_t commitID )
     return version;
 }
 
-void UnbufferedMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID)
+void UnbufferedMasterCM::addSlave( NodePtr node, const uint32_t instanceID)
 {
     // add to subscribers
     ++_slavesCount[ node->getNodeID() ];
@@ -97,7 +98,7 @@ void UnbufferedMasterCM::addSlave( RefPtr<Node> node, const uint32_t instanceID)
     }
 }
 
-void UnbufferedMasterCM::removeSlave( RefPtr<Node> node )
+void UnbufferedMasterCM::removeSlave( NodePtr node )
 {
     // remove from subscribers
     const NodeID& nodeID = node->getNodeID();

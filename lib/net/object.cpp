@@ -106,7 +106,7 @@ void Object::makeThreadSafe()
     _cm->makeThreadSafe();
 }
 
-RefPtr<Node> Object::getLocalNode()
+NodePtr Object::getLocalNode()
 { 
     return _session ? _session->getLocalNode() : 0; 
 }
@@ -164,7 +164,7 @@ void Object::unpack( DataIStream& is )
     is.advanceBuffer( size );
 }
 
-bool Object::send( eqBase::RefPtr<Node> node, ObjectPacket& packet )
+bool Object::send( NodePtr node, ObjectPacket& packet )
 {
     EQASSERT( _session ); EQASSERT( _id != EQ_ID_INVALID );
     packet.sessionID = _session->getID();
@@ -172,7 +172,7 @@ bool Object::send( eqBase::RefPtr<Node> node, ObjectPacket& packet )
     return node->send( packet );
 }
 
-bool Object::send( eqBase::RefPtr<Node> node, ObjectPacket& packet, 
+bool Object::send( NodePtr node, ObjectPacket& packet, 
                    const std::string& string )
 {
     EQASSERT( _session ); EQASSERT( _id != EQ_ID_INVALID );
@@ -181,7 +181,7 @@ bool Object::send( eqBase::RefPtr<Node> node, ObjectPacket& packet,
     return node->send( packet, string );
 }
 
-bool Object::send( eqBase::RefPtr<Node> node, ObjectPacket& packet, 
+bool Object::send( NodePtr node, ObjectPacket& packet, 
                    const void* data, const uint64_t size )
 {
     EQASSERT( _session ); EQASSERT( _id != EQ_ID_INVALID );

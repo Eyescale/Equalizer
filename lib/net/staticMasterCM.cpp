@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "staticMasterCM.h"
@@ -24,8 +24,7 @@ StaticMasterCM::StaticMasterCM( Object* object )
 StaticMasterCM::~StaticMasterCM()
 {}
 
-void StaticMasterCM::addSlave( eqBase::RefPtr<Node> node,
-                               const uint32_t instanceID )
+void StaticMasterCM::addSlave( NodePtr node, const uint32_t instanceID )
 {
     ObjectInstanceDataOStream os( _object );
     os.setInstanceID( instanceID );
