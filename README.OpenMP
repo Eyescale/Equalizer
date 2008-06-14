@@ -1,0 +1,15 @@
+
+                       OpenMP usage in Equalizer
+
+ OpenMP is used in Equalizer for:
+
+ 1) Image compression during network transfer (8-45% speedup on two cores)
+ 2) CPU-based compositing operations (10-75% speedup on two cores)
+
+ OpenMP is enabled when using Visual Studio 2005, icc or gcc 4.2.1 on
+ Mac OS X, in which case EQ_USE_OPENMP is defined.
+
+ GCC <= 4.3 does not support using OpenMP concurrently from multiple
+ threads (http://gcc.gnu.org/bugzilla/show_bug.cgi?id=36242).
+ Configurations using multiple pipes per node will not work when OpenMP
+ is used with gcc <= 4.3.
