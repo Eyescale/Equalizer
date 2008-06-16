@@ -157,6 +157,12 @@ Compound* Compound::getNext() const
     return *result;
 }
 
+Node* Compound::getNode()
+{ 
+    Channel* channel = getChannel(); 
+    return channel ? channel->getNode() : 0; 
+}
+
 void Compound::setChannel( Channel* channel )
 { 
     if( _data.channel == channel )

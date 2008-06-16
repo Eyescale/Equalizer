@@ -416,7 +416,6 @@ void Compositor::_assembleDBImages( Image* result,
         const float*   depth = reinterpret_cast< const float* >
             ( image->getPixelData( Frame::BUFFER_DEPTH ));
 
-// This crashes in OpenMP when compiled with g++-4.2 !?
 #  pragma omp parallel for
         for( int32_t y = 0; y < pvp.h; ++y )
         {
@@ -483,7 +482,6 @@ void Compositor::_assemble2DImages( Image* result,
         const size_t pixelSize = image->getDepth( Frame::BUFFER_COLOR );
         const size_t rowLength = pvp.w * pixelSize;
 
-// This crashes in OpenMP when compiled with g++-4.2 !?
 #  pragma omp parallel for
         for( int32_t y = 0; y < pvp.h; ++y )
         {
