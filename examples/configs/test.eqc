@@ -1,33 +1,53 @@
-# one-pipe fullscreen config, covering a 30" LCD one meter in front
-# of the viewer
+global
+{
+    EQ_COMPOUND_IATTR_STEREO_MODE ANAGLYPH
+}
 
 server
 {
     config
     {
-        latency 0
         appNode
         {
             pipe
             {
+                attributes { hint_thread OFF }
                 window
                 {
-                    channel
-                    {
-                        name "channel"
-                    }
+                    viewport [ 0.01 0.01 0.4 0.3 ]
+                    #                    attributes { hint_stereo ON }
+                    channel { name "dgchan" }
                 }
             }
         }
-        compound
-        { 
-            channel "channel"
+        node
+        {
+            connection { hostname "localhost" }
+            pipe
+            {
+                window
+                {
+                    #                    attributes { hint_stereo ON }
+                    viewport [ 0.51 0.01 0.4 0.3 ]
+                    channel { name "clichan" }
+                }
+            }
+        }
+        compound 
+        {
+            channel "dgchan"
+            eye [ LEFT RIGHT ]
             wall
             {
-                bottom_left  [ -.32 -.20 -.75 ]
-                bottom_right [  .32 -.20 -.75 ]
-                top_left     [ -.32  .20 -.75 ]
+                bottom_left  [ -.4 -.3 -1 ]
+                bottom_right [  .4 -.3 -1 ]
+                top_left     [ -.4  .3 -1 ]
             }
+            compound {
+                channel "clichan"
+                outputframe {}
+            }
+            inputframe { name "frame.clichan" }
         }
     }    
 }

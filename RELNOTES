@@ -1,14 +1,15 @@
 
-                   Release Notes for Equalizer 0.5.1
+                Release Notes for Equalizer 0.5.2 Equalizer logo
 
-   Welcome to Equalizer 0.5.1, a framework for the development and deployment
-   of parallel, scalable OpenGL applications. Equalizer 0.5.1 ...
+   Welcome to Equalizer 0.5.2, a framework for the development and deployment
+   of parallel, scalable OpenGL applications. Equalizer 0.5.2 focuses on
+   stability and memory leaks.
 
-   Equalizer 0.5.1 is a developer release, representing a stable snapshot of
-   the development tree after the 0.5 release. Equalizer 0.5.1 can be
+   Equalizer 0.5.2 is a developer release, representing a stable snapshot of
+   the development tree after the 0.5 release. Equalizer 0.5.2 can be
    retrieved using:
    svn co
-   https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.5.1
+   https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.5.2
 
   Features
 
@@ -38,6 +39,14 @@
 
     New Features
 
+   0.5.2:
+
+     * Improved statistics overlay appearance
+     * Support for using Paracomp for alpha-blending compositing (eVolve)
+     * Support for using multiple clients with the netperf benchmark tool
+
+   0.5.1:
+
      * Statistics Overlay to understand and eliminate bottlenecks in the
        rendering pipeline
      * Support for using Paracomp as a compositing backend, see
@@ -47,21 +56,34 @@
 
     Performance Improvements
 
+   0.5.1:
+
      * Alpha-blending support in the CPU-based compositor
      * Improved performance when using non-threaded pipes
 
     Bug Fixes
 
-   Equalizer 0.5.1 includes various bugfixes over the 0.5 release, including
+   Equalizer 0.5.2 includes various bugfixes over the 0.5 release, including
    the following:
+
+   0.5.2:
+
+     * Fixed a big memory leak in the packet handling code, as well as
+       numerous small bug fixes and code cleanups
+     * [LINK]1994798: Compound::getNode null pointer read
+     * 1981854: AGL: PBuffer with Fullscreen broken
+
+   0.5.1:
 
      * 1960225: Problems with windows getting focus on mac
      * 1960098: eqPly crashes during rendering
 
     Documentation
 
-   The Programming Guide has been extended to 52 pages. In addition, the
+   The Programming Guide has been extended to 57 pages. In addition, the
    following documentation has been added:
+
+   0.5.1:
 
      * Statistics Overlay
 
@@ -71,7 +93,6 @@
 
   Known Bugs
 
-     * 1964341: OpenMP crashes with multi-pipe configurations
      * 1959418: DB Compositing fails on MacBook with GMA X3100
      * 1854948: eVolve: lighting ignores head transformation
      * 1854929: eqPly GLSL shader has artefacts

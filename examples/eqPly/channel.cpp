@@ -77,7 +77,7 @@ void Channel::frameDraw( const uint32_t frameID )
     }
     else if( !frameData.data.color || (model && !model->hasColors( )) )
     {
-        glColor3f( .5f, .5f, .5f );
+        glColor3f( .75f, .75f, .75f );
     }
 
     if( model )
