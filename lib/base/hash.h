@@ -28,7 +28,8 @@ namespace eqBase
     public:
         size_t operator() ( const RefPtr< T >& key ) const
         {
-            return stde::hash_compare< const void* >( (const void*)( key.get( )));
+            stde::hash_compare< const void* > comp;
+            return comp( key.get( ));
         }
 
         bool operator() ( const RefPtr< T >& k1, const RefPtr< T >& k2 ) const
