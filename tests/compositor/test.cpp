@@ -123,11 +123,11 @@ int main( int argc, char **argv )
     frameData->setBuffers( Frame::BUFFER_COLOR );
 
     image = frameData->newImage();
-    TEST( image->readImage( "Image_13_color.rgb", Frame::BUFFER_COLOR ));
+    TEST( image->readImage( "Image_15_color.rgb", Frame::BUFFER_COLOR ));
     image = frameData->newImage();
     TEST( image->readImage( "Image_14_color.rgb", Frame::BUFFER_COLOR ));
     image = frameData->newImage();
-    TEST( image->readImage( "Image_15_color.rgb", Frame::BUFFER_COLOR ));
+    TEST( image->readImage( "Image_13_color.rgb", Frame::BUFFER_COLOR ));
     frames.clear();
     frames.push_back( &frame );
 
