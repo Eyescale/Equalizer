@@ -21,6 +21,27 @@ namespace eqBase
     {};
 
     /** A hash function for RefPtr keys. */
+#ifdef WIN32_VC
+    template< typename T >
+    class hashRefPtr : public stde::hash_compare< RefPtr< T > >
+    {
+    public:
+        size_t operator() ( const RefPtr< T >& key ) const
+        {
+            return stde::hash_compare< const void* >( (const void*)( key.get( )));
+        }
+
+        bool operator() ( const RefPtr< T >& k1, const RefPtr< T >& k2 ) const
+        {
+            return k1 < k2;
+        }
+    };
+
+    template< class K, class T > class RefPtrHash 
+        : public stde::hash_map< RefPtr< K >, T, hashRefPtr< K > >
+    {};
+
+#else
     template< typename T >
     struct hashRefPtr
     {
@@ -31,9 +52,10 @@ namespace eqBase
     };
 
     /** A hash for RefPtr keys. */
-    template<class K, class T> class RefPtrHash 
+    template< class K, class T > class RefPtrHash 
         : public stde::hash_map< RefPtr< K >, T, hashRefPtr< K > >
     {};
+#endif
 }
 
 #endif // EQBASE_HASH_H
