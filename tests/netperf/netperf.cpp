@@ -54,8 +54,8 @@ int main( int argc, char **argv )
             clock.reset();
             TEST( connection->send( buffer, PACKETSIZE ));
             const float time = clock.getTimef();
-            EQINFO << i << " Send perf: " << mBytesSec / time << "MB/s (" 
-                   << time << "ms)" << endl;
+            cout << i << " Send perf: " << mBytesSec / time << "MB/s (" 
+                 << time << "ms)" << endl;
         }
     }
     else
@@ -96,8 +96,8 @@ int main( int argc, char **argv )
                     if( resultConn->recv( buffer, PACKETSIZE ))
                     {
                         const float time = clock.getTimef();
-                        EQINFO << " Recv perf: " << mBytesSec / time << "MB/s ("
-                               << time << "ms)" << endl;
+                        cout << " Recv perf: " << mBytesSec / time << "MB/s ("
+                             << time << "ms)" << endl;
                     }
                     else // Connection dead?!
                         connectionSet.removeConnection( resultConn );
