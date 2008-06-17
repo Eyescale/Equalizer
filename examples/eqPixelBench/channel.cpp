@@ -116,7 +116,6 @@ void Channel::frameDraw( const uint32_t frameID )
         snprintf( event.data.user.data, 32, "%s", name.c_str( ));
     event.data.user.data[31] = '\0';
     event.area.x = pvp.w;
-    event.area.y = pvp.h;
 
     Clock                      clock;
     eq::Window::ObjectManager* glObjects = getWindow()->getObjectManager();
@@ -130,6 +129,7 @@ void Channel::frameDraw( const uint32_t frameID )
                   enums[i].formatString, enums[i].typeString );
         event.formatType[63] = '\0';
         event.data.type = ConfigEvent::READBACK;
+        event.area.y = pvp.h;
 
         image->setFormat( eq::Frame::BUFFER_COLOR, enums[i].format );
         image->setType(   eq::Frame::BUFFER_COLOR, enums[i].type );
@@ -161,6 +161,32 @@ void Channel::frameDraw( const uint32_t frameID )
             event.msec = - static_cast<float>( error );
 
         config->sendEvent( event );
+
+        // read #n
+        event.area.y    = pvp.h * NUM_IMAGES;
+        event.data.type = ConfigEvent::READBACK;
+        snprintf( event.formatType, 64, "%d images, tiled", NUM_IMAGES ); 
+
+        clock.reset();
+        for( unsigned j = 0; j < NUM_IMAGES; ++j )
+        {
+            image = images[ j ];
+            image->setFormat( eq::Frame::BUFFER_COLOR, enums[i].format );
+            image->setType(   eq::Frame::BUFFER_COLOR, enums[i].type );
+        
+            image->startReadback( eq::Frame::BUFFER_COLOR, pvp, glObjects );
+        }
+        for( unsigned j = 0; j < NUM_IMAGES; ++j )
+            images[j]->syncReadback();
+
+        event.msec = clock.getTimef();
+
+        error = glGetError();
+        if( error != GL_NO_ERROR )
+            event.msec = - static_cast<float>( error );
+
+        config->sendEvent( event ); 
+        image = images[ 0 ];
     }
 
     //----- test tiled assembly algorithms
@@ -179,7 +205,7 @@ void Channel::frameDraw( const uint32_t frameID )
     {
         subPVP.y = pvp.y + i * subPVP.h;
 
-        // fill color image
+        // readback color image
         image = images[ i ];
         image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
         image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
@@ -187,7 +213,7 @@ void Channel::frameDraw( const uint32_t frameID )
         image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, glObjects );
         image->syncReadback();
 
-        // benchmark
+        // benchmark assembly operations
         eq::Compositor::ImageOp op;
         op.channel = this;
         op.buffers = eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH;
@@ -199,7 +225,7 @@ void Channel::frameDraw( const uint32_t frameID )
                   "Tiled assembly (GL1.1) of %d images", i+1 ); 
 
         clock.reset();
-        for( unsigned j = 0; j < i; ++j )
+        for( unsigned j = 0; j <= i; ++j )
             eq::Compositor::assembleImage( images[j], op );
 
         event.msec = clock.getTimef();
@@ -253,7 +279,7 @@ void Channel::frameDraw( const uint32_t frameID )
                   "Depth-based assembly (GL1.1) of %d images", i+1 ); 
 
         clock.reset();
-        for( unsigned j = 0; j < i; ++j )
+        for( unsigned j = 0; j <= i; ++j )
             eq::Compositor::assembleImageDB_FF( images[j], op );
 
         event.msec = clock.getTimef();
@@ -266,7 +292,7 @@ void Channel::frameDraw( const uint32_t frameID )
                       "Depth-based assembly (GLSL)  of %d images", i+1 ); 
 
             clock.reset();
-            for( unsigned j = 0; j < i; ++j )
+            for( unsigned j = 0; j <= i; ++j )
                 eq::Compositor::assembleImageDB_GLSL( images[j], op );
             event.msec = clock.getTimef();
             config->sendEvent( event );
