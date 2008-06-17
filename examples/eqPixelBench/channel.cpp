@@ -162,7 +162,6 @@ void Channel::frameDraw( const uint32_t frameID )
 
         config->sendEvent( event );
     }
-    return;
 
     //----- test tiled assembly algorithms
     eq::PixelViewport subPVP = pvp;
@@ -200,10 +199,8 @@ void Channel::frameDraw( const uint32_t frameID )
                   "Tiled assembly (GL1.1) of %d images", i+1 ); 
 
         clock.reset();
-        for( vector< eq::Image* >::const_iterator j = images.begin(); 
-             j != images.end(); ++j )
-        
-            eq::Compositor::assembleImage( *j, op );
+        for( unsigned j = 0; j < i; ++j )
+            eq::Compositor::assembleImage( images[j], op );
 
         event.msec = clock.getTimef();
         config->sendEvent( event );            
@@ -256,10 +253,8 @@ void Channel::frameDraw( const uint32_t frameID )
                   "Depth-based assembly (GL1.1) of %d images", i+1 ); 
 
         clock.reset();
-        for( vector< eq::Image* >::const_iterator j = images.begin(); 
-             j != images.end(); ++j )
-        
-            eq::Compositor::assembleImageDB_FF( *j, op );
+        for( unsigned j = 0; j < i; ++j )
+            eq::Compositor::assembleImageDB_FF( images[j], op );
 
         event.msec = clock.getTimef();
         config->sendEvent( event );            
@@ -269,11 +264,10 @@ void Channel::frameDraw( const uint32_t frameID )
         {
             snprintf( event.formatType, 64,
                       "Depth-based assembly (GLSL)  of %d images", i+1 ); 
+
             clock.reset();
-            for( vector< eq::Image* >::const_iterator j = images.begin(); 
-                 j != images.end(); ++j )
-        
-                eq::Compositor::assembleImageDB_GLSL( *j, op );
+            for( unsigned j = 0; j < i; ++j )
+                eq::Compositor::assembleImageDB_GLSL( images[j], op );
             event.msec = clock.getTimef();
             config->sendEvent( event );
         }

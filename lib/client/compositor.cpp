@@ -256,7 +256,7 @@ void Compositor::assembleFramesCPU( const FrameVector& frames,
     EQVERB << "Sorted CPU assembly" << endl;
     // Assembles images from DB and 2D compounds using the CPU and then
     // assembles the result image. Does not yet support Pixel or Eye
-    // compounds. The result image has to be fully filled.
+    // compounds.
 
     const Image* result = assembleFramesCPU( frames, blendAlpha );
     if( !result )
@@ -305,7 +305,9 @@ const Image* Compositor::assembleFramesCPU( const FrameVector& frames,
              j != images.end(); ++j )
         {
             const Image* image = *j;
-            EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
+
+            if( !image->hasPixelData( Frame::BUFFER_COLOR ))
+                continue;
 
             resultPVP.merge( image->getPixelViewport() + frame->getOffset( ));
             
@@ -805,7 +807,7 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
     const float endX   = static_cast< float >( startX      + pvp.w );
     const float height = static_cast< float >( pvp.h * op.pixel.size );
     const float startY = static_cast< float >( op.offset.y + pvp.y ) + 0.5f;
-    const float endY   = startY + height
+    const float endY   = startY + height;
 
     glBegin( GL_LINES );
     for( float y = startY + op.pixel.index; y < endY;

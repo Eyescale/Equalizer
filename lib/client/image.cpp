@@ -230,7 +230,7 @@ void Image::Pixels::resize( uint32_t size )
     if( maxSize >= size )
         return;
     
-    // round to next nearest 8-byte alignment (compress uses 8-byte tokens)
+    // round to next 8-byte alignment (compress uses 8-byte tokens)
     if( size%8 )
         size += 8 - (size%8);
 

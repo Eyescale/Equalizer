@@ -22,22 +22,23 @@ namespace eq
     class EQ_EXPORT Compositor
     {
     public:
+        /** A structure describing an image assembly task. */
         struct ImageOp
         {
             ImageOp() : channel( 0 ), buffers( 0 )
-                      , offset( vmml::Vector2i::ZERO ), useCPU( false ) {}
+                      , offset( vmml::Vector2i::ZERO ) {}
 
-            Channel*       channel;
-            uint32_t       buffers;
-            vmml::Vector2i offset;
-            Pixel          pixel;
-            bool           useCPU;
+            Channel*       channel; //!< The destination channel
+            uint32_t       buffers; //!< The Frame buffer attachments to use
+            vmml::Vector2i offset;  //!< The offset wrt destination window
+            Pixel          pixel;   //!< The pixel decomposition parameters
         };
 
         /** @name Frame-based operations. */
         //*{
         /** 
-         * Assemble all frames in arbitrary order using the default algorithm.
+         * Assemble all frames in an arbitrary order using the best algorithm
+         * on the given channel
          *
          * @param frames the frames to assemble.
          * @param channel the destination channel.
@@ -46,7 +47,8 @@ namespace eq
                                     Channel* channel );
 
         /** 
-         * Assemble all frames in the given order using the default algorithm.
+         * Assemble all frames in the given order using the default algorithm
+         * on the given channel.
          *
          * For alpha-blending see comment for assembleFramesCPU().
          *
@@ -60,17 +62,18 @@ namespace eq
                                           const bool blendAlpha = false );
 
         /** 
-         * Assemble all frames in the order they become available using the GPU.
+         * Assemble all frames in the order they become available directly on
+         * the given channel.
          *
          * @param frames the frames to assemble.
          * @param channel the destination channel.
          */
         static void assembleFramesUnsorted( const FrameVector& frames,
-                                            Channel* channel );
+                                              Channel* channel );
 
         /** 
-         * Assemble all frames in arbitrary order using the CPU before
-         * assembling the result on the destination channel, using the GPU.
+         * Assemble all frames in arbitrary order in a memory buffer using the
+         * CPU before assembling the result on the given channel.
          *
          * If alpha-blending is enabled, the images are blended into the
          * intermediate image in main memory as if using:
