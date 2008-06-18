@@ -297,7 +297,6 @@ bool AGLEventHandler::_handleKeyEvent( EventRef event, eq::Window* window )
     windowEvent.carbonEventRef = event;
     windowEvent.window         = window;
 
-    EQINFO << "Unhandled key event" << endl;
     switch( GetEventKind( event ))
     {
         case kEventRawKeyDown:
@@ -307,7 +306,7 @@ bool AGLEventHandler::_handleKeyEvent( EventRef event, eq::Window* window )
             break;
 
         case kEventRawKeyUp:
-            windowEvent.data.type         = Event::KEY_PRESS;
+            windowEvent.data.type         = Event::KEY_RELEASE;
             windowEvent.data.keyPress.key = _getKey( event );
             break;
 
