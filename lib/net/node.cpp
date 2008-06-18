@@ -146,7 +146,7 @@ bool Node::initLocal( const int argc, char** argv )
         else if( string( "--eq-client" ) == argv[i] )
         {
             isClient = true;
-            if( i<argc && argv[i+1][0] != '-' ) // server-started client
+            if( i < argc-1 && argv[i+1][0] != '-' ) // server-started client
             {
                 clientOpts = argv[++i];
 
