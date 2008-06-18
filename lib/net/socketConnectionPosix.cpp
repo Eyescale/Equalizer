@@ -1,11 +1,12 @@
 
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-using namespace eqNet;
 using namespace eqBase;
 using namespace std;
 
+namespace eqNet
+{
 SocketConnection::SocketConnection( const ConnectionType type )
 {
     EQASSERT( type == CONNECTIONTYPE_TCPIP || type == CONNECTIONTYPE_SDP );
@@ -131,4 +132,5 @@ RefPtr<Connection> SocketConnection::accept()
            << ":" << ntohs( newAddress.sin_port ) <<endl;
 
     return newConnection;
+}
 }

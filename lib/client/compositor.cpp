@@ -213,7 +213,7 @@ void Compositor::assembleFramesUnsorted( const FrameVector& frames,
         frame->addListener( monitor );
     }
 
-    uint32_t       nUsedFrames  = 0;
+    uint32_t    nUsedFrames  = 0;
     FrameVector unusedFrames = frames;
 
     // wait and assemble frames

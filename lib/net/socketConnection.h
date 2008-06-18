@@ -6,6 +6,8 @@
 #define EQNET_SOCKETCONNECTION_H
 
 #include <eq/base/base.h>
+#include <eq/base/buffer.h> // member
+
 #ifdef WIN32
 #  include <eq/net/connection.h>
 #  ifndef MAXPATHLEN
@@ -66,22 +68,27 @@ namespace eqNet
         bool _parseAddress( sockaddr_in& socketAddress );
 
 #ifdef WIN32
-        bool _startAccept();
-        bool _createAcceptSocket();
-        bool _createReadEvent();
+        void _startAccept();
+        void _startReceive();
+        bool _createReadEvents();
         
         // overlapped data structures
         OVERLAPPED _overlapped;
         bool       _overlappedPending;
-        union
+        void*      _overlappedAcceptData;
+        SOCKET     _overlappedSocket;
+
+        enum
         {
-            uint64_t      _overlappedBuffer;
-            struct
-            {
-                void*     _overlappedAcceptData;
-                SOCKET    _overlappedSocket;
-            };
+            MIN_BUFFER_SIZE = 8,
+            MAX_BUFFER_SIZE = 1048576,
         };
+        typedef eqBase::Buffer< char > Buffer;
+
+        Buffer   _pendingBuffer;
+        Buffer   _receivedBuffer;
+        uint64_t _receivedUsedBytes;
+        HANDLE   _receivedDataEvent;
 
         union
         {

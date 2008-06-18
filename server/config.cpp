@@ -523,7 +523,6 @@ bool Config::_exitNodes()
             netNode->send( clientExitPacket );
             
             getLocalNode()->disconnect( netNode );
-            EQASSERTINFO( netNode->getRefCount() == 1, netNode->getRefCount( ));
         }
 
         deregisterObject( node );

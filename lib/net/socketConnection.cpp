@@ -2,6 +2,9 @@
 /* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
+#define NOMINMAX
+#include <limits>
+
 #include "socketConnection.h"
 
 #include "connectionDescription.h"
@@ -36,7 +39,8 @@
 #  include "socketConnectionPosix.cpp"
 #endif
 
-
+namespace eqNet
+{
 bool SocketConnection::_createSocket()
 {
 #ifdef WIN32
@@ -145,7 +149,7 @@ bool SocketConnection::listen()
     }
 
 #ifdef WIN32
-    if( !_createReadEvent( ))
+    if( !_createReadEvents( ))
     {
         close();
         return false;
@@ -175,6 +179,9 @@ bool SocketConnection::listen()
     }
     
     _state = STATE_LISTENING;
+#ifdef WIN32
+    _startAccept();
+#endif
     _fireStateChanged();
 
     EQINFO << "Listening on " << _description->getHostname() << "["
@@ -192,4 +199,4 @@ uint16_t SocketConnection::getPort() const
     getsockname( _readFD, (struct sockaddr *) &address, &used ); 
     return ntohs(address.sin_port);
 }
-
+}

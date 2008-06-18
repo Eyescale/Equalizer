@@ -24,10 +24,10 @@ namespace eqBase
     {
     public:
         Buffer() : data(0), size(0), _maxSize(0) {}
-        ~Buffer() { flush(); }
+        ~Buffer() { clear(); }
 
         /** Flush the buffer, deleting all data. */
-        void flush() { if( data ) free( data ); data=0; size=0; _maxSize=0; }
+        void clear() { if( data ) free( data ); data=0; size=0; _maxSize=0; }
 
         /** Copy constructor - transfer ownership. */
         Buffer( Buffer& from )
@@ -44,23 +44,23 @@ namespace eqBase
                 return *this;
             }
 
-        /** Ensure that the data can contain at least size bytes, retain data */
+        /** Ensure that the buffer contains at least newSize elements. */
         void resize( const uint64_t newSize )
             { 
                 size = newSize;
                 if( newSize <= _maxSize )
                     return;
                 
+                const size_t nBytes = newSize * sizeof( T );
                 if( data )
-                    data = static_cast< T* >( realloc( data, 
-                                                       newSize * sizeof( T )));
+                    data = static_cast< T* >( realloc( data, nBytes ));
                 else
-                    data = static_cast< T* >( malloc( newSize * sizeof( T )));
+                    data = static_cast< T* >( malloc( nBytes ));
                 
                 _maxSize = newSize;
             }
 
-        /** Append size bytes to the buffer, increasing its size. */
+        /** Append addSize bytes to the buffer, increasing its size. */
         void append( const T* addData, const uint64_t addSize )
             {
                 EQASSERT( addData );
@@ -104,6 +104,9 @@ namespace eqBase
                 size     = tmpSize;
                 _maxSize = tmpMaxSize;
             }
+
+        /** @return the maximum size of the buffer. */
+        uint64_t getMaxSize() const { return _maxSize; }
 
         /** A pointer to the data. */
         T*    data;

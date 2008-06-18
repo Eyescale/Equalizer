@@ -115,11 +115,6 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 {
     while( true )
     {
-#ifdef WIN32
-        if( _connection.isValid( ))
-            // HACK: This starts a new overlapped receive on the prev connection
-            _connection->getReadNotifier();
-#endif
         _connection = 0;
         _error      = 0;
 
