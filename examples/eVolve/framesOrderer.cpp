@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2007       Maxim Makhinya
    All rights reserved. */
 
@@ -26,15 +27,16 @@ void orderFrames( eq::FrameVector&     frames,
                   const vmml::Matrix4d& modelviewM,
                   const vmml::Matrix3d& modelviewITM,
                   const vmml::Matrix4f& rotation,
-                  const bool            perspective    )
+                  const bool            orthographic    )
 {
-    if( !perspective ) // parallel/ortho projection
+    if( orthographic )
     {
         const bool orientation = rotation.ml[10] < 0;
         sort( frames.begin(), frames.end(),
               orientation ? cmpRangesInc : cmpRangesDec );
         return;
     }
+    // else perspective projection
 
     vmml::Vector3d norm = modelviewITM * vmml::Vector3d( 0.0, 0.0, 1.0 );
     norm.normalize();

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #include "channelUpdateVisitor.h"
@@ -257,21 +257,42 @@ eq::ColorMask ChannelUpdateVisitor::_getDrawBufferMask(const Compound* compound)
 void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
                                             eq::RenderContext& context )
 {
-    const Channel* destination = compound->getInheritChannel();
     const View&    view        = compound->getInheritView();
     const Config*  config      = _channel->getConfig();
-    destination->getNearFar( &context.frustum.nearPlane, 
-                             &context.frustum.farPlane );
 
     // compute eye position in screen space
     const vmml::Vector3f& eyeW = config->getEyePosition( _eye );
     const vmml::Matrix4f& xfm  = view.xfm;
     const vmml::Vector3f  eye  = xfm * eyeW;
 
-    // compute frustum from size and eye position
-    vmml::Frustumf& frustum = context.frustum;
-    const float     ratio   = frustum.nearPlane / eye[2];
-    if( eye[2] > 0 )
+    // compute perspective and orthographic frustra from size and eye position
+    _computeFrustumCorners( context.frustum, compound, view, eye, false );
+    _computeFrustumCorners( context.ortho,   compound, view, eye, true );
+
+    // compute head transform
+    // headTransform = -trans(eye) * view matrix (frustum position)
+    vmml::Matrix4f& headTransform = context.headTransform;
+    for( int i=0; i<16; i += 4 )
+    {
+        headTransform.ml[i]   = xfm.ml[i]   - eye[0] * xfm.ml[i+3];
+        headTransform.ml[i+1] = xfm.ml[i+1] - eye[1] * xfm.ml[i+3];
+        headTransform.ml[i+2] = xfm.ml[i+2] - eye[2] * xfm.ml[i+3];
+        headTransform.ml[i+3] = xfm.ml[i+3];
+    }
+}
+
+void ChannelUpdateVisitor::_computeFrustumCorners( vmml::Frustumf& frustum,
+                                                   const Compound* compound,
+                                                   const View& view, 
+                                                   const vmml::Vector3f& eye,
+                                                   const bool ortho )
+{
+    const Channel* destination = compound->getInheritChannel();
+    destination->getNearFar( &frustum.nearPlane, &frustum.farPlane );
+
+    const float ratio = ortho ? 1.0f : frustum.nearPlane / eye[2];
+
+    if( eye[2] > 0 || ortho )
     {
         frustum.left   =  ( -view.width*0.5f  - eye[0] ) * ratio;
         frustum.right  =  (  view.width*0.5f  - eye[0] ) * ratio;
@@ -303,7 +324,7 @@ void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
 #else
         const float         frustumWidth = frustum.right - frustum.left;
         const float           pixelWidth = frustumWidth / 
-            static_cast<float>( destPVP.w );
+                                           static_cast<float>( destPVP.w );
         const float               jitter = pixelWidth * pixel.index;
 
         frustum.left  += jitter;
@@ -323,17 +344,6 @@ void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
         const float frustumHeight = frustum.top - frustum.bottom;
         frustum.bottom += frustumHeight * vp.y;
         frustum.top     = frustum.bottom + frustumHeight * vp.h;
-    }
-
-    // compute head transform
-    // headTransform = -trans(eye) * view matrix (frustum position)
-    vmml::Matrix4f& headTransform = context.headTransform;
-    for( int i=0; i<16; i += 4 )
-    {
-        headTransform.ml[i]   = xfm.ml[i]   - eye[0] * xfm.ml[i+3];
-        headTransform.ml[i+1] = xfm.ml[i+1] - eye[1] * xfm.ml[i+3];
-        headTransform.ml[i+2] = xfm.ml[i+2] - eye[2] * xfm.ml[i+3];
-        headTransform.ml[i+3] = xfm.ml[i+3];
     }
 }
 

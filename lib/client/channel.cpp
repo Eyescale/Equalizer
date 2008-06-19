@@ -32,9 +32,10 @@ std::string eq::Channel::_iAttributeStrings[IATTR_ALL] = {
 };
 
 Channel::Channel( Window* parent )
-        : _window( parent ),
-          _context( NULL ),
-          _frustum( vmml::Frustumf::DEFAULT )
+        : _window( parent )
+        , _context( NULL )
+        , _frustum( vmml::Frustumf::DEFAULT )
+        , _ortho( vmml::Frustumf::DEFAULT )
 {
     eqNet::CommandQueue* queue = parent->getPipeThreadQueue();
 
@@ -128,11 +129,15 @@ void eq::Channel::setNearFar( const float nearPlane, const float farPlane )
 
     _frustum.adjustNear( nearPlane );
     _frustum.farPlane = farPlane;
+    _ortho.nearPlane = nearPlane;
+    _ortho.farPlane  = farPlane;
 
     if( _context )
     {
         _context->frustum.adjustNear( nearPlane );
         _context->frustum.farPlane = farPlane;
+        _context->ortho.nearPlane = nearPlane;
+        _context->ortho.farPlane  = farPlane;
     }
 
     ChannelSetNearFarPacket packet;
@@ -306,6 +311,11 @@ const vmml::Frustumf& Channel::getFrustum() const
     return _context ? _context->frustum : _frustum;
 }
 
+const vmml::Frustumf& Channel::getOrtho() const
+{
+    return _context ? _context->ortho : _ortho;
+}
+
 const Range& Channel::getRange() const
 {
     return _context ? _context->range : Range::ALL;
@@ -362,6 +372,15 @@ void Channel::applyFrustum() const
                            frustum.bottom, frustum.top,             \
                            frustum.nearPlane, frustum.farPlane )); 
 	EQVERB << "Apply " << frustum << endl;
+}
+
+void Channel::applyOrtho() const
+{
+	const vmml::Frustumf& ortho = getOrtho();
+	EQ_GL_CALL( glOrtho( ortho.left, ortho.right,             \
+                         ortho.bottom, ortho.top,               \
+                         ortho.nearPlane, ortho.farPlane )); 
+	EQVERB << "Apply " << ortho << endl;
 }
 
 void Channel::applyHeadTransform() const

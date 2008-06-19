@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EVOLVE_PIPE_H
@@ -16,7 +16,7 @@ namespace eVolve
     public:
         Pipe( eq::Node* parent ) : eq::Pipe( parent ) {}
 
-        const FrameData& getFrameData() const { return _frameData; }
+        const FrameData::Data& getFrameData() const { return _frameData.data; }
 
         Renderer*        getRenderer()        { return _renderer;  }
         const Renderer*  getRenderer() const  { return _renderer;  }
@@ -29,9 +29,9 @@ namespace eVolve
         virtual bool configExit();
         virtual void frameStart( const uint32_t frameID, 
                                  const uint32_t frameNumber );
-    private:
 
-        FrameData   _frameData;
+    private:
+        FrameData _frameData;
 
         Renderer*   _renderer;      //!< The renderer, holding the volume
     };

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PLY_PIPE_H
@@ -16,7 +16,7 @@ namespace eqPly
     public:
         Pipe( eq::Node* parent ) : eq::Pipe( parent ) {}
 
-        const FrameData& getFrameData() const { return _frameData; }
+        const FrameData::Data& getFrameData() const { return _frameData.data; }
 
     protected:
         virtual ~Pipe() {}

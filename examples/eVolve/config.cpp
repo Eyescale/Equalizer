@@ -23,6 +23,7 @@ Config::~Config()
 bool Config::init()
 {
     // init distributed objects
+    _frameData.data.ortho = _initData.getOrtho();
     registerObject( &_frameData );
     _initData.setFrameDataID( _frameData.getID( ));
 
@@ -69,6 +70,13 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                     _spinY = 0;
                     _frameData.reset();
                     return true;
+
+                case 'o':
+                    _frameData.data.ortho = !_frameData.data.ortho;
+                    return true;
+
+                default:
+                    break;
             }
             break;
 

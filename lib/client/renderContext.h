@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_RENDERCONTEXT_H
@@ -27,6 +27,7 @@ namespace eq
         ColorMask      drawBufferMask; //<! draw color mask for anaglyph stereo
         PixelViewport  pvp;            //<! pixel viewport of channel wrt window
         vmml::Frustumf frustum;        //<! frustum for projection matrix
+        vmml::Frustumf ortho;          //<! ortho frustum for projection matrix
         vmml::Matrix4f headTransform;  //<! frustum transform for modelview
 
         Viewport       vp;             //<! fractional viewport wrt dest channel

@@ -161,9 +161,6 @@ uint32_t Config::startFrame()
 
 bool Config::handleEvent( const eq::ConfigEvent* event )
 {
-    if( eq::Config::handleEvent( event ))
-        return true;
-
     switch( event->data.type )
     {
         case eq::Event::KEY_PRESS:
@@ -174,6 +171,10 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                     _spinX = 0;
                     _spinY = 0;
                     _frameData.reset();
+                    return true;
+
+                case 'o':
+                    _frameData.data.ortho = !_frameData.data.ortho;
                     return true;
 
                 default:

@@ -18,8 +18,6 @@ using namespace std;
 
 namespace eVolve
 {
-const float _orthoZ = -3.0f;
-
 Channel::Channel( eq::Window* parent )
     : eq::Channel( parent )
     , _bgColor   ( 0.0f, 0.0f, 0.0f, 1.0f )
@@ -46,10 +44,6 @@ bool Channel::configInit( const uint32_t initID )
     EQINFO << "Init channel initID " << initID << " ptr " << this << endl;
 
     // chose projection type
-    const Node* node  = static_cast<Node*>( getNode( ));
-
-    _perspective      = node->getInitData().getPerspective();
-
     setNearFar( 0.0001f, 10.0f );
 
     if( getenv( "EQ_TAINT_CHANNELS" ))
@@ -64,32 +58,6 @@ bool Channel::configInit( const uint32_t initID )
         _bgColorMode = BG_SOLID_COLORED;
 
     return true;
-}
-
-
-void Channel::applyFrustum() const
-{
-    const vmml::Frustumf& frustum = getFrustum();
-
-    if( _perspective )
-    {
-        glFrustum( frustum.left, frustum.right, frustum.bottom, frustum.top,
-                   frustum.nearPlane, frustum.farPlane );
-    }
-    else
-    {
-        const float scale = 0.001f + fabs( _getFrameData().data.translation.z );
-        const float zc = ( 1.0 + frustum.farPlane/frustum.nearPlane ) / scale;
-
-        glOrtho( frustum.left   * zc,
-                 frustum.right  * zc,
-                 frustum.bottom * zc,
-                 frustum.top    * zc,
-                 frustum.nearPlane,
-                 frustum.farPlane      );
-    }
-
-    EQVERB << "Apply " << frustum << endl;
 }
 
 void Channel::frameStart( const uint32_t frameID, const uint32_t frameNumber )
@@ -138,18 +106,17 @@ void Channel::frameDraw( const uint32_t frameID )
     // Setup frustum
     eq::Channel::frameDraw( frameID );
 
-    Pipe*                   pipe = static_cast<Pipe*>( getPipe( ));
-    const FrameData::Data&  data = pipe->getFrameData().data;
-
-    vmml::Matrix4f invRotationM;
-    data.rotation.getInverse( invRotationM );
+    const FrameData::Data& frameData = _getFrameData();
+    vmml::Matrix4f         invRotationM;
+    frameData.rotation.getInverse( invRotationM );
     setLights( invRotationM );
 
-    double translationZ = _perspective ? data.translation.z : _orthoZ;
-    glTranslatef(  data.translation.x, data.translation.y, translationZ );
-    glMultMatrixf( data.rotation.ml );
+    glTranslatef(  frameData.translation.x, frameData.translation.y, 
+                   frameData.translation.z );
+    glMultMatrixf( frameData.rotation.ml );
 
-    Renderer* renderer  = pipe->getRenderer();
+    Pipe*     pipe     = static_cast<Pipe*>( getPipe( ));
+    Renderer* renderer = pipe->getRenderer();
     EQASSERT( renderer );
 
     vmml::Matrix4d  modelviewM;     // modelview matrix
@@ -170,7 +137,7 @@ void Channel::frameDraw( const uint32_t frameID )
 }
 
 
-const FrameData& Channel::_getFrameData() const
+const FrameData::Data& Channel::_getFrameData() const
 {
     const Pipe* pipe = static_cast<Pipe*>( getPipe( ));
 
@@ -178,14 +145,25 @@ const FrameData& Channel::_getFrameData() const
 }
 
 
+void Channel::applyFrustum() const
+{
+    const FrameData::Data& frameData = _getFrameData();
+
+    if( frameData.ortho )
+        eq::Channel::applyOrtho();
+    else
+        eq::Channel::applyFrustum();
+}
+
+
 void Channel::_calcMVandITMV(
     vmml::Matrix4d& modelviewM,
     vmml::Matrix3d& modelviewITM ) const
 {
-    const FrameData& frameData = _getFrameData();
+    const FrameData::Data& frameData = _getFrameData();
+    const Pipe*            pipe      = static_cast<Pipe*>( getPipe( ));
+    const Renderer*        renderer  = pipe->getRenderer();
 
-    const Pipe*     pipe     = static_cast<Pipe*>( getPipe( ));
-    const Renderer* renderer = pipe->getRenderer();
     if( renderer )
     {
         const VolumeScaling& volScaling = renderer->getVolumeScaling();
@@ -196,9 +174,9 @@ void Channel::_calcMVandITMV(
             0, 0, volScaling.D, 0,
             0, 0,            0, 1 );
 
-        modelviewM = scale * frameData.data.rotation;
+        modelviewM = scale * frameData.rotation;
     }
-    modelviewM.setTranslation( frameData.data.translation );
+    modelviewM.setTranslation( frameData.translation );
 
     modelviewM = getHeadTransform() * modelviewM;
 
@@ -236,14 +214,15 @@ void Channel::clearViewport( const eq::PixelViewport &pvp )
 
 void Channel::_orderFrames( eq::FrameVector& frames )
 {
-          vmml::Matrix4d  modelviewM;   // modelview matrix
-          vmml::Matrix3d  modelviewITM; // modelview inversed transposed matrix
-    const vmml::Matrix4f& rotation = _getFrameData().data.rotation;
-    
-    if( _perspective )
+          vmml::Matrix4d   modelviewM;   // modelview matrix
+          vmml::Matrix3d   modelviewITM; // modelview inversed transposed matrix
+    const FrameData::Data& frameData = _getFrameData();
+    const vmml::Matrix4f&  rotation  = frameData.rotation;
+
+    if( !frameData.ortho )
         _calcMVandITMV( modelviewM, modelviewITM );
 
-    orderFrames( frames, modelviewM, modelviewITM, rotation, _perspective );
+    orderFrames( frames, modelviewM, modelviewITM, rotation, frameData.ortho );
 }
 
 

@@ -282,7 +282,7 @@ void Image::_startReadback( const Frame::Buffer buffer )
 
     glBindBuffer( GL_PIXEL_PACK_BUFFER, pbo );
     if( pixels.maxSize < size )
-        glBufferData( GL_PIXEL_PACK_BUFFER, size, 0, GL_STREAM_READ );
+        glBufferData( GL_PIXEL_PACK_BUFFER, size, 0, GL_DYNAMIC_READ );
 
     glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h, getFormat( buffer ),
                   getType( buffer ), 0 );
@@ -303,9 +303,9 @@ void Image::_syncReadback( const Frame::Buffer buffer )
     GLuint       pbo       = _glObjects->getBuffer( bufferKey );
     EQASSERT( pbo != Window::ObjectManager::FAILED );
 
-    glBindBuffer( GL_PIXEL_PACK_BUFFER, pbo );
-
     pixels.resize( size );
+
+    glBindBuffer( GL_PIXEL_PACK_BUFFER, pbo );
     const void* data = glMapBuffer( GL_PIXEL_PACK_BUFFER, GL_READ_ONLY );
     EQASSERT( data );
 

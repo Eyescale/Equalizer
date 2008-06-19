@@ -1,6 +1,5 @@
-
 /* 
- * Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
  * All rights reserved.
  *
  * The pipe object is responsible for maintaining GPU-specific and
@@ -52,12 +51,11 @@ bool Pipe::configInit( const uint32_t initID )
     EQASSERT( mapped );
 
 
-    const string&  filename    = initData.getFilename();
-    const uint32_t precision   = initData.getPrecision();
-    const bool     perspective = initData.getPerspective();
+    const string&  filename  = initData.getFilename();
+    const uint32_t precision = initData.getPrecision();
     EQINFO << "Loading model " << filename << endl;
 
-    _renderer = new Renderer( filename.c_str(), precision, perspective );
+    _renderer = new Renderer( filename.c_str(), precision );
     EQASSERT( _renderer );
 
     if( !_renderer->loadHeader( initData.getBrightness(), initData.getAlpha( )))
@@ -91,6 +89,8 @@ void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber )
     // don't wait for node to start frame, local sync not needed
     // node->waitFrameStarted( frameNumber );
     _frameData.sync( frameID );
+    _renderer->setOrtho( _frameData.data.ortho );
+
     startFrame( frameNumber );
 }
 

@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2007       Maxim Makhinya
    All rights reserved. */
 
@@ -12,12 +13,11 @@ namespace eVolve
 
 
 RawVolumeModelRenderer::RawVolumeModelRenderer( const std::string& filename, 
-                                                const uint32_t     precision,
-                                                const bool         perspective )
+                                                const uint32_t     precision )
         : _rawModel(  filename  )
         , _precision( precision )
         , _glewContext( 0 )
-        , _perspective( perspective )
+        , _ortho( false )
 {
 }
 
@@ -91,7 +91,7 @@ void RawVolumeModelRenderer::_putVolumeDataToShader
     glUniform1fARB( tParamNameGL,  sliceDistance ); //v-shader
 
     tParamNameGL = glGetUniformLocationARB(  shader,  "perspProj" );
-    glUniform1fARB( tParamNameGL,  _perspective ? 1.0 : 0.0 ); //v-shader
+    glUniform1fARB( tParamNameGL,  _ortho ? 0.0 : 1.0 ); //v-shader
 
     tParamNameGL = glGetUniformLocationARB(  shader,  "shininess"     );
     glUniform1fARB( tParamNameGL,  8.0f         ); //f-shader

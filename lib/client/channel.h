@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
@@ -107,8 +108,11 @@ namespace eq
          */
         const vmml::Vector2i& getPixelOffset() const;
 
-        /** @return the view frustum for the current rendering task. */
+        /** @return the perspectivefrustum for the current rendering task. */
         const vmml::Frustumf& getFrustum() const;
+
+        /** @return the orthographics frustum for the current rendering task. */
+        const vmml::Frustumf& getOrtho() const;
 
         /** @return the fractional viewport wrt the destination. */
         const Viewport& getViewport() const;
@@ -159,9 +163,14 @@ namespace eq
         virtual void applyViewport() const;
 
         /**
-         * Apply the frustum matrix for the current rendering task.
+         * Apply the perspective frustum matrix for the current rendering task.
          */
         virtual void applyFrustum() const;
+
+        /**
+         * Apply the orthographic frustum matrix for the current rendering task.
+         */
+        virtual void applyOrtho() const;
 
         /** 
          * Apply the modelling transformation to position and orient the view
@@ -395,8 +404,11 @@ namespace eq
         /** The native viewport. */
         Viewport       _vp;
 
-        /** The native ('identity') frustum. */
+        /** The native perspective ('identity') frustum. */
         vmml::Frustumf  _frustum;
+
+        /** The native orthographic ('identity') frustum. */
+        vmml::Frustumf  _ortho;
 
         /** The statistics events gathered during the current frame. */
         std::vector< Statistic > _statistics;

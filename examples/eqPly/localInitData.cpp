@@ -1,6 +1,5 @@
-
 /*
- * Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
  * All rights reserved. 
  */
 
@@ -20,15 +19,15 @@ using namespace std;
 
 namespace eqPly
 {
-LocalInitData::LocalInitData()
-        : _maxFrames( 0xffffffffu )
+LocalInitData::LocalInitData() :
+#ifdef WIN32_VC
+        _filename( "../examples/eqPly/rockerArm.ply" )
+#else
+        _filename( "../share/data/rockerArm.ply" )
+#endif
+        , _maxFrames( 0xffffffffu )
         , _color( true )
         , _isResident( false )
-#ifdef WIN32_VC
-        , _filename( "../examples/eqPly/rockerArm.ply" )
-#else
-        , _filename( "../share/data/rockerArm.ply" )
-#endif
 {}
 
 const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
@@ -65,7 +64,17 @@ void LocalInitData::parseArguments( const int argc, char** argv )
 #endif
         wsHelp += ")";
 
-        TCLAP::CmdLine command("eqPly - Equalizer polygonal rendering example");
+        string desc = 
+            string( "eqPly - Equalizer polygonal rendering example\n" ) +
+            string( "\tRun-time commands:\n" ) +
+            string( "\t\tLeft Mouse Button:         Rotate model\n" ) +
+            string( "\t\tMiddle Mouse Button:       Move model in X, Y\n" ) +
+            string( "\t\tRight Mouse Button:        Move model in Z\n" ) +
+            string( "\t\t<Esc>, All Mouse Buttons:  Exit program\n" ) +
+            string( "\t\t<Space>, r:                Reset camera\n" ) +
+            string( "\t\to:                         Toggle perspective/orthographic\n" );
+
+        TCLAP::CmdLine command( desc );
         TCLAP::ValueArg<string> modelArg( "m", "model", "ply model file name", 
                                           false, "rockerArm.ply", "string", 
                                           command );

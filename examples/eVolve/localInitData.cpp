@@ -1,6 +1,5 @@
-
 /*
- * Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
  * All rights reserved. 
  */
 
@@ -23,17 +22,19 @@ namespace eVolve
 LocalInitData::LocalInitData()
         : _maxFrames( 0xffffffffu )
         , _isResident( false )
+        , _ortho( false )
 {}
 
 const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
 {
     _maxFrames   = from._maxFrames;    
     _isResident  = from._isResident;
+    _ortho       = from._ortho;
+
     setFilename( from.getFilename( ));
     setWindowSystem( from.getWindowSystem( ));
     setPrecision( from.getPrecision( ));
     setBrightness( from.getBrightness( ));
-    if( !from.getPerspective( )) setOrtho();
     setAlpha( from.getAlpha( ));
     return *this;
 }
@@ -54,8 +55,17 @@ void LocalInitData::parseArguments( const int argc, char** argv )
 #endif
         wsHelp += ")";
 
+        string desc = 
+            string( "eVolve - Equalizer volume rendering example\n" ) +
+            string( "\tRun-time commands:\n" ) +
+            string( "\t\tLeft Mouse Button:         Rotate model\n" ) +
+            string( "\t\tMiddle Mouse Button:       Move model in X, Y\n" ) +
+            string( "\t\tRight Mouse Button:        Move model in Z\n" ) +
+            string( "\t\t<Esc>, All Mouse Buttons:  Exit program\n" ) +
+            string( "\t\t<Space>, r:                Reset camera\n" ) +
+            string( "\t\to:                         Toggle perspective/orthographic\n" );
 
-        TCLAP::CmdLine command( "eVolve - Equalizer volume rendering example" );
+        TCLAP::CmdLine command( desc );
         
         TCLAP::ValueArg<string> modelArg( "m", "model", "raw model file name",
                                           false, "Bucky32x32x32.raw", "string",
@@ -108,10 +118,10 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             setBrightness( brightnessArg.getValue( ));
         if( alphaArg.isSet( ))
             setAlpha( alphaArg.getValue( ));
-        if( orthoArg.isSet( ))
-            setOrtho();
         if( residentArg.isSet( ))
             _isResident = true;
+        if( orthoArg.isSet( ))
+            _ortho = true;
     }
     catch( TCLAP::ArgException& exception )
     {

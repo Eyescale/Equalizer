@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com>
    All rights reserved. */
 
 #ifndef EQ_PLY_LOCALINITDATA_H
@@ -28,10 +28,10 @@ namespace eqPly
 
     private:
         std::string _trackerPort;
+        std::string _filename;
         uint32_t    _maxFrames;
         bool        _color;
         bool        _isResident;
-        std::string _filename;
     };
 }
 

@@ -25,7 +25,6 @@ namespace eVolve
         uint32_t           getPrecision()    const { return _precision;    }
         float              getBrightness()   const { return _brightness;   }
         float              getAlpha()        const { return _alpha;        }
-        bool               getPerspective()  const { return _perspective;  }
         const std::string& getFilename()     const { return _filename;     }
 
     protected:
@@ -37,7 +36,6 @@ namespace eVolve
         void setPrecision( const uint32_t precision ){ _precision = precision; }
         void setBrightness( const float brightness ) {_brightness = brightness;}
         void setAlpha( const float alpha )           { _alpha = alpha;}
-        void setOrtho()                              { _perspective = false; }
         void setFilename( const std::string& filename ) { _filename = filename;}
 
     private:
@@ -46,7 +44,6 @@ namespace eVolve
         uint32_t         _precision;
         float            _brightness;
         float            _alpha;
-        bool             _perspective;
         std::string      _filename;
     };
 }

@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2007       Maxim Makhinya
    All rights reserved. */
 
@@ -16,8 +17,7 @@ namespace eVolve
     {
     public:
         RawVolumeModelRenderer( const std::string& filename,
-                                const uint32_t     precision   = 1,
-                                const bool         perspective = true );
+                                const uint32_t     precision   = 1 );
 
         bool loadHeader( const float brightness, const float alpha )
         {
@@ -42,6 +42,7 @@ namespace eVolve
                      const vmml::Matrix4f&  invRotationM  );
 
         void setPrecision( const uint32_t precision ){ _precision = precision; }
+        void setOrtho( const uint32_t ortho )        { _ortho = ortho; }
 
         GLEWContext* glewGetContext() { return _glewContext; }
         bool loadShaders();
@@ -58,7 +59,7 @@ namespace eVolve
 
         GLEWContext*    _glewContext;   //!< OpenGL rendering context
 
-        bool            _perspective;   //!< perspective/ortogonal projection
+        bool            _ortho;         //!< ortogonal/perspective projection
 
     };
 

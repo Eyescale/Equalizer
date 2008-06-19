@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2007       Maxim Makhinya
    All rights reserved. */
 
@@ -12,7 +13,7 @@ void orderFrames( eq::FrameVector&      frames,
                   const vmml::Matrix4d& modelviewM,
                   const vmml::Matrix3d& modelviewITM,
                   const vmml::Matrix4f& rotation,
-                  const bool            perspective    );
+                  const bool            orthographic );
 }
 
 #endif //EVOLVE_FRAMES_ORDERER_H

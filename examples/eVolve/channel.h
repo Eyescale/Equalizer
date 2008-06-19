@@ -6,20 +6,19 @@
 #define EVOLVE_CHANNEL_H
 
 #include "eVolve.h"
+#include "frameData.h"
 
 #include <eq/eq.h>
 
 
 namespace eVolve
 {
-    class FrameData;
     class InitData;
 
     class Channel : public eq::Channel
     {
     public:
         Channel( eq::Window* parent );
-        bool _perspective;  // perspective/ortogonal projection
 
     protected:
         virtual ~Channel() {}
@@ -33,7 +32,8 @@ namespace eVolve
         virtual void frameAssemble( const uint32_t frameID );
         virtual void frameReadback( const uint32_t frameID );
 
-        void applyFrustum() const;
+        /** Applies the perspective or orthographic frustum. */
+        virtual void applyFrustum() const;
 
         void clearViewport( const eq::PixelViewport &pvp );
 
@@ -51,7 +51,7 @@ namespace eVolve
         void _calcMVandITMV( vmml::Matrix4d& modelviewM, 
                              vmml::Matrix3d& modelviewITM ) const;
 
-        const FrameData& _getFrameData() const;
+        const FrameData::Data& _getFrameData() const;
 
         vmml::Vector4f _bgColor; // background color
 

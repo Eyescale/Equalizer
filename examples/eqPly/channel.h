@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PLY_CHANNEL_H
@@ -9,11 +9,12 @@
 
 #include <eq/eq.h>
 
-class FrameData;
-class InitData;
 
 namespace eqPly
 {
+    class FrameData;
+    class InitData;
+
     class Channel : public eq::Channel
     {
     public:
@@ -25,6 +26,9 @@ namespace eqPly
         virtual bool configInit( const uint32_t initID );
         virtual void frameDraw( const uint32_t frameID );
         virtual void frameAssemble( const uint32_t frameID );
+
+        /** Applies the perspective or orthographic frustum. */
+        virtual void applyFrustum() const;
 
     private:
         void _drawModel( const Model* model );

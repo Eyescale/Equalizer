@@ -58,13 +58,12 @@ void Channel::frameDraw( const uint32_t frameID )
     glMaterialfv( GL_FRONT, GL_SPECULAR,  materialSpecular );
     glMateriali(  GL_FRONT, GL_SHININESS, materialShininess );
 
-    const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
-    const FrameData& frameData = pipe->getFrameData();
+    const Pipe*            pipe      = static_cast<Pipe*>( getPipe( ));
+    const FrameData::Data& frameData = pipe->getFrameData();
 
-    glTranslatef( frameData.data.translation.x,
-                  frameData.data.translation.y,
-                  frameData.data.translation.z );
-    glMultMatrixf( frameData.data.rotation.ml );
+    glTranslatef( frameData.translation.x, frameData.translation.y,
+                  frameData.translation.z );
+    glMultMatrixf( frameData.rotation.ml );
 
     const Config*    config = static_cast< Config* >( getConfig( ));
     const Model*     model  = config->getModel();
@@ -75,7 +74,7 @@ void Channel::frameDraw( const uint32_t frameID )
         const vmml::Vector3ub color = getUniqueColor();
         glColor3ub( color.r, color.g, color.b );
     }
-    else if( !frameData.data.color || (model && !model->hasColors( )) )
+    else if( !frameData.color || (model && !model->hasColors( )) )
     {
         glColor3f( .75f, .75f, .75f );
     }
@@ -111,19 +110,29 @@ void Channel::frameAssemble( const uint32_t frameID )
     _drawLogo();
 }
 
+void Channel::applyFrustum() const
+{
+    const Pipe*            pipe      = static_cast<Pipe*>( getPipe( ));
+    const FrameData::Data& frameData = pipe->getFrameData();
+
+    if( frameData.ortho )
+        eq::Channel::applyOrtho();
+    else
+        eq::Channel::applyFrustum();
+}
+
 void Channel::_drawModel( const Model* model )
 {
     Window*                  window    = static_cast<Window*>( getWindow() );
     VertexBufferState&       state     = window->getState();
 
     const Pipe*              pipe      = static_cast<Pipe*>( getPipe( ));
-    const FrameData&         frameData = pipe->getFrameData();
+    const FrameData::Data&   frameData = pipe->getFrameData();
 
     const eq::Range&         range     = getRange();
     vmml::FrustumCullerf     culler;
 
-    state.setColors( frameData.data.color && 
-                     range == eq::Range::ALL && 
+    state.setColors( frameData.color && range == eq::Range::ALL && 
                      model->hasColors() );
     _initFrustum( culler, model->getBoundingSphere( ));
 
@@ -281,16 +290,18 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler,
                             const vmml::Vector4f& boundingSphere )
 {
     // setup frustum cull helper
-    const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
-    const FrameData& frameData = pipe->getFrameData();
+    const Pipe*            pipe      = static_cast<Pipe*>( getPipe( ));
+    const FrameData::Data& frameData = pipe->getFrameData();
 
-    vmml::Matrix4f view( frameData.data.rotation );
-    view.setTranslation( frameData.data.translation );
+    vmml::Matrix4f view( frameData.rotation );
+    view.setTranslation( frameData.translation );
 
     const vmml::Frustumf&  frustum       = getFrustum();
     const vmml::Matrix4f&  headTransform = getHeadTransform();
     const vmml::Matrix4f   modelView     = headTransform * view;
-    const vmml::Matrix4f   projection    = frustum.computeMatrix();
+    const vmml::Matrix4f   projection    = frameData.ortho ?
+                                               frustum.computeOrthoMatrix() :
+                                               frustum.computeMatrix();
 
     culler.setup( projection * modelView );
 
@@ -306,12 +317,22 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler,
     front.scale( boundingSphere.radius );
 
     const vmml::Vector3f center = vmml::Vector3f( boundingSphere.xyzw ) + 
-                                  vmml::Vector3f( frameData.data.translation );
+                                  vmml::Vector3f( frameData.translation );
     const vmml::Vector3f nearPoint  = headTransform * ( center - front );
     const vmml::Vector3f farPoint   = headTransform * ( center + front );
-    const float          zNear = EQ_MAX( 0.0001f, -nearPoint.z );
-    const float          zFar  = EQ_MAX( 0.0002f, -farPoint.z );
 
-    setNearFar( zNear, zFar );
+    if( frameData.ortho )
+    {
+        EQASSERT( fabs( farPoint.z - nearPoint.z ) > 
+                  numeric_limits< float >::epsilon( ));
+        setNearFar( -nearPoint.z, -farPoint.z );
+    }
+    else
+    {
+        const float zNear = EQ_MAX( 0.0001f, -nearPoint.z );
+        const float zFar  = EQ_MAX( 0.0002f, -farPoint.z );
+
+        setNearFar( zNear, zFar );
+    }
 }
 }

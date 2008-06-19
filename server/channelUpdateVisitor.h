@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQS_CHANNELUPDATEVISITOR_H
@@ -47,8 +47,14 @@ namespace eqs
 
         void _setupRenderContext( const Compound* compound,
                                   eq::RenderContext& context );
+
         void _computeFrustum( const Compound* compound,
                               eq::RenderContext& context );
+        void   _computeFrustumCorners( vmml::Frustumf& frustum,
+                                       const Compound* compound,
+                                       const View& view,
+                                       const vmml::Vector3f& eye,
+                                       const bool ortho );
         void _updatePostDraw( const Compound* compound, 
                               const eq::RenderContext& context );
         void _updateAssemble( const Compound* compound,

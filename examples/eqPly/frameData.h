@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQ_PLY_FRAMEDATA_H
@@ -33,9 +33,12 @@ namespace eqPly
 
         struct Data
         {
+            Data() : color( true ), ortho( false ) {}
+
             vmml::Matrix4f rotation;
             vmml::Vector3f translation;
             bool           color;
+            bool           ortho;
         } data;
     
     protected:
