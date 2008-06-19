@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EQBASE_TYPES_H
@@ -52,10 +52,10 @@ typedef SSIZE_T    ssize_t;
 #define EQ_BIT15 (0x00004000u)
 #define EQ_BIT16 (0x00008000u)
 
-#define EQ_BIT17 (0x00100000u)
-#define EQ_BIT18 (0x00200000u)
-#define EQ_BIT19 (0x00400000u)
-#define EQ_BIT20 (0x00800000u)
+#define EQ_BIT17 (0x00010000u)
+#define EQ_BIT18 (0x00020000u)
+#define EQ_BIT19 (0x00040000u)
+#define EQ_BIT20 (0x00080000u)
 #define EQ_BIT21 (0x00100000u)
 #define EQ_BIT22 (0x00200000u)
 #define EQ_BIT23 (0x00400000u)
