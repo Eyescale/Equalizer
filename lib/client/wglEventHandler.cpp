@@ -424,9 +424,7 @@ uint32_t WGLEventHandler::_getKey( LPARAM lParam, WPARAM wParam )
 
         default: 
             // 'Useful' Latin1 characters
-            if( (wParam >= '0' && wParam <= '9' ) ||
-                (wParam >= 'A' && wParam <= 'Z' ))
-
+            if( wParam >= ' ' && wParam <= '~' )
                 return wParam;
             break;
     }

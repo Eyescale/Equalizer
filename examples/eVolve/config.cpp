@@ -65,6 +65,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             switch( event->data.keyPress.key )
             {
                 case 'r':
+                case 'R':
                 case ' ':
                     _spinX = 0;
                     _spinY = 0;
@@ -72,6 +73,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                     return true;
 
                 case 'o':
+                case 'O':
                     _frameData.data.ortho = !_frameData.data.ortho;
                     return true;
 
