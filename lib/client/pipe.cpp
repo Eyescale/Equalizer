@@ -978,7 +978,7 @@ eqNet::CommandResult Pipe::_cmdFrameFinish( eqNet::Command& command )
     CHECK_THREAD( _pipeThread );
     const PipeFrameFinishPacket* packet =
         command.getPacket<PipeFrameFinishPacket>();
-    EQVERB << "handle pipe frame sync " << packet << endl;
+    EQVERB << "handle pipe frame finish " << packet << endl;
     EQLOG( LOG_TASKS ) << "---- TASK finish frame --- " << packet << endl;
 
     const uint32_t frameNumber = packet->frameNumber;

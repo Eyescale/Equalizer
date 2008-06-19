@@ -31,14 +31,15 @@ public:
 };
 
 #define LOG_TABLE_ENTRY( name ) LogTable( LOG_ ## name, string( #name ))
-#define LOG_TABLE_SIZE (4)
+#define LOG_TABLE_SIZE (5)
 
 static LogTable _logTable[ LOG_TABLE_SIZE ] =
 {
     LOG_TABLE_ENTRY( ERROR ),
     LOG_TABLE_ENTRY( WARN ),
     LOG_TABLE_ENTRY( INFO ),
-    LOG_TABLE_ENTRY( VERBATIM )
+    LOG_TABLE_ENTRY( VERB ),
+    LOG_TABLE_ENTRY( ALL )
 };
 
 EQ_EXPORT int        Log::level  = getLogLevel();
@@ -83,6 +84,9 @@ unsigned getLogTopics()
     const char *env = getenv("EQ_LOG_TOPICS");
     if( env )
         return atoll(env);
+
+    if( getLogLevel() == LOG_ALL )
+        return 0xffffffffu;
 
     return 0;
 }

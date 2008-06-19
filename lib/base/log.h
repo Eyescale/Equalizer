@@ -27,7 +27,8 @@ namespace eqBase
         LOG_ERROR = 1,
         LOG_WARN,
         LOG_INFO,
-        LOG_VERBATIM
+        LOG_VERB,
+        LOG_ALL
     };
 
     /** The logging topics. */
@@ -203,7 +204,7 @@ namespace eqBase
     eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )
 #define EQINFO  (eqBase::Log::level >= eqBase::LOG_INFO)  &&    \
     eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )
-#define EQVERB  (eqBase::Log::level >= eqBase::LOG_VERBATIM)  &&    \
+#define EQVERB  (eqBase::Log::level >= eqBase::LOG_VERB)  &&    \
     eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )
 #define EQLOG(topic)  (eqBase::Log::topics & (topic))  &&  \
     eqBase::Log::instance( SUBDIR, __FILE__, __LINE__ )

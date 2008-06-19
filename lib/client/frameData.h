@@ -201,6 +201,8 @@ namespace eq
         eqNet::CommandResult _cmdTransmit( eqNet::Command& command );
         eqNet::CommandResult _cmdReady( eqNet::Command& command );
         eqNet::CommandResult _cmdUpdate( eqNet::Command& command );
+
+        CHECK_THREAD_DECLARE( _commandThread );
     };
     std::ostream& operator << ( std::ostream& os, const FrameData* data );
 }

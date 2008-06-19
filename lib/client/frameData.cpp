@@ -150,6 +150,16 @@ void FrameData::_setReady( const uint32_t version )
               _readyVersion < version );
 
     _listenersMutex.set();
+#ifndef NDEBUG
+    for( list<ImageVersion>::iterator i = _pendingImages.begin();
+         i != _pendingImages.end(); ++i )
+    {
+        const ImageVersion& imageVersion = *i;
+        EQASSERTINFO( imageVersion.version > version, 
+                      "Frame is ready, but not all images have been set" );
+    }
+#endif
+
     _readyVersion = version; 
     EQLOG( LOG_ASSEMBLY ) << "set ready " << this << endl;
 
@@ -295,6 +305,7 @@ void FrameData::removeListener( eqBase::Monitor<uint32_t>& listener )
 
 eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
 {
+    CHECK_THREAD( _commandThread );
     const FrameDataTransmitPacket* packet = 
         command.getPacket<FrameDataTransmitPacket>();
 
@@ -344,7 +355,6 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
 
     if( version == packet->version )
     {
-        EQASSERT( getVersion() == packet->version );
         EQASSERT( _readyVersion < getVersion( ));
         _images.push_back( image );
     }
@@ -359,6 +369,7 @@ eqNet::CommandResult FrameData::_cmdTransmit( eqNet::Command& command )
 
 eqNet::CommandResult FrameData::_cmdReady( eqNet::Command& command )
 {
+    CHECK_THREAD( _commandThread );
     const FrameDataReadyPacket* packet = 
         command.getPacket<FrameDataReadyPacket>();
 
@@ -377,6 +388,7 @@ eqNet::CommandResult FrameData::_cmdReady( eqNet::Command& command )
 
 eqNet::CommandResult FrameData::_cmdUpdate( eqNet::Command& command )
 {
+    CHECK_THREAD( _commandThread );
     const FrameDataUpdatePacket* packet = 
         command.getPacket<FrameDataUpdatePacket>();
 
@@ -394,6 +406,7 @@ eqNet::CommandResult FrameData::_cmdUpdate( eqNet::Command& command )
 
 void FrameData::_applyVersion( const uint32_t version )
 {
+    CHECK_THREAD( _commandThread );
     EQLOG( LOG_ASSEMBLY ) << this << " apply v" << version << endl;
 
     if( _readyVersion == version )

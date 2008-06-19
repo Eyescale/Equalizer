@@ -400,7 +400,8 @@ eqNet::CommandResult Node::_cmdFrameFinishEarly( eqNet::Command& command )
         // frameStart, e.g., in eqPly where pipe threads are not synchronized
         // and send their finish to the server, which sends the node finishEarly
         // _before_ the node thread managed to process the startFrame.
-        EQASSERT( _currentFrame.get() + 1 == frameNumber );
+        EQASSERTINFO( _currentFrame.get() + 1 == frameNumber,
+                      _currentFrame << ", " << frameNumber );
         
         // Make sure frameStart is called before frameFinish
         frameStart( packet->frameID, frameNumber );
