@@ -124,9 +124,6 @@ void eq::Channel::_setViewport( const Viewport& vp )
 
 void eq::Channel::setNearFar( const float nearPlane, const float farPlane )
 {
-    if( _frustum.nearPlane == nearPlane && _frustum.farPlane == farPlane )
-        return;
-
     _frustum.adjustNear( nearPlane );
     _frustum.farPlane = farPlane;
     _ortho.nearPlane = nearPlane;
@@ -139,6 +136,9 @@ void eq::Channel::setNearFar( const float nearPlane, const float farPlane )
         _context->ortho.nearPlane = nearPlane;
         _context->ortho.farPlane  = farPlane;
     }
+
+    if( _frustum.nearPlane == nearPlane && _frustum.farPlane == farPlane )
+        return;
 
     ChannelSetNearFarPacket packet;
     packet.nearPlane = nearPlane;
