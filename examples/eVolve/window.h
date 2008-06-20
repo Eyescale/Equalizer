@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
 #ifndef EVOLVE_WINDOW_H
@@ -29,6 +29,7 @@ namespace eVolve
         virtual ~Window() {}
         virtual bool configInit( const uint32_t initID );
         virtual bool configInitGL( const uint32_t initID );
+        virtual void swapBuffers();
 
     private:
         GLuint         _logoTexture;

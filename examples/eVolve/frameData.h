@@ -33,11 +33,12 @@ namespace eVolve
 
         struct Data
         {
-            Data() : ortho( false ) {}
+            Data() : ortho( false ), statistics( false ) {}
 
             vmml::Matrix4f rotation;
             vmml::Vector3f translation;
             bool           ortho;
+            bool           statistics;
         } data;
     
     protected:

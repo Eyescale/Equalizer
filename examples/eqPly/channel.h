@@ -6,6 +6,7 @@
 #define EQ_PLY_CHANNEL_H
 
 #include "eqPly.h"
+#include "frameData.h"
 
 #include <eq/eq.h>
 
@@ -35,6 +36,8 @@ namespace eqPly
         void _drawLogo();
         void _initFrustum( vmml::FrustumCullerf& frustum, 
                            const vmml::Vector4f& boundingSphere );
+
+        const FrameData::Data& _getFrameData() const;
     };
 }
 

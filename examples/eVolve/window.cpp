@@ -120,4 +120,16 @@ void Window::_loadLogo()
     EQINFO << "Created logo texture of size " << _logoSize << endl;
 }
 
+
+void Window::swapBuffers()
+{
+    const Pipe*              pipe      = static_cast<Pipe*>( getPipe( ));
+    const FrameData::Data&   frameData = pipe->getFrameData();
+    const eq::ChannelVector& channels  = getChannels();
+
+    if( frameData.statistics && !channels.empty( ))
+        EQ_GL_CALL( channels.back()->drawStatistics( ));
+
+    eq::Window::swapBuffers();
+}
 }

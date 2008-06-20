@@ -58,9 +58,7 @@ void Channel::frameDraw( const uint32_t frameID )
     glMaterialfv( GL_FRONT, GL_SPECULAR,  materialSpecular );
     glMateriali(  GL_FRONT, GL_SHININESS, materialShininess );
 
-    const Pipe*            pipe      = static_cast<Pipe*>( getPipe( ));
-    const FrameData::Data& frameData = pipe->getFrameData();
-
+    const FrameData::Data& frameData = _getFrameData();
     glTranslatef( frameData.translation.x, frameData.translation.y,
                   frameData.translation.z );
     glMultMatrixf( frameData.rotation.ml );
@@ -110,10 +108,15 @@ void Channel::frameAssemble( const uint32_t frameID )
     _drawLogo();
 }
 
+const FrameData::Data& Channel::_getFrameData() const
+{
+    const Pipe* pipe = static_cast<Pipe*>( getPipe( ));
+    return pipe->getFrameData();
+}
+
 void Channel::applyFrustum() const
 {
-    const Pipe*            pipe      = static_cast<Pipe*>( getPipe( ));
-    const FrameData::Data& frameData = pipe->getFrameData();
+    const FrameData::Data& frameData = _getFrameData();
 
     if( frameData.ortho )
         eq::Channel::applyOrtho();
@@ -125,10 +128,7 @@ void Channel::_drawModel( const Model* model )
 {
     Window*                  window    = static_cast<Window*>( getWindow() );
     VertexBufferState&       state     = window->getState();
-
-    const Pipe*              pipe      = static_cast<Pipe*>( getPipe( ));
-    const FrameData::Data&   frameData = pipe->getFrameData();
-
+    const FrameData::Data&   frameData = _getFrameData();
     const eq::Range&         range     = getRange();
     vmml::FrustumCullerf     culler;
 
@@ -136,6 +136,7 @@ void Channel::_drawModel( const Model* model )
                      model->hasColors() );
     _initFrustum( culler, model->getBoundingSphere( ));
 
+    const eq::Pipe* pipe = getPipe();
     const GLuint program = state.getProgram( pipe );
     if( program != VertexBufferState::FAILED )
         glUseProgram( program );
@@ -290,8 +291,7 @@ void Channel::_initFrustum( vmml::FrustumCullerf& culler,
                             const vmml::Vector4f& boundingSphere )
 {
     // setup frustum cull helper
-    const Pipe*            pipe      = static_cast<Pipe*>( getPipe( ));
-    const FrameData::Data& frameData = pipe->getFrameData();
+    const FrameData::Data& frameData = _getFrameData();
 
     vmml::Matrix4f view( frameData.rotation );
     view.setTranslation( frameData.translation );

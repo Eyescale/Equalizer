@@ -179,6 +179,11 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                     _frameData.data.ortho = !_frameData.data.ortho;
                     return true;
 
+                case 's':
+                case 'S':
+                    _frameData.data.statistics = !_frameData.data.statistics;
+                    return true;
+
                 default:
                     break;
             }

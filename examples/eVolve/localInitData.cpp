@@ -64,6 +64,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             string( "\t\t<Esc>, All Mouse Buttons:  Exit program\n" ) +
             string( "\t\t<Space>, r:                Reset camera\n" ) +
             string( "\t\to:                         Toggle perspective/orthographic\n" );
+            string( "\t\ts:                         Toggle statistics overlay\n" );
 
         TCLAP::CmdLine command( desc );
         

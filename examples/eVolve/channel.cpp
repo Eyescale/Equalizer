@@ -140,7 +140,6 @@ void Channel::frameDraw( const uint32_t frameID )
 const FrameData::Data& Channel::_getFrameData() const
 {
     const Pipe* pipe = static_cast<Pipe*>( getPipe( ));
-
     return pipe->getFrameData();
 }
 

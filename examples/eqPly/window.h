@@ -27,6 +27,7 @@ namespace eqPly
         virtual ~Window() {}
         virtual bool configInitGL( const uint32_t initID );
         virtual bool configExitGL();
+        virtual void swapBuffers();
 
     private:
         VertexBufferState* _state;

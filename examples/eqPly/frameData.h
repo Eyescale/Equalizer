@@ -33,12 +33,13 @@ namespace eqPly
 
         struct Data
         {
-            Data() : color( true ), ortho( false ) {}
+            Data() : color( true ), ortho( false ), statistics( false ) {}
 
             vmml::Matrix4f rotation;
             vmml::Vector3f translation;
             bool           color;
             bool           ortho;
+            bool           statistics;
         } data;
     
     protected:

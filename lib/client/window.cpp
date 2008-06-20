@@ -1974,13 +1974,6 @@ void Window::makeCurrent() const
 
 void Window::swapBuffers()
 {
-#ifndef NDEBUG
-    if( !_channels.empty( ))
-    {
-        EQ_GL_CALL( _channels.back()->drawStatistics( ));
-    }
-#endif
-    
     switch( _pipe->getWindowSystem( ))
     {
 #ifdef GLX
