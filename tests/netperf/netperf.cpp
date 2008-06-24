@@ -96,8 +96,12 @@ int main( int argc, char **argv )
                     if( resultConn->recv( buffer, PACKETSIZE ))
                     {
                         const float time = clock.getTimef();
-                        cout << " Recv perf: " << mBytesSec / time << "MB/s ("
-                             << time << "ms)" << endl;
+                        eqNet::ConnectionDescriptionPtr desc = 
+                            resultConn->getDescription();
+
+                        EQWARN << " Recv perf: " << mBytesSec / time << "MB/s ("
+                            << time << "ms) from " << desc->getHostname() << ":"
+                            << desc->TCPIP.port << endl;
                     }
                     else // Connection dead?!
                         connectionSet.removeConnection( resultConn );
