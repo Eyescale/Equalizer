@@ -16,7 +16,7 @@
 #include <errno.h>
 
 #ifdef WIN32
-#  define EQ_SOCKET_ERROR getErrorString( _error )
+#  define EQ_SOCKET_ERROR getErrorString( _error ) << '(' << _error << ')'
 #else
 #  define EQ_SOCKET_ERROR strerror( _error )
 #endif
@@ -137,6 +137,11 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
             case Connection::SELECT_ERROR:
 #ifdef WIN32
                 _error = GetLastError();
+                if( _error == WSA_INVALID_HANDLE )
+                {
+                    _dirty = true;
+                    break;
+                }
 #else
                 if( errno == EINTR ) // Interrupted system call (gdb) - ignore
                     break;

@@ -81,7 +81,7 @@ namespace eqNet
         enum
         {
             MIN_BUFFER_SIZE = 8,
-            MAX_BUFFER_SIZE = 1048576,
+            MAX_BUFFER_SIZE = 65536,
         };
         typedef eqBase::Buffer< char > Buffer;
 

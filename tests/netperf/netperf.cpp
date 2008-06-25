@@ -14,11 +14,11 @@
 #include <iostream>
 
 using namespace eqNet;
-using namespace eqBase;
+using eqBase::Clock;
 using namespace std;
 
-#define PACKETSIZE (100 * 1048576)
-#define NPACKETS   10
+#define PACKETSIZE (1048576)
+#define NPACKETS   10000
 
 int main( int argc, char **argv )
 {
@@ -102,10 +102,10 @@ int main( int argc, char **argv )
                         EQWARN << " Recv perf: " << mBytesSec / time << "MB/s ("
                             << time << "ms) from " << desc->getHostname() << ":"
                             << desc->TCPIP.port << endl;
-                    }
+                }
                     else // Connection dead?!
                         connectionSet.removeConnection( resultConn );
-                    break;
+                break;
 
                 case ConnectionSet::EVENT_DISCONNECT:
                 case ConnectionSet::EVENT_INVALID_HANDLE:  // client done

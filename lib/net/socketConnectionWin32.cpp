@@ -337,11 +337,11 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
         DWORD flags = 0;
         if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
         {
-            EQWARN << "Read complete failed: " << EQ_SOCKET_ERROR 
-                   << ", closing connection" << endl;
-            close();
-            return -1;
-        }
+                EQWARN << "Read complete failed: " << EQ_SOCKET_ERROR 
+                    << ", closing connection" << endl;
+                close();
+                return -1;
+            }
         if( got == 0 )
         {
             EQWARN << "Read operation returned with nothing read"
@@ -372,19 +372,7 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
             _fireStateChanged(); // the read notifier changed (nw->internal)
     }
 
-    // Set event if there is still data on the socket or in the buffer
-#if 0
-    unsigned long nBytesPending = 0;
-    ioctlsocket( _readFD, FIONREAD, &nBytesPending );
-
-    if( nBytesPending > 0 || _receivedUsedBytes < _receivedBuffer.size )
-    {
-        if( SetEvent( _overlapped.hEvent ) == 0 ) // error
-            EQWARN << "SetEvent failed: " << EQ_SOCKET_ERROR << endl;
-    }
-#endif
     SetEvent( _receivedDataEvent ); // WaitForMultipleObjects resets the event
-
     return bytesCopied;
 }
 
@@ -393,36 +381,39 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes) const
     if( _writeFD == INVALID_SOCKET )
         return -1;
 
-    WSABUF wsaBuffer = { EQ_MIN( 512*1024, bytes ),
-        const_cast<char*>( static_cast< const char* >( buffer ))};
+    WSABUF wsaBuffer = { bytes,
+                      const_cast<char*>( static_cast< const char* >( buffer ))};
     DWORD wrote;
 
-    if( WSASend( _writeFD, &wsaBuffer, 1, &wrote, 0, 0, 0 ) ==  0 ) // success
-        return wrote;
-
-    // error
-    if( GetLastError( ) != WSAEWOULDBLOCK )
+    while( true )
     {
-        EQWARN << "Error during write: " << EQ_SOCKET_ERROR << endl;
-        return -1;
-	}
+        if( WSASend( _writeFD, &wsaBuffer, 1, &wrote, 0, 0, 0 ) ==  0 ) // success
+            return wrote;
 
-	// Buffer full - wait and try again
-	fd_set set;
-	FD_ZERO( &set );
-	FD_SET( _writeFD, &set );
+        // error
+        if( GetLastError( ) != WSAEWOULDBLOCK )
+        {
+            EQWARN << "Error during write: " << EQ_SOCKET_ERROR << endl;
+            return -1;
+	    }
 
-	const int result = select( _writeFD+1, 0, &set, 0, 0 );
-	if( result <= 0 )
-	{
-		EQWARN << "Error during select: " << EQ_SOCKET_ERROR <<endl;
-		return -1;
-	}
+	    // Buffer full - try again
+#if 1
+        // Wait for writable socket
+    	fd_set set;
+	    FD_ZERO( &set );
+	    FD_SET( _writeFD, &set );
 
-    if( WSASend( _writeFD, &wsaBuffer, 1, &wrote, 0, 0, 0 ) ==  0 ) // success
-        return wrote;
+	    const int result = select( _writeFD+1, 0, &set, 0, 0 );
+	    if( result <= 0 )
+    	{
+	    	EQWARN << "Error during select: " << EQ_SOCKET_ERROR <<endl;
+		    return -1;
+	    }
+#endif
+    }
 
-    EQWARN << "Error during write: " << EQ_SOCKET_ERROR << endl;
+    EQUNREACHABLE;
     return -1;
 }
 }
