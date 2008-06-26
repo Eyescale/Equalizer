@@ -15,12 +15,12 @@ server
         }
         node
         {
-            connection { hostname "node5" }
+            connection { hostname "node4" }
             pipe { window { channel { name "channel2" }}}
         }
         node
         {
-            connection { hostname "node4" }
+            connection { hostname "node5" }
             pipe { window { channel { name "channel3" }}}
         }
         node
