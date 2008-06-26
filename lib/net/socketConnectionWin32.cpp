@@ -337,11 +337,14 @@ int64_t SocketConnection::read( void* buffer, const uint64_t bytes )
         DWORD flags = 0;
         if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
         {
-                EQWARN << "Read complete failed: " << EQ_SOCKET_ERROR 
-                    << ", closing connection" << endl;
-                close();
-                return -1;
-            }
+            if( GetLastError() == WSASYSCALLFAILURE ) // happens sometimes!?
+                return 0;
+
+            EQWARN << "Read complete failed: " << EQ_SOCKET_ERROR 
+                << ", closing connection" << endl;
+            close();
+            return -1;
+        }
         if( got == 0 )
         {
             EQWARN << "Read operation returned with nothing read"
