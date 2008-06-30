@@ -199,6 +199,12 @@ void Node::frameDrawFinish( const uint32_t frameID, const uint32_t frameNumber )
         pipe->waitFrameLocal( frameNumber );
     }
 
+#if 0
+    const Config*  config  = getConfig();
+    const uint32_t latency = config->getLatency();
+    if( latency > 0 )
+        config->
+#endif
     releaseFrameLocal( frameNumber );
 }
 

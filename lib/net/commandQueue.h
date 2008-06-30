@@ -36,6 +36,9 @@ namespace eqNet
         /** Push a command to the front of the queue. */
         virtual void pushFront( Command& packet );
 
+        /** Wake up the command queue, pop() will return 0. */
+        virtual void wakeup() { _commands.push( 0 ); }
+
         /** 
          * Pop a command from the queue.
          *

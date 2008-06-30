@@ -288,6 +288,9 @@ bool Client::exitClient()
 void Client::processCommand()
 {
     eqNet::Command* command = _nodeThreadQueue->pop();
+    if( !command ) // just a wakeup()
+        return;
+
     switch( invokeCommand( *command ))
     {
         case eqNet::COMMAND_HANDLED:

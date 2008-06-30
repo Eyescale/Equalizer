@@ -56,8 +56,7 @@ Config::Config( eqBase::RefPtr< Server > server )
                      CommandFunc<Config>( this, &Config::_cmdStartFrameReply ),
                      queue );
     registerCommand( CMD_CONFIG_FRAME_FINISH, 
-                     CommandFunc<Config>( this, &Config::_cmdFrameFinish ),
-                     queue );
+                     CommandFunc<Config>( this, &Config::_cmdFrameFinish ), 0 );
     registerCommand( CMD_CONFIG_EVENT, 
                      CommandFunc<Config>( this, &Config::_cmdUnknown ),
                      &_eventQueue );
@@ -401,7 +400,7 @@ void Config::getStatistics( std::vector< FrameStatistics >& statistics )
     for( std::deque< FrameStatistics >::const_iterator i = _statistics.begin();
          i != _statistics.end(); ++i )
     {
-        if( (*i).first <= _finishedFrame )
+        if( (*i).first <= _finishedFrame.get( ))
             statistics.push_back( *i );
     }
 
@@ -592,13 +591,14 @@ eqNet::CommandResult Config::_cmdFrameFinish( eqNet::Command& command )
 
     _finishedFrame = packet->frameNumber;
 
-    if( _unlockedFrame < _finishedFrame )
+    if( _unlockedFrame < _finishedFrame.get( ))
     {
         EQWARN << "Finished frame was not locally unlocked, enforcing unlock" 
                << endl;
-        _unlockedFrame = _finishedFrame;
+        _unlockedFrame = _finishedFrame.get();
     }
 
+    getNodeThreadQueue()->wakeup();
     return eqNet::COMMAND_HANDLED;
 }
 

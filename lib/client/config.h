@@ -11,6 +11,7 @@
 #include <eq/client/types.h>        // typedefs
 
 #include <eq/net/session.h>         // base class
+#include <eq/base/monitor.h>        // member
 
 namespace eq
 {
@@ -38,7 +39,7 @@ namespace eq
         CommandQueue* getNodeThreadQueue()
             { return getClient()->getNodeThreadQueue(); }
         uint32_t getCurrentFrame()  const { return _currentFrame; }
-        uint32_t getFinishedFrame() const { return _finishedFrame; }
+        uint32_t getFinishedFrame() const { return _finishedFrame.get(); }
 
         /** Get all received statistics. */
         void getStatistics( std::vector< FrameStatistics >& statistics );
@@ -246,7 +247,7 @@ namespace eq
         /** The last locally released frame. */
         uint32_t _unlockedFrame;
         /** The last completed frame. */
-        uint32_t _finishedFrame;
+        eqBase::Monitor< uint32_t > _finishedFrame;
 
         /** The global clock. */
         eqBase::Clock _clock;

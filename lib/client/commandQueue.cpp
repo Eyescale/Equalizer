@@ -81,14 +81,20 @@ void CommandQueue::pushFront(eqNet::Command& inCommand)
         _messagePump->postWakeup();
 }
 
+void CommandQueue::wakeup()
+{
+    eqNet::CommandQueue::wakeup();
+    if( _messagePump )
+        _messagePump->postWakeup();
+}
+
 eqNet::Command* CommandQueue::pop()
 {
     while( true )
     {
         // Poll for a command
-        eqNet::Command* command = tryPop();
-        if( command )
-            return command;
+        if( !empty( ))
+            return eqNet::CommandQueue::pop();
 
         if( _messagePump )
             _messagePump->dispatchOne(); // blocking - push will send wakeup

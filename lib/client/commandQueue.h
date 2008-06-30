@@ -27,6 +27,9 @@ namespace eq
         /** @sa eqNet::CommandQueue::pushFront(). */
         virtual void pushFront( eqNet::Command& packet );
 
+        /** @sa eqNet::CommandQueue::wakeup(). */
+        virtual void wakeup();
+
         /** @sa eqNet::CommandQueue::pop(). */
         virtual eqNet::Command* pop();
 
