@@ -118,6 +118,7 @@ namespace eq
             CHANNEL_TRANSMIT,
             CHANNEL_TRANSMIT_NODE,
             CHANNEL_WAIT_FRAME,
+            WINDOW_SWAP_BARRIER,
             WINDOW_SWAP,
             CONFIG_START_FRAME,
             CONFIG_FINISH_FRAME,

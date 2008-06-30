@@ -2232,6 +2232,7 @@ eqNet::CommandResult Window::_cmdBarrier( eqNet::Command& command )
     eqNet::Barrier* barrier = node->getBarrier( packet->barrierID, 
                                                 packet->barrierVersion );
 
+    WindowStatistics stat( Statistic::WINDOW_SWAP_BARRIER, this );
     barrier->enter();
     return eqNet::COMMAND_HANDLED;
 }
