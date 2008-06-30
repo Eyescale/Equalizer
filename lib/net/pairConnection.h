@@ -16,10 +16,10 @@ namespace eqNet
     class EQ_EXPORT PairConnection : public Connection
     {
     public:
-        PairConnection( eqBase::RefPtr<Connection> readConnection,
-                        eqBase::RefPtr<Connection> writeConnection );
+        PairConnection( ConnectionPtr readConnection,
+                        ConnectionPtr writeConnection );
 
-        eqBase::RefPtr<Connection> getSibling();
+        ConnectionPtr getSibling();
 
         virtual bool connect();
         virtual void close();
@@ -38,8 +38,8 @@ namespace eqNet
     private:
         PairConnection( PairConnection* sibling );
 
-        eqBase::RefPtr<Connection> _readConnection;
-        eqBase::RefPtr<Connection> _writeConnection;
+        ConnectionPtr _readConnection;
+        ConnectionPtr _writeConnection;
         eqBase::RefPtr<PairConnection> _sibling;
     };
 }

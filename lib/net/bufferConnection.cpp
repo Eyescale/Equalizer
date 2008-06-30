@@ -47,7 +47,7 @@ int64_t BufferConnection::write( const void* buffer, const uint64_t bytes) const
     return bytes;
 }
 
-void BufferConnection::sendBuffer( eqBase::RefPtr<Connection> connection )
+void BufferConnection::sendBuffer( ConnectionPtr connection )
 {
     if( _size == 0 )
         return;

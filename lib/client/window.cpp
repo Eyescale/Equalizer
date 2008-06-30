@@ -1152,8 +1152,8 @@ bool Window::configInitWGLWindow( HDC dc, int pixelFormat )
     wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC; 
     wc.lpfnWndProc   = DefWindowProc;    
     wc.hInstance     = instance; 
-    wc.hIcon         = LoadIcon( NULL, IDI_WINLOGO );
-    wc.hCursor       = LoadCursor( NULL, IDC_ARROW );
+    wc.hIcon         = LoadIcon( 0, IDI_WINLOGO );
+    wc.hCursor       = LoadCursor( 0, IDC_ARROW );
     wc.lpszClassName = classStr.c_str();       
 
     if( !RegisterClass( &wc ))
@@ -1508,7 +1508,7 @@ void Window::configExitGLX()
     if( !display ) 
         return;
 
-    glXMakeCurrent( display, None, NULL );
+    glXMakeCurrent( display, None, 0 );
 
     GLXContext context  = getGLXContext();
     XID        drawable = getXDrawable();

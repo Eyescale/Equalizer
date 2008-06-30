@@ -50,11 +50,11 @@ namespace eq
         //*{
         eqNet::CommandQueue* getPipeThreadQueue();
         Node* getNode() const { return _node; }
-        Config* getConfig() const { return (_node ? _node->getConfig() : NULL);}
+        Config* getConfig() const { return (_node ? _node->getConfig() : 0);}
         eqBase::RefPtr< Client > getClient() const
-            { return (_node ? _node->getClient() : NULL);}
+            { return (_node ? _node->getClient() : 0);}
         eqBase::RefPtr< Server > getServer() const
-            { return (_node ? _node->getServer() : NULL);}
+            { return (_node ? _node->getServer() : 0);}
         const WindowVector& getWindows() const { return _windows; }
 
         const std::string& getName() const { return _name; }

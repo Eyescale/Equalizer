@@ -64,7 +64,7 @@ void ConnectionSet::interrupt()
     _selfConnection->send( &c, 1, true );
 }
 
-void ConnectionSet::addConnection( RefPtr<Connection> connection )
+void ConnectionSet::addConnection( ConnectionPtr connection )
 {
     EQASSERT( connection->getState() == Connection::STATE_CONNECTED ||
             connection->getState() == Connection::STATE_LISTENING );
@@ -76,7 +76,7 @@ void ConnectionSet::addConnection( RefPtr<Connection> connection )
     _dirtyFDSet();
 }
 
-bool ConnectionSet::removeConnection( eqBase::RefPtr<Connection> connection )
+bool ConnectionSet::removeConnection( ConnectionPtr connection )
 {
     {
         ScopedMutex< SpinLock > mutex( _mutex );
@@ -286,10 +286,10 @@ bool ConnectionSet::_setupFDSet()
 
     // add regular connections
     _mutex.set();
-    for( vector< RefPtr<Connection> >::const_iterator i = _connections.begin();
+    for( vector< ConnectionPtr >::const_iterator i = _connections.begin();
          i != _connections.end(); ++i )
     {
-        eqBase::RefPtr<Connection> connection = *i;
+        ConnectionPtr connection = *i;
         readHandle = connection->getReadNotifier();
 
         if( !readHandle )
@@ -320,10 +320,10 @@ bool ConnectionSet::_setupFDSet()
 
     // add regular connections
     _mutex.set();
-    for( vector< RefPtr<Connection> >::const_iterator i = _connections.begin();
+    for( vector< ConnectionPtr >::const_iterator i = _connections.begin();
          i != _connections.end(); ++i )
     {
-        eqBase::RefPtr<Connection> connection = *i;
+        ConnectionPtr connection = *i;
         fd.fd = connection->getReadNotifier();
 
         if( fd.fd <= 0 )

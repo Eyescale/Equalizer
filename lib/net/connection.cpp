@@ -47,7 +47,7 @@ Connection::~Connection()
     EQINFO << "Delete Connection @" << (void*)this << endl;
 }
 
-RefPtr<Connection> Connection::create( const ConnectionType type )
+ConnectionPtr Connection::create( const ConnectionType type )
 {
     switch( type )
     {
@@ -64,7 +64,7 @@ RefPtr<Connection> Connection::create( const ConnectionType type )
     }
 }
 
-RefPtr<Connection> Connection::accept( const int timeout )
+ConnectionPtr Connection::accept( const int timeout )
 {
     if( _state != STATE_LISTENING )
         return 0;

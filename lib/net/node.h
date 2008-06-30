@@ -145,7 +145,7 @@ namespace eqNet
          *         <code>false</code> otherwise.
          */
         bool connect( NodePtr node, 
-                      eqBase::RefPtr<Connection> connection );
+                      ConnectionPtr connection );
 
         /** 
          * Get a node by identifier.
@@ -270,7 +270,7 @@ namespace eqNet
          * 
          * @return the connection to this node. 
          */
-        eqBase::RefPtr<Connection> getConnection() const { return _connection; }
+        ConnectionPtr getConnection() const { return _connection; }
         //*}
 
         /**
@@ -402,7 +402,7 @@ namespace eqNet
          */
         bool unmapSession( Session* session );
 
-        /** @return the mapped session with the given identifier, or NULL. */
+        /** @return the mapped session with the given identifier, or 0. */
         Session* getSession( const uint32_t id ) { return _sessions[id]; }
 
         /** 
@@ -511,7 +511,7 @@ namespace eqNet
         IDHash<Session*> _sessions;
 
         /** The connection to this node, for remote nodes. */
-        eqBase::RefPtr<Connection> _connection;
+        ConnectionPtr _connection;
 
         /** The connection set of all connections from/to this node. */
         ConnectionSet _connectionSet;
@@ -584,7 +584,7 @@ namespace eqNet
          * Find a connected node using a connection description
          * 
          * @param connectionDescription the connection description for the node.
-         * @return the node, or <code>NULL</code> if no node was found.
+         * @return the node, or an invalid pointer if no node was found.
          */
         NodePtr _findConnectedNode( const char* connectionDescription );
 
@@ -592,7 +592,7 @@ namespace eqNet
          * Find a named, mapped session.
          * 
          * @param name the session name.
-         * @return the session, or <code>NULL</code> if the session is not
+         * @return the session, or <code>0</code> if the session is not
          *         mapped on this node.
          */
         Session* _findSession( const std::string& name ) const;

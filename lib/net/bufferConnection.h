@@ -20,7 +20,7 @@ namespace eqNet
         BufferConnection();
         virtual ~BufferConnection();
 
-        void sendBuffer( eqBase::RefPtr<Connection> connection );
+        void sendBuffer( ConnectionPtr connection );
 
         uint64_t getSize() const { return _size; }
 

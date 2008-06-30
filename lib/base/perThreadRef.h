@@ -24,7 +24,6 @@ namespace eqBase
         PerThreadRef();
         virtual ~PerThreadRef();
 
-        PerThreadRef<T>& operator = ( T* data );
         PerThreadRef<T>& operator = ( RefPtr< T > data );
         PerThreadRef<T>& operator = ( const PerThreadRef<T>& rhs );
 
@@ -93,19 +92,6 @@ PerThreadRef<T>::~PerThreadRef()
     _data = 0;
 
     object.unref();
-}
-
-template< typename T >
-PerThreadRef<T>& PerThreadRef<T>::operator = ( T* data )
-{ 
-    if( data )
-        data->ref(); // ref new
-
-    RefPtr< T > object = get();
-    pthread_setspecific( _data->key, static_cast<const void*>( data ));
-
-    object.unref(); // unref old
-    return *this; 
 }
 
 template< typename T >

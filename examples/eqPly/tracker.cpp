@@ -197,7 +197,7 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
       FD_ZERO( &readfds );
       FD_SET( _fd, &readfds );
 
-      const int errCode = select( _fd+1, &readfds, NULL, NULL, &tv );
+      const int errCode = select( _fd+1, &readfds, 0, 0, &tv );
       if( errCode == 0 )
       {
          EQERROR << "Error: no data from tracker" << endl;

@@ -33,7 +33,20 @@ namespace eqBase
         ~RefPtr() { unref(); _ptr = 0; }
 
         void ref()   { if(_ptr) _ptr->ref(); }
-        void unref() { if(_ptr) _ptr->unref(); }
+        void unref() 
+        {
+            if(_ptr)
+            {
+#ifndef NDEBUG
+                const bool abondon = (_ptr->getRefCount() == 1);
+                _ptr->unref();
+                if( abondon ) 
+                    _ptr = 0;
+#else
+                _ptr->unref();
+#endif
+            }
+        }
 
         RefPtr& operator = ( const RefPtr& rhs )
             {

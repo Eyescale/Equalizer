@@ -39,9 +39,9 @@ namespace eq
          */
         Config* getConfig() const { return _config; }
         eqBase::RefPtr< Client > getClient() const
-            { return (_config ? _config->getClient() : NULL); }
+            { return (_config ? _config->getClient() : 0); }
         eqBase::RefPtr< Server > getServer() const
-            { return (_config ? _config->getServer() : NULL); }
+            { return (_config ? _config->getServer() : 0); }
         const PipeVector& getPipes() const { return _pipes; }
 
         const std::string& getName() const { return _name; }

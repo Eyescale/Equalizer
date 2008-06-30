@@ -652,7 +652,6 @@ void Node::_handleDisconnect()
 
     EQINFO << node << " disconnected from " << this << " connection used " 
            << connection->getRefCount() << endl;
-    //connection->close();
 }
 
 bool Node::_handleData()

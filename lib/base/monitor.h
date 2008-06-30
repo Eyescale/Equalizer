@@ -125,7 +125,7 @@ inline void Monitor<T>::_construct()
 {
     _data = new MonitorPrivate;
 
-    int error = pthread_cond_init( &_data->cond, NULL );
+    int error = pthread_cond_init( &_data->cond, 0 );
     if( error )
     {
         EQERROR << "Error creating pthread condition: " 
@@ -133,7 +133,7 @@ inline void Monitor<T>::_construct()
         return;
     } 
     
-    error = pthread_mutex_init( &_data->mutex, NULL );
+    error = pthread_mutex_init( &_data->mutex, 0 );
     if( error )
     {
         EQERROR << "Error creating pthread mutex: "

@@ -97,7 +97,7 @@ void SocketConnection::close()
 //----------------------------------------------------------------------
 // accept
 //----------------------------------------------------------------------
-RefPtr<Connection> SocketConnection::accept()
+ConnectionPtr SocketConnection::accept()
 {
     if( _state != STATE_LISTENING )
         return 0;

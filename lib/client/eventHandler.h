@@ -26,7 +26,7 @@ namespace eq
          * handler.
          * 
          * @param pipe the pipe.
-         * @return the event handler for the pipe, can be NULL.
+         * @return the event handler for the pipe, can be 0.
          */
         static EventHandler* registerPipe( Pipe* pipe );
 

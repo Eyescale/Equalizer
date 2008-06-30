@@ -56,7 +56,7 @@ namespace eqNet
          * @param type the connection type.
          * @return the connection.
          */
-        static eqBase::RefPtr<Connection> create( const ConnectionType type );
+        static ConnectionPtr create( const ConnectionType type );
         
         /** @name Data Access. */
         bool isClosed() const { return _state == STATE_CLOSED; }
@@ -85,20 +85,20 @@ namespace eqNet
         /** 
          * Accepts the next incoming connection.
          * 
-         * @return the accepted connection, or <code>NULL</code> if no
+         * @return the accepted connection, or an invalid pointer if no
          *         connection was accepted.
          */
-        virtual eqBase::RefPtr<Connection> accept(){ return NULL; }
+        virtual ConnectionPtr accept(){ return 0; }
 
         /** 
          * Accepts the next incoming connection with a timeout.
          * 
          * @param timeout the amount of time to wait in milliseconds, if set
          *                to <code>-1</code> the method blocks indefinitely.
-         * @return the accepted connection, or <code>NULL</code> if no
+         * @return the accepted connection, or an invalid pointer if no
          *         connection was accepted.
          */
-        virtual eqBase::RefPtr<Connection> accept( const int timeout );
+        virtual ConnectionPtr accept( const int timeout );
 
         /** 
          * Closes a connected or listening connection.

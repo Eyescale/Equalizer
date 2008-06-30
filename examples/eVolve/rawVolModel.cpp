@@ -42,7 +42,7 @@ bool RawVolumeModel::loadHeader( const float brightness, const float alpha )
 
     hFile header( fopen( ( _filename + std::string( ".vhf" ) ).c_str(), "rb" ));
 
-    if( header.f==NULL )
+    if( header.f==0 )
     {
         EQERROR << "Can't open header file" << std::endl;
         return false;
@@ -93,7 +93,7 @@ bool RawVolumeModel::getVolumeInfo( VolumeInfo& info, const eq::Range& range )
         _preintName = createPreintegrationTable( &_TF[0] );
     }
 
-          VolumePart* volumePart = NULL;
+          VolumePart* volumePart = 0;
     const int32_t     key        = calcHashKey( range );
 
     if( _volumeHash.find( key ) == _volumeHash.end( ) )

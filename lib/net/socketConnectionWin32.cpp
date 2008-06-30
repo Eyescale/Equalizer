@@ -141,7 +141,7 @@ void SocketConnection::close()
 //----------------------------------------------------------------------
 // accept
 //----------------------------------------------------------------------
-RefPtr<Connection> SocketConnection::accept()
+ConnectionPtr SocketConnection::accept()
 {
     CHECK_THREAD( _recvThread );
     if( _state != STATE_LISTENING )

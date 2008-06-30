@@ -39,7 +39,7 @@ namespace eq
          * Chooses a configuration on the server.
          * 
          * @param parameters the configuration parameters
-         * @return The chosen config, or <code>NULL</code> if no matching
+         * @return The chosen config, or <code>0</code> if no matching
          *         config was found.
          * @sa ConfigParams
          */

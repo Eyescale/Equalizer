@@ -64,12 +64,12 @@ namespace eq
         /** @return the pipe of this window. */
         Pipe* getPipe() const { return _pipe; }
         Node* getNode() const 
-            { return ( _pipe ? _pipe->getNode() : NULL );}
-        Config* getConfig() const { return (_pipe ? _pipe->getConfig() : NULL);}
+            { return ( _pipe ? _pipe->getNode() : 0 );}
+        Config* getConfig() const { return (_pipe ? _pipe->getConfig() : 0);}
         eqBase::RefPtr< Client > getClient() const 
-            { return ( _pipe ? _pipe->getClient() : NULL ); }
+            { return ( _pipe ? _pipe->getClient() : 0 ); }
         eqBase::RefPtr< Server > getServer() const 
-            { return ( _pipe ? _pipe->getServer() : NULL ); }
+            { return ( _pipe ? _pipe->getServer() : 0 ); }
         const ChannelVector& getChannels() const { return _channels; }
 
         const std::string& getName() const { return _name; }

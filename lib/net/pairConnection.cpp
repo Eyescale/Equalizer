@@ -8,8 +8,8 @@ using namespace std;
 
 namespace eqNet
 {
-PairConnection::PairConnection( eqBase::RefPtr<Connection> readConnection,
-                                eqBase::RefPtr<Connection> writeConnection )
+PairConnection::PairConnection( ConnectionPtr readConnection,
+                                ConnectionPtr writeConnection )
         : _readConnection( readConnection )
         , _writeConnection( writeConnection )
 {
@@ -35,7 +35,7 @@ PairConnection::~PairConnection()
     _sibling = 0;
 }
 
-eqBase::RefPtr<Connection> PairConnection::getSibling()
+ConnectionPtr PairConnection::getSibling()
 {
     return eqBase::RefPtr_static_cast<PairConnection, Connection>( _sibling );
 }

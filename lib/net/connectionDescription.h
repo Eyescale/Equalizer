@@ -87,7 +87,7 @@ namespace eqNet
     private:
         /** 
          * The command to spawn a new process on the node, e.g., 
-         * "ssh eile@node1", can be <code>NULL</code>.
+         * "ssh eile@node1".
          * 
          * %h - hostname
          * %c - command

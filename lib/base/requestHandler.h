@@ -50,7 +50,7 @@ namespace eqBase
          * @param data a pointer to user-specific data for the request, can be 0
          * @return the request identifier.
          */
-        uint32_t registerRequest( void* data = NULL );
+        uint32_t registerRequest( void* data = 0 );
 
         /** 
          * Unregisters a request.

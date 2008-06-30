@@ -36,7 +36,7 @@ namespace eqNet
 
         virtual bool connect();
         virtual bool listen();
-        virtual eqBase::RefPtr<Connection> accept();
+        virtual ConnectionPtr accept();
 
         virtual void close();
 

@@ -420,8 +420,8 @@ void Pipe::_configInitWGLEW()
     WNDCLASS  wc       = { 0 };
     wc.lpfnWndProc   = WGLEventHandler::wndProc;    
     wc.hInstance     = instance; 
-    wc.hIcon         = LoadIcon( NULL, IDI_WINLOGO );
-    wc.hCursor       = LoadCursor( NULL, IDC_ARROW );
+    wc.hIcon         = LoadIcon( 0, IDI_WINLOGO );
+    wc.hCursor       = LoadCursor( 0, IDC_ARROW );
     wc.lpszClassName = classStr.c_str();       
 
     if( !RegisterClass( &wc ))

@@ -27,7 +27,7 @@ Barrier::Barrier()
         : _data( new BarrierPrivate( ))
 {
     // mutex init
-    int error = pthread_mutex_init( &_data->mutex, NULL );
+    int error = pthread_mutex_init( &_data->mutex, 0 );
     if( error )
     {
         EQERROR << "Error creating pthread mutex: " << strerror( error )
@@ -35,7 +35,7 @@ Barrier::Barrier()
         return;
     }
     // condvar init
-    error = pthread_cond_init( &_data->cond, NULL );
+    error = pthread_cond_init( &_data->cond, 0 );
     if( error )
     {
         EQERROR << "Error creating pthread condition: " 

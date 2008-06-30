@@ -94,7 +94,7 @@ bool Launcher::run( const string& command )
         stringStream << commandLine[i] << " ";
     }
 
-    argv[argc] = NULL;
+    argv[argc] = 0;
 
     EQINFO << "Executing: " << stringStream.str() << endl;
     //::exit( EXIT_SUCCESS );

@@ -74,7 +74,7 @@ namespace eqBase
          *
          * @param retVal the return value of the thread.
          */
-        virtual void exit( void* retVal = NULL );
+        virtual void exit( void* retVal = 0 );
 
         /** 
          * Cancels (stops) the child thread.
@@ -87,11 +87,11 @@ namespace eqBase
          * Waits for the exit of the child thread.
          *
          * @param retVal output value for the return value of the child, can be
-         *               <code>NULL</code>.
+         *               <code>0</code>.
          * @return <code>true</code> if the thread was joined,
          *         <code>false</code> otherwise.
          */
-        bool join( void** retVal=NULL );
+        bool join( void** retVal=0 );
 
         /** 
          * Returns if the thread is stopped.

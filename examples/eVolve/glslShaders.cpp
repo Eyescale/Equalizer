@@ -31,7 +31,7 @@ GLhandleARB GLSLShaders::_loadShader( const std::string &shader,
 {
     GLhandleARB handle = glCreateShaderObjectARB( shaderType );
     const char* cstr   = shader.c_str();
-    glShaderSourceARB(  handle, 1, &cstr, NULL );
+    glShaderSourceARB(  handle, 1, &cstr, 0 );
     glCompileShaderARB( handle );
 
     GLint status;
