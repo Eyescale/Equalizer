@@ -36,6 +36,8 @@ ConfigTool::ConfigTool()
           _nPipes( 1 ),
           _nChannels( 4 ),
           _useDestination( true ),
+          _wallW( 3 ),
+          _wallH( 2 ),
           _nodesFile( "" )
 {}
 
@@ -49,7 +51,7 @@ bool ConfigTool::parseArguments( int argc, char** argv )
                             "Full screen rendering", command, false );
 
         TCLAP::ValueArg<string> modeArg( "m", "mode", "Compound mode (default 2D)",
-                                         false, "2D", "2D|DB|DB_ds|DB_ds_ac", command );
+                                         false, "2D", "2D|DB|DB_ds|DB_ds_ac|Wall", command );
 
         TCLAP::ValueArg<unsigned> pipeArg( "p", "numPipes",
                                            "Number of pipes per node (default 1)",
@@ -58,6 +60,14 @@ bool ConfigTool::parseArguments( int argc, char** argv )
         TCLAP::ValueArg<unsigned> channelArg( "c", "numChannels", 
                                              "Total number of channels (default 4)",
                                               false, 4, "unsigned", command );
+
+        TCLAP::ValueArg<unsigned> wallWArg( "W", "wallWidth", 
+                                             "number of displays in a raw in a display wall",
+                                              false, 3, "unsigned", command );
+
+        TCLAP::ValueArg<unsigned> wallHArg( "H", "wallHeight",
+                                             "number of displays' raws in a display wall",
+                                              false, 2, "unsigned", command );
 
         TCLAP::SwitchArg destArg( "a", "assembleOnly", 
                             "Destination channel does not contribute to rendering", 
@@ -78,6 +88,11 @@ bool ConfigTool::parseArguments( int argc, char** argv )
             _nPipes = pipeArg.getValue();
         if( channelArg.isSet( ))
             _nChannels = channelArg.getValue();
+
+        if( wallWArg.isSet( ))
+            _wallW = wallWArg.getValue();
+        if( wallHArg.isSet( ))
+            _wallH = wallHArg.getValue();
 
         _useDestination = !destArg.isSet();
         _fullScreen     = fullScreenArg.isSet();
@@ -101,6 +116,11 @@ bool ConfigTool::parseArguments( int argc, char** argv )
                     cerr << "Channels number must be even" << endl;
                     return false;
                 }
+            }
+            else if( mode == "Wall" )
+            {
+                _mode   = MODE_WALL;
+                _nChannels = _wallW * _wallH;
             }
             else
             {
@@ -232,9 +252,13 @@ void ConfigTool::_writeCompound() const
         case MODE_DB_DS:
             _writeDS();
             break;
-            
+
         case MODE_DB_DS_AC:
             _writeDSAC();
+            break;
+
+        case MODE_WALL:
+            _writeWall();
             break;
 
         default:
@@ -522,5 +546,43 @@ void ConfigTool::_writeDSAC() const
         cout << "            inputframe{ name \"frame.channel" << i*2 << "\" }" 
              << endl;
     cout << "        }" << endl;    
+}
+
+void ConfigTool::_writeWall() const
+{
+    cout << "        compound" << endl
+         << "        {" << endl;
+
+    const float screenW =  0.60;       //screen width in meters
+    const float screenH =  0.48;       //screen height in meters
+    const float screenD = -0.41*_wallH; //screen distance to viewer in meters
+
+    float utmostLeft = -screenW*_wallW / 2;
+    float utmostLow  = -screenH*_wallH / 2;
+
+    cout << setiosflags(ios::fixed) << setprecision(5);
+
+    for( uint h = 0; h < _wallH; h++ )
+        for( uint w = 0; w < _wallW; w++ )
+        {
+            float b = utmostLow  + screenH*h; //bottom
+            float l = utmostLeft + screenW*w; //left
+            float r = l + screenW;            //right
+            float t = b + screenH;            //top
+            float d = screenD;                //depth
+            cout
+            << "            compound" << endl
+            << "            {"        << endl
+            << "                channel   \"channel" << h*_wallW + w << "\"" << endl
+            << "                wall" << endl
+            << "                {" << endl
+            << "                    bottom_left  [ "<< l <<" "<< b <<" "<< d <<"]" << endl
+            << "                    bottom_right [ "<< r <<" "<< b <<" "<< d <<"]" << endl
+            << "                    top_left     [ "<< l <<" "<< t <<" "<< d <<"]" << endl
+            << "                }" << endl
+            << "            }" << endl;
+        }
+
+    cout << "        }" << endl;
 }
 

@@ -21,6 +21,7 @@ private:
         MODE_DB,
         MODE_DB_DS,
         MODE_DB_DS_AC,
+        MODE_WALL,
         MODE_ALL
     }
         _mode;
@@ -29,6 +30,7 @@ private:
     unsigned _nChannels;
     bool     _useDestination;
     bool     _fullScreen;
+    unsigned _wallW, _wallH;
 
     std::string _nodesFile;
 
@@ -38,6 +40,7 @@ private:
     void _writeDB()         const;
     void _writeDS()         const;
     void _writeDSAC()       const;
+    void _writeWall()       const;
 };
 
 #endif // EQ_CONFIGTOOL_H
